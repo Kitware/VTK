@@ -122,7 +122,7 @@ m2 SetElement 3 1  0.3
 m2 SetElement 3 2  0.2
 
 vtkMatrixToHomogeneousTransform t2
-t2 SetInput m2 
+t2 SetInput m2
 
 vtkTransformPolyDataFilter f21
 f21 SetInputConnection [ap GetOutputPort]

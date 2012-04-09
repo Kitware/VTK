@@ -20,7 +20,7 @@
 //
 // The format with which the label is drawn is specified using a
 // printf style format string. The font attributes of the text can
-// be set through the vtkTextProperty associated to this mapper. 
+// be set through the vtkTextProperty associated to this mapper.
 //
 // By default, all the components of multi-component data such as
 // vectors, normals, texture coordinates, tensors, and multi-component
@@ -37,7 +37,7 @@
 // generate ids as scalars or field data, which can then be labeled.
 
 // .SECTION See Also
-// vtkMapper2D vtkActor2D vtkTextMapper vtkTextProperty vtkSelectVisiblePoints 
+// vtkMapper2D vtkActor2D vtkTextMapper vtkTextProperty vtkSelectVisiblePoints
 // vtkIdFilter vtkCellCenters
 
 #ifndef __vtkLabeledDataMapper_h
@@ -70,7 +70,7 @@ public:
 
   vtkTypeMacro(vtkLabeledDataMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set/Get the format with which to print the labels.  This should
   // be a printf-style format string.
@@ -153,7 +153,7 @@ public:
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   virtual void ReleaseGraphicsResources(vtkWindow *);
-  
+
   // Description:
   // The transform to apply to the labels before mapping to 2D.
   vtkGetObjectMacro(Transform, vtkTransform);
@@ -206,7 +206,7 @@ protected:
   void AllocateLabels(int numLabels);
   void BuildLabels();
   void BuildLabelsInternal(vtkDataSet*);
-  
+
   //BTX
   class Internals;
   Internals* Implementation;

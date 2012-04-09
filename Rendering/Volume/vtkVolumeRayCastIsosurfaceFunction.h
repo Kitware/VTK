@@ -17,7 +17,7 @@
 // .SECTION Description
 // vtkVolumeRayCastIsosurfaceFunction is a volume ray cast function that
 // intersects a ray with an analytic isosurface in a scalar field. The color
-// and shading parameters are defined in the vtkVolumeProperty of the 
+// and shading parameters are defined in the vtkVolumeProperty of the
 // vtkVolume, as well as the interpolation type to use when locating the
 // surface (either a nearest neighbor approach or a tri-linear interpolation
 // approach)
@@ -52,7 +52,7 @@ public:
   vtkSetMacro( IsoValue, double );
   vtkGetMacro( IsoValue, double );
 
-  
+
   // Description:
   // This is the isovalue at which to view a surface
   double IsoValue;

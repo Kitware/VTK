@@ -20,7 +20,7 @@
 // coordinates of the vector only, and are assumed to occur around the
 // z-axis. (See vtkGlyph3D for documentation on the interface to this
 // class.)
-// 
+//
 // .SECTION See Also
 // vtkTensorGlyph vtkGlyph3D vtkProgrammableGlyphFilter
 
@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
-  // Construct object with scaling on, scaling mode is by scalar value, 
+  // Construct object with scaling on, scaling mode is by scalar value,
   // scale factor = 1.0, the range is (0,1), orient geometry is on, and
   // orientation is by vector. Clamping and indexing are turned off. No
   // initial sources are defined.

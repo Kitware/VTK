@@ -8,7 +8,7 @@ vtkBox box
 vtkSampleFunction sample
   sample SetSampleDimensions 30 30 30
   sample SetImplicitFunction box
-  sample SetModelBounds 0 1.5 1 5 2 8 
+  sample SetModelBounds 0 1.5 1 5 2 8
   sample ComputeNormalsOn
 
 vtkContourFilter contours

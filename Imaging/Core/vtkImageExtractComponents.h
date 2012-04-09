@@ -40,9 +40,9 @@ public:
   void SetComponents(int c1, int c2);
   void SetComponents(int c1, int c2, int c3);
   vtkGetVector3Macro(Components,int);
-  
+
   // Description:
-  // Get the number of components to extract. This is set implicitly by the 
+  // Get the number of components to extract. This is set implicitly by the
   // SetComponents() method.
   vtkGetMacro(NumberOfComponents,int);
 
@@ -55,8 +55,8 @@ protected:
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
                                   vtkInformationVector *);
-  
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
+
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
   vtkImageExtractComponents(const vtkImageExtractComponents&);  // Not implemented.

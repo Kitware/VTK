@@ -70,7 +70,7 @@ void vtkStructuredGridWriter::WriteData()
     unlink(this->FileName);
     return;
     }
-  
+
   // If blanking, write that information out
   if ( input->GetPointBlanking() )
     {
@@ -105,7 +105,7 @@ void vtkStructuredGridWriter::WriteData()
 int vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
 {
   vtkUnsignedCharArray *blanking=grid->GetPointVisibilityArray();
-  
+
   int numPts = grid->GetNumberOfPoints();
   *fp << "BLANKING " << numPts;
   return this->WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, " %s\n", numPts, 1);

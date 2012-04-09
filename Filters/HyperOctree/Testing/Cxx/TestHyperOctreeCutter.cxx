@@ -14,7 +14,7 @@
 =========================================================================*/
 // This example demonstrates how to use a vtkHyperOctreeSampleFunction and
 // apply a vtkHyperOctreeCutter filter on it.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -51,9 +51,9 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   vtkTimerLog *timer=vtkTimerLog::New();
-  
+
   // 3D
   vtkHyperOctreeSampleFunction *source3d=vtkHyperOctreeSampleFunction::New();
   vtkSphere *f3d=vtkSphere::New();
@@ -69,14 +69,14 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   source3d->SetDepth(4);
   source3d->SetLevels(7); // 10
   source3d->SetMinLevels(0);
- 
+
   cout<<"update source3d..."<<endl;
   timer->StartTimer();
   source3d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated3d"<<endl;
   cout<<"source3d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   vtkHyperOctreeCutter *cutter3d=vtkHyperOctreeCutter::New();
   vtkPlane *p3d=vtkPlane::New();
   p3d->SetOrigin(0.4,0.4,0.4);
@@ -85,7 +85,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   cutter3d->SetValue(0,0.0);
   cutter3d->SetValue(1,4.0);
   p3d->Delete();
-  
+
   cutter3d->SetInputConnection(0,source3d->GetOutputPort(0));
   source3d->Delete();
   cout<<"update cutter3d..."<<endl;
@@ -95,18 +95,18 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   cout<<"cutter3d updated"<<endl;
   cout<<"cutter3d time="<<timer->GetElapsedTime()<<" s"<<endl;
 
-  
-  
+
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut3d = vtkLookupTable::New(); 
+  vtkLookupTable *lut3d = vtkLookupTable::New();
   lut3d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper3d = vtkPolyDataMapper::New();
   mapper3d->SetInputConnection(0, cutter3d->GetOutputPort(0) );
   cutter3d->Delete();
-    
+
   mapper3d->SetLookupTable(lut3d);
-  
+
   if(cutter3d->GetOutput()->GetCellData()!=0)
     {
     if(cutter3d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -115,11 +115,11 @@ int TestHyperOctreeCutter(int argc, char* argv[])
                                 GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor3d = vtkActor::New();
   actor3d->SetMapper(mapper3d);
   renderer->AddActor(actor3d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer3d=vtkXMLPolyDataWriter::New();
@@ -129,7 +129,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   writer3d->Write();
   writer3d->Delete();
 #endif // #ifdef WRITE_RESULT
-  
+
   // 2D
   vtkHyperOctreeSampleFunction *source2d=vtkHyperOctreeSampleFunction::New();
   vtkSphere *f2d=vtkSphere::New();
@@ -145,15 +145,15 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   source2d->SetDepth(4);
   source2d->SetLevels(10); // 7
   source2d->SetMinLevels(0);
- 
+
   cout<<"update source2d..."<<endl;
   timer->StartTimer();
   source2d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated2d"<<endl;
   cout<<"source2d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
-  
+
+
   vtkHyperOctreeCutter *cutter2d=vtkHyperOctreeCutter::New();
   vtkPlane *p2d=vtkPlane::New();
   p2d->SetOrigin(0.4,0.4,0.4);
@@ -162,7 +162,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   cutter2d->SetValue(0,0.0);
   cutter2d->SetValue(1,4.0);
   p2d->Delete();
-  
+
   cutter2d->SetInputConnection(0,source2d->GetOutputPort(0));
   source2d->Delete();
   cout<<"update cutter2d..."<<endl;
@@ -171,15 +171,15 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   timer->StopTimer();
   cout<<"cutter2d updated"<<endl;
   cout<<"cutter2d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut2d = vtkLookupTable::New(); 
+  vtkLookupTable *lut2d = vtkLookupTable::New();
   lut2d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper2d = vtkPolyDataMapper::New();
   mapper2d->SetInputConnection(0,cutter2d->GetOutputPort(0));
   mapper2d->SetLookupTable(lut2d);
-  
+
   if(cutter2d->GetOutput()->GetCellData()!=0)
     {
     if(cutter2d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -188,12 +188,12 @@ int TestHyperOctreeCutter(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor2d = vtkActor::New();
   actor2d->SetPosition(5,0,0);
   actor2d->SetMapper(mapper2d);
   renderer->AddActor(actor2d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer2d=vtkXMLPolyDataWriter::New();
@@ -203,7 +203,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   writer2d->Write();
   writer2d->Delete();
 #endif // #ifdef WRITE_RESULT
-  
+
   // 1D
   vtkHyperOctreeSampleFunction *source1d=vtkHyperOctreeSampleFunction::New();
   vtkSphere *f1d=vtkSphere::New();
@@ -219,15 +219,15 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   source1d->SetDepth(4);
   source1d->SetLevels(10); // 7
   source1d->SetMinLevels(0);
- 
+
   cout<<"update source1d..."<<endl;
   timer->StartTimer();
   source1d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated1d"<<endl;
   cout<<"source1d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
-  
+
+
   vtkHyperOctreeCutter *cutter1d=vtkHyperOctreeCutter::New();
   vtkPlane *p1d=vtkPlane::New();
   p1d->SetOrigin(0.4,0.4,0.4);
@@ -236,7 +236,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   cutter1d->SetValue(0,0.0);
   cutter1d->SetValue(1,4.0);
   p1d->Delete();
-  
+
   cutter1d->SetInputConnection(0,source1d->GetOutputPort(0));
   source1d->Delete();
   cout<<"update cutter1d..."<<endl;
@@ -245,15 +245,15 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   timer->StopTimer();
   cout<<"cutter1d updated"<<endl;
   cout<<"cutter1d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut1d = vtkLookupTable::New(); 
+  vtkLookupTable *lut1d = vtkLookupTable::New();
   lut1d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper1d = vtkPolyDataMapper::New();
   mapper1d->SetInputConnection(0,cutter1d->GetOutputPort(0));
   mapper1d->SetLookupTable(lut1d);
-  
+
   if(cutter1d->GetOutput()->GetCellData()!=0)
     {
     if(cutter1d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -262,12 +262,12 @@ int TestHyperOctreeCutter(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor1d = vtkActor::New();
   actor1d->SetPosition(10,0,0);
   actor1d->SetMapper(mapper1d);
   renderer->AddActor(actor1d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer1d=vtkXMLPolyDataWriter::New();
@@ -277,7 +277,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   writer1d->Write();
   writer1d->Delete();
 #endif // #ifdef WRITE_RESULT
-  
+
   // Standard testing code.
   renderer->SetBackground(0.5,0.5,0.5);
   renWin->SetSize(300,300);
@@ -285,7 +285,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   renderer->ResetCamera();
   cam->Azimuth(180);
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -296,22 +296,22 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
-  
+
   mapper3d->Delete();
   actor3d->Delete();
   lut3d->Delete();
-  
+
   mapper2d->Delete();
   actor2d->Delete();
   lut2d->Delete();
   cutter2d->Delete();
-  
+
   mapper1d->Delete();
   actor1d->Delete();
   lut1d->Delete();
   cutter1d->Delete();
-  
+
   timer->Delete();
-  
+
   return !retVal;
 }

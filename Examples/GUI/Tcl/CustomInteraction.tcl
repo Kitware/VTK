@@ -3,17 +3,17 @@
 # the screen. It also defines an interaction style by creating a set
 # of Command/Observers. (Note: it is far more efficient to create new
 # styles by subclassing vtkInteractorStyle. This is just an illustrative
-# example.) If you really want trackball behavior, look at the 
+# example.) If you really want trackball behavior, look at the
 # vtkInteractorStyleTrackballCamera class.
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the VTK commands to Tcl.
 #
 package require vtk
 
-# 
+#
 # Next we create an instance of vtkConeSource and set some of its
 # properties. The instance of vtkConeSource "cone" is part of a visualization
 # pipeline (it is a source process object); it produces data (output type is
@@ -24,7 +24,7 @@ cone SetHeight 3.0
 cone SetRadius 1.0
 cone SetResolution 10
 
-# 
+#
 # In this example we terminate the pipeline with a mapper process object.
 # (Intermediate filters such as vtkShrinkPolyData could be inserted in
 # between the source and the mapper.)  We create an instance of
@@ -34,7 +34,7 @@ cone SetResolution 10
 vtkPolyDataMapper coneMapper
 coneMapper SetInputConnection [cone GetOutputPort]
 
-# 
+#
 # Create an actor to represent the cone. The actor orchestrates rendering of
 # the mapper's graphics primitives. An actor also refers to properties via a
 # vtkProperty instance, and includes an internal transformation matrix. We
@@ -48,7 +48,7 @@ coneActor SetMapper coneMapper
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here.
 #
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 

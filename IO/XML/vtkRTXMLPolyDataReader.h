@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkRTXMLPolyDataReader - Read RealTime VTK XML PolyData files.
 // .SECTION Description
-// vtkRTXMLPolyDataReader reads the VTK XML PolyData file format in real time.  
+// vtkRTXMLPolyDataReader reads the VTK XML PolyData file format in real time.
 
 // .SECTION See Also
 
@@ -30,31 +30,31 @@ class VTKIOXML_EXPORT vtkRTXMLPolyDataReader : public vtkXMLPolyDataReader
 {
 public:
   vtkTypeMacro(vtkRTXMLPolyDataReader,vtkXMLPolyDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkRTXMLPolyDataReader* New();
 
-  // This sets the DataLocation and also 
+  // This sets the DataLocation and also
   // Reset the reader by calling ResetReader()
-  void SetLocation(const char* dataLocation); 
+  void SetLocation(const char* dataLocation);
   vtkGetStringMacro(DataLocation);
 
   // Description:
   // Reader will read in the next available data file
-  // The filename is this->NextFileName maintained internally 
+  // The filename is this->NextFileName maintained internally
   virtual void UpdateToNextFile();
 
   // Description:
-  // check if there is new data file available in the 
+  // check if there is new data file available in the
   // given DataLocation
   virtual int NewDataAvailable();
-  
+
   // Description:
-  // ResetReader check the data directory specified in 
+  // ResetReader check the data directory specified in
   // this->DataLocation, and reset the Internal data structure
   // specifically: this->Internal->ProcessedFileList
   // for monitoring the arriving new data files
-  // if SetDataLocation(char*) is set by the user, 
-  // this ResetReader() should also be invoked. 
+  // if SetDataLocation(char*) is set by the user,
+  // this ResetReader() should also be invoked.
   virtual void ResetReader();
 
   // Description:
@@ -75,7 +75,7 @@ protected:
   char* GetDataFileFullPathName(const char*);
 
   // Description:
-  // the DataLocation should be set and ResetReader() 
+  // the DataLocation should be set and ResetReader()
   // should be called after SetDataLocation
   char* DataLocation;
   vtkRTXMLPolyDataReaderInternals* Internal;

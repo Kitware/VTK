@@ -79,7 +79,7 @@ vtkProgrammableAttributeDataFilter randomColors
 # mapper could use a test that has clipping so we use it here
 vtkHierarchicalPolyDataMapper sphereMapper
     sphereMapper SetInputConnection  [randomColors GetOutputPort 0]
-    
+
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 
@@ -93,7 +93,7 @@ plane2 SetOrigin 0 0 10
 plane2 SetNormal 0 0 -1
 
 vtkPlane plane3
-plane3 SetOrigin -10 0 0 
+plane3 SetOrigin -10 0 0
 plane3 SetNormal 1 0 0
 
 vtkPlane plane4
@@ -130,7 +130,7 @@ renWin Render
 [ren1 GetActiveCamera] Zoom 2.0
 
 wm withdraw .
- 
+
 iren Initialize
 
 for { set i 0 } { $i < 5 } { incr i } {

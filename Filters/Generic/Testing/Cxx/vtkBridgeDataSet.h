@@ -35,7 +35,7 @@ public:
   // Description:
   // Return the dataset that will be manipulated through the adaptor interface.
   vtkDataSet *GetDataSet();
-  
+
   // Description:
   // Set the dataset that will be manipulated through the adaptor interface.
   // \pre ds_exists: ds!=0
@@ -61,7 +61,7 @@ public:
   // dimension, return this dimension.
   // \post valid_range: (result>=-1) && (result<=3)
   virtual int GetCellDimension();
-  
+
   // Description:
   // Get a list of types of cells in a dataset. The list consists of an array
   // of types (not necessarily in any order), with a single entry per type.
@@ -72,7 +72,7 @@ public:
   // THE DATASET IS NOT MODIFIED
   // \pre types_exist: types!=0
   void GetCellTypes(vtkCellTypes *types);
-  
+
   // Description:
   // Cells of dimension `dim' (or all dimensions if -1) that explicitly define
   // the dataset. For instance, it will return only tetrahedra if the mesh is
@@ -82,7 +82,7 @@ public:
   // \pre valid_dim_range: (dim>=-1) && (dim<=3)
   // \post result_exists: result!=0
   vtkGenericCellIterator *NewCellIterator(int dim=-1);
-  
+
   // Description:
   // Boundaries of dimension `dim' (or all dimensions if -1) of the dataset.
   // If `exteriorOnly' is true, only  the exterior boundaries of the dataset
@@ -92,17 +92,17 @@ public:
   // \post result_exists: result!=0
   vtkGenericCellIterator *NewBoundaryIterator(int dim=-1,
                                        int exteriorOnly=0);
-  
+
   // Description:
   // Points composing the dataset; they can be on a vertex or isolated.
   // \post result_exists: result!=0
   vtkGenericPointIterator *NewPointIterator();
-  
+
 
   // Description:
   // Estimated size needed after tessellation (or special operation)
   vtkIdType GetEstimatedSize();
-  
+
   // Description:
   // Locate closest cell to position `x' (global coordinates) with respect to
   // a tolerance squared `tol2' and an initial guess `cell' (if valid). The
@@ -119,27 +119,27 @@ public:
                double tol2,
                int &subId,
                double pcoords[3]);
-  
+
   // Description:
   // Locate closest point `p' to position `x' (global coordinates)
   // \pre not_empty: GetNumberOfPoints()>0
   // \pre p_exists: p!=0
   void FindPoint(double x[3],
                  vtkGenericPointIterator *p);
-  
+
   // Description:
   // Datasets are composite objects and need to check each part for MTime.
   unsigned long int GetMTime();
-  
+
   // Description:
   // Compute the geometry bounding box.
   void ComputeBounds();
-  
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkBridgeDataSet();
   virtual ~vtkBridgeDataSet();
-  
+
   //BTX
   friend class vtkBridgeCell;
   friend class vtkBridgeCellIterator;
@@ -150,12 +150,12 @@ protected:
   friend class vtkBridgePointIteratorOnDataSet;
   friend class vtkBridgePointIteratorOne;
   //ETX
-  
+
   // Description:
   // Compute the number of cells for each dimension and the list of types of
   // cells.
   void ComputeNumberOfCellsAndTypes();
-  
+
   vtkDataSet *Implementation;
   vtkIdType NumberOf0DCells;
   vtkIdType NumberOf1DCells;

@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkImageCorrelation - Correlation imageof the two inputs.
 // .SECTION Description
-// vtkImageCorrelation finds the correlation between two data sets. 
+// vtkImageCorrelation finds the correlation between two data sets.
 // SetDimensionality determines
-// whether the Correlation will be 3D, 2D or 1D.  
+// whether the Correlation will be 3D, 2D or 1D.
 // The default is a 2D Correlation.  The Output type will be double.
 // The output size will match the size of the first input.
 // The second input is considered the correlation kernel.
@@ -35,13 +35,13 @@ public:
   static vtkImageCorrelation *New();
   vtkTypeMacro(vtkImageCorrelation,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...).
   // The default is 2.
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
-  
+
   // Description:
   // Set the input image.
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
@@ -55,17 +55,17 @@ protected:
   ~vtkImageCorrelation() {};
 
   int Dimensionality;
-  virtual int RequestInformation (vtkInformation *, 
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation*,
                                    vtkInformationVector**,
                                    vtkInformationVector*);
-  
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
 

@@ -15,9 +15,9 @@
 // .NAME vtkOpenGLProjectedPolyDataRayBounder - Open GL ray bounder
 //
 // .SECTION Description
-// vtkOpenGLProjectedPolyDataRayBounder is the specific Open GL 
+// vtkOpenGLProjectedPolyDataRayBounder is the specific Open GL
 // implementation of the superclass vtkProjectedPolyDataRayBounder.
-// It is responsible for building its own internal structure from the 
+// It is responsible for building its own internal structure from the
 // generic vtkPolyData structure (it builds a display list) and for rendering
 // its internal structure and creating near and far depth buffers.
 // It has no public methods, and should not be created directly - the

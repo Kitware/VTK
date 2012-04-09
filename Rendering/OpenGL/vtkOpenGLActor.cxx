@@ -62,7 +62,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
       }
     }
 
-  // build transformation 
+  // build transformation
   if (!this->IsIdentity)
     {
     double *mat = this->GetMatrix()->Element[0];
@@ -83,13 +83,13 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     mat2[13] = mat[7];
     mat2[14] = mat[11];
     mat2[15] = mat[15];
-    
-    // insert model transformation 
+
+    // insert model transformation
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glMultMatrixd(mat2);
     }
-  
+
   // send a render to the mapper; update pipeline
   mapper->Render(ren,this);
 
@@ -99,7 +99,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
     }
-  
+
   if (opacity != 1.0)
     {
     glDepthMask (GL_TRUE);

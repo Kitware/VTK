@@ -35,7 +35,7 @@ vtkSphericalDirectionEncoder::vtkSphericalDirectionEncoder()
 vtkSphericalDirectionEncoder::~vtkSphericalDirectionEncoder()
 {
 }
- 
+
 // Encode n into a 2 byte value. The first byte will be theta - the
 // rotation angle around the z axis. The second (high order) byte is
 // phi - the elevation of the vector. 256 values are used for theta,
@@ -46,9 +46,9 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
     {
     return ( 255 * 256 );
     }
-  
+
   float theta, phi;
-  
+
   // Need to handle this separately since some atan2 implementations
   // don't handle a zero denominator
   if ( n[0] == 0 )
@@ -61,15 +61,15 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
     theta = ( theta < 0.0 )    ? ( theta + 360.0 ) : theta;
     theta = ( theta >= 360.0 ) ? ( theta - 360.0 ) : theta;
     }
-  
+
   phi = vtkMath::DegreesFromRadians( asin( n[2] ) );
   phi = phi > 90.5 ? ( phi-360 ) : phi;
- 
+
   int lowByte, highByte;
-  
+
   lowByte  = static_cast<int>( theta * 255.0 / 359.0 + 0.5 );
   highByte = static_cast<int>( ( phi + 90.0 ) * 254.0 / 180.0 + 0.5 );
-  
+
   lowByte = lowByte < 0   ? 0   : lowByte;
   lowByte = lowByte > 255 ? 255 : lowByte;
 
@@ -78,46 +78,46 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
 
   return ( lowByte + highByte * 256 );
 }
-  
+
 float *vtkSphericalDirectionEncoder::GetDecodedGradient( int value )
 {
   return &(vtkSphericalDirectionEncoder::DecodedGradientTable[value*3]);
 }
 
 // This is the table that maps the encoded gradient back into
-// a float triple. 
+// a float triple.
 void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
 {
   if ( vtkSphericalDirectionEncoder::DecodedGradientTableInitialized )
     {
     return;
     }
-  
+
   float theta, phi;
   int   i, j;
-  
+
   vtkTransform *transformPhi = vtkTransform::New();
   vtkTransform *transformTheta = vtkTransform::New();
-  
+
   float v1[3] = {1,0,0};
   float v2[3], v3[3];
 
   float *ptr = vtkSphericalDirectionEncoder::DecodedGradientTable;
-  
+
   for ( j = 0; j < 256; j++ )
     {
     phi = -89.5 + j * ( 179.0 / 254.0 );
-    
+
       transformPhi->Identity();
       transformPhi->RotateY( -phi );
       transformPhi->TransformPoint( v1, v2 );
-      
+
     for ( i = 0; i < 256; i++ )
       {
       if ( j < 255 )
         {
         theta = i * (359.0 / 255.0);
-        
+
         transformTheta->Identity();
         transformTheta->RotateZ( theta );
         transformTheta->TransformPoint( v2, v3 );
@@ -128,16 +128,16 @@ void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
         v3[1] = 0.0;
         v3[2] = 0.0;
         }
-      
+
       *(ptr++) = v3[0];
       *(ptr++) = v3[1];
       *(ptr++) = v3[2];
       }
     }
-  
+
   transformPhi->Delete();
   transformTheta->Delete();
-  
+
   vtkSphericalDirectionEncoder::DecodedGradientTableInitialized = 1;
 }
 
@@ -146,7 +146,7 @@ void vtkSphericalDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Number of encoded directions: " << 
+  os << indent << "Number of encoded directions: " <<
     this->GetNumberOfEncodedDirections() << endl;
 }
 

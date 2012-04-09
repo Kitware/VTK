@@ -129,7 +129,7 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition *filter)
   l_cachedOutTimesForThisFilter.resize(0);
   this->CachedOutputTimesteps->m_vector.push_back(l_cachedOutTimesForThisFilter);
 
-  
+
 #if 0
   printf("**********************FILTERS AFTER ADDING FILTER***********************\n");
   for(int i=0;i<this->GetNumFilters();i++)
@@ -139,8 +139,8 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition *filter)
        i,this->GetNumFilters(),
        filterfromlist->GetInputVariableName(),
        filterfromlist->GetOutputVariableName(),
-       filterfromlist->GetNumNumeratorWeights(), 
-       filterfromlist->GetNumDenominatorWeights(), 
+       filterfromlist->GetNumNumeratorWeights(),
+       filterfromlist->GetNumDenominatorWeights(),
        filterfromlist->GetNumForwardNumeratorWeights(),
        this);
     }
@@ -161,16 +161,16 @@ void vtkDSPFilterGroup::RemoveFilter(char *a_outputVariableName)
   {
     //this is the filter to delete
     this->FilterDefinitions->m_vector.erase(l_iter);
-    if(l_cachedOutputsIter!=this->CachedOutputs->m_vector.end()) 
+    if(l_cachedOutputsIter!=this->CachedOutputs->m_vector.end())
       this->CachedOutputs->m_vector.erase(l_cachedOutputsIter);
-    if(l_cachedOutputTimesIter!=this->CachedOutputTimesteps->m_vector.end()) 
+    if(l_cachedOutputTimesIter!=this->CachedOutputTimesteps->m_vector.end())
       this->CachedOutputTimesteps->m_vector.erase(l_cachedOutputTimesIter);
     break;
   }
       l_cachedOutputsIter++;
       l_cachedOutputTimesIter++;
     }
-  
+
 #if 0
   printf("**********************FILTERS AFTER REMOVING FILTER*********************\n");
   for(int i=0;i<this->GetNumFilters();i++)
@@ -180,8 +180,8 @@ void vtkDSPFilterGroup::RemoveFilter(char *a_outputVariableName)
        i,this->GetNumFilters(),
        filterfromlist->GetInputVariableName(),
        filterfromlist->GetOutputVariableName(),
-       filterfromlist->GetNumNumeratorWeights(), 
-       filterfromlist->GetNumDenominatorWeights(), 
+       filterfromlist->GetNumNumeratorWeights(),
+       filterfromlist->GetNumDenominatorWeights(),
        this);
     }
   printf("************************************************************************\n");
@@ -295,7 +295,7 @@ void vtkDSPFilterGroup::Copy( vtkDSPFilterGroup *other )
 
 
 //----------------------------------------------------------------------------
-int vtkDSPFilterGroup::GetNumFilters( ) 
+int vtkDSPFilterGroup::GetNumFilters( )
 {
   return static_cast<int>(this->FilterDefinitions->m_vector.size());
 }
@@ -309,7 +309,7 @@ vtkDSPFilterDefinition * vtkDSPFilterGroup::GetFilter(int a_whichFilter)
 
 
 //----------------------------------------------------------------------------
-vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimestep, int &a_instancesCalculated ) 
+vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimestep, int &a_instancesCalculated )
 {
   int i,j,k;
   int l_numFilters = this->GetNumFilters();
@@ -437,9 +437,9 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
 
 
       if(a_whichTimestep-i < 0) break;//pre-time outputs are considered to be zero
- 
+
       //printf("vtkDSPFilterGroup::GetOutput denominator weight %d is %e (incl a1=%e) time=%d\n",i,l_weight,l_a1,a_whichTimestep-i);
-      
+
       vtkFloatArray *l_input = this->GetOutput( a_whichFilter, a_whichTimestep-i, a_instancesCalculated );
 
       float *l_outPtr = (float *)l_output->GetVoidPointer(0);
@@ -468,7 +468,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
 
 
       float *l_outPtr = (float *)l_output->GetVoidPointer(0);
- 
+
       vtkFloatArray *l_input = this->GetCachedInput(a_whichFilter,l_useThisTimestep);
 
       while(!l_input && l_useThisTimestep>=0)
@@ -516,7 +516,7 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
          {
      if( fabs(l_inPtr[0] - l_outPtr[0]) > l_maxDiff ) l_maxDiff = fabs(l_inPtr[0] - l_outPtr[0]);
 
-     
+
      printf("j=%d k=%d \t in=%f \t out=%f \t diff=%e   maxdiff=%e   diffperc=%f\n",j,k,
                l_inPtr[0],l_outPtr[0],l_inPtr[0] - l_outPtr[0],l_maxDiff,
       fabs(l_inPtr[0] - l_outPtr[0]) / fabs(l_inPtr[0]) );
@@ -532,11 +532,11 @@ vtkFloatArray *vtkDSPFilterGroup::GetOutput( int a_whichFilter, int a_whichTimes
 
 
   a_instancesCalculated++;
-  
+
   //printf("****vtkDSPFilterGroup::GetOutput calculated  filter=%d time=%d entries=%d comps=%d***    out cache was %d slots\n",a_whichFilter,
   // a_whichTimestep,l_numEntries,l_numComponents,
   // this->CachedOutputs[a_whichFilter].size()  );
-  
+
 
   this->CachedOutputs->m_vector[a_whichFilter].push_back(l_output);
   this->CachedOutputTimesteps->m_vector[a_whichFilter].push_back(a_whichTimestep);

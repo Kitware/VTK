@@ -39,14 +39,14 @@ public:
   // Sets/Gets what pixel value to draw the cursor in.
   vtkSetMacro(CursorValue, double);
   vtkGetMacro(CursorValue, double);
-  
+
   // Description:
   // Sets/Gets the radius of the cursor. The radius determines
   // how far the axis lines project out from the cursors center.
   vtkSetMacro(CursorRadius, int);
   vtkGetMacro(CursorRadius, int);
-  
-  
+
+
 protected:
   vtkImageCursor3D();
   ~vtkImageCursor3D() {};
@@ -54,7 +54,7 @@ protected:
   double CursorPosition[3];
   double CursorValue;
   int CursorRadius;
-  
+
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);

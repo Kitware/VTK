@@ -25,7 +25,7 @@ vtkCxxSetObjectMacro(vtkLinearSelector,Points,vtkPoints);
 // ----------------------------------------------------------------------
 vtkLinearSelector::vtkLinearSelector()
 {
-  
+
   this->StartPoint[0] = this->StartPoint[1] = this->StartPoint[2] = 0.0;
   this->EndPoint[0] = this->EndPoint[1] = this->EndPoint[2] = 1.0;
   this->Tolerance = 0.;
@@ -63,7 +63,7 @@ void vtkLinearSelector::PrintSelf( ostream& os, vtkIndent indent )
      << this->EndPoint [2]
      << ")\n";
 
-  os << indent 
+  os << indent
      << "Points: ";
   if ( this->Points )
     {
@@ -190,7 +190,7 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
         vtkIdType offset = 3 * i;
         this->Points->GetPoint( i, startPoints + offset );
         this->Points->GetPoint( i + 1, endPoints + offset );
-        cerr << i - 1 << ": " 
+        cerr << i - 1 << ": "
              << startPoints[offset]
              << " "
              << startPoints[offset + 1]
@@ -228,7 +228,7 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
         endPoints[i] = this->EndPoint[i];
         }
       } // if ( this->IncludeVertices )
-    else 
+    else
       {
       // Vertices are excluded, reduce segment by given ratio
       for ( int i = 0; i < 3; ++ i )
@@ -252,23 +252,23 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
       double pcoords [3];
       double t = 0;
       int subId	= 0;
-      
+
       // Seek intersection of cell with each segment
       for ( vtkIdType i = 0; i < nSegments; ++ i )
         {
         // Intersection with a line segment
         vtkIdType offset = 3 * i;
-        if ( cell->IntersectWithLine ( startPoints + offset, 
-                                       endPoints + offset, 
-                                       this->Tolerance, 
-                                       t, 
-                                       coords, 
+        if ( cell->IntersectWithLine ( startPoints + offset,
+                                       endPoints + offset,
+                                       this->Tolerance,
+                                       t,
+                                       coords,
                                        pcoords,
                                        subId ) )
           {
           outIndices->InsertNextValue( id );
           }
-        } // for ( i )  
+        } // for ( i )
       }	// if ( cell )
     } // for ( vtkIdType id = 0; id < nCells; ++ id )
 

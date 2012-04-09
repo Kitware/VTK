@@ -189,7 +189,7 @@ void vtkQuadraticQuad::EvaluateLocation(int& vtkNotUsed(subId),
                                         double x[3], double *weights)
 {
   int i, j;
-  double *p = 
+  double *p =
     static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
 
   this->InterpolationFunctions(pcoords,weights);
@@ -213,7 +213,7 @@ int vtkQuadraticQuad::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 static double MidPoints[1][3] = { {0.5,0.5,0.0} };
 
 //----------------------------------------------------------------------------
-void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd, 
+void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd,
                                              vtkIdType cellId, vtkDataArray *cellScalars)
 {
   int numMidPts, i, j;
@@ -224,7 +224,7 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *in
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
-  // Make sure to copy ALL arrays. These field data have to be 
+  // Make sure to copy ALL arrays. These field data have to be
   // identical to the input field data. Otherwise, CopyData
   // that occurs later may not work because the output field
   // data was initialized (CopyAllocate) with the input field

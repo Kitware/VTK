@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTriangularTexture - generate 2D triangular texture map
 // .SECTION Description
-// vtkTriangularTexture is a filter that generates a 2D texture map based on 
+// vtkTriangularTexture is a filter that generates a 2D texture map based on
 // the paper "Opacity-modulating Triangular Textures for Irregular Surfaces,"
 // by Penny Rheingans, IEEE Visualization '96, pp. 219-225.
 // The textures assume texture coordinates of (0,0), (1.0) and

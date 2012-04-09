@@ -51,7 +51,7 @@ public:
   static vtkBoostBiconnectedComponents *New();
   vtkTypeMacro(vtkBoostBiconnectedComponents, vtkUndirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the output array name. If no output array name is
   // set then the name "biconnected component" is used.
@@ -62,11 +62,11 @@ protected:
   ~vtkBoostBiconnectedComponents();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
 private:
 
   char* OutputArrayName;
-  
+
   vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&);  // Not implemented.
   void operator=(const vtkBoostBiconnectedComponents&);  // Not implemented.
 };

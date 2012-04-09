@@ -1142,7 +1142,7 @@ void vtkImageMapper3D::CheckerboardRGBA(
   double tmporiginy = originy - spacingy;
   originy = (tmporiginy < 0 ? originy : tmporiginy);
   state = (tmporiginy < 0 ? state : tmpstate);
-  
+
   int xm = static_cast<int>(originx);
   int savexm = xm;
   int ym = static_cast<int>(originy);
@@ -1177,7 +1177,7 @@ void vtkImageMapper3D::CheckerboardRGBA(
         int rx = xsize - i;
         xm = (xm < rx ? xm : rx);
         i += xm;
-        if ( (tmpstate & xm) ) 
+        if ( (tmpstate & xm) )
           {
           do
             {
@@ -1196,5 +1196,5 @@ void vtkImageMapper3D::CheckerboardRGBA(
    ym = yn;
    state = ~state;
    gy += fy;
-   }  
+   }
 }

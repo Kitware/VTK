@@ -47,10 +47,10 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int main(int argc, char* argv[])
-{           
+{
   boost::mpi::environment env(argc, argv);
   boost::mpi::communicator world;
-                            
+
   vtkIdType wantVertices = 128;
   vtkIdType wantEdges = 512;
   double A = 0.45;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
   bool doSSSP = true;
   bool doConnectedComponents = true;
 
-  if (argc > 6) 
+  if (argc > 6)
     {
     wantVertices = boost::lexical_cast<vtkIdType>(argv[1]);
     wantEdges = boost::lexical_cast<vtkIdType>(argv[2]);
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     C = boost::lexical_cast<double>(argv[5]);
     D = boost::lexical_cast<double>(argv[6]);
     }
-                 
+
   for (int argIdx = 7; argIdx < argc; ++argIdx)
     {
       std::string arg = argv[argIdx];
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
   vtkIdType totalNumberOfVertices;
   vtkIdType totalNumberOfEdges;
   vtkGraph* g;
-  
+
   VTK_CREATE(vtkPBGLRMATGraphSource, source);
 
   int errors = 0;
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
                              std::plus<vtkIdType>());
   if (totalNumberOfVertices != wantVertices)
     {
-    cerr << "ERROR: Wrong number of vertices (" 
+    cerr << "ERROR: Wrong number of vertices ("
          << totalNumberOfVertices << " != " << wantVertices << ")" << endl;
     errors++;
     }
@@ -161,12 +161,12 @@ int main(int argc, char* argv[])
     while (vertices->HasNext())
       {
       vtkIdType u = vertices->Next();
-      
+
       vtkSmartPointer<vtkOutEdgeIterator> outEdges
         = vtkSmartPointer<vtkOutEdgeIterator>::New();
-        
+
       g->GetOutEdges(u, outEdges);
-      while (outEdges->HasNext()) 
+      while (outEdges->HasNext())
         {
         vtkOutEdgeType e = outEdges->Next();
         cerr << "  " << u << " -> " << e.Target << endl;
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
       vtkDoubleArray* pathLengthArray
         = vtkDoubleArray::SafeDownCast
             (output->GetVertexData()->GetAbstractArray("PathLength"));
-      vtkDistributedVertexPropertyMapType<vtkDoubleArray>::type pathLengthMap 
+      vtkDistributedVertexPropertyMapType<vtkDoubleArray>::type pathLengthMap
         = MakeDistributedVertexPropertyMap(output, pathLengthArray);
       vtkDistributedEdgePropertyMapType<vtkDoubleArray>::type edgeWeightMap
         = MakeDistributedEdgePropertyMap(output, edgeWeightArray);
@@ -265,27 +265,27 @@ int main(int argc, char* argv[])
         vtkIdType u = vertices->Next();
         vtkSmartPointer<vtkOutEdgeIterator> outEdges
           = vtkSmartPointer<vtkOutEdgeIterator>::New();
-        
+
         output->GetOutEdges(u, outEdges);
-        while (outEdges->HasNext()) 
+        while (outEdges->HasNext())
           {
           vtkOutEdgeType eOut = outEdges->Next();
           vtkEdgeType e(u, eOut.Target, eOut.Id);
-          if (get(pathLengthMap, u) + get(edgeWeightMap, e) 
+          if (get(pathLengthMap, u) + get(edgeWeightMap, e)
                 < get(pathLengthMap, e.Target))
             {
-            cerr << "ERROR: Found a shorter path from source to " 
+            cerr << "ERROR: Found a shorter path from source to "
                  << e.Target << " through " << u << endl
-                 << "  Recorded path length is " 
-                 << get(pathLengthMap, e.Target) 
+                 << "  Recorded path length is "
+                 << get(pathLengthMap, e.Target)
                  << ", but this path has length "
-                 << get(pathLengthMap, u) + get(edgeWeightMap, e) 
+                 << get(pathLengthMap, u) + get(edgeWeightMap, e)
                  << "." << endl;
             ++errors;
             }
           }
         }
-      
+
       output->GetDistributedGraphHelper()->Synchronize();
 
       if (world.rank() == 0)

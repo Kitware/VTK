@@ -82,14 +82,14 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->SliderMapper = vtkPolyDataMapper2D::New();
   this->SliderMapper->SetInputConnection(
     this->SliderXForm->GetOutputPort());
-  
+
   this->SliderProperty = vtkProperty2D::New();
   this->SliderProperty->SetColor(1,1,1);
 
   this->SliderActor = vtkActor2D::New();
   this->SliderActor->SetMapper(this->SliderMapper);
   this->SliderActor->SetProperty(this->SliderProperty);
-  
+
   // The tube (the slider moves along the tube)
   this->TubeCells = vtkCellArray::New();
   this->TubeCells->Allocate(this->TubeCells->EstimateSize(1,4));
@@ -109,14 +109,14 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->TubeMapper = vtkPolyDataMapper2D::New();
   this->TubeMapper->SetInputConnection(
     this->TubeXForm->GetOutputPort());
-  
+
   this->TubeProperty = vtkProperty2D::New();
   this->TubeProperty->SetColor(1,1,1);
 
   this->TubeActor = vtkActor2D::New();
   this->TubeActor->SetMapper(this->TubeMapper);
   this->TubeActor->SetProperty(this->TubeProperty);
-  
+
   this->SelectedProperty = vtkProperty2D::New();
   this->SelectedProperty->SetColor(1.0000, 0.4118, 0.7059); //hot pink
 
@@ -144,14 +144,14 @@ vtkSliderRepresentation2D::vtkSliderRepresentation2D()
   this->CapMapper = vtkPolyDataMapper2D::New();
   this->CapMapper->SetInputConnection(
     this->CapXForm->GetOutputPort());
-  
+
   this->CapProperty = vtkProperty2D::New();
   this->CapProperty->SetColor(1,1,1);
 
   this->CapActor = vtkActor2D::New();
   this->CapActor->SetMapper(this->CapMapper);
   this->CapActor->SetProperty(this->CapProperty);
-  
+
   // Labels and text
   this->ShowSliderLabel = 1;
 
@@ -188,28 +188,28 @@ vtkSliderRepresentation2D::~vtkSliderRepresentation2D()
 
   this->XForm->Delete();
   this->Points->Delete();
-  
+
   this->SliderCells->Delete();
   this->Slider->Delete();
   this->SliderXForm->Delete();
   this->SliderMapper->Delete();
   this->SliderActor->Delete();
   this->SliderProperty->Delete();
-  
+
   this->TubeCells->Delete();
   this->Tube->Delete();
   this->TubeXForm->Delete();
   this->TubeMapper->Delete();
   this->TubeActor->Delete();
   this->TubeProperty->Delete();
-  
+
   this->CapCells->Delete();
   this->Cap->Delete();
   this->CapXForm->Delete();
   this->CapMapper->Delete();
   this->CapActor->Delete();
   this->CapProperty->Delete();
-  
+
   this->SelectedProperty->Delete();
 
   this->LabelProperty->Delete();
@@ -259,7 +259,7 @@ void vtkSliderRepresentation2D::StartWidgetInteraction(double eventPos[2])
     this->InteractionState = vtkSliderRepresentation::Slider;
     return;
     }
-  
+
   vtkCell *tubeCell = this->TubeXForm->GetOutput()->GetCell(0);
   if ( tubeCell->EvaluatePosition(event,closest,subId,pcoords,dist2,weights) > 0 )
     {
@@ -267,7 +267,7 @@ void vtkSliderRepresentation2D::StartWidgetInteraction(double eventPos[2])
     this->ComputePickPosition(eventPos);
     return;
     }
-  
+
   vtkCell *leftCapCell = this->CapXForm->GetOutput()->GetCell(0);
   if ( leftCapCell->EvaluatePosition(event,closest,subId,pcoords,dist2,weights) > 0 )
     {
@@ -283,7 +283,7 @@ void vtkSliderRepresentation2D::StartWidgetInteraction(double eventPos[2])
     this->PickedT = 1.0;
     return;
     }
-  
+
   this->InteractionState = vtkSliderRepresentation::Outside;
 }
 
@@ -319,7 +319,7 @@ double vtkSliderRepresentation2D::ComputePickPosition(double eventPos[2])
   this->SliderXForm->GetOutput()->GetPoints()->GetPoint(5,p5);
   this->SliderXForm->GetOutput()->GetPoints()->GetPoint(6,p6);
   this->SliderXForm->GetOutput()->GetPoints()->GetPoint(7,p7);
-  
+
   x1[0] = (p4[0] + p7[0])/2.0;
   x1[1] = (p4[1] + p7[1])/2.0;
   x1[2] = (p4[2] + p7[2])/2.0;
@@ -327,12 +327,12 @@ double vtkSliderRepresentation2D::ComputePickPosition(double eventPos[2])
   x2[0] = (p5[0] + p6[0])/2.0;
   x2[1] = (p5[1] + p6[1])/2.0;
   x2[2] = (p5[2] + p6[2])/2.0;
-  
+
   double event[3], closestPoint[3];
   event[0] = eventPos[0];
   event[1] = eventPos[1];
   event[2] = 0.0;
-  
+
   // Intersect geometry. Don't forget to scale the pick because the tube
   // geometry is longer than the sliding region (due to the thickness of the
   // slider).
@@ -340,7 +340,7 @@ double vtkSliderRepresentation2D::ComputePickPosition(double eventPos[2])
   double scale = (2.0*this->X - 2.0*this->EndCapLength) /
     (2.0*this->X - 2.0*this->EndCapLength - this->SliderLength);
   this->PickedT = 0.5 + (this->PickedT - 0.5)*scale;
-  this->PickedT = ( this->PickedT < 0 ? 0.0 : 
+  this->PickedT = ( this->PickedT < 0 ? 0.0 :
                     (this->PickedT > 1.0 ? 1.0 : this->PickedT) );
 
   return this->PickedT;
@@ -363,7 +363,7 @@ void vtkSliderRepresentation2D::Highlight(int highlight)
 //----------------------------------------------------------------------
 void vtkSliderRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -426,7 +426,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     // we have to take into account the text height and width.
     int titleSize[2];
     double textSize[2];
-    double maxY = (this->SliderWidth > this->TubeWidth ? 
+    double maxY = (this->SliderWidth > this->TubeWidth ?
                    (this->SliderWidth > this->EndCapWidth ? this->SliderWidth : this->EndCapWidth) :
                    (this->TubeWidth > this->EndCapWidth ? this->TubeWidth : this->EndCapWidth) );
 
@@ -459,7 +459,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     // Begin transforming the slider
     double sx = static_cast<double>(size[0]);
     double sy = static_cast<double>(size[1]);
-    
+
     double tx = static_cast<double>((p1[0]+p2[0])/2.0);
     double ty = static_cast<double>((p1[1]+p2[1])/2.0);
 
@@ -532,11 +532,11 @@ void vtkSliderRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Label Text: " << (this->LabelMapper->GetInput() ? 
-                                     this->LabelMapper->GetInput() : 
+  os << indent << "Label Text: " << (this->LabelMapper->GetInput() ?
+                                     this->LabelMapper->GetInput() :
                                      "(none)") << "\n";
-  os << indent << "Title Text: " << (this->TitleMapper->GetInput() ? 
-                                     this->TitleMapper->GetInput() : 
+  os << indent << "Title Text: " << (this->TitleMapper->GetInput() ?
+                                     this->TitleMapper->GetInput() :
                                      "(none)") << "\n";
 
   os << indent << "Point1 Coordinate: " << this->Point1Coordinate << "\n";

@@ -146,12 +146,12 @@ public:
   // Block the thread until the actual rendering is finished().
   // Useful for measurement only.
   virtual void WaitForCompletion()=0;
-  
+
   // Description:
   // Performed at the end of the rendering process to generate image.
   // This is typically done right before swapping buffers.
   virtual void CopyResultFrame();
-  
+
   // Description:
   // Create an interactor to control renderers in this window. We need
   // to know what type of interactor to create, because we might be in
@@ -312,7 +312,7 @@ public:
   vtkSetMacro(SwapBuffers,int);
   vtkGetMacro(SwapBuffers,int);
   vtkBooleanMacro(SwapBuffers,int);
-  
+
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGBRGB. The
   // front argument indicates if the front buffer should be used or the back
@@ -485,7 +485,7 @@ public:
   // Tells if this window is the current graphics context for the calling
   // thread.
   virtual bool IsCurrent()=0;
-  
+
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
@@ -529,28 +529,28 @@ public:
   vtkSetMacro(StencilCapable, int);
   vtkGetMacro(StencilCapable, int);
   vtkBooleanMacro(StencilCapable, int);
-  
+
   // Description:
   // Turn on/off report of graphic errors. Initial value is false (off).
   // This flag is used by vtkGraphicErrorMacro.
   vtkSetMacro(ReportGraphicErrors,int);
   vtkGetMacro(ReportGraphicErrors,int);
   vtkBooleanMacro(ReportGraphicErrors,int);
-  
+
   // Description:
   // Update graphic error status, regardless of ReportGraphicErrors flag.
   // It means this method can be used in any context and is not restricted to
   // debug mode.
   virtual void CheckGraphicError()=0;
-  
+
   // Description:
   // Return the last graphic error status. Initial value is false.
   virtual int HasGraphicError()=0;
-  
+
   // Description:
   // Return a string matching the last graphic error status.
   virtual const char *GetLastGraphicErrorString()=0;
-  
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
@@ -594,7 +594,7 @@ protected:
   int AnaglyphColorMask[2];
   int MultiSamples;
   int StencilCapable;
-  
+
   // Description:
   // Boolean flag telling if errors from the graphic library have to be
   // reported by vtkGraphicErrorMacro. Initial value is false (off).
@@ -603,7 +603,7 @@ protected:
   // Description:
   // The universal time since the last abort check occurred.
   double AbortCheckTime;
-  
+
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
   void operator=(const vtkRenderWindow&);  // Not implemented.

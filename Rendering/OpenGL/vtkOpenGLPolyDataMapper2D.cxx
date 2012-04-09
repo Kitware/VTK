@@ -62,7 +62,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   vtkDebugMacro (<< "vtkOpenGLPolyDataMapper2D::Render");
 
-  if ( input == NULL ) 
+  if ( input == NULL )
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -71,14 +71,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     this->GetInputAlgorithm()->Update();
     numPts = input->GetNumberOfPoints();
-    } 
+    }
 
   if (numPts == 0)
     {
     vtkDebugMacro(<< "No points!");
     return;
     }
-  
+
   if ( this->LookupTable == NULL )
     {
     this->CreateDefaultLookupTable();
@@ -86,7 +86,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Texture and color by texture
   t = input->GetPointData()->GetTCoords();
-  if ( t ) 
+  if ( t )
     {
     int tDim = t->GetNumberOfComponents();
     if (tDim != 2)
@@ -99,8 +99,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // if something has changed regenrate colors and display lists
   // if required
   //
-  if ( this->GetMTime() > this->BuildTime || 
-       input->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
+       input->GetMTime() > this->BuildTime ||
        this->LookupTable->GetMTime() > this->BuildTime ||
        actor->GetProperty()->GetMTime() > this->BuildTime)
     {
@@ -114,7 +114,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   size[0] = viewport->GetSize()[0];
   size[1] = viewport->GetSize()[1];
   double *vport = viewport->GetViewport();
-  int* actorPos = 
+  int* actorPos =
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
   // get window info
@@ -132,11 +132,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     return;
     }
-  size[0] = 
+  size[0] =
     vtkMath::Round(size[0]*(visVP[2] - visVP[0])/(vport[2] - vport[0]));
-  size[1] = 
+  size[1] =
     vtkMath::Round(size[1]*(visVP[3] - visVP[1])/(vport[3] - vport[1]));
-  
+
   // Set up the font color from the text actor
   double*  actorColor = actor->GetProperty()->GetColor();
   color[0] = static_cast<unsigned char>(actorColor[0] * 255.0);
@@ -195,7 +195,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                      viewport->GetPickHeight(),
                      viewport->GetOrigin(), viewport->GetSize());
     }
-  
+
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
@@ -205,31 +205,31 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glDisable( GL_TEXTURE_2D );
     }
   glDisable( GL_LIGHTING );
-   
-    
+
+
   // Assume we want to do Zbuffering for now.
   // we may turn this off later
   glDepthMask(GL_TRUE);
 
   int *winSize = viewport->GetVTKWindow()->GetSize();
-  
+
   int xoff = static_cast<int>(actorPos[0] - (visVP[0] - vport[0])*
                               winSize[0]);
   int yoff = static_cast<int>(actorPos[1] - (visVP[1] - vport[1])*
                               winSize[1]);
 
-  if ( actor->GetProperty()->GetDisplayLocation() == 
+  if ( actor->GetProperty()->GetDisplayLocation() ==
        VTK_FOREGROUND_LOCATION )
     {
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff +size[1], 0, 1);
-    }  
+    }
   else
     {
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff + size[1], -1, 0);
     }
-    
+
   // Clipping plane stuff
   clipPlanes = this->ClippingPlanes;
 
@@ -271,10 +271,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   aPrim = input->GetVerts();
   glBegin(GL_POINTS);
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
-    { 
-    for (j = 0; j < npts; j++) 
+    {
+    for (j = 0; j < npts; j++)
       {
-      if (c) 
+      if (c)
         {
         if (cellScalars)
           {
@@ -289,7 +289,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       if (t)
         {
         glTexCoord2dv(t->GetTuple(pts[j]));
-        }  
+        }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
@@ -316,7 +316,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 #ifdef VTK_USE_GL2PS
     gl2psEnable(GL2PS_LINE_STIPPLE);
 #endif // VTK_USE_GL2PS
-    glLineStipple (actor->GetProperty()->GetLineStippleRepeatFactor(), 
+    glLineStipple (actor->GetProperty()->GetLineStippleRepeatFactor(),
                    actor->GetProperty()->GetLineStipplePattern());
     }
   else
@@ -348,7 +348,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       if (t)
         {
         glTexCoord2dv(t->GetTuple(pts[j]));
-        }  
+        }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
@@ -378,7 +378,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       if (t)
         {
         glTexCoord2dv(t->GetTuple(pts[j]));
-        }  
+        }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
@@ -408,7 +408,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       if (t)
         {
         glTexCoord2dv(t->GetTuple(pts[j]));
-        }  
+        }
       // this is done to work around an OpenGL bug, otherwise we could just
       // call glVertex2dv
       dptr = p->GetPoint(pts[j]);
@@ -433,12 +433,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW);
   glPopMatrix();
   glEnable( GL_LIGHTING);
-  
+
   // Turn it back on in case we've turned it off
   glDepthMask( GL_TRUE );
   glDisable( GL_TEXTURE_2D );
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {

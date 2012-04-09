@@ -30,7 +30,7 @@ vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
 vtkTransformToGrid::vtkTransformToGrid()
 {
   this->Input = NULL;
-  
+
   this->GridScalarType = VTK_DOUBLE;
 
   for (int i = 0; i < 3; i++)
@@ -59,7 +59,7 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Input: (" << this->Input << ")\n"; 
+  os << indent << "Input: (" << this->Input << ")\n";
 
   os << indent << "GridSpacing: (" << this->GridSpacing[0];
   for (i = 1; i < 3; ++i)
@@ -67,7 +67,7 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->GridSpacing[i];
     }
   os << ")\n";
-  
+
   os << indent << "GridOrigin: (" << this->GridOrigin[0];
   for (i = 1; i < 3; ++i)
     {
@@ -170,10 +170,10 @@ void vtkTransformToGridMinMax(vtkTransformToGrid *self, int extent[6],
             minDisplacement = displacement;
             }
           }
-        } 
+        }
       }
     }
-} 
+}
 
 //----------------------------------------------------------------------------
 void vtkTransformToGrid::UpdateShiftScale()
@@ -185,9 +185,9 @@ void vtkTransformToGrid::UpdateShiftScale()
     {
     this->DisplacementShift = 0.0;
     this->DisplacementScale = 1.0;
-    vtkDebugMacro(<< "displacement (scale, shift) = (" << 
-                  this->DisplacementScale << ", " << 
-                  this->DisplacementShift << ")");  
+    vtkDebugMacro(<< "displacement (scale, shift) = (" <<
+                  this->DisplacementScale << ", " <<
+                  this->DisplacementShift << ")");
     return;
     }
 
@@ -203,7 +203,7 @@ void vtkTransformToGrid::UpdateShiftScale()
                            minDisplacement,
                            maxDisplacement);
 
-  vtkDebugMacro(<< "displacement (min, max) = (" << 
+  vtkDebugMacro(<< "displacement (min, max) = (" <<
                 minDisplacement << ", " << maxDisplacement << ")");
 
   double typeMin,typeMax;
@@ -230,20 +230,20 @@ void vtkTransformToGrid::UpdateShiftScale()
       vtkErrorMacro(<< "UpdateShiftScale: Unknown input ScalarType");
       return;
     }
-  
+
   this->DisplacementScale = ((maxDisplacement - minDisplacement)/
                              (typeMax - typeMin));
   this->DisplacementShift = ((typeMax*minDisplacement-typeMin*maxDisplacement)/
-                             (typeMax - typeMin)); 
+                             (typeMax - typeMin));
 
   if (this->DisplacementScale == 0.0)
     {
     this->DisplacementScale = 1.0;
     }
 
-  vtkDebugMacro(<< "displacement (scale, shift) = (" << 
-                this->DisplacementScale << ", " << 
-                this->DisplacementShift << ")");  
+  vtkDebugMacro(<< "displacement (scale, shift) = (" <<
+                this->DisplacementScale << ", " <<
+                this->DisplacementShift << ")");
 
   this->ShiftScaleTime.Modified();
 }
@@ -279,7 +279,7 @@ inline void vtkGridRound(double val, double& rnd)
 //----------------------------------------------------------------------------
 template<class T>
 void vtkTransformToGridExecute(vtkTransformToGrid *self,
-                               vtkImageData *grid, T *gridPtr, int extent[6], 
+                               vtkImageData *grid, T *gridPtr, int extent[6],
                                double shift, double scale, int id)
 {
   vtkAbstractTransform *transform = self->GetInput();
@@ -331,11 +331,11 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
         point[0] = i*spacing[0] + origin[0];
 
         transform->InternalTransformPoint(point,newPoint);
-        
+
         vtkGridRound((newPoint[0] - point[0] - shift)*invScale,*gridPtr++);
         vtkGridRound((newPoint[1] - point[1] - shift)*invScale,*gridPtr++);
         vtkGridRound((newPoint[2] - point[2] - shift)*invScale,*gridPtr++);
-        } 
+        }
 
       gridPtr1 += increments[1];
       }
@@ -347,7 +347,7 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
     {
     transform->Delete();
     }
-}       
+}
 
 //----------------------------------------------------------------------------
 void vtkTransformToGrid::RequestData(
@@ -441,7 +441,7 @@ int vtkTransformToGrid::ProcessRequest(vtkInformation* request,
     for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *output = 
+      vtkImageData *output =
         vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
       // if execute info didn't set origin and spacing then we set them
       if (!info->Has(vtkDataObject::ORIGIN()))

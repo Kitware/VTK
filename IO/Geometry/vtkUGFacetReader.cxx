@@ -65,13 +65,13 @@ unsigned long vtkUGFacetReader::GetMTime()
 {
   unsigned long mTime1=this->Superclass::GetMTime();
   unsigned long mTime2;
-  
+
   if (this->Locator)
     {
     mTime2 = this->Locator->GetMTime();
     mTime1 = ( mTime1 > mTime2 ? mTime1 : mTime2 );
     }
-  
+
   return mTime1;
 }
 
@@ -108,7 +108,7 @@ int vtkUGFacetReader::RequestData(
     }
 
   // open the file
-  if ( (fp = fopen(this->FileName, "rb")) == NULL) 
+  if ( (fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<<"Cannot open file specified.");
     return 0;
@@ -125,7 +125,7 @@ int vtkUGFacetReader::RequestData(
 
   // swap bytes since this is a binary file format
   vtkByteSwap::Swap4BE(&numFacetSets);
-  
+
   // Estimate how much space we need - find out the size of the
   // file and divide by 72 bytes per triangle
   fgetpos( fp, &pos );
@@ -134,12 +134,12 @@ int vtkUGFacetReader::RequestData(
   fsetpos( fp, &pos );
 
   // allocate memory
-  if ( ! this->PartColors ) 
+  if ( ! this->PartColors )
     {
     this->PartColors = vtkShortArray::New();
     this->PartColors->Allocate(100);
     }
-  else 
+  else
     {
     this->PartColors->Reset();
     }
@@ -153,7 +153,7 @@ int vtkUGFacetReader::RequestData(
   newPolys->Allocate(newPolys->EstimateSize(triEstimate,3),triEstimate);
 
   // loop over all facet sets, extracting triangles
-  for (setNumber=0; setNumber < numFacetSets; setNumber++) 
+  for (setNumber=0; setNumber < numFacetSets; setNumber++)
     {
 
     if ( fread (&ugiiColor, 2, 1, fp) <= 0 ||
@@ -168,7 +168,7 @@ int vtkUGFacetReader::RequestData(
     vtkByteSwap::Swap4BE(&numberTris);
     vtkByteSwap::Swap2BERange(&ugiiColor,1);
     vtkByteSwap::Swap2BERange(&direction,1);
-    
+
     this->PartColors->InsertNextValue(ugiiColor);
 
     for (facetNumber=0; facetNumber < numberTris; facetNumber++)
@@ -181,7 +181,7 @@ int vtkUGFacetReader::RequestData(
 
       // swap bytes if necc
       vtkByteSwap::Swap4BERange((float *)(&facet),18);
-      
+
       if ( this->PartNumber == -1 || this->PartNumber == setNumber )
         {
         ptId[0] = newPts->InsertNextPoint(facet.v1);
@@ -198,7 +198,7 @@ int vtkUGFacetReader::RequestData(
     }//for this facet set
 
   // update output
-  vtkDebugMacro(<<"Read " 
+  vtkDebugMacro(<<"Read "
                 << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles.");
 
@@ -231,7 +231,7 @@ int vtkUGFacetReader::RequestData(
 
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
       {
-      for (i=0; i < 3; i++) 
+      for (i=0; i < 3; i++)
         {
         x = newPts->GetPoint(pts[i]);
         if ( this->Locator->InsertUniquePoint(x, nodes[i]) )
@@ -240,7 +240,7 @@ int vtkUGFacetReader::RequestData(
           }
         }
 
-      if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
+      if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] &&
       nodes[1] != nodes[2] )
         {
         mergedPolys->InsertNextCell(3,nodes);
@@ -251,8 +251,8 @@ int vtkUGFacetReader::RequestData(
       newNormals->Delete();
       newPolys->Delete();
 
-      vtkDebugMacro(<< "Merged to: " 
-                   << mergedPts->GetNumberOfPoints() << " points, " 
+      vtkDebugMacro(<< "Merged to: "
+                   << mergedPts->GetNumberOfPoints() << " points, "
                    << mergedPolys->GetNumberOfCells() << " triangles");
     }
   else
@@ -296,7 +296,7 @@ int vtkUGFacetReader::GetNumberOfParts()
     }
 
   // open the file
-  if ( (fp = fopen(this->FileName, "rb")) == NULL) 
+  if ( (fp = fopen(this->FileName, "rb")) == NULL)
     {
     vtkErrorMacro(<<"Cannot open file specified.");
     return 0;
@@ -314,7 +314,7 @@ int vtkUGFacetReader::GetNumberOfParts()
 
   // swap bytes if necc
   vtkByteSwap::Swap4BE(&numberOfParts);
-  
+
   fclose(fp);
   return numberOfParts;
 }
@@ -327,7 +327,7 @@ short vtkUGFacetReader::GetPartColorIndex(int partId)
     this->Update();
     }
 
-  if ( !this->PartColors || 
+  if ( !this->PartColors ||
   partId < 0 || partId > this->PartColors->GetMaxId() )
     {
     return 0;
@@ -342,7 +342,7 @@ short vtkUGFacetReader::GetPartColorIndex(int partId)
 // default an instance of vtkMergePoints is used.
 void vtkUGFacetReader::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
@@ -371,7 +371,7 @@ void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Part Number: " << this->PartNumber << "\n";

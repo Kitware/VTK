@@ -63,7 +63,7 @@ void vtkInteractorStyleRubberBandPick::OnChar()
         this->CurrentMode = VTKISRBP_SELECT;
         }
       else
-        { 
+        {
         this->CurrentMode = VTKISRBP_ORIENT;
         }
       break;
@@ -103,21 +103,21 @@ void vtkInteractorStyleRubberBandPick::OnLeftButtonDown()
   //otherwise record the rubber band starting coordinate
 
   this->Moving = 1;
-  
+
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
-  
+
   this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
   this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
   this->EndPosition[0] = this->StartPosition[0];
   this->EndPosition[1] = this->StartPosition[1];
-  
+
   this->PixelArray->Initialize();
   this->PixelArray->SetNumberOfComponents(4);
   int *size = renWin->GetSize();
   this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
-  
+
   renWin->GetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
-  
+
   this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
 }
 
@@ -138,8 +138,8 @@ void vtkInteractorStyleRubberBandPick::OnMouseMove()
     }
 
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
-  this->EndPosition[1] = this->Interactor->GetEventPosition()[1];  
-  int *size = this->Interactor->GetRenderWindow()->GetSize();  
+  this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
+  int *size = this->Interactor->GetRenderWindow()->GetSize();
   if (this->EndPosition[0] > (size[0]-1))
     {
     this->EndPosition[0] = size[0]-1;
@@ -173,7 +173,7 @@ void vtkInteractorStyleRubberBandPick::OnLeftButtonUp()
     {
     return;
     }
-  
+
   //otherwise record the rubber band end coordinate and then fire off a pick
   if (   (this->StartPosition[0] != this->EndPosition[0])
       || (this->StartPosition[1] != this->EndPosition[1]) )
@@ -188,10 +188,10 @@ void vtkInteractorStyleRubberBandPick::OnLeftButtonUp()
 void vtkInteractorStyleRubberBandPick::RedrawRubberBand()
 {
   //update the rubber band on the screen
-  int *size = this->Interactor->GetRenderWindow()->GetSize();  
+  int *size = this->Interactor->GetRenderWindow()->GetSize();
 
   vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
-  tmpPixelArray->DeepCopy(this->PixelArray);  
+  tmpPixelArray->DeepCopy(this->PixelArray);
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
 
   int min[2], max[2];
@@ -235,19 +235,19 @@ void vtkInteractorStyleRubberBandPick::RedrawRubberBand()
     pixels[4*(i*size[0]+max[0])+1] = 255 ^ pixels[4*(i*size[0]+max[0])+1];
     pixels[4*(i*size[0]+max[0])+2] = 255 ^ pixels[4*(i*size[0]+max[0])+2];
     }
-  
+
   this->Interactor->GetRenderWindow()->SetRGBACharPixelData(0, 0, size[0]-1, size[1]-1, pixels, 0);
   this->Interactor->GetRenderWindow()->Frame();
-  
+
   tmpPixelArray->Delete();
 }
 
 //--------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::Pick()
 {
-  //find rubber band lower left, upper right and center  
+  //find rubber band lower left, upper right and center
   double rbcenter[3];
-  int *size = this->Interactor->GetRenderWindow()->GetSize();  
+  int *size = this->Interactor->GetRenderWindow()->GetSize();
   int min[2], max[2];
   min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
@@ -272,27 +272,27 @@ void vtkInteractorStyleRubberBandPick::Pick()
   rbcenter[0] = (min[0] + max[0])/2.0;
   rbcenter[1] = (min[1] + max[1])/2.0;
   rbcenter[2] = 0;
-  
-  if (this->State == VTKIS_NONE) 
+
+  if (this->State == VTKIS_NONE)
     {
     //tell the RenderWindowInteractor's picker to make it happen
     vtkRenderWindowInteractor *rwi = this->Interactor;
 
     vtkAssemblyPath *path = NULL;
     rwi->StartPickCallback();
-    vtkAbstractPropPicker *picker = 
+    vtkAbstractPropPicker *picker =
       vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker());
     if ( picker != NULL )
       {
       vtkAreaPicker *areaPicker = vtkAreaPicker::SafeDownCast(picker);
       if (areaPicker != NULL)
         {
-        areaPicker->AreaPick(min[0], min[1], max[0], max[1], 
+        areaPicker->AreaPick(min[0], min[1], max[0], max[1],
                              this->CurrentRenderer);
         }
       else
         {
-        picker->Pick(rbcenter[0], rbcenter[1], 
+        picker->Pick(rbcenter[0], rbcenter[1],
                      0.0, this->CurrentRenderer);
         }
       path = picker->GetPath();
@@ -310,7 +310,7 @@ void vtkInteractorStyleRubberBandPick::Pick()
       }
     rwi->EndPickCallback();
     }
-  
+
   this->Interactor->Render();
 }
 

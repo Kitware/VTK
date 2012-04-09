@@ -70,7 +70,7 @@ void vtkMatrixToLinearTransform::InternalUpdate()
 //----------------------------------------------------------------------------
 void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 {
-  vtkMatrixToLinearTransform *transform = 
+  vtkMatrixToLinearTransform *transform =
     static_cast<vtkMatrixToLinearTransform *>(gtrans);
 
   this->SetInput(transform->Input);

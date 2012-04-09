@@ -13,8 +13,8 @@ vtkSampleFunction sample
   sample SetSampleDimensions 20 20 20
   sample SetImplicitFunction quadric
   sample ComputeNormalsOff
-    
-# Program a bandpass filter to clip a range of data. What we do is transform the 
+
+# Program a bandpass filter to clip a range of data. What we do is transform the
 # scalars so that values laying betweeen (minRange,maxRange) are >= 0.0; all
 # others are < 0.0,
 vtkImplicitDataSet dataset

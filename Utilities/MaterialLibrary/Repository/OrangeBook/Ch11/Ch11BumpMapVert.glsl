@@ -3,7 +3,7 @@
 //
 // Authors: Randi Rost, John Kessenich
 //
-// Copyright (c) 2002-2005 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2005 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
@@ -17,7 +17,7 @@ uniform vec3 LightPosition;
 //attribute vec3 Tangent;
 attribute vec3 Normal;
 
-void main(void) 
+void main(void)
 {
     EyeDir         = vec3 (gl_ModelViewMatrix * gl_Vertex);
     gl_Position    = ftransform();

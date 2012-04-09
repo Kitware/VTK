@@ -15,7 +15,7 @@
 // .NAME vtkOpenGLFreeTypeTextMapper - 2D Text annotation support
 // .SECTION Description
 // vtkOpenGLFreeTypeTextMapper provides 2D text annotation support for VTK
-// using the FreeType and FTGL libraries. Normally the user should use 
+// using the FreeType and FTGL libraries. Normally the user should use
 // vtktextMapper which in turn will use this class.
 
 // .SECTION See Also

@@ -39,16 +39,16 @@ public:
   static vtkExtractPiece* New();
   vtkTypeMacro(vtkExtractPiece, vtkCompositeDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
 protected:
   vtkExtractPiece() {}
   ~vtkExtractPiece() {}
 
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
 
-  virtual int RequestUpdateExtent(vtkInformation*, 
+  virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
   virtual int RequestData(vtkInformation*,

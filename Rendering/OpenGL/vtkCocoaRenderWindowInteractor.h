@@ -91,7 +91,7 @@ public:
   // These methods correspond to the the Exit, User and Pick
   // callbacks. They allow for the Style to invoke them.
   virtual void ExitCallback();
-  
+
 //  int GetButtonDown();
 //  void SetButtonDown(int button);
 
@@ -100,7 +100,7 @@ protected:
   ~vtkCocoaRenderWindowInteractor();
 
   int     InstallMessageProc;
-  
+
   // Description:
   // Accessors for the Cocoa member variables. These should be used at all time, even
   // by this class.
@@ -124,7 +124,7 @@ protected:
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
-  
+
   // Description:
   // Accessors for the cocoa manager (Really an NSMutableDictionary*).
   // It manages all Cocoa objects in this C++ class.
@@ -134,11 +134,11 @@ protected:
 #ifdef VTK_USE_TDX
   vtkTDxMacDevice *Device;
 #endif
-  
+
 private:
   vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindowInteractor&);  // Not implemented.
-  
+
   // Important: this class cannot contain Objective-C instance
   // variables for 2 reasons:
   // 1) C++ files include this header
@@ -146,7 +146,7 @@ private:
   // Instead, use the CocoaManager dictionary to keep a collection
   // of what would otherwise be Objective-C instance variables.
   void    *CocoaManager;        // Really an NSMutableDictionary*
-  
+
 };
 
 #endif

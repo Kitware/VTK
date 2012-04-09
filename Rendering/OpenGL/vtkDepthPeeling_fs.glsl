@@ -13,7 +13,7 @@
 //
 // ============================================================================
 
-// 
+//
 // Fragment shader used by the depth peeling algorithm.
 
 #version 110

@@ -72,7 +72,7 @@ public:
   // without specifying the port or index.
   vtkAlgorithmOutput* GetInputConnection(int port = 0, int index = 0)
     { return this->Superclass::GetInputConnection(port, index); }
-  
+
   // Description:
   // The annotation link for this representation.
   // To link annotations, set the same vtkAnnotationLink object in
@@ -119,7 +119,7 @@ public:
   vtkSetMacro(Selectable, bool);
   vtkGetMacro(Selectable, bool);
   vtkBooleanMacro(Selectable, bool);
-  
+
   // Description:
   // Updates the selection in the selection link and fires a selection
   // change event. Subclasses should not overrride this method,
@@ -169,7 +169,7 @@ public:
   virtual vtkAlgorithmOutput* GetInternalOutputPort(int port)
     { return this->GetInternalOutputPort(port, 0); }
   virtual vtkAlgorithmOutput* GetInternalOutputPort(int port, int conn);
- 
+
   // Description:
   // Set the selection type produced by this view.
   // This should be one of the content type constants defined in
@@ -202,7 +202,7 @@ public:
 protected:
   vtkDataRepresentation();
   ~vtkDataRepresentation();
-  
+
   // Description:
   // Subclasses should override this to connect inputs to the internal pipeline
   // as necessary. Since most representations are "meta-filters" (i.e. filters
@@ -255,7 +255,7 @@ protected:
   // vtkView::AddRepresentation().  Subclasses should override this method.
   // Returns true if the addition succeeds.
   virtual bool AddToView(vtkView* vtkNotUsed(view)) { return true; }
-  
+
   // Description:
   // Removes the representation to the view.  This is called from
   // vtkView::RemoveRepresentation().  Subclasses should override this method.

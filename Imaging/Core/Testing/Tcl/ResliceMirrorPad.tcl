@@ -16,10 +16,10 @@ vtkImageReslice reslice1
 reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 MirrorOn
 reslice1 SetInterpolationModeToCubic
-reslice1 SetResliceAxesDirectionCosines 0 1 0  -1 0 0  0 0 1 
+reslice1 SetResliceAxesDirectionCosines 0 1 0  -1 0 0  0 0 1
 reslice1 SetResliceAxesOrigin 0 0 40
 reslice1 SetOutputSpacing 2.0 2.0 1.5
-reslice1 SetOutputOrigin -32 -32 0 
+reslice1 SetOutputOrigin -32 -32 0
 reslice1 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice2
@@ -29,7 +29,7 @@ reslice2 SetResliceAxesDirectionCosines 0 1 0  -1 0 0  0 0 1
 reslice2 SetResliceAxesOrigin 0 0 40
 reslice2 SetInterpolationModeToLinear
 reslice2 SetOutputSpacing 2.0 2.0 1.5
-reslice2 SetOutputOrigin -32 -32 0 
+reslice2 SetOutputOrigin -32 -32 0
 reslice2 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice3
@@ -39,7 +39,7 @@ reslice3 SetResliceAxesDirectionCosines 0 1 0  -1 0 0  0 0 1
 reslice3 SetResliceAxesOrigin 0 0 40
 reslice3 SetInterpolationModeToNearestNeighbor
 reslice3 SetOutputSpacing 2.0 2.0 1.5
-reslice3 SetOutputOrigin -32 -32 0 
+reslice3 SetOutputOrigin -32 -32 0
 reslice3 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice4
@@ -49,7 +49,7 @@ reslice4 SetResliceAxesDirectionCosines 0 1 0  -1 0 0  0 0 1
 reslice4 SetResliceAxesOrigin 0 0 40
 reslice4 SetInterpolationModeToLinear
 reslice4 SetOutputSpacing 3.2 3.2 1.5
-reslice4 SetOutputOrigin -102.4 -102.4 0 
+reslice4 SetOutputOrigin -102.4 -102.4 0
 reslice4 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageMapper mapper1
@@ -62,19 +62,19 @@ vtkImageMapper mapper2
   mapper2 SetInputConnection [reslice2 GetOutputPort]
   mapper2 SetColorWindow 2000
   mapper2 SetColorLevel 1000
-  mapper2 SetZSlice 0 
+  mapper2 SetZSlice 0
 
 vtkImageMapper mapper3
   mapper3 SetInputConnection [reslice3 GetOutputPort]
   mapper3 SetColorWindow 2000
   mapper3 SetColorLevel 1000
-  mapper3 SetZSlice 0 
+  mapper3 SetZSlice 0
 
 vtkImageMapper mapper4
   mapper4 SetInputConnection [reslice4 GetOutputPort]
   mapper4 SetColorWindow 2000
   mapper4 SetColorLevel 1000
-  mapper4 SetZSlice 0 
+  mapper4 SetZSlice 0
 
 vtkActor2D actor1
   actor1 SetMapper mapper1

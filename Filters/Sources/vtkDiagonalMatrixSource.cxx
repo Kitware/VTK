@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkDiagonalMatrixSource.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -74,8 +74,8 @@ void vtkDiagonalMatrixSource::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------
 
 int vtkDiagonalMatrixSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   if(this->Extents < 1)
@@ -83,7 +83,7 @@ int vtkDiagonalMatrixSource::RequestData(
     vtkErrorMacro(<< "Invalid matrix extents: " << this->Extents << "x" << this->Extents << " array is not supported.");
     return 0;
     }
- 
+
   vtkArray* array = 0;
   switch(this->ArrayType)
     {
@@ -97,7 +97,7 @@ int vtkDiagonalMatrixSource::RequestData(
       vtkErrorMacro(<< "Invalid array type: " << this->ArrayType << ".");
       return 0;
     }
-    
+
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();
   output->AddArray(array);

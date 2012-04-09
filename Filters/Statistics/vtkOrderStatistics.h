@@ -128,7 +128,7 @@ protected:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ) 
+                       vtkTable* outData )
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
 //BTX

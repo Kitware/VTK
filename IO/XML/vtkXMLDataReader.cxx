@@ -40,7 +40,7 @@ vtkXMLDataReader::vtkXMLDataReader()
   this->NumberOfPointArrays = 0;
   this->NumberOfCellArrays = 0;
   this->InReadData = 0;
-  
+
   // Setup a callback for when the XMLParser's data reading routines
   // report progress.
   this->DataProgressObserver = vtkCallbackCommand::New();
@@ -115,16 +115,16 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
     }
 
   // Initialize DataArraySelections to enable all that are present
-  this->SetDataArraySelections(this->PointDataElements[0], 
+  this->SetDataArraySelections(this->PointDataElements[0],
                                this->PointDataArraySelection);
-  this->SetDataArraySelections(this->CellDataElements[0], 
+  this->SetDataArraySelections(this->CellDataElements[0],
                                this->CellDataArraySelection);
 
   // Setup the Field Information for PointData.  We only need the
   // information from one piece because all pieces have the same set of arrays.
   vtkInformationVector *infoVector = NULL;
   if (!this->SetFieldDataInfo(this->PointDataElements[0],
-                              vtkDataObject::FIELD_ASSOCIATION_POINTS, 
+                              vtkDataObject::FIELD_ASSOCIATION_POINTS,
                               this->GetNumberOfPoints(), infoVector))
     {
     return;
@@ -138,7 +138,7 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
   // now the Cell data
   infoVector = NULL;
   if (!this->SetFieldDataInfo(this->CellDataElements[0],
-                              vtkDataObject::FIELD_ASSOCIATION_CELLS, 
+                              vtkDataObject::FIELD_ASSOCIATION_CELLS,
                               this->GetNumberOfCells(), infoVector))
     {
     return;
@@ -153,13 +153,13 @@ void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
 void vtkXMLDataReader::SetupUpdateExtentInformation(vtkInformation *outInfo)
 {
   // get the current piece being requested
-  int piece = 
+  int piece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int npieces = 
+  int npieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  
-  // Setup the Field Information for PointData. 
-  vtkInformationVector *infoVector = 
+
+  // Setup the Field Information for PointData.
+  vtkInformationVector *infoVector =
     outInfo->Get(vtkDataObject::POINT_DATA_VECTOR());
   if (!this->SetUpdateExtentInfo(this->PointDataElements[piece],
                                  infoVector, piece, npieces))
@@ -177,7 +177,7 @@ void vtkXMLDataReader::SetupUpdateExtentInformation(vtkInformation *outInfo)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA, 
+int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
                                           vtkInformationVector *infoVector,
                                           int piece, int numPieces)
 {
@@ -215,7 +215,7 @@ int vtkXMLDataReader::SetUpdateExtentInfo(vtkXMLDataElement *eDSA,
 void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo,
                                              int port)
 {
-  vtkInformation *localInfo = 
+  vtkInformation *localInfo =
     this->GetExecutive()->GetOutputInformation( port );
 
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
@@ -232,11 +232,11 @@ void vtkXMLDataReader::CopyOutputInformation(vtkInformation *outInfo,
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) 
-    { 
-    return 0; 
+  if(!this->Superclass::ReadPrimaryElement(ePrimary))
+    {
+    return 0;
     }
-  
+
   // Count the number of pieces in the file.
   int numNested = ePrimary->GetNumberOfNestedElements();
   int numPieces = 0;
@@ -244,12 +244,12 @@ int vtkXMLDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   for(i=0; i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "Piece") == 0) 
-      { 
-      ++numPieces; 
+    if(strcmp(eNested->GetName(), "Piece") == 0)
+      {
+      ++numPieces;
       }
     }
-  
+
   // Now read each piece.  If no "Piece" elements were found, assume
   // the primary element itself is a single piece.
   if(numPieces)
@@ -261,9 +261,9 @@ int vtkXMLDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
       vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
       if(strcmp(eNested->GetName(), "Piece") == 0)
         {
-        if(!this->ReadPiece(eNested, piece++)) 
-          { 
-          return 0; 
+        if(!this->ReadPiece(eNested, piece++))
+          {
+          return 0;
           }
         }
       }
@@ -271,9 +271,9 @@ int vtkXMLDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   else
     {
     this->SetupPieces(1);
-    if(!this->ReadPiece(ePrimary, 0)) 
-      { 
-      return 0; 
+    if(!this->ReadPiece(ePrimary, 0))
+      {
+      return 0;
       }
     }
   return 1;
@@ -282,9 +282,9 @@ int vtkXMLDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::SetupPieces(int numPieces)
 {
-  if(this->NumberOfPieces) 
-    { 
-    this->DestroyPieces(); 
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
     }
   this->NumberOfPieces = numPieces;
   if(numPieces > 0)
@@ -315,15 +315,15 @@ void vtkXMLDataReader::DestroyPieces()
 void vtkXMLDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  
+
   vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
   vtkPointData* pointData = output->GetPointData();
   vtkCellData* cellData = output->GetCellData();
-  
+
   // Get the size of the output arrays.
   unsigned long pointTuples = this->GetNumberOfPoints();
   unsigned long cellTuples = this->GetNumberOfCells();
-  
+
   // Allocate the arrays in the output.  We only need the information
   // from one piece because all pieces have the same set of arrays.
   vtkXMLDataElement* ePointData = this->PointDataElements[0];
@@ -334,7 +334,7 @@ void vtkXMLDataReader::SetupOutputData()
     for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if (this->PointDataArrayIsEnabled(eNested) && 
+      if (this->PointDataArrayIsEnabled(eNested) &&
         !pointData->HasArray(eNested->GetAttribute("Name")))
         {
         this->NumberOfPointArrays++;
@@ -360,7 +360,7 @@ void vtkXMLDataReader::SetupOutputData()
     for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if (this->CellDataArrayIsEnabled(eNested) && 
+      if (this->CellDataArrayIsEnabled(eNested) &&
         !cellData->HasArray(eNested->GetAttribute("Name")))
         {
         this->NumberOfCellArrays++;
@@ -468,7 +468,7 @@ int vtkXMLDataReader::ReadPieceData()
   vtkCellData* cellData = output->GetCellData();
   vtkXMLDataElement* ePointData = this->PointDataElements[this->Piece];
   vtkXMLDataElement* eCellData = this->CellDataElements[this->Piece];
-  
+
   // Split current progress range over number of arrays.  This assumes
   // that each array contributes approximately the same amount of data
   // within this piece.
@@ -476,7 +476,7 @@ int vtkXMLDataReader::ReadPieceData()
   int currentArray=0;
   int numArrays = this->NumberOfPointArrays + this->NumberOfCellArrays;
   this->GetProgressRange(progressRange);
-  
+
   // Read the data for this piece from each array.
   int i;
   if(ePointData)
@@ -488,7 +488,7 @@ int vtkXMLDataReader::ReadPieceData()
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
       if (this->PointDataArrayIsEnabled(eNested))
         {
-        if( strcmp(eNested->GetName(), "DataArray") != 0  && 
+        if( strcmp(eNested->GetName(), "DataArray") != 0  &&
           strcmp(eNested->GetName(),"Array") != 0 )
           {
           vtkErrorMacro("Invalid Array.");
@@ -523,7 +523,7 @@ int vtkXMLDataReader::ReadPieceData()
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       if (this->CellDataArrayIsEnabled(eNested))
         {
-        if( strcmp(eNested->GetName(), "DataArray") != 0 && 
+        if( strcmp(eNested->GetName(), "DataArray") != 0 &&
           strcmp(eNested->GetName(),"Array") != 0 )
           {
           this->DataError = 1;
@@ -549,12 +549,12 @@ int vtkXMLDataReader::ReadPieceData()
         }
       }
     }
-  
+
   if(this->AbortExecute)
     {
     return 0;
     }
-  
+
   return 1;
 }
 
@@ -584,7 +584,7 @@ void vtkXMLDataReader::ReadXMLData()
           numTuples = 0;
           }
         fieldData->AddArray(array);
-        array->Delete(); 
+        array->Delete();
         if (!this->ReadArrayValues(eNested, 0, array, 0, numTuples*array->GetNumberOfComponents()))
           {
           this->DataError = 1;
@@ -639,9 +639,9 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
     {
     int isAscii = 1;
     const char* format = da->GetAttribute("format");
-    if(format && (strcmp(format, "binary") == 0)) 
-      { 
-      isAscii = 0; 
+    if(format && (strcmp(format, "binary") == 0))
+      {
+      isAscii = 0;
       }
     result = (xmlparser->ReadInlineData(da, isAscii, data,
         startIndex, numValues, array->GetDataType()) == num);
@@ -656,20 +656,20 @@ int vtkXMLDataReaderReadArrayValues(
   vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
   vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType startIndex, vtkIdType numValues)
 {
-  // now, for strings, we have to read from the start, as we don't have 
+  // now, for strings, we have to read from the start, as we don't have
   // support for index array yet.
   // So this specialization will read all strings starting from the beginning,
-  // start putting the strings at the requested indices into the array 
+  // start putting the strings at the requested indices into the array
   // until the request numValues are put into the array.
   vtkIdType bufstart = 0;
   vtkIdType actualNumValues = startIndex + numValues;
-  
+
   int size = 1024;
   char* buffer = new char[size+1 + 7]; // +7 is leeway.
   buffer[1024] = 0; // to avoid string reads beyond buffer size.
-  
+
   int inline_data = (da->GetAttribute("offset") == NULL);
-  
+
   unsigned long offset = 0;
   if (inline_data == 0)
     {
@@ -678,12 +678,12 @@ int vtkXMLDataReaderReadArrayValues(
 
   int isAscii = 1;
   const char* format = da->GetAttribute("format");
-  if(format && (strcmp(format, "binary") == 0)) 
-    { 
-    isAscii = 0; 
+  if(format && (strcmp(format, "binary") == 0))
+    {
+    isAscii = 0;
     }
 
-  // Now read a buffer full of data, 
+  // Now read a buffer full of data,
   // create strings out of it.
   int result = 1;
   vtkIdType inIndex = 0;
@@ -709,11 +709,11 @@ int vtkXMLDataReaderReadArrayValues(
       break;
       }
     bufstart += chars_read;
-    // now read strings 
+    // now read strings
     const char* ptr = buffer;
     const char* end_ptr = &buffer[chars_read];
     buffer[chars_read] = 0;
-    
+
     while (ptr < end_ptr)
       {
       vtkStdString temp_string = ptr; // will read in string until 0x0;
@@ -742,7 +742,7 @@ int vtkXMLDataReaderReadArrayValues(
         inIndex++;
         }
       }
-    
+
     }
   delete [] buffer;
   return result;
@@ -817,7 +817,7 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   int idx = this->PointDataArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
     this->NumberOfTimeSteps, this->TimeSteps);
   if( !(numTimeSteps <= this->NumberOfTimeSteps) )
     {
@@ -831,10 +831,10 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
     return 1;
     }
   // else TimeStep was specified but no TimeValues associated were found
-  assert( this->NumberOfTimeSteps ); 
+  assert( this->NumberOfTimeSteps );
 
   // case numTimeSteps > 1
-  int isCurrentTimeInArray = 
+  int isCurrentTimeInArray =
     vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
   if( numTimeSteps && !isCurrentTimeInArray)
     {
@@ -887,7 +887,7 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   int idx = this->CellDataArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
     this->NumberOfTimeSteps, this->TimeSteps);
   if( !(numTimeSteps <= this->NumberOfTimeSteps) )
     {
@@ -901,10 +901,10 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
     return 1;
     }
   // else TimeStep was specified but no TimeValues associated were found
-  assert( this->NumberOfTimeSteps ); 
+  assert( this->NumberOfTimeSteps );
 
   // case numTimeSteps > 1
-  int isCurrentTimeInArray = 
+  int isCurrentTimeInArray =
     vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
   if( numTimeSteps && !isCurrentTimeInArray)
     {

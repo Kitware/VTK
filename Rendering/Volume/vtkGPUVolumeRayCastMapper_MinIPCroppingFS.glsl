@@ -46,7 +46,7 @@ void writeColorAndMinScalar(vec4 sample,
   gl_FragData[0].g =sample.g * opacity.a;
   gl_FragData[0].b =sample.b * opacity.a;
   gl_FragData[0].a=opacity.a;
-  
+
   // min scalar framebuffer
   gl_FragData[1].r=minValue;
   gl_FragData[1].g=0.0;

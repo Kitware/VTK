@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 #include "vtkTimerLog.h"
@@ -73,7 +73,7 @@ void vtkCompassWidget::CreateDefaultRepresentation()
 double vtkCompassWidget::GetHeading()
 {
   this->CreateDefaultRepresentation();
-  vtkCompassRepresentation *slider = 
+  vtkCompassRepresentation *slider =
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetHeading();
 }
@@ -82,7 +82,7 @@ double vtkCompassWidget::GetHeading()
 void vtkCompassWidget::SetHeading(double value)
 {
   this->CreateDefaultRepresentation();
-  vtkCompassRepresentation *slider = 
+  vtkCompassRepresentation *slider =
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetHeading(value);
 }
@@ -91,7 +91,7 @@ void vtkCompassWidget::SetHeading(double value)
 double vtkCompassWidget::GetTilt()
 {
   this->CreateDefaultRepresentation();
-  vtkCompassRepresentation *slider = 
+  vtkCompassRepresentation *slider =
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetTilt();
 }
@@ -100,7 +100,7 @@ double vtkCompassWidget::GetTilt()
 void vtkCompassWidget::SetTilt(double value)
 {
   this->CreateDefaultRepresentation();
-  vtkCompassRepresentation *slider = 
+  vtkCompassRepresentation *slider =
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetTilt(value);
 }
@@ -109,7 +109,7 @@ void vtkCompassWidget::SetTilt(double value)
 double vtkCompassWidget::GetDistance()
 {
   this->CreateDefaultRepresentation();
-  vtkCompassRepresentation *slider = 
+  vtkCompassRepresentation *slider =
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetDistance();
 }
@@ -118,7 +118,7 @@ double vtkCompassWidget::GetDistance()
 void vtkCompassWidget::SetDistance(double value)
 {
   this->CreateDefaultRepresentation();
-  vtkCompassRepresentation *slider = 
+  vtkCompassRepresentation *slider =
     vtkCompassRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetDistance(value);
 }
@@ -126,21 +126,21 @@ void vtkCompassWidget::SetDistance(double value)
 //-------------------------------------------------------------
 void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
 {
-  vtkCompassWidget *self = 
+  vtkCompassWidget *self =
     reinterpret_cast<vtkCompassWidget*>(w);
-  
+
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if (!self->CurrentRenderer || 
-      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), 
+  if (!self->CurrentRenderer ||
+      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]),
                                            static_cast<int>(eventPos[1])))
     {
     return;
     }
-  
+
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
   self->CreateDefaultRepresentation();
@@ -167,7 +167,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkCompassWidget::TiltAdjusting;
     // Start off the timer
-    self->TimerId = 
+    self->TimerId =
       self->Interactor->CreateRepeatingTimer(self->TimerDuration);
     self->StartTime = vtkTimerLog::GetUniversalTime();
     // Highlight as necessary
@@ -200,7 +200,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkCompassWidget::DistanceAdjusting;
     // Start off the timer
-    self->TimerId = 
+    self->TimerId =
       self->Interactor->CreateRepeatingTimer(self->TimerDuration);
     self->StartTime = vtkTimerLog::GetUniversalTime();
     // Highlight as necessary
@@ -217,7 +217,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -239,7 +239,7 @@ void vtkCompassWidget::SelectAction(vtkAbstractWidget *w)
 //---------------------------------------------------------------
 void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
 {
-  vtkCompassWidget *self = 
+  vtkCompassWidget *self =
     reinterpret_cast<vtkCompassWidget*>(w);
 
   // do we need to change highlight state?
@@ -281,8 +281,8 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
     self->Render();
     return;
     }
-  
-  vtkCompassRepresentation *rep = 
+
+  vtkCompassRepresentation *rep =
     vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
 
   // Definitely moving the slider, get the updated position
@@ -300,9 +300,9 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
   if (self->WidgetState == vtkCompassWidget::Adjusting)
     {
     self->WidgetRep->WidgetInteraction(eventPos);
-    }  
+    }
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-    
+
   // Interact, if desired
   self->EventCallbackCommand->SetAbortFlag(1);
 }
@@ -311,7 +311,7 @@ void vtkCompassWidget::MoveAction(vtkAbstractWidget *w)
 //-----------------------------------------------------------------
 void vtkCompassWidget::EndSelectAction(vtkAbstractWidget *w)
 {
-  vtkCompassWidget *self = 
+  vtkCompassWidget *self =
     reinterpret_cast<vtkCompassWidget*>(w);
 
   if ( self->WidgetState != vtkCompassWidget::Adjusting &&
@@ -325,7 +325,7 @@ void vtkCompassWidget::EndSelectAction(vtkAbstractWidget *w)
     {
     // stop the timer
     self->Interactor->DestroyTimer(self->TimerId);
-    vtkCompassRepresentation *rep = 
+    vtkCompassRepresentation *rep =
       vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
     rep->EndTilt();
     }
@@ -334,7 +334,7 @@ void vtkCompassWidget::EndSelectAction(vtkAbstractWidget *w)
     {
     // stop the timer
     self->Interactor->DestroyTimer(self->TimerId);
-    vtkCompassRepresentation *rep = 
+    vtkCompassRepresentation *rep =
       vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
     rep->EndDistance();
     }
@@ -364,14 +364,14 @@ void vtkCompassWidget::EndSelectAction(vtkAbstractWidget *w)
 
 void vtkCompassWidget::TimerAction(vtkAbstractWidget *w)
 {
-  vtkCompassWidget *self = 
+  vtkCompassWidget *self =
     reinterpret_cast<vtkCompassWidget*>(w);
   int timerId = *(reinterpret_cast<int*>(self->CallData));
-  
+
   // If this is the timer event we are waiting for...
   if ( timerId == self->TimerId)
     {
-    vtkCompassRepresentation *rep = 
+    vtkCompassRepresentation *rep =
       vtkCompassRepresentation::SafeDownCast(self->WidgetRep);
     if (self->WidgetState == vtkCompassWidget::TiltAdjusting)
       {

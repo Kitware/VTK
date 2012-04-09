@@ -54,7 +54,7 @@ public:
   }
 vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
   vtkPolyData* Poly;
-  vtkLinearSelector* Selector; 
+  vtkLinearSelector* Selector;
   vtkExtractSelection* Extractor;
   vtkDataSetMapper* Mapper;
   vtkTextActor* Text;
@@ -91,7 +91,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
 
   // Read 3D unstructured input mesh
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
-  vtkSmartPointer<vtkUnstructuredGridReader> reader 
+  vtkSmartPointer<vtkUnstructuredGridReader> reader
     = vtkSmartPointer<vtkUnstructuredGridReader>::New();
   reader->SetFileName( fileName );
   delete [] fileName;
@@ -111,7 +111,7 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   vtkUnstructuredGrid* mesh = reader->GetOutput();
   vtkSmartPointer<vtkMultiBlockDataSet> meshMB = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   meshMB->SetNumberOfBlocks( 1 );
-  meshMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
+  meshMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" );
   meshMB->SetBlock( 0, mesh );
 
   // Create broken line widget, attach it to input mesh

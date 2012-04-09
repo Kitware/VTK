@@ -44,7 +44,7 @@
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
 
-#define BUFFER_SIZE 32768 
+#define BUFFER_SIZE 32768
 
 vtkStandardNewMacro(vtkRCalculatorFilter);
 
@@ -174,17 +174,17 @@ void vtkRCalculatorFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CurrentTime: " << endl;
 
-  if (this->CurrentTime) 
+  if (this->CurrentTime)
     {
-    this->CurrentTime->PrintSelf(os, indent.GetNextIndent()); 
+    this->CurrentTime->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
     os << indent << "(none)" << endl;
     }
- 
+
   os << indent << "TimeRange: " << endl;
-  
+
   if (this->TimeRange)
     {
     this->TimeRange->PrintSelf(os, indent.GetNextIndent());
@@ -231,8 +231,8 @@ void vtkRCalculatorFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkRCalculatorFilter::ProcessRequest(
-    vtkInformation* request, 
-    vtkInformationVector** inputVector, 
+    vtkInformation* request,
+    vtkInformationVector** inputVector,
     vtkInformationVector* outputVector)
 {
   // create the output
@@ -246,8 +246,8 @@ int vtkRCalculatorFilter::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkRCalculatorFilter::RequestDataObject(
-    vtkInformation*, 
-    vtkInformationVector** inputVector , 
+    vtkInformation*,
+    vtkInformationVector** inputVector ,
     vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -256,7 +256,7 @@ int vtkRCalculatorFilter::RequestDataObject(
     return 0;
     }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
     // for each output
@@ -264,8 +264,8 @@ int vtkRCalculatorFilter::RequestDataObject(
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
@@ -515,7 +515,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
       return(1);
       }
 
-    for(VectorIterator = this->rcfi->PutArrNames.begin(); 
+    for(VectorIterator = this->rcfi->PutArrNames.begin();
         VectorIterator != this->rcfi->PutArrNames.end();
         VectorIterator++)
       {
@@ -570,7 +570,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
         }
       }
 
-      for(VectorIterator = this->rcfi->GetArrNames.begin(); 
+      for(VectorIterator = this->rcfi->GetArrNames.begin();
           VectorIterator != this->rcfi->GetArrNames.end();
           VectorIterator++)
         {
@@ -613,7 +613,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
     }
   else if(adinp)
     {
-    for(VectorIterator = this->rcfi->PutArrNames.begin(); 
+    for(VectorIterator = this->rcfi->PutArrNames.begin();
         VectorIterator != this->rcfi->PutArrNames.end();
         VectorIterator++)
       {
@@ -662,7 +662,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
         }
       }
 
-    for(VectorIterator = this->rcfi->GetArrNames.begin(); 
+    for(VectorIterator = this->rcfi->GetArrNames.begin();
         VectorIterator != this->rcfi->GetArrNames.end();
         VectorIterator++)
       {
@@ -717,7 +717,7 @@ int vtkRCalculatorFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
     return(1);
     }
 
-  for(VectorIterator = this->rcfi->PutArrNames.begin(); 
+  for(VectorIterator = this->rcfi->PutArrNames.begin();
       VectorIterator != this->rcfi->PutArrNames.end();
       VectorIterator++)
     {
@@ -772,7 +772,7 @@ int vtkRCalculatorFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
       }
     }
 
-  for(VectorIterator = this->rcfi->GetArrNames.begin(); 
+  for(VectorIterator = this->rcfi->GetArrNames.begin();
       VectorIterator != this->rcfi->GetArrNames.end();
       VectorIterator++)
     {

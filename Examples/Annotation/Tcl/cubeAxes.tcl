@@ -107,7 +107,7 @@ vtkCubeAxesActor2D axes
     axes SetFontFactor 0.8
     axes SetAxisTitleTextProperty tprop
     axes SetAxisLabelTextProperty tprop
-ren1 AddViewProp axes 
+ren1 AddViewProp axes
 
 # Create a vtkCubeAxesActor2D.  Use the closest vertex to the camera to
 # determine where to draw the axes.  Add the actor to the renderer.
@@ -120,7 +120,7 @@ vtkCubeAxesActor2D axes2
     axes2 ScalingOff
     axes2 SetAxisTitleTextProperty tprop
     axes2 SetAxisLabelTextProperty tprop
-ren2 AddViewProp axes2 
+ren2 AddViewProp axes2
 
 # No fly mode.
 vtkCubeAxesActor2D axes3
@@ -132,7 +132,7 @@ vtkCubeAxesActor2D axes3
     axes3 ScalingOff
     axes3 SetAxisTitleTextProperty tprop
     axes3 SetAxisLabelTextProperty tprop
-ren3 AddViewProp axes3 
+ren3 AddViewProp axes3
 
 # No fly mode + set a custom z origin.
 vtkCubeAxesActor2D axes4
@@ -146,7 +146,7 @@ vtkCubeAxesActor2D axes4
     axes4 SetAxisLabelTextProperty tprop
     axes4 SetZOrigin 0.0
     axes4 ZAxisVisibilityOff
-ren4 AddViewProp axes4 
+ren4 AddViewProp axes4
 
 
 # Render

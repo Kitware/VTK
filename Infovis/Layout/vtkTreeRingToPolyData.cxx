@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
   Program:   Visualization Toolkit
   Module:    vtkTreeRingToPolyData.cxx
 
@@ -65,7 +65,7 @@ int vtkTreeRingToPolyData::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // get the input and output
   vtkTree *inputTree = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -114,9 +114,9 @@ int vtkTreeRingToPolyData::RequestData(
       {
       coordArray->GetTuple(i,coords);
       }
-    
+
     double radial_length = coords[3] - coords[2];
-    
+
     // Calculate the amount of change in the arcs based on the shrink
     // percentage of the arc_length
     double conversion = vtkMath::Pi()/180.;
@@ -131,11 +131,11 @@ int vtkTreeRingToPolyData::RequestData(
       {
       arc_length_shrink = radial_shrink;
       }
-    
+
     double arc_length_new = arc_length - arc_length_shrink;
     double angle_change = ((arc_length_new/coords[3])/conversion);
     double delta_change_each = 0.5*((coords[1]-coords[0]) - angle_change);
-    
+
     double inner_radius = coords[2] + (0.5*(radial_length*this->ShrinkPercentage));
     double outer_radius = coords[3] - (0.5*(radial_length*this->ShrinkPercentage));
     double start_angle;
@@ -150,7 +150,7 @@ int vtkTreeRingToPolyData::RequestData(
       start_angle = coords[0] + delta_change_each;
       end_angle = coords[1] - delta_change_each;
       }
-    
+
     int num_angles = static_cast<int>(end_angle - start_angle);
     if ( num_angles < 1 )
       {
@@ -190,10 +190,10 @@ int vtkTreeRingToPolyData::RequestData(
       this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
       }
     }
-  
+
   outputPoly->SetPoints(pts);
   outputPoly->SetStrips(strips);
-  
+
   // Pass the input vertex data to the output cell data :)
   vtkDataSetAttributes* const input_vertex_data = inputTree->GetVertexData();
   vtkDataSetAttributes* const output_cell_data = outputPoly->GetCellData();

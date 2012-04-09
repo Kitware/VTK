@@ -109,13 +109,13 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   lines->InsertNextCell(2); //right jump
   lines->InsertCellPoint(41);
   lines->InsertCellPoint(42);
-  
+
   vtkCellArray *polys = vtkCellArray::New();
   polys->InsertNextCell(3); //left jump
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
   polys->InsertCellPoint(4);
-  polys->InsertNextCell(3); 
+  polys->InsertNextCell(3);
   polys->InsertCellPoint(5);
   polys->InsertCellPoint(6);
   polys->InsertCellPoint(7);
@@ -123,7 +123,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   polys->InsertCellPoint(12);
   polys->InsertCellPoint(13);
   polys->InsertCellPoint(14);
-  polys->InsertNextCell(3); 
+  polys->InsertNextCell(3);
   polys->InsertCellPoint(15);
   polys->InsertCellPoint(16);
   polys->InsertCellPoint(17);
@@ -140,7 +140,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   polys->InsertCellPoint(25);
   polys->InsertCellPoint(26);
   polys->InsertCellPoint(27);
-  polys->InsertNextCell(3); 
+  polys->InsertNextCell(3);
   polys->InsertCellPoint(28);
   polys->InsertCellPoint(29);
   polys->InsertCellPoint(30);
@@ -148,7 +148,7 @@ vtkPlaybackRepresentation::vtkPlaybackRepresentation()
   polys->InsertCellPoint(35);
   polys->InsertCellPoint(36);
   polys->InsertCellPoint(37);
-  polys->InsertNextCell(3); 
+  polys->InsertNextCell(3);
   polys->InsertCellPoint(38);
   polys->InsertCellPoint(39);
   polys->InsertCellPoint(40);
@@ -244,7 +244,7 @@ int vtkPlaybackRepresentation::HasTranslucentPolygonalGeometry()
 void vtkPlaybackRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Property )
     {
     os << indent << "Property:\n";

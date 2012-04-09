@@ -28,8 +28,8 @@
 
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
-// Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
-// and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
+// Create object with cylinder axis parallel to z-axis (points (0,0,-0.5)
+// and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is
 // automatically generated.
 vtkTextureMapToCylinder::vtkTextureMapToCylinder()
 {
@@ -101,10 +101,10 @@ int vtkTextureMapToCylinder::RequestData(
       this->Point2[i] = corner[i] + max[i] + l;
       }
 
-    vtkDebugMacro(<<"Cylinder axis computed as \tPoint1: (" 
-                  << this->Point1[0] <<", " << this->Point1[1] <<", " 
+    vtkDebugMacro(<<"Cylinder axis computed as \tPoint1: ("
+                  << this->Point1[0] <<", " << this->Point1[1] <<", "
                   << this->Point1[2] <<")\n\t\t\t\tPoint2: ("
-                  << this->Point2[0] <<", " << this->Point2[1] <<", " 
+                  << this->Point2[0] <<", " << this->Point2[1] <<", "
                   << this->Point2[2] <<")");
     }
 
@@ -183,9 +183,9 @@ void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Automatic Cylinder Generation: " << 
+  os << indent << "Automatic Cylinder Generation: " <<
                   (this->AutomaticCylinderGeneration ? "On\n" : "Off\n");
-  os << indent << "Prevent Seam: " << 
+  os << indent << "Prevent Seam: " <<
                   (this->PreventSeam ? "On\n" : "Off\n");
   os << indent << "Point1: (" << this->Point1[0] << ", "
                               << this->Point1[1] << ", "

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkGeodesicPath - Abstract base for classes that generate a geodesic path
 // .SECTION Description
-// Serves as a base class for algorithms that trace a geodesic path on a 
+// Serves as a base class for algorithms that trace a geodesic path on a
 // polygonal dataset.
 
 #ifndef __vtkGeodesicPath_h

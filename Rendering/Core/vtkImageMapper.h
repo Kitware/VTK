@@ -50,7 +50,7 @@ public:
   // Set/Get the window value for window/level
   vtkSetMacro(ColorWindow, double);
   vtkGetMacro(ColorWindow, double);
-  
+
   // Description:
   // Set/Get the level value for window/level
   vtkSetMacro(ColorLevel, double);
@@ -86,7 +86,7 @@ public:
   int DisplayExtent[6];
 
   // Description:
-  // Set the Input of a filter. 
+  // Set the Input of a filter.
   virtual void SetInputData(vtkImageData *input);
   vtkImageData *GetInput();
 

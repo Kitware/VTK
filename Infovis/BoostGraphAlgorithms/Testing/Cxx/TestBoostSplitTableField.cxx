@@ -47,15 +47,15 @@ int TestBoostSplitTableField(int argc, char* argv[])
   split->AddInputConnection(reader->GetOutputPort());
   split->AddField("Author", ";");
 
-  split->Update(); 
+  split->Update();
   vtkTable* const table = split->GetOutput();
 
-  int error_count = 0; 
+  int error_count = 0;
 
   // Test the size of the output table ...
   TestValue(table->GetNumberOfColumns(), vtkIdType(5), "Column count", error_count);
   TestValue(table->GetNumberOfRows(), vtkIdType(9), "Row count", error_count);
-  
+
   // Test a sampling of the table columns ...
   TestValue(vtkStdString(table->GetColumnName(0)), vtkStdString("PubID"), "Column 0", error_count);
   TestValue(vtkStdString(table->GetColumnName(1)), vtkStdString("Author"), "Column 1", error_count);
@@ -71,10 +71,10 @@ int TestBoostSplitTableField(int argc, char* argv[])
   TestValue(table->GetValue(7, 0).ToString(), vtkStdString("P008"), "value 7, 0", error_count);
   TestValue(table->GetValue(7, 1).ToString(), vtkStdString("Biff"), "value 7, 1", error_count);
   TestValue(table->GetValue(7, 2).ToString(), vtkStdString("American Crafts and Holistic Medicine Quarterly"), "value 7, 2", error_count);
-  
+
   TestValue(table->GetValue(8, 0).ToString(), vtkStdString("P008"), "value 8, 0", error_count);
   TestValue(table->GetValue(8, 1).ToString(), vtkStdString("Bob"), "value 8, 1", error_count);
   TestValue(table->GetValue(8, 2).ToString(), vtkStdString("American Crafts and Holistic Medicine Quarterly"), "value 8, 2", error_count);
-  
+
   return error_count;
 }

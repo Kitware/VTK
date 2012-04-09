@@ -42,7 +42,7 @@ vtkArcSource::vtkArcSource(int res)
   this->Center[0] =  0.0;
   this->Center[1] =  0.0;
   this->Center[2] =  0.0;
-  
+
   this->Resolution = (res < 1 ? 1 : res);
   this->Negative = false;
 
@@ -71,7 +71,7 @@ int vtkArcSource::RequestData(
   int numLines = this->Resolution;
   int numPts = this->Resolution+1;
   double tc[3] = {0.0, 0.0, 0.0};
-  
+
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -79,11 +79,11 @@ int vtkArcSource::RequestData(
     {
     return 1;
     }
-  
+
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // Compute the cross product of the two vectors.
   double v1[3] = { this->Point1[0] - this->Center[0],
                    this->Point1[1] - this->Center[1],
@@ -96,7 +96,7 @@ int vtkArcSource::RequestData(
   vtkMath::Cross( v1, v2, normal );
   vtkMath::Cross( normal, v1, perpendicular );
   vtkMath::Normalize( perpendicular );
-  double dotprod = 
+  double dotprod =
     vtkMath::Dot( v1, v2 ) / (vtkMath::Norm(v1) * vtkMath::Norm(v2));
   double angle = acos( dotprod );
   if (this->Negative)
@@ -105,7 +105,7 @@ int vtkArcSource::RequestData(
     }
   double radius = vtkMath::Normalize( v1 );
   double angleInc = angle / this->Resolution;
-  
+
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
   vtkFloatArray *newTCoords = vtkFloatArray::New();
@@ -114,17 +114,17 @@ int vtkArcSource::RequestData(
   newTCoords->SetName("Texture Coordinates");
   vtkCellArray *newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
-  
+
   double theta = 0.0;
   for (int i = 0; i < this->Resolution; i++, theta += angleInc)
     {
     const double cosine = cos(theta);
     const double sine = sin(theta);
-    double p[3] = 
+    double p[3] =
       { this->Center[0] + cosine*radius*v1[0] + sine*radius*perpendicular[0],
         this->Center[1] + cosine*radius*v1[1] + sine*radius*perpendicular[1],
         this->Center[2] + cosine*radius*v1[2] + sine*radius*perpendicular[2] };
-    
+
     tc[0] = static_cast<double>(i)/this->Resolution;
     newPoints->InsertPoint(i,p);
     newTCoords->InsertTuple(i,tc);
@@ -135,7 +135,7 @@ int vtkArcSource::RequestData(
   newTCoords->InsertTuple(this->Resolution,tc);
 
   newLines->InsertNextCell(numPts);
-  for (int k=0; k < numPts; k++) 
+  for (int k=0; k < numPts; k++)
     {
     newLines->InsertCellPoint (k);
     }
@@ -170,7 +170,7 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: (" << this->Center[0] << ", "
                               << this->Center[1] << ", "
                               << this->Center[2] << ")\n";
-  
+
   os << indent << "Negative: " << this->Negative << "\n";
 }
 

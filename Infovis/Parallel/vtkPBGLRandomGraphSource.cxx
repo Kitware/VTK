@@ -82,7 +82,7 @@ vtkPBGLRandomGraphSource::~vtkPBGLRandomGraphSource()
 
 // ----------------------------------------------------------------------
 
-void 
+void
 vtkPBGLRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -107,10 +107,10 @@ vtkPBGLRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 
 // ----------------------------------------------------------------------
 
-int 
+int
 vtkPBGLRandomGraphSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector *outputVector)
 {
   int myRank;
@@ -120,13 +120,13 @@ vtkPBGLRandomGraphSource::RequestData(
 
   // Seed the random number generator so we can produce repeatable results
   vtkMath::RandomSeed(this->Seed);
-  
+
   // Create a mutable graph of the appropriate type.
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-    
+
   // Create a Parallel BGL distributed graph helper
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper
     = vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
@@ -177,16 +177,16 @@ vtkPBGLRandomGraphSource::RequestData(
       // Pick a random vertex in [0, i-1].
       int j = static_cast<vtkIdType>(vtkMath::Random(0, i));
 
-      vtkIdType iVertex 
+      vtkIdType iVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(i),
                                     distribution.GetLocalIndexOfElement(i));
-      vtkIdType jVertex 
+      vtkIdType jVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(j),
                                     distribution.GetLocalIndexOfElement(j));
 
       if (this->Directed)
         {
-        dirBuilder->LazyAddEdge(jVertex, iVertex); 
+        dirBuilder->LazyAddEdge(jVertex, iVertex);
         }
       else
         {
@@ -202,13 +202,13 @@ vtkPBGLRandomGraphSource::RequestData(
     {
     for (vtkIdType i = myStartVertex; i < myEndVertex; i++)
       {
-      vtkIdType iVertex 
+      vtkIdType iVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(i),
                                     distribution.GetLocalIndexOfElement(i));
       vtkIdType begin = this->Directed ? 0 : i + 1;
       for (vtkIdType j = begin; j < this->NumberOfVertices; j++)
         {
-        vtkIdType jVertex 
+        vtkIdType jVertex
           = helper->MakeDistributedId(distribution.GetProcessorOfElement(j),
                                       distribution.GetLocalIndexOfElement(j));
         double r = vtkMath::Random();
@@ -237,7 +237,7 @@ vtkPBGLRandomGraphSource::RequestData(
       {
       MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
       }
-    
+
     if (this->NumberOfEdges > MaxEdges)
       {
       this->NumberOfEdges = MaxEdges;
@@ -260,12 +260,12 @@ vtkPBGLRandomGraphSource::RequestData(
 
         if (this->AllowBalancedEdgeDistribution)
           {
-          s = static_cast<vtkIdType>(vtkMath::Random(myStartVertex, 
+          s = static_cast<vtkIdType>(vtkMath::Random(myStartVertex,
                                                      myEndVertex));
           }
         else
           {
-          s = static_cast<vtkIdType>(vtkMath::Random(0, 
+          s = static_cast<vtkIdType>(vtkMath::Random(0,
                                                      this->NumberOfVertices));
           }
         t = static_cast<vtkIdType>(vtkMath::Random(0, this->NumberOfVertices));
@@ -274,10 +274,10 @@ vtkPBGLRandomGraphSource::RequestData(
           continue;
           }
 
-      vtkIdType sVertex 
+      vtkIdType sVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(s),
                                     distribution.GetLocalIndexOfElement(s));
-      vtkIdType tVertex 
+      vtkIdType tVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(t),
                                     distribution.GetLocalIndexOfElement(t));
 
@@ -359,8 +359,8 @@ vtkPBGLRandomGraphSource::RequestData(
 
     // Figure out how many edges come before us in the graph.
     boost::mpi::communicator world;
-    vtkIdType myStartEdge 
-      = boost::mpi::scan(world, output->GetNumberOfEdges(), 
+    vtkIdType myStartEdge
+      = boost::mpi::scan(world, output->GetNumberOfEdges(),
                          std::plus<vtkIdType>());
 
     vtkIdType numEdge = output->GetNumberOfEdges();
@@ -380,12 +380,12 @@ vtkPBGLRandomGraphSource::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkPBGLRandomGraphSource::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* )
 {
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current 
+  if (!current
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
     {

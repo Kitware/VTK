@@ -39,18 +39,18 @@ public:
   // Description:
   // Setting the graph for the layout strategy
   virtual void SetGraph(vtkGraph *graph);
-  
+
   // Description:
   // This method allows the layout strategy to
   // do initialization of data structures
-  // or whatever else it might want to do. 
+  // or whatever else it might want to do.
   virtual void Initialize() {};
-  
+
   // Description:
   // This is the layout method where the graph that was
   // set in SetGraph() is laid out.
   virtual void Layout()=0;
-  
+
   // Description:
   // Set/Get the field to use for the edge weights.
   vtkSetStringMacro(EdgeWeightArrayName);
@@ -59,7 +59,7 @@ public:
 protected:
   vtkEdgeLayoutStrategy();
   ~vtkEdgeLayoutStrategy();
-  
+
   vtkGraph *Graph;
   char     *EdgeWeightArrayName;
 

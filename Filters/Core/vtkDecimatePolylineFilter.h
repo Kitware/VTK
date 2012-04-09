@@ -60,7 +60,7 @@ public:
   // Description:
   // Specify the desired reduction in the total number of polygons (e.g., if
   // TargetReduction is set to 0.9, this filter will try to reduce the data set
-  // to 10% of its original size). 
+  // to 10% of its original size).
   vtkSetClampMacro(TargetReduction,double,0.0,1.0);
   vtkGetMacro(TargetReduction,double);
 

@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkAnimationCue and vtkAnimationScene provide the framework to support
 // animations in VTK. vtkAnimationCue represents an entity that changes/
-// animates with time, while vtkAnimationScene represents scene or setup 
+// animates with time, while vtkAnimationScene represents scene or setup
 // for the animation, which consists of individual cues or other scenes.
 //
 // A scene can be played in real time mode, or as a seqence of frames
@@ -47,7 +47,7 @@ public:
   // In the Sequence mode, all the frames are generated one after the other.
   // The time reported to each Tick of the constituent cues (during Play) is
   // incremented by 1/frame rate, irrespective of the current time.
-  // In the RealTime mode, time indicates the instance in time. 
+  // In the RealTime mode, time indicates the instance in time.
   vtkSetMacro(PlayMode, int);
   void SetModeToSequence() { this->SetPlayMode(PLAYMODE_SEQUENCE); }
   void SetModeToRealTime() { this->SetPlayMode(PLAYMODE_REALTIME); }
@@ -59,7 +59,7 @@ public:
   // indicated to each cue on every tick is progressed by 1/frame-rate seconds.
   vtkSetMacro(FrameRate, double);
   vtkGetMacro(FrameRate, double);
-  
+
   // Description:
   // Add/Remove an AnimationCue to/from the Scene.
   // It's an error to add a cue twice to the Scene.
@@ -67,7 +67,7 @@ public:
   void RemoveCue(vtkAnimationCue* cue);
   void RemoveAllCues();
   int  GetNumberOfCues();
-  
+
   // Description:
   // Starts playing the animation scene. Fires a vtkCommand::StartEvent
   // before play beings and vtkCommand::EndEvent after play ends.
@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Returns if the animation is being played.
-  int IsInPlay() { return this->InPlay; } 
+  int IsInPlay() { return this->InPlay; }
 
 //BTX
   enum PlayModes
@@ -117,7 +117,7 @@ protected:
 
   void InitializeChildren();
   void FinalizeChildren();
-  
+
   int PlayMode;
   double FrameRate;
   int Loop;
@@ -128,7 +128,7 @@ protected:
   vtkCollection* AnimationCues;
   vtkCollectionIterator* AnimationCuesIterator;
   vtkTimerLog* AnimationTimer;
-  
+
 private:
   vtkAnimationScene(const vtkAnimationScene&); // Not implemented.
   void operator=(const vtkAnimationScene&); // Not implemented.

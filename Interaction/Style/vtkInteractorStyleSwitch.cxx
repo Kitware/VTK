@@ -26,7 +26,7 @@
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleSwitch::vtkInteractorStyleSwitch() 
+vtkInteractorStyleSwitch::vtkInteractorStyleSwitch()
 {
   this->JoystickActor = vtkInteractorStyleJoystickActor::New();
   this->JoystickCamera = vtkInteractorStyleJoystickCamera::New();
@@ -38,17 +38,17 @@ vtkInteractorStyleSwitch::vtkInteractorStyleSwitch()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch() 
+vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 {
   this->JoystickActor->Delete();
   this->JoystickActor = NULL;
-  
+
   this->JoystickCamera->Delete();
   this->JoystickCamera = NULL;
-  
+
   this->TrackballActor->Delete();
   this->TrackballActor = NULL;
-  
+
   this->TrackballCamera->Delete();
   this->TrackballCamera = NULL;
 }
@@ -60,20 +60,20 @@ void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( int value )
     {
     return;
     }
-  
+
   if ( value < 0 || value > 1 )
     {
     vtkErrorMacro("Value must be between 0 and 1 for" <<
                   " SetAutoAdjustCameraClippingRange");
     return;
     }
-  
+
   this->AutoAdjustCameraClippingRange = value;
   this->JoystickActor->SetAutoAdjustCameraClippingRange( value );
   this->JoystickCamera->SetAutoAdjustCameraClippingRange( value );
   this->TrackballActor->SetAutoAdjustCameraClippingRange( value );
   this->TrackballCamera->SetAutoAdjustCameraClippingRange( value );
-  
+
   this->Modified();
 }
 
@@ -110,7 +110,7 @@ void vtkInteractorStyleSwitch::SetCurrentStyleToTrackballCamera()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSwitch::OnChar() 
+void vtkInteractorStyleSwitch::OnChar()
 {
   switch (this->Interactor->GetKeyCode())
     {
@@ -146,11 +146,11 @@ void vtkInteractorStyleSwitch::OnChar()
 // and the currentstyle should not change.
 void vtkInteractorStyleSwitch::SetCurrentStyle()
 {
-  // if the currentstyle does not match JoystickOrTrackball 
+  // if the currentstyle does not match JoystickOrTrackball
   // and CameraOrActor ivars, then call SetInteractor(0)
   // on the Currentstyle to remove all of the observers.
-  // Then set the Currentstyle and call SetInteractor with 
-  // this->Interactor so the callbacks are set for the 
+  // Then set the Currentstyle and call SetInteractor with
+  // this->Interactor so the callbacks are set for the
   // currentstyle.
   if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
       this->CameraOrActor == VTKIS_CAMERA)
@@ -223,11 +223,11 @@ void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
   // add observers for each of the events handled in ProcessEvents
   if(iren)
     {
-    iren->AddObserver(vtkCommand::CharEvent, 
+    iren->AddObserver(vtkCommand::CharEvent,
                       this->EventCallbackCommand,
                       this->Priority);
 
-    iren->AddObserver(vtkCommand::DeleteEvent, 
+    iren->AddObserver(vtkCommand::DeleteEvent,
                       this->EventCallbackCommand,
                       this->Priority);
     }

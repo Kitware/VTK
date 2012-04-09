@@ -67,7 +67,7 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
       } \
     </Shader> \
   </Material>";
-  
+
   char* fname1 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/RedCircle.png");
   char* fname2 =
@@ -142,7 +142,7 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
 
   vtkActor * actor = vtkActor::New();
 
-  vtkOpenGLHardwareSupport * hardware = 
+  vtkOpenGLHardwareSupport * hardware =
     vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
 
   if(hardware->GetSupportsMultiTexturing() && hardware->GetNumberOfTextureUnits() > 2)
@@ -169,7 +169,7 @@ int TestMultiTexturingGLSL(int argc, char *argv[])
   renWin->SetSize(300, 300);
   renWin->AddRenderer(renderer);
   renderer->SetBackground(1.0, 0.5, 1.0);
-  
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 

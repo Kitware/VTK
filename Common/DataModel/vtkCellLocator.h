@@ -24,8 +24,8 @@
 // candidate cells.
 
 // .SECTION Caveats
-// Many other types of spatial locators have been developed, such as 
-// variable depth octrees and kd-trees. These are often more efficient 
+// Many other types of spatial locators have been developed, such as
+// variable depth octrees and kd-trees. These are often more efficient
 // for the operations described here. vtkCellLocator has been designed
 // for subclassing; so these locators can be derived if necessary.
 
@@ -53,9 +53,9 @@ public:
 
   // Description:
   // Specify the average number of cells in each octant.
-  void SetNumberOfCellsPerBucket(int N) 
+  void SetNumberOfCellsPerBucket(int N)
   { this->SetNumberOfCellsPerNode(N); }
-  int GetNumberOfCellsPerBucket()  
+  int GetNumberOfCellsPerBucket()
   { return this->NumberOfCellsPerNode; }
 
 //BTX
@@ -73,7 +73,7 @@ public:
   virtual int IntersectWithLine(
     double a0[3], double a1[3], double tol,
     double& t, double x[3], double pcoords[3],
-    int &subId) 
+    int &subId)
   {
     return Superclass::
       IntersectWithLine(a0, a1, tol,t, x, pcoords, subId);
@@ -118,7 +118,7 @@ public:
     Superclass::
       FindClosestPoint(x, closestPoint, cellId, subId, dist2);
   }
-  
+
   // Description:
   // Return the closest point and the cell which is closest to the point x.
   // The closest point is somewhere on a cell, it need not be one of the
@@ -131,7 +131,7 @@ public:
   // exit.
   virtual void FindClosestPoint(
     double x[3], double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId, 
+    vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2);
 
   // Description:
@@ -144,7 +144,7 @@ public:
     return Superclass::FindClosestPointWithinRadius
       (x, radius, closestPoint, cellId, subId, dist2);
   }
- 
+
   // Description:
   // reimplemented from vtkAbstractCellLocator to support bad compilers
   virtual vtkIdType FindClosestPointWithinRadius(
@@ -177,18 +177,18 @@ public:
     double x[3], double radius, double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2, int &inside);
-  
+
   // Description:
   // Get the cells in a particular bucket.
   virtual vtkIdList *GetCells(int bucket);
 
   // Description:
-  // Return number of buckets available. Insure that the locator has been 
+  // Return number of buckets available. Insure that the locator has been
   // built before attempting to access buckets (octants).
   virtual int GetNumberOfBuckets(void);
 
   // Description:
-  // Returns the Id of the cell containing the point, 
+  // Returns the Id of the cell containing the point,
   // returns -1 if no cell found. This interface uses a tolerance of zero
   virtual vtkIdType FindCell(double x[3])
     { return this->Superclass::FindCell(x); }
@@ -198,7 +198,7 @@ public:
   // the cell parameters are copied into the supplied variables, a cell must
   // be provided to store the information.
   virtual vtkIdType FindCell(
-    double x[3], double tol2, vtkGenericCell *GenCell, 
+    double x[3], double tol2, vtkGenericCell *GenCell,
     double pcoords[3], double *weights);
 
   // Description:
@@ -224,13 +224,13 @@ public:
   virtual void ForceBuildLocator();
   virtual void BuildLocatorInternal();
   virtual void GenerateRepresentation(int level, vtkPolyData *pd);
-  
+
 protected:
   vtkCellLocator();
   ~vtkCellLocator();
 
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
-  void GetOverlappingBuckets(double x[3], int ijk[3], double dist, 
+  void GetOverlappingBuckets(double x[3], int ijk[3], double dist,
                              int prevMinLevel[3], int prevMaxLevel[3]);
 
   void ClearCellHasBeenVisited();
@@ -238,7 +238,7 @@ protected:
 
   double Distance2ToBucket(double x[3], int nei[3]);
   double Distance2ToBounds(double x[3], double bounds[6]);
-  
+
   int NumberOfOctants; // number of octants in tree
   double Bounds[6]; // bounding box root octant
   int NumberOfParents; // number of parent octants

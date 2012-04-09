@@ -89,7 +89,7 @@ bool vtkUndirectedGraph::IsStructureValid(vtkGraph *g)
   // Loop edges should be in exactly one edge list.
   vtksys_stl::vector<vtkIdType> place(g->GetNumberOfEdges(), -1);
   vtksys_stl::vector<vtkIdType> count(g->GetNumberOfEdges(), 0);
-  vtkSmartPointer<vtkOutEdgeIterator> outIter = 
+  vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)
     {

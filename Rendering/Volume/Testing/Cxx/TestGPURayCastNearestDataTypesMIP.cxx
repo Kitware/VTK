@@ -43,15 +43,15 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   char *cfname=
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
-  
+
   vtkXMLImageDataReader *reader=vtkXMLImageDataReader::New();
   reader->SetFileName(cfname);
   delete [] cfname;
-  
+
   vtkImageShiftScale *shiftScale[4][2];
   vtkColorTransferFunction *color[4][2];
   vtkPiecewiseFunction *opacity[4][2];
-  
+
 // unsigned char
   shiftScale[0][0]=vtkImageShiftScale::New();
   shiftScale[0][0]->SetInputConnection(reader->GetOutputPort());
@@ -69,7 +69,7 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
   shiftScale[0][1]->SetInputConnection(shiftScale[0][0]->GetOutputPort());
   shiftScale[0][1]->SetShift(-128);
   shiftScale[0][1]->SetOutputScalarType(15);
-  
+
   color[0][1]=vtkColorTransferFunction::New();
   color[0][1]->AddRGBPoint(-128,0,0,1,0.5,1.0);
   color[0][1]->AddRGBPoint(127,0,1,0);
@@ -115,26 +115,26 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
   color[2][0]=vtkColorTransferFunction::New();
   color[2][0]->AddRGBPoint(0,0,0,1,0.5,1.0);
   color[2][0]->AddRGBPoint(VTK_UNSIGNED_INT_MAX,0,1,0);
-  
+
   opacity[2][0]=vtkPiecewiseFunction::New();
   opacity[2][0]->AddPoint(0,0);
   opacity[2][0]->AddPoint(VTK_UNSIGNED_INT_MAX,1);
-  
+
 // int
   shiftScale[2][1]=vtkImageShiftScale::New();
   shiftScale[2][1]->SetInputConnection(shiftScale[2][0]->GetOutputPort());
   shiftScale[2][1]->SetShift(VTK_INT_MIN);
   shiftScale[2][1]->SetOutputScalarTypeToInt();
-  
+
   color[2][1]=vtkColorTransferFunction::New();
   color[2][1]->AddRGBPoint(VTK_INT_MIN,0,0,1,0.5,1.0);
   color[2][1]->AddRGBPoint(VTK_INT_MAX,0,1,0);
-  
+
   opacity[2][1]=vtkPiecewiseFunction::New();
-  
+
   opacity[2][1]->AddPoint(VTK_INT_MIN,0);
   opacity[2][1]->AddPoint(VTK_INT_MAX,1);
-  
+
 // float [-1 1]
   vtkImageShiftScale *shiftScale_3_0_pre=vtkImageShiftScale::New();
   shiftScale_3_0_pre->SetInputConnection(reader->GetOutputPort());
@@ -149,11 +149,11 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
   color[3][0]=vtkColorTransferFunction::New();
   color[3][0]->AddRGBPoint(-1.0,0,0,1,0.5,1.0);
   color[3][0]->AddRGBPoint(1.0,0,1,0);
-  
+
   opacity[3][0]=vtkPiecewiseFunction::New();
   opacity[3][0]->AddPoint(-1.0,0);
   opacity[3][0]->AddPoint(1.0,1);
-  
+
 // double [-1000 3000]
   vtkImageShiftScale *shiftScale_3_1_pre=vtkImageShiftScale::New();
   shiftScale_3_1_pre->SetInputConnection(reader->GetOutputPort());
@@ -179,14 +179,14 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
   renWin->SetSize(600,300);
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   renWin->Render();
-  
+
   vtkGPUVolumeRayCastMapper *volumeMapper[4][2];
   vtkVolumeProperty *volumeProperty[4][2];
   vtkVolume *volume[4][2];
   vtkTransform *userMatrix[4][2];
-  
+
   int i=0;
   while(i<4)
     {
@@ -197,30 +197,30 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
       volumeMapper[i][j]->SetBlendModeToMaximumIntensity();
       volumeMapper[i][j]->SetInputConnection(
         shiftScale[i][j]->GetOutputPort());
-      
+
       volumeProperty[i][j]=vtkVolumeProperty::New();
       volumeProperty[i][j]->SetColor(color[i][j]);
       volumeProperty[i][j]->SetScalarOpacity(opacity[i][j]);
       volumeProperty[i][j]->SetInterpolationType(VTK_NEAREST_INTERPOLATION);
-      
+
       volume[i][j]=vtkVolume::New();
       volume[i][j]->SetMapper(volumeMapper[i][j]);
       volume[i][j]->SetProperty(volumeProperty[i][j]);
-      
+
       userMatrix[i][j]=vtkTransform::New();
       userMatrix[i][j]->PostMultiply();
       userMatrix[i][j]->Identity();
       userMatrix[i][j]->Translate(i*120,j*120,0);
-      
+
       volume[i][j]->SetUserTransform(userMatrix[i][j]);
       ren1->AddViewProp(volume[i][j]);
       ++j;
       }
     ++i;
     }
-  
+
   int valid=volumeMapper[0][1]->IsRenderSupported(renWin,volumeProperty[0][1]);
-  
+
   int retVal;
   if(valid)
     {
@@ -229,7 +229,7 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
     ren1->ResetCamera();
     ren1->GetActiveCamera()->Zoom(2.0);
     renWin->Render();
-  
+
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
       {
@@ -241,7 +241,7 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
-  
+
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
@@ -265,7 +265,7 @@ int TestGPURayCastNearestDataTypesMIP(int argc,
     ++i;
     }
   reader->Delete();
-  
+
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
     {
     return 0;

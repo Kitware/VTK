@@ -17,16 +17,16 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkBSPCuts - This class represents an axis-aligned Binary Spatial 
+// .NAME vtkBSPCuts - This class represents an axis-aligned Binary Spatial
 //    Partitioning of a 3D space.
-//    
+//
 // .SECTION Description
-//    This class converts between the vtkKdTree 
+//    This class converts between the vtkKdTree
 //    representation of a tree of vtkKdNodes (used by vtkDistributedDataFilter)
-//    and a compact array representation that might be provided by a 
+//    and a compact array representation that might be provided by a
 //    graph partitioning library like Zoltan.  Such a representation
 //    could be used in message passing.
-//     
+//
 // .SECTION See Also
 //      vtkKdTree vtkKdNode vtkDistributedDataFilter
 
@@ -62,7 +62,7 @@ public:
   //   npoints - optional number of points in the spatial region
 
   void CreateCuts(double *bounds,
-                  int ncuts, int *dim, double *coord, 
+                  int ncuts, int *dim, double *coord,
                   int *lower, int *upper,
                   double *lowerDataCoord, double *upperDataCoord,
                   int *npoints);
@@ -142,13 +142,13 @@ protected:
   int *Lower;               // location in arrays of left (lower) child info
   int *Upper;               // location in arrays of right (lower) child info
 
-  // optional cut information 
+  // optional cut information
 
   double *LowerDataCoord;   // coordinate of uppermost data in lower half
   double *UpperDataCoord;   // coordinate of lowermost data in upper half
   int *Npoints;             // number of data values in partition
 
-  double Bounds[6];    
+  double Bounds[6];
 
   vtkBSPCuts(const vtkBSPCuts&); // Not implemented
   void operator=(const vtkBSPCuts&); // Not implemented

@@ -4,7 +4,7 @@
 // ============================================================================
 // The following classes define an LRU cache for data arrays
 // loaded by the Exodus reader. Here's how they work:
-// 
+//
 // The actual cache consists of two STL containers: a set of
 // cache entries (vtkExodusIICacheEntry) and a list of
 // cache references (vtkExodusIICacheRef). The entries in

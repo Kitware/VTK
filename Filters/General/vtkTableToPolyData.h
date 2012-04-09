@@ -32,12 +32,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the name of the column to use as the X coordinate for the points. 
+  // Set the name of the column to use as the X coordinate for the points.
   vtkSetStringMacro(XColumn);
   vtkGetStringMacro(XColumn);
 
   // Description:
-  // Set the index of the column to use as the X coordinate for the points. 
+  // Set the index of the column to use as the X coordinate for the points.
   vtkSetClampMacro(XColumnIndex, int, 0, VTK_INT_MAX);
   vtkGetMacro(XColumnIndex, int);
 
@@ -49,13 +49,13 @@ public:
   vtkGetMacro(XComponent, int);
 
   // Description:
-  // Set the name of the column to use as the Y coordinate for the points. 
+  // Set the name of the column to use as the Y coordinate for the points.
   // Default is 0.
   vtkSetStringMacro(YColumn);
   vtkGetStringMacro(YColumn);
 
   // Description:
-  // Set the index of the column to use as the Y coordinate for the points. 
+  // Set the index of the column to use as the Y coordinate for the points.
   vtkSetClampMacro(YColumnIndex, int, 0, VTK_INT_MAX);
   vtkGetMacro(YColumnIndex, int);
 
@@ -72,7 +72,7 @@ public:
   vtkGetStringMacro(ZColumn);
 
   // Description:
-  // Set the index of the column to use as the Z coordinate for the points. 
+  // Set the index of the column to use as the Z coordinate for the points.
   vtkSetClampMacro(ZColumnIndex, int, 0, VTK_INT_MAX);
   vtkGetMacro(ZColumnIndex, int);
 
@@ -84,7 +84,7 @@ public:
 
   // Description:
   // Specify whether the points of the polydata are 3D or 2D. If this is set to
-  // true then the Z Column will be ignored and the z value of each point on the 
+  // true then the Z Column will be ignored and the z value of each point on the
   // polydata will be set to 0. By default this will be off.
   vtkSetMacro(Create2DPoints, bool);
   vtkGetMacro(Create2DPoints, bool);

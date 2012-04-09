@@ -52,8 +52,8 @@ int vtkExtractPiece::RequestUpdateExtent(
 
 //=============================================================================
 int vtkExtractPiece::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -66,10 +66,10 @@ int vtkExtractPiece::RequestDataObject(
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
-    if (!output || !output->IsA(input->GetClassName())) 
+    if (!output || !output->IsA(input->GetClassName()))
       {
       vtkDataObject* outData = input->NewInstance();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
@@ -114,10 +114,10 @@ int vtkExtractPiece::RequestData(
   int updateGhostLevel =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  
+
   vtkCompositeDataIterator* iter = input->NewIterator();
   iter->VisitOnlyLeavesOn();
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
      iter->GoToNextItem())
     {
     vtkDataObject *tmpDS  = iter->GetCurrentDataObject();
@@ -203,12 +203,12 @@ void vtkExtractPiece::ExtractImageData(
 //=============================================================================
 void vtkExtractPiece::ExtractPolyData(
   vtkPolyData *polyData, vtkCompositeDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, 
+  int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
-  
+
   vtkExtractPolyDataPiece *extractPD = vtkExtractPolyDataPiece::New();
   extractPD->SetInputData(polyData);
   extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
@@ -233,7 +233,7 @@ void vtkExtractPiece::ExtractPolyData(
 
 void vtkExtractPiece::ExtractRectilinearGrid(
   vtkRectilinearGrid *rGrid, vtkCompositeDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, 
+  int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
@@ -273,7 +273,7 @@ void vtkExtractPiece::ExtractRectilinearGrid(
 //=============================================================================
 void vtkExtractPiece::ExtractStructuredGrid(
   vtkStructuredGrid *sGrid, vtkCompositeDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, 
+  int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
@@ -313,12 +313,12 @@ void vtkExtractPiece::ExtractStructuredGrid(
 //=============================================================================
 void vtkExtractPiece::ExtractUnstructuredGrid(
   vtkUnstructuredGrid *uGrid, vtkCompositeDataSet *output,
-  int piece, int numberOfPieces, int ghostLevel, 
+  int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
   vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
-  
+
   vtkExtractUnstructuredGridPiece *extractUG =
     vtkExtractUnstructuredGridPiece::New();
   extractUG->SetInputData(uGrid);

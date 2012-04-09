@@ -129,7 +129,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   if (!actor)
     {
     vtkErrorMacro (<<"vtkImageMapper::Render - Null actor argument");
-    return;    
+    return;
     }
 
 
@@ -157,7 +157,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     //double *scale = actor->GetScale();
 
     // get the position
-    int *pos = 
+    int *pos =
       actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
 
     // Get the viewport coordinates
@@ -244,7 +244,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
 int vtkImageMapper::GetWholeZMin()
 {
   int *extent;
-  
+
   if ( ! this->GetInput())
     {
     return 0;
@@ -259,7 +259,7 @@ int vtkImageMapper::GetWholeZMin()
 int vtkImageMapper::GetWholeZMax()
 {
   int *extent;
-  
+
   if ( ! this->GetInput())
     {
     return 0;

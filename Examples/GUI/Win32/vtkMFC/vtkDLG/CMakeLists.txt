@@ -12,13 +12,13 @@ IF(VTK_MFC_DELAYLOAD_VTK_DLLS)
     )
 ENDIF(VTK_MFC_DELAYLOAD_VTK_DLLS)
 
-SET( vtkDLG_SRCS 
+SET( vtkDLG_SRCS
  StdAfx
  vtkDLG
  vtkDLGDlg
  vtkDLG.rc
  res/vtkDLG.rc2
-) 
+)
 
 ADD_EXECUTABLE(vtkDLG WIN32 ${vtkDLG_SRCS})
 

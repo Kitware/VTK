@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    TestHierarchicalGraphView.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -39,7 +39,7 @@
 
 using std::string;
 
-int TestHierarchicalGraphView(int argc, char* argv[]) 
+int TestHierarchicalGraphView(int argc, char* argv[])
 {
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
@@ -53,7 +53,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   reader1->SetEdgePedigreeIdArrayName("tree edge");
   reader1->GenerateVertexPedigreeIdsOff();
   reader1->SetVertexPedigreeIdArrayName("id");
-  
+
   VTK_CREATE(vtkXMLTreeReader, reader2);
   reader2->SetFileName(graphFileName.c_str());
   reader2->SetEdgePedigreeIdArrayName("graph edge");
@@ -62,7 +62,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
 
   reader1->Update();
   reader2->Update();
-  
+
   VTK_CREATE(vtkHierarchicalGraphView, view);
   view->DisplayHoverTextOff();
   view->GetRenderWindow()->SetMultiSamples(0);
@@ -84,15 +84,15 @@ int TestHierarchicalGraphView(int argc, char* argv[])
   ct->SetSizeLeafNodesOnly(true);
   view->SetLayoutStrategy(ct);
 
-  
+
   // Apply a theme to the views
   vtkViewTheme* const theme = vtkViewTheme::CreateMellowTheme();
   theme->SetLineWidth(1);
   view->ApplyViewTheme(theme);
   theme->Delete();
- 
+
   view->ResetCamera();
-  
+
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
@@ -101,7 +101,7 @@ int TestHierarchicalGraphView(int argc, char* argv[])
 
     retVal = vtkRegressionTester::PASSED;
     }
-  
+
  return !retVal;
 }
 

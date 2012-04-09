@@ -451,7 +451,7 @@ protected:
   double LastProgressEventTime; // initial value is 0.0. Expressed in seconds.
 
   bool PreserveOrientation;
-  
+
   vtkShaderProgram2 *Program;
   vtkShader2 *Main;
   vtkShader2 *Projection;

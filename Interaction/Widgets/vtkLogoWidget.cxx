@@ -43,5 +43,5 @@ void vtkLogoWidget::CreateDefaultRepresentation()
 void vtkLogoWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
 }

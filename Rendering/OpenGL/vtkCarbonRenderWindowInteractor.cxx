@@ -30,27 +30,27 @@
 
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
-void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
+void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *)
   = (void (*)(void *))NULL;
 void *vtkCarbonRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *) 
+void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *)
   = (void (*)(void *))NULL;
 
 //--------------------------------------------------------------------------
 // Translate a char to the Tk equivalent keysym for compatibility
 static const char *vtkMacCharCodeToKeySymTable[128] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  "space", "exclam", "quotedbl", "numbersign", 
-  "dollar", "percent", "ampersand", "quoteright", 
-  "parenleft", "parenright", "asterisk", "plus", 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  "space", "exclam", "quotedbl", "numbersign",
+  "dollar", "percent", "ampersand", "quoteright",
+  "parenleft", "parenright", "asterisk", "plus",
   "comma", "minus", "period", "slash",
-  "0", "1", "2", "3", "4", "5", "6", "7", 
+  "0", "1", "2", "3", "4", "5", "6", "7",
   "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
-  "at", "A", "B", "C", "D", "E", "F", "G", 
+  "at", "A", "B", "C", "D", "E", "F", "G",
   "H", "I", "J", "K", "L", "M", "N", "O",
   "P", "Q", "R", "S", "T", "U", "V", "W",
-  "X", "Y", "Z", "bracketleft", 
+  "X", "Y", "Z", "bracketleft",
   "backslash", "bracketright", "asciicircum", "underscore",
   "quoteleft", "a", "b", "c", "d", "e", "f", "g",
   "h", "i", "j", "k", "l", "m", "n", "o",
@@ -107,13 +107,13 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
                     sizeof(modifierKeys), NULL, &modifierKeys);
   int controlDown = ((modifierKeys & controlKey) != 0);
   int shiftDown = ((modifierKeys & shiftKey) != 0);
- 
+
   // Even though the option key is the one with a small 'alt' label on top
   // of it, VNC (as well as some Mac users) uses the command key as 'alt'.
-  // Let's use both then. 
+  // Let's use both then.
   UInt32 altKey = cmdKey | optionKey;
   int altDown = ((modifierKeys & altKey) != 0);
-  
+
   // Capture mouse position for non-mouse events.  Carbon itself does
   // not provide mouse positions for these events, but VTK expects them.
   int deltaX, deltaY;
@@ -284,7 +284,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
 
       GetEventParameter(event, kEventParamWindowMouseLocation, typeHIPoint,
                         NULL, sizeof(HIPoint), NULL, &mouseLoc);
-      
+
       HIViewConvertPoint(&mouseLoc, root_window, ren->GetWindowId());
 
       UInt16 buttonNumber;
@@ -387,9 +387,9 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
           {
           EventMouseWheelAxis axis;
           SInt32 delta;
-          GetEventParameter( event, kEventParamMouseWheelAxis, 
+          GetEventParameter( event, kEventParamMouseWheelAxis,
                          typeMouseWheelAxis, NULL, sizeof(axis), NULL, &axis );
-          GetEventParameter( event, kEventParamMouseWheelDelta, 
+          GetEventParameter( event, kEventParamMouseWheelDelta,
                           typeLongInteger, NULL, sizeof(delta), NULL, &delta );
           if ( axis == kEventMouseWheelAxisY )
             {
@@ -411,7 +411,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
         }
       }
     }
-    
+
   return result;
 }
 
@@ -427,7 +427,7 @@ vtkCarbonRenderWindowInteractor::vtkCarbonRenderWindowInteractor()
   this->LeaveCheckId       = 0;
   this->LastMouseDelta[0]  = 0;
   this->LastMouseDelta[1]  = 0;
-  
+
 #ifdef VTK_USE_TDX
   this->Device=vtkTDxMacDevice::New();
 #endif
@@ -509,7 +509,7 @@ pascal void vtkCarbonLeaveCheck(EventLoopTimerRef vtkNotUsed(platformTimerId),
     int *pos = me->GetEventPosition();
     int x = pos[0] + delta[0];
     int y = pos[1] + delta[1];
-    if (me->GetMouseInsideWindow() && !me->GetMouseButtonDown() && 
+    if (me->GetMouseInsideWindow() && !me->GetMouseButtonDown() &&
         (x < 0 || x >= size[0] || y < 0 || y >= size[1]))
       {
       me->SetMouseInsideWindow(0);
@@ -541,7 +541,7 @@ void vtkCarbonRenderWindowInteractor::Enable()
       { kEventClassControl, kEventControlDraw },
       { kEventClassControl, kEventControlBoundsChanged },
     };
-    
+
     EventTypeSpec windowEventList[] = {
       { kEventClassMouse, kEventMouseDown },
       { kEventClassMouse, kEventMouseUp },
@@ -553,7 +553,7 @@ void vtkCarbonRenderWindowInteractor::Enable()
       { kEventClassKeyboard, kEventRawKeyUp },
       { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     };
-    
+
     this->WindowProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
     this->ViewProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
     if (!this->WindowProcUPP || !ViewProcUPP)
@@ -597,7 +597,7 @@ void vtkCarbonRenderWindowInteractor::Enable()
     this->Device->Initialize();
     }
 #endif
-  
+
   this->Enabled = 1;
   this->Modified();
 }
@@ -609,14 +609,14 @@ void vtkCarbonRenderWindowInteractor::Disable()
     {
     return;
     }
-  
+
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized())
     {
     this->Device->Close();
     }
 #endif
-  
+
   if (this->LeaveCheckId)
     {
     RemoveEventLoopTimer((EventLoopTimerRef)this->LeaveCheckId);
@@ -697,7 +697,7 @@ void vtkCarbonRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),
       }
     vtkCarbonRenderWindowInteractor::ClassExitMethod = f;
     vtkCarbonRenderWindowInteractor::ClassExitMethodArg = arg;
-    
+
     // no call to this->Modified() since this is a class member function
     }
 }
@@ -725,7 +725,7 @@ void vtkCarbonRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindowInteractor::ExitCallback()
 {
-  if (this->HasObserver(vtkCommand::ExitEvent)) 
+  if (this->HasObserver(vtkCommand::ExitEvent))
     {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
     }

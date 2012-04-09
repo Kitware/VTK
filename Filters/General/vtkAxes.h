@@ -54,19 +54,19 @@ public:
   vtkSetMacro(ComputeNormals, int);
   vtkGetMacro(ComputeNormals, int);
   vtkBooleanMacro(ComputeNormals, int);
-  
+
 protected:
   vtkAxes();
   ~vtkAxes() {};
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // This source does not know how to generate pieces yet.
-  int ComputeDivisionExtents(vtkDataObject *output, 
+  int ComputeDivisionExtents(vtkDataObject *output,
                              int idx, int numDivisions);
 
   double Origin[3];
   double ScaleFactor;
-  
+
   int Symmetric;
   int ComputeNormals;
 private:

@@ -58,7 +58,7 @@ void vtkExtractTemporalFieldData::PrintSelf(ostream& os, vtkIndent indent)
 int vtkExtractTemporalFieldData::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");    
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
@@ -80,7 +80,7 @@ int vtkExtractTemporalFieldData::ProcessRequest(
                             inputVector,
                             outputVector);
     }
-  
+
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
@@ -94,7 +94,7 @@ int vtkExtractTemporalFieldData::RequestInformation(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
     {
-    this->NumberOfTimeSteps = 
+    this->NumberOfTimeSteps =
       inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     }
   else
@@ -102,7 +102,7 @@ int vtkExtractTemporalFieldData::RequestInformation(
     this->NumberOfTimeSteps = 0;
     }
 
-  // The output of this filter does not contain a specific time, rather 
+  // The output of this filter does not contain a specific time, rather
   // it contains a collection of time steps. Also, this filter does not
   // respond to time requests. Therefore, we remove all time information
   // from the output.
@@ -158,7 +158,7 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(
   vtkDataSetAttributes *opd = output->GetRowData();
   vtkFieldData *ifd = input->GetFieldData();
   int numArrays = 0;
-    
+
   if(!ifd || !opd)
     {
     vtkErrorMacro("Unsupported field type.");
@@ -166,11 +166,11 @@ void vtkExtractTemporalFieldData::CopyDataToOutput(
     }
 
   for (vtkIdType j=0; j<ifd->GetNumberOfArrays(); j++)
-    {  
+    {
     vtkDataArray* inFieldArray = ifd->GetArray(j);
-    if (inFieldArray && 
-        inFieldArray->GetName() && 
-        !inFieldArray->IsA("vtkIdTypeArray") && 
+    if (inFieldArray &&
+        inFieldArray->GetName() &&
+        !inFieldArray->IsA("vtkIdTypeArray") &&
         inFieldArray->GetNumberOfTuples() == this->NumberOfTimeSteps)
       {
       vtkDataArray *outPointArray = vtkDataArray::CreateDataArray(inFieldArray->GetDataType());

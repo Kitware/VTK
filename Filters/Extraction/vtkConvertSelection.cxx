@@ -114,8 +114,8 @@ const char* vtkConvertSelection::GetArrayName()
 
 //----------------------------------------------------------------------------
 int vtkConvertSelection::SelectTableFromTable(
-  vtkTable* selTable, 
-  vtkTable* dataTable, 
+  vtkTable* selTable,
+  vtkTable* dataTable,
   vtkIdTypeArray* indices)
 {
   std::set<vtkIdType> matching;
@@ -134,7 +134,7 @@ int vtkConvertSelection::SelectTableFromTable(
         if (!initialized)
           {
           matching.insert(
-            list->GetPointer(0), 
+            list->GetPointer(0),
             list->GetPointer(0) + list->GetNumberOfIds());
           initialized = true;
           }
@@ -143,8 +143,8 @@ int vtkConvertSelection::SelectTableFromTable(
           std::set<vtkIdType> intersection;
           std::sort(list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds());
           std::set_intersection(
-            matching.begin(), matching.end(), 
-            list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds(), 
+            matching.begin(), matching.end(),
+            list->GetPointer(0), list->GetPointer(0) + list->GetNumberOfIds(),
             std::inserter(intersection, intersection.begin()));
           matching = intersection;
           }
@@ -166,7 +166,7 @@ int vtkConvertSelection::SelectTableFromTable(
 
 //----------------------------------------------------------------------------
 int vtkConvertSelection::ConvertToIndexSelection(
-  vtkSelectionNode* input, 
+  vtkSelectionNode* input,
   vtkDataSet* data,
   vtkSelectionNode* output)
 {
@@ -182,7 +182,7 @@ int vtkConvertSelection::ConvertToIndexSelection(
   extract->SetInputData(1, tempInput);
   extract->Update();
   vtkDataSet* const extracted = vtkDataSet::SafeDownCast(extract->GetOutput());
-  
+
   output->SetContentType(vtkSelectionNode::INDICES);
   int type = input->GetFieldType();
   output->SetFieldType(type);
@@ -202,13 +202,13 @@ int vtkConvertSelection::ConvertToIndexSelection(
     vtkErrorMacro("Unknown field type");
     return 0;
     }
-  
+
   if (!insidedness)
     {
     // Empty selection
     return 0;
     }
-  
+
   // Convert the insidedness array into an index input.
   vtkSmartPointer<vtkIdTypeArray> indexArray =
     vtkSmartPointer<vtkIdTypeArray>::New();
@@ -252,7 +252,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
       }
     else if (properties->Has(vtkSelectionNode::CONTENT_TYPE()) &&
       properties->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) &&
-      properties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) && 
+      properties->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) &&
       data->IsA("vtkHierarchicalBoxDataSet"))
       {
        // convert hierarchical index to composite index.
@@ -264,7 +264,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
 
       }
     }
- 
+
   vtkSmartPointer<vtkUnsignedIntArray> selectionList =
     vtkSmartPointer<vtkUnsignedIntArray>::New();
   selectionList->SetNumberOfTuples(indices.size());
@@ -301,7 +301,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
 
     // *  If input has no composite keys then it implies that it applies to all
     //    nodes in the data. If input has composite keys, output will have
-    //    composite keys unless outputContentType == GLOBALIDS. 
+    //    composite keys unless outputContentType == GLOBALIDS.
     //    If input does not have composite keys, then composite
     //    keys are only added for outputContentType == INDICES, FRUSTUM and
     //    PEDIGREEIDS.
@@ -312,7 +312,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX())) : 0;
 
-    bool has_hieararchical_key = 
+    bool has_hieararchical_key =
       inputNode->GetProperties()->Has(vtkSelectionNode::HIERARCHICAL_INDEX()) != 0 &&
       inputNode->GetProperties()->Has(vtkSelectionNode::HIERARCHICAL_LEVEL()) != 0;
 
@@ -322,7 +322,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
     unsigned int hierarchical_index = has_hieararchical_key?
       static_cast<unsigned int>(
           inputNode->GetProperties()->Get(vtkSelectionNode::HIERARCHICAL_INDEX())) : 0;
-  
+
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(data->NewIterator());
 
@@ -357,11 +357,11 @@ int vtkConvertSelection::ConvertCompositeDataSet(
       for (unsigned int j = 0; j < outputNodes->GetNumberOfNodes(); ++j)
         {
         vtkSelectionNode* outputNode = outputNodes->GetNode(j);
-        if ((has_hieararchical_key || has_composite_key || 
+        if ((has_hieararchical_key || has_composite_key ||
             this->OutputType == vtkSelectionNode::INDICES ||
-            this->OutputType == vtkSelectionNode::PEDIGREEIDS || 
+            this->OutputType == vtkSelectionNode::PEDIGREEIDS ||
             this->OutputType == vtkSelectionNode::FRUSTUM) &&
-            this->OutputType != vtkSelectionNode::GLOBALIDS) 
+            this->OutputType != vtkSelectionNode::GLOBALIDS)
           {
           outputNode->GetProperties()->Set(vtkSelectionNode::COMPOSITE_INDEX(),
               iter->GetCurrentFlatIndex());
@@ -396,7 +396,7 @@ int vtkConvertSelection::Convert(
 
     outputNode->ShallowCopy(inputNode);
     outputNode->SetContentType(this->OutputType);
-  
+
     // If it is the same type, we are done
     if (inputNode->GetContentType() != vtkSelectionNode::VALUES &&
         inputNode->GetContentType() != vtkSelectionNode::THRESHOLDS &&
@@ -405,7 +405,7 @@ int vtkConvertSelection::Convert(
       output->Union(outputNode);
       continue;
       }
-  
+
     // If the input is a values or thresholds selection, we need array names
     // on the selection arrays to perform the selection.
     if (inputNode->GetContentType() == vtkSelectionNode::VALUES ||
@@ -421,7 +421,7 @@ int vtkConvertSelection::Convert(
           }
         }
       }
-  
+
     // If the output is a threshold selection, we need exactly one array name.
     if (this->OutputType == vtkSelectionNode::THRESHOLDS &&
         (this->ArrayNames == 0 || this->ArrayNames->GetNumberOfValues() != 1))
@@ -429,7 +429,7 @@ int vtkConvertSelection::Convert(
       vtkErrorMacro("One array name must be specified for thresholds selection.");
       return 0;
       }
-  
+
     // If the output is a values selection, we need at lease one array name.
     if (this->OutputType == vtkSelectionNode::VALUES &&
         (this->ArrayNames == 0 || this->ArrayNames->GetNumberOfValues() == 0))
@@ -437,7 +437,7 @@ int vtkConvertSelection::Convert(
       vtkErrorMacro("At least one array name must be specified for values selection.");
       return 0;
       }
-  
+
     // If we are converting a thresholds or values selection to
     // a selection on the same arrays, we are done.
     if ((inputNode->GetContentType() == vtkSelectionNode::VALUES ||
@@ -468,11 +468,11 @@ int vtkConvertSelection::Convert(
         this->OutputType != vtkSelectionNode::PEDIGREEIDS &&
         this->OutputType != vtkSelectionNode::INDICES)
       {
-      vtkErrorMacro("Cannot convert to type " << this->OutputType 
+      vtkErrorMacro("Cannot convert to type " << this->OutputType
         << " unless input type matches.");
       return 0;
       }
-  
+
     // Get the correct field data
     vtkFieldData* fd = 0;
     vtkDataSetAttributes* dsa = 0;
@@ -543,15 +543,15 @@ int vtkConvertSelection::Convert(
         return 0;
         }
       }
-  
+
     //
     // First, convert the selection to a list of indices
     //
-    
+
     vtkSmartPointer<vtkIdTypeArray> indices =
       vtkSmartPointer<vtkIdTypeArray>::New();
-  
-    if (inputNode->GetContentType() == vtkSelectionNode::FRUSTUM || 
+
+    if (inputNode->GetContentType() == vtkSelectionNode::FRUSTUM ||
         inputNode->GetContentType() == vtkSelectionNode::LOCATIONS)
       {
       if (!vtkDataSet::SafeDownCast(data))
@@ -711,7 +711,7 @@ int vtkConvertSelection::Convert(
 
     double progress = 0.8;
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-  
+
     //
     // Now that we have the list of indices, convert the selection by indexing
     // values in another array.
@@ -724,7 +724,7 @@ int vtkConvertSelection::Convert(
       output->Union(outputNode);
       continue;
       }
-  
+
     vtkIdType numOutputArrays = 1;
     if (this->OutputType == vtkSelectionNode::VALUES)
       {
@@ -782,11 +782,11 @@ int vtkConvertSelection::Convert(
         }
       continue;
       }
-  
+
     vtkSmartPointer<vtkDataSetAttributes> outputData =
       vtkSmartPointer<vtkDataSetAttributes>::New();
     for (vtkIdType ind = 0; ind < numOutputArrays; ind++)
-      {  
+      {
       // Find the output array where to get the output selection values.
       vtkAbstractArray* outputDataArr = 0;
       if (dsa && this->OutputType == vtkSelectionNode::VALUES)
@@ -811,7 +811,7 @@ int vtkConvertSelection::Convert(
         vtkErrorMacro("BUG: Currently you can only specify pedigree and global ids on a vtkDataSet.");
         return 0;
         }
-    
+
       // Check array existence.
       if (outputDataArr)
         {
@@ -887,10 +887,10 @@ int vtkConvertSelection::RequestData(
       input->GetNode(i)->SetFieldType(this->InputFieldType);
       }
     }
-  
+
   vtkInformation* dataInfo = inputVector[1]->GetInformationObject(0);
   vtkDataObject* data = dataInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkSelection* output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -899,7 +899,7 @@ int vtkConvertSelection::RequestData(
     return this->ConvertCompositeDataSet(input,
       static_cast<vtkCompositeDataSet*>(data), output);
     }
-  
+
   return this->Convert(input, data, output);
 }
 
@@ -1004,7 +1004,7 @@ void vtkConvertSelection::GetSelectedRows(
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToIndexSelection(
-  vtkSelection* input, 
+  vtkSelection* input,
   vtkDataObject* data)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::INDICES);
@@ -1012,7 +1012,7 @@ vtkSelection* vtkConvertSelection::ToIndexSelection(
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToGlobalIdSelection(
-  vtkSelection* input, 
+  vtkSelection* input,
   vtkDataObject* data)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::GLOBALIDS);
@@ -1020,7 +1020,7 @@ vtkSelection* vtkConvertSelection::ToGlobalIdSelection(
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToPedigreeIdSelection(
-  vtkSelection* input, 
+  vtkSelection* input,
   vtkDataObject* data)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::PEDIGREEIDS);
@@ -1028,8 +1028,8 @@ vtkSelection* vtkConvertSelection::ToPedigreeIdSelection(
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToValueSelection(
-  vtkSelection* input, 
-  vtkDataObject* data, 
+  vtkSelection* input,
+  vtkDataObject* data,
   const char* arrayName)
 {
   VTK_CREATE(vtkStringArray, names);
@@ -1039,8 +1039,8 @@ vtkSelection* vtkConvertSelection::ToValueSelection(
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToValueSelection(
-  vtkSelection* input, 
-  vtkDataObject* data, 
+  vtkSelection* input,
+  vtkDataObject* data,
   vtkStringArray* arrayNames)
 {
   return vtkConvertSelection::ToSelectionType(input, data, vtkSelectionNode::VALUES, arrayNames);
@@ -1048,9 +1048,9 @@ vtkSelection* vtkConvertSelection::ToValueSelection(
 
 //----------------------------------------------------------------------------
 vtkSelection* vtkConvertSelection::ToSelectionType(
-  vtkSelection* input, 
-  vtkDataObject* data, 
-  int type, 
+  vtkSelection* input,
+  vtkDataObject* data,
+  int type,
   vtkStringArray* arrayNames,
   int inputFieldType)
 {

@@ -26,7 +26,7 @@ vtkAxes cowAxesSource
 
 vtkPolyDataMapper cowAxesMapper
   cowAxesMapper SetInputConnection [cowAxesSource GetOutputPort]
- 
+
 vtkActor cowAxes
   cowAxes SetMapper cowAxesMapper
 
@@ -75,7 +75,7 @@ proc RotateY {} {
   renWin Render
   renWin EraseOff
     for {set i 1} {$i <= 6} {incr i} {
-	cowActor RotateY 60 
+	cowActor RotateY 60
         renWin Render
         renWin Render
     }

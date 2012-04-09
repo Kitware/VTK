@@ -4,7 +4,7 @@ package require vtkinteraction
 # This version of the script
 # test ploting arbitrary array components (Momentum)
 # without using the dataset to data object filter
-# and its cryptic indexing of arrays. 
+# and its cryptic indexing of arrays.
 
 # create pipeline
 #

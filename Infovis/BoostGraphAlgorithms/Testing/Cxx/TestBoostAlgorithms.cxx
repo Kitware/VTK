@@ -45,9 +45,9 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 template <typename Algorithm>
-void RenderGraph(vtkRenderer* ren, Algorithm* alg, 
-  double xoffset, double yoffset, 
-  const char* vertColorArray, double vertMin, double vertMax, 
+void RenderGraph(vtkRenderer* ren, Algorithm* alg,
+  double xoffset, double yoffset,
+  const char* vertColorArray, double vertMin, double vertMax,
   const char* edgeColorArray, double edgeMin, double edgeMax)
 {
   VTK_CREATE(vtkGraphToPolyData, graphToPoly);

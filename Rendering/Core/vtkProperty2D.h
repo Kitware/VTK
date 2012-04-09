@@ -18,7 +18,7 @@
 // and annotations.
 
 // .SECTION See Also
-// vtkActor2D 
+// vtkActor2D
 
 #ifndef __vtkProperty2D_h
 #define __vtkProperty2D_h
@@ -43,7 +43,7 @@ public:
   static vtkProperty2D *New();
 
   // Description:
-  // Assign one property to another. 
+  // Assign one property to another.
   void DeepCopy(vtkProperty2D *p);
 
   // Description:
@@ -69,7 +69,7 @@ public:
   vtkGetMacro(LineWidth,float);
 
   // Description:
-  // Set/Get the stippling pattern of a Line, as a 16-bit binary pattern 
+  // Set/Get the stippling pattern of a Line, as a 16-bit binary pattern
   // (1 = pixel on, 0 = pixel off).
   // This is only implemented for OpenGL. The default is 0xFFFF.
   vtkSetMacro(LineStipplePattern,int);
@@ -90,12 +90,12 @@ public:
   // all 3D props and background 2D actors. Within 2D actors
   // of the same DisplayLocation type, order is determined by
   // the order in which the 2D actors were added to the viewport.
-  vtkSetClampMacro( DisplayLocation, int, 
+  vtkSetClampMacro( DisplayLocation, int,
                     VTK_BACKGROUND_LOCATION, VTK_FOREGROUND_LOCATION );
   vtkGetMacro( DisplayLocation, int );
-  void SetDisplayLocationToBackground() 
+  void SetDisplayLocationToBackground()
     {this->DisplayLocation = VTK_BACKGROUND_LOCATION;};
-  void SetDisplayLocationToForeground() 
+  void SetDisplayLocationToForeground()
     {this->DisplayLocation = VTK_FOREGROUND_LOCATION;};
 
 //BTX

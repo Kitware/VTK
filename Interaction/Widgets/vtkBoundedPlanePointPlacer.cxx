@@ -32,13 +32,13 @@ vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, ObliquePlane, vtkPlane);
 vtkCxxSetObjectMacro(vtkBoundedPlanePointPlacer, BoundingPlanes,vtkPlaneCollection);
 
 //----------------------------------------------------------------------
-// Place holder structure to find the two planes that would best cut 
-// a line with a plane. We do this freaky stuff because we cannot use 
+// Place holder structure to find the two planes that would best cut
+// a line with a plane. We do this freaky stuff because we cannot use
 // absolute tolerances. Sometimes a point may be intersected by two planes
 // when it is on a corner etc... Believe me, I found this necessary.
 //
 // Plane   : The plane that we found had intersected the line in question
-// p       : The intersection point of the line and the plane. 
+// p       : The intersection point of the line and the plane.
 // Distance: Distance of the point "p" from the object. Negative distances
 //           mean that it is outside.
 struct vtkBoundedPlanePointPlacerNode
@@ -47,11 +47,11 @@ struct vtkBoundedPlanePointPlacerNode
   mutable vtkPlane * Plane;
   double             Distance;
   double             p[3];
-  static bool Sort( const Self &a, const Self &b ) 
+  static bool Sort( const Self &a, const Self &b )
      { return a.Distance > b.Distance; }
   bool operator==(const Self &a) const { return a.Plane == this->Plane; }
   bool operator!=(const Self &a) const { return a.Plane != this->Plane; }
-  vtkBoundedPlanePointPlacerNode() 
+  vtkBoundedPlanePointPlacerNode()
     { Plane = NULL; Distance = VTK_DOUBLE_MIN; }
 };
 
@@ -60,7 +60,7 @@ vtkBoundedPlanePointPlacer::vtkBoundedPlanePointPlacer()
 {
   this->ProjectionPosition = 0;
   this->ObliquePlane       = NULL;
-  this->ProjectionNormal   = vtkBoundedPlanePointPlacer::ZAxis;  
+  this->ProjectionNormal   = vtkBoundedPlanePointPlacer::ZAxis;
   this->BoundingPlanes     = NULL;
 }
 
@@ -68,13 +68,13 @@ vtkBoundedPlanePointPlacer::vtkBoundedPlanePointPlacer()
 vtkBoundedPlanePointPlacer::~vtkBoundedPlanePointPlacer()
 {
   this->RemoveAllBoundingPlanes();
-  
+
   if ( this->ObliquePlane )
     {
     this->ObliquePlane->UnRegister(this);
     this->ObliquePlane = NULL;
     }
-  
+
   if (this->BoundingPlanes)
     {
     this->BoundingPlanes->UnRegister(this);
@@ -165,11 +165,11 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   double nearWorldPoint[4];
   double farWorldPoint[4];
   double tmp[3];
-  
+
   tmp[0] = displayPos[0];
   tmp[1] = displayPos[1];
   tmp[2] = 0.0;  // near plane
-  
+
   ren->SetDisplayPoint(tmp);
   ren->DisplayToWorld();
   ren->GetWorldPoint(nearWorldPoint);
@@ -178,13 +178,13 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->SetDisplayPoint(tmp);
   ren->DisplayToWorld();
   ren->GetWorldPoint(farWorldPoint);
-  
+
   double normal[3];
   double origin[3];
 
   this->GetProjectionNormal( normal );
   this->GetProjectionOrigin( origin );
-  
+
   double position[3];
   double distance;
   if ( vtkPlane::IntersectWithLine( nearWorldPoint,
@@ -201,14 +201,14 @@ int vtkBoundedPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     worldPos[0] = position[0];
     worldPos[1] = position[1];
     worldPos[2] = position[2];
-    
+
     // Now check against the bounding planes
     if ( this->BoundingPlanes )
       {
       vtkPlane *p;
-      
+
       this->BoundingPlanes->InitTraversal();
-      
+
       while ( (p = this->BoundingPlanes->GetNextItem()) )
         {
         if ( p->EvaluateFunction( position ) < this->WorldTolerance )
@@ -237,9 +237,9 @@ int vtkBoundedPlanePointPlacer::ValidateWorldPosition( double worldPos[3] )
     if ( this->BoundingPlanes )
       {
       vtkPlane *p;
-      
+
       this->BoundingPlanes->InitTraversal();
-      
+
       while ( (p = this->BoundingPlanes->GetNextItem()) )
         {
         if ( p->EvaluateFunction( worldPos ) < this->WorldTolerance )
@@ -258,20 +258,20 @@ int vtkBoundedPlanePointPlacer::UpdateWorldPosition( vtkRenderer *ren,
 {
   double displayPoint[2];
   double tmp[4];
-  
+
   tmp[0] = worldPos[0];
   tmp[1] = worldPos[1];
   tmp[2] = worldPos[2];
   tmp[3] = 1.0;
-  
+
   ren->SetWorldPoint( tmp );
   ren->WorldToDisplay();
   ren->GetDisplayPoint( tmp );
-  
+
   displayPoint[0] = tmp[0];
   displayPoint[1] = tmp[1];
-  
-  return this->ComputeWorldPosition( ren, displayPoint, 
+
+  return this->ComputeWorldPosition( ren, displayPoint,
                                      worldPos, worldOrient );
 }
 //----------------------------------------------------------------------
@@ -280,9 +280,9 @@ void vtkBoundedPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
   double *x = worldOrient;
   double *y = worldOrient+3;
   double *z = worldOrient+6;
-  
+
   this->GetProjectionNormal( z );
-  
+
   double v[3];
   if ( fabs( z[0] ) >= fabs( z[1] ) &&
        fabs( z[0] ) >= fabs( z[2] ) )
@@ -297,7 +297,7 @@ void vtkBoundedPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
     v[1] = 0;
     v[2] = 0;
     }
-  
+
   vtkMath::Cross( z, v, y );
   vtkMath::Cross( y, z, x );
 }
@@ -324,7 +324,7 @@ void vtkBoundedPlanePointPlacer::GetProjectionNormal( double normal[3] )
       break;
     case vtkBoundedPlanePointPlacer::Oblique:
       this->ObliquePlane->GetNormal(normal);
-      break;      
+      break;
     }
 }
 
@@ -350,22 +350,22 @@ void vtkBoundedPlanePointPlacer::GetProjectionOrigin( double origin[3] )
       break;
     case vtkBoundedPlanePointPlacer::Oblique:
       this->ObliquePlane->GetOrigin(origin);
-      break;      
+      break;
     }
 }
 
 //----------------------------------------------------------------------
-// Calculate the distance of a point from the Object. Negative 
+// Calculate the distance of a point from the Object. Negative
 // values imply that the point is outside. Positive values imply that it is
-// inside. The closest point to the object is returned in closestPt. 
+// inside. The closest point to the object is returned in closestPt.
 double vtkBoundedPlanePointPlacer
-::GetDistanceFromObject( double               pos[3], 
+::GetDistanceFromObject( double               pos[3],
                          vtkPlaneCollection * pc,
                          double               closestPt[3])
 {
   vtkPlane *minPlane = NULL;
   double    minD     = VTK_DOUBLE_MAX;
-  
+
   pc->InitTraversal();
   while ( vtkPlane * p = pc->GetNextItem() )
     {
@@ -376,8 +376,8 @@ double vtkBoundedPlanePointPlacer
       minPlane = p;
       }
     }
-  
-  vtkPlane::ProjectPoint( pos, minPlane->GetOrigin(), 
+
+  vtkPlane::ProjectPoint( pos, minPlane->GetOrigin(),
                           minPlane->GetNormal(), closestPt );
   return minD;
 }
@@ -386,7 +386,7 @@ double vtkBoundedPlanePointPlacer
 void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Projection Normal: ";
   if ( this->ProjectionNormal == vtkBoundedPlanePointPlacer::XAxis )
     {
@@ -404,7 +404,7 @@ void vtkBoundedPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Oblique\n";
     }
-  
+
   os << indent << "Projection Position: " << this->ProjectionPosition << "\n";
 
   os << indent << "Bounding Planes:\n";

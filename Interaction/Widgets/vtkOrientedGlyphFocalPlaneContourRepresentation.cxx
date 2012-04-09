@@ -53,44 +53,44 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->ActiveCursorShape = NULL;
 
   this->HandleSize = 0.01;
-  
+
   this->LineInterpolator = vtkBezierContourLineInterpolator::New();
-  
+
   // Represent the position of the cursor
   this->FocalPoint = vtkPoints::New();
   this->FocalPoint->SetNumberOfPoints(100);
   this->FocalPoint->SetNumberOfPoints(1);
   this->FocalPoint->SetPoint(0, 0.0,0.0,0.0);
-  
+
   vtkDoubleArray *normals = vtkDoubleArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(100);
   normals->SetNumberOfTuples(1);
   double n[3] = {0,0,0};
   normals->SetTuple(0,n);
-  
+
   // Represent the position of the cursor
   this->ActiveFocalPoint = vtkPoints::New();
   this->ActiveFocalPoint->SetNumberOfPoints(100);
   this->ActiveFocalPoint->SetNumberOfPoints(1);
   this->ActiveFocalPoint->SetPoint(0, 0.0,0.0,0.0);
-  
+
   vtkDoubleArray *activeNormals = vtkDoubleArray::New();
   activeNormals->SetNumberOfComponents(3);
   activeNormals->SetNumberOfTuples(100);
   activeNormals->SetNumberOfTuples(1);
   activeNormals->SetTuple(0,n);
-  
+
   this->FocalData = vtkPolyData::New();
   this->FocalData->SetPoints(this->FocalPoint);
-  this->FocalData->GetPointData()->SetNormals(normals);  
+  this->FocalData->GetPointData()->SetNormals(normals);
   normals->Delete();
 
   this->ActiveFocalData = vtkPolyData::New();
   this->ActiveFocalData->SetPoints(this->ActiveFocalPoint);
-  this->ActiveFocalData->GetPointData()->SetNormals(activeNormals);  
+  this->ActiveFocalData->GetPointData()->SetNormals(activeNormals);
   activeNormals->Delete();
-  
+
   this->Glypher = vtkGlyph2D::New();
   this->Glypher->SetInputData(this->FocalData);
   this->Glypher->SetVectorModeToUseNormal();
@@ -136,12 +136,12 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   tpd->SetTransform( t );
   clean->Delete();
   cylinder->Delete();
-  
+
   tpd->Update();
   this->SetActiveCursorShape(tpd->GetOutput());
   tpd->Delete();
   t->Delete();
-  
+
   this->Glypher->SetSourceData(this->CursorShape);
   this->ActiveGlypher->SetSourceData(this->ActiveCursorShape);
 
@@ -171,11 +171,11 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->Lines = vtkPolyData::New();
   this->LinesMapper = vtkPolyDataMapper2D::New();
   this->LinesMapper->SetInputData(this->Lines);
-  
+
   this->LinesActor = vtkActor2D::New();
   this->LinesActor->SetMapper( this->LinesMapper );
   this->LinesActor->SetProperty( this->LinesProperty );
-  
+
   this->InteractionOffset[0] = 0.0;
   this->InteractionOffset[1] = 0.0;
 
@@ -191,7 +191,7 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
 
   this->ActiveFocalPoint->Delete();
   this->ActiveFocalData->Delete();
-  
+
   this->SetCursorShape( NULL );
   this->SetActiveCursorShape( NULL );
 
@@ -202,11 +202,11 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
   this->ActiveGlypher->Delete();
   this->ActiveMapper->Delete();
   this->ActiveActor->Delete();
-  
+
   this->Lines->Delete();
   this->LinesMapper->Delete();
   this->LinesActor->Delete();
-  
+
   this->Property->Delete();
   this->ActiveProperty->Delete();
   this->LinesProperty->Delete();
@@ -281,18 +281,18 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::SetRenderer(vtkRenderer *r
 //-------------------------------------------------------------------------
 int vtkOrientedGlyphFocalPlaneContourRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modified))
 {
-  
+
   double pos[4], xyz[3];
   this->FocalPoint->GetPoint(0,pos);
   pos[3] = 1.0;
   this->Renderer->SetWorldPoint(pos);
   this->Renderer->WorldToDisplay();
   this->Renderer->GetDisplayPoint(pos);
-  
+
   xyz[0] = static_cast<double>(X);
   xyz[1] = static_cast<double>(Y);
   xyz[2] = pos[2];
-  
+
   this->VisibilityOn();
   double tol2 = this->PixelTolerance * this->PixelTolerance;
   if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
@@ -325,18 +325,18 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::StartWidgetInteraction(dou
 
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
-  
+
   // How far is this in pixels from the position of this widget?
   // Maintain this during interaction such as translating (don't
   // force center of widget to snap to mouse position)
-  
+
   // convert position to display coordinates
   double pos[2];
   this->GetNthNodeDisplayPosition(this->ActiveNode, pos);
 
   this->InteractionOffset[0] = pos[0] - startEventPos[0];
   this->InteractionOffset[1] = pos[1] - startEventPos[1];
-  
+
 }
 
 
@@ -372,16 +372,16 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::WidgetInteraction(double e
 void vtkOrientedGlyphFocalPlaneContourRepresentation::Translate(double eventPos[2])
 {
   double ref[3];
-  
+
   if ( !this->GetActiveNodeWorldPosition( ref ) )
     {
     return;
     }
-  
+
   double displayPos[2];
   displayPos[0] = eventPos[0] + this->InteractionOffset[0];
   displayPos[1] = eventPos[1] + this->InteractionOffset[1];
-  
+
   // vtkFocalPlaneContourRepresentation won't have SetActiveNodeToWorldPosition
   // it will have SetActiveNodeToDisplayPosition.. add the display pos
   // for the 3D below
@@ -526,7 +526,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Scale(double eventPos[2])
   int *size = this->Renderer->GetSize();
   double dPos = static_cast<double>(eventPos[1]-this->LastEventPosition[1]);
   sf *= (1.0 + 2.0*(dPos / size[1])); //scale factor of 2.0 is arbitrary
-  
+
   // Scale the handle
   this->Glypher->SetScaleFactor(sf);
 }
@@ -542,7 +542,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::CreateDefaultProperties()
   this->ActiveProperty = vtkProperty2D::New();
   this->ActiveProperty->SetColor(0.0,1.0,0.0);
   this->ActiveProperty->SetLineWidth(1.0);
-  
+
   this->LinesProperty = vtkProperty2D::New();
   this->LinesProperty->SetColor(1,1,1);
   this->LinesProperty->SetLineWidth(1);
@@ -553,19 +553,19 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
 {
   vtkPoints *points = vtkPoints::New();
   vtkCellArray *lines = vtkCellArray::New();
-  
+
   int i, j;
   vtkIdType index = 0;
-  
+
   int count = this->GetNumberOfNodes();
   for ( i = 0; i < this->GetNumberOfNodes(); i++ )
     {
     count += this->GetNumberOfIntermediatePoints(i);
     }
-  
+
   points->SetNumberOfPoints(count);
   vtkIdType numLines;
-  
+
   if ( this->ClosedLoop && count > 0 )
     {
     numLines = count+1;
@@ -578,7 +578,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
   if ( numLines > 0 )
     {
     vtkIdType *lineIndices = new vtkIdType[numLines];
-    
+
     double pos[3];
     for ( i = 0; i < this->GetNumberOfNodes(); i++ )
       {
@@ -587,9 +587,9 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
       points->InsertPoint( index, pos );
       lineIndices[index] = index;
       index++;
-      
+
       int numIntermediatePoints = this->GetNumberOfIntermediatePoints(i);
-      
+
       for ( j = 0; j < numIntermediatePoints; j++ )
         {
         this->GetIntermediatePointDisplayPosition( i, j, pos );
@@ -598,19 +598,19 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildLines()
         index++;
         }
       }
-    
+
     if ( this->ClosedLoop )
       {
       lineIndices[index] = 0;
       }
-    
+
     lines->InsertNextCell( numLines, lineIndices );
     delete [] lineIndices;
     }
-  
+
   this->Lines->SetPoints( points );
   this->Lines->SetLines( lines );
-  
+
   points->Delete();
   lines->Delete();
 }
@@ -665,23 +665,23 @@ vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
 vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
 ::GetContourRepresentationAsPolyData()
 {
-  // Get the points in this contour as a vtkPolyData. 
+  // Get the points in this contour as a vtkPolyData.
 
   vtkPoints *points = vtkPoints::New();
   vtkCellArray *lines = vtkCellArray::New();
-  
+
   int i, j;
   vtkIdType index = 0;
-  
+
   int count = this->GetNumberOfNodes();
   for ( i = 0; i < this->GetNumberOfNodes(); i++ )
     {
     count += this->GetNumberOfIntermediatePoints(i);
     }
-  
+
   points->SetNumberOfPoints(count);
   vtkIdType numLines;
-  
+
   if ( this->ClosedLoop && count > 0 )
     {
     numLines = count+1;
@@ -694,7 +694,7 @@ vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
   if ( numLines > 0 )
     {
     vtkIdType *lineIndices = new vtkIdType[numLines];
-    
+
     double pos[3];
     for ( i = 0; i < this->GetNumberOfNodes(); i++ )
       {
@@ -703,9 +703,9 @@ vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
       points->InsertPoint( index, pos );
       lineIndices[index] = index;
       index++;
-      
+
       int numIntermediatePoints = this->GetNumberOfIntermediatePoints(i);
-      
+
       for ( j = 0; j < numIntermediatePoints; j++ )
         {
         this->GetIntermediatePointWorldPosition( i, j, pos );
@@ -714,23 +714,23 @@ vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
         index++;
         }
       }
-    
+
     if ( this->ClosedLoop )
       {
       lineIndices[index] = 0;
       }
-    
+
     lines->InsertNextCell( numLines, lineIndices );
     delete [] lineIndices;
     }
-  
+
   this->LinesWorldCoordinates->SetPoints( points );
   this->LinesWorldCoordinates->SetLines( lines );
-  
+
   points->Delete();
   lines->Delete();
 
-  return this->LinesWorldCoordinates; 
+  return this->LinesWorldCoordinates;
 }
 
 //----------------------------------------------------------------------
@@ -738,7 +738,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
 {
   // Make sure we are up to date with any changes made in the placer
   this->UpdateContour();
-  
+
   double p1[4], p2[4];
   this->Renderer->GetActiveCamera()->GetFocalPoint(p1);
 
@@ -746,18 +746,18 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
   this->Renderer->SetWorldPoint(p1);
   this->Renderer->WorldToView();
   this->Renderer->GetViewPoint(p1);
-  
+
   double depth = p1[2];
   double aspect[2];
   this->Renderer->ComputeAspect();
   this->Renderer->GetAspect(aspect);
-  
+
   p1[0] = -aspect[0];
   p1[1] = -aspect[1];
   this->Renderer->SetViewPoint(p1);
   this->Renderer->ViewToWorld();
   this->Renderer->GetWorldPoint(p1);
-  
+
   p2[0] = aspect[0];
   p2[1] = aspect[1];
   p2[2] = depth;
@@ -765,38 +765,38 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
   this->Renderer->SetViewPoint(p2);
   this->Renderer->ViewToWorld();
   this->Renderer->GetWorldPoint(p2);
-  
-  double distance = 
+
+  double distance =
     sqrt( vtkMath::Distance2BetweenPoints(p1,p2) );
 
   int *size = this->Renderer->GetRenderWindow()->GetSize();
   double viewport[4];
   this->Renderer->GetViewport(viewport);
-  
+
   double x, y, scale;
-  
+
   x = size[0] * (viewport[2]-viewport[0]);
   y = size[1] * (viewport[3]-viewport[1]);
-  
+
   scale = sqrt( x*x + y*y );
-  
-  
+
+
   distance = 1000* distance / scale;
-  
+
   this->Glypher->SetScaleFactor( distance * this->HandleSize );
   this->ActiveGlypher->SetScaleFactor( distance * this->HandleSize );
-    
+
   int numPoints = this->GetNumberOfNodes();
-  
+
   if ( this->ActiveNode >= 0 &&
        this->ActiveNode < this->GetNumberOfNodes() )
     {
-    this->FocalPoint->SetNumberOfPoints(numPoints-1);  
+    this->FocalPoint->SetNumberOfPoints(numPoints-1);
     this->FocalData->GetPointData()->GetNormals()->SetNumberOfTuples(numPoints-1);
     }
   else
     {
-    this->FocalPoint->SetNumberOfPoints(numPoints);  
+    this->FocalPoint->SetNumberOfPoints(numPoints);
     this->FocalData->GetPointData()->GetNormals()->SetNumberOfTuples(numPoints);
     }
 
@@ -804,7 +804,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
   int idx = 0;
   for ( i = 0; i < numPoints; i++ )
     {
-    if ( i != this->ActiveNode )  
+    if ( i != this->ActiveNode )
       {
       double displayPos[3];
       this->GetNthNodeDisplayPosition( i, displayPos );
@@ -812,7 +812,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::BuildRepresentation()
       idx++;
       }
     }
-  
+
   this->FocalPoint->Modified();
   this->FocalData->GetPointData()->GetNormals()->Modified();
   this->FocalData->Modified();
@@ -874,7 +874,7 @@ int vtkOrientedGlyphFocalPlaneContourRepresentation::RenderOpaqueGeometry(vtkVie
   // Since we know RenderOpaqueGeometry gets called first, will do the
   // build here
   this->BuildRepresentation();
-  
+
   int count = this->LinesActor->RenderOpaqueGeometry(viewport);
   if ( this->Actor->GetVisibility() )
     {
@@ -924,8 +924,8 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::PrintSelf(
   vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "InteractionOffset: (" << this->InteractionOffset[0] 
+
+  os << indent << "InteractionOffset: (" << this->InteractionOffset[0]
     << "," << this->InteractionOffset[1] << ")" << endl;
 
   if ( this->Property )

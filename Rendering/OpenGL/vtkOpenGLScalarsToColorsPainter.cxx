@@ -66,11 +66,11 @@ int vtkOpenGLScalarsToColorsPainter::GetPremultiplyColorsWithAlpha(
 {
   GLint alphaBits;
   glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
-  
+
   // Dealing with having a correct alpha (none square) in the framebuffer
   // is only required if there is an alpha component in the framebuffer
   // (doh...) and if we cannot deal directly with BlendFuncSeparate.
-  
+
   return vtkgl::BlendFuncSeparate==0 && alphaBits>0 &&
     this->Superclass::GetPremultiplyColorsWithAlpha(actor);
 }
@@ -84,7 +84,7 @@ vtkIdType vtkOpenGLScalarsToColorsPainter::GetTextureSizeLimit()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer, 
+void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
                                                      vtkActor *actor,
                                                      unsigned long typeflags,
                                                      bool forceCompileOnly)
@@ -104,7 +104,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     float info[4];
     info[0] = info[1] = info[2] = info[3] = 1.0;
     glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, info );
-    
+
     this->LastWindow = renderer->GetRenderWindow();
     }
   else if (this->LastWindow)
@@ -115,9 +115,9 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     }
 
 
-  // if we are doing vertex colors then set lmcolor to adjust 
-  // the current materials ambient and diffuse values using   
-  // vertex color commands otherwise tell it not to.          
+  // if we are doing vertex colors then set lmcolor to adjust
+  // the current materials ambient and diffuse values using
+  // vertex color commands otherwise tell it not to.
   glDisable( GL_COLOR_MATERIAL );
   if (this->UsingScalarColoring)
     {
@@ -144,7 +144,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     else // if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE)
       {
       lmcolorMode = GL_DIFFUSE;
-      } 
+      }
 
     if (this->ColorTextureMap)
       {
@@ -158,7 +158,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     }
 
   int pre_multiplied_by_alpha =  this->GetPremultiplyColorsWithAlpha(actor);
-  
+
   // We colors were premultiplied by alpha then we change the blending
   // function to one that will compute correct blended destination alpha
   // value, otherwise we stick with the default.
@@ -166,7 +166,7 @@ void vtkOpenGLScalarsToColorsPainter::RenderInternal(vtkRenderer *renderer,
     {
     // save the blend function.
     glPushAttrib(GL_COLOR_BUFFER_BIT);
-    
+
     // the following function is not correct with textures because there are
     // not premultiplied by alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

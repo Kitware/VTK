@@ -122,14 +122,14 @@ void vtkResliceImageViewerMeasurements
     {
     return;
     }
-  
+
   self->Update();
 }
 
 //-------------------------------------------------------------------------
 void vtkResliceImageViewerMeasurements::Update()
 {
-  if (this->ResliceImageViewer->GetResliceMode() != 
+  if (this->ResliceImageViewer->GetResliceMode() !=
     vtkResliceImageViewer::RESLICE_OBLIQUE)
     {
     return; // nothing to do.

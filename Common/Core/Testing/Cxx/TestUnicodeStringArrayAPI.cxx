@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    TestUnicodeStringArrayAPI.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -63,7 +63,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     test_expression(array->GetNumberOfTuples() == 2);
     test_expression(array->LookupValue(vtkUnicodeString::from_utf8("foo")) == 1);
     test_expression(array->LookupValue(vtkUnicodeString::from_utf8("bar")) == -1);
-   
+
     return 0;
     }
   catch(std::exception& e)

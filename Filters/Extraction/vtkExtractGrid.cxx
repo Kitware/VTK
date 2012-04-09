@@ -31,7 +31,7 @@ vtkExtractGrid::vtkExtractGrid()
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
 
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
-  
+
   this->IncludeBoundary = 0;
 }
 
@@ -100,7 +100,7 @@ int vtkExtractGrid::RequestUpdateExtent(
     { // This handles the IncludeBoundary condition.
     ext[5] = voi[5];
     }
-  
+
   // I do not think we need this extra check, but it cannot hurt.
   if (ext[0] < inWholeExt[0])
     {
@@ -110,7 +110,7 @@ int vtkExtractGrid::RequestUpdateExtent(
     {
     ext[1] = inWholeExt[1];
     }
-  
+
   if (ext[2] < inWholeExt[2])
     {
     ext[2] = inWholeExt[2];
@@ -119,7 +119,7 @@ int vtkExtractGrid::RequestUpdateExtent(
     {
     ext[3] = inWholeExt[3];
     }
-  
+
   if (ext[4] < inWholeExt[4])
     {
     ext[4] = inWholeExt[4];
@@ -127,8 +127,8 @@ int vtkExtractGrid::RequestUpdateExtent(
   if (ext[5] > inWholeExt[5])
     {
     ext[5] = inWholeExt[5];
-    }  
-  
+    }
+
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
   // We can handle anything.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
@@ -160,7 +160,7 @@ int vtkExtractGrid::RequestInformation(
   for ( i=0; i < 3; i++ )
     {
     // Empty request.
-    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] || 
+    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] ||
         voi[2*i] > wholeExtent[2*i+1])
       {
       outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -202,7 +202,7 @@ int vtkExtractGrid::RequestInformation(
 
   // Adjust the output dimensions if the boundaries are to be
   // included and the sample rate is not 1.
-  if ( this->IncludeBoundary && 
+  if ( this->IncludeBoundary &&
        (rate[0] != 1 || rate[1] != 1 || rate[2] != 1) )
     {
     int diff;
@@ -295,7 +295,7 @@ int vtkExtractGrid::RequestData(
 
   // Compute the shift.
   // The shift is necessary because the starting VOI may not be on stride boundary.
-  // We need to duplicate the computation done in 
+  // We need to duplicate the computation done in
   // ExecuteInformtation for the output whole extent.
   // Use shift as temporary variable (output mins).
   shift[0] = static_cast<int>(floor(voi[0]/static_cast<double>(rate[0])));
@@ -313,7 +313,7 @@ int vtkExtractGrid::RequestData(
        uExt[2] <= inExt[2] && uExt[3] >= inExt[3] &&
        uExt[4] <= inExt[4] && uExt[5] >= inExt[5] &&
        rate[0] == 1 && rate[1] == 1 && rate[2] == 1)
-    { 
+    {
     output->SetPoints(inPts);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
@@ -324,7 +324,7 @@ int vtkExtractGrid::RequestData(
   // Allocate necessary objects
   //
   outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-  newPts = inPts->NewInstance(); 
+  newPts = inPts->NewInstance();
   newPts->SetDataType(inPts->GetDataType());
   newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
@@ -429,17 +429,17 @@ void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
-  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " 
+  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", "
      << this->VOI[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " 
+  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", "
      << this->VOI[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " 
+  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", "
      << this->VOI[5] << ")\n";
 
   os << indent << "Sample Rate: (" << this->SampleRate[0] << ", "
                << this->SampleRate[1] << ", "
                << this->SampleRate[2] << ")\n";
 
-  os << indent << "Include Boundary: " 
+  os << indent << "Include Boundary: "
      << (this->IncludeBoundary ? "On\n" : "Off\n");
 }

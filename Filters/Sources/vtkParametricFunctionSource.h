@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricFunctionSource.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class tessellates parametric functions. The user must specify how
 // many points in the parametric coordinate directions are required (i.e.,
-// the resolution), and the mode to use to generate scalars. 
+// the resolution), and the mode to use to generate scalars.
 //
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
@@ -33,10 +33,10 @@
 // vtkParametricKlein vtkParametricMobius vtkParametricRoman
 //
 // Subclasses of vtkParametricFunction implementing orientable surfaces:
-// vtkParametricConicSpiral vtkParametricDini vtkParametricEllipsoid 
-// vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid 
-// vtkParametricSuperToroid vtkParametricTorus 
-// 
+// vtkParametricConicSpiral vtkParametricDini vtkParametricEllipsoid
+// vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid
+// vtkParametricSuperToroid vtkParametricTorus
+//
 #ifndef __vtkParametricFunctionSource_h
 #define __vtkParametricFunctionSource_h
 
@@ -63,21 +63,21 @@ public:
 
   // Description:
   // Set/Get the number of subdivisions / tessellations in the u parametric
-  // direction. Note that the number of tessellant points in the u 
+  // direction. Note that the number of tessellant points in the u
   // direction is the UResolution + 1.
   vtkSetMacro(UResolution,int);
   vtkGetMacro(UResolution,int);
 
   // Description:
   // Set/Get the number of subdivisions / tessellations in the v parametric
-  // direction. Note that the number of tessellant points in the v 
+  // direction. Note that the number of tessellant points in the v
   // direction is the VResolution + 1.
   vtkSetMacro(VResolution,int);
   vtkGetMacro(VResolution,int);
 
   // Description:
   // Set/Get the number of subdivisions / tessellations in the w parametric
-  // direction. Note that the number of tessellant points in the w 
+  // direction. Note that the number of tessellant points in the w
   // direction is the WResolution + 1.
   vtkSetMacro(WResolution,int);
   vtkGetMacro(WResolution,int);
@@ -85,7 +85,7 @@ public:
   // Description:
   // Set/Get the generation of texture coordinates. This is off by
   // default.
-  // Note that this is only applicable to parametric surfaces 
+  // Note that this is only applicable to parametric surfaces
   // whose parametric dimension is 2.
   // Note that texturing may fail in some cases.
   vtkBooleanMacro(GenerateTextureCoordinates,int);
@@ -97,24 +97,24 @@ public:
   // Enumerate the supported scalar generation modes.
   // <pre>
   // SCALAR_NONE, (default) scalars are not generated.
-  // SCALAR_U, the scalar is set to the u-value. 
+  // SCALAR_U, the scalar is set to the u-value.
   // SCALAR_V, the scalar is set to the v-value.
   // SCALAR_U0, the scalar is set to 1 if u = (u_max - u_min)/2 = u_avg, 0 otherwise.
   // SCALAR_V0, the scalar is set to 1 if v = (v_max - v_min)/2 = v_avg, 0 otherwise.
-  // SCALAR_U0V0, the scalar is 
+  // SCALAR_U0V0, the scalar is
   //   set to 1 if u == u_avg, 2 if v == v_avg, 3 if u = u_avg && v = v_avg, 0 otherwise.
   // SCALAR_MODULUS, the scalar is set to (sqrt(u*u+v*v)), this is measured relative to (u_avg,v_avg).
   // SCALAR_PHASE, the scalar is set to (atan2(v,u)) (in degrees, 0 to 360), this is measured relative to (u_avg,v_avg).
-  // SCALAR_QUADRANT, the scalar is set to 1, 2, 3 or 4 
+  // SCALAR_QUADRANT, the scalar is set to 1, 2, 3 or 4
   //   depending upon the quadrant of the point (u,v).
-  // SCALAR_X, the scalar is set to the x-value. 
-  // SCALAR_Y, the scalar is set to the y-value. 
-  // SCALAR_Z, the scalar is set to the z-value. 
+  // SCALAR_X, the scalar is set to the x-value.
+  // SCALAR_Y, the scalar is set to the y-value.
+  // SCALAR_Z, the scalar is set to the z-value.
   // SCALAR_DISTANCE, the scalar is set to (sqrt(x*x+y*y+z*z)). I.e. distance from the origin.
   // SCALAR_USER_DEFINED, the scalar is set to the value returned from EvaluateScalar().
   // </pre>
-  enum SCALAR_MODE { SCALAR_NONE = 0, 
-    SCALAR_U, SCALAR_V, 
+  enum SCALAR_MODE { SCALAR_NONE = 0,
+    SCALAR_U, SCALAR_V,
     SCALAR_U0, SCALAR_V0, SCALAR_U0V0,
     SCALAR_MODULUS, SCALAR_PHASE, SCALAR_QUADRANT,
     SCALAR_X, SCALAR_Y, SCALAR_Z, SCALAR_DISTANCE,
@@ -124,19 +124,19 @@ public:
   // Description:
   // Get/Set the mode used for the scalar data.  The options are:
   // SCALAR_NONE, (default) scalars are not generated.
-  // SCALAR_U, the scalar is set to the u-value. 
+  // SCALAR_U, the scalar is set to the u-value.
   // SCALAR_V, the scalar is set to the v-value.
   // SCALAR_U0, the scalar is set to 1 if u = (u_max - u_min)/2 = u_avg, 0 otherwise.
   // SCALAR_V0, the scalar is set to 1 if v = (v_max - v_min)/2 = v_avg, 0 otherwise.
-  // SCALAR_U0V0, the scalar is 
+  // SCALAR_U0V0, the scalar is
   //   set to 1 if u == u_avg, 2 if v == v_avg, 3 if u = u_avg && v = v_avg, 0 otherwise.
   // SCALAR_MODULUS, the scalar is set to (sqrt(u*u+v*v)), this is measured relative to (u_avg,v_avg).
   // SCALAR_PHASE, the scalar is set to (atan2(v,u)) (in degrees, 0 to 360), this is measured relative to (u_avg,v_avg).
-  // SCALAR_QUADRANT, the scalar is set to 1, 2, 3 or 4 
+  // SCALAR_QUADRANT, the scalar is set to 1, 2, 3 or 4
   //   depending upon the quadrant of the point (u,v).
-  // SCALAR_X, the scalar is set to the x-value. 
-  // SCALAR_Y, the scalar is set to the y-value. 
-  // SCALAR_Z, the scalar is set to the z-value. 
+  // SCALAR_X, the scalar is set to the x-value.
+  // SCALAR_Y, the scalar is set to the y-value.
+  // SCALAR_Z, the scalar is set to the z-value.
   // SCALAR_DISTANCE, the scalar is set to (sqrt(x*x+y*y+z*z)). I.e. distance from the origin.
   // SCALAR_FUNCTION_DEFINED, the scalar is set to the value returned from EvaluateScalar().
   vtkSetClampMacro(ScalarMode, int, SCALAR_NONE, SCALAR_FUNCTION_DEFINED);
@@ -149,7 +149,7 @@ public:
   void SetScalarModeToU0V0( void ) {this->SetScalarMode(SCALAR_U0V0);}
   void SetScalarModeToModulus( void ) {this->SetScalarMode(SCALAR_MODULUS);}
   void SetScalarModeToPhase( void ) {this->SetScalarMode(SCALAR_PHASE);}
-  void SetScalarModeToQuadrant( void ) {this->SetScalarMode(SCALAR_QUADRANT);} 
+  void SetScalarModeToQuadrant( void ) {this->SetScalarMode(SCALAR_QUADRANT);}
   void SetScalarModeToX( void ) {this->SetScalarMode(SCALAR_X);}
   void SetScalarModeToY( void ) {this->SetScalarMode(SCALAR_Y);}
   void SetScalarModeToZ( void ) {this->SetScalarMode(SCALAR_Z);}
@@ -170,7 +170,7 @@ protected:
 
   // Variables
   vtkParametricFunction *ParametricFunction;
-  
+
   int UResolution;
   int VResolution;
   int WResolution;
@@ -185,8 +185,8 @@ private:
   // Description:
   // Generate triangle strips from an ordered set of points.
   //
-  // Given a parametrization f(u,v)->(x,y,z), this function generates 
-  // a vtkCellAarray of point IDs over the range MinimumU <= u < MaximumU 
+  // Given a parametrization f(u,v)->(x,y,z), this function generates
+  // a vtkCellAarray of point IDs over the range MinimumU <= u < MaximumU
   // and MinimumV <= v < MaximumV.
   //
   // Before using this function, ensure that: UResolution,
@@ -194,7 +194,7 @@ private:
   // TwistU, TwistV, ordering are set appropriately for the parametric function.
   //
   void MakeTriangleStrips ( vtkCellArray * strips, int PtsU, int PtsV );
-  
+
   vtkParametricFunctionSource(const vtkParametricFunctionSource&);  // Not implemented.
   void operator=(const vtkParametricFunctionSource&);  // Not implemented.
 

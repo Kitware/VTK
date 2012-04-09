@@ -15,7 +15,7 @@
 // This example demonstrates how to implement a vtkGenericDataSet
 // (here vtkBridgeDataSet) and to use vtkGenericDataSetTessellator filter on
 // it.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -70,7 +70,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   //char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
-  
+
   // Force reading
   reader->Update();
 
@@ -78,26 +78,26 @@ int TestGenericStreamTracer(int argc, char* argv[])
   vtkBridgeDataSet *ds=vtkBridgeDataSet::New();
   ds->SetDataSet( reader->GetOutput() );
   reader->Delete();
-  
+
   // Set the error metric thresholds:
   // 1. for the geometric error metric
   vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
   geometricError->SetRelativeGeometricTolerance(0.1,ds);
-  
+
   ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
   geometricError->Delete();
-  
+
   // 2. for the attribute error metric
   vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
   attributesError->SetAttributeTolerance(0.01);
-  
+
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
   cout<<"input unstructured grid: "<<ds<<endl;
 
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
-  
+
   vtkGenericOutlineFilter *outline=vtkGenericOutlineFilter::New();
   outline->SetInputData(ds);
   vtkPolyDataMapper *mapOutline=vtkPolyDataMapper::New();
@@ -107,7 +107,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   outlineActor->GetProperty()->SetColor(0,0,0);
 
   vtkRungeKutta45 *rk=vtkRungeKutta45::New();
-  
+
   // Create source for streamtubes
   vtkGenericStreamTracer *streamer=vtkGenericStreamTracer::New();
   streamer->SetInputData(ds);
@@ -120,7 +120,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   streamer->SetIntegrator(rk);
   streamer->SetRotationScale(0.5);
   streamer->SetMaximumError(1.0E-8);
-  
+
   vtkAssignAttribute *aa=vtkAssignAttribute::New();
   aa->SetInputConnection(streamer->GetOutputPort());
   aa->Assign("Normals",vtkDataSetAttributes::NORMALS,
@@ -130,22 +130,22 @@ int TestGenericStreamTracer(int argc, char* argv[])
   rf1->SetInputConnection(aa->GetOutputPort());
   rf1->SetWidth(0.1);
   rf1->VaryWidthOff();
-  
+
   vtkPolyDataMapper *mapStream=vtkPolyDataMapper::New();
   mapStream->SetInputConnection(rf1->GetOutputPort());
   mapStream->SetScalarRange(ds->GetAttributes()->GetAttribute(0)->GetRange());
   vtkActor *streamActor=vtkActor::New();
   streamActor->SetMapper(mapStream);
-  
+
   renderer->AddActor(outlineActor);
   renderer->AddActor(streamActor);
-  
+
   vtkCamera *cam=renderer->GetActiveCamera();
   cam->SetPosition(-2.35599,-3.35001,4.59236);
   cam->SetFocalPoint(2.255,2.255,1.28413);
   cam->SetViewUp(0.311311,0.279912,0.908149);
   cam->SetClippingRange(1.12294,16.6226);
-  
+
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
@@ -155,7 +155,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   writer->Write();
   writer->Delete();
 #endif // #ifdef WRITE_GENERIC_RESULT
-  
+
   // Standard testing code.
   renderer->SetBackground(0.4,0.4,0.5);
   renWin->SetSize(300,200);
@@ -172,17 +172,17 @@ int TestGenericStreamTracer(int argc, char* argv[])
   renWin->Delete();
   iren->Delete();
   ds->Delete();
-  
+
   outline->Delete();
   mapOutline->Delete();
   outlineActor->Delete();
-  
+
   rk->Delete();
   streamer->Delete();
   aa->Delete();
   rf1->Delete();
   mapStream->Delete();
   streamActor->Delete();
-  
+
   return !retVal;
 }

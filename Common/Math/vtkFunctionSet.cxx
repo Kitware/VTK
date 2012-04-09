@@ -15,7 +15,7 @@
 #include "vtkFunctionSet.h"
 
 
-vtkFunctionSet::vtkFunctionSet() 
+vtkFunctionSet::vtkFunctionSet()
 {
   this->NumFuncs = 0;
   this->NumIndepVars = 0;

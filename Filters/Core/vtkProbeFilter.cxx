@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkProbeFilter);
 
-class vtkProbeFilter::vtkVectorOfArrays : 
+class vtkProbeFilter::vtkVectorOfArrays :
   public std::vector<vtkDataArray*>
 {
 };
@@ -72,7 +72,7 @@ void vtkProbeFilter::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 {
   this->SetInputConnection(1, algOutput);
 }
- 
+
 //----------------------------------------------------------------------------
 void vtkProbeFilter::SetSourceData(vtkDataObject *input)
 {
@@ -86,7 +86,7 @@ vtkDataObject *vtkProbeFilter::GetSource()
     {
     return NULL;
     }
-  
+
   return this->GetExecutive()->GetInputData(1, 0);
 }
 
@@ -151,7 +151,7 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   this->ValidPoints->Allocate(numPts);
   this->MaskPoints->SetNumberOfTuples(numPts);
   this->MaskPoints->FillComponent(0, 0);
-  this->MaskPoints->SetName(this->ValidPointMaskArrayName? 
+  this->MaskPoints->SetName(this->ValidPointMaskArrayName?
     this->ValidPointMaskArrayName: "vtkValidPointMask");
 
   // First, copy the input to the output as a starting point
@@ -199,7 +199,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 }
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input, 
+void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
   int srcIdx,
   vtkDataSet *source, vtkDataSet *output)
 {
@@ -332,9 +332,9 @@ int vtkProbeFilter::RequestInformation(
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->CopyEntry(sourceInfo, 
+  outInfo->CopyEntry(sourceInfo,
                      vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  outInfo->CopyEntry(sourceInfo, 
+  outInfo->CopyEntry(sourceInfo,
                      vtkStreamingDemandDrivenPipeline::TIME_RANGE());
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -352,12 +352,12 @@ int vtkProbeFilter::RequestInformation(
       sourceInfo->Get(
         vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
     }
-  
+
   if (this->SpatialMatch == 1)
     {
-    int m1 = 
+    int m1 =
       inInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-    int m2 = 
+    int m2 =
       sourceInfo->Get(
         vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
     if (m1 < 0 && m2 < 0)
@@ -425,9 +425,9 @@ int vtkProbeFilter::RequestUpdateExtent(
     {
     usePiece = 1;
     }
-  
+
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
-  
+
   if ( ! this->SpatialMatch)
     {
     sourceInfo->Set(
@@ -461,7 +461,7 @@ int vtkProbeFilter::RequestUpdateExtent(
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
       }
     }
-  
+
   if (usePiece)
     {
     inInfo->Set(
@@ -480,7 +480,7 @@ int vtkProbeFilter::RequestUpdateExtent(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 6);
     }
-  
+
   // Use the whole input in all processes, and use the requested update
   // extent of the output to divide up the source.
   if (this->SpatialMatch == 2)

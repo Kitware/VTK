@@ -127,7 +127,7 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
     }
   graph->GetEdgeData()->AddArray(dist);
   graph->GetEdgeData()->AddArray(label);
-  
+
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
   view->DisplayHoverTextOff();
@@ -150,7 +150,7 @@ int TestCoincidentGraphLayoutView(int argc, char* argv[])
     {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

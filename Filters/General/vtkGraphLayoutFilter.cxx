@@ -51,14 +51,14 @@ typedef struct _vtkLayoutEdge
 } vtkLayoutEdge;
 
 // Cool-down function.
-static inline double CoolDown(double t, double r) 
-{ 
-  return t-(t/r); 
+static inline double CoolDown(double t, double r)
+{
+  return t-(t/r);
 }
 
-static inline double forceAttract(double x, double k) 
-{ 
-  return (x * x) / k; 
+static inline double forceAttract(double x, double k)
+{
+  return (x * x) / k;
 }
 
 static inline double forceRepulse(double x, double k)
@@ -101,7 +101,7 @@ int vtkGraphLayoutFilter::RequestData(
   vtkDebugMacro(<<"Drawing graph");
 
   if ( numPts <= 0 || numLines <= 0)
-    {                   
+    {
     vtkErrorMacro(<<"No input");
     return 1;
     }
@@ -115,22 +115,22 @@ int vtkGraphLayoutFilter::RequestData(
 
   for (i=0; i<3; i++)
     {
-    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] ) 
+    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] )
       {
       this->GraphBounds[2*i+1] = this->GraphBounds[2*i] + 1;
       }
     }
-  
+
   // Allocate memory for structures. Break polylines into line segments.
   numLines=0;
   for (i=0, lines->InitTraversal(); lines->GetNextCell(npts, cellPts); i++)
     {
     numLines += npts - 1;
     }
-    
+
   vtkLayoutVertex *v = new vtkLayoutVertex [numPts];
   vtkLayoutEdge *e = new vtkLayoutEdge [numLines];
-        
+
   // Get the points, either x,y,0 or x,y,z
   for (i=0; i<numPts; i++)
     {
@@ -275,23 +275,23 @@ void vtkGraphLayoutFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "AutomaticBoundsComputation: " 
+  os << indent << "AutomaticBoundsComputation: "
      << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");
 
   os << indent << "GraphBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", " 
+  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", "
      << this->GraphBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", " 
+  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", "
      << this->GraphBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", " 
+  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", "
      << this->GraphBounds[5] << ")\n";
 
-  os << indent << "MaxNumberOfIterations: " 
+  os << indent << "MaxNumberOfIterations: "
      << this->MaxNumberOfIterations << endl;
 
-  os << indent << "CoolDownRate: " 
+  os << indent << "CoolDownRate: "
      << this->CoolDownRate << endl;
 
-  os << indent << "Three Dimensional Layout: " 
+  os << indent << "Three Dimensional Layout: "
      << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }

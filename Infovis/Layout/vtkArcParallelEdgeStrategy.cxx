@@ -49,7 +49,7 @@ void vtkArcParallelEdgeStrategy::Layout()
   vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeCount;
   vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeNumber;
   vtksys_stl::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
-  vtkSmartPointer<vtkEdgeListIterator> it = 
+  vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
   double avgEdgeLength = 0.0;
@@ -75,7 +75,7 @@ void vtkArcParallelEdgeStrategy::Layout()
     double targetPt[3];
     this->Graph->GetPoint(e.Source, sourcePt);
     this->Graph->GetPoint(e.Target, targetPt);
-    avgEdgeLength += 
+    avgEdgeLength +=
       sqrt(vtkMath::Distance2BetweenPoints(sourcePt, targetPt));
     }
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
@@ -156,8 +156,8 @@ void vtkArcParallelEdgeStrategy::Layout()
           *s/(this->NumberOfSubdivisions-1);
         for (int c = 0; c < 3; ++c)
           {
-          pts[3*s + c] = center[c] 
-            + radius*cos(angle)*u[c] 
+          pts[3*s + c] = center[c]
+            + radius*cos(angle)*u[c]
             + radius/2.0*sin(angle)*v[c];
           }
         }
@@ -252,8 +252,8 @@ void vtkArcParallelEdgeStrategy::Layout()
       double angle = -sign*s*theta/(this->NumberOfSubdivisions - 1.0);
       for (int c = 0; c < 3; ++c)
         {
-        pts[3*s + c] = center[c] 
-          + radius*cos(angle)*u[c] 
+        pts[3*s + c] = center[c]
+          + radius*cos(angle)*u[c]
           + radius*sin(angle)*v[c];
         }
       }

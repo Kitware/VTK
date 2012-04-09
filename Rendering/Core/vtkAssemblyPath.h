@@ -49,7 +49,7 @@ public:
   // Convenience method adds a prop and matrix together,
   // creating an assembly node transparently. The matrix
   // pointer m may be NULL. Note: that matrix is the one,
-  // if any, associated with the prop. 
+  // if any, associated with the prop.
   void AddNode(vtkProp *p, vtkMatrix4x4 *m);
 
   // Description:
@@ -57,7 +57,7 @@ public:
   // contains a pointer to a prop and a 4x4 matrix. The matrix
   // is evaluated based on the preceding assembly hierarchy
   // (i.e., the matrix is not necessarily as the same as the
-  // one that was added with AddNode() because of the 
+  // one that was added with AddNode() because of the
   // concatenation of matrices in the assembly hierarchy).
   vtkAssemblyNode *GetNextNode();
 
@@ -66,31 +66,31 @@ public:
   // GetNextNode() regarding the contents of the returned node. (Note: This
   // node corresponds to the vtkProp associated with the vtkRenderer.
   vtkAssemblyNode *GetFirstNode();
-  
+
   // Description:
   // Get the last assembly node in the list. See the comments
   // for GetNextNode() regarding the contents of the returned node.
   vtkAssemblyNode *GetLastNode();
-  
+
   // Description:
   // Delete the last assembly node in the list. This is like
   // a stack pop.
   void DeleteLastNode();
-  
+
   // Description:
   // Perform a shallow copy (reference counted) on the
   // incoming path.
   void ShallowCopy(vtkAssemblyPath *path);
-  
+
   // Description:
   // Override the standard GetMTime() to check for the modified times
   // of the nodes in this path.
   virtual unsigned long GetMTime();
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkAssemblyNode *GetNextNode(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject(cookie));};
   //ETX
@@ -98,7 +98,7 @@ public:
 protected:
   vtkAssemblyPath();
   ~vtkAssemblyPath();
-  
+
   void AddNode(vtkAssemblyNode *n); //Internal method adds assembly node
   vtkTransform *Transform; //Used to perform matrix concatentation
   vtkProp *TransformedProp; //A transformed prop used to do the rendering

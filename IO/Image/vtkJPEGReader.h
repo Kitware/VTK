@@ -39,14 +39,14 @@ public:
 
   // Description:
   // Get the file extensions for this format.
-  // Returns a string with a space separated list of extensions in 
+  // Returns a string with a space separated list of extensions in
   // the format .extension
   virtual const char* GetFileExtensions()
     {
       return ".jpeg .jpg";
     }
 
-  // Description: 
+  // Description:
   // Return a descriptive name for the file format that might be useful in a GUI.
   virtual const char* GetDescriptiveName()
     {

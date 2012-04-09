@@ -33,7 +33,7 @@ vtkGeodesicPath::~vtkGeodesicPath()
 }
 
 //-----------------------------------------------------------------------------
-int vtkGeodesicPath::FillInputPortInformation(int port, 
+int vtkGeodesicPath::FillInputPortInformation(int port,
                                               vtkInformation *info)
 {
   if (port == 0)

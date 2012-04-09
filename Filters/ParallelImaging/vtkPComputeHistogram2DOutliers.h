@@ -32,7 +32,7 @@
 //
 // .SECTION See Also
 //  vtkComputeHistogram2DOutliers
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 //------------------------------------------------------------------------------

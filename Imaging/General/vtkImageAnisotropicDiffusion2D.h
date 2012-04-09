@@ -20,7 +20,7 @@
 // flags. If "Edges" is on the 4 edge connected voxels
 // are included, and if "Corners" is on, the 4 corner connected voxels
 // are included.  "DiffusionFactor" determines how far a pixel value
-// moves toward its neighbors, and is insensitive to the number of 
+// moves toward its neighbors, and is insensitive to the number of
 // neighbors chosen.  The diffusion is anisotropic because it only occurs
 // when a gradient measure is below "GradientThreshold".  Two gradient measures
 // exist and are toggled by the "GradientMagnitudeThreshold" flag.
@@ -59,14 +59,14 @@ public:
   vtkGetMacro(NumberOfIterations,int);
 
   // Description:
-  // Set/Get the difference threshold that stops diffusion. 
+  // Set/Get the difference threshold that stops diffusion.
   // when the difference between two pixel is greater than this threshold,
   // the pixels are not diffused.  This causes diffusion to avoid sharp edges.
-  // If the GradientMagnitudeThreshold is set, then gradient magnitude is used 
+  // If the GradientMagnitudeThreshold is set, then gradient magnitude is used
   // for comparison instead of pixel differences.
   vtkSetMacro(DiffusionThreshold,double);
   vtkGetMacro(DiffusionThreshold,double);
-  
+
   // Description:
   // The diffusion factor specifies  how much neighboring pixels effect each other.
   // No diffusion occurs with a factor of 0, and a diffusion factor of 1 causes
@@ -91,27 +91,27 @@ public:
   vtkSetMacro(GradientMagnitudeThreshold,int);
   vtkGetMacro(GradientMagnitudeThreshold,int);
   vtkBooleanMacro(GradientMagnitudeThreshold,int);
-  
+
 protected:
   vtkImageAnisotropicDiffusion2D();
   ~vtkImageAnisotropicDiffusion2D() {};
 
   int NumberOfIterations;
   double DiffusionThreshold;
-  double DiffusionFactor;  
+  double DiffusionFactor;
   // to determine which neighbors to diffuse
   int Faces;
   int Edges;
   int Corners;
   // What threshold to use
   int GradientMagnitudeThreshold;
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData, 
+                           vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
-  void Iterate(vtkImageData *in, vtkImageData *out, 
+  void Iterate(vtkImageData *in, vtkImageData *out,
                double ar0, double ar1, int *coreExtent, int count);
 private:
   vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.

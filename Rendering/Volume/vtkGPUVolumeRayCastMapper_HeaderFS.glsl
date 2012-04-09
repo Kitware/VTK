@@ -63,40 +63,40 @@ void main()
     {
     discard;
     }
-  
+
   // color buffer or max scalar buffer have a reduced size.
   fragTexCoord=(gl_FragCoord.xy-windowLowerLeftCorner)*invOriginalWindowSize;
   // Abscissa of the point on the depth buffer along the ray.
   // point in texture coordinates
   vec4 maxPoint;
-  
+
   // from window coordinates to normalized device coordinates
   maxPoint.x=(gl_FragCoord.x-windowLowerLeftCorner.x)*2.0*invWindowSize.x-1.0;
   maxPoint.y=(gl_FragCoord.y-windowLowerLeftCorner.y)*2.0*invWindowSize.y-1.0;
   maxPoint.z=(2.0*depth.x-(gl_DepthRange.near+gl_DepthRange.far))/gl_DepthRange.diff;
   maxPoint.w=1.0;
-  
+
   // from normalized device coordinates to eye coordinates
   maxPoint=gl_ProjectionMatrixInverse*maxPoint;
-  
+
   // from eye coordinates to texture coordinates
   maxPoint=textureToEye*maxPoint;
   // homogeneous to cartesian coordinates
   maxPoint/=maxPoint.w;
-  
+
   // Entry position. divide by q.
   // pos=gl_TexCoord[0].xyz/gl_TexCoord[0].w;
-  
+
   pos.x=gl_TexCoord[0].x/gl_TexCoord[0].w;
   pos.y=gl_TexCoord[0].y/gl_TexCoord[0].w;
   pos.z=gl_TexCoord[0].z/gl_TexCoord[0].w;
-  
+
   // Incremental vector in texture space. Computation depends on the
   // type of projection (parallel or perspective)
   incrementalRayDirection();
-  
+
   vec4 noiseValue=texture2D(noiseTexture,pos.xy*100.0); // with repeat/tiling mode on the noise texture.
-  
+
   pos+=(noiseValue.x)*rayDir;
 
   tMax=length(maxPoint.xyz-pos.xyz) /length(rayDir);

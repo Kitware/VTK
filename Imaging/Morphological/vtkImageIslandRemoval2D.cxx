@@ -51,7 +51,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "IslandValue: " << this->IslandValue;
   os << indent << "ReplaceValue: " << this->ReplaceValue;
-  
+
 }
 
 
@@ -59,7 +59,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // The templated execute function handles all the data types.
-// Codes:  0 => unvisited. 1 => visted don't know. 
+// Codes:  0 => unvisited. 1 => visted don't know.
 //         2 => visted keep.  3 => visited replace.
 // Please excuse the length of this function.  The easiest way to choose
 // neighborhoods is to check neighbors one by one directly.  Also, I did
@@ -94,11 +94,11 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   area = self->GetAreaThreshold();
   islandValue = static_cast<T>(self->GetIslandValue());
   replaceValue = static_cast<T>(self->GetReplaceValue());
-  
+
   outData->GetIncrements(outInc0, outInc1, outInc2);
   inData->GetIncrements(inInc0, inInc1, inInc2);
   maxC = outData->GetNumberOfScalarComponents();
-  
+
   // Loop through pixels setting all output to 0 (unvisited).
   for (idxC = 0; idxC < maxC; idxC++)
     {
@@ -126,10 +126,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     {
     return;
     }
-  
+
   // In case all 8 neighbors get added before we test the number.
-  pixels = new vtkImage2DIslandPixel [area + 8]; 
-  
+  pixels = new vtkImage2DIslandPixel [area + 8];
+
   target = static_cast<unsigned long>(maxC*(outExt[5]-outExt[4]+1)*
                                       (outExt[3]-outExt[2]+1)/50.0);
   target++;
@@ -139,7 +139,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     {
     outPtr2 = outPtr + idxC;
     inPtr2 = inPtr + idxC;
-    for (outIdx2 = outExt[4]; 
+    for (outIdx2 = outExt[4];
          !self->AbortExecute && outIdx2 <= outExt[5]; ++outIdx2)
       {
       if (!(count%target))
@@ -164,7 +164,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
               }
             else
               {
-            
+
               // Start an island search
               // Save first pixel.
               newPixel = pixels;
@@ -386,17 +386,17 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                       }
                     }
                   }
-              
+
                 // Move to the next pixel to grow.
                 ++nextPixel;
                 ++nextPixelIdx;
-              
+
                 // Have we visted enogh pixels to determine this is a keeper?
                 if (keepValue == 1 && numPixels >= area)
                   {
                   keepValue = 2;
                   }
-              
+
                 // Have we run out of pixels to grow?
                 if (keepValue == 1 && nextPixelIdx >= numPixels)
                   {
@@ -404,7 +404,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                   keepValue = 3;
                   }
                 }
-            
+
               // Change "don't knows" to keep value
               nextPixel = pixels;
               for (nextPixelIdx = 0; nextPixelIdx < numPixels; ++nextPixelIdx)
@@ -414,7 +414,7 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                 }
               }
             }
-        
+
           outPtr0 += outInc0;
           inPtr0 += inInc0;
           }
@@ -425,9 +425,9 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
       inPtr2 += inInc2;
       }
     }
-  
+
   delete [] pixels;
-  
+
   // update the progress and possibly abort
   self->UpdateProgress(0.9);
   if (self->AbortExecute)
@@ -470,10 +470,10 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     }
 }
 
-    
+
 //----------------------------------------------------------------------------
 // This method uses the input data to fill the output data.
-// It can handle any type data, but the two datas must have the same 
+// It can handle any type data, but the two datas must have the same
 // data type.  Assumes that in and out have the same lower extent.
 int vtkImageIslandRemoval2D::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -481,7 +481,7 @@ int vtkImageIslandRemoval2D::RequestData(
   vtkInformationVector *outputVector)
 {
   int outExt[6];
-  
+
   // get the data object
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkImageData *inData = vtkImageData::SafeDownCast(
@@ -492,7 +492,7 @@ int vtkImageIslandRemoval2D::RequestData(
 
   int wholeExtent[6];
   int extent[6];
-  
+
   // We need to allocate our own scalars.
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
@@ -502,11 +502,11 @@ int vtkImageIslandRemoval2D::RequestData(
   extent[3] = wholeExtent[3];
   outData->SetExtent(extent);
   outData->AllocateScalars(outInfo);
-  
+
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << vtkImageScalarTypeNameMacro(inData->GetScalarType())
                   << ", must match out ScalarType "
                   << vtkImageScalarTypeNameMacro(outData->GetScalarType()));
@@ -516,12 +516,12 @@ int vtkImageIslandRemoval2D::RequestData(
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
+
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageIslandRemoval2DExecute(this, inData, 
-                                     static_cast<VTK_TT *>(inPtr), outData, 
+      vtkImageIslandRemoval2DExecute(this, inData,
+                                     static_cast<VTK_TT *>(inPtr), outData,
                                      static_cast<VTK_TT *>(outPtr), outExt));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

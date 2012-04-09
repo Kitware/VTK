@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 //
-// This vtk class uses the Boost breadth_first_search 
+// This vtk class uses the Boost breadth_first_search
 // generic algorithm to perform a breadth first search from a given
 // a 'source' vertex on the input graph (a vtkGraph).
 // The result is a tree with root node corresponding to the start node
@@ -45,9 +45,9 @@ public:
   static vtkBoostBreadthFirstSearchTree *New();
   vtkTypeMacro(vtkBoostBreadthFirstSearchTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // Set the index (into the vertex array) of the 
+  // Set the index (into the vertex array) of the
   // breadth first search 'origin' vertex.
   void SetOriginVertex(vtkIdType index);
 
@@ -58,7 +58,7 @@ public:
   // an array name and value, instead of having to
   // know the specific index of the vertex.
   void SetOriginVertex(vtkStdString arrayName, vtkVariant value);
-  
+
   // Description:
   // Stores the graph vertex ids for the tree vertices in an array
   // named "GraphVertexId".  Default is off.
@@ -79,7 +79,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
 private:
 
   vtkIdType OriginVertexIndex;
@@ -88,7 +88,7 @@ private:
   bool ArrayNameSet;
   bool CreateGraphVertexIdArray;
   bool ReverseEdges;
-  
+
   // Description:
   // Using the convenience function for set strings internally
   vtkSetStringMacro(ArrayName);

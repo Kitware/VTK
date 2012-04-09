@@ -54,12 +54,12 @@ int vtkXMLPUnstructuredDataWriter::ProcessRequest(
     {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
       this->NumberOfPieces);
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), this->StartPiece);
     inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       this->GhostLevel);
     return 1;
     }
@@ -73,7 +73,7 @@ vtkXMLWriter* vtkXMLPUnstructuredDataWriter::CreatePieceWriter(int index)
   pWriter->SetNumberOfPieces(this->NumberOfPieces);
   pWriter->SetWritePiece(index);
   pWriter->SetGhostLevel(this->GhostLevel);
-  
+
   return pWriter;
 }
 
@@ -85,6 +85,6 @@ void vtkXMLPUnstructuredDataWriter::WritePData(vtkIndent indent)
     {
     return;
     }
-  vtkPointSet* input = this->GetInputAsPointSet();  
+  vtkPointSet* input = this->GetInputAsPointSet();
   this->WritePPoints(input->GetPoints(), indent);
 }

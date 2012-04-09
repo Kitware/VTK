@@ -34,7 +34,7 @@ vtkIndent* vtkIndent::New()
 
 static const char blanks[VTK_NUMBER_OF_BLANKS+1]="                                        ";
 
-// Determine the next indentation level. Keep indenting by two until the 
+// Determine the next indentation level. Keep indenting by two until the
 // max of forty.
 vtkIndent vtkIndent::GetNextIndent()
 {
@@ -45,7 +45,7 @@ vtkIndent vtkIndent::GetNextIndent()
     }
   return vtkIndent(indent);
 }
- 
+
 // Print out the indentation. Basically output a bunch of spaces.
 ostream& operator<<(ostream& os, const vtkIndent& ind)
 {

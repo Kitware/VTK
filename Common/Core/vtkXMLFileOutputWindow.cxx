@@ -17,7 +17,7 @@
 
 vtkStandardNewMacro(vtkXMLFileOutputWindow);
 
-void vtkXMLFileOutputWindow::Initialize() 
+void vtkXMLFileOutputWindow::Initialize()
 {
   if (!this->OStream)
     {
@@ -51,7 +51,7 @@ void vtkXMLFileOutputWindow::DisplayTag(const char* text)
     this->Initialize();
     }
   *this->OStream << text << endl;
-  
+
   if (this->Flush)
     {
     this->OStream->flush();
@@ -108,7 +108,7 @@ void vtkXMLFileOutputWindow:: DisplayXML(const char* tag, const char* text)
     this->Initialize();
     }
   *this->OStream << "<" << tag << ">" << xmlText << "</" << tag << ">" << endl;
-  
+
   if (this->Flush)
     {
     this->OStream->flush();

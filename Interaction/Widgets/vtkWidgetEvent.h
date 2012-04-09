@@ -74,7 +74,7 @@ public:
 protected:
   vtkWidgetEvent() {}
   virtual ~vtkWidgetEvent() {}
-  
+
 private:
   vtkWidgetEvent(const vtkWidgetEvent&);  //Not implemented
   void operator=(const vtkWidgetEvent&);  //Not implemented

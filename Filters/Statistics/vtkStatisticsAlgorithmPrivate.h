@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 // through the APIs of the vtkStatistics classes APIs
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 
 #ifndef __vtkStatisticsAlgorithmPrivate_h
@@ -166,7 +166,7 @@ public:
     columnName = *cit;
     return true;
     }
-  
+
   vtksys_stl::set<vtksys_stl::set<vtkStdString> > Requests;
   vtksys_stl::set<vtkStdString> Buffer;
 };

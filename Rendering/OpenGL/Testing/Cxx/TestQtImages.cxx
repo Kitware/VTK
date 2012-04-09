@@ -56,7 +56,7 @@ int TestQtImages( int argc, char* argv[] )
   painter.setPen(QPen(Qt::black, 4, Qt::SolidLine, Qt::RoundCap));
   painter.drawPoint( 300,300 );
 
-  QString textString = QString::fromUtf8( "\302\245 \342\202\254 <sub>Ams</sub><b>ter</b>dam" ); 
+  QString textString = QString::fromUtf8( "\302\245 \342\202\254 <sub>Ams</sub><b>ter</b>dam" );
 
 //#1
 //  painter.drawText( 300, 300, 300, 25, Qt::AlignLeft | Qt::AlignBottom, textString );

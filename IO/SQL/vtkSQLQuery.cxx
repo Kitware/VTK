@@ -237,45 +237,45 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
 {
   // This is just vtkSetStringMacro from vtkSetGet.h
 
-  vtkDebugMacro(<< this->GetClassName() 
-                << " (" << this << "): setting Query to "  
-                << (queryString?queryString:"(null)") ); 
+  vtkDebugMacro(<< this->GetClassName()
+                << " (" << this << "): setting Query to "
+                << (queryString?queryString:"(null)") );
 
-  if ( this->Query == NULL && queryString == NULL) 
-    { 
-    return true; 
+  if ( this->Query == NULL && queryString == NULL)
+    {
+    return true;
     }
-  if ( this->Query && queryString && (!strcmp(this->Query,queryString))) 
-    { 
+  if ( this->Query && queryString && (!strcmp(this->Query,queryString)))
+    {
     return true; // query string isn't changing
     }
   if (this->Query)
-    { 
-    delete [] this->Query; 
+    {
+    delete [] this->Query;
     }
   if (queryString)
-    { 
-    size_t n = strlen(queryString) + 1; 
-    char *cp1 =  new char[n]; 
+    {
+    size_t n = strlen(queryString) + 1;
+    char *cp1 =  new char[n];
     const char *cp2 = (queryString);
-    this->Query = cp1; 
+    this->Query = cp1;
     do { *cp1++ = *cp2++; } while ( --n ); \
     }
    else
-    { 
+    {
     this->Query = NULL;
-    } 
-  this->Modified(); 
+    }
+  this->Modified();
   return true;
-} 
+}
 
 // As above, this is a copy of vtkGetStringMacro from vtkGetSet.h.
 
 const char* vtkSQLQuery::GetQuery()
 {
-  vtkDebugMacro(<< this->GetClassName() 
-                << " (" << this << "): returning Query of " 
+  vtkDebugMacro(<< this->GetClassName()
+                << " (" << this << "): returning Query of "
                 << (this->Query?this->Query:"(null)"));
   return this->Query;
-} 
+}
 

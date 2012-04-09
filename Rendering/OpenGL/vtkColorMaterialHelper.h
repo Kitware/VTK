@@ -44,8 +44,8 @@ public:
   //ETX
 
   // Description:
-  // Prepares the shader i.e. reads color material parameters state from OpenGL. 
-  // This must be called before the shader is bound. 
+  // Prepares the shader i.e. reads color material parameters state from OpenGL.
+  // This must be called before the shader is bound.
   void PrepareForRendering();
 
   // Description:

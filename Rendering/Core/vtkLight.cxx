@@ -26,8 +26,8 @@ vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 vtkInstantiatorNewMacro(vtkLight);
 
 // Create a light with the focal point at the origin and its position
-// set to (0,0,1). The lights color is white, intensity=1, and the light 
-// is turned on. 
+// set to (0,0,1). The lights color is white, intensity=1, and the light
+// is turned on.
 vtkLight::vtkLight()
 {
   this->FocalPoint[0] = 0.0;
@@ -79,7 +79,7 @@ vtkLight::~vtkLight()
 vtkLight *vtkLight::ShallowClone()
 {
   vtkLight *result=vtkLight::New();
-  
+
   int i=0;
   while(i<3)
     {
@@ -94,14 +94,14 @@ vtkLight *vtkLight::ShallowClone()
     result->TransformedPositionReturn[i]=this->TransformedPositionReturn[i];
     ++i;
     }
-  
+
   result->Intensity=this->Intensity;
   result->Switch=this->Switch;
   result->Positional=this->Positional;
   result->Exponent=this->Exponent;
   result->ConeAngle=this->ConeAngle;
   result->LightType=this->LightType;
-  
+
   result->TransformMatrix=this->TransformMatrix;
   if(result->TransformMatrix!=0)
     {
@@ -116,8 +116,8 @@ void vtkLight::SetDirectionAngle(double elevation, double azimuth)
   elevation = vtkMath::RadiansFromDegrees( elevation );
   azimuth   = vtkMath::RadiansFromDegrees( azimuth );
 
-  this->SetPosition( cos( elevation ) * sin( azimuth ), 
-                     sin( elevation ), 
+  this->SetPosition( cos( elevation ) * sin( azimuth ),
+                     sin( elevation ),
                      cos( elevation ) * cos( azimuth ) );
 
   this->SetFocalPoint( 0.0, 0.0, 0.0 );
@@ -125,16 +125,16 @@ void vtkLight::SetDirectionAngle(double elevation, double azimuth)
 }
 
 
-// return the correct type of light 
+// return the correct type of light
 vtkLight *vtkLight::New()
-{ 
+{
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkLight");
   return static_cast<vtkLight *>(ret);
 }
 
 // Preserve VTK's old way of setting light color
-// which affected only diffuse and specular components. 
+// which affected only diffuse and specular components.
 void vtkLight::SetColor(double R, double G, double B)
 {
   this->SetDiffuseColor(R, G, B);
@@ -156,7 +156,7 @@ int vtkLight::LightTypeIsSceneLight()
   return this->LightType == VTK_LIGHT_TYPE_SCENE_LIGHT;
 }
 
-void vtkLight::GetTransformedPosition(double a[3]) 
+void vtkLight::GetTransformedPosition(double a[3])
 {
   if(this->TransformMatrix)
     {
@@ -180,7 +180,7 @@ void vtkLight::GetTransformedPosition(double a[3])
     }
 }
 
-void vtkLight::GetTransformedPosition(double &x, double &y, double &z) 
+void vtkLight::GetTransformedPosition(double &x, double &y, double &z)
 {
   double a[3];
 
@@ -190,13 +190,13 @@ void vtkLight::GetTransformedPosition(double &x, double &y, double &z)
   z = a[2];
 }
 
-double *vtkLight::GetTransformedPosition() 
+double *vtkLight::GetTransformedPosition()
 {
   this->GetTransformedPosition(this->TransformedPositionReturn);
   return this->TransformedPositionReturn;
 }
 
-void vtkLight::GetTransformedFocalPoint(double a[3]) 
+void vtkLight::GetTransformedFocalPoint(double a[3])
 {
   if(this->TransformMatrix)
     {
@@ -230,7 +230,7 @@ void vtkLight::GetTransformedFocalPoint(double &x, double &y, double &z)
   z = a[2];
 }
 
-double *vtkLight::GetTransformedFocalPoint() 
+double *vtkLight::GetTransformedFocalPoint()
 {
   this->GetTransformedFocalPoint(this->TransformedFocalPointReturn);
   return this->TransformedFocalPointReturn;
@@ -255,27 +255,27 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "AttenuationValues: (" << this->AttenuationValues[0] << ", " 
-     << this->AttenuationValues[1] << ", " 
+  os << indent << "AttenuationValues: (" << this->AttenuationValues[0] << ", "
+     << this->AttenuationValues[1] << ", "
      << this->AttenuationValues[2] << ")\n";
-  os << indent << "AmbientColor: (" << this->AmbientColor[0] << ", " 
+  os << indent << "AmbientColor: (" << this->AmbientColor[0] << ", "
      << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
-  os << indent << "DiffuseColor: (" << this->DiffuseColor[0] << ", " 
+  os << indent << "DiffuseColor: (" << this->DiffuseColor[0] << ", "
      << this->DiffuseColor[1] << ", " << this->DiffuseColor[2] << ")\n";
-  os << indent << "SpecularColor: (" << this->SpecularColor[0] << ", " 
+  os << indent << "SpecularColor: (" << this->SpecularColor[0] << ", "
      << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
   os << indent << "Cone Angle: " << this->ConeAngle << "\n";
   os << indent << "Exponent: " << this->Exponent << "\n";
-  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
+  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", "
      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
   os << indent << "Intensity: " << this->Intensity << "\n";
-  os << indent << "Position: (" << this->Position[0] << ", " 
+  os << indent << "Position: (" << this->Position[0] << ", "
      << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "Positional: " << (this->Positional ? "On\n" : "Off\n");
   os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
 
   os << indent << "LightType: ";
-  if (this->LightType == VTK_LIGHT_TYPE_HEADLIGHT) 
+  if (this->LightType == VTK_LIGHT_TYPE_HEADLIGHT)
     {
     os << "Headlight\n";
     }
@@ -338,7 +338,7 @@ void vtkLight::ReadSelf(istream& is)
   is >> this->Positional;
   is >> this->Exponent;
   is >> this->ConeAngle;
-  is >> this->AttenuationValues[0] >> this->AttenuationValues[1] 
+  is >> this->AttenuationValues[0] >> this->AttenuationValues[1]
      >> this->AttenuationValues[2];
   // XXX - LightType, TransformMatrix ???
 }

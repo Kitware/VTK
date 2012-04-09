@@ -36,7 +36,7 @@ void vtkCylindricalTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkCylindricalTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 {
-  vtkCylindricalTransform *cylindricalTransform = 
+  vtkCylindricalTransform *cylindricalTransform =
     static_cast<vtkCylindricalTransform *>(transform);
 
   // copy these even though they aren't used
@@ -91,7 +91,7 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
   T x = inPoint[0];
   T y = inPoint[1];
   T z = inPoint[2];
-  
+
   T rr = x*x + y*y;
 
   outPoint[0] = static_cast<T>(sqrt(rr));

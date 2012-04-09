@@ -432,7 +432,7 @@ int vtkResliceCursorLineRepresentation
   vtkPlane *normalPlane = this->GetResliceCursor()->GetPlane(rcPlaneIdx);
 
   double t;
-  
+
   return normalPlane->IntersectWithLine(eventFPpos, camPos, t, intersectionPos);
 }
 
@@ -609,31 +609,31 @@ void vtkResliceCursorLineRepresentation::PrintSelf(ostream& os, vtkIndent indent
   if (this->ResliceCursorActor)
     {
     this->ResliceCursorActor->PrintSelf(os, indent);
-    }  
+    }
 
   os << indent << "Picker: " << this->Picker << "\n";
   if (this->Picker)
     {
     this->Picker->PrintSelf(os, indent);
-    }  
-  
+    }
+
   os << indent << "MatrixReslicedView: " << this->MatrixReslicedView << "\n";
   if (this->MatrixReslicedView)
     {
     this->MatrixReslicedView->PrintSelf(os, indent);
-    }  
+    }
 
   os << indent << "MatrixView: " << this->MatrixView << "\n";
   if (this->MatrixView)
     {
     this->MatrixView->PrintSelf(os, indent);
-    }  
-  
+    }
+
   os << indent << "MatrixReslice: " << this->MatrixReslice << "\n";
   if (this->MatrixReslice)
     {
     this->MatrixReslice->PrintSelf(os, indent);
-    }  
+    }
 
   // this->StartPickPosition;
   // this->StartCenterPosition;

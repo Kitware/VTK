@@ -119,8 +119,8 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
 
 //----------------------------------------------------------------------------
 int vtkPDataSetReader::RequestDataObject(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector , 
+  vtkInformation* request,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
 
@@ -129,7 +129,7 @@ int vtkPDataSetReader::RequestDataObject(
   char* param;
   char* value;
   int type;
-  
+
   // Start reading the meta-data pvtk file.
   file = this->OpenFile(this->FileName);
   if (file == NULL)
@@ -159,7 +159,7 @@ int vtkPDataSetReader::RequestDataObject(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
-    
+
   if (output && output->GetDataObjectType() == this->DataType)
     {
     return 1;
@@ -193,7 +193,7 @@ int vtkPDataSetReader::RequestDataObject(
 
   if (output)
     {
-    vtkWarningMacro("Creating a new output of type " 
+    vtkWarningMacro("Creating a new output of type "
                   << newOutput->GetClassName());
     }
 
@@ -207,12 +207,12 @@ int vtkPDataSetReader::RequestDataObject(
 // Returns 0 for end of file.
 // Returns 1 for start block,
 // Returns 2 for parameter-value pair (occurs after 1 but before 3).
-// Returns 3 for termination of start block. 
+// Returns 3 for termination of start block.
 // Returns 4 for string inside block.  Puts string in retVal. (param = NULL)
 // Returns 5 for end block.
 // =======
 // The statics should be instance variables ...
-int vtkPDataSetReader::ReadXML(ifstream *file, 
+int vtkPDataSetReader::ReadXML(ifstream *file,
                                char **retBlock, char **retParam, char **retVal)
 {
   static char str[1024];
@@ -229,7 +229,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     {
     block[0] = param[0] = value[0] = '\0';
     }
-    
+
   // Skip white space
   // We could do this with a get char ...
   while (ptr == NULL || *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\0')
@@ -255,7 +255,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
 
   // Handle normal end block.  </Block>
   if (!inStartBlock && ptr[0] == '<' && ptr[1] == '/')
-    { // Assumes no spaces 
+    { // Assumes no spaces
     ptr += 2;
     // We could check to see if the block name matches the start block...
     // Copy block name into block var.
@@ -283,7 +283,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
 
   // Handle start block. <Block>
   if (!inStartBlock && ptr[0] == '<')
-    { // Assumes no spaces 
+    { // Assumes no spaces
     ptr += 1;
     // Copy block name from read string.
     tmp = block;
@@ -311,7 +311,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     }
 
   // Handle short version of end block. <Block    ...  />
-  // Now we want to return twice. 
+  // Now we want to return twice.
   // First for termination of the start block,
   // and second for ending of the block.
   // This implementation uses in start block as a state variable ...
@@ -353,7 +353,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     *retVal = value;
     return 4;
     }
-  
+
   // Must be a parameter
   tmp = param;
   while (*ptr != '=' && *ptr != '\0')
@@ -408,7 +408,7 @@ int vtkPDataSetReader::CanReadFile(const char* filename)
   char* value;
   int type;
   int flag = 0;
-  
+
   // Start reading the meta-data pvtk file.
   file = this->OpenFile(filename);
   if (file == NULL)
@@ -451,7 +451,7 @@ int vtkPDataSetReader::CanReadFile(const char* filename)
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::ReadPVTKFileInformation(
   ifstream *file,
-  vtkInformation*, 
+  vtkInformation*,
   vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
@@ -520,7 +520,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
       if (! this->StructuredFlag)
         {
         info->Set(
-          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), 
+          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
           this->NumberOfPieces);
         }
       }
@@ -533,7 +533,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
         vtkWarningMacro("Extent mismatch.");
         }
       sscanf(val, "%d %d %d %d %d %d", ext, ext+1, ext+2, ext+3, ext+4, ext+5);
-      info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6); 
+      info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
       }
 
     // Handle parameter: scalarType.
@@ -584,7 +584,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
         this->DataType = VTK_IMAGE_DATA;
         this->StructuredFlag = 1;
         }
-      else 
+      else
         {
         vtkErrorMacro("Unknown data type " << val);
         return;
@@ -625,7 +625,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
           }
         else
           {
-          strcpy(this->PieceFileNames[i], val); 
+          strcpy(this->PieceFileNames[i], val);
           }
         }
 
@@ -655,7 +655,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::ReadVTKFileInformation(
   ifstream *file,
-  vtkInformation*, 
+  vtkInformation*,
   vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
@@ -663,11 +663,11 @@ void vtkPDataSetReader::ReadVTKFileInformation(
   int dx, dy, dz;
   float x, y, z;
   char str[1024];
-  
+
   vtkInformation* info = outputVector->GetInformationObject(0);
 
   // To avoid UMR in the first string comparison
-  strcpy(str, "        "); 
+  strcpy(str, "        ");
 
   // Try to find the line that specifies the dataset type.
   i = 0;
@@ -701,11 +701,11 @@ void vtkPDataSetReader::ReadVTKFileInformation(
       vtkErrorMacro("Expecting 'DIMENSIONS' insted of: " << str);
       return;
       }
-        
+
     *file >> dx;
     *file >> dy;
     *file >> dz;
-    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
+    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
               0, dx-1, 0, dy-1, 0, dz-1);
     }
   else if (strncmp(str, "DATASET RECTILINEAR_GRID", 24) == 0)
@@ -720,7 +720,7 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     *file >> dx;
     *file >> dy;
     *file >> dz;
-    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
+    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
               0, dx-1, 0, dy-1, 0, dz-1);
     }
   else if (strncmp(str, "DATASET STRUCTURED_POINTS", 25) == 0)
@@ -735,7 +735,7 @@ void vtkPDataSetReader::ReadVTKFileInformation(
         *file >> dx;
         *file >> dy;
         *file >> dz;
-        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
+        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                   0, dx-1, 0, dy-1, 0, dz-1);
         }
       if (strncmp(str, "SPACING", 7) == 0 || strncmp(str, "ASPECT_RATIO", 12) == 0)
@@ -756,7 +756,7 @@ void vtkPDataSetReader::ReadVTKFileInformation(
       file->getline(str, 1024, ' ');
       }
     }
-  else 
+  else
     {
     vtkErrorMacro("I can not figure out what type of data set this is: " << str);
     return;
@@ -782,13 +782,13 @@ void vtkPDataSetReader::SkipFieldData(ifstream *file)
     vtkErrorMacro("Could not read field.");
     return;
     }
-  
+
   // Read the number of arrays specified
   for (i=0; i<numArrays; i++)
     {
     long length=0;
     char buffer[256];
-    *file >> buffer; 
+    *file >> buffer;
     *file >> numComp;
     *file >> numTuples;
     *file >> type;
@@ -867,7 +867,7 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
     vtkDebugMacro(<<"A FileName must be specified.");
     return NULL;
     }
-  
+
   // Open the new file
   file = new ifstream(filename, ios::in);
 
@@ -885,8 +885,8 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
 }
 
 //----------------------------------------------------------------------------
-int vtkPDataSetReader::RequestData(vtkInformation* request, 
-                                   vtkInformationVector** inputVector , 
+int vtkPDataSetReader::RequestData(vtkInformation* request,
+                                   vtkInformationVector** inputVector ,
                                    vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -920,10 +920,10 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
       return 0;
       }
 
-    // Do not copy the ExtentTranslator (hack) 
+    // Do not copy the ExtentTranslator (hack)
     // reader should probably set the extent translator
     // not paraview.
-    vtkExtentTranslator *tmp = 
+    vtkExtentTranslator *tmp =
       vtkStreamingDemandDrivenPipeline::GetExtentTranslator(info);
     tmp->Register(this);
     output->CopyStructure(data);
@@ -937,7 +937,7 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
     reader->Delete();
     return 1;
     }
-    
+
   switch (this->DataType)
     {
     case VTK_POLY_DATA:
@@ -962,8 +962,8 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
 
 
 //----------------------------------------------------------------------------
-int vtkPDataSetReader::PolyDataExecute(vtkInformation*, 
-                                       vtkInformationVector**, 
+int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
+                                       vtkInformationVector**,
                                        vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -1035,8 +1035,8 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
 
 //----------------------------------------------------------------------------
 int vtkPDataSetReader::UnstructuredGridExecute(
-  vtkInformation*, 
-  vtkInformationVector** , 
+  vtkInformation*,
+  vtkInformationVector** ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -1103,8 +1103,8 @@ int vtkPDataSetReader::UnstructuredGridExecute(
 //----------------------------------------------------------------------------
 // Structured data is trickier.  Which files to load?
 int vtkPDataSetReader::ImageDataExecute(
-  vtkInformation*, 
-  vtkInformationVector** , 
+  vtkInformation*,
+  vtkInformationVector** ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -1190,8 +1190,8 @@ int vtkPDataSetReader::ImageDataExecute(
 //----------------------------------------------------------------------------
 // Structured data is trickier.  Which files to load?
 int vtkPDataSetReader::StructuredGridExecute(
-  vtkInformation*, 
-  vtkInformationVector** , 
+  vtkInformation*,
+  vtkInformationVector** ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -1246,14 +1246,14 @@ int vtkPDataSetReader::StructuredGridExecute(
         tmp->Register(this);
         // Sanity check: extent is correct.  Ignore electric slide.
         tmp->GetExtent(ext);
-        if (ext[1] - ext[0] != 
+        if (ext[1] - ext[0] !=
             this->PieceExtents[i][1] - this->PieceExtents[i][0] ||
-            ext[3] - ext[2] != 
+            ext[3] - ext[2] !=
             this->PieceExtents[i][3] - this->PieceExtents[i][2] ||
-            ext[5] - ext[4] != 
+            ext[5] - ext[4] !=
             this->PieceExtents[i][5] - this->PieceExtents[i][4])
           {
-          vtkErrorMacro("Unexpected extent in VTK file: " << 
+          vtkErrorMacro("Unexpected extent in VTK file: " <<
                         this->PieceFileNames[i]);
           }
         else
@@ -1310,18 +1310,18 @@ int vtkPDataSetReader::StructuredGridExecute(
         {
         for (ix = ext[0]; ix <= ext[1]; ++ix)
           {
-          // For clipping.  I know it is bad to have this condition 
+          // For clipping.  I know it is bad to have this condition
           // in the inner most loop, but we had to read the data ...
-          if (iz <= uExt[5] && iz >= uExt[4] && 
-              iy <= uExt[3] && iy >= uExt[2] && 
+          if (iz <= uExt[5] && iz >= uExt[4] &&
+              iy <= uExt[3] && iy >= uExt[2] &&
               ix <= uExt[1] && ix >= uExt[0])
             {
             outId = (ix-uExt[0]) + pIncY*(iy-uExt[2]) + pIncZ*(iz-uExt[4]);
             pt = pieces[i]->GetPoint(inId);
             newPts->SetPoint(outId, pt);
-            output->GetPointData()->CopyData(ptList, 
-                                             pieces[i]->GetPointData(), i, 
-                                             inId, outId); 
+            output->GetPointData()->CopyData(ptList,
+                                             pieces[i]->GetPointData(), i,
+                                             inId, outId);
             }
           ++inId;
           }
@@ -1337,7 +1337,7 @@ int vtkPDataSetReader::StructuredGridExecute(
           {
           outId = (ix-uExt[0]) + cIncY*(iy-uExt[2]) + cIncZ*(iz-uExt[4]);
           output->GetCellData()->CopyData(cellList, pieces[i]->GetCellData(), i,
-                                          inId, outId); 
+                                          inId, outId);
           ++inId;
           }
         }
@@ -1389,7 +1389,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
         {
         cExt[j*2+1] = this->PieceExtents[i][j*2+1];
         }
-      // Compute the area for cells.  
+      // Compute the area for cells.
       if (cExt[j*2] >= cExt[j*2+1])
         {
         area = 0;
@@ -1405,7 +1405,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
       best = i;
       }
     }
-  
+
   // It could happen if pieces do not have complete coverage.
   if (bestArea <= 0)
     {
@@ -1431,7 +1431,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
       cExt[j*2+1] = this->PieceExtents[i][j*2+1];
       }
     }
-  
+
   // Compute and recursively cover remaining pieces.
   for (i = 0; i < 3; ++i)
     {
@@ -1439,7 +1439,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
       {
       // This extends covered extent to minimum.
       for (j = 0; j < 6; ++j)
-        { 
+        {
         rExt[j] = cExt[j];
         }
       rExt[i*2+1] = rExt[i*2];
@@ -1451,7 +1451,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
       {
       // This extends covered extent to maximum.
       for (j = 0; j < 6; ++j)
-        { 
+        {
         rExt[j] = cExt[j];
         }
       rExt[i*2] = rExt[i*2+1];

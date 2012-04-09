@@ -90,10 +90,10 @@ int TemporalStatistics(int argc, char *argv[])
              "Fractal Volume Fraction_stddev");
   renWin->AddRenderer(stddevRenderer);
 
-  renWin->SetSize(450, 400); 
+  renWin->SetSize(450, 400);
   iren->SetRenderWindow( renWin );
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {

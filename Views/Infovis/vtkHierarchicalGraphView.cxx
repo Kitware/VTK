@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkHierarchicalGraphView.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -35,7 +35,7 @@ vtkHierarchicalGraphView::vtkHierarchicalGraphView()
 
 //----------------------------------------------------------------------------
 vtkHierarchicalGraphView::~vtkHierarchicalGraphView()
-{  
+{
 }
 
 //----------------------------------------------------------------------------
@@ -133,13 +133,13 @@ bool vtkHierarchicalGraphView::GetGraphEdgeLabelVisibility()
 
 //----------------------------------------------------------------------------
 void vtkHierarchicalGraphView::SetGraphEdgeColorArrayName(const char* name)
-{   
+{
   this->GetHierarchyRepresentation()->SetGraphEdgeColorArrayName(name);
 }
 
 //----------------------------------------------------------------------------
 const char* vtkHierarchicalGraphView::GetGraphEdgeColorArrayName()
-{   
+{
   return this->GetHierarchyRepresentation()->GetGraphEdgeColorArrayName();
 }
 

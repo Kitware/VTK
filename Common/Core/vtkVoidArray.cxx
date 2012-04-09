@@ -20,7 +20,7 @@ vtkStandardNewMacro(vtkVoidArray);
 typedef void *voidPtr;
 
 // Instantiate object.
-vtkVoidArray::vtkVoidArray() 
+vtkVoidArray::vtkVoidArray()
   : NumberOfPointers(0),Size(0),Array(NULL)
 {
 }
@@ -86,7 +86,7 @@ void vtkVoidArray::DeepCopy(vtkVoidArray *va)
 }
 
 void** vtkVoidArray::WritePointer(vtkIdType id,
-                                  vtkIdType number) 
+                                  vtkIdType number)
 {
   vtkIdType newSize=id+number;
   if ( newSize > this->Size )
@@ -146,7 +146,7 @@ void** vtkVoidArray::ResizeAndExtend(vtkIdType sz)
     }
 
   if ( (newArray = new voidPtr[newSize]) == NULL )
-    { 
+    {
     vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }

@@ -23,13 +23,13 @@
 //      Build, in parallel, a k-d tree decomposition of one or more
 //      vtkDataSets distributed across processors.  We assume each
 //      process has read in one portion of a large distributed data set.
-//      When done, each process has access to the k-d tree structure, 
-//      can obtain information about which process contains 
+//      When done, each process has access to the k-d tree structure,
+//      can obtain information about which process contains
 //      data for each spatial region, and can depth sort the spatial
 //      regions.
 //
 //      This class can also assign spatial regions to processors, based
-//      on one of several region assignment schemes.  By default 
+//      on one of several region assignment schemes.  By default
 //      a contiguous, convex region is assigned to each process.  Several
 //      queries return information about how many and what cells I have
 //      that lie in a region assigned to another process.
@@ -65,7 +65,7 @@ public:
   //   Build the spatial decomposition.  Call this explicitly
   //   after changing any parameters affecting the build of the
   //   tree.  It must be called by all processes in the parallel
-  //   application, or it will hang.  
+  //   application, or it will hang.
   void BuildLocator();
 
   // Description:
@@ -84,9 +84,9 @@ public:
   int CreateProcessCellCountData();
 
   // Description:
-  //   A convenience function which compiles the global 
-  //   bounds of the data arrays across processes.  
-  //   These bounds can be accessed with 
+  //   A convenience function which compiles the global
+  //   bounds of the data arrays across processes.
+  //   These bounds can be accessed with
   //   "GetCellArrayGlobalRange" and "GetPointArrayGlobalRange".
   //   This method must be called by all processes or it will hang.
   //   Returns 1 on error, 0 when no error.
@@ -100,7 +100,7 @@ public:
   // Description:
   //   The PKdTree class can assign spatial regions to processors after
   //   building the k-d tree, using one of several partitioning criteria.
-  //   These functions Set/Get whether this assignment is computed. 
+  //   These functions Set/Get whether this assignment is computed.
   //   The default is "Off", no assignment is computed.   If "On", and
   //   no assignment scheme is specified, contiguous assignment will be
   //   computed.  Specifying an assignment scheme (with AssignRegions*())
@@ -115,7 +115,7 @@ public:
   // Description:
   //   Assign spatial regions to processes via a user defined map.
   //   The user-supplied map is indexed by region ID, and provides a
-  //   process ID for each region. 
+  //   process ID for each region.
   int AssignRegions(int *map, int numRegions);
 
   // Description:
@@ -146,7 +146,7 @@ public:
   // Description:
   //    Writes the list of region IDs assigned to the specified
   //    process.  Regions IDs start at 0 and increase by 1 from there.
-  //    Returns the number of regions in the list. 
+  //    Returns the number of regions in the list.
   int GetRegionAssignmentList(int procId, vtkIntArray *list);
 
   // Description:
@@ -156,7 +156,7 @@ public:
   //    boundaries include that point.  This may be required when
   //    looking for processes that have cells adjacent to the cells
   //    of a given process.
-  void GetAllProcessesBorderingOnPoint(float x, float y, float z, 
+  void GetAllProcessesBorderingOnPoint(float x, float y, float z,
                                        vtkIntArray *list);
 
   // Description:
@@ -165,17 +165,17 @@ public:
 
   // Description:
   //   Returns 1 if the process has data for the given region,
-  //   0 otherwise. 
+  //   0 otherwise.
   int HasData(int processId, int regionId);
 
   // Description:
   //   Returns the number of cells the specified process has in the
-  //   specified region.  
+  //   specified region.
   int GetProcessCellCountForRegion(int processId, int regionId);
 
   // Description:
   //   Returns the total number of processes that have data
-  //   falling within this spatial region. 
+  //   falling within this spatial region.
   int GetTotalProcessesInRegion(int regionId);
 
   // Description:
@@ -194,7 +194,7 @@ public:
 
   // Description:
   //   Returns the total number of spatial regions that a given
-  //   process has data for. 
+  //   process has data for.
   int GetTotalRegionsForProcess(int processId);
 
   // Description:
@@ -219,26 +219,26 @@ public:
   //   writes to the first list the IDs of the cells
   //   contained in the process' regions.  (That is, their cell
   //   centroid is contained in the region.)  To the second list it
-  //   write the IDs of the cells which intersect the process' regions 
+  //   write the IDs of the cells which intersect the process' regions
   //   but whose cell centroid lies elsewhere.
   //
-  //   The total number of cell IDs written to both lists is returned.  
-  //   Either list pointer passed in can be NULL, and it will be ignored. 
+  //   The total number of cell IDs written to both lists is returned.
+  //   Either list pointer passed in can be NULL, and it will be ignored.
   //   If there are multiple data sets, you must specify which data set
-  //   you wish cell IDs for.  
+  //   you wish cell IDs for.
   //
-  //   The caller should delete these two lists when done.  This method 
+  //   The caller should delete these two lists when done.  This method
   //   uses the cell lists created in vtkKdTree::CreateCellLists().
   //   If the cell lists for the process' regions do not exist, this
   //   method will first build the cell lists for all regions by calling
-  //   CreateCellLists().  You must remember to DeleteCellLists() when 
-  //   done with all calls to this method, as cell lists can require a 
-  //   great deal of memory.  
-  vtkIdType GetCellListsForProcessRegions(int ProcessId, int set, 
+  //   CreateCellLists().  You must remember to DeleteCellLists() when
+  //   done with all calls to this method, as cell lists can require a
+  //   great deal of memory.
+  vtkIdType GetCellListsForProcessRegions(int ProcessId, int set,
             vtkIdList *inRegionCells, vtkIdList *onBoundaryCells);
   vtkIdType GetCellListsForProcessRegions(int ProcessId, vtkDataSet *set,
             vtkIdList *inRegionCells, vtkIdList *onBoundaryCells);
-  vtkIdType GetCellListsForProcessRegions(int ProcessId, 
+  vtkIdType GetCellListsForProcessRegions(int ProcessId,
                                           vtkIdList *inRegionCells,
                                           vtkIdList *onBoundaryCells);
 
@@ -328,7 +328,7 @@ private:
   char **CellDataName;
   char **PointDataName;
   int NumCellArrays;
-  int NumPointArrays; 
+  int NumPointArrays;
 
   // distribution of indices for select operation
 

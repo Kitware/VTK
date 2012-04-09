@@ -73,7 +73,7 @@ vtkRandomGraphSource::~vtkRandomGraphSource()
 
 // ----------------------------------------------------------------------
 
-void 
+void
 vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -98,21 +98,21 @@ vtkRandomGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 
 // ----------------------------------------------------------------------
 
-int 
+int
 vtkRandomGraphSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector *outputVector)
 {
   // Seed the random number generator so we can produce repeatable results
   vtkMath::RandomSeed(this->Seed);
-  
+
   // Create a mutable graph of the appropriate type.
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-    
+
   for (vtkIdType i = 0; i < this->NumberOfVertices; ++i)
     {
     if (this->Directed)
@@ -182,7 +182,7 @@ vtkRandomGraphSource::RequestData(
       {
       MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
       }
-    
+
     if (this->NumberOfEdges > MaxEdges)
       {
       this->NumberOfEdges = MaxEdges;
@@ -305,12 +305,12 @@ vtkRandomGraphSource::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkRandomGraphSource::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* )
 {
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current 
+  if (!current
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
     {

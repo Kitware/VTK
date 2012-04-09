@@ -51,7 +51,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->SetWorldPoint(fp);
   ren->WorldToDisplay();
   ren->GetDisplayPoint(fp);
-  
+
   double tmp[4];
   tmp[0] = displayPos[0];
   tmp[1] = displayPos[1];
@@ -60,7 +60,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->DisplayToWorld();
   ren->GetWorldPoint(tmp);
 
-  // Translate the focal point by "Offset" from the focal plane along the 
+  // Translate the focal point by "Offset" from the focal plane along the
   // viewing direction.
 
   double focalPlaneNormal[3];
@@ -79,7 +79,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     viewDirection[1] = tmp[1] - camPos[1];
     viewDirection[2] = tmp[2] - camPos[2];
     vtkMath::Normalize( viewDirection );
-    double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) / 
+    double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) /
         (vtkMath::Norm(viewDirection) * vtkMath::Norm(focalPlaneNormal));
     if (costheta != 0.0) // 0.0 Impossible in a perspective projection
       {
@@ -88,9 +88,9 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       tmp[2] += (viewDirection[2] * this->Offset / costheta);
       }
     }
-  
+
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
-  if ( this->PointBounds[0] < this->PointBounds[1] && 
+  if ( this->PointBounds[0] < this->PointBounds[1] &&
       !(vtkMath::PointIsWithinBounds( tmp, this->PointBounds, tolerance )))
     {
     return 0;
@@ -99,9 +99,9 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   worldPos[0] = tmp[0];
   worldPos[1] = tmp[1];
   worldPos[2] = tmp[2];
-  
+
   this->GetCurrentOrientation( worldOrient );
-  
+
   return 1;
 }
 
@@ -120,7 +120,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->SetWorldPoint(tmp);
   ren->WorldToDisplay();
   ren->GetDisplayPoint(tmp);
-  
+
   tmp[0] = displayPos[0];
   tmp[1] = displayPos[1];
   tmp[3] = 1.0;
@@ -128,7 +128,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   ren->DisplayToWorld();
   ren->GetWorldPoint(tmp);
 
-  // Translate the focal point by "Offset" from the focal plane along the 
+  // Translate the focal point by "Offset" from the focal plane along the
   // viewing direction.
 
   double focalPlaneNormal[3];
@@ -147,7 +147,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     viewDirection[1] = tmp[1] - camPos[1];
     viewDirection[2] = tmp[2] - camPos[2];
     vtkMath::Normalize( viewDirection );
-    double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) / 
+    double costheta = vtkMath::Dot( viewDirection, focalPlaneNormal ) /
         (vtkMath::Norm(viewDirection) * vtkMath::Norm(focalPlaneNormal));
     if (costheta != 0.0) // 0.0 Impossible in a perspective projection
       {
@@ -156,9 +156,9 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       tmp[2] += (viewDirection[2] * this->Offset / costheta);
       }
     }
-  
+
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
-  if ( this->PointBounds[0] < this->PointBounds[1] && 
+  if ( this->PointBounds[0] < this->PointBounds[1] &&
       !(vtkMath::PointIsWithinBounds( tmp, this->PointBounds, tolerance )))
     {
     return 0;
@@ -169,7 +169,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
   worldPos[2] = tmp[2];
 
   this->GetCurrentOrientation( worldOrient );
-  
+
   return 1;
 }
 
@@ -177,7 +177,7 @@ int vtkFocalPlanePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* worldPos )
 {
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
-  if ( this->PointBounds[0] < this->PointBounds[1] && 
+  if ( this->PointBounds[0] < this->PointBounds[1] &&
     !(vtkMath::PointIsWithinBounds( worldPos, this->PointBounds, tolerance )))
     {
     return 0;
@@ -191,7 +191,7 @@ int vtkFocalPlanePointPlacer::ValidateWorldPosition( double* worldPos,
                                                      double* vtkNotUsed(worldOrient) )
 {
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
-  if ( this->PointBounds[0] < this->PointBounds[1] && 
+  if ( this->PointBounds[0] < this->PointBounds[1] &&
     !(vtkMath::PointIsWithinBounds( worldPos, this->PointBounds, tolerance )))
     {
     return 0;
@@ -206,7 +206,7 @@ void vtkFocalPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
   double *x = worldOrient;
   double *y = worldOrient+3;
   double *z = worldOrient+6;
-  
+
   x[0] = 1.0;
   x[1] = 0.0;
   x[2] = 0.0;
@@ -224,11 +224,11 @@ void vtkFocalPlanePointPlacer::GetCurrentOrientation( double worldOrient[9] )
 void vtkFocalPlanePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "PointBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << 
+  os << indent << "  Xmin,Xmax: (" <<
     this->PointBounds[0] << ", " << this->PointBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << 
+  os << indent << "  Ymin,Ymax: (" <<
     this->PointBounds[2] << ", " << this->PointBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" <<
     this->PointBounds[4] << ", " << this->PointBounds[5] << ")\n";

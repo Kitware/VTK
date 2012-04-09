@@ -20,7 +20,7 @@
 // .NAME vtkPDescriptiveStatistics - A class for parallel univariate descriptive statistics
 // .SECTION Description
 // vtkPDescriptiveStatistics is vtkDescriptiveStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each 
+// It learns and derives the global statistical model on each node, but assesses each
 // individual data points on the node that owns it.
 
 // .SECTION Thanks

@@ -17,7 +17,7 @@
 // vtkImplicitFunction specifies an abstract interface for implicit
 // functions. Implicit functions are real valued functions defined in 3D
 // space, w = F(x,y,z). Two primitive operations are required: the ability to
-// evaluate the function, and the function gradient at a given point. The 
+// evaluate the function, and the function gradient at a given point. The
 // implicit function divides space into three regions: on the surface
 // (F(x,y,z)=w), outside of the surface (F(x,y,z)>c), and inside the
 // surface (F(x,y,z)<c). (When c is zero, positive values are outside,
@@ -25,22 +25,22 @@
 // that the function gradient points from inside to outside.)
 //
 // Implicit functions are very powerful. It is possible to represent almost
-// any type of geometry with the level sets w = const, especially if you use 
+// any type of geometry with the level sets w = const, especially if you use
 // boolean combinations of implicit functions (see vtkImplicitBoolean).
 //
 // vtkImplicitFunction provides a mechanism to transform the implicit
-// function(s) via a vtkAbstractTransform.  This capability can be used to 
-// translate, orient, scale, or warp implicit functions.  For example, 
-// a sphere implicit function can be transformed into an oriented ellipse. 
+// function(s) via a vtkAbstractTransform.  This capability can be used to
+// translate, orient, scale, or warp implicit functions.  For example,
+// a sphere implicit function can be transformed into an oriented ellipse.
 
 // .SECTION Caveats
 // The transformation transforms a point into the space of the implicit
-// function (i.e., the model space). Typically we want to transform the 
-// implicit model into world coordinates. In this case the inverse of the 
+// function (i.e., the model space). Typically we want to transform the
+// implicit model into world coordinates. In this case the inverse of the
 // transformation is required.
 
 // .SECTION See Also
-// vtkAbstractTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane 
+// vtkAbstractTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane
 // vtkPlanes vtkQuadric vtkImplicitVolume vtkSampleFunction vtkCutter
 // vtkClipPolyData
 
@@ -89,18 +89,18 @@ public:
 
   // Description:
   // Evaluate function at position x-y-z and return value.  You should
-  // generally not call this method directly, you should use 
-  // FunctionValue() instead.  This method must be implemented by 
-  // any derived class. 
+  // generally not call this method directly, you should use
+  // FunctionValue() instead.  This method must be implemented by
+  // any derived class.
   virtual double EvaluateFunction(double x[3]) = 0;
   double EvaluateFunction(double x, double y, double z) {
     double xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
 
   // Description:
-  // Evaluate function gradient at position x-y-z and pass back vector. 
-  // You should generally not call this method directly, you should use 
-  // FunctionGradient() instead.  This method must be implemented by 
-  // any derived class. 
+  // Evaluate function gradient at position x-y-z and pass back vector.
+  // You should generally not call this method directly, you should use
+  // FunctionGradient() instead.  This method must be implemented by
+  // any derived class.
   virtual void EvaluateGradient(double x[3], double g[3]) = 0;
 
 protected:

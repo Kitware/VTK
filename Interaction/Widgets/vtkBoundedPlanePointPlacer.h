@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Set the projection normal to lie along the x, y, or z axis,
-  // or to be oblique. If it is oblique, then the plane is 
+  // or to be oblique. If it is oblique, then the plane is
   // defined in the ObliquePlane ivar.
   vtkSetClampMacro(ProjectionNormal,int,
                    vtkBoundedPlanePointPlacer::XAxis,
@@ -62,7 +62,7 @@ public:
     { this->SetProjectionNormal(vtkBoundedPlanePointPlacer::Oblique); }
 
   // Description:
-  // If the ProjectionNormal is set to Oblique, then this is the 
+  // If the ProjectionNormal is set to Oblique, then this is the
   // oblique plane used to constrain the handle position.
   void SetObliquePlane(vtkPlane *);
   vtkGetObjectMacro( ObliquePlane, vtkPlane );
@@ -89,7 +89,7 @@ public:
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
-  
+
 //BTX
   enum
   {
@@ -99,14 +99,14 @@ public:
     Oblique
   };
 //ETX
-  
+
   // Description:
-  // Given a renderer and a display position, compute the 
-  // world position and world orientation for this point. 
+  // Given a renderer and a display position, compute the
+  // world position and world orientation for this point.
   // A plane is defined by a combination of the
   // ProjectionNormal, ProjectionOrigin, and ObliquePlane
   // ivars. The display position is projected onto this
-  // plane to determine a world position, and the 
+  // plane to determine a world position, and the
   // orientation is set to the normal of the plane. If
   // the point cannot project onto the plane or if it
   // falls outside the bounds imposed by the
@@ -114,44 +114,44 @@ public:
   // returned to indicate a valid return position and
   // orientation.
   int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2], 
+                            double displayPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
-  
+
   // Description:
   // Given a renderer, a display position, and a reference world
-  // position, compute the new world position and orientation 
-  // of this point. This method is typically used by the 
+  // position, compute the new world position and orientation
+  // of this point. This method is typically used by the
   // representation to move the point.
   virtual int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2], 
+                                    double displayPos[2],
                                     double refWorldPos[3],
                                     double worldPos[3],
                                     double worldOrient[9] );
-  
+
   // Description:
   // Give a world position check if it is valid - does
   // it lie on the plane and within the bounds? Returns
   // 1 if it is valid, 0 otherwise.
   int ValidateWorldPosition( double worldPos[3] );
-  
+
   // Descrption:
   // Orientationation is ignored, and the above method
   // is called instead.
   int ValidateWorldPosition( double worldPos[3],
                              double worldOrient[9]);
-  
+
   // Description:
   // If the constraints on this placer are changed, then
   // this method will be called by the representation on
   // each of its points. For this placer, the world
   // position will be converted to a display position, then
-  // ComputeWorldPosition will be used to update the 
+  // ComputeWorldPosition will be used to update the
   // point.
   virtual int UpdateWorldPosition( vtkRenderer *ren,
                                    double worldPos[3],
                                    double worldOrient[9] );
-  
+
 
 protected:
   vtkBoundedPlanePointPlacer();
@@ -166,7 +166,7 @@ protected:
   // Indicates a distance from the origin of the projection
   // normal where the project plane will be placed
   double          ProjectionPosition;
-  
+
   // If the ProjectionNormal is oblique, this is the oblique
   // plane
   vtkPlane        *ObliquePlane;
@@ -177,22 +177,22 @@ protected:
 
   // Internal method for getting the project normal as a vector
   void GetProjectionNormal( double normal[3] );
-  
-  // Internal method for getting the origin of the 
+
+  // Internal method for getting the origin of the
   // constraining plane as a 3-tuple
   void GetProjectionOrigin( double origin[3] );
 
   // Internal method for getting the orientation of
   // the projection plane
   void GetCurrentOrientation( double worldOrient[9] );
-  
-  // Calculate the distance of a point from the Object. Negative 
+
+  // Calculate the distance of a point from the Object. Negative
   // values imply that the point is outside. Positive values imply that it is
-  // inside. The closest point to the object is returned in closestPt. 
+  // inside. The closest point to the object is returned in closestPt.
   static double GetDistanceFromObject( double               pos[3],
                                        vtkPlaneCollection * pc,
                                        double               closestPt[3]);
-  
+
 private:
   vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&);  //Not implemented
   void operator=(const vtkBoundedPlanePointPlacer&);  //Not implemented

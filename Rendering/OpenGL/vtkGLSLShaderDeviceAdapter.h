@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGLSLShaderDeviceAdapter - adapter to pass generic vertex 
+// .NAME vtkGLSLShaderDeviceAdapter - adapter to pass generic vertex
 // attributes to the rendering pipeline to be used in a GLSL shader.
 // .SECTION Description
 // vtkShaderDeviceAdapter subclass for GLSL.
@@ -41,8 +41,8 @@ public:
   virtual void PrepareForRender();
 
   // Description:
-  // Sends a single attribute to the graphics card.  
-  // The attrname parameter identifies the name of attribute.  
+  // Sends a single attribute to the graphics card.
+  // The attrname parameter identifies the name of attribute.
   // The components parameter gives the number of
   // components in the attribute.  In general, components must be between
   // 1-4, but a rendering system may impose even more constraints.  The
@@ -59,7 +59,7 @@ public:
                              int type,
                              const void *attribute,
                              unsigned long offset=0);
-   
+
 //BTX
 protected:
   vtkGLSLShaderDeviceAdapter();
@@ -69,7 +69,7 @@ protected:
   int GetAttributeLocation(const char* attrName);
 
   friend class vtkGLSLShaderProgram;
-  
+
 private:
   vtkGLSLShaderDeviceAdapter(const vtkGLSLShaderDeviceAdapter&);
   // Not implemented

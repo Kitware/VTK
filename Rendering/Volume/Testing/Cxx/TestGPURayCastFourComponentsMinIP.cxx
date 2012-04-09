@@ -36,7 +36,7 @@ int TestGPURayCastFourComponentsMinIP(int argc,
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   char *cfname=
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
-  
+
   vtkXMLImageDataReader *reader=vtkXMLImageDataReader::New();
   reader->SetFileName(cfname);
   delete [] cfname;
@@ -45,42 +45,42 @@ int TestGPURayCastFourComponentsMinIP(int argc,
   shiftScale->SetShift(-255);
   shiftScale->SetScale(-1);
   shiftScale->SetInputConnection(reader->GetOutputPort());
-  
-  
+
+
   vtkRenderer *ren1=vtkRenderer::New();
   vtkRenderWindow *renWin=vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
   renWin->SetSize(301,300);
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   renWin->Render();
-  
+
   vtkGPUVolumeRayCastMapper *volumeMapper;
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
-  
+
   volumeMapper=vtkGPUVolumeRayCastMapper::New();
   volumeMapper->SetBlendModeToMinimumIntensity();
   volumeMapper->SetInputConnection(
     shiftScale->GetOutputPort());
-  
+
   volumeProperty=vtkVolumeProperty::New();
   volumeProperty->IndependentComponentsOff();
-  
+
   vtkPiecewiseFunction *f = vtkPiecewiseFunction::New();
   f->AddPoint(0,1.0);
   f->AddPoint(255,0.0);
   volumeProperty->SetScalarOpacity(f);
   f->Delete();
-  
+
   volume=vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
-  
+
   int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
-  
+
   int retVal;
   if(valid)
     {
@@ -88,7 +88,7 @@ int TestGPURayCastFourComponentsMinIP(int argc,
     ren1->SetBackground(0.1,0.4,0.2);
     ren1->ResetCamera();
     renWin->Render();
-    
+
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
       {
@@ -100,17 +100,17 @@ int TestGPURayCastFourComponentsMinIP(int argc,
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
-  
+
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
   volumeMapper->Delete();
   volumeProperty->Delete();
   volume->Delete();
-     
+
   reader->Delete();
   shiftScale->Delete();
-  
+
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
     {
     return 0;

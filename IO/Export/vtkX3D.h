@@ -18,9 +18,9 @@
 extern const char* x3dElementString[];
 extern const char* x3dAttributeString[];
 
-namespace vtkX3D 
+namespace vtkX3D
 {
-  enum X3DTypes 
+  enum X3DTypes
     {
     SFVEC3F, SFVEC2F,
     MFVEC3F, MFVEC2F,

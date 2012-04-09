@@ -70,7 +70,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   vtkGeoProjectionSource* projSource = vtkGeoProjectionSource::New();
   projSource->SetProjection(projNum);
   projSource->Initialize();
-  vtkSmartPointer<vtkGeoTransform> transform = 
+  vtkSmartPointer<vtkGeoTransform> transform =
     vtkSmartPointer<vtkGeoTransform>::New();
   vtkSmartPointer<vtkGeoProjection> proj =
     vtkSmartPointer<vtkGeoProjection>::New();
@@ -96,18 +96,18 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   view->AddRepresentation(imageRep);
 
   // Add a graph representation
-  vtkSmartPointer<vtkMutableUndirectedGraph> graph = 
+  vtkSmartPointer<vtkMutableUndirectedGraph> graph =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-  vtkSmartPointer<vtkDoubleArray> latArr = 
+  vtkSmartPointer<vtkDoubleArray> latArr =
     vtkSmartPointer<vtkDoubleArray>::New();
-  vtkSmartPointer<vtkDoubleArray> lonArr = 
+  vtkSmartPointer<vtkDoubleArray> lonArr =
     vtkSmartPointer<vtkDoubleArray>::New();
   latArr->SetNumberOfTuples(128);
   lonArr->SetNumberOfTuples(128);
   latArr->SetName("latitude");
   lonArr->SetName("longitude");
 
-  vtkSmartPointer<vtkIdTypeArray> colorScalars = 
+  vtkSmartPointer<vtkIdTypeArray> colorScalars =
     vtkSmartPointer<vtkIdTypeArray>::New();
   colorScalars->SetName("stuff");
 
@@ -257,7 +257,7 @@ int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
   graphRep->SetVertexColorArrayName("stuff");
   graphRep->SetColorVerticesByArray(true);
   graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");
-  
+
   view->AddRepresentation(graphRep);
 
   terrain->SetSource(terrainSource);

@@ -18,7 +18,7 @@
 // It provides convenient access to various attributes/properties
 // of a shader.
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkXMLShader_h
@@ -63,7 +63,7 @@ public:
   // the depth peeling pass.
   // \post valid_result: result==1 || result==2
   int GetStyle();
-  
+
   // Description:
   // Get the name of the Shader.
   const char* GetName();
@@ -95,7 +95,7 @@ public:
     LANGUAGE_CG,
     LANGUAGE_GLSL
     };
-  
+
   enum ScopeCodes
     {
     SCOPE_NONE=0,
@@ -104,7 +104,7 @@ public:
     SCOPE_FRAGMENT
     };
 
-  enum LocationCodes 
+  enum LocationCodes
     {
     LOCATION_NONE=0,
     LOCATION_INLINE,
@@ -118,10 +118,10 @@ protected:
 
   // Reads the file and fills it in this->Code.
   void ReadCodeFromFile(const char* fullpath);
-  
+
   char* Code; // cache for the code.
   vtkSetStringMacro(Code);
-  
+
   vtkXMLDataElement* RootElement;
   vtkXMLDataElement* SourceLibraryElement;
   void SetSourceLibraryElement(vtkXMLDataElement*);

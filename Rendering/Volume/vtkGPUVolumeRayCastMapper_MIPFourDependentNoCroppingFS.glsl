@@ -33,7 +33,7 @@ void writeColorAndMaxScalar(vec4 color,
                             float maxValue)
 {
   // maxValue is not used
-  
+
   // color framebuffer
   gl_FragColor.r = color.r*opacity.a;
   gl_FragColor.g = color.g*opacity.a;

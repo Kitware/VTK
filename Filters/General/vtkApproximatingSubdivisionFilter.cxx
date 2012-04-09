@@ -127,7 +127,7 @@ int vtkApproximatingSubdivisionFilter::RequestData(
 
   // Get rid of ghost cells if we have to.
   unsigned char* ghostLevels=0;
-  
+
   vtkCellData* cd = inputDS->GetCellData();
   if (cd)
     {
@@ -139,13 +139,13 @@ int vtkApproximatingSubdivisionFilter::RequestData(
     }
   int updateGhostLevel = outInfo->Get(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-     
+
   output->SetPoints(inputDS->GetPoints());
   output->SetPolys(inputDS->GetPolys());
   output->CopyAttributes(inputDS);
-  
+
   if (input->GetGhostLevel() > updateGhostLevel && ghostLevels != NULL)
-    { 
+    {
     output->RemoveGhostCells(updateGhostLevel+1);
     }
 
@@ -160,7 +160,7 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
                                                  vtkIntArray *edgeData,
                                                  vtkIdList *cellIds)
 {
- 
+
   int edgeId = 0;
   vtkIdType currentCellId = 0;
   vtkIdType i;
@@ -276,7 +276,7 @@ void vtkApproximatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Number of subdivisions: " 
+  os << indent << "Number of subdivisions: "
      << this->NumberOfSubdivisions << endl;
 }
 

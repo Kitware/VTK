@@ -247,10 +247,10 @@ static TRIANGLE_CASES triCases[] = {
 };
 
 //----------------------------------------------------------------------------
-void vtkTetra::Contour(double value, vtkDataArray *cellScalars, 
+void vtkTetra::Contour(double value, vtkDataArray *cellScalars,
                        vtkIncrementalPointLocator *locator,
-                       vtkCellArray *verts, 
-                       vtkCellArray *lines, 
+                       vtkCellArray *verts,
+                       vtkCellArray *lines,
                        vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
@@ -282,7 +282,7 @@ void vtkTetra::Contour(double value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
 
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+      deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
@@ -307,7 +307,7 @@ void vtkTetra::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           vtkIdType p1 = this->PointIds->GetId(v1);
           vtkIdType p2 = this->PointIds->GetId(v2);
@@ -376,7 +376,7 @@ vtkCell *vtkTetra::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 // Intersect triangle faces against line.
 //
 int vtkTetra::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
@@ -399,14 +399,14 @@ int vtkTetra::IntersectWithLine(double p1[3], double p2[3], double tol, double& 
     this->Triangle->Points->SetPoint(1,pt2);
     this->Triangle->Points->SetPoint(2,pt3);
 
-    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, 
+    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp,
                                            xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 0:
@@ -489,7 +489,7 @@ void vtkTetra::TetraCenter(double p1[3], double p2[3], double p3[3],
 }
 
 //----------------------------------------------------------------------------
-double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3], 
+double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3],
                                double p4[3])
 {
   return (vtkMath::Determinant3x3(p2[0]-p1[0], p3[0]-p1[0], p4[0]-p1[0],
@@ -501,16 +501,16 @@ double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3],
 // Compute the circumcenter (center[3]) and radius squared (method
 // return value) of a tetrahedron defined by the four points x1, x2,
 // x3, and x4.
-double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3], 
+double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
                              double x4[3], double center[3])
 {
   double n12[3], n13[3], n14[3], x12[3], x13[3], x14[3];
   double *A[3], rhs[3], sum, diff;
   int i;
 
-  //  calculate normals and intersection points of bisecting planes.  
+  //  calculate normals and intersection points of bisecting planes.
   //
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     n12[i] = x2[i] - x1[i];
     n13[i] = x3[i] - x1[i];
@@ -529,7 +529,7 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
   A[1] = n13;
   A[2] = n14;
 
-  rhs[0] = vtkMath::Dot(n12,x12); 
+  rhs[0] = vtkMath::Dot(n12,x12);
   rhs[1] = vtkMath::Dot(n13,x13);
   rhs[2] = vtkMath::Dot(n14,x14);
 
@@ -549,7 +549,7 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
     }
 
   //determine average value of radius squared
-  for (sum=0, i=0; i<3; i++) 
+  for (sum=0, i=0; i<3; i++)
     {
     diff = x1[i] - rhs[i];
     sum += diff*diff;
@@ -574,7 +574,7 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
 //----------------------------------------------------------------------------
 // Compute the incenter (center[3]) and radius (method return value) of
 // a tetrahedron defined by the four points p1, p2, p3, and p4.
-double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3], 
+double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3],
                           double p4[3], double center[3])
 {
   double u[3], v[3], w[3];
@@ -643,15 +643,15 @@ double vtkTetra::Insphere(double  p1[3], double p2[3], double p3[3],
 //----------------------------------------------------------------------------
 // Given a 3D point x[3], determine the barycentric coordinates of the point.
 // Barycentric coordinates are a natural coordinate system for simplices that
-// express a position as a linear combination of the vertices. For a 
+// express a position as a linear combination of the vertices. For a
 // tetrahedron, there are four barycentric coordinates (because there are
-// four vertices), and the sum of the coordinates must equal 1. If a 
-// point x is inside a simplex, then all four coordinates will be strictly 
-// positive.  If three coordinates are zero (so the fourth =1), then the 
-// point x is on a vertex. If two coordinates are zero, the point x is on an 
+// four vertices), and the sum of the coordinates must equal 1. If a
+// point x is inside a simplex, then all four coordinates will be strictly
+// positive.  If three coordinates are zero (so the fourth =1), then the
+// point x is on a vertex. If two coordinates are zero, the point x is on an
 // edge (and so on). In this method, you must specify the vertex coordinates
 // x1->x4. Returns 0 if tetrahedron is degenerate.
-int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3], 
+int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3],
                                 double x3[3], double x4[3], double bcoords[4])
 {
   double *A[4], p[4], a1[4], a2[4], a3[4], a4[4];

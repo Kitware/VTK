@@ -93,7 +93,7 @@ int vtkBridgeCell::IsInDataSet()
 {
   return this->BoolIsInDataSet;
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Type of the current cell.
@@ -173,7 +173,7 @@ int vtkBridgeCell::GetGeometryOrder()
   assert("post: positive_result" && result>=0);
   return result;
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Does the cell have no higher-order interpolation for geometry?
@@ -184,7 +184,7 @@ int vtkBridgeCell::IsGeometryLinear()
   assert("post: definition" && result==(GetGeometryOrder()==1));
   return result;
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Interpolation order of attribute `a' on the cell (may differ by cell).
@@ -196,7 +196,7 @@ int vtkBridgeCell::GetAttributeOrder(vtkGenericAttribute *vtkNotUsed(a))
   assert("post: positive_result" && result>=0);
   return result;
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Does the attribute `a' have no higher-order interpolation for the cell?
@@ -209,7 +209,7 @@ int vtkBridgeCell::IsAttributeLinear(vtkGenericAttribute *a)
   assert("post: definition" && result==(GetAttributeOrder(a)==1));
   return result;
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Is the cell primary (i.e. not composite) ?
@@ -238,7 +238,7 @@ int vtkBridgeCell::GetNumberOfPoints()
 int vtkBridgeCell::GetNumberOfBoundaries(int dim)
 {
   assert("pre: valid_dim_range" && ((dim==-1) ||((dim>=0)&&(dim<GetDimension()))));
-  
+
   int result=0;
   if( (dim==0) && (this->GetDimension()>1) )
     {
@@ -256,7 +256,7 @@ int vtkBridgeCell::GetNumberOfBoundaries(int dim)
     {
     result=result+this->Cell->GetNumberOfFaces();
     }
-   
+
   assert("post: positive_result" && result>=0);
   return result;
 }
@@ -293,7 +293,7 @@ vtkGenericCellIterator *vtkBridgeCell::NewCellIterator()
   assert("post: result_exists" && result!=0);
   return result;
 }
- 
+
 //-----------------------------------------------------------------------------
 // Description:
 // Return in `boundaries' the cells of dimension `dim' (or all dimensions
@@ -307,7 +307,7 @@ void vtkBridgeCell::GetBoundaryIterator(vtkGenericCellIterator *boundaries,
   assert("pre: boundaries_exist" && boundaries!=0);
   static_cast<vtkBridgeCellIterator *>(boundaries)->InitWithCellBoundaries(this,dim);
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Number of cells (dimension>boundary->GetDimension()) of the dataset
@@ -323,16 +323,16 @@ int vtkBridgeCell::CountNeighbors(vtkGenericAdaptorCell *boundary)
   assert("pre: boundary_exists" && boundary!=0);
   assert("pre: real_boundary" && !boundary->IsInDataSet());
   assert("pre: cell_of_the_dataset" && IsInDataSet());
-  
+
   vtkIdList *cells=vtkIdList::New();
   vtkBridgeCell *b=static_cast<vtkBridgeCell *>(boundary);
   vtkIdList *pts=b->Cell->GetPointIds();
   this->DataSet->Implementation->GetCellNeighbors(this->Id,pts,cells);
   int result=cells->GetNumberOfIds();
   cells->Delete();
-  
+
   assert("post: positive_result" && result>=0);
-  
+
   return result;
 }
 
@@ -342,13 +342,13 @@ int vtkBridgeCell::CountNeighbors(vtkGenericAdaptorCell *boundary)
 void vtkBridgeCell::CountEdgeNeighbors(int *sharing)
 {
   assert("pre: large_enough" && this->GetDimension()>=2);
-  
+
   vtkIdType c=this->Cell->GetNumberOfEdges();
   vtkIdList *cells=vtkIdList::New();
   vtkIdType i=0;
   vtkCell *edge;
   vtkIdList *pts;
-  
+
   while(i<c)
     {
     edge=this->Cell->GetEdge(i); // edge is deleted automatically by this->Cell
@@ -377,11 +377,11 @@ void vtkBridgeCell::GetNeighbors(vtkGenericAdaptorCell *boundary,
   assert("pre: real_boundary" && !boundary->IsInDataSet());
   assert("pre: cell_of_the_dataset" && IsInDataSet());
   assert("pre: neighbors_exist" && neighbors!=0);
-  
+
   vtkIdList *cells=vtkIdList::New();
-  vtkIdList *pts=static_cast<vtkBridgeCell *>(boundary)->Cell->GetPointIds();  
+  vtkIdList *pts=static_cast<vtkBridgeCell *>(boundary)->Cell->GetPointIds();
   this->DataSet->Implementation->GetCellNeighbors(this->Id,pts,cells);
-  
+
   static_cast<vtkBridgeCellIterator *>(neighbors)->InitWithCells(cells,this->DataSet);
 
   cells->Delete();
@@ -399,12 +399,12 @@ int vtkBridgeCell::FindClosestBoundary(int subId,
                                        vtkGenericCellIterator* &boundary)
 {
   assert("pre: positive_subId" && subId>=0);
-  
+
   vtkIdList *pts=vtkIdList::New();
   int result=this->Cell->CellBoundary(subId,pcoords,pts);
   static_cast<vtkBridgeCellIterator *>(boundary)->InitWithPoints(this->Cell->Points,pts,this->GetDimension()-1,0); // id of the boundary always 0?
   pts->Delete();
-  
+
   return result;
 }
 

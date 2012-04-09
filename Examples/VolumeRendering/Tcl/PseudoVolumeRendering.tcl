@@ -30,7 +30,7 @@ vtkPlane plane
   plane SetNormal 0 1 0
 
 # The cutter is set up to process each contour value over all cells
-# (SetSortByToSortByCell). This results in an ordered output of polygons 
+# (SetSortByToSortByCell). This results in an ordered output of polygons
 # which is key to the compositing.
 vtkCutter cutter
   cutter SetInputConnection [extract GetOutputPort]

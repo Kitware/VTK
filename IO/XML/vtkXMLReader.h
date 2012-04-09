@@ -39,46 +39,46 @@ class VTKIOXML_EXPORT vtkXMLReader : public vtkAlgorithm
 public:
   vtkTypeMacro(vtkXMLReader,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get/Set the name of the input file.
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  
+
   // Description:
   // Test whether the file with the given name can be read by this
   // reader.
   virtual int CanReadFile(const char* name);
-  
+
   // Description:
   // Get the output as a vtkDataSet pointer.
   vtkDataSet* GetOutputAsDataSet();
   vtkDataSet* GetOutputAsDataSet(int index);
-  
+
   // Description:
   // Get the data array selection tables used to configure which data
   // arrays are loaded by the reader.
   vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
-  
-  // Description:  
+
+  // Description:
   // Get the number of point or cell arrays available in the input.
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
-  
+
   // Description:
   // Get the name of the point or cell array with the given index in
   // the input.
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
-  
+
   // Description:
   // Get/Set whether the point or cell array with the given name is to
   // be read.
   int GetPointArrayStatus(const char* name);
   int GetCellArrayStatus(const char* name);
-  void SetPointArrayStatus(const char* name, int status);  
-  void SetCellArrayStatus(const char* name, int status);  
+  void SetPointArrayStatus(const char* name, int status);
+  void SetCellArrayStatus(const char* name, int status);
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
@@ -86,10 +86,10 @@ public:
                                    int vtkNotUsed(port)) {}
 
   // Description:
-  // Which TimeStep to read.    
+  // Which TimeStep to read.
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
- 
+
   vtkGetMacro(NumberOfTimeSteps, int);
   // Description:
   // Which TimeStepRange to read
@@ -99,44 +99,44 @@ public:
   virtual int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector);
-  
+
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
-   
+
   // Pipeline execution methods to be defined by subclass.  Called by
   // corresponding RequestData methods after appropriate setup has been
   // done.
   virtual int ReadXMLInformation();
   virtual void ReadXMLData();
-  
+
   // Get the name of the data set being read.
   virtual const char* GetDataSetName()=0;
-  
+
   // Test if the reader can read a file with the given version number.
   virtual int CanReadFileVersion(int major, int minor);
-  
+
   // Setup the output with no data available.  Used in error cases.
   virtual void SetupEmptyOutput()=0;
-  
+
   // Setup the output's information.
   virtual void SetupOutputInformation(vtkInformation *vtkNotUsed(outInfo)) {}
-  
+
   // Setup the output's information for the update extent
   virtual void SetupUpdateExtentInformation
   (vtkInformation *vtkNotUsed(outInfo)) {}
 
   // Setup the output's data with allocation.
   virtual void SetupOutputData();
-  
+
   // Read the primary element from the file.  This is the element
   // whose name is the value returned by GetDataSetName().
   virtual int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  
+
   // Read the top-level element from the file.  This is always the
   // VTKFile element.
-  int ReadVTKFile(vtkXMLDataElement* eVTKFile);  
-  
+  int ReadVTKFile(vtkXMLDataElement* eVTKFile);
+
   // Create a vtkAbstractArray from its cooresponding XML representation.
   // Does not allocate.
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
@@ -158,7 +158,7 @@ protected:
 
   // Returns the minor version for the file being read. -1 when invalid.
   vtkGetMacro(FileMinorVersion, int);
-  
+
   // Utility methods for subclasses.
   int IntersectExtents(int* extent1, int* extent2, int* result);
   int Min(int a, int b);
@@ -172,25 +172,25 @@ protected:
   void ReadAttributeIndices(vtkXMLDataElement* eDSA,
                             vtkDataSetAttributes* dsa);
   char** CreateStringArray(int numStrings);
-  void DestroyStringArray(int numStrings, char** strings);  
-  
+  void DestroyStringArray(int numStrings, char** strings);
+
   // Setup the data array selections for the input's set of arrays.
   void SetDataArraySelections(vtkXMLDataElement* eDSA,
                               vtkDataArraySelection* sel);
 
 //BTX
-  int SetFieldDataInfo(vtkXMLDataElement *eDSA, int association,  
+  int SetFieldDataInfo(vtkXMLDataElement *eDSA, int association,
   int numTuples, vtkInformationVector *(&infoVector));
 //ETX
 
   // Check whether the given array element is an enabled array.
   int PointDataArrayIsEnabled(vtkXMLDataElement* ePDA);
   int CellDataArrayIsEnabled(vtkXMLDataElement* eCDA);
-  
+
   // Callback registered with the SelectionObserver.
   static void SelectionModifiedCallback(vtkObject* caller, unsigned long eid,
                                         void* clientdata, void* calldata);
-  
+
   // The vtkXMLDataParser instance used to hide XML reading details.
   vtkXMLDataParser* XMLParser;
 
@@ -199,31 +199,31 @@ protected:
 
   // The input file's name.
   char* FileName;
-  
+
   // The stream used to read the input.
   istream* Stream;
-  
+
   // The array selections.
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
-  
+
   // The observer to modify this object when the array selections are
   // modified.
   vtkCallbackCommand* SelectionObserver;
-  
+
   // Whether there was an error reading the file in RequestInformation.
   int InformationError;
-  
+
   // Whether there was an error reading the file in RequestData.
   int DataError;
-  
+
   // incrementally fine-tuned progress updates.
   virtual void GetProgressRange(float* range);
   virtual void SetProgressRange(float* range, int curStep, int numSteps);
   virtual void SetProgressRange(float* range, int curStep, float* fractions);
   virtual void UpdateProgressDiscrete(float progress);
   float ProgressRange[2];
-  
+
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
@@ -254,14 +254,14 @@ protected:
   int CurrentTimeStep;
   int NumberOfTimeSteps;
   void SetNumberOfTimeSteps(int num);
-  // buffer for reading timestep from the XML file the length is of 
+  // buffer for reading timestep from the XML file the length is of
   // NumberOfTimeSteps and therefore is always long enough
-  int *TimeSteps; 
+  int *TimeSteps;
   // Store the range of time steps
   int TimeStepRange[2];
 
-  // Now we need to save what was the last time read for each kind of 
-  // data to avoid rereading it that is to say we need a var for 
+  // Now we need to save what was the last time read for each kind of
+  // data to avoid rereading it that is to say we need a var for
   // e.g. PointData/CellData/Points/Cells...
   // See SubClass for details with member vars like PointsTimeStep/PointsOffset
 
@@ -270,18 +270,18 @@ protected:
 
   vtkDataObject* GetCurrentOutput();
   vtkInformation* GetCurrentOutputInformation();
-  
+
 private:
   // The stream used to read the input if it is in a file.
-  ifstream* FileStream;  
+  ifstream* FileStream;
   int TimeStepWasReadOnce;
 
   int FileMajorVersion;
   int FileMinorVersion;
-  
+
   vtkDataObject* CurrentOutput;
   vtkInformation* CurrentOutputInformation;
-  
+
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.
   void operator=(const vtkXMLReader&);  // Not implemented.

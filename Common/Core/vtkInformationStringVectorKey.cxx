@@ -83,7 +83,7 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
         }
       oldv->Value[index] = value;
       // Since this sets a value without call SetAsObjectBase(),
-      // the info has to be modified here (instead of 
+      // the info has to be modified here (instead of
       // vtkInformation::SetAsObjectBase()
       info->Modified(this);
       }
@@ -100,7 +100,7 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
     v->Value[index] = value;
     this->SetAsObjectBase(info, v);
     v->Delete();
-    }  
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -33,15 +33,15 @@
 vtkXMLPDataReader::vtkXMLPDataReader()
 {
   this->GhostLevel = 0;
-  
+
   this->NumberOfPieces = 0;
-  
+
   this->PieceElements = 0;
   this->PieceReaders = 0;
   this->CanReadPieceFlag = 0;
-  
+
   this->PathName = 0;
-  
+
   // Setup a callback for the internal serial readers to report
   // progress.
   this->PieceProgressObserver = vtkCallbackCommand::New();
@@ -97,11 +97,11 @@ void vtkXMLPDataReader::SetupOutputData()
   vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
   vtkPointData* pointData = output->GetPointData();
   vtkCellData* cellData = output->GetCellData();
-  
+
   // Get the size of the output arrays.
   unsigned long pointTuples = this->GetNumberOfPoints();
-  unsigned long cellTuples = this->GetNumberOfCells();  
-  
+  unsigned long cellTuples = this->GetNumberOfCells();
+
   // Allocate data in the arrays.
   int i;
   if(ePointData)
@@ -159,7 +159,7 @@ int vtkXMLPDataReader::ReadXMLInformation()
 {
   // First setup the filename components.
   this->SplitFileName();
-  
+
   // Now proceed with reading the information.
   return this->Superclass::ReadXMLInformation();
 }
@@ -214,7 +214,7 @@ void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
 void vtkXMLPDataReader::CopyOutputInformation(vtkInformation *outInfo,
                                               int port)
 {
-  vtkInformation *localInfo = 
+  vtkInformation *localInfo =
     this->GetExecutive()->GetOutputInformation( port );
   if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
     {
@@ -239,7 +239,7 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     {
     this->GhostLevel = 0;
     }
-  
+
   // Read information about the pieces.
   this->PPointDataElement = 0;
   this->PCellDataElement = 0;
@@ -275,7 +275,7 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
         }
       }
     }
-  
+
   return 1;
 }
 
@@ -330,26 +330,26 @@ int vtkXMLPDataReader::ReadPiece(vtkXMLDataElement* ePiece, int index)
 int vtkXMLPDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
   this->PieceElements[this->Piece] = ePiece;
-  
+
   const char* fileName = ePiece->GetAttribute("Source");
   if(!fileName)
     {
     vtkErrorMacro("Piece " << this->Piece << " has no Source attribute.");
     return 0;
     }
-  
+
   // The file name is relative to the summary file.  Convert it to
   // something we can use.
   char *pieceFileName = this->CreatePieceFileName(fileName);
-  
+
   vtkXMLDataReader* reader = this->CreatePieceReader();
   this->PieceReaders[this->Piece] = reader;
   this->PieceReaders[this->Piece]->AddObserver(vtkCommand::ProgressEvent,
                                                this->PieceProgressObserver);
   reader->SetFileName(pieceFileName);
-  
+
   delete [] pieceFileName;
-  
+
   return 1;
 }
 
@@ -357,14 +357,14 @@ int vtkXMLPDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 int vtkXMLPDataReader::ReadPieceData(int index)
 {
   this->Piece = index;
-  
+
   // We need data, make sure the piece can be read.
   if(!this->CanReadPiece(this->Piece))
     {
     vtkErrorMacro("File for piece " << this->Piece << " cannot be read.");
     return 0;
     }
-  
+
   // Actually read the data.
   this->PieceReaders[this->Piece]->SetAbortExecute(0);
   vtkDataArraySelection* pds =
@@ -381,7 +381,7 @@ int vtkXMLPDataReader::ReadPieceData()
 {
   vtkDataSet* input = this->GetPieceInputAsDataSet(this->Piece);
   vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
-  
+
   // copy any field data
   if (input->GetFieldData())
     {
@@ -404,7 +404,7 @@ int vtkXMLPDataReader::ReadPieceData()
     this->CopyArrayForCells(input->GetCellData()->GetArray(i),
                             output->GetCellData()->GetArray(i));
     }
-  
+
   return 1;
 }
 
@@ -429,7 +429,7 @@ int vtkXMLPDataReader::CanReadPiece(int index)
       reader->Delete();
       }
     }
-  
+
   return (this->PieceReaders[index]? 1:0);
 }
 
@@ -442,12 +442,12 @@ char* vtkXMLPDataReader::CreatePieceFileName(const char* fileName)
     fn_with_warning_C4701 << this->PathName;
     }
   fn_with_warning_C4701 << fileName;
-  
+
   size_t len = fn_with_warning_C4701.str().length();
   char *buffer = new char[len + 1];
   strncpy(buffer, fn_with_warning_C4701.str().c_str(), len);
   buffer[len] = '\0';
-  
+
   return buffer;
 }
 
@@ -467,26 +467,26 @@ void vtkXMLPDataReader::SplitFileName()
   char* begin = fileName;
   char* end = fileName + length;
   char* s;
-  
+
 #if defined(_WIN32)
   // Convert to UNIX-style slashes.
   for(s=begin;s != end;++s) { if(*s == '\\') { *s = '/'; } }
 #endif
-  
+
   // Extract the path name up to the last '/'.
-  if(this->PathName) 
-    { 
-    delete [] this->PathName; 
-    this->PathName = 0; 
+  if(this->PathName)
+    {
+    delete [] this->PathName;
+    this->PathName = 0;
     }
   char* rbegin = end-1;
   char* rend = begin-1;
-  for(s=rbegin;s != rend;--s) 
-    { 
-    if(*s == '/') 
-      { 
-      break; 
-      } 
+  for(s=rbegin;s != rend;--s)
+    {
+    if(*s == '/')
+      {
+      break;
+      }
     }
   if(s >= begin)
     {
@@ -495,7 +495,7 @@ void vtkXMLPDataReader::SplitFileName()
     strncpy(this->PathName, this->FileName, length);
     this->PathName[length] = '\0';
     }
-  
+
   // Cleanup temporary name.
   delete [] fileName;
 }

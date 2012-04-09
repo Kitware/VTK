@@ -44,11 +44,11 @@
 class vtkPostgreSQLDatabasePrivate
 {
  public:
-  vtkPostgreSQLDatabasePrivate() 
+  vtkPostgreSQLDatabasePrivate()
     {
       this->Connection = NULL;
     }
-    
+
   // Description:
   // Destroy the database connection. Any uncommitted transaction will be aborted.
     virtual ~vtkPostgreSQLDatabasePrivate()

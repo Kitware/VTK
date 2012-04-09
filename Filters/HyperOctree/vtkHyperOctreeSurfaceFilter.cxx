@@ -36,7 +36,7 @@ vtkHyperOctreeSurfaceFilter::vtkHyperOctreeSurfaceFilter()
 {
   this->Merging=0;
   this->Locator=0;
-  
+
   this->OutPts=0;
   this->InputCD=0;
   this->OutputCD=0;
@@ -76,9 +76,9 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   this->OutPts=vtkPoints::New();
-  
+
   if(this->Merging)
     {
     if(this->Locator==0)
@@ -87,20 +87,20 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
       }
     this->Locator->InitPointInsertion (this->OutPts, input->GetBounds());
     }
-  
+
   vtkIdType numCells=input->GetNumberOfLeaves();
   this->InputCD = input->GetLeafData();
   this->OutputCD = output->GetCellData();
   this->OutputCD->CopyAllocate(this->InputCD,numCells,numCells/2);
-  
+
   this->Cursor=input->NewCellCursor();
   this->Cursor->ToRoot();
-  
+
   double bounds[6];
   input->GetBounds(bounds);
   int dim=input->GetDimension();
   assert("check: valid_dim" && dim>=1 && dim<=3);
-  
+
 
   if (this->PassThroughCellIds)
     {
@@ -111,13 +111,13 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
     }
 
   double pt[3];
-  
+
   vtkIdType ptIds[8];
   int idx;
   int z;
   int y;
   int x;
-  
+
   switch(dim)
     {
     case 3:
@@ -142,7 +142,7 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
           }
         ++z;
         }
-      
+
       int onFace[6];
       onFace[0]=1; // -x
       onFace[1]=1; // +x
@@ -152,14 +152,14 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
       onFace[5]=1; // +z;
       this->OutCells=vtkCellArray::New();
       this->GenerateFaces(bounds,ptIds,onFace);
-      
+
       output->SetPolys(this->OutCells);
       this->OutCells->UnRegister(this);
       this->OutCells=0;
       break;
     case 2:
       pt[2]=0;
-      
+
       idx=0;
       y=0;
       while(y<2)
@@ -204,11 +204,11 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
   output->SetPoints(this->OutPts);
   this->OutPts->Delete();
   this->OutPts=0;
-  
+
   this->InputCD=0;
   this->OutputCD=0;
   this->Cursor->UnRegister(this);
-  
+
   if (this->OriginalCellIds != NULL)
     {
     this->OriginalCellIds->Delete();
@@ -216,7 +216,7 @@ int vtkHyperOctreeSurfaceFilter::RequestData(
     }
 
   output->Squeeze();
-  
+
   return 1;
 }
 
@@ -243,13 +243,13 @@ void vtkHyperOctreeSurfaceFilter::GenerateLines(double bounds[2],
     vtkIdType subPtIds[2];
     double pt[3];
     vtkIdType ptId;
-    
+
     pt[0]=mid;
     pt[1]=0;
     pt[2]=0;
     ptId=this->OutPts->InsertNextPoint(pt);
     // no point data to copy. Octree does not handle point data.
-      
+
     this->Cursor->ToChild(VTK_BINARY_TREE_CHILD_LEFT);
     subBounds[0]=bounds[0];
     subBounds[1]=mid;
@@ -257,7 +257,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateLines(double bounds[2],
     subPtIds[1]=ptId;
     this->GenerateLines(subBounds,subPtIds);
     this->Cursor->ToParent();
-    
+
     this->Cursor->ToChild(VTK_BINARY_TREE_CHILD_RIGHT);
     subBounds[0]=mid;
     subBounds[1]=bounds[1];
@@ -295,81 +295,81 @@ void vtkHyperOctreeSurfaceFilter::GenerateQuads(double bounds[4],
     vtkIdType subPtIds[4];
     double pt[3];
     vtkIdType newPtIds[5]; // center of the quad + middle of each edge
-    
+
     // south
     pt[0]=midX;
     pt[1]=bounds[2];
     pt[2]=0;
     newPtIds[0]=this->OutPts->InsertNextPoint(pt);
-    
+
     // west
     pt[0]=bounds[0];
     pt[1]=midY;
     newPtIds[1]=this->OutPts->InsertNextPoint(pt);
-    
+
     // center
     pt[0]=midX;
     pt[1]=midY;
     newPtIds[2]=this->OutPts->InsertNextPoint(pt);
-    
+
     // east
     pt[0]=bounds[1];
     pt[1]=midY;
     newPtIds[3]=this->OutPts->InsertNextPoint(pt);
-    
+
     // north
     pt[0]=midX;
     pt[1]=bounds[3];
     newPtIds[4]=this->OutPts->InsertNextPoint(pt);
-   
-    
+
+
     // no point data to copy. Octree does not handle point data yet.
-      
+
     this->Cursor->ToChild(VTK_QUADTREE_CHILD_SW);
     subBounds[0]=bounds[0];
     subBounds[1]=midX;
     subBounds[2]=bounds[2];
     subBounds[3]=midY;
-    
+
     subPtIds[0]=ptIds[0];
     subPtIds[1]=newPtIds[0];
     subPtIds[2]=newPtIds[1];
     subPtIds[3]=newPtIds[2];
     this->GenerateQuads(subBounds,subPtIds);
     this->Cursor->ToParent();
-    
+
     this->Cursor->ToChild(VTK_QUADTREE_CHILD_SE);
     subBounds[0]=midX;
     subBounds[1]=bounds[1];
     subBounds[2]=bounds[2];
     subBounds[3]=midY;
-    
+
     subPtIds[0]=newPtIds[0];
     subPtIds[1]=ptIds[1];
     subPtIds[2]=newPtIds[2];
     subPtIds[3]=newPtIds[3];
     this->GenerateQuads(subBounds,subPtIds);
     this->Cursor->ToParent();
-    
+
     this->Cursor->ToChild(VTK_QUADTREE_CHILD_NW);
     subBounds[0]=bounds[0];
     subBounds[1]=midX;
     subBounds[2]=midY;
     subBounds[3]=bounds[3];
-    
+
     subPtIds[0]=newPtIds[1];
     subPtIds[1]=newPtIds[2];
     subPtIds[2]=ptIds[2];
     subPtIds[3]=newPtIds[4];
     this->GenerateQuads(subBounds,subPtIds);
     this->Cursor->ToParent();
-    
+
     this->Cursor->ToChild(VTK_QUADTREE_CHILD_NE);
     subBounds[0]=midX;
     subBounds[1]=bounds[1];
     subBounds[2]=midY;
     subBounds[3]=bounds[3];
-    
+
     subPtIds[0]=newPtIds[2];
     subPtIds[1]=newPtIds[3];
     subPtIds[2]=newPtIds[4];
@@ -420,7 +420,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
     {
     // generate mid points on the faces that are on the octree boundary.
     double pt[3];
-    
+
     // [x,y,z][min,mid,max]
     double allBounds[3][3];
     int coord=0;
@@ -432,25 +432,25 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
       allBounds[coord][2]=bounds[coord2+1];
       coord++;
       }
-    
+
     // Create the new mid-points (on those which are edges or faces
     // of the octree)
-    
+
     // [i][j][k]
     // [x][y][z] in [0,2]
     vtkIdType allPtIds[3][3][3];
-    
+
     // 0 mid points: original point
     // 1 mid point: center of a edge
     // 2 mid point: center of a face
     // 3 mid point: internal point, not used
     int midpoints=0;
     int originalpt=0;
-    
+
     double xStep=(bounds[1]-bounds[0])*0.5;
     double yStep=(bounds[3]-bounds[2])*0.5;
     double zStep=(bounds[5]-bounds[4])*0.5;
-    
+
     int onface; // boolean
     int zi=0;
     pt[2]=bounds[4];
@@ -566,7 +566,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
             }
           else
             {
-            if(xi==2) 
+            if(xi==2)
               {
               --midpoints;
               }
@@ -601,7 +601,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
         }
       pt[2]+=zStep;
       }
-        
+
     // traverse children (zi|yi|xi) that are on the octree boundary
     zi=0;
     int zchild=0;
@@ -619,11 +619,11 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
           // and compute the flag for the subfaces.
           int subOnFace[6];
           int onOctreeBoundary=0;
-          
+
           int face=0;
           int max=0;
           int mask=1;
-          
+
           while(face<6)
             {
             if(max)
@@ -639,8 +639,8 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
             ++face;
             max^=1;
             }
-          
-          
+
+
           // skip the interior children.
           if(onOctreeBoundary)
             {
@@ -652,7 +652,7 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
             newBounds[3]=allBounds[1][yi+1];
             newBounds[4]=allBounds[2][zi];
             newBounds[5]=allBounds[2][zi+1];
-            
+
             // Set the point ids
             vtkIdType subPtIds[8];
             int pti=0;
@@ -673,12 +673,12 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
                 }
               ++z;
               }
-            
+
             this->Cursor->ToChild(child);
             this->GenerateFaces(newBounds,subPtIds,subOnFace);
             this->Cursor->ToParent();
             }
-          
+
           ++child;
           ++xi;
           }
@@ -696,14 +696,14 @@ void vtkHyperOctreeSurfaceFilter::GenerateFaces(double bounds[6],
 // default an instance of vtkMergePoints is used.
 void vtkHyperOctreeSurfaceFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if(this->Locator!=locator) 
+  if(this->Locator!=locator)
     {
     if(this->Locator!=0)
       {
       this->Locator->UnRegister(this);
       }
     this->Locator=locator;
-    
+
     if(this->Locator!=0)
       {
       this->Locator->Register(this);
@@ -733,7 +733,7 @@ int vtkHyperOctreeSurfaceFilter::FillInputPortInformation(int,
 void vtkHyperOctreeSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )
     {
@@ -764,7 +764,7 @@ unsigned long int vtkHyperOctreeSurfaceFilter::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperOctreeSurfaceFilter::RecordOrigCellId(vtkIdType destIndex, 
+void vtkHyperOctreeSurfaceFilter::RecordOrigCellId(vtkIdType destIndex,
                                                    vtkIdType originalId)
 {
   if (this->OriginalCellIds != NULL)

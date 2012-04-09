@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
- 
+
 #include "vtkMath.h"
 #include "vtkPoints.h"
 #include "vtkIdList.h"
@@ -28,21 +28,21 @@ vtkCxxSetObjectMacro( vtkIncrementalOctreeNode, Parent, vtkIncrementalOctreeNode
 // ----------------------------- Helper functions ----------------------------
 // ---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------- 
+//----------------------------------------------------------------------------
 // This is an empty function which provides only the point index to the caller
 // function vtkIncreemntalOctreeNode::InsertPoint(). The caller inserts the
 // point index to the vtkIdList maintained by a leaf node, without inserting
 // the point (coordinate) to vtkPoints at all.
-void _OctreeNodeGetPointId( vtkPoints * vtkNotUsed( points ), 
+void _OctreeNodeGetPointId( vtkPoints * vtkNotUsed( points ),
   vtkIdType * vtkNotUsed( pntIdx ), const double * vtkNotUsed( coords ) )
 {
   // the 3D point coordinate is not inserted to vtkPoints at all
 }
 
-//----------------------------------------------------------------------------  
+//----------------------------------------------------------------------------
 // Insert a point, with a specified point index, to a vtkPoints object by
 // calling vtkPoints::InsertPoint().
-void _OctreeNodeInsertPoint( vtkPoints * points, vtkIdType * pntIdx, 
+void _OctreeNodeInsertPoint( vtkPoints * points, vtkIdType * pntIdx,
                              const double * coords )
 {
   points->InsertPoint( *pntIdx, coords );
@@ -50,7 +50,7 @@ void _OctreeNodeInsertPoint( vtkPoints * points, vtkIdType * pntIdx,
 
 //----------------------------------------------------------------------------
 // Insert a point to a vtkPoints by calling vtkPoints::InsertNextPoint().
-void _OctreeNodeInsertNextPoint( vtkPoints * points, vtkIdType * pntIdx, 
+void _OctreeNodeInsertNextPoint( vtkPoints * points, vtkIdType * pntIdx,
                                  const double * coords )
 {
   *pntIdx = points->InsertNextPoint( coords );
@@ -60,12 +60,12 @@ void _OctreeNodeInsertNextPoint( vtkPoints * points, vtkIdType * pntIdx,
 // Function pointers in support of three point insertion modes.
 typedef void ( * OCTREENODE_INSERTPOINT_FUNCTION )
   ( vtkPoints * points, vtkIdType * pntIdx, const double * coords );
-             
+
 OCTREENODE_INSERTPOINT_FUNCTION OCTREENODE_INSERTPOINT[3] =
-{ 
-  _OctreeNodeGetPointId, 
-  _OctreeNodeInsertPoint, 
-  _OctreeNodeInsertNextPoint 
+{
+  _OctreeNodeGetPointId,
+  _OctreeNodeInsertPoint,
+  _OctreeNodeInsertNextPoint
 };
 
 // ---------------------------------------------------------------------------
@@ -77,12 +77,12 @@ vtkIncrementalOctreeNode::vtkIncrementalOctreeNode()
 {
   this->Parent = NULL;
   this->Children = NULL;
-  this->PointIdSet = NULL; 
+  this->PointIdSet = NULL;
   this->NumberOfPoints = 0;
-  
-  // unnecessary to initialize spatial and data bounding boxes here as 
+
+  // unnecessary to initialize spatial and data bounding boxes here as
   // SetBounds() are always called by the user for the root node of an
-  // octree and this function is also always called for any descendant 
+  // octree and this function is also always called for any descendant
   // node upon node-subdivison.  for now though we'll set them to
   // something to avoid uninitialized variable warnings
   for(int i=0;i<3;i++)
@@ -107,7 +107,7 @@ vtkIncrementalOctreeNode::~vtkIncrementalOctreeNode()
 
 //----------------------------------------------------------------------------
 void vtkIncrementalOctreeNode::DeleteChildNodes()
-{     
+{
   if ( this->Children )
     {
     for ( int i = 0; i < 8; i ++ )
@@ -115,11 +115,11 @@ void vtkIncrementalOctreeNode::DeleteChildNodes()
       this->Children[i]->Delete();
       this->Children[i] = NULL;
       }
-      
+
     delete [] this->Children;
     this->Children = NULL;
     }
-}   
+}
 
 //----------------------------------------------------------------------------
 void vtkIncrementalOctreeNode::CreatePointIdSet( int initSize, int growSize )
@@ -127,7 +127,7 @@ void vtkIncrementalOctreeNode::CreatePointIdSet( int initSize, int growSize )
   if ( this->PointIdSet == NULL )
     {
     this->PointIdSet = vtkIdList::New();
-    this->PointIdSet->Allocate( initSize, growSize ); 
+    this->PointIdSet->Allocate( initSize, growSize );
     }
 }
 
@@ -147,16 +147,16 @@ void vtkIncrementalOctreeNode::SetBounds( double x1, double x2, double y1,
 {
   this->MinBounds[0] = x1;
   this->MaxBounds[0] = x2;
-  this->MinBounds[1] = y1;     
+  this->MinBounds[1] = y1;
   this->MaxBounds[1] = y2;
-  this->MinBounds[2] = z1;     
+  this->MinBounds[2] = z1;
   this->MaxBounds[2] = z2;
-  
-  this->MinDataBounds[0] = x2;     
+
+  this->MinDataBounds[0] = x2;
   this->MaxDataBounds[0] = x1;
-  this->MinDataBounds[1] = y2;     
+  this->MinDataBounds[1] = y2;
   this->MaxDataBounds[1] = y1;
-  this->MinDataBounds[2] = z2;     
+  this->MinDataBounds[2] = z2;
   this->MaxDataBounds[2] = z1;
 }
 
@@ -176,44 +176,44 @@ int vtkIncrementalOctreeNode::UpdateCounterAndDataBounds
   ( const double point[3], int nHits, int updateData )
 {
   this->NumberOfPoints += nHits;
-  
+
   if ( updateData == 0 ) return 0;
-  
+
   int  updated = 0;
-  
+
   if ( point[0] < this->MinDataBounds[0] )
     {
     updated = 1;
     this->MinDataBounds[0] = point[0];
     }
-  if ( point[0] > this->MaxDataBounds[0] ) 
+  if ( point[0] > this->MaxDataBounds[0] )
     {
     updated = 1;
     this->MaxDataBounds[0] = point[0];
     }
-    
-  if ( point[1] < this->MinDataBounds[1] ) 
+
+  if ( point[1] < this->MinDataBounds[1] )
     {
     updated = 1;
     this->MinDataBounds[1] = point[1];
     }
-  if ( point[1] > this->MaxDataBounds[1] ) 
+  if ( point[1] > this->MaxDataBounds[1] )
     {
     updated = 1;
     this->MaxDataBounds[1] = point[1];
     }
-    
-  if ( point[2] < this->MinDataBounds[2] ) 
+
+  if ( point[2] < this->MinDataBounds[2] )
     {
     updated = 1;
     this->MinDataBounds[2] = point[2];
     }
-  if ( point[2] > this->MaxDataBounds[2] ) 
+  if ( point[2] > this->MaxDataBounds[2] )
     {
     updated = 1;
     this->MaxDataBounds[2] = point[2];
     }
-    
+
   return updated;
 }
 
@@ -223,13 +223,13 @@ int vtkIncrementalOctreeNode::UpdateCounterAndDataBounds
 // allows for rapid assignment of its spatial bounding box --- MinBounds[3]
 // and MaxBounds[3], with each specific value or entry of this LUT pointing to
 // MinBounds[3] for 0, center point for 1, or MaxBounds[3] for 2.
-static int OCTREE_CHILD_BOUNDS_LUT[8][3][2] = 
+static int OCTREE_CHILD_BOUNDS_LUT[8][3][2] =
 {
   {  { 0, 1 },  { 0, 1 },  { 0, 1 }  },
   {  { 1, 2 },  { 0, 1 },  { 0, 1 }  },
   {  { 0, 1 },  { 1, 2 },  { 0, 1 }  },
   {  { 1, 2 },  { 1, 2 },  { 0, 1 }  },
-     
+
   {  { 0, 1 },  { 0, 1 },  { 1, 2 }  },
   {  { 1, 2 },  { 0, 1 },  { 1, 2 }  },
   {  { 0, 1 },  { 1, 2 },  { 1, 2 }  },
@@ -238,13 +238,13 @@ static int OCTREE_CHILD_BOUNDS_LUT[8][3][2] =
 
 //----------------------------------------------------------------------------
 void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
-  ( vtkPoints * points, vtkIdList * pntIds, const double newPnt[3], 
+  ( vtkPoints * points, vtkIdList * pntIds, const double newPnt[3],
     vtkIdType * pntIdx, int maxPts, int ptMode )
 {
   // the number of points already maintained in this leaf node
   // >= maxPts AND all of them are exactly duplicate with one another
   //           BUT the new point is  not a duplicate of them any more
-  
+
   int         i;
   double      dupPnt[3];
   double      octMin[3];
@@ -254,10 +254,10 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   vtkIncrementalOctreeNode * ocNode = NULL;
   vtkIncrementalOctreeNode * duplic = this;
   vtkIncrementalOctreeNode * single = this;
-  
+
   // the coordiate of the duplicate points: note pntIds == this->PointIdSet
   points->GetPoint(  pntIds->GetId( 0 ),  dupPnt  );
-  
+
   while ( duplic == single ) // as long as separation has not been achieved
     {
     // update the current (in recursion) node and access the bounding box info
@@ -268,7 +268,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
     boxPtr[0] = ocNode->MinBounds;
     boxPtr[1] = octMid;
     boxPtr[2] = ocNode->MaxBounds;
-    
+
     // create eight child nodes
     ocNode->Children = new vtkIncrementalOctreeNode * [8];
     for ( i = 0; i < 8; i ++ )
@@ -276,22 +276,22 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
       // x-bound: axis 0
       octMin[0] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][0][0] ] [0];
       octMax[0] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][0][1] ] [0];
-    
+
       // y-bound: axis 1
       octMin[1] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][1][0] ] [1];
       octMax[1] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][1][1] ] [1];
-    
+
       // z-bound: axis 2
       octMin[2] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][2][0] ] [2];
       octMax[2] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][2][1] ] [2];
-      
+
       ocNode->Children[i] = vtkIncrementalOctreeNode::New();
       ocNode->Children[i]->SetParent( ocNode );
       ocNode->Children[i]->SetBounds( octMin[0], octMax[0],
                                       octMin[1], octMax[1],
                                       octMin[2], octMax[2] );
       }
-    
+
     // determine the leaf node of the duplicate points & that of the new point
     duplic = ocNode->Children[  ocNode->GetChildIndex( dupPnt )  ];
     single = ocNode->Children[  ocNode->GetChildIndex( newPnt )  ];
@@ -299,17 +299,17 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   boxPtr[0] = NULL;
   boxPtr[1] = NULL;
   boxPtr[2] = NULL;
-  
+
   // Now the duplicate points have been separated from the new point //
-  
+
   // create a vtkIdList object for the new point
   // update the counter and the data bounding box until the root node
   // (including the root node)
   OCTREENODE_INSERTPOINT[ptMode] ( points, pntIdx, newPnt );
-  single->CreatePointIdSet(  ( maxPts >> 2 ),  ( maxPts >> 1 )  );  
+  single->CreatePointIdSet(  ( maxPts >> 2 ),  ( maxPts >> 1 )  );
   single->GetPointIdSet()->InsertNextId( *pntIdx );
   single->UpdateCounterAndDataBoundsRecursively( newPnt, 1, 1, NULL );
-  
+
   // We just need to reference pntIds while un-registering it from 'this'.
   // This avoids deep-copying point ids from pntIds to duplic's PointIdSet.
   // update the counter and the data bounding box, but until 'this' node
@@ -317,7 +317,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
   duplic->SetPointIdSet( pntIds );
   duplic->UpdateCounterAndDataBoundsRecursively
           ( dupPnt, pntIds->GetNumberOfIds(), 1, this );
-  
+
   // handle memory
   ocNode = NULL;
   duplic = NULL;
@@ -328,7 +328,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
 int vtkIncrementalOctreeNode::CreateChildNodes
   ( vtkPoints * points, vtkIdList * pntIds, const double newPnt[3],
     vtkIdType * pntIdx, int maxPts, int ptMode )
-{ 
+{
   // There are two scenarios for which this function is invoked.
   //
   // (1) the number of points already maintained in this leaf node
@@ -337,7 +337,7 @@ int vtkIncrementalOctreeNode::CreateChildNodes
   // (2) the number of points already maintained in this leaf node
   //     >= maxPts AND all of them are exactly duplicate with one another
   //               BUT the new point is  not a duplicate of them any more
-  
+
   // address case (2) first if necessary
   double    sample[3];
   points->GetPoint(  pntIds->GetId( 0 ),  sample  );
@@ -345,14 +345,14 @@ int vtkIncrementalOctreeNode::CreateChildNodes
     {
     this->SeperateExactlyDuplicatePointsFromNewInsertion
           ( points, pntIds, newPnt, pntIdx, maxPts, ptMode );
-    
+
     // notify vtkIncrementalOctreeNode::InsertPoint() that pntIds just needs
     // to be unregistered from 'this', but must NOT be destroyed at all.
     return 0;
     }
-    
+
   // then address case (1) below
-  
+
   int       i;
   int       target;
   int       dvidId = -1; // index of the sub-dividing octant, if any
@@ -362,7 +362,7 @@ int vtkIncrementalOctreeNode::CreateChildNodes
   double    octMax[3];
   double    tempPt[3];
   vtkIdType tempId;
-  
+
   double    octMid[3] = {  ( this->MinBounds[0] + this->MaxBounds[0] ) * 0.5,
                            ( this->MinBounds[1] + this->MaxBounds[1] ) * 0.5,
                            ( this->MinBounds[2] + this->MaxBounds[2] ) * 0.5
@@ -371,7 +371,7 @@ int vtkIncrementalOctreeNode::CreateChildNodes
   boxPtr[0] = this->MinBounds;
   boxPtr[1] = octMid;
   boxPtr[2] = this->MaxBounds;
-  
+
   // create eight child nodes
   this->Children = new vtkIncrementalOctreeNode * [8];
   for ( i = 0; i < 8; i ++ )
@@ -379,29 +379,29 @@ int vtkIncrementalOctreeNode::CreateChildNodes
     // x-bound: axis 0
     octMin[0] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][0][0] ] [0];
     octMax[0] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][0][1] ] [0];
-    
+
     // y-bound: axis 1
     octMin[1] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][1][0] ] [1];
     octMax[1] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][1][1] ] [1];
-    
+
     // z-bound: axis 2
     octMin[2] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][2][0] ] [2];
     octMax[2] = boxPtr[ OCTREE_CHILD_BOUNDS_LUT[i][2][1] ] [2];
-      
-    // This call internally sets the cener and default data bounding box, too. 
+
+    // This call internally sets the cener and default data bounding box, too.
     this->Children[i] = vtkIncrementalOctreeNode::New();
     this->Children[i]->SetParent( this );
     this->Children[i]->SetBounds( octMin[0], octMax[0],
                                   octMin[1], octMax[1],
                                   octMin[2], octMax[2] );
-      
+
     // allocate a list of point-indices (size = 2^n) for index registration
     this->Children[i]->CreatePointIdSet( ( maxPts >> 2 ), ( maxPts >> 1 ) );
     }
   boxPtr[0] = NULL;
   boxPtr[1] = NULL;
   boxPtr[2] = NULL;
-      
+
   // distribute the available point-indices to the eight child nodes
   for ( i = 0; i < maxPts; i ++ )
     {
@@ -411,8 +411,8 @@ int vtkIncrementalOctreeNode::CreateChildNodes
     this->Children[ target ]->GetPointIdSet()->InsertNextId( tempId );
     this->Children[ target ]->UpdateCounterAndDataBounds( tempPt );
     numIds[ target ] ++;
-    }  
-  
+    }
+
   // locate the full child, just if any
   for ( i = 0; i < 8; i ++ )
     {
@@ -422,9 +422,9 @@ int vtkIncrementalOctreeNode::CreateChildNodes
       break;
       }
     }
-    
-  target = this->GetChildIndex( newPnt );  
-  if ( fullId == target ) 
+
+  target = this->GetChildIndex( newPnt );
+  if ( fullId == target )
     {
     // The fact is that we are going to insert the new point to an already
     // full octant (child node). Thus we need to further divide this child
@@ -440,18 +440,18 @@ int vtkIncrementalOctreeNode::CreateChildNodes
     this->Children[ target ]->GetPointIdSet()->InsertNextId( *pntIdx );
     this->Children[ target ]->UpdateCounterAndDataBoundsRecursively
                               ( newPnt, 1, 1, NULL );
-    
+
     // NOTE: The counter below might reach the threshold, though we delay the
     // sub-division of this child node until the next point insertion occurs.
     numIds[ target ] ++;
     }
-    
+
   // Now it is time to reclaim those un-used vtkIdList objects, of which each
   // either is empty or still needs to be deleted due to further division of
-  // the child node. This post-deallocation of the un-used vtkIdList objects 
-  // (of some child nodes) is based on the assumption that retrieving the 
-  // 'maxPts' points from vtkPoints and the associated 'maxPts' point-indices 
-  // from vtkIdList is more expensive than reclaiming at most 8 vtkIdList 
+  // the child node. This post-deallocation of the un-used vtkIdList objects
+  // (of some child nodes) is based on the assumption that retrieving the
+  // 'maxPts' points from vtkPoints and the associated 'maxPts' point-indices
+  // from vtkIdList is more expensive than reclaiming at most 8 vtkIdList
   // objects at hand.
   for ( i = 0; i < 8; i ++ )
     {
@@ -460,18 +460,18 @@ int vtkIncrementalOctreeNode::CreateChildNodes
       this->Children[i]->DeletePointIdSet();
       }
     }
-  
+
   // notify vtkIncrementalOctreeNode::InsertPoint() to destroy pntIds
   return 1;
 }
 
-//---------------------------------------------------------------------------- 
+//----------------------------------------------------------------------------
 int  vtkIncrementalOctreeNode::InsertPoint( vtkPoints * points,
   const double newPnt[3], int maxPts, vtkIdType * pntId, int ptMode )
-{     
+{
   if ( this->PointIdSet )
     {
-    // there has been at least one point index 
+    // there has been at least one point index
     if (    this->PointIdSet->GetNumberOfIds() < maxPts
          || this->ContainsDuplicatePointsOnly( newPnt ) == 1
        )
@@ -484,14 +484,14 @@ int  vtkIncrementalOctreeNode::InsertPoint( vtkPoints * points,
       this->UpdateCounterAndDataBoundsRecursively( newPnt, 1, 1, NULL );
       }
     else
-      { 
+      {
       // overflow: divide this node and delete the list of point-indices.
       // Note that the number of exactly duplicate points might be greater
       // than or equal to maxPts.
       if ( this->CreateChildNodes( points, this->PointIdSet,
                                    newPnt, pntId, maxPts, ptMode )
          )
-        { 
+        {
         this->PointIdSet->Delete();
         }
       else
@@ -502,24 +502,24 @@ int  vtkIncrementalOctreeNode::InsertPoint( vtkPoints * points,
       }
     }
   else
-    { 
+    {
     // there has been no any point index registered in this leaf node
     OCTREENODE_INSERTPOINT[ptMode] ( points, pntId, newPnt );
     this->PointIdSet = vtkIdList::New();
     this->PointIdSet->Allocate( ( maxPts >> 2 ), ( maxPts >> 1 ) );
     this->PointIdSet->InsertNextId( *pntId );
     this->UpdateCounterAndDataBoundsRecursively( newPnt, 1, 1, NULL );
-    } 
-    
+    }
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 double vtkIncrementalOctreeNode::GetDistance2ToBoundary
-  ( const double point[3], double closest[3], int innerOnly, 
+  ( const double point[3], double closest[3], int innerOnly,
     vtkIncrementalOctreeNode* rootNode, int checkData )
 {
-  // It is mandatory that GetMinDataBounds() and GetMaxDataBounds() be used. 
+  // It is mandatory that GetMinDataBounds() and GetMaxDataBounds() be used.
   // Direct access to MinDataBounds and MaxDataBounds might incur problems.
   double * thisMin = NULL;
   double * thisMax = NULL;
@@ -540,7 +540,7 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
     rootMin = rootNode->GetMinBounds();
     rootMax = rootNode->GetMaxBounds();
     }
-  
+
   int      minFace = 0;  // index of the face with min distance to the point
   int      beXless = int( point[0] < thisMin[0] );
   int      beXmore = int( point[0] > thisMax[0] );
@@ -552,39 +552,39 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
   int      withinY = int(  ( !beYless )  &&  ( !beYmore )  );
   int      withinZ = int(  ( !beZless )  &&  ( !beZmore )  );
   int      xyzFlag = ( withinZ << 2 ) + ( withinY << 1 ) + withinX;
-  
+
   switch ( xyzFlag )
     {
     case 0: // withinZ = 0; withinY = 0;  withinX = 0
             // closest to a corner
-    
+
       closest[0] = ( beXless ? thisMin[0] : thisMax[0] );
       closest[1] = ( beYless ? thisMin[1] : thisMax[1] );
       closest[2] = ( beZless ? thisMin[2] : thisMax[2] );
       minDist    = vtkMath::Distance2BetweenPoints( point, closest );
       break;
-      
+
     case 1: // withinZ = 0; withinY = 0; withinX = 1
             // closest to an x-aligned edge
-    
-      closest[0] = point[0];  
+
+      closest[0] = point[0];
       closest[1] = ( beYless ? thisMin[1] : thisMax[1] );
       closest[2] = ( beZless ? thisMin[2] : thisMax[2] );
       minDist    = vtkMath::Distance2BetweenPoints( point, closest );
       break;
-      
+
     case 2: // withinZ = 0; withinY = 1; withinX = 0
             // closest to a y-aligned edge
-    
+
       closest[0] = ( beXless ? thisMin[0] : thisMax[0] );
       closest[1] = point[1];
       closest[2] = ( beZless ? thisMin[2] : thisMax[2] );
       minDist    = vtkMath::Distance2BetweenPoints( point, closest );
       break;
-      
+
     case 3: // withinZ = 0; withinY = 1; withinX = 1
             // closest to a z-face
-      
+
       if ( beZless )
         {
         minDist    = thisMin[2] - point[2];
@@ -595,21 +595,21 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
         minDist    = point[2] - thisMax[2];
         closest[2] = thisMax[2];
         }
-     
+
       minDist   *= minDist;
-      closest[0] = point[0]; 
+      closest[0] = point[0];
       closest[1] = point[1];
       break;
-      
+
     case 4: // withinZ = 1; withinY = 0; withinX = 0
             // cloest to a z-aligned edge
-    
+
       closest[0] = ( beXless ? thisMin[0] : thisMax[0] );
       closest[1] = ( beYless ? thisMin[1] : thisMax[1] );
-      closest[2] = point[2]; 
+      closest[2] = point[2];
       minDist    = vtkMath::Distance2BetweenPoints( point, closest );
       break;
-      
+
     case 5: // withinZ = 1; withinY = 0; withinX = 1
             // closest to a y-face
 
@@ -623,12 +623,12 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
         minDist    = point[1] - thisMax[1];
         closest[1] = thisMax[1];
         }
-     
+
       minDist   *= minDist;
-      closest[0] = point[0]; 
+      closest[0] = point[0];
       closest[2] = point[2];
       break;
-      
+
     case 6: // withinZ = 1; withinY = 1; withinX = 0
             // closest to an x-face
 
@@ -642,56 +642,56 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
         minDist    = point[0] - thisMax[0];
         closest[0] = thisMax[0];
         }
-    
+
       minDist   *= minDist;
-      closest[1] = point[1]; 
+      closest[1] = point[1];
       closest[2] = point[2];
       break;
-      
+
     case 7: // withinZ = 1; withinY = 1;  withinZ = 1
             // point is inside the box
-    
+
       if ( innerOnly ) // check only inner boundaries
         {
         double faceDst;
-        
+
         faceDst   = point[0] - thisMin[0]; // x-min face
-        if ( thisMin[0] != rootMin[0] && faceDst < minDist ) 
+        if ( thisMin[0] != rootMin[0] && faceDst < minDist )
           {
           minFace = 0;
           minDist = faceDst;
           }
-          
+
         faceDst   = thisMax[0] - point[0]; // x-max face
-        if ( thisMax[0] != rootMax[0] && faceDst < minDist ) 
+        if ( thisMax[0] != rootMax[0] && faceDst < minDist )
           {
           minFace = 1;
           minDist = faceDst;
           }
-          
+
         faceDst   = point[1] - thisMin[1]; // y-min face
-        if ( thisMin[1] != rootMin[1] && faceDst < minDist ) 
+        if ( thisMin[1] != rootMin[1] && faceDst < minDist )
           {
           minFace = 2;
           minDist = faceDst;
           }
-          
+
         faceDst   = thisMax[1] - point[1]; // y-max face
-        if ( thisMax[1] != rootMax[1] && faceDst < minDist ) 
+        if ( thisMax[1] != rootMax[1] && faceDst < minDist )
           {
           minFace = 3;
           minDist = faceDst;
           }
-          
+
         faceDst   = point[2] - thisMin[2]; // z-min face
-        if ( thisMin[2] != rootMin[2] && faceDst < minDist ) 
+        if ( thisMin[2] != rootMin[2] && faceDst < minDist )
           {
           minFace = 4;
           minDist = faceDst;
           }
-        
+
         faceDst   = thisMax[2] - point[2]; // z-max face
-        if ( thisMax[2] != rootMax[2] && faceDst < minDist ) 
+        if ( thisMax[2] != rootMax[2] && faceDst < minDist )
           {
           minFace = 5;
           minDist = faceDst;
@@ -706,7 +706,7 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
         tmpDist[3] = thisMax[1] - point[1];
         tmpDist[4] = point[2] - thisMin[2];
         tmpDist[5] = thisMax[2] - point[2];
-      
+
         for ( int i = 0; i < 6; i ++ )
           {
           if ( tmpDist[i] < minDist )
@@ -716,19 +716,19 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
             }
           }
         }
-      
+
       // no square operation if no any inner boundary
       if ( minDist != VTK_DOUBLE_MAX )
         {
         minDist *= minDist;
         }
 
-      closest[0] = point[0]; 
-      closest[1] = point[1]; 
+      closest[0] = point[0];
+      closest[1] = point[1];
       closest[2] = point[2];
-      
+
       // minFace: the quad with the min distance to the point
-      // 0: x-min face  ===>  xyzIndx = 0:  x  and  minFace & 1 = 0:  thisMin 
+      // 0: x-min face  ===>  xyzIndx = 0:  x  and  minFace & 1 = 0:  thisMin
       // 1: x-max face  ===>  xyzIndx = 0:  x  and  minFace & 1 = 1:  thisMax
       // 2: y-min face  ===>  xyzIndx = 1:  y  and  minFace & 1 = 0:  thisMin
       // 3: y-max face  ===>  xyzIndx = 1:  y  and  minFace & 1 = 1:  thisMax
@@ -746,7 +746,7 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
   thisMax = NULL;
   rootMin = NULL;
   rootMax = NULL;
-  
+
   return minDist;
 }
 
@@ -764,7 +764,7 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary
 //----------------------------------------------------------------------------
 double vtkIncrementalOctreeNode::GetDistance2ToBoundary( const double point[3],
   double closest[3], vtkIncrementalOctreeNode * rootNode, int checkData )
-{ 
+{
   return
     ( checkData == 1 && this->GetNumberOfPoints() == 0 )
   ? VTK_DOUBLE_MAX
@@ -821,7 +821,7 @@ void vtkIncrementalOctreeNode::ExportAllPointIdsByDirectSet
 
 //----------------------------------------------------------------------------
 void vtkIncrementalOctreeNode::PrintSelf( ostream & os, vtkIndent indent )
-{ 
+{
   this->Superclass::PrintSelf( os, indent );
 
   os << indent << "Parent: "         << this->Parent         << endl;
@@ -834,7 +834,7 @@ void vtkIncrementalOctreeNode::PrintSelf( ostream & os, vtkIndent indent )
   os << indent << "MaxBounds: "      << this->MaxBounds[0]
      << " "    << this->MaxBounds[1]
      << " "    << this->MaxBounds[2] << endl;
-  os << indent << "MinDataBounds: "  << this->MinDataBounds[0] 
+  os << indent << "MinDataBounds: "  << this->MinDataBounds[0]
      << " "    << this->MinDataBounds[1]
      << " "    << this->MinDataBounds[2] << endl;
   os << indent << "MaxDataBounds: "  << this->MaxDataBounds[0]

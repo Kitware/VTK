@@ -34,8 +34,8 @@ vtkCursor2D::vtkCursor2D()
   this->ModelBounds[4] = 0.0;
   this->ModelBounds[5] = 0.0;
 
-  this->FocalPoint[0] = 0.0;  
-  this->FocalPoint[1] = 0.0;  
+  this->FocalPoint[0] = 0.0;
+  this->FocalPoint[1] = 0.0;
   this->FocalPoint[2] = 0.0;
 
   this->Outline = 1;
@@ -70,18 +70,18 @@ int vtkCursor2D::RequestData(
 
   // Check bounding box and origin
   //
-  if ( this->Wrap ) 
+  if ( this->Wrap )
     {
     for (i=0; i<2; i++)
       {
-      this->FocalPoint[i] = this->ModelBounds[2*i] + 
+      this->FocalPoint[i] = this->ModelBounds[2*i] +
              fmod(static_cast<double>(
-                    this->FocalPoint[i]-this->ModelBounds[2*i]), 
+                    this->FocalPoint[i]-this->ModelBounds[2*i]),
                   static_cast<double>(
                     this->ModelBounds[2*i+1]-this->ModelBounds[2*i]));
       }
-    } 
-  else 
+    }
+  else
     {
     for (i=0; i<2; i++)
       {
@@ -103,20 +103,20 @@ int vtkCursor2D::RequestData(
     numPts += 1;
     numVerts += 1;
     }
-  
-  if (this->Axes) 
+
+  if (this->Axes)
     {
     numPts += 8;
     numLines += 3;
     }
 
-  if (this->Outline) 
+  if (this->Outline)
     {
     numPts += 8;
     numLines += 12;
     }
 
-  if ( numPts ) 
+  if ( numPts )
     {
     newPts = vtkPoints::New();
     newPts->Allocate(numPts);
@@ -136,7 +136,7 @@ int vtkCursor2D::RequestData(
 
   // Now create the representation. First the point (if requested).
   //
-  if ( this->Point ) 
+  if ( this->Point )
     {
     x[0] = this->FocalPoint[0];
     x[1] = this->FocalPoint[1];
@@ -149,50 +149,50 @@ int vtkCursor2D::RequestData(
 
   // Create axes
   //
-  if ( this->Axes ) 
+  if ( this->Axes )
     {
     // The lines making up the x axis
-    x[0] = this->ModelBounds[0]; 
-    x[1] = this->FocalPoint[1]; 
+    x[0] = this->ModelBounds[0];
+    x[1] = this->FocalPoint[1];
     x[2] = this->ModelBounds[4];
     ptIds[0] = newPts->InsertNextPoint(x);
 
-    x[0] = this->FocalPoint[0] - this->Radius; 
-    x[1] = this->FocalPoint[1]; 
+    x[0] = this->FocalPoint[0] - this->Radius;
+    x[1] = this->FocalPoint[1];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
 
-    x[0] = this->FocalPoint[0] + this->Radius; 
-    x[1] = this->FocalPoint[1]; 
+    x[0] = this->FocalPoint[0] + this->Radius;
+    x[1] = this->FocalPoint[1];
     x[2] = this->ModelBounds[4];
     ptIds[0] = newPts->InsertNextPoint(x);
 
-    x[0] = this->ModelBounds[1]; 
-    x[1] = this->FocalPoint[1]; 
+    x[0] = this->ModelBounds[1];
+    x[1] = this->FocalPoint[1];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
 
     // The lines making up the y axis
-    x[0] = this->FocalPoint[0]; 
-    x[1] = this->ModelBounds[2]; 
+    x[0] = this->FocalPoint[0];
+    x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[4];
     ptIds[0] = newPts->InsertNextPoint(x);
 
-    x[0] = this->FocalPoint[0]; 
+    x[0] = this->FocalPoint[0];
     x[1] = this->FocalPoint[1] - this->Radius;
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
 
     x[0] = this->FocalPoint[0];
-    x[1] = this->FocalPoint[1] + this->Radius; 
+    x[1] = this->FocalPoint[1] + this->Radius;
     x[2] = this->ModelBounds[4];
     ptIds[0] = newPts->InsertNextPoint(x);
 
     x[0] = this->FocalPoint[0];
-    x[1] = this->ModelBounds[3]; 
+    x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,ptIds);
@@ -200,25 +200,25 @@ int vtkCursor2D::RequestData(
 
   // Create outline
   //
-  if ( this->Outline ) 
+  if ( this->Outline )
     {
-    x[0] = this->ModelBounds[0]; 
-    x[1] = this->ModelBounds[2]; 
+    x[0] = this->ModelBounds[0];
+    x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[4];
     ptIds[0] = newPts->InsertNextPoint(x);
 
-    x[0] = this->ModelBounds[1]; 
-    x[1] = this->ModelBounds[2]; 
+    x[0] = this->ModelBounds[1];
+    x[1] = this->ModelBounds[2];
     x[2] = this->ModelBounds[4];
     ptIds[1] = newPts->InsertNextPoint(x);
 
-    x[0] = this->ModelBounds[1]; 
-    x[1] = this->ModelBounds[3]; 
+    x[0] = this->ModelBounds[1];
+    x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[2] = newPts->InsertNextPoint(x);
 
-    x[0] = this->ModelBounds[0]; 
-    x[1] = this->ModelBounds[3]; 
+    x[0] = this->ModelBounds[0];
+    x[1] = this->ModelBounds[3];
     x[2] = this->ModelBounds[4];
     ptIds[3] = newPts->InsertNextPoint(x);
     ptIds[4] = ptIds[0];
@@ -250,9 +250,9 @@ void vtkCursor2D::SetModelBounds(double xmin, double xmax, double ymin, double y
     {
     this->Modified();
 
-    this->ModelBounds[0] = xmin; this->ModelBounds[1] = xmax; 
-    this->ModelBounds[2] = ymin; this->ModelBounds[3] = ymax; 
-    this->ModelBounds[4] = ymin; this->ModelBounds[5] = ymax; 
+    this->ModelBounds[0] = xmin; this->ModelBounds[1] = xmax;
+    this->ModelBounds[2] = ymin; this->ModelBounds[3] = ymax;
+    this->ModelBounds[4] = ymin; this->ModelBounds[5] = ymax;
 
     for (int i=0; i<3; i++)
       {
@@ -271,7 +271,7 @@ void vtkCursor2D::SetFocalPoint(double x[3])
     {
     return;
     }
-  
+
   this->Modified();
 
   double v[3];
@@ -279,7 +279,7 @@ void vtkCursor2D::SetFocalPoint(double x[3])
     {
     v[i] = x[i] - this->FocalPoint[i];
     this->FocalPoint[i] = x[i];
-  
+
     if ( this->TranslationMode )
       {
       this->ModelBounds[2*i] += v[i];
@@ -287,20 +287,20 @@ void vtkCursor2D::SetFocalPoint(double x[3])
       }
     else if ( this->Wrap ) //wrap
       {
-      this->FocalPoint[i] = this->ModelBounds[2*i] + 
+      this->FocalPoint[i] = this->ModelBounds[2*i] +
              fmod(static_cast<double>(
-                    this->FocalPoint[i]-this->ModelBounds[2*i]), 
+                    this->FocalPoint[i]-this->ModelBounds[2*i]),
                   static_cast<double>(
                     this->ModelBounds[2*i+1]-this->ModelBounds[2*i]));
       }
     else //clamp
       {
-      if ( x[i] < this->ModelBounds[2*i] ) 
-        { 
+      if ( x[i] < this->ModelBounds[2*i] )
+        {
         this->FocalPoint[i] = this->ModelBounds[2*i];
         }
-      if ( x[i] > this->ModelBounds[2*i+1] ) 
-        { 
+      if ( x[i] > this->ModelBounds[2*i+1] )
+        {
         this->FocalPoint[i] = this->ModelBounds[2*i+1];
         }
       }
@@ -350,6 +350,6 @@ void vtkCursor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point: " << (this->Point ? "On\n" : "Off\n");
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Wrap: " << (this->Wrap ? "On\n" : "Off\n");
-  os << indent << "Translation Mode: " 
+  os << indent << "Translation Mode: "
      << (this->TranslationMode ? "On\n" : "Off\n");
 }

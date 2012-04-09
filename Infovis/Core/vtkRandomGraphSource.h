@@ -148,14 +148,14 @@ protected:
   char* EdgePedigreeIdArrayName;
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   // Description:
   // Creates directed or undirected output based on Directed flag.
-  virtual int RequestDataObject(vtkInformation*, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
 
 private:

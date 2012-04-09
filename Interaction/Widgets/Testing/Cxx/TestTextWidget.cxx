@@ -105,7 +105,7 @@ int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   recorder->Off();
 
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 
 }

@@ -42,11 +42,11 @@ int vtkImageInPlaceFilter::RequestData(
 {
   // get the data object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *output = 
+  vtkImageData *output =
     vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *input = 
+  vtkImageData *input =
     vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int *inExt, *outExt;
@@ -54,8 +54,8 @@ int vtkImageInPlaceFilter::RequestData(
   outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
   // if the total size of the data is the same then can be in place
-  vtkLargeInteger inSize; 
-  vtkLargeInteger outSize; 
+  vtkLargeInteger inSize;
+  vtkLargeInteger outSize;
   inSize = (inExt[1] - inExt[0] + 1);
   inSize = inSize * (inExt[3] - inExt[2] + 1);
   inSize = inSize * (inExt[5] - inExt[4] + 1);
@@ -91,23 +91,23 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
   vtkIdType inIncX, inIncY, inIncZ;
   vtkIdType outIncX, outIncY, outIncZ;
   int idxY, idxZ, maxY, maxZ;
-  
+
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
   size = inData->GetScalarSize();
   rowLength *= size;
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  
+
   // adjust increments for this loop
   inIncY = inIncY*size + rowLength;
   outIncY = outIncY*size + rowLength;
   inIncZ *= size;
   outIncZ *= size;
-  
+
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {

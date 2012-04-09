@@ -38,21 +38,21 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   double *tuple2;
   int i;
   int errors = 0;
-  
+
   strm << "\tResize(0)...";
-  ptr->Resize(0); 
+  ptr->Resize(0);
   strm << "OK" << endl;
 
   strm << "\tResize(10)...";
-  ptr->Resize(10); 
+  ptr->Resize(10);
   strm << "OK" << endl;
 
   strm << "\tResize(5)...";
-  ptr->Resize(5); 
+  ptr->Resize(5);
   strm << "OK" << endl;
 
   strm << "\tResize(size)...";
-  ptr->Resize(size); 
+  ptr->Resize(size);
   strm << "OK" << endl;
 
   strm << "\tSetNumberOfTuples...";
@@ -73,7 +73,7 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     }
 
   strm << "\tSetVoidArray...";
-  ptr->SetVoidArray(array, size, 1); 
+  ptr->SetVoidArray(array, size, 1);
   strm << "OK" << endl;
 
   strm << "CreateDefaultLookupTable" << endl;
@@ -532,8 +532,8 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
 
 
   farray->Delete();
-  
-  
+
+
   strm << "PrintSelf..." << endl;
   strm << *ptr;
 
@@ -668,8 +668,8 @@ int otherArraysTest(ostream& strm)
 
 int otherArrays(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
 //  return otherArraysTest(vtkmsg_with_warning_C4701);
   return otherArraysTest(cerr);
 
-} 
+}

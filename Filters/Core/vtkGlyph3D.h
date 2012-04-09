@@ -22,7 +22,7 @@
 // creating a table of source objects, each defining a different glyph. If a
 // table of glyphs is defined, then the table can be indexed into by using
 // either scalar value or vector magnitude.
-// 
+//
 // To use this object you'll have to provide an input dataset and a source
 // to define the glyph. Then decide whether you want to scale the glyph and
 // how to scale the glyph (using scalar value or vector magnitude). Next
@@ -31,7 +31,7 @@
 // table of glyphs, or just a single glyph. If you use a table of glyphs,
 // you'll have to decide whether to index into it with scalar value or with
 // vector magnitude.
-// 
+//
 // .SECTION Caveats
 // The scaling of the glyphs is controlled by the ScaleFactor ivar multiplied
 // by the scalar value at each point (if VTK_SCALE_BY_SCALAR is set), or
@@ -42,7 +42,7 @@
 // Clamping ivar. If clamping is enabled, the scale is normalized by the
 // Range ivar, and then multiplied by the scale factor. The normalization
 // process includes clamping the scale value between (0,1).
-// 
+//
 // Typically this object operates on input data with scalar and/or vector
 // data. However, scalar and/or vector aren't necessary, and it can be used
 // to copy data from a single source to each point. In this case the scale
@@ -50,9 +50,9 @@
 //
 // The object uses "vector" data to scale glyphs, orient glyphs, and/or index
 // into a table of glyphs. You can choose to use either the vector or normal
-// data at each input point. Use the method SetVectorModeToUseVector() to use 
+// data at each input point. Use the method SetVectorModeToUseVector() to use
 // the vector input data, and SetVectorModeToUseNormal() to use the
-// normal input data. 
+// normal input data.
 //
 // If you do use a table of glyphs, make sure to set the Range ivar to make
 // sure the index into the glyph table is computed correctly.
@@ -285,11 +285,11 @@ inline const char *vtkGlyph3D::GetScaleModeAsString(void)
     {
     return "ScaleByScalar";
     }
-  else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR ) 
+  else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
     {
     return "ScaleByVector";
     }
-  else 
+  else
     {
     return "DataScalingOff";
     }
@@ -303,11 +303,11 @@ inline const char *vtkGlyph3D::GetColorModeAsString(void)
     {
     return "ColorByScalar";
     }
-  else if ( this->ColorMode == VTK_COLOR_BY_VECTOR ) 
+  else if ( this->ColorMode == VTK_COLOR_BY_VECTOR )
     {
     return "ColorByVector";
     }
-  else 
+  else
     {
     return "ColorByScale";
     }
@@ -317,15 +317,15 @@ inline const char *vtkGlyph3D::GetColorModeAsString(void)
 // Return the vector mode as a character string.
 inline const char *vtkGlyph3D::GetVectorModeAsString(void)
 {
-  if ( this->VectorMode == VTK_USE_VECTOR) 
+  if ( this->VectorMode == VTK_USE_VECTOR)
     {
     return "UseVector";
     }
-  else if ( this->VectorMode == VTK_USE_NORMAL) 
+  else if ( this->VectorMode == VTK_USE_NORMAL)
     {
     return "UseNormal";
     }
-  else 
+  else
     {
     return "VectorRotationOff";
     }
@@ -335,15 +335,15 @@ inline const char *vtkGlyph3D::GetVectorModeAsString(void)
 // Return the index mode as a character string.
 inline const char *vtkGlyph3D::GetIndexModeAsString(void)
 {
-  if ( this->IndexMode == VTK_INDEXING_OFF) 
+  if ( this->IndexMode == VTK_INDEXING_OFF)
     {
     return "IndexingOff";
     }
-  else if ( this->IndexMode == VTK_INDEXING_BY_SCALAR) 
+  else if ( this->IndexMode == VTK_INDEXING_BY_SCALAR)
     {
     return "IndexingByScalar";
     }
-  else 
+  else
     {
     return "IndexingByVector";
     }

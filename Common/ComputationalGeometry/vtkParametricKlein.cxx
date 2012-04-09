@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricKlein.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -65,7 +65,7 @@ void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Pt[0] = -2.0/15.0*cu*subX;
   Pt[1] = -1.0/15.0*su*subY;
   Pt[2] = 2.0/15.0*sv*subZ;
-  
+
   // The derivatives
   Du[0] = 2.0/15.0*su*subX -2.0/15.0*cu*(5.0*cv*pow(cu,2)
     -5.0*pow(su,2)*cv-30.0*cu-60.0*pow(cu,7)

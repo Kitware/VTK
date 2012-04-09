@@ -43,7 +43,7 @@ void vtkGenericMovieWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 static const char *vtkMovieWriterErrorStrings[] = {
-  "Unassigned Error", 
+  "Unassigned Error",
   "Initialize Error",
   "No Input Error",
   "Can Not Compress Error",
@@ -63,7 +63,7 @@ const char *vtkGenericMovieWriter::GetStringFromErrorCode(unsigned long error)
     {
     error -= UserError;
     }
-  
+
   if (!numerrors)
     {
     while (vtkMovieWriterErrorStrings[numerrors] != NULL)

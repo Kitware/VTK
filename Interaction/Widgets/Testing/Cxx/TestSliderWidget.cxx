@@ -504,11 +504,11 @@ char TestSliderWidgetEventLog[] =
 class vtkSliderCallback : public vtkCommand
 {
 public:
-  static vtkSliderCallback *New() 
+  static vtkSliderCallback *New()
   { return new vtkSliderCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
-    vtkSliderWidget *sliderWidget = 
+    vtkSliderWidget *sliderWidget =
       reinterpret_cast<vtkSliderWidget*>(caller);
     this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
   }
@@ -532,7 +532,7 @@ int TestSliderWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
 
-  // The sphere and spikes are appended into a single polydata. 
+  // The sphere and spikes are appended into a single polydata.
   // This just makes things simpler to manage.
   vtkSmartPointer<vtkAppendPolyData> apd =
     vtkSmartPointer<vtkAppendPolyData>::New();
@@ -562,7 +562,7 @@ int TestSliderWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   iren->SetRenderWindow(renWin);
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
-  // and the widget representation that defines how the widget appears in the scene 
+  // and the widget representation that defines how the widget appears in the scene
   // (i.e., matters pertaining to geometry).
   vtkSmartPointer<vtkSliderRepresentation3D> sliderRep =
     vtkSmartPointer<vtkSliderRepresentation3D>::New();

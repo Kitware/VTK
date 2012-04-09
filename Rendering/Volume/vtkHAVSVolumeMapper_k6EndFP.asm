@@ -3,10 +3,10 @@
 # Copyright 2005 by University of Utah
 #
 # Hardware-Assisted Visibility Sorting
-# 
+#
 # The program consists of the following steps:
 #
-# 1. Find the first and second entries in the fixed size k-buffer list sorted 
+# 1. Find the first and second entries in the fixed size k-buffer list sorted
 #    by z (6+1 entries)
 # 2. Perform a 3D pre-integrated transfer function lookup using front and back
 #    scalar data values + the segment length computed from the depth values
@@ -16,7 +16,7 @@
 #    write the remaining k-buffer entries.
 #
 # The following textures are used:
-# 
+#
 #   Tex 0: framebuffer (pbuffer, 2D RGBA 8/16 bpp int or 16/32 bpp float)
 #   Tex 1: k-buffer entries 1 and 2(same)
 #   Tex 2: k-buffer entries 3 and 4(same)
@@ -36,7 +36,7 @@ ATTRIB p = fragment.position; # fragment position in screen space
 PARAM sz = program.local[0]; # texture scale and max gap length parameters
                              # {1/pw, 1/ph, max, not_used)}
 PARAM half = { 0.5, 0.5, 0.0, 0.0 };
-PARAM exp = { 0.0, 0.0, 0.0, 1.44269504 }; # 1/ln2 
+PARAM exp = { 0.0, 0.0, 0.0, 1.44269504 }; # 1/ln2
 
 TEMP a1, a2, a3, a4, a5, a6; # k-buffer entries
 TEMP r0, r1, r2, r3, r4, r5, r6; # sorted results
@@ -46,8 +46,8 @@ TEMP colorBack,colorFront;
 TEMP taud, zeta, gamma, Psi;
 
 # -----------------------------------------------------------------------------
-# compute texture coordinates from window position so that it is not 
-# interpolated perspective correct.  Then look up the color and opacity from 
+# compute texture coordinates from window position so that it is not
+# interpolated perspective correct.  Then look up the color and opacity from
 # the framebuffer
 MUL t, p, sz; # t.xy = p.xy * sz.xy, only x and y are used for texture lookup
 TEX c0, t, texture[0], 2D; # framebuffer color
@@ -59,7 +59,7 @@ KIL t.w;
 
 # -----------------------------------------------------------------------------
 # set up the k-buffer entries a1, a2
-# each k-buffer entry consists of the scalar data value in x or z and the 
+# each k-buffer entry consists of the scalar data value in x or z and the
 # depth value in y or w
 TEX a1, t, texture[1], 2D; # k-buffer entry 1
 TEX a3, t, texture[2], 2D; # k-buffer entry 3
@@ -123,9 +123,9 @@ SUB t.z, r6.y, r0.y; # z distance between front and back
 
 # -----------------------------------------------------------------------------
 # nullify fragment if distance is greater than unit scale (non-convexities)
-SUB t.w, sz.z, t.z; 
-CMP t.z, t.w, 0.0, t.z; 
-	
+SUB t.w, sz.z, t.z;
+CMP t.z, t.w, 0.0, t.z;
+
 # -----------------------------------------------------------------------------
 # transfer function lookup
 TEX colorFront, t.x, texture[5], 1D;
@@ -143,7 +143,7 @@ EX2 zeta.w, -zeta.w;
 # compute gamma = taud/(1+taud);
 ADD t, taud, 1.0;
 RCP t.x, t.x;
-RCP t.y, t.y; 
+RCP t.y, t.y;
 MUL gamma, taud, t;
 
 # -----------------------------------------------------------------------------
@@ -151,12 +151,12 @@ MUL gamma, taud, t;
 TEX Psi.w, gamma, texture[4], 2D;
 
 # -----------------------------------------------------------------------------
-# compute color = cb(psi-zeta) + cf(1.0-psi) 
+# compute color = cb(psi-zeta) + cf(1.0-psi)
 SUB t.w, Psi.w, zeta.w;
-MUL colorBack, colorBack, t.w; 
-SUB t.w, 1.0, Psi.w;	
-MUL colorFront, colorFront, t.w; 
-ADD c, colorBack, colorFront; 
+MUL colorBack, colorBack, t.w;
+SUB t.w, 1.0, Psi.w;
+MUL colorFront, colorFront, t.w;
+ADD c, colorBack, colorFront;
 SUB c.a, 1.0, zeta.w;
 
 # -----------------------------------------------------------------------------
@@ -165,7 +165,7 @@ CMP c, r0.x, 0.0, c;
 CMP c, r6.x, 0.0, c;
 
 # -----------------------------------------------------------------------------
-# composite color with the color from the framebuffer !!!front to back!!! 
+# composite color with the color from the framebuffer !!!front to back!!!
 SUB t.w, 1.0, c0.w;
 MAD result.color[0], c, t.w, c0;
 

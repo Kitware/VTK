@@ -47,8 +47,8 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request, 
-                             vtkInformationVector** inputVector, 
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
 //BTX
@@ -59,24 +59,24 @@ protected:
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestDataObject(vtkInformation*, 
-                                vtkInformationVector**, 
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector**,
                                 vtkInformationVector*) {return 1;};
 
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*) {return 1;};
 
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*) {return 1;};
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.

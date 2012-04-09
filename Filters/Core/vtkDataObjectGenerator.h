@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDataObjectGenerator - produces simple (composite or atomic) data 
+// .NAME vtkDataObjectGenerator - produces simple (composite or atomic) data
 // sets for testing.
 // .SECTION Description
 // vtkDataObjectGenerator parses a string and produces dataobjects from the
 // dataobject template names it sees in the string. For example, if the string
-// contains "ID1" the generator will create a vtkImageData. "UF1", "RG1", 
+// contains "ID1" the generator will create a vtkImageData. "UF1", "RG1",
 // "SG1", "PD1", and "UG1" will produce vtkUniformGrid, vtkRectilinearGrid,
 // vtkStructuredGrid, vtkPolyData and vtkUnstructuredGrid respectively.
-// "PD2" will produce an alternate vtkPolyData. You 
+// "PD2" will produce an alternate vtkPolyData. You
 // can compose composite datasets from the atomic ones listed above
 // by placing them within one of the two composite dataset identifiers
-// - "MB{}" or "HB[]". "MB{ ID1 PD1 MB{} }" for example will create a 
-// vtkMultiBlockDataSet consisting of three blocks: image data, poly data, 
+// - "MB{}" or "HB[]". "MB{ ID1 PD1 MB{} }" for example will create a
+// vtkMultiBlockDataSet consisting of three blocks: image data, poly data,
 // multi-block (empty). Hierarchical Box data sets additionally require
 // the notion of groups, declared within "()" braces, to specify AMR depth.
 // "HB[ (UF1)(UF1)(UF1) ]" will create a vtkHierarchicalBoxDataSet representing
@@ -46,7 +46,7 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator
   static vtkDataObjectGenerator *New();
   vtkTypeMacro(vtkDataObjectGenerator,vtkDataObjectAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
   // Description:
   // The string that will be parsed to specify a dataobject structure.
   vtkSetStringMacro(Program);
@@ -75,10 +75,10 @@ protected:
   vtkInternalStructureCache *Structure;
 
   //Helper for RequestDataObject
-  vtkDataObject * 
+  vtkDataObject *
     CreateOutputDataObjects(vtkInternalStructureCache *structure);
   //Helper for RequestData
-  vtkDataObject * 
+  vtkDataObject *
     FillOutputDataObjects(vtkInternalStructureCache *structure,
                           int level,
                           int stripe=0);

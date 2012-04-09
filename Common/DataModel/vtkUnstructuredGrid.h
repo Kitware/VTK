@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUnstructuredGrid - dataset represents arbitrary combinations of 
+// .NAME vtkUnstructuredGrid - dataset represents arbitrary combinations of
 // all possible cell types
 // .SECTION Description
 // vtkUnstructuredGrid is a data object that is a concrete implementation of
@@ -80,7 +80,7 @@ public:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   int GetDataObjectType() {return VTK_UNSTRUCTURED_GRID;};
   virtual void Allocate(vtkIdType numCells=1000, int extSize=1000);
-  
+
   // Description:
   // Insert/create cell in object by type and list of point ids defining
   // cell topology. Most cells require just a type which implicitly defines
@@ -90,23 +90,23 @@ public:
   // npts is the number of faces in the cell. ptIds is the list of face stream:
   // (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds);
-  
+
   // Description:
   // Insert/create cell in object by a list of point ids defining
   // cell topology. Most cells require just a type which implicitly defines
   // a set of points and their ordering. For non-polyhedron cell type, ptIds
-  // is the list of global Ids of unique cell points. For polyhedron cell, 
+  // is the list of global Ids of unique cell points. For polyhedron cell,
   // a special ptIds input format is required:
   // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
   vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
-  
+
   // Desciption:
-  // Insert/create a polyhedron cell. npts is the number of unique points in 
-  // the cell. pts is the list of the unique cell point Ids. nfaces is the 
-  // number of faces in the cell. faces is the face-stream 
-  // [numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...]. 
+  // Insert/create a polyhedron cell. npts is the number of unique points in
+  // the cell. pts is the list of the unique cell point Ids. nfaces is the
+  // number of faces in the cell. faces is the face-stream
+  // [numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...].
   // All point Ids are global.
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds, 
+  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
                            vtkIdType nfaces, vtkIdType *faces);
 
   // Description:
@@ -130,7 +130,7 @@ public:
   vtkCellLinks *GetCellLinks() {return this->Links;};
   virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
                              vtkIdType* &pts);
-  
+
   // Description:
   // Get the face stream of a polyhedron cell in the following format:
   // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...).
@@ -139,34 +139,34 @@ public:
   void GetFaceStream(vtkIdType cellId, vtkIdList *ptIds);
 
   // Description:
-  // Get the number of face and the face stream of a polyhedron cell. Result 
-  // ptIds is in the following format: 
+  // Get the number of face and the face stream of a polyhedron cell. Result
+  // ptIds is in the following format:
   // (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...).
   // If the requested cell is not a polyhedron, then the standard GetCellPoints
-  // is called to return the number of points and a list of unique point ids 
+  // is called to return the number of points and a list of unique point ids
   // (id1, id2, id3, ...).
   void GetFaceStream(vtkIdType cellId, vtkIdType& nfaces, vtkIdType* &ptIds);
 
   // Description:
   // Special methods specific to vtkUnstructuredGrid for defining the cells
-  // composing the dataset. Most cells require just arrays of cellTypes, 
+  // composing the dataset. Most cells require just arrays of cellTypes,
   // cellLocations and cellConnectivities which implicitly define the set of
-  // points in each cell and their ordering. In those cases the 
-  // cellConnectivities are of the format 
-  // (numFace0Pts, id1, id2, id3, numFace1Pts, id1, id2, id3...). However, some 
+  // points in each cell and their ordering. In those cases the
+  // cellConnectivities are of the format
+  // (numFace0Pts, id1, id2, id3, numFace1Pts, id1, id2, id3...). However, some
   // cells like vtkPolyhedron require points plus a list of faces. To handle
-  // vtkPolyhedron, SetCells() support a special input cellConnectivities format 
+  // vtkPolyhedron, SetCells() support a special input cellConnectivities format
   // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
-  // The functions use vtkPolyhedron::DecomposeAPolyhedronCell() to convert 
-  // polyhedron cells into standard format. 
+  // The functions use vtkPolyhedron::DecomposeAPolyhedronCell() to convert
+  // polyhedron cells into standard format.
   void SetCells(int type, vtkCellArray *cells);
   void SetCells(int *types, vtkCellArray *cells);
-  void SetCells(vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations, 
+  void SetCells(vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations,
                 vtkCellArray *cells);
   void SetCells(vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations,
-                vtkCellArray *cells, vtkIdTypeArray *faceLocations, 
+                vtkCellArray *cells, vtkIdTypeArray *faceLocations,
                 vtkIdTypeArray *faces);
-  
+
   vtkCellArray *GetCells() {return this->Connectivity;};
   void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
   vtkIdType InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
@@ -179,7 +179,7 @@ public:
   // cell specified (e.g., cellId).
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
+  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                 vtkIdList *cellIds);
 
   // Description:
@@ -190,7 +190,7 @@ public:
   // Description:
   // Get the ghost level.
   virtual int GetGhostLevel();
-  
+
   // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
@@ -199,10 +199,10 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
-    
+
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);  
+  virtual void ShallowCopy(vtkDataObject *src);
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
@@ -235,20 +235,20 @@ public:
   // Get pointer to faces and facelocations. Support for polyhedron cells.
   vtkIdTypeArray* GetFaces(){return this->Faces;};
   vtkIdTypeArray* GetFaceLocations(){return this->FaceLocations;};
-  
+
   // Description:
   // Special function used by vtkUnstructuredGridReader.
   // By default vtkUnstructuredGrid does not contain face information, which is
-  // only used by polyhedron cells. If so far no polyhedron cells have been 
-  // added, Faces and FaceLocations pointers will be NULL. In this case, need to 
-  // initialize the arrays and assign values to the previous non-polyhedron cells. 
+  // only used by polyhedron cells. If so far no polyhedron cells have been
+  // added, Faces and FaceLocations pointers will be NULL. In this case, need to
+  // initialize the arrays and assign values to the previous non-polyhedron cells.
   int InitializeFacesRepresentation(vtkIdType numPrevCells);
 
   // Description:
   // A static method for converting a polyhedron vtkCellArray of format
   // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
   // into three components: (1) an integer indicating the number of faces
-  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
+  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k]
   // and (3) an vtkIdTypeArray storing face connectivity in format
   // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
   // Note: input is assumed to contain only one polyhedron cell.
@@ -271,7 +271,7 @@ public:
   // A static method for converting an input polyhedron cell stream of format
   // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
   // into three components: (1) an integer indicating the number of faces
-  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k] 
+  // (2) a standard vtkCellArray storing point ids [nCell0Pts, i, j, k]
   // and (3) an vtkIdTypeArray storing face connectivity in format
   // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
   // Note: input is assumed to contain only one polyhedron cell.
@@ -286,21 +286,21 @@ public:
 
   // Description:
   // Convert pid in a face stream into idMap[pid]. The face stream is of format
-  // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. The user is 
-  // responsible to make sure all the Ids in faceStream do not exceed the 
+  // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. The user is
+  // responsible to make sure all the Ids in faceStream do not exceed the
   // range of idMap.
   static void ConvertFaceStreamPointIds(vtkIdList * faceStream,
                                         vtkIdType * idMap);
 
   // Description:
   // Convert pid in a face stream into idMap[pid]. The face stream is of format
-  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. The user is responsible to 
+  // [nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]. The user is responsible to
   // make sure all the Ids in faceStream do not exceed the range of idMap.
   static void ConvertFaceStreamPointIds(vtkIdType nfaces,
                                         vtkIdType * faceStream,
                                         vtkIdType * idMap);
 
-    
+
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();
@@ -340,7 +340,7 @@ protected:
   vtkConvexPointSet                 *ConvexPointSet;
   vtkPolyhedron                     *Polyhedron;
   vtkEmptyCell                      *EmptyCell;
-  
+
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vtkCellArray *Connectivity;
@@ -362,7 +362,7 @@ private:
   void operator=(const vtkUnstructuredGrid&);  // Not implemented.
 
   void Cleanup();
-  
+
   // Description:
   // For legacy compatibility. Do not use.
   VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));

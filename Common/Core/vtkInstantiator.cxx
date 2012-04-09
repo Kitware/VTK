@@ -22,15 +22,15 @@ class vtkInstantiatorHashNode
 {
 public:
   typedef vtkInstantiator::CreateFunction CreateFunction;
-  
+
   vtkInstantiatorHashNode() { this->ClassName = 0; this->Function = 0; }
-  
-  void SetClassName(const char* className) { this->ClassName = className; }  
+
+  void SetClassName(const char* className) { this->ClassName = className; }
   const char* GetClassName() { return this->ClassName; }
-  
+
   void SetFunction(CreateFunction function) { this->Function = function; }
   CreateFunction GetFunction() { return this->Function; }
-  
+
 private:
   const char* ClassName;
   CreateFunction Function;
@@ -42,19 +42,19 @@ class vtkInstantiatorHashTable
 public:
   vtkInstantiatorHashTable();
   ~vtkInstantiatorHashTable();
-  
-  void PrintSelf(ostream& os, vtkIndent indent);  
-  
+
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   typedef vtkInstantiator::CreateFunction CreateFunction;
   void Insert(const char* className, CreateFunction function);
   void Erase(const char* className, CreateFunction function);
   CreateFunction Find(const char* className);
-  
+
 protected:
   unsigned long Hash(const char* s);
   void ExtendBucket(unsigned long bucket);
   const char* AddClassName(const char* className);
-  
+
   vtkInstantiatorHashNode** Buckets;
   unsigned int* BucketCounts;
   unsigned int* BucketSizes;
@@ -62,7 +62,7 @@ protected:
   char** ClassNames;
   unsigned long NumberOfClassNames;
   unsigned long ClassNamesSize;
-  
+
 private:
   vtkInstantiatorHashTable(const vtkInstantiatorHashTable&);  // Not implemented.
   void operator=(const vtkInstantiatorHashTable&);  // Not implemented.
@@ -75,7 +75,7 @@ vtkInstantiatorHashTable::vtkInstantiatorHashTable()
   this->Buckets = new vtkInstantiatorHashNode*[this->NumberOfBuckets];
   this->BucketCounts = new unsigned int[this->NumberOfBuckets];
   this->BucketSizes = new unsigned int[this->NumberOfBuckets];
-  
+
   unsigned int i;
   for(i=0;i < this->NumberOfBuckets;++i)
     {
@@ -83,7 +83,7 @@ vtkInstantiatorHashTable::vtkInstantiatorHashTable()
     this->BucketSizes[i] = 16;
     this->Buckets[i] = new vtkInstantiatorHashNode[this->BucketSizes[i]];
     }
-  
+
   this->NumberOfClassNames = 0;
   this->ClassNamesSize = 256;
   this->ClassNames = new char*[this->ClassNamesSize];
@@ -99,8 +99,8 @@ vtkInstantiatorHashTable::~vtkInstantiatorHashTable()
     }
   delete [] this->BucketSizes;
   delete [] this->BucketCounts;
-  delete [] this->Buckets;    
-  
+  delete [] this->Buckets;
+
   for(i=0;i < this->NumberOfClassNames;++i)
     {
     delete [] this->ClassNames[i];
@@ -135,10 +135,10 @@ void vtkInstantiatorHashTable::Insert(const char* className,
                                       CreateFunction function)
 {
   unsigned long bucket = this->Hash(className);
-  
+
   if(this->BucketCounts[bucket] == this->BucketSizes[bucket])
     { this->ExtendBucket(bucket); }
-  
+
   // Do not check if the class is already registered.  It is possible
   // that more than one create function will be registered for the
   // same class, and even that the same function is registered more
@@ -155,7 +155,7 @@ void vtkInstantiatorHashTable::Erase(const char* className,
                                      CreateFunction function)
 {
   unsigned long bucket = this->Hash(className);
-  
+
   // Find the exact registration function we have been given, and
   // remove it only once.  If more than one funcion has been
   // registered for this class, or the same function more than once,
@@ -182,7 +182,7 @@ vtkInstantiatorHashTable::CreateFunction
 vtkInstantiatorHashTable::Find(const char* className)
 {
   unsigned long bucket = this->Hash(className);
-  
+
   unsigned int i;
   for(i=0; i < this->BucketCounts[bucket];++i)
     {
@@ -199,24 +199,24 @@ unsigned long vtkInstantiatorHashTable::Hash(const char* s)
   for(;*s;++s) { h = 5*h + *s; }
   return h % this->NumberOfBuckets;
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkInstantiatorHashTable::ExtendBucket(unsigned long bucket)
 {
   unsigned int newSize = this->BucketSizes[bucket] * 2;
-    
+
   vtkInstantiatorHashNode* newBucket =
     new vtkInstantiatorHashNode[newSize];
-    
+
   unsigned int i;
   for(i=0; i < this->BucketCounts[bucket];++i)
     { newBucket[i] = this->Buckets[bucket][i]; }
-    
+
   delete [] this->Buckets[bucket];
   this->Buckets[bucket] = newBucket;
   this->BucketSizes[bucket] = newSize;
 }
-  
+
 //----------------------------------------------------------------------------
 const char* vtkInstantiatorHashTable::AddClassName(const char* className)
 {
@@ -224,20 +224,20 @@ const char* vtkInstantiatorHashTable::AddClassName(const char* className)
     {
     unsigned long newSize = this->ClassNamesSize * 2;
     char** newNames = new char*[newSize];
-      
+
     unsigned long i;
     for(i=0;i < this->NumberOfClassNames;++i)
       { newNames[i] = this->ClassNames[i]; }
-      
+
     delete [] this->ClassNames;
     this->ClassNames = newNames;
     this->ClassNamesSize = newSize;
     }
-  
+
   char* newName = new char[strlen(className)+1];
   strcpy(newName, className);
   this->ClassNames[this->NumberOfClassNames++] = newName;
-  
+
   return newName;
 }
 

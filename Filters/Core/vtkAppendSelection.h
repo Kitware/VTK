@@ -76,10 +76,10 @@ public:
   // Description:
   // When set to true, all the selections are combined together to form a single
   // vtkSelection output.
-  // When set to false, the output is a composite selection with 
+  // When set to false, the output is a composite selection with
   // input selections as the children of the composite selection. This allows
   // for selections with different content types and properties. Default is
-  // true. 
+  // true.
   vtkSetMacro(AppendByUnion, int);
   vtkGetMacro(AppendByUnion, int);
   vtkBooleanMacro(AppendByUnion, int);
@@ -89,7 +89,7 @@ protected:
   ~vtkAppendSelection();
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *,
                           vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 

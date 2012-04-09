@@ -24,12 +24,12 @@ vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], 
-                                                 int outExt[6], 
+void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6],
+                                                 int outExt[6],
                                                  int wExtent[6])
 {
   int idx;
-  
+
   // initialize inExt
   memcpy(inExt,wExtent,6*sizeof(int));
 
@@ -69,17 +69,17 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   int inIdx[3];
   T *inPtr, *inPtrX, *inPtrY, *inPtrZ;
   int maxC, inMaxC;
-  
+
   // find the region to loop over
   inMaxC = inData->GetNumberOfScalarComponents();
   maxC = outData->GetNumberOfScalarComponents();
-  maxX = outExt[1] - outExt[0]; 
-  maxY = outExt[3] - outExt[2]; 
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetIncrements(inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
@@ -105,7 +105,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
       }
     }
   inPtr = static_cast<T *>(inData->GetScalarPointer(inIdxStart[0], inIdxStart[1], inIdxStart[2]));
-  
+
   // Loop through ouput pixels
   inPtrZ = inPtr;
   inIdx[2] = inIdxStart[2];
@@ -120,7 +120,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
       inPtrX = inPtrY;
       inIdx[0] = inIdxStart[0];
       inInc[0] = inIncStart[0];
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -174,7 +174,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
             }
           }
         }
-      
+
       outPtr += outIncY;
       inIdx[1] += inInc[1];
       inPtrY = inPtrY + inInc[1]*inIncY;
@@ -205,10 +205,10 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageMirrorPad::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
+  vtkInformation * vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -219,9 +219,9 @@ void vtkImageMirrorPad::ThreadedRequestData(
     {
     return;
     }
-  
+
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  
+
    // get the whole extent
   int wExt[6];
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -230,13 +230,13 @@ void vtkImageMirrorPad::ThreadedRequestData(
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
     }
-  
+
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(

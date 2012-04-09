@@ -22,7 +22,7 @@ unsigned long vtkAssemblyPaths::GetMTime()
   unsigned long mtime=this->vtkCollection::GetMTime();
   unsigned long pathMTime;
   vtkAssemblyPath *path;
-  
+
   for ( this->InitTraversal(); (path = this->GetNextItem()); )
     {
     pathMTime = path->GetMTime();

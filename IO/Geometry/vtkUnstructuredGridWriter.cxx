@@ -51,7 +51,7 @@ void vtkUnstructuredGridWriter::WriteData()
   //
   // Write unstructured grid specific stuff
   //
-  *fp << "DATASET UNSTRUCTURED_GRID\n"; 
+  *fp << "DATASET UNSTRUCTURED_GRID\n";
 
   // Write data owned by the dataset
   if (!this->WriteDataSetData(fp, input))
@@ -76,7 +76,7 @@ void vtkUnstructuredGridWriter::WriteData()
     unlink(this->FileName);
     return;
     }
-  
+
   //
   // Cell types are a little more work
   //
@@ -121,7 +121,7 @@ void vtkUnstructuredGridWriter::WriteData()
     return;
     }
 
-  this->CloseVTKFile(fp);  
+  this->CloseVTKFile(fp);
 }
 
 int vtkUnstructuredGridWriter::FillInputPortInformation(int,

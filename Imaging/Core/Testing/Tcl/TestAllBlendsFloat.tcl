@@ -10,9 +10,9 @@ imgWin SetSize 512 256
 vtkTIFFReader inputImage
   inputImage SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 
-# "beach.tif" image contains ORIENTATION tag which is 
-# ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF 
-# reader parses this tag and sets the internal TIFF image 
+# "beach.tif" image contains ORIENTATION tag which is
+# ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
+# reader parses this tag and sets the internal TIFF image
 # orientation accordingly.  To overwrite this orientation with a vtk
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.
@@ -59,7 +59,7 @@ alpha ThresholdByLower 0.9
 alpha SetInValue 1.0
 alpha SetOutValue 0.0
 
-# make luminanceAlpha and colorAlpha versions 
+# make luminanceAlpha and colorAlpha versions
 
 vtkImageAppendComponents luminanceAlpha
 luminanceAlpha AddInputConnection [luminance GetOutputPort]
@@ -81,7 +81,7 @@ foreach background $backgrounds {
     foreach foreground $foregrounds {
 	vtkImageBlend blend${row}${column}
 	blend${row}${column} AddInputConnection [$background GetOutputPort]
-	if { $background == "backgroundColor" || $foreground == "luminance" || $foreground == "luminanceAlpha" } { 
+	if { $background == "backgroundColor" || $foreground == "luminance" || $foreground == "luminanceAlpha" } {
 	    blend${row}${column} AddInputConnection [$foreground GetOutputPort]
 	    blend${row}${column} SetOpacity 1 0.8
 	}
@@ -90,10 +90,10 @@ foreach background $backgrounds {
 	mapper${row}${column} SetInputConnection [blend${row}${column} GetOutputPort]
 	mapper${row}${column} SetColorWindow 1.0
 	mapper${row}${column} SetColorLevel 0.5
-	
+
 	vtkActor2D actor${row}${column}
 	actor${row}${column} SetMapper mapper${row}${column}
-	
+
 	vtkRenderer imager${row}${column}
 	imager${row}${column} AddActor2D actor${row}${column}
 

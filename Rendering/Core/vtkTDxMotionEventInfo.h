@@ -34,7 +34,7 @@ public:
   double X;
   double Y;
   double Z;
-  
+
   // Description:
   // Rotation angle.
   // The angle is in arbitrary unit.
@@ -43,7 +43,7 @@ public:
   // where the information can be scaled by
   // the end-user.
   double Angle;
-  
+
   // Description:
   // Rotation axis expressed as a unit vector.
   double AxisX;

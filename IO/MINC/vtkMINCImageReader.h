@@ -48,7 +48,7 @@ POSSIBILITY OF SUCH DAMAGES.
 // .NAME vtkMINCImageReader - A reader for MINC files.
 // .SECTION Description
 // MINC is a NetCDF-based medical image file format that was developed
-// at the Montreal Neurological Institute in 1992. 
+// at the Montreal Neurological Institute in 1992.
 // This class will read a MINC file into VTK, rearranging the data to
 // match the VTK x, y, and z dimensions, and optionally rescaling
 // real-valued data to VTK_FLOAT if RescaleRealValuesOn() is set.
@@ -92,7 +92,7 @@ public:
   virtual void SetFileName(const char *name);
 
   // Description:
-  // Get the entension for this file format. 
+  // Get the entension for this file format.
   virtual const char* GetFileExtensions() {
     return ".mnc"; }
 

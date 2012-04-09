@@ -32,7 +32,7 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
 
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
-  
+
   this->IncludeBoundary = 0;
 }
 
@@ -96,7 +96,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
     { // This handles the IncludeBoundary condition.
     ext[5] = voi[5];
     }
-  
+
   // I do not think we need this extra check, but it cannot hurt.
   if (ext[0] < inWholeExt[0])
     {
@@ -106,7 +106,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
     {
     ext[1] = inWholeExt[1];
     }
-  
+
   if (ext[2] < inWholeExt[2])
     {
     ext[2] = inWholeExt[2];
@@ -115,7 +115,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
     {
     ext[3] = inWholeExt[3];
     }
-  
+
   if (ext[4] < inWholeExt[4])
     {
     ext[4] = inWholeExt[4];
@@ -123,7 +123,7 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
   if (ext[5] > inWholeExt[5])
     {
     ext[5] = inWholeExt[5];
-    }  
+    }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
   // We can handle anything.
@@ -157,7 +157,7 @@ int vtkExtractRectilinearGrid::RequestInformation(
   for ( i=0; i < 3; i++ )
     {
     // Empty request.
-    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < inWholeExtent[2*i] || 
+    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < inWholeExtent[2*i] ||
         voi[2*i] > inWholeExtent[2*i+1])
       {
       outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -199,7 +199,7 @@ int vtkExtractRectilinearGrid::RequestInformation(
 
   // Adjust the output dimensions if the boundaries are to be
   // included and the sample rate is not 1.
-  if ( this->IncludeBoundary && 
+  if ( this->IncludeBoundary &&
        (rate[0] != 1 || rate[1] != 1 || rate[2] != 1) )
     {
     int diff;
@@ -246,7 +246,7 @@ int vtkExtractRectilinearGrid::RequestData(
   vtkCellData *outCD=output->GetCellData();
   int uExt[6], voi[6];
   int *inExt, *outWholeExt;
-  vtkIdType i, j, k; 
+  vtkIdType i, j, k;
   vtkIdType iIn, jIn, kIn;
   int outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
@@ -292,7 +292,7 @@ int vtkExtractRectilinearGrid::RequestData(
        uExt[2] <= inExt[2] && uExt[3] >= inExt[3] &&
        uExt[4] <= inExt[4] && uExt[5] >= inExt[5] &&
        rate[0] == 1 && rate[1] == 1 && rate[2] == 1)
-    { 
+    {
     output->SetXCoordinates(input->GetXCoordinates());
     output->SetYCoordinates(input->GetYCoordinates());
     output->SetZCoordinates(input->GetZCoordinates());
@@ -453,17 +453,17 @@ void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
-  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " 
+  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", "
      << this->VOI[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " 
+  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", "
      << this->VOI[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " 
+  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", "
      << this->VOI[5] << ")\n";
 
   os << indent << "Sample Rate: (" << this->SampleRate[0] << ", "
                << this->SampleRate[1] << ", "
                << this->SampleRate[2] << ")\n";
 
-  os << indent << "Include Boundary: " 
+  os << indent << "Include Boundary: "
      << (this->IncludeBoundary ? "On\n" : "Off\n");
 }

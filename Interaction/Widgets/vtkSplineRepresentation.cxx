@@ -625,7 +625,7 @@ void vtkSplineRepresentation::CreateDefaultProperties()
 //----------------------------------------------------------------------------
 void vtkSplineRepresentation::SetProjectionPosition(double position)
 {
-  this->ProjectionPosition = position; 
+  this->ProjectionPosition = position;
   if ( this->ProjectToPlane )
     {
     this->ProjectPointsToPlane();
@@ -658,7 +658,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
 
   // Ensure that no handle is current
   this->HighlightHandle(NULL);
-      
+
   double radius = this->HandleGeometry[0]->GetRadius();
   this->Initialize();
 
@@ -1083,7 +1083,7 @@ void vtkSplineRepresentation::WidgetInteraction(double e[2])
 
   // Compute the two points defining the motion vector
   vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
-    this->LastPickPosition[0], this->LastPickPosition[1], this->LastPickPosition[2], 
+    this->LastPickPosition[0], this->LastPickPosition[1], this->LastPickPosition[2],
     focalPoint);
   z = focalPoint[2];
   vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,this->LastEventPosition[0],
@@ -1129,7 +1129,7 @@ void vtkSplineRepresentation::WidgetInteraction(double e[2])
 //----------------------------------------------------------------------------
 void vtkSplineRepresentation::EndWidgetInteraction(double[2])
 {
-  switch (this->InteractionState) 
+  switch (this->InteractionState)
     {
   case vtkSplineRepresentation::Inserting:
     this->InsertHandleOnLine(this->LastPickPosition);
@@ -1162,7 +1162,7 @@ double* vtkSplineRepresentation::GetBounds()
   bbox.GetBounds(this->Bounds);
   return this->Bounds;
 }
-  
+
 
 //----------------------------------------------------------------------------
 void vtkSplineRepresentation::SetLineColor(double r, double g, double b)

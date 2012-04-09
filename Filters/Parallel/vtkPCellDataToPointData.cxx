@@ -45,7 +45,7 @@ int vtkPCellDataToPointData::RequestData(
     }
 
   // Remove the extra (now ivalid) ghost cells.
-  // This is only necessary fro unstructured data.  
+  // This is only necessary fro unstructured data.
   if (this->PieceInvariant)
     {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -72,8 +72,8 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
   vtkInformationVector* outputVector)
 {
   if (this->PieceInvariant == 0)
-    { 
-    // I believe the default input update extent 
+    {
+    // I believe the default input update extent
     // is set to the input update extent.
     return 1;
     }
@@ -81,7 +81,7 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
   int extentType = VTK_PIECES_EXTENT;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  
+
   int piece, numPieces, ghostLevel;
   int* wholeExt;
   int* upExt;
@@ -111,7 +111,7 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
     inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       ghostLevel);
     }
   else

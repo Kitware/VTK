@@ -152,7 +152,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
     follower->SetDistanceLODThreshold( this->DistanceLODThreshold );
     follower->SetEnableViewAngleLOD( this->EnableViewAngleLOD );
     follower->SetViewAngleLODThreshold( this->ViewAngleLODThreshold );
-  
+
     follower = this->YAxes[i]->GetTitleActor();
     follower->SetAxis(this->YAxes[i]);
     follower->SetScreenOffset(this->TitleScreenOffset);
@@ -307,7 +307,7 @@ int vtkCubeAxesActor::GetUse2DMode()
 
 void vtkCubeAxesActor::SetSaveTitlePosition( int val )
 {
-  // For 2D mode only : 
+  // For 2D mode only :
   //   val = 0: no need to save position (3D axis)
   //   val = 1: positions have to be saved during the next render pass
   //   val = 2: positions are saved -> use them
@@ -315,7 +315,7 @@ void vtkCubeAxesActor::SetSaveTitlePosition( int val )
     {
     this->XAxes[i]->SetSaveTitlePosition( val );
     this->YAxes[i]->SetSaveTitlePosition( val );
-    }   
+    }
 }
 
 // ****************************************************************************
@@ -538,13 +538,13 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
 // *************************************************************************
 // Project the bounding box and compute edges on the border of the bounding
-// cube. Determine which parts of the edges are visible via intersection 
+// cube. Determine which parts of the edges are visible via intersection
 // with the boundary of the viewport (minus borders).
 // *************************************************************************
 int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
    int i, renderedSomething=0;
-  static bool initialRender = true; 
+  static bool initialRender = true;
   // Initialization
   if (!this->Camera)
     {
@@ -552,8 +552,8 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
     this->RenderSomething = 0;
     return 0;
     }
- 
-  this->BuildAxes(viewport); 
+
+  this->BuildAxes(viewport);
 
   if (initialRender)
     {
@@ -566,23 +566,23 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
     }
   initialRender = false;
 
-  this->DetermineRenderAxes(viewport); 
+  this->DetermineRenderAxes(viewport);
 
   //Render the axes
   if (this->XAxisVisibility)
     {
     for (i = 0; i < this->NumberOfAxesX; i++)
-      { 
-      renderedSomething += 
+      {
+      renderedSomething +=
         this->XAxes[this->RenderAxesX[i]]->RenderTranslucentGeometry(viewport);
-      } 
+      }
     }
 
   if (this->YAxisVisibility)
     {
     for (i = 0; i < this->NumberOfAxesY; i++)
       {
-      renderedSomething += 
+      renderedSomething +=
         this->YAxes[this->RenderAxesY[i]]->RenderTranslucentGeometry(viewport);
       }
     }
@@ -591,7 +591,7 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
     {
     for (i = 0; i < this->NumberOfAxesZ; i++)
       {
-      renderedSomething += 
+      renderedSomething +=
         this->ZAxes[this->RenderAxesZ[i]]->RenderTranslucentGeometry(viewport);
       }
     }
@@ -600,13 +600,13 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 
 // *************************************************************************
 // Project the bounding box and compute edges on the border of the bounding
-// cube. Determine which parts of the edges are visible via intersection 
+// cube. Determine which parts of the edges are visible via intersection
 // with the boundary of the viewport (minus borders).
 // *************************************************************************
 int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
-  static bool initialRender = true; 
+  static bool initialRender = true;
   // Initialization
   if (!this->Camera)
     {
@@ -614,8 +614,8 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
     this->RenderSomething = 0;
     return 0;
     }
- 
-  this->BuildAxes(viewport); 
+
+  this->BuildAxes(viewport);
 
   if (initialRender)
     {
@@ -628,23 +628,23 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
     }
   initialRender = false;
 
-  this->DetermineRenderAxes(viewport); 
+  this->DetermineRenderAxes(viewport);
 
   //Render the axes
   if (this->XAxisVisibility)
     {
     for (i = 0; i < this->NumberOfAxesX; i++)
-      { 
-      renderedSomething += 
+      {
+      renderedSomething +=
         this->XAxes[this->RenderAxesX[i]]->RenderTranslucentPolygonalGeometry(viewport);
-      } 
+      }
     }
 
   if (this->YAxisVisibility)
     {
     for (i = 0; i < this->NumberOfAxesY; i++)
       {
-      renderedSomething += 
+      renderedSomething +=
         this->YAxes[this->RenderAxesY[i]]->RenderTranslucentPolygonalGeometry(viewport);
       }
     }
@@ -653,7 +653,7 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
     {
     for (i = 0; i < this->NumberOfAxesZ; i++)
       {
-      renderedSomething += 
+      renderedSomething +=
         this->ZAxes[this->RenderAxesZ[i]]->RenderTranslucentPolygonalGeometry(viewport);
       }
     }
@@ -666,23 +666,23 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
-  
+
   //Render the axes
   if (this->XAxisVisibility)
     {
     for (i = 0; i < this->NumberOfAxesX; i++)
-      { 
+      {
 
-      renderedSomething += 
+      renderedSomething +=
         this->XAxes[this->RenderAxesX[i]]->RenderOverlay(viewport);
-      } 
+      }
     }
 
   if (this->YAxisVisibility)
     {
     for (i = 0; i < this->NumberOfAxesY; i++)
       {
-      renderedSomething += 
+      renderedSomething +=
         this->YAxes[this->RenderAxesY[i]]->RenderOverlay(viewport);
       }
     }
@@ -691,7 +691,7 @@ int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
     {
     for (i = 0; i < this->NumberOfAxesZ; i++)
       {
-      renderedSomething += 
+      renderedSomething +=
         this->ZAxes[this->RenderAxesZ[i]]->RenderOverlay(viewport);
       }
     }
@@ -934,11 +934,11 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Fly Mode: OUTER_EDGES\n";
     }
 
-  os << indent << "EnableDistanceLOD: "   
+  os << indent << "EnableDistanceLOD: "
      << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
   os << indent << "DistanceLODThreshold: "   << this->DistanceLODThreshold    << "\n";
 
-  os << indent << "EnableViewAngleLOD: "   
+  os << indent << "EnableViewAngleLOD: "
      << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
   os << indent << "ViewAngleLODThreshold: "   << this->ViewAngleLODThreshold    << "\n";
 
@@ -1092,7 +1092,7 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
       this->ZAxes[i]->SetDeltaMajor(j,this->DeltaMajor[j]);
       }
     }
- 
+
   this->LastXRange[0] = (this->XAxisRange[0] == VTK_DOUBLE_MAX ?
                                   bounds[0] : this->XAxisRange[0]);
   this->LastXRange[1] = (this->XAxisRange[1] == VTK_DOUBLE_MAX ?
@@ -1501,7 +1501,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
   // determine the bounds to use (input, prop, or user-defined)
   double bounds[6];
   this->GetBounds(bounds);
- 
+
   // Build the axes (almost always needed so we don't check mtime)
   // Transform all points into display coordinates (to determine which closest
   // to camera).
@@ -1523,7 +1523,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
     xCoords[i][3] = bounds[1];
     xCoords[i][1] = xCoords[i][4] = bounds[2+mm1[i]];
     xCoords[i][2] = xCoords[i][5] = bounds[4+mm2[i]];
-    
+
     this->YAxes[i]->SetAxisPosition(i);
     yCoords[i][0] = yCoords[i][3] = bounds[0+mm1[i]];
     yCoords[i][1] = bounds[2];
@@ -2230,8 +2230,8 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBE
 {
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; ++i)
     {
-    double newTitleScale 
-      = this->AutoScale(viewport, 
+    double newTitleScale
+      = this->AutoScale(viewport,
                         this->ScreenSize,
                         axis[i]->GetTitleActor()->GetPosition());
 
@@ -2242,8 +2242,8 @@ void vtkCubeAxesActor::AutoScale(vtkViewport *viewport, vtkAxisActor *axis[NUMBE
 
     for(int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
       {
-      double newLabelScale 
-        = this->AutoScale(viewport, 
+      double newLabelScale
+        = this->AutoScale(viewport,
                           this->ScreenSize,
                           labelActors[j]->GetPosition());
 

@@ -61,7 +61,7 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
   p->GetPoint(parent, pt);
   xCenter = pt[0];
   yCenter = pt[1];
-  
+
   // Check for leaf_count array
   vtkIntArray* leaf_count = vtkIntArray::SafeDownCast(
                             t->GetVertexData()->GetArray("leaf_count"));
@@ -70,46 +70,46 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
     vtkErrorMacro("vtkTreeOrbitLayoutStrategy has to have a leaf_count array");
     exit(1);
     }
-  
+
   // Get the total number of children for this node
   double totalChildren = leaf_count->GetValue(parent);
   vtkIdType immediateChildren = t->GetNumberOfChildren(parent);
-    
+
   // Now simply orbit the children around the
   // parent's centerpoint
   double currentAngle = 0;
   for (vtkIdType i=0; i < immediateChildren; ++i)
     {
-    vtkIdType childID = t->GetChild(parent, i); 
+    vtkIdType childID = t->GetChild(parent, i);
     vtkIdType subChildren = leaf_count->GetValue(childID);
-    
+
     // What angle do I get? If I have a lot of sub children
     // then I should get a greater angle 'pizza slice'
     double myAngle = subChildren/totalChildren;
-    
+
     // So I want to be in the middle of my pizza slice
     double angle = currentAngle + myAngle/2.0;
-    
+
     // Compute coords
     double x = cos(2.0*vtkMath::Pi()*angle);
     double y = sin(2.0*vtkMath::Pi()*angle);
 
     // Am I a leaf
     double radiusFactor;
-    if (subChildren == 1) 
+    if (subChildren == 1)
       radiusFactor = .1;
     else
       radiusFactor = log(static_cast<double>(immediateChildren)) / log(totalChildren);
     double xOrbit = x * radius * radiusFactor + xCenter;
     double yOrbit = y * radius * radiusFactor + yCenter;
     p->SetPoint(childID, xOrbit, yOrbit, 0);
-    
+
     // Compute child radius
     double childRadius = radius*tan(myAngle)*2.0 * this->ChildRadiusFactor;
-    
+
     // Now recurse with a reduced radius
     this->OrbitChildren(t,p,childID,childRadius);
-    
+
     // Accumulate angle
     currentAngle += myAngle;
     }
@@ -134,28 +134,28 @@ void vtkTreeOrbitLayoutStrategy::Layout()
     vtkErrorMacro("Layout only works on vtkTree unless VTK_USE_BOOST is on.");
 #endif
     }
-    
+
  if (tree->GetNumberOfVertices() == 0)
     {
     vtkErrorMacro("Tree Input has 0 vertices - Punting...");
     return;
     }
-  
+
   // Create a new point set
   vtkIdType numVertices = tree->GetNumberOfVertices();
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->SetNumberOfPoints(numVertices);
-  
+
   // Setting the root to position 0,0 but this could
   // be whatever you want and should be controllable
   // through ivars in the future
   vtkIdType currentRoot = tree->GetRoot();
   newPoints->SetPoint(currentRoot, 0, 0, 0);
-  
-  // Now traverse the tree and have all children 
+
+  // Now traverse the tree and have all children
   // orbit their parents recursively
   this->OrbitChildren(tree, newPoints, currentRoot, 1);
-  
+
   // Copy coordinates back into the original graph
   if (vtkTree::SafeDownCast(this->Graph))
     {
@@ -185,7 +185,7 @@ void vtkTreeOrbitLayoutStrategy::Layout()
 
   // Clean up.
   newPoints->Delete();
-} 
+}
 
 void vtkTreeOrbitLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

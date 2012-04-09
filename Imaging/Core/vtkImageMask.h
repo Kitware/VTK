@@ -43,9 +43,9 @@ public:
   // SetGet the value of the output pixel replaced by mask.
   void SetMaskedOutputValue(int num, double *v);
   void SetMaskedOutputValue(double v) {this->SetMaskedOutputValue(1, &v);}
-  void SetMaskedOutputValue(double v1, double v2) 
+  void SetMaskedOutputValue(double v1, double v2)
     {double v[2]; v[0]=v1; v[1]=v2; this->SetMaskedOutputValue(2, v);}
-  void SetMaskedOutputValue(double v1, double v2, double v3) 
+  void SetMaskedOutputValue(double v1, double v2, double v3)
     {double v[3]; v[0]=v1; v[1]=v2; v[2]=v3; this->SetMaskedOutputValue(3, v);}
   double *GetMaskedOutputValue() {return this->MaskedOutputValue;}
   int GetMaskedOutputValueLength() {return this->MaskedOutputValueLength;}
@@ -65,7 +65,7 @@ public:
   // Description:
   // Set the mask to be used.
   void SetMaskInputData(vtkImageData *in);
-  
+
   // Description:
   // When Not Mask is on, the mask is passed through a boolean not
   // before it is used to mask the image.  The effect is to pass the
@@ -74,7 +74,7 @@ public:
   vtkSetMacro(NotMask,int);
   vtkGetMacro(NotMask,int);
   vtkBooleanMacro(NotMask, int);
-  
+
   // Description:
   // Set the two inputs to this filter
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
@@ -88,16 +88,16 @@ protected:
   int MaskedOutputValueLength;
   int NotMask;
   double MaskAlpha;
-  
-  virtual int RequestInformation (vtkInformation *, 
+
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  
- 
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+
+
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
 

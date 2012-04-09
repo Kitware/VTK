@@ -23,7 +23,7 @@ int TestManyActors(int argc, char* argv[])
       interact = true;
       continue;
       }
-    if (!strcmp(argv[i], "-T") || 
+    if (!strcmp(argv[i], "-T") ||
         !strcmp(argv[i], "-V") ||
         !strcmp(argv[i], "-D"))
       {

@@ -89,7 +89,7 @@ vtkPoints hexahedronPoints
   hexahedronPoints InsertPoint 5 1 0 1
   hexahedronPoints InsertPoint 6 1 1 1
   hexahedronPoints InsertPoint 7 0 1 1
-  
+
 vtkFloatArray hexahedronScalars
   hexahedronScalars SetNumberOfTuples 8
   hexahedronScalars InsertValue 0 0
@@ -110,8 +110,8 @@ vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 5 5
   [aHexahedron GetPointIds] SetId 6 6
   [aHexahedron GetPointIds] SetId 7 7
-  
-  
+
+
 vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid Allocate 1 1
   aHexahedronGrid InsertNextCell [aHexahedron GetCellType] [aHexahedron GetPointIds]
@@ -709,16 +709,16 @@ vtkActor aPolyVertexActor
 
 vtkPoints pentaPoints
   pentaPoints SetNumberOfPoints 10
-  pentaPoints InsertPoint 0 0.25 0.0 0.0  
-  pentaPoints InsertPoint 1 0.75 0.0 0.0 
-  pentaPoints InsertPoint 2 1.0  0.5 0.0  
-  pentaPoints InsertPoint 3 0.5  1.0 0.0 
-  pentaPoints InsertPoint 4 0.0  0.5 0.0  
-  pentaPoints InsertPoint 5 0.25 0.0 1.0  
-  pentaPoints InsertPoint 6 0.75 0.0 1.0  
-  pentaPoints InsertPoint 7 1.0  0.5 1.0  
-  pentaPoints InsertPoint 8 0.5  1.0 1.0 
-  pentaPoints InsertPoint 9 0.0  0.5 1.0 
+  pentaPoints InsertPoint 0 0.25 0.0 0.0
+  pentaPoints InsertPoint 1 0.75 0.0 0.0
+  pentaPoints InsertPoint 2 1.0  0.5 0.0
+  pentaPoints InsertPoint 3 0.5  1.0 0.0
+  pentaPoints InsertPoint 4 0.0  0.5 0.0
+  pentaPoints InsertPoint 5 0.25 0.0 1.0
+  pentaPoints InsertPoint 6 0.75 0.0 1.0
+  pentaPoints InsertPoint 7 1.0  0.5 1.0
+  pentaPoints InsertPoint 8 0.5  1.0 1.0
+  pentaPoints InsertPoint 9 0.0  0.5 1.0
 
 vtkFloatArray pentaScalars
   pentaScalars SetNumberOfTuples 10
@@ -745,7 +745,7 @@ vtkPentagonalPrism aPenta
   [aPenta GetPointIds] SetId 8 8
   [aPenta GetPointIds] SetId 9 9
 
-  
+
 vtkUnstructuredGrid aPentaGrid
   aPentaGrid Allocate 1 1
   aPentaGrid InsertNextCell [aPenta GetCellType] [aPenta GetPointIds]
@@ -778,19 +778,19 @@ vtkActor aPentaContourActor
 
 vtkPoints hexaPoints
   hexaPoints SetNumberOfPoints 12
-  hexaPoints InsertPoint 0 0.0 0.0 0.0  
-  hexaPoints InsertPoint 1 0.5 0.0 0.0 
-  hexaPoints InsertPoint 2 1.0 0.5 0.0  
-  hexaPoints InsertPoint 3 1.0 1.0 0.0 
-  hexaPoints InsertPoint 4 0.5 1.0 0.0  
-  hexaPoints InsertPoint 5 0.0 0.5 0.0 
-  hexaPoints InsertPoint 6 0.0 0.0 1.0  
-  hexaPoints InsertPoint 7 0.5 0.0 1.0 
-  hexaPoints InsertPoint 8 1.0 0.5 1.0  
-  hexaPoints InsertPoint 9 1.0 1.0 1.0 
-  hexaPoints InsertPoint 10 0.5 1.0 1.0  
+  hexaPoints InsertPoint 0 0.0 0.0 0.0
+  hexaPoints InsertPoint 1 0.5 0.0 0.0
+  hexaPoints InsertPoint 2 1.0 0.5 0.0
+  hexaPoints InsertPoint 3 1.0 1.0 0.0
+  hexaPoints InsertPoint 4 0.5 1.0 0.0
+  hexaPoints InsertPoint 5 0.0 0.5 0.0
+  hexaPoints InsertPoint 6 0.0 0.0 1.0
+  hexaPoints InsertPoint 7 0.5 0.0 1.0
+  hexaPoints InsertPoint 8 1.0 0.5 1.0
+  hexaPoints InsertPoint 9 1.0 1.0 1.0
+  hexaPoints InsertPoint 10 0.5 1.0 1.0
   hexaPoints InsertPoint 11 0.0 0.5 1.0
-                         
+
 vtkFloatArray hexaScalars
   hexaScalars SetNumberOfTuples 12
   hexaScalars InsertValue 0 0
@@ -820,7 +820,7 @@ vtkHexagonalPrism aHexa
   [aHexa GetPointIds] SetId 10 10
   [aHexa GetPointIds] SetId 11 11
 
-  
+
 vtkUnstructuredGrid aHexaGrid
   aHexaGrid Allocate 1 1
   aHexaGrid InsertNextCell [aHexa GetCellType] [aHexa GetPointIds]

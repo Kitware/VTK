@@ -31,7 +31,7 @@ vtkImageCorrelation::vtkImageCorrelation()
 
 
 //----------------------------------------------------------------------------
-// Grow the output image 
+// Grow the output image
 int vtkImageCorrelation::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
@@ -54,13 +54,13 @@ int vtkImageCorrelation::RequestUpdateExtent (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo1 = inputVector[0]->GetInformationObject(0);
   vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
-  
+
   // get the whole image for input 2
   int inWExt2[6];
   inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inWExt2);
   inInfo2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                inWExt2, 6);
-  
+
   int inWExt1[6];
   inInfo1->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inWExt1);
 
@@ -69,12 +69,12 @@ int vtkImageCorrelation::RequestUpdateExtent (
   int idx;
   int inUExt1[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt1);
-  
+
   for (idx = 0; idx < 3; idx++)
     {
     inUExt1[idx*2+1] = inUExt1[idx*2+1] +
       (inWExt2[idx*2+1] - inWExt2[idx*2]);
-    
+
     // clip to whole extent
     if (inUExt1[idx*2+1] > inWExt1[idx*2+1])
       {
@@ -111,29 +111,29 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
   int xKernMax, yKernMax, zKernMax;
   int maxIX, maxIY, maxIZ;
   int *wExtent;
-  
+
   // find the region to loop over
   maxC = in1Data->GetNumberOfScalarComponents();
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
-  // Get increments to march through data 
+  // Get increments to march through data
   in1Data->GetContinuousIncrements(outExt, in1CIncX, in1CIncY, in1CIncZ);
   in1Data->GetIncrements(in1IncX, in1IncY, in1IncZ);
   in2Data->GetIncrements(in2IncX, in2IncY, in2IncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // how far can we gon with input data
-  // this may be farther that the outExt because of 
+  // this may be farther that the outExt because of
   // subpieces etc.
   wExtent = in1Data->GetExtent();
   maxIZ = wExtent[5] - outExt[4];
   maxIY = wExtent[3] - outExt[2];
   maxIX = wExtent[1] - outExt[0];
-  
+
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
@@ -145,7 +145,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
       }
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -205,10 +205,10 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageCorrelation::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector ** inputVector , 
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector ** inputVector ,
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -226,27 +226,27 @@ void vtkImageCorrelation::ThreadedRequestData(
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << 
+    vtkErrorMacro(<< "Execute: input ScalarType, " <<
     inData[0][0]->GetScalarType() << " and input2 ScalarType " <<
     inData[1][0]->GetScalarType() << ", should match");
     return;
     }
-  
+
   // input depths must match
-  if (inData[0][0]->GetNumberOfScalarComponents() != 
+  if (inData[0][0]->GetNumberOfScalarComponents() !=
       inData[1][0]->GetNumberOfScalarComponents())
     {
     vtkErrorMacro(<< "Execute: input depths must match");
     return;
     }
-  
+
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageCorrelationExecute(this, inData[0][0], 
-                                 static_cast<VTK_TT *>(in1Ptr), 
-                                 inData[1][0], 
-                                 static_cast<VTK_TT *>(in2Ptr), 
+      vtkImageCorrelationExecute(this, inData[0][0],
+                                 static_cast<VTK_TT *>(in1Ptr),
+                                 inData[1][0],
+                                 static_cast<VTK_TT *>(in2Ptr),
                                  outData[0], outPtr, outExt, id,
                                  in2Extent));
     default:

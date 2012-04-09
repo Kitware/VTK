@@ -37,32 +37,32 @@ public:
   vtkLargeInteger(__int64 n);
   vtkLargeInteger(unsigned __int64 n);
 #endif
-  
+
   ~vtkLargeInteger(void);
-  
+
   char CastToChar(void) const;
   short CastToShort(void) const;
   int CastToInt(void) const;
   long CastToLong(void) const;
   unsigned long CastToUnsignedLong(void) const;
-  
+
   int IsEven(void) const;
   int IsOdd(void) const;
   int GetLength(void) const; // in bits
   int GetBit(unsigned int p) const; // p'th bit (from zero)
   int IsZero() const; // is zero
   int GetSign(void) const; // is negative
-  
+
   void Truncate(unsigned int n); // reduce to lower n bits
   void Complement(void); // * -1
-  
+
   int operator==(const vtkLargeInteger& n) const;
   int operator!=(const vtkLargeInteger& n) const;
   int operator<(const vtkLargeInteger& n) const;
   int operator<=(const vtkLargeInteger& n) const;
   int operator>(const vtkLargeInteger& n) const;
   int operator>=(const vtkLargeInteger& n) const;
-  
+
   vtkLargeInteger& operator=(const vtkLargeInteger& n);
   vtkLargeInteger& operator+=(const vtkLargeInteger& n);
   vtkLargeInteger& operator-=(const vtkLargeInteger& n);
@@ -79,7 +79,7 @@ public:
   vtkLargeInteger& operator&=(const vtkLargeInteger& n);
   vtkLargeInteger& operator|=(const vtkLargeInteger& n);
   vtkLargeInteger& operator^=(const vtkLargeInteger& n);
-  
+
   vtkLargeInteger operator+(const vtkLargeInteger& n) const;
   vtkLargeInteger operator-(const vtkLargeInteger& n) const;
   vtkLargeInteger operator*(const vtkLargeInteger& n) const;
@@ -91,16 +91,16 @@ public:
   vtkLargeInteger operator^(const vtkLargeInteger& n) const;
   vtkLargeInteger operator<<(int n) const;
   vtkLargeInteger operator>>(int n) const;
-  
+
   friend ostream& operator<<(ostream& s, const vtkLargeInteger& n);
   friend istream& operator>>(istream& s, vtkLargeInteger& n);
-  
+
 private:
   char* Number;
   int Negative;
   unsigned int Sig;
   unsigned int Max;
-  
+
   // unsigned operators
   int IsSmaller(const vtkLargeInteger& n) const; // unsigned
   int IsGreater(const vtkLargeInteger& n) const; // unsigned

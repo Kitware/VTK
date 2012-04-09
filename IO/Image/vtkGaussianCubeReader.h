@@ -51,7 +51,7 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   void ReadSpecificMolecule(FILE* fp);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);

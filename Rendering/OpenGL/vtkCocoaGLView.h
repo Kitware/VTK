@@ -44,7 +44,7 @@
   // Forward declarations
   class vtkCocoaRenderWindow;
   class vtkCocoaRenderWindowInteractor;
-  
+
   // Type declarations
   typedef vtkCocoaRenderWindow* vtkCocoaRenderWindowRef;
   typedef vtkCocoaRenderWindowInteractor* vtkCocoaRenderWindowInteractorRef;

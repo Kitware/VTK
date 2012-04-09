@@ -46,7 +46,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 =========================================================================*/
 
-/* 
+/*
    This file has been modified from the original "minc.h" that was
    distributed with minc version 1.4.  All of the prototype
    declarations have been removed.  This modification was made in
@@ -72,7 +72,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : minc.h
-@DESCRIPTION: Header file for minc (Medical Image NetCDF) file format 
+@DESCRIPTION: Header file for minc (Medical Image NetCDF) file format
               standard.
 @METHOD     : Includes name definitions for NetCDF dimensions, attributes
               and variables for the following :
@@ -86,7 +86,7 @@ POSSIBILITY OF SUCH DAMAGES.
                  MI study variable
                  MI acquisition variable
 @CREATED    : July 24, 1992. (Peter Neelin, Montreal Neurological Institute)
-@MODIFIED   : 
+@MODIFIED   :
  * Log: vtkMINC.h
  * Revision 1.1  2006/09/03 01:01:21  dgobbi
  * ENH: move the MINC attributes into a separate file to make it easy to copy from the reader to the writer
@@ -165,33 +165,33 @@ POSSIBILITY OF SUCH DAMAGES.
  *
  * Revision 2.3  95/01/23  08:28:31  neelin
  * Changed name of midecompress_file to miexpand_file.
- * 
+ *
  * Revision 2.2  95/01/20  15:21:16  neelin
  * Added midecompress_file with ability to decompress only the header of a file.
- * 
+ *
  * Revision 2.1  94/11/25  15:32:32  neelin
  * Added #undef for public if it wasn't previously defined so that C++
  * code won't get upset.
- * 
+ *
  * Revision 2.0  94/09/28  10:38:00  neelin
  * Release of minc version 0.2
- * 
+ *
  * Revision 1.29  94/09/28  10:37:24  neelin
  * Pre-release
- * 
+ *
  * Revision 1.28  93/11/03  13:08:37  neelin
  * Added prototypes for miopen, miclose, micreate.
- * 
+ *
  * Revision 1.27  93/11/03  12:29:11  neelin
  * Added error code for failure to uncompress a file.
- * 
+ *
  * Revision 1.26  93/08/11  12:06:34  neelin
  * Added RCS logging in source.
- * 
+ *
               July 15, 1993 (P.N.)
                  - added MI_ICV_DO_FILLVALUE and MI_FILLVALUE
 @COPYRIGHT  :
-              Copyright 1993 Peter Neelin, McConnell Brain Imaging Centre, 
+              Copyright 1993 Peter Neelin, McConnell Brain Imaging Centre,
               Montreal Neurological Institute, McGill University.
               Permission to use, copy, modify, and distribute this
               software and its documentation for any purpose and without

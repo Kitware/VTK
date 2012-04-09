@@ -25,7 +25,7 @@ FIND_PATH(GL2PS_INCLUDE_DIR gl2ps.h)
 
 FIND_LIBRARY(GL2PS_LIBRARY NAMES gl2ps )
 
-# handle the QUIETLY and REQUIRED arguments and set GL2PS_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set GL2PS_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(GL2PS  DEFAULT_MSG  GL2PS_LIBRARY  GL2PS_INCLUDE_DIR)

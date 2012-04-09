@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This tests vtkHardwareSelector, vtkExtractSelectedFrustum, 
+// This tests vtkHardwareSelector, vtkExtractSelectedFrustum,
 // vtkRenderedAreaPicker, and vtkInteractorStyleRubberBandPick.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -54,7 +54,7 @@ vtkSmartPointer<vtkPolyData> emptyPD;
   vtkSmartPointer<class> variable = vtkSmartPointer<class>::New();
 
 static void EndPick(vtkObject *vtkNotUsed( caller ),
-                    unsigned long vtkNotUsed(eventId), 
+                    unsigned long vtkNotUsed(eventId),
                     void *, void *)
 {
   MY_CREATE_NEW(vtkHardwareSelector, sel);
@@ -112,13 +112,13 @@ int TestAreaSelections(int argc, char* argv[])
   MY_CREATE_NEW(vtkRenderWindow, renWin);
   renWin->AddRenderer(renderer);
   MY_CREATE_NEW(vtkRenderWindowInteractor, iren);
-  iren->SetRenderWindow(renWin);  
+  iren->SetRenderWindow(renWin);
 
   //set up the view
   renderer->GetActiveCamera()->SetPosition(  1.5, -0.75, 7);
   renderer->GetActiveCamera()->SetFocalPoint(1.5, -0.75, 0);
   renderer->GetActiveCamera()->SetViewUp(     0,   1,   0);
-  renderer->SetBackground(0.0,0.0,0.0); 
+  renderer->SetBackground(0.0,0.0,0.0);
   renWin->SetSize(300,300);
 
   //use the rubber band pick interactor style
@@ -135,7 +135,7 @@ int TestAreaSelections(int argc, char* argv[])
   char *cfname=vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SampleStructGrid.vtk");
   reader->SetFileName(cfname);
   delete [] cfname;
-  
+
   MY_CREATE_NEW(vtkDataSetMapper, map1);
   map1->SetInputConnection(reader->GetOutputPort());
 
@@ -170,7 +170,7 @@ int TestAreaSelections(int argc, char* argv[])
   SS1->SetCenter(0.5,-1.5,0);
   MY_CREATE_NEW(vtkPolyDataMapper, map2);
   map2->SetInputConnection(SS1->GetOutputPort());
-  
+
   MY_CREATE_NEW(vtkActor, act2);
   act2->SetMapper(map2);
   act2->PickableOn(); //lets the HardwareSelector select in it
@@ -200,7 +200,7 @@ int TestAreaSelections(int argc, char* argv[])
   renWin->GetColorBufferSizes(rgba);
   if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
     {
-    cout <<"Color buffer depth must be atleast 8 bit. Currently: " 
+    cout <<"Color buffer depth must be atleast 8 bit. Currently: "
       << rgba[0] << ", " << rgba[1] << ", " << rgba[2] << endl;
     return 0;
     }

@@ -51,12 +51,12 @@ public:
   // Description:
   // The sub styles need the interactor too.
   void SetInteractor(vtkRenderWindowInteractor *iren);
-  
+
   // Description:
   // We must override this method in order to pass the setting down to
   // the underlying styles
   void SetAutoAdjustCameraClippingRange( int value );
-  
+
   // Description:
   // Set/Get current style
   vtkGetObjectMacro(CurrentStyle, vtkInteractorStyle);
@@ -75,13 +75,13 @@ public:
   // used by this class must also be updated.
   virtual void SetDefaultRenderer(vtkRenderer*);
   virtual void SetCurrentRenderer(vtkRenderer*);
-  
+
 protected:
   vtkInteractorStyleSwitch();
   ~vtkInteractorStyleSwitch();
-  
+
   void SetCurrentStyle();
-  
+
   vtkInteractorStyleJoystickActor *JoystickActor;
   vtkInteractorStyleJoystickCamera *JoystickCamera;
   vtkInteractorStyleTrackballActor *TrackballActor;

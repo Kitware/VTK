@@ -53,13 +53,13 @@ int vtkOutlineCornerSource::RequestData(
     inner_bounds[2*i] = bounds[2*i] + delta;
     inner_bounds[2*i + 1] = bounds[2*i + 1] - delta;
     }
-  
+
   // Allocate storage and create outline
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   newPts = vtkPoints::New();
   newPts->Allocate(32);
   newLines = vtkCellArray::New();
@@ -80,17 +80,17 @@ int vtkOutlineCornerSource::RequestData(
         pts[0] = pid;
         x[0] = bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
         newPts->InsertPoint(pid++, x);
-        
+
         pts[1] = pid;
         x[0] = inner_bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
         newPts->InsertPoint(pid++, x);
         newLines->InsertNextCell(2,pts);
-        
+
         pts[1] = pid;
         x[0] = bounds[i]; x[1] = inner_bounds[j]; x[2] = bounds[k];
         newPts->InsertPoint(pid++, x);
         newLines->InsertNextCell(2,pts);
-        
+
         pts[1] = pid;
         x[0] = bounds[i]; x[1] = bounds[j]; x[2] = inner_bounds[k];
         newPts->InsertPoint(pid++, x);
@@ -98,7 +98,7 @@ int vtkOutlineCornerSource::RequestData(
         }
       }
     }
-  
+
   // Update selves and release memory
   output->SetPoints(newPts);
   newPts->Delete();

@@ -40,7 +40,7 @@ public:
 protected:
   vtkOBJReader();
   ~vtkOBJReader();
-  
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char *FileName;

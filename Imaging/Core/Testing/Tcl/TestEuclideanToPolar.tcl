@@ -1,4 +1,4 @@
-# This Script test the euclidean to polar by coverting 2D vectors 
+# This Script test the euclidean to polar by coverting 2D vectors
 # from a gradient into polar, which is converted into HSV, and then to RGB.
 package require vtk
 
@@ -9,7 +9,7 @@ package require vtk
 
 vtkImageGaussianSource gauss
 gauss SetWholeExtent 0 255 0 255 0 44
-gauss SetCenter 127 127 22 
+gauss SetCenter 127 127 22
 gauss SetStandardDeviation 50.0
 gauss SetMaximum 10000.0
 

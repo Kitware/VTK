@@ -37,15 +37,15 @@ class VTKPARALLELMPI_EXPORT vtkMPIEventLog : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMPIEventLog,vtkObject);
-  
+
   // Description:
   // Construct a vtkMPIEventLog with the following initial state:
   // Processes = 0, MaximumNumberOfProcesses = 0.
   static vtkMPIEventLog* New();
-  
+
   // Description:
   // Used to initialize the underlying mpe event.
-  // HAS TO BE CALLED BY ALL PROCESSES before any event 
+  // HAS TO BE CALLED BY ALL PROCESSES before any event
   // logging is done.
   // It takes a name and a description for the graphical
   // representation, for example, "red:vlines3". See

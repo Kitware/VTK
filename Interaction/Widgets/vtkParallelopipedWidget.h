@@ -16,7 +16,7 @@
 //
 // .SECTION Description
 // This widget was designed with the aim of visualizing / probing cuts on
-// a skewed image data / structured grid. 
+// a skewed image data / structured grid.
 //
 // .SECTION Interaction
 // The widget allows you to create a parallelopiped (defined by 8 handles).
@@ -29,7 +29,7 @@
 //    along an axis.
 // 3) Control-click on a handle creates a chair at that position. (A chair
 //    is a depression in the piped that allows you to visualize cuts in the
-//    volume). 
+//    volume).
 // 4) Clicking on a chair and dragging it around moves the chair within the
 //    piped.
 // 5) Shift-click on the piped enables you to translate it.
@@ -75,7 +75,7 @@ public:
     this->Superclass::SetWidgetRepresentation(
         reinterpret_cast<vtkWidgetRepresentation*>(r));
     }
-  
+
   // Description:
   // Return the representation as a vtkParallelopipedRepresentation.
   vtkParallelopipedRepresentation *GetParallelopipedRepresentation()
@@ -89,14 +89,14 @@ public:
   vtkBooleanMacro(EnableChairCreation,int);
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
   // Description:
   // Methods to change the whether the widget responds to interaction.
   // Overridden to pass the state to component widgets.
   virtual void SetProcessEvents(int);
-  
+
 protected:
   vtkParallelopipedWidget();
   ~vtkParallelopipedWidget();
@@ -114,7 +114,7 @@ protected:
   // Description:
   void BeginTranslateAction ( vtkParallelopipedWidget *dispatcher);
   void TranslateAction ( vtkParallelopipedWidget *dispatcher);
-   
+
   // helper methods for cursor management
   void SetCursor(int state);
 
@@ -127,16 +127,16 @@ protected:
   //BTX
   // Description:
   // Events invoked by this widget
-  enum WidgetEventIds 
+  enum WidgetEventIds
     {
     RequestResizeEvent = 10000,
     RequestResizeAlongAnAxisEvent,
     RequestChairModeEvent
     };
   //ETX
-  
+
   vtkWidgetSet* WidgetSet;
-  
+
 private:
   vtkParallelopipedWidget(const vtkParallelopipedWidget&);  //Not implemented
   void operator=(const vtkParallelopipedWidget&);  //Not implemented

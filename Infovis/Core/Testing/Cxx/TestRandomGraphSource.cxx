@@ -28,11 +28,11 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
-{                                                        
+{
   VTK_CREATE(vtkRandomGraphSource, source);
 
   int errors = 0;
-  
+
   cerr << "Testing simple generator..." << endl;
   source->SetNumberOfVertices(100);
   source->SetNumberOfEdges(200);
@@ -40,7 +40,7 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkGraph* g = source->GetOutput();
   if (g->GetNumberOfVertices() != 100)
     {
-    cerr << "ERROR: Wrong number of vertices (" 
+    cerr << "ERROR: Wrong number of vertices ("
          << g->GetNumberOfVertices() << " != " << 100 << ")" << endl;
     errors++;
     }
@@ -51,14 +51,14 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     errors++;
     }
   cerr << "...done." << endl;
-  
+
   cerr << "Testing simple generator..." << endl;
   source->SetStartWithTree(true);
   source->Update();
   g = source->GetOutput();
   if (g->GetNumberOfVertices() != 100)
     {
-    cerr << "ERROR: Wrong number of vertices (" 
+    cerr << "ERROR: Wrong number of vertices ("
          << g->GetNumberOfVertices() << " != " << 100 << ")" << endl;
     errors++;
     }
@@ -103,11 +103,11 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (numVisited != g->GetNumberOfVertices())
     {
     cerr << "ERROR: Starting with tree was not connected."
-         << "Only " << numVisited << " of " 
+         << "Only " << numVisited << " of "
          << g->GetNumberOfVertices() << " were connected." << endl;
     errors++;
     }
   cerr << "...done." << endl;
-  
+
   return errors;
 }

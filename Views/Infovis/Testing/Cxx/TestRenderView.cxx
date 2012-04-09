@@ -45,13 +45,13 @@ class TestRenderViewUpdater : public vtkCommand
 public:
   static TestRenderViewUpdater* New()
   { return new TestRenderViewUpdater; }
-  
+
   void AddView(vtkView* view)
   {
     this->Views.push_back(view);
     view->AddObserver(vtkCommand::SelectionChangedEvent, this);
   }
-  
+
   virtual void Execute(vtkObject*, unsigned long, void*)
   {
     for (unsigned int i = 0; i < this->Views.size(); i++)
@@ -60,12 +60,12 @@ public:
       }
   }
 private:
-  TestRenderViewUpdater() { }  
+  TestRenderViewUpdater() { }
   ~TestRenderViewUpdater() { }
   vector<vtkView*> Views;
 };
 
-char RenderViewEventLog[] = 
+char RenderViewEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 299 49 0 0 0 0 0\n"
@@ -1070,30 +1070,30 @@ int TestRenderView(int argc, char* argv[])
 {
   VTK_CREATE(vtkAnnotationLink, link);
   VTK_CREATE(TestRenderViewUpdater, updater);
-  
+
   VTK_CREATE(vtkSphereSource, sphere);
   VTK_CREATE(vtkCubeSource, cube);
   cube->SetCenter(2, 0, 0);
-  
+
   VTK_CREATE(vtkTransformFilter, transform);
   VTK_CREATE(vtkTransform, trans);
   trans->Translate(0, 2, 0);
   transform->SetTransform(trans);
   transform->SetInputConnection(sphere->GetOutputPort());
-  
+
   // Render view 1
   VTK_CREATE(vtkRenderView, view);
   view->DisplayHoverTextOff();
   view->GetRenderWindow()->SetMultiSamples(0);
   updater->AddView(view);
-  
+
   // Sphere 1
   VTK_CREATE(vtkRenderedSurfaceRepresentation, sphereRep1);
   sphereRep1->SetInputConnection(sphere->GetOutputPort());
   sphereRep1->SetAnnotationLink(link);
   view->AddRepresentation(sphereRep1);
   view->Update();
-  
+
   // Cube 1
   VTK_CREATE(vtkRenderedSurfaceRepresentation, cubeRep1);
   cubeRep1->SetInputConnection(cube->GetOutputPort());
@@ -1128,35 +1128,35 @@ int TestRenderView(int argc, char* argv[])
   // testing option fails.
   recorder->Off();
 #endif
-  
+
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     // If interactive, make a second view to play with.
-    
+
     // Render view 2
     VTK_CREATE(vtkRenderView, view2);
     updater->AddView(view2);
-    
+
     // Sphere 2
     VTK_CREATE(vtkRenderedSurfaceRepresentation, sphereRep2);
     sphereRep2->SetInputConnection(sphere->GetOutputPort());
     sphereRep2->SetAnnotationLink(link);
     view2->AddRepresentation(sphereRep2);
     view2->Update();
-    
+
     // Sphere 3
     VTK_CREATE(vtkRenderedSurfaceRepresentation, sphereRep3);
     sphereRep3->SetInputConnection(transform->GetOutputPort());
     sphereRep3->SetAnnotationLink(link);
     view2->AddRepresentation(sphereRep3);
-    
+
     view2->ResetCamera();
-    
+
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
     retVal = vtkRegressionTester::PASSED;
     }
-  
+
   return !retVal;
 }

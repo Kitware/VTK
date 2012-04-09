@@ -20,7 +20,7 @@
 // modifies the value of the widget, which can be used to set parameters on
 // other objects. Note that the actual appearance of the widget depends on
 // the specific representation for the widget.
-// 
+//
 // To use this widget, set the widget representation. The representation is
 // assumed to consist of a tube, two end caps, and a slider (the details may
 // vary depending on the particulars of the representation). Then in the
@@ -41,7 +41,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkSliderWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
@@ -85,7 +85,7 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkSliderRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkSliderRepresentation.
   vtkSliderRepresentation *GetSliderRepresentation()
@@ -110,7 +110,7 @@ public:
   vtkGetMacro(NumberOfAnimationSteps,int);
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:
@@ -134,7 +134,7 @@ protected:
 
   int NumberOfAnimationSteps;
   int AnimationMode;
-  enum AnimationState {    
+  enum AnimationState {
     AnimateOff,
     Jump,
     Animate

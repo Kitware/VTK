@@ -46,7 +46,7 @@ vtkPolygonsPainter::~vtkPolygonsPainter()
 // the number of points in the polygon and whether triangles or quads
 // were the last thing being drawn (we can get better performance if we
 // can draw several triangles within a single glBegin(GL_TRIANGLES) or
-// several quads within a single glBegin(GL_QUADS). 
+// several quads within a single glBegin(GL_QUADS).
 //
 static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
                                              int &previousPrimitive,
@@ -89,7 +89,7 @@ static inline void vtkOpenGLBeginPolyTriangleOrQuad(int aPrimitive,
         // if we were supposed to be drawing polygons but were really
         // drawing triangles or quads, then we need to close down the
         // triangles or quads and begin a polygon
-        if (previousPrimitive != VTK_PP_INVALID_TYPE 
+        if (previousPrimitive != VTK_PP_INVALID_TYPE
             && previousPrimitive != VTK_POLYGON)
           {
           device->EndPrimitive();
@@ -176,13 +176,13 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   vtkPolyData* pd = this->GetInputAsPolyData();
   vtkPoints* p = pd->GetPoints();
   vtkCellArray* ca = pd->GetPolys();
-  vtkIdType cellNum = pd->GetVerts()->GetNumberOfCells() + 
+  vtkIdType cellNum = pd->GetVerts()->GetNumberOfCells() +
     pd->GetLines()->GetNumberOfCells();
   vtkIdType cellNumStart = cellNum;
   vtkIdType totalCells = ca->GetNumberOfCells();
   vtkUnsignedCharArray *ef = vtkUnsignedCharArray::SafeDownCast(
               pd->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG));
-  
+
   vtkPainterDeviceAdapter* device = ren->GetRenderWindow()->
     GetPainterDeviceAdapter();
   void *points = p->GetVoidPointer(0);
@@ -225,24 +225,24 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   int tcomps = (t)? t->GetNumberOfComponents() : 0;
   int eftype = (ef)? ef->GetDataType() : 0;
   int celloffset = 0;
-  
+
   // since this painter does not deal with field colors specially,
   // we just ignore the flag.
   idx &= (~VTK_PDM_FIELD_COLORS);
-  
+
   // draw all the elements, use fast path if available
   switch (idx)
     {
     case 0:
       if (this->BuildNormals)
         {
-        vtkDrawPolysMacro(primitive, 
+        vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);, PolyNormal,;);
         }
       else
         {
-        vtkDrawPolysMacro(primitive, 
+        vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
             ptype, points, 3**ptIds);, ;,;);
         }
@@ -279,7 +279,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     case VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
       if (this->BuildNormals)
         {
-        vtkDrawPolysMacro(primitive, 
+        vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::SCALARS, 3,
             VTK_UNSIGNED_CHAR, colors + 4**ptIds);
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -288,7 +288,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         }
       else
         {
-        vtkDrawPolysMacro(primitive, 
+        vtkDrawPolysMacro(primitive,
           device->SendAttribute(vtkPointData::SCALARS, 3,
             VTK_UNSIGNED_CHAR, colors + 4**ptIds);
           device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -297,7 +297,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         }
       break;
     case VTK_PDM_NORMALS | VTK_PDM_COLORS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
           ntype, normals, 3**ptIds);
         device->SendAttribute(vtkPointData::SCALARS, 4,
@@ -306,7 +306,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
           ptype, points, 3**ptIds);,;,;);
       break;
     case VTK_PDM_NORMALS | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
           ntype, normals, 3**ptIds);
         device->SendAttribute(vtkPointData::SCALARS, 3,
@@ -315,7 +315,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
           ptype, points, 3**ptIds);,;,;);
       break;
     case VTK_PDM_NORMALS | VTK_PDM_TCOORDS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
           ntype, normals, 3**ptIds);
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
@@ -324,7 +324,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
           ptype, points, 3**ptIds);,;,;);
       break;
     case VTK_PDM_CELL_NORMALS | VTK_PDM_TCOORDS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
           ttype, tcoords, tcomps**ptIds);
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -336,7 +336,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     case VTK_PDM_TCOORDS:
          if (this->BuildNormals)
            {
-           vtkDrawPolysMacro(primitive, 
+           vtkDrawPolysMacro(primitive,
              device->SendAttribute(vtkPointData::TCOORDS, tcomps,
                ttype, tcoords, tcomps**ptIds);
              device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -345,7 +345,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
            }
          else
            {
-           vtkDrawPolysMacro(primitive, 
+           vtkDrawPolysMacro(primitive,
              device->SendAttribute(vtkPointData::TCOORDS, 1,
                ttype, tcoords, *ptIds);
              device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -354,7 +354,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
            }
       break;
     case VTK_PDM_CELL_NORMALS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         device->SendAttribute(vtkPointData::NORMALS, 3,
@@ -378,11 +378,11 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         device->SendAttribute(vtkPointData::NORMALS, 3,
-          ntype, normals, 3*celloffset); celloffset++;, 
+          ntype, normals, 3*celloffset); celloffset++;,
         celloffset = cellNum;);
       break;
     case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_CELL_COLORS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
           ntype, normals, 3**ptIds);
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -400,7 +400,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
           VTK_UNSIGNED_CHAR, colors); colors += 4;,;);
       break;
     case VTK_PDM_CELL_NORMALS | VTK_PDM_COLORS | VTK_PDM_CELL_COLORS:
-      vtkDrawPolysMacro(primitive, 
+      vtkDrawPolysMacro(primitive,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         device->SendAttribute(vtkPointData::NORMALS, 3,

@@ -51,12 +51,12 @@ protected:
   ~vtkGroupLeafVertices();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   char* GroupDomain;
-    
+
 private:
   vtkGroupLeafVertices(const vtkGroupLeafVertices&); // Not implemented
   void operator=(const vtkGroupLeafVertices&);   // Not implemented

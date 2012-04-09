@@ -56,7 +56,7 @@ vtkChacoReader::vtkChacoReader()
 
   this->NumberOfPointWeightArrays = 0;
   this->NumberOfCellWeightArrays = 0;
-  
+
   this->CurrentGeometryFP = NULL;
   this->CurrentGraphFP = NULL;
   this->CurrentBaseName = NULL;
@@ -122,7 +122,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
     for (i=0; i<nv; i++)
       {
       this->VarrayName[i] = new char [64];
-      sprintf(this->VarrayName[i], "VertexWeight%d", i+1); 
+      sprintf(this->VarrayName[i], "VertexWeight%d", i+1);
       }
     }
   if (ne > 0)
@@ -131,7 +131,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
     for (i=0; i<ne; i++)
       {
       this->EarrayName[i] = new char [64];
-      sprintf(this->EarrayName[i], "EdgeWeight%d", i+1); 
+      sprintf(this->EarrayName[i], "EdgeWeight%d", i+1);
       }
     }
 }
@@ -140,7 +140,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
 const char *vtkChacoReader::GetVertexWeightArrayName(int weight)
 {
   if (this->GetGenerateVertexWeightArrays() &&
-      (weight > 0) && 
+      (weight > 0) &&
       (weight <= this->NumberOfVertexWeights))
     {
     return this->VarrayName[weight-1];
@@ -153,7 +153,7 @@ const char *vtkChacoReader::GetVertexWeightArrayName(int weight)
 const char *vtkChacoReader::GetEdgeWeightArrayName(int weight)
 {
   if (this->GetGenerateEdgeWeightArrays() &&
-      (weight > 0) && 
+      (weight > 0) &&
       (weight <= this->NumberOfEdgeWeights))
     {
     return this->EarrayName[weight-1];
@@ -176,15 +176,15 @@ int vtkChacoReader::RequestInformation(
     return 0;
     }
 
-  int newFile = 
-    ((this->CurrentBaseName == NULL) || 
+  int newFile =
+    ((this->CurrentBaseName == NULL) ||
      strcmp(this->CurrentBaseName, this->BaseName));
 
   if ( !newFile )
     {
     return 1;
     }
-  
+
   if ( this->OpenCurrentFile() != 1 )
     {
     return 0;
@@ -198,7 +198,7 @@ int vtkChacoReader::RequestInformation(
 
   if (rc)
     {
-    // Get the number of vertices and edges, and number of 
+    // Get the number of vertices and edges, and number of
     // vertex weights and edge weights from the graph file.
 
     rc = this->InputGraph1();
@@ -310,8 +310,8 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
     this->DataCache->ShallowCopy(output);
 
     this->RemakeDataCacheFlag = 0;
-    } 
-  else 
+    }
+  else
     {
     // Just copy the output we calculated last time, after checking
     // to see if any parameters have changed
@@ -369,7 +369,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 
   // We may have some mem that can be condensed
   output->Squeeze();
- 
+
   this->CloseCurrentFile();
 
   return 1;
@@ -469,7 +469,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   if (y) delete [] y;
   if (z) delete [] z;
   ptarray->Delete();
- 
+
   // Read in cell topology and possibly cell and point weights.
   // (The unstructured grid "cells" are the Chaco "edges".)
   //
@@ -505,7 +505,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     ew = &eweights;
     }
 
-  rc = this->InputGraph2(&idx, &nbors, vw, ew);  
+  rc = this->InputGraph2(&idx, &nbors, vw, ew);
 
   this->ResetInputBuffers();
 
@@ -578,9 +578,9 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
     ca->SetNumberOfValues(3 * this->NumberOfEdges);
     vtkIdType *captr = ca->GetPointer(0);
-  
+
     vtkIdType edgeNum = -1;
-  
+
     for (id=0; id < this->NumberOfVertices; id++)
       {
       // Each edge in the Chaco file is listed twice, for each
@@ -589,29 +589,29 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
       for (int n=idx[id]; n < idx[id+1]; n++)
         {
         vtkIdType nbor = nbors[n] - 1;  // internal id
-  
+
         // Save each edge connected to this vertex, if it hasn't
         // been saved already.
-  
+
         if (nbor > id)
           {
           edgeNum++;
-  
+
           if (edgeNum == this->NumberOfEdges)
             {
             vtkErrorMacro(<< "Too many edges in Chaco file");
             retVal = 0;
             break;
             }
-  
+
           *captr++ = 2;     // size of cell
           *captr++ = id;    // first vertex
           *captr++ = nbor;  // second vertex
-  
+
           if (ew)
             {
             // Save the edge weights associated with this edge
-  
+
             for (i=0; i<this->NumberOfEdgeWeights; i++)
               {
               earrays[i]->SetValue(edgeNum, *ewgt++);
@@ -621,13 +621,13 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
         else if (ew)
           {
           ewgt += this->NumberOfEdgeWeights; // Skip duplicate edge weights
-          }  
-        } 
+          }
+        }
 
       if (!retVal) break;
 
       // Save the weights associated with this vertex
-  
+
       if (vw)
         {
         for (i=0; i<this->NumberOfVertexWeights; i++)
@@ -636,16 +636,16 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
           }
         }
       }
-  
+
     if (edgeNum != this->NumberOfEdges - 1)
       {
       vtkErrorMacro(<< "Too few edges in Chaco file");
       retVal = 0;
       }
-  
+
     delete [] idx;
     delete [] nbors;
-  
+
     if (retVal)
       {
       vtkCellArray *cells = vtkCellArray::New();
@@ -711,7 +711,7 @@ void vtkChacoReader::AddElementIds(vtkUnstructuredGrid* output)
   // not have the notion of Element IDs.
 
   vtkIdType len = output->GetNumberOfCells();
- 
+
   vtkIntArray *ia = vtkIntArray::New();
   ia->SetName(this->GetGlobalElementIdArrayName());
   ia->SetNumberOfValues(len);
@@ -732,7 +732,7 @@ void vtkChacoReader::AddNodeIds(vtkUnstructuredGrid* output)
   // vertex in the .coords file, and increase by 1 thereafter.
 
   vtkIdType len = output->GetNumberOfPoints();
- 
+
   vtkIntArray *ia = vtkIntArray::New();
   ia->SetName(this->GetGlobalNodeIdArrayName());
   ia->SetNumberOfValues(len);
@@ -745,7 +745,7 @@ void vtkChacoReader::AddNodeIds(vtkUnstructuredGrid* output)
   output->GetPointData()->AddArray(ia);
   ia->Delete();
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -768,7 +768,7 @@ void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "GenerateGlobalNodeIdArray: Off\n";
-    }  
+    }
 
   if (this->GenerateVertexWeightArrays)
     {
@@ -787,8 +787,8 @@ void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "GenerateEdgeWeightArrays: Off\n";
     }
-  
-  os << indent << "Base Name: " 
+
+  os << indent << "Base Name: "
      << (this->BaseName ? this->BaseName : "(none)") << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   os << indent << "NumberOfVertices: " << this->NumberOfVertices << "\n";
@@ -839,7 +839,7 @@ int vtkChacoReader::OpenCurrentFile()
       vtkErrorMacro(<< "Problem opening " << buf);
       this->SetCurrentBaseName( NULL );
       }
-    else 
+    else
       {
       sprintf(buf, "%s.graph", this->BaseName);
 
@@ -865,9 +865,9 @@ int vtkChacoReader::OpenCurrentFile()
 
 //----------------------------------------------------------------------------
 // Code to read Chaco files.
-// This software was developed by Bruce Hendrickson and Robert Leland   
-// at Sandia National Laboratories under US Department of Energy       
-// contract DE-AC04-76DP00789 and is copyrighted by Sandia Corporation. 
+// This software was developed by Bruce Hendrickson and Robert Leland
+// at Sandia National Laboratories under US Department of Energy
+// contract DE-AC04-76DP00789 and is copyrighted by Sandia Corporation.
 
 void vtkChacoReader::ResetInputBuffers()
 {
@@ -904,15 +904,15 @@ double *x, double *y, double *z)
     {
     ndims = 1;
     yc = this->ReadVal(this->CurrentGeometryFP, &end_flag);
-    if (end_flag == 0) 
+    if (end_flag == 0)
       {
       ndims = 2;
       zc = this->ReadVal(this->CurrentGeometryFP, &end_flag);
-      if (end_flag == 0) 
+      if (end_flag == 0)
         {
         ndims = 3;
         this->ReadVal(this->CurrentGeometryFP, &end_flag);
-        if (!end_flag) 
+        if (!end_flag)
           {
           vtkErrorMacro(<< "Invalid geometry file "<< this->BaseName << ".coords");
           return 0;
@@ -950,28 +950,28 @@ double *x, double *y, double *z)
     return 1;
     }
 
-  for (int nread = 1; nread < nvtxs; nread++) 
+  for (int nread = 1; nread < nvtxs; nread++)
     {
     ++line_num;
-    if (ndims == 1) 
+    if (ndims == 1)
       {
       i = fscanf(this->CurrentGeometryFP, "%lf", x + nread);
       }
-    else if (ndims == 2) 
+    else if (ndims == 2)
       {
       i = fscanf(this->CurrentGeometryFP, "%lf%lf", x + nread, y + nread);
       }
-    else if (ndims == 3) 
+    else if (ndims == 3)
       {
       i = fscanf(this->CurrentGeometryFP, "%lf%lf%lf", x+nread, y+nread, z+nread);
       }
 
-    if (i == EOF) 
+    if (i == EOF)
       {
       vtkErrorMacro(<< "Too few lines in "<< this->BaseName << ".coords");
       return 0;
       }
-    else if (i != ndims) 
+    else if (i != ndims)
       {
       vtkErrorMacro(<< "Wrong dimension in "<< this->BaseName << ".coords");
       return 0;
@@ -1093,7 +1093,7 @@ int vtkChacoReader::InputGraph2(
   /* Read past the first line containing the metadata */
 
   int end_flag = 1;
-  while (end_flag == 1) 
+  while (end_flag == 1)
     {
     j = this->ReadInt(fin, &end_flag);
     ++line_num;
@@ -1132,34 +1132,34 @@ int vtkChacoReader::InputGraph2(
   vertex = 0;
   vtx = 0;
   new_vertex = 1;
-  while (((vwgt_dim > 0)|| vtxnums || narcs) && end_flag != -1) 
+  while (((vwgt_dim > 0)|| vtxnums || narcs) && end_flag != -1)
     {
     ++line_num;
 
     /* If multiple input lines per vertex, read vertex number. */
-    if (vtxnums) 
+    if (vtxnums)
       {
       j = this->ReadInt(fin, &end_flag);
-      if (end_flag) 
+      if (end_flag)
         {
         if (vertex == nvtxs)
           {
           break;
           }
 
-        vtkErrorMacro(<< 
+        vtkErrorMacro(<<
         "Missing vertex number " << this->BaseName << ".graph, line " << line_num);
         retVal = 0;
         goto done;
         }
-      if (j != vertex && j != vertex + 1) 
+      if (j != vertex && j != vertex + 1)
         {
-        vtkErrorMacro(<< 
+        vtkErrorMacro(<<
         "Out of order vertex " << this->BaseName << ".graph, line " << line_num);
         retVal = 0;
         goto done;
         }
-      if (j != vertex) 
+      if (j != vertex)
         {
         new_vertex = 1;
         vertex = j;
@@ -1178,14 +1178,14 @@ int vtkChacoReader::InputGraph2(
       break;
 
     /* If vertices are weighted, read vertex weight. */
-    if ((vwgt_dim > 0) && new_vertex)  
+    if ((vwgt_dim > 0) && new_vertex)
       {
       for (j=0; j<(vwgt_dim); j++)
         {
         weight = ReadVal(fin, &end_flag);
-        if (end_flag) 
+        if (end_flag)
           {
-          vtkErrorMacro(<< 
+          vtkErrorMacro(<<
           "Vertex weights " << this->BaseName << ".graph, line " << line_num);
           retVal = 0;
           goto done;
@@ -1201,17 +1201,17 @@ int vtkChacoReader::InputGraph2(
     /* Read number of adjacent vertex. */
     neighbor = this->ReadInt(fin, &end_flag);
 
-    while (!end_flag) 
+    while (!end_flag)
       {
-      if (ewgt_dim > 0) 
+      if (ewgt_dim > 0)
         {
         for (j=0; j<ewgt_dim; j++)
           {
           eweight = ReadVal(fin, &end_flag);
 
-          if (end_flag) 
+          if (end_flag)
             {
-            vtkErrorMacro(<< 
+            vtkErrorMacro(<<
             "Edge weights " << this->BaseName << ".graph, line " << line_num);
             retVal = 0;
             goto done;
@@ -1225,9 +1225,9 @@ int vtkChacoReader::InputGraph2(
         }
 
       /* Add edge to data structure. */
-      if (++sum_edges > 2*narcs) 
+      if (++sum_edges > 2*narcs)
         {
-        vtkErrorMacro(<< 
+        vtkErrorMacro(<<
         "Too many adjacencies " << this->BaseName << ".graph, line " << line_num);
         retVal = 0;
         goto done;
@@ -1275,20 +1275,20 @@ done:
 //----------------------------------------------------------------------------
 double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
 {
-  double    val;    
-  char     *ptr;    
-  char     *ptr2;    
-  int       length;    
+  double    val;
+  char     *ptr;
+  char     *ptr2;
+  int       length;
   int       length_left;
   int       white_seen;
-  int       done;    
-  int       i;  
+  int       done;
+  int       i;
 
   *end_flag = 0;
 
-  if (Offset == 0 ||this->Offset >= this->Break_pnt) 
+  if (Offset == 0 ||this->Offset >= this->Break_pnt)
     {
-    if (Offset >= this->Break_pnt) 
+    if (Offset >= this->Break_pnt)
       {
       length_left = this->Line_length - this->Save_pnt - 1;
       ptr2 = this->Line;
@@ -1296,7 +1296,7 @@ double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
       for (i=length_left; i; i--) *ptr2++ = *ptr++;
       length = this->Save_pnt + 1;
       }
-    else 
+    else
       {
       length = this->Line_length;
       length_left = 0;
@@ -1307,41 +1307,41 @@ double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
     /* Now read next line, or next segment of current one. */
     ptr2 = fgets(&Line[length_left], length, infile);
 
-    if (ptr2 == (char *) NULL) 
+    if (ptr2 == (char *) NULL)
       {
       *end_flag = -1;
       return((double) 0.0);
       }
-    
+
     if (Line[this->Line_length - 1] == '\0' && this->Line[this->Line_length - 2] != '\0' &&
-      this->Line[this->Line_length - 2] != '\n' && this->Line[this->Line_length - 2] != '\f') 
+      this->Line[this->Line_length - 2] != '\n' && this->Line[this->Line_length - 2] != '\f')
       {
       /* Line too long.  Find last safe place in line. */
       this->Break_pnt = this->Line_length - 1;
       this->Save_pnt = this->Break_pnt;
       white_seen = 0;
       done = 0;
-      while (!done) 
+      while (!done)
         {
         --Break_pnt;
-        if (Line[Break_pnt] != '\0') 
+        if (Line[Break_pnt] != '\0')
           {
-          if (isspace((int)(Line[Break_pnt])))  
+          if (isspace((int)(Line[Break_pnt])))
             {
-            if (!white_seen) 
+            if (!white_seen)
               {
               this->Save_pnt = this->Break_pnt + 1;
               white_seen = 1;
               }
             }
-          else if (white_seen) 
+          else if (white_seen)
             {
             done= 1;
-            } 
+            }
           }
         }
       }
-    else 
+    else
       {
       this->Break_pnt = this->Line_length;
       }
@@ -1350,10 +1350,10 @@ double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
     }
 
   while (isspace((int)(Line[Offset])) &&this->Offset < this->Line_length)this->Offset++;
-  if (Line[Offset] == '%' || this->Line[Offset] == '#') 
+  if (Line[Offset] == '%' || this->Line[Offset] == '#')
     {
     *end_flag = 1;
-    if (Break_pnt < this->Line_length) 
+    if (Break_pnt < this->Line_length)
       {
       FlushLine(infile);
       }
@@ -1363,13 +1363,13 @@ double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
   ptr = &(Line[Offset]);
   val = strtod(ptr, &ptr2);
 
-  if (ptr2 == ptr) 
+  if (ptr2 == ptr)
     {
    this->Offset = 0;
     *end_flag = 1;
     return((double) 0.0);
     }
-  else 
+  else
     {
    this->Offset = (int) (ptr2 - this->Line) / sizeof(char);
     }
@@ -1379,24 +1379,24 @@ double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
 
 //----------------------------------------------------------------------------
 vtkIdType vtkChacoReader::ReadInt(
-FILE   *infile,    
-int    *end_flag  
+FILE   *infile,
+int    *end_flag
 )
 {
-  vtkIdType val;    
-  char     *ptr;    
-  char     *ptr2;    
-  int       length;    
+  vtkIdType val;
+  char     *ptr;
+  char     *ptr2;
+  int       length;
   int       length_left;
   int       white_seen;
-  int       done;    
-  int       i;    
+  int       done;
+  int       i;
 
   *end_flag = 0;
 
-  if (Offset == 0 ||this->Offset >= this->Break_pnt) 
+  if (Offset == 0 ||this->Offset >= this->Break_pnt)
     {
-    if (Offset >= this->Break_pnt) 
+    if (Offset >= this->Break_pnt)
       {
       length_left = this->Line_length - this->Save_pnt - 1;
       ptr2 = this->Line;
@@ -1404,7 +1404,7 @@ int    *end_flag
       for (i=length_left; i; i--) *ptr2++ = *ptr++;
       length = this->Save_pnt + 1;
       }
-    else 
+    else
       {
       length = this->Line_length;
       length_left = 0;
@@ -1415,41 +1415,41 @@ int    *end_flag
     /* Now read next line, or next segment of current one. */
     ptr2 = fgets(&Line[length_left], length, infile);
 
-    if (ptr2 == (char *) NULL) 
+    if (ptr2 == (char *) NULL)
       {
       *end_flag = -1;
       return(0);
       }
-    
+
     if (this->Line[this->Line_length - 1] == '\0' &&this->Line[this->Line_length - 2] != '\0' &&
-     this->Line[this->Line_length - 2] != '\n' && this->Line[this->Line_length - 2] != '\f') 
+     this->Line[this->Line_length - 2] != '\n' && this->Line[this->Line_length - 2] != '\f')
       {
       /*Line too long.  Find last safe place in line. */
       this->Break_pnt = this->Line_length - 1;
       this->Save_pnt = this->Break_pnt;
       white_seen = 0;
       done = 0;
-      while (!done) 
+      while (!done)
         {
         --Break_pnt;
-        if (Line[Break_pnt] != '\0') 
+        if (Line[Break_pnt] != '\0')
           {
-          if (isspace((int)(Line[Break_pnt]))) 
+          if (isspace((int)(Line[Break_pnt])))
             {
-            if (!white_seen) 
+            if (!white_seen)
               {
               this->Save_pnt = this->Break_pnt + 1;
               white_seen = 1;
               }
             }
-          else if (white_seen) 
+          else if (white_seen)
             {
             done= 1;
             }
           }
         }
       }
-    else 
+    else
       {
       this->Break_pnt = this->Line_length;
       }
@@ -1458,10 +1458,10 @@ int    *end_flag
     }
 
   while (isspace((int)(Line[Offset])) &&this->Offset < this->Line_length)this->Offset++;
-  if (Line[Offset] == '%' || this->Line[Offset] == '#') 
+  if (Line[Offset] == '%' || this->Line[Offset] == '#')
     {
     *end_flag = 1;
-    if (Break_pnt < this->Line_length) 
+    if (Break_pnt < this->Line_length)
       {
       FlushLine(infile);
       }
@@ -1471,13 +1471,13 @@ int    *end_flag
   ptr = &(Line[Offset]);
   val = (int) strtol(ptr, &ptr2, 10);
 
-  if (ptr2 == ptr) 
+  if (ptr2 == ptr)
     {
    this->Offset = 0;
     *end_flag = 1;
     return(0);
     }
-  else 
+  else
     {
    this->Offset = (int) (ptr2 - this->Line) / sizeof(char);
     }

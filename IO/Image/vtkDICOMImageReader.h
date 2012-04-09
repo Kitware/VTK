@@ -25,9 +25,9 @@
 // .SECTION Warnings
 // Internally DICOMParser assumes the x,y pixel spacing is stored in 0028,0030 and
 // that z spacing is stored in Slice Thickness (correct only when slice were acquired
-// contiguous): 0018,0050. Which means this is only valid for some rare 
+// contiguous): 0018,0050. Which means this is only valid for some rare
 // MR Image Storage
-// 
+//
 // .SECTION See Also
 // vtkBMPReader vtkPNMReader vtkTIFFReader
 

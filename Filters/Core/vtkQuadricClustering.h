@@ -54,12 +54,12 @@
 // updates the appropriate quadric matrices.  EndAppend determines the spatial
 // location of each of the representative vertices for the visited bins. While
 // this approach does not fit into the visualization architecture and requires
-// manual control, it has the advantage that extremely large data can be 
+// manual control, it has the advantage that extremely large data can be
 // processed in pieces and appended to the filter piece-by-piece.
 
 
 // .SECTION Caveats
-// This filter can drastically affect topology, i.e., topology is not 
+// This filter can drastically affect topology, i.e., topology is not
 // preserved.
 //
 // The filter handles input triangle strips and arbitrary polygons. Arbitrary
@@ -130,11 +130,11 @@ public:
   // SetNumberOfDivisions. To use these methods, specify the origin and spacing
   // of the spatial binning.
   void SetDivisionOrigin(double x, double y, double z);
-  void SetDivisionOrigin(double o[3]) 
+  void SetDivisionOrigin(double o[3])
     {this->SetDivisionOrigin(o[0],o[1],o[2]);}
   vtkGetVector3Macro(DivisionOrigin, double);
   void SetDivisionSpacing(double x, double y, double z);
-  void SetDivisionSpacing(double s[3]) 
+  void SetDivisionSpacing(double s[3])
     {this->SetDivisionSpacing(s[0],s[1],s[2]);}
   vtkGetVector3Macro(DivisionSpacing, double);
 
@@ -174,9 +174,9 @@ public:
   // feature edge is a feature point.
   vtkSetClampMacro(FeaturePointsAngle, double, 0.0, 180.0);
   vtkGetMacro(FeaturePointsAngle, double);
-  
+
   // Description:
-  // When this flag is on (and it is on by default), then triangles that are 
+  // When this flag is on (and it is on by default), then triangles that are
   // completely contained in a bin are added to the bin quadrics.  When the
   // the flag is off the filter operates faster, but the surface may not be
   // as well behaved.
@@ -191,19 +191,19 @@ public:
   // as an argument to the "StartAppend" method.
   void StartAppend(double *bounds);
   void StartAppend(double x0,double x1,double y0,double y1,double z0,double z1)
-    {double b[6]; b[0]=x0; b[1]=x1; b[2]=y0; b[3]=y1; b[4]=z0; b[5]=z1; 
-    this->StartAppend(b);}  
+    {double b[6]; b[0]=x0; b[1]=x1; b[2]=y0; b[3]=y1; b[4]=z0; b[5]=z1;
+    this->StartAppend(b);}
   void Append(vtkPolyData *piece);
   void EndAppend();
 
   // Description:
-  // This flag makes the filter copy cell data from input to output 
+  // This flag makes the filter copy cell data from input to output
   // (the best it can).  It uses input cells that trigger the addition
   // of output cells (no averaging).  This is off by default, and does
   // not work when append is being called explicitly (non-pipeline usage).
-  vtkSetMacro(CopyCellData, int); 
-  vtkGetMacro(CopyCellData, int); 
-  vtkBooleanMacro(CopyCellData, int); 
+  vtkSetMacro(CopyCellData, int);
+  vtkGetMacro(CopyCellData, int);
+  vtkBooleanMacro(CopyCellData, int);
 
   // Description:
   // Specify a boolean indicating whether to remove duplicate cells
@@ -224,7 +224,7 @@ protected:
   // Description:
   // Given a point, determine what bin it falls into.
   vtkIdType HashPoint(double point[3]);
-  
+
   // Description:
   // Determine the representative point for this bin.
   void ComputeRepresentativePoint(double quadric[9], vtkIdType binId,
@@ -260,7 +260,7 @@ protected:
   // Description:
   // Initialize the quadric matrix to 0's.
   void InitializeQuadric(double quadric[9]);
-  
+
   // Description:
   // Add this quadric to the quadric already associated with this bin.
   void AddQuadric(vtkIdType binId, double quadric[9]);
@@ -271,7 +271,7 @@ protected:
   // used by > 2 edges, and (3) those where the angle between 2 edges
   // using this point is < angle.
   void FindFeaturePoints(vtkCellArray *edges, vtkPoints *edgePts, double angle);
-  
+
   // Description:
   // This method will rep[lace the quadric  generated points with the
   // input points with the lowest error.
@@ -303,8 +303,8 @@ protected:
   int NumberOfDivisions[3];
 
   // Since there are two was of specifing the grid, we have this flag
-  // to indicate which the user has set.  When this flag is on, 
-  // the bin sizes are computed from the DivisionOrigin and DivisionSpacing. 
+  // to indicate which the user has set.  When this flag is on,
+  // the bin sizes are computed from the DivisionOrigin and DivisionSpacing.
   int ComputeNumberOfDivisions;
 
   double DivisionOrigin[3];
@@ -321,10 +321,10 @@ protected:
   vtkIdType SliceSize; //eliminate one multiplication
 
   //BTX
-  struct PointQuadric 
+  struct PointQuadric
   {
     PointQuadric():VertexId(-1),Dimension(255) {}
-    
+
     vtkIdType VertexId;
     // Dimension is supposed to be a flag representing the dimension of the
     // cells contributing to the quadric.  Lines: 1, Triangles: 2 (and points

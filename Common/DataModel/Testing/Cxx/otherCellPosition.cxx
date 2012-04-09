@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the Cell Position and Location Boundary methods for each cell type
 
@@ -70,7 +70,7 @@ int TestOCP(ostream& strm)
     strm << "\tdist2: " << dist2 << endl;
     strm << endl;
     }
-  
+
   //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
   double polyVertexCoords[1], polyVertexWeights[2];
@@ -80,7 +80,7 @@ int TestOCP(ostream& strm)
   polyVertex->GetPointIds()->SetNumberOfIds(2);
   polyVertex->GetPointIds()->SetId(0,0);
   polyVertex->GetPointIds()->SetId(1,1);
-  
+
   polyVertex->GetPoints()->SetNumberOfPoints(2);
   polyVertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   polyVertex->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
@@ -108,7 +108,7 @@ int TestOCP(ostream& strm)
   line->GetPointIds()->SetId(1,1);
   line->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   line->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
-  
+
   n = sizeof(linePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
@@ -137,7 +137,7 @@ int TestOCP(ostream& strm)
   polyLine->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   polyLine->GetPoints()->SetPoint (1, 10.0, 30.0, 30.0);
   polyLine->GetPoints()->SetPoint (2, 10.0, 30.0, 40.0);
-  
+
   n = sizeof(polyLinePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
@@ -164,7 +164,7 @@ int TestOCP(ostream& strm)
   triangle->GetPoints()->SetPoint (0, 10.0, 10.0, 10.0);
   triangle->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
   triangle->GetPoints()->SetPoint (2, 11.0, 12.0, 12.0);
-  
+
   n = sizeof(trianglePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
@@ -191,7 +191,7 @@ int TestOCP(ostream& strm)
   triangleStrip->GetPointIds()->SetId(1,1);
   triangleStrip->GetPointIds()->SetId(2,2);
   triangleStrip->GetPointIds()->SetId(3,3);
-  
+
   triangleStrip->GetPoints()->SetNumberOfPoints(4);
   triangleStrip->GetPoints()->SetPoint (0, 10.0, 10.0, 10.0);
   triangleStrip->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
@@ -223,7 +223,7 @@ int TestOCP(ostream& strm)
   quad->GetPointIds()->SetId(1,1);
   quad->GetPointIds()->SetId(2,2);
   quad->GetPointIds()->SetId(3,3);
-  
+
   quad->GetPoints()->SetPoint (0, 10.0, 10.0, 10.0);
   quad->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
   quad->GetPoints()->SetPoint (2, 12.0, 12.0, 10.0);
@@ -254,7 +254,7 @@ int TestOCP(ostream& strm)
   pixel->GetPointIds()->SetId(1,1);
   pixel->GetPointIds()->SetId(2,3);
   pixel->GetPointIds()->SetId(3,2);
-  
+
   pixel->GetPoints()->SetPoint (0, 10.0, 10.0, 10.0);
   pixel->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
   pixel->GetPoints()->SetPoint (3, 12.0, 12.0, 10.0);
@@ -292,7 +292,7 @@ int TestOCP(ostream& strm)
   polygon->GetPoints()->SetPoint(1, 1.0, 0.0, 0.0);
   polygon->GetPoints()->SetPoint(2, 1.0, 1.0, 0.0);
   polygon->GetPoints()->SetPoint(3, 0.0, 1.0, 0.0);
-  
+
   n = sizeof(polygonPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
@@ -510,7 +510,7 @@ int TestOCP(ostream& strm)
   vtkHexagonalPrism *hexa = vtkHexagonalPrism::New();
   double hexaCoords[3], hexaWeights[12], hexaPosition[3];
   double hexaPoint[13][3] = {{11, 10, 10}, {13, 10, 10}, {14, 12, 10}, {13, 14, 10},
-                             {11, 14, 10}, {10, 12, 10}, {11, 10, 14}, {13, 10, 14}, 
+                             {11, 14, 10}, {10, 12, 10}, {11, 10, 14}, {13, 10, 14},
                              {14, 12, 14}, {13, 14, 14}, {11, 14, 14}, {10, 12, 14},
                              {12, 12, 12}};
   double hexaClosest[3];
@@ -580,6 +580,6 @@ int TestOCP(ostream& strm)
 
 int otherCellPosition(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return TestOCP(vtkmsg_with_warning_C4701);
-} 
+}

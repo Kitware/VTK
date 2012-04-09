@@ -352,10 +352,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
         // Store cardinalities, extremal and means for cross-verification
         double dn = outputPrimary->GetValueByName( r, "Cardinality" ).ToDouble();
-        
+
         cardsAndMeans_par[2 * r] = dn;
         cardsAndMeans_par[2 * r + 1] = dn * outputPrimary->GetValueByName( r, "Mean" ).ToDouble();
-        
+
         extrema_par[2 * r] = outputPrimary->GetValueByName( r, "Minimum" ).ToDouble();
         extrema_par[2 * r + 1] = - outputPrimary->GetValueByName( r, "Maximum" ).ToDouble();
         }
@@ -389,7 +389,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       relDevName << "d(Standard Normal "
                  << c
                  << ")";
-      
+
       // Verification can be done only if assessed column is present
       vtkAbstractArray* relDevArr = outputData->GetColumnByName( relDevName.str().c_str() );
       if ( relDevArr )
@@ -404,31 +404,31 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
             {
             outsideStdv_l[d] = 0;
             }
-          
+
           // Count outliers
           double dev;
           int n = outputData->GetNumberOfRows();
           for ( vtkIdType r = 0; r < n; ++ r )
             {
             dev = relDev->GetValue( r );
-            
+
             // Count for all deviations from 1 to numRuleVal
             for ( int d = 0; d < numRuleVal; ++ d )
               {
               if ( dev >= 1. + d )
                 {
-                ++ outsideStdv_l[d];  
+                ++ outsideStdv_l[d];
                 }
-              } // 
+              } //
             } // for ( vtkIdType r = 0; r < n; ++ r )
-          
+
           // Sum all local counters
           int* outsideStdv_g = new int[numRuleVal];
           com->AllReduce( outsideStdv_l,
                           outsideStdv_g,
                           numRuleVal,
                           vtkCommunicator::SUM_OP );
-          
+
           // Print out percentages of sample points within 1, ..., numRuleVal standard deviations from the mean.
           if ( myRank == args->ioRank )
             {
@@ -438,13 +438,13 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
             for ( int d = 0; d < numRuleVal; ++ d )
               {
               double testVal = ( 1. - outsideStdv_g[d] / static_cast<double>( outputPrimary->GetValueByName( 0, "Cardinality" ).ToInt() ) ) * 100.;
-              
+
               cout << "      "
                    << testVal
                    << "% within "
                    << d + 1
                    << " standard deviation(s) from the mean.\n";
-              
+
               // Test some statistics
               if ( fabs ( testVal - sigmaRuleVal[d] ) > sigmaRuleTol[d] )
                 {
@@ -453,7 +453,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
                 }
               }
             }
-        
+
           // Clean up
           delete [] outsideStdv_l;
           delete [] outsideStdv_g;
@@ -486,7 +486,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     {
     cout << "\n## Skipped calculation of parallel descriptive statistics.\n";
     }
-  
+
   // Cross-verify aggregated serial vs. parallel results only if both were calculated
   if ( ! args->skipDescriptive && ! args->skipPDescriptive )
     {
@@ -498,7 +498,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       for ( int i = 0; i < n2Rows; ++ i )
         {
         if ( fabs( cardsAndMeans_agg[i] - cardsAndMeans_par[i] ) > args->absTol )
-          {          
+          {
           vtkGenericWarningMacro("Incorrect value(s) : "
                                  << cardsAndMeans_agg[i]
                                  << " <> "
@@ -506,7 +506,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
           *(args->retVal) = 1;
           }
         if ( extrema_agg[i] != extrema_par[i] )
-          {          
+          {
           vtkGenericWarningMacro("Incorrect value(s) : "
                                  << extrema_agg[i]
                                  << " <> "
@@ -884,7 +884,7 @@ int main( int argc, char** argv )
     {
     if ( myRank == ioRank )
       {
-      cerr << "Usage: " 
+      cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
       }

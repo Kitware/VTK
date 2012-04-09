@@ -40,7 +40,7 @@ public:
   // Description:
   // Was there an error on the last read performed?
   vtkGetMacro(Error,int);
-  
+
   // Description:
   // Is the given file an SLC file?
   int CanReadFile(const char* fname);
@@ -51,13 +51,13 @@ public:
       return ".slc";
     }
 
-  // Description: 
-  // SLC 
+  // Description:
+  // SLC
   virtual const char* GetDescriptiveName()
     {
       return "SLC";
     }
-  
+
 protected:
   vtkSLCReader();
   ~vtkSLCReader();
@@ -68,7 +68,7 @@ protected:
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
-  
+
   // Decodes an array of eight bit run-length encoded data.
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );
   int Error;

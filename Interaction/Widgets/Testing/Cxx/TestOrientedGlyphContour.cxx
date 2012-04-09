@@ -44,7 +44,7 @@
 int TestOrientedGlyphContour( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
-   
+
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
@@ -56,7 +56,7 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   v16->SetDataMask(0x7fff);
   v16->Update();
   delete[] fname;
-    
+
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
@@ -68,7 +68,7 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   shifter->SetInputConnection(v16->GetOutputPort());
   shifter->ReleaseDataFlagOff();
   shifter->Update();
-  
+
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
   imageActor->GetMapper()->SetInputConnection(shifter->GetOutputPort());
@@ -93,18 +93,18 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   ren1->SetBackground(0.1, 0.2, 0.4);
   ren1->AddActor(imageActor);
   renWin->SetSize(600, 600);
-  
+
   // render the image
   //
   ren1->GetActiveCamera()->SetPosition(0,0,0);
-  ren1->GetActiveCamera()->SetFocalPoint(0,0,1);  
+  ren1->GetActiveCamera()->SetFocalPoint(0,0,1);
   ren1->GetActiveCamera()->SetViewUp(0,1,0);
   ren1->ResetCamera();
   renWin->Render();
 
   double bounds[6];
   imageActor->GetBounds( bounds );
-  
+
   vtkSmartPointer<vtkPlane> p1 =
     vtkSmartPointer<vtkPlane>::New();
   p1->SetOrigin( bounds[0], bounds[2], bounds[4] );
@@ -131,14 +131,14 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
     vtkSmartPointer<vtkContourWidget>::New();
   vtkSmartPointer<vtkBoundedPlanePointPlacer> placer =
     vtkSmartPointer<vtkBoundedPlanePointPlacer>::New();
-  
+
   contourWidget->SetInteractor(iren);
   contourWidget->SetRepresentation(contourRep);
 
   // Change bindings.
   vtkWidgetEventTranslator *eventTranslator = contourWidget->GetEventTranslator();
   eventTranslator->RemoveTranslation( vtkCommand::RightButtonPressEvent );
-  eventTranslator->SetTranslation( 
+  eventTranslator->SetTranslation(
     vtkCommand::KeyPressEvent,
     vtkEvent::NoModifier, 103, 0, "g",
     vtkWidgetEvent::AddFinalPoint );
@@ -146,17 +146,17 @@ int TestOrientedGlyphContour( int argc, char *argv[] )
   contourWidget->On();
 
   contourRep->SetPointPlacer( placer );
-  
+
   placer->SetProjectionNormalToZAxis();
   placer->SetProjectionPosition(imageActor->GetCenter()[2]);
-   
+
   placer->AddBoundingPlane(p1);
   placer->AddBoundingPlane(p2);
   placer->AddBoundingPlane(p3);
   placer->AddBoundingPlane(p4);
-    
+
   iren->Initialize();
-  
+
   iren->Start();
 
   return EXIT_SUCCESS;

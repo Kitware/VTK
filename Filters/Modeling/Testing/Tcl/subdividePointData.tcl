@@ -22,7 +22,7 @@ vtkLookupTable lut
   lut Build
 
 vtkPolyDataMapper mapper
-  mapper SetInputConnection [butterfly GetOutputPort] 
+  mapper SetInputConnection [butterfly GetOutputPort]
   mapper SetLookupTable lut
 
 vtkActor actor
@@ -33,14 +33,14 @@ vtkLinearSubdivisionFilter linear
   linear SetNumberOfSubdivisions 3
 
 vtkPolyDataMapper mapper2
-  mapper2 SetInputConnection [linear GetOutputPort] 
+  mapper2 SetInputConnection [linear GetOutputPort]
   mapper2 SetLookupTable lut
 
 vtkActor actor2
   actor2 SetMapper mapper2
 
 vtkPolyDataMapper mapper3
-  mapper3 SetInputConnection [colorIt GetOutputPort] 
+  mapper3 SetInputConnection [colorIt GetOutputPort]
   mapper3 SetLookupTable lut
 
 vtkActor actor3

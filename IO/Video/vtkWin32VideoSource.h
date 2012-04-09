@@ -15,9 +15,9 @@
 // .NAME vtkWin32VideoSource - Video-for-Windows video digitizer
 // .SECTION Description
 // vtkWin32VideoSource grabs frames or streaming video from a
-// Video for Windows compatible device on the Win32 platform. 
+// Video for Windows compatible device on the Win32 platform.
 // .SECTION Caveats
-// With some capture cards, if this class is leaked and ReleaseSystemResources 
+// With some capture cards, if this class is leaked and ReleaseSystemResources
 // is not called, you may have to reboot before you can capture again.
 // vtkVideoSource used to keep a global list and delete the video sources
 // if your program leaked, due to exit crashes that was removed.
@@ -38,7 +38,7 @@ class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
 public:
   static vtkWin32VideoSource *New();
   vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Standard VCR functionality: Record incoming video.
@@ -55,13 +55,13 @@ public:
   // Description:
   // Grab a single video frame.
   void Grab();
- 
+
   // Description:
   // Request a particular frame size (set the third value to 1).
   void SetFrameSize(int x, int y, int z);
-  virtual void SetFrameSize(int dim[3]) { 
+  virtual void SetFrameSize(int dim[3]) {
     this->SetFrameSize(dim[0], dim[1], dim[2]); };
-  
+
   // Description:
   // Request a particular frame rate (default 30 frames per second).
   void SetFrameRate(float rate);
@@ -110,7 +110,7 @@ protected:
   vtkWin32VideoSourceInternal *Internal;
 
   void CheckBuffer();
-  void UnpackRasterLine(char *outptr, char *inptr, 
+  void UnpackRasterLine(char *outptr, char *inptr,
                         int start, int count);
 
   void DoVFWFormatSetup();

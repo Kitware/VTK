@@ -17,7 +17,7 @@
 // vtkSESAMEReader is a source object that reads SESAME files.
 // Currently supported tables include 301, 304, 502, 503, 504, 505, 602
 //
-// SESAMEReader creates rectilinear grid datasets. The dimension of the 
+// SESAMEReader creates rectilinear grid datasets. The dimension of the
 // dataset depends upon the number of densities and temperatures in the table.
 // Values at certain temperatures and densities are stored as scalars.
 //
@@ -35,7 +35,7 @@ class VTKIOGEOMETRY_EXPORT vtkSESAMEReader : public vtkRectilinearGridAlgorithm
 public:
   static vtkSESAMEReader *New();
   vtkTypeMacro(vtkSESAMEReader, vtkRectilinearGridAlgorithm);
-  
+
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -44,11 +44,11 @@ public:
   // Description:
   // Get the filename to read
   const char* GetFileName();
-  
+
   // Description:
   // Return whether this is a valid file
   int IsValidFile();
-  
+
   // Description:
   // Get the number of tables in this file
   int GetNumberOfTableIds();
@@ -86,14 +86,14 @@ public:
   int GetTableArrayStatus(const char* name);
 
 protected:
-  
+
   vtkSESAMEReader();
   virtual ~vtkSESAMEReader();
- 
-  //BTX 
+
+  //BTX
   class MyInternal;
   MyInternal* Internal;
-  //ETX 
+  //ETX
 
   int OpenFile();
   void CloseFile();
@@ -104,7 +104,7 @@ protected:
   virtual int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
                                  vtkInformationVector *);
-  
+
   int ReadTableValueLine ( float *v1, float *v2, float *v3,
       float *v4, float *v5);
   int JumpToTable( int tableID );

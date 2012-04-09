@@ -92,9 +92,9 @@ public:
   // the same file on a LittleEndian machine will result in swapping.
   // As a quick note most UNIX machines are BigEndian while PC's
   // and VAX tend to be LittleEndian. So if the file you are reading
-  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian 
+  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian
   // otherwise SetDataByteOrderToBigEndian. Not used when reading
-  // text files. 
+  // text files.
   void SetDataByteOrderToBigEndian();
   void SetDataByteOrderToLittleEndian();
   int  GetDataByteOrder();
@@ -121,9 +121,9 @@ public:
 protected:
   vtkFLUENTReader();
   ~vtkFLUENTReader();
-  int RequestInformation(vtkInformation *, 
+  int RequestInformation(vtkInformation *,
     vtkInformationVector **, vtkInformationVector *);
-  int RequestData(vtkInformation *, vtkInformationVector **, 
+  int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
 
   // Description:

@@ -45,7 +45,7 @@ int vtkProcess::GetReturnValue()
 void vtkProcess::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "ReturnValue: " << this->ReturnValue << endl;
   os << indent << "Controller: ";
   if(this->Controller)

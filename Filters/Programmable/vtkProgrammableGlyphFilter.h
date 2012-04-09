@@ -103,7 +103,7 @@ public:
   void SetGlyphMethod(void (*f)(void *), void *arg);
 
   // Description:
-  // Set the arg delete method. This is used to free user memory that might 
+  // Set the arg delete method. This is used to free user memory that might
   // be associated with the GlyphMethod().
   void SetGlyphMethodArgDelete(void (*f)(void *));
 
@@ -127,9 +127,9 @@ public:
   // Either color by the input or source scalar data.
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToColorByInput() 
+  void SetColorModeToColorByInput()
     {this->SetColorMode(VTK_COLOR_BY_INPUT);};
-  void SetColorModeToColorBySource() 
+  void SetColorModeToColorBySource()
     {this->SetColorMode(VTK_COLOR_BY_SOURCE);};
   const char *GetColorModeAsString();
 
@@ -144,11 +144,11 @@ protected:
   vtkIdType PointId; // Current point id during processing
   vtkPointData *PointData;
   int ColorMode;
-  
+
   ProgrammableMethodCallbackType GlyphMethod; // Support GlyphMethod
   ProgrammableMethodCallbackType GlyphMethodArgDelete;
   void *GlyphMethodArg;
-  
+
 private:
   vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&);  // Not implemented.
   void operator=(const vtkProgrammableGlyphFilter&);  // Not implemented.

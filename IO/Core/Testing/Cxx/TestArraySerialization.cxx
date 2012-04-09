@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    TestArraySerialization.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -170,10 +170,10 @@ int TestArraySerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     j1->SetValue(0, vtkUnicodeString::from_utf8("The"));
     j1->SetValue(1, vtkUnicodeString::from_utf8("quick brown"));
     j1->SetValue(2, vtkUnicodeString::from_utf8("fox"));
-    
+
     vtkNew<vtkArrayData> j1d;
     j1d->AddArray(j1.GetPointer());
-    
+
     vtkNew<vtkArrayWriter> jw;
     jw->WriteToOutputStringOn();
     jw->SetInputData(j1d.GetPointer());

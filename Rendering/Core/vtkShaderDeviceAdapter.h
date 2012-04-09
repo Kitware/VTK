@@ -40,8 +40,8 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Sends a single attribute to the graphics card.  
-  // The attrname parameter identifies the name of attribute.  
+  // Sends a single attribute to the graphics card.
+  // The attrname parameter identifies the name of attribute.
   // The components parameter gives the number of
   // components in the attribute.  In general, components must be between
   // 1-4, but a rendering system may impose even more constraints.  The
@@ -52,9 +52,9 @@ public:
   // If offset is specified, it is added to attribute pointer \c after
   // it has been casted to the proper type.
   virtual void SendAttribute(const char* attrname,
-    int components, int type, 
+    int components, int type,
     const void* attribute, unsigned long offset=0)=0;
-    
+
   // Description:
   // Set the shader program which is being updated by this device adapter.
   // The shader program is not reference counted to avoid reference loops.

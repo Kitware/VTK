@@ -36,7 +36,7 @@ vtkSLCReader::~vtkSLCReader()
 }
 
 // Decodes an array of eight bit run-length encoded data.
-unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr, 
+unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
                                                int size )
 {
   unsigned char           *curr_ptr;
@@ -45,7 +45,7 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
   unsigned char           current_value;
   unsigned char           remaining;
   int done=0;
-  
+
   curr_ptr = in_ptr;
 
   decode_ptr = return_ptr = new unsigned char[size];
@@ -178,7 +178,7 @@ int vtkSLCReader::RequestInformation (
     }
   this->SetDataSpacing(f);
 
-  // Skip Over unit_type, data_origin, and data_modification 
+  // Skip Over unit_type, data_origin, and data_modification
   if (fscanf( fp, "%d", &temp ) != 1)
     {
     vtkErrorMacro(
@@ -207,11 +207,11 @@ int vtkSLCReader::RequestInformation (
   fclose( fp );
   return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
-          
+
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
 void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
                                               vtkInformation *vtkNotUsed(outInfo))
-{ 
+{
   vtkImageData *output = vtkImageData::SafeDownCast(output_do);
 
   FILE *fp;
@@ -231,7 +231,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
   unsigned char *scan_ptr = NULL;
 
   this->Error = 1;
-  
+
   if (!this->FileName)
     {
     vtkErrorMacro(<<"A FileName must be specified.");
@@ -318,7 +318,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
     }
   output->SetSpacing(f);
 
-  // Skip Over unit_type, data_origin, and data_modification 
+  // Skip Over unit_type, data_origin, and data_modification
   if (fscanf( fp, "%d", &temp ) != 1)
     {
     vtkErrorMacro(
@@ -402,7 +402,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
 
         if( fread( scan_ptr, 1, plane_size, fp ) != (unsigned int)plane_size )
           {
-          vtkErrorMacro( << 
+          vtkErrorMacro( <<
             "Unable to read slice " << z_counter << " from SLC File" );
           return;
           }
@@ -426,10 +426,10 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
 
         compressed_ptr = new unsigned char[compressed_size];
 
-        if( fread(compressed_ptr, 1, compressed_size, fp) != 
+        if( fread(compressed_ptr, 1, compressed_size, fp) !=
             (unsigned int)compressed_size )
           {
-          vtkErrorMacro( << "Unable to read compressed slice " << 
+          vtkErrorMacro( << "Unable to read compressed slice " <<
             z_counter << " from SLC File" );
           return;
           }
@@ -439,7 +439,7 @@ void vtkSLCReader::ExecuteDataWithInformation(vtkDataObject *output_do,
 
         break;
       default:
-        vtkErrorMacro(<< "Unknown SLC compression type: " << 
+        vtkErrorMacro(<< "Unknown SLC compression type: " <<
           data_compression );
         break;
       }
@@ -483,6 +483,6 @@ void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Error: " << this->Error << "\n";
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 }

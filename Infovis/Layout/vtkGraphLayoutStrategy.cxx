@@ -61,7 +61,7 @@ void vtkGraphLayoutStrategy::SetWeightEdges(bool state)
 {
   // This method is a cut and paste of vtkSetMacro
   // except for the call to Initialize at the end :)
-  if (this->WeightEdges != state) 
+  if (this->WeightEdges != state)
     {
     this->WeightEdges = state;
     this->Modified();
@@ -91,7 +91,7 @@ void vtkGraphLayoutStrategy::SetEdgeWeightField(const char* weights)
     {
     this->EdgeWeightField = NULL;
     }
-  
+
   this->Modified();
 
   if(this->Graph)

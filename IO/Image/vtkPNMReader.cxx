@@ -29,7 +29,7 @@ char vtkPNMReaderGetChar(FILE *fp)
     {
     return '\0';
     }
-  
+
   c = (char)result;
   if (c == '#')
     {
@@ -43,7 +43,7 @@ char vtkPNMReaderGetChar(FILE *fp)
       }
     while (c != '\n');
     }
-  
+
   return c;
 }
 
@@ -51,7 +51,7 @@ int vtkPNMReaderGetInt(FILE *fp)
 {
   char c;
   int result = 0;
-  
+
   do
     {
     c = vtkPNMReaderGetChar(fp);
@@ -68,7 +68,7 @@ int vtkPNMReaderGetInt(FILE *fp)
   ungetc(c, fp);
   return result;
 }
-  
+
 
 void vtkPNMReader::ExecuteInformation()
 {
@@ -94,7 +94,7 @@ void vtkPNMReader::ExecuteInformation()
 
   // Allocate the space for the filename
   this->ComputeInternalFileName(this->DataExtent[4]);
-  
+
   // get the magic number by reading in a file
   fp = fopen(this->InternalFileName,"rb");
   if (!fp)
@@ -136,7 +136,7 @@ void vtkPNMReader::ExecuteInformation()
   // written as a CR/LF combination.  So, if this single whitespace
   // character is a CR and it is followed by a LF, then swallow the
   // linefeed character as well. (Not part of the PPM standard, but a
-  // a hard fact of life. 
+  // a hard fact of life.
   if ( c == 0x0d )
      {
      c = getc(fp);
@@ -145,33 +145,33 @@ void vtkPNMReader::ExecuteInformation()
         ungetc( c, fp );
         }
      }
-     
+
   // Set the header size now that we have parsed it
   this->SetHeaderSize(ftell(fp));
 
   fclose(fp);
 
   // compare magic number to determine file type
-  if ( ! strcmp(magic,"P5") ) 
+  if ( ! strcmp(magic,"P5") )
     {
     comp = 1;
     }
-  else if ( ! strcmp(magic,"P6") ) 
+  else if ( ! strcmp(magic,"P6") )
     {
     comp = 3;
     }
   else
     {
-    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
+    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName
                   <<" is not a binary PGM or PPM!");
     return;
     }
 
   // if the user has set the VOI, just make sure its valid
-  if (this->DataVOI[0] || this->DataVOI[1] || 
+  if (this->DataVOI[0] || this->DataVOI[1] ||
       this->DataVOI[2] || this->DataVOI[3] ||
       this->DataVOI[4] || this->DataVOI[5])
-    { 
+    {
     if ((this->DataVOI[0] < 0) ||
         (this->DataVOI[1] >= xsize) ||
         (this->DataVOI[2] < 0) ||
@@ -189,7 +189,7 @@ void vtkPNMReader::ExecuteInformation()
   this->DataExtent[1] = xsize - 1;
   this->DataExtent[2] = 0;
   this->DataExtent[3] = ysize - 1;
-  
+
   this->SetDataScalarTypeToUnsignedChar();
   this->SetNumberOfScalarComponents(comp);
 
@@ -210,7 +210,7 @@ int vtkPNMReader::CanReadFile(const char* fname)
   if(!fp)
     {
     return 0;
-    } 
+    }
   unsigned char magic[3];
   if(fread(magic, 1, 3, fp) != 3)
     {

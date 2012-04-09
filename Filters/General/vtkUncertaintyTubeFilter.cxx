@@ -36,8 +36,8 @@ class vtkTubePoint { //;prevent man page generation
 public:
   vtkTubePoint(); // method sets up storage
   vtkTubePoint &operator=(const vtkTubePoint& hp); //for resizing
-    
-  double   X[3];    // position 
+
+  double   X[3];    // position
   double   *V[3];   // pointers to eigenvectors
   double   V0[3];   // the line tangent
   double   V1[3];   // the normal to the line
@@ -58,7 +58,7 @@ public:
     };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkTubePoint *GetTubePoint(vtkIdType i) {return this->Array + i;};
-  vtkTubePoint *InsertNextTubePoint() 
+  vtkTubePoint *InsertNextTubePoint()
     {
     if ( ++this->MaxId >= this->Size )
       {
@@ -88,7 +88,7 @@ vtkTubePoint& vtkTubePoint::operator=(const vtkTubePoint& hp)
 {
   int i, j;
 
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     this->X[i] = hp.X[i];
     for (j=0; j<3; j++)
@@ -103,7 +103,7 @@ vtkTubePoint& vtkTubePoint::operator=(const vtkTubePoint& hp)
 //-----------------------------------------------------------------------------
 vtkTubeArray::vtkTubeArray()
 {
-  this->MaxId = -1; 
+  this->MaxId = -1;
   this->Array = new vtkTubePoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
@@ -117,7 +117,7 @@ vtkTubePoint *vtkTubeArray::Resize(vtkIdType sz)
 
   if (sz >= this->Size)
     {
-    newSize = this->Size + 
+    newSize = this->Size +
       this->Extend*(((sz-this->Size)/this->Extend)+1);
     }
   else
@@ -140,7 +140,7 @@ vtkTubePoint *vtkTubeArray::Resize(vtkIdType sz)
 }
 
 //-----------------------------------------------------------------------------
-// Construct object with initial starting position (0,0,0); integration step 
+// Construct object with initial starting position (0,0,0); integration step
 // length 0.2; step length 0.01; forward integration; terminal eigenvalue 0.0;
 // number of sides 6; radius 0.5; and logarithmic scaling off.
 vtkUncertaintyTubeFilter::vtkUncertaintyTubeFilter()
@@ -168,7 +168,7 @@ static double IntersectEllipse(double vector[3], double v[3])
 
   double num = a*a * b*b * c*c;
   double den = v[0]*v[0]*b*b*c*c + v[1]*v[1]*a*a*c*c + v[2]*v[2]*a*a*b*b;
-  
+
   if ( den <= 0.0 )
     {
     return 0.0;
@@ -228,7 +228,7 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
-  
+
   this->NumberOfTubes = numLines;
   this->Tubes = new vtkTubeArray[this->NumberOfTubes];
 
@@ -240,7 +240,7 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType npts, *pts, idx;
   vtkCellArray *singlePolyline = vtkCellArray::New();
   double *normal;
-  for (k=0, inLines->InitTraversal(); 
+  for (k=0, inLines->InitTraversal();
        inLines->GetNextCell(npts,pts); k++)
     {
     singlePolyline->Reset(); //avoid instantiation
@@ -308,12 +308,12 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
       vtkMath::Normalize(sPtr->V[2]);
       vtkMath::Cross(sPtr->V[2],sPtr->V[0],sPtr->V[1]);
       vtkMath::Normalize(sPtr->V[1]);
-      
+
       }//for all points in polyline
     }//for all polylines
   newNormals->Delete();
   singlePolyline->Delete();
-  
+
   // Build the uncertainty tubes
   int retval = this->BuildTubes(pd,outPD,cd,outCD,output);
 
@@ -368,7 +368,7 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
 
     for ( npts=0, i=0; i < numPts; i++)
       {
-      sPtr = this->Tubes[cellId].GetTubePoint(i);      
+      sPtr = this->Tubes[cellId].GetTubePoint(i);
       for (j=0; j<3; j++) //compute point in center of tube
         {
         x[j] = sPtr->X[j];
@@ -380,7 +380,7 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
       // construct points around tube
       for (k=0; k < this->NumberOfSides; k++)
         {
-        for (j=0; j<3; j++) 
+        for (j=0; j<3; j++)
           {
           normal[j] = r1[j]*cos((double)k*theta) + r2[j]*sin((double)k*theta);
           }
@@ -404,7 +404,7 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
       i1 = (k+1) % this->NumberOfSides;
       id = newStrips->InsertNextCell(npts*2);
       outCD->CopyData(cd, cellId, id);
-      for (i=0; i < npts; i++) 
+      for (i=0; i < npts; i++)
         {
         i2 = i*this->NumberOfSides;
         newStrips->InsertCellPoint(ptOffset+i2+k);
@@ -438,5 +438,5 @@ void vtkUncertaintyTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
-  
+
 }

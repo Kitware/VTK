@@ -23,11 +23,11 @@ vtkStandardNewMacro(vtkThinPlateSplineTransform);
 //------------------------------------------------------------------------
 // some dull matrix things
 
-inline double** vtkNewMatrix(int rows, int cols) 
+inline double** vtkNewMatrix(int rows, int cols)
 {
   double *matrix = new double[rows*cols];
   double **m = new double *[rows];
-  for(int i = 0; i < rows; i++) 
+  for(int i = 0; i < rows; i++)
     {
     m[i] = &matrix[i*cols];
     }
@@ -35,18 +35,18 @@ inline double** vtkNewMatrix(int rows, int cols)
 }
 
 //------------------------------------------------------------------------
-inline void vtkDeleteMatrix(double **m) 
+inline void vtkDeleteMatrix(double **m)
 {
   delete [] *m;
   delete [] m;
 }
 
 //------------------------------------------------------------------------
-inline void vtkZeroMatrix(double **m, int rows, int cols) 
+inline void vtkZeroMatrix(double **m, int rows, int cols)
 {
-  for(int i = 0; i < rows; i++) 
+  for(int i = 0; i < rows; i++)
     {
-    for(int j = 0; j < cols; j++) 
+    for(int j = 0; j < cols; j++)
       {
       m[i][j] = 0.0;
       }
@@ -55,18 +55,18 @@ inline void vtkZeroMatrix(double **m, int rows, int cols)
 
 //------------------------------------------------------------------------
 inline void vtkMatrixMultiply(double **a, double **b, double **c,
-                              int arows, int acols, int brows, int bcols) 
+                              int arows, int acols, int brows, int bcols)
 {
-  if(acols != brows) 
+  if(acols != brows)
     {
     return;     // acols must equal br otherwise we can't proceed
     }
-        
+
   // c must have size arows*bcols (we assume this)
 
-  for(int i = 0; i < arows; i++) 
+  for(int i = 0; i < arows; i++)
     {
-    for(int j = 0; j < bcols; j++) 
+    for(int j = 0; j < bcols; j++)
       {
       c[i][j] = 0.0;
       for(int k = 0; k < acols; k++)
@@ -80,9 +80,9 @@ inline void vtkMatrixMultiply(double **a, double **b, double **c,
 //------------------------------------------------------------------------
 inline void vtkMatrixTranspose(double **a, double **b, int rows, int cols)
 {
-  for(int i = 0; i < rows; i++) 
+  for(int i = 0; i < rows; i++)
     {
-    for(int j = 0; j < cols; j++) 
+    for(int j = 0; j < cols; j++)
       {
       double tmp = a[i][j];
       b[i][j] = a[j][i];
@@ -99,8 +99,8 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
   this->Sigma = 1.0;
 
   // If the InverseFlag is set, then we use an iterative
-  // method to invert the transformation.  
-  // The InverseTolerance sets the precision to which we want to 
+  // method to invert the transformation.
+  // The InverseTolerance sets the precision to which we want to
   // calculate the inverse.
   this->InverseTolerance = 0.001;
   this->InverseIterations = 500;
@@ -175,7 +175,7 @@ unsigned long vtkThinPlateSplineTransform::GetMTime()
 
   if (this->SourceLandmarks)
     {
-    mtime = this->SourceLandmarks->GetMTime(); 
+    mtime = this->SourceLandmarks->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -183,7 +183,7 @@ unsigned long vtkThinPlateSplineTransform::GetMTime()
     }
   if (this->TargetLandmarks)
     {
-    mtime = this->TargetLandmarks->GetMTime(); 
+    mtime = this->TargetLandmarks->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -217,18 +217,18 @@ void vtkThinPlateSplineTransform::InternalUpdate()
   const int D = 3; // dimensions
 
   // the output weights matrix
-  double **W = vtkNewMatrix(N+D+1,D); 
-  double **A = &W[N+1];  // the linear rotation + scale matrix 
-  double *C = W[N];      // the linear translation 
+  double **W = vtkNewMatrix(N+D+1,D);
+  double **A = &W[N+1];  // the linear rotation + scale matrix
+  double *C = W[N];      // the linear translation
 
   if (N >= 3)
     {
     // Notation and inspiration from:
-    // Fred L. Bookstein (1997) "Shape and the Information in Medical Images: 
-    // A Decade of the Morphometric Synthesis" Computer Vision and Image 
+    // Fred L. Bookstein (1997) "Shape and the Information in Medical Images:
+    // A Decade of the Morphometric Synthesis" Computer Vision and Image
     // Understanding 66(2):97-118
     // and online work published by Tim Cootes (http://www.wiau.man.ac.uk/~bim)
-        
+
     // the input matrices
     double **L = vtkNewMatrix(N+D+1,N+D+1);
     double **X = vtkNewMatrix(N+D+1,D);
@@ -242,7 +242,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     double dx,dy,dz;
     double r;
     double (*phi)(double) = this->BasisFunction;
-    
+
     for(q = 0; q < N; q++)
       {
       this->SourceLandmarks->GetPoint(q,p);
@@ -260,7 +260,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         L[q][c] = L[c][q] = phi(r/this->Sigma);
         }
       }
-    
+
     // build X
     vtkZeroMatrix(X,N+D+1,D);
     for (q = 0; q < N; q++)
@@ -270,13 +270,13 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       X[q][1] = p[1];
       X[q][2] = p[2];
       }
-    
-    // solve for W, where W = Inverse(L)*X; 
+
+    // solve for W, where W = Inverse(L)*X;
 
     // this is done via eigenvector decomposition so
     // that we can avoid singular values
-    // W = V*Inverse(w)*U*X  
-    
+    // W = V*Inverse(w)*U*X
+
     double *values = new double[N+D+1];
     double **V = vtkNewMatrix(N+D+1,N+D+1);
     double **w = vtkNewMatrix(N+D+1,N+D+1);
@@ -293,7 +293,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         {
         maxValue = tmp;
         }
-      } 
+      }
 
     for (i = 0; i < N+D+1; i++)
       {
@@ -308,11 +308,11 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         }
       }
     delete [] values;
-    
+
     vtkMatrixMultiply(U,X,W,N+D+1,N+D+1,N+D+1,D);
     vtkMatrixMultiply(w,W,X,N+D+1,N+D+1,N+D+1,D);
     vtkMatrixMultiply(V,X,W,N+D+1,N+D+1,N+D+1,D);
-    
+
     vtkDeleteMatrix(V);
     vtkDeleteMatrix(w);
     vtkDeleteMatrix(U);
@@ -333,7 +333,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         }
       }
     }
-  // special cases, I added these to ensure that this class doesn't 
+  // special cases, I added these to ensure that this class doesn't
   // misbehave if the user supplied fewer than 3 landmarks
   else // (N < 3)
     {
@@ -427,7 +427,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
           z = dt[2]*f;
           }
         }
-      
+
       // build a rotation + scale matrix
       A[0][0] = (w*w + x*x - y*y - z*z)*r;
       A[0][1] = (x*y + w*z)*2*r;
@@ -451,7 +451,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       double p[3],p2[3];
       this->SourceLandmarks->GetPoint(0,p);
       this->TargetLandmarks->GetPoint(0,p2);
-      
+
       for (i = 0; i < D; i++)
         {
         for (j = 0; j < D; j++)
@@ -513,7 +513,7 @@ inline void vtkThinPlateSplineForwardTransformPoint(vtkThinPlateSplineTransform 
     return;
     }
 
-  double *C = W[N]; 
+  double *C = W[N];
   double **A = &W[N+1];
 
   double dx,dy,dz;
@@ -521,7 +521,7 @@ inline void vtkThinPlateSplineForwardTransformPoint(vtkThinPlateSplineTransform 
   double U,r;
   double invSigma = 1.0/self->GetSigma();
 
-  double x = 0, y = 0, z = 0; 
+  double x = 0, y = 0, z = 0;
 
   vtkPoints *sourceLandmarks = self->GetSourceLandmarks();
 
@@ -547,19 +547,19 @@ inline void vtkThinPlateSplineForwardTransformPoint(vtkThinPlateSplineTransform 
   output[2] = z;
 }
 
-void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3], 
+void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3],
                                                         double output[3])
 {
-  vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW, 
-                                          this->NumberOfPoints, 
+  vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW,
+                                          this->NumberOfPoints,
                                           this->BasisFunction,
                                           point, output);
 }
 
-void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3], 
+void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
                                                         float output[3])
 {
-  vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW, 
+  vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW,
                                           this->NumberOfPoints,
                                           this->BasisFunction,
                                           point, output);
@@ -586,13 +586,13 @@ inline void vtkThinPlateSplineForwardTransformDerivative(
     return;
     }
 
-  double *C = W[N]; 
+  double *C = W[N];
   double **A = &W[N+1];
 
   double dx,dy,dz;
   double p[3];
   double r, U, f, Ux, Uy, Uz;
-  double x = 0, y = 0, z = 0; 
+  double x = 0, y = 0, z = 0;
   double invSigma = 1.0/self->GetSigma();
 
   derivative[0][0] = derivative[0][1] = derivative[0][2] = 0;
@@ -654,14 +654,14 @@ inline void vtkThinPlateSplineForwardTransformDerivative(
   derivative[2][0] += A[0][2];
   derivative[2][1] += A[1][2];
   derivative[2][2] += A[2][2];
-}  
+}
 
 void vtkThinPlateSplineTransform::ForwardTransformDerivative(
                                                   const double point[3],
                                                   double output[3],
                                                   double derivative[3][3])
 {
-  vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW, 
+  vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW,
                                                this->NumberOfPoints,
                                                this->BasisDerivative,
                                                point, output, derivative);
@@ -672,7 +672,7 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
                                                   float output[3],
                                                   float derivative[3][3])
 {
-  vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW, 
+  vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW,
                                                this->NumberOfPoints,
                                                this->BasisDerivative,
                                                point, output, derivative);
@@ -682,7 +682,7 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
 void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Sigma: " << this->Sigma << "\n";
   os << indent << "Basis: " << this->GetBasisAsString() << "\n";
   os << indent << "Source Landmarks: " << this->SourceLandmarks << "\n";
@@ -700,7 +700,7 @@ void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkAbstractTransform *vtkThinPlateSplineTransform::MakeTransform()
 {
-  return vtkThinPlateSplineTransform::New(); 
+  return vtkThinPlateSplineTransform::New();
 }
 
 //----------------------------------------------------------------------------
@@ -794,7 +794,7 @@ void vtkThinPlateSplineTransform::SetBasis(int basis)
 
   this->Basis = basis;
   this->Modified();
-}  
+}
 
 //------------------------------------------------------------------------
 const char *vtkThinPlateSplineTransform::GetBasisAsString()

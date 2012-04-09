@@ -58,8 +58,8 @@ enum { DFS_WHITE, DFS_GRAY, DFS_BLACK };
 //----------------------------------------------------------------------------
 bool vtkDirectedAcyclicGraphDFSVisit(
   vtkGraph *g,
-  vtkIdType u, 
-  vtksys_stl::vector<int> color, 
+  vtkIdType u,
+  vtksys_stl::vector<int> color,
   vtkOutEdgeIterator *adj)
 {
   color[u] = DFS_GRAY;
@@ -99,11 +99,11 @@ bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph *g)
 
   // A directed graph is acyclic iff a depth-first search of
   // the graph yields no back edges.
-  // (from Introduction to Algorithms. 
+  // (from Introduction to Algorithms.
   // Cormen, Leiserson, Rivest, p. 486).
   vtkIdType numVerts = g->GetNumberOfVertices();
   vector<int> color(numVerts, DFS_WHITE);
-  vtkSmartPointer<vtkOutEdgeIterator> adj = 
+  vtkSmartPointer<vtkOutEdgeIterator> adj =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType s = 0; s < numVerts; ++s)
     {

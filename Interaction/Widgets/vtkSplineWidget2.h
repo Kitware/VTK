@@ -56,7 +56,7 @@ protected:
 
   int WidgetState;
   enum _WidgetState {Start=0,Active};
-  
+
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);

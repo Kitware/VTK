@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkUnicodeString.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -390,7 +390,7 @@ vtkUnicodeString vtkUnicodeString::fold_case() const
       map.insert(std::make_pair(code, mapping));
       }
     }
-  
+
   vtkUnicodeString result;
 
   for(vtkUnicodeString::const_iterator source = this->begin(); source != this->end(); ++source)

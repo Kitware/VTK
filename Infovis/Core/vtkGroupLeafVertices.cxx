@@ -43,7 +43,7 @@
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
 // Forward function reference (definition at bottom :)
-static int splitString(const vtkStdString& input, 
+static int splitString(const vtkStdString& input,
                        std::vector<vtkStdString>& results);
 
 //---------------------------------------------------------------------------
@@ -99,14 +99,14 @@ void vtkGroupLeafVertices::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkGroupLeafVertices::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Storing the inputTable and outputTree handles
   vtkTree *input = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -121,7 +121,7 @@ int vtkGroupLeafVertices::RequestData(
     }
 
   // Create builder to extend the tree
-  vtkSmartPointer<vtkMutableDirectedGraph> builder = 
+  vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Get the input and builder vertex and edge data.
@@ -191,7 +191,7 @@ int vtkGroupLeafVertices::RequestData(
     }
   else
     {
-    // If a domain array already exists, look for indices that match the group 
+    // If a domain array already exists, look for indices that match the group
     // domain name. Use to index in to pedigree id array and find max group value.
 
     vtkSmartPointer<vtkIdList> groupIds = vtkSmartPointer<vtkIdList>::New();
@@ -255,7 +255,7 @@ int vtkGroupLeafVertices::RequestData(
       vtkIdType tree_child = tree_e.Target;
       vtkIdType child = builder->AddVertex();
 
-      // If the input vertices do not have a "domain" attribute, 
+      // If the input vertices do not have a "domain" attribute,
       // we need to set one.
       if(addInputDomain)
         {
@@ -287,7 +287,7 @@ int vtkGroupLeafVertices::RequestData(
           // Set the domain for this non-leaf vertex
           domainArr->InsertValue(group_vertex, this->GroupDomain);
 
-          // Initialize vertex attributes that aren't the pedigree ids 
+          // Initialize vertex attributes that aren't the pedigree ids
           // to -1, empty string, etc.
           vtkIdType ncol = builderVertexData->GetNumberOfArrays();
           for (vtkIdType i = 0; i < ncol; i++)
@@ -385,8 +385,8 @@ int vtkGroupLeafVertices::RequestData(
 
 // ----------------------------------------------------------------------
 
-static int 
-splitString(const vtkStdString& input, 
+static int
+splitString(const vtkStdString& input,
             std::vector<vtkStdString>& results)
 {
   if (input.size() == 0)
@@ -426,7 +426,7 @@ splitString(const vtkStdString& input,
       lastCharacter = thisCharacter;
       if (lastCharacter == '\\') lastCharacter = 0;
       }
-    else 
+    else
       {
       // We're not in an escape sequence.
 
@@ -451,7 +451,7 @@ splitString(const vtkStdString& input,
         // The character is just plain text.  Accumulate it and move on.
         currentField += thisCharacter;
         }
-      
+
       lastCharacter = thisCharacter;
       }
     }

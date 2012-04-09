@@ -37,11 +37,11 @@ public:
   // Description:
   // Return the number of id's in the list.
   vtkIdType GetNumberOfIds() {return this->NumberOfIds;};
-  
+
   // Description:
   // Return the id at location i.
   vtkIdType GetId(const vtkIdType i) {return this->Ids[i];};
-  
+
   // Description:
   // Specify the number of ids for this object to hold. Does an
   // allocation as well as setting the number of ids.
@@ -114,7 +114,7 @@ protected:
   ~vtkIdList();
 
   vtkIdType NumberOfIds;
-  vtkIdType Size; 
+  vtkIdType Size;
   vtkIdType *Ids;
 
   vtkIdType *Resize(const vtkIdType sz);

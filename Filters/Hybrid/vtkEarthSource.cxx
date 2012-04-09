@@ -44,7 +44,7 @@ vtkEarthSource::vtkEarthSource()
 void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "OnRatio: " << this->OnRatio << "\n";
   os << indent << "Outline: " << (this->Outline ? "On\n" : "Off\n");
@@ -6867,23 +6867,23 @@ int vtkEarthSource::RequestData(
       {
       break;
       }
-    
+
     land  = vtkEarthData[offset++];
-    
+
     base[0] = 0;
     base[1] = 0;
     base[2] = 0;
-    
+
     for (i=1; i<=npts; i++)
       {
       base[0] += vtkEarthData[offset++] * scale;
       base[1] += vtkEarthData[offset++] * scale;
       base[2] += vtkEarthData[offset++] * scale;
-      
+
       x[0] = base[2] * this->Radius;
       x[1] = base[0] * this->Radius;
       x[2] = base[1] * this->Radius;
-      
+
       if ((land == 1) && (npts > this->OnRatio * 3))
         {
         // use only every OnRatioth point in the polygon
@@ -6896,18 +6896,18 @@ int vtkEarthSource::RequestData(
           }
         }
       }
-    
+
     if ((land == 1) && (npts > this->OnRatio * 3))
       {
       //
       // Generate mesh connectivity for this polygon
       //
-      
+
       for (i = 0; i < (npts/this->OnRatio); i++)
         {
         Pts[i] = (actualpts - npts/this->OnRatio) + i;
         }
-      
+
       if ( this->Outline ) // close the loop in the line
         {
         Pts[i] = (actualpts - npts/this->OnRatio);
@@ -6921,16 +6921,16 @@ int vtkEarthSource::RequestData(
       actualpolys++;
       }
     }
-  
+
   //
   // Update ourselves and release memeory
   //
   output->SetPoints(newPoints);
   newPoints->Delete();
-  
+
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
-  
+
   if ( this->Outline ) //lines or polygons
     {
     output->SetLines(newPolys);

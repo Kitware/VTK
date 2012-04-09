@@ -47,8 +47,8 @@ public:
 
   // Description:
   // Turn on/off drawing continents as filled polygons or as wireframe outlines.
-  // Warning: some graphics systems will have trouble with the very large, concave 
-  // filled polygons. Recommend you use OutlienOn (i.e., disable filled polygons) 
+  // Warning: some graphics systems will have trouble with the very large, concave
+  // filled polygons. Recommend you use OutlienOn (i.e., disable filled polygons)
   // for now.
   vtkSetMacro(Outline,int);
   vtkGetMacro(Outline,int);

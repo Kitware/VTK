@@ -669,7 +669,7 @@ int TestBorderWidget( int , char *[] )
     vtkSmartPointer<vtkBorderRepresentation>::New();
   rep->ProportionalResizeOn();
   rep->SetShowBorderToOn();
-  
+
   vtkSmartPointer<vtkBorderWidget> widget =
     vtkSmartPointer<vtkBorderWidget>::New();
   widget->SetInteractor(iren);

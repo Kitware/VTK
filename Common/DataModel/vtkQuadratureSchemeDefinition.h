@@ -67,7 +67,7 @@ public:
   int RestoreState(vtkXMLDataElement *e);
 
   // Description:
-  // Release all allocated resources and set the 
+  // Release all allocated resources and set the
   // object to an unitialized state.
   void Clear();
 
@@ -99,7 +99,7 @@ public:
   int GetNumberOfQuadraturePoints() const { return this->NumberOfQuadraturePoints; }
   // Description:
   // Get the array of shape function weights. Shape function weights are
-  // the shape functions evaluated at the quadrature points. There are 
+  // the shape functions evaluated at the quadrature points. There are
   // "NumberOfNodes" weights for each quadrature point.
   const double *GetShapeFunctionWeights() const  { return this->ShapeFunctionWeights; }
   // Description:

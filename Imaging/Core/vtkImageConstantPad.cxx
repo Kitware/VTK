@@ -49,19 +49,19 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   int state0, state1, state2, state3;
   unsigned long count = 0;
   unsigned long target;
-  
+
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
-  maxX = outExt[1] - outExt[0]; 
-  maxY = outExt[3] - outExt[2]; 
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   inMaxC = inData->GetNumberOfScalarComponents();
   inMinX = inExt[0] - outExt[0];
   inMaxX = inExt[1] - outExt[0];
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
@@ -71,7 +71,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
     state3 = (idxZ < inExt[4] || idxZ > inExt[5]);
     for (idxY = outExt[2]; !self->AbortExecute && idxY <= outExt[3]; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -141,25 +141,25 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageConstantPad::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
+  vtkInformation * vtkNotUsed( request ),
   vtkInformationVector** inputVector,
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  
+
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
     }
-  
+
   // get the whole extent
   int wExt[6];
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -173,7 +173,7 @@ void vtkImageConstantPad::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageConstantPadExecute(this, 
+      vtkImageConstantPadExecute(this,
                                  inData[0][0], static_cast<VTK_TT *>(inPtr),
                                  outData[0], static_cast<VTK_TT *>(outPtr),
                                  outExt, inExt, id));

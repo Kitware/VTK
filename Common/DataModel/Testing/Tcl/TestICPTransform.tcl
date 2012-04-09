@@ -17,7 +17,7 @@ array set scenter {
     s3 { 0.4  -0.3  0.0}
 }
 array set scolors {
-    s2 {0.2 0.6 0.1} 
+    s2 {0.2 0.6 0.1}
     s3 {0.1 0.2 0.6}
 }
 

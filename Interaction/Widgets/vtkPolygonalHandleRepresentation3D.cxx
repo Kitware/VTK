@@ -30,8 +30,8 @@ vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 //----------------------------------------------------------------------
 vtkPolygonalHandleRepresentation3D::vtkPolygonalHandleRepresentation3D()
 {
-  this->Offset[0] = 
-  this->Offset[1] = 
+  this->Offset[0] =
+  this->Offset[1] =
   this->Offset[2] = 0.0;
 
   this->Actor = vtkActor::New();
@@ -43,7 +43,7 @@ vtkPolygonalHandleRepresentation3D::vtkPolygonalHandleRepresentation3D()
 //-------------------------------------------------------------------------
 void vtkPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
 {
-  if (!this->Renderer || !this->PointPlacer || 
+  if (!this->Renderer || !this->PointPlacer ||
                           this->PointPlacer->ValidateWorldPosition( p ))
     {
     this->HandleTransformMatrix->SetElement(0, 3, p[0] - this->Offset[0]);
@@ -61,8 +61,8 @@ void vtkPolygonalHandleRepresentation3D::SetWorldPosition(double p[3])
 void vtkPolygonalHandleRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "Offset: (" << this->Offset[0] << "," 
+
+  os << indent << "Offset: (" << this->Offset[0] << ","
      << this->Offset[1] << ")\n";
 }
 

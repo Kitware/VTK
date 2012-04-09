@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkOrientedGlyphContourRepresentation - Default representation for the contour widget
 // .SECTION Description
-// This class provides the default concrete representation for the 
-// vtkContourWidget. It works in conjunction with the 
+// This class provides the default concrete representation for the
+// vtkContourWidget. It works in conjunction with the
 // vtkContourLineInterpolator and vtkPointPlacer. See vtkContourWidget
 // for details.
 // .SECTION See Also
-// vtkContourRepresentation vtkContourWidget vtkPointPlacer 
+// vtkContourRepresentation vtkContourWidget vtkPointPlacer
 // vtkContourLineInterpolator
 
 #ifndef __vtkOrientedGlyphContourRepresentation_h
@@ -62,19 +62,19 @@ public:
   vtkPolyData *GetActiveCursorShape();
 
   // Description:
-  // This is the property used when the handle is not active 
+  // This is the property used when the handle is not active
   // (the mouse is not near the handle)
   vtkGetObjectMacro(Property,vtkProperty);
-  
+
   // Description:
   // This is the property used when the user is interacting
   // with the handle.
   vtkGetObjectMacro(ActiveProperty,vtkProperty);
-  
+
   // Description:
   // This is the property used by the lines.
   vtkGetObjectMacro(LinesProperty,vtkProperty);
-  
+
   // Description:
   // Subclasses of vtkOrientedGlyphContourRepresentation must implement these methods. These
   // are the methods that the widget and its representation use to
@@ -93,9 +93,9 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
-  // Get the points in this contour as a vtkPolyData. 
+  // Get the points in this contour as a vtkPolyData.
   virtual vtkPolyData * GetContourRepresentationAsPolyData();
 
   // Description:
@@ -111,16 +111,16 @@ public:
   // Convenience method to set the line color.
   // Ideally one should use GetLinesProperty()->SetColor().
   void SetLineColor(double r, double g, double b);
-  
+
   // Description:
   // A flag to indicate whether to show the Selected nodes
   // Default is to set it to false.
   virtual void SetShowSelectedNodes(int);
-  
+
   // Description:
   // Return the bounds of the representation
   virtual double *GetBounds();
-  
+
 protected:
   vtkOrientedGlyphContourRepresentation();
   ~vtkOrientedGlyphContourRepresentation();
@@ -138,7 +138,7 @@ protected:
   vtkPoints            *FocalPoint;
   vtkPolyData          *ActiveFocalData;
   vtkPoints            *ActiveFocalPoint;
-  
+
   vtkPolyData          *SelectedNodesData;
   vtkPoints            *SelectedNodesPoints;
   vtkActor             *SelectedNodesActor;
@@ -150,11 +150,11 @@ protected:
   vtkPolyData          *Lines;
   vtkPolyDataMapper    *LinesMapper;
   vtkActor             *LinesActor;
-  
+
   // Support picking
   double LastPickPosition[3];
   double LastEventPosition[2];
-  
+
   // Methods to manipulate the cursor
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
@@ -169,8 +169,8 @@ protected:
   vtkProperty   *ActiveProperty;
   vtkProperty   *LinesProperty;
   void           CreateDefaultProperties();
-  
-  
+
+
   // Distance between where the mouse event happens and where the
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
@@ -178,7 +178,7 @@ protected:
   int AlwaysOnTop;
 
   virtual void BuildLines();
-  
+
 private:
   vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
   void operator=(const vtkOrientedGlyphContourRepresentation&);  //Not implemented

@@ -18,7 +18,7 @@
 // that the spline passes through the points).  vtkSpline is an abstract
 // class: its subclasses vtkCardinalSpline and vtkKochenekSpline do the
 // interpolation. Note that this spline maps the 1D parametric coordinate
-// t into a single value x. Thus if you want to use the spline to 
+// t into a single value x. Thus if you want to use the spline to
 // interpolate points (i.e. x[3]), you have to create three splines for
 // each of the x-y-z coordinates. Fortunately, the vtkParametricSpline
 // class does this for you.
@@ -26,12 +26,12 @@
 // Typically a spline is used by adding a sequence of parametric coordinate /
 // data (t,x) values followed by use of an evaluation function (e.g.,
 // vtkCardinalSpline::Evaluate()).  Since these splines are 1D, a point in
-// this context is an independent / dependent variable pair. 
+// this context is an independent / dependent variable pair.
 //
 // Splines can also be set up to be closed or open. Closed splines continue
-// from the last point to the first point with continuous function and 
+// from the last point to the first point with continuous function and
 // derivative values. (You don't need to duplicate the first point to close
-// the spline, just set ClosedOn.) 
+// the spline, just set ClosedOn.)
 //
 // This implementation of splines does not use a normalized parametric
 // coordinate. If the spline is open, then the parameter space is (tMin <= t
@@ -99,7 +99,7 @@ public:
   // Description:
   // Remove a point from the data to be fit with the spline.
   void RemovePoint (double t);
- 
+
   // Description:
   // Remove all points from the data.
   void RemoveAllPoints ();
@@ -115,16 +115,16 @@ public:
   // Description:
   // Set the type of constraint of the left(right) end points. Four
   // constraints are available:
-  // 
+  //
   // 0: the first derivative at left(right) most point is determined
   // from the line defined from the first(last) two points.
   //
   // 1: the first derivative at left(right) most point is set to
   // Left(Right)Value.
-  // 
+  //
   // 2: the second derivative at left(right) most point is set to
   // Left(Right)Value.
-  // 
+  //
   // 3: the second derivative at left(right)most points is Left(Right)Value
   // times second derivative at first interior point.
   vtkSetClampMacro(LeftConstraint,int,0,3);
@@ -162,7 +162,7 @@ protected:
   double RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
   int Closed;
-  
+
   // Explicitly specify the parametric range.
   double ParametricRange[2];
 

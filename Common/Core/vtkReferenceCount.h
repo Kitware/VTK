@@ -31,8 +31,8 @@ public:
 
   vtkTypeMacro(vtkReferenceCount,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-protected:  
+
+protected:
   vtkReferenceCount();
   ~vtkReferenceCount();
 

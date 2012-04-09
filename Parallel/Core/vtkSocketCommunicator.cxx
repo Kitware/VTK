@@ -129,15 +129,15 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 
 
   os << indent << "SwapBytesInReceivedData: ";
-  if (this->SwapBytesInReceivedData == SwapOff) 
+  if (this->SwapBytesInReceivedData == SwapOff)
     {
     os << "Off\n";
     }
-  if (this->SwapBytesInReceivedData == SwapOn) 
+  if (this->SwapBytesInReceivedData == SwapOn)
     {
     os << "On\n";
     }
-  if (this->SwapBytesInReceivedData == SwapNotSet) 
+  if (this->SwapBytesInReceivedData == SwapNotSet)
     {
     os << "NotSet\n";
     }
@@ -155,9 +155,9 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-    
-    
-  os << indent << "Perform a handshake: " 
+
+
+  os << indent << "Perform a handshake: "
      << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
 
   os << indent << "ReportErrors: " << this->ReportErrors << endl;
@@ -174,7 +174,7 @@ void vtkSocketCommunicator::SetLogStream(ostream* stream)
       delete this->LogFile;
       this->LogFile = 0;
       }
-    
+
     // Use the given log stream.
     this->LogStream = stream;
     }
@@ -219,7 +219,7 @@ int vtkSocketCommunicator::LogToFile(const char* name, int append)
     this->LogFile = 0;
     }
   this->LogStream = 0;
-  
+
   // Log to given file, if any.
   if(name && name[0])
     {
@@ -300,7 +300,7 @@ int vtkSocketCommunicator::SendVoidArray(const void *data, vtkIdType length,
   int status[3] = {0, 0, 0};
   this->ReceiveTagged(status, sizeof(int), 3, 9876543,
     "ENABLE_SYNCHRONIZED_COMMUNICATION#1");
-  assert(status[0] == 9876543 && status[2] == 9876544 && 
+  assert(status[0] == 9876543 && status[2] == 9876544 &&
     (status[1] == 1  || status[1] == 2));
   this->SendTagged(status, sizeof(int), 3, 9876544,
     "ENABLE_SYNCHRONIZED_COMMUNICATION#2");
@@ -373,7 +373,7 @@ int vtkSocketCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
       {
       // words_received in this packet is exactly equal to maxReceive, then it
       // means that the sender is sending atleast one more packet for this
-      // message. Otherwise, we have received all the packets for this message 
+      // message. Otherwise, we have received all the packets for this message
       // and we no longer need to iterate.
       ret = 1;
       break;
@@ -438,7 +438,7 @@ int vtkSocketCommunicator::ServerSideHandshake()
       vtkSocketCommunicatorErrorMacro("Endian handshake failed.");
       return 0;
       }
-    vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) 
+    vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" )
       << "-endian");
 
 #ifdef VTK_WORDS_BIGENDIAN
@@ -656,12 +656,12 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     }
   int ret = this->WaitForConnection(soc);
   soc->Delete();
- 
+
   return ret;
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::WaitForConnection(vtkServerSocket* socket, 
+int vtkSocketCommunicator::WaitForConnection(vtkServerSocket* socket,
   unsigned long msec/*=0*/)
 {
   if ( this->GetIsConnected() )
@@ -711,7 +711,7 @@ int vtkSocketCommunicator::ConnectTo (const char* hostName, int port )
     }
 
   vtkClientSocket* tmp = vtkClientSocket::New();
-  
+
   if(tmp->ConnectToServer(hostName, port))
     {
     vtkSocketCommunicatorErrorMacro("Can not connect to " << hostName << " on port " << port);
@@ -720,7 +720,7 @@ int vtkSocketCommunicator::ConnectTo (const char* hostName, int port )
     }
   this->SetSocket(tmp);
   tmp->Delete();
-  
+
   vtkDebugMacro("Connected to " << hostName << " on port " << port);
   return this->ClientSideHandshake();
 }
@@ -736,7 +736,7 @@ int vtkSocketCommunicator::SendTagged(const void* data, int wordSize,
     return 0;
     }
   int length = wordSize * numWords;
-  if(!this->Socket->Send(&length, 
+  if(!this->Socket->Send(&length,
       static_cast<int>(sizeof(int))))
     {
     vtkSocketCommunicatorErrorMacro("Could not send length.");
@@ -751,7 +751,7 @@ int vtkSocketCommunicator::SendTagged(const void* data, int wordSize,
       return 0;
       }
     }
-  
+
   // Log this event.
   this->LogTagged("Sent", data, wordSize, numWords, tag, logName);
 
@@ -912,9 +912,9 @@ int vtkSocketCommunicator::ReceivePartialTagged(void* data, int wordSize,
     }
 
   this->FixByteOrder(data, wordSize, numWords);
-  
+
   // Log this event.
-  this->LogTagged("Received", data, wordSize, numWords, tag, logName);  
+  this->LogTagged("Received", data, wordSize, numWords, tag, logName);
   return 1;
 }
 
@@ -927,7 +927,7 @@ void vtkSocketCommunicator::FixByteOrder(void* data, int wordSize, int numWords)
     {
     if (wordSize == 4)
       {
-      vtkDebugMacro(<< " swapping 4 range, size = " << wordSize 
+      vtkDebugMacro(<< " swapping 4 range, size = " << wordSize
                     << " length = " << numWords);
       vtkSwap4Range(reinterpret_cast<char*>(data), numWords);
       }
@@ -983,7 +983,7 @@ void vtkSocketCommunicator::LogTagged(const char* name, const void* data,
     *this->LogStream << " data: tag=" << tag
                      << " wordSize=" << wordSize
                      << " numWords=" << numWords;
-    
+
     // If this is a string, log the first 70 characters.  If this is
     // an array of data values, log the first few.
     if(wordSize == static_cast<int>(sizeof(char)) && logName &&

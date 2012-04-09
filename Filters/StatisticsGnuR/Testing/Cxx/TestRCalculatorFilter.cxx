@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    TestRCalculatorFilter.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -134,7 +134,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     rf->SetRscript("a[,,] = sqrt(a[,,] + 5.0)\n");
     rf->Update();
 
-    vtkDenseArray<double>* const dense_array = 
+    vtkDenseArray<double>* const dense_array =
                  vtkDenseArray<double>::SafeDownCast(vtkArrayData::SafeDownCast(rf->GetOutput())->GetArray(1));
     test_expression(dense_array);
 
@@ -157,7 +157,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
   catch( std::exception& e )
     {
-    cerr << e.what() 
+    cerr << e.what()
          << "\n";
     return 1;
     }

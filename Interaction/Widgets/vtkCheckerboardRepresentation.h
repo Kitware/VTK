@@ -19,11 +19,11 @@
 // each of the i-j directions in a 2D image. A frame appears around the
 // vtkImageActor with sliders along each side of the frame. The user can
 // interactively adjust the sliders to the desired number of checkerboard
-// subdivisions. The representation uses four instances of 
+// subdivisions. The representation uses four instances of
 // vtkSliderRepresentation3D to implement itself.
 
 // .SECTION See Also
-// vtkCheckerboardWidget vtkImageCheckerboard vtkImageActor vtkSliderWidget 
+// vtkCheckerboardWidget vtkImageCheckerboard vtkImageActor vtkSliderWidget
 // vtkRectilinearWipeWidget
 
 
@@ -59,7 +59,7 @@ public:
   // Specify an instance of vtkImageActor to decorate.
   void SetImageActor(vtkImageActor *imageActor);
   vtkGetObjectMacro(ImageActor,vtkImageActor);
-  
+
   // Description:
   // Specify the offset of the ends of the sliders (on the boundary edges of
   // the image) from the corner of the image. The offset is expressed as a
@@ -103,7 +103,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 protected:
   vtkCheckerboardRepresentation();
   ~vtkCheckerboardRepresentation();

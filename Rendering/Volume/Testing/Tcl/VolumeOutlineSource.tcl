@@ -43,11 +43,11 @@ for { set i 0 } { $i < 2 } { incr i } {
        volumeMapper_${i}_${j} SetInputConnection [reader GetOutputPort]
        volumeMapper_${i}_${j} CroppingOn
        volumeMapper_${i}_${j} SetCroppingRegionPlanes 17.5 32.5 17.5 32.5 17.5 32.5
-       
+
        vtkVolume volume_${i}_${j}
        volume_${i}_${j} SetMapper volumeMapper_${i}_${j}
        volume_${i}_${j} SetProperty volumeProperty
-       
+
        vtkVolumeOutlineSource outline_${i}_${j}
        outline_${i}_${j} SetVolumeMapper volumeMapper_${i}_${j}
 
@@ -57,7 +57,7 @@ for { set i 0 } { $i < 2 } { incr i } {
        vtkActor outlineActor_${i}_${j}
        outlineActor_${i}_${j} SetMapper outlineMapper_${i}_${j}
 
-       vtkTransform userMatrix_${i}_${j} 
+       vtkTransform userMatrix_${i}_${j}
        userMatrix_${i}_${j} PostMultiply
        userMatrix_${i}_${j} Identity
        userMatrix_${i}_${j} Translate -25 -25 -25
@@ -69,13 +69,13 @@ for { set i 0 } { $i < 2 } { incr i } {
           userMatrix_${i}_${j} RotateX 27
           userMatrix_${i}_${j} RotateY [expr $j*87 + 19]
        }
-       
+
        userMatrix_${i}_${j} Translate [expr $j*65 + 25] [expr $i*55 + 25] 0
 
        volume_${i}_${j} SetUserTransform userMatrix_${i}_${j}
        outlineActor_${i}_${j} SetUserTransform userMatrix_${i}_${j}
 
-       ren1 AddViewProp outlineActor_${i}_${j} 
+       ren1 AddViewProp outlineActor_${i}_${j}
        ren1 AddViewProp volume_${i}_${j}
     }
 }

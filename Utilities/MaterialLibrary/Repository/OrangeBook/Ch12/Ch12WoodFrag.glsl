@@ -3,12 +3,12 @@
 //
 // Author: Randi Rost
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
 
-varying float LightIntensity; 
+varying float LightIntensity;
 varying vec3  MCposition;
 
 uniform sampler3D Noise;
@@ -36,7 +36,7 @@ void main(void)
 
     if (r > 1.0)
         r = 2.0 - r;
- 
+
     vec3 color = mix(LightWoodColor, DarkWoodColor, r);
 
     /*r = fract((MCposition.x + MCposition.z) * GrainScale + 0.5);
@@ -47,6 +47,6 @@ void main(void)
         color -= LightWoodColor * DarkGrains * noisevec[2];*/
 
     color *= LightIntensity;
-    
+
     gl_FragColor = vec4 (color, 1.0);
 }

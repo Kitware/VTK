@@ -80,7 +80,7 @@ public:
   void CopyAttributeOff(int attributeLocation, int attributeType) { this->CopyAttributeOnOff(attributeLocation, attributeType, 0); }
 
   // Description:
-  // Convenience methods which operate on all field data or 
+  // Convenience methods which operate on all field data or
   // attribute data.  More specific than CopyAllOn or CopyAllOff
   void CopyFieldsOff() { this->CopyFields = 0; }
   void CopyAttributesOff() { this->CopyAttributes = 0; }
@@ -91,13 +91,13 @@ public:
   // Description:
   // Helper methods used by other language bindings. Allows the caller to
   // specify arguments as strings instead of enums.
-  void CopyAttributeOn(const char* attributeLoc, 
+  void CopyAttributeOn(const char* attributeLoc,
                        const char* attributeType);
-  void CopyAttributeOff(const char* attributeLoc, 
+  void CopyAttributeOff(const char* attributeLoc,
                         const char* attributeType);
-  void CopyFieldOn(const char* fieldLoc, 
+  void CopyFieldOn(const char* fieldLoc,
                    const char* name);
-  void CopyFieldOff(const char* fieldLoc, 
+  void CopyFieldOff(const char* fieldLoc,
                     const char* name);
 
   // Description:

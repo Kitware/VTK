@@ -53,7 +53,7 @@ class vtkCellData;
 class vtkMergeCellsSTLCloak;
 
 class VTKFILTERSGENERAL_EXPORT vtkMergeCells : public vtkObject
-{ 
+{
 public:
   vtkTypeMacro(vtkMergeCells, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
@@ -87,7 +87,7 @@ public:
   //   vtkMergeCells attempts eliminate duplicate points when merging
   //   data sets.  This is done most efficiently if a global point ID
   //   field array is available.  Set the name of the point array if you
-  //   have one. 
+  //   have one.
 
   vtkSetMacro(UseGlobalIds, int);
   vtkGetMacro(UseGlobalIds, int);

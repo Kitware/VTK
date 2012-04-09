@@ -162,7 +162,7 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
       std::copy(executives, executives+length, oldv->Executives.begin());
       std::copy(ports, ports+length, oldv->Ports.begin());
       // Since this sets a value without call SetAsObjectBase(),
-      // the info has to be modified here (instead of 
+      // the info has to be modified here (instead of
       // vtkInformation::SetAsObjectBase()
       info->Modified();
       }

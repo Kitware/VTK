@@ -39,7 +39,7 @@ public:
   // Description:
   // Instantiate an empty edge table.
   static vtkGenericEdgeTable *New();
-  
+
   // Description:
   // Standard VTK type and print macros.
   vtkTypeMacro(vtkGenericEdgeTable,vtkObject);
@@ -47,7 +47,7 @@ public:
 
   // Description:
   // Split the edge with the indicated point id.
-  void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId, 
+  void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId,
                   int ref, vtkIdType &ptId );
 
   // Description:
@@ -64,12 +64,12 @@ public:
   // It returns whether the edge was split (1) or not (0),
   // and the point id exists.
   int CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId);
-  
+
   // Description:
   // Method that increments the referencecount and returns it.
-  int IncrementEdgeReferenceCount(vtkIdType e1, vtkIdType e2, 
+  int IncrementEdgeReferenceCount(vtkIdType e1, vtkIdType e2,
                                   vtkIdType cellId);
-  
+
   // Description:
   // Return the edge reference count.
   int CheckEdgeReferenceCount(vtkIdType e1, vtkIdType e2);
@@ -78,17 +78,17 @@ public:
   // To specify the starting point id. It will initialize LastPointId
   // This is very sensitive the start point should be cautiously chosen
   void Initialize(vtkIdType start);
-  
+
   // Description:
   // Return the total number of components for the point-centered attributes.
   // \post positive_result: result>0
   int GetNumberOfComponents();
-  
+
   // Description:
   // Set the total number of components for the point-centered attributes.
   // \pre positive_count: count>0
   void SetNumberOfComponents(int count);
-  
+
   // Description:
   // Check if a point is already in the point table.
   int CheckPoint(vtkIdType ptId);
@@ -107,7 +107,7 @@ public:
   // Description:
   // Remove a point from the point table.
   void RemovePoint(vtkIdType ptId);
-  
+
   // Description:
   // Increment the reference count for the indicated point.
   void IncrementPointReferenceCount(vtkIdType ptId );
@@ -127,14 +127,14 @@ public:
   double Coord[3];
   double *Scalar;  // point data: all point-centered attributes at this point
   int numberOfComponents;
-  
+
   int Reference;  //signed char
-  
+
   // Description:
   // Constructor with a scalar field of `size' doubles.
   // \pre positive_number_of_components: size>0
   PointEntry(int size);
-  
+
   ~PointEntry()
     {
       delete[] this->Scalar;
@@ -153,16 +153,16 @@ public:
     this->Reference = other.Reference;
     }
 
-  void operator=(const PointEntry &other) 
+  void operator=(const PointEntry &other)
     {
     if(this != &other)
       {
       this->PointId  = other.PointId;
-      
+
       memcpy(this->Coord, other.Coord, sizeof(double)*3);
-      
+
       int c = other.numberOfComponents;
-      
+
       if(this->numberOfComponents!=c)
         {
         delete[] this->Scalar;
@@ -185,10 +185,10 @@ public:
   int ToSplit;  //signed char
   vtkIdType PtId;
   vtkIdType CellId; //CellId the edge refer to at a step in tesselation
-  
-  EdgeEntry() 
-    { 
-    this->Reference = 0; 
+
+  EdgeEntry()
+    {
+    this->Reference = 0;
     this->CellId = -1;
     }
   ~EdgeEntry() {}
@@ -203,8 +203,8 @@ public:
     this->PtId = copy.PtId;
     this->CellId = copy.CellId;
     }
-  
-  void operator=(const EdgeEntry& entry) 
+
+  void operator=(const EdgeEntry& entry)
     {
     if(this == &entry)
       {
@@ -226,9 +226,9 @@ protected:
 
   // Description:
   // Split the edge with the indicated point id.
-  void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId, 
+  void InsertEdge(vtkIdType e1, vtkIdType e2, vtkIdType cellId,
                   int ref, int toSplit, vtkIdType &ptId );
-  
+
   //Hash table that contiain entry based on edges:
   vtkEdgeTableEdge   *EdgeTable;
 
@@ -246,7 +246,7 @@ protected:
   vtkIdType LastPointId;
 
   vtkIdType NumberOfComponents;
-  
+
 private:
   vtkGenericEdgeTable(const vtkGenericEdgeTable&);  // Not implemented.
   void operator=(const vtkGenericEdgeTable&);  // Not implemented.

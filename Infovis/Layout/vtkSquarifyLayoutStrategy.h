@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkSquarifyLayoutStrategy.h
-  
+
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -27,8 +27,8 @@
 // .SECTION Thanks
 // The squarified tree map algorithm comes from:
 // Bruls, D.M., C. Huizing, J.J. van Wijk. Squarified Treemaps.
-// In: W. de Leeuw, R. van Liere (eds.), Data Visualization 2000, 
-// Proceedings of the joint Eurographics and IEEE TCVG Symposium on Visualization, 
+// In: W. de Leeuw, R. van Liere (eds.), Data Visualization 2000,
+// Proceedings of the joint Eurographics and IEEE TCVG Symposium on Visualization,
 // 2000, Springer, Vienna, p. 33-42.
 
 #ifndef __vtkSquarifyLayoutStrategy_h

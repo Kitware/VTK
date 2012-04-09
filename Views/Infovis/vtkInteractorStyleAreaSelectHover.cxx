@@ -226,7 +226,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
         {
         VTK_CREATE(vtkPoints, highlightPoints);
         highlightPoints->SetNumberOfPoints(5);
-        
+
         VTK_CREATE(vtkCellArray, highA);
         highA->InsertNextCell(5);
         for( int i = 0; i < 5; ++i)
@@ -251,30 +251,30 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
           sector->SetZCoord(z);
           sector->SetStartAngle(sinfo[0]);
           sector->SetEndAngle(sinfo[1]);
-          
+
           int resolution = (int)((sinfo[1]-sinfo[0])/1);
           if( resolution < 1 )
             resolution = 1;
           sector->SetCircumferentialResolution(resolution);
           sector->Update();
-          
+
           VTK_CREATE(vtkExtractEdges, extract);
           extract->SetInputConnection(sector->GetOutputPort());
-          
+
           VTK_CREATE(vtkAppendPolyData, append);
           append->AddInputConnection(extract->GetOutputPort());
           append->Update();
-          
+
           this->HighlightData->ShallowCopy(append->GetOutput());
           }
         else
           {
           VTK_CREATE(vtkPoints, highlightPoints);
           highlightPoints->SetNumberOfPoints(240);
-          
+
           double conversion = vtkMath::Pi()/180.;
           double current_angle = 0.;
-          
+
           VTK_CREATE(vtkCellArray, highA);
           for( int i = 0; i < 120; ++i)
             {
@@ -282,13 +282,13 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
             double current_x = sinfo[2]*cos(conversion*current_angle);
             double current_y = sinfo[2]*sin(conversion*current_angle);
             highlightPoints->SetPoint( i, current_x, current_y, z );
-            
+
             current_angle += 3.;
-            
+
             highA->InsertCellPoint(i);
             highA->InsertCellPoint((i+1)%120);
             }
-          
+
           current_angle = 0.;
           for( int i = 0; i < 120; ++i)
             {
@@ -296,15 +296,15 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
             double current_x = sinfo[3]*cos(conversion*current_angle);
             double current_y = sinfo[3]*sin(conversion*current_angle);
             highlightPoints->SetPoint( 120+i, current_x, current_y, z );
-            
+
             current_angle += 3.;
-            
+
             highA->InsertCellPoint(120+i);
             highA->InsertCellPoint(120+((i+1)%120));
             }
           this->HighlightData->SetPoints(highlightPoints);
           this->HighlightData->SetLines(highA);
-          }  
+          }
         }
       this->HighlightActor->VisibilityOn();
       }

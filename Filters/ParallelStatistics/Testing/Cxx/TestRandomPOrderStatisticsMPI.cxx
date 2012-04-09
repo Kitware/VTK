@@ -92,7 +92,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   vtkIntArray* intArray = vtkIntArray::New();
   intArray->SetNumberOfComponents( 1 );
   intArray->SetName( columnNames[0] );
-  
+
   // Prepare column of strings
   vtkStringArray* strArray = vtkStringArray::New();
   strArray->SetNumberOfComponents( 1 );
@@ -102,7 +102,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
   int* v = new int[nVariables];
   int* min_l = new int[nVariables];
   int* max_l = new int[nVariables];
-  
+
   // Initial current variable index
   int idx = 0;
 
@@ -113,7 +113,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     intArray->InsertNextValue( v[idx] );
     ++ idx;
     }
-  
+
   // Store first string value
   if ( ! args->skipString )
     {
@@ -129,7 +129,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     min_l[i] = v[i];
     max_l[i] = v[i];
     }
-  
+
   // Continue up to nVals values have been generated
   for ( int r = 1; r < args->nVals; ++ r )
     {
@@ -187,7 +187,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
                   min_g,
                   nVariables,
                   vtkCommunicator::MIN_OP );
-  
+
   com->AllReduce( max_l,
                   max_g,
                   nVariables,
@@ -218,7 +218,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     } // if ( myRank == args->ioRank )
 
   // Clean up
-  delete [] v;  
+  delete [] v;
   delete [] min_l;
   delete [] max_l;
   intArray->Delete();
@@ -319,7 +319,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
              << ", histogram size = "
              << outputHistogram->GetNumberOfRows()
              << "\n";
-        
+
         if ( card_g[p] != testIntValue )
           {
           vtkGenericWarningMacro("Incorrect cardinality:"
@@ -340,12 +340,12 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
     cout << "\n## Verifying that calculated global ranges are correct:\n";
     for ( int i = 0; i < nVariables; ++ i )
       {
-      vtkVariant min_c = outputQuantiles->GetValue( 0, 
+      vtkVariant min_c = outputQuantiles->GetValue( 0,
                                                     i + 1 );
-      
+
       vtkVariant max_c = outputQuantiles->GetValue( outputQuantiles->GetNumberOfRows() - 1 ,
                                                     i + 1 );
-      
+
       // Print out computed range
       cout << "   "
            << columnNames[i]
@@ -383,7 +383,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
           *(args->retVal) = 1;
           }
         } // else
-      
+
       // Check maximum
       if ( max_c.IsString() )
         {
@@ -531,7 +531,7 @@ int main( int argc, char** argv )
     {
     if ( com->GetLocalProcessId() == ioRank )
       {
-      cerr << "Usage: " 
+      cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
       }

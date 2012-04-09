@@ -108,14 +108,14 @@ int vtkGenericProbeFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkGenericDataSet *source = vtkGenericDataSet::SafeDownCast(
     sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType ptId, numPts;
   double x[3], tol2;
   int subId;
- 
+
   double pcoords[3];
 
   vtkDebugMacro(<<"Probing data");
@@ -125,29 +125,29 @@ int vtkGenericProbeFilter::RequestData(
     vtkErrorMacro (<< "Source is NULL.");
     return 1;
     }
-  
- 
+
+
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
   numPts = input->GetNumberOfPoints();
   this->ValidPoints->Allocate(numPts);
-  
+
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  
+
   // prepare the output attributes
   vtkGenericAttributeCollection *attributes=source->GetAttributes();
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
-  
+
   int c=attributes->GetNumberOfAttributes();
   vtkDataSetAttributes *dsAttributes;
 
   int attributeType;
-  
+
   double *tuples = new double[attributes->GetMaxNumberOfComponents()];
-  
+
   for(int i = 0; i<c; ++i)
     {
     attribute=attributes->GetAttribute(i);
@@ -165,14 +165,14 @@ int vtkGenericProbeFilter::RequestData(
     attributeArray->SetName(attribute->GetName());
     dsAttributes->AddArray(attributeArray);
     attributeArray->Delete();
-    
+
     if(dsAttributes->GetAttribute(attributeType)==0)
       {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
       }
     }
-  
-  
+
+
   // Use tolerance as a function of size of source data
   //
   tol2 = source->GetLength();
@@ -181,10 +181,10 @@ int vtkGenericProbeFilter::RequestData(
   // Loop over all input points, interpolating source data
   //
   int abort=0;
-  
+
   // Need to use source to create a cellIt since this class is virtual
   vtkGenericCellIterator *cellIt = source->NewCellIterator();
-  
+
   vtkIdType progressInterval=numPts/20 + 1;
   for (ptId=0; ptId < numPts && !abort; ptId++)
     {
@@ -196,12 +196,12 @@ int vtkGenericProbeFilter::RequestData(
 
     // Get the xyz coordinate of the point in the input dataset
     input->GetPoint(ptId, x);
-    
+
     // Find the cell that contains xyz and get it
     if(source->FindCell(x,cellIt,tol2,subId,pcoords))
       {
       vtkGenericAdaptorCell *cellProbe = cellIt->GetCell();
-      
+
       // for each cell-centered attribute: copy the value
       for(int attrib = 0; attrib<c; ++attrib)
         {
@@ -209,10 +209,10 @@ int vtkGenericProbeFilter::RequestData(
           {
           vtkDataArray *array=outputCD->GetArray(attributes->GetAttribute(attrib)->GetName());
           double *values=attributes->GetAttribute(attrib)->GetTuple(cellProbe);
-          array->InsertNextTuple(values);  
+          array->InsertNextTuple(values);
           }
         }
-      
+
       // for each point-centered attribute: interpolate the value
       int j=0;
       for(int attribute_idx = 0; attribute_idx<c; ++attribute_idx)

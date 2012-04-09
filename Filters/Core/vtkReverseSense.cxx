@@ -60,7 +60,7 @@ int vtkReverseSense::RequestData(
   //If specified, traverse all cells and reverse them
   int abort=0;
   vtkIdType progressInterval;
-  
+
   if ( this->ReverseCells )
     {
     vtkIdType numCells=input->GetNumberOfCells();
@@ -120,7 +120,7 @@ int vtkReverseSense::RequestData(
     output->GetPointData()->SetNormals(outNormals);
     outNormals->Delete();
     }
-  
+
   //now do cell normals
   if ( this->ReverseNormals && cellNormals )
     {
@@ -156,8 +156,8 @@ void vtkReverseSense::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Reverse Cells: " 
+  os << indent << "Reverse Cells: "
      << (this->ReverseCells ? "On\n" : "Off\n");
-  os << indent << "Reverse Normals: " 
+  os << indent << "Reverse Normals: "
      << (this->ReverseNormals ? "On\n" : "Off\n");
 }

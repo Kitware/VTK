@@ -50,7 +50,7 @@
 //
 // .SECTION Thanks
 // Philip Batchelor philipp.batchelor@kcl.ac.uk for creating and contributing
-// the class and Andrew Maclean a.maclean@acfr.usyd.edu.au for cleanups and 
+// the class and Andrew Maclean a.maclean@acfr.usyd.edu.au for cleanups and
 // fixes. Thanks also to Goodwin Lawlor for contributing patch to calculate
 // principal curvatures
 
@@ -116,15 +116,15 @@ protected:
   // discrete Mean curvature (H) computation,
   // cf http://www-ipg.umds.ac.uk/p.batchelor/curvatures/curvatures.html
   void GetMeanCurvature(vtkPolyData *output);
-  
+
   //Description:
   // Maximum principal curvature \f$k_max = H + sqrt(H^2 -K)\f$
   void GetMaximumCurvature(vtkPolyData *input, vtkPolyData *output);
-  
+
   //Description:
   // Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
   void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
-  
+
 
   // Vars
   int CurvatureType;

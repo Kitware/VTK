@@ -53,7 +53,7 @@ public:
     }
 
 protected:
-  vtkScenePickerSelectionRenderCommand() 
+  vtkScenePickerSelectionRenderCommand()
                                       : InteractiveRender(false) {}
   virtual ~vtkScenePickerSelectionRenderCommand() {}
   bool InteractiveRender;
@@ -72,7 +72,7 @@ vtkScenePicker::vtkScenePicker()
   this->VertId               = -1;
   this->CellId               = -1;
   this->Prop                 = NULL;
-  this->SelectionRenderCommand 
+  this->SelectionRenderCommand
     = vtkScenePickerSelectionRenderCommand::New();
   this->SelectionRenderCommand->m_Picker = this;
 }
@@ -94,26 +94,26 @@ void vtkScenePicker::SetRenderer( vtkRenderer * r )
     rwi = r->GetRenderWindow()->GetInteractor();
     }
   this->SetInteractor(rwi);
-  
+
   if (this->Renderer == r)
     {
     return;
     }
   if (r && !r->GetRenderWindow())
     {
-    vtkErrorMacro( << "Renderer: " << this->Renderer 
+    vtkErrorMacro( << "Renderer: " << this->Renderer
                    << " does not have its render window set." );
     return;
     }
-  
+
   if (this->Renderer)
     {
-    this->Renderer->GetRenderWindow()->RemoveObserver( 
+    this->Renderer->GetRenderWindow()->RemoveObserver(
                         this->SelectionRenderCommand );
     }
 
   vtkSetObjectBodyMacro( Renderer, vtkRenderer, r );
-  
+
   if (this->Renderer)
     {
     this->Renderer->GetRenderWindow()->AddObserver( vtkCommand::EndEvent,
@@ -124,7 +124,7 @@ void vtkScenePicker::SetRenderer( vtkRenderer * r )
 }
 
 //----------------------------------------------------------------------------
-void vtkScenePicker::SetInteractor( 
+void vtkScenePicker::SetInteractor(
                          vtkRenderWindowInteractor *rwi )
 {
   if (this->Interactor == rwi)
@@ -137,7 +137,7 @@ void vtkScenePicker::SetInteractor(
     }
 
   vtkSetObjectBodyMacro( Interactor, vtkRenderWindowInteractor, rwi );
-  
+
   if (this->Interactor)
     {
     this->Interactor->AddObserver( vtkCommand::StartInteractionEvent,
@@ -181,12 +181,12 @@ void vtkScenePicker::PickRender()
 
 // ----------------------------------------------------------------------------
 // Do a selection render.. for caching object selection stuff.
-void vtkScenePicker::PickRender( 
+void vtkScenePicker::PickRender(
                int x0, int y0, int x1, int y1 )
 {
-  this->Renderer->GetRenderWindow()->RemoveObserver( 
+  this->Renderer->GetRenderWindow()->RemoveObserver(
       this->SelectionRenderCommand );
- 
+
   if (this->EnableVertexPicking)
     {
     this->Selector->SetFieldAssociation(
@@ -205,7 +205,7 @@ void vtkScenePicker::PickRender(
     }
   this->NeedToUpdate = true;
   this->PickRenderTime.Modified();
-  this->Renderer->GetRenderWindow()->AddObserver( 
+  this->Renderer->GetRenderWindow()->AddObserver(
         vtkCommand::EndEvent, this->SelectionRenderCommand, 0.01 );
 }
 

@@ -225,7 +225,7 @@ bool vtkAMRResampleFilter::FoundDonor(
   this->NumberOfBlocksTested++;
   donorGrid->GetBounds(gbounds);
   if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) ||
-      (q[1] < gbounds[2]) || (q[1] > gbounds[3]) || 
+      (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
       (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
     {
     return false;
@@ -467,7 +467,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       {
       assert( "pre: donorCellIdx is invalid" &&
               (donorCellIdx >= 0) && (donorCellIdx < donorGrid->GetNumberOfCells()) );
-      
+
       this->NumberOfTimesFoundOnDonorLevel++;
       // Lets see if the cell is blanked - if it isn't then we found the highest
       // resolution grid that contains the point
@@ -544,7 +544,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
         return donorCellIdx;
         }
 
-      // Lets see if this is the highest resolution grid that contains the 
+      // Lets see if this is the highest resolution grid that contains the
       // point
       if (donorGrid->IsCellVisible(donorCellIdx))
         {
@@ -586,7 +586,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::SearchGridAncestors(double q[3], 
+void vtkAMRResampleFilter::SearchGridAncestors(double q[3],
                                                vtkOverlappingAMR *amrds,
                                                unsigned int &level,
                                                unsigned int &gridId,
@@ -620,7 +620,7 @@ void vtkAMRResampleFilter::SearchGridAncestors(double q[3],
   cellId = -1;
 }
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::SearchGridDecendants(double q[3], 
+void vtkAMRResampleFilter::SearchGridDecendants(double q[3],
                                                 vtkOverlappingAMR *amrds,
                                                 unsigned int maxLevel,
                                                 unsigned int &level,
@@ -670,7 +670,7 @@ void vtkAMRResampleFilter::SearchGridDecendants(double q[3],
 //-----------------------------------------------------------------------------
 int vtkAMRResampleFilter::
 ProbeGridPointInAMRGraph(double q[3], vtkUniformGrid *&donorGrid,
-                         unsigned int &donorLevel,  unsigned int &donorGridId, 
+                         unsigned int &donorLevel,  unsigned int &donorGridId,
                          vtkOverlappingAMR *amrds, unsigned int maxLevel)
 {
   assert( "pre: AMR dataset is NULL" && amrds != NULL );
@@ -771,7 +771,7 @@ void vtkAMRResampleFilter::TransferToGridNodes(
       {
       g->GetPoint( pIdx, qPoint );
       donorCellIdx =
-        this->ProbeGridPointInAMRGraph(qPoint,donorGrid, 
+        this->ProbeGridPointInAMRGraph(qPoint,donorGrid,
                                        donorLevel, donorGridId,
                                        this->AMRMetaData,maxLevelToLoad );
       if( donorCellIdx != -1 )
@@ -795,11 +795,11 @@ void vtkAMRResampleFilter::TransferToGridNodes(
     for(pIdx = 0; pIdx < g->GetNumberOfPoints(); ++pIdx )
       {
       g->GetPoint( pIdx, qPoint );
-      
+
       donorCellIdx =
-        this->ProbeGridPointInAMR(qPoint,donorGrid, donorLevel, 
+        this->ProbeGridPointInAMR(qPoint,donorGrid, donorLevel,
                                   amrds,maxLevelToLoad );
-      
+
       if( donorCellIdx != -1 )
         {
         this->AverageLevel += donorLevel;
@@ -1074,7 +1074,7 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
     a[2] = fabs(this->BiasVector[2]);
 
     // Find the max component
-    int bdir = 
+    int bdir =
       (a[0] > a[1]) ? ((a[0] > a[2]) ? 0 : 2) : ((a[1] > a[2]) ? 1 : 2);
 
     if (bdir == 0)

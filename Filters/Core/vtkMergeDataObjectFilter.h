@@ -63,7 +63,7 @@ public:
   void SetOutputFieldToDataObjectField();
   void SetOutputFieldToPointDataField();
   void SetOutputFieldToCellDataField();
-  
+
 protected:
   vtkMergeDataObjectFilter();
   ~vtkMergeDataObjectFilter();

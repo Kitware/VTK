@@ -111,7 +111,7 @@ int TestQuadraturePoints(int argc,char *argv[])
 
   // Interpolate fields to the quadrature points. This generates new field data
   // arrays, but not a set of points.
-  vtkSmartPointer<vtkQuadraturePointInterpolator> fieldInterp = 
+  vtkSmartPointer<vtkQuadraturePointInterpolator> fieldInterp =
     vtkSmartPointer<vtkQuadraturePointInterpolator>::New();
   fieldInterp->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "QuadratureOffset");
   fieldInterp->SetInputConnection(dictGen->GetOutputPort());

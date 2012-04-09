@@ -39,7 +39,7 @@ public:
 protected:
   vtkXMLPStructuredDataWriter();
   ~vtkXMLPStructuredDataWriter();
-  
+
   virtual vtkXMLStructuredDataWriter* CreateStructuredPieceWriter()=0;
   void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void WritePPieceAttributes(int index);

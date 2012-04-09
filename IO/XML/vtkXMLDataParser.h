@@ -133,7 +133,7 @@ public:
   // Description:
   // If you need the text inside XMLElements, turn IgnoreCharacterData off.
   // This method will then be called when the file is parsed, and the text
-  // will be stored in each XMLDataElement. VTK XML Readers store the 
+  // will be stored in each XMLDataElement. VTK XML Readers store the
   // information elsewhere, so the default is to ignore it.
   virtual void CharacterDataHandler(const char* data, int length);
 

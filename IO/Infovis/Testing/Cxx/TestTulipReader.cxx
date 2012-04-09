@@ -41,7 +41,7 @@ int TestTulipReader(int argc, char* argv[])
   VTK_CREATE(vtkTulipReader, reader);
   reader->SetFileName(file);
   delete[] file;
-  
+
   VTK_CREATE(vtkCircularLayoutStrategy, strategy);
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputConnection(reader->GetOutputPort());
@@ -63,7 +63,7 @@ int TestTulipReader(int argc, char* argv[])
     {
     iren->Initialize();
     iren->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

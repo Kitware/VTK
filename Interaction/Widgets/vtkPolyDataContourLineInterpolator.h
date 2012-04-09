@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPolyDataContourLineInterpolator - Contour interpolator for polygonal data
 //
-// .SECTION Description 
+// .SECTION Description
 // vtkPolyDataContourLineInterpolator is an abstract base class for contour
 // line interpolators that interpolate on polygonal data.
 //
@@ -43,17 +43,17 @@ public:
   // Subclasses that wish to interpolate a line segment must implement this.
   // For instance vtkBezierContourLineInterpolator adds nodes between idx1
   // and idx2, that allow the contour to adhere to a bezier curve.
-  virtual int InterpolateLine( vtkRenderer *ren, 
+  virtual int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
                                int idx1, int idx2 ) = 0;
-  
+
   // Description:
   // The interpolator is given a chance to update the node.
-  // vtkImageContourLineInterpolator updates the idx'th node in the contour, 
-  // so it automatically sticks to edges in the vicinity as the user 
-  // constructs the contour. 
+  // vtkImageContourLineInterpolator updates the idx'th node in the contour,
+  // so it automatically sticks to edges in the vicinity as the user
+  // constructs the contour.
   // Returns 0 if the node (world position) is unchanged.
-  virtual int UpdateNode( vtkRenderer *, 
+  virtual int UpdateNode( vtkRenderer *,
                           vtkContourRepresentation *,
                           double * vtkNotUsed(node), int vtkNotUsed(idx) ) = 0;
 
@@ -61,7 +61,7 @@ public:
   // Be sure to add polydata on which you wish to place points to this list
   // or they will not be considered for placement.
   vtkGetObjectMacro( Polys, vtkPolyDataCollection );
-  
+
 protected:
   vtkPolyDataContourLineInterpolator();
   ~vtkPolyDataContourLineInterpolator();

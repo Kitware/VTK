@@ -60,8 +60,8 @@ const char* vtkXMLMultiBlockDataReader::GetDataSetName()
 //----------------------------------------------------------------------------
 // This version does not support multiblock of multiblocks, so our work is
 // simple.
-void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element, 
-  vtkCompositeDataSet* composite, const char* filePath, 
+void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
+  vtkCompositeDataSet* composite, const char* filePath,
   unsigned int &dataSetIndex)
 {
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(composite);
@@ -69,7 +69,7 @@ void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
   for (unsigned int cc=0; cc < numElems; ++cc)
     {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
-    if (!childXML || !childXML->GetName() || 
+    if (!childXML || !childXML->GetName() ||
       strcmp(childXML->GetName(), "DataSet") != 0)
       {
       continue;
@@ -100,7 +100,7 @@ void vtkXMLMultiBlockDataReader::ReadVersion0(vtkXMLDataElement* element,
 
 //----------------------------------------------------------------------------
 void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
-  vtkCompositeDataSet* composite, const char* filePath, 
+  vtkCompositeDataSet* composite, const char* filePath,
   unsigned int &dataSetIndex)
 {
   vtkMultiBlockDataSet* mblock = vtkMultiBlockDataSet::SafeDownCast(composite);
@@ -129,7 +129,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
 
     int index = 0;
     if (!childXML->GetScalarAttribute("index", index))
-    // if index not in the structure file, then 
+    // if index not in the structure file, then
     // set up to add at the end
       {
       if (mblock)

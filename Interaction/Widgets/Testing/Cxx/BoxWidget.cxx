@@ -32,7 +32,7 @@
 class vtkBWCallback : public vtkCommand
 {
 public:
-  static vtkBWCallback *New() 
+  static vtkBWCallback *New()
   { return new vtkBWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
@@ -478,12 +478,12 @@ int BoxWidget( int , char *[] )
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
-                                                        
+
   vtkSmartPointer<vtkAppendPolyData> append =
     vtkSmartPointer<vtkAppendPolyData>::New();
   append->AddInputConnection(glyph->GetOutputPort());
   append->AddInputConnection(sphere->GetOutputPort());
-  
+
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(append->GetOutputPort());

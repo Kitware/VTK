@@ -19,7 +19,7 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
 	for {set j 0} {$j < [a${array}Array GetNumberOfComponents]} {incr j} {
 	    a${array}Array InsertComponent $i $j 1
 	    incr k
-	}     
+	}
     }
     # SetComponent
     set k 0
@@ -27,16 +27,16 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
 	for {set j 0} {$j < [a${array}Array GetNumberOfComponents]} {incr j} {
 	    a${array}Array SetComponent $i $j 1
 	    incr k
-	}     
+	}
     }
-    
+
     # DeepCopy
     vtk${array}Array b${array}Array
     b${array}Array Allocate 1000 100
     # force a resize
     b${array}Array InsertComponent 2001 0 1
     b${array}Array DeepCopy a${array}Array
-    
+
     # NewInstance
     set m${array} [b${array}Array NewInstance]
     eval [set m${array}] UnRegister b${array}Array

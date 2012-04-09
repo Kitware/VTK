@@ -16,9 +16,9 @@
 // .SECTION Description
 // vtkInterpolateDataSetAttributes is a filter that interpolates data set
 // attribute values between input data sets. The input to the filter
-// must be datasets of the same type, same number of cells, and same 
+// must be datasets of the same type, same number of cells, and same
 // number of points. The output of the filter is a data set of the same
-// type as the input dataset and whose attribute values have been 
+// type as the input dataset and whose attribute values have been
 // interpolated at the parametric value specified.
 //
 // The filter is used by specifying two or more input data sets (total of N),
@@ -45,7 +45,7 @@ public:
   // Description:
   // Return the list of inputs to this filter.
   vtkDataSetCollection *GetInputList();
-  
+
   // Description:
   // Specify interpolation parameter t.
   vtkSetClampMacro(T,double,0.0,VTK_DOUBLE_MAX);
@@ -59,8 +59,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int port, vtkInformation *info);
-  
-  vtkDataSetCollection *InputList; // list of data sets to interpolate 
+
+  vtkDataSetCollection *InputList; // list of data sets to interpolate
   double T; // interpolation parameter
 
 private:

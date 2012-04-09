@@ -49,19 +49,19 @@ vtkVolumeTextureMapper::~vtkVolumeTextureMapper()
 {
   this->SetGradientEstimator( NULL );
   this->GradientShader->Delete();
-  
+
   if ( this->RGBAArray )
     {
     delete [] this->RGBAArray;
     }
-  
+
   if ( this->GradientOpacityArray )
     {
     delete [] this->GradientOpacityArray;
     }
 }
 
-void vtkVolumeTextureMapper::SetGradientEstimator( 
+void vtkVolumeTextureMapper::SetGradientEstimator(
                                       vtkEncodedGradientEstimator *gradest )
 {
 
@@ -114,7 +114,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   float *GArray;
   int   colorChannels;
   float gradientOpacityConstant;
-  
+
   // Hang on to the render window - we'll need it to test for abort
   this->RenderWindow = ren->GetRenderWindow();
 
@@ -126,7 +126,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   int numComponents = this->GetInput()->
     GetPointData()->GetScalars()->GetNumberOfComponents();
-  
+
   if ( this->ArraySize != size ||
        this->NumberOfComponents != numComponents )
     {
@@ -138,31 +138,31 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
       {
       delete [] this->GradientOpacityArray;
       }
-    
-    this->RGBAArray            = new unsigned char [4*size*numComponents];    
-    this->GradientOpacityArray = new float [256*numComponents];    
+
+    this->RGBAArray            = new unsigned char [4*size*numComponents];
+    this->GradientOpacityArray = new float [256*numComponents];
     this->ArraySize            = size;
     this->NumberOfComponents   = numComponents;
     }
 
   float *goPtr;
   float *goArray;
-  
+
   for ( int c = 0; c < numComponents; c++ )
     {
     goPtr = vol->GetGradientOpacityArray(c);
     goArray = this->GradientOpacityArray + c;
-    
+
     for ( i = 0; i < 256; i++ )
       {
       *(goArray) = *(goPtr++);
       goArray += numComponents;
       }
-    
+
     AArray = vol->GetCorrectedScalarOpacityArray(c);
     colorChannels = vol->GetProperty()->GetColorChannels(c);
 
-    
+
     // Being less than 0.0 implies a transfer function, so just multiply by
     // 1.0 here since the transfer function will supply the true opacity
     // modulation value
@@ -174,7 +174,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
     if ( colorChannels == 3 )
       {
-      RGBArray = vol->GetRGBArray(c);    
+      RGBArray = vol->GetRGBArray(c);
       for ( i=0, j=(c*4), k=0; i < size; i++ )
         {
         this->RGBAArray[j++] = static_cast<unsigned char>(
@@ -185,7 +185,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
           0.5 + (RGBArray[k++]*255.0));
         this->RGBAArray[j++] = static_cast<unsigned char>(
           0.5 + AArray[i]*255.0*gradientOpacityConstant);
-        
+
         j += 4*(numComponents-1);
         }
       }
@@ -202,36 +202,36 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
           0.5 + (GArray[i]*255.0));
         this->RGBAArray[j++] = static_cast<unsigned char>(
           0.5 + AArray[i]*255.0*gradientOpacityConstant);
-        
+
         j += 4*(numComponents-1);
         }
       }
     }
-  
-  this->Shade =  vol->GetProperty()->GetShade();  
+
+  this->Shade =  vol->GetProperty()->GetShade();
 
   this->GradientEstimator->SetInputData( this->GetInput() );
 
   if ( this->Shade )
     {
-    this->GradientShader->UpdateShadingTable( ren, vol, 
+    this->GradientShader->UpdateShadingTable( ren, vol,
                                               this->GradientEstimator );
-    this->EncodedNormals = 
+    this->EncodedNormals =
       this->GradientEstimator->GetEncodedNormals();
 
-    this->RedDiffuseShadingTable = 
+    this->RedDiffuseShadingTable =
       this->GradientShader->GetRedDiffuseShadingTable(vol);
-    this->GreenDiffuseShadingTable = 
+    this->GreenDiffuseShadingTable =
       this->GradientShader->GetGreenDiffuseShadingTable(vol);
-    this->BlueDiffuseShadingTable = 
+    this->BlueDiffuseShadingTable =
       this->GradientShader->GetBlueDiffuseShadingTable(vol);
-    
-    this->RedSpecularShadingTable = 
+
+    this->RedSpecularShadingTable =
       this->GradientShader->GetRedSpecularShadingTable(vol);
-    this->GreenSpecularShadingTable = 
+    this->GreenSpecularShadingTable =
       this->GradientShader->GetGreenSpecularShadingTable(vol);
-    this->BlueSpecularShadingTable = 
-      this->GradientShader->GetBlueSpecularShadingTable(vol);    
+    this->BlueSpecularShadingTable =
+      this->GradientShader->GetBlueSpecularShadingTable(vol);
     }
   else
     {
@@ -248,7 +248,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   // we need to use the gradient magnitudes to look up the opacity
   if ( vol->GetGradientOpacityConstant() == -1.0 )
     {
-    this->GradientMagnitudes = 
+    this->GradientMagnitudes =
       this->GradientEstimator->GetGradientMagnitudes();
     }
   else
@@ -258,30 +258,30 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   this->GetInput()->GetOrigin( this->DataOrigin );
   this->GetInput()->GetSpacing( this->DataSpacing );
-  
+
   this->ConvertCroppingRegionPlanesToVoxels();
 }
 
 float vtkVolumeTextureMapper::GetGradientMagnitudeScale()
 {
-  if ( !this->GradientEstimator ) 
+  if ( !this->GradientEstimator )
     {
     vtkErrorMacro( "You must have a gradient estimator set to get the scale" );
     return 1.0;
     }
-  
-  return this->GradientEstimator->GetGradientMagnitudeScale();  
+
+  return this->GradientEstimator->GetGradientMagnitudeScale();
 }
 
 float vtkVolumeTextureMapper::GetGradientMagnitudeBias()
 {
-  if ( !this->GradientEstimator ) 
+  if ( !this->GradientEstimator )
     {
     vtkErrorMacro( "You must have a gradient estimator set to get the bias" );
     return 1.0;
     }
-  
-  return this->GradientEstimator->GetGradientMagnitudeBias();  
+
+  return this->GradientEstimator->GetGradientMagnitudeBias();
 }
 
 // Print the vtkVolumeTextureMapper

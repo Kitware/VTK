@@ -38,7 +38,7 @@
 
 vtkStandardNewMacro( vtkAMRVolumeMapper );
 
-// Construct a vtkAMRVolumeMapper 
+// Construct a vtkAMRVolumeMapper
 //----------------------------------------------------------------------------
 vtkAMRVolumeMapper::vtkAMRVolumeMapper()
 {
@@ -99,7 +99,7 @@ void vtkAMRVolumeMapper::SetInputData(vtkOverlappingAMR *hdata)
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input)
 {
-  if ((this->Resampler->GetNumberOfInputConnections(0) > 0) 
+  if ((this->Resampler->GetNumberOfInputConnections(0) > 0)
       && (this->Resampler->GetInputConnection(port,0) == input))
     {
     return;
@@ -116,7 +116,7 @@ void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input
 double *vtkAMRVolumeMapper::GetBounds()
 {
   vtkOverlappingAMR*hdata;
-  hdata = 
+  hdata =
     vtkOverlappingAMR::SafeDownCast
     (this->Resampler->GetInputDataObject(0,0));
   if (!hdata)
@@ -294,7 +294,7 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
       this->UpdateGrid();
       }
 
-    if (this->Grid == NULL) 
+    if (this->Grid == NULL)
       {
       // Could not create a grid
       return;
@@ -342,7 +342,7 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
         d2 = vtkMath::Distance2BetweenPoints(fp, this->LastFocalPointPosition)/(maxL*maxL);
         if (d2 <= (this->ResamplerUpdateTolerance * this->ResamplerUpdateTolerance))
           {
-          // nothing needs to be updated 
+          // nothing needs to be updated
           return;
           }
         else
@@ -366,7 +366,7 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
     }
   else
     {
-    // This is the focal point approach where we 
+    // This is the focal point approach where we
     // center the grid on the focal point and set its length
     // to be the distance between the camera and its focal point
     double p[3];
@@ -385,16 +385,16 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
   this->GridNeedsToBeUpdated = true;
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren, 
+void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
                                                        vtkOverlappingAMR *amr)
 {
   // First we need to create a bouding box that represents the visible region
   // of the camera in World Coordinates
 
   // In order to produce as tight of bounding box as possible we need to determine
-  // the z range in view coordinates of the data and then project that part 
+  // the z range in view coordinates of the data and then project that part
   // of the view volume back into world coordinates
-  
+
   // We would just use the renderer's WorldToView and ViewToWorld methods but those
   // implementations are not efficient for example ViewToWorld would do 8
   // matrix inverse ops when all we really need to do is one
@@ -412,10 +412,10 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
     this->GetBounds(bounds);
     }
   // Get the camera transformation
-  vtkMatrix4x4 *matrix = 
+  vtkMatrix4x4 *matrix =
     ren->GetActiveCamera()->
     GetCompositeProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
-  
+
   int i, j, k;
   double pnt[4], tpnt[4];
   vtkBoundingBox bbox;
@@ -432,7 +432,7 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
         matrix->MultiplyPoint(pnt, tpnt);
         if (tpnt[3])
           {
-          bbox.AddPoint(tpnt[0]/tpnt[3], 
+          bbox.AddPoint(tpnt[0]/tpnt[3],
                         tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
           }
         else
@@ -463,7 +463,7 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
     }
   else
     {
-    // Since we could not find a valid bounding box assume that the 
+    // Since we could not find a valid bounding box assume that the
     // zrange is -1 to 1
     zRange[0] = -1.0;
     zRange[1] = 1.0;
@@ -489,7 +489,7 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
         vtkMatrix4x4::MultiplyPoint(mat,pnt,tpnt);
         if (tpnt[3])
           {
-          bbox.AddPoint(tpnt[0]/tpnt[3], 
+          bbox.AddPoint(tpnt[0]/tpnt[3],
                         tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
           }
         else
@@ -526,11 +526,11 @@ void vtkAMRVolumeMapper::UpdateGrid()
 #if PRINTSTATS
   timer->StopTimer();
   std::cerr << "Resample Time:" << timer->GetElapsedTime() << " ";
-  std::cerr << "New Bounds: [" << bbox.GetMinPoint()[0] 
+  std::cerr << "New Bounds: [" << bbox.GetMinPoint()[0]
             << ", " << bbox.GetMaxPoint()[0] << "], ["
-            << bbox.GetMinPoint()[1] 
+            << bbox.GetMinPoint()[1]
             << ", " << bbox.GetMaxPoint()[1] << "], ["
-            << bbox.GetMinPoint()[2] 
+            << bbox.GetMinPoint()[2]
             << ", " << bbox.GetMaxPoint()[2] << "\n";
 #endif
   vtkMultiBlockDataSet *mb = this->Resampler->GetOutput();
@@ -558,15 +558,15 @@ void vtkAMRVolumeMapper::UpdateGrid()
 #if PRINTSTATS
   this->Grid->GetDimensions(gridDim);
   this->Grid->GetOrigin(gridOrigin);
-  std::cerr << "Grid Dimenions: (" << gridDim[0] << ", " << gridDim[1] << ", " 
-            << gridDim[2] 
+  std::cerr << "Grid Dimenions: (" << gridDim[0] << ", " << gridDim[1] << ", "
+            << gridDim[2]
             << ") Origin:(" << gridOrigin[0] << ", "<< gridOrigin[1] << ", "
             << gridOrigin[2] << ")\n";
 #endif
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *vtkNotUsed(ren),
-                                                    vtkInformation*info, 
+                                                    vtkInformation*info,
                                                     vtkInformationVector **inputVector,
                                                     vtkInformationVector *outputVector)
 {
@@ -574,7 +574,7 @@ void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *vtkNotUsed(ren)
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
-                                                   vtkInformation*info, 
+                                                   vtkInformation*info,
                                                    vtkInformationVector **inputVector,
                                                    vtkInformationVector *outputVector)
 {
@@ -588,13 +588,13 @@ void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
 
   if (!this->HasMetaData)
     {
-    this->HasMetaData = true;    
+    this->HasMetaData = true;
     this->Resampler->SetDemandDrivenMode(1);
     }
   vtkOverlappingAMR *amrMetaData =
     vtkOverlappingAMR::SafeDownCast(
                                             input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()) );
-  
+
   this->UpdateResampler(ren, amrMetaData);
   this->Resampler->RequestInformation(info, inputVector, outputVector);
 }
@@ -605,7 +605,7 @@ void vtkAMRVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "ScalarMode: " << this->GetScalarModeAsString() << endl;
-  
+
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
        this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
     {

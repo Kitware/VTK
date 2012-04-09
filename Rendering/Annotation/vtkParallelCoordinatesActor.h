@@ -27,10 +27,10 @@
 // lies. Another important parameter is the IndependentVariables ivar, which
 // tells the instance how to interpret the field data (independent variables
 // as the rows or columns of the field). There are also many other instance
-// variables that control the look of the plot includes its title, 
+// variables that control the look of the plot includes its title,
 // attributes, number of ticks on the axes, etc.
 //
-// Set the text property/attributes of the title and the labels through the 
+// Set the text property/attributes of the title and the labels through the
 // vtkTextProperty objects associated to this actor.
 
 // .SECTION Caveats
@@ -77,15 +77,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Instantiate object with autorange computation; 
-  // the number of labels set to 5 for the x and y axes; 
+  // Instantiate object with autorange computation;
+  // the number of labels set to 5 for the x and y axes;
   // a label format of "%-#6.3g"; and x coordinates computed from point
   // ids.
   static vtkParallelCoordinatesActor *New();
 
   // Description:
   // Specify whether to use the rows or columns as independent variables.
-  // If columns, then each row represents a separate point. If rows, then 
+  // If columns, then each row represents a separate point. If rows, then
   // each column represents a separate point.
   vtkSetClampMacro(IndependentVariables,int,VTK_IV_COLUMN, VTK_IV_ROW);
   vtkGetMacro(IndependentVariables,int);
@@ -105,7 +105,7 @@ public:
   // on the particulars of the data.
   vtkSetClampMacro(NumberOfLabels, int, 0, 50);
   vtkGetMacro(NumberOfLabels, int);
-  
+
   // Description:
   // Set/Get the format with which to print the labels on the axes.
   vtkSetStringMacro(LabelFormat);
@@ -115,12 +115,12 @@ public:
   // Set/Get the title text property.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the labels text property.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-      
+
   // Description:
   // Draw the parallel coordinates plot.
   int RenderOpaqueGeometry(vtkViewport*);
@@ -130,7 +130,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Set the input to the parallel coordinates actor. Creates
   // a pipeline connection.
@@ -170,7 +170,7 @@ private:
   char  *LabelFormat;
   char  *Title;
 
-  vtkAxisActor2D **Axes;       
+  vtkAxisActor2D **Axes;
   vtkTextMapper  *TitleMapper;
   vtkActor2D     *TitleActor;
 
@@ -180,7 +180,7 @@ private:
   vtkPolyData         *PlotData;    // The lines drawn within the axes
   vtkPolyDataMapper2D *PlotMapper;
   vtkActor2D          *PlotActor;
-  
+
   vtkTimeStamp  BuildTime;
 
   int   LastPosition[2];

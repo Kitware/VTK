@@ -79,12 +79,12 @@ void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
   int i = 0;
   int nTransforms = concat->GetNumberOfTransforms();
   int nPreTransforms = concat->GetNumberOfPreTransforms();
-  
+
   // push point through the PreTransforms
   for (; i < nPreTransforms; i++)
     {
     concat->GetTransform(i)->InternalTransformPoint(output,output);
-    }    
+    }
 
   // push point though the Input, if present
   if (input)
@@ -101,7 +101,7 @@ void vtkConcatenationTransformPoint(vtkAbstractTransform *input,
     {
     concat->GetTransform(i)->InternalTransformPoint(output,output);
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 // Pass the point through each transform in turn,
@@ -124,13 +124,13 @@ void vtkConcatenationTransformDerivative(
   int i = 0;
   int nTransforms = concat->GetNumberOfTransforms();
   int nPreTransforms = concat->GetNumberOfPreTransforms();
-  
+
   // push point through the PreTransforms
   for (; i < nPreTransforms; i++)
-    { 
+    {
     concat->GetTransform(i)->InternalTransformDerivative(output,output,matrix);
     vtkMath::Multiply3x3(matrix,derivative,derivative);
-    }    
+    }
 
   // push point though the Input, if present
   if (input)
@@ -150,7 +150,7 @@ void vtkConcatenationTransformDerivative(
     vtkMath::Multiply3x3(matrix,derivative,derivative);
     }
 }
-  
+
 //------------------------------------------------------------------------
 void vtkGeneralTransform::InternalTransformPoint(const float input[3],
                                                  float output[3])
@@ -166,27 +166,27 @@ void vtkGeneralTransform::InternalTransformPoint(const double input[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::InternalTransformDerivative(const float input[3], 
+void vtkGeneralTransform::InternalTransformDerivative(const float input[3],
                                                       float output[3],
                                                       float derivative[3][3])
 {
   vtkConcatenationTransformDerivative(this->Input,this->Concatenation,
                                       input,output,derivative);
 }
-  
+
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::InternalTransformDerivative(const double input[3], 
+void vtkGeneralTransform::InternalTransformDerivative(const double input[3],
                                                       double output[3],
                                                       double derivative[3][3])
 {
   vtkConcatenationTransformDerivative(this->Input,this->Concatenation,
                                       input,output,derivative);
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 {
-  vtkGeneralTransform *transform = 
+  vtkGeneralTransform *transform =
     static_cast<vtkGeneralTransform *>(gtrans);
 
   // copy the input
@@ -236,7 +236,7 @@ void vtkGeneralTransform::InternalUpdate()
     {
     this->Concatenation->GetTransform(i)->Update();
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::Concatenate(vtkAbstractTransform *transform)
@@ -244,32 +244,32 @@ void vtkGeneralTransform::Concatenate(vtkAbstractTransform *transform)
   if (transform->CircuitCheck(this))
     {
     vtkErrorMacro("Concatenate: this would create a circular reference.");
-    return; 
+    return;
     }
-  this->Concatenation->Concatenate(transform); 
-  this->Modified(); 
+  this->Concatenation->Concatenate(transform);
+  this->Modified();
 };
 
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::SetInput(vtkAbstractTransform *input)
 {
-  if (this->Input == input) 
-    { 
-    return; 
+  if (this->Input == input)
+    {
+    return;
     }
-  if (input && input->CircuitCheck(this)) 
+  if (input && input->CircuitCheck(this))
     {
     vtkErrorMacro("SetInput: this would create a circular reference.");
-    return; 
+    return;
     }
-  if (this->Input) 
-    { 
-    this->Input->Delete(); 
+  if (this->Input)
+    {
+    this->Input->Delete();
     }
   this->Input = input;
-  if (this->Input) 
-    { 
-    this->Input->Register(this); 
+  if (this->Input)
+    {
+    this->Input->Register(this);
     }
   this->Modified();
 }

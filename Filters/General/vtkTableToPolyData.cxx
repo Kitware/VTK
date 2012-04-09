@@ -112,10 +112,10 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
       }
     }
-  
+
   vtkPoints* newPoints = vtkPoints::New();
 
-  if (xarray == yarray && yarray == zarray && 
+  if (xarray == yarray && yarray == zarray &&
     this->XComponent == 0 &&
     this->YComponent == 1 &&
     this->ZComponent == 2 &&
@@ -187,15 +187,15 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkTableToPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "XColumn: " 
+  os << indent << "XColumn: "
     << (this->XColumn? this->XColumn : "(none)") << endl;
   os << indent << "XComponent: " << this->XComponent << endl;
   os << indent << "XColumnIndex: " << this->XColumnIndex << endl;
-  os << indent << "YColumn: " 
+  os << indent << "YColumn: "
     << (this->YColumn? this->YColumn : "(none)") << endl;
   os << indent << "YComponent: " << this->YComponent << endl;
   os << indent << "YColumnIndex: " << this->YColumnIndex << endl;
-  os << indent << "ZColumn: " 
+  os << indent << "ZColumn: "
     << (this->ZColumn? this->ZColumn : "(none)") << endl;
   os << indent << "ZComponent: " << this->ZComponent << endl;
   os << indent << "ZColumnIndex: " << this->ZColumnIndex << endl;

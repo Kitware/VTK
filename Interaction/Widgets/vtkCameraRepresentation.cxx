@@ -41,8 +41,8 @@ vtkCameraRepresentation::vtkCameraRepresentation()
   this->Camera = NULL;
   this->Interpolator = vtkCameraInterpolator::New();
   this->NumberOfFrames = 24;
-  
-  // Set up the 
+
+  // Set up the
   double size[2];
   this->GetSize(size);
   this->Position2Coordinate->SetValue(0.04*size[0], 0.04*size[1]);
@@ -130,7 +130,7 @@ vtkCameraRepresentation::~vtkCameraRepresentation()
 {
   this->SetCamera(0);
   this->SetInterpolator(0);
-  
+
   this->Points->Delete();
   this->TransformFilter->Delete();
   this->PolyData->Delete();
@@ -167,7 +167,7 @@ void vtkCameraRepresentation::AddCameraToPath()
 void vtkCameraRepresentation::AnimatePath(vtkRenderWindowInteractor *rwi)
 {
   vtkCameraInterpolator *camInt = this->Interpolator;
-  
+
   if ( ! camInt || ! rwi )
     {
     return;
@@ -179,7 +179,7 @@ void vtkCameraRepresentation::AnimatePath(vtkRenderWindowInteractor *rwi)
     return;
     }
   double delT = static_cast<double>(numCameras - 1) / this->NumberOfFrames;
-  
+
   double t=0.0;
   for (int i=0; i < this->NumberOfFrames; i++, t+=delT)
     {
@@ -251,7 +251,7 @@ int vtkCameraRepresentation::HasTranslucentPolygonalGeometry()
 void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Property )
     {
     os << indent << "Property:\n";
@@ -265,5 +265,5 @@ void vtkCameraRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Camera Interpolator: " << this->Interpolator << "\n";
   os << indent << "Camera: " << this->Camera << "\n";
   os << indent << "Number of Frames: " << this->NumberOfFrames << "\n";
-  
+
 }

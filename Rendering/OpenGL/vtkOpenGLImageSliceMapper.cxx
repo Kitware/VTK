@@ -542,7 +542,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     double xscale = this->TextureSize[xdim]*spacing[xdim];
     double yshift = origin[ydim] - (0.5 - extent[2*ydim])*spacing[ydim];
     double yscale = this->TextureSize[ydim]*spacing[ydim];
-    vtkIdType ncoords = points->GetNumberOfPoints(); 
+    vtkIdType ncoords = points->GetNumberOfPoints();
     double coord[3];
     double tcoord[2];
 
@@ -774,7 +774,7 @@ void vtkOpenGLImageSliceMapper::BindFragmentProgram(
 vtkStdString vtkOpenGLImageSliceMapper::BuildFragmentProgram(
   vtkImageProperty *property)
 {
-  vtkStdString prog = 
+  vtkStdString prog =
     "!!ARBfp1.0\n"
     "\n";
 

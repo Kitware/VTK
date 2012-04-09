@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkEvent - a complete specification of a VTK event including all modifiers
 // .SECTION Description
-// vtkEvent is a class that fully describes a VTK event. It is used by the 
+// vtkEvent is a class that fully describes a VTK event. It is used by the
 // widgets to help specify the mapping between VTK events and widget events.
 
 
@@ -55,22 +55,22 @@ public:
   // Set the modifier for the event.
   vtkSetMacro(EventId,unsigned long);
   vtkGetMacro(EventId,unsigned long);
-  
+
   // Description:
   // Set the modifier for the event.
   vtkSetMacro(Modifier,int);
   vtkGetMacro(Modifier,int);
-  
+
   // Description:
   // Set the KeyCode for the event.
   vtkSetMacro(KeyCode,char);
   vtkGetMacro(KeyCode,char);
-  
+
   // Description:
   // Set the repease count for the event.
   vtkSetMacro(RepeatCount,int);
   vtkGetMacro(RepeatCount,int);
-  
+
   // Description:
   // Set the complex key symbol (compound key strokes) for the event.
   vtkSetStringMacro(KeySym);
@@ -84,20 +84,20 @@ public:
   // Description:
   // Used to compare whether two events are equal. Takes into account
   // the EventId as well as the various modifiers.
-  int operator==(vtkEvent*);  
+  int operator==(vtkEvent*);
   int operator==(unsigned long VTKEvent);  //event with no modifiers
 //ETX
 
 protected:
   vtkEvent();
   virtual ~vtkEvent();
-  
+
   unsigned long EventId;
   int           Modifier;
   char          KeyCode;
   int           RepeatCount;
   char*         KeySym;
-  
+
 private:
   vtkEvent(const vtkEvent&);  //Not implemented
   void operator=(const vtkEvent&);  //Not implemented

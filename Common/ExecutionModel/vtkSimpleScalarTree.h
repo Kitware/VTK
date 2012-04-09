@@ -17,7 +17,7 @@
 // vtkSimpleScalarTree creates a pointerless binary tree that helps search for
 // cells that lie within a particular scalar range. This object is used to
 // accelerate some contouring (and other scalar-based techniques).
-// 
+//
 // The tree consists of an array of (min,max) scalar range pairs per node in
 // the tree. The (min,max) range is determined from looking at the range of
 // the children of the tree node. If the node is a leaf, then the range is
@@ -66,7 +66,7 @@ public:
   vtkGetMacro(Level,int);
 
   // Description:
-  // Set the maximum allowable level for the tree. 
+  // Set the maximum allowable level for the tree.
   vtkSetClampMacro(MaxLevel,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxLevel,int);
 
@@ -74,7 +74,7 @@ public:
   // Construct the scalar tree from the dataset provided. Checks build times
   // and modified time from input and reconstructs the tree if necessary.
   virtual void BuildTree();
-  
+
   // Description:
   // Initialize locator. Frees memory and resets object as appropriate.
   virtual void Initialize();

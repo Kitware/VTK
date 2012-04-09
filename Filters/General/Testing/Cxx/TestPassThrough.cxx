@@ -24,7 +24,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
     cerr << "GetNumberOfVertices not the same" << endl;
     return false;
     }
-    
+
   if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     {
     cerr << "GetNumberOfEdges not the same" << endl;
@@ -36,7 +36,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
     cerr << "GetVertexData()->GetNumberOfArrays() not the same" << endl;
     return false;
     }
-    
+
   if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
     {
     cerr << "GetEdgeData()->GetNumberOfArrays() not the same" << endl;
@@ -54,7 +54,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
       cerr << "Input source != output source" << endl;
       return false;
       }
-      
+
     if(inputEdge.Target != outputEdge.Target)
       {
       cerr << "Input target != output target" << endl;

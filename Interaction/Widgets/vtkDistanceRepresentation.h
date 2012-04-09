@@ -63,7 +63,7 @@ public:
   // This method is used to specify the type of handle representation to
   // use for the two internal vtkHandleWidgets within vtkDistanceWidget.
   // To use this method, create a dummy vtkHandleWidget (or subclass),
-  // and then invoke this method with this dummy. Then the 
+  // and then invoke this method with this dummy. Then the
   // vtkDistanceRepresentation uses this dummy to clone two vtkHandleWidgets
   // of the same type. Make sure you set the handle representation before
   // the widget is enabled. (The method InstantiateHandleRepresentation()
@@ -125,7 +125,7 @@ public:
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
   virtual void StartWidgetInteraction(double e[2]);
   virtual void WidgetInteraction(double e[2]);
-  
+
 protected:
   vtkDistanceRepresentation();
   ~vtkDistanceRepresentation();

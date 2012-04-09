@@ -15,12 +15,12 @@
 // .NAME vtkCursor3D - generate a 3D cursor representation
 // .SECTION Description
 // vtkCursor3D is an object that generates a 3D representation of a cursor.
-// The cursor consists of a wireframe bounding box, three intersecting 
+// The cursor consists of a wireframe bounding box, three intersecting
 // axes lines that meet at the cursor focus, and "shadows" or projections
 // of the axes against the sides of the bounding box. Each of these
 // components can be turned on/off.
 //
-// This filter generates two output datasets. The first (Output) is just the 
+// This filter generates two output datasets. The first (Output) is just the
 // geometric representation of the cursor. The second (Focus) is a single
 // point at the focal point.
 
@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Set / get the boundary of the 3D cursor.
-  void SetModelBounds(double xmin, double xmax, double ymin, double ymax, 
+  void SetModelBounds(double xmin, double xmax, double ymin, double ymax,
                       double zmin, double zmax);
   void SetModelBounds(double bounds[6]);
   vtkGetVectorMacro(ModelBounds,double,6);
@@ -134,7 +134,7 @@ protected:
   int ZShadows;
   int TranslationMode;
   int Wrap;
-  
+
 private:
   vtkCursor3D(const vtkCursor3D&);  // Not implemented.
   void operator=(const vtkCursor3D&);  // Not implemented.

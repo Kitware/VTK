@@ -48,7 +48,7 @@ int SLACReaderLinear(int argc, char *argv[])
   delete[] meshFileName;
   reader->AddModeFileName(modeFileName);
   delete[] modeFileName;
-  
+
   reader->ReadInternalVolumeOn();
   reader->ReadExternalSurfaceOff();
   reader->ReadMidpointsOff();

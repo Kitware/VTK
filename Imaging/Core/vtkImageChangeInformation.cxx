@@ -75,37 +75,37 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CenterImage : "
      << (this->CenterImage ? "On":"Off") << endl;
 
-  os << indent << "OutputExtentStart: (" 
+  os << indent << "OutputExtentStart: ("
      << this->OutputExtentStart[0] << ","
      << this->OutputExtentStart[1] << ","
      << this->OutputExtentStart[2] << ")" << endl;
 
-  os << indent << "ExtentTranslation: (" 
+  os << indent << "ExtentTranslation: ("
      << this->ExtentTranslation[0] << ","
      << this->ExtentTranslation[1] << ","
      << this->ExtentTranslation[2] << ")" << endl;
 
-  os << indent << "OutputSpacing: (" 
+  os << indent << "OutputSpacing: ("
      << this->OutputSpacing[0] << ","
      << this->OutputSpacing[1] << ","
      << this->OutputSpacing[2] << ")" << endl;
 
-  os << indent << "SpacingScale: (" 
+  os << indent << "SpacingScale: ("
      << this->SpacingScale[0] << ","
      << this->SpacingScale[1] << ","
      << this->SpacingScale[2] << ")" << endl;
 
-  os << indent << "OutputOrigin: (" 
+  os << indent << "OutputOrigin: ("
      << this->OutputOrigin[0] << ","
      << this->OutputOrigin[1] << ","
      << this->OutputOrigin[2] << ")" << endl;
 
-  os << indent << "OriginScale: (" 
+  os << indent << "OriginScale: ("
      << this->OriginScale[0] << ","
      << this->OriginScale[1] << ","
      << this->OriginScale[2] << ")" << endl;
 
-  os << indent << "OriginTranslation: (" 
+  os << indent << "OriginTranslation: ("
      << this->OriginTranslation[0] << ","
      << this->OriginTranslation[1] << ","
      << this->OriginTranslation[2] << ")" << endl;
@@ -125,7 +125,7 @@ int vtkImageChangeInformation::RequestInformation (
   int i;
   int extent[6], inExtent[6];
   double spacing[3], origin[3];
-  
+
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inExtent);
 
   vtkImageData *infoInput = this->GetInformationInput();
@@ -208,7 +208,7 @@ int vtkImageChangeInformation::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   int extent[6];
-  
+
   vtkImageData *inData = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *outData = vtkImageData::SafeDownCast(
@@ -245,7 +245,7 @@ int vtkImageChangeInformation::RequestUpdateExtent (
 
   int inExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
-  
+
   inExt[0] -= this->FinalExtentTranslation[0];
   inExt[1] -= this->FinalExtentTranslation[0];
   inExt[2] -= this->FinalExtentTranslation[1];

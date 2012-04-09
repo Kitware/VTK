@@ -15,7 +15,7 @@
 // This example demonstrates how to implement a vtkGenericDataSet
 // (here vtkBridgeDataSet) and to use vtkGenericDataSetTessellator filter on
 // it.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -59,7 +59,7 @@ int TestGenericContourFilter(int argc, char* argv[])
 // char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
-  
+
   // Force reading
   reader->Update();
 
@@ -67,45 +67,45 @@ int TestGenericContourFilter(int argc, char* argv[])
   vtkBridgeDataSet *ds=vtkBridgeDataSet::New();
   ds->SetDataSet( reader->GetOutput() );
   reader->Delete();
-  
+
   // Set the error metric thresholds:
   // 1. for the geometric error metric
   vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
   geometricError->SetRelativeGeometricTolerance(0.1,ds);
-  
+
   ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
   geometricError->Delete();
-  
+
   // 2. for the attribute error metric
   vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
   attributesError->SetAttributeTolerance(0.01);
-  
+
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
-  
+
   cout<<"input unstructured grid: "<<ds<<endl;
-  
+
  static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
- 
+
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
-  
+
   // Create the filter
   vtkGenericContourFilter *contour = vtkGenericContourFilter::New();
   contour->SetInputData(ds);
   contour->SetValue( 0, 0.1);
   contour->Update(); //So that we can call GetRange() on the scalars
-  
+
   assert(contour->GetOutput()!=0);
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut = vtkLookupTable::New(); 
+  vtkLookupTable *lut = vtkLookupTable::New();
   lut->SetHueRange (0.667, 0.0);
-  
+
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( contour->GetOutputPort() );
-  
+
   if(contour->GetOutput()->GetPointData()!=0)
     {
     if(contour->GetOutput()->GetPointData()->GetScalars()!=0)
@@ -114,11 +114,11 @@ int TestGenericContourFilter(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
-  
+
   // Standard testing code.
   renderer->SetBackground(0.5,0.5,0.5);
   renWin->SetSize(300,300);
@@ -138,6 +138,6 @@ int TestGenericContourFilter(int argc, char* argv[])
   contour->Delete();
   ds->Delete();
   lut->Delete();
-  
+
   return !retVal;
 }

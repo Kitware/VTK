@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkVoxel);
 vtkVoxel::vtkVoxel()
 {
   int i;
-  
+
   this->Points->SetNumberOfPoints(8);
   this->PointIds->SetNumberOfIds(8);
   for (i = 0; i < 8; i++)
@@ -63,7 +63,7 @@ vtkVoxel::~vtkVoxel()
 
 //----------------------------------------------------------------------------
 int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
-                              int& subId, double pcoords[3], 
+                              int& subId, double pcoords[3],
                               double& dist2, double *weights)
 {
   double pt1[3], pt2[3], pt3[3], pt4[3];
@@ -125,7 +125,7 @@ int vtkVoxel::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
                                 double x[3], double *weights)
 {
   double pt1[3], pt2[3], pt3[3], pt4[3];
@@ -300,10 +300,10 @@ static int faces[6][4] = { {2,0,6,4}, {1,3,5,7},
 //
 #include "vtkMarchingCubesCases.h"
 
-void vtkVoxel::Contour(double value, vtkDataArray *cellScalars, 
+void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
                        vtkIncrementalPointLocator *locator,
-                       vtkCellArray *verts, 
-                       vtkCellArray *lines, 
+                       vtkCellArray *verts,
+                       vtkCellArray *lines,
                        vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
@@ -326,7 +326,7 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
       index |= CASE_MASK[i];
       }
     }
-  
+
   triCase = vtkMarchingCubesTriangleCases::GetCases() + index;
   edge = triCase->edges;
 
@@ -336,7 +336,7 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
       {
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
-          (cellScalars->GetComponent(vert[1],0) 
+          (cellScalars->GetComponent(vert[1],0)
            - cellScalars->GetComponent(vert[0],0));
       this->Points->GetPoint(vert[0], x1);
       this->Points->GetPoint(vert[1], x2);
@@ -346,7 +346,7 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           int p1 = this->PointIds->GetId(vert[0]);
           int p2 = this->PointIds->GetId(vert[1]);
@@ -423,12 +423,12 @@ vtkCell *vtkVoxel::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 // Intersect voxel with line using "bounding box" intersection.
 //
-int vtkVoxel::IntersectWithLine(double p1[3], double p2[3], 
-                                double vtkNotUsed(tol), 
-                                double& t, double x[3], 
+int vtkVoxel::IntersectWithLine(double p1[3], double p2[3],
+                                double vtkNotUsed(tol),
+                                double& t, double x[3],
                                 double pcoords[3], int& subId)
 {
   double minPt[3], maxPt[3];
@@ -452,7 +452,7 @@ int vtkVoxel::IntersectWithLine(double p1[3], double p2[3],
     {
     return 0;
     }
-    
+
   //
   // Evaluate intersection
   //
@@ -554,7 +554,7 @@ int vtkVoxel::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkVoxel::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
+void vtkVoxel::Derivatives(int vtkNotUsed(subId), double pcoords[3],
                            double *values, int dim, double *derivs)
 {
   double functionDerivs[24], sum;
@@ -602,7 +602,7 @@ void vtkVoxel::GetFacePoints(int faceId, int* &pts)
 }
 
 static double vtkVoxelCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                        0.0,1.0,0.0, 1.0,1.0,0.0, 
+                                        0.0,1.0,0.0, 1.0,1.0,0.0,
                                         0.0,0.0,1.0, 1.0,0.0,1.0,
                                         0.0,1.0,1.0, 1.0,1.0,1.0};
 
@@ -616,7 +616,7 @@ double *vtkVoxel::GetParametricCoords()
 void vtkVoxel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   if (this->Line)
     {

@@ -35,7 +35,7 @@ vtkTensorGlyph ellipsoids
     ellipsoids SetSourceConnection [sphere GetOutputPort]
     ellipsoids SetScaleFactor 10
     ellipsoids ClampScalingOn
-  
+
 vtkPolyDataNormals ellipNormals
   ellipNormals SetInputConnection [ellipsoids GetOutputPort]
 
@@ -72,7 +72,7 @@ vtkConeSource coneSrc
 vtkPolyDataMapper coneMap
     coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
-    coneActor SetMapper coneMap;    
+    coneActor SetMapper coneMap;
     coneActor SetPosition 0 0 11
     coneActor RotateY 90
     eval [coneActor GetProperty] SetColor 1 0 0

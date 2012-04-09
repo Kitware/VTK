@@ -59,7 +59,7 @@ protected:
   // Description:
   // Determine the data types for each of the leaf nodes.
   // Currently each process requires this information in order to
-  // simplify creating the file names for both the metadata file 
+  // simplify creating the file names for both the metadata file
   // as well as the actual dataset files.  It takes into account
   // that a piece of a dataset may be distributed in multiple pieces
   // over multiple processes.
@@ -68,14 +68,14 @@ protected:
   vtkMultiProcessController* Controller;
 
   // Description:
-  // Internal method called recursively to create the xml tree for 
-  // the children of compositeData as well as write the actual data 
+  // Internal method called recursively to create the xml tree for
+  // the children of compositeData as well as write the actual data
   // set files.  element will only have added nested information.
   // writerIdx is the global piece index used to create unique
-  // filenames for each file written.  This function returns 0 if 
-  // no files were written from compositeData.  Process 0 creates 
+  // filenames for each file written.  This function returns 0 if
+  // no files were written from compositeData.  Process 0 creates
   // the metadata for all of the processes/files.
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData, 
+  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
                              vtkXMLDataElement* parent, int &currentFileIndex);
 
   // Description:
@@ -89,11 +89,11 @@ protected:
   // care of that in the metadata description. This function returns
   // 0 if no file was written.
   int ParallelWriteNonCompositeData(
-    vtkDataObject* dObj, vtkXMLDataElement* parentXML, 
+    vtkDataObject* dObj, vtkXMLDataElement* parentXML,
     int currentFileIndex);
 
   // Description:
-  // Return the name of the file given the currentFileIndex (also the current 
+  // Return the name of the file given the currentFileIndex (also the current
   // globally numbered piece index), the procId the file exists on, and
   // the dataSetType.
   virtual vtkStdString CreatePieceFileName(

@@ -45,32 +45,32 @@ class VTKPARALLELCORE_EXPORT vtkProcess : public vtkObject
 public:
   vtkTypeMacro(vtkProcess,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description
   // Entry point of the process.
   // This method is expected to update ReturnValue.
   virtual void Execute()=0;
-  
+
   // Description:
   // Give access to the controller that launched the process.
   // Initial value is NULL.
   vtkMultiProcessController *GetController();
-  
+
   // Description:
   // This method should not be called directly but set by the controller
   // itself.
   void SetController(vtkMultiProcessController *aController);
-  
+
   // Description:
   // Value set at the end of a call to Execute.
   int GetReturnValue();
 
 protected:
   vtkProcess();
-  
+
   vtkMultiProcessController *Controller;
   int ReturnValue;
-  
+
 private:
   vtkProcess(const vtkProcess&);  // Not implemented.
   void operator=(const vtkProcess&);  // Not implemented.

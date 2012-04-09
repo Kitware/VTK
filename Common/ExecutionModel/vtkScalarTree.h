@@ -27,7 +27,7 @@
 // scalar value specified.
 
 // .SECTION See Also
-// vtkSimpleScalarTree 
+// vtkSimpleScalarTree
 
 #ifndef __vtkScalarTree_h
 #define __vtkScalarTree_h
@@ -56,7 +56,7 @@ public:
   // Construct the scalar tree from the dataset provided. Checks build times
   // and modified time from input and reconstructs the tree if necessary.
   virtual void BuildTree() = 0;
-  
+
   // Description:
   // Initialize locator. Frees memory and resets object as appropriate.
   virtual void Initialize() = 0;

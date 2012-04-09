@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadricLODActor - a specific level-of-detail strategy using the 
+// .NAME vtkQuadricLODActor - a specific level-of-detail strategy using the
 // quadric clustering decimation algorithm
 // .SECTION Description
 // vtkQuadricLODActor implements a specific strategy for level-of-detail
@@ -27,7 +27,7 @@
 // z-direction). Finally, the filter may optionally be set in "Static" mode
 // (this works with the vtkMapper::SetStatic() method). `Enabling Static results
 // in a one time execution of the Mapper's pipeline. After that, the pipeline
-// no longer updated (unless manually forced to do so). 
+// no longer updated (unless manually forced to do so).
 //
 // .SECTION Caveats
 // By default the algorithm is set up to pre-compute the LODs. That is, on
@@ -37,7 +37,7 @@
 // when the LOD is constructed, the user may notice a short pause.
 //
 // This class can be used as a direct replacement for vtkActor. It may also be
-// used as a replacement for vtkFollower's (the ability to track a camera is 
+// used as a replacement for vtkFollower's (the ability to track a camera is
 // provided).
 
 // .SECTION See Also
@@ -58,7 +58,7 @@ class VTKRENDERINGLOD_EXPORT vtkQuadricLODActor : public vtkActor
 {
 public:
   // Description:
-  // Creates a vtkQuadricLODActor. 
+  // Creates a vtkQuadricLODActor.
   static vtkQuadricLODActor *New();
 
   // Description:
@@ -76,7 +76,7 @@ public:
 
   // Description:
   // Turn on/off a flag to control whether the underlying pipeline is static.
-  // If static, this means that the data pipeline executes once and then not 
+  // If static, this means that the data pipeline executes once and then not
   // again until the user manually modifies this class. By default, Static is
   // off because trying to debug this is tricky, and you should only use it
   // when you know what you are doing.
@@ -142,7 +142,7 @@ public:
 
   // Description:
   // Specify the maximum display list size. This variable is used to determine
-  // whether to use display lists (ImmediateModeRenderingOff) or not. 
+  // whether to use display lists (ImmediateModeRenderingOff) or not.
   // Controlling display list size is important to prevent program crashes (i.e.,
   // overly large display lists on some graphics hardware will cause faults).
   // The display list size is the length of the vtkCellArray representing the
@@ -168,7 +168,7 @@ public:
     {this->SetPropType(ACTOR);}
 
   // Description:
-  // Set/Get the camera to follow. This method is only applicable when the 
+  // Set/Get the camera to follow. This method is only applicable when the
   // prop type is set to a vtkFollower.
   void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
@@ -180,7 +180,7 @@ public:
   virtual void Render(vtkRenderer *, vtkMapper *);
 
   // Description:
-  // This method is used internally by the rendering process. We overide 
+  // This method is used internally by the rendering process. We overide
   // the superclass method to properly set the estimated render time.
   int RenderOpaqueGeometry(vtkViewport *viewport);
 
@@ -210,11 +210,11 @@ protected:
 
   // Specify whether the mapper's should be set in to Static mode.
   int Static;
-  
+
   // The dimension of the data
   double CollapseDimensionRatio;
   int DataConfiguration;
-  
+
   // Control whether this is a follower or regular actor
   int        PropType;
   vtkCamera *Camera;
@@ -231,7 +231,7 @@ protected:
 
   // Helper function determines display list size
   vtkIdType GetDisplayListSize(vtkPolyData *pd);
-  
+
 private:
   vtkQuadricLODActor(const vtkQuadricLODActor&);  // Not implemented.
   void operator=(const vtkQuadricLODActor&);  // Not implemented.

@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 //     Given a vtkDataSetxs, create an octree that is locally refined
-//     such that all leaf octants contain less than a certain 
+//     such that all leaf octants contain less than a certain
 //     amount of points.  Note that there is no size constraint that
 //     a leaf octant in relation to any of its neighbors.
 //
@@ -90,7 +90,7 @@ public:
   // Description:
   //    Get the id of the leaf region containing the specified location.
   int GetRegionContainingPoint(double x, double y, double z);
-  
+
   // Description:
   // Create the octree decomposition of the cells of the data set
   // or data sets.  Cells are assigned to octree spatial regions
@@ -104,7 +104,7 @@ public:
   vtkIdType FindClosestPoint(double x, double y, double z, double &dist2);
 
   // Description:
-  // Given a position x and a radius r, return the id of the point 
+  // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // dist2 returns the squared distance to the point.
   virtual vtkIdType FindClosestPointWithinRadius(
@@ -115,7 +115,7 @@ public:
   // closest to the given point.  Return the ID of the point,
   // and set the square of the distance of between the points.
   vtkIdType FindClosestPointInRegion(int regionId, double *x, double &dist2);
-  vtkIdType FindClosestPointInRegion(int regionId, double x, double y, 
+  vtkIdType FindClosestPointInRegion(int regionId, double x, double y,
                                      double z, double &dist2);
 
   // Description:
@@ -138,14 +138,14 @@ public:
   vtkIdTypeArray *GetPointsInRegion(int leafNodeId);
 
   // Description:
-  // Delete the octree data structure. 
+  // Delete the octree data structure.
   virtual void FreeSearchStructure();
-  
+
   // Description:
   // Create a polydata representation of the boundaries of
-  // the octree regions.  
+  // the octree regions.
   void GenerateRepresentation(int level, vtkPolyData *pd);
-  
+
   // Description:
   // Fill ids with points found in area.  The area is a 6-tuple containing
   // (xmin, xmax, ymin, ymax, zmin, zmax).
@@ -179,7 +179,7 @@ protected:
   // is the square of the radius and is used in order to avoid the
   // expensive square root calculation.
   void FindPointsWithinRadius(vtkOctreePointLocatorNode* node, double radiusSquared,
-                              const double x[3], vtkIdList* ids);  
+                              const double x[3], vtkIdList* ids);
 
   // Recursive helper for public FindPointsWithinRadius
   void AddAllPointsInRegion(vtkOctreePointLocatorNode* node, vtkIdList* ids);
@@ -201,15 +201,15 @@ protected:
   // Description:
   // Given a leaf node id and point, return the local id and the squared distance
   // between the closest point and the given point.
-  int _FindClosestPointInRegion(int leafNodeId, double x, double y, 
+  int _FindClosestPointInRegion(int leafNodeId, double x, double y,
                                 double z, double &dist2);
 
   // Description:
   // Given a location and a radiues, find the closest point within
   // this radius.  The function does not examine the region with Id
   // equal to skipRegion (do not set skipRegion to -1 as all non-leaf
-  // octants have -1 as their Id).  The Id is returned along with 
-  // the distance squared for success and -1 is returned for failure.  
+  // octants have -1 as their Id).  The Id is returned along with
+  // the distance squared for success and -1 is returned for failure.
   int FindClosestPointInSphere(double x, double y, double z, double radius,
                                int skipRegion, double &dist2);
 
@@ -226,7 +226,7 @@ protected:
   float MaxWidth;
 
   // Description:
-  // If CreateCubicOctants is non-zero, the bounding box of the points will 
+  // If CreateCubicOctants is non-zero, the bounding box of the points will
   // be expanded such that all octants that are created will be cube-shaped
   // (e.g. have equal lengths on each side).  This may make the tree deeper
   // but also results in better shaped octants for doing searches. The

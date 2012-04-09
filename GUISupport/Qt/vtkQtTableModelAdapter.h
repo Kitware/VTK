@@ -46,30 +46,30 @@ public:
   vtkQtTableModelAdapter(QObject *parent = 0);
   vtkQtTableModelAdapter(vtkTable* table, QObject *parent = 0);
   ~vtkQtTableModelAdapter();
-  
+
   // Description:
   // Set/Get the VTK data object as input to this adapter
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
-  
+
   // Description:
   // Selection conversion from VTK land to Qt land
   virtual vtkSelection* QModelIndexListToVTKIndexSelection(
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(
     vtkSelection *vtksel) const;
-  
+
   virtual void SetKeyColumnName(const char* name);
   virtual void SetColorColumnName(const char* name);
   void SetIconIndexColumnName(const char* name);
 
-  enum 
+  enum
   {
     HEADER = 0,
     ITEM = 1
   };
 
-  enum 
+  enum
   {
     COLORS = 0,
     ICONS = 1,
@@ -78,12 +78,12 @@ public:
 
   // Description:
   // Specify how to color rows if colors are provided by SetColorColumnName().
-  // Default is the vertical header. 
+  // Default is the vertical header.
   void SetDecorationLocation(int s);
 
   // Description:
   // Specify how to color rows if colors are provided by SetColorColumnName().
-  // Default is the vertical header. 
+  // Default is the vertical header.
   void SetDecorationStrategy(int s);
 
   bool GetSplitMultiComponentColumns() const;
@@ -135,7 +135,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-  
+
   vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
   void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
 };

@@ -15,7 +15,7 @@
 // .NAME vtkDataObject - general representation of visualization data
 // .SECTION Description
 // vtkDataObject is an general representation of visualization data. It serves
-// to encapsulate instance variables and methods for visualization network 
+// to encapsulate instance variables and methods for visualization network
 // execution, as well as representing data consisting of a field (i.e., just
 // an unstructured pile of data). This is to be compared with a vtkDataSet,
 // which is data with geometric and/or topological structure.
@@ -26,7 +26,7 @@
 //
 // .SECTION See Also
 // vtkDataSet vtkFieldData vtkDataObjectSource vtkDataObjectFilter
-// vtkDataObjectMapper vtkDataObjectToDataSet 
+// vtkDataObjectMapper vtkDataObjectToDataSet
 // vtkFieldDataToAttributeDataFilter
 
 #ifndef __vtkDataObject_h
@@ -77,15 +77,15 @@ public:
 
   // Description:
   // Release data back to system to conserve memory resource. Used during
-  // visualization network execution.  Releasing this data does not make 
-  // down-stream data invalid, so it does not modify the MTime of this 
+  // visualization network execution.  Releasing this data does not make
+  // down-stream data invalid, so it does not modify the MTime of this
   // data object.
   void ReleaseData();
 
   // Description:
   // Get the flag indicating the data has been released.
   vtkGetMacro(DataReleased,int);
-  
+
 
   // Description:
   // Turn on/off flag to control whether every object releases its data
@@ -99,18 +99,18 @@ public:
   // Assign or retrieve a general field data to this data object.
   virtual void SetFieldData(vtkFieldData*);
   vtkGetObjectMacro(FieldData,vtkFieldData);
-  
+
   // Handle the source/data loop.
   virtual void Register(vtkObjectBase* o);
   virtual void UnRegister(vtkObjectBase* o);
 
   // Description:
-  // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
+  // Return class name of data type. This is one of VTK_STRUCTURED_GRID,
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
   // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
   // THIS METHOD IS THREAD SAFE
   virtual int GetDataObjectType() {return VTK_DATA_OBJECT;}
-  
+
   // Description:
   // Used by Threaded ports to determine if they should initiate an
   // asynchronous update (still in development).
@@ -138,29 +138,29 @@ public:
 
   // Description:
   // Return the information object within the input information object's
-  // field data corresponding to the specified association 
+  // field data corresponding to the specified association
   // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and attribute
   // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS)
-  static vtkInformation *GetActiveFieldInformation(vtkInformation *info, 
+  static vtkInformation *GetActiveFieldInformation(vtkInformation *info,
     int fieldAssociation, int attributeType);
 
   // Description:
   // Return the information object within the input information object's
-  // field data corresponding to the specified association 
+  // field data corresponding to the specified association
   // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and name.
-  static vtkInformation *GetNamedFieldInformation(vtkInformation *info, 
+  static vtkInformation *GetNamedFieldInformation(vtkInformation *info,
     int fieldAssociation, const char *name);
 
   // Description:
   // Remove the info associated with an array
-  static void RemoveNamedFieldInformation(vtkInformation *info, 
-                                          int fieldAssociation, 
+  static void RemoveNamedFieldInformation(vtkInformation *info,
+                                          int fieldAssociation,
                                           const char *name);
-  
+
   // Description:
   // Set the named array to be the active field for the specified type
   // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS) and association
-  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS).  Returns the 
+  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS).  Returns the
   // active field information object and creates on entry if one not found.
   static vtkInformation *SetActiveAttribute(vtkInformation *info,
     int fieldAssociation, const char *attributeName, int attributeType);
@@ -171,9 +171,9 @@ public:
   // attributeType (in specified association, FIELD_ASSOCIATION_POINTS or
   // FIELD_ASSOCIATION_CELLS).  If there is not an active attribute of the
   // specified type, an entry in the information object is created.  If
-  // arrayType, numComponents, or numTuples equal to -1, or name=NULL the 
+  // arrayType, numComponents, or numTuples equal to -1, or name=NULL the
   // value is not changed.
-  static void SetActiveAttributeInfo(vtkInformation *info, 
+  static void SetActiveAttributeInfo(vtkInformation *info,
     int fieldAssociation, int attributeType, const char *name, int arrayType,
     int numComponents, int numTuples);
 
@@ -190,21 +190,21 @@ public:
   void DataHasBeenGenerated();
 
   // Description:
-  // make the output data ready for new data to be inserted. For most 
+  // make the output data ready for new data to be inserted. For most
   // objects we just call Initialize. But for vtkImageData we leave the old
   // data in case the memory can be reused.
   virtual void PrepareForNewData() {this->Initialize();};
 
   // Description:
-  // Shallow and Deep copy.  These copy the data, but not any of the 
+  // Shallow and Deep copy.  These copy the data, but not any of the
   // pipeline connections.
-  virtual void ShallowCopy(vtkDataObject *src);  
+  virtual void ShallowCopy(vtkDataObject *src);
   virtual void DeepCopy(vtkDataObject *src);
 
   // Description:
-  // The ExtentType will be left as VTK_PIECES_EXTENT for data objects 
-  // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be 
-  // changed to VTK_3D_EXTENT for data objects with 3D structure such as 
+  // The ExtentType will be left as VTK_PIECES_EXTENT for data objects
+  // such as vtkPolyData and vtkUnstructuredGrid. The ExtentType will be
+  // changed to VTK_3D_EXTENT for data objects with 3D structure such as
   // vtkImageData (and its subclass vtkStructuredPoints), vtkRectilinearGrid,
   // and vtkStructuredGrid. The default is the have an extent in pieces,
   // with only one piece (no streaming possible).
@@ -342,14 +342,14 @@ protected:
   vtkDataObject();
   ~vtkDataObject();
 
-  // General field data associated with data object      
-  vtkFieldData  *FieldData;  
+  // General field data associated with data object
+  vtkFieldData  *FieldData;
 
   // Keep track of data release during network execution
-  int DataReleased; 
+  int DataReleased;
 
   // When was this data last generated?
-  vtkTimeStamp UpdateTime;  
+  vtkTimeStamp UpdateTime;
 
   virtual void ReportReferences(vtkGarbageCollector*);
 

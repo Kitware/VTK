@@ -37,9 +37,9 @@ public:
   static vtkImageContinuousErode3D *New();
   vtkTypeMacro(vtkImageContinuousErode3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // This method sets the size of the neighborhood.  It also sets the 
+  // This method sets the size of the neighborhood.  It also sets the
   // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
 
@@ -48,11 +48,11 @@ protected:
   ~vtkImageContinuousErode3D();
 
   vtkImageEllipsoidSource *Ellipse;
-    
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData, 
+                           vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,

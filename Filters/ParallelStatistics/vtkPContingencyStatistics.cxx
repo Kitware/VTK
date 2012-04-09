@@ -74,7 +74,7 @@ static void StringVectorToStringBuffer( const std::vector<vtkStdString>& strings
                                         vtkStdString& buffer )
 {
   buffer.clear();
-  
+
   for( std::vector<vtkStdString>::const_iterator it = strings.begin();
        it != strings.end(); ++ it )
     {
@@ -123,7 +123,7 @@ static void StringBufferToStringVector( const vtkStdString& buffer,
                                         std::vector<vtkStdString>& strings )
 {
   strings.clear();
-  
+
   const char* const bufferEnd = &buffer[0] + buffer.size();
 
   for( const char* start = &buffer[0]; start != bufferEnd; ++ start )

@@ -46,7 +46,7 @@
     // Cocoa into its multithreaded mode before detaching any POSIX threads.
     // To do this, simply detach an NSThread and have it promptly exit.
     // This is enough to ensure that the locks needed by the Cocoa
-    // frameworks are put in place" 
+    // frameworks are put in place"
     if ([NSThread isMultiThreaded] == NO)
       {
       [NSThread detachNewThreadSelector:@selector(emptyMethod:)
@@ -137,18 +137,18 @@
 //----------------------------------------------------------------------------
 // For generating keysyms that are compatible with other VTK interactors
 static const char *vtkMacCharCodeToKeySymTable[128] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-  "space", "exclam", "quotedbl", "numbersign", 
-  "dollar", "percent", "ampersand", "quoteright", 
-  "parenleft", "parenright", "asterisk", "plus", 
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  "space", "exclam", "quotedbl", "numbersign",
+  "dollar", "percent", "ampersand", "quoteright",
+  "parenleft", "parenright", "asterisk", "plus",
   "comma", "minus", "period", "slash",
-  "0", "1", "2", "3", "4", "5", "6", "7", 
+  "0", "1", "2", "3", "4", "5", "6", "7",
   "8", "9", "colon", "semicolon", "less", "equal", "greater", "question",
-  "at", "A", "B", "C", "D", "E", "F", "G", 
+  "at", "A", "B", "C", "D", "E", "F", "G",
   "H", "I", "J", "K", "L", "M", "N", "O",
   "P", "Q", "R", "S", "T", "U", "V", "W",
-  "X", "Y", "Z", "bracketleft", 
+  "X", "Y", "Z", "bracketleft",
   "backslash", "bracketright", "asciicircum", "underscore",
   "quoteleft", "a", "b", "c", "d", "e", "f", "g",
   "h", "i", "j", "k", "l", "m", "n", "o",
@@ -183,7 +183,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   vtkCocoaRenderWindow* renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
@@ -191,10 +191,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is a NOT mouseevent, we can not use
   // locationInWindow.  Instead we get the mouse location at this instant,
@@ -260,7 +260,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   vtkCocoaRenderWindow* renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
@@ -268,10 +268,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is a NOT mouseevent, we can not use
   // locationInWindow.  Instead we get the mouse location at this instant,
@@ -333,7 +333,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   vtkCocoaRenderWindow* renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
@@ -341,10 +341,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner.  Since this is a NOT mouseevent, we can not use
   // locationInWindow.  Instead we get the mouse location at this instant,
@@ -413,7 +413,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // Note: this method will only be called if this view's NSWindow
   // is set to receive mouse moved events.  See setAcceptsMouseMovedEvents:
   // An NSWindow created by vtk automatically does accept such events.
-  
+
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
     {
@@ -430,18 +430,18 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  
+
   // Ignore motion outside the view in order to mimic other interactors
   if (!NSPointInRect(mouseLoc, [self visibleRect]))
     {
     return;
     }
-  
+
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
@@ -463,7 +463,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // Note: the mouseEntered/mouseExited events depend on the maintenance of
   // the Tracking Rect, which is handled by the resetTrackingRect,
   // clearTrackingRect and resetCursorRects methods above.
-  
+
   vtkCocoaRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
     {
@@ -557,10 +557,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
@@ -608,14 +608,14 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   BOOL keepOn = YES;
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  
+
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
@@ -645,7 +645,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     if (theEvent)
       {
       mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-      
+
       // The mouse location is in points, we must convert to pixels using the
       // scaling factor.
       interactor->SetEventInformation((int)round(mouseLoc.x * factor),
@@ -693,14 +693,14 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   BOOL keepOn = YES;
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  
+
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
@@ -767,7 +767,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
     return;
     }
-  
+
   vtkCocoaRenderWindow* renWin =
     vtkCocoaRenderWindow::SafeDownCast([self getVTKRenderWindow]);
 
@@ -778,14 +778,14 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   // Retrieve the scaling factor.
   double factor = renWin->GetScaleFactor();
-  
+
   BOOL keepOn = YES;
 
   // Get the location of the mouse event relative to this NSView's bottom
   // left corner. Since this is a mouseevent, we can use locationInWindow.
   NSPoint mouseLoc =
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
-  
+
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask) ? 1 : 0;
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask) ? 1 : 0;
   int altDown = ([theEvent modifierFlags] &
@@ -802,7 +802,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   interactor->SetAltKey(altDown);
 
   interactor->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
-  
+
   NSApplication* application = [NSApplication sharedApplication];
   NSDate* infinity = [NSDate distantFuture];
   do

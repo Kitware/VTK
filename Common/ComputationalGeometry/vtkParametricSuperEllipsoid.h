@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricSuperEllipsoid.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -19,14 +19,14 @@
 // n2. As special cases it can represent a sphere, square box, and closed
 // cylindrical can.
 //
-// For further information about this surface, please consult the 
-// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// For further information about this surface, please consult the
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // Also see: http://astronomy.swin.edu.au/~pbourke/surfaces/
 //
 // .SECTION Caveats
-// Care needs to be taken specifying the bounds correctly. You may need to 
+// Care needs to be taken specifying the bounds correctly. You may need to
 // carefully adjust MinimumU, MinimumV, MaximumU, MaximumV.
 //
 // .SECTION Thanks
@@ -44,15 +44,15 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperEllipsoid : public
 public:
   vtkTypeMacro(vtkParametricSuperEllipsoid,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Construct a superellipsoid with the following parameters:
-  // MinimumU = 0, MaximumU = 2*Pi, 
-  // MinimumV = 0, MaximumV = Pi, 
-  // JoinU = 1, JoinV = 0, 
-  // TwistU = 0, TwistV = 0, 
+  // MinimumU = 0, MaximumU = 2*Pi,
+  // MinimumV = 0, MaximumV = Pi,
+  // JoinU = 1, JoinV = 0,
+  // TwistU = 0, TwistV = 0,
   // ClockwiseOrdering = 1,
-  // DerivativesAvailable = 0, 
+  // DerivativesAvailable = 0,
   // N1 = 1, N2 = 1, XRadius = 1, YRadius = 1,
   // ZRadius = 1, a sphere in this case.
   static vtkParametricSuperEllipsoid *New();
@@ -98,15 +98,15 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   //
-  // uvw are the parameters with Pt being the the cartesian point, 
+  // uvw are the parameters with Pt being the the cartesian point,
   // Duvw are the derivatives of this point with respect to u, v and w.
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
-  // If the user does not need to calculate a scalar, then the 
-  // instantiated function should return zero. 
+  // If the user does not need to calculate a scalar, then the
+  // instantiated function should return zero.
   //
   virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
 

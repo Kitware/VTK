@@ -71,13 +71,13 @@ protected:
   ~vtkBoostSplitTableField();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   vtkStringArray* Fields;
   vtkStringArray* Delimiters;
-  
+
 private:
 //BTX
   class implementation;

@@ -62,25 +62,25 @@ public:
 
   // Description:
   // Checks if an index is inside the stencil.
-  // This can be faster than GetNextExtent if called on a voxel. If calling 
-  // sequentially, along a scan line, the preferred way is to use 
+  // This can be faster than GetNextExtent if called on a voxel. If calling
+  // sequentially, along a scan line, the preferred way is to use
   // GetNextExtent and then loop over the returned [r1,r2] extents.
   int IsInside( int xIdx, int yIdx, int zIdx );
 
   // Description:
-  // This method is used by vtkImageStencilDataSource to add an x 
+  // This method is used by vtkImageStencilDataSource to add an x
   // sub extent [r1,r2] for the x row (yIdx,zIdx).  The specified sub
   // extent must not intersect any other sub extents along the same x row.
   // As well, r1 and r2 must both be within the total x extent
   // [Extent[0],Extent[1]].
   void InsertNextExtent(int r1, int r2, int yIdx, int zIdx);
-  
+
   // Description:
-  // Similar to InsertNextExtent, except that the extent (r1,r2) at yIdx, 
-  // zIdx is merged with other extents, (if any) on that row. So a 
-  // unique extent may not necessarily be added. For instance, if an extent 
-  // [5,11] already exists adding an extent, [7,9] will not affect the 
-  // stencil. Likewise adding [10, 13] will replace the existing extent 
+  // Similar to InsertNextExtent, except that the extent (r1,r2) at yIdx,
+  // zIdx is merged with other extents, (if any) on that row. So a
+  // unique extent may not necessarily be added. For instance, if an extent
+  // [5,11] already exists adding an extent, [7,9] will not affect the
+  // stencil. Likewise adding [10, 13] will replace the existing extent
   // with [5,13].
   void InsertAndMergeExtent(int r1, int r2, int yIdx, int zIdx);
 
@@ -90,7 +90,7 @@ public:
 
   // Description:
   // Set the desired spacing for the stencil.
-  // This must be called before the stencil is Updated, ideally 
+  // This must be called before the stencil is Updated, ideally
   // in the ExecuteInformation method of the imaging filter that
   // is using the stencil.
   vtkSetVector3Macro(Spacing, double);
@@ -98,14 +98,14 @@ public:
 
   // Description:
   // Set the desired origin for the stencil.
-  // This must be called before the stencil is Updated, ideally 
+  // This must be called before the stencil is Updated, ideally
   // in the ExecuteInformation method of the imaging filter that
   // is using the stencil.
   vtkSetVector3Macro(Origin, double);
   vtkGetVector3Macro(Origin, double);
 
   // Description:
-  // Set the extent of the data.  This is should be called only 
+  // Set the extent of the data.  This is should be called only
   // by vtkImageStencilSource, as it is part of the basic pipeline
   // functionality.
   void SetExtent(int extent[6]);
@@ -132,20 +132,20 @@ public:
   static vtkImageStencilData* GetData(vtkInformation* info);
   static vtkImageStencilData* GetData(vtkInformationVector* v, int i=0);
   //ETX
-  
+
   // Description:
   // Add merges the stencil supplied as argument into Self.
-  virtual void Add     ( vtkImageStencilData * ); 
+  virtual void Add     ( vtkImageStencilData * );
 
   // Description:
-  // Subtract removes the portion of the stencil, supplied as argument, 
-  // that lies within Self from Self.   
-  virtual void Subtract( vtkImageStencilData * ); 
+  // Subtract removes the portion of the stencil, supplied as argument,
+  // that lies within Self from Self.
+  virtual void Subtract( vtkImageStencilData * );
 
   // Description:
-  // Replaces the portion of the stencil, supplied as argument, 
-  // that lies within Self from Self.   
-  virtual void Replace( vtkImageStencilData * ); 
+  // Replaces the portion of the stencil, supplied as argument,
+  // that lies within Self from Self.
+  virtual void Replace( vtkImageStencilData * );
 
   // Description:
   // Clip the stencil with the supplied extents. In other words, discard data
@@ -161,18 +161,18 @@ protected:
   void CopyOriginAndSpacingFromPipeline(vtkInformation* meta_data);
 
   // Description:
-  // Merges portions of the stencil that are within Self's extents into 
-  // itself. 
+  // Merges portions of the stencil that are within Self's extents into
+  // itself.
   virtual void InternalAdd( vtkImageStencilData * );
-  
-  void CollapseAdditionalIntersections(int r2, int idx, int *clist, 
+
+  void CollapseAdditionalIntersections(int r2, int idx, int *clist,
     int &clistlen);
 
   // Description:
   // The Spacing and Origin of the data.
   double Spacing[3];
   double Origin[3];
-  
+
   int Extent[6];
 
   // Description:

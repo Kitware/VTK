@@ -34,7 +34,7 @@ public:
   static vtkAVIWriter *New();
   vtkTypeMacro(vtkAVIWriter,vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // These methods start writing an AVI file, write a frame to the file
   // and then end the writing process.
@@ -53,7 +53,7 @@ public:
   // 2 means best quality and largest file size
   vtkSetClampMacro(Quality, int, 0, 2);
   vtkGetMacro(Quality, int);
-  
+
   // Description:
   // Set/Get if the user should be prompted for compression options, i.e.
   // pick a compressor, set the compression rate (override Rate), etc.).
@@ -66,10 +66,10 @@ public:
   // Set/Get the compressor FourCC.
   // A FourCC (literally, four-character code) is a sequence of four bytes
   // used to uniquely identify data formats. [...] One of the most well-known
-  // uses of FourCCs is to identify the video codec used in AVI files. 
-  // Common identifiers include DIVX, XVID, and H264. 
+  // uses of FourCCs is to identify the video codec used in AVI files.
+  // Common identifiers include DIVX, XVID, and H264.
   // http://en.wikipedia.org/wiki/FourCC.
-  // Default value is: 
+  // Default value is:
   //   - msvc
   // Other examples include:
   //   - DIB: Full Frames (Uncompressed)
@@ -85,7 +85,7 @@ public:
 protected:
   vtkAVIWriter();
   ~vtkAVIWriter();
-  
+
   vtkAVIWriterInternal *Internals;
 
   int Rate;

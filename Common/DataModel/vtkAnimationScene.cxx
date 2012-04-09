@@ -75,7 +75,7 @@ void vtkAnimationScene::RemoveCue(vtkAnimationCue* cue)
 
 //----------------------------------------------------------------------------
 void vtkAnimationScene::RemoveAllCues()
-{  
+{
   this->AnimationCues->RemoveAllItems();
 }
 //----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void vtkAnimationScene::SetTimeMode(int mode)
     vtkCollectionIterator *it = this->AnimationCuesIterator;
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
       {
-      vtkAnimationCue* cue = 
+      vtkAnimationCue* cue =
         vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
       if (cue && cue->GetTimeMode() != vtkAnimationCue::TIMEMODE_NORMALIZED)
         {
@@ -113,7 +113,7 @@ void vtkAnimationScene::InitializeChildren()
   vtkCollectionIterator *it = this->AnimationCuesIterator;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
-    vtkAnimationCue* cue = 
+    vtkAnimationCue* cue =
       vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
     if (cue)
       {
@@ -128,7 +128,7 @@ void vtkAnimationScene::FinalizeChildren()
   vtkCollectionIterator *it = this->AnimationCuesIterator;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
-    vtkAnimationCue* cue = 
+    vtkAnimationCue* cue =
       vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
     if (cue)
       {
@@ -144,7 +144,7 @@ void vtkAnimationScene::Play()
     {
     return;
     }
-  
+
   if (this->TimeMode == vtkAnimationCue::TIMEMODE_NORMALIZED)
     {
     vtkErrorMacro("Cannot play a scene with normalized time mode");
@@ -162,13 +162,13 @@ void vtkAnimationScene::Play()
   this->StopPlay = 0;
   this->FrameRate = (!this->FrameRate)? 1.0 : this->FrameRate;
   // the actual play loop, check for StopPlay flag.
-  
+
   double currenttime = this->AnimationTime;
   // adjust currenttime to a valid time.
   currenttime = (currenttime < this->StartTime || currenttime >= this->EndTime)?
     this->StartTime : currenttime;
 
-  double time_per_frame = 
+  double time_per_frame =
     (this->PlayMode == PLAYMODE_SEQUENCE)?  (1.0 / this->FrameRate) : 1;
   do
     {
@@ -187,7 +187,7 @@ void vtkAnimationScene::Play()
         {
       case PLAYMODE_REALTIME:
         this->AnimationTimer->StopTimer();
-        currenttime = this->AnimationTimer->GetElapsedTime() + 
+        currenttime = this->AnimationTimer->GetElapsedTime() +
           timer_start_time;
         break;
 
@@ -231,7 +231,7 @@ void vtkAnimationScene::TickInternal(
 {
   this->AnimationTime = currenttime;
   this->ClockTime = clocktime;
-  
+
   vtkCollectionIterator* iter = this->AnimationCuesIterator;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {

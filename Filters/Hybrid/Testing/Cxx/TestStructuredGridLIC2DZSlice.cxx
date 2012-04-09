@@ -20,8 +20,8 @@ int TestStructuredGridLIC2DZSlice(int argc, char* argv[])
 {
   ZoomFactor    = 3.8;
   RenderingMode = STRUCTURED_GRID_LIC2D_SLICE_TEST;
-  
-  char* fname =  
+
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/timestep_0_15.vts");
 
   std::string filename = fname;

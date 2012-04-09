@@ -719,9 +719,9 @@ int TestControlPointsHandleItem(int, char * [])
   //recorder->SetFileName("record.log");
   //recorder->On();
   //recorder->Record();
- 
+
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
-  
+
   return EXIT_SUCCESS;
 }

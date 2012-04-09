@@ -14,7 +14,7 @@
   =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
-  
+
   This is part of the Parallel Dataflow System originally developed by
   Huy T. Vo and Claudio T. Silva. For more information, see:
 
@@ -77,7 +77,7 @@ public:
   // executive, i.e., set the number of threads of the algorithm the
   // executive is pointing to
   void Deploy(vtkThreadedStreamingPipeline *exec, vtkInformation *info);
-  
+
   // Description:
   // Take an amount of computing resources out of this object. Return
   // true if it is successful.

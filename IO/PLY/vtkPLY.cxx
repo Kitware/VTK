@@ -34,12 +34,12 @@ chars representing red, green and blue.
 
 Copyright (c) 1994 The Board of Trustees of The Leland Stanford
 Junior University.  All rights reserved.
-  
+
 Permission to use, copy, modify and distribute this software and its
 documentation for any purpose is hereby granted without fee, provided
 that the above copyright notice and this permission notice appear in
 all copies of this software and that you do not sell the software.
-  
+
 THE SOFTWARE IS PROVIDED "AS IS" AND WITHOUT WARRANTY OF ANY KIND,
 EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
 WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
@@ -627,7 +627,7 @@ void vtkPLY::ply_put_comment(PlyFile *plyfile, const char *comment)
     plyfile->comments = (char **) realloc (plyfile->comments,
                                            sizeof (char *) * (plyfile->num_comments + 1));
     }
-  
+
   /* add comment to list */
   plyfile->comments[plyfile->num_comments] = strdup (comment);
   plyfile->num_comments++;
@@ -655,7 +655,7 @@ void vtkPLY::ply_put_obj_info(PlyFile *plyfile, const char *obj_info)
     plyfile->obj_info = (char **) realloc (plyfile->obj_info,
                                            sizeof (char *) * (plyfile->num_obj_info + 1));
     }
-  
+
   /* add info to list */
   plyfile->obj_info[plyfile->num_obj_info] = strdup (obj_info);
   plyfile->num_obj_info++;
@@ -755,7 +755,7 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
 
     words = get_words (plyfile->fp, &nwords, &orig_line);
   }
-  
+
 
   /* create tags for each property of each element, to be used */
   /* later to say whether or not to store each property for the user */
@@ -1146,7 +1146,7 @@ PlyOtherProp *vtkPLY::ply_get_other_properties(
 #endif
   other->size = elem->other_size;
   other->props = (PlyProperty **) myalloc (sizeof(PlyProperty) * elem->nprops);
-  
+
   /* save descriptions of each "other" property */
   nprops = 0;
   for (i = 0; i < elem->nprops; i++) {
@@ -1165,7 +1165,7 @@ PlyOtherProp *vtkPLY::ply_get_other_properties(
     elem->other_offset = NO_OTHER_PROPS;
   }
 #endif
-  
+
   /* return structure */
   return (other);
 }
@@ -1376,15 +1376,15 @@ void vtkPLY::ply_close(PlyFile *plyfile)
     free (plyfile->comments[i]);
     }
   free (plyfile->comments);
-  
+
   for (i=0; i<plyfile->num_obj_info; i++)
     {
     free (plyfile->obj_info[i]);
     }
   free (plyfile->obj_info);
-  
+
   free (plyfile);
-  
+
   // memory leaks
   plyCleanUp();
 }
@@ -1670,7 +1670,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
       /* The "if" was added by Afra Zomorodian 8/22/95
        * so that zipper won't crash reading plies that have additional
        * properties.
-       */ 
+       */
       if (store_it) {
         item_size = ply_type_size[prop->internal_type];
       }
@@ -1770,7 +1770,7 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
   }
 
   words = (char **) myalloc (sizeof (char *) * max_words);
-  
+
   char *pos = strstr(str, "vertex_index");
   if (pos != NULL) {
     strcpy(pos, "vertex_indices");

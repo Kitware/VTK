@@ -23,7 +23,7 @@ vtkDataCompressor::vtkDataCompressor()
 
 //----------------------------------------------------------------------------
 vtkDataCompressor::~vtkDataCompressor()
-{ 
+{
 }
 
 //----------------------------------------------------------------------------
@@ -62,28 +62,28 @@ vtkDataCompressor::Compress(const unsigned char* uncompressedData,
   // Get the amount of space needed for compressed data.
   unsigned long compressionSpace =
     this->GetMaximumCompressionSpace(uncompressedSize);
-  
+
   // Allocate a buffer.
   vtkUnsignedCharArray* outputArray = vtkUnsignedCharArray::New();
   outputArray->SetNumberOfComponents(1);
   outputArray->SetNumberOfTuples(compressionSpace);
   unsigned char* compressedData = outputArray->GetPointer(0);
-  
+
   // Compress the data.
   unsigned long compressedSize =
     this->CompressBuffer(uncompressedData, uncompressedSize,
                          compressedData, compressionSpace);
-  
+
   // Make sure compression succeeded.
   if(!compressedSize)
     {
     outputArray->Delete();
     return 0;
     }
-  
+
   // Store the actual size.
   outputArray->SetNumberOfTuples(compressedSize);
-  
+
   return outputArray;
 }
 
@@ -98,21 +98,21 @@ vtkDataCompressor::Uncompress(const unsigned char* compressedData,
   outputArray->SetNumberOfComponents(1);
   outputArray->SetNumberOfTuples(uncompressedSize);
   unsigned char* uncompressedData = outputArray->GetPointer(0);
-  
+
   // Decompress the data.
   unsigned long decSize =
     this->UncompressBuffer(compressedData, compressedSize,
                            uncompressedData, uncompressedSize);
-  
+
   // Make sure the decompression succeeded.
   if(!decSize)
     {
     outputArray->Delete();
     return 0;
     }
-  
+
   // Store the actual size.
   outputArray->SetNumberOfTuples(decSize);
-  
-  return outputArray;  
+
+  return outputArray;
 }

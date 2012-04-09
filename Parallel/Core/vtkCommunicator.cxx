@@ -127,7 +127,7 @@ void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "MaximumNumberOfProcesses: " 
+  os << indent << "MaximumNumberOfProcesses: "
      << this->MaximumNumberOfProcesses << endl;
   os << indent << "NumberOfProcesses: " << this->NumberOfProcesses << endl;
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
@@ -141,22 +141,22 @@ void vtkCommunicator::SetNumberOfProcesses(int num)
     {
     return;
     }
-  
+
   if (num < 1 || num > this->MaximumNumberOfProcesses)
     {
-    vtkErrorMacro( << num 
-          << " is an invalid number of processes try a number from 1 to " 
+    vtkErrorMacro( << num
+          << " is an invalid number of processes try a number from 1 to "
           << this->NumberOfProcesses );
     return;
     }
-  
+
   this->NumberOfProcesses = num;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 // Need to add better error checking
-int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, 
+int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
                           int tag)
 {
   // If the receiving end is using with ANY_SOURCE, we have a problem because
@@ -174,7 +174,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
 
   int data_type = data? data->GetDataObjectType() : -1;
   this->Send(&data_type, 1, remoteHandle, tag);
-  
+
   switch(data_type)
     {
   case -1:
@@ -196,11 +196,11 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     default:
       vtkWarningMacro(<< "Cannot send " << data->GetClassName());
       return 0;
-      
+
     //send elemental data objects
     case VTK_DIRECTED_GRAPH:
     case VTK_UNDIRECTED_GRAPH:
-    case VTK_IMAGE_DATA: 
+    case VTK_IMAGE_DATA:
     case VTK_POLY_DATA:
     case VTK_RECTILINEAR_GRID:
     case VTK_STRUCTURED_GRID:
@@ -209,8 +209,8 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     case VTK_TREE:
     case VTK_UNSTRUCTURED_GRID:
       return this->SendElementalDataObject(data, remoteHandle, tag);
-      
-    //for composite types send type, structure, and then iterate 
+
+    //for composite types send type, structure, and then iterate
     //over the internal dataobjects, sending each one (recursively)
     case VTK_MULTIBLOCK_DATA_SET:
       return this->SendMultiBlockDataSet(
@@ -271,7 +271,7 @@ int vtkCommunicator::SendTemporalDataSet(vtkTemporalDataSet* mbds,
 
 //----------------------------------------------------------------------------
 int vtkCommunicator::SendElementalDataObject(
-  vtkDataObject* data, int remoteHandle, 
+  vtkDataObject* data, int remoteHandle,
   int tag)
 {
   VTK_CREATE(vtkCharArray, buffer);
@@ -279,7 +279,7 @@ int vtkCommunicator::SendElementalDataObject(
     {
     return this->Send(buffer, remoteHandle, tag);
     }
-  
+
   // could not marshal data
   return 0;
 }
@@ -347,7 +347,7 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 }
 
 //----------------------------------------------------------------------------
-int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle, 
+int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
                              int tag)
 {
    //fill in the data object we are given
@@ -373,7 +373,7 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
   tag = header[1];
 
   int data_type = 0;
-  this->Receive(&data_type, 1, remoteHandle, tag); 
+  this->Receive(&data_type, 1, remoteHandle, tag);
   if (data_type < 0)
     {
     // NULL data object.
@@ -396,7 +396,7 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
 }
 
 //----------------------------------------------------------------------------
-int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle, 
+int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
                                        int tag, int dataType)
 {
   // If we have not yet received the data type, get the header and data type.
@@ -418,14 +418,14 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
       }
     tag = header[1];
 
-    this->Receive(&data_type, 1, remoteHandle, tag); 
+    this->Receive(&data_type, 1, remoteHandle, tag);
     if (data->GetDataObjectType() != data_type)
       {
       vtkErrorMacro("Cannot receive object, type sent is different from destination.");
       return 0;
       }
     }
-  
+
   switch(data_type)
     {
     //error on types we can't receive
@@ -442,14 +442,14 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_HIERARCHICAL_DATA_SET: // obsolete.
     default:
       vtkWarningMacro(
-        << "Cannot receive " 
+        << "Cannot receive "
         << vtkDataObjectTypes::GetClassNameFromTypeId(data_type));
       return 0;
 
     //receive elemental data objects
     case VTK_DIRECTED_GRAPH:
     case VTK_UNDIRECTED_GRAPH:
-    case VTK_IMAGE_DATA: 
+    case VTK_IMAGE_DATA:
     case VTK_POLY_DATA:
     case VTK_RECTILINEAR_GRID:
     case VTK_STRUCTURED_GRID:
@@ -459,7 +459,7 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_UNSTRUCTURED_GRID:
       return this->ReceiveElementalDataObject(data, remoteHandle, tag);
 
-    //for composite types receive type, structure, and then iterate 
+    //for composite types receive type, structure, and then iterate
     //over the internal dataobjects, receiving each recursively as needed
     case VTK_MULTIBLOCK_DATA_SET:
       return this->ReceiveMultiBlockDataSet(
@@ -523,7 +523,7 @@ int vtkCommunicator::ReceiveTemporalDataSet(
 
 //----------------------------------------------------------------------------
 int vtkCommunicator::ReceiveElementalDataObject(
-  vtkDataObject* data, int remoteHandle, 
+  vtkDataObject* data, int remoteHandle,
   int tag)
 {
   VTK_CREATE(vtkCharArray, buffer);
@@ -560,9 +560,9 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
     return 0;
     }
 
-  if (type == -1) 
+  if (type == -1)
     { // This indicates a NULL object was sent. Do nothing.
-    return 1;   
+    return 1;
     }
 
   if (type != data->GetDataType())
@@ -593,8 +593,8 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
 
   if ( nameLength > 0 )
     {
-    char *str = new char[nameLength]; 
-    
+    char *str = new char[nameLength];
+
     // Receive the name
     this->Receive(str, nameLength, remoteHandle, tag);
     data->SetName(str);
@@ -609,11 +609,11 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
     vtkErrorMacro("Bad data length");
     return 0;
     }
-  
+
   // Do nothing if size is zero.
   if (size == 0)
     {
-    return 1;   
+    return 1;
     }
 
   // now receive the raw array.
@@ -691,8 +691,8 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
     }
   else
     {
-    buffer->SetArray(writer->RegisterAndGetOutputString(), 
-                     size, 
+    buffer->SetArray(writer->RegisterAndGetOutputString(),
+                     size,
                      0,
                      vtkCharArray::VTK_DATA_ARRAY_DELETE);
     buffer->SetNumberOfTuples(size);
@@ -800,7 +800,7 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
     {
     parent=this->GetParentProcessor(processNumber);
     }
-  
+
   double otherBounds[6];
   if(left<numProcessors)
     {
@@ -820,7 +820,7 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
     {
     // Grab the bounds from right child
     this->Receive(&rightHasBounds, 1, right, hasBoundsTag);
-    
+
     if (rhb)
       {
       *rhb = rightHasBounds;
@@ -832,7 +832,7 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
       bounds->AddBounds(otherBounds);
       }
     }
-  
+
   // If there are bounds to send do so
   int boundsHaveBeenSet = bounds->IsValid();
   double b[6];
@@ -843,20 +843,20 @@ int vtkCommunicator::ComputeGlobalBounds(int processNumber, int numProcessors,
     if(boundsHaveBeenSet)
       {
       // Copy the bounds to an array so we can send them
-      
+
       bounds->GetBounds(b);
       this->Send(b, 6, parent, localBoundsTag);
-      
+
       this->Receive(b, 6, parent, globalBoundsTag);
       bounds->AddBounds(b);
       }
     }
-  
+
   if(!boundsHaveBeenSet) // empty, no bounds, nothing to do
     {
     return 1;
     }
-  
+
   // Send it to children.
   bounds->GetBounds(b);
   if(left<numProcessors)
@@ -1388,7 +1388,7 @@ int vtkCommunicator::ReduceVoidArray(const void *sendBuffer,
   case id: opClass = new vtkCommunicator##opclass##Class; break;
 
   vtkCommunicator::Operation *opClass = 0;
-  
+
   switch (operation)
     {
     OP_CASE(MAX_OP, Max);

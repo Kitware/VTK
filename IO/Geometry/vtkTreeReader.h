@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTreeReader - read vtkTree data file
 // .SECTION Description
-// vtkTreeReader is a source object that reads ASCII or binary 
+// vtkTreeReader is a source object that reads ASCII or binary
 // vtkTree data files in vtk format. (see text for format details).
 // The output of this reader is a single vtkTree data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -45,7 +45,7 @@ public:
   vtkTree *GetOutput();
   vtkTree *GetOutput(int idx);
   void SetOutput(vtkTree *output);
-  
+
 protected:
   vtkTreeReader();
   ~vtkTreeReader();
@@ -58,7 +58,7 @@ protected:
   // as a default behavior.
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkTreeReader(const vtkTreeReader&);  // Not implemented.

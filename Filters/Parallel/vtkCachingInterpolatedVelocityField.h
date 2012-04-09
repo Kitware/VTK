@@ -17,12 +17,12 @@
 // .SECTION Description
 // vtkCachingInterpolatedVelocityField acts as a continuous velocity field
 // by performing cell interpolation on the underlying vtkDataSet.
-// This is a concrete sub-class of vtkFunctionSet with 
-// NumberOfIndependentVariables = 4 (x,y,z,t) and 
+// This is a concrete sub-class of vtkFunctionSet with
+// NumberOfIndependentVariables = 4 (x,y,z,t) and
 // NumberOfFunctions = 3 (u,v,w). Normally, every time an evaluation
 // is performed, the cell which contains the point (x,y,z) has to
-// be found by calling FindCell. This is a computationally expensive 
-// operation. In certain cases, the cell search can be avoided or shortened 
+// be found by calling FindCell. This is a computationally expensive
+// operation. In certain cases, the cell search can be avoided or shortened
 // by providing a guess for the cell id. For example, in streamline
 // integration, the next evaluation is usually in the same or a neighbour
 // cell. For this reason, vtkCachingInterpolatedVelocityField stores the last
@@ -82,13 +82,13 @@ public:
   virtual void SetDataSet(int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator *locator);
 
   // Description:
-  // If you want to work with an arbitrary vector array, then set its name 
-  // here. By default this in NULL and the filter will use the active vector 
+  // If you want to work with an arbitrary vector array, then set its name
+  // here. By default this in NULL and the filter will use the active vector
   // array.
   vtkGetStringMacro(VectorsSelection);
-  void SelectVectors(const char *fieldName) 
+  void SelectVectors(const char *fieldName)
     {this->SetVectorsSelection(fieldName);}
-  
+
   // Description:
   // Return the cell id cached from last evaluation.
   void SetLastCellInfo(vtkIdType c, int datasetindex);
@@ -98,7 +98,7 @@ public:
   // start from the previous cell
   void ClearLastCellInfo();
 
-  // Description: 
+  // Description:
   // Returns the interpolation weights/pcoords cached from last evaluation
   // if the cached cell is valid (returns 1). Otherwise, it does not
   // change w and returns 0.
@@ -141,7 +141,7 @@ protected:
   // If all weights have been computed (parametric coords etc all valid)
   // then we can quickly interpolate a scalar/vector using the known weights
   // and the generic cell which has been stored.
-  // This function is primarily reserved for use by 
+  // This function is primarily reserved for use by
   // vtkTemporalInterpolatedVelocityField
   void FastCompute(IVFDataSetInfo *cache, double f[3]);
   bool InterpolatePoint(vtkPointData *outPD, vtkIdType outIndex);

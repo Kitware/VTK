@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkStreamPoints is a filter that generates points along a streamer.
 // The points are separated by a constant time increment. The resulting visual
-// effect (especially when coupled with vtkGlyph3D) is an indication of 
+// effect (especially when coupled with vtkGlyph3D) is an indication of
 // particle speed.
 
 // .SECTION See Also
@@ -52,7 +52,7 @@ protected:
 
   // the separation of points
   double TimeIncrement;
-  
+
 private:
   vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.
   void operator=(const vtkStreamPoints&);  // Not implemented.

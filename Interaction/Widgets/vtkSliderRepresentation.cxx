@@ -25,7 +25,7 @@ vtkSliderRepresentation::vtkSliderRepresentation()
   this->MaximumValue = 1.0;
   this->CurrentT = 0.0;
   this->PickedT = 0.0;
-  
+
   this->SliderLength = 0.05;
   this->SliderWidth = 0.05;
   this->EndCapLength = 0.025;
@@ -35,7 +35,7 @@ vtkSliderRepresentation::vtkSliderRepresentation()
   // Labels and text
   this->ShowSliderLabel = 1;
 
-  this->LabelFormat = new char[8]; 
+  this->LabelFormat = new char[8];
   sprintf( this->LabelFormat,"%s","%0.3g" );
 
   this->LabelHeight = 0.05;
@@ -46,7 +46,7 @@ vtkSliderRepresentation::vtkSliderRepresentation()
 //----------------------------------------------------------------------
 vtkSliderRepresentation::~vtkSliderRepresentation()
 {
-  if (this->LabelFormat) 
+  if (this->LabelFormat)
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
@@ -60,12 +60,12 @@ void vtkSliderRepresentation::SetMinimumValue(double minValue)
     {
     return;
     }
-  
+
   if ( minValue >= this->MaximumValue )
     {
     this->MaximumValue = minValue + 1;
     }
-  
+
   this->MinimumValue = minValue;
 
   if ( this->Value < this->MinimumValue )
@@ -94,12 +94,12 @@ void vtkSliderRepresentation::SetMaximumValue(double maxValue)
     {
     return;
     }
-  
+
   if ( maxValue <= this->MinimumValue )
     {
     this->MinimumValue = maxValue - 1;
     }
-  
+
   this->MaximumValue = maxValue;
 
   if ( this->Value < this->MinimumValue )
@@ -128,17 +128,17 @@ void vtkSliderRepresentation::SetValue(double value)
     {
     return;
     }
-  
+
   if ( value < this->MinimumValue )
     {
     value = this->MinimumValue;
     }
-  
+
   if ( value > this->MaximumValue )
     {
     value = this->MaximumValue;
     }
-  
+
   this->Value = value;
   this->CurrentT = (value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);
 
@@ -159,14 +159,14 @@ void vtkSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Minimum Value: " << this->MinimumValue << "\n";
   os << indent << "Maximum Value: " << this->MaximumValue << "\n";
   os << indent << "Value: " << this->Value << "\n";
-  
+
   os << indent << "Slider Length: " << this->SliderLength << "\n";
   os << indent << "Slider Width: " << this->SliderWidth << "\n";
   os << indent << "End Cap Length: " << this->EndCapLength << "\n";
   os << indent << "End Cap Width: " << this->EndCapWidth << "\n";
   os << indent << "Tube Width: " << this->TubeWidth << "\n";
 
-  os << indent << "Show Slider Label: " 
+  os << indent << "Show Slider Label: "
      << (this->ShowSliderLabel ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Label Height: " << this->LabelHeight << "\n";

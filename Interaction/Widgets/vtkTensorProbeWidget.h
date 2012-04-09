@@ -15,14 +15,14 @@
 // .NAME vtkTensorProbeWidget - a widget to probe tensors on a polyline
 // .SECTION Description
 // The class is used to probe tensors on a trajectory. The representation
-// (vtkTensorProbeRepresentation) is free to choose its own method of 
+// (vtkTensorProbeRepresentation) is free to choose its own method of
 // rendering the tensors. For instance vtkEllipsoidTensorProbeRepresentation
-// renders the tensors as ellipsoids. The interactions of the widget are 
+// renders the tensors as ellipsoids. The interactions of the widget are
 // controlled by the left mouse button. A left click on the tensor selects
 // it. It can dragged around the trajectory to probe the tensors on it.
-// 
-// For instance dragging the ellipsoid around with 
-// vtkEllipsoidTensorProbeRepresentation will manifest itself with the 
+//
+// For instance dragging the ellipsoid around with
+// vtkEllipsoidTensorProbeRepresentation will manifest itself with the
 // ellipsoid shape changing as needed along the trajectory.
 
 #ifndef __vtkTensorProbeWidget_h
@@ -55,7 +55,7 @@ public:
     this->Superclass::SetWidgetRepresentation(
         reinterpret_cast<vtkWidgetRepresentation*>(r));
     }
-  
+
   // Description:
   // Return the representation as a vtkTensorProbeRepresentation.
   vtkTensorProbeRepresentation *GetTensorProbeRepresentation()
@@ -77,13 +77,13 @@ protected:
   // Callback interface to capture events and respond
   static void SelectAction    (vtkAbstractWidget*);
   static void MoveAction      (vtkAbstractWidget*);
-  static void EndSelectAction (vtkAbstractWidget*);  
+  static void EndSelectAction (vtkAbstractWidget*);
 
 private:
   vtkTensorProbeWidget(
       const vtkTensorProbeWidget&);  //Not implemented
   void operator=(const vtkTensorProbeWidget&);  //Not implemented
-  
+
 };
 
 #endif

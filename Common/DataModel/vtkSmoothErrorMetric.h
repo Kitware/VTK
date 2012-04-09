@@ -40,24 +40,24 @@ public:
   // Construct the error metric with a default flatness threshold of 90.1
   // degrees.
   static vtkSmoothErrorMetric *New();
-  
+
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkSmoothErrorMetric,vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Return the flatness threshold.
   // \post positive_result: result>90 && result<180
   double GetAngleTolerance();
-  
+
   // Description:
   // Set the flatness threshold with an angle in degrees. Internally
   // compute the cosine. value is supposed to be in ]90,180[, if not
   // it is clamped in [90.1,179.9].
   // For instance 178  will give better result than 150.
   void SetAngleTolerance(double value);
-  
+
   // Description:
   // Does the edge need to be subdivided according to the cosine between
   // the two chords passing through the mid-point and the endpoints?
@@ -92,14 +92,14 @@ public:
   // \post positive_result: result>=0
   double GetError(double *leftPoint, double *midPoint, double *rightPoint,
                   double alpha);
-  
+
 protected:
   vtkSmoothErrorMetric();
   virtual ~vtkSmoothErrorMetric();
-  
+
   double AngleTolerance;
   double CosTolerance;
-  
+
 private:
   vtkSmoothErrorMetric(const vtkSmoothErrorMetric&);  // Not implemented.
   void operator=(const vtkSmoothErrorMetric&);  // Not implemented.

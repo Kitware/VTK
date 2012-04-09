@@ -84,7 +84,7 @@ int vtkGeoSampleArcs::RequestData(
       vtkIdType npts=0; // to remove warning
       vtkIdType* pts=0; // to remove warning
     lines->GetNextCell(npts, pts);
-    
+
     double lastPoint[3];
     double curPoint[3];
     double lastPtLL[2];
@@ -104,7 +104,7 @@ int vtkGeoSampleArcs::RequestData(
       vtkGlobeSource::ComputeGlobePoint(
         curPtLL[0], curPtLL[1], this->GlobeRadius, curPoint);
       }
-    
+
     for (vtkIdType p = 1; p < npts; ++p)
       {
       // Advance point
@@ -141,7 +141,7 @@ int vtkGeoSampleArcs::RequestData(
 
       // Create the new cell
       newLines->InsertNextCell(numDivisions);
-      
+
       for (vtkIdType s = 0; s < numDivisions; ++s)
         {
         // Interpolate in lat-long.

@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkEmptyRepresentation);
 vtkEmptyRepresentation::vtkEmptyRepresentation()
 {
   this->ConvertDomains = vtkSmartPointer<vtkConvertSelectionDomain>::New();
-  
+
   this->SetNumberOfInputPorts(0);
 }
 

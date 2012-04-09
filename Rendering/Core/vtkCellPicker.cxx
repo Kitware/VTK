@@ -56,7 +56,7 @@ vtkCellPicker::vtkCellPicker()
   this->Gradients = vtkDoubleArray::New();
   this->Gradients->SetNumberOfComponents(3);
   this->Gradients->SetNumberOfTuples(8);
- 
+
   // Miscellaneous ivars
   this->Tolerance = 1e-6;
   this->VolumeOpacityIsovalue = 0.05;
@@ -84,7 +84,7 @@ void vtkCellPicker::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MapperNormal: (" <<  this->MapperNormal[0] << ","
      << this->MapperNormal[1] << "," << this->MapperNormal[2] << ")\n";
-  
+
   os << indent << "PickNormal: (" <<  this->PickNormal[0] << ","
      << this->PickNormal[1] << "," << this->PickNormal[2] << ")\n";
 
@@ -103,7 +103,7 @@ void vtkCellPicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointId: " << this->PointId << "\n";
   os << indent << "CellId: " << this->CellId << "\n";
   os << indent << "SubId: " << this->SubId << "\n";
-  os << indent << "PCoords: (" << this->PCoords[0] << ", " 
+  os << indent << "PCoords: (" << this->PCoords[0] << ", "
      << this->PCoords[1] << ", " << this->PCoords[2] << ")\n";
 
   os << indent << "PointIJK: (" << this->PointIJK[0] << ", "
@@ -218,7 +218,7 @@ int vtkCellPicker::Pick(double selectionX, double selectionY,
       this->PickNormal[2] = cameraPos[2] - cameraFocus[2];
       }
     else
-      {   
+      {
       // Get the vector from pick position to the camera
       this->PickNormal[0] = cameraPos[0] - this->PickPosition[0];
       this->PickNormal[1] = cameraPos[1] - this->PickPosition[1];
@@ -229,18 +229,18 @@ int vtkCellPicker::Pick(double selectionX, double selectionY,
     }
 
   return pickResult;
-}  
+}
 
 //----------------------------------------------------------------------------
 // Tolerance for parametric coordinate matching an intersection with a plane
 #define VTKCELLPICKER_PLANE_TOL 1e-14
 
 double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
-                                          double tol, 
-                                          vtkAssemblyPath *path, 
-                                          vtkProp3D *prop, 
+                                          double tol,
+                                          vtkAssemblyPath *path,
+                                          vtkProp3D *prop,
                                           vtkAbstractMapper3D *m)
-{ 
+{
   vtkMapper *mapper = 0;
   vtkAbstractVolumeMapper *volumeMapper = 0;
   vtkImageMapper3D *imageMapper = 0;
@@ -325,19 +325,19 @@ double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3],
 double vtkCellPicker::IntersectActorWithLine(const double p1[3],
                                                const double p2[3],
                                                double t1, double t2,
-                                               double tol, 
-                                               vtkProp3D *prop, 
+                                               double tol,
+                                               vtkProp3D *prop,
                                                vtkMapper *mapper)
 {
   // This code was taken from the original CellPicker with almost no
   // modification except for the locator and texture additions.
 
   // Intersect each cell with ray.  Keep track of one closest to
-  // the eye (within the tolerance tol) and within the clipping range). 
+  // the eye (within the tolerance tol) and within the clipping range).
   // Note that we fudge the "closest to" (tMin+this->Tolerance) a little and
   // keep track of the cell with the best pick based on parametric
-  // coordinate (pick the minimum, maximum parametric distance). This 
-  // breaks ties in a reasonable way when cells are the same distance 
+  // coordinate (pick the minimum, maximum parametric distance). This
+  // breaks ties in a reasonable way when cells are the same distance
   // from the eye (like cells laying on a 2D plane).
 
   vtkDataSet *data = mapper->GetInput();
@@ -401,7 +401,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     vtkIdList *pointIds = this->PointIds;
     vtkIdType numCells = data->GetNumberOfCells();
 
-    for (vtkIdType cellId = 0; cellId < numCells; cellId++) 
+    for (vtkIdType cellId = 0; cellId < numCells; cellId++)
       {
       double t;
       double x[3];
@@ -480,7 +480,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
         } // if a close cell
       } // for all cells
     }
-  
+
   // Do this if a cell was intersected
   if (minCellId >= 0 && tMin < this->GlobalTMin)
     {
@@ -523,7 +523,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
     vtkActor *actor = 0;
     vtkLODProp3D *lodActor = 0;
     if ( (actor = vtkActor::SafeDownCast(prop)) )
-      { 
+      {
       this->Texture = actor->GetTexture();
       }
     else if ( (lodActor = vtkLODProp3D::SafeDownCast(prop)) )
@@ -626,7 +626,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
                                                 vtkAbstractVolumeMapper *mapper)
 {
   vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
-  
+
   if (data == 0)
     {
     // This picker only works with image inputs
@@ -668,7 +668,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
   vtkVolume *volume = 0;
   vtkLODProp3D *lodVolume = 0;
   if ( (volume = vtkVolume::SafeDownCast(prop)) )
-    { 
+    {
     property = volume->GetProperty();
     }
   else if ( (lodVolume = vtkLODProp3D::SafeDownCast(prop)) )
@@ -681,7 +681,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
   double opacityThreshold = this->VolumeOpacityIsovalue;
 
   // Compute the length of the line intersecting the volume
-  double rayLength = sqrt(vtkMath::Distance2BetweenPoints(x1, x2))*(t2 - t1); 
+  double rayLength = sqrt(vtkMath::Distance2BetweenPoints(x1, x2))*(t2 - t1);
 
   // This is the minimum increment that will be allowed
   double tTol = VTKCELLPICKER_VOXEL_TOL/rayLength*(t2 - t1);
@@ -705,10 +705,10 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
   // Go through each volume component separately
   double tMin = VTK_DOUBLE_MAX;
   for (int component = 0; component < numIndependentComponents; component++)
-    { 
+    {
     vtkPiecewiseFunction *scalarOpacity =
       property->GetScalarOpacity(component);
-    int disableGradientOpacity = 
+    int disableGradientOpacity =
       property->GetDisableGradientOpacity(component);
     vtkPiecewiseFunction *gradientOpacity = 0;
     if (!disableGradientOpacity && this->UseVolumeGradientOpacity)
@@ -795,7 +795,7 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
             t = ttry;
             }
           }
-        } 
+        }
       } // End of "while (t <= t2)"
 
     // If the ray hit the isosurface, compute the isosurface position
@@ -864,9 +864,9 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
           for (int k = 0; k < 8; k++)
             {
             double *pg = this->Gradients->GetTuple(k);
-            v[0] += pg[0]*weights[k]; 
-            v[1] += pg[1]*weights[k]; 
-            v[2] += pg[2]*weights[k]; 
+            v[0] += pg[0]*weights[k];
+            v[1] += pg[1]*weights[k];
+            v[2] += pg[2]*weights[k];
             }
 
           double norm = vtkMath::Norm(v);
@@ -1037,12 +1037,12 @@ double vtkCellPicker::IntersectImageWithLine(const double p1[3],
 
 double vtkCellPicker::IntersectProp3DWithLine(const double *, const double *,
                                               double, double, double,
-                                              vtkProp3D *, 
+                                              vtkProp3D *,
                                               vtkAbstractMapper3D *)
 {
   return VTK_DOUBLE_MAX;
 }
- 
+
 //----------------------------------------------------------------------------
 // Clip a line with a collection of clipping planes, or return zero if
 // the line does not intersect the volume enclosed by the planes.
@@ -1102,7 +1102,7 @@ int vtkCellPicker::ClipLineWithPlanes(vtkAbstractMapper3D *mapper,
         if (t <= t2)
           {
           t2 = t;
-          } 
+          }
         }
 
       // If this happens, there's no line left
@@ -1135,7 +1135,7 @@ int vtkCellPicker::ClipLineWithExtent(const int extent[6],
   int p2;
   return vtkBox::IntersectWithLine(bounds, x1, x2, t1, t2, 0, 0, planeId, p2);
 }
- 
+
 //----------------------------------------------------------------------------
 // Compute the cell normal either by interpolating the point normals,
 // or by computing the plane normal for 2D cells.
@@ -1482,13 +1482,13 @@ double vtkCellPicker::ComputeVolumeOpacity(
     for (int k = 0; k < 8; k++)
       {
       double *pg = this->Gradients->GetTuple(k);
-      v[0] += pg[0]*weights[k]; 
-      v[1] += pg[1]*weights[k]; 
-      v[2] += pg[2]*weights[k]; 
+      v[0] += pg[0]*weights[k];
+      v[1] += pg[1]*weights[k];
+      v[2] += pg[2]*weights[k];
       }
     double grad = sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     opacity *= gradientOpacity->GetValue(grad);
-    }  
+    }
 
   return opacity;
 }

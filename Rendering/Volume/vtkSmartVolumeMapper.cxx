@@ -304,7 +304,7 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
   this->GetInput()->GetSpacing(spacing);
 
   vtkRenderWindow *win=ren->GetRenderWindow();
-  
+
   switch ( this->RequestedRenderMode )
     {
     // Requested ray casting - OK as long as it is supported
@@ -693,7 +693,7 @@ int vtkSmartVolumeMapper::GetLastUsedRenderMode()
 void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << "FinalColorWindow: " << this->FinalColorWindow << endl;
   os << "FinalColorLevel: " << this->FinalColorLevel << endl;
   os << "RequestedRenderMode: " << this->RequestedRenderMode << endl;

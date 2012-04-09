@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricSpline.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -26,7 +26,7 @@
 // their own instances of subclasses of vtkSpline.
 //
 // .SECTION Caveats
-// If you wish to tessellate the spline, use the class 
+// If you wish to tessellate the spline, use the class
 // vtkParametricFunctionSource.
 //
 // .SECTION See Also
@@ -46,7 +46,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSpline : public vtkPara
 public:
   vtkTypeMacro(vtkParametricSpline,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Construct the spline with the following parameters:
   // MinimumU = 0, MaximumU = 1, JoinU = 0 (unless the spline is
@@ -80,7 +80,7 @@ public:
   vtkGetObjectMacro(ZSpline,vtkSpline);
 
   // Description:
-  // Specify the list of points defining the spline. Do this by 
+  // Specify the list of points defining the spline. Do this by
   // specifying a vtkPoints array containing the points. Note that
   // the order of the points in vtkPoints is the order that the
   // splines will be fit.
@@ -106,7 +106,7 @@ public:
   // Default is by length.
   vtkSetMacro(ParameterizeByLength,int);
   vtkGetMacro(ParameterizeByLength,int);
-  vtkBooleanMacro(ParameterizeByLength,int);   
+  vtkBooleanMacro(ParameterizeByLength,int);
 
   // Description:
   // Set the type of constraint of the left(right) end points. Four
@@ -117,10 +117,10 @@ public:
   //
   // 1: the first derivative at left(right) most point is set to
   // Left(Right)Value.
-  // 
+  //
   // 2: the second derivative at left(right) most point is set to
   // Left(Right)Value.
-  // 
+  //
   // 3: the second derivative at left(right)most points is Left(Right)Value
   // times second derivative at first interior point.
   vtkSetClampMacro(LeftConstraint,int,0,3);
@@ -159,11 +159,11 @@ protected:
   // Initializing the spline
   unsigned long InitializeTime;
   int Initialize();
-  
+
   // Internal variable for managing parametric coordinates
   double Length;
   double ClosedLength;
-  
+
 private:
   vtkParametricSpline(const vtkParametricSpline&);  // Not implemented.
   void operator=(const vtkParametricSpline&);  // Not implemented.

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayToTable.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -95,7 +95,7 @@ static bool ConvertMatrix(vtkArray* Array, vtkTable* Output)
     {
     std::ostringstream column_name;
     column_name << j;
-      
+
     ColumnT* const column = ColumnT::New();
     column->SetNumberOfTuples(rows.GetSize());
     column->SetName(column_name.str().c_str());
@@ -162,8 +162,8 @@ int vtkArrayToTable::FillInputPortInformation(int port, vtkInformation* info)
 // ----------------------------------------------------------------------
 
 int vtkArrayToTable::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   try
@@ -173,11 +173,11 @@ int vtkArrayToTable::RequestData(
       throw std::runtime_error("Missing vtkArrayData on input port 0.");
     if(input_array_data->GetNumberOfArrays() != 1)
       throw std::runtime_error("vtkArrayToTable requires a vtkArrayData containing exactly one array.");
-    
+
     vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
     if(input_array->GetDimensions() > 2)
       throw std::runtime_error("vtkArrayToTable input array must have 1 or 2 dimensions.");
-    
+
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
     if(ConvertVector<double, vtkDoubleArray>(input_array, output_table)) return 1;
@@ -195,7 +195,7 @@ int vtkArrayToTable::RequestData(
     if(ConvertVector<vtkIdType, vtkIdTypeArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkStdString, vtkStringArray>(input_array, output_table)) return 1;
     if(ConvertVector<vtkUnicodeString, vtkUnicodeStringArray>(input_array, output_table)) return 1;
-    
+
     if(ConvertMatrix<double, vtkDoubleArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<unsigned char, vtkUnsignedCharArray>(input_array, output_table)) return 1;
     if(ConvertMatrix<unsigned short, vtkUnsignedShortArray>(input_array, output_table)) return 1;

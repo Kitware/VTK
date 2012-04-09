@@ -15,14 +15,14 @@
 // .NAME vtkSphereWidget - 3D widget for manipulating a sphere
 // .SECTION Description
 // This 3D widget defines a sphere that can be interactively placed in a
-// scene. 
+// scene.
 //
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
 // "PlaceWidget()" to initially position the widget. The interactor will act
 // normally until the "i" key (for "interactor") is pressed, at which point the
 // vtkSphereWidget will appear. (See superclass documentation for information
-// about changing this behavior.) 
+// about changing this behavior.)
 // Events that occur outside of the widget (i.e., no part of
 // the widget is picked) are propagated to any other registered obsevers
 // (such as the interaction style).  Turn off the widget by pressing the "i"
@@ -42,7 +42,7 @@
 //
 // Some additional features of this class include the ability to control the
 // properties of the widget. You can set the properties of the selected and
-// unselected representations of the sphere. 
+// unselected representations of the sphere.
 
 // .SECTION Caveats
 // Note that the sphere can be picked even when they are "behind" other
@@ -88,13 +88,13 @@ public:
   virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
   // Set the representation of the sphere. Different representations are
-  // useful depending on the application. The default is 
+  // useful depending on the application. The default is
   // VTK_SPHERE_WIREFRAME.
   vtkSetClampMacro(Representation,int,VTK_SPHERE_OFF,VTK_SPHERE_SURFACE);
   vtkGetMacro(Representation,int);
@@ -129,24 +129,24 @@ public:
       {
       r = .00001;
       }
-    this->SphereSource->SetRadius(r); 
+    this->SphereSource->SetRadius(r);
     }
   double GetRadius()
     { return this->SphereSource->GetRadius(); }
 
   // Description:
   // Set/Get the center of the sphere.
-  void SetCenter(double x, double y, double z) 
+  void SetCenter(double x, double y, double z)
     {
-    this->SphereSource->SetCenter(x,y,z); 
+    this->SphereSource->SetCenter(x,y,z);
     }
-  void SetCenter(double x[3]) 
+  void SetCenter(double x[3])
     {
     this->SetCenter(x[0], x[1], x[2]);
     }
-  double* GetCenter() 
+  double* GetCenter()
     {return this->SphereSource->GetCenter();}
-  void GetCenter(double xyz[3]) 
+  void GetCenter(double xyz[3])
     {this->SphereSource->GetCenter(xyz);}
 
   // Description:
@@ -178,7 +178,7 @@ public:
   // Description:
   // Get the position of the handle.
   vtkGetVector3Macro(HandlePosition,double);
-  
+
   // Description:
   // Grab the polydata (including points) that defines the sphere.  The
   // polydata consists of n+1 points, where n is the resolution of the
@@ -195,18 +195,18 @@ public:
   void GetSphere(vtkSphere *sphere);
 
   // Description:
-  // Get the sphere properties. The properties of the sphere when selected 
+  // Get the sphere properties. The properties of the sphere when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(SphereProperty,vtkProperty);
   vtkGetObjectMacro(SelectedSphereProperty,vtkProperty);
-  
+
   // Description:
   // Get the handle properties (the little ball on the sphere is the
   // handle). The properties of the handle when selected and unselected
   // can be  manipulated.
   vtkGetObjectMacro(HandleProperty,vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
-  
+
 protected:
   vtkSphereWidget();
   ~vtkSphereWidget();
@@ -222,11 +222,11 @@ protected:
     Outside
   };
 //ETX
-    
+
   //handles the events
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
@@ -248,7 +248,7 @@ protected:
 
   // Do the picking
   vtkCellPicker *Picker;
-  
+
   // Methods to manipulate the sphere widget
   int Translation;
   int Scale;
@@ -256,7 +256,7 @@ protected:
   void ScaleSphere(double *p1, double *p2, int X, int Y);
   void MoveHandle(double *p1, double *p2, int X, int Y);
   void PlaceHandle(double *center, double radius);
-  
+
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *SphereProperty;

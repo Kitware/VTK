@@ -16,9 +16,9 @@
 // .SECTION Description
 // vtkScalarBarActor creates a scalar bar with annotation text. A scalar
 // bar is a legend that indicates to the viewer the correspondence between
-// color value and data value. The legend consists of a rectangular bar 
-// made of rectangular pieces each colored a constant value. Since 
-// vtkScalarBarActor is a subclass of vtkActor2D, it is drawn in the image 
+// color value and data value. The legend consists of a rectangular bar
+// made of rectangular pieces each colored a constant value. Since
+// vtkScalarBarActor is a subclass of vtkActor2D, it is drawn in the image
 // plane (i.e., in the renderer's viewport) on top of the 3D graphics window.
 //
 // To use vtkScalarBarActor you must associate a vtkScalarsToColors (or
@@ -26,7 +26,7 @@
 // range of scalar values used to map scalar data.  Typically, the
 // number of colors shown in the scalar bar is not equal to the number
 // of colors in the lookup table, in which case sampling of
-// the lookup table is performed. 
+// the lookup table is performed.
 //
 // Other optional capabilities include specifying the fraction of the
 // viewport size (both x and y directions) which will control the size
@@ -40,7 +40,7 @@
 // the scalar bar and annotation (including layer, and
 // compositing operator).
 //
-// Set the text property/attributes of the title and the labels through the 
+// Set the text property/attributes of the title and the labels through the
 // vtkTextProperty objects associated to this actor.
 //
 // .SECTION Caveats
@@ -88,7 +88,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -118,12 +118,12 @@ public:
   // the colors are samples from the lookup table.
   vtkSetClampMacro(MaximumNumberOfColors, int, 2, VTK_LARGE_INTEGER);
   vtkGetMacro(MaximumNumberOfColors, int);
-  
+
   // Description:
   // Set/Get the number of annotation labels to show.
   vtkSetClampMacro(NumberOfLabels, int, 0, 64);
   vtkGetMacro(NumberOfLabels, int);
-  
+
   // Description:
   // Control the orientation of the scalar bar.
   vtkSetClampMacro(Orientation,int,VTK_ORIENT_HORIZONTAL, VTK_ORIENT_VERTICAL);
@@ -136,12 +136,12 @@ public:
   // Set/Get the title text property.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the labels text property.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-    
+
   // Description:
   // Set/Get the format with which to print the labels on the scalar
   // bar.
@@ -177,7 +177,7 @@ public:
 
   // Description:
   // Have the text preceding the scalar bar or succeeding it ?
-  // Succeed implies the that the text is Above scalar bar if orientation 
+  // Succeed implies the that the text is Above scalar bar if orientation
   // is horizontal or Right of scalar bar if orientation is vertical.
   // Precede is the opposite
   vtkSetClampMacro( TextPosition, int, PrecedeScalarBar, SucceedScalarBar);
@@ -189,9 +189,9 @@ public:
 
   // Description:
   // Set/Get the maximum width and height in pixels. Specifying the size as
-  // a relative fraction of the viewport can sometimes undersirably strech 
-  // the size of the actor too much. These methods allow the user to set 
-  // bounds on the maximum size of the scalar bar in pixels along any 
+  // a relative fraction of the viewport can sometimes undersirably strech
+  // the size of the actor too much. These methods allow the user to set
+  // bounds on the maximum size of the scalar bar in pixels along any
   // direction. Defaults to unbounded.
   vtkSetMacro( MaximumWidthInPixels, int );
   vtkGetMacro( MaximumWidthInPixels, int );
@@ -216,12 +216,12 @@ public:
   // Set/Get the background property.
   virtual void SetBackgroundProperty(vtkProperty2D *p);
   vtkGetObjectMacro(BackgroundProperty,vtkProperty2D);
-    
+
   // Description:
   // Set/Get the frame property.
   virtual void SetFrameProperty(vtkProperty2D *p);
   vtkGetObjectMacro(FrameProperty,vtkProperty2D);
-    
+
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();

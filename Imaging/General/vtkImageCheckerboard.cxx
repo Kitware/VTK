@@ -39,7 +39,7 @@ template <class T>
 void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
                                   vtkImageData *in1Data, T *in1Ptr,
                                   vtkImageData *in2Data, T *in2Ptr,
-                                  vtkImageData *outData, 
+                                  vtkImageData *outData,
                                   T *outPtr,
                                   int outExt[6], int id,
                                   int wholeExt[6])
@@ -63,21 +63,21 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   // find the region to loop over
   nComp = in1Data->GetNumberOfScalarComponents();
   rowLength = (outExt[1] - outExt[0]+1)*nComp;
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-    
+
   dimWholeX = wholeExt[1] - wholeExt[0] + 1;
   dimWholeY = wholeExt[3] - wholeExt[2] + 1;
   dimWholeZ = wholeExt[5] - wholeExt[4] + 1;
-  
+
   threadOffsetX = (outExt[0] - wholeExt[0]) * nComp;
   threadOffsetY = outExt[2] - wholeExt[2];
   threadOffsetZ = outExt[4] - wholeExt[4];
 
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
@@ -90,14 +90,14 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   divX = dimWholeX / numDivX * nComp;
   divY = dimWholeY / numDivY;
   divZ = dimWholeZ / numDivZ;
-  
+
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     selectZ = (((idxZ + threadOffsetZ) / divZ) % 2) << 2;
     for (idxY = 0; idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -108,7 +108,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
       selectY = (((idxY + threadOffsetY) / divY) % 2) << 1;
       for (idxR = 0; idxR < rowLength; idxR++)
         {
-        
+
         selectX = ((idxR + threadOffsetX) / divX) % 2;
         which = selectZ + selectY + selectX;
         switch (which)
@@ -137,7 +137,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
           case 7:
             *outPtr = *in2Ptr;
             break;
-          }         
+          }
         outPtr++;
         in1Ptr++;
         in2Ptr++;
@@ -158,16 +158,16 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 void vtkImageCheckerboard::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector,
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
   void *in1Ptr, *in2Ptr;
   void *outPtr;
-  
+
   if (inData[0][0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
@@ -181,7 +181,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
     }
 
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  
+
   if (inData[1][0] == NULL)
     {
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
@@ -195,7 +195,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
     }
 
   // this filter expects that inputs that have the same number of components
-  if (inData[0][0]->GetNumberOfScalarComponents() != 
+  if (inData[0][0]->GetNumberOfScalarComponents() !=
       inData[1][0]->GetNumberOfScalarComponents())
     {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
@@ -211,12 +211,12 @@ void vtkImageCheckerboard::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageCheckerboardExecute2(this, inData[0][0], 
+      vtkImageCheckerboardExecute2(this, inData[0][0],
                                    static_cast<VTK_TT *>(in1Ptr),
-                                   inData[1][0], 
-                                   static_cast<VTK_TT *>(in2Ptr), 
-                                   outData[0], 
-                                   static_cast<VTK_TT *>(outPtr), 
+                                   inData[1][0],
+                                   static_cast<VTK_TT *>(in2Ptr),
+                                   outData[0],
+                                   static_cast<VTK_TT *>(outPtr),
                                    outExt, id, wholeExtent));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

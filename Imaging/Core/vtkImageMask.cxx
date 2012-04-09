@@ -66,7 +66,7 @@ void vtkImageMask::SetMaskedOutputValue(int num, double *v)
     {
     this->Modified();
     }
-  
+
   if (num > this->MaskedOutputValueLength)
     {
     delete [] this->MaskedOutputValue;
@@ -212,7 +212,7 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
     in2Ptr += in2Inc2;
     outPtr += outInc2;
     }
-  
+
   delete [] maskedValue;
 }
 
@@ -224,10 +224,10 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
 void vtkImageMask::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -235,13 +235,13 @@ void vtkImageMask::ThreadedRequestData(
   void *inPtr2;
   void *outPtr;
   int *tExt;
-  
+
   inPtr1 = inData[0][0]->GetScalarPointerForExtent(outExt);
   inPtr2 = inData[1][0]->GetScalarPointerForExtent(outExt);
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   tExt = inData[1][0]->GetExtent();
-  if (tExt[0] > outExt[0] || tExt[1] < outExt[1] || 
+  if (tExt[0] > outExt[0] || tExt[1] < outExt[1] ||
       tExt[2] > outExt[2] || tExt[3] < outExt[3] ||
       tExt[4] > outExt[4] || tExt[5] < outExt[5])
     {
@@ -267,8 +267,8 @@ void vtkImageMask::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageMaskExecute(this, outExt, inData[0][0], 
-                          static_cast<VTK_TT *>(inPtr1), inData[1][0], 
+      vtkImageMaskExecute(this, outExt, inData[0][0],
+                          static_cast<VTK_TT *>(inPtr1), inData[1][0],
                           static_cast<unsigned char *>(inPtr2),
                           outData[0], static_cast<VTK_TT *>(outPtr),id));
     default:
@@ -304,7 +304,7 @@ int vtkImageMask::RequestInformation (
       ext[idx*2+1] = ext2[idx*2+1];
       }
     }
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
 
   return 1;

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This tests vtkSelection and vtkExtractSelection.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -70,13 +70,13 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
   if (CellOrPoint == COLORBYCELL)
     {
     copy->GetCellData()->SetActiveScalars(array->GetName());
-    mapper->SetScalarModeToUseCellData();    
+    mapper->SetScalarModeToUseCellData();
     }
   else
     {
     copy->GetPointData()->SetActiveScalars(array->GetName());
     mapper->SetScalarModeToUsePointData();
-    }  
+    }
   mapper->SetScalarRange(range[0], range[1]);
   vtkActor *actor = vtkActor::New();
   actor->SetPosition(X*4,Y*4, 0);
@@ -90,10 +90,10 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
   if (DrawSampleData)
     {
     vtkDataSetMapper *mapper2 = vtkDataSetMapper::New();
-    mapper2->SetScalarModeToUseCellFieldData();    
+    mapper2->SetScalarModeToUseCellFieldData();
     if (CellOrPoint == COLORBYCELL)
       {
-      mapper2->SetScalarModeToUseCellFieldData();    
+      mapper2->SetScalarModeToUseCellFieldData();
       mapper2->SelectColorArray("Forward Cell Ids");
       mapper2->SetScalarRange(10, 36);
     }
@@ -102,7 +102,7 @@ void showMe(vtkDataSet *result, int X, int Y, int CellOrPoint, vtkDataArray *arr
       mapper2->SetScalarModeToUsePointFieldData();
       mapper2->SelectColorArray("Forward Point Ids");
       mapper2->SetScalarRange(10, 73);
-      }  
+      }
     mapper2->SetInputData(sampleData);
     vtkActor *actor2 = vtkActor::New();
     actor2->GetProperty()->SetRepresentationToWireframe();
@@ -131,14 +131,14 @@ int TestExtraction(int argc, char *argv[])
 
   //--------------------------------------------------------------------------
   //create a visualization pipeline to see the results
-  renderer = vtkRenderer::New();  
+  renderer = vtkRenderer::New();
   vtkRenderWindow *renwin = vtkRenderWindow::New();
   renwin->SetMultiSamples(0);
   renwin->SetSize(600,600);
   renwin->AddRenderer(renderer);
-  
+
   vtkRenderWindowInteractor *rwi = vtkRenderWindowInteractor::New();
-  rwi->SetRenderWindow(renwin);  
+  rwi->SetRenderWindow(renwin);
 
   //--------------------------------------------------------------------------
   //create a test data set with known structure and data values
@@ -146,7 +146,7 @@ int TestExtraction(int argc, char *argv[])
   //the values will be:
   //three double arrays containing X,Y,and Z coordinates for
   //each point and cell, where the cell coordinates are the center of the cell
-  //two id type arrays containing Id's or labels that range from 10 to 
+  //two id type arrays containing Id's or labels that range from 10 to
   //numpts/cells+10, with one array being the reverse of the other
   //the scalars datasetattibute will be the X array
   //the globalids datasetattribute will be the forward running id array
@@ -162,7 +162,7 @@ int TestExtraction(int argc, char *argv[])
   pia->SetNumberOfComponents(1);
   pia->SetName("Point Counter");
   sampleData->GetPointData()->AddArray(pia);
-  
+
   vtkIdTypeArray *piaF = vtkIdTypeArray::New();
   piaF->SetNumberOfComponents(1);
   piaF->SetName("Forward Point Ids");
@@ -177,12 +177,12 @@ int TestExtraction(int argc, char *argv[])
   pxa->SetNumberOfComponents(1);
   pxa->SetName("Point X");
   sampleData->GetPointData()->AddArray(pxa);
-  
+
   vtkDoubleArray *pya = vtkDoubleArray::New();
   pya->SetNumberOfComponents(1);
   pya->SetName("Point Y");
   sampleData->GetPointData()->AddArray(pya);
-  
+
   vtkDoubleArray *pza = vtkDoubleArray::New();
   pza->SetNumberOfComponents(1);
   pza->SetName("Point Z");
@@ -202,7 +202,7 @@ int TestExtraction(int argc, char *argv[])
         int idF = pcnt + 10;
         int idR = (XCELLS+1)*(YCELLS+1)*(ZCELLS+1)-1 - pcnt + 10;
         piaF->InsertNextValue(idF);
-        piaR->InsertNextValue(idR);        
+        piaR->InsertNextValue(idR);
         pcnt++;
 
         pxa->InsertNextValue((double)k);
@@ -211,12 +211,12 @@ int TestExtraction(int argc, char *argv[])
         }
       }
     }
-  
+
   //sampleData->SetPoints(points);
   //points->Delete();
-  
+
   //vtkIdList *ids = vtkIdList::New();
-  
+
   vtkIdTypeArray *cia = vtkIdTypeArray::New();
   cia->SetNumberOfComponents(1);
   cia->SetName("Cell Count");
@@ -241,12 +241,12 @@ int TestExtraction(int argc, char *argv[])
   cya->SetNumberOfComponents(1);
   cya->SetName("Cell Y");
   sampleData->GetCellData()->AddArray(cya);
-  
+
   vtkDoubleArray *cza = vtkDoubleArray::New();
   cza->SetNumberOfComponents(1);
   cza->SetName("Cell Z");
   sampleData->GetCellData()->AddArray(cza);
-  
+
   vtkIdType ccnt = 0;
   for (int i = 0; i < ZCELLS; i++)
     {
@@ -265,7 +265,7 @@ int TestExtraction(int argc, char *argv[])
           ids->InsertId(4, (i+1)*(YCELLS+1)*(XCELLS+1) + (j)*(XCELLS+1) + (k));
           ids->InsertId(5, (i+1)*(YCELLS+1)*(XCELLS+1) + (j)*(XCELLS+1) + (k+1));
           ids->InsertId(6, (i+1)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k));
-          ids->InsertId(7, (i+1)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k+1));          
+          ids->InsertId(7, (i+1)*(YCELLS+1)*(XCELLS+1) + (j+1)*(XCELLS+1) + (k+1));
           sampleData->InsertNextCell(VTK_VOXEL, ids);
           }
         else
@@ -288,20 +288,20 @@ int TestExtraction(int argc, char *argv[])
         cxa->InsertNextValue(((double)k+0.5));
         cya->InsertNextValue(((double)j+0.5));
         cza->InsertNextValue(((double)i+0.5));
-        
+
         }
       }
     }
-  //ids->Delete();  
-  
+  //ids->Delete();
+
   sampleData->GetPointData()->SetGlobalIds(piaF);
   sampleData->GetPointData()->SetScalars(pxa);
-  
+
   sampleData->GetCellData()->SetGlobalIds(ciaF);
   sampleData->GetCellData()->SetScalars(cxa);
-  
+
   //save the test data set
-  vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New(); 
+  vtkXMLDataSetWriter *xwriter = vtkXMLDataSetWriter::New();
   xwriter->SetInputData(sampleData);
   xwriter->SetFileName("sampleData.vti");
   if (DoWrite)
@@ -385,7 +385,7 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::GLOBALIDS);
   sel->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);  
+    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   pointIds = vtkIdTypeArray::New();
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
@@ -406,7 +406,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 3, 0, COLORBYPOINT, piaF);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -470,7 +470,7 @@ int TestExtraction(int argc, char *argv[])
   cellIds = vtkIdTypeArray::New();
   cellIds->SetNumberOfComponents(1);
   cellIds->SetNumberOfTuples(5);
-  cellIds->SetTuple1(0,  0); 
+  cellIds->SetTuple1(0,  0);
   cellIds->SetTuple1(1,  1);
   cellIds->SetTuple1(2,  2);
   cellIds->SetTuple1(3,  26); //last
@@ -487,7 +487,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 0, 1, COLORBYCELL, cia);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -519,7 +519,7 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
   sel->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);  
+    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   pointIds = vtkIdTypeArray::New();
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
@@ -540,7 +540,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 3, 1, COLORBYPOINT, pia);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -622,7 +622,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 0, 2, COLORBYCELL, ciaR);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -654,14 +654,14 @@ int TestExtraction(int argc, char *argv[])
   sel->GetProperties()->Set(
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::VALUES);
   sel->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);  
+    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::POINT);
   pointIds = vtkIdTypeArray::New();
   pointIds->SetName("Reverse Point Ids");
   pointIds->SetNumberOfComponents(1);
   pointIds->SetNumberOfTuples(5);
   pointIds->SetTuple1(0,  9);  //just beyond last -miss
   pointIds->SetTuple1(1,  10); //last
-  pointIds->SetTuple1(2,  11); //next to last 
+  pointIds->SetTuple1(2,  11); //next to last
   pointIds->SetTuple1(3,  73); //first
   pointIds->SetTuple1(4,  74); //just before first -miss
   sel->SetSelectionList(pointIds);
@@ -676,7 +676,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 3, 2, COLORBYPOINT, piaR);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -754,7 +754,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 0, 3, COLORBYCELL, cxa);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -1015,7 +1015,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 0, 5, COLORBYCELL, cia);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());
@@ -1072,7 +1072,7 @@ int TestExtraction(int argc, char *argv[])
     writer->Write();
     }
   showMe(extGrid, 3, 5, COLORBYPOINT, pia);
-  
+
   sel->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
   ext->Update();
   extGrid = vtkUnstructuredGrid::SafeDownCast(ext->GetOutput());

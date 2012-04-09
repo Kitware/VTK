@@ -19,9 +19,9 @@
 // This includes .pbm (bitmap), .pgm (grayscale), and .ppm (pixmap) files.
 // (Currently this object only reads binary versions of these files.)
 //
-// PNMReader creates structured point datasets. The dimension of the 
-// dataset depends upon the number of files read. Reading a single file 
-// results in a 2D image, while reading more than one file results in a 
+// PNMReader creates structured point datasets. The dimension of the
+// dataset depends upon the number of files read. Reading a single file
+// results in a 2D image, while reading more than one file results in a
 // 3D volume.
 //
 // To read a volume, files must be of the form "FileName.<number>" (e.g.,
@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkPNMReader,vtkImageReader);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  int CanReadFile(const char* fname); 
+  int CanReadFile(const char* fname);
   // Description:
   // .pnm .pgm .ppm
   virtual const char* GetFileExtensions()
@@ -51,13 +51,13 @@ public:
       return ".pnm .pgm .ppm";
     }
 
-  // Description: 
-  // PNM 
+  // Description:
+  // PNM
   virtual const char* GetDescriptiveName()
     {
       return "PNM";
     }
-  
+
 protected:
   vtkPNMReader() {};
   ~vtkPNMReader() {};

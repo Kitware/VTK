@@ -54,7 +54,7 @@ public:
   // Get the graph and vertex associated with this iterator.
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
-  
+
   //BTX
   // Description:
   // Returns the next edge in the graph.
@@ -88,7 +88,7 @@ protected:
   // Description:
   // Protected method for setting the graph used
   // by Initialize().
-  virtual void SetGraph(vtkGraph *graph);  
+  virtual void SetGraph(vtkGraph *graph);
 
   vtkGraph           *Graph;
   const vtkInEdgeType *Current;

@@ -69,7 +69,7 @@ vtkTexture::~vtkTexture()
     this->MappedScalars->Delete();
     }
 
-  if (this->LookupTable != NULL) 
+  if (this->LookupTable != NULL)
     {
     this->LookupTable->UnRegister(this);
     }
@@ -81,9 +81,9 @@ vtkTexture::~vtkTexture()
 }
 
 //----------------------------------------------------------------------------
-// return the correct type of Texture 
+// return the correct type of Texture
 vtkTexture *vtkTexture::New()
-{  
+{
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkTexture");
   return static_cast<vtkTexture *>(ret);
@@ -96,7 +96,7 @@ vtkImageData *vtkTexture::GetInput()
     {
     return 0;
     }
-  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0)); 
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
       os << "32Bit\n";
       break;
     }
-  os << indent << "MapColorScalarsThroughLookupTable: " << 
+  os << indent << "MapColorScalarsThroughLookupTable: " <<
     (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
   os << indent << "PremultipliedAlpha: " << (this->PremultipliedAlpha ? "On\n" : "Off\n");
 
@@ -230,20 +230,20 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
     {
     this->MappedScalars->Delete();
     this->MappedScalars = 0;
-    }      
-  
+    }
+
   // if the texture created its own lookup table, set the Table Range
   // to the range of the scalar data.
   if (this->SelfAdjustingTableRange)
     {
     this->LookupTable->SetRange(scalars->GetRange(0));
     }
-  
+
   // map the scalars to colors
   this->MappedScalars = this->LookupTable->MapScalars(scalars,
     this->MapColorScalarsThroughLookupTable?
     VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DEFAULT, -1);
-  
+
   return this->MappedScalars? reinterpret_cast<unsigned char*>(
     this->MappedScalars->GetVoidPointer(0)): NULL;
 }

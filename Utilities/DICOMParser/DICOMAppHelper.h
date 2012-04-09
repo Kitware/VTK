@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -23,7 +23,7 @@
 #pragma warning ( disable : 4514 )
 #pragma warning ( disable : 4018 )
 #pragma warning ( push, 3 )
-#endif 
+#endif
 
 #include <vector>
 #include <string>
@@ -34,7 +34,7 @@
 
 #ifdef _MSC_VER
 #pragma warning ( default: 4018 )
-#endif 
+#endif
 
 class DICOMParser;
 
@@ -77,7 +77,7 @@ public:
       ImageOrientationPatient[4] = 1.0;
       ImageOrientationPatient[5] = 0.0;
     }
-      
+
   int SliceNumber;
   float SliceLocation;
   float ImagePositionPatient[3];
@@ -133,7 +133,7 @@ public:
                              DICOMParser::VRTypes type,
                              unsigned char* val,
                              quadbyte len);
-  
+
   virtual void SliceNumberCallback(DICOMParser *parser,
                                    doublebyte group,
                                    doublebyte element,
@@ -154,14 +154,14 @@ public:
                                             DICOMParser::VRTypes type,
                                             unsigned char* val,
                                             quadbyte len) ;
-  
+
   virtual void ImageOrientationPatientCallback(DICOMParser *parser,
                                                doublebyte group,
                                                doublebyte element,
                                                DICOMParser::VRTypes type,
                                                unsigned char* val,
                                                quadbyte len) ;
-  
+
   virtual void SeriesUIDCallback(DICOMParser *parser,
                                  doublebyte group,
                                  doublebyte element,
@@ -175,21 +175,21 @@ public:
                                       DICOMParser::VRTypes type,
                                       unsigned char* val,
                                       quadbyte len) ;
-  
+
   virtual void BitsAllocatedCallback(DICOMParser *parser,
                                      doublebyte group,
                                      doublebyte element,
                                      DICOMParser::VRTypes type,
                                      unsigned char* val,
                                      quadbyte len) ;
-  
+
   virtual void ToggleSwapBytesCallback(DICOMParser *parser,
                                        doublebyte,
                                        doublebyte,
                                        DICOMParser::VRTypes,
                                        unsigned char*,
                                        quadbyte);
-  
+
   virtual void PixelSpacingCallback(DICOMParser *parser,
                                     doublebyte group,
                                     doublebyte element,
@@ -256,8 +256,8 @@ public:
   /** The next set of methods are for accessing information which is
    * cached when a DICOM file is processed.  This allows access to
    * information from the header as well as the pixel data. */
-  
-  
+
+
   /** Get the pixel spacing of the last image processed by the
    *  DICOMParser */
   float* GetPixelSpacing()
@@ -301,7 +301,7 @@ public:
     {
       return this->ImageOrientationPatient;
     }
-  
+
   /** Get the number of bits allocated per pixel of the last image
    *  processed by the DICOMParser */
   int GetBitsAllocated()
@@ -384,8 +384,8 @@ public:
 
   /** Get the series UIDs for the files processed since the last
    * clearing of the cache. */
-  void GetSeriesUIDs(dicom_stl::vector<dicom_stl::string> &v); 
-  
+  void GetSeriesUIDs(dicom_stl::vector<dicom_stl::string> &v);
+
   /** Get the filenames for a series ordered by slice number. */
   void GetSliceNumberFilenamePairs(const dicom_stl::string &seriesUID,
                               dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string> > &v, bool ascending = true);
@@ -437,7 +437,7 @@ public:
     {
     return *(this->StudyID);
     }
-  
+
   void PatientNameCallback(DICOMParser *,
                            doublebyte,
                            doublebyte,
@@ -471,7 +471,7 @@ public:
     return this->GantryAngle;
     }
 
-  
+
 
  protected:
   int BitsAllocated;
@@ -479,12 +479,12 @@ public:
   float PixelSpacing[3];
   int Width;
   int Height;
-  int SliceNumber; 
+  int SliceNumber;
   int Dimensions[2];
   float ImagePositionPatient[3];
   float ImageOrientationPatient[6];
 
-  // map from series UID to vector of files in the series 
+  // map from series UID to vector of files in the series
   // dicom_stl::map<dicom_stl::string, dicom_stl::vector<dicom_stl::string>, ltstdstr> SeriesUIDMap;
 
   // map from filename to intraseries sortable tags
@@ -494,7 +494,7 @@ public:
   // TagMapType TagMap;
 
   dicom_stream::ofstream HeaderFile;
-  
+
   // 0 unsigned
   // 1 2s complement (signed)
   int PixelRepresentation;
@@ -534,7 +534,7 @@ public:
   DICOMMemberCallback<DICOMAppHelper>* GantryAngleCB;
 
   //
-  // Implementation contains stl templated classes that 
+  // Implementation contains stl templated classes that
   // can't be exported from a DLL in Windows. We hide
   // them in the implementation to get rid of annoying
   // compile warnings.
@@ -542,9 +542,9 @@ public:
   DICOMAppHelperImplementation* Implementation;
 
  private:
-  DICOMAppHelper(const DICOMAppHelper&);  
-  void operator=(const DICOMAppHelper&); 
-    
+  DICOMAppHelper(const DICOMAppHelper&);
+  void operator=(const DICOMAppHelper&);
+
 };
 
 #ifdef _MSC_VER

@@ -68,7 +68,7 @@ double vtkTriangle::ComputeArea()
 // Create a new cell and copy this triangle's information into the cell.
 // Returns a poiner to the new cell created.
 int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
-                                 int& subId, double pcoords[3], 
+                                 int& subId, double pcoords[3],
                                  double& dist2, double *weights)
 {
   int i, j;
@@ -94,9 +94,9 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
   // Project point to plane
   //
   vtkPlane::GeneralizedProjectPoint(x,pt1,n,cp);
-    
+
   // Construct matrices.  Since we have over determined system, need to find
-  // which 2 out of 3 equations to use to develop equations. (Any 2 should 
+  // which 2 out of 3 equations to use to develop equations. (Any 2 should
   // work since we've projected point to plane.)
   //
   for (maxComponent=0.0, i=0; i<3; i++)
@@ -116,16 +116,16 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
       idx = i;
       }
     }
-  for (j=0, i=0; i<3; i++)  
+  for (j=0, i=0; i<3; i++)
     {
     if ( i != idx )
       {
       indices[j++] = i;
       }
     }
-  
+
   for (i=0; i<2; i++)
-    {  
+    {
     rhs[i] = cp[indices[i]] - pt3[indices[i]];
     c1[i] = pt1[indices[i]] - pt3[indices[i]];
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
@@ -154,7 +154,7 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
     //projection distance
     if (closestPoint)
       {
-      dist2 = vtkMath::Distance2BetweenPoints(cp,x); 
+      dist2 = vtkMath::Distance2BetweenPoints(cp,x);
       closestPoint[0] = cp[0];
       closestPoint[1] = cp[1];
       closestPoint[2] = cp[2];
@@ -358,7 +358,7 @@ typedef struct {
        EDGE_LIST edges[3];
 } LINE_CASES;
 
-static LINE_CASES lineCases[] = { 
+static LINE_CASES lineCases[] = {
   {{-1, -1, -1}},
   {{0, 2, -1}},
   {{1, 0, -1}},
@@ -378,11 +378,11 @@ int *vtkTriangle::GetEdgeArray(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangle::Contour(double value, vtkDataArray *cellScalars, 
+void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
                           vtkIncrementalPointLocator *locator,
-                          vtkCellArray *verts, 
-                          vtkCellArray *lines, 
-                          vtkCellArray *vtkNotUsed(polys), 
+                          vtkCellArray *verts,
+                          vtkCellArray *lines,
+                          vtkCellArray *vtkNotUsed(polys),
                           vtkPointData *inPd, vtkPointData *outPd,
                           vtkCellData *inCd, vtkIdType cellId,
                           vtkCellData *outCd)
@@ -414,7 +414,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
       {
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+      deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
@@ -425,7 +425,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
         e1 = vert[1]; e2 = vert[0];
         deltaScalar = -deltaScalar;
         }
-      
+
       // linear interpolation
       if (deltaScalar == 0.0)
         {
@@ -445,7 +445,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           vtkIdType p1 = this->PointIds->GetId(e1);
           vtkIdType p2 = this->PointIds->GetId(e2);
@@ -481,17 +481,17 @@ vtkCell *vtkTriangle::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-// Plane intersection plus in/out test on triangle. The in/out test is 
+// Plane intersection plus in/out test on triangle. The in/out test is
 // performed using tol as the tolerance.
-int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol, 
-                                  double& t, double x[3], double pcoords[3], 
+int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
+                                  double& t, double x[3], double pcoords[3],
                                   int& subId)
 {
   double pt1[3], pt2[3], pt3[3], n[3];
   double tol2 = tol*tol;
   double closestPoint[3];
   double dist2, weights[3];
-  
+
   subId = 0;
 
   // Get normal for triangle
@@ -513,7 +513,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   // Evaluate position
   //
   int inside;
-  if ( (inside = this->EvaluatePosition(x, closestPoint, subId, pcoords, 
+  if ( (inside = this->EvaluatePosition(x, closestPoint, subId, pcoords,
         dist2, weights)) >= 0)
     {
     if ( dist2 <= tol2 )
@@ -523,7 +523,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
       }
     return inside;
     }
-  
+
   // so the easy test failed. The line is not intersecting the triangle.
   // Let's now do the 3d case check to see how close the line comes.
   // basically we just need to test against the three lines of the triangle
@@ -534,7 +534,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     this->Line->Points->InsertPoint(0,pt1);
     this->Line->Points->InsertPoint(1,pt2);
-    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
       {
       pcoords[2] = 0.0;
       return 1;
@@ -545,7 +545,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     this->Line->Points->InsertPoint(0,pt2);
     this->Line->Points->InsertPoint(1,pt3);
-    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
       {
       pcoords[2] = 0.0;
       return 1;
@@ -556,19 +556,19 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     this->Line->Points->InsertPoint(0,pt3);
     this->Line->Points->InsertPoint(1,pt1);
-    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
       {
       pcoords[2] = 0.0;
       return 1;
       }
     }
-  
+
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   return 0;
 }
 
 //----------------------------------------------------------------------------
-int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                              vtkPoints *pts)
 {
   pts->Reset();
@@ -586,7 +586,7 @@ int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 //----------------------------------------------------------------------------
 // Used a staged computation: first compute derivatives in local x'-y'
 // coordinate system; then convert into x-y-z modelling system.
-void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[3], 
+void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[3],
                               double *values, int dim, double *derivs)
 {
   double v0[2], v1[2], v2[2], v[3], v10[3], v20[3], lenX;
@@ -602,7 +602,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
   this->Points->GetPoint(2, x2);
   vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
-  for (i=0; i < 3; i++) 
+  for (i=0; i < 3; i++)
     {
     v10[i] = x1[i] - x0[i];
     v[i] = x2[i] - x0[i];
@@ -651,7 +651,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
     sum[0] = sum[1] = 0.0;
     for ( i=0; i < 3; i++) //loop over interp. function derivatives
       {
-      sum[0] += functionDerivs[i] * values[dim*i + j]; 
+      sum[0] += functionDerivs[i] * values[dim*i + j];
       sum[1] += functionDerivs[3 + i] * values[dim*i + j];
       }
     dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
@@ -684,16 +684,16 @@ void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts),
 // return value) of a triangle defined by the three points x1, x2, and
 // x3. (Note that the coordinates are 2D. 3D points can be used but
 // the z-component will be ignored.)
-double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2], 
+double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
                                  double center[2])
 {
   double n12[2], n13[2], x12[2], x13[2];
   double *A[2], rhs[2], sum, diff;
   int i;
 
-  //  calculate normals and intersection points of bisecting planes.  
+  //  calculate normals and intersection points of bisecting planes.
   //
-  for (i=0; i<2; i++) 
+  for (i=0; i<2; i++)
     {
     n12[i] = x2[i] - x1[i];
     n13[i] = x3[i] - x1[i];
@@ -725,7 +725,7 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
     }
 
   //determine average value of radius squared
-  for (sum=0, i=0; i<2; i++) 
+  for (sum=0, i=0; i<2; i++)
     {
     diff = x1[i] - center[i];
     sum += diff*diff;
@@ -748,15 +748,15 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
 //----------------------------------------------------------------------------
 // Given a 2D point x[2], determine the barycentric coordinates of the point.
 // Barycentric coordinates are a natural coordinate system for simplices that
-// express a position as a linear combination of the vertices. For a 
+// express a position as a linear combination of the vertices. For a
 // triangle, there are three barycentric coordinates (because there are
-// fourthree vertices), and the sum of the coordinates must equal 1. If a 
-// point x is inside a simplex, then all three coordinates will be strictly 
-// positive.  If two coordinates are zero (so the third =1), then the 
-// point x is on a vertex. If one coordinates are zero, the point x is on an 
-// edge. In this method, you must specify the vertex coordinates x1->x3. 
+// fourthree vertices), and the sum of the coordinates must equal 1. If a
+// point x is inside a simplex, then all three coordinates will be strictly
+// positive.  If two coordinates are zero (so the third =1), then the
+// point x is on a vertex. If one coordinates are zero, the point x is on an
+// edge. In this method, you must specify the vertex coordinates x1->x3.
 // Returns 0 if triangle is degenerate.
-int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2], 
+int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2],
                                    double x3[2], double bcoords[3])
 {
   double *A[3], p[3], a1[3], a2[3], a3[3];
@@ -764,9 +764,9 @@ int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2],
 
   // Homogenize the variables; load into arrays.
   //
-  a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0]; 
-  a2[0] = x1[1]; a2[1] = x2[1]; a2[2] = x3[1]; 
-  a3[0] = 1.0;   a3[1] = 1.0;   a3[2] = 1.0;   
+  a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0];
+  a2[0] = x1[1]; a2[1] = x2[1]; a2[2] = x3[1];
+  a3[0] = 1.0;   a3[1] = 1.0;   a3[2] = 1.0;
   p[0] = x[0]; p[1] = x[1]; p[2] = 1.0;
 
   //   Now solve system of equations for barycentric coordinates
@@ -801,7 +801,7 @@ int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
   // Get normal for triangle
   vtkTriangle::ComputeNormal (x1, x2, x3, n);
 
-  for (int i=0; i < 3; i++) 
+  for (int i=0; i < 3; i++)
     {
     v21[i] = x2[i] - x1[i];
     v31[i] = x3[i] - x1[i];
@@ -834,8 +834,8 @@ typedef int TRIANGLE_EDGE_LIST;
 typedef struct {
        TRIANGLE_EDGE_LIST edges[7];
 } TRIANGLE_CASES;
- 
-static TRIANGLE_CASES triangleCases[] = { 
+
+static TRIANGLE_CASES triangleCases[] = {
 {{-1, -1, -1, -1, -1, -1, -1}}, // 0
 {{0, 2, 100, -1, -1, -1, -1}},  // 1
 {{1, 0, 101, -1, -1, -1, -1}},  // 2
@@ -849,7 +849,7 @@ static TRIANGLE_CASES triangleCases[] = {
 //----------------------------------------------------------------------------
 // Clip this triangle using scalar value provided. Like contouring, except
 // that it cuts the triangle to produce other triangles.
-void vtkTriangle::Clip(double value, vtkDataArray *cellScalars, 
+void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
                        vtkIncrementalPointLocator *locator, vtkCellArray *tris,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -866,7 +866,7 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
 
   // Build the case table
   if ( insideOut )
-    {    
+    {
     for ( i=0, index = 0; i < 3; i++)
       {
       if (cellScalars->GetComponent(i,0) <= value)
@@ -874,7 +874,7 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
         index |= CASE_MASK[i];
         }
       }
-    }    
+    }
   else
     {
     for ( i=0, index = 0; i < 3; i++)
@@ -911,7 +911,7 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
         vert = edges[edge[i]];
 
         // calculate a preferred interpolation direction
-        deltaScalar = (cellScalars->GetComponent(vert[1],0) - 
+        deltaScalar = (cellScalars->GetComponent(vert[1],0) -
                        cellScalars->GetComponent(vert[0],0));
         if (deltaScalar > 0)
           {
@@ -961,11 +961,11 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
 
 //----------------------------------------------------------------------------
 // Given a point x, determine whether it is inside (within the
-// tolerance squared, tol2) the triangle defined by the three 
+// tolerance squared, tol2) the triangle defined by the three
 // coordinate values p1, p2, p3. Method is via comparing dot products.
 // (Note: in current implementation the tolerance only works in the
 // neighborhood of the three vertices of the triangle.
-int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3], 
+int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
                                  double p3[3], double tol2)
 {
   double       x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
@@ -974,7 +974,7 @@ int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
 
   //  Compute appropriate vectors
   //
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     x1[i] = x[i] - p1[i];
     x2[i] = x[i] - p2[i];
@@ -1002,9 +1002,9 @@ int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
   vtkMath::Cross (x3, v32, n3);
 
   //  Check whether ALL the three normals go in same direction
-  // 
-  if ( (vtkMath::Dot(n1,n2) >= 0.0) && 
-       (vtkMath::Dot(n2,n3) >= 0.0) && 
+  //
+  if ( (vtkMath::Dot(n1,n2) >= 0.0) &&
+       (vtkMath::Dot(n2,n3) >= 0.0) &&
        (vtkMath::Dot(n1,n3) >= 0.0) )
     {
     return 1;
@@ -1028,11 +1028,11 @@ double vtkTriangle::GetParametricDistance(double pcoords[3])
 
   for (i=0; i<3; i++)
     {
-    if ( pc[i] < 0.0 ) 
+    if ( pc[i] < 0.0 )
       {
       pDist = -pc[i];
       }
-    else if ( pc[i] > 1.0 ) 
+    else if ( pc[i] > 1.0 )
       {
       pDist = pc[i] - 1.0;
       }
@@ -1045,7 +1045,7 @@ double vtkTriangle::GetParametricDistance(double pcoords[3])
       pDistMax = pDist;
       }
     }
-  
+
   return pDistMax;
 }
 
@@ -1059,24 +1059,24 @@ void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
   double ABCx[3][3];
   double n[4];
   int i, j;
-  
+
   for (i = 0; i < 3; i++)
     {
     ABCx[0][i] = x1[i];
     ABCx[1][i] = x2[i];
     ABCx[2][i] = x3[i];
     }
-  
+
   vtkMath::Cross(x1, x2, crossX1X2);
   vtkMath::Cross(x2, x3, crossX2X3);
   vtkMath::Cross(x3, x1, crossX3X1);
   determinantABC = vtkMath::Determinant3x3(ABCx);
-  
+
   n[0] = crossX1X2[0] + crossX2X3[0] + crossX3X1[0];
   n[1] = crossX1X2[1] + crossX2X3[1] + crossX3X1[1];
   n[2] = crossX1X2[2] + crossX2X3[2] + crossX3X1[2];
   n[3] = -determinantABC;
-  
+
   for (i = 0; i < 4; i++)
     {
     for (j = 0; j < 4; j++)
@@ -1091,7 +1091,7 @@ void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
                                  vtkQuadric *quadric)
 {
   double quadricMatrix[4][4];
-  
+
   ComputeQuadric(x1, x2, x3, quadricMatrix);
   quadric->SetCoefficients(quadricMatrix[0][0], quadricMatrix[1][1],
                            quadricMatrix[2][2], 2*quadricMatrix[0][1],
@@ -1101,7 +1101,7 @@ void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
 }
 
 //----------------------------------------------------------------------------
-static double vtkTriangleCellPCoords[9] = 
+static double vtkTriangleCellPCoords[9] =
 {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0};
 double *vtkTriangle::GetParametricCoords()
 {
@@ -1112,7 +1112,7 @@ double *vtkTriangle::GetParametricCoords()
 void vtkTriangle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
 }

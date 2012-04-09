@@ -37,7 +37,7 @@ vtkImplicitHalo::~vtkImplicitHalo()
 
 // ----------------------------------------------------------------------------
 double vtkImplicitHalo::EvaluateFunction(double x[3])
-{ 
+{
   double result;
   double distance=sqrt(vtkMath::Distance2BetweenPoints(this->Center,x));
   if(distance>this->Radius)

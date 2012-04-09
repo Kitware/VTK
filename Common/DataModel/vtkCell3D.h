@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkCell3D - abstract class to specify 3D cell interface
 // .SECTION Description
-// vtkCell3D is an abstract class that extends the interfaces for 3D data 
-// cells, and implements methods needed to satisfy the vtkCell API. The 
+// vtkCell3D is an abstract class that extends the interfaces for 3D data
+// cells, and implements methods needed to satisfy the vtkCell API. The
 // 3D cells include hexehedra, tetrahedra, wedge, pyramid, and voxel.
 
 // .SECTION See Also
@@ -45,7 +45,7 @@ public:
   // the point ids of the mesh that the cell belongs to. The edgeId must
   // range between 0<=edgeId<this->GetNumberOfEdges().
   virtual void GetEdgePoints(int edgeId, int* &pts) = 0;
-  
+
   // Description:
   // Get the list of vertices that define a face.  The list is terminated
   // with a negative number. Note that the vertices are 0-offset; that is,
@@ -54,7 +54,7 @@ public:
   // 0<=faceId<this->GetNumberOfFaces().
   virtual void GetFacePoints(int faceId, int* &pts) = 0;
 
-  virtual void Contour(double value, vtkDataArray *cellScalars, 
+  virtual void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
@@ -71,10 +71,10 @@ public:
   // generated contouring primitives. (Note: the CopyAllocate() method must
   // be invoked on both the output cell and point data. The cellId refers to
   // the cell from which the cell data is copied.)  (Satisfies vtkCell API.)
-  virtual void Clip(double value, vtkDataArray *cellScalars, 
+  virtual void Clip(double value, vtkDataArray *cellScalars,
                     vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
+                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                     int insideOut);
 
   // Description:
@@ -91,7 +91,7 @@ public:
 protected:
   vtkCell3D();
   ~vtkCell3D();
-  
+
   vtkOrderedTriangulator *Triangulator;
   double                  MergeTolerance;
 

@@ -84,25 +84,25 @@ void vtkPLYWriter::WriteData()
      0, 0, 0, 0},
     {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)+sizeof(float)),
      0, 0, 0, 0},
-    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 
+    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)),
      0, 0, 0, 0},
-    {"green", PLY_UCHAR, PLY_UCHAR, 
+    {"green", PLY_UCHAR, PLY_UCHAR,
      static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},
-    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)), 
+    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)),
      0, 0, 0, 0},
   };
   static PlyProperty faceProps[] = { // property information for a face
-    {"vertex_indices", PLY_INT, PLY_INT, 
+    {"vertex_indices", PLY_INT, PLY_INT,
      static_cast<int>(offsetof(plyFace,verts)),
      1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,nverts))},
-    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,red)), 
+    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,red)),
      0, 0, 0, 0},
-    {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,green)), 
+    {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,green)),
      0, 0, 0, 0},
-    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,blue)), 
+    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,blue)),
      0, 0, 0, 0},
   };
-  
+
   // Get input and check data
   polys = input->GetPolys();
   inPts = input->GetPoints();
@@ -123,18 +123,18 @@ void vtkPLYWriter::WriteData()
     {
     if ( this->DataByteOrder == VTK_LITTLE_ENDIAN )
       {
-      ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, 
+      ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames,
                                  PLY_BINARY_LE, &version);
       }
     else
       {
-      ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, 
+      ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames,
                                  PLY_BINARY_BE, &version);
       }
     }
   else
     {
-    ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames, 
+    ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames,
                                PLY_ASCII, &version);
     }
 
@@ -143,7 +143,7 @@ void vtkPLYWriter::WriteData()
     vtkErrorMacro(<< "Error opening PLY file");
     return;
     }
-  
+
   // compute colors, if any
   vtkIdType numPts = inPts->GetNumberOfPoints();
   vtkIdType numPolys = polys->GetNumberOfCells();
@@ -236,7 +236,7 @@ void vtkPLYWriter::WriteData()
   // close the PLY file
   vtkPLY::ply_close (ply);
 }
-  
+
 unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
                                        vtkDataSetAttributes *dsa)
 {
@@ -323,7 +323,7 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Big Endian\n";
     }
-  
+
   os << indent << "Color Mode: ";
   if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
     {
@@ -346,7 +346,7 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
     os << "Off\n";
     }
 
-  os << indent << "Array Name: " 
+  os << indent << "Array Name: "
      << (this->ArrayName ? this->ArrayName : "(none)") << "\n";
 
   os << indent << "Component: " << this->Component << "\n";
@@ -355,6 +355,6 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Color: (" << this->Color[0] << ","
      << this->Color[1] << "," << this->Color[2] << ")\n";
-    
+
 }
 

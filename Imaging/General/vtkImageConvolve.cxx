@@ -39,7 +39,7 @@ vtkImageConvolve::vtkImageConvolve()
     {
     kernel[idx] = 0.0;
     }
-  kernel[4] = 1.0; 
+  kernel[4] = 1.0;
   this->SetKernel3x3(kernel);
 }
 
@@ -53,7 +53,7 @@ vtkImageConvolve::~vtkImageConvolve()
 void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "KernelSize: (" <<
     this->KernelSize[0] << ", " <<
     this->KernelSize[1] << ", " <<
@@ -69,7 +69,7 @@ void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
         os << this->Kernel[this->KernelSize[1]*this->KernelSize[0]*k +
                            this->KernelSize[0]*j +
                            i];
-        
+
         if (i != this->KernelSize[0] - 1)
           {
           os << ", ";
@@ -81,19 +81,19 @@ void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
         }
       }
     }
-  os << ")\n";        
+  os << ")\n";
 }
 
 //----------------------------------------------------------------------------
-// Set a 3x3 kernel 
+// Set a 3x3 kernel
 void vtkImageConvolve::SetKernel3x3(const double kernel[9])
-{  
+{
   // Fill the kernel
   this->SetKernel(kernel, 3, 3, 1);
 }
 
 //----------------------------------------------------------------------------
-// Set a 5x5 kernel 
+// Set a 5x5 kernel
 void vtkImageConvolve::SetKernel5x5(const double kernel[25])
 {
   // Fill the kernel
@@ -101,7 +101,7 @@ void vtkImageConvolve::SetKernel5x5(const double kernel[25])
 }
 
 //----------------------------------------------------------------------------
-// Set a 7x7 kernel 
+// Set a 7x7 kernel
 void vtkImageConvolve::SetKernel7x7(double kernel[49])
 {
   // Fill the kernel
@@ -271,7 +271,7 @@ void vtkImageConvolve::GetKernel(double *kernel)
 // for strictly center (no boundary) processing.
 template <class T>
 void vtkImageConvolveExecute(vtkImageConvolve *self,
-                             vtkImageData *inData, T *inPtr, 
+                             vtkImageData *inData, T *inPtr,
                              vtkImageData *outData, T *outPtr,
                              int outExt[6], int id,
                              vtkInformation *inInfo)
@@ -307,12 +307,12 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
-  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  outData->GetIncrements(outInc0, outInc1, outInc2);
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
   outMin2 = outExt[4];   outMax2 = outExt[5];
   numComps = outData->GetNumberOfScalarComponents();
-   
+
   // Get ivars of this object (easier than making friends)
   kernelSize = self->GetKernelSize();
 
@@ -340,7 +340,7 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
   target = static_cast<unsigned long>(numComps*(outMax2 - outMin2 + 1)*
                                       (outMax1 - outMin1 + 1)/50.0);
   target++;
-  
+
   // loop through components
   for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
     {
@@ -351,8 +351,8 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
       {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
-      for (outIdx1 = outMin1; 
-           outIdx1 <= outMax1 && !self->AbortExecute; 
+      for (outIdx1 = outMin1;
+           outIdx1 <= outMax1 && !self->AbortExecute;
            ++outIdx1)
         {
         if (!id)
@@ -375,10 +375,10 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
           sum = 0;
 
           // loop through neighborhood pixels
-          // as sort of a hack to handle boundaries, 
+          // as sort of a hack to handle boundaries,
           // input pointer will be marching through data that does not exist.
-          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
-                            - kernelMiddle[1] * inInc1 
+          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0
+                            - kernelMiddle[1] * inInc1
                             - kernelMiddle[2] * inInc2;
 
           // Set the kernel index to the starting position
@@ -463,12 +463,12 @@ void vtkImageConvolve::ThreadedRequestData(
       << " must match input scalar type");
     return;
     }
-  
+
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
       vtkImageConvolveExecute(this, inData[0][0],
-                              static_cast<VTK_TT *>(inPtr), outData[0], 
+                              static_cast<VTK_TT *>(inPtr), outData[0],
                               static_cast<VTK_TT *>(outPtr),
                               outExt, id, inInfo));
 

@@ -42,16 +42,16 @@ struct vtkTestUtilities
   // command line argument (-D path) or VTK_DATA_ROOT env. variable. If slash
   // is true, appends a slash to the resulting string. The returned string has
   // to be deleted (with delete[]) by the user.
-  static inline char* ExpandDataFileName(int argc, char* argv[], 
+  static inline char* ExpandDataFileName(int argc, char* argv[],
                                          const char* fname,
                                          int slash = 0);
   // Description:
   // Function returning either a command line argument, an environment variable
   // or a default value. The returned string has to be deleted (with delete[])
   // by the user.
-  static inline char* GetArgOrEnvOrDefault(const char* arg, 
-                                           int argc, char* argv[], 
-                                           const char* env, 
+  static inline char* GetArgOrEnvOrDefault(const char* arg,
+                                           int argc, char* argv[],
+                                           const char* env,
                                            const char* def);
 
   // Description:
@@ -60,10 +60,10 @@ struct vtkTestUtilities
   // command line argument, an environment variable or a default value. If
   // slash is true, appends a slash to the resulting string. The returned
   // string has to be deleted (with delete[]) by the user.
-  static inline char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                          int argc, char* argv[], 
-                                                          const char* env, 
-                                                          const char* def, 
+  static inline char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
+                                                          int argc, char* argv[],
+                                                          const char* env,
+                                                          const char* def,
                                                           const char* fname,
                                                           int slash = 0);
 };
@@ -72,19 +72,19 @@ inline
 char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 {
   return vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-D", argc, argv, 
-    "VTK_DATA_ROOT", 
+    "-D", argc, argv,
+    "VTK_DATA_ROOT",
     "../../../../VTKData");
 }
 
 inline
-char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
+char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[],
                                            const char* fname,
                                            int slash)
 {
   return vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(
-    "-D", argc, argv, 
-    "VTK_DATA_ROOT", 
+    "-D", argc, argv,
+    "VTK_DATA_ROOT",
     "../../../../VTKData",
     fname,
     slash);
@@ -136,17 +136,17 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
 }
 
 inline
-char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                            int argc, 
-                                                            char* argv[], 
-                                                            const char* env, 
-                                                            const char *def, 
+char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
+                                                            int argc,
+                                                            char* argv[],
+                                                            const char* env,
+                                                            const char *def,
                                                             const char* fname,
                                                             int slash)
 {
   char* fullName;
 
-  char* value = vtkTestUtilities::GetArgOrEnvOrDefault(arg, argc, argv, 
+  char* value = vtkTestUtilities::GetArgOrEnvOrDefault(arg, argc, argv,
                                                        env,
                                                        def);
   if (value)

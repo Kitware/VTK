@@ -93,7 +93,7 @@ static int WedgeEdges[9][3] = { {0,1,6}, {1,2,7},  {2,0,8},
                                 {0,3,12},{1,4,13}, {2,5,14} };
 
 static double MidPoints[3][3] = { {0.5,0.0,0.5},
-                                  {0.5,0.5,0.5}, 
+                                  {0.5,0.5,0.5},
                                   {0.0,0.5,0.5} };
 //----------------------------------------------------------------------------
 int *vtkQuadraticWedge::GetEdgeArray(int edgeId)
@@ -152,8 +152,8 @@ static const double VTK_DIVERGED = 1.e6;
 static const int VTK_WEDGE_MAX_ITERATION=10;
 static const double VTK_WEDGE_CONVERGED=1.e-03;
 
-int vtkQuadraticWedge::EvaluatePosition(double* x, 
-                                        double* closestPoint, 
+int vtkQuadraticWedge::EvaluatePosition(double* x,
+                                        double* closestPoint,
                                         int& subId, double pcoords[3],
                                         double& dist2, double *weights)
 {
@@ -170,14 +170,14 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
 
   //  enter iteration loop
   for (iteration=converged=0;
-       !converged && (iteration < VTK_WEDGE_MAX_ITERATION);  iteration++) 
+       !converged && (iteration < VTK_WEDGE_MAX_ITERATION);  iteration++)
     {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
@@ -200,7 +200,7 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20) 
+    if ( fabs(d) < 1.e-20)
       {
       return -1;
       }
@@ -218,15 +218,15 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
       }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
+             (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
 
     //  if not converged, repeat
-    else 
+    else
       {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
@@ -283,8 +283,8 @@ int vtkQuadraticWedge::EvaluatePosition(double* x,
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticWedge::EvaluateLocation(int& vtkNotUsed(subId), 
-                                         double pcoords[3], 
+void vtkQuadraticWedge::EvaluateLocation(int& vtkNotUsed(subId),
+                                         double pcoords[3],
                                          double x[3], double *weights)
 {
   double pt[3];
@@ -303,14 +303,14 @@ void vtkQuadraticWedge::EvaluateLocation(int& vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticWedge::CellBoundary(int subId, double pcoords[3], 
+int vtkQuadraticWedge::CellBoundary(int subId, double pcoords[3],
                                     vtkIdList *pts)
 {
   return this->Wedge->CellBoundary(subId, pcoords, pts);
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
+void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
                                   vtkIdType cellId, vtkDataArray *cellScalars)
 {
   int numMidPts, i, j;
@@ -321,7 +321,7 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
-  // Make sure to copy ALL arrays. These field data have to be 
+  // Make sure to copy ALL arrays. These field data have to be
   // identical to the input field data. Otherwise, CopyData
   // that occurs later may not work because the output field
   // data was initialized (CopyAllocate) with the input field
@@ -339,7 +339,7 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
     {
     this->CellData->CopyData(inCd,cellId,i);
     }
-  
+
   //Interpolate new values
   double p[3];
   for ( numMidPts=0; numMidPts < 3; numMidPts++ )
@@ -348,10 +348,10 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
 
     x[0] = x[1] = x[2] = 0.0;
     s = 0.0;
-    for (i=0; i<15; i++) 
+    for (i=0; i<15; i++)
       {
       this->Points->GetPoint(i, p);
-      for (j=0; j<3; j++) 
+      for (j=0; j<3; j++)
         {
         x[j] += p[j] * weights[i];
         }
@@ -359,27 +359,27 @@ void vtkQuadraticWedge::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
       }
     this->Points->SetPoint(15+numMidPts,x);
     this->CellScalars->SetValue(15+numMidPts,s);
-    this->PointData->InterpolatePoint(inPd, 15+numMidPts, 
+    this->PointData->InterpolatePoint(inPd, 15+numMidPts,
                                       this->PointIds, weights);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticWedge::Contour(double value, 
-                                vtkDataArray* cellScalars, 
+void vtkQuadraticWedge::Contour(double value,
+                                vtkDataArray* cellScalars,
                                 vtkIncrementalPointLocator* locator,
-                                vtkCellArray *verts, 
-                                vtkCellArray* lines, 
-                                vtkCellArray* polys, 
-                                vtkPointData* inPd, 
+                                vtkCellArray *verts,
+                                vtkCellArray* lines,
+                                vtkCellArray* polys,
+                                vtkPointData* inPd,
                                 vtkPointData* outPd,
-                                vtkCellData* inCd, 
-                                vtkIdType cellId, 
+                                vtkCellData* inCd,
+                                vtkIdType cellId,
                                 vtkCellData* outCd)
 {
   //subdivide into 8 linear wedges
   this->Subdivide(inPd,inCd,cellId, cellScalars);
-  
+
   //contour each linear wedge separately
   for (int i=0; i<8; i++) //for each wedge
     {
@@ -398,7 +398,7 @@ void vtkQuadraticWedge::Contour(double value,
 //----------------------------------------------------------------------------
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2, 
+int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
                                          double tol, double& t,
                                          double* x, double* pcoords, int& subId)
 {
@@ -420,7 +420,7 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
         this->TriangleFace->PointIds->SetId(i,
               this->PointIds->GetId(WedgeFaces[faceNum][i]));
         }
-      inter = this->TriangleFace->IntersectWithLine(p1, p2, tol, tTemp, 
+      inter = this->TriangleFace->IntersectWithLine(p1, p2, tol, tTemp,
                                       xTemp, pc, subId);
       }
     else
@@ -430,7 +430,7 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
         this->Face->Points->SetPoint(i,
               this->Points->GetPoint(WedgeFaces[faceNum][i]));
         }
-      inter = this->Face->IntersectWithLine(p1, p2, tol, tTemp, 
+      inter = this->Face->IntersectWithLine(p1, p2, tol, tTemp,
                                       xTemp, pc, subId);
       }
     if ( inter )
@@ -439,7 +439,7 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 0:
@@ -473,7 +473,7 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index), 
+int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index),
                                    vtkIdList *ptIds, vtkPoints *pts)
 {
   pts->Reset();
@@ -495,7 +495,7 @@ int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index),
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkQuadraticWedge::JacobianInverse(double pcoords[3], double **inverse, 
+void vtkQuadraticWedge::JacobianInverse(double pcoords[3], double **inverse,
                                         double derivs[45])
 {
   int i, j;
@@ -532,8 +532,8 @@ void vtkQuadraticWedge::JacobianInverse(double pcoords[3], double **inverse,
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId), 
-                                    double pcoords[3], double *values, 
+void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
+                                    double pcoords[3], double *values,
                                     int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -550,7 +550,7 @@ void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
     sum[0] = sum[1] = sum[2] = 0.0;
     for ( i=0; i < 15; i++) //loop over interp. function derivatives
       {
-      sum[0] += functionDerivs[i] * values[dim*i + k]; 
+      sum[0] += functionDerivs[i] * values[dim*i + k];
       sum[1] += functionDerivs[15 + i] * values[dim*i + k];
       sum[2] += functionDerivs[30 + i] * values[dim*i + k];
       }
@@ -563,17 +563,17 @@ void vtkQuadraticWedge::Derivatives(int vtkNotUsed(subId),
 
 
 //----------------------------------------------------------------------------
-// Clip this quadratic wedge using scalar value provided. Like contouring, 
+// Clip this quadratic wedge using scalar value provided. Like contouring,
 // except that it cuts the wedge to produce tetrahedra.
-void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars, 
+void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars,
                              vtkIncrementalPointLocator* locator, vtkCellArray* tets,
                              vtkPointData* inPd, vtkPointData* outPd,
-                             vtkCellData* inCd, vtkIdType cellId, 
+                             vtkCellData* inCd, vtkIdType cellId,
                              vtkCellData* outCd, int insideOut)
 {
   // create eight linear hexes
   this->Subdivide(inPd,inCd,cellId, cellScalars);
-  
+
   //contour each linear hex separately
   for (int i=0; i<8; i++) //for each subdivided wedge
     {
@@ -591,11 +591,11 @@ void vtkQuadraticWedge::Clip(double value, vtkDataArray* cellScalars,
 
 //----------------------------------------------------------------------------
 // Compute interpolation functions for the fifteen nodes.
-void vtkQuadraticWedge::InterpolationFunctions(double pcoords[3], 
+void vtkQuadraticWedge::InterpolationFunctions(double pcoords[3],
                                                double weights[15])
 {
   // VTK needs parametric coordinates to be between (0,1). Isoparametric
-  // shape functions are formulated between (-1,1). Here we do a 
+  // shape functions are formulated between (-1,1). Here we do a
   // coordinate system conversion from (0,1) to (-1,1).
   double r = pcoords[0];
   double s = pcoords[1];
@@ -624,11 +624,11 @@ void vtkQuadraticWedge::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkQuadraticWedge::InterpolationDerivs(double pcoords[3], 
+void vtkQuadraticWedge::InterpolationDerivs(double pcoords[3],
                                             double derivs[45])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
-  //shape functions are formulated between (-1,1). Here we do a 
+  //shape functions are formulated between (-1,1). Here we do a
   //coordinate system conversion from (0,1) to (-1,1).
   double r = pcoords[0];
   double s = pcoords[1];
@@ -695,7 +695,7 @@ void vtkQuadraticWedge::InterpolationDerivs(double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-static double vtkQWedgeCellPCoords[45] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0, 
+static double vtkQWedgeCellPCoords[45] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0,
                                           0.0,0.0,1.0, 1.0,0.0,1.0, 0.0,1.0,1.0,
                                           0.5,0.0,0.0, 0.5,0.5,0.0, 0.0,0.5,0.0,
                                           0.5,0.0,1.0, 0.5,0.5,1.0, 0.0,0.5,1.0,
@@ -709,7 +709,7 @@ double *vtkQuadraticWedge::GetParametricCoords()
 void vtkQuadraticWedge::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Edge:\n";
   this->Edge->PrintSelf(os,indent.GetNextIndent());
   os << indent << "TriangleFace:\n";

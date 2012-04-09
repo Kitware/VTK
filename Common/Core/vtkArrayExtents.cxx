@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayExtents.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -74,8 +74,8 @@ vtkArrayExtents::vtkArrayExtents(const vtkArrayRange& i, const vtkArrayRange& j,
 const vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
 {
   vtkArrayExtents result;
-  // IA64 HP-UX doesn't seem to have the vector<T> vector1(n, value) 
-  // overload nor the assign(n, value) method, so we use the single 
+  // IA64 HP-UX doesn't seem to have the vector<T> vector1(n, value)
+  // overload nor the assign(n, value) method, so we use the single
   // argument constructor and initialize the values manually.
   // result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
 

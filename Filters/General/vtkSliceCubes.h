@@ -16,21 +16,21 @@
 // .SECTION Description
 // vtkSliceCubes is a special version of the marching cubes filter. Instead
 // of ingesting an entire volume at once it processes only four slices at
-// a time. This way, it can generate isosurfaces from huge volumes. Also, the 
+// a time. This way, it can generate isosurfaces from huge volumes. Also, the
 // output of this object is written to a marching cubes triangle file. That
 // way, output triangles do not need to be held in memory.
-// 
+//
 // To use vtkSliceCubes you must specify an instance of vtkVolumeReader to
 // read the data. Set this object up with the proper file prefix, image range,
-// data origin, data dimensions, header size, data mask, and swap bytes flag. 
-// The vtkSliceCubes object will then take over and read slices as necessary. 
-// You also will need to specify the name of an output marching cubes triangle 
+// data origin, data dimensions, header size, data mask, and swap bytes flag.
+// The vtkSliceCubes object will then take over and read slices as necessary.
+// You also will need to specify the name of an output marching cubes triangle
 // file.
 //
 // .SECTION Caveats
-// This process object is both a source and mapper (i.e., it reads and writes 
-// data to a file). This is different than the other marching cubes objects 
-// (and most process objects in the system). It's specialized to handle very 
+// This process object is both a source and mapper (i.e., it reads and writes
+// data to a file). This is different than the other marching cubes objects
+// (and most process objects in the system). It's specialized to handle very
 // large data.
 //
 // This object only extracts a single isosurface. This compares with the other
@@ -88,7 +88,7 @@ protected:
   void Execute();
 
   vtkVolumeReader *Reader;
-  char *FileName;  
+  char *FileName;
   double Value;
   char *LimitsFileName;
 

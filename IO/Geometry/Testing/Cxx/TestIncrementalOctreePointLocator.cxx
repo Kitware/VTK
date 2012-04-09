@@ -29,27 +29,27 @@
 // precision issues on some platforms: Fast-Release-g++, Win32-cygwin344,
 // Win32-minGW, Win32-FreeVC++, and Win32-VS71. In particular, two of the
 // references of this value below, as marked, handle Win32-cygwin344 and
-// Win32-minGW. The numerical inaccuracy problem has nothing to do with 
-// the incremental octree point locator or the associated incremental octree 
+// Win32-minGW. The numerical inaccuracy problem has nothing to do with
+// the incremental octree point locator or the associated incremental octree
 // node itself. Instead it is just due to the multiple sub-tests themselves
 // (combined in this single file) in which the brute-force mode employs many
 // if-statements / comparisons that involve double values.
 //
-// For example, vtkMath::Distance2BetweenPoints( point1, point2 ) may not be 
+// For example, vtkMath::Distance2BetweenPoints( point1, point2 ) may not be
 // directly used in if-statements (even for some platforms other than the above
 // mentioned 5), even though the incremental octree point locator always uses
-// double variables for computation and returning values. Another example is 
+// double variables for computation and returning values. Another example is
 // that the min SQUARED distance D between point A (a given point) and point B
 // (the closest point to A) may not be directly used to test the number of points
 // within the SQUARED radius D relative to point A herein, though it is supposed
-// to be ok (and the number is expected to be 1). The fact is that an epsilon 
-// needs to be added to D for such a test. Otherwise the numerical inaccuracy 
-// issue would just cause 0 to be returned --- no any point exists within the 
+// to be ok (and the number is expected to be 1). The fact is that an epsilon
+// needs to be added to D for such a test. Otherwise the numerical inaccuracy
+// issue would just cause 0 to be returned --- no any point exists within the
 // SQUARED radius D relative to A. Please note that this problem is not caused by
 // sqrt() at all because the incremental octree point locator offers an accurate
 // function variant FindPointsWithinSquaredRadius() to avoid the obvious numerical
 // inaccuracy related to sqrt().
-// 
+//
 // Given the numerical inaccuracy issues on some platforms, the rapid verification
 // mode might not be used. Fortunately, this test is fast enough.
 #define  INC_OCT_PNT_LOC_TESTS_ZERO  0.00000000000001
@@ -74,7 +74,7 @@
 //               [ -2.856848, 2.856848 ]
 //               [  0.000000, 1.125546 ]
 //
-// min squared distance = 1.036624e-005 (for zero-tolerance unique points)  
+// min squared distance = 1.036624e-005 (for zero-tolerance unique points)
 // max squared distance = 3.391319e+001
 
 
@@ -87,20 +87,20 @@ void SwapForBigEndian( unsigned char * theArray, int tupleSiz, int numTuple )
   int      i, j;
   unsigned char * tmpChar0 = theArray;
   unsigned char * tmpChar1 = ( unsigned char * ) malloc( tupleSiz );
-  
+
   for ( j = 0; j < numTuple; j ++, tmpChar0 += tupleSiz )
     {
     for ( i = 0; i < tupleSiz; i ++ )
       {
       tmpChar1[i] = tmpChar0[ tupleSiz - 1 - i ];
       }
-    
+
     for ( i = 0; i < tupleSiz; i ++ )
       {
       tmpChar0[i] = tmpChar1[i];
       }
     }
-    
+
   tmpChar0 = NULL;
   free( tmpChar1 );  tmpChar1 = NULL;
 }
@@ -110,11 +110,11 @@ void SwapForBigEndian( unsigned char * theArray, int tupleSiz, int numTuple )
 int TestIncrementalOctreePointLocator( int argc, char * argv[] )
 {
   // specifications
-  int         nClzNpts    = 4;   
+  int         nClzNpts    = 4;
   int         octreRes[3] = { 64, 128, 256 };
   double      tolerans[2] = { 0.0, 0.01 };
-  
-  
+
+
   // variables
   int         r, t, m, i, j, k;
   int         retValue = 0;
@@ -149,8 +149,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   vtkUnstructuredGridReader *        ugReader = NULL;
   vtkIncrementalOctreePointLocator * octLocat = NULL;
   size_t      n;
-  
-  
+
+
   // load an unstructured grid dataset
   fileName = vtkTestUtilities::ExpandDataFileName
                                ( argc, argv, "Data/post.vtk" );
@@ -161,8 +161,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   unstruct = ugReader->GetOutput();
   dataPnts = unstruct->GetPoints();
   numbPnts = dataPnts->GetNumberOfPoints();
-  
-  
+
+
   // open a file for reading or writing the ground truth data
   fileName = vtkTestUtilities::ExpandDataFileName
              ( argc, argv, "Data/IncOctPntLocResult.dat" );
@@ -171,31 +171,31 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   #else
   #ifndef _BRUTE_FORCE_VERIFICATION_
   diskFile = fopen( fileName, "rb" );
-  truthIds = ( vtkIdType * ) 
+  truthIds = ( vtkIdType * )
              realloc(  truthIds,  sizeof( vtkIdType ) * numbPnts  );
   #endif
   #endif
   delete []  fileName;  fileName = NULL;
-  
-  
+
+
   // obtain the 3D point coordinates
-  pDataPts = ( double * ) 
+  pDataPts = ( double * )
              realloc(  pDataPts,  sizeof( double ) * 3 * numbPnts  );
   for ( i = 0; i < numbPnts; i ++ )
     {
     dataPnts->GetPoint(  i,  pDataPts + ( i << 1 ) + i  );
     }
-  
-    
+
+
   // allocate memory for exactly duplicate points and inherit some points
   nUniques = 4;
   nDuplics = 300;
   arrayIdx = numbPnts * 3;
   numExPts = numbPnts + nUniques * nDuplics;
   xtentPts = ( double * )
-             realloc(  xtentPts, sizeof( double ) * 3 * numExPts  );                                 
+             realloc(  xtentPts, sizeof( double ) * 3 * numExPts  );
   memcpy(  xtentPts,  pDataPts,  sizeof( double ) * 3 * numbPnts  );
-  
+
   // add an additional number of exactly duplicate points
   for ( j = 0; j < nUniques; j ++ )
     {
@@ -211,29 +211,29 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       xtentPts[ arrayIdx + 2 ] = pntCoord[2];
       }
     }
-    
-    
+
+
   // memory allocation
   ptIdList = vtkIdList::New();
   ptIdList->Allocate( numbPnts, numbPnts >> 1 );
   insrtPts = vtkPoints::New();
   insrtPts->Allocate( numbPnts, numbPnts >> 1 );
   octLocat = vtkIncrementalOctreePointLocator::New();
-  
-  
+
+
   // =========================================================================
   // ============================ Point Insertion ============================
   // =========================================================================
   for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++  ) // three resolutions
     {
-    
+
     // -----------------------------------------------------------------------
     // --------------------- check-based point insertion ---------------------
     // -----------------------------------------------------------------------
     for (  t = 0;  ( t < 2 ) && ( retValue == 0 );  t ++  ) // two  tolerances
     for (  m = 0;  ( m < 3 ) && ( retValue == 0 );  m ++  ) // three functions
       {
-      
+
       ptIdList->Reset();  // indices of the inserted points: based on dataPnts
       insrtPts->Reset();
       octLocat->FreeSearchStructure();
@@ -241,8 +241,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       octLocat->SetTolerance( tolerans[t] );
       octLocat->InitPointInsertion
                 ( insrtPts, dataPnts->GetBounds(), numbPnts );
-      
-      // ---------------------------------------------------------------------  
+
+      // ---------------------------------------------------------------------
       if ( m == 0 )   // vtkIncrementalOctreePointLocator::InsertUniquePoint()
         {
         for ( i = 0; i < numbPnts; i ++ )
@@ -250,7 +250,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           inserted = octLocat->InsertUniquePoint
                                (  pDataPts + ( i << 1 ) + i,  pointIdx  );
           if ( inserted ) ptIdList->InsertNextId( i );
-          } 
+          }
         }
       else
       if ( m == 1 )   // vtkIncrementalOctreePointLocator::InsertNextPoint()
@@ -279,19 +279,19 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           }
         }
       // -------------------------------------------------------------------//
-        
+
       #ifdef _BRUTE_FORCE_VERIFICATION_
       // ---------------------------------------------------------------------
       // verify the point insertion result in brute force mode
-      
+
       double     tempPnt0[3];
       double     tempPnt1[3];
       double     tolerns2[2] = { tolerans[0] * tolerans[0],
-                                 tolerans[1] * tolerans[1] 
+                                 tolerans[1] * tolerans[1]
                                };
       numInsrt = ptIdList->GetNumberOfIds();
-      
-      // check if the squared distance between any two inserted points is 
+
+      // check if the squared distance between any two inserted points is
       // less than the threshold
       for (  j = 0;  ( j < numInsrt - 1 ) && ( retValue == 0 );  j ++  )
         {
@@ -303,7 +303,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           if ( tmpDist2 <= tolerns2[t]) retValue = 1;
           }
         }
-      
+
       // check if there is any point whose distance to ALL inserted points
       // is greater than the threshold
       for (  j = 0;  ( j < numbPnts ) && ( retValue == 0 );  j ++  )
@@ -319,9 +319,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           }
         retValue = bGreater;
         }
-        
+
       // -------------------------------------------------------------------//
-      #else  
+      #else
       // ---------------------------------------------------------------------
       // rapid point index-based verification
       n = fread(  &numInsrt,  sizeof( int ),  1,  diskFile  );
@@ -334,7 +334,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       SwapForBigEndian
         (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
       #endif
-       
+
       if (  numInsrt  ==  ptIdList->GetNumberOfIds()  )
         {
         int  samePtId = 1;
@@ -348,7 +348,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         SwapForBigEndian
           (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
         #endif
-                           
+
         for (  i = 0;  ( i < numInsrt ) && ( samePtId == 1 );  i ++  )
           {
           samePtId = (  truthIds[i] == ptIdList->GetId( i )  )  ?  1  :  0;
@@ -358,8 +358,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       else  retValue = 1;
       // -------------------------------------------------------------------//
       #endif
-      
-      
+
+
       // ---------------------------------------------------------------------
       // write the point indices as the ground truth
       #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
@@ -382,10 +382,10 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         }
       #endif
       // -------------------------------------------------------------------//
-      
+
       } // end of two tolerances and three functions
-      
-     
+
+
     // -----------------------------------------------------------------------
     // ------------------ direct check-free point insertion ------------------
     // -----------------------------------------------------------------------
@@ -400,17 +400,17 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                 ( pDataPts + ( i << 1 ) + i, pointIdx, 1 );
       }
     retValue = ( insrtPts->GetNumberOfPoints() == numbPnts ) ? 0 : 1;
-    
+
     } // end of three resolutions
-  
-  
+
+
   // =========================================================================
   // direct check-free insertion of  a huge number of EXACTLY DUPLICATE points
   //           (number > the maximum number of points per leaf node)
   // =========================================================================
   if ( retValue == 0 )
     {
-    // perform direct / check-free point insertion          
+    // perform direct / check-free point insertion
     for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++ ) // three resolutions
       {
       insrtPts->Reset();
@@ -423,24 +423,24 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         octLocat->InsertPointWithoutChecking
                   (  xtentPts + ( i << 1 ) + i,  pointIdx,  1  );
         }
-    
+
       retValue = ( insrtPts->GetNumberOfPoints() == numExPts ) ? 0 : 1;
       }
     }
   if ( xtentPts ) free( xtentPts );  xtentPts = NULL;
   // =======================================================================//
-  // =======================================================================// 
-  
-  
-  // reclaim this vtkPoints as it will be never used again  
+  // =======================================================================//
+
+
+  // reclaim this vtkPoints as it will be never used again
   if ( insrtPts ) insrtPts->Delete();  insrtPts = NULL;
-   
-  
+
+
   // =========================================================================
   // ============================ Point  Location ============================
   // =========================================================================
-  
-  
+
+
   // load points and radius data from a disk file for point location tasks
   fileName = vtkTestUtilities::ExpandDataFileName
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
@@ -476,13 +476,13 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   //  (  ( unsigned char * ) maxDist2,  sizeof( double ),  nLocPnts      );
   #endif
   fclose( pntsFile );                pntsFile = NULL;
-  
-  
+
+
   // destroy the context of point insertion while attaching the dataset
-  octLocat->FreeSearchStructure();   
+  octLocat->FreeSearchStructure();
   octLocat->SetDataSet( unstruct );
-  
-  
+
+
   // memory allocation
   clzNdst2 = ( double * ) realloc(  clzNdst2,  sizeof( double ) * nClzNpts  );
   for ( i = 0; i < 3; i ++ )
@@ -490,37 +490,37 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     idxLists[i] = vtkIdList::New();
     idxLists[i]->Allocate( nClzNpts, nClzNpts );
     }
-  
-  
+
+
   // the main component
   for (  r = 0;  ( r < 3 ) && ( retValue == 0 );  r ++  ) // three resolutions
     {
-    
+
     // establish a new octree with the specified resolution
     octLocat->Modified();
     octLocat->SetMaxPointsPerLeaf( octreRes[r] );
     octLocat->BuildLocator();
-    
+
     // memory allocation
     resltIds = ( vtkIdType * )
                realloc( resltIds, sizeof( vtkIdType ) * nLocPnts );
     #ifndef _BRUTE_FORCE_VERIFICATION_
-    truthIds = ( vtkIdType * ) 
+    truthIds = ( vtkIdType * )
                realloc( truthIds, sizeof( vtkIdType ) * nLocPnts );
     #endif
-    
-    
+
+
     // -----------------------------------------------------------------------
     // -------------------- location of the closest point --------------------
     // -----------------------------------------------------------------------
-    
+
     // find the closest point
     for ( i = 0; i < nLocPnts; i ++ )
       {
       resltIds[i] = octLocat->FindClosestPoint(  pLocPnts + ( i << 1 ) + i,
                                                  minDist2 + i  );
       }
-      
+
     #ifdef _BRUTE_FORCE_VERIFICATION_
     // -----------------------------------------------------------------------
     // verify the result in brute force mode
@@ -546,7 +546,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     SwapForBigEndian
       (  ( unsigned char * ) ( &nLocPnts ),  sizeof( int ),  1  );
     #endif
-      
+
     n = fread(  truthIds,  sizeof( vtkIdType ),  nLocPnts,  diskFile  );
     if (n != static_cast<size_t>(nLocPnts))
       {
@@ -557,14 +557,14 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  nLocPnts  );
     #endif
-    
+
     for (  i = 0;  ( i < nLocPnts ) && ( retValue == 0 );  i ++  )
       {
       retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
       }
     // ---------------------------------------------------------------------//
-    #endif 
-    
+    #endif
+
     // -----------------------------------------------------------------------
     // write the point indices as the ground truth
     #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
@@ -585,21 +585,21 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     #endif
     // ---------------------------------------------------------------------//
-    
-    
+
+
     if ( retValue == 1 ) continue;
-    
-    
+
+
     // -----------------------------------------------------------------------
     // ------------------ location of the closest N points -------------------
     // -----------------------------------------------------------------------
-    
+
     // memory allocation
     ptIdList->SetNumberOfIds( nClzNpts * 10 );  // to claim part of the memory
-    resltIds = ( vtkIdType * ) 
+    resltIds = ( vtkIdType * )
                realloc( resltIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
     #ifndef _BRUTE_FORCE_VERIFICATION_
-    truthIds = ( vtkIdType * ) 
+    truthIds = ( vtkIdType * )
                realloc( truthIds, sizeof( vtkIdType ) * nClzNpts * nLocPnts );
     n = fread( &numInsrt,  sizeof( int       ),  1,         diskFile  );
     if (n != 1)
@@ -611,7 +611,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     SwapForBigEndian
       (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
     #endif
-      
+
     n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
     if (n != static_cast<size_t>(numInsrt))
       {
@@ -623,7 +623,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
     #endif
     #endif
-    
+
     // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
     // find the closest N points (with embedded brute-force verification)
@@ -632,54 +632,54 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       ptIdList->Reset();
       octLocat->FindClosestNPoints
                 (  nClzNpts,  pLocPnts + ( i << 1 ) + i,  ptIdList  );
-      
+
       // ---------------------------------------------------------------------
       // verify the result in brute force mode
       #ifdef _BRUTE_FORCE_VERIFICATION_
-      
+
       // check the order of the closest points
       for ( j = 0; j < nClzNpts; j ++ )
         {
         pointIdx    = ptIdList->GetId( j );
         clzNdst2[j] = vtkMath::Distance2BetweenPoints
-                               (  pLocPnts + ( i        << 1 ) + i, 
+                               (  pLocPnts + ( i        << 1 ) + i,
                                   pDataPts + ( pointIdx << 1 ) + pointIdx  );
         }
       for (  j = 0;  ( j < nClzNpts - 1 ) && ( retValue == 0 );  j ++  )
         {
         retValue = ( clzNdst2[j + 1] >= clzNdst2[j] ) ? 0 : 1;
         }
-      
+
       // write some data for locating the closest point
-      // within a radius and the points within a radius 
+      // within a radius and the points within a radius
       //#ifdef _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_
       minDist2[i] = clzNdst2[0];
       maxDist2[i] = clzNdst2[ nClzNpts - 1 ];
       //#endif
-        
+
       // check if there are any ignored but closer points
       for (  j = 0;  ( j < numbPnts ) && ( retValue == 0 );  j ++  )
         {
         tmpDist2 = vtkMath::Distance2BetweenPoints
-                   (  pLocPnts + ( i << 1 ) + i,  pDataPts + ( j << 1 ) + j  ); 
+                   (  pLocPnts + ( i << 1 ) + i,  pDataPts + ( j << 1 ) + j  );
          if (    tmpDist2 + INC_OCT_PNT_LOC_TESTS_ZERO // for cygwin and minGW
                  < clzNdst2[ nClzNpts - 1 ]   // Not "<=" here as there
               && ptIdList->IsId( j ) == -1    // may be other points that were
             )    retValue = 1;        // rejected simply due to the limit of N
         }
-        
+
       if ( retValue == 1 ) break;
-   
+
       #endif
       // -------------------------------------------------------------------//
-      
+
       // transfer the point indices for subsequent file writing purposes
       memcpy(  resltIds + i * nClzNpts,  ptIdList->GetPointer( 0 ),
                sizeof( vtkIdType ) * nClzNpts  );
       }
     // ---------------------------------------------------------------------//
     // ---------------------------------------------------------------------//
-      
+
     // -----------------------------------------------------------------------
     // write the point indices as the ground truth
     #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
@@ -701,7 +701,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     #endif
     // ---------------------------------------------------------------------//
-    
+
     // -----------------------------------------------------------------------
     // rapid point index-based verification
     #ifndef _BRUTE_FORCE_VERIFICATION_
@@ -712,33 +712,33 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     #endif
     // ---------------------------------------------------------------------//
-    
-    
+
+
     if ( retValue == 1 ) continue;
-    
-    
+
+
     // -----------------------------------------------------------------------
     // ------------ location of the closest point within a radius ------------
     // -----------------------------------------------------------------------
-    
+
     // memory allocation
     resltIds = ( vtkIdType * )
                realloc(  resltIds,  sizeof( vtkIdType ) * nLocPnts * 3  );
-               
+
     // find the closest point within three radii
     for ( i = 0; i < nLocPnts; i ++ )
       {
       j = ( i << 1 ) + i;
       pointIdx = octLocat->FindClosestPoint( pLocPnts + j, minDist2 + i );
-            
+
       // there are some points falling on the in-octree points
       fTempRad = ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
                  ? 0.000001 : minDist2[i];
       fTempRad = sqrt( fTempRad ); // causes inaccuracy if minDist2 is nonzero
-      
+
       resltIds[ j     ] = octLocat->FindClosestPointWithinRadius
                                     ( fTempRad * 0.5, pLocPnts + j, tmpDist2 );
-      if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )    
+      if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
       resltIds[ j + 1 ] = octLocat->FindClosestPointWithinRadius
                                     ( fTempRad * 1.0, pLocPnts + j, tmpDist2 );
       else  // for non-zero cases, use the original squared radius for accuracy
@@ -746,9 +746,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                                     ( minDist2[i],    pLocPnts + j, tmpDist2 );
       resltIds[ j + 2 ] = octLocat->FindClosestPointWithinRadius
                                     ( fTempRad * 1.5, pLocPnts + j, tmpDist2 );
-      
+
       // -----------------------------------------------------------------------
-      // verify the result in brute force mode  
+      // verify the result in brute force mode
       #ifdef _BRUTE_FORCE_VERIFICATION_
       if (    (    ( minDist2[i] >  INC_OCT_PNT_LOC_TESTS_ZERO )
                 && ( resltIds[j] != -1 )
@@ -762,7 +762,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       // ---------------------------------------------------------------------//
       #endif
       }
-      
+
     // -----------------------------------------------------------------------
     // write the point indices as the ground truth
     #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
@@ -784,9 +784,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     #endif
     // ---------------------------------------------------------------------//
-    
+
     // -----------------------------------------------------------------------
-    // rapid point index-based verification 
+    // rapid point index-based verification
     #ifndef _BRUTE_FORCE_VERIFICATION_
     n = fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
     if (n != 1)
@@ -797,8 +797,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     #ifdef VTK_WORDS_BIGENDIAN
     SwapForBigEndian
       (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
-    #endif 
-   
+    #endif
+
     truthIds = ( vtkIdType * )
                realloc(  truthIds,  sizeof( vtkIdType ) * numInsrt  );
     n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
@@ -811,29 +811,29 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
     #endif
-    
+
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
       retValue = ( resltIds[i] == truthIds[i] ) ? 0 : 1;
-      } 
+      }
     #endif
     // ---------------------------------------------------------------------//
-    
-    
+
+
     if ( retValue == 1 ) continue;
-    
-    
+
+
     // -----------------------------------------------------------------------
     // --------------- location of the points within a radius ----------------
-    // ----------------------------------------------------------------------- 
-    
+    // -----------------------------------------------------------------------
+
     ptIdList->Reset();
     for ( i = 0; i < nLocPnts; i ++ )
       {
       // set the coordinate index of the point under check
       j = ( i << 1 ) + i;
       minDist2[i] += INC_OCT_PNT_LOC_TESTS_ZERO; // for cygwin and minGW
-      
+
       // obtain the points within three radii (use squared radii for test
       // as sqrt can incur inaccuracy that complicates the test)
       idxLists[0]->Reset();
@@ -841,7 +841,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       idxLists[2]->Reset();
       if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
         {
-        // each ( maxDist2[i] * 0.3 ) has been guaranteed to be > 
+        // each ( maxDist2[i] * 0.3 ) has been guaranteed to be >
         // INC_OCT_PNT_LOC_TESTS_ZERO
         octLocat->FindPointsWithinSquaredRadius
                   ( maxDist2[i] * 0.3, pLocPnts + j, idxLists[0] );
@@ -861,7 +861,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
         if ( idxLists[0]->GetNumberOfIds() == 0 )
              idxLists[0]->InsertNextId( -1 );    // to handle an empty id list
         }
-      
+
       // copy the point indices to a vtkIdList for comparison and file writing
       for ( m = 0; m < 3; m ++ )
         {
@@ -871,18 +871,18 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           ptIdList->InsertNextId(  idxLists[m]->GetId( k )  );
           }
         }
-        
+
       // ---------------------------------------------------------------------
-      // verify the result in brute force mode  
+      // verify the result in brute force mode
       #ifdef _BRUTE_FORCE_VERIFICATION_
-      
+
       // check if the monotonical property holds among the 3 point-index lists
       if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
         {
         pointIdx = octLocat->FindClosestPoint( pLocPnts + j );
         if ( idxLists[0]->IsId( pointIdx ) == -1 ||
              idxLists[1]->IsId( pointIdx ) == -1 ||
-             idxLists[2]->IsId( pointIdx ) == -1 || 
+             idxLists[2]->IsId( pointIdx ) == -1 ||
              idxLists[1]->GetNumberOfIds() < idxLists[0]->GetNumberOfIds() ||
              idxLists[2]->GetNumberOfIds() < idxLists[0]->GetNumberOfIds() ||
              idxLists[2]->GetNumberOfIds() < idxLists[1]->GetNumberOfIds()
@@ -896,11 +896,11 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
              idxLists[2]->GetNumberOfIds() <  idxLists[1]->GetNumberOfIds()
            ) retValue = 1;
         }
-      
+
       // check the points within each of the three radii
       for (  m = 0;  ( m < 3 ) && ( retValue == 0 );  m ++  )
         {
-        // get the squared radius actually used       
+        // get the squared radius actually used
         if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
           {
           if ( m == 0 ) fTempRad = maxDist2[i] * 0.3;
@@ -915,30 +915,30 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           if ( m == 1 ) fTempRad = minDist2[i];
           else          fTempRad = maxDist2[i];
           }
-        
+
         // check if there is any false insertion
         numInsrt = idxLists[m]->GetNumberOfIds();
         for (  k = 0;  ( k < numInsrt ) && ( retValue == 0 );  k ++  )
           {
           if (  m == 0 && idxLists[0]->GetId( 0 )  ==  -1  ) break;
-          
+
           pointIdx = idxLists[m]->GetId( k );
           pointIdx = ( pointIdx << 1 ) + pointIdx;
           tmpDist2 = vtkMath::Distance2BetweenPoints
                               ( pLocPnts + j, pDataPts + pointIdx );
-                              
+
           if ( tmpDist2 > fTempRad + INC_OCT_PNT_LOC_TESTS_ZERO ) retValue = 1;
           }
-          
+
         // check if there is any missed insertion
         numInsrt = 0;
         for ( k = 0; k < numbPnts; k ++ )
-          {      
+          {
           tmpDist2 = vtkMath::Distance2BetweenPoints
                               (  pLocPnts + j,  pDataPts + ( k << 1 ) + k  );
           if ( tmpDist2 + INC_OCT_PNT_LOC_TESTS_ZERO <= fTempRad ) numInsrt ++;
           }
-        
+
         // get the actual size of the vtkIdList for comparison
         int  listSize = ( m == 0 && idxLists[0]->GetId( 0 ) == -1 )
                         ? 0       // for an actually NULL vtkIdList
@@ -948,7 +948,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       #endif
       // -------------------------------------------------------------------//
       }
-      
+
     // -----------------------------------------------------------------------
     // write the point indices as the ground truth
     #ifdef  _BRUTE_FORCE_VERIFICATION_WRITE_RESULT_
@@ -971,9 +971,9 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       }
     #endif
     // ---------------------------------------------------------------------//
-    
+
     // -----------------------------------------------------------------------
-    // rapid point index-based verification 
+    // rapid point index-based verification
     #ifndef _BRUTE_FORCE_VERIFICATION_
     n = fread( &numInsrt,  sizeof( int ),  1,  diskFile  );
     if (n != 1)
@@ -985,7 +985,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     SwapForBigEndian
       (  ( unsigned char * ) ( &numInsrt ),  sizeof( int ),  1  );
     #endif
-    
+
     truthIds = ( vtkIdType * )
                realloc(  truthIds,  sizeof( vtkIdType ) * numInsrt  );
     n = fread(  truthIds,  sizeof( vtkIdType ),  numInsrt,  diskFile  );
@@ -998,22 +998,22 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     SwapForBigEndian
       (  ( unsigned char * ) truthIds,  sizeof( vtkIdType ),  numInsrt  );
     #endif
-    
+
     vtkIdType * tmpPtIds = ptIdList->GetPointer( 0 );
     for (  i = 0;  ( i < numInsrt ) && ( retValue == 0 );  i ++  )
       {
       retValue = ( tmpPtIds[i] == truthIds[i] ) ? 0 : 1;
-      } 
+      }
     tmpPtIds = NULL;
     #endif
     // ---------------------------------------------------------------------//
-    
+
     }
-    
-    
-  // =========================================================================  
+
+
+  // =========================================================================
   // ================== DO NOT TURN ON THIS SEGMENT OF CODE ==================
-  // ========================================================================= 
+  // =========================================================================
   #ifdef _BRUTE_FORCE_VERIFICATION_WRITE_DISTANCE2_
   fileName = vtkTestUtilities::ExpandDataFileName
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
@@ -1047,11 +1047,11 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   #endif
   // =======================================================================//
   // =======================================================================//
-  
-  
-  // =========================================================================  
+
+
+  // =========================================================================
   // ================== DO NOT TURN ON THIS SEGMENT OF CODE ==================
-  // =========================================================================  
+  // =========================================================================
   // NOTE: do *NOT* turn on this segment of code as the points resulting from
   //       the following random generator would change the points disk file!!!
   //       The points generated below are used to challenge point location.
@@ -1066,40 +1066,40 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   int      coordIdx = 0;
   int      gridIndx = 0;
   double * ptCoords = ( double * ) malloc( sizeof( double ) * 3 * totalPts );
-  
+
   // duplicating grid points
   for ( i = 0; i < duplPnts; i ++, coordIdx ++ )
     {
     gridIndx = rand() % numbPnts;
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] = 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] =
     pDataPts[ ( gridIndx << 1 ) + gridIndx + 0 ];
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] = 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] =
     pDataPts[ ( gridIndx << 1 ) + gridIndx + 1 ];
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] = 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] =
     pDataPts[ ( gridIndx << 1 ) + gridIndx + 2 ];
     }
-    
+
   // non-duplicate within-data points
-  // some randomly selected grid points are jittered, in each axis, 
+  // some randomly selected grid points are jittered, in each axis,
   // between [ -0.1, 0.1 ] with resolution 0.001
   for ( i = 0; i < inerPnts; i ++, coordIdx ++ )
     {
     gridIndx = ( rand() % numbPnts ) + ( numbPnts >> 1 );
     gridIndx = gridIndx % numbPnts;
-    
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] = 
+
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] =
     pDataPts[ ( gridIndx << 1 ) + gridIndx + 0 ] +
     0.001 * (   (  ( rand() % 2 ) << 1  )  -  1   ) * ( rand() % 101 );
-    
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] = 
+
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] =
     pDataPts[ ( gridIndx << 1 ) + gridIndx + 1 ] +
     0.001 * (   (  ( rand() % 2 ) << 1  )  -  1   ) * ( rand() % 101 );
-    
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] = 
+
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] =
     pDataPts[ ( gridIndx << 1 ) + gridIndx + 2 ] +
     0.001 * (   (  ( rand() % 2 ) << 1  )  -  1   ) * ( rand() % 101 );
     }
-    
+
   // outer points: x --- [ -5.0, -3.0 ] or [ 3.0, 5.0 ]
   //                 AND
   //               y --- [ -5.0, -3.0 ] or [ 3.0, 5.0 ]
@@ -1107,22 +1107,22 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   //               z --- [ -5.0, -3.0 ] or [ 3.0, 5.0 ]
   for ( i = 0; i < outrPnts; i ++, coordIdx ++ )
     {
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ]  = 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ]  =
       3.0 + 0.01 * ( rand() % 201 );
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] *= 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 0 ] *=
       (  ( rand() % 2 ) << 1  )  -  1;
-      
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ]  = 
+
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ]  =
       3.0 + 0.01 * ( rand() % 201 );
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] *= 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 1 ] *=
       (  ( rand() % 2 ) << 1  )  -  1;
-      
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ]  = 
+
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ]  =
       3.0 + 0.01 * ( rand() % 201 );
-    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] *= 
+    ptCoords[ ( coordIdx << 1 ) + coordIdx + 2 ] *=
       (  ( rand() % 2 ) << 1  )  -  1;
     }
-    
+
   // write the points to a disk file
   fileName = vtkTestUtilities::ExpandDataFileName
                                ( argc, argv, "Data/IncOctPntLocData.dat" );
@@ -1135,14 +1135,14 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   #endif
   // =======================================================================//
   // =======================================================================//
- 
- 
+
+
   // memory clearance
   dataPnts = NULL;                     unstruct = NULL;
-  if ( ptIdList ) ptIdList->Delete();  ptIdList = NULL; 
+  if ( ptIdList ) ptIdList->Delete();  ptIdList = NULL;
   if ( octLocat ) octLocat->Delete();  octLocat = NULL;
   if ( ugReader ) ugReader->Delete();  ugReader = NULL;
-  
+
   if ( truthIds ) free( truthIds );    truthIds = NULL;
   if ( resltIds ) free( resltIds );    resltIds = NULL;
   if ( pDataPts ) free( pDataPts );    pDataPts = NULL;
@@ -1150,14 +1150,14 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
   if ( minDist2 ) free( minDist2 );    minDist2 = NULL;
   if ( maxDist2 ) free( maxDist2 );    maxDist2 = NULL;
   if ( clzNdst2 ) free( clzNdst2 );    clzNdst2 = NULL;
-  
+
   if ( diskFile ) fclose( diskFile );  diskFile = NULL;
-  
+
   for ( i = 0; i < 3; i ++ )
     {
     if ( idxLists[i] ) idxLists[i]->Delete();  idxLists[i] = NULL;
     }
-  
-  
+
+
   return retValue;
 }

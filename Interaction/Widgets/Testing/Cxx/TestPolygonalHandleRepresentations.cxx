@@ -47,16 +47,16 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 
-vtkSmartPointer< vtkHandleWidget > 
+vtkSmartPointer< vtkHandleWidget >
 CreateWidget( vtkRenderWindowInteractor * iren,
               int                         shape,
-              double                      x, 
+              double                      x,
               double                      y,
               double                      z,
               bool                        cameraFacing = false,
               const char *                label = NULL,
               vtkActor       *            demActor = NULL,
-              vtkPolyData    *            demPolys = NULL, 
+              vtkPolyData    *            demPolys = NULL,
               bool                        constrainedToSurface = false,
               double                      heightOffsetAboveSurface = 0.0
               )
@@ -104,8 +104,8 @@ CreateWidget( vtkRenderWindowInteractor * iren,
     pointPlacer->SetDistanceOffset( heightOffsetAboveSurface );
     rep->SetPointPlacer(pointPlacer);
 
-    // Let the surface constrained point-placer be the sole constraint dictating 
-    // the placement of handles. Lets not over-constrain it allowing axis 
+    // Let the surface constrained point-placer be the sole constraint dictating
+    // the placement of handles. Lets not over-constrain it allowing axis
     // constrained interactions.
     widget->EnableAxisConstraintOff();
     }
@@ -135,14 +135,14 @@ CreateWidget( vtkRenderWindowInteractor * iren,
       }
     }
 
-  if (vtkPointHandleRepresentation3D *prep = 
+  if (vtkPointHandleRepresentation3D *prep =
       vtkPointHandleRepresentation3D::SafeDownCast(rep))
     {
     prep->GetProperty()->SetColor( color );
     prep->GetProperty()->SetLineWidth(1.0);
     prep->GetSelectedProperty()->SetColor( selectedColor );
     }
-  
+
 
   rep->Delete();
 

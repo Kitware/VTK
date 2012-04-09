@@ -15,10 +15,10 @@
 
 // .NAME vtkRecursiveSphereDirectionEncoder - A direction encoder based on the recursive subdivision of an octahedron
 // .SECTION Description
-// vtkRecursiveSphereDirectionEncoder is a direction encoder which uses the 
+// vtkRecursiveSphereDirectionEncoder is a direction encoder which uses the
 // vertices of a recursive subdivision of an octahedron (with the vertices
 // pushed out onto the surface of an enclosing sphere) to encode directions
-// into a two byte value. 
+// into a two byte value.
 //
 // .SECTION see also
 // vtkDirectionEncoder
@@ -43,9 +43,9 @@ public:
 
 
   // Description:
-  // Given a normal vector n, return the encoded direction  
+  // Given a normal vector n, return the encoded direction
   int GetEncodedDirection( float n[3] );
-  
+
   // Description:
   /// Given an encoded value, return a pointer to the normal vector
   float *GetDecodedGradient( int value );
@@ -55,9 +55,9 @@ public:
   int GetNumberOfEncodedDirections( void );
 
   // Description:
-  // Get the decoded gradient table. There are 
+  // Get the decoded gradient table. There are
   // this->GetNumberOfEncodedDirections() entries in the table, each
-  // containing a normal (direction) vector. This is a flat structure - 
+  // containing a normal (direction) vector. This is a flat structure -
   // 3 times the number of directions floats in an array.
   float *GetDecodedGradientTable( void );
 
@@ -71,12 +71,12 @@ public:
   // will be 11 since the four normals with 0 z values will be
   // duplicated in the table - once with +0 values and the other
   // time with -0 values, and an addition index will be used to
-  // represent the (0,0,0) normal. If we instead choose a recursion 
+  // represent the (0,0,0) normal. If we instead choose a recursion
   // level of 6 (the maximum that can fit within 2 bytes) the number
-  // of directions is 16643, with 16386 unique directions and a 
+  // of directions is 16643, with 16386 unique directions and a
   // zero normal.
   vtkSetClampMacro( RecursionDepth, int, 0, 6 );
-  vtkGetMacro( RecursionDepth, int );                                        
+  vtkGetMacro( RecursionDepth, int );
 
 protected:
   vtkRecursiveSphereDirectionEncoder();
@@ -84,13 +84,13 @@ protected:
 
   // How far to recursively divide the sphere
   int                     RecursionDepth;
-  
+
   // The index table which maps (x,y) position in the rotated grid
-  // to an encoded normal 
+  // to an encoded normal
   //int                   IndexTable[2*NORM_SQR_SIZE - 1][2*NORM_SQR_SIZE -1];
   int                     *IndexTable;
 
-  // This is a table that maps encoded normal (2 byte value) to a 
+  // This is a table that maps encoded normal (2 byte value) to a
   // normal (dx, dy, dz)
   //float                 DecodedNormal[3*(1 + 2*(NORM_SQR_SIZE*NORM_SQR_SIZE+
   //                             (NORM_SQR_SIZE-1)*(NORM_SQR_SIZE-1)))];
@@ -108,7 +108,7 @@ protected:
 private:
   vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&);  // Not implemented.
   void operator=(const vtkRecursiveSphereDirectionEncoder&);  // Not implemented.
-}; 
+};
 
 
 #endif

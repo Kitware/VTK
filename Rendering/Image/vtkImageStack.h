@@ -88,7 +88,7 @@ public:
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
 
   // Description:
-  // Return the max MTime of all the images. 
+  // Return the max MTime of all the images.
   unsigned long int GetMTime();
 
   // Description:

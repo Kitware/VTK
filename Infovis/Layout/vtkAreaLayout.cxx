@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
   Program:   Visualization Toolkit
   Module:    vtkAreaLayout.cxx
 

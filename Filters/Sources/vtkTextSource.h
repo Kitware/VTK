@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTextSource - create polygonal text
 // .SECTION Description
-// vtkTextSource converts a text string into polygons.  This way you can 
+// vtkTextSource converts a text string into polygons.  This way you can
 // insert text into your renderings. It uses the 9x15 font from X Windows.
 // You can specify if you want the background to be drawn or not. The
 // characters are formed by scan converting the raster font into

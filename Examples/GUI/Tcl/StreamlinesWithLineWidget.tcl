@@ -134,7 +134,7 @@ proc BeginInteraction {} {
 }
 
 proc GenerateStreamlines {} {
-    lineWidget GetPolyData seeds 
+    lineWidget GetPolyData seeds
 }
 
 proc BeginInteraction2 {} {

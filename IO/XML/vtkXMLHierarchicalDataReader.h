@@ -40,7 +40,7 @@ public:
 
 protected:
   vtkXMLHierarchicalDataReader();
-  ~vtkXMLHierarchicalDataReader();  
+  ~vtkXMLHierarchicalDataReader();
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName()

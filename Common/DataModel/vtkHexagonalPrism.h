@@ -16,7 +16,7 @@
 // hexagonal base
 // .SECTION Description
 // vtkHexagonalPrism is a concrete implementation of vtkCell to represent a
-// linear 3D prism with hexagonal base. Such prism is defined by the twelve points 
+// linear 3D prism with hexagonal base. Such prism is defined by the twelve points
 // (0-12) where (0,1,2,3,4,5) is the base of the prism which, using the right
 // hand rule, forms a hexagon whose normal points is in the direction of the
 // opposite face (6,7,8,9,10,11).

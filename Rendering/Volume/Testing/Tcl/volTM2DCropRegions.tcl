@@ -42,12 +42,12 @@ for { set i 0 } { $i < 2 } { incr i } {
        volumeMapper_${i}_${j} SetInputConnection [reader GetOutputPort]
        volumeMapper_${i}_${j} CroppingOn
        volumeMapper_${i}_${j} SetCroppingRegionPlanes 17 33 17 33 17 33
-       
+
        vtkVolume volume_${i}_${j}
        volume_${i}_${j} SetMapper volumeMapper_${i}_${j}
        volume_${i}_${j} SetProperty volumeProperty
-       
-       vtkTransform userMatrix_${i}_${j} 
+
+       vtkTransform userMatrix_${i}_${j}
        userMatrix_${i}_${j} PostMultiply
        userMatrix_${i}_${j} Identity
        userMatrix_${i}_${j} Translate -25 -25 -25
@@ -59,7 +59,7 @@ for { set i 0 } { $i < 2 } { incr i } {
           userMatrix_${i}_${j} RotateX 20
           userMatrix_${i}_${j} RotateY [expr $j*90 + 20]
        }
-       
+
        userMatrix_${i}_${j} Translate [expr $j*55 + 25] [expr $i*55 + 25] 0
 
        volume_${i}_${j} SetUserTransform userMatrix_${i}_${j}

@@ -135,7 +135,7 @@ void vtkGLSLShaderDeviceAdapter2::PrepareForRender()
 void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
                                                int components,
                                                int type,
-                                               const void *attribute, 
+                                               const void *attribute,
                                                unsigned long offset)
 {
   int index;
@@ -293,6 +293,6 @@ void vtkGLSLShaderDeviceAdapter2::SendAttribute(const char *attrname,
 void vtkGLSLShaderDeviceAdapter2::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "ShaderProgram: " << this->ShaderProgram << endl;
 }

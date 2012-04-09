@@ -53,37 +53,37 @@ imageCanvas SetDrawColor 255
 imageCanvas DrawPoint 280 170
 
 # lines +
-imageCanvas DrawSegment 60 120 60 220 
-imageCanvas DrawSegment 10 170 110 170 
+imageCanvas DrawSegment 60 120 60 220
+imageCanvas DrawSegment 10 170 110 170
 
 # lines X
-imageCanvas DrawSegment 10 230 110 330 
-imageCanvas DrawSegment 110 230 10 330 
+imageCanvas DrawSegment 10 230 110 330
+imageCanvas DrawSegment 110 230 10 330
 
 # sloped lines
-imageCanvas DrawSegment 120 230 220 230 
-imageCanvas DrawSegment 120 230 220 250 
-imageCanvas DrawSegment 120 230 220 270 
-imageCanvas DrawSegment 120 230 220 290 
-imageCanvas DrawSegment 120 230 220 310 
-imageCanvas DrawSegment 120 230 220 330 
-imageCanvas DrawSegment 120 230 200 330 
-imageCanvas DrawSegment 120 230 180 330 
-imageCanvas DrawSegment 120 230 160 330 
-imageCanvas DrawSegment 120 230 140 330 
-imageCanvas DrawSegment 120 230 120 330 
+imageCanvas DrawSegment 120 230 220 230
+imageCanvas DrawSegment 120 230 220 250
+imageCanvas DrawSegment 120 230 220 270
+imageCanvas DrawSegment 120 230 220 290
+imageCanvas DrawSegment 120 230 220 310
+imageCanvas DrawSegment 120 230 220 330
+imageCanvas DrawSegment 120 230 200 330
+imageCanvas DrawSegment 120 230 180 330
+imageCanvas DrawSegment 120 230 160 330
+imageCanvas DrawSegment 120 230 140 330
+imageCanvas DrawSegment 120 230 120 330
 
 # double thickness lines +
-imageCanvas DrawSegment 120 60 220 60 
-imageCanvas DrawSegment 120 61 220 61 
-imageCanvas DrawSegment 170 10 170 110 
-imageCanvas DrawSegment 171 10 171 110 
+imageCanvas DrawSegment 120 60 220 60
+imageCanvas DrawSegment 120 61 220 61
+imageCanvas DrawSegment 170 10 170 110
+imageCanvas DrawSegment 171 10 171 110
 
 # lines X
 imageCanvas DrawSegment 230 10 330 110
 imageCanvas DrawSegment 231 10 331 110
-imageCanvas DrawSegment 230 110 330 10 
-imageCanvas DrawSegment 231 110 331 10 
+imageCanvas DrawSegment 230 110 330 10
+imageCanvas DrawSegment 231 110 331 10
 
 
 vtkImageSkeleton2D skeleton1

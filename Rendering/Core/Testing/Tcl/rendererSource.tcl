@@ -36,7 +36,7 @@ vtkProbeFilter probe2
   probe2 SetInputConnection [iso GetOutputPort]
   probe2 SetSourceData $output2
 
-vtkCastToConcrete cast2 
+vtkCastToConcrete cast2
   cast2 SetInputConnection [probe2 GetOutputPort]
 
 vtkPolyDataNormals normals

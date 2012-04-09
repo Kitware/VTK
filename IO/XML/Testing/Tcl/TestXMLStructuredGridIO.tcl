@@ -9,7 +9,7 @@ set file2 sgFile2.vts
 vtkMultiBlockPLOT3DReader combReader
   combReader SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   combReader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
-  combReader SetScalarFunctionNumber 100  
+  combReader SetScalarFunctionNumber 100
   combReader Update
   set output [[combReader GetOutput] GetBlock 0]
 
@@ -19,10 +19,10 @@ vtkExtractGrid extract
   extract SetVOI 0 28 0 32 0 24
   extract Update
 
-# write just a piece (extracted piece) as well as the whole thing  
+# write just a piece (extracted piece) as well as the whole thing
 vtkXMLStructuredGridWriter gridWriter
   gridWriter SetFileName $file0
-  gridWriter SetInputConnection [extract GetOutputPort] 
+  gridWriter SetInputConnection [extract GetOutputPort]
   gridWriter SetDataModeToAscii
   gridWriter Write
 
@@ -36,7 +36,7 @@ vtkXMLStructuredGridWriter gridWriter
   gridWriter SetDataModeToBinary
   gridWriter SetWriteExtent 8 56 4 16 1 24
   gridWriter Write
-  
+
 # read the extracted grid
 vtkXMLStructuredGridReader reader
   reader SetFileName $file0
@@ -49,7 +49,7 @@ vtkStructuredGrid sg
 vtkContourFilter cF0
   cF0 SetInputData sg
   cF0 SetValue 0 0.38
-  
+
 vtkPolyDataMapper mapper0
   mapper0 SetInputConnection [cF0 GetOutputPort]
   mapper0 ScalarVisibilityOff

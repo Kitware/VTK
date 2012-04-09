@@ -55,7 +55,7 @@ protected:
   vtkXMLPHierarchicalBoxDataWriter();
   ~vtkXMLPHierarchicalBoxDataWriter();
 
-  
+
   virtual void FillDataTypes(vtkCompositeDataSet*);
 
   vtkMultiProcessController* Controller;

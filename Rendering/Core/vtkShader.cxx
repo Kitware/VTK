@@ -517,7 +517,7 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
     else if (strcmp(tagname, "CameraUniform") == 0)
       {
       this->SetCameraParameter(actor, renderer, elem);
-      } 
+      }
     else if (strcmp(tagname, "LightUniform") == 0)
       {
       this->SetLightParameter(actor, renderer, elem);
@@ -651,7 +651,7 @@ void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* ,
 }
 
 //-----------------------------------------------------------------------------
-void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren, 
+void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren,
   vtkXMLDataElement* elem)
 {
   vtkCamera* camera = ren->GetActiveCamera();
@@ -662,19 +662,19 @@ void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren,
     }
   const char* name = elem->GetAttribute("name");
   const char* value = elem->GetAttribute("value");
-  
+
   if (!name)
     {
     vtkErrorMacro("Missing required attribute 'name' on name=");
     return;
     }
-  
+
   if (!value)
     {
     vtkErrorMacro("Missing required attribute 'value' on name=" << name);
     return;
     }
-  
+
   double *x = 0;
   if (strcmp(value, "FocalPoint")==0)
     {
@@ -756,7 +756,7 @@ void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren,
     double c = camera->GetUseHorizontalViewAngle();
     this->SetUniformParameter(name, 1, &c);
     }
-  else 
+  else
     {
     vtkErrorMacro("Invalid camera property " << value);
     }
@@ -764,7 +764,7 @@ void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren,
 
 
 //-----------------------------------------------------------------------------
-void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* , 
+void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* ,
   vtkXMLDataElement* elem)
 {
   vtkProperty* property = actor->GetProperty();
@@ -889,7 +889,7 @@ void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* ,
 }
 
 //-----------------------------------------------------------------------------
-void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer, 
+void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer,
   vtkXMLDataElement* elem)
 {
   const char* name = elem->GetAttribute("name");
@@ -940,7 +940,7 @@ void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer,
     // no need to update.
     return;
     }
-  
+
   if (strcmp(value, "Position") == 0)
     {
     this->SetUniformParameter(name, 3, light->GetPosition());
@@ -1006,7 +1006,7 @@ void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer,
 //-----------------------------------------------------------------------------
 // FIXME: Cg allows non-square matrices to be set and program parameters, that
 // should be reflected here as well, but I'm not sure just how.
-void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* , 
+void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
   vtkXMLDataElement* elem)
 {
   const char* name = elem->GetAttribute("name");
@@ -1016,7 +1016,7 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
     vtkErrorMacro("Missing required attribute 'type' for name=" << name);
     return;
     }
-  
+
   // TODO: for starters, matrices can't be set as Shader Variables.
   // Matrices CAN be set as shader variables, specifically, they can
   // be used as uniform variables to both fragment and vertex programs.
@@ -1033,14 +1033,14 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
     vtkErrorMacro("Invalid number_of_elements on name=" << name);
     return;
     }
-    
+
   int order = vtkShader::RowMajor;
   const char* corder = elem->GetAttribute("order");
   if (corder && strcmp(corder, "ColumnMajor") == 0)
     {
     order = vtkShader::ColumnMajor;
     }
-    
+
   // FIXME : 'State' is only meaningful in a Cg context, so it should be in
   // vtkCgShader and not in vtkShader
   if (strcmp(type, "State") == 0)
@@ -1052,7 +1052,7 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
       vtkErrorMacro("Mismatch in number_of_elements and actual values!");
       return;
       }
-    
+
     const char* state_matix_type = args[0].c_str();
     const char* transform_type = (number_of_elements > 1)?
       args[1].c_str() : 0;
@@ -1098,7 +1098,7 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
 }
 
 //-----------------------------------------------------------------------------
-void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*, 
+void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*,
   vtkXMLDataElement* elem)
 {
   const char* name = elem->GetAttribute("name");
@@ -1112,7 +1112,7 @@ void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*,
 
 
   vtkTexture* texture = act->GetProperty()->GetTexture(value);
-  
+
   if (!texture)
     {
     vtkErrorMacro("Property does have texture with name=" << value);
@@ -1195,17 +1195,17 @@ void vtkShader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Number of Shader Variables: " 
+  os << indent << "Number of Shader Variables: "
     << this->Internals->UniformVariables.size() << endl;
- 
+
   std::map<std::string, vtkShaderUniformVariable>::iterator iter;
   for (iter = this->Internals->UniformVariables.begin();
     iter != this->Internals->UniformVariables.end(); ++iter)
     {
     os << indent << "ShaderVariable: " << endl;
     iter->second.Print(os, indent.GetNextIndent());
-    } 
-  
+    }
+
   os << indent << "XMLShader: ";
   if (this->XMLShader)
     {
@@ -1216,6 +1216,6 @@ void vtkShader::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
- 
-  
+
+
 }

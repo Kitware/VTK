@@ -96,13 +96,13 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     {
     colors = c->GetPointer(0);
     }
-  
+
   vtkIdType *ptIds = ca->GetPointer();
   vtkIdType *endPtIds = ptIds + ca->GetNumberOfConnectivityEntries();
   int ptype = p->GetDataType();
   int ntype = (n)? n->GetDataType() : 0;
   // draw all the elements, use fast path if available
-  
+
   // since this painter does not deal with field colors specially,
   // we just ignore the flag.
   idx &= (~VTK_PDM_FIELD_COLORS);
@@ -112,23 +112,23 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
   switch (idx)
     {
-  case 0://no cell/point attribs are present. 
+  case 0://no cell/point attribs are present.
     vtkDrawPointsMacro(
-      device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3, 
+      device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         ptype, points, 3**ptIds);,;);
     break;
 
   case VTK_PDM_NORMALS:
     vtkDrawPointsMacro(
-      device->SendAttribute(vtkPointData::NORMALS, 3, ntype, 
+      device->SendAttribute(vtkPointData::NORMALS, 3, ntype,
         normals, 3**ptIds);
-      device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3, 
+      device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         ptype, points, 3**ptIds);,;);
     break;
 
   case VTK_PDM_COLORS:
-    vtkDrawPointsMacro( 
-      device->SendAttribute(vtkPointData::SCALARS, 4, 
+    vtkDrawPointsMacro(
+      device->SendAttribute(vtkPointData::SCALARS, 4,
         VTK_UNSIGNED_CHAR, colors + 4**ptIds);
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         ptype, points, 3**ptIds);,;);
@@ -143,9 +143,9 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
   case VTK_PDM_NORMALS | VTK_PDM_COLORS:
     vtkDrawPointsMacro(
-      device->SendAttribute(vtkPointData::NORMALS, 3, ntype, 
+      device->SendAttribute(vtkPointData::NORMALS, 3, ntype,
         normals, 3**ptIds);
-      device->SendAttribute(vtkPointData::SCALARS, 4, 
+      device->SendAttribute(vtkPointData::SCALARS, 4,
         VTK_UNSIGNED_CHAR, colors + 4**ptIds);
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         ptype, points, 3**ptIds);,;);
@@ -153,7 +153,7 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
   case VTK_PDM_NORMALS | VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS:
     vtkDrawPointsMacro(
-      device->SendAttribute(vtkPointData::NORMALS, 3, ntype, 
+      device->SendAttribute(vtkPointData::NORMALS, 3, ntype,
         normals, 3**ptIds);
       device->SendAttribute(vtkPointData::SCALARS, 3,
         VTK_UNSIGNED_CHAR, colors + 4**ptIds);
@@ -161,7 +161,7 @@ int vtkPointsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         ptype, points, 3**ptIds);,;);
     break;
   default:
-    return 0; // let the delegate painter handle it. 
+    return 0; // let the delegate painter handle it.
     }
   return 1;
 }

@@ -35,7 +35,7 @@ public:
   vtkTypeMacro(vtkBridgeCellIteratorOne,
                        vtkBridgeCellIteratorStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Move iterator to first position if any (loop initialization).
   void Begin();
@@ -43,26 +43,26 @@ public:
   // Description:
   // Is there no cell at iterator position? (exit condition).
   int IsAtEnd();
-  
+
   // Description:
   // Cell at current position
   // \pre not_at_end: !IsAtEnd()
   // \pre c_exists: c!=0
   // THREAD SAFE
   void GetCell(vtkGenericAdaptorCell *c);
-  
+
   // Description:
   // Cell at current position.
   // NOT THREAD SAFE
   // \pre not_at_end: !IsAtEnd()
   // \post result_exits: result!=0
   vtkGenericAdaptorCell *GetCell();
-  
+
   // Description:
   // Move iterator to next position. (loop progression).
   // \pre not_at_end: !IsAtEnd()
   void Next();
-  
+
   // Description:
   // Used internally by vtkBridgeDataSet.
   // Iterate on one cell `id' of `ds'.
@@ -70,13 +70,13 @@ public:
   // \pre valid_id: (id>=0)&&(id<=ds->GetNumberOfCells())
   void InitWithOneCell(vtkBridgeDataSet *ds,
                        vtkIdType cellid);
-  
+
   // Description:
   // Used internally by vtkBridgeCell.
   // Iterate on one cell `c'.
   // \pre c_exists: c!=0
   void InitWithOneCell(vtkBridgeCell *c);
-  
+
   // Description:
   // Used internally by vtkBridgeCell.
   // Iterate on a boundary cell (defined by its points `pts' with coordinates
@@ -89,17 +89,17 @@ public:
                       vtkIdList *pts,
                       int dim,
                       vtkIdType cellid);
-  
+
 protected:
   vtkBridgeCellIteratorOne();
   virtual ~vtkBridgeCellIteratorOne();
-  
+
   int cIsAtEnd;
   vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Id; // the id at current position.
   vtkBridgeCell *Cell; // cell at current position.
   vtkCell *InternalCell;
-  
+
 private:
   vtkBridgeCellIteratorOne(const vtkBridgeCellIteratorOne&); // Not implemented
   void operator=(const vtkBridgeCellIteratorOne&); // Not implemented

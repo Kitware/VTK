@@ -94,7 +94,7 @@ void vtkIterativeClosestPointTransform::SetSource(vtkDataSet *source)
 //----------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::ReleaseSource(void) {
-  if (this->Source) 
+  if (this->Source)
     {
     this->Source->UnRegister(this);
     this->Source = NULL;
@@ -127,7 +127,7 @@ void vtkIterativeClosestPointTransform::SetTarget(vtkDataSet *target)
 //----------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::ReleaseTarget(void) {
-  if (this->Target) 
+  if (this->Target)
     {
     this->Target->UnRegister(this);
     this->Target = NULL;
@@ -160,7 +160,7 @@ void vtkIterativeClosestPointTransform::SetLocator(vtkCellLocator *locator)
 //----------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::ReleaseLocator(void) {
-  if (this->Locator) 
+  if (this->Locator)
     {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
@@ -170,7 +170,7 @@ void vtkIterativeClosestPointTransform::ReleaseLocator(void) {
 //----------------------------------------------------------------------------
 
 void vtkIterativeClosestPointTransform::CreateDefaultLocator() {
-  if (this->Locator) 
+  if (this->Locator)
     {
     this->ReleaseLocator();
     }
@@ -187,7 +187,7 @@ unsigned long vtkIterativeClosestPointTransform::GetMTime()
 
   if (this->Source)
     {
-    mtime = this->Source->GetMTime(); 
+    mtime = this->Source->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -196,7 +196,7 @@ unsigned long vtkIterativeClosestPointTransform::GetMTime()
 
   if (this->Target)
     {
-    mtime = this->Target->GetMTime(); 
+    mtime = this->Target->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -205,7 +205,7 @@ unsigned long vtkIterativeClosestPointTransform::GetMTime()
 
   if (this->Locator)
     {
-    mtime = this->Locator->GetMTime(); 
+    mtime = this->Locator->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -238,7 +238,7 @@ void vtkIterativeClosestPointTransform::Inverse()
 
 vtkAbstractTransform *vtkIterativeClosestPointTransform::MakeTransform()
 {
-  return vtkIterativeClosestPointTransform::New(); 
+  return vtkIterativeClosestPointTransform::New();
 }
 
 //----------------------------------------------------------------------------
@@ -299,7 +299,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   // - closestp is used so that the internal state of LandmarkTransform remains
   //   correct whenever the iteration process is stopped (hence its source
   //   and landmark points might be used in a vtkThinPlateSplineTransform).
-  // - points2 could have been avoided, but do not ask me why 
+  // - points2 could have been avoided, but do not ask me why
   //   InternalTransformPoint is not working correctly on my computer when
   //   in and out are the same pointer.
 
@@ -360,7 +360,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
       points1->SetPoint(i, outPoint);
       }
     }
-  else 
+  else
     {
     for (i = 0, j = 0; i < nb_points; i++, j += step)
       {
@@ -369,7 +369,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     }
 
   // Go
-  
+
   vtkIdType cell_id;
   int sub_id;
   double dist2, totaldist = 0;
@@ -379,7 +379,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
   this->NumberOfIterations = 0;
 
-  do 
+  do
     {
     // Fill points with the closest points to each vertex in input
 
@@ -392,7 +392,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
                                       dist2);
       closestp->SetPoint(i, outPoint);
       }
-    
+
     // Build the landmark transform
 
     this->LandmarkTransform->SetSourceLandmarks(a);
@@ -400,12 +400,12 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     this->LandmarkTransform->Update();
 
     // Concatenate (can't use this->Concatenate directly)
-    
+
     accumulate->Concatenate(this->LandmarkTransform->GetMatrix());
-  
+
     this->NumberOfIterations++;
     vtkDebugMacro(<< "Iteration: " << this->NumberOfIterations);
-    if (this->NumberOfIterations >= this->MaximumNumberOfIterations) 
+    if (this->NumberOfIterations >= this->MaximumNumberOfIterations)
       {
       break;
       }
@@ -424,7 +424,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
       b->SetPoint(i, p2);
       if (this->CheckMeanDistance)
         {
-        if (this->MeanDistanceMode == VTK_ICP_MODE_RMS) 
+        if (this->MeanDistanceMode == VTK_ICP_MODE_RMS)
           {
           totaldist += vtkMath::Distance2BetweenPoints(p1, p2);
           } else {
@@ -432,10 +432,10 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
           }
         }
       }
-    
+
     if (this->CheckMeanDistance)
       {
-      if (this->MeanDistanceMode == VTK_ICP_MODE_RMS) 
+      if (this->MeanDistanceMode == VTK_ICP_MODE_RMS)
         {
         this->MeanDistance = sqrt(totaldist / (double)nb_points);
         } else {
@@ -452,7 +452,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
     a = b;
     b = temp;
 
-    } 
+    }
   while (1);
 
   // Now recover accumulated result
@@ -471,29 +471,29 @@ void vtkIterativeClosestPointTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->Source ) 
+  if ( this->Source )
     {
     os << indent << "Source: " << this->Source << "\n";
     }
-  else 
+  else
     {
     os << indent << "Source: (none)\n";
     }
 
-  if ( this->Target ) 
+  if ( this->Target )
     {
     os << indent << "Target: " << this->Target << "\n";
     }
-  else 
+  else
     {
     os << indent << "Target: (none)\n";
     }
 
-  if ( this->Locator ) 
+  if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";
     }
-  else 
+  else
     {
     os << indent << "Locator: (none)\n";
     }

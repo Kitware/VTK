@@ -101,7 +101,7 @@ int vtkExtractTensorComponents::RequestData(
     return 1;
     }
 
-  if ( !this->ExtractScalars && !this->ExtractVectors && 
+  if ( !this->ExtractScalars && !this->ExtractVectors &&
   !this->ExtractNormals && !this->ExtractTCoords )
     {
     vtkWarningMacro(<<"No data is being extracted");
@@ -118,21 +118,21 @@ int vtkExtractTensorComponents::RequestData(
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numPts);
     }
-  if ( this->ExtractVectors ) 
+  if ( this->ExtractVectors )
     {
     outPD->CopyVectorsOff();
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->SetNumberOfTuples(numPts);
     }
-  if ( this->ExtractNormals ) 
+  if ( this->ExtractNormals )
     {
     outPD->CopyNormalsOff();
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPts);
     }
-  if ( this->ExtractTCoords ) 
+  if ( this->ExtractTCoords )
     {
     outPD->CopyTCoordsOff();
     newTCoords = vtkFloatArray::New();
@@ -180,7 +180,7 @@ int vtkExtractTensorComponents::RequestData(
       newScalars->SetTuple(ptId, &s);
       }//if extract scalars
 
-    if ( this->ExtractVectors ) 
+    if ( this->ExtractVectors )
       {
       v[0] = tensor[this->VectorComponents[0]+3*this->VectorComponents[1]];
       v[1] = tensor[this->VectorComponents[2]+3*this->VectorComponents[3]];
@@ -188,7 +188,7 @@ int vtkExtractTensorComponents::RequestData(
       newVectors->SetTuple(ptId, v);
       }
 
-    if ( this->ExtractNormals ) 
+    if ( this->ExtractNormals )
       {
       v[0] = tensor[this->NormalComponents[0]+3*this->NormalComponents[1]];
       v[1] = tensor[this->NormalComponents[2]+3*this->NormalComponents[3]];
@@ -196,7 +196,7 @@ int vtkExtractTensorComponents::RequestData(
       newNormals->SetTuple(ptId, v);
       }
 
-    if ( this->ExtractTCoords ) 
+    if ( this->ExtractTCoords )
       {
       for ( int i=0; i < this->NumberOfTCoords; i++ )
         {
@@ -216,17 +216,17 @@ int vtkExtractTensorComponents::RequestData(
     outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
-  if ( this->ExtractVectors ) 
+  if ( this->ExtractVectors )
     {
     outPD->SetVectors(newVectors);
     newVectors->Delete();
     }
-  if ( this->ExtractNormals ) 
+  if ( this->ExtractNormals )
     {
     outPD->SetNormals(newNormals);
     newNormals->Delete();
     }
-  if ( this->ExtractTCoords ) 
+  if ( this->ExtractTCoords )
     {
     outPD->SetTCoords(newTCoords);
     newTCoords->Delete();
@@ -260,35 +260,35 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Scalar Components: \n";
-  os << indent << "  (row,column): (" 
+  os << indent << "  (row,column): ("
      << this->ScalarComponents[0] << ", " << this->ScalarComponents[1] << ")\n";
 
   os << indent << "Extract Vectors: " << (this->ExtractVectors ? "On\n" : "Off\n");
   os << indent << "Vector Components: \n";
-  os << indent << "  (row,column)0: (" 
+  os << indent << "  (row,column)0: ("
      << this->VectorComponents[0] << ", " << this->VectorComponents[1] << ")\n";
-  os << indent << "  (row,column)1: (" 
+  os << indent << "  (row,column)1: ("
      << this->VectorComponents[2] << ", " << this->VectorComponents[3] << ")\n";
-  os << indent << "  (row,column)2: (" 
+  os << indent << "  (row,column)2: ("
      << this->VectorComponents[4] << ", " << this->VectorComponents[5] << ")\n";
 
   os << indent << "Extract Normals: " << (this->ExtractNormals ? "On\n" : "Off\n");
   os << indent << "Normalize Normals: " << (this->NormalizeNormals ? "On\n" : "Off\n");
   os << indent << "Normal Components: \n";
-  os << indent << "  (row,column)0: (" 
+  os << indent << "  (row,column)0: ("
      << this->NormalComponents[0] << ", " << this->NormalComponents[1] << ")\n";
-  os << indent << "  (row,column)1: (" 
+  os << indent << "  (row,column)1: ("
      << this->NormalComponents[2] << ", " << this->NormalComponents[3] << ")\n";
-  os << indent << "  (row,column)2: (" 
+  os << indent << "  (row,column)2: ("
      << this->NormalComponents[4] << ", " << this->NormalComponents[5] << ")\n";
 
   os << indent << "Extract TCoords: " << (this->ExtractTCoords ? "On\n" : "Off\n");
   os << indent << "Number Of TCoords: (" << this->NumberOfTCoords << ")\n";
   os << indent << "TCoord Components: \n";
-  os << indent << "  (row,column)0: (" 
+  os << indent << "  (row,column)0: ("
      << this->TCoordComponents[0] << ", " << this->TCoordComponents[1] << ")\n";
-  os << indent << "  (row,column)1: (" 
+  os << indent << "  (row,column)1: ("
      << this->TCoordComponents[2] << ", " << this->TCoordComponents[3] << ")\n";
-  os << indent << "  (row,column)2: (" 
+  os << indent << "  (row,column)2: ("
      << this->TCoordComponents[4] << ", " << this->TCoordComponents[5] << ")\n";
 }

@@ -24,13 +24,13 @@
 // - LSDynaFamily:
 //    A class to abstract away I/O from families of output files.
 //    This performs the actual reads and writes plus any required byte swapping.
-//    Also contains a subclass, LSDynaFamilyAdaptLevel, used to store 
+//    Also contains a subclass, LSDynaFamilyAdaptLevel, used to store
 //    file+offset
 //    information for each mesh adaptation's state info.
 // - LSDynaMetaData:
-//    A class to hold metadata about a particular file (such as time steps, 
-//    the start of state information for each time step, the number of 
-//    adaptive remeshes, and the large collection of constants that determine 
+//    A class to hold metadata about a particular file (such as time steps,
+//    the start of state information for each time step, the number of
+//    adaptive remeshes, and the large collection of constants that determine
 //    the available attributes). It contains an LSDynaFamily instance.
 
 //It also uses a helper vtk class
@@ -97,7 +97,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_ENSTROPHY          "Enstrophy"
 #define LS_ARRAYNAME_HELICITY           "Helicity"
 #define LS_ARRAYNAME_STREAMFUNCTION     "StreamFunc"
-#define LS_ARRAYNAME_ENTHALPY           "Enthalpy" 
+#define LS_ARRAYNAME_ENTHALPY           "Enthalpy"
 #define LS_ARRAYNAME_DENSITY            "Density"
 #define LS_ARRAYNAME_TURBULENTKE        "TurbulentKE"
 #define LS_ARRAYNAME_DISSIPATION        "Dissipation"
@@ -258,12 +258,12 @@ template<int hostBitSize, int fileBitSize, int cellLength> struct Converter
   vtkIdType* convert(vtkIdType* buff, const vtkIdType&)
     {
     return buff;
-    }  
+    }
   };
 
 template<int cellLength> struct Converter<8,4,cellLength>
   {
-  //specilization of 64bit machine and 32bit file 
+  //specilization of 64bit machine and 32bit file
   //so we have to copy each item individually
   vtkIdType* convert(int* buff, const vtkIdType& size)
     {
@@ -301,7 +301,7 @@ template<int type,int wordSize,int cellLength>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType& numWordsPerCell, const int& cellType)
     {
-    //determine the relationship between the file bit size and 
+    //determine the relationship between the file bit size and
     //the host machine bit size. This allows us to read 64 bit files on a
     //32 bit machine. The Converter allows us to easily convert 32bit
     //arrays to 64bit arrays
@@ -312,7 +312,7 @@ template<int type,int wordSize,int cellLength>
 
     vtkIdType nc=0,j=0,matlId=0;
     vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0, chunkSize=0;
-    
+
 
     //get from the part the read information for this lsdyna block type
     parts->GetPartReadInfo(type,nc,numCellsToSkip,numCellsToSkipEnd);
@@ -320,7 +320,7 @@ template<int type,int wordSize,int cellLength>
     p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkip ); //skip to the right start id
 
     //buffer the amount in small chunks so we don't create a massive buffer
-    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell); 
+    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
     for(vtkIdType i=0; i < numChunks; ++i)
       {
       chunkSize = p->Fam.GetNextChunk( LSDynaFamily::Int);
@@ -334,7 +334,7 @@ template<int type,int wordSize,int cellLength>
         parts->InsertCell(type,matlId,cellType,cellLength,conn);
         }
       }
-    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);    
+    p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkipEnd);
     }
   };
 
@@ -347,7 +347,7 @@ template<int wordSize,int cellLength>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType& numWordsPerCell, const int& vtkNotUsed(cellType) )
     {
-    //determine the relationship between the file bit size and 
+    //determine the relationship between the file bit size and
     //the host machine bit size. This allows us to read 64 bit files on a
     //32 bit machine. The Converter allows us to easily convert 32bit
     //arrays to 64bit arrays
@@ -367,7 +367,7 @@ template<int wordSize,int cellLength>
     p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkip); //skip to the right start id
 
     //buffer the amount in small chunks so we don't create a massive buffer
-    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell); 
+    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
     vtkIdType npts = 0;
     int ctype = 0;
     for(vtkIdType i=0; i < numChunks; ++i)
@@ -420,7 +420,7 @@ template<int wordSize,int cellLength>
   FillBlock(T* buff, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType& numWordsPerCell, const int& cellType)
     {
-    //determine the relationship between the file bit size and 
+    //determine the relationship between the file bit size and
     //the host machine bit size. This allows us to read 64 bit files on a
     //32 bit machine. The Converter allows us to easily convert 32bit
     //arrays to 64bit arrays
@@ -439,11 +439,11 @@ template<int wordSize,int cellLength>
 
     //get from the part the read information for this lsdyna block type
     parts->GetPartReadInfo(LSDynaMetaData::SHELL,nc,numCellsToSkip,numCellsToSkipEnd);
-  
+
     p->Fam.SkipWords(numFileWordsPerCell * numCellsToSkip); //skip to the right start id
 
     //buffer the amount in small chunks so we don't create a massive buffer
-    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell); 
+    vtkIdType numChunks = p->Fam.InitPartialChunkBuffering(nc,numWordsPerCell);
     int pType = 0;
     for(vtkIdType i=0; i < numChunks; ++i)
       {
@@ -456,7 +456,7 @@ template<int wordSize,int cellLength>
         matlId = static_cast<vtkIdType>(*buff);
         buff+=numWordsPerIdType;
 
-        if ( haveRigidMaterials && 
+        if ( haveRigidMaterials &&
           p->RigidMaterials.find( matlId ) == p->RigidMaterials.end())
           {
           pType = LSDynaMetaData::RIGID_BODY;
@@ -478,12 +478,12 @@ template<int wordSize,int cellLength>
   template<typename T>
   FillBlock(T*, vtkLSDynaPartCollection *parts,LSDynaMetaData *p,
     const vtkIdType&, const int& cellType)
-    {    
+    {
     //This is a ROAD_SURFACE specialization
     //has a weird weaving of cell types
     vtkIdType nc=0,segId=0,segSz=0;
     vtkIdType numCellsToSkip=0, numCellsToSkipEnd=0;
-    
+
     //get from the part the read information for this lsdyna block type
     parts->GetPartReadInfo(LSDynaMetaData::SHELL,nc,numCellsToSkip,numCellsToSkipEnd);
 
@@ -1821,7 +1821,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
     p->Fam.SkipToWord( LSDynaFamily::SPHElementData, curAdapt, p->Dict["isphfg(1)"] );
     p->PreStateSize += p->Dict["isphfg(1)"]*p->Fam.GetWordSize();
-    }  
+    }
 
   // ===================================================== Geometry Data Section
   p->Fam.MarkSectionStart( curAdapt, LSDynaFamily::GeometryData );
@@ -1955,7 +1955,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   // then there will be stresses present
 
   // Every cell always has a material type
-  // FIXME: Is this true? Rigid bodies may be an exception, in which 
+  // FIXME: Is this true? Rigid bodies may be an exception, in which
   // case we need to check that the number of cells in the other 5 meshes sum to >0
 
   if ( p->Dict["NARBS"] )
@@ -2195,7 +2195,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
     }
 
-  // Only try reading the keyword file if we don't have part names. 
+  // Only try reading the keyword file if we don't have part names.
   if ( curAdapt == 0 && p->PartNames.size() == 0 )
     {
     this->ResetPartInfo();
@@ -2427,7 +2427,7 @@ int vtkLSDynaReader::ReadNodes()
   LSDynaMetaData* p = this->P;
 
   // Skip reading coordinates if we are deflecting the mesh... they would be replaced anyway.
-  // Note that we still have to read the rigid road coordinates.  
+  // Note that we still have to read the rigid road coordinates.
   // If the mesh is deformed each state will have the points so see ReadState
   if ( ! this->DeformedMesh )
     {
@@ -2437,7 +2437,7 @@ int vtkLSDynaReader::ReadNodes()
 
   if ( p->ReadRigidRoadMvmt )
     {
-    vtkIdType nnode = p->Dict["NNODE"];    
+    vtkIdType nnode = p->Dict["NNODE"];
     p->Fam.SkipToWord( LSDynaFamily::RigidSurfaceData, p->Fam.GetCurrentAdaptLevel(), 4 + nnode );
     this->Parts->ReadPointProperty(nnode,3,NULL,false,false,true);
     }
@@ -2552,7 +2552,7 @@ int vtkLSDynaReader::ReadDeletion()
   default:
     // do nothing.
     break;
-    }  
+    }
   return 0;
 }
 
@@ -2585,7 +2585,7 @@ void vtkLSDynaReader::ReadDeletionArray(vtkUnsignedCharArray* arr, const int& po
       this->FillDeletionArray(fbuf,arr,startId,numCellsInChunk,pos,size);
       startId+=numCellsInChunk;
       }
-    }    
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2876,7 +2876,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   VTK_LS_CELLARRAY(valid,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
 
   this->ReadCellProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
- 
+
 #undef VTK_LS_CELLARRAY
   return 0;
 }
@@ -2916,7 +2916,7 @@ void vtkLSDynaReader::ReadCellProperties(const int& type,const int& numTuples)
       }
     }
   this->P->Fam.SkipWords(numSkipEnd * numTuples);
-  
+
   //clear the buffer as it will be very large and not needed
   this->P->Fam.ClearBuffer();
 }
@@ -3041,7 +3041,7 @@ int vtkLSDynaReader::ReadPartTitlesFromRootFile()
     return 1;
     }
 
- //when called this method is at the right spot to read the part names 
+ //when called this method is at the right spot to read the part names
   vtkIdType currentFileLoc = p->Fam.GetCurrentFWord();
   vtkIdType currentAdaptLevel = p->Fam.GetCurrentAdaptLevel();
 
@@ -3505,7 +3505,7 @@ int vtkLSDynaReader::RequestData(
       vtkUnstructuredGrid *ug = this->Parts->GetGridForPart(i);
       mbds->SetBlock(i,ug);
       mbds->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(),
-        this->P->PartNames[i].c_str());      
+        this->P->PartNames[i].c_str());
       }
     else
       {
@@ -3528,7 +3528,7 @@ void vtkLSDynaReader::FillDeletionArray(T *buffer, vtkUnsignedCharArray* arr,
   for ( vtkIdType i=0; i<numCells; ++i )
     {
     //Quote from LSDyna Manual:
-    //"each value is set to the element material number or =0, 
+    //"each value is set to the element material number or =0,
     //if the element is deleted"
     val = (buffer[deathPos] == 0.0) ? 1 : 0;
     buffer+=cellSize;
@@ -3549,7 +3549,7 @@ int vtkLSDynaReader::FillTopology(T *buff)
                                       VTK_VERTEX);
 
   //READ SOLIDS
-  this->P->Fam.SkipToWord(LSDynaFamily::GeometryData, 
+  this->P->Fam.SkipToWord(LSDynaFamily::GeometryData,
                           this->P->Fam.GetCurrentAdaptLevel(),
                           this->P->NumberOfNodes*this->P->Dimensionality );
 
@@ -3557,14 +3557,14 @@ int vtkLSDynaReader::FillTopology(T *buff)
   //as SOLID is a unique case
   FillBlock<LSDynaMetaData::SOLID,wordSize,8>(buff,this->Parts,this->P,9,
                                     VTK_HEXAHEDRON);
-  
+
   //READ THICK_SHELL
   FillBlock<LSDynaMetaData::THICK_SHELL,wordSize,8>(buff,this->Parts,this->P,9,
                                           VTK_QUADRATIC_QUAD);
-  
+
   //READ BEAM
   FillBlock<LSDynaMetaData::BEAM,wordSize,2>(buff,this->Parts,this->P,6,VTK_LINE);
-  
+
   //READ SHELL and RIGID_BODY
   //uses a specialization to weave SHELL and RIGID BODY cells together
   FillBlock<LSDynaMetaData::SHELL,wordSize,4>(buff,this->Parts,this->P,5,VTK_QUAD);
@@ -3591,7 +3591,7 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
     vtkErrorMacro( "Packed connectivity isn't supported yet." );
     return 1;
     }
-  
+
   this->Parts->InitCellInsertion();
   if(p->Fam.GetWordSize() == 8)
     {
@@ -3609,7 +3609,7 @@ int vtkLSDynaReader::ReadConnectivityAndMaterial()
 template<typename T, int blockType, vtkIdType numWordsPerCell, vtkIdType cellLength>
 void vtkLSDynaReader::ReadBlockCellSizes()
 {
-  //determine the relationship between the file bit size and 
+  //determine the relationship between the file bit size and
   //the host machine bit size. This allows us to read 64 bit files on a
   //32 bit machine
   const int numWordsPerIdType (this->P->Fam.GetWordSize() / sizeof(T));
@@ -3696,7 +3696,7 @@ int vtkLSDynaReader::ReadPartSizes()
     }
 
   if(p->Fam.GetWordSize() == 8)
-    {    
+    {
     return this->FillPartSizes<vtkIdType>();
     }
   else

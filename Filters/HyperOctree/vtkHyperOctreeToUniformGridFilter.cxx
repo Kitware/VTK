@@ -56,14 +56,14 @@ int vtkHyperOctreeToUniformGridFilter::RequestInformation (
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   int levels=inInfo->Get(vtkHyperOctree::LEVELS());
-  
+
   double size[3];
   inInfo->Get(vtkHyperOctree::SIZES(),size);
   double origin[3];
   inInfo->Get(vtkDataObject::ORIGIN(),origin);
-  
+
   int dim=inInfo->Get(vtkHyperOctree::DIMENSION());
-  
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
    // Set dimensions, spacing and origin for the uniform grid.
@@ -72,7 +72,7 @@ int vtkHyperOctreeToUniformGridFilter::RequestInformation (
   resolutions[0]=(1<<(levels-1))+1;
   assert("check: min_is_2" && resolutions[0]>=2);
   spacing[0]=size[0]/(resolutions[0]-1);
-  
+
   if(dim>=2)
     {
     resolutions[1]=resolutions[0];
@@ -97,10 +97,10 @@ int vtkHyperOctreeToUniformGridFilter::RequestInformation (
     spacing[2]=0;
     this->ZExtent=1;
     }
-  
+
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
-  
+
   int extent[6];
   extent[0]=0;
   extent[1]=resolutions[0]-1;
@@ -108,9 +108,9 @@ int vtkHyperOctreeToUniformGridFilter::RequestInformation (
   extent[3]=resolutions[1]-1;
   extent[4]=0;
   extent[5]=resolutions[2]-1;
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
-  
+
   return 1;
 }
 
@@ -126,22 +126,22 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
 
   // get the upper limit for the number of levels
   int levels=inInfo->Get(vtkHyperOctree::LEVELS());
-  
+
   // get the input and output
   vtkHyperOctree *input = vtkHyperOctree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   assert("check:valid_levels" && levels>=input->GetNumberOfLevels());
-  
+
   this->Output=output;
   this->InputCD = input->GetPointData();
   this->OutputCD = output->GetCellData();
-  
+
   int dim=input->GetDimension();
   assert("check: valid_dim" && dim>=1 && dim<=3);
-  
+
   // Set dimensions, spacing and origin for the uniform grid.
   int resolutions[3];
   double spacing[3];
@@ -150,7 +150,7 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   resolutions[0]=(1<<(levels-1))+1;
   assert("check: min_is_2" && resolutions[0]>=2);
   spacing[0]=input->GetSize()[0]/(resolutions[0]-1);
-  
+
   if(dim>=2)
     {
     resolutions[1]=resolutions[0];
@@ -177,9 +177,9 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
     }
   output->SetDimensions(resolutions);
   output->SetSpacing(spacing);
-  
+
   output->SetOrigin(input->GetOrigin());
-  
+
   // Check if our computation is correct.
   cout<<"output="<<output->GetNumberOfPoints()<<endl;
   cout<<"maxinput="<<input->GetMaxNumberOfPoints(0)<<endl;
@@ -191,12 +191,12 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   assert("check valid_z_extent2" && (this->YExtent!=1 || this->ZExtent==1));
   // zextent==2 => yextent==2
   assert("check valid_z_extent3" && (this->ZExtent!=2 || this->YExtent==2));
-  
+
   cout<<"number of cells="<<output->GetNumberOfCells()<<endl;
-  
+
   // Prepare copy for cell data.
   this->OutputCD->CopyAllocate(this->InputCD,output->GetNumberOfCells());
-  
+
   // Copy cell data recursively
   this->Cursor=input->NewCellCursor();
   this->Cursor->ToRoot();
@@ -221,9 +221,9 @@ int vtkHyperOctreeToUniformGridFilter::RequestData(
   this->InputCD=0;
   this->OutputCD=0;
   this->Output=0;
-  
+
   assert("post: valid_output" && output->CheckAttributes()==0);
-  
+
   return 1;
 }
 //-----------------------------------------------------------------------------
@@ -232,17 +232,17 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
   assert("pre: valid_xextent" && cellExtent[0]<=cellExtent[1]);
   assert("pre: valid_yextent" && cellExtent[2]<=cellExtent[3]);
   assert("pre: valid_zextent" && cellExtent[4]<=cellExtent[5]);
-  
+
   if(this->Cursor->CurrentIsLeaf())
     {
     vtkIdType inId=this->Cursor->GetLeafId();
     int ijk[3];
     ijk[2]=cellExtent[4];
-    
+
 #ifndef NDEBUG
     int atLeastOne=0;
 #endif
-    
+
     while(ijk[2]<=cellExtent[5]) // k
       {
        ijk[1]=cellExtent[2];
@@ -253,7 +253,7 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
            {
 #ifndef NDEBUG
            atLeastOne=1;
-#endif 
+#endif
            vtkIdType outId=this->Output->ComputeCellId(ijk);
            this->OutputCD->CopyData(this->InputCD,inId,outId);
            ++ijk[0];
@@ -270,7 +270,7 @@ void vtkHyperOctreeToUniformGridFilter::CopyCellData(int cellExtent[6])
     int zmid=(cellExtent[4]+cellExtent[5])>>1; // /2
     int ymid=(cellExtent[2]+cellExtent[3])>>1; // /2
     int xmid=(cellExtent[0]+cellExtent[1])>>1; // /2
-    
+
     int newExtent[6];
     int zi=0;
     int zchild=0;

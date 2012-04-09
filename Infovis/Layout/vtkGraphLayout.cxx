@@ -77,7 +77,7 @@ vtkGraphLayout::~vtkGraphLayout()
 
 // ----------------------------------------------------------------------
 
-void 
+void
 vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
 {
   // This method is a cut and paste of vtkCxxSetObjectMacro
@@ -94,7 +94,7 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
       {
       this->StrategyChanged = true;
       this->LayoutStrategy->Register(this);
-      this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, 
+      this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent,
                                         this->EventForwarder);
       if (this->InternalGraph)
         {
@@ -112,7 +112,7 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
 
 // ----------------------------------------------------------------------
 
-unsigned long 
+unsigned long
 vtkGraphLayout::GetMTime()
 {
   unsigned long mTime = this->Superclass::GetMTime();
@@ -128,14 +128,14 @@ vtkGraphLayout::GetMTime()
 
 // ----------------------------------------------------------------------
 
-int 
+int
 vtkGraphLayout::IsLayoutComplete()
 {
   if (this->LayoutStrategy)
     {
     return this->LayoutStrategy->IsLayoutComplete();
     }
-    
+
   // This is an error condition
   vtkErrorMacro("IsLayoutComplete called with layout strategy==NULL");
   return 0;
@@ -143,7 +143,7 @@ vtkGraphLayout::IsLayoutComplete()
 
 // ----------------------------------------------------------------------
 
-int 
+int
 vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
                             vtkInformationVector **inputVector,
                             vtkInformationVector *outputVector)
@@ -180,7 +180,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
       {
       vtkDebugMacro(<<"Filter running with different input.  Resetting in strategy.");
       }
-    else 
+    else
       {
       vtkDebugMacro(<<"Input modified since last run.  Resetting in strategy.");
       }
@@ -195,13 +195,13 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     // we'll replace that with a deep copy.  For everything else a
     // shallow copy is sufficient.
     this->InternalGraph->ShallowCopy(input);
-    
+
     // The copy of the points will be to a float type
     vtkPoints* newPoints = vtkPoints::New(VTK_FLOAT);
     newPoints->DeepCopy(input->GetPoints());
     this->InternalGraph->SetPoints(newPoints);
     newPoints->Delete();
-    
+
 
     // Save information about the input so that we can detect when
     // it's changed on future runs.  According to the VTK pipeline
@@ -210,7 +210,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     // designed to support incremental execution.
     this->LastInput = input;
     this->LastInputMTime = input->GetMTime();
-    
+
     // Give the layout strategy a pointer to the input.  We set it to
     // NULL first to force the layout algorithm to re-initialize
     // itself.  This is necessary in case the input is the same data

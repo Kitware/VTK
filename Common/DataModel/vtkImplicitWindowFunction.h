@@ -17,11 +17,11 @@
 // vtkImplicitWindowFunction is used to modify the output of another
 // implicit function to lie within a specified "window", or function
 // range. This can be used to add "thickness" to cutting or clipping
-// functions. 
+// functions.
 //
-// This class works as follows. First, it evaluates the function value of the 
+// This class works as follows. First, it evaluates the function value of the
 // user-specified implicit function. Then, based on the window range specified,
-// it maps the function value into the window values specified. 
+// it maps the function value into the window values specified.
 //
 
 // .SECTION See Also

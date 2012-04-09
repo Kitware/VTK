@@ -57,26 +57,26 @@ public:
 
   // Description:
   // Method used to request a cursor shape. Note that the shape is specified
-  // using one of the integral values determined in vtkRenderWindow.h. The 
+  // using one of the integral values determined in vtkRenderWindow.h. The
   // method returns a non-zero value if the shape was successfully changed.
   int RequestCursorShape(vtkInteractorObserver*, int cursorShape);
 
   // Description:
   // Remove all requests for cursor shape from a given interactor.
   void RemoveAllCursorShapeRequests(vtkInteractorObserver*);
-  
+
 protected:
   vtkObserverMediator();
   ~vtkObserverMediator();
 
   // The render window whose cursor we are controlling
   vtkRenderWindowInteractor *Interactor;
-  
+
   // A map whose key is the observer*, and whose data value is a cursor
   // request. Note that a special compare function is used to sort the
   // widgets based on the observer's priority.
   vtkObserverMap *ObserverMap; //given a widget*, return its data
-  
+
   // The current observer and cursor shape
   vtkInteractorObserver *CurrentObserver;
   int                    CurrentCursorShape;

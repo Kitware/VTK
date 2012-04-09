@@ -178,7 +178,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 
 void Process1(vtkMultiProcessController *contr, void *arg)
 {
-  GenericCommunicatorArgs_tmp* args = 
+  GenericCommunicatorArgs_tmp* args =
     reinterpret_cast<GenericCommunicatorArgs_tmp*>(arg);
 
   vtkCommunicator* comm = contr->GetCommunicator();
@@ -323,7 +323,7 @@ int main(int argc, char** argv)
   contr->SetMultipleMethod(0, Process1, &args);
   contr->SetMultipleMethod(1, Process2, 0);
   contr->MultipleMethodExecute();
-  
+
   contr->Finalize();
   contr->Delete();
 

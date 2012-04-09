@@ -15,8 +15,8 @@
 // .NAME vtkTransmitUnstructuredGridPiece - Return specified piece, including specified
 // number of ghost levels.
 // .SECTION Description
-// This filter updates the appropriate piece by requesting the piece from 
-// process 0.  Process 0 always updates all of the data.  It is important that 
+// This filter updates the appropriate piece by requesting the piece from
+// process 0.  Process 0 always updates all of the data.  It is important that
 // Execute get called on all processes, otherwise the filter will deadlock.
 
 
@@ -34,7 +34,7 @@ public:
   static vtkTransmitUnstructuredGridPiece *New();
   vtkTypeMacro(vtkTransmitUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // By defualt this filter uses the global controller,
   // but this method can be used to set another instead.
@@ -46,7 +46,7 @@ public:
   vtkSetMacro(CreateGhostCells, int);
   vtkGetMacro(CreateGhostCells, int);
   vtkBooleanMacro(CreateGhostCells, int);
-  
+
 protected:
   vtkTransmitUnstructuredGridPiece();
   ~vtkTransmitUnstructuredGridPiece();
@@ -59,7 +59,7 @@ protected:
                         vtkInformation *outInfo);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
- 
+
   int CreateGhostCells;
   vtkMultiProcessController *Controller;
 

@@ -218,7 +218,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           // Create bucket width based on target histogram size
           // FIXME: .5 is arbitrary at this point
           double width = ( maxi - mini ) / vtkMath::Round(  Nq / 2. );
-          
+
           // Now re-calculate histogram by quantizing values
           histogram.clear();
           double reading;

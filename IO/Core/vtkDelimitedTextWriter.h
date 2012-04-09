@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 
 // .NAME vtkDelimitedTextWriter - Delimited text writer for vtkTable
-// Writes a vtkTable as a delimited text file (such as CSV). 
+// Writes a vtkTable as a delimited text file (such as CSV).
 #ifndef __vtkDelimitedTextWriter_h
 #define __vtkDelimitedTextWriter_h
 
@@ -42,7 +42,7 @@ public:
   vtkGetStringMacro(FieldDelimiter);
 
   // Description:
-  // Get/Set the delimiter used for string data, if any 
+  // Get/Set the delimiter used for string data, if any
   // eg. double quotes(").
   vtkSetStringMacro(StringDelimiter);
   vtkGetStringMacro(StringDelimiter);
@@ -70,7 +70,7 @@ public:
   char *RegisterAndGetOutputString();
 
   // Description:
-  // Internal method: Returns the "string" with the "StringDelimiter" if 
+  // Internal method: Returns the "string" with the "StringDelimiter" if
   // UseStringDelimiter is true.
   vtkStdString GetString(vtkStdString string);
 protected:

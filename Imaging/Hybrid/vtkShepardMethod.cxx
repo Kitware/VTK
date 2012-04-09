@@ -26,7 +26,7 @@
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
-// automatically computed from input. Null value for each unvisited output 
+// automatically computed from input. Null value for each unvisited output
 // point is 0.0. Maximum distance is 0.25.
 vtkShepardMethod::vtkShepardMethod()
 {
@@ -47,7 +47,7 @@ vtkShepardMethod::vtkShepardMethod()
 }
 
 // Compute ModelBounds from input geometry.
-double vtkShepardMethod::ComputeModelBounds(double origin[3], 
+double vtkShepardMethod::ComputeModelBounds(double origin[3],
                                             double spacing[3])
 {
   double *bounds, maxDist;
@@ -95,7 +95,7 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3],
             / (this->SampleDimensions[i] - 1);
     }
 
-  return maxDist;  
+  return maxDist;
 }
 
 int vtkShepardMethod::RequestInformation (
@@ -108,12 +108,12 @@ int vtkShepardMethod::RequestInformation (
 
   int i;
   double ar[3], origin[3];
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                0, this->SampleDimensions[0]-1,
                0, this->SampleDimensions[1]-1,
                0, this->SampleDimensions[2]-1);
-  
+
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
@@ -143,32 +143,32 @@ int vtkShepardMethod::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // get the output
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars(outInfo);
-  
+
   vtkIdType ptId, i;
   int j, k;
   double *px, x[3], s, *sum, spacing[3], origin[3];
-  
+
   double maxDistance, distance2, inScalar;
   vtkDataArray *inScalars;
   vtkIdType numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
-  vtkFloatArray *newScalars = 
+  vtkFloatArray *newScalars =
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
 
   vtkDebugMacro(<< "Executing Shepard method");
-  
+
   // Check input
   //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
@@ -187,11 +187,11 @@ int vtkShepardMethod::RequestData(
 
   // Allocate
   //
-  numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
+  numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1]
               * this->SampleDimensions[2];
 
   sum = new double[numNewPts];
-  for (i=0; i<numNewPts; i++) 
+  for (i=0; i<numNewPts; i++)
     {
     newScalars->SetComponent(i,0,0.0);
     sum[i] = 0.0;
@@ -202,7 +202,7 @@ int vtkShepardMethod::RequestData(
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
 
 
-  // Traverse all input points. 
+  // Traverse all input points.
   // Each input point affects voxels within maxDistance.
   //
   int abortExecute=0;
@@ -221,7 +221,7 @@ int vtkShepardMethod::RequestData(
 
     px = input->GetPoint(ptId);
     inScalar = inScalars->GetComponent(ptId,0);
-    
+
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
       double amin = static_cast<double>(
@@ -230,7 +230,7 @@ int vtkShepardMethod::RequestData(
         (px[i] + maxDistance) - origin[i]) / spacing[i];
       min[i] = static_cast<int>(amin);
       max[i] = static_cast<int>(amax);
-      
+
       if (min[i] < amin)
         {
         min[i]++; // round upward to nearest integer to get min[i]
@@ -244,7 +244,7 @@ int vtkShepardMethod::RequestData(
         {
         min[i] = 0; // valid range check
         }
-      if (max[i] >= this->SampleDimensions[i]) 
+      if (max[i] >= this->SampleDimensions[i])
         {
         max[i] = this->SampleDimensions[i] - 1;
         }
@@ -260,20 +260,20 @@ int vtkShepardMethod::RequestData(
         {
         min[i] = 0;
         }
-      if (max[i] >= this->SampleDimensions[i]) 
+      if (max[i] >= this->SampleDimensions[i])
         {
         max[i] = this->SampleDimensions[i] - 1;
         }
       }
-  
+
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
-    for (k = min[2]; k <= max[2]; k++) 
+    for (k = min[2]; k <= max[2]; k++)
       {
       x[2] = spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
         x[1] = spacing[1] * j + origin[1];
-        for (i = min[0]; i <= max[0]; i++) 
+        for (i = min[0]; i <= max[0]; i++)
           {
           x[0] = spacing[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
@@ -335,7 +335,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;
 
-  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," 
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << ","
                 << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->SampleDimensions[0] ||

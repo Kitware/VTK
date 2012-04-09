@@ -449,7 +449,7 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
           return;
         }
       break;
-  
+
   case vtkDataSetAttributes::TCOORDS:     // Texture Coordinate
       if ((numcomp < 1) || (numcomp > 4))
         {
@@ -640,7 +640,7 @@ void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
       vtkErrorMacro("Unsupported type for texture coordinates: " << type);
       return;
     }
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -983,7 +983,7 @@ void vtkOpenGLPainterDeviceAdapter::Stencil(int on)
 {
   if (on)
     {
-    glEnable(GL_STENCIL_TEST);    
+    glEnable(GL_STENCIL_TEST);
     GLint stencilbits;
     glGetIntegerv(GL_STENCIL_BITS, &stencilbits);
     this->MaxStencil = (1<<stencilbits)-1;

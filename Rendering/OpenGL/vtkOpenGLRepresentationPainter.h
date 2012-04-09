@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLRepresentationPainter - painter handling representation 
+// .NAME vtkOpenGLRepresentationPainter - painter handling representation
 // using OpenGL.
 // .SECTION Description
-// This is OpenGL implementation of a painter handling representation 
+// This is OpenGL implementation of a painter handling representation
 // i.e. Points, Wireframe, Surface.
 
 #ifndef __vtkOpenGLRepresentationPainter_h
@@ -50,7 +50,7 @@ protected:
 
   // Description:
   // Changes the polygon mode according to the representation.
-  void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags,bool forceCompileOnly);
 private:
   vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&); // Not implemented.

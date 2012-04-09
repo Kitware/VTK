@@ -29,7 +29,7 @@ vtkStructuredGridReader::vtkStructuredGridReader()
   vtkStructuredGrid *output = vtkStructuredGrid::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
 }
@@ -72,7 +72,7 @@ int vtkStructuredGridReader::ReadMetaData(vtkInformation *outInfo)
 {
   char line[256];
   int done=0;
-  
+
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
     return 1;
@@ -118,14 +118,14 @@ int vtkStructuredGridReader::ReadMetaData(vtkInformation *outInfo)
       if (! strncmp(this->LowerCase(line), "field", 5))
         {
         vtkFieldData* fd = this->ReadFieldData();
-        fd->Delete(); 
+        fd->Delete();
         }
 
       if ( ! strncmp(this->LowerCase(line),"dimensions",10) )
         {
         int ext[6];
-        if (!(this->Read(ext+1) && 
-              this->Read(ext+3) && 
+        if (!(this->Read(ext+1) &&
+              this->Read(ext+3) &&
               this->Read(ext+5)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
@@ -165,7 +165,7 @@ int vtkStructuredGridReader::RequestData(
   int done=0;
   vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkDebugMacro(<<"Reading vtk structured grid file...");
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
@@ -191,7 +191,7 @@ int vtkStructuredGridReader::RequestData(
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
       return 1;
-      } 
+      }
 
     if ( strncmp(this->LowerCase(line),"structured_grid",15) )
       {
@@ -218,8 +218,8 @@ int vtkStructuredGridReader::RequestData(
       else if ( ! strncmp(line, "dimensions",10) )
         {
         int dim[3];
-        if (!(this->Read(dim) && 
-              this->Read(dim+1) && 
+        if (!(this->Read(dim) &&
+              this->Read(dim+1) &&
               this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
@@ -242,7 +242,7 @@ int vtkStructuredGridReader::RequestData(
           return 1;
           }
 
-        if (!this->ReadString(line)) 
+        if (!this->ReadString(line))
           {
           vtkErrorMacro(<<"Cannot read blank type!" );
           this->CloseVTKFile ();
@@ -279,7 +279,7 @@ int vtkStructuredGridReader::RequestData(
           this->CloseVTKFile ();
           return 1;
           }
-        
+
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match!");
@@ -299,7 +299,7 @@ int vtkStructuredGridReader::RequestData(
           this->CloseVTKFile ();
           return 1;
           }
-        
+
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match!");
@@ -347,7 +347,7 @@ int vtkStructuredGridReader::RequestData(
     this->ReadPointData(output, npts);
     }
 
-  else 
+  else
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }

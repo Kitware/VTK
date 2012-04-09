@@ -104,14 +104,14 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       graphIndexToTreeIndex[gv] = gv;
       }
     }
-    
+
   // Okay if we do not have direct mapping then we need
   // to do some templated madness to go from an arbitrary
   // type to a nice vtkIdType to vtkIdType mapping
   if (!this->DirectMapping)
     {
     // Check for valid pedigree id arrays.
-    vtkAbstractArray* graphIdArray = 
+    vtkAbstractArray* graphIdArray =
       graph->GetVertexData()->GetPedigreeIds();
     if (!graphIdArray)
       {
@@ -119,10 +119,10 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       return 0;
       }
     // Check for valid domain array, if any.
-    vtkAbstractArray* graphDomainArray = 
+    vtkAbstractArray* graphDomainArray =
       graph->GetVertexData()->GetAbstractArray("domain");
 
-    vtkAbstractArray* treeIdArray = 
+    vtkAbstractArray* treeIdArray =
       tree->GetVertexData()->GetPedigreeIds();
     if (!treeIdArray)
       {
@@ -130,17 +130,17 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       return 0;
       }
     // Check for valid domain array, if any.
-    vtkAbstractArray* treeDomainArray = 
+    vtkAbstractArray* treeDomainArray =
       tree->GetVertexData()->GetAbstractArray("domain");
 
     map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
-    
+
     // Create a map from graph id to graph index
     for (int i=0; i<graph->GetNumberOfVertices(); ++i)
       {
       graphIdMap[graphIdArray->GetVariantValue(i)] = i;
       }
-      
+
     // Now create the map from graph index to tree index
     for (int i=0; i<tree->GetNumberOfVertices(); ++i)
       {
@@ -148,7 +148,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       if (graphIdMap.count(id))
         {
         // Make sure that the domain for this id in the graph matches
-        // the one in the tree before adding to the map. This guards 
+        // the one in the tree before adding to the map. This guards
         // against drawing edges to group nodes in the tree.
         if(treeDomainArray)
           {
@@ -217,7 +217,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
 
     vtkIdType source = 0;
     vtkIdType target = 0;
-    if (graphIndexToTreeIndex.count(graphSourceIndex) > 0 && 
+    if (graphIndexToTreeIndex.count(graphSourceIndex) > 0 &&
         graphIndexToTreeIndex.count(graphTargetIndex) > 0)
       {
       source = graphIndexToTreeIndex[graphSourceIndex];
@@ -229,7 +229,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       continue;
       }
 
-    // Find path from source to target 
+    // Find path from source to target
     sourceList->Reset();
     vtkIdType curSource = source;
     while (curSource != tree->GetRoot())
@@ -283,9 +283,9 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       tree->GetPoint(sourceList->GetId(s), pt);
       for (int c = 0; c < 3; c++)
         {
-        interpPt[c] = (1.0 - curPoint/(cellPointsD+1))*sourcePt[c] 
+        interpPt[c] = (1.0 - curPoint/(cellPointsD+1))*sourcePt[c]
           + (curPoint/(cellPointsD+1))*targetPt[c];
-        interpPt[c] = (1.0 - this->BundlingStrength)*interpPt[c] 
+        interpPt[c] = (1.0 - this->BundlingStrength)*interpPt[c]
           + this->BundlingStrength*pt[c];
         }
       output->AddEdgePoint(e.Id, interpPt);
@@ -305,9 +305,9 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
       tree->GetPoint(targetList->GetId(t), pt);
       for (int c = 0; c < 3; c++)
         {
-        interpPt[c] = (1.0 - curPoint/(cellPointsD+1))*sourcePt[c] 
+        interpPt[c] = (1.0 - curPoint/(cellPointsD+1))*sourcePt[c]
           + (curPoint/(cellPointsD+1))*targetPt[c];
-        interpPt[c] = (1.0 - this->BundlingStrength)*interpPt[c] 
+        interpPt[c] = (1.0 - this->BundlingStrength)*interpPt[c]
           + this->BundlingStrength*pt[c];
         }
       output->AddEdgePoint(e.Id, interpPt);

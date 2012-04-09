@@ -62,7 +62,7 @@ int vtkDataSetTriangleFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->IsA("vtkStructuredPoints") ||
-      input->IsA("vtkStructuredGrid") || 
+      input->IsA("vtkStructuredGrid") ||
       input->IsA("vtkImageData") ||
       input->IsA("vtkRectilinearGrid"))
     {
@@ -91,7 +91,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
   vtkIdList *cellPtIds = vtkIdList::New();
   int numSimplices, numPts, dim, type;
   vtkIdType pts[4], num;
-  
+
   // Create an array of points. This does an explicit creation
   // of each point.
   num = input->GetNumberOfPoints();
@@ -103,7 +103,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
 
   outCD->CopyAllocate(inCD,input->GetNumberOfCells()*5);
   output->Allocate(input->GetNumberOfCells()*5);
-  
+
   if (input->IsA("vtkStructuredPoints"))
     {
     static_cast<vtkStructuredPoints*>(input)->GetDimensions(dimensions);
@@ -120,7 +120,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
     {
     static_cast<vtkRectilinearGrid*>(input)->GetDimensions(dimensions);
     }
-  
+
   dimensions[0] = dimensions[0] - 1;
   dimensions[1] = dimensions[1] - 1;
   dimensions[2] = dimensions[2] - 1;
@@ -146,9 +146,9 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
           {
           cell->Triangulate(1, cellPtIds, cellPts);
           }
-        
+
         dim = cell->GetCellDimension() + 1;
-        
+
         numPts = cellPtIds->GetNumberOfIds();
         numSimplices = numPts / dim;
         type = 0;
@@ -179,12 +179,12 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
         }//i dimension
       }//j dimension
     }//k dimension
-  
+
   // Update output
   output->SetPoints(newPoints);
   output->GetPointData()->PassData(input->GetPointData());
   output->Squeeze();
-  
+
   cell->Delete();
   newPoints->Delete();
   cellPts->Delete();
@@ -235,7 +235,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
             break;
           case VTK_VERTEX:
           case VTK_LINE:
-          case VTK_TRIANGLE:          
+          case VTK_TRIANGLE:
             if (this->TetrahedraOnly)
               {
               allsimplices = 0; //don't shallowcopy need to stip non tets
@@ -265,7 +265,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
 
   outCD->CopyAllocate(tempCD, input->GetNumberOfCells()*5);
   output->Allocate(input->GetNumberOfCells()*5);
-  
+
   // Points are passed through
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
@@ -288,7 +288,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
       dim = 4;
       cell->Triangulate(0, cellPtIds, cellPts);
       numPts = cellPtIds->GetNumberOfIds();
-    
+
       numSimplices = numPts / dim;
       type = VTK_TETRA;
 
@@ -328,7 +328,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
 
       ncells = output->GetNumberOfCells();
       numTets = this->Triangulator->AddTetras(0,output);
-        
+
       for (j=0; j < numTets; j++)
         {
         outCD->CopyData(tempCD, cellId, ncells+j);
@@ -340,7 +340,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
       dim++;
       cell->Triangulate(0, cellPtIds, cellPts);
       numPts = cellPtIds->GetNumberOfIds();
-    
+
       numSimplices = numPts / dim;
       type = 0;
       switch (dim)
@@ -365,10 +365,10 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
         }
       } //if 2D or less cell
     } //for all cells
-  
+
   // Update output
   output->Squeeze();
-  
+
   tempCD->Delete();
 
   cellPts->Delete();

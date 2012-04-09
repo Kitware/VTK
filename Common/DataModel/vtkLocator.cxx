@@ -32,7 +32,7 @@ vtkLocator::vtkLocator()
 vtkLocator::~vtkLocator()
 {
   // commented out because of compiler problems in g++
-  //  this->FreeSearchStructure(); 
+  //  this->FreeSearchStructure();
   this->SetDataSet(NULL);
 }
 

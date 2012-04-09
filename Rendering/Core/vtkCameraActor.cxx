@@ -41,12 +41,12 @@ vtkCameraActor::vtkCameraActor()
 vtkCameraActor::~vtkCameraActor()
 {
   this->SetCamera(0);
-  
+
   if(this->FrustumActor!=0)
     {
     this->FrustumActor->Delete();
     }
-  
+
    if(this->FrustumMapper!=0)
     {
     this->FrustumMapper->Delete();
@@ -101,7 +101,7 @@ double *vtkCameraActor::GetBounds()
   // As vtkMath::UninitializeBounds initialized finite unvalid bounds, it
   // passes silently and GetLength() returns 0.
   vtkMath::UninitializeBounds(this->Bounds);
-  
+
   this->UpdateViewProps();
   if(this->FrustumActor!=0 && this->FrustumActor->GetUseBounds())
     {
@@ -135,10 +135,10 @@ vtkProperty *vtkCameraActor::GetProperty()
     {
     this->FrustumActor=vtkActor::New();
     }
-  
+
   return this->FrustumActor->GetProperty();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Set property of the internal actor.
@@ -148,7 +148,7 @@ void vtkCameraActor::SetProperty(vtkProperty *p)
     {
     this->FrustumActor=vtkActor::New();
     }
-  
+
   this->FrustumActor->SetProperty(p);
 }
 
@@ -160,7 +160,7 @@ void vtkCameraActor::UpdateViewProps()
     vtkDebugMacro(<< "no camera to represent.");
     return;
     }
- 
+
   vtkPlanes *planes=0;
   if(this->FrustumSource==0)
     {
@@ -173,28 +173,28 @@ void vtkCameraActor::UpdateViewProps()
     {
     planes=this->FrustumSource->GetPlanes();
     }
-  
+
   double coefs[24];
   this->Camera->GetFrustumPlanes(this->WidthByHeightRatio,coefs);
   planes->SetFrustumPlanes(coefs);
-  
+
   this->FrustumSource->SetShowLines(false);
-  
+
   if(this->FrustumMapper==0)
     {
     this->FrustumMapper=vtkPolyDataMapper::New();
     }
-  
+
   this->FrustumMapper->SetInputConnection(
     this->FrustumSource->GetOutputPort());
-  
+
   if(this->FrustumActor==0)
     {
     this->FrustumActor=vtkActor::New();
     }
- 
+
   this->FrustumActor->SetMapper(this->FrustumMapper);
-  
+
   vtkProperty *p=this->FrustumActor->GetProperty();
   p->SetRepresentationToWireframe();
   this->FrustumActor->SetVisibility(1);
@@ -204,17 +204,17 @@ void vtkCameraActor::UpdateViewProps()
 void vtkCameraActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Camera: ";
   if(this->Camera==0)
     {
-    os << "(none)" << endl; 
+    os << "(none)" << endl;
     }
   else
     {
     this->Camera->PrintSelf(os,indent);
     }
-  
-  
+
+
   os << indent << "WidthByHeightRatio: " << this->WidthByHeightRatio <<  endl;
 }

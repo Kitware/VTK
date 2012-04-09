@@ -155,25 +155,25 @@ int vtkExtractVectorComponents::RequestData(
     this->GetVyComponent()->CopyStructure(input);
     this->GetVzComponent()->CopyStructure(input);
     }
-  
+
   pd = input->GetPointData();
   cd = input->GetCellData();
-  outVx = output->GetPointData();  
-  outVxc = output->GetCellData();  
+  outVx = output->GetPointData();
+  outVxc = output->GetCellData();
   if (!this->ExtractToFieldData)
     {
-    outVy = this->GetVyComponent()->GetPointData();  
-    outVz = this->GetVzComponent()->GetPointData();  
-    outVyc = this->GetVyComponent()->GetCellData();  
-    outVzc = this->GetVzComponent()->GetCellData();  
+    outVy = this->GetVyComponent()->GetPointData();
+    outVz = this->GetVzComponent()->GetPointData();
+    outVyc = this->GetVyComponent()->GetCellData();
+    outVzc = this->GetVzComponent()->GetCellData();
     }
 
   vectors = pd->GetVectors();
   vectorsc = cd->GetVectors();
   if ( (vectors == NULL ||
-        ((numVectors = vectors->GetNumberOfTuples()) < 1) ) && 
+        ((numVectors = vectors->GetNumberOfTuples()) < 1) ) &&
        (vectorsc == NULL ||
-        ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))  
+        ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))
     {
     vtkErrorMacro(<<"No vector data to extract!");
     return 1;
@@ -188,7 +188,7 @@ int vtkExtractVectorComponents::RequestData(
     {
     name = vectorsc->GetName();
     }
-  else 
+  else
     {
     name = 0;
     }
@@ -233,7 +233,7 @@ int vtkExtractVectorComponents::RequestData(
     outVx->AddArray(vx);
     outVx->SetActiveScalars(vx->GetName());
     vx->Delete();
-    
+
     if (this->ExtractToFieldData)
       {
       outVx->AddArray(vy);
@@ -244,7 +244,7 @@ int vtkExtractVectorComponents::RequestData(
       outVy->PassData(pd);
       outVy->AddArray(vy);
       outVy->SetActiveScalars(vy->GetName());
-      
+
       outVz->PassData(pd);
       outVz->AddArray(vz);
       outVz->SetActiveScalars(vz->GetName());
@@ -283,7 +283,7 @@ int vtkExtractVectorComponents::RequestData(
     outVxc->AddArray(vxc);
     outVxc->SetActiveScalars(vxc->GetName());
     vxc->Delete();
-    
+
     if (this->ExtractToFieldData)
       {
       outVxc->AddArray(vyc);
@@ -294,7 +294,7 @@ int vtkExtractVectorComponents::RequestData(
       outVyc->PassData(cd);
       outVyc->AddArray(vyc);
       outVyc->SetActiveScalars(vyc->GetName());
-      
+
       outVzc->PassData(cd);
       outVzc->AddArray(vzc);
       outVzc->SetActiveScalars(vzc->GetName());
@@ -310,6 +310,6 @@ int vtkExtractVectorComponents::RequestData(
 void vtkExtractVectorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "ExtractToFieldData: " << this->ExtractToFieldData << endl;
 }

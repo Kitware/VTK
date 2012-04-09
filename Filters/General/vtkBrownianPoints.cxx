@@ -69,7 +69,7 @@ int vtkBrownianPoints::RequestData(
   newVectors->SetName("BrownianVectors");
 
   // Check consistency of minimum and maximum speed
-  //  
+  //
   if ( this->MinimumSpeed > this->MaximumSpeed )
     {
     vtkErrorMacro(<< " Minimum speed > maximum speed; reset to (0,1).");
@@ -80,7 +80,7 @@ int vtkBrownianPoints::RequestData(
   int tenth = numPts/10 + 1;
   for (i=0; i<numPts; i++)
     {
-    if ( ! (i % tenth) ) 
+    if ( ! (i % tenth) )
       {
       this->UpdateProgress (static_cast<double>(i)/numPts);
       if (this->GetAbortExecute())

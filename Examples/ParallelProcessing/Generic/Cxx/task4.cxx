@@ -21,14 +21,14 @@
 // Task 4 for TaskParallelism.
 // See TaskParallelismWithPorts.cxx for more information.
 void task4(double data)
-{  
+{
   double extent = data;
-  int iextent = static_cast<int>(data);    
+  int iextent = static_cast<int>(data);
   // The pipeline
 
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
-  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent, 
+  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent,
                            -1*iextent, iextent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );

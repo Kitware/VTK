@@ -55,25 +55,25 @@ int TestTessellatedBoxSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   writer->SetFileName("box.vtp");
   writer->SetDataModeToAscii();
   writer->Update();
-  
+
   vtkClipConvexPolyData *clip=vtkClipConvexPolyData::New();
   clip->SetInputConnection(boxSource->GetOutputPort());
-  
+
   vtkPlaneCollection *planes=vtkPlaneCollection::New();
   clip->SetPlanes(planes);
   planes->Delete();
-  
+
   vtkPlane *p=vtkPlane::New();
   planes->AddItem(p);
   p->Delete();
-  
+
   double origin[3]={0.5,0.5,0.5};
   double direction[3]={0,0,1};
-  
+
   p->SetOrigin( origin );
   p->SetNormal( direction );
   planes->AddItem(p);
-  
+
   vtkXMLPolyDataWriter *writer2=vtkXMLPolyDataWriter::New();
   writer2->SetInputConnection(clip->GetOutputPort());
   clip->Delete();
@@ -81,8 +81,8 @@ int TestTessellatedBoxSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   writer2->SetDataModeToAscii();
   writer2->Update();
   writer2->Delete();
-  
-  writer->Delete();  
+
+  writer->Delete();
 
   return 0; // 0==success.
 }

@@ -167,7 +167,7 @@ void vtkMINCImageWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RescaleIntercept: " << this->RescaleIntercept << "\n";
   os << indent << "StrictValidation: " <<
     (this->StrictValidation ? "On\n" : "Off\n");
-  os << indent << "HistoryAddition: " << 
+  os << indent << "HistoryAddition: " <<
     (this->HistoryAddition ? this->HistoryAddition : "(None)") << "\n";
 }
 
@@ -1124,7 +1124,7 @@ int vtkMINCImageWriter::WriteMINCFileAttributes(
   if (imageDataType == VTK_FLOAT || imageDataType == VTK_DOUBLE)
     {
     // If the data type of the input is floating point, but the original
-    // data type stored in ImageAttributes was an integer type, then 
+    // data type stored in ImageAttributes was an integer type, then
     // we will rescale the floating-point values to integer.
     if (this->ImageAttributes &&
         this->ImageAttributes->GetDataType() != VTK_VOID &&
@@ -1995,10 +1995,10 @@ void vtkMINCImageWriter::Write()
         this->ComputeValidRangeFromScalarRange)
       {
       // Write out scalar image-min and image-max values
-      double imageMin = 
+      double imageMin =
         this->FileValidRange[0]*this->InternalRescaleSlope +
         this->InternalRescaleIntercept;
-      double imageMax = 
+      double imageMax =
         this->FileValidRange[1]*this->InternalRescaleSlope +
         this->InternalRescaleIntercept;
 

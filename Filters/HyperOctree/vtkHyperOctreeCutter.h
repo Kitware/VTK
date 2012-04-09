@@ -15,7 +15,7 @@
 // .NAME vtkHyperOctreeCutter - Cut vtkHyperOctree with user-specified
 // implicit function
 // .SECTION Description
-// vtkHyperOctreeCutter is a filter to cut through data using any subclass of 
+// vtkHyperOctreeCutter is a filter to cut through data using any subclass of
 // vtkImplicitFunction. That is, a polygonal surface is created
 // corresponding to the implicit function F(x,y,z) = value(s), where
 // you can specify one or more values used to cut with.
@@ -77,20 +77,20 @@ public:
   static vtkHyperOctreeCutter *New();
 
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
-  void SetValue(int i, double value) 
+  void SetValue(int i, double value)
     {this->ContourValues->SetValue(i,value);}
-  
+
   // Description:
   // Get the ith contour value.
-  double GetValue(int i) 
+  double GetValue(int i)
     {return this->ContourValues->GetValue(i);}
 
   // Description:
   // Get a pointer to an array of contour values. There will be
   // GetNumberOfContours() values in the list.
-  double *GetValues() 
+  double *GetValues()
     {return this->ContourValues->GetValues();}
 
   // Description:
@@ -99,29 +99,29 @@ public:
   // enough memory to hold the list.
   void GetValues(double *contourValues)
     {this->ContourValues->GetValues(contourValues);}
-  
+
   // Description:
   // Set the number of contours to place into the list. You only really
   // need to use this method to reduce list size. The method SetValue()
   // will automatically increase list size as needed.
-  void SetNumberOfContours(int number) 
+  void SetNumberOfContours(int number)
     {this->ContourValues->SetNumberOfContours(number);}
 
   // Description:
   // Get the number of contours in the list of contour values.
-  int GetNumberOfContours() 
+  int GetNumberOfContours()
     {return this->ContourValues->GetNumberOfContours();}
 
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, double range[2]) 
+  void GenerateValues(int numContours, double range[2])
     {this->ContourValues->GenerateValues(numContours, range);}
 
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, double rangeStart, double rangeEnd) 
+  void GenerateValues(int numContours, double rangeStart, double rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   // Description:
@@ -143,7 +143,7 @@ public:
   vtkBooleanMacro(GenerateCutScalars,int);
 
   // Description:
-  // Specify a spatial locator for merging points. By default, 
+  // Specify a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -155,36 +155,36 @@ public:
   //      all contour values are processed. This is the default.
   //   Sort by cell = 1 - For each contour value, all cells are processed.
   //      This order should be used if the extracted polygons must be rendered
-  //      in a back-to-front or front-to-back order. This is very problem 
+  //      in a back-to-front or front-to-back order. This is very problem
   //      dependent.
   // For most applications, the default order is fine (and faster).
   //
   // Sort by cell is going to have a problem if the input has 2D and 3D cells.
-  // Cell data will be scrambled becauses with 
+  // Cell data will be scrambled becauses with
   // vtkPolyData output, verts and lines have lower cell ids than triangles.
   vtkSetClampMacro(SortBy,int,VTK_SORT_BY_VALUE,VTK_SORT_BY_CELL);
   vtkGetMacro(SortBy,int);
-  void SetSortByToSortByValue() 
+  void SetSortByToSortByValue()
     {this->SetSortBy(VTK_SORT_BY_VALUE);}
-  void SetSortByToSortByCell() 
+  void SetSortByToSortByCell()
     {this->SetSortBy(VTK_SORT_BY_CELL);}
-  
+
   // Description:
   // Return the sorting procedure as a descriptive character string.
   const char *GetSortByAsString()
     {
-      if ( this->SortBy == VTK_SORT_BY_VALUE ) 
+      if ( this->SortBy == VTK_SORT_BY_VALUE )
         {
         return "SortByValue";
         }
-      else 
+      else
         {
         return "SortByCell";
         }
     }
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -195,7 +195,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
- 
+
   // Description:
   // Cut the sub-hierarchy pointed by cursor.
   // \pre cursor_exists: cursor!=0
@@ -203,7 +203,7 @@ protected:
   void CutNode(vtkHyperOctreeCursor *cursor,
                int level,
                double bounds[6]);
-  
+
   vtkImplicitFunction *CutFunction;
 
 
@@ -211,41 +211,41 @@ protected:
   int SortBy;
   vtkContourValues *ContourValues;
   int GenerateCutScalars;
-  
+
   vtkHyperOctree *Input;
   vtkPolyData *Output;
-  
- 
+
+
   vtkCellArray *NewVerts;
   vtkCellArray *NewLines;
   vtkCellArray *NewPolys;
-  
+
   vtkDataSetAttributes *InCD;
   vtkCellData *OutCD;
   vtkPointData *OutPD;
   vtkOrderedTriangulator *Triangulator;
   vtkHyperOctreeCursor *Sibling; // to avoid allocation in the loop
-  
+
   int Iter; // iterate over contour values in case of VTK_SORT_BY_CELL
-  
-  
+
+
   vtkDoubleArray *CellScalars;
   vtkTetra *Tetra;
   vtkDoubleArray *TetScalars;
-  
+
   vtkPoints *Pts;
   vtkPolygon *Polygon;
-  
+
   vtkIdType CellTypeCounter[65536]; // up-to-65536 points per octant
   vtkIdType TotalCounter;
   vtkIdType TemplateCounter; // record the number of octants that succceed
   // to use the template triangulator
-  
+
   // in VTK_SORT_BY_VALUE case, rejection test need to combine all values.
   int *AllLess;
   int *AllGreater;
   vtkHyperOctreeClipCutPointsGrabber *Grabber;
-  
+
 private:
   vtkHyperOctreeCutter(const vtkHyperOctreeCutter&);  // Not implemented.
   void operator=(const vtkHyperOctreeCutter&);  // Not implemented.

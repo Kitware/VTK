@@ -20,7 +20,7 @@
 // .NAME vtkQtInitialization - Initializes a Qt application.
 //
 // .SECTION Description
-// Utility class that initializes Qt by creating an instance of 
+// Utility class that initializes Qt by creating an instance of
 // QApplication in its ctor, if one doesn't already exist.
 // This is mainly of use in ParaView with filters that use Qt in
 // their implementation - create an instance of vtkQtInitialization

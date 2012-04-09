@@ -47,8 +47,8 @@ protected:
   ~vtkTreeLevelsFilter() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
-private:  
+
+private:
   vtkTreeLevelsFilter(const vtkTreeLevelsFilter&);  // Not implemented.
   void operator=(const vtkTreeLevelsFilter&);  // Not implemented.
 };

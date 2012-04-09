@@ -36,7 +36,7 @@ vtkTransmitUnstructuredGridPiece::vtkTransmitUnstructuredGridPiece()
 
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
-  this->SetController(vtkMultiProcessController::GetGlobalController());  
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ int vtkTransmitUnstructuredGridPiece::RequestUpdateExtent(
                 0);
     return 1;
     }
-  
+
   if (this->Controller->GetLocalProcessId() == 0)
     { // Request everything.
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
@@ -104,7 +104,7 @@ int vtkTransmitUnstructuredGridPiece::RequestInformation(
 
   return 1;
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkTransmitUnstructuredGridPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -150,7 +150,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
                                                    vtkInformation *outInfo)
 {
   vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
-  vtkExtractUnstructuredGridPiece *extract = 
+  vtkExtractUnstructuredGridPiece *extract =
     vtkExtractUnstructuredGridPiece::New();
   int ext[3];
   int numProcs, i;
@@ -160,7 +160,7 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
   if (outPiece != 0)
     {
     vtkWarningMacro(<< "Piece " << outPiece
-                    << " does not match process 0.  " 
+                    << " does not match process 0.  "
                     << "Altering request to try to avoid a deadlock.");
     }
 
@@ -243,9 +243,9 @@ void vtkTransmitUnstructuredGridPiece::SatelliteExecute(
 void vtkTransmitUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
-  
+
   os << indent << "Controller: (" << this->Controller << ")\n";
 
 }

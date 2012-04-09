@@ -27,7 +27,7 @@ vtkWorldPointPicker::vtkWorldPointPicker()
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkWorldPointPicker::Pick(double selectionX, double selectionY, 
+int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
                               double selectionZ, vtkRenderer *renderer)
 {
   vtkCamera *camera;
@@ -48,7 +48,7 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
 
   z = renderer->GetZ (static_cast<int>(selectionX),
                       static_cast<int>(selectionY));
-  
+
   // if z is 1.0, we assume the user has picked a point on the
   // screen that has not been rendered into. Use the camera's focal
   // point for the z value. The test value .999999 has to be used
@@ -61,7 +61,7 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
     }
   else
     {
-    // Get camera focal point and position. Convert to display (screen) 
+    // Get camera focal point and position. Convert to display (screen)
     // coordinates. We need a depth value for z-buffer.
     camera = renderer->GetActiveCamera();
     camera->GetFocalPoint(cameraFP); cameraFP[3] = 1.0;
@@ -81,8 +81,8 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
   renderer->SetDisplayPoint (display);
   renderer->DisplayToWorld ();
   world = renderer->GetWorldPoint ();
-  
-  for (int i=0; i < 3; i++) 
+
+  for (int i=0; i < 3; i++)
     {
     this->PickPosition[i] = world[i] / world[3];
     }

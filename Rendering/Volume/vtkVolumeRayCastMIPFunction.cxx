@@ -80,7 +80,7 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
 
     // For each step along the ray
     for ( loop = 1; loop < num_steps; loop++ )
-      {     
+      {
       // Access the value at this voxel location
       nnValue = *(data_ptr + voxel[2] * zinc +
                   voxel[1] * yinc + voxel[0] );
@@ -90,7 +90,7 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
         {
         nnMax = nnValue;
         }
-      
+
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
@@ -116,7 +116,7 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
     Finc = zinc + xinc;
     Ginc = zinc + yinc;
     Hinc = zinc + xinc + yinc;
-  
+
     // Set values for the first pass through the loop
     dptr = data_ptr + voxel[2] * zinc + voxel[1] * yinc + voxel[0];
     A = *(dptr);
@@ -142,14 +142,14 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
     // Increment our position and compute our voxel location
     ray_position[0] += ray_increment[0];
     ray_position[1] += ray_increment[1];
-    ray_position[2] += ray_increment[2];      
+    ray_position[2] += ray_increment[2];
     voxel[0] = vtkFloorFuncMacro( ray_position[0] );
     voxel[1] = vtkFloorFuncMacro( ray_position[1] );
     voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
     // For each step along the ray
     for ( loop = 1; loop < num_steps; loop++ )
-      {     
+      {
       // Have we moved into a new voxel? If so we need to recompute A-H
       if ( prev_voxel[0] != voxel[0] ||
            prev_voxel[1] != voxel[1] ||
@@ -185,7 +185,7 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
-      ray_position[2] += ray_increment[2];      
+      ray_position[2] += ray_increment[2];
       voxel[0] = vtkFloorFuncMacro( ray_position[0] );
       voxel[1] = vtkFloorFuncMacro( ray_position[1] );
       voxel[2] = vtkFloorFuncMacro( ray_position[2] );
@@ -193,7 +193,7 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
     max = (int)triMax;
     }
 
-  if ( max < 0 ) 
+  if ( max < 0 )
     {
     max = 0;
     }
@@ -202,10 +202,10 @@ void vtkCastMaxScalarValueRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamic
     max = (int)(staticInfo->Volume->GetArraySize() - 1);
     }
 
-  dynamicInfo->ScalarValue = max;  
+  dynamicInfo->ScalarValue = max;
   max_opacity = scalarArray[max];
-  
-  // Set the return pixel value.  
+
+  // Set the return pixel value.
   if( staticInfo->ColorChannels == 1 )
     {
     dynamicInfo->Color[0] = max_opacity * grayArray[max];
@@ -282,15 +282,15 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
 
     // For each step along the ray
     for ( loop = 0; loop < num_steps; loop++ )
-      {     
+      {
       // We've taken another step
       steps_this_ray++;
-      
+
       // Access the value at this voxel location
       value = *(data_ptr + voxel[2] * zinc +
                 voxel[1] * yinc + voxel[0] );
 
-      if ( value < 0 ) 
+      if ( value < 0 )
         {
         value = 0;
         }
@@ -300,9 +300,9 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
         }
 
       opacity = SOTF[(int)value];
- 
+
       // If this is greater than the max, this is the new max.
-      if ( opacity > max ) 
+      if ( opacity > max )
         {
         max = opacity;
         max_value = (int) value;
@@ -332,7 +332,7 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
     Finc = zinc + xinc;
     Ginc = zinc + yinc;
     Hinc = zinc + xinc + yinc;
-  
+
     // Set values for the first pass through the loop
     dptr = data_ptr + voxel[2] * zinc + voxel[1] * yinc + voxel[0];
     A = *(dptr);
@@ -352,7 +352,7 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
 
     // For each step along the ray
     for ( loop = 0; loop < num_steps; loop++ )
-      {     
+      {
       // We've taken another step
       steps_this_ray++;
 
@@ -384,7 +384,7 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
       zoff = ray_position[2] - (float) voxel[2];
       vtkTrilinFuncMacro( value, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
 
-      if ( value < 0 ) 
+      if ( value < 0 )
         {
         value = 0;
         }
@@ -394,25 +394,25 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
         }
 
       opacity = SOTF[(int)value];
- 
+
       // If this is greater than the max, this is the new max.
-      if ( opacity > max ) 
+      if ( opacity > max )
         {
         max = opacity;
         max_value = (int) value;
         }
-      
+
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
-      ray_position[2] += ray_increment[2];      
+      ray_position[2] += ray_increment[2];
       voxel[0] = vtkFloorFuncMacro( ray_position[0] );
       voxel[1] = vtkFloorFuncMacro( ray_position[1] );
       voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     }
 
-  dynamicInfo->ScalarValue = max;  
+  dynamicInfo->ScalarValue = max;
 
   // Set the return pixel value.  The depth value is currently useless and
   // should be fixed.
@@ -435,7 +435,7 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
   dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 }
 
-// Construct a new vtkVolumeRayCastMIPFunction 
+// Construct a new vtkVolumeRayCastMIPFunction
 vtkVolumeRayCastMIPFunction::vtkVolumeRayCastMIPFunction()
 {
   this->MaximizeMethod = VTK_MAXIMIZE_SCALAR_VALUE;
@@ -449,12 +449,12 @@ vtkVolumeRayCastMIPFunction::~vtkVolumeRayCastMIPFunction()
 // This is called from RenderAnImage (in vtkDepthPARCMapper.cxx)
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
-// by a templated function. 
+// by a templated function.
 void vtkVolumeRayCastMIPFunction::CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                            vtkVolumeRayCastStaticInfo *staticInfo)
 {
   void *data_ptr;
-  
+
   data_ptr = staticInfo->ScalarDataPointer;
 
   if ( this->MaximizeMethod == VTK_MAXIMIZE_SCALAR_VALUE )
@@ -462,17 +462,17 @@ void vtkVolumeRayCastMIPFunction::CastRay( vtkVolumeRayCastDynamicInfo *dynamicI
     switch ( staticInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-        vtkCastMaxScalarValueRay( (unsigned char *)data_ptr, dynamicInfo, 
+        vtkCastMaxScalarValueRay( (unsigned char *)data_ptr, dynamicInfo,
                                   staticInfo );
         break;
       case VTK_UNSIGNED_SHORT:
-        vtkCastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo, 
+        vtkCastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo,
                                   staticInfo );
         break;
       default:
         vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
         break;
-      }  
+      }
     }
   else
     {
@@ -487,7 +487,7 @@ void vtkVolumeRayCastMIPFunction::CastRay( vtkVolumeRayCastDynamicInfo *dynamicI
       default:
         vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
         break;
-      }  
+      }
     }
 }
 
@@ -500,8 +500,8 @@ float vtkVolumeRayCastMIPFunction::GetZeroOpacityThreshold( vtkVolume *vtkNotUse
 // vtkDepthPARCMapper.cxx).  It allows the specific mapper type to
 // update any local caster variables.  In this case, nothing needs
 // to be done here
-void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize( 
-                                 vtkRenderer *vtkNotUsed(ren), 
+void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize(
+                                 vtkRenderer *vtkNotUsed(ren),
                                  vtkVolume *vtkNotUsed(vol),
                                  vtkVolumeRayCastStaticInfo *staticInfo,
                                  vtkVolumeRayCastMapper *vtkNotUsed(mapper) )

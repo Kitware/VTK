@@ -35,7 +35,7 @@ public:
 class vtkUniform
 {
 public:
-  
+
   // just because dynamic__cast is forbidden in VTK. Sucks.
   enum
   {
@@ -45,23 +45,23 @@ public:
     ClassTypeArrayInt=3,
     ClassTypeArrayFloat=4
   };
-  
+
   int GetClassType() const
     {
       return this->ClassType;
     }
-  
+
   vtkUniform()
     {
       this->ClassType=-1;
       this->Name=0;
     }
-  
+
   const char *GetName() const
     {
       return this->Name;
     }
-  
+
   void SetName(const char *n)
     {
       if(this->Name==0 && n==0)
@@ -87,7 +87,7 @@ public:
         this->Name=0;
         }
     }
-  
+
   virtual ~vtkUniform()
     {
       if(this->Name!=0)
@@ -95,16 +95,16 @@ public:
         delete[] Name;
         }
     }
-  
+
   virtual void Send(int location)=0;
-  
+
   virtual void PrintSelf(ostream &os, vtkIndent indent)=0;
-  
+
   virtual vtkUniform *Clone() const=0;
-  
+
 protected:
   char *Name;
-  
+
   int ClassType; // just because dynamic__cast is forbidden in VTK. Sucks.
 };
 
@@ -128,12 +128,12 @@ public:
     {
       delete[] this->Values;
     }
-  
+
   int GetSize()
     {
       return this->Size;
     }
-  
+
   void SetValues(int *values)
     {
       int i=0;
@@ -143,7 +143,7 @@ public:
         ++i;
         }
     }
-  
+
   const int *GetValues()
     {
      return this->Values;
@@ -169,7 +169,7 @@ public:
           break;
         }
     }
-  
+
   virtual void PrintSelf(ostream &os, vtkIndent indent)
     {
       os << indent << this->Name << " (uniform" << this->Size << "i): ";
@@ -185,7 +185,7 @@ public:
         }
       os << endl;
     }
-  
+
   virtual vtkUniform *Clone() const
     {
       vtkUniformVectorInt *result=new vtkUniformVectorInt(this->Size,
@@ -193,7 +193,7 @@ public:
       result->SetName(this->Name);
       return result;
     }
-  
+
 protected:
   int Size;
   int *Values;
@@ -215,17 +215,17 @@ public:
         ++i;
         }
     }
-  
+
   virtual ~vtkUniformVectorFloat()
     {
       delete[] this->Values;
     }
-  
+
   int GetSize()
     {
       return this->Size;
     }
-  
+
   void SetValues(float *values)
     {
       int i=0;
@@ -235,12 +235,12 @@ public:
         ++i;
         }
     }
-  
+
   const float *GetValues()
     {
       return this->Values;
     }
-  
+
   virtual void Send(int location)
     {
       switch(this->Size)
@@ -261,7 +261,7 @@ public:
           break;
         }
     }
-  
+
   virtual void PrintSelf(ostream &os, vtkIndent indent)
     {
       os << indent << this->Name << " (uniform" << this->Size << "f): ";
@@ -277,15 +277,15 @@ public:
         }
       os << endl;
     }
-  
+
   virtual vtkUniform *Clone() const
-    { 
+    {
       vtkUniformVectorFloat *result=new vtkUniformVectorFloat(this->Size,
                                                               this->Values);
       result->SetName(this->Name);
       return result;
     }
-  
+
 protected:
   int Size;
   float *Values;
@@ -309,7 +309,7 @@ public:
         ++i;
         }
     }
-  
+
   // this constructor is used inside Clone()
   // It is required because GLint is long on Mac, not int.
   vtkUniformArrayInt(int size,
@@ -327,22 +327,22 @@ public:
         ++i;
         }
     }
-  
+
   virtual ~vtkUniformArrayInt()
     {
       delete[] this->Values;
     }
-  
+
   int GetSize()
     {
       return this->Size;
     }
-  
+
   int GetArraySize()
     {
       return this->ArraySize;
     }
-  
+
   void SetValues(int *values)
     {
       int i=0;
@@ -352,12 +352,12 @@ public:
         ++i;
         }
     }
-  
+
   const GLint *GetValues()
     {
       return this->Values;
     }
-  
+
   virtual void Send(int location)
     {
       switch(this->Size)
@@ -376,7 +376,7 @@ public:
           break;
         }
     }
-  
+
   virtual void PrintSelf(ostream &os, vtkIndent indent)
     {
       os << indent << this->Name << " (uniform" << this->Size << "iv[" << this->ArraySize << "]): ";
@@ -398,7 +398,7 @@ public:
         ++j;
         }
     }
-  
+
   virtual vtkUniform *Clone() const
     {
       vtkUniformArrayInt *result=new vtkUniformArrayInt(this->Size,
@@ -407,7 +407,7 @@ public:
       result->SetName(this->Name);
       return result;
     }
-  
+
 protected:
   int Size;  // size of element (eq. to float, vec2, vec2, vec4)
   int ArraySize; // number of elements
@@ -432,22 +432,22 @@ public:
         ++i;
         }
     }
-  
+
   virtual ~vtkUniformArrayFloat()
     {
       delete[] this->Values;
     }
-  
+
   int GetSize()
     {
       return this->Size;
     }
-  
+
   int GetArraySize()
     {
       return this->ArraySize;
     }
-  
+
   void SetValues(float *values)
     {
       int i=0;
@@ -457,12 +457,12 @@ public:
         ++i;
         }
     }
-  
+
   const float *GetValues()
     {
       return this->Values;
     }
-  
+
   virtual void Send(int location)
     {
       switch(this->Size)
@@ -481,7 +481,7 @@ public:
           break;
         }
     }
-  
+
   virtual void PrintSelf(ostream &os, vtkIndent indent)
     {
       os << indent << this->Name << " (uniform" << this->Size << "fv[" << this->ArraySize << "]): ";
@@ -503,7 +503,7 @@ public:
         ++j;
         }
     }
-  
+
   virtual vtkUniform *Clone() const
     {
       vtkUniformArrayFloat *result=new vtkUniformArrayFloat(this->Size,
@@ -512,7 +512,7 @@ public:
       result->SetName(this->Name);
       return result;
     }
-  
+
 protected:
   int Size;  // size of element (eq. to float, vec2, vec2, vec4)
   int ArraySize; // number of elements
@@ -544,7 +544,7 @@ public:
         ++i;
         }
     }
-  
+
   ~vtkUniformMatrix()
     {
       delete[] this->Values;
@@ -554,12 +554,12 @@ public:
     {
       return this->Rows;
     }
-  
+
   int GetColumns()
     {
       return this->Columns;
     }
-  
+
   void SetValues(float *values)
     {
       int i=0;
@@ -575,7 +575,7 @@ public:
         ++i;
         }
     }
-  
+
   const float* GetValues()
     {
       return this->Values;
@@ -629,12 +629,12 @@ public:
           break;
         }
     }
-  
+
   virtual void PrintSelf(ostream &os, vtkIndent indent)
     {
       os << indent << this->Name << " (matrix " << this->Rows << "x"
          << this->Columns << "): ";
-      
+
       int i=0;
       while(i<this->Rows)
         {
@@ -651,7 +651,7 @@ public:
         ++i;
         }
     }
-  
+
   virtual vtkUniform *Clone() const
     {
       vtkUniformMatrix *result=new vtkUniformMatrix(this->Rows,this->Columns,
@@ -659,7 +659,7 @@ public:
       result->SetName(this->Name);
       return result;
     }
-  
+
 protected:
   float *Values;
   int Rows;
@@ -674,7 +674,7 @@ class vtkUniformVariablesMap
 public:
   UniformMap Map;
   UniformMapIt It; // used for external iteration.
-  
+
   ~vtkUniformVariablesMap()
     {
       UniformMapIt i=this->Map.begin();
@@ -713,7 +713,7 @@ void vtkUniformVariables::SetUniformi(const char *name,
   assert("pre: valid_numberOfComponents" && numberOfComponents>=1 && numberOfComponents<=4);
 
   UniformMapIt cur=this->Map->Map.find(name);
-  
+
   if(cur!=this->Map->Map.end())
     {
     vtkUniform *u=(*cur).second;
@@ -754,12 +754,12 @@ void vtkUniformVariables::SetUniformi(const char *name,
     vtkUniform *u=0;
     u=new vtkUniformVectorInt(numberOfComponents,value);
     u->SetName(name);
-  
+
     vtksys_stl::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;
-    
+
     this->Map->Map.insert(p);
     this->Modified();
     }
@@ -775,7 +775,7 @@ void vtkUniformVariables::SetUniformf(const char *name,
   assert("pre: valid_numberOfComponents" && numberOfComponents>=1 && numberOfComponents<=4);
 
   UniformMapIt cur=this->Map->Map.find(name);
-  
+
   if(cur!=this->Map->Map.end())
     {
     vtkUniform *u=(*cur).second;
@@ -816,12 +816,12 @@ void vtkUniformVariables::SetUniformf(const char *name,
     vtkUniform *u=0;
     u=new vtkUniformVectorFloat(numberOfComponents,value);
     u->SetName(name);
-    
+
     vtksys_stl::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;
-    
+
     this->Map->Map.insert(p);
     this->Modified();
     }
@@ -975,7 +975,7 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
   assert("pre: valid_columns" && columns>=2 && columns<=4);
 
   UniformMapIt cur=this->Map->Map.find(name);
-  
+
   if(cur!=this->Map->Map.end())
     {
     vtkUniform *u=(*cur).second;
@@ -1054,7 +1054,7 @@ void vtkUniformVariables::Start()
 {
   this->Map->It=this->Map->Map.begin();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Is the iteration done?
@@ -1062,7 +1062,7 @@ bool vtkUniformVariables::IsAtEnd()
 {
   return this->Map->It==this->Map->Map.end();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Name of the uniform at the current cursor position.
@@ -1072,7 +1072,7 @@ const char *vtkUniformVariables::GetCurrentName()
   assert("pre: not_done" && !this->IsAtEnd());
   return (*this->Map->It).first;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // \pre need a valid OpenGL context and a shader program in use.
@@ -1103,15 +1103,15 @@ void vtkUniformVariables::Merge(vtkUniformVariables *other)
 {
   assert("pre: other_exists" && other!=0);
   assert("pre: not_self" && other!=this);
-  
+
   other->Start();
   while(!other->IsAtEnd())
     {
     const char *name=other->GetCurrentName();
     UniformMapIt cur=other->Map->Map.find(name);
-    
+
     vtkUniform *u1=(*cur).second;
-    
+
     vtkUniform *u2=u1->Clone();
     vtksys_stl::pair<const char *, vtkUniform *> p;
     p.first=u2->GetName();
@@ -1136,7 +1136,7 @@ void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
 {
   assert("pre: other_exists" && other!=0);
   assert("pre: not_self" && other!=this);
-  
+
   if(this->Map->Map.size()>0)
     {
     delete this->Map;
@@ -1161,7 +1161,7 @@ void vtkUniformVariables::RemoveAllUniforms()
 void vtkUniformVariables::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   this->Start();
   while(!this->IsAtEnd())
     {

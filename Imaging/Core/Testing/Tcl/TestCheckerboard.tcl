@@ -30,7 +30,7 @@ vtkImageCheckerboard checkers
   checkers SetInput1Data [pad1 GetOutput]
   checkers SetInput2Data [pad2 GetOutput]
   checkers SetNumberOfDivisions 11 6 2
- 
+
 vtkImageViewer viewer
   viewer SetInputConnection [checkers GetOutputPort]
   viewer SetZSlice 49

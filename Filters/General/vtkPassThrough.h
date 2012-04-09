@@ -34,7 +34,7 @@ public:
   // Specify the first input port as optional
   int FillInputPortInformation(int port, vtkInformation* info);
 
-  // Description: 
+  // Description:
   // Whether or not to deep copy the input. This can be useful if you
   // want to create a copy of a data object. You can then disconnect
   // this filter's input connections and it will act like a source.
@@ -48,12 +48,12 @@ protected:
   ~vtkPassThrough();
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   int DeepCopyInput;
-    
+
 private:
   vtkPassThrough(const vtkPassThrough&); // Not implemented
   void operator=(const vtkPassThrough&);   // Not implemented

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPoints - represent and manipulate 3D points
 // .SECTION Description
-// vtkPoints represents 3D points. The data model for vtkPoints is an 
+// vtkPoints represents 3D points. The data model for vtkPoints is an
 // array of vx-vy-vz triplets accessible by (point or cell) id.
 
 #ifndef __vtkPoints_h
@@ -42,7 +42,7 @@ public:
   // Description:
   // Allocate initial memory size.
   virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
-  
+
   // Description:
   // Return object to instantiated state.
   virtual void Initialize();
@@ -51,14 +51,14 @@ public:
   // Set/Get the underlying data array. This function must be implemented
   // in a concrete subclass to check for consistency. (The tuple size must
   // match the type of data. For example, 3-tuple data array can be assigned to
-  // a vector, normal, or points object, but not a tensor object, which has a 
+  // a vector, normal, or points object, but not a tensor object, which has a
   // tuple dimension of 9. Scalars, on the other hand, can have tuple dimension
   //  from 1-4, depending on the type of scalar.)
   virtual void SetData(vtkDataArray *);
   vtkDataArray *GetData() {return this->Data;};
 
   // Description:
-  // Return the underlying data type. An integer indicating data type is 
+  // Return the underlying data type. An integer indicating data type is
   // returned as specified in vtkSetGet.h.
   virtual int GetDataType();
 
@@ -78,7 +78,7 @@ public:
   void SetDataTypeToDouble() {this->SetDataType(VTK_DOUBLE);};
 
   // Description:
-  // Return a void pointer. For image pipeline interface and other 
+  // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
   void *GetVoidPointer(const int id) {return this->Data->GetVoidPointer(id);};
 
@@ -87,7 +87,7 @@ public:
   virtual void Squeeze() {this->Data->Squeeze();};
 
   // Description:
-  // Make object look empty but do not delete memory.  
+  // Make object look empty but do not delete memory.
   virtual void Reset() {this->Data->Reset();};
 
   // Description:
@@ -98,10 +98,10 @@ public:
   virtual void ShallowCopy(vtkPoints *ad);
 
   // Description:
-  // Return the memory in kilobytes consumed by this attribute data. 
-  // Used to support streaming and reading/writing data. The value 
-  // returned is guaranteed to be greater than or equal to the 
-  // memory required to actually represent the data represented 
+  // Return the memory in kilobytes consumed by this attribute data.
+  // Used to support streaming and reading/writing data. The value
+  // returned is guaranteed to be greater than or equal to the
+  // memory required to actually represent the data represented
   // by this object. The information returned is valid only after
   // the pipeline has been updated.
   unsigned long GetActualMemorySize();
@@ -138,12 +138,12 @@ public:
   void InsertPoint(vtkIdType id, const double x[3])
     {this->Data->InsertTuple(id,x);};
   void InsertPoint(vtkIdType id, double x, double y, double z);
-  
+
   // Description:
   // Insert point into next available slot. Returns id of slot.
-  vtkIdType InsertNextPoint(const float x[3]) { 
+  vtkIdType InsertNextPoint(const float x[3]) {
     return this->Data->InsertNextTuple(x);};
-  vtkIdType InsertNextPoint(const double x[3]) { 
+  vtkIdType InsertNextPoint(const double x[3]) {
     return this->Data->InsertNextTuple(x);};
   vtkIdType InsertNextPoint(double x, double y, double z);
 

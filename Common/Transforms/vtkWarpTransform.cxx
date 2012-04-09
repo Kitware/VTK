@@ -37,7 +37,7 @@ vtkWarpTransform::vtkWarpTransform()
 //----------------------------------------------------------------------------
 vtkWarpTransform::~vtkWarpTransform()
 {
-} 
+}
 
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
@@ -103,12 +103,12 @@ void vtkWarpTransform::InternalTransformDerivative(const double input[3],
 }
 
 //----------------------------------------------------------------------------
-// We use Newton's method to iteratively invert the transformation.  
+// We use Newton's method to iteratively invert the transformation.
 // This is actally quite robust as long as the Jacobian matrix is never
 // singular.
 template<class T>
 void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
-                                  const T point[3], 
+                                  const T point[3],
                                   T output[3],
                                   T derivative[3][3])
 {
@@ -128,7 +128,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 
   // first guess at inverse point: invert the displacement
   self->TemplateTransformPoint(point,inverse);
-  
+
   inverse[0] -= 2*(inverse[0]-point[0]);
   inverse[1] -= 2*(inverse[1]-point[1]);
   inverse[2] -= 2*(inverse[2]-point[2]);
@@ -170,7 +170,7 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
                       deltaI[2]*deltaI[2]);
 
       // break if less than tolerance in both coordinate systems
-      if (errorSquared < toleranceSquared && 
+      if (errorSquared < toleranceSquared &&
           functionValue < toleranceSquared)
         {
         break;
@@ -194,18 +194,18 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
       inverse[1] -= deltaI[1];
       inverse[2] -= deltaI[2];
 
-      // reset f to 1.0 
+      // reset f to 1.0
       f = 1.0;
 
       continue;
       }
 
-    // the error is increasing, so take a partial step 
+    // the error is increasing, so take a partial step
     // (see Numerical Recipes 9.7 for rationale, this code
     //  is a simplification of the algorithm provided there)
 
     // quadratic approximation to find best fractional distance
-    a = -functionDerivative/(2*(functionValue - 
+    a = -functionDerivative/(2*(functionValue -
                                 lastFunctionValue -
                                 functionDerivative));
 
@@ -240,14 +240,14 @@ void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   output[2] = inverse[2];
 }
 
-void vtkWarpTransform::InverseTransformPoint(const float point[3], 
+void vtkWarpTransform::InverseTransformPoint(const float point[3],
                                              float output[3])
 {
   float derivative[3][3];
   vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
-void vtkWarpTransform::InverseTransformPoint(const double point[3], 
+void vtkWarpTransform::InverseTransformPoint(const double point[3],
                                              double output[3])
 {
   double derivative[3][3];
@@ -255,14 +255,14 @@ void vtkWarpTransform::InverseTransformPoint(const double point[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkWarpTransform::InverseTransformDerivative(const float point[3], 
+void vtkWarpTransform::InverseTransformDerivative(const float point[3],
                                                   float output[3],
                                                   float derivative[3][3])
 {
   vtkWarpInverseTransformPoint(this, point, output, derivative);
 }
 
-void vtkWarpTransform::InverseTransformDerivative(const double point[3], 
+void vtkWarpTransform::InverseTransformDerivative(const double point[3],
                                                   double output[3],
                                                   double derivative[3][3])
 {

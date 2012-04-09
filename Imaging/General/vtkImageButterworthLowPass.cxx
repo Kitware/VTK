@@ -96,13 +96,13 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
                   << inData[0][0]->GetNumberOfScalarComponents());
     return;
     }
-  if (inData[0][0]->GetScalarType() != VTK_DOUBLE || 
+  if (inData[0][0]->GetScalarType() != VTK_DOUBLE ||
       outData[0]->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro("Expecting input and output to be of type double");
     return;
     }
-  
+
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   inData[0][0]->GetSpacing(spacing);
 
@@ -110,8 +110,8 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
   outPtr = static_cast<double *>(outData[0]->GetScalarPointerForExtent(ext));
 
   inData[0][0]->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
-  outData[0]->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);  
-  
+  outData[0]->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);
+
   min0 = ext[0];
   max0 = ext[1];
   mid0 = static_cast<double>(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
@@ -141,7 +141,7 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
     {
     norm2 = 1.0 / ((spacing[2] * 2.0 * mid2) * this->CutOff[2]);
     }
-  
+
   target = static_cast<unsigned long>(
     (ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
   target++;
@@ -161,7 +161,7 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
 
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -179,7 +179,7 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
       // Convert location into cycles / world unit
       temp1 = temp1 * norm1;
       sum1 = temp2 * temp2 + temp1 * temp1;
-      
+
       for (idx0 = min0; idx0 <= max0; ++idx0)
         {
         // distance to min (this axis' contribution)
@@ -192,7 +192,7 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
         // Convert location into cycles / world unit
         temp0 = temp0 * norm0;
         sum0 = sum1 + temp0 * temp0;
-        
+
         // compute Butterworth1D function from sum = d^2
         if (this->Order == 1)
           {
@@ -201,19 +201,19 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
         else
           {
           sum0 = 1.0 / (1.0 + pow(sum0, static_cast<double>(this->Order)));
-          }     
-        
+          }
+
         // real component
         *outPtr++ = *inPtr++ * sum0;
-        // imaginary component  
+        // imaginary component
         *outPtr++ = *inPtr++ * sum0;
-        
+
         }
       inPtr += inInc1;
       outPtr += outInc1;
       }
     inPtr += inInc2;
-    outPtr += outInc2;    
+    outPtr += outInc2;
     }
 }
 

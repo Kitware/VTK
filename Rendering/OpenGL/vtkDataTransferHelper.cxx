@@ -213,9 +213,9 @@ bool vtkDataTransferHelper::Upload(int components,
   int texturedims[3];
   vtkGetDimensions(this->CPUExtent, cpudims);
   vtkGetDimensions(this->GPUExtent, gpudims);
-  vtkDebugMacro( << "CPUDims: " << cpudims[0] << ", " << cpudims[1] 
+  vtkDebugMacro( << "CPUDims: " << cpudims[0] << ", " << cpudims[1]
                  << ", " << cpudims[2] << endl );
-  vtkDebugMacro( << "GPUDims: " << gpudims[0] << ", " << gpudims[1] 
+  vtkDebugMacro( << "GPUDims: " << gpudims[0] << ", " << gpudims[1]
                  << ", " << gpudims[2] << endl );
   if(!this->GetTextureExtentIsValid())
     {
@@ -241,14 +241,14 @@ bool vtkDataTransferHelper::Upload(int components,
   // scalars are needed for ComputeIncrements().
   tempImg->AllocateScalars(VTK_DOUBLE, 1);
   tempImg->SetExtent(this->CPUExtent);
-  
+
   vtkIdType continuousInc[3];
   tempImg->GetContinuousIncrements(this->GPUExtent,
     continuousInc[0], continuousInc[1], continuousInc[2]);
   tempImg=0;
 
-  int pt[3] = {this->GPUExtent[0]-this->CPUExtent[0], 
-    this->GPUExtent[2]-this->CPUExtent[2], 
+  int pt[3] = {this->GPUExtent[0]-this->CPUExtent[0],
+    this->GPUExtent[2]-this->CPUExtent[2],
     this->GPUExtent[4]-this->CPUExtent[4]};
 
   vtkIdType ptId = vtkStructuredData::ComputePointId(cpudims, pt);
@@ -269,7 +269,7 @@ bool vtkDataTransferHelper::Upload(int components,
     this->SetTexture(tex);
     tex->Delete();
     }
-  
+
   int tempdims[3] = {0, 0, 0};
   int dataDescription = vtkStructuredData::SetDimensions(texturedims, tempdims);
   int dimension = vtkStructuredData::GetDataDimension(dataDescription);
@@ -278,7 +278,7 @@ bool vtkDataTransferHelper::Upload(int components,
   bool uploaded = false;
   switch (dimension)
     {
-    case 0: // 1 pixel image 
+    case 0: // 1 pixel image
     case 1:
       {
         unsigned int length=0;
@@ -330,12 +330,12 @@ bool vtkDataTransferHelper::Upload(int components,
             width = gpudims[0];
             height = gpudims[1];
             break;
-            
+
           case VTK_YZ_PLANE:
             width = gpudims[1];
             height = gpudims[2];
             break;
-            
+
           case VTK_XZ_PLANE:
             width = gpudims[0];
             height = gpudims[2];
@@ -349,12 +349,12 @@ bool vtkDataTransferHelper::Upload(int components,
             width = static_cast<unsigned int>(texturedims[0]);
             height = static_cast<unsigned int>(texturedims[1]);
             break;
-            
+
           case VTK_YZ_PLANE:
             width = static_cast<unsigned int>(texturedims[1]);
             height = static_cast<unsigned int>(texturedims[2]);
             break;
-            
+
           case VTK_XZ_PLANE:
             width = static_cast<unsigned int>(texturedims[0]);
             height = static_cast<unsigned int>(texturedims[2]);
@@ -382,7 +382,7 @@ bool vtkDataTransferHelper::Upload(int components,
           }
       }
       break;
-      
+
     case 3:
       uploaded = this->Texture->Create3D(
         static_cast<unsigned int>(texturedims[0]),
@@ -484,7 +484,7 @@ bool vtkDataTransferHelper::DownloadAsync1()
     return false;
     }
 
-  if (pbo->GetSize() < 
+  if (pbo->GetSize() <
     static_cast<unsigned int>(gpudims[0]*gpudims[1]*gpudims[2]*numComps))
     {
     vtkErrorMacro("GPU data size is smaller than GPUExtent.");
@@ -528,14 +528,14 @@ bool vtkDataTransferHelper::DownloadAsync2()
   // scalars are needed for ComputeIncrements().
   tempImg->AllocateScalars(VTK_DOUBLE, 1);
   tempImg->SetExtent(this->CPUExtent);
-  
+
   vtkIdType continuousInc[3];
   tempImg->GetContinuousIncrements(this->GPUExtent,
     continuousInc[0], continuousInc[1], continuousInc[2]);
   tempImg=0;
 
-  int pt[3] = {this->GPUExtent[0]-this->CPUExtent[0], 
-    this->GPUExtent[2]-this->CPUExtent[2], 
+  int pt[3] = {this->GPUExtent[0]-this->CPUExtent[0],
+    this->GPUExtent[2]-this->CPUExtent[2],
     this->GPUExtent[4]-this->CPUExtent[4]};
 
   vtkIdType ptId = vtkStructuredData::ComputePointId(cpudims, pt);
@@ -575,7 +575,7 @@ vtkPixelBufferObject* vtkDataTransferHelper::GetPBO()
 void vtkDataTransferHelper::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  
+
   os << indent << "Array: "               << this->Array               << endl;
   os << indent << "Texture: "             << this->Texture             << endl;
   os << indent << "MinTextureDimension: " << this->MinTextureDimension << endl;

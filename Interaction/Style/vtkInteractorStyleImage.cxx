@@ -32,13 +32,13 @@
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleImage::vtkInteractorStyleImage() 
+vtkInteractorStyleImage::vtkInteractorStyleImage()
 {
   this->WindowLevelStartPosition[0]   = 0;
-  this->WindowLevelStartPosition[1]   = 0;  
+  this->WindowLevelStartPosition[1]   = 0;
 
   this->WindowLevelCurrentPosition[0] = 0;
-  this->WindowLevelCurrentPosition[1] = 0;  
+  this->WindowLevelCurrentPosition[1] = 0;
 
   this->WindowLevelInitial[0] = 1.0; // Window
   this->WindowLevelInitial[1] = 0.5; // Level
@@ -73,7 +73,7 @@ vtkInteractorStyleImage::vtkInteractorStyleImage()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleImage::~vtkInteractorStyleImage() 
+vtkInteractorStyleImage::~vtkInteractorStyleImage()
 {
   if (this->CurrentImageProperty)
     {
@@ -82,9 +82,9 @@ vtkInteractorStyleImage::~vtkInteractorStyleImage()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::StartWindowLevel() 
+void vtkInteractorStyleImage::StartWindowLevel()
 {
-  if (this->State != VTKIS_NONE) 
+  if (this->State != VTKIS_NONE)
     {
     return;
     }
@@ -109,9 +109,9 @@ void vtkInteractorStyleImage::StartWindowLevel()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::EndWindowLevel() 
+void vtkInteractorStyleImage::EndWindowLevel()
 {
-  if (this->State != VTKIS_WINDOW_LEVEL) 
+  if (this->State != VTKIS_WINDOW_LEVEL)
     {
     return;
     }
@@ -123,9 +123,9 @@ void vtkInteractorStyleImage::EndWindowLevel()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::StartPick() 
+void vtkInteractorStyleImage::StartPick()
 {
-  if (this->State != VTKIS_NONE) 
+  if (this->State != VTKIS_NONE)
     {
     return;
     }
@@ -137,9 +137,9 @@ void vtkInteractorStyleImage::StartPick()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::EndPick() 
+void vtkInteractorStyleImage::EndPick()
 {
-  if (this->State != VTKIS_PICK) 
+  if (this->State != VTKIS_PICK)
     {
     return;
     }
@@ -171,12 +171,12 @@ void vtkInteractorStyleImage::EndSlice()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMouseMove() 
+void vtkInteractorStyleImage::OnMouseMove()
 {
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_WINDOW_LEVEL:
       this->FindPokedRenderer(x, y);
@@ -203,7 +203,7 @@ void vtkInteractorStyleImage::OnMouseMove()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnLeftButtonDown() 
+void vtkInteractorStyleImage::OnLeftButtonDown()
 {
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
@@ -213,13 +213,13 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
     {
     return;
     }
-  
+
   // Redefine this button to handle window/level
   this->GrabFocus(this->EventCallbackCommand);
-  if (!this->Interactor->GetShiftKey() && !this->Interactor->GetControlKey()) 
+  if (!this->Interactor->GetShiftKey() && !this->Interactor->GetControlKey())
     {
     this->WindowLevelStartPosition[0] = x;
-    this->WindowLevelStartPosition[1] = y;      
+    this->WindowLevelStartPosition[1] = y;
     this->StartWindowLevel();
     }
 
@@ -249,7 +249,7 @@ void vtkInteractorStyleImage::OnLeftButtonDown()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::OnLeftButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_WINDOW_LEVEL:
       this->EndWindowLevel();
@@ -267,7 +267,7 @@ void vtkInteractorStyleImage::OnLeftButtonUp()
         }
       break;
     }
-  
+
   // Call parent to handle all other states and perform additional work
 
   this->Superclass::OnLeftButtonUp();
@@ -319,7 +319,7 @@ void vtkInteractorStyleImage::OnMiddleButtonUp()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonDown() 
+void vtkInteractorStyleImage::OnRightButtonDown()
 {
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
@@ -357,9 +357,9 @@ void vtkInteractorStyleImage::OnRightButtonDown()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonUp() 
+void vtkInteractorStyleImage::OnRightButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_PICK:
       this->EndPick();
@@ -392,13 +392,13 @@ void vtkInteractorStyleImage::OnRightButtonUp()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnChar() 
+void vtkInteractorStyleImage::OnChar()
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  switch (rwi->GetKeyCode()) 
+  switch (rwi->GetKeyCode())
     {
-    case 'f' :      
+    case 'f' :
     case 'F' :
       {
       this->AnimState = VTKIS_ANIM_ON;
@@ -406,7 +406,7 @@ void vtkInteractorStyleImage::OnChar()
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
       rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
-                             rwi->GetEventPosition()[1], 0.0, 
+                             rwi->GetEventPosition()[1], 0.0,
                              this->CurrentRenderer);
       vtkAbstractPropPicker *picker;
       if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
@@ -421,7 +421,7 @@ void vtkInteractorStyleImage::OnChar()
       break;
       }
 
-    case 'r' :      
+    case 'r' :
     case 'R' :
       // Allow either shift/ctrl to trigger the usual 'r' binding
       // otherwise trigger reset window level event
@@ -480,7 +480,7 @@ void vtkInteractorStyleImage::WindowLevel()
 
   this->WindowLevelCurrentPosition[0] = rwi->GetEventPosition()[0];
   this->WindowLevelCurrentPosition[1] = rwi->GetEventPosition()[1];
-  
+
   if (this->CurrentImageProperty)
     {
     int *size = this->CurrentRenderer->GetSize();
@@ -685,7 +685,7 @@ void vtkInteractorStyleImage::SetCurrentImageToNthImage(int i)
 void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "Window Level Current Position: ("
      << this->WindowLevelCurrentPosition[0] << ", "
      << this->WindowLevelCurrentPosition[1] << ")\n";

@@ -284,13 +284,13 @@ int TestCheckerboardWidget( int, char *[] )
   checkers->SetInputConnection(0,pad1->GetOutputPort());
   checkers->SetInputConnection(1,pad2->GetOutputPort());
   checkers->SetNumberOfDivisions(10,6,1);
- 
+
   vtkSmartPointer<vtkImageActor> checkerboardActor =
     vtkSmartPointer<vtkImageActor>::New();
   checkerboardActor->GetMapper()->SetInputConnection(checkers->GetOutputPort());
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
-  // and the widget representation that defines how the widget appears in the scene 
+  // and the widget representation that defines how the widget appears in the scene
   // (i.e., matters pertaining to geometry).
   vtkSmartPointer<vtkCheckerboardRepresentation> rep =
     vtkSmartPointer<vtkCheckerboardRepresentation>::New();

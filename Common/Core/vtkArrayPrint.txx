@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayPrint.txx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -34,7 +34,7 @@ void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array)
     vtkGenericWarningMacro(<< "vtkPrintCoordinateFormat() requires a non-NULL array as input.");
     return;
     }
-    
+
   const vtkArrayExtents extents = array->GetExtents();
   const vtkIdType dimensions = array->GetDimensions();
   const vtkIdType non_null_size = array->GetNonNullSize();
@@ -44,7 +44,7 @@ void vtkPrintCoordinateFormat(ostream& stream, vtkTypedArray<T>* array)
   stream << array->GetNonNullSize() << "\n";
 
   vtkArrayCoordinates coordinates;
-  for(vtkIdType n = 0; n != non_null_size; ++n) 
+  for(vtkIdType n = 0; n != non_null_size; ++n)
     {
     array->GetCoordinatesN(n, coordinates);
     for(vtkIdType i = 0; i != dimensions; ++i)
@@ -61,13 +61,13 @@ void vtkPrintMatrixFormat(ostream& stream, vtkTypedArray<T>* matrix)
     vtkGenericWarningMacro(<< "vtkPrintMatrixFormat() requires a non-NULL array as input.");
     return;
     }
-    
+
   if(matrix->GetDimensions() != 2)
     {
     vtkGenericWarningMacro(<< "vtkPrintMatrixFormat() requires a matrix (2-way array) as input.");
     return;
     }
-    
+
   const vtkArrayRange rows = matrix->GetExtent(0);
   const vtkArrayRange columns = matrix->GetExtent(1);
 
@@ -89,13 +89,13 @@ void vtkPrintVectorFormat(ostream& stream, vtkTypedArray<T>* vector)
     vtkGenericWarningMacro(<< "vtkPrintVectorFormat() requires a non-NULL array as input.");
     return;
     }
-    
+
   if(vector->GetDimensions() != 1)
     {
     vtkGenericWarningMacro(<< "vtkPrintVectorFormat() requires a vector (1-way array) as input.");
     return;
     }
-    
+
   const vtkArrayRange rows = vector->GetExtent(0);
 
   for(vtkIdType row = rows.GetBegin(); row != rows.GetEnd(); ++row)

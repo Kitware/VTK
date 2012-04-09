@@ -18,7 +18,7 @@
 // with an input vtkPolyData data object. Any type of attribute data can be
 // plotted including scalars, vectors, tensors, normals, texture coordinates,
 // and field data. Either one or multiple data components can be plotted.
-// 
+//
 // To use this class you must specify an input data set that contains one or
 // more polylines, and some attribute data including which component of the
 // attribute data. (By default, this class processes the first component of
@@ -27,7 +27,7 @@
 // (the distance that the minimum and maximum plot values are mapped into),
 // an possibly an offset (used to offset attribute data with multiple
 // components).
-// 
+//
 // Normally the filter automatically computes normals for generating the
 // offset arc plot. However, you can specify a default normal and use that
 // instead.
@@ -85,7 +85,7 @@ public:
             {this->SetPlotMode(VTK_PLOT_FIELD_DATA);};
 
   // Description:
-  // Set/Get the component number to plot if the data has more than one 
+  // Set/Get the component number to plot if the data has more than one
   // component. If the value of the plot component is == (-1), then all
   // the components will be plotted.
   vtkSetMacro(PlotComponent,int);
@@ -138,7 +138,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
-                   vtkPoints *newPts, double offset, 
+                   vtkPoints *newPts, double offset,
                    double *range, double val);
   int  ProcessComponents(vtkIdType numPts, vtkPointData *pd);
 
@@ -151,7 +151,7 @@ protected:
   float     DefaultNormal[3];
   int       UseDefaultNormal;
   int       FieldDataArray;
-  
+
 private:
   vtkDataArray *Data;
   double    *DataRange;
@@ -160,7 +160,7 @@ private:
   int       ActiveComponent;
   int       StartComp;
   int       EndComp;
-  
+
 private:
   vtkArcPlotter(const vtkArcPlotter&);  // Not implemented.
   void operator=(const vtkArcPlotter&);  // Not implemented.

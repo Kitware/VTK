@@ -164,7 +164,7 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->LastCommonTimeStep = -1;
   this->VariableCacheSize = 100;
 }
- 
+
 //----------------------------------------------------------------------------
 vtkPExodusIIReader::~vtkPExodusIIReader()
 {
@@ -173,7 +173,7 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
   this->SetFilePrefix( 0 );
 
   // If we've allocated filenames then delete them
-  if ( this->FileNames ) 
+  if ( this->FileNames )
     {
     for (int i=0; i<this->NumberOfFileNames; i++)
       {
@@ -228,7 +228,7 @@ void vtkPExodusIIReader::SetController( vtkMultiProcessController* c )
   if ( ! this->Controller || this->ProcSize <= 0 )
     {
     this->ProcRank = 0;
-    this->ProcSize = 1;    
+    this->ProcSize = 1;
     }
 }
 
@@ -253,7 +253,7 @@ int vtkPExodusIIReader::RequestInformation(
     {
     int newName = this->GetMetadataMTime() < this->FileNameMTime;
 
-    int newPattern = 
+    int newPattern =
       (
        ( this->FilePattern &&
          ( ! this->CurrentFilePattern ||
@@ -283,8 +283,8 @@ int vtkPExodusIIReader::RequestInformation(
 
     if ( newPattern && ! rebuildPattern )
       {
-      char* nm = 
-        new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];  
+      char* nm =
+        new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];
       sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
       if ( this->FileName )
         delete [] this->FileName;
@@ -454,8 +454,8 @@ int vtkPExodusIIReader::RequestData(
 #endif
 
   // We are going to read in the files one by one and then
-  // append them together. So now we make sure that we have 
-  // the correct number of serial exodus readers and we create 
+  // append them together. So now we make sure that we have
+  // the correct number of serial exodus readers and we create
   // our append object that puts the 'pieces' together
   unsigned int numMyFiles = max - min + 1;
 
@@ -477,7 +477,7 @@ int vtkPExodusIIReader::RequestData(
       progress->SetReader( this );
       progress->SetIndex( reader_idx );
       er->AddObserver( vtkCommand::ProgressEvent, progress );
-      progress->Delete();      
+      progress->Delete();
 
       this->ReaderList.push_back( er );
       }
@@ -651,8 +651,8 @@ int vtkPExodusIIReader::RequestData(
       }
 
     // All keys must be present for the fast-path to work.
-    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) && 
-         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() ) && 
+    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_TYPE() ) &&
+         outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_OBJECT_ID() ) &&
          outInfo->Has( vtkStreamingDemandDrivenPipeline::FAST_PATH_ID_TYPE() ) )
       {
       const char *objectType = outInfo->Get(
@@ -687,8 +687,8 @@ int vtkPExodusIIReader::RequestData(
       //if (fast_path_reader_index != -1)
       //  {
       //  Requested fast-path Global ID was provided by two readers. This
-      //  typically happens for points since points are duplicated among 
-      //  pieces. Nothing to worry about, just pick one. 
+      //  typically happens for points since points are duplicated among
+      //  pieces. Nothing to worry about, just pick one.
       //  }
       fast_path_reader_index = reader_idx;
       }
@@ -738,7 +738,7 @@ int vtkPExodusIIReader::RequestData(
     }
 
   // Append complains/barfs if you update it without any inputs
-  if ( append->GetInput() != NULL ) 
+  if ( append->GetInput() != NULL )
     {
     append->Update();
     output->ShallowCopy( append->GetOutput() );
@@ -755,12 +755,12 @@ int vtkPExodusIIReader::RequestData(
     // Copy all over-time arrays
     int numFieldArrays = ifd->GetNumberOfArrays();
     for (int j=0; j<numFieldArrays; j++)
-      {  
+      {
       vtkAbstractArray* inFieldArray = ifd->GetAbstractArray(j);
       if (inFieldArray && inFieldArray->GetName())
         {
         vtkStdString fieldName = inFieldArray->GetName();
-        
+
         if (fieldName.find("OverTime",0) != vtkStdString::npos)
           {
           ofd->AddArray(inFieldArray);
@@ -777,7 +777,7 @@ int vtkPExodusIIReader::RequestData(
     {
     // The metadata is written to field arrays and attached
     // to the output unstructured grid.
-    if ( this->ExodusModel ) 
+    if ( this->ExodusModel )
       {
       vtkModelMetadata::RemoveMetadata( output );
       this->ExodusModel->GetModelMetadata()->Pack( output );
@@ -792,7 +792,7 @@ int vtkPExodusIIReader::RequestData(
 void vtkPExodusIIReader::SetFileRange(int min, int max)
 {
   if ( min == this->FileRange[0] && max == this->FileRange[1] )
-    {  
+    {
     return;
     }
   this->FileRange[0] = min;
@@ -939,7 +939,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // Count up the files
   char buffer[1024];
   struct stat fs;
-  
+
   // First go up every 100
   for ( cc = min + 100; true; cc += 100 )
     {
@@ -994,7 +994,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     }
   min = cc + 1;
 
-  // If the user did not specify a range before this, 
+  // If the user did not specify a range before this,
   // than set the range to the min and max
   if ( ( this->FileRange[0] == -1 ) && ( this->FileRange[1] == -1 ) )
     {
@@ -1041,7 +1041,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "FilePrefix: NULL\n";
     }
 
-  os << indent << "FileRange: " 
+  os << indent << "FileRange: "
      << this->FileRange[0] << " " << this->FileRange[1] << endl;
 
   os << indent << "NumberOfFiles: " << this->NumberOfFiles << endl;
@@ -1073,8 +1073,8 @@ vtkIdType vtkPExodusIIReader::GetTotalNumberOfNodes()
 
 void vtkPExodusIIReader::UpdateTimeInformation()
 {
-  // Before we start, make sure that we have readers to read (i.e. that 
-  // RequestData() has been called. 
+  // Before we start, make sure that we have readers to read (i.e. that
+  // RequestData() has been called.
   if ( this->ReaderList.size() == 0 )
     {
     return;

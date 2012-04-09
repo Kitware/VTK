@@ -11,14 +11,14 @@ from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
 
 class TestTkRenderWidget(Testing.vtkTest):
-    
+
     # Stick your VTK pipeline here if you want to create the pipeline
     # only once.  If you put it in the constructor or in the function
     # the pipeline will be created afresh for each and every test.
 
     # create a dummy Tkinter root window.
     root = Tkinter.Tk()
-    
+
     # create a rendering window and renderer
     ren = vtk.vtkRenderer()
     tkrw = vtkTkRenderWidget(root, width=300, height=300)
@@ -35,8 +35,8 @@ class TestTkRenderWidget(Testing.vtkTest):
     act.SetMapper(map)
 
     # assign our actor to the renderer
-    ren.AddActor(act)    
-    
+    ren.AddActor(act)
+
     def testvtkTkRenderWidget(self):
         "Test if vtkTkRenderWidget works."
         self.rw.Render()

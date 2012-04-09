@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkDataObjectWriter - write vtk field data
 // .SECTION Description
-// vtkDataObjectWriter is a source object that writes ASCII or binary 
+// vtkDataObjectWriter is a source object that writes ASCII or binary
 // field data files in vtk format. Field data is a general form of data in
 // matrix form.
 

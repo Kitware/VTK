@@ -41,7 +41,7 @@ vtkPointSet::~vtkPointSet ()
 {
   this->Cleanup();
 
-  if ( this->Locator ) 
+  if ( this->Locator )
     {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
@@ -56,7 +56,7 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
 
   if ( this->Points != ps->Points )
     {
-    if ( this->Locator ) 
+    if ( this->Locator )
       {
       this->Locator->Initialize();
       }
@@ -67,7 +67,7 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
 //----------------------------------------------------------------------------
 void vtkPointSet::Cleanup()
 {
-  if ( this->Points ) 
+  if ( this->Points )
     {
     this->Points->UnRegister(this);
     this->Points = NULL;
@@ -81,7 +81,7 @@ void vtkPointSet::Initialize()
 
   this->Cleanup();
 
-  if ( this->Locator ) 
+  if ( this->Locator )
     {
     this->Locator->Initialize();
     }
@@ -107,7 +107,7 @@ unsigned long int vtkPointSet::GetMTime()
 {
   unsigned long int dsTime = vtkDataSet::GetMTime();
 
-  if ( this->Points ) 
+  if ( this->Points )
     {
     if ( this->Points->GetMTime() > dsTime )
       {
@@ -115,8 +115,8 @@ unsigned long int vtkPointSet::GetMTime()
       }
     }
 
-  // don't get locator's mtime because its an internal object that cannot be 
-  // modified directly from outside. Causes problems due to FindCell() 
+  // don't get locator's mtime because its an internal object that cannot be
+  // modified directly from outside. Causes problems due to FindCell()
   // SetPoints() method.
 
   return dsTime;
@@ -354,7 +354,7 @@ void vtkPointSet::ReportReferences(vtkGarbageCollector* collector)
 unsigned long vtkPointSet::GetActualMemorySize()
 {
   unsigned long size=this->vtkDataSet::GetActualMemorySize();
-  if ( this->Points ) 
+  if ( this->Points )
     {
     size += this->Points->GetActualMemorySize();
     }

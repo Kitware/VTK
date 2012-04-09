@@ -127,7 +127,7 @@ class TestMapperLUT(Testing.vtkTest):
         dummyActor = vtk.vtkActor()
         dummyActor.SetMapper(m)
         dummyActor.GetProperty().SetOpacity(0.0)
-    
+
         # Create the RenderWindow and Renderer
         ren = vtk.vtkRenderer()
         renWin = vtk.vtkRenderWindow()

@@ -50,7 +50,7 @@ int ImportExport( int argc, char *argv[] )
   exporter->Export(data);
 
   // alternative method for getting data
-  // short *data = exporter->GetPointerToData(); 
+  // short *data = exporter->GetPointerToData();
 
   // do a little something to the data
 

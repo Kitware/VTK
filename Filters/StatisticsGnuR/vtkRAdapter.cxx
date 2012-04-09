@@ -123,7 +123,7 @@ vtkDataArray* vtkRAdapter::RToVTKDataArray(SEXP variable)
     nc = Rf_ncols(variable);
     nr = Rf_nrows(variable);
 
-    result = vtkDoubleArray::New(); 
+    result = vtkDoubleArray::New();
 
     result->SetNumberOfTuples(nr);
     result->SetNumberOfComponents(nc);

@@ -20,14 +20,14 @@
 // .NAME vtkOctreePointLocatorNode - Octree node that has 8 children each of equal size
 //
 // .SECTION Description
-// This class represents a single spatial region in a 3D axis octant 
-// partitioning.  It is intended to work efficiently with the 
-// vtkOctreePointLocator and is not meant for general use.  It is assumed 
-// the region bounds some set of points.  The ordering of the children is 
+// This class represents a single spatial region in a 3D axis octant
+// partitioning.  It is intended to work efficiently with the
+// vtkOctreePointLocator and is not meant for general use.  It is assumed
+// the region bounds some set of points.  The ordering of the children is
 // (-x,-y,-z),(+x,-y,-z),(-x,+y,-z),(+x,+y,-z),(-x,-y,+z),(+x,-y,+z),
-// (-x,+y,+z),(+x,+y,+z).  The portion of the domain assigned to an 
-// octant is Min < x <= Max.  
-//    
+// (-x,+y,+z),(+x,+y,+z).  The portion of the domain assigned to an
+// octant is Min < x <= Max.
+//
 // .SECTION See Also
 //      vtkOctreePointLocator
 
@@ -110,7 +110,7 @@ public:
 //ETX
 
   // Description:
-  //   Set the xmin, ymin and zmin value of the bounds of this 
+  //   Set the xmin, ymin and zmin value of the bounds of this
   //   data within this region.
   void SetMinDataBounds(double minDataBounds[3])
   {
@@ -120,7 +120,7 @@ public:
   }
 
   // Description:
-  //   Set the xmax, ymax and zmax value of the bounds of this 
+  //   Set the xmax, ymax and zmax value of the bounds of this
   //   data within this region.
   void SetMaxDataBounds(double maxDataBounds[3])
   {
@@ -138,7 +138,7 @@ public:
   //   If this node is not a leaf node, there are leaf nodes below it whose
   //   regions represent a partitioning of this region.  The IDs of these
   //   leaf nodes form a contigous set.  Get the first of the first point's
-  //   ID that is contained in this node.  
+  //   ID that is contained in this node.
   vtkGetMacro(MinID, int);
 
   // Description:
@@ -158,13 +158,13 @@ public:
   //   by planes, and it is capable of computing intersections of
   //   boxes with itself.  Return 1 if this spatial region intersects
   //   the spatial region described by the vtkPlanesIntersection object.
-  //   Use the possibly smaller bounds of the points within the region 
+  //   Use the possibly smaller bounds of the points within the region
   //   if useDataBounds is non-zero.
   int IntersectsRegion(vtkPlanesIntersection *pi, int useDataBounds);
 
   // Description:
   //   Return 1 if this spatial region entirely contains the given point.
-  //   Use the possibly smaller bounds of the points within the region 
+  //   Use the possibly smaller bounds of the points within the region
   //   if useDataBounds is non-zero.
   int ContainsPoint(double x, double y, double z, int useDataBounds);
 
@@ -172,14 +172,14 @@ public:
   //   Calculate the distance squared from any point to the boundary of this
   //   region.  Use the boundary of the points within the region if useDataBounds
   //   is non-zero.
-  double GetDistance2ToBoundary(double x, double y, double z, 
+  double GetDistance2ToBoundary(double x, double y, double z,
                                 vtkOctreePointLocatorNode* top, int useDataBounds);
 
   // Description:
   //   Calculate the distance squared from any point to the boundary of this
   //   region.  Use the boundary of the points within the region if useDataBounds
   //   is non-zero.  Set boundaryPt to the point on the boundary.
-  double GetDistance2ToBoundary(double x, double y, double z, 
+  double GetDistance2ToBoundary(double x, double y, double z,
                                 double *boundaryPt, vtkOctreePointLocatorNode* top,
                                 int useDataBounds);
 
@@ -196,7 +196,7 @@ public:
   // If CheckContainment is non-zero then it checks whether
   // the point is in the actual bounding box of the suboctant,
   // otherwise it only checks which octant the point is in
-  // that is created from the axis-aligned partitioning of 
+  // that is created from the axis-aligned partitioning of
   // the domain at this octant's center.
   int GetSubOctantIndex(double* point, int CheckContainment);
 
@@ -204,7 +204,7 @@ public:
   // Recursive function to compute ID, MinVal, MaxVal, and MinID.
   // Parent is used for MinVal and MaxVal in the case that no
   // points are in the leaf node.
-  void ComputeOctreeNodeInformation(vtkOctreePointLocatorNode* Parent, 
+  void ComputeOctreeNodeInformation(vtkOctreePointLocatorNode* Parent,
                                     int& NextLeafId, int & NextMinId,
                                     float* coordinates);
 
@@ -230,7 +230,7 @@ private:
   // Description:
   // The minimum coordinate location of the points contained
   // within this node.
-  double MinDataBounds[3];   
+  double MinDataBounds[3];
 
   // Description:
   // The maximum coordinate location of the points contained
@@ -238,12 +238,12 @@ private:
   double MaxDataBounds[3];
 
   // Description:
-  // Get the number of points associated with this octant.  
+  // Get the number of points associated with this octant.
   // The octant does not have to be a leaf octant.  For example,
   // for the root octant NumberOfPoints is equal to the number
   // of points in the dataset.
   int NumberOfPoints;
-  
+
   // Description:
   // A pointer to the 8 children of this node.
   vtkOctreePointLocatorNode** Children;

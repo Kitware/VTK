@@ -77,7 +77,7 @@ void vtkBridgePointIterator::Begin()
 int vtkBridgePointIterator::IsAtEnd()
 {
   int result=1;
-  
+
   if(this->CurrentIterator!=0)
     {
     result=this->CurrentIterator->IsAtEnd();
@@ -94,7 +94,7 @@ void vtkBridgePointIterator::Next()
   assert("pre: not_off" && !IsAtEnd());
   this->CurrentIterator->Next();
 }
- 
+
 //-----------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
@@ -103,9 +103,9 @@ void vtkBridgePointIterator::Next()
 double *vtkBridgePointIterator::GetPosition()
 {
   assert("pre: not_off" && !IsAtEnd());
-  
+
   double *result=this->CurrentIterator->GetPosition();
-  
+
   assert("post: result_exists" && result!=0);
   return result;
 }
@@ -121,7 +121,7 @@ void vtkBridgePointIterator::GetPosition(double x[3])
   assert("pre: x_exists" && x!=0);
   this->CurrentIterator->GetPosition(x);
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Unique identifier for the point, could be non-contiguous
@@ -129,10 +129,10 @@ void vtkBridgePointIterator::GetPosition(double x[3])
 vtkIdType vtkBridgePointIterator::GetId()
 {
   assert("pre: not_off" && !IsAtEnd());
-  
+
   return this->CurrentIterator->GetId();
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Used internally by vtkBridgeDataSet.
@@ -141,7 +141,7 @@ vtkIdType vtkBridgePointIterator::GetId()
 void vtkBridgePointIterator::InitWithDataSet(vtkBridgeDataSet *ds)
 {
   assert("pre: ds_exists" && ds!=0);
-  
+
   this->IteratorOnDataSet->InitWithDataSet(ds);
   this->CurrentIterator=this->IteratorOnDataSet;
 }
@@ -155,9 +155,9 @@ void vtkBridgePointIterator::InitWithDataSet(vtkBridgeDataSet *ds)
 void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet *ds,
                                               vtkIdType id)
 {
-  assert("pre: valid_id" && 
+  assert("pre: valid_id" &&
          ((!ds!=0)|| ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
-  
+
   this->IteratorOne->InitWithOnePoint(ds,id);
   this->CurrentIterator=this->IteratorOne;
 }
@@ -169,7 +169,7 @@ void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet *ds,
 void vtkBridgePointIterator::InitWithCell(vtkBridgeCell *cell)
 {
   assert("pre: cell_exists" && cell!=0);
-  
+
   this->IteratorOnCell->InitWithCell(cell);
   this->CurrentIterator=this->IteratorOnCell;
 }

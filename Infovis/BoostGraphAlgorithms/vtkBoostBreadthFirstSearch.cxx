@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -61,7 +61,7 @@ class my_distance_recorder : public default_bfs_visitor
 {
 public:
   my_distance_recorder() { }
-  my_distance_recorder(DistanceMap dist, vtkIdType* far) 
+  my_distance_recorder(DistanceMap dist, vtkIdType* far)
     : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
   template <typename Vertex, typename Graph>
@@ -75,7 +75,7 @@ public:
   }
 
   template <typename Edge, typename Graph>
-  void tree_edge(Edge e, const Graph& g) 
+  void tree_edge(Edge e, const Graph& g)
   {
     typename graph_traits<Graph>::vertex_descriptor
     u = source(e, g), v = target(e, g);
@@ -117,7 +117,7 @@ void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 }
 
 // Description:
-// Set the index (into the vertex array) of the 
+// Set the index (into the vertex array) of the
 // breadth first search 'origin' vertex.
 void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkIdType index)
 {
@@ -125,11 +125,11 @@ void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkIdType index)
   this->InputArrayName = NULL; // Reset any origin set by another method
   this->Modified();
 }
-  
+
 // Description:
 // Set the breadth first search 'origin' vertex.
 // This method is basically the same as above
-// but allows the application to simply specify 
+// but allows the application to simply specify
 // an array name and value, instead of having to
 // know the specific index of the vertex.
 void vtkBoostBreadthFirstSearch::SetOriginVertex(
@@ -174,13 +174,13 @@ vtkIdType vtkBoostBreadthFirstSearch::GetVertexIndex(
         return i;
         }
       }
-    } 
-    
+    }
+
   // Failed
   vtkErrorMacro("Did not find a valid vertex index...");
   return 0;
-} 
-  
+}
+
 
 int vtkBoostBreadthFirstSearch::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -228,23 +228,23 @@ int vtkBoostBreadthFirstSearch::RequestData(
     }
   else
     {
-    // Now figure out the origin vertex of the 
+    // Now figure out the origin vertex of the
     // breadth first search
     if (this->InputArrayName)
       {
       vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->InputArrayName);
-    
-      // Does the array exist at all?  
+
+      // Does the array exist at all?
       if (abstract == NULL)
         {
         vtkErrorMacro("Could not find array named " << this->InputArrayName);
         return 0;
         }
-        
-      this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue); 
-      }   
+
+      this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
+      }
     }
-  
+
   // Create the attribute array
   vtkIntArray* BFSArray = vtkIntArray::New();
   if (this->OutputArrayName)
@@ -256,7 +256,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
     BFSArray->SetName("BFS");
     }
   BFSArray->SetNumberOfTuples(output->GetNumberOfVertices());
-  
+
   // Initialize the BFS array to all 0's
   for(int i=0;i< BFSArray->GetNumberOfTuples(); ++i)
     {
@@ -275,7 +275,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
   boost::queue<int> Q;
 
   my_distance_recorder<vtkIntArray*> bfsVisitor(BFSArray, &maxFromRootVertex);
-  
+
   // Is the graph directed or undirected
   if (vtkDirectedGraph::SafeDownCast(output))
     {
@@ -296,13 +296,13 @@ int vtkBoostBreadthFirstSearch::RequestData(
     {
     vtkSelection* sel = vtkSelection::GetData(outputVector, 1);
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
-    
+
     // Set the output based on the output selection type
     if (!strcmp(OutputSelectionType,"MAX_DIST_FROM_ROOT"))
       {
       ids->InsertNextValue(maxFromRootVertex);
       }
-    
+
     vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
     sel->AddNode(node);
     node->SetSelectionList(ids);
@@ -317,16 +317,16 @@ int vtkBoostBreadthFirstSearch::RequestData(
 void vtkBoostBreadthFirstSearch::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
-  
-  os << indent << "InputArrayName: " 
+
+  os << indent << "InputArrayName: "
      << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
-     
-  os << indent << "OutputArrayName: " 
+
+  os << indent << "OutputArrayName: "
      << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
-     
-  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;  
+
+  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
 
   os << indent << "OutputSelection: "
      << (this->OutputSelection ? "on" : "off") << endl;

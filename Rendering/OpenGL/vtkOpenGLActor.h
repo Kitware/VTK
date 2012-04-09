@@ -28,7 +28,7 @@ class vtkOpenGLRenderer;
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLActor : public vtkActor
 {
 protected:
-  
+
 public:
   static vtkOpenGLActor *New();
   vtkTypeMacro(vtkOpenGLActor,vtkActor);
@@ -37,7 +37,7 @@ public:
   // Description:
   // Actual actor render method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
-  
+
 protected:
   vtkOpenGLActor() {};
   ~vtkOpenGLActor() {};

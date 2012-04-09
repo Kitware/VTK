@@ -112,7 +112,7 @@ protected:
                                 vtkInformationVector **inputVector,
                                 vtkInformationVector *outputVector);
   virtual int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector, 
+                                 vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
   virtual int RequestUpdateExtent(vtkInformation *request,
                                   vtkInformationVector **inputVector,

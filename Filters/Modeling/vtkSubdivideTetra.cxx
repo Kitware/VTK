@@ -63,7 +63,7 @@ int vtkSubdivideTetra::RequestData(
   int p0, p1, p2, p3;
   vtkIdType center, e01, e02, e03, e12, e13, e23;
   vtkMergePoints *locator;
-  
+
   vtkDebugMacro(<<"Executing mesh subdivide");
 
   if (input->IsHomogeneous() == 0 ||
@@ -77,7 +77,7 @@ int vtkSubdivideTetra::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(5*numPts,numPts);
   outputPD->InterpolateAllocate(pd,5*numPts,numPts);
-  
+
   output->Allocate(numCells);
   output->SetPoints(newPts);
 
@@ -117,7 +117,7 @@ int vtkSubdivideTetra::RequestData(
       }
     center = locator->InsertNextPoint(x);
     outputPD->InterpolatePoint(pd, center, cell->PointIds, weights);
-    
+
     // compute edge points
     // edge 0-1
     for (i=0; i<3; i++)
@@ -126,7 +126,7 @@ int vtkSubdivideTetra::RequestData(
       }
     e01 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e01, p0, p1, 0.5);
-    
+
     // edge 1-2
     for (i=0; i<3; i++)
       {
@@ -134,7 +134,7 @@ int vtkSubdivideTetra::RequestData(
       }
     e12 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e12, p1, p2, 0.5);
-    
+
     // edge 2-0
     for (i=0; i<3; i++)
       {
@@ -142,7 +142,7 @@ int vtkSubdivideTetra::RequestData(
       }
     e02 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e02, p2, p0, 0.5);
-    
+
     // edge 0-3
     for (i=0; i<3; i++)
       {
@@ -150,7 +150,7 @@ int vtkSubdivideTetra::RequestData(
       }
     e03 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e03, p0, p3, 0.5);
-    
+
     // edge 1-3
     for (i=0; i<3; i++)
       {
@@ -158,7 +158,7 @@ int vtkSubdivideTetra::RequestData(
       }
     e13 = locator->InsertNextPoint(x);
     outputPD->InterpolateEdge(pd, e13, p1, p3, 0.5);
-    
+
     // edge 2-3
     for (i=0; i<3; i++)
       {

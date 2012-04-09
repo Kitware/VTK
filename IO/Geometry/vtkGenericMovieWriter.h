@@ -47,7 +47,7 @@ public:
   virtual void Start() =0;
   virtual void Write() =0;
   virtual void End() =0;
-  
+
   // Description:
   // Was there an error on the last write performed?
   vtkGetMacro(Error,int);

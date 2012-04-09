@@ -47,12 +47,12 @@
 // be of the form of 3-component unsigned char.
 //
 // This filter defines constant cell colors. If you have a plotting
-// device that supports Gouraud shading (linear interpolation of color), then 
+// device that supports Gouraud shading (linear interpolation of color), then
 // superior algorithms are available for generating polygons from images.
 //
 // Note that many plotting devices/formats support only a limited number of
 // colors.
-// 
+//
 // .SECTION See Also
 // vtkCGMWriter vtkImageQuantizeRGBToIndex vtkTriangleFilter
 
@@ -98,20 +98,20 @@ public:
   // default behavior is Polygonalize.
   vtkSetClampMacro(OutputStyle,int,VTK_STYLE_PIXELIZE,VTK_STYLE_RUN_LENGTH);
   vtkGetMacro(OutputStyle,int);
-  void SetOutputStyleToPixelize() 
+  void SetOutputStyleToPixelize()
     {this->SetOutputStyle(VTK_STYLE_PIXELIZE);};
-  void SetOutputStyleToPolygonalize() 
+  void SetOutputStyleToPolygonalize()
     {this->SetOutputStyle(VTK_STYLE_POLYGONALIZE);};
-  void SetOutputStyleToRunLength() 
+  void SetOutputStyleToRunLength()
     {this->SetOutputStyle(VTK_STYLE_RUN_LENGTH);};
 
   // Description:
   // Specify how to quantize color.
   vtkSetClampMacro(ColorMode,int,VTK_COLOR_MODE_LUT,VTK_COLOR_MODE_LINEAR_256);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToLUT() 
+  void SetColorModeToLUT()
     {this->SetColorMode(VTK_COLOR_MODE_LUT);};
-  void SetColorModeToLinear256() 
+  void SetColorModeToLinear256()
     {this->SetColorMode(VTK_COLOR_MODE_LINEAR_256);};
 
   // Description:
@@ -126,20 +126,20 @@ public:
   vtkSetMacro(Smoothing, int);
   vtkGetMacro(Smoothing, int);
   vtkBooleanMacro(Smoothing, int);
-  
+
   // Description:
   // Specify the number of smoothing iterations to smooth polygons. (Only
   // in effect if output style is Polygonalize and smoothing is on.)
   vtkSetClampMacro(NumberOfSmoothingIterations,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfSmoothingIterations,int);
-  
+
   // Description:
   // Turn on/off whether the final polygons should be decimated.
   // whether to smooth boundaries.
   vtkSetMacro(Decimation, int);
   vtkGetMacro(Decimation, int);
   vtkBooleanMacro(Decimation, int);
-  
+
   // Description:
   // Specify the error to use for decimation (if decimation is on).
   // The error is an absolute number--the image spacing and
@@ -147,23 +147,23 @@ public:
   // consistent with the image size.
   vtkSetClampMacro(DecimationError,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(DecimationError,double);
-  
+
   // Description:
-  // Specify the error value between two colors where the colors are 
+  // Specify the error value between two colors where the colors are
   // considered the same. Only use this if the color mode uses the
   // default 256 table.
   vtkSetClampMacro(Error,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(Error,int);
 
   // Description:
-  // Specify the size (n by n pixels) of the largest region to 
+  // Specify the size (n by n pixels) of the largest region to
   // polygonalize. When the OutputStyle is set to VTK_STYLE_POLYGONALIZE,
   // large amounts of memory are used. In order to process large images,
   // the image is broken into pieces that are at most Size pixels in
   // width and height.
   vtkSetClampMacro(SubImageSize,int,10,VTK_LARGE_INTEGER);
   vtkGetMacro(SubImageSize,int);
-  
+
 protected:
   vtkImageToPolyDataFilter();
   ~vtkImageToPolyDataFilter();
@@ -181,14 +181,14 @@ protected:
   int SubImageSize;
   vtkScalarsToColors *LookupTable;
 
-  virtual void PixelizeImage(vtkUnsignedCharArray *pixels, int dims[3], 
-                             double origin[3], double spacing[3], 
+  virtual void PixelizeImage(vtkUnsignedCharArray *pixels, int dims[3],
+                             double origin[3], double spacing[3],
                              vtkPolyData *output);
-  virtual void PolygonalizeImage(vtkUnsignedCharArray *pixels, int dims[3], 
-                                 double origin[3], double spacing[3], 
+  virtual void PolygonalizeImage(vtkUnsignedCharArray *pixels, int dims[3],
+                                 double origin[3], double spacing[3],
                                  vtkPolyData *output);
-  virtual void RunLengthImage(vtkUnsignedCharArray *pixels, int dims[3], 
-                              double origin[3], double spacing[3], 
+  virtual void RunLengthImage(vtkUnsignedCharArray *pixels, int dims[3],
+                              double origin[3], double spacing[3],
                               vtkPolyData *output);
 private:
   vtkUnsignedCharArray *Table;      // color table used to quantize points
@@ -207,7 +207,7 @@ private:
                                           int type, int dims[3], int ext[4]);
   int ProcessImage(vtkUnsignedCharArray *pixels, int dims[2]);
   int BuildEdges(vtkUnsignedCharArray *pixels, int dims[3], double origin[3],
-                 double spacing[3], vtkUnsignedCharArray *pointDescr, 
+                 double spacing[3], vtkUnsignedCharArray *pointDescr,
                  vtkPolyData *edges);
   void BuildPolygons(vtkUnsignedCharArray *pointDescr, vtkPolyData *edges,
                      int numPolys, vtkUnsignedCharArray *polyColors);
@@ -217,14 +217,14 @@ private:
   void GeneratePolygons(vtkPolyData *edges, int numPolys, vtkPolyData *output,
                         vtkUnsignedCharArray *polyColors,
                         vtkUnsignedCharArray *pointDescr);
-  
+
   int GetNeighbors(unsigned char *ptr, int &i, int &j, int dims[3],
                    unsigned char *neighbors[4], int mode);
 
   void GetIJ(int id, int &i, int &j, int dims[3]);
   unsigned char *GetColor(unsigned char *rgb);
   int IsSameColor(unsigned char *p1, unsigned char *p2);
-  
+
 private:
   vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkImageToPolyDataFilter&);  // Not implemented.

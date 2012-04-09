@@ -17,11 +17,11 @@
 // vtkTriQuadraticHexahedron is a concrete implementation of vtkNonLinearCell to
 // represent a three-dimensional, 27-node isoparametric triquadratic
 // hexahedron. The interpolation is the standard finite element, triquadratic
-// isoparametric shape function. The cell includes 8 edge nodes, 12 mid-edge nodes, 
-// 6 mid-face nodes and one mid-volume node. The ordering of the 27 points defining the 
+// isoparametric shape function. The cell includes 8 edge nodes, 12 mid-edge nodes,
+// 6 mid-face nodes and one mid-volume node. The ordering of the 27 points defining the
 // cell is point ids (0-7,8-19, 20-25, 26)
 // where point ids 0-7 are the eight corner vertices of the cube; followed by
-// twelve midedge nodes (8-19); followed by 6 mid-face nodes (20-25) and the last node (26) 
+// twelve midedge nodes (8-19); followed by 6 mid-face nodes (20-25) and the last node (26)
 // is the mid-volume node. Note that these midedge nodes correspond lie
 // on the edges defined by (0,1), (1,2), (2,3), (3,0), (4,5), (5,6), (6,7),
 // (7,4), (0,4), (1,5), (2,6), (3,7). The mid-surface nodes lies on the faces
@@ -32,7 +32,7 @@
 //
 // \verbatim
 //
-// top 
+// top
 //  7--14--6
 //  |      |
 // 15  25  13
@@ -49,10 +49,10 @@
 // bottom
 //  3--10--2
 //  |      |
-// 11  24  9 
+// 11  24  9
 //  |      |
 //  0-- 8--1
-//  
+//
 // \endverbatim
 //
 

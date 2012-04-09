@@ -46,7 +46,7 @@ public:
   static vtkPBGLShortestPaths *New();
   vtkTypeMacro(vtkPBGLShortestPaths, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Convenience methods for setting the origin selection input.
   void SetOriginSelection(vtkSelection *s);
@@ -56,7 +56,7 @@ public:
   }
 
   // Description:
-  // Set the index (into the vertex array) of the 
+  // Set the index (into the vertex array) of the
   // breadth first search 'origin' vertex.
   void SetOriginVertex(vtkIdType index);
 
@@ -131,10 +131,10 @@ public:
   vtkGetMacro(OutputSelection, bool);
   vtkSetMacro(OutputSelection, bool);
   vtkBooleanMacro(OutputSelection, bool);
-  
+
   // Description:
   // Set the output selection type. The default is to use the
-  // the maximum distance from the starting vertex "MAX_DIST_FROM_ROOT". 
+  // the maximum distance from the starting vertex "MAX_DIST_FROM_ROOT".
   // But you can also specify other things like "ROOT","2D_MAX", etc
   vtkSetStringMacro(OutputSelectionType);
 
@@ -153,8 +153,8 @@ protected:
   ~vtkPBGLShortestPaths();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
@@ -162,7 +162,7 @@ protected:
 
   virtual int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
 
   vtkIdType OriginVertexIndex;
@@ -176,7 +176,7 @@ private:
   bool OriginFromSelection;
   bool UseUniformEdgeWeights;
   char* OutputSelectionType;
-  
+
   // Description:
   // Using the convenience function internally
   vtkSetStringMacro(InputArrayName);

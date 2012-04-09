@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the Directory class
 
@@ -37,4 +37,4 @@ int TestDirectory(int,char *[])
   myDir->Delete();
   testDir->Delete();
   return 0;
-} 
+}

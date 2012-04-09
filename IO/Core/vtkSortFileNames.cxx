@@ -37,7 +37,7 @@ public:
   typedef std::vector<vtkSmartPointer<vtkStringArray> > VectorType;
 
   static vtkStringArrayVector *New() {
-    return new vtkStringArrayVector; }; 
+    return new vtkStringArrayVector; };
 
   void Delete() {
     delete this; };
@@ -75,7 +75,7 @@ vtkSortFileNames::vtkSortFileNames()
   this->Groups = vtkStringArrayVector::New();
 }
 
-vtkSortFileNames::~vtkSortFileNames() 
+vtkSortFileNames::~vtkSortFileNames()
 {
   if (this->InputFileNames)
     {
@@ -95,25 +95,25 @@ vtkSortFileNames::~vtkSortFileNames()
 }
 
 void vtkSortFileNames::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InputFileNames:  (" << this->GetInputFileNames() << ")\n";
-  os << indent << "NumericSort:  " << 
+  os << indent << "NumericSort:  " <<
     (this->GetNumericSort() ? "On\n" : "Off\n");
-  os << indent << "IgnoreCase:  " << 
+  os << indent << "IgnoreCase:  " <<
     (this->GetIgnoreCase() ? "On\n" : "Off\n");
-  os << indent << "Grouping:  " << 
+  os << indent << "Grouping:  " <<
     (this->GetGrouping() ? "On\n" : "Off\n");
-  os << indent << "SkipDirectories:  " << 
+  os << indent << "SkipDirectories:  " <<
     (this->GetSkipDirectories() ? "On\n" : "Off\n");
-  
+
   os << indent << "NumberOfGroups: " << this->GetNumberOfGroups() << "\n";
-  
+
   if (this->GetGrouping())
     {
     for (int i = 0; i < this->GetNumberOfGroups(); i++)
       {
-      os << indent.GetNextIndent() << "Group[" << i << "]:  (" << 
+      os << indent.GetNextIndent() << "Group[" << i << "]:  (" <<
         this->GetNthGroup(i) << ")\n";
       }
     }
@@ -184,7 +184,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
     extension = vtksys::SystemTools::GetFilenameLastExtension(fileName);
     fileNamePath = vtksys::SystemTools::GetFilenamePath(fileName);
     baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
-    
+
     // If extension is all digits, it is not a true extension, so
     // add it back onto the filename.  Note that the extension
     // includes the leading dot.
@@ -235,7 +235,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
       reducedName.append(baseName.substr(charBlockStart,
                                          stringLength-charBlockStart));
       }
-      
+
     // Add extension back to the filename.
     reducedName.append(extension);
 
@@ -317,14 +317,14 @@ bool vtkCompareFileNamesIgnoreCase(const std::string& s1,
       return 0;
       }
     }
-  
+
   // if it is a tie, then the short string is "less"
   if (n1 < n2)
     {
     return 1;
     }
 
-  // if strings are equal, use case-sensitive comparison to break tie 
+  // if strings are equal, use case-sensitive comparison to break tie
   if (n1 == n2)
     {
     return (s1 < s2);
@@ -362,7 +362,7 @@ bool vtkCompareFileNamesNumeric(const std::string& s1,
           }
         c1 = s1[i1++];
         }
-    
+
       // convert decimal numeric sequence into an integer
       unsigned int j2 = 0;
       while (c2 >= '0' && c2 <= '9')
@@ -399,14 +399,14 @@ bool vtkCompareFileNamesNumeric(const std::string& s1,
         }
       }
     }
-  
+
   // if it is a tie, then the shorter string is "less"
   if ((n1 - i1) < (n2 - i2))
     {
     return 1;
     }
 
-  // if strings are otherwise equal, fall back to default to break tie 
+  // if strings are otherwise equal, fall back to default to break tie
   if ((i1 == n1) && (i2 == n2))
     {
     return (s1 < s2);
@@ -444,7 +444,7 @@ bool vtkCompareFileNamesNumericIgnoreCase(const std::string& s1,
           }
         c1 = s1[i1++];
         }
-    
+
       // convert decimal numeric sequence into an integer
       unsigned int j2 = 0;
       while (c2 >= '0' && c2 <= '9')
@@ -484,14 +484,14 @@ bool vtkCompareFileNamesNumericIgnoreCase(const std::string& s1,
         }
       }
     }
-  
+
   // if it is a tie, then the shorter string is "less"
   if ((n1 - i1) < (n2 - i2))
     {
     return 1;
     }
 
-  // if strings are otherwise equal, fall back to default to break tie 
+  // if strings are otherwise equal, fall back to default to break tie
   if ((i1 == n1) && (i2 == n2))
     {
     return vtkCompareFileNamesIgnoreCase(s1, s2);

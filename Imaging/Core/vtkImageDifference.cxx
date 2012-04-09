@@ -103,23 +103,23 @@ int vtkImageDifference::RequestUpdateExtent(
   vtkInformationVector *outputVector)
 {
   int idx;
-  
+
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  
-  int *wholeExtent = 
+
+  int *wholeExtent =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   int uExt[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
-  
+
   // grow input whole extent.
   for (idx = 0; idx < 2; ++idx)
     {
     uExt[idx*2] -= 2;
     uExt[idx*2+1] += 2;
-    
+
     // we must clip extent with whole extent is we hanlde boundaries.
     if (uExt[idx*2] < wholeExtent[idx*2])
       {
@@ -131,19 +131,19 @@ int vtkImageDifference::RequestUpdateExtent(
       }
     }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt,6);
-  
+
   // now do the second input
   inInfo = inputVector[1]->GetInformationObject(0);
-  wholeExtent = 
+  wholeExtent =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
-  
+
   // grow input whole extent.
   for (idx = 0; idx < 2; ++idx)
     {
     uExt[idx*2] -= 2;
     uExt[idx*2+1] += 2;
-    
+
     // we must clip extent with whole extent is we hanlde boundaries.
     if (uExt[idx*2] < wholeExtent[idx*2])
       {
@@ -161,10 +161,10 @@ int vtkImageDifference::RequestUpdateExtent(
 
 //----------------------------------------------------------------------------
 void vtkImageDifference::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -183,10 +183,10 @@ void vtkImageDifference::ThreadedRequestData(
   int matched;
   unsigned long count = 0;
   unsigned long target;
-  
+
   this->ErrorPerThread[id] = 0;
   this->ThresholdedErrorPerThread[id] = 0;
-  
+
   if (inData[0] == NULL || inData[1] == NULL || outData == NULL)
     {
     if (!id)
@@ -210,10 +210,10 @@ void vtkImageDifference::ThreadedRequestData(
     this->ThresholdedErrorPerThread[id] = 1000;
     return;
     }
-    
+
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
-      inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
+  if (inData[0][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
       outData[0]->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
       if (!id)
@@ -224,7 +224,7 @@ void vtkImageDifference::ThreadedRequestData(
       this->ThresholdedErrorPerThread[id] = 1000;
       return;
       }
-  
+
   in1Ptr2 = static_cast<unsigned char *>(
     inData[0][0]->GetScalarPointerForExtent(outExt));
   in2Ptr2 = static_cast<unsigned char *>(
@@ -235,13 +235,13 @@ void vtkImageDifference::ThreadedRequestData(
   inData[0][0]->GetIncrements(in1Inc0, in1Inc1, in1Inc2);
   inData[1][0]->GetIncrements(in2Inc0, in2Inc1, in2Inc2);
   outData[0]->GetIncrements(outInc0, outInc1, outInc2);
-  
+
   min0 = outExt[0];  max0 = outExt[1];
   min1 = outExt[2];  max1 = outExt[3];
   min2 = outExt[4];  max2 = outExt[5];
-  
+
   inExt = inData[0][0]->GetExtent();
-  // we set min and Max to be one pixel in from actual values to support 
+  // we set min and Max to be one pixel in from actual values to support
   // the 3x3 averaging we do
   inMinX = inExt[0]; inMaxX = inExt[1];
   inMinY = inExt[2]; inMaxY = inExt[3];
@@ -256,7 +256,7 @@ void vtkImageDifference::ThreadedRequestData(
     outPtr1 = outPtr2;
     for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -272,10 +272,10 @@ void vtkImageDifference::ThreadedRequestData(
         tr = 1000;
         tg = 1000;
         tb = 1000;
-      
+
         /* check the exact match pixel */
         vtkImageDifferenceComputeError(in1Ptr0,in2Ptr0);
-        
+
         // do a quick check to see if this match is exact, if so
         // we can save some seious time by skipping the eight
         // connected neighbors
@@ -284,12 +284,12 @@ void vtkImageDifference::ThreadedRequestData(
           {
           matched = 1;
           }
-        
-        /* If AllowShift, then we examine neighboring pixels to 
-           find the least difference.  This feature is used to 
+
+        /* If AllowShift, then we examine neighboring pixels to
+           find the least difference.  This feature is used to
            allow images to shift slightly between different graphics
            systems, like between opengl and starbase. */
-        if (!matched && this->AllowShift) 
+        if (!matched && this->AllowShift)
           {
           /* lower row */
           if (idx1 > inMinY)
@@ -327,7 +327,7 @@ void vtkImageDifference::ThreadedRequestData(
               }
             }
           }
-        
+
         this->ErrorPerThread[id] = this->ErrorPerThread[id] + (tr + tg + tb)/(3.0*255);
         tr -= this->Threshold;
         if (tr < 0)
@@ -379,8 +379,8 @@ int vtkImageDifference::RequestInformation (
   int *in2Ext = inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   int i;
-  if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || 
-      in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] || 
+  if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] ||
+      in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] ||
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
     {
     for (i = 0; i < this->NumberOfThreads; i++)
@@ -388,7 +388,7 @@ int vtkImageDifference::RequestInformation (
       this->ErrorPerThread[i] = 1000;
       this->ThresholdedErrorPerThread[i] = 1000;
       }
-    vtkErrorMacro("ExecuteInformation: Input are not the same size.\n" 
+    vtkErrorMacro("ExecuteInformation: Input are not the same size.\n"
       << " Input1 is: " << in1Ext[0] << "," << in1Ext[1] << ","
                         << in1Ext[2] << "," << in1Ext[3] << ","
                         << in1Ext[4] << "," << in1Ext[5] << "\n"
@@ -458,13 +458,13 @@ vtkImageData *vtkImageDifference::GetImage()
 void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   int i;
 
   for ( i= 0; i < this->NumberOfThreads; i++ )
     {
     os << indent << "Error for thread " << i << ": " << this->ErrorPerThread[i] << "\n";
-    os << indent << "ThresholdedError for thread " << i << ": " 
+    os << indent << "ThresholdedError for thread " << i << ": "
        << this->ThresholdedErrorPerThread[i] << "\n";
     }
   os << indent << "Threshold: " << this->Threshold << "\n";

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the ColorTransferFunction
 
@@ -38,7 +38,7 @@ int Test(ostream& strm)
 
   double rgb[3];
   ctf1->GetColor(.5, rgb);
-  strm << "GetColor(.5) = " 
+  strm << "GetColor(.5) = "
     << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << endl;
 
   strm << "GetRedValue(.5) = " << ctf1->GetRedValue(.5) << endl;
@@ -51,7 +51,7 @@ int Test(ostream& strm)
        << (int) ctf1->MapValue(12)[2] << endl;
 
   strm << "GetRange = "
-       << ctf1->GetRange()[0] << "," 
+       << ctf1->GetRange()[0] << ","
        << ctf1->GetRange()[1] << endl;
 
   double table[3][256];
@@ -80,7 +80,7 @@ int Test(ostream& strm)
   ctf1->DeepCopy(ctf2);
   strm << "ctf1->DeepCopy(ctf2)" << endl;
   strm << *ctf1;
-  
+
   ctf1->RemovePoint (10);
   strm << *ctf1;
 
@@ -149,6 +149,6 @@ int Test(ostream& strm)
 
 int otherColorTransferFunction(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return Test(vtkmsg_with_warning_C4701);
-} 
+}

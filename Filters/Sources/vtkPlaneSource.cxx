@@ -85,11 +85,11 @@ int vtkPlaneSource::RequestData(
   int i, j, ii;
   int numPts;
   int numPolys;
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
-  
+
   // Check input
   for ( i=0; i < 3; i++ )
     {
@@ -188,7 +188,7 @@ void vtkPlaneSource::SetNormal(double N[3])
     vtkErrorMacro(<<"Specified zero normal");
     return;
     }
-  
+
   // Compute rotation vector using a transformation matrix.
   // Note that if normals are parallel then the rotation is either
   // 0 or 180 degrees.
@@ -222,7 +222,7 @@ void vtkPlaneSource::SetNormal(double N[3])
   transform->TransformPoint(this->Origin,this->Origin);
   transform->TransformPoint(this->Point1,this->Point1);
   transform->TransformPoint(this->Point2,this->Point2);
-    
+
   this->Normal[0] = n[0]; this->Normal[1] = n[1]; this->Normal[2] = n[2];
 
   this->Modified();

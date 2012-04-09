@@ -63,7 +63,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
   vtkImageMandelbrotSource fractal
     fractal SetWholeExtent 0 9 0 9 0 9
     fractal SetSampleCX 0.1 0.1 0.1 0.1
-    fractal SetMaximumNumberOfIterations 10 
+    fractal SetMaximumNumberOfIterations 10
 
   vtkPDataSetWriter writer2
     writer SetFileName "fractal.pvtk"

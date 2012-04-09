@@ -70,9 +70,9 @@ void vtkClipPlanesPainter::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << " (none)" << endl;
-    }  
+    }
 }
-//----------------------------------------------------------------------------- 
+//-----------------------------------------------------------------------------
 void vtkClipPlanesPainter::UpdateBounds(double bounds[6])
 {
   if(!vtkBoundingBox::IsValid(bounds))

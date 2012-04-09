@@ -31,9 +31,9 @@ PURPOSE.  See the above copyright notice for more information.
 //   input in port INPUT_DATA, and a corresponding bivariate probability distribution,
 // * Test: calculate Chi-square independence statistic and, if VTK to R interface is available,
 //   retrieve corresponding p-value for independence testing.
-//  
+//
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
@@ -81,7 +81,7 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ); 
+                     vtkTable* );
 
   // Description:
   // Execute the calculations required by the Assess option.
@@ -94,12 +94,12 @@ protected:
   // R implementation if R is present.
   virtual void CalculatePValues(vtkTable*);
 
-//BTX  
+//BTX
   // Description:
   // Provide the appropriate assessment functor.
   // This one does nothing because the API is not sufficient for tables indexed
   // by a separate summary table.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
+  virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );

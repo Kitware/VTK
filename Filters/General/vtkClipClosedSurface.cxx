@@ -80,7 +80,7 @@ vtkClipClosedSurface::vtkClipClosedSurface()
 //----------------------------------------------------------------------------
 vtkClipClosedSurface::~vtkClipClosedSurface()
 {
-  if (this->ClippingPlanes) { this->ClippingPlanes->Delete(); } 
+  if (this->ClippingPlanes) { this->ClippingPlanes->Delete(); }
 
   if (this->IdList) { this->IdList->Delete(); }
   if (this->CellArray) { this->CellArray->Delete(); }
@@ -118,7 +118,7 @@ void vtkClipClosedSurface::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << "(none)\n";
-    } 
+    }
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 
@@ -196,7 +196,7 @@ int vtkClipClosedSurface::ComputePipelineMTime(
 class vtkCCSEdgeLocatorNode
 {
 public:
-  vtkCCSEdgeLocatorNode() : 
+  vtkCCSEdgeLocatorNode() :
     ptId0(-1), ptId1(-1), edgeId(-1), next(0) {};
 
   ~vtkCCSEdgeLocatorNode() {
@@ -359,7 +359,7 @@ int vtkClipClosedSurface::RequestData(
       {
       pointData->CopyData(inPointData, ptId, ptId);
       }
-    } 
+    }
 
   // An edge locator to avoid point duplication while clipping
   vtkCCSEdgeLocator *edgeLocator = vtkCCSEdgeLocator::New();
@@ -584,7 +584,7 @@ int vtkClipClosedSurface::RequestData(
       this->ClipAndContourPolys(points, pointScalars, pointData, edgeLocator,
                                 triangulate, polys, newPolys, newLines,
                                 inPolyData, outPolyData, outLineData);
-      
+
       // Add scalars for the newly-created contour lines
       vtkUnsignedCharArray *scalars =
         vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
@@ -641,7 +641,7 @@ int vtkClipClosedSurface::RequestData(
             }
           }
         }
- 
+
       // Add scalars to any diagnostic lines that added by
       // MakePolysFromContours().  In usual operation, no lines are added.
       scalars = vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
@@ -699,7 +699,7 @@ int vtkClipClosedSurface::RequestData(
   pointScalars->Delete();
 
   // Get the line scalars
-  vtkUnsignedCharArray *scalars = 
+  vtkUnsignedCharArray *scalars =
     vtkUnsignedCharArray::SafeDownCast(inLineData->GetScalars());
 
   if (this->GenerateOutline)
@@ -718,7 +718,7 @@ int vtkClipClosedSurface::RequestData(
 
     if (polys && scalars)
       {
-      vtkUnsignedCharArray *pScalars = 
+      vtkUnsignedCharArray *pScalars =
         vtkUnsignedCharArray::SafeDownCast(inPolyData->GetScalars());
 
       vtkIdType m = scalars->GetNumberOfTuples();
@@ -796,7 +796,7 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
 {
   // Create a list of points used by cells
   vtkIdType n = points->GetNumberOfPoints();
-  vtkIdType numNewPoints = 0; 
+  vtkIdType numNewPoints = 0;
 
   // The point data
   vtkPointData *outPointData = output->GetPointData();
@@ -814,7 +814,7 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
   cellArrays[1] = output->GetLines();
   cellArrays[2] = output->GetPolys();
   cellArrays[3] = output->GetStrips();
-  int arrayId;  
+  int arrayId;
 
   // Find all the newPoints that are used by cells
   for (arrayId = 0; arrayId < 4; arrayId++)
@@ -847,7 +847,7 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
     {
     vtkIdType newPointId = pointMap[pointId];
     if (newPointId >= 0)
-      { 
+      {
       double p[3];
       points->GetPoint(pointId, p);
       newPoints->SetPoint(newPointId, p);
@@ -977,7 +977,7 @@ int vtkClipClosedSurface::InterpolateEdge(
 void vtkClipClosedSurface::ClipLines(
   vtkPoints *points, vtkDoubleArray *pointScalars,
   vtkPointData *pointData, vtkCCSEdgeLocator *edgeLocator,
-  vtkCellArray *inputCells, vtkCellArray *outputLines, 
+  vtkCellArray *inputCells, vtkCellArray *outputLines,
   vtkCellData *inCellData, vtkCellData *outLineData)
 {
   vtkIdType numCells = inputCells->GetNumberOfCells();
@@ -989,7 +989,7 @@ void vtkClipClosedSurface::ClipLines(
     {
     inputCells->GetNextCell(numPts, pts);
 
-    vtkIdType i1 = pts[0]; 
+    vtkIdType i1 = pts[0];
     double v1 = pointScalars->GetValue(i1);
     int c1 = (v1 > 0);
 
@@ -1034,7 +1034,7 @@ void vtkClipClosedSurface::ClipAndContourPolys(
   vtkPoints *points, vtkDoubleArray *pointScalars, vtkPointData *pointData,
   vtkCCSEdgeLocator *edgeLocator, int triangulate,
   vtkCellArray *inputCells,
-  vtkCellArray *outputPolys, vtkCellArray *outputLines, 
+  vtkCellArray *outputPolys, vtkCellArray *outputLines,
   vtkCellData *inCellData,
   vtkCellData *outPolyData, vtkCellData *outLineData)
 {
@@ -1069,7 +1069,7 @@ void vtkClipClosedSurface::ClipAndContourPolys(
     polygon->PointIds->Reset();
     polygon->Points->Reset();
 
-    vtkIdType i1 = pts[numPts-1]; 
+    vtkIdType i1 = pts[numPts-1];
     double v1 = pointScalars->GetValue(i1);
     int c1 = (v1 > 0);
 
@@ -1273,7 +1273,7 @@ void vtkClipClosedSurface::BreakTriangleStrips(
   vtkIdType *pts = 0;
 
   inputStrips->InitTraversal();
- 
+
   for (vtkIdType cellId = firstStripScalar;
        inputStrips->GetNextCell(npts, pts);
        cellId++)
@@ -1313,7 +1313,7 @@ void vtkClipClosedSurface::BreakTriangleStrips(
 //----------------------------------------------------------------------------
 // Everything below this point is support code for MakePolysFromContours().
 // It could be separated out into its own class for generating
-// polygons from contours. 
+// polygons from contours.
 //
 // MakePolysFromContours uses the following steps:
 // 1) Join line segments into contours, never change line directions
@@ -1753,13 +1753,13 @@ void vtkCCSMakePolysFromLines(
           }
         poly.resize(static_cast<size_t>(n));
         for (vtkIdType i = 0; i < n; i++)
-          { 
+          {
           poly[i] = pts[i];
           }
         break;
         }
       }
- 
+
     usedLines.set(lineId-firstLine, 1);
     remainingLines--;
 
@@ -1839,11 +1839,11 @@ void vtkCCSMakePolysFromLines(
 
           if (endIdx == 0)
             {
-            poly.insert(poly.end(), &pts[1], &pts[npts-completePoly]); 
+            poly.insert(poly.end(), &pts[1], &pts[npts-completePoly]);
             }
           else
             {
-            poly.insert(poly.begin(), &pts[completePoly], &pts[npts-1]); 
+            poly.insert(poly.begin(), &pts[completePoly], &pts[npts-1]);
             }
 
           usedLines.set(lineId-firstLine, 1);
@@ -1886,7 +1886,7 @@ static void vtkCCSJoinLooseEnds(
     points->GetPoint(pt1, p1);
 
     double dMin = VTK_DOUBLE_MAX;
-    size_t iMin = 0; 
+    size_t iMin = 0;
 
     for (size_t i = 0; i < n; i++)
       {
@@ -2126,7 +2126,7 @@ int vtkCCSSplitAtPinchPoints(
       polys.push_back(newPoly2);
       polyEdges.push_back(newEdges2);
 
-      // Unless polygroup was clear (because poly was reversed), 
+      // Unless polygroup was clear (because poly was reversed),
       // make a group with one entry for the new poly
       polyGroups.resize(polys.size());
       if (polyGroups[i].size())
@@ -2194,7 +2194,7 @@ int vtkCCSVectorProgression(
 
   return 0;
 }
-  
+
 // ---------------------------------------------------
 // Simple utility method for computing polygon bounds.
 // Returns the sum of the squares of the dimensions.
@@ -2284,7 +2284,7 @@ void vtkCCSFindTrueEdges(
 
     points->GetPoint(oldPoly[n-1], p0);
     points->GetPoint(oldPoly[0], p1);
-    v1[0] = p1[0] - p0[0];  v1[1] = p1[1] - p0[1];  v1[2] = p1[2] - p0[2];  
+    v1[0] = p1[0] - p0[0];  v1[1] = p1[1] - p0[1];  v1[2] = p1[2] - p0[2];
     l1 = vtkMath::Dot(v1, v1);
 
     for (size_t j = 0; j < n; j++)
@@ -2293,7 +2293,7 @@ void vtkCCSFindTrueEdges(
       if (k >= n) { k -= n; }
 
       points->GetPoint(oldPoly[k], p2);
-      v2[0] = p2[0] - p1[0];  v2[1] = p2[1] - p1[1];  v2[2] = p2[2] - p1[2];  
+      v2[0] = p2[0] - p1[0];  v2[1] = p2[1] - p1[1];  v2[2] = p2[2] - p1[2];
       l2 = vtkMath::Dot(v2, v2);
 
       // Dot product is |v1||v2|cos(theta)
@@ -2376,7 +2376,7 @@ void vtkCCSFindTrueEdges(
 
         // Join the previous two segments, since the point was removed
         p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
-        v1[0] = p2[0] - p0[0];  v1[1] = p2[1] - p0[1];  v1[2] = p2[2] - p0[2];  
+        v1[0] = p2[0] - p0[0];  v1[1] = p2[1] - p0[1];  v1[2] = p2[2] - p0[2];
         l1 = vtkMath::Dot(v1, v1);
         }
       }
@@ -2552,13 +2552,13 @@ int vtkCCSCheckPolygonSense(
 
   points->GetPoint(poly[0], p0);
   points->GetPoint(poly[1], p1);
-  v1[0] = p1[0] - p0[0];  v1[1] = p1[1] - p0[1];  v1[2] = p1[2] - p0[2];  
+  v1[0] = p1[0] - p0[0];  v1[1] = p1[1] - p0[1];  v1[2] = p1[2] - p0[2];
 
   size_t n = poly.size();
   for (size_t jj = 2; jj < n; jj++)
     {
     points->GetPoint(poly[jj], p2);
-    v2[0] = p2[0] - p0[0];  v2[1] = p2[1] - p0[1];  v2[2] = p2[2] - p0[2];  
+    v2[0] = p2[0] - p0[0];  v2[1] = p2[1] - p0[1];  v2[2] = p2[2] - p0[2];
     vtkMath::Cross(v1, v2, v);
     pnormal[0] += v[0]; pnormal[1] += v[1]; pnormal[2] += v[2];
     p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
@@ -2569,7 +2569,7 @@ int vtkCCSCheckPolygonSense(
   double d = vtkMath::Dot(pnormal, normal);
 
   sense = (d > 0);
-  
+
   return (d != 0);
 }
 
@@ -2666,7 +2666,7 @@ void vtkCCSPrepareForPolyInPoly(
 
 // ---------------------------------------------------
 // Check for polygons within polygons.  Group the polygons
-// if they are within each other.  Reverse the sense of 
+// if they are within each other.  Reverse the sense of
 // the interior "hole" polygons.  A hole within a hole
 // will be reversed twice and will become its own group.
 
@@ -2911,8 +2911,8 @@ int vtkCCSCheckCut(
               // One final check to make sure endpoints aren't coincident
               double *p = p1;
               double *q = q1;
-              if (v2*v2 < v1*v1) { p = p2; } 
-              if (u2*u2 < u1*u1) { q = q2; } 
+              if (v2*v2 < v1*v1) { p = p2; }
+              if (u2*u2 < u1*u1) { q = q2; }
               if (vtkMath::Distance2BetweenPoints(p, q) > tol2)
                 {
                 return 0;
@@ -3033,7 +3033,7 @@ void vtkCCSFindSharpestVerts(
   points->GetPoint(poly[n-1], p2);
   points->GetPoint(poly[0], p1);
 
-  v1[0] = p1[0] - p2[0];  v1[1] = p1[1] - p2[1];  v1[2] = p1[2] - p2[2];  
+  v1[0] = p1[0] - p2[0];  v1[1] = p1[1] - p2[1];  v1[2] = p1[2] - p2[2];
   l1 = sqrt(vtkMath::Dot(v1, v1));
 
   for (size_t j = 0; j < n; j++)
@@ -3042,7 +3042,7 @@ void vtkCCSFindSharpestVerts(
     if (k == n) { k = 0; }
 
     points->GetPoint(poly[k], p2);
-    v2[0] = p2[0] - p1[0];  v2[1] = p2[1] - p1[1];  v2[2] = p2[2] - p1[2];  
+    v2[0] = p2[0] - p1[0];  v2[1] = p2[1] - p1[1];  v2[2] = p2[2] - p1[2];
     l2 = sqrt(vtkMath::Dot(v2, v2));
 
     vtkMath::Cross(v1, v2, v);
@@ -3105,7 +3105,7 @@ int vtkCCSFindCuts(
       // Semi-randomize the search order
       size_t j = (i>>1) + (i&1)*((innerSize+1)>>1);
       // Start at the best first point
-      j = (j + verts[cutId])%innerSize; 
+      j = (j + verts[cutId])%innerSize;
 
       for (size_t kk = 0; kk < outerPoly.size(); kk++)
         {
@@ -3203,7 +3203,7 @@ void vtkCCSMakeCuts(
   vtkCCSPoly poly1(n2);
   vtkCCSPolyEdges edges1(n2);
 
-  idx = cuts[0][0]; 
+  idx = cuts[0][0];
   for (size_t i1 = 0; i1 < n1; i1++)
     {
     size_t k = idx++;

@@ -21,7 +21,7 @@
 //    on its annotation link.
 //
 // .SECTION Description
-// vtkQtAnnotationView is a VTK view using an underlying QTableView. 
+// vtkQtAnnotationView is a VTK view using an underlying QTableView.
 //
 // .SECTION Thanks
 
@@ -47,7 +47,7 @@ public:
   static vtkQtAnnotationView *New();
   vtkTypeMacro(vtkQtAnnotationView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the main container of this view (a  QWidget).
   // The application typically places the view with a call
@@ -68,13 +68,13 @@ private slots:
 
 private:
   unsigned long LastInputMTime;
-  
+
   QPointer<QTableView> View;
   vtkQtAnnotationLayersModelAdapter* Adapter;
-  
+
   vtkQtAnnotationView(const vtkQtAnnotationView&);  // Not implemented.
   void operator=(const vtkQtAnnotationView&);  // Not implemented.
-  
+
 };
 
 #endif

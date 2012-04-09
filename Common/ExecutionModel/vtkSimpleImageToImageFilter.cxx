@@ -60,7 +60,7 @@ int vtkSimpleImageToImageFilter::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkImageData *input = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   int inExt[6];
   input->GetExtent(inExt);
   // if the input extent is empty then exit
@@ -70,7 +70,7 @@ int vtkSimpleImageToImageFilter::RequestData(
     {
     return 1;
     }
-  
+
   // Set the extent of the output and allocate memory.
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));

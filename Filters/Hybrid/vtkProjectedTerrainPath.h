@@ -24,7 +24,7 @@
 // subdivision of the polyline. 3) Hug mode insures that the polyine points
 // remain within a constant distance from the surface. This may also require
 // recursive subdivision of the polyline. Note that both non-occluded mode
-// and hug mode also take into account the height offset, so it is possible 
+// and hug mode also take into account the height offset, so it is possible
 // to create paths that hug terrain a certain distance above it. To use this
 // filter, define two inputs: 1) a polyline, and 2) an image whose scalar
 // values represent a height field. Then specify the mode, and the height
@@ -45,10 +45,10 @@
 // all negative errors are eliminated. If the polyline is below the
 // terrain--i.e., the height offset is negative--in non-occluded or hug mode
 // all positive errors are eliminated.)
-// 
+//
 // .SECTION Caveats
-// This algorithm requires the entire input image to be in memory, hence it 
-// may not work for extremely large images. 
+// This algorithm requires the entire input image to be in memory, hence it
+// may not work for extremely large images.
 //
 // The input height image is assumed to be positioned in the x-y plane so the
 // scalar value is the z-coordinate, height value.
@@ -84,15 +84,15 @@ public:
   static vtkProjectedTerrainPath* New();
 
   // Description:
-  // Specify the second input (the terrain) onto which the polyline(s) should be projected. 
+  // Specify the second input (the terrain) onto which the polyline(s) should be projected.
   // Note: This assigns a data object as the input terrain.
-  // To establish a pipeline connection, use 
+  // To establish a pipeline connection, use
   // SetSourceConnection() method.
   void SetSourceData(vtkImageData *source);
   vtkImageData *GetSource();
 
   // Description:
-  // Specify the second input (the terrain) onto which the polyline(s) should be projected. 
+  // Specify the second input (the terrain) onto which the polyline(s) should be projected.
   // Note: vtkImageData* is required
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
@@ -109,17 +109,17 @@ public:
   // user specified height tolerance).
   vtkSetClampMacro(ProjectionMode,int,SIMPLE_PROJECTION,HUG_PROJECTION);
   vtkGetMacro(ProjectionMode,int);
-  void SetProjectionModeToSimple() 
+  void SetProjectionModeToSimple()
     {this->SetProjectionMode(SIMPLE_PROJECTION);}
-  void SetProjectionModeToNonOccluded() 
+  void SetProjectionModeToNonOccluded()
     {this->SetProjectionMode(NONOCCLUDED_PROJECTION);}
-  void SetProjectionModeToHug() 
+  void SetProjectionModeToHug()
     {this->SetProjectionMode(HUG_PROJECTION);}
 
   // Description:
   // This is the height above (or below) the terrain that the projected
   // path should be. Positive values indicate distances above the terrain;
-  // negative values indicate distances below the terrain. 
+  // negative values indicate distances below the terrain.
   vtkSetMacro(HeightOffset,double);
   vtkGetMacro(HeightOffset,double);
 
@@ -141,7 +141,7 @@ protected:
   vtkProjectedTerrainPath();
   ~vtkProjectedTerrainPath();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
@@ -168,7 +168,7 @@ protected:
   vtkPoints    *Points;
   vtkIdType    NumLines;
 
-  //Errors above/below terrain. In both instances, negative values are 
+  //Errors above/below terrain. In both instances, negative values are
   //inserted because the priority queue puts smallest values on top.
   vtkPriorityQueue *PositiveLineError; //errors above terrain
   vtkPriorityQueue *NegativeLineError; //errors below terrain

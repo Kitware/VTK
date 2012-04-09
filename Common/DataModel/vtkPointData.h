@@ -15,8 +15,8 @@
 // .NAME vtkPointData - represent and manipulate point attribute data
 // .SECTION Description
 // vtkPointData is a class that is used to represent and manipulate
-// point attribute data (e.g., scalars, vectors, normals, texture 
-// coordinates, etc.) Most of the functionality is handled by 
+// point attribute data (e.g., scalars, vectors, normals, texture
+// coordinates, etc.) Most of the functionality is handled by
 // vtkDataSetAttributes
 
 #ifndef __vtkPointData_h
@@ -37,7 +37,7 @@ public:
 protected:
   vtkPointData() {};
   ~vtkPointData() {};
-  
+
 private:
   vtkPointData(const vtkPointData&);  // Not implemented.
   void operator=(const vtkPointData&);  // Not implemented.

@@ -37,7 +37,7 @@ public:
   static vtkCollectGraph *New();
   vtkTypeMacro(vtkCollectGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // By defualt this filter uses the global controller,
   // but this method can be used to set another instead.
@@ -70,7 +70,7 @@ public:
   // DIRECTED_OUTPUT expects that this filter is generating a directed graph.
   // UNDIRECTED_OUTPUT expects that this filter is generating an undirected graph.
   // DIRECTED_OUTPUT and UNDIRECTED_OUTPUT flags should only be set on the client
-  // filter.  Server filters should be set to USE_INPUT_TYPE since they have valid 
+  // filter.  Server filters should be set to USE_INPUT_TYPE since they have valid
   // input and the directedness is determined from the input type.
   vtkSetMacro(OutputType, int);
   vtkGetMacro(OutputType, int);

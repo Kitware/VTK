@@ -39,7 +39,7 @@ for {set i 0} {$i < 51} {incr i} {
     vtkActor actor$i
 	actor$i SetMapper mapper$i
 	[actor$i GetProperty] SetColor [math Random 0 1] \
-		[math Random 0 1] [math Random 0 1] 
+		[math Random 0 1] [math Random 0 1]
 
     ren1 AddActor actor$i
 }

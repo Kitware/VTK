@@ -157,7 +157,7 @@ void vtkMINCImageReader::SetFileName(const char *name)
   // because it is possible that the user is re-reading a file after
   // changing it.
   if (!(name == 0 && this->GetFileName() == 0))
-    { 
+    {
     this->FileNameHasChanged = 1;
     }
 
@@ -1236,7 +1236,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,
       permutedInc[idim] = 0;
       }
 
-    // For scalar minmax, use chunk sizes of 65536 or less, 
+    // For scalar minmax, use chunk sizes of 65536 or less,
     // unless this would force the chunk size to be 1
     if (nminmaxdims == 0 && chunkSize != 1 &&
         chunkSize*count[idim] > 65536)
@@ -1321,7 +1321,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,
       {
       // minc files that are float or double use global scaling
       chunkRange[0] = this->ImageRange[0];
-      chunkRange[1] = this->ImageRange[1];      
+      chunkRange[1] = this->ImageRange[1];
       }
     else
       {

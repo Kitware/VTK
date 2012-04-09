@@ -22,7 +22,7 @@
 // specified tolerance).  Ties are broken (i.e., multiple points all
 // projecting within the tolerance along the pick ray) by choosing the point
 // closest to the ray.
-// 
+//
 
 // .SECTION See Also
 // vtkPicker vtkCellPicker.
@@ -50,8 +50,8 @@ protected:
 
   vtkIdType PointId; //picked point
 
-  double IntersectWithLine(double p1[3], double p2[3], double tol, 
-                          vtkAssemblyPath *path, vtkProp3D *p, 
+  double IntersectWithLine(double p1[3], double p2[3], double tol,
+                          vtkAssemblyPath *path, vtkProp3D *p,
                           vtkAbstractMapper3D *m);
   void Initialize();
 

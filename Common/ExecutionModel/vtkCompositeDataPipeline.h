@@ -19,10 +19,10 @@
 // dataset as well as those that are not. Type checking is performed at run
 // time. Algorithms that are not composite dataset-aware have to support
 // all dataset types contained in the composite dataset. The pipeline
-// execution can be summarized as follows: 
+// execution can be summarized as follows:
 //
 // * REQUEST_INFORMATION: The producers have to provide information about
-// the contents of the composite dataset in this pass. 
+// the contents of the composite dataset in this pass.
 // Sources that can produce more than one piece (note that a piece is
 // different than a block; each piece consistes of 0 or more blocks) should
 // set MAXIMUM_NUMBER_OF_PIECES to -1.
@@ -30,11 +30,11 @@
 // * REQUEST_UPDATE_EXTENT: This pass is identical to the one implemented
 // in vtkStreamingDemandDrivenPipeline
 //
-// * REQUEST_DATA: This is where the algorithms execute. If the 
-// vtkCompositeDataPipeline is assigned to a simple filter, 
-// it will invoke the  vtkStreamingDemandDrivenPipeline passes in a loop, 
-// passing a different block each time and will collect the results in a 
-// composite dataset. 
+// * REQUEST_DATA: This is where the algorithms execute. If the
+// vtkCompositeDataPipeline is assigned to a simple filter,
+// it will invoke the  vtkStreamingDemandDrivenPipeline passes in a loop,
+// passing a different block each time and will collect the results in a
+// composite dataset.
 // .SECTION See also
 //  vtkCompositeDataSet
 
@@ -157,7 +157,7 @@ protected:
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
   virtual int CheckCompositeData(vtkInformation *request,
-                                 int port, 
+                                 int port,
                                  vtkInformationVector** inInfoVec,
                                  vtkInformationVector* outInfoVec);
 
@@ -165,7 +165,7 @@ protected:
   // to produce composite output. In this case, ExecuteDataStart() should
   // NOT Initialize() the composite output.
   int InLocalLoop;
-  
+
   virtual void ExecuteSimpleAlgorithm(vtkInformation* request,
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec,
@@ -178,14 +178,14 @@ protected:
     vtkInformationVector* outInfoVec,
     vtkInformation* inInfo,
     vtkInformation* outInfo,
-    vtkInformation* request,  
+    vtkInformation* request,
     vtkDataObject* dobj);
 
   bool ShouldIterateOverInput(int& compositePort);
   bool ShouldIterateTemporalData(vtkInformation *request,
-                                 vtkInformationVector** inInfoVec, 
+                                 vtkInformationVector** inInfoVec,
                                  vtkInformationVector *outInfoVec);
-  virtual int InputTypeIsValid(int port, int index, 
+  virtual int InputTypeIsValid(int port, int index,
                                 vtkInformationVector **inInfoVec);
 
   vtkInformation* InformationCache;

@@ -410,7 +410,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     goodSoFar=0;
     vtkErrorMacro("Additive mode only works with 1-component scalars!");
     }
-  
+
   // return our status
   return goodSoFar;
 }

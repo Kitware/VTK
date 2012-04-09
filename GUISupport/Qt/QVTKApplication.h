@@ -55,7 +55,7 @@ public:
   // Description:
   // Destructor.
   ~QVTKApplication();
-  
+
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   // Description:
   // Intercept X11 events.
@@ -70,7 +70,7 @@ public Q_SLOTS:
 // It re-emit signal CreateDevice (to QVTKWidget slots)
 // No-op if not X11 (ie Q_WS_X11 is not defined).
 void setDevice(vtkTDxDevice *device);
-  
+
 Q_SIGNALS:
 // Description:
 // Signal for VTKWidget slots.

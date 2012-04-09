@@ -133,7 +133,7 @@ void vtkDelimitedTextWriterGetDataString(
 //-----------------------------------------------------------------------------
 VTK_TEMPLATE_SPECIALIZE
 void vtkDelimitedTextWriterGetDataString(
-  vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType tupleIndex, 
+  vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType tupleIndex,
   ostream* stream, vtkDelimitedTextWriter* writer, bool* first)
 {
   int numComps = iter->GetNumberOfComponents();
@@ -166,7 +166,7 @@ vtkStdString vtkDelimitedTextWriter::GetString(vtkStdString string)
   if (this->UseStringDelimiter && this->StringDelimiter)
     {
     vtkStdString temp = this->StringDelimiter;
-    temp += string + this->StringDelimiter; 
+    temp += string + this->StringDelimiter;
     return temp;
     }
   return string;
@@ -276,12 +276,12 @@ char *vtkDelimitedTextWriter::RegisterAndGetOutputString()
 void vtkDelimitedTextWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FieldDelimiter: " << (this->FieldDelimiter ? 
+  os << indent << "FieldDelimiter: " << (this->FieldDelimiter ?
     this->FieldDelimiter : "(none)") << endl;
   os << indent << "StringDelimiter: " << (this->StringDelimiter ?
     this->StringDelimiter : "(none)") << endl;
   os << indent << "UseStringDelimiter: " << this->UseStringDelimiter << endl;
-  os << indent << "FileName: " << (this->FileName? this->FileName : "none") 
+  os << indent << "FileName: " << (this->FileName? this->FileName : "none")
     << endl;
   os << indent << "WriteToOutputString: " << this->WriteToOutputString << endl;
 }

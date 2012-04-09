@@ -133,12 +133,12 @@ public:
   // Description:
   // Set the blend mode
   vtkSetClampMacro(BlendMode,int,
-                   VTK_IMAGE_BLEND_MODE_NORMAL, 
+                   VTK_IMAGE_BLEND_MODE_NORMAL,
                    VTK_IMAGE_BLEND_MODE_COMPOUND );
   vtkGetMacro(BlendMode,int);
-  void SetBlendModeToNormal() 
+  void SetBlendModeToNormal()
         {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL);};
-  void SetBlendModeToCompound() 
+  void SetBlendModeToCompound()
         {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND);};
   const char *GetBlendModeAsString(void);
 
@@ -152,7 +152,7 @@ protected:
   vtkImageBlend();
   ~vtkImageBlend();
 
-  virtual int RequestUpdateExtent(vtkInformation *, 
+  virtual int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
 
@@ -172,12 +172,12 @@ protected:
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
-  
+
   double *Opacity;
   int OpacityArrayLength;
   int BlendMode;
   double CompoundThreshold;
-  int DataWasPassed;  
+  int DataWasPassed;
 
 private:
   vtkImageBlend(const vtkImageBlend&);  // Not implemented.

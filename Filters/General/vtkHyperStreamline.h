@@ -14,29 +14,29 @@
 =========================================================================*/
 // .NAME vtkHyperStreamline - generate hyperstreamline in arbitrary dataset
 // .SECTION Description
-// vtkHyperStreamline is a filter that integrates through a tensor field to 
+// vtkHyperStreamline is a filter that integrates through a tensor field to
 // generate a hyperstreamline. The integration is along the maximum eigenvector
 // and the cross section of the hyperstreamline is defined by the two other
-// eigenvectors. Thus the shape of the hyperstreamline is "tube-like", with 
+// eigenvectors. Thus the shape of the hyperstreamline is "tube-like", with
 // the cross section being elliptical. Hyperstreamlines are used to visualize
 // tensor fields.
 //
-// The starting point of a hyperstreamline can be defined in one of two ways. 
-// First, you may specify an initial position. This is a x-y-z global 
-// coordinate. The second option is to specify a starting location. This is 
+// The starting point of a hyperstreamline can be defined in one of two ways.
+// First, you may specify an initial position. This is a x-y-z global
+// coordinate. The second option is to specify a starting location. This is
 // cellId, subId, and  cell parametric coordinates.
 //
-// The integration of the hyperstreamline occurs through the major eigenvector 
-// field. IntegrationStepLength controls the step length within each cell 
-// (i.e., this is the fraction of the cell length). The length of the 
+// The integration of the hyperstreamline occurs through the major eigenvector
+// field. IntegrationStepLength controls the step length within each cell
+// (i.e., this is the fraction of the cell length). The length of the
 // hyperstreamline is controlled by MaximumPropagationDistance. This parameter
-// is the length of the hyperstreamline in units of distance. The tube itself 
-// is composed of many small sub-tubes - NumberOfSides controls the number of 
+// is the length of the hyperstreamline in units of distance. The tube itself
+// is composed of many small sub-tubes - NumberOfSides controls the number of
 // sides in the tube, and StepLength controls the length of the sub-tubes.
 //
 // Because hyperstreamlines are often created near regions of singularities, it
-// is possible to control the scaling of the tube cross section by using a 
-// logarithmic scale. Use LogScalingOn to turn this capability on. The Radius 
+// is possible to control the scaling of the tube cross section by using a
+// logarithmic scale. Use LogScalingOn to turn this capability on. The Radius
 // value controls the initial radius of the tube.
 
 // .SECTION See Also
@@ -73,12 +73,12 @@ public:
   static vtkHyperStreamline *New();
 
   // Description:
-  // Specify the start of the hyperstreamline in the cell coordinate system. 
+  // Specify the start of the hyperstreamline in the cell coordinate system.
   // That is, cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(vtkIdType cellId, int subId, double pcoords[3]);
 
   // Description:
-  // Specify the start of the hyperstreamline in the cell coordinate system. 
+  // Specify the start of the hyperstreamline in the cell coordinate system.
   // That is, cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(vtkIdType cellId, int subId, double r, double s,
                         double t);
@@ -89,14 +89,14 @@ public:
   vtkIdType GetStartLocation(int& subId, double pcoords[3]);
 
   // Description:
-  // Specify the start of the hyperstreamline in the global coordinate system. 
-  // Starting from position implies that a search must be performed to find 
+  // Specify the start of the hyperstreamline in the global coordinate system.
+  // Starting from position implies that a search must be performed to find
   // initial cell to start integration from.
   void SetStartPosition(double x[3]);
 
   // Description:
-  // Specify the start of the hyperstreamline in the global coordinate system. 
-  // Starting from position implies that a search must be performed to find 
+  // Specify the start of the hyperstreamline in the global coordinate system.
+  // Starting from position implies that a search must be performed to find
   // initial cell to start integration from.
   void SetStartPosition(double x, double y, double z);
 
@@ -133,7 +133,7 @@ public:
   // Description:
   // Use the major eigenvector field as the vector field through which
   // to integrate.  The major eigenvector is the eigenvector whose
-  // corresponding eigenvalue is closest to positive infinity.  
+  // corresponding eigenvalue is closest to positive infinity.
   void IntegrateMajorEigenvector()
     {this->SetIntegrationEigenvectorToMajor();};
 

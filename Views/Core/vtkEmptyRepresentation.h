@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkEmptyRepresentation - 
+// .NAME vtkEmptyRepresentation -
 //
 // .SECTION Description
 
@@ -38,7 +38,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Since this representation has no inputs, override superclass 
+  // Since this representation has no inputs, override superclass
   // implementation with one that ignores "port" and "conn" and still allows it
   // to have an annotation output.
   virtual vtkAlgorithmOutput* GetInternalAnnotationOutputPort()

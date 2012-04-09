@@ -18,7 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 // .SECTION Thanks
-// Thanks to Andrew Wilson and Philippe Pebay from Sandia National Laboratories 
+// Thanks to Andrew Wilson and Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 //
 // You should set VTK_MYSQL_TEST_URL to the address of a MySQL
@@ -118,7 +118,7 @@ int TestMySQLDatabase( int, char ** const )
       }
     cerr << endl;
     }
-  
+
   cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if ( !query->Execute() )
     {
@@ -175,7 +175,7 @@ int TestMySQLDatabase( int, char ** const )
     cerr << "DROP TABLE people query failed" << endl;
     return 1;
     }
-  
+
   reader->Delete();
   query->Delete();
   db->Delete();
@@ -227,15 +227,15 @@ int TestMySQLDatabase( int, char ** const )
 
   if ( numTbl != schema->GetNumberOfTables() )
     {
-    cerr << "Found an incorrect number of tables: " 
-         << numTbl 
-         << " != " 
+    cerr << "Found an incorrect number of tables: "
+         << numTbl
+         << " != "
          << schema->GetNumberOfTables()
          << endl;
     return 1;
     }
-  
-  cerr << numTbl 
+
+  cerr << numTbl
        << " found.\n";
 
   // 4. Inspect these tables
@@ -248,20 +248,20 @@ int TestMySQLDatabase( int, char ** const )
   for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
     vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
-    cerr << "   Table: " 
+    cerr << "   Table: "
          << tblName
          << "\n";
 
     if ( tblName != tables[tblHandle] )
       {
-      cerr << "Fetched an incorrect name: " 
+      cerr << "Fetched an incorrect name: "
            << tables[tblHandle]
-           << " != " 
+           << " != "
            << tblName
            << endl;
       return 1;
       }
-                       
+
     // 4.1 Check columns
     queryStr = "DESCRIBE ";
     queryStr += tblName;
@@ -271,7 +271,7 @@ int TestMySQLDatabase( int, char ** const )
       cerr << "Query failed" << endl;
       return 1;
       }
-    
+
     int numFields = query->GetNumberOfFields();
     int colHandle = 0;
     for ( ; query->NextRow(); ++ colHandle )
@@ -287,9 +287,9 @@ int TestMySQLDatabase( int, char ** const )
           vtkStdString colName ( schema->GetColumnNameFromHandle( tblHandle, colHandle ) );
           if ( colName != query->DataValue( field ).ToString() )
             {
-            cerr << "Found an incorrect column name: " 
+            cerr << "Found an incorrect column name: "
                  << query->DataValue( field ).ToString()
-                 << " != " 
+                 << " != "
                  << colName
                  << endl;
             return 1;
@@ -300,12 +300,12 @@ int TestMySQLDatabase( int, char ** const )
         }
       cerr << endl;
       }
-    
+
     if ( colHandle != schema->GetNumberOfColumnsInTable( tblHandle ) )
       {
-      cerr << "Found an incorrect number of columns: " 
+      cerr << "Found an incorrect number of columns: "
            << colHandle
-           << " != " 
+           << " != "
            << schema->GetNumberOfColumnsInTable( tblHandle )
            << endl;
       return 1;
@@ -348,20 +348,20 @@ int TestMySQLDatabase( int, char ** const )
 
       if ( colName != query->DataValue( 4 ).ToString() )
         {
-        cerr << "Fetched an incorrect column name: " 
+        cerr << "Fetched an incorrect column name: "
              << query->DataValue( 4 ).ToString()
-             << " != " 
+             << " != "
              << colName
              << endl;
         return 1;
         }
       }
-    
+
     if ( idxHandle + 1 != schema->GetNumberOfIndicesInTable( tblHandle ) )
       {
-      cerr << "Found an incorrect number of indices: " 
+      cerr << "Found an incorrect number of indices: "
            << idxHandle + 1
-           << " != " 
+           << " != "
            << schema->GetNumberOfIndicesInTable( tblHandle )
            << endl;
       return 1;
@@ -423,25 +423,25 @@ int TestMySQLDatabase( int, char ** const )
     {
     if ( query->DataValue( 0 ).ToString() != dpts[numDpt] )
       {
-      cerr << "Found an incorrect value: " 
+      cerr << "Found an incorrect value: "
            << query->DataValue( 0 ).ToString()
-           << " != " 
+           << " != "
            << dpts[numDpt]
            << endl;
       query->Delete();
       db->Delete();
       return 1;
       }
-    cerr << "     " 
+    cerr << "     "
          << query->DataValue( 0 ).ToString()
          << "\n";
     }
-    
+
   if ( numDpt != 3 )
     {
-    cerr << "Found an incorrect number of entries: " 
+    cerr << "Found an incorrect number of entries: "
          << numDpt
-         << " != " 
+         << " != "
          << 3
          << endl;
     query->Delete();
@@ -579,10 +579,10 @@ int TestMySQLDatabase( int, char ** const )
     cerr << "Time table drop failed" << endl;
     return 1;
     }
-  
+
   // Clean up
   db->Delete();
   query->Delete();
-  
+
   return 0;
 }

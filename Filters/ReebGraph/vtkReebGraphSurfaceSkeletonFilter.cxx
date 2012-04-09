@@ -266,7 +266,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
             vtkContourFilter *contourFilter = vtkContourFilter::New();
 
             contourFilter->SetNumberOfContours(1);
-            contourFilter->SetValue(0, minValue + 
+            contourFilter->SetValue(0, minValue +
               (i + 1.0)*(maxValue - minValue)/(((double)NumberOfSamples) + 1.0));
             contourFilter->SetInputData(subMesh);
             contourFilter->Update();
@@ -280,8 +280,8 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
 
             if(contourMesh->GetNumberOfPoints() > 1)
               {
-              // if the current arc of the Reeb graph has not deg-2 node, then 
-              // the level set will most likely be empty. 
+              // if the current arc of the Reeb graph has not deg-2 node, then
+              // the level set will most likely be empty.
 
               for(int j = 0; j < contourMesh->GetNumberOfPoints(); j++)
                 {
@@ -335,8 +335,8 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
               {
               std::vector<double> smoothedSample(3);
               for(int k = 0; k < 3; k++)
-                smoothedSample[k] = 
-                  (arcSkeleton[j-1][k] 
+                smoothedSample[k] =
+                  (arcSkeleton[j-1][k]
                   + arcSkeleton[j+1][k] + arcSkeleton[j][k])/3;
 
               smoothedArc.push_back(smoothedSample);

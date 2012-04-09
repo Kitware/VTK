@@ -1313,7 +1313,7 @@ void vtkContourRepresentation
         this->Renderer, this,
         node->WorldPosition, this->GetNumberOfNodes()-1 );
 
-      // Give the point placer a chance to validate the updated node. If its 
+      // Give the point placer a chance to validate the updated node. If its
       // not valid, discard the LineInterpolator's change.
       if ( didNodeChange && !this->PointPlacer->ValidateWorldPosition(
                 node->WorldPosition, worldOrient ) )

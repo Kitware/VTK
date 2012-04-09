@@ -32,12 +32,12 @@
 class VTKFILTERSGENERAL_EXPORT vtkRotationFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkRotationFilter *New(); 
+  static vtkRotationFilter *New();
   vtkTypeMacro(vtkRotationFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
 //BTX
-  enum RotationAxis 
+  enum RotationAxis
   {
     USE_X = 0,
     USE_Y = 1,
@@ -81,7 +81,7 @@ public:
 protected:
   vtkRotationFilter();
   ~vtkRotationFilter();
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
@@ -90,7 +90,7 @@ protected:
   double Center[3];
   int NumberOfCopies;
   int CopyInput;
-  
+
 private:
   vtkRotationFilter(const vtkRotationFilter&);  // Not implemented
   void operator=(const vtkRotationFilter&);  // Not implemented

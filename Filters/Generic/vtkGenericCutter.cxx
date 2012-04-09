@@ -54,7 +54,7 @@ vtkGenericCutter::vtkGenericCutter(vtkImplicitFunction *cf)
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
   this->Locator = NULL;
-  
+
   this->InternalPD = vtkPointData::New();
   this->SecondaryPD = vtkPointData::New();
   this->SecondaryCD = vtkCellData::New();
@@ -77,9 +77,9 @@ vtkGenericCutter::~vtkGenericCutter()
 
 //----------------------------------------------------------------------------
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
+// Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
-void vtkGenericCutter::SetValue(int i, double value) 
+void vtkGenericCutter::SetValue(int i, double value)
 {
   this->ContourValues->SetValue(i,value);
 }
@@ -87,7 +87,7 @@ void vtkGenericCutter::SetValue(int i, double value)
 //-----------------------------------------------------------------------------
 // Description:
 // Get the ith contour value.
-double vtkGenericCutter::GetValue(int i) 
+double vtkGenericCutter::GetValue(int i)
 {
   return this->ContourValues->GetValue(i);
 }
@@ -96,7 +96,7 @@ double vtkGenericCutter::GetValue(int i)
 // Description:
 // Get a pointer to an array of contour values. There will be
 // GetNumberOfContours() values in the list.
-double *vtkGenericCutter::GetValues() 
+double *vtkGenericCutter::GetValues()
 {
   return this->ContourValues->GetValues();
 }
@@ -116,7 +116,7 @@ void vtkGenericCutter::GetValues(double *contourValues)
 // Set the number of contours to place into the list. You only really
 // need to use this method to reduce list size. The method SetValue()
 // will automatically increase list size as needed.
-void vtkGenericCutter::SetNumberOfContours(int number) 
+void vtkGenericCutter::SetNumberOfContours(int number)
 {
   this->ContourValues->SetNumberOfContours(number);
 }
@@ -124,7 +124,7 @@ void vtkGenericCutter::SetNumberOfContours(int number)
 //-----------------------------------------------------------------------------
 // Description:
 // Get the number of contours in the list of contour values.
-int vtkGenericCutter::GetNumberOfContours() 
+int vtkGenericCutter::GetNumberOfContours()
 {
   return this->ContourValues->GetNumberOfContours();
 }
@@ -133,7 +133,7 @@ int vtkGenericCutter::GetNumberOfContours()
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-void vtkGenericCutter::GenerateValues(int numContours, double range[2]) 
+void vtkGenericCutter::GenerateValues(int numContours, double range[2])
 {
   this->ContourValues->GenerateValues(numContours, range);
 }
@@ -142,7 +142,7 @@ void vtkGenericCutter::GenerateValues(int numContours, double range[2])
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
 void vtkGenericCutter::GenerateValues(int numContours, double rangeStart,
-                                      double rangeEnd) 
+                                      double rangeEnd)
 {
   this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
 }
@@ -156,7 +156,7 @@ unsigned long vtkGenericCutter::GetMTime()
   unsigned long mTime = this->Superclass::GetMTime();
   unsigned long contourValuesMTime = this->ContourValues->GetMTime();
   unsigned long time;
- 
+
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
   if ( this->CutFunction != NULL )
@@ -193,13 +193,13 @@ int vtkGenericCutter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<< "Executing cutter");
-  
+
   if (input==0)
     {
     vtkErrorMacro("No input specified");
     return 1;
     }
-  
+
   if (this->CutFunction==0)
     {
     vtkErrorMacro("No cut function specified");
@@ -211,7 +211,7 @@ int vtkGenericCutter::RequestData(
     vtkErrorMacro("Input data set is empty");
     return 1;
     }
-  
+
   vtkPointData *outPd = output->GetPointData();
   vtkCellData *outCd = output->GetCellData();
 
@@ -219,7 +219,7 @@ int vtkGenericCutter::RequestData(
   //
   vtkIdType numCells=input->GetNumberOfCells();
   int numContours = this->ContourValues->GetNumberOfContours();
-  
+
   vtkIdType estimatedSize = static_cast<vtkIdType>(
     pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -236,26 +236,26 @@ int vtkGenericCutter::RequestData(
   newLines->Allocate(estimatedSize,estimatedSize);
   vtkCellArray *newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize);
-  
+
   output->Allocate(numCells);
-  
+
   // locator used to merge potentially duplicate points
   if(this->Locator==0)
     {
     this->CreateDefaultLocator();
     }
   this->Locator->InitPointInsertion(newPts,input->GetBounds(),estimatedSize);
-  
+
   // prepare the output attributes
   vtkGenericAttributeCollection *attributes=input->GetAttributes();
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
-  
+
   int c=attributes->GetNumberOfAttributes();
   vtkDataSetAttributes *secondaryAttributes;
 
   int attributeType;
-  
+
   for(vtkIdType i = 0; i<c; ++i)
     {
     attribute = attributes->GetAttribute(i);
@@ -263,7 +263,7 @@ int vtkGenericCutter::RequestData(
     if(attribute->GetCentering() == vtkPointCentered)
       {
       secondaryAttributes = this->SecondaryPD;
-      
+
       attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
       attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
       attributeArray->SetName(attribute->GetName());
@@ -279,36 +279,36 @@ int vtkGenericCutter::RequestData(
       {
       secondaryAttributes = this->SecondaryCD;
       }
-    
+
     attributeArray = vtkDataArray::CreateDataArray(attribute->GetComponentType());
     attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
     attributeArray->SetName(attribute->GetName());
     secondaryAttributes->AddArray(attributeArray);
     attributeArray->Delete();
-    
+
     if(secondaryAttributes->GetAttribute(attributeType)==0)
       {
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
       }
     }
-  
+
   outPd->InterpolateAllocate(this->SecondaryPD,estimatedSize,estimatedSize);
   outCd->CopyAllocate(this->SecondaryCD,estimatedSize,estimatedSize);
-  
-  
+
+
   vtkGenericAdaptorCell *cell;
 
   //----------- Begin of contouring algorithm --------------------//
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
-    
-  
+
+
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
   int abortExecute=0;
-  
+
   input->GetTessellator()->InitErrorMetrics(input);
-  
+
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next())
     {
     if ( !(count % updateCount) )
@@ -316,7 +316,7 @@ int vtkGenericCutter::RequestData(
       this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
       }
-    
+
     cell = cellIt->GetCell();
     cell->Contour(this->ContourValues, this->CutFunction, input->GetAttributes(),
                   input->GetTessellator(),
@@ -326,16 +326,16 @@ int vtkGenericCutter::RequestData(
     } // for each cell
   cellIt->Delete();
 
-  vtkDebugMacro(<<"Created: " 
-                << newPts->GetNumberOfPoints() << " points, " 
-                << newVerts->GetNumberOfCells() << " verts, " 
-                << newLines->GetNumberOfCells() << " lines, " 
+  vtkDebugMacro(<<"Created: "
+                << newPts->GetNumberOfPoints() << " points, "
+                << newVerts->GetNumberOfCells() << " verts, "
+                << newLines->GetNumberOfCells() << " lines, "
                 << newPolys->GetNumberOfCells() << " triangles");
 
   //----------- End of contouring algorithm ----------------------//
 
   // Update ourselves.  Because we don't know up front how many verts, lines,
-  // polys we've created, take care to reclaim memory. 
+  // polys we've created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();
@@ -345,7 +345,7 @@ int vtkGenericCutter::RequestData(
     output->SetVerts(newVerts);
     }
   newVerts->Delete();
-  
+
   if (newLines->GetNumberOfCells()>0)
     {
     output->SetLines(newLines);
@@ -364,7 +364,7 @@ int vtkGenericCutter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkGenericCutter::CreateDefaultLocator()
 {
@@ -394,7 +394,7 @@ void vtkGenericCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
-  os << indent << "Generate Cut Scalars: " 
+  os << indent << "Generate Cut Scalars: "
      << (this->GenerateCutScalars ? "On\n" : "Off\n");
 }
 //----------------------------------------------------------------------------

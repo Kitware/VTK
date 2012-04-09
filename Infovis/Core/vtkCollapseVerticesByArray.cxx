@@ -74,12 +74,12 @@ vtkCollapseVerticesByArray::~vtkCollapseVerticesByArray()
     {
     delete [] this->VertexArray;
     }
-  
+
   if(this->VerticesCollapsedArray!=0)
     {
     delete[] this->VerticesCollapsedArray;
     }
-  
+
   if(this->EdgesCollapsedArray!=0)
     {
     delete[] this->EdgesCollapsedArray;

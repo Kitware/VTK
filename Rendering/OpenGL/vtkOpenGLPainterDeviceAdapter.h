@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Calls glMultiTex
-  virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute, 
+  virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute,
                                       int idx, vtkIdType offset);
 
   // Description:
@@ -123,17 +123,17 @@ public:
   // Description:
   // Turns blending on and off.
   virtual void MakeBlending(int mode);
- 
+
   // Description:
   // Returns current blending setting.
   virtual int QueryBlending();
 
   // Description:
   // Turns emphasis of vertices on or off for vertex selection.
-  // When emphasized verts are drawn nearer to the camera and are drawn 
+  // When emphasized verts are drawn nearer to the camera and are drawn
   // larger than normal to make selection of them more reliable.
   virtual void MakeVertexEmphasis(bool mode);
-  
+
   // Description:
   // Control use of the stencil buffer (for vertex selection).
   virtual void Stencil(int on);
@@ -157,5 +157,5 @@ private:
 #if defined(_MSC_VER) && _MSC_VER >= 1300
 #pragma warning(pop)
 #endif
- 
+
 #endif //_vtkOpenGLPainterDeviceAdapter_h

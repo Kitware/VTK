@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 # Time-stamp: <2001-11-21 17:40:48 barre>
 #
-# Build full-text index 
+# Build full-text index
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
 #
@@ -58,7 +58,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 # -------------------------------------------------------------------------
 # Defaults (add options as you want : "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    limit => 10,
    dirs => ["../../Charts",
@@ -185,7 +185,7 @@ foreach my $source (@files) {
 
     next if $source !~ /(vtk[^\\\/]*)\.h\Z/;
     my $class = $1;
-    
+
     ++$nb_files;
     print "  $source\n" if exists $args{"verbose"};
 
@@ -195,9 +195,9 @@ foreach my $source (@files) {
       or croak "$PROGNAME: unable to open $source\n";
     my $headerfile = <HEADERFILE>;
     close(HEADERFILE);
-    
+
     # Grab all comments then skip the first one (preamble and copyright stuff)
-   
+
     my @comments = $headerfile =~ m/(?:\/\*(.+?)\*\/|\/\/(.+?)$)/gms;
     shift @comments;
 
@@ -263,7 +263,7 @@ foreach my $word (@words) {
     if ($word ne $lcw) {
         push @similars, $lcw;
     }
-    
+
     # Singular form ?
 
     if ($word =~ m/s$/i) {
@@ -352,11 +352,11 @@ foreach my $word (@words) {
 
     my @verbs = keys %verbs;
     if (@verbs) {
-        my %try = ("" => 1, 
-                   "e" => 1, 
-                   "ed" => 1, "ied" => 1, 
-                   "es" => 1, 
-                   "ing" => 1, 
+        my %try = ("" => 1,
+                   "e" => 1,
+                   "ed" => 1, "ied" => 1,
+                   "es" => 1,
+                   "ing" => 1,
                    "ion" => 1,
                    "s" => 1,
                    "ten" => 1);
@@ -439,16 +439,16 @@ my $indent = "    ";
 my $header;
 my (@summary, @credits);
 
-push @summary, 
-  "  - $nb_files file(s) indexed by " . scalar @words . " word(s) on " . 
+push @summary,
+  "  - $nb_files file(s) indexed by " . scalar @words . " word(s) on " .
   localtime(),
   "  - max limit is " . $args{"limit"} . " xref(s) per word";
 
-push @credits, 
+push @credits,
   "\@version $VERSION",
   "\@author \@c $PROGNAME, by $AUTHOR";
 
-$header = $indent . join("\n$indent", @summary) . 
+$header = $indent . join("\n$indent", @summary) .
   "\n\n$indent" . join("\n$indent", @credits) . "\n\n";
 
 # -------------------------------------------------------------------------
@@ -473,7 +473,7 @@ sub word_section_name {
     $word .= " (" . join(", ", @group) . ")" if @group;
     return $word;
 }
-    
+
 # word_section_doc returns the doxygen doc for a word
 
 sub word_section_doc {
@@ -501,9 +501,9 @@ sub word_section_alpha {
 
 my $page_doc = build_page_doc($indent,
                               "Full-text Index",
-                              \@words, 
-                              $prefix, 
-                              \&word_section_name, 
+                              \@words,
+                              $prefix,
+                              \&word_section_name,
                               \&word_section_doc,
                               \&word_section_alpha,
                               $header,
@@ -524,7 +524,7 @@ sub build_page_doc {
     # word_section_doc returns the doxygen doc for a word
     # word_section_alpha returns the single alpha char corresponding to that
     # word's section.
-    # $header is the Doxygen string summarizing what has been documented as 
+    # $header is the Doxygen string summarizing what has been documented as
     # well as the credits.
     # $footer is a Doxygen string appended to each the resulting page
     # $destination_file is the name of the file where this page should be
@@ -539,18 +539,18 @@ sub build_page_doc {
     # %sections_words is a hash associating a section (alphabetical letter) to
     # an array of words belonging to that section.
     #   Ex: $sections_words{"C"} => ("contour", "cut")
-    # %sections_weight is a hash associating a section to its weight (the sum 
+    # %sections_weight is a hash associating a section to its weight (the sum
     # of the weights of each word belonging to that section).
     # @sections is the array holding the name of all sections
 
     my (%sections_words, %sections_weight, @sections);
 
     # $navbar is the Doxygen string describing the sections' navigation bar
-    
+
     my $navbar;
-    
+
     my $intermediate_time = time();
-    
+
     # Browse each word
 
     foreach my $word (@$rwords) {
@@ -564,21 +564,21 @@ sub build_page_doc {
         my $section = &$rword_section_alpha($word);
         push @{$sections_words{$section}}, $word;
         $sections_weight{$section} += length($words_doc{$word});
-        
+
         print " => ", $word, "\n" if exists $args{"verbose"};
     }
 
     print " => ", scalar @$rwords, " words(s) documented in ", time() - $intermediate_time, " s.\n";
-    
+
     @sections = sort keys %sections_words;
 
     # Build the navbar
-    
+
     my @temp;
     foreach my $section (@sections) {
         push @temp, "\@ref ${prefix}_section_$section \"$section\"";
     }
-    $navbar = "$indent\@par Navigation: \n$indent\[" . 
+    $navbar = "$indent\@par Navigation: \n$indent\[" .
       join(" | ", @temp) . "]\n";
 
     # Add the (approximate) weight of the (header + navbar) to each section
@@ -603,7 +603,7 @@ sub build_page_doc {
 
     print "Computing alphabetical group(s)/page(s)...\n";
 
-    # %groups is a hash associating a group id (int) to an array of sections 
+    # %groups is a hash associating a group id (int) to an array of sections
     # namesbelonging to that group.
     #   Ex: $groups{"0"} => ("A", "B", "C")
     # %groups_weight is a hash associating a group id to its weight (the sum
@@ -613,15 +613,15 @@ sub build_page_doc {
 
     my $groupid = 0;
 
-    # Remove a section one by one, and put it in a group until the group if 
+    # Remove a section one by one, and put it in a group until the group if
     # full,then create a next group, etc., until the sections are exhausted.
 
     my @sections_temp = @sections;
     while (@sections_temp) {
         $groups_weight{$groupid} = $sections_weight{$sections_temp[0]};
         push @{$groups{$groupid}}, shift @sections_temp;
-        while (@sections_temp && 
-               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]}) 
+        while (@sections_temp &&
+               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]})
                <= $args{"weight"}) {
             $groups_weight{$groupid} += $sections_weight{$sections_temp[0]};
             push @{$groups{$groupid}}, shift @sections_temp;
@@ -631,7 +631,7 @@ sub build_page_doc {
 
     if (exists $args{"verbose"}) {
         foreach my $groupid (sort {$a <=> $b} keys %groups) {
-            printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
+            printf("\t- %02d (weight: %7d) : %s\n", $groupid,
                    $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
         }
     }
@@ -650,8 +650,8 @@ sub build_page_doc {
         $fromto .= ".." . $groups{$groupid}[scalar @{$groups{$groupid}} - 1]
           if scalar @{$groups{$groupid}} > 1;
 
-        $page_doc .= 
-          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header"; 
+        $page_doc .=
+          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header";
 
         foreach my $section (@{$groups{$groupid}}) {
             $page_doc .=
@@ -668,8 +668,8 @@ sub build_page_doc {
 
     $intermediate_time = time();
 
-    sysopen(DEST_FILE, 
-            $destination_file, 
+    sysopen(DEST_FILE,
+            $destination_file,
             O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
      or croak "$PROGNAME: unable to open destination file $destination_file\n";
     print DEST_FILE $page_doc;

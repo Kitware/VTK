@@ -80,7 +80,7 @@ public:
   // appearance of the plot title.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Enable/Disable the display of bar labels.
   vtkSetMacro(LabelVisibility, int);
@@ -92,12 +92,12 @@ public:
   // of all bar bar labels.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-      
+
   // Description:
-  // Specify colors for each bar. If not specified, they are 
+  // Specify colors for each bar. If not specified, they are
   // automatically generated.
   void SetBarColor(int i, double r, double g, double b);
-  void SetBarColor(int i, const double color[3]) 
+  void SetBarColor(int i, const double color[3])
     { this->SetBarColor(i, color[0], color[1], color[2]); }
   double *GetBarColor(int i);
 
@@ -121,7 +121,7 @@ public:
   vtkBooleanMacro(LegendVisibility, int);
 
   // Description:
-  // Retrieve handles to the legend box. This is useful if you would like 
+  // Retrieve handles to the legend box. This is useful if you would like
   // to manually control the legend appearance.
   vtkGetObjectMacro(LegendActor,vtkLegendBoxActor);
 
@@ -134,7 +134,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -151,7 +151,7 @@ private:
   vtkIdType ComponentNumber;
   int TitleVisibility;         // Should I see the title?
   char *Title;                 // The title string
-  vtkTextProperty *TitleTextProperty; 
+  vtkTextProperty *TitleTextProperty;
   int LabelVisibility;
   vtkTextProperty *LabelTextProperty;
   vtkBarLabelArray *Labels;
@@ -176,8 +176,8 @@ private:
   vtkPolyData         *PlotData;    // The actual bars plus the x-axis
   vtkPolyDataMapper2D *PlotMapper;
   vtkActor2D          *PlotActor;
-  
-  vtkAxisActor2D *YAxis;  //The y-axis 
+
+  vtkAxisActor2D *YAxis;  //The y-axis
   char           *YTitle;
 
   vtkTimeStamp  BuildTime;

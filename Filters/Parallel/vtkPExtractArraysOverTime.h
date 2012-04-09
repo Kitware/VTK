@@ -15,7 +15,7 @@
 // .NAME vtkPExtractArraysOverTime - extract point or cell data over time (parallel)
 // .SECTION Description
 // vtkPExtractArraysOverTime is a parallelized version of
-// vtkExtractArraysOverTime. 
+// vtkExtractArraysOverTime.
 // vtkExtractArraysOverTime extract point or cell data given a selection. For
 // every cell or point extracted, vtkExtractArraysOverTime create a vtkTable
 // that is placed in an appropriately named block in an output multi-block

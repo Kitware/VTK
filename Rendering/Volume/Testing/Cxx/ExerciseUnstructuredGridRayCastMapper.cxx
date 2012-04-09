@@ -316,7 +316,7 @@ static vtkVolumeProperty *NewRGBVolumeProperty()
   colorTransferFunction->AddHSVPoint( 4.0, 2.0/6.0, 1.0, 1.0);
   colorTransferFunction->AddHSVPoint( 6.0, 1.0/6.0, 1.0, 1.0);
   colorTransferFunction->AddHSVPoint(10.0, 5.0/6.0, 1.0, 1.0);
-  
+
   vtkVolumeProperty *volumeProperty = vtkVolumeProperty::New();
   volumeProperty->SetColor(colorTransferFunction);
   volumeProperty->SetScalarOpacity(opacityTransferFunction);
@@ -344,7 +344,7 @@ static vtkVolumeProperty *NewGrayVolumeProperty()
   vtkPiecewiseFunction *grayTransferFunction = vtkPiecewiseFunction::New();
   grayTransferFunction->AddPoint( 0.0, 0.0);
   grayTransferFunction->AddPoint(10.0, 1.0);
-  
+
   vtkVolumeProperty *volumeProperty = vtkVolumeProperty::New();
   volumeProperty->SetColor(grayTransferFunction);
   volumeProperty->SetScalarOpacity(opacityTransferFunction);

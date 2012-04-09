@@ -81,7 +81,7 @@ vtkBorderRepresentation::vtkBorderRepresentation()
     this->BWTransformFilter->GetOutputPort());
   this->BWActor = vtkActor2D::New();
   this->BWActor->SetMapper(this->BWMapper);
-  
+
   this->BorderProperty = vtkProperty2D::New();
   this->BWActor->SetProperty(this->BorderProperty);
 
@@ -125,7 +125,7 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
   this->Renderer->DisplayToNormalizedDisplay(XF,YF);
   this->Renderer->NormalizedDisplayToViewport(XF,YF);
   this->Renderer->ViewportToNormalizedViewport(XF,YF);
-  
+
   // there are four parameters that can be adjusted
   double *fpos1 = this->PositionCoordinate->GetValue();
   double *fpos2 = this->Position2Coordinate->GetValue();
@@ -133,9 +133,9 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
   double par2[2];
   par1[0] = fpos1[0];
   par1[1] = fpos1[1];
-  par2[0] = fpos1[0] + fpos2[0];  
-  par2[1] = fpos1[1] + fpos2[1];  
-    
+  par2[0] = fpos1[0] + fpos2[0];
+  par2[1] = fpos1[1] + fpos2[1];
+
   double delX = XF - this->StartEventPosition[0];
   double delY = YF - this->StartEventPosition[1];
   double delX2=0.0, delY2=0.0;
@@ -234,16 +234,16 @@ void vtkBorderRepresentation::WidgetInteraction(double eventPos[2])
         }
       break;
     }
-  
+
   // Modify the representation
   if (par2[0] > par1[0] && par2[1] > par1[1])
     {
     this->PositionCoordinate->SetValue(par1[0],par1[1]);
     this->Position2Coordinate->SetValue(par2[0] - par1[0], par2[1] - par1[1]);
     this->StartEventPosition[0] = XF;
-    this->StartEventPosition[1] = YF;      
+    this->StartEventPosition[1] = YF;
     }
-  
+
   this->Modified();
   this->BuildRepresentation();
 }
@@ -254,7 +254,7 @@ void vtkBorderRepresentation::NegotiateLayout()
 {
   double size[2];
   this->GetSize(size);
-  
+
   // Update the initial border geoemtry
   this->BWPoints->SetPoint(0, 0.0, 0.0, 0.0); //may be updated by the subclass
   this->BWPoints->SetPoint(1, size[0], 0.0, 0.0);
@@ -272,7 +272,7 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
     GetComputedDisplayValue(this->Renderer);
 
   // Figure out where we are in the widget. Exclude outside case first.
-  if ( X < (pos1[0]-this->Tolerance) || (pos2[0]+this->Tolerance) < X || 
+  if ( X < (pos1[0]-this->Tolerance) || (pos2[0]+this->Tolerance) < X ||
        Y < (pos1[1]-this->Tolerance) || (pos2[1]+this->Tolerance) < Y )
     {
     if ( this->ShowBorder != BORDER_ON )
@@ -281,7 +281,7 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
       }
     this->InteractionState = vtkBorderRepresentation::Outside;
     }
-  
+
   else // we are on the boundary or inside the border
     {
     if ( this->ShowBorder != BORDER_OFF )
@@ -350,7 +350,7 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
         }
       }
     }//else inside or on border
-  
+
   return this->InteractionState;
 }
 
@@ -358,7 +358,7 @@ int vtkBorderRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
 //-------------------------------------------------------------------------
 void vtkBorderRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -459,21 +459,21 @@ int vtkBorderRepresentation::HasTranslucentPolygonalGeometry()
 void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Show Border: ";
-  if ( this->ShowBorder == BORDER_OFF) 
+  if ( this->ShowBorder == BORDER_OFF)
     {
     os << "Off\n";
     }
-  else if ( this->ShowBorder == BORDER_ON) 
+  else if ( this->ShowBorder == BORDER_ON)
     {
     os << "On\n";
     }
-  else //if ( this->ShowBorder == BORDER_ACTIVE) 
+  else //if ( this->ShowBorder == BORDER_ACTIVE)
     {
     os << "Active\n";
     }
-    
+
   if ( this->BorderProperty )
     {
     os << indent << "Border Property:\n";
@@ -484,14 +484,14 @@ void vtkBorderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Border Property: (none)\n";
     }
 
-  os << indent << "Proportional Resize: " 
+  os << indent << "Proportional Resize: "
      << (this->ProportionalResize ? "On\n" : "Off\n");
   os << indent << "Minimum Size: " << this->MinimumSize[0] << " " << this->MinimumSize[1] << endl;
   os << indent << "Maximum Size: " << this->MaximumSize[0] << " " << this->MaximumSize[1] << endl;
 
   os << indent << "Moving: " << (this->Moving ? "On\n" : "Off\n");
   os << indent << "Tolerance: " << this->Tolerance << "\n";
-  
+
   os << indent << "Selection Point: (" << this->SelectionPoint[0] << ","
      << this->SelectionPoint[1] << "}\n";
 }

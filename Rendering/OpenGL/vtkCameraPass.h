@@ -22,7 +22,7 @@
 //
 // Its delegate is usually set to a vtkSequencePass with a vtkLigthsPass and
 // a list of passes for the geometry.
-// 
+//
 // .SECTION See Also
 // vtkRenderPass
 
@@ -45,13 +45,13 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources.
   // \pre w_exists: w!=0
   void ReleaseGraphicsResources(vtkWindow *w);
-  
+
   // Description:
   // Delegate for rendering the geometry.
   // If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -60,7 +60,7 @@ public:
   // Initial value is a NULL pointer.
   vtkGetObjectMacro(DelegatePass,vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass *delegatePass);
- 
+
   // Description:
   // Used to override the aspect ratio used when computing the projection
   // matrix. This is useful when rendering for tile-displays for example.
@@ -80,7 +80,7 @@ public:
     int* originY);
 
   vtkRenderPass *DelegatePass;
-  
+
   double AspectRatioOverride;
  private:
   vtkCameraPass(const vtkCameraPass&);  // Not implemented.

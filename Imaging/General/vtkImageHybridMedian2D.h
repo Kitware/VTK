@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageHybridMedian2D - Median filter that preserves lines and 
+// .NAME vtkImageHybridMedian2D - Median filter that preserves lines and
 // corners.
 // .SECTION Description
 // vtkImageHybridMedian2D is a median filter that preserves thin lines and

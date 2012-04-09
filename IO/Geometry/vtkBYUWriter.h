@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkBYUWriter - write MOVIE.BYU files
 // .SECTION Description
-// vtkBYUWriter writes MOVIE.BYU polygonal files. These files consist 
-// of a geometry file (.g), a scalar file (.s), a displacement or 
-// vector file (.d), and a 2D texture coordinate file (.t). These files 
-// must be specified to the object, the appropriate boolean 
+// vtkBYUWriter writes MOVIE.BYU polygonal files. These files consist
+// of a geometry file (.g), a scalar file (.s), a displacement or
+// vector file (.d), and a 2D texture coordinate file (.t). These files
+// must be specified to the object, the appropriate boolean
 // variables must be true, and data must be available from the input
 // for the files to be written.
 // WARNING: this writer does not currently write triangle strips. Use
@@ -62,13 +62,13 @@ public:
   vtkSetMacro(WriteDisplacement,int);
   vtkGetMacro(WriteDisplacement,int);
   vtkBooleanMacro(WriteDisplacement,int);
-  
+
   // Description:
   // Turn on/off writing the scalar file.
   vtkSetMacro(WriteScalar,int);
   vtkGetMacro(WriteScalar,int);
   vtkBooleanMacro(WriteScalar,int);
-  
+
   // Description:
   // Turn on/off writing the texture file.
   vtkSetMacro(WriteTexture,int);

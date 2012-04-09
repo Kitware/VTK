@@ -57,16 +57,16 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
                                        vtkTable* inParameters,
                                        vtkMultiBlockDataSet* outMeta )
 {
-  if ( ! outMeta ) 
-    { 
-    return; 
-    } 
+  if ( ! outMeta )
+    {
+    return;
+    }
 
   // First calculate correlative statistics on local data set
   this->Superclass::Learn( inData, inParameters, outMeta );
 
   vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
-  if ( ! primaryTab ) 
+  if ( ! primaryTab )
     {
     return;
     }
@@ -91,12 +91,12 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
     {
     vtkErrorMacro("No parallel communicator.");
     }
-  
+
   // (All) gather all sample sizes
   int n_l = primaryTab->GetValueByName( 0, "Cardinality" ).ToInt(); // Cardinality
   int* n_g = new int[np];
-  com->AllGather( &n_l, n_g, 1 ); 
-  
+  com->AllGather( &n_l, n_g, 1 );
+
   // Iterate over all parameter rows
   for ( int r = 0; r < nRow; ++ r )
     {
@@ -121,7 +121,7 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
     for ( int i = 1; i < np; ++ i )
       {
       int ns_l = n_g[i];
-      int N = ns + ns_l; 
+      int N = ns + ns_l;
 
       int o = 5 * i;
       double meanX_part = M_g[o];
@@ -129,7 +129,7 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
       double mom2X_part = M_g[o + 2];
       double mom2Y_part = M_g[o + 3];
       double momXY_part = M_g[o + 4];
-      
+
       double invN = 1. / static_cast<double>( N );
 
       double deltaX = meanX_part - meanX;
@@ -139,14 +139,14 @@ void vtkPCorrelativeStatistics::Learn( vtkTable* inData,
       double deltaY_sur_N = deltaY * invN;
 
       int prod_ns = ns * ns_l;
- 
-      mom2X += mom2X_part 
+
+      mom2X += mom2X_part
         + prod_ns * deltaX * deltaX_sur_N;
 
-      mom2Y += mom2Y_part 
+      mom2Y += mom2Y_part
         + prod_ns * deltaY * deltaY_sur_N;
 
-      momXY += momXY_part 
+      momXY += momXY_part
         + prod_ns * deltaX * deltaY_sur_N;
 
       meanX += ns_l * deltaX_sur_N;

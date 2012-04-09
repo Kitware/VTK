@@ -57,31 +57,31 @@ vtkStandardNewMacro(vtkDataObjectTypes);
 // the same order as the #define's in vtkType.h. Make sure
 // this list is NULL terminated.
 static const char* vtkDataObjectTypesStrings[] = {
-  "vtkPolyData", 
-  "vtkStructuredPoints", 
-  "vtkStructuredGrid", 
+  "vtkPolyData",
+  "vtkStructuredPoints",
+  "vtkStructuredGrid",
   "vtkRectilinearGrid",
-  "vtkUnstructuredGrid", 
-  "vtkPiecewiseFunction", 
+  "vtkUnstructuredGrid",
+  "vtkPiecewiseFunction",
   "vtkImageData",
   "vtkDataObject",
   "vtkDataSet",
   "vtkPointSet",
   "vtkUniformGrid",
-  "vtkCompositeDataSet", 
+  "vtkCompositeDataSet",
   "vtkMultiGroupDataSet", // OBSOLETE
-  "vtkMultiBlockDataSet", 
+  "vtkMultiBlockDataSet",
   "vtkHierarchicalDataSet", // OBSOLETE
   "vtkHierarchicalBoxDataSet", // OBSOLETE
-  "vtkGenericDataSet", 
-  "vtkHyperOctree", 
-  "vtkTemporalDataSet", 
-  "vtkTable", 
-  "vtkGraph", 
-  "vtkTree", 
+  "vtkGenericDataSet",
+  "vtkHyperOctree",
+  "vtkTemporalDataSet",
+  "vtkTable",
+  "vtkGraph",
+  "vtkTree",
   "vtkSelection",
-  "vtkDirectedGraph", 
-  "vtkUndirectedGraph", 
+  "vtkDirectedGraph",
+  "vtkUndirectedGraph",
   "vtkMultiPieceDataSet",
   "vtkDirectedAcyclicGraph",
   "vtkArrayData",
@@ -97,7 +97,7 @@ static const char* vtkDataObjectTypesStrings[] = {
 const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
 {
   static int numClasses = 0;
-  
+
   // find length of table
   if (numClasses == 0)
     {
@@ -115,7 +115,7 @@ const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
     {
     return "UnknownClass";
     }
-  
+
 }
 
 //----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ int vtkDataObjectTypes::GetTypeIdFromClassName(const char* classname)
       return idx;
       }
     }
-  
+
   return -1;
 }
 
@@ -145,17 +145,17 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
     {
     return vtkDataObjectTypes::NewDataObject(className);
     }
-  
+
   return 0;
 }
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 {
-  
+
   if (!type)
     {
-    vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
+    vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
                << "\" which does not exist.");
     return 0;
     }
@@ -275,18 +275,18 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
 
     if(data == NULL)
       {
-      vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
+      vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
                  << "\" which does not exist.");
       }
     return data;
     }
 
-  vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type 
+  vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
              << "\" which does not exist.");
 
   return 0;
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkDataObjectTypes::PrintSelf(ostream& os, vtkIndent indent)
 {

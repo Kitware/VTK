@@ -48,13 +48,13 @@ public:
   // Description:
   // Setting the graph for the layout strategy
   virtual void SetGraph(vtkGraph *graph);
-  
+
   // Description:
   // This method allows the layout strategy to
   // do initialization of data structures
-  // or whatever else it might want to do. 
+  // or whatever else it might want to do.
   virtual void Initialize() {};
-  
+
   // Description:
   // This is the layout method where the graph that was
   // set in SetGraph() is laid out. The method can either
@@ -62,13 +62,13 @@ public:
   // graph. If you have an iterative layout please implement
   // the IsLayoutComplete() method.
   virtual void Layout()=0;
-  
+
   // Description:
   // If your concrete class is iterative than
   // you should overload IsLayoutComplete()
   // otherwise it simply returns 1 by default;
   virtual int IsLayoutComplete() {return 1;}
-    
+
   // Description:
   // Whether to use edge weights in the layout or not.
   virtual void SetWeightEdges(bool state);
@@ -82,7 +82,7 @@ public:
 protected:
   vtkGraphLayoutStrategy();
   ~vtkGraphLayoutStrategy();
-  
+
   vtkGraph *Graph;
   char     *EdgeWeightField;
   bool     WeightEdges;

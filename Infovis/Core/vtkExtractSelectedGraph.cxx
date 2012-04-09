@@ -100,8 +100,8 @@ void vtkExtractSelectedGraph::SetAnnotationLayersConnection(vtkAlgorithmOutput* 
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedGraph::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -111,16 +111,16 @@ int vtkExtractSelectedGraph::RequestDataObject(
     }
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if (input)
     {
     vtkInformation* info = outputVector->GetInformationObject(0);
     vtkGraph *output = vtkGraph::SafeDownCast(
       info->Get(vtkDataObject::DATA_OBJECT()));
-    
+
     // Output a vtkDirectedGraph if the input is a tree.
-    if (!output 
-        || (vtkTree::SafeDownCast(input) && !vtkDirectedGraph::SafeDownCast(output)) 
+    if (!output
+        || (vtkTree::SafeDownCast(input) && !vtkDirectedGraph::SafeDownCast(output))
         || (!vtkTree::SafeDownCast(input) && !output->IsA(input->GetClassName())))
       {
       if (vtkTree::SafeDownCast(input))
@@ -141,8 +141,8 @@ int vtkExtractSelectedGraph::RequestDataObject(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedGraph::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
@@ -171,11 +171,11 @@ int vtkExtractSelectedGraph::RequestData(
     for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
       {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
-      if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+      if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==0) ||
-          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
-          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 && 
-          a->GetInformation()->Has(vtkAnnotation::HIDE()) && 
+          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
+          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
+          a->GetInformation()->Has(vtkAnnotation::HIDE()) &&
           a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
         {
         continue;
@@ -257,16 +257,16 @@ int vtkExtractSelectedGraph::RequestData(
         } // end if (curList)
       } // end if (list)
     } // end for each child
-  
+
   // If there is no selection list, return an empty graph
   if (vertexList->GetNumberOfTuples() == 0 && edgeList->GetNumberOfTuples() == 0)
     {
     return 1;
     }
 
-  vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder = 
+  vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
-  vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder = 
+  vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
   bool directed;
   vtkGraph* builder = 0;
@@ -472,6 +472,6 @@ int vtkExtractSelectedGraph::RequestData(
 void vtkExtractSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RemoveIsolatedVertices: " 
+  os << indent << "RemoveIsolatedVertices: "
      << (this->RemoveIsolatedVertices ? "on" : "off") << endl;
 }

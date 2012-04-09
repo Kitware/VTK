@@ -150,7 +150,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
     {
     // Select blue component of leaf mesh
     double bComp = interfaceIterator->GetCurrentFlatIndex() == 2 ? 0 : 1;
-    
+
     // Fetch interface object and downcast to data set
     vtkDataObject* interfaceDO = interfaceIterator->GetCurrentDataObject();
     vtkDataSet* interface = vtkDataSet::SafeDownCast( interfaceDO );
@@ -170,15 +170,15 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
     interfaceActor->GetProperty()->SetRepresentationToSurface();
     renderer->AddViewProp( interfaceActor.GetPointer() );
     }
-  
+
   // Render and test;
   window->Render();
-  
+
   int retVal = vtkRegressionTestImage( window.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     interactor->Start();
     }
-  
+
   return !retVal;
 }

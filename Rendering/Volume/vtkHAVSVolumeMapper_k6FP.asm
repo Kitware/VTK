@@ -3,10 +3,10 @@
 # Copyright 2005 by University of Utah
 #
 # Hardware-Assisted Visibility Sorting
-#	 
+#
 # The program consists of the following steps:
 #
-# 1. Find the first and second entries in the fixed size k-buffer list sorted 
+# 1. Find the first and second entries in the fixed size k-buffer list sorted
 #    by d (6+1 entries)
 # 2. Perform a 3D pre-integrated transfer function lookup using front and back
 #    scalar data values + the segment length computed from the distance values
@@ -16,7 +16,7 @@
 #    write the remaining k-buffer entries.
 #
 # The following textures are used:
-# 
+#
 #   Tex 0: framebuffer (pbuffer, 2D RGBA 16/32 bpp float)
 #   Tex 1: k-buffer entry 1 and 2(same)
 #   Tex 2: k-buffer entry 3 and 4(same)
@@ -36,10 +36,10 @@ ATTRIB p = fragment.position; # fragment position in screen space
 ATTRIB v = fragment.texcoord[0]; # v.x = scalar value
 ATTRIB e = fragment.texcoord[1]; # fragment position in eye space
 PARAM sz = program.local[0]; # texture scale and max gap length parameters
-                             # {1/pw, 1/ph, max, not_used} 
+                             # {1/pw, 1/ph, max, not_used}
 PARAM half = { 0.5, 0.5, 0.0, 0.0 };
-PARAM exp = { 0.0, 0.0, 0.0, 1.44269504 }; # 1/ln2 
-	                            
+PARAM exp = { 0.0, 0.0, 0.0, 1.44269504 }; # 1/ln2
+
 TEMP a0, a1, a2, a3, a4, a5, a6; # k-buffer entries
 TEMP r0, r1, r2, r3, r4, r5, r6, r7; # sorted results
 TEMP c, c0; # color and opacity
@@ -49,8 +49,8 @@ TEMP colorBack, colorFront;
 TEMP taud, zeta, gamma, Psi;
 
 # -----------------------------------------------------------------------------
-# compute texture coordinates from window position so that it is not 
-# interpolated perspective correct.  Then look up the color and opacity from 
+# compute texture coordinates from window position so that it is not
+# interpolated perspective correct.  Then look up the color and opacity from
 # the framebuffer
 MUL t, p, sz; # t.xy = p.xy * sz.xy, only x and y are used for texture lookup
 TEX c0, t, texture[0], 2D; # framebuffer color
@@ -144,9 +144,9 @@ SUB t.z, r7.y, r0.y; # distance between front and back fragment
 
 # -----------------------------------------------------------------------------
 # nullify fragment if distance is greater than unit scale (non-convexities)
-SUB t.w, sz.z, t.z; 
+SUB t.w, sz.z, t.z;
 CMP t.z, t.w, 0.0, t.z;
-	
+
 # -----------------------------------------------------------------------------
 # transfer function lookup
 TEX colorFront, t.x, texture[5], 1D;
@@ -159,7 +159,7 @@ MUL taud.y, t.z, colorFront.a;
 DP3 zeta.w, taud, half;
 MUL zeta.w, exp.w, zeta.w;
 EX2 zeta.w, -zeta.w;
-	
+
 # -----------------------------------------------------------------------------
 # compute gamma = taud/(1+taud);
 ADD t, taud, 1.0;
@@ -173,11 +173,11 @@ TEX Psi.w, gamma, texture[4], 2D;
 
 # -----------------------------------------------------------------------------
 # compute color = cb(psi-zeta) + cf(1.0-psi)
-SUB t.w, Psi.w, zeta.w; 
-MUL colorBack, colorBack, t.w; 
+SUB t.w, Psi.w, zeta.w;
+MUL colorBack, colorBack, t.w;
 SUB t.w, 1.0, Psi.w;
-MUL colorFront, colorFront, t.w; 
-ADD c, colorBack, colorFront; 
+MUL colorFront, colorFront, t.w;
+ADD c, colorBack, colorFront;
 SUB c.a, 1.0, zeta.w;
 
 # -----------------------------------------------------------------------------
@@ -185,7 +185,7 @@ SUB c.a, 1.0, zeta.w;
 CMP c, r0.x, 0.0, c;
 
 # -----------------------------------------------------------------------------
-# composite color with the color from the framebuffer !!!front to back!!! 
+# composite color with the color from the framebuffer !!!front to back!!!
 SUB t.w, 1.0, c0.w;
 MAD result.color[0], c, t.w, c0;
 

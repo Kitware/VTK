@@ -332,7 +332,7 @@ int TestOrientationMarkerWidget( int, char *[] )
     }
   while( ++i < nPoints + 80 );
 
-  vtkSmartPointer<vtkPolyData> wiggle = 
+  vtkSmartPointer<vtkPolyData> wiggle =
     vtkSmartPointer<vtkPolyData>::New();
   wiggle->SetPoints( points );
   wiggle->SetLines( line );

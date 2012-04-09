@@ -41,8 +41,8 @@ vtkStandardNewMacro(vtkJPEGReader);
 #endif
 
 // create an error handler for jpeg that
-// can longjmp out of the jpeg library 
-struct vtk_jpeg_error_mgr 
+// can longjmp out of the jpeg library
+struct vtk_jpeg_error_mgr
 {
   struct jpeg_error_mgr pub;    /* "public" fields */
   jmp_buf setjmp_buffer;        /* for return to caller */
@@ -72,10 +72,10 @@ extern "C" void vtk_jpeg_output_message (j_common_ptr cinfo)
 
 #ifdef _MSC_VER
 // Let us get rid of this funny warning on /W4:
-// warning C4611: interaction between '_setjmp' and C++ object 
+// warning C4611: interaction between '_setjmp' and C++ object
 // destruction is non-portable
 #pragma warning( disable : 4611 )
-#endif 
+#endif
 
 void vtkJPEGReader::ExecuteInformation()
 {
@@ -88,8 +88,8 @@ void vtkJPEGReader::ExecuteInformation()
   FILE *fp = fopen(this->InternalFileName, "rb");
   if (!fp)
     {
-    vtkErrorWithObjectMacro(this, 
-                            "Unable to open file " 
+    vtkErrorWithObjectMacro(this,
+                            "Unable to open file "
                             << this->InternalFileName);
     return;
     }
@@ -99,7 +99,7 @@ void vtkJPEGReader::ExecuteInformation()
   struct vtk_jpeg_error_mgr jerr;
   jerr.JPEGReader = this;
 
-  cinfo.err = jpeg_std_error(&jerr.pub); 
+  cinfo.err = jpeg_std_error(&jerr.pub);
   // for any jpeg error call vtk_jpeg_error_exit
   jerr.pub.error_exit = vtk_jpeg_error_exit;
   // for any output message call vtk_jpeg_output_message
@@ -110,7 +110,7 @@ void vtkJPEGReader::ExecuteInformation()
     jpeg_destroy_decompress(&cinfo);
     // close the file
     fclose(fp);
-    // this is not a valid jpeg file 
+    // this is not a valid jpeg file
     vtkErrorWithObjectMacro(this, "libjpeg could not read file: "
                             << this->InternalFileName);
     return;
@@ -187,7 +187,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
   // prepare to read the bulk data
   jpeg_start_decompress(&cinfo);
 
-  
+
   int rowbytes = cinfo.output_components * cinfo.output_width;
   unsigned char *tempImage = new unsigned char [rowbytes*cinfo.output_height];
   JSAMPROW *row_pointers = new JSAMPROW [cinfo.output_height];
@@ -244,8 +244,8 @@ void vtkJPEGReaderUpdate(vtkJPEGReader *self, vtkImageData *data, OT *outPtr)
   data->GetExtent(outExtent);
   data->GetIncrements(outIncr);
 
-  long pixSize = data->GetNumberOfScalarComponents()*sizeof(OT);  
-  
+  long pixSize = data->GetNumberOfScalarComponents()*sizeof(OT);
+
   outPtr2 = outPtr;
   int idx2;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
@@ -257,7 +257,7 @@ void vtkJPEGReaderUpdate(vtkJPEGReader *self, vtkImageData *data, OT *outPtr)
       const char* fn = self->GetInternalFileName();
       vtkErrorWithObjectMacro(self, "libjpeg could not read file: " << fn);
       }
-    
+
     self->UpdateProgress((idx2 - outExtent[4])/
                          (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
@@ -280,7 +280,7 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject *output,
     }
 
   this->ComputeDataIncrements();
-  
+
   data->GetPointData()->GetScalars()->SetName("JPEGImage");
 
   // Call the correct templated function for the output
@@ -293,7 +293,7 @@ void vtkJPEGReader::ExecuteDataWithInformation(vtkDataObject *output,
     vtkTemplateMacro(vtkJPEGReaderUpdate(this, data, (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
-    }   
+    }
 }
 
 
@@ -309,14 +309,14 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   // read the first two bytes
   char magic[2];
   int n = static_cast<int>(fread(magic, sizeof(magic), 1, fp));
-  if (n != 1) 
+  if (n != 1)
     {
     fclose(fp);
     return 0;
     }
   // check for the magic stuff:
   // 0xFF followed by 0xD8
-  if( ( (static_cast<unsigned char>(magic[0]) != 0xFF) || 
+  if( ( (static_cast<unsigned char>(magic[0]) != 0xFF) ||
         (static_cast<unsigned char>(magic[1]) != 0xD8) ) )
     {
     fclose(fp);
@@ -350,7 +350,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   jpeg_stdio_src(&cinfo, fp);
   /* Step 3: read file parameters with jpeg_read_header() */
   jpeg_read_header(&cinfo, TRUE);
-  
+
   // if no errors have occurred yet, then it must be jpeg
   jpeg_destroy_decompress(&cinfo);
   fclose(fp);
@@ -359,7 +359,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
 #ifdef _MSC_VER
 // Put the warning back
 #pragma warning( default : 4611 )
-#endif 
+#endif
 
 
 //----------------------------------------------------------------------------

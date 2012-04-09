@@ -2,9 +2,9 @@
 
 set xmlMaterial {<?xml version="1.0" encoding="UTF-8"?>
 <Material name="GenericAttributes1">
-  <Shader 
-    scope="Vertex" 
-    name="VertexShader" 
+  <Shader
+    scope="Vertex"
+    name="VertexShader"
     location="Inline"
     language="GLSL"
     entry="main">

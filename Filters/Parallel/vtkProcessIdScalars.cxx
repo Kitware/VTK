@@ -70,10 +70,10 @@ int vtkProcessIdScalars::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkDataArray *pieceColors;
   vtkIdType num;
-  
+
   if (this->CellScalarsFlag)
     {
     num = input->GetNumberOfCells();
@@ -82,7 +82,7 @@ int vtkProcessIdScalars::RequestData(
     {
     num = input->GetNumberOfPoints();
     }
-  
+
   int piece = (this->Controller?this->Controller->GetLocalProcessId():0);
 
   if (this->RandomMode)
@@ -93,9 +93,9 @@ int vtkProcessIdScalars::RequestData(
     {
     pieceColors = this->MakeProcessIdScalars(piece, num);
     }
-    
+
   output->ShallowCopy(input);
-  pieceColors->SetName("ProcessId");  
+  pieceColors->SetName("ProcessId");
   if (this->CellScalarsFlag)
     {
     output->GetCellData()->AddArray(pieceColors);
@@ -106,7 +106,7 @@ int vtkProcessIdScalars::RequestData(
     output->GetPointData()->AddArray(pieceColors);
     output->GetPointData()->SetActiveScalars(pieceColors->GetName());
     }
-    
+
   pieceColors->Delete();
 
   return 1;
@@ -120,7 +120,7 @@ vtkIntArray *vtkProcessIdScalars::MakeProcessIdScalars(int piece, vtkIdType num)
 
   pieceColors = vtkIntArray::New();
   pieceColors->SetNumberOfTuples(num);
-  
+
   for (i = 0; i < num; ++i)
     {
     pieceColors->SetValue(i, piece);
@@ -135,13 +135,13 @@ vtkFloatArray *vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
   vtkIdType i;
   vtkFloatArray *pieceColors = NULL;
   float randomValue;
-  
+
   vtkMath::RandomSeed(piece);
   randomValue = vtkMath::Random();
-  
+
   pieceColors = vtkFloatArray::New();
   pieceColors->SetNumberOfTuples(num);
-  
+
   for (i = 0; i < num; ++i)
     {
     pieceColors->SetValue(i, randomValue);
@@ -154,7 +154,7 @@ vtkFloatArray *vtkProcessIdScalars::MakeRandomScalars(int piece, vtkIdType num)
 void vtkProcessIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "RandomMode: " << this->RandomMode << endl;
   if (this->CellScalarsFlag)
     {
@@ -163,7 +163,7 @@ void vtkProcessIdScalars::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "ScalarMode: PointData\n";
-    }  
+    }
 
   os << indent << "Controller: ";
   if (this->Controller)

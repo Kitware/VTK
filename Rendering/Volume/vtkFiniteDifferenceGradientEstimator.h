@@ -16,17 +16,17 @@
 // .NAME vtkFiniteDifferenceGradientEstimator - Use finite differences to estimate gradient.
 //
 // .SECTION Description
-//  vtkFiniteDifferenceGradientEstimator is a concrete subclass of 
+//  vtkFiniteDifferenceGradientEstimator is a concrete subclass of
 //  vtkEncodedGradientEstimator that uses a central differences technique to
 //  estimate the gradient. The gradient at some sample location (x,y,z)
 //  would be estimated by:
-//      
+//
 //       nx = (f(x-dx,y,z) - f(x+dx,y,z)) / 2*dx;
 //       ny = (f(x,y-dy,z) - f(x,y+dy,z)) / 2*dy;
 //       nz = (f(x,y,z-dz) - f(x,y,z+dz)) / 2*dz;
 //
 //  This value is normalized to determine a unit direction vector and a
-//  magnitude. The normal is computed in voxel space, and 
+//  magnitude. The normal is computed in voxel space, and
 //  dx = dy = dz = SampleSpacingInVoxels. A scaling factor is applied to
 //  convert this normal from voxel space to world coordinates.
 //
@@ -70,7 +70,7 @@ protected:
 private:
   vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
   void operator=(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
-}; 
+};
 
 
 #endif

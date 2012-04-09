@@ -24,7 +24,7 @@
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera() 
+vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera()
 {
   // Use timers to handle continuous interaction
 
@@ -32,19 +32,19 @@ vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera()
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleJoystickCamera::~vtkInteractorStyleJoystickCamera() 
+vtkInteractorStyleJoystickCamera::~vtkInteractorStyleJoystickCamera()
 {
 }
 
 //----------------------------------------------------------------------------
 // Mouse events
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMouseMove() 
-{ 
+void vtkInteractorStyleJoystickCamera::OnMouseMove()
+{
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
 
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_ROTATE:
     case VTKIS_PAN:
@@ -57,9 +57,9 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnLeftButtonDown() 
+void vtkInteractorStyleJoystickCamera::OnLeftButtonDown()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
@@ -67,24 +67,24 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown()
     }
 
   this->GrabFocus(this->EventCallbackCommand);
-  if (this->Interactor->GetShiftKey()) 
+  if (this->Interactor->GetShiftKey())
     {
-    if (this->Interactor->GetControlKey()) 
+    if (this->Interactor->GetControlKey())
       {
       this->StartDolly();
       }
-    else 
+    else
       {
       this->StartPan();
       }
-    } 
-  else 
+    }
+  else
     {
-    if (this->Interactor->GetControlKey()) 
+    if (this->Interactor->GetControlKey())
       {
       this->StartSpin();
       }
-    else 
+    else
       {
       this->StartRotate();
       }
@@ -94,7 +94,7 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnLeftButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_DOLLY:
       this->EndDolly();
@@ -121,21 +121,21 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMiddleButtonDown()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
-  
+
   this->GrabFocus(this->EventCallbackCommand);
   this->StartPan();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp() 
+void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_PAN:
       this->EndPan();
@@ -150,13 +150,13 @@ void vtkInteractorStyleJoystickCamera::OnMiddleButtonUp()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnRightButtonDown()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
-  
+
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
 }
@@ -164,7 +164,7 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonDown()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
 {
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_DOLLY:
       this->EndDolly();
@@ -177,15 +177,15 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickCamera::OnMouseWheelForward() 
+void vtkInteractorStyleJoystickCamera::OnMouseWheelForward()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
-  
+
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = 10.0 * 0.2 * this->MouseWheelMotionFactor;
@@ -197,13 +197,13 @@ void vtkInteractorStyleJoystickCamera::OnMouseWheelForward()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::OnMouseWheelBackward()
 {
-  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0], 
+  this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
     {
     return;
     }
-  
+
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
   double factor = 10.0 * -0.2 * this->MouseWheelMotionFactor;
@@ -219,20 +219,20 @@ void vtkInteractorStyleJoystickCamera::Rotate()
     {
     return;
     }
-  
+
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   double *center = this->CurrentRenderer->GetCenter();
 
   double dx = rwi->GetEventPosition()[0] - center[0];
   double dy = rwi->GetEventPosition()[1] - center[1];
-  
+
   double *vp = this->CurrentRenderer->GetViewport();
   int *size = rwi->GetSize();
 
   double delta_elevation = -20.0/((vp[3] - vp[1])*size[1]);
   double delta_azimuth = -20.0/((vp[2] - vp[0])*size[0]);
-  
+
   double rxf = dx * delta_azimuth;
   double ryf = dy * delta_elevation;
 
@@ -246,7 +246,7 @@ void vtkInteractorStyleJoystickCamera::Rotate()
     this->CurrentRenderer->ResetCameraClippingRange();
     }
 
-  if (rwi->GetLightFollowCamera()) 
+  if (rwi->GetLightFollowCamera())
     {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
@@ -261,7 +261,7 @@ void vtkInteractorStyleJoystickCamera::Spin()
     {
     return;
     }
-  
+
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   double *center = this->CurrentRenderer->GetCenter();
@@ -295,23 +295,23 @@ void vtkInteractorStyleJoystickCamera::Pan()
     {
     return;
     }
-  
+
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   double ViewFocus[4];
   double NewPickPoint[4];
-  
+
   // Calculate the focal depth since we'll be using it a lot
 
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   camera->GetFocalPoint(ViewFocus);
-  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1], ViewFocus[2], 
+  this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1], ViewFocus[2],
                               ViewFocus);
   double focalDepth = ViewFocus[2];
 
-  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0], 
+  this->ComputeDisplayToWorld(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1],
-                              focalDepth, 
+                              focalDepth,
                               NewPickPoint);
 
   // Get the current focal point and position
@@ -334,8 +334,8 @@ void vtkInteractorStyleJoystickCamera::Pan()
   camera->SetPosition(MotionVector[0] + ViewPoint[0],
                       MotionVector[1] + ViewPoint[1],
                       MotionVector[2] + ViewPoint[2]);
-  
-  if (rwi->GetLightFollowCamera()) 
+
+  if (rwi->GetLightFollowCamera())
     {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }
@@ -350,7 +350,7 @@ void vtkInteractorStyleJoystickCamera::Dolly()
     {
     return;
     }
-  
+
   vtkRenderWindowInteractor *rwi = this->Interactor;
   double *center = this->CurrentRenderer->GetCenter();
   double dy = rwi->GetEventPosition()[1] - center[1];
@@ -380,7 +380,7 @@ void vtkInteractorStyleJoystickCamera::Dolly(double factor)
       }
     }
 
-  if (this->Interactor->GetLightFollowCamera()) 
+  if (this->Interactor->GetLightFollowCamera())
     {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
     }

@@ -107,7 +107,7 @@ public:
   void GetBounds(double bounds[6]) const;
 
   // Description:
-  // Get/Set the spatial dimension of the box. Only 2 and 3 
+  // Get/Set the spatial dimension of the box. Only 2 and 3
   // are valid.
   int GetDimensionality() const { return this->Dimension; }
   void SetDimensionality(int dim);
@@ -264,7 +264,7 @@ public:
 
   // Description:
   // Intersect this box with another box in place.  Returns
-  // true if the boxes do intersect.  Note that the box is 
+  // true if the boxes do intersect.  Note that the box is
   // modified to be the intersection or is made invalid.
   bool Intersect(const vtkAMRBox &rhs);
   void operator&=(const vtkAMRBox &rhs)
@@ -343,7 +343,7 @@ public:
   // Description:
   // These are public for backward compatibility only. If your
   // code uses these, it will break in the future when this class
-  // is fixed. Use the above Set/Get'ers. See Get/SetDimensions, 
+  // is fixed. Use the above Set/Get'ers. See Get/SetDimensions,
   // Get/SetXCorner, and the many constructors above.
   int LoCorner[3]; // lo corner cell id.
   int HiCorner[3]; // hi corner cell id.
@@ -470,7 +470,7 @@ void FillRegion(
   for (int k=destLo[2]; k<=destHi[2]; ++k)
     {
     vtkIdType kOfs=k*arrayHi[0]*arrayHi[1];
-    for (int j=destLo[1]; j<=destHi[1]; ++j) 
+    for (int j=destLo[1]; j<=destHi[1]; ++j)
       {
       vtkIdType idx=kOfs+j*arrayHi[0]+destLo[0];
       for (int i=destLo[0]; i<=destHi[0]; ++i)

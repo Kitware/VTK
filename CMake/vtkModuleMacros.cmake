@@ -384,7 +384,7 @@ endmacro()
 
 macro(vtk_add_test_module _lang)
   set(_test_module_name ${vtk-module-test}-${_lang})
-  
+
   list(APPEND VTK_MODULES_ALL ${_test_module_name})
   set(VTK_MODULE_${_test_module_name}_DEPENDS ${VTK_MODULE_${vtk-module-test}_DEPENDS})
   set(${_test_module_name}_SOURCE_DIR ${${vtk-module}_SOURCE_DIR}/Testing/${_lang})

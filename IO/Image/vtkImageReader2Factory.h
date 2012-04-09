@@ -27,7 +27,7 @@
 // automatically available.
 //
 // .SECTION See Also
-// vtkImageReader2 
+// vtkImageReader2
 
 #ifndef __vtkImageReader2Factory_h
 #define __vtkImageReader2Factory_h
@@ -45,18 +45,18 @@ class VTKIOIMAGE_EXPORT vtkImageReader2Factory : public vtkObject
 public:
   static vtkImageReader2Factory *New();
   vtkTypeMacro(vtkImageReader2Factory,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);   
-  
-  //Description: register a reader with the available readers.   
-  // registered readers will be queried in CreateImageReader2 to 
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  //Description: register a reader with the available readers.
+  // registered readers will be queried in CreateImageReader2 to
   // see if they can load a given file.
   static void RegisterReader(vtkImageReader2* r);
-  
+
   //Description: Given a path to a file find a reader that can
   // open the image file, it is the callers responsibility to call
   // Delete on the returned object.   If no reader is found, null
   // is returned.
-  static vtkImageReader2* CreateImageReader2(const char* path); 
+  static vtkImageReader2* CreateImageReader2(const char* path);
 
   // Description: get a list of the currently registered readers.
   // The caller must allocate the vtkImageReader2Collection and pass in the

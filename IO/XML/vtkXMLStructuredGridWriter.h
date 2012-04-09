@@ -37,21 +37,21 @@ public:
   static vtkXMLStructuredGridWriter* New();
   vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
   vtkStructuredGrid* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLStructuredGridWriter();
-  ~vtkXMLStructuredGridWriter();  
-  
+  ~vtkXMLStructuredGridWriter();
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -61,14 +61,14 @@ protected:
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
   void CalculateSuperclassFraction(float* fractions);
-  
+
   // The position of the appended data offset attribute for the points
   // array.
   OffsetsManagerGroup *PointsOM;  //one per piece
 
   virtual void AllocatePositionArrays();
   virtual void DeletePositionArrays();
-  
+
 private:
   vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&);  // Not implemented.
   void operator=(const vtkXMLStructuredGridWriter&);  // Not implemented.

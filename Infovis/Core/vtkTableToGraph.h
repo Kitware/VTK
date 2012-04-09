@@ -20,7 +20,7 @@
 // .NAME vtkTableToGraph - convert a vtkTable into a vtkGraph
 //
 // .SECTION Description
-// vtkTableToGraph converts a table to a graph using an auxiliary 
+// vtkTableToGraph converts a table to a graph using an auxiliary
 // link graph.  The link graph specifies how each row in the table
 // should be converted to an edge, or a collection of edges.  It also
 // specifies which columns of the table should be considered part of
@@ -48,7 +48,7 @@
 //
 // (3) The optional "hidden" array is a bit array specifying whether the column should be
 // hidden.  The resulting graph will contain edges representing connections
-// "through" the hidden column, but the vertices for that column will not 
+// "through" the hidden column, but the vertices for that column will not
 // be present.  By default, no columns are hidden.  Hiding a column
 // in a particular domain hides all columns in that domain.
 //
@@ -77,7 +77,7 @@ public:
   static vtkTableToGraph* New();
   vtkTypeMacro(vtkTableToGraph,vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Add a vertex to the link graph.  Specify the column name, the domain name
   // for the column, and whether the column is hidden.
@@ -99,7 +99,7 @@ public:
   // The graph describing how to link the columns in the table.
   vtkGetObjectMacro(LinkGraph, vtkMutableDirectedGraph);
   void SetLinkGraph(vtkMutableDirectedGraph* g);
-  
+
   // Description:
   // Links the columns in a specific order.
   // This creates a simple path as the link graph.
@@ -110,7 +110,7 @@ public:
   vtkSetMacro(Directed, bool);
   vtkGetMacro(Directed, bool);
   vtkBooleanMacro(Directed, bool);
-  
+
   // Description:
   // Get the current modified time.
   virtual unsigned long GetMTime();
@@ -123,7 +123,7 @@ public:
   // table_to_graph->SetInputConnection(1, vertex_table->output());
   //
   void SetVertexTableConnection(vtkAlgorithmOutput* in);
-  
+
 protected:
   vtkTableToGraph();
   ~vtkTableToGraph();
@@ -131,17 +131,17 @@ protected:
   // Description:
   // Validate that the link graph is in the appropriate format.
   int ValidateLinkGraph();
-  
+
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   virtual int RequestDataObject(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   bool Directed;

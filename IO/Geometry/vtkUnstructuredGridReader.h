@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkUnstructuredGridReader - read vtk unstructured grid data file
 // .SECTION Description
-// vtkUnstructuredGridReader is a source object that reads ASCII or binary 
+// vtkUnstructuredGridReader is a source object that reads ASCII or binary
 // unstructured grid data files in vtk format. (see text for format details).
 // The output of this reader is a single vtkUnstructuredGrid data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -45,7 +45,7 @@ public:
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
   void SetOutput(vtkUnstructuredGrid *output);
-  
+
 protected:
   vtkUnstructuredGridReader();
   ~vtkUnstructuredGridReader();
@@ -58,7 +58,7 @@ protected:
   // as a default behavior.
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);  // Not implemented.

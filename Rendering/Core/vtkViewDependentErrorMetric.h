@@ -16,8 +16,8 @@
 // screen-based error during cell tessellation.
 //
 // .SECTION Description
-// It is a concrete error metric, based on a geometric criterium in 
-// the screen space: the variation of the projected edge from a projected 
+// It is a concrete error metric, based on a geometric criterium in
+// the screen space: the variation of the projected edge from a projected
 // straight line
 //
 // .SECTION See Also
@@ -39,12 +39,12 @@ public:
   // Construct the error metric with a default squared screen-based geometric
   // accuracy measured in pixels equal to 0.25 (0.5^2).
   static vtkViewDependentErrorMetric *New();
-  
+
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkViewDependentErrorMetric,vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Return the squared screen-based geometric accurary measured in pixels.
   // An accuracy less or equal to 0.25 (0.5^2) ensures that the screen-space
@@ -65,11 +65,11 @@ public:
   void SetPixelTolerance(double value);
 
   // Description:
-  // Set/Get the renderer with `renderer' on which the error metric 
+  // Set/Get the renderer with `renderer' on which the error metric
   // is based. The error metric use the active camera of the renderer.
   vtkGetObjectMacro(Viewport,vtkViewport);
   void SetViewport(vtkViewport *viewport);
-  
+
   // Description:
   // Does the edge need to be subdivided according to the distance between
   // the line passing through its endpoints in screen space and the projection
@@ -90,7 +90,7 @@ public:
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
                               double alpha);
-  
+
   // Description:
   // Return the error at the mid-point. The type of error depends on the state
   // of the concrete error metric. For instance, it can return an absolute
@@ -109,7 +109,7 @@ public:
 protected:
   vtkViewDependentErrorMetric();
   ~vtkViewDependentErrorMetric();
-  
+
   // Description:
   // Square distance between a straight line (defined by points x and y)
   // and a point z. Property: if x and y are equal, the line is a point and
@@ -117,12 +117,12 @@ protected:
   double Distance2LinePoint(double x[2],
                             double y[2],
                             double z[2]);
-  
+
   double PixelTolerance;
   vtkViewport *Viewport;
   // used to get display coordinates from world coordinates
-  vtkCoordinate *Coordinate; 
-  
+  vtkCoordinate *Coordinate;
+
 private:
   vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&);  // Not implemented.
   void operator=(const vtkViewDependentErrorMetric&);  // Not implemented.

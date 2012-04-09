@@ -19,7 +19,7 @@
 #cmakedefine HAVE_LIMITS_H
 #cmakedefine HAVE_UNISTD_H
 
-// This widget requires access to structures that are normally 
+// This widget requires access to structures that are normally
 // not visible to Tcl/Tk applications. For this reason you must
 // have access to tkInt.h
 // #include "tkInt.h"
@@ -28,7 +28,7 @@
 extern "C"
 {
 #endif
-#include "tkWinInt.h" 
+#include "tkWinInt.h"
 #ifdef  __cplusplus
 }
 #endif
@@ -47,4 +47,4 @@ extern "C"
 #endif
 
 #endif /* __vtkTkInternals_h */
- 
+

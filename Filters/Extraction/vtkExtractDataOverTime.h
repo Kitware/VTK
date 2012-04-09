@@ -16,8 +16,8 @@
 // a specified point id.
 // .SECTION Description
 // This filter extracts the point data from a time sequence and specified index
-// and creates an output of the same type as the input but with Points 
-// containing "number of time steps" points; the point and PointData 
+// and creates an output of the same type as the input but with Points
+// containing "number of time steps" points; the point and PointData
 // corresponding to the PointIndex are extracted at each time step and added to
 // the output.  A PointData array is added called "Time" (or "TimeData" if
 // there is already an array called "Time"), which is the time at each index.
@@ -39,10 +39,10 @@ public:
   // Index of point to extract at each time step
   vtkSetMacro(PointIndex,int);
   vtkGetMacro(PointIndex,int);
-  
+
   // Description:
   // Get the number of time steps
-  vtkGetMacro(NumberOfTimeSteps,int);    
+  vtkGetMacro(NumberOfTimeSteps,int);
 
 protected:
   vtkExtractDataOverTime();

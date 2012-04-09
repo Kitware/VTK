@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkThreshold);
 
-// Construct with lower threshold=0, upper threshold=1, and threshold 
+// Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper AllScalars=1.
 vtkThreshold::vtkThreshold()
 {
@@ -52,12 +52,12 @@ vtkThreshold::~vtkThreshold()
 }
 
 // Criterion is cells whose scalars are less or equal to lower threshold.
-void vtkThreshold::ThresholdByLower(double lower) 
+void vtkThreshold::ThresholdByLower(double lower)
 {
-  if ( this->LowerThreshold != lower || 
+  if ( this->LowerThreshold != lower ||
        this->ThresholdFunction != &vtkThreshold::Lower)
     {
-    this->LowerThreshold = lower; 
+    this->LowerThreshold = lower;
     this->ThresholdFunction = &vtkThreshold::Lower;
     this->Modified();
     }
@@ -69,7 +69,7 @@ void vtkThreshold::ThresholdByUpper(double upper)
   if ( this->UpperThreshold != upper ||
        this->ThresholdFunction != &vtkThreshold::Upper)
     {
-    this->UpperThreshold = upper; 
+    this->UpperThreshold = upper;
     this->ThresholdFunction = &vtkThreshold::Upper;
     this->Modified();
     }
@@ -81,13 +81,13 @@ void vtkThreshold::ThresholdBetween(double lower, double upper)
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper ||
        this->ThresholdFunction != &vtkThreshold::Between)
     {
-    this->LowerThreshold = lower; 
+    this->LowerThreshold = lower;
     this->UpperThreshold = upper;
     this->ThresholdFunction = &vtkThreshold::Between;
     this->Modified();
     }
 }
-  
+
 int vtkThreshold::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -116,7 +116,7 @@ int vtkThreshold::RequestData(
   int keepCell, usePointScalars;
 
   vtkDebugMacro(<< "Executing threshold filter");
-  
+
   if (this->AttributeMode != -1)
     {
     vtkErrorMacro(<<"You have set the attribute mode on vtkThreshold. This method is deprecated, please use SetInputArrayToProcess instead.");
@@ -124,7 +124,7 @@ int vtkThreshold::RequestData(
     }
 
   vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
-  
+
   if (!inScalars)
     {
     vtkDebugMacro(<<"No scalar data to threshold");
@@ -150,18 +150,18 @@ int vtkThreshold::RequestData(
     pointMap->SetId(i,-1);
     }
 
-  newCellPts = vtkIdList::New();     
+  newCellPts = vtkIdList::New();
 
   // are we using pointScalars?
   usePointScalars = (inScalars->GetNumberOfTuples() == numPts);
-  
+
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
     cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
-    
+
     if ( usePointScalars )
       {
       if (this->AllScalars)
@@ -187,7 +187,7 @@ int vtkThreshold::RequestData(
       {
       keepCell = this->EvaluateComponents( inScalars, cellId );
       }
-    
+
     if (  numCellPts > 0 && keepCell )
       {
       // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
@@ -219,13 +219,13 @@ int vtkThreshold::RequestData(
       } // satisfied thresholding
     } // for all cells
 
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells()
                 << " number of cells.");
 
   // now clean up / update ourselves
   pointMap->Delete();
   newCellPts->Delete();
-  
+
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -239,19 +239,19 @@ int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
   int keepCell = 0;
   int numComp = scalars->GetNumberOfComponents();
   int c;
-  
+
   switch ( this->ComponentMode )
     {
     case VTK_COMPONENT_MODE_USE_SELECTED:
       c = (this->SelectedComponent < numComp)?(this->SelectedComponent):(0);
-      keepCell = 
+      keepCell =
         (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
       break;
     case VTK_COMPONENT_MODE_USE_ANY:
       keepCell = 0;
       for ( c = 0; (!keepCell) && (c < numComp); c++ )
         {
-        keepCell = 
+        keepCell =
           (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
         }
       break;
@@ -259,7 +259,7 @@ int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
       keepCell = 1;
       for ( c = 0; keepCell && (c < numComp); c++ )
         {
-        keepCell = 
+        keepCell =
           (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
         }
       break;
@@ -278,7 +278,7 @@ const char *vtkThreshold::GetAttributeModeAsString(void)
     {
     return "UsePointData";
     }
-  else 
+  else
     {
     return "UseCellData";
     }
@@ -295,7 +295,7 @@ const char *vtkThreshold::GetComponentModeAsString(void)
     {
     return "UseAny";
     }
-  else 
+  else
     {
     return "UseAll";
     }
@@ -314,7 +314,7 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
   os << indent << "Component Mode: " << this->GetComponentModeAsString() << endl;
   os << indent << "Selected Component: " << this->SelectedComponent << endl;
-  
+
   os << indent << "All Scalars: " << this->AllScalars << "\n";
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     {
@@ -333,7 +333,7 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";
-  os << indent << "DataType of the output points: " 
+  os << indent << "DataType of the output points: "
      << this->PointsDataType << "\n";
 }
 
@@ -396,7 +396,7 @@ int vtkThreshold::ProcessRequest(vtkInformation* request,
 
       // do any contours intersect the range?
       if (this->ThresholdFunction == &vtkThreshold::Upper)
-        { 
+        {
         if ((this->*(this->ThresholdFunction))(range[0]))
           {
           return 1;
@@ -407,8 +407,8 @@ int vtkThreshold::ProcessRequest(vtkInformation* request,
         if (
             (this->*(this->ThresholdFunction))(range[0]) ||
             (this->*(this->ThresholdFunction))(range[1]) ||
-            (range[0] < this->LowerThreshold 
-             && 
+            (range[0] < this->LowerThreshold
+             &&
              range[1] > this->UpperThreshold))
           {
           return 1;

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayDiagonalMatrixSource.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -49,7 +49,7 @@ int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(
       source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    
+
     cout << "sparse diagonal matrix:\n";
     vtkPrintMatrixFormat(cout, sparse_array);
 

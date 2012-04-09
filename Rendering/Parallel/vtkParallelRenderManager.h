@@ -345,7 +345,7 @@ public:
   };
 
   virtual void CheckForAbortRender() {}
-  virtual int CheckForAbortComposite() {return 0;}  
+  virtual int CheckForAbortComposite() {return 0;}
 //ETX
 
   //Description:
@@ -466,7 +466,7 @@ protected:
   // Subclass should not use the Controller directly to send receive messages
   // in any of these methods otherwise deadlocks may ensue.
   virtual void CollectWindowInformation(vtkMultiProcessStream&) {}
-  virtual bool ProcessWindowInformation(vtkMultiProcessStream&) 
+  virtual bool ProcessWindowInformation(vtkMultiProcessStream&)
     { return true; }
   virtual void CollectRendererInformation(vtkRenderer*,
     vtkMultiProcessStream&) {}
@@ -510,7 +510,7 @@ protected:
   // Description:
   // Select buffer to read from / render into.
   virtual int ChooseBuffer();
-  
+
   // Description:
   // Sets the current render window's pixel data.
   virtual void SetRenderWindowPixelData(vtkUnsignedCharArray *pixels,
@@ -553,14 +553,14 @@ protected:
     double Background[3];
     double Background2[3];
     bool GradientBackground;
-    
+
     double ParallelScale;
 
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
     bool Restore(vtkMultiProcessStream& stream);
   };
-  
+
   struct LightInfo
   {
     double Position[3];

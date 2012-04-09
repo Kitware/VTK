@@ -11,12 +11,12 @@ if(VTK_MYSQL_TEST_URL)
   list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 
   add_test(NAME ${vtk-module}Cxx-TestPostgreSQLDatabase
-           COMMAND ${vtk-module}CxxTests TestPostgreSQLDatabase)  
+           COMMAND ${vtk-module}CxxTests TestPostgreSQLDatabase)
 
   if(VTK_DATA_ROOT)
     if(WIN32)
       add_test(NAME ${vtk-module}Cxx-TestPostgreSQLTableReadWrite
-               COMMAND ${vtk-module}CxxTests TestPostgreSQLTableReadWrite 
+               COMMAND ${vtk-module}CxxTests TestPostgreSQLTableReadWrite
                        ${VTK_DATA_ROOT}/Baseline/IO/simple_table_win.vtk)
     else()
       add_test(NAME ${vtk-module}Cxx-TestPostgreSQLTableReadWrite

@@ -58,7 +58,7 @@ protected:
   void MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds);
   void DeleteTree(vtkOBBNode *OBBptr);
   vtkPoints *PointsList;
-  
+
 private:
   vtkOBBDicer(const vtkOBBDicer&);  // Not implemented.
   void operator=(const vtkOBBDicer&);  // Not implemented.

@@ -7,9 +7,9 @@
 # The program consists of the following steps:
 #
 # 1. Clear k-buffers entries 1 and 2 to -1.0
-# 
+#
 # The following textures are used:
-# 
+#
 #   Tex 1: k-buffer entries 1 and 2 (same)
 #
 

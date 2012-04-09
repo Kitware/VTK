@@ -53,7 +53,7 @@ void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageCacheFilter::SetCacheSize(int size)
 {
-  vtkCachedStreamingDemandDrivenPipeline *csddp = 
+  vtkCachedStreamingDemandDrivenPipeline *csddp =
     vtkCachedStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (csddp)
     {
@@ -64,7 +64,7 @@ void vtkImageCacheFilter::SetCacheSize(int size)
 //----------------------------------------------------------------------------
 int vtkImageCacheFilter::GetCacheSize()
 {
-  vtkCachedStreamingDemandDrivenPipeline *csddp = 
+  vtkCachedStreamingDemandDrivenPipeline *csddp =
     vtkCachedStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (csddp)
     {

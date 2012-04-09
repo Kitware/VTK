@@ -231,7 +231,7 @@ static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
     {
     PyDict_Update(dict, ((PyVTKObject *)arg)->vtk_dict);
     }
- 
+
   PyObject *rval = PyDict_Keys(dict);
   Py_DECREF(dict);
 

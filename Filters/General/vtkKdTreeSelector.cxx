@@ -65,7 +65,7 @@ void vtkKdTreeSelector::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "SelectionFieldName: "
     << (this->SelectionFieldName ? this->SelectionFieldName : "(null)") << endl;
-  os << indent << "BuildKdTreeFromInput: " 
+  os << indent << "BuildKdTreeFromInput: "
     << (this->BuildKdTreeFromInput ? "on" : "off") << endl;
   os << indent << "SelectionBounds: " << endl;
   os << indent << "  xmin, xmax = (" << this->SelectionBounds[0]
@@ -88,10 +88,10 @@ void vtkKdTreeSelector::SetKdTree(vtkKdTree* arg)
     {
     vtkKdTree* tempSGMacroVar = this->KdTree;
     this->KdTree = arg;
-    if (this->KdTree != NULL) 
-      { 
+    if (this->KdTree != NULL)
+      {
       this->BuildKdTreeFromInput = false;
-      this->KdTree->Register(this); 
+      this->KdTree->Register(this);
       }
     else
       {
@@ -117,8 +117,8 @@ unsigned long vtkKdTreeSelector::GetMTime()
 }
 
 int vtkKdTreeSelector::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkAbstractArray* field = NULL;
@@ -172,7 +172,7 @@ int vtkKdTreeSelector::RequestData(
       this->KdTree->Initialize();
       this->KdTree->BuildLocatorFromPoints(points);
       }
-    
+
     // Look for selection field
     if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
         this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
@@ -289,7 +289,7 @@ int vtkKdTreeSelector::RequestData(
 }
 
 int vtkKdTreeSelector::FillInputPortInformation(
-  int vtkNotUsed(port), 
+  int vtkNotUsed(port),
   vtkInformation* info)
 {
   // Input (if specified) may be a point set or graph.

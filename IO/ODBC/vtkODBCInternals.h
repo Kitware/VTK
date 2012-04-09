@@ -35,7 +35,7 @@ class vtkODBCInternals {
   friend class vtkODBCQuery;
 
 public:
-  vtkODBCInternals() 
+  vtkODBCInternals()
     : Environment(0), Connection(0)
     {
     };

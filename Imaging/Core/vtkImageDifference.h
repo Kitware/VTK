@@ -57,11 +57,11 @@ public:
   // Return the total error in comparing the two images.
   double GetError(void);
   void GetError(double *e) { *e = this->GetError(); };
-  
+
   // Description:
   // Return the total thresholded error in comparing the two images.
   // The thresholded error is the error for a given pixel minus the
-  // threshold and clamped at a minimum of zero. 
+  // threshold and clamped at a minimum of zero.
   double GetThresholdedError(void);
   void GetThresholdedError(double *e) { *e = this->GetThresholdedError(); };
 
@@ -99,21 +99,21 @@ protected:
   int AllowShift;
   int Threshold;
   int Averaging;
-  
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector **,
-                                  vtkInformationVector *); 
-  virtual int RequestUpdateExtent(vtkInformation *, 
+
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+  virtual int RequestUpdateExtent(vtkInformation *,
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
+
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
-  
+
 private:
   vtkImageDifference(const vtkImageDifference&);  // Not implemented.
   void operator=(const vtkImageDifference&);  // Not implemented.

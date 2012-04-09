@@ -40,7 +40,7 @@ class vtkCallbackMap : public std::map<unsigned long, vtkCallbackPair>
 public:
   typedef vtkCallbackMap CallbackMapType;
   typedef std::map<unsigned long, vtkCallbackPair >::iterator CallbackMapIterator;
-};    
+};
 
 
 //----------------------------------------------------------------------------
@@ -74,16 +74,16 @@ void vtkWidgetCallbackMapper::SetEventTranslator(vtkWidgetEventTranslator *t)
       {
       this->EventTranslator->Register(this);
       }
-    
+
     this->Modified();
     }
 }
 
 
 //----------------------------------------------------------------------------
-void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, 
-                                                 unsigned long widgetEvent, 
-                                                 vtkAbstractWidget *w, 
+void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
+                                                 unsigned long widgetEvent,
+                                                 vtkAbstractWidget *w,
                                                  CallbackType f)
 {
   this->EventTranslator->SetTranslation(VTKEvent,widgetEvent);
@@ -92,10 +92,10 @@ void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
 
 
 //----------------------------------------------------------------------------
-void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent, 
-                                                 int modifier, char keyCode, 
+void vtkWidgetCallbackMapper::SetCallbackMethod(unsigned long VTKEvent,
+                                                 int modifier, char keyCode,
                                                  int repeatCount, const char* keySym,
-                                                 unsigned long widgetEvent, 
+                                                 unsigned long widgetEvent,
                                                  vtkAbstractWidget *w, CallbackType f)
 {
   this->EventTranslator->SetTranslation(VTKEvent,modifier,keyCode,repeatCount,keySym,
@@ -128,7 +128,7 @@ void vtkWidgetCallbackMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Event Translator: ";
   if ( this->EventTranslator )
     {

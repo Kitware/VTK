@@ -61,7 +61,7 @@ void vtkCameraWidget::SelectRegion(double eventPos[2])
     {
     reinterpret_cast<vtkCameraRepresentation*>(this->WidgetRep)->InitializePath();
     }
-  
+
   this->Superclass::SelectRegion(eventPos);
 }
 
@@ -69,5 +69,5 @@ void vtkCameraWidget::SelectRegion(double eventPos[2])
 void vtkCameraWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
 }

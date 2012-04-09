@@ -21,7 +21,7 @@
 // the resulting planes are used to generate a polyhedron (i.e., hull)
 // that is represented by triangles.
 //
-// The n planes can be defined in a number of ways including 1) manually 
+// The n planes can be defined in a number of ways including 1) manually
 // specifying each plane; 2) choosing the six face planes of the input's
 // bounding box; 3) choosing the eight vertex planes of the input's
 // bounding box; 4) choosing the twelve edge planes of the input's
@@ -29,7 +29,7 @@
 // Note that when specifying planes, the plane normals should point
 // outside of the convex region.
 //
-// The output of this filter can be used in combination with vtkLODActor 
+// The output of this filter can be used in combination with vtkLODActor
 // to represent a levels-of-detail in the LOD hierarchy. Another use of
 // this class is to manually specify the planes, and then generate the
 // polyhedron from the planes (without squeezing the planes towards the
@@ -54,7 +54,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Remove all planes from the current set of planes.  
+  // Remove all planes from the current set of planes.
   void RemoveAllPlanes( void );
 
   // Description:
@@ -73,7 +73,7 @@ public:
   // Description:
   // Set the normal values for plane i. This is a plane that was already
   // added to the current set of planes with AddPlane(), and is now being
-  // modified. The values A, B, C are from the plane equation 
+  // modified. The values A, B, C are from the plane equation
   // Ax + By + Cz + D = 0. This vector does not have to have unit length.
   // Note that D is set to zero, except in the case of the method taking
   // a vtkPlanes* argument, where it is set to the D value defined there.
@@ -81,7 +81,7 @@ public:
   void SetPlane( int i, double plane[3] );
 
   // Description:
-  // Variations of AddPlane()/SetPlane() that allow D to be set. These 
+  // Variations of AddPlane()/SetPlane() that allow D to be set. These
   // methods are used when GenerateHull() is used.
   int AddPlane( double A, double B, double C, double D );
   int AddPlane( double plane[3], double D );
@@ -96,7 +96,7 @@ public:
   // Description:
   // Get the number of planes in the current set of planes.
   vtkGetMacro( NumberOfPlanes, int );
-  
+
   // Description:
   // Add the 8 planes that represent the vertices of a cube - the combination
   // of the three face planes connecting to a vertex - (1,1,1), (1,1,-1),
@@ -146,7 +146,7 @@ protected:
   // The planes - 4 doubles per plane for A, B, C, D
   double     *Planes;
 
-  // This indicates the current size (in planes - 4*sizeof(double)) of 
+  // This indicates the current size (in planes - 4*sizeof(double)) of
   // the this->Planes array. Planes are allocated in chunks so that the
   // array does not need to be reallocated every time a new plane is added
   int       PlanesStorageSize;
@@ -157,7 +157,7 @@ protected:
   // Internal method used to find the position of each plane
   void      ComputePlaneDistances(vtkPolyData *input);
 
-  // Internal method used to create the actual polygons from the set 
+  // Internal method used to create the actual polygons from the set
   // of planes
   void      ClipPolygonsFromPlanes( vtkPoints *points, vtkCellArray *polys,
                                     double *bounds );

@@ -47,10 +47,10 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
 
   // Now compute the OBB
   //
-  OBB->ComputeOBB(this->PointsList, OBBptr->Corner, OBBptr->Axes[0], 
+  OBB->ComputeOBB(this->PointsList, OBBptr->Corner, OBBptr->Axes[0],
                   OBBptr->Axes[1], OBBptr->Axes[2], size);
   OBB->Delete();
-  
+
   // Check whether to continue recursing; if so, create two children and
   // assign cells to appropriate child.
   //
@@ -72,7 +72,7 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
     //split the longest axis down the middle
     for (i=0; i < 3; i++) //compute split point
       {
-      p[i] = OBBptr->Corner[i] + OBBptr->Axes[0][i]/2.0 + 
+      p[i] = OBBptr->Corner[i] + OBBptr->Axes[0][i]/2.0 +
              OBBptr->Axes[1][i]/2.0 + OBBptr->Axes[2][i]/2.0;
       }
 
@@ -90,11 +90,11 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
       input->GetPoint(ptId, x);
       val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
 
-      if ( val < 0.0 ) 
-        { 
+      if ( val < 0.0 )
+        {
         LHlist->InsertNextId(ptId);
         }
-      else 
+      else
         {
         RHlist->InsertNextId(ptId);
         }
@@ -161,7 +161,7 @@ int vtkOBBDicer::RequestData(
 
   // Generate scalar values
   //
-  this->PointsList->Delete(); 
+  this->PointsList->Delete();
   this->PointsList = NULL;
   groupIds = vtkShortArray::New();
   groupIds->SetNumberOfTuples(numPts);
@@ -170,7 +170,7 @@ int vtkOBBDicer::RequestData(
   this->MarkPoints(root,groupIds);
   this->DeleteTree(root);
   delete root;
-  
+
   vtkDebugMacro(<<"Created " << this->NumberOfActualPieces << " pieces");
 
   // Update self

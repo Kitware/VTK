@@ -24,8 +24,8 @@
 // the scalar and the others will be non-attribute arrays.
 
 // .SECTION Caveats
-// This filter is unusual in that it creates multiple outputs. 
-// If you use the GetOutput() method, you will be retrieving the x vector 
+// This filter is unusual in that it creates multiple outputs.
+// If you use the GetOutput() method, you will be retrieving the x vector
 // component.
 
 #ifndef __vtkExtractVectorComponents_h
@@ -61,7 +61,7 @@ public:
   // GetOutput() method with an index of 1.)
   // Note that if ExtractToFieldData is true, this output will be empty.
   vtkDataSet *GetVyComponent();
-  
+
   // Description:
   // Get the output dataset representing velocity z-component. If output is
   // NULL then input hasn't been set, which is necessary for abstract

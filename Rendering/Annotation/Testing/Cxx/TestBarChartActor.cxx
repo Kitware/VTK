@@ -37,7 +37,7 @@ int TestBarChartActor( int argc, char * argv [] )
 
   vtkFloatArray *bitter = vtkFloatArray::New();
   bitter->SetNumberOfTuples(numTuples);
-  
+
   for (int i=0; i<numTuples; i++)
     {
     bitter->SetTuple1(i, vtkMath::Random(7,100));
@@ -45,7 +45,7 @@ int TestBarChartActor( int argc, char * argv [] )
 
   vtkDataObject *dobj = vtkDataObject::New();
   dobj->GetFieldData()->AddArray(bitter);
-  
+
   vtkBarChartActor *actor = vtkBarChartActor::New();
   actor->SetInput(dobj);
   actor->SetTitle("Bar Chart");

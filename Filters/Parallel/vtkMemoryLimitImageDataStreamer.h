@@ -35,8 +35,8 @@ public:
   // Description:
   // Set / Get the memory limit in kilobytes.
   vtkSetMacro(MemoryLimit, unsigned long);
-  vtkGetMacro(MemoryLimit, unsigned long);  
-  
+  vtkGetMacro(MemoryLimit, unsigned long);
+
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,

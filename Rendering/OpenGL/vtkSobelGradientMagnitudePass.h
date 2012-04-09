@@ -26,7 +26,7 @@
 // The delegate is used once.
 //
 // Its delegate is usually set to a vtkCameraPass or to a post-processing pass.
-// 
+//
 // This pass requires a OpenGL context that supports texture objects (TO),
 // framebuffer objects (FBO) and GLSL. If not, it will emit an error message
 // and will render its delegate and return.
@@ -79,13 +79,13 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources.
   // \pre w_exists: w!=0
   void ReleaseGraphicsResources(vtkWindow *w);
-  
+
  protected:
   // Description:
   // Default constructor. DelegatePass is set to NULL.
@@ -94,7 +94,7 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkSobelGradientMagnitudePass();
- 
+
   // Description:
   // Graphics resources.
   vtkFrameBufferObject *FrameBufferObject;
@@ -103,7 +103,7 @@ public:
   vtkTextureObject *Gy1; // render target 1 for the first shader
   vtkShaderProgram2 *Program1; // shader to compute Gx1 and Gy1
   vtkShaderProgram2 *Program2; // shader to compute |G| from Gx1 and Gy1
-  
+
  private:
   vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&);  // Not implemented.
   void operator=(const vtkSobelGradientMagnitudePass&);  // Not implemented.

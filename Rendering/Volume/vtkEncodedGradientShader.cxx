@@ -82,7 +82,7 @@ float *vtkEncodedGradientShader::GetRedDiffuseShadingTable( vtkVolume *vol )
     vtkErrorMacro( << "No shading table found for that volume!" );
     return NULL;
     }
-  
+
   return this->ShadingTable[index][0];
 }
 
@@ -103,7 +103,7 @@ float *vtkEncodedGradientShader::GetGreenDiffuseShadingTable( vtkVolume *vol )
     vtkErrorMacro( << "No shading table found for that volume!" );
     return NULL;
     }
-  
+
   return this->ShadingTable[index][1];
 }
 
@@ -124,7 +124,7 @@ float *vtkEncodedGradientShader::GetBlueDiffuseShadingTable( vtkVolume *vol )
     vtkErrorMacro( << "No shading table found for that volume!" );
     return NULL;
     }
-  
+
   return this->ShadingTable[index][2];
 }
 
@@ -145,7 +145,7 @@ float *vtkEncodedGradientShader::GetRedSpecularShadingTable( vtkVolume *vol )
     vtkErrorMacro( << "No shading table found for that volume!" );
     return NULL;
     }
-  
+
   return this->ShadingTable[index][3];
 }
 
@@ -166,7 +166,7 @@ float *vtkEncodedGradientShader::GetGreenSpecularShadingTable( vtkVolume *vol )
     vtkErrorMacro( << "No shading table found for that volume!" );
     return NULL;
     }
-  
+
   return this->ShadingTable[index][4];
 }
 
@@ -187,12 +187,12 @@ float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
     vtkErrorMacro( << "No shading table found for that volume!" );
     return NULL;
     }
-  
+
   return this->ShadingTable[index][5];
 }
 
 void vtkEncodedGradientShader::UpdateShadingTable(
-  vtkRenderer *ren, 
+  vtkRenderer *ren,
   vtkVolume *vol,
   vtkEncodedGradientEstimator *gradest)
 {
@@ -248,7 +248,7 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   vol->GetMatrix(m);
   transform->SetMatrix(m);
   transform->Inverse();
-  
+
   property = vol->GetProperty();
 
   material[0] = property->GetAmbient(this->ActiveComponent);
@@ -256,20 +256,20 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   material[2] = property->GetSpecular(this->ActiveComponent);
   material[3] = property->GetSpecularPower(this->ActiveComponent);
 
-    
+
   update_flag = 0;
 
   ren->GetActiveCamera()->GetPosition( cameraPosition );
   ren->GetActiveCamera()->GetFocalPoint( cameraFocalPoint );
-  
+
   viewDirection[0] =  cameraFocalPoint[0] - cameraPosition[0];
   viewDirection[1] =  cameraFocalPoint[1] - cameraPosition[1];
   viewDirection[2] =  cameraFocalPoint[2] - cameraPosition[2];
-    
-  mag = sqrt(static_cast<double>(viewDirection[0] * viewDirection[0] + 
-                                 viewDirection[1] * viewDirection[1] + 
+
+  mag = sqrt(static_cast<double>(viewDirection[0] * viewDirection[0] +
+                                 viewDirection[1] * viewDirection[1] +
                                  viewDirection[2] * viewDirection[2] ) );
-    
+
   if ( mag )
     {
     viewDirection[0] /= mag;
@@ -317,12 +317,12 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   vtkCollectionSimpleIterator sit;
   lightCollection->InitTraversal(sit);
   while ( (light = lightCollection->GetNextLight(sit)) != NULL  )
-    { 
+    {
     if ( ! light->GetSwitch() )
       {
       continue;
       }
-    
+
     // Get the light color, position, focal point, and intensity
     light->GetAmbientColor(lightAmbientColor);
     light->GetDiffuseColor(lightDiffuseColor);
@@ -330,21 +330,21 @@ void vtkEncodedGradientShader::UpdateShadingTable(
     light->GetTransformedPosition( lightPosition );
     light->GetTransformedFocalPoint( lightFocalPoint );
     lightIntensity = light->GetIntensity( );
-    
+
 
     // Compute the light direction and normalize it
     lightDirection[0] = lightFocalPoint[0] - lightPosition[0];
     lightDirection[1] = lightFocalPoint[1] - lightPosition[1];
     lightDirection[2] = lightFocalPoint[2] - lightPosition[2];
-    
-    norm = sqrt(static_cast<double>( lightDirection[0] * lightDirection[0] + 
+
+    norm = sqrt(static_cast<double>( lightDirection[0] * lightDirection[0] +
                                      lightDirection[1] * lightDirection[1] +
                                      lightDirection[2] * lightDirection[2] ) );
-    
+
     lightDirection[0] /= -norm;
     lightDirection[1] /= -norm;
     lightDirection[2] /= -norm;
-      
+
     memcpy( in, lightDirection, 3*sizeof(double) );
     transform->MultiplyPoint( in, out );
     lightDirection[0] = out[0] / out[3] - zero[0];
@@ -357,7 +357,7 @@ void vtkEncodedGradientShader::UpdateShadingTable(
                             lightIntensity, viewDirection,
                             material, ren->GetTwoSidedLighting(),
                             gradest, update_flag );
-      
+
     update_flag = 1;
     }//while there is a light in the list of lights
 
@@ -374,7 +374,7 @@ void vtkEncodedGradientShader::UpdateShadingTable(
 
 // Build a shading table for a light with the given direction and
 // color, for a material of the given type. material[0] = ambient,
-// material[1] = diffuse, material[2] = specular, material[3] = 
+// material[1] = diffuse, material[2] = specular, material[3] =
 // specular exponent.  If the ambient flag is 1, then ambient
 // illumination is added. If not, then this means we are calculating
 // the "other side" of two sided lighting, so no ambient intensity
@@ -395,9 +395,9 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
                                                   vtkEncodedGradientEstimator *gradest,
                                                   int   updateFlag )
 {
-  double   lx, ly, lz; 
-  double    n_dot_l;   
-  double    n_dot_v;   
+  double   lx, ly, lz;
+  double    n_dot_l;
+  double    n_dot_v;
   int      i;
   float    *nptr;
   float    *sdr_ptr;
@@ -422,7 +422,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 
   mag = sqrt( static_cast<double>(half_x*half_x + half_y*half_y
                                   + half_z*half_z ) );
-  
+
   if( mag != 0.0 )
     {
     half_x /= mag;
@@ -451,7 +451,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
       }
       this->ShadingTableSize[index] = norm_size;
     }
-  
+
   sdr_ptr = this->ShadingTable[index][0];
   sdg_ptr = this->ShadingTable[index][1];
   sdb_ptr = this->ShadingTable[index][2];
@@ -466,8 +466,8 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
   for ( i = 0; i < norm_size; i++ )
     {
     // If we have a zero normal, treat it specially
-    if ( ( *(nptr+0) == 0.0 ) && 
-         ( *(nptr+1) == 0.0 ) && 
+    if ( ( *(nptr+0) == 0.0 ) &&
+         ( *(nptr+1) == 0.0 ) &&
          ( *(nptr+2) == 0.0 ) )
       {
       // If we are not updating, initial everything to 0.0
@@ -494,7 +494,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
         (Kd_intensity * this->ZeroNormalDiffuseIntensity*lightDiffuseColor[1]);
       *(sdb_ptr) += static_cast<float>
         (Kd_intensity * this->ZeroNormalDiffuseIntensity*lightDiffuseColor[2]);
-      
+
       // Add in specular
       *(ssr_ptr) += static_cast<float>(
         this->ZeroNormalSpecularIntensity*lightSpecularColor[0]);
@@ -508,7 +508,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
       // The dot product between the normal and the light vector
       // used for diffuse illumination
       n_dot_l = (*(nptr+0) * lx + *(nptr+1) * ly + *(nptr+2) * lz);
-      
+
       // The dot product between the normal and the halfway vector
       // used for specular illumination
       n_dot_h = (*(nptr+0) * half_x + *(nptr+1) * half_y + *(nptr+2) * half_z);
@@ -519,17 +519,17 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
         {
         // The dot product between the normal and the view vector
         // used for two sided lighting
-        n_dot_v = (*(nptr+0) * viewDirection[0] + 
-                   *(nptr+1) * viewDirection[1] + 
+        n_dot_v = (*(nptr+0) * viewDirection[0] +
+                   *(nptr+1) * viewDirection[1] +
                    *(nptr+2) * viewDirection[2]);
 
         if ( n_dot_v > 0.0 )
           {
           n_dot_l = -n_dot_l;
-          n_dot_h = -n_dot_h;   
+          n_dot_h = -n_dot_h;
           }
         }
-    
+
       // If we are updating, then begin by adding in ambient
       if ( updateFlag )
         {
@@ -557,7 +557,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
           Kd_intensity * n_dot_l * lightDiffuseColor[1]);
         *(sdb_ptr) += static_cast<float>(
           Kd_intensity * n_dot_l * lightDiffuseColor[2]);
-        
+
         if ( n_dot_h > 0.001 )
           {
           specular_value = Ks_intensity * pow(static_cast<double>(n_dot_h),
@@ -568,11 +568,11 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
             specular_value * lightSpecularColor[1]);
           *(ssb_ptr) += static_cast<float>(
             specular_value * lightSpecularColor[2]);
-          }      
+          }
         }
       }
 
-    // Increment all the pointers      
+    // Increment all the pointers
     nptr += 3;
     sdr_ptr++;
     sdg_ptr++;
@@ -588,7 +588,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Zero Normal Diffuse Intensity: " <<
     this->ZeroNormalDiffuseIntensity << endl;
 

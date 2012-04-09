@@ -46,12 +46,12 @@ void vtkTransformTextureCoords::AddPosition (double dPX, double dPY, double dPZ)
   position[0] = this->Position[0] + dPX;
   position[1] = this->Position[1] + dPY;
   position[2] = this->Position[2] + dPZ;
-  
+
   this->SetPosition(position);
 }
 
 void vtkTransformTextureCoords::AddPosition(double deltaPosition[3])
-{ 
+{
   this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
 }
 
@@ -132,7 +132,7 @@ int vtkTransformTextureCoords::RequestData(
 
   int abort=0;
   int progressInterval = numPts/20+1;
-  
+
   for (ptId=0; ptId < numPts && !abort; ptId++)
     {
     if ( !(ptId % progressInterval) )
@@ -171,19 +171,19 @@ void vtkTransformTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Scale: (" 
-     << this->Scale[0] << ", " 
-     << this->Scale[1] << ", " 
+  os << indent << "Scale: ("
+     << this->Scale[0] << ", "
+     << this->Scale[1] << ", "
      << this->Scale[2] << ")\n";
 
-  os << indent << "Position: (" 
-     << this->Position[0] << ", " 
-     << this->Position[1] << ", " 
+  os << indent << "Position: ("
+     << this->Position[0] << ", "
+     << this->Position[1] << ", "
      << this->Position[2] << ")\n";
 
-  os << indent << "Origin: (" 
-     << this->Origin[0] << ", " 
-     << this->Origin[1] << ", " 
+  os << indent << "Origin: ("
+     << this->Origin[0] << ", "
+     << this->Origin[1] << ", "
      << this->Origin[2] << ")\n";
 
   os << indent << "FlipR: " << (this->FlipR ? "On\n" : "Off\n");

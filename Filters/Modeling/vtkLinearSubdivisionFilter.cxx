@@ -70,7 +70,7 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
         // Compute Position andnew PointData using the same subdivision scheme
         pointIds->SetId(0,p1);
         pointIds->SetId(1,p2);
-        newId = 
+        newId =
           this->InterpolatePosition (inputPts, outputPts, pointIds, weights);
         outputPD->InterpolatePoint (inputPD, newId, pointIds, weights);
         }

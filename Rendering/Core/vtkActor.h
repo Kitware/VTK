@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkActor - represents an object (geometry & properties) in a rendered scene 
+// .NAME vtkActor - represents an object (geometry & properties) in a rendered scene
 // .SECTION Description
-// 
+//
 // vtkActor is used to represent an entity in a rendering scene.  It inherits
 // functions related to the actors position, and orientation from
 // vtkProp. The actor also has scaling and maintains a reference to the
@@ -51,7 +51,7 @@ public:
   // orientation=(0,0,0). No user defined matrix and no texture map.
   static vtkActor *New();
 
-  // Description: 
+  // Description:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
@@ -61,11 +61,11 @@ public:
   // Support the standard render methods.
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // This causes the actor to be rendered. It in turn will render the actor's
   // property, texture map and then mapper. If a property hasn't been
@@ -83,7 +83,7 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
-  // Description: 
+  // Description:
   // Set/Get the property object that controls this actors surface
   // properties.  This should be an instance of a vtkProperty object.  Every
   // actor must have a property associated with it.  If one isn't specified,
@@ -91,14 +91,14 @@ public:
   // property object.
   void SetProperty(vtkProperty *lut);
   vtkProperty *GetProperty();
-  
+
   // Description:
   // Create a new property suitable for use with this type of Actor.
-  // For example, a vtkMesaActor should create a vtkMesaProperty 
+  // For example, a vtkMesaActor should create a vtkMesaProperty
   // in this function.   The default is to just call vtkProperty::New.
   virtual vtkProperty* MakeProperty();
 
-  // Description: 
+  // Description:
   // Set/Get the property object that controls this actors backface surface
   // properties.  This should be an instance of a vtkProperty object. If one
   // isn't specified, then the front face properties will be used.  Multiple
@@ -106,7 +106,7 @@ public:
   void SetBackfaceProperty(vtkProperty *lut);
   vtkGetObjectMacro(BackfaceProperty,vtkProperty);
 
-  // Description: 
+  // Description:
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated
   // texture map and multiple actors can share one texture.
@@ -142,10 +142,10 @@ public:
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
   unsigned long int GetMTime();
-  
+
   // Description:
-  // Return the mtime of anything that would cause the rendered image to 
-  // appear differently. Usually this involves checking the mtime of the 
+  // Return the mtime of anything that would cause the rendered image to
+  // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, textures
   // etc.
   virtual unsigned long GetRedrawMTime();
@@ -156,19 +156,19 @@ public:
   // Used by vtkHardwareSelector to determine if the prop supports hardware
   // selection.
   virtual bool GetSupportsSelection();
-  
+
 protected:
   vtkActor();
   ~vtkActor();
 
-  vtkProperty *Property; 
-  vtkProperty *BackfaceProperty; 
-  vtkTexture *Texture; 
+  vtkProperty *Property;
+  vtkProperty *BackfaceProperty;
+  vtkTexture *Texture;
   vtkMapper *Mapper;
 
   // is this actor opaque
   int GetIsOpaque();
-  
+
   // Bounds are cached in an actor - the MapperBounds are also cache to
   // help know when the Bounds need to be recomputed.
   double       MapperBounds[6];

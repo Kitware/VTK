@@ -108,7 +108,7 @@ KeyAdd Azimuth [$camera GetPosition]
 $camera Azimuth -1
 KeyAdd Azimuth [$camera GetPosition]
 
-# Run the animation - NumberOfFrames frames - 
+# Run the animation - NumberOfFrames frames -
 # using interpolation
 KeyRun Azimuth $NumberOfFrames
 

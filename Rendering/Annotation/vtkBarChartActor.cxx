@@ -53,7 +53,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.9, 0.8);
   this->Position2Coordinate->SetReferenceCoordinate(NULL);
-  
+
   this->Input = NULL;
   this->ArrayNumber = 0;
   this->ComponentNumber = 0;
@@ -99,7 +99,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->YAxis->SizeFontRelativeToAxisOn();
   this->YTitle = new char[1];
   sprintf(this->YTitle,"%s","");
-  
+
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
   this->PlotMapper->SetInputData(this->PlotData);
@@ -118,11 +118,11 @@ vtkBarChartActor::vtkBarChartActor()
   this->LowerLeft[0] = this->LowerLeft[1] = 0.0;
   this->UpperRight[0] = this->UpperRight[1] = 0.0;
 
-  this->LastPosition[0] = 
-    this->LastPosition[1] = 
-    this->LastPosition2[0] = 
+  this->LastPosition[0] =
+    this->LastPosition[1] =
+    this->LastPosition2[0] =
     this->LastPosition2[1] = 0;
-  
+
   this->P1[0] = this->P1[1] = this->P2[0] = this->P2[1] = 0.0;
 }
 
@@ -140,21 +140,21 @@ vtkBarChartActor::~vtkBarChartActor()
     delete [] this->Title;
     this->Title = NULL;
     }
-  
+
   delete this->Labels;
   this->SetLabelTextProperty(NULL);
   this->SetTitleTextProperty(NULL);
 
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
-  
+
   this->Initialize();
-  
+
   this->TitleMapper->Delete();
   this->TitleMapper = NULL;
   this->TitleActor->Delete();
   this->TitleActor = NULL;
-  
+
   this->YAxis->Delete();
   if ( this->YTitle )
     {
@@ -224,7 +224,7 @@ int vtkBarChartActor::RenderOverlay(vtkViewport *viewport)
       renderedSomething += this->BarActors[i]->RenderOverlay(viewport);
       }
     }
-  
+
   if ( this->LegendVisibility )
     {
     renderedSomething += this->LegendActor->RenderOverlay(viewport);
@@ -266,7 +266,7 @@ int vtkBarChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
       renderedSomething += this->BarActors[i]->RenderOpaqueGeometry(viewport);
       }
     }
-  
+
   if ( this->LegendVisibility )
     {
     renderedSomething += this->LegendActor->RenderOpaqueGeometry(viewport);
@@ -283,12 +283,12 @@ int vtkBarChartActor::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 int vtkBarChartActor::BuildPlot(vtkViewport *viewport)
 {
   // Initialize
   vtkDebugMacro(<<"Building pie chart plot");
-  
+
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
   if (!this->Input)
@@ -310,11 +310,11 @@ int vtkBarChartActor::BuildPlot(vtkViewport *viewport)
 
   // Viewport change may not require rebuild
   int positionsHaveChanged = 0;
-  if (viewport->GetMTime() > this->BuildTime || 
-      (viewport->GetVTKWindow() && 
+  if (viewport->GetMTime() > this->BuildTime ||
+      (viewport->GetVTKWindow() &&
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
-    int *lastPosition = 
+    int *lastPosition =
       this->PositionCoordinate->GetComputedViewportValue(viewport);
     int *lastPosition2 =
       this->Position2Coordinate->GetComputedViewportValue(viewport);
@@ -330,7 +330,7 @@ int vtkBarChartActor::BuildPlot(vtkViewport *viewport)
       positionsHaveChanged = 1;
       }
     }
-  
+
   // Check modified time to see whether we have to rebuild.
   if (positionsHaveChanged ||
       this->GetMTime() > this->BuildTime ||
@@ -349,7 +349,7 @@ int vtkBarChartActor::BuildPlot(vtkViewport *viewport)
 
     this->BuildTime.Modified();
     } // If need to rebuild the plot
-  
+
   return 1;
 }
 
@@ -367,7 +367,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     {
     return 0;
     }
-  
+
   // Retrieve the appropriate data array
   vtkDataArray *da = field->GetArray(this->ArrayNumber);
   if ( ! da )
@@ -383,7 +383,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     vtkErrorMacro(<<"No field data to plot");
     return 0;
     }
-  
+
   // We need to loop over the field to determine the total
   this->Heights = new double[this->N];
   this->MaxHeight = -VTK_LARGE_FLOAT;
@@ -406,7 +406,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
       }
     this->MinHeight -= 0.10*(this->MaxHeight-this->MinHeight);
     }
-  
+
   // Get the location of the corners of the box; make sure they are sane
   double *p1 = this->PositionCoordinate->GetComputedDoubleViewportValue(viewport);
   double *p2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
@@ -428,7 +428,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
     {
     legendSpace = 0.15;
     }
-  
+
   double d1 = p2[0] - legendSpace*(p2[0]-p1[0]) - p1[0];
   double d2 = p2[1] - titleSpace*(p2[1]-p1[1]) - p1[1];
 
@@ -482,7 +482,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
   xaxis->InsertNextCell(2,pIds);
   this->GetProperty()->GetColor(c);
   colors->InsertNextTuple3(255*c[0],255*c[1],255*c[2]);
-  
+
   // Create the bars. Make sure there is some spacing.
   char label[1024];
   const char *str;
@@ -518,7 +518,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
       this->LegendActor->SetEntryString(i,label);
       }
     }
-  
+
   // Produce labels along the bars
   int minFontSize=1000, fontSize, tsize[2];
   if ( this->LabelVisibility )
@@ -589,7 +589,7 @@ int vtkBarChartActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
   this->TitleMapper->SetConstrainedFontSize(viewport, tsize[0], tsize[1]);
 
   this->TitleActor->GetPositionCoordinate()->
-    SetValue((this->LowerLeft[0]+this->UpperRight[0])/2.0, 
+    SetValue((this->LowerLeft[0]+this->UpperRight[0])/2.0,
              this->UpperRight[1]+tsize[1]);
   this->TitleActor->SetProperty(this->GetProperty());
 
@@ -624,7 +624,7 @@ void vtkBarChartActor::SetBarLabel(const int i, const char *label)
     {
     return;
     }
-  
+
   if ( static_cast<unsigned int>(i) >= this->Labels->size() )
     {
     this->Labels->resize(i+1);
@@ -640,7 +640,7 @@ const char* vtkBarChartActor::GetBarLabel(int i)
     {
     return NULL;
     }
-  
+
   return this->Labels->at(i).c_str();
 }
 
@@ -665,9 +665,9 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
 
-  os << indent << "Title Visibility: " 
+  os << indent << "Title Visibility: "
      << (this->TitleVisibility ? "On\n" : "Off\n");
-  
+
   if (this->TitleTextProperty)
     {
     os << indent << "Title Text Property:\n";
@@ -678,9 +678,9 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Title Text Property: (none)\n";
     }
 
-  os << indent << "Label Visibility: " 
+  os << indent << "Label Visibility: "
      << (this->LabelVisibility ? "On\n" : "Off\n");
-  
+
   if (this->LabelTextProperty)
     {
     os << indent << "Label Text Property:\n";
@@ -691,13 +691,13 @@ void vtkBarChartActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Label Text Property: (none)\n";
     }
 
-  os << indent << "Legend Visibility: " 
+  os << indent << "Legend Visibility: "
      << (this->LegendVisibility ? "On\n" : "Off\n");
-  
-  os << indent << "Legend Actor: " 
+
+  os << indent << "Legend Actor: "
      << this->LegendActor << "\n";
   this->LegendActor->PrintSelf(os, indent.GetNextIndent());
-  
+
   os << indent << "YTitle: " << (this->YTitle ? this->YTitle : "(none)") << "\n";
 
 }

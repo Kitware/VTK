@@ -26,7 +26,7 @@
 // The delegate is used once.
 //
 // Its delegate is usually set to a vtkCameraPass or to a post-processing pass.
-// 
+//
 // This pass requires a OpenGL context that supports texture objects (TO),
 // framebuffer objects (FBO) and GLSL. If not, it will emit an error message
 // and will render its delegate and return.
@@ -69,13 +69,13 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources.
   // \pre w_exists: w!=0
   void ReleaseGraphicsResources(vtkWindow *w);
-  
+
  protected:
   // Description:
   // Default constructor. DelegatePass is set to NULL.
@@ -84,17 +84,17 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkGaussianBlurPass();
- 
+
   // Description:
   // Graphics resources.
   vtkFrameBufferObject *FrameBufferObject;
   vtkTextureObject *Pass1; // render target for the scene
   vtkTextureObject *Pass2; // render target for the horizontal pass
   vtkShaderProgram2 *BlurProgram; // blur shader
-  
+
   bool Supported;
   bool SupportProbed;
-  
+
  private:
   vtkGaussianBlurPass(const vtkGaussianBlurPass&);  // Not implemented.
   void operator=(const vtkGaussianBlurPass&);  // Not implemented.

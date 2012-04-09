@@ -19,11 +19,11 @@
 // considered boundaries.  The output pixel is the minimum of the input pixel
 // and the distance to a boundary (or neighbor value + 1 unit).
 // distance values are calculated in pixels.
-// The filter works by taking 6 passes (for 3d distance map): 2 along each 
+// The filter works by taking 6 passes (for 3d distance map): 2 along each
 // axis (forward and backward). Each pass keeps a running minimum distance.
-// For some reason, I preserve the sign if the distance.  If the input 
+// For some reason, I preserve the sign if the distance.  If the input
 // mask is initially negative, the output distances will be negative.
-// Distances maps can have inside (negative regions) 
+// Distances maps can have inside (negative regions)
 // and outsides (positive regions).
 
 #ifndef __vtkImageCityBlockDistance_h
@@ -38,7 +38,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageCityBlockDistance : public vtkImageDecomp
 public:
   static vtkImageCityBlockDistance *New();
   vtkTypeMacro(vtkImageCityBlockDistance,vtkImageDecomposeFilter);
-  
+
 protected:
   vtkImageCityBlockDistance();
   ~vtkImageCityBlockDistance() {};
@@ -49,7 +49,7 @@ protected:
                                     vtkInformationVector**,
                                     vtkInformationVector*);
 
-  void AllocateOutputScalars(vtkImageData *outData, 
+  void AllocateOutputScalars(vtkImageData *outData,
                              int* updateExtent,
                              int* wholeExtent,
                              vtkInformation* outInfo);

@@ -36,7 +36,7 @@ void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
     << ", must match out ScalarType " << output->GetScalarType());
     return;
     }
-  
+
   int size = dims[0]*dims[1]*dims[2];
 
   for(int i=0; i<size; i++)
@@ -58,7 +58,7 @@ void vtkSimpleImageFilterExample::SimpleExecute(vtkImageData* input,
     // data types VTK supports.
     vtkTemplateMacro(
       vtkSimpleImageFilterExampleExecute(input, output,
-                                         static_cast<VTK_TT *>(inPtr), 
+                                         static_cast<VTK_TT *>(inPtr),
                                          static_cast<VTK_TT *>(outPtr)));
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");

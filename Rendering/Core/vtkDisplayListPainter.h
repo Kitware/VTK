@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDisplayListPainter - abstract superclass for painter that 
+// .NAME vtkDisplayListPainter - abstract superclass for painter that
 // builds/uses display lists.
 
 #ifndef __vtkDisplayListPainter_h
@@ -29,7 +29,7 @@ public:
   static vtkDisplayListPainter* New();
   vtkTypeMacro(vtkDisplayListPainter, vtkPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Turn on/off flag to control whether data is rendered using
   // immediate mode or note. Immediate mode rendering
@@ -44,17 +44,17 @@ public:
   // Overridden to avoid adding of delegate rendering time
   // when Display Lists are used.
   virtual double GetTimeToDraw();
-  
+
 protected:
   vtkDisplayListPainter();
   ~vtkDisplayListPainter();
- 
+
   // Description:
   // Called before RenderInternal() if the Information has been changed
   // since the last time this method was called.
   virtual void ProcessInformation(vtkInformation*);
- 
-  
+
+
   // These methods set the ivars. These are purposefully protected.
   // The only means to affect them should be using information object.
   vtkSetMacro(ImmediateModeRendering,int);

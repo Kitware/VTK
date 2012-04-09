@@ -15,7 +15,7 @@
 // This test covers the lighting flag on a vtkProperty object of an vtkActor.
 // It draws a cone with lighting next to a cone with no lighting, next to a
 // third cone with lighting again.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -44,11 +44,11 @@ int TestActorLightingFlag(int argc, char* argv[])
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
-  
+
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
@@ -63,7 +63,7 @@ int TestActorLightingFlag(int argc, char* argv[])
   coneActor1->SetPosition(-2.0,0.0,0.0);
   renderer->AddActor(coneActor1);
   coneActor1->Delete();
-  
+
   vtkConeSource *coneSource2=vtkConeSource::New();
   vtkPolyDataMapper *coneMapper2=vtkPolyDataMapper::New();
   coneMapper2->SetInputConnection(coneSource2->GetOutputPort());
@@ -75,7 +75,7 @@ int TestActorLightingFlag(int argc, char* argv[])
   coneActor2->GetProperty()->SetLighting(false);
   renderer->AddActor(coneActor2);
   coneActor2->Delete();
-  
+
   vtkConeSource *coneSource3=vtkConeSource::New();
   vtkPolyDataMapper *coneMapper3=vtkPolyDataMapper::New();
   coneMapper3->SetInputConnection(coneSource3->GetOutputPort());
@@ -86,24 +86,24 @@ int TestActorLightingFlag(int argc, char* argv[])
   coneActor3->SetPosition(2.0,0.0,0.0);
   renderer->AddActor(coneActor3);
   coneActor3->Delete();
-  
+
   renderer->SetBackground(0.1,0.3,0.0);
   renWin->SetSize(200,200);
-  
+
   renWin->Render();
-  
+
   vtkCamera *camera=renderer->GetActiveCamera();
   camera->Azimuth(-40.0);
   camera->Elevation(20.0);
   renderer->ResetCamera();
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
   iren->Delete();
-  
+
   return !retVal;
 }

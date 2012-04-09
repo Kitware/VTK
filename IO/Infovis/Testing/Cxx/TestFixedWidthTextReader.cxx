@@ -49,9 +49,9 @@ TestFixedWidthTextReader(int argc, char *argv[])
 
   vtkTable *table = reader->GetOutput();
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows() 
+  cout << "FixedWidth text file has " << table->GetNumberOfRows()
        << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns() 
+  cout << "FixedWidth text file has " << table->GetNumberOfColumns()
        << " columns" << endl;
   cout << "Column names: " << endl;
 
@@ -61,7 +61,7 @@ TestFixedWidthTextReader(int argc, char *argv[])
     }
 
   cout << "Table contents:" << endl;
-  
+
   for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
     vtkVariantArray *row = table->GetRow(i);
@@ -77,12 +77,12 @@ TestFixedWidthTextReader(int argc, char *argv[])
         }
       else
         {
-        cout << "type " << value.GetTypeAsString() << " value " 
+        cout << "type " << value.GetTypeAsString() << " value "
              << value.ToString() << endl;
         }
       }
     }
-  
+
   reader->Delete();
   delete [] filename;
 
@@ -103,9 +103,9 @@ TestFixedWidthTextReader(int argc, char *argv[])
   cout << "Printing reader info..." << endl;
   reader->Print(cout);
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows() 
+  cout << "FixedWidth text file has " << table->GetNumberOfRows()
        << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns() 
+  cout << "FixedWidth text file has " << table->GetNumberOfColumns()
        << " columns" << endl;
   cout << "Column names: " << endl;
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
@@ -114,7 +114,7 @@ TestFixedWidthTextReader(int argc, char *argv[])
     }
 
   cout << "Table contents:" << endl;
-  
+
   for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
     vtkVariantArray *row = table->GetRow(i);
@@ -130,17 +130,17 @@ TestFixedWidthTextReader(int argc, char *argv[])
         }
       else
         {
-        cout << "type " << value.GetTypeAsString() << " value " 
+        cout << "type " << value.GetTypeAsString() << " value "
              << value.ToString() << endl;
         }
       }
     }
-  
+
   reader->Delete();
   delete [] filename;
 
   return 0;
 }
 
-  
+
 

@@ -68,7 +68,7 @@ public:
   virtual void Initialize() = 0;
 
   // Description:
-  // Return the underlying data type. An integer indicating data type is 
+  // Return the underlying data type. An integer indicating data type is
   // returned as specified in vtkSetGet.h.
   virtual int GetDataType() =0;
 
@@ -84,7 +84,7 @@ public:
   // array.  For vtkDataArray and subclasses this is the size of the
   // data type.  For vtkStringArray, this is
   // sizeof(vtkStdString::value_type), which winds up being
-  // sizeof(char).  
+  // sizeof(char).
   virtual int GetElementComponentSize() = 0;
 
   // Description:
@@ -94,9 +94,9 @@ public:
   int GetNumberOfComponents() { return this->NumberOfComponents; }
 
   // Description:
-  // Set the name for a component. Must be >= 1. 
+  // Set the name for a component. Must be >= 1.
   void SetComponentName( vtkIdType component, const char *name );
-  
+
   //Description:
   // Get the component name for a given component.
   // Note: will return the actual string that is stored
@@ -110,9 +110,9 @@ public:
   // Copies the component names from the inputed array to the current array
   // make sure that the current array has the same number of components as the input array
   int CopyComponentNames( vtkAbstractArray *da );
-  
+
   // Description:
-  // Set the number of tuples (a component group) in the array. Note that 
+  // Set the number of tuples (a component group) in the array. Note that
   // this may allocate space depending on the number of components.
   // Also note that if allocation is performed no copy is performed so
   // existing data will be lost (if data conservation is sought, one may
@@ -121,41 +121,41 @@ public:
 
   // Description:
   // Get the number of tuples (a component group) in the array.
-  vtkIdType GetNumberOfTuples() 
+  vtkIdType GetNumberOfTuples()
     {return (this->MaxId + 1)/this->NumberOfComponents;}
 
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not 
+  // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array. 
+  // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
   // Given a list of point ids, return an array of tuples.
-  // You must insure that the output array has been previously 
+  // You must insure that the output array has been previously
   // allocated with enough space to hold the data.
   virtual void GetTuples(vtkIdList *ptIds, vtkAbstractArray* output);
 
   // Description:
-  // Get the tuples for the range of points ids specified 
-  // (i.e., p1->p2 inclusive). You must insure that the output array has 
+  // Get the tuples for the range of points ids specified
+  // (i.e., p1->p2 inclusive). You must insure that the output array has
   // been previously allocated with enough space to hold the data.
   virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
 
   // Description:
-  // Return a void pointer. For image pipeline interface and other 
+  // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
   virtual void *GetVoidPointer(vtkIdType id) = 0;
 
@@ -170,7 +170,7 @@ public:
 
   // Description:
   // Set the ith tuple in this array as the interpolated tuple value,
-  // given the ptIndices in the source array and associated 
+  // given the ptIndices in the source array and associated
   // interpolation weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
@@ -178,21 +178,21 @@ public:
     vtkAbstractArray* source,  double* weights) = 0;
 
   // Description
-  // Insert the ith tuple in this array as interpolated from the two values, 
-  // p1 and p2, and an interpolation factor, t. 
-  // The interpolation factor ranges from (0,1), 
-  // with t=0 located at p1. This method assumes that the three arrays are of 
+  // Insert the ith tuple in this array as interpolated from the two values,
+  // p1 and p2, and an interpolation factor, t.
+  // The interpolation factor ranges from (0,1),
+  // with t=0 located at p1. This method assumes that the three arrays are of
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i, 
-    vtkIdType id1, vtkAbstractArray* source1, 
+  virtual void InterpolateTuple(vtkIdType i,
+    vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t) =0;
 
   // Description:
   // Free any unnecessary memory.
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  virtual void Squeeze() = 0; 
+  virtual void Squeeze() = 0;
 
   // Description:
   // Resize the array while conserving the data.  Returns 1 if
@@ -201,25 +201,25 @@ public:
 
   // Description:
   // Reset to an empty state, without freeing any memory.
-  void Reset() 
+  void Reset()
     {this->MaxId = -1;}
 
   // Description:
   // Return the size of the data.
-  vtkIdType GetSize() 
+  vtkIdType GetSize()
   {return this->Size;}
 
   // Description:
   // What is the maximum id currently in the array.
-  vtkIdType GetMaxId() 
+  vtkIdType GetMaxId()
     {return this->MaxId;}
 
   // Description:
-  // This method lets the user specify data to be held by the array.  The 
-  // array argument is a pointer to the data.  size is the size of 
+  // This method lets the user specify data to be held by the array.  The
+  // array argument is a pointer to the data.  size is the size of
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
-  // The class uses the actual array provided; it does not copy the data 
+  // The class uses the actual array provided; it does not copy the data
   // from the supplied array.
   virtual void SetVoidArray(void *vtkNotUsed(array),
                             vtkIdType vtkNotUsed(size),
@@ -235,18 +235,18 @@ public:
   // Return the memory in kilobytes consumed by this data array. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
-  // actually represent the data represented by this object. The 
-  // information returned is valid only after the pipeline has 
+  // actually represent the data represented by this object. The
+  // information returned is valid only after the pipeline has
   // been updated.
   virtual unsigned long GetActualMemorySize() = 0;
 
   // Description:
   // Set/get array's name
-  vtkSetStringMacro(Name); 
+  vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
 
   // Description:
-  // Get the name of a data type as a string.  
+  // Get the name of a data type as a string.
   virtual const char *GetDataTypeAsString( void )
     { return vtkImageScalarTypeNameMacro( this->GetDataType() ); }
 
@@ -326,7 +326,7 @@ public:
   // not currently associated with the array it will be created.
   vtkInformation* GetInformation();
   // Description:
-  // Inquire if this array has an instance of vtkInformation 
+  // Inquire if this array has an instance of vtkInformation
   // already associated with it.
   bool HasInformation(){ return this->Information!=0; }
   //BTX
@@ -335,7 +335,7 @@ public:
   // in a variety of ways. It is important to have flexibility in
   // this regard because certain keys should not be coppied, while
   // others must be.
-  // 
+  //
   // NOTE: Subclasses must always call their superclass's CopyInformation
   // method, so that all classes in the hierarchy get a chance to remove
   // keys they do not wish to be coppied. The subclass will not need to

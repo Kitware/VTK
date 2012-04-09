@@ -43,7 +43,7 @@ vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSetAlgorithm::GetOutput()
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkHierarchicalBoxDataSetAlgorithm::GetOutput(int port)
 {
-  vtkDataObject* output = 
+  vtkDataObject* output =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
     GetCompositeOutputData(port);
   return vtkHierarchicalBoxDataSet::SafeDownCast(output);
@@ -73,8 +73,8 @@ vtkDataObject* vtkHierarchicalBoxDataSetAlgorithm::GetInput(int port)
 
 //----------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSetAlgorithm::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // create the output

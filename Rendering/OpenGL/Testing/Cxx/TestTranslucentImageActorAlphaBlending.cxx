@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This test covers rendering of translucent image actor with alpha blending.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -36,28 +36,28 @@ int TestTranslucentImageActorAlphaBlending(int argc, char* argv[])
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
-  
+
   vtkImageActor *ia=vtkImageActor::New();
   renderer->AddActor(ia);
   ia->Delete();
-  
+
   vtkPNGReader *pnmReader=vtkPNGReader::New();
   ia->GetMapper()->SetInputConnection(pnmReader->GetOutputPort());
   pnmReader->Delete();
-  
+
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/alphachannel.png");
-  
+
   pnmReader->SetFileName(fname);
   delete[] fname;
-  
+
   renderer->SetBackground(0.1,0.2,0.4);
   renWin->SetSize(400,400);
-  
+
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -65,6 +65,6 @@ int TestTranslucentImageActorAlphaBlending(int argc, char* argv[])
     iren->Start();
     }
   iren->Delete();
-  
+
   return !retVal;
 }

@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkPointLoad - compute stress tensors given point load on semi-infinite domain
 // .SECTION Description
-// vtkPointLoad is a source object that computes stress tensors on a volume. 
-// The tensors are computed from the application of a point load on a 
-// semi-infinite domain. (The analytical results are adapted from Saada - see 
+// vtkPointLoad is a source object that computes stress tensors on a volume.
+// The tensors are computed from the application of a point load on a
+// semi-infinite domain. (The analytical results are adapted from Saada - see
 // text.) It also is possible to compute effective stress scalars if desired.
 // This object serves as a specialized data generator for some of the examples
 // in the text.
@@ -69,7 +69,7 @@ public:
   vtkGetMacro(PoissonsRatio,double);
 
   // Description:
-  // Turn on/off computation of effective stress scalar. These methods do 
+  // Turn on/off computation of effective stress scalar. These methods do
   // nothing. The effective stress is always computed.
   void SetComputeEffectiveStress(int) {};
   int GetComputeEffectiveStress() {return 1;};
@@ -80,8 +80,8 @@ protected:
   vtkPointLoad();
   ~vtkPointLoad() {};
 
-  virtual int RequestInformation (vtkInformation *, 
-                                   vtkInformationVector **, 
+  virtual int RequestInformation (vtkInformation *,
+                                   vtkInformationVector **,
                                    vtkInformationVector *);
   virtual void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *);
 

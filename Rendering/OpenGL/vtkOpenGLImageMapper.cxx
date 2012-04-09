@@ -38,7 +38,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 }
 
 //----------------------------------------------------------------------------
-// I know #define can be evil, but this macro absolutely ensures 
+// I know #define can be evil, but this macro absolutely ensures
 // that the code will be inlined.  The macro expects 'val' to
 // be predefined to the same type as y
 
@@ -54,7 +54,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
     val = 255; \
     } \
   (x) = static_cast<unsigned char>(val); \
-} 
+}
 /* should do proper rounding, as follows:
   (x) = (unsigned char)(val + 0.5f); \
 */
@@ -74,7 +74,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
     val = 255; \
     } \
   (x) = static_cast<unsigned char>(val); \
-} 
+}
 
 // pad an integer to a multiply of four, for OpenGL
 inline int vtkPadToFour(int n)
@@ -122,7 +122,7 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
 
   int i;
   int j = height;
- 
+
   unsigned char *newPtr;
   if (bpp < 4)
     {
@@ -152,7 +152,7 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
           *ptr++ = tmp;
           }
         break;
-        
+
       case 2:
         while (--i >= 0)
           {
@@ -162,7 +162,7 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
           *ptr++ = tmp;
           }
         break;
-        
+
       case 3:
         while (--i >= 0)
           {
@@ -197,7 +197,7 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
                GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
-  
+
   if (self->GetRenderToRectangle())
     {
     // restore zoom to 1,1 otherwise other glDrawPixels cals may be affected
@@ -213,9 +213,9 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
 // overflow cannot occur.
 
 template <class T>
-void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data, 
+void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data,
                                      T *dataPtr, double shift, double scale,
-                                     int *actorPos, int *actorPos2, int front, 
+                                     int *actorPos, int *actorPos2, int front,
                                      int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
@@ -233,10 +233,10 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
 
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
-  
+
   // the value .999 is sensitive to z-buffer depth
-  glRasterPos3f((2.0*actorPos[0]) / vsize[0] - 1.0, 
-                (2.0*actorPos[1]) / vsize[1] - 1.0, 
+  glRasterPos3f((2.0*actorPos[0]) / vsize[0] - 1.0,
+                (2.0*actorPos[1]) / vsize[1] - 1.0,
                 (front)?(-1.0):(.999));
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
@@ -247,14 +247,14 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   // The "*2.0" and "*1.0" ensure that the comparison is done
   // with double-precision math.
   int bitShift = 0;
-  double absScale = ((scale < 0) ? -scale : scale); 
+  double absScale = ((scale < 0) ? -scale : scale);
 
   while ((static_cast<long>(1 << bitShift)*absScale)*2.0*USHRT_MAX < INT_MAX*1.0)
     {
     bitShift++;
     }
   bitShift--;
-  
+
   long sscale = static_cast<long>(scale*(1 << bitShift));
   long sshift = static_cast<long>(sscale*shift);
   /* should do proper rounding, as follows:
@@ -263,13 +263,13 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   */
   long val;
   unsigned char tmp;
-  
+
   T *inPtr = dataPtr;
   T *inPtr1 = inPtr;
-  
+
   int i;
   int j = height;
-  
+
   unsigned char *newPtr;
   if (bpp < 4)
     {
@@ -279,14 +279,14 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
     {
     newPtr = new unsigned char[4*width*height];
     }
-  
+
   unsigned char *ptr = newPtr;
-  
+
   while (--j >= 0)
     {
     inPtr = inPtr1;
     i = width;
-    
+
     switch (bpp)
       {
       case 1:
@@ -298,7 +298,7 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
           *ptr++ = tmp;
           }
         break;
-        
+
       case 2:
         while (--i >= 0)
           {
@@ -308,7 +308,7 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
           *ptr++ = tmp;
           }
         break;
-        
+
       case 3:
         while (--i >= 0)
           {
@@ -317,7 +317,7 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           }
         break;
-        
+
       default:
         while (--i >= 0)
           {
@@ -356,8 +356,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
 // render unsigned char data without any shift/scale
 
 template <class T>
-void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *data, 
-                                    T *dataPtr, int *actorPos, int *actorPos2, 
+void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                    T *dataPtr, int *actorPos, int *actorPos2,
                                     int front, int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
@@ -600,12 +600,12 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   // Make this window current. May have become not current due to
   // data updates since the render started.
   window->MakeCurrent();
-  
+
   shift = this->GetColorShift();
   scale = this->GetColorScale();
-  
-  ptr0 = data->GetScalarPointer(this->DisplayExtent[0], 
-                                this->DisplayExtent[2], 
+
+  ptr0 = data->GetScalarPointer(this->DisplayExtent[0],
+                                this->DisplayExtent[2],
                                 this->DisplayExtent[4]);
 
   // push a 2D matrix on the stack
@@ -626,9 +626,9 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   // If picking then set up a model view matrix
   if(viewport->GetIsPicking())
     {
-    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1); 
+    glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
     }
-  
+
   glDisable( GL_LIGHTING);
 
   // Get the position of the image actor
@@ -637,7 +637,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   int* actorPos2 =
     actor->GetActualPosition2Coordinate()->GetComputedViewportValue(viewport);
   // negative positions will already be clipped to viewport
-  actorPos[0] += this->PositionAdjustment[0]; 
+  actorPos[0] += this->PositionAdjustment[0];
   actorPos[1] += this->PositionAdjustment[1];
   // if picking then only draw a polygon, since an image can not be picked
   if(viewport->GetIsPicking())
@@ -646,13 +646,13 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     int inMax0 = this->DisplayExtent[1];
     int inMin1 = this->DisplayExtent[2];
     int inMax1 = this->DisplayExtent[3];
-    
+
     float width = inMax0 - inMin0 + 1;
     float height = inMax1 - inMin1 + 1;
     float x1 = (2.0 * actorPos[0]) / vsize[0] - 1.0;
     float y1 = (2.0 * actorPos[1]) / vsize[1] - 1.0;
     glRectf(x1, y1, x1+width, y1+height);
-    // clean up and return 
+    // clean up and return
     glMatrixMode( GL_PROJECTION);
     glPopMatrix();
     glMatrixMode( GL_MODELVIEW);
@@ -660,8 +660,8 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     glEnable( GL_LIGHTING);
     return;
     }
-  
-  int front = 
+
+  int front =
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
 
 #if defined(sparc) && defined(GL_VERSION_1_1)

@@ -80,7 +80,7 @@ int vtkXMLHyperOctreeReader::FillOutputPortInformation(int, vtkInformation *info
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkXMLHyperOctreeReader::GetNumberOfPoints() 
+vtkIdType vtkXMLHyperOctreeReader::GetNumberOfPoints()
 {
   vtkIdType numPts = 0;
   vtkDataSet* output = vtkDataSet::SafeDownCast(this->GetCurrentOutput());
@@ -121,20 +121,20 @@ int vtkXMLHyperOctreeReader::ReadArrayForCells(vtkXMLDataElement* da,
   vtkIdType numberOfTuples = this->GetNumberOfCells();
   outArray->SetNumberOfTuples(numberOfTuples);
   return this->ReadArrayValues(da, 0, outArray, 0, numberOfTuples*components);
-  
+
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperOctreeReader::ReadXMLData()
 {
-  
+
   //1) vtkXMLReader grandparent class checks if this timestep needs to SetupOutputData, and if so initializes the output.
   //2) vtkXMLDataReader parent class reads fielddata
   this->Superclass::ReadXMLData();
 
   //3) For Other XML readers, vtkXMLUnstructuredDataReader or vtkXMLStructuredDataReader parent classes use pipeline info to determines what pieces to read and then ReadPieceData is called to read only part of the data. Since HyperOctree is not streamed yet, I'll just read the whole file here instead.
 
-  vtkXMLDataElement *ePrimary = 
+  vtkXMLDataElement *ePrimary =
     this->XMLParser->GetRootElement()->GetNestedElement(0);
 
   int Dimension;
@@ -158,14 +158,14 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
     Origin[0] = 0;
     Origin[1] = 0;
     Origin[2] = 0;
-    } 
+    }
 
   vtkHyperOctree *output = vtkHyperOctree::SafeDownCast(
       this->GetCurrentOutput());
   output->SetDimension(Dimension);
   output->SetSize(Size);
   output->SetOrigin(Origin);
-         
+
   // Find the topology element, which defines the structure of the HyperOctree
   // Rebuild the HyperOctree from that.
   // This needs to happen before ReadPieceData so that numPoints and numCells
@@ -175,8 +175,8 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
   for(i=0; i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "Topology") == 0) 
-      { 
+    if(strcmp(eNested->GetName(), "Topology") == 0)
+      {
       this->ReadTopology(eNested);
       break;
       }
@@ -184,7 +184,7 @@ void vtkXMLHyperOctreeReader::ReadXMLData()
 
   //Read the pointdata and celldata attribute data.
   //We only have one piece so this will suffice.
-  this->ReadPieceData();  
+  this->ReadPieceData();
 }
 
 //----------------------------------------------------------------------------
@@ -204,7 +204,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 
   //Find the topology array and read it into a vtkIntArray
   int numNested = elem->GetNumberOfNestedElements();
-  if (numNested != 1) 
+  if (numNested != 1)
     {
     return;
     }
@@ -214,7 +214,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
   // Since topology is a vtkIntArray.
   vtkAbstractArray* a = this->CreateArray(tElem);
   vtkDataArray *tda = vtkDataArray::SafeDownCast(a);
-  if (!tda) 
+  if (!tda)
     {
     if (a)
       {
@@ -222,18 +222,18 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
       }
     return;
     }
-  
+
   int numTuples;
-  if (!tElem->GetScalarAttribute("NumberOfTuples", numTuples)) 
+  if (!tElem->GetScalarAttribute("NumberOfTuples", numTuples))
     {
     tda->Delete();
     return;
     }
-  
+
   tda->SetNumberOfTuples(numTuples);
   if (!this->ReadArrayValues(tElem, 0, tda, 0, numTuples* tda->GetNumberOfComponents())
-    
-   /* this->ReadData(tElem, tda->GetVoidPointer(0), tda->GetDataType(), 
+
+   /* this->ReadData(tElem, tda->GetVoidPointer(0), tda->GetDataType(),
                       0, numTuples*tda->GetNumberOfComponents())*/)
     {
     tda->Delete();
@@ -242,7 +242,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 
   vtkIntArray *ta = NULL;
   ta = vtkIntArray::SafeDownCast(tda);
-  if (!ta) 
+  if (!ta)
     {
     tda->Delete();
     return;
@@ -255,13 +255,13 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
       this->GetCurrentOutput())->NewCellCursor();
   cursor->ToRoot();
   //Where in the array we need to read from next.
-  this->ArrayIndex = 0; 
+  this->ArrayIndex = 0;
   if (!this->BuildNextCell(ta, cursor, cursor->GetNumberOfChildren()))
     {
     vtkErrorMacro( << "Problem reading topology. ");
     ta->Delete();
-    return ;          
-    }        
+    return ;
+    }
 
   //Cleanup
   cursor->Delete();
@@ -286,31 +286,31 @@ int vtkXMLHyperOctreeReader::BuildNextCell(
     {
     //terminal node
     //subdivide but stop there
-    vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor); 
+    vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor);
     }
 */
   else
     {
     //internal node
     //subdivide
-    vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor); 
+    vtkHyperOctree::SafeDownCast(this->GetCurrentOutput())->SubdivideLeaf(cursor);
     //then keep going down
     int i=0;
     while(i<nchildren)
       {
       cursor->ToChild(i);
-      
+
       this->ArrayIndex++;
       if (!this->BuildNextCell(ta, cursor, nchildren))
         {
         //IO failure somewhere below
         return 0;
         }
-      
+
       cursor->ToParent();
       ++i;
       }
     }
   return 1;
 }
- 
+

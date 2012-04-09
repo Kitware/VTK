@@ -27,14 +27,14 @@ public:
   vtkTypeMacro(vtkMyXML, vtkXMLParser);
   static vtkMyXML* New();
 
-protected:  
-  vtkMyXML() {} 
+protected:
+  vtkMyXML() {}
   void StartElement(const char*, const char**) {}
   void EndElement(const char*) {}
 
 private:
   vtkMyXML(const vtkMyXML&); // Not implemented
-  void operator=(const vtkMyXML&); // Not implemented    
+  void operator=(const vtkMyXML&); // Not implemented
 };
 
 vtkStandardNewMacro(vtkMyXML);
@@ -63,7 +63,7 @@ int TestXML(int argc, char *argv[])
     cout << "Cannot parse message" << endl;
     res = 1;
     }
-  
+
   parser->Delete();
 
   return res;

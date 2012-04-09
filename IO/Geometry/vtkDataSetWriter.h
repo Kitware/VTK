@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkDataSetWriter - write any type of vtk dataset to file
 // .SECTION Description
-// vtkDataSetWriter is an abstract class for mapper objects that write their 
+// vtkDataSetWriter is an abstract class for mapper objects that write their
 // data to disk (or into a communications port). The input to this object is
 // a dataset of any type.
 

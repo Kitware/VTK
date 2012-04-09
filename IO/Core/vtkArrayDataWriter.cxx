@@ -57,7 +57,7 @@ void vtkArrayDataWriter::WriteData()
 {
   if(this->WriteToOutputString)
     {
-    this->OutputString = this->Write(this->Binary > 0 ? true : false);    
+    this->OutputString = this->Write(this->Binary > 0 ? true : false);
     }
   else
     {

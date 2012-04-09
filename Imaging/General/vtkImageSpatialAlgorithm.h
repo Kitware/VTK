@@ -39,7 +39,7 @@ public:
   // Description:
   // Get the Kernel size.
   vtkGetVector3Macro(KernelSize,int);
-  
+
   // Description:
   // Get the Kernel middle.
   vtkGetVector3Macro(KernelMiddle,int);

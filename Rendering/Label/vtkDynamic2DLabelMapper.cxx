@@ -65,7 +65,7 @@ vtkDynamic2DLabelMapper::vtkDynamic2DLabelMapper()
   this->LabelWidth = NULL;
   this->LabelHeight = NULL;
   this->Cutoff = NULL;
-  
+
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "priority");
   this->ReversePriority = false;
   this->LabelHeightPadding = 50;
@@ -120,7 +120,7 @@ void vtkDynamic2DLabelMapper_PrintComponent(char *output, const char *format, in
 }
 
 //----------------------------------------------------------------------------
-void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
+void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                                                 vtkActor2D *actor)
 {
   int i, j, numComp = 0, pointIdLabels, activeComp = 0;
@@ -156,7 +156,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     vtkErrorMacro(<<"Input must be vtkDataSet or vtkGraph.");
     return;
     }
-  vtkDataSetAttributes *pd = 
+  vtkDataSetAttributes *pd =
     dsInput ? dsInput->GetPointData() : gInput->GetVertexData();
 
   // If no labels we are done
@@ -167,7 +167,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
   // Check to see whether we have to rebuild everything
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        input->GetMTime() > this->BuildTime)
     {
     vtkDebugMacro(<<"Rebuilding labels");
@@ -192,25 +192,25 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
           numericData = pd->GetScalars();
           }
         break;
-      case VTK_LABEL_VECTORS:   
+      case VTK_LABEL_VECTORS:
         if ( pd->GetVectors() )
           {
           numericData = pd->GetVectors();
           }
         break;
-      case VTK_LABEL_NORMALS:    
+      case VTK_LABEL_NORMALS:
         if ( pd->GetNormals() )
           {
           numericData = pd->GetNormals();
           }
         break;
-      case VTK_LABEL_TCOORDS:    
+      case VTK_LABEL_TCOORDS:
         if ( pd->GetTCoords() )
           {
           numericData = pd->GetTCoords();
           }
         break;
-      case VTK_LABEL_TENSORS:    
+      case VTK_LABEL_TENSORS:
         if ( pd->GetTensors() )
           {
           numericData = pd->GetTensors();
@@ -246,7 +246,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       activeComp = 0;
       if ( this->LabeledComponent >= 0 )
         {
-        activeComp = (this->LabeledComponent < numComp ? 
+        activeComp = (this->LabeledComponent < numComp ?
                       this->LabeledComponent : numComp - 1);
         numComp = 1;
         }
@@ -263,7 +263,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                         << this->FieldDataName << ") "
                         << "in input.");
         }
-      else 
+      else
         {
         vtkWarningMacro(<< "Could not find label array ("
                         << "index " << this->FieldDataArray << ") "
@@ -276,7 +276,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     vtkStdString FormatString;
     if (this->LabelFormat)
       {
-      // The user has specified a format string.  
+      // The user has specified a format string.
       vtkDebugMacro(<<"Using user-specified format string " << this->LabelFormat);
       FormatString = this->LabelFormat;
       }
@@ -285,7 +285,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       // Try to come up with some sane default.
       if (pointIdLabels)
         {
-        FormatString = "%d"; 
+        FormatString = "%d";
         }
       else if (numericData)
         {
@@ -349,13 +349,13 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       else
         {
-        FormatString = "BUG - COULDN'T DETECT DATA TYPE"; 
+        FormatString = "BUG - COULDN'T DETECT DATA TYPE";
         }
 
       vtkDebugMacro(<<"Using default format string " << FormatString.c_str());
       } // Done building default format string
 
-    this->NumberOfLabels = 
+    this->NumberOfLabels =
       dsInput ? dsInput->GetNumberOfPoints() : gInput->GetNumberOfVertices();
     if ( this->NumberOfLabels > this->NumberOfLabelsAllocated )
       {
@@ -383,19 +383,19 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
     for (i=0; i < this->NumberOfLabels; i++)
       {
-      vtkStdString ResultString; 
+      vtkStdString ResultString;
 
       if ( pointIdLabels )
         {
         sprintf(TempString, LiveFormatString, i);
         ResultString = TempString;
         }
-      else 
+      else
         {
         if ( numericData )
           {
           void *rawData = numericData->GetVoidPointer(i);
-          
+
           if ( numComp == 1 )
             {
             switch (numericData->GetDataType())
@@ -403,24 +403,24 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
               vtkTemplateMacro(vtkDynamic2DLabelMapper_PrintComponent(TempString, LiveFormatString, activeComp, static_cast<VTK_TT *>(rawData)));
               }
             ResultString = TempString;
-            } 
+            }
           else // numComp != 1
             {
             ResultString = "(";
-            
+
             // Print each component in turn and add it to the string.
             for (j = 0; j < numComp; ++j)
               {
               switch (numericData->GetDataType())
                 {
                 vtkTemplateMacro(
-                  vtkDynamic2DLabelMapper_PrintComponent(TempString, 
-                                                      LiveFormatString, 
-                                                      j, 
+                  vtkDynamic2DLabelMapper_PrintComponent(TempString,
+                                                      LiveFormatString,
+                                                      j,
                                                       static_cast<VTK_TT *>(rawData)));
                 }
               ResultString += TempString;
-              
+
               if (j < (numComp-1))
                 {
                 ResultString += ' ';
@@ -449,12 +449,12 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
             }
           else // the user specified a label format
             {
-            SNPRINTF(TempString, 1023, LiveFormatString, 
+            SNPRINTF(TempString, 1023, LiveFormatString,
                      stringData->GetValue(i).c_str());
               ResultString = TempString;
             } // done printing strings with label format
           } // done printing strings
-        } // done creating string 
+        } // done creating string
 
       this->TextMappers[i]->SetInput(ResultString.c_str());
 
@@ -477,7 +477,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     //
     // Perform the label layout preprocessing
     //
-    
+
     // Calculate height and width padding
     float widthPadding=0, heightPadding = 0;
     if (this->NumberOfLabels > 0)
@@ -559,7 +559,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       {
       index->SetValue(i, i);
       }
-    
+
     // If the array is found, sort it and rearrange the corresponding index array.
     vtkAbstractArray* inputArr = this->GetInputAbstractArrayToProcess(1, input);
     if (inputArr)
@@ -570,7 +570,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       vtkSortDataArray::Sort(arr, index);
       arr->Delete();
       }
-    
+
     // We normally go from highest (at the end) to lowest (at the beginning).
     // If priorities are reversed, we go from lowest to highest.
     // If no sorted array was used, we just go from index 0 to index n-1.
@@ -616,7 +616,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     pts->Delete();
 
     // Determine the reference scale
-    this->ReferenceScale = this->GetCurrentScale(viewport);    
+    this->ReferenceScale = this->GetCurrentScale(viewport);
 
     timer->StopTimer();
     vtkDebugMacro("vtkDynamic2DLabelMapper computed label cutoffs for " << timer->GetElapsedTime() << "s");
@@ -631,7 +631,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   double scale = 1.0;
   if (this->ReferenceScale != 0.0)
     {
-    scale = this->GetCurrentScale(viewport) / this->ReferenceScale;    
+    scale = this->GetCurrentScale(viewport) / this->ReferenceScale;
     }
 
   for (i = 0; i < this->NumberOfLabels; i++)
@@ -667,7 +667,7 @@ double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport *viewport)
   vtkCamera* camera = ren->GetActiveCamera();
   if ( camera->GetParallelProjection() )
     {
-    // For parallel projection, the scale depends on the parallel scale 
+    // For parallel projection, the scale depends on the parallel scale
     double scale = ( ren->GetSize()[1] / 2.0 ) / camera->GetParallelScale();
     return scale;
     }
@@ -683,7 +683,7 @@ double vtkDynamic2DLabelMapper::GetCurrentScale(vtkViewport *viewport)
 }
 
 //----------------------------------------------------------------------------
-void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport, 
+void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
                                             vtkActor2D *actor)
 {
   int i;
@@ -705,10 +705,10 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
     vtkErrorMacro(<<"Need input data to render labels (1)");
     return;
     }
-  
+
   vtkTimerLog* timer = vtkTimerLog::New();
   timer->StartTimer();
-  
+
   for (i=0; i<this->NumberOfLabels && i<numPts; i++)
     {
     if (dsInput)
@@ -724,18 +724,18 @@ void vtkDynamic2DLabelMapper::RenderOverlay(vtkViewport *viewport,
     double screenX = display[0];
     double screenY = display[1];
 
-    bool inside = 
+    bool inside =
       viewport->IsInViewport(
-        static_cast<int>(screenX + this->LabelWidth[i]), 
+        static_cast<int>(screenX + this->LabelWidth[i]),
         static_cast<int>(screenY + this->LabelHeight[i]))
       || viewport->IsInViewport(
-        static_cast<int>(screenX + this->LabelWidth[i]), 
+        static_cast<int>(screenX + this->LabelWidth[i]),
         static_cast<int>(screenY - this->LabelHeight[i]))
       || viewport->IsInViewport(
-        static_cast<int>(screenX - this->LabelWidth[i]), 
+        static_cast<int>(screenX - this->LabelWidth[i]),
         static_cast<int>(screenY + this->LabelHeight[i]))
       || viewport->IsInViewport(
-        static_cast<int>(screenX - this->LabelWidth[i]), 
+        static_cast<int>(screenX - this->LabelWidth[i]),
         static_cast<int>(screenY - this->LabelHeight[i]));
     if (inside && (1.0f / scale) < this->Cutoff[i])
       {

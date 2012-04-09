@@ -81,12 +81,12 @@ int vtkTemporalShiftScale::RequestInformation (
     this->OutRange[1] = this->ForwardConvert(this->InRange[1]);
     this->PeriodicRange[0] = this->OutRange[0];
     this->PeriodicRange[1] = this->OutRange[1];
-    if (this->Periodic) 
+    if (this->Periodic)
       {
-        this->OutRange[1] = this->OutRange[0] + 
+        this->OutRange[1] = this->OutRange[0] +
           (this->OutRange[1]-this->OutRange[0])*this->MaximumNumberOfPeriods;
       }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), 
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
       this->OutRange,2);
     }
 
@@ -114,15 +114,15 @@ int vtkTemporalShiftScale::RequestInformation (
       {
       int m = i/PeriodicN;
       int o = i%PeriodicN;
-      if (m==0) 
+      if (m==0)
         {
         outTimes[i] = this->ForwardConvert(inTimes[o]);
         }
-      else if (this->PeriodicEndCorrection) 
+      else if (this->PeriodicEndCorrection)
         {
         outTimes[i] = outTimes[o] + m*range;
         }
-      else if (!this->PeriodicEndCorrection) 
+      else if (!this->PeriodicEndCorrection)
         {
         outTimes[i] = outTimes[o] + m*range;
         }
@@ -144,23 +144,23 @@ int vtkTemporalShiftScale::RequestData(
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   vtkTemporalDataSet *inData = vtkTemporalDataSet::SafeDownCast
     (inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
     (outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // shallow copy the data
   if (inData && outData)
     {
     outData->ShallowCopy(inData);
     }
-  
+
   // @TODO The time value set here is not correct if periodic is true
 
-  int inLength = 
+  int inLength =
     inData->GetInformation()->Length(vtkDataObject::DATA_TIME_STEPS());
-  double *inTimes = 
+  double *inTimes =
     inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS());
   double *outTimes = new double [inLength];
 
@@ -170,7 +170,7 @@ int vtkTemporalShiftScale::RequestData(
   for (i = 0; i < inLength; ++i)
     {
     outTimes[i] = this->ForwardConvert(inTimes[i]);
-    if (this->Periodic) 
+    if (this->Periodic)
       {
       outTimes[i] += this->TempMultiplier*range;
       }
@@ -178,7 +178,7 @@ int vtkTemporalShiftScale::RequestData(
   outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
                                  outTimes, inLength);
   delete [] outTimes;
-                                 
+
   return 1;
 }
 
@@ -197,7 +197,7 @@ int vtkTemporalShiftScale::RequestUpdateExtent (
     {
     double *upTimes =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    int numTimes = 
+    int numTimes =
       outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     double *inTimes = new double [numTimes];
 

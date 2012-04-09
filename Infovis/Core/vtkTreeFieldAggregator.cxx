@@ -62,7 +62,7 @@ int vtkTreeFieldAggregator::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // get the input and output
   vtkTree *input = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -77,7 +77,7 @@ int vtkTreeFieldAggregator::RequestData(
     {
     this->LeafVertexUnitSize = true;
     }
-    
+
   // Extract the field from the tree
   vtkAbstractArray* arr;
   if (this->LeafVertexUnitSize)
@@ -127,7 +127,7 @@ int vtkTreeFieldAggregator::RequestData(
 
   // Set up DFS iterator that traverses
   // children before the parent (i.e. bottom-up).
-  vtkSmartPointer<vtkTreeDFSIterator> dfs = 
+  vtkSmartPointer<vtkTreeDFSIterator> dfs =
     vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(output);
   dfs->SetMode(vtkTreeDFSIterator::FINISH);

@@ -16,19 +16,19 @@
 // .SECTION Description
 // vtkTexture is an object that handles loading and binding of texture
 // maps. It obtains its data from an input image data dataset type.
-// Thus you can create visualization pipelines to read, process, and 
+// Thus you can create visualization pipelines to read, process, and
 // construct textures. Note that textures will only work if texture
-// coordinates are also defined, and if the rendering system supports 
+// coordinates are also defined, and if the rendering system supports
 // texture.
 //
 // Instances of vtkTexture are associated with actors via the actor's
 // SetTexture() method. Actors can share texture maps (this is encouraged
-// to save memory resources.) 
+// to save memory resources.)
 
 // .SECTION Caveats
 // Currently only 2D texture maps are supported, even though the data pipeline
-// supports 1,2, and 3D texture coordinates. 
-// 
+// supports 1,2, and 3D texture coordinates.
+//
 // Some renderers such as old OpenGL require that the texture map dimensions
 // are a power of two in each direction. If a non-power of two texture map is
 // used, it is automatically resampled to a power of two in one or more
@@ -66,7 +66,7 @@ public:
 
   // Description:
   // Renders a texture map. It first checks the object's modified time
-  // to make sure the texture maps Input is valid, then it invokes the 
+  // to make sure the texture maps Input is valid, then it invokes the
   // Load() method.
   virtual void Render(vtkRenderer *ren);
 
@@ -82,8 +82,8 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of 
-  // vtkTexture will load its data into graphics system in response 
+  // Abstract interface to renderer. Each concrete subclass of
+  // vtkTexture will load its data into graphics system in response
   // to this method invocation.
   virtual void Load(vtkRenderer *) {};
 
@@ -186,9 +186,9 @@ public:
 
   // Description:
   // When the texture is forced to be a power of 2, the default behavior is
-  // for the "new" image's dimensions  to be greater than or equal to with 
+  // for the "new" image's dimensions  to be greater than or equal to with
   // respects to the original.  Setting RestrictPowerOf2ImageSmaller to be
-  // 1 (or ON) with force the new image's dimensions to be less than or equal 
+  // 1 (or ON) with force the new image's dimensions to be less than or equal
   // to with respects to the original.
   vtkGetMacro(RestrictPowerOf2ImageSmaller,int);
   vtkSetMacro(RestrictPowerOf2ImageSmaller,int);

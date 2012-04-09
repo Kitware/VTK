@@ -28,7 +28,7 @@
 //
 // .SECTION See Also
 //  vtkExtractHistogram2D
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------

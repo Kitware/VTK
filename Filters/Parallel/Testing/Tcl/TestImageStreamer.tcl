@@ -10,11 +10,11 @@ reader SetDataMask 0x7fff
 set rangeStart 0.0
 set rangeEnd   0.2
 
-vtkLookupTable LUT 
+vtkLookupTable LUT
 LUT SetTableRange 0 1800
 LUT SetSaturationRange 1 1
 LUT SetHueRange $rangeStart $rangeEnd
-LUT SetValueRange 1 1  
+LUT SetValueRange 1 1
 LUT SetAlphaRange 1 1
 LUT Build
 
@@ -22,7 +22,7 @@ LUT Build
 # matches as required in python.
 proc changeLUT { { a 0 } { b 0 } } {
     global rangeStart rangeEnd
-    
+
     set rangeStart [expr $rangeStart + 0.1]
     set rangeEnd   [expr $rangeEnd   + 0.1]
     if { $rangeEnd > 1.0 } {

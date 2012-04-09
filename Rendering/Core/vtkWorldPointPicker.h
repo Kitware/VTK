@@ -19,12 +19,12 @@
 // simply determines an x-y-z coordinate in world space. (It will always
 // return a x-y-z, even if the selection point is not over a prop/actor.)
 
-// .SECTION Caveats 
+// .SECTION Caveats
 // The PickMethod() is not invoked, but StartPickMethod() and EndPickMethod()
 // are.
 
-// .SECTION See Also 
-// vtkPropPicker vtkPicker vtkCellPicker vtkPointPicker 
+// .SECTION See Also
+// vtkPropPicker vtkPicker vtkCellPicker vtkPointPicker
 
 #ifndef __vtkWorldPointPicker_h
 #define __vtkWorldPointPicker_h
@@ -41,10 +41,10 @@ public:
 
   // Description:
   // Perform the pick. (This method overload's the superclass.)
-  int Pick(double selectionX, double selectionY, double selectionZ, 
-           vtkRenderer *renderer);  
+  int Pick(double selectionX, double selectionY, double selectionZ,
+           vtkRenderer *renderer);
   int Pick(double selectionPt[3], vtkRenderer *renderer)
-    { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };  
+    { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };
 
 protected:
   vtkWorldPointPicker ();

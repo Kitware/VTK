@@ -16,11 +16,11 @@
 // .SECTION Description
 // vtkSelectEnclosedPoints is a filter that evaluates all the input points to
 // determine whether they are in an enclosed surface. The filter produces a
-// (0,1) mask (in the form of a vtkDataArray) that indicates whether points 
+// (0,1) mask (in the form of a vtkDataArray) that indicates whether points
 // are outside (mask value=0) or inside (mask value=1) a provided surface.
 // (The name of the output vtkDataArray is "SelectedPointsArray".)
 //
-// After running the filter, it is possible to query it as to whether a point 
+// After running the filter, it is possible to query it as to whether a point
 // is inside/outside by invoking the IsInside(ptId) method.
 
 // .SECTION Caveats
@@ -29,7 +29,7 @@
 // all points will be marked outside. Note that if this check is not performed
 // and the surface is not closed, the results are undefined.
 //
-// This filter produces and output data array, but does not modify the input 
+// This filter produces and output data array, but does not modify the input
 // dataset. If you wish to extract cells or poinrs, various threshold filters
 // are available (i.e., threshold the output array).
 
@@ -61,7 +61,7 @@ public:
   static vtkSelectEnclosedPoints *New();
 
   // Description:
-  // Set the surface to be used to test for containment. Two methods are 
+  // Set the surface to be used to test for containment. Two methods are
   // provided: one directly for vtkPolyData, and one for the output of a
   // filter.
   void SetSurfaceData(vtkPolyData *pd);
@@ -126,7 +126,7 @@ protected:
   vtkPolyData    *Surface;
   double          Bounds[6];
   double          Length;
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 

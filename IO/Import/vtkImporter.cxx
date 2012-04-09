@@ -34,7 +34,7 @@ vtkImporter::~vtkImporter ()
     this->Renderer->UnRegister( NULL );
     this->Renderer = NULL;
     }
-  
+
 }
 
 void vtkImporter::ReadData()

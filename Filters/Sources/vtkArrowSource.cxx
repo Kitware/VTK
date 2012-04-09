@@ -35,7 +35,7 @@ vtkArrowSource::vtkArrowSource()
   this->ShaftResolution = 6;
   this->ShaftRadius = 0.03;
   this->Invert = false;
-  
+
   this->SetNumberOfInputPorts(0);
 }
 

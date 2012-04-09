@@ -36,7 +36,7 @@ public:
   // Description:
   // The image extent of the output has to be set explicitly.
   void SetOutputWholeExtent(int extent[6]);
-  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
+  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
@@ -45,7 +45,7 @@ public:
   // Set/Get the number of output scalar components.
   vtkSetMacro(OutputNumberOfScalarComponents, int);
   vtkGetMacro(OutputNumberOfScalarComponents, int);
-  
+
 protected:
   vtkImagePadFilter();
   ~vtkImagePadFilter() {};
@@ -60,9 +60,9 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  virtual void ComputeInputUpdateExtent (int inExt[6], int outExt[6], 
+  virtual void ComputeInputUpdateExtent (int inExt[6], int outExt[6],
                                          int wExt[6]);
-  
+
 private:
   vtkImagePadFilter(const vtkImagePadFilter&);  // Not implemented.
   void operator=(const vtkImagePadFilter&);  // Not implemented.

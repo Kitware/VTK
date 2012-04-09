@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkSmoothPolyDataFilter - adjust point positions using Laplacian smoothing
 // .SECTION Description
-// vtkSmoothPolyDataFilter is a filter that adjusts point coordinates using 
-// Laplacian smoothing. The effect is to "relax" the mesh, making the cells 
+// vtkSmoothPolyDataFilter is a filter that adjusts point coordinates using
+// Laplacian smoothing. The effect is to "relax" the mesh, making the cells
 // better shaped and the vertices more evenly distributed. Note that this
 // filter operates on the lines, polygons, and triangle strips composing an
 // instance of vtkPolyData. Vertex or poly-vertex cells are never modified.
-// 
+//
 // The algorithm proceeds as follows. For each vertex v, a topological and
 // geometric analysis is performed to determine which vertices are connected
 // to v, and which cells are connected to v. Then, a connectivity array is
@@ -31,7 +31,7 @@
 // v).  The process repeats for each vertex. This pass over the list of
 // vertices is a single iteration. Many iterations (generally around 20 or
 // so) are repeated until the desired result is obtained.
-// 
+//
 // There are some special instance variables used to control the execution
 // of this filter. (These ivars basically control what vertices can be
 // smoothed, and the creation of the connectivity array.) The
@@ -39,12 +39,12 @@
 // vertices that are on the "boundary" of the mesh. A boundary vertex is one
 // that is surrounded by a semi-cycle of polygons (or used by a single
 // line).
-// 
+//
 // Another important ivar is FeatureEdgeSmoothing. If this ivar is
 // enabled, then interior vertices are classified as either "simple",
 // "interior edge", or "fixed", and smoothed differently. (Interior
 // vertices are manifold vertices surrounded by a cycle of polygons; or used
-// by two line cells.) The classification is based on the number of feature 
+// by two line cells.) The classification is based on the number of feature
 // edges attached to v. A feature edge occurs when the angle between the two
 // surface normals of a polygon sharing an edge is greater than the
 // FeatureAngle ivar. Then, vertices used by no feature edges are classified
@@ -52,23 +52,23 @@
 // "interior edge", and all others are "fixed" vertices.
 //
 // Once the classification is known, the vertices are smoothed
-// differently. Corner (i.e., fixed) vertices are not smoothed at all. 
-// Simple vertices are smoothed as before (i.e., average of connected 
-// vertex coordinates). Interior edge vertices are smoothed only along 
-// their two connected edges, and only if the angle between the edges 
+// differently. Corner (i.e., fixed) vertices are not smoothed at all.
+// Simple vertices are smoothed as before (i.e., average of connected
+// vertex coordinates). Interior edge vertices are smoothed only along
+// their two connected edges, and only if the angle between the edges
 // is less than the EdgeAngle ivar.
 //
-// The total smoothing can be controlled by using two ivars. The 
+// The total smoothing can be controlled by using two ivars. The
 // NumberOfIterations is a cap on the maximum number of smoothing passes.
-// The Convergence ivar is a limit on the maximum point motion. If the 
-// maximum motion during an iteration is less than Convergence, then the 
-// smoothing process terminates. (Convergence is expressed as a fraction of 
+// The Convergence ivar is a limit on the maximum point motion. If the
+// maximum motion during an iteration is less than Convergence, then the
+// smoothing process terminates. (Convergence is expressed as a fraction of
 // the diagonal of the bounding box.)
 //
 // There are two instance variables that control the generation of error
 // data. If the ivar GenerateErrorScalars is on, then a scalar value indicating
 // the distance of each vertex from its original position is computed. If the
-// ivar GenerateErrorVectors is on, then a vector representing change in 
+// ivar GenerateErrorVectors is on, then a vector representing change in
 // position is computed.
 //
 // Optionally you can further control the smoothing process by defining a
@@ -76,12 +76,12 @@
 // lie on the surface defined by the Source ivar.
 //
 // .SECTION Caveats
-// 
+//
 // The Laplacian operation reduces high frequency information in the geometry
 // of the mesh. With excessive smoothing important details may be lost, and
 // the surface may shrink towards the centroid. Enabling FeatureEdgeSmoothing
 // helps reduce this effect, but cannot entirely eliminate it. You may also
-// wish to try vtkWindowedSincPolyDataFilter. It does a better job of 
+// wish to try vtkWindowedSincPolyDataFilter. It does a better job of
 // minimizing shrinkage.
 //
 // .SECTION See Also
@@ -103,9 +103,9 @@ public:
 
   // Description:
   // Construct object with number of iterations 20; relaxation factor .01;
-  // feature edge smoothing turned off; feature 
-  // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
-  // on. Error scalars and vectors are not generated (by default). The 
+  // feature edge smoothing turned off; feature
+  // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
+  // on. Error scalars and vectors are not generated (by default). The
   // convergence criterion is 0.0 of the bounding box diagonal.
   static vtkSmoothPolyDataFilter *New();
 
@@ -165,12 +165,12 @@ public:
   vtkBooleanMacro(GenerateErrorVectors,int);
 
   // Description:
-  // Specify the source object which is used to constrain smoothing. The 
-  // source defines a surface that the input (as it is smoothed) is 
+  // Specify the source object which is used to constrain smoothing. The
+  // source defines a surface that the input (as it is smoothed) is
   // constrained to lie upon.
   void SetSourceData(vtkPolyData *source);
   vtkPolyData *GetSource();
-  
+
 protected:
   vtkSmoothPolyDataFilter();
   ~vtkSmoothPolyDataFilter() {};

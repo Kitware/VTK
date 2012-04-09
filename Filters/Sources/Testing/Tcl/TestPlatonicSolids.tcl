@@ -2,7 +2,7 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-# Create five instances of vtkPlatonicSolidSource 
+# Create five instances of vtkPlatonicSolidSource
 # corresponding to each of the five Platonic solids.
 #
 vtkPlatonicSolidSource tet
@@ -99,7 +99,7 @@ icosaMapper SetScalarRange 0 19
 dodeMapper SetLookupTable lut
 dodeMapper SetScalarRange 0 19
 
-set cam [ren1 GetActiveCamera] 
+set cam [ren1 GetActiveCamera]
 $cam SetPosition 3.89696 7.20771 1.44123
 $cam SetFocalPoint 3.96132 0 0
 $cam SetViewUp -0.0079335 0.196002 -0.980571

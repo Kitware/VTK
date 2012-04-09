@@ -110,7 +110,7 @@ public:
 
   // Description:
   // Set or get the ExportArrays. If ExportArrays is set, then
-  // all point data, field data, and cell data arrays will get 
+  // all point data, field data, and cell data arrays will get
   // exported together with polygons.
   vtkSetClampMacro(ExportArrays, int, 0, 1);
   vtkBooleanMacro(ExportArrays, int);
@@ -138,14 +138,14 @@ protected:
   void WriteLight (vtkLight *aLight, int count);
   void WriteAmbientLight (int count);
   void WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture);
-  void WritePolygons (vtkPolyData *pd, vtkUnsignedCharArray *colors, 
+  void WritePolygons (vtkPolyData *pd, vtkUnsignedCharArray *colors,
                       vtkProperty *aProperty);
-  void WriteStrips (vtkPolyData *pd, vtkUnsignedCharArray *colors, 
+  void WriteStrips (vtkPolyData *pd, vtkUnsignedCharArray *colors,
                     vtkProperty *aProperty);
 
   void WriteData();
   void WriteActor(vtkActor *anActor);
-  
+
   // Description:
   // Since additional variables are sent to the shader as
   // variables, and their names are used in the shader, these

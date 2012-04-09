@@ -164,7 +164,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }  
+    }
   // yMin zMin
   if (ext[2] == wholeExt[2] && ext[4] == wholeExt[4])
     {
@@ -173,7 +173,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[4];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }  
+    }
   // yMin zMax
   if (ext[2] == wholeExt[2] && ext[5] == wholeExt[5])
     {
@@ -182,7 +182,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
     x[0] = bounds[1]; x[1] = bounds[2]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }  
+    }
   // yMax zMin
   if (ext[3] == wholeExt[3] && ext[4] == wholeExt[4])
     {
@@ -191,7 +191,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[4];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }  
+    }
   // yMax zMax
   if (ext[3] == wholeExt[3] && ext[5] == wholeExt[5])
     {
@@ -201,7 +201,7 @@ int vtkRectilinearGridOutlineFilter::RequestData(
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
     }
-  
+
   output->SetPoints(newPts);
   newPts->Delete();
 

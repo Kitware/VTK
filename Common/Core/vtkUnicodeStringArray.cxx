@@ -155,7 +155,7 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
 {
   if(this->GetDataType() != source->GetDataType())
     {
-    vtkErrorMacro("Cannot CopyValue from array of type " 
+    vtkErrorMacro("Cannot CopyValue from array of type "
       << source->GetDataTypeAsString());
     return;
     }
@@ -183,11 +183,11 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   this->InsertTuple(i, nearest, source);
 }
 
-void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, 
-    vtkIdType id1, vtkAbstractArray* source1, 
+void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
+    vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t)
 {
-  if (source1->GetDataType() != this->GetDataType() || 
+  if (source1->GetDataType() != this->GetDataType() ||
     source2->GetDataType() != this->GetDataType())
     {
     vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
@@ -202,7 +202,7 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
   else
     {
     // Use p1.
-    this->InsertTuple(i, id1, source1); 
+    this->InsertTuple(i, id1, source1);
     }
 }
 

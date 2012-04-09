@@ -34,7 +34,7 @@ class VTKFILTERSHYBRID_EXPORT vtkRenderLargeImage : public vtkAlgorithm
 public:
   static vtkRenderLargeImage *New();
   vtkTypeMacro(vtkRenderLargeImage,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // The magnification of the current render window
@@ -65,10 +65,10 @@ protected:
 
   int Magnification;
   vtkRenderer *Input;
-  void RequestData(vtkInformation *, 
+  void RequestData(vtkInformation *,
                    vtkInformationVector **, vtkInformationVector *);
-  void RequestInformation (vtkInformation *, 
-                           vtkInformationVector **, vtkInformationVector *);  
+  void RequestInformation (vtkInformation *,
+                           vtkInformationVector **, vtkInformationVector *);
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

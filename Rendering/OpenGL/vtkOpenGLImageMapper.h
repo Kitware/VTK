@@ -39,7 +39,7 @@ public:
   static vtkOpenGLImageMapper *New();
   vtkTypeMacro(vtkOpenGLImageMapper,vtkImageMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Handle the render method.
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {
@@ -48,7 +48,7 @@ public:
   // Description:
   // Called by the Render function in vtkImageMapper.  Actually draws
   // the image to the screen.
-  void RenderData(vtkViewport* viewport, vtkImageData* data, 
+  void RenderData(vtkViewport* viewport, vtkImageData* data,
                   vtkActor2D* actor);
 
 protected:

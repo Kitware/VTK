@@ -65,16 +65,16 @@ void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Number of Points per Piece: " 
+  os << indent << "Number of Points per Piece: "
      << this->NumberOfPointsPerPiece << "\n";
 
-  os << indent << "Number of Pieces: " 
+  os << indent << "Number of Pieces: "
      << this->NumberOfPieces << "\n";
 
-  os << indent << "Memory Limit: " 
+  os << indent << "Memory Limit: "
      << this->MemoryLimit << "\n";
 
-  os << indent << "Number of Actual Pieces: " 
+  os << indent << "Number of Actual Pieces: "
      << this->NumberOfActualPieces << "\n";
 
   os << indent << "Field Data: " << (this->FieldData ? "On\n" : "Off\n");

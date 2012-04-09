@@ -20,7 +20,7 @@
 // .NAME vtkDataObjectToTable - extract field data as a table
 //
 // .SECTION Description
-// This filter is used to extract either the field, cell or point data of 
+// This filter is used to extract either the field, cell or point data of
 // any data object as a table.
 
 #ifndef __vtkDataObjectToTable_h
@@ -35,7 +35,7 @@ public:
   static vtkDataObjectToTable* New();
   vtkTypeMacro(vtkDataObjectToTable,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //BTX
   enum
     {
@@ -46,24 +46,24 @@ public:
     EDGE_DATA = 4
     };
   //ETX
-  
+
   // Description:
   // The field type to copy into the output table.
   // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
   vtkGetMacro(FieldType, int);
   vtkSetClampMacro(FieldType, int, 0, 4);
-  
+
 protected:
   vtkDataObjectToTable();
   ~vtkDataObjectToTable();
-  
+
   int FillInputPortInformation(int port, vtkInformation* info);
-  
+
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-  
+
   int FieldType;
 
 private:

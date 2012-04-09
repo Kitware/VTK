@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkBoostRandomSparseArraySource.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -50,7 +50,7 @@ public:
 
   // Description:
   // Stores a random-number-seed for determining which elements within
-  // the output matrix will have non-zero values 
+  // the output matrix will have non-zero values
   vtkGetMacro(ElementProbabilitySeed, vtkTypeUInt32);
   vtkSetMacro(ElementProbabilitySeed, vtkTypeUInt32);
 
@@ -81,8 +81,8 @@ protected:
   ~vtkBoostRandomSparseArraySource();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

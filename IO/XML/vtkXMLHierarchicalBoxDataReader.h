@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkXMLHierarchicalBoxDataReader();
-  ~vtkXMLHierarchicalBoxDataReader();  
+  ~vtkXMLHierarchicalBoxDataReader();
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName();
@@ -50,16 +50,16 @@ protected:
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  virtual void ReadComposite(vtkXMLDataElement* element, 
-    vtkCompositeDataSet* composite, const char* filePath, 
+  virtual void ReadComposite(vtkXMLDataElement* element,
+    vtkCompositeDataSet* composite, const char* filePath,
     unsigned int &dataSetIndex);
 
   // Read the vtkDataSet (a leaf) in the composite dataset.
   virtual vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath);
 
   // Read v0.1
-  virtual void ReadVersion0(vtkXMLDataElement* element, 
-    vtkCompositeDataSet* composite, const char* filePath, 
+  virtual void ReadVersion0(vtkXMLDataElement* element,
+    vtkCompositeDataSet* composite, const char* filePath,
     unsigned int &dataSetIndex);
 
   // Description:

@@ -35,7 +35,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkHandleWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- focal point is being selected
@@ -83,7 +83,7 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkHandleRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkHandleRepresentation.
   vtkHandleRepresentation *GetHandleRepresentation()
@@ -93,7 +93,7 @@ public:
   // Create the default widget representation if one is not set. By default
   // an instance of vtkPointHandleRepresenation3D is created.
   void CreateDefaultRepresentation();
-  
+
   // Description:
   // Enable / disable axis constrained motion of the handles. By default the
   // widget responds to the shift modifier to constrain the handle along the
@@ -116,7 +116,7 @@ public:
   //BTX - manage the state of the widget
   enum _WidgetState {Start=0,Active};
   //ETX
-  
+
 protected:
   vtkHandleWidget();
   ~vtkHandleWidget();

@@ -15,8 +15,8 @@
 // .NAME vtkPlane - perform various plane computations
 // .SECTION Description
 // vtkPlane provides methods for various plane computations. These include
-// projecting points onto a plane, evaluating the plane equation, and 
-// returning plane normal. vtkPlane is a concrete implementation of the 
+// projecting points onto a plane, evaluating the plane equation, and
+// returning plane normal. vtkPlane is a concrete implementation of the
 // abstract class vtkImplicitFunction.
 
 #ifndef __vtkPlane_h
@@ -51,7 +51,7 @@ public:
   vtkGetVectorMacro(Normal,double,3);
 
   // Description:
-  // Set/get point through which plane passes. Plane is defined by point 
+  // Set/get point through which plane passes. Plane is defined by point
   // and normal.
   vtkSetVector3Macro(Origin,double);
   vtkGetVectorMacro(Origin,double,3);
@@ -63,10 +63,10 @@ public:
   void Push(double distance);
 
   // Description
-  // Project a point x onto plane defined by origin and normal. The 
+  // Project a point x onto plane defined by origin and normal. The
   // projected point is returned in xproj. NOTE : normal assumed to
   // have magnitude 1.
-  static void ProjectPoint(double x[3], double origin[3], double normal[3], 
+  static void ProjectPoint(double x[3], double origin[3], double normal[3],
                            double xproj[3]);
   void ProjectPoint(double x[3], double xproj[3]);
 
@@ -78,14 +78,14 @@ public:
   void ProjectVector(double v[3], double vproj[3]);
 
   // Description
-  // Project a point x onto plane defined by origin and normal. The 
-  // projected point is returned in xproj. NOTE : normal does NOT have to 
+  // Project a point x onto plane defined by origin and normal. The
+  // projected point is returned in xproj. NOTE : normal does NOT have to
   // have magnitude 1.
   static void GeneralizedProjectPoint(double x[3], double origin[3],
                                       double normal[3], double xproj[3]);
   void GeneralizedProjectPoint(double x[3], double xproj[3]);
 
-  
+
   // Description:
   // Quick evaluation of plane equation n(x-origin)=0.
   static double Evaluate(double normal[3], double origin[3], double x[3]);
@@ -95,15 +95,15 @@ public:
   // normal n[3] must be magnitude=1.
   static double DistanceToPlane(double x[3], double n[3], double p0[3]);
   double DistanceToPlane(double x[3]);
-  
+
   // Description:
   // Given a line defined by the two points p1,p2; and a plane defined by the
   // normal n and point p0, compute an intersection. The parametric
-  // coordinate along the line is returned in t, and the coordinates of 
+  // coordinate along the line is returned in t, and the coordinates of
   // intersection are returned in x. A zero is returned if the plane and line
   // do not intersect between (0<=t<=1). If the plane and line are parallel,
   // zero is returned and t is set to VTK_LARGE_DOUBLE.
-  static int IntersectWithLine(double p1[3], double p2[3], double n[3], 
+  static int IntersectWithLine(double p1[3], double p2[3], double n[3],
                                double p0[3], double& t, double x[3]);
   int IntersectWithLine(double p1[3], double p2[3], double& t, double x[3]);
 
@@ -119,17 +119,17 @@ private:
   void operator=(const vtkPlane&);  // Not implemented.
 };
 
-inline double vtkPlane::Evaluate(double normal[3], 
+inline double vtkPlane::Evaluate(double normal[3],
                                  double origin[3], double x[3])
 {
-  return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
+  return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) +
          normal[2]*(x[2]-origin[2]);
 }
 
 inline double vtkPlane::DistanceToPlane(double x[3], double n[3], double p0[3])
 {
 #define vtkPlaneAbs(x) ((x)<0?-(x):(x))
-  return (vtkPlaneAbs(n[0]*(x[0]-p0[0]) + n[1]*(x[1]-p0[1]) + 
+  return (vtkPlaneAbs(n[0]*(x[0]-p0[0]) + n[1]*(x[1]-p0[1]) +
                       n[2]*(x[2]-p0[2])));
 }
 

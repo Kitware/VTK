@@ -43,13 +43,13 @@ public:
   // \pre: motionInfo_exist: motionInfo!=0
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
   //ETX
-  
+
 protected:
   vtkTDxInteractorStyleCamera();
   virtual ~vtkTDxInteractorStyleCamera();
-  
+
   vtkTransform *Transform; // Used for internal intermediate calculation.
-  
+
 private:
   vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&);  // Not implemented.
   void operator=(const vtkTDxInteractorStyleCamera&);  // Not implemented.

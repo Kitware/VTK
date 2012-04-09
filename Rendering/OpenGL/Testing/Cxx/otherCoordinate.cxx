@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests vtkCoordinate
 
@@ -26,7 +26,7 @@
 
 #include "vtkDebugLeaks.h"
 
-void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1, 
+void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1,
             double *from)
 {
   double *value;
@@ -39,14 +39,14 @@ void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1,
   strm << *c1;
   value = c1->GetComputedWorldValue (ren1);
   strm << whichCoord <<"(" << from[0] << ", " << from[1] << ", " << from[2]
-       << ") -> World(" << value[0] << ", " << value[1] << ", " << value[2] 
+       << ") -> World(" << value[0] << ", " << value[1] << ", " << value[2]
        << ")" << endl;
   ivalue = c1->GetComputedDisplayValue (ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2]
        << ") -> Display(" << ivalue[0] << ", " << ivalue[1] << ")" << endl;
   ivalue = c1->GetComputedLocalDisplayValue (ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2]
-       << ") -> LocalDisplay(" << ivalue[0] << ", " << ivalue[1] 
+       << ") -> LocalDisplay(" << ivalue[0] << ", " << ivalue[1]
        << ")" << endl;
   ivalue = c1->GetComputedViewportValue (ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2]
@@ -64,100 +64,100 @@ int Test(ostream& strm)
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkCamera *camera = vtkCamera::New();
   double from[3];
-  
+
   ren1->SetActiveCamera (camera);
   renWin->AddRenderer (ren1);
   renWin->SetSize (100, 100);
-  
+
   strm << "Origin: (" << ren1->GetOrigin()[0] << ", " << ren1->GetOrigin()[1] << ")" << endl;
   strm << "Center: (" << ren1->GetCenter()[0] << ", " << ren1->GetOrigin()[1] << ")" << endl;
 
   strm << endl << "********** A NULL Viewport **********" << endl;
-  
+
   c1->SetCoordinateSystemToWorld();
   from[0] = 0.0; from[1] = 0.0; from[2] = 0.0;
-  ToAll (strm, c1, ren1, from);  
+  ToAll (strm, c1, ren1, from);
 
   c1->SetCoordinateSystemToDisplay();
   from[0] = 50; from[1] = 50; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToNormalizedDisplay();
   from[0] = .5; from[1] = .5; from[2] = 0.0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToViewport();
   from[0] = 50; from[1] = 50; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToNormalizedViewport();
   from[0] = .5; from[1] = .5; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToView();
   from[0] = 0.0; from[1] = 0.0; from[2] = 0.0;
   ToAll (strm, c1, ren1, from);
-  
+
   strm << endl << "********** A specified Viewport **********" << endl;
   c1->SetViewport (ren1);
-  
+
   c1->SetCoordinateSystemToWorld();
   from[0] = 0.0; from[1] = 0.0; from[2] = 0.0;
-  ToAll (strm, c1, ren1, from);  
+  ToAll (strm, c1, ren1, from);
 
   c1->SetCoordinateSystemToDisplay();
   from[0] = 50; from[1] = 50; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToNormalizedDisplay();
   from[0] = .5; from[1] = .5; from[2] = 0.0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToViewport();
   from[0] = 50; from[1] = 50; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToNormalizedViewport();
   from[0] = .5; from[1] = .5; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToView();
   from[0] = 0.0; from[1] = 0.0; from[2] = 0.0;
   ToAll (strm, c1, ren1, from);
-  
+
   strm << endl << "********** With a Reference Coordinate **********" << endl;
 
   c2->SetCoordinateSystemToNormalizedDisplay();
   c2->SetCoordinateSystemToWorld();
   c2->SetValue (0.0, 0.0, 0.0);
   c1->SetReferenceCoordinate (c2);
-  
+
   strm << *c2;
-  
+
   c1->SetCoordinateSystemToWorld();
   from[0] = 0.0; from[1] = 0.0; from[2] = 0.0;
-  ToAll (strm, c1, ren1, from);  
+  ToAll (strm, c1, ren1, from);
 
   c1->SetCoordinateSystemToDisplay();
   from[0] = 50; from[1] = 50; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToNormalizedDisplay();
   from[0] = .5; from[1] = .5; from[2] = 0.0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToViewport();
   from[0] = 50; from[1] = 50; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToNormalizedViewport();
   from[0] = .5; from[1] = .5; from[2] = 0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->SetCoordinateSystemToView();
   from[0] = 0.0; from[1] = 0.0; from[2] = 0.0;
   ToAll (strm, c1, ren1, from);
-  
+
   c1->Delete ();
   c2->Delete ();
   renWin->Delete ();
@@ -170,7 +170,7 @@ int Test(ostream& strm)
 
 int otherCoordinate(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return Test(vtkmsg_with_warning_C4701);
 }
 

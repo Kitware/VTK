@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkLinkEdgels);
 
-// Construct instance of vtkLinkEdgels with GradientThreshold set to 
+// Construct instance of vtkLinkEdgels with GradientThreshold set to
 // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
 vtkLinkEdgels::vtkLinkEdgels()
 {
@@ -60,7 +60,7 @@ int vtkLinkEdgels::RequestData(
   double *CurrMap, *inDataPtr;
   vtkDataArray *inVectors;
   int ptId;
-  
+
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   pd = input->GetPointData();
@@ -90,11 +90,11 @@ int vtkLinkEdgels::RequestData(
   for (ptId=0; ptId < dimensions[2]; ptId++)
     {
     CurrMap = inDataPtr + dimensions[0]*dimensions[1]*ptId;
-    
+
     this->LinkEdgels(dimensions[0],dimensions[1],CurrMap, inVectors,
                      newLines,newPts,outScalars,outVectors,ptId);
     }
-  
+
   output->SetPoints(newPts);
   output->SetLines(newLines);
 
@@ -102,7 +102,7 @@ int vtkLinkEdgels::RequestData(
 //  outScalars->ComputeRange();
   output->GetPointData()->SetScalars(outScalars);
   output->GetPointData()->SetVectors(outVectors);
-  
+
   newPts->Delete();
   newLines->Delete();
   outScalars->Delete();
@@ -111,12 +111,12 @@ int vtkLinkEdgels::RequestData(
   return 1;
 }
 
-// This method links the edges for one image. 
-void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image, 
+// This method links the edges for one image.
+void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
                                vtkDataArray *inVectors,
-                               vtkCellArray *newLines, 
+                               vtkCellArray *newLines,
                                vtkPoints *newPts,
-                               vtkDoubleArray *outScalars, 
+                               vtkDoubleArray *outScalars,
                                vtkDoubleArray *outVectors,
                                int z)
 {
@@ -133,7 +133,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
     {0,1},  {-0.707, 0.707},
     {-1,0}, {-0.707, -0.707},
     {0,-1}, {0.707, -0.707},
-    {1,0},  {0.707, 0.707}}; 
+    {1,0},  {0.707, 0.707}};
   static int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
   static int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
   int length, start;
@@ -170,14 +170,14 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
       else
         {
         // try all neighbors as forward, first try four connected
-        inVectors->GetTuple(x+ypos+zpos,vec1); 
-        vtkMath::Normalize(vec1); 
+        inVectors->GetTuple(x+ypos+zpos,vec1);
+        vtkMath::Normalize(vec1);
         // first eliminate based on phi1 - alpha
         bestError = 0;
         for (i = 0; i < 8; i += 2)
           {
           // make sure it passes the linkThresh test
-          if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >= 
+          if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >=
               linkThresh)
             {
             // make sure we dont go off the edge and are >= GradientThresh
@@ -186,17 +186,17 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
                 (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
                 (!backward[y+yoffset[i]][x+xoffset[i]])&&
                 (image[x + xoffset[i] + (y+yoffset[i])*xdim] >=
-                 this->GradientThreshold)) 
+                 this->GradientThreshold))
               {
               // satisfied the first test, now check second
-              inVectors->GetTuple(x + xoffset[i] + 
-                                   (y + yoffset[i])*xdim + zpos,vec2); 
-              vtkMath::Normalize(vec2); 
+              inVectors->GetTuple(x + xoffset[i] +
+                                   (y + yoffset[i])*xdim + zpos,vec2);
+              vtkMath::Normalize(vec2);
               if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
                 {
                 // passed phi - phi test does the forward neighbor
                 // pass the link test
-                if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >= 
+                if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >=
                     linkThresh)
                   {
                   // check against the current best solution
@@ -216,7 +216,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
         if (bestError > 0)
           {
           forward[y][x] = (bestDirection+1);
-          backward[y+yoffset[bestDirection]][x+xoffset[bestDirection]] 
+          backward[y+yoffset[bestDirection]][x+xoffset[bestDirection]]
             = ((bestDirection+4)%8)+1;
           }
         else
@@ -225,7 +225,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           for (i = 1; i < 8; i += 2)
             {
             // make sure it passes the linkThresh test
-            if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >= 
+            if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >=
                 linkThresh)
               {
               // make sure we dont go off the edge and are >= GradientThresh
@@ -234,17 +234,17 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
                   (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
                   (!backward[y+yoffset[i]][x+xoffset[i]])&&
                   (image[x + xoffset[i] + (y+yoffset[i])*xdim] >=
-                   this->GradientThreshold)) 
+                   this->GradientThreshold))
                 {
                 // satisfied the first test, now check second
-                inVectors->GetTuple(x + xoffset[i] + 
-                                     (y + yoffset[i])*xdim + zpos,vec2); 
-                vtkMath::Normalize(vec2); 
+                inVectors->GetTuple(x + xoffset[i] +
+                                     (y + yoffset[i])*xdim + zpos,vec2);
+                vtkMath::Normalize(vec2);
                 if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
                   {
                   // passed phi - phi test does the forward neighbor
                   // pass the link test
-                  if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >= 
+                  if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >=
                       linkThresh)
                     {
                     // check against the current best solution
@@ -264,14 +264,14 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           if (bestError > 0)
             {
             forward[y][x] = (bestDirection+1);
-            backward[y+yoffset[bestDirection]][x+xoffset[bestDirection]] 
+            backward[y+yoffset[bestDirection]][x+xoffset[bestDirection]]
               = ((bestDirection+4)%8)+1;
             }
           }
         }
       }
     }
-  
+
 
   // now construct the chains
   vec[2] = z;
@@ -305,8 +305,8 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           currX = newX;
           currY = newY;
           outScalars->InsertNextTuple(&(image[currX + currY*xdim]));
-          inVectors->GetTuple(currX+currY*xdim+zpos,vec2); 
-          vtkMath::Normalize(vec2); 
+          inVectors->GetTuple(currX+currY*xdim+zpos,vec2);
+          vtkMath::Normalize(vec2);
           outVectors->InsertNextTuple(vec2);
           vec[0] = currX;
           vec[1] = currY;
@@ -324,7 +324,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           forward[currY][currX] = 0;
           }
         while ((currX != newX || currY != newY));
-        
+
         // build up the cell
         newLines->InsertNextCell(length);
         for (i = 0; i < length; i++)

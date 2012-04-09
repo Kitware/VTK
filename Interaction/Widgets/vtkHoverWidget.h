@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHoverWidget - invoke a vtkTimerEvent when hovering 
-// .SECTION Description 
+// .NAME vtkHoverWidget - invoke a vtkTimerEvent when hovering
+// .SECTION Description
 // The vtkHoverWidget is used to invoke an event when hovering in a render window.
 // Hovering occurs when mouse motion (in the render window) does not occur
 // for a specified amount of time (i.e., TimerDuration). This class can be used
 // as is (by observing TimerEvents) or for class derivation for those classes
 // wishing to do more with the hover event.
-// 
+//
 // To use this widget, specify an instance of vtkHoverWidget and specify the
 // time (in milliseconds) defining the hover period. Unlike most widgets,
 // this widget does not require a representation (although subclasses like
@@ -38,17 +38,17 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkHoverWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Move -- start (or reset) the timer
 //   vtkWidgetEvent::TimedOut -- when enough time is elapsed between defined
 //                               VTK events the hover event is invoked.
-//   vtkWidgetEvent::SelectAction -- activate any callbacks associated 
+//   vtkWidgetEvent::SelectAction -- activate any callbacks associated
 //                                   with the balloon.
 // </pre>
 //
-// This widget invokes the following VTK events on itself when the widget 
+// This widget invokes the following VTK events on itself when the widget
 // determines that it is hovering. Note that observers of this widget can
 // listen for these events and take appropriate action.
 // <pre>
@@ -88,7 +88,7 @@ public:
   // vtkTimerEvent::TimerEvent is invoked.
   vtkSetClampMacro(TimerDuration,int,1,100000);
   vtkGetMacro(TimerDuration,int);
-  
+
   // Description:
   // The method for activating and deactivating this widget. This method
   // must be overridden because it performs special timer-related operations.
@@ -115,18 +115,18 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void HoverAction(vtkAbstractWidget*);
   static void SelectAction(vtkAbstractWidget*);
-  
+
   // Subclasses of this class invoke these methods. If a non-zero
   // value is returned, a subclass is handling the event.
   virtual int SubclassHoverAction() {return 0;}
   virtual int SubclassEndHoverAction() {return 0;}
   virtual int SubclassSelectAction() {return 0;}
-  
+
   // Description:
   // Helper methods for creating and destroying timers.
   int TimerId;
   int TimerDuration;
-  
+
 private:
   vtkHoverWidget(const vtkHoverWidget&);  //Not implemented
   void operator=(const vtkHoverWidget&);  //Not implemented

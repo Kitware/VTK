@@ -36,8 +36,8 @@ vtkTransmitImageDataPiece::vtkTransmitImageDataPiece()
   this->Controller = NULL;
   this->CreateGhostCells = 1;
   this->SetNumberOfInputPorts(1);
-  this->SetController(vtkMultiProcessController::GetGlobalController());  
-  if (this->Controller) 
+  this->SetController(vtkMultiProcessController::GetGlobalController());
+  if (this->Controller)
     {
     if (this->Controller->GetLocalProcessId() != 0)
       {
@@ -58,11 +58,11 @@ int vtkTransmitImageDataPiece::RequestInformation(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->Controller == NULL) 
+  if (this->Controller == NULL)
     {
     return 1;
     }
-  else 
+  else
     {
     int wExtent[6] = {0,-1,0,-1,0,-1};
     int dims[3];
@@ -96,7 +96,7 @@ int vtkTransmitImageDataPiece::RequestInformation(
     else
       {
       //Satellites ask root for meta-info, because they do not read it themselves.
-      
+
       this->Controller->Receive(wExtent, 6, 0, 22342);
       this->Controller->Receive(dims, 3, 0, 22342);
       this->Controller->Receive(spacing, 3, 0, 22342);
@@ -131,20 +131,20 @@ int vtkTransmitImageDataPiece::RequestUpdateExtent(
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 
+                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                 6);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 0);
     return 1;
     }
-  
+
   if (this->Controller->GetLocalProcessId() == 0)
     { // Request everything.
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 
+                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                 6);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
@@ -157,7 +157,7 @@ int vtkTransmitImageDataPiece::RequestUpdateExtent(
   return 1;
 }
 
-  
+
 //----------------------------------------------------------------------------
 int vtkTransmitImageDataPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -220,7 +220,7 @@ void vtkTransmitImageDataPiece::RootExecute(vtkImageData *input,
   int ext[7];
   int numProcs, i;
 
-  int outExtent[6];  
+  int outExtent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExtent);
 
   vtkStreamingDemandDrivenPipeline *extractExecutive =
@@ -302,9 +302,9 @@ void vtkTransmitImageDataPiece::SatelliteExecute(
   int usizek = uExtent[5]-uExtent[4]+1;
   int usizej = uExtent[3]-uExtent[2]+1;
   int usizei = uExtent[1]-uExtent[0]+1;
-  int usize  = usizek*usizej*usizei; 
+  int usize  = usizek*usizej*usizei;
 
-  vtkPointData *ipd = tmp->GetPointData();  
+  vtkPointData *ipd = tmp->GetPointData();
   vtkPointData *opd = output->GetPointData();
   opd->CopyAllocate(ipd, usize, 1000);
 
@@ -314,19 +314,19 @@ void vtkTransmitImageDataPiece::SatelliteExecute(
 
   vtkIdType ptCtr = 0;
   vtkIdType clCtr = 0;
-  for (int k = uExtent[4]; k <= uExtent[5]; k++) 
+  for (int k = uExtent[4]; k <= uExtent[5]; k++)
     {
-    for (int j = uExtent[2]; j <= uExtent[3]; j++) 
+    for (int j = uExtent[2]; j <= uExtent[3]; j++)
       {
-      for (int i = uExtent[0]; i <= uExtent[1]; i++) 
+      for (int i = uExtent[0]; i <= uExtent[1]; i++)
         {
         int ijk[3] = {i,j,k};
         vtkIdType oPointId = output->ComputePointId(ijk);
-        opd->CopyData(ipd, ptCtr++, oPointId); 
+        opd->CopyData(ipd, ptCtr++, oPointId);
         vtkIdType oCellId = output->ComputeCellId(ijk);
         ocd->CopyData(icd, clCtr++, oCellId);
         }
-      }        
+      }
     }
 
   //copy in retrieved field data
@@ -345,9 +345,9 @@ void vtkTransmitImageDataPiece::SatelliteExecute(
 void vtkTransmitImageDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
-  
+
   os << indent << "Controller: (" << this->Controller << ")\n";
 
 }

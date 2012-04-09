@@ -54,7 +54,7 @@
 // operations like clipping that require compatible triangulations across
 // 3D cell faces. (See vtkClipVolume for an example.)
 //
-// A special feature of this class is that it can generate triangulation 
+// A special feature of this class is that it can generate triangulation
 // templates on the fly. If template triangulation is enabled, then the
 // ordered triangulator will first triangulate the cell using the slower
 // ordered Delaunay approach, and then store the result as a template.
@@ -102,7 +102,7 @@ typedef unsigned short  TemplateIDType;
 typedef unsigned int    TemplateIDType;
 #elif VTK_SIZEOF_LONG == 4
 typedef unsigned long   TemplateIDType;
-#endif    
+#endif
 
 class VTKCOMMONDATAMODEL_EXPORT vtkOrderedTriangulator : public vtkObject
 {
@@ -139,9 +139,9 @@ public:
   // parametric coordinate p[3] and creates tetras with the global coordinate
   // x[3]. The parametric coordinates and global coordinates may be the same.)
   vtkIdType InsertPoint(vtkIdType id, double x[3], double p[3], int type);
-  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, double x[3], 
+  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, double x[3],
                         double p[3], int type);
-  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid,  vtkIdType sortid2, 
+  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid,  vtkIdType sortid2,
                         double x[3], double p[3], int type);
 
   // Description:
@@ -152,14 +152,14 @@ public:
   void TemplateTriangulate(int cellType, int numPts, int numEdges);
 
   // Description:
-  // Update the point type. This is useful when the merging of nearly 
+  // Update the point type. This is useful when the merging of nearly
   // coincident points is performed. The id is the internal id returned
   // from InsertPoint(). The method should be invoked prior to the
-  // Triangulate method. The type is specified as inside (type=0), 
+  // Triangulate method. The type is specified as inside (type=0),
   // outside (type=1), or on the boundary (type=2).
   // \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
   void UpdatePointType(vtkIdType internalId, int type);
-  
+
   // Description:
   // Return the parametric coordinates of point `internalId'.
   // It assumes that the point has already been inserted.
@@ -173,7 +173,7 @@ public:
   // The method should be invoked prior to the Triangulate method.
   // \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
   double *GetPointLocation(vtkIdType internalId);
-  
+
   // Description:
   // Return the Id of point `internalId'. This id is the one passed in
   // argument of InsertPoint.
@@ -185,19 +185,19 @@ public:
   // Description:
   // Return the number of inserted points.
   vtkGetMacro(NumberOfPoints,int);
-  
+
   // Description:
   // If this flag is set, then the ordered triangulator will create
   // and use templates for the triangulation. To use templates, the
   // TemplateTriangulate() method should be called when appropriate.
-  // (Note: the TemplateTriangulate() method works for complete 
+  // (Note: the TemplateTriangulate() method works for complete
   // (interior) cells without extra points due to intersection, etc.)
   vtkSetMacro(UseTemplates,int);
   vtkGetMacro(UseTemplates,int);
   vtkBooleanMacro(UseTemplates,int);
 
   // Description:
-  // Boolean indicates whether the points have been pre-sorted. If 
+  // Boolean indicates whether the points have been pre-sorted. If
   // pre-sorted is enabled, the points are not sorted on point id.
   // By default, presorted is off. (The point id is defined in
   // InsertPoint().)
@@ -223,26 +223,26 @@ public:
   // "outside."  The method returns the number of tetrahedrahedron of the
   // type requested.
   vtkIdType GetTetras(int classification, vtkUnstructuredGrid *ugrid);
-  
+
   // Description:
   // Add the tetras to the unstructured grid provided. The unstructured
   // grid is assumed to have been initialized (with Allocate()) and
   // points set (with SetPoints()). The tetrahdera added are of the type
-  // specified (0=inside,1=outside,2=all). Inside tetrahedron are 
-  // those whose points are classified "inside" or on the "boundary." 
-  // Outside tetrahedron have at least one point classified "outside." 
-  // The method returns the number of tetrahedrahedron of the type 
+  // specified (0=inside,1=outside,2=all). Inside tetrahedron are
+  // those whose points are classified "inside" or on the "boundary."
+  // Outside tetrahedron have at least one point classified "outside."
+  // The method returns the number of tetrahedrahedron of the type
   // requested.
   vtkIdType AddTetras(int classification, vtkUnstructuredGrid *ugrid);
-  
+
   // Description:
   // Add the tetrahedra classified (0=inside,1=outside) to the connectivity
   // list provided. Inside tetrahedron are those whose points are all
   // classified "inside." Outside tetrahedron have at least one point
   // classified "outside." The method returns the number of tetrahedron
-  // of the type requested.    
+  // of the type requested.
   vtkIdType AddTetras(int classification, vtkCellArray *connectivity);
-  
+
   // Description:
   // Assuming that all the inserted points come from a cell `cellId' to
   // triangulate, get the tetrahedra in outConnectivity, the points in locator
@@ -267,23 +267,23 @@ public:
   // of ids and coordinates provided. These assume that the first four points
   // form a tetrahedron, the next four the next, and so on.
   vtkIdType AddTetras(int classification, vtkIdList *ptIds, vtkPoints *pts);
-  
+
   // Description:
   // Add the triangle faces classified (2=boundary) to the connectivity
   // list provided. The method returns the number of triangles.
   vtkIdType AddTriangles(vtkCellArray *connectivity);
-  
+
   // Description:
   // Add the triangle faces classified (2=boundary) and attached to the
   // specified point id to the connectivity list provided. (The id is the
-  // same as that specified in InsertPoint().)  
+  // same as that specified in InsertPoint().)
   vtkIdType AddTriangles(vtkIdType id, vtkCellArray *connectivity);
-  
+
   // Description:
   // Methods to get one tetra at a time. Start with InitTetraTraversal()
   // and then invoke GetNextTetra() until the method returns 0.
   void InitTetraTraversal();
-  
+
   // Description:
   // Methods to get one tetra at a time. Start with InitTetraTraversal()
   // and then invoke GetNextTetra() until the method returns 0.
@@ -296,7 +296,7 @@ public:
   // \pre tetScalars_valid_size: tetScalars->GetNumberOfTuples()==4
   int  GetNextTetra(int classification, vtkTetra *tet,
                     vtkDataArray *cellScalars, vtkDoubleArray *tetScalars);
-  
+
 protected:
   vtkOrderedTriangulator();
   ~vtkOrderedTriangulator();
@@ -322,7 +322,7 @@ private:
   int             TemplateTriangulation();
   void            AddTemplate();
   TemplateIDType  ComputeTemplateIndex();
-    
+
 private:
   vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
   void operator=(const vtkOrderedTriangulator&);  // Not implemented.

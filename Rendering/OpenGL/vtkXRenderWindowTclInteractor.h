@@ -68,7 +68,7 @@ protected:
   vtkXRenderWindowTclInteractor();
   ~vtkXRenderWindowTclInteractor();
 
-  // Description: 
+  // Description:
   // Tcl/Tk specific internal timer methods. See the superclass for detailed
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);

@@ -90,9 +90,9 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->Internal = new vtkInternal;
 
   this->RMICount = 1;
-  
+
   this->SingleMethod = 0;
-  this->SingleData = 0;   
+  this->SingleData = 0;
 
   this->Communicator = 0;
   this->RMICommunicator = 0;
@@ -125,16 +125,16 @@ vtkMultiProcessController::~vtkMultiProcessController()
   delete this->Internal;
 }
 
- 
+
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   vtkIndent nextIndent = indent.GetNextIndent();
-  
-  os << indent << "Break flag: " << (this->BreakFlag ? "(yes)" : "(no)") 
+
+  os << indent << "Break flag: " << (this->BreakFlag ? "(yes)" : "(no)")
      << endl;
-  os << indent << "Force deep copy: " << (this->ForceDeepCopy ? "(yes)" : "(no)") 
+  os << indent << "Force deep copy: " << (this->ForceDeepCopy ? "(yes)" : "(no)")
      << endl;
   os << indent << "Output window: ";
   if (this->OutputWindow)
@@ -210,7 +210,7 @@ int vtkMultiProcessController::GetLocalProcessId()
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f, 
+void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f,
                                                  void *data )
 {
   this->SingleMethod = f;
@@ -230,11 +230,11 @@ void vtkMultiProcessController::SetSingleProcessObject(vtkProcess *p)
 // required user defined methods
 void vtkMultiProcessController::SetMultipleMethod( int index,
                                  vtkProcessFunctionType f, void *data )
-{ 
+{
   // You can only set the method for 0 through NumberOfProcesses-1
   if ( index >= this->GetNumberOfProcesses() )
     {
-    vtkErrorMacro( << "Can't set method " << index << 
+    vtkErrorMacro( << "Can't set method " << index <<
       " with a processes count of " << this->GetNumberOfProcesses() );
     }
   else
@@ -415,7 +415,7 @@ int vtkMultiProcessController::RemoveRMI(unsigned long id)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkMultiProcessController::AddRMI(vtkRMIFunctionType f, 
+unsigned long vtkMultiProcessController::AddRMI(vtkRMIFunctionType f,
                                        void *localArg, int tag)
 {
   // Remove any previously registered RMI handler for the tag.
@@ -428,7 +428,7 @@ void vtkMultiProcessController::TriggerRMIOnAllChildren(
   void *arg, int argLength, int rmiTag)
 {
   int myid = this->GetLocalProcessId();
-  int childid = 2 * myid + 1; 
+  int childid = 2 * myid + 1;
   int numProcs = this->GetNumberOfProcesses();
   if (numProcs > childid)
     {
@@ -442,7 +442,7 @@ void vtkMultiProcessController::TriggerRMIOnAllChildren(
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::TriggerRMI(int remoteProcessId, 
+void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
                                            void *arg, int argLength,
                                            int rmiTag)
 {
@@ -457,18 +457,18 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId,
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId, 
+void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
     void* arg, int argLength, int rmiTag, bool propagate)
 {
   int triggerMessage[128];
   triggerMessage[0] = rmiTag;
   triggerMessage[1] = argLength;
-  
+
   // It is important for the remote process to know what process invoked it.
   // Multiple processes might try to invoke the method at the same time.
   // The remote method will know where to get additional args.
   triggerMessage[2] = this->GetLocalProcessId();
-  
+
   // Pass the propagate flag.
   triggerMessage[3] = propagate? 1 : 0;
 
@@ -492,11 +492,11 @@ void vtkMultiProcessController::TriggerRMIInternal(int remoteProcessId,
   else
     {
     this->RMICommunicator->Send(
-      reinterpret_cast<unsigned char*>(triggerMessage), 
+      reinterpret_cast<unsigned char*>(triggerMessage),
       static_cast<int>(4*sizeof(int)), remoteProcessId, RMI_TAG);
     if (argLength > 0)
       {
-      this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,  
+      this->RMICommunicator->Send((char*)arg, argLength, remoteProcessId,
         RMI_ARG_TAG);
       }
     }
@@ -533,11 +533,11 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
   int triggerMessage[128];
   unsigned char *arg = NULL;
   int error = RMI_NO_ERROR;
-  
-  do 
+
+  do
     {
     if (!this->RMICommunicator->Receive(
-        reinterpret_cast<unsigned char*>(triggerMessage), 
+        reinterpret_cast<unsigned char*>(triggerMessage),
         static_cast<vtkIdType>(128*sizeof(int)), ANY_SOURCE, RMI_TAG) ||
       this->RMICommunicator->GetCount() < static_cast<int>(4*sizeof(int)))
       {
@@ -576,7 +576,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
         }
       else
         {
-        if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
+        if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1],
             triggerMessage[2], RMI_ARG_TAG) ||
           this->RMICommunicator->GetCount() != triggerMessage[1])
           {
@@ -593,7 +593,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       {
       this->TriggerRMIOnAllChildren(arg, triggerMessage[1], triggerMessage[0]);
       }
-    this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1], 
+    this->ProcessRMI(triggerMessage[2], arg, triggerMessage[1],
       triggerMessage[0]);
     if (arg)
       {
@@ -615,7 +615,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
 
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::ProcessRMI(int remoteProcessId, 
+void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
                                            void *arg, int argLength,
                                            int rmiTag)
 {
@@ -640,10 +640,10 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
 
   if (callbacks.size()==0)
     {
-    vtkErrorMacro("Process " << this->GetLocalProcessId() << 
+    vtkErrorMacro("Process " << this->GetLocalProcessId() <<
                   " Could not find RMI with tag " << rmiTag);
     }
-  
+
   std::vector<vtkInternal::vtkRMICallback>::iterator citer;
   for (citer = callbacks.begin(); citer != callbacks.end(); citer++)
     {
@@ -661,7 +661,7 @@ vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
     {
     return NULL;
     }
-  
+
   return VTK_GLOBAL_MULTI_PROCESS_CONTROLLER->GetLocalController();
 }
 //----------------------------------------------------------------------------

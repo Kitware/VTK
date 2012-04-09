@@ -32,18 +32,18 @@ public:
   static vtkDummyGPUInfoList* New();
   vtkTypeMacro(vtkDummyGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Build the list of vtkInfoGPU if not done yet.
   // \post probed: IsProbed()
   virtual void Probe();
-  
+
 protected:
   // Description:
   // Default constructor.
   vtkDummyGPUInfoList();
   virtual ~vtkDummyGPUInfoList();
-  
+
 private:
   vtkDummyGPUInfoList(const vtkDummyGPUInfoList&); // Not implemented.
   void operator=(const vtkDummyGPUInfoList&); // Not implemented.

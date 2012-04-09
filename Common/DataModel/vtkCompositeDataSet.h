@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataSet - abstract superclass for composite 
+// .NAME vtkCompositeDataSet - abstract superclass for composite
 // (multi-block or AMR) datasets
 // .SECTION Description
 // vtkCompositeDataSet is an abstract class that represents a collection
@@ -20,7 +20,7 @@
 // provides an interface to access the datasets through iterators.
 // vtkCompositeDataSet provides methods that are used by subclasses to store the
 // datasets.
-// vtkCompositeDataSet provides the datastructure for a full tree 
+// vtkCompositeDataSet provides the datastructure for a full tree
 // representation. Subclasses provide the semantics for it and control how
 // this tree is built.
 
@@ -100,11 +100,11 @@ public:
   static vtkCompositeDataSet* GetData(vtkInformation* info);
   static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i=0);
   //ETX
-  
+
   // Description:
   // Restore data object to initial state,
   virtual void Initialize();
-  
+
   // Description:
   // Shallow and Deep copy.
   virtual void ShallowCopy(vtkDataObject *src);
@@ -115,7 +115,7 @@ public:
   // iterate over all blocks and call GetNumberOfPoints() so it
   // might be expansive.
   virtual vtkIdType GetNumberOfPoints();
-  
+
   // Description:
   // Key used to put node name in the meta-data associated with a node.
   static vtkInformationStringKey* NAME();
@@ -143,11 +143,11 @@ protected:
 
   // Description:
   // Set child dataset at a given index. The number of children is adjusted to
-  // to be greater than the index specified. 
+  // to be greater than the index specified.
   void SetChild(unsigned int index, vtkDataObject*);
 
   // Description:
-  // Remove the child at a given index. 
+  // Remove the child at a given index.
   void RemoveChild(unsigned int index);
 
   // Description:
@@ -161,7 +161,7 @@ protected:
   vtkInformation* GetChildMetaData(unsigned int index);
 
   // Description:
-  // Sets the meta-data at a given index. 
+  // Sets the meta-data at a given index.
   void SetChildMetaData(unsigned int index, vtkInformation* info);
 
   // Description:

@@ -29,7 +29,7 @@
 // (pixel) coordinates in which the visible points must lie. This can be
 // used as a sort of local "brushing" operation to select just data within
 // a window.
-// 
+//
 
 // .SECTION Caveats
 // You must carefully synchronize the execution of this filter. The

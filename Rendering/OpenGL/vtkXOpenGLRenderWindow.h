@@ -100,11 +100,11 @@ public:
   // Description:
   // Tells if this window is the current OpenGL context for the calling thread.
   virtual bool IsCurrent();
-  
+
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
-  // MakeCurrent() reverts to original behavior of cache-checking     
-  // on the next render.     
+  // MakeCurrent() reverts to original behavior of cache-checking
+  // on the next render.
   void SetForceMakeCurrent();
 
   // Description:
@@ -125,23 +125,23 @@ public:
     {
       return this->GetDisplayId();
     }
-  
+
   virtual void *GetGenericWindowId();
   virtual void *GetGenericParentId()
     {
       return reinterpret_cast<void *>(this->ParentId);
     }
-  
+
   virtual void *GetGenericContext();
   virtual void *GetGenericDrawable()
     {
       return reinterpret_cast<void *>(this->WindowId);
     }
-  
+
   // Description:
   // Get the current size of the screen in pixels.
   virtual int     *GetScreenSize();
-  
+
   // Description:
   // Get the position in screen coordinates (pixels) of the window.
   virtual int     *GetPosition();
@@ -151,7 +151,7 @@ public:
   Display *GetDisplayId();
 
   // Description:
-  // Set the X display id for this RenderWindow to use to a pre-existing 
+  // Set the X display id for this RenderWindow to use to a pre-existing
   // X display id.
   void     SetDisplayId(Display *);
   void     SetDisplayId(void *);
@@ -164,7 +164,7 @@ public:
   // Sets the parent of the window that WILL BE created.
   void     SetParentId(Window);
   void     SetParentId(void *);
-  
+
   // Description:
   // Get this RenderWindow's X window id.
   Window   GetWindowId();
@@ -177,7 +177,7 @@ public:
   // Description:
   // Specify the X window id to use if a WindowRemap is done.
   void     SetNextWindowId(Window);
-  
+
   // Description:
   // Set the window id of the new window once a WindowRemap is done.
   // This is the generic prototype as required by the vtkRenderWindow
@@ -190,7 +190,7 @@ public:
   // Move the window to a new position on the display.
   void     SetPosition(int,int);
   void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};
-  
+
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
@@ -206,7 +206,7 @@ public:
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
-  
+
   // Description:
   // Set this RenderWindow's X window id to a pre-existing window.
   void     SetWindowInfo(char *info);
@@ -220,9 +220,9 @@ public:
   void     SetParentInfo(char *info);
 
   // Description:
-  // This computes the size of the render window 
+  // This computes the size of the render window
   // before calling the supper classes render
-  void Render();  
+  void Render();
 
   // Description:
   // Render without displaying the window.
@@ -265,7 +265,7 @@ protected:
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int width, int height);
 
-  
+
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.

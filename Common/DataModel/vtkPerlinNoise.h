@@ -49,18 +49,18 @@ public:
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
-  // Evaluate PerlinNoise gradient.  Currently, the method returns a 0 
+  // Evaluate PerlinNoise gradient.  Currently, the method returns a 0
   // gradient.
   void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
-  // Set/get the frequency, or physical scale,  of the noise function 
+  // Set/get the frequency, or physical scale,  of the noise function
   // (higher is finer scale).  The frequency can be adjusted per axis, or
   // the same for all axes.
   vtkSetVector3Macro(Frequency,double);
   vtkGetVectorMacro(Frequency,double,3);
 
-  // Description: 
+  // Description:
   // Set/get the phase of the noise function.  This parameter can be used to
   // shift the noise function within space (perhaps to avoid a beat with a
   // noise pattern at another scale).  Phase tends to repeat about every

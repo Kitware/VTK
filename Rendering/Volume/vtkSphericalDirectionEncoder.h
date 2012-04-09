@@ -40,9 +40,9 @@ public:
 
 
   // Description:
-  // Given a normal vector n, return the encoded direction  
+  // Given a normal vector n, return the encoded direction
   int GetEncodedDirection( float n[3] );
-  
+
   // Description:
   /// Given an encoded value, return a pointer to the normal vector
   float *GetDecodedGradient( int value );
@@ -52,16 +52,16 @@ public:
   int GetNumberOfEncodedDirections( void ) { return 65536; }
 
   // Description:
-  // Get the decoded gradient table. There are 
+  // Get the decoded gradient table. There are
   // this->GetNumberOfEncodedDirections() entries in the table, each
-  // containing a normal (direction) vector. This is a flat structure - 
+  // containing a normal (direction) vector. This is a flat structure -
   // 3 times the number of directions floats in an array.
-  float *GetDecodedGradientTable( void ) 
+  float *GetDecodedGradientTable( void )
     {
       return &(this->DecodedGradientTable[0]);
     }
-  
-  
+
+
 protected:
   vtkSphericalDirectionEncoder();
   ~vtkSphericalDirectionEncoder();
@@ -72,11 +72,11 @@ protected:
   // Initialize the table at startup
   static void InitializeDecodedGradientTable();
   static int DecodedGradientTableInitialized;
-  
+
 private:
   vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&);  // Not implemented.
   void operator=(const vtkSphericalDirectionEncoder&);  // Not implemented.
-}; 
+};
 
 
 #endif

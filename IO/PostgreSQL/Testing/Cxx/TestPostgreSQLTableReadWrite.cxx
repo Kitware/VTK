@@ -54,7 +54,7 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
     cerr << "Couldn't open database.\n";
     return 1;
     }
-  
+
   if ( ! db->CreateDatabase( realDatabase.c_str(), true ) )
     {
     cerr << "Error: " << db->GetLastErrorText() << endl;
@@ -65,7 +65,7 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
     cerr << "Error: " << db->GetLastErrorText() << endl;
     return 1;
     }
-  
+
   cerr << "creating a PostgreSQL table from a vtkTable" << endl;
   vtkSmartPointer<vtkTableToPostgreSQLWriter> writerToTest =
     vtkSmartPointer<vtkTableToPostgreSQLWriter>::New();
@@ -114,7 +114,7 @@ int TestPostgreSQLTableReadWrite(int argc, char *argv[])
     cout << "Drop of \"" << realDatabase.c_str() << "\" failed.\n";
     cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
     }
-  
+
   //clean up memory
   db->Delete();
   query->Delete();

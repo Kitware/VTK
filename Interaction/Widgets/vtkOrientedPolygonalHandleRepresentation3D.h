@@ -14,13 +14,13 @@
 =========================================================================*/
 // .NAME vtkOrientedPolygonalHandleRepresentation3D - represent a user defined handle geometry in 3D while maintaining a fixed orientation w.r.t the camera.
 // .SECTION Description
-// This class serves as the geometrical representation of a vtkHandleWidget. 
+// This class serves as the geometrical representation of a vtkHandleWidget.
 // The handle can be represented by an arbitrary polygonal data (vtkPolyData),
-// set via SetHandle(vtkPolyData *). The actual position of the handle 
+// set via SetHandle(vtkPolyData *). The actual position of the handle
 // will be initially assumed to be (0,0,0). You can specify an offset from
-// this position if desired. This class differs from 
+// this position if desired. This class differs from
 // vtkPolygonalHandleRepresentation3D in that the handle will always remain
-// front facing, ie it maintains a fixed orientation with respect to the 
+// front facing, ie it maintains a fixed orientation with respect to the
 // camera. This is done by using vtkFollowers internally to render the actors.
 // .SECTION See Also
 // vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
@@ -53,7 +53,7 @@ protected:
   // Description:
   // Override the superclass method.
   virtual void UpdateHandle();
-      
+
 private:
   vtkOrientedPolygonalHandleRepresentation3D(const vtkOrientedPolygonalHandleRepresentation3D&);  //Not implemented
   void operator=(const vtkOrientedPolygonalHandleRepresentation3D&);  //Not implemented

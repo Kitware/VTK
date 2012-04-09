@@ -27,14 +27,14 @@
 //
 // This class provides a VTK interface to SQLite.  You do not need to
 // download any external libraries: we include a copy of SQLite 3.3.16
-// in VTK/Utilities/vtksqlite.  
+// in VTK/Utilities/vtksqlite.
 //
 // If you want to open a database that stays in memory and never gets
 // written to disk, pass in the URL 'sqlite://:memory:'; otherwise,
 // specifiy the file path by passing the URL 'sqlite://<file_path>'.
 //
 // .SECTION Thanks
-// Thanks to Andrew Wilson and Philippe Pebay from Sandia National 
+// Thanks to Andrew Wilson and Philippe Pebay from Sandia National
 // Laboratories for implementing this class.
 //
 // .SECTION See Also
@@ -85,7 +85,7 @@ public:
   // Description:
   // Close the connection to the database.
   void Close();
-  
+
   // Description:
   // Return whether the database has an open connection
   bool IsOpen();
@@ -93,11 +93,11 @@ public:
   // Description:
   // Return an empty query on this database.
   vtkSQLQuery* GetQueryInstance();
-  
+
   // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
-    
+
   // Description:
   // Get the list of fields for a particular table
   vtkStringArray* GetRecord(const char *table);
@@ -105,15 +105,15 @@ public:
   // Description:
   // Return whether a feature is supported by the database.
   bool IsSupported(int feature);
-  
+
   // Description:
   // Did the last operation generate an error
   bool HasError();
-  
+
   // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
-  
+
   // Description:
   // String representing database type (e.g. "sqlite").
   vtkGetStringMacro(DatabaseType);
@@ -122,7 +122,7 @@ public:
   // String representing the database filename.
   vtkGetStringMacro(DatabaseFileName);
   vtkSetStringMacro(DatabaseFileName);
-  
+
   // Description:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
@@ -135,31 +135,31 @@ public:
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
                                                int colHandle );
- 
+
 protected:
   vtkSQLiteDatabase();
   ~vtkSQLiteDatabase();
 
   // Description:
-  // Overridden to determine connection parameters given the URL. 
+  // Overridden to determine connection parameters given the URL.
   // This is called by CreateFromURL() to initialize the instance.
   // Look at CreateFromURL() for details about the URL format.
   virtual bool ParseURL(const char* url);
 
 private:
   vtk_sqlite3 *SQLiteInstance;
-  
+
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);
 
   vtkStringArray *Tables;
-  
+
   char* DatabaseType;
   char* DatabaseFileName;
 
   vtkStdString TempURL;
-  
+
   vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
   void operator=(const vtkSQLiteDatabase &); // Not implemented.
 };

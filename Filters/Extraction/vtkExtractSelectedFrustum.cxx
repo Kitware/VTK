@@ -111,7 +111,7 @@ void vtkExtractSelectedFrustum::CreateFrustum(double verts[32])
 {
   //for debugging
   for (int i = 0; i < 8; i++)
-    {    
+    {
     this->ClipPoints->SetPoint(i, &verts[i*4]);
     }
   this->ClipPoints->Modified();
@@ -143,11 +143,11 @@ void vtkExtractSelectedFrustum::CreateFrustum(double verts[32])
 }
 
 //--------------------------------------------------------------------------
-void vtkExtractSelectedFrustum::ComputePlane(int idx, 
-                                       double v0[3], 
-                                       double v1[3], 
-                                       double v2[3], 
-                                       vtkPoints *points, 
+void vtkExtractSelectedFrustum::ComputePlane(int idx,
+                                       double v0[3],
+                                       double v1[3],
+                                       double v2[3],
+                                       vtkPoints *points,
                                        vtkDoubleArray *norms)
 {
   points->SetPoint(idx, v0[0], v0[1], v0[2]);
@@ -171,7 +171,7 @@ void vtkExtractSelectedFrustum::ComputePlane(int idx,
 
 //----------------------------------------------------------------------------
 //needed because parent class sets output type to input type
-//and we sometimes want to change it to make an UnstructuredGrid regardless of 
+//and we sometimes want to change it to make an UnstructuredGrid regardless of
 //input type
 int vtkExtractSelectedFrustum::RequestDataObject(
   vtkInformation* req,
@@ -241,7 +241,7 @@ int vtkExtractSelectedFrustum::RequestData(
           node->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS())
           );
         }
-      }    
+      }
     }
 
   if ( !this->Frustum )
@@ -273,55 +273,55 @@ int vtkExtractSelectedFrustum::RequestData(
     vtkLine *linesRays = vtkLine::New();
     linesRays->GetPointIds()->SetId(0, 0);
     linesRays->GetPointIds()->SetId(1, 1);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 2);
     linesRays->GetPointIds()->SetId(1, 3);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 4);
     linesRays->GetPointIds()->SetId(1, 5);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 6);
     linesRays->GetPointIds()->SetId(1, 7);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
 
     linesRays->GetPointIds()->SetId(0, 0);
     linesRays->GetPointIds()->SetId(1, 2);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
 
     linesRays->GetPointIds()->SetId(0, 2);
     linesRays->GetPointIds()->SetId(1, 6);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 6);
     linesRays->GetPointIds()->SetId(1, 4);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 4);
     linesRays->GetPointIds()->SetId(1, 0);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
 
     linesRays->GetPointIds()->SetId(0, 1);
     linesRays->GetPointIds()->SetId(1, 3);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
 
     linesRays->GetPointIds()->SetId(0, 3);
     linesRays->GetPointIds()->SetId(1, 7);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 7);
     linesRays->GetPointIds()->SetId(1, 5);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
     linesRays->GetPointIds()->SetId(0, 5);
     linesRays->GetPointIds()->SetId(1, 1);
-    outputUG->InsertNextCell(linesRays->GetCellType(), 
+    outputUG->InsertNextCell(linesRays->GetCellType(),
                              linesRays->GetPointIds());
 
     outputUG->SetPoints(this->ClipPoints);
@@ -330,7 +330,7 @@ int vtkExtractSelectedFrustum::RequestData(
     }
 
   double bounds[6];
-  vtkIdType i; 
+  vtkIdType i;
   double x[3];
   input->GetBounds(bounds);
   if (!this->OverallBoundsTest(bounds) )
@@ -365,7 +365,7 @@ int vtkExtractSelectedFrustum::RequestData(
   vtkCellData *cd = input->GetCellData();
   vtkPointData *outputPD = outputDS->GetPointData();
   vtkCellData *outputCD = outputDS->GetCellData();
-  
+
   numPts = input->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
   pointMap = new vtkIdType[numPts]; // maps old point ids into new
@@ -402,7 +402,7 @@ int vtkExtractSelectedFrustum::RequestData(
     outputCD->AddArray(cellInArray);
     outputCD->SetScalars(cellInArray);
     }
-  else 
+  else
     {
     //the output is a new unstructured grid
     outputUG->Allocate(numCells/4); //allocate storage for geometry/topology
@@ -413,7 +413,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
     if ((this->FieldType == vtkSelectionNode::CELL)
         ||
-        this->PreserveTopology 
+        this->PreserveTopology
         ||
         this->ContainingCells
       )
@@ -443,7 +443,7 @@ int vtkExtractSelectedFrustum::RequestData(
   if (this->FieldType == vtkSelectionNode::CELL)
     {
     //cell based isect test, a cell is inside if any part of it is inside the
-    //frustum, a point is inside if it belongs to an inside cell, or is not 
+    //frustum, a point is inside if it belongs to an inside cell, or is not
     //in any cell but is inside the frustum
 
     updateInterval = numCells/1000 + 1;
@@ -462,7 +462,7 @@ int vtkExtractSelectedFrustum::RequestData(
     // Loop over all cells to see whether they are inside.
     for (cellId=0; cellId < numCells; cellId++)
       {
-      if ( ! (cellId % updateInterval) ) //manage progress reports 
+      if ( ! (cellId % updateInterval) ) //manage progress reports
           {
           this->UpdateProgress (static_cast<double>(cellId) / numCells);
           }
@@ -471,9 +471,9 @@ int vtkExtractSelectedFrustum::RequestData(
 
       cell = input->GetCell(cellId);
       cellPts = cell->GetPointIds();
-      numCellPts = cell->GetNumberOfPoints();    
+      numCellPts = cell->GetNumberOfPoints();
       newCellPts->Reset();
-      
+
       isect = this->ABoxFrustumIsect(bounds, cell);
       if ((isect == 1 && flag == 1) || (isect == 0 && flag == -1))
         {
@@ -487,12 +487,12 @@ int vtkExtractSelectedFrustum::RequestData(
           ptId = cellPts->GetId(i);
           newPointId = pointMap[ptId];
           if (newPointId < 0)
-            {             
+            {
             /*
             NUMPTS++;
             */
 
-            input->GetPoint(ptId, x);      
+            input->GetPoint(ptId, x);
             if (this->PreserveTopology)
               {
               pointInArray->SetValue(ptId, flag);
@@ -544,7 +544,7 @@ int vtkExtractSelectedFrustum::RequestData(
     /*
     timer->StopTimer();
     cerr << "  CLIN " << timer->GetElapsedTime() << endl;
-    timer->StartTimer();    
+    timer->StartTimer();
     cerr << "  AFTERCELL NUMPTS = " << NUMPTS << endl;
     */
 
@@ -553,7 +553,7 @@ int vtkExtractSelectedFrustum::RequestData(
       {
       if (pointMap[ptId] == -1) //point wasn't attached to a cell
         {
-        input->GetPoint(ptId,x);      
+        input->GetPoint(ptId,x);
         if ((this->Frustum->EvaluateFunction(x) * flag) < 0.0)
           {
           /*
@@ -583,13 +583,13 @@ int vtkExtractSelectedFrustum::RequestData(
     //run through points and decide which ones are inside
     for (ptId = 0; ptId < numPts; ptId++)
       {
-      
+
       if ( ! (ptId % updateInterval) ) //manage progress reports
           {
           this->UpdateProgress (static_cast<double>(ptId) / numPts);
           }
 
-      input->GetPoint(ptId,x);      
+      input->GetPoint(ptId,x);
       pointMap[ptId] = -1;
       if ((this->Frustum->EvaluateFunction(x) * flag) < 0.0)
         {
@@ -619,7 +619,7 @@ int vtkExtractSelectedFrustum::RequestData(
 
     if (this->PreserveTopology)
       {
-      //we have already created a copy of the input and marked points as 
+      //we have already created a copy of the input and marked points as
       //being in or not
       if (this->ContainingCells)
         {
@@ -628,7 +628,7 @@ int vtkExtractSelectedFrustum::RequestData(
           {
           cell = input->GetCell(cellId);
           cellPts = cell->GetPointIds();
-          numCellPts = cell->GetNumberOfPoints();                
+          numCellPts = cell->GetNumberOfPoints();
           for (i=0; i < numCellPts; i++)
             {
             ptId = cellPts->GetId(i);
@@ -643,7 +643,7 @@ int vtkExtractSelectedFrustum::RequestData(
         }
       }
     else
-      {      
+      {
       if (this->ContainingCells)
         {
         vtkIdType *pointMap2 = new vtkIdType[numPts]; // maps old point ids into new
@@ -654,9 +654,9 @@ int vtkExtractSelectedFrustum::RequestData(
           {
           cell = input->GetCell(cellId);
           cellPts = cell->GetPointIds();
-          numCellPts = cell->GetNumberOfPoints();      
+          numCellPts = cell->GetNumberOfPoints();
           newCellPts->Reset();
-          
+
           isect = 0;
           for (i=0; i < numCellPts; i++)
             {
@@ -681,7 +681,7 @@ int vtkExtractSelectedFrustum::RequestData(
                 if (newPointId < 0)
                   {
                   //we haven't encountered it before, add it and remember
-                  input->GetPoint(ptId,x);      
+                  input->GetPoint(ptId,x);
                   newPointId = newPts->InsertNextPoint(x);
                   outputPD->CopyData(pd,ptId,newPointId);
                   originalPointIds->InsertNextValue(ptId);
@@ -743,7 +743,7 @@ int vtkExtractSelectedFrustum::RequestData(
     {
     outputUG->SetPoints(newPts);
     }
-  newPts->Delete();  
+  newPts->Delete();
   outputDS->Squeeze();
 
 
@@ -751,9 +751,9 @@ int vtkExtractSelectedFrustum::RequestData(
 }
 
 //--------------------------------------------------------------------------
-int vtkExtractSelectedFrustum::OverallBoundsTest(double *bounds) 
+int vtkExtractSelectedFrustum::OverallBoundsTest(double *bounds)
 {
-  vtkIdType i; 
+  vtkIdType i;
   double x[3];
 
   //find the near and far vertices to each plane for quick in/out tests
@@ -792,11 +792,11 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
 {
   if (bounds[0] > bounds[1] ||
       bounds[2] > bounds[3] ||
-      bounds[4] > bounds[5]) 
+      bounds[4] > bounds[5])
     {
     return this->IsectDegenerateCell(cell);
     }
-    
+
   //convert bounds to 8 vertices
   double verts[8][3];
   verts[0][0] = bounds[0];
@@ -835,7 +835,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
     int pvid;
     nvid = this->np_vertids[pid][0];
     dist = plane->EvaluateFunction(verts[nvid]);
-    if (dist > 0.0)     
+    if (dist > 0.0)
       {
       /*
       this->NumRejects++;
@@ -852,7 +852,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
     }
 
   //accept if entire bbox is inside all planes
-  if (!intersect) 
+  if (!intersect)
     {
     /*
     this->NumAccepts++;
@@ -876,7 +876,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
   double *ovlist = &vertbuffer[2*maxedges*3];
 
   int nfaces = cell->GetNumberOfFaces();
-  if (nfaces < 1) 
+  if (nfaces < 1)
     {
     //some 2D cells have no faces, only edges
     int nedges = cell->GetNumberOfEdges();
@@ -963,7 +963,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
           edge = cell->GetEdge(e);
           pts = edge->GetPoints();
           pts->GetPoint(1, &vlist[(e+1)*3]); //get second point of the edge
-          }      
+          }
         break;
         }
       }
@@ -975,15 +975,15 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
     }
   else
     {
-    
+
     //go around edges of each face and clip to planes
     //if nothing remains at the end, then we do not intersect and reject
     for (int f = 0; f < nfaces; f++)
       {
-      face = cell->GetFace(f);    
+      face = cell->GetFace(f);
 
       int nedges = face->GetNumberOfEdges();
-      if (nedges < 1) 
+      if (nedges < 1)
         {
         if (this->IsectDegenerateCell(face))
           {
@@ -1004,7 +1004,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
       edge = face->GetEdge(0);
       pts = edge->GetPoints();
       pts->GetPoint(0, &vlist[0*3]);
-      pts->GetPoint(1, &vlist[1*3]); 
+      pts->GetPoint(1, &vlist[1*3]);
       switch (face->GetCellType())
         {
         case VTK_PIXEL:
@@ -1033,10 +1033,10 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
             edge = cell->GetEdge(e);
             pts = edge->GetPoints();
             pts->GetPoint(1, &vlist[(e+1)*3]); //get second point of the edge
-            }      
+            }
           break;
           }
-        }     
+        }
       if (this->FrustumClipPolygon(nedges, vlist, wvlist, ovlist))
         {
         delete[] vertbuffer;
@@ -1062,7 +1062,7 @@ int vtkExtractSelectedFrustum::IsectDegenerateCell(vtkCell *cell)
     if (this->Frustum->EvaluateFunction(x) < 0.0)
       {
       return 1;
-      }      
+      }
     }
   return 0;
 }
@@ -1072,9 +1072,9 @@ int vtkExtractSelectedFrustum::IsectDegenerateCell(vtkCell *cell)
 //if there is no intersection, returns 0
 //if there is an intersection, returns 1
 // update ovlist to contain the resulting clipped vertices
-int vtkExtractSelectedFrustum::FrustumClipPolygon(int nverts, 
-                                            double *ivlist, 
-                                            double *wvlist, 
+int vtkExtractSelectedFrustum::FrustumClipPolygon(int nverts,
+                                            double *ivlist,
+                                            double *wvlist,
                                             double *ovlist)
 {
   int nwverts = nverts;
@@ -1085,7 +1085,7 @@ int vtkExtractSelectedFrustum::FrustumClipPolygon(int nverts,
   for (pid = 0; pid < MAXPLANE; pid++)
     {
     noverts = 0;
-    this->PlaneClipPolygon(nwverts, wvlist, pid, noverts, ovlist);    
+    this->PlaneClipPolygon(nwverts, wvlist, pid, noverts, ovlist);
     if (noverts == 0)
       {
       return 0;
@@ -1103,29 +1103,29 @@ int vtkExtractSelectedFrustum::FrustumClipPolygon(int nverts,
 void vtkExtractSelectedFrustum::PlaneClipPolygon(int nverts, double *ivlist, int pid,
                                            int &noverts, double *ovlist)
 {
-  int vid;  
+  int vid;
   //run around the polygon and clip to this edge
   for (vid = 0; vid < nverts-1; vid++)
     {
-    this->PlaneClipEdge(&ivlist[vid*3], &ivlist[(vid+1)*3], pid, 
+    this->PlaneClipEdge(&ivlist[vid*3], &ivlist[(vid+1)*3], pid,
                         noverts, ovlist);
     }
-  this->PlaneClipEdge(&ivlist[(nverts-1)*3], &ivlist[0*3], pid, 
+  this->PlaneClipEdge(&ivlist[(nverts-1)*3], &ivlist[0*3], pid,
                       noverts, ovlist);
 }
 
 //--------------------------------------------------------------------------
 //clips a line segment against the numbered plane.
 //intersection point and the second vertex are added to overts if on or inside
-void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid, 
+void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid,
                                         int &noverts, double *overts)
 {
   double t = 0.0;
   double ISECT[3];
   int rc = vtkPlane::IntersectWithLine(
-    V0, V1, 
-    this->Frustum->GetNormals()->GetTuple(pid), 
-    this->Frustum->GetPoints()->GetPoint(pid), 
+    V0, V1,
+    this->Frustum->GetNormals()->GetTuple(pid),
+    this->Frustum->GetPoints()->GetPoint(pid),
     t, ISECT);
 
   if (rc)
@@ -1135,7 +1135,7 @@ void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid,
     overts[noverts*3+2] = ISECT[2];
     noverts++;
     }
-  
+
   vtkPlane *plane = this->Frustum->GetPlane(pid);
 
   if (plane->EvaluateFunction(V1) < 0.0)
@@ -1154,7 +1154,7 @@ void vtkExtractSelectedFrustum::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Frustum: " 
+  os << indent << "Frustum: "
      << static_cast<void *>(this->Frustum) << "\n";
 
   os << indent << "ClipPoints: " << this->ClipPoints << "\n";

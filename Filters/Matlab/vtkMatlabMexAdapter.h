@@ -25,15 +25,15 @@
 //
 // .SECTION Description
 //
-//  The default behavior of each function is to perform a deep copy of the 
-//  data.  Set the ShallowCopy argument to true to use the block of memory 
-//  that has already been allocated by either VTK or Matlab.  The result of 
-//  a shallow copy will produce the transpose of the data in the new system, 
-//  because VTK uses row major ordering and Matlab uses column major ordering 
+//  The default behavior of each function is to perform a deep copy of the
+//  data.  Set the ShallowCopy argument to true to use the block of memory
+//  that has already been allocated by either VTK or Matlab.  The result of
+//  a shallow copy will produce the transpose of the data in the new system,
+//  because VTK uses row major ordering and Matlab uses column major ordering
 //  for data.
 //
-//  VTK data structures created by this class from Matlab types are stored in 
-//  array collections and freed when the class destructor is called.  Use the 
+//  VTK data structures created by this class from Matlab types are stored in
+//  array collections and freed when the class destructor is called.  Use the
 //  Register() method on a returned object to increase its reference count by one,
 //  in order keep the object around after this classes destructor has been called.
 //  The code calling Register() must eventually call Delete() on the object to free
@@ -99,7 +99,7 @@ public:
 
   // Description:
   // Create a vtkGraph copy of a mxArray (Allocates memory by default)
-  // Input mxArray should be a n by n connectivity matrix, where n is 
+  // Input mxArray should be a n by n connectivity matrix, where n is
   // the number of nodes in the graph.
   vtkGraph* mxArrayTovtkGraph(mxArray* mxa);
 

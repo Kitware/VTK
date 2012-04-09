@@ -55,13 +55,13 @@ vtkBridgeCellIteratorOnCellList::~vtkBridgeCellIteratorOnCellList()
     this->DataSet->Delete();
     this->DataSet=0;
     }
-  
+
   if(this->Cells!=0)
     {
     this->Cells->Delete();
     this->Cells=0;
     }
-  
+
   this->Cell->Delete();
   this->Cell=0;
 }
@@ -92,11 +92,11 @@ void vtkBridgeCellIteratorOnCellList::GetCell(vtkGenericAdaptorCell *c)
 {
   assert("pre: not_at_end" && !IsAtEnd());
   assert("pre: c_exists" && c!=0);
-  
+
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
   c2->Init(this->DataSet,this->Cells->GetId(this->Id));
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Cell at current position.
@@ -106,10 +106,10 @@ void vtkBridgeCellIteratorOnCellList::GetCell(vtkGenericAdaptorCell *c)
 vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellList::GetCell()
 {
   assert("pre: not_at_end" && !IsAtEnd());
-  
+
   this->Cell->Init(this->DataSet,this->Cells->GetId(this->Id));
   vtkGenericAdaptorCell *result=this->Cell;
-  
+
   assert("post: result_exits" && result!=0);
   return result;
 }
@@ -135,7 +135,7 @@ void vtkBridgeCellIteratorOnCellList::InitWithCells(vtkIdList *cells,
 {
   assert("pre: cells_exist" && cells!=0);
   assert("pre: ds_exists" && ds!=0);
-  
+
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
   vtkSetObjectBodyMacro(Cells,vtkIdList,cells);
 }

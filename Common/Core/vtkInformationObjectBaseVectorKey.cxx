@@ -36,7 +36,7 @@ private:
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseVectorKey::vtkInformationObjectBaseVectorKey(
-        const char* name, 
+        const char* name,
         const char* location,
         const char* requiredClass)
         :
@@ -174,7 +174,7 @@ void vtkInformationObjectBaseVectorKey::SetRange(
 // {
 //   vtkInformationObjectBaseVectorValue* base =
 //     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
-// 
+//
 //   return
 //     (base!=NULL && !base->GetVector().empty())?(&base->GetVector()[0]):0;
 // }

@@ -48,7 +48,7 @@ public:
   static vtkMergeColumns* New();
   vtkTypeMacro(vtkMergeColumns,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // The name to give the merged column created by this filter.
   vtkSetStringMacro(MergedColumnName);
@@ -57,12 +57,12 @@ public:
 protected:
   vtkMergeColumns();
   ~vtkMergeColumns();
-  
+
   char* MergedColumnName;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

@@ -16,7 +16,7 @@
 // privmitives.
 // .SECTION Description
 // This is the abstract superclass for classes that handle single type
-// of primitive i.e. verts, lines, polys or tstrips. 
+// of primitive i.e. verts, lines, polys or tstrips.
 // Concrete subclasses will pass a Render() call to the delegate painter,
 // if any, only if it could not render.
 // .SECTION Thanks
@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkPrimitivePainter : public vtkPolyDataPainter
 public:
   vtkTypeMacro(vtkPrimitivePainter, vtkPolyDataPainter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the type of primitive supported by this painter.
   // This must be set by concrete subclasses.
@@ -67,7 +67,7 @@ protected:
   // before the actual rendering can be done eg. build efficient
   // representation for the data etc. This should be done here.
   // This method get called after the ProcessInformation()
-  // but before RenderInternal(). 
+  // but before RenderInternal().
   // This method is overridden to update the output data
   // as per the input.
   virtual void PrepareForRendering(vtkRenderer*, vtkActor*);
@@ -84,12 +84,12 @@ protected:
   // Description:
   // The actual rendering happens here. This method is called only when
   // SupportedPrimitive is present in typeflags when Render() is invoked.
-  // This method returns 1 when the rendering was successful. 
+  // This method returns 1 when the rendering was successful.
   // Concrete Primitive painters may support rendering a primitive only
   // when the input data satifies certain criteria. The return value is used
   // to decide if the subclasses succeeded in rendereing. If not the
-  // render request is forwarded to the delegate. On success, the request 
-  // forwareded to the delegate does not include a request to render the 
+  // render request is forwarded to the delegate. On success, the request
+  // forwareded to the delegate does not include a request to render the
   // supported primitive type.
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) =0;
@@ -97,10 +97,10 @@ protected:
   // Description:
   // Based on the input polydata, setups certains flags and call
   // RenderPrimitive() which is overridden by subclasses. If RenderPrimitive()
-  // is successful, the request forwarded to the delegate painter 
+  // is successful, the request forwarded to the delegate painter
   // is with typeflags = (typeflags & ~this->SupportedPrimitive) i.e.
   // the request is to render everything other than what the subclass rendered.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags,
                               bool forceCompileOnly);
 

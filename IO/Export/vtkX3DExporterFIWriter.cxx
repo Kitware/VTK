@@ -31,7 +31,7 @@
 using namespace vtkX3D;
 
 /*======================================================================== */
-struct NodeInfo 
+struct NodeInfo
 {
   NodeInfo(int _nodeId)
     {
@@ -46,7 +46,7 @@ struct NodeInfo
 
 /*======================================================================== */
 typedef std::vector<NodeInfo> vtkX3DExporterFINodeInfoStackBase;
-class vtkX3DExporterFINodeInfoStack : 
+class vtkX3DExporterFINodeInfoStack :
   public vtkX3DExporterFINodeInfoStackBase
 {
 };
@@ -321,11 +321,11 @@ void vtkX3DExporterFIWriter::StartDocument()
   this->Writer->PutBits("0000000000000001");
   // ITU 12.8: The bit '0' (padding) shall then be appended to the bit stream
   this->Writer->PutBit(0);
-  // ITU C.2.3 
+  // ITU C.2.3
   this->Writer->PutBit(0); // additional-data
   this->Writer->PutBit(1); // initial-vocabulary
   this->Writer->PutBit(0); // notations
-  this->Writer->PutBit(0); // unparsed-entities 
+  this->Writer->PutBit(0); // unparsed-entities
   this->Writer->PutBit(0); // character-encoding-scheme
   this->Writer->PutBit(0); // standalone
   this->Writer->PutBit(0); // and version
@@ -335,10 +335,10 @@ void vtkX3DExporterFIWriter::StartDocument()
   // presence ? 1 : 0
   this->Writer->PutBits("1000000000000"); // 'external-vocabulary'
   // ITU C.2.5.2: external-vocabulary is present
-  this->Writer->PutBit(0); 
+  this->Writer->PutBit(0);
   // Write "urn:external-vocabulary"
   // ITU C.22.3.1: Length is < 65
-  this->Writer->PutBit(0); 
+  this->Writer->PutBit(0);
   //Writer->PutBits("010110"); // = strlen(external_voc) - 1
   this->Writer->PutBits(
     static_cast<unsigned int>(strlen(external_voc) - 1), 6);
@@ -409,7 +409,7 @@ void vtkX3DExporterFIWriter::CheckNode(bool callerIsAttribute)
       this->Writer->PutBit(0);
       }
     // Write Node name (starting at third bit)
-    // ITU: C.18.4 If the alternative name-surrogate-index is present, 
+    // ITU: C.18.4 If the alternative name-surrogate-index is present,
     // it is encoded as described in C.27.
     vtkX3DExporterFIWriterHelper::EncodeInteger3(this->Writer, this->InfoStack->back().nodeId + 1);
     this->InfoStack->back().isChecked = true;
@@ -434,12 +434,12 @@ void vtkX3DExporterFIWriter::StartAttribute(int attributeID, bool literal, bool 
 
   // ITU C.14.3: If the alternative literal-character-string is present,
   //then the bit '0' (discriminant) is appended
-  // ITU C.14.4: If the alternative string-index is present, 
+  // ITU C.14.4: If the alternative string-index is present,
   // then the bit '1' (discriminant) is appended
   this->Writer->PutBit(literal ? 0 : 1);
   if (literal)
     {
-    // ITU C.14.3.1 If the value of the component add-to-table is TRUE, 
+    // ITU C.14.3.1 If the value of the component add-to-table is TRUE,
     // then the bit '1' is appended to the bit stream;
     this->Writer->PutBit(addToTable);
     }
@@ -456,7 +456,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
   vtksys_ios::ostringstream ss;
 
   this->StartAttribute(attributeID, true, false);
-  
+
 #ifdef ENCODEASSTRING
   const double* loc = NULL;
   size_t size = 0;
@@ -485,19 +485,19 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
     {
     case(SFVEC3F):
     case(SFCOLOR):
-      ss << static_cast<float>( d[0] ) 
-         << " " 
-         << static_cast<float>( d[1] ) 
-         << " " 
+      ss << static_cast<float>( d[0] )
+         << " "
+         << static_cast<float>( d[1] )
+         << " "
          << static_cast<float>( d[2] );
       break;
     case(SFROTATION):
-      ss << static_cast<float>( d[1] ) 
-         << " " 
-         << static_cast<float>( d[2] ) 
-         << " " 
-         << static_cast<float>( d[3] ) 
-         << " " 
+      ss << static_cast<float>( d[1] )
+         << " "
+         << static_cast<float>( d[2] )
+         << " "
+         << static_cast<float>( d[3] )
+         << " "
          << static_cast<float>( vtkMath::RadiansFromDegrees( -d[0] ) );
       break;
     default:
@@ -553,12 +553,12 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a
       }
     if (!this->Fastest && (values.size() > 15))
       {
-      X3DEncoderFunctions::EncodeQuantizedzlibFloatArray(this->Writer, 
+      X3DEncoderFunctions::EncodeQuantizedzlibFloatArray(this->Writer,
         &(values.front()), values.size(), this->Compressor);
       }
     else
       {
-      vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer, 
+      vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer,
         &(values.front()), values.size());
       }
     break;
@@ -592,8 +592,8 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
   this->StartAttribute(attributeID, true, false);
   if (size > 15)
     {
-    X3DEncoderFunctions::EncodeIntegerDeltaZ(this->Writer, values, size, 
-      this->Compressor, image);  
+    X3DEncoderFunctions::EncodeIntegerDeltaZ(this->Writer, values, size,
+      this->Compressor, image);
     }
   else
     {
@@ -680,7 +680,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
 }
 
 //----------------------------------------------------------------------------
-void vtkX3DExporterFIWriter::SetField(int vtkNotUsed(attributeID), 
+void vtkX3DExporterFIWriter::SetField(int vtkNotUsed(attributeID),
   double vtkNotUsed(value))
 {
   cout << "Function not implemented yet." << endl;

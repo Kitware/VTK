@@ -37,18 +37,18 @@ public:
   // Construct the error metric with a default squared absolute geometric
   // accuracy equal to 1.
   static vtkGeometricErrorMetric *New();
-  
+
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkGeometricErrorMetric,vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Return the squared absolute geometric accuracy. See
   // SetAbsoluteGeometricTolerance() for details.
   // \post positive_result: result>0
   vtkGetMacro(AbsoluteGeometricTolerance, double);
-  
+
   // Description:
   // Set the geometric accuracy with a squared absolute value.
   // This is the geometric object-based accuracy.
@@ -57,7 +57,7 @@ public:
   // greater than `value'. For instance 0.01 will give better result than 0.1.
   // \pre positive_value: value>0
   void SetAbsoluteGeometricTolerance(double value);
-  
+
   // Description:
   // Set the geometric accuracy with a value relative to the length of the
   // bounding box of the dataset. Internally compute the absolute tolerance.
@@ -66,7 +66,7 @@ public:
   // \pre ds_exists: ds!=0
   void SetRelativeGeometricTolerance(double value,
                                      vtkGenericDataSet *ds);
-  
+
   // Description:
   // Does the edge need to be subdivided according to the distance between
   // the line passing through its endpoints and the mid point?
@@ -101,15 +101,15 @@ public:
   // \post positive_result: result>=0
   double GetError(double *leftPoint, double *midPoint,
                   double *rightPoint, double alpha);
-  
+
   // Description:
   // Return the type of output of GetError()
   int GetRelative();
-  
+
 protected:
   vtkGeometricErrorMetric();
   virtual ~vtkGeometricErrorMetric();
-  
+
   // Description:
   // Square distance between a straight line (defined by points x and y)
   // and a point z. Property: if x and y are equal, the line is a point and
@@ -117,11 +117,11 @@ protected:
   double Distance2LinePoint(double x[3],
                             double y[3],
                             double z[3]);
-  
+
   double AbsoluteGeometricTolerance;
   double SmallestSize;
   int Relative; // Control the type of output of GetError()
-  
+
 private:
   vtkGeometricErrorMetric(const vtkGeometricErrorMetric&);  // Not implemented.
   void operator=(const vtkGeometricErrorMetric&);  // Not implemented.

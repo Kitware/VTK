@@ -80,7 +80,7 @@ static const double VTK_PENTA_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
 int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
-                                         int& subId, double pcoords[3], 
+                                         int& subId, double pcoords[3],
                                          double& dist2, double *weights)
 {
   int iteration, converged;
@@ -126,7 +126,7 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20) 
+    if ( fabs(d) < 1.e-20)
       {
       return -1;
       }
@@ -144,15 +144,15 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
       }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
+             (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
 
     //  if not converged, repeat
-    else 
+    else
       {
       params[0] = pcoords[0];
       params[1] = pcoords[1];

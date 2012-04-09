@@ -181,7 +181,7 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->FluentDataFile = new ifstream;
 
   this->NumberOfCells=0;
-  
+
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->SetDataByteOrderToLittleEndian();
 }
@@ -252,10 +252,10 @@ int vtkFLUENTReader::RequestData(
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
     {
-    int location = 
+    int location =
       std::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
-                   this->Cells->value[i].zone) - 
+                   this->Cells->value[i].zone) -
       this->CellZones->value.begin();
                                     ;
     if (this->Cells->value[i].type == 1 )
@@ -331,7 +331,7 @@ int vtkFLUENTReader::RequestData(
   //Scalar Data
   for (int l = 0; l < (int)this->ScalarDataChunks->value.size(); l++)
     {
-    int location = 
+    int location =
       std::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
                    this->ScalarDataChunks->value[l].zoneId) -
@@ -355,7 +355,7 @@ int vtkFLUENTReader::RequestData(
   //Vector Data
   for (int l = 0; l < (int)this->VectorDataChunks->value.size(); l++)
     {
-    int location = 
+    int location =
       std::find(this->CellZones->value.begin(),
                    this->CellZones->value.end(),
                    this->VectorDataChunks->value[l].zoneId) -
@@ -392,9 +392,9 @@ int vtkFLUENTReader::RequestData(
 
 //----------------------------------------------------------------------------
 void vtkFLUENTReader::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
 }
@@ -667,7 +667,7 @@ void vtkFLUENTReader::GetNumberOfCellZones()
       {
       this->CellZones->value.push_back(this->Cells->value[i].zone);
       }
-    else 
+    else
       {
       match = 0;
       for (int j = 0; j < (int)this->CellZones->value.size(); j++)
@@ -1315,27 +1315,27 @@ void vtkFLUENTReader::LoadVariableNames()
   this->VariableNames->value[613] = "PDFT_SVOL_TA";
   this->VariableNames->value[614] = "PDFT_MASS_TA";
   this->VariableNames->value[615] = "PDFT_T4_TA";
-  this->VariableNames->value[620] = "MICRO_MIX_FVAR1 "; 
-  this->VariableNames->value[621] = "MICRO_MIX_FVAR2 "; 
-  this->VariableNames->value[622] = "MICRO_MIX_FVAR3 "; 
-  this->VariableNames->value[623] = "MICRO_MIX_FVAR1_M1 "; 
-  this->VariableNames->value[624] = "MICRO_MIX_FVAR2_M1 "; 
-  this->VariableNames->value[625] = "MICRO_MIX_FVAR3_M1 "; 
-  this->VariableNames->value[626] = "MICRO_MIX_FVAR1_M2 "; 
-  this->VariableNames->value[627] = "MICRO_MIX_FVAR2_M2 "; 
-  this->VariableNames->value[628] = "MICRO_MIX_FVAR3_M2 "; 
-  this->VariableNames->value[630] = "SCAD_LES "; 
-  this->VariableNames->value[635] = "UFLA_Y    "; 
-  this->VariableNames->value[636] = "UFLA_Y_M1 "; 
-  this->VariableNames->value[637] = "UFLA_Y_M2 "; 
+  this->VariableNames->value[620] = "MICRO_MIX_FVAR1 ";
+  this->VariableNames->value[621] = "MICRO_MIX_FVAR2 ";
+  this->VariableNames->value[622] = "MICRO_MIX_FVAR3 ";
+  this->VariableNames->value[623] = "MICRO_MIX_FVAR1_M1 ";
+  this->VariableNames->value[624] = "MICRO_MIX_FVAR2_M1 ";
+  this->VariableNames->value[625] = "MICRO_MIX_FVAR3_M1 ";
+  this->VariableNames->value[626] = "MICRO_MIX_FVAR1_M2 ";
+  this->VariableNames->value[627] = "MICRO_MIX_FVAR2_M2 ";
+  this->VariableNames->value[628] = "MICRO_MIX_FVAR3_M2 ";
+  this->VariableNames->value[630] = "SCAD_LES ";
+  this->VariableNames->value[635] = "UFLA_Y    ";
+  this->VariableNames->value[636] = "UFLA_Y_M1 ";
+  this->VariableNames->value[637] = "UFLA_Y_M2 ";
   this->VariableNames->value[645] = "CREV_MASS";
   this->VariableNames->value[646] = "CREV_ENRG";
   this->VariableNames->value[647] = "CREV_MOM";
   this->VariableNames->value[650] = "ACOUSTICS_MODEL";
   this->VariableNames->value[651] = "AC_RECEIVERS_DATA";
-  this->VariableNames->value[652] = "SV_DPDT_RMS"; 
-  this->VariableNames->value[653] = "SV_PRESSURE_M1"; 
-  this->VariableNames->value[654] = "AC_PERIODIC_INDEX"; 
+  this->VariableNames->value[652] = "SV_DPDT_RMS";
+  this->VariableNames->value[653] = "SV_PRESSURE_M1";
+  this->VariableNames->value[654] = "AC_PERIODIC_INDEX";
   this->VariableNames->value[655] = "AC_PERIODIC_PS";
   this->VariableNames->value[656] = "AC_F_NORMAL";
   this->VariableNames->value[657] = "AC_F_CENTROID";
@@ -2326,7 +2326,7 @@ void vtkFLUENTReader::LoadVariableNames()
   this->VariableNames->value[8131] = "PB_SMM_M2_31";
   this->VariableNames->value[8132] = "PB_SMM_M2_32";
   this->VariableNames->value[8133] = "PB_SMM_M2_33";
-  this->VariableNames->value[8134] = "PB_SMM_M2_34"; 
+  this->VariableNames->value[8134] = "PB_SMM_M2_34";
   this->VariableNames->value[8135] = "PB_SMM_M2_35";
   this->VariableNames->value[8136] = "PB_SMM_M2_36";
   this->VariableNames->value[8137] = "PB_SMM_M2_37";
@@ -2674,7 +2674,7 @@ void vtkFLUENTReader::GetCellsAscii()
         this->Cells->value[i-1].child  = 0;
         }
       }
-    else 
+    else
       {
       for (int i = firstIndex; i <=lastIndex; i++)
         {
@@ -2711,7 +2711,7 @@ void vtkFLUENTReader::GetCellsBinary()
       this->Cells->value[i-1].child  = 0;
       }
     }
-  else 
+  else
     {
     for (int i = firstIndex; i <=lastIndex; i++)
       {
@@ -3589,7 +3589,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(int i)
   int p4 = 0;
   for (int k = 0; k < 4; k++)
     {
-    if ( f01[k] != this->Cells->value[i].nodes[0]) 
+    if ( f01[k] != this->Cells->value[i].nodes[0])
       {
       for (int n = 0; n < 4; n++)
         {
@@ -3751,7 +3751,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int w01[4];
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
     {
-    if (this->Cells->value[i].faces[j] != base && 
+    if (this->Cells->value[i].faces[j] != base &&
       this->Cells->value[i].faces[j] != top)
       {
       int wf0 = 0;
@@ -3783,7 +3783,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int w02[4] = {-1, -1, -1, -1};
   for (int j = 0; j < (int)this->Cells->value[i].faces.size(); j++)
     {
-    if (this->Cells->value[i].faces[j] != base && 
+    if (this->Cells->value[i].faces[j] != base &&
       this->Cells->value[i].faces[j] != top)
       {
       int wf0 = 0;
@@ -3817,7 +3817,7 @@ void vtkFLUENTReader::PopulateWedgeCell(int i)
   int p3 = 0;
   for (int k = 0; k < 4; k++)
     {
-    if ( w01[k] != this->Cells->value[i].nodes[0]) 
+    if ( w01[k] != this->Cells->value[i].nodes[0])
       {
       for (int n = 0; n < 4; n++)
         {

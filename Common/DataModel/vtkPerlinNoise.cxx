@@ -18,16 +18,16 @@
 
 vtkStandardNewMacro(vtkPerlinNoise);
 
-// These functions are from Greg Ward's recursive implementation in 
+// These functions are from Greg Ward's recursive implementation in
 // Graphics Gems II.  I've kept the names the same for instructional
 // purposes, and only changed things where optimizations could be made.
 
-static double hermite(double p0, double p1, 
-                     double r0, double r1, double t) 
+static double hermite(double p0, double p1,
+                     double r0, double r1, double t)
 {
   double tt = t*t;
 
-  return (p0*((2.0*t - 3.0)*tt + 1.0) + 
+  return (p0*((2.0*t - 3.0)*tt + 1.0) +
           p1*(-2.0*t + 3.0)*tt +
           r0*((t-2.0)*t+1.0)*t +
           r1*(t-1.0)*tt);
@@ -42,7 +42,7 @@ static double frand(int s)
   return 1.0 - double(s)/(VTK_INT_MAX/2 + 1);
 }
 
-static void rand3abcd(int x, int y, int z, double outv[4]) 
+static void rand3abcd(int x, int y, int z, double outv[4])
 {
   outv[0] = frand(67*x + 59*y + 71*z);
   outv[1] = frand(73*x + 79*y + 83*z);
@@ -50,12 +50,12 @@ static void rand3abcd(int x, int y, int z, double outv[4])
   outv[3] = frand(103*x + 107*y + 109*z);
 }
 
-static void interpolate(double f[4], int i, int n, 
+static void interpolate(double f[4], int i, int n,
                         int xlim[3][2], double xarg[2])
 {
   double f0[4], f1[4];
-  
-  if (n == 0) 
+
+  if (n == 0)
     {
     rand3abcd(xlim[0][i&1], xlim[1][(i>>1) & 1], xlim[2][i>>2], f);
     return;
@@ -63,7 +63,7 @@ static void interpolate(double f[4], int i, int n,
   n--;
   interpolate(f0, i, n, xlim, xarg);
   interpolate(f1, i | (1<<n), n, xlim, xarg);
-  
+
   f[0] = (1.0 - xarg[n])*f0[0] + xarg[n]*f1[0];
   f[1] = (1.0 - xarg[n])*f0[1] + xarg[n]*f1[1];
   f[2] = (1.0 - xarg[n])*f0[2] + xarg[n]*f1[2];
@@ -79,7 +79,7 @@ static void perlinNoise(double x[3], double noise[4])
   xlim[0][0] = int(floor(x[0]));
   xlim[1][0] = int(floor(x[1]));
   xlim[2][0] = int(floor(x[2]));
-  
+
   xlim[0][1] = xlim[0][0] + 1;
   xlim[1][1] = xlim[1][0] + 1;
   xlim[2][1] = xlim[2][0] + 1;
@@ -133,12 +133,12 @@ void vtkPerlinNoise::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Amplitude: " << this->Amplitude << "\n";
-  os << indent << "Frequency: (" 
+  os << indent << "Frequency: ("
      << this->Frequency[0] << ", "
      << this->Frequency[1] << ", "
      << this->Frequency[2] << ")\n";
 
-  os << indent << "Phase: (" 
+  os << indent << "Phase: ("
      << this->Phase[0] << ", "
      << this->Phase[1] << ", "
      << this->Phase[2] << ")\n";

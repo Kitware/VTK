@@ -14,7 +14,7 @@
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
-  
+
   This is part of the Parallel Dataflow System originally developed by
   Huy T. Vo and Claudio T. Silva. For more information, see:
 
@@ -55,27 +55,27 @@ vtkStandardNewMacro(vtkExecutionScheduler);
 vtkInformationKeyMacro(vtkExecutionScheduler, TASK_PRIORITY, Integer);
 
 //----------------------------------------------------------------------------
-class Task 
+class Task
 {
 public:
-  Task(int _priority = -1, vtkExecutive *_exec = NULL, vtkInformation *_info = NULL) 
+  Task(int _priority = -1, vtkExecutive *_exec = NULL, vtkInformation *_info = NULL)
   {
     this->priority = _priority;
     this->exec = _exec;
     this->info = _info;
   }
-  
+
   int             priority;
   vtkExecutive   *exec;
   vtkInformation *info;
 };
-  
+
 //----------------------------------------------------------------------------
-class TaskWeakOrdering 
+class TaskWeakOrdering
 {
 public:
   bool operator()(const Task& t1,
-                  const Task& t2) const 
+                  const Task& t2) const
   {
     return t1.priority < t2.priority;
   }
@@ -83,10 +83,10 @@ public:
 
 //----------------------------------------------------------------------------
 // Convinient definitions of vector/set of vtkExecutive
-class vtkExecutiveHasher 
+class vtkExecutiveHasher
 {
 public:
-  size_t operator()(const vtkExecutive* e) const 
+  size_t operator()(const vtkExecutive* e) const
   {
     return (size_t)e;
   }
@@ -102,7 +102,7 @@ public:
   vtkExecutionScheduler*  Scheduler;
 
   // Some convenient type definitions for STL containers
-  typedef vtksys::hash_map<vtkExecutive*, int, 
+  typedef vtksys::hash_map<vtkExecutive*, int,
     vtkExecutiveHasher>                                 ExecutiveIntHashMap;
   typedef std::pair<int, int>                        Edge;
   class                                                 EdgeHasher;
@@ -110,10 +110,10 @@ public:
   typedef std::multiset<Task, TaskWeakOrdering>      TaskPriorityQueue;
   typedef std::vector<vtkMutexLock*>                 MutexLockVector;
   typedef std::vector<vtkThreadMessager*>            MessagerVector;
-  class EdgeHasher 
+  class EdgeHasher
   {
   public:
-    size_t operator()(const Edge &e) const 
+    size_t operator()(const Edge &e) const
     {
       return (size_t)((e.first << 16) +  e.second);
     }
@@ -127,26 +127,26 @@ public:
   MutexLockVector           InputsReleasedLocks;
   MessagerVector            InputsReleasedMessagers;
   int                       CurrentPriority;
-  
+
   // Description:
   // Start from the exec and go all the way up to the sources (modules
   // without any inputs), then call TraverseDownToSink to update edges
   void FindAndTraverseFromSources(vtkExecutive *exec, vtkExecutiveSet &visited);
-  
+
   // Description:
   // Actual traverse down the network, for each nodes, construct and
   // add edges connecting all of its upstream modules to itself to the
   // dependency graph
   void TraverseDownToSink(vtkExecutive *exec, vtkExecutiveSet &upstream,
                           vtkExecutiveSet &visited);
-  
+
   // Description:
   // Actual traverse down the network, for each nodes, construct and
   // add edges connecting all of its upstream modules to itself to the
   // dependency graph
   void CollectDownToSink(vtkExecutive *exec, vtkExecutiveSet &visited,
                          vtkExecutiveVector &graph);
-  
+
   // Description:
   // A task can be executed if none of its predecessor tasks are still
   // on the queue. This only makes sense for tasks that are currently
@@ -172,7 +172,7 @@ public:
   // Add the given executive to the execution queue for later
   // execution
   void AddToQueue(vtkExecutive *exec, vtkInformation *info);
-  
+
   // Description:
   // Obtain the priority from the information object if it is given,
   // otherwise, use a priority assigned from the scheduler
@@ -239,7 +239,7 @@ void vtkExecutionScheduler::SchedulePropagate(vtkExecutiveCollection *execs, vtk
     {
     this->Implementation->CollectDownToSink(e, visited, graph);
     }
-  
+
   for (vtkExecutiveVector::iterator vi=graph.begin();
        vi!=graph.end(); vi++)
     {
@@ -263,13 +263,13 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
   this->ScheduleLock->Lock();
   vtkExecutiveVector G;
   execs->InitTraversal();
-  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem()) 
+  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem())
     {
     if (this->Implementation->ExecutingTasks.find(e) != this->Implementation->ExecutingTasks.end())
       {
       return;
       }
-    if (this->Implementation->DependencyNodes.find(e) == this->Implementation->DependencyNodes.end()) 
+    if (this->Implementation->DependencyNodes.find(e) == this->Implementation->DependencyNodes.end())
       {
       this->Implementation->UpdateDependencyGraph(e);
       }
@@ -283,21 +283,21 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
   int *degree = (int*)malloc(N*sizeof(int));
   memset(A, 0, N*N*sizeof(int));
   memset(degree, 0, N*sizeof(int));
-  for (i = 0; i < N; i++) 
+  for (i = 0; i < N; i++)
     {
     int src = (*(this->Implementation->DependencyNodes.find(G[i]))).second;
-    for (j = 0; j < N; j++) 
+    for (j = 0; j < N; j++)
       {
       int dst = (*(this->Implementation->DependencyNodes.find(G[j]))).second;
       if (this->Implementation->DependencyEdges.find(implementation::Edge(src, dst)) !=
-          this->Implementation->DependencyEdges.end()) 
+          this->Implementation->DependencyEdges.end())
         {
         A[i*N+j] = 1;
         degree[j]++;
         }
       }
     }
-  
+
   unsigned *S = (unsigned*)malloc(N*sizeof(unsigned));
   k = 0;
   for (j = 0; j < N; j++)
@@ -308,12 +308,12 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
       }
     }
   p = 0;
-  while (p < k) 
+  while (p < k)
     {
     i = S[p++];
     this->Implementation->AddToQueue(G[i], info);
     for (j = 0; j < N; j++)
-      if (A[i*N+j]) 
+      if (A[i*N+j])
         {
         degree[j]--;
         A[i*N+j] = 0;
@@ -326,7 +326,7 @@ void vtkExecutionScheduler::Schedule(vtkExecutiveCollection *execs, vtkInformati
   free(S);
   free(degree);
   free(A);
-        
+
   // Wake the scheduling thread up if it is currently waiting for tasks
   this->ScheduleMessager->SendWakeMessage();
   this->ScheduleLock->Unlock();
@@ -350,24 +350,24 @@ void vtkExecutionScheduler::implementation::FindAndTraverseFromSources
     }
   visited.insert(exec);
   bool isSource = true;
-  for(int i = 0; i < exec->GetNumberOfInputPorts(); ++i) 
+  for(int i = 0; i < exec->GetNumberOfInputPorts(); ++i)
     {
     int nic = exec->GetAlgorithm()->GetNumberOfInputConnections(i);
     vtkInformationVector* inVector = exec->GetInputInformation()[i];
-    for(int j = 0; j < nic; ++j) 
+    for(int j = 0; j < nic; ++j)
       {
       vtkInformation* inInfo = inVector->GetInformationObject(j);
       vtkExecutive* e;
       int producerPort;
       vtkExecutive::PRODUCER()->Get(inInfo, e, producerPort);
-      if (e) 
+      if (e)
         {
         isSource = false;
         this->FindAndTraverseFromSources(e, visited);
         }
       }
     }
-  if (isSource) 
+  if (isSource)
     {
     vtkExecutiveSet upstream;
     vtkExecutiveSet downVisited;
@@ -383,7 +383,7 @@ void vtkExecutionScheduler::implementation::TraverseDownToSink
     {
     return;
     }
-  
+
   // Now mark all edges from upstream modules to exec as dependency edges
   int vId = this->AddToDependencyGraph(exec);
   for (vtkExecutiveSet::const_iterator it = upstream.begin(); it != upstream.end(); it++)
@@ -391,24 +391,24 @@ void vtkExecutionScheduler::implementation::TraverseDownToSink
     implementation::ExecutiveIntHashMap::iterator hit = this->DependencyNodes.find(*it);
     this->DependencyEdges.insert(Edge((*hit).second, vId));
     }
-  
+
   // Mark as visited
   visited.insert(exec);
 
   // Then insert it to the upstream list for going down
   upstream.insert(exec);
-  for(int i = 0; i < exec->GetNumberOfOutputPorts(); ++i) 
+  for(int i = 0; i < exec->GetNumberOfOutputPorts(); ++i)
     {
     vtkInformation* info = exec->GetOutputInformation(i);
     int consumerCount = vtkExecutive::CONSUMERS()->Length(info);
     vtkExecutive** e = vtkExecutive::CONSUMERS()->GetExecutives(info);
     for (int j = 0; j < consumerCount; j++)
-      if (e[j]) 
+      if (e[j])
         {
         this->TraverseDownToSink(e[j], upstream, visited);
         }
     }
-  
+
   // Take it out of the upstream and prepare for back-tracking
   upstream.erase(exec);
 }
@@ -421,7 +421,7 @@ void vtkExecutionScheduler::implementation::CollectDownToSink
     {
     return;
     }
-  
+
   // Mark as visited
   visited.insert(exec);
 
@@ -429,14 +429,14 @@ void vtkExecutionScheduler::implementation::CollectDownToSink
   graph.push_back(exec);
 
   // Then traverse down
-  for(int i = 0; i < exec->GetNumberOfOutputPorts(); ++i) 
+  for(int i = 0; i < exec->GetNumberOfOutputPorts(); ++i)
     {
     vtkInformation* info = exec->GetOutputInformation(i);
     int consumerCount = vtkExecutive::CONSUMERS()->Length(info);
     vtkExecutive** e = vtkExecutive::CONSUMERS()->GetExecutives(info);
     for (int j = 0; j < consumerCount; j++)
       {
-      if (e[j]) 
+      if (e[j])
         {
         this->CollectDownToSink(e[j], visited, graph);
         }
@@ -452,25 +452,25 @@ int vtkExecutionScheduler::implementation::AddToDependencyGraph(vtkExecutive *ex
   implementation::ExecutiveIntHashMap::iterator hit = this->DependencyNodes.find(exec);
   // Check if this is a new module or an untouched sub-network
   int vId = -1;
-  if (hit == this->DependencyNodes.end()) 
+  if (hit == this->DependencyNodes.end())
     {
     vId = (int)this->DependencyNodes.size();
     this->DependencyNodes[exec] = vId;
-    
+
     // Make sure that we have enough thread messagers for this vId
     while (this->TaskDoneMessagers.size()<=(size_t)vId)
       {
       this->TaskDoneMessagers.push_back(vtkThreadMessager::New());
       }
-    
-    while (this->InputsReleasedMessagers.size()<=(size_t)vId) 
+
+    while (this->InputsReleasedMessagers.size()<=(size_t)vId)
       {
       this->InputsReleasedMessagers.push_back(vtkThreadMessager::New());
       this->InputsReleasedLocks.push_back(vtkMutexLock::New());
       }
     }
   // We have this module in our cache before
-  else 
+  else
     {
     vId = (*hit).second;
     }
@@ -481,11 +481,11 @@ int vtkExecutionScheduler::implementation::AddToDependencyGraph(vtkExecutive *ex
 int vtkExecutionScheduler::implementation::AcquirePriority(vtkInformation * info)
 {
   int priority;
-  if (info && info->Has(TASK_PRIORITY())) 
+  if (info && info->Has(TASK_PRIORITY()))
     {
     priority = info->Get(TASK_PRIORITY());
     }
-  else 
+  else
     {
     priority = this->CurrentPriority++;
     }
@@ -498,7 +498,7 @@ void vtkExecutionScheduler::implementation::AddToQueue(vtkExecutive *exec, vtkIn
   int priority = this->AcquirePriority(info);
   this->PrioritizedTasks.insert(Task(priority, exec, info));
   vtkMutexLock *lock = this->Scheduler->GetInputsReleasedLock(exec);
-  if (lock) 
+  if (lock)
     {
 //     fprintf(stderr, "A %s\n", exec->GetAlgorithm()->GetClassName());
     lock->Lock();
@@ -510,7 +510,7 @@ void vtkExecutionScheduler::WaitUntilDone(vtkExecutiveCollection *execs)
 {
   vtkExecutiveSet::const_iterator it;
   execs->InitTraversal();
-  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem()) 
+  for (vtkExecutive *e = execs->GetNextItem(); e != 0; e = execs->GetNextItem())
     {
     this->WaitForTaskDone(e);
     }
@@ -519,7 +519,7 @@ void vtkExecutionScheduler::WaitUntilDone(vtkExecutiveCollection *execs)
 //----------------------------------------------------------------------------
 void vtkExecutionScheduler::WaitUntilAllDone()
 {
-  while (true) 
+  while (true)
     {
     vtkExecutive *exec = NULL;
     this->ScheduleLock->Lock();
@@ -556,7 +556,7 @@ void vtkExecutionScheduler::WaitForTaskDone(vtkExecutive *exec)
 void vtkExecutionScheduler::WaitForInputsReleased(vtkExecutive *exec)
 {
   vtkMutexLock *lock = this->GetInputsReleasedLock(exec);
-  if (lock) 
+  if (lock)
     {
     lock->Lock();
     lock->Unlock();
@@ -569,13 +569,13 @@ void vtkExecutionScheduler::WaitForInputsReleased(vtkExecutive *exec)
 //----------------------------------------------------------------------------
 vtkThreadMessager* vtkExecutionScheduler::GetTaskDoneMessager(vtkExecutive *exec)
 {
-  implementation::ExecutiveIntHashMap::iterator hit = 
+  implementation::ExecutiveIntHashMap::iterator hit =
     this->Implementation->DependencyNodes.find(exec);
-  if (hit != this->Implementation->DependencyNodes.end()) 
+  if (hit != this->Implementation->DependencyNodes.end())
     {
     implementation::TaskPriorityQueue::const_iterator ti;
     for (ti = this->Implementation->PrioritizedTasks.begin();
-         ti != this->Implementation->PrioritizedTasks.end(); ti++) 
+         ti != this->Implementation->PrioritizedTasks.end(); ti++)
       {
       if ((*ti).exec==exec)
         {
@@ -589,13 +589,13 @@ vtkThreadMessager* vtkExecutionScheduler::GetTaskDoneMessager(vtkExecutive *exec
 //----------------------------------------------------------------------------
 vtkMutexLock* vtkExecutionScheduler::GetInputsReleasedLock(vtkExecutive *exec)
 {
-  implementation::ExecutiveIntHashMap::iterator hit = 
+  implementation::ExecutiveIntHashMap::iterator hit =
     this->Implementation->DependencyNodes.find(exec);
-  if (hit != this->Implementation->DependencyNodes.end()) 
+  if (hit != this->Implementation->DependencyNodes.end())
     {
     implementation::TaskPriorityQueue::const_iterator ti;
     for (ti = this->Implementation->PrioritizedTasks.begin();
-         ti != this->Implementation->PrioritizedTasks.end(); ti++) 
+         ti != this->Implementation->PrioritizedTasks.end(); ti++)
       {
       if ((*ti).exec == exec)
         {
@@ -609,13 +609,13 @@ vtkMutexLock* vtkExecutionScheduler::GetInputsReleasedLock(vtkExecutive *exec)
 //----------------------------------------------------------------------------
 vtkThreadMessager* vtkExecutionScheduler::GetInputsReleasedMessager(vtkExecutive *exec)
 {
-  implementation::ExecutiveIntHashMap::iterator hit = 
+  implementation::ExecutiveIntHashMap::iterator hit =
     this->Implementation->DependencyNodes.find(exec);
-  if (hit != this->Implementation->DependencyNodes.end()) 
+  if (hit != this->Implementation->DependencyNodes.end())
     {
     implementation::TaskPriorityQueue::const_iterator ti;
     for (ti = this->Implementation->PrioritizedTasks.begin();
-         ti != this->Implementation->PrioritizedTasks.end(); ti++) 
+         ti != this->Implementation->PrioritizedTasks.end(); ti++)
       {
       if ((*ti).exec==exec)
         {
@@ -631,7 +631,7 @@ void vtkExecutionScheduler::ReleaseResources(vtkExecutive *exec)
 {
   vtkThreadedStreamingPipeline *threadedExec = vtkThreadedStreamingPipeline::
     SafeDownCast(exec);
-  if (threadedExec) 
+  if (threadedExec)
     {
     this->ScheduleLock->Lock();
     this->Resources->Collect(threadedExec->GetResources());
@@ -645,9 +645,9 @@ void vtkExecutionScheduler::ReacquireResources(vtkExecutive *exec)
 {
   vtkThreadedStreamingPipeline *threadedExec = vtkThreadedStreamingPipeline::
     SafeDownCast(exec);
-  if (threadedExec) 
+  if (threadedExec)
     {
-    while (!this->Resources->Reserve(threadedExec->GetResources())) 
+    while (!this->Resources->Reserve(threadedExec->GetResources()))
       {
       this->ResourceMessager->WaitForMessage();
       }
@@ -688,16 +688,16 @@ bool vtkExecutionScheduler::implementation::CanExecuteTask
 
 //----------------------------------------------------------------------------
 void vtkExecutionScheduler::RescheduleFrom(vtkExecutive *exec,
-                                           vtkComputingResources *resources) 
+                                           vtkComputingResources *resources)
 {
   vtkExecutiveVector upstream;
   // Compute the total time
   float totalUpStreamTime = 0.0;
-  for(int i = 0; i < exec->GetNumberOfInputPorts(); ++i) 
+  for(int i = 0; i < exec->GetNumberOfInputPorts(); ++i)
     {
     int nic = exec->GetAlgorithm()->GetNumberOfInputConnections(i);
     vtkInformationVector* inVector = exec->GetInputInformation()[i];
-    for(int j = 0; j < nic; ++j) 
+    for(int j = 0; j < nic; ++j)
       {
       vtkInformation* inInfo = inVector->GetInformationObject(j);
       vtkExecutive* e;
@@ -715,16 +715,16 @@ void vtkExecutionScheduler::RescheduleFrom(vtkExecutive *exec,
     }
 
   // Then distribute the resources based on those ratios
-  vtkProcessingUnitResource *totalResources[] = 
+  vtkProcessingUnitResource *totalResources[] =
     {
       resources->GetResourceFor(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU),
       resources->GetResourceFor(vtkThreadedStreamingPipeline::PROCESSING_UNIT_GPU),
     };
-  for (size_t i = 0; i < upstream.size(); i++) 
+  for (size_t i = 0; i < upstream.size(); i++)
     {
     float ratio = vtkThreadedStreamingPipeline::
       SafeDownCast(upstream[i])->LastDataRequestTimeFromSource/totalUpStreamTime;
-    for (size_t j = 0; j < sizeof(totalResources)/sizeof(vtkProcessingUnitResource*); j++) 
+    for (size_t j = 0; j < sizeof(totalResources)/sizeof(vtkProcessingUnitResource*); j++)
       {
       vtkProcessingUnitResource* moduleResource = vtkThreadedStreamingPipeline::
         SafeDownCast(upstream[i])->GetResources()->
@@ -732,7 +732,7 @@ void vtkExecutionScheduler::RescheduleFrom(vtkExecutive *exec,
       moduleResource->IncreaseByRatio(ratio, totalResources[j]);
       }
     }
-  
+
   // Try to reserve upstream
   for (size_t i = 0; i < upstream.size(); i++)
     {
@@ -743,7 +743,7 @@ void vtkExecutionScheduler::RescheduleFrom(vtkExecutive *exec,
 }
 
 //----------------------------------------------------------------------------
-void vtkExecutionScheduler::RescheduleNetwork(vtkExecutive *sink) 
+void vtkExecutionScheduler::RescheduleNetwork(vtkExecutive *sink)
 {
   this->Resources->ObtainMaximumResources();
   this->RescheduleFrom(sink, this->Resources);
@@ -766,7 +766,7 @@ void vtkExecutionScheduler::ClassFinalize()
 }
 
 //----------------------------------------------------------------------------
-typedef struct 
+typedef struct
 {
   vtkExecutionScheduler *scheduler;
   Task task;
@@ -785,19 +785,19 @@ void * vtkExecutionScheduler_ScheduleThread(void *data)
 {
   vtkExecutionScheduler *self = static_cast<vtkExecutionScheduler*>
     (static_cast<vtkMultiThreader::ThreadInfo*>(data)->UserData);
-  while (true) 
+  while (true)
     {
     self->ScheduleLock->Lock();
     bool needToWait = true;
     vtkExecutionScheduler::implementation::TaskPriorityQueue::iterator ti;
     for (ti = self->Implementation->PrioritizedTasks.begin();
-         ti != self->Implementation->PrioritizedTasks.end(); ti++) 
+         ti != self->Implementation->PrioritizedTasks.end(); ti++)
       {
-      if (self->Implementation->CanExecuteTask(ti)) 
+      if (self->Implementation->CanExecuteTask(ti))
         {
         vtkThreadedStreamingPipeline *exec = vtkThreadedStreamingPipeline::
           SafeDownCast((*ti).exec);
-        if (self->Resources->Reserve(exec->GetResources())) 
+        if (self->Resources->Reserve(exec->GetResources()))
           {
           needToWait = false;
           self->Implementation->ExecutingTasks.insert(exec);
@@ -807,7 +807,7 @@ void * vtkExecutionScheduler_ScheduleThread(void *data)
           }
         }
       }
-    if (needToWait) 
+    if (needToWait)
       {
       self->ScheduleLock->Unlock();
       self->ScheduleMessager->WaitForMessage();

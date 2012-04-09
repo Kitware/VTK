@@ -33,7 +33,7 @@ vtkGlobFileNames* vtkGlobFileNames::New()
 {
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass("vtkGlobFileNames");
-#endif    
+#endif
   return new vtkGlobFileNames;
 }
 
@@ -47,7 +47,7 @@ vtkGlobFileNames::vtkGlobFileNames()
 }
 
 //----------------------------------------------------------------------------
-vtkGlobFileNames::~vtkGlobFileNames() 
+vtkGlobFileNames::~vtkGlobFileNames()
 {
   if (this->Directory)
     {
@@ -63,11 +63,11 @@ vtkGlobFileNames::~vtkGlobFileNames()
 
 //----------------------------------------------------------------------------
 void vtkGlobFileNames::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Directory: " <<  
+  os << indent << "Directory: " <<
     (this->GetDirectory() ? this->GetDirectory() : " none") << "\n";
-  os << indent << "Pattern: " <<  
+  os << indent << "Pattern: " <<
     (this->GetPattern() ? this->GetPattern() : " none") << "\n";
   os << indent << "Recurse: " << (this->GetRecurse() ? "On\n" : "Off\n");
   os << indent << "FileNames:  (" << this->GetFileNames() << ")\n";
@@ -134,7 +134,7 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
 
   // sort them lexicographically
   std::sort(files.begin(), files.end());
-  
+
   // add them onto the list of filenames
   for ( std::vector<std::string>::const_iterator iter = files.begin();
         iter != files.end();
@@ -155,7 +155,7 @@ const char* vtkGlobFileNames::GetNthFileName(int index)
     vtkErrorMacro( << "Bad index for GetFileName on vtkGlobFileNames\n");
     return 0;
     }
-  
+
   return this->FileNames->GetValue(index).c_str();
 }
 

@@ -81,9 +81,9 @@ int vtkStructuredGridGeometryFilter::RequestData(
   outCD = output->GetCellData();
   dims = input->GetDimensions();
   inExt = input->GetExtent();
-  
-  // Based on the dimensions of the structured data, and the extent of 
-  // the geometry, compute the combined extent plus the dimensionality 
+
+  // Based on the dimensions of the structured data, and the extent of
+  // the geometry, compute the combined extent plus the dimensionality
   // of the data.
   //
   dimension = 3;
@@ -99,22 +99,22 @@ int vtkStructuredGridGeometryFilter::RequestData(
       {
       extent[2*i+1] = inExt[2*i+1];
       }
-    
+
     // Handle empty extent.
     if (extent[2*i] > extent[2*i+1])
       {
       return 1;
       }
-    
+
     // Compute dimensions.
     if ( (extent[2*i+1] - extent[2*i]) == 0 )
       {
       dimension--;
       }
     }
-  
+
   // The easiest way to handle the rest of this is to use the "electric slide".
-  // Translate the input extent so that it has minimums 0, 0, 0.  
+  // Translate the input extent so that it has minimums 0, 0, 0.
   // It is only internal to this method, so it is OK.
   extent[0] -= inExt[0];
   extent[1] -= inExt[0];
@@ -122,12 +122,12 @@ int vtkStructuredGridGeometryFilter::RequestData(
   extent[3] -= inExt[2];
   extent[4] -= inExt[4];
   extent[5] -= inExt[4];
-  
+
   // Now create polygonal data based on dimension of data
   //
   // Compute starting index of the point and cell. First the starting
   // point index.
-  startIdx = (extent[0]) + (extent[2])*dims[0] 
+  startIdx = (extent[0]) + (extent[2])*dims[0]
               + (extent[4])*dims[0]*dims[1];
 
   // The cell index is a bit more complicated at the boundaries
@@ -158,7 +158,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
     startCellIdx += (extent[4] < dims[2] - 1) ? extent[4]*(dims[0]-1)*(dims[1]-1)
                                               : (extent[4]-1)*(dims[0]-1)*(dims[1]-1);
     }
-  switch (dimension) 
+  switch (dimension)
     {
     default:
       break;
@@ -186,7 +186,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
       for (dir[0]=dir[1]=dir[2]=totPoints=0, i=0; i<3; i++)
         {
-        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 ) 
+        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 )
           {
           dir[0] = i;
           totPoints = diff[i] + 1;
@@ -202,7 +202,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
       //  Load data
       //
-      if ( dir[0] == 0 ) 
+      if ( dir[0] == 0 )
         {
         offset[0] = 1;
         cellOffset[0] = 1;
@@ -218,7 +218,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
         cellOffset[0] = (dims[0] - 1) * (dims[1] - 1);
         }
 
-      for (i=0; i<totPoints; i++) 
+      for (i=0; i<totPoints; i++)
         {
         idx = startIdx + i*offset[0];
         input->GetPoint(idx, x);
@@ -226,7 +226,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
         outPD->CopyData(pd,idx,ptIds[0]);
         }
 
-      for (i=0; i<(totPoints-1); i++) 
+      for (i=0; i<(totPoints-1); i++)
         {
         if ( input->IsPointVisible(startIdx + i*offset[0]) &&
              input->IsPointVisible(startIdx + (i+1)*offset[0]) )
@@ -268,7 +268,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
       //  Create polygons
       //
-      for (i=0; i<2; i++) 
+      for (i=0; i<2; i++)
         {
         if ( dir[i] == 0 )
           {
@@ -287,11 +287,11 @@ int vtkStructuredGridGeometryFilter::RequestData(
           }
         }
 
-      // Create points whether visible or not.  Makes coding easier 
+      // Create points whether visible or not.  Makes coding easier
       // but generates extra data.
-      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
+      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++)
         {
-        for (i=0; i < (diff[dir[0]]+1); i++) 
+        for (i=0; i < (diff[dir[0]]+1); i++)
           {
           idx = pos + i*offset[0];
           input->GetPoint(idx, x);
@@ -301,14 +301,14 @@ int vtkStructuredGridGeometryFilter::RequestData(
         pos += offset[1];
         }
 
-      for (pos=startIdx, cellPos=startCellIdx, j=0; j < diff[dir[1]]; j++) 
+      for (pos=startIdx, cellPos=startCellIdx, j=0; j < diff[dir[1]]; j++)
         {
-        for (i=0; i < diff[dir[0]]; i++) 
+        for (i=0; i < diff[dir[0]]; i++)
           {
           if (input->IsPointVisible(pos+i*offset[0])
           && input->IsPointVisible(pos+(i+1)*offset[0])
-          && input->IsPointVisible(pos+i*offset[0]+offset[1]) 
-          && input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
+          && input->IsPointVisible(pos+i*offset[0]+offset[1])
+          && input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) )
             {
             idx = cellPos + i*cellOffset[0];
             ptIds[0] = i + j*(diff[dir[0]]+1);
@@ -347,14 +347,14 @@ int vtkStructuredGridGeometryFilter::RequestData(
       offset[0] = dims[0];
       offset[1] = dims[0]*dims[1];
 
-      for (k=0; k < (diff[2]+1); k++) 
+      for (k=0; k < (diff[2]+1); k++)
         {
-        for (j=0; j < (diff[1]+1); j++) 
+        for (j=0; j < (diff[1]+1); j++)
           {
           pos = startIdx + j*offset[0] + k*offset[1];
-          for (i=0; i < (diff[0]+1); i++) 
+          for (i=0; i < (diff[0]+1); i++)
             {
-            if ( input->IsPointVisible(pos+i) ) 
+            if ( input->IsPointVisible(pos+i) )
               {
               input->GetPoint(pos+i, x);
               ptIds[0] = newPts->InsertNextPoint(x);
@@ -453,13 +453,13 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
   int *wholeExt;
   int ext[6];
   vtkExtentTranslator *translator;
-  
+
   translator = vtkExtentTranslator::SafeDownCast(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
   wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   memcpy(ext, wholeExt, 6*sizeof(int));
-  
+
   // Get request from output information
   piece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
@@ -477,11 +477,11 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
       }
     }
   else
-    {    
-    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext, 
+    {
+    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext,
                                         translator->GetSplitMode(),0);
     }
-  
+
   if (ext[0] < this->Extent[0])
     {
     ext[0] = this->Extent[0];
@@ -513,7 +513,7 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
     ext[0] = ext[2] = ext[4] = 0;
     ext[1] = ext[3] = ext[5] = -1;
     }
-  
+
   // Set the update extent of the input.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
   return 1;
@@ -531,10 +531,10 @@ void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
-  os << indent << "  Imin,Imax: (" 
+  os << indent << "  Imin,Imax: ("
      << this->Extent[0] << ", " << this->Extent[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" 
+  os << indent << "  Jmin,Jmax: ("
      << this->Extent[2] << ", " << this->Extent[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" 
+  os << indent << "  Kmin,Kmax: ("
      << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 }

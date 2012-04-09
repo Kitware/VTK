@@ -17,11 +17,11 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkPointsProjectedHull - the convex hull of the orthogonal 
+// .NAME vtkPointsProjectedHull - the convex hull of the orthogonal
 //    projection of the vtkPoints in the 3 coordinate directions
 // .SECTION Description
-//    a subclass of vtkPoints, it maintains the counter clockwise 
-//    convex hull of the points (projected orthogonally in the 
+//    a subclass of vtkPoints, it maintains the counter clockwise
+//    convex hull of the points (projected orthogonally in the
 //    three coordinate directions) and has a method to
 //    test for intersection of that hull with an axis aligned
 //    rectangle.  This is used for intersection tests of 3D volumes.
@@ -47,7 +47,7 @@ public:
 
     int RectangleIntersectionX(vtkPoints *R);
 
-    // Description:  Determine whether the given rectangle intersects 
+    // Description:  Determine whether the given rectangle intersects
     //   the convex hull of the projection of the points along the
     //   positive X-axis.
 
@@ -59,7 +59,7 @@ public:
 
     int RectangleIntersectionY(vtkPoints *R);
 
-    // Description:  Determine whether the given rectangle intersects 
+    // Description:  Determine whether the given rectangle intersects
     //   the convex hull of the projection of the points along the
     //   positive Y-axis.
 
@@ -71,7 +71,7 @@ public:
 
     int RectangleIntersectionZ(vtkPoints *R);
 
-    // Description:  Determine whether the given rectangle intersects 
+    // Description:  Determine whether the given rectangle intersects
     //   the convex hull of the projection of the points along the
     //   positive Z-axis.
 
@@ -79,15 +79,15 @@ public:
     int RectangleIntersectionZ(double xmin, double xmax, double ymin, double ymax);
 
     // Description:
-    //   Returns the coordinates (y,z) of the points in the convex hull 
+    //   Returns the coordinates (y,z) of the points in the convex hull
     //   of the projection of the points down the positive x-axis.  pts has
     //   storage for len*2 values.
-   
+
     int GetCCWHullX(float *pts, int len);
     int GetCCWHullX(double *pts, int len);
 
     // Description:
-    //   Returns the coordinates (z, x) of the points in the convex hull 
+    //   Returns the coordinates (z, x) of the points in the convex hull
     //   of the projection of the points down the positive y-axis.  pts has
     //   storage for len*2 values.
 
@@ -95,7 +95,7 @@ public:
     int GetCCWHullY(double *pts, int len);
 
     // Description:
-    //   Returns the coordinates (x, y) of the points in the convex hull 
+    //   Returns the coordinates (x, y) of the points in the convex hull
     //   of the projection of the points down the positive z-axis.  pts has
     //   storage for len*2 values.
 
@@ -157,9 +157,9 @@ private:
   static int PositionInHull(double *base, double *top, double *pt);
   static int OutsideLine(double hmin, double hmax,
            double vmin, double vmax, double *p0, double *p1, double *insidePt);
-  static int OutsideHorizontalLine(double vmin, double vmax, 
+  static int OutsideHorizontalLine(double vmin, double vmax,
            double *p0, double *p1, double *insidePt);
-  static int OutsideVerticalLine(double hmin, double hmax, double *p0, 
+  static int OutsideVerticalLine(double hmin, double hmax, double *p0,
            double *p1, double *insidePt);
 
   double *Pts;

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageGaussianSource - Create an image with Gaussian pixel values.
 // .SECTION Description
-// vtkImageGaussianSource just produces images with pixel values determined 
+// vtkImageGaussianSource just produces images with pixel values determined
 // by a Gaussian.
 
 
@@ -35,7 +35,7 @@ public:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
                       int zMin, int zMax);
-  
+
   // Description:
   // Set/Get the center of the Gaussian.
   vtkSetVector3Macro(Center, double);

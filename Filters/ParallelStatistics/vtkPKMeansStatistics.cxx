@@ -69,7 +69,7 @@ vtkIdType vtkPKMeansStatistics::GetTotalNumberOfObservations( vtkIdType numObser
     vtkGenericWarningMacro("No parallel communicator.");
     return numObservations;
     }
-  
+
   vtkIdType totalNumObservations;
   com->AllReduce( &numObservations, &totalNumObservations, 1, vtkCommunicator::SUM_OP );
   return totalNumObservations;
@@ -85,9 +85,9 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
                                                  vtkIdTypeArray* endRunID,
                                                  vtkIntArray* computeRun )
 {
-  
+
   int np = this->Controller->GetNumberOfProcesses();
-  if( np < 2 ) 
+  if( np < 2 )
     {
     this->Superclass::UpdateClusterCenters( newClusterElements, curClusterElements, numMembershipChanges,
                                                   numDataElementsInCluster, error, startRunID, endRunID, computeRun );
@@ -103,11 +103,11 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
     return;
     }
 
-  // (All) gather numMembershipChanges 
+  // (All) gather numMembershipChanges
   vtkIdType nm = numMembershipChanges->GetNumberOfTuples();
   vtkIdType nd = numDataElementsInCluster->GetNumberOfTuples();
   vtkIdType totalIntElements =  nm+nd ;
-  vtkIdType* localIntElements = new vtkIdType[totalIntElements]; 
+  vtkIdType* localIntElements = new vtkIdType[totalIntElements];
   vtkIdType* globalIntElements = new vtkIdType[totalIntElements * np];
   vtkIdType* nmPtr = numMembershipChanges->GetPointer( 0 );
   vtkIdType* ndPtr = numDataElementsInCluster->GetPointer( 0 );
@@ -117,7 +117,7 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
 
   for( vtkIdType runID = 0; runID < nm; runID++ )
     {
-    if ( computeRun->GetValue( runID ) ) 
+    if ( computeRun->GetValue( runID ) )
       {
       vtkIdType numChanges = 0;
       for( int j = 0; j < np; j++ )
@@ -132,7 +132,7 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
   vtkIdType numRows = newClusterElements->GetNumberOfRows();
   vtkIdType numElements = numCols*numRows;
 
-  vtkDoubleArray *totalError = vtkDoubleArray::New(); 
+  vtkDoubleArray *totalError = vtkDoubleArray::New();
   totalError->SetNumberOfTuples( numRows );
   totalError->SetNumberOfComponents( 1 );
   com->AllReduce( error, totalError, vtkCommunicator::SUM_OP );
@@ -162,12 +162,12 @@ void vtkPKMeansStatistics::UpdateClusterCenters( vtkTable* newClusterElements,
       {
       for( vtkIdType i = startRunID->GetValue(runID); i < endRunID->GetValue(runID); i++ )
         {
-        newClusterElements->SetRow(i,  this->DistanceFunctor->GetEmptyTuple( numCols ) ); 
+        newClusterElements->SetRow(i,  this->DistanceFunctor->GetEmptyTuple( numCols ) );
         vtkIdType numClusterElements = 0;
         for( int j = 0; j < np; j++ )
           {
-          numClusterElements += globalIntElements[j*totalIntElements + nm + i];                                  
-          this->DistanceFunctor->PairwiseUpdate( newClusterElements, i, allNewClusterElements->GetRow( j*numRows + i ), 
+          numClusterElements += globalIntElements[j*totalIntElements + nm + i];
+          this->DistanceFunctor->PairwiseUpdate( newClusterElements, i, allNewClusterElements->GetRow( j*numRows + i ),
                                                  globalIntElements[j*totalIntElements + nm + i], numClusterElements );
           }
         numDataElementsInCluster->SetValue( i, numClusterElements );
@@ -205,7 +205,7 @@ void vtkPKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   int np = this->Controller->GetNumberOfProcesses();
   if( np < 2 )
     {
-    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters, 
+    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters,
                                                    inData, curClusterElements, newClusterElements );
     return;
     }
@@ -214,7 +214,7 @@ void vtkPKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   if ( ! com )
     {
     vtkGenericWarningMacro("No parallel communicator.");
-    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters, 
+    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters,
                                                    inData, curClusterElements, newClusterElements );
     return;
     }
@@ -227,7 +227,7 @@ void vtkPKMeansStatistics::CreateInitialClusterCenters(vtkIdType numToAllocate,
   // generate data on one node only
   if( myRank == broadcastNode )
     {
-    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters, 
+    this->Superclass::CreateInitialClusterCenters( numToAllocate, numberOfClusters,
                                                    inData, curClusterElements, newClusterElements );
     }
 

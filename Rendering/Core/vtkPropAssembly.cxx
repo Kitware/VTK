@@ -54,7 +54,7 @@ void vtkPropAssembly::AddPart(vtkProp *prop)
     this->Parts->AddItem(prop);
     prop->AddConsumer(this);
     this->Modified();
-    } 
+    }
 }
 
 // Remove a part from the list of parts,
@@ -65,11 +65,11 @@ void vtkPropAssembly::RemovePart(vtkProp *prop)
     prop->RemoveConsumer(this);
     this->Parts->RemoveItem(prop);
     this->Modified();
-    } 
+    }
 }
 
 // Get the list of parts for this prop assembly.
-vtkPropCollection *vtkPropAssembly::GetParts() 
+vtkPropCollection *vtkPropAssembly::GetParts()
 {
   return this->Parts;
 }
@@ -81,15 +81,15 @@ int vtkPropAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int renderedSomething=0;
-  
+
   // Make sure the paths are up-to-date
   this->UpdatePaths();
-  
+
   double numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
-  fraction = numberOfItems >= 1.0 ? 
+  fraction = numberOfItems >= 1.0 ?
     this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
-    
-  
+
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
@@ -114,10 +114,10 @@ int vtkPropAssembly::HasTranslucentPolygonalGeometry()
   vtkProp *prop;
   vtkAssemblyPath *path;
   int result=0;
-  
+
   // Make sure the paths are up-to-date
   this->UpdatePaths();
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); !result && (path = this->Paths->GetNextPath(sit)); )
@@ -139,14 +139,14 @@ int vtkPropAssembly::RenderVolumetricGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int renderedSomething=0;
-  
+
    // Make sure the paths are up-to-date
   this->UpdatePaths();
-  
+
   double numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
-  fraction = numberOfItems >= 1.0 ? 
+  fraction = numberOfItems >= 1.0 ?
     this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
@@ -177,9 +177,9 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   this->UpdatePaths();
 
   numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
-  fraction = numberOfItems >= 1.0 ? 
+  fraction = numberOfItems >= 1.0 ?
     this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
@@ -210,9 +210,9 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
   this->UpdatePaths();
 
   numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
-  fraction = numberOfItems >= 1.0 ? 
+  fraction = numberOfItems >= 1.0 ?
     this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
-  
+
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
     {
@@ -238,7 +238,7 @@ void vtkPropAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 
   // broadcast the message down the Parts
   vtkCollectionSimpleIterator pit;
-  for ( this->Parts->InitTraversal(pit); 
+  for ( this->Parts->InitTraversal(pit);
         (part=this->Parts->GetNextProp(pit)); )
     {
     part->ReleaseGraphicsResources(renWin);
@@ -255,13 +255,13 @@ double *vtkPropAssembly::GetBounds()
 
   // carefully compute the bounds
   vtkCollectionSimpleIterator pit;
-  for ( this->Parts->InitTraversal(pit); 
+  for ( this->Parts->InitTraversal(pit);
         (part=this->Parts->GetNextProp(pit)); )
     {
     if ( part->GetVisibility() && part->GetUseBounds() )
       {
       bounds = part->GetBounds();
-      
+
       if ( bounds != NULL )
         {
         //  For the purposes of GetBounds, an object is visisble only if
@@ -273,7 +273,7 @@ double *vtkPropAssembly::GetBounds()
           this->Bounds[1] =this->Bounds[3] =this->Bounds[5] = -VTK_DOUBLE_MAX;
           partVisible = 1;
           }
-        
+
         // fill out vertices of a bounding box
         bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
         bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
@@ -283,7 +283,7 @@ double *vtkPropAssembly::GetBounds()
         bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
         bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
         bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
-        
+
         for (i = 0; i < 8; i++)
           {
           for (n = 0; n < 3; n++)
@@ -301,7 +301,7 @@ double *vtkPropAssembly::GetBounds()
         }//if bounds
       }//for each part
     }//for each part
-  
+
   if ( ! partVisible )
     {
     return NULL;
@@ -319,7 +319,7 @@ unsigned long int vtkPropAssembly::GetMTime()
   vtkProp *part;
 
   vtkCollectionSimpleIterator pit;
-  for (this->Parts->InitTraversal(pit); 
+  for (this->Parts->InitTraversal(pit);
        (part=this->Parts->GetNextProp(pit)); )
     {
     time = part->GetMTime();
@@ -392,11 +392,11 @@ void vtkPropAssembly::UpdatePaths()
 
     //add ourselves to the path to start things off
     path->AddNode(this,NULL);
-    
+
     vtkProp *prop;
     // Add nodes as we proceed down the hierarchy
     vtkCollectionSimpleIterator pit;
-    for ( this->Parts->InitTraversal(pit); 
+    for ( this->Parts->InitTraversal(pit);
           (prop = this->Parts->GetNextProp(pit)); )
       {
       // add a matrix, if any
@@ -404,24 +404,24 @@ void vtkPropAssembly::UpdatePaths()
 
       // dive into the hierarchy
       prop->BuildPaths(this->Paths,path);
-      
+
       // when returned, pop the last node off of the
       // current path
       path->DeleteLastNode();
       }
-    
+
     path->Delete();
     this->PathTime.Modified();
     }
 }
 
-void vtkPropAssembly::BuildPaths(vtkAssemblyPaths *paths, 
+void vtkPropAssembly::BuildPaths(vtkAssemblyPaths *paths,
                                  vtkAssemblyPath *path)
 {
   vtkProp *prop;
 
   vtkCollectionSimpleIterator pit;
-  for ( this->Parts->InitTraversal(pit); 
+  for ( this->Parts->InitTraversal(pit);
         (prop = this->Parts->GetNextProp(pit)); )
     {
     path->AddNode(prop,NULL);

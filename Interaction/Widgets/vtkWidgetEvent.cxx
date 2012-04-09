@@ -18,7 +18,7 @@
 // this list should only contain the initial, contiguous
 // set of events and should not include UserEvent
 static const char *vtkWidgetEventStrings[] = {
-  "NoEvent", 
+  "NoEvent",
   "Select",
   "EndSelect",
   "Delete",
@@ -73,7 +73,7 @@ unsigned long vtkWidgetEvent::GetEventIdFromString(const char *event)
   unsigned long i;
 
   for (i = 0; vtkWidgetEventStrings[i] != NULL; i++)
-    { 
+    {
     if (!strcmp(vtkWidgetEventStrings[i],event))
       {
       return i;

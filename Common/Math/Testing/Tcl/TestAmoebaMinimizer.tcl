@@ -12,9 +12,9 @@ proc func {} {
     set x  [m GetParameterValue "x"]
     set y  [m GetParameterValue "y"]
     set z  [m GetParameterValue "z"]
-    
+
     set r  [expr ($x-5.0)*($x-5.0) + ($y+2.0)*($y+2.0) + ($z)*($z)]
-    
+
     m SetFunctionValue $r
 }
 

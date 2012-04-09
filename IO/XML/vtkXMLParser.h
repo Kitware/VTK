@@ -83,8 +83,8 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // If this is off (the default), CharacterDataHandler will be called to 
-  // process text within XML Elements. If this is on, the text will be 
+  // If this is off (the default), CharacterDataHandler will be called to
+  // process text within XML Elements. If this is on, the text will be
   // ignored.
   vtkSetMacro(IgnoreCharacterData, int);
   vtkGetMacro(IgnoreCharacterData, int);

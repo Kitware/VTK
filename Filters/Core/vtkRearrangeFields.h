@@ -21,8 +21,8 @@
 // (i.e. the field will be copied but will not be an attribute in the
 // target), 2. the type which copies/moves fields by name. For example:
 // @verbatim
-// rf->AddOperation(vtkRearrangeFields::COPY, "foo", 
-//                  vtkRearrangeFields::DATA_OBJECT, 
+// rf->AddOperation(vtkRearrangeFields::COPY, "foo",
+//                  vtkRearrangeFields::DATA_OBJECT,
 //                  vtkRearrangeFields::POINT_DATA);
 // @endverbatim
 // adds an operation which copies a field (data array) called foo from
@@ -40,8 +40,8 @@
 // @endverbatim
 
 // .SECTION Caveats
-// When using Tcl, Java, Python or Visual Basic bindings, the array name 
-// can not be one of the  AttributeTypes when calling AddOperation() which 
+// When using Tcl, Java, Python or Visual Basic bindings, the array name
+// can not be one of the  AttributeTypes when calling AddOperation() which
 // takes strings as arguments. The Tcl (Java etc.) command will
 // always assume the string corresponds to an attribute type when
 // the argument is one of the AttributeTypes. In this situation,
@@ -93,14 +93,14 @@ public:
   int AddOperation(int operationType, int attributeType, int fromFieldLoc,
                    int toFieldLoc);
   // Description:
-  // Add an operation which copies a field (data array) from one field 
+  // Add an operation which copies a field (data array) from one field
   // data to another. Returns an operation id which can later
   // be used to remove the operation.
   int AddOperation(int operationType, const char* name, int fromFieldLoc,
                    int toFieldLoc);
   // Description:
   // Helper method used by other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.Returns an operation id 
+  // specify arguments as strings instead of enums.Returns an operation id
   // which can later be used to remove the operation.
   int AddOperation(const char* operationType, const char* attributeType,
                    const char* fromFieldLoc,  const char* toFieldLoc);
@@ -126,13 +126,13 @@ public:
 
   // Description:
   // Remove all operations.
-  void RemoveAllOperations() 
-    { 
+  void RemoveAllOperations()
+    {
     this->Modified();
-    this->LastId = 0; 
-    this->DeleteAllOperations(); 
+    this->LastId = 0;
+    this->DeleteAllOperations();
     }
-  
+
 //BTX
   enum FieldType
   {
@@ -144,7 +144,7 @@ public:
   {
     int OperationType; // COPY or MOVE
     int FieldType;     // NAME or ATTRIBUTE
-    char* FieldName;   
+    char* FieldName;
     int AttributeType;
     int FromFieldLoc; // fd, pd or do
     int ToFieldLoc;   // fd, pd or do
@@ -179,10 +179,10 @@ protected:
   void DeleteOperation(Operation* op, Operation* before);
   Operation* FindOperation(int id, Operation*& before);
   Operation* FindOperation(const char* name, Operation*& before);
-  Operation* FindOperation(int operationType, const char* name, 
+  Operation* FindOperation(int operationType, const char* name,
                            int fromFieldLoc, int toFieldLoc,
                            Operation*& before);
-  Operation* FindOperation(int operationType, int attributeType, 
+  Operation* FindOperation(int operationType, int attributeType,
                            int fromFieldLoc, int toFieldLoc,
                            Operation*& before);
   // Used when finding/deleting an operation given a signature.
@@ -195,7 +195,7 @@ protected:
   // pointer to the corresponding field data.
   vtkFieldData* GetFieldDataFromLocation(vtkDataSet* ds, int fieldLoc);
 
-  // Used by AddOperation() and RemoveOperation() designed to be used 
+  // Used by AddOperation() and RemoveOperation() designed to be used
   // from other language bindings.
   static char OperationTypeNames[2][5];
   static char FieldLocationNames[3][12];

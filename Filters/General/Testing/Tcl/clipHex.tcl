@@ -125,14 +125,14 @@ vtkTransform aLabelTransform
 vtkTransformPolyDataFilter labelTransform
     labelTransform SetTransform aLabelTransform
     labelTransform SetInputConnection [caseLabel GetOutputPort]
-  
+
 vtkPolyDataMapper labelMapper
     labelMapper SetInputConnection [labelTransform GetOutputPort];
- 
+
 vtkActor labelActor
     labelActor SetMapper labelMapper
- 
-#define the base 
+
+#define the base
 vtkCubeSource baseModel
     baseModel SetXLength 1.5
     baseModel SetYLength .01

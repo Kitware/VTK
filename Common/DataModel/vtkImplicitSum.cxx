@@ -54,7 +54,7 @@ unsigned long int vtkImplicitSum::GetMTime()
     }
 
   vtkCollectionSimpleIterator sit;
-  for (this->FunctionList->InitTraversal(sit); 
+  for (this->FunctionList->InitTraversal(sit);
        (f=this->FunctionList->GetNextImplicitFunction(sit)); )
     {
     fMtime = f->GetMTime();
@@ -85,7 +85,7 @@ void vtkImplicitSum::SetFunctionWeight(vtkImplicitFunction *f, double scale)
     vtkWarningMacro("Function not found in function list");
     return;
     }
-  loc--; // IsItemPresent returns index+1. 
+  loc--; // IsItemPresent returns index+1.
 
   if ( this->Weights->GetValue(loc) != scale )
     {
@@ -105,7 +105,7 @@ void vtkImplicitSum::RemoveAllFunctions()
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitSum::CalculateTotalWeight(void) 
+void vtkImplicitSum::CalculateTotalWeight(void)
 {
   this->TotalWeight = 0.0;
 
@@ -127,16 +127,16 @@ double vtkImplicitSum::EvaluateFunction(double x[3])
   double *weights = this->Weights->GetPointer(0);
 
   vtkCollectionSimpleIterator sit;
-  for (i = 0, this->FunctionList->InitTraversal(sit); 
+  for (i = 0, this->FunctionList->InitTraversal(sit);
        (f=this->FunctionList->GetNextImplicitFunction(sit)); i++)
-    { 
+    {
     c = weights[i];
     if (c != 0.0)
       {
       sum += f->FunctionValue(x)*c;
       }
     }
-  if (this->NormalizeByWeight && this->TotalWeight != 0.0) 
+  if (this->NormalizeByWeight && this->TotalWeight != 0.0)
     {
     sum /= this->TotalWeight;
     }
@@ -155,11 +155,11 @@ void vtkImplicitSum::EvaluateGradient(double x[3], double g[3])
 
   g[0] = g[1] = g[2] = 0.0;
   vtkCollectionSimpleIterator sit;
-  for (i = 0, this->FunctionList->InitTraversal(sit); 
+  for (i = 0, this->FunctionList->InitTraversal(sit);
        (f=this->FunctionList->GetNextImplicitFunction(sit)); i++)
     {
     c = weights[i];
-    if ( c != 0.0 ) 
+    if ( c != 0.0 )
       {
       f->FunctionGradient(x, gtmp);
       g[0] += gtmp[0]*c;
@@ -168,7 +168,7 @@ void vtkImplicitSum::EvaluateGradient(double x[3], double g[3])
       }
     }
 
-  if (this->NormalizeByWeight && this->TotalWeight != 0.0) 
+  if (this->NormalizeByWeight && this->TotalWeight != 0.0)
     {
     g[0] /= this->TotalWeight;
     g[1] /= this->TotalWeight;
@@ -181,7 +181,7 @@ void vtkImplicitSum::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "NormalizeByWeight: " 
+  os << indent << "NormalizeByWeight: "
      << (this->NormalizeByWeight ? "On\n" : "Off\n");
 
   os << indent << "Function List:\n";

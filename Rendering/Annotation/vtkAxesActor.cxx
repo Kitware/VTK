@@ -359,28 +359,28 @@ double *vtkAxesActor::GetBounds()
   this->ZAxisShaft->GetBounds(bounds);
   for ( i = 0; i < 3; ++i )
     {
-    this->Bounds[2*i+1] = 
+    this->Bounds[2*i+1] =
       (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->XAxisTip->GetBounds(bounds);
   for ( i = 0; i < 3; ++i )
     {
-    this->Bounds[2*i+1] = 
+    this->Bounds[2*i+1] =
       (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->YAxisTip->GetBounds(bounds);
   for ( i = 0; i < 3; ++i )
     {
-    this->Bounds[2*i+1] = 
+    this->Bounds[2*i+1] =
       (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
   this->ZAxisTip->GetBounds(bounds);
   for ( i = 0; i < 3; ++i )
     {
-    this->Bounds[2*i+1] = 
+    this->Bounds[2*i+1] =
       (bounds[2*i+1]>this->Bounds[2*i+1])?(bounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
@@ -390,7 +390,7 @@ double *vtkAxesActor::GetBounds()
 
   for ( i = 0; i < 3; ++i )
     {
-    this->Bounds[2*i+1] = 
+    this->Bounds[2*i+1] =
       (dbounds[2*i+1]>this->Bounds[2*i+1])?(dbounds[2*i+1]):(this->Bounds[2*i+1]);
     }
 
@@ -827,7 +827,7 @@ void vtkAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  
+
   os << indent << "UserDefinedTip: ";
   if (this->UserDefinedTip)
     {
@@ -837,7 +837,7 @@ void vtkAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  
+
   os << indent << "XAxisLabelText: " << (this->XAxisLabelText ?
                                          this->XAxisLabelText : "(none)")
      << endl;
@@ -873,7 +873,7 @@ void vtkAxesActor::PrintSelf(ostream& os, vtkIndent indent)
      << this->TotalLength[0] << ","
      << this->TotalLength[1] << ","
      << this->TotalLength[2] << endl;
-     
+
   os << indent << "NormalizedLabelPosition: "
      << this->NormalizedLabelPosition[0] << ","
      << this->NormalizedLabelPosition[1] << ","

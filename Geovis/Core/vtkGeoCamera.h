@@ -29,7 +29,7 @@
 // to the earth.  I am going to keep view up of the camera orthogonalized to
 // avoid the singularity that exists when the camera is pointing straight down.
 // In this case, view up is the same as heading.
-// 
+//
 // The state of the view is specified by the vector:
 // (Longitude,Latitude,Distance,Heading,Tilt).
 //   Longitude in degrees: (-180->180)
@@ -42,30 +42,30 @@
 //                       ???? what about equatorial bulge ????
 //   Heading in degrees:  (-180->180)
 //     Relative to Logitude and Latitude.
-//     0 is north. 
+//     0 is north.
 //     90 is east.       ???? what is the standard ????
 //     180 is south.
-//     -90 is west.  
+//     -90 is west.
 //   Tilt in degrees: (0->90)
 //     Relative to Longitude, Latitude, Distance and Heading.
-//  
-//   
+//
+//
 // Transformation:
 //   Post concatenate.
 //   All rotations use right hand rule and are around (0,0,0) (earth center).
 //   (0,0,0,0,0) is this rectilinear point (0, EarthRadius, 0)
 //               pointing (0,0,1), view up (0,1,0).
-//   
-//   Rotate Tilt       around x axis,             
-//   Rotate Heading    around -y axis Center,     
+//
+//   Rotate Tilt       around x axis,
+//   Rotate Heading    around -y axis Center,
 //   Translate EarthRadius in y direction.
-//   Rotate Latitude   around x axis by Latitude, 
+//   Rotate Latitude   around x axis by Latitude,
 //   Rotate Longitude  around z axis (earth axis),
-//   
+//
 
 // .SECTION See Also
-// vtkGeoInteractorStyle vtkCamera 
-   
+// vtkGeoInteractorStyle vtkCamera
+
 #ifndef __vtkGeoCamera_h
 #define __vtkGeoCamera_h
 
@@ -98,7 +98,7 @@ public:
   // Description:
   //  Latitude is in degrees: (-90->90)
   //    Relative to Longitude.
-  //  Rotate Latitude   around x axis by Latitude, 
+  //  Rotate Latitude   around x axis by Latitude,
   void SetLatitude(double latitude);
   vtkGetMacro(Latitude,double);
 
@@ -113,11 +113,11 @@ public:
   // Description:
   // Heading is in degrees:  (-180->180)
   //   Relative to Logitude and Latitude.
-  //   0 is north. 
+  //   0 is north.
   //   90 is east.       ???? what is the standard ????
   //   180 is south.
-  //   -90 is west.  
-  //  Rotate Heading    around -y axis Center,     
+  //   -90 is west.
+  //  Rotate Heading    around -y axis Center,
   void SetHeading(double heading);
   vtkGetMacro(Heading,double);
 
@@ -125,10 +125,10 @@ public:
   // Tilt is also know as pitch.
   // Tilt is in degrees: (0->90)
   //   Relative to Longitude, Latitude, and Heading.
-  // Rotate Tilt       around x axis,             
+  // Rotate Tilt       around x axis,
   void SetTilt(double tilt);
   vtkGetMacro(Tilt,double);
-  
+
   // Description:
   // This vtk camera is updated to match this geo cameras state.
   // It should be treated as a const and should not be modified.
@@ -144,7 +144,7 @@ public:
   // This method estimates how much of the view is covered by the sphere.
   // Returns a value from 0 to 1.
   double GetNodeCoverage(vtkGeoTerrainNode* node);
-  
+
   // Description:
   // Whether to lock the heading a particular value,
   // or to let the heading "roam free" when performing
@@ -152,7 +152,7 @@ public:
   vtkGetMacro(LockHeading, bool);
   vtkSetMacro(LockHeading, bool);
   vtkBooleanMacro(LockHeading, bool);
-  
+
   // Description:
   // This point is shifted to 0,0,0 to avoid openGL issues.
   void SetOriginLatitude(double oLat);
@@ -168,30 +168,30 @@ public:
     this->Origin[0] = ox; this->Origin[1] = oy; this->Origin[2] = oz;
     this->UpdateVTKCamera();
   }
-  
+
 protected:
   vtkGeoCamera();
   ~vtkGeoCamera();
 
   void UpdateVTKCamera();
   void UpdateAngleRanges();
-  
+
 //BTX
   vtkSmartPointer<vtkCamera> VTKCamera;
   vtkSmartPointer<vtkTransform> Transform;
 //ETX
-  
+
   // This point is shifted to 0,0,0 to avoid openGL issues.
   double OriginLatitude;
   double OriginLongitude;
   double Origin[3];
   void ComputeRectilinearOrigin();
-  
+
   double Longitude;
   double Latitude;
   double Distance;
   double Heading;
-  double Tilt;  
+  double Tilt;
   bool   LockHeading;
 
   // Values precomputed to make updating terrain mode efficient.
@@ -200,15 +200,15 @@ protected:
   double RightNormal[3];
   double UpNormal[3];
   double Aspect[2];
-  
+
   // Frustum planes is better than other options for culling spheres.
   double LeftPlaneNormal[3];
   double RightPlaneNormal[3];
   double DownPlaneNormal[3];
   double UpPlaneNormal[3];
-  
+
   double Position[3];
-  
+
 private:
   vtkGeoCamera(const vtkGeoCamera&);  // Not implemented.
   void operator=(const vtkGeoCamera&);  // Not implemented.

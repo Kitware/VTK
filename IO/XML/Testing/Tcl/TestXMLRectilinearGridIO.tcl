@@ -16,13 +16,13 @@ vtkExtractRectilinearGrid extract
   extract SetVOI 0 23 0 32 0 10
   extract Update
 
-# write just a piece (extracted piece) as well as the whole thing  
+# write just a piece (extracted piece) as well as the whole thing
 vtkXMLRectilinearGridWriter rgWriter
   rgWriter SetFileName $file0
   rgWriter SetInputConnection [extract GetOutputPort]
   rgWriter SetDataModeToAscii
   rgWriter Write
-  
+
   rgWriter SetFileName $file1
   rgWriter SetInputConnection [gridReader GetOutputPort]
   rgWriter SetDataModeToAppended
@@ -33,7 +33,7 @@ vtkXMLRectilinearGridWriter rgWriter
   rgWriter SetDataModeToBinary
   rgWriter SetWriteExtent 3 46 6 32 1 5
   rgWriter SetCompressor ""
-  if {[rgWriter GetByteOrder]} {  
+  if {[rgWriter GetByteOrder]} {
     rgWriter SetByteOrder 0
   } else {
     rgWriter SetByteOrder 1

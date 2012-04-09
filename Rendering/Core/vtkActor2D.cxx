@@ -94,13 +94,13 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
 
   this->Property->Render(viewport);
 
-  if (!this->Mapper) 
+  if (!this->Mapper)
     {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
     return 0;
     }
 
-  this->Mapper->RenderOverlay(viewport, this); 
+  this->Mapper->RenderOverlay(viewport, this);
 
   return 1;
 }
@@ -120,7 +120,7 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
   this->Property->Render(viewport);
 
-  if (!this->Mapper) 
+  if (!this->Mapper)
     {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
     return 0;
@@ -146,7 +146,7 @@ int vtkActor2D::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 
   this->Property->Render(viewport);
 
-  if (!this->Mapper) 
+  if (!this->Mapper)
     {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
     return 0;
@@ -172,7 +172,7 @@ int vtkActor2D::HasTranslucentPolygonalGeometry()
     }
   return result;
 }
-  
+
 //----------------------------------------------------------------------------
 unsigned long int vtkActor2D::GetMTime()
 {
@@ -221,7 +221,7 @@ void vtkActor2D::SetHeight(double w)
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(pos[0],w);
 }
-    
+
 //----------------------------------------------------------------------------
 double vtkActor2D::GetWidth()
 {

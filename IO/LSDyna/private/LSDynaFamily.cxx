@@ -369,7 +369,7 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
 
   VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
   vtkIdType amountMoved = VTK_LSDYNA_TELL(this->FD) - currentPos;
-  
+
   offset -= amountMoved;
   if(offset>0)
     {
@@ -396,7 +396,7 @@ int LSDynaFamily::SkipWords( vtkIdType numWords )
     //seek into the file the current offset amount
     VTK_LSDYNA_SEEK(this->FD, offset, SEEK_CUR);
     amountMoved = VTK_LSDYNA_TELL(this->FD);
-    offset -= amountMoved;    
+    offset -= amountMoved;
     }
 
   this->FWord = VTK_LSDYNA_TELL(this->FD);
@@ -580,7 +580,7 @@ int LSDynaFamily::AdvanceFile()
       {
       this->FNum = 0;
       this->FAdapt = 0;
-      return 0;      
+      return 0;
       }
     else
       {

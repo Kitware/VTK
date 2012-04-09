@@ -40,7 +40,7 @@ public:
   // Description:
   // Return the maximum number of levels of the hyperoctree.
   int GetMaximumLevel();
-  
+
   // Description:
   // Set the maximum number of levels of the hyperoctree.
   void SetMaximumLevel(int levels);
@@ -52,10 +52,10 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   virtual int FillOutputPortInformation(int port, vtkInformation *info);
-  
+
   vtkHyperOctree *Input;
   vtkHyperOctree *Output;
-    
+
   void BuildNextCell(vtkHyperOctreeCursor *, vtkHyperOctreeCursor *, int);
 
   void AddInteriorAttributes(vtkHyperOctreeCursor *, int);

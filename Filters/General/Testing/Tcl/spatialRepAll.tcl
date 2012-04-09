@@ -49,8 +49,8 @@ renWin SetSize 400 160
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 vtkCamera camera
-  camera SetPosition 148.579 136.352 214.961 
-  camera SetFocalPoint 151.889 86.3178 223.333 
+  camera SetPosition 148.579 136.352 214.961
+  camera SetFocalPoint 151.889 86.3178 223.333
   camera SetViewAngle 30
   camera SetViewUp 0 0 -1
   camera SetClippingRange 1 100

@@ -100,11 +100,11 @@ public:
   // Description:
   // Key defining a request to make sure the output data objects exist.
   static vtkInformationRequestKey* REQUEST_DATA_OBJECT();
-  
+
   // Description:
   // Key defining a request to make sure the output information is up to date.
   static vtkInformationRequestKey* REQUEST_INFORMATION();
-  
+
   // Description:
   // Key defining a request to make sure the output data are up to date.
   static vtkInformationRequestKey* REQUEST_DATA();
@@ -127,7 +127,7 @@ public:
 
   // Description:
   // Create (New) and return a data object of the given type.
-  // This is here for backwards compatibility. Use 
+  // This is here for backwards compatibility. Use
   // vtkDataObjectTypes::NewDataObject() instead.
   static vtkDataObject* NewDataObject(const char* type);
 
@@ -212,7 +212,7 @@ protected:
   vtkInformation *InfoRequest;
   vtkInformation *DataObjectRequest;
   vtkInformation *DataRequest;
-  
+
 private:
   vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkDemandDrivenPipeline&);  // Not implemented.

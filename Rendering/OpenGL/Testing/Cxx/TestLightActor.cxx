@@ -14,7 +14,7 @@
 =========================================================================*/
 // This test covers the vtkLightActor and vtkCameraActor for scene
 // introspection.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -71,46 +71,46 @@ int TestLightActor(int argc, char* argv[])
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
-  
+
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
   vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
   vtkCameraPass *cameraP=vtkCameraPass::New();
-  
+
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkOpaquePass *opaque=vtkOpaquePass::New();
   vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
   peeling->SetMaximumNumberOfPeels(200);
   peeling->SetOcclusionRatio(0.1);
-  
+
   vtkTranslucentPass *translucent=vtkTranslucentPass::New();
   peeling->SetTranslucentPass(translucent);
-  
+
   vtkVolumetricPass *volume=vtkVolumetricPass::New();
   vtkOverlayPass *overlay=vtkOverlayPass::New();
-  
+
   vtkLightsPass *lights=vtkLightsPass::New();
-  
+
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
-  
+
   passes->AddItem(peeling);
 //  passes->AddItem(translucent);
-  
+
   passes->AddItem(volume);
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  
+
   glrenderer->SetPass(cameraP);
-  
+
   opaque->Delete();
   peeling->Delete();
   translucent->Delete();
@@ -120,20 +120,20 @@ int TestLightActor(int argc, char* argv[])
   passes->Delete();
   cameraP->Delete();
   lights->Delete();
-  
+
   // The scene consists of
   // * 4 actors: a rectangle, a box, a cone and a sphere. The box, the cone and
   // the sphere are above the rectangle.
   // * 2 spotlights: one in the direction of the box, another one in the
   // direction of the sphere. Both lights are above the box, the cone and
   // the sphere.
-  
+
   vtkPlaneSource *rectangleSource=vtkPlaneSource::New();
   rectangleSource->SetOrigin(-5.0,0.0,5.0);
   rectangleSource->SetPoint1(5.0,0.0,5.0);
   rectangleSource->SetPoint2(-5.0,0.0,-5.0);
   rectangleSource->SetResolution(100,100);
-  
+
   vtkPolyDataMapper *rectangleMapper=vtkPolyDataMapper::New();
   rectangleMapper->SetInputConnection(rectangleSource->GetOutputPort());
   rectangleSource->Delete();
@@ -147,7 +147,7 @@ int TestLightActor(int argc, char* argv[])
   rectangleMapper->Delete();
   rectangleActor->SetVisibility(1);
   rectangleActor->GetProperty()->SetColor(1.0,1.0,1.0);
-  
+
   vtkCubeSource *boxSource=vtkCubeSource::New();
   boxSource->SetXLength(2.0);
   vtkPolyDataMapper *boxMapper=vtkPolyDataMapper::New();
@@ -160,7 +160,7 @@ int TestLightActor(int argc, char* argv[])
   boxActor->SetVisibility(1);
   boxActor->SetPosition(-2.0,2.0,0.0);
   boxActor->GetProperty()->SetColor(1.0,0.0,0.0);
-  
+
   vtkConeSource *coneSource=vtkConeSource::New();
   coneSource->SetResolution(24);
   coneSource->SetDirection(1.0,1.0,1.0);
@@ -175,7 +175,7 @@ int TestLightActor(int argc, char* argv[])
   coneActor->SetPosition(0.0,1.0,1.0);
   coneActor->GetProperty()->SetColor(0.0,0.0,1.0);
 //  coneActor->GetProperty()->SetLighting(false);
-  
+
   vtkSphereSource *sphereSource=vtkSphereSource::New();
   sphereSource->SetThetaResolution(32);
   sphereSource->SetPhiResolution(32);
@@ -189,7 +189,7 @@ int TestLightActor(int argc, char* argv[])
   sphereActor->SetVisibility(1);
   sphereActor->SetPosition(2.0,2.0,-1.0);
   sphereActor->GetProperty()->SetColor(1.0,1.0,0.0);
-  
+
   renderer->AddViewProp(rectangleActor);
   rectangleActor->Delete();
   renderer->AddViewProp(boxActor);
@@ -198,10 +198,10 @@ int TestLightActor(int argc, char* argv[])
   coneActor->Delete();
   renderer->AddViewProp(sphereActor);
   sphereActor->Delete();
-  
-  
+
+
   // Spotlights.
-  
+
   // lighting the box.
   vtkLight *l1=vtkLight::New();
   l1->SetPosition(-4.0,4.0,-1.0);
@@ -210,7 +210,7 @@ int TestLightActor(int argc, char* argv[])
   l1->SetPositional(1);
   renderer->AddLight(l1);
   l1->Delete();
-  
+
   // lighting the sphere
   vtkLight *l2=vtkLight::New();
   l2->SetPosition(4.0,5.0,1.0);
@@ -219,15 +219,15 @@ int TestLightActor(int argc, char* argv[])
   l2->SetPositional(1);
   renderer->AddLight(l2);
   l2->Delete();
-  
-  
+
+
   AddLightActors(renderer);
-  
+
   renderer->SetBackground(0.66,0.66,0.66);
   renderer->SetBackground2(157.0/255.0*0.66,186/255.0*0.66,192.0/255.0*0.66);
   renderer->SetGradientBackground(true);
   renWin->SetSize(400,400);
-  
+
   renWin->Render();
   if(peeling->GetLastRenderingUsedDepthPeeling())
     {
@@ -237,21 +237,21 @@ int TestLightActor(int argc, char* argv[])
     {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
     }
-  
+
   renderer->ResetCamera();
   vtkCamera *camera=renderer->GetActiveCamera();
   camera->Azimuth(40.0);
   camera->Elevation(10.0);
-  
+
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
   iren->Delete();
-  
+
   return !retVal;
 }
 
@@ -260,9 +260,9 @@ int TestLightActor(int argc, char* argv[])
 void AddLightActors(vtkRenderer *r)
 {
   assert("pre: r_exists" && r!=0);
-  
+
   vtkLightCollection *lights=r->GetLights();
-  
+
   lights->InitTraversal();
   vtkLight *l=lights->GetNextItem();
   while(l!=0)

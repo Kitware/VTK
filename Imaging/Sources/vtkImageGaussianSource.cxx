@@ -41,12 +41,12 @@ vtkImageGaussianSource::vtkImageGaussianSource()
 
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax, 
+void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax,
                                             int yMin, int yMax,
                                             int zMin, int zMax)
 {
   int modified = 0;
-  
+
   if (this->WholeExtent[0] != xMin)
     {
     modified = 1;
@@ -116,8 +116,8 @@ int vtkImageGaussianSource::RequestData(
   double temp, temp2;
   unsigned long count = 0;
   unsigned long target;
-  
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);  
+
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
@@ -126,18 +126,18 @@ int vtkImageGaussianSource::RequestData(
     {
     vtkErrorMacro("Execute: This source only outputs doubles");
     }
-  
+
   outExt = data->GetExtent();
-  
+
   // find the region to loop over
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   outPtr = static_cast<double *>(data->GetScalarPointer(outExt[0],outExt[2],outExt[4]));
-  
+
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 

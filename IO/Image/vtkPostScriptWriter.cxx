@@ -22,13 +22,13 @@ vtkStandardNewMacro(vtkPostScriptWriter);
 
 #define VTK_MARGIN 0.95
 
-void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 
+void vtkPostScriptWriter::WriteFileTrailer(ofstream *file,
                                            vtkImageData *vtkNotUsed(cache))
 {
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }
 
-void vtkPostScriptWriter::WriteFileHeader(ofstream *file, 
+void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
                                           vtkImageData *cache,
                                           int wExt[6])
 {
@@ -41,13 +41,13 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
   float scale = 1;
   int pagewid = (int) (8.5*72);
   int pagehgt = 11*72;
-  
+
   // Find the length of the rows to write.
   bpp = cache->GetNumberOfScalarComponents();
-  
+
   cols = max1 - min1 + 1;
   rows = max2 - min2 + 1;
-  
+
   float pixfac = 0.96;  /* 1, approx. */
   scols = (int)(cols * pixfac);
   srows = (int)(rows * pixfac);
@@ -68,20 +68,20 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
     }
   float llx = ( pagewid - scols ) / 2;
   float lly = ( pagehgt - srows ) / 2;
-  
+
   // spit out the PostScript header
   *file << "%!PS-Adobe-2.0 EPSF-2.0\n";
   *file << "%%Creator: Visualization Toolkit\n";
   *file << "%%Title: " << this->InternalFileName << endl;
   *file << "%%Pages: 1\n";
   *file << "%%BoundingBox: " << (int) llx << " "  << (int) lly
-       << " " << (int) ( llx + scols + 0.5 ) << " " << 
+       << " " << (int) ( llx + scols + 0.5 ) << " " <<
     (int) ( lly + srows + 0.5 ) << endl;
   *file << "%%EndComments\n";
   *file << "/readstring {\n";
   *file << "  currentfile exch readhexstring pop\n";
   *file << "} bind def\n";
-  
+
   if ( bpp == 3)
     {
     *file << "/rpicstr " << cols << " string def\n";
@@ -92,11 +92,11 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
     {
     *file << "/picstr " << cols << " string def\n";
     }
-  else 
+  else
     {
     vtkWarningMacro( " vtkPostScriptWriter only supports 1 and 3 component images");
     }
-  
+
   *file << "%%EndProlog\n";
   *file << "%%Page: 1 1\n";
   *file << "gsave\n";
@@ -131,7 +131,7 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
   float area;
   static int itemsperline = 0;
   const char* hexits = "0123456789abcdef";
-  
+
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
     {
@@ -146,30 +146,30 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
       break;
     default:
       vtkErrorMacro("PostScriptWriter only accepts unsigned char scalars!");
-      return; 
+      return;
     }
-  
+
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-          (extent[1] - extent[0] + 1)) / 
+          (extent[1] - extent[0] + 1)) /
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
      (wExtent[1] -wExtent[0] + 1));
-    
+
 
   int numComponents = data->GetNumberOfScalarComponents();
   // ignore alpha
   int maxComponent = numComponents;
-  if (numComponents == 2) 
+  if (numComponents == 2)
     {
     maxComponent = 1;
     }
-  if (numComponents == 4) 
+  if (numComponents == 4)
     {
     maxComponent = 3;
     }
   target = (unsigned long)((extent[5]-extent[4]+1)*
                            (extent[3]-extent[2]+1)/(50.0*area));
   target++;
-  
+
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
     {
     for (idx1 = extent[3]; idx1 >= extent[2]; idx1--)
@@ -198,7 +198,7 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
         }
       }
     }
-  
+
 }
 
 //----------------------------------------------------------------------------

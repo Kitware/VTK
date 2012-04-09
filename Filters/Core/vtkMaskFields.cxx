@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkMaskFields);
 
-char vtkMaskFields::FieldLocationNames[3][12] 
+char vtkMaskFields::FieldLocationNames[3][12]
 = { "OBJECT_DATA",
     "POINT_DATA",
     "CELL_DATA" };
@@ -39,14 +39,14 @@ vtkMaskFields::vtkMaskFields()
   this->CopyAllOn();
 
   //convert the attribute names to uppercase for local use
-  if (vtkMaskFields::AttributeNames[0][0] == 0) 
+  if (vtkMaskFields::AttributeNames[0][0] == 0)
     {
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
       {
       int l = static_cast<int>(strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i)));
       for (int c = 0; c < l && c < 10; c++)
         {
-        vtkMaskFields::AttributeNames[i][c] = 
+        vtkMaskFields::AttributeNames[i][c] =
           toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
         }
       }
@@ -64,7 +64,7 @@ void vtkMaskFields::CopyFieldOnOff(int fieldLocation,
                                    const char* field, int onOff)
 {
   if (!field) { return; }
-  
+
   int index;
   // If the array is in the list, simply set IsCopied to onOff
   if ((index=this->FindFlag(field, fieldLocation)) != -1)
@@ -101,7 +101,7 @@ void vtkMaskFields::CopyFieldOnOff(int fieldLocation,
 void vtkMaskFields::CopyAttributeOnOff(int attributeLocation,
                                        int attributeType, int onOff)
 {
-  
+
   int index;
   // If the array is in the list, simply set IsCopied to onOff
   if ((index=this->FindFlag(attributeType, attributeLocation)) != -1)
@@ -176,7 +176,7 @@ int vtkMaskFields::GetAttributeType(const char* attributeType)
   return attrType;
 }
 
-void vtkMaskFields::CopyAttributeOn(const char* attributeLoc, 
+void vtkMaskFields::CopyAttributeOn(const char* attributeLoc,
                                     const char* attributeType)
 {
   if (!attributeType || !attributeLoc)
@@ -192,7 +192,7 @@ void vtkMaskFields::CopyAttributeOn(const char* attributeLoc,
       vtkErrorMacro("Target attribute type is invalid.");
       return;
     }
-  
+
   int loc = this->GetAttributeLocation(attributeLoc);
   if (loc == -1)
     {
@@ -204,7 +204,7 @@ void vtkMaskFields::CopyAttributeOn(const char* attributeLoc,
 
 }
 
-void vtkMaskFields::CopyAttributeOff(const char* attributeLoc, 
+void vtkMaskFields::CopyAttributeOff(const char* attributeLoc,
                                      const char* attributeType)
 {
   if (!attributeType || !attributeLoc)
@@ -220,7 +220,7 @@ void vtkMaskFields::CopyAttributeOff(const char* attributeLoc,
       vtkErrorMacro("Target attribute type is invalid.");
       return;
     }
-  
+
   int loc = this->GetAttributeLocation(attributeLoc);
   if (loc == -1)
     {
@@ -232,7 +232,7 @@ void vtkMaskFields::CopyAttributeOff(const char* attributeLoc,
 
 }
 
-void vtkMaskFields::CopyFieldOn(const char* fieldLoc, 
+void vtkMaskFields::CopyFieldOn(const char* fieldLoc,
                                 const char* name)
 {
   if (!name || !fieldLoc)
@@ -240,7 +240,7 @@ void vtkMaskFields::CopyFieldOn(const char* fieldLoc,
       return;
     }
 
-  // Convert strings to ints and call the appropriate CopyAttributeOn()  
+  // Convert strings to ints and call the appropriate CopyAttributeOn()
   int loc = this->GetAttributeLocation(fieldLoc);
   if (loc == -1)
     {
@@ -252,7 +252,7 @@ void vtkMaskFields::CopyFieldOn(const char* fieldLoc,
 
 }
 
-void vtkMaskFields::CopyFieldOff(const char* fieldLoc, 
+void vtkMaskFields::CopyFieldOff(const char* fieldLoc,
                                  const char* name)
 {
   if (!name || !fieldLoc)
@@ -260,7 +260,7 @@ void vtkMaskFields::CopyFieldOff(const char* fieldLoc,
       return;
     }
 
-  // Convert strings to ints and call the appropriate CopyAttributeOn()  
+  // Convert strings to ints and call the appropriate CopyAttributeOn()
   int loc = this->GetAttributeLocation(fieldLoc);
   if (loc == -1)
     {
@@ -344,7 +344,7 @@ int vtkMaskFields::GetFlag(const char* field, int loc)
     {
       return -1;
     }
-  else 
+  else
     {
       return  this->CopyFieldFlags[index].IsCopied;
     }
@@ -359,7 +359,7 @@ int vtkMaskFields::GetFlag(int arrayType, int loc)
     {
       return -1;
     }
-  else 
+  else
     {
       return  this->CopyFieldFlags[index].IsCopied;
     }
@@ -427,13 +427,13 @@ int vtkMaskFields::RequestData(
   // overridden by individual flags...
   for(int i=0; i<this->NumberOfFieldFlags; ++i) {
 
-    switch (this->CopyFieldFlags[i].Location) 
+    switch (this->CopyFieldFlags[i].Location)
       {
       case vtkMaskFields::POINT_DATA:
 
         if (this->CopyFieldFlags[i].Type > -1) { // attribute data
           output->GetPointData()->SetCopyAttribute(this->CopyFieldFlags[i].Type,this->CopyFieldFlags[i].IsCopied);
-        
+
         } else { // field data
           if (this->CopyFieldFlags[i].IsCopied == 1) {
           output->GetPointData()->CopyFieldOn(this->CopyFieldFlags[i].Name);

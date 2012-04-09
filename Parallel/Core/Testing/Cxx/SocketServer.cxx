@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 
   // Test sending vtkDataObject
   VTK_CREATE(vtkUnstructuredGridReader, ugrid);
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                      "Data/blow.vtk");
   ugrid->SetFileName(fname);
   delete[] fname;
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
   comm->Send(pd->GetOutput(), 1, 11);
 
   VTK_CREATE(vtkRectilinearGridReader, rgrid);
-  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                "Data/RectGrid2.vtk");
   rgrid->SetFileName(fname);
   delete[] fname;

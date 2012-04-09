@@ -154,9 +154,9 @@ void vtkGLSLShaderProgram::GetProgramInfo()
 
   // how many objects are attached?
   GLint numObjects = 0;
-  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
                       vtkgl::ATTACHED_SHADERS, &numObjects);
-  
+
   char numStr[256];
   sprintf( numStr, "%d", static_cast<int>(numObjects) );
   infoString += "Number of attached objects: ";
@@ -168,11 +168,11 @@ void vtkGLSLShaderProgram::GetProgramInfo()
   GLint maxLength = 0;
   vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
                       vtkgl::INFO_LOG_LENGTH, &maxLength);
-  
+
   vtkgl::GLchar* info = new vtkgl::GLchar[maxLength];
 
   GLsizei charsWritten;
-  vtkgl::GetProgramInfoLog( static_cast<GLuint>(this->Program), maxLength, 
+  vtkgl::GetProgramInfoLog( static_cast<GLuint>(this->Program), maxLength,
                             &charsWritten, info );
   if( info )
     {
@@ -197,11 +197,11 @@ void vtkGLSLShaderProgram::GetInfoLog()
   int infologLength = 0;
   int charsWritten  = 0;
   vtkgl::GLchar *infoLog = NULL;
-  
+
   vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
                       vtkgl::INFO_LOG_LENGTH,
                       reinterpret_cast<GLint*>(&infologLength));
-  
+
   if(infologLength > 0)
     {
     infoLog = new vtkgl::GLchar[infologLength];
@@ -211,7 +211,7 @@ void vtkGLSLShaderProgram::GetInfoLog()
       return;
       }
     vtkgl::GetProgramInfoLog(static_cast<GLuint>(this->Program),
-                             infologLength, 
+                             infologLength,
                              reinterpret_cast<GLsizei*>(&charsWritten),
                              infoLog);
     this->SetInfo( infoLog );
@@ -231,13 +231,13 @@ int vtkGLSLShaderProgram::IsAttached(vtkGLSLShader* glslshader)
   // find out what's attached
   GLint numObjects = 0;
   GLint writtenObjects = 0;
-  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
+  vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
                       vtkgl::ATTACHED_SHADERS, &numObjects);
-  
+
   std::vector<GLuint> attachedObjects(numObjects);
   if( numObjects > 0 )
     {
-    vtkgl::GetAttachedShaders(static_cast<GLuint>(this->Program), numObjects, 
+    vtkgl::GetAttachedShaders(static_cast<GLuint>(this->Program), numObjects,
                               &writtenObjects, &attachedObjects[0]);
     }
 
@@ -309,13 +309,13 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     {
     this->Program = static_cast<unsigned int>(vtkgl::CreateProgram());
     }
-  
+
   if(!this->IsProgram())
     {
     vtkErrorMacro( "Not able to create a GLSL Program!!!" << endl );
     return;
     }
-  
+
   vtkCollectionIterator* iter = this->ShaderCollectionIterator;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem())
@@ -328,12 +328,12 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
       vtkErrorMacro("GLSL Shader program cannot contain a non-GLSL shader.");
       continue;
       }
-    
+
     if (shader->Compile())
       {
       if (!this->IsAttached(shader))
         {
-        vtkgl::AttachShader(static_cast<GLuint>(this->Program), 
+        vtkgl::AttachShader(static_cast<GLuint>(this->Program),
                             shader->GetHandle());
         }
       }
@@ -344,7 +344,7 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     // if either a vertex or a fragment program is attached (or both)
     // link the program.
     GLint numObjects = 0;
-    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program), 
+    vtkgl::GetProgramiv(static_cast<GLuint>(this->Program),
                         vtkgl::ATTACHED_SHADERS, &numObjects);
     if (numObjects>0)
       {

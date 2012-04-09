@@ -44,7 +44,7 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Get the output data object from this painter. 
+  // Get the output data object from this painter.
   // Overridden to pass the input points (or cells) vectors as the tcoords to
   // the deletage painters. This is required by the internal GLSL shader
   // programs used for generating LIC.
@@ -63,7 +63,7 @@ public:
   // port, connection.
   void SetInputArrayToProcess(int fieldAssociation, const char *name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldAttributeType);
-  
+
   // Description:
   // Enable/Disable enhanced LIC that improves image quality by increasing
   // inter-streamline contrast while suppressing artifacts. Enhanced LIC
@@ -91,12 +91,12 @@ public:
   // show LIC result alone.
   vtkSetClampMacro(LICIntensity, double, 0.0, 1.0);
   vtkGetMacro(LICIntensity, double);
-  
+
   // Description:
   // Check if PrepareForRendering passes.
-  int GetRenderingPreparationSuccess() 
+  int GetRenderingPreparationSuccess()
       { return this->RenderingPreparationSuccess; }
-  
+
   // Description:
   // Check if the LIC process runs properly.
   int GetLICSuccess() { return this->LICSuccess; }
@@ -129,10 +129,10 @@ protected:
   // Description:
   // Performs the actual rendering. Subclasses may override this method.
   // default implementation merely call a Render on the DelegatePainter,
-  // if any. When RenderInternal() is called, it is assured that the 
+  // if any. When RenderInternal() is called, it is assured that the
   // DelegatePainter is in sync with this painter i.e. UpdateDelegatePainter()
   // has been called.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
   // Description:
@@ -153,7 +153,7 @@ protected:
   int    RenderingPreparationSuccess;
   int    LICSuccess;
   double LICIntensity;
-  
+
 private:
   vtkSurfaceLICPainter(const vtkSurfaceLICPainter&); // Not implemented.
   void operator=(const vtkSurfaceLICPainter&); // Not implemented.

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGraphicsFactory - 
+// .NAME vtkGraphicsFactory -
 // .SECTION Description
 
 #ifndef __vtkGraphicsFactory_h
@@ -31,7 +31,7 @@ public:
   // Description:
   // Create and return an instance of the named vtk object.
   // This method first checks the vtkObjectFactory to support
-  // dynamic loading. 
+  // dynamic loading.
   static vtkObject* CreateInstance(const char* vtkclassname);
 
   // Description:
@@ -43,13 +43,13 @@ public:
   // instead of the OpenGL classes when using mangled Mesa.
   static void SetUseMesaClasses(int use);
   static int  GetUseMesaClasses();
-  
+
   // Description:
   // This option enables the off-screen only mode. In this mode no X calls will
   // be made even when interactor is used.
   static void SetOffScreenOnlyMode(int use);
   static int  GetOffScreenOnlyMode();
-  
+
 protected:
   vtkGraphicsFactory() {};
 

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayExtentsList.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -30,14 +30,14 @@ vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i) :
 {
   this->Storage[0] = i;
 }
-  
+
 vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j) :
   Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
-  
+
 vtkArrayExtentsList::vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k) :
   Storage(3)
 {

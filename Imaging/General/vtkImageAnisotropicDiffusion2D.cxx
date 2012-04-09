@@ -44,7 +44,7 @@ vtkImageAnisotropicDiffusion2D::vtkImageAnisotropicDiffusion2D()
 }
 
 //----------------------------------------------------------------------------
-void 
+void
 vtkImageAnisotropicDiffusion2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -88,7 +88,7 @@ vtkImageAnisotropicDiffusion2D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageAnisotropicDiffusion2D::SetNumberOfIterations(int num)
 {
   int temp;
-  
+
   vtkDebugMacro(<< "SetNumberOfIterations: " << num);
   if (this->NumberOfIterations == num)
     {
@@ -103,8 +103,8 @@ void vtkImageAnisotropicDiffusion2D::SetNumberOfIterations(int num)
   this->KernelMiddle[1] = num;
 
   this->NumberOfIterations = num;
-}  
-  
+}
+
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The input and output datas
@@ -113,7 +113,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -121,11 +121,11 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
   double *ar;
   int idx;
   vtkImageData *temp;
-  
+
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
   this->InternalRequestUpdateExtent(inExt,outExt,wholeExt);
-  
+
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
@@ -135,7 +135,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
                   << outData[0]->GetScalarType());
     return;
     }
-  
+
   ar = inData[0][0]->GetSpacing();
 
   // make the temporary regions to iterate over.
@@ -144,7 +144,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
   in->AllocateScalars(VTK_DOUBLE,
                       inData[0][0]->GetNumberOfScalarComponents());
   in->CopyAndCastFrom(inData[0][0],inExt);
-  
+
   vtkImageData *out = vtkImageData::New();
   out->SetExtent(inExt);
   out->AllocateScalars(VTK_DOUBLE,
@@ -153,7 +153,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
   // (but never get smaller than output region).
-  for (idx = this->NumberOfIterations - 1; 
+  for (idx = this->NumberOfIterations - 1;
        !this->AbortExecute && idx >= 0; --idx)
     {
     if (!id)
@@ -166,7 +166,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
     in = out;
     out = temp;
     }
-  
+
   // copy results into output.
   outData[0]->CopyAndCastFrom(in,outExt);
   in->Delete();
@@ -177,7 +177,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
 // This method performs one pass of the diffusion filter.
 // The inData and outData are assumed to have data type double,
 // and have the same extent.
-void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData, 
+void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
                                              vtkImageData *outData,
                                              double ar0, double ar1,
                                              int *coreExtent, int count)
@@ -201,7 +201,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
 
   // Avoid warnings.
   th0 = th1 = th01 = df0 = df1 = df01 = 0.0;
-  
+
   // Compute direction specific diffusion thresholds and factors.
   sum = 0.0;
   if (this->Edges)
@@ -245,16 +245,16 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
   max0 = (max0 < inMax0) ? max0 : inMax0;
   min1 = (min1 > inMin1) ? min1 : inMin1;
   max1 = (max1 < inMax1) ? max1 : inMax1;
-  
+
   vtkDebugMacro(<< "Iteration count: " << count << " ("
   << min0 << ", " << max0 << ", " << min1 << ", " << max1 << ")");
-  
+
   // I apologize for explicitly diffusing each neighbor, but it is the easiest
   // way to deal with the boundary conditions.  Besides it is fast.
   // (Are you sure every one is correct?!!!)
   min2 = inMin2;
   max2 = inMax2;
- 
+
   for (idxC = 0; idxC < maxC; idxC++)
     {
     inPtr2 = static_cast<double *>(inData->GetScalarPointer(min0, min1, min2));
@@ -262,21 +262,21 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
       static_cast<double *>(outData->GetScalarPointer(min0, min1, min2));
     inPtr2 += idxC;
     outPtr2 += idxC;
-    
+
     for (idx2 = min2; idx2 <= max2; ++idx2, inPtr2+=inInc2, outPtr2+=outInc2)
       {
       inPtr1 = inPtr2;
-      outPtr1 = outPtr2;    
+      outPtr1 = outPtr2;
       for (idx1 = min1; idx1 <= max1; ++idx1, inPtr1+=inInc1, outPtr1+=outInc1)
         {
         inPtr0 = inPtr1;
-        outPtr0 = outPtr1;    
+        outPtr0 = outPtr1;
         for (idx0 = min0; idx0 <= max0; ++idx0, inPtr0+=inInc0, outPtr0+=outInc0)
           {
           // Copy center
           *outPtr0 = *inPtr0;
-        
-          // Special case for gradient magnitude threhsold 
+
+          // Special case for gradient magnitude threhsold
           if (this->GradientMagnitudeThreshold)
             {
             double d0, d1;
@@ -300,7 +300,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
               th0 = th1 = th01 = VTK_DOUBLE_MAX;
               }
             }
-        
+
           // Start diffusing
           if (this->Edges)
             {
@@ -341,7 +341,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
                 }
               }
             }
-        
+
           if (this->Corners)
             {
             // left up

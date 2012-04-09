@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporterFIWriter - 
+// .NAME vtkX3DExporterFIWriter -
 // .SECTION Description
 
 #ifndef __vtkX3DExporterFIWriter_h

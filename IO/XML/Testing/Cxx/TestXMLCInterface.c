@@ -23,13 +23,13 @@ int main()
   int i,j;
   vtkXMLWriterC* writer = vtkXMLWriterC_New();
   const char filename[] = "cube.vtu";
-  float points[3*NPOINTS] = {0, 0, 0, 
-                       1, 0, 0, 
+  float points[3*NPOINTS] = {0, 0, 0,
+                       1, 0, 0,
                        1, 1, 0,
-                       0, 1, 0, 
-                       0, 0, 1, 
+                       0, 1, 0,
+                       0, 0, 1,
                        1, 0, 1,
-                       1, 1, 1, 
+                       1, 1, 1,
                        0, 1, 1 };
   vtkIdType cellarray[] = {8, 0, 1, 2, 3, 4, 5, 6, 7};
   float pointdata[NTIMESTEPS][NPOINTS];

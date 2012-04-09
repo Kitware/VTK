@@ -69,14 +69,14 @@ int vtkTableToTreeFilter::FillInputPortInformation(
 }
 
 int vtkTableToTreeFilter::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Storing the inputTable and outputTree handles
   vtkTable* table = vtkTable::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -85,7 +85,7 @@ int vtkTableToTreeFilter::RequestData(
 
   vtkSmartPointer<vtkTable> new_table = vtkSmartPointer<vtkTable>::New();
   new_table->DeepCopy( table );
-  
+
   // Create a mutable graph for building the tree
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();

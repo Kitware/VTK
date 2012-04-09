@@ -140,7 +140,7 @@ vtkTesting::vtkTesting()
   this->TempDirectory = 0;
   this->BorderOffset = 0;
   this->Verbose = 0;
- 
+
   // on construction we start the timer
   this->StartCPUTime = vtkTimerLog::GetCPUTime();
   this->StartWallTime = vtkTimerLog::GetUniversalTime();
@@ -185,7 +185,7 @@ void vtkTesting::CleanArguments()
 //-----------------------------------------------------------------------------
 const char *vtkTesting::GetDataRoot()
 {
-#ifdef VTK_DATA_ROOT 
+#ifdef VTK_DATA_ROOT
   string dr=vtkTestingGetArgOrEnvOrDefault(
                 "-D",this->Args,"VTK_DATA_ROOT",VTK_DATA_ROOT);
 #else
@@ -224,7 +224,7 @@ const char *vtkTesting::GetValidImageFileName()
     if ( this->Args[i] == "-V")
       {
       const char *ch = this->Args[i+1].c_str();
-      if ( ch[0] == '/' 
+      if ( ch[0] == '/'
 #ifdef _WIN32
         || (ch[0] >= 'a' && ch[0] <= 'z' && ch[1] == ':' )
         || (ch[0] >= 'A' && ch[0] <= 'Z' && ch[1] == ':' )
@@ -290,7 +290,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
 {
   char counts[256];
   sprintf(counts, "%d", count);
-  
+
   int orgLen = static_cast<int>(strlen(fname));
   if (orgLen < 5)
     {
@@ -307,7 +307,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
     newFileName[marker] = counts[i];
     }
   strcpy( newFileName + marker, ".png" );
-  
+
   return newFileName;
 }
 //-----------------------------------------------------------------------------
@@ -318,7 +318,7 @@ int vtkTesting::LookForFile(const char* newFileName)
     return 0;
     }
   struct stat fs;
-  if (stat(newFileName, &fs) != 0) 
+  if (stat(newFileName, &fs) != 0)
     {
     return 0;
     }
@@ -406,12 +406,12 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   if(slash_pos != std::string::npos)
     {
     validName = validName.substr(slash_pos + 1);
-    }  
+    }
 
   // check the valid image
-  FILE *rt_fin = fopen(this->ValidImageFileName,"r"); 
-  if (rt_fin) 
-    { 
+  FILE *rt_fin = fopen(this->ValidImageFileName,"r");
+  if (rt_fin)
+    {
     fclose(rt_fin);
     }
   else // there was no valid image, so write one to the temp dir
@@ -421,13 +421,13 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     rt_pngw->SetFileName(vImage.c_str());
     rt_pngw->SetInputConnection(imageSource->GetOutputPort());
     rt_pngw->Write();
-    os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">" 
+    os << "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">"
       << this->ValidImageFileName << "</DartMeasurement>" << endl;
     return FAILED;
     }
 
   VTK_CREATE(vtkPNGReader, rt_png);
-  rt_png->SetFileName(this->ValidImageFileName); 
+  rt_png->SetFileName(this->ValidImageFileName);
   rt_png->Update();
   imageSource->Update();
 
@@ -445,18 +445,18 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   int* wExt2 = ic2->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  ic1->SetOutputWholeExtent(wExt1[0] + this->BorderOffset, 
-                            wExt1[1] - this->BorderOffset, 
-                            wExt1[2] + this->BorderOffset, 
-                            wExt1[3] - this->BorderOffset, 
-                            wExt1[4], 
+  ic1->SetOutputWholeExtent(wExt1[0] + this->BorderOffset,
+                            wExt1[1] - this->BorderOffset,
+                            wExt1[2] + this->BorderOffset,
+                            wExt1[3] - this->BorderOffset,
+                            wExt1[4],
                             wExt1[5]);
 
-  ic2->SetOutputWholeExtent(wExt2[0] + this->BorderOffset, 
-                            wExt2[1] - this->BorderOffset, 
-                            wExt2[2] + this->BorderOffset, 
-                            wExt2[3] - this->BorderOffset, 
-                            wExt2[4], 
+  ic2->SetOutputWholeExtent(wExt2[0] + this->BorderOffset,
+                            wExt2[1] - this->BorderOffset,
+                            wExt2[2] + this->BorderOffset,
+                            wExt2[3] - this->BorderOffset,
+                            wExt2[4],
                             wExt2[5]);
 
   int ext1[6], ext2[6];
@@ -468,19 +468,19 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   ic2->GetOutput()->GetExtent(ext2);
 
   double minError = VTK_DOUBLE_MAX;
-  
-  if ((ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) && 
+
+  if ((ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) &&
       (ext2[3]-ext2[2]) == (ext1[3]-ext1[2]) &&
       (ext2[5]-ext2[4]) == (ext1[5]-ext1[4]))
     {
     // Cannot compute difference unless image sizes are the same
-    rt_id->Update(); 
+    rt_id->Update();
     minError = rt_id->GetThresholdedError();
     }
 
   this->ImageDifference = minError;
   int passed = 0;
-  if (minError <= thresh) 
+  if (minError <= thresh)
     {
     // Make sure there was actually a difference image before
     // accepting the error measure.
@@ -518,35 +518,35 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
       delete[] newFileName;
       break;
       }
-    
+
     rt_png->SetFileName(newFileName);
 
-    // Need to reset the output whole extent cause we may have baselines 
+    // Need to reset the output whole extent cause we may have baselines
     // of differing sizes. (Yes, we have such cases !)
     ic2->ResetOutputWholeExtent();
-    ic2->SetOutputWholeExtent(wExt2[0] + this->BorderOffset, 
-                              wExt2[1] - this->BorderOffset, 
-                              wExt2[2] + this->BorderOffset, 
-                              wExt2[3] - this->BorderOffset, 
-                              wExt2[4], 
+    ic2->SetOutputWholeExtent(wExt2[0] + this->BorderOffset,
+                              wExt2[1] - this->BorderOffset,
+                              wExt2[2] + this->BorderOffset,
+                              wExt2[3] - this->BorderOffset,
+                              wExt2[4],
                               wExt2[5]);
     ic2->UpdateWholeExtent();
 
     rt_id->GetImage()->GetExtent(ext2);
-    if ((ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) && 
+    if ((ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) &&
         (ext2[3]-ext2[2]) == (ext1[3]-ext1[2]) &&
         (ext2[5]-ext2[4]) == (ext1[5]-ext1[4]))
       {
       // Cannot compute difference unless image sizes are the same
-      rt_id->Update(); 
+      rt_id->Update();
       error = rt_id->GetThresholdedError();
       }
     else
       {
       error = VTK_DOUBLE_MAX;
       }
-        
-    if (error <= thresh) 
+
+    if (error <= thresh)
       {
       // Make sure there was actually a difference image before
       // accepting the error measure.
@@ -581,8 +581,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   if ( errIndex <= 0)
     {
     os << "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>";
-    } 
-  else 
+    }
+  else
     {
     os <<  "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">";
     os << errIndex;
@@ -591,9 +591,9 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   if (passed)
     {
-    return PASSED; 
+    return PASSED;
     }
-  
+
   os << "Failed Image Test : " << minError << endl;
   if (errIndex >= 0)
     {
@@ -617,7 +617,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     return FAILED;
     }
   if(!(
-      (ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) && 
+      (ext2[1]-ext2[0]) == (ext1[1]-ext1[0]) &&
       (ext2[3]-ext2[2]) == (ext1[3]-ext1[2]) &&
       (ext2[5]-ext2[4]) == (ext1[5]-ext1[4])))
     {
@@ -629,7 +629,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
       << ", " << (ext1[5]-ext1[4]) << endl;
     return FAILED;
     }
-  
+
   rt_id->Update();
 
   // test the directory for writing
@@ -638,13 +638,13 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   if(dot_pos != std::string::npos)
     {
     diff_filename = diff_filename.substr(0, dot_pos);
-    }  
+    }
   diff_filename += ".diff.png";
-  FILE *rt_dout = fopen(diff_filename.c_str(), "wb"); 
-  if (rt_dout) 
-    { 
+  FILE *rt_dout = fopen(diff_filename.c_str(), "wb");
+  if (rt_dout)
+    {
     fclose(rt_dout);
-    
+
     // write out the difference image gamma adjusted for the dashboard
     VTK_CREATE(vtkImageShiftScale, rt_gamma);
     rt_gamma->SetInputConnection(rt_id->GetOutputPort());
@@ -676,8 +676,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   return FAILED;
 }
 //-----------------------------------------------------------------------------
-int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw, 
-                     double thresh ) 
+int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
+                     double thresh )
 {
   VTK_CREATE(vtkTesting, testing);
   int i;
@@ -685,12 +685,12 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
     {
     testing->AddArgument(argv[i]);
     }
-  
+
   if (testing->IsInteractiveModeSpecified())
     {
     return DO_INTERACTOR;
     }
-  
+
   testing->FrontBufferOff();
   for (i=0; i<argc; i++)
     {
@@ -701,7 +701,7 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
     }
 
   if (testing->IsValidImageSpecified())
-    { 
+    {
     testing->SetRenderWindow(rw);
     int res = testing->RegressionTest(thresh);
     return res;
@@ -735,10 +735,10 @@ int vtkTesting::CompareAverageOfL2Norm(
     {
     vtkWarningMacro(
               "Arrays: " << daA->GetName()
-              << " (nC=" << nCompsA 
+              << " (nC=" << nCompsA
               << " nT= "<< nTupsA << ")"
               << " and " << daB->GetName()
-              << " (nC=" << nCompsB 
+              << " (nC=" << nCompsB
               << " nT= "<< nTupsB << ")"
               << " do not have the same structure.");
     return 0;
@@ -784,7 +784,7 @@ int vtkTesting::CompareAverageOfL2Norm(
     {
     cout << "Sum(L2)/N of "
          << daA->GetName()
-         << " < " << tol 
+         << " < " << tol
          << "? = " << L2
          << "/" << N
          << "."  << endl;
@@ -860,9 +860,9 @@ int vtkTesting::CompareAverageOfL2Norm(
 }
 
 //-----------------------------------------------------------------------------
-int vtkTesting::InteractorEventLoop( int argc, 
-                                     char *argv[], 
-                                     vtkRenderWindowInteractor *iren, 
+int vtkTesting::InteractorEventLoop( int argc,
+                                     char *argv[],
+                                     vtkRenderWindowInteractor *iren,
                                      const char *playbackStream )
 {
   bool disableReplay = false, record = false;
@@ -892,7 +892,7 @@ int vtkTesting::InteractorEventLoop( int argc,
         recorder->ReadFromInputStringOn();
         recorder->SetInputString(playbackStream);
         recorder->Play();
-        
+
         // Without this, the "-I" option if specified will fail
         recorder->Off();
         }
@@ -919,5 +919,5 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DataRoot: " << this->GetDataRoot() << endl;
   os << indent << "Temp Directory: " << this->GetTempDirectory() << endl;
   os << indent << "BorderOffset: " << this->GetBorderOffset() << endl;
-  os << indent << "Verbose: " << this->GetVerbose() << endl; 
+  os << indent << "Verbose: " << this->GetVerbose() << endl;
 }

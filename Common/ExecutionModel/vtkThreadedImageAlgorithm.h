@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkThreadedImageAlgorithm - Generic filter that has one input..
 // .SECTION Description
-// vtkThreadedImageAlgorithm is a filter superclass that hides much of the 
-// pipeline  complexity. It handles breaking the pipeline execution 
-// into smaller extents so that the vtkImageData limits are observed. It 
+// vtkThreadedImageAlgorithm is a filter superclass that hides much of the
+// pipeline  complexity. It handles breaking the pipeline execution
+// into smaller extents so that the vtkImageData limits are observed. It
 // also provides support for multithreading. If you don't need any of this
 // functionality, consider using vtkSimpleImageToImageAlgorithm instead.
 // .SECTION See also
@@ -42,18 +42,18 @@ public:
   // will be broken up, multiple threads will be spawned, and each thread
   // will call this method. It is public so that the thread functions
   // can call this method.
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
-  
+
   // also support the old signature
-  virtual void ThreadedExecute(vtkImageData *inData, 
+  virtual void ThreadedExecute(vtkImageData *inData,
                                vtkImageData *outData,
                                int extent[6], int threadId);
-  
+
   // Description:
   // Get/Set the number of threads to create when rendering
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
@@ -61,8 +61,8 @@ public:
 
   // Description:
   // Putting this here until I merge graphics and imaging streaming.
-  virtual int SplitExtent(int splitExt[6], int startExt[6], 
-                          int num, int total); 
+  virtual int SplitExtent(int splitExt[6], int startExt[6],
+                          int num, int total);
 
 protected:
   vtkThreadedImageAlgorithm();
@@ -70,7 +70,7 @@ protected:
 
   vtkMultiThreader *Threader;
   int NumberOfThreads;
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.

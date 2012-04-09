@@ -22,9 +22,9 @@
 //
 // Currently, only input polydata and unstructured grids are handled; other types of
 // leaf datasets will be ignored and their positions in the output dataset will be NULL pointers.
-// Point attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted 
-// and appended only if all datasets have the point attributes available. 
-// (For example, if one dataset has scalars but another does not, scalars will 
+// Point attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted
+// and appended only if all datasets have the point attributes available.
+// (For example, if one dataset has scalars but another does not, scalars will
 // not be appended.)
 //
 // .SECTION See Also
@@ -55,7 +55,7 @@ public:
   // Description:
   // Get any input of this filter.
   vtkCompositeDataSet* GetInput( int idx );
-  vtkCompositeDataSet* GetInput() 
+  vtkCompositeDataSet* GetInput()
     { return this->GetInput( 0 ); }
 //ETX
 
@@ -75,7 +75,7 @@ protected:
   // Since vtkCompositeDataSet is an abstract class and we output the same types as the input,
   // we must override the default implementation.
   virtual int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-  
+
   // Description:
   // Iterates over the datasets and appends corresponding notes.
   virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );

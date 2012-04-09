@@ -25,7 +25,7 @@
 // - The subclass has to define ivar to set/get its delegates.
 // - The documentation of the subclass has to describe:
 //  - what each delegate is supposed to perform
-//  - if a delegate is supposed to be used once or multiple times 
+//  - if a delegate is supposed to be used once or multiple times
 //  - what it expects to have in the framebuffer before starting (status
 // of colorbuffers, depth buffer, stencil buffer)
 //  - what it will change in the framebuffer.
@@ -37,7 +37,7 @@
 // - at the end of the execution of Render, the pass has to ensure the
 // current vtkRenderState is the one it has in argument.
 // .SECTION See Also
-// vtkRenderState vtkRenderer 
+// vtkRenderState vtkRenderer
 
 #ifndef __vtkRenderPass_h
 #define __vtkRenderPass_h
@@ -62,17 +62,17 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPass : public vtkObject
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s)=0;
   //ETX
-  
+
   // Description:
   // Number of props rendered at the last Render call.
   vtkGetMacro(NumberOfRenderedProps,int);
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources. Default implementation is empty.
   // \pre w_exists: w!=0
   virtual void ReleaseGraphicsResources(vtkWindow *w);
-  
+
  protected:
   // Description:
   // Default constructor. Do nothing.
@@ -81,23 +81,23 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPass : public vtkObject
   // Description:
   // Destructor. Do nothing.
   virtual ~vtkRenderPass();
-  
+
   // Description:
   // Call UpdateCamera() on Renderer. This ugly mechanism gives access to
   // a protected method of Renderer to subclasses of vtkRenderPass.
   // \pre renderer_exists: renderer!=0
   void UpdateCamera(vtkRenderer *renderer);
-  
+
   // Description:
   // Call ClearLights() on Renderer. See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
   void ClearLights(vtkRenderer *renderer);
-  
+
   // Description:
   // Call UpdateLightGeometry() on Renderer. See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
   void UpdateLightGeometry(vtkRenderer *renderer);
-  
+
   // Description:
   // Call UpdateLights() on Renderer. See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
@@ -107,16 +107,16 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPass : public vtkObject
   // Call UpdateGeometry() on Renderer. See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
   void UpdateGeometry(vtkRenderer *renderer);
-  
+
   // Description:
   // Modify protected member LastRenderingUsedDepthPeeling on Renderer.
   // See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
   void SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
                                         bool value);
-  
+
   int NumberOfRenderedProps;
-  
+
  private:
   vtkRenderPass(const vtkRenderPass&);  // Not implemented.
   void operator=(const vtkRenderPass&);  // Not implemented.

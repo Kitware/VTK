@@ -68,14 +68,14 @@ public:
   // variables.
   void SetInterpolator(vtkCameraInterpolator *camInt);
   vtkGetObjectMacro(Interpolator,vtkCameraInterpolator);
-  
+
   // Description:
   // Set the number of frames to generate when playback is initiated.
   vtkSetClampMacro(NumberOfFrames,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfFrames,int);
 
   // Description:
-  // By obtaining this property you can specify the properties of the 
+  // By obtaining this property you can specify the properties of the
   // representation.
   vtkGetObjectMacro(Property,vtkProperty2D);
 
@@ -94,7 +94,7 @@ public:
   virtual void BuildRepresentation();
   virtual void GetSize(double size[2])
     {size[0]=6.0; size[1]=2.0;}
-  
+
   // Description:
   // These methods are necessary to make this representation behave as
   // a vtkProp.
@@ -104,7 +104,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 protected:
   vtkCameraRepresentation();
   ~vtkCameraRepresentation();

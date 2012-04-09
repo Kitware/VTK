@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkDataObjectCollection.h"
@@ -24,10 +24,10 @@ int TestDescriptiveStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  // ************** Test with 3 columns of input data ************** 
+  // ************** Test with 3 columns of input data **************
 
   // Input data
-  double mingledData[] = 
+  double mingledData[] =
     {
       46,
       45,
@@ -128,11 +128,11 @@ int TestDescriptiveStatistics( int, char *[] )
 
   // Pairs of interest
   int nMetrics = 3;
-  vtkStdString columns[] = 
-    { 
-      "Metric 1", 
-      "Metric 2", 
-      "Metric 0" 
+  vtkStdString columns[] =
+    {
+      "Metric 1",
+      "Metric 2",
+      "Metric 0"
     };
 
   // Reference values
@@ -261,17 +261,17 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev > maxdev )
       {
       ++ m0outliers;
-      cout << "   " 
-           << " row " 
+      cout << "   "
+           << " row "
            << r
            << ", "
-           << devs0->GetName() 
-           << " = " 
-           << dev 
-           << " > " 
+           << devs0->GetName()
+           << " = "
+           << dev
+           << " > "
            << maxdev
-           << " (value: " 
-           << vals0->GetValue( r ) 
+           << " (value: "
+           << vals0->GetValue( r )
            << ")\n";
       }
     }
@@ -281,26 +281,26 @@ int TestDescriptiveStatistics( int, char *[] )
     if ( dev > maxdev )
       {
       ++ m1outliers;
-      cout << "   " 
-           << " row " 
-           << r 
+      cout << "   "
+           << " row "
+           << r
            << ", "
-           << devs1->GetName() 
-           << " = " 
-           << dev 
-           << " > " 
+           << devs1->GetName()
+           << " = "
+           << dev
+           << " > "
            << maxdev
-           << " (value: " 
-           << vals1->GetValue( r ) 
+           << " (value: "
+           << vals1->GetValue( r )
            << ")\n";
       }
     }
 
-  cout << "  Found " 
-       << m0outliers 
+  cout << "  Found "
+       << m0outliers
        << " outliers for Metric 0"
-       << " and " 
-       << m1outliers 
+       << " and "
+       << m1outliers
        << " outliers for Metric 1.\n";
 
   if ( m0outliers != 4 || m1outliers != 6 )
@@ -319,7 +319,7 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkTable* modifiedDerived = vtkTable::New();
   modifiedDerived->ShallowCopy( outputDerived1 );
   modifiedDerived->SetValueByName( 1, "Standard Deviation", 0. );
-  
+
   vtkMultiBlockDataSet* modifiedModel = vtkMultiBlockDataSet::New();
   modifiedModel->SetNumberOfBlocks( 2 );
   modifiedModel->SetBlock( 0, modifiedPrimary );
@@ -328,7 +328,7 @@ int TestDescriptiveStatistics( int, char *[] )
   // Run with Assess option only (do not recalculate nor rederive a model)
   ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel );
   ds1->SetLearnOption( false );
-  ds1->SetDeriveOption( false ); 
+  ds1->SetDeriveOption( false );
   ds1->SetTestOption( true );
   ds1->SetAssessOption( true );
   ds1->Update();
@@ -512,8 +512,8 @@ int TestDescriptiveStatistics( int, char *[] )
   // Clean up
   ds1->Delete();
 
-  // ************** Very simple example, for baseline comparison vs. R ********* 
-  double simpleData[] = 
+  // ************** Very simple example, for baseline comparison vs. R *********
+  double simpleData[] =
     {
       0,
       1,
@@ -599,20 +599,20 @@ int TestDescriptiveStatistics( int, char *[] )
          << outputDerived3->GetValue( 0, i ).ToString()
          << "  ";
     }
-  
+
   // Verify some of the calculated derived statistics
   if ( fabs ( outputDerived3->GetValueByName( 0, "Variance" ).ToDouble() - variance ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect variance");
     testStatus = 1;
     }
-  
+
   if ( fabs ( outputDerived3->GetValueByName( 0, "Skewness" ).ToDouble() - skewness ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect skewness");
     testStatus = 1;
     }
-  
+
   if ( fabs ( outputDerived3->GetValueByName( 0, "Kurtosis" ).ToDouble() - kurtosis ) > 1.e-6 )
     {
     vtkGenericWarningMacro("Incorrect kurtosis");
@@ -623,7 +623,7 @@ int TestDescriptiveStatistics( int, char *[] )
   // Clean up
   ds3->Delete();
 
-  // ************** Pseudo-random sample to exercise Jarque-Bera test ********* 
+  // ************** Pseudo-random sample to exercise Jarque-Bera test *********
   int nVals = 10000;
 
   vtkDoubleArray* datasetNormal = vtkDoubleArray::New();
@@ -729,11 +729,11 @@ int TestDescriptiveStatistics( int, char *[] )
 
     cout << "\n";
     }
-  
+
   // Check some results of the Test option
   cout << "\n## Calculated the following Jarque-Bera statistics for pseudo-random variables (n="
        << nVals;
-  
+
 #ifdef VTK_USE_GNU_R
   int nNonGaussian = 3;
   int nRejected = 0;
@@ -783,7 +783,7 @@ int TestDescriptiveStatistics( int, char *[] )
     testStatus = 1;
     }
 #endif // VTK_USE_GNU_R
-  
+
   // Clean up
   ds4->Delete();
 

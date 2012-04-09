@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 
 // .NAME vtkJavaScriptDataWriter - A Javascript data writer for vtkTable
-// Writes a vtkTable into a Javascript data format. 
+// Writes a vtkTable into a Javascript data format.
 #ifndef __vtkJavaScriptDataWriter_h
 #define __vtkJavaScriptDataWriter_h
 
@@ -61,7 +61,7 @@ public:
   // var data=[
   //       [3,"2009-11-04 16:09:42",1],
   //       [5,"2009-11-04 16:11:22",0],
-  // 
+  //
   // Default is ON (true)
   vtkSetMacro(IncludeFieldNames, bool);
   vtkGetMacro(IncludeFieldNames, bool);

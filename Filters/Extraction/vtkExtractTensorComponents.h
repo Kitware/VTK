@@ -19,7 +19,7 @@
 // example, if the tensor contains components of stress, then you
 // could extract the normal stress in the x-direction as a scalar
 // (i.e., tensor component (0,0).
-// 
+//
 // To use this filter, you must set some boolean flags to control
 // which data is extracted from the tensors, and whether you want to
 // pass the tensor data through to the output. Also, you must specify

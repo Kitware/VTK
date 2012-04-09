@@ -84,7 +84,7 @@ int vtkOutlineSource::RequestData(
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkCellArray *newPolys = 0;
-  
+
   //
   // Initialize
   //
@@ -115,7 +115,7 @@ int vtkOutlineSource::RequestData(
     newPolys->Allocate(newPolys->EstimateSize(6,4));
     }
 
-  if (this->BoxType==VTK_BOX_TYPE_AXIS_ALIGNED) 
+  if (this->BoxType==VTK_BOX_TYPE_AXIS_ALIGNED)
     {
     x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];
     newPts->InsertPoint(0,x);
@@ -174,17 +174,17 @@ int vtkOutlineSource::RequestData(
   if (newPolys)
     {
     pts[0] = 1; pts[1] = 0; pts[2] = 2; pts[3] = 3;
-    newPolys->InsertNextCell(4,pts); 
+    newPolys->InsertNextCell(4,pts);
     pts[0] = 0; pts[1] = 1; pts[2] = 5; pts[3] = 4;
-    newPolys->InsertNextCell(4,pts); 
+    newPolys->InsertNextCell(4,pts);
     pts[0] = 2; pts[1] = 0; pts[2] = 4; pts[3] = 6;
-    newPolys->InsertNextCell(4,pts); 
+    newPolys->InsertNextCell(4,pts);
     pts[0] = 3; pts[1] = 2; pts[2] = 6; pts[3] = 7;
-    newPolys->InsertNextCell(4,pts); 
+    newPolys->InsertNextCell(4,pts);
     pts[0] = 1; pts[1] = 3; pts[2] = 7; pts[3] = 5;
-    newPolys->InsertNextCell(4,pts); 
+    newPolys->InsertNextCell(4,pts);
     pts[0] = 7; pts[1] = 6; pts[2] = 4; pts[3] = 5;
-    newPolys->InsertNextCell(4,pts); 
+    newPolys->InsertNextCell(4,pts);
     }
 
   // Update selves and release memory
@@ -218,7 +218,7 @@ void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
     os << "Axis Aligned\n";
     os << indent << "Bounds: "
        << "(" << this->Bounds[0] << ", " << this->Bounds[1] << ") "
-       << "(" << this->Bounds[2] << ", " << this->Bounds[3] << ") " 
+       << "(" << this->Bounds[2] << ", " << this->Bounds[3] << ") "
        << "(" << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
     }
   else

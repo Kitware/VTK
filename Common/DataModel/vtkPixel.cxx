@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkPixel);
 vtkPixel::vtkPixel()
 {
   int i;
-  
+
   this->Points->SetNumberOfPoints(4);
   this->PointIds->SetNumberOfIds(4);
   for (i = 0; i < 4; i++)
@@ -56,7 +56,7 @@ vtkPixel::~vtkPixel()
 
 //----------------------------------------------------------------------------
 int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
-                                  int& subId, double pcoords[3], 
+                                  int& subId, double pcoords[3],
                                   double& dist2, double *weights)
 {
   double pt1[3], pt2[3], pt3[3];
@@ -108,7 +108,7 @@ int vtkPixel::EvaluatePosition(double x[3], double* closestPoint,
       closestPoint[0] = cp[0];
       closestPoint[1] = cp[1];
       closestPoint[2] = cp[2];
-      dist2 = 
+      dist2 =
         vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
       }
     return 1;
@@ -219,8 +219,8 @@ static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
                        vtkIncrementalPointLocator *locator,
                        vtkCellArray *vtkNotUsed(verts),
-                       vtkCellArray *lines, 
-                       vtkCellArray *vtkNotUsed(polys), 
+                       vtkCellArray *lines,
+                       vtkCellArray *vtkNotUsed(polys),
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
@@ -250,7 +250,7 @@ void vtkPixel::Contour(double value, vtkDataArray *cellScalars,
       {
       vert = edges[edge[i]];
       t = (value - cellScalars->GetComponent(vert[0],0)) /
-          (cellScalars->GetComponent(vert[1],0) - 
+          (cellScalars->GetComponent(vert[1],0) -
            cellScalars->GetComponent(vert[0],0));
       this->Points->GetPoint(vert[0], x1);
       this->Points->GetPoint(vert[1], x2);

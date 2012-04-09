@@ -56,7 +56,7 @@ int vtkSubPixelPositionEdgels::RequestData(
     gradMapsInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *newPts;
   vtkDoubleArray *newNormals;
@@ -69,7 +69,7 @@ int vtkSubPixelPositionEdgels::RequestData(
   int *dimensions;
   double result[3], resultNormal[3];
   double *spacing, *origin;
-  
+
   vtkDebugMacro(<<"SubPixelPositioning Edgels");
 
   if ( numPts < 1 || (inPts=input->GetPoints()) == NULL )
@@ -81,7 +81,7 @@ int vtkSubPixelPositionEdgels::RequestData(
   newPts = vtkPoints::New();
   newNormals = vtkDoubleArray::New();
   newNormals->SetNumberOfComponents(3);
-  
+
   dimensions = gradMaps->GetDimensions();
   spacing = gradMaps->GetSpacing();
   origin = gradMaps->GetOrigin();
@@ -95,7 +95,7 @@ int vtkSubPixelPositionEdgels::RequestData(
     MapData = vtkFloatArray::SafeDownCast(gradMaps->GetPointData()
                                           ->GetScalars())->GetPointer(0);
     }
-  
+
   inVectors = gradMaps->GetPointData()->GetVectors();
 
   //
@@ -127,7 +127,7 @@ int vtkSubPixelPositionEdgels::RequestData(
     newPts->InsertNextPoint(result);
     newNormals->InsertNextTuple(resultNormal);
     }
-  
+
   output->CopyStructure(input);
   output->GetPointData()->CopyNormalsOff();
   output->GetPointData()->PassData(input->GetPointData());
@@ -141,7 +141,7 @@ int vtkSubPixelPositionEdgels::RequestData(
 
 void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
                                      int x, int y,
-                                     double *img, vtkDataArray *inVecs, 
+                                     double *img, vtkDataArray *inVecs,
                                      double *result, int z, double *spacing,
                                      double *resultNormal)
 {
@@ -154,11 +154,11 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   double xp, yp, zp;
   double xn, yn, zn;
   int xi, yi, zi, i;
-  
+
   zpos = z*xdim*ydim;
 
   ypos = y*xdim;
-  
+
   // handle the 2d case
   if (zdim < 2)
     {
@@ -172,19 +172,19 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         {
         resultNormal[0] = 1;
         resultNormal[1] = 0;
-        resultNormal[2] = 0;        
+        resultNormal[2] = 0;
         }
       else
         {
         for (i = 0; i < 3; i++)
           {
-          resultNormal[i] = 
+          resultNormal[i] =
             inVecs->GetTuple(x + xdim*y)[i];
           }
         vtkMath::Normalize(resultNormal);
         }
       }
-    else 
+    else
       {
       // first get the orientation
       inVecs->GetTuple(x+ypos,vec);
@@ -193,34 +193,34 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       vec[2] = 0;
       vtkMath::Normalize(vec);
       mag = img[x+ypos];
-      
+
       // compute the sample points
       xp = (double)x + vec[0];
       yp = (double)y + vec[1];
       xn = (double)x - vec[0];
       yn = (double)y - vec[1];
-      
+
       // compute their values
       xi = (int)xp;
       yi = (int)yp;
-      valp = 
+      valp =
         img[xi +xdim*yi]*(1.0 -xp +xi)*(1.0 -yp +yi) +
         img[1 +xi + xdim*yi]*(xp -xi)*(1.0 -yp +yi) +
         img[xi +xdim*(yi +1)]*(1.0 -xp +xi)*(yp -yi) +
         img[1 + xi + xdim*(yi +1)]*(xp -xi)*(yp -yi);
-      
+
       xi = (int)xn;
       yi = (int)yn;
-      valn = 
+      valn =
         img[xi +xdim*yi]*(1.0 -xn +xi)*(1.0 -yn +yi) +
         img[1 + xi +xdim*yi]*(xn -xi)*(1.0 -yn +yi) +
         img[xi + xdim*(yi +1)]*(1.0 -xn +xi)*(yn -yi) +
         img[1 + xi + xdim*(yi +1)]*(xn -xi)*(yn -yi);
-      
+
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      
+
       // now fit to a parabola and find max
       c = mag;
       b = (valp - valn)/2.0;
@@ -238,7 +238,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         }
       result[0] += vec[0]*c;
       result[1] += vec[1]*c;
-      
+
       // now calc the normal, trilinear interp of vectors
       xi = (int)result[0];
       yi = (int)result[1];
@@ -248,7 +248,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       //zn = result[2];
       for (i = 0; i < 3; i++)
         {
-        resultNormal[i] = 
+        resultNormal[i] =
           inVecs->GetTuple(xi + xdim*yi)[i] * (1.0 -xn +xi)*(1.0 -yn +yi) +
           inVecs->GetTuple(1 + xi + xdim*yi)[i] * (xn -xi)*(1.0 -yn +yi) +
           inVecs->GetTuple(xi + xdim*(yi +1))[i] * (1.0 -xn +xi)*(yn -yi) +
@@ -259,13 +259,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
     }
   else
     {
-    if (x < 1 || y < 1 || z < 1 || 
+    if (x < 1 || y < 1 || z < 1 ||
         x >= (xdim-2) || y >= (ydim -2) || z >= (zdim -2))
       {
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      if (x < 0 || y < 0 || z < 0 || 
+      if (x < 0 || y < 0 || z < 0 ||
           x > xdim || y > ydim || z > zdim)
         {
         resultNormal[0] = 1;
@@ -276,13 +276,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         {
         for (i = 0; i < 3; i++)
           {
-          resultNormal[i] = 
+          resultNormal[i] =
             inVecs->GetTuple(x + xdim*y + xdim*ydim*z)[i];
           }
         vtkMath::Normalize(resultNormal);
         }
       }
-    else 
+    else
       {
       // first get the orientation
       inVecs->GetTuple(x+ypos+zpos,vec);
@@ -291,7 +291,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       vec[2] = vec[2]*spacing[2];
       vtkMath::Normalize(vec);
       mag = img[x+ypos+zpos];
-      
+
       // compute the sample points
       xp = (double)x + vec[0];
       yp = (double)y + vec[1];
@@ -299,7 +299,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       xn = (double)x - vec[0];
       yn = (double)y - vec[1];
       zn = (double)z - vec[2];
-      
+
       // compute their values
       xi = (int)xp;
       yi = (int)yp;
@@ -307,7 +307,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 
       // This set of statements used to be one statement. It was broken up
       // due to problems with MSVC 5.0
-      valp = 
+      valp =
         img[xi +xdim*(yi +zi*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(1.0 -zp +zi);
       valp +=
         img[1 +xi + xdim*(yi + zi*ydim)]*(xp -xi)*(1.0 -yp +yi)*(1.0 -zp +zi);
@@ -323,13 +323,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xp +xi)*(yp -yi)*(zp -zi);
       valp +=
         img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xp -xi)*(yp -yi)*(zp -zi);
-      
+
       xi = (int)xn;
       yi = (int)yn;
       zi = (int)zn;
       // This set of statements used to be one statement. It was broken up
       // due to problems with MSVC 5.0
-      valn = 
+      valn =
         img[xi +xdim*(yi +zi*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi);
       valn +=
         img[1 + xi +xdim*(yi + zi*ydim)]*(xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi);
@@ -345,7 +345,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xn +xi)*(yn -yi)*(zn -zi);
       valn +=
         img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xn -xi)*(yn -yi)*(zn -zi);
-      
+
       result[0] = x;
       result[1] = y;
       result[2] = z;
@@ -373,23 +373,23 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
           c = 0.0;
           }
         }
-      else 
+      else
         {
         // now fit to a parabola and find max
         c = mag;
         b = (valp - valn)/2.0;
         a = (valp - c - b);
-        
+
         //assign the root to c because MSVC5.0 optimizer has problems with this
         // function
         c = -0.5*b/a;
         }
-      
-      if (c > 1.0) 
+
+      if (c > 1.0)
         {
         c = 1.0;
         }
-      if (c < -1.0) 
+      if (c < -1.0)
         {
         c = -1.0;
         }
@@ -407,8 +407,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 
       for (i = 0; i < 3; i++)
         {
-        resultNormal[i] = 
-          inVecs->GetTuple(xi + xdim*(yi + zi*ydim))[i] * 
+        resultNormal[i] =
+          inVecs->GetTuple(xi + xdim*(yi + zi*ydim))[i] *
           (1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
           inVecs->GetTuple(1 + xi + xdim*(yi + zi*ydim))[i] *
           (xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
@@ -418,7 +418,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
           (xn -xi)*(yn -yi)*(1.0 -zn +zi) +
           inVecs->GetTuple(xi + xdim*(yi + (zi+1)*ydim))[i] *
           (1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
-          inVecs->GetTuple(1 + xi + xdim*(yi + (zi+1)*ydim))[i] * 
+          inVecs->GetTuple(1 + xi + xdim*(yi + (zi+1)*ydim))[i] *
           (xn -xi)*(1.0 -yn +yi)*(zn -zi) +
           inVecs->GetTuple(xi + xdim*(yi +1 + (zi+1)*ydim))[i] *
           (1.0 -xn +xi)*(yn -yi)*(zn -zi) +
@@ -433,7 +433,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 
 void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
                                      int x, int y,
-                                     float *img, vtkDataArray *inVecs, 
+                                     float *img, vtkDataArray *inVecs,
                                      double *result, int z, double *spacing,
                                      double *resultNormal)
 {
@@ -446,11 +446,11 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   double xp, yp, zp;
   double xn, yn, zn;
   int xi, yi, zi, i;
-  
+
   zpos = z*xdim*ydim;
 
   ypos = y*xdim;
-  
+
   // handle the 2d case
   if (zdim < 2)
     {
@@ -464,19 +464,19 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         {
         resultNormal[0] = 1;
         resultNormal[1] = 0;
-        resultNormal[2] = 0;        
+        resultNormal[2] = 0;
         }
       else
         {
         for (i = 0; i < 3; i++)
           {
-          resultNormal[i] = 
+          resultNormal[i] =
             inVecs->GetTuple(x + xdim*y)[i];
           }
         vtkMath::Normalize(resultNormal);
         }
       }
-    else 
+    else
       {
       // first get the orientation
       inVecs->GetTuple(x+ypos,vec);
@@ -485,34 +485,34 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       vec[2] = 0;
       vtkMath::Normalize(vec);
       mag = img[x+ypos];
-      
+
       // compute the sample points
       xp = (double)x + vec[0];
       yp = (double)y + vec[1];
       xn = (double)x - vec[0];
       yn = (double)y - vec[1];
-      
+
       // compute their values
       xi = (int)xp;
       yi = (int)yp;
-      valp = 
+      valp =
         img[xi +xdim*yi]*(1.0 -xp +xi)*(1.0 -yp +yi) +
         img[1 +xi + xdim*yi]*(xp -xi)*(1.0 -yp +yi) +
         img[xi +xdim*(yi +1)]*(1.0 -xp +xi)*(yp -yi) +
         img[1 + xi + xdim*(yi +1)]*(xp -xi)*(yp -yi);
-      
+
       xi = (int)xn;
       yi = (int)yn;
-      valn = 
+      valn =
         img[xi +xdim*yi]*(1.0 -xn +xi)*(1.0 -yn +yi) +
         img[1 + xi +xdim*yi]*(xn -xi)*(1.0 -yn +yi) +
         img[xi + xdim*(yi +1)]*(1.0 -xn +xi)*(yn -yi) +
         img[1 + xi + xdim*(yi +1)]*(xn -xi)*(yn -yi);
-      
+
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      
+
       // now fit to a parabola and find max
       c = mag;
       b = (valp - valn)/2.0;
@@ -530,7 +530,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         }
       result[0] += vec[0]*c;
       result[1] += vec[1]*c;
-      
+
       // now calc the normal, trilinear interp of vectors
       xi = (int)result[0];
       yi = (int)result[1];
@@ -540,7 +540,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       //zn = result[2];
       for (i = 0; i < 3; i++)
         {
-        resultNormal[i] = 
+        resultNormal[i] =
           inVecs->GetTuple(xi + xdim*yi)[i] * (1.0 -xn +xi)*(1.0 -yn +yi) +
           inVecs->GetTuple(1 + xi + xdim*yi)[i] * (xn -xi)*(1.0 -yn +yi) +
           inVecs->GetTuple(xi + xdim*(yi +1))[i] * (1.0 -xn +xi)*(yn -yi) +
@@ -551,13 +551,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
     }
   else
     {
-    if (x < 1 || y < 1 || z < 1 || 
+    if (x < 1 || y < 1 || z < 1 ||
         x >= (xdim-2) || y >= (ydim -2) || z >= (zdim -2))
       {
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      if (x < 0 || y < 0 || z < 0 || 
+      if (x < 0 || y < 0 || z < 0 ||
           x > xdim || y > ydim || z > zdim)
         {
         resultNormal[0] = 1;
@@ -568,13 +568,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         {
         for (i = 0; i < 3; i++)
           {
-          resultNormal[i] = 
+          resultNormal[i] =
             inVecs->GetTuple(x + xdim*y + xdim*ydim*z)[i];
           }
         vtkMath::Normalize(resultNormal);
         }
       }
-    else 
+    else
       {
       // first get the orientation
       inVecs->GetTuple(x+ypos+zpos,vec);
@@ -583,7 +583,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       vec[2] = vec[2]*spacing[2];
       vtkMath::Normalize(vec);
       mag = img[x+ypos+zpos];
-      
+
       // compute the sample points
       xp = (double)x + vec[0];
       yp = (double)y + vec[1];
@@ -591,7 +591,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       xn = (double)x - vec[0];
       yn = (double)y - vec[1];
       zn = (double)z - vec[2];
-      
+
       // compute their values
       xi = (int)xp;
       yi = (int)yp;
@@ -599,7 +599,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 
       // This set of statements used to be one statement. It was broken up
       // due to problems with MSVC 5.0
-      valp = 
+      valp =
         img[xi +xdim*(yi +zi*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(1.0 -zp +zi);
       valp +=
         img[1 +xi + xdim*(yi + zi*ydim)]*(xp -xi)*(1.0 -yp +yi)*(1.0 -zp +zi);
@@ -615,13 +615,13 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xp +xi)*(yp -yi)*(zp -zi);
       valp +=
         img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xp -xi)*(yp -yi)*(zp -zi);
-      
+
       xi = (int)xn;
       yi = (int)yn;
       zi = (int)zn;
       // This set of statements used to be one statement. It was broken up
       // due to problems with MSVC 5.0
-      valn = 
+      valn =
         img[xi +xdim*(yi +zi*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi);
       valn +=
         img[1 + xi +xdim*(yi + zi*ydim)]*(xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi);
@@ -637,7 +637,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
         img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xn +xi)*(yn -yi)*(zn -zi);
       valn +=
         img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xn -xi)*(yn -yi)*(zn -zi);
-      
+
       result[0] = x;
       result[1] = y;
       result[2] = z;
@@ -665,23 +665,23 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
           c = 0.0;
           }
         }
-      else 
+      else
         {
         // now fit to a parabola and find max
         c = mag;
         b = (valp - valn)/2.0;
         a = (valp - c - b);
-        
+
         //assign the root to c because MSVC5.0 optimizer has problems with this
         // function
         c = -0.5*b/a;
         }
-      
-      if (c > 1.0) 
+
+      if (c > 1.0)
         {
         c = 1.0;
         }
-      if (c < -1.0) 
+      if (c < -1.0)
         {
         c = -1.0;
         }
@@ -699,8 +699,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 
       for (i = 0; i < 3; i++)
         {
-        resultNormal[i] = 
-          inVecs->GetTuple(xi + xdim*(yi + zi*ydim))[i] * 
+        resultNormal[i] =
+          inVecs->GetTuple(xi + xdim*(yi + zi*ydim))[i] *
           (1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
           inVecs->GetTuple(1 + xi + xdim*(yi + zi*ydim))[i] *
           (xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
@@ -710,7 +710,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
           (xn -xi)*(yn -yi)*(1.0 -zn +zi) +
           inVecs->GetTuple(xi + xdim*(yi + (zi+1)*ydim))[i] *
           (1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
-          inVecs->GetTuple(1 + xi + xdim*(yi + (zi+1)*ydim))[i] * 
+          inVecs->GetTuple(1 + xi + xdim*(yi + (zi+1)*ydim))[i] *
           (xn -xi)*(1.0 -yn +yi)*(zn -zi) +
           inVecs->GetTuple(xi + xdim*(yi +1 + (zi+1)*ydim))[i] *
           (1.0 -xn +xi)*(yn -yi)*(zn -zi) +
@@ -763,7 +763,7 @@ void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Gradient Data: (none)\n";
     }
-  
+
   os << indent << "TargetFlag: " << this->TargetFlag << endl;
   os << indent << "TargetValue: " << this->TargetValue << endl;
 }

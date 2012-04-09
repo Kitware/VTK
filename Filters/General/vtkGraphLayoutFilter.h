@@ -15,15 +15,15 @@
 // .NAME vtkGraphLayoutFilter - nice layout of undirected graphs in 3D
 // .SECTION Description
 // vtkGraphLayoutFilter will reposition a network of nodes, connected by
-// lines or polylines, into a more pleasing arrangement. The class 
-// implements a simple force-directed placement algorithm 
-// (Fruchterman & Reingold "Graph Drawing by Force-directed Placement" 
+// lines or polylines, into a more pleasing arrangement. The class
+// implements a simple force-directed placement algorithm
+// (Fruchterman & Reingold "Graph Drawing by Force-directed Placement"
 // Software-Practice and Experience 21(11) 1991).
 //
-// The input to the filter is a vtkPolyData representing the undirected 
-// graphs. A graph is represented by a set of polylines and/or lines. 
-// The output is also a vtkPolyData, where the point positions have been 
-// modified. To use the filter, specify whether you wish the layout to 
+// The input to the filter is a vtkPolyData representing the undirected
+// graphs. A graph is represented by a set of polylines and/or lines.
+// The output is also a vtkPolyData, where the point positions have been
+// modified. To use the filter, specify whether you wish the layout to
 // occur in 2D or 3D; the bounds in which the graph should lie (note that you
 // can just use automatic bounds computation); and modify the cool down
 // rate (controls the final process of simulated annealing).

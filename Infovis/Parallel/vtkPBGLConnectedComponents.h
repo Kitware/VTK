@@ -43,7 +43,7 @@ public:
   static vtkPBGLConnectedComponents *New();
   vtkTypeMacro(vtkPBGLConnectedComponents, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the name of the component number output array, which contains the
   // component number of each vertex (a non-negative value). If no component
@@ -55,8 +55,8 @@ protected:
   ~vtkPBGLConnectedComponents();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
@@ -64,10 +64,10 @@ protected:
 
   virtual int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
   char* ComponentArrayName;
-  
+
   vtkPBGLConnectedComponents(const vtkPBGLConnectedComponents&);  // Not implemented.
   void operator=(const vtkPBGLConnectedComponents&);  // Not implemented.
 };

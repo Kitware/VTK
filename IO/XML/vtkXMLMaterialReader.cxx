@@ -77,7 +77,7 @@ void vtkXMLMaterialReader::ReadMaterial()
     {
     vtkErrorMacro( "No material file specified in vtkXMLMaterialReader." );
     }
-  
+
   if (this->ParseTime < this->MTime )
     {
     if( this->XMLParser )

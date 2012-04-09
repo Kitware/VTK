@@ -198,7 +198,7 @@ public:
   vtkSetMacro(Text, int);
   vtkGetMacro(Text, int);
   vtkBooleanMacro(Text, int);
-  
+
   // Description:
   // Turn on/off landscape orientation.  If off (default) the
   // orientation is set to portrait.
@@ -302,7 +302,7 @@ inline const char *vtkGL2PSExporter::GetFileFormatAsString(void)
     {
     return "TeX";
     }
-  else 
+  else
     {
     return "SVG";
     }

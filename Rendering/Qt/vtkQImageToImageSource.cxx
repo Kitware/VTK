@@ -47,9 +47,9 @@ vtkQImageToImageSource::vtkQImageToImageSource()
 
 //----------------------------------------------------------------------------
 int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
-                                         vtkInformationVector **vtkNotUsed(inputVector), 
+                                         vtkInformationVector **vtkNotUsed(inputVector),
                                          vtkInformationVector *outputVector)
-{ 
+{
   if(!QApplication::instance())
     {
     vtkErrorMacro("You must initialize QApplication before using this filter.");
@@ -60,7 +60,7 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if( this->QtImage == 0 )
     {
     vtkErrorMacro( "Qt Image was not set." );
@@ -78,9 +78,9 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
 
   output->SetExtent(this->DataExtent);
   output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-  
+
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast( output->GetPointData()->GetScalars() );
-  
+
   int i, j;
   unsigned char temp[4];
   for( i = 0; i < height/2; i++ )
@@ -98,7 +98,7 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
       data[(4*bottom_address)+1] = data[(4*top_address)+1]; //G
       data[(4*bottom_address)+0] = data[(4*top_address)+2]; //R
       data[(4*bottom_address)+3] = data[(4*top_address)+3]; //A
-      
+
       data[(4*top_address)+2] = temp[0]; //B
       data[(4*top_address)+1] = temp[1]; //G
       data[(4*top_address)+0] = temp[2]; //R
@@ -138,7 +138,7 @@ int vtkQImageToImageSource::RequestInformation (
   QSize size = this->QtImage->size();
   this->DataExtent[1] = size.width() - 1;
   this->DataExtent[3] = size.height() - 1;
-    
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent,6);
   return 1;

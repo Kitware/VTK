@@ -20,13 +20,13 @@
 //
 // To use this filter you associate components in the input field data with
 // portions of the output dataset. (A component is an array of values from
-// the field.) For example, you would specify x-y-z points by assigning 
+// the field.) For example, you would specify x-y-z points by assigning
 // components from the field for the x, then y, then z values of the points.
-// You may also have to specify component ranges (for each z-y-z) to make 
-// sure that the number of x, y, and z values is the same. Also, you may 
-// want to normalize the components which helps distribute the data 
-// uniformly. Once you've setup the filter to combine all the pieces of 
-// data into a specified dataset (the geometry, topology, point and cell 
+// You may also have to specify component ranges (for each z-y-z) to make
+// sure that the number of x, y, and z values is the same. Also, you may
+// want to normalize the components which helps distribute the data
+// uniformly. Once you've setup the filter to combine all the pieces of
+// data into a specified dataset (the geometry, topology, point and cell
 // data attributes), the various output methods (e.g., GetPolyData()) are
 // used to retrieve the final product.
 //
@@ -50,11 +50,11 @@
 // points) as well as the dimensions.
 //
 // If you wish to create a dataset of just points (i.e., unstructured points
-// dataset), create vtkPolyData consisting of points. There will be no cells 
+// dataset), create vtkPolyData consisting of points. There will be no cells
 // in such a dataset.
 
 // .SECTION See Also
-// vtkDataObject vtkFieldData vtkDataSet vtkPolyData vtkStructuredPoints 
+// vtkDataObject vtkFieldData vtkDataSet vtkPolyData vtkStructuredPoints
 // vtkStructuredGrid vtkUnstructuredGrid vtkRectilinearGrid
 // vtkDataSetAttributes vtkDataArray
 
@@ -103,7 +103,7 @@ public:
   // Description:
   // Get the output in different forms. The particular method invoked
   // should be consistent with the SetDataSetType() method. (Note:
-  // GetOutput() will always return a type consistent with 
+  // GetOutput() will always return a type consistent with
   // SetDataSetType(). Also, GetOutput() will return NULL if the filter
   // aborted due to inconsistent data.)
   vtkDataSet *GetOutput();
@@ -134,14 +134,14 @@ public:
   int GetPointComponentMinRange(int comp);
   int GetPointComponentMaxRange(int comp);
   int GetPointComponentNormailzeFlag(int comp);
-  
+
   // Description:
   // Define cell connectivity when creating vtkPolyData. You can define
   // vertices, lines, polygons, and/or triangle strips via these methods.
   // These methods are similar to those for defining points, except
   // that no normalization of the data is possible. Basically, you need to
-  // define an array of values that (for each cell) includes the number of 
-  // points per cell, and then the cell connectivity. (This is the vtk file 
+  // define an array of values that (for each cell) includes the number of
+  // points per cell, and then the cell connectivity. (This is the vtk file
   // format described in in the textbook or User's Guide.)
   void SetVertsComponent(char *arrayName, int arrayComp, int min, int max);
   void SetVertsComponent(char *arrayName, int arrayComp)
@@ -171,14 +171,14 @@ public:
   int GetStripsComponentArrayComponent();
   int GetStripsComponentMinRange();
   int GetStripsComponentMaxRange();
-  
+
   // Description:
   // Define cell types and cell connectivity when creating unstructured grid
   // data.  These methods are similar to those for defining points, except
   // that no normalization of the data is possible. Basically, you need to
   // define an array of cell types (an integer value per cell), and another
   // array consisting (for each cell) of a number of points per cell, and
-  // then the cell connectivity. (This is the vtk file format described in 
+  // then the cell connectivity. (This is the vtk file format described in
   // in the textbook or User's Guide.)
   void SetCellTypeComponent(char *arrayName, int arrayComp,
                             int min, int max);
@@ -196,7 +196,7 @@ public:
   int GetCellConnectivityComponentArrayComponent();
   int GetCellConnectivityComponentMinRange();
   int GetCellConnectivityComponentMaxRange();
-  
+
   // Description:
   // Set the default Normalize() flag for those methods setting a default
   // Normalize value (e.g., SetPointComponent).
@@ -210,19 +210,19 @@ public:
   // vtkRectilinearGrid).
   vtkSetVector3Macro(Dimensions,int);
   vtkGetVectorMacro(Dimensions,int,3);
-  
+
   // Description:
   // Specify the origin to use if generating a dataset whose origin
   // can be set (i.e., a vtkStructuredPoints dataset).
   vtkSetVector3Macro(Origin,double);
   vtkGetVectorMacro(Origin,double,3);
-  
+
   // Description:
-  // Specify the spacing to use if generating a dataset whose spacing 
+  // Specify the spacing to use if generating a dataset whose spacing
   // can be set (i.e., a vtkStructuredPoints dataset).
   vtkSetVector3Macro(Spacing,double);
   vtkGetVectorMacro(Spacing,double,3);
-  
+
   // Description:
   // Alternative methods to specify the dimensions, spacing, and origin for those
   // datasets requiring this information. You need to specify the name of an array;
@@ -236,7 +236,7 @@ public:
     {this->SetSpacingComponent(arrayName, arrayComp, -1, -1);};
   void SetOriginComponent(char *arrayName, int arrayComp, int min, int max);
   void SetOriginComponent(char *arrayName, int arrayComp)
-    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};  
+    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};
 
 protected:
   vtkDataObjectToDataSetFilter();
@@ -253,7 +253,7 @@ protected:
 
   // control flags used to generate the output dataset
   int DataSetType; //the type of dataset to generate
-  
+
   // Support definition of points
   char *PointArrays[3]; //the name of the arrays
   int PointArrayComponents[3]; //the array components used for x-y-z
@@ -302,23 +302,23 @@ protected:
   int Dimensions[3];
   double Origin[3];
   double Spacing[3];
-  
+
   char *DimensionsArray; //the name of the array
   int DimensionsArrayComponent; //the component of the array used for dimensions
   vtkIdType DimensionsComponentRange[2]; //the ComponentRange of the array for the dimensions
-  
+
   char *OriginArray; //the name of the array
   int OriginArrayComponent; //the component of the array used for Origins
   vtkIdType OriginComponentRange[2]; //the ComponentRange of the array for the Origins
-  
+
   char *SpacingArray; //the name of the array
   int SpacingArrayComponent; //the component of the array used for Spacings
   vtkIdType SpacingComponentRange[2]; //the ComponentRange of the array for the Spacings
-  
+
   void ConstructDimensions(vtkDataObject *input);
   void ConstructSpacing(vtkDataObject *input);
   void ConstructOrigin(vtkDataObject *input);
-  
+
 private:
   vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&);  // Not implemented.
   void operator=(const vtkDataObjectToDataSetFilter&);  // Not implemented.

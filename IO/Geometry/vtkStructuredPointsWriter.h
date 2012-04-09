@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkStructuredPointsWriter - write vtk structured points data file
 // .SECTION Description
-// vtkStructuredPointsWriter is a source object that writes ASCII or binary 
+// vtkStructuredPointsWriter is a source object that writes ASCII or binary
 // structured points data in vtk file format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.

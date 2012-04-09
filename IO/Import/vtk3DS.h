@@ -152,7 +152,7 @@ typedef struct {
     vtkPoints *aPoints;
     vtkCellArray *aCellArray;
     vtkPolyData *aPolyData;
- 
+
 } vtk3DSMesh;
 
 

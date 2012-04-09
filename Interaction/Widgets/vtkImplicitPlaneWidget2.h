@@ -21,7 +21,7 @@
 // determines the actual geometry of the widget.)
 //
 // To use this widget, you generally pair it with a vtkImplicitPlaneRepresentation
-// (or a subclass). Variuos options are available for controlling how the 
+// (or a subclass). Variuos options are available for controlling how the
 // representation appears, and how the widget functions.
 
 // .SECTION Event Bindings
@@ -47,7 +47,7 @@
 // If the keypress characters are used
 //   'Down/Left' Move plane down
 //   'Up/Right' Move plane up
-// In all the cases, independent of what is picked, the widget responds to the 
+// In all the cases, independent of what is picked, the widget responds to the
 // following VTK events:
 //   MiddleButtonPressEvent - move the plane
 //   MiddleButtonReleaseEvent - release the plane
@@ -57,7 +57,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkImplicitPlaneWidget2's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
@@ -78,7 +78,7 @@
 // .SECTION Caveats
 // Note that the widget can be picked even when it is "behind"
 // other actors.  This is an intended feature and not a bug.
-// 
+//
 // This class, and vtkImplicitPlaneRepresentation, are next generation VTK
 // widgets. An earlier version of this functionality was defined in the class
 // vtkImplicitPlaneWidget.
@@ -125,14 +125,14 @@ public:
   // Observe/Unobserve the camera if the widget is locked/unlocked to update the
   // vtkImplicitePlaneRepresentation's normal.
   void SetLockNormalToCamera(int lock);
-  
+
   // Description:
   // Return the representation as a vtkImplicitPlaneRepresentation.
   vtkImplicitPlaneRepresentation *GetImplicitPlaneRepresentation()
     {return reinterpret_cast<vtkImplicitPlaneRepresentation*>(this->WidgetRep);}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:
@@ -143,7 +143,7 @@ protected:
   int WidgetState;
   enum _WidgetState {Start=0,Active};
 //ETX
-    
+
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void TranslateAction(vtkAbstractWidget*);

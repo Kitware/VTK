@@ -53,7 +53,7 @@ static void BuildGraph(vtkGraph* input_graph, const std::vector<vtkIdType>& vert
     {
     if(vertex_map[i] == -1)
       continue;
-      
+
     output_graph->AddVertex();
     output_vertex_data->CopyData(input_vertex_data, i, vertex_map[i]);
     }
@@ -66,8 +66,8 @@ static void BuildGraph(vtkGraph* input_graph, const std::vector<vtkIdType>& vert
     vtkEdgeType output_edge = output_graph->AddEdge(vertex_map[input_edge->Source], vertex_map[input_edge->Target]);
     output_edge_data->CopyData(input_edge_data, input_edge->Id, output_edge.Id);
     }
- 
-  destination_graph->ShallowCopy(output_graph); 
+
+  destination_graph->ShallowCopy(output_graph);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -112,14 +112,14 @@ int vtkCollapseGraph::FillInputPortInformation(int port, vtkInformation* info)
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkSelection");
     return 1;
     }
-    
+
   return 0;
 }
 
 
 int vtkCollapseGraph::RequestData(
   vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, 
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Ensure we have valid inputs ...
@@ -132,7 +132,7 @@ int vtkCollapseGraph::RequestData(
     vtkSelection::GetData(inputVector[1]),
     input_graph,
     input_indices);
-  
+
   // Convert the input selection into an "expanding" array that contains "true" for each
   // vertex that is expanding (i.e. its neighbors are collapsing into it)
   std::vector<bool> expanding(input_graph->GetNumberOfVertices(), false);
@@ -183,7 +183,7 @@ int vtkCollapseGraph::RequestData(
   while(edge_iterator->HasNext())
     {
     vtkEdgeType edge = edge_iterator->Next();
-    
+
     edge.Source = parent[edge.Source];
     edge.Target = parent[edge.Target];
     if(edge.Source == edge.Target)
@@ -206,7 +206,7 @@ int vtkCollapseGraph::RequestData(
     vtkErrorMacro(<< "Unknown input graph type");
     return 0;
     }
-    
+
   return 1;
 }
 

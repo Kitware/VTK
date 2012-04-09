@@ -65,8 +65,8 @@ protected:
   ~vtkChacoGraphReader();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
 private:

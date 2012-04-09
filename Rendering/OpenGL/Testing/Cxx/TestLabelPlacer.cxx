@@ -59,7 +59,7 @@ int TestLabelPlacer(int argc, char *argv[])
   //int iteratorType = vtkLabelHierarchy::DEPTH_FIRST;
   bool showBounds = false;
 
-  vtkSmartPointer<vtkSphereSource> sphere = 
+  vtkSmartPointer<vtkSphereSource> sphere =
     vtkSmartPointer<vtkSphereSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> sphereMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -70,35 +70,35 @@ int TestLabelPlacer(int argc, char *argv[])
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
   sphereActor->SetMapper(sphereMapper);
 
-  vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
+  vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator =
     vtkSmartPointer<vtkLabelSizeCalculator>::New();
-  vtkSmartPointer<vtkLabelHierarchy> labelHierarchy = 
+  vtkSmartPointer<vtkLabelHierarchy> labelHierarchy =
     vtkSmartPointer<vtkLabelHierarchy>::New();
-  vtkSmartPointer<vtkLabelPlacer> labelPlacer = 
+  vtkSmartPointer<vtkLabelPlacer> labelPlacer =
     vtkSmartPointer<vtkLabelPlacer>::New();
-  vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy = 
+  vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy =
     vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
   vtkSmartPointer<vtkXMLPolyDataReader> xmlPolyDataReader =
     vtkSmartPointer<vtkXMLPolyDataReader>::New();
 
-  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = 
+  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  vtkSmartPointer<vtkActor> actor = 
+  vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
-  vtkSmartPointer<vtkRenderer> renderer = 
+  vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = 
+  vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = 
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
-  vtkSmartPointer<vtkLabeledDataMapper> labeledMapper = 
+  vtkSmartPointer<vtkLabeledDataMapper> labeledMapper =
     vtkSmartPointer<vtkLabeledDataMapper>::New();
   vtkSmartPointer<vtkActor2D> textActor = vtkSmartPointer<vtkActor2D>::New();
 
   xmlPolyDataReader->SetFileName( fname );
   delete [] fname;
-  
+
   labelSizeCalculator->SetInputConnection(xmlPolyDataReader->GetOutputPort());
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
   labelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
@@ -131,7 +131,7 @@ int TestLabelPlacer(int argc, char *argv[])
   labeledMapper->SetLabelModeToLabelFieldData();
   labeledMapper->GetLabelTextProperty()->SetColor(0.0, 0.8, 0.2);
   textActor->SetMapper(labeledMapper);
-  
+
   //renderer->AddActor(actor);
   renderer->AddActor(sphereActor);
   renderer->AddActor(textActor);

@@ -17,13 +17,13 @@
 //
 // .SECTION Description
 //  vtkDataTransferHelper is a helper class that aids in transferring data
-//  between the CPU memory and the GPU memory. The data in GPU memory is 
+//  between the CPU memory and the GPU memory. The data in GPU memory is
 //  stored as textures which that in CPU memory is stored as vtkDataArray.
 //  vtkDataTransferHelper provides API to transfer only a sub-extent of CPU
 //  structured data to/from the GPU.
 //
 // .SECTION see also
-//  vtkPixelBufferObject vtkTextureObject vtkOpenGLExtensionManager 
+//  vtkPixelBufferObject vtkTextureObject vtkOpenGLExtensionManager
 
 #ifndef __vtkDataTransferHelper_h
 #define __vtkDataTransferHelper_h
@@ -47,8 +47,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get/Set the context. Context must be a vtkOpenGLRenderWindow. 
-  // This does not increase the reference count of the 
+  // Get/Set the context. Context must be a vtkOpenGLRenderWindow.
+  // This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
@@ -180,7 +180,7 @@ public:
   // * Copy from pbo to user array (DownloadAsync2()).
   bool DownloadAsync1();
   bool DownloadAsync2();
-  
+
   bool GetShaderSupportsTextureInt();
   void SetShaderSupportsTextureInt(bool value);
 

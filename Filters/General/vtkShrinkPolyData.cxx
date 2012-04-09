@@ -51,7 +51,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output= vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPointData *pointData = output->GetPointData(); 
+  vtkPointData *pointData = output->GetPointData();
 
   pd = input->GetPointData();
 
@@ -60,7 +60,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
 
-  // Count the number of new points and other primitives that 
+  // Count the number of new points and other primitives that
   // need to be created.
   //
   numNewPts = input->GetNumberOfVerts();
@@ -92,7 +92,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
 
   newLines = vtkCellArray::New();
   newLines->Allocate(numNewLines*3);
- 
+
   newPolys = vtkCellArray::New();
   newPolys->Allocate(polyAllocSize);
 
@@ -104,10 +104,10 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
   newPoints->SetNumberOfPoints(numNewPts);
   T *outPts = (T *)newPoints->GetVoidPointer(0);
   vtkIdType outCount = 0;
-  
+
   // Copy vertices (no shrinking necessary)
   //
-  for (inVerts->InitTraversal(); 
+  for (inVerts->InitTraversal();
        inVerts->GetNextCell(npts,pts) && !abortExecute; )
     {
     newVerts->InsertNextCell(npts);
@@ -120,14 +120,14 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
       newVerts->InsertCellPoint(outCount);
       pointData->CopyData(pd,pts[j],outCount);
       outCount++;
-      }    
+      }
     abortExecute = self->GetAbortExecute();
     }
   self->UpdateProgress (0.10);
-  
+
   // Lines need to be shrunk, and if polyline, split into separate pieces
   //
-  for (inLines->InitTraversal(); 
+  for (inLines->InitTraversal();
        inLines->GetNextCell(npts,pts) && !abortExecute; )
     {
     for (j=0; j<(npts-1); j++)
@@ -164,7 +164,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
 
   // Polygons need to be shrunk
   //
-  for (inPolys->InitTraversal(); 
+  for (inPolys->InitTraversal();
        inPolys->GetNextCell(npts,pts) && !abortExecute; )
     {
     for (center[0]=center[1]=center[2]=0, j=0; j<npts; j++)
@@ -201,7 +201,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
   // Triangle strips need to be shrunk and split into separate pieces.
   //
   vtkIdType tmp;
-  for (inStrips->InitTraversal(); 
+  for (inStrips->InitTraversal();
        inStrips->GetNextCell(npts,pts) && !abortExecute; )
     {
     for (j=0; j<(npts-2); j++)
@@ -263,7 +263,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
 
   output->SetLines(newLines);
   newLines->Delete();
- 
+
   output->SetPolys(newPolys);
   newPolys->Delete();
 
@@ -290,7 +290,7 @@ int vtkShrinkPolyData::RequestData(
     {
     return 1;
     }
-  
+
   // get the input pointer for templating
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
 
@@ -298,7 +298,7 @@ int vtkShrinkPolyData::RequestData(
   switch (input->GetPoints()->GetDataType())
     {
     vtkTemplateMacro(
-      vtkShrinkPolyDataExecute(this, 
+      vtkShrinkPolyDataExecute(this,
                                (VTK_TT *)(inPtr), this->ShrinkFactor,
                                inInfo, outInfo));
     default:

@@ -109,7 +109,7 @@ void vtkPiecewisePointHandleItem::SetParent(vtkAbstractContextItem* parent)
       {
       this->Parent->RemoveObserver(this->Callback);
       }
-  
+
     }
   this->Superclass::SetParent(parent);
   if(parent)
@@ -185,7 +185,7 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   double blydistance = fabs(pointInScene[1]-screenBLPos[1])-fDistance*2.0;
   double trxdistance = fabs(pointInScene[0]-screenTRPos[0])-fDistance*2.0;
   double trydistance = fabs(pointInScene[1]-screenTRPos[1])-fDistance*2.0;
-  
+
   blxdistance = std::max(0.0, blxdistance);
   blydistance = std::max(0.0, blydistance);
   trxdistance = std::max(0.0, trxdistance);

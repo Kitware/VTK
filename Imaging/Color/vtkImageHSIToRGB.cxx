@@ -45,10 +45,10 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
   double temp;
   double third = max / 3.0;
   int idxC;
-  
+
   // find the region to loop over
   int maxC = inData->GetNumberOfScalarComponents()-1;
-  
+
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
@@ -61,7 +61,7 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
       H = static_cast<double>(*inSI); ++inSI;
       S = static_cast<double>(*inSI); ++inSI;
       I = static_cast<double>(*inSI); ++inSI;
-      
+
       // compute rgb assuming S = 1.0;
       if (H >= 0.0 && H <= third) // red -> green
         {
@@ -81,7 +81,7 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
         B = 1.0 - R;
         G = 0.0;
         }
-        
+
       // add Saturation to the equation.
       S = S / max;
       //R = S + (1.0 - S)*R;
@@ -91,17 +91,17 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
       R = S*R + (1.0 - S);
       G = S*G + (1.0 - S);
       B = S*B + (1.0 - S);
-      
-      // Use intensity to get actual RGB 
+
+      // Use intensity to get actual RGB
       // normalize RGB first then apply intensity
-      temp = R + G + B; 
+      temp = R + G + B;
       //I = 3 * I / (temp * max);
       // and what happened to this?
       I = 3 * I / (temp);
       R = R * I;
       G = G * I;
       B = B * I;
-      
+
       // clip below 255
       //if (R > 255.0) R = max;
       //if (G > 255.0) G = max;
@@ -119,12 +119,12 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
         {
         B = max;
         }
-      
+
       // assign output.
       *outSI = static_cast<T>(R); ++outSI;
       *outSI = static_cast<T>(G); ++outSI;
       *outSI = static_cast<T>(B); ++outSI;
-      
+
       for (idxC = 3; idxC <= maxC; idxC++)
         {
         *outSI++ = *inSI++;
@@ -136,13 +136,13 @@ void vtkImageHSIToRGBExecute(vtkImageHSIToRGB *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageHSIToRGB::ThreadedExecute (vtkImageData *inData, 
+void vtkImageHSIToRGB::ThreadedExecute (vtkImageData *inData,
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
+  vtkDebugMacro(<< "Execute: inData = " << inData
   << ", outData = " << outData);
-  
+
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
@@ -150,7 +150,7 @@ void vtkImageHSIToRGB::ThreadedExecute (vtkImageData *inData,
     << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-  
+
   // need three components for input and output
   if (inData->GetNumberOfScalarComponents() < 3)
     {
@@ -166,7 +166,7 @@ void vtkImageHSIToRGB::ThreadedExecute (vtkImageData *inData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageHSIToRGBExecute(this, inData, 
+      vtkImageHSIToRGBExecute(this, inData,
                               outData, outExt, id, static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

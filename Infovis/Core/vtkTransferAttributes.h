@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkTransferAttributes.h
 
@@ -50,10 +50,10 @@ public:
   // SourceFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS,
   // TargetFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS
   static vtkTransferAttributes *New();
-  
+
   vtkTypeMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // If on, uses direct mapping from tree to graph vertices.
   // If off, both the graph and tree must contain PedigreeId arrays
@@ -62,50 +62,50 @@ public:
   vtkSetMacro(DirectMapping, bool);
   vtkGetMacro(DirectMapping, bool);
   vtkBooleanMacro(DirectMapping, bool);
-  
+
   // Description:
   // The field name to use for storing the source array.
   vtkGetStringMacro(SourceArrayName);
   vtkSetStringMacro(SourceArrayName);
-  
+
   // Description:
   // The field name to use for storing the source array.
   vtkGetStringMacro(TargetArrayName);
   vtkSetStringMacro(TargetArrayName);
-  
+
   // Description:
   // The source field type for accessing the source array. Valid values are
   // those from enum vtkDataObject::FieldAssociations.
   vtkGetMacro(SourceFieldType, int);
   vtkSetMacro(SourceFieldType, int);
-  
+
   // Description:
   // The target field type for accessing the target array. Valid values are
   // those from enum vtkDataObject::FieldAssociations.
   vtkGetMacro(TargetFieldType, int);
   vtkSetMacro(TargetFieldType, int);
-  
+
   // Description:
   // Method to get/set the default value.
   vtkVariant GetDefaultValue();
   void SetDefaultValue(vtkVariant value);
-  
+
   // Description:
   // Set the input type of the algorithm to vtkGraph.
   int FillInputPortInformation(int port, vtkInformation* info);
-  
+
 protected:
   vtkTransferAttributes();
   ~vtkTransferAttributes();
-  
+
   bool DirectMapping;
   char* SourceArrayName;
   char* TargetArrayName;
   int SourceFieldType;
   int TargetFieldType;
-  
+
   vtkVariant DefaultValue;
-  
+
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

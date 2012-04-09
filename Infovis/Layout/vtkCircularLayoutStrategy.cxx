@@ -35,7 +35,7 @@ vtkCircularLayoutStrategy::~vtkCircularLayoutStrategy()
 {
 }
 
-void vtkCircularLayoutStrategy::Layout() 
+void vtkCircularLayoutStrategy::Layout()
 {
   vtkPoints* points = vtkPoints::New();
   vtkIdType numVerts = this->Graph->GetNumberOfVertices();

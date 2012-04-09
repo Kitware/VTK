@@ -69,9 +69,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   // Generate an input table that contains samples of mutually independent discrete random variables
   int nVariables = 2;
   vtkIntArray* intArray[2];
-  vtkStdString columnNames[] = { "Rounded Normal 0", 
+  vtkStdString columnNames[] = { "Rounded Normal 0",
                                  "Rounded Normal 1" };
-  
+
   vtkTable* inputData = vtkTable::New();
   // Discrete rounded normal samples
   for ( int c = 0; c < nVariables; ++ c )
@@ -84,7 +84,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
       {
       intArray[c]->InsertNextValue( static_cast<int>( vtkMath::Round( vtkMath::Gaussian() * args->stdev ) ) );
       }
-    
+
     inputData->AddColumn( intArray[c] );
     intArray[c]->Delete();
     }
@@ -95,10 +95,10 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   //   column 4: H(X|Y)
   int iEntropies[] = { 2,
                        3,
-                       4 }; 
+                       4 };
   int nEntropies = 3; // correct number of entropies reported in the summary table
 
-  // ************************** Contingency Statistics ************************** 
+  // ************************** Contingency Statistics **************************
 
   // Synchronize and start clock
   com->Barrier();
@@ -149,13 +149,13 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
   // Gather all grand totals
   int GT_l = outputContingency->GetValueByName( 0, "Cardinality" ).ToInt();
   int* GT_g = new int[numProcs];
-  com->AllGather( &GT_l, 
-                  GT_g, 
+  com->AllGather( &GT_l,
+                  GT_g,
                   1 );
 
   // Known global grand total
   int testIntValue = args->nVals * numProcs;
-  
+
   // Print out all grand totals
   if ( com->GetLocalProcessId() == args->ioRank )
     {
@@ -168,7 +168,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << ", contingency table size = "
            << outputContingency->GetNumberOfRows()
            << "\n";
-      
+
       if ( GT_g[i] != testIntValue )
         {
         vtkGenericWarningMacro("Incorrect grand total:"
@@ -191,9 +191,9 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   if ( testIntValue != nEntropies + 2 )
     {
-    vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: " 
-                           << testIntValue 
-                           << " != " 
+    vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: "
+                           << testIntValue
+                           << " != "
                            << nEntropies + 2
                            << ".");
     *(args->retVal) = 1;
@@ -212,10 +212,10 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
       // Gather all local entropies
       double* H_g = new double[nEntropies * numProcs];
-      com->AllGather( H_l, 
-                      H_g, 
+      com->AllGather( H_l,
+                      H_g,
                       nEntropies );
-      
+
       // Print out all entropies
       if ( com->GetLocalProcessId() == args->ioRank )
         {
@@ -225,7 +225,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
              << ", "
              << outputSummary->GetValue( k, 1 ).ToString()
              << "):\n";
-        
+
         for ( int i = 0; i < numProcs; ++ i )
           {
           cout << "     On process "
@@ -240,16 +240,16 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
             }
 
           cout << "\n";
-          
+
           // Make sure that H(X,Y) >= H(Y|X)+ H(X|Y)
           testDoubleValue1 = H_g[nEntropies * i + 1] + H_g[nEntropies * i + 2]; // H(Y|X)+ H(X|Y)
-          
+
           if ( testDoubleValue1 > H_g[nEntropies * i] )
             {
-            vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
+            vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = "
                                    << H_g[nEntropies * i]
-                                   << " < " 
-                                   << testDoubleValue1 
+                                   << " < "
+                                   << testDoubleValue1
                                    << " = H(Y|X)+ H(X|Y).");
             *(args->retVal) = 1;
             }
@@ -270,7 +270,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
          << args->absTol
          << " absolute tolerance).\n";
     }
-  
+
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
   if ( ! keys )
     {
@@ -298,7 +298,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     {
     cdf_l[k] = 0;
     }
-  
+
   int n = outputContingency->GetNumberOfRows();
 
   // Skip first entry which is reserved for the cardinality
@@ -309,8 +309,8 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 
   // Gather all local CDFs
   double* cdf_g = new double[nRowSumm * numProcs];
-  com->AllGather( cdf_l, 
-                  cdf_g, 
+  com->AllGather( cdf_l,
+                  cdf_g,
                   nRowSumm );
 
   // Print out all local and global CDFs
@@ -324,7 +324,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
            << ", "
            << outputSummary->GetValue( k, 1 ).ToString()
            << "):\n";
-        
+
       for ( int i = 0; i < numProcs; ++ i )
         {
         testDoubleValue1 = cdf_l[k];
@@ -354,7 +354,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
         }
       }
     }
-  
+
   // Clean up
   delete [] GT_g;
   delete [] cdf_l;
@@ -367,7 +367,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
 //----------------------------------------------------------------------------
 int main( int argc, char** argv )
 {
-  // **************************** MPI Initialization *************************** 
+  // **************************** MPI Initialization ***************************
   vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize( &argc, &argv );
 
@@ -377,16 +377,16 @@ int main( int argc, char** argv )
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    } 
+    }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
-  // ************************** Find an I/O node ******************************** 
+  // ************************** Find an I/O node ********************************
   int* ioPtr;
   int ioRank;
   int flag;
 
-  MPI_Attr_get( MPI_COMM_WORLD, 
+  MPI_Attr_get( MPI_COMM_WORLD,
                 MPI_IO,
                 &ioPtr,
                 &flag );
@@ -401,10 +401,10 @@ int main( int argc, char** argv )
     // This is the only case when a testValue of -1 will be returned
     controller->Finalize();
     controller->Delete();
-    
+
     return -1;
     }
-  else 
+  else
     {
     if ( *ioPtr == MPI_ANY_SOURCE )
       {
@@ -452,7 +452,7 @@ int main( int argc, char** argv )
     {
     if ( com->GetLocalProcessId() == ioRank )
       {
-      cerr << "Usage: " 
+      cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
       }
@@ -463,14 +463,14 @@ int main( int argc, char** argv )
     return 1;
     }
 
-  // ************************** Initialize test ********************************* 
+  // ************************** Initialize test *********************************
   if ( com->GetLocalProcessId() == ioRank )
     {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
     }
-      
+
 
   // Parameters for regression test.
   int testValue = 0;
@@ -504,6 +504,6 @@ int main( int argc, char** argv )
 
   controller->Finalize();
   controller->Delete();
-  
+
   return testValue;
 }

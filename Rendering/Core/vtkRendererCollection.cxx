@@ -63,8 +63,8 @@ void vtkRendererCollection::Render()
     }
 }
 
-vtkRenderer *vtkRendererCollection::GetFirstRenderer() 
-{ 
+vtkRenderer *vtkRendererCollection::GetFirstRenderer()
+{
   if ( this->Top == NULL )
     {
     return NULL;

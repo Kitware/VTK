@@ -338,7 +338,7 @@ protected:
   // Return true if any of the end points is current point
   // or part of the selection
   bool IsEndPointPicked();
-  
+
   // Description:
   // Return true if the point is removable
   bool IsPointRemovable(vtkIdType pointId);

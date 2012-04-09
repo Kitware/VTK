@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkPlatonicSolidSource);
 
 // The geometry and topology of each solid. Solids are centered at
 // the origin with radius 1.0.
-// The golden ration phi = (1+sqrt(5))/2=1.61803398875 enters into many 
+// The golden ration phi = (1+sqrt(5))/2=1.61803398875 enters into many
 // of these values.
 static double TetraPoints[] = {
   1.0,1.0,1.0, -1.0,1.0,-1.0, 1.0,-1.0,-1.0, -1.0,-1.0,1.0
@@ -68,7 +68,7 @@ static vtkIdType DodeVerts[] = {
 static double c = 0.5;
 static double d = 0.30901699;
 static double IcosaPoints[] = {
-   0.0,d,-c, 0.0,d,c,  0.0,-d,c, -d,c,0.0, 
+   0.0,d,-c, 0.0,d,c,  0.0,-d,c, -d,c,0.0,
   -d,-c,0.0, d,c,0.0,  d,-c,0.0,  0.0,-d,-c,
    c,0.0,d, -c,0.0,d, -c,0.0,-d,  c,0.0,-d
 };
@@ -114,7 +114,7 @@ int vtkPlatonicSolidSource::RequestData(
       solidVerts = TetraVerts;
       solidScale = 1.0/sqrt(3.0);
       break;
-      
+
     case VTK_SOLID_CUBE:
       numPts = 8;
       cellSize = 4;
@@ -123,7 +123,7 @@ int vtkPlatonicSolidSource::RequestData(
       solidVerts = CubeVerts;
       solidScale = 1.0/sqrt(3.0);
       break;
-      
+
     case VTK_SOLID_OCTAHEDRON:
       numPts = 6;
       cellSize = 3;
@@ -132,7 +132,7 @@ int vtkPlatonicSolidSource::RequestData(
       solidVerts = OctVerts;
       solidScale = 1.0/sqrt(2.0);
       break;
-      
+
     case VTK_SOLID_ICOSAHEDRON:
       numPts = 12;
       cellSize = 3;
@@ -141,7 +141,7 @@ int vtkPlatonicSolidSource::RequestData(
       solidVerts = IcosaVerts;
       solidScale = 1.0/0.58778524999243;
       break;
-      
+
     case VTK_SOLID_DODECAHEDRON:
       numPts = 20;
       cellSize = 5;
@@ -151,7 +151,7 @@ int vtkPlatonicSolidSource::RequestData(
       solidScale = 1.0/1.070466269319;
       break;
     }
-  
+
   // Create the solids
   //
   vtkPoints *pts = vtkPoints::New();
@@ -162,21 +162,21 @@ int vtkPlatonicSolidSource::RequestData(
   vtkIntArray *colors = vtkIntArray::New();
   colors->SetNumberOfComponents(1);
   colors->SetNumberOfTuples(numCells);
-  
+
   // Points
   for ( i=0, pptr=solidPoints; i<numPts; i++, pptr+=3 )
     {
-    pts->SetPoint(i, solidScale*(pptr[0]), solidScale*(pptr[1]), 
+    pts->SetPoint(i, solidScale*(pptr[0]), solidScale*(pptr[1]),
                      solidScale*(pptr[2]));
     }
-  
+
   // Cells
   for ( i=0, cptr=solidVerts; i<numCells; i++, cptr+=cellSize )
     {
     polys->InsertNextCell(cellSize,cptr);
     colors->SetTuple1(i,i);
     }
-  
+
   // Assemble the output
   output->SetPoints(pts);
   output->SetPolys(polys);

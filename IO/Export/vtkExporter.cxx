@@ -35,7 +35,7 @@ vtkExporter::vtkExporter()
 vtkExporter::~vtkExporter()
 {
   this->SetRenderWindow(NULL);
-  
+
   if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
     {
     (*this->StartWriteArgDelete)(this->StartWriteArg);
@@ -47,7 +47,7 @@ vtkExporter::~vtkExporter()
 }
 
 
-// Write data to output. Method executes subclasses WriteData() method, as 
+// Write data to output. Method executes subclasses WriteData() method, as
 // well as StartWrite() and EndWrite() methods.
 void vtkExporter::Write()
 {

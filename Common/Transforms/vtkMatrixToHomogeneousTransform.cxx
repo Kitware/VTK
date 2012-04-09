@@ -71,7 +71,7 @@ void vtkMatrixToHomogeneousTransform::InternalUpdate()
 void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
                                                 vtkAbstractTransform *gtrans)
 {
-  vtkMatrixToHomogeneousTransform *transform = 
+  vtkMatrixToHomogeneousTransform *transform =
     static_cast<vtkMatrixToHomogeneousTransform *>(gtrans);
 
   this->SetInput(transform->Input);

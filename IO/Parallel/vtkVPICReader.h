@@ -79,7 +79,7 @@ public:
   // be modified.
   int GetNumberOfPointArrays();
   const char* GetPointArrayName(int index);
-  int GetPointArrayStatus(const char* name); 
+  int GetPointArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void DisableAllPointArrays();
   void EnableAllPointArrays();
@@ -118,7 +118,7 @@ protected:
   double* TimeSteps;                    // Times available for request
   int CurrentTimeStep;                  // Time currently displayed
 
-  int Stride[3];                        // Stride over actual data 
+  int Stride[3];                        // Stride over actual data
   int XExtent[2];                       // Subview extent in files
   int YExtent[2];                       // Subview extent in files
   int ZExtent[2];                       // Subview extent in files
@@ -133,7 +133,7 @@ protected:
   int ghostLevel1;                      // Right plane number of ghosts
 
   // Controls initializing and querrying MPI
-  vtkMultiProcessController * MPIController; 
+  vtkMultiProcessController * MPIController;
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;

@@ -15,7 +15,7 @@ vtkCompositeDataPipeline cdp
 reader SetDefaultExecutivePrototype cdp
 reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office_bin.case"
 reader Update
- 
+
 # to add coverage for vtkOnePieceExtentTranslator
 vtkOnePieceExtentTranslator translator
 #[reader GetOutput] SetExtentTranslator translator

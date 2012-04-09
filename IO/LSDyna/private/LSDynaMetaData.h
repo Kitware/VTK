@@ -19,9 +19,9 @@
 
 // .NAME LSDynaMetaData - Read LS-Dyna databases (d3plot)
 // .SECTION Description
-//    A class to hold metadata about a particular file (such as time steps, 
-//    the start of state information for each time step, the number of 
-//    adaptive remeshes, and the large collection of constants that determine 
+//    A class to hold metadata about a particular file (such as time steps,
+//    the start of state information for each time step, the number of
+//    adaptive remeshes, and the large collection of constants that determine
 //    the available attributes). It contains an LSDynaFamily instance.
 
 #ifndef __LSDynaMetaData_h

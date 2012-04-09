@@ -19,14 +19,14 @@
 // entries are not prevented.
 
 // .SECTION see also
-// vtkMapper vtkCollection 
+// vtkMapper vtkCollection
 
 #ifndef __vtkMapperCollection_h
 #define __vtkMapperCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkMapper.h" // Needed for direct access to mapper methods in 
+#include "vtkMapper.h" // Needed for direct access to mapper methods in
                        // inline functions
 
 class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
@@ -40,25 +40,25 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
   // Add an mapper to the list.
   void AddItem(vtkMapper *a) {
     this->vtkCollection::AddItem(static_cast<vtkObject *>(a));};
-  
+
   // Description:
   // Get the next mapper in the list.
-  vtkMapper *GetNextItem() { 
+  vtkMapper *GetNextItem() {
     return static_cast<vtkMapper *>(this->GetNextItemAsObject());};
-  
+
   // Description:
   // Get the last mapper in the list.
   vtkMapper *GetLastItem();
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkMapper *GetNextMapper(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkMapper *>(this->GetNextItemAsObject(cookie));};
   //ETX
 
-protected:  
+protected:
   vtkMapperCollection() {};
   ~vtkMapperCollection() {};
 
@@ -72,8 +72,8 @@ private:
 };
 
 
-inline vtkMapper *vtkMapperCollection::GetLastItem() 
-{ 
+inline vtkMapper *vtkMapperCollection::GetLastItem()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;

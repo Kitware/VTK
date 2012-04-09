@@ -49,7 +49,7 @@ vtkRandomLayoutStrategy::~vtkRandomLayoutStrategy()
 
 // Random graph layout method
 // Fixme: Temporary Hack
-void vtkRandomLayoutStrategy::Layout() {}; 
+void vtkRandomLayoutStrategy::Layout() {};
 
 void vtkRandomLayoutStrategy::SetGraph(vtkGraph *graph)
 {
@@ -68,12 +68,12 @@ void vtkRandomLayoutStrategy::SetGraph(vtkGraph *graph)
 
   for (int i=0; i<3; i++)
     {
-    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] ) 
+    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] )
       {
       this->GraphBounds[2*i+1] = this->GraphBounds[2*i] + 1;
       }
     }
-          
+
   // Generate the points, either x,y,0 or x,y,z
   vtkMath::RandomSeed(this->RandomSeed);
 
@@ -110,17 +110,17 @@ void vtkRandomLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "RandomSeed: " << this->RandomSeed << endl;
 
-  os << indent << "AutomaticBoundsComputation: " 
+  os << indent << "AutomaticBoundsComputation: "
      << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");
 
   os << indent << "GraphBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", " 
+  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", "
      << this->GraphBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", " 
+  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", "
      << this->GraphBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", " 
+  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", "
      << this->GraphBounds[5] << ")\n";
 
-  os << indent << "Three Dimensional Layout: " 
+  os << indent << "Three Dimensional Layout: "
      << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }

@@ -32,7 +32,7 @@
 // position it. The 'i' (for "interactor") keypresses also can be used to
 // turn the widgets on and off (methods exist to change the key value
 // and enable keypress activiation).
-// 
+//
 // To support interactive manipulation of objects, this class (and
 // subclasses) invoke the events StartInteractionEvent, InteractionEvent, and
 // EndInteractionEvent.  These events are invoked when the vtk3DWidget enters
@@ -47,7 +47,7 @@
 // priority than the usual interactor styles.
 //
 // .SECTION See Also
-// vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget 
+// vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
 // vtkSphereWidget vtkImplicitPlaneWidget
 
 #ifndef __vtk3DWidget_h
@@ -77,24 +77,24 @@ public:
   // convenience methods.
   virtual void PlaceWidget(double bounds[6]) = 0;
   virtual void PlaceWidget();
-  virtual void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+  virtual void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
                            double zmin, double zmax);
 
   // Description:
-  // Specify a vtkProp3D around which to place the widget. This 
-  // is not required, but if supplied, it is used to initially 
+  // Specify a vtkProp3D around which to place the widget. This
+  // is not required, but if supplied, it is used to initially
   // position the widget.
   virtual void SetProp3D(vtkProp3D*);
   vtkGetObjectMacro(Prop3D,vtkProp3D);
-  
+
   // Description:
   // Specify the input dataset. This is not required, but if supplied,
-  // and no vtkProp3D is specified, it is used to initially position 
+  // and no vtkProp3D is specified, it is used to initially position
   // the widget.
   virtual void SetInputData(vtkDataSet*);
   virtual void SetInputConnection(vtkAlgorithmOutput*);
   virtual vtkDataSet *GetInput();
-  
+
   // Description:
   // Set/Get a factor representing the scaling of the widget upon placement
   // (via the PlaceWidget() method). Normally the widget is placed so that
@@ -123,16 +123,16 @@ protected:
 
   //has the widget ever been placed
   double PlaceFactor;
-  int Placed; 
+  int Placed;
   void AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
-  
+
   //control the size of handles (if there are any)
   double InitialBounds[6];
   double InitialLength;
   double HandleSize;
   double SizeHandles(double factor);
   virtual void SizeHandles() {}//subclass in turn invokes parent's SizeHandles()
-  
+
   //used to track the depth of the last pick; also interacts with handle sizing
   int   ValidPick;
   double LastPickPosition[3];
@@ -142,7 +142,7 @@ protected:
 private:
   vtk3DWidget(const vtk3DWidget&);  // Not implemented.
   void operator=(const vtk3DWidget&);  // Not implemented.
-  
+
 };
 
 #endif

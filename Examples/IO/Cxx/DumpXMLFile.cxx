@@ -3,7 +3,7 @@
 //  Usage: DumpXMLFile XMLFile1 XMLFile2 ...
 //         where
 //         XMLFile is a vtk XML file of type .vtu, .vtp, .vts, .vtr,
-//         .vti, .vto 
+//         .vti, .vto
 //
 #include <vtkSmartPointer.h>
 #include <vtkXMLReader.h>
@@ -95,9 +95,9 @@ int main (int argc, char *argv[])
 
     // Generate a report
     std::cout << "------------------------" << std::endl;
-    std::cout << argv[f] << std::endl 
+    std::cout << argv[f] << std::endl
          << " contains a " << std::endl
-         << dataSet->GetClassName() 
+         << dataSet->GetClassName()
          <<  " that has " << numberOfCells << " cells"
          << " and " << numberOfPoints << " points." << std::endl;
     typedef std::map<int,int> CellContainer;
@@ -110,7 +110,7 @@ int main (int argc, char *argv[])
     CellContainer::const_iterator it = cellMap.begin();
     while (it != cellMap.end())
       {
-      std::cout << "\tCell type " 
+      std::cout << "\tCell type "
            << vtkCellTypes::GetClassNameFromTypeId(it->first)
            << " occurs " << it->second << " times." << std::endl;
       ++it;
@@ -120,12 +120,12 @@ int main (int argc, char *argv[])
     vtkPointData *pd = dataSet->GetPointData();
     if (pd)
       {
-      std::cout << " contains point data with " 
-           << pd->GetNumberOfArrays() 
+      std::cout << " contains point data with "
+           << pd->GetNumberOfArrays()
            << " arrays." << std::endl;
       for (int i = 0; i < pd->GetNumberOfArrays(); i++)
         {
-        std::cout << "\tArray " << i 
+        std::cout << "\tArray " << i
              << " is named "
              << (pd->GetArrayName(i) ? pd->GetArrayName(i) : "NULL")
              << std::endl;
@@ -135,12 +135,12 @@ int main (int argc, char *argv[])
     vtkCellData *cd = dataSet->GetCellData();
     if (cd)
       {
-      std::cout << " contains cell data with " 
-           << cd->GetNumberOfArrays() 
+      std::cout << " contains cell data with "
+           << cd->GetNumberOfArrays()
            << " arrays." << std::endl;
       for (int i = 0; i < cd->GetNumberOfArrays(); i++)
         {
-        std::cout << "\tArray " << i 
+        std::cout << "\tArray " << i
              << " is named "
              << (cd->GetArrayName(i) ? cd->GetArrayName(i) : "NULL")
              << std::endl;
@@ -149,13 +149,13 @@ int main (int argc, char *argv[])
     // Now check for field data
     if (dataSet->GetFieldData())
       {
-      std::cout << " contains field data with " 
-           << dataSet->GetFieldData()->GetNumberOfArrays() 
+      std::cout << " contains field data with "
+           << dataSet->GetFieldData()->GetNumberOfArrays()
            << " arrays." << std::endl;
       for (int i = 0; i < dataSet->GetFieldData()->GetNumberOfArrays(); i++)
         {
-        std::cout << "\tArray " << i 
-             << " is named " << dataSet->GetFieldData()->GetArray(i)->GetName() 
+        std::cout << "\tArray " << i
+             << " is named " << dataSet->GetFieldData()->GetArray(i)->GetName()
              << std::endl;
         }
       }

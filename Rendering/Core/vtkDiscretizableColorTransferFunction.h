@@ -36,11 +36,11 @@ public:
   static vtkDiscretizableColorTransferFunction* New();
   vtkTypeMacro(vtkDiscretizableColorTransferFunction, vtkColorTransferFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Generate discretized lookup table, if applicable.
   // This method must be called after changes to the ColorTransferFunction
-  // otherwise the discretized version will be inconsitent with the 
+  // otherwise the discretized version will be inconsitent with the
   // non-discretized one.
   virtual void Build();
 
@@ -78,11 +78,11 @@ public:
 
   // Description:
   // An internal method maps a data array into a 4-component, unsigned char
-  // RGBA array. The color mode determines the behavior of mapping. If 
+  // RGBA array. The color mode determines the behavior of mapping. If
   // VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
-  // treated as colors (and converted to RGBA if necessary); otherwise, 
+  // treated as colors (and converted to RGBA if necessary); otherwise,
   // the data is mapped through this instance of ScalarsToColors. The offset
-  // is used for data arrays with more than one component; it indicates 
+  // is used for data arrays with more than one component; it indicates
   // which component to use to do the blending.
   // When the component argument is -1, then the this object uses its
   // own selected technique to change a vector into a scalar to map.
@@ -114,7 +114,7 @@ public:
 
   // Description:
   // This should return 1 is the subclass is using log scale for mapping scalars
-  // to colors. 
+  // to colors.
   virtual int UsingLogScale()
     { return this->UseLogScale; }
 

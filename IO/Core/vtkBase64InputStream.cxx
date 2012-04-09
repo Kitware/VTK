@@ -68,14 +68,14 @@ int vtkBase64InputStream::Seek(unsigned long offset)
 {
   unsigned long triplet = offset/3;
   int skipLength = offset%3;
-  
+
   // Seek to the beginning of the encoded triplet containing the
   // offset.
   if(!this->Stream->seekg(this->StreamStartPosition+(triplet*4)))
     {
     return 0;
     }
-  
+
   // Decode the first triplet if it is paritally skipped.
   if(skipLength == 0)
     {
@@ -93,7 +93,7 @@ int vtkBase64InputStream::Seek(unsigned long offset)
     this->BufferLength =
       this->DecodeTriplet(c[0], c[1], this->Buffer[0]) - 2;
     }
-  
+
   // A DecodeTriplet call may have failed to read the stream.
   // If so, the current buffer length will be negative.
   return ((this->BufferLength >= 0) ? 1:0);
@@ -105,11 +105,11 @@ unsigned long vtkBase64InputStream::Read(unsigned char* data,
 {
   unsigned char* out = data;
   unsigned char* end = data + length;
-  
+
   // If the previous read ended before filling buffer, don't read
   // more.
   if(this->BufferLength < 0) { return 0; }
-  
+
   // Use leftover characters from a previous decode.
   if((out != end) && (this->BufferLength == 2))
     {
@@ -122,7 +122,7 @@ unsigned long vtkBase64InputStream::Read(unsigned char* data,
     *out++ = this->Buffer[0];
     this->BufferLength = 0;
     }
-  
+
   // Decode all complete triplets.
   while((end - out) >= 3)
     {
@@ -134,7 +134,7 @@ unsigned long vtkBase64InputStream::Read(unsigned char* data,
       return (out-data);
       }
     }
-  
+
   // Decode the last triplet and save leftover characters in the buffer.
   if((end - out) == 2)
     {
@@ -150,6 +150,6 @@ unsigned long vtkBase64InputStream::Read(unsigned char* data,
     if(len > 1) { out += 1; }
     else { out += len; }
     }
-  
-  return (out-data);  
+
+  return (out-data);
 }

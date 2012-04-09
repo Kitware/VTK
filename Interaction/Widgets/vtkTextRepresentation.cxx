@@ -25,7 +25,7 @@ class vtkTextRepresentationObserver : public vtkCommand
 public:
   static vtkTextRepresentationObserver* New()
     { return new vtkTextRepresentationObserver; }
-  
+
   void SetTarget(vtkTextRepresentation* t)
     {
     this->Target = t;
@@ -47,7 +47,7 @@ public:
 protected:
   vtkTextRepresentationObserver() { this->Target = 0; }
   vtkTextRepresentation* Target;
-    
+
 };
 
 vtkStandardNewMacro(vtkTextRepresentation);
@@ -60,7 +60,7 @@ vtkTextRepresentation::vtkTextRepresentation()
 
   this->TextActor = vtkTextActor::New();
   this->InitializeTextActor();
- 
+
   this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
   this->BWActor->VisibilityOff();
   this->WindowLocation = AnyLocation;
@@ -201,7 +201,7 @@ void vtkTextRepresentation::InitializeTextActor()
     this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(0);
     this->TextActor->GetTextProperty()->SetJustificationToCentered();
     this->TextActor->GetTextProperty()->SetVerticalJustificationToCentered();
-    
+
     this->TextActor->UseBorderAlignOn();
 
     this->TextProperty = this->TextActor->GetTextProperty();
@@ -211,10 +211,10 @@ void vtkTextRepresentation::InitializeTextActor()
     this->TextActor->AddObserver(
       vtkCommand::ModifiedEvent, this->Observer);
     }
-}  
+}
 
 //----------------------------------------------------------------------------
-void vtkTextRepresentation::ExecuteTextPropertyModifiedEvent(vtkObject* object, 
+void vtkTextRepresentation::ExecuteTextPropertyModifiedEvent(vtkObject* object,
   unsigned long enumEvent, void*)
 {
   if(!object || enumEvent != vtkCommand::ModifiedEvent)
@@ -231,7 +231,7 @@ void vtkTextRepresentation::ExecuteTextPropertyModifiedEvent(vtkObject* object,
 }
 
 //----------------------------------------------------------------------------
-void vtkTextRepresentation::ExecuteTextActorModifiedEvent(vtkObject* object, 
+void vtkTextRepresentation::ExecuteTextActorModifiedEvent(vtkObject* object,
   unsigned long enumEvent, void*)
 {
   if(!object || enumEvent != vtkCommand::ModifiedEvent)
@@ -270,7 +270,7 @@ void vtkTextRepresentation::CheckTextBoundary()
     this->TextActor->ComputeScaledFont(this->GetRenderer());
 
     int text_bbox[4];
-    ftu->GetBoundingBox(this->TextActor->GetScaledTextProperty(), 
+    ftu->GetBoundingBox(this->TextActor->GetScaledTextProperty(),
       this->GetText(), text_bbox);
     if (!ftu->IsBoundingBoxValid(text_bbox))
       {
@@ -290,7 +290,7 @@ void vtkTextRepresentation::CheckTextBoundary()
     this->GetRenderer()->ViewportToNormalizedViewport (text_size[0], text_size[1]);
 
    // update the PositionCoordinate
-    
+
     double* pos2 = this->Position2Coordinate->GetValue();
     if(pos2[0] != text_size[0] || pos2[1] != text_size[1])
       {
@@ -366,7 +366,7 @@ void vtkTextRepresentation::UpdateWindowLocation()
 void vtkTextRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Text Actor: " << this->TextActor << "\n";
 
   os << indent << "Window Location: ";

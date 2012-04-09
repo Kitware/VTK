@@ -65,9 +65,9 @@ public:
 
   // Description:
   // Methods to set / get contour values.
-  
+
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value)
     {
@@ -113,7 +113,7 @@ public:
     {
       return this->ContourValues->GetNumberOfContours();
     }
-  
+
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
@@ -121,7 +121,7 @@ public:
     {
       this->ContourValues->GenerateValues(numContours, range);
     }
-  
+
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
@@ -136,7 +136,7 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -149,7 +149,7 @@ public:
 protected:
   vtkHyperOctreeDualGridContourFilter();
   ~vtkHyperOctreeDualGridContourFilter();
-  
+
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
@@ -161,7 +161,7 @@ protected:
   // Description:
   // Do the recursive contour of the node pointed by Cursor.
   void ContourNode();
-  
+
   void TraverseNeighborhoodRecursively(
                      vtkHyperOctreeLightWeightCursor* neighborhood,
                      unsigned short* xyzIds);
@@ -169,15 +169,15 @@ protected:
                      unsigned short* xyzIds);
 
   void ContourNode1D();
-  
+
   vtkContourValues *ContourValues;
   vtkIncrementalPointLocator *Locator;
-  
+
   vtkHyperOctree *Input;
   vtkPolyData *Output;
 
   vtkCellArray *NewPolys;
-  
+
   vtkDataSetAttributes *InPD;
   vtkDataSetAttributes *OutPD;
   vtkDataArray *InScalars;
@@ -185,7 +185,7 @@ protected:
   // These are set to the input origin and size.
   double Origin[3];
   double Size[3];
-  
+
   // This is a table for traversing a neighborhood down an octree.
   // 8 children x 8 cursors
   // First three bits encode the child,  rest encode the cursor id.

@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkTemporalFractal);
 vtkTemporalFractal::vtkTemporalFractal()
 {
   this->SetNumberOfInputPorts(0);
-  
+
   this->Dimensions = 10;
   this->FractalValue = 9.5;
   this->MaximumLevel = 6;
@@ -52,7 +52,7 @@ vtkTemporalFractal::vtkTemporalFractal()
   this->Levels = vtkIntArray::New();
   this->TwoDimensional = 1;
   this->Asymetric = 1;
-  
+
   this->TopLevelSpacing[0] = 1.0;
   this->TopLevelSpacing[1] = 1.0;
   this->TopLevelSpacing[2] = 1.0;
@@ -60,11 +60,11 @@ vtkTemporalFractal::vtkTemporalFractal()
   this->TopLevelOrigin[0] = 0.0;
   this->TopLevelOrigin[1] = 0.0;
   this->TopLevelOrigin[2] = 0.0;
-  
+
   this->GenerateRectilinearGrids=0;
   this->CurrentTime = 0;
   this->DiscreteTimeSteps = 0;
-  
+
   this->AdaptiveSubdivision = 1;
 }
 
@@ -78,7 +78,7 @@ vtkTemporalFractal::~vtkTemporalFractal()
 //----------------------------------------------------------------------------
 // This handles any alterations necessary for ghost levels.
 void vtkTemporalFractal::SetBlockInfo(vtkUniformGrid *grid,
-                                          int level, 
+                                          int level,
                                           int *ext,
                                           int onFace[6])
 {
@@ -88,7 +88,7 @@ void vtkTemporalFractal::SetBlockInfo(vtkUniformGrid *grid,
   // onFace[3]:ymax
   // onFace[4]:zmin
   // onFace[5]:zmax
-  
+
   if (this->GhostLevels)
     {
     if(!onFace[0])
@@ -124,7 +124,7 @@ void vtkTemporalFractal::SetBlockInfo(vtkUniformGrid *grid,
   double bds[6];
   double origin[3];
   double spacing[3];
-  
+
   this->CellExtentToBounds(level, ext, bds);
   origin[0] = bds[0];
   origin[1] = bds[2];
@@ -136,7 +136,7 @@ void vtkTemporalFractal::SetBlockInfo(vtkUniformGrid *grid,
   // Handle Lower dimensions.  Assume that cell dimension of 1 is a collapsed
   // dimension.  Point dim equal 1 also.
   int dim[3];
-  
+
   dim[0] = dim[1] = dim[2] = 1;
   if (ext[1] > ext[0])
     {
@@ -150,11 +150,11 @@ void vtkTemporalFractal::SetBlockInfo(vtkUniformGrid *grid,
     {
     dim[2] = ext[5]-ext[4]+2;
     }
-  
+
   grid->SetDimensions(dim);
   grid->SetSpacing(spacing);
   grid->SetOrigin(origin);
-  
+
   if(this->GhostLevels>0)
     {
     this->AddGhostLevelArray(grid,dim,onFace);
@@ -164,7 +164,7 @@ void vtkTemporalFractal::SetBlockInfo(vtkUniformGrid *grid,
 //----------------------------------------------------------------------------
 // This handles any alterations necessary for ghost levels.
 void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
-                                           int level, 
+                                           int level,
                                            int *ext,
                                            int onFace[6])
 {
@@ -203,7 +203,7 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
   double bds[6];
   double origin[3];
   double spacing[3];
-  
+
   this->CellExtentToBounds(level, ext, bds);
   origin[0] = bds[0];
   origin[1] = bds[2];
@@ -215,7 +215,7 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
   // Handle Lower dimensions.  Assume that cell dimension of 1 is a collapsed
   // dimension.  Point dim equal 1 also.
   int dim[3];
-  
+
   dim[0] = dim[1] = dim[2] = 1;
   if (ext[1] > ext[0])
     {
@@ -229,23 +229,23 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
     {
     dim[2] = ext[5]-ext[4]+2;
     }
-  
+
   grid->SetDimensions(dim);
-  
+
   vtkDoubleArray *coords[3];
-  
+
   vtkMath::RandomSeed(1234);
   int coord=0;
   while(coord<3)
     {
     coords[coord]=vtkDoubleArray::New();
     //grid->SetOrigin(origin);
-    
+
     // first point
     coords[coord]->InsertNextValue(origin[coord]);
-    
+
     double uniformCoordinate;
-    
+
     int i=1;
     int c;
     if(this->GhostLevels && !onFace[coord*2+1])
@@ -257,14 +257,14 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
       c=dim[coord]-1;
       }
     uniformCoordinate=origin[coord];
-    
+
     if(this->GhostLevels && !onFace[coord*2])
       {
       uniformCoordinate+=spacing[coord];
       coords[coord]->InsertNextValue(uniformCoordinate);
       ++i;
       }
-    
+
     while(i<c)
       {
       uniformCoordinate+=spacing[coord];
@@ -273,21 +273,21 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
       coords[coord]->InsertNextValue(uniformCoordinate+epsilon);
       ++i;
       }
-    
+
     if(this->GhostLevels && !onFace[coord*2+1])
       {
       uniformCoordinate+=spacing[coord];
       coords[coord]->InsertNextValue(uniformCoordinate);
       ++i;
       }
-    
-    // last point 
+
+    // last point
     uniformCoordinate+=spacing[coord];
     coords[coord]->InsertNextValue(uniformCoordinate);
-    
+
     ++coord;
     }
-  
+
   //  grid->SetSpacing(spacing);
   grid->SetXCoordinates(coords[0]);
   grid->SetYCoordinates(coords[1]);
@@ -298,7 +298,7 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
     coords[coord]->Delete();
     ++coord;
     }
-  
+
   if(this->GhostLevels>0)
     {
     this->AddGhostLevelArray(grid,dim,onFace);
@@ -306,21 +306,21 @@ void vtkTemporalFractal::SetRBlockInfo(vtkRectilinearGrid *grid,
 }
 
 //----------------------------------------------------------------------------
-int vtkTemporalFractal::TwoDTest(double bds[6], int level, int target) 
+int vtkTemporalFractal::TwoDTest(double bds[6], int level, int target)
 {
   // Test the 4 corners.  Refine if the blocks cross the border.
   int v0, v1, v2, v3;
-  
+
   if (level == target)
     {
     return 0;
     }
-  
+
   if (level < 2 || !this->AdaptiveSubdivision)
     {
     return 1;
     }
-  
+
   v0 = this->MandelbrotTest(bds[0], bds[2]);
   v1 = this->MandelbrotTest(bds[1], bds[2]);
   v2 = this->MandelbrotTest(bds[0], bds[3]);
@@ -375,8 +375,8 @@ int vtkTemporalFractal::MandelbrotTest(double x, double y)
 // This is called by the superclass.
 // This is the method you should override.
 int vtkTemporalFractal::RequestInformation(
-  vtkInformation *request, 
-  vtkInformationVector **inputVector, 
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   if(!this->Superclass::RequestInformation(request,inputVector,outputVector))
@@ -384,7 +384,7 @@ int vtkTemporalFractal::RequestInformation(
     return 0;
     }
   vtkInformation *info=outputVector->GetInformationObject(0);
-  
+
   if (this->DiscreteTimeSteps)
     {
     double tsteps[11];
@@ -400,7 +400,7 @@ int vtkTemporalFractal::RequestInformation(
   trange[0] = 0.0;
   trange[1] = 10.0;
   info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),trange,2);
-    
+
   info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),-1);
   return 1;
 }
@@ -408,21 +408,21 @@ int vtkTemporalFractal::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkTemporalFractal::RequestData(
-  vtkInformation *request, 
-  vtkInformationVector **inputVector, 
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   vtkInformation *info=outputVector->GetInformationObject(0);
 
   // get how many time steps were requsted
-  int numTimeSteps = 
+  int numTimeSteps =
     info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-  double *timeSteps = 
+  double *timeSteps =
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-  
+
   vtkDataObject *doOutput=info->Get(vtkDataObject::DATA_OBJECT());
   vtkTemporalDataSet *output = vtkTemporalDataSet::SafeDownCast(doOutput);
-  
+
   if(output==0)
     {
     vtkErrorMacro("The output is not a TemporalDataSet");
@@ -442,8 +442,8 @@ int vtkTemporalFractal::RequestData(
   for (ts = 0; ts < numTimeSteps; ++ts)
     {
     this->CurrentTime = timeSteps[ts];
-    vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?  
-      static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()): 
+    vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
+      static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
       static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
     int count = output->GetNumberOfTimeSteps();
     output->SetTimeStep(count, dset);
@@ -459,20 +459,20 @@ int vtkTemporalFractal::RequestData(
 //----------------------------------------------------------------------------
 int vtkTemporalFractal
 ::RequestOneTimeStep(vtkCompositeDataSet *output,
-                     vtkInformation *vtkNotUsed(request), 
-                     vtkInformationVector **vtkNotUsed(inputVector), 
+                     vtkInformation *vtkNotUsed(request),
+                     vtkInformationVector **vtkNotUsed(inputVector),
                      vtkInformationVector *outputVector)
 {
   vtkInformation *info=outputVector->GetInformationObject(0);
 
-  // By setting SetMaximumNumberOfPieces(-1) 
+  // By setting SetMaximumNumberOfPieces(-1)
   // then GetUpdateNumberOfPieces() should always return the number
   // of processors in the parallel job and GetUpdatePiece() should
   // return the specific process number
   int piece=info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces =
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  
+
   float ox = -1.75;
   float oy = -1.25;
   float oz = 0.0;
@@ -486,8 +486,8 @@ int vtkTemporalFractal
   this->SetTopLevelSpacing(xSize/this->Dimensions,
                            ySize/this->Dimensions,
                            zSize/this->Dimensions);
-  
-  
+
+
   int ext[6];
   ext[0] = ext[2] = ext[4] = 0;
   ext[1] = ext[3] = ext[5] = this->Dimensions - 1;
@@ -521,8 +521,8 @@ int vtkTemporalFractal
   this->Levels->Initialize();
   this->Traverse(blockId, 0, output, ext[0], ext[1], ext[2], ext[3], ext[4],
                  ext[5],onFace);
-  
-  
+
+
   double bounds[6];
 
   bounds[0]=ox;
@@ -538,12 +538,12 @@ int vtkTemporalFractal
     {
     bounds[5]=oz+zSize;
     }
-  
+
   info->Set(vtkExtractCTHPart::BOUNDS(),bounds,6);
-  
+
   if(!this->GenerateRectilinearGrids)
     {
-    vtkHierarchicalBoxDataSet* hbds = 
+    vtkHierarchicalBoxDataSet* hbds =
       vtkHierarchicalBoxDataSet::SafeDownCast(output);
     this->AddVectorArray(hbds);
     this->AddTestArray(hbds);
@@ -551,15 +551,15 @@ int vtkTemporalFractal
     this->AddDepthArray(hbds);
     }
   this->AddFractalArray(output);
-  
+
   return 1;
 }
-  
+
 
 //----------------------------------------------------------------------------
 int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
-                             float x1, float y1, float z1, 
-                             double bds[6]) 
+                             float x1, float y1, float z1,
+                             double bds[6])
 {
   // intersect line with plane.
   float x, y, z;
@@ -589,7 +589,7 @@ int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
       {
       return 1;
       }
-    } 
+    }
   // max x
   x = bds[1];
   k = (x- x0) / (x1-x0);
@@ -601,7 +601,7 @@ int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
       {
       return 1;
       }
-    } 
+    }
   // min y
   y = bds[2];
   k = (y- y0) / (y1-y0);
@@ -613,7 +613,7 @@ int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
       {
       return 1;
       }
-    } 
+    }
   // max y
   y = bds[3];
   k = (y- y0) / (y1-y0);
@@ -625,7 +625,7 @@ int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
       {
       return 1;
       }
-    } 
+    }
   // min z
   z = bds[4];
   k = (z- z0) / (z1-z0);
@@ -637,15 +637,15 @@ int vtkTemporalFractal::LineTest2(float x0, float y0, float z0,
       {
       return 1;
       }
-    } 
+    }
 
   return 0;
 }
 
 //----------------------------------------------------------------------------
-int vtkTemporalFractal::LineTest(float x0, float y0, float z0, 
+int vtkTemporalFractal::LineTest(float x0, float y0, float z0,
                             float x1, float y1, float z1,
-                            double bds[6], int level, int target) 
+                            double bds[6], int level, int target)
 {
   if (level >= target)
     {
@@ -733,7 +733,7 @@ void vtkTemporalFractal::AddDataSet(vtkDataObject* output,
 //----------------------------------------------------------------------------
 void vtkTemporalFractal::Traverse(int &blockId,
                                   int level,
-                                  vtkDataObject* output, 
+                                  vtkDataObject* output,
                                   int x0,
                                   int x3,
                                   int y0,
@@ -744,12 +744,12 @@ void vtkTemporalFractal::Traverse(int &blockId,
 {
   double bds[6];
   int x1, x2, y1, y2, z1, z2;
-  
+
   if (this->TwoDimensional)
     {
     z0 = z3 = 0;
-    }  
-  
+    }
+
   // Get the bounds of the proposed block.
   int ext[6];
   ext[0]=x0; ext[1]=x3; ext[2]=y0; ext[3]=y3, ext[4]=z0; ext[5]=z3;
@@ -774,9 +774,9 @@ void vtkTemporalFractal::Traverse(int &blockId,
     x2 += 2;
     x1 += 2;
     }
-    
+
   int subOnFace[6];
-  
+
   if (this->TwoDimensional)
     {
     if (this->TwoDTest(bds, level, this->MaximumLevel))
@@ -854,8 +854,8 @@ void vtkTemporalFractal::Traverse(int &blockId,
       subOnFace[0]=0;
       subOnFace[1]=onFace[1];
       this->Traverse(blockId, level, output, x2,x3,y2,y3,z0,z1,subOnFace);
-      
-      
+
+
       subOnFace[0]=onFace[0];
       subOnFace[1]=0;
       subOnFace[2]=onFace[2];
@@ -906,7 +906,7 @@ void vtkTemporalFractal::Traverse(int &blockId,
 void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet *output)
 {
   double *origin = this->GetTopLevelOrigin();
- 
+
   int levels=output->GetNumberOfLevels();
   int level=0;
   while(level<levels)
@@ -919,7 +919,7 @@ void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet *output)
       vtkAMRBox temp;
       grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
       assert("check: grid_exists" && grid!=0);
-      
+
       vtkDoubleArray* array = vtkDoubleArray::New();
       int numCells=grid->GetNumberOfCells();
       array->Allocate(numCells);
@@ -970,7 +970,7 @@ void vtkTemporalFractal::AddTestArray(vtkHierarchicalBoxDataSet *output)
 void vtkTemporalFractal::AddVectorArray(vtkHierarchicalBoxDataSet *output)
 {
   double *origin = this->GetTopLevelOrigin();
-  
+
   int levels=output->GetNumberOfLevels();
   int level=0;
   while(level<levels)
@@ -983,7 +983,7 @@ void vtkTemporalFractal::AddVectorArray(vtkHierarchicalBoxDataSet *output)
       vtkAMRBox temp;
       grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
       assert("check: grid_exists" && grid!=0);
-      
+
       vtkDoubleArray* array = vtkDoubleArray::New();
       array->SetNumberOfComponents(3);
       int numCells=grid->GetNumberOfCells();
@@ -1008,7 +1008,7 @@ void vtkTemporalFractal::AddVectorArray(vtkHierarchicalBoxDataSet *output)
         {
         --ext[1];
         }
-      
+
       for (z = ext[4]; z <= ext[5]; ++z)
         {
         for (y = ext[2]; y <= ext[3]; ++y)
@@ -1038,7 +1038,7 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
 
   vtkImageMandelbrotSource* fractalSource = vtkImageMandelbrotSource::New();
   int dims[3];
-  
+
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
     if(!this->GenerateRectilinearGrids)
@@ -1075,8 +1075,8 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
 
       // Shift point to center of voxel.
       fractalSource->SetWholeExtent(0,dims[0]-1, 0,dims[1]-1, 0,dims[2]-1);
-      fractalSource->SetOriginCX(origin[0]+(spacing[0]*0.5), 
-        origin[1]+(spacing[1]*0.5), 
+      fractalSource->SetOriginCX(origin[0]+(spacing[0]*0.5),
+        origin[1]+(spacing[1]*0.5),
         origin[2]+(spacing[2]*0.5),
         this->CurrentTime/10.0);
       fractalSource->SetSampleCX(spacing[0], spacing[1], spacing[2], 0.1);
@@ -1134,8 +1134,8 @@ void vtkTemporalFractal::AddBlockIdArray(vtkHierarchicalBoxDataSet *output)
       vtkAMRBox temp;
       grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
       assert("check: grid_exists" && grid!=0);
-      
-      
+
+
       vtkIntArray* array = vtkIntArray::New();
       int numCells=grid->GetNumberOfCells();
       array->Allocate(numCells);
@@ -1172,8 +1172,8 @@ void vtkTemporalFractal::AddDepthArray(vtkHierarchicalBoxDataSet *output)
       vtkAMRBox temp;
       grid=vtkUniformGrid::SafeDownCast(output->GetDataSet(level,block, temp));
       assert("check: grid_exists" && grid!=0);
-      
-      
+
+
       vtkIntArray* array = vtkIntArray::New();
       int numCells=grid->GetNumberOfCells();
       array->Allocate(numCells);
@@ -1200,12 +1200,12 @@ void vtkTemporalFractal::AddGhostLevelArray(vtkDataSet *grid,
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::New();
   // we just get the dimensions according to points
   // we need the dimensions according to cells
-  
+
   int dims[3];
   dims[0]=dim[0];
   dims[1]=dim[1];
   dims[2]=dim[2];
-  
+
   if(dims[0]>1)
     {
     --dims[0];
@@ -1218,17 +1218,17 @@ void vtkTemporalFractal::AddGhostLevelArray(vtkDataSet *grid,
     {
     --dims[2];
     }
-  
+
   int numCells=grid->GetNumberOfCells();
   array->SetNumberOfTuples(numCells);
-  
+
   int i, j, k;
   int iLevel, jLevel, kLevel, tmp;
   unsigned char* ptr;
-  
+
   ptr = (unsigned char*)(array->GetVoidPointer(0));
-  
-  
+
+
   for (k = 0; k < dims[2]; ++k)
     {
     // ghost level at the beginning
@@ -1296,7 +1296,7 @@ void vtkTemporalFractal::AddGhostLevelArray(vtkDataSet *grid,
           tmp = i - dims[0] + 1 + this->GhostLevels;
           }
         if (tmp > iLevel) { iLevel = tmp;}
-        
+
         if (iLevel <= 0)
           {
           *ptr = 0;
@@ -1322,7 +1322,7 @@ void vtkTemporalFractal::CellExtentToBounds(int level,
   int spacingFactor = 1;
   double spacing[3];
   spacingFactor = spacingFactor << level;
-  
+
   spacing[0] = this->TopLevelSpacing[0] / (double)(spacingFactor);
   spacing[1] = this->TopLevelSpacing[1] / (double)(spacingFactor);
   spacing[2] = this->TopLevelSpacing[2] / (double)(spacingFactor);
@@ -1343,13 +1343,13 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
   int a0=0;
   int a1=1;
   int a2=2;
-  
+
   int dims[3];
-  
+
   grid->GetDimensions(dims);
   // we get the dimensions according to the points
   // we need the dimensions according to the cells
-  
+
   if(dims[0]>1)
     {
     --dims[0];
@@ -1362,10 +1362,10 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
     {
     --dims[2];
     }
-  
+
   int ext[6];
   double p[4];
-  
+
   // Shift point to center of voxel.
   ext[0]=0;
   ext[1]=dims[0]-1;
@@ -1373,17 +1373,17 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
   ext[3]=dims[1]-1;
   ext[4]=0;
   ext[5]=dims[2]-1;
-  
+
   int min0, max0;
   int idx0, idx1, idx2;
   vtkIdType inc0, inc1, inc2;
-  
+
   double origin[4];
   vtkDataArray *coords[3];
   coords[0]=grid->GetXCoordinates();
   coords[1]=grid->GetYCoordinates();
   coords[2]=grid->GetZCoordinates();
-  
+
   origin[0]=coords[0]->GetTuple1(0)+
     0.5*(coords[0]->GetTuple1(1)-coords[0]->GetTuple1(0));
   origin[1]=coords[0]->GetTuple1(0)+
@@ -1391,18 +1391,18 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
   origin[2]=coords[0]->GetTuple1(0)+
     0.5*(coords[2]->GetTuple1(1)-coords[2]->GetTuple1(0));
   origin[3]=this->CurrentTime/10.0;
-  
+
   // Copy origin into pixel
   for (idx0 = 0; idx0 < 4; ++idx0)
     {
     p[idx0] = origin[idx0];
     }
-  
+
   min0 = ext[0];
   max0 = ext[1];
-  
+
   this->GetContinuousIncrements(ext, inc0, inc1, inc2);
-  
+
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
     p[a2] = coords[a2]->GetTuple1(idx2)+
@@ -1415,10 +1415,10 @@ void vtkTemporalFractal::ExecuteRectilinearMandelbrot(
         {
         p[a0] = coords[a0]->GetTuple1(idx0)+
           0.5*(coords[a0]->GetTuple1(idx0+1)-coords[a0]->GetTuple1(idx0));
-        
+
         // Change fractal into volume fraction (iso surface at 0.5).
         *ptr = this->EvaluateSet(p)/ (2.0 * this->FractalValue);
-        
+
         ++ptr;
         // inc0 is 0
         }
@@ -1437,7 +1437,7 @@ double vtkTemporalFractal::EvaluateSet(double p[4])
   double zReal2, zImag2;
 
   const int maximumNumberOfIterations=100;
-  
+
   cReal = p[0];
   cImag = p[1];
   zReal = p[2];
@@ -1473,7 +1473,7 @@ void vtkTemporalFractal::GetContinuousIncrements(int extent[6],
                                                      vtkIdType &incZ)
 {
   int e0, e1, e2, e3;
-  
+
   incX = 0;
 
   e0 = extent[0];
@@ -1484,15 +1484,15 @@ void vtkTemporalFractal::GetContinuousIncrements(int extent[6],
   // Make sure the increments are up to date
   int idx;
   vtkIdType inc =1;
-  
+
   int increments[3];
-  
+
   for (idx = 0; idx < 3; ++idx)
     {
     increments[idx] = inc;
     inc *= (extent[idx*2+1] - extent[idx*2] + 1);
     }
-  
+
   incY = increments[1] - (e1 - e0 + 1)*increments[0];
   incZ = increments[2] - (e3 - e2 + 1)*increments[1];
 }

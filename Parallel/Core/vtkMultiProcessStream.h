@@ -113,7 +113,7 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
   unsigned char Endianness;
-  enum 
+  enum
     {
     BigEndian,
     LittleEndian

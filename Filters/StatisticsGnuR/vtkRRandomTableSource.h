@@ -18,18 +18,18 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkRRandomTableSource - Generates vtkTables with columns of random numbers using Gnu R.   
+// .NAME vtkRRandomTableSource - Generates vtkTables with columns of random numbers using Gnu R.
 //
-// .SECTION Description  
+// .SECTION Description
 //
 // Note - An installation of Gnu R is required to build and use this class.
-// 
+//
 // vtkRRandomTableSource uses the Gnu R math C language API for statistical distributions to generate
-// vtkTables with columns of random numbers selected from a chosen distribution. The available 
-// distributions are as follows: 
-// 
+// vtkTables with columns of random numbers selected from a chosen distribution. The available
+// distributions are as follows:
+//
 //   Normal, Cauchy, F, Student T, Poisson, Chi-Square, Exponential, Binomial, Beta, Geometric,
-//   Uniform, Gamma, Log-Normal, Logistic, Hyper-Geometric, Weibull, Negative Binomial, Wilcox       
+//   Uniform, Gamma, Log-Normal, Logistic, Hyper-Geometric, Weibull, Negative Binomial, Wilcox
 //
 // The default output for the class is a table of one column with ten rows of random numbers chosen
 // from a Normal distribution of mean 0.0 and standard deviation of 1.0.
@@ -62,7 +62,7 @@ public:
   static vtkRRandomTableSource* New();
   vtkTypeMacro(vtkRRandomTableSource,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set and Get the number of rows in the output table (random numbers).
   void SetNumberOfRows(int nrows);
@@ -86,7 +86,7 @@ public:
   // Description:
   // Available statistical distribution output types.  Depending on the distribution type, up to three
   // parameters (param1, param2, param3) must be specified when using SetStatisticalDistributionForColumn().
-  typedef enum 
+  typedef enum
     {
 
     WILCOXONRANKSUM = 0,    // Wilcoxon rank sum
@@ -140,43 +140,43 @@ public:
                    // param3 - not used
 
     T = 10,         // Student T
-                    // param1 - degrees of freedom 
+                    // param1 - degrees of freedom
                     // param2 - not used
                     // param3 - not used
 
     F = 11,         // F
-                    // param1 - degrees of freedom one 
+                    // param1 - degrees of freedom one
                     // param2 - degrees of freedom two
                     // param3 - not used
 
     LOGNORMAL = 12, // Log-normal
-                    // param1 - log mean 
+                    // param1 - log mean
                     // param2 - log standard deviation
                     // param3 - not used
 
     GAMMA = 13,     // Gamma
-                    // param1 - shape parameter 
+                    // param1 - shape parameter
                     // param2 - scale parameter
                     // param3 - not used
 
     UNIF = 14,      // Uniform
-                    // param1 - distribution lower limit 
+                    // param1 - distribution lower limit
                     // param2 - distribution upper limit
                     // param3 - not used
-        
+
     BETA = 15,      // Beta
-                    // param1 - shape parameter one. 
+                    // param1 - shape parameter one.
                     // param2 - shape parameter two.
                     // param3 - not used
 
     BINOMIAL = 16,  // Binomial
-                    // param1 - number of trials 
+                    // param1 - number of trials
                     // param2 - probability of success on each trial
                     // param3 - not used
 
     NORMAL = 17,    // Normal (Gaussian)
-                    // param1 - mean 
-                    // param2 - standard deviation 
+                    // param1 - mean
+                    // param2 - standard deviation
                     // param3 - not used
 
     CHISQUARE = 18, // Chi-square
@@ -215,10 +215,10 @@ public:
 protected:
   vtkRRandomTableSource();
   ~vtkRRandomTableSource();
-  
+
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

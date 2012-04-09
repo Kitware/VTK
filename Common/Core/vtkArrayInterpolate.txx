@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayInterpolate.txx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -38,7 +38,7 @@ void vtkInterpolate(
     vtkGenericWarningMacro(<< "Target array does not contain target slice.");
     return;
     }
-  
+
   if(source_slices.GetCount() != source_weights.GetCount())
     {
     vtkGenericWarningMacro(<< "Source slice and weight counts must match.");
@@ -53,7 +53,7 @@ void vtkInterpolate(
       return;
       }
     }
-    
+
   // Zero-out the target storage ...
   const vtkIdType n_begin = 0;
   const vtkIdType n_end = target_slice.GetSize();

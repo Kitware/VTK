@@ -37,25 +37,25 @@ public:
     {
       this->vtkCollection::AddItem(ds);
     }
-  
+
   // Description:
   // Get the next dataset in the list.
-  vtkIdList *GetNextItem() { 
+  vtkIdList *GetNextItem() {
     return static_cast<vtkIdList *>(this->GetNextItemAsObject());};
 
   // Description:
   // Get the ith dataset in the list.
-  vtkIdList *GetItem(int i) { 
+  vtkIdList *GetItem(int i) {
     return static_cast<vtkIdList *>(this->GetItemAsObject(i));};
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkIdList *GetNextIdList(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkIdList *>(this->GetNextItemAsObject(cookie));};
   //ETX
-  
+
 protected:
   vtkIdListCollection() {};
   ~vtkIdListCollection() {};

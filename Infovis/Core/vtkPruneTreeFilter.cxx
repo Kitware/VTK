@@ -53,8 +53,8 @@ void vtkPruneTreeFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkPruneTreeFilter::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkTree* inputTree = vtkTree::GetData(inputVector[0]);
@@ -62,7 +62,7 @@ int vtkPruneTreeFilter::RequestData(
 
   if (this->ParentVertex < 0 || this->ParentVertex >= inputTree->GetNumberOfVertices())
     {
-    vtkErrorMacro("Parent vertex must be part of the tree " << this->ParentVertex 
+    vtkErrorMacro("Parent vertex must be part of the tree " << this->ParentVertex
       << " >= " << inputTree->GetNumberOfVertices());
     return 0;
     }

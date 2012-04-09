@@ -98,7 +98,7 @@ int vtkDashedStreamLine::RequestData(vtkInformation *,
       }
     scalarPrev = sPrev->s;
 
-    if ( this->Streamers[ptId].GetNumberOfPoints() == 2 && sPtr->cellId < 0 ) 
+    if ( this->Streamers[ptId].GetNumberOfPoints() == 2 && sPtr->cellId < 0 )
       {
       continue;
       }
@@ -131,7 +131,7 @@ int vtkDashedStreamLine::RequestData(vtkInformation *,
         pts[1] = newPts->InsertNextPoint(xEnd);
         newVectors->InsertTuple(pts[1],vEnd);
 
-        if ( newScalars ) 
+        if ( newScalars )
           {
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           newScalars->InsertTuple(pts[0],&s);

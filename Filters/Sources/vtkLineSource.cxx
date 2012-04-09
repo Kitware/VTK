@@ -107,7 +107,7 @@ int vtkLineSource::RequestData(
   newTCoords->SetNumberOfComponents( 2 );
   newTCoords->Allocate( 2 * numPts );
   newTCoords->SetName( "Texture Coordinates" );
-  
+
   // Allocate convenience storage
   double x[3], tc[3], v[3];
 
@@ -127,7 +127,7 @@ int vtkLineSource::RequestData(
       // Get coordinates of endpoints
       this->Points->GetPoint( s, point1 );
       this->Points->GetPoint( s + 1, point2 );
-      
+
       // Calculate segment vector
       for ( int i = 0; i < 3; ++ i )
         {
@@ -137,7 +137,7 @@ int vtkLineSource::RequestData(
       // Generate points along segment
       tc[1] = 0.;
       tc[2] = 0.;
-      for ( vtkIdType i = 0; i < this->Resolution; ++ i, ++ offset ) 
+      for ( vtkIdType i = 0; i < this->Resolution; ++ i, ++ offset )
         {
         tc[0] = static_cast<double>( i ) / this->Resolution;
         for ( int j = 0; j < 3; ++ j )
@@ -153,7 +153,7 @@ int vtkLineSource::RequestData(
     newPoints->InsertPoint( numLines, point2 );
     tc[0] = 1.;
     newTCoords->InsertTuple( numLines, tc );
-    
+
     } // if ( this->Points )
   else
     {
@@ -162,11 +162,11 @@ int vtkLineSource::RequestData(
       {
       v[i] = this->Point2[i] - this->Point1[i];
       }
-    
+
     // Generate points along segment
     tc[1] = 0.;
     tc[2] = 0.;
-    for ( vtkIdType i = 0; i < numPts; ++ i ) 
+    for ( vtkIdType i = 0; i < numPts; ++ i )
       {
       tc[0] = static_cast<double>( i ) / this->Resolution;
       for ( int j = 0; j < 3; ++ j )
@@ -180,7 +180,7 @@ int vtkLineSource::RequestData(
 
   //  Generate lines
   newLines->InsertNextCell( numPts );
-  for ( vtkIdType i = 0; i < numPts; ++ i ) 
+  for ( vtkIdType i = 0; i < numPts; ++ i )
     {
     newLines->InsertCellPoint( i );
     }
@@ -233,7 +233,7 @@ void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
                                << this->Point2[1] << ", "
                                << this->Point2[2] << ")\n";
 
-  os << indent 
+  os << indent
      << "Points: ";
   if ( this->Points )
     {

@@ -73,7 +73,7 @@ void vtkPMultiCorrelativeStatistics::Learn( vtkTable* inData,
     {
     return;
     }
-  
+
   vtkPMultiCorrelativeStatistics::GatherStatistics( this->Controller, sparseCov );
 }
 
@@ -107,8 +107,8 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   // (All) gather all sample sizes
   int n_l = sparseCov->GetValueByName( 0, "Entries" ).ToInt(); // Cardinality
   int* n_g = new int[np];
-  com->AllGather( &n_l, n_g, 1 ); 
-  
+  com->AllGather( &n_l, n_g, 1 );
+
   // Iterate over all mean and MXY entries
   // NB: two passes are required as there is no guarantee that all means
   //     are stored before MXYs
@@ -136,8 +136,8 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
     if ( col2  != "" )
       {
       covToMeans[r - 1] = std::pair<vtkIdType, vtkIdType>
-        ( meanIndex[sparseCov->GetValueByName( r, "Column1" ).ToString()], 
-          meanIndex[col2] );          
+        ( meanIndex[sparseCov->GetValueByName( r, "Column1" ).ToString()],
+          meanIndex[col2] );
 
       M_l[r - 1] = sparseCov->GetValueByName( r, "Entries" ).ToDouble();
       }
@@ -157,9 +157,9 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
   for ( int i = 1; i < np; ++ i )
     {
     int ns_l = n_g[i];
-    int N = ns + ns_l; 
+    int N = ns + ns_l;
     int prod_ns = ns * ns_l;
-    
+
     double invN = 1. / static_cast<double>( N );
 
     double* M_part = new double[nM];
@@ -180,7 +180,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
     for ( int j = nMeans; j < nM; ++ j )
       {
       M_part[j] = M_g[o + j];
-    
+
       M_l[j] += M_part[j]
         + prod_ns * delta[covToMeans[j].first] * delta_sur_N[covToMeans[j].second];
       }
@@ -206,7 +206,7 @@ void vtkPMultiCorrelativeStatistics::GatherStatistics( vtkMultiProcessController
     }
 
   sparseCov->SetValueByName( 0, "Entries", ns );
-  
+
   // Clean-up
   delete [] M_l;
   delete [] M_g;

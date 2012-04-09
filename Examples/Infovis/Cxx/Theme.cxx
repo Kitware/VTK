@@ -26,11 +26,11 @@
 int main(int, char*[])
 {
   vtkRandomGraphSource* source = vtkRandomGraphSource::New();
-  
+
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   view->SetRepresentationFromInputConnection(
     source->GetOutputPort());
-  
+
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   theme->Delete();
@@ -42,9 +42,9 @@ int main(int, char*[])
   view->ResetCamera();
   view->Render();
   view->GetInteractor()->Start();
-  
+
   source->Delete();
   view->Delete();
-  
+
   return 0;
 }

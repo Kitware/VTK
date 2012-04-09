@@ -19,8 +19,8 @@
 // the output is always complex doubles with real values in component0, and
 // imaginary values in component1.  The filter is fastest for images that
 // have power of two sizes.  The filter uses a butterfly fitlers for each
-// prime factor of the dimension.  This makes images with prime number dimensions 
-// (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes) 
+// prime factor of the dimension.  This makes images with prime number dimensions
+// (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes)
 // FFT's are decomposed so that each axis executes in series.
 // In most cases the RFFT will produce an image whose imaginary values are all
 // zero's. In this case vtkImageExtractComponents can be used to remove
@@ -28,7 +28,7 @@
 
 // .SECTION See Also
 // vtkImageExtractComponenents
- 
+
 
 
 #ifndef __vtkImageRFFT_h
@@ -44,7 +44,7 @@ public:
   static vtkImageRFFT *New();
   vtkTypeMacro(vtkImageRFFT,vtkImageFourierFilter);
 
-  
+
   // Description:
   // For streaming and threads.  Splits output update extent into num pieces.
   // This method needs to be called num times.  Results must not overlap for
@@ -52,7 +52,7 @@ public:
   // method returns the number of pieces resulting from a successful split.
   // This can be from 1 to "total".  If 1 is returned, the extent cannot be
   // split.
-  int SplitExtent(int splitExt[6], int startExt[6], 
+  int SplitExtent(int splitExt[6], int startExt[6],
                   int num, int total);
 
 protected:

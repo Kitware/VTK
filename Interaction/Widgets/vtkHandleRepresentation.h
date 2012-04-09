@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class defines an API for widget handle representations. These
 // representations interact with vtkHandleWidget. Various representations
-// can be used depending on the nature of the handle. The basic functionality 
+// can be used depending on the nature of the handle. The basic functionality
 // of the handle representation is to maintain a position. The position is
 // represented via a vtkCoordinate, meaning that the position can be easily
 // obtained in a variety of coordinate systems.
@@ -33,7 +33,7 @@
 // The separation of the widget event handling and representation enables
 // users and developers to create new appearances for the widget. It also
 // facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the 
+// events, and remote representations of the widget are slaves to the
 // client (and do not handle events).
 
 // .SECTION See Also
@@ -94,7 +94,7 @@ public:
   // must be implemented by subclasses.
   enum _InteractionState { Outside=0, Nearby, Selecting, Translating, Scaling };
 //ETX
-  
+
   // Description:
   // The interaction state may be set from a widget (e.g., HandleWidget) or
   // other object. This controls how the interaction with the widget
@@ -120,7 +120,7 @@ public:
   // if the position is within the constraint, else it should return
   // 0. By default it returns 1.
   virtual int CheckConstraint(vtkRenderer *renderer, double pos[2]);
-  
+
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
   virtual void ShallowCopy(vtkProp *prop);
@@ -133,11 +133,11 @@ public:
   virtual unsigned long GetMTime();
 
   // Description:
-  // Set/Get the point placer. Point placers can be used to dictate constraints 
+  // Set/Get the point placer. Point placers can be used to dictate constraints
   // on the placement of handles. As an example, see vtkBoundedPlanePointPlacer
   // (constrains the placement of handles to a set of bounded planes)
   // vtkFocalPlanePointPlacer (constrains placement on the focal plane) etc.
-  // The default point placer is vtkPointPlacer (which does not apply any 
+  // The default point placer is vtkPointPlacer (which does not apply any
   // constraints, so the handles are free to move anywhere).
   virtual void SetPointPlacer ( vtkPointPlacer * );
   vtkGetObjectMacro( PointPlacer, vtkPointPlacer );
@@ -149,14 +149,14 @@ protected:
   int Tolerance;
   int ActiveRepresentation;
   int Constrained;
-  
+
   // Two vtkCoordinates are available to subclasses, one in display
   // coordinates and the other in world coordinates. These facilitate
   // the conversion between these two systems. Note that the WorldPosition
   // is the ultimate maintainer of position.
   vtkCoordinate *DisplayPosition;
   vtkCoordinate *WorldPosition;
-  
+
   // Keep track of when coordinates were changed
   vtkTimeStamp DisplayPositionTime;
   vtkTimeStamp WorldPositionTime;

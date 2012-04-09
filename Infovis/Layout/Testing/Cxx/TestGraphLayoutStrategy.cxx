@@ -37,7 +37,7 @@
 int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int errors = 0;
-  
+
   // Create input graph
   vtkIdType numVert = 100;
   vtkIdType numEdges = 150;
@@ -53,7 +53,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   double eps = 1.0e-6;
   double length = 0.0;
   double tol = 50.0;
-  
+
   cerr << "Testing vtkCircularLayoutStrategy..." << endl;
   VTK_CREATE(vtkCircularLayoutStrategy, circular);
   layout->SetLayoutStrategy(circular);
@@ -71,7 +71,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   cerr << "...done." << endl;
-  
+
   cerr << "Testing vtkFast2DLayoutStrategy..." << endl;
   VTK_CREATE(vtkFast2DLayoutStrategy, fast);
   fast->SetRestDistance(1.0f);
@@ -107,7 +107,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   cerr << "...done." << endl;
-  
+
   cerr << "Testing vtkForceDirectedLayoutStrategy..." << endl;
   VTK_CREATE(vtkForceDirectedLayoutStrategy, force);
   length = pow(1.0/numVert, 1.0/3.0);
@@ -131,7 +131,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   cerr << "...done." << endl;
-  
+
   cerr << "Testing vtkPassThroughLayoutStrategy..." << endl;
   VTK_CREATE(vtkPassThroughLayoutStrategy, pass);
   layout->SetLayoutStrategy(pass);
@@ -147,7 +147,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   cerr << "...done." << endl;
-  
+
   cerr << "Testing vtkRandomLayoutStrategy..." << endl;
   VTK_CREATE(vtkRandomLayoutStrategy, random);
   double bounds[6] = {0, 0, 0, 0, 0, 0};
@@ -167,7 +167,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   cerr << "...done." << endl;
-  
+
   cerr << "Testing vtkSimple2DLayoutStrategy..." << endl;
   VTK_CREATE(vtkSimple2DLayoutStrategy, simple);
   simple->SetRestDistance(1.0f);
@@ -202,6 +202,6 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       }
     }
   cerr << "...done." << endl;
-    
+
   return errors;
 }

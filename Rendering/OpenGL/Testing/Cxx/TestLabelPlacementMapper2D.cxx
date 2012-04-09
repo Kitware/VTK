@@ -2618,7 +2618,7 @@ static double vtkLabelPlacer2DTestPoints[] =
 };
 
 int TestLabelPlacementMapper2D( int argc, char* argv[] )
-{ 
+{
   vtkIdType i;
 
   vtkRenderer* rr = vtkRenderer::New();

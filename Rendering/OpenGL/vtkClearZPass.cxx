@@ -37,7 +37,7 @@ vtkClearZPass::~vtkClearZPass()
 void vtkClearZPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Depth:" << this->Depth << endl;
 }
 

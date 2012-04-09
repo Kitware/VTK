@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkStreamLine - generate streamline in arbitrary dataset
 // .SECTION Description
-// vtkStreamLine is a filter that generates a streamline for an arbitrary 
+// vtkStreamLine is a filter that generates a streamline for an arbitrary
 // dataset. A streamline is a line that is everywhere tangent to the vector
-// field. Scalar values also are calculated along the streamline and can be 
+// field. Scalar values also are calculated along the streamline and can be
 // used to color the line. Streamlines are calculated by integrating from
 // a starting point through the vector field. Integration can be performed
 // forward in time (see where the line goes), backward in time (see where the
@@ -25,15 +25,15 @@
 // product) of the flow rotation on the velocity vector, i.e., the rotation
 // of flow around the streamline.
 //
-// vtkStreamLine defines the instance variable StepLength. This parameter 
+// vtkStreamLine defines the instance variable StepLength. This parameter
 // controls the time increment used to generate individual points along
-// the streamline(s). Smaller values result in more line 
-// primitives but smoother streamlines. The StepLength instance variable is 
+// the streamline(s). Smaller values result in more line
+// primitives but smoother streamlines. The StepLength instance variable is
 // defined in terms of time (i.e., the distance that the particle travels in
 // the specified time period). Thus, the line segments will be smaller in areas
 // of low velocity and larger in regions of high velocity. (NOTE: This is
 // different than the IntegrationStepLength defined by the superclass
-// vtkStreamer. IntegrationStepLength is used to control integration step 
+// vtkStreamer. IntegrationStepLength is used to control integration step
 // size and is expressed as a fraction of the cell length.) The StepLength
 // instance variable is important because subclasses of vtkStreamLine (e.g.,
 // vtkDashedStreamLine) depend on this value to build their representation.

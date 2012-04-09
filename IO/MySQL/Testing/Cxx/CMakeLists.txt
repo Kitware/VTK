@@ -10,13 +10,13 @@ if(VTK_MYSQL_TEST_URL)
   set(TestsToRun ${Tests})
   list(REMOVE_ITEM TestsToRun ${vtk-module}CxxTests.cxx)
 
-  add_test(NAME ${vtk-module}Cxx-TestMySQLDatabase 
-           COMMAND ${vtk-module}CxxTests TestMySQLDatabase)  
+  add_test(NAME ${vtk-module}Cxx-TestMySQLDatabase
+           COMMAND ${vtk-module}CxxTests TestMySQLDatabase)
 
   if(VTK_DATA_ROOT)
     if(WIN32)
-      add_test(NAME ${vtk-module}Cxx-TestMySQLTableReadWrite 
-               COMMAND ${vtk-module}CxxTests TestMySQLTableReadWrite 
+      add_test(NAME ${vtk-module}Cxx-TestMySQLTableReadWrite
+               COMMAND ${vtk-module}CxxTests TestMySQLTableReadWrite
                        ${VTK_DATA_ROOT}/Baseline/IO/simple_table_win.vtk)
     else()
       add_test(NAME ${vtk-module}Cxx-TestMySQLTableReadWrite

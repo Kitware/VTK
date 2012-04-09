@@ -168,7 +168,7 @@ ren31 ResetCamera -0.5 0.5 -0.5 0.5 -1 1
 ren31 AddActor a31
 renWin AddRenderer ren31
 
-# inverse 
+# inverse
 vtkTransformPolyDataFilter f32
 f32 SetInputConnection [ap GetOutputPort]
 f32 SetTransform [t3 GetInverse]

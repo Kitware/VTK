@@ -75,7 +75,7 @@ class vtkView::vtkImplementation
 public:
   std::vector<vtkSmartPointer<vtkDataRepresentation> > Representations;
 };
-  
+
 
 vtkStandardNewMacro(vtkView);
 //----------------------------------------------------------------------------
@@ -86,11 +86,11 @@ vtkView::vtkView()
   this->Observer = vtkView::Command::New();
   this->Observer->SetTarget(this);
   this->ReuseSingleRepresentation = false;
-  
+
   // Apply default theme
   vtkViewTheme* theme = vtkViewTheme::New();
   this->ApplyViewTheme(theme);
-  theme->Delete();  
+  theme->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ bool vtkView::IsRepresentationPresent(vtkDataRepresentation* rep)
       {
       return true;
       }
-    }      
+    }
   return false;
 }
 
@@ -217,7 +217,7 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
   if (this->IsRepresentationPresent(rep))
     {
     rep->RemoveFromView(this);
-    rep->RemoveObserver(this->GetObserver());    
+    rep->RemoveObserver(this->GetObserver());
     this->RemoveRepresentationInternal(rep);
     std::vector<vtkSmartPointer<vtkDataRepresentation> >::iterator it, itEnd;
     it = this->Implementation->Representations.begin();
@@ -281,7 +281,7 @@ vtkCommand* vtkView::GetObserver()
 }
 
 //----------------------------------------------------------------------------
-void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId, 
+void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
   void* callData)
 {
   vtkDataRepresentation* caller_rep = vtkDataRepresentation::SafeDownCast( caller );

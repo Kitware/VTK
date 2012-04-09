@@ -393,7 +393,7 @@ char TPWeventLog[] =
 class vtkTPWCallback : public vtkCommand
 {
 public:
-  static vtkTPWCallback *New() 
+  static vtkTPWCallback *New()
   { return new vtkTPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
@@ -408,9 +408,9 @@ public:
 
 int TestPlaneWidget( int argc, char *argv[] )
 {
-  char* fname = 
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
-  char* fname2 = 
+  char* fname2 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
 
   // Start by loading some data.
@@ -441,7 +441,7 @@ int TestPlaneWidget( int argc, char *argv[] )
   double tmp[2];
   pl3d_block0->GetScalarRange(tmp);
   probeMapper->SetScalarRange(tmp[0], tmp[1]);
-  
+
   vtkSmartPointer<vtkActor> probeActor =
     vtkSmartPointer<vtkActor>::New();
   probeActor->SetMapper(probeMapper);

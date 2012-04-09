@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkBoostKruskalMinimumSpanningTree.h
 
@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Description
 //
-// This vtk class uses the Boost Kruskal Minimum Spanning Tree 
+// This vtk class uses the Boost Kruskal Minimum Spanning Tree
 // generic algorithm to perform a minimum spanning tree creation given
 // a weighting value for each of the edges in the input graph.
 //
@@ -44,7 +44,7 @@ public:
   static vtkBoostKruskalMinimumSpanningTree *New();
   vtkTypeMacro(vtkBoostKruskalMinimumSpanningTree, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the name of the edge-weight input array, which must name an
   // array that is part of the edge data of the input graph and
@@ -52,13 +52,13 @@ public:
   // vtkDoubleArray, the array will be copied into a temporary
   // vtkDoubleArray.
   vtkSetStringMacro(EdgeWeightArrayName);
-  
+
   // Description:
   // Set the output selection type. The default is to use the
   // the set of minimum spanning tree edges "MINIMUM_SPANNING_TREE_EDGES". No
   // other options are defined.
   vtkSetStringMacro(OutputSelectionType);
-  
+
   // Description:
   // Whether to negate the edge weights. By negating the edge
   // weights this algorithm will give you the 'maximal' spanning
@@ -68,28 +68,28 @@ public:
   void SetNegateEdgeWeights(bool value);
   vtkGetMacro(NegateEdgeWeights, bool);
   vtkBooleanMacro(NegateEdgeWeights, bool);
-  
+
 protected:
   vtkBoostKruskalMinimumSpanningTree();
   ~vtkBoostKruskalMinimumSpanningTree();
-  
+
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
     vtkInformationVector *);
-  
+
   int FillInputPortInformation(
     int port, vtkInformation* info);
-  
+
   int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
   char* EdgeWeightArrayName;
   char* OutputSelectionType;
   bool NegateEdgeWeights;
   float EdgeWeightMultiplier;
-  
+
   vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
   void operator=(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
 };

@@ -52,7 +52,7 @@
 // automatically tessellated into linear cells prior to isocontouring.
 
 // .SECTION See Also
-// vtkClipDataSet vtkClipPolyData vtkClipVolume vtkImplicitFunction 
+// vtkClipDataSet vtkClipPolyData vtkClipVolume vtkImplicitFunction
 // vtkGenericDataSet
 
 #ifndef __vtkGenericClip_h
@@ -81,10 +81,10 @@ public:
   // Description:
   // Set the clipping value of the implicit function (if clipping with
   // implicit function) or scalar value (if clipping with
-  // scalars). The default value is 0.0. 
+  // scalars). The default value is 0.0.
   vtkSetMacro(Value,double);
   vtkGetMacro(Value,double);
-  
+
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered
   // inside the implicit function if its value is greater than the
@@ -98,14 +98,14 @@ public:
 
   // Description
   // Specify the implicit function with which to perform the
-  // clipping. If you do not define an implicit function, 
+  // clipping. If you do not define an implicit function,
   // then the selected input scalar data will be used for clipping.
   virtual void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be 
-  // interpolated from the implicit function values, and not the 
+  // If this flag is enabled, then the output scalar values will be
+  // interpolated from the implicit function values, and not the
   // input scalar data. If you enable this flag but do not provide an
   // implicit function an error will be reported.
   vtkSetMacro(GenerateClipScalars,int);
@@ -126,7 +126,7 @@ public:
   // instance variable.
   vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
   vtkGetMacro(MergeTolerance,double);
-  
+
   // Description:
   // Return the Clipped output.
   vtkUnstructuredGrid *GetClippedOutput();
@@ -139,7 +139,7 @@ public:
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -151,7 +151,7 @@ public:
   // If you want to clip by an arbitrary array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
   vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
+  void SelectInputScalars(const char *fieldName)
     {this->SetInputScalarsSelection(fieldName);}
 
 protected:
@@ -160,9 +160,9 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int, vtkInformation*);
-  
+
   vtkImplicitFunction *ClipFunction;
-  
+
   vtkIncrementalPointLocator *Locator;
   int InsideOut;
   double Value;
@@ -178,7 +178,7 @@ protected:
   vtkPointData *InternalPD;
   vtkPointData *SecondaryPD;
   vtkCellData  *SecondaryCD;
-  
+
 private:
   vtkGenericClip(const vtkGenericClip&);  // Not implemented.
   void operator=(const vtkGenericClip&);  // Not implemented.

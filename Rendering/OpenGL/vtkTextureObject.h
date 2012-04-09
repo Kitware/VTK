@@ -36,7 +36,7 @@ public:
 
   //BTX
   // DepthTextureCompareFunction values.
-  enum 
+  enum
   {
     Lequal=0, // r=R<=Dt ? 1.0 : 0.0
     Gequal, // r=R>=Dt ? 1.0 : 0.0
@@ -48,7 +48,7 @@ public:
     Never, // r=0.0
     NumberOfDepthTextureCompareFunctions
   };
-  
+
   // DepthTextureMode values.
   enum
   {
@@ -57,7 +57,7 @@ public:
     Alpha, // (R.G.B.A)=(0,0,0,r)
     NumberOfDepthTextureModes
   };
-  
+
   // Wrap values.
   enum
   {
@@ -68,7 +68,7 @@ public:
     MirroredRepeat,
     NumberOfWrapModes
   };
-  
+
   // MinificationFilter values.
   enum
   {
@@ -80,7 +80,7 @@ public:
     LinearMipmapLinear,
     NumberOfMinificationModes
   };
-  
+
   // Internal depth format
   enum
   {
@@ -91,15 +91,15 @@ public:
     Float32,
     NumberOfDepthFormats
   };
-  
+
   //ETX
-  
+
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get/Set the context. This does not increase the reference count of the 
+  // Get/Set the context. This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
@@ -126,7 +126,7 @@ public:
 
   // Description:
   // Activate the texture. The texture must have been created using Create().
-  // RenderWindow must be set before calling this. 
+  // RenderWindow must be set before calling this.
   void Bind();
   void UnBind();
 
@@ -134,12 +134,12 @@ public:
   // Tells if the texture object is bound to the active texture image unit.
   // (a texture object can be bound to multiple texture image unit).
   bool IsBound();
-  
+
   // Description:
   // Send all the texture object parameters to the hardware if not done yet.
   // \pre is_bound: IsBound()
   void SendParameters();
-  
+
   // Description:
   // Create a 1D texture using the PBO.
   // Eventually we may start supporting creating a texture from subset of data
@@ -169,7 +169,7 @@ public:
                    unsigned int height,
                    int internalFormat,
                    vtkPixelBufferObject *pbo);
-  
+
   // Description:
   // Create a 2D depth texture using a raw pointer.
   // This is a blocking call. If you can, use PBO instead.
@@ -178,37 +178,37 @@ public:
                           int internalFormat,
                           int rawType,
                           void *raw);
-  
+
   // Description:
   // Create a 2D depth texture but does not initialize its values.
   bool AllocateDepth(unsigned int width,unsigned int height,
                      int internalFormat);
-  
+
   // Description:
   // Create a 1D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
   bool Allocate1D(unsigned int width, int numComps,int vtkType);
-  
+
   // Description:
   // Create a 2D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
   bool Allocate2D(unsigned int width,unsigned int height, int numComps,
                   int vtkType);
-  
+
   // Description:
   // Create a 3D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
   bool Allocate3D(unsigned int width,unsigned int height,
                   unsigned int depth, int numComps,
                   int vtkType);
-  
-  
+
+
   // Description:
   // Create a 3D texture using the PBO.
   // Eventually we may start supporting creating a texture from subset of data
   // in the PBO, but for simplicity we'll begin with entire PBO data.
   // numComps must be in [1-4].
-  bool Create3D(unsigned int width, unsigned int height, unsigned int depth, 
+  bool Create3D(unsigned int width, unsigned int height, unsigned int depth,
                 int numComps, vtkPixelBufferObject *pbo,
                 bool shaderSupportsTextureInt);
 
@@ -239,7 +239,7 @@ public:
                                  bool shaderSupportsTextureInt);
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
-  
+
   // Description:
   // Wrap mode for the first texture coordinate "s"
   // Valid values are:
@@ -251,7 +251,7 @@ public:
   // Initial value is Repeat (as in OpenGL spec)
   vtkGetMacro(WrapS,int);
   vtkSetMacro(WrapS,int);
-  
+
   // Description:
   // Wrap mode for the first texture coordinate "t"
   // Valid values are:
@@ -263,7 +263,7 @@ public:
   // Initial value is Repeat (as in OpenGL spec)
   vtkGetMacro(WrapT,int);
   vtkSetMacro(WrapT,int);
-  
+
   // Description:
   // Wrap mode for the first texture coordinate "r"
   // Valid values are:
@@ -275,7 +275,7 @@ public:
   // Initial value is Repeat (as in OpenGL spec)
   vtkGetMacro(WrapR,int);
   vtkSetMacro(WrapR,int);
-  
+
   // Description:
   // Minification filter mode.
   // Valid values are:
@@ -290,52 +290,52 @@ public:
   // texture object incomplete. ).
   vtkGetMacro(MinificationFilter,int);
   vtkSetMacro(MinificationFilter,int);
-  
+
   // Description:
   // Tells if the magnification mode is linear (true) or nearest (false).
   // Initial value is false (initial value in OpenGL spec is true).
   vtkGetMacro(LinearMagnification,bool);
   vtkSetMacro(LinearMagnification,bool);
-  
+
   // Description:
   // Border Color (RGBA). Each component is in [0.0f,1.0f].
   // Initial value is (0.0f,0.0f,0.0f,0.0f), as in OpenGL spec.
   vtkSetVector4Macro(BorderColor,float);
   vtkGetVector4Macro(BorderColor,float);
-  
+
   // Description:
   // Priority of the texture object to be resident on the card for higher
   // performance in the range [0.0f,1.0f].
   // Initial value is 1.0f, as in OpenGL spec.
   vtkSetMacro(Priority,float);
   vtkGetMacro(Priority,float);
-  
+
   // Description:
   // Lower-clamp the computed LOD against this value. Any float value is valid.
   // Initial value is -1000.0f, as in OpenGL spec.
   vtkSetMacro(MinLOD,float);
   vtkGetMacro(MinLOD,float);
-  
+
   // Description:
   // Upper-clamp the computed LOD against this value. Any float value is valid.
   // Initial value is 1000.0f, as in OpenGL spec.
   vtkSetMacro(MaxLOD,float);
   vtkGetMacro(MaxLOD,float);
-  
+
   // Description:
   // Level of detail of the first texture image. A texture object is a list of
   // texture images. It is a non-negative integer value.
   // Initial value is 0, as in OpenGL spec.
   vtkSetMacro(BaseLevel,int);
   vtkGetMacro(BaseLevel,int);
-  
+
   // Description:
   // Level of detail of the first texture image. A texture object is a list of
   // texture images. It is a non-negative integer value.
   // Initial value is 1000, as in OpenGL spec.
   vtkSetMacro(MaxLevel,int);
   vtkGetMacro(MaxLevel,int);
-  
+
   // Description:
   // Tells if the output of a texture unit with a depth texture uses
   // comparison or not.
@@ -347,7 +347,7 @@ public:
   // Ignored if the texture object is not a depth texture.
   vtkGetMacro(DepthTextureCompare,bool);
   vtkSetMacro(DepthTextureCompare,bool);
-  
+
   // Description:
   // In case DepthTextureCompare is true, specify the comparison function in
   // use. The result of the comparison is noted `r'.
@@ -369,7 +369,7 @@ public:
   // Ignored if the texture object is not a depth texture.
   vtkGetMacro(DepthTextureCompareFunction,int);
   vtkSetMacro(DepthTextureCompareFunction,int);
-  
+
   // Description:
   // Defines the mapping from depth component `r' to RGBA components.
   // Ignored if the texture object is not a depth texture.
@@ -380,18 +380,18 @@ public:
   // Initial value is Luminance, as in OpenGL spec.
   vtkGetMacro(DepthTextureMode,int);
   vtkSetMacro(DepthTextureMode,int);
-  
+
   // Description:
   // Tells the hardware to generate mipmap textures from the first texture
   // image at BaseLevel.
   // Initial value is false, as in OpenGL spec.
   vtkGetMacro(GenerateMipmap,bool);
   vtkSetMacro(GenerateMipmap,bool);
-  
+
   // Description:
   // Returns if the context supports the required extensions.
   static bool IsSupported(vtkRenderWindow* renWin);
-  
+
   // Description:
   // Copy a sub-part of the texture (src) in the current framebuffer
   // at location (dstXmin,dstYmin). (dstXmin,dstYmin) is the location of the
@@ -425,8 +425,8 @@ public:
                          int dstYmin,
                          int width,
                          int height);
-  
-  
+
+
   // Description:
   // Copy a sub-part of a logical buffer of the framebuffer (color or depth)
   // to the texture object. src is the framebuffer, dst is the texture.
@@ -443,8 +443,8 @@ public:
                            int dstYmin,
                            int width,
                            int height);
-  
-  
+
+
 //BTX
 protected:
   vtkTextureObject();
@@ -461,7 +461,7 @@ protected:
   // Description:
   // Destroy the texture.
   void DestroyTexture();
-  
+
   int NumberOfDimensions;
   unsigned int Width;
   unsigned int Height;
@@ -483,22 +483,22 @@ protected:
   int MinificationFilter;
   bool LinearMagnification;
   float BorderColor[4];
-  
+
   float Priority;
   float MinLOD;
   float MaxLOD;
   int BaseLevel;
   int MaxLevel;
-  
-  
+
+
   bool DepthTextureCompare;
   int DepthTextureCompareFunction;
   int DepthTextureMode;
-  
+
   bool GenerateMipmap;
-  
+
   vtkTimeStamp SendParametersTime;
-  
+
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.
   void operator=(const vtkTextureObject&); // Not implemented.

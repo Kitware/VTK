@@ -81,8 +81,8 @@ void vtkExpandSelectedGraph::SetGraphConnection(vtkAlgorithmOutput* in)
 }
 
 int vtkExpandSelectedGraph::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkSelection* input = vtkSelection::GetData(inputVector[0]);
@@ -93,7 +93,7 @@ int vtkExpandSelectedGraph::RequestData(
   vtkConvertSelection::GetSelectedVertices(input, graph, indexArray);
   this->Expand(indexArray, graph);
 
-  // TODO: Get rid of this HACK. 
+  // TODO: Get rid of this HACK.
   // This guarantees we have unique indices.
   // vtkConvertSelection should "flatten out" the input selection
   // to a single index selection which we then expand, instead of
@@ -134,12 +134,12 @@ void vtkExpandSelectedGraph::Expand(vtkIdTypeArray *indexArray, vtkGraph *graph)
   int distance = this->BFSDistance;
   while(distance > 0)
     {
-    this->BFSExpandSelection(indexArray, graph); 
+    this->BFSExpandSelection(indexArray, graph);
     --distance;
     }
 }
 
-void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray, 
+void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
                                             vtkGraph *graph)
 {
   // For each vertex in the selection get its adjacent vertices
@@ -149,16 +149,16 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
   vtkAbstractArray* domainArr = graph->GetVertexData()->GetAbstractArray("domain");
   vtksys_stl::set<vtkIdType> indexSet;
   for (int i=0; i<indexArray->GetNumberOfTuples(); ++i)
-  {  
+  {
     // First insert myself
     indexSet.insert(indexArray->GetValue(i));
-    
+
     // Now insert all adjacent vertices
     graph->GetInEdges(indexArray->GetValue(i), inIt);
     while (inIt->HasNext())
       {
       vtkInEdgeType e = inIt->Next();
-      if(this->UseDomain && this->Domain && 
+      if(this->UseDomain && this->Domain &&
         domainArr->GetVariantValue(e.Source).ToString() != this->Domain)
         {
         continue;
@@ -177,10 +177,10 @@ void vtkExpandSelectedGraph::BFSExpandSelection(vtkIdTypeArray *indexArray,
       indexSet.insert(e.Target);
       }
   }
-  
+
   // Delete any entries in the current selection list
   indexArray->Reset();
-  
+
   // Convert the stl set into the selection list
   vtksys_stl::set<vtkIdType>::iterator I;
   for(I = indexSet.begin(); I != indexSet.end(); ++I)
@@ -193,11 +193,11 @@ void vtkExpandSelectedGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "BFSDistance: " << this->BFSDistance << endl;
-  os << indent << "IncludeShortestPaths: " 
+  os << indent << "IncludeShortestPaths: "
      << (this->IncludeShortestPaths ? "on" : "off") << endl;
-  os << indent << "Domain: " 
+  os << indent << "Domain: "
      << (this->Domain ? this->Domain : "(null)") << endl;
-  os << indent << "UseDomain: " 
+  os << indent << "UseDomain: "
      << (this->UseDomain ? "on" : "off") << endl;
 }
 

@@ -15,7 +15,7 @@
 // .NAME vtkInteractorObserver - an abstract superclass for classes observing events invoked by vtkRenderWindowInteractor
 // .SECTION Description
 // vtkInteractorObserver is an abstract superclass for subclasses that observe
-// events invoked by vtkRenderWindowInteractor. These subclasses are 
+// events invoked by vtkRenderWindowInteractor. These subclasses are
 // typically things like 3D widgets; objects that interact with actors
 // in the scene, or interactively probe the scene for information.
 //
@@ -100,7 +100,7 @@ public:
   vtkSetMacro(KeyPressActivation,int);
   vtkGetMacro(KeyPressActivation,int);
   vtkBooleanMacro(KeyPressActivation,int);
-  
+
   // Description:
   // Specify which key press value to use to activate the interactor observer
   // (if key press activation is enabled). By default, the key press
@@ -111,22 +111,22 @@ public:
   vtkGetMacro(KeyPressActivationValue,char);
 
   // Description:
-  // Set/Get the default renderer to use when activating the interactor 
-  // observer. Normally when the widget is activated (SetEnabled(1) or when 
+  // Set/Get the default renderer to use when activating the interactor
+  // observer. Normally when the widget is activated (SetEnabled(1) or when
   // keypress activation takes place), the renderer over which the mouse
   // pointer is positioned is used. Alternatively, you can specify the
   // renderer to bind the interactor to when the interactor observer is
-  // activated. 
+  // activated.
   vtkGetObjectMacro(DefaultRenderer,vtkRenderer);
   virtual void SetDefaultRenderer(vtkRenderer*);
 
   // Description:
-  // Set/Get the current renderer. Normally when the widget is activated 
+  // Set/Get the current renderer. Normally when the widget is activated
   // (SetEnabled(1) or when keypress activation takes place), the renderer
   // over which the mouse pointer is positioned is used and assigned to
   // this Ivar. Alternatively, you might want to set the CurrentRenderer
   // explicitly.
-  // WARNING: note that if the DefaultRenderer Ivar is set (see above), 
+  // WARNING: note that if the DefaultRenderer Ivar is set (see above),
   // it will always override the parameter passed to SetCurrentRenderer,
   // unless it is NULL.
   // (i.e., SetCurrentRenderer(foo) = SetCurrentRenderer(DefaultRenderer).
@@ -134,15 +134,15 @@ public:
   virtual void SetCurrentRenderer(vtkRenderer*);
 
   // Description:
-  // Sets up the keypress-i event. 
+  // Sets up the keypress-i event.
   virtual void OnChar();
-  
-  // Description: 
+
+  // Description:
   // Convenience methods for outside classes. Make sure that the
   // parameter "ren" is not-null.
-  static void ComputeDisplayToWorld(vtkRenderer *ren, double x, double y, 
+  static void ComputeDisplayToWorld(vtkRenderer *ren, double x, double y,
                                     double z, double worldPt[4]);
-  static void ComputeWorldToDisplay(vtkRenderer *ren, double x, double y, 
+  static void ComputeWorldToDisplay(vtkRenderer *ren, double x, double y,
                                     double z, double displayPt[3]);
 
   //BTX
@@ -172,21 +172,21 @@ protected:
 
   // Description:
   // Handles the char widget activation event. Also handles the delete event.
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
 
   // Description:
   // Helper method for subclasses.
-  void ComputeDisplayToWorld(double x, double y, double z, 
+  void ComputeDisplayToWorld(double x, double y, double z,
                              double worldPt[4]);
-  void ComputeWorldToDisplay(double x, double y, double z, 
+  void ComputeWorldToDisplay(double x, double y, double z,
                              double displayPt[3]);
-    
+
   // The state of the widget, whether on or off (observing events or not)
   int Enabled;
-  
+
   // Used to process events
   vtkCallbackCommand* EventCallbackCommand; //subclasses use one
   vtkCallbackCommand* KeyPressCallbackCommand; //listens to key activation
@@ -200,7 +200,7 @@ protected:
 
   // Used to associate observers with the interactor
   vtkRenderWindowInteractor *Interactor;
-  
+
   // Internal ivars for processing events
   vtkRenderer *CurrentRenderer;
   vtkRenderer *DefaultRenderer;
@@ -215,7 +215,7 @@ protected:
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
   void operator=(const vtkInteractorObserver&);  // Not implemented.
-  
+
 };
 
 #endif

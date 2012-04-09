@@ -34,8 +34,8 @@
 #if defined(_DEBUG) && !defined(VTK_WINDOWS_PYTHON_DEBUGGABLE)
 # define VTK_PYTHON_UNDEF_DEBUG
 // Include these low level headers before undefing _DEBUG. Otherwise when doing
-// a debug build against a release build of python the compiler will end up 
-// including these low level headers without DEBUG enabled, causing it to try 
+// a debug build against a release build of python the compiler will end up
+// including these low level headers without DEBUG enabled, causing it to try
 // and link release versions of this low level C api.
 # include <basetsd.h>
 # include <assert.h>

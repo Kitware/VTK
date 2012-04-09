@@ -72,8 +72,8 @@ unsigned long vtkRowQueryToTable::GetMTime()
 }
 
 int vtkRowQueryToTable::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** vtkNotUsed(inputVector), 
+  vtkInformation*,
+  vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
   if (this->Query == NULL)
@@ -86,7 +86,7 @@ int vtkRowQueryToTable::RequestData(
 
   // Set up the columns
   this->Query->Execute();
-  
+
   // Check for query error
   if (this->Query->HasError())
     {
@@ -147,18 +147,18 @@ int vtkRowQueryToTable::RequestData(
   while (this->Query->NextRow(rowArray))
     {
     output->InsertNextRow(rowArray);
-    
+
     // Update progress every 100 rows
     numRows++;
     if ((numRows%100)==0)
       {
       // 1% for every 100 rows, and then 'spin around'
       progressGuess = ((numRows/100)%100)*.01;
-      this->UpdateProgress(progressGuess); 
-      } 
+      this->UpdateProgress(progressGuess);
+      }
     }
   rowArray->Delete();
- 
+
   return 1;
 }
 

@@ -204,7 +204,7 @@ int vtkProgrammableFilter::RequestData(
         for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
           {
           vtkDataSet* iblock = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-          vtkDataSet* oblock = iblock->NewInstance();          
+          vtkDataSet* oblock = iblock->NewInstance();
           if (iblock)
             {
             if (this->CopyArrays)
@@ -242,7 +242,7 @@ int vtkProgrammableFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInf
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
-  return 1;  
+  return 1;
 }
 
 void vtkProgrammableFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -15,11 +15,11 @@
 // .NAME vtkMCubesReader - read binary marching cubes file
 // .SECTION Description
 // vtkMCubesReader is a source object that reads binary marching cubes
-// files. (Marching cubes is an isosurfacing technique that generates 
+// files. (Marching cubes is an isosurfacing technique that generates
 // many triangles.) The binary format is supported by W. Lorensen's
-// marching cubes program (and the vtkSliceCubes object). The format 
-// repeats point coordinates, so this object will merge the points 
-// with a vtkLocator object. You can choose to supply the vtkLocator 
+// marching cubes program (and the vtkSliceCubes object). The format
+// repeats point coordinates, so this object will merge the points
+// with a vtkLocator object. You can choose to supply the vtkLocator
 // or use the default.
 
 // .SECTION Caveats
@@ -106,7 +106,7 @@ public:
   // As a quick note most UNIX machines are BigEndian while PC's
   // and VAX tend to be LittleEndian. So if the file you are reading
   // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian otherwise
-  // SetDataByteOrderToBigEndian. 
+  // SetDataByteOrderToBigEndian.
   void SetDataByteOrderToBigEndian();
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
@@ -120,7 +120,7 @@ public:
   vtkBooleanMacro(SwapBytes,int);
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -128,7 +128,7 @@ public:
   // Description:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
-  
+
   // Description:
   // Return the mtime also considering the locator.
   unsigned long GetMTime();

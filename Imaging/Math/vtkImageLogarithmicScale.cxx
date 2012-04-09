@@ -36,7 +36,7 @@ vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 template <class T>
 void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
                                      vtkImageData *inData,
-                                     vtkImageData *outData, 
+                                     vtkImageData *outData,
                                      int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
@@ -62,7 +62,7 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
         {
         *outSI = static_cast<T>(-c*log(1.0-static_cast<double>(*inSI)));
         }
-      
+
       outSI++;
       inSI++;
       }
@@ -77,25 +77,25 @@ void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData *inData, 
+void vtkImageLogarithmicScale::ThreadedExecute (vtkImageData *inData,
                                                vtkImageData *outData,
                                                int outExt[6], int id)
 {
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
     }
-  
+
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageLogarithmicScaleExecute(this, inData, 
-                                      outData, outExt, id,  
+      vtkImageLogarithmicScaleExecute(this, inData,
+                                      outData, outExt, id,
                                       static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

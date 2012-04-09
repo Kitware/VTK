@@ -31,7 +31,7 @@ inline int DoTest(T*)
   id->SetExtent(ext);
   id->AllocateScalars(VTK_DOUBLE, 1);
   vtkImageIterator<T> *it = new vtkImageIterator<T>(id,ext);
-  vtkImageProgressIterator<T> *ipt 
+  vtkImageProgressIterator<T> *ipt
     = new vtkImageProgressIterator<T>(id,ext,0,0);
   delete it;
   delete ipt;
@@ -51,7 +51,7 @@ int TestImageIterator(int,char *[])
   DoTest( static_cast<unsigned long*>( 0 ) );
   DoTest( static_cast<unsigned short*>( 0 ) );
   DoTest( static_cast<unsigned char*>( 0 ) );
-  DoTest( static_cast<unsigned int*>( 0 ) );  
+  DoTest( static_cast<unsigned int*>( 0 ) );
 
   return 0;
-} 
+}

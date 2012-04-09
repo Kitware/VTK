@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayNormalizeMatrixVectors.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -72,11 +72,11 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 0)), 0.89442719099991586));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 0)), -0.44721359549995793));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 0)), 0.00000000000000000));
-    
+
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 1)), 0.40824829046386307));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 1)), 0.81649658092772615));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 1)), -0.40824829046386307));
-    
+
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 2)), 0.00000000000000000));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 2)), 0.44721359549995793));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 2)), 0.89442719099991586));
@@ -99,11 +99,11 @@ int ArrayNormalizeMatrixVectors(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 0)), 0.89442719099991586));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 0)), -0.44721359549995793));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 0)), 0.00000000000000000));
-    
+
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 1)), 0.40824829046386307));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 1)), 0.81649658092772615));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 1)), -0.40824829046386307));
-    
+
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(0, 2)), 0.00000000000000000));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(1, 2)), 0.44721359549995793));
     test_expression(close_enough(normalized->GetValue(vtkArrayCoordinates(2, 2)), 0.89442719099991586));

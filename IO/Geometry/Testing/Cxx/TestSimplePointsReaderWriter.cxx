@@ -24,7 +24,7 @@
 int TestSimplePointsReaderWriter( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
 {
   // Create a sphere.
-  vtkSmartPointer<vtkSphereSource> sphereSource = 
+  vtkSmartPointer<vtkSphereSource> sphereSource =
     vtkSmartPointer<vtkSphereSource>::New();
   sphereSource->Update();
 

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 /* ======================================================================
- 
+
    Importer based on BNF Yacc and Lex parser definition from:
 
     **************************************************
@@ -64,8 +64,8 @@ struct vtkVRMLAllocator
 };
 
 
-  
-template <class T> 
+
+template <class T>
 class VTKIOIMPORT_EXPORT vtkVRMLVectorType
 {
 protected:
@@ -89,12 +89,12 @@ public:
       Used=0;
     }
   vtkVRMLVectorType()
-    { 
+    {
       this->UseNew = 0;
       this->Init();
     }
   vtkVRMLVectorType(int usenew) : UseNew(usenew)
-    { 
+    {
       this->Init();
     }
   ~vtkVRMLVectorType(void)
@@ -133,7 +133,7 @@ public:
           }
         }
     }
-  
+
   void Demand(int newSize)
     {
       Reserve(newSize);
@@ -673,4 +673,4 @@ PROTO WorldInfo [ \n\
   field SFString title \"\" \n\
 ] { }",""
 };
-#endif 
+#endif

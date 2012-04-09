@@ -29,7 +29,7 @@ vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
 // set to (50,50,50), and so that the model bounds are
-// automatically computed from its input. The maximum distance is set to 
+// automatically computed from its input. The maximum distance is set to
 // examine the whole grid. This could be made much faster, and probably
 // will be in the future.
 vtkVoxelModeller::vtkVoxelModeller()
@@ -86,12 +86,12 @@ int vtkVoxelModeller::RequestInformation (
 
   int i;
   double ar[3], origin[3];
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                0, this->SampleDimensions[0]-1,
                0, this->SampleDimensions[1]-1,
                0, this->SampleDimensions[2]-1);
-  
+
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
@@ -121,12 +121,12 @@ int vtkVoxelModeller::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // get the output
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // We need to allocate our own scalars since we are overriding
   // the superclasses "Execute()" method.
   output->SetExtent(outInfo->Get(
@@ -202,13 +202,13 @@ int vtkVoxelModeller::RequestData(
       }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
-    for (k = min[2]; k <= max[2]; k++) 
+    for (k = min[2]; k <= max[2]; k++)
       {
       x[2] = spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
         x[1] = spacing[1] * j + origin[1];
-        for (i = min[0]; i <= max[0]; i++) 
+        for (i = min[0]; i <= max[0]; i++)
           {
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           if (!(newScalars->GetComponent(idx,0)))
@@ -234,7 +234,7 @@ int vtkVoxelModeller::RequestData(
 }
 
 // Compute the ModelBounds based on the input geometry.
-double vtkVoxelModeller::ComputeModelBounds(double origin[3], 
+double vtkVoxelModeller::ComputeModelBounds(double origin[3],
                                             double spacing[3])
 {
   double *bounds, maxDist;
@@ -282,7 +282,7 @@ double vtkVoxelModeller::ComputeModelBounds(double origin[3],
       (this->SampleDimensions[i] - 1);
     }
 
-  return maxDist;  
+  return maxDist;
 }
 
 // Set the i-j-k dimensions on which to sample the distance function.

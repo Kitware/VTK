@@ -17,12 +17,12 @@
 // vtkCone computes the implicit function and function gradient for a cone.
 // vtkCone is a concrete implementation of vtkImplicitFunction. The cone vertex
 // is located at the origin with axis of rotation coincident with x-axis. (Use
-// the superclass' vtkImplicitFunction transformation matrix if necessary to 
-// reposition.) The angle specifies the angle between the axis of rotation 
+// the superclass' vtkImplicitFunction transformation matrix if necessary to
+// reposition.) The angle specifies the angle between the axis of rotation
 // and the side of the cone.
 
 // .SECTION Caveats
-// The cone is infinite in extent. To truncate the cone use the 
+// The cone is infinite in extent. To truncate the cone use the
 // vtkImplicitBoolean in combination with clipping planes.
 
 #ifndef __vtkCone_h
@@ -40,7 +40,7 @@ public:
 
   vtkTypeMacro(vtkCone,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description
   // Evaluate cone equation.
   double EvaluateFunction(double x[3]);

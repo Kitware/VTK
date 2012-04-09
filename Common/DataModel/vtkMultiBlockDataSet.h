@@ -67,7 +67,7 @@ public:
   vtkDataObject* GetBlock(unsigned int blockno);
 
   // Description:
-  // Sets the data object as the given block. The total number of blocks will 
+  // Sets the data object as the given block. The total number of blocks will
   // be resized to fit the requested block no.
   void SetBlock(unsigned int blockno, vtkDataObject* block);
 

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkAppendPolyData - appends one or more polygonal datasets together
 // .SECTION Description
-// 
+//
 // vtkAppendPolyData is a filter that appends one of more polygonal datasets
 // into a single polygonal dataset. All geometry is extracted and appended,
 // but point and cell attributes (i.e., scalars, vectors, normals) are
@@ -84,13 +84,13 @@ public:
   // It causes this filter to ask for a different piece
   // from each of its inputs.  If all the inputs are the same,
   // then the output of this append filter is the whole dataset
-  // pieced back together.  Duplicate points are create 
-  // along the seams.  The purpose of this feature is to get 
+  // pieced back together.  Duplicate points are create
+  // along the seams.  The purpose of this feature is to get
   // data parallelism at a course scale.  Each of the inputs
   // can be generated in a different process at the same time.
-  vtkSetMacro(ParallelStreaming, int); 
-  vtkGetMacro(ParallelStreaming, int); 
-  vtkBooleanMacro(ParallelStreaming, int); 
+  vtkSetMacro(ParallelStreaming, int);
+  vtkGetMacro(ParallelStreaming, int);
+  vtkBooleanMacro(ParallelStreaming, int);
 
 //BTX
   int ExecuteAppend(vtkPolyData* output,
@@ -104,9 +104,9 @@ protected:
   int ParallelStreaming;
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *,
                           vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, 
+  virtual int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 

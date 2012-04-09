@@ -57,7 +57,7 @@ int vtkImageDivergence::RequestUpdateExtent (
   int idx;
   int wholeExtent[6];
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
     {
@@ -65,20 +65,20 @@ int vtkImageDivergence::RequestUpdateExtent (
     return 0;
     }
 
-  int dimensionality = 
+  int dimensionality =
     inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
-  
+
   if (dimensionality > 3)
     {
     vtkErrorMacro("Divergence has to have dimensionality <= 3");
     dimensionality = 3;
     }
-  
+
   // handle XYZ
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
   int inUExt[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt);  
-  
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt);
+
   // update and Clip
   for (idx = 0; idx < dimensionality; ++idx)
     {
@@ -108,7 +108,7 @@ int vtkImageDivergence::RequestUpdateExtent (
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageDivergenceExecute(vtkImageDivergence *self,
@@ -126,7 +126,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   vtkIdType *inIncs;
   double r[3], d, sum;
   int useMin[3], useMax[3];
-  
+
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
   if (maxC > 3)
@@ -135,12 +135,12 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
     maxC = 3;
     }
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
-  // Get increments to march through data 
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
@@ -153,8 +153,8 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   r[2] = -0.5 / r[2];
 
   // get some other info we need
-  inIncs = inData->GetIncrements(); 
-  wholeExtent = inData->GetExtent(); 
+  inIncs = inData->GetIncrements();
+  wholeExtent = inData->GetExtent();
 
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -163,7 +163,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
     useMax[2] = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -197,32 +197,32 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
     }
 }
 
-  
+
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageDivergence::ThreadedExecute (vtkImageData *inData, 
+void vtkImageDivergence::ThreadedExecute (vtkImageData *inData,
                                            vtkImageData *outData,
                                            int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
+
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
     }
-  
+
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageDivergenceExecute(this, inData, 
+      vtkImageDivergenceExecute(this, inData,
                                 static_cast<VTK_TT *>(inPtr), outData,
                                 static_cast<VTK_TT *>(outPtr),
                                 outExt, id));

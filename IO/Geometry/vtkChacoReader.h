@@ -17,7 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkChacoReader - Read a Chaco file and create a vtkUnstructuredGrid. 
+// .NAME vtkChacoReader - Read a Chaco file and create a vtkUnstructuredGrid.
 // .SECTION Description
 // vtkChacoReader is an unstructured grid source object that reads Chaco
 // files.  The reader DOES NOT respond to piece requests. Chaco
@@ -60,7 +60,7 @@ public:
   static const char *GetGlobalElementIdArrayName() { return "GlobalElementId"; }
 
   // Description:
-  // Indicate whether this reader should create a point array of global IDs for 
+  // Indicate whether this reader should create a point array of global IDs for
   // the points in the output vtkUnstructuredGrid.  These points are the vertices
   // that were in the Chaco file.  Global point IDs start at "1" for the first
   // vertex in BaseName.coords and go up from there.
@@ -71,7 +71,7 @@ public:
   vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
 
   static const char *GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
-  
+
   // Description:
   // Indicate whether this reader should create a point array for each
   // vertex weight in the Chaco file.
@@ -91,13 +91,13 @@ public:
   // This method returns the name of the selected Vertex weight point
   // array.  If you did not turn on GenerateVertexWeightArrays, or
   // if the weight you requested is invalid, it returns NULL.
-  // Weights begin at one and go up to NumberOfVertexWeights. 
+  // Weights begin at one and go up to NumberOfVertexWeights.
   // This is a pointer to our copy of the name, so don't "delete" it.
 
   const char *GetVertexWeightArrayName(int weight);
 
   // Description:
-  // Each edge in the Chaco file connects two vertices.  The file may 
+  // Each edge in the Chaco file connects two vertices.  The file may
   // specify one or more weights for each edge.  (The weight for an
   // edge from vertex A to vertex B equals the weight from B to A.)
   // Indicate with the following parameter whether this reader should
@@ -118,7 +118,7 @@ public:
   // This method returns the name of the selected Edge weight cell
   // array.  If you did not turn on GenerateEdgeWeightArrays, or
   // if the weight you requested is invalid, it returns NULL.
-  // Weights begin at one and go up to NumberOfEdgeWeights. 
+  // Weights begin at one and go up to NumberOfEdgeWeights.
   // This is a pointer to our copy of the name, so don't "delete" it.
 
   const char *GetEdgeWeightArrayName(int weight);
@@ -142,7 +142,7 @@ public:
   // is equal to NumberOfVertexWeights if GenerateVertexWeightArrays was ON.
 
   vtkGetMacro(NumberOfPointWeightArrays, int);
-  
+
 protected:
   vtkChacoReader();
   ~vtkChacoReader();
@@ -189,7 +189,7 @@ protected:
   // The following metadata is read during RequestInformation.  If you
   // add new metadata, you must modify vtkPChacoReader::RequestInformation
   // to include it when process 0 broadcasts the metadata.
-  
+
   int Dimensionality;
   vtkIdType NumberOfVertices;
   vtkIdType NumberOfEdges;
@@ -206,7 +206,7 @@ protected:
   // around so they don't need to be re-read when the
   // options change.
   vtkUnstructuredGrid *DataCache;
-    
+
   // Should I re-read in the geometry and topology of the dataset
   int RemakeDataCacheFlag;
 

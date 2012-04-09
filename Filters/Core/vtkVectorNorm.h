@@ -15,7 +15,7 @@
 // .NAME vtkVectorNorm - generate scalars from Euclidean norm of vectors
 // .SECTION Description
 // vtkVectorNorm is a filter that generates scalar values by computing
-// Euclidean norm of vector triplets. Scalars can be normalized 
+// Euclidean norm of vector triplets. Scalars can be normalized
 // 0<=s<=1 if desired.
 //
 // Note that this filter operates on point or cell attribute data, or
@@ -60,11 +60,11 @@ public:
   // (AttributeModeToUseCellData).
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault() 
+  void SetAttributeModeToDefault()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
-  void SetAttributeModeToUsePointData() 
+  void SetAttributeModeToUsePointData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData() 
+  void SetAttributeModeToUseCellData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
   const char *GetAttributeModeAsString();
 

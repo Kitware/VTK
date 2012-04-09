@@ -32,7 +32,7 @@ vtkContourFilter contour
 vtkPolyDataMapper impMapper
     impMapper SetInputConnection [contour GetOutputPort]
     impMapper ScalarVisibilityOff
-vtkActor impActor;  
+vtkActor impActor;
     impActor SetMapper impMapper
     eval [impActor GetProperty] SetColor $peacock
     [impActor GetProperty] SetOpacity 0.5

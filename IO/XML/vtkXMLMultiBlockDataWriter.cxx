@@ -42,7 +42,7 @@ int vtkXMLMultiBlockDataWriter::FillInputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeData, 
+int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeData,
     vtkXMLDataElement* parent, int &writerIdx)
 {
   if (! (compositeData->IsA("vtkMultiBlockDataSet")
@@ -62,7 +62,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
 
   int index = 0;
   int RetVal = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem(), index++)
     {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
@@ -113,7 +113,7 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", index);
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
-      if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx, 
+      if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx,
                                        fileName.c_str()))
         {
         parent->AddNestedElement(datasetXML);

@@ -48,7 +48,7 @@ public:
 protected:
   vtkEnSightMasterServerReader();
   ~vtkEnSightMasterServerReader();
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,

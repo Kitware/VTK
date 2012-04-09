@@ -16,15 +16,15 @@
 // .NAME vtkEncodedGradientShader - Compute shading tables for encoded normals.
 //
 // .SECTION Description
-// vtkEncodedGradientShader computes shading tables for encoded normals 
-// that indicates the amount of diffuse and specular illumination that is 
+// vtkEncodedGradientShader computes shading tables for encoded normals
+// that indicates the amount of diffuse and specular illumination that is
 // received from all light sources at a surface location with that normal.
 // For diffuse illumination this is accurate, but for specular illumination
 // it is approximate for perspective projections since the center view
 // direction is always used as the view direction. Since the shading table is
 // dependent on the volume (for the transformation that must be applied to
 // the normals to put them into world coordinates) there is a shading table
-// per volume. This is necessary because multiple volumes can share a 
+// per volume. This is necessary because multiple volumes can share a
 // volume mapper.
 
 #ifndef __vtkEncodedGradientShader_h
@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Set / Get the intensity diffuse / specular light used for the
-  // zero normals. 
+  // zero normals.
   vtkSetClampMacro( ZeroNormalDiffuseIntensity,  float, 0.0f, 1.0f);
   vtkGetMacro( ZeroNormalDiffuseIntensity, float );
   vtkSetClampMacro( ZeroNormalSpecularIntensity, float, 0.0f, 1.0f);
@@ -72,12 +72,12 @@ public:
   float *GetBlueSpecularShadingTable(  vtkVolume *vol );
 
   // Description:
-  // Set the active component for shading. This component's 
+  // Set the active component for shading. This component's
   // ambient / diffuse / specular / specular power values will
   // be used to create the shading table. The default is 1.0
   vtkSetClampMacro( ActiveComponent, int, 0, 3 );
   vtkGetMacro( ActiveComponent, int );
-  
+
 protected:
   vtkEncodedGradientShader();
   ~vtkEncodedGradientShader();
@@ -86,9 +86,9 @@ protected:
   // Build a shading table for a light with the specified direction,
   // and color for an object of the specified material properties.
   // material[0] = ambient, material[1] = diffuse, material[2] = specular
-  // and material[3] = specular exponent.  If the ambient flag is 1, 
-  // then ambient illumination is added. If not, then this means we 
-  // are calculating the "other side" of two sided lighting, so no 
+  // and material[3] = specular exponent.  If the ambient flag is 1,
+  // then ambient illumination is added. If not, then this means we
+  // are calculating the "other side" of two sided lighting, so no
   // ambient intensity is added in. If the update flag is 0,
   // the shading table is overwritten with these new shading values.
   // If the updateFlag is 1, then the computed light contribution is
@@ -106,8 +106,8 @@ protected:
                            int twoSided,
                            vtkEncodedGradientEstimator *gradest,
                            int updateFlag );
-  
-  // The six shading tables (r diffuse ,g diffuse ,b diffuse, 
+
+  // The six shading tables (r diffuse ,g diffuse ,b diffuse,
   // r specular, g specular, b specular ) - with an entry for each
   // encoded normal plus one entry at the end for the zero normal
   // There is one shading table per volume listed in the ShadingTableVolume
@@ -117,7 +117,7 @@ protected:
   int                          ShadingTableSize[VTK_MAX_SHADING_TABLES];
 
   int                          ActiveComponent;
-  
+
   // The intensity of light used for the zero normals, since it
   // can not be computed from the normal angles. Defaults to 0.0.
   float    ZeroNormalDiffuseIntensity;
@@ -125,7 +125,7 @@ protected:
 private:
   vtkEncodedGradientShader(const vtkEncodedGradientShader&);  // Not implemented.
   void operator=(const vtkEncodedGradientShader&);  // Not implemented.
-}; 
+};
 
 
 #endif

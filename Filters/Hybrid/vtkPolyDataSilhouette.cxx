@@ -100,7 +100,7 @@ vtkPolyDataSilhouette::vtkPolyDataSilhouette()
 vtkPolyDataSilhouette::~vtkPolyDataSilhouette()
 {
   this->Transform->Delete();
-  
+
   if ( this->Camera )
     {
     this->Camera->Delete();
@@ -289,7 +289,7 @@ int vtkPolyDataSilhouette::RequestData(
         vec[1] = origin[1] - ( (p1[1]+p2[1])*0.5 );
         vec[2] = origin[2] - ( (p1[2]+p2[2])*0.5 );
         d1 = vtkMath::Dot( vec, it->second.leftNormal );
-        d2 = vtkMath::Dot( vec, it->second.rightNormal );     
+        d2 = vtkMath::Dot( vec, it->second.rightNormal );
         }
 
       // shall we output this edge ?
@@ -345,17 +345,17 @@ int vtkPolyDataSilhouette::RequestData(
   return 1;
 }
 
-void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3], 
+void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3],
                                                    double origin[3])
 {
   double *focalPoint = this->Camera->GetFocalPoint();
   double *position = this->Camera->GetPosition();
- 
+
   // If a camera is present, use it
   if ( !this->Prop3D )
     {
     for(int i=0; i<3; i++)
-      { 
+      {
       vector[i] = focalPoint[i] - position[i];
       origin[i] = position[i];
       }
@@ -379,7 +379,7 @@ void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3],
     this->Transform->TransformPoint(focalPt,focalPt);
     this->Transform->TransformPoint(pos,pos);
 
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       vector[i] = focalPt[i] - pos[i];
       origin[i] = pos[i];
@@ -391,7 +391,7 @@ void vtkPolyDataSilhouette::ComputeProjectionVector(double vector[3],
 unsigned long int vtkPolyDataSilhouette::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
- 
+
   if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
     {
     unsigned long time;
@@ -447,7 +447,7 @@ void vtkPolyDataSilhouette::PrintSelf(ostream& os, vtkIndent indent)
     }
 #undef DIRECTION_CASE
 
-  if( this->Direction == VTK_DIRECTION_SPECIFIED_VECTOR ) 
+  if( this->Direction == VTK_DIRECTION_SPECIFIED_VECTOR )
     {
     os << "Specified Vector: (" << this->Vector[0] << ", " << this->Vector[1] << ", " << this->Vector[2] << ")\n";
     }

@@ -19,7 +19,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkRAdapter - This is a utility class to convert VTK array data and 
+// .NAME vtkRAdapter - This is a utility class to convert VTK array data and
 //  VTK tables to and from Gnu R S expression (SEXP) data structures.  It is used
 //  with the R .Call interface and the embedded R interpreter.
 //
@@ -32,7 +32,7 @@
 //  VTK data structures created by this class from R types are stored in array collections
 //  and freed when the class destructor is called.  Use the Register() method on a returned
 //  object to increase its reference count by one, in order keep the object around after this
-//  classes destructor has been called.  The code calling Register() must eventually call Delete() 
+//  classes destructor has been called.  The code calling Register() must eventually call Delete()
 //  on the object to free memory.
 //
 // .SECTION See Also

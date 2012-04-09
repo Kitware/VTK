@@ -33,13 +33,13 @@
 class vtkBWCallback2 : public vtkCommand
 {
 public:
-  static vtkBWCallback2 *New() 
+  static vtkBWCallback2 *New()
   { return new vtkBWCallback2; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
-    vtkBoxWidget2 *boxWidget = 
+    vtkBoxWidget2 *boxWidget =
       reinterpret_cast<vtkBoxWidget2*>(caller);
-    vtkBoxRepresentation *boxRep = 
+    vtkBoxRepresentation *boxRep =
       reinterpret_cast<vtkBoxRepresentation*>(boxWidget->GetRepresentation());
     boxRep->GetTransform(this->Transform);
     this->Actor->SetUserTransform(this->Transform);
@@ -478,12 +478,12 @@ int BoxWidget2( int , char *[] )
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
   glyph->Update();
-                                                        
+
   vtkSmartPointer<vtkAppendPolyData> append =
     vtkSmartPointer<vtkAppendPolyData>::New();
   append->AddInputConnection(glyph->GetOutputPort());
   append->AddInputConnection(sphere->GetOutputPort());
-  
+
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(append->GetOutputPort());
@@ -541,9 +541,9 @@ int BoxWidget2( int , char *[] )
 
   boxRep->SetPlaceFactor( 1.25 );
   boxRep->HandlesOn();
-  
+
   iren->Start();
-  
+
   // Clean up
   recorder->Off();
 

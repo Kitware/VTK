@@ -47,7 +47,7 @@ vtkImageStencil::~vtkImageStencil()
 //----------------------------------------------------------------------------
 void vtkImageStencil::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInputData(2, stencil); 
+  this->SetInputData(2, stencil);
 }
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ vtkImageStencilData *vtkImageStencil::GetStencil()
 //----------------------------------------------------------------------------
 void vtkImageStencil::SetBackgroundInputData(vtkImageData *data)
 {
-  this->SetInputData(1, data); 
+  this->SetInputData(1, data);
 }
 
 //----------------------------------------------------------------------------
@@ -266,7 +266,7 @@ void vtkImageStencil::ThreadedRequestData(
   void *inPtr, *inPtr2;
   void *outPtr;
   vtkImageData *inData2 = this->GetBackgroundInput();
-  
+
   inPtr = inData[0][0]->GetScalarPointer();
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
@@ -280,19 +280,19 @@ void vtkImageStencil::ThreadedRequestData(
       {
       if (id == 0)
         {
-        vtkErrorMacro("Execute: BackgroundInput ScalarType " 
+        vtkErrorMacro("Execute: BackgroundInput ScalarType "
                       << inData2->GetScalarType()
                       << ", must match Input ScalarType "
                       << inData[0][0]->GetScalarType());
         }
       return;
       }
-    else if (inData2->GetNumberOfScalarComponents() 
+    else if (inData2->GetNumberOfScalarComponents()
              != inData[0][0]->GetNumberOfScalarComponents())
       {
       if (id == 0)
         {
-        vtkErrorMacro("Execute: BackgroundInput NumberOfScalarComponents " 
+        vtkErrorMacro("Execute: BackgroundInput NumberOfScalarComponents "
                       << inData2->GetNumberOfScalarComponents()
                       << ", must match Input NumberOfScalarComponents "
                       << inData[0][0]->GetNumberOfScalarComponents());
@@ -318,19 +318,19 @@ void vtkImageStencil::ThreadedRequestData(
         }
       }
     }
-  
+
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageStencilExecute(this, 
+      vtkImageStencilExecute(this,
                              inData[0][0],
-                             static_cast<VTK_TT *>(inPtr), 
-                             inData2, 
-                             static_cast<VTK_TT *>(inPtr2), 
-                             outData[0], 
-                             static_cast<VTK_TT *>(outPtr), 
-                             outExt, 
-                             id, 
+                             static_cast<VTK_TT *>(inPtr),
+                             inData2,
+                             static_cast<VTK_TT *>(inPtr2),
+                             outData[0],
+                             static_cast<VTK_TT *>(outPtr),
+                             outExt,
+                             id,
                              outInfo));
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");

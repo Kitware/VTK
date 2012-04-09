@@ -1,12 +1,12 @@
 # this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
 
 # Defined local options to add to VTK Tcl interpreter
-# 
+#
 # Example of such options are:
 #   VTK_EXTRA_TCL_WRAPPING_CODE which should define extra code that will be
 #   added to vtkTkAppInitConfigure.h. This code may include something like
 #
-#   
+#
 #   extern "C" int Vtkmyspecialtcl_Init(Tcl_Interp *interp);
 #   #define VTK_EXTRA_TCL_INIT \
 #     if (Vtkmyspecialtcl_Init(interp) == TCL_ERROR) \
@@ -14,7 +14,7 @@
 #       return TCL_ERROR;
 #       }
 #
-#   and 
+#   and
 #
 #   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
 INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
@@ -57,7 +57,7 @@ IF (WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/resources"
         "${CMAKE_CURRENT_BINARY_DIR}/resources"
         )
-      SET(VTK_EXE_RESOURCE_FILES 
+      SET(VTK_EXE_RESOURCE_FILES
         "${CMAKE_CURRENT_BINARY_DIR}/resources/vtk.rc")
     ENDIF(NOT CYGWIN)
   ENDIF (NOT BORLAND)
@@ -121,13 +121,13 @@ endif()
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
     INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-    IF (MPI_LIBRARY) 
-      SET(MPI_LIBRARIES ${MPI_LIBRARY})   
-    ENDIF (MPI_LIBRARY)   
-    IF (MPI_EXTRA_LIBRARY)   
-      SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")   
-    ENDIF (MPI_EXTRA_LIBRARY) 
-    
+    IF (MPI_LIBRARY)
+      SET(MPI_LIBRARIES ${MPI_LIBRARY})
+    ENDIF (MPI_LIBRARY)
+    IF (MPI_EXTRA_LIBRARY)
+      SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")
+    ENDIF (MPI_EXTRA_LIBRARY)
+
     VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
     IF(VTK_USE_CARBON)
       FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)

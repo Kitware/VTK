@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* vtkSuperQuadric originally written by Michael Halle, 
-   Brigham and Women's Hospital, July 1998.  
+/* vtkSuperQuadric originally written by Michael Halle,
+   Brigham and Women's Hospital, July 1998.
 
    Based on "Rigid physically based superquadrics", A. H. Barr,
    in "Graphics Gems III", David Kirk, ed., Academic Press, 1992.
@@ -44,7 +44,7 @@ vtkSuperquadric::vtkSuperquadric()
 static const double MAX_FVAL = 1e12;
 static double VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
 
-void vtkSuperquadric::SetThetaRoundness(double e) 
+void vtkSuperquadric::SetThetaRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -58,7 +58,7 @@ void vtkSuperquadric::SetThetaRoundness(double e)
     }
 }
 
-void vtkSuperquadric::SetPhiRoundness(double e) 
+void vtkSuperquadric::SetPhiRoundness(double e)
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -96,15 +96,15 @@ double vtkSuperquadric::EvaluateFunction(double xyz[3])
     p[0] = (xyz[0] - this->Center[0]) / s[0];
     p[1] = (xyz[1] - this->Center[1]) / s[1];
     p[2] = (xyz[2] - this->Center[2]) / s[2];
-    
+
     tval = pow((pow(fabs(p[2]), 2.0/e) + pow(fabs(p[0]), 2.0/e)), e/2.0);
     val  = pow(fabs(tval - alpha), 2.0/n) + pow(fabs(p[1]), 2.0/n) - 1.0;
-  } 
+  }
   else { // Ellipsoidal
     p[0] = (xyz[0] - this->Center[0]) / s[0];
     p[1] = (xyz[1] - this->Center[1]) / s[1];
     p[2] = (xyz[2] - this->Center[2]) / s[2];
-    
+
     val = pow((pow(fabs(p[2]), 2.0/e) + pow(fabs(p[0]), 2.0/e)), e/n) +
       pow(fabs(p[1]),2.0/n) - 1.0;
   }
@@ -115,7 +115,7 @@ double vtkSuperquadric::EvaluateFunction(double xyz[3])
   else if(val < -MAX_FVAL){
     val = -MAX_FVAL;
   }
-  
+
   return val;
 }
 
@@ -128,7 +128,7 @@ void vtkSuperquadric::EvaluateGradient(double vtkNotUsed(xyz)[3], double g[3])
   // partial of x, then y, then z with respect to f as shown above.
   // Careful for the fabs().
 
-  g[0] = g[1] = g[2] = 0.0; 
+  g[0] = g[1] = g[2] = 0.0;
 }
 
 void vtkSuperquadric::PrintSelf(ostream& os, vtkIndent indent)
@@ -141,12 +141,12 @@ void vtkSuperquadric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ThetaRoundness: " << this->ThetaRoundness << "\n";
   os << indent << "PhiRoundness: " << this->PhiRoundness << "\n";
   os << indent << "Center: ("
-     << this->Center[0] << ", " 
-     << this->Center[1] << ", " 
+     << this->Center[0] << ", "
+     << this->Center[1] << ", "
      << this->Center[2] << ")\n";
   os << indent << "Scale: ("
-     << this->Scale[0] << ", " 
-     << this->Scale[1] << ", " 
+     << this->Scale[0] << ", "
+     << this->Scale[1] << ", "
      << this->Scale[2] << ")\n";
 
 }

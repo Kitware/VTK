@@ -54,36 +54,36 @@ vtkHyperOctreeCutter::vtkHyperOctreeCutter(vtkImplicitFunction *cf)
 {
   this->ContourValues = vtkContourValues::New();
   this->SortBy = VTK_SORT_BY_VALUE;
-  
+
   this->CutFunction = cf;
   this->Locator = NULL;
   this->GenerateCutScalars = 0;
-  
+
   this->SetNumberOfOutputPorts(1);
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
-  
+
   this->Input=0;
   this->Output=0;
- 
+
   this->NewVerts=0;
   this->NewLines=0;
   this->NewPolys=0;
-  
+
   this->InCD=0;
   this->OutCD=0;
   this->OutPD=0;
   this->Triangulator=0;
   this->Sibling=0;
-  
+
   this->Tetra=0;
   this->Polygon=0;
   this->TetScalars=0;
   this->CellScalars=0;
   this->Pts=0;
-  
+
   this->AllLess=0;
   this->AllGreater=0;
   this->Grabber=0;
@@ -109,7 +109,7 @@ unsigned long vtkHyperOctreeCutter::GetMTime()
   unsigned long mTime=this->Superclass::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
   unsigned long time;
-  
+
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
   if ( this->CutFunction != NULL )
@@ -139,7 +139,7 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkErrorMacro(<<"No cut function specified.");
     return 0;
     }
-  
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -149,14 +149,14 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   this->Output=vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
-  
+
+
   vtkIdType numPts=this->Input->GetMaxNumberOfPoints(0);
   vtkIdType numCells = this->Input->GetNumberOfLeaves();
-  
+
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
-  
+
   // allocate the output and associated helper classes
   vtkIdType estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -164,26 +164,26 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     {
     estimatedSize = 1024;
     }
-  
+
   this->NewVerts=vtkCellArray::New();
   this->NewVerts->Allocate(estimatedSize,estimatedSize/2);
   this->NewLines = vtkCellArray::New();
   this->NewLines->Allocate(estimatedSize,estimatedSize/2);
   this->NewPolys = vtkCellArray::New();
   this->NewPolys->Allocate(estimatedSize,estimatedSize/2);
-  
+
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
     this->CreateDefaultLocator();
     }
-  
+
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
-  
+
   this->InCD=this->Input->GetPointData();
   this->OutCD=this->Output->GetCellData();
   this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
-  
+
   this->OutPD=this->Output->GetPointData();
   if ( !this->GenerateCutScalars &&
        !this->GetInputArrayToProcess(0,inputVector))
@@ -194,15 +194,15 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     {
     this->OutPD->CopyScalarsOn();
     }
-  
+
   vtkHyperOctreeCursor *cursor=this->Input->NewCellCursor();
   this->Sibling=cursor->Clone();
-  
+
   cursor->ToRoot();
-  
+
   double bounds[6];
   this->Input->GetBounds(bounds);
-  
+
   switch(this->Input->GetDimension())
     {
     case 3:
@@ -225,19 +225,19 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     }
   this->CellScalars=vtkDoubleArray::New();
   this->Pts=vtkPoints::New();
-  
+
   this->TotalCounter=0;
   this->TemplateCounter=0;
-  
+
   int j=0;
   while(j<65536)
     {
     this->CellTypeCounter[j]=0; // up-to-65536 points per octant
     ++j;
     }
-  
+
   int numContours=this->ContourValues->GetNumberOfContours();
-  
+
   if ( this->SortBy == VTK_SORT_BY_CELL )
     {
     this->Iter=0;
@@ -260,9 +260,9 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
       this->AllGreater=0;
       }
     }
-  
+
 //  cout<<"ClipHyperOctree: "<<this->TemplateCounter<<" templates over "<<this->TotalCounter<<" octants, ratio="<<(this->TemplateCounter/static_cast<double>(this->TotalCounter))<<endl;
-  
+
   j=0;
   while(j<65536)
     {
@@ -272,7 +272,7 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
       }
     ++j;
     }
-  
+
   switch(this->Input->GetDimension())
     {
     case 3:
@@ -292,22 +292,22 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     default:
       break;
     }
-  
+
   this->CellScalars->UnRegister(this);
   this->CellScalars=0;
   this->Pts->UnRegister(this);
   this->Pts=0;
-  
+
   cursor->UnRegister(this);
   this->Sibling->UnRegister(this);
   this->Sibling=0;
-  
+
   this->OutPD=0;
   this->Input=0;
   this->InCD=0;
   this->Output->SetPoints(newPoints);
   newPoints->Delete();
-  
+
   if (this->NewVerts->GetNumberOfCells()>0)
     {
     this->Output->SetVerts(this->NewVerts);
@@ -321,26 +321,26 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     }
   this->NewLines->Delete();
   this->NewLines=0;
-  
+
   if (this->NewPolys->GetNumberOfCells()>0)
     {
     this->Output->SetPolys(this->NewPolys);
     }
   this->NewPolys->Delete();
   this->NewPolys=0;
-  
+
   this->OutCD=0;
-  
+
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
   this->Output=0;
-  
+
   assert("post: input_is_null" && this->Input==0);
   assert("post: output_is_null" && this->Output==0);
   assert("post: incd_is_null" && this->InCD==0);
   assert("post: outpd_is_null" && this->OutPD==0);
   assert("post: outcd_is_null" && this->OutCD==0);
-  
+
   return 1;
 }
 
@@ -348,10 +348,10 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
 void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
                                    int level,
                                    double bounds[6])
-{ 
+{
   assert("pre: cursor_exists" && cursor!=0);
   assert("pre: positive_level" && level>=0);
-  
+
   if(cursor->CurrentIsLeaf())
     {
     if(cursor->CurrentIsRoot() || (this->Input->GetDimension()==1))
@@ -361,11 +361,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
 
       vtkCell *cell=0;
       vtkIdType cellId=cursor->GetLeafId(); // only one cell.
-      
+
       vtkDoubleArray *cellScalars;
       cellScalars=vtkDoubleArray::New();// scalar at each corner point.
       cellScalars->Allocate(VTK_CELL_SIZE);
-      
+
       vtkIdType numPts=0;
       double pt[3];
       vtkVoxel *v;
@@ -431,11 +431,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           assert("check: impossible" && 0);
           break;
         }
-            
+
       vtkDataArray *cutScalars=0;
-      
+
       vtkPointData *inPD=this->Input->GetPointData();
-      
+
       if(this->CutFunction!=0)
         {
         vtkDoubleArray *tmpScalars = vtkDoubleArray::New();
@@ -454,7 +454,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           }
         cutScalars = tmpScalars;
         }
-   
+
 #if 0 // just to not break compilation
       outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
 #endif
@@ -464,22 +464,22 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         double s = cutScalars->GetComponent(i, 0);
         cellScalars->InsertTuple(i, &s);
         }
-      
-      if ( this->CutFunction ) 
+
+      if ( this->CutFunction )
         {
         cutScalars->UnRegister(this);
         inPD->UnRegister(this);
         }
-      
+
       // perform cut
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
         double value = this->ContourValues->GetValue(this->Iter);
-        
-        cell->Contour(value, cellScalars, this->Locator, 
+
+        cell->Contour(value, cellScalars, this->Locator,
                       this->NewVerts, this->NewLines, this->NewPolys,
                       inPD, this->OutPD,
-                      static_cast<vtkCellData*>(this->InCD), cellId, 
+                      static_cast<vtkCellData*>(this->InCD), cellId,
                       static_cast<vtkCellData*>(this->OutCD));
         }
       else
@@ -490,15 +490,15 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         while(iter<numContours)
           {
           double value = this->ContourValues->GetValue(iter);
-          cell->Contour(value, cellScalars, this->Locator, 
+          cell->Contour(value, cellScalars, this->Locator,
                         this->NewVerts, this->NewLines, this->NewPolys,
                         inPD, this->OutPD,
-                        static_cast<vtkCellData*>(this->InCD), cellId, 
+                        static_cast<vtkCellData*>(this->InCD), cellId,
                         static_cast<vtkCellData*>(this->OutCD));
           ++iter;
           }
         }
-    
+
       cellScalars->UnRegister(this);
       cell->UnRegister(this);
 
@@ -516,8 +516,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
       // Even if there is no children, the neighbor cell tessellation
       // has to be compatible with the current cell tessellation.
       // In any case, we need the ordered triangulator.
-      
-      
+
+
       // Add the points of the current leaf
       // use the bounds
 
@@ -525,32 +525,32 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
       int i;
       int j;
       int k;
-      
+
       int pi;
       int pj;
       int pk;
-      
+
       int x;
       int y;
       int z;
-      
+
       // resolution in point along each axis.
       int resolution=(1<<(this->Input->GetNumberOfLevels()-1))+1;
-      
+
       int deltaLevel=this->Input->GetNumberOfLevels()-1-level;
       assert("check: positive_deltaLevel" && deltaLevel>=0);
-      
+
       double ratio=1.0/(resolution-1);
-      
+
       double pt[3];
       double pcoords[3];
-      
+
       int allLess=1; // bool
       int allGreater=1; // bool
       double s;
-      
+
       int numContours=0; // initialized to removed warnings
-      
+
       if ( this->SortBy == VTK_SORT_BY_VALUE )
         {
         numContours=this->ContourValues->GetNumberOfContours();
@@ -567,12 +567,12 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         {
         vtkIdType nbpts=this->Input->GetMaxNumberOfPointsOnBoundary(level);
         double pbounds[6]={0,1,0,1,0,1};
-        
+
         this->Triangulator->InitTriangulation(pbounds,nbpts);
-        
+
         this->Triangulator->PreSortedOff();
         this->Grabber->InitPointInsertion();
-        
+
         i=cursor->GetIndex(0);
         j=cursor->GetIndex(1);
         k=cursor->GetIndex(2);
@@ -591,26 +591,26 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
               pt[0]=bounds[x];
               pt[1]=bounds[2+y];
               pt[2]=bounds[4+z];
-              
+
               assert("check: in_bounds" && pt[0]>=this->Input->GetBounds()[0] && pt[0]<=this->Input->GetBounds()[1] && pt[1]>=this->Input->GetBounds()[2] && pt[1]<=this->Input->GetBounds()[3] && pt[2]>=this->Input->GetBounds()[4] && pt[2]<=this->Input->GetBounds()[5]);
               // Get some parametric coords in [0,1]
               // [0,1] covers the whole dataset axis.
               pcoords[0]=(pi<<deltaLevel)*ratio;
               pcoords[1]=(pj<<deltaLevel)*ratio;
               pcoords[2]=(pk<<deltaLevel)*ratio;
-              
+
               ptId=((pk<<deltaLevel)*resolution+(pj<<deltaLevel))*resolution
                 +(pi<<deltaLevel);
               this->Triangulator->InsertPoint(ptId,pt,pcoords,0);
-              
-              
+
+
               // Test if the point is out or in the clipped part.
               // We have to put this code in the insertion loop of the
               // point because there is no method in vtkOrderedTriangulator
               // to access to inserted points.
-              
+
               s=this->CutFunction->FunctionValue(pt);
-              
+
               if ( this->SortBy == VTK_SORT_BY_CELL )
                 {
                 double value = this->ContourValues->GetValue(this->Iter);
@@ -647,7 +647,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
                   ++iter;
                   }
                 }
-              
+
               ++x;
               ++pi;
               }
@@ -670,14 +670,14 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             {
             pt[0]=bounds[x];
             pt[1]=bounds[2+y];
-            
+
             // Test if the point is out or in the clipped part.
             // We have to put this code in the insertion loop of the
             // point because there is no method in vtkOrderedTriangulator
             // to access to inserted points.
-            
+
             s=this->CutFunction->FunctionValue(pt);
-            
+
             if ( this->SortBy == VTK_SORT_BY_CELL )
               {
               double value = this->ContourValues->GetValue(this->Iter);
@@ -719,8 +719,8 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           ++y;
           }
         }
-      
-      
+
+
       // see if we got a chance to either
       // 1. remove the leaf (!this->GenerateClippedOutput && allOut), no need
       // for triangulation, nor clipping, just skip the leaf.
@@ -730,7 +730,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
       // other there will be nothing to pass or the clip. Or, if allIn is false
       // but allOut is true, there is nothing to do with the first output,
       // and passing everything to the second output.
-      
+
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
         if(allLess || allGreater)
@@ -754,9 +754,9 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           return;
           }
         }
-      
+
       int lastLevelLeaf=level>=(this->Input->GetNumberOfLevels()-1);
-      
+
       if(this->Input->GetDimension()==3)
         {
         if(!lastLevelLeaf)
@@ -766,19 +766,19 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           // that have children on my face, or if the parent of my parent
           // has sibling with children that have children, that have children
           // on my face, until I reach the root...
-        
+
           // list the 3 faces of the parent, the current node is laying on.
           int faces[3];
-            
+
           int child=cursor->GetChildIndex();
-            
+
           faces[0]=(child&1)==1; // false: -x, true: +x
           faces[1]=(child&2)==2; // false: -y, true: +y
           faces[2]=(child&4)==4; // false: -z, true: +z
-            
+
           // sibling on faces that are not on a parent face
           int siblings[3];
-            
+
           int inc=1;
           i=0;
           while(i<3)
@@ -794,11 +794,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             ++i;
             inc<<=1;
             }
-            
+
           this->Sibling->ToSameNode(cursor);
           this->Sibling->ToParent();
           // ask the 3 sibling, one on each face of the current node
-          i=0; 
+          i=0;
           int faceOffset=0;
           while(i<3)
             {
@@ -807,7 +807,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             if(!this->Sibling->CurrentIsLeaf())
               {
               assert("check: if the sibling is not a leaf we cannot be at the last level" && level<(this->Input->GetNumberOfLevels()-1));
-                
+
               // get the points of this sibling on some given face
               int siblingFace=faceOffset;
               if(faces[i])
@@ -821,32 +821,32 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             ++i;
             faceOffset+=2;
             }
-            
+
           // Get points on faces shared with the parent node.
           this->Input->GetPointsOnParentFaces(faces,level,cursor,
                                               this->Grabber);
-            
+
           // Get the points from the edge-only neighbors.
           int childIndices[3];
           childIndices[2]=(child&4)>>2;
           childIndices[1]=(child&2)>>1;
           childIndices[0]=child&1;
-            
+
           assert("check valid_range_c2" && childIndices[2]>=0 &&
                  childIndices[2]<=1);
           assert("check valid_range_c1" && childIndices[1]>=0 &&
                  childIndices[1]<=1);
           assert("check valid_range_c0" && childIndices[0]>=0 &&
                  childIndices[0]<=1);
-            
+
           // First the edges aligned on X axis
           int axis=0;
           int a=2;
           int b=1;
-            
+
           this->Sibling->ToSameNode(cursor);
           this->Sibling->ToParent();
-            
+
           while(axis<3)
             {
             k=0;
@@ -893,18 +893,18 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         {
         // this->Input->GetDimension()==2
         // counter- clockwise direction matters here.
-        
+
         int edges[2];
         int child=cursor->GetChildIndex();
-        
+
         this->Polygon->GetPointIds()->SetNumberOfIds(0);
         this->Polygon->GetPoints()->SetNumberOfPoints(0);
-        
+
         if(!lastLevelLeaf)
           {
           this->Sibling->ToSameNode(cursor);
           this->Sibling->ToParent();
-          
+
           // list the 2 edges of the parent, the current node is laying on.
           edges[0]=(child&1)==1; // false: -x, true: +x
           edges[1]=(child&2)==2; // false: -y, true: +y
@@ -914,14 +914,14 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           edges[0]=0;
           edges[1]=0;
           }
-        
+
         // Insert vertex (xmin,ymin)
         pt[0]=bounds[0];
         pt[1]=bounds[2];
         this->Polygon->GetPointIds()->InsertNextId(
           this->Polygon->GetPointIds()->GetNumberOfIds());
         this->Polygon->GetPoints()->InsertNextPoint(pt);
-        
+
         if(!lastLevelLeaf)
           {
           // Process edge (-y)
@@ -943,13 +943,13 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
                                                  this->Grabber); // 2==-y
             }
           }
-        
+
         // Insert vertex (xmax,ymin)
         pt[0]=bounds[1];
         this->Polygon->GetPointIds()->InsertNextId(
           this->Polygon->GetPointIds()->GetNumberOfIds());
         this->Polygon->GetPoints()->InsertNextPoint(pt);
-        
+
         if(!lastLevelLeaf)
           {
           // Process edge (+x)
@@ -971,13 +971,13 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             this->Sibling->ToParent();
             }
           }
-        
+
         // Insert vertex (xmax,ymax)
         pt[1]=bounds[3];
         this->Polygon->GetPointIds()->InsertNextId(
           this->Polygon->GetPointIds()->GetNumberOfIds());
         this->Polygon->GetPoints()->InsertNextPoint(pt);
-        
+
         if(!lastLevelLeaf)
           {
           // Process edge (+y)
@@ -999,14 +999,14 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             this->Sibling->ToParent();
             }
           }
-        
-        
+
+
         // Insert vertex (xmin,ymax)
         pt[0]=bounds[0];
         this->Polygon->GetPointIds()->InsertNextId(
           this->Polygon->GetPointIds()->GetNumberOfIds());
         this->Polygon->GetPoints()->InsertNextPoint(pt);
-        
+
         if(!lastLevelLeaf)
           {
           // Process edge (-x)
@@ -1029,20 +1029,20 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             }
           }
         }
-      
+
       // Here, we have to cut the sub-tetras or polygon.
       // We have to evaluate the cutfunction on each inserted point
       // BEFORE calling Triangulate().
-      
-    
+
+
       if(this->Input->GetDimension()==3)
         {
         int c=this->Triangulator->GetNumberOfPoints();
         double *globalPt;
-        
+
         this->CellScalars->SetNumberOfComponents(1);
         this->CellScalars->SetNumberOfTuples(c);
-        
+
         i=0;
         while(i<c)
           {
@@ -1051,7 +1051,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           this->CellScalars->InsertValue(i,s);
           ++i;
           }
-        
+
         if(c==8)
           {
           // only the vertices of a voxel: fast path.
@@ -1071,13 +1071,13 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             this->CellTypeCounter[this->Triangulator->GetNumberOfPoints()-1]++;
             }
           }
-        
+
         // perform cut
-       
+
         vtkIdType cellId=cursor->GetLeafId();
-        
+
         vtkPointData *inPD=this->Input->GetPointData(); // void
-        
+
         if ( this->SortBy == VTK_SORT_BY_CELL )
           {
           double value = this->ContourValues->GetValue(this->Iter);
@@ -1087,7 +1087,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
                                                     this->TetScalars)==0;
           while(!done)
             {
-            this->Tetra->Contour(value, this->TetScalars, this->Locator, 
+            this->Tetra->Contour(value, this->TetScalars, this->Locator,
                                  this->NewVerts,this->NewLines,this->NewPolys,
                                  inPD,static_cast<vtkPointData *>(this->OutPD),
                                  static_cast<vtkCellData *>(this->InCD),cellId,
@@ -1110,7 +1110,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
             while(iter<numContours)
               {
               double value = this->ContourValues->GetValue(iter);
-              this->Tetra->Contour(value, this->TetScalars, this->Locator, 
+              this->Tetra->Contour(value, this->TetScalars, this->Locator,
                                    this->NewVerts,this->NewLines,
                                    this->NewPolys,inPD,
                                    static_cast<vtkPointData *>(this->OutPD),
@@ -1130,10 +1130,10 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         // this->Input->GetDimension()==2
         int c=this->Polygon->GetPoints()->GetNumberOfPoints();
         double *globalPt;
-        
+
         this->CellScalars->SetNumberOfComponents(1);
         this->CellScalars->SetNumberOfTuples(c);
-        
+
         i=0;
         while(i<c)
           {
@@ -1142,17 +1142,17 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           this->CellScalars->InsertValue(i,s);
           ++i;
           }
-        
+
         // perform cut
-        
+
         vtkIdType cellId=cursor->GetLeafId();
-        
+
         vtkPointData *inPD=this->Input->GetPointData(); // void
-        
+
         if(this->SortBy == VTK_SORT_BY_CELL)
           {
           double value = this->ContourValues->GetValue(this->Iter);
-          this->Polygon->Contour(value, this->CellScalars, this->Locator, 
+          this->Polygon->Contour(value, this->CellScalars, this->Locator,
                                  this->NewVerts,this->NewLines,this->NewPolys,
                                  inPD,static_cast<vtkPointData *>(this->OutPD),
                                  static_cast<vtkCellData *>(this->InCD),cellId,
@@ -1165,14 +1165,14 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           while(iter<numContours)
             {
             double value = this->ContourValues->GetValue(iter);
-            this->Polygon->Contour(value, this->CellScalars, this->Locator, 
+            this->Polygon->Contour(value, this->CellScalars, this->Locator,
                                    this->NewVerts,this->NewLines,
                                    this->NewPolys,inPD,
                                    static_cast<vtkPointData *>(this->OutPD),
                                    static_cast<vtkCellData *>(this->InCD),
                                    cellId,
                                    static_cast<vtkCellData *>(this->OutCD));
-            
+
             ++iter;
             }
           }
@@ -1185,11 +1185,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
     // try to reject the node (and so reject all its sub-hierarchy)
     // to speed-up the process
     int cutChildren=1;
-    
+
     // if all the corner points are outside, we are good for
     // rejection.
     vtkIdType numPts=0;
-    
+
     double pt[3];
     switch(this->Input->GetDimension())
       {
@@ -1248,12 +1248,12 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         assert("check: impossible" && 0);
         break;
       }
-    
-    
+
+
     int allLess=1; // bool
     int allGreater=1; // bool
     int numContours=0; // initialized to removed warnings
-    
+
     if(this->SortBy == VTK_SORT_BY_VALUE)
       {
       numContours=this->ContourValues->GetNumberOfContours();
@@ -1265,13 +1265,13 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         ++iter;
         }
       }
-    
+
     cutChildren=0;
     int i=0;
     while(!cutChildren && i<numPts)
       {
       double s = this->CutFunction->FunctionValue(this->Pts->GetPoint(i));
-      
+
       if(this->SortBy == VTK_SORT_BY_CELL)
         {
         double value = this->ContourValues->GetValue(this->Iter);
@@ -1325,11 +1325,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
         }
       ++i;
       }
-    
+
     if(cutChildren)
       {
       double newBounds[6];
-      
+
       double midx=(bounds[0]+bounds[1])*0.5;
       double midy=(bounds[2]+bounds[3])*0.5;
       double midz=(bounds[4]+bounds[5])*0.5;
@@ -1354,7 +1354,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           assert("check: impossible case" && 0);
           break;
         }
-      
+
       int k=0;
       while(k<kmax)
         {
@@ -1409,7 +1409,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
 }
 
 //----------------------------------------------------------------------------
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkHyperOctreeCutter::SetLocator(vtkIncrementalPointLocator *locator)
 {
@@ -1417,7 +1417,7 @@ void vtkHyperOctreeCutter::SetLocator(vtkIncrementalPointLocator *locator)
     {
     return;
     }
-  
+
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);
@@ -1466,7 +1466,7 @@ int vtkHyperOctreeCutter::FillInputPortInformation(int, vtkInformation *info)
 void vtkHyperOctreeCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->CutFunction )
     {
     os << indent << "Cut Function: " << this->CutFunction << "\n";
@@ -1475,9 +1475,9 @@ void vtkHyperOctreeCutter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Cut Function: (none)\n";
     }
-  
+
   os << indent << "Sort By: " << this->GetSortByAsString() << "\n";
-  
+
   if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";
@@ -1486,9 +1486,9 @@ void vtkHyperOctreeCutter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
-  
+
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
-  
-  os << indent << "Generate Cut Scalars: " 
+
+  os << indent << "Generate Cut Scalars: "
      << (this->GenerateCutScalars ? "On\n" : "Off\n");
 }

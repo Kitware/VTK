@@ -111,7 +111,7 @@ void vtkInformation::Modified(vtkInformationKey* key)
 // Return the number of keys as a result of iteration.
 int vtkInformation::GetNumberOfKeys()
 {
-  vtkSmartPointer<vtkInformationIterator> infoIterator = 
+  vtkSmartPointer<vtkInformationIterator> infoIterator =
     vtkSmartPointer<vtkInformationIterator>::New();
   infoIterator->SetInformation( this );
 
@@ -196,7 +196,7 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationKey* key, int deep)
 {
   if (!deep)
@@ -210,7 +210,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationDataObjectKey* key, int deep)
 {
   if (!deep)
@@ -224,7 +224,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationInformationKey* key, int deep)
 {
   if (!deep)
@@ -238,8 +238,8 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
-                               vtkInformationInformationVectorKey* key, 
+void vtkInformation::CopyEntry(vtkInformation* from,
+                               vtkInformationInformationVectorKey* key,
                                int deep)
 {
   if (!deep)
@@ -253,7 +253,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationIntegerKey* key, int deep)
 {
   if (!deep)
@@ -267,7 +267,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationRequestKey* key, int deep)
 {
   if (!deep)
@@ -281,7 +281,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationIntegerVectorKey* key, int deep)
 {
   if (!deep)
@@ -295,7 +295,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationDoubleVectorKey* key, int deep)
 {
   if (!deep)
@@ -309,7 +309,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationStringKey* key, int deep)
 {
   if (!deep)
@@ -323,7 +323,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationUnsignedLongKey* key, int deep)
 {
   if (!deep)
@@ -337,7 +337,7 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, 
+void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationStringVectorKey* key, int deep)
 {
   if (!deep)

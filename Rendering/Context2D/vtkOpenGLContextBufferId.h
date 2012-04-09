@@ -37,16 +37,16 @@ public:
   // Description:
   // Creates a 2D Painter object.
   static vtkOpenGLContextBufferId *New();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this object.
   virtual void ReleaseGraphicsResources();
-  
+
   // Description:
   // Set/Get the OpenGL context owning the texture object resource.
   void SetContext(vtkOpenGLRenderWindow *context);
   vtkOpenGLRenderWindow *GetContext();
-  
+
   // Description:
   // Returns if the context supports the required extensions.
   // \pre context_is_set: this->GetContext()!=0
@@ -58,18 +58,18 @@ public:
   // \pre positive_height: GetHeight()>0
   // \pre context_is_set: this->GetContext()!=0
   virtual void Allocate();
-  
+
   // Description:
   // Tell if the buffer has been allocated.
   virtual bool IsAllocated() const;
-  
+
   // Description:
   // Copy the contents of the current read buffer to the internal texture
   // starting at lower left corner of the framebuffer (srcXmin,srcYmin).
   // \pre is_allocated: this->IsAllocated()
   virtual void SetValues(int srcXmin,
                          int srcYmin);
-  
+
   // Description:
   // Return item under abscissa x and ordinate y.
   // Abscissa go from left to right.
@@ -78,14 +78,14 @@ public:
   // \pre is_allocated: IsAllocated()
   // \post valid_result: result>=-1
   virtual vtkIdType GetPickedItem(int x, int y);
-  
+
 protected:
   vtkOpenGLContextBufferId();
   virtual ~vtkOpenGLContextBufferId();
-  
+
   vtkOpenGLRenderWindow *Context;
   vtkTextureObject *Texture;
-  
+
 private:
   vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId &); // Not implemented.
   void operator=(const vtkOpenGLContextBufferId &);   // Not implemented.

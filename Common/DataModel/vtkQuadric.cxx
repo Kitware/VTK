@@ -79,13 +79,13 @@ void vtkQuadric::EvaluateGradient(double x[3], double n[3])
 
 
 // Set the 10 coefficients of the quadric equation.
-void vtkQuadric::SetCoefficients(double a0,double a1,double a2,double a3, double a4, 
+void vtkQuadric::SetCoefficients(double a0,double a1,double a2,double a3, double a4,
                                 double a5,double a6,double a7,double a8, double a9)
 {
   double a[10];
 
-  a[0] = a0; a[1] = a1; a[2] = a2; a[3] = a3; a[4] = a4; 
-  a[5] = a5; a[6] = a6; a[7] = a7; a[8] = a8; a[9] = a9; 
+  a[0] = a0; a[1] = a1; a[2] = a2; a[3] = a3; a[4] = a4;
+  a[5] = a5; a[6] = a6; a[7] = a7; a[8] = a8; a[9] = a9;
 
   vtkQuadric::SetCoefficients(a);
 }
@@ -93,7 +93,7 @@ void vtkQuadric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Coefficients: " 
+  os << indent << "Coefficients: "
      << "\n\ta0: " << this->Coefficients[0]
      << "\n\ta1: " << this->Coefficients[1]
      << "\n\ta2: " << this->Coefficients[2]

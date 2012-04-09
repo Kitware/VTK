@@ -21,7 +21,7 @@
 // necessary to reposition.)
 
 // .SECTION Caveats
-// The cylinder is infinite in extent. To truncate the cylinder use the 
+// The cylinder is infinite in extent. To truncate the cylinder use the
 // vtkImplicitBoolean in combination with clipping planes.
 
 

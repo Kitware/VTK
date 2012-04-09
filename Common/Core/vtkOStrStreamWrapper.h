@@ -34,22 +34,22 @@ public:
   // Description:
   // Constructor.
   vtkOStrStreamWrapper();
-  
+
   // Description:
   // Destructor frees all used memory.
   ~vtkOStrStreamWrapper();
-  
+
   // Description:
   // Get the string that has been written.  This call transfers
   // ownership of the returned memory to the caller.  Call
   // rdbuf()->freeze(0) to return ownership to the vtkOStrStreamWrapper.
   char* str();
-  
+
   // Description:
   // Returns a pointer to this class.  This is a hack so that the old
   // ostrstream's s.rdbuf()->freeze(0) can work.
   vtkOStrStreamWrapper* rdbuf();
-  
+
   // Description:
   // Set whether the memory is frozen.  The vtkOStrStreamWrapper will free
   // the memory returned by str() only if it is not frozen.
@@ -58,7 +58,7 @@ public:
 protected:
   // The pointer returned by str().
   char* Result;
-  
+
   // Whether the caller of str() owns the memory.
   int Frozen;
 private:

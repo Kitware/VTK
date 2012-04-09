@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkTreeLevelsFilter);
 
 vtkTreeLevelsFilter::vtkTreeLevelsFilter()
 {
- 
+
 }
 
 int vtkTreeLevelsFilter::RequestData(
@@ -48,7 +48,7 @@ int vtkTreeLevelsFilter::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Storing the inputTree and outputTree handles
   vtkTree *inputTree = vtkTree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -57,16 +57,16 @@ int vtkTreeLevelsFilter::RequestData(
 
   // Copy the input to the output.
   outputTree->ShallowCopy(inputTree);
-  
+
   // Add the 1-tuple array that will store the level from
   // the root down (root = 0, and +1 for each level down)
   vtkIntArray *levelArray = vtkIntArray::New();
   levelArray->SetName("level");
   levelArray->SetNumberOfComponents(1);
   levelArray->SetNumberOfTuples(outputTree->GetNumberOfVertices());
-  vtkDataSetAttributes *data = outputTree->GetVertexData(); 
+  vtkDataSetAttributes *data = outputTree->GetVertexData();
   data->AddArray(levelArray);
-  
+
   // Add the 1-tuple array that will marks each
   // leaf with a '1' and everything else with a '0'
   vtkIntArray *leafArray = vtkIntArray::New();
@@ -80,7 +80,7 @@ int vtkTreeLevelsFilter::RequestData(
     levelArray->SetValue(i, outputTree->GetLevel(i));
     leafArray->SetValue(i, outputTree->IsLeaf(i));
     }
-  
+
   // Set levels as the active point scalar
   data->SetActiveScalars("level");
 

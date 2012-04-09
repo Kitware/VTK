@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkBoostRandomSparseArraySource.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -82,8 +82,8 @@ vtkArrayExtents vtkBoostRandomSparseArraySource::GetExtents()
 // ----------------------------------------------------------------------
 
 int vtkBoostRandomSparseArraySource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   boost::mt19937 pattern_generator(static_cast<boost::uint32_t>(this->ElementProbabilitySeed));

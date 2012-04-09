@@ -103,16 +103,16 @@ void vtkThresholdTable::ThresholdBetween(vtkVariant lower, vtkVariant upper)
   if ( this->MinValue != lower || this->MaxValue != upper ||
        this->Mode != vtkThresholdTable::ACCEPT_BETWEEN)
     {
-    this->MinValue = lower; 
+    this->MinValue = lower;
     this->MaxValue = upper;
     this->Mode = vtkThresholdTable::ACCEPT_BETWEEN;
     this->Modified();
     }
 }
-  
+
 int vtkThresholdTable::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
@@ -139,7 +139,7 @@ int vtkThresholdTable::RequestData(
   switch (arr->GetDataType())
     {
     vtkArrayIteratorTemplateMacro(
-      vtkThresholdTableThresholdRows(static_cast<VTK_TT*>(iter), input, output, 
+      vtkThresholdTableThresholdRows(static_cast<VTK_TT*>(iter), input, output,
         this->MinValue, this->MaxValue, this->Mode));
     }
   iter->Delete();

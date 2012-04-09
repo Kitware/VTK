@@ -239,7 +239,7 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
   int numComp=this->GetNumberOfComponents();
   double *tuple=new double[numComp];
   double *ptr=data->WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
-  
+
   for (j=tupleMin; j <= tupleMax; j++)
     {
     this->GetTuple(j,tuple);
@@ -298,11 +298,11 @@ void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
 {
   if (this->GetDataType() != source->GetDataType())
     {
-    vtkErrorMacro("Cannot InterpolateValue from array of type " 
+    vtkErrorMacro("Cannot InterpolateValue from array of type "
       << source->GetDataTypeAsString());
     return;
     }
-  
+
   vtkDataArray* fromData = vtkDataArray::SafeDownCast(source);
   if (fromData)
     {
@@ -362,22 +362,22 @@ void vtkDataArrayInterpolateTuple(T* from1, T* from2, T* to,
 }
 
 //----------------------------------------------------------------------------
-// Interpolate value from the two values, p1 and p2, and an 
-// interpolation factor, t. The interpolation factor ranges from (0,1), 
-// with t=0 located at p1. This method assumes that the three arrays are of 
+// Interpolate value from the two values, p1 and p2, and an
+// interpolation factor, t. The interpolation factor ranges from (0,1),
+// with t=0 located at p1. This method assumes that the three arrays are of
 // the same type. p1 is value at index id1 in fromArray1, while, p2 is
 // value at index id2 in fromArray2.
-void vtkDataArray::InterpolateTuple(vtkIdType i, 
-  vtkIdType id1, vtkAbstractArray* source1, 
+void vtkDataArray::InterpolateTuple(vtkIdType i,
+  vtkIdType id1, vtkAbstractArray* source1,
   vtkIdType id2, vtkAbstractArray* source2, double t)
 {
   int type = this->GetDataType();
-  
+
   if (type != source1->GetDataType() || type != source2->GetDataType())
     {
     vtkErrorMacro("All arrays to InterpolateValue must be of same type.");
     return;
-    } 
+    }
 
   vtkDataArray* fromData1 = vtkDataArray::SafeDownCast(source1);
   vtkDataArray* fromData2 = vtkDataArray::SafeDownCast(source2);
@@ -425,8 +425,8 @@ void vtkDataArray::CreateDefaultLookupTable()
     this->LookupTable->UnRegister(this);
     }
   this->LookupTable = vtkLookupTable::New();
-  // make sure it is built 
-  // otherwise problems with InsertScalar trying to map through 
+  // make sure it is built
+  // otherwise problems with InsertScalar trying to map through
   // non built lut
   this->LookupTable->Build();
 }
@@ -434,7 +434,7 @@ void vtkDataArray::CreateDefaultLookupTable()
 //----------------------------------------------------------------------------
 void vtkDataArray::SetLookupTable(vtkLookupTable* lut)
 {
-  if ( this->LookupTable != lut ) 
+  if ( this->LookupTable != lut )
     {
     if ( this->LookupTable )
       {
@@ -517,7 +517,7 @@ void vtkDataArray::SetTuple2(vtkIdType i, double val0, double val1)
   this->SetTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::SetTuple3(vtkIdType i, double val0, double val1, 
+void vtkDataArray::SetTuple3(vtkIdType i, double val0, double val1,
                              double val2)
 {
   double tuple[3];
@@ -533,7 +533,7 @@ void vtkDataArray::SetTuple3(vtkIdType i, double val0, double val1,
   this->SetTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1, 
+void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1,
                              double val2, double val3)
 {
   double tuple[4];
@@ -550,8 +550,8 @@ void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1,
   this->SetTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::SetTuple9(vtkIdType i, double val0, double val1, 
-                             double val2, double val3, double val4, 
+void vtkDataArray::SetTuple9(vtkIdType i, double val0, double val1,
+                             double val2, double val3, double val4,
                              double val5, double val6, double val7, double val8)
 {
   double tuple[9];
@@ -599,7 +599,7 @@ void vtkDataArray::InsertTuple2(vtkIdType i, double val0, double val1)
   this->InsertTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::InsertTuple3(vtkIdType i, double val0, double val1, 
+void vtkDataArray::InsertTuple3(vtkIdType i, double val0, double val1,
                                 double val2)
 {
   double tuple[3];
@@ -615,7 +615,7 @@ void vtkDataArray::InsertTuple3(vtkIdType i, double val0, double val1,
   this->InsertTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1, 
+void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1,
                                 double val2, double val3)
 {
   double tuple[4];
@@ -632,8 +632,8 @@ void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1,
   this->InsertTuple(i, tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::InsertTuple9(vtkIdType i, double val0, double val1, 
-                                double val2,  double val3, double val4, 
+void vtkDataArray::InsertTuple9(vtkIdType i, double val0, double val1,
+                                double val2,  double val3, double val4,
                                 double val5, double val6,double val7, double val8)
 {
   double tuple[9];
@@ -681,7 +681,7 @@ void vtkDataArray::InsertNextTuple2(double val0, double val1)
   this->InsertNextTuple(tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::InsertNextTuple3(double val0, double val1, 
+void vtkDataArray::InsertNextTuple3(double val0, double val1,
                                     double val2)
 {
   double tuple[3];
@@ -697,7 +697,7 @@ void vtkDataArray::InsertNextTuple3(double val0, double val1,
   this->InsertNextTuple(tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::InsertNextTuple4(double val0, double val1, 
+void vtkDataArray::InsertNextTuple4(double val0, double val1,
                                     double val2, double val3)
 {
   double tuple[4];
@@ -714,9 +714,9 @@ void vtkDataArray::InsertNextTuple4(double val0, double val1,
   this->InsertNextTuple(tuple);
 }
 //----------------------------------------------------------------------------
-void vtkDataArray::InsertNextTuple9(double val0, double val1, 
-                                    double val2,  double val3, double val4, 
-                                    double val5, double val6,double val7, 
+void vtkDataArray::InsertNextTuple9(double val0, double val1,
+                                    double val2,  double val3, double val4,
+                                    double val5, double val6,double val7,
                                     double val8)
 {
   double tuple[9];
@@ -788,7 +788,7 @@ void vtkCopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
 {
   switch (output->GetDataType())
     {
-    vtkTemplateMacro(vtkCopyTuples(input, 
+    vtkTemplateMacro(vtkCopyTuples(input,
                                    static_cast<VTK_TT *>(output->GetVoidPointer(0)),
                                    output->GetNumberOfComponents(), ptIds) );
 
@@ -808,14 +808,14 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkAbstractArray *aa)
     vtkWarningMacro("Input is not a vtkDataArray.");
     return;
     }
-  
+
   if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
     {
     vtkWarningMacro("Number of components for input and output do not match");
     return;
     }
 
-  
+
   switch (this->GetDataType())
     {
     vtkTemplateMacro(vtkCopyTuples1 (static_cast<VTK_TT *>(this->GetVoidPointer(0)), da,
@@ -840,7 +840,7 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkAbstractArray *aa)
 
 //----------------------------------------------------------------------------
 template <class IT, class OT>
-void vtkCopyTuples(IT* input, OT* output, int nComp, 
+void vtkCopyTuples(IT* input, OT* output, int nComp,
                    vtkIdType p1, vtkIdType p2)
 {
   vtkIdType i;
@@ -857,12 +857,12 @@ void vtkCopyTuples(IT* input, OT* output, int nComp,
 
 //----------------------------------------------------------------------------
 template <class IT>
-void vtkCopyTuples1(IT* input, vtkDataArray* output, 
+void vtkCopyTuples1(IT* input, vtkDataArray* output,
                     vtkIdType p1, vtkIdType p2)
 {
   switch (output->GetDataType())
     {
-    vtkTemplateMacro(vtkCopyTuples( input, 
+    vtkTemplateMacro(vtkCopyTuples( input,
                                     static_cast<VTK_TT *>(output->GetVoidPointer(0)),
                                     output->GetNumberOfComponents(), p1, p2) );
 
@@ -921,7 +921,7 @@ void vtkDataArray::FillComponent(int j, double c)
     << this->GetNumberOfComponents() << ")" );
     return;
     }
-  
+
   vtkIdType i;
 
   for (i = 0; i < this->GetNumberOfTuples(); i++)

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPixelBufferObject - abstracts an OpenGL pixel buffer object.
 // .SECTION Description
-// Provides low-level access to GPU memory. Used to pass raw data to GPU. 
+// Provides low-level access to GPU memory. Used to pass raw data to GPU.
 // The data is uploaded into a pixel buffer.
 // .SECTION See Also
 // OpenGL Pixel Buffer Object Extension Spec (ARB_pixel_buffer_object):
@@ -37,10 +37,10 @@ class vtkOpenGLExtensionManager;
 class VTKRENDERINGOPENGL_EXPORT vtkPixelBufferObject : public vtkObject
 {
 public:
-  
+
   //BTX
   // Usage values.
-  enum 
+  enum
   {
     StreamDraw=0,
     StreamRead,
@@ -54,14 +54,14 @@ public:
     NumberOfUsages
   };
   //ETX
-  
+
   static vtkPixelBufferObject* New();
   vtkTypeMacro(vtkPixelBufferObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get/Set the context. Context must be a vtkOpenGLRenderWindow. 
-  // This does not increase the reference count of the 
+  // Get/Set the context. Context must be a vtkOpenGLRenderWindow.
+  // This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
@@ -86,16 +86,16 @@ public:
   // Initial value is StaticDraw, as in OpenGL spec.
   vtkGetMacro(Usage,int);
   vtkSetMacro(Usage,int);
-  
+
   // Description:
-  // Upload data to GPU. 
+  // Upload data to GPU.
   // The input data can be freed after this call.
   // The data ptr is treated as an 1D array with the given number of tuples and
   // given number of components in each tuple to be copied to the GPU. increment
   // is the offset added after the last component in each tuple is transferred.
   // Look at the documentation for ContinuousIncrements in vtkImageData for
   // details about how increments are specified.
-  bool Upload1D(int type, void* data, 
+  bool Upload1D(int type, void* data,
     unsigned int numtuples, int comps, vtkIdType increment)
     {
     unsigned int newdims[3];
@@ -180,7 +180,7 @@ public:
     }
 
   // Description:
-  // Download data from pixel buffer to the 2D array. (lengthx * lengthy) 
+  // Download data from pixel buffer to the 2D array. (lengthx * lengthy)
   // must be equal to the size of the data in the memory.
   bool Download2D(
     int type, void* data,
@@ -199,8 +199,8 @@ public:
     }
 
   // Description:
-  // Download data from pixel buffer to the 3D array. 
-  // (lengthx * lengthy * lengthz) must be equal to the size of the data in 
+  // Download data from pixel buffer to the 3D array.
+  // (lengthx * lengthy * lengthz) must be equal to the size of the data in
   // the memory.
   bool Download3D(int type, void* data,
     unsigned int dims[3],
@@ -217,7 +217,7 @@ public:
   // Description:
   // Inactivate the buffer.
   void UnBind();
- 
+
 //BTX
   // We can't use just PACKED because this is a cygwin macro defined as
   // __attribute__((packed))
@@ -234,7 +234,7 @@ public:
   // Allocate the memory. size is in number of bytes. type is a VTK type.
   void Allocate(unsigned int size,
                 int type);
-  
+
   // Description:
   // Release the memory allocated without destroying the PBO handle.
   void ReleaseMemory();

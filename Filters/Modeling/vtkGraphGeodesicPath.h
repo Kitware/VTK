@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkGraphGeodesicPath - Abstract base for classes that generate a geodesic path on a graph (mesh).
 // .SECTION Description
-// Serves as a base class for algorithms that trace a geodesic on a 
-// polygonal dataset treating it as a graph. ie points connecting the 
+// Serves as a base class for algorithms that trace a geodesic on a
+// polygonal dataset treating it as a graph. ie points connecting the
 // vertices of the graph
 
 #ifndef __vtkGraphGeodesicPath_h

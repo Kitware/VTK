@@ -41,7 +41,7 @@ vtkDataSetReader::~vtkDataSetReader()
 
 int vtkDataSetReader::RequestDataObject(
   vtkInformation *,
-  vtkInformationVector** vtkNotUsed(inputVector) , 
+  vtkInformationVector** vtkNotUsed(inputVector) ,
   vtkInformationVector* outputVector)
 {
   if (this->GetFileName() == NULL &&
@@ -63,7 +63,7 @@ int vtkDataSetReader::RequestDataObject(
     return 1;
     }
 
-  if (!output || output->GetDataObjectType() != outputType) 
+  if (!output || output->GetDataObjectType() != outputType)
     {
     switch (outputType)
       {
@@ -85,7 +85,7 @@ int vtkDataSetReader::RequestDataObject(
       default:
         return 0;
       }
-    
+
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
     }
@@ -150,7 +150,7 @@ int vtkDataSetReader::RequestData(
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   vtkDebugMacro(<<"Reading vtk dataset...");
 
   switch (this->ReadOutputType())
@@ -343,7 +343,7 @@ int vtkDataSetReader::RequestData(
 int vtkDataSetReader::ReadOutputType()
 {
   char line[256];
-  
+
   vtkDebugMacro(<<"Reading vtk dataset...");
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
@@ -414,22 +414,22 @@ vtkPolyData *vtkDataSetReader::GetPolyDataOutput()
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
-vtkStructuredPoints *vtkDataSetReader::GetStructuredPointsOutput() 
+vtkStructuredPoints *vtkDataSetReader::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
 
-vtkStructuredGrid *vtkDataSetReader::GetStructuredGridOutput() 
+vtkStructuredGrid *vtkDataSetReader::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-vtkUnstructuredGrid *vtkDataSetReader::GetUnstructuredGridOutput() 
+vtkUnstructuredGrid *vtkDataSetReader::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-vtkRectilinearGrid *vtkDataSetReader::GetRectilinearGridOutput() 
+vtkRectilinearGrid *vtkDataSetReader::GetRectilinearGridOutput()
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }

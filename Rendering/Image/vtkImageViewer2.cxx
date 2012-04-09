@@ -111,9 +111,9 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *arg)
     {
     this->Interactor->UnRegister(this);
     }
-    
+
   this->Interactor = arg;
-  
+
   if (this->Interactor)
     {
     this->Interactor->Register(this);
@@ -141,9 +141,9 @@ void vtkImageViewer2::SetRenderWindow(vtkRenderWindow *arg)
     {
     this->RenderWindow->UnRegister(this);
     }
-    
+
   this->RenderWindow = arg;
-  
+
   if (this->RenderWindow)
     {
     this->RenderWindow->Register(this);
@@ -166,9 +166,9 @@ void vtkImageViewer2::SetRenderer(vtkRenderer *arg)
     {
     this->Renderer->UnRegister(this);
     }
-    
+
   this->Renderer = arg;
-  
+
   if (this->Renderer)
     {
     this->Renderer->Register(this);
@@ -179,13 +179,13 @@ void vtkImageViewer2::SetRenderer(vtkRenderer *arg)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetSize(int a,int b) 
+void vtkImageViewer2::SetSize(int a,int b)
 {
   this->RenderWindow->SetSize(a, b);
 }
 
 //----------------------------------------------------------------------------
-int* vtkImageViewer2::GetSize() 
+int* vtkImageViewer2::GetSize()
 {
   return this->RenderWindow->GetSize();
 }
@@ -219,7 +219,7 @@ int* vtkImageViewer2::GetSliceRange()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageViewer2::GetSliceMin() 
+int vtkImageViewer2::GetSliceMin()
 {
   int *range = this->GetSliceRange();
   if (range)
@@ -230,7 +230,7 @@ int vtkImageViewer2::GetSliceMin()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageViewer2::GetSliceMax() 
+int vtkImageViewer2::GetSliceMax()
 {
   int *range = this->GetSliceRange();
   if (range)
@@ -277,7 +277,7 @@ void vtkImageViewer2::SetSliceOrientation(int orientation)
     vtkErrorMacro("Error - invalid slice orientation " << orientation);
     return;
     }
-  
+
   if (this->SliceOrientation == orientation)
     {
     return;
@@ -285,7 +285,7 @@ void vtkImageViewer2::SetSliceOrientation(int orientation)
 
   this->SliceOrientation = orientation;
 
-  // Update the viewer 
+  // Update the viewer
 
   int *range = this->GetSliceRange();
   if (range)
@@ -321,13 +321,13 @@ void vtkImageViewer2::UpdateOrientation()
         cam->SetPosition(0,0,1); // -1 if medical ?
         cam->SetViewUp(0,1,0);
         break;
-        
+
       case vtkImageViewer2::SLICE_ORIENTATION_XZ:
         cam->SetFocalPoint(0,0,0);
         cam->SetPosition(0,-1,0); // 1 if medical ?
         cam->SetViewUp(0,0,1);
         break;
-        
+
       case vtkImageViewer2::SLICE_ORIENTATION_YZ:
         cam->SetFocalPoint(0,0,0);
         cam->SetPosition(1,0,0); // -1 if medical ?
@@ -384,7 +384,7 @@ void vtkImageViewer2::UpdateDisplayExtent()
 
   if (this->Renderer)
     {
-    if (this->InteractorStyle && 
+    if (this->InteractorStyle &&
         this->InteractorStyle->GetAutoAdjustCameraClippingRange())
       {
       this->Renderer->ResetCameraClippingRange();
@@ -400,7 +400,7 @@ void vtkImageViewer2::UpdateDisplayExtent()
         double cpos = cam->GetPosition()[this->SliceOrientation];
         double range = fabs(spos - cpos);
         double *spacing = outInfo->Get(vtkDataObject::SPACING());
-        double avg_spacing = 
+        double avg_spacing =
           (spacing[0] + spacing[1] + spacing[2]) / 3.0;
         cam->SetClippingRange(
           range - avg_spacing * 3.0, range + avg_spacing * 3.0);
@@ -410,55 +410,55 @@ void vtkImageViewer2::UpdateDisplayExtent()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetPosition(int a,int b) 
+void vtkImageViewer2::SetPosition(int a,int b)
 {
   this->RenderWindow->SetPosition(a, b);
 }
 
 //----------------------------------------------------------------------------
-int* vtkImageViewer2::GetPosition() 
+int* vtkImageViewer2::GetPosition()
 {
   return this->RenderWindow->GetPosition();
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetDisplayId(void *a) 
+void vtkImageViewer2::SetDisplayId(void *a)
 {
   this->RenderWindow->SetDisplayId(a);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetWindowId(void *a) 
+void vtkImageViewer2::SetWindowId(void *a)
 {
   this->RenderWindow->SetWindowId(a);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetParentId(void *a) 
+void vtkImageViewer2::SetParentId(void *a)
 {
   this->RenderWindow->SetParentId(a);
 }
 
 //----------------------------------------------------------------------------
-double vtkImageViewer2::GetColorWindow() 
+double vtkImageViewer2::GetColorWindow()
 {
   return this->WindowLevel->GetWindow();
 }
 
 //----------------------------------------------------------------------------
-double vtkImageViewer2::GetColorLevel() 
+double vtkImageViewer2::GetColorLevel()
 {
   return this->WindowLevel->GetLevel();
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetColorWindow(double s) 
+void vtkImageViewer2::SetColorWindow(double s)
 {
   this->WindowLevel->SetWindow(s);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetColorLevel(double s) 
+void vtkImageViewer2::SetColorLevel(double s)
 {
   this->WindowLevel->SetLevel(s);
 }
@@ -468,9 +468,9 @@ class vtkImageViewer2Callback : public vtkCommand
 {
 public:
   static vtkImageViewer2Callback *New() { return new vtkImageViewer2Callback; }
-  
-  void Execute(vtkObject *caller, 
-               unsigned long event, 
+
+  void Execute(vtkObject *caller,
+               unsigned long event,
                void *vtkNotUsed(callData))
     {
       if (this->IV->GetInput() == NULL)
@@ -503,25 +503,25 @@ public:
         this->InitialLevel = this->IV->GetColorLevel();
         return;
         }
-      
+
       // Adjust the window level here
 
-      vtkInteractorStyleImage *isi = 
+      vtkInteractorStyleImage *isi =
         static_cast<vtkInteractorStyleImage *>(caller);
 
       int *size = this->IV->GetRenderWindow()->GetSize();
       double window = this->InitialWindow;
       double level = this->InitialLevel;
-      
+
       // Compute normalized delta
 
-      double dx = 4.0 * 
-        (isi->GetWindowLevelCurrentPosition()[0] - 
+      double dx = 4.0 *
+        (isi->GetWindowLevelCurrentPosition()[0] -
          isi->GetWindowLevelStartPosition()[0]) / size[0];
-      double dy = 4.0 * 
-        (isi->GetWindowLevelStartPosition()[1] - 
+      double dy = 4.0 *
+        (isi->GetWindowLevelStartPosition()[1] -
          isi->GetWindowLevelCurrentPosition()[1]) / size[1];
-      
+
       // Scale by current values
 
       if (fabs(window) > 0.01)
@@ -540,24 +540,24 @@ public:
         {
         dy = dy * (level < 0 ? -0.01 : 0.01);
         }
-      
+
       // Abs so that direction does not flip
 
-      if (window < 0.0) 
+      if (window < 0.0)
         {
         dx = -1*dx;
         }
-      if (level < 0.0) 
+      if (level < 0.0)
         {
         dy = -1*dy;
         }
-      
+
       // Compute new window level
 
       double newWindow = dx + window;
       double newLevel;
       newLevel = level - dy;
-      
+
       // Stay away from zero and really
 
       if (fabs(newWindow) < 0.01)
@@ -568,12 +568,12 @@ public:
         {
         newLevel = 0.01*(newLevel < 0 ? -1 : 1);
         }
-      
+
       this->IV->SetColorWindow(newWindow);
       this->IV->SetColorLevel(newLevel);
       this->IV->Render();
     }
-  
+
   vtkImageViewer2 *IV;
   double InitialWindow;
   double InitialLevel;
@@ -602,7 +602,7 @@ void vtkImageViewer2::InstallPipeline()
         vtkCommand::ResetWindowLevelEvent, cbk);
       cbk->Delete();
       }
-    
+
     this->Interactor->SetInteractorStyle(this->InteractorStyle);
     this->Interactor->SetRenderWindow(this->RenderWindow);
     }
@@ -691,7 +691,7 @@ void vtkImageViewer2::Render()
         this->Renderer->GetActiveCamera()->SetParallelScale(
           xs < 150 ? 75 : (xs - 1 ) / 2.0);
         }
-      this->FirstRender = 0;  
+      this->FirstRender = 0;
       }
     }
   if (this->GetInput())
@@ -701,7 +701,7 @@ void vtkImageViewer2::Render()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkImageViewer2::GetWindowName() 
+const char* vtkImageViewer2::GetWindowName()
 {
   return this->RenderWindow->GetWindowName();
 }
@@ -719,29 +719,29 @@ int vtkImageViewer2::GetOffScreenRendering()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetInputData(vtkImageData *in) 
+void vtkImageViewer2::SetInputData(vtkImageData *in)
 {
   this->WindowLevel->SetInputData(in);
   this->UpdateDisplayExtent();
 }
 //----------------------------------------------------------------------------
 vtkImageData* vtkImageViewer2::GetInput()
-{ 
+{
   return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());
 }
 //----------------------------------------------------------------------------
 vtkInformation* vtkImageViewer2::GetInputInformation()
-{ 
+{
   return this->WindowLevel->GetInputInformation();
 }
 //----------------------------------------------------------------------------
 vtkAlgorithm* vtkImageViewer2::GetInputAlgorithm()
-{ 
+{
   return this->WindowLevel->GetInputAlgorithm();
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetInputConnection(vtkAlgorithmOutput* input) 
+void vtkImageViewer2::SetInputConnection(vtkAlgorithmOutput* input)
 {
   this->WindowLevel->SetInputConnection(input);
   this->UpdateDisplayExtent();

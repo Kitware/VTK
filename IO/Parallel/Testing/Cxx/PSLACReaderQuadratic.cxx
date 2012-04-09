@@ -106,7 +106,7 @@ void PSLACReaderQuadratic(vtkMultiProcessController *controller, void *_args)
   renwin->SetSize(600, 150);
   renwin->SetPosition(0, 200*controller->GetLocalProcessId());
   renwin->AddRenderer(renderer);
-  
+
   prm->SetRenderWindow(renwin);
   prm->SetController(controller);
   prm->InitializePieces();

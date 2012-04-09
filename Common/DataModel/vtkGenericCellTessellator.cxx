@@ -93,12 +93,12 @@ int vtkGenericCellTessellator::RequiresEdgeSubdivision(double *leftPoint,
   assert("pre: midPoint_exists" && midPoint!=0);
   assert("pre: rightPoint_exists" && rightPoint!=0);
   assert("pre: clamped_alpha" && alpha>0 && alpha<1);
-  
+
   int result = 0;
   this->ErrorMetrics->InitTraversal();
   vtkGenericSubdivisionErrorMetric *e =
     static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
-  
+
   // Once we found at least one error metric that need subdivision,
   // the subdivision has to be done and there is no need to check for other
   // error metrics.
@@ -108,7 +108,7 @@ int vtkGenericCellTessellator::RequiresEdgeSubdivision(double *leftPoint,
     e = static_cast<vtkGenericSubdivisionErrorMetric *>
       (this->ErrorMetrics->GetNextItemAsObject());
     }
-  
+
   return result;
 }
 
@@ -134,11 +134,11 @@ void vtkGenericCellTessellator::UpdateMaxError(double *leftPoint,
   assert("pre: midPoint_exists" && midPoint!=0);
   assert("pre: rightPoint_exists" && rightPoint!=0);
   assert("pre: clamped_alpha" && alpha>0 && alpha<1);
-  
+
   this->ErrorMetrics->InitTraversal();
   vtkGenericSubdivisionErrorMetric *e =
     static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
-  
+
   // Once we found at least one error metric that need subdivision,
   // the subdivision has to be done and there is no need to check for other
   // error metrics.
@@ -165,14 +165,14 @@ void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet *ds)
   this->ErrorMetrics->InitTraversal();
   vtkGenericSubdivisionErrorMetric *e =
     static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
-  
+
   while(e!=0)
     {
     e->SetDataSet(ds);
     e = static_cast<vtkGenericSubdivisionErrorMetric *>
       (this->ErrorMetrics->GetNextItemAsObject());
     }
-  
+
   if(this->Measurement)
     {
     this->ResetMaxErrors();
@@ -186,7 +186,7 @@ void vtkGenericCellTessellator::InitErrorMetrics(vtkGenericDataSet *ds)
 void vtkGenericCellTessellator::ResetMaxErrors()
 {
   int c = this->ErrorMetrics->GetNumberOfItems();
-  
+
   // Allocate the array.
   if(c>this->MaxErrorsCapacity)
     {
@@ -197,7 +197,7 @@ void vtkGenericCellTessellator::ResetMaxErrors()
       }
     this->MaxErrors = new double[this->MaxErrorsCapacity];
     }
-  
+
   for(int i = 0; i<c; ++i)
     {
     this->MaxErrors[i] = 0;
@@ -212,7 +212,7 @@ void vtkGenericCellTessellator::ResetMaxErrors()
 void vtkGenericCellTessellator::GetMaxErrors(double *errors)
 {
   assert("pre: errors_exists" && errors!=0);
-  
+
   int c = this->ErrorMetrics->GetNumberOfItems();
   for(int i = 0; i<c; ++i)
     {
@@ -229,10 +229,10 @@ void vtkGenericCellTessellator::GetMaxErrors(double *errors)
 void vtkGenericCellTessellator::SetGenericCell(vtkGenericAdaptorCell *cell)
 {
   assert("pre: cell_exists" && cell!=0);
-  
+
   this->ErrorMetrics->InitTraversal();
   vtkGenericSubdivisionErrorMetric *e=static_cast<vtkGenericSubdivisionErrorMetric *>(this->ErrorMetrics->GetNextItemAsObject());
-  
+
   while(e!=0)
     {
     e->SetGenericCell(cell);

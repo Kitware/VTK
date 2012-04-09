@@ -55,7 +55,7 @@ bool needSurfacePositionInEyeCoordinates()
   bool result=false;
   for (int i=0; !result && (i < gl_MaxLights); i++)
     {
-    result = (gl_LightSource[i].diffuse.w != 0.0) && 
+    result = (gl_LightSource[i].diffuse.w != 0.0) &&
       (gl_LightSource[i].position.w != 0.0);
     }
 
@@ -88,7 +88,7 @@ void separateSpecularColor(gl_MaterialParameters m,
       {
       continue;
       }
-    
+
     vec3 ldir;
     vec3 h;
     float att;
@@ -104,7 +104,7 @@ void separateSpecularColor(gl_MaterialParameters m,
       float sqrDistance = dot(ldir,ldir);
       ldir = normalize(ldir);
       h = normalize(ldir + wReverseRayDir);
-      att = 1.0 / (gl_LightSource[i].constantAttenuation + gl_LightSource[i].linearAttenuation * 
+      att = 1.0 / (gl_LightSource[i].constantAttenuation + gl_LightSource[i].linearAttenuation *
         sqrt(sqrDistance) + gl_LightSource[i].quadraticAttenuation * sqrDistance);
       }
     else

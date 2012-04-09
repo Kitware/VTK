@@ -274,7 +274,7 @@ void vtkImageHybridMedian2D::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageHybridMedian2DExecute( this, inData[0][0],
-                                     static_cast<VTK_TT *>(inPtr), outData[0], 
+                                     static_cast<VTK_TT *>(inPtr), outData[0],
                                      static_cast<VTK_TT *>(outPtr),
                                      outExt, id, inInfo));
 

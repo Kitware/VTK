@@ -93,7 +93,7 @@ public:
   vtkGetVectorMacro(Point2,double,3);
 
   // Description:
-  // Set/Get the center of the plane. Works in conjunction with the plane 
+  // Set/Get the center of the plane. Works in conjunction with the plane
   // normal to position the plane. Don't use this method to define the plane.
   // Instead, use it to move the plane to a new center point.
   void SetCenter(double x, double y, double z);

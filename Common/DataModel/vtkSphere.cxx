@@ -33,9 +33,9 @@ vtkSphere::vtkSphere()
 // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
 double vtkSphere::EvaluateFunction(double x[3])
 {
-  return ( ((x[0] - this->Center[0]) * (x[0] - this->Center[0]) + 
-           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) + 
-           (x[2] - this->Center[2]) * (x[2] - this->Center[2])) - 
+  return ( ((x[0] - this->Center[0]) * (x[0] - this->Center[0]) +
+           (x[1] - this->Center[1]) * (x[1] - this->Center[1]) +
+           (x[2] - this->Center[2]) * (x[2] - this->Center[2])) -
            this->Radius*this->Radius );
 }
 
@@ -114,7 +114,7 @@ void vtkSphereComputeBoundingSphere(T *pts, vtkIdType numPts, T sphere[4],
         }
       else
         {
-        VTK_ASSIGN_POINT(d1,zMin);  
+        VTK_ASSIGN_POINT(d1,zMin);
         VTK_ASSIGN_POINT(d2,zMax);
         }
       }
@@ -217,13 +217,13 @@ void vtkSphereComputeBoundingSphere(T **spheres, vtkIdType numSpheres, T sphere[
       if ((s[2]-s[3]) < zMin[2] ) VTK_ASSIGN_SPHERE(zMin,s);
       if ((s[2]+s[3]) > zMax[2] ) VTK_ASSIGN_SPHERE(zMax,s);
       }
-    T xSpan = (xMax[0]+xMax[3]-xMin[0]-xMin[3])*(xMax[0]+xMax[3]-xMin[0]-xMin[3]) + 
+    T xSpan = (xMax[0]+xMax[3]-xMin[0]-xMin[3])*(xMax[0]+xMax[3]-xMin[0]-xMin[3]) +
       (xMax[1]+xMax[3]-xMin[1]-xMin[3])*(xMax[1]+xMax[3]-xMin[1]-xMin[3]) +
       (xMax[2]+xMax[3]-xMin[2]-xMin[3])*(xMax[2]+xMax[3]-xMin[2]-xMin[3]);
-    T ySpan = (yMax[0]+yMax[3]-yMin[0]-yMin[3])*(yMax[0]+yMax[3]-yMin[0]-yMin[3]) + 
+    T ySpan = (yMax[0]+yMax[3]-yMin[0]-yMin[3])*(yMax[0]+yMax[3]-yMin[0]-yMin[3]) +
       (yMax[1]+yMax[3]-yMin[1]-yMin[3])*(yMax[1]+yMax[3]-yMin[1]-yMin[3]) +
       (yMax[2]+yMax[3]-yMin[2]-yMin[3])*(yMax[2]+yMax[3]-yMin[2]-yMin[3]);
-    T zSpan = (zMax[0]+zMax[3]-zMin[0]-zMin[3])*(zMax[0]+zMax[3]-zMin[0]-zMin[3]) + 
+    T zSpan = (zMax[0]+zMax[3]-zMin[0]-zMin[3])*(zMax[0]+zMax[3]-zMin[0]-zMin[3]) +
       (zMax[1]+zMax[3]-zMin[1]-zMin[3])*(zMax[1]+zMax[3]-zMin[1]-zMin[3]) +
       (zMax[2]+zMax[3]-zMin[2]-zMin[3])*(zMax[2]+zMax[3]-zMin[2]-zMin[3]);
 
@@ -340,6 +340,6 @@ void vtkSphere::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
-  os << indent << "Center: (" << this->Center[0] << ", " 
+  os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";
 }

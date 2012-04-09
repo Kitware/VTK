@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkSplitField);
 
-char vtkSplitField::FieldLocationNames[3][12] 
+char vtkSplitField::FieldLocationNames[3][12]
 = { "DATA_OBJECT",
     "POINT_DATA",
     "CELL_DATA" };
@@ -47,7 +47,7 @@ vtkSplitField::vtkSplitField()
   this->Tail = 0;
 
   //convert the attribute names to uppercase for local use
-  if (vtkSplitField::AttributeNames[0][0] == 0) 
+  if (vtkSplitField::AttributeNames[0][0] == 0)
     {
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
       {
@@ -55,7 +55,7 @@ vtkSplitField::vtkSplitField()
         strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i)));
       for (int c = 0; c < l && c < 10; c++)
         {
-        vtkSplitField::AttributeNames[i][c] = 
+        vtkSplitField::AttributeNames[i][c] =
           toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
         }
       }
@@ -199,7 +199,7 @@ int vtkSplitField::RequestData(
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
-  
+
   // Pass all. (data object's field data is passed by the
   // superclass after this method)
   output->GetPointData()->PassData( input->GetPointData() );
@@ -259,7 +259,7 @@ int vtkSplitField::RequestData(
     return 1;
     }
 
-  // iterate over all components in the linked list and 
+  // iterate over all components in the linked list and
   // generate them
   do
     {
@@ -275,7 +275,7 @@ int vtkSplitField::RequestData(
         outputArray->UnRegister(this);
         }
       }
-    } 
+    }
   while (cur);
 
   return 1;
@@ -283,7 +283,7 @@ int vtkSplitField::RequestData(
 
 // fast pointer copy
 template <class T>
-void vtkSplitFieldCopyTuples(T* input, T* output, vtkIdType numTuples, 
+void vtkSplitFieldCopyTuples(T* input, T* output, vtkIdType numTuples,
                    int numComp, int component)
 {
   for (int i=0; i<numTuples; i++)
@@ -309,10 +309,10 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
     switch (output->GetDataType())
       {
       vtkTemplateMacro(
-        vtkSplitFieldCopyTuples((VTK_TT *)da->GetVoidPointer(0), 
-                                (VTK_TT *)output->GetVoidPointer(0), 
+        vtkSplitFieldCopyTuples((VTK_TT *)da->GetVoidPointer(0),
+                                (VTK_TT *)output->GetVoidPointer(0),
                                 numTuples,
-                                da->GetNumberOfComponents(), 
+                                da->GetNumberOfComponents(),
                                 component));
       // This is not supported by the template macro.
       // Switch to using the float interface.
@@ -329,7 +329,7 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
         return 0;
       }
     }
-  
+
   return output;
 
 }
@@ -372,12 +372,12 @@ void vtkSplitField::DeleteAllComponents()
   Component* cur = this->GetFirst();
   if (!cur) {return;}
   Component* before;
-  do 
+  do
     {
     before = cur;
     cur = cur->Next;
     delete before;
-    } 
+    }
   while (cur);
   this->Head = 0;
   this->Tail = 0;
@@ -422,6 +422,6 @@ void vtkSplitField::PrintAllComponents(ostream& os, vtkIndent indent)
     cur = cur->Next;
     os << endl;
     this->PrintComponent(before, os, indent);
-    } 
+    }
   while (cur);
 }

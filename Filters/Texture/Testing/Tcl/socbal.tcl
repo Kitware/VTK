@@ -424,10 +424,10 @@ vtkActor soccerBall
 ren1 AddActor soccerBall
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
-[ren1 GetActiveCamera] SetPosition 4.19682 4.65178 6.23545 
-[ren1 GetActiveCamera] SetFocalPoint 0 0 0 
+[ren1 GetActiveCamera] SetPosition 4.19682 4.65178 6.23545
+[ren1 GetActiveCamera] SetFocalPoint 0 0 0
 [ren1 GetActiveCamera] SetViewAngle 21.4286
-[ren1 GetActiveCamera] SetViewUp 0.451577 -0.833646 0.317981 
+[ren1 GetActiveCamera] SetViewUp 0.451577 -0.833646 0.317981
 
 # render the image
 #

@@ -37,8 +37,8 @@ public:
   void Render(vtkRenderer *ren);
 
   void UpdateViewport(vtkRenderer *ren);
-  
-protected:  
+
+protected:
   vtkOpenGLCamera() {};
   ~vtkOpenGLCamera() {};
 private:

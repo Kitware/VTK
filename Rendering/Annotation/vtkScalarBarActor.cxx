@@ -48,10 +48,10 @@ vtkScalarBarActor::vtkScalarBarActor()
 {
   this->LookupTable = NULL;
   this->Position2Coordinate->SetValue(0.17, 0.8);
-  
+
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
   this->PositionCoordinate->SetValue(0.82,0.1);
-  
+
   this->MaximumNumberOfColors = 64;
   this->NumberOfLabels = 5;
   this->NumberOfLabelsBuilt = 0;
@@ -69,7 +69,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
-  this->LabelFormat = new char[8]; 
+  this->LabelFormat = new char[8];
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 
   this->TitleMapper = vtkTextMapper::New();
@@ -77,7 +77,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->
     SetReferenceCoordinate(this->PositionCoordinate);
-  
+
   this->TextMappers = NULL;
   this->TextActors = NULL;
 
@@ -92,12 +92,12 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastOrigin[1] = 0;
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
-  
+
   // If opacity is on, a jail like texture is displayed behind it..
 
   this->UseOpacity       = 0;
   this->TextureGridWidth = 10.0;
-  
+
   this->TexturePolyData = vtkPolyData::New();
   vtkPolyDataMapper2D * textureMapper = vtkPolyDataMapper2D::New();
   textureMapper->SetInputData(this->TexturePolyData);
@@ -109,10 +109,10 @@ vtkScalarBarActor::vtkScalarBarActor()
   vtkFloatArray* tc = vtkFloatArray::New();
   tc->SetNumberOfComponents(2);
   tc->SetNumberOfTuples(4);
-  tc->InsertComponent(0,0, 0.0);  
+  tc->InsertComponent(0,0, 0.0);
   tc->InsertComponent(0,1, 0.0);
   tc->InsertComponent(1,1, 0.0);
-  tc->InsertComponent(3,0, 0.0);  
+  tc->InsertComponent(3,0, 0.0);
   this->TexturePolyData->GetPointData()->SetTCoords(tc);
   tc->Delete();
 
@@ -136,10 +136,10 @@ vtkScalarBarActor::vtkScalarBarActor()
   vtkImageData *image = vtkImageData::New();
   image->SetDimensions(dim, dim, 1);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
-  
+
   for (unsigned int y = 0; y < dim; y++)
     {
-    unsigned char *ptr = 
+    unsigned char *ptr =
       static_cast< unsigned char * >(image->GetScalarPointer(0, y, 0));
     for (unsigned int x = 0; x < dim; x++)
       {
@@ -202,7 +202,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow *win)
 //----------------------------------------------------------------------------
 vtkScalarBarActor::~vtkScalarBarActor()
 {
-  if (this->LabelFormat) 
+  if (this->LabelFormat)
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
@@ -237,7 +237,7 @@ vtkScalarBarActor::~vtkScalarBarActor()
     delete [] this->ComponentTitle;
     this->ComponentTitle = NULL;
     }
-  
+
   this->SetLookupTable(NULL);
   this->SetLabelTextProperty(NULL);
   this->SetTitleTextProperty(NULL);
@@ -259,17 +259,17 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
 {
   int renderedSomething = 0;
   int i;
-  
+
   if (this->DrawBackground)
     {
     renderedSomething += this->BackgroundActor->RenderOverlay(viewport);
     }
-  
+
   if (this->DrawFrame)
     {
     renderedSomething += this->FrameActor->RenderOverlay(viewport);
     }
-  
+
   if (this->UseOpacity)
     {
     this->Texture->Render(vtkRenderer::SafeDownCast(viewport));
@@ -287,7 +287,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
      vtkWarningMacro(<<"Need a mapper to render a scalar bar");
      return renderedSomething;
     }
-  
+
   for (i=0; i<this->NumberOfLabels; i++)
     {
     renderedSomething += this->TextActors[i]->RenderOverlay(viewport);
@@ -304,7 +304,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int renderedSomething = 0;
   int i;
   int size[2];
-  
+
   if (!this->LookupTable)
     {
     vtkWarningMacro(<<"Need a mapper to render a scalar bar");
@@ -325,39 +325,39 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Check to see whether we have to rebuild everything
   int positionsHaveChanged = 0;
-  if (viewport->GetMTime() > this->BuildTime || 
-      (viewport->GetVTKWindow() && 
+  if (viewport->GetMTime() > this->BuildTime ||
+      (viewport->GetVTKWindow() &&
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
     // if the viewport has changed we may - or may not need
     // to rebuild, it depends on if the projected coords chage
     int *barOrigin;
     barOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
-    size[0] = 
+    size[0] =
       this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -
       barOrigin[0];
-    size[1] = 
+    size[1] =
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
 
-    // Check if we have bounds on the maximum size 
-    size[0] = size[0] > this->MaximumWidthInPixels 
+    // Check if we have bounds on the maximum size
+    size[0] = size[0] > this->MaximumWidthInPixels
             ? this->MaximumWidthInPixels : size[0];
-    size[1] = size[1] > this->MaximumHeightInPixels 
+    size[1] = size[1] > this->MaximumHeightInPixels
             ? this->MaximumHeightInPixels : size[1];
 
-    if (this->LastSize[0] != size[0] || 
+    if (this->LastSize[0] != size[0] ||
         this->LastSize[1] != size[1] ||
-        this->LastOrigin[0] != barOrigin[0] || 
+        this->LastOrigin[0] != barOrigin[0] ||
         this->LastOrigin[1] != barOrigin[1])
       {
       positionsHaveChanged = 1;
       }
     }
-  
+
   // Check to see whether we have to rebuild everything
   if (positionsHaveChanged ||
-      this->GetMTime() > this->BuildTime || 
+      this->GetMTime() > this->BuildTime ||
       this->LookupTable->GetMTime() > this->BuildTime ||
       this->LabelTextProperty->GetMTime() > this->BuildTime ||
       this->TitleTextProperty->GetMTime() > this->BuildTime ||
@@ -383,7 +383,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // Build scalar bar object; determine its type
     // i.e. has scale set to log
     int isLogTable = this->LookupTable->UsingLogScale();
-    
+
     // we hard code how many steps to display
     vtkScalarsToColors *lut = this->LookupTable;
     int numColors = this->MaximumNumberOfColors;
@@ -434,32 +434,32 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // get the viewport size in display coordinates
     int *barOrigin, barWidth, barHeight;
     barOrigin = this->PositionCoordinate->GetComputedViewportValue(viewport);
-    size[0] = 
+    size[0] =
       this->Position2Coordinate->GetComputedViewportValue(viewport)[0] -
       barOrigin[0];
-    size[1] = 
+    size[1] =
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
 
-    // Check if we have bounds on the maximum size 
-    size[0] = size[0] > this->MaximumWidthInPixels 
+    // Check if we have bounds on the maximum size
+    size[0] = size[0] > this->MaximumWidthInPixels
             ? this->MaximumWidthInPixels : size[0];
-    size[1] = size[1] > this->MaximumHeightInPixels 
+    size[1] = size[1] > this->MaximumHeightInPixels
             ? this->MaximumHeightInPixels : size[1];
-    
+
     this->LastOrigin[0] = barOrigin[0];
     this->LastOrigin[1] = barOrigin[1];
     this->LastSize[0] = size[0];
     this->LastSize[1] = size[1];
-    
+
     // Update all the composing objects
     this->TitleActor->SetProperty(this->GetProperty());
-    
-    
+
+
     //update with the proper title
     if ( this->ComponentTitle && strlen(this->ComponentTitle) > 0 )
       {
-      //need to account for a space between title & component and null term      
+      //need to account for a space between title & component and null term
       char *combinedTitle = new char[ ( strlen(this->Title) + strlen(this->ComponentTitle) + 2) ];
       strcpy(combinedTitle, this->Title );
       strcat( combinedTitle, " " );
@@ -483,16 +483,16 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->TitleMapper->GetTextProperty()->ShallowCopy(this->TitleTextProperty);
       this->TitleMapper->GetTextProperty()->SetJustificationToCentered();
       }
-    
+
     // find the best size for the title font
     int titleSize[2];
     this->SizeTitle(titleSize, size, viewport);
-    
+
     // find the best size for the ticks
     int labelSize[2];
     this->AllocateAndSizeLabels(labelSize, size, viewport,range);
     this->NumberOfLabelsBuilt = this->NumberOfLabels;
-    
+
     // generate points
     double x[3]; x[2] = 0.0;
     double delta;
@@ -514,11 +514,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       delta=static_cast<double>(barHeight)/numColors;
       for (i=0; i<numPts/2; i++)
         {
-        x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+        x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           ? (size[0] - barWidth - barX) : barX;
         x[1] = barY + i*delta;
         pts->SetPoint(2*i,x);
-        x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+        x[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           ? size[0] - barX: barX + barWidth;
         pts->SetPoint(2*i+1,x);
         }
@@ -539,15 +539,15 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       for (i=0; i<numPts/2; i++)
         {
         x[0] = barX + i*delta;
-        x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+        x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           ? size[1] - barY: barY + barHeight ;
         pts->SetPoint(2*i,x);
-        x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+        x[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           ? (size[1]-barHeight - barY) : barY;
         pts->SetPoint(2*i+1,x);
         }
       }
-    
+
     //polygons & cell colors
     unsigned char *rgba, *rgb;
     vtkIdType ptIds[4];
@@ -561,7 +561,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
       if ( isLogTable )
         {
-        double rgbval = log10(range[0]) + 
+        double rgbval = log10(range[0]) +
           i*(log10(range[1])-log10(range[0]))/(numColors -1);
         rgba = lut->MapValue(pow(10.0,rgbval));
         }
@@ -586,15 +586,15 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     bgPts->SetPoint(0,x);
     frPts->SetPoint(0,x);
     frPts->SetPoint(4,x);
-    
+
     x[0]=0; x[1]=size[1];
     bgPts->SetPoint(1,x);
     frPts->SetPoint(1,x);
-    
+
     x[0]=size[0]; x[1]=size[1];
     bgPts->SetPoint(2,x);
     frPts->SetPoint(2,x);
-    
+
     x[0]=size[0]; x[1]=0;
     bgPts->SetPoint(3,x);
     frPts->SetPoint(3,x);
@@ -611,14 +611,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       // center the title
       this->TitleActor->SetPosition(size[0]/2, 0.9*size[1]);
-      
+
       for (i=0; i < this->NumberOfLabels; i++)
         {
         if (this->NumberOfLabels > 1)
           {
           val = static_cast<double>(i)/(this->NumberOfLabels-1) *barHeight + barY;
           }
-        else 
+        else
           {
           val = 0.5*(barHeight + barY);
           }
@@ -626,7 +626,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextMappers[i]->GetTextProperty()->SetJustificationToLeft();
         if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
           {
-          this->TextActors[i]->SetPosition(barX, 
+          this->TextActors[i]->SetPosition(barX,
                                            val - 0.6*sizeTextData[1]);
           }
         else
@@ -640,12 +640,12 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         {
-        this->TitleActor->SetPosition(size[0]/2, 
+        this->TitleActor->SetPosition(size[0]/2,
                                       barY + 0.1*titleSize[1]);
         }
       else
         {
-        this->TitleActor->SetPosition(size[0]/2, 
+        this->TitleActor->SetPosition(size[0]/2,
                                       barHeight + labelSize[1] + 0.1*size[1] + 0.15*titleSize[1]);
         }
       for (i=0; i < this->NumberOfLabels; i++)
@@ -681,7 +681,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     double p1[2], p2[2];
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
-      p1[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+      p1[0] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         ? (size[0] - barWidth - barX) : barX;
       p1[1] = barY;
       p2[0] = p1[0] + barWidth;
@@ -690,7 +690,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     else
       {
       p1[0] = barX;
-      p1[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar) 
+      p1[1] = (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
         ? (size[1] - barHeight - barY) : barY;
       p2[0] = p1[0] + barWidth;
       p2[1] = p1[1] + barHeight;
@@ -704,7 +704,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     vtkDataArray * tc = this->TexturePolyData->GetPointData()->GetTCoords();
     tc->SetTuple2(1, barWidth / this->TextureGridWidth, 0.0);
-    tc->SetTuple2(2, barWidth / this->TextureGridWidth, 
+    tc->SetTuple2(2, barWidth / this->TextureGridWidth,
                   barHeight / this->TextureGridWidth);
     tc->SetTuple2(3, 0.0, barHeight / this->TextureGridWidth);
 
@@ -773,7 +773,7 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "ComponentTitle: " << (this->ComponentTitle ? this->ComponentTitle : "(none)") << "\n";
-  os << indent << "Maximum Number Of Colors: " 
+  os << indent << "Maximum Number Of Colors: "
      << this->MaximumNumberOfColors << "\n";
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
   os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
@@ -805,9 +805,9 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "TextPosition: SucceedScalarBar\n";
     }
 
-  os << indent << "MaximumWidthInPixels: " 
+  os << indent << "MaximumWidthInPixels: "
      << this->MaximumWidthInPixels << endl;
-  os << indent << "MaximumHeightInPixels: " 
+  os << indent << "MaximumHeightInPixels: "
      << this->MaximumHeightInPixels << endl;
 
   os << indent << "DrawBackground: " << this->DrawBackground << "\n";
@@ -833,11 +833,11 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
     this->SetLabelFormat(a->GetLabelFormat());
     this->SetTitle(a->GetTitle());
     this->GetPositionCoordinate()->SetCoordinateSystem(
-      a->GetPositionCoordinate()->GetCoordinateSystem());    
+      a->GetPositionCoordinate()->GetCoordinateSystem());
     this->GetPositionCoordinate()->SetValue(
       a->GetPositionCoordinate()->GetValue());
     this->GetPosition2Coordinate()->SetCoordinateSystem(
-      a->GetPosition2Coordinate()->GetCoordinateSystem());    
+      a->GetPosition2Coordinate()->GetCoordinateSystem());
     this->GetPosition2Coordinate()->SetValue(
       a->GetPosition2Coordinate()->GetValue());
     this->SetDrawBackground(a->GetDrawBackground());
@@ -851,7 +851,7 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
 }
 
 //----------------------------------------------------------------------------
-void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize, 
+void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
                                               int *size,
                                               vtkViewport *viewport,
                                               double *range)
@@ -865,14 +865,14 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 
   double val;
   int i;
-  
+
   // TODO: this should be optimized, maybe by keeping a list of
   // allocated mappers, in order to avoid creation/destruction of
   // their underlying text properties (i.e. each time a mapper is
   // created, text properties are created and shallow-assigned a font size
   // which value might be "far" from the target font size).
 
-  // is this a vtkLookupTable or a subclass of vtkLookupTable 
+  // is this a vtkLookupTable or a subclass of vtkLookupTable
   // with its scale set to log
   int isLogTable = this->LookupTable->UsingLogScale();
 
@@ -900,7 +900,7 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
       if (this->NumberOfLabels > 1)
         {
         val = range[0] +
-          static_cast<double>(i)/(this->NumberOfLabels-1) 
+          static_cast<double>(i)/(this->NumberOfLabels-1)
           * (range[1]-range[0]);
         }
       else
@@ -943,8 +943,8 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
       targetHeight = static_cast<int>(0.25*size[1]);
       }
 
-    vtkTextMapper::SetMultipleConstrainedFontSize(viewport, 
-                                                  targetWidth, 
+    vtkTextMapper::SetMultipleConstrainedFontSize(viewport,
+                                                  targetWidth,
                                                   targetHeight,
                                                   this->TextMappers,
                                                   this->NumberOfLabels,
@@ -953,8 +953,8 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 }
 
 //----------------------------------------------------------------------------
-void vtkScalarBarActor::SizeTitle(int *titleSize, 
-                                  int *size, 
+void vtkScalarBarActor::SizeTitle(int *titleSize,
+                                  int *size,
                                   vtkViewport *viewport)
 {
   titleSize[0] = titleSize[1] = 0;

@@ -28,7 +28,7 @@ set_source_files_properties(
   )
 
 # Now to generate our object factory.
-set( vtk_module_overrides 
+set( vtk_module_overrides
   vtkContingencyStatistics
   vtkCorrelativeStatistics
   vtkDescriptiveStatistics

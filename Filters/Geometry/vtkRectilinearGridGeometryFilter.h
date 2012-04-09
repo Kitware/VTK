@@ -24,9 +24,9 @@
 
 // .SECTION Caveats
 // If you don't know the dimensions of the input dataset, you can use a large
-// number to specify extent (the number will be clamped appropriately). For 
-// example, if the dataset dimensions are 50x50x50, and you want a the fifth 
-// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will 
+// number to specify extent (the number will be clamped appropriately). For
+// example, if the dataset dimensions are 50x50x50, and you want a the fifth
+// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will
 // automatically be clamped to 49.
 
 // .SECTION See Also

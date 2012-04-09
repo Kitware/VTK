@@ -38,17 +38,17 @@ public:
     { return new vtkImageOpenClose3DProgress; }
 
   // the execute
-  virtual void Execute(vtkObject *caller, 
+  virtual void Execute(vtkObject *caller,
                        unsigned long event, void* vtkNotUsed(v))
     {
       vtkAlgorithm *alg = vtkAlgorithm::SafeDownCast(caller);
       if (event == vtkCommand::ProgressEvent && alg)
         {
-        this->Self->UpdateProgress(this->Offset + 0.5 * 
+        this->Self->UpdateProgress(this->Offset + 0.5 *
                                    alg->GetProgress());
         }
     }
-  
+
   // some ivars that should be set
   vtkImageOpenClose3D *Self;
   double Offset;
@@ -57,7 +57,7 @@ public:
 //----------------------------------------------------------------------------
 vtkImageOpenClose3D::vtkImageOpenClose3D()
 {
-  // create the filter chain 
+  // create the filter chain
   this->Filter0 = vtkImageDilateErode3D::New();
   vtkImageOpenClose3DProgress *cb = vtkImageOpenClose3DProgress::New();
   cb->Self = this;
@@ -86,7 +86,7 @@ vtkImageOpenClose3D::~vtkImageOpenClose3D()
     {
     this->Filter0->Delete();
     }
-  
+
   if (this->Filter1)
     {
     this->Filter1->Delete();
@@ -141,7 +141,7 @@ void vtkImageOpenClose3D::Modified()
     {
     this->Filter0->Modified();
     }
-  
+
   if (this->Filter1)
     {
     this->Filter1->Modified();
@@ -155,7 +155,7 @@ void vtkImageOpenClose3D::Modified()
 unsigned long int vtkImageOpenClose3D::GetMTime()
 {
   unsigned long int t1, t2;
-  
+
   t1 = this->Superclass::GetMTime();
   if (this->Filter0)
     {
@@ -173,7 +173,7 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
       t1 = t2;
       }
     }
-  
+
   return t1;
 }
 
@@ -239,7 +239,7 @@ void vtkImageOpenClose3D::SetKernelSize(int size0, int size1, int size2)
     vtkErrorMacro(<< "SetKernelSize: Sub filter not created yet.");
     return;
     }
-  
+
   this->Filter0->SetKernelSize(size0, size1, size2);
   this->Filter1->SetKernelSize(size0, size1, size2);
   // Sub filters take care of modified.
@@ -255,7 +255,7 @@ void vtkImageOpenClose3D::SetCloseValue(double value)
     vtkErrorMacro(<< "SetCloseValue: Sub filter not created yet.");
     return;
     }
-  
+
   this->Filter0->SetDilateValue(value);
   this->Filter1->SetErodeValue(value);
 }
@@ -268,12 +268,12 @@ double vtkImageOpenClose3D::GetCloseValue()
     vtkErrorMacro(<< "GetCloseValue: Sub filter not created yet.");
     return 0.0;
     }
-  
+
   return this->Filter0->GetDilateValue();
 }
 
 //----------------------------------------------------------------------------
-// Determines the value that will opened.  
+// Determines the value that will opened.
 // Open value is first eroded, and then dilated.
 void vtkImageOpenClose3D::SetOpenValue(double value)
 {
@@ -282,7 +282,7 @@ void vtkImageOpenClose3D::SetOpenValue(double value)
     vtkErrorMacro(<< "SetOpenValue: Sub filter not created yet.");
     return;
     }
-  
+
   this->Filter0->SetErodeValue(value);
   this->Filter1->SetDilateValue(value);
 }
@@ -295,7 +295,7 @@ double vtkImageOpenClose3D::GetOpenValue()
     vtkErrorMacro(<< "GetOpenValue: Sub filter not created yet.");
     return 0.0;
     }
-  
+
   return this->Filter0->GetErodeValue();
 }
 

@@ -21,7 +21,7 @@
 // This pass expects an initialized depth buffer and color buffer.
 // Initialized buffers means they have been cleared with farest z-value and
 // background color/gradient/transparent color.
-// 
+//
 // .SECTION See Also
 // vtkRenderPass vtkDefaultPass
 
@@ -44,7 +44,7 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
  protected:
   // Description:
   // Default constructor.
@@ -53,7 +53,7 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkTranslucentPass();
-  
+
  private:
   vtkTranslucentPass(const vtkTranslucentPass&);  // Not implemented.
   void operator=(const vtkTranslucentPass&);  // Not implemented.

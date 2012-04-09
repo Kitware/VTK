@@ -37,7 +37,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   dy = this->FocalPoint[1] - this->Position[1];
   dz = this->FocalPoint[2] - this->Position[2];
 
-  if(this->TransformMatrix != NULL) 
+  if(this->TransformMatrix != NULL)
     {
     double xform[16];
     vtkMatrix4x4::Transpose(*this->TransformMatrix->Element, xform);
@@ -85,11 +85,11 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     Info[3]  = 1.0;
     glLightfv(static_cast<GLenum>(light_index), GL_POSITION, Info );
 
-    glLightf(static_cast<GLenum>(light_index), 
+    glLightf(static_cast<GLenum>(light_index),
              GL_CONSTANT_ATTENUATION, this->AttenuationValues[0]);
-    glLightf(static_cast<GLenum>(light_index), 
+    glLightf(static_cast<GLenum>(light_index),
              GL_LINEAR_ATTENUATION, this->AttenuationValues[1]);
-    glLightf(static_cast<GLenum>(light_index), 
+    glLightf(static_cast<GLenum>(light_index),
              GL_QUADRATIC_ATTENUATION, this->AttenuationValues[2]);
 
     // set up spot parameters if necessary
@@ -110,7 +110,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
       }
     }
 
-  if(this->TransformMatrix != NULL) 
+  if(this->TransformMatrix != NULL)
     {
     glPopMatrix();
     }

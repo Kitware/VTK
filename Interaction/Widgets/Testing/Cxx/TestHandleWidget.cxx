@@ -16,8 +16,8 @@
 // This example tests the vtkHandleWidget.
 //
 // The handle that you see is always constrained to lie on a plane (
-// defined by a vtkImplicitPlaneWidget2). It  goes to show that you can place 
-// constraints on the movement of the handle. You can move the plane around 
+// defined by a vtkImplicitPlaneWidget2). It  goes to show that you can place
+// constraints on the movement of the handle. You can move the plane around
 // interactively. It exercises the class vtkBoundedPlanePointPlacer.
 
 #include "vtkSmartPointer.h"
@@ -53,13 +53,13 @@
 class vtkTIPW3Callback : public vtkCommand
 {
 public:
-  static vtkTIPW3Callback *New() 
+  static vtkTIPW3Callback *New()
     { return new vtkTIPW3Callback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
-      vtkImplicitPlaneWidget2 *planeWidget = 
+      vtkImplicitPlaneWidget2 *planeWidget =
         reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
-      vtkImplicitPlaneRepresentation *rep = 
+      vtkImplicitPlaneRepresentation *rep =
         reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
       rep->GetPlane(this->Plane);
       this->Actor->VisibilityOn();
@@ -67,7 +67,7 @@ public:
 
   vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
   ~vtkTIPW3Callback() { this->Plane->Delete(); }
-  
+
   vtkPlane *Plane;
   vtkActor *Actor;
 };
@@ -587,14 +587,14 @@ int TestHandleWidget( int argc, char *argv[] )
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
 
-  // The sphere and spikes are appended into a single polydata. 
+  // The sphere and spikes are appended into a single polydata.
   // This just makes things simpler to manage.
   vtkSmartPointer<vtkAppendPolyData> apd =
     vtkSmartPointer<vtkAppendPolyData>::New();
   apd->AddInputConnection(glyph->GetOutputPort());
   apd->AddInputConnection(sphere->GetOutputPort());
 
-  // This portion of the code clips the mace with the vtkPlanes 
+  // This portion of the code clips the mace with the vtkPlanes
   // implicit function. The cut region is colored green.
   vtkSmartPointer<vtkTIPW3Callback> myCallback =
     vtkSmartPointer<vtkTIPW3Callback>::New();
@@ -612,8 +612,8 @@ int TestHandleWidget( int argc, char *argv[] )
   selectActor->SetMapper(selectMapper);
   selectActor->GetProperty()->SetColor(0,1,0);
   selectActor->VisibilityOff();
-  selectActor->SetScale(1.01, 1.01, 1.01);  
-  
+  selectActor->SetScale(1.01, 1.01, 1.01);
+
   vtkSmartPointer<vtkOutlineFilter> outline =
     vtkSmartPointer<vtkOutlineFilter>::New();
     outline->SetInputConnection(apd->GetOutputPort());
@@ -629,7 +629,7 @@ int TestHandleWidget( int argc, char *argv[] )
   rep->SetPlaceFactor(0.7);
   rep->GetPlaneProperty()->SetAmbientColor(0.0, 0.5, 0.5);
   rep->GetPlaneProperty()->SetOpacity(0.3);
-  rep->PlaceWidget(outline->GetOutput()->GetBounds());  
+  rep->PlaceWidget(outline->GetOutput()->GetBounds());
   vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget =
     vtkSmartPointer<vtkImplicitPlaneWidget2>::New();
   planeWidget->SetRepresentation(rep);
@@ -637,7 +637,7 @@ int TestHandleWidget( int argc, char *argv[] )
   myCallback->Actor = selectActor;
 
   planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
-  
+
 
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -653,7 +653,7 @@ int TestHandleWidget( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
-  // and the widget representation that defines how the widget appears in the scene 
+  // and the widget representation that defines how the widget appears in the scene
   // (i.e., matters pertaining to geometry).
   vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep =
     vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
@@ -680,9 +680,9 @@ int TestHandleWidget( int argc, char *argv[] )
 //  recorder->SetFileName("c:/record.log");
 //  recorder->Record();
   recorder->ReadFromInputStringOn();
-  recorder->SetInputString(HandleWidgetLog); 
+  recorder->SetInputString(HandleWidgetLog);
   recorder->EnabledOn();
-  
+
   // Should we constrain the handles to the oblique plane ?
   bool constrainHandlesToObliquePlane = false;
   for (int i = 0; i < argc; i++)
@@ -700,7 +700,7 @@ int TestHandleWidget( int argc, char *argv[] )
   double worldPos[3] = {-0.0417953, 0.202206, -0.0538641};
   handleRep->SetWorldPosition(worldPos);
   rep->GetPlane(myCallback->Plane);
-  
+
   if (constrainHandlesToObliquePlane)
     {
     vtkSmartPointer<vtkBoundedPlanePointPlacer> placer =
@@ -718,27 +718,27 @@ int TestHandleWidget( int argc, char *argv[] )
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 1.0, 0.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    
+
     plane = vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
     plane->SetNormal( -1.0, 0.0, 0.0 );
     placer->AddBoundingPlane( plane );
-      
+
     plane =  vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 0.0, 1.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    
+
     plane = vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
     plane->SetNormal( 0.0, -1.0, 0.0 );
     placer->AddBoundingPlane( plane );
-    
+
     plane =  vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[0], bounds[2], bounds[4] );
     plane->SetNormal( 0.0, 0.0, 1.0 );
     placer->AddBoundingPlane( plane );
-    
+
     plane = vtkSmartPointer<vtkPlane>::New();
     plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
     plane->SetNormal( 0.0, 0.0, -1.0 );

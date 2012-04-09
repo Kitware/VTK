@@ -68,7 +68,7 @@ public:
   // Description:
   //   Return 1 if the axis aligned box defined by R intersects
   //   the region defined by the planes, or 0 otherwise.
-    
+
   int IntersectsRegion(vtkPoints *R);
 
   // Description:

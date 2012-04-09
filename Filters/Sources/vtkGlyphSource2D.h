@@ -15,7 +15,7 @@
 // .NAME vtkGlyphSource2D - create 2D glyphs represented by vtkPolyData
 // .SECTION Description
 // vtkGlyphSource2D can generate a family of 2D glyphs each of which lies
-// in the x-y plane (i.e., the z-coordinate is zero). The class is a helper 
+// in the x-y plane (i.e., the z-coordinate is zero). The class is a helper
 // class to be used with vtkGlyph2D and vtkXYPlotActor.
 //
 // To use this class, specify the glyph type to use and its
@@ -98,8 +98,8 @@ public:
   vtkBooleanMacro(Dash,int);
 
   // Description:
-  // Specify whether a cross is drawn as part of the glyph. (This 
-  // is in addition to the glyph. If the glyph type is set to 
+  // Specify whether a cross is drawn as part of the glyph. (This
+  // is in addition to the glyph. If the glyph type is set to
   // "Cross" there is no need to enable this flag.)
   vtkSetMacro(Cross,int);
   vtkGetMacro(Cross,int);
@@ -116,9 +116,9 @@ public:
   // Specify the type of glyph to generate.
   vtkSetClampMacro(GlyphType,int,VTK_NO_GLYPH,VTK_EDGEARROW_GLYPH);
   vtkGetMacro(GlyphType,int);
-  void SetGlyphTypeToNone() {this->SetGlyphType(VTK_NO_GLYPH);}  
-  void SetGlyphTypeToVertex() {this->SetGlyphType(VTK_VERTEX_GLYPH);}  
-  void SetGlyphTypeToDash() {this->SetGlyphType(VTK_DASH_GLYPH);}  
+  void SetGlyphTypeToNone() {this->SetGlyphType(VTK_NO_GLYPH);}
+  void SetGlyphTypeToVertex() {this->SetGlyphType(VTK_VERTEX_GLYPH);}
+  void SetGlyphTypeToDash() {this->SetGlyphType(VTK_DASH_GLYPH);}
   void SetGlyphTypeToCross() {this->SetGlyphType(VTK_CROSS_GLYPH);}
   void SetGlyphTypeToThickCross() {this->SetGlyphType(VTK_THICKCROSS_GLYPH);}
   void SetGlyphTypeToTriangle() {this->SetGlyphType(VTK_TRIANGLE_GLYPH);}
@@ -145,18 +145,18 @@ protected:
   int   Cross;
   int   GlyphType;
   double RotationAngle;
-  
+
   void TransformGlyph(vtkPoints *pts);
   void ConvertColor();
   unsigned char RGB[3];
-  
-  void CreateVertex(vtkPoints *pts, vtkCellArray *verts, 
+
+  void CreateVertex(vtkPoints *pts, vtkCellArray *verts,
                     vtkUnsignedCharArray *colors);
-  void CreateDash(vtkPoints *pts, vtkCellArray *lines, 
+  void CreateDash(vtkPoints *pts, vtkCellArray *lines,
                   vtkCellArray *polys, vtkUnsignedCharArray *colors, double scale);
-  void CreateCross(vtkPoints *pts, vtkCellArray *lines, 
+  void CreateCross(vtkPoints *pts, vtkCellArray *lines,
                    vtkCellArray *polys, vtkUnsignedCharArray *colors, double scale);
-  void CreateThickCross(vtkPoints *pts, vtkCellArray *lines, 
+  void CreateThickCross(vtkPoints *pts, vtkCellArray *lines,
                         vtkCellArray *polys, vtkUnsignedCharArray *colors);
   void CreateTriangle(vtkPoints *pts, vtkCellArray *lines,
                       vtkCellArray *polys, vtkUnsignedCharArray *colors);

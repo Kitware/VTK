@@ -70,7 +70,7 @@ public:
   // this parameter. :)
   vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_LARGE_INTEGER);
   vtkGetMacro(MaxNumberOfIterations, int);
-  
+
   // Description:
   // Set/Get the number of iterations per layout.
   // The only use for this ivar is for the application
@@ -87,17 +87,17 @@ public:
   // this parameter. :)
   vtkSetClampMacro(InitialTemperature, float, 0.0, VTK_FLOAT_MAX);
   vtkGetMacro(InitialTemperature, float);
-  
+
   // Description:
   // Set/Get the Cool-down rate.
   // The higher this number is, the longer it will take to "cool-down",
   // and thus, the more the graph will be modified. The default is '10'
-  // for no particular reason. 
+  // for no particular reason.
   // Note: The strong recommendation is that you do not change
   // this parameter. :)
   vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
   vtkGetMacro(CoolDownRate, double);
-  
+
   // Description:
   // Manually set the resting distance. Otherwise the
   // distance is computed automatically.
@@ -108,7 +108,7 @@ public:
   // This strategy sets up some data structures
   // for faster processing of each Layout() call
   virtual void Initialize();
-  
+
   // Description:
   // This is the layout method where the graph that was
   // set in SetGraph() is laid out. The method can either
@@ -116,7 +116,7 @@ public:
   // graph. If you have an iterative layout please implement
   // the IsLayoutComplete() method.
   virtual void Layout();
-  
+
   // Description:
   // I'm an iterative layout so this method lets the caller
   // know if I'm done laying out the graph
@@ -140,7 +140,7 @@ private:
   vtkSmartPointer<vtkFloatArray>          AttractionArray;
   vtkSmartPointer<vtkIntArray>            EdgeCountArray;
   //ETX
-  
+
   int RandomSeed;
   int IterationsPerLayout;
   int TotalIterations;
@@ -149,7 +149,7 @@ private:
   float RestDistance;
   float CuttingThreshold;
   char* VertexAttribute;
-  
+
   // Private helper methods
   void GenerateCircularSplat(vtkImageData *splat, int x, int y);
   void GenerateGaussianSplat(vtkImageData *splat, int x, int y);

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This test covers rendering of translucent image actor with depth peeling.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -36,35 +36,35 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   renWin->SetMultiSamples(1);
   renWin->SetAlphaBitPlanes(1);
-  
+
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
-  
+
   renderer->SetUseDepthPeeling(1);
   renderer->SetMaximumNumberOfPeels(200);
   renderer->SetOcclusionRatio(0.1);
-  
+
   vtkImageActor *ia=vtkImageActor::New();
   renderer->AddActor(ia);
   ia->Delete();
-  
+
   vtkPNGReader *pnmReader=vtkPNGReader::New();
   ia->GetMapper()->SetInputConnection(pnmReader->GetOutputPort());
   pnmReader->Delete();
-  
+
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/alphachannel.png");
-  
+
   pnmReader->SetFileName(fname);
   delete[] fname;
-  
+
   renderer->SetBackground(0.1,0.2,0.4);
   renWin->SetSize(400,400);
-  
+
   renWin->Render();
   if(renderer->GetLastRenderingUsedDepthPeeling())
     {
@@ -80,7 +80,7 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
     iren->Start();
     }
   iren->Delete();
-  
+
   return !retVal;
 }
 

@@ -41,11 +41,11 @@ public:
 
 
   // Description:
-  // Given initial values, xprev , initial time, t and a requested time 
+  // Given initial values, xprev , initial time, t and a requested time
   // interval, delT calculate values of x at t+delT (xnext).
   // delTActual is always equal to delT.
   // Since this class can not provide an estimate for the error error
-  // is set to 0.  
+  // is set to 0.
   // maxStep, minStep and maxError are unused.
   // This method returns an error code representing the nature of
   // the failure:
@@ -53,7 +53,7 @@ public:
   // NotInitialized = 2,
   // UnexpectedValue = 3
   virtual int ComputeNextStep(double* xprev, double* xnext, double t,
-                              double& delT, double maxError, double& error) 
+                              double& delT, double maxError, double& error)
     {
       double minStep = delT;
       double maxStep = delT;
@@ -61,8 +61,8 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
-                              double t, double& delT, 
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
+                              double t, double& delT,
                               double maxError, double& error)
     {
       double minStep = delT;
@@ -71,7 +71,7 @@ public:
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* xnext, 
+  virtual int ComputeNextStep(double* xprev, double* xnext,
                               double t, double& delT, double& delTActual,
                               double minStep, double maxStep,
                               double maxError, double& error)
@@ -79,9 +79,9 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                               double t, double& delT, double& delTActual,
-                              double minStep, double maxStep, 
+                              double minStep, double maxStep,
                               double maxError, double& error);
 
 protected:

@@ -128,7 +128,7 @@ int vtkImageBSplineCoefficients::RequestData(
 
   // We are about to call superclass' RequestData which allocates output
   // based on the update extent. However, we want the output to be the
-  // whole extent. So we temprarily override the update extent to be 
+  // whole extent. So we temprarily override the update extent to be
   // the whole extent.
   int extentcache[6];
   memcpy(extentcache, outInfo->Get(

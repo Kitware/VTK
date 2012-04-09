@@ -48,7 +48,7 @@ class vtkArrayExtents;
 class vtkArraySlices;
 class vtkArrayWeights;
 
-// 
+//
 
 template<typename T>
 void vtkInterpolate(

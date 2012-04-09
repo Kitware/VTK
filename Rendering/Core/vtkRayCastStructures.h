@@ -24,7 +24,7 @@
 #ifndef __vtkRayCastStructures_h
 #define __vtkRayCastStructures_h
 
-typedef struct 
+typedef struct
 {
   // These are the input values that define the ray. Depending on
   // whether we are casting a WorldRay or a ViewRay, these are in
@@ -65,11 +65,11 @@ typedef struct
   float                        TransformedEnd[4];
   float                        TransformedDirection[4];
   float                        TransformedIncrement[3];
-  
+
   // The number of steps we want to take if this is
   // a ray caster that takes steps
   int                          NumberOfStepsToTake;
-  
+
   // The number of steps we actually take if this is
   // a ray caster that takes steps
   int                          NumberOfStepsTaken;

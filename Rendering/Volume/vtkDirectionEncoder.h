@@ -21,7 +21,7 @@
 // supported by this superclass. A direction encoded is used to encode
 // normals in a volume for use during volume rendering, and the
 // amount of space that is allocated per normal is 2 bytes.
-// This is an abstract superclass - see the subclasses for specific 
+// This is an abstract superclass - see the subclasses for specific
 // implementation details.
 //
 // .SECTION see also
@@ -54,9 +54,9 @@ public:
   virtual  int GetNumberOfEncodedDirections( void )=0;
 
   // Description:
-  // Get the decoded gradient table. There are 
+  // Get the decoded gradient table. There are
   // this->GetNumberOfEncodedDirections() entries in the table, each
-  // containing a normal (direction) vector. This is a flat structure - 
+  // containing a normal (direction) vector. This is a flat structure -
   // 3 times the number of directions floats in an array.
   virtual float *GetDecodedGradientTable( void )=0;
 
@@ -66,7 +66,7 @@ protected:
 private:
   vtkDirectionEncoder(const vtkDirectionEncoder&);  // Not implemented.
   void operator=(const vtkDirectionEncoder&);  // Not implemented.
-}; 
+};
 
 
 #endif

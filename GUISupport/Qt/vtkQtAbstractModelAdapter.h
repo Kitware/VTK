@@ -52,8 +52,8 @@ public:
     DATA_VIEW
   };
 
-  vtkQtAbstractModelAdapter(QObject* p) : 
-    QAbstractItemModel(p), 
+  vtkQtAbstractModelAdapter(QObject* p) :
+    QAbstractItemModel(p),
     ViewType(FULL_VIEW),
     KeyColumn(-1),
     ColorColumn(-1),
@@ -65,7 +65,7 @@ public:
   // Set/Get the VTK data object as input to this adapter
   virtual void SetVTKDataObject(vtkDataObject *data) = 0;
   virtual vtkDataObject* GetVTKDataObject() const = 0;
-  
+
   // Description:
   // Selection conversion from VTK land to Qt land
   virtual vtkSelection* QModelIndexListToVTKIndexSelection(
@@ -90,7 +90,7 @@ public:
   virtual void SetKeyColumn(int col) { this->KeyColumn = col; }
   virtual int GetKeyColumn() { return this->KeyColumn; }
   virtual void SetKeyColumnName(const char* name) = 0;
-  
+
   // Description:
   // Set/Get the column storing the rgba color values for each row.
   // The color column is used as the row headers in a table view,
@@ -116,7 +116,7 @@ public:
 
 signals:
   void modelChanged();
-  
+
 protected:
 
   // Description:

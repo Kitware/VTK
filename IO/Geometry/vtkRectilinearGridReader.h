@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkRectilinearGridReader - read vtk rectilinear grid data file
 // .SECTION Description
-// vtkRectilinearGridReader is a source object that reads ASCII or binary 
+// vtkRectilinearGridReader is a source object that reads ASCII or binary
 // rectilinear grid data files in vtk format (see text for format details).
 // The output of this reader is a single vtkRectilinearGrid data object.
 // The superclass of this class, vtkDataReader, provides many methods for

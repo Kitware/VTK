@@ -184,7 +184,7 @@ void vtkTransformCoordinateSystems::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << " VIEWPORT\n";
     }
-  
+
   os << indent << "Output Coordinate System: ";
   if ( this->OutputCoordinateSystem == VTK_DISPLAY )
     {
@@ -198,7 +198,7 @@ void vtkTransformCoordinateSystems::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << " VIEWPORT\n";
     }
-  
+
   os << indent << "Viewport: ";
   if (this->Viewport)
     {

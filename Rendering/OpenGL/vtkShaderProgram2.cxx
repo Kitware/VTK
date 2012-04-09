@@ -64,31 +64,31 @@ vtkShaderProgram2::vtkShaderProgram2()
 {
   this->Context=0;
   this->ExtensionsLoaded=false;
-  
+
   this->Id=0;
   this->SavedId=0;
   this->Shaders=vtkShader2Collection::New(); // an empty list.
-  
+
   this->LastBuildStatus=VTK_SHADER_PROGRAM2_COMPILE_FAILED;
-  
+
   this->GeometryTypeIn=VTK_GEOMETRY_SHADER_IN_TYPE_POINTS;
   this->GeometryTypeOut=VTK_GEOMETRY_SHADER_OUT_TYPE_POINTS;
   this->GeometryVerticesOut=1;
 
   // 8 as an initial capacity is nice because the allocation is aligned on
   // 32-bit or 64-bit architecture.
-  
+
   this->LastLinkLogCapacity=8;
   this->LastLinkLog=new char[this->LastLinkLogCapacity];
   this->LastLinkLog[0]='\0'; // empty string
-  
+
   this->LastValidateLogCapacity=8;
   this->LastValidateLog=new char[this->LastValidateLogCapacity];
   this->LastValidateLog[0]='\0'; // empty string
-  
+
 //  this->Context = 0;
 //  this->GeometryShadersSupported = false;
-  
+
   this->UniformVariables=vtkUniformVariables::New(); // empty list
   this->PrintErrors=true;
 }
@@ -122,7 +122,7 @@ vtkShaderProgram2::~vtkShaderProgram2()
     {
     delete[] this->LastLinkLog;
     }
-  
+
   if(this->LastValidateLog!=0)
     {
     delete[] this->LastValidateLog;
@@ -142,18 +142,18 @@ vtkShaderProgram2::~vtkShaderProgram2()
 bool vtkShaderProgram2::IsSupported(vtkOpenGLRenderWindow *context)
 {
   assert("pre: context_exists" && context!=0);
-  
+
   vtkOpenGLExtensionManager *e=context->GetExtensionManager();
-  
+
   bool multiTexture=e->ExtensionSupported("GL_VERSION_1_3") ||
     e->ExtensionSupported("GL_ARB_multitexture");
-  
+
   bool glsl=e->ExtensionSupported("GL_VERSION_2_0") ||
     (e->ExtensionSupported("GL_ARB_shading_language_100") &&
      e->ExtensionSupported("GL_ARB_shader_objects") &&
      e->ExtensionSupported("GL_ARB_vertex_shader") &&
      e->ExtensionSupported("GL_ARB_fragment_shader"));
-  
+
   return multiTexture && glsl;
 }
 
@@ -161,20 +161,20 @@ bool vtkShaderProgram2::IsSupported(vtkOpenGLRenderWindow *context)
 bool vtkShaderProgram2::LoadExtensions(vtkOpenGLRenderWindow *context)
 {
   assert("pre: context_exists" && context!=0);
-  
+
   vtkOpenGLExtensionManager *e=context->GetExtensionManager();
-  
+
   bool gl13=e->ExtensionSupported("GL_VERSION_1_3")==1;
   bool gl20=e->ExtensionSupported("GL_VERSION_2_0")==1;
-  
+
   bool multiTexture=gl13 || e->ExtensionSupported("GL_ARB_multitexture");
   bool glsl=gl20 || (e->ExtensionSupported("GL_ARB_shading_language_100") &&
                      e->ExtensionSupported("GL_ARB_shader_objects") &&
                      e->ExtensionSupported("GL_ARB_vertex_shader") &&
                      e->ExtensionSupported("GL_ARB_fragment_shader"));
-  
+
   bool result=multiTexture && glsl;
-  
+
   if(result)
     {
     if(gl13)
@@ -197,7 +197,7 @@ bool vtkShaderProgram2::LoadExtensions(vtkOpenGLRenderWindow *context)
       e->LoadCorePromotedExtension("GL_ARB_fragment_shader");
       }
     }
-  
+
   return result;
 }
 
@@ -224,12 +224,12 @@ void vtkShaderProgram2::SetContext(vtkOpenGLRenderWindow *context)
 bool vtkShaderProgram2::HasVertexShaders()
 {
   bool result=false;
-  
+
   if(this->Shaders!=0)
     {
     result=this->Shaders->HasVertexShaders();
     }
-  
+
   return result;
 }
 
@@ -239,12 +239,12 @@ bool vtkShaderProgram2::HasVertexShaders()
 bool vtkShaderProgram2::HasTessellationControlShaders()
 {
   bool result=false;
-  
+
   if(this->Shaders!=0)
     {
     result=this->Shaders->HasTessellationControlShaders();
     }
-  
+
   return result;
 }
 
@@ -254,12 +254,12 @@ bool vtkShaderProgram2::HasTessellationControlShaders()
 bool vtkShaderProgram2::HasTessellationEvaluationShaders()
 {
   bool result=false;
-  
+
   if(this->Shaders!=0)
     {
     result=this->Shaders->HasTessellationEvaluationShaders();
     }
-  
+
   return result;
 }
 
@@ -269,12 +269,12 @@ bool vtkShaderProgram2::HasTessellationEvaluationShaders()
 bool vtkShaderProgram2::HasGeometryShaders()
 {
   bool result=false;
-  
+
   if(this->Shaders!=0)
     {
     result=this->Shaders->HasGeometryShaders();
     }
-  
+
   return result;
 }
 
@@ -287,12 +287,12 @@ bool vtkShaderProgram2::HasGeometryShaders()
 bool vtkShaderProgram2::HasFragmentShaders()
 {
   bool result=false;
-  
+
   if(this->Shaders!=0)
     {
     result=this->Shaders->HasFragmentShaders();
     }
-  
+
   return result;
 }
 
@@ -359,7 +359,7 @@ void vtkShaderProgram2::Use()
   // glGetIntegerv(vtkgl::CURRENT_PROGRAM,&value) is executed immediately
   // while vtkgl::UseProgram(id) is just compiled and its execution is
   // postpone in GL_COMPILE mode.
-  
+
   if(this->LastBuildStatus==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
     {
     GLuint progId=static_cast<GLuint>(this->Id);
@@ -388,7 +388,7 @@ void vtkShaderProgram2::Use()
     this->SendUniforms();
     }
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Restore the previous shader program (or fixed-pipeline).
@@ -474,7 +474,7 @@ void vtkShaderProgram2::Build()
         }
       delete[] attachedShaders;
       }
-    
+
     // We compile all the shaders, even if one fails so that
     // we can get info logs for all shaders.
     bool compileDone=true;
@@ -499,11 +499,11 @@ void vtkShaderProgram2::Build()
         }
       s=this->Shaders->GetNextShader();
       }
-    
+
     if(compileDone)
       {
       this->LastBuildStatus=VTK_SHADER_PROGRAM2_LINK_FAILED;
-      
+
       // It is required to pass geometry shader parameters before linking.
       if(this->HasGeometryShaders())
         {
@@ -522,7 +522,7 @@ void vtkShaderProgram2::Build()
         {
         this->LastBuildStatus=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED;
         }
-      
+
       vtkgl::GetProgramiv(progId,vtkgl::INFO_LOG_LENGTH,&value);
       if(static_cast<size_t>(value)>this->LastLinkLogCapacity)
         {
@@ -534,7 +534,7 @@ void vtkShaderProgram2::Build()
         this->LastLinkLog=new char[this->LastLinkLogCapacity];
         }
       vtkgl::GetProgramInfoLog(progId,value,0,this->LastLinkLog);
-      
+
       if(this->LastBuildStatus==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
         {
         this->LastLinkTime.Modified();
@@ -558,7 +558,7 @@ void vtkShaderProgram2::Build()
             s=this->Shaders->GetNextShader();
             ++i;
             }
-          
+
           }
         }
       }
@@ -579,7 +579,7 @@ void vtkShaderProgram2::SendUniforms()
     needUpdate=this->UniformVariables!=0 &&
       this->LastSendUniformsTime<this->UniformVariables->GetMTime();
     }
-  
+
   this->Shaders->InitTraversal();
   vtkShader2 *s=this->Shaders->GetNextShader();
   vtkUniformVariables *list;
@@ -589,7 +589,7 @@ void vtkShaderProgram2::SendUniforms()
     needUpdate=list!=0 && this->LastSendUniformsTime<list->GetMTime();
     s=this->Shaders->GetNextShader();
     }
-  
+
   if(needUpdate)
     {
     bool inListCreation=this->DisplayListUnderCreationInCompileMode();
@@ -602,9 +602,9 @@ void vtkShaderProgram2::SendUniforms()
         this->Use();
         }
       }
-    
+
     GLuint progId=static_cast<GLuint>(this->Id);
-    
+
     this->Shaders->InitTraversal();
     s=this->Shaders->GetNextShader();
     const char *name;
@@ -627,7 +627,7 @@ void vtkShaderProgram2::SendUniforms()
         }
       s=this->Shaders->GetNextShader();
       }
-    
+
     // override some of the values of the uniform variables set at the shader
     // level with the uniform values set at the program level.
     list=this->GetUniformVariables();
@@ -644,14 +644,14 @@ void vtkShaderProgram2::SendUniforms()
         }
       list->Next();
       }
-    
+
     if(!inListCreation && !isUsed)
       {
       this->Restore();
       }
     }
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Introspection. Return the list of active uniform variables of the program.
@@ -673,7 +673,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
   GLuint i=0;
   GLuint c=static_cast<GLuint>(params);
   vtkgl::GetProgramiv(progId,vtkgl::ACTIVE_UNIFORM_MAX_LENGTH,&params);
-    
+
   GLint buffSize=params;
   char *name=new char[buffSize+1];
   GLint size;
@@ -840,7 +840,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
       }
     GLint *ivalues=0;
     GLfloat *fvalues=0;
-    
+
     if(isInt)
       {
       ivalues=new GLint[elementSize];
@@ -849,7 +849,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
       {
       fvalues=new GLfloat[elementSize];
       }
-    
+
     int element=0;
     while(element<size)
       {
@@ -980,7 +980,7 @@ bool vtkShaderProgram2::IsValid()
   // this line change the program log.
   GLuint progId=static_cast<GLuint>(this->Id);
   vtkgl::ValidateProgram(progId);
-  
+
   GLint value;
   vtkgl::GetProgramiv(progId,vtkgl::VALIDATE_STATUS,&value);
 
@@ -1025,7 +1025,7 @@ const char *vtkShaderProgram2::GetLastLinkLog()
   assert("post: result_exists" && this->LastLinkLog!=0);
   return this->LastLinkLog;
 }
-  
+
 //----------------------------------------------------------------------------
 // Description:
 // Return the log of the last call to IsValid as a string.

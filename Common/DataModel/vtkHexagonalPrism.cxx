@@ -304,8 +304,8 @@ void vtkHexagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[36]
 }
 
 //----------------------------------------------------------------------------
-void vtkHexagonalPrism::EvaluateLocation(int& vtkNotUsed(subId), 
-                                         double pcoords[3], double x[3], 
+void vtkHexagonalPrism::EvaluateLocation(int& vtkNotUsed(subId),
+                                         double pcoords[3], double x[3],
                                          double *weights)
 {
   int i, j;
@@ -553,17 +553,17 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
     this->Points->GetPoint(faces[faceNum][4], pt5);
     this->Points->GetPoint(faces[faceNum][5], pt6);
 
-    this->Quad->Points->SetPoint(0,pt1); 
-    this->Quad->Points->SetPoint(1,pt2); 
-    this->Quad->Points->SetPoint(2,pt3); 
-    this->Quad->Points->SetPoint(3,pt4); 
+    this->Quad->Points->SetPoint(0,pt1);
+    this->Quad->Points->SetPoint(1,pt2);
+    this->Quad->Points->SetPoint(2,pt3);
+    this->Quad->Points->SetPoint(3,pt4);
     intersection = this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp,pc, subId);
 
     if ( !intersection )
       {
-      this->Quad->Points->SetPoint(0,pt4); 
-      this->Quad->Points->SetPoint(1,pt5); 
-      this->Quad->Points->SetPoint(2,pt6); 
+      this->Quad->Points->SetPoint(0,pt4);
+      this->Quad->Points->SetPoint(1,pt5);
+      this->Quad->Points->SetPoint(2,pt6);
       this->Quad->Points->SetPoint(3,pt1);
       intersection = this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp,pc, subId);
       }
@@ -741,7 +741,7 @@ double *vtkHexagonalPrism::GetParametricCoords()
 void vtkHexagonalPrism::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Quad:\n";

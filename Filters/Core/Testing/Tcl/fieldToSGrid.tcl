@@ -44,20 +44,20 @@ vtkDataObjectReader dor
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToStructuredGrid
-    do2ds SetDimensionsComponent "Dimensions" 0 
-    do2ds SetPointComponent 0 "Points" 0 
-    do2ds SetPointComponent 1 "Points" 1 
-    do2ds SetPointComponent 2 "Points" 2 
+    do2ds SetDimensionsComponent "Dimensions" 0
+    do2ds SetPointComponent 0 "Points" 0
+    do2ds SetPointComponent 1 "Points" 1
+    do2ds SetPointComponent 2 "Points" 2
     do2ds Update
 
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInputData [do2ds GetStructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 "Momentum" 0 
-    fd2ad SetVectorComponent 1 "Momentum" 1 
-    fd2ad SetVectorComponent 2 "Momentum" 2 
-    fd2ad SetScalarComponent 0 "Density" 0 
+    fd2ad SetVectorComponent 0 "Momentum" 0
+    fd2ad SetVectorComponent 1 "Momentum" 1
+    fd2ad SetVectorComponent 2 "Momentum" 2
+    fd2ad SetScalarComponent 0 "Density" 0
     fd2ad Update
 
 # create pipeline

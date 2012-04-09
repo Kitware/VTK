@@ -60,7 +60,7 @@ void vtkInformationExecutivePortKey::Set(vtkInformation* info,
       oldv->Executive = executive;
       oldv->Port = port;
       // Since this sets a value without call SetAsObjectBase(),
-      // the info has to be modified here (instead of 
+      // the info has to be modified here (instead of
       // vtkInformation::SetAsObjectBase()
       info->Modified();
       }

@@ -42,7 +42,7 @@ vtkMultiBlockDataSet* vtkMultiBlockDataSetAlgorithm::GetOutput()
 //----------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkMultiBlockDataSetAlgorithm::GetOutput(int port)
 {
-  vtkDataObject* output = 
+  vtkDataObject* output =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
     GetCompositeOutputData(port);
   return vtkMultiBlockDataSet::SafeDownCast(output);
@@ -72,8 +72,8 @@ vtkDataObject* vtkMultiBlockDataSetAlgorithm::GetInput(int port)
 
 //----------------------------------------------------------------------------
 int vtkMultiBlockDataSetAlgorithm::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // create the output

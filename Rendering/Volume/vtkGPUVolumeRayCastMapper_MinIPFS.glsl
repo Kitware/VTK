@@ -49,7 +49,7 @@ void trace(void)
   float minValue=initialMinValue();
   bool inside=true;
   vec4 sample;
-  
+
   float t=0.0;
   // We NEED two nested while loops. It is trick to work around hardware
   // limitation about the maximum number of loops.
@@ -63,20 +63,20 @@ void trace(void)
       t+=1.0;
       inside=t<tMax && all(greaterThanEqual(pos,lowBounds))
         && all(lessThanEqual(pos,highBounds));
-      
+
       // yes, t<tMax && all(greaterThanEqual(pos,lowBounds))
       // && all(lessThanEqual(pos,highBounds));
       // looks better but the latest nVidia 177.80 has a bug...
       inside=t<tMax && pos.x>=lowBounds.x && pos.y>=lowBounds.y
         && pos.z>=lowBounds.z && pos.x<=highBounds.x && pos.y<=highBounds.y
         && pos.z<=highBounds.z;
-      
-      
+
+
       }
     }
 
   sample=texture1D(colorTexture,minValue);
   vec4 opacity=texture1D(opacityTexture,minValue);
-  
+
   writeColorAndMinScalar(sample,opacity,minValue);
 }

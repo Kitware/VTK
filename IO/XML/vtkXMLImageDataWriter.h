@@ -37,28 +37,28 @@ public:
   static vtkXMLImageDataWriter* New();
   vtkTypeMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
   vtkImageData* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLImageDataWriter();
-  ~vtkXMLImageDataWriter();  
-  
+  ~vtkXMLImageDataWriter();
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
-  
+
 private:
   vtkXMLImageDataWriter(const vtkXMLImageDataWriter&);  // Not implemented.
   void operator=(const vtkXMLImageDataWriter&);  // Not implemented.

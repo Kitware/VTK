@@ -400,7 +400,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
 //----------------------------------------------------------------------------
 // This templated function executes the filter specifically for char data
 template <class T>
-void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6], 
+void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
                               vtkImageData *inData, T *,
                               vtkImageData *outData, T *,
                               double opacity, int id)
@@ -554,14 +554,14 @@ void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
   vtkIdType inIncX, inIncY, inIncZ;
   int rowLength;
   unsigned char *inPtr, *inPtr1, *outPtr;
- 
+
   inPtr = static_cast<unsigned char *>(inData->GetScalarPointerForExtent(ext));
   outPtr =
     static_cast<unsigned char *>(outData->GetScalarPointerForExtent(ext));
- 
+
   // Get increments to march through inData
   inData->GetIncrements(inIncX, inIncY, inIncZ);
- 
+
   // find the region to loop over
   rowLength = (ext[1] - ext[0]+1)*inIncX*inData->GetScalarSize();
   maxY = ext[3] - ext[2];
@@ -588,10 +588,10 @@ void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageBlendCompoundExecute(vtkImageBlend *self,
-                                  int extent[6], 
-                                  vtkImageData *inData, 
+                                  int extent[6],
+                                  vtkImageData *inData,
                                   T *,
-                                  vtkImageData *tmpData, 
+                                  vtkImageData *tmpData,
                                   double opacity,
                                   double threshold)
 {
@@ -644,60 +644,60 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           while (tmpPtr != tmpSpanEndPtr)
             {
             r = opacity * (static_cast<double>(inPtr[3]) - minA);
-            if (r > threshold) 
+            if (r > threshold)
               {
               tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
               tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
               tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
               tmpPtr[3] += r;
               }
-            tmpPtr += 4; 
+            tmpPtr += 4;
             inPtr += inC;
             }
           }
 
         // RGB(A) blended with RGB
         else if (inC == 3)
-          { 
+          {
           while (tmpPtr != tmpSpanEndPtr)
             {
             tmpPtr[0] += static_cast<double>(inPtr[0]) * r;
             tmpPtr[1] += static_cast<double>(inPtr[1]) * r;
             tmpPtr[2] += static_cast<double>(inPtr[2]) * r;
             tmpPtr[3] += r;
-            tmpPtr += 4; 
+            tmpPtr += 4;
             inPtr += inC;
             }
           }
 
         // RGB(A) blended with luminance+alpha
         else if (inC == 2)
-          { 
+          {
           while (tmpPtr != tmpSpanEndPtr)
             {
             r = opacity * (static_cast<double>(inPtr[1]) - minA);
-            if (r > threshold) 
+            if (r > threshold)
               {
               tmpPtr[0] += static_cast<double>(*inPtr) * r;
               tmpPtr[1] += static_cast<double>(*inPtr) * r;
               tmpPtr[2] += static_cast<double>(*inPtr) * r;
               tmpPtr[3] += r;
               }
-            tmpPtr += 4; 
+            tmpPtr += 4;
             inPtr += 2;
             }
           }
 
         // RGB(A) blended with luminance
         else if (inC == 1)
-          { 
+          {
           while (tmpPtr != tmpSpanEndPtr)
             {
             tmpPtr[0] += static_cast<double>(*inPtr) * r;
             tmpPtr[1] += static_cast<double>(*inPtr) * r;
             tmpPtr[2] += static_cast<double>(*inPtr) * r;
             tmpPtr[3] += r;
-            tmpPtr += 4; 
+            tmpPtr += 4;
             inPtr++;
             }
           }
@@ -705,28 +705,28 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 
       // luminance(+alpha) blended with luminance+alpha
       else if (inC == 2)
-        { 
+        {
         while (tmpPtr != tmpSpanEndPtr)
           {
           r = opacity * (static_cast<double>(inPtr[1]) - minA);
-          if (r > threshold) 
+          if (r > threshold)
             {
             tmpPtr[0] = static_cast<double>(*inPtr) * r;
             tmpPtr[1] += r;
             }
-          tmpPtr += 2; 
+          tmpPtr += 2;
           inPtr += 2;
           }
         }
 
       // luminance(+alpha) blended with luminance
       else
-        { 
+        {
         while (tmpPtr != tmpSpanEndPtr)
           {
           tmpPtr[0] = static_cast<double>(*inPtr) * r;
           tmpPtr[1] += r;
-          tmpPtr += 2; 
+          tmpPtr += 2;
           inPtr++;
           }
         }
@@ -755,8 +755,8 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
-                                          int extent[6], 
-                                          vtkImageData *outData, 
+                                          int extent[6],
+                                          vtkImageData *outData,
                                           T *,
                                           vtkImageData *tmpData)
 {
@@ -789,11 +789,11 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
           outPtr[0] = T(tmpPtr[0]*factor);
           outPtr[1] = T(tmpPtr[1]*factor);
           outPtr[2] = T(tmpPtr[2]*factor);
-          tmpPtr += 4; 
+          tmpPtr += 4;
           outPtr += outC;
           }
         }
-      else 
+      else
         {
         while (outPtr != outSpanEndPtr)
           {
@@ -833,11 +833,11 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageBlend::ThreadedRequestData (  
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector** inputVector, 
+void vtkImageBlend::ThreadedRequestData (
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -848,7 +848,7 @@ void vtkImageBlend::ThreadedRequestData (
   double opacity;
 
   vtkImageData *tmpData = NULL;
-  
+
   // check
   if (inData[0][0]->GetNumberOfScalarComponents() > 4)
     {
@@ -867,7 +867,7 @@ void vtkImageBlend::ThreadedRequestData (
 
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
       tmpData = vtkImageData::New();
-      if (tmpData == NULL) 
+      if (tmpData == NULL)
         {
         vtkErrorMacro(<< "Execute: Unable to allocate memory");
         return;
@@ -876,11 +876,11 @@ void vtkImageBlend::ThreadedRequestData (
       tmpData->AllocateScalars(
         VTK_DOUBLE,
         (outData[0]->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
-      memset(static_cast<void *>(tmpData->GetScalarPointer()), 0, 
-             (outExt[1] - outExt[0] + 1) * 
-             (outExt[3] - outExt[2] + 1) * 
+      memset(static_cast<void *>(tmpData->GetScalarPointer()), 0,
+             (outExt[1] - outExt[0] + 1) *
+             (outExt[3] - outExt[2] + 1) *
              (outExt[5] - outExt[4] + 1) *
-             tmpData->GetNumberOfScalarComponents() * 
+             tmpData->GetNumberOfScalarComponents() *
              tmpData->GetScalarSize());
       break;
 
@@ -890,7 +890,7 @@ void vtkImageBlend::ThreadedRequestData (
 
   // process each input
   int first_index = (this->BlendMode == VTK_IMAGE_BLEND_MODE_NORMAL ? 1 : 0);
-  for (int idx1 = first_index; 
+  for (int idx1 = first_index;
        idx1 < this->GetNumberOfInputConnections(0); ++idx1)
     {
     if (inData[0][idx1] != NULL)
@@ -904,21 +904,21 @@ void vtkImageBlend::ThreadedRequestData (
                        into greyscale data");
         continue;
         }
-      
+
       // this filter expects that input is the same type as output.
       if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
         {
-        vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" << 
-        inData[0][idx1]->GetScalarType() << 
-        "), must match output ScalarType (" << outData[0]->GetScalarType() 
+        vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" <<
+        inData[0][idx1]->GetScalarType() <<
+        "), must match output ScalarType (" << outData[0]->GetScalarType()
         << ")");
         continue;
         }
-      
+
       // input extents
-      vtkInformation *inInfo = 
+      vtkInformation *inInfo =
         inputVector[0]->GetInformationObject(idx1);
-      int *inWextent = 
+      int *inWextent =
         inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
       this->InternalComputeInputUpdateExtent(extent, outExt, inWextent);
 
@@ -928,26 +928,26 @@ void vtkImageBlend::ThreadedRequestData (
         if (outExt[2*i+1] < extent[2*i] || outExt[2*i] > extent[2*i+1])
           {
           // extents don't overlap, skip this input
-          skip = 1; 
+          skip = 1;
           }
         }
-      
-      if (skip) 
+
+      if (skip)
         {
         vtkDebugMacro("Execute: skipping input.");
         continue;
         }
-      
+
       opacity = this->GetOpacity(idx1);
-          
+
       inPtr = inData[0][idx1]->GetScalarPointerForExtent(extent);
 
       // vtkDebugMacro("Execute: " << idx1 << "=>" << extent[0] << ", " << extent[1] << " / " << extent[2] << ", " << extent[3] << " / " << extent[4] << ", " << extent[5]);
-      
+
       switch (this->BlendMode)
         {
         case VTK_IMAGE_BLEND_MODE_NORMAL:
-          outPtr = outData[0]->GetScalarPointerForExtent(extent);  
+          outPtr = outData[0]->GetScalarPointerForExtent(extent);
           // for performance reasons, use a special method for unsigned char
           if (inData[0][idx1]->GetScalarType() == VTK_UNSIGNED_CHAR)
             {
@@ -967,7 +967,7 @@ void vtkImageBlend::ThreadedRequestData (
                                      inData[0][idx1],
                                      static_cast<VTK_TT *>(inPtr),
                                      outData[0],
-                                     static_cast<VTK_TT *>(outPtr), 
+                                     static_cast<VTK_TT *>(outPtr),
                                      opacity, id));
               default:
                 vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -980,11 +980,11 @@ void vtkImageBlend::ThreadedRequestData (
           switch (inData[0][idx1]->GetScalarType())
             {
             vtkTemplateMacro(
-              vtkImageBlendCompoundExecute(this, 
+              vtkImageBlendCompoundExecute(this,
                                            extent,
-                                           inData[0][idx1], 
-                                           static_cast<VTK_TT *>(inPtr), 
-                                           tmpData, 
+                                           inData[0][idx1],
+                                           static_cast<VTK_TT *>(inPtr),
+                                           tmpData,
                                            opacity,
                                            this->CompoundThreshold));
             default:
@@ -1010,10 +1010,10 @@ void vtkImageBlend::ThreadedRequestData (
       switch (outData[0]->GetScalarType())
         {
         vtkTemplateMacro(
-          vtkImageBlendCompoundTransferExecute(this, 
+          vtkImageBlendCompoundTransferExecute(this,
                                                outExt,
-                                               outData[0], 
-                                               static_cast<VTK_TT *>(outPtr), 
+                                               outData[0],
+                                               static_cast<VTK_TT *>(outPtr),
                                                tmpData));
         default:
           vtkErrorMacro(<< "Execute: Unknown ScalarType");

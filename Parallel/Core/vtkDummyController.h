@@ -18,7 +18,7 @@
 // require a controller but are also compile on systems without threads
 // or mpi.
 // .SECTION see also
-// vtkMultiProcessController 
+// vtkMultiProcessController
 
 #ifndef __vtkDummyController_h
 #define __vtkDummyController_h
@@ -47,7 +47,7 @@ public:
   // Description:
   // Directly calls the single method.
   virtual void SingleMethodExecute();
-  
+
   // Description:
   // Directly calls multiple method 0.
   virtual void MultipleMethodExecute();
@@ -67,7 +67,7 @@ public:
 protected:
   vtkDummyController();
   ~vtkDummyController();
-  
+
 private:
   vtkDummyController(const vtkDummyController&);  // Not implemented.
   void operator=(const vtkDummyController&);  // Not implemented.

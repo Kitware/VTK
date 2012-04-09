@@ -20,8 +20,8 @@ proc Glyph {} {
    set ptId [glypher GetPointId]
    set pd [glypher GetPointData]
    set xyz [glypher GetPoint]
-   set x [lindex $xyz 0] 
-   set y [lindex $xyz 1] 
+   set x [lindex $xyz 0]
+   set y [lindex $xyz 1]
    set length [[glypher GetInput 0] GetLength]
    set scale [expr $length / (2.0*$res)]
 

@@ -44,15 +44,15 @@ public:
   // Description:
   // The values greater than or equal to the value match.
   void ThresholdByUpper(double thresh);
-  
+
   // Description:
   // The values less than or equal to the value match.
   void ThresholdByLower(double thresh);
-  
+
   // Description:
   // The values in a range (inclusive) match
   void ThresholdBetween(double lower, double upper);
-  
+
   // Description:
   // Get the Upper and Lower thresholds.
   vtkSetMacro(UpperThreshold, double);
@@ -68,7 +68,7 @@ protected:
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation*);
-  
+
   double UpperThreshold;
   double LowerThreshold;
   double Threshold;

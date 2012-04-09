@@ -108,7 +108,7 @@ public:
   // Description:
   // Returns true if an error is set, otherwise false.
   virtual bool HasError() = 0;
-  
+
   // Description:
   // Get the last error text from the query
   virtual const char* GetLastErrorText() = 0;

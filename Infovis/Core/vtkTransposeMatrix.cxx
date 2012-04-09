@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTransposeMatrix.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -47,8 +47,8 @@ void vtkTransposeMatrix::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkTransposeMatrix::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
@@ -98,15 +98,15 @@ int vtkTransposeMatrix::RequestData(
         vtkErrorMacro(<< "vtkTransposeMatrix requires a matrix as input.");
         return 0;
         }
-      
+
       const vtkArrayExtents input_extents = input_array2->GetExtents();
-      
+
       vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
-      
+
       output_array->Resize(vtkArrayExtents(input_extents[1],input_extents[0]));
       output_array->SetDimensionLabel(0, input_array2->GetDimensionLabel(1));
       output_array->SetDimensionLabel(1, input_array2->GetDimensionLabel(0));
-      
+
       for(vtkIdType i = input_extents[0].GetBegin(); i != input_extents[0].GetEnd(); ++i)
         {
         for(vtkIdType j = input_extents[1].GetBegin(); j != input_extents[1].GetEnd(); ++j)
@@ -116,7 +116,7 @@ int vtkTransposeMatrix::RequestData(
             input_array2->GetValue(vtkArrayCoordinates(i, j)));
           }
         }
-      
+
       vtkArrayData* const output = vtkArrayData::GetData(outputVector);
       output->ClearArrays();
       output->AddArray(output_array);

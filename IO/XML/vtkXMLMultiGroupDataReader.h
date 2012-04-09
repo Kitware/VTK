@@ -32,7 +32,7 @@ public:
 
 protected:
   vtkXMLMultiGroupDataReader();
-  ~vtkXMLMultiGroupDataReader();  
+  ~vtkXMLMultiGroupDataReader();
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName()

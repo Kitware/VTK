@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
 // Initialize the projected texture filter with a position of (0, 0, 1),
-// a focal point of (0, 0, 0), an up vector on the +y axis, 
+// a focal point of (0, 0, 0), an up vector on the +y axis,
 // an aspect ratio of the projection frustum of equal width, height, and focal
 // length, an S range of (0, 1) and a T range of (0, 1).
 vtkProjectedTexture::vtkProjectedTexture()
@@ -120,7 +120,7 @@ int vtkProjectedTexture::RequestData(
   newTCoords->SetNumberOfTuples(numPts);
 
   vtkMath::Normalize (this->Orientation);
-  
+
   vtkMath::Cross (this->Orientation, this->Up, rightv);
   vtkMath::Normalize (rightv);
 
@@ -135,41 +135,41 @@ int vtkProjectedTexture::RequestData(
 
   sOffset = (this->SRange[1] - this->SRange[0])/2.0 + this->SRange[0];
   tOffset = (this->TRange[1] - this->TRange[0])/2.0 + this->TRange[0];
-  
+
 
   // compute s-t coordinates
-  for (i = 0; i < numPts; i++) 
+  for (i = 0; i < numPts; i++)
     {
       output->GetPoint(i, p);
 
-      for (j = 0; j < 3; j++) 
+      for (j = 0; j < 3; j++)
         {
         diff[j] = p[j] - this->Position[j];
         }
-      
+
       proj = vtkMath::Dot(diff, this->Orientation);
 
-      // New mode to handle a two mirror camera with separation of 
+      // New mode to handle a two mirror camera with separation of
       // MirrorSeparation -- In this case, we assume that the first mirror
       // controls the elevation and the second controls the azimuth.  Texture
       // coordinates for the elevation are handled as normal, while those for
-      // the azimuth must be calculated based on a new baseline difference to 
+      // the azimuth must be calculated based on a new baseline difference to
       // include the mirror separation.
       if (this->CameraMode == VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS)
         {
         // First calculate elevation coordinate t.
-        if(proj < 1.0e-10 && proj > -1.0e-10) 
+        if(proj < 1.0e-10 && proj > -1.0e-10)
           {
           vtkWarningMacro(<<"Singularity:  point located at elevation frustum Position");
           tcoords[1] = tOffset;
-          } 
+          }
         else
           {
           for (j = 0; j < 3; j++)
             {
             diff[j] = diff[j]/proj - this->Orientation[j];
             }
-          
+
           t = vtkMath::Dot(diff, upv);
           tcoords[1] = t * tScale + tOffset;
           }
@@ -177,25 +177,25 @@ int vtkProjectedTexture::RequestData(
         // Now with t complete, continue on to calculate coordinate s
         // by offsetting the center of the lens back by MirrorSeparation
         // in direction opposite to the orientation.
-        for (j = 0; j < 3; j++) 
+        for (j = 0; j < 3; j++)
           {
           diff[j] = p[j] - this->Position[j] + (this->MirrorSeparation*this->Orientation[j]);
           }
 
         proj = vtkMath::Dot(diff, this->Orientation);
-        
-        if(proj < 1.0e-10 && proj > -1.0e-10) 
+
+        if(proj < 1.0e-10 && proj > -1.0e-10)
           {
           vtkWarningMacro(<<"Singularity:  point located at azimuth frustum Position");
           tcoords[0] = sOffset;
-          } 
+          }
         else
           {
           for (j = 0; j < 3; j++)
             {
             diff[j] = diff[j]/proj - this->Orientation[j];
             }
-          
+
           s = vtkMath::Dot(diff, rightv);
           sSize = this->AspectRatio[0] / (this->AspectRatio[2] + this->MirrorSeparation);
           sScale = (this->SRange[1] - this->SRange[0])/sSize;
@@ -205,22 +205,22 @@ int vtkProjectedTexture::RequestData(
         }
       else
         {
-        if(proj < 1.0e-10 && proj > -1.0e-10) 
+        if(proj < 1.0e-10 && proj > -1.0e-10)
           {
           vtkWarningMacro(<<"Singularity:  point located at frustum Position");
           tcoords[0] = sOffset;
           tcoords[1] = tOffset;
-          } 
-        else 
+          }
+        else
           {
           for (j = 0; j < 3; j++)
             {
             diff[j] = diff[j]/proj - this->Orientation[j];
             }
-          
+
           s = vtkMath::Dot(diff, rightv);
           t = vtkMath::Dot(diff, upv);
-          
+
           tcoords[0] = s * sScale + sOffset;
           tcoords[1] = t * tScale + tOffset;
           }
@@ -232,7 +232,7 @@ int vtkProjectedTexture::RequestData(
   //
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
-  
+
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 

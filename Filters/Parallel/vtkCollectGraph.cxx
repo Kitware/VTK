@@ -61,7 +61,7 @@ vtkCollectGraph::vtkCollectGraph()
 
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
-  this->SetController(vtkMultiProcessController::GetGlobalController());  
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->OutputType = USE_INPUT_TYPE;
 }
@@ -106,7 +106,7 @@ int vtkCollectGraph::RequestUpdateExtent(
 
   return 1;
 }
-  
+
 //--------------------------------------------------------------------------
 int vtkCollectGraph::RequestDataObject(
   vtkInformation *request,
@@ -138,7 +138,7 @@ int vtkCollectGraph::RequestDataObject(
 
   return 1;
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkCollectGraph::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -192,7 +192,7 @@ int vtkCollectGraph::RequestData(
     // If not collected, output will be empty from initialization.
     return 0;
     }
-  
+
   myId = this->Controller->GetLocalProcessId();
   numProcs = this->Controller->GetNumberOfProcesses();
 
@@ -212,7 +212,7 @@ int vtkCollectGraph::RequestData(
       vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
     bool directed = (vtkDirectedGraph::SafeDownCast(input) != 0);
-    
+
     vtkGraph *builder = 0;
     if (directed)
       {
@@ -252,7 +252,7 @@ int vtkCollectGraph::RequestData(
     vector<vtkIdType> localIdVec;
 
     // Edge iterator.
-    vtkSmartPointer<vtkEdgeListIterator> edges = 
+    vtkSmartPointer<vtkEdgeListIterator> edges =
       vtkSmartPointer<vtkEdgeListIterator>::New();
 
     for (idx = 0; idx < numProcs; ++idx)
@@ -407,7 +407,7 @@ int vtkCollectGraph::RequestData(
 void vtkCollectGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "PassThough: " << this->PassThrough << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "SocketController: (" << this->SocketController << ")\n";

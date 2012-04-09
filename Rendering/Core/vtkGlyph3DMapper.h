@@ -177,7 +177,7 @@ public:
   virtual void GetBounds(double bounds[6]);
 
   // Description:
-  // All the work is done is derived classes. 
+  // All the work is done is derived classes.
   virtual void Render(vtkRenderer *ren, vtkActor *act);
 
   // Description:

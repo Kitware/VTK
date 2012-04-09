@@ -51,8 +51,8 @@ protected:
   vtkIdType ParentVertex;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

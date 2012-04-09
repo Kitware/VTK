@@ -44,10 +44,10 @@ vtkRayCastImageDisplayHelper::~vtkRayCastImageDisplayHelper()
 void vtkRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "PreMultiplied Colors: "
      << (this->PreMultipliedColors ? "On" : "Off") << endl;
-  
+
   os << indent << "Pixel Scale: " << this->PixelScale << endl;
 }
 

@@ -24,7 +24,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkCommand.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkInteractorObserver.h"
@@ -106,40 +106,40 @@ void vtkParallelopipedWidget::CreateDefaultRepresentation()
 
 //----------------------------------------------------------------------
 void vtkParallelopipedWidget::SetEnabled(int enabling)
-{  
+{
   if ( enabling ) //----------------
     {
     vtkDebugMacro(<<"Enabling widget");
-  
+
     if ( this->Enabled ) //already enabled, just return
       {
       return;
       }
-  
+
     if ( ! this->Interactor )
       {
       vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
       return;
       }
-  
+
     int X=this->Interactor->GetEventPosition()[0];
     int Y=this->Interactor->GetEventPosition()[1];
-  
+
     if ( ! this->CurrentRenderer )
       {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
-  
+
       if (this->CurrentRenderer == NULL)
         {
         return;
         }
       }
-  
+
     // We're ready to enable
     this->Enabled = 1;
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
-  
+
     // listen for the events found in the EventTranslator
     if ( ! this->Parent )
       {
@@ -151,7 +151,7 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
       this->EventTranslator->AddEventsToParent(this->Parent,
         this->EventCallbackCommand,this->Priority);
       }
-    
+
     // Enable each of the handle widgets.
     for(int i=0; i<8; i++)
       {
@@ -168,30 +168,30 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
 
         }
       }
-    
+
     if ( this->ManagesCursor )
       {
       this->WidgetRep->ComputeInteractionState(X, Y);
       this->SetCursor(this->WidgetRep->GetInteractionState());
       }
-    
+
     this->WidgetRep->BuildRepresentation();
     this->CurrentRenderer->AddViewProp(this->WidgetRep);
-  
+
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  
+
   else //disabling------------------
     {
     vtkDebugMacro(<<"Disabling widget");
-  
+
     if ( ! this->Enabled ) //already disabled, just return
       {
       return;
       }
-  
+
     this->Enabled = 0;
-  
+
     // don't listen for events any more
     if ( ! this->Parent )
       {
@@ -210,13 +210,13 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
         this->HandleWidgets[i]->SetEnabled(enabling);
         }
       }
-    
+
     this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
-  
+
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
     }
-  
+
   // Should only render if there is no parent
   if ( this->Interactor && !this->Parent )
     {
@@ -228,24 +228,24 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
 void vtkParallelopipedWidget::RequestResizeCallback(vtkAbstractWidget *w)
 {
   vtkParallelopipedWidget *self = reinterpret_cast<vtkParallelopipedWidget*>(w);
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
-  
+
   const int modifier = self->Interactor->GetShiftKey()   |
                        self->Interactor->GetControlKey() |
                        self->Interactor->GetAltKey();
-    
-  // This interaction could potentially select a handle, if we are close to 
-  // one. Lets make a request on the representation and see what it says. 
-  rep->SetInteractionState( 
+
+  // This interaction could potentially select a handle, if we are close to
+  // one. Lets make a request on the representation and see what it says.
+  rep->SetInteractionState(
       vtkParallelopipedRepresentation::RequestResizeParallelopiped );
-  
+
   // Let the representation decide what the appropriate state is.
-  int interactionState = rep->ComputeInteractionState( 
-      self->Interactor->GetEventPosition()[0], 
+  int interactionState = rep->ComputeInteractionState(
+      self->Interactor->GetEventPosition()[0],
       self->Interactor->GetEventPosition()[1], modifier );
   self->SetCursor(interactionState);
-  
+
   if (interactionState != vtkParallelopipedRepresentation::Outside)
     {
     self->EventCallbackCommand->SetAbortFlag(1);
@@ -260,25 +260,25 @@ void vtkParallelopipedWidget
 ::RequestResizeAlongAnAxisCallback(vtkAbstractWidget *w)
 {
   vtkParallelopipedWidget *self = reinterpret_cast<vtkParallelopipedWidget*>(w);
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
-  
+
   const int modifier = self->Interactor->GetShiftKey()   |
                        self->Interactor->GetControlKey() |
                        self->Interactor->GetAltKey();
-    
-  // This interaction could potentially select a handle, if we are close to 
-  // one. Lets make a request on the representation and see what it says. 
-  rep->SetInteractionState( 
+
+  // This interaction could potentially select a handle, if we are close to
+  // one. Lets make a request on the representation and see what it says.
+  rep->SetInteractionState(
     vtkParallelopipedRepresentation::RequestResizeParallelopipedAlongAnAxis );
-  
+
   // Let the representation decide what the appropriate state is.
-  int interactionState = rep->ComputeInteractionState( 
-      self->Interactor->GetEventPosition()[0], 
+  int interactionState = rep->ComputeInteractionState(
+      self->Interactor->GetEventPosition()[0],
       self->Interactor->GetEventPosition()[1], modifier );
 
-  self->SetCursor(interactionState);  
-  
+  self->SetCursor(interactionState);
+
   if (interactionState == vtkParallelopipedRepresentation::Inside)
     {
     // We did not select any of the handles, nevertheless we are at least
@@ -306,21 +306,21 @@ void vtkParallelopipedWidget::RequestChairModeCallback(vtkAbstractWidget *w)
     return;
     }
 
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
-  
+
   const int modifier = self->Interactor->GetShiftKey()   |
                        self->Interactor->GetControlKey() |
                        self->Interactor->GetAltKey();
-    
-  // This interaction could potentially select a handle, if we are close to 
-  // one. Lets make a request on the representation and see what it says. 
-  rep->SetInteractionState( 
+
+  // This interaction could potentially select a handle, if we are close to
+  // one. Lets make a request on the representation and see what it says.
+  rep->SetInteractionState(
     vtkParallelopipedRepresentation::RequestChairMode );
-  
+
   // Let the representation decide what the appropriate state is.
-  int interactionState = rep->ComputeInteractionState( 
-      self->Interactor->GetEventPosition()[0], 
+  int interactionState = rep->ComputeInteractionState(
+      self->Interactor->GetEventPosition()[0],
       self->Interactor->GetEventPosition()[1], modifier );
   self->SetCursor(interactionState);
 
@@ -339,9 +339,9 @@ void vtkParallelopipedWidget::RequestChairModeCallback(vtkAbstractWidget *w)
 void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget *w)
 {
   vtkParallelopipedWidget *self = reinterpret_cast<vtkParallelopipedWidget*>(w);
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
-  
+
   // We know we are inside the parallelopiped.
   // Change the cursor to the Translate thingie.
   self->SetCursor( vtkParallelopipedRepresentation::TranslatingParallelopiped );
@@ -363,9 +363,9 @@ void vtkParallelopipedWidget::TranslateCallback(vtkAbstractWidget *w)
 void vtkParallelopipedWidget
 ::BeginTranslateAction(vtkParallelopipedWidget *vtkNotUsed(dispatcher))
 {
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(this->WidgetRep);
-  
+
   // We know we are inside the parallelopiped.
   // Change the cursor to the Translate thingie.
   rep->SetInteractionState( vtkParallelopipedRepresentation::
@@ -375,16 +375,16 @@ void vtkParallelopipedWidget
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
-  this->Interactor->Render();  
+  this->Interactor->Render();
 }
 
 //----------------------------------------------------------------------
 void vtkParallelopipedWidget
 ::TranslateAction(vtkParallelopipedWidget *vtkNotUsed(dispatcher))
 {
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(this->WidgetRep);
-  rep->Translate( this->Interactor->GetEventPosition()[0], 
+  rep->Translate( this->Interactor->GetEventPosition()[0],
                   this->Interactor->GetEventPosition()[1] );
 }
 
@@ -392,20 +392,20 @@ void vtkParallelopipedWidget
 void vtkParallelopipedWidget::OnLeftButtonUpCallback(vtkAbstractWidget *w)
 {
   vtkParallelopipedWidget *self = reinterpret_cast<vtkParallelopipedWidget*>(w);
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
-  
+
   int interactionState = rep->GetInteractionState();
 
   // Reset the state
   rep->SetInteractionState( vtkParallelopipedRepresentation::Outside );
-    
+
   // Let the representation re-compute what the appropriate state is.
   const int modifier = self->Interactor->GetShiftKey()   |
                        self->Interactor->GetControlKey() |
                        self->Interactor->GetAltKey();
-  int newInteractionState = rep->ComputeInteractionState( 
-        self->Interactor->GetEventPosition()[0], 
+  int newInteractionState = rep->ComputeInteractionState(
+        self->Interactor->GetEventPosition()[0],
         self->Interactor->GetEventPosition()[1], modifier );
 
   // If we computed a different interaction state than the one we were in,
@@ -422,7 +422,7 @@ void vtkParallelopipedWidget::OnLeftButtonUpCallback(vtkAbstractWidget *w)
 void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget *w)
 {
   vtkParallelopipedWidget *self = reinterpret_cast<vtkParallelopipedWidget*>(w);
-  vtkParallelopipedRepresentation *rep = 
+  vtkParallelopipedRepresentation *rep =
     reinterpret_cast<vtkParallelopipedRepresentation*>(self->WidgetRep);
 
   int interactionState = rep->GetInteractionState();
@@ -449,15 +449,15 @@ void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget *w)
     const int modifier = self->Interactor->GetShiftKey()   |
                          self->Interactor->GetControlKey() |
                          self->Interactor->GetAltKey();
-    newInteractionState = rep->ComputeInteractionState( 
-          self->Interactor->GetEventPosition()[0], 
+    newInteractionState = rep->ComputeInteractionState(
+          self->Interactor->GetEventPosition()[0],
           self->Interactor->GetEventPosition()[1], modifier );
     }
 
   // If we computed a different interaction state than the one we were in,
   // render in response to any changes. Also take care of trivial cases that
   // require no rendering.
-  if (newInteractionState != interactionState || 
+  if (newInteractionState != interactionState ||
       (newInteractionState != vtkParallelopipedRepresentation::Inside &&
        newInteractionState != vtkParallelopipedRepresentation::Outside ))
     {
@@ -503,7 +503,7 @@ void vtkParallelopipedWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Chair Creation: " 
+  os << indent << "Chair Creation: "
      << (this->EnableChairCreation ? "On\n" : "Off\n");
-  
+
 }

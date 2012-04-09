@@ -19,7 +19,7 @@
 // (i.e., dimX*dimY*dimZ). Also, data attributes (either point or cell)
 // can be added to the dataset.
 //
-// 
+//
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkFloatArray.h"
@@ -40,7 +40,7 @@ int main()
   float x[3], v[3], rMin=0.5, rMax=1.0, deltaRad, deltaZ;
   float radius, theta;
   static int dims[3]={13,11,11};
-  
+
   // Create the structured grid.
   vtkStructuredGrid *sgrid = vtkStructuredGrid::New();
       sgrid->SetDimensions(dims);
@@ -52,7 +52,7 @@ int main()
     vectors->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
   vtkPoints *points = vtkPoints::New();
     points->Allocate(dims[0]*dims[1]*dims[2]);
-  
+
   deltaZ = 2.0 / (dims[2]-1);
   deltaRad = (rMax-rMin) / (dims[1]-1);
   v[2]=0.0;
@@ -60,11 +60,11 @@ int main()
     {
     x[2] = -1.0 + k*deltaZ;
     kOffset = k * dims[0] * dims[1];
-    for (j=0; j<dims[1]; j++) 
+    for (j=0; j<dims[1]; j++)
       {
       radius = rMin + j*deltaRad;
       jOffset = j * dims[0];
-      for (i=0; i<dims[0]; i++) 
+      for (i=0; i<dims[0]; i++)
         {
         theta = i * vtkMath::RadiansFromDegrees(15.0);
         x[0] = radius * cos(theta);

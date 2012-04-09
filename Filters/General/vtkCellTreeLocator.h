@@ -147,10 +147,10 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     };
 
     // Description:
-    // This class is the basic building block of the cell tree. 
-    // Nodes consist of two split planes, LeftMax and RightMin, 
-    // one which holds all cells assigned to the left, one for the right. 
-    // The planes may overlap in the box, but cells are only assigned 
+    // This class is the basic building block of the cell tree.
+    // Nodes consist of two split planes, LeftMax and RightMin,
+    // one which holds all cells assigned to the left, one for the right.
+    // The planes may overlap in the box, but cells are only assigned
     // to one side, so some searches must traverse both leaves until they have eliminated
     // candidates.
     // start is the location in the cell tree. e.g. for root node start is zero.

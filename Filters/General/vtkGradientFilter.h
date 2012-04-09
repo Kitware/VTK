@@ -23,9 +23,9 @@
 // Estimates the gradient of a field in a data set.  The gradient calculation
 // is dependent on the input dataset type.  The created gradient array
 // is of the same type as the array it is calculated from (e.g. point data
-// or cell data) as well as data type (e.g. float, double).  At the boundary 
-// the gradient is not central differencing.  The output array has 
-// 3*number of components of the input data array.  The ordering for the 
+// or cell data) as well as data type (e.g. float, double).  At the boundary
+// the gradient is not central differencing.  The output array has
+// 3*number of components of the input data array.  The ordering for the
 // output tuple will be {du/dx, du/dy, du/dz, dv/dx, dv/dy, dv/dz, dw/dx,
 // dw/dy, dw/dz} for an input array {u, v, w}.
 
@@ -98,7 +98,7 @@ protected:
                           vtkInformationVector *);
 
   // Description:
-  // Compute the gradients for grids that are not a vtkImageData, 
+  // Compute the gradients for grids that are not a vtkImageData,
   // vtkRectilinearGrid, or vtkStructuredGrid.
   // Returns non-zero if the operation was successful.
   virtual int ComputeUnstructuredGridGradient(
@@ -106,12 +106,12 @@ protected:
     vtkDataSet* output);
 
   // Description:
-  // Compute the gradients for either a vtkImageData, vtkRectilinearGrid or 
+  // Compute the gradients for either a vtkImageData, vtkRectilinearGrid or
   // a vtkStructuredGrid.  Computes the gradient using finite differences.
   // Returns non-zero if the operation was successful.
   virtual int ComputeRegularGridGradient(
     vtkDataArray* Array, int fieldAssociation, vtkDataSet* output);
-  
+
   // Description:
   // If non-null then it contains the name of the outputted gradient array
   char *ResultArrayName;
@@ -133,7 +133,7 @@ protected:
   int ComputeQCriterion;
 
   // Description:
-  // Flag to indicate that vorticity/curl of the input vector is to 
+  // Flag to indicate that vorticity/curl of the input vector is to
   // be computed.  The input array to be processed must have
   // 3 components.  By default ComputeVorticity is off.
   int ComputeVorticity;

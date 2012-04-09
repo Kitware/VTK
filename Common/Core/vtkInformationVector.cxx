@@ -209,7 +209,7 @@ void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
       }
      return;
     }
-  
+
   // otherwise it is a shallow copy and we must copy pointers
   this->SetNumberOfInformationObjects(0);
   // copy the data

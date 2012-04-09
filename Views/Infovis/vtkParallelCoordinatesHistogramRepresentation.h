@@ -17,26 +17,26 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkParallelCoordinatesHistogramRepresentation - Data representation 
+// .NAME vtkParallelCoordinatesHistogramRepresentation - Data representation
 //  that takes generic multivariate data and produces a parallel coordinates plot.
 //  This plot optionally can draw a histogram-based plot summary.
 //
 // .SECTION Description
 //  A parallel coordinates plot represents each variable in a multivariate
 //  data set as a separate axis.  Individual samples of that data set are
-//  represented as a polyline that pass through each variable axis at 
+//  represented as a polyline that pass through each variable axis at
 //  positions that correspond to data values.  This class can generate
-//  parallel coordinates plots identical to its superclass 
+//  parallel coordinates plots identical to its superclass
 //  (vtkParallelCoordinatesRepresentation) and has the same interaction
 //  styles.
 //
 //  In addition to the standard parallel coordinates plot, this class also
-//  can draw a histogram summary of the parallel coordinates plot.  
+//  can draw a histogram summary of the parallel coordinates plot.
 //  Rather than draw every row in an input data set, first it computes
 //  a 2D histogram for all neighboring variable axes, then it draws
 //  bar (thickness corresponds to bin size) for each bin the histogram
 //  with opacity weighted by the number of rows contained in the bin.
-//  The result is essentially a density map.  
+//  The result is essentially a density map.
 //
 //  Because this emphasizes dense regions over sparse outliers, this class
 //  also uses a vtkComputeHistogram2DOutliers instance to identify outlier
@@ -45,7 +45,7 @@
 // .SECTION See Also
 //  vtkParallelCoordinatesView vtkParallelCoordinatesRepresentation
 //  vtkExtractHistogram2D vtkComputeHistogram2DOutliers
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 
@@ -103,7 +103,7 @@ public:
   vtkGetMacro(PreferredNumberOfOutliers,int);
 
   // Description:
-  // Calls superclass swap, and assures that only histograms affected by the 
+  // Calls superclass swap, and assures that only histograms affected by the
   // swap get recomputed.
   virtual int SwapAxisPositions(int position1, int position2);
 
@@ -156,7 +156,7 @@ protected:
   vtkSmartPointer<vtkPolyDataMapper2D> OutlierMapper;
   vtkSmartPointer<vtkActor2D> OutlierActor;
   //ETX
-  
+
   // Description:
   // Correctly forwards the superclass call to draw lines to the internal
   // PlaceHistogramLineQuads call.
@@ -172,7 +172,7 @@ protected:
   virtual int PlaceSelection(vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode);
 
   // Description:
-  // Take the input 2D histogram images and draw one quad for each bin 
+  // Take the input 2D histogram images and draw one quad for each bin
   virtual int PlaceHistogramLineQuads(vtkPolyData* polyData);
 
   // Description:
@@ -187,7 +187,7 @@ protected:
   virtual int UpdatePlotProperties(vtkStringArray*);
 
   // Description:
-  // Access the input data object containing the histograms and 
+  // Access the input data object containing the histograms and
   // pull out the image data for the idx'th histogram.
   virtual vtkImageData* GetHistogramImage(int idx);
 

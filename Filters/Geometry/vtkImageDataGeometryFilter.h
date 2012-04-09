@@ -15,18 +15,18 @@
 // .NAME vtkImageDataGeometryFilter - extract geometry for structured points
 // .SECTION Description
 // vtkImageDataGeometryFilter is a filter that extracts geometry from a
-// structured points dataset. By specifying appropriate i-j-k indices (via the 
-// "Extent" instance variable), it is possible to extract a point, a line, a 
-// plane (i.e., image), or a "volume" from dataset. (Since the output is 
+// structured points dataset. By specifying appropriate i-j-k indices (via the
+// "Extent" instance variable), it is possible to extract a point, a line, a
+// plane (i.e., image), or a "volume" from dataset. (Since the output is
 // of type polydata, the volume is actually a (n x m x o) region of points.)
 //
 // The extent specification is zero-offset. That is, the first k-plane in
 // a 50x50x50 volume is given by (0,49, 0,49, 0,0).
 // .SECTION Caveats
 // If you don't know the dimensions of the input dataset, you can use a large
-// number to specify extent (the number will be clamped appropriately). For 
-// example, if the dataset dimensions are 50x50x50, and you want a the fifth 
-// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will 
+// number to specify extent (the number will be clamped appropriately). For
+// example, if the dataset dimensions are 50x50x50, and you want a the fifth
+// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will
 // automatically be clamped to 49.
 
 // .SECTION See Also
@@ -43,11 +43,11 @@ class VTKFILTERSGEOMETRY_EXPORT vtkImageDataGeometryFilter : public vtkPolyDataA
 public:
   vtkTypeMacro(vtkImageDataGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Construct with initial extent of all the data
   static vtkImageDataGeometryFilter *New();
- 
+
   // Description:
   // Set / get the extent (imin,imax, jmin,jmax, kmin,kmax) indices.
   void SetExtent(int extent[6]);

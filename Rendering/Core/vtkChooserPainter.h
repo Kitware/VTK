@@ -63,7 +63,7 @@ protected:
   vtkPolyDataPainter *StripPainter;
 
 
-  
+
   // Description:
   // Some subclasses may need to do some preprocessing
   // before the actual rendering can be done eg. build efficient
@@ -72,7 +72,7 @@ protected:
   // but before RenderInternal().
   // Overridden to setup the the painters if needed.
   virtual void PrepareForRendering(vtkRenderer*, vtkActor*);
- 
+
   // Description:
   // Called to pick which painters to used based on the current state of
   // this painter and the poly data.
@@ -98,10 +98,10 @@ protected:
   // Description:
   // Performs the actual rendering. Subclasses may override this method.
   // default implementation merely call a Render on the DelegatePainter,
-  // if any. When RenderInternal() is called, it is assured that the 
+  // if any. When RenderInternal() is called, it is assured that the
   // DelegatePainter is in sync with this painter i.e. UpdatePainter()
   // has been called.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
   // Description:

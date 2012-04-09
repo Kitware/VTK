@@ -114,7 +114,7 @@ int vtkRotationalExtrusionFilter::RequestData(
   outPD->CopyAllocate(pd,(this->Resolution+1)*numPts);
   newPts = vtkPoints::New();
   newPts->Allocate((this->Resolution+1)*numPts);
-  if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
+  if ( (ncells=inVerts->GetNumberOfCells()) > 0 )
     {
     newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(ncells,this->Resolution+1));
@@ -169,7 +169,7 @@ int vtkRotationalExtrusionFilter::RequestData(
           {
           tempd = 1.0;
           }
-        if ( (psi=asin(tempd)) < 0.0 ) 
+        if ( (psi=asin(tempd)) < 0.0 )
           {
           if ( theta < (vtkMath::Pi()/2.0) )
             {
@@ -225,11 +225,11 @@ int vtkRotationalExtrusionFilter::RequestData(
     }//if there are verts generating lines
   this->UpdateProgress (0.25);
   abort = this->GetAbortExecute();
-  
+
   // If capping is on, copy 2D cells to output (plus create cap). Notice
   // that polygons are done first, then strips.
   //
-  if ( this->Capping && (this->Angle != 360.0 || this->DeltaRadius != 0.0 
+  if ( this->Capping && (this->Angle != 360.0 || this->DeltaRadius != 0.0
                          || this->Translation != 0.0) )
     {
     if ( inPolys->GetNumberOfCells() > 0 )
@@ -304,8 +304,8 @@ int vtkRotationalExtrusionFilter::RequestData(
           }
         }//if a line
 
-      else if ( type == VTK_TRIANGLE || type == VTK_QUAD || 
-                type == VTK_POLYGON || type == VTK_TRIANGLE_STRIP ) 
+      else if ( type == VTK_TRIANGLE || type == VTK_QUAD ||
+                type == VTK_POLYGON || type == VTK_TRIANGLE_STRIP )
         {// create strips from boundary edges
         mesh->GetCell(cellId,cell);
         numEdges = cell->GetNumberOfEdges();
@@ -344,13 +344,13 @@ int vtkRotationalExtrusionFilter::RequestData(
   newPts->Delete();
   mesh->Delete();
 
-  if ( newLines ) 
+  if ( newLines )
     {
     output->SetLines(newLines);
     newLines->Delete();
     }
 
-  if ( newPolys ) 
+  if ( newPolys )
     {
     output->SetPolys(newPolys);
     newPolys->Delete();

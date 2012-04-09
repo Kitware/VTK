@@ -14,7 +14,7 @@
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
-  
+
   This is part of the Parallel Dataflow System originally developed by
   Huy T. Vo and Claudio T. Silva. For more information, see:
 
@@ -59,30 +59,30 @@ public:
 
   // Description:
   // Get the next executive in the list.
-  vtkExecutive *GetNextItem() 
+  vtkExecutive *GetNextItem()
   {
     return static_cast<vtkExecutive *>(this->GetNextItemAsObject());
   }
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
-  vtkExecutive *GetNextExecutive(vtkCollectionSimpleIterator &cookie) 
+  // same cookie back and forth.
+  vtkExecutive *GetNextExecutive(vtkCollectionSimpleIterator &cookie)
   {
     return static_cast<vtkExecutive *>(this->GetNextItemAsObject(cookie));
   }
   //ETX
 
-protected:  
+protected:
   vtkExecutiveCollection() {}
   ~vtkExecutiveCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) 
-  { 
-    this->vtkCollection::AddItem(o); 
+  void AddItem(vtkObject *o)
+  {
+    this->vtkCollection::AddItem(o);
   }
 
 private:

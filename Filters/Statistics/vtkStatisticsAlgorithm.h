@@ -21,9 +21,9 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Description
 // All statistics algorithms can conceptually be operated with several operations:
-// * Learn: given an input data set, calculate a minimal statistical model (e.g., 
+// * Learn: given an input data set, calculate a minimal statistical model (e.g.,
 //   sums, raw moments, joint probabilities).
-// * Derive: given an input minimal statistical model, derive the full model 
+// * Derive: given an input minimal statistical model, derive the full model
 //   (e.g., descriptive statistics, quantiles, correlations, conditional
 //    probabilities).
 //   NB: It may be, or not be, a problem that a full model was not derived. For
@@ -31,14 +31,14 @@ PURPOSE.  See the above copyright notice for more information.
 //   model after all partial calculations have completed. On the other hand, one
 //   can also directly provide a full model, that was previously calculated or
 //   guessed, and not derive a new one.
-// * Assess: given an input data set, input statistics, and some form of 
+// * Assess: given an input data set, input statistics, and some form of
 //   threshold, assess a subset of the data set.
 // * Test: perform at least one statistical test.
 // Therefore, a vtkStatisticsAlgorithm has the following ports
 // * 3 optional input ports:
 //   * Data (vtkTable)
 //   * Parameters to the learn operation (vtkTable)
-//   * Input model (vtkMultiBlockDataSet) 
+//   * Input model (vtkMultiBlockDataSet)
 // * 3 output ports:
 //   * Data (input annotated with assessments when the Assess operation is ON).
 //   * Output model (identical to the the input model when Learn operation is OFF).
@@ -46,7 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 //     which case this output will always be empty even when the Test operation is ON.
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
@@ -69,7 +69,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgori
 public:
   vtkTypeMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
 //BTX
   // Description:
   // enumeration values to specify input port types
@@ -221,8 +221,8 @@ public:
   void AddColumn( const char* namCol );
 
   // Description:
-  // Convenience method to create a request with a single column name pair 
-  //  (\p namColX, \p namColY) in a single call; this is the preferred method to select 
+  // Convenience method to create a request with a single column name pair
+  //  (\p namColX, \p namColY) in a single call; this is the preferred method to select
   // columns pairs, ensuring selection consistency (a pair of columns per request).
   //
   // Unlike SetColumnStatus(), you need not call RequestSelectedColumns() after AddColumnPair().
@@ -232,11 +232,11 @@ public:
   void AddColumnPair( const char* namColX, const char* namColY );
 
   // Description:
-  // A convenience method (in particular for access from other applications) to 
+  // A convenience method (in particular for access from other applications) to
   // set parameter values of Learn mode.
   // Return true if setting of requested parameter name was excuted, false otherwise.
   // NB: default method (which is sufficient for most statistics algorithms) does not
-  // have any Learn parameters to set and always returns false. 
+  // have any Learn parameters to set and always returns false.
   virtual bool SetParameter( const char* parameter,
                              int index,
                              vtkVariant value );
@@ -272,25 +272,25 @@ protected:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
-                       vtkTable* ) = 0; 
+                       vtkTable* ) = 0;
 
   // Description:
   // A convenience implementation for generic assessment with variable number of variables.
   void Assess( vtkTable*,
                vtkMultiBlockDataSet*,
                vtkTable*,
-               int ); 
+               int );
 
   // Description:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) = 0; 
+                     vtkTable* ) = 0;
 
   //BTX
   // Description:
   // A pure virtual method to select the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
+  virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc ) = 0;

@@ -52,15 +52,15 @@ vtkSampleFunction::vtkSampleFunction()
 
   this->ScalarArrayName=0;
   this->SetScalarArrayName("scalars");
-  
+
   this->NormalArrayName=0;
   this->SetNormalArrayName("normals");
 
-  
+
   this->SetNumberOfInputPorts(0);
 }
 
-vtkSampleFunction::~vtkSampleFunction() 
+vtkSampleFunction::~vtkSampleFunction()
 {
   this->SetImplicitFunction(NULL);
   this->SetScalarArrayName(NULL);
@@ -88,7 +88,7 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
        dim[1] != this->SampleDimensions[1] ||
        dim[2] != this->SampleDimensions[2] )
     {
-    for ( int i=0; i<3; i++) 
+    for ( int i=0; i<3; i++)
       {
       this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
       }
@@ -106,15 +106,15 @@ int vtkSampleFunction::RequestInformation (
 
   int i;
   double ar[3], origin[3];
-  
+
   int wExt[6];
   wExt[0] = 0; wExt[2] = 0; wExt[4] = 0;
   wExt[1] = this->SampleDimensions[0]-1;
   wExt[3] = this->SampleDimensions[1]-1;
   wExt[5] = this->SampleDimensions[2]-1;
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
-  
+
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
@@ -130,10 +130,10 @@ int vtkSampleFunction::RequestInformation (
     }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
-  
+
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo,this->OutputScalarType,
                                               1);
-  
+
   return 1;
 }
 
@@ -190,7 +190,7 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
   if ( this->ComputeNormals )
     {
     double n[3];
-    newNormals = vtkFloatArray::New(); 
+    newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPts);
     for ( idx=0, k=extent[4]; k <= extent[5]; k++ )
@@ -212,10 +212,10 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
         }
       }
     }
-  
+
   newScalars->SetName(this->ScalarArrayName);
-  
-  
+
+
   // If capping is turned on, set the distances of the outside of the volume
   // to the CapValue.
   //
@@ -224,7 +224,7 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
     this->Cap(newScalars);
     }
 
-  // Update self 
+  // Update self
   //
   if (newNormals)
     {
@@ -232,7 +232,7 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
     // it will make ImplicitSum, TestBoxFunction and TestDiscreteMarchingCubes
     // to fail.
     newNormals->SetName(this->NormalArrayName);
-    
+
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
@@ -328,21 +328,21 @@ void vtkSampleFunction::SetScalars(vtkDataArray *da)
     {
     this->SetOutputScalarType(da->GetDataType());
     }
-}    
+}
 
 void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "
                << this->SampleDimensions[2] << ")\n";
   os << indent << "ModelBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] 
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0]
      << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] 
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2]
      << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] 
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4]
      << ", " << this->ModelBounds[5] << ")\n";
 
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
@@ -360,7 +360,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cap Value: " << this->CapValue << "\n";
 
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
-  
+
   os << indent << "ScalarArrayName: ";
   if(this->ScalarArrayName!=0)
     {
@@ -370,7 +370,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
     {
     os  << "(none)" << endl;
     }
-  
+
   os << indent << "NormalArrayName: ";
   if(this->NormalArrayName!=0)
     {

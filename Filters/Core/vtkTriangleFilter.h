@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTriangleFilter - create triangle polygons from input polygons and triangle strips
 // .SECTION Description
-// vtkTriangleFilter generates triangles from input polygons and triangle 
+// vtkTriangleFilter generates triangles from input polygons and triangle
 // strips. The filter also will pass through vertices and lines, if
 // requested.
 

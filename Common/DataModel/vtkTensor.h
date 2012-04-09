@@ -14,13 +14,13 @@
 =========================================================================*/
 // .NAME vtkTensor - supporting class to enable assignment and referencing of tensors
 // .SECTION Description
-// vtkTensor is a floating point representation of an nxn tensor. vtkTensor 
-// provides methods for assignment and reference of tensor components. It 
+// vtkTensor is a floating point representation of an nxn tensor. vtkTensor
+// provides methods for assignment and reference of tensor components. It
 // does it in such a way as to minimize data copying.
 //
 // .SECTION Caveats
-// vtkTensor performs its operations using pointer reference. You are 
-// responsible for supplying data storage (if necessary) if local copies 
+// vtkTensor performs its operations using pointer reference. You are
+// responsible for supplying data storage (if necessary) if local copies
 // of data are being made.
 
 #ifndef __vtkTensor_h
@@ -67,8 +67,8 @@ public:
   // Description:
   // Data member left public for efficiency.
   double *T;
-  
-protected: 
+
+protected:
   vtkTensor();
   ~vtkTensor() {};
 

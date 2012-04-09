@@ -3,7 +3,7 @@
 //
 // Author: Bill Licea-Kane
 //
-// Copyright (c) 2002-2003 ATI Research 
+// Copyright (c) 2002-2003 ATI Research
 //
 // See ATI-License.txt for license information
 //

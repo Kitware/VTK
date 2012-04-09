@@ -61,7 +61,7 @@ static const double VTK_WEDGE_CONVERGED=1.e-03;
 
 //----------------------------------------------------------------------------
 int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
-                               int& subId, double pcoords[3], 
+                               int& subId, double pcoords[3],
                                double& dist2, double *weights)
 {
   int iteration, converged;
@@ -78,14 +78,14 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
 
   //  enter iteration loop
   for (iteration=converged=0; !converged && (iteration < VTK_WEDGE_MAX_ITERATION);
-  iteration++) 
+  iteration++)
     {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
@@ -101,14 +101,14 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
         }
       }
 
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] -= x[i];
       }
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20) 
+    if ( fabs(d) < 1.e-20)
       {
       return -1;
       }
@@ -125,14 +125,14 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
       converged = 1;
       }
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
+             (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
     //  if not converged, repeat
-    else 
+    else
       {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
@@ -142,7 +142,7 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
-  if ( !converged ) 
+  if ( !converged )
     {
     return -1;
     }
@@ -167,15 +167,15 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
         {
-        if (pcoords[i] < 0.0) 
+        if (pcoords[i] < 0.0)
           {
           pc[i] = 0.0;
         }
-        else if (pcoords[i] > 1.0) 
+        else if (pcoords[i] > 1.0)
           {
           pc[i] = 1.0;
           }
-        else 
+        else
           {
           pc[i] = pcoords[i];
           }
@@ -189,7 +189,7 @@ int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
                                 double x[3], double *weights)
 {
   int i, j;
@@ -211,13 +211,13 @@ void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
+int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                            vtkIdList *pts)
 {
   int i;
 
   // define 9 planes that separate regions
-  static double normals[9][3] = { 
+  static double normals[9][3] = {
     {0.0,0.83205,-0.5547}, {-0.639602,-0.639602,-0.426401}, {0.83205,0.0,-0.5547},
     {0.0,0.83205,0.5547}, {-0.639602,-0.639602,0.426401}, {0.83205,0.0,0.5547},
     {-0.707107,0.707107,0.0}, {0.447214,0.894427,0.0}, {0.894427,0.447214,0.0} };
@@ -227,7 +227,7 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   // evaluate 9 plane equations
   for (i=0; i<9; i++)
     {
-    vals[i] = normals[i][0]*(pcoords[0]-point[0]) + 
+    vals[i] = normals[i][0]*(pcoords[0]-point[0]) +
       normals[i][1]*(pcoords[1]-point[1]) + normals[i][2]*(pcoords[2]-point[2]);
     }
 
@@ -249,7 +249,7 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     pts->SetId(2,this->PointIds->GetId(5));
     }
 
-  else if ( vals[0] <= 0.0 && vals[3] <= 0.0 && 
+  else if ( vals[0] <= 0.0 && vals[3] <= 0.0 &&
             vals[6] <= 0.0 && vals[7] <= 0.0 )
     {
     pts->SetNumberOfIds(4); //quad face
@@ -259,7 +259,7 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     pts->SetId(3,this->PointIds->GetId(3));
     }
 
-  else if ( vals[1] <= 0.0 && vals[4] <= 0.0 && 
+  else if ( vals[1] <= 0.0 && vals[4] <= 0.0 &&
             vals[7] >= 0.0 && vals[8] >= 0.0 )
     {
     pts->SetNumberOfIds(4); //quad face
@@ -279,7 +279,7 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-       pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
        pcoords[2] < 0.0 || pcoords[2] > 1.0 )
     {
     return 0;
@@ -293,10 +293,10 @@ int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Marching (convex) wedge
 //
-static int edges[9][2] = { {0,1}, {1,2}, {2,0}, 
+static int edges[9][2] = { {0,1}, {1,2}, {2,0},
                            {3,4}, {4,5}, {5,3},
                            {0,3}, {1,4}, {2,5} };
-static int faces[5][4] = { {0,1,2,-1}, {3,5,4,-1}, 
+static int faces[5][4] = { {0,1,2,-1}, {3,5,4,-1},
                            {0,3,4,1}, {1,4,5,2}, {2,5,3,0} };
 
 typedef int EDGE_LIST;
@@ -304,7 +304,7 @@ typedef struct {
        EDGE_LIST edges[13];
 } TRIANGLE_CASES;
 
-static TRIANGLE_CASES triCases[] = { 
+static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //0
   {{ 0,  6,  2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //1
   {{ 0,  1,  7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //2
@@ -331,7 +331,7 @@ static TRIANGLE_CASES triCases[] = {
   {{ 6,  8,  3,  3,  8,  4, -1, -1, -1, -1, -1, -1, -1}}, //23
   {{ 6,  7,  4,  6,  4,  5, -1, -1, -1, -1, -1, -1, -1}}, //24
   {{ 0,  7,  5,  7,  4,  5,  2,  0,  5, -1, -1, -1, -1}}, //25
-  {{ 1,  6,  0,  1,  5,  6,  1,  4,  5, -1, -1, -1, -1}}, //26 
+  {{ 1,  6,  0,  1,  5,  6,  1,  4,  5, -1, -1, -1, -1}}, //26
   {{ 2,  1,  5,  5,  1,  4, -1, -1, -1, -1, -1, -1, -1}}, //27
   {{ 2,  8,  1,  6,  7,  5,  7,  4,  5, -1, -1, -1, -1}}, //28
   {{ 0,  7,  5,  7,  4,  5,  0,  5,  1,  1,  5,  8, -1}}, //29
@@ -352,7 +352,7 @@ static TRIANGLE_CASES triCases[] = {
   {{ 2,  6,  1,  6,  3,  1,  3,  4,  1, -1, -1, -1, -1}}, //44
   {{ 0,  3,  1,  1,  3,  4, -1, -1, -1, -1, -1, -1, -1}}, //45
   {{ 7,  0,  4,  4,  0,  2,  4,  2,  3,  3,  2,  6, -1}}, //46
-  {{ 7,  3,  4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //47 
+  {{ 7,  3,  4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //47
   {{ 7,  8,  5,  7,  5,  3, -1, -1, -1, -1, -1, -1, -1}}, //48
   {{ 0,  6,  2,  7,  8,  5,  7,  5,  3, -1, -1, -1, -1}}, //49
   {{ 0,  1,  3,  1,  5,  3,  1,  8,  5, -1, -1, -1, -1}}, //50
@@ -372,10 +372,10 @@ static TRIANGLE_CASES triCases[] = {
 };
 
 //----------------------------------------------------------------------------
-void vtkWedge::Contour(double value, vtkDataArray *cellScalars, 
+void vtkWedge::Contour(double value, vtkDataArray *cellScalars,
                        vtkIncrementalPointLocator *locator,
-                       vtkCellArray *verts, 
-                       vtkCellArray *lines, 
+                       vtkCellArray *verts,
+                       vtkCellArray *lines,
                        vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
@@ -407,7 +407,7 @@ void vtkWedge::Contour(double value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
 
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+      deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
@@ -432,7 +432,7 @@ void vtkWedge::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           vtkIdType p1 = this->PointIds->GetId(v1);
           vtkIdType p2 = this->PointIds->GetId(v2);
@@ -519,7 +519,7 @@ vtkCell *vtkWedge::GetFace(int faceId)
 //----------------------------------------------------------------------------
 // Intersect faces against line.
 //
-int vtkWedge::IntersectWithLine(double p1[3], double p2[3], 
+int vtkWedge::IntersectWithLine(double p1[3], double p2[3],
                                 double tol, double& t,
                                 double x[3], double pcoords[3], int& subId)
 {
@@ -542,14 +542,14 @@ int vtkWedge::IntersectWithLine(double p1[3], double p2[3],
     this->Triangle->Points->SetPoint(1,pt2);
     this->Triangle->Points->SetPoint(2,pt3);
 
-    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, xTemp, 
+    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, xTemp,
                                            pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 0:
@@ -583,7 +583,7 @@ int vtkWedge::IntersectWithLine(double p1[3], double p2[3],
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 2:
@@ -606,7 +606,7 @@ int vtkWedge::IntersectWithLine(double p1[3], double p2[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                           vtkPoints *pts)
 {
   ptIds->Reset();
@@ -720,7 +720,7 @@ void vtkWedge::InterpolationDerivs(double pcoords[3], double derivs[18])
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives. Returns 0 if no inverse exists.
-int vtkWedge::JacobianInverse(double pcoords[3], double **inverse, 
+int vtkWedge::JacobianInverse(double pcoords[3], double **inverse,
                               double derivs[18])
 {
   int i, j;
@@ -751,13 +751,13 @@ int vtkWedge::JacobianInverse(double pcoords[3], double **inverse,
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
-#define VTK_MAX_WARNS 3    
+#define VTK_MAX_WARNS 3
     static int numWarns=0;
     if ( numWarns++ < VTK_MAX_WARNS )
       {
       vtkErrorMacro(<<"Jacobian inverse not found");
       vtkErrorMacro(<<"Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2]
-      << m[1][0] << " " << m[1][1] << " " << m[1][2] 
+      << m[1][0] << " " << m[1][1] << " " << m[1][2]
       << m[2][0] << " " << m[2][1] << " " << m[2][2] );
       return 0;
       }
@@ -791,7 +791,7 @@ double *vtkWedge::GetParametricCoords()
 void vtkWedge::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Triangle:\n";

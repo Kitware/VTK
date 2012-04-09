@@ -43,7 +43,7 @@ public:
   // Default is the earth's radius in meters.
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
-  
+
   // Description:
   // Factor on which to "explode" the arcs away from the surface.
   // A value of 0.0 keeps the values on the surface.
@@ -52,23 +52,23 @@ public:
   // The default is 0.2.
   vtkSetMacro(ExplodeFactor, double);
   vtkGetMacro(ExplodeFactor, double);
-  
+
   // Description:
   // The number of subdivisions in the arc.
   // The default is 20.
   vtkSetMacro(NumberOfSubdivisions, int);
   vtkGetMacro(NumberOfSubdivisions, int);
-  
+
 protected:
   vtkGeoArcs();
   ~vtkGeoArcs() {}
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   double GlobeRadius;
   double ExplodeFactor;
   int NumberOfSubdivisions;
-  
+
 private:
   vtkGeoArcs(const vtkGeoArcs&);  // Not implemented.
   void operator=(const vtkGeoArcs&);  // Not implemented.

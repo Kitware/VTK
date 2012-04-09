@@ -55,12 +55,12 @@ void vtkImageRange3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// This method sets the size of the neighborhood.  It also sets the 
+// This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the eliptical foot print.
 void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
-  
+
   if (this->KernelSize[0] != size0)
     {
     modified = 1;
@@ -83,8 +83,8 @@ void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
   if (modified)
     {
     this->Modified();
-    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
-                                  0, this->KernelSize[1]-1, 
+    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1,
+                                  0, this->KernelSize[1]-1,
                                   0, this->KernelSize[2]-1);
     this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0]-1)*0.5,
                              static_cast<float>(this->KernelSize[1]-1)*0.5,
@@ -96,8 +96,8 @@ void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
     vtkInformation *ellipseOutInfo =
       this->Ellipse->GetExecutive()->GetOutputInformation(0);
     ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                        0, this->KernelSize[0]-1, 
-                        0, this->KernelSize[1]-1, 
+                        0, this->KernelSize[0]-1,
+                        0, this->KernelSize[1]-1,
                         0, this->KernelSize[2]-1);
     this->Ellipse->Update();
     }
@@ -123,8 +123,8 @@ int vtkImageRange3D::RequestInformation (vtkInformation *request,
 template <class T>
 void vtkImageRange3DExecute(vtkImageRange3D *self,
                             vtkImageData *mask,
-                            vtkImageData *inData, T *inPtr, 
-                            vtkImageData *outData, int *outExt, 
+                            vtkImageData *inData, T *inPtr,
+                            vtkImageData *outData, int *outExt,
                             float *outPtr, int id,
                             vtkInformation *inInfo)
 {
@@ -162,12 +162,12 @@ void vtkImageRange3DExecute(vtkImageRange3D *self,
   inImageMax1 = inImageExt[3];
   inImageMin2 = inImageExt[4];
   inImageMax2 = inImageExt[5];
-  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  outData->GetIncrements(outInc0, outInc1, outInc2);
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
   outMin2 = outExt[4];   outMax2 = outExt[5];
   numComps = outData->GetNumberOfScalarComponents();
-  
+
   // Get ivars of this object (easier than making friends)
   kernelSize = self->GetKernelSize();
   kernelMiddle = self->GetKernelMiddle();
@@ -181,7 +181,7 @@ void vtkImageRange3DExecute(vtkImageRange3D *self,
   // Setup mask info
   maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
-  
+
   // in and out should be marching through corresponding pixels.
   inPtr = static_cast<T *>(
     inData->GetScalarPointer(outMin0, outMin1, outMin2));
@@ -200,10 +200,10 @@ void vtkImageRange3DExecute(vtkImageRange3D *self,
       {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
-      for (outIdx1 = outMin1; 
+      for (outIdx1 = outMin1;
            !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
         {
-        if (!id) 
+        if (!id)
           {
           if (!(count%target))
             {
@@ -219,9 +219,9 @@ void vtkImageRange3DExecute(vtkImageRange3D *self,
           // Find min and max
           pixelMin = pixelMax = *inPtr0;
           // loop through neighborhood pixels
-          // as sort of a hack to handle boundaries, 
+          // as sort of a hack to handle boundaries,
           // input pointer will be marching through data that does not exist.
-          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
+          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0
             - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
           maskPtr2 = maskPtr;
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
@@ -254,7 +254,7 @@ void vtkImageRange3DExecute(vtkImageRange3D *self,
                       }
                     }
                   }
-                
+
                 hoodPtr0 += inInc0;
                 maskPtr0 += maskInc0;
                 }
@@ -265,7 +265,7 @@ void vtkImageRange3DExecute(vtkImageRange3D *self,
             maskPtr2 += maskInc2;
             }
           *outPtr0 = static_cast<float>(pixelMax - pixelMin);
-          
+
           inPtr0 += inInc0;
           outPtr0 += outInc0;
           }
@@ -289,7 +289,7 @@ void vtkImageRange3D::ThreadedRequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
-  vtkImageData **outData, 
+  vtkImageData **outData,
   int outExt[6], int id)
 {
   int inExt[6], wholeExt[6];
@@ -311,7 +311,7 @@ void vtkImageRange3D::ThreadedRequestData(
   // this filter expects the output to be float
   if (outData[0]->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, " 
+    vtkErrorMacro(<< "Execute: output ScalarType, "
       << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must be float");
     return;
@@ -320,8 +320,8 @@ void vtkImageRange3D::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageRange3DExecute(this, mask, inData[0][0], 
-                             static_cast<VTK_TT *>(inPtr), outData[0], outExt, 
+      vtkImageRange3DExecute(this, mask, inData[0][0],
+                             static_cast<VTK_TT *>(inPtr), outData[0], outExt,
                              static_cast<float *>(outPtr), id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

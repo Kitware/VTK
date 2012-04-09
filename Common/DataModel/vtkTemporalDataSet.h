@@ -15,7 +15,7 @@
 // .NAME vtkTemporalDataSet - Composite dataset that holds multiple times
 // .SECTION Description
 // vtkTemporalDataSet is a vtkCompositeDataSet that stores
-// multiple time steps of data. 
+// multiple time steps of data.
 // .SECTION See Also
 // vtkCompositeDataSet
 

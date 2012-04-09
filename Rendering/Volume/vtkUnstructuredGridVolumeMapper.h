@@ -15,8 +15,8 @@
 // .NAME vtkUnstructuredGridVolumeMapper - Abstract class for a unstructured grid volume mapper
 
 // .SECTION Description
-// vtkUnstructuredGridVolumeMapper is the abstract definition of a volume mapper for 
-// unstructured data (vtkUnstructuredGrid).  Several  basic types of volume mappers 
+// vtkUnstructuredGridVolumeMapper is the abstract definition of a volume mapper for
+// unstructured data (vtkUnstructuredGrid).  Several  basic types of volume mappers
 // are supported as subclasses
 
 // .SECTION see also
@@ -52,9 +52,9 @@ public:
   void SetBlendModeToMaximumIntensity()
     { this->SetBlendMode( vtkUnstructuredGridVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
   vtkGetMacro( BlendMode, int );
-  
 
-//BTX  
+
+//BTX
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -68,15 +68,15 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
-  
-  enum 
+
+  enum
   {
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND
   };
-  
+
 //ETX
-  
+
 protected:
   vtkUnstructuredGridVolumeMapper();
   ~vtkUnstructuredGridVolumeMapper();

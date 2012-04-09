@@ -122,11 +122,11 @@ int vtkReflectionFilter::RequestData(
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
         {
         vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-        vtkSmartPointer<vtkUnstructuredGrid> ug = 
+        vtkSmartPointer<vtkUnstructuredGrid> ug =
           vtkSmartPointer<vtkUnstructuredGrid>::New();
         if (!this->RequestDataInternal(ds, ug, bounds))
           {
-          return 0; 
+          return 0;
           }
 
         outputCD->SetDataSet(iter, ug);
@@ -147,7 +147,7 @@ int vtkReflectionFilter::RequestDataInternal(
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *inCD = input->GetCellData();
-  vtkCellData *outCD = output->GetCellData();  
+  vtkCellData *outCD = output->GetCellData();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   double tuple[3];
@@ -177,7 +177,7 @@ int vtkReflectionFilter::RequestDataInternal(
   vtkDataArray *inPtVectors, *outPtVectors, *inPtNormals, *outPtNormals;
   vtkDataArray *inCellVectors, *outCellVectors, *inCellNormals;
   vtkDataArray *outCellNormals;
-  
+
   inPtVectors = inPD->GetVectors();
   outPtVectors = outPD->GetVectors();
   inPtNormals = inPD->GetNormals();
@@ -186,7 +186,7 @@ int vtkReflectionFilter::RequestDataInternal(
   outCellVectors = outCD->GetVectors();
   inCellNormals = inCD->GetNormals();
   outCellNormals = outCD->GetNormals();
-  
+
   // Copy first points.
   if (this->CopyInput)
     {
@@ -197,7 +197,7 @@ int vtkReflectionFilter::RequestDataInternal(
       outPD->CopyData(inPD, i, ptId);
       }
     }
-  
+
   // Copy reflected points.
   switch (this->Plane)
     {
@@ -243,8 +243,8 @@ int vtkReflectionFilter::RequestDataInternal(
     {
     input->GetPoint(i, point);
     ptId =
-      outPoints->InsertNextPoint( mirrorDir[0]*point[0] + constant[0], 
-                                  mirrorDir[1]*point[1] + constant[1], 
+      outPoints->InsertNextPoint( mirrorDir[0]*point[0] + constant[0],
+                                  mirrorDir[1]*point[1] + constant[1],
                                   mirrorDir[2]*point[2] + constant[2] );
     outPD->CopyData(inPD, i, ptId);
     if (inPtVectors)
@@ -261,11 +261,11 @@ int vtkReflectionFilter::RequestDataInternal(
       }
     }
 
-  
+
   int numCellPts,  cellType;
   vtkIdType *newCellPts;
   vtkIdList *cellPts;
-  
+
   // Copy original cells.
   if (this->CopyInput)
     {
@@ -286,7 +286,7 @@ int vtkReflectionFilter::RequestDataInternal(
       outCD->CopyData(inCD, i, i);
       }
     }
-  
+
   // Generate reflected cells.
   for (i = 0; i < numCells; i++)
     {
@@ -299,7 +299,7 @@ int vtkReflectionFilter::RequestDataInternal(
     if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
       {
       cellPts = cell->GetPointIds();
-      numCellPts++;  
+      numCellPts++;
       newCellPts = new vtkIdType[numCellPts];
       newCellPts[0] = cellPts->GetId(0);
       newCellPts[1] = cellPts->GetId(2);
@@ -316,7 +316,7 @@ int vtkReflectionFilter::RequestDataInternal(
       cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
       delete [] newCellPts;
       }
-    else if (cellType == VTK_POLYHEDRON && 
+    else if (cellType == VTK_POLYHEDRON &&
              vtkUnstructuredGrid::SafeDownCast(input))
       {
       cellPts = vtkIdList::New();
@@ -349,7 +349,7 @@ int vtkReflectionFilter::RequestDataInternal(
       if(numCellPts != 5)
         {
         vtkErrorMacro("Pyramid cell must have exactly 5 points")
-        } 
+        }
       int four  = numCellPts-1;
       cellPts = cell->GetPointIds();
       newCellPts = new vtkIdType[numCellPts];
@@ -360,7 +360,7 @@ int vtkReflectionFilter::RequestDataInternal(
           {
           newCellPts[four-1-j] += numPts;
           }
-        } 
+        }
       newCellPts[four] = cellPts->GetId(four);
       if (this->CopyInput)
         {
@@ -368,7 +368,7 @@ int vtkReflectionFilter::RequestDataInternal(
         }
       cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
       delete [] newCellPts;
-      } 
+      }
     else
       {
       cellPts = cell->GetPointIds();
@@ -398,7 +398,7 @@ int vtkReflectionFilter::RequestDataInternal(
       outCellNormals->SetTuple(cellId, tuple);
       }
     }
-  
+
   cell->Delete();
   ptIds->Delete();
   output->SetPoints(outPoints);
@@ -412,7 +412,7 @@ int vtkReflectionFilter::RequestDataInternal(
 int vtkReflectionFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   // Input can be a dataset or a composite of datasets.
-  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()); 
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -438,7 +438,7 @@ int vtkReflectionFilter::RequestDataObject(
     // If input is composite dataset, output is a vtkMultiBlockDataSet of
     // unstructrued grids.
     // If input is a dataset, output is an unstructured grid.
-    if (!output || 
+    if (!output ||
       (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
       (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
       {

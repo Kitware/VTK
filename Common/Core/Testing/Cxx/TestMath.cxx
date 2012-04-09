@@ -256,7 +256,7 @@ int TestMath(int,char *[])
   }
 
   int testIntValue;
-  
+
   testIntValue = vtkMath::Factorial(5);
   if ( testIntValue != 120 )
     {
@@ -352,7 +352,7 @@ int TestMath(int,char *[])
                                    Triple(0.0, 0.0, 0.0), // HSV (H&S ambiguous)
                                    Triple(0.0, 0.0, 0.0),             // XYZ
                                    Triple(0.0, 0.0, 0.0));            // CIELAB
-                                   
+
   if (!colorsPassed)
     {
     return 1;

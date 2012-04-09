@@ -77,17 +77,17 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
   vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  
+
   int gridSpacing[3], gridOrigin[3];
   self->GetGridSpacing(gridSpacing);
-  self->GetGridOrigin(gridOrigin); 
+  self->GetGridOrigin(gridOrigin);
 
   T fillValue = T(self->GetFillValue());
   T lineValue = T(self->GetLineValue());
 
-  // Get increments to march through data 
+  // Get increments to march through data
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  
+
   target = static_cast<unsigned long>((outExt[5]-outExt[4]+1)*
                                       (outExt[3]-outExt[2]+1)/50.0);
   target++;
@@ -126,7 +126,7 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
         {
         for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
           {
-          xval = (idxX % gridSpacing[0] == gridOrigin[0]); 
+          xval = (idxX % gridSpacing[0] == gridOrigin[0]);
 
           // not very efficient, but it gets the job done
           *outPtr++ = ((zval|yval|xval) ? lineValue : fillValue);
@@ -143,7 +143,7 @@ void vtkImageGridSourceExecute(vtkImageGridSource *self,
       }
     outPtr += outIncZ;
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject *output,
@@ -152,12 +152,12 @@ void vtkImageGridSource::ExecuteDataWithInformation(vtkDataObject *output,
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
   int *outExt = data->GetExtent();
   void *outPtr = data->GetScalarPointerForExtent(outExt);
-  
+
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
     {
     vtkTemplateMacro(vtkImageGridSourceExecute(this, data,
-                                               static_cast<VTK_TT *>(outPtr), 
+                                               static_cast<VTK_TT *>(outPtr),
                                                outExt, 0));
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
@@ -175,9 +175,9 @@ void vtkImageGridSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GridOrigin: (" << this->GridOrigin[0] << ", "
                                   << this->GridOrigin[1] << ", "
                                   << this->GridOrigin[2] << ")\n";
-  os << indent << "LineValue: " << this->LineValue << "\n"; 
+  os << indent << "LineValue: " << this->LineValue << "\n";
   os << indent << "FillValue: " << this->FillValue << "\n";
-  os << indent << "DataScalarType: " << 
+  os << indent << "DataScalarType: " <<
     vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
   os << indent << "DataExtent: ("  << this->DataExtent[0] << ", "
                                    << this->DataExtent[1] << ", "

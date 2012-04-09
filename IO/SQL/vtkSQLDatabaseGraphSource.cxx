@@ -90,13 +90,13 @@ vtkSQLDatabaseGraphSource::vtkSQLDatabaseGraphSource() :
   this->GenerateEdgePedigreeIds = true;
   this->EdgePedigreeIdArrayName = 0;
   this->SetEdgePedigreeIdArrayName("id");
-  
+
   // Set up eventforwarder
   this->EventForwarder = vtkEventForwarderCommand::New();
   this->EventForwarder->SetTarget(this);
-  
+
   // Now forward progress events from the graph layout
-  this->Implementation->TableToGraph->AddObserver(vtkCommand::ProgressEvent, 
+  this->Implementation->TableToGraph->AddObserver(vtkCommand::ProgressEvent,
                                  this->EventForwarder);
 }
 
@@ -135,21 +135,21 @@ void vtkSQLDatabaseGraphSource::SetURL(const vtkStdString& url)
     this->Implementation->EdgeQuery->Delete();
     this->Implementation->EdgeQuery = 0;
     }
-  
+
   if(this->Implementation->VertexQuery)
     {
     this->Implementation->VertexQuery->Delete();
     this->Implementation->VertexQuery = 0;
     }
-  
+
   if(this->Implementation->Database)
     {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
     }
-  
+
   this->Implementation->URL = url;
-  
+
   this->Modified();
 }
 
@@ -163,21 +163,21 @@ void vtkSQLDatabaseGraphSource::SetPassword(const vtkStdString& password)
     this->Implementation->EdgeQuery->Delete();
     this->Implementation->EdgeQuery = 0;
     }
-  
+
   if(this->Implementation->VertexQuery)
     {
     this->Implementation->VertexQuery->Delete();
     this->Implementation->VertexQuery = 0;
     }
-  
+
   if(this->Implementation->Database)
     {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
     }
-  
+
   this->Implementation->Password = password;
-  
+
   this->Modified();
 }
 
@@ -236,8 +236,8 @@ void vtkSQLDatabaseGraphSource::ClearLinkEdges()
 
 //---------------------------------------------------------------------------
 int vtkSQLDatabaseGraphSource::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector*)
 {
   vtkGraph* output = 0;
@@ -257,8 +257,8 @@ int vtkSQLDatabaseGraphSource::RequestDataObject(
 
 //---------------------------------------------------------------------------
 int vtkSQLDatabaseGraphSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   if(this->Implementation->URL.empty())
@@ -266,13 +266,13 @@ int vtkSQLDatabaseGraphSource::RequestData(
 
   if(this->Implementation->EdgeQueryString.empty())
     return 1;
-    
+
   // Set Progress Text
-  this->SetProgressText("DatabaseGraphSource");  
-    
-  // I've started so 1% progress :) 
+  this->SetProgressText("DatabaseGraphSource");
+
+  // I've started so 1% progress :)
   this->UpdateProgress(.01);
-  
+
   // Setup the database if it doesn't already exist ...
   if(!this->Implementation->Database)
     {
@@ -287,13 +287,13 @@ int vtkSQLDatabaseGraphSource::RequestData(
       {
       this->Implementation->Database->Delete();
       this->Implementation->Database = 0;
-      
+
       vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL.c_str());
       return 0;
       }
     }
-    
-  // I have a database: 5% progress 
+
+  // I have a database: 5% progress
   this->UpdateProgress(.05);
 
   // Setup the edge query if it doesn't already exist ...
@@ -313,9 +313,9 @@ int vtkSQLDatabaseGraphSource::RequestData(
     vtkErrorMacro(<< "Error executing edge query: " << this->Implementation->EdgeQueryString.c_str());
     return 0;
     }
-    
+
   // Executed edge query: 30% progress
-  this->UpdateProgress(.3);   
+  this->UpdateProgress(.3);
 
   if(!this->Implementation->EdgeTable)
     {
@@ -344,32 +344,32 @@ int vtkSQLDatabaseGraphSource::RequestData(
       vtkErrorMacro(<< "Error executing vertex query: " << this->Implementation->VertexQueryString.c_str());
       return 0;
       }
-      
-    // Executed vertex query: 50% progress 
-    this->UpdateProgress(.5); 
+
+    // Executed vertex query: 50% progress
+    this->UpdateProgress(.5);
 
     if(!this->Implementation->VertexTable)
       {
       this->Implementation->VertexTable = vtkRowQueryToTable::New();
-      
+
       }
     this->Implementation->VertexTable->SetQuery(this->Implementation->VertexQuery);
 
     this->Implementation->TableToGraph->SetInputConnection(1, this->Implementation->VertexTable->GetOutputPort());
     }
-    
+
   // Set Progress Text
   this->SetProgressText("DatabaseGraphSource:TableToGraph");
 
   // Get the graph output ...
   this->Implementation->TableToGraph->SetDirected(this->Directed);
   this->Implementation->TableToGraph->Update();
-  
+
   // Set Progress Text
   this->SetProgressText("DatabaseGraphSource");
-  
-  // Finished table to graph: 90% progress 
-  this->UpdateProgress(.9); 
+
+  // Finished table to graph: 90% progress
+  this->UpdateProgress(.9);
 
   vtkGraph* const output = vtkGraph::SafeDownCast(
     outputVector->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
@@ -399,8 +399,8 @@ int vtkSQLDatabaseGraphSource::RequestData(
       }
     output->GetEdgeData()->SetPedigreeIds(arr);
     }
-    
-  // Done: 100% progress 
+
+  // Done: 100% progress
   this->UpdateProgress(1);
 
   return 1;

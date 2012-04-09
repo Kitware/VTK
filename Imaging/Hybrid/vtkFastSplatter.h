@@ -114,14 +114,14 @@ protected:
   vtkImageData *Buckets;
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  virtual int RequestInformation(vtkInformation *, 
-                                 vtkInformationVector **, 
+  virtual int RequestInformation(vtkInformation *,
+                                 vtkInformationVector **,
                                  vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
 
   // Used internally for converting points in world space to indices in
@@ -162,7 +162,7 @@ void vtkFastSplatterClamp(T *array, vtkIdType arraySize,
 
 template<class T>
 void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
-                          T minValue, T maxValue, 
+                          T minValue, T maxValue,
                           double *dataMinValue, double *dataMaxValue)
 {
   T *a;
@@ -220,9 +220,9 @@ void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
 //-----------------------------------------------------------------------------
 
 template<class T>
-void vtkFastSplatterFrozenScale(T *array, 
+void vtkFastSplatterFrozenScale(T *array,
                                 int numComponents, vtkIdType numTuples,
-                                T minValue, T maxValue, 
+                                T minValue, T maxValue,
                                 double min, double max)
 {
   T *a;

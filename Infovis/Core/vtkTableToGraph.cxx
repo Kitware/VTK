@@ -141,18 +141,18 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
     {
     vtkErrorMacro("Column name cannot be null");
     }
-  
+
   vtkStdString domainStr = "";
   if (domain)
     {
     domainStr = domain;
     }
-  
+
   if (!this->ValidateLinkGraph())
     {
     return;
     }
-  
+
   vtkStringArray* columnArr = vtkStringArray::SafeDownCast(
       this->LinkGraph->GetVertexData()->GetAbstractArray("column"));
   vtkStringArray* domainArr = vtkStringArray::SafeDownCast(
@@ -252,8 +252,8 @@ void vtkTableToGraph::ClearLinkEdges()
 
 //---------------------------------------------------------------------------
 void vtkTableToGraph::LinkColumnPath(
-  vtkStringArray* column, 
-  vtkStringArray* domain, 
+  vtkStringArray* column,
+  vtkStringArray* domain,
   vtkBitArray* hidden)
 {
   vtkMutableDirectedGraph *g = vtkMutableDirectedGraph::New();
@@ -303,7 +303,7 @@ class vtkTableToGraphCompare
 {
 public:
   bool operator()(
-    const vtksys_stl::pair<vtkStdString, vtkVariant>& a, 
+    const vtksys_stl::pair<vtkStdString, vtkVariant>& a,
     const vtksys_stl::pair<vtkStdString, vtkVariant>& b) const
   {
     if (a.first != b.first)
@@ -378,8 +378,8 @@ void vtkTableToGraphFindHiddenVertices(
 
 //---------------------------------------------------------------------------
 int vtkTableToGraph::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Check that the link graph is valid
@@ -392,7 +392,7 @@ int vtkTableToGraph::RequestData(
   vtkInformation* edgeTableInfo = inputVector[0]->GetInformationObject(0);
   vtkTable* edgeTable = vtkTable::SafeDownCast(
     edgeTableInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // Extract vertex table
   vtkInformation* vertexTableInfo = inputVector[1]->GetInformationObject(0);
   vtkTable* vertexTable = 0;
@@ -429,7 +429,7 @@ int vtkTableToGraph::RequestData(
 
   vtkStringArray* linkColumn = vtkStringArray::SafeDownCast(
     this->LinkGraph->GetVertexData()->GetAbstractArray("column"));
-  
+
   if (!linkColumn)
     {
     vtkErrorMacro("The link graph must have a string array named \"column\".");
@@ -440,7 +440,7 @@ int vtkTableToGraph::RequestData(
     this->LinkGraph->GetVertexData()->GetAbstractArray("domain"));
   vtkBitArray* linkHidden = vtkBitArray::SafeDownCast(
     this->LinkGraph->GetVertexData()->GetAbstractArray("hidden"));
-  
+
   // Find all the hidden types
   vtksys_stl::set<vtkStdString> hiddenTypes;
   if (linkHidden)
@@ -481,22 +481,22 @@ int vtkTableToGraph::RequestData(
   labelArr->SetName("label");
   VTK_CREATE(vtkVariantArray, idArr);
   idArr->SetName("ids");
-  
+
   // Create the lookup maps for vertices and hidden vertices.
   // When edges are added later, we need to be able to lookup the
   // vertex ID for any domain-value pair.
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, 
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>,
     vtkIdType, vtkTableToGraphCompare> vertexMap;
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, 
+  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>,
     vtkIdType, vtkTableToGraphCompare> hiddenMap;
-  
-  // Set up the vertex table.  If we have one, just populate the 
+
+  // Set up the vertex table.  If we have one, just populate the
   // auxiliary arrays and vetex maps.
   // If we are not provided one, create one using values found in
   // the edge table.
   if (!vertexTable)
     {
-    // If we don't have a vertex table, 
+    // If we don't have a vertex table,
     // create one by going through edge table columns.
     vertexTable = vtkTable::New();
     vtkIdType curVertex = 0;
@@ -521,7 +521,7 @@ int vtkTableToGraph::RequestData(
         vertexTable->Delete();
         return 0;
         }
-      // For each new domain, add an array for that domain 
+      // For each new domain, add an array for that domain
       // containing the values for only that domain.
       vtkAbstractArray *domainValuesArr = vertexTable->GetColumnByName(domain);
       if (!domainValuesArr && !hidden)
@@ -550,7 +550,7 @@ int vtkTableToGraph::RequestData(
         switch(arr->GetDataType())
           {
           vtkSuperExtraExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
-            static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
+            static_cast<VTK_TT*>(arr->GetVoidPointer(0)),
             arr->GetNumberOfTuples(), hiddenMap, curHiddenVertex,
             domain));
           }
@@ -562,8 +562,8 @@ int vtkTableToGraph::RequestData(
         switch(arr->GetDataType())
           {
           vtkSuperExtraExtendedTemplateMacro(vtkTableToGraphFindVertices(
-            static_cast<VTK_TT*>(arr->GetVoidPointer(0)), 
-            arr->GetNumberOfTuples(), vertexMap, domainArr, 
+            static_cast<VTK_TT*>(arr->GetVoidPointer(0)),
+            arr->GetNumberOfTuples(), vertexMap, domainArr,
             labelArr, idArr, curVertex,
             vertexTable, domain));
           }
@@ -581,16 +581,16 @@ int vtkTableToGraph::RequestData(
       vtkErrorMacro("Domain is required when you have a vertex table");
       return 0;
       }
-    
+
     // We know the number of vertices, so set the auxiliary array sizes.
     vtkIdType numRows = vertexTable->GetNumberOfRows();
     domainArr->SetNumberOfTuples(numRows);
     labelArr->SetNumberOfTuples(numRows);
     idArr->SetNumberOfTuples(numRows);
-    
+
     // Keep track of the current hidden vertex id.
     vtkIdType curHiddenVertex = 0;
-    
+
     // For each new domain encountered, iterate through the values
     // of that column, adding vertices for each new value encountered.
     vtksys_stl::set<vtkStdString> domainSet;
@@ -607,7 +607,7 @@ int vtkTableToGraph::RequestData(
         {
         hidden = linkHidden->GetValue(c);
         }
-      
+
       if (!hidden)
         {
         // If the domain is not hidden, find unique values in the vertex table
@@ -645,7 +645,7 @@ int vtkTableToGraph::RequestData(
         }
       else
         {
-        // If the domain is hidden, we look through the edge table to 
+        // If the domain is hidden, we look through the edge table to
         // find new hidden vertices which will not be correllated to the
         // vertex table.
         vtkStdString column = linkColumn->GetValue(c);
@@ -658,7 +658,7 @@ int vtkTableToGraph::RequestData(
         switch(edgeArr->GetDataType())
           {
           vtkSuperExtraExtendedTemplateMacro(vtkTableToGraphFindHiddenVertices(
-            static_cast<VTK_TT*>(edgeArr->GetVoidPointer(0)), 
+            static_cast<VTK_TT*>(edgeArr->GetVoidPointer(0)),
             edgeArr->GetNumberOfTuples(), hiddenMap, curHiddenVertex, domain));
           } // end switch
         } // end else !hidden
@@ -694,7 +694,7 @@ int vtkTableToGraph::RequestData(
       undirBuilder->AddVertex();
       }
     }
-  
+
   // Add the auxiliary arrays to the vertex table.
   builder->GetVertexData()->AddArray(labelArr);
   builder->GetVertexData()->AddArray(domainArr);
@@ -754,7 +754,7 @@ int vtkTableToGraph::RequestData(
         {
         vtkErrorMacro( "vtkTableToGraph cannot find array: " << columnNameSource.c_str());
         return 0;
-        }  
+        }
       switch(columnSource->GetDataType())
         {
         vtkSuperExtraExtendedTemplateMacro(valueSource = vtkTableToGraphGetValue(
@@ -765,7 +765,7 @@ int vtkTableToGraph::RequestData(
         {
         vtkErrorMacro( "vtkTableToGraph cannot find array: " << columnNameTarget.c_str());
         return 0;
-        }  
+        }
       switch(columnTarget->GetDataType())
         {
         vtkSuperExtraExtendedTemplateMacro(valueTarget = vtkTableToGraphGetValue(
@@ -905,14 +905,14 @@ int vtkTableToGraph::RequestData(
     {
     vertexTable->Delete();
     }
-  
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkTableToGraph::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* )
 {
   vtkGraph *output = 0;

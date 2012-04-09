@@ -152,7 +152,7 @@ public:
   // call with xmin set to \a a and xmax set to vtkMath::Inf().
   // When specifying Inf() or NegInf() for an endpoint, it does not matter whether
   // you specify and open or closed endpoint.
-  // 
+  //
   // When creating intervals, any integers can be used for the IDs of output meshes.
   // All that matters is that the same ID be used if intervals should output to the same mesh.
   // The outputs are ordered with ascending IDs in output block 0.
@@ -173,7 +173,7 @@ public:
   // @param xmax The maximum attribute value
   // @param omin Whether the interval should be open or closed at \a xmin. Use vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
   // @param omax Whether the interval should be open or closed at \a xmax. Use vtkMultiThreshold::OPEN or vtkMultiThreshold::CLOSED.
-  // @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether 
+  // @param assoc One of vtkDataObject::FIELD_ASSOCIATION_CELLS or vtkDataObject::FIELD_ASSOCIATION_POINTS indicating whether
   //               a point or cell array should be used.
   // @param arrayName The name of the array to use for thresholding
   // @param attribType The attribute to use for thresholding.
@@ -415,7 +415,7 @@ protected:
   int AddIntervalSet( NormKey& nk, double xmin, double xmax, int omin, int omax );
 
   //ETX
-  
+
   // Description:
   // Print out a graphviz-formatted text description of all the sets.
   void PrintGraph( ostream& os );

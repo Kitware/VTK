@@ -34,23 +34,23 @@ int main()
 
   vtkBar *bar = vtkBar::New();
   bar->Print(cout);
-  
+
   //
   // Then we create an instance of vtkBar2
   //
   cout << "Create vtkBar2 object and print it." << endl;
-  
+
   vtkBar2 *bar2 = vtkBar2::New();
   bar2->Print(cout);
-  
+
   //
   // And we create an instance of vtkImageFoo
   //
   cout << "Create vtkImageFoo object and print it." << endl;
-  
+
   vtkImageFoo *imagefoo = vtkImageFoo::New();
   imagefoo->Print(cout);
-  
+
   cout << "Looks good ?" << endl;
 
   //

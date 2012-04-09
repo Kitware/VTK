@@ -61,7 +61,7 @@ public:
   virtual void BuildRepresentation();
   virtual void GetSize(double size[2])
     {size[0]=2.0; size[1]=2.0;}
-  
+
   // Description:
   // These methods are necessary to make this representation behave as
   // a vtkProp.
@@ -71,9 +71,9 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   //BTX
-  enum 
+  enum
     {
     AnyLocation = 0,
     LowerLeftCorner,
@@ -109,7 +109,7 @@ public:
   // Internal. Execute events observed by internal observer
   void ExecuteTextPropertyModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
   void ExecuteTextActorModifiedEvent(vtkObject* obj, unsigned long enumEvent, void* p);
-  
+
 protected:
   vtkTextRepresentation();
   ~vtkTextRepresentation();
@@ -123,7 +123,7 @@ protected:
   // the text to manage
   vtkTextActor  *TextActor;
   vtkTextProperty *TextProperty;
-  
+
   // Window location by enumeration
   int WindowLocation;
   virtual void UpdateWindowLocation();

@@ -216,7 +216,7 @@ class VTKAMRCORE_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgori
     // first. The method returns the ID of the cell w.r.t. the donorGrid that
     // contains the probe point q. - Makes use of Parent/Child Info
     int ProbeGridPointInAMRGraph(
-        double q[3],vtkUniformGrid *&donorGrid, 
+        double q[3],vtkUniformGrid *&donorGrid,
         unsigned int &donorLevel, unsigned int &donorGridId,
         vtkOverlappingAMR *amrds, unsigned int maxLevel );
 
@@ -325,7 +325,7 @@ class VTKAMRCORE_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgori
     // Find a decendant of the specified grid that contains the point.
     // If none is found then the original grid information is returned.
     // The search is limited to levels < maxLevel
-    void SearchGridDecendants(double q[3], 
+    void SearchGridDecendants(double q[3],
                               vtkOverlappingAMR *amrds,
                               unsigned int maxLevel,
                               unsigned int &level,
@@ -335,7 +335,7 @@ class VTKAMRCORE_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlgori
     //Description:
     // Find an ancestor of the specified grid that contains the point.
     // If none is found then the original grid information is returned
-    void SearchGridAncestors(double q[3], 
+    void SearchGridAncestors(double q[3],
                              vtkOverlappingAMR *amrds,
                              unsigned int &level,
                              unsigned int &gridId,

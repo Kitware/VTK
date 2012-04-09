@@ -151,7 +151,7 @@ void vtkTable::Dump( unsigned int colWidth, int rowLimit )
     cout.flush();
     }
 }
- 
+
 //----------------------------------------------------------------------------
 void vtkTable::Initialize()
 {
@@ -348,7 +348,7 @@ void vtkTable::AddColumn(vtkAbstractArray* arr)
   if (this->GetNumberOfColumns() > 0 &&
       arr->GetNumberOfTuples() != this->GetNumberOfRows())
     {
-    vtkErrorMacro(<< "Column \"" << arr->GetName() << "\" must have " 
+    vtkErrorMacro(<< "Column \"" << arr->GetName() << "\" must have "
       << this->GetNumberOfRows() << " rows, but has "
       << arr->GetNumberOfTuples() << ".");
     return;
@@ -469,7 +469,7 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
     vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
     if(comps==1)
       {
-      data->SetValue(row, value.ToUnicodeString());      
+      data->SetValue(row, value.ToUnicodeString());
       }
     else
       {

@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #pragma warning (disable:4503)
 #endif
 
-#include "vtkToolkits.h" 
+#include "vtkToolkits.h"
 #include "vtkPOrderStatistics.h"
 
 #include "vtkCommunicator.h"
@@ -117,9 +117,9 @@ static void StringBufferToStringVector( const vtkStdString& buffer,
                                         std::vector<vtkStdString>& strings )
 {
   strings.clear();
-  
+
   const char* const bufferEnd = &buffer[0] + buffer.size();
-  
+
   for( const char* start = &buffer[0]; start != bufferEnd; ++ start )
     {
     for( const char* finish = start; finish != bufferEnd; ++ finish )
@@ -257,7 +257,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
       // Add column of data values to histogram table
       histoTab_g->AddColumn( dVals_g );
-      
+
       // Clean up
       dVals_g->Delete();
 
@@ -267,7 +267,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         vtkErrorMacro("Process "
                       << com->GetLocalProcessId()
                       << " could not broadcast reduced histogram cardinalities.");
-        
+
         return;
         }
       } // if ( vals->IsA("vtkDataArray") )
@@ -309,7 +309,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
         vtkErrorMacro("Process "
                       << myRank
                       << "could not gather string values.");
-        
+
         return;
         }
 
@@ -339,7 +339,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
       // Add column of string values to histogram table
       histoTab_g->AddColumn( sVals_g );
-      
+
       // Clean up
       sVals_g->Delete();
       } // else if ( vals->IsA("vtkStringArray") )
@@ -385,7 +385,7 @@ bool vtkPOrderStatistics::Reduce( vtkIdTypeArray* card_g,
                   << " <> "
                   << nRow_g
                   << ".");
-    
+
     return true;
     }
 
@@ -508,7 +508,7 @@ bool vtkPOrderStatistics::Broadcast( std::map<vtkStdString,vtkIdType>& histogram
     vtkErrorMacro("Process "
                   << com->GetLocalProcessId()
                   << " could not broadcast histogram cardinalities.");
-    
+
     return true;
     }
 

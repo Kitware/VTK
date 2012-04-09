@@ -88,7 +88,7 @@ int SurfaceLIC( int argc, char * argv[] )
     {
     vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();
     reader->SetFileName(filename.c_str());
-    
+
     vtkDataSetSurfaceFilter* surface = vtkDataSetSurfaceFilter::New();
     surface->SetInputConnection(reader->GetOutputPort());
     surface->Update();

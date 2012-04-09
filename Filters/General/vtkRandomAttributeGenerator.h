@@ -25,7 +25,7 @@
 // components. Note, however, that this flexibility only goes so far because
 // some attributes (e.g., normals, vectors and tensors) are fixed in the
 // number of components, and in the case of normals and tensors, are
-// constrained in the values that some of the components can take (i.e., 
+// constrained in the values that some of the components can take (i.e.,
 // normals have magnitude one, and tensors are symmetric).
 
 // .SECTION Caveats
@@ -81,15 +81,15 @@ public:
   vtkGetMacro(NumberOfComponents,int);
 
   // Description:
-  // Set the minimum component value. This applies to all data that is generated, 
-  // although normals and tensors have internal constraints that must be 
+  // Set the minimum component value. This applies to all data that is generated,
+  // although normals and tensors have internal constraints that must be
   // observed.
   vtkSetMacro(MinimumComponentValue,double);
   vtkGetMacro(MinimumComponentValue,double);
 
   // Description:
-  // Set the maximum component value. This applies to all data that is generated, 
-  // although normals and tensors have internal constraints that must be 
+  // Set the maximum component value. This applies to all data that is generated,
+  // although normals and tensors have internal constraints that must be
   // observed.
   vtkSetMacro(MaximumComponentValue,double);
   vtkGetMacro(MaximumComponentValue,double);
@@ -107,28 +107,28 @@ public:
   vtkSetMacro(GeneratePointScalars,int);
   vtkGetMacro(GeneratePointScalars,int);
   vtkBooleanMacro(GeneratePointScalars,int);
-  
+
   // Description:
-  // Indicate that point vectors are to be generated. Note that the 
+  // Indicate that point vectors are to be generated. Note that the
   // number of components is always equal to three.
   vtkSetMacro(GeneratePointVectors,int);
   vtkGetMacro(GeneratePointVectors,int);
   vtkBooleanMacro(GeneratePointVectors,int);
-  
+
   // Description:
   // Indicate that point normals are to be generated. Note that the
   // number of components is always equal to three.
   vtkSetMacro(GeneratePointNormals,int);
   vtkGetMacro(GeneratePointNormals,int);
   vtkBooleanMacro(GeneratePointNormals,int);
-  
+
   // Description:
   // Indicate that point tensors are to be generated. Note that the
   // number of components is always equal to nine.
   vtkSetMacro(GeneratePointTensors,int);
   vtkGetMacro(GeneratePointTensors,int);
   vtkBooleanMacro(GeneratePointTensors,int);
-  
+
   // Description:
   // Indicate that point texture coordinates are to be generated. Note that
   // the specified number of components is used to create the texture
@@ -136,42 +136,42 @@ public:
   vtkSetMacro(GeneratePointTCoords,int);
   vtkGetMacro(GeneratePointTCoords,int);
   vtkBooleanMacro(GeneratePointTCoords,int);
-  
+
   // Description:
   // Indicate that an arbitrary point array is to be generated. Note that the
   // specified number of components is used to create the array.
   vtkSetMacro(GeneratePointArray,int);
   vtkGetMacro(GeneratePointArray,int);
   vtkBooleanMacro(GeneratePointArray,int);
-  
+
   // Description:
   // Indicate that cell scalars are to be generated. Note that the specified
   // number of components is used to create the scalar.
   vtkSetMacro(GenerateCellScalars,int);
   vtkGetMacro(GenerateCellScalars,int);
   vtkBooleanMacro(GenerateCellScalars,int);
-  
+
   // Description:
-  // Indicate that cell vectors are to be generated. Note that the 
+  // Indicate that cell vectors are to be generated. Note that the
   // number of components is always equal to three.
   vtkSetMacro(GenerateCellVectors,int);
   vtkGetMacro(GenerateCellVectors,int);
   vtkBooleanMacro(GenerateCellVectors,int);
-  
+
   // Description:
   // Indicate that cell normals are to be generated. Note that the
   // number of components is always equal to three.
   vtkSetMacro(GenerateCellNormals,int);
   vtkGetMacro(GenerateCellNormals,int);
   vtkBooleanMacro(GenerateCellNormals,int);
-  
+
   // Description:
   // Indicate that cell tensors are to be generated. Note that the
   // number of components is always equal to nine.
   vtkSetMacro(GenerateCellTensors,int);
   vtkGetMacro(GenerateCellTensors,int);
   vtkBooleanMacro(GenerateCellTensors,int);
-  
+
   // Description:
   // Indicate that cell texture coordinates are to be generated. Note that
   // the specified number of components is used to create the texture
@@ -179,7 +179,7 @@ public:
   vtkSetMacro(GenerateCellTCoords,int);
   vtkGetMacro(GenerateCellTCoords,int);
   vtkBooleanMacro(GenerateCellTCoords,int);
-  
+
   // Description:
   // Indicate that an arbitrary cell array is to be generated. Note that the
   // specified number of components is used to create the array.
@@ -259,25 +259,25 @@ protected:
   vtkIdType NumberOfTuples;
   double    MinimumComponentValue;
   double    MaximumComponentValue;
-  
+
   int GeneratePointScalars;
   int GeneratePointVectors;
   int GeneratePointNormals;
   int GeneratePointTCoords;
   int GeneratePointTensors;
   int GeneratePointArray;
-  
+
   int GenerateCellScalars;
   int GenerateCellVectors;
   int GenerateCellNormals;
   int GenerateCellTCoords;
   int GenerateCellTensors;
   int GenerateCellArray;
-  
+
   int GenerateFieldArray;
-  
+
   // Helper functions
-  vtkDataArray *GenerateData(int dataType, vtkIdType numTuples, int numComp, 
+  vtkDataArray *GenerateData(int dataType, vtkIdType numTuples, int numComp,
                              int minComp, int maxComp, double min, double max);
 
 private:

@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkDataWriter - helper class for objects that write vtk data files
 // .SECTION Description
-// vtkDataWriter is a helper class that opens and writes the vtk header and 
-// point data (e.g., scalars, vectors, normals, etc.) from a vtk data file. 
+// vtkDataWriter is a helper class that opens and writes the vtk header and
+// point data (e.g., scalars, vectors, normals, etc.) from a vtk data file.
 // See text for various formats.
 
 // .SECTION See Also
@@ -44,7 +44,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Created object with default header, ASCII format, and default names for 
+  // Created object with default header, ASCII format, and default names for
   // scalars, vectors, tensors, normals, and texture coordinates.
   static vtkDataWriter *New();
 
@@ -63,7 +63,7 @@ public:
   // When WriteToOutputString in on, then a string is allocated, written to,
   // and can be retrieved with these methods.  The string is deleted during
   // the next call to write ...
-  vtkGetMacro(OutputStringLength, int);  
+  vtkGetMacro(OutputStringLength, int);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
     {
@@ -74,13 +74,13 @@ public:
   // When WriteToOutputString is on, this method returns a copy of the
   // output string in a vtkStdString.
   vtkStdString GetOutputStdString();
-      
+
   // Description:
   // This convenience method returns the string, sets the IVAR to NULL,
   // so that the user is responsible for deleting the string.
   // I am not sure what the name should be, so it may change in the future.
   char *RegisterAndGetOutputString();
-  
+
   // Description:
   // Specify the header for the vtk data file.
   vtkSetStringMacro(Header);
@@ -118,19 +118,19 @@ public:
   vtkGetStringMacro(NormalsName);
 
   // Description:
-  // Give a name to the texture coordinates data. If not specified, uses 
+  // Give a name to the texture coordinates data. If not specified, uses
   // default name "textureCoords".
   vtkSetStringMacro(TCoordsName);
   vtkGetStringMacro(TCoordsName);
 
   // Description:
-  // Give a name to the global ids data. If not specified, uses 
+  // Give a name to the global ids data. If not specified, uses
   // default name "global_ids".
   vtkSetStringMacro(GlobalIdsName);
   vtkGetStringMacro(GlobalIdsName);
 
   // Description:
-  // Give a name to the pedigree ids data. If not specified, uses 
+  // Give a name to the pedigree ids data. If not specified, uses
   // default name "pedigree_ids".
   vtkSetStringMacro(PedigreeIdsName);
   vtkGetStringMacro(PedigreeIdsName);
@@ -142,7 +142,7 @@ public:
   vtkGetStringMacro(LookupTableName);
 
   // Description:
-  // Give a name to the field data. If not specified, uses default 
+  // Give a name to the field data. If not specified, uses default
   // name "field".
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
@@ -213,7 +213,7 @@ protected:
   int WriteToOutputString;
   char *OutputString;
   int OutputStringLength;
-  
+
   void WriteData(); //dummy method to allow this class to be instantiated and delegated to
 
   char *FileName;
@@ -230,7 +230,7 @@ protected:
   char* GlobalIdsName;
   char* PedigreeIdsName;
 
-  int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format, 
+  int WriteArray(ostream *fp, int dataType, vtkAbstractArray *data, const char *format,
                  int num, int numComp);
   int WriteScalarData(ostream *fp, vtkDataArray *s, int num);
   int WriteVectorData(ostream *fp, vtkDataArray *v, int num);

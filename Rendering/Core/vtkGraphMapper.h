@@ -17,12 +17,12 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkGraphMapper - map vtkGraph and derived 
+// .NAME vtkGraphMapper - map vtkGraph and derived
 // classes to graphics primitives
 
 // .SECTION Description
-// vtkGraphMapper is a mapper to map vtkGraph 
-// (and all derived classes) to graphics primitives. 
+// vtkGraphMapper is a mapper to map vtkGraph
+// (and all derived classes) to graphics primitives.
 
 #ifndef __vtkGraphMapper_h
 #define __vtkGraphMapper_h
@@ -60,19 +60,19 @@ public:
   vtkTypeMacro(vtkGraphMapper,vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);
-  
+
   // Description:
   // The array to use for coloring vertices.  Default is "color".
   void SetVertexColorArrayName(const char* name);
   const char* GetVertexColorArrayName();
-  
+
   // Description:
   // Whether to color vertices.  Default is off.
   void SetColorVertices(bool vis);
   bool GetColorVertices();
   void ColorVerticesOn();
   void ColorVerticesOff();
-  
+
   // Description:
   // Whether scaled glyphs are on or not.  Default is off.
   // By default this mapper uses vertex glyphs that do not
@@ -81,35 +81,35 @@ public:
   void SetScaledGlyphs(bool arg);
   vtkGetMacro(ScaledGlyphs,bool);
   vtkBooleanMacro(ScaledGlyphs, bool);
-  
+
   // Description:
   // Glyph scaling array name. Default is "scale"
   vtkSetStringMacro(ScalingArrayName);
   vtkGetStringMacro(ScalingArrayName);
-  
+
   // Description:
   // Whether to show edges or not.  Default is on.
   void SetEdgeVisibility(bool vis);
   bool GetEdgeVisibility();
   vtkBooleanMacro(EdgeVisibility, bool);
-  
+
   // Description:
   // The array to use for coloring edges.  Default is "color".
   void SetEdgeColorArrayName(const char* name);
   const char* GetEdgeColorArrayName();
-  
+
   // Description:
   // Whether to color edges.  Default is off.
   void SetColorEdges(bool vis);
   bool GetColorEdges();
   void ColorEdgesOn();
   void ColorEdgesOff();
-  
+
   // Description:
   // The array to use for coloring edges.  Default is "color".
   vtkSetStringMacro(EnabledEdgesArrayName);
   vtkGetStringMacro(EnabledEdgesArrayName);
-  
+
   // Description:
   // Whether to enable/disable edges using array values.  Default is off.
   vtkSetMacro(EnableEdgesByArray,int);
@@ -120,7 +120,7 @@ public:
   // The array to use for coloring edges.  Default is "color".
   vtkSetStringMacro(EnabledVerticesArrayName);
   vtkGetStringMacro(EnabledVerticesArrayName);
-  
+
   // Description:
   // Whether to enable/disable vertices using array values.  Default is off.
   vtkSetMacro(EnableVerticesByArray,int);
@@ -131,8 +131,8 @@ public:
   // The array to use for assigning icons.
   void SetIconArrayName(const char* name);
   const char* GetIconArrayName();
-  
-  // Description: 
+
+  // Description:
   // Associate the icon at index "index" in the vtkTexture to all vertices
   // containing "type" as a value in the vertex attribute array specified by
   // IconArrayName.
@@ -167,12 +167,12 @@ public:
   // Get/Set the vertex point size
   vtkGetMacro(VertexPointSize,float);
   void SetVertexPointSize(float size);
-  
+
   // Description:
   // Get/Set the edge line width
   vtkGetMacro(EdgeLineWidth,float);
   void SetEdgeLineWidth(float width);
-  
+
   // Description:
   // Apply the theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
@@ -191,7 +191,7 @@ public:
   // Set the Input of this mapper.
   void SetInputData(vtkGraph *input);
   vtkGraph *GetInput();
-  
+
   // Description:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
@@ -199,7 +199,7 @@ public:
   virtual void GetBounds(double* bounds)
     { Superclass::GetBounds(bounds); }
 
-  // Description: 
+  // Description:
   // Access to the lookup tables used by the vertex and edge mappers.
   vtkGetObjectMacro(EdgeLookupTable, vtkLookupTable);
   vtkGetObjectMacro(VertexLookupTable, vtkLookupTable);
@@ -207,7 +207,7 @@ public:
 protected:
   vtkGraphMapper();
   ~vtkGraphMapper();
-  
+
   // Description:
   // Used to store the vertex and edge color array names
   vtkGetStringMacro(VertexColorArrayNameInternal);
@@ -229,18 +229,18 @@ protected:
   //BTX
   vtkSmartPointer<vtkGlyph3D>                    CircleGlyph;
   vtkSmartPointer<vtkGlyph3D>                    CircleOutlineGlyph;
-  
+
   vtkSmartPointer<vtkGraphToPolyData>            GraphToPoly;
   vtkSmartPointer<vtkVertexGlyphFilter>          VertexGlyph;
   vtkSmartPointer<vtkIconGlyphFilter>            IconGlyph;
   vtkSmartPointer<vtkMapArrayValues>                   IconTypeToIndex;
   vtkSmartPointer<vtkTransformCoordinateSystems> IconTransform;
-  
+
   vtkSmartPointer<vtkPolyDataMapper>    EdgeMapper;
   vtkSmartPointer<vtkPolyDataMapper>    VertexMapper;
   vtkSmartPointer<vtkPolyDataMapper>    OutlineMapper;
   vtkSmartPointer<vtkPolyDataMapper2D>  IconMapper;
-  
+
   vtkSmartPointer<vtkActor>             EdgeActor;
   vtkSmartPointer<vtkActor>             VertexActor;
   vtkSmartPointer<vtkActor>             OutlineActor;
@@ -259,10 +259,10 @@ protected:
 private:
   vtkGraphMapper(const vtkGraphMapper&);  // Not implemented.
   void operator=(const vtkGraphMapper&);  // Not implemented.
-  
+
   // Helper function
   vtkPolyData* CreateCircle(bool filled);
-  
+
   float VertexPointSize;
   float EdgeLineWidth;
   bool ScaledGlyphs;

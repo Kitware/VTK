@@ -20,17 +20,17 @@
 // be read as either RGB or RGBA pixels;  in addition, the depth buffer
 // can also be read.   RGB and RGBA pixels are of type unsigned char,
 // while Z-Buffer data is returned as floats.  Use this filter
-// to convert RenderWindows or ImageWindows to an image format.  
+// to convert RenderWindows or ImageWindows to an image format.
 //
 // .SECTION Caveats
 // A vtkWindow doesn't behave like other parts of the VTK pipeline: its
 // modification time doesn't get updated when an image is rendered.  As a
 // result, naive use of vtkWindowToImageFilter will produce an image of
 // the first image that the window rendered, but which is never updated
-// on subsequent window updates.  This behavior is unexpected and in 
-// general undesirable. 
+// on subsequent window updates.  This behavior is unexpected and in
+// general undesirable.
 //
-// To force an update of the output image, call vtkWindowToImageFilter's 
+// To force an update of the output image, call vtkWindowToImageFilter's
 // Modified method after rendering to the window.
 //
 // In VTK versions 4 and later, this filter is part of the canonical
@@ -42,7 +42,7 @@
 // Reading back alpha planes is dependent on the correct operation of
 // the render window's GetRGBACharPixelData method, which in turn is
 // dependent on the configuration of the window's alpha planes.  As of
-// VTK 4.4+, machine-independent behavior is not automatically 
+// VTK 4.4+, machine-independent behavior is not automatically
 // assured because of these dependencies.
 
 // .SECTION see also
@@ -67,7 +67,7 @@ public:
   static vtkWindowToImageFilter *New();
 
   vtkTypeMacro(vtkWindowToImageFilter,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Indicates what renderer to get the pixel data from. Initial value is 0.
@@ -93,18 +93,18 @@ public:
 
   // Description:
   // Set/Get the flag that determines which buffer to read from.
-  // The default is to read from the front buffer.   
+  // The default is to read from the front buffer.
   vtkBooleanMacro(ReadFrontBuffer, int);
   vtkGetMacro(ReadFrontBuffer, int);
   vtkSetMacro(ReadFrontBuffer, int);
-  
+
   // Description:
   // Set/get whether to re-render the input window. Initial value is true.
   // (This option makes no difference if Magnification > 1.)
   vtkBooleanMacro(ShouldRerender, int);
   vtkSetMacro(ShouldRerender, int);
   vtkGetMacro(ShouldRerender, int);
-  
+
   // Description:
   // Set/get the extents to be used to generate the image. Initial value is
   // {0,0,1,1} (This option does not work if Magnification > 1.)
@@ -113,7 +113,7 @@ public:
 
   // Description:
   // Set/get the window buffer from which data will be read.  Choices
-  // include VTK_RGB (read the color image from the window), VTK_RGBA 
+  // include VTK_RGB (read the color image from the window), VTK_RGBA
   // (same, but include the alpha channel), and VTK_ZBUFFER (depth
   // buffer, returned as a float array). Initial value is VTK_RGB.
   vtkSetMacro(InputBufferType, int);
@@ -146,7 +146,7 @@ protected:
   int InputBufferType;
   bool FixBoundary;
 
-  void RequestData(vtkInformation *, 
+  void RequestData(vtkInformation *,
                    vtkInformationVector **, vtkInformationVector *);
 
   virtual void RequestInformation (vtkInformation*,

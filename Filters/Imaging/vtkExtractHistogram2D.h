@@ -22,22 +22,22 @@
 //
 // .SECTION Description
 //  This class computes a 2D histogram between two columns of an input
-//  vtkTable. Just as with a 1D histogram, a 2D histogram breaks 
+//  vtkTable. Just as with a 1D histogram, a 2D histogram breaks
 //  up the input domain into bins, and each pair of values (row in
 //  the table) fits into a single bin and increments a row counter
 //  for that bin.
-//  
+//
 //  To use this class, set the input with a table and call AddColumnPair(nameX,nameY),
 //  where nameX and nameY are the names of the two columns to be used.
 //
 //  In addition to the number of bins (in X and Y), the domain of
 //  the histogram can be customized by toggling the UseCustomHistogramExtents
-//  flag and setting the CustomHistogramExtents variable to the 
+//  flag and setting the CustomHistogramExtents variable to the
 //  desired value.
 //
 // .SECTION See Also
 //  vtkPExtractHistogram2D
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ public:
   void SetScalarTypeToDouble()
     {this->SetScalarType(VTK_DOUBLE);};
   vtkGetMacro(ScalarType,int);
-  
+
   // Description:
   // Access the count of the histogram bin containing the largest number
   // of input rows.
@@ -168,7 +168,7 @@ protected:
   virtual int ComputeBinExtents(vtkDataArray* col1, vtkDataArray* col2);
 
   // Description:
-  // Execute the calculations required by the Learn option.  
+  // Execute the calculations required by the Learn option.
   // This is what actually does the histogram computation.
   virtual void Learn( vtkTable* inData,
                       vtkTable* inParameters,
@@ -182,17 +182,17 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) { return; }; 
+                     vtkTable* ) { return; };
 
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
-                       vtkTable* ) { return; }; 
+                       vtkTable* ) { return; };
 
   // Description:
   // Provide the appropriate assessment functor. Not used.
-  virtual void SelectAssessFunctor( vtkTable* vtkNotUsed(outData), 
+  virtual void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
                                     vtkDataObject* vtkNotUsed(inMeta),
                                     vtkStringArray* vtkNotUsed(rowNames),
                                     AssessFunctor*& vtkNotUsed(dfunc) ) {};
@@ -201,8 +201,8 @@ protected:
 
   // Description:
   // Makes sure that the image data output port has up-to-date spacing/origin/etc
-  virtual int RequestInformation (vtkInformation *request, 
-                                  vtkInformationVector **inputVector, 
+  virtual int RequestInformation (vtkInformation *request,
+                                  vtkInformationVector **inputVector,
                                   vtkInformationVector *outputVector);
 
   // Description:

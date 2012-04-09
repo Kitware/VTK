@@ -65,7 +65,7 @@ void vtkGraphWriter::WriteData()
     {
     *fp << "DATASET UNDIRECTED_GRAPH\n";
     }
-  
+
   int error_occurred = 0;
 
   if(!error_occurred && !this->WriteFieldData(fp, input->GetFieldData()))

@@ -34,7 +34,7 @@ public:
   // Description:
   // Get the estimated memory size in 1024 bytes
   unsigned long GetEstimatedMemorySize();
-  
+
 protected:
   vtkPSphereSource() {};
   ~vtkPSphereSource() {};

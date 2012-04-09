@@ -70,7 +70,7 @@ vtkLinesPainter::~vtkLinesPainter()
   cellNum += count; \
 }
 //-----------------------------------------------------------------------------
-void vtkLinesPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+void vtkLinesPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                                      unsigned long typeflags,
                                      bool forceCompileOnly)
 {
@@ -137,11 +137,11 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   switch (idx)
     {
     case 0:
-      vtkDrawPrimsMacro(primitive, 
+      vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,;);
       break;
-      
+
     case VTK_PDM_NORMALS:
       vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
@@ -149,7 +149,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,;);
       break;
-      
+
     case VTK_PDM_COLORS:
       vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::SCALARS, 4,
@@ -157,7 +157,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,;);
       break;
-      
+
     case VTK_PDM_COLORS | VTK_PDM_OPAQUE_COLORS:
       vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::SCALARS, 3,
@@ -175,7 +175,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,;);
     break;
-    
+
     case VTK_PDM_NORMALS | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
       vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
@@ -187,7 +187,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     break;
 
     case VTK_PDM_TCOORDS:
-      vtkDrawPrimsMacro(primitive, 
+      vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
           ttype, tcoords, tcomps**ptIds);
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -195,7 +195,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     break;
 
     case VTK_PDM_NORMALS | VTK_PDM_TCOORDS:
-      vtkDrawPrimsMacro(primitive, 
+      vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::NORMALS, 3,
           ntype, normals, 3**ptIds);
         device->SendAttribute(vtkPointData::TCOORDS, tcomps,
@@ -203,7 +203,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,;);
     break;
-    
+
     default:
       return 0; // let the delegate painter handle this call.
     }

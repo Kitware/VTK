@@ -90,10 +90,10 @@ public:
   // Description:
   // Set the clipping value of the implicit function (if clipping with
   // implicit function) or scalar value (if clipping with
-  // scalars). The default value is 0.0. 
+  // scalars). The default value is 0.0.
   vtkSetMacro(Value,double);
   vtkGetMacro(Value,double);
-  
+
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered
   // inside the implicit function if its value is greater than the
@@ -107,14 +107,14 @@ public:
 
   // Description
   // Specify the implicit function with which to perform the
-  // clipping. If you do not define an implicit function, 
+  // clipping. If you do not define an implicit function,
   // then the selected input scalar data will be used for clipping.
   virtual void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be 
-  // interpolated from the implicit function values, and not the 
+  // If this flag is enabled, then the output scalar values will be
+  // interpolated from the implicit function values, and not the
   // input scalar data. If you enable this flag but do not provide an
   // implicit function an error will be reported.
   vtkSetMacro(GenerateClipScalars,int);
@@ -127,7 +127,7 @@ public:
   vtkSetMacro(GenerateClippedOutput,int);
   vtkGetMacro(GenerateClippedOutput,int);
   vtkBooleanMacro(GenerateClippedOutput,int);
-  
+
   // Description:
   // Return the Clipped output.
   vtkUnstructuredGrid *GetClippedOutput();
@@ -139,7 +139,7 @@ public:
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -152,7 +152,7 @@ protected:
   ~vtkClipHyperOctree();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   // Description:
   // Clip the sub-hierarchy pointed by cursor.
   // \pre cursor_exists: cursor!=0
@@ -160,23 +160,23 @@ protected:
   void ClipNode(vtkHyperOctreeCursor *cursor,
                 int level,
                 double bounds[6]);
-  
+
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   vtkImplicitFunction *ClipFunction;
-  
+
   vtkIncrementalPointLocator *Locator;
   vtkIncrementalPointLocator *Locator2; // used for the clipped output
-  
+
   int InsideOut;
   double Value;
   int GenerateClipScalars;
 
   int GenerateClippedOutput;
-  
+
   vtkHyperOctree *Input;
   vtkUnstructuredGrid *Output;
   vtkUnstructuredGrid *ClippedOutput;
-  
+
   vtkUnsignedCharArray *Types[2];
   vtkIdTypeArray *Locs[2];
   vtkCellArray *Conn[2];
@@ -184,23 +184,23 @@ protected:
   vtkCellData *OutCD[2];
   vtkPointData *OutPD[2];
   vtkOrderedTriangulator *Triangulator;
-  
+
   vtkHyperOctreeCursor *Sibling; // to avoid allocation in the loop
-  
+
   vtkDoubleArray *CellScalars;
   vtkTetra *Tetra;
   vtkDoubleArray *TetScalars;
-  
+
   vtkPoints *Pts;
   vtkPolygon *Polygon;
-  
+
   vtkIdType CellTypeCounter[65536]; // up-to-65536 points per octant
   vtkIdType TotalCounter;
   vtkIdType TemplateCounter; // record the number of octants that succceed
   // to use the template triangulator
-  
+
   vtkHyperOctreeClipCutPointsGrabber *Grabber;
-  
+
 private:
   vtkClipHyperOctree(const vtkClipHyperOctree&);  // Not implemented.
   void operator=(const vtkClipHyperOctree&);  // Not implemented.

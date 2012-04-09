@@ -109,15 +109,15 @@ int vtkBlankStructuredGrid::RequestData(
     {
     dataArray = pd->GetArray(this->ArrayId);
     }
-    
-  if ( !dataArray || 
+
+  if ( !dataArray ||
        (numComp=dataArray->GetNumberOfComponents()) <= this->Component )
     {
     vtkWarningMacro(<<"Data array not found");
     return 1;
     }
   void *dptr = dataArray->GetVoidPointer(0);
-  
+
   // Loop over the data array setting anything within the data range specified
   // to be blanked.
   //
@@ -129,8 +129,8 @@ int vtkBlankStructuredGrid::RequestData(
     {
     vtkTemplateMacro(
       vtkBlankStructuredGridExecute(this, static_cast<VTK_TT *>(dptr), numPts,
-                                    numComp, this->Component, 
-                                    this->MinBlankingValue, 
+                                    numComp, this->Component,
+                                    this->MinBlankingValue,
                                     this->MaxBlankingValue, blanking));
     default:
       break;
@@ -160,5 +160,5 @@ void vtkBlankStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
   os << indent << "Array ID: " << this->ArrayId << "\n";
-  os << indent << "Component: " << this->Component << "\n";  
+  os << indent << "Component: " << this->Component << "\n";
 }

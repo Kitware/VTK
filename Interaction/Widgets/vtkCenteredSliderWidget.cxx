@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkTimerLog.h"
@@ -72,16 +72,16 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if (!self->CurrentRenderer || 
-      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), 
+  if (!self->CurrentRenderer ||
+      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]),
                                            static_cast<int>(eventPos[1])))
     {
     self->WidgetState = vtkCenteredSliderWidget::Start;
     return;
     }
-  
+
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
   self->WidgetRep->StartWidgetInteraction(eventPos);
@@ -90,9 +90,9 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
-  vtkSliderRepresentation *slider = 
+  vtkSliderRepresentation *slider =
     vtkSliderRepresentation::SafeDownCast(self->WidgetRep);
   self->EventCallbackCommand->SetAbortFlag(1);
   if ( interactionState == vtkSliderRepresentation::Slider )
@@ -100,7 +100,7 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkCenteredSliderWidget::Sliding;
     // Start off the timer
-    self->TimerId = 
+    self->TimerId =
       self->Interactor->CreateRepeatingTimer(self->TimerDuration);
     self->StartTime = vtkTimerLog::GetUniversalTime();
     // Highlight as necessary
@@ -139,7 +139,7 @@ void vtkCenteredSliderWidget::MoveAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Definitely moving the slider, get the updated position
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
@@ -165,9 +165,9 @@ void vtkCenteredSliderWidget::EndSelectAction(vtkAbstractWidget *w)
   self->Interactor->DestroyTimer(self->TimerId);
 
   // Highlight if necessary
-  vtkSliderRepresentation *slider = 
+  vtkSliderRepresentation *slider =
     vtkSliderRepresentation::SafeDownCast(self->WidgetRep);
-  slider->SetValue((slider->GetMinimumValue() + 
+  slider->SetValue((slider->GetMinimumValue() +
                     slider->GetMaximumValue())/2.0);
   self->WidgetRep->Highlight(0);
 
@@ -188,14 +188,14 @@ void vtkCenteredSliderWidget::TimerAction(vtkAbstractWidget *w)
   int timerId = *(reinterpret_cast<int*>(self->CallData));
 
   // If this is the timer event we are waiting for...
-  if ( timerId == self->TimerId && 
+  if ( timerId == self->TimerId &&
        self->WidgetState == vtkCenteredSliderWidget::Sliding )
     {
     self->Value = vtkTimerLog::GetUniversalTime() - self->StartTime;
 
-    vtkSliderRepresentation *slider = 
+    vtkSliderRepresentation *slider =
       vtkSliderRepresentation::SafeDownCast(self->WidgetRep);
-    double avg = 
+    double avg =
       (slider->GetMinimumValue() + slider->GetMaximumValue())/2.0;
     self->Value = avg + (slider->GetValue() -  avg)*self->Value;
     self->StartTime = vtkTimerLog::GetUniversalTime();

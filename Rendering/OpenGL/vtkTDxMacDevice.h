@@ -40,7 +40,7 @@ public:
   // driver. Initial value is "\p3DxClientTest".
   vtkGetStringMacro(ClientApplicationName);
   vtkSetStringMacro(ClientApplicationName);
-  
+
   // Description:
   // Initialize the device with the current ClientApplicationName.
   // It updates the value of GetInitialized().
@@ -50,11 +50,11 @@ public:
   // \pre not_yet_initialized: !GetInitialized()
   // \pre valid_name: GetClientApplicationName()!=0
   void Initialize();
-  
+
   // Description:
   // See description in the superclass. Implementation for Mac.
   virtual void Close();
-  
+
   // Description:
   // Translate the X11 event by invoking a VTK event, if the event came from
   // the device.
@@ -64,13 +64,13 @@ public:
   // \pre s_exists: s!=0
   // \pre client_matches: s->client==this->ClientID
   void ProcessEvent(const ConnexionDeviceState *s);
-  
+
 protected:
   // Description:
   // Default constructor. Just set initial values for
   // ClientApplicationName ("3DxClientTest").
   vtkTDxMacDevice();
-  
+
   // Description:
   // Destructor. If the device is not initialized, do nothing. If the device
   // is initialized, close the device.
@@ -90,12 +90,12 @@ protected:
   // \pre s_small_enough: strlen(s)<=255
   // \post result_exists: result!=0
   unsigned char *CStringToPascalString(const char *s);
-  
+
   char *ClientApplicationName;
-  
+
   UInt16 ClientID;
   UInt16 LastButtonState;
-  
+
 private:
   vtkTDxMacDevice(const vtkTDxMacDevice&);  // Not implemented.
   void operator=(const vtkTDxMacDevice&);  // Not implemented.

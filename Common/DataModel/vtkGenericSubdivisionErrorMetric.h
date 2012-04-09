@@ -18,7 +18,7 @@
 // .SECTION Description
 // Objects of that class answer the following question during the cell
 // subdivision: "does the edge need to be subdivided?" through
-// RequiresEdgeSubdivision(). 
+// RequiresEdgeSubdivision().
 // The answer depends on the criterium actually used in the subclass of this
 // abstract class: a geometric-based error
 // metric (variation of edge from a straight line), an attribute-based error
@@ -44,12 +44,12 @@ class vtkGenericDataSet;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericSubdivisionErrorMetric : public vtkObject
 {
-public:  
+public:
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
- 
+
   // Description:
   // Does the edge need to be subdivided according to the implemented
   // computation?
@@ -69,7 +69,7 @@ public:
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   virtual int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
                                       double *rightPoint, double alpha)=0;
-  
+
   // Description:
   // Return the error at the mid-point. The type of error depends on the state
   // of the concrete error metric. For instance, it can return an absolute
@@ -84,7 +84,7 @@ public:
   // \post positive_result: result>=0
   virtual double GetError(double *leftPoint, double *midPoint,
                           double *rightPoint, double alpha)=0;
-  
+
   // Description:
   // The cell that the edge belongs to.
   void SetGenericCell(vtkGenericAdaptorCell *cell);
@@ -101,7 +101,7 @@ protected:
 
   vtkGenericAdaptorCell *GenericCell;
   vtkGenericDataSet *DataSet;
-  
+
 private:
   vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.
   void operator=(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.

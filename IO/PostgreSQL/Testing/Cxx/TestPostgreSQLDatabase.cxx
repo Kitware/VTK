@@ -219,7 +219,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     db->Delete();
     return 1;
     }
-  
+
   reader->Delete();
   query->Delete();
   db->Delete();
@@ -270,24 +270,24 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   std::vector<vtkStdString> tables;
   while ( query->NextRow() )
     {
-    tables.push_back( query->DataValue( 0 ).ToString() ); 
+    tables.push_back( query->DataValue( 0 ).ToString() );
     }
 
   int numTbl = tables.size();
 
   if ( numTbl != schema->GetNumberOfTables() )
     {
-    cerr << "Found an incorrect number of tables: " 
-         << numTbl 
-         << " != " 
+    cerr << "Found an incorrect number of tables: "
+         << numTbl
+         << " != "
          << schema->GetNumberOfTables()
          << endl;
     query->Delete();
     db->Delete();
     return 1;
     }
-  
-  cerr << numTbl 
+
+  cerr << numTbl
        << " found.\n";
 
   // 4. Inspect these tables
@@ -297,22 +297,22 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
   for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
     vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
-    cerr << "   Table: " 
+    cerr << "   Table: "
          << tblName
          << "\n";
 
     if ( tblName != tables[tblHandle] )
       {
-      cerr << "Fetched an incorrect name: " 
+      cerr << "Fetched an incorrect name: "
            << tables[tblHandle]
-           << " != " 
+           << " != "
            << tblName
            << endl;
       query->Delete();
       db->Delete();
       return 1;
       }
-                       
+
     // Check columns
     queryStr = "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '";
     queryStr += tblName;
@@ -325,7 +325,7 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
       db->Delete();
       return 1;
       }
-    
+
     int numFields = query->GetNumberOfFields();
     int colHandle = 0;
     for ( ; query->NextRow(); ++ colHandle )
@@ -341,9 +341,9 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
           vtkStdString colName ( schema->GetColumnNameFromHandle( tblHandle, colHandle ) );
           if ( colName != query->DataValue( field ).ToString() )
             {
-            cerr << "Found an incorrect column name: " 
+            cerr << "Found an incorrect column name: "
                  << query->DataValue( field ).ToString()
-                 << " != " 
+                 << " != "
                  << colName
                  << endl;
             query->Delete();
@@ -356,12 +356,12 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
         }
       cerr << endl;
       }
-    
+
     if ( colHandle != schema->GetNumberOfColumnsInTable( tblHandle ) )
       {
-      cerr << "Found an incorrect number of columns: " 
+      cerr << "Found an incorrect number of columns: "
            << colHandle
-           << " != " 
+           << " != "
            << schema->GetNumberOfColumnsInTable( tblHandle )
            << endl;
       query->Delete();
@@ -425,25 +425,25 @@ int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )
     {
     if ( query->DataValue( 0 ).ToString() != dpts[numDpt] )
       {
-      cerr << "Found an incorrect value: " 
+      cerr << "Found an incorrect value: "
            << query->DataValue( 0 ).ToString()
-           << " != " 
+           << " != "
            << dpts[numDpt]
            << endl;
       query->Delete();
       db->Delete();
       return 1;
       }
-    cerr << "     " 
+    cerr << "     "
          << query->DataValue( 0 ).ToString()
          << "\n";
     }
-    
+
   if ( numDpt != 3 )
     {
-    cerr << "Found an incorrect number of entries: " 
+    cerr << "Found an incorrect number of entries: "
          << numDpt
-         << " != " 
+         << " != "
          << 3
          << endl;
     query->Delete();

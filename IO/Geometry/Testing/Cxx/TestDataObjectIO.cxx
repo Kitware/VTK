@@ -36,7 +36,7 @@ void InitializeData(vtkDirectedGraph* Data)
   source->StartWithTreeOff();
   source->AllowSelfLoopsOff();
   source->Update();
-  
+
   Data->ShallowCopy(source->GetOutput());
   source->Delete();
 }
@@ -52,7 +52,7 @@ void InitializeData(vtkUndirectedGraph* Data)
   source->StartWithTreeOff();
   source->AllowSelfLoopsOff();
   source->Update();
-  
+
   Data->ShallowCopy(source->GetOutput());
   source->Delete();
 }
@@ -66,13 +66,13 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
 
   if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
     return false;
-    
+
   if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     return false;
 
   if(Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
     return false;
-    
+
   if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
     return false;
 
@@ -84,7 +84,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
     vtkEdgeType outputEdge = outputEdges->Next();
     if(inputEdge.Source != outputEdge.Source)
       return false;
-      
+
     if(inputEdge.Target != outputEdge.Target)
       return false;
 
@@ -102,7 +102,7 @@ void InitializeData(vtkImageData* Data)
   vtkImageNoiseSource* const source = vtkImageNoiseSource::New();
   source->SetWholeExtent(0, 15, 0, 15, 0, 0);
   source->Update();
-  
+
   Data->ShallowCopy(source->GetOutput());
   source->Delete();
 }
@@ -118,7 +118,7 @@ bool CompareData(vtkImageData* Output, vtkImageData* Input)
     if(memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)))
       return false;
     }
-  
+
   return true;
 }
 
@@ -126,7 +126,7 @@ void InitializeData(vtkPolyData* Data)
 {
   vtkCubeSource* const source = vtkCubeSource::New();
   source->Update();
-  
+
   Data->ShallowCopy(source->GetOutput());
   source->Delete();
 }
@@ -137,7 +137,7 @@ bool CompareData(vtkPolyData* Output, vtkPolyData* Input)
     return false;
   if(Input->GetNumberOfPolys() != Output->GetNumberOfPolys())
     return false;
-    
+
   return true;
 }
 
@@ -150,7 +150,7 @@ bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
 {
   if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
     return false;
-    
+
   return true;
 }
 
@@ -163,7 +163,7 @@ bool CompareData(vtkStructuredGrid* Output, vtkStructuredGrid* Input)
 {
   if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
     return false;
-    
+
   return true;
 }
 
@@ -173,16 +173,16 @@ void InitializeData(vtkTable* Data)
   Data->AddColumn(column1);
   column1->Delete();
   column1->SetName("column1");
-  
+
   vtkIntArray* const column2 = vtkIntArray::New();
   Data->AddColumn(column2);
   column2->Delete();
   column2->SetName("column2");
-  
+
   Data->InsertNextBlankRow();
   Data->InsertNextBlankRow();
   Data->InsertNextBlankRow();
-  
+
   Data->SetValue(0, 0, 1);
   Data->SetValue(0, 1, 2);
   Data->SetValue(1, 0, 3);
@@ -197,7 +197,7 @@ bool CompareData(vtkTable* Output, vtkTable* Input)
     return false;
   if(Input->GetNumberOfRows() != Output->GetNumberOfRows())
     return false;
-    
+
   for(int column = 0; column != Input->GetNumberOfColumns(); ++column)
     {
     for(int row = 0; row != Input->GetNumberOfRows(); ++row)
@@ -240,19 +240,19 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
 {
   if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
     return false;
-    
+
   if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
     return false;
 
   if(Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
     return false;
-    
+
   if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
     return false;
-  
+
   if(Input->GetRoot() != Output->GetRoot())
     return false;
-  
+
   double inx[3];
   double outx[3];
   for(vtkIdType child = 0; child != Input->GetNumberOfVertices(); ++child)
@@ -266,7 +266,7 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
     if(Input->GetParent(child) != Output->GetParent(child))
       return false;
     }
-  
+
   return true;
 }
 
@@ -276,9 +276,9 @@ void InitializeData(vtkUnstructuredGrid* Data)
   vtkDelaunay3D* const delaunay = vtkDelaunay3D::New();
   delaunay->AddInputConnection(source->GetOutputPort());
   delaunay->Update();
-  
+
   Data->ShallowCopy(delaunay->GetOutput());
-  
+
   delaunay->Delete();
   source->Delete();
 }
@@ -289,7 +289,7 @@ bool CompareData(vtkUnstructuredGrid* Output, vtkUnstructuredGrid* Input)
     return false;
   if(Input->GetNumberOfCells() != Output->GetNumberOfCells())
     return false;
-    
+
   return true;
 }
 
@@ -340,31 +340,31 @@ bool TestDataObjectSerialization()
   InitializeData(output_data);
 
   const char* const filename = output_data->GetClassName();
-  
+
   vtkGenericDataObjectWriter* const writer = vtkGenericDataObjectWriter::New();
   writer->SetInputData(output_data);
   writer->SetFileName(filename);
   writer->Write();
   writer->Delete();
-  
+
   vtkGenericDataObjectReader* const reader = vtkGenericDataObjectReader::New();
   reader->SetFileName(filename);
   reader->Update();
-  
+
   vtkDataObject *obj = reader->GetOutput();
   DataT* const input_data = DataT::SafeDownCast(obj);
   if(!input_data)
     {
     reader->Delete();
-    output_data->Delete();  
+    output_data->Delete();
     return false;
     }
 
   const bool result = CompareData(output_data, input_data);
-    
+
   reader->Delete();
   output_data->Delete();
-  
+
   return result;
 }
 

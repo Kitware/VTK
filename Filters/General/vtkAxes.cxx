@@ -29,12 +29,12 @@ vtkStandardNewMacro(vtkAxes);
 // Construct with origin=(0,0,0) and scale factor=1.
 vtkAxes::vtkAxes()
 {
-  this->Origin[0] = 0.0;  
-  this->Origin[1] = 0.0;  
+  this->Origin[0] = 0.0;
+  this->Origin[1] = 0.0;
   this->Origin[2] = 0.0;
 
   this->ScaleFactor = 1.0;
-  
+
   this->Symmetric = 0;
   this->ComputeNormals = 1;
 
@@ -60,7 +60,7 @@ int vtkAxes::RequestData(
   vtkFloatArray *newNormals;
   double x[3], n[3];
   vtkIdType ptIds[2];
-  
+
   vtkDebugMacro(<<"Creating x-y-z axes");
 
   newPts = vtkPoints::New();
@@ -74,7 +74,7 @@ int vtkAxes::RequestData(
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
   newNormals->SetName("Normals");
-  
+
 //
 // Create axes
 //
@@ -85,7 +85,7 @@ int vtkAxes::RequestData(
     {
     x[0] = this->Origin[0] - this->ScaleFactor;
     }
-  n[0] = 0.0; n[1] = 1.0; n[2] = 0.0; 
+  n[0] = 0.0; n[1] = 1.0; n[2] = 0.0;
   ptIds[0] = newPts->InsertNextPoint(x);
   newScalars->InsertNextValue(0.0);
   newNormals->InsertNextTuple(n);
@@ -105,7 +105,7 @@ int vtkAxes::RequestData(
     {
     x[1] = this->Origin[1] - this->ScaleFactor;
     }
-  n[0] = 0.0; n[1] = 0.0; n[2] = 1.0; 
+  n[0] = 0.0; n[1] = 0.0; n[2] = 1.0;
   ptIds[0] = newPts->InsertNextPoint(x);
   newScalars->InsertNextValue(0.25);
   newNormals->InsertNextTuple(n);
@@ -125,7 +125,7 @@ int vtkAxes::RequestData(
     {
     x[2] = this->Origin[2] - this->ScaleFactor;
     }
-  n[0] = 1.0; n[1] = 0.0; n[2] = 0.0; 
+  n[0] = 1.0; n[1] = 0.0; n[2] = 0.0;
   ptIds[0] = newPts->InsertNextPoint(x);
   newScalars->InsertNextValue(0.5);
   newNormals->InsertNextTuple(n);
@@ -140,7 +140,7 @@ int vtkAxes::RequestData(
 
   //
   // Update our output and release memory
-  // 
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 

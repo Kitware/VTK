@@ -18,7 +18,7 @@
 // independent of VTK, such as a simple C array or a third-party pipeline.
 // Note that the VTK convention is for the image voxel index (0,0,0) to be
 // the lower-left corner of the image, while most 2D image formats use
-// the upper-left corner.  You can use vtkImageFlip to correct the 
+// the upper-left corner.  You can use vtkImageFlip to correct the
 // orientation after the image has been loaded into VTK.
 // Note that is also possible to import the raw data from a Python string
 // instead of from a C array. The array applies on scalar point data only, not
@@ -37,14 +37,14 @@ class VTKIOIMAGE_EXPORT vtkImageImport : public vtkImageAlgorithm
 public:
   static vtkImageImport *New();
   vtkTypeMacro(vtkImageImport,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Import data and make an internal copy of it.  If you do not want
   // VTK to copy the data, then use SetImportVoidPointer instead (do
   // not use both).  Give the size of the data array in bytes.
   void CopyImportVoidPointer(void *ptr, vtkIdType size);
-  
+
   // Description:
   // Set the pointer from which the image data is imported.  VTK will
   // not make its own copy of the data, it will access the data directly
@@ -54,13 +54,13 @@ public:
   void *GetImportVoidPointer() {return this->ImportVoidPointer;};
 
   // Description:
-  // Set the pointer from which the image data is imported.  Set save to 1 
+  // Set the pointer from which the image data is imported.  Set save to 1
   // (the default) unless you want VTK to delete the array via C++ delete
   // when the vtkImageImport object is deallocated.  VTK will not make its
   // own copy of the data, it will access the data directly from the
   // supplied array.
   void SetImportVoidPointer(void *ptr, int save);
-  
+
   // Description:
   // Set/Get the data type of pixels in the imported data.  This is used
   // as the scalar type of the Output.  Default: Short.
@@ -74,7 +74,7 @@ public:
   void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
   vtkGetMacro(DataScalarType, int);
-  const char *GetDataScalarTypeAsString() { 
+  const char *GetDataScalarTypeAsString() {
     return vtkImageScalarTypeNameMacro(this->DataScalarType); }
 
   // Description:
@@ -82,28 +82,28 @@ public:
   // Default: 1.
   vtkSetMacro(NumberOfScalarComponents,int);
   vtkGetMacro(NumberOfScalarComponents,int);
-  
+
   // Description:
   // Get/Set the extent of the data buffer.  The dimensions of your data
-  // must be equal to (extent[1]-extent[0]+1) * (extent[3]-extent[2]+1) * 
+  // must be equal to (extent[1]-extent[0]+1) * (extent[3]-extent[2]+1) *
   // (extent[5]-DataExtent[4]+1).  For example, for a 2D image use
   // (0,width-1, 0,height-1, 0,0).
   vtkSetVector6Macro(DataExtent,int);
   vtkGetVector6Macro(DataExtent,int);
   void SetDataExtentToWholeExtent()
     {this->SetDataExtent(this->GetWholeExtent());}
-  
+
   // Description:
   // Set/Get the spacing (typically in mm) between image voxels.
   // Default: (1.0, 1.0, 1.0).
   vtkSetVector3Macro(DataSpacing,double);
   vtkGetVector3Macro(DataSpacing,double);
-  
+
   // Description:
   // Set/Get the origin of the data, i.e. the coordinates (usually in mm)
-  // of voxel (0,0,0).  Default: (0.0, 0.0, 0.0). 
+  // of voxel (0,0,0).  Default: (0.0, 0.0, 0.0).
   vtkSetVector3Macro(DataOrigin,double);
-  vtkGetVector3Macro(DataOrigin,double);  
+  vtkGetVector3Macro(DataOrigin,double);
 
   // Description:
   // Get/Set the whole extent of the image.  This is the largest possible
@@ -111,7 +111,7 @@ public:
   // pointed to by the ImportVoidPointer.
   vtkSetVector6Macro(WholeExtent,int);
   vtkGetVector6Macro(WholeExtent,int);
-  
+
   // Description:
   // Propagates the update extent through the callback if it is set.
   virtual int RequestUpdateExtent(  vtkInformation* request,
@@ -133,20 +133,20 @@ public:
   typedef int* (*WholeExtentCallbackType)(void*);
   typedef double* (*SpacingCallbackType)(void*);
   typedef double* (*OriginCallbackType)(void*);
-  typedef const char* (*ScalarTypeCallbackType)(void*); 
+  typedef const char* (*ScalarTypeCallbackType)(void*);
   typedef int (*NumberOfComponentsCallbackType)(void*);
   typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
 
-  // Description:  
+  // Description:
   // Set/Get the callback for propagating UpdateInformation calls to a
   // third-party pipeline.  The callback should make sure that the
   // third-party pipeline information is up to date.
   vtkSetMacro(UpdateInformationCallback, UpdateInformationCallbackType);
   vtkGetMacro(UpdateInformationCallback, UpdateInformationCallbackType);
-  
+
   // Description:
   // Set/Get the callback for checking whether the third-party
   // pipeline has been modified since the last invocation of the
@@ -183,15 +183,15 @@ public:
   // return a string with the name of the type.
   vtkSetMacro(ScalarTypeCallback, ScalarTypeCallbackType);
   vtkGetMacro(ScalarTypeCallback, ScalarTypeCallbackType);
-  
-  // Description:  
+
+  // Description:
   // Set/Get the callback for getting the number of components of the
   // input image from a third-party pipeline.  The callback should
   // return an integer with the number of components.
   vtkSetMacro(NumberOfComponentsCallback, NumberOfComponentsCallbackType);
   vtkGetMacro(NumberOfComponentsCallback, NumberOfComponentsCallbackType);
-  
-  // Description:  
+
+  // Description:
   // Set/Get the callback for propagating the pipeline update extent
   // to a third-party pipeline.  The callback should take a vector of
   // six integers describing the extent.  This should cause the
@@ -199,15 +199,15 @@ public:
   // extent after the next UpdateData callback.
   vtkSetMacro(PropagateUpdateExtentCallback,PropagateUpdateExtentCallbackType);
   vtkGetMacro(PropagateUpdateExtentCallback,PropagateUpdateExtentCallbackType);
-  
-  // Description:  
+
+  // Description:
   // Set/Get the callback for propagating UpdateData calls to a
   // third-party pipeline.  The callback should make sure the
   // third-party pipeline is up to date.
   vtkSetMacro(UpdateDataCallback, UpdateDataCallbackType);
   vtkGetMacro(UpdateDataCallback, UpdateDataCallbackType);
-  
-  // Description:  
+
+  // Description:
   // Set/Get the callback for getting the data extent of the input
   // image from a third-party pipeline.  The callback should return a
   // vector of six integers describing the extent of the buffered
@@ -215,8 +215,8 @@ public:
   // should be set with the BufferPointerCallback.
   vtkSetMacro(DataExtentCallback, DataExtentCallbackType);
   vtkGetMacro(DataExtentCallback, DataExtentCallbackType);
-  
-  // Description:  
+
+  // Description:
   // Set/Get the callback for getting a pointer to the data buffer of
   // an image from a third-party pipeline.  The callback should return
   // a pointer to the beginning of the buffer.  The extent of the
@@ -228,8 +228,8 @@ public:
   // Set/Get the user data which will be passed as the first argument
   // to all of the third-party pipeline callbacks.
   vtkSetMacro(CallbackUserData, void*);
-  vtkGetMacro(CallbackUserData, void*);  
-  
+  vtkGetMacro(CallbackUserData, void*);
+
   //ETX
 
   // Description:
@@ -244,13 +244,13 @@ protected:
   vtkImageImport();
   ~vtkImageImport();
 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, 
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
 
-  
+
   void *ImportVoidPointer;
   int SaveUserArray;
-  
+
   int NumberOfScalarComponents;
   int DataScalarType;
 
@@ -261,7 +261,7 @@ protected:
 
   char *ScalarArrayName;
   void* CallbackUserData;
-  
+
   //BTX
   UpdateInformationCallbackType     UpdateInformationCallback;
   PipelineModifiedCallbackType      PipelineModifiedCallback;
@@ -275,7 +275,7 @@ protected:
   DataExtentCallbackType            DataExtentCallback;
   BufferPointerCallbackType         BufferPointerCallback;
   //ETX
-  
+
   virtual void ExecuteDataWithInformation(vtkDataObject *d, vtkInformation* outInfo);
 
 private:

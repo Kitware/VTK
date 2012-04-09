@@ -35,7 +35,7 @@
 #include "vtkgl.h"
 
 #define PRINTEXTENT(ext) \
-  ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5] 
+  ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]
 
 vtkStandardNewMacro(vtkImageDataLIC2D);
 //----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ int vtkImageDataLIC2D::SetContext( vtkRenderWindow * context )
     }
   this->OwnWindow = false;
 
-  vtkOpenGLRenderWindow * openGLRenWin = 
+  vtkOpenGLRenderWindow * openGLRenWin =
   vtkOpenGLRenderWindow::SafeDownCast( context );
   this->Context = openGLRenWin;
 
@@ -94,11 +94,11 @@ int vtkImageDataLIC2D::SetContext( vtkRenderWindow * context )
     openGLRenWin->Render();
     openGLRenWin->MakeCurrent();
     vtkOpenGLExtensionManager * mgr = openGLRenWin->GetExtensionManager();
-    
+
     // optional for texture objects.
     mgr->LoadSupportedExtension( "GL_EXT_texture_integer" );
-   
-    //this->ARBColorBufferFloatSupported = 
+
+    //this->ARBColorBufferFloatSupported =
     //  mgr->LoadSupportedExtension("GL_ARB_color_buffer_float");
 
     if (  !mgr->LoadSupportedExtension( "GL_VERSION_1_3" ) ||
@@ -114,13 +114,13 @@ int vtkImageDataLIC2D::SetContext( vtkRenderWindow * context )
       openGLRenWin  = NULL;
       return 0;
       }
-      
+
     mgr = NULL;
     }
-    
+
   openGLRenWin = NULL;
   this->Modified();
-  
+
   this->OpenGLExtensionsSupported = 1;
   return 1;
 }
@@ -251,7 +251,7 @@ int vtkImageDataLIC2D::RequestUpdateExtent (
   vtkDebugMacro( << "UPDATE_EXTENT: " <<  PRINTEXTENT( ext ) << endl );
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
-  
+
   inInfo = inputVector[1]->GetInformationObject(0);
   if (inInfo)
     {
@@ -260,7 +260,7 @@ int vtkImageDataLIC2D::RequestUpdateExtent (
       inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
       6);
     }
-  
+
   return 1;
 }
 
@@ -288,7 +288,7 @@ int vtkImageDataLIC2D::RequestData(
     }
 
   vtkIdType numPoints = input->GetNumberOfPoints();
-  vtkSmartPointer<vtkDataArray> inVectors = 
+  vtkSmartPointer<vtkDataArray> inVectors =
     this->GetInputArrayToProcess( 0, inputVector );
 
   if ( inVectors.GetPointer() == 0 )
@@ -307,7 +307,7 @@ int vtkImageDataLIC2D::RequestData(
     inInfo = NULL;
     return 0;
     }
-  
+
   if ( !this->Context )
     {
     vtkRenderWindow * renWin = vtkRenderWindow::New();
@@ -319,14 +319,14 @@ int vtkImageDataLIC2D::RequestData(
       inInfo = NULL;
       return 0;
       }
-    
+
     renWin = NULL; // will be released via this->Context
     this->OwnWindow = true;
     }
 
   this->Context->MakeCurrent();
   this->Context->SetReportGraphicErrors(1);
-  
+
   // Noise.
   vtkInformation *noiseInfo = inputVector[1]->GetInformationObject(0);
   vtkImageData *noise=0;
@@ -339,7 +339,7 @@ int vtkImageDataLIC2D::RequestData(
     {
     noise = vtkImageData::SafeDownCast(
       noiseInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
+
     if (noise->GetPointData()==0)
       {
       vtkErrorMacro("Provided noise does not have point data.");
@@ -351,7 +351,7 @@ int vtkImageDataLIC2D::RequestData(
       return 0;
       }
     }
-  
+
   int firstComponent;
   int secondComponent;
   switch (dataDescription)
@@ -399,7 +399,7 @@ int vtkImageDataLIC2D::RequestData(
     inInfo     = NULL;
     spacing    = NULL;
     noiseInfo  = NULL;
-    
+
     this->LICSuccess = 0;
     return 0;
     }
@@ -415,7 +415,7 @@ int vtkImageDataLIC2D::RequestData(
   vectorBus->SetGPUExtent(input->GetExtent());
   //  vectorBus->SetTextureExtent(input->GetExtent());
   vectorBus->SetArray(inVectors);
-  
+
   vtkDataTransferHelper *noiseBus = vtkDataTransferHelper::New();
   noiseBus->SetContext(this->Context);
   noiseBus->SetCPUExtent(noise->GetExtent());
@@ -447,13 +447,13 @@ int vtkImageDataLIC2D::RequestData(
     noiseBus   = NULL;
     vectorBus  = NULL;
     tempBuffer = NULL;
-    
+
     input      = NULL;
     noise      = NULL;
     inInfo     = NULL;
     spacing    = NULL;
     noiseInfo  = NULL;
-    
+
     this->FBOSuccess = 0;
     return 0;
     }
@@ -474,9 +474,9 @@ int vtkImageDataLIC2D::RequestData(
                   GL_LINEAR);
   glTexParameteri(vectorBus->GetTexture()->GetTarget(), GL_TEXTURE_MAG_FILTER,
                   GL_LINEAR);
-  
+
   internal->SetVectorField(vectorBus->GetTexture());
-  
+
   vtkgl::ActiveTexture(vtkgl::TEXTURE1);
   noiseBus->Upload(0,0);
   noiseBus->GetTexture()->Bind();
@@ -489,7 +489,7 @@ int vtkImageDataLIC2D::RequestData(
   glTexParameteri(noiseBus->GetTexture()->GetTarget(),GL_TEXTURE_MIN_FILTER,
                   GL_NEAREST);
   glTexParameteri(noiseBus->GetTexture()->GetTarget(),GL_TEXTURE_MAG_FILTER,
-                  GL_NEAREST); 
+                  GL_NEAREST);
   internal->SetNoise(noiseBus->GetTexture());
   fbo->Delete();
   fbo = NULL;
@@ -524,7 +524,7 @@ int vtkImageDataLIC2D::RequestData(
     licextent[3] = inputRequestedExtent[5];
     break;
     }
-  
+
   if (  internal->Execute(licextent) == 0  )
     {
     internal->Delete();
@@ -533,18 +533,18 @@ int vtkImageDataLIC2D::RequestData(
     internal   = NULL;
     noiseBus   = NULL;
     vectorBus  = NULL;
-    
+
     input      = NULL;
     noise      = NULL;
     inInfo     = NULL;
     spacing    = NULL;
     noiseInfo  = NULL;
-    
+
     this->LICSuccess = 0;
     return 0;
     }
   this->LICSuccess = 1;
-  
+
   glFlush(); // breakpoint for debugging.
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -581,7 +581,7 @@ int vtkImageDataLIC2D::RequestData(
   vtkDebugMacro( << "GPU Extent: " << PRINTEXTENT( gpuExtent ) << endl );
   // It is possible that GPU extent is larger than what the output expected,
   // hence we allocate the output using the GPU extent and then crop it.
-  
+
   output->SetExtent(gpuExtent);
   output->AllocateScalars(VTK_FLOAT, 3);
   outputBus->SetCPUExtent(gpuExtent);
@@ -604,12 +604,12 @@ int vtkImageDataLIC2D::RequestData(
 void vtkImageDataLIC2D::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  
+
   os << indent << "Steps: "         << this->Steps          << "\n";
   os << indent << "StepSize: "      << this->StepSize       << "\n";
   os << indent << "FBOSuccess: "    << this->FBOSuccess     << "\n";
   os << indent << "LICSuccess: "    << this->LICSuccess     << "\n";
   os << indent << "Magnification: " << this->Magnification  << "\n";
-  os << indent << "OpenGLExtensionsSupported: " 
+  os << indent << "OpenGLExtensionsSupported: "
                << this->OpenGLExtensionsSupported << "\n";
 }

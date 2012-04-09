@@ -19,11 +19,11 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-// .NAME vtkGeoTerrainNode - 
+// .NAME vtkGeoTerrainNode -
 // .SECTION Description Quadtree of poly data terrain patches.
 
 // .SECTION See Also
-   
+
 #ifndef __vtkGeoTerrainNode_h
 #define __vtkGeoTerrainNode_h
 
@@ -45,18 +45,18 @@ public:
   // This is easier than templating.
   vtkGeoTerrainNode* GetChild(int idx);
   vtkGeoTerrainNode* GetParent();
-    
+
   // Description:
   // Given, a long, lat position, return altitude in meters
   // relative to  sea level.
   double GetAltitude(double longitude, double latitude);
-  
+
   // Description:
   // Get the terrrain model.  The user has to copy the terrain
   // into this object.
   vtkPolyData* GetModel();
   void SetModel(vtkPolyData* model);
-  
+
   // Description:
   // Bounding sphere is precomputed for faster updates of terrain.
   void UpdateBoundingSphere();
@@ -93,9 +93,9 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkGeoTreeNode *src);  
+  virtual void ShallowCopy(vtkGeoTreeNode *src);
   virtual void DeepCopy(vtkGeoTreeNode *src);
-  
+
   // Description:
   // Returns whether this node has valid data associated
   // with it, or if it is an "empty" node.

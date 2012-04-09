@@ -44,8 +44,8 @@ for { set i 0 } { $i < [$model GetNumberOfCells] } { incr i } {
 vtkArrowSource arrow1
 vtkPolyDataMapper mapper1
   mapper1 SetInputConnection [arrow1 GetOutputPort]
-vtkActor actor1 
-  actor1 SetMapper mapper1 
+vtkActor actor1
+  actor1 SetMapper mapper1
   actor1 SetPosition 0 -0.2 1
 
 vtkArrowSource arrow2
@@ -53,7 +53,7 @@ vtkArrowSource arrow2
   arrow2 SetTipResolution 1
 vtkPolyDataMapper mapper2
   mapper2 SetInputConnection [arrow2 GetOutputPort]
-vtkActor actor2 
+vtkActor actor2
   actor2 SetMapper mapper2
   actor2 SetPosition 1 -0.2 1
 

@@ -76,7 +76,7 @@ public:
   // Description:
   // Current interaction state
   vtkGetMacro(Interaction, int);
-  
+
   //BTX
   enum
     {
@@ -87,7 +87,7 @@ public:
     SELECTING
     };
   //ETX
-    
+
   // Description:
   // Access to the start and end positions (display coordinates) of the rubber
   // band pick area. This is a convenience method for the wrapped languages
@@ -98,25 +98,25 @@ public:
 protected:
   vtkInteractorStyleRubberBand3D();
   ~vtkInteractorStyleRubberBand3D();
-  
+
   // The interaction mode
   int Interaction;
-  
+
   // Draws the selection rubber band
   void RedrawRubberBand();
-  
+
   // The end position of the selection
   int StartPosition[2];
-  
+
   // The start position of the selection
   int EndPosition[2];
-  
+
   // The pixel array for the rubber band
   vtkUnsignedCharArray* PixelArray;
 
   // Whether to trigger a render when the mouse moves
   bool RenderOnMouseMove;
-  
+
 private:
   vtkInteractorStyleRubberBand3D(const vtkInteractorStyleRubberBand3D&); //Not implemented
   void operator=(const vtkInteractorStyleRubberBand3D&); // Not implemented

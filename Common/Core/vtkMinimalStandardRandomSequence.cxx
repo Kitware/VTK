@@ -38,7 +38,7 @@ vtkMinimalStandardRandomSequence::~vtkMinimalStandardRandomSequence()
 void vtkMinimalStandardRandomSequence::SetSeedOnly(int value)
 {
   this->Seed=value;
-  
+
   // fit the seed to the valid range [1,2147483646]
   if(this->Seed<1)
     {
@@ -57,7 +57,7 @@ void vtkMinimalStandardRandomSequence::SetSeedOnly(int value)
 void vtkMinimalStandardRandomSequence::SetSeed(int value)
 {
   this->SetSeedOnly(value);
-  
+
   // the first random number after setting the seed is proportional to the
   // seed value. To help solve this, call Next() a few times.
   // This doesn't ruin the repeatability of Next().
@@ -76,7 +76,7 @@ int vtkMinimalStandardRandomSequence::GetSeed(void)
 double vtkMinimalStandardRandomSequence::GetValue()
 {
   double result=static_cast<double>(this->Seed)/VTK_K_M;
-  
+
   assert("post: unit_range" && result>=0.0 && result<=1.0);
   return result;
 }

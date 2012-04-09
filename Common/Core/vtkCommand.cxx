@@ -60,10 +60,10 @@ const char *vtkCommand::GetStringFromEventId(unsigned long event)
   // that.
   return "NoEvent";
 }
-  
+
 //----------------------------------------------------------------
 unsigned long vtkCommand::GetEventIdFromString(const char *event)
-{  
+{
   if (event)
     {
 #define _vtk_add_event(Enum)\
@@ -80,7 +80,7 @@ unsigned long vtkCommand::GetEventIdFromString(const char *event)
   return vtkCommand::NoEvent;
 }
 
-  
+
 
 
 

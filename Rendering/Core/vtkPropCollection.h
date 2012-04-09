@@ -19,7 +19,7 @@
 // entries are not prevented.
 
 // .SECTION see also
-// vtkProp vtkCollection 
+// vtkProp vtkCollection
 
 #ifndef __vtkPropCollection_h
 #define __vtkPropCollection_h
@@ -46,18 +46,18 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
   // Description:
   // Get the last Prop in the list.
   vtkProp *GetLastProp();
-  
+
   // Description:
   // Get the number of paths contained in this list. (Recall that a
   // vtkProp can consist of multiple parts.) Used in picking and other
   // activities to get the parts of composite entities like vtkAssembly
   // or vtkPropAssembly.
   int GetNumberOfPaths();
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkProp *GetNextProp(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkProp *>(this->GetNextItemAsObject(cookie));};
   //ETX
@@ -65,7 +65,7 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 protected:
   vtkPropCollection() {};
   ~vtkPropCollection() {};
-  
+
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -76,18 +76,18 @@ private:
   void operator=(const vtkPropCollection&);  // Not implemented.
 };
 
-inline void vtkPropCollection::AddItem(vtkProp *a) 
+inline void vtkPropCollection::AddItem(vtkProp *a)
 {
   this->vtkCollection::AddItem(a);
 }
 
-inline vtkProp *vtkPropCollection::GetNextProp() 
-{ 
+inline vtkProp *vtkPropCollection::GetNextProp()
+{
   return static_cast<vtkProp *>(this->GetNextItemAsObject());
 }
 
-inline vtkProp *vtkPropCollection::GetLastProp() 
-{ 
+inline vtkProp *vtkPropCollection::GetLastProp()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;

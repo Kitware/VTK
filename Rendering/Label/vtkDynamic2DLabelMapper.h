@@ -44,7 +44,7 @@
 
 // .SECTION Thanks
 // This algorithm was developed in the paper
-// Ken Been and Chee Yap. Dynamic Map Labeling. IEEE Transactions on 
+// Ken Been and Chee Yap. Dynamic Map Labeling. IEEE Transactions on
 // Visualization and Computer Graphics, Vol. 12, No. 5, 2006. pp. 773-780.
 
 #ifndef __vtkDynamic2DLabelMapper_h
@@ -62,33 +62,33 @@ public:
   static vtkDynamic2DLabelMapper *New();
   vtkTypeMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the points array name to use to give priority to labels.
   // Defaults to "priority".
   void SetPriorityArrayName(const char* name);
-  
+
   // Description:
   // Whether to reverse the priority order (i.e. low values have high priority).
   // Default is off.
   vtkSetMacro(ReversePriority, bool);
   vtkGetMacro(ReversePriority, bool);
   vtkBooleanMacro(ReversePriority, bool);
-  
+
   // Description:
-  // Set the label height padding as a percentage. The percentage 
-  // is a percentage of your label height. 
+  // Set the label height padding as a percentage. The percentage
+  // is a percentage of your label height.
   // Default is 50%.
   vtkSetMacro(LabelHeightPadding, float);
   vtkGetMacro(LabelHeightPadding, float);
-  
+
   // Description:
-  // Set the label width padding as a percentage. The percentage 
-  // is a percentage of your label ^height^ (yes, not a typo). 
+  // Set the label width padding as a percentage. The percentage
+  // is a percentage of your label ^height^ (yes, not a typo).
   // Default is 50%.
   vtkSetMacro(LabelWidthPadding, float);
   vtkGetMacro(LabelWidthPadding, float);
-  
+
   // Description:
   // Draw non-overlapping labels to the screen.
   void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
@@ -101,14 +101,14 @@ protected:
   // Description:
   // Calculate the current zoom scale of the viewport.
   double GetCurrentScale(vtkViewport *viewport);
-  
+
   float* LabelWidth;
   float* LabelHeight;
   float* Cutoff;
   float ReferenceScale;
   float LabelHeightPadding;
   float LabelWidthPadding;
-  
+
   bool ReversePriority;
 
 private:

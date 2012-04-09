@@ -130,7 +130,7 @@ vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v,
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableUndirectedGraph::AddEdge(const vtkVariant& u, 
+vtkEdgeType vtkMutableUndirectedGraph::AddEdge(const vtkVariant& u,
                                                const vtkVariant& v,
                                                vtkVariantArray *propertyArr)
 {
@@ -204,7 +204,7 @@ void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, const vtkVariant& v,
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableUndirectedGraph::LazyAddEdge(const vtkVariant& u, 
+void vtkMutableUndirectedGraph::LazyAddEdge(const vtkVariant& u,
                                             const vtkVariant& v,
                                             vtkVariantArray *propertyArr)
 {

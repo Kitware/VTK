@@ -24,7 +24,7 @@
 // InputMemoryLimit, which has units KBytes.
 
 // .SECTION Caveats
-// This filter is specialized to volumes. If you are interested in 
+// This filter is specialized to volumes. If you are interested in
 // contouring other types of data, use the general vtkContourFilter. If you
 // want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
 // .SECTION See Also
@@ -50,7 +50,7 @@ public:
   static vtkImageMarchingCubes *New();
   vtkTypeMacro(vtkImageMarchingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Methods to set contour values
   void SetValue(int i, double value);
@@ -71,7 +71,7 @@ public:
   vtkSetMacro(ComputeScalars, int);
   vtkGetMacro(ComputeScalars, int);
   vtkBooleanMacro(ComputeScalars, int);
-  
+
   // Description:
   // Set/Get the computation of normals. Normal computation is fairly expensive
   // in both time and storage. If the output data will be processed by filters
@@ -79,7 +79,7 @@ public:
   vtkSetMacro(ComputeNormals, int);
   vtkGetMacro(ComputeNormals, int);
   vtkBooleanMacro(ComputeNormals, int);
-  
+
   // Description:
   // Set/Get the computation of gradients. Gradient computation is fairly expensive
   // in both time and storage. Note that if ComputeNormals is on, gradients will
@@ -89,7 +89,7 @@ public:
   vtkSetMacro(ComputeGradients, int);
   vtkGetMacro(ComputeGradients, int);
   vtkBooleanMacro(ComputeGradients, int);
-  
+
   // Should be protected, but the templated functions need these
   int ComputeScalars;
   int ComputeNormals;
@@ -101,7 +101,7 @@ public:
   vtkPoints *Points;
   vtkFloatArray *Normals;
   vtkFloatArray *Gradients;
-  
+
   int GetLocatorPoint(int cellX, int cellY, int edge);
   void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);
   void IncrementLocatorZ();
@@ -121,13 +121,13 @@ protected:
   int InputMemoryLimit;
 
   vtkContourValues *ContourValues;
-   
+
   int *LocatorPointIds;
   int LocatorDimX;
   int LocatorDimY;
   int LocatorMinX;
   int LocatorMinY;
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
@@ -143,7 +143,7 @@ private:
 };
 
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
+// Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
 inline void vtkImageMarchingCubes::SetValue(int i, double value)
 {this->ContourValues->SetValue(i,value);}

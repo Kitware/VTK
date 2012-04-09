@@ -58,7 +58,7 @@ vtkPlanes::~vtkPlanes()
 void vtkPlanes::SetNormals(vtkDataArray* normals)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this
-                << "): setting Normals to " << normals ); 
+                << "): setting Normals to " << normals );
 
   if (normals && normals->GetNumberOfComponents() != 3)
     {
@@ -66,13 +66,13 @@ void vtkPlanes::SetNormals(vtkDataArray* normals)
     return;
     }
 
-  if (this->Normals != normals) 
-    { 
+  if (this->Normals != normals)
+    {
     if (this->Normals != NULL) { this->Normals->UnRegister(this); }
-    this->Normals = normals; 
-    if (this->Normals != NULL) { this->Normals->Register(this); } 
-    this->Modified(); 
-    } 
+    this->Normals = normals;
+    if (this->Normals != NULL) { this->Normals->Register(this); }
+    this->Modified();
+    }
 }
 
 // Evaluate plane equations. Return smallest absolute value.
@@ -81,7 +81,7 @@ double vtkPlanes::EvaluateFunction(double x[3])
   int numPlanes, i;
   double val, maxVal;
   double normal[3], point[3];
-  
+
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
@@ -93,7 +93,7 @@ double vtkPlanes::EvaluateFunction(double x[3])
     vtkErrorMacro(<<"Number of normals/points inconsistent!");
     return VTK_DOUBLE_MAX;
     }
-  
+
   for (maxVal=-VTK_DOUBLE_MAX, i=0; i < numPlanes; i++)
     {
     this->Normals->GetTuple(i,normal);
@@ -115,14 +115,14 @@ void vtkPlanes::EvaluateGradient(double x[3], double n[3])
   double val, maxVal;
   double nTemp[3];
   double pTemp[3];
-  
+
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
     return;
     }
 
-  if ( (numPlanes=this->Points->GetNumberOfPoints()) != 
+  if ( (numPlanes=this->Points->GetNumberOfPoints()) !=
        this->Normals->GetNumberOfTuples() )
     {
     vtkErrorMacro(<<"Number of normals/points inconsistent!");
@@ -194,7 +194,7 @@ void vtkPlanes::SetFrustumPlanes(double planes[24])
     pts->SetPoint(i,x);
     normals->SetTuple(i,n);
     }
-  
+
   pts->Delete(); //ok reference counting
   normals->Delete();
 }
@@ -242,7 +242,7 @@ void vtkPlanes::SetBounds(double bounds[6])
   x[0] = this->Bounds[1] = bounds[1];
   pts->SetPoint(1,x);
   normals->SetTuple(1,n);
-  
+
   // The y planes
   n[0] = 0.0;
   n[1] = -1.0;
@@ -257,7 +257,7 @@ void vtkPlanes::SetBounds(double bounds[6])
   x[1] = this->Bounds[3] = bounds[3];
   pts->SetPoint(3,x);
   normals->SetTuple(3,n);
-  
+
   // The z planes
   n[0] = 0.0;
   n[1] = 0.0;
@@ -272,7 +272,7 @@ void vtkPlanes::SetBounds(double bounds[6])
   x[2] = this->Bounds[5] = bounds[5];
   pts->SetPoint(5,x);
   normals->SetTuple(5,n);
-  
+
   pts->Delete(); //ok reference counting
   normals->Delete();
 }
@@ -304,12 +304,12 @@ int vtkPlanes::GetNumberOfPlanes()
     return 0;
     }
 }
-  
+
 vtkPlane *vtkPlanes::GetPlane(int i)
 {
   double normal[3];
   double point[3];
-  
+
   if ( i >= 0 && i < this->GetNumberOfPlanes() )
     {
     this->Normals->GetTuple(i,normal);
@@ -328,7 +328,7 @@ void vtkPlanes::GetPlane(int i, vtkPlane *plane)
 {
   double normal[3];
   double point[3];
-  
+
   if ( i >= 0 && i < this->GetNumberOfPlanes() )
     {
     this->Normals->GetTuple(i,normal);
@@ -345,7 +345,7 @@ void vtkPlanes::GetPlane(int i, vtkPlane *plane)
 void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   int numPlanes;
 
   if ( this->Points && (numPlanes=this->Points->GetNumberOfPoints()) > 0 )

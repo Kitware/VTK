@@ -3,7 +3,7 @@ package require vtkinteraction
 
 # Remove cullers so single vertex will render
 vtkRenderer ren1
-    [ren1 GetCullers] RemoveAllItems 
+    [ren1 GetCullers] RemoveAllItems
 vtkRenderWindow renWin
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren

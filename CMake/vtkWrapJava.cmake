@@ -51,7 +51,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
   ELSE (VTK_WRAP_HINTS)
     SET(TMP_HINTS)
   ENDIF (VTK_WRAP_HINTS)
- 
+
   IF (KIT_HIERARCHY_FILE)
     SET(TMP_HIERARCHY "--types" "${quote}${KIT_HIERARCHY_FILE}${quote}")
   ELSE (KIT_HIERARCHY_FILE)
@@ -64,7 +64,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
     get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
-    
+
     # we don't wrap the headers in Java
     get_source_file_property(TMP_WRAP_HEADER ${FILE} WRAP_HEADER)
 
@@ -191,7 +191,7 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
 
   # get the classes for this lib
   FOREACH(srcName ${ARGN})
-    
+
     # what is the filename without the extension
     GET_FILENAME_COMPONENT(srcNameWe ${srcName} NAME_WE)
 

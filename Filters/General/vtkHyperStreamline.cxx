@@ -33,18 +33,18 @@ class vtkHyperPoint { //;prevent man page generation
 public:
     vtkHyperPoint(); // method sets up storage
     vtkHyperPoint &operator=(const vtkHyperPoint& hp); //for resizing
-    
-    double   X[3];    // position 
+
+    double   X[3];    // position
     vtkIdType     CellId;  // cell
     int     SubId; // cell sub id
-    double   P[3];    // parametric coords in cell 
+    double   P[3];    // parametric coords in cell
     double   W[3];    // eigenvalues (sorted in decreasing value)
     double   *V[3];   // pointers to eigenvectors (also sorted)
     double   V0[3];   // storage for eigenvectors
     double   V1[3];
     double   V2[3];
-    double   S;       // scalar value 
-    double   D;       // distance travelled so far 
+    double   S;       // scalar value
+    double   D;       // distance travelled so far
 };
 //ETX
 
@@ -60,7 +60,7 @@ public:
     };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkHyperPoint *GetHyperPoint(vtkIdType i) {return this->Array + i;};
-  vtkHyperPoint *InsertNextHyperPoint() 
+  vtkHyperPoint *InsertNextHyperPoint()
     {
     if ( ++this->MaxId >= this->Size )
       {
@@ -92,7 +92,7 @@ vtkHyperPoint& vtkHyperPoint::operator=(const vtkHyperPoint& hp)
 {
   int i, j;
 
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     this->X[i] = hp.X[i];
     this->P[i] = hp.P[i];
@@ -112,7 +112,7 @@ vtkHyperPoint& vtkHyperPoint::operator=(const vtkHyperPoint& hp)
 
 vtkHyperArray::vtkHyperArray()
 {
-  this->MaxId = -1; 
+  this->MaxId = -1;
   this->Array = new vtkHyperPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
@@ -126,7 +126,7 @@ vtkHyperPoint *vtkHyperArray::Resize(vtkIdType sz)
 
   if (sz >= this->Size)
     {
-    newSize = this->Size + 
+    newSize = this->Size +
       this->Extend*(((sz-this->Size)/this->Extend)+1);
     }
   else
@@ -148,7 +148,7 @@ vtkHyperPoint *vtkHyperArray::Resize(vtkIdType sz)
   return this->Array;
 }
 
-// Construct object with initial starting position (0,0,0); integration step 
+// Construct object with initial starting position (0,0,0); integration step
 // length 0.2; step length 0.01; forward integration; terminal eigenvalue 0.0;
 // number of sides 6; radius 0.5; and logarithmic scaling off.
 vtkHyperStreamline::vtkHyperStreamline()
@@ -181,14 +181,14 @@ vtkHyperStreamline::~vtkHyperStreamline()
     }
 }
 
-// Specify the start of the hyperstreamline in the cell coordinate system. 
+// Specify the start of the hyperstreamline in the cell coordinate system.
 // That is, cellId and subId (if composite cell), and parametric coordinates.
 void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
                                           double pcoords[3])
 {
   if ( cellId != this->StartCell || subId != this->StartSubId ||
-       pcoords[0] !=  this->StartPCoords[0] || 
-       pcoords[1] !=  this->StartPCoords[1] || 
+       pcoords[0] !=  this->StartPCoords[0] ||
+       pcoords[1] !=  this->StartPCoords[1] ||
        pcoords[2] !=  this->StartPCoords[2] )
     {
     this->Modified();
@@ -202,7 +202,7 @@ void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
     }
 }
 
-// Specify the start of the hyperstreamline in the cell coordinate system. 
+// Specify the start of the hyperstreamline in the cell coordinate system.
 // That is, cellId and subId (if composite cell), and parametric coordinates.
 void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
                                           double r, double s, double t)
@@ -226,12 +226,12 @@ vtkIdType vtkHyperStreamline::GetStartLocation(int& subId, double pcoords[3])
   return this->StartCell;
 }
 
-// Specify the start of the hyperstreamline in the global coordinate system. 
-// Starting from position implies that a search must be performed to find 
+// Specify the start of the hyperstreamline in the global coordinate system.
+// Starting from position implies that a search must be performed to find
 // initial cell to start integration from.
 void vtkHyperStreamline::SetStartPosition(double x[3])
 {
-  if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
+  if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] ||
   x[2] != this->StartPosition[2] )
     {
     this->Modified();
@@ -243,8 +243,8 @@ void vtkHyperStreamline::SetStartPosition(double x[3])
     }
 }
 
-// Specify the start of the hyperstreamline in the global coordinate system. 
-// Starting from position implies that a search must be performed to find 
+// Specify the start of the hyperstreamline in the global coordinate system.
+// Starting from position implies that a search must be performed to find
 // initial cell to start integration from.
 void vtkHyperStreamline::SetStartPosition(double x, double y, double z)
 {
@@ -355,8 +355,8 @@ int vtkHyperStreamline::RequestData(
   vtkDataArray *cellTensors = NULL;
   vtkDataArray *cellScalars = NULL;
   // set up working matrices
-  v[0] = v0; v[1] = v1; v[2] = v2; 
-  m[0] = m0; m[1] = m1; m[2] = m2; 
+  v[0] = v0; v[1] = v1; v[2] = v2;
+  m[0] = m0; m[1] = m1; m[2] = m2;
 
   vtkDebugMacro(<<"Generating hyperstreamline(s)");
   this->NumberOfStreamers = 0;
@@ -385,7 +385,7 @@ int vtkHyperStreamline::RequestData(
     cellScalars->SetNumberOfComponents(numComp);
     cellScalars->SetNumberOfTuples(VTK_CELL_SIZE);
     }
-  
+
   tol2 = input->GetLength() / 1000.0;
   tol2 = tol2 * tol2;
   iv = this->IntegrationEigenvector;
@@ -395,7 +395,7 @@ int vtkHyperStreamline::RequestData(
   // Create starting points
   //
   this->NumberOfStreamers = 1;
- 
+
   if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
     {
     this->NumberOfStreamers *= 2;
@@ -410,7 +410,7 @@ int vtkHyperStreamline::RequestData(
       {
       sPtr->X[i] = this->StartPosition[i];
       }
-    sPtr->CellId = input->FindCell(this->StartPosition, NULL, (-1), 0.0, 
+    sPtr->CellId = input->FindCell(this->StartPosition, NULL, (-1), 0.0,
                                    sPtr->SubId, sPtr->P, w);
     }
 
@@ -444,9 +444,9 @@ int vtkHyperStreamline::RequestData(
     for (k=0; k < cell->GetNumberOfPoints(); k++)
       {
       cellTensors->GetTuple(k, tensor);
-      for (j=0; j<3; j++) 
+      for (j=0; j<3; j++)
         {
-        for (i=0; i<3; i++) 
+        for (i=0; i<3; i++)
           {
           m[i][j] += tensor[i+3*j] * w[k];
           }
@@ -456,7 +456,7 @@ int vtkHyperStreamline::RequestData(
     vtkMath::Jacobi(m, sPtr->W, sPtr->V);
     FixVectors(NULL, sPtr->V, iv, ix, iy);
 
-    if ( inScalars ) 
+    if ( inScalars )
       {
       inScalars->GetTuples(cell->PointIds, cellScalars);
       for (sPtr->S=0, i=0; i < cell->GetNumberOfPoints(); i++)
@@ -529,9 +529,9 @@ int vtkHyperStreamline::RequestData(
       for (k=0; k < cell->GetNumberOfPoints(); k++)
         {
         cellTensors->GetTuple(k, tensor);
-        for (j=0; j<3; j++) 
+        for (j=0; j<3; j++)
           {
-          for (i=0; i<3; i++) 
+          for (i=0; i<3; i++)
             {
             m[i][j] += tensor[i+3*j] * w[k];
             }
@@ -544,7 +544,7 @@ int vtkHyperStreamline::RequestData(
       //now compute final position
       for (i=0; i<3; i++)
         {
-        xNext[i] = sPtr->X[i] + 
+        xNext[i] = sPtr->X[i] +
                    dir * (step/2.0) * (sPtr->V[i][iv] + v[i][iv]);
         }
 
@@ -558,7 +558,7 @@ int vtkHyperStreamline::RequestData(
       sNext = this->Streamers[ptId].InsertNextHyperPoint();
 
       // make sure sPtr points to the target in a possibly-resized memory block
-      sPtr  = this->Streamers[ptId].GetHyperPoint(sPtrId); 
+      sPtr  = this->Streamers[ptId].GetHyperPoint(sPtrId);
 
       int  evalResult = cell->EvaluatePosition(xNext, closestPoint, sNext->SubId,
                                                sNext->P, dist2, w);
@@ -575,7 +575,7 @@ int vtkHyperStreamline::RequestData(
       else
       if ( evalResult == 0 )
         { //integration has passed out of cell
-        sNext->CellId = input->FindCell(xNext, cell, sPtr->CellId, tol2, 
+        sNext->CellId = input->FindCell(xNext, cell, sPtr->CellId, tol2,
                                         sNext->SubId, sNext->P, w);
         if ( sNext->CellId >= 0 ) //make sure not out of dataset
           {
@@ -609,9 +609,9 @@ int vtkHyperStreamline::RequestData(
         for (k=0; k < cell->GetNumberOfPoints(); k++)
           {
           cellTensors->GetTuple(k, tensor);
-          for (j=0; j<3; j++) 
+          for (j=0; j<3; j++)
             {
-            for (i=0; i<3; i++) 
+            for (i=0; i<3; i++)
               {
               m[i][j] += tensor[i+3*j] * w[k];
               }
@@ -646,7 +646,7 @@ int vtkHyperStreamline::RequestData(
 
   delete [] w;
   cellTensors->Delete();
-  cellScalars->Delete();  
+  cellScalars->Delete();
 
   return retval;
 }
@@ -753,9 +753,9 @@ int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
         // construct points around tube
         for (k=0; k < this->NumberOfSides; k++)
           {
-          for (j=0; j<3; j++) 
+          for (j=0; j<3; j++)
             {
-            normal[j] = w[ix]*r1[j]*cos(k*theta) + 
+            normal[j] = w[ix]*r1[j]*cos(k*theta) +
                         w[iy]*r2[j]*sin(k*theta);
             xT[j] = x[j] + sFactor * normal[j];
             }
@@ -787,7 +787,7 @@ int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
       {
       i1 = (k+1) % this->NumberOfSides;
       newStrips->InsertNextCell(npts*2);
-      for (i=0; i < npts; i++) 
+      for (i=0; i < npts; i++)
         {
         //make sure strip definition consistent with normals
         if (this->Streamers[ptId].Direction > 0.0)
@@ -848,16 +848,16 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Starting Position: (" << this->StartPosition[0] << ","
        << this->StartPosition[1] << ", " << this->StartPosition[2] << ")\n";
     }
-  else 
+  else
     {
-    os << indent << "Starting Location:\n\tCell: " << this->StartCell 
+    os << indent << "Starting Location:\n\tCell: " << this->StartCell
        << "\n\tSubId: " << this->StartSubId << "\n\tP.Coordinates: ("
-       << this->StartPCoords[0] << ", " 
-       << this->StartPCoords[1] << ", " 
+       << this->StartPCoords[0] << ", "
+       << this->StartPCoords[1] << ", "
        << this->StartPCoords[2] << ")\n";
     }
 
-  os << indent << "Maximum Propagation Distance: " 
+  os << indent << "Maximum Propagation Distance: "
      << this->MaximumPropagationDistance << "\n";
 
   if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD )
@@ -881,7 +881,7 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
   os << indent << "Logarithmic Scaling: " << (this->LogScaling ? "On\n" : "Off\n");
-  
+
   if ( this->IntegrationEigenvector == 0 )
     {
     os << indent << "Integrate Along Major Eigenvector\n";

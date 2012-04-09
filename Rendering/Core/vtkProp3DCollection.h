@@ -15,11 +15,11 @@
 // .NAME vtkProp3DCollection - a list of 3D props
 // .SECTION Description
 // vtkProp3DCollection represents and provides methods to manipulate a list of
-// 3D props (i.e., vtkProp3D and subclasses). The list is unsorted and 
+// 3D props (i.e., vtkProp3D and subclasses). The list is unsorted and
 // duplicate entries are not prevented.
 
 // .SECTION see also
-// vtkProp3D vtkCollection 
+// vtkProp3D vtkCollection
 
 #ifndef __vtkProp3DCollection_h
 #define __vtkProp3DCollection_h
@@ -48,19 +48,19 @@ public:
   vtkProp3D *GetLastProp3D();
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkProp3D *GetNextProp3D(vtkCollectionSimpleIterator &cookie)
     {
       return static_cast<vtkProp3D *>(this->GetNextItemAsObject(cookie));
     }
   //ETX
-  
+
 protected:
   vtkProp3DCollection() {};
   ~vtkProp3DCollection() {};
-    
+
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -78,18 +78,18 @@ private:
   void operator=(const vtkProp3DCollection&);  // Not implemented.
 };
 
-inline void vtkProp3DCollection::AddItem(vtkProp3D *a) 
+inline void vtkProp3DCollection::AddItem(vtkProp3D *a)
 {
   this->vtkCollection::AddItem(a);
 }
 
-inline vtkProp3D *vtkProp3DCollection::GetNextProp3D() 
-{ 
+inline vtkProp3D *vtkProp3DCollection::GetNextProp3D()
+{
   return static_cast<vtkProp3D *>(this->GetNextItemAsObject());
 }
 
-inline vtkProp3D *vtkProp3DCollection::GetLastProp3D() 
-{ 
+inline vtkProp3D *vtkProp3DCollection::GetLastProp3D()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;

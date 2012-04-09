@@ -38,7 +38,7 @@ class vtkDebugLeaksObserver;
 
 class VTKCOMMONCORE_EXPORT vtkDebugLeaks : public vtkObject
 {
-public: 
+public:
   static vtkDebugLeaks *New();
   vtkTypeMacro(vtkDebugLeaks,vtkObject);
 
@@ -66,8 +66,8 @@ public:
   //ETX
 
 protected:
-  vtkDebugLeaks(){}; 
-  virtual ~vtkDebugLeaks(){}; 
+  vtkDebugLeaks(){};
+  virtual ~vtkDebugLeaks(){};
 
   static int DisplayMessageBox(const char*);
 

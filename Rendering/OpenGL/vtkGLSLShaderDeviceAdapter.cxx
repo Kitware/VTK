@@ -112,7 +112,7 @@ static inline GLenum VTK2SignedOpenGLType(int type)
 //---------------------------------------------------------------------------
 int vtkGLSLShaderDeviceAdapter::GetAttributeLocation(const char *attributeName)
 {
-  vtkGLSLShaderProgram* glslProgram = 
+  vtkGLSLShaderProgram* glslProgram =
     vtkGLSLShaderProgram::SafeDownCast(this->ShaderProgram);
   if (glslProgram && glslProgram->GetProgram())
     {
@@ -133,7 +133,7 @@ void vtkGLSLShaderDeviceAdapter::PrepareForRender()
 void vtkGLSLShaderDeviceAdapter::SendAttribute(const char *attrname,
                                                int components,
                                                int type,
-                                               const void *attribute, 
+                                               const void *attribute,
                                                unsigned long offset)
 {
   int index;

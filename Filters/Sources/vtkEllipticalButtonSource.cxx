@@ -381,7 +381,7 @@ void vtkEllipticalButtonSource::CreatePolygons(vtkCellArray *newPolys,
 }
 
 //----------------------------------------------------------------------------
-void vtkEllipticalButtonSource::IntersectEllipseWithLine(double a2, double b2, double dX, 
+void vtkEllipticalButtonSource::IntersectEllipseWithLine(double a2, double b2, double dX,
                                                double dY, double& xe, double& ye)
 {
   double m;

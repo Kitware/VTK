@@ -36,7 +36,7 @@
 // .Section See Also:
 // vtkShaderBase, vtkShader, vtkCgShader, vtkShaderProgram
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkCgShaderProgram_h

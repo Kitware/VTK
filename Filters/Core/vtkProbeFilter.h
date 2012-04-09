@@ -65,11 +65,11 @@ public:
   // This flag is used only when a piece is requested to update.  By default
   // the flag is off.  Because no spatial correspondence between input pieces
   // and source pieces is known, all of the source has to be requested no
-  // matter what piece of the output is requested.  When there is a spatial 
+  // matter what piece of the output is requested.  When there is a spatial
   // correspondence, the user/application can set this flag.  This hint allows
   // the breakup of the probe operation to be much more efficient.  When piece
   // m of n is requested for update by the user, then only n of m needs to
-  // be requested of the source. 
+  // be requested of the source.
   vtkSetMacro(SpatialMatch, int);
   vtkGetMacro(SpatialMatch, int);
   vtkBooleanMacro(SpatialMatch, int);
@@ -78,7 +78,7 @@ public:
   // Get the list of point ids in the output that contain attribute data
   // interpolated from the source.
   vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
- 
+
   // Description:
   // Returns the name of the char array added to the output with values 1 for
   // valid points and 0 for invalid points.
@@ -86,18 +86,18 @@ public:
   vtkSetStringMacro(ValidPointMaskArrayName)
   vtkGetStringMacro(ValidPointMaskArrayName)
 
-//BTX 
+//BTX
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
 
   int SpatialMatch;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
 
   // Description:
@@ -116,8 +116,8 @@ protected:
   // Description:
   // Probe only those points that are marked as not-probed by the MaskPoints
   // array.
-  // srcIdx is the index in the PointList for the given source. 
-  void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source, 
+  // srcIdx is the index in the PointList for the given source.
+  void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source,
     vtkDataSet *output);
 
   char* ValidPointMaskArrayName;

@@ -33,19 +33,19 @@
 
 // .SECTION Caveats
 // Collections of assemblies are slower to render than an equivalent list
-// of actors. This is because to support arbitrary nesting of assemblies, 
+// of actors. This is because to support arbitrary nesting of assemblies,
 // the state of the assemblies (i.e., transformation matrices) must
-// be propagated through the assembly hierarchy. 
+// be propagated through the assembly hierarchy.
 //
 // Assemblies can consist of hierarchies of assemblies, where one actor or
-// assembly used in one hierarchy is also used in other hierarchies. However, 
+// assembly used in one hierarchy is also used in other hierarchies. However,
 // make that there are no cycles (e.g., parent->child->parent), this will
 // cause program failure.
 //
-// If you wish to create assemblies without any transformation (using the 
+// If you wish to create assemblies without any transformation (using the
 // assembly strictly as a grouping mechanism), then you may wish to
 // consider using vtkPropAssembly.
- 
+
 // .SECTION See Also
 // vtkActor vtkTransform vtkMapper vtkPolyDataMapper vtkPropAssembly
 
@@ -81,7 +81,7 @@ public:
   // Return the parts (direct descendants) of this assembly.
   vtkProp3DCollection *GetParts();
 
-  // Description: 
+  // Description:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
@@ -89,20 +89,20 @@ public:
   void GetVolumes(vtkPropCollection *);
 
   // Description:
-  // Render this assembly and all its parts. 
+  // Render this assembly and all its parts.
   // The rendering process is recursive.
-  // Note that a mapper need not be defined. If not defined, then no geometry 
+  // Note that a mapper need not be defined. If not defined, then no geometry
   // will be drawn for this assembly. This allows you to create "logical"
   // assemblies; that is, assemblies that only serve to group and transform
   // its parts.
   int RenderOpaqueGeometry(vtkViewport *ren);
   virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
   virtual int RenderVolumetricGeometry( vtkViewport *ren);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -145,7 +145,7 @@ public:
   // BuildPaths() method. Paths consist of an ordered sequence of actors,
   // with transformations properly concatenated.
   void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
-//ETX  
+//ETX
 
 protected:
   vtkAssembly();
@@ -158,7 +158,7 @@ protected:
   // performance.
   vtkTimeStamp PathTime;
   virtual void UpdatePaths(); //apply transformations and properties recursively
-  
+
 private:
   vtkAssembly(const vtkAssembly&);  // Not implemented.
   void operator=(const vtkAssembly&);  // Not implemented.

@@ -32,7 +32,7 @@ public:
     vtkCompositeDataSetInternals::Iterator Iter;
     vtkCompositeDataSetInternals::ReverseIterator ReverseIter;
     vtkIterator* ChildIterator;
-    
+
     vtkInternals* Parent;
     bool Reverse;
     bool PassSelf;
@@ -46,16 +46,16 @@ public:
         }
       this->ChildIterator->Initialize(this->Reverse, 0);
 
-      if (this->Reverse && 
+      if (this->Reverse &&
         this->ReverseIter != this->GetInternals(this->CompositeDataSet)->Children.rend())
         {
-        this->ChildIterator->Initialize(this->Reverse, 
+        this->ChildIterator->Initialize(this->Reverse,
           this->ReverseIter->DataObject);
         }
       else if (!this->Reverse &&
         this->Iter != this->GetInternals(this->CompositeDataSet)->Children.end())
         {
-        this->ChildIterator->Initialize(this->Reverse, 
+        this->ChildIterator->Initialize(this->Reverse,
           this->Iter->DataObject);
         }
       }
@@ -87,13 +87,13 @@ public:
       this->CompositeDataSet = compositeData;
       this->ChildIndex = 0;
       this->PassSelf = true;
-      
+
       delete this->ChildIterator;
       this->ChildIterator = NULL;
 
       if (compositeData)
         {
-        this->Iter = this->GetInternals(compositeData)->Children.begin(); 
+        this->Iter = this->GetInternals(compositeData)->Children.begin();
         this->ReverseIter = this->GetInternals(compositeData)->Children.rbegin();
         this->InitChildIterator();
         }
@@ -137,7 +137,7 @@ public:
         return true;
         }
 
-      if (this->Reverse && 
+      if (this->Reverse &&
         this->ReverseIter == this->GetInternals(this->CompositeDataSet)->Children.rend())
         {
         return true;
@@ -449,9 +449,9 @@ void vtkCompositeDataIterator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reverse: "
     << (this->Reverse? "On" : "Off") << endl;
   os << indent << "DataSet: " << this->DataSet << endl;
-  os << indent << "TraverseSubTree: " 
+  os << indent << "TraverseSubTree: "
     << (this->TraverseSubTree? "On" : "Off") << endl;
-  os << indent << "SkipEmptyNodes: " 
+  os << indent << "SkipEmptyNodes: "
     << (this->SkipEmptyNodes? "On" : "Off") << endl;
   os << indent << "CurrentFlatIndex: " << this->CurrentFlatIndex << endl;
 }

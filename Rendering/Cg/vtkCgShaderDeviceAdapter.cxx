@@ -44,7 +44,7 @@ vtkCgShaderDeviceAdapter::~vtkCgShaderDeviceAdapter()
 void vtkCgShaderDeviceAdapter::PrepareForRender()
 {
   // locate the vertex CgShader which can accept varying parameters.
-  vtkCollectionIterator* shaderIter = this->ShaderProgram->NewShaderIterator(); 
+  vtkCollectionIterator* shaderIter = this->ShaderProgram->NewShaderIterator();
 
   for (shaderIter->InitTraversal(); !shaderIter->IsDoneWithTraversal();
     shaderIter->GoToNextItem())
@@ -95,7 +95,7 @@ void vtkCgShaderDeviceAdapter::SendAttributeInternal(
 
 //----------------------------------------------------------------------------
 void vtkCgShaderDeviceAdapter::SendAttribute(const char* attrname,
-  int components, int type, 
+  int components, int type,
   const void* attribute, unsigned long offset/*=0*/)
 {
   switch (type)

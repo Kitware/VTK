@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkXGMLReader.cxx
 
@@ -64,8 +64,8 @@ vtkXGMLReader::~vtkXGMLReader()
 void vtkXGMLReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "FileName: " 
+
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
@@ -73,9 +73,9 @@ void vtkXGMLReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
 
 struct vtkXGMLProperty
 {
-  enum { 
-    NODE_PROP, 
-    EDGE_PROP 
+  enum {
+    NODE_PROP,
+    EDGE_PROP
   };
   int Kind;  // :: NODE_PROP or EDGE_PROP
   vtkAbstractArray *Data;
@@ -117,7 +117,7 @@ void vtkXGMLReaderNextToken(vtksys_ios::istream& in, vtkXGMLReaderToken& tok)
       ch = in.peek();
       }
     }
-  
+
   if (in.eof())
     {
     tok.Type = vtkXGMLReaderToken::END_OF_FILE;
@@ -189,37 +189,37 @@ int vtkXGMLReader::RequestData(
   vtkIdType dst, id = 0, src = 0;
   double d = 0.;
   vtkIdTypeArray *edgeIds, *nodeIds;
-  
-  
+
+
   if (this->FileName == NULL)
     {
     vtkErrorMacro("File name undefined");
     return 0;
     }
-  
+
   vtksys_ios::ifstream fin(this->FileName);
   if(!fin.is_open())
     {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
     return 0;
     }
-  
+
   // Get the output graph
   vtkSmartPointer<vtkMutableUndirectedGraph> builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-  
+
   vtksys_stl::map<int, vtkIdType> nodeIdMap;
   vtksys_stl::map<int, vtkIdType> edgeIdMap;
   vtkXGMLReaderToken tok;
-  
+
   // expect graph
   vtkXGMLReaderNextToken(fin, tok);
   assert(tok.Type == vtkXGMLReaderToken::KEYWORD && tok.StringValue == "graph");
-  
+
   // expect [
-  vtkXGMLReaderNextToken(fin, tok); 
+  vtkXGMLReaderNextToken(fin, tok);
   assert(tok.Type == vtkXGMLReaderToken::OPEN_GROUP);
-  
+
   vtkXGMLReaderNextToken(fin, tok);
   while (tok.Type == vtkXGMLReaderToken::KEYWORD && tok.StringValue != "node")
     {
@@ -242,12 +242,12 @@ int vtkXGMLReader::RequestData(
         vtkErrorMacro(<<"Too many properties in file.");
         return 0;
         }
-      kind = (tok.StringValue == "node_data") ? vtkXGMLProperty::NODE_PROP 
+      kind = (tok.StringValue == "node_data") ? vtkXGMLProperty::NODE_PROP
         : vtkXGMLProperty::EDGE_PROP;
       vtkXGMLReaderNextToken(fin, tok);
       assert(tok.Type == vtkXGMLReaderToken::KEYWORD);
       name = tok.StringValue;
-      
+
       vtkXGMLReaderNextToken(fin, tok);
       assert(tok.Type == vtkXGMLReaderToken::KEYWORD);
       if (tok.StringValue == "float")
@@ -275,13 +275,13 @@ int vtkXGMLReader::RequestData(
       }
     vtkXGMLReaderNextToken(fin, tok);
     }
-  
+
   while (tok.Type == vtkXGMLReaderToken::KEYWORD && tok.StringValue == "node")
     {
     // Expect [
     vtkXGMLReaderNextToken(fin, tok);
     assert(tok.Type == vtkXGMLReaderToken::OPEN_GROUP);
-    
+
     vtkXGMLReaderNextToken(fin, tok);
     while (tok.Type == vtkXGMLReaderToken::KEYWORD)
       {
@@ -301,7 +301,7 @@ int vtkXGMLReader::RequestData(
         {
         for (i = 0; i < nr_of_properties; i++)
           {
-          if (property_table[i].Kind == vtkXGMLProperty::NODE_PROP && 
+          if (property_table[i].Kind == vtkXGMLProperty::NODE_PROP &&
               property_table[i].Data->GetName() == tok.StringValue) { break; }
           }
         if (i == nr_of_properties)
@@ -313,7 +313,7 @@ int vtkXGMLReader::RequestData(
         vtkXGMLReaderNextToken(fin, tok);
         if (property_table[i].Data->GetDataType() == VTK_INT)
           {
-          assert(tok.Type == vtkXGMLReaderToken::INT);        
+          assert(tok.Type == vtkXGMLReaderToken::INT);
           vtkIntArray::SafeDownCast(property_table[i].Data)->SetValue(nodeIdMap[id], tok.IntValue);
           }
         else if (property_table[i].Data->GetDataType() == VTK_DOUBLE)
@@ -328,7 +328,7 @@ int vtkXGMLReader::RequestData(
           }
         else
           {
-          assert(tok.Type == vtkXGMLReaderToken::TEXT);        
+          assert(tok.Type == vtkXGMLReaderToken::TEXT);
           vtkStringArray::SafeDownCast(property_table[i].Data)->SetValue(nodeIdMap[id], tok.StringValue);
           }
         }
@@ -337,13 +337,13 @@ int vtkXGMLReader::RequestData(
     assert(tok.Type == vtkXGMLReaderToken::CLOSE_GROUP);
     vtkXGMLReaderNextToken(fin, tok);
     }
-  
+
   while (tok.Type == vtkXGMLReaderToken::KEYWORD && tok.StringValue == "edge")
     {
     // Expect [
     vtkXGMLReaderNextToken(fin, tok);
     assert(tok.Type == vtkXGMLReaderToken::OPEN_GROUP);
-    
+
     vtkXGMLReaderNextToken(fin, tok);
     while (tok.Type == vtkXGMLReaderToken::KEYWORD)
       {
@@ -373,7 +373,7 @@ int vtkXGMLReader::RequestData(
         {
         for (i = 0; i < nr_of_properties; i++)
           {
-          if (property_table[i].Kind == vtkXGMLProperty::EDGE_PROP && 
+          if (property_table[i].Kind == vtkXGMLProperty::EDGE_PROP &&
               property_table[i].Data->GetName() == tok.StringValue) { break; }
           }
         if (i == nr_of_properties)
@@ -408,19 +408,19 @@ int vtkXGMLReader::RequestData(
     assert(tok.Type == vtkXGMLReaderToken::CLOSE_GROUP);
     vtkXGMLReaderNextToken(fin, tok);
     }
-  
+
   // Should now recognise the end of graph group ..
   assert(tok.Type == vtkXGMLReaderToken::CLOSE_GROUP);
-  
+
   // .. followed by end-of-file.
   vtkXGMLReaderNextToken(fin, tok);
   // do an extra read
   vtkXGMLReaderNextToken(fin, tok);
   assert(tok.Type == vtkXGMLReaderToken::END_OF_FILE);
-  
+
   // Clean up
   fin.close();
-  
+
   for (i = 0; i < nr_of_properties; i++)
     {
     if (property_table[i].Kind == vtkXGMLProperty::NODE_PROP)
@@ -445,7 +445,7 @@ int vtkXGMLReader::RequestData(
     weights->SetValue(i,1.0);
     edgeIds->SetValue(i,i);
     }
-  
+
   nodeIds = vtkIdTypeArray::New();
   nodeIds->SetName("vertex id");
   nodeIds->SetNumberOfTuples(nr_of_nodes);
@@ -466,7 +466,7 @@ int vtkXGMLReader::RequestData(
     vtkErrorMacro(<<"Invalid graph strucutre.");
     return 0;
     }
-  
+
   return 1;
 }
 
@@ -476,12 +476,12 @@ my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
-  
+
   while ((nextValue = in.get()) != EOF &&
          numCharactersRead < out.max_size())
     {
     ++numCharactersRead;
-    
+
     char downcast = static_cast<char>(nextValue);
     if (downcast != delimiter)
       {
@@ -492,6 +492,6 @@ my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
       return numCharactersRead;
       }
     }
-  
+
   return numCharactersRead;
 }

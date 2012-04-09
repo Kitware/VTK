@@ -49,11 +49,11 @@ POSSIBILITY OF SUCH DAMAGES.
 // .SECTION Description
 // This class provides methods to access all of the information
 // contained in the MINC header.  If you read a MINC file into
-// VTK and then write it out again, you can use 
+// VTK and then write it out again, you can use
 // writer->SetImageAttributes(reader->GetImageAttributes) to
 // ensure that all of the medical information contained in the
 // file is tranferred from the reader to the writer.  If you
-// want to change any of the header information, you must 
+// want to change any of the header information, you must
 // use ShallowCopy to make a copy of the reader's attributes
 // and then modify only the copy.
 // .SECTION See Also
@@ -89,7 +89,7 @@ public:
   // Reset all the attributes in preparation for loading
   // new information.
   virtual void Reset();
- 
+
   // Description:
   // Get the name of the image, not including the path or
   // the extension.  This is only needed for printing the
@@ -101,7 +101,7 @@ public:
   // Get the image data type, as stored on disk.  This information
   // is useful if the file was converted to floating-point when it
   // was loaded.  When writing a file from float or double image data,
-  // you can use this method to prescribe the output type. 
+  // you can use this method to prescribe the output type.
   vtkSetMacro(DataType, int);
   vtkGetMacro(DataType, int);
 
@@ -119,7 +119,7 @@ public:
   // as written in the file, starting with the slowest-varying
   // dimension.  Use this method to get the array if you need to
   // change "space" dimensions to "frequency" after performing a
-  // Fourier transform. 
+  // Fourier transform.
   virtual vtkStringArray *GetDimensionNames() {
     return this->DimensionNames; };
 
@@ -240,7 +240,7 @@ public:
   virtual void FindImageRange(double range[2]);
 
   // Description:
-  // A diagnostic function.  Print the header of the file in 
+  // A diagnostic function.  Print the header of the file in
   // the same format as ncdump or mincheader.
   virtual void PrintFileHeader();
   virtual void PrintFileHeader(ostream &os);
@@ -283,7 +283,7 @@ protected:
   vtkMINCImageAttributeMap *AttributeValues;
 
   vtkStringArray *StringStore;
-  
+
   vtkDoubleArray *ImageMin;
   vtkDoubleArray *ImageMax;
   int NumberOfImageMinMaxDimensions;

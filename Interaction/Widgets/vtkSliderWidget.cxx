@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
@@ -68,13 +68,13 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
   eventPos[1] = self->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  if (!self->CurrentRenderer || 
+  if (!self->CurrentRenderer ||
       !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1])))
     {
     self->WidgetState = vtkSliderWidget::Start;
     return;
     }
-  
+
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
   self->WidgetRep->StartWidgetInteraction(eventPos);
@@ -83,7 +83,7 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   if ( interactionState == vtkSliderRepresentation::Slider )
@@ -94,7 +94,7 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
     {
     self->WidgetState = vtkSliderWidget::Animating;
     }
-  
+
   // Highlight as necessary
   self->WidgetRep->Highlight(1);
 
@@ -117,7 +117,7 @@ void vtkSliderWidget::MoveAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Definitely moving the slider, get the updated position
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
@@ -166,9 +166,9 @@ void vtkSliderWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkSliderWidget::AnimateSlider(int selectionState)
 {
   // Get the representation and grab some information
-  vtkSliderRepresentation *sliderRep = 
+  vtkSliderRepresentation *sliderRep =
     reinterpret_cast<vtkSliderRepresentation*>(this->WidgetRep);
-  
+
   // If the slider bead has been selected, then nothing happens
   if ( selectionState == vtkSliderRepresentation::Outside ||
        selectionState == vtkSliderRepresentation::Slider )
@@ -224,7 +224,7 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
     double value;
     for (int i=0; i < this->NumberOfAnimationSteps; i++)
       {
-      value = originalValue + 
+      value = originalValue +
         (static_cast<double>(i+1)/this->NumberOfAnimationSteps)*(targetValue-originalValue);
       sliderRep->SetValue(value);
       sliderRep->BuildRepresentation();
@@ -244,7 +244,7 @@ void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Animation Mode: ";
-  switch ( this->AnimationMode ) 
+  switch ( this->AnimationMode )
     {
     case vtkSliderWidget::Jump:
       os << "Jump\n";
@@ -256,6 +256,6 @@ void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
       os << "AnimateOff\n";
     }
 
-  os << indent << "Number of Animation Steps: " 
+  os << indent << "Number of Animation Steps: "
      << this->NumberOfAnimationSteps << "\n";
 }

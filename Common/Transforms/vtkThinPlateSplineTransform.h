@@ -22,7 +22,7 @@
 //
 // To obtain a correct TPS warp, use the R2LogR kernel if your data is 2D, and
 // the R kernel if your data is 3D. Or you can specify your own RBF. (Hence this
-// class is more general than a pure TPS transform.) 
+// class is more general than a pure TPS transform.)
 // .SECTION Caveats
 // 1) The inverse transform is calculated using an iterative method,
 // and is several times more expensive than the forward transform.
@@ -51,16 +51,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkThinPlateSplineTransform *New();
 
-  // Description: 
+  // Description:
   // Specify the 'stiffness' of the spline. The default is 1.0.
   vtkGetMacro(Sigma,double);
   vtkSetMacro(Sigma,double);
 
   // Description:
   // Specify the radial basis function to use.  The default is
-  // R2LogR which is appropriate for 2D. Use |R| (SetBasisToR) 
-  // if your data is 3D. Alternatively specify your own basis function, 
-  // however this will mean that the transform will no longer be a true 
+  // R2LogR which is appropriate for 2D. Use |R| (SetBasisToR)
+  // if your data is 3D. Alternatively specify your own basis function,
+  // however this will mean that the transform will no longer be a true
   // thin-plate spline.
   void SetBasis(int basis);
   vtkGetMacro(Basis,int);
@@ -75,11 +75,11 @@ public:
   void SetBasisFunction(double (*U)(double r)) {
     if (this->BasisFunction == U) { return; }
     this->SetBasis(VTK_RBF_CUSTOM);
-    this->BasisFunction = U; 
+    this->BasisFunction = U;
     this->Modified(); };
   void SetBasisDerivative(double (*dUdr)(double r, double &dU)) {
-    this->BasisDerivative = dUdr; 
-    this->Modified(); };    
+    this->BasisDerivative = dUdr;
+    this->Modified(); };
 //ETX
 
   // Description:

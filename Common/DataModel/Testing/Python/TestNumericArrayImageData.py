@@ -36,22 +36,22 @@ class TestNumericArrayImageData(Testing.vtkTest):
         "Testing if images can be imported to and from numeric arrays."
         imp = vtkImageImportFromArray()
         exp = vtkImageExportToArray()
-        idiff = vtk.vtkImageDifference()        
+        idiff = vtk.vtkImageDifference()
 
         img_dir = Testing.getAbsImagePath("")
         for i in glob.glob(os.path.join(img_dir, "*.png")):
             # Putting the reader outside the loop causes bad problems.
-            reader = vtk.vtkPNGReader()            
+            reader = vtk.vtkPNGReader()
             reader.SetFileName(i)
             reader.Update()
 
             # convert the image to a Numeric Array and convert it back
-            # to an image data.            
+            # to an image data.
             exp.SetInputConnection(reader.GetOutputPort())
             imp.SetArray(exp.GetArray())
 
             # ensure there is no difference between orig image and the
-            # one we converted and un-converted.            
+            # one we converted and un-converted.
             idiff.SetInputConnection(imp.GetOutputPort())
             idiff.SetImage(reader.GetOutput())
             idiff.Update()

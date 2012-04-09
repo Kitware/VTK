@@ -14,11 +14,11 @@
 =========================================================================*/
 // .NAME vtkLinkEdgels - links edgels together to form digital curves.
 // .SECTION Description
-// vtkLinkEdgels links edgels into digital curves which are then stored 
+// vtkLinkEdgels links edgels into digital curves which are then stored
 // as polylines. The algorithm works one pixel at a time only looking at
-// its immediate neighbors. There is a GradientThreshold that can be set 
+// its immediate neighbors. There is a GradientThreshold that can be set
 // that eliminates any pixels with a smaller gradient value. This can
-// be used as the lower threshold of a two value edgel thresholding. 
+// be used as the lower threshold of a two value edgel thresholding.
 //
 // For the remaining edgels, links are first tried for the four
 // connected neighbors.  A successful neighbor will satisfy three
@@ -27,16 +27,16 @@
 // the two edgels (Alpha) and each edgels orientation (Phi) must be
 // less than LinkThreshold. Third, the difference between the two
 // edgels Phi values must be less than PhiThreshold.
-// The most successful link is selected. The measure is simply the 
+// The most successful link is selected. The measure is simply the
 // sum of the three angle differences (actually stored as the sum of
 // the cosines). If none of the four connect neighbors succeeds, then
 // the eight connect neighbors are examined using the same method.
-//  
+//
 // This filter requires gradient information so you will need to use
 // a vtkImageGradient at some point prior to this filter.  Typically
 // a vtkNonMaximumSuppression filter is also used. vtkThresholdEdgels
 // can be used to complete the two value edgel thresholding as used
-// in a Canny edge detector. The vtkSubpixelPositionEdgels filter 
+// in a Canny edge detector. The vtkSubpixelPositionEdgels filter
 // can also be used after this filter to adjust the edgel locations.
 
 // .SECTION see also
@@ -60,7 +60,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct instance of vtkLinkEdgels with GradientThreshold set to 
+  // Construct instance of vtkLinkEdgels with GradientThreshold set to
   // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
   static vtkLinkEdgels *New();
 

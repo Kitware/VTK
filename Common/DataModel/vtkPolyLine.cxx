@@ -46,12 +46,12 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 }
 
 //----------------------------------------------------------------------------
-// Given points and lines, compute normals to lines. These are not true 
+// Given points and lines, compute normals to lines. These are not true
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
 // in the same direction as much as possible (i.e., minimal rotation).
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
-                                        vtkDataArray *normals, 
+                                        vtkDataArray *normals,
                                         double* firstNormal)
 {
   vtkIdType npts=0;
@@ -65,11 +65,11 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
   sNext[2]=0.0;
 
   //  Loop over all lines
-  // 
+  //
   for (lines->InitTraversal(); lines->GetNextCell(npts,linePts); )
     {
     //  Determine initial starting normal
-    // 
+    //
     if ( npts <= 0 )
       {
       continue;
@@ -84,10 +84,10 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
     else //more than one point
       {
-      //  Compute first normal. All "new" normals try to point in the same 
+      //  Compute first normal. All "new" normals try to point in the same
       //  direction.
       //
-      for (j=0; j<npts; j++) 
+      for (j=0; j<npts; j++)
         {
 
         if ( j == 0 ) //first point
@@ -95,7 +95,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
           pts->GetPoint(linePts[0],p);
           pts->GetPoint(linePts[1],pNext);
 
-          for (i=0; i<3; i++) 
+          for (i=0; i<3; i++)
             {
             sPrev[i] = pNext[i] - p[i];
             sNext[i] = sPrev[i];
@@ -125,11 +125,11 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
               for(ipt=2; ipt < npts; ipt++)
                 {
                 double ftmp[3], ftmp2[3];
-            
+
                 pts->GetPoint(linePts[ipt-1],ftmp);
                 pts->GetPoint(linePts[ipt]  ,ftmp2);
 
-                for (i=0; i<3; i++) 
+                for (i=0; i<3; i++)
                   {
                   ftmp[i] = ftmp2[i] - ftmp[i];
                   }
@@ -141,7 +141,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
                 // now the starting normal should simply be the cross product
                 // in the following if statement we check for the case where
-                // the two segments are parallel 
+                // the two segments are parallel
                 vtkMath::Cross(sNext,ftmp,normal);
                 if ( vtkMath::Norm(normal) > 1.0E-3 )
                   {
@@ -151,12 +151,12 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                 }
               }
 
-            if ((npts <= 2)|| !foundNormal) 
+            if ((npts <= 2)|| !foundNormal)
               {
-              for (i=0; i<3; i++) 
+              for (i=0; i<3; i++)
                 {
                 // a little trick to find othogonal normal
-                if ( sNext[i] != 0.0 ) 
+                if ( sNext[i] != 0.0 )
                   {
                   normal[(i+2)%3] = 0.0;
                   normal[(i+1)%3] = 1.0;
@@ -188,7 +188,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
             }
           pts->GetPoint(linePts[j+1],pNext);
 
-          for (i=0; i<3; i++) 
+          for (i=0; i<3; i++)
             {
             sPrev[i] = sNext[i];
             sNext[i] = pNext[i] - p[i];
@@ -202,7 +202,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
           //compute rotation vector
           vtkMath::Cross(sPrev,normal,w);
-          if ( vtkMath::Normalize(w) == 0.0 ) 
+          if ( vtkMath::Normalize(w) == 0.0 )
             {
             vtkGenericWarningMacro(<<"normal and sPrev coincident");
             return 0;
@@ -221,7 +221,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
           //compute rotation of line segment
           vtkMath::Cross (sNext, sPrev, q);
           theta=asin(static_cast<double>(vtkMath::Normalize(q)));
-          if (theta==0.0) 
+          if (theta==0.0)
             { //no rotation, use previous normal
             normals->InsertTuple(linePts[j],normal);
             continue;
@@ -264,7 +264,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
             {
             normal[i] = f1*q[i] + f2*w[i];
             }
-          
+
           normals->InsertTuple(linePts[j],normal);
           }//for this point
         }//else
@@ -275,7 +275,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
 //----------------------------------------------------------------------------
 int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
-                                 int& subId, double pcoords[3], 
+                                 int& subId, double pcoords[3],
                                  double& minDist2, double *weights)
 {
   double closest[3];
@@ -299,9 +299,9 @@ int vtkPolyLine::EvaluatePosition(double x[3], double* closestPoint,
       return_status = status;
       if (closestPoint)
         {
-        closestPoint[0] = closest[0]; 
-        closestPoint[1] = closest[1]; 
-        closestPoint[2] = closest[2]; 
+        closestPoint[0] = closest[0];
+        closestPoint[1] = closest[1];
+        closestPoint[2] = closest[2];
         }
       minDist2 = dist2;
       subId = i;
@@ -331,11 +331,11 @@ void vtkPolyLine::EvaluateLocation(int& subId, double pcoords[3], double x[3],
   this->Points->GetPoint(subId, a1);
   this->Points->GetPoint(subId+1, a2);
 
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
     }
-  
+
   weights[0] = 1.0 - pcoords[0];
   weights[1] = pcoords[0];
 }
@@ -374,7 +374,7 @@ int vtkPolyLine::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 //----------------------------------------------------------------------------
 void vtkPolyLine::Contour(double value, vtkDataArray *cellScalars,
                           vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-                          vtkCellArray *lines, vtkCellArray *polys, 
+                          vtkCellArray *lines, vtkCellArray *polys,
                           vtkPointData *inPd, vtkPointData *outPd,
                           vtkCellData *inCd, vtkIdType cellId,
                           vtkCellData *outCd)
@@ -447,7 +447,7 @@ int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values, 
+void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values,
                               int dim, double *derivs)
 {
   this->Line->PointIds->SetNumberOfIds(2);
@@ -459,7 +459,7 @@ void vtkPolyLine::Derivatives(int subId, double pcoords[3], double *values,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLine::Clip(double value, vtkDataArray *cellScalars, 
+void vtkPolyLine::Clip(double value, vtkDataArray *cellScalars,
                        vtkIncrementalPointLocator *locator, vtkCellArray *lines,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -480,10 +480,10 @@ void vtkPolyLine::Clip(double value, vtkDataArray *cellScalars,
     lineScalars->SetComponent(0,0,cellScalars->GetComponent(i,0));
     lineScalars->SetComponent(1,0,cellScalars->GetComponent(i+1,0));
 
-    this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd, 
+    this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd,
                     inCd, cellId, outCd, insideOut);
     }
-  
+
   lineScalars->Delete();
 }
 
@@ -513,7 +513,7 @@ void vtkPolyLine::InterpolateDerivs(double pcoords[3], double *derivs)
 void vtkPolyLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
 }

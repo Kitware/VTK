@@ -27,9 +27,9 @@
 // .SECTION Description
 // This defines the interface for a Painter. Painters are helpers used
 // by Mapper to perform the rendering. The mapper sets up a chain of painters
-// and passes the render request to the painter. Every painter may have a 
+// and passes the render request to the painter. Every painter may have a
 // delegate painter to which the render request is forwarded. The Painter may
-// modify the request or data before passing it to the delegate painter. 
+// modify the request or data before passing it to the delegate painter.
 // All the information to control the rendering must be passed to the painter
 // using the vtkInformation object. A concrete painter may read special keys
 // from the vtkInformation object and affect the rendering.
@@ -65,22 +65,22 @@ public:
   // Keys used to specify control the behaviour of the painter.
   // When on, the painter assumes that the poly data changes infrequently.
   // It is thus more likely to take time and memory to build auxiliary data
-  // structures for faster frame rates.  Is off by default.  
+  // structures for faster frame rates.  Is off by default.
   static vtkInformationIntegerKey* STATIC_DATA();
-  
+
   // Description:
   // Keys used to specify control the behaviour of the painter.
   // When on, the painter avoids using more memory than it has to.  Thus,
   // auxiliary data structures for faster rendering may not be built.  Is off
-  // by default. 
+  // by default.
   static vtkInformationIntegerKey* CONSERVE_MEMORY();
- 
+
   // Description:
   // Keys used to specify control the behaviour of the painter.
   // When off, the painter may make approximations that will make the rendering
   // go faster but may degrade image quality.  Is on by default.
   static vtkInformationIntegerKey* HIGH_QUALITY();
-  
+
   // Description:
   // Get/Set the information object associated with this painter.
   vtkGetObjectMacro(Information, vtkInformation);
@@ -104,27 +104,27 @@ public:
     STRIPS = 0x8
   };
   //ETX
-   
+
   // Description:
-  // Generates rendering primitives of appropriate type(s). Multiple types 
-  // of primitives can be requested by or-ring the primitive flags. 
-  // Default implementation calls UpdateDelegatePainter() to update the 
+  // Generates rendering primitives of appropriate type(s). Multiple types
+  // of primitives can be requested by or-ring the primitive flags.
+  // Default implementation calls UpdateDelegatePainter() to update the
   // deletagate painter and then calls RenderInternal().
   // forceCompileOnly is passed to the display list painters.
-  virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void Render(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags, bool forceCompileOnly);
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this painter.
   // The parameter window could be used to determine which graphic
-  // resources to release. 
+  // resources to release.
   // The call is propagated to the delegate painter, if any.
   virtual void ReleaseGraphicsResources(vtkWindow *);
- 
+
   // Description:
   // Set/Get the execution progress of a process object.
   vtkSetClampMacro(Progress,double,0.0,1.0);
-  vtkGetMacro(Progress,double); 
+  vtkGetMacro(Progress,double);
 
   // Description:
   // Get the time required to draw the geometry last time it was rendered.
@@ -163,13 +163,13 @@ protected:
   // Updates the delegate painter. This method is called just before
   // the Render call is passed on to the DelegatePainter.
   // Hence, it gets called only if the DelegatePainter is set.
-  // Internally calls PassInformation with argument as 
+  // Internally calls PassInformation with argument as
   // this->DelegatePainter. Subclasses must not override this method,
   // instead override PassInformation().
   void UpdateDelegatePainter();
 
   // Description:
-  // Pass on the information and data (output) from the 
+  // Pass on the information and data (output) from the
   // this to the argument painter. The method passes
   // the information only if it has changed.
   virtual void PassInformation(vtkPainter* toPainter);
@@ -185,10 +185,10 @@ protected:
   // Description:
   // Performs the actual rendering. Subclasses may override this method.
   // default implementation merely call a Render on the DelegatePainter,
-  // if any. When RenderInternal() is called, it is assured that the 
+  // if any. When RenderInternal() is called, it is assured that the
   // DelegatePainter is in sync with this painter i.e. UpdateDelegatePainter()
   // has been called.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
   // Description:
@@ -208,26 +208,26 @@ protected:
   virtual void ObserverPainterProgress(vtkPainter* toObserve);
 
   // Description:
-  // Update the progress of the process object. Then set the Progress ivar to 
+  // Update the progress of the process object. Then set the Progress ivar to
   // amount. The parameter amount should range between (0,1).
   // Raises vtkCommand::ProgressEvent.
   void UpdateProgress(double amount);
 
   // Description:
   // Helper method to get input array to process.
-  vtkAbstractArray* GetInputArrayToProcess(int fieldAssociation, 
+  vtkAbstractArray* GetInputArrayToProcess(int fieldAssociation,
     int fieldAttributeType,
     vtkDataSet* ds,
     bool *use_cell_data=0);
-  vtkAbstractArray* GetInputArrayToProcess(int fieldAssociation, 
-    const char* name, vtkDataSet* dsl, 
+  vtkAbstractArray* GetInputArrayToProcess(int fieldAssociation,
+    const char* name, vtkDataSet* dsl,
     bool *use_cell_data=0);
- 
+
   // Time of most recent call to ProcessInformation().
   vtkTimeStamp InformationProcessTime;
   friend class vtkPainterObserver;
   vtkPainterObserver* Observer;
- 
+
   vtkInformation* Information;
   vtkPainter* DelegatePainter;
 
@@ -237,7 +237,7 @@ protected:
 
   double TimeToDraw;
   vtkTimerLog* Timer;
-  
+
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
                          // This is not reference counted.
 private:

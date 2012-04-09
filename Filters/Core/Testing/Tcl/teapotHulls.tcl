@@ -25,7 +25,7 @@ for { set i 0 } { $i < 9 } { incr i } {
 
     vtkPolyDataMapper hullMapper${i}
     hullMapper${i} SetInputConnection [hull${i} GetOutputPort]
-    
+
     vtkActor hullActor${i}
     hullActor${i} SetMapper hullMapper${i}
     [hullActor${i} GetProperty] SetColor 1 0 0

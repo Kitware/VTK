@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 // vtkQtTreeModelAdapter is a QAbstractItemModel with a vtkTree as its
-// underlying data model. 
+// underlying data model.
 //
 // .SECTION See also
 // vtkQtAbstractModelAdapter vtkQtTableModelAdapter
@@ -49,7 +49,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAd
 public:
   vtkQtTreeModelAdapter(QObject *parent = 0, vtkTree* tree = 0);
   ~vtkQtTreeModelAdapter();
-  
+
   // Description:
   // Set/Get the VTK data object as input to this adapter
   virtual void SetVTKDataObject(vtkDataObject *data);
@@ -57,20 +57,20 @@ public:
 
   // Description:
   // Get the stored VTK data object modification time of when the
-  // adaption to a Qt model was done. This is in general not the 
-  // same this as the data objects modification time. It is the mod 
-  // time of the object when it was placed into the Qt model adapter. 
-  // You can use this mtime as part of the checking to see whether 
+  // adaption to a Qt model was done. This is in general not the
+  // same this as the data objects modification time. It is the mod
+  // time of the object when it was placed into the Qt model adapter.
+  // You can use this mtime as part of the checking to see whether
   // you need to update the the adapter by call SetVTKDataObject again. :)
   unsigned long GetVTKDataObjectMTime() const;
-  
+
   // Description:
   // Selection conversion from VTK land to Qt land
   virtual vtkSelection* QModelIndexListToVTKIndexSelection(
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(
     vtkSelection *vtksel) const;
-  
+
   virtual void SetKeyColumnName(const char* name);
 
   virtual void SetColorColumnName(const char* name);
@@ -79,7 +79,7 @@ public:
   // Set up the model based on the current tree.
   void setTree(vtkTree* t);
   vtkTree* tree() const { return this->Tree; }
-  
+
   QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
   bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
   Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -94,7 +94,7 @@ public:
   // Description:
   // If drag/drop is enabled in the view, the model will package up the current
   // pedigreeid vtkSelection into a QMimeData when items are dragged.
-  // Currently only leaves of the tree can be dragged. 
+  // Currently only leaves of the tree can be dragged.
   Qt::DropActions supportedDragActions() const;
   virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
   virtual QStringList mimeTypes () const ;
@@ -102,13 +102,13 @@ public:
 protected:
   void treeModified();
   void GenerateVTKIndexToQtModelIndex(vtkIdType vtk_index, QModelIndex qmodel_index);
-  
+
   vtkTree* Tree;
   vtkAdjacentVertexIterator* ChildIterator;
   unsigned long TreeMTime;
   QVector<QModelIndex> VTKIndexToQtModelIndex;
   QHash<QModelIndex, QVariant> IndexToDecoration;
-  
+
 private:
   vtkQtTreeModelAdapter(const vtkQtTreeModelAdapter &);  // Not implemented
   void operator=(const vtkQtTreeModelAdapter&);  // Not implemented.

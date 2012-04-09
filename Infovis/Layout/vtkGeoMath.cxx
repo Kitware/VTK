@@ -27,13 +27,13 @@ vtkStandardNewMacro(vtkGeoMath);
 
 
 //----------------------------------------------------------------------------
-vtkGeoMath::vtkGeoMath() 
+vtkGeoMath::vtkGeoMath()
 {
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoMath::~vtkGeoMath() 
-{  
+vtkGeoMath::~vtkGeoMath()
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -48,14 +48,14 @@ double vtkGeoMath::DistanceSquared(double pt0[3], double pt1[3])
 {
   double tmp;
   double d2;
-  
+
   tmp = pt1[0] - pt0[0];
   d2 = tmp * tmp;
   tmp = pt1[1] - pt0[1];
   d2 += tmp * tmp;
   tmp = pt1[2] - pt0[2];
   d2 += tmp * tmp;
-  
+
   return d2;
 }
 

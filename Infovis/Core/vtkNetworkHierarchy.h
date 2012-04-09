@@ -38,12 +38,12 @@ class VTKINFOVISCORE_EXPORT vtkNetworkHierarchy : public vtkTreeAlgorithm
 public:
   static vtkNetworkHierarchy* New();
   vtkTypeMacro(vtkNetworkHierarchy,vtkTreeAlgorithm);
-  
+
   // Description:
   // Used to store the ip array name
   vtkGetStringMacro(IPArrayName);
   vtkSetStringMacro(IPArrayName);
-  
+
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -51,25 +51,25 @@ protected:
   ~vtkNetworkHierarchy();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
   int FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation* info);
   int FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation* info);
-    
+
 private:
   vtkNetworkHierarchy(const vtkNetworkHierarchy&); // Not implemented
   void operator=(const vtkNetworkHierarchy&);   // Not implemented
-  
+
   // Internal helper functions
   unsigned int ITON(vtkStdString ip);
   void GetSubnets(unsigned int packedIP, int *subnets);
-  
+
   char *IPArrayName;
-  
+
 };
 
 #endif

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkAssemblyPaths - a list of lists of props representing an assembly hierarchy
 // .SECTION Description
-// vtkAssemblyPaths represents an assembly hierarchy as a list of 
+// vtkAssemblyPaths represents an assembly hierarchy as a list of
 // vtkAssemblyPath. Each path represents the complete path from the
 // top level assembly (if any) down to the leaf prop.
 
@@ -60,9 +60,9 @@ public:
   virtual unsigned long GetMTime();
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkAssemblyPath *GetNextPath(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject(cookie));};
   //ETX
@@ -70,36 +70,36 @@ public:
 protected:
   vtkAssemblyPaths() {};
   ~vtkAssemblyPaths() {};
-  
+
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
   void RemoveItem(vtkObject *o) { this->vtkCollection::RemoveItem(o); };
   void RemoveItem(int i) { this->vtkCollection::RemoveItem(i); };
-  int  IsItemPresent(vtkObject *o) 
+  int  IsItemPresent(vtkObject *o)
     { return this->vtkCollection::IsItemPresent(o);};
 private:
   vtkAssemblyPaths(const vtkAssemblyPaths&);  // Not implemented.
   void operator=(const vtkAssemblyPaths&);  // Not implemented.
 };
 
-inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p) 
+inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p)
 {
   this->vtkCollection::AddItem(p);
 }
 
-inline void vtkAssemblyPaths::RemoveItem(vtkAssemblyPath *p) 
+inline void vtkAssemblyPaths::RemoveItem(vtkAssemblyPath *p)
 {
   this->vtkCollection::RemoveItem(p);
 }
 
-inline int vtkAssemblyPaths::IsItemPresent(vtkAssemblyPath *p) 
+inline int vtkAssemblyPaths::IsItemPresent(vtkAssemblyPath *p)
 {
   return this->vtkCollection::IsItemPresent(p);
 }
 
-inline vtkAssemblyPath *vtkAssemblyPaths::GetNextItem() 
-{ 
+inline vtkAssemblyPath *vtkAssemblyPaths::GetNextItem()
+{
   return static_cast<vtkAssemblyPath *>(this->GetNextItemAsObject());
 }
 

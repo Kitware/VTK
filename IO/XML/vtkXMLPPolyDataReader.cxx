@@ -149,7 +149,7 @@ void vtkXMLPPolyDataReader::SetupOutputTotals()
     this->TotalNumberOfStrips += this->GetNumberOfStripsInPiece(i);
     this->TotalNumberOfPolys += this->GetNumberOfPolysInPiece(i);
     }
-  
+
   // Data reading will start at the beginning of the output.
   this->StartVert = 0;
   this->StartLine = 0;
@@ -161,20 +161,20 @@ void vtkXMLPPolyDataReader::SetupOutputTotals()
 void vtkXMLPPolyDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  
+
   vtkPolyData* output = vtkPolyData::SafeDownCast(this->GetCurrentOutput());
-  
-  // Setup the output's cell arrays.  
+
+  // Setup the output's cell arrays.
   vtkCellArray* outVerts = vtkCellArray::New();
   vtkCellArray* outLines = vtkCellArray::New();
   vtkCellArray* outStrips = vtkCellArray::New();
   vtkCellArray* outPolys = vtkCellArray::New();
-  
+
   output->SetVerts(outVerts);
   output->SetLines(outLines);
   output->SetStrips(outStrips);
   output->SetPolys(outPolys);
-  
+
   outPolys->Delete();
   outStrips->Delete();
   outLines->Delete();
@@ -184,7 +184,7 @@ void vtkXMLPPolyDataReader::SetupOutputData()
 //----------------------------------------------------------------------------
 void vtkXMLPPolyDataReader::SetupNextPiece()
 {
-  this->Superclass::SetupNextPiece();  
+  this->Superclass::SetupNextPiece();
   this->StartVert += this->GetNumberOfVertsInPiece(this->Piece);
   this->StartLine += this->GetNumberOfLinesInPiece(this->Piece);
   this->StartStrip += this->GetNumberOfStripsInPiece(this->Piece);
@@ -195,27 +195,27 @@ void vtkXMLPPolyDataReader::SetupNextPiece()
 int vtkXMLPPolyDataReader::ReadPieceData()
 {
   if(!this->Superclass::ReadPieceData()) { return 0; }
-  
+
   vtkPointSet* ips = this->GetPieceInputAsPointSet(this->Piece);
   vtkPolyData* input = static_cast<vtkPolyData*>(ips);
   vtkPolyData* output = vtkPolyData::SafeDownCast(this->GetCurrentOutput());
-  
+
   // Copy the Verts.
   this->CopyCellArray(this->TotalNumberOfVerts, input->GetVerts(),
                       output->GetVerts());
-  
+
   // Copy the Lines.
   this->CopyCellArray(this->TotalNumberOfLines, input->GetLines(),
                       output->GetLines());
-  
+
   // Copy the Strips.
   this->CopyCellArray(this->TotalNumberOfStrips, input->GetStrips(),
                       output->GetStrips());
-  
+
   // Copy the Polys.
   this->CopyCellArray(this->TotalNumberOfPolys, input->GetPolys(),
                       output->GetPolys());
-  
+
   return 1;
 }
 
@@ -231,24 +231,24 @@ void vtkXMLPPolyDataReader::CopyArrayForCells(vtkDataArray* inArray,
     {
     return;
     }
-  
+
   vtkIdType components = outArray->GetNumberOfComponents();
   vtkIdType tupleSize = inArray->GetDataTypeSize()*components;
-  
+
   // Copy the cell data for the Verts in the piece.
   vtkIdType inStartCell = 0;
   vtkIdType outStartCell = this->StartVert;
   vtkIdType numCells = this->GetNumberOfVertsInPiece(this->Piece);
   memcpy(outArray->GetVoidPointer(outStartCell*components),
          inArray->GetVoidPointer(inStartCell*components), numCells*tupleSize);
-  
+
   // Copy the cell data for the Lines in the piece.
   inStartCell += numCells;
   outStartCell = this->TotalNumberOfVerts + this->StartLine;
   numCells = this->GetNumberOfLinesInPiece(this->Piece);
   memcpy(outArray->GetVoidPointer(outStartCell*components),
          inArray->GetVoidPointer(inStartCell*components), numCells*tupleSize);
-  
+
   // Copy the cell data for the Strips in the piece.
   inStartCell += numCells;
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines +
@@ -256,7 +256,7 @@ void vtkXMLPPolyDataReader::CopyArrayForCells(vtkDataArray* inArray,
   numCells = this->GetNumberOfStripsInPiece(this->Piece);
   memcpy(outArray->GetVoidPointer(outStartCell*components),
          inArray->GetVoidPointer(inStartCell*components), numCells*tupleSize);
-  
+
   // Copy the cell data for the Polys in the piece.
   inStartCell += numCells;
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines +

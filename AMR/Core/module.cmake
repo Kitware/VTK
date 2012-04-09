@@ -1,7 +1,7 @@
 vtk_module(vtkAMRCore
   GROUPS
     StandAlone
-  DEPENDS 
+  DEPENDS
     vtkParallelCore
     vtkFiltersGeneral
     vtkhdf5

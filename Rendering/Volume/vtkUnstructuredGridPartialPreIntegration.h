@@ -89,7 +89,7 @@ protected:
   ~vtkUnstructuredGridPartialPreIntegration();
 
   vtkVolumeProperty *Property;
- 
+
   vtkPartialPreIntegrationTransferFunction *TransferFunctions;
   vtkTimeStamp TransferFunctionsModified;
   int NumIndependentComponents;

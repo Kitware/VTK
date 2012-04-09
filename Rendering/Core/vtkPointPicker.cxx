@@ -29,8 +29,8 @@ vtkPointPicker::vtkPointPicker()
   this->PointId = -1;
 }
 
-double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol, 
-                                        vtkAssemblyPath *path, vtkProp3D *p, 
+double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
+                                        vtkAssemblyPath *path, vtkProp3D *p,
                                         vtkAbstractMapper3D *m)
 {
   vtkIdType numPts;
@@ -75,7 +75,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     ray[i] = p2[i] - p1[i];
     }
-  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) 
+  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 )
     {
     vtkErrorMacro("Cannot process points");
     return 2.0;
@@ -113,11 +113,11 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   //  tolerance and closest to the eye (and within the clipping range).
   //
   double dist, maxDist, minPtDist=VTK_DOUBLE_MAX;
-  for (minPtId=(-1),tMin=VTK_DOUBLE_MAX; ptId<numPts; ptId++) 
+  for (minPtId=(-1),tMin=VTK_DOUBLE_MAX; ptId<numPts; ptId++)
     {
     input->GetPoint(ptId,x);
 
-    t = (ray[0]*(x[0]-p1[0]) + ray[1]*(x[1]-p1[1]) + ray[2]*(x[2]-p1[2])) 
+    t = (ray[0]*(x[0]-p1[0]) + ray[1]*(x[1]-p1[1]) + ray[2]*(x[2]-p1[2]))
         / rayFactor;
 
     // If we find a point closer than we currently have, see whether it
@@ -125,9 +125,9 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
     // of the point closest to the line (use a fudge factor for points
     // nearly the same distance away.)
     //
-    if ( t >= 0.0 && t <= 1.0 && t <= (tMin+this->Tolerance) ) 
+    if ( t >= 0.0 && t <= 1.0 && t <= (tMin+this->Tolerance) )
       {
-      for(maxDist=0.0, i=0; i<3; i++) 
+      for(maxDist=0.0, i=0; i<3; i++)
         {
         projXYZ[i] = p1[i] + t*ray[i];
         dist = fabs(x[i]-projXYZ[i]);
@@ -141,14 +141,14 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
         minPtId = ptId;
         minXYZ[0]=x[0]; minXYZ[1]=x[1]; minXYZ[2]=x[2];
         minPtDist = maxDist;
-        tMin = t; 
+        tMin = t;
        }
       }
     }
 
   //  Now compare this against other actors.
   //
-  if ( minPtId>(-1) && tMin < this->GlobalTMin ) 
+  if ( minPtId>(-1) && tMin < this->GlobalTMin )
     {
     this->MarkPicked(path, p, m, tMin, minXYZ);
     this->PointId = minPtId;

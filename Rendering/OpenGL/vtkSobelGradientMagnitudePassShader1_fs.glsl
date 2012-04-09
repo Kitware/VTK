@@ -33,15 +33,15 @@ void main(void)
   vec4 t1=texture2D(source,tcoord-offset);
   vec4 t2=texture2D(source,tcoord);
   vec4 t3=texture2D(source,tcoord+offset);
-  
+
   // Gx
-  
+
   // version with unclamped float textures t3-t1 will be in [-1,1]
 //  gl_FragData[0]=t3-t1;
-  
+
   // version with clamped unchar textures (t3-t1+1)/2 stays in [0,1]
   gl_FragData[0]=(t3-t1+1.0)/2.0;
-  
+
   // Gy
   gl_FragData[1]=(t1+2.0*t2+t3)/4.0;
 }

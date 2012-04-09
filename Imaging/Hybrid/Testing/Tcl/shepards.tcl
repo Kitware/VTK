@@ -35,7 +35,7 @@ vtkShepardMethod shepard
     shepard SetNullValue 1
     shepard SetSampleDimensions 20 20 20
     shepard Update
-    
+
 vtkDataSetMapper map
     map SetInputConnection [shepard GetOutputPort]
 

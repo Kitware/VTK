@@ -156,7 +156,7 @@ int vtkGenericGeometryFilter::RequestData(
 //  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  
+
   if (numCells == 0)
     {
     vtkErrorMacro(<<"No data to clip");
@@ -165,7 +165,7 @@ int vtkGenericGeometryFilter::RequestData(
 
   vtkDebugMacro(<<"Executing geometry filter");
 
-  if ( (!this->CellClipping) && (!this->PointClipping) && 
+  if ( (!this->CellClipping) && (!this->PointClipping) &&
   (!this->ExtentClipping) )
     {
     allVisible = 1;
@@ -195,14 +195,14 @@ int vtkGenericGeometryFilter::RequestData(
         {
         //ptIds = cell->GetPointIds();
         cell->GetPointIds( ptIds );
-        for (i=0; i < cell->GetNumberOfPoints(); i++) 
+        for (i=0; i < cell->GetNumberOfPoints(); i++)
           {
           ptId = ptIds[i];
           //input->GetPoint(ptId, x);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
                ptId > this->PointMaximum) ) ||
-               (this->ExtentClipping && 
+               (this->ExtentClipping &&
               (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
               x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
               x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
@@ -237,17 +237,17 @@ int vtkGenericGeometryFilter::RequestData(
 //FB  newScalars->Allocate(estimatedSize, 5*numPts);
   cellArray->Allocate(numCells);
 
-  
+
   // prepare the output attributes
   vtkGenericAttributeCollection *attributes=input->GetAttributes();
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
-  
+
   int c = attributes->GetNumberOfAttributes();
   vtkDataSetAttributes *dsAttributes;
 
   int attributeType;
-  
+
   this->InternalPD->Initialize();
   for(i = 0; i<c; ++i)
     {
@@ -262,7 +262,7 @@ int vtkGenericGeometryFilter::RequestData(
     if ( centering == vtkPointCentered )
       {
       dsAttributes = outputPD;
-      
+
       attributeArray = vtkDataArray::CreateDataArray(attribute->GetComponentType());
       attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
       attributeArray->SetName(attribute->GetName());
@@ -282,13 +282,13 @@ int vtkGenericGeometryFilter::RequestData(
     attributeArray->SetName(attribute->GetName());
     dsAttributes->AddArray(attributeArray);
     attributeArray->Delete();
-    
+
     if(dsAttributes->GetAttribute(attributeType)==0)
       {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
       }
     }
-  
+
   vtkIncrementalPointLocator *locator = 0;
   if ( this->Merging )
     {
@@ -309,16 +309,16 @@ int vtkGenericGeometryFilter::RequestData(
   faceList->SetNumberOfIds(3);
 
   input->GetTessellator()->InitErrorMetrics(input);
-  
+
   vtkIdTypeArray *originalCellIds = NULL;
   if (this->PassThroughCellIds)
     {
     originalCellIds = vtkIdTypeArray::New();
     originalCellIds->SetName("vtkOriginalCellIds");
     originalCellIds->SetNumberOfComponents(1);
-    }        
-        
-  for (cellId = 0, cellIt->Begin(); !cellIt->IsAtEnd() && !abort; 
+    }
+
+  for (cellId = 0, cellIt->Begin(); !cellIt->IsAtEnd() && !abort;
     cellIt->Next(), cellId++)
     {
     cell = cellIt->GetCell();
@@ -336,7 +336,7 @@ int vtkGenericGeometryFilter::RequestData(
       switch ( cell->GetDimension() )
         {
         // create new points and then cell
-        case 0: case 1: 
+        case 0: case 1:
             vtkErrorMacro( "Cell not handled yet" );
             break;
         case 2:
@@ -403,7 +403,7 @@ int vtkGenericGeometryFilter::RequestData(
   //free storage
   if (!this->Merging && this->Locator)
     {
-    this->Locator->Initialize(); 
+    this->Locator->Initialize();
     }
   output->Squeeze();
 

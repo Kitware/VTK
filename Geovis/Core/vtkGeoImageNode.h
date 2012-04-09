@@ -25,7 +25,7 @@
 //
 // .SECTION See Also
 // vtkGeoTreeNode vtkGeoTerrainNode
-   
+
 #ifndef __vtkGeoImageNode_h
 #define __vtkGeoImageNode_h
 
@@ -49,7 +49,7 @@ public:
   // This is easier than templating.
   vtkGeoImageNode* GetChild(int idx);
   vtkGeoImageNode* GetParent();
-  
+
   // Description:
   // Get the image tile.
   vtkImageData* GetImage();
@@ -61,7 +61,7 @@ public:
   void SetTexture(vtkTexture* texture);
 
   // Description:
-  // This crops the image as small as possible while still covering the 
+  // This crops the image as small as possible while still covering the
   // patch.  The Longitude Latitude range may get bigger to reflect the
   // actual size of the image.
   // If prefix is specified, writes the tile to that location.
@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkGeoTreeNode *src);  
+  virtual void ShallowCopy(vtkGeoTreeNode *src);
   virtual void DeepCopy(vtkGeoTreeNode *src);
 
   // Returns whether this node has valid data associated
@@ -86,7 +86,7 @@ public:
   // an "empty" node. This is performed when the node has
   // been unused for a certain amount of time.
   virtual void DeleteData();
-  
+
 protected:
   vtkGeoImageNode();
   ~vtkGeoImageNode();

@@ -142,7 +142,7 @@ void vtkXMLPolyDataReader::SetupOutputTotals()
     this->TotalNumberOfStrips += this->NumberOfStrips[i];
     this->TotalNumberOfPolys += this->NumberOfPolys[i];
     }
-  
+
   // Data reading will start at the beginning of the output.
   this->StartVert = 0;
   this->StartLine = 0;
@@ -199,18 +199,18 @@ void vtkXMLPolyDataReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
   vtkPolyData* output = vtkPolyData::SafeDownCast(this->GetCurrentOutput());
-  
-  // Setup the output's cell arrays.  
+
+  // Setup the output's cell arrays.
   vtkCellArray* outVerts = vtkCellArray::New();
   vtkCellArray* outLines = vtkCellArray::New();
   vtkCellArray* outStrips = vtkCellArray::New();
   vtkCellArray* outPolys = vtkCellArray::New();
-  
+
   output->SetVerts(outVerts);
   output->SetLines(outLines);
   output->SetStrips(outStrips);
   output->SetPolys(outPolys);
-  
+
   outPolys->Delete();
   outStrips->Delete();
   outLines->Delete();
@@ -224,7 +224,7 @@ int vtkXMLPolyDataReader::ReadPiece(vtkXMLDataElement* ePiece)
     {
     return 0;
     }
-  
+
   if(!ePiece->GetScalarAttribute("NumberOfVerts",
                                  this->NumberOfVerts[this->Piece]))
     {
@@ -245,7 +245,7 @@ int vtkXMLPolyDataReader::ReadPiece(vtkXMLDataElement* ePiece)
     {
     this->NumberOfPolys[this->Piece] = 0;
     }
-  
+
   // Find the cell elements in the piece.
   int i;
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
@@ -272,16 +272,16 @@ int vtkXMLPolyDataReader::ReadPiece(vtkXMLDataElement* ePiece)
       this->PolyElements[this->Piece] = eNested;
       }
     }
-  
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPolyDataReader::SetupNextPiece()
 {
-  this->Superclass::SetupNextPiece();  
+  this->Superclass::SetupNextPiece();
   this->StartVert += this->NumberOfVerts[this->Piece];
-  this->StartLine += this->NumberOfLines[this->Piece]; 
+  this->StartLine += this->NumberOfLines[this->Piece];
   this->StartStrip += this->NumberOfStrips[this->Piece];
   this->StartPoly += this->NumberOfPolys[this->Piece];
 }
@@ -295,7 +295,7 @@ int vtkXMLPolyDataReader::ReadPieceData()
   vtkIdType superclassPieceSize =
     ((this->NumberOfPointArrays+1)*this->GetNumberOfPointsInPiece(this->Piece)+
      this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
-  
+
   // Total amount of data in this piece comes from point/cell data
   // arrays and the point/cell specifications themselves (cell
   // specifications for vtkPolyData take two data arrays split across
@@ -306,7 +306,7 @@ int vtkXMLPolyDataReader::ReadPieceData()
     {
     totalPieceSize = 1;
     }
-  
+
   // Split the progress range based on the approximate fraction of
   // data that will be read by each step in this method.
   float progressRange[2] = {0,0};
@@ -326,26 +326,26 @@ int vtkXMLPolyDataReader::ReadPieceData()
        this->NumberOfStrips[this->Piece]) / totalPieceSize,
       1
     };
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData())
     {
     return 0;
     }
-  
+
   vtkPolyData* output = vtkPolyData::SafeDownCast(this->GetCurrentOutput());
-  
+
   // Set the range of progress for the Verts.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the Verts.
   vtkXMLDataElement* eVerts = this->VertElements[this->Piece];
   if(eVerts)
     {
-//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested,
 //      this->VertsTimeStep, this->VertsOffset);
 //    if( needToRead )
       {
@@ -359,15 +359,15 @@ int vtkXMLPolyDataReader::ReadPieceData()
         }
       }
     }
- 
+
   // Set the range of progress for the Lines.
   this->SetProgressRange(progressRange, 2, fractions);
-  
+
   // Read the Lines.
   vtkXMLDataElement* eLines = this->LineElements[this->Piece];
   if(eLines)
     {
-//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested,
 //      this->LinesTimeStep, this->LinesOffset);
 //    if( needToRead )
       {
@@ -381,15 +381,15 @@ int vtkXMLPolyDataReader::ReadPieceData()
         }
       }
     }
- 
+
   // Set the range of progress for the Strips.
   this->SetProgressRange(progressRange, 3, fractions);
-  
+
   // Read the Strips.
   vtkXMLDataElement* eStrips = this->StripElements[this->Piece];
   if(eStrips)
     {
-//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested,
 //      this->StripsTimeStep, this->StripsOffset);
 //    if( needToRead )
       {
@@ -403,15 +403,15 @@ int vtkXMLPolyDataReader::ReadPieceData()
         }
       }
     }
- 
+
   // Set the range of progress for the Polys.
   this->SetProgressRange(progressRange, 4, fractions);
-  
+
   // Read the Polys.
   vtkXMLDataElement* ePolys = this->PolyElements[this->Piece];
   if(ePolys)
     {
-//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested,
 //      this->PolysTimeStep, this->PolysOffset);
 //    if( needToRead )
       {
@@ -422,10 +422,10 @@ int vtkXMLPolyDataReader::ReadPieceData()
                               output->GetPolys()))
         {
         return 0;
-        }  
+        }
       }
     }
- 
+
   return 1;
 }
 
@@ -449,63 +449,63 @@ int vtkXMLPolyDataReader::ReadArrayForCells(vtkXMLDataElement* da,
             this->NumberOfStrips[this->Piece])/total,
       1
     };
-  
+
   vtkIdType components = outArray->GetNumberOfComponents();
-  
+
   // Set range of progress for the Verts.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Read the cell data for the Verts in the piece.
   vtkIdType inStartCell = 0;
   vtkIdType outStartCell = this->StartVert;
-  vtkIdType numCells = this->NumberOfVerts[this->Piece];  
+  vtkIdType numCells = this->NumberOfVerts[this->Piece];
   if(!this->ReadArrayValues(da, outStartCell*components, outArray,
       inStartCell*components, numCells*components))
     {
     return 0;
     }
-  
+
   // Set range of progress for the Lines.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the cell data for the Lines in the piece.
   inStartCell += numCells;
   outStartCell = this->TotalNumberOfVerts + this->StartLine;
-  numCells = this->NumberOfLines[this->Piece];  
+  numCells = this->NumberOfLines[this->Piece];
   if(!this->ReadArrayValues(da, outStartCell*components, outArray,
       inStartCell*components, numCells*components))
     {
     return 0;
     }
-  
+
   // Set range of progress for the Strips.
   this->SetProgressRange(progressRange, 2, fractions);
-  
+
   // Read the cell data for the Strips in the piece.
   inStartCell += numCells;
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines +
                   this->StartStrip);
-  numCells = this->NumberOfStrips[this->Piece];  
+  numCells = this->NumberOfStrips[this->Piece];
   if(!this->ReadArrayValues(da, outStartCell*components, outArray,
       inStartCell*components, numCells*components))
     {
     return 0;
     }
-  
+
   // Set range of progress for the Polys.
   this->SetProgressRange(progressRange, 3, fractions);
-  
+
   // Read the cell data for the Polys in the piece.
   inStartCell += numCells;
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines +
                   this->TotalNumberOfStrips + this->StartPoly);
-  numCells = this->NumberOfPolys[this->Piece];  
+  numCells = this->NumberOfPolys[this->Piece];
   if(!this->ReadArrayValues(da, outStartCell*components, outArray,
       inStartCell*components, numCells*components))
     {
     return 0;
     }
-  
+
   return 1;
 }
 

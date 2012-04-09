@@ -45,7 +45,7 @@ public:
   vtkDataObject *GetOutput();
   vtkDataObject *GetOutput(int idx);
   void SetOutput(vtkDataObject *);
-  
+
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader();

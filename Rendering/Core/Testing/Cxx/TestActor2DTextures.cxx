@@ -28,7 +28,7 @@
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
 
-  
+
 int TestActor2DTextures( int argc, char *argv[])
 {
  // vtkRegressionTester::Result result = vtkRegressionTester::Passed;
@@ -73,7 +73,7 @@ int TestActor2DTextures( int argc, char *argv[])
     }
 
   int size[] = {24, 24};
-  
+
   vtkIconGlyphFilter * iconFilter = vtkIconGlyphFilter::New();
 
   iconFilter->SetInputData(pointSet);
@@ -86,7 +86,7 @@ int TestActor2DTextures( int argc, char *argv[])
 
   vtkTexturedActor2D * iconActor = vtkTexturedActor2D::New();
   iconActor->SetMapper(mapper);
-  
+
   vtkTexture * texture =  vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   iconActor->SetTexture(texture);
@@ -95,7 +95,7 @@ int TestActor2DTextures( int argc, char *argv[])
   vtkRenderWindow * renWin = vtkRenderWindow::New();
   renWin->SetSize(208, 208);
   renWin->AddRenderer(renderer);
-  
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 

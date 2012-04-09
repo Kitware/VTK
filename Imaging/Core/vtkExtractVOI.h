@@ -51,8 +51,8 @@ public:
 
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured points
-  // dataset can be of any topological dimension (i.e., point, line, image, 
-  // or volume). 
+  // dataset can be of any topological dimension (i.e., point, line, image,
+  // or volume).
   vtkSetVector6Macro(VOI,int);
   vtkGetVectorMacro(VOI,int,6);
 

@@ -20,10 +20,10 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkKMeansStatistics - A class for KMeans clustering
 //
 // .SECTION Description
-// This class takes as input an optional vtkTable on port LEARN_PARAMETERS 
-// specifying initial  set(s) of cluster values of the following form:  
+// This class takes as input an optional vtkTable on port LEARN_PARAMETERS
+// specifying initial  set(s) of cluster values of the following form:
 // <pre>
-//           K     | Col1            |  ...    | ColN    
+//           K     | Col1            |  ...    | ColN
 //      -----------+-----------------+---------+---------------
 //           M     |clustCoord(1, 1) |  ...    | clustCoord(1, N)
 //           M     |clustCoord(2, 1) |  ...    | clustCoord(2, N)
@@ -39,37 +39,37 @@ PURPOSE.  See the above copyright notice for more information.
 //           L     |clustCoord(L, 1) |  ...    | clustCoord(L, N)
 // </pre>
 //
-// Because the desired value of K is often not known in advance and the 
-// results of the algorithm are dependent on the initial cluster centers, 
+// Because the desired value of K is often not known in advance and the
+// results of the algorithm are dependent on the initial cluster centers,
 // we provide a mechanism for the user to test multiple runs or sets of cluster centers
-// within a single call to the Learn phase.  The first column of the table identifies 
-// the number of clusters K in the particular run (the entries in this column should be 
-// of type vtkIdType), while the remaining columns are a 
-// subset of the columns contained in the table on port INPUT_DATA.  We require that 
-// all user specified clusters be of the same dimension N and consequently, that the 
+// within a single call to the Learn phase.  The first column of the table identifies
+// the number of clusters K in the particular run (the entries in this column should be
+// of type vtkIdType), while the remaining columns are a
+// subset of the columns contained in the table on port INPUT_DATA.  We require that
+// all user specified clusters be of the same dimension N and consequently, that the
 // LEARN_PARAMETERS table have N+1 columns. Due to this restriction, only one request
-// can be processed for each call to the Learn phase and subsequent requests are 
-// silently ignored. Note that, if the first column of the LEARN_PARAMETERS table is not 
+// can be processed for each call to the Learn phase and subsequent requests are
+// silently ignored. Note that, if the first column of the LEARN_PARAMETERS table is not
 // of type vtkIdType, then the table will be ignored and a single run will be performed using
 // the first DefaultNumberOfClusters input data observations as initial cluster centers.
 //
-// When the user does not supply an initial set of clusters, then the first 
-// DefaultNumberOfClusters input data observations are used as initial cluster 
+// When the user does not supply an initial set of clusters, then the first
+// DefaultNumberOfClusters input data observations are used as initial cluster
 // centers and a single run is performed.
 //
 //
 // This class provides the following functionalities, depending on the operation
 // in which it is executed:
-// * Learn: calculates new cluster centers for each run.  The output metadata on 
+// * Learn: calculates new cluster centers for each run.  The output metadata on
 //   port OUTPUT_MODEL is a multiblock dataset containing at a minimum
 //   one vtkTable with columns specifying the following for each run:
-//   the run ID, number of clusters, number of iterations required for convergence, 
+//   the run ID, number of clusters, number of iterations required for convergence,
 //   total error associated with the cluster (sum of squared Euclidean distance from each observation
 //   to its nearest cluster center), the cardinality of the cluster, and the new
 //   cluster coordinates.
 //
 // * Derive:  An additional vtkTable is stored in the multiblock dataset output on port OUTPUT_MODEL.
-//   This table contains columns that store for each run: the runID, number of clusters, 
+//   This table contains columns that store for each run: the runID, number of clusters,
 //   total error for all clusters in the run, local rank, and global rank.
 //   The local rank is computed by comparing squared Euclidean errors of all runs with
 //   the same number of clusters.  The global rank is computed analagously across all runs.
@@ -79,10 +79,10 @@ PURPOSE.  See the above copyright notice for more information.
 //   of the tables on input port INPUT_MODEL. The assess mode reports the closest cluster center
 //   and associated squared Euclidean distance of each observation in port INPUT_DATA's table to the cluster centers for
 //   each run in the multiblock dataset provided on port INPUT_MODEL.
-//  
-// The code can handle a wide variety of data types as it operates on vtkAbstractArrays 
+//
+// The code can handle a wide variety of data types as it operates on vtkAbstractArrays
 // and is not limited to vtkDataArrays.  A default distance functor that
-// computes the sum of the squares of the Euclidean distance between two objects is provided 
+// computes the sum of the squares of the Euclidean distance between two objects is provided
 // (vtkKMeansDistanceFunctor). The default distance functor can be overridden to use alternative distance metrics.
 //
 // .SECTION Thanks
@@ -108,7 +108,7 @@ public:
   vtkTypeMacro(vtkKMeansStatistics, vtkStatisticsAlgorithm);
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkKMeansStatistics* New();
- 
+
   // Description:
   // Set the DistanceFunctor.
   virtual void SetDistanceFunctor( vtkKMeansDistanceFunctor* );
@@ -165,8 +165,8 @@ protected:
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable*, 
-                       vtkMultiBlockDataSet*, 
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
                        vtkTable* );
 
   // Description:
@@ -175,25 +175,25 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; };
 
-  //BTX  
+  //BTX
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* inData, 
+  virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-  //ETX  
+  //ETX
   // Description:
   // Subroutine to update new cluster centers from the old centers.
   // Called from within Learn (and will be overridden by vtkPKMeansStatistics
   // to handle distributed datasets).
-  virtual void UpdateClusterCenters( vtkTable* newClusterElements, 
-                                     vtkTable* curClusterElements, 
+  virtual void UpdateClusterCenters( vtkTable* newClusterElements,
+                                     vtkTable* curClusterElements,
                                      vtkIdTypeArray* numMembershipChanges,
-                                     vtkIdTypeArray* numElementsInCluster, 
+                                     vtkIdTypeArray* numElementsInCluster,
                                      vtkDoubleArray* error,
-                                     vtkIdTypeArray* startRunID, 
-                                     vtkIdTypeArray* endRunID, 
+                                     vtkIdTypeArray* startRunID,
+                                     vtkIdTypeArray* endRunID,
                                      vtkIntArray *computeRun );
 
   // Description:
@@ -204,7 +204,7 @@ protected:
 
   // Description:
   // Subroutine to initalize the cluster centers using those provided by the user
-  // in input port LEARN_PARAMETERS.  If no cluster centers are provided, the subroutine uses the 
+  // in input port LEARN_PARAMETERS.  If no cluster centers are provided, the subroutine uses the
   // first DefaultNumberOfClusters input data points as initial cluster centers.
   // Called from within Learn.
   int InitializeDataAndClusterCenters(vtkTable* inParameters,
@@ -220,10 +220,10 @@ protected:
   // Subroutine to initialize cluster centerss if not provided by the user.
   // Called from within Learn (and will be overridden by vtkPKMeansStatistics
   // to handle distributed datasets).
-  virtual void CreateInitialClusterCenters(vtkIdType numToAllocate, 
-                                           vtkIdTypeArray* numberOfClusters, 
-                                           vtkTable* inData, 
-                                           vtkTable* curClusterElements, 
+  virtual void CreateInitialClusterCenters(vtkIdType numToAllocate,
+                                           vtkIdTypeArray* numberOfClusters,
+                                           vtkTable* inData,
+                                           vtkTable* curClusterElements,
                                            vtkTable* newClusterElements);
 
 
@@ -231,19 +231,19 @@ protected:
   // This is the default number of clusters used when the user does not provide initial cluster centers.
   int DefaultNumberOfClusters;
   // Description:
-  // This is the name of the column that specifies the number of clusters in each run. 
+  // This is the name of the column that specifies the number of clusters in each run.
   // This is only used if the user has not specified initial clusters.
   char* KValuesArrayName;
   // Description:
-  // This is the maximum number of iterations allowed if the new cluster centers have not yet converged. 
+  // This is the maximum number of iterations allowed if the new cluster centers have not yet converged.
   int MaxNumIterations;
   // Description:
-  // This is the percentage of data elements that swap cluster IDs 
+  // This is the percentage of data elements that swap cluster IDs
   double Tolerance;
   // Description:
   // This is the Distance functor.  The default is Euclidean distance, however this can be overridden.
   vtkKMeansDistanceFunctor* DistanceFunctor;
-  
+
 private:
   vtkKMeansStatistics( const vtkKMeansStatistics& ); // Not implemented
   void operator=( const vtkKMeansStatistics& );  // Not implemented

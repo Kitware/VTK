@@ -72,7 +72,7 @@ int vtkExtractUserDefinedPiece::GetConstantData(void **data)
 }
 
 
-// This is exactly vtkExtractUnstructuredGridPiece::Execute(), with 
+// This is exactly vtkExtractUnstructuredGridPiece::Execute(), with
 // the exception that we call ComputeCellTagsWithFunction rather
 // than ComputeCellTags.  If ComputeCellTags were virtual, we could
 // just override it here.
@@ -193,16 +193,16 @@ int vtkExtractUserDefinedPiece::RequestData(
       newCellPts->Reset();
       } // satisfied thresholding
     } // for all cells
-  
-  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
+
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells()
                 << " number of cells.");
-  
+
   // now clean up / update ourselves
   pointMap->Delete();
   newCellPts->Delete();
-      
+
   if (cellGhostLevels)
-    { 
+    {
     cellGhostLevels->SetName("vtkGhostLevels");
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
@@ -214,10 +214,10 @@ int vtkExtractUserDefinedPiece::RequestData(
     output->GetPointData()->AddArray(pointGhostLevels);
     pointGhostLevels->Delete();
     pointGhostLevels = 0;
-    } 
+    }
   output->SetPoints(newPoints);
   newPoints->Delete();
-    
+
   output->Squeeze();
   cellTags->Delete();
   pointOwnership->Delete();

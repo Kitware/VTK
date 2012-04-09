@@ -1,7 +1,7 @@
 package require vtk
 package require vtkinteraction
 
-# This example converts data to a field and then displays it using 
+# This example converts data to a field and then displays it using
 # parallel coordinates,
 
 # Create a reader and write out the field

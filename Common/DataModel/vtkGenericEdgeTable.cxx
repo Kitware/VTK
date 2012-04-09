@@ -97,7 +97,7 @@ void vtkEdgeTablePoints::DumpPoints()
   for(int i=0; i<size; i++)
     {
     VectorPointTableType v = PointVector[i];
-    for (VectorPointTableType::iterator it = v.begin(); it!=v.end(); ++it) 
+    for (VectorPointTableType::iterator it = v.begin(); it!=v.end(); ++it)
       {
       //PointEntry
       cout << "PointEntry: " << it->PointId << " " << it->Reference << ":(" <<
@@ -165,10 +165,10 @@ void vtkEdgeTableEdge::DumpEdges()
   for(int i=0; i<size; i++)
     {
     VectorEdgeTableType v = Vector[i];
-    for (VectorEdgeTableType::iterator it = v.begin(); it!=v.end(); ++it) 
+    for (VectorEdgeTableType::iterator it = v.begin(); it!=v.end(); ++it)
       {
       //EdgeEntry
-      cout << "EdgeEntry: (" << it->E1 << "," << it->E2 << ") " << 
+      cout << "EdgeEntry: (" << it->E1 << "," << it->E2 << ") " <<
       it->Reference << "," << it->ToSplit << "," << it->PtId <<  endl;
       }
     }
@@ -192,7 +192,7 @@ vtkGenericEdgeTable::vtkGenericEdgeTable()
 
   // Default to only one component
   this->NumberOfComponents = 1;
-  
+
   // The whole problem is here to find the proper size for a descent hash table
   // Since we do not allow check our size as we go the hash table
   // Should be big enough from the beginning otherwise we'll lose the
@@ -249,7 +249,7 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
     vtkErrorMacro( << "Not an edge:" << e1 << "," << e2 );
     }
   assert("pre: not degenerated edge" && e1!=e2);
-  
+
   //reorder so that e1 < e2;
   OrderEdge(e1, e2);
 
@@ -257,9 +257,9 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
 
   //Be careful with reference the equal is not overloaded
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
-  
+
   //Need to check size again
-  //Here we just puch_back at the end, 
+  //Here we just puch_back at the end,
   //the vector should not be very long and should not contain any empty spot.
   EdgeEntry newEntry;
   newEntry.E1 = e1;
@@ -268,7 +268,7 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
   newEntry.ToSplit = toSplit;
   newEntry.CellId = cellId;
 
-  if(newEntry.ToSplit) 
+  if(newEntry.ToSplit)
     {
     newEntry.PtId = ptId = this->LastPointId++;
     }
@@ -277,8 +277,8 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
     newEntry.PtId = ptId = -1;
     }
 
-//  vtkDebugMacro( << "Inserting Edge:" << e1 << "," << e2 << ": ref="  << 
-//    newEntry.Reference << ", cellId=" << cellId << ", split=" << toSplit << 
+//  vtkDebugMacro( << "Inserting Edge:" << e1 << "," << e2 << ": ref="  <<
+//    newEntry.Reference << ", cellId=" << cellId << ", split=" << toSplit <<
 //    ", ptId=" << newEntry.PtId );
 
   vect.push_back( newEntry );
@@ -336,7 +336,7 @@ int vtkGenericEdgeTable::RemoveEdge(vtkIdType e1, vtkIdType e2)
   if( !found )
     {
     //We did not find any corresponding entry to erase, warn user
-    vtkErrorMacro( << "No entry were found in the hash table for edge:" << e1 
+    vtkErrorMacro( << "No entry were found in the hash table for edge:" << e1
       << "," << e2  );
     assert("check: not found" &&  0 );
     }
@@ -355,18 +355,18 @@ int vtkGenericEdgeTable::CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId)
   //vtkDebugMacro( << "Checking edge:" << e1 << "," << e2  );
 
   vtkIdType pos = this->HashFunction(e1, e2);
-  
+
   if( static_cast<unsigned>(pos) >= this->EdgeTable->Vector.size() )
     {
     vtkDebugMacro( << "No entry were found in the hash table" );
     return -1;
     }
-  
+
   assert("check: valid range pos" &&
          static_cast<unsigned>(pos)<this->EdgeTable->Vector.size() );
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
-  
+
 #if USE_CONST_ITERATOR
   vtkEdgeTableEdge::VectorEdgeTableType::const_iterator it;
   for(it = vect.begin(); it != vect.end(); ++it)
@@ -389,7 +389,7 @@ int vtkGenericEdgeTable::CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId)
 #else
   int vectsize = static_cast<int>(vect.size());
   int index;
-  for (index=0; index<vectsize; index++) 
+  for (index=0; index<vectsize; index++)
     {
     ent = vect[index];
     if( ent.E1 == e1 && ent.E2 == e2 )
@@ -413,7 +413,7 @@ int vtkGenericEdgeTable::CheckEdge(vtkIdType e1, vtkIdType e2, vtkIdType &ptId)
 
 //-----------------------------------------------------------------------------
 int vtkGenericEdgeTable::IncrementEdgeReferenceCount(vtkIdType e1,
-                                                     vtkIdType e2, 
+                                                     vtkIdType e2,
                                                      vtkIdType cellId )
 {
   int index;
@@ -428,9 +428,9 @@ int vtkGenericEdgeTable::IncrementEdgeReferenceCount(vtkIdType e1,
 
   //Need to check size first
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
-  
+
   int vectsize = static_cast<int>(vect.size());
-  for (index=0; index<vectsize; index++) 
+  for (index=0; index<vectsize; index++)
     {
     EdgeEntry &ent = vect[index];
     if( (ent.E1 == e1) && (ent.E2 == e2))
@@ -472,7 +472,7 @@ int vtkGenericEdgeTable::CheckEdgeReferenceCount(vtkIdType e1, vtkIdType e2)
   vtkEdgeTableEdge::VectorEdgeTableType &vect = this->EdgeTable->Vector[pos];
 
   int vectsize = static_cast<int>(vect.size());
-  for (index=0; index<vectsize; index++) 
+  for (index=0; index<vectsize; index++)
     {
     EdgeEntry &ent = vect[index];
     if( (ent.E1 == e1) && (ent.E2 == e2))
@@ -546,16 +546,16 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId)
     {
     return 0;
     }
- 
+
   assert("check: valid range pos" &&
          static_cast<unsigned>(pos)<this->HashPoints->PointVector.size() );
- 
+
   //Be careful with reference the equal is not overloaded
-  vtkEdgeTablePoints::VectorPointTableType &vect = 
+  vtkEdgeTablePoints::VectorPointTableType &vect =
     this->HashPoints->PointVector[pos];
 
   int vectsize = static_cast<int>(vect.size());
-  for (index=0; index<vectsize; index++) 
+  for (index=0; index<vectsize; index++)
     {
     if( vect[index].PointId == ptId )
       {
@@ -586,7 +586,7 @@ int vtkGenericEdgeTable::CheckPoint(vtkIdType ptId, double point[3],
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   // Be careful with reference the equal is not overloaded
-  vtkEdgeTablePoints::VectorPointTableType &vect = 
+  vtkEdgeTablePoints::VectorPointTableType &vect =
     this->HashPoints->PointVector[pos];
 
   //Need to check size again
@@ -621,22 +621,22 @@ void vtkGenericEdgeTable::InsertPoint(vtkIdType ptId, double point[3])
 
   //Need to check size first
   //this->HashPoints->Resize( pos );
-  assert("check: valid range pos" && 
+  assert("check: valid range pos" &&
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   //Be careful with reference the equal is not overloaded
-  vtkEdgeTablePoints::VectorPointTableType &vect = 
+  vtkEdgeTablePoints::VectorPointTableType &vect =
     this->HashPoints->PointVector[pos];
 
   //Need to check size again
-  //Here we just puch_back at the end, 
+  //Here we just puch_back at the end,
   //the vector should not be very long and should not contain any empty spot.
   PointEntry newEntry(this->NumberOfComponents); // = vect.back();
   newEntry.PointId = ptId;
   memcpy(newEntry.Coord,point,sizeof(double)*3);
   newEntry.Reference = 1;
 
-//  vtkDebugMacro( << "Inserting Point:" << ptId << ":" 
+//  vtkDebugMacro( << "Inserting Point:" << ptId << ":"
 //    << point[0] << "," << point[1] << "," << point[2] );
   vect.push_back( newEntry );
 }
@@ -648,17 +648,17 @@ void vtkGenericEdgeTable::RemovePoint(vtkIdType ptId)
   vtkIdType pos = this->HashFunction(ptId);
 
   //Need to check size first
-  assert("check: valid range pos" && 
+  assert("check: valid range pos" &&
          static_cast<unsigned>(pos) < this->HashPoints->PointVector.size() );
 
   //Be careful with reference the equal is not overloaded
-  vtkEdgeTablePoints::VectorPointTableType &vect = 
+  vtkEdgeTablePoints::VectorPointTableType &vect =
     this->HashPoints->PointVector[pos];
 
   //vtkDebugMacro( << "Remove Point:" << ptId << ":" << vect.size() );
 
   vtkEdgeTablePoints::VectorPointTableType::iterator it;
-  for (it= vect.begin(); it!= vect.end(); ) 
+  for (it= vect.begin(); it!= vect.end(); )
     {
     PointEntry &ent = *it;
 
@@ -706,9 +706,9 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3],
   //Please keep the following:
 #if 0
   //Need to check size again
-  //Here we just puch_back at the end, 
+  //Here we just puch_back at the end,
   //the vector should not be very long and should not contain any empty spot.
-  for (index=0; index<vect.size(); index++) 
+  for (index=0; index<vect.size(); index++)
     {
     PointEntry ent = vect[index];
     if( ent.PointId == ptId )
@@ -721,24 +721,24 @@ void vtkGenericEdgeTable::InsertPointAndScalar(vtkIdType ptId, double pt[3],
       assert("check: same x scalar" && ent.Scalar[0] == s[0]);
       assert("check: same y scalar" && ent.Scalar[1] == s[1]);
       assert("check: same z scalar" && ent.Scalar[2] == s[2]);
-      
+
       vtkErrorMacro( << "The point was already in the table" ); //FIXME
-      
+
       return;
       }
     }
 #endif
 
   //We did not find any matching point thus insert it
-  
+
   PointEntry newEntry(this->NumberOfComponents); // = vect.back();
   newEntry.PointId = ptId;
   memcpy(newEntry.Coord,pt,sizeof(double)*3);
   memcpy(newEntry.Scalar,s,sizeof(double)*this->NumberOfComponents);
   newEntry.Reference = 1;
 
-//  vtkDebugMacro( << "InsertPointAndScalar:" << ptId << ":" 
-//    << pt[0] << "," << pt[1] << "," << pt[2] << "->" 
+//  vtkDebugMacro( << "InsertPointAndScalar:" << ptId << ":"
+//    << pt[0] << "," << pt[1] << "," << pt[2] << "->"
 //    << s[0] << "," << s[1] << "," << s[2] );
 
   vect.push_back( newEntry );
@@ -767,7 +767,7 @@ void vtkGenericEdgeTable::IncrementPointReferenceCount(vtkIdType ptId )
 
   //vtkDebugMacro(<< "IncrementPointReferenceCount:" << ptId << ":" << vect.size() );
 
-  for (index=0; index<vect.size(); index++) 
+  for (index=0; index<vect.size(); index++)
     {
     PointEntry &ent = vect[index];
     if( ent.PointId == ptId )

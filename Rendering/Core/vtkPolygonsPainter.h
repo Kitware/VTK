@@ -43,7 +43,7 @@ protected:
 private:
   vtkPolygonsPainter(const vtkPolygonsPainter&); // Not implemented.
   void operator=(const vtkPolygonsPainter&); // Not implemented.
-    
+
 };
 
 

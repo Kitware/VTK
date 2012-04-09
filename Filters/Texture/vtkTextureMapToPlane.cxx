@@ -78,7 +78,7 @@ int vtkTextureMapToPlane::RequestData(
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if ( (numPts=input->GetNumberOfPoints()) < 3 && 
+  if ( (numPts=input->GetNumberOfPoints()) < 3 &&
   this->AutomaticPlaneGeneration )
     {
     vtkErrorMacro(<< "Not enough points for automatic plane mapping\n");
@@ -96,9 +96,9 @@ int vtkTextureMapToPlane::RequestData(
   //  Compute least squares plane if on automatic mode; otherwise use
   //  normal specified or plane specified
   //
-  if ( this->AutomaticPlaneGeneration && 
-       (this->Origin[0] == 0.0 && this->Origin[1] == 0.0 && 
-        this->Origin[2] == 0.0 && this->Point1[0] == 0.0 && 
+  if ( this->AutomaticPlaneGeneration &&
+       (this->Origin[0] == 0.0 && this->Origin[1] == 0.0 &&
+        this->Origin[2] == 0.0 && this->Point1[0] == 0.0 &&
         this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
     {
     if ( this->AutomaticPlaneGeneration )
@@ -114,11 +114,11 @@ int vtkTextureMapToPlane::RequestData(
     //  the plane and encompassing all the points.  Hence use the bounding
     //  box as a reference.
     //
-    for (minProj=1.0, i=0; i<3; i++) 
+    for (minProj=1.0, i=0; i<3; i++)
       {
       axis[0] = axis[1] = axis[2] = 0.0;
       axis[i] = 1.0;
-      if ( (proj=fabs(vtkMath::Dot(this->Normal,axis))) < minProj ) 
+      if ( (proj=fabs(vtkMath::Dot(this->Normal,axis))) < minProj )
         {
         minProj = proj;
         dir = i;
@@ -152,7 +152,7 @@ int vtkTextureMapToPlane::RequestData(
 
     //  Now can loop over all points, computing parametric coordinates.
     //
-    for (i=0; i<numPts && !abort; i++) 
+    for (i=0; i<numPts && !abort; i++)
       {
       if ( !(i % progressInterval) )
         {
@@ -193,7 +193,7 @@ int vtkTextureMapToPlane::RequestData(
       }
 
     // compute s-t coordinates
-    for (i=0; i < numPts && !abort; i++) 
+    for (i=0; i < numPts && !abort; i++)
       {
       if ( !(i % progressInterval) )
         {
@@ -253,7 +253,7 @@ void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
   for (w=length, i=0; i<3; i++)
     {
     this->Normal[i] = 0.0;
-    if ( (bounds[2*i+1] - bounds[2*i]) < w ) 
+    if ( (bounds[2*i+1] - bounds[2*i]) < w )
       {
       dir = i;
       w = bounds[2*i+1] - bounds[2*i];
@@ -279,7 +279,7 @@ void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
     m[i] = 0.0;
     }
 
-  for (ptId=0; ptId < numPts; ptId++) 
+  for (ptId=0; ptId < numPts; ptId++)
     {
     output->GetPoint(ptId, x);
 
@@ -332,7 +332,7 @@ void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
                                << this->SRange[1] << ")\n";
   os << indent << "T Range: (" << this->TRange[0] << ", "
                                << this->TRange[1] << ")\n";
-  os << indent << "Automatic Normal Generation: " << 
+  os << indent << "Automatic Normal Generation: " <<
                   (this->AutomaticPlaneGeneration ? "On\n" : "Off\n");
   os << indent << "Normal: (" << this->Normal[0] << ", "
                                 << this->Normal[1] << ", "

@@ -42,7 +42,7 @@ vtkCxxSetObjectMacro(vtkQtTableRepresentation, ColorTable, vtkLookupTable);
 // ----------------------------------------------------------------------
 vtkQtTableRepresentation::vtkQtTableRepresentation()
 {
-  this->ModelAdapter = new vtkQtTableModelAdapter; 
+  this->ModelAdapter = new vtkQtTableModelAdapter;
 
   this->ColorTable = vtkLookupTable::New();
   this->ColorTable->Register(this);
@@ -56,7 +56,7 @@ vtkQtTableRepresentation::vtkQtTableRepresentation()
   this->SeriesColors->SetNumberOfComponents(4);
   this->SeriesColors->Register(this);
   this->SeriesColors->Delete();
-                                           
+
   this->KeyColumnInternal = NULL;
   this->FirstDataColumn = NULL;
   this->LastDataColumn = NULL;
@@ -93,7 +93,7 @@ vtkQtTableRepresentation::RequestData(vtkInformation*,
 void
 vtkQtTableRepresentation::SetKeyColumn(const char *col)
 {
-  if((!col && !this->KeyColumnInternal) || 
+  if((!col && !this->KeyColumnInternal) ||
       (this->KeyColumnInternal && col && strcmp(this->KeyColumnInternal, col) == 0))
     {
     return;
@@ -259,15 +259,15 @@ vtkQtTableRepresentation::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "First data column: " 
+  os << indent << "First data column: "
      << (this->FirstDataColumn ? this->FirstDataColumn : "(NULL)")
      << "\n";
-    
-  os << indent << "Last data column: " 
+
+  os << indent << "Last data column: "
      << (this->LastDataColumn ? this->LastDataColumn : "(NULL)")
      << "\n";
 
-  os << indent << "Key column: " 
+  os << indent << "Key column: "
      << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
      << "\n";
 

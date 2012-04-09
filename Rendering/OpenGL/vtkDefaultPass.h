@@ -24,7 +24,7 @@
 // This pass expects an initialized depth buffer and color buffer.
 // Initialized buffers means they have been cleared with farest z-value and
 // background color/gradient/transparent color.
-// 
+//
 // .SECTION See Also
 // vtkRenderPass
 
@@ -52,7 +52,7 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
  protected:
   // Description:
   // Default constructor.
@@ -61,48 +61,48 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkDefaultPass();
-  
+
   // Description:
   // Opaque pass without key checking.
   // \pre s_exists: s!=0
   virtual void RenderOpaqueGeometry(const vtkRenderState *s);
-  
+
   // Description:
   // Opaque pass with key checking.
   // \pre s_exists: s!=0
   virtual void RenderFilteredOpaqueGeometry(const vtkRenderState *s);
-  
+
   // Description:
   // Translucent pass without key checking.
   // \pre s_exists: s!=0
   virtual void RenderTranslucentPolygonalGeometry(const vtkRenderState *s);
-  
+
   // Description:
   // Translucent pass with key checking.
   // \pre s_exists: s!=0
   virtual void RenderFilteredTranslucentPolygonalGeometry(
     const vtkRenderState *s);
-  
+
   // Description:
   // Volume pass without key checking.
   // \pre s_exists: s!=0
   virtual void RenderVolumetricGeometry(const vtkRenderState *s);
-  
+
   // Description:
   // Translucent pass with key checking.
   // \pre s_exists: s!=0
   virtual void RenderFilteredVolumetricGeometry(const vtkRenderState *s);
-  
+
   // Description:
   // Overlay pass without key checking.
   // \pre s_exists: s!=0
   virtual void RenderOverlay(const vtkRenderState *s);
-  
+
   // Description:
   // Overlay pass with key checking.
   // \pre s_exists: s!=0
   virtual void RenderFilteredOverlay(const vtkRenderState *s);
-  
+
  private:
   vtkDefaultPass(const vtkDefaultPass&);  // Not implemented.
   void operator=(const vtkDefaultPass&);  // Not implemented.

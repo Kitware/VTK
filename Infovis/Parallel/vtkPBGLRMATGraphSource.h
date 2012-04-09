@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -47,7 +47,7 @@
 // Naturally, A+B+C+D must equal 1. Once a quadrant has been selected,
 // the quadrant itself is subdivided into another A-B-C-D grid and the
 // same process is applied repeatedly until the grid itself matches
-// the adjacency matrix and a specific edge is selected. 
+// the adjacency matrix and a specific edge is selected.
 //
 // Typically, A >= B, A >= C, and A >= D. A and D are viewed as two
 // separate communities, while B and C provide interconnections
@@ -57,7 +57,7 @@
 // generator produces graphs similar to the random graphs provided by
 // vtkPRandomGraphSource. Greater skew values tend to produce graphs
 // with a power-law degree distribution, which mimics the behavior of
-// many real-world graphs based on social networks. 
+// many real-world graphs based on social networks.
 #ifndef __vtkPBGLRMATGraphSource_h
 #define __vtkPBGLRMATGraphSource_h
 
@@ -138,7 +138,7 @@ public:
   // Description:
   // Control the seed used for pseudo-random-number generation.
   // This ensures that vtkPBGLRMATGraphSource can produce repeatable
-  // results. The seed values provided for each process should be different, 
+  // results. The seed values provided for each process should be different,
   vtkSetMacro(Seed, int);
   vtkGetMacro(Seed, int);
 
@@ -160,14 +160,14 @@ protected:
   char* EdgePedigreeIdArrayName;
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   // Description:
   // Creates directed or undirected output based on Directed flag.
-  virtual int RequestDataObject(vtkInformation*, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
 
 private:

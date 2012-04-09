@@ -17,7 +17,7 @@
 // vtkMultithreader is a class that provides support for multithreaded
 // execution using sproc() on an SGI, or pthread_create on any platform
 // supporting POSIX threads.  This class can be used to execute a single
-// method on multiple threads, or to specify a method per thread. 
+// method on multiple threads, or to specify a method per thread.
 
 #ifndef __vtkMultiThreader_h
 #define __vtkMultiThreader_h
@@ -134,7 +134,7 @@ public:
 
   // Description:
   // Set/Get the value which is used to initialize the NumberOfThreads
-  // in the constructor.  Initially this default is set to the number of 
+  // in the constructor.  Initially this default is set to the number of
   // processors or VTK_MAX_THREADS (which ever is less).
   static void SetGlobalDefaultNumberOfThreads(int val);
   static int  GetGlobalDefaultNumberOfThreads();
@@ -142,8 +142,8 @@ public:
   // These methods are excluded from Tcl wrapping 1) because the
   // wrapper gives up on them and 2) because they really shouldn't be
   // called from a script anyway.
-  //BTX 
-  
+  //BTX
+
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
   // this->NumberOfThreads threads.
@@ -154,7 +154,7 @@ public:
   // for each of the required this->NumberOfThreads methods) using
   // this->NumberOfThreads threads.
   void MultipleMethodExecute();
-  
+
   // Description:
   // Set the SingleMethod to f() and the UserData field of the
   // ThreadInfo that is passed to it will be data.
@@ -162,11 +162,11 @@ public:
   // must be of type vtkThreadFunctionType and must take a single argument of
   // type void *.
   void SetSingleMethod(vtkThreadFunctionType, void *data );
- 
+
   // Description:
-  // Set the MultipleMethod at the given index to f() and the UserData 
+  // Set the MultipleMethod at the given index to f() and the UserData
   // field of the ThreadInfo that is passed to it will be data.
-  void SetMultipleMethod( int index, vtkThreadFunctionType, void *data ); 
+  void SetMultipleMethod( int index, vtkThreadFunctionType, void *data );
 
   // Description:
   // Create a new thread for the given function. Return a thread id
@@ -181,7 +181,7 @@ public:
   // Description:
   // Determine if a thread is still active
   int IsThreadActive( int threadID );
-  
+
   // Description:
   // Get the thread identifier of the calling thread.
   static vtkMultiThreaderIDType GetCurrentThreadID();
@@ -207,7 +207,7 @@ protected:
   vtkThreadFunctionType      SingleMethod;
   vtkThreadFunctionType      MultipleMethod[VTK_MAX_THREADS];
 
-  // Storage of MutexFunctions and ints used to control spawned 
+  // Storage of MutexFunctions and ints used to control spawned
   // threads and the spawned thread ids
   int                        SpawnedThreadActiveFlag[VTK_MAX_THREADS];
   vtkMutexLock               *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];

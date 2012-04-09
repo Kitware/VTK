@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkImageAlgorithm - Generic algorithm superclass for image algs
 // .SECTION Description
-// vtkImageAlgorithm is a filter superclass that hides much of the 
-// pipeline  complexity. It handles breaking the pipeline execution 
-// into smaller extents so that the vtkImageData limits are observed. It 
+// vtkImageAlgorithm is a filter superclass that hides much of the
+// pipeline  complexity. It handles breaking the pipeline execution
+// into smaller extents so that the vtkImageData limits are observed. It
 // also provides support for multithreading. If you don't need any of this
 // functionality, consider using vtkSimpleImageToImageFilter instead.
 // .SECTION See also
@@ -86,8 +86,8 @@ protected:
   virtual void CopyInputArrayAttributesToOutput(vtkInformation* request,
                                                 vtkInformationVector** inputVector,
                                                 vtkInformationVector* outputVector);
-  
-  
+
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
@@ -111,11 +111,11 @@ protected:
   // copy the other point and cell data
   virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,
                                  vtkInformationVector** inputVector);
-  
+
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  
+
 private:
   vtkImageAlgorithm(const vtkImageAlgorithm&);  // Not implemented.
   void operator=(const vtkImageAlgorithm&);  // Not implemented.

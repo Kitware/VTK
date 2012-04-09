@@ -349,7 +349,7 @@ public:
   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcesses;
   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesLengths;
   vtkSmartPointer<vtkIdTypeArray> PointsToSendToProcessesOffsets;
-  
+
   // Description:
   // The edge data we expect to receive from each process.
   vtkSmartPointer<vtkIdTypeArray> EdgesExpectedFromProcessesCounts;
@@ -747,7 +747,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
 
   if (this->ReadMidpoints)
     {
-    // Setup the Edge transfers 
+    // Setup the Edge transfers
     this->Internal->EdgesExpectedFromProcessesCounts = vtkSmartPointer<vtkIdTypeArray>::New();
     this->Internal->EdgesExpectedFromProcessesCounts->SetNumberOfTuples(this->NumberOfPieces);
     this->Internal->EdgesToSendToProcesses = vtkSmartPointer<vtkIdTypeArray>::New();
@@ -765,7 +765,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
     int pointsPerProcess = this->NumberOfGlobalPoints/this->NumberOfPieces + 1;
     for (size_t i = 0; i < edgesNeeded.size (); i ++)
       {
-      int process = edgesNeeded[i].GetMinEndPoint() / pointsPerProcess; 
+      int process = edgesNeeded[i].GetMinEndPoint() / pointsPerProcess;
       vtkIdType ids[2];
       ids[0] = edgesNeeded[i].GetMinEndPoint();
       ids[1] = edgesNeeded[i].GetMaxEndPoint();
@@ -958,7 +958,7 @@ int vtkPSLACReader::ReadFieldData(int modeFD, vtkMultiBlockDataSet *output)
 
 //-----------------------------------------------------------------------------
 int vtkPSLACReader::ReadMidpointCoordinates (
-                                   int meshFD, 
+                                   int meshFD,
                                    vtkMultiBlockDataSet *vtkNotUsed(output),
                                    vtkSLACReader::MidpointCoordinateMap &map)
 {
@@ -997,7 +997,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
   std::vector<midpointListsType> midpointsToDistribute(this->NumberOfPieces);
 
   int pointsPerProcess = this->NumberOfGlobalPoints / this->NumberOfPieces + 1;
-  for (vtkIdType i = 0; i < midpointData->GetNumberOfTuples(); i ++) 
+  for (vtkIdType i = 0; i < midpointData->GetNumberOfTuples(); i ++)
     {
     double *mp = midpointData->GetPointer(i*5);
 
@@ -1093,7 +1093,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     GatherMidpoints(this->Controller, midpointsToSend,
                     midpointsToReceive, process);
     }
-  
+
   // finally, we have all midpoints that correspond to edges we know about
   // convert their edge points to localId and insert into the map and return.
   typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash> localMapType;
@@ -1104,7 +1104,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
        posIter++, topIter++)
     {
     if (topIter->globalId < 0) continue;
-     
+
     vtkIdType local0 = this->Internal->GlobalToLocalIds[topIter->minEdgePoint];
     vtkIdType local1 = this->Internal->GlobalToLocalIds[topIter->maxEdgePoint];
     localMapType::const_iterator iter;
@@ -1130,7 +1130,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
 int vtkPSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
                                      vtkSLACReader::MidpointIdMap &map)
 {
-  int result = this->Superclass::ReadMidpointData(meshFD, output, map); 
+  int result = this->Superclass::ReadMidpointData(meshFD, output, map);
   if (result != 1)
     {
     return result;
@@ -1138,18 +1138,18 @@ int vtkPSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
   // add global IDs for midpoints added that weren't in the file
   vtkPoints *points = vtkPoints::SafeDownCast(
                         output->GetInformation()->Get(vtkSLACReader::POINTS()));
-  vtkIdType pointsAdded = points->GetNumberOfPoints () - 
-          this->Internal->LocalToGlobalIds->GetNumberOfTuples (); 
+  vtkIdType pointsAdded = points->GetNumberOfPoints () -
+          this->Internal->LocalToGlobalIds->GetNumberOfTuples ();
   // Use the maximum number of points added so that the offsets don't overlap
   // There will be gaps and shared edges between two processes will get different ids
   // TODO: Will this cause problems?
   vtkIdType maxPointsAdded;
   this->Controller->AllReduce (&pointsAdded, &maxPointsAdded, 1, vtkCommunicator::MAX_OP);
 
-  vtkIdType start = this->NumberOfGlobalPoints + this->NumberOfGlobalMidpoints + 
+  vtkIdType start = this->NumberOfGlobalPoints + this->NumberOfGlobalMidpoints +
           this->RequestedPiece*maxPointsAdded;
   vtkIdType end = start + pointsAdded;
-  for (vtkIdType i = start; i < end; i ++) 
+  for (vtkIdType i = start; i < end; i ++)
     {
     this->Internal->LocalToGlobalIds->InsertNextTupleValue (&i);
     }

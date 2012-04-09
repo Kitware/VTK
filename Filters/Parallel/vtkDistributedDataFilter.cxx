@@ -114,20 +114,20 @@ vtkDistributedDataFilter::vtkDistributedDataFilter()
 
 //----------------------------------------------------------------------------
 vtkDistributedDataFilter::~vtkDistributedDataFilter()
-{ 
+{
   if (this->Kdtree)
     {
     this->Kdtree->Delete();
     this->Kdtree = NULL;
     }
-  
+
   this->SetController(NULL);
 
   if (this->Target)
     {
     delete [] this->Target;
     this->Target= NULL;
-    } 
+    }
 
   if (this->Source)
     {
@@ -139,7 +139,7 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
     {
     delete [] this->ConvexSubRegionBounds;
     this->ConvexSubRegionBounds = NULL;
-    } 
+    }
 
   if (this->UserCuts)
     {
@@ -240,7 +240,7 @@ void vtkDistributedDataFilter::SetController(vtkMultiProcessController *c)
 
   if ((c == NULL) || (c->GetNumberOfProcesses() == 0))
     {
-    this->NumProcesses = 1;    
+    this->NumProcesses = 1;
     this->MyId = 0;
     }
 
@@ -301,7 +301,7 @@ int vtkDistributedDataFilter::GetBoundaryMode()
     {
     return vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS;
     }
-  
+
   return -1;
 }
 
@@ -328,21 +328,21 @@ void vtkDistributedDataFilter::SetAssignBoundaryCellsToOneRegion(int val)
 }
 
 //----------------------------------------------------------------------------
-void 
+void
 vtkDistributedDataFilter::AssignBoundaryCellsToAllIntersectingRegionsOn()
 {
   this->SetAssignBoundaryCellsToAllIntersectingRegions(1);
 }
 
 //----------------------------------------------------------------------------
-void 
+void
 vtkDistributedDataFilter::AssignBoundaryCellsToAllIntersectingRegionsOff()
 {
   this->SetAssignBoundaryCellsToAllIntersectingRegions(0);
 }
 
 //----------------------------------------------------------------------------
-void 
+void
 vtkDistributedDataFilter::SetAssignBoundaryCellsToAllIntersectingRegions(int val)
 {
   if (val)
@@ -442,9 +442,9 @@ int vtkDistributedDataFilter::RequestData(
     return this->RequestDataInternal(inputDS, outputUG);
     }
 
-  vtkCompositeDataSet* inputCD = 
+  vtkCompositeDataSet* inputCD =
     vtkCompositeDataSet::GetData(inputVector[0], 0);
-  vtkMultiBlockDataSet* outputMB = 
+  vtkMultiBlockDataSet* outputMB =
     vtkMultiBlockDataSet::GetData(outputVector, 0);
   if (!inputCD || !outputMB)
     {
@@ -458,7 +458,7 @@ int vtkDistributedDataFilter::RequestData(
   iter.TakeReference(inputCD->NewIterator());
   // We want to traverse over empty nodes as well. This ensures that this
   // algorithm will work correctly in parallel.
-  iter->SkipEmptyNodesOff(); 
+  iter->SkipEmptyNodesOff();
 
   // Collect information about datatypes all the processes have at all the leaf
   // nodes. Ideally all processes will either have the same type or an empty
@@ -519,7 +519,7 @@ int vtkDistributedDataFilter::RequestData(
       this->Controller->Receive(&leafTypes[0], numLeaves, 0, 1020203);
       }
     }
-  
+
   unsigned int cc=0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem(), cc++)
@@ -577,14 +577,14 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
   // This method requires an MPI controller.
 
   int aok = 0;
-    
+
 #ifdef VTK_USE_MPI
   if (vtkMPIController::SafeDownCast(this->Controller))
     {
     aok = 1;
     }
-#endif 
-    
+#endif
+
   if (!aok)
     {
     vtkErrorMacro(<< "vtkDistributedDataFilter multiprocess requires MPI");
@@ -670,7 +670,7 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
   if (this->GhostLevel > 0)
     {
     // Create global nodes IDs if we don't have them
-        
+
     if (this->GetGlobalNodeIdArray(redistributedInput) == NULL)
       {
       this->SetProgressText("Assign global point IDs");
@@ -712,7 +712,7 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
     }
 
   da = expandedGrid->GetPointData()->GetArray(TEMP_NODE_ID_NAME);
- 
+
   if (da)
     {
     expandedGrid->GetCellData()->RemoveArray(TEMP_NODE_ID_NAME);
@@ -753,8 +753,8 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(
       inputPlus = set->NewInstance();
       inputPlus->ShallowCopy(set);
       }
-  
-    this->AssignGlobalElementIds(inputPlus); 
+
+    this->AssignGlobalElementIds(inputPlus);
     }
 
   // next call deletes inputPlus at the earliest opportunity
@@ -774,7 +774,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
       {
       this->Kdtree->AssignRegionsContiguous();
       }
-    this->Kdtree->SetTiming(this->GetTiming()); 
+    this->Kdtree->SetTiming(this->GetTiming());
     }
   if (this->UserCuts)
     {
@@ -789,7 +789,7 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
   // BuildLocator is smart enough to rebuild the k-d tree only if
   // the input geometry has changed, or the k-d tree build parameters
   // have changed.  It will reassign regions if the region assignment
-  // scheme has changed. 
+  // scheme has changed.
 
   this->Kdtree->BuildLocator();
 
@@ -925,7 +925,7 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
         {
         this->Kdtree->SetCuts(this->UserCuts);
         }
-      this->Kdtree->SetTiming(this->GetTiming()); 
+      this->Kdtree->SetTiming(this->GetTiming());
       }
 
     this->Kdtree->SetDataSet(tmp);
@@ -939,7 +939,7 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
     this->Kdtree = NULL;
     }
 
-  vtkUnstructuredGrid *clean = 
+  vtkUnstructuredGrid *clean =
     vtkDistributedDataFilter::MergeGrids(&tmp, 1, DeleteYes,
                                          1, tolerance, 0);
 
@@ -1109,7 +1109,7 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
   if (numConsumers == nprocs - 1)
     {
-    // Simple and common case.  
+    // Simple and common case.
     // Only one process has data and divides it among the rest.
 
     inputSize->Delete();
@@ -1131,14 +1131,14 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
         {
         vtkIdType sizeLast = numTotalCells - ((nprocs-1) * cellsPerNode);
         vtkIdType cellId = 0;
-  
+
         for (proc=0; proc<nprocs; proc++)
           {
           vtkIdType ncells = ((proc == nprocs - 1) ? sizeLast :cellsPerNode);
-        
+
           sendCells[proc] = vtkIdList::New();
           sendCells[proc]->SetNumberOfIds(ncells);
-  
+
           for (i=0; i<ncells; i++)
             {
             sendCells[proc]->SetId(i, cellId++);
@@ -1197,10 +1197,10 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
       // fastest.  It is somewhere in between.
 
       vtkIdType minCells = (vtkIdType)(.8 * (double)cellsPerNode);
-  
+
       struct vtkDistributedDataFilterProcInfo *procInfo
         = new struct vtkDistributedDataFilterProcInfo [nprocs];
-  
+
       for (proc = 0; proc < nprocs ; proc++)
         {
         procInfo[proc].had   = inputSize->GetValue(proc);
@@ -1209,8 +1209,8 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
         }
 
       inputSize->Delete();
-  
-      qsort(procInfo, nprocs, sizeof(struct vtkDistributedDataFilterProcInfo), 
+
+      qsort(procInfo, nprocs, sizeof(struct vtkDistributedDataFilterProcInfo),
             vtkDistributedDataFilterSortSize);
 
       struct vtkDistributedDataFilterProcInfo *nextProducer = procInfo;
@@ -1221,7 +1221,7 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
       int sanityCheck=0;
       int nprocsSquared = nprocs * nprocs;
-  
+
       while (sanityCheck++ < nprocsSquared)
         {
         int c = nextConsumer->procId;
@@ -1230,26 +1230,26 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
           {
           break;
           }
-  
+
         vtkIdType cGetMin = minCells - nextConsumer->has;
-  
+
         if (cGetMin < 1)
           {
           nextConsumer--;
           continue;
           }
         vtkIdType cGetMax = cellsPerNode - nextConsumer->has;
-  
+
         int p = nextProducer->procId;
 
         vtkIdType pSendMax = nextProducer->has - minCells;
-  
+
         if (pSendMax < 1)
           {
           nextProducer++;
           continue;
           }
-  
+
         vtkIdType transferSize = (pSendMax < cGetMax) ? pSendMax : cGetMax;
 
         if (me == p)
@@ -1264,10 +1264,10 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
           numTransferCells += transferSize;
           }
-  
+
         nextProducer->has -= transferSize;
         nextConsumer->has += transferSize;
-  
+
         continue;
         }
 
@@ -1282,7 +1282,7 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
             {
             sendCells[i]->Delete();
             }
-          } 
+          }
         delete [] sendCells;
         delete [] nodeType;
         sendCells = NULL;
@@ -1306,7 +1306,7 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
   if (sendCells)
     {
     newGrid = this->ExchangeMergeSubGrids(
-           sendCells, DeleteYes, input, DeleteNo, 
+           sendCells, DeleteYes, input, DeleteNo,
            DuplicateCellsNo, GhostCellsNo, 0x0011);
 
     delete [] sendCells;
@@ -1376,7 +1376,7 @@ void vtkDistributedDataFilter::FreeIdLists(vtkIdList**lists, int nlists)
     if (lists[i])
       {
        lists[i]->Delete();
-       lists[i] = NULL; 
+       lists[i] = NULL;
       }
     }
 }
@@ -1401,7 +1401,7 @@ vtkIdType vtkDistributedDataFilter::GetIdListSize(vtkIdList **lists, int nlists)
 vtkUnstructuredGrid *
   vtkDistributedDataFilter::ExchangeMergeSubGrids(
                vtkIdList **cellIds, int deleteCellIds,
-               vtkDataSet *myGrid, int deleteMyGrid, 
+               vtkDataSet *myGrid, int deleteMyGrid,
                int filterOutDuplicateCells, int ghostCellFlag,
                int tag)
 {
@@ -1425,7 +1425,7 @@ vtkUnstructuredGrid *
     listOfLists[i] = &cellIds[i];
     }
 
-  vtkUnstructuredGrid *grid = NULL; 
+  vtkUnstructuredGrid *grid = NULL;
 
   if (this->UseMinimalMemory)
     {
@@ -1437,7 +1437,7 @@ vtkUnstructuredGrid *
     grid = this->ExchangeMergeSubGridsFast(listOfLists, numLists, deleteCellIds,
              myGrid, deleteMyGrid, filterOutDuplicateCells, ghostCellFlag, tag);
     }
- 
+
   delete [] numLists;
   delete [] listOfLists;
 
@@ -1448,11 +1448,11 @@ vtkUnstructuredGrid *
 vtkUnstructuredGrid *
   vtkDistributedDataFilter::ExchangeMergeSubGrids(
                vtkIdList ***cellIds, int *numLists, int deleteCellIds,
-               vtkDataSet *myGrid, int deleteMyGrid, 
+               vtkDataSet *myGrid, int deleteMyGrid,
                int filterOutDuplicateCells, int ghostCellFlag,
                int tag)
 {
-  vtkUnstructuredGrid *grid = NULL; 
+  vtkUnstructuredGrid *grid = NULL;
 
   if (this->UseMinimalMemory)
     {
@@ -1474,11 +1474,11 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCounts(vtkIdType myCount, int 
 
   if (this->UseMinimalMemory)
     {
-    ia = this->ExchangeCountsLean(myCount, tag); 
+    ia = this->ExchangeCountsLean(myCount, tag);
     }
   else
     {
-    ia = this->ExchangeCountsFast(myCount, tag); 
+    ia = this->ExchangeCountsFast(myCount, tag);
     }
   return ia;
 }
@@ -1508,11 +1508,11 @@ vtkIdTypeArray **vtkDistributedDataFilter::
 
   if (this->UseMinimalMemory)
     {
-    ia = this->ExchangeIdArraysLean(myArray, deleteSendArrays, tag); 
+    ia = this->ExchangeIdArraysLean(myArray, deleteSendArrays, tag);
     }
   else
     {
-    ia = this->ExchangeIdArraysFast(myArray, deleteSendArrays, tag); 
+    ia = this->ExchangeIdArraysFast(myArray, deleteSendArrays, tag);
     }
   return ia;
 }
@@ -1523,7 +1523,7 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsLean(vtkIdType myCount, 
   vtkIdTypeArray *countArray = NULL;
 
 #ifdef VTK_USE_MPI
-  vtkIdType i; 
+  vtkIdType i;
   int nprocs = this->NumProcesses;
 
   vtkMPICommunicator::Request req;
@@ -1554,19 +1554,19 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsLean(vtkIdType myCount, 
   (void)myCount;
   (void)tag;
 #endif
-    
+
   return countArray;
 }
 
 //-------------------------------------------------------------------------
 vtkFloatArray **
-  vtkDistributedDataFilter::ExchangeFloatArraysLean(vtkFloatArray **myArray, 
+  vtkDistributedDataFilter::ExchangeFloatArraysLean(vtkFloatArray **myArray,
                                               int deleteSendArrays, int tag)
 {
   vtkFloatArray **remoteArrays = NULL;
 
 #ifdef VTK_USE_MPI
-  int i; 
+  int i;
   int nprocs = this->NumProcesses;
   int me = this->MyId;
 
@@ -1671,7 +1671,7 @@ vtkFloatArray **
       remoteArrays[i] = NULL;
       }
     }
-  
+
   delete [] recvArrays;
   delete [] recvSize;
 
@@ -1681,19 +1681,19 @@ vtkFloatArray **
   (void)deleteSendArrays;
   (void)tag;
 #endif
-    
+
   return remoteArrays;
 }
 
 //-------------------------------------------------------------------------
 vtkIdTypeArray **
-  vtkDistributedDataFilter::ExchangeIdArraysLean(vtkIdTypeArray **myArray, 
+  vtkDistributedDataFilter::ExchangeIdArraysLean(vtkIdTypeArray **myArray,
                                               int deleteSendArrays, int tag)
 {
   vtkIdTypeArray **remoteArrays = NULL;
 
 #ifdef VTK_USE_MPI
-  int i; 
+  int i;
   int nprocs = this->NumProcesses;
   int me = this->MyId;
 
@@ -1798,7 +1798,7 @@ vtkIdTypeArray **
       remoteArrays[i] = NULL;
       }
     }
-  
+
   delete [] recvArrays;
   delete [] recvSize;
 
@@ -1808,7 +1808,7 @@ vtkIdTypeArray **
   (void)deleteSendArrays;
   (void)tag;
 #endif
-    
+
   return remoteArrays;
 }
 
@@ -1816,7 +1816,7 @@ vtkIdTypeArray **
 vtkUnstructuredGrid *
   vtkDistributedDataFilter::ExchangeMergeSubGridsLean(
     vtkIdList ***cellIds, int *numLists, int deleteCellIds,
-    vtkDataSet *myGrid, int deleteMyGrid, 
+    vtkDataSet *myGrid, int deleteMyGrid,
     int filterOutDuplicateCells,   // flag if different processes may send same cells
     int ghostCellFlag,   // flag if these cells are ghost cells
     int tag)
@@ -1856,12 +1856,12 @@ vtkUnstructuredGrid *
     // and this caused corrupted data structures.  I don't know why, but
     // I am now being careful not to do that.
 
-    vtkIdType numCells = 
+    vtkIdType numCells =
       vtkDistributedDataFilter::GetIdListSize(cellIds[iam], numLists[iam]);
 
     if (numCells > 0)
       {
-      grids[numReceivedGrids++] = 
+      grids[numReceivedGrids++] =
         this->ExtractCells(cellIds[iam], numLists[iam], deleteCellIds, tmpGrid, mmd);
       }
     else if (deleteCellIds)
@@ -1891,8 +1891,8 @@ vtkUnstructuredGrid *
 
       if (numCells > 0)
         {
-        vtkUnstructuredGrid *sendGrid = 
-          this->ExtractCells(cellIds[target], numLists[target], 
+        vtkUnstructuredGrid *sendGrid =
+          this->ExtractCells(cellIds[target], numLists[target],
                                                deleteCellIds, tmpGrid, mmd);
 
         packedGridSend = this->MarshallDataSet(sendGrid, packedGridSendSize);
@@ -1919,18 +1919,18 @@ vtkUnstructuredGrid *
       packedGridRecv = new char [packedGridRecvSize];
       if (!packedGridRecv)
         {
-        vtkErrorMacro(<< 
+        vtkErrorMacro(<<
           "vtkDistributedDataFilter::ExchangeMergeSubGrids memory allocation");
         return NULL;
         }
       recvBufSize = packedGridRecvSize;
       }
-    
+
     if (packedGridRecvSize > 0)
       {
       mpiContr->NoBlockReceive(packedGridRecv, packedGridRecvSize, source, tag, req);
       }
-      
+
     if (packedGridSendSize > 0)
       {
       mpiContr->Send(packedGridSend, packedGridSendSize, target, tag);
@@ -1941,7 +1941,7 @@ vtkUnstructuredGrid *
       {
       req.Wait();
 
-      grids[numReceivedGrids++] = 
+      grids[numReceivedGrids++] =
         this->UnMarshallDataSet(packedGridRecv, packedGridRecvSize);
       }
     }
@@ -1957,7 +1957,7 @@ vtkUnstructuredGrid *
   if (numReceivedGrids > 1)
     {
     // Merge received grids
-  
+
     // this call will merge the grids and then delete them
 
     float tolerance = 0.0;
@@ -1967,7 +1967,7 @@ vtkUnstructuredGrid *
       tolerance = (float)this->Kdtree->GetFudgeFactor();
       }
 
-    mergedGrid = 
+    mergedGrid =
       vtkDistributedDataFilter::MergeGrids(grids, numReceivedGrids, DeleteYes,
                                            1, tolerance, filterOutDuplicateCells);
 
@@ -2014,7 +2014,7 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(vtkIdType myCount, 
   vtkIdTypeArray *countArray = NULL;
 
 #ifdef VTK_USE_MPI
-  vtkIdType i; 
+  vtkIdType i;
   int nprocs = this->NumProcesses;
   int me = this->MyId;
 
@@ -2063,13 +2063,13 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(vtkIdType myCount, 
   (void)myCount;
   (void)tag;
 #endif
-    
+
   return countArray;
 }
 
 //-------------------------------------------------------------------------
 vtkFloatArray **
-  vtkDistributedDataFilter::ExchangeFloatArraysFast(vtkFloatArray **myArray, 
+  vtkDistributedDataFilter::ExchangeFloatArraysFast(vtkFloatArray **myArray,
                                               int deleteSendArrays, int tag)
 {
   vtkFloatArray **fa = NULL;
@@ -2101,9 +2101,9 @@ vtkFloatArray **
   // Exchange sizes of arrays to send and receive
 
   vtkMPICommunicator::Request *reqBuf = new vtkMPICommunicator::Request [nprocs];
-    
+
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2114,7 +2114,7 @@ vtkFloatArray **
   mpiContr->Barrier();
 
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2123,7 +2123,7 @@ vtkFloatArray **
     }
 
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2219,7 +2219,7 @@ vtkFloatArray **
   delete [] recvBufs;
 
 #else
-  (void)myArray; 
+  (void)myArray;
   (void)deleteSendArrays;
   (void)tag;
 
@@ -2231,7 +2231,7 @@ vtkFloatArray **
 
 //-------------------------------------------------------------------------
 vtkIdTypeArray **
-  vtkDistributedDataFilter::ExchangeIdArraysFast(vtkIdTypeArray **myArray, 
+  vtkDistributedDataFilter::ExchangeIdArraysFast(vtkIdTypeArray **myArray,
                                               int deleteSendArrays, int tag)
 {
   vtkIdTypeArray **ia = NULL;
@@ -2263,9 +2263,9 @@ vtkIdTypeArray **
   // Exchange sizes of arrays to send and receive
 
   vtkMPICommunicator::Request *reqBuf = new vtkMPICommunicator::Request [nprocs];
-    
+
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2276,7 +2276,7 @@ vtkIdTypeArray **
   mpiContr->Barrier();
 
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2285,7 +2285,7 @@ vtkIdTypeArray **
     }
 
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2381,7 +2381,7 @@ vtkIdTypeArray **
   delete [] recvBufs;
 
 #else
-  (void)myArray; 
+  (void)myArray;
   (void)deleteSendArrays;
   (void)tag;
 
@@ -2395,7 +2395,7 @@ vtkIdTypeArray **
 vtkUnstructuredGrid *
   vtkDistributedDataFilter::ExchangeMergeSubGridsFast(
     vtkIdList ***cellIds, int *numLists, int deleteCellIds,
-    vtkDataSet *myGrid, int deleteMyGrid, 
+    vtkDataSet *myGrid, int deleteMyGrid,
     int filterOutDuplicateCells,   // flag if different processes may send same cells
     int ghostCellFlag,  // flag if these are ghost cells
     int tag)
@@ -2424,7 +2424,7 @@ vtkUnstructuredGrid *
   if (vtkDistributedDataFilter::HasMetadata(tmpGrid)  && !ghostCellFlag)
     {
     // Pull metadata out of grid
-   
+
     mmd = vtkModelMetadata::New();
     mmd->Unpack(tmpGrid, DeleteYes);
     }
@@ -2439,7 +2439,7 @@ vtkUnstructuredGrid *
       {
       vtkIdType numCells =
         vtkDistributedDataFilter::GetIdListSize(cellIds[proc], numLists[proc]);
-  
+
       if (numCells > 0)
         {
         grids[proc] =
@@ -2465,9 +2465,9 @@ vtkUnstructuredGrid *
   // Exchange sizes of grids to send and receive
 
   vtkMPICommunicator::Request *reqBuf = new vtkMPICommunicator::Request [nprocs];
-    
+
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2478,7 +2478,7 @@ vtkUnstructuredGrid *
   mpiContr->Barrier();
 
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2487,7 +2487,7 @@ vtkUnstructuredGrid *
     }
 
   for (proc=0; proc<nprocs; proc++)
-    { 
+    {
     if (proc == iam)
       {
       continue;
@@ -2564,7 +2564,7 @@ vtkUnstructuredGrid *
   int numReceivedGrids = 0;
 
   vtkDataSet **ds = new vtkDataSet * [nprocs];
-  
+
   for (proc=0; proc < nprocs; proc++)
     {
     if (grids[proc] != NULL)
@@ -2587,9 +2587,9 @@ vtkUnstructuredGrid *
     int useGlobalNodeIds = (ds[0]->GetPointData()->GetGlobalIds() != NULL);
 
     // this call will merge the grids and then delete them
-    mergedGrid = 
+    mergedGrid =
       vtkDistributedDataFilter::MergeGrids(ds, numReceivedGrids, DeleteYes,
-                                           useGlobalNodeIds, tolerance, 
+                                           useGlobalNodeIds, tolerance,
                                            filterOutDuplicateCells);
 
     }
@@ -2631,21 +2631,21 @@ vtkUnstructuredGrid *
 }
 
 //-------------------------------------------------------------------------
-void vtkDistributedDataFilter::AddMetadata(vtkUnstructuredGrid *grid, 
+void vtkDistributedDataFilter::AddMetadata(vtkUnstructuredGrid *grid,
                                            vtkModelMetadata *mmd)
 {
   vtkIdTypeArray* ia = this->GetGlobalElementIdArray(grid);
 
   // Extract the metadata for all cells in this grid
 
-  vtkModelMetadata *submmd = 
+  vtkModelMetadata *submmd =
     mmd->ExtractModelMetadata(ia,     // extract metadata for these cells
                               grid);  // in this grid
 
   // Pack that metadata into field arrays of the grid
 
   submmd->Pack(grid);
-  submmd->Delete(); 
+  submmd->Delete();
 }
 
 //-------------------------------------------------------------------------
@@ -2662,14 +2662,14 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
   // superset of all cells that belong to a region) then the kdtree object
   // can build another set of lists of all cells that intersect each
   // region (but don't have their centroid in that region).
-  
+
   if (this->IncludeAllIntersectingCells)
     {
     // TO DO:
     // We actually compute whether a cell intersects a spatial region.
     // This can be a lengthy calculation.  Perhaps it's good enough
     // to compute whether a cell's bounding box intersects the region.
-    // Some of the cells we list will actually not be in the region, but 
+    // Some of the cells we list will actually not be in the region, but
     // if we are clipping later, it doesn't matter.
     //
     // Is there any rendering algorithm that needs exactly all cells
@@ -2677,7 +2677,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
 
     this->Kdtree->IncludeRegionBoundaryCellsOn();   // SLOW!!
     }
-  
+
   this->Kdtree->CreateCellLists();  // required by GetCellIdsForProcess
 
   vtkIdList ***procCellLists = new vtkIdList ** [nprocs];
@@ -2685,7 +2685,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
 
   for (proc = 0; proc < this->NumProcesses; proc++)
     {
-    procCellLists[proc] = this->GetCellIdsForProcess(proc, numLists + proc); 
+    procCellLists[proc] = this->GetCellIdsForProcess(proc, numLists + proc);
     }
 
   int deleteDataSet = DeleteNo;
@@ -2695,7 +2695,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
     deleteDataSet = DeleteYes;
     }
 
-  vtkUnstructuredGrid *myNewGrid = 
+  vtkUnstructuredGrid *myNewGrid =
     this->ExchangeMergeSubGrids(procCellLists, numLists, DeleteNo,
        in, deleteDataSet, DuplicateCellsNo, GhostCellsNo, 0x0012);
 
@@ -2759,7 +2759,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::UnMarshallDataSet(char *buf, int 
   reader->ReadFromInputStringOn();
 
   vtkCharArray* mystring = vtkCharArray::New();
-  
+
   mystring->SetArray(buf, size, 1);
 
   reader->SetInputArray(mystring);
@@ -2778,7 +2778,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::UnMarshallDataSet(char *buf, int 
 }
 
 //-------------------------------------------------------------------------
-vtkUnstructuredGrid 
+vtkUnstructuredGrid
   *vtkDistributedDataFilter::ExtractCells(vtkIdList *cells, int deleteCellLists,
                                 vtkDataSet *in, vtkModelMetadata *mmd)
 {
@@ -2806,8 +2806,8 @@ vtkUnstructuredGrid
 }
 
 //-------------------------------------------------------------------------
-vtkUnstructuredGrid 
-  *vtkDistributedDataFilter::ExtractCells(vtkIdList **cells, int nlists, 
+vtkUnstructuredGrid
+  *vtkDistributedDataFilter::ExtractCells(vtkIdList **cells, int nlists,
                  int deleteCellLists, vtkDataSet *in, vtkModelMetadata *mmd)
 {
   vtkDataSet* tmpInput = in->NewInstance();
@@ -2822,7 +2822,7 @@ vtkUnstructuredGrid
     if (cells[i])
       {
       extCells->AddCellList(cells[i]);
-  
+
       if (deleteCellLists)
         {
         cells[i]->Delete();
@@ -2851,7 +2851,7 @@ vtkUnstructuredGrid
 }
 
 //-------------------------------------------------------------------------
-vtkUnstructuredGrid 
+vtkUnstructuredGrid
   *vtkDistributedDataFilter::ExtractZeroCellGrid(vtkDataSet *in,
     vtkModelMetadata *mmd)
 {
@@ -2862,7 +2862,7 @@ vtkUnstructuredGrid
 
   extCells->SetInputData(tmpInput);
 
-  extCells->Update();   // extract no cells 
+  extCells->Update();   // extract no cells
 
   vtkUnstructuredGrid *keepGrid = vtkUnstructuredGrid::New();
   keepGrid->ShallowCopy(extCells->GetOutput());
@@ -2882,7 +2882,7 @@ vtkUnstructuredGrid
 //-------------------------------------------------------------------------
 
 // To save on storage, we return actual pointers into the vtkKdTree's lists
-// of cell IDs.  So don't free the memory they are pointing to.  
+// of cell IDs.  So don't free the memory they are pointing to.
 // vtkKdTree::DeleteCellLists will delete them all when we're done.
 
 vtkIdList **vtkDistributedDataFilter::GetCellIdsForProcess(int proc, int *nlists)
@@ -2925,11 +2925,11 @@ vtkIdList **vtkDistributedDataFilter::GetCellIdsForProcess(int proc, int *nlists
 }
 
 //==========================================================================
-// Code related to clipping cells to the spatial region 
+// Code related to clipping cells to the spatial region
 
 //-------------------------------------------------------------------------
 static int insideBoxFunction(vtkIdType cellId, vtkUnstructuredGrid *grid, void *data)
-{   
+{
   char *arrayName = (char *)data;
 
   vtkDataArray *da= grid->GetCellData()->GetArray(arrayName);
@@ -2982,7 +2982,7 @@ void vtkDistributedDataFilter::AddConstantUnsignedCharCellArray(
 // this is here temporarily, until vtkBoxClipDataSet is fixed to
 // be able to generate the clipped output
 void vtkDistributedDataFilter::ClipWithVtkClipDataSet(
-           vtkUnstructuredGrid *grid, double *bounds, 
+           vtkUnstructuredGrid *grid, double *bounds,
            vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside)
 {
   vtkUnstructuredGrid *in;
@@ -3002,7 +3002,7 @@ void vtkDistributedDataFilter::ClipWithVtkClipDataSet(
 
   if (outside)
     {
-    clipped->GenerateClippedOutputOn(); 
+    clipped->GenerateClippedOutputOn();
     }
 
   clipped->Update();
@@ -3025,7 +3025,7 @@ void vtkDistributedDataFilter::ClipWithVtkClipDataSet(
 //-------------------------------------------------------------------------
 // In general, vtkBoxClipDataSet is much faster and makes fewer errors.
 void vtkDistributedDataFilter::ClipWithBoxClipDataSet(
-           vtkUnstructuredGrid *grid, double *bounds, 
+           vtkUnstructuredGrid *grid, double *bounds,
            vtkUnstructuredGrid **outside, vtkUnstructuredGrid **inside)
 {
   vtkUnstructuredGrid *in;
@@ -3040,7 +3040,7 @@ void vtkDistributedDataFilter::ClipWithBoxClipDataSet(
 
   if (outside)
     {
-    clipped->GenerateClippedOutputOn();  
+    clipped->GenerateClippedOutputOn();
     }
 
   clipped->Update();
@@ -3080,7 +3080,7 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
 
   if (this->GhostLevel > 0)
     {
-    // We need cells outside the clip box as well.  
+    // We need cells outside the clip box as well.
 
     vtkUnstructuredGrid *outside;
     vtkUnstructuredGrid *inside;
@@ -3107,7 +3107,7 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
     grids[0] = inside;
     grids[1] = outside;
 
-    vtkUnstructuredGrid *combined = 
+    vtkUnstructuredGrid *combined =
       vtkDistributedDataFilter::MergeGrids(grids, 2,  DeleteYes, 0,
                                            (float)this->Kdtree->GetFudgeFactor(), 0);
 
@@ -3129,7 +3129,7 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
 
     grid->ShallowCopy(ep->GetOutput());
     grid->GetCellData()->RemoveArray(arrayName);
-    
+
     ep->Delete();
     combined->Delete();
 
@@ -3192,7 +3192,7 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
       pid = this->Kdtree->GetProcessAssignedToRegion(regionId);
 
       numPointsOutside[pid]++;
-      
+
       pid += 1;
       pid *= -1;
 
@@ -3230,7 +3230,7 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
 
   // -----------------------------------------------------------------
   // All processes have assigned global IDs to the points in their grid
-  // which lie within their assigned spatial region.  
+  // which lie within their assigned spatial region.
   // Now they have to get the IDs for the
   // points in their grid which lie outside their region, and which
   // are within the spatial region of another process.
@@ -3272,10 +3272,10 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
 
       ptarrayOut[pid] = vtkFloatArray::New();
       ptarrayOut[pid]->SetNumberOfValues(npoints * 3);
-      
+
       localIds[pid] = vtkIdTypeArray::New();
       localIds[pid]->SetNumberOfValues(npoints);
-      
+
       next[pid] = 0;
       next3[pid] = 0;
       }
@@ -3296,17 +3296,17 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
   // 5. Do pairwise exchanges of the points we want global IDs for,
   //    and delete outgoing point arrays.
 
-  vtkFloatArray **ptarrayIn = this->ExchangeFloatArrays(ptarrayOut, 
+  vtkFloatArray **ptarrayIn = this->ExchangeFloatArrays(ptarrayOut,
               DeleteYes, 0x0014);
 
   // 6. Find the global point IDs that have been requested of me,
   //    and delete incoming point arrays.  Count "missing points":
-  //    the number of unique points I receive which are not in my 
+  //    the number of unique points I receive which are not in my
   //    grid (this may happen if IncludeAllIntersectingCells is OFF).
 
   vtkIdType myNumMissingPoints = 0;
 
-  vtkIdTypeArray **idarrayOut = 
+  vtkIdTypeArray **idarrayOut =
     this->FindGlobalPointIds(ptarrayIn, globalIds, grid, myNumMissingPoints);
 
   vtkIdTypeArray *missingCount = this->ExchangeCounts(myNumMissingPoints, 0x0015);
@@ -3320,7 +3320,7 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
       {
       if (missingCount->GetValue(pid) > 0)
         {
-         vtkErrorMacro(<< 
+         vtkErrorMacro(<<
           "vtkDistributedDataFilter::AssignGlobalNodeIds bad point");
         aok = 0;
         break;
@@ -3340,7 +3340,7 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
   // 7. Do pairwise exchanges of the global point IDs, and delete the
   //    outgoing point ID arrays.
 
-  vtkIdTypeArray **idarrayIn = this->ExchangeIdArrays(idarrayOut, 
+  vtkIdTypeArray **idarrayIn = this->ExchangeIdArrays(idarrayOut,
                     DeleteYes, 0x0016);
 
   // 8. It's possible (if IncludeAllIntersectingCells is OFF) that some
@@ -3354,7 +3354,7 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
   if (this->IncludeAllIntersectingCells == 0)
     {
     missingId[0] = numGlobalIdsSoFar;
-  
+
     for (pid = 1; pid < nprocs; pid++)
       {
       int prev = pid - 1;
@@ -3374,7 +3374,7 @@ int vtkDistributedDataFilter::AssignGlobalNodeIds(vtkUnstructuredGrid *grid)
       }
 
     vtkIdType count = idarrayIn[pid]->GetNumberOfTuples();
-      
+
     for (ptId = 0; ptId < count; ptId++)
       {
       vtkIdType myLocalId = localIds[pid]->GetValue(ptId);
@@ -3450,7 +3450,7 @@ vtkIdTypeArray **vtkDistributedDataFilter::FindGlobalPointIds(
 
   for (procId = 0; procId < nprocs; procId++)
     {
-    if ((ptarray[procId] == NULL) || 
+    if ((ptarray[procId] == NULL) ||
         (ptarray[procId]->GetNumberOfTuples() == 0))
       {
       gids[procId] = NULL;
@@ -3493,7 +3493,7 @@ vtkIdTypeArray **vtkDistributedDataFilter::FindGlobalPointIds(
           vtkIdType nextId;
           double dpt[3];
           dpt[0] = pt[0]; dpt[1] = pt[1]; dpt[2] = pt[2];
-          pl->InsertUniquePoint(dpt, nextId); 
+          pl->InsertUniquePoint(dpt, nextId);
 
           nextId += 1;
           nextId *= -1;
@@ -3537,7 +3537,7 @@ int vtkDistributedDataFilter::AssignGlobalElementIds(vtkDataSet *in)
   for (i=0; i < this->MyId; i++)
     {
     StartId += numCells->GetValue(i);
-    } 
+    }
 
   numCells->Delete();
 
@@ -3572,7 +3572,7 @@ int vtkDistributedDataFilter::InMySpatialRegion(double x, double y, double z)
     return 0;
     }
 
-  // To avoid ambiguity, a point on a boundary is assigned to 
+  // To avoid ambiguity, a point on a boundary is assigned to
   // the region for which it is on the upper boundary.  Or
   // (in one dimension) the region between points A and B
   // contains all points p such that A < p <= B.
@@ -3680,7 +3680,7 @@ vtkIdTypeArray **vtkDistributedDataFilter::MakeProcessLists(
 
 //-----------------------------------------------------------------------
 vtkIdTypeArray *vtkDistributedDataFilter::AddPointAndCells(
-                        vtkIdType gid, vtkIdType localId, vtkUnstructuredGrid *grid, 
+                        vtkIdType gid, vtkIdType localId, vtkUnstructuredGrid *grid,
                         vtkIdType *gidCells, vtkIdTypeArray *ids)
 {
   if (ids == NULL)
@@ -3694,7 +3694,7 @@ vtkIdTypeArray *vtkDistributedDataFilter::AddPointAndCells(
 
   grid->GetPointCells(localId, cellList);
 
-  vtkIdType numCells = cellList->GetNumberOfIds(); 
+  vtkIdType numCells = cellList->GetNumberOfIds();
 
   ids->InsertNextValue(numCells);
 
@@ -3781,7 +3781,7 @@ vtkIdTypeArray **vtkDistributedDataFilter::GetGhostPointIds(
       // processes which cells we already have, so they don't
       // send them to us.
 
-      ghostPtIds[processId] = 
+      ghostPtIds[processId] =
         vtkDistributedDataFilter::AddPointAndCells(gid, i, grid, gidsCell,
                                        ghostPtIds[processId]);
       }
@@ -3829,7 +3829,7 @@ int vtkDistributedDataFilter::LocalPointIdIsUsed(
 }
 
 //-----------------------------------------------------------------------
-int vtkDistributedDataFilter::GlobalPointIdIsUsed(vtkUnstructuredGrid *grid, 
+int vtkDistributedDataFilter::GlobalPointIdIsUsed(vtkUnstructuredGrid *grid,
                     int ptId, vtkDistributedDataFilterSTLCloak *globalToLocal)
 {
   int used = 1;
@@ -3881,8 +3881,8 @@ vtkIdType vtkDistributedDataFilter::FindId(vtkIdTypeArray *ids, vtkIdType gid, v
 //-----------------------------------------------------------------------
 // We create an expanded grid with the required number of ghost
 // cells.  This is for the case where IncludeAllIntersectingCells is OFF.
-// This means that when the grid was redistributed, each cell was 
-// uniquely assigned to one process, the process owning the spatial 
+// This means that when the grid was redistributed, each cell was
+// uniquely assigned to one process, the process owning the spatial
 // region that the cell's centroid lies in.
 vtkUnstructuredGrid *
 vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
@@ -3891,8 +3891,8 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
 {
   int i,j,k;
   int ncells=0;
-  int processId=0; 
-  int gid=0; 
+  int processId=0;
+  int gid=0;
   vtkIdType size=0;
 
   int nprocs = this->NumProcesses;
@@ -3904,24 +3904,24 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
 
   vtkUnstructuredGrid *newGhostCellGrid = NULL;
   vtkIdTypeArray **ghostPointIds = NULL;
-  
-  vtkDistributedDataFilterSTLCloak *insidePointMap = 
+
+  vtkDistributedDataFilterSTLCloak *insidePointMap =
     new vtkDistributedDataFilterSTLCloak;
   std::multimap<int, int>::iterator mapIt;
 
   while (gl <= this->GhostLevel)
     {
-    // For ghost level 1, create a list for each process (not 
-    // including me) of all points I have in that process' 
+    // For ghost level 1, create a list for each process (not
+    // including me) of all points I have in that process'
     // assigned region.  We use this list for two purposes:
     // (1) to build a list on each process of all other processes
     // that have cells containing points in our region, (2)
     // these are some of the points that we need ghost cells for.
     //
     // For ghost level above 1, create a list for each process
-    // (including me) of all my points in that process' assigned 
+    // (including me) of all my points in that process' assigned
     // region for which I need ghost cells.
-  
+
     if (gl == 1)
       {
       ghostPointIds = this->GetGhostPointIds(gl, myGrid, 0);
@@ -3930,11 +3930,11 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
       {
       ghostPointIds = this->GetGhostPointIds(gl, newGhostCellGrid, 1);
       }
-  
+
     // Exchange these lists.
-  
-    vtkIdTypeArray **insideIds = 
-      this->ExchangeIdArrays(ghostPointIds, DeleteNo, 
+
+    vtkIdTypeArray **insideIds =
+      this->ExchangeIdArrays(ghostPointIds, DeleteNo,
                               0x0018);
 
     if (gl == 1)
@@ -3943,7 +3943,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
       // I now know the identity of all processes having cells containing
       // that point.  Begin by building a mapping from point IDs to the IDs
       // of processes that sent me that point.
-    
+
       for (i=0; i<nprocs; i++)
         {
         if (insideIds[i] == NULL)
@@ -3952,7 +3952,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
           }
 
         size = insideIds[i]->GetNumberOfTuples();
-    
+
         if (size > 0)
           {
           for (j=0; j<size; j+=2)
@@ -3969,14 +3969,14 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
     // sent me point IDs.  To process P, for every point ID sent to me
     // by P, I send the ID of every other process (not including myself
     // and P) that has cells in it's ghost level 0 grid which use
-    // this point. 
+    // this point.
 
-    vtkIdTypeArray **processListSent 
+    vtkIdTypeArray **processListSent
       = this->MakeProcessLists(insideIds, insidePointMap);
 
     // Exchange these new lists.
 
-    vtkIdTypeArray **processList = 
+    vtkIdTypeArray **processList =
       this->ExchangeIdArrays(processListSent, DeleteYes,
                               0x0019);
 
@@ -4011,19 +4011,19 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
         size = processList[i]->GetNumberOfTuples();
         vtkIdType *array = processList[i]->GetPointer(0);
         int nextLoc = 0;
-  
+
         for (j=0; j < size; j += 2)
           {
           gid = array[j];
           processId = array[j+1];
-  
+
           ghostCellsPlease[processId]->InsertNextValue(gid);
 
           if (gl > 1)
             {
             // add the list of cells I already have for this point
 
-            int where = 
+            int where =
               vtkDistributedDataFilter::FindId(ghostPointIds[i], gid, nextLoc);
 
             if (where < 0)
@@ -4056,7 +4056,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
         {                            // which I may need ghost cells for
         for (j=0; j<insideIds[i]->GetNumberOfTuples();)
           {
-          gid = insideIds[i]->GetValue(j);  
+          gid = insideIds[i]->GetValue(j);
           int used = vtkDistributedDataFilter::GlobalPointIdIsUsed(
                                   myGrid, gid, globalToLocalMap);
           if (used)
@@ -4087,7 +4087,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
           if (mapIt != insidePointMap->IntMultiMap.end())
             {
             while (mapIt->first == gid)
-              { 
+              {
               processId = mapIt->second;
               ghostCellsPlease[processId]->InsertNextValue(gid);
               ghostCellsPlease[processId]->InsertNextValue(ncells);
@@ -4112,16 +4112,16 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
 
     // Exchange these ghost cell requests.
 
-    vtkIdTypeArray **ghostCellRequest 
+    vtkIdTypeArray **ghostCellRequest
       = this->ExchangeIdArrays(ghostCellsPlease, DeleteYes,
                                 0x001a);
-  
-    // Build a list of cell IDs satisfying each request received. 
+
+    // Build a list of cell IDs satisfying each request received.
     // Delete request arrays.
 
     vtkIdList **sendCellList =
       this->BuildRequestedGrids(ghostCellRequest, myGrid, globalToLocalMap);
-  
+
     // Build subgrids and exchange them
 
     vtkUnstructuredGrid *incomingGhostCells = this->ExchangeMergeSubGrids(
@@ -4131,11 +4131,11 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
     delete [] sendCellList;
 
     // Set ghost level of new cells, and merge into grid of other
-    // ghost cells received.  
+    // ghost cells received.
 
     newGhostCellGrid = this->SetMergeGhostGrid(newGhostCellGrid,
                               incomingGhostCells, gl, globalToLocalMap);
-  
+
     this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
 
     gl++;
@@ -4154,7 +4154,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
 
     int useGlobalNodeIds = (this->GetGlobalNodeIds(myGrid)?1:0);
 
-    newGrid = 
+    newGrid =
       vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes, useGlobalNodeIds, 0, 0);
     }
   else
@@ -4200,8 +4200,8 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
     {
     // For ghost level 1, create a list for each process of points
     // in my grid which lie in that other process' spatial region.
-    // This is normally all the points for which I need ghost cells, 
-    // with one EXCEPTION.  If a cell is axis-aligned, and a face of 
+    // This is normally all the points for which I need ghost cells,
+    // with one EXCEPTION.  If a cell is axis-aligned, and a face of
     // the cell is on my upper boundary, then the vertices of this
     // face are in my spatial region, but I need their ghost cells.
     // I can detect this case when the process across the boundary
@@ -4210,7 +4210,7 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
     // For ghost level above 1, create a list for each process of
     // points in my ghost grid which are in that process' spatial
     // region and for which I need ghost cells.
-  
+
     if (gl == 1)
       {
       ghostPointIds = this->GetGhostPointIds(gl, myGrid, 1);
@@ -4219,10 +4219,10 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
       {
       ghostPointIds = this->GetGhostPointIds(gl, newGhostCellGrid, 1);
       }
-  
+
     // Exchange these lists.
-  
-    vtkIdTypeArray **insideIds = 
+
+    vtkIdTypeArray **insideIds =
       this->ExchangeIdArrays(ghostPointIds, DeleteYes, 0x001c);
 
     // For ghost level 1, examine the points Ids I received from
@@ -4245,20 +4245,20 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
           }
 
         if (insideIds[i] == NULL)
-          { 
+          {
           continue;
           }
-  
+
         vtkIdType size = insideIds[i]->GetNumberOfTuples();
-  
+
         for (j=0; j<size;)
           {
           vtkIdType gid = insideIds[i]->GetValue(j);
           vtkIdType ncells = insideIds[i]->GetValue(j+1);
           j += (ncells + 2);
-  
+
           mapIt = globalToLocalMap->IntMap.find(gid);
-  
+
           if (mapIt == globalToLocalMap->IntMap.end())
             {
             // This point must be right on my boundary, and
@@ -4274,17 +4274,17 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
 
           if (!interior)
             {
-            extraGhostPointIds[i] = this->AddPointAndCells(gid, localId, 
+            extraGhostPointIds[i] = this->AddPointAndCells(gid, localId,
                             myGrid, gidsCell, extraGhostPointIds[i]);
             }
           }
         }
 
       // Exchange these lists.
-  
-      vtkIdTypeArray **extraInsideIds = 
+
+      vtkIdTypeArray **extraInsideIds =
         this->ExchangeIdArrays(extraGhostPointIds, DeleteYes, 0x001d);
-  
+
       // Add the extra point ids to the previous list
 
       for (i=0; i<nprocs; i++)
@@ -4295,7 +4295,7 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
           }
 
         if (extraInsideIds[i])
-          { 
+          {
           vtkIdType size = extraInsideIds[i]->GetNumberOfTuples();
 
           if (insideIds[i] == NULL)
@@ -4319,8 +4319,8 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
 
     // Build subgrids and exchange them
 
-    vtkUnstructuredGrid *incomingGhostCells = 
-      this->ExchangeMergeSubGrids( sendCellList, DeleteYes, myGrid, DeleteNo, 
+    vtkUnstructuredGrid *incomingGhostCells =
+      this->ExchangeMergeSubGrids( sendCellList, DeleteYes, myGrid, DeleteNo,
                                    DuplicateCellsYes, GhostCellsYes, 0x001e);
 
     delete [] sendCellList;
@@ -4346,8 +4346,8 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
     grids[1] = newGhostCellGrid;
 
     int useGlobalNodeIds = (this->GetGlobalNodeIds(myGrid)?1:0);
-    newGrid = 
-      vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes, 
+    newGrid =
+      vtkDistributedDataFilter::MergeGrids(grids, 2, DeleteYes,
                                            useGlobalNodeIds, 0, 0);
     }
   else
@@ -4360,12 +4360,12 @@ vtkDistributedDataFilter::AddGhostCellsDuplicateCellAssignment(
 
 //-----------------------------------------------------------------------
 // For every process that sent me a list of point IDs, create a list
-// of all the cells I have in my original grid containing those points.  
+// of all the cells I have in my original grid containing those points.
 // We omit cells the remote process already has.
 
 vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
-                        vtkIdTypeArray **globalPtIds, 
-                        vtkUnstructuredGrid *grid, 
+                        vtkIdTypeArray **globalPtIds,
+                        vtkUnstructuredGrid *grid,
                         vtkDistributedDataFilterSTLCloak *ptIdMap)
 {
   vtkIdType id;
@@ -4436,7 +4436,7 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
         vtkIdType *remoteCells = ptarray + id + 2;
         vtkIdType *gidCells = this->GetGlobalElementIds(grid);
 
-        vtkDistributedDataFilter::RemoveRemoteCellsFromList(cellList, 
+        vtkDistributedDataFilter::RemoveRemoteCellsFromList(cellList,
                                      gidCells, remoteCells, nYourCells);
         }
 
@@ -4472,7 +4472,7 @@ vtkIdList **vtkDistributedDataFilter::BuildRequestedGrids(
       sendCells[proc]->SetId(next++, *it);
       }
     }
-  
+
   delete [] globalPtIds;
 
   cellList->Delete();
@@ -4503,7 +4503,7 @@ void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
         {
         found = 1;
         break;
-        } 
+        }
       }
 
     if (!found)
@@ -4516,8 +4516,8 @@ void vtkDistributedDataFilter::RemoveRemoteCellsFromList(
 }
 
 //-----------------------------------------------------------------------
-// Set the ghost levels for the points and cells in the received cells.  
-// Merge the new ghost cells into the supplied grid, and return the new grid.  
+// Set the ghost levels for the points and cells in the received cells.
+// Merge the new ghost cells into the supplied grid, and return the new grid.
 // Delete all grids except the new merged grid.
 
 vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
@@ -4536,15 +4536,15 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
   // Set the ghost level of all new cells, and set the ghost level of all
   // the points.  We know some points in the new grids actually have ghost
   // level one lower, because they were on the boundary of the previous
-  // grid.  This is OK if ghostLevel is > 1.  When we merge, vtkMergeCells 
+  // grid.  This is OK if ghostLevel is > 1.  When we merge, vtkMergeCells
   // will skip these points because they are already in the previous grid.
   // But if ghostLevel is 1, those boundary points were in our original
   // grid, and we need to use the global ID map to determine if the
-  // point ghost levels should be set to 0.  
+  // point ghost levels should be set to 0.
 
   vtkDataArray *da = incomingGhostCells->GetCellData()->GetArray("vtkGhostLevels");
   vtkUnsignedCharArray *cellGL = vtkUnsignedCharArray::SafeDownCast(da);
-      
+
   da  = incomingGhostCells->GetPointData()->GetArray("vtkGhostLevels");
   vtkUnsignedCharArray *ptGL = vtkUnsignedCharArray::SafeDownCast(da);
 
@@ -4574,7 +4574,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
     sets[1] = incomingGhostCells;
 
     int useGlobalNodeIds = (this->GetGlobalNodeIds(ghostCellGrid)?1:0);
-    mergedGrid = 
+    mergedGrid =
       vtkDistributedDataFilter::MergeGrids(sets, 2, DeleteYes, useGlobalNodeIds, 0.0, 0);
     }
 
@@ -4608,9 +4608,9 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 //-----------------------------------------------------------------------
 vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
   vtkDataSet **sets, int nsets, int deleteDataSets,
-  int useGlobalNodeIds, float pointMergeTolerance, 
+  int useGlobalNodeIds, float pointMergeTolerance,
   int useGlobalCellIds)
-{ 
+{
   int i;
 
   if (nsets == 0)
@@ -4627,7 +4627,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
 
     int inputHasMetadata = vtkDistributedDataFilter::HasMetadata(sets[i]);
 
-    if (!inputHasMetadata) 
+    if (!inputHasMetadata)
       {
       continue;
       }
@@ -4640,7 +4640,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
       mmd->MergeModelMetadata(submmd);
       submmd->Delete();
       }
-    else 
+    else
       {
       mmd = submmd;
       }
@@ -4650,10 +4650,10 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
   // Any global ids should be consistent, so make sure they are passed.
   newGrid->GetPointData()->CopyGlobalIdsOn();
   newGrid->GetCellData()->CopyGlobalIdsOn();
-  
+
   vtkMergeCells *mc = vtkMergeCells::New();
   mc->SetUnstructuredGrid(newGrid);
-  
+
   mc->SetTotalNumberOfDataSets(nsets);
 
   vtkIdType totalPoints = 0;
@@ -4672,7 +4672,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
 
   mc->SetTotalNumberOfPoints(totalPoints);
   mc->SetTotalNumberOfCells(totalCells);
-   
+
   if (!useGlobalNodeIds)
     {
     mc->SetPointMergeTolerance(pointMergeTolerance);
@@ -4689,7 +4689,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
       sets[i]->Delete();
       }
     }
-  
+
   mc->Finish();
   mc->Delete();
 
@@ -4729,7 +4729,7 @@ int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
     // If input is composite dataset, output is a vtkMultiBlockDataSet of
     // unstructrued grids.
     // If input is a dataset, output is an unstructured grid.
-    if (!output || 
+    if (!output ||
       (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
       (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
       {
@@ -4767,7 +4767,7 @@ vtkPKdTree *vtkDistributedDataFilter::GetKdtree()
     {
     this->Kdtree = vtkPKdTree::New();
     this->Kdtree->AssignRegionsContiguous();
-    this->Kdtree->SetTiming(this->GetTiming()); 
+    this->Kdtree->SetTiming(this->GetTiming());
     }
 
   return this->Kdtree;
@@ -4775,9 +4775,9 @@ vtkPKdTree *vtkDistributedDataFilter::GetKdtree()
 
 //-------------------------------------------------------------------------
 void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
-{  
+{
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Kdtree: " << this->Kdtree << endl;
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "NumProcesses: " << this->NumProcesses << endl;

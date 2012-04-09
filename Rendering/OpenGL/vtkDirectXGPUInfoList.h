@@ -37,18 +37,18 @@ public:
   static vtkDirectXGPUInfoList* New();
   vtkTypeMacro(vtkDirectXGPUInfoList, vtkGPUInfoList);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Build the list of vtkInfoGPU if not done yet.
   // \post probed: IsProbed()
   virtual void Probe();
-  
+
 protected:
   // Description:
   // Default constructor.
   vtkDirectXGPUInfoList();
   virtual ~vtkDirectXGPUInfoList();
-  
+
   // Description:
   // Probe the GPUs with the DXGI api (Windows Vista or later).
   // It returns true if it succeeded (DXGI API is supported and probing
@@ -64,7 +64,7 @@ protected:
   // \pre info_exist: info!=0
   void ProbeInfoWithWMI(HMONITOR m,
                         vtkGPUInfo *info);
-  
+
   // Description:
   // Used by ProbeInfoWithWMI().
   // \pre pre hm_exists: hm!=0
@@ -73,7 +73,7 @@ protected:
   bool GetDeviceIDFromHMonitor(HMONITOR hm,
                                WCHAR *strDeviceID,
                                int cchDeviceID);
-  
+
 private:
   vtkDirectXGPUInfoList(const vtkDirectXGPUInfoList&); // Not implemented.
   void operator=(const vtkDirectXGPUInfoList&); // Not implemented.

@@ -71,7 +71,7 @@ int vtkPOutlineCornerFilter::RequestData(
     }
 
   int doCommunicate = 1;
-  
+
   // If there is a composite dataset in the input, the request is
   // coming from a vtkCompositeDataPipeline and interprocess communication
   // is not necessary (simple datasets are not broken into pieces)
@@ -83,12 +83,12 @@ int vtkPOutlineCornerFilter::RequestData(
     }
 
   input->GetBounds(bds);
-  //cerr << "Bounds: " << bds[0] << ", " << bds[1] << ", " 
+  //cerr << "Bounds: " << bds[0] << ", " << bds[1] << ", "
   //<< bds[2] << ", " << bds[3] << ", "
   //<< bds[4] << ", " << bds[5] << endl;
 
   int procid = this->Controller->GetLocalProcessId();
-  
+
   if (doCommunicate)
     {
     if ( procid )
@@ -101,11 +101,11 @@ int vtkPOutlineCornerFilter::RequestData(
       int numProcs = this->Controller->GetNumberOfProcesses();
       int idx;
       double tmp[6];
-      
+
       for (idx = 1; idx < numProcs; ++idx)
         {
         this->Controller->Receive(tmp, 6, idx, 792390);
-        
+
         if (tmp[0] < bds[0])
           {
           bds[0] = tmp[0];
@@ -139,7 +139,7 @@ int vtkPOutlineCornerFilter::RequestData(
     if (vtkMath::AreBoundsInitialized(bds))
       {
       // only output in process 0.
-      this->OutlineCornerSource->SetBounds(bds);          
+      this->OutlineCornerSource->SetBounds(bds);
       this->OutlineCornerSource->SetCornerFactor(this->GetCornerFactor());
       this->OutlineCornerSource->Update();
       output->CopyStructure(this->OutlineCornerSource->GetOutput());

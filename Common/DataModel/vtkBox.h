@@ -21,7 +21,7 @@
 // coordinate axes.  (If you wish to orient this box differently, recall that
 // the superclass vtkImplicitFunction supports a transformation matrix.)
 // vtkCube is a concrete implementation of vtkImplicitFunction.
-// 
+//
 // .SECTION See Also
 // vtkCubeSource vtkImplicitFunction
 
@@ -77,7 +77,7 @@ public:
   // Description:
   // A special method that allows union set operation on bounding boxes.
   // Start with a SetBounds(). Subsequent AddBounds() methods are union set
-  // operations on the original bounds. Retrieve the final bounds with a 
+  // operations on the original bounds. Retrieve the final bounds with a
   // GetBounds() method.
   void AddBounds(double bounds[6]);
 
@@ -88,7 +88,7 @@ public:
   // directions, coord[3] is the location of hit, and t is the parametric
   // coordinate along line. (Notes: the intersection ray dir[3] is NOT
   // normalized.  Valid intersections will only occur between 0<=t<=1.)
-  static char IntersectBox(double bounds[6], double origin[3], double dir[3], 
+  static char IntersectBox(double bounds[6], double origin[3], double dir[3],
                            double coord[3], double& t);
 
   // Description:
@@ -112,7 +112,7 @@ protected:
   vtkBox();
   ~vtkBox();
 
-  vtkBoundingBox *BBox; 
+  vtkBoundingBox *BBox;
   double Bounds[6]; //supports the GetBounds() method
 
 private:
@@ -122,12 +122,12 @@ private:
 
 
 
-inline void vtkBox::SetXMin(double p[3]) 
+inline void vtkBox::SetXMin(double p[3])
 {
   this->SetXMin(p[0], p[1], p[2]);
 }
 
-inline void vtkBox::SetXMax(double p[3]) 
+inline void vtkBox::SetXMax(double p[3])
 {
   this->SetXMax(p[0], p[1], p[2]);
 }

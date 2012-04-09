@@ -46,7 +46,7 @@ vtkRandomAttributeGenerator::vtkRandomAttributeGenerator()
   this->NumberOfTuples = 0;
   this->MinimumComponentValue = 0.0;
   this->MaximumComponentValue = 1.0;
-  
+
   this->GeneratePointScalars = 0;
   this->GeneratePointVectors = 0;
   this->GeneratePointNormals = 0;
@@ -73,7 +73,7 @@ void vtkRandomAttributeGeneratorExecute(vtkRandomAttributeGenerator *self,
                                         vtkIdType numTuples,
                                         int numComp,
                                         int minComp,
-                                        int maxComp, 
+                                        int maxComp,
                                         double min,
                                         double max)
 {
@@ -84,7 +84,7 @@ void vtkRandomAttributeGeneratorExecute(vtkRandomAttributeGenerator *self,
     for ( int comp=minComp; comp <= maxComp; comp++ )
       {
       // update progess and check for aborts
-      if ( ! (i % tenth) ) 
+      if ( ! (i % tenth) )
         {
         self->UpdateProgress(static_cast<double>(i)/total);
         if ( self->GetAbortExecute() )
@@ -92,7 +92,7 @@ void vtkRandomAttributeGeneratorExecute(vtkRandomAttributeGenerator *self,
           break;
           }
         }
-      
+
       // Now generate a random component value
       data[i*numComp + comp] = static_cast<T>(vtkMath::Random(min,max));
       }//for each component
@@ -103,7 +103,7 @@ void vtkRandomAttributeGeneratorExecute(vtkRandomAttributeGenerator *self,
 // This method does the data type allocation and switching for various types.
 vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
                                                         vtkIdType numTuples,
-                                                        int numComp, 
+                                                        int numComp,
                                                         int minComp,
                                                         int maxComp,
                                                         double min,
@@ -239,7 +239,7 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
         for ( int comp=minComp; comp <= maxComp; comp++ )
           {
           // update progess and check for aborts
-          if ( ! (i % tenth) ) 
+          if ( ! (i % tenth) )
             {
             this->UpdateProgress(static_cast<double>(i)/total);
             if ( this->GetAbortExecute() )
@@ -259,7 +259,7 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
     default:
       vtkGenericWarningMacro("Cannot create random data array\n");
     }
-  
+
   return dataArray;
 }
 
@@ -371,7 +371,7 @@ int vtkRandomAttributeGenerator::RequestData(
     output->GetPointData()->SetScalars(ptScalars);
     ptScalars->Delete();
     }
-  
+
   // Now the cell data
   if ( this->GenerateCellScalars)
     {
@@ -445,7 +445,7 @@ int vtkRandomAttributeGenerator::RequestData(
     output->GetCellData()->SetScalars(ptScalars);
     ptScalars->Delete();
     }
-  
+
   // Finally any field data
   if ( this->GenerateFieldArray)
     {
@@ -475,32 +475,32 @@ void vtkRandomAttributeGenerator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Component Value: " << this->MaximumComponentValue
      << endl;
 
-  os << indent << "Generate Point Scalars: " 
+  os << indent << "Generate Point Scalars: "
      << (this->GeneratePointScalars ? "On\n" : "Off\n");
-  os << indent << "Generate Point Vectors: " 
+  os << indent << "Generate Point Vectors: "
      << (this->GeneratePointVectors ? "On\n" : "Off\n");
-  os << indent << "Generate Point Normals: " 
+  os << indent << "Generate Point Normals: "
      << (this->GeneratePointNormals ? "On\n" : "Off\n");
-  os << indent << "Generate Point TCoords: " 
+  os << indent << "Generate Point TCoords: "
      << (this->GeneratePointTCoords ? "On\n" : "Off\n");
-  os << indent << "Generate Point Tensors: " 
+  os << indent << "Generate Point Tensors: "
      << (this->GeneratePointTensors ? "On\n" : "Off\n");
-  os << indent << "Generate Point Array: " 
+  os << indent << "Generate Point Array: "
      << (this->GeneratePointArray ? "On\n" : "Off\n");
-  
-  os << indent << "Generate Cell Scalars: " 
+
+  os << indent << "Generate Cell Scalars: "
      << (this->GenerateCellScalars ? "On\n" : "Off\n");
-  os << indent << "Generate Cell Vectors: " 
+  os << indent << "Generate Cell Vectors: "
      << (this->GenerateCellVectors ? "On\n" : "Off\n");
-  os << indent << "Generate Cell Normals: " 
+  os << indent << "Generate Cell Normals: "
      << (this->GenerateCellNormals ? "On\n" : "Off\n");
-  os << indent << "Generate Cell TCoords: " 
+  os << indent << "Generate Cell TCoords: "
      << (this->GenerateCellTCoords ? "On\n" : "Off\n");
-  os << indent << "Generate Cell Tensors: " 
+  os << indent << "Generate Cell Tensors: "
      << (this->GenerateCellTensors ? "On\n" : "Off\n");
-  os << indent << "Generate Cell Array: " 
+  os << indent << "Generate Cell Array: "
      << (this->GenerateCellArray ? "On\n" : "Off\n");
-  
-  os << indent << "Generate Field Array: " 
-     << (this->GenerateFieldArray ? "On\n" : "Off\n");  
+
+  os << indent << "Generate Field Array: "
+     << (this->GenerateFieldArray ? "On\n" : "Off\n");
 }

@@ -15,7 +15,7 @@ vtkCamera camera
   camera SetPosition -70 15 34
   camera ComputeViewPlaneNormal
   ren1 SetActiveCamera camera
-  
+
 # Create the reader for the data
 #vtkStructuredPointsReader reader
 vtkGaussianCubeReader reader
@@ -166,7 +166,7 @@ ren1 SetBackground 1 1 1
 ren1 ResetCamera
 renWin Render
 
-  
+
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}

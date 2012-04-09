@@ -129,7 +129,7 @@ static void InsertObject(
         {
         vtkAlgorithm* const input_algorithm = algorithm->GetInputConnection(i, j)->GetProducer();
         InsertObject(input_algorithm, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
-        
+
         builder->AddEdge(object_map[input_algorithm], object_map[algorithm]);
 
         vtkDataObject* input_data = input_algorithm->GetOutputDataObject(algorithm->GetInputConnection(i, j)->GetIndex());
@@ -146,11 +146,11 @@ static void InsertObject(
       if(vtkAnnotationLink* const annotation_link = data_representation->GetAnnotationLink())
         {
         InsertObject(annotation_link, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
-        
+
         builder->AddEdge(object_map[annotation_link], object_map[algorithm]);
-       
+
         edge_output_port_array->InsertNextValue("");
-        edge_input_port_array->InsertNextValue(""); 
+        edge_input_port_array->InsertNextValue("");
         edge_class_name_array->InsertNextValue("vtkAnnotationLayers");
         edge_object_array->InsertNextValue(annotation_link->GetOutput());
         }
@@ -168,7 +168,7 @@ static void InsertObject(
       {
       vtkDataRepresentation* const input_representation = view->GetRepresentation(i);
       InsertObject(input_representation, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
-      
+
       builder->AddEdge(object_map[input_representation], object_map[view]);
 
       edge_output_port_array->InsertNextValue("");
@@ -180,8 +180,8 @@ static void InsertObject(
 }
 
 int vtkPipelineGraphSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   // Setup the graph data structure ...
@@ -305,7 +305,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
         continue;
       if(0 == line.find("  "))
         continue;
-      
+
       object_state += line + "\\n";
       }
 

@@ -44,7 +44,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
   const char* name = strrchr( tagName, ':' );
 
   // If tag name has xml namespace separator, get rid of namespace:
-  name = name ? name + 1 : tagName; 
+  name = name ? name + 1 : tagName;
   std::string tName(name);
 
   if (tName == "solid-model")
@@ -101,7 +101,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
     // name the block appropriately.
     this->PartVertexID_To_Descriptions[partVertex] = partDescString? partDescString : "";
 
-    // Add a "part" vertex in the "Assemblies" hierarchy.    
+    // Add a "part" vertex in the "Assemblies" hierarchy.
     this->CurrentVertex.push_back(partVertex);
     }
   else if (tName == "material-specification")
@@ -159,7 +159,7 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
 
         // This <block /> element was encountered while reading the <mesh />.
         this->BlockID_To_VertexID[id] = blockVertex;
-      
+
         this->BlockID_To_Part[id] = this->BlockPartNumberString;
         // // Add cross edge linking the assembly part to the block.
         // vtkIdType partVertex = this->CurrentVertex.back();
@@ -217,7 +217,7 @@ void vtkExodusIIReaderParser::EndElement(const char* tagName)
 {
   const char* name = strrchr( tagName, ':' );
   // If tag name has xml namespace separator, get rid of namespace:
-  name = name ? name + 1 : tagName; 
+  name = name ? name + 1 : tagName;
   std::string tName(name);
   if (tName == "solid-model")
     {
@@ -288,7 +288,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
       }
 
     vtksys_ios::ostringstream stream;
-    stream << "Block: " << iter->first 
+    stream << "Block: " << iter->first
       << " (" << desc.c_str()<< ") "
       << this->BlockID_To_Part[iter->first].c_str();
     this->NamesArray->SetValue(iter->second, stream.str().c_str());
@@ -305,7 +305,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
       {
       int blockID = iterII->first;
       vtkIdType partVertex = iterII->second;
-      
+
       std::string node_name = this->MaterialSpecifications[partVertex];
       vtkIdType materialVertex;
       if (this->MaterialName_To_VertexID.find(node_name) ==

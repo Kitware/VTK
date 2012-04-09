@@ -145,19 +145,19 @@ void vtkBoundingBox::SetMinPoint(double x, double y, double z)
     {
     this->MaxPnt[0] = x;
     }
-  
+
   this->MinPnt[1] = y;
   if (y > this->MaxPnt[1])
     {
     this->MaxPnt[1] = y;
     }
-  
+
   this->MinPnt[2] = z;
   if (z > this->MaxPnt[2])
     {
     this->MaxPnt[2] = z;
     }
-  
+
 }
 
 // ---------------------------------------------------------------------------
@@ -168,13 +168,13 @@ void vtkBoundingBox::SetMaxPoint(double x, double y, double z)
     {
     this->MinPnt[0] = x;
     }
-    
+
   this->MaxPnt[1] = y;
   if (y < this->MinPnt[1])
     {
     this->MinPnt[1] = y;
     }
-    
+
   this->MaxPnt[2] = z;
   if (z < this->MinPnt[2])
     {
@@ -231,7 +231,7 @@ int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
       }
     if (!intersects)
       {
-      return 0;  
+      return 0;
       }
     }
 
@@ -275,7 +275,7 @@ int vtkBoundingBox::Intersects(const vtkBoundingBox &bbox) const
       {
       continue;
       }
-    return 0;  
+    return 0;
     }
   return 1;
 }
@@ -389,29 +389,29 @@ void vtkBoundingBox::Scale(double s[3])
 
 // ---------------------------------------------------------------------------
 // Desciption:
-// Intersect this box with the half space defined by plane. 
+// Intersect this box with the half space defined by plane.
  //Returns 1 if there is intersection---which implies that the box has been modified
 // Returns 0 otherwise
-// The algorithm:  
+// The algorithm:
 //   Because the change can only happens in one axis aligned direction,
 //    we first figure out which direction it is (stored in dir), then
-//    update the bounding interval in that direction based on intersection 
+//    update the bounding interval in that direction based on intersection
 //    of the plane with the four edges
 
-bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3]) 
-{ 
-  double* bounds[2] = {this->MinPnt,this->MaxPnt}; 
+bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
+{
+  double* bounds[2] = {this->MinPnt,this->MaxPnt};
   assert(this->IsValid());
 
   //Index[0..2] represents the order of traversing the corners of a cube
-  //  in (x,y,z), (y,x,z) and (z,x,y) ordering, respectively  
+  //  in (x,y,z), (y,x,z) and (z,x,y) ordering, respectively
   static const int Index[3][8] =
     {  {0, 1, 2, 3, 4, 5, 6, 7},
-       {0, 1, 4, 5, 2, 3, 6, 7}, 
+       {0, 1, 4, 5, 2, 3, 6, 7},
        {0, 2, 4, 6, 1, 3, 5, 7}};
-      
- 
-  double d[8]={0,0,0,0,0,0,0,0}; //stores the signed distance to a plane                                
+
+
+  double d[8]={0,0,0,0,0,0,0,0}; //stores the signed distance to a plane
     {
     int index(-1);
     for(int ix = 0; ix<=1; ix++)
@@ -425,7 +425,7 @@ bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
           }
         }
       }
-    } 
+    }
 
   int dir(-1);
   for(dir=2;dir>=0; dir--)
@@ -439,7 +439,7 @@ bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
       {
       break;
       }
-    } 
+    }
   if(dir<0)
     {
       return false;
@@ -471,6 +471,6 @@ bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
     {
     bounds[1][dir] = bound;
     }
- 
+
   return true;
 }

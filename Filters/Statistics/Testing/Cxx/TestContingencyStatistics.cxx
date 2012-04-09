@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories 
+// Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkMultiBlockDataSet.h"
@@ -21,7 +21,7 @@ int TestContingencyStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  vtkVariant mingledData[] = 
+  vtkVariant mingledData[] =
     {
       123,456,80,"HTTP",
       123,789,80,"HTTP",
@@ -90,10 +90,10 @@ int TestContingencyStatistics( int, char *[] )
   //   column 4: H(X|Y)
   int iEntropies[] = { 2,
                        3,
-                       4 }; 
+                       4 };
   int nEntropies = 3; // correct number of entropies reported in the summary table
   double* H = new double[nEntropies];
-  
+
   // Set contingency statistics algorithm and its input data port
   vtkContingencyStatistics* cs = vtkContingencyStatistics::New();
 
@@ -142,9 +142,9 @@ int TestContingencyStatistics( int, char *[] )
 
   if ( testIntValue != nEntropies + 2 )
     {
-    vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: " 
-                           << testIntValue 
-                           << " != " 
+    vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: "
+                           << testIntValue
+                           << " != "
                            << nEntropies + 2
                            << ".");
     testStatus = 1;
@@ -160,7 +160,7 @@ int TestContingencyStatistics( int, char *[] )
            << ", "
            << outputSummary->GetValue( r, 1 ).ToString()
            << ")";
-      
+
       // Information entropies
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
         {
@@ -178,10 +178,10 @@ int TestContingencyStatistics( int, char *[] )
 
       if ( testDoubleValue > H[0] )
         {
-        vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = " 
+        vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = "
                                << H[0]
-                               << " < " 
-                               << testDoubleValue 
+                               << " < "
+                               << testDoubleValue
                                << " = H(Y|X)+ H(X|Y).");
         testStatus = 1;
         }
@@ -216,7 +216,7 @@ int TestContingencyStatistics( int, char *[] )
            << "="
            << outputContingency->GetValue( r, c ).ToDouble();
       }
-    
+
     cout << "\n";
 
     // Update total cardinality
@@ -225,9 +225,9 @@ int TestContingencyStatistics( int, char *[] )
 
   if ( testIntValue != nVals * nMetricPairs )
     {
-    vtkGenericWarningMacro("Reported an incorrect total cardinality: " 
-                           << testIntValue 
-                           << " != " 
+    vtkGenericWarningMacro("Reported an incorrect total cardinality: "
+                           << testIntValue
+                           << " != "
                            << nVals * nMetricPairs
                            << ".");
     testStatus = 1;
@@ -284,7 +284,7 @@ int TestContingencyStatistics( int, char *[] )
 
   int nOutlierTypes = 3;
   for ( int i = 0; i < nOutlierTypes; ++ i )
-    { 
+    {
     vtkStdString colName = outlierColumn[i] + "(" + varX + "," + varY + ")";
 
     cout << "## Found the following outliers such that "
@@ -292,7 +292,7 @@ int TestContingencyStatistics( int, char *[] )
          << " < "
          << threshold[i]
          << ":\n";
-    
+
     double val;
     testIntValue = 0;
     for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
@@ -318,9 +318,9 @@ int TestContingencyStatistics( int, char *[] )
 
     if ( testIntValue != nOutliers[i] )
       {
-      vtkGenericWarningMacro("Reported an incorrect number of outliers: " 
-                             << testIntValue 
-                             << " != " 
+      vtkGenericWarningMacro("Reported an incorrect number of outliers: "
+                             << testIntValue
+                             << " != "
                              << nOutliers[i]
                              << ".");
       testStatus = 1;
@@ -332,8 +332,8 @@ int TestContingencyStatistics( int, char *[] )
   cout << "## Chi square statistics:\n";
 
   // Reference values
-  double testValues[] = { 
-    // (Port,Protocol) 
+  double testValues[] = {
+    // (Port,Protocol)
     10.,       // number of degrees of freedom
     36.896,    // Chi square statistic
     22.35,     // Chi square statistic with Yates correction
@@ -341,7 +341,7 @@ int TestContingencyStatistics( int, char *[] )
     .00005899, // p-valued of Chi square statistic
     .01341754, // p-value of Chi square statistic with Yates correction
 #endif // VTK_USE_GNU_R
-    // (Port,Source) 
+    // (Port,Source)
     10.,       // number of degrees of freedom
     17.353,    // Chi square statistic
     7.279,     // Chi square statistic with Yates correction
@@ -378,7 +378,7 @@ int TestContingencyStatistics( int, char *[] )
       // Verify calculated results
       if ( fabs ( x - testValues[r * nv + c] ) > 1.e-4 * x )
         {
-        vtkGenericWarningMacro("Incorrect " 
+        vtkGenericWarningMacro("Incorrect "
                                << outputTest->GetColumnName( c )
                                << ": "
                                << x
@@ -387,7 +387,7 @@ int TestContingencyStatistics( int, char *[] )
         testStatus = 1;
         }
       }
-    
+
 #ifdef VTK_USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest->GetValueByName( r, "P Yates" ).ToDouble();

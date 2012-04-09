@@ -62,7 +62,7 @@ vtkAreaPicker::vtkAreaPicker()
 vtkAreaPicker::~vtkAreaPicker()
 {
   this->Prop3Ds->Delete();
-  this->ClipPoints->Delete();  
+  this->ClipPoints->Delete();
   this->Frustum->Delete();
   this->FrustumExtractor->Delete();
 }
@@ -92,13 +92,13 @@ void vtkAreaPicker::SetPickCoords(double x0, double y0, double x1, double y1)
 //--------------------------------------------------------------------------
 int vtkAreaPicker::Pick()
 {
-  return 
+  return
     this->AreaPick(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
 }
 
 //--------------------------------------------------------------------------
 // Does what this class is meant to do.
-int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1, 
+int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
                             vtkRenderer *renderer)
 {
   this->Initialize();
@@ -123,13 +123,13 @@ int vtkAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 
   this->DefineFrustum(this->X0, this->Y0, this->X1, this->Y1, this->Renderer);
 
-  return this->PickProps(this->Renderer);  
+  return this->PickProps(this->Renderer);
 }
 
 //--------------------------------------------------------------------------
 //Converts the given screen rectangle into a selection frustum.
 //Saves the results in ClipPoints and Frustum.
-void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1, 
+void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
                                   vtkRenderer *renderer)
 {
   this->X0 = (x0 < x1) ? x0 : x1;
@@ -146,7 +146,7 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
     this->Y1 += 1.0;
     }
 
-  //compute world coordinates of the pick volume 
+  //compute world coordinates of the pick volume
   double verts[32];
   renderer->SetDisplayPoint(this->X0, this->Y0, 0);
   renderer->DisplayToWorld();
@@ -175,11 +175,11 @@ void vtkAreaPicker::DefineFrustum(double x0, double y0, double x1, double y1,
   renderer->SetDisplayPoint(this->X1, this->Y1, 0);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(&verts[24]);
-  
+
   renderer->SetDisplayPoint(this->X1, this->Y1, 1);
   renderer->DisplayToWorld();
-  renderer->GetWorldPoint(&verts[28]);    
-    
+  renderer->GetWorldPoint(&verts[28]);
+
   //a pick point is required by vtkAbstractPicker
   //return center for now until a better meaning is desired
   double sum[3] = {0.0,0.0,0.0};
@@ -205,11 +205,11 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
   vtkProp *prop;
   int pickable;
   double bounds[6];
-  
+
   //  Initialize picking process
   this->Initialize();
   this->Renderer = renderer;
- 
+
   // Invoke start pick method if defined
   this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
 
@@ -219,15 +219,15 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
     return 0;
     }
 
-  //  Loop over all props.  
+  //  Loop over all props.
   //
   vtkPropCollection *props;
   vtkProp *propCandidate;
-  if ( this->PickFromList ) 
+  if ( this->PickFromList )
     {
     props = this->GetPickList();
     }
-  else 
+  else
     {
     props = renderer->GetViewProps();
     }
@@ -250,7 +250,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
         {
         if ( mapper )
           {
-          mapper->GetBounds(bounds);   
+          mapper->GetBounds(bounds);
           double dist;
           //cerr << "mapper ABFISECT" << endl;
           if (this->ABoxFrustumIsect(bounds, dist))
@@ -263,7 +263,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
                 {
                 mindist = dist;
                 this->SetPath(path);
-                this->Mapper = mapper; 
+                this->Mapper = mapper;
                 vtkMapper *map1;
                 vtkAbstractVolumeMapper *vmap;
                 vtkImageMapper3D *imap;
@@ -285,7 +285,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
                 else
                   {
                   this->DataSet = NULL;
-                  }              
+                  }
                 }
               }
             }
@@ -314,7 +314,7 @@ int vtkAreaPicker::PickProps(vtkRenderer *renderer)
 //------------------------------------------------------------------------------
 //converts the propCandidate into a vtkAbstractMapper3D
 //and returns its pickability
-int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate, 
+int vtkAreaPicker::TypeDecipher(vtkProp *propCandidate,
                                 vtkAbstractMapper3D **mapper)
 {
   int pickable = 0;
@@ -374,11 +374,11 @@ int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
 {
   if (bounds[0] > bounds[1] ||
       bounds[2] > bounds[3] ||
-      bounds[4] > bounds[5]) 
+      bounds[4] > bounds[5])
     {
     return 0;
     }
-    
+
   double verts[8][3];
   int x, y, z;
   int vid = 0;
@@ -405,7 +405,7 @@ int vtkAreaPicker::ABoxFrustumIsect(double *bounds, double &mindist)
     if (dist < 0 && dist > mindist)
       {
       mindist = dist;
-      }                
+      }
     }
   mindist = -mindist;
 

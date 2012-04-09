@@ -73,7 +73,7 @@ public:
   virtual vtkCollection* GetRequestedNodes(vtkGeoTreeNode* node);
 
   // Description:
-  // Spawn worker threads. 
+  // Spawn worker threads.
   void Initialize(int numThreads = 1);
 
   // Description:

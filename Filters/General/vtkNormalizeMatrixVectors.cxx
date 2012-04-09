@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkNormalizeMatrixVectors.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -51,8 +51,8 @@ void vtkNormalizeMatrixVectors::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkNormalizeMatrixVectors::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   int vector_dimension = std::min(1, std::max(0, this->VectorDimension));
@@ -82,7 +82,7 @@ int vtkNormalizeMatrixVectors::RequestData(
 
   const vtkArrayRange vectors = input_array->GetExtent(vector_dimension);
   const vtkIdType value_count = input_array->GetNonNullSize();
-  
+
   // Create temporary storage for computed vector weights ...
   std::vector<double> weight(vectors.GetSize(), 0.0);
 
@@ -107,7 +107,7 @@ int vtkNormalizeMatrixVectors::RequestData(
     output_array->GetCoordinatesN(n, coordinates);
     output_array->SetValueN(n, output_array->GetValueN(n) * weight[coordinates[vector_dimension] - vectors.GetBegin()]);
     }
-  
+
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();
   output->AddArray(output_array);

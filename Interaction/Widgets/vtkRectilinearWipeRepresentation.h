@@ -27,7 +27,7 @@
 // The separation of the widget event handling and representation enables
 // users and developers to create new appearances for the widget. It also
 // facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the 
+// events, and remote representations of the widget are slaves to the
 // client (and do not handle events).
 
 // .SECTION See Also
@@ -71,7 +71,7 @@ public:
   // Specify an instance of vtkImageActor to decorate.
   void SetImageActor(vtkImageActor *imageActor);
   vtkGetObjectMacro(ImageActor,vtkImageActor);
-  
+
   // Description:
   // The tolerance representing the distance to the widget (in pixels)
   // in which the cursor is considered to be on the widget, or on a
@@ -114,7 +114,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 protected:
   vtkRectilinearWipeRepresentation();
   ~vtkRectilinearWipeRepresentation();
@@ -125,13 +125,13 @@ protected:
 
   // The pick tolerance of the widget in pixels
   int Tolerance;
-  
+
   // This is used to track the beginning of interaction with the prop
   double StartWipePosition[2];
 
   // Indicates which part of widget is currently active based on the
   // state of the instance of the vtkImageRectilinearWipe.
-  int  ActiveParts; 
+  int  ActiveParts;
 
   // Geometric structure of widget
   vtkPoints           *Points; // The nine points defining the widget geometry
@@ -152,7 +152,7 @@ protected:
   int Dims[3]; // Dimensions of the input image to the wipe
   int I; //the i-j define the plane that is being displayed
   int J;
-  
+
 private:
   vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&);  //Not implemented
   void operator=(const vtkRectilinearWipeRepresentation&);  //Not implemented

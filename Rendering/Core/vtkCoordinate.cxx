@@ -86,13 +86,13 @@ void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Coordinate System: " << 
+  os << indent << "Coordinate System: " <<
     this->GetCoordinateSystemAsString() << "\n";
   os << indent << "Value: (" << this->Value[0] << ","
      << this->Value[1] << "," << this->Value[2] << ")\n";
   if (this->ReferenceCoordinate)
     {
-    os << indent << "ReferenceCoordinate: " << 
+    os << indent << "ReferenceCoordinate: " <<
       this->ReferenceCoordinate << "\n";
     }
   else
@@ -113,7 +113,7 @@ void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
 {
   double *val = this->ComputedWorldValue;
-  
+
   // prevent infinite loops
   if (this->Computing)
     {
@@ -130,7 +130,7 @@ double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     {
     viewport = this->Viewport;
     }
-  
+
   // if viewport is NULL then we can only do minimal calculations
   if (!viewport)
     {

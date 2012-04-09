@@ -75,7 +75,7 @@ vtkDEMReader::vtkDEMReader()
     this->SpatialResolution[i] = 0;
     }
   this->ElevationReference = REFERENCE_ELEVATION_BOUNDS;
-  
+
   this->SetNumberOfInputPorts(0);
 }
 
@@ -151,7 +151,7 @@ int vtkDEMReader::RequestData(
     vtkErrorMacro("Execute: This source only outputs floats.");
     return 1;
     }
-  
+
 //
 // Read header
 //
@@ -197,14 +197,14 @@ int vtkDEMReader::ReadTypeARecord ()
   //
   // read the record. it is always 1024 characters long
   //
-  int result = fscanf(fp, "%512c", record); 
+  int result = fscanf(fp, "%512c", record);
   if (result != 1)
     {
     vtkErrorMacro("For the file " << this->FileName
                   << " fscanf expected 1 items but got " << result);
     return -1;
     }
-  result = fscanf(fp, "%512c", record+512); 
+  result = fscanf(fp, "%512c", record+512);
   if (result != 1)
     {
     vtkErrorMacro("For the file " << this->FileName
@@ -520,13 +520,13 @@ void ConvertDNotationToENotation (char *line)
     *ptr = 'e'; ptr++;
     *ptr = '-'; ptr++;
     }
-}    
+}
 
 
 // Return the elevation reference.
 const char *vtkDEMReader::GetElevationReferenceAsString(void)
 {
-  if ( this->ElevationReference == REFERENCE_SEA_LEVEL ) 
+  if ( this->ElevationReference == REFERENCE_SEA_LEVEL )
     {
     return "Sea Level";
     }
@@ -541,7 +541,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
   if (this->FileName)
     {
@@ -591,7 +591,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
       {
       os << indent << " (unknown)\n";
       }
-  
+
     os << indent << "ElevationUnitOfMeasure: " << this->ElevationUnitOfMeasure;
     if (this->ElevationUnitOfMeasure == 1)
       {
@@ -611,7 +611,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "        " << this->GroundCoords[1][0] << ", " << this->GroundCoords[1][1] << "\n";
     os << indent << "        " << this->GroundCoords[2][0] << ", " << this->GroundCoords[2][1] << "\n";
     os << indent << "        " << this->GroundCoords[3][0] << ", " << this->GroundCoords[3][1] << "\n";
-  
+
     os << indent << "ElevationBounds: " << this->ElevationBounds[0] << ", "
                                         << this->ElevationBounds[1]
                                         << " (meters)\n";
@@ -639,7 +639,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
       {
       os << indent << " (unknown)\n";
       }
-  
+
     os << indent << this->SpatialResolution[2];
     if (this->ElevationUnitOfMeasure == 1)
       {

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArrayTransposeMatrix.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -37,7 +37,7 @@
 int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
-  
+
   try
     {
     vtkSmartPointer<vtkSparseArray<double> > source = vtkSmartPointer<vtkSparseArray<double> >::New();
@@ -48,10 +48,10 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     cout << "source matrix:\n";
     vtkPrintMatrixFormat(cout, source.GetPointer());
-    
+
     vtkSmartPointer<vtkArrayData> source_data = vtkSmartPointer<vtkArrayData>::New();
     source_data->AddArray(source);
-     
+
     vtkSmartPointer<vtkTransposeMatrix> transpose = vtkSmartPointer<vtkTransposeMatrix>::New();
     transpose->SetInputData(source_data);
     transpose->Update();

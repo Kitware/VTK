@@ -42,10 +42,10 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
   int idxC, maxC;
   double R, G, B, H, S, V;
   double max = self->GetMaximum();
-  
+
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents()-1;
-  
+
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
@@ -77,12 +77,12 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
         {
         V = max;
         }
-      
+
       // assign output.
       *outSI = static_cast<T>(H); outSI++;
       *outSI = static_cast<T>(S); outSI++;
       *outSI = static_cast<T>(V); outSI++;
-      
+
       for (idxC = 3; idxC <= maxC; idxC++)
         {
         *outSI++ = *inSI++;
@@ -94,13 +94,13 @@ void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData, 
+void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
                                          vtkImageData *outData,
                                          int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
+  vtkDebugMacro(<< "Execute: inData = " << inData
   << ", outData = " << outData);
-  
+
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
@@ -108,7 +108,7 @@ void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
     << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-  
+
   // need three components for input and output
   if (inData->GetNumberOfScalarComponents() < 3)
     {
@@ -124,8 +124,8 @@ void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageRGBToHSVExecute( this, inData, 
-                               outData, outExt, id, 
+      vtkImageRGBToHSVExecute( this, inData,
+                               outData, outExt, id,
                                static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -67,7 +67,7 @@ void vtkRenderPass::ClearLights(vtkRenderer *renderer)
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(renderer);
   oRenderer->ClearLights();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Call UpdateLightGeometry() on Renderer. See note about UpdateCamera().
@@ -77,7 +77,7 @@ void vtkRenderPass::UpdateLightGeometry(vtkRenderer *renderer)
   assert("pre: renderer_exists" && renderer!=0);
   renderer->UpdateLightGeometry();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Call UpdateLights() on Renderer. See note about UpdateCamera().
@@ -107,7 +107,7 @@ void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
                                                      bool value)
 {
   assert("pre: renderer_exists" && renderer!=0);
-  
+
   renderer->LastRenderingUsedDepthPeeling=value;
 }
 
@@ -115,7 +115,7 @@ void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
 void vtkRenderPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "NumberOfRenderedProps:" << this->NumberOfRenderedProps
      << endl;
 }

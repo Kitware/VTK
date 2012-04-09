@@ -119,7 +119,7 @@ int vtkPBGLCollapseGraphRequestData(
 #endif
 
   // Prepare vertex data.
-  vtkAbstractArray *pedigrees 
+  vtkAbstractArray *pedigrees
     = vtkAbstractArray::CreateArray(input_arr->GetDataType());
   pedigrees->SetName(input_arr->GetName());
   builder->GetVertexData()->AddArray(pedigrees);

@@ -17,7 +17,7 @@
 // vtkImageMandelbrotSource creates an unsigned char image of the Mandelbrot
 // set.  The values in the image are the number of iterations it takes for
 // the magnitude of the value to get over 2.  The equation repeated is
-// z = z^2 + C (z and C are complex).  Initial value of z is zero, and the 
+// z = z^2 + C (z and C are complex).  Initial value of z is zero, and the
 // real value of C is mapped onto the x axis, and the imaginary value of C
 // is mapped onto the Y Axis.  I was thinking of extending this source
 // to generate Julia Sets (initial value of Z varies).  This would be 4
@@ -35,18 +35,18 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageMandelbrotSource : public vtkImageAlgorit
 public:
   static vtkImageMandelbrotSource *New();
   vtkTypeMacro(vtkImageMandelbrotSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get the extent of the whole output Volume.
   void SetWholeExtent(int extent[6]);
-  void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
+  void SetWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   vtkGetVector6Macro(WholeExtent,int);
-  
+
   // Description:
-  // This flag determines whether the Size or spacing of 
-  // a data set remain constant (when extent is changed).  
+  // This flag determines whether the Size or spacing of
+  // a data set remain constant (when extent is changed).
   // By default, size remains constant.
   vtkSetMacro(ConstantSize, int);
   vtkGetMacro(ConstantSize, int);
@@ -54,29 +54,29 @@ public:
 
   // Description:
   // Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
-  // to the axes of the 3D Volume. 
+  // to the axes of the 3D Volume.
   // 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
   void SetProjectionAxes(int x, int y, int z);
   void SetProjectionAxes(int a[3]) {this->SetProjectionAxes(a[0],a[1],a[2]);}
   vtkGetVector3Macro(ProjectionAxes, int);
 
   // Description:
-  // Imaginary and real value for C (constant in equation) 
+  // Imaginary and real value for C (constant in equation)
   // and X (initial value).
   vtkSetVector4Macro(OriginCX, double);
   //void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
   vtkGetVector4Macro(OriginCX, double);
 
   // Description:
-  // Imaginary and real value for C (constant in equation) 
+  // Imaginary and real value for C (constant in equation)
   // and X (initial value).
   vtkSetVector4Macro(SampleCX, double);
   //void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
   vtkGetVector4Macro(SampleCX, double);
 
   // Description:
-  // Just a different way of setting the sample.  
-  // This sets the size of the 4D volume. 
+  // Just a different way of setting the sample.
+  // This sets the size of the 4D volume.
   // SampleCX is computed from size and extent.
   // Size is ignored when a dimension i 0 (collapsed).
   void SetSizeCX(double cReal, double cImag, double xReal, double xImag);
@@ -91,7 +91,7 @@ public:
   vtkGetMacro(MaximumNumberOfIterations, unsigned short);
 
   // Description:
-  // Convienence for Viewer.  Pan 3D volume relative to spacing. 
+  // Convienence for Viewer.  Pan 3D volume relative to spacing.
   // Zoom constant factor.
   void Zoom(double factor);
   void Pan(double x, double y, double z);
@@ -99,7 +99,7 @@ public:
   // Description:
   // Convienence for Viewer.  Copy the OriginCX and the SpacingCX.
   // What about other parameters ???
-  void CopyOriginAndSample(vtkImageMandelbrotSource *source); 
+  void CopyOriginAndSample(vtkImageMandelbrotSource *source);
 
   // Description:
   // Set/Get a subsample rate.
@@ -135,8 +135,8 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector**, 
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector**,
                                   vtkInformationVector *);
   double EvaluateSet(double p[4]);
 private:

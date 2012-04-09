@@ -56,7 +56,7 @@ vtkX3DExporterXMLWriter::~vtkX3DExporterXMLWriter()
     this->OutputStream = NULL;
     }
 }
- 
+
 //-----------------------------------------------------------------------------
 vtkX3DExporterXMLWriter::vtkX3DExporterXMLWriter()
 {
@@ -183,23 +183,23 @@ void vtkX3DExporterXMLWriter::EndNode()
 void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, const double* d)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"";
-  switch (type) 
+  switch (type)
     {
     case(SFVEC3F):
     case(SFCOLOR):
       *this->OutputStream << d[0]
-                         << " " 
-                         << d[1] 
-                         << " " 
+                         << " "
+                         << d[1]
+                         << " "
                          << d[2];
       break;
     case(SFROTATION):
       *this->OutputStream << d[1]
-                         << " " 
-                         << d[2] 
-                         << " " 
-                         << d[3] 
-                         << " " 
+                         << " "
+                         << d[2]
+                         << " "
+                         << d[3]
+                         << " "
                          << vtkMath::RadiansFromDegrees( -d[0] );
       break;
     default:
@@ -212,7 +212,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, const double* 
 void vtkX3DExporterXMLWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << this->GetNewline();
-  switch (type) 
+  switch (type)
     {
     case(MFVEC3F):
       for (vtkIdType i = 0; i < a->GetNumberOfTuples(); i++)
@@ -260,7 +260,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const double* values, si
 void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_t size, bool image)
 {
   *this->OutputStream << " " << x3dAttributeString[attributeID] << "=\"" << this->GetNewline() << this->ActTab;
-  
+
   unsigned int i = 0;
   if (image)
     {
@@ -269,7 +269,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_
     *this->OutputStream << values[0] << " "; // width
     *this->OutputStream << values[1] << " "; // height
     int bpp = values[2]; *this->OutputStream << bpp << "\n"; // bpp
-    
+
     i = 3;
     unsigned int j = 0;
 
@@ -277,7 +277,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_
       {
       sprintf(buffer,"0x%.8x",values[i]);
       *this->OutputStream << buffer;
-      
+
       if (j%(8*bpp))
         {
         *this->OutputStream << " ";
@@ -294,7 +294,7 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_
     while (i < size)
     {
     *this->OutputStream << values[i] << " ";
-    if (values[i] == -1) 
+    if (values[i] == -1)
       {
       *this->OutputStream << this->GetNewline() << this->ActTab;
       }

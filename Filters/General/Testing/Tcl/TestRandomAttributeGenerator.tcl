@@ -18,7 +18,7 @@ raMath RandomSeed 6
 
 # Generate random attributes on a plane
 #
-vtkPlaneSource ps 
+vtkPlaneSource ps
 ps SetXResolution 10
 ps SetYResolution 10
 

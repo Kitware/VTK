@@ -24,9 +24,9 @@
 // method that by default says that all inputs will be PointSet. If that
 // isn't the case then please override this method in your subclass. This
 // class breaks out the downstream requests into separate functions such as
-// RequestDataObject RequestData and ExecuteInformation. The default 
-// implementation of RequestDataObject will create an output data of the 
-// same type as the input. 
+// RequestDataObject RequestData and ExecuteInformation. The default
+// implementation of RequestDataObject will create an output data of the
+// same type as the input.
 
 
 #ifndef __vtkPointSetAlgorithm_h
@@ -88,41 +88,41 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
 protected:
   vtkPointSetAlgorithm();
   ~vtkPointSetAlgorithm() {};
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int ExecuteInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int ExecuteInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*) {return 1;};
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*) {return 1;};
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int ComputeInputUpdateExtent(vtkInformation*,
                                        vtkInformationVector**,
-                                       vtkInformationVector*) 
+                                       vtkInformationVector*)
     {
       return 1;
     };

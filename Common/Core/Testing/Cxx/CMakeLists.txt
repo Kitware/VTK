@@ -15,7 +15,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestConditionVariable.cxx
   # TestCxxFeatures.cxx # This is in its own exe too.
   TestDataArray.cxx
-  TestDataArrayComponentNames.cxx 
+  TestDataArrayComponentNames.cxx
   TestGarbageCollector.cxx
   # TestInstantiator.cxx # Have not enabled instantiators.
   TestMath.cxx

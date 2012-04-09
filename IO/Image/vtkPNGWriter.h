@@ -45,9 +45,9 @@ public:
   vtkSetMacro(WriteToMemory, unsigned int);
   vtkGetMacro(WriteToMemory, unsigned int);
   vtkBooleanMacro(WriteToMemory, unsigned int);
-  
+
   // Description:
-  // When writing to memory this is the result, it will be NULL until the 
+  // When writing to memory this is the result, it will be NULL until the
   // data is written the first time
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
@@ -55,12 +55,12 @@ public:
 protected:
   vtkPNGWriter();
   ~vtkPNGWriter();
-  
+
   void WriteSlice(vtkImageData *data, int* uExtent);
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
-  
+
 private:
   vtkPNGWriter(const vtkPNGWriter&);  // Not implemented.
   void operator=(const vtkPNGWriter&);  // Not implemented.

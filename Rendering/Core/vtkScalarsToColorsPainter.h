@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkScalarsToColorsPainter - painter that converts scalars to 
+// .NAME vtkScalarsToColorsPainter - painter that converts scalars to
 // colors. It enable/disables coloring state depending on the ScalarMode.
 // .SECTION Description
-// This is a painter that converts scalars to 
+// This is a painter that converts scalars to
 // colors. It enable/disables coloring state depending on the ScalarMode.
 // This painter is composite dataset enabled.
 
@@ -62,31 +62,31 @@ public:
   static vtkInformationIntegerKey* SCALAR_MODE();
 
   // Description:
-  // Control how the scalar data is mapped to colors. By default 
-  // (ColorModeToDefault), unsigned char scalars are treated as colors, 
-  // and NOT mapped through the lookup table, while everything else is. 
-  // Setting ColorModeToMapScalars means that all scalar data will be mapped 
+  // Control how the scalar data is mapped to colors. By default
+  // (ColorModeToDefault), unsigned char scalars are treated as colors,
+  // and NOT mapped through the lookup table, while everything else is.
+  // Setting ColorModeToMapScalars means that all scalar data will be mapped
   // through the lookup table.
   static vtkInformationIntegerKey* COLOR_MODE();
-  
+
   // Description:
   // By default, vertex color is used to map colors to a surface.
   // Colors are interpolated after being mapped.
   // This option avoids color interpolation by using a one dimensional
   // texture map for the colors.
   static vtkInformationIntegerKey* INTERPOLATE_SCALARS_BEFORE_MAPPING();
-  
+
   // Description:
   // Specify a lookup table for the mapper to use.
   static vtkInformationObjectBaseKey* LOOKUP_TABLE();
   void SetLookupTable(vtkScalarsToColors *lut);
   vtkScalarsToColors *GetLookupTable();
-  
+
   // Description:
   // Create default lookup table. Generally used to create one when none
   // is available with the scalar data.
   virtual void CreateDefaultLookupTable();
-  
+
   // Description:
   // Turn on/off flag to control whether scalar data is used to color objects.
   static vtkInformationIntegerKey* SCALAR_VISIBILITY();
@@ -97,9 +97,9 @@ public:
   static vtkInformationIntegerKey* ARRAY_ID();
   static vtkInformationStringKey* ARRAY_NAME();
   static vtkInformationIntegerKey* ARRAY_COMPONENT();
-  
+
   // Description:
-  // Set the light-model color mode. 
+  // Set the light-model color mode.
   static vtkInformationIntegerKey* SCALAR_MATERIAL_MODE();
 
   // Description:
@@ -108,7 +108,7 @@ public:
   // This call returns whether we are premultiplying or using
   // the default blending function.
   // Currently this checks if the actor has a texture, if not
-  // it returns true. 
+  // it returns true.
   // TODO: It is possible to make this decision
   // dependent on key passed down from a painter upstream
   // that makes a more informed decision for alpha blending
@@ -128,8 +128,8 @@ public:
 //BTX
 protected:
   vtkScalarsToColorsPainter();
-  virtual ~vtkScalarsToColorsPainter(); 
- 
+  virtual ~vtkScalarsToColorsPainter();
+
   // Description:
   // Create a new shallow-copied clone for data with no scalars.
   virtual vtkDataObject* NewClone(vtkDataObject* data);
@@ -146,8 +146,8 @@ protected:
   virtual void PrepareForRendering(vtkRenderer* renderer, vtkActor* actor);
 
   // Description:
-  // Generates the colors, if needed. 
-  // If multiply_with_alpha is set, the colors are multiplied with 
+  // Generates the colors, if needed.
+  // If multiply_with_alpha is set, the colors are multiplied with
   // alpha.
   virtual void MapScalars(vtkDataSet* output,
     double alpha, int multiply_with_alpha,
@@ -163,12 +163,12 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
   // Description:
-  // Returns if we can use texture maps for scalar coloring. Note this doesn't 
-  // say we "will" use scalar coloring. It says, if we do use scalar coloring, 
+  // Returns if we can use texture maps for scalar coloring. Note this doesn't
+  // say we "will" use scalar coloring. It says, if we do use scalar coloring,
   // we will use a 1D texture.
   // When rendering multiblock datasets, if any 2 blocks provide different
-  // lookup tables for the scalars, then also we cannot use textures. This case 
-  // can be handled if required. 
+  // lookup tables for the scalars, then also we cannot use textures. This case
+  // can be handled if required.
   int CanUseTextureMapForColoring(vtkDataObject* input);
 
 
@@ -197,7 +197,7 @@ protected:
   int ArrayComponent;
   int ArrayId;
   char* ArrayName;
-  
+
   vtkScalarsToColors *LookupTable;
   // Lookup table provided via the scalars. This gets preference over the one
   // set on the mapper by the user.
@@ -207,7 +207,7 @@ protected:
   int InterpolateScalarsBeforeMapping;
   int ScalarMode;
   int ScalarMaterialMode;
-  double LastUsedAlpha; // Essential to ensure alpha changes work correctly 
+  double LastUsedAlpha; // Essential to ensure alpha changes work correctly
                         // for composite datasets.
   int LastUsedMultiplyWithAlpha;
   double ScalarRange[2];
@@ -219,7 +219,7 @@ protected:
   // This is set when MapScalars decides to use vertex colors for atleast on
   // dataset in the current pass.
   int UsingScalarColoring;
-  
+
 private:
   vtkScalarsToColorsPainter(const vtkScalarsToColorsPainter&); // Not implemented.
   void operator=(const vtkScalarsToColorsPainter&); // Not implemented.

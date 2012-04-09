@@ -12,7 +12,7 @@ import sys
 import vtk
 from vtk.test import Testing
 try:
-    import numpy 
+    import numpy
 except ImportError:
     print "Numpy (http://numpy.scipy.org) not found.",
     print "This test requires numpy!"

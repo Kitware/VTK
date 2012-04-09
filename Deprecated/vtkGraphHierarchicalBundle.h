@@ -39,14 +39,14 @@
 // they will be ignored.  The edges approximately follow the path from the
 // source to target nodes in the tree.  A bundling parameter controls how
 // closely the edges are bundled together along the tree structure.
-// 
+//
 // You may follow this algorithm with vtkSplineFilter in order to make nicely
 // curved edges.
 
 // .SECTION Thanks
 // This algorithm was developed in the paper
 // Danny Holten. Hierarchical Edge Bundles: Visualization of Adjacency Relations
-// Relations in Hierarchical Data. IEEE Transactions on Visualization and 
+// Relations in Hierarchical Data. IEEE Transactions on Visualization and
 // Computer Graphics, Vol. 12, No. 5, 2006. pp. 741-748.
 
 #ifndef __vtkGraphHierarchicalBundle_h
@@ -54,7 +54,7 @@
 
 #include "vtkPolyDataAlgorithm.h"
 
-class VTK_INFOVIS_EXPORT vtkGraphHierarchicalBundle : public vtkPolyDataAlgorithm 
+class VTK_INFOVIS_EXPORT vtkGraphHierarchicalBundle : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphHierarchicalBundle *New();

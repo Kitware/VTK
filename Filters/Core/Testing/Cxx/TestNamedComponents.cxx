@@ -40,7 +40,7 @@ int TestNamedComponents(int , char *[])
   const char pcName[] = "point coords";
   pointCoords->SetName(pcName);
   pointCoords->SetNumberOfComponents(3); // num points + point ids
-  pointCoords->SetNumberOfTuples(numPoints);    
+  pointCoords->SetNumberOfTuples(numPoints);
   pointCoords->SetComponentName(0,"XLOC");
   pointCoords->SetComponentName(1,"YLOC");
   pointCoords->SetComponentName(2,"ZLOC");
@@ -101,7 +101,7 @@ int TestNamedComponents(int , char *[])
   cellPoints->SetName(cpName);
   cellPoints->SetNumberOfComponents(4); // num points + point ids
   cellPoints->SetNumberOfTuples(numCells);
-  
+
   cellPoints->SetComponentName(0,"NumberOfPoints");
   cellPoints->SetComponentName(1,"X_ID");
   cellPoints->SetComponentName(2,"Y_ID");
@@ -118,23 +118,23 @@ int TestNamedComponents(int , char *[])
       }
     cellPoints->SetTupleValue(i, data);
     }
-  
+
   poly->GetCellData()->AddArray(cellPoints);
   cellPoints->Delete();
- 
+
   poly->BuildCells();
-  
-  vtkSmartPointer<vtkThreshold> thresh = vtkSmartPointer<vtkThreshold>::New();  
+
+  vtkSmartPointer<vtkThreshold> thresh = vtkSmartPointer<vtkThreshold>::New();
   thresh->SetInputData(poly);
   thresh->SetInputArrayToProcess(0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_CELLS,
                                    vtkDataSetAttributes::SCALARS);
-  
+
   thresh->ThresholdBetween(0, 10);
   thresh->Update();
-  
+
   vtkSmartPointer<vtkUnstructuredGrid> out = thresh->GetOutput();
-  
+
   if ( out == NULL )
     {
     vtkGenericWarningMacro("threshold failed.");
@@ -151,7 +151,7 @@ int TestNamedComponents(int , char *[])
     vtkGenericWarningMacro("threshold failed to mantain component name on cell scalars.");
     return 1;
     }
-  
+
   if ( strcmp(cellPoints->GetComponentName(0),"NumberOfPoints")  != 0 ||
        strcmp(cellPoints->GetComponentName(1),"X_ID")  != 0 ||
        strcmp(cellPoints->GetComponentName(2),"Y_ID")  != 0 ||
@@ -162,17 +162,17 @@ int TestNamedComponents(int , char *[])
     }
 
   //Test component names with the calculator
-  vtkSmartPointer<vtkArrayCalculator> calc = vtkSmartPointer<vtkArrayCalculator>::New();  
+  vtkSmartPointer<vtkArrayCalculator> calc = vtkSmartPointer<vtkArrayCalculator>::New();
   calc->SetInputData( poly );
   calc->SetAttributeModeToUsePointData();
   // Add coordinate scalar and vector variables
-  calc->AddCoordinateScalarVariable( "coordsX", 0 );    
+  calc->AddCoordinateScalarVariable( "coordsX", 0 );
   calc->AddScalarVariable("point coords_YLOC","point coords",1 );
   calc->SetFunction("coordsX + point coords_YLOC");
   calc->SetResultArrayName("Result");
   calc->Update();
 
-  
+
   return rval;
 }
 

@@ -73,9 +73,9 @@ protected:
 
   void FindPickedActor(int x, int y);
 
-  void Prop3DTransform(vtkProp3D *prop3D, 
+  void Prop3DTransform(vtkProp3D *prop3D,
                        double *boxCenter,
-                       int numRotation, 
+                       int numRotation,
                        double **rotate,
                        double *scale);
 

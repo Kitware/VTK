@@ -42,13 +42,13 @@ public:
   vtkSetVector3Macro(Point1,double);
   vtkGetVectorMacro(Point1,double,3);
   void SetPoint1(float[3]);
-  
+
   // Description:
   // Set position of other end point.
   vtkSetVector3Macro(Point2,double);
   vtkGetVectorMacro(Point2,double,3);
   void SetPoint2(float[3]);
-  
+
   // Description:
   // Set/Get the list of points defining a broken line
   virtual void SetPoints(vtkPoints*);

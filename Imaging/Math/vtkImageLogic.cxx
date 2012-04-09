@@ -229,20 +229,20 @@ void vtkImageLogic::ThreadedRequestData (
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
     }
-  
+
   if (this->Operation == VTK_NOT || this->Operation == VTK_NOP)
     {
     switch (inData[0][0]->GetScalarType())
       {
       vtkTemplateMacro(
-        vtkImageLogicExecute1(this, inData[0][0], 
-                              outData[0], outExt, id,  
+        vtkImageLogicExecute1(this, inData[0][0],
+                              outData[0], outExt, id,
                               static_cast<VTK_TT *>(0)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -260,15 +260,15 @@ void vtkImageLogic::ThreadedRequestData (
     // this filter expects that inputs that have the same type:
     if (inData[0][0]->GetScalarType() != inData[1][0]->GetScalarType())
       {
-      vtkErrorMacro(<< "Execute: input1 ScalarType, " 
+      vtkErrorMacro(<< "Execute: input1 ScalarType, "
                     << inData[0][0]->GetScalarType()
-                    << ", must match input2 ScalarType " 
+                    << ", must match input2 ScalarType "
                     << inData[1][0]->GetScalarType());
       return;
       }
-  
+
     // this filter expects that inputs that have the same number of components
-    if (inData[0][0]->GetNumberOfScalarComponents() != 
+    if (inData[0][0]->GetNumberOfScalarComponents() !=
         inData[1][0]->GetNumberOfScalarComponents())
       {
       vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
@@ -281,7 +281,7 @@ void vtkImageLogic::ThreadedRequestData (
     switch (inData[0][0]->GetScalarType())
       {
       vtkTemplateMacro(
-        vtkImageLogicExecute2( this, inData[0][0], 
+        vtkImageLogicExecute2( this, inData[0][0],
                                inData[1][0], outData[0], outExt, id,
                                static_cast<VTK_TT *>(0)));
       default:

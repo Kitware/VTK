@@ -80,7 +80,7 @@ int CellLocator2( int argc, char *argv[] )
     destinPnt[1] = sourcePnt[1] - rayLen * normalVec[1];
     destinPnt[2] = sourcePnt[2] - rayLen * normalVec[2];
 
-    if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t, 
+    if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
                                     intersect, paraCoord, sub_id, cell_id, cell) )
     numIntersected ++;
     }
@@ -117,7 +117,7 @@ int CellLocator2( int argc, char *argv[] )
   //  sphereMapper->SetInputConnection(sphere->GetOutputPort());
   //vtkActor *sphereActor = vtkActor::New();
   //  sphereActor->SetMapper(sphereMapper);
-  //  
+  //
   //vtkSphereSource *spot = vtkSphereSource::New();
   //  spot->SetPhiResolution(6);
   //  spot->SetThetaResolution(6);
@@ -126,7 +126,7 @@ int CellLocator2( int argc, char *argv[] )
   //vtkPolyDataMapper *spotMapper = vtkPolyDataMapper::New();
   //  spotMapper->SetInputConnection(spot->GetOutputPort());
 
-  //// Build a locator 
+  //// Build a locator
   //vtkCellLocator *cellLocator = vtkCellLocator::New();
   //cellLocator->SetDataSet(sphere->GetOutput());
   //cellLocator->BuildLocator();

@@ -32,30 +32,30 @@ public:
   static vtkImageThreshold *New();
   vtkTypeMacro(vtkImageThreshold,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // The values greater than or equal to the value match.
   void ThresholdByUpper(double thresh);
-  
+
   // Description:
   // The values less than or equal to the value match.
   void ThresholdByLower(double thresh);
-  
+
   // Description:
   // The values in a range (inclusive) match
   void ThresholdBetween(double lower, double upper);
-  
+
   // Description:
   // Determines whether to replace the pixel in range with InValue
   vtkSetMacro(ReplaceIn, int);
   vtkGetMacro(ReplaceIn, int);
   vtkBooleanMacro(ReplaceIn, int);
-  
+
   // Description:
   // Replace the in range pixels with this value.
   void SetInValue(double val);
   vtkGetMacro(InValue, double);
-  
+
   // Description:
   // Determines whether to replace the pixel out of range with OutValue
   vtkSetMacro(ReplaceOut, int);
@@ -66,12 +66,12 @@ public:
   // Replace the in range pixels with this value.
   void SetOutValue(double val);
   vtkGetMacro(OutValue, double);
-  
+
   // Description:
   // Get the Upper and Lower thresholds.
   vtkGetMacro(UpperThreshold, double);
   vtkGetMacro(LowerThreshold, double);
-  
+
   // Description:
   // Set the desired output scalar type to cast to
   vtkSetMacro(OutputScalarType, int);
@@ -98,7 +98,7 @@ public:
     {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
-  
+
 protected:
   vtkImageThreshold();
   ~vtkImageThreshold() {};
@@ -109,11 +109,11 @@ protected:
   double InValue;
   int ReplaceOut;
   double OutValue;
-  
+
   int OutputScalarType;
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

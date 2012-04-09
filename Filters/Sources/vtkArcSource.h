@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkArcSource - create an arc between two end points
 // .SECTION Description
-// vtkArcSource is a source object that creates an arc defined by two 
+// vtkArcSource is a source object that creates an arc defined by two
 // endpoints and a center. The number of segments composing the polyline is
 // controlled by setting the object resolution.
 
@@ -47,10 +47,10 @@ public:
   // find the center from 3 points located on a circle.
   vtkSetVector3Macro(Center,double);
   vtkGetVectorMacro(Center,double,3);
-  
+
   // Description:
   // Divide line into resolution number of pieces.
-  // Note: if Resolution is set to 1 (default), the arc is a 
+  // Note: if Resolution is set to 1 (default), the arc is a
   // straight line.
   vtkSetClampMacro(Resolution,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(Resolution,int);

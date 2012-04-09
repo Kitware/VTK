@@ -41,7 +41,7 @@
 vtkStandardNewMacro(vtkPLSDynaReader);
 
 struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
-{  
+{
   unsigned int MinDataset;
   unsigned int MaxDataset;
   unsigned int UpdatePiece;
@@ -55,7 +55,7 @@ struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
     MaxDataset(0),
     UpdatePiece(0),
     UpdateNumPieces(0)
-    {}  
+    {}
 };
 
 
@@ -63,12 +63,12 @@ struct vtkPLSDynaReader::vtkPLSDynaReaderInternal
 vtkPLSDynaReader::vtkPLSDynaReader()
 {
   this->Controller = NULL;
-  
+
   //need to construct the internal datastructure before call SetController
-  this->Internal = new vtkPLSDynaReader::vtkPLSDynaReaderInternal();  
+  this->Internal = new vtkPLSDynaReader::vtkPLSDynaReaderInternal();
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -178,7 +178,7 @@ int vtkPLSDynaReader::ReadTopology()
     delete[] maxCellIds;
     }
   if(!readTopology)
-    {    
+    {
     return 0;
     }
 
@@ -245,7 +245,7 @@ void vtkPLSDynaReader::GetPartRanges(vtkIdType* mins, vtkIdType* maxs)
                   (this->Internal->ProcessRank==0)?numCells:0);
         }
       }
-    }  
+    }
   else
     {
     for(int i=0; i < LSDynaMetaData::NUM_CELL_TYPES;++i)

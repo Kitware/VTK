@@ -45,7 +45,7 @@
 // into an iteratively applied polynomial is possible since the Chebyshev
 // polynomials are orthogonal, i.e. increasing the order of the
 // approximation to the filter transfer function does not alter the
-// previously calculated coefficients for the low order terms. 
+// previously calculated coefficients for the low order terms.
 //
 // Note: Care must be taken to avoid smoothing with too few iterations.
 // A Chebyshev approximation with too few terms is an poor approximation.
@@ -81,12 +81,12 @@
 // vertices that are on the "boundary" of the mesh. A boundary vertex is one
 // that is surrounded by a semi-cycle of polygons (or used by a single
 // line).
-// 
+//
 // Another important ivar is FeatureEdgeSmoothing. If this ivar is
 // enabled, then interior vertices are classified as either "simple",
 // "interior edge", or "fixed", and smoothed differently. (Interior
 // vertices are manifold vertices surrounded by a cycle of polygons; or used
-// by two line cells.) The classification is based on the number of feature 
+// by two line cells.) The classification is based on the number of feature
 // edges attached to v. A feature edge occurs when the angle between the two
 // surface normals of a polygon sharing an edge is greater than the
 // FeatureAngle ivar. Then, vertices used by no feature edges are classified
@@ -94,12 +94,12 @@
 // "interior edge", and all others are "fixed" vertices.
 //
 // Once the classification is known, the vertices are smoothed
-// differently. Corner (i.e., fixed) vertices are not smoothed at all. 
+// differently. Corner (i.e., fixed) vertices are not smoothed at all.
 // Simple vertices are smoothed as before . Interior edge vertices are
 // smoothed only along their two connected edges, and only if the angle
 // between the edges is less than the EdgeAngle ivar.
 //
-// The total smoothing can be controlled by using two ivars. The 
+// The total smoothing can be controlled by using two ivars. The
 // NumberOfIterations determines the maximum number of smoothing passes.
 // The NumberOfIterations corresponds to the degree of the polynomial that
 // is used to approximate the windowed sinc function. Ten or twenty
@@ -120,7 +120,7 @@
 // There are two instance variables that control the generation of error
 // data. If the ivar GenerateErrorScalars is on, then a scalar value indicating
 // the distance of each vertex from its original position is computed. If the
-// ivar GenerateErrorVectors is on, then a vector representing change in 
+// ivar GenerateErrorVectors is on, then a vector representing change in
 // position is computed.
 //
 // .SECTION Caveats
@@ -148,9 +148,9 @@ public:
 
   // Description:
   // Construct object with number of iterations 20; passband .1;
-  // feature edge smoothing turned off; feature 
-  // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
-  // on. Error scalars and vectors are not generated (by default). The 
+  // feature edge smoothing turned off; feature
+  // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
+  // on. Error scalars and vectors are not generated (by default). The
   // convergence criterion is 0.0 of the bounding box diagonal.
   static vtkWindowedSincPolyDataFilter *New();
 
@@ -176,7 +176,7 @@ public:
   vtkSetMacro(NormalizeCoordinates, int);
   vtkGetMacro(NormalizeCoordinates, int);
   vtkBooleanMacro(NormalizeCoordinates, int);
-  
+
   // Description:
   // Turn on/off smoothing along sharp interior edges.
   vtkSetMacro(FeatureEdgeSmoothing,int);
@@ -205,7 +205,7 @@ public:
   vtkSetMacro(NonManifoldSmoothing,int);
   vtkGetMacro(NonManifoldSmoothing,int);
   vtkBooleanMacro(NonManifoldSmoothing,int);
-  
+
   // Description:
   // Turn on/off the generation of scalar distance values.
   vtkSetMacro(GenerateErrorScalars,int);
@@ -217,7 +217,7 @@ public:
   vtkSetMacro(GenerateErrorVectors,int);
   vtkGetMacro(GenerateErrorVectors,int);
   vtkBooleanMacro(GenerateErrorVectors,int);
-  
+
  protected:
   vtkWindowedSincPolyDataFilter();
   ~vtkWindowedSincPolyDataFilter() {};
@@ -239,4 +239,4 @@ private:
   void operator=(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
 };
 
-#endif 
+#endif

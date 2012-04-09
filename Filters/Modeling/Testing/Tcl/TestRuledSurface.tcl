@@ -62,11 +62,11 @@ ren1 SetBackground 1 1 1
 
 renWin SetSize 200 200
 
-[ren1 GetActiveCamera] SetPosition 12.9841 -1.81551 8.82706 
-[ren1 GetActiveCamera] SetFocalPoint 0.5 1 4 
+[ren1 GetActiveCamera] SetPosition 12.9841 -1.81551 8.82706
+[ren1 GetActiveCamera] SetFocalPoint 0.5 1 4
 [ren1 GetActiveCamera] SetViewAngle 30
-[ren1 GetActiveCamera] SetViewUp 0.128644 -0.675064 -0.726456 
-[ren1 GetActiveCamera] SetClippingRange 7.59758 21.3643 
+[ren1 GetActiveCamera] SetViewUp 0.128644 -0.675064 -0.726456
+[ren1 GetActiveCamera] SetClippingRange 7.59758 21.3643
 
 renWin Render
 # render the image

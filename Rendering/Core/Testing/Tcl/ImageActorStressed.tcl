@@ -54,7 +54,7 @@ iaTwo AddPosition 1000 1000 0
 
 ren1 AddActor iaTwo
 
-# The third one will test changing input and a 
+# The third one will test changing input and a
 # power of two texture
 vtkImageEllipsoidSource gsThree
 gsThree SetWholeExtent 0 511 2000 2511 0 0

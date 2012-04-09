@@ -29,9 +29,9 @@
 // the data attributes include scalars, vectors, tensors, normals, texture
 // coordinates, and field data.)
 //
-// The names used to create the field data are as follows. For vtkPolyData, 
+// The names used to create the field data are as follows. For vtkPolyData,
 // "Points", "Verts", "Lines", "Polys", and "Strips". For vtkUnstructuredGrid,
-// "Cells" and "CellTypes". For vtkStructuredPoints, "Dimensions", "Spacing", 
+// "Cells" and "CellTypes". For vtkStructuredPoints, "Dimensions", "Spacing",
 // and "Origin". For vtkStructuredGrid, "Points" and "Dimensions". For
 // vtkRectilinearGrid, "XCoordinates", "YCoordinates", and "ZCoordinates".
 // for point attribute data, "PointScalars", "PointVectors", etc. For cell
@@ -99,7 +99,7 @@ protected:
                                   vtkInformationVector *);
 
   virtual int FillInputPortInformation(int, vtkInformation*);
-  
+
   int Geometry;
   int Topology;
   int PointData;

@@ -168,7 +168,7 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   VTK_CREATE(vtkDirectedGraph, dg);
   VTK_CREATE(vtkTree, t);
-  
+
   //  Create some vertex property arrays
   VTK_CREATE(vtkVariantArray, vertexPropertyArr);
   int numVertexProperties = 2;

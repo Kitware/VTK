@@ -29,8 +29,8 @@
 // its value is the empty string.
 //
 // If MaskArrays is on (the default is off), the filter will additionally make bit
-// arrays whose names are prepended with ".valid." which are 1 if the element 
-// contains that attribute, and 0 otherwise. 
+// arrays whose names are prepended with ".valid." which are 1 if the element
+// contains that attribute, and 0 otherwise.
 //
 // For example, the XML file containing the text:
 // <pre>
@@ -141,7 +141,7 @@ public:
   vtkGetMacro(ReadCharData, bool);
   vtkSetMacro(ReadCharData, bool);
   vtkBooleanMacro(ReadCharData, bool);
-  
+
   // Description:
   // If on, stores the XML tag name data in a field called .tagname
   // otherwise this field is skipped.
@@ -168,8 +168,8 @@ protected:
   bool GenerateVertexPedigreeIds;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

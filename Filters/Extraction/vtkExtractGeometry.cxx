@@ -37,7 +37,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
     {
     this->ImplicitFunction->Register(this);
     }
-    
+
   this->ExtractInside = 1;
   this->ExtractBoundaryCells = 0;
   this->ExtractOnlyBoundaryCells = 0;
@@ -94,7 +94,7 @@ int vtkExtractGeometry::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   int npts;
-  
+
   vtkDebugMacro(<< "Extracting geometry");
 
   if ( ! this->ImplicitFunction )
@@ -115,7 +115,7 @@ int vtkExtractGeometry::RequestData(
     {
     multiplier = 1.0;
     }
-  else 
+  else
     {
     multiplier = -1.0;
     }
@@ -137,7 +137,7 @@ int vtkExtractGeometry::RequestData(
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
   vtkFloatArray *newScalars = NULL;
-  
+
   if ( ! this->ExtractBoundaryCells )
     {
     for ( ptId=0; ptId < numPts; ptId++ )
@@ -197,7 +197,7 @@ int vtkExtractGeometry::RequestData(
           }
         }
       } //if don't want to extract boundary cells
-    
+
     else //want boundary cells
       {
       for ( npts=0, i=0; i < numCellPts; i++ )
@@ -223,7 +223,7 @@ int vtkExtractGeometry::RequestData(
           extraction_condition = 1;
           }
         }
-      if ( extraction_condition ) 
+      if ( extraction_condition )
         {
         for ( i=0; i < numCellPts; i++ )
           {
@@ -239,7 +239,7 @@ int vtkExtractGeometry::RequestData(
           }
         }//a boundary or interior cell
       }//if mapping boundary cells
-      
+
     int extraction_condition = 0;
     if ( this->ExtractOnlyBoundaryCells )
       {
@@ -299,12 +299,12 @@ void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Implicit Function: " 
+  os << indent << "Implicit Function: "
      << static_cast<void *>(this->ImplicitFunction) << "\n";
-  os << indent << "Extract Inside: " 
+  os << indent << "Extract Inside: "
      << (this->ExtractInside ? "On\n" : "Off\n");
-  os << indent << "Extract Boundary Cells: " 
+  os << indent << "Extract Boundary Cells: "
      << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
-  os << indent << "Extract Only Boundary Cells: " 
+  os << indent << "Extract Only Boundary Cells: "
      << (this->ExtractOnlyBoundaryCells ? "On\n" : "Off\n");
 }

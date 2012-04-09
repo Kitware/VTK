@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkgluPickMatrix - implement selected glu functionality
 // .SECTION Description
-// This file implements selected glu functionality to avoid 
+// This file implements selected glu functionality to avoid
 // system dependencies on glu.
 
 #ifndef vtkgluPickMatrix_h
@@ -30,7 +30,7 @@ inline void vtkgluPickMatrix( GLdouble x, GLdouble y,
   GLfloat m[16];
   GLfloat sx, sy;
   GLfloat tx, ty;
-  
+
   sx = size[0] / width;
   sy = size[1] / height;
   tx = (size[0] + 2.0 * (origin[0] - x)) / width;

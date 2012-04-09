@@ -32,7 +32,7 @@
 // prior to the PickEvent of vtkPicker.
 
 // .SECTION Caveats
-// vtkAbstractPicker and its subclasses will not pick props that are 
+// vtkAbstractPicker and its subclasses will not pick props that are
 // "unpickable" (see vtkProp) or are fully transparent (if transparency
 // is a property of the vtkProp).
 //
@@ -81,11 +81,11 @@ public:
   vtkGetVectorMacro(PickPosition,double,3);
 
   // Description:
-  // Perform pick operation with selection point provided. Normally the 
+  // Perform pick operation with selection point provided. Normally the
   // first two values for the selection point are x-y pixel coordinate, and
-  // the third value is =0. Return non-zero if something was successfully 
+  // the third value is =0. Return non-zero if something was successfully
   // picked.
-  virtual int Pick(double selectionX, double selectionY, double selectionZ, 
+  virtual int Pick(double selectionX, double selectionY, double selectionZ,
                    vtkRenderer *renderer) = 0;
 
   // Description: Perform pick operation with selection point
@@ -93,11 +93,11 @@ public:
   // are x-y pixel coordinate, and the third value is =0. Return
   // non-zero if something was successfully picked.
   int Pick(double selectionPt[3], vtkRenderer *ren)
-    {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);};  
+    {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);};
 
   // Description:
   // Use these methods to control whether to limit the picking to this list
-  // (rather than renderer's actors). Make sure that the pick list contains 
+  // (rather than renderer's actors). Make sure that the pick list contains
   // actors that referred to by the picker's renderer.
   vtkSetMacro(PickFromList,int);
   vtkGetMacro(PickFromList,int);
@@ -114,7 +114,7 @@ public:
   // Description:
   // Delete an actor from the pick list.
   void DeletePickList(vtkProp *);
-  
+
   // Description:
   // Return the list of actors in the PickList.
   vtkPropCollection *GetPickList() {return this->PickList;}
@@ -128,7 +128,7 @@ protected:
   vtkRenderer *Renderer; //pick occurred in this renderer's viewport
   double SelectionPoint[3]; //selection point in window (pixel) coordinates
   double PickPosition[3]; //selection point in world coordinates
-  
+
   // use the following to control picking from a list
   int PickFromList;
   vtkPropCollection *PickList;

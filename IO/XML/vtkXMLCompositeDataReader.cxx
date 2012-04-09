@@ -119,7 +119,7 @@ vtkCompositeDataSet* vtkXMLCompositeDataReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkCompositeDataSet* vtkXMLCompositeDataReader::GetOutput(int port)
 {
-  vtkDataObject* output = 
+  vtkDataObject* output =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
     GetCompositeOutputData(port);
   return vtkCompositeDataSet::SafeDownCast(output);
@@ -128,9 +128,9 @@ vtkCompositeDataSet* vtkXMLCompositeDataReader::GetOutput(int port)
 //----------------------------------------------------------------------------
 int vtkXMLCompositeDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  if (!this->Superclass::ReadPrimaryElement(ePrimary)) 
-    { 
-    return 0; 
+  if (!this->Superclass::ReadPrimaryElement(ePrimary))
+    {
+    return 0;
     }
 
   // Simply save the XML tree. We'll iterate over it later.
@@ -198,13 +198,13 @@ unsigned int vtkXMLCompositeDataReader::CountLeaves(vtkXMLDataElement* elem)
     for (unsigned int cc=0; cc < max; ++cc)
       {
       vtkXMLDataElement* child = elem->GetNestedElement(cc);
-      if (child && child->GetName()) 
+      if (child && child->GetName())
         {
         if (strcmp(child->GetName(), "DataSet")==0)
           {
           count++;
           }
-        else 
+        else
           {
           count += this->CountLeaves(child);
           }
@@ -224,9 +224,9 @@ void vtkXMLCompositeDataReader::ReadXMLData()
   unsigned int updateNumPieces =  static_cast<unsigned int>(
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
 
-  vtkDataObject* doOutput = 
+  vtkDataObject* doOutput =
     info->Get(vtkDataObject::DATA_OBJECT());
-  vtkCompositeDataSet* composite = 
+  vtkCompositeDataSet* composite =
     vtkCompositeDataSet::SafeDownCast(doOutput);
   if (!composite)
     {
@@ -249,7 +249,7 @@ void vtkXMLCompositeDataReader::ReadXMLData()
   // In earlier implementation only dataset with a group were distributed among
   // the processes. In this implementation, we distribute all leaf datasets
   // among the processes.
-  
+
   // Determine the leaves that this process is going to read.
   unsigned int numDatasets = this->CountLeaves(this->GetPrimaryElement());
   unsigned int numDatasetsPerPiece = 1;
@@ -268,8 +268,8 @@ void vtkXMLCompositeDataReader::ReadXMLData()
     }
   else
     {
-    this->Internal->MinDataset = (numDatasetsPerPiece +1)* remaining_blocks + 
-      numDatasetsPerPiece * (updatePiece-remaining_blocks); 
+    this->Internal->MinDataset = (numDatasetsPerPiece +1)* remaining_blocks +
+      numDatasetsPerPiece * (updatePiece-remaining_blocks);
     this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece;
     }
 
@@ -346,7 +346,7 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
 
   // Search for the reader matching this extension.
   const char* rname = 0;
-  for(const vtkXMLCompositeDataReaderEntry* readerEntry = 
+  for(const vtkXMLCompositeDataReaderEntry* readerEntry =
     this->Internal->ReaderList;
     !rname && readerEntry->extension; ++readerEntry)
     {

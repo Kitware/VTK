@@ -24,7 +24,7 @@
 vtkWidgetRepresentation::vtkWidgetRepresentation()
 {
   this->Renderer = NULL;
-  
+
   this->InteractionState = 0;
   this->StartEventPosition[0] = 0.0;
   this->StartEventPosition[1] = 0.0;
@@ -35,12 +35,12 @@ vtkWidgetRepresentation::vtkWidgetRepresentation()
   this->HandleSize = 0.05;
   this->ValidPick = 0;
   this->HandleSize = 0.01;
-  
+
   this->InitialBounds[0] = this->InitialBounds[2] = this->InitialBounds[4] = 0.0;
   this->InitialBounds[1] = this->InitialBounds[3] = this->InitialBounds[5] = 1.0;
-  
+
   this->InitialLength = 0.0;
-  
+
   this->NeedToRender = 0;
 }
 
@@ -60,13 +60,13 @@ void vtkWidgetRepresentation::SetRenderer(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------
-void vtkWidgetRepresentation::AdjustBounds(double bounds[6], double newBounds[6], 
+void vtkWidgetRepresentation::AdjustBounds(double bounds[6], double newBounds[6],
                                            double center[3])
 {
   center[0] = (bounds[0] + bounds[1])/2.0;
   center[1] = (bounds[2] + bounds[3])/2.0;
   center[2] = (bounds[4] + bounds[5])/2.0;
-  
+
   newBounds[0] = center[0] + this->PlaceFactor*(bounds[0]-center[0]);
   newBounds[1] = center[0] + this->PlaceFactor*(bounds[1]-center[0]);
   newBounds[2] = center[1] + this->PlaceFactor*(bounds[2]-center[1]);
@@ -97,11 +97,11 @@ int vtkWidgetRepresentation::ComputeInteractionState(int, int, int)
 double vtkWidgetRepresentation::SizeHandlesInPixels(double factor,
                                                     double pos[3])
 {
-  // 
+  //
   int i;
   vtkRenderer *renderer;
 
-  if ( !this->ValidPick || !(renderer=this->Renderer) || 
+  if ( !this->ValidPick || !(renderer=this->Renderer) ||
        !renderer->GetActiveCamera() )
     {
     return (this->HandleSize * factor * this->InitialLength);
@@ -112,8 +112,8 @@ double vtkWidgetRepresentation::SizeHandlesInPixels(double factor,
     double lowerLeft[4], upperRight[4];
     double focalPoint[4];
 
-    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
-                                                 pos[0], pos[1], pos[2], 
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
+                                                 pos[0], pos[1], pos[2],
                                                  focalPoint);
     z = focalPoint[2];
 
@@ -125,7 +125,7 @@ double vtkWidgetRepresentation::SizeHandlesInPixels(double factor,
     y = focalPoint[1] + this->HandleSize/2.0;
     vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,upperRight);
 
-    for (radius=0.0, i=0; i<3; i++) 
+    for (radius=0.0, i=0; i<3; i++)
       {
       radius += (upperRight[i] - lowerLeft[i]) *
         (upperRight[i] - lowerLeft[i]);
@@ -141,7 +141,7 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
   int i;
   vtkRenderer *renderer;
 
-  if ( !this->ValidPick || !(renderer=this->Renderer) || 
+  if ( !this->ValidPick || !(renderer=this->Renderer) ||
        !renderer->GetActiveCamera() )
     {
     return (this->HandleSize * factor * this->InitialLength);
@@ -154,8 +154,8 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
     int *winSize = renderer->GetRenderWindow()->GetSize();
     double focalPoint[4];
 
-    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, 
-                                                 pos[0], pos[1], pos[2], 
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer,
+                                                 pos[0], pos[1], pos[2],
                                                  focalPoint);
     z = focalPoint[2];
 
@@ -167,7 +167,7 @@ double vtkWidgetRepresentation::SizeHandlesRelativeToViewport(double factor,
     y = winSize[1] * viewport[3];
     vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer,x,y,z,windowUpperRight);
 
-    for (radius=0.0, i=0; i<3; i++) 
+    for (radius=0.0, i=0; i<3; i++)
       {
       radius += (windowUpperRight[i] - windowLowerLeft[i]) *
         (windowUpperRight[i] - windowLowerLeft[i]);
@@ -182,7 +182,7 @@ void vtkWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Renderer: " << this->Renderer << "\n";
   os << indent << "Interaction State: " << this->InteractionState << "\n";
   os << indent << "Handle Size: " << this->HandleSize << "\n";

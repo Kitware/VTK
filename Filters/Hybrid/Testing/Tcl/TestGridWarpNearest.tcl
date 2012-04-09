@@ -9,9 +9,9 @@ imageGrid SetDataScalarTypeToUnsignedChar
 
 vtkLookupTable table
 table SetTableRange 0 1
-table SetValueRange 1.0 0.0 
-table SetSaturationRange 0.0 0.0 
-table SetHueRange 0.0 0.0 
+table SetValueRange 1.0 0.0
+table SetSaturationRange 0.0 0.0
+table SetHueRange 0.0 0.0
 table SetAlphaRange 0.0 1.0
 table Build
 
@@ -26,7 +26,7 @@ vtkImageBlend blend
 blend AddInputConnection [reader1 GetOutputPort]
 blend AddInputConnection [alpha GetOutputPort]
 
-# next, create a ThinPlateSpline transform 
+# next, create a ThinPlateSpline transform
 
 vtkPoints p1
 p1 SetNumberOfPoints 8

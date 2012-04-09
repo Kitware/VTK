@@ -330,7 +330,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   CALL_NETCDF(nc_get_vars_vtkIdType(ncFD(), particleInfoVar, start, count, NULL,
               ids->GetPointer(0)));
   output->GetPointData()->SetGlobalIds(ids);
-  
+
   VTK_CREATE(vtkIntArray, emissionType);
   emissionType->SetName("EmissionType");
   emissionType->SetNumberOfComponents(1);
@@ -356,5 +356,5 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
                                 &timeValue, 1);
 
   return 1;
-} 
+}
 

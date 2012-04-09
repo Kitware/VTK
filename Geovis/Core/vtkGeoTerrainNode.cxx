@@ -30,11 +30,11 @@ vtkStandardNewMacro(vtkGeoTerrainNode);
 
 
 //----------------------------------------------------------------------------
-vtkGeoTerrainNode::vtkGeoTerrainNode() 
+vtkGeoTerrainNode::vtkGeoTerrainNode()
 {
   this->Model = vtkSmartPointer<vtkPolyData>::New();
   this->BoundingSphereRadius = 0.0;
-  
+
   for (int idx = 0; idx < 3; ++idx)
     {
     this->BoundingSphereCenter[idx] = 0.0;
@@ -53,7 +53,7 @@ vtkGeoTerrainNode::vtkGeoTerrainNode()
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoTerrainNode::~vtkGeoTerrainNode() 
+vtkGeoTerrainNode::~vtkGeoTerrainNode()
 {
 }
 
@@ -61,32 +61,32 @@ vtkGeoTerrainNode::~vtkGeoTerrainNode()
 void vtkGeoTerrainNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "BoundingSphereCenter: " 
-    << this->BoundingSphereCenter[0] << ", " 
+
+  os << indent << "BoundingSphereCenter: "
+    << this->BoundingSphereCenter[0] << ", "
     << this->BoundingSphereCenter[1] << ", "
     << this->BoundingSphereCenter[2] << "\n";
-  os << indent << "BoundingSphereRadius: " 
+  os << indent << "BoundingSphereRadius: "
     << this->BoundingSphereRadius << "\n";
-  
-  os << indent << "CornerNormal00: " 
-    << this->CornerNormal00[0] << ", " 
+
+  os << indent << "CornerNormal00: "
+    << this->CornerNormal00[0] << ", "
     << this->CornerNormal00[1] << ", "
     << this->CornerNormal00[2] << "\n";
-  os << indent << "CornerNormal01: " 
-    << this->CornerNormal01[0] << ", " 
+  os << indent << "CornerNormal01: "
+    << this->CornerNormal01[0] << ", "
     << this->CornerNormal01[1] << ", "
     << this->CornerNormal01[2] << "\n";
-  os << indent << "CornerNormal10: " 
-    << this->CornerNormal10[0] << ", " 
+  os << indent << "CornerNormal10: "
+    << this->CornerNormal10[0] << ", "
     << this->CornerNormal10[1] << ", "
     << this->CornerNormal10[2] << "\n";
-  os << indent << "CornerNormal11: " 
-    << this->CornerNormal11[0] << ", " 
+  os << indent << "CornerNormal11: "
+    << this->CornerNormal11[0] << ", "
     << this->CornerNormal11[1] << ", "
     << this->CornerNormal11[2] << "\n";
-  os << indent << "ProjectionBounds: " 
-    << this->ProjectionBounds[0] << ", " 
+  os << indent << "ProjectionBounds: "
+    << this->ProjectionBounds[0] << ", "
     << this->ProjectionBounds[1] << ", "
     << this->ProjectionBounds[2] << ", "
     << this->ProjectionBounds[3] << "\n";
@@ -124,28 +124,28 @@ void vtkGeoTerrainNode::UpdateBoundingSphere()
   double* c10 = this->CornerNormal10;
   double* c11 = this->CornerNormal11;
   double longitudeLatitudeAltitude[3];
-  
+
   longitudeLatitudeAltitude[0] = this->LongitudeRange[0];
   longitudeLatitudeAltitude[1] = this->LatitudeRange[0];
-  longitudeLatitudeAltitude[2] 
+  longitudeLatitudeAltitude[2]
     = this->GetAltitude(this->LongitudeRange[0], this->LatitudeRange[0]);
   vtkGeoMath::LongLatAltToRect(longitudeLatitudeAltitude, c00);
 
   longitudeLatitudeAltitude[0] = this->LongitudeRange[1];
   longitudeLatitudeAltitude[1] = this->LatitudeRange[0];
-  longitudeLatitudeAltitude[2] 
+  longitudeLatitudeAltitude[2]
     = this->GetAltitude(this->LongitudeRange[1], this->LatitudeRange[0]);
   vtkGeoMath::LongLatAltToRect(longitudeLatitudeAltitude, c01);
 
   longitudeLatitudeAltitude[0] = this->LongitudeRange[0];
   longitudeLatitudeAltitude[1] = this->LatitudeRange[1];
-  longitudeLatitudeAltitude[2] 
+  longitudeLatitudeAltitude[2]
     = this->GetAltitude(this->LongitudeRange[0], this->LatitudeRange[1]);
   vtkGeoMath::LongLatAltToRect(longitudeLatitudeAltitude, c10);
 
   longitudeLatitudeAltitude[0] = this->LongitudeRange[1];
   longitudeLatitudeAltitude[1] = this->LatitudeRange[1];
-  longitudeLatitudeAltitude[2] 
+  longitudeLatitudeAltitude[2]
     = this->GetAltitude(this->LongitudeRange[1], this->LatitudeRange[1]);
   vtkGeoMath::LongLatAltToRect(longitudeLatitudeAltitude, c11);
 
@@ -173,8 +173,8 @@ void vtkGeoTerrainNode::UpdateBoundingSphere()
     this->BoundingSphereRadius = distance;
     }
   this->BoundingSphereRadius = sqrt(this->BoundingSphereRadius);
-    
-  // Change corners to normals (c00 points to normal ivar) 
+
+  // Change corners to normals (c00 points to normal ivar)
   vtkMath::Normalize(c00);
   vtkMath::Normalize(c01);
   vtkMath::Normalize(c10);

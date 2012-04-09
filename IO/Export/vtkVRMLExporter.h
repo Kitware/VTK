@@ -57,7 +57,7 @@ public:
   // Set the file pointer to write to. This will override
   // a FileName if specified.
   void SetFilePointer(FILE *);
-  
+
 protected:
   vtkVRMLExporter();
   ~vtkVRMLExporter();
@@ -65,8 +65,8 @@ protected:
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);
-  void WritePointData(vtkPoints *points, vtkDataArray *normals, 
-                      vtkDataArray *tcoords, vtkUnsignedCharArray *colors, 
+  void WritePointData(vtkPoints *points, vtkDataArray *normals,
+                      vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
                       FILE *fp);
   void WriteShapeBegin(vtkActor* actor, FILE *fileP,
                        vtkPolyData *polyData,vtkPointData *pntData,

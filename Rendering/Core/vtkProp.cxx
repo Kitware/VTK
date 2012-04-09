@@ -31,9 +31,9 @@ vtkProp::vtkProp()
 
   this->Pickable   = 1;
   this->Dragable   = 1;
-  
+
   this->UseBounds=true;
-  
+
   this->AllocatedRenderTime = 10.0;
   this->EstimatedRenderTime = 0.0;
   this->RenderTimeMultiplier = 1.0;
@@ -42,7 +42,7 @@ vtkProp::vtkProp()
 
   this->NumberOfConsumers = 0;
   this->Consumers = 0;
-  
+
   this->PropertyKeys=0;
 }
 
@@ -57,7 +57,7 @@ vtkProp::~vtkProp()
     {
     delete [] this->Consumers;
     }
-  
+
   if(this->PropertyKeys!=0)
     {
     this->PropertyKeys->Delete();
@@ -106,7 +106,7 @@ vtkAssemblyPath *vtkProp::GetNextPath()
 
 //----------------------------------------------------------------------------
 // This method is used in conjunction with the assembly object to build a copy
-// of the assembly hierarchy. This hierarchy can then be traversed for 
+// of the assembly hierarchy. This hierarchy can then be traversed for
 // rendering, picking or other operations.
 void vtkProp::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
 {
@@ -128,15 +128,15 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
 
-  os << indent << "AllocatedRenderTime: " 
+  os << indent << "AllocatedRenderTime: "
      << this->AllocatedRenderTime << endl;
-  os << indent << "EstimatedRenderTime: " 
+  os << indent << "EstimatedRenderTime: "
      << this->EstimatedRenderTime << endl;
   os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
-  os << indent << "RenderTimeMultiplier: " 
+  os << indent << "RenderTimeMultiplier: "
      << this->RenderTimeMultiplier << endl;
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
-  
+
   os << indent << "PropertyKeys: ";
   if(this->PropertyKeys!=0)
     {
@@ -147,7 +147,7 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "none." << endl;
     }
-  
+
   os << indent << "useBounds: " << this->UseBounds <<endl;
 }
 
@@ -271,7 +271,7 @@ bool vtkProp::RenderFilteredOpaqueGeometry(vtkViewport *v,
     }
   return result;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Render the translucent polygonal geometry only if the prop has all the

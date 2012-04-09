@@ -46,10 +46,10 @@ public:
   {
     if(this->Table)
       this->Table->Delete();
-    
+
     if(this->Query)
       this->Query->Delete();
-    
+
     if(this->Database)
       this->Database->Delete();
   }
@@ -74,7 +74,7 @@ vtkSQLDatabaseTableSource::vtkSQLDatabaseTableSource() :
   this->PedigreeIdArrayName = 0;
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = true;
-  
+
   // Set up eventforwarder
   this->EventForwarder = vtkEventForwarderCommand::New();
   this->EventForwarder->SetTarget(this);
@@ -113,15 +113,15 @@ void vtkSQLDatabaseTableSource::SetURL(const vtkStdString& url)
     this->Implementation->Query->Delete();
     this->Implementation->Query = 0;
     }
-  
+
   if(this->Implementation->Database)
     {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
     }
-  
+
   this->Implementation->URL = url;
-  
+
   this->Modified();
 }
 
@@ -135,15 +135,15 @@ void vtkSQLDatabaseTableSource::SetPassword(const vtkStdString& password)
     this->Implementation->Query->Delete();
     this->Implementation->Query = 0;
     }
-  
+
   if(this->Implementation->Database)
     {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
     }
-  
+
   this->Implementation->Password = password;
-  
+
   this->Modified();
 }
 
@@ -163,8 +163,8 @@ void vtkSQLDatabaseTableSource::SetQuery(const vtkStdString& query)
 
 //---------------------------------------------------------------------------
 int vtkSQLDatabaseTableSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   if(this->Implementation->URL.empty())
@@ -172,7 +172,7 @@ int vtkSQLDatabaseTableSource::RequestData(
 
   if(this->Implementation->QueryString.empty())
     return 1;
-  
+
   if(!this->PedigreeIdArrayName)
     {
     vtkErrorMacro(<< "You must specify a pedigree id array name.");
@@ -207,12 +207,12 @@ int vtkSQLDatabaseTableSource::RequestData(
       return 0;
       }
     }
-    
+
   // Set Progress Text
   this->SetProgressText("DatabaseTableSource");
-    
-  // I have a database: 5% progress 
-  this->UpdateProgress(.05); 
+
+  // I have a database: 5% progress
+  this->UpdateProgress(.05);
 
   this->Implementation->Query->SetQuery(this->Implementation->QueryString.c_str());
   if(!this->Implementation->Query->Execute())
@@ -220,27 +220,27 @@ int vtkSQLDatabaseTableSource::RequestData(
     vtkErrorMacro(<< "Error executing query: " << this->Implementation->QueryString.c_str());
     return 0;
     }
-    
-  // Executed query: 33% progress 
-  this->UpdateProgress(.33); 
-  
+
+  // Executed query: 33% progress
+  this->UpdateProgress(.33);
+
   // Set Progress Text
   this->SetProgressText("DatabaseTableSource: RowQueryToTable");
 
   if(!this->Implementation->Table)
     {
     this->Implementation->Table = vtkRowQueryToTable::New();
-     
+
     // Now forward progress events from the graph layout
-    this->Implementation->Table->AddObserver(vtkCommand::ProgressEvent, 
+    this->Implementation->Table->AddObserver(vtkCommand::ProgressEvent,
                                  this->EventForwarder);
     }
   this->Implementation->Table->SetQuery(this->Implementation->Query);
   this->Implementation->Table->Update();
-  
-  // Created Table: 66% progress 
+
+  // Created Table: 66% progress
   this->SetProgressText("DatabaseTableSource");
-  this->UpdateProgress(.66); 
+  this->UpdateProgress(.66);
 
   vtkTable* const output = vtkTable::SafeDownCast(
     outputVector->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
@@ -275,9 +275,9 @@ int vtkSQLDatabaseTableSource::RequestData(
       return 0;
       }
     }
-    
-  // Done: 100% progress 
-  this->UpdateProgress(1); 
+
+  // Done: 100% progress
+  this->UpdateProgress(1);
 
   return 1;
 }

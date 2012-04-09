@@ -37,7 +37,7 @@ actor SetMapper mapper
 ren1 AddActor actor
 
 foreach family {
-    Arial 
+    Arial
 } {
     foreach {bold italic shadow} {
         0 0 0

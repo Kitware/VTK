@@ -528,7 +528,7 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
     {
     //we threshold the datset on the ghost cells and return
     //the new dataset
-    return this->RemoveDeletedCells();    
+    return this->RemoveDeletedCells();
     }
 }
 
@@ -638,7 +638,7 @@ void vtkLSDynaPart::EnableDeadCells(const int& deadCellsAsGhostArray)
                              this->NumberOfCells,1);
 
     this->Grid->GetCellData()->AddArray(deadCells);
-    deadCells->FastDelete();  
+    deadCells->FastDelete();
     }
 }
 
@@ -684,7 +684,7 @@ void vtkLSDynaPart::SetNextCellUserIds(const vtkIdType& value)
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaPart::AddPointProperty(const char* name, 
+void vtkLSDynaPart::AddPointProperty(const char* name,
         const vtkIdType& numComps, const bool &isIdTypeProperty,
         const bool &isProperty, const bool& isGeometryPoints)
 {
@@ -790,7 +790,7 @@ void vtkLSDynaPart::GetPropertyData(const char* name,const vtkIdType &numComps,
         }
       data->SetName(name);
       data->SetNumberOfComponents(numComps);
-      data->SetNumberOfTuples(this->NumberOfPoints);      
+      data->SetNumberOfTuples(this->NumberOfPoints);
       data->FastDelete();
       }
     }

@@ -15,7 +15,7 @@
 // .NAME vtkImageMirrorPad - Extra pixels are filled by mirror images.
 // .SECTION Description
 // vtkImageMirrorPad makes an image larger by filling extra pixels with
-// a mirror image of the original image (mirror at image boundaries).  
+// a mirror image of the original image (mirror at image boundaries).
 
 
 #ifndef __vtkImageMirrorPad_h

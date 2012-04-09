@@ -26,15 +26,15 @@ PURPOSE.  See the above copyright notice for more information.
 //   (cf. P. Pebay, Formulas for robust, one-pass parallel computation of covariances
 //   and Arbitrary-Order Statistical Moments, Sandia Report SAND2008-6212, Sep 2008,
 //   http://infoserve.sandia.gov/sand_doc/2008/086212.pdf for details)
-// * Derive: calculate unbiased covariance matrix estimators and its determinant, 
+// * Derive: calculate unbiased covariance matrix estimators and its determinant,
 //   linear regressions, and Pearson correlation coefficient.
 // * Assess: given an input data set, two means and a 2x2 covariance matrix,
 //   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
 //   distance).
 // * Test: Perform Jarque-Bera-Srivastava test of 2-d normality
-//  
+//
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
@@ -86,7 +86,7 @@ protected:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ) 
+                       vtkTable* outData )
   { this->Superclass::Assess( inData, inMeta, outData, 2 ); }
 
 //BTX
@@ -97,7 +97,7 @@ protected:
 
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
+  virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );

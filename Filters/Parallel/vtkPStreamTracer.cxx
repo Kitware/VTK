@@ -82,8 +82,8 @@ void vtkPStreamTracer::ReceiveLastPoints(vtkPolyData *output)
 
   while(1)
     {
-    this->Controller->Receive(&streamId, 
-                              1, 
+    this->Controller->Receive(&streamId,
+                              1,
                               vtkMultiProcessController::ANY_SOURCE,
                               733);
     if (streamId < 0)
@@ -135,7 +135,7 @@ void vtkPStreamTracer::MoveToNextSend(vtkPolyData *output)
 // originated in another process to that process. This information
 // is stored in the "Streamline Origin" array.
 void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
-{ 
+{
   vtkIntArray* strOrigin = vtkIntArray::SafeDownCast(
     output->GetCellData()->GetArray("Streamline Origin"));
   if (!strOrigin)
@@ -143,7 +143,7 @@ void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
     this->MoveToNextSend(output);
     return;
     }
-  
+
   int numLines = strOrigin->GetNumberOfTuples();
   int streamId, sendToId;
   int i;
@@ -152,7 +152,7 @@ void vtkPStreamTracer::SendFirstPoints(vtkPolyData *output)
     sendToId = strOrigin->GetValue(2*i);
     streamId = strOrigin->GetValue(2*i+1);
     if (streamId != -1)
-      { 
+      {
       this->Controller->Send(&streamId, 1, sendToId, 733);
       this->SendCellPoint(output, i, 0, sendToId);
       }
@@ -222,26 +222,26 @@ void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
       outputDA->SetTuple(ptId, da->GetTuple(0));
       }
     }
-  
+
   input->Delete();
 }
 
 // Send one point and all of it's attributes to another process
 void vtkPStreamTracer::SendCellPoint(vtkPolyData* togo,
-                                     vtkIdType cellId, 
-                                     vtkIdType idx, 
+                                     vtkIdType cellId,
+                                     vtkIdType idx,
                                      int sendToId)
 {
   // We create a dummy dataset which will contain the point
   // we want to send and it's attributes.
   vtkPolyData* copy = vtkPolyData::New();
-  
+
   vtkIdType ptId;
   vtkIdType npts;
   vtkIdType* pts;
   togo->GetCellPoints(cellId, npts, pts);
   ptId = pts[idx];
-    
+
   vtkPoints* points = vtkPoints::New();
   points->SetNumberOfPoints(1);
   points->SetPoint(0, togo->GetPoint(ptId));
@@ -286,7 +286,7 @@ int vtkPStreamTracer::RequestUpdateExtent(
                 ghostLevel);
       }
     }
-  
+
 
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
@@ -360,8 +360,8 @@ int vtkPStreamTracer::RequestData(
     {
     vtkDebugMacro("No appropriate inputs have been found..");
     this->EmptyData = 1;
-    
-    // the if-statement below is a MUST since 'func' may be still NULL 
+
+    // the if-statement below is a MUST since 'func' may be still NULL
     // when this->InputData is NULL ---- no any data has been assigned
     // to this process
     if ( func )
@@ -376,12 +376,12 @@ int vtkPStreamTracer::RequestData(
     this->SetInterpolator(func);
     func->Delete();
     }
-    
-  this->InitializeSeeds(this->Seeds, 
-                        this->SeedIds, 
+
+  this->InitializeSeeds(this->Seeds,
+                        this->SeedIds,
                         this->IntegrationDirections,
                         source);
-  
+
   this->TmpOutputs.erase(this->TmpOutputs.begin(), this->TmpOutputs.end());
   this->ParallelIntegrate();
 
@@ -420,9 +420,9 @@ int vtkPStreamTracer::RequestData(
     this->ReceiveLastPoints(output);
     }
 
-  if (this->Seeds) 
+  if (this->Seeds)
     {
-    this->Seeds->Delete(); 
+    this->Seeds->Delete();
     this->Seeds = 0;
     }
   this->IntegrationDirections->Delete();

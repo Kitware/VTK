@@ -104,9 +104,9 @@ static void printLogInfo(GLuint shader, const char* filename)
 
   vtkgl::GLchar* info = new vtkgl::GLchar[maxLength];
   GLsizei charsWritten = 0;
-  
+
   vtkgl::GetShaderInfoLog( shader, maxLength, &charsWritten, info );
-  
+
   cout << "Compiled Status: " << compiled << endl;
   if( info )
     {
@@ -253,7 +253,7 @@ int vtkGLSLShader::Compile()
     {
     vtkErrorMacro("Shader doesn't have any code!");
     return 0;
-      
+
     }
 
   if (this->IsCompiled())
@@ -277,9 +277,9 @@ int vtkGLSLShader::Compile()
 
   // if we have the source available, try to load it
   // Load the shader as a single string seems to work best
-  const vtkgl::GLchar* source = 
+  const vtkgl::GLchar* source =
     static_cast<const vtkgl::GLchar*>(this->XMLShader->GetCode());
-  
+
   // Since the entire shader is sent to GL as a single string, the number of
   // lines (second argument) is '1'.
   vtkgl::ShaderSource( static_cast<GLuint>(this->Shader), 1, &source, NULL );
@@ -303,7 +303,7 @@ int vtkGLSLShader::Compile()
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShader::SetUniformParameter(const char* name,
-                                        int numValues, 
+                                        int numValues,
                                         const int* values)
 {
   if( !this->IsShader() )
@@ -347,7 +347,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShader::SetUniformParameter(const char* name,
-                                        int numValues, 
+                                        int numValues,
                                         const float* values)
 {
   if( !this->IsShader() )
@@ -390,7 +390,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShader::SetUniformParameter(const char* name,
-                                        int numValues, 
+                                        int numValues,
                                         const double* values)
 {
   if( !this->IsShader() )
@@ -409,7 +409,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name,
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShader:: SetMatrixParameter(const char* name,
-                                        int numValues, 
+                                        int numValues,
                                         int order, const float* value)
 {
   if( !this->IsShader() )
@@ -423,7 +423,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name,
     {
     return;
     }
-  
+
   switch (numValues)
     {
     case 2*2:
@@ -442,7 +442,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name,
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShader:: SetMatrixParameter(const char* name,
-                                        int numValues, 
+                                        int numValues,
                                         int order,
                                         const double* value)
 {
@@ -496,13 +496,13 @@ int vtkGLSLShader::GetUniformLocation(const char* name)
     vtkErrorMacro( "NULL uniform shader parameter name.");
     return -1;
     }
-  
+
   if( vtkgl::IsProgram(this->GetProgram())!=GL_TRUE)
     {
     vtkErrorMacro( "NULL shader program.");
     return -1;
     }
-  
+
   int location;
   location = vtkgl::GetUniformLocation( this->GetProgram(), name );
   if( location == -1 )
@@ -516,6 +516,6 @@ int vtkGLSLShader::GetUniformLocation(const char* name)
 void vtkGLSLShader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "Program: " << this->Program << endl;
 }

@@ -184,8 +184,8 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   pointPlacer->GetPolys()->AddItem( pd );
   rep->SetPointPlacer(pointPlacer);
 
-  // Let the surface constrained point-placer be the sole constraint dictating 
-  // the placement of handles. Lets not over-constrain it allowing axis 
+  // Let the surface constrained point-placer be the sole constraint dictating
+  // the placement of handles. Lets not over-constrain it allowing axis
   // constrained interactions.
   widget->EnableAxisConstraintOff();
 

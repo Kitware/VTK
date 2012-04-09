@@ -41,10 +41,10 @@
 class vtkAffineCallback : public vtkCommand
 {
 public:
-  static vtkAffineCallback *New() 
+  static vtkAffineCallback *New()
   { return new vtkAffineCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*);
-  vtkAffineCallback():ImageActor(0),AffineRep(0) 
+  vtkAffineCallback():ImageActor(0),AffineRep(0)
   {
     this->Transform = vtkTransform::New();
   }
@@ -70,7 +70,7 @@ int TestAffineWidget( int argc, char *argv[] )
   // Create the pipeline
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
-   
+
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
@@ -94,17 +94,17 @@ int TestAffineWidget( int argc, char *argv[] )
   shifter->SetInputConnection(v16->GetOutputPort());
   shifter->ReleaseDataFlagOff();
   shifter->Update();
-  
+
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
   imageActor->GetMapper()->SetInputConnection(shifter->GetOutputPort());
   imageActor->VisibilityOn();
   imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
   imageActor->InterpolateOn();
-    
+
   double bounds[6];
   imageActor->GetBounds(bounds);
-    
+
   // Create the RenderWindow, Renderer and both Actors
   //
   vtkSmartPointer<vtkRenderer> ren1 =
@@ -122,7 +122,7 @@ int TestAffineWidget( int argc, char *argv[] )
   iren->SetInteractorStyle(style);
 
   // VTK widgets consist of two parts: the widget part that handles event processing;
-  // and the widget representation that defines how the widget appears in the scene 
+  // and the widget representation that defines how the widget appears in the scene
   // (i.e., matters pertaining to geometry).
   vtkSmartPointer<vtkAffineRepresentation2D> rep =
     vtkSmartPointer<vtkAffineRepresentation2D>::New();
@@ -169,6 +169,6 @@ int TestAffineWidget( int argc, char *argv[] )
   recorder->Off();
 
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 }

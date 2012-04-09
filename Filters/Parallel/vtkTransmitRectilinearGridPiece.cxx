@@ -34,12 +34,12 @@ vtkCxxSetObjectMacro(vtkTransmitRectilinearGridPiece,Controller,
 vtkTransmitRectilinearGridPiece::vtkTransmitRectilinearGridPiece()
 {
   this->Controller = NULL;
-  this->CreateGhostCells = 1; 
+  this->CreateGhostCells = 1;
   this->SetNumberOfInputPorts(1);
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  if (this->Controller) 
+  if (this->Controller)
     {
-    if (this->Controller->GetLocalProcessId() != 0) 
+    if (this->Controller->GetLocalProcessId() != 0)
       {
       this->SetNumberOfInputPorts(0);
       }
@@ -58,11 +58,11 @@ int vtkTransmitRectilinearGridPiece::RequestInformation(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->Controller == NULL) 
+  if (this->Controller == NULL)
     {
     return 1;
     }
-  else 
+  else
     {
     int wExtent[6] = {0,-1,0,-1,0,-1};
 
@@ -82,7 +82,7 @@ int vtkTransmitRectilinearGridPiece::RequestInformation(
       }
     else
       {
-      //Satellites ask root for meta-info, because they do not read it themselves.      
+      //Satellites ask root for meta-info, because they do not read it themselves.
       this->Controller->Receive(wExtent, 6, 0, 22342);
 
       vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(
@@ -109,19 +109,19 @@ int vtkTransmitRectilinearGridPiece::RequestUpdateExtent(
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 
+                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                 6);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                 0);
     return 1;
     }
-  
+
   if (this->Controller->GetLocalProcessId() == 0)
     { // Request everything.
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 
+                inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                 6);
 
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
@@ -134,7 +134,7 @@ int vtkTransmitRectilinearGridPiece::RequestUpdateExtent(
   return 1;
 }
 
-  
+
 //----------------------------------------------------------------------------
 int vtkTransmitRectilinearGridPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -194,7 +194,7 @@ void vtkTransmitRectilinearGridPiece::RootExecute(vtkRectilinearGrid *input,
   int ext[7];
   int numProcs, i;
 
-  int outExtent[6];  
+  int outExtent[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExtent);
 
   vtkStreamingDemandDrivenPipeline *extractExecutive =
@@ -307,14 +307,14 @@ void vtkTransmitRectilinearGridPiece::SatelliteExecute(
     }
   output->SetXCoordinates(oda);
   oda->Delete();
-      
+
   //copy in retrieved attributes from sent region
   int usizek = uExtent[5]-uExtent[4]+1;
   int usizej = uExtent[3]-uExtent[2]+1;
   int usizei = uExtent[1]-uExtent[0]+1;
-  int usize  = usizek*usizej*usizei; 
+  int usize  = usizek*usizej*usizei;
 
-  vtkPointData *ipd = tmp->GetPointData();  
+  vtkPointData *ipd = tmp->GetPointData();
   vtkPointData *opd = output->GetPointData();
   opd->CopyAllocate(ipd, usize, 1000);
 
@@ -324,19 +324,19 @@ void vtkTransmitRectilinearGridPiece::SatelliteExecute(
 
   vtkIdType ptCtr = 0;
   vtkIdType clCtr = 0;
-  for (int k = uExtent[4]; k <= uExtent[5]; k++) 
+  for (int k = uExtent[4]; k <= uExtent[5]; k++)
     {
-    for (int j = uExtent[2]; j <= uExtent[3]; j++) 
+    for (int j = uExtent[2]; j <= uExtent[3]; j++)
       {
-      for (int i = uExtent[0]; i <= uExtent[1]; i++) 
+      for (int i = uExtent[0]; i <= uExtent[1]; i++)
         {
         int ijk[3] = {i,j,k};
         vtkIdType oPointId = output->ComputePointId(ijk);
-        opd->CopyData(ipd, ptCtr++, oPointId); 
+        opd->CopyData(ipd, ptCtr++, oPointId);
         vtkIdType oCellId = output->ComputeCellId(ijk);
         ocd->CopyData(icd, clCtr++, oCellId);
         }
-      }        
+      }
     }
 
   //copy in retrieved field data
@@ -355,9 +355,9 @@ void vtkTransmitRectilinearGridPiece::SatelliteExecute(
 void vtkTransmitRectilinearGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
-  
+
   os << indent << "Controller: (" << this->Controller << ")\n";
 
 }

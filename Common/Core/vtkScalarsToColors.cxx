@@ -179,7 +179,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
   vtkUnsignedCharArray *colors;
 
   // map scalars through lookup table only if needed
-  if ( colorMode == VTK_COLOR_MODE_DEFAULT && 
+  if ( colorMode == VTK_COLOR_MODE_DEFAULT &&
        (colors=vtkUnsignedCharArray::SafeDownCast(scalars)) != NULL )
     {
     newColors = this->
@@ -345,7 +345,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(
 
 //----------------------------------------------------------------------------
 // Map a set of scalar values through the table
-void vtkScalarsToColors::MapScalarsThroughTable(vtkDataArray *scalars, 
+void vtkScalarsToColors::MapScalarsThroughTable(vtkDataArray *scalars,
                                                 unsigned char *output,
                                                 int outputFormat)
 {
@@ -1503,7 +1503,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
       vtkErrorMacro(<<"Cannot convert colors");
       return NULL;
     }
-  
+
   return newColors;
 }
 

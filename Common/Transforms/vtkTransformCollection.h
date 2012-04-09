@@ -45,9 +45,9 @@ public:
   vtkTransform *GetNextItem();
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkTransform *GetNextTransform(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));};
   //ETX
@@ -70,14 +70,14 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline void vtkTransformCollection::AddItem(vtkTransform *t) 
+inline void vtkTransformCollection::AddItem(vtkTransform *t)
 {
   this->vtkCollection::AddItem(t);
 }
 
 //----------------------------------------------------------------------------
-inline vtkTransform *vtkTransformCollection::GetNextItem() 
-{ 
+inline vtkTransform *vtkTransformCollection::GetNextItem()
+{
   return static_cast<vtkTransform *>(this->GetNextItemAsObject());
 }
 

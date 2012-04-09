@@ -15,7 +15,7 @@
 // .NAME vtkSynchronizedTemplatesCutter3D - generate cut surface from structured points
 
 // .SECTION Description
-// vtkSynchronizedTemplatesCutter3D is an implementation of the synchronized 
+// vtkSynchronizedTemplatesCutter3D is an implementation of the synchronized
 // template algorithm. Note that vtkCutFilter will automatically
 // use this class when appropriate.
 
@@ -37,7 +37,7 @@ public:
 
   vtkTypeMacro(vtkSynchronizedTemplatesCutter3D,vtkSynchronizedTemplates3D);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Needed by templated functions.
   void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo,
@@ -54,8 +54,8 @@ protected:
 
   vtkImplicitFunction *CutFunction;
 
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
 
 private:

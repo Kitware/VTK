@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkStructuredGridOutlineFilter - create wireframe outline for structured grid
 // .SECTION Description
-// vtkStructuredGridOutlineFilter is a filter that generates a wireframe 
-// outline of a structured grid (vtkStructuredGrid). Structured data is 
+// vtkStructuredGridOutlineFilter is a filter that generates a wireframe
+// outline of a structured grid (vtkStructuredGrid). Structured data is
 // topologically a cube, so the outline will have 12 "edges".
 
 #ifndef __vtkStructuredGridOutlineFilter_h

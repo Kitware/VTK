@@ -50,7 +50,7 @@
 class vtkSeedCallback2 : public vtkCommand
 {
 public:
-  static vtkSeedCallback2 *New() 
+  static vtkSeedCallback2 *New()
     { return new vtkSeedCallback2; }
   virtual void Execute( vtkObject *o, unsigned long event, void* )
     {
@@ -99,18 +99,18 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
 
 
   // Now add some seeds programmatically...
-  
+
   // First, get out out of the mode where we are interactively defining seeds
   widget->CompleteInteraction();
 
   // Let's add a seed of type vtkOrientedPolygonalHandleRepresentation3D with
-  // a triangle glyph, facing the camera. 
-  
+  // a triangle glyph, facing the camera.
+
   VTK_CREATE( vtkOrientedPolygonalHandleRepresentation3D, handleRep1 );
   glyphs->SetGlyphType( VTK_TRIANGLE_GLYPH );
   glyphs->SetScale( .1 );
   glyphs->Update();
-  handleRep1->SetHandle(glyphs->GetOutput());  
+  handleRep1->SetHandle(glyphs->GetOutput());
   handleRep1->GetProperty()->SetColor(1,0,0);
   handleRep1->SetLabelVisibility(1);
   handleRep1->SetLabelText( "Seed-1" );
@@ -122,8 +122,8 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
 
 
   // Let's add a seed of type vtkPointHandleRepresentation3D with
-  // a triangle glyph, facing the camera. 
-  
+  // a triangle glyph, facing the camera.
+
   VTK_CREATE( vtkPointHandleRepresentation3D, handleRep2 );
   handleRep2->GetProperty()->SetColor(0,1,0);
   seedRep->SetHandleRepresentation( handleRep2 );
@@ -133,12 +133,12 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
   seedRep->GetHandleRepresentation(1)->SetWorldPosition( p2 );
 
   // Let's add a seed of type vtkOrientedPolygonalHandleRepresentation3D with
-  // a triangle glyph, facing the camera. 
-  
+  // a triangle glyph, facing the camera.
+
   VTK_CREATE( vtkOrientedPolygonalHandleRepresentation3D, handleRep3 );
   glyphs->SetGlyphType( VTK_THICKCROSS_GLYPH );
   glyphs->Update();
-  handleRep3->SetHandle(glyphs->GetOutput());  
+  handleRep3->SetHandle(glyphs->GetOutput());
   handleRep3->GetProperty()->SetColor(1,1,0);
   handleRep3->SetLabelVisibility(1);
   handleRep3->SetLabelText( "Seed-2" );
@@ -148,13 +148,13 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
   double p3[3] = { -.3, .3, .6 };
   seedRep->GetHandleRepresentation(2)->SetWorldPosition( p3 );
 
-  
+
   // Let's add a seed that does not respond to user interaction now.
-  
+
   VTK_CREATE( vtkOrientedPolygonalHandleRepresentation3D, handleRep4 );
   glyphs->SetGlyphType( VTK_DIAMOND_GLYPH );
   glyphs->Update();
-  handleRep4->SetHandle(glyphs->GetOutput());  
+  handleRep4->SetHandle(glyphs->GetOutput());
   handleRep4->GetProperty()->SetColor(1,0,1);
   handleRep4->SetLabelVisibility(1);
   handleRep4->SetLabelText( "Passive\nSeed" );
@@ -163,7 +163,7 @@ int TestSeedWidgetNonUniformRepresentations(int vtkNotUsed(argc), char *vtkNotUs
   handleWidget4->SetEnabled(1);
   handleWidget4->ProcessEventsOff();
   double p4[3] = { -.3, -.3, .6 };
-  seedRep->GetHandleRepresentation(3)->SetWorldPosition( p4 );    
+  seedRep->GetHandleRepresentation(3)->SetWorldPosition( p4 );
 
 
   // Render..

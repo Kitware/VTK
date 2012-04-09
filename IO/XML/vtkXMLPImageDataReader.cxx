@@ -89,7 +89,7 @@ void vtkXMLPImageDataReader::GetPieceInputExtent(int index, int* extent)
 int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
-  
+
   // Get the image's origin.
   if(ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
     {
@@ -97,7 +97,7 @@ int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     this->Origin[1] = 0;
     this->Origin[2] = 0;
     }
-  
+
   // Get the image's spacing.
   if(ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
     {
@@ -105,7 +105,7 @@ int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     this->Spacing[1] = 1;
     this->Spacing[2] = 1;
     }
-  
+
   return 1;
 }
 
@@ -115,7 +115,7 @@ int vtkXMLPImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 void vtkXMLPImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
-  
+
   outInfo->Set(vtkDataObject::ORIGIN(),  this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
 }
@@ -126,7 +126,7 @@ void vtkXMLPImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int 
 {
   this->Superclass::CopyOutputInformation(outInfo, port);
 
-  vtkInformation *localInfo = 
+  vtkInformation *localInfo =
     this->GetExecutive()->GetOutputInformation( port );
   if ( localInfo->Has(vtkDataObject::ORIGIN()) )
     {

@@ -15,7 +15,7 @@
 // .NAME vtkGridSynchronizedTemplates3D - generate isosurface from structured grids
 
 // .SECTION Description
-// vtkGridSynchronizedTemplates3D is a 3D implementation of the synchronized 
+// vtkGridSynchronizedTemplates3D is a 3D implementation of the synchronized
 // template algorithm.
 
 // .SECTION Caveats
@@ -72,7 +72,7 @@ public:
   vtkBooleanMacro(ComputeScalars,int);
 
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 

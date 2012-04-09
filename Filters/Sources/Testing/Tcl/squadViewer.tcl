@@ -46,7 +46,7 @@ vtkTexture atext
 
 vtkAppendPolyData appendSquads
     appendSquads AddInputConnection [squad GetOutputPort]
-   
+
 vtkPolyDataMapper mapper
     mapper SetInputConnection [squad GetOutputPort]
     mapper ScalarVisibilityOff

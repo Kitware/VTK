@@ -65,7 +65,7 @@ vtkBridgeCellIteratorOne::~vtkBridgeCellIteratorOne()
     this->DataSet->Delete();
     this->DataSet=0;
     }
-  
+
   if(this->InternalCell!=0)
     {
     this->InternalCell->Delete();
@@ -99,7 +99,7 @@ void vtkBridgeCellIteratorOne::GetCell(vtkGenericAdaptorCell *c)
 {
   assert("pre: not_at_end" && !this->IsAtEnd());
   assert("pre: c_exists" && c!=0);
-  
+
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
   if(this->DataSet!=0)
     {
@@ -117,7 +117,7 @@ void vtkBridgeCellIteratorOne::GetCell(vtkGenericAdaptorCell *c)
       }
     }
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Cell at current position.
@@ -127,9 +127,9 @@ void vtkBridgeCellIteratorOne::GetCell(vtkGenericAdaptorCell *c)
 vtkGenericAdaptorCell *vtkBridgeCellIteratorOne::GetCell()
 {
   assert("pre: not_at_end" && !this->IsAtEnd());
-  
+
   vtkGenericAdaptorCell *result=this->Cell;
-  
+
   assert("post: result_exits" && result!=0);
   return result;
 }
@@ -141,7 +141,7 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOne::GetCell()
 void vtkBridgeCellIteratorOne::Next()
 {
   assert("pre: not_off" && !this->IsAtEnd());
-  
+
   this->cIsAtEnd=1;
 }
 
@@ -156,20 +156,20 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeDataSet *ds,
 {
   assert("pre: ds_exists" && ds!=0);
   assert("pre: valid_id" && ((cellid>=0)&&(cellid<=ds->GetNumberOfCells())));
-  
+
   if((this->Cell!=0)&&(this->DataSet==0)&&(this->InternalCell==0))
     {
     // previous mode was InitWithOneCell(vtkBridgeCell *c)
 //    this->Cell->Delete();
     this->Cell=0;
     }
-  
+
   if(this->Cell==0)
     {
     // first init or previous mode was InitWithOneCell(vtkBridgeCell *c)
     this->Cell=vtkBridgeCell::New();
     }
-  
+
   vtkSetObjectBodyMacro(InternalCell,vtkCell,0);
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
   this->Id=cellid;
@@ -192,7 +192,7 @@ void vtkBridgeCellIteratorOne::InitWithOneCell(vtkBridgeCell *c)
     }
   vtkSetObjectBodyMacro(InternalCell,vtkCell,0);
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
-  
+
   this->Cell=c; // no register to prevent reference cycle with vtkBridgeCell
   this->Id=c->GetId();
   this->cIsAtEnd=1;
@@ -216,23 +216,23 @@ void vtkBridgeCellIteratorOne::InitWithPoints(vtkPoints *coords,
   assert("pre: pts_exist" && pts!=0);
   assert("pre: valid_dim" && dim>=0 && dim<=2);
   assert("pre: valid_points" && pts->GetNumberOfIds()>dim);
-  
-  
+
+
   if((this->DataSet==0)&&(this->InternalCell==0))
     {
     // previous mode was InitWithOneCell(vtkBridgeCell *c)
 //    this->Cell->Delete();
     this->Cell=0;
     }
-  
+
   if(this->Cell==0)
     {
     // first init or previous mode was InitWithOneCell(vtkBridgeCell *c)
     this->Cell=vtkBridgeCell::New();
     }
-  
+
   vtkCell *cell=0;
-  
+
   switch(dim)
     {
     case 2:

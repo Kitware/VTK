@@ -72,7 +72,7 @@ void RenderGraph(vtkAlgorithm* alg, vtkRenderer* ren, double r, double g, double
 int TestExtractSelectedGraph(int argc, char* argv[])
 {
   VTK_CREATE(vtkRenderer, ren);
-  
+
   cerr << "Creating test graph..." << endl;
   VTK_CREATE(vtkMutableUndirectedGraph, graph);
   graph->AddVertex();
@@ -99,7 +99,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   layout->SetLayoutStrategy(circular);
   RenderGraph(layout, ren, 1, 1, 1, 0.01, 2.0f);
   cerr << "...done." << endl;
-    
+
   cerr << "Testing threshold selection..." << endl;
   VTK_CREATE(vtkSelection, threshold);
   VTK_CREATE(vtkSelectionNode, thresholdNode);
@@ -110,14 +110,14 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   thresholdArr->SetName("value");
   thresholdArr->InsertNextValue(0.0);
   thresholdArr->InsertNextValue(1.0);
-  thresholdNode->SetSelectionList(thresholdArr); 
-  
+  thresholdNode->SetSelectionList(thresholdArr);
+
   VTK_CREATE(vtkExtractSelectedGraph, extractThreshold);
   extractThreshold->SetInputConnection(0, layout->GetOutputPort());
   extractThreshold->SetInputData(1, threshold);
   RenderGraph(extractThreshold, ren, 1, 0, 0, -0.01, 5.0f);
   cerr << "...done." << endl;
-  
+
   cerr << "Testing indices selection..." << endl;
   VTK_CREATE(vtkSelection, indices);
   VTK_CREATE(vtkSelectionNode, indicesNode);
@@ -129,13 +129,13 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   indicesArr->InsertNextValue(2);
   indicesArr->InsertNextValue(4);
   indicesNode->SetSelectionList(indicesArr);
-  
+
   VTK_CREATE(vtkExtractSelectedGraph, extractIndices);
   extractIndices->SetInputConnection(0, layout->GetOutputPort());
   extractIndices->SetInputData(1, indices);
   RenderGraph(extractIndices, ren, 0, 1, 0, -0.02, 9.0f);
   cerr << "...done." << endl;
-  
+
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);
   win->SetMultiSamples(0);

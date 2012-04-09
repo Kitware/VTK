@@ -80,11 +80,11 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   view->AddRepresentation(imageRep);
   view->SetLabelPlacementModeToNoOverlap();
 
-  vtkSmartPointer<vtkGeoRandomGraphSource> graphSource = 
+  vtkSmartPointer<vtkGeoRandomGraphSource> graphSource =
     vtkSmartPointer<vtkGeoRandomGraphSource>::New();
   graphSource->SetNumberOfVertices(1000);
   graphSource->SetNumberOfEdges(0);
-  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep = 
+  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
     vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
   graphRep->SetInputConnection(graphSource->GetOutputPort());
   graphRep->SetVertexLabelArrayName("latitude");
@@ -92,7 +92,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   graphRep->SetVertexColorArrayName("longitude");
   graphRep->SetVertexLabelVisibility(true);
   graphRep->SetLayoutStrategyToAssignCoordinates("longitude", "latitude");
-  
+
   view->AddRepresentation(graphRep);
 
   // Set up the viewport
@@ -109,7 +109,7 @@ int TestLabeledGeoView2D(int argc, char* argv[])
   double scalex = (bounds[1] - bounds[0])/2.0;
   double scaley = (bounds[3] - bounds[2])/2.0;
   double scale = (scalex > scaley) ? scalex : scaley;
-  
+
   view->ResetCamera();
   view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
 

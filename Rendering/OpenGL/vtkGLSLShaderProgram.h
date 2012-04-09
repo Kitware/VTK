@@ -30,7 +30,7 @@
 // Initialization of shader parameters is delegated to instances of vtkShader
 // (vtkGLSLShader in this case).
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkGLSLShaderProgram_h
@@ -56,7 +56,7 @@ public:
   // the following sources: XML material file, vtkProperty, vtkLight,
   // vtkCamera, and application-specified uniform variables.
   virtual void Render(vtkActor *actor, vtkRenderer *renderer);
-  
+
   // Description:
   // Called to unload the shaders after the actor has been rendered.
   virtual void PostRender(vtkActor*, vtkRenderer*);
@@ -66,12 +66,12 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
-  
+
   // Description:
   // Return the OpenGL program id.
   unsigned int GetProgram()
     {return this->Program;}
-  
+
 protected:
   vtkGLSLShaderProgram();
   virtual ~vtkGLSLShaderProgram();

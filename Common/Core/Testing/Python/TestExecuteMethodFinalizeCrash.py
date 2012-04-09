@@ -18,5 +18,5 @@ class TestCase2 :
    print 'execute method called'
 
 
-test2 = TestCase2() 
+test2 = TestCase2()
 

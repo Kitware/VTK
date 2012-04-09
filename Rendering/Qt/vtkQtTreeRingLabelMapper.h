@@ -46,7 +46,7 @@
 
 //BTX
 class QImage;
-//ETX 
+//ETX
 
 class vtkQImageToImageSource;
 class vtkCoordinate;
@@ -97,7 +97,7 @@ public:
   vtkGetStringMacro(TextRotationArrayName);
 
   // Description:
-  // Return the object's MTime. This is overridden to include 
+  // Return the object's MTime. This is overridden to include
   // the timestamp of its internal class.
   virtual unsigned long GetMTime();
 
@@ -117,10 +117,10 @@ protected:
   void LabelTree(vtkTree *tree, vtkDataArray *sectorInfo,
                  vtkDataArray *numericData, vtkStringArray *stringData, vtkUnicodeStringArray *uStringData,
                  int activeComp, int numComps, vtkViewport* viewport);
-  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData, 
-                      vtkStringArray *stringData, 
-                      vtkUnicodeStringArray *uStringData, 
-                      int activeComp, int numComps, 
+  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData,
+                      vtkStringArray *stringData,
+                      vtkUnicodeStringArray *uStringData,
+                      int activeComp, int numComps,
                       char *string);
 
   //Returns true if the center of the sector is in the window

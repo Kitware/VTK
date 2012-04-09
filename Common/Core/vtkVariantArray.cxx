@@ -72,7 +72,7 @@ public:
   bool Rebuild;
 };
 
-// 
+//
 // Standard functions
 //
 
@@ -114,7 +114,7 @@ vtkVariantArray::~vtkVariantArray()
 }
 
 //
-// 
+//
 // Functions required by vtkAbstractArray
 //
 //
@@ -333,7 +333,7 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
     return;
     }
 
-  // If data type does not match, we can't copy. 
+  // If data type does not match, we can't copy.
   if(aa->GetDataType() != this->GetDataType())
     {
     vtkErrorMacro(<< "Incompatible types: tried to copy an array of type "
@@ -376,11 +376,11 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   // the source array be any data type.
   if (this->GetDataType() != source->GetDataType())
     {
-    vtkErrorMacro("Cannot CopyValue from array of type " 
+    vtkErrorMacro("Cannot CopyValue from array of type "
       << source->GetDataTypeAsString());
     return;
     }
-  
+
   if (ptIndices->GetNumberOfIds() == 0)
     {
     // nothing to do.
@@ -405,13 +405,13 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
 }
 
 //----------------------------------------------------------------------------
-void vtkVariantArray::InterpolateTuple(vtkIdType i, 
-  vtkIdType id1, vtkAbstractArray* source1, 
+void vtkVariantArray::InterpolateTuple(vtkIdType i,
+  vtkIdType id1, vtkAbstractArray* source1,
   vtkIdType id2, vtkAbstractArray* source2, double t)
 {
   // Note: Something much more fancy could be done here, allowing
   // the source array to be any data type.
-  if (source1->GetDataType() != VTK_VARIANT || 
+  if (source1->GetDataType() != VTK_VARIANT ||
     source2->GetDataType() != VTK_VARIANT)
     {
     vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
@@ -426,7 +426,7 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i,
   else
     {
     // Use p1.
-    this->InsertTuple(i, id1, source1); 
+    this->InsertTuple(i, id1, source1);
     }
   this->DataChanged();
 }
@@ -469,7 +469,7 @@ int vtkVariantArray::Resize(vtkIdType sz)
       {
       newArray[i] = this->Array[i];
       }
-    
+
     if(!this->SaveUserArray)
       {
       delete[] this->Array;
@@ -516,7 +516,7 @@ int vtkVariantArray::IsNumeric()
 //----------------------------------------------------------------------------
 vtkArrayIterator* vtkVariantArray::NewIterator()
 {
-  vtkArrayIteratorTemplate<vtkVariant>* iter = 
+  vtkArrayIteratorTemplate<vtkVariant>* iter =
     vtkArrayIteratorTemplate<vtkVariant>::New();
   iter->Initialize(this);
   return iter;
@@ -699,7 +699,7 @@ void vtkVariantArray::UpdateLookup()
 vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
 {
   this->UpdateLookup();
-  
+
   // First look into the cached updates, to see if there were any
   // cached changes. Find an equivalent element in the set of cached
   // indices for this value. Some of the indices may have changed
@@ -760,7 +760,7 @@ vtkIdType vtkVariantArray::LookupValue(vtkVariant value)
       break;
       }
 
-    ++found; 
+    ++found;
     ++offset;
     }
 
@@ -781,7 +781,7 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
   typedef vtkVariantCachedUpdates::iterator CacheIterator;
   std::pair<CacheIterator, CacheIterator> cached
     = this->Lookup->CachedUpdates.equal_range(value);
-  while (cached.first != cached.second) 
+  while (cached.first != cached.second)
     {
     // Check that the value in the original array hasn't changed.
     vtkVariant currentValue = this->GetValue(cached.first->second);
@@ -792,7 +792,7 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
 
     ++cached.first;
     }
-  
+
   // Perform a binary search of the sorted array using STL equal_range.
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
@@ -800,13 +800,13 @@ void vtkVariantArray::LookupValue(vtkVariant value, vtkIdList* ids)
   vtkVariant* ptrEnd = ptr + numComps*numTuples;
   std::pair<vtkVariant*, vtkVariant*> found =
     std::equal_range(ptr, ptrEnd, value, vtkVariantLessThan());
-  
+
   // Add the indices of the found items to the ID list.
   vtkIdType offset = static_cast<vtkIdType>(found.first - ptr);
   while (found.first != found.second)
     {
     // Check that the value in the original array hasn't changed.
-    vtkIdType index = this->Lookup->IndexArray->GetId(offset); 
+    vtkIdType index = this->Lookup->IndexArray->GetId(offset);
     vtkVariant currentValue = this->GetValue(index);
     if (*(found.first) == currentValue)
       {

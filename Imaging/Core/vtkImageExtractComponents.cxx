@@ -39,7 +39,7 @@ vtkImageExtractComponents::vtkImageExtractComponents()
 void vtkImageExtractComponents::SetComponents(int c1, int c2, int c3)
 {
   int modified = 0;
-  
+
   if (this->Components[0] != c1)
     {
     this->Components[0] = c1;
@@ -55,7 +55,7 @@ void vtkImageExtractComponents::SetComponents(int c1, int c2, int c3)
     this->Components[2] = c3;
     modified = 1;
     }
-  
+
   if (modified || this->NumberOfComponents != 3)
     {
     this->NumberOfComponents = 3;
@@ -67,7 +67,7 @@ void vtkImageExtractComponents::SetComponents(int c1, int c2, int c3)
 void vtkImageExtractComponents::SetComponents(int c1, int c2)
 {
   int modified = 0;
-  
+
   if (this->Components[0] != c1)
     {
     this->Components[0] = c1;
@@ -78,25 +78,25 @@ void vtkImageExtractComponents::SetComponents(int c1, int c2)
     this->Components[1] = c2;
     modified = 1;
     }
-  
+
   if (modified || this->NumberOfComponents != 2)
     {
     this->NumberOfComponents = 2;
     this->Modified();
     }
 }
-                                                        
+
 //----------------------------------------------------------------------------
 void vtkImageExtractComponents::SetComponents(int c1)
 {
   int modified = 0;
-  
+
   if (this->Components[0] != c1)
     {
     this->Components[0] = c1;
     modified = 1;
     }
-  
+
   if (modified || this->NumberOfComponents != 1)
     {
     this->NumberOfComponents = 1;
@@ -108,7 +108,7 @@ void vtkImageExtractComponents::SetComponents(int c1)
 // This method tells the superclass that only one component will remain.
 int vtkImageExtractComponents::RequestInformation (
   vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector ** vtkNotUsed( inputVector ), 
+  vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
 {
   vtkDataObject::SetPointDataActiveScalarInfo(
@@ -131,21 +131,21 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   int offset1, offset2, offset3;
   unsigned long count = 0;
   unsigned long target;
-  
+
   // find the region to loop over
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   cnt = outData->GetNumberOfScalarComponents();
   inCnt = inData->GetNumberOfScalarComponents();
-  
+
   // Loop through output pixels
   offset1 = self->GetComponents()[0];
   offset2 = self->GetComponents()[1];
@@ -154,7 +154,7 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
     {
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -210,25 +210,25 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 
 //----------------------------------------------------------------------------
 // This method is passed input and output datas, and executes the
-// ExtractComponents function on each line.  
-void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData, 
+// ExtractComponents function on each line.
+void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
                                                 vtkImageData *outData,
                                                 int outExt[6], int id)
 {
   int max, idx;
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
+
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
     }
-  
+
   // make sure we can get all of the components.
   max = inData->GetNumberOfScalarComponents();
   for (idx = 0; idx < this->NumberOfComponents; ++idx)
@@ -240,13 +240,13 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
       return;
       }
     }
-  
+
   // choose which templated function to call.
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageExtractComponentsExecute(this, inData, 
-                                       static_cast<VTK_TT *>(inPtr), outData, 
+      vtkImageExtractComponentsExecute(this, inData,
+                                       static_cast<VTK_TT *>(inPtr), outData,
                                        static_cast<VTK_TT *>(outPtr),
                                        outExt, id));
     default:

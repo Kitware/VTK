@@ -56,7 +56,7 @@ public:
   // Set the attribute with the given name and value. If it doesn't exist,
   // adds it.
   void SetAttribute(const char* name, const char* value);
- 
+
   // Description:
   // Set/Get the character data between XML start/end tags.
   void SetCharacterData(const char* c, int length);
@@ -161,7 +161,7 @@ public:
   // Description:
   // Find the first nested element with the given id, given name, or given
   // name and id.
-  // WARNING: the search is only performed on the children, not 
+  // WARNING: the search is only performed on the children, not
   // the grand-children.
   vtkXMLDataElement* FindNestedElement(const char* id);
   vtkXMLDataElement* FindNestedElementWithName(const char* name);
@@ -202,9 +202,9 @@ public:
   // Description:
   // Get/Set the internal character encoding of the attributes.
   // Default type is VTK_ENCODING_UTF_8.
-  // Note that a vtkXMLDataParser has its own AttributesEncoding ivar. If 
+  // Note that a vtkXMLDataParser has its own AttributesEncoding ivar. If
   // this ivar is set to something other than VTK_ENCODING_NONE, it will be
-  // used to set the attribute encoding of each vtkXMLDataElement 
+  // used to set the attribute encoding of each vtkXMLDataElement
   // created by this vtkXMLDataParser.
   vtkSetClampMacro(AttributeEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributeEncoding, int);
@@ -300,7 +300,7 @@ void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
       {
       this->CharacterDataBufferSize+=this->CharacterDataBlockSize;
       }
-    this->CharacterData 
+    this->CharacterData
       = static_cast<char *>(realloc(this->CharacterData,this->CharacterDataBufferSize));
     }
   // put the new data at the end of the buffer, and null terminate.

@@ -160,7 +160,7 @@ int vtkLabelSizeCalculator::RequestData(
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE )
-      { 
+      {
       outFD = dsOutput->GetPointData();
       outFD->AddArray( lsz );
       }
@@ -247,7 +247,7 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
            << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3]
            << " \"" << labels->GetVariantValue( i ).ToString().c_str() << "\"\n";
       }
-    
+
     bds += 4;
     }
 

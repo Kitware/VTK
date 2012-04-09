@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageSobel3D computes a vector field from a scalar field by using
 // Sobel functions.  The number of vector components is 3 because
-// the input is a volume.  Output is always doubles.  A little creative 
+// the input is a volume.  Output is always doubles.  A little creative
 // liberty was used to extend the 2D sobel kernels into 3D.
 
 

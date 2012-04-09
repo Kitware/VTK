@@ -15,7 +15,7 @@ vtk3DSImporter importer
 
 #
 # the importer created the renderer
-set renCollection [renWin1 GetRenderers] 
+set renCollection [renWin1 GetRenderers]
 $renCollection InitTraversal
 set ren [$renCollection GetNextItem]
 

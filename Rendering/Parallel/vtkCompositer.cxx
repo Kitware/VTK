@@ -38,7 +38,7 @@ vtkCompositer::vtkCompositer()
     this->NumberOfProcesses = this->Controller->GetNumberOfProcesses();
     }
 }
-  
+
 //-------------------------------------------------------------------------
 vtkCompositer::~vtkCompositer()
 {
@@ -104,7 +104,7 @@ void vtkCompositer::ResizeFloatArray(vtkFloatArray* fa, int numComp,
 #endif
 }
 
-void vtkCompositer::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
+void vtkCompositer::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca,
                                             int numComp, vtkIdType size)
 {
   uca->SetNumberOfComponents(numComp);

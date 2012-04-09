@@ -25,7 +25,7 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 // .SECTION See Also
-// vtkDataReader vtkGraphReader vtkPolyDataReader vtkRectilinearGridReader 
+// vtkDataReader vtkGraphReader vtkPolyDataReader vtkRectilinearGridReader
 // vtkStructuredPointsReader vtkStructuredGridReader vtkTableReader
 // vtkTreeReader vtkUnstructuredGridReader
 

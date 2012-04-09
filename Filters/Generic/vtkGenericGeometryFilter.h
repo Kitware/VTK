@@ -14,19 +14,19 @@
 =========================================================================*/
 // .NAME vtkGenericGeometryFilter - extract geometry from data (or convert data to polygonal type)
 // .SECTION Description
-// vtkGenericGeometryFilter is a general-purpose filter to extract geometry (and 
-// associated data) from any type of dataset. Geometry is obtained as 
-// follows: all 0D, 1D, and 2D cells are extracted. All 2D faces that are 
-// used by only one 3D cell (i.e., boundary faces) are extracted. It also is 
-// possible to specify conditions on point ids, cell ids, and on 
+// vtkGenericGeometryFilter is a general-purpose filter to extract geometry (and
+// associated data) from any type of dataset. Geometry is obtained as
+// follows: all 0D, 1D, and 2D cells are extracted. All 2D faces that are
+// used by only one 3D cell (i.e., boundary faces) are extracted. It also is
+// possible to specify conditions on point ids, cell ids, and on
 // bounding box (referred to as "Extent") to control the extraction process.
 //
 // This filter also may be used to convert any type of data to polygonal
 // type. The conversion process may be less than satisfactory for some 3D
-// datasets. For example, this filter will extract the outer surface of a 
+// datasets. For example, this filter will extract the outer surface of a
 // volume or structured grid dataset. (For structured data you may want to
 // use vtkImageDataGeometryFilter, vtkStructuredGridGeometryFilter,
-// vtkExtractUnstructuredGrid, vtkRectilinearGridGeometryFilter, or 
+// vtkExtractUnstructuredGrid, vtkRectilinearGridGeometryFilter, or
 // vtkExtractVOI.)
 
 // .SECTION Caveats
@@ -97,7 +97,7 @@ public:
 
   // Description:
   // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-  void SetExtent(double xMin, double xMax, double yMin, double yMax, 
+  void SetExtent(double xMin, double xMax, double yMin, double yMax,
                  double zMin, double zMax);
 
   // Description:
@@ -128,9 +128,9 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // If on, the output polygonal dataset will have a celldata array that 
+  // If on, the output polygonal dataset will have a celldata array that
   // holds the cell index of the original 3D cell that produced each output
-  // cell. This is useful for cell picking. The default is off to conserve 
+  // cell. This is useful for cell picking. The default is off to conserve
   // memory.
   vtkSetMacro(PassThroughCellIds,int);
   vtkGetMacro(PassThroughCellIds,int);
@@ -148,7 +148,7 @@ protected:
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int FillInputPortInformation(int, vtkInformation*);
-  
+
   vtkIdType PointMaximum;
   vtkIdType PointMinimum;
   vtkIdType CellMinimum;
@@ -160,12 +160,12 @@ protected:
 
   int Merging;
   vtkIncrementalPointLocator *Locator;
-  
+
   // Used internal by vtkGenericAdaptorCell::Tessellate()
   vtkPointData *InternalPD;
 
   int PassThroughCellIds;
-  
+
 private:
   vtkGenericGeometryFilter(const vtkGenericGeometryFilter&);  // Not implemented.
   void operator=(const vtkGenericGeometryFilter&);  // Not implemented.

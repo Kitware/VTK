@@ -110,10 +110,10 @@ void vtkKochanekSpline::Compute ()
       delete [] this->Intervals;
       }
     this->Intervals = new double[size];
-    ts = this->PiecewiseFunction->GetDataPointer ();  
+    ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size; i++)
       {
-      this->Intervals[i] = *(ts + 2*i);    
+      this->Intervals[i] = *(ts + 2*i);
       }
 
     // allocate memory for coefficients
@@ -145,10 +145,10 @@ void vtkKochanekSpline::Compute ()
       delete [] this->Intervals;
       }
     this->Intervals = new double[size];
-    ts = this->PiecewiseFunction->GetDataPointer ();  
+    ts = this->PiecewiseFunction->GetDataPointer ();
     for (i = 0; i < size-1; i++)
       {
-      this->Intervals[i] = *(ts + 2 * i);    
+      this->Intervals[i] = *(ts + 2 * i);
       }
     if ( this->ParametricRange[0] != this->ParametricRange[1] )
       {
@@ -221,7 +221,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     cs = y[i] - y[i-1];
     cd = y[i+1] - y[i];
 
-    ds = cs*((1 - tension)*(1 - continuity)*(1 + bias)) / 2.0 
+    ds = cs*((1 - tension)*(1 - continuity)*(1 + bias)) / 2.0
        + cd*((1 - tension)*(1 + continuity)*(1 - bias)) / 2.0;
 
     dd = cs*((1 - tension)*(1 + continuity)*(1 + bias)) / 2.0
@@ -251,7 +251,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     cs = y[N] - y[N-1];
     cd = y[1] - y[0];
 
-    ds = cs*((1 - tension)*(1 - continuity)*(1 + bias)) / 2.0 
+    ds = cs*((1 - tension)*(1 - continuity)*(1 + bias)) / 2.0
        + cd*((1 - tension)*(1 + continuity)*(1 - bias)) / 2.0;
 
     dd = cs*((1 - tension)*(1 + continuity)*(1 + bias)) / 2.0
@@ -270,7 +270,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     }
   else //curve is open
     {
-    switch (leftConstraint) 
+    switch (leftConstraint)
       {
       case 0:
         // desired slope at leftmost point is leftValue
@@ -291,7 +291,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
       case 3:
         // desired secord derivative at leftmost point is leftValue
         // times secod derivative at first interior point
-        if ((leftValue > (-2.0 + VTK_EPSILON)) || 
+        if ((leftValue > (-2.0 + VTK_EPSILON)) ||
             (leftValue < (-2.0 - VTK_EPSILON)))
           {
           coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
@@ -319,7 +319,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
 
        case 2:
          // desired second derivative at rightmost point is rightValue
-         coefficients[N][2] = (6*(y[N] - y[N-1]) - 2*coefficients[N-1][1] + 
+         coefficients[N][2] = (6*(y[N] - y[N-1]) - 2*coefficients[N-1][1] +
                           rightValue) / 4.0;
          break;
 
@@ -342,7 +342,7 @@ void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
     }//curve is open
 
   // Compute the Coefficients
-  for (i=0; i < N; i++) 
+  for (i=0; i < N; i++)
     {
     //
     // c0    = P ;    c1    = DD ;

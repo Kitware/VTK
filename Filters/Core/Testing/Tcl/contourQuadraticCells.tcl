@@ -724,7 +724,7 @@ vtkQuadraticLinearWedge QLWedge
   [QLWedge GetPointIds] SetId 10 10
   [QLWedge GetPointIds] SetId 11 11
   #QLaWedge DebugOn
-  
+
 vtkUnstructuredGrid QLWedgeGrid
   QLWedgeGrid Allocate 1 1
   QLWedgeGrid InsertNextCell [QLWedge GetCellType] [QLWedge GetPointIds]
@@ -810,13 +810,13 @@ vtkBiQuadraticQuadraticWedge BQWedge
   [BQWedge GetPointIds] SetId 16 16
   [BQWedge GetPointIds] SetId 17 17
   #BQWedge DebugOn
-  
+
 vtkUnstructuredGrid BQWedgeGrid
   BQWedgeGrid Allocate 1 1
   BQWedgeGrid InsertNextCell [BQWedge GetCellType] [BQWedge GetPointIds]
   BQWedgeGrid SetPoints BQwedgePoints
   [BQWedgeGrid GetPointData] SetScalars BQwedgeScalars
-  
+
 vtkContourFilter BQwedgeContours
   BQwedgeContours SetInputData BQWedgeGrid
   BQwedgeContours SetValue 0 0.5
@@ -917,43 +917,43 @@ ren1 SetBackground .1 .2 .3
 renWin SetSize 400 200
 
 # specify properties
-ren1 AddActor aEdgeActor 
+ren1 AddActor aEdgeActor
 ren1 AddActor aEdgeContourActor
 
-ren1 AddActor aTriActor 
+ren1 AddActor aTriActor
 ren1 AddActor aTriContourActor
 
-ren1 AddActor aQuadActor 
+ren1 AddActor aQuadActor
 ren1 AddActor aQuadContourActor
 
-ren1 AddActor BQuadActor 
-ren1 AddActor BQuadContourActor 
+ren1 AddActor BQuadActor
+ren1 AddActor BQuadContourActor
 
-ren1 AddActor QLQuadActor 
-ren1 AddActor QLQuadContourActor 
+ren1 AddActor QLQuadActor
+ren1 AddActor QLQuadContourActor
 
-ren1 AddActor aTetActor 
+ren1 AddActor aTetActor
 ren1 AddActor aTetContourActor
 
-ren1 AddActor aHexActor 
+ren1 AddActor aHexActor
 ren1 AddActor aHexContourActor
 
-ren1 AddActor TQHexActor 
+ren1 AddActor TQHexActor
 ren1 AddActor TQHexContourActor
 
-ren1 AddActor BQHexActor 
+ren1 AddActor BQHexActor
 ren1 AddActor BQHexContourActor
 
-ren1 AddActor aWedgeActor 
+ren1 AddActor aWedgeActor
 ren1 AddActor aWedgeContourActor
 
-ren1 AddActor BQWedgeActor 
+ren1 AddActor BQWedgeActor
 ren1 AddActor BQWedgeContourActor
 
-ren1 AddActor QLWedgeActor 
+ren1 AddActor QLWedgeActor
 ren1 AddActor QLWedgeContourActor
 
-ren1 AddActor aPyramidActor 
+ren1 AddActor aPyramidActor
 ren1 AddActor aPyramidContourActor
 
 # places everyone!!

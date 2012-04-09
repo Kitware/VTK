@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricRandomHills.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -16,12 +16,12 @@
 // .SECTION Description
 // vtkParametricRandomHills generates a surface covered with randomly placed hills.
 //
-// For further information about this surface, please consult the 
-// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// For further information about this surface, please consult the
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for 
+// Andrew Maclean a.maclean@cas.edu.au for
 // creating and contributing the class.
 //
 #ifndef __vtkParametricRandomHills_h
@@ -38,7 +38,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills : public vt
 public:
   vtkTypeMacro(vtkParametricRandomHills,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description
   // Return the parametric dimension of the class.
   virtual int GetDimension() {return 2;}
@@ -46,16 +46,16 @@ public:
   // Description:
   // Construct a surface of random hills with the following parameters:
   // MinimumU = -10, MaximumU = 10,
-  // MinimumV = -10, MaximumV = 10, 
+  // MinimumV = -10, MaximumV = 10,
   // JoinU = 0, JoinV = 0,
   // TwistU = 0, TwistV = 0;
-  // ClockwiseOrdering = 1, 
+  // ClockwiseOrdering = 1,
   // DerivativesAvailable = 0,
-  // Number of hills = 30, 
-  // Variance of the hills 2.5 in both x- and y- directions, 
-  // Scaling factor for the variances 1/3 in both x- and y- directions, 
-  // Amplitude of each hill = 1, 
-  // Scaling factor for the amplitude = 1/3, 
+  // Number of hills = 30,
+  // Variance of the hills 2.5 in both x- and y- directions,
+  // Scaling factor for the variances 1/3 in both x- and y- directions,
+  // Amplitude of each hill = 1,
+  // Scaling factor for the amplitude = 1/3,
   // RandomSeed = 1,
   // AllowRandomGeneration = 1.
   static vtkParametricRandomHills *New();
@@ -85,16 +85,16 @@ public:
   vtkGetMacro(HillAmplitude,double);
 
   // Description:
-  // Set/Get the Seed for the random number generator, 
-  // a value of 1 will initialize the random number generator, 
+  // Set/Get the Seed for the random number generator,
+  // a value of 1 will initialize the random number generator,
   // a negative value will initialize it with the system time.
   // Default is 1.
   vtkSetMacro(RandomSeed,int);
   vtkGetMacro(RandomSeed,int);
 
   // Description:
-  // Set/Get the random generation flag. 
-  // A value of 0 will disable the generation of random hills on the surface. 
+  // Set/Get the random generation flag.
+  // A value of 0 will disable the generation of random hills on the surface.
   // This allows a reproducible shape to be generated.
   // Any other value means that the generation of the hills will be done
   // randomly.
@@ -104,25 +104,25 @@ public:
   vtkBooleanMacro(AllowRandomGeneration,int);
 
   // Description:
-  // Set/Get the scaling factor for the variance in the x-direction. 
+  // Set/Get the scaling factor for the variance in the x-direction.
   // Default is 1/3.
   vtkSetMacro(XVarianceScaleFactor,double);
   vtkGetMacro(XVarianceScaleFactor,double);
 
   // Description:
-  // Set/Get the scaling factor for the variance in the y-direction. 
+  // Set/Get the scaling factor for the variance in the y-direction.
   // Default is 1/3.
   vtkSetMacro(YVarianceScaleFactor,double);
   vtkGetMacro(YVarianceScaleFactor,double);
 
   // Description:
-  // Set/Get the scaling factor for the amplitude. 
+  // Set/Get the scaling factor for the amplitude.
   // Default is 1/3.
   vtkSetMacro(AmplitudeScaleFactor,double);
   vtkGetMacro(AmplitudeScaleFactor,double);
 
   // Description:
-  // Generate the centers of the hills, their standard deviations and 
+  // Generate the centers of the hills, their standard deviations and
   // their amplitudes. This function creates a series of vectors representing
   // the u, v coordinates of each hill, its variance in the u, v directions and
   // the amplitude.
@@ -131,7 +131,7 @@ public:
   void GenerateTheHills( void );
 
   // Description:
-  // Construct a terrain consisting of randomly placed hills on a surface. 
+  // Construct a terrain consisting of randomly placed hills on a surface.
   //
   // It is assumed that the function GenerateTheHills() has been executed
   // to build the vectors of coordinates required to generate the point Pt.
@@ -146,15 +146,15 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   //
-  // uvw are the parameters with Pt being the the Cartesian point, 
+  // uvw are the parameters with Pt being the the Cartesian point,
   // Duvw are the derivatives of this point with respect to u, v and w.
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
-  // If the user does not need to calculate a scalar, then the 
-  // instantiated function should return zero. 
+  // If the user does not need to calculate a scalar, then the
+  // instantiated function should return zero.
   //
   virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
 

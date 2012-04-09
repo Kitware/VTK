@@ -60,7 +60,7 @@ vtkHexahedron::~vtkHexahedron()
 //  linear hexahedron element from global coordinates.
 //
 int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
-                                   int& subId, double pcoords[3], 
+                                   int& subId, double pcoords[3],
                                    double& dist2, double *weights)
 {
   int iteration, converged;
@@ -76,14 +76,14 @@ int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
 
   //  enter iteration loop
   for (iteration=converged=0;
-       !converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++) 
+       !converged && (iteration < VTK_HEX_MAX_ITERATION);  iteration++)
     {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
@@ -106,7 +106,7 @@ int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20) 
+    if ( fabs(d) < 1.e-20)
       {
       return -1;
       }
@@ -124,15 +124,15 @@ int vtkHexahedron::EvaluatePosition(double x[3], double* closestPoint,
       }
 
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
+             (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
 
     //  if not converged, repeat
-    else 
+    else
       {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
@@ -272,7 +272,7 @@ void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
+int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                                 vtkIdList *pts)
 {
   double t1=pcoords[0]-pcoords[1];
@@ -336,7 +336,7 @@ int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-       pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
        pcoords[2] < 0.0 || pcoords[2] > 1.0 )
     {
     return 0;
@@ -359,11 +359,11 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 //
 #include "vtkMarchingCubesCases.h"
 
-void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars, 
+void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars,
                             vtkIncrementalPointLocator *locator,
-                            vtkCellArray *verts, 
-                            vtkCellArray *lines, 
-                            vtkCellArray *polys, 
+                            vtkCellArray *verts,
+                            vtkCellArray *lines,
+                            vtkCellArray *polys,
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
                             vtkCellData *outCd)
@@ -396,7 +396,7 @@ void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
 
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+      deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
@@ -421,7 +421,7 @@ void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           vtkIdType p1 = this->PointIds->GetId(v1);
           vtkIdType p2 = this->PointIds->GetId(v2);
@@ -449,7 +449,7 @@ int *vtkHexahedron::GetEdgeArray(int edgeId)
 vtkCell *vtkHexahedron::GetEdge(int edgeId)
 {
   int *verts;
-  
+
   verts = edges[edgeId];
 
   // load point id's
@@ -486,7 +486,7 @@ vtkCell *vtkHexahedron::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 // Intersect hexa faces against line. Each hexa face is a quadrilateral.
 //
 int vtkHexahedron::IntersectWithLine(double p1[3], double p2[3], double tol,
@@ -518,7 +518,7 @@ int vtkHexahedron::IntersectWithLine(double p1[3], double p2[3], double tol,
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         switch (faceNum)
           {
           case 0:
@@ -643,7 +643,7 @@ int vtkHexahedron::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 // Compute derivatives in x-y-z directions. Use chain rule in combination
 // with interpolation function derivatives.
 //
-void vtkHexahedron::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
+void vtkHexahedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
                                 double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
@@ -660,7 +660,7 @@ void vtkHexahedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
     sum[0] = sum[1] = sum[2] = 0.0;
     for ( i=0; i < 8; i++) //loop over interp. function derivatives
       {
-      sum[0] += functionDerivs[i] * values[dim*i + k]; 
+      sum[0] += functionDerivs[i] * values[dim*i + k];
       sum[1] += functionDerivs[8 + i] * values[dim*i + k];
       sum[2] += functionDerivs[16 + i] * values[dim*i + k];
       }
@@ -738,7 +738,7 @@ double *vtkHexahedron::GetParametricCoords()
 void vtkHexahedron::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Quad:\n";

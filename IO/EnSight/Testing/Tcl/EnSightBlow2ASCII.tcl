@@ -6,7 +6,7 @@ vtkRenderer ren1
 
 vtkRenderWindow renWin
 renWin AddRenderer ren1
-renWin StereoCapableWindowOn  
+renWin StereoCapableWindowOn
 
 vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
@@ -39,7 +39,7 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 [ren1 GetActiveCamera] SetPosition 99.3932 17.6571 -22.6071
-[ren1 GetActiveCamera] SetFocalPoint 3.5 12 1.5 
+[ren1 GetActiveCamera] SetFocalPoint 3.5 12 1.5
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] SetViewUp 0.239617 -0.01054 0.97081
 ren1 ResetCameraClippingRange

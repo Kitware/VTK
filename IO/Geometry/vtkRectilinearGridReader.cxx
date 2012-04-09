@@ -30,7 +30,7 @@ vtkRectilinearGridReader::vtkRectilinearGridReader()
   vtkRectilinearGrid *output = vtkRectilinearGrid::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
 }
@@ -72,7 +72,7 @@ int vtkRectilinearGridReader::RequestInformation(
 int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
 {
   char line[256];
-  
+
   vtkDebugMacro(<<"Reading vtk rectilinear grid file info...");
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
@@ -98,7 +98,7 @@ int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
       return 1;
-      } 
+      }
 
     if ( strncmp(this->LowerCase(line),"rectilinear_grid",16) )
       {
@@ -119,8 +119,8 @@ int vtkRectilinearGridReader::ReadMetaData(vtkInformation *outInfo)
       if ( ! strncmp(this->LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if (!(this->Read(dim) && 
-              this->Read(dim+1) && 
+        if (!(this->Read(dim) &&
+              this->Read(dim+1) &&
               this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
@@ -154,7 +154,7 @@ int vtkRectilinearGridReader::RequestData(
   int done=0;
   vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkDebugMacro(<<"Reading vtk rectilinear grid file...");
   if ( this->Debug )
     {
@@ -215,8 +215,8 @@ int vtkRectilinearGridReader::RequestData(
       else if ( ! strncmp(line,"dimensions",10) )
         {
         int dim[3];
-        if (!(this->Read(dim) && 
-              this->Read(dim+1) && 
+        if (!(this->Read(dim) &&
+              this->Read(dim+1) &&
               this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
@@ -274,7 +274,7 @@ int vtkRectilinearGridReader::RequestData(
           this->CloseVTKFile ();
           return 1;
           }
-        
+
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match!");
@@ -294,7 +294,7 @@ int vtkRectilinearGridReader::RequestData(
           this->CloseVTKFile ();
           return 1;
           }
-        
+
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match!");
@@ -315,17 +315,17 @@ int vtkRectilinearGridReader::RequestData(
       }
 
       if ( !dimsRead ) vtkWarningMacro(<<"No dimensions read.");
-      if ( !output->GetXCoordinates() || 
+      if ( !output->GetXCoordinates() ||
       output->GetXCoordinates()->GetNumberOfTuples() < 1 )
         {
         vtkWarningMacro(<<"No x coordinatess read.");
         }
-      if ( !output->GetYCoordinates() || 
+      if ( !output->GetYCoordinates() ||
       output->GetYCoordinates()->GetNumberOfTuples() < 1 )
         {
         vtkWarningMacro(<<"No y coordinates read.");
         }
-      if ( !output->GetZCoordinates() || 
+      if ( !output->GetZCoordinates() ||
       output->GetZCoordinates()->GetNumberOfTuples() < 1 )
         {
         vtkWarningMacro(<<"No z coordinates read.");
@@ -356,7 +356,7 @@ int vtkRectilinearGridReader::RequestData(
     this->ReadPointData(output, npts);
     }
 
-  else 
+  else
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }

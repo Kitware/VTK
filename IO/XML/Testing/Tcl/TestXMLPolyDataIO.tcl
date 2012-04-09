@@ -13,13 +13,13 @@ vtkPolyDataReader pdReader
 vtkExtractPolyDataPiece extract
   extract SetInputConnection [pdReader GetOutputPort]
 
-# write various versions 
+# write various versions
 vtkXMLPolyDataWriter pdWriter
   pdWriter SetFileName $file0
   pdWriter SetDataModeToAscii
   pdWriter SetInputConnection [pdReader GetOutputPort]
   pdWriter Write
-  
+
   pdWriter SetFileName $file1
   pdWriter SetInputConnection [extract GetOutputPort]
   pdWriter SetDataModeToAppended
@@ -39,7 +39,7 @@ vtkXMLPolyDataReader reader
 
 vtkPolyData pd0
   pd0 DeepCopy [reader GetOutput]
-  
+
 vtkPolyDataMapper mapper0
   mapper0 SetInputData pd0
 
@@ -87,8 +87,8 @@ ren1 AddActor actor0
 ren1 AddActor actor1
 ren1 AddActor actor2
 
-[ren1 GetActiveCamera] SetPosition 0.514096 -0.14323 -0.441177 
-[ren1 GetActiveCamera] SetFocalPoint 0.0528 -0.0780001 -0.0379661  
+[ren1 GetActiveCamera] SetPosition 0.514096 -0.14323 -0.441177
+[ren1 GetActiveCamera] SetFocalPoint 0.0528 -0.0780001 -0.0379661
 renWin SetSize 300 300
 iren Initialize
 renWin Render

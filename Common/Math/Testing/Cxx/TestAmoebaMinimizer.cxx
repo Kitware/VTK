@@ -41,7 +41,7 @@ int TestAmoebaMinimizer(int argc, char*[])
   minimizer->SetParameterScale("y",2.0);
   minimizer->SetParameterValue("z",0.0);
   minimizer->SetParameterScale("z",2.0);
-  
+
   minimizer->Minimize();
 
   double x = minimizer->GetParameterValue("x");

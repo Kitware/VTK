@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-/* 
+/*
  * Microsoft's own version of sqltypes.h relies on some typedefs and
  * macros in windows.h.  This next fragment tells VTK to include the
  * whole thing without any of its usual #defines to keep the size
  * manageable.  No WIN32_LEAN_AND_MEAN for us!
  */
-#if defined(_WIN32) && !defined(__CYGWIN__) 
-# define VTK_WINDOWS_FULL 
-# include <vtkWindows.h> 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+# define VTK_WINDOWS_FULL
+# include <vtkWindows.h>
 #endif
 
 
@@ -58,7 +58,7 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, in
  * bound to the statement using SQLBindParam.  The statement must have
  * been prepared using SQLPrepare.  Those buffers need to be freed
  * when they're no longer needed.
- * 
+ *
  * I'm going to handle this by using my own class
  * (vtkODBCBoundParameter) to hold all the information the user passes
  * in.  This is the same sort of trick I use for the MySQL bound
@@ -103,7 +103,7 @@ public:
 
 public:
   char             *Data;        // Buffer holding actual data
-  unsigned long     DataLength; 
+  unsigned long     DataLength;
   SQLLEN            BufferSize; // will be at least as large as DataLength
   SQLSMALLINT       DataTypeC;
   SQLSMALLINT       DataTypeSQL;
@@ -114,8 +114,8 @@ public:
 class vtkODBCQueryInternals
 {
 public:
-  vtkODBCQueryInternals() 
-    { 
+  vtkODBCQueryInternals()
+    {
       this->Statement = NULL;
       this->CurrentRow = vtkVariantArray::New();
       this->ColumnNames = vtkStringArray::New();
@@ -179,7 +179,7 @@ vtkODBCQueryInternals::FreeStatement()
                << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
       cerr << errorBuf.str() << "\n";
       }
-    
+
     status = SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
     if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
       {
@@ -255,7 +255,7 @@ vtkODBCBoundParameter *vtkBuildODBCBoundParameter(T data_value)
   param->DataLength = sizeof(T);
   param->SetData(reinterpret_cast<const char *>(&data_value),
                  sizeof(T));
-  
+
   return param;
 }
 
@@ -295,8 +295,8 @@ vtkODBCBoundParameter *vtkBuildODBCBoundParameter(const char *data,
     {
     param->DataTypeSQL = SQL_VARCHAR;
     }
-  param->BufferSize = length; 
-  param->DataLength = length; 
+  param->BufferSize = length;
+  param->DataLength = length;
   param->SetData(data, length);
 
   return param;
@@ -304,7 +304,7 @@ vtkODBCBoundParameter *vtkBuildODBCBoundParameter(const char *data,
 
 // ----------------------------------------------------------------------
 
-bool vtkODBCQueryInternals::PrepareQuery(const char *queryString, 
+bool vtkODBCQueryInternals::PrepareQuery(const char *queryString,
                                          SQLHANDLE dbConnection,
                                          vtkStdString &error_message)
 {
@@ -319,7 +319,7 @@ bool vtkODBCQueryInternals::PrepareQuery(const char *queryString,
   // error messages will certainly tell me so.
 
   SQLRETURN status;
-  status = SQLAllocHandle(SQL_HANDLE_STMT, 
+  status = SQLAllocHandle(SQL_HANDLE_STMT,
                           dbConnection,
                           &(this->Statement));
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
@@ -432,7 +432,7 @@ bool vtkODBCQueryInternals::BindParametersToStatement()
     vtkGenericWarningMacro(<<"BindParametersToStatement: No prepared statement available");
     return false;
     }
-  
+
   this->ClearBoundParameters();
   unsigned long numParams = this->UserParameterList.size();
   for (SQLUSMALLINT i = 0; i < numParams; ++i)
@@ -477,12 +477,12 @@ GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code)
 
   // There may be several error messages queued up so we need to loop
   // until we've got everything.
-  vtksys_ios::ostringstream messagebuf; 
-  do 
+  vtksys_ios::ostringstream messagebuf;
+  do
     {
-    status = SQLGetDiagRec(handleType, handle, 
-                           i, 
-                           state, 
+    status = SQLGetDiagRec(handleType, handle,
+                           i,
+                           state,
                            &sqlNativeCode,
                            description,
                            SQL_MAX_MESSAGE_LENGTH,
@@ -493,7 +493,7 @@ GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code)
       {
       if (code)
         {
-        *code = sqlNativeCode; 
+        *code = sqlNativeCode;
         }
       if (i > 1)
         {
@@ -508,13 +508,13 @@ GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code)
       }
     ++i;
     } while (status != SQL_NO_DATA);
-  
+
   return vtkStdString(messagebuf.str());
 }
 
 // ----------------------------------------------------------------------
 
-vtkODBCQuery::vtkODBCQuery() 
+vtkODBCQuery::vtkODBCQuery()
 {
   this->Internals = new vtkODBCQueryInternals;
   this->InitialFetch = true;
@@ -589,7 +589,7 @@ vtkODBCQuery::Execute()
   SQLFreeStmt(this->Internals->Statement, SQL_CLOSE);
 
   this->Internals->BindParametersToStatement();
-  
+
   SQLRETURN status = SQLExecute(this->Internals->Statement);
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
@@ -598,7 +598,7 @@ vtkODBCQuery::Execute()
 
     errorBuf << "Unable to execute statement: "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
-    
+
     this->SetLastErrorText(errorBuf.str().c_str());
     this->Active = false;
     return false;
@@ -615,7 +615,7 @@ vtkODBCQuery::Execute()
     this->Internals->NullPermitted->Reset();
     if (this->Internals->ColumnTypes)
       {
-      delete [] this->Internals->ColumnTypes; 
+      delete [] this->Internals->ColumnTypes;
       this->Internals->ColumnTypes = NULL;
       }
 
@@ -650,7 +650,7 @@ vtkODBCQuery::Execute()
                                 &columnSize,
                                 &decimalDigits,
                                 &nullable);
-    
+
         if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
           {
           vtksys_ios::ostringstream errbuf;
@@ -673,7 +673,7 @@ vtkODBCQuery::Execute()
           {
           vtksys_ios::ostringstream errbuf;
           errbuf << "vtkODBCQuery::Execute: Unable to get unsigned flag for column "
-                 << i << ": " 
+                 << i << ": "
                  << GetErrorMessage(SQL_HANDLE_STMT,
                                     this->Internals->Statement);
           this->SetLastErrorText(errbuf.str().c_str());
@@ -732,7 +732,7 @@ vtkODBCQuery::GetFieldName(int column)
     }
   else if (column < 0 || column >= this->GetNumberOfFields())
     {
-    vtkErrorMacro(<<"GetFieldName(): Illegal field index " 
+    vtkErrorMacro(<<"GetFieldName(): Illegal field index "
                   << column);
     return NULL;
     }
@@ -754,7 +754,7 @@ vtkODBCQuery::GetFieldType(int column)
     }
   else if (column < 0 || column >= this->GetNumberOfFields())
     {
-    vtkErrorMacro(<<"GetFieldType(): Illegal field index " 
+    vtkErrorMacro(<<"GetFieldType(): Illegal field index "
                   << column);
     return VTK_VOID;
     }
@@ -827,7 +827,7 @@ vtkODBCQuery::GetFieldType(int column)
       case SQL_TYPE_DATE:
       case SQL_TYPE_TIME:
         return VTK_TYPE_UINT64;
-        
+
       case SQL_INTERVAL_MONTH:
       case SQL_INTERVAL_YEAR:
       case SQL_INTERVAL_DAY:
@@ -909,8 +909,8 @@ vtkODBCQuery::DataValue(vtkIdType column)
 void
 vtkODBCQuery::ClearCurrentRow()
 {
-  for (vtkIdType i = 0; 
-       i < this->Internals->CurrentRow->GetNumberOfTuples(); 
+  for (vtkIdType i = 0;
+       i < this->Internals->CurrentRow->GetNumberOfTuples();
        ++i)
     {
     this->Internals->CurrentRow->SetValue(i, vtkVariant());
@@ -953,7 +953,7 @@ vtkODBCQuery::CacheCurrentRow()
       case SQL_INTEGER:
         status = status & this->CacheIntColumn(column);
         break;
-        
+
       case SQL_REAL:
       case SQL_FLOAT:
         status = status & this->CacheFloatColumn(column);
@@ -970,7 +970,7 @@ vtkODBCQuery::CacheCurrentRow()
       case SQL_TINYINT:
         status = status & this->CacheCharColumn(column);
         break;
-        
+
       case SQL_BIGINT:
         status = status & this->CacheLongLongColumn(column);
         break;
@@ -1011,13 +1011,13 @@ vtkODBCQuery::CacheCurrentRow()
 
   return status;
 }
-  
+
 // ----------------------------------------------------------------------
 
 const char *
 vtkODBCQuery::GetLastErrorText()
 {
-  return this->LastErrorText; 
+  return this->LastErrorText;
 }
 
 // ----------------------------------------------------------------------
@@ -1043,7 +1043,7 @@ vtkODBCQuery::BeginTransaction()
   assert(db != NULL);
 
   SQLUINTEGER ac = SQL_AUTOCOMMIT_OFF;
-  SQLRETURN status = SQLSetConnectAttr(db->Internals->Connection, 
+  SQLRETURN status = SQLSetConnectAttr(db->Internals->Connection,
                                        SQL_ATTR_AUTOCOMMIT,
                                        reinterpret_cast<SQLPOINTER>(ac),
                                        sizeof(ac));
@@ -1053,7 +1053,7 @@ vtkODBCQuery::BeginTransaction()
     this->SetLastErrorText("Unable to disable autocommit.");
     return false;
     }
-  return true; 
+  return true;
 }
 
 
@@ -1073,9 +1073,9 @@ vtkODBCQuery::CommitTransaction()
 
   SQLRETURN status;
   status = SQLEndTran(SQL_HANDLE_DBC,
-                      db->Internals->Connection, 
+                      db->Internals->Connection,
                       SQL_COMMIT);
-  if (status != SQL_SUCCESS) 
+  if (status != SQL_SUCCESS)
     {
     this->SetLastErrorText("Unable to commit transaction.");
     return false;
@@ -1110,15 +1110,15 @@ vtkODBCQuery::RollbackTransaction()
     this->SetLastErrorText("Cannot roll back transaction.  Database is closed.");
     return false;
     }
-  
+
   vtkODBCDatabase *db = vtkODBCDatabase::SafeDownCast(this->Database);
   assert(db != NULL);
 
   SQLRETURN status;
   status = SQLEndTran(SQL_HANDLE_DBC,
-                      db->Internals->Connection, 
+                      db->Internals->Connection,
                       SQL_ROLLBACK);
-  if (status != SQL_SUCCESS) 
+  if (status != SQL_SUCCESS)
     {
     this->SetLastErrorText("Unable to roll back transaction.");
     return false;
@@ -1152,7 +1152,7 @@ vtkODBCQuery::CacheWideStringColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::CacheIntColumn(int column)
 {
   SQLRETURN status;
@@ -1174,7 +1174,7 @@ vtkODBCQuery::CacheIntColumn(int column)
                       static_cast<SQLPOINTER>(&buffer),
                       sizeof(buffer),
                       &actualLength);
-  
+
   if (status == SQL_SUCCESS)
     {
     vtkVariant result;
@@ -1201,7 +1201,7 @@ vtkODBCQuery::CacheIntColumn(int column)
     {
     vtksys_ios::ostringstream errbuf;
     errbuf << "CacheIntColumn (column "
-           << column << "): ODBC error: " 
+           << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
                               this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -1213,7 +1213,7 @@ vtkODBCQuery::CacheIntColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::CacheLongLongColumn(int column)
 {
   SQLRETURN status;
@@ -1228,7 +1228,7 @@ vtkODBCQuery::CacheLongLongColumn(int column)
 
     status = SQLGetData(this->Internals->Statement,
                         column+1,
-                        dataType, 
+                        dataType,
                         static_cast<SQLPOINTER>(& buffer),
                         sizeof(buffer),
                         &actualLength);
@@ -1240,14 +1240,14 @@ vtkODBCQuery::CacheLongLongColumn(int column)
     unsigned long long buffer;
     status = SQLGetData(this->Internals->Statement,
                         column+1,
-                        dataType, 
+                        dataType,
                         static_cast<SQLPOINTER>(& buffer),
                         sizeof(buffer),
                         &actualLength);
     result = vtkVariant(buffer);
     }
 
-  
+
   if (status == SQL_SUCCESS)
     {
     this->Internals->CurrentRow->SetValue(column, result);
@@ -1264,7 +1264,7 @@ vtkODBCQuery::CacheLongLongColumn(int column)
     {
     vtksys_ios::ostringstream errbuf;
     errbuf << "CacheLongLongColumn (column "
-           << column << "): ODBC error: " 
+           << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
                               this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -1276,7 +1276,7 @@ vtkODBCQuery::CacheLongLongColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::CacheCharColumn(int column)
 {
   SQLRETURN status;
@@ -1285,11 +1285,11 @@ vtkODBCQuery::CacheCharColumn(int column)
 
   status = SQLGetData(this->Internals->Statement,
                       column+1,
-                      SQL_C_TINYINT, 
+                      SQL_C_TINYINT,
                       static_cast<SQLPOINTER>(&buffer),
                       sizeof(buffer),
                       &actualLength);
-  
+
   if (status == SQL_SUCCESS)
     {
     vtkVariant result;
@@ -1316,7 +1316,7 @@ vtkODBCQuery::CacheCharColumn(int column)
     {
     vtksys_ios::ostringstream errbuf;
     errbuf << "CacheCharColumn (column "
-           << column << "): ODBC error: " 
+           << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
                               this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -1328,7 +1328,7 @@ vtkODBCQuery::CacheCharColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::CacheBooleanColumn(int column)
 {
   SQLRETURN status;
@@ -1337,11 +1337,11 @@ vtkODBCQuery::CacheBooleanColumn(int column)
 
   status = SQLGetData(this->Internals->Statement,
                       column+1,
-                      SQL_C_TINYINT, 
+                      SQL_C_TINYINT,
                       static_cast<SQLPOINTER>(&buffer),
                       sizeof(buffer),
                       &actualLength);
-  
+
   if (status == SQL_SUCCESS)
     {
     vtkVariant result(buffer != 0);
@@ -1359,7 +1359,7 @@ vtkODBCQuery::CacheBooleanColumn(int column)
     {
     vtksys_ios::ostringstream errbuf;
     errbuf << "CacheCharColumn (column "
-           << column << "): ODBC error: " 
+           << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
                               this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -1371,7 +1371,7 @@ vtkODBCQuery::CacheBooleanColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::CacheFloatColumn(int column)
 {
   SQLRETURN status;
@@ -1380,7 +1380,7 @@ vtkODBCQuery::CacheFloatColumn(int column)
 
   status = SQLGetData(this->Internals->Statement,
                       column+1,
-                      (sizeof(buffer) == sizeof(double) 
+                      (sizeof(buffer) == sizeof(double)
                        ? SQL_C_DOUBLE
                        : SQL_C_FLOAT),
                       static_cast<SQLPOINTER>(&buffer),
@@ -1404,7 +1404,7 @@ vtkODBCQuery::CacheFloatColumn(int column)
     {
     vtksys_ios::ostringstream errbuf;
     errbuf << "CacheFloatColumn (column "
-           << column << "): ODBC error: " 
+           << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
                               this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -1415,7 +1415,7 @@ vtkODBCQuery::CacheFloatColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::CacheDoubleColumn(int column)
 {
   SQLRETURN status;
@@ -1424,11 +1424,11 @@ vtkODBCQuery::CacheDoubleColumn(int column)
 
   status = SQLGetData(this->Internals->Statement,
                       column+1,
-                      SQL_C_DOUBLE, 
+                      SQL_C_DOUBLE,
                       static_cast<SQLPOINTER>(&buffer),
                       sizeof(buffer),
                       &actualLength);
-  
+
   if (status == SQL_SUCCESS)
     {
     vtkVariant result(buffer);
@@ -1446,12 +1446,12 @@ vtkODBCQuery::CacheDoubleColumn(int column)
     {
     vtksys_ios::ostringstream errbuf;
     errbuf << "CacheDoubleColumn (column "
-           << column << "): ODBC error: " 
+           << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
                               this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
     this->Internals->CurrentRow->SetValue(column, vtkVariant());
-    return false; 
+    return false;
     }
 }
 
@@ -1513,7 +1513,7 @@ vtkODBCQuery::CacheStringColumn(int column)
         }
 
       //      cerr << "Writing " << bytesToWrite << " characters in string column\n";
-      
+
       if (status == SQL_SUCCESS_WITH_INFO)
         {
         // eat the null terminator
@@ -1649,7 +1649,7 @@ vtkODBCQuery::CacheBinaryColumn(int column)
         }
 
       //      cerr << "Writing " << bytesToWrite << " characters in string column\n";
-      
+
       if (status == SQL_SUCCESS_WITH_INFO)
         {
         // eat the null terminator
@@ -1732,7 +1732,7 @@ vtkODBCQuery::CacheIntervalColumn(int column)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, unsigned char value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1742,7 +1742,7 @@ vtkODBCQuery::BindParameter(int index, unsigned char value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, signed char value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1752,7 +1752,7 @@ vtkODBCQuery::BindParameter(int index, signed char value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, unsigned short value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1762,7 +1762,7 @@ vtkODBCQuery::BindParameter(int index, unsigned short value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, signed short value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1772,7 +1772,7 @@ vtkODBCQuery::BindParameter(int index, signed short value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, unsigned int value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1782,7 +1782,7 @@ vtkODBCQuery::BindParameter(int index, unsigned int value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, signed int value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1792,7 +1792,7 @@ vtkODBCQuery::BindParameter(int index, signed int value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, unsigned long value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1802,7 +1802,7 @@ vtkODBCQuery::BindParameter(int index, unsigned long value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, signed long value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1812,7 +1812,7 @@ vtkODBCQuery::BindParameter(int index, signed long value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, vtkTypeUInt64 value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1822,7 +1822,7 @@ vtkODBCQuery::BindParameter(int index, vtkTypeUInt64 value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, vtkTypeInt64 value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1831,7 +1831,7 @@ vtkODBCQuery::BindParameter(int index, vtkTypeInt64 value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, float value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1841,7 +1841,7 @@ vtkODBCQuery::BindParameter(int index, float value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, double value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1850,7 +1850,7 @@ vtkODBCQuery::BindParameter(int index, double value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, const char *value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1860,7 +1860,7 @@ vtkODBCQuery::BindParameter(int index, const char *value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, const vtkStdString &value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
@@ -1869,7 +1869,7 @@ vtkODBCQuery::BindParameter(int index, const vtkStdString &value)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, const char *data, size_t length)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(data,
@@ -1880,7 +1880,7 @@ vtkODBCQuery::BindParameter(int index, const char *data, size_t length)
 
 // ----------------------------------------------------------------------
 
-bool 
+bool
 vtkODBCQuery::BindParameter(int index, const void *data, size_t length)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(reinterpret_cast<const char *>(data),

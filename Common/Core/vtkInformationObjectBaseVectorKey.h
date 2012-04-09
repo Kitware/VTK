@@ -36,8 +36,8 @@ public:
   // Description:
   // The name of the static instance and the class in which
   // it is defined(location) should be passed to the constructor.
-  // Providing "requiredClass" name one can insure that only 
-  // objects of type "requiredClass" are stored in vectors 
+  // Providing "requiredClass" name one can insure that only
+  // objects of type "requiredClass" are stored in vectors
   // associated with the instance of this key type created.
   // These should be string literals as they are not coppied.
   vtkInformationObjectBaseVectorKey(const char* name,
@@ -66,7 +66,7 @@ public:
   void Set(vtkInformation* info, vtkObjectBase *value, int i);
   // Description:
   // Copy n values from the range in source defined by [from  from+n-1]
-  // into the range in this vector defined by [to to+n-1]. Resizes 
+  // into the range in this vector defined by [to to+n-1]. Resizes
   // the vector if needed.
   void SetRange(vtkInformation* info,
                 vtkObjectBase **source,

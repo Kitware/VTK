@@ -49,7 +49,7 @@ int SLACReaderQuadratic(int argc, char *argv[])
   delete[] meshFileName;
   reader->AddModeFileName(modeFileName);
   delete[] modeFileName;
-  
+
   reader->ReadInternalVolumeOff();
   reader->ReadExternalSurfaceOn();
   reader->ReadMidpointsOn();

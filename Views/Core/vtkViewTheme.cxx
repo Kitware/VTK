@@ -34,7 +34,7 @@ vtkViewTheme::vtkViewTheme()
 {
   this->PointSize = 5;
   this->LineWidth = 1;
-  
+
   this->PointColor[0] = this->PointColor[1] = this->PointColor[2] = 1;
   this->PointOpacity = 1;
   vtkLookupTable* plut = vtkLookupTable::New();
@@ -487,7 +487,7 @@ double *vtkViewTheme::GetEdgeLabelColor()
 vtkViewTheme* vtkViewTheme::CreateOceanTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
-  
+
   theme->SetPointSize(7);
   theme->SetLineWidth(3);
 
@@ -507,7 +507,7 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
   theme->SetCellAlphaRange(0.75, 1);
   theme->SetCellValueRange(0.75, .75);
   theme->SetCellSaturationRange(1, 1);
-  
+
   theme->SetOutlineColor(0,0,0);
 
   theme->SetSelectedPointColor(.9, .4, .9);
@@ -519,7 +519,7 @@ vtkViewTheme* vtkViewTheme::CreateOceanTheme()
 vtkViewTheme* vtkViewTheme::CreateNeonTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
-  
+
   theme->SetPointSize(7);
   theme->SetLineWidth(3);
 
@@ -539,7 +539,7 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
   theme->SetCellAlphaRange(0.75, 1);
   theme->SetCellValueRange(0.75, 1);
   theme->SetCellSaturationRange(1, 1);
-  
+
   theme->SetOutlineColor(0, 0, 0);
 
   theme->SetSelectedPointColor(.9, .4, .9);
@@ -551,10 +551,10 @@ vtkViewTheme* vtkViewTheme::CreateNeonTheme()
 vtkViewTheme* vtkViewTheme::CreateMellowTheme()
 {
   vtkViewTheme* theme = vtkViewTheme::New();
-  
+
   theme->SetPointSize(7);
   theme->SetLineWidth(2);
-  
+
   theme->SetBackgroundColor(0.3, 0.3, 0.25); // Darker Tan
   theme->SetBackgroundColor2(0.6, 0.6, 0.5); // Tan
   theme->GetPointTextProperty()->SetColor(1, 1, 1);
@@ -569,7 +569,7 @@ vtkViewTheme* vtkViewTheme::CreateMellowTheme()
   theme->SetCellAlphaRange(0.4, 1);
   theme->SetCellValueRange(0.5, 1);
   theme->SetCellSaturationRange(0.5, 1);
-  
+
   theme->SetOutlineColor(0, 0, 0);
 
   theme->SetSelectedPointColor(1, 1, 1);
@@ -635,37 +635,37 @@ void vtkViewTheme::PrintSelf(ostream& os, vtkIndent indent)
      << this->PointSize << endl;
   os << indent << "LineWidth: "
      << this->LineWidth << endl;
-  os << indent << "PointColor: " 
-     << this->PointColor[0] << "," 
-     << this->PointColor[1] << "," 
+  os << indent << "PointColor: "
+     << this->PointColor[0] << ","
+     << this->PointColor[1] << ","
      << this->PointColor[2] << endl;
   os << indent << "PointOpacity: " << this->PointOpacity << endl;
-  os << indent << "CellColor: " 
-     << this->CellColor[0] << "," 
-     << this->CellColor[1] << "," 
+  os << indent << "CellColor: "
+     << this->CellColor[0] << ","
+     << this->CellColor[1] << ","
      << this->CellColor[2] << endl;
   os << indent << "CellOpacity: " << this->CellOpacity << endl;
-  os << indent << "OutlineColor: " 
-     << this->OutlineColor[0] << "," 
-     << this->OutlineColor[1] << "," 
+  os << indent << "OutlineColor: "
+     << this->OutlineColor[0] << ","
+     << this->OutlineColor[1] << ","
      << this->OutlineColor[2] << endl;
-  os << indent << "SelectedPointColor: " 
-     << this->SelectedPointColor[0] << "," 
-     << this->SelectedPointColor[1] << "," 
+  os << indent << "SelectedPointColor: "
+     << this->SelectedPointColor[0] << ","
+     << this->SelectedPointColor[1] << ","
      << this->SelectedPointColor[2] << endl;
   os << indent << "SelectedPointOpacity: " << this->SelectedPointOpacity << endl;
-  os << indent << "SelectedCellColor: " 
-     << this->SelectedCellColor[0] << "," 
-     << this->SelectedCellColor[1] << "," 
+  os << indent << "SelectedCellColor: "
+     << this->SelectedCellColor[0] << ","
+     << this->SelectedCellColor[1] << ","
      << this->SelectedCellColor[2] << endl;
   os << indent << "SelectedCellOpacity: " << this->SelectedCellOpacity << endl;
-  os << indent << "BackgroundColor: " 
-     << this->BackgroundColor[0] << "," 
-     << this->BackgroundColor[1] << "," 
+  os << indent << "BackgroundColor: "
+     << this->BackgroundColor[0] << ","
+     << this->BackgroundColor[1] << ","
      << this->BackgroundColor[2] << endl;
-  os << indent << "BackgroundColor2: " 
-     << this->BackgroundColor2[0] << "," 
-     << this->BackgroundColor2[1] << "," 
+  os << indent << "BackgroundColor2: "
+     << this->BackgroundColor2[0] << ","
+     << this->BackgroundColor2[1] << ","
      << this->BackgroundColor2[2] << endl;
   os << indent << "PointLookupTable: " << (this->PointLookupTable ? "" : "(none)") << endl;
   if (this->PointLookupTable)

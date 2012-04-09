@@ -48,8 +48,8 @@ int vtkCompositeDataGeometryFilter::FillInputPortInformation(
 
 //-----------------------------------------------------------------------------
 int vtkCompositeDataGeometryFilter::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // generate the data
@@ -64,14 +64,14 @@ int vtkCompositeDataGeometryFilter::ProcessRequest(
 
 //-----------------------------------------------------------------------------
 int vtkCompositeDataGeometryFilter::RequestCompositeData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector*  outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input) 
+  if (!input)
     {
     vtkErrorMacro("No input composite dataset provided.");
     return 0;
@@ -80,7 +80,7 @@ int vtkCompositeDataGeometryFilter::RequestCompositeData(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) 
+  if (!output)
     {
     vtkErrorMacro("No output polydata provided.");
     return 0;

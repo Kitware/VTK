@@ -1,7 +1,7 @@
 vtk_module(vtkChemistryCore
   GROUPS
     StandAlone
-  DEPENDS 
+  DEPENDS
     vtkCommonDataModel
     vtkIOXML
     vtkRenderingCore

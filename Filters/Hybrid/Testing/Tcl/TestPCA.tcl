@@ -20,7 +20,7 @@ vtkTransform transform1
     transform1 Scale 1.3 1.1 0.8
 
 vtkTransform transform2
-    transform2 Translate 0.3 0.7 0.1 
+    transform2 Translate 0.3 0.7 0.1
     transform2 Scale 1.0 0.1 1.8
 
 vtkTransformPolyDataFilter transformer1
@@ -52,7 +52,7 @@ vtkPolyDataMapper map1c
     map1c SetInputConnection [transformer2 GetOutputPort]
 vtkActor Actor1c
     Actor1c SetMapper map1c
-    [Actor1c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000 
+    [Actor1c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000
 
 #------------------------------------------------------------------
 # align the shapes using Procrustes (using SetModeToRigidBody)
@@ -229,7 +229,7 @@ ren1 ResetCamera
 ren2 SetBackground 1 1 1
 ren2 SetViewport 0.25 0.0 0.5 1.0
 ren2 ResetCamera
-[ren2 GetActiveCamera] SetPosition 1 -1 0   
+[ren2 GetActiveCamera] SetPosition 1 -1 0
 ren2 ResetCamera
 
 ren3 SetBackground 1 1 1

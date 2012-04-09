@@ -220,7 +220,7 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
       double* color = annotation->GetInformation()->Get(vtkAnnotation::COLOR());
       double opacity = annotation->GetInformation()->Get(vtkAnnotation::OPACITY());
       unsigned char outColor[4] = {
-        static_cast<unsigned char>(color[0] * 255), 
+        static_cast<unsigned char>(color[0] * 255),
         static_cast<unsigned char>(color[1] * 255),
         static_cast<unsigned char>(color[2] * 255),
         static_cast<unsigned char>(opacity * 255) };

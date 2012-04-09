@@ -328,7 +328,7 @@ public:
   // Description:
   // Use a stencil to limit the calculations to a specific region of
   // the output.  Portions of the output that are 'outside' the stencil
-  // will be cleared to the background color.  
+  // will be cleared to the background color.
   void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
 

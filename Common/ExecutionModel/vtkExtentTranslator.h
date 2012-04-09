@@ -52,20 +52,20 @@ public:
   vtkGetMacro(GhostLevel, int);
 
   // Description:
-  // These are the main methods that should be called. These methods 
+  // These are the main methods that should be called. These methods
   // are responsible for converting a piece to an extent. The signatures
   // without arguments are only thread safe when each thread accesses a
   // different instance. The signatures with arguments are fully thread
-  // safe. 
+  // safe.
   virtual int PieceToExtent();
   virtual int PieceToExtentByPoints();
-  virtual int PieceToExtentThreadSafe(int piece, int numPieces, 
-                                      int ghostLevel, int *wholeExtent, 
-                                      int *resultExtent, int splitMode, 
+  virtual int PieceToExtentThreadSafe(int piece, int numPieces,
+                                      int ghostLevel, int *wholeExtent,
+                                      int *resultExtent, int splitMode,
                                       int byPoints);
-  
-  
-  
+
+
+
   // Description:
   // How should the streamer break up extents. Block mode
   // tries to break an extent up into cube blocks.  It always chooses
@@ -98,9 +98,9 @@ protected:
   // Returns 0 if no data exist for a piece.
   // The whole extent Should be passed in as the extent.
   // It is modified to return the result.
-  int SplitExtent(int piece, int numPieces, int *extent, int splitMode);  
-  int SplitExtentByPoints(int piece, int numPieces, int *extent, 
-                          int splitMode);  
+  int SplitExtent(int piece, int numPieces, int *extent, int splitMode);
+  int SplitExtentByPoints(int piece, int numPieces, int *extent,
+                          int splitMode);
 
   int Piece;
   int NumberOfPieces;

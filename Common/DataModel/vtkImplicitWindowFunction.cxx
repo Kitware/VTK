@@ -124,10 +124,10 @@ void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No implicit function defined.\n";
     }
 
-  os << indent << "Window Range: (" << this->WindowRange[0] 
+  os << indent << "Window Range: (" << this->WindowRange[0]
      << ", " << this->WindowRange[1] << ")\n";
 
-  os << indent << "Window Values: (" << this->WindowValues[0] 
+  os << indent << "Window Values: (" << this->WindowValues[0]
      << ", " << this->WindowValues[1] << ")\n";
 
 }

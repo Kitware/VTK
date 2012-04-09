@@ -45,21 +45,21 @@
 // Optional features include the ability to specify axes labels, label
 // format and plot title. You can also
 // manually specify the x and y plot ranges (by default they are computed
-// automatically). The Border instance variable is used to create space 
+// automatically). The Border instance variable is used to create space
 // between the boundary of the plot window (specified by PositionCoordinate
 // and Position2Coordinate) and the plot itself.
 //
-// The font property of the plot title can be modified through the 
+// The font property of the plot title can be modified through the
 // TitleTextProperty attribute.
 // The font property of the axes titles and labels can be modified through the
 // AxisTitleTextProperty and AxisLabelTextProperty attributes. You may also
-// use the GetXAxisActor2D or GetYAxisActor2D methods 
+// use the GetXAxisActor2D or GetYAxisActor2D methods
 // to access each individual axis actor to modify their font properties.
 // In the same way, the GetLegendBoxActor method can be used to access
 // the legend box actor to modify its font properties.
 //
-// There are several advanced features as well. You can assign per curve 
-// properties (such as color and a plot symbol). (Note that each input 
+// There are several advanced features as well. You can assign per curve
+// properties (such as color and a plot symbol). (Note that each input
 // dataset and/or data object creates a single curve.) Another option is to
 // add a plot legend that graphically indicates the correspondance between
 // the curve, curve symbols, and the data source. You can also exchange the
@@ -67,13 +67,13 @@
 
 // .SECTION Caveats
 // If you are interested in plotting something other than scalar data, you
-// can use the vtk data shuffling filters (e.g., 
-// vtkAttributeDataToFieldDataFilter and vtkFieldDataToAttributeDataFilter) 
+// can use the vtk data shuffling filters (e.g.,
+// vtkAttributeDataToFieldDataFilter and vtkFieldDataToAttributeDataFilter)
 // to convert the data into scalar data and/or points.
 
 // .SECTION See Also
 // vtkActor2D vtkTextMapper vtkScalarBarActor vtkAxisActor2D vtkCubeAxesActor2D
-// vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter 
+// vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter
 // vtkTextProperty
 
 #ifndef __vtkXYPlotActor_h
@@ -125,10 +125,10 @@ public:
   // The following methods are used to plot input datasets. Datasets
   // will be plotted if set as input; otherwise the input data objects
   // will be plotted (if defined).
-  
+
   // Description:
   // Add a dataset to the list of data to append. The array name specifies
-  // which point array to plot. The array must be a vtkDataArray subclass, i.e. 
+  // which point array to plot. The array must be a vtkDataArray subclass, i.e.
   // a numeric array. If the array name is NULL, then the default
   // scalars are used.  The array can have multiple components, but only the
   // first component is ploted. Note that AddInputDataSet() does not setup
@@ -149,7 +149,7 @@ public:
   }
 
   // Description:
-  // This removes all of the data set inputs, 
+  // This removes all of the data set inputs,
   // but does not change the data object inputs.
   void RemoveAllDataSetInputConnections();
 
@@ -182,7 +182,7 @@ public:
   // The following methods are used to plot input data objects. Datasets will
   // be plotted in preference to data objects if set as input; otherwise the
   // input data objects will be plotted (if defined).
-  
+
   // Description:
   // Add a data object to the list of data to display.
   void AddDataObjectInput(vtkDataObject *in);
@@ -196,7 +196,7 @@ public:
   // Description:
   // Indicate whether to plot rows or columns. If plotting rows, then
   // the dependent variables is taken from a specified row,
-  // versus rows (y). 
+  // versus rows (y).
   vtkSetClampMacro(DataObjectPlotMode,int,VTK_XYPLOT_ROW,VTK_XYPLOT_COLUMN);
   vtkGetMacro(DataObjectPlotMode,int);
   void SetDataObjectPlotModeToRows()
@@ -230,7 +230,7 @@ public:
   // The following methods are used to set properties on each curve that is
   // plotted. Each input dataset (or data object) results in one curve. The
   // methods that follow have an index i that corresponds to the input dataset
-  // or data object. 
+  // or data object.
   void SetPlotColor(int i, double r, double g, double b);
   void SetPlotColor(int i, const double color[3]) {
     this->SetPlotColor(i, color[0], color[1], color[2]); };
@@ -290,7 +290,7 @@ public:
   vtkGetObjectMacro(GlyphSource,vtkGlyphSource2D);
 
   // Description:
-  // Set/Get the title of the x-y plot, and the title along the 
+  // Set/Get the title of the x-y plot, and the title along the
   // x and y axes.
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
@@ -320,11 +320,11 @@ public:
   vtkGetVectorMacro(YRange,double,2);
   void SetPlotRange(double xmin, double ymin, double xmax, double ymax)
     {this->SetXRange(xmin,xmax); this->SetYRange(ymin,ymax);}
-  
+
   // Description:
   // Set/Get the number of annotation labels to show along the x and y axes.
   // This values is a suggestion: the number of labels may vary depending
-  // on the particulars of the data. The convenience method 
+  // on the particulars of the data. The convenience method
   // SetNumberOfLables() sets the number of x and y labels to the same value.
   vtkSetClampMacro(NumberOfXLabels, int, 0, 50);
   vtkGetMacro(NumberOfXLabels, int);
@@ -335,7 +335,7 @@ public:
 
   // Description:
   // Set/Get the flag that controls whether the labels and ticks are
-  // adjusted for "nice" numerical values to make it easier to read 
+  // adjusted for "nice" numerical values to make it easier to read
   // the labels. The adjustment is based in the Range instance variable.
   // Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
   // range and number of labels.
@@ -366,8 +366,8 @@ public:
   vtkGetMacro(Legend, int);
   vtkBooleanMacro(Legend, int);
 
-  // Description: 
-  // Set/Get the position of the title. This has no effect if 
+  // Description:
+  // Set/Get the position of the title. This has no effect if
   // AdjustTitlePosition is true.
   vtkSetVector2Macro(TitlePosition,double);
   vtkGetVector2Macro(TitlePosition,double);
@@ -400,11 +400,11 @@ enum Alignment {
   // adjust the position of the title automatically depending on the
   // given mode, the mode is a combination of the Alignment flags.
   // by default: vtkXYPlotActor::AlignHCenter | vtkXYPlotActor::Top
-  // | vtkXYPlotActor::AlignAxisVCenter 
+  // | vtkXYPlotActor::AlignAxisVCenter
   vtkSetMacro(AdjustTitlePositionMode, int);
   vtkGetMacro(AdjustTitlePositionMode, int);
 
-  // Description: 
+  // Description:
   // Use these methods to control the position of the legend. The variables
   // LegendPosition and LegendPosition2 define the lower-left and upper-right
   // position of the legend. The coordinates are expressed as normalized
@@ -415,24 +415,24 @@ enum Alignment {
   vtkGetVector2Macro(LegendPosition,double);
   vtkSetVector2Macro(LegendPosition2,double);
   vtkGetVector2Macro(LegendPosition2,double);
-  
+
   // Description:
   // Set/Get the title text property.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the title text property of all axes. Note that each axis can
   // be controlled individually through the GetX/YAxisActor2D() methods.
   virtual void SetAxisTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(AxisTitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the labels text property of all axes. Note that each axis can
   // be controlled individually through the GetX/YAxisActor2D() methods.
   virtual void SetAxisLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(AxisLabelTextProperty,vtkTextProperty);
-      
+
   // Description:
   // Enable/Disable plotting of Log of x-values.
   vtkSetMacro(Logx, int);
@@ -466,7 +466,7 @@ enum Alignment {
 
   // Description:
   // Set/Get whether the points are rendered.  The point size can be set in
-  // the property object. This is a global flag which affects the plot only 
+  // the property object. This is a global flag which affects the plot only
   // if per curve symbols are not defined.
   vtkGetMacro(PlotPoints, int);
   vtkSetMacro(PlotPoints, int);
@@ -474,11 +474,11 @@ enum Alignment {
 
   // Description:
   // Set/Get whether the lines are rendered.  The line width can be set in
-  // the property object. 
+  // the property object.
   vtkGetMacro(PlotLines, int);
   vtkSetMacro(PlotLines, int);
   vtkBooleanMacro(PlotLines, int);
-  
+
   // Description:
   // Set/Get the factor that controls how big glyphs are in the plot.
   // The number is expressed as a fraction of the length of the diagonal
@@ -493,8 +493,8 @@ enum Alignment {
 
   // Description:
   // An alternate form of ViewportToPlotCoordinate() above. This method
-  // inputs the viewport coordinate pair (defined by the ivar 
-  // ViewportCoordinate)and then stores them in the ivar PlotCoordinate. 
+  // inputs the viewport coordinate pair (defined by the ivar
+  // ViewportCoordinate)and then stores them in the ivar PlotCoordinate.
   void ViewportToPlotCoordinate(vtkViewport *viewport);
   vtkSetVector2Macro(PlotCoordinate,double);
   vtkGetVector2Macro(PlotCoordinate,double);
@@ -506,7 +506,7 @@ enum Alignment {
   // Description:
   // An alternate form of PlotToViewportCoordinate() above. This method
   // inputs the plot coordinate pair (defined in the ivar PlotCoordinate)
-  // and then stores them in the ivar ViewportCoordinate. (This method 
+  // and then stores them in the ivar ViewportCoordinate. (This method
   // can be wrapped.)
   void PlotToViewportCoordinate(vtkViewport *viewport);
   vtkSetVector2Macro(ViewportCoordinate,double);
@@ -516,7 +516,7 @@ enum Alignment {
   // Is the specified viewport position within the plot area (as opposed to the
   // region used by the plot plus the labels)?
   int IsInPlot(vtkViewport *viewport, double u, double v);
-  
+
   // Description:
   // Set/Get the flag that controls whether a box will be drawn/filled
   // corresponding to the chart box.
@@ -560,12 +560,12 @@ enum Alignment {
   // Description:
   // Take into account the modified time of internal helper classes.
   unsigned long GetMTime();
-  
+
   // Description:
   // Write the XY Ploat Actor as a CSV (comma separated value) representation.
   void PrintAsCSV(ostream &os);
 
-//BTX  
+//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -577,13 +577,13 @@ enum Alignment {
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
-//ETX  
+//ETX
 
 protected:
   vtkXYPlotActor();
@@ -619,7 +619,7 @@ protected:
   int AdjustTitlePosition;
   double TitlePosition[2];
   int AdjustTitlePositionMode;
-  
+
   vtkTextMapper   *TitleMapper;
   vtkActor2D      *TitleActor;
   vtkTextProperty *TitleTextProperty;
@@ -632,7 +632,7 @@ protected:
 
   double ViewportCoordinate[2];
   double PlotCoordinate[2];
-  
+
   //Handle data objects and datasets
   int DataObjectPlotMode;
   vtkIntArray *XComponent;
@@ -644,13 +644,13 @@ protected:
   //color is controlled by scalar data. The curves are appended
   //together, possibly glyphed with point symbols.
   int NumberOfInputs;
-  vtkPolyData             **PlotData; 
+  vtkPolyData             **PlotData;
   vtkGlyph2D              **PlotGlyph;
   vtkAppendPolyData       **PlotAppend;
   vtkPolyDataMapper2D     **PlotMapper;
   vtkActor2D              **PlotActor;
   void                    InitializeEntries();
-  
+
   // Legends and plot symbols. The legend also keeps track of
   // the symbols and such.
   int Legend;
@@ -689,15 +689,15 @@ protected:
   void ComputeYRange(double range[2]);
   void ComputeDORange(double xrange[2], double yrange[2], double *lengths);
 
-  virtual void CreatePlotData(int *pos, int *pos2, double xRange[2], 
-                              double yRange[2], double *norms, 
+  virtual void CreatePlotData(int *pos, int *pos2, double xRange[2],
+                              double yRange[2], double *norms,
                               int numDS, int numDO);
   void PlaceAxes(vtkViewport *viewport, int *size, int pos[2], int pos2[2]);
   void GenerateClipPlanes(int *pos, int *pos2);
   double ComputeGlyphScale(int i, int *pos, int *pos2);
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
   double *TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3]);
-  
+
 private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
   void operator=(const vtkXYPlotActor&);  // Not implemented.

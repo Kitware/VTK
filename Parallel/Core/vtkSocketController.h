@@ -55,7 +55,7 @@ public:
   // One of these is REQUIRED for Windows.
   virtual void Initialize(int* argc, char*** argv, int)
     { this->Initialize(argc,argv); }
-  virtual void Initialize(int* argc, char*** argv); 
+  virtual void Initialize(int* argc, char*** argv);
   virtual void Initialize()
     { this->Initialize(0,0); }
 
@@ -67,7 +67,7 @@ public:
   // Description:
   //  Does not apply to sockets. Does nothing.
   void SingleMethodExecute() {};
-  
+
   // Description:
   //  Does not apply to sockets.  Does nothing.
   void MultipleMethodExecute() {};
@@ -115,7 +115,7 @@ public:
     VERSION_TAG=1044266558,     // 0x3e3e3e3e
     HASH_TAG=0x3f3f3f3f
   };
-  
+
 //ETX
 
 protected:

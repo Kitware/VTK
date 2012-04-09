@@ -41,9 +41,9 @@ vtkThreadedImageAlgorithm::~vtkThreadedImageAlgorithm()
 
 //----------------------------------------------------------------------------
 void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
-{  
+{
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 }
 
@@ -62,10 +62,10 @@ struct vtkImageThreadStruct
 // This method needs to be called num times.  Results must not overlap for
 // consistent starting extent.  Subclass can override this method.
 // This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".  
+// This can be from 1 to "total".
 // If 1 is returned, the extent cannot be split.
-int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6], 
-                                                int startExt[6], 
+int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
+                                                int startExt[6],
                                                 int num, int total)
 {
   int splitAxis;
@@ -73,7 +73,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
 
   vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
                 << startExt[2] << ", " << startExt[3] << ", "
-                << startExt[4] << ", " << startExt[5] << "), " 
+                << startExt[4] << ", " << startExt[5] << "), "
                 << num << " of " << total);
 
   // start with same extent
@@ -112,7 +112,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
     {
     splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
     }
-  
+
   vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
                 << splitExt[2] << ", " << splitExt[3] << ", "
                 << splitExt[4] << ", " << splitExt[5] << ")");
@@ -130,10 +130,10 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
   vtkImageThreadStruct *str;
   int ext[6], splitExt[6], total;
   int threadId, threadCount;
-  
+
   threadId = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->ThreadID;
   threadCount = static_cast<vtkMultiThreader::ThreadInfo *>(arg)->NumberOfThreads;
-  
+
   str = static_cast<vtkImageThreadStruct *>
     (static_cast<vtkMultiThreader::ThreadInfo *>(arg)->UserData);
 
@@ -141,7 +141,7 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
   if (str->Filter->GetNumberOfOutputPorts())
     {
     // which output port did the request come from
-    int outputPort = 
+    int outputPort =
       str->Request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
 
     // if output port is negative then that means this filter is calling the
@@ -150,12 +150,12 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
       {
       return VTK_THREAD_RETURN_VALUE;
       }
-  
+
     // get the update extent from the output port
-    vtkInformation *outInfo = 
+    vtkInformation *outInfo =
       str->OutputsInfo->GetInformationObject(outputPort);
     int updateExtent[6];
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                  updateExtent);
     memcpy(ext,updateExtent, sizeof(int)*6);
     }
@@ -170,7 +170,7 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
         int updateExtent[6];
         str->InputsInfo[inPort]
           ->GetInformationObject(0)
-          ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
+          ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                 updateExtent);
         memcpy(ext,updateExtent, sizeof(int)*6);
         break;
@@ -181,11 +181,11 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
       return VTK_THREAD_RETURN_VALUE;
       }
     }
-  
+
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
   total = str->Filter->SplitExtent(splitExt, ext, threadId, threadCount);
-    
+
   if (threadId < total)
     {
     // return if nothing to do
@@ -197,13 +197,13 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
       }
     str->Filter->ThreadedRequestData(str->Request,
                                      str->InputsInfo, str->OutputsInfo,
-                                     str->Inputs, str->Outputs, 
+                                     str->Inputs, str->Outputs,
                                      splitExt, threadId);
     }
   // else
   //   {
   //   otherwise don't use this thread. Sometimes the threads dont
-  //   break up very well and it is just as efficient to leave a 
+  //   break up very well and it is just as efficient to leave a
   //   few threads idle.
   //   }
 
@@ -220,7 +220,7 @@ int vtkThreadedImageAlgorithm::RequestData(
   vtkInformationVector* outputVector)
 {
   int i;
-  
+
   // setup the threasd structure
   vtkImageThreadStruct str;
   str.Filter = this;
@@ -251,7 +251,7 @@ int vtkThreadedImageAlgorithm::RequestData(
         }
       }
     }
-  
+
   // now create the inputs array
   str.Inputs = 0;
   if (this->GetNumberOfInputPorts())
@@ -261,11 +261,11 @@ int vtkThreadedImageAlgorithm::RequestData(
       {
       str.Inputs[i] = 0;
       vtkInformationVector* portInfo = inputVector[i];
-      
+
       if (portInfo->GetNumberOfInformationObjects())
         {
         int j;
-        str.Inputs[i] = 
+        str.Inputs[i] =
           new vtkImageData *[portInfo->GetNumberOfInformationObjects()];
         for (j = 0; j < portInfo->GetNumberOfInformationObjects(); ++j)
           {
@@ -276,15 +276,15 @@ int vtkThreadedImageAlgorithm::RequestData(
         }
       }
     }
-  
+
   // copy other arrays
   if (str.Inputs && str.Inputs[0] && str.Outputs)
     {
     this->CopyAttributeData(str.Inputs[0][0],str.Outputs[0],inputVector);
     }
-    
+
   this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-  this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);  
+  this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
 
   // always shut off debugging to avoid threading problems with GetMacros
   int debug = this->Debug;

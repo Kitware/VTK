@@ -69,19 +69,19 @@ public:
   vtkSetMacro(TrimWhitespacePriorToNumericConversion, bool);
   vtkGetMacro(TrimWhitespacePriorToNumericConversion, bool);
   vtkBooleanMacro(TrimWhitespacePriorToNumericConversion, bool);
-  
+
   // Description:
   // Whether to detect and convert field data arrays.  Default is on.
   vtkSetMacro(ConvertFieldData, bool);
   vtkGetMacro(ConvertFieldData, bool);
   vtkBooleanMacro(ConvertFieldData, bool);
-  
+
   // Description:
   // Whether to detect and convert cell data arrays.  Default is on.
   vtkSetMacro(ConvertPointData, bool);
   vtkGetMacro(ConvertPointData, bool);
   vtkBooleanMacro(ConvertPointData, bool);
-  
+
   // Description:
   // Whether to detect and convert point data arrays.  Default is on.
   vtkSetMacro(ConvertCellData, bool);
@@ -114,7 +114,7 @@ public:
 
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -127,11 +127,11 @@ protected:
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
-  
+
   // Description:
   // Tries to convert string arrays to integer or double arrays.
   void ConvertArrays(vtkFieldData* fieldData);
-  
+
   bool ConvertFieldData;
   bool ConvertPointData;
   bool ConvertCellData;
@@ -146,15 +146,15 @@ protected:
   // ProgressEvent.
   int CountItemsToConvert(vtkFieldData *fieldData);
 
-  // These keep track of our progress 
+  // These keep track of our progress
   int ItemsToConvert;
   int ItemsConverted;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
 private:
   vtkStringToNumeric(const vtkStringToNumeric&); // Not implemented
   void operator=(const vtkStringToNumeric&);   // Not implemented

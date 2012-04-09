@@ -70,7 +70,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->NumberOfHandles = 0;
   this->LastX = 0;
   this->LastY = 0;
-  
+
   this->PropPicker = vtkPropPicker::New();
   this->PropPicker->PickFromListOn();
 
@@ -157,7 +157,7 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
     delete [] this->HandleGeometry;
     this->HandleGeometry = NULL;
     }
- 
+
   if ( this->HandleProperty )
     {
     this->HandleProperty->Delete();
@@ -560,7 +560,7 @@ void vtkImageTracerWidget::SetProjectionPosition(double position)
     pt[ this->ProjectionNormal ] = this->ProjectionPosition;
     this->LinePoints->SetPoint(i,pt);
     }
-    
+
   this->LinePoints->GetData()->Modified();
   this->LineData->Modified();
 }

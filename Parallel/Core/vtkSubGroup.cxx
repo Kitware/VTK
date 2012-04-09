@@ -90,7 +90,7 @@ int vtkSubGroup::computeFanInTargets()
     {
     int other = this->myLocalRank ^ i;
 
-    if (other >= this->nmembers) 
+    if (other >= this->nmembers)
       {
       continue;
       }
@@ -121,7 +121,7 @@ void vtkSubGroup::moveRoot(int root)
 }
 void vtkSubGroup::restoreRoot(int root)
 {
-  if (root == 0) 
+  if (root == 0)
     {
     return;
     }
@@ -143,7 +143,7 @@ void vtkSubGroup::restoreRoot(int root)
 }
 void vtkSubGroup::setUpRoot(int root)
 {
-  if (root == 0) 
+  if (root == 0)
     {
     return;
     }
@@ -199,52 +199,52 @@ void vtkSubGroup::setGatherPattern(int root, int length)
 
     int mid = (left + right) / 2;
 
-    if (iroot <= mid) 
+    if (iroot <= mid)
       {
       src = (iroot == left ? mid + 1 : right);
-      } 
-    else 
+      }
+    else
       {
       src = (iroot == right ? mid : left);
       }
-    if (src <= mid) 
+    if (src <= mid)
       {                   /* left ... mid */
       offset = left * length;
       len =  (mid - left + 1) * length;
-      } 
-    else 
+      }
+    else
       {                            /* mid+1 ... right */
       offset = (mid + 1) * length;
       len    = (right - mid) * length;
       }
-    if (this->myLocalRank == iroot) 
+    if (this->myLocalRank == iroot)
       {
       this->recvId[this->nRecv] = this->members[src];
       this->recvOffset[this->nRecv] = offset;
       this->recvLength[this->nRecv] = len;
-            
+
       this->nRecv++;
-        
-      } 
-    else if (this->myLocalRank == src) 
+
+      }
+    else if (this->myLocalRank == src)
       {
       this->sendId = this->members[iroot];
       this->sendOffset = offset;
       this->sendLength = len;
-            
+
       this->nSend++;
       }
-    if (this->myLocalRank <= mid) 
+    if (this->myLocalRank <= mid)
       {
-      if (iroot > mid) 
+      if (iroot > mid)
         {
         iroot = src;
         }
       right = mid;
-      } 
-    else 
+      }
+    else
       {
-      if (iroot <= mid) 
+      if (iroot <= mid)
         {
         iroot = src;
         }
@@ -417,7 +417,7 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
   myListLen = vtkSubGroup::MakeSortedUnique(list, len, &myList);
 
   if (this->nmembers == 1)
-    { 
+    {
     *newList = myList;
     return myListLen;
     }
@@ -426,16 +426,16 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
   lastListLen = myListLen;
 
   for (int i=0; i < this->nFrom; i++)
-    { 
+    {
     this->comm->Receive(&transferLen, 1,
-                      this->members[this->fanInFrom[i]], this->tag); 
+                      this->members[this->fanInFrom[i]], this->tag);
 
     int *buf = new int [transferLen];
 
     this->comm->Receive(buf, transferLen,
-                      this->members[this->fanInFrom[i]], this->tag+1); 
+                      this->members[this->fanInFrom[i]], this->tag+1);
 
-    nextListLen = vtkSubGroup::MergeSortedUnique(lastList, lastListLen, 
+    nextListLen = vtkSubGroup::MergeSortedUnique(lastList, lastListLen,
                                            buf, transferLen, &nextList);
 
     delete [] buf;
@@ -443,15 +443,15 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
 
     lastList = nextList;
     lastListLen = nextListLen;
-    }                                                     
+    }
 
   if (this->nTo > 0)
-    { 
+    {
     this->comm->Send(&lastListLen, 1, this->members[this->fanInTo], this->tag);
 
-    this->comm->Send(lastList, lastListLen, 
-                     this->members[this->fanInTo], this->tag+1); 
-    }                
+    this->comm->Send(lastList, lastListLen,
+                     this->members[this->fanInTo], this->tag+1);
+    }
 
 
   this->Broadcast(&lastListLen, 1, 0);
@@ -466,7 +466,7 @@ int vtkSubGroup::AllReduceUniqueList(int *list, int len, int **newList)
 
   *newList = lastList;
 
-  return lastListLen; 
+  return lastListLen;
 }
 int vtkSubGroup::MergeSortedUnique(int *list1, int len1, int *list2, int len2,
                                    int **newList)
@@ -527,14 +527,14 @@ int vtkSubGroup::MakeSortedUnique(int *list, int len, int **newList)
 
   for (i=1, newlen=1; i<len; i++)
     {
-    if (newl[i] == newl[newlen-1]) 
+    if (newl[i] == newl[newlen-1])
       {
       continue;
       }
 
     newl[newlen++] = newl[i];
     }
-  
+
   *newList = newl;
 
   return newlen;
@@ -561,7 +561,7 @@ void vtkSubGroup::PrintSubGroup() const
       cout << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
       }
     }
-  if (this->nTo > 0) 
+  if (this->nTo > 0)
     {
     cout << "fanInTo = " << this->fanInTo << endl;
     }
@@ -572,7 +572,7 @@ void vtkSubGroup::PrintSubGroup() const
     for (i=0; i<nRecv; i++)
       {
       cout << "recvId[" << i << "] = " << this->recvId[i];
-      cout << ", recvOffset[" << i << "] = " << this->recvOffset[i]; 
+      cout << ", recvOffset[" << i << "] = " << this->recvOffset[i];
       cout << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
       }
     }
@@ -611,8 +611,8 @@ void vtkSubGroup::PrintSelf(ostream &os, vtkIndent indent)
       os << indent << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
       }
     }
-  if (this->nTo > 0) 
-    { 
+  if (this->nTo > 0)
+    {
     os << indent << "fanInTo = " << this->fanInTo << endl;
     }
 
@@ -622,7 +622,7 @@ void vtkSubGroup::PrintSelf(ostream &os, vtkIndent indent)
     for (i=0; i<nRecv; i++)
       {
       os << indent << "recvId[" << i << "] = " << this->recvId[i];
-      os << indent << ", recvOffset[" << i << "] = " << this->recvOffset[i]; 
+      os << indent << ", recvOffset[" << i << "] = " << this->recvOffset[i];
       os << indent << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
       }
     }

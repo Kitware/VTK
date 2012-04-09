@@ -48,7 +48,7 @@ int TestImageSliceMapperBorder(int argc, char* argv[])
 
   reader->SetFileName(fname);
   delete[] fname;
- 
+
   for (int i = 0; i < 4; i++)
     {
     vtkRenderer *renderer = vtkRenderer::New();

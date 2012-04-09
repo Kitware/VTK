@@ -127,7 +127,7 @@ void MyProcess::Execute()
   vtkTreeCompositer *compositer=vtkTreeCompositer::New();
   prm->SetCompositer(compositer);
   compositer->Delete();
-  
+
   vtkRenderWindowInteractor *iren=0;
 
   if(me==0)

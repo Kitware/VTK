@@ -57,7 +57,7 @@ public:
   static vtkAnnotationLink *New();
   vtkTypeMacro(vtkAnnotationLink, vtkAnnotationLayersAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // The annotations to be shared.
   vtkGetObjectMacro(AnnotationLayers, vtkAnnotationLayers);
@@ -67,7 +67,7 @@ public:
   // Set or get the current selection in the annotation layers.
   virtual void SetCurrentSelection(vtkSelection* sel);
   virtual vtkSelection* GetCurrentSelection();
-  
+
   // Description:
   // The domain mappings.
   void AddDomainMap(vtkTable* map);
@@ -79,24 +79,24 @@ public:
   // Description:
   // Get the mtime of this object.
   virtual unsigned long GetMTime();
-  
+
 protected:
   vtkAnnotationLink();
   ~vtkAnnotationLink();
-  
+
   // Description:
   // Called to process modified events from its vtkAnnotationLayers.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
     void* callData);
 
   // Description:
   // Set up input ports.
   virtual int FillInputPortInformation(int, vtkInformation*);
-  
+
   // Description:
   // Set up output ports.
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
   // Description:
   // Copy the data to the output objects.
   void ShallowCopyToOutput(
@@ -118,11 +118,11 @@ protected:
   // Description:
   // The mappings between domains.
   vtkDataObjectCollection* DomainMaps;
-    
+
 
 private:
   vtkAnnotationLink(const vtkAnnotationLink&);  // Not implemented.
-  void operator=(const vtkAnnotationLink&);  // Not implemented.  
+  void operator=(const vtkAnnotationLink&);  // Not implemented.
 
   //BTX
   class Command;

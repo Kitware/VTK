@@ -31,7 +31,7 @@ int main( int argc, char *argv[] )
   if (argc > 1)
     {
     RES = atoi(argv[1]);
-    }  
+    }
   // create a rendering window and both renderers
   vtkRenderer *ren1 = vtkRenderer::New();
   ren1->GetCullers()->InitTraversal();
@@ -41,7 +41,7 @@ int main( int argc, char *argv[] )
 
   vtkPlaneSource *plane = vtkPlaneSource::New();
   plane->SetResolution(RES,RES);
-  
+
   vtkPolyDataMapper *mapper;
   vtkActor *actor;
   vtkTriangleFilter *tfilter;
@@ -51,16 +51,16 @@ int main( int argc, char *argv[] )
   actor = vtkActor::New();
   tfilter = vtkTriangleFilter::New();
   stripper = vtkStripper::New();
-  
+
   tfilter->SetInputConnection(plane->GetOutputPort());
   stripper->SetInputConnection(tfilter->GetOutputPort());
   mapper->SetInputConnection(stripper->GetOutputPort());
   actor->SetMapper(mapper);
   ren1->AddActor(actor);
-  
+
   // set the size of our window
   renWindow->SetSize(500,500);
-  
+
   // set the viewports and background of the renderers
   //  ren1->SetViewport(0,0,0.5,1);
   ren1->SetBackground(0.2,0.3,0.5);
@@ -71,18 +71,18 @@ int main( int argc, char *argv[] )
   renWindow->Render();
   // Set up times
   vtkTimerLog *tl = vtkTimerLog::New();
-  
+
   tl->StartTimer();
-  
+
   // do a azimuth of the cameras 3 degrees per iteration
-  for (i = 0; i < 360; i += 3) 
+  for (i = 0; i < 360; i += 3)
     {
     ren1->GetActiveCamera()->Azimuth(3);
     renWindow->Render();
     }
 
   tl->StopTimer();
-  
+
   cerr << "Wall Time = " << tl->GetElapsedTime() << "\n";
   cerr << "FrameRate = " << 120.0 / tl->GetElapsedTime() << "\n";
   cerr << "TriRate = " << RES*RES*2*120 / tl->GetElapsedTime() << "\n";

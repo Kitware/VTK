@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRemoveIsolatedVertices - remove vertices of a vtkGraph with 
+// .NAME vtkRemoveIsolatedVertices - remove vertices of a vtkGraph with
 //    degree zero.
 //
 // .SECTION Description
@@ -42,10 +42,10 @@ protected:
   ~vtkRemoveIsolatedVertices();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-  
+
 private:
   vtkRemoveIsolatedVertices(const vtkRemoveIsolatedVertices&); // Not implemented
   void operator=(const vtkRemoveIsolatedVertices&);   // Not implemented

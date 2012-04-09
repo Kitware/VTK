@@ -6,7 +6,7 @@
 # Call the VTK Tcl packages to make available all VTK commands
 # ------------------------------------------------------------
 package require vtk
-package require vtkinteraction 
+package require vtkinteraction
 
 # ------------------------------------------------------------
 # Get a texture
@@ -46,8 +46,8 @@ vtkTextMapper torusTextMapper
     [torusTextMapper GetTextProperty] SetVerticalJustificationToCentered
     [torusTextMapper GetTextProperty] SetColor 1 0 0
     [torusTextMapper GetTextProperty] SetFontSize 14
-vtkActor2D torusTextActor 
-    torusTextActor SetMapper torusTextMapper    
+vtkActor2D torusTextActor
+    torusTextActor SetMapper torusTextMapper
     [torusTextActor GetPositionCoordinate] SetCoordinateSystemToWorld
     [torusTextActor GetPositionCoordinate] SetValue 0 9.5 0
 
@@ -73,8 +73,8 @@ vtkTextMapper kleinTextMapper
     [kleinTextMapper GetTextProperty] SetVerticalJustificationToCentered
     [kleinTextMapper GetTextProperty] SetColor 1 0 0
     [kleinTextMapper GetTextProperty] SetFontSize 14
-vtkActor2D kleinTextActor 
-    kleinTextActor SetMapper kleinTextMapper    
+vtkActor2D kleinTextActor
+    kleinTextActor SetMapper kleinTextMapper
     [kleinTextActor GetPositionCoordinate] SetCoordinateSystemToWorld
     [kleinTextActor GetPositionCoordinate] SetValue 8 9.5 0
 
@@ -395,8 +395,8 @@ vtkTextMapper enneperTextMapper
     [enneperTextMapper GetTextProperty] SetVerticalJustificationToCentered
     [enneperTextMapper GetTextProperty] SetColor 1 0 0
     [enneperTextMapper GetTextProperty] SetFontSize 14
-vtkActor2D enneperTextActor 
-    enneperTextActor SetMapper enneperTextMapper    
+vtkActor2D enneperTextActor
+    enneperTextActor SetMapper enneperTextMapper
     [enneperTextActor GetPositionCoordinate] SetCoordinateSystemToWorld
     [enneperTextActor GetPositionCoordinate] SetValue 0 -14.5 0
 
@@ -426,8 +426,8 @@ vtkTextMapper ellipsoidTextMapper
     [ellipsoidTextMapper GetTextProperty] SetVerticalJustificationToCentered
     [ellipsoidTextMapper GetTextProperty] SetColor 1 0 0
     [ellipsoidTextMapper GetTextProperty] SetFontSize 14
-vtkActor2D ellipsoidTextActor 
-    ellipsoidTextActor SetMapper ellipsoidTextMapper    
+vtkActor2D ellipsoidTextActor
+    ellipsoidTextActor SetMapper ellipsoidTextMapper
     [ellipsoidTextActor GetPositionCoordinate] SetCoordinateSystemToWorld
     [ellipsoidTextActor GetPositionCoordinate] SetValue 8 -14.5 0
 
@@ -461,8 +461,8 @@ vtkTextMapper randomHillsTextMapper
     [randomHillsTextMapper GetTextProperty] SetVerticalJustificationToCentered
     [randomHillsTextMapper GetTextProperty] SetColor 1 0 0
     [randomHillsTextMapper GetTextProperty] SetFontSize 14
-vtkActor2D randomHillsTextActor 
-    randomHillsTextActor SetMapper randomHillsTextMapper    
+vtkActor2D randomHillsTextActor
+    randomHillsTextActor SetMapper randomHillsTextMapper
     [randomHillsTextActor GetPositionCoordinate] SetCoordinateSystemToWorld
     [randomHillsTextActor GetPositionCoordinate] SetValue 16 -14.5 0
 
@@ -489,7 +489,7 @@ vtkTextMapper romanTextMapper
     [romanTextMapper GetTextProperty] SetColor 1 0 0
     [romanTextMapper GetTextProperty] SetFontSize 14
 vtkActor2D romanTextActor
-    romanTextActor SetMapper romanTextMapper    
+    romanTextActor SetMapper romanTextMapper
     [romanTextActor GetPositionCoordinate] SetCoordinateSystemToWorld
     [romanTextActor GetPositionCoordinate] SetValue 24 -14.5 0
 

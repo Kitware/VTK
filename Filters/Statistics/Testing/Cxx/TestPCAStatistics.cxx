@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkDoubleArray.h"
@@ -40,7 +40,7 @@ int TestPCAStatistics( int argc, char* argv[] )
   int testStatus = 0;
 
   /* */
-  double mingledData[] = 
+  double mingledData[] =
     {
     46, 45,
     47, 49,
@@ -124,7 +124,7 @@ int TestPCAStatistics( int argc, char* argv[] )
 
   datasetTable->Delete();
 
-  // -- Select Column Pairs of Interest ( Learn Mode ) -- 
+  // -- Select Column Pairs of Interest ( Learn Mode ) --
   pcas->SetColumnStatus( m0Name, 1 );
   pcas->SetColumnStatus( m1Name, 1 );
   pcas->RequestSelectedColumns();

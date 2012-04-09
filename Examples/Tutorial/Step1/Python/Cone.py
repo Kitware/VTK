@@ -2,18 +2,18 @@
 #
 # This example creates a polygonal model of a cone, and then renders it to
 # the screen. It will rotate the cone 360 degrees and then exit. The basic
-# setup of source -> mapper -> actor -> renderer -> renderwindow is 
+# setup of source -> mapper -> actor -> renderer -> renderwindow is
 # typical of most VTK programs.
 #
 
 #
-# First we include the VTK Python packages that will make available 
+# First we include the VTK Python packages that will make available
 # all of the VTK commands to Python.
 #
 import vtk
 import time
 
-# 
+#
 # Next we create an instance of vtkConeSource and set some of its
 # properties. The instance of vtkConeSource "cone" is part of a visualization
 # pipeline (it is a source process object); it produces data (output type is
@@ -23,8 +23,8 @@ cone = vtk.vtkConeSource()
 cone.SetHeight( 3.0 )
 cone.SetRadius( 1.0 )
 cone.SetResolution( 10 )
-  
-# 
+
+#
 # In this example we terminate the pipeline with a mapper process object.
 # (Intermediate filters such as vtkShrinkPolyData could be inserted in
 # between the source and the mapper.)  We create an instance of
@@ -34,7 +34,7 @@ cone.SetResolution( 10 )
 coneMapper = vtk.vtkPolyDataMapper()
 coneMapper.SetInputConnection( cone.GetOutputPort() )
 
-# 
+#
 # Create an actor to represent the cone. The actor orchestrates rendering of
 # the mapper's graphics primitives. An actor also refers to properties via a
 # vtkProperty instance, and includes an internal transformation matrix. We

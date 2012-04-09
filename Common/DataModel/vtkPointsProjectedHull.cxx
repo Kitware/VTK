@@ -84,7 +84,7 @@ void vtkPointsProjectedHull::ClearAllocations()
   if (this->Pts)
     {
     delete [] this->Pts;
-    this->Pts = NULL; 
+    this->Pts = NULL;
     }
 }
 #define VTK_GETCCWHULL(which, dim) \
@@ -162,9 +162,9 @@ VTK_RECTANGLEINTERSECTION(X, 0);
 VTK_RECTANGLEINTERSECTION(Y, 1);
 VTK_RECTANGLEINTERSECTION(Z, 2);
 
-// Does the axis-aligned rectangle R intersect the convex polygon 
+// Does the axis-aligned rectangle R intersect the convex polygon
 // given by the counter-clockwise enumeration of it's vertices.
-//  
+//
 // Graphics Gems IV, Rectangle-Polygon intersection: Rectangle R
 //   intersects polygon P if and only if (1) the bounding box
 //   of P intersects R and (2) R does not lie entirely outside
@@ -173,7 +173,7 @@ VTK_RECTANGLEINTERSECTION(Z, 2);
 //   ccw orientation of the points of P, R lies completely
 //   in the half plane on your right.) (Ned Greene)
 
-int vtkPointsProjectedHull::RectangleIntersection(double hmin, double hmax, 
+int vtkPointsProjectedHull::RectangleIntersection(double hmin, double hmax,
                                  double vmin, double vmax, int dim)
 {
   if (RectangleBoundingBoxIntersection(hmin,hmax,vmin,vmax,dim) == 0)
@@ -204,7 +204,7 @@ int vtkPointsProjectedHull::RectangleIntersection(double hmin, double hmax,
 //
 // Algorithm comes from Graphics Gems IV
 //
-extern "C" 
+extern "C"
 {
   int vtkPointsProjectedHullIncrVertAxis(const void *p1, const void *p2);
   int vtkPointsProjectedHullCCW(const void *p1, const void *p2);
@@ -286,7 +286,7 @@ int i,j;
   for (j=1, i=1; j < this->Npts; j++)
     {
     if ( !dups && (hullPts[j*2+1] != hullPts[1])) break;
-  
+
     if ( (hullPts[j*2+1] != hullPts[1]) || (hullPts[j*2] != hullPts[0]))
       {
       if (j > i)
@@ -302,16 +302,16 @@ int i,j;
       }
     }
   int nHullPts = this->Npts - dups;
-  
+
   // I'm not sure what I'm doing here but the current code is clearly screwed
   // up and doesn't handle some degenerate cases
   if (nHullPts == 0)
     {
     return 0;
     }
-  
+
   // Sort in counter clockwise order the other points by the angle
-  //   they make with the line through firstPt parallel to the 
+  //   they make with the line through firstPt parallel to the
   //   horizontal axis.
   //   (For a tie: choose the point furthest from firstPt.)
   //   P2 makes a greater angle than P1 if it is left of the line
@@ -334,7 +334,7 @@ int i,j;
 
     hullPts[newpos*2]    = hullPts[i*2];
     hullPts[newpos*2+ 1] = hullPts[i*2+ 1];
-    
+
     top = newpos;
     }
   nHullPts = top + 1;
@@ -357,11 +357,11 @@ int i,j;
       x1 = hullPts[2*i];
       }
 
-    if (hullPts[2*i+1] < y0) 
+    if (hullPts[2*i+1] < y0)
       {
       y0 = hullPts[2*i+1];
       }
-    else if (hullPts[2*i+1] > y1) 
+    else if (hullPts[2*i+1] > y1)
       {
       y1 = hullPts[2*i+1];
       }
@@ -389,9 +389,9 @@ int i,j;
   return 0;
 }
 double vtkPointsProjectedHull::Distance(double *p1, double *p2)
-{       
+{
   return (p1[0] - p2[0])*(p1[0] - p2[0]) + (p1[1] - p2[1])*(p1[1] - p2[1]);
-}   
+}
 int vtkPointsProjectedHull::RemoveExtras(double *pts, int n)
 {
   int i, prev, skipMe, coord;
@@ -410,7 +410,7 @@ int vtkPointsProjectedHull::RemoveExtras(double *pts, int n)
       skipMe = 1;
       }
 
-    // case: point is at same angle as previous point - 
+    // case: point is at same angle as previous point -
     //   discard the point that is closest to first point
 
     else if (prev >= 1)
@@ -427,7 +427,7 @@ int vtkPointsProjectedHull::RemoveExtras(double *pts, int n)
           for (coord=0; coord<2; coord++)
             {
             pts[prev*2+ coord] = pts[i*2+ coord];
-            } 
+            }
           }
         skipMe = 1;
         }
@@ -460,9 +460,9 @@ double where;
   // is part of convex hull so far.  But the previous vertex
   // could now be inside the convex hull if the new vertex is to
   // the right of the line formed by the previous two vertices.
-  
+
   while (p2 > base)
-    {     
+    {
     where = VTK_ISLEFT(p1, p2, pt);
 
     // If vertex is to left of line, don't remove previous points
@@ -506,9 +506,9 @@ void vtkPointsProjectedHull::GetPoints()
   this->PtsTime.Modified();
 }
 int vtkPointsProjectedHull::
-RectangleBoundingBoxIntersection(double hmin, double hmax, 
+RectangleBoundingBoxIntersection(double hmin, double hmax,
                                 double vmin, double vmax, int dim)
-{       
+{
   float *r2Bounds = this->HullBBox[dim];
 
   if ((hmin > r2Bounds[xmax]) ||
@@ -516,16 +516,16 @@ RectangleBoundingBoxIntersection(double hmin, double hmax,
       (vmin > r2Bounds[ymax]) ||
       (vmax < r2Bounds[ymin]))
     {
-    return 0;     
+    return 0;
     }
-    
+
   return 1;
 }
 
 #define sameDirection(a, b) ((((a)==0) && ((b)<0)) || (((a)>0) && ((b)>0)))
 
 int vtkPointsProjectedHull::
-OutsideHorizontalLine(double vmin, double vmax, 
+OutsideHorizontalLine(double vmin, double vmax,
                       double *p0, double *, double *insidePt)
 {
   if (insidePt[1] > p0[1])
@@ -541,7 +541,7 @@ OutsideHorizontalLine(double vmin, double vmax,
     }
   else
     {
-    if (vmin >= p0[1]) 
+    if (vmin >= p0[1])
       {
       return 1;
       }
@@ -568,11 +568,11 @@ OutsideVerticalLine(double hmin, double hmax,
     }
   else
     {
-    if (hmin >= p0[0]) 
+    if (hmin >= p0[0])
       {
       return 1;
       }
-    else              
+    else
       {
       return 0;
       }
@@ -581,22 +581,22 @@ OutsideVerticalLine(double hmin, double hmax,
 int vtkPointsProjectedHull::
 OutsideLine(double hmin, double hmax, double vmin, double vmax,
             double *p0, double *p1, double *insidePt)
-{   
+{
   int i;
 
-  if ((p1[1] - p0[1]) == 0) 
+  if ((p1[1] - p0[1]) == 0)
     {
     return OutsideHorizontalLine(vmin, vmax, p0, p1, insidePt);
     }
-    
-  if ((p1[0] - p0[0]) == 0) 
+
+  if ((p1[0] - p0[0]) == 0)
     {
     return OutsideVerticalLine(hmin, hmax, p0, p1, insidePt);
     }
 
   // Are any of the points of the rectangle in the same half-plane as the
   //    inside point?
-    
+
   double ip = VTK_ISLEFT(p0, p1, insidePt);
   double rp;
 
@@ -606,15 +606,15 @@ OutsideLine(double hmin, double hmax, double vmin, double vmax,
   pts[1][0] = hmin; pts[1][1] = vmax;
   pts[2][0] = hmax; pts[2][1] = vmax;
   pts[3][0] = hmax; pts[3][1] = vmin;
-        
+
   for (i=0; i < 4; i++)
     {
     rp = VTK_ISLEFT(p0, p1, pts[i]);
-        
+
     if (  ((rp < 0) && (ip < 0)) || ((rp > 0) && (ip > 0))    )
       {
       return 0;
-      } 
+      }
     }
 
   return 1;
@@ -661,7 +661,7 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
 
   for (i=0; i < npts-1; i++)
     {
-    if (OutsideLine(hmin,hmax,vmin,vmax, 
+    if (OutsideLine(hmin,hmax,vmin,vmax,
                   this->CCWHull[dir] + 2*i,
                   this->CCWHull[dir] + 2*i + 2,
                   insidePt))
@@ -687,7 +687,7 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
   // In this case, the triangle fails the test above but is still outside.
   // Someone concerned about this should fix this test.
 
-  return 0; 
+  return 0;
 }
 int vtkPointsProjectedHull::RectangleOutside1DPolygon(double hmin, double hmax,
                                   double vmin, double vmax, int dir)
@@ -727,7 +727,7 @@ int vtkPointsProjectedHull::RectangleOutside1DPolygon(double hmin, double hmax,
   // all four vertices are either on the line or on the same side
   // of the line
 
-  return 1; 
+  return 1;
 }
 
 // The sort functions
@@ -745,11 +745,11 @@ extern "C"
       {
       return -1;
       }
-    else if (a[1] == b[1]) 
+    else if (a[1] == b[1])
       {
       return 0;
       }
-    else                   
+    else
       {
       return 1;
       }
@@ -763,19 +763,19 @@ extern "C"
     a = (double *)p1;
     b = (double *)p2;
 
-    // sort in counter clockwise order from first point 
+    // sort in counter clockwise order from first point
 
     val = VTK_ISLEFT(firstPt, a, b);
 
-    if (val < 0)       
+    if (val < 0)
       {
       return 1;   // b is right of line firstPt->a
       }
-    else if (val == 0) 
+    else if (val == 0)
       {
       return 0;   // b is on line firstPt->a
       }
-    else               
+    else
       {
       return -1;  // b is left of line firstPt->a
       }

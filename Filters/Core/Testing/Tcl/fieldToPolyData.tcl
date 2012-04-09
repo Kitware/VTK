@@ -27,16 +27,16 @@ vtkDataObjectReader dor
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToPolyData
-    do2ds SetPointComponent 0 "Points" 0 
-    do2ds SetPointComponent 1 "Points" 1 
-    do2ds SetPointComponent 2 "Points" 2 
+    do2ds SetPointComponent 0 "Points" 0
+    do2ds SetPointComponent 1 "Points" 1
+    do2ds SetPointComponent 2 "Points" 2
     do2ds SetPolysComponent "Polys" 0
 
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInputConnection [do2ds GetOutputPort]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetScalarComponent 0 "my_scalars" 0 
+    fd2ad SetScalarComponent 0 "my_scalars" 0
 
 vtkPolyDataMapper mapper
     mapper SetInputConnection [fd2ad GetOutputPort]
@@ -66,7 +66,7 @@ $cam1 Azimuth 90
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
-if {[info commands "rtExMath"] != ""} { 
+if {[info commands "rtExMath"] != ""} {
     file delete -force "PolyField.vtk"
 }
 }

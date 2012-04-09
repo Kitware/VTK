@@ -170,7 +170,7 @@ protected:
   class vtkInternal;
   vtkInternal *Internal;
 
-  // Friend so vtkInternal can access MidpointIdMap 
+  // Friend so vtkInternal can access MidpointIdMap
   // (so Sun CC compiler doesn't complain).
   friend class vtkInternal;
 

@@ -195,7 +195,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     cout << "Required OpenGL extensions / GPU not supported." << endl;
     return 0;
     }
-    
+
   filter->SetInputConnection(extractVOI->GetOutputPort());
 
   if (noise_filename != "")
@@ -208,10 +208,10 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
   filter->SetSteps(num_steps);
   filter->SetStepSize(0.01/magnification);
   filter->SetMagnification(magnification);
-  
+
   for (int kk=0; kk < num_partitions; kk++)
     {
-    vtkStreamingDemandDrivenPipeline * sddp = 
+    vtkStreamingDemandDrivenPipeline * sddp =
       vtkStreamingDemandDrivenPipeline::SafeDownCast(filter->GetExecutive());
     sddp->SetUpdateExtent(0, kk, num_partitions, 0);
 
@@ -226,7 +226,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
 
     CREATE_NEW(clone, vtkImageData);
     clone->ShallowCopy(filter->GetOutputDataObject(1));
-    
+
     double range[2];
     clone->GetPointData()->GetScalars()->GetRange(range);
     CREATE_NEW(caster, vtkImageShiftScale);
@@ -235,7 +235,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     caster->SetShift(-range[0]);
     caster->SetScale(255.0/(range[1]-range[0]));
     caster->Update();
-    
+
 
     //vtkPNGWriter* writer = vtkPNGWriter::New();
     //writer->SetFileName("/tmp/lic.png");
@@ -255,7 +255,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     CREATE_NEW(mapper, vtkPolyDataMapper);
     mapper->SetInputConnection(surfaceFilter->GetOutputPort());
     mapper->SetScalarVisibility(0);
-    
+
     CREATE_NEW(actor, vtkActor);
     actor->SetMapper(mapper);
     actor->SetTexture(texture);
@@ -273,7 +273,7 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
   renderer->SetBackground(0.2,0.1,0.2);
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom( ZoomFactor );
-  
+
   if ( RenderingMode == STRUCTURED_GRID_LIC2D_SLICE_TEST )
     {
     switch (dataDesc)
@@ -288,14 +288,14 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
     }
 
  renWin->Render();
- int reply = (!tester->IsValidImageSpecified() || 
+ int reply = (!tester->IsValidImageSpecified() ||
    (tester->RegressionTest(10) == vtkTesting::PASSED))? /*success*/ 0 : /*failure*/ 1;
-   
+
  if (tester->IsInteractiveModeSpecified())
    {
    iren->Start();
    }
- 
+
   if ( RenderingMode != STRUCTURED_GRID_LIC2D_SLICE_TEST )
     {
     iren->Start();
@@ -304,4 +304,4 @@ static int StructuredGridLIC2DSlice(int argc, char* argv[])
  return reply;
 }
 
-#endif 
+#endif

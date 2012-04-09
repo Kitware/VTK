@@ -49,7 +49,7 @@ vtkFastSplatter::vtkFastSplatter()
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
-  
+
   this->ModelBounds[0] = this->ModelBounds[2] = this->ModelBounds[4] = 0;
   this->ModelBounds[1] = this->ModelBounds[3] = this->ModelBounds[5] = -1;
 
@@ -139,7 +139,7 @@ int vtkFastSplatter::RequestInformation(
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
 
-  int i;  
+  int i;
   for (i=0; i<3; i++)
     {
     if (this->OutputDimensions[i] > 1)
@@ -157,10 +157,10 @@ int vtkFastSplatter::RequestInformation(
       }
     }
   outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               0, this->OutputDimensions[0] - 1, 
-               0, this->OutputDimensions[1] - 1, 
+               0, this->OutputDimensions[0] - 1,
+               0, this->OutputDimensions[1] - 1,
                0, this->OutputDimensions[2] - 1);
   vtkInformation *splatInfo = inputVector[1]->GetInformationObject(0);
   vtkImageData::SetScalarType(
@@ -195,7 +195,7 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* splatInfo = inputVector[1]->GetInformationObject(0);
-  
+
   splatInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                  splatInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                  6);
@@ -240,7 +240,7 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     }
   else if(data->GetExtentType() == VTK_3D_EXTENT)
     {
-    int* inWholeExtent = 
+    int* inWholeExtent =
       inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     vtkExtentTranslator* translator =
@@ -260,7 +260,7 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
     else
       {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                  inWholeExtent, 
+                  inWholeExtent,
                   6);
       }
     }
@@ -440,7 +440,7 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
     {
     bounds = points->GetBounds();
     }
-    
+
   // Compute origin and spacing from bounds
   for (int i=0; i<3; i++)
     {
@@ -466,8 +466,8 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   output->SetOrigin(this->Origin);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
   output->SetSpacing(this->Spacing);
-  output->SetExtent(0, this->OutputDimensions[0] - 1, 
-                    0, this->OutputDimensions[1] - 1, 
+  output->SetExtent(0, this->OutputDimensions[0] - 1,
+                    0, this->OutputDimensions[1] - 1,
                     0, this->OutputDimensions[2] - 1);
   output->AllocateScalars(splatImage->GetScalarType(),
                           splatImage->GetNumberOfScalarComponents());
@@ -476,8 +476,8 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
   this->Buckets->SetDimensions(this->OutputDimensions);
   this->Buckets->SetOrigin(this->Origin);
   this->Buckets->SetSpacing(this->Spacing);
-  this->Buckets->SetExtent(0, this->OutputDimensions[0] - 1, 
-                           0, this->OutputDimensions[1] - 1, 
+  this->Buckets->SetExtent(0, this->OutputDimensions[0] - 1,
+                           0, this->OutputDimensions[1] - 1,
                            0, this->OutputDimensions[2] - 1);
   this->Buckets->AllocateScalars(VTK_UNSIGNED_INT, 1);
 

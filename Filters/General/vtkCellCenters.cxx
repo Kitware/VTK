@@ -78,7 +78,7 @@ int vtkCellCenters::RequestData(
   int hasEmptyCells = 0;
   for (cellId=0; cellId < numCells && !abort; cellId++)
     {
-    if ( ! (cellId % progressInterval) ) 
+    if ( ! (cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Processing #" << cellId);
       this->UpdateProgress (0.5*cellId/numCells);
@@ -107,7 +107,7 @@ int vtkCellCenters::RequestData(
 
     for (cellId=0; cellId < numCells && !abort; cellId++)
       {
-      if ( ! (cellId % progressInterval) ) 
+      if ( ! (cellId % progressInterval) )
         {
         vtkDebugMacro(<<"Processing #" << cellId);
         this->UpdateProgress (0.5+0.5*cellId/numCells);

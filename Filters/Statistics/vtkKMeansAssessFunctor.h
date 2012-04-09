@@ -6,7 +6,7 @@ class vtkKMeansAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor
   vtkDoubleArray* Distances;
   vtkIdTypeArray* ClusterMemberIDs;
   int NumRuns;
-  
+
 public:
   static vtkKMeansAssessFunctor* New();
   vtkKMeansAssessFunctor() { }

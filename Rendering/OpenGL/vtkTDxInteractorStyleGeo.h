@@ -43,13 +43,13 @@ public:
   // \pre: motionInfo_exist: motionInfo!=0
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
   //ETX
-  
+
 protected:
   vtkTDxInteractorStyleGeo();
   virtual ~vtkTDxInteractorStyleGeo();
-  
+
   vtkTransform *Transform; // Used for internal intermediate calculation.
-  
+
 private:
   vtkTDxInteractorStyleGeo(const vtkTDxInteractorStyleGeo&);  // Not implemented.
   void operator=(const vtkTDxInteractorStyleGeo&);  // Not implemented.

@@ -760,7 +760,7 @@ void vtkSplineWidget::OnRightButtonDown()
   vtkAssemblyPath *path;
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
-  
+
   if ( path != NULL )
     {
     switch ( this->State )
@@ -1157,7 +1157,7 @@ void vtkSplineWidget::PlaceWidget(double bds[6])
 
 void vtkSplineWidget::SetProjectionPosition(double position)
 {
-  this->ProjectionPosition = position; 
+  this->ProjectionPosition = position;
   if ( this->ProjectToPlane )
     {
     this->ProjectPointsToPlane();
@@ -1185,7 +1185,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     vtkGenericWarningMacro(<<"vtkSplineWidget: minimum of 2 points required.");
     return;
     }
-      
+
   double radius = this->HandleGeometry[0]->GetRadius();
   this->Initialize();
 

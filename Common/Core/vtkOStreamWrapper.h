@@ -51,7 +51,7 @@ public:
   // Description:
   // Type for a fake endl.
   struct EndlType {};
-  
+
   // Description:
   // Forward this output operator to the real ostream.
   vtkOStreamWrapper& operator << (const EndlType&);
@@ -107,11 +107,11 @@ public:
   vtkOStreamWrapper& operator << (float* (*)(void*));
   vtkOStreamWrapper& operator << (const char* (*)(void*));
   vtkOStreamWrapper& operator << (void (*)(void*, int*));
-  
+
   // Description:
   // Forward the write method to the real stream.
   vtkOStreamWrapper& write(const char*, unsigned long);
-  
+
   // Description:
   // Get a reference to the real ostream.
   ostream& GetOStream();
@@ -125,11 +125,11 @@ public:
   // Description:
   // Forward conversion to bool to the real ostream.
   operator int();
-  
+
   // Description:
   // Forward the flush method to the real ostream.
   void flush();
-  
+
   // Description:
   // Implementation detail to allow macros to provide an endl that may
   // or may not be used.

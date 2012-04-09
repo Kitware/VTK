@@ -17,7 +17,7 @@ coneActor SetMapper coneMapper
 
 
 # Actor for opacity thru LUT.
-vtkElevationFilter elevation 
+vtkElevationFilter elevation
 elevation SetInputConnection [cone GetOutputPort]
 
 vtkPolyDataMapper coneMapper2
@@ -54,13 +54,13 @@ vtkPolyDataMapper coneMapper3
 coneMapper3 SetInputConnection [sphere GetOutputPort]
 
 vtkActor coneActorTexture
-coneActorTexture SetTexture texture 
+coneActorTexture SetTexture texture
 coneActorTexture SetMapper coneMapper3
 coneActorTexture SetPosition 0 -1.0 0
 [coneActorTexture GetProperty] SetColor 0.5 0.5 1
 [coneActorTexture GetProperty] SetOpacity 0.99
 
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 AddActor coneActorLUT
 ren1 AddActor coneActorTexture

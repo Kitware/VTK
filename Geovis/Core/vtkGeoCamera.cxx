@@ -72,14 +72,14 @@ void vtkGeoCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Latitude: " << this->Latitude << endl;
   os << indent << "Longitude: " << this->Longitude << endl;
   os << indent << "LockHeading: " << (this->LockHeading ? "on" : "off");
-  os << indent << "Origin: {" << this->Origin[0] << ", " << this->Origin[1] 
+  os << indent << "Origin: {" << this->Origin[0] << ", " << this->Origin[1]
     << ", " << this->Origin[2] << "}" << endl;
   os << indent << "OriginLatitude: " << this->OriginLatitude << endl;
   os << indent << "OriginLongitude: " << this->OriginLongitude << endl;
-  os << indent << "Position: {" << this->Position[0] << ", " << this->Position[1] 
+  os << indent << "Position: {" << this->Position[0] << ", " << this->Position[1]
     << ", " << this->Position[2] << "}" << endl;
   os << indent << "VTKCamera: " << endl;
-  
+
   this->VTKCamera->PrintSelf(os, indent.GetNextIndent());
 }
 //-----------------------------------------------------------------------------
@@ -216,12 +216,12 @@ void vtkGeoCamera::UpdateAngleRanges()
     }
   if (this->Latitude > 90.0)
     {
-    this->Latitude = 180.0 - this->Latitude;  
-    }    
+    this->Latitude = 180.0 - this->Latitude;
+    }
   if (this->Latitude < -90.0)
     {
-    this->Latitude = -180.0 - this->Latitude;  
-    }    
+    this->Latitude = -180.0 - this->Latitude;
+    }
 }
 
 
@@ -269,7 +269,7 @@ void vtkGeoCamera::UpdateVTKCamera()
     tmp[0] = pt[0] - tmp[0];
     tmp[1] = pt[1] - tmp[1];
     tmp[2] = pt[2] - tmp[2];
-    this->VTKCamera->SetViewUp(tmp);    
+    this->VTKCamera->SetViewUp(tmp);
     }
   else
     {
@@ -309,7 +309,7 @@ void vtkGeoCamera::UpdateVTKCamera()
     upProj[1] = up[1] - upDot*dir[1];
     upProj[2] = up[2] - upDot*dir[2];
     vtkMath::Normalize(upProj);
-    
+
     // Determine the angle between the vectors.
     // Do some sin/cos trickery to get it to the full range
     // [-180, 180].
@@ -339,12 +339,12 @@ void vtkGeoCamera::InitializeNodeAnalysis(int rendererSize[2])
   this->ForwardNormal[0] = - this->ForwardNormal[0];
   this->ForwardNormal[1] = - this->ForwardNormal[1];
   this->ForwardNormal[2] = - this->ForwardNormal[2];
-  
+
   this->VTKCamera->GetViewUp(this->UpNormal);
   vtkMath::Normalize(this->UpNormal);
-  
+
   vtkMath::Cross(this->ForwardNormal, this->UpNormal, this->RightNormal);
-  
+
   // It may not be necessary to keep the above as instance variables.
   for (int ii = 0; ii < 3; ++ii)
     {
@@ -361,7 +361,7 @@ void vtkGeoCamera::InitializeNodeAnalysis(int rendererSize[2])
   vtkMath::Normalize(this->RightPlaneNormal);
   vtkMath::Normalize(this->DownPlaneNormal);
   vtkMath::Normalize(this->UpPlaneNormal);
-  
+
 }
 
 
@@ -378,9 +378,9 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
   double sphereCenter[3];
   double sphereRadius;
   double camPosition[3];
-  
+
   this->GetPosition(camPosition);
-  
+
   // Lets take care of nodes on the opposite side of the earth.
   // I think there should be a better way of figuring this out.
   if (vtkMath::Dot(this->ForwardNormal,node->GetCornerNormal00())>0.0 &&
@@ -390,15 +390,15 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
     { // Node is hidden by the earth.
     return 0.0;
     }
-  
+
   sphereRadius = node->GetBoundingSphereRadius();
   node->GetBoundingSphereCenter(sphereCenter);
-  
+
   // Put the camera's position at the origin.
   sphereCenter[0] = sphereCenter[0] - camPosition[0];
   sphereCenter[1] = sphereCenter[1] - camPosition[1];
   sphereCenter[2] = sphereCenter[2] - camPosition[2];
-  
+
   double left  = vtkMath::Dot(this->LeftPlaneNormal,sphereCenter);
   double right = vtkMath::Dot(this->RightPlaneNormal,sphereCenter);
   double down  = vtkMath::Dot(this->DownPlaneNormal,sphereCenter);
@@ -410,20 +410,20 @@ double vtkGeoCamera::GetNodeCoverage(vtkGeoTerrainNode* node)
     {
     return 0.0;
     }
-    
+
   if (forward < sphereRadius)
     {  // Camera is probably in the sphere.
     return 1.0;
     }
 
   left = -left;
-  if (left > sphereRadius) { left = sphereRadius;} 
+  if (left > sphereRadius) { left = sphereRadius;}
   up = -up;
-  if (up > sphereRadius) { up = sphereRadius;} 
+  if (up > sphereRadius) { up = sphereRadius;}
   right = -right;
-  if (right > sphereRadius) { right = sphereRadius;} 
+  if (right > sphereRadius) { right = sphereRadius;}
   down = -down;
-  if (down > sphereRadius) { down = sphereRadius;} 
+  if (down > sphereRadius) { down = sphereRadius;}
 
 
   double coverage = (left+right)*(up+down) / (4.0 * forward*forward*this->Aspect[0]*this->Aspect[1]);

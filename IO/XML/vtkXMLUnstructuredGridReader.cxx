@@ -205,12 +205,12 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     ((this->NumberOfPointArrays+1)*this->GetNumberOfPointsInPiece(this->Piece)+
      this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
 
-  // Total amount of data in this piece comes from cell/face data arrays. 
+  // Total amount of data in this piece comes from cell/face data arrays.
   // Three of them are for standard vtkUnstructuredGrid cell specification:
-  // connectivities, offsets and types. Two optional arrays are for face 
-  // specification of polyhedron cells: faces and face offsets. 
+  // connectivities, offsets and types. Two optional arrays are for face
+  // specification of polyhedron cells: faces and face offsets.
   // Note: We don't know exactly the array size of cell connectivities and
-  // faces until we actually read the file. The following progress computation 
+  // faces until we actually read the file. The following progress computation
   // assumes that each array cost the same time to read.
   vtkIdType totalPieceSize =
     superclassPieceSize + 5*this->GetNumberOfCellsInPiece(this->Piece);
@@ -258,7 +258,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     vtkErrorMacro("Cannot find cell arrays in piece " << this->Piece);
     return 0;
     }
-    
+
 //  int needToRead = this->CellsNeedToReadTimeStep(eNested,
 //    this->CellsTimeStep, this->CellsOffset);
 //  if( needToRead )
@@ -305,7 +305,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
 
   // Read the corresponding cell types.
   vtkIdType numberOfCells = this->NumberOfCells[this->Piece];
-  if (numberOfCells > 0) 
+  if (numberOfCells > 0)
     {
     vtkXMLDataElement* eTypes = this->FindDataArrayWithName(eCells, "types");
     if(!eTypes)
@@ -362,16 +362,16 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     {
     return 1;
     }
-  
+
   // By default vtkUnstructuredGrid does not contain face information, which is
-  // only used by polyhedron cells. If so far no polyhedron cells have been 
-  // added, the pointers to the arrays will be NULL. In this case, we need to 
-  // initialize the arrays and assign values to the previous non-polyhedron cells. 
+  // only used by polyhedron cells. If so far no polyhedron cells have been
+  // added, the pointers to the arrays will be NULL. In this case, we need to
+  // initialize the arrays and assign values to the previous non-polyhedron cells.
   if (!output->GetFaces() || !output->GetFaceLocations())
     {
     output->InitializeFacesRepresentation(this->StartCell);
     }
-  
+
   // Read face arrays.
   if(!this->ReadFaceArray(this->NumberOfCells[this->Piece],
                           eCells,

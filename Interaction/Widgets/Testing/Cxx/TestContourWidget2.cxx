@@ -61,17 +61,17 @@ int TestContourWidget2( int argc, char *argv[] )
     {
     if (strcmp("-Shift", argv[i]) == 0)
       {
-      contourWidget->GetEventTranslator()->RemoveTranslation( 
+      contourWidget->GetEventTranslator()->RemoveTranslation(
                           vtkCommand::LeftButtonPressEvent );
-      contourWidget->GetEventTranslator()->SetTranslation( 
+      contourWidget->GetEventTranslator()->SetTranslation(
                         vtkCommand::LeftButtonPressEvent,
                         vtkWidgetEvent::Translate );
       }
     else if (strcmp("-Scale", argv[i]) == 0)
       {
-      contourWidget->GetEventTranslator()->RemoveTranslation( 
+      contourWidget->GetEventTranslator()->RemoveTranslation(
                           vtkCommand::LeftButtonPressEvent );
-      contourWidget->GetEventTranslator()->SetTranslation( 
+      contourWidget->GetEventTranslator()->SetTranslation(
                         vtkCommand::LeftButtonPressEvent,
                         vtkWidgetEvent::Scale );
       }
@@ -104,10 +104,10 @@ int TestContourWidget2( int argc, char *argv[] )
   contourWidget->Render();
   ren1->ResetCamera();
   renWin->Render();
-    
+
   iren->Initialize();
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 }
 

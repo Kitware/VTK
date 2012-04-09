@@ -130,7 +130,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
       cerr << "Create query failed" << endl;
       return 1;
     }
-  
+
   int i;
   for ( i = 0; i < 20; i++)
     {
@@ -146,7 +146,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
         }
     }
 
-  
+
   const char *placeholders = "INSERT INTO people (name, age, weight) VALUES (?, ?, ?)";
   query->SetQuery(placeholders);
   for ( i = 21; i < 40; i++ )
@@ -202,7 +202,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
       }
     cerr << endl;
     }
-  
+
   cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if (!query->Execute())
     {
@@ -301,15 +301,15 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     {
     vtkStdString tblNameSch( schema->GetTableNameFromHandle( tblHandle ) );
     vtkStdString tblNameDB( query->DataValue( 0 ).ToString() );
-    cerr << "     " 
+    cerr << "     "
          << tblNameDB
          << "\n";
 
     if ( tblNameDB != tblNameSch )
       {
-      cerr << "Fetched an incorrect name: " 
+      cerr << "Fetched an incorrect name: "
            << tblNameDB
-           << " != " 
+           << " != "
            << tblNameSch
            << endl;
       return 1;
@@ -320,14 +320,14 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 
   if ( tblHandle != schema->GetNumberOfTables() )
     {
-    cerr << "Found an incorrect number of tables: " 
-         << tblHandle 
-         << " != " 
+    cerr << "Found an incorrect number of tables: "
+         << tblHandle
+         << " != "
          << schema->GetNumberOfTables()
          << endl;
     return 1;
     }
-  
+
   cerr << "   "
        << tblHandle
        << " found.\n";

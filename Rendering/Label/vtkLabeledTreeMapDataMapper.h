@@ -84,7 +84,7 @@ public:
   vtkSetMacro(ChildMotion, int);
 
   // Description:
-  // Indicates at which level labeling should be dynamic 
+  // Indicates at which level labeling should be dynamic
   vtkGetMacro(DynamicLevel, int);
   vtkSetMacro(DynamicLevel, int);
 
@@ -108,17 +108,17 @@ protected:
   vtkLabeledTreeMapDataMapper();
   ~vtkLabeledTreeMapDataMapper();
   void LabelTree(vtkTree *tree, vtkFloatArray *boxInfo,
-                 vtkDataArray *numericData, vtkStringArray *stringData, 
+                 vtkDataArray *numericData, vtkStringArray *stringData,
                  int activeComp, int numComps);
-  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData, 
-                    vtkStringArray *stringData, int activeComp, int numComps, 
+  void GetVertexLabel(vtkIdType vertex, vtkDataArray *numericData,
+                    vtkStringArray *stringData, int activeComp, int numComps,
                     char *string);
   void UpdateFontSizes();
   int UpdateWindowInfo(vtkViewport *viewport);
   int GetStringSize(char *string, int level);
   // Returns 1 if the transformed box is off screen
   int ConvertToDC(float *origBoxInfo, float *newBoxInfo);
-  // Returns 1 if the label will not fit in box - 2 if the text could 
+  // Returns 1 if the label will not fit in box - 2 if the text could
   // not be placed due to other labels
   int AnalyseLabel(char * string, int level, float *blimitsDC,
                    float *textPosWC,

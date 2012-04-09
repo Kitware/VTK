@@ -33,14 +33,14 @@ vtkCxxSetObjectMacro(vtkKdNode, Up, vtkKdNode);
 
 // ----------------------------------------------------------------------------
 vtkKdNode::vtkKdNode()
-{  
+{
   this->Up = this->Left = this->Right = NULL;
   this->Dim = 3;
   this->ID = -1;
   this->MinID = -1;
   this->MaxID = -1;
   this->NumberOfPoints= 0;
-  
+
   this->Min[0]=0.0;
   this->Min[1]=0.0;
   this->Min[2]=0.0;
@@ -137,9 +137,9 @@ void vtkKdNode::SetDataBounds(float *v)
     double bounds[6];
 
     this->Up->GetDataBounds(bounds);
-   
+
     int dim = this->Up->GetDim();
-   
+
     for (i=0; i<3; i++)
       {
       if (i == dim)
@@ -149,7 +149,7 @@ void vtkKdNode::SetDataBounds(float *v)
 
       newbounds[i*2]  = bounds[i*2];
       newbounds[i*2+1] = bounds[i*2+1];
-      } 
+      }
 
     newbounds[dim*2] = newbounds[dim*2+1] = static_cast<double>(v[dim]);
 
@@ -159,7 +159,7 @@ void vtkKdNode::SetDataBounds(float *v)
         {
         newbounds[dim*2] = static_cast<double>(v[i]);
         }
-      else if (v[i] > newbounds[dim*2+1]) 
+      else if (v[i] > newbounds[dim*2+1])
         {
         newbounds[dim*2+1] = static_cast<double>(v[i]);
         }
@@ -177,29 +177,29 @@ void vtkKdNode::SetDataBounds(float *v)
       int y=x+1;
       int z=x+2;
 
-      if (v[x] < newbounds[0]) 
+      if (v[x] < newbounds[0])
         {
         newbounds[0] = static_cast<double>(v[x]);
         }
-      else if (v[x] > newbounds[1]) 
+      else if (v[x] > newbounds[1])
         {
         newbounds[1] = static_cast<double>(v[x]);
         }
 
-      if (v[y] < newbounds[2]) 
+      if (v[y] < newbounds[2])
         {
         newbounds[2] = static_cast<double>(v[y]);
         }
-      else if (v[y] > newbounds[3]) 
+      else if (v[y] > newbounds[3])
         {
         newbounds[3] = static_cast<double>(v[y]);
         }
 
-      if (v[z] < newbounds[4]) 
+      if (v[z] < newbounds[4])
         {
         newbounds[4] = static_cast<double>(v[z]);
         }
-      else if (v[z] > newbounds[5]) 
+      else if (v[z] > newbounds[5])
         {
         newbounds[5] = static_cast<double>(v[z]);
         }
@@ -239,13 +239,13 @@ double vtkKdNode::GetDivisionPosition()
 
 // ----------------------------------------------------------------------------
 // Distance (squared) from any point anywhere to the boundary of spatial region
-//   
-double vtkKdNode::GetDistance2ToBoundary(double x, double y, double z, 
+//
+double vtkKdNode::GetDistance2ToBoundary(double x, double y, double z,
                                          int useDataBounds=0)
 {
   return this->_GetDistance2ToBoundary(x, y, z, NULL, 0, useDataBounds);
 }
- 
+
 //----------------------------------------------------------------------------
 // Distance (squared) from any point anywhere to the boundary of spatial
 // region, and give me the point on the boundary closest to this point.
@@ -268,7 +268,7 @@ double vtkKdNode::GetDistance2ToInnerBoundary(double x, double y, double z)
   return this->_GetDistance2ToBoundary(x, y, z, NULL, 1, 0);
 }
 
-double vtkKdNode::_GetDistance2ToBoundary( 
+double vtkKdNode::_GetDistance2ToBoundary(
     double x, double y, double z,  // from this point
     double *p,              // set to point on boundary that is closest
     int innerBoundaryOnly, // ignore boundaries on "outside"
@@ -331,7 +331,7 @@ double vtkKdNode::_GetDistance2ToBoundary(
       {
       minDistance = x - xmin;
       mindim = 0;
-  
+
       if ((dist = xmax - x) < minDistance)
         {
         mindim = 1;
@@ -363,42 +363,42 @@ double vtkKdNode::_GetDistance2ToBoundary(
       int first = 1;
       minDistance = VTK_LARGE_FLOAT; // Suppresses warning message.
 
-      if ((xmin != outerBoundaryMin[0]) && 
+      if ((xmin != outerBoundaryMin[0]) &&
           (((dist = x - xmin) < minDistance) || first))
         {
         mindim = 0;
         minDistance = dist;
         first = 0;
         }
-      if ((xmax != outerBoundaryMax[0]) && 
+      if ((xmax != outerBoundaryMax[0]) &&
           (((dist = xmax - x) < minDistance) || first))
         {
         mindim = 1;
         minDistance = dist;
         first = 0;
         }
-      if ((ymin != outerBoundaryMin[1]) && 
+      if ((ymin != outerBoundaryMin[1]) &&
           (((dist = y - ymin) < minDistance) || first))
         {
         mindim = 2;
         minDistance = dist;
         first = 0;
         }
-      if ((ymax != outerBoundaryMax[1]) && 
+      if ((ymax != outerBoundaryMax[1]) &&
           (((dist = ymax - y) < minDistance) || first))
         {
         mindim = 3;
         minDistance = dist;
         first = 0;
         }
-      if ((zmin != outerBoundaryMin[2]) && 
+      if ((zmin != outerBoundaryMin[2]) &&
           (((dist = z - zmin) < minDistance) || first))
         {
         mindim = 4;
         minDistance = dist;
         first = 0;
         }
-      if ((zmax != outerBoundaryMax[2]) && 
+      if ((zmax != outerBoundaryMax[2]) &&
           (((dist = zmax - z) < minDistance) || first))
         {
         mindim = 5;
@@ -417,27 +417,27 @@ double vtkKdNode::_GetDistance2ToBoundary(
       p[0] = x; p[1] = y; p[2] = z;
 
 
-      if (mindim == 0)      
+      if (mindim == 0)
         {
         p[0] = xmin;
         }
-      else if (mindim == 1) 
+      else if (mindim == 1)
         {
         p[0] = xmax;
         }
-      else if (mindim == 2) 
+      else if (mindim == 2)
         {
         p[1] = ymin;
         }
-      else if (mindim == 3) 
+      else if (mindim == 3)
         {
         p[1] = ymax;
         }
-      else if (mindim == 4) 
+      else if (mindim == 4)
         {
         p[2] = zmin;
         }
-      else if (mindim == 5) 
+      else if (mindim == 5)
         {
         p[2] = zmax;
         }
@@ -512,7 +512,7 @@ double vtkKdNode::_GetDistance2ToBoundary(
 
 // ----------------------------------------------------------------------------
 void vtkKdNode::AddChildNodes(vtkKdNode *left, vtkKdNode *right)
-{     
+{
   this->DeleteChildNodes();
 
   if (left)
@@ -520,17 +520,17 @@ void vtkKdNode::AddChildNodes(vtkKdNode *left, vtkKdNode *right)
     this->SetLeft(left);
     left->SetUp(this);
     }
-      
+
   if (right)
     {
     this->SetRight(right);
     right->SetUp(this);
     }
-}    
+}
 
 // ----------------------------------------------------------------------------
 void vtkKdNode::DeleteChildNodes()
-{     
+{
   if (this->GetLeft())
     {
     this->GetLeft()->SetUp(NULL);
@@ -549,7 +549,7 @@ int vtkKdNode::IntersectsBox(double x0, double x1, double y0, double y1,
                          double z0, double z1, int useDataBounds=0)
 {
   double *min, *max;
-   
+
   if (useDataBounds)
     {
     min = this->MinVal;
@@ -584,11 +584,11 @@ int vtkKdNode::IntersectsSphere2(double x, double y, double z, double rSquared,
 
   if (center)
     {
-    return 1; 
+    return 1;
     }
 
   double dist2 = this->GetDistance2ToBoundary(x, y, z, useDataBounds);
-  
+
   if (dist2 < rSquared)
     {
     return 1;
@@ -704,9 +704,9 @@ int vtkKdNode::IntersectsRegion(vtkPlanesIntersection *pi, int useDataBounds)
 // ----------------------------------------------------------------------------
 int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
                               double *bounds)
-{   
+{
   vtkIdType i;
-  
+
   if ((useDataBounds==0) && (cellRegion >= 0))
     {
     if ( (cellRegion >= this->MinID) && (cellRegion <= this->MaxID))
@@ -769,9 +769,9 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
       intersects = 0;   // it's a point set and no points intersect
       }
     }
-  
+
   if (intersects != -1)
-    { 
+    {
     if (deleteCellBounds)
       {
       delete [] cellBounds;
@@ -821,7 +821,7 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
       {
       min = this->MinVal;
       max = this->MaxVal;
-      } 
+      }
     else
       {
       min = this->Min;
@@ -841,15 +841,15 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
 
       triangle->SetPoint(0, pts->GetPoint(0));
       triangle->SetPoint(1, pts->GetPoint(1));
-      
+
       int newpoint = 2;
-      
+
       for (i=2; i<npts; i++)
         {
         triangle->SetPoint(newpoint, pts->GetPoint(i));
-  
+
         newpoint = (newpoint == 2) ? 0 : newpoint+1;
-    
+
         intersects =
           vtkPlanesIntersection::PolygonIntersectsBBox(regionBounds, triangle);
 
@@ -859,27 +859,27 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
           }
         }
       triangle->Delete();
-      } 
+      }
     else
       {
       intersects =
         vtkPlanesIntersection::PolygonIntersectsBBox(regionBounds, pts);
       }
-    }   
+    }
   else if (dim == 3)     // 3D cells
     {
     vtkPlanesIntersection *pi = vtkPlanesIntersection::Convert3DCell(cell);
 
     intersects = this->IntersectsRegion(pi, useDataBounds);
-    
+
     pi->Delete();
     }
-  
+
   if (deleteCellBounds)
     {
     delete [] cellBounds;
     }
-  
+
   return intersects;
 }
 
@@ -899,8 +899,8 @@ void vtkKdNode::PrintNode(int depth)
   cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
   cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
   cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") ";
-  cout << this->NumberOfPoints << " cells, "; 
-      
+  cout << this->NumberOfPoints << " cells, ";
+
   if (this->ID > -1)
     {
     cout << this->ID << " (leaf node)" << endl;
@@ -916,7 +916,7 @@ void vtkKdNode::PrintVerboseNode(int depth)
 {
   int i;
 
-  if ( (depth < 0) || (depth > 19)) 
+  if ( (depth < 0) || (depth > 19))
     {
     depth = 19;
     }
@@ -951,11 +951,11 @@ void vtkKdNode::PrintVerboseNode(int depth)
   if (this->ID == -1)
     {
     cout << "id range " << this->MinID << " - " << this->MaxID << ", ";
-    } 
+    }
   else
     {
     cout << "id " << this->ID << ", ";
-    } 
+    }
 
   cout << "cut next along " << this->Dim << ", left ";
   cout << static_cast<void *>(this->Left) << ", right ";
@@ -965,7 +965,7 @@ void vtkKdNode::PrintVerboseNode(int depth)
 
 // ----------------------------------------------------------------------------
 void vtkKdNode::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;

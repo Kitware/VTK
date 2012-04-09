@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the CellBoundary method for each cell type
 
@@ -50,7 +50,7 @@ int TestOCB(ostream& strm)
   double vertexCoords[1][1];
 
   vertex->GetPointIds()->SetId(0,0);
-  
+
   vertexCoords[0][0] = 0.0;
 
   for (j = 0; j < 1; j++)
@@ -63,7 +63,7 @@ int TestOCB(ostream& strm)
       }
     strm << endl;
     }
-  
+
   //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
   double polyVertexCoords[1][1];
@@ -71,7 +71,7 @@ int TestOCB(ostream& strm)
   polyVertex->GetPointIds()->SetNumberOfIds(2);
   polyVertex->GetPointIds()->SetId(0,0);
   polyVertex->GetPointIds()->SetId(1,1);
-  
+
   polyVertexCoords[0][0] = 0.0;
 
   for (k = 0; k < polyVertex->GetPointIds()->GetNumberOfIds(); k++)
@@ -87,14 +87,14 @@ int TestOCB(ostream& strm)
       strm << endl;
       }
     }
-  
+
   //Line
   vtkLine *line = vtkLine::New();
   double lineCoords[2][1];
 
   line->GetPointIds()->SetId(0,0);
   line->GetPointIds()->SetId(1,1);
-  
+
   lineCoords[0][0] = .25;
   lineCoords[1][0] = .75;
 
@@ -108,7 +108,7 @@ int TestOCB(ostream& strm)
       }
     strm << endl;
     }
-  
+
   //Poly Line
   vtkPolyLine *polyLine = vtkPolyLine::New();
   double polyLineCoords[3][1];
@@ -117,7 +117,7 @@ int TestOCB(ostream& strm)
   polyLine->GetPointIds()->SetId(0,0);
   polyLine->GetPointIds()->SetId(1,1);
   polyLine->GetPointIds()->SetId(2,2);
-  
+
   polyLineCoords[0][0] = .25;
   polyLineCoords[1][0] = .75;
 
@@ -134,7 +134,7 @@ int TestOCB(ostream& strm)
       strm << endl;
       }
     }
-  
+
   //Triangle
   vtkTriangle *triangle = vtkTriangle::New();
   double triangleCoords[3][2];
@@ -142,7 +142,7 @@ int TestOCB(ostream& strm)
   triangle->GetPointIds()->SetId(0,0);
   triangle->GetPointIds()->SetId(1,1);
   triangle->GetPointIds()->SetId(2,2);
-  
+
   triangleCoords[0][0] = .5; triangleCoords[0][1] = 0.1;
   triangleCoords[1][0] = .9; triangleCoords[1][1] = 0.9;
   triangleCoords[2][0] = .1; triangleCoords[2][1] = 0.5;
@@ -157,7 +157,7 @@ int TestOCB(ostream& strm)
       }
     strm << endl;
     }
-  
+
   //Triangle Strip
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
   double triangleStripCoords[3][2];
@@ -167,7 +167,7 @@ int TestOCB(ostream& strm)
   triangleStrip->GetPointIds()->SetId(1,1);
   triangleStrip->GetPointIds()->SetId(2,2);
   triangleStrip->GetPointIds()->SetId(3,3);
-  
+
   triangleStripCoords[0][0] = .5; triangleStripCoords[0][1] = 0.1;
   triangleStripCoords[1][0] = .9; triangleStripCoords[1][1] = 0.9;
   triangleStripCoords[2][0] = .1; triangleStripCoords[2][1] = 0.5;
@@ -185,7 +185,7 @@ int TestOCB(ostream& strm)
       strm << endl;
       }
     }
-  
+
   //Quad
   vtkQuad *quad = vtkQuad::New();
   double quadCoords[4][2];
@@ -194,7 +194,7 @@ int TestOCB(ostream& strm)
   quad->GetPointIds()->SetId(1,1);
   quad->GetPointIds()->SetId(2,2);
   quad->GetPointIds()->SetId(3,3);
-  
+
   quadCoords[0][0] = .5; quadCoords[0][1] = 0.1;
   quadCoords[1][0] = .9; quadCoords[1][1] = 0.5;
   quadCoords[2][0] = .5; quadCoords[2][1] = 0.9;
@@ -219,7 +219,7 @@ int TestOCB(ostream& strm)
   pixel->GetPointIds()->SetId(1,1);
   pixel->GetPointIds()->SetId(2,2);
   pixel->GetPointIds()->SetId(3,3);
-  
+
   pixelCoords[0][0] = .5; pixelCoords[0][1] = 0.1;
   pixelCoords[1][0] = .9; pixelCoords[1][1] = 0.5;
   pixelCoords[2][0] = .5; pixelCoords[2][1] = 0.9;
@@ -235,7 +235,7 @@ int TestOCB(ostream& strm)
       }
     strm << endl;
     }
-  
+
   //Polygon
   vtkPolygon *polygon = vtkPolygon::New();
   double polygonCoords[4][2];
@@ -251,7 +251,7 @@ int TestOCB(ostream& strm)
   polygon->GetPoints()->SetPoint(1, 1.0, 0.0, 0.0);
   polygon->GetPoints()->SetPoint(2, 1.0, 1.0, 0.0);
   polygon->GetPoints()->SetPoint(3, 0.0, 1.0, 0.0);
-  
+
   polygonCoords[0][0] = .5; polygonCoords[0][1] = 0.1;
   polygonCoords[1][0] = .9; polygonCoords[1][1] = 0.5;
   polygonCoords[2][0] = .5; polygonCoords[2][1] = 0.9;
@@ -267,7 +267,7 @@ int TestOCB(ostream& strm)
       }
     strm << endl;
     }
-  
+
   //Tetra
   vtkTetra *tetra = vtkTetra::New();
   double tetraCoords[4][3];
@@ -293,7 +293,7 @@ int TestOCB(ostream& strm)
       }
     strm << endl;
     }
-  
+
   //Voxel
   vtkVoxel *voxel = vtkVoxel::New();
   double voxelCoords[6][3];
@@ -495,6 +495,6 @@ int TestOCB(ostream& strm)
 
 int otherCellBoundaries(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return TestOCB(vtkmsg_with_warning_C4701);
-} 
+}

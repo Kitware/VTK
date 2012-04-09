@@ -126,7 +126,7 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
 
   VTK_CREATE(vtkTree, tree);
   tree->ShallowCopy( builder );
-  
+
   VTK_CREATE(vtkIdTypeArray, idArr);
   VTK_CREATE(vtkDoubleArray, radArr);
   idArr->SetName( "id" );
@@ -138,14 +138,14 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
     }
   tree->GetVertexData()->AddArray( idArr );
   tree->GetVertexData()->AddArray( radArr );
-  
+
   VTK_CREATE(vtkCosmicTreeLayoutStrategy, strategy);
   strategy->SizeLeafNodesOnlyOn();
   strategy->SetNodeSizeArrayName( "inputRadius" );
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputData( tree );
   layout->SetLayoutStrategy( strategy );
-  
+
   VTK_CREATE(vtkGraphToPolyData, poly);
   poly->SetInputConnection( layout->GetOutputPort() );
   VTK_CREATE(vtkLabeledDataMapper, labelMapper);
@@ -176,7 +176,7 @@ int TestCosmicTreeLayoutStrategy(int argc, char* argv[])
     {
     iren->Initialize();
     iren->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

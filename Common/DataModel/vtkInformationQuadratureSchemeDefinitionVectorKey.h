@@ -64,7 +64,7 @@ public:
   void Set(vtkInformation* info, vtkQuadratureSchemeDefinition *value, int i);
   // Description:
   // Copy n values from the range in source defined by [from  from+n-1]
-  // into the range in this vector defined by [to to+n-1]. Resizes 
+  // into the range in this vector defined by [to to+n-1]. Resizes
   // the vector if needed.
   void SetRange(vtkInformation* info,
                 vtkQuadratureSchemeDefinition **source,

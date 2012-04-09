@@ -177,7 +177,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
   stencilIds->Reset();
   stencilIds->InsertNextId (p2);
   shift[0] = 0;
-  
+
   // Walk around the loop and get cells
   nextCell = cellIds->GetId(1);
   tp2 = p2;
@@ -325,7 +325,7 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
   weights[1] = .5625;
   weights[2] = .5625;
   weights[3] = -.0625;
-  
+
   cellIds->Delete();
 }
 

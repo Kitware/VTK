@@ -40,8 +40,8 @@ public:
   // Set/Get the pad value.
   vtkSetMacro(Constant, double);
   vtkGetMacro(Constant, double);
-  
-  
+
+
 protected:
   vtkImageConstantPad();
   ~vtkImageConstantPad() {};

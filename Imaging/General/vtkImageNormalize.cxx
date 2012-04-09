@@ -46,7 +46,7 @@ int vtkImageNormalize::RequestInformation (
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageNormalizeExecute(vtkImageNormalize *self,
@@ -59,7 +59,7 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
   int idxC, maxC;
   float sum;
   T *inVect;
-  
+
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
 
@@ -73,7 +73,7 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
       {
       // save the start of the vector
       inVect = inSI;
-      
+
       // compute the magnitude.
       sum = 0.0;
       for (idxC = 0; idxC < maxC; idxC++)
@@ -85,7 +85,7 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
         {
         sum = 1.0 / sqrt(sum);
         }
-      
+
       // now divide to normalize.
       for (idxC = 0; idxC < maxC; idxC++)
         {
@@ -104,13 +104,13 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageNormalize::ThreadedExecute (vtkImageData *inData, 
+void vtkImageNormalize::ThreadedExecute (vtkImageData *inData,
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData 
+  vtkDebugMacro(<< "Execute: inData = " << inData
   << ", outData = " << outData);
-  
+
   // this filter expects that input is the same type as output.
   if (outData->GetScalarType() != VTK_FLOAT)
     {
@@ -118,12 +118,12 @@ void vtkImageNormalize::ThreadedExecute (vtkImageData *inData,
     << ", must be float");
     return;
     }
-  
+
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
       vtkImageNormalizeExecute( this, inData,
-                                outData, outExt, id, 
+                                outData, outExt, id,
                                 static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

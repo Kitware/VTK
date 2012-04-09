@@ -64,7 +64,7 @@ unsigned long vtkAssemblyNode::GetMTime()
 {
   unsigned long propMTime=0;
   unsigned long matrixMTime=0;
-  
+
   if ( this->ViewProp != NULL )
     {
     propMTime = this->ViewProp->GetMTime();
@@ -73,7 +73,7 @@ unsigned long vtkAssemblyNode::GetMTime()
     {
     matrixMTime = this->Matrix->GetMTime();
     }
-  
+
   return (propMTime > matrixMTime ? propMTime : matrixMTime);
 }
 

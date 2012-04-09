@@ -21,8 +21,8 @@
 //
 // .SECTION Description
 // The first input is a vtkGraph to take a subgraph from.
-// The second input (optional) is a vtkSelection containing selected 
-// indices. The third input (optional) is a vtkAnnotationsLayers whose 
+// The second input (optional) is a vtkSelection containing selected
+// indices. The third input (optional) is a vtkAnnotationsLayers whose
 // annotations contain selected specifying selected indices.
 // The vtkSelection may have FIELD_TYPE set to POINTS (a vertex selection)
 // or CELLS (an edge selection).  A vertex selection preserves all edges
@@ -54,10 +54,10 @@ public:
   // Description:
   // A convenience method for setting the third input (i.e. the annotation layers).
   void SetAnnotationLayersConnection(vtkAlgorithmOutput* in);
-  
+
   // Description:
   // If set, removes vertices with no adjacent edges in an edge selection.
-  // A vertex selection ignores this flag and always returns the full set 
+  // A vertex selection ignores this flag and always returns the full set
   // of selected vertices.  Default is on.
   vtkSetMacro(RemoveIsolatedVertices, bool);
   vtkGetMacro(RemoveIsolatedVertices, bool);
@@ -72,15 +72,15 @@ protected:
   ~vtkExtractSelectedGraph();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-  
+
   int RequestDataObject(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-  
+
   bool RemoveIsolatedVertices;
 
 private:

@@ -58,7 +58,7 @@ int vtkXMLPDataSetWriter::WriteInternal()
 {
   vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
   vtkXMLPDataWriter* writer = 0;
-  
+
   // Create a writer based on the data set type.
   switch (this->GetInput()->GetDataObjectType())
     {
@@ -94,7 +94,7 @@ int vtkXMLPDataSetWriter::WriteInternal()
       writer = w;
       } break;
     }
-  
+
   // Make sure we got a valid writer for the data set.
   if(!writer)
     {
@@ -102,7 +102,7 @@ int vtkXMLPDataSetWriter::WriteInternal()
                   << this->GetInput()->GetDataObjectType());
     return 0;
     }
-  
+
   // Copy the settings to the writer.
   writer->SetDebug(this->GetDebug());
   writer->SetFileName(this->GetFileName());
@@ -116,7 +116,7 @@ int vtkXMLPDataSetWriter::WriteInternal()
   writer->SetStartPiece(this->GetStartPiece());
   writer->SetEndPiece(this->GetEndPiece());
   writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
-  
+
   // Decide whether to write the summary file.
   int writeSummary = 0;
   if(this->WriteSummaryFileInitialized)
@@ -128,10 +128,10 @@ int vtkXMLPDataSetWriter::WriteInternal()
     writeSummary = 1;
     }
   writer->SetWriteSummaryFile(writeSummary);
-  
+
   // Try to write.
   int result = writer->Write();
-  
+
   // Cleanup.
   writer->RemoveObserver(this->ProgressObserver);
   writer->Delete();

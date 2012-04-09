@@ -48,14 +48,14 @@ class VTKFILTERSSTATISTICSGNUR_EXPORT vtkRCalculatorFilter : public vtkDataObjec
 {
 
 public:
-  
+
   static vtkRCalculatorFilter *New();
 
   vtkTypeMacro(vtkRCalculatorFilter, vtkDataObjectAlgorithm );
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Copies vtkDataArray named NameOfVTKArray to R with variable 
+  // Copies vtkDataArray named NameOfVTKArray to R with variable
   // name NameOfRvar.  The array must exist in the input data set.
   //
   // Note: for vtkArray use "0","1","2",... for NameOfVTKArray to specify the index of
@@ -79,7 +79,7 @@ public:
   void RemoveAllGetVariables();
 
   // Description:
-  // For vtkTable input to the filter.  An R list variable is created for the 
+  // For vtkTable input to the filter.  An R list variable is created for the
   // vtkTable input using PutTable().  The output of the filter can be set from
   // a list variable in R using GetTable()
   void PutTable(const char* NameOfRvar);
@@ -94,7 +94,7 @@ public:
   // Provide the R script executed by R from an input file.
   vtkSetStringMacro(ScriptFname);
   vtkGetStringMacro(ScriptFname);
-  
+
   // Description:
   // Write R output to standard output.
   vtkSetMacro(Routput,int);
@@ -118,7 +118,7 @@ public:
 
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -126,8 +126,8 @@ protected:
 
   int SetRscriptFromFile(const char* fname);
 
-  virtual int RequestData(vtkInformation *vtkNotUsed(request), 
-                          vtkInformationVector **inputVector, 
+  virtual int RequestData(vtkInformation *vtkNotUsed(request),
+                          vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
   // Description:

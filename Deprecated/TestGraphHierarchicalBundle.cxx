@@ -70,36 +70,36 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
 
   for (int i = 1; i < argc; i++)
     {
-    if (!strcmp(argv[i], "-I")) 
+    if (!strcmp(argv[i], "-I"))
       {
       continue;
       }
-    if (!strcmp(argv[i], "-D")) 
-      {
-      i++;
-      continue;
-      }
-    if (!strcmp(argv[i], "-T")) 
+    if (!strcmp(argv[i], "-D"))
       {
       i++;
       continue;
       }
-    if (!strcmp(argv[i], "-V")) 
+    if (!strcmp(argv[i], "-T"))
       {
       i++;
       continue;
       }
-    if (!strcmp(argv[i], "-t")) 
+    if (!strcmp(argv[i], "-V"))
+      {
+      i++;
+      continue;
+      }
+    if (!strcmp(argv[i], "-t"))
       {
       showTree = true;
       continue;
       }
-    if (!strcmp(argv[i], "-S")) 
+    if (!strcmp(argv[i], "-S"))
       {
       radial = false;
       continue;
       }
-    if (!strcmp(argv[i], "-A")) 
+    if (!strcmp(argv[i], "-A"))
       {
       i++;
       angle = atof(argv[i]);
@@ -149,7 +149,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       continue;
       }
 
-    cerr << argv[0] << " Options:\n" 
+    cerr << argv[0] << " Options:\n"
       << " -I : interactive\n"
       << " -r #vertices #edges: show random tree with random edges\n"
       << " -s #vertices #edges: show structured tree with structured edges\n"
@@ -165,7 +165,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   vtkIdType levelOneVertices = static_cast<vtkIdType>(sqrt(static_cast<float>(numVertices)));
 
   // Create the graph.
-  
+
   vtkGraph *graph = 0;
   if (treeType == RANDOM_TREE)
     {
@@ -384,7 +384,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
     ren->AddActor(polyActor);
     }
   //ren->AddActor2D(labelActor);
-  
+
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkInteractorStyleImage, style);
   VTK_CREATE(vtkRenderWindow, win);

@@ -41,7 +41,7 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-  this->setMouseTracking(true);       
+  this->setMouseTracking(true);
   this->setAutoBufferSwap(false);
 }
 
@@ -51,7 +51,7 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-  this->setMouseTracking(true);       
+  this->setMouseTracking(true);
   this->setAutoBufferSwap(false);
 }
 
@@ -61,7 +61,7 @@ QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shar
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
-  this->setMouseTracking(true);       
+  this->setMouseTracking(true);
   this->setAutoBufferSwap(false);
 }
 
@@ -387,7 +387,7 @@ void QVTKWidget2::dropEvent(QDropEvent* e)
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
 }
-  
+
 bool QVTKWidget2::focusNextPrevChild(bool)
 {
   return false;
@@ -436,7 +436,7 @@ void QVTKWidget2::Frame()
 {
   if(mRenWin->GetSwapBuffers())
     this->swapBuffers();
-  
+
   // This callback will call swapBuffers() for us
   // because sometimes VTK does a render without coming through this paintGL()
 
@@ -453,7 +453,7 @@ void QVTKWidget2::setAutoBufferSwap(bool f)
 {
   QGLWidget::setAutoBufferSwap(f);
 }
-  
+
 bool QVTKWidget2::autoBufferSwap() const
 {
   return QGLWidget::autoBufferSwap();

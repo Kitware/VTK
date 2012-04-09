@@ -62,7 +62,7 @@ ren1 AddActor selectActor
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
 
-# Place the interactor initially. The input to a 3D widget is used to 
+# Place the interactor initially. The input to a 3D widget is used to
 # initially position and scale the widget. The EndInteractionEvent is
 # observed which invokes the SelectPolygons callback.
 vtkBoxRepresentation boxRep
@@ -70,10 +70,10 @@ boxRep SetPlaceFactor  0.75
 eval boxRep PlaceWidget [[glyph GetOutput] GetBounds]
 
 vtkBoxWidget2  boxWidget
-boxWidget SetInteractor  iren  
-boxWidget SetRepresentation  boxRep  
+boxWidget SetInteractor  iren
+boxWidget SetRepresentation  boxRep
 boxWidget AddObserver EndInteractionEvent SelectPolygons
-boxWidget SetPriority 1 
+boxWidget SetPriority 1
 
 # record events
 vtkInteractorEventRecorder recorder

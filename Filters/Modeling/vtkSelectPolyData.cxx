@@ -74,7 +74,7 @@ vtkPolyData *vtkSelectPolyData::GetUnselectedOutput()
     {
     return NULL;
     }
-  
+
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
 }
@@ -86,7 +86,7 @@ vtkPolyData *vtkSelectPolyData::GetSelectionEdges()
     {
     return NULL;
     }
-  
+
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetOutputData(2));
 }
@@ -136,7 +136,7 @@ int vtkSelectPolyData::RequestData(
     return 1;
     }
 
-  if ( this->Loop == NULL || 
+  if ( this->Loop == NULL ||
   (numLoopPts=this->Loop->GetNumberOfPoints()) < 3 )
     {
     vtkErrorMacro("Please define a loop with at least three points");
@@ -310,7 +310,7 @@ int vtkSelectPolyData::RequestData(
     currentFront->InsertNextId(id);
     }
 
-  // Traverse the front as long as we can. We're basically computing a 
+  // Traverse the front as long as we can. We're basically computing a
   // topological distance.
   int maxFront=0;
   vtkIdType maxFrontCell=(-1);
@@ -375,7 +375,7 @@ int vtkSelectPolyData::RequestData(
   currentFront->Reset(); nextFront->Reset();
   currentFront->InsertNextId(maxFrontCell);
   vtkIdType numCellsInFront;
-  
+
   cellMarks->SetValue(maxFrontCell,-1);
 
   while ( (numCellsInFront = currentFront->GetNumberOfIds()) > 0 )
@@ -444,7 +444,7 @@ int vtkSelectPolyData::RequestData(
     newPolys->Allocate(numCells/2, numCells/2);
     for (i=0; i< numCells; i++)
       {
-      if ( (cellMarks->GetValue(i) < 0) || 
+      if ( (cellMarks->GetValue(i) < 0) ||
       (cellMarks->GetValue(i) > 0 && this->InsideOut) )
         {
         this->Mesh->GetCellPoints(i, npts, pts);
@@ -462,7 +462,7 @@ int vtkSelectPolyData::RequestData(
       unPolys->Allocate(numCells/2, numCells/2);
       for (i=0; i< numCells; i++)
         {
-        if ( (cellMarks->GetValue(i) >= 0) || 
+        if ( (cellMarks->GetValue(i) >= 0) ||
         (cellMarks->GetValue(i) < 0 && this->InsideOut) )
           {
           this->Mesh->GetCellPoints(i, npts, pts);
@@ -480,7 +480,7 @@ int vtkSelectPolyData::RequestData(
     {
     vtkFloatArray *selectionScalars=vtkFloatArray::New();
     selectionScalars->SetNumberOfTuples(numPts);
-    
+
     // compute distance to lines. Really this should be computed based on
     // the connected fill distance.
     for (j=0; j < numPts; j++) //compute minimum distance to loop
@@ -504,7 +504,7 @@ int vtkSelectPolyData::RequestData(
         }
       }
 
-    // Now, determine the sign of those points "on the boundary" to give a 
+    // Now, determine the sign of those points "on the boundary" to give a
     // better approximation to the scalar field.
     for (j=0; j < numMeshLoopPts; j++)
       {
@@ -541,7 +541,7 @@ int vtkSelectPolyData::RequestData(
         }
 
       inPts->GetPoint(currentId, x0);
-      if ( vtkMath::Distance2BetweenPoints(x0,x) < 
+      if ( vtkMath::Distance2BetweenPoints(x0,x) <
            vtkMath::Distance2BetweenPoints(x0,neiX) )
         {
         closestDist2 = closestDist2 * pointMarks->GetValue(currentId);
@@ -562,7 +562,7 @@ int vtkSelectPolyData::RequestData(
     outCD->PassData(inCD);
     selectionScalars->Delete();
     }
-    
+
   // Clean up and update output
   triMesh->UnRegister(this);
   this->Mesh->Delete();
@@ -583,7 +583,7 @@ void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
   unsigned short ncells;
   int i, j;
   vtkIdType *cells, *pts, npts;
-  
+
   nei->Reset();
   this->Mesh->GetPointCells(ptId, ncells, cells);
   for (i=0; i<ncells; i++)
@@ -619,16 +619,16 @@ void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Generate Unselected Output: " 
+  os << indent << "Generate Unselected Output: "
      << (this->GenerateUnselectedOutput ? "On\n" : "Off\n");
 
   os << indent << "Inside Mode: ";
   os << this->GetSelectionModeAsString() << "\n";
 
-  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", " 
+  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", "
      << this->ClosestPoint[1] << ", " << this->ClosestPoint[2] << ")\n";
 
-  os << indent << "Generate Selection Scalars: " 
+  os << indent << "Generate Selection Scalars: "
      << (this->GenerateSelectionScalars ? "On\n" : "Off\n");
 
   os << indent << "Inside Out: " << (this->InsideOut ? "On\n" : "Off\n");

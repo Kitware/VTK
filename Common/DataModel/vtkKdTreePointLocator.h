@@ -44,7 +44,7 @@ public:
   virtual vtkIdType FindClosestPoint(const double x[3]);
 
   // Description:
-  // Given a position x and a radius r, return the id of the point 
+  // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // dist2 returns the squared distance to the point.
   virtual vtkIdType FindClosestPointWithinRadius(
@@ -67,7 +67,7 @@ public:
   // indirectly called from a single thread first.
   virtual void FindPointsWithinRadius(double R, const double x[3],
                                       vtkIdList *result);
-  
+
   // Description:
   // See vtkLocator interface documentation.
   // These methods are not thread safe.

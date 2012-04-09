@@ -46,14 +46,14 @@ vtkStandardNewMacro(vtkDataObjectGenerator);
 //============================================================================
 enum vtkDataObjectGeneratorTokenCodes
   {
-    ID1, ID2, 
-    UF1, 
-    RG1, 
-    SG1, 
-    PD1, PD2, 
+    ID1, ID2,
+    UF1,
+    RG1,
+    SG1,
+    PD1, PD2,
     UG1, UG2, UG3, UG4,
-    GS, GE, 
-    HBS, HBE, 
+    GS, GE,
+    HBS, HBE,
     MBS, MBE, NUMTOKENS
   };
 
@@ -100,7 +100,7 @@ const char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] =
 //============================================================================
 class vtkInternalStructureCache
 {
-  //a class to keep the overall structure in memory in. It is a simple tree 
+  //a class to keep the overall structure in memory in. It is a simple tree
   //where each node has a data set type flag and pointers to children
 public:
   vtkInternalStructureCache()
@@ -123,7 +123,7 @@ public:
     vtkInternalStructureCache *child = new vtkInternalStructureCache();
     child->type = t;
     child->parent = this;
-    children.push_back(child);    
+    children.push_back(child);
     return child;
   }
   void print(int level=0)
@@ -164,7 +164,7 @@ public:
         case MBS:
           cerr << vtkDataObjectGeneratorTokenStrings[MBE] << endl;
           break;
-        }        
+        }
       }
   }
 
@@ -177,7 +177,7 @@ public:
 //----------------------------------------------------------------------------
 //search the head of the input string for one of the tokens we know how to
 //do something with. If we see something, bump char ptr passed it, and return
-//a code that says what we found. Skip over chars we don't recognize. When 
+//a code that says what we found. Skip over chars we don't recognize. When
 //nothing is left in the string return -1.
 int vtkDataObjectGeneratorGetNextToken(char **str)
 {
@@ -194,7 +194,7 @@ int vtkDataObjectGeneratorGetNextToken(char **str)
       {
       l = strlen(vtkDataObjectGeneratorTokenStrings[i]);
       if (len >= l
-          && 
+          &&
           !strncmp(*str, vtkDataObjectGeneratorTokenStrings[i], l))
         {
         *str+=l;
@@ -313,7 +313,7 @@ vtkDataObjectGenerator::~vtkDataObjectGenerator()
 void vtkDataObjectGenerator::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Program: " 
+  os << indent << "Program: "
      << (this->Program ? this->Program : "(none)") << "\n";
 }
 
@@ -321,7 +321,7 @@ void vtkDataObjectGenerator::PrintSelf(ostream &os, vtkIndent indent)
 int vtkDataObjectGenerator::RequestDataObject(vtkInformation *,
                                               vtkInformationVector **,
                                               vtkInformationVector *outV)
-{  
+{
   vtkInformation *outInfo = outV->GetInformationObject(0);
   vtkDataObject *outData = NULL;
 
@@ -371,14 +371,14 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     case UG2:
     case UG3:
     case UG4:
-    { 
+    {
     /*
-    cerr 
-      << "Creating " 
-      << vtkDataObjectGeneratorTypeStrings[structure->type] 
+    cerr
+      << "Creating "
+      << vtkDataObjectGeneratorTypeStrings[structure->type]
       << endl;
     */
-    outData = 
+    outData =
       vtkDataObjectTypes::NewDataObject(
         vtkDataObjectGeneratorTypeStrings[structure->type]);
     return outData;
@@ -389,12 +389,12 @@ vtkDataObject * vtkDataObjectGenerator::CreateOutputDataObjects(
     //only create top level struct in RequestDataObject, do not recurse
     //the contents of the structure is cleared before RequestData anyway
     /*
-    cerr 
-      << "Creating " 
-      << vtkDataObjectGeneratorTypeStrings[structure->type] 
+    cerr
+      << "Creating "
+      << vtkDataObjectGeneratorTypeStrings[structure->type]
       << endl;
     */
-    outData = 
+    outData =
       vtkDataObjectTypes::NewDataObject(
         vtkDataObjectGeneratorTypeStrings[structure->type]);
     return outData;
@@ -455,7 +455,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     origin[0] = 0.0;
     origin[1] = 0.0;
     origin[2] = 0.0;
-    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
+    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
     }
   if (t == ID2)
     {
@@ -476,7 +476,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     origin[0] = 0.0;
     origin[1] = 0.0;
     origin[2] = 0.0;
-    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
+    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
     }
   if (t == UF1)
     {
@@ -497,7 +497,7 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
     origin[0] = 0.0;
     origin[1] = 0.0;
     origin[2] = 0.0;
-    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);    
+    outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
     }
 
   //Could create vtkCompositeDataInformation here.
@@ -508,9 +508,9 @@ int vtkDataObjectGenerator::RequestInformation(vtkInformation *req,
 int vtkDataObjectGenerator::RequestUpdateExtent(vtkInformation *req,
                                                 vtkInformationVector **inV,
                                                 vtkInformationVector *outV)
-{  
-  //This is a source and doesn't have any inputs. 
-  //I can defer this to the parent class because it does not have any 
+{
+  //This is a source and doesn't have any inputs.
+  //I can defer this to the parent class because it does not have any
   //inputs to request extent/pieces from dependent on what is requested by
   //my outputs.
   return this->Superclass::RequestUpdateExtent(req, inV, outV);
@@ -540,7 +540,7 @@ int vtkDataObjectGenerator::RequestData(vtkInformation *,
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
     {
-    this->Rank = 
+    this->Rank =
       outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     }
@@ -570,7 +570,7 @@ int vtkDataObjectGenerator::RequestData(vtkInformation *,
     vtkErrorMacro("Program was invalid.");
     return VTK_ERROR;
     }
-  
+
   return VTK_OK;
 }
 
@@ -589,19 +589,19 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       t != MBE &&
       t != GS  &&
       t != GE)
-    {    
-    if (level==1 && 
+    {
+    if (level==1 &&
         (structure->parent->parent->type == MBS) &&
-        ((stripe%this->Processors) != this->Rank) ) 
+        ((stripe%this->Processors) != this->Rank) )
       {
-      //for parallel processing, each processor gets a different set of 
-      //stripes of the data sets within the groups in the first level of 
+      //for parallel processing, each processor gets a different set of
+      //stripes of the data sets within the groups in the first level of
       //composite data sets
       /*
       cerr << this->Rank << "/" << this->Processors
            << " Ignoring "
            << stripe << "->"
-           << vtkDataObjectGeneratorTypeStrings[t] 
+           << vtkDataObjectGeneratorTypeStrings[t]
            << endl;
       */
       return NULL;
@@ -609,8 +609,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     else
       {
       /*
-      cerr << "Filling " 
-           << vtkDataObjectGeneratorTypeStrings[t] 
+      cerr << "Filling "
+           << vtkDataObjectGeneratorTypeStrings[t]
            << endl;
       */
       outData = vtkDataObjectTypes::NewDataObject(
@@ -654,12 +654,12 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     return outData;
     }
     case PD1:
-    { 
+    {
     this->MakePolyData1(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
     case PD2:
-    { 
+    {
     this->MakePolyData2(vtkDataSet::SafeDownCast(outData));
     return outData;
     }
@@ -687,7 +687,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     {
     //Making octrees, structured can grid up space arbitratily though
 
-    vtkHierarchicalBoxDataSet *hbo = 
+    vtkHierarchicalBoxDataSet *hbo =
       vtkHierarchicalBoxDataSet::SafeDownCast(outData);
 
     hbo->SetNumberOfLevels(
@@ -700,17 +700,17 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       {
       //cerr << "LVL=" << gcnt  << endl;
 
-      vtkInternalStructureCache *gptr = *git; 
+      vtkInternalStructureCache *gptr = *git;
       //gptr->type should be a group
 
       vtkIdType nds = gptr->children.size();
-      hbo->SetNumberOfDataSets(gcnt, nds); 
+      hbo->SetNumberOfDataSets(gcnt, nds);
 
-      //each of the dimensions of each parent cell are broken into this 
-      //many pieces this must be the inverse of the spacing for the geometry 
+      //each of the dimensions of each parent cell are broken into this
+      //many pieces this must be the inverse of the spacing for the geometry
       //to line up
-      int refinement = 2; 
-      hbo->SetRefinementRatio(gcnt,refinement);       
+      int refinement = 2;
+      hbo->SetRefinementRatio(gcnt,refinement);
 
       std::vector<vtkInternalStructureCache *>::iterator dit;
       int dcnt = 0; //TODO: read in a location to create sparse trees
@@ -723,20 +723,20 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       //how many children across each dimension
 
       for (dit = gptr->children.begin();
-           dit != gptr->children.end() 
+           dit != gptr->children.end()
              && dcnt<maxchildren //ignore extra children
              ;
            dit++)
         {
         //cerr << "DS=" << dcnt  << endl;
-        vtkInternalStructureCache *dptr = *dit; 
+        vtkInternalStructureCache *dptr = *dit;
         //dptr->type should be UF1
 
-        //Figure out where in the parent level the cells of this new data 
-        //set resides, this is used to create blanking parent child 
+        //Figure out where in the parent level the cells of this new data
+        //set resides, this is used to create blanking parent child
         //relationships
         //*2 is because each child is 2 cells across
-        //+1 (in hi) is because we are counting cells inclusively. 
+        //+1 (in hi) is because we are counting cells inclusively.
         //If children were 3x3x3 it would be *3+2
         //Note, other orderings are equally valid
         const int lo[3] = {dcnt/(r2*r2)%r2*2, dcnt/r2%r2*2, dcnt%r2*2};
@@ -748,8 +748,8 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
         */
         vtkDataObject *dobj = NULL;
         //restrict HierarchicalBoxes's to contain only UniformGrids
-        //until I make it read location to make sparse creation easy, put 
-        //dummy dataobjects in as placeholders 
+        //until I make it read location to make sparse creation easy, put
+        //dummy dataobjects in as placeholders
         if (dptr->type == UF1)
           {
           dobj = this->FillOutputDataObjects(dptr, level+1, dcnt);
@@ -759,7 +759,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           double spacing = pow(0.5,static_cast<double>(gcnt+1)); //==1.0/(2*r2)
           uf->SetSpacing(spacing, spacing, spacing);
           double spa[3];
-          uf->GetSpacing(spa);          
+          uf->GetSpacing(spa);
           //cerr << "SPACE=" <<spa[0] <<"," <<spa[1] <<"," <<spa[2] <<endl;
           double org[3];
           uf->SetOrigin(lo[0]*spacing, lo[1]*spacing, lo[2]*spacing);
@@ -768,10 +768,10 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
           uf->SetExtent(0,2,0,2,0,2); //octrees, 2 cells == 3 points across
           int ex[6];
           uf->GetExtent(ex);
-          }        
-        
+          }
+
         vtkAMRBox region(3,lo,hi);
-        hbo->SetDataSet(gcnt, dcnt, 
+        hbo->SetDataSet(gcnt, dcnt,
                         region, vtkUniformGrid::SafeDownCast(dobj));
         if (dobj)
           {
@@ -786,7 +786,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
     }
     case MBS:
     {
-    vtkMultiBlockDataSet *mbo = 
+    vtkMultiBlockDataSet *mbo =
       vtkMultiBlockDataSet::SafeDownCast(outData);
 
     this->YOffset += 1.0;
@@ -802,7 +802,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
          git++)
       {
       this->ZOffset += 1.0;
-      vtkInternalStructureCache *gptr = *git; 
+      vtkInternalStructureCache *gptr = *git;
       if (gptr->type == GS)
         {
         vtkErrorMacro("Group inside multi-block is not supported");
@@ -860,7 +860,7 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet *ds)
   zcoords->SetName("Cell Z");
   zcoords->SetNumberOfComponents(1);
   zcoords->SetNumberOfTuples(num);
-  
+
   for (vtkIdType i = 0; i < num; i++)
     {
     ids->SetValue(i, this->CellIdCounter++);
@@ -874,7 +874,7 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet *ds)
   ds->GetCellData()->AddArray(ycoords);
   ds->GetCellData()->AddArray(zcoords);
 
-  ids->Delete();  
+  ids->Delete();
   xcoords->Delete();
   ycoords->Delete();
   zcoords->Delete();
@@ -911,7 +911,7 @@ void vtkDataObjectGenerator::MakeValues(vtkDataSet *ds)
   ds->GetPointData()->AddArray(ycoords);
   ds->GetPointData()->AddArray(zcoords);
 
-  ids->Delete();  
+  ids->Delete();
   xcoords->Delete();
   ycoords->Delete();
   zcoords->Delete();
@@ -966,7 +966,7 @@ void vtkDataObjectGenerator::MakeUniformGrid1(vtkDataSet *ids)
   ds->Initialize();
   ds->SetDimensions(3,3,3); //8 cells to make octrees
   ds->SetOrigin(this->XOffset,this->YOffset,this->ZOffset);
-  ds->SetSpacing(0.5,0.5,0.5); 
+  ds->SetSpacing(0.5,0.5,0.5);
 
   this->MakeValues(ds);
 }

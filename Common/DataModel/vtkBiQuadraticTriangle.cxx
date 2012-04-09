@@ -161,8 +161,8 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
 
 
 //----------------------------------------------------------------------------
-void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId), 
-                                        double pcoords[3], 
+void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
+                                        double pcoords[3],
                                         double x[3], double *weights)
 {
   int i;
@@ -177,8 +177,8 @@ void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
 
 
   this->InterpolationFunctions(pcoords,weights);
-  
-  for (i=0; i<3; i++) 
+
+  for (i=0; i<3; i++)
     {
     x[i] = a0[i]*weights[0] + a1[i]*weights[1] + a2[i]*weights[2] +
       a3[i]*weights[3] + a4[i]*weights[4] + a5[i]*weights[5] + a6[i]*weights[6];
@@ -188,7 +188,7 @@ void vtkBiQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
 
 
 //----------------------------------------------------------------------------
-int vtkBiQuadraticTriangle::CellBoundary(int subId, double pcoords[3], 
+int vtkBiQuadraticTriangle::CellBoundary(int subId, double pcoords[3],
                                        vtkIdList *pts)
 {
   return this->Face->CellBoundary(subId, pcoords, pts);
@@ -197,16 +197,16 @@ int vtkBiQuadraticTriangle::CellBoundary(int subId, double pcoords[3],
 
 
 //----------------------------------------------------------------------------
-void vtkBiQuadraticTriangle::Contour(double value, 
-                                   vtkDataArray* cellScalars, 
+void vtkBiQuadraticTriangle::Contour(double value,
+                                   vtkDataArray* cellScalars,
                                    vtkIncrementalPointLocator* locator,
-                                   vtkCellArray *verts, 
-                                   vtkCellArray* lines, 
-                                   vtkCellArray* polys, 
-                                   vtkPointData* inPd, 
+                                   vtkCellArray *verts,
+                                   vtkCellArray* lines,
+                                   vtkCellArray* polys,
+                                   vtkPointData* inPd,
                                    vtkPointData* outPd,
-                                   vtkCellData* inCd, 
-                                   vtkIdType cellId, 
+                                   vtkCellData* inCd,
+                                   vtkIdType cellId,
                                    vtkCellData* outCd)
 {
   for ( int i=0; i < 6; i++)
@@ -236,12 +236,12 @@ void vtkBiQuadraticTriangle::Contour(double value,
 //----------------------------------------------------------------------------
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkBiQuadraticTriangle::IntersectWithLine(double* p1, 
-                                            double* p2, 
-                                            double tol, 
+int vtkBiQuadraticTriangle::IntersectWithLine(double* p1,
+                                            double* p2,
+                                            double tol,
                                             double& t,
-                                            double* x, 
-                                            double* pcoords, 
+                                            double* x,
+                                            double* pcoords,
                                             int& subId)
 {
   int subTest, i;
@@ -265,7 +265,7 @@ int vtkBiQuadraticTriangle::IntersectWithLine(double* p1,
 
 
 //----------------------------------------------------------------------------
-int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                       vtkPoints *pts)
 {
   pts->Reset();
@@ -288,20 +288,20 @@ int vtkBiQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 
 //----------------------------------------------------------------------------
-void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId), 
-                                       double pcoords[3], 
-                                       double *values, 
-                                       int dim, 
+void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
+                                       double pcoords[3],
+                                       double *values,
+                                       int dim,
                                        double *derivs)
 {
   double v0[2], v1[2], v2[2], v3[2], v4[2], v5[2], v6[2];           // Local coordinates of Each point.
   double v10[3], v20[3], lenX;                                      // Reesentation of local Axis
   double x0[3], x1[3], x2[3], x3[3], x4[3], x5[3], x6[3];           // Points of the model
-  double n[3], vec20[3], vec30[3], vec40[3], vec50[3], vec60[3];    // Normal and vector of each point. 
+  double n[3], vec20[3], vec30[3], vec40[3], vec50[3], vec60[3];    // Normal and vector of each point.
   double *J[2], J0[2], J1[2];                                       // Jacobian Matrix
   double *JI[2], JI0[2], JI1[2];                                    // Inverse of the Jacobian Matrix
   double funcDerivs[14], sum[2], dBydx, dBydy;                      // Derivated values
-  
+
 
   // Project points of BiQuadTriangle into a 2D system
   this->Points->GetPoint(0, x0);
@@ -326,7 +326,7 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
   vtkMath::Cross(n,v10,v20); //creates local y' axis
 
   if ( (lenX=vtkMath::Normalize(v10)) <= 0.0
-       || vtkMath::Normalize(v20) <= 0.0 ) //degenerate 
+       || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
     {
     for (int j=0; j < dim; j++ )
       {
@@ -340,19 +340,19 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
 
   v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
   v1[0] = lenX; v1[1] = 0.0;
-  
+
   v2[0] = vtkMath::Dot(vec20,v10);
   v2[1] = vtkMath::Dot(vec20,v20);
-  
+
   v3[0] = vtkMath::Dot(vec30,v10);
   v3[1] = vtkMath::Dot(vec30,v20);
- 
+
   v4[0] = vtkMath::Dot(vec40,v10);
   v4[1] = vtkMath::Dot(vec40,v20);
 
   v5[0] = vtkMath::Dot(vec50,v10);
   v5[1] = vtkMath::Dot(vec50,v20);
-  
+
   v6[0] = vtkMath::Dot(vec60,v10);
   v6[1] = vtkMath::Dot(vec60,v20);
 
@@ -392,7 +392,7 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
     return;
     }
 
-  // Loop over "dim" derivative values. For each set of values, 
+  // Loop over "dim" derivative values. For each set of values,
   // compute derivatives
   // in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
@@ -401,7 +401,7 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
     sum[0] = sum[1] = 0.0;
     for (int i=0; i < 7; i++) //loop over interp. function derivatives
       {
-      sum[0] += funcDerivs[i] * values[dim*i + j]; 
+      sum[0] += funcDerivs[i] * values[dim*i + j];
       sum[1] += funcDerivs[7 + i] * values[dim*i + j];
       }
     dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
@@ -417,17 +417,17 @@ void vtkBiQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
 
 
 //----------------------------------------------------------------------------
-// Clip this quadratic triangle using the scalar value provided. Like 
+// Clip this quadratic triangle using the scalar value provided. Like
 // contouring, except that it cuts the triangle to produce other quads
 // and triangles.
-void vtkBiQuadraticTriangle::Clip(double value, 
-                                vtkDataArray* cellScalars, 
+void vtkBiQuadraticTriangle::Clip(double value,
+                                vtkDataArray* cellScalars,
                                 vtkIncrementalPointLocator* locator,
                                 vtkCellArray* polys,
-                                vtkPointData* inPd, 
+                                vtkPointData* inPd,
                                 vtkPointData* outPd,
-                                vtkCellData* inCd, 
-                                vtkIdType cellId, 
+                                vtkCellData* inCd,
+                                vtkIdType cellId,
                                 vtkCellData* outCd,
                                 int insideOut)
 {
@@ -445,7 +445,7 @@ void vtkBiQuadraticTriangle::Clip(double value,
     this->Scalars->SetTuple(1,cellScalars->GetTuple(LinearTris[i][1]));
     this->Scalars->SetTuple(2,cellScalars->GetTuple(LinearTris[i][2]));
 
-    this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd, 
+    this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd,
                      inCd, cellId, outCd, insideOut);
     }
 }
@@ -466,11 +466,11 @@ double vtkBiQuadraticTriangle::GetParametricDistance(double pcoords[3])
 
   for (i=0; i<3; i++)
     {
-    if ( pc[i] < 0.0 ) 
+    if ( pc[i] < 0.0 )
       {
       pDist = -pc[i];
       }
-    else if ( pc[i] > 1.0 ) 
+    else if ( pc[i] > 1.0 )
       {
       pDist = pc[i] - 1.0;
       }
@@ -483,7 +483,7 @@ double vtkBiQuadraticTriangle::GetParametricDistance(double pcoords[3])
       pDistMax = pDist;
       }
     }
-  
+
   return pDistMax;
 }
 
@@ -492,7 +492,7 @@ double vtkBiQuadraticTriangle::GetParametricDistance(double pcoords[3])
 //----------------------------------------------------------------------------
 // Compute interpolation functions. The first three nodes are the triangle
 // vertices; the next three nodes are mid-edge nodes; the last node is the mid-cell node.
-void vtkBiQuadraticTriangle::InterpolationFunctions(double pcoords[3], 
+void vtkBiQuadraticTriangle::InterpolationFunctions(double pcoords[3],
                                                   double weights[7])
 {
   double r = pcoords[0];
@@ -511,7 +511,7 @@ void vtkBiQuadraticTriangle::InterpolationFunctions(double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkBiQuadraticTriangle::InterpolationDerivs(double pcoords[3], 
+void vtkBiQuadraticTriangle::InterpolationDerivs(double pcoords[3],
                                                double derivs[14])
 {
   double r = pcoords[0];
@@ -520,7 +520,7 @@ void vtkBiQuadraticTriangle::InterpolationDerivs(double pcoords[3],
   // r-derivatives
   derivs[0] = -3.0 + 4.0*r + 7.0*s - 6.0*r*s - 3.0*s*s;
   derivs[1] = -1.0 + 4.0*r + 3.0*s - 6.0*r*s - 3.0*s*s;
-  derivs[2] = 3.0*s*(1.0 - s - 2.0*r); 
+  derivs[2] = 3.0*s*(1.0 - s - 2.0*r);
   derivs[3] = 4.0*(1.0 - 2.0*r - 4.0*s + 6.0*r*s + 3.0*s*s);
   derivs[4] = 4.0*s*(-2.0 + 6.0*r + 3.0*s);
   derivs[5] = 4.0*s*(-4.0 + 6.0*r + 3.0*s);
@@ -532,7 +532,7 @@ void vtkBiQuadraticTriangle::InterpolationDerivs(double pcoords[3],
   derivs[9] = -1.0 + 3.0*r + 4.0*s - 6.0*r*s - 3.0*r*r;
   derivs[10] = 4.0*r*(-4.0 + 3.0*r + 6.0*s);
   derivs[11] = 4.0*r*(-2.0 + 3.0*r + 6.0*s);
-  derivs[12] = 4.0*(1.0 - 4.0*r -2.0*s + 6.0*r*s + 3.0*r*r); 
+  derivs[12] = 4.0*(1.0 - 4.0*r -2.0*s + 6.0*r*s + 3.0*r*r);
   derivs[13] = 27.0*r*(1.0 - r - 2.0*s);
 }
 
@@ -553,7 +553,7 @@ double *vtkBiQuadraticTriangle::GetParametricCoords()
 void vtkBiQuadraticTriangle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Edge: "    << this->Edge    << endl;
   os << indent << "Face: "    << this->Face    << endl;
   os << indent << "Scalars: " << this->Scalars << endl;

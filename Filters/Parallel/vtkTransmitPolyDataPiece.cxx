@@ -36,7 +36,7 @@ vtkTransmitPolyDataPiece::vtkTransmitPolyDataPiece()
 
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
-  this->SetController(vtkMultiProcessController::GetGlobalController());  
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ int vtkTransmitPolyDataPiece::RequestUpdateExtent(
                 0);
     return 1;
     }
-  
+
   if (this->Controller->GetLocalProcessId() == 0)
     { // Request everything.
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
@@ -100,7 +100,7 @@ int vtkTransmitPolyDataPiece::RequestInformation(
                -1);
   return 1;
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkTransmitPolyDataPiece::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -153,7 +153,7 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   vtkStreamingDemandDrivenPipeline *extractExecutive =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(extract->GetExecutive());
   vtkInformation *extractInfo = extractExecutive->GetOutputInformation(0);
-  
+
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
   extract->SetCreateGhostCells(this->CreateGhostCells);
@@ -224,9 +224,9 @@ void vtkTransmitPolyDataPiece::SatelliteExecute(int, vtkPolyData *output,
 void vtkTransmitPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
-  
+
   os << indent << "Controller: (" << this->Controller << ")\n";
 
 }

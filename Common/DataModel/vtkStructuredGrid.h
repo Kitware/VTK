@@ -18,7 +18,7 @@
 // vtkDataSet. vtkStructuredGrid represents a geometric structure that is a
 // topologically regular array of points. The topology is that of a cube that
 // has been subdivided into a regular array of smaller cubes. Each point/cell
-// can be addressed with i-j-k indices. Examples include finite difference 
+// can be addressed with i-j-k indices. Examples include finite difference
 // grids.
 //
 // The order and number of points must match that specified by the dimensions
@@ -30,9 +30,9 @@
 // dimensions of the grid. The cell order increases in i fastest (from
 // 0<=i<(dims[0]-1)), then j (0<=j<(dims[1]-1)), then k (0<=k<(dims[2]-1))
 // The number of cells is (dims[0]-1)*(dims[1]-1)*(dims[2]-1).
-// 
-// A unusual feature of vtkStructuredGrid is the ability to blank, 
-// or "turn-off" points and cells in the dataset. This is controlled by 
+//
+// A unusual feature of vtkStructuredGrid is the ability to blank,
+// or "turn-off" points and cells in the dataset. This is controlled by
 // defining a "blanking array" whose values (0,1) specify whether
 // a point should be blanked or not.
 
@@ -59,7 +59,7 @@ public:
 
   vtkTypeMacro(vtkStructuredGrid,vtkPointSet);
   void PrintSelf(ostream& os, vtkIndent indent);
- 
+
   // Description:
   // Return what type of dataset this is.
   int GetDataObjectType() {return VTK_STRUCTURED_GRID;}
@@ -104,7 +104,7 @@ public:
   // Description:
   // Return the dimensionality of the data.
   int GetDataDimension();
-  
+
   // Description:
   // Different ways to set the extent of the data array.  The extent
   // should be set before the "Scalars" are set or allocated.
@@ -124,7 +124,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);  
+  void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
 
   // Description:
@@ -146,24 +146,24 @@ public:
   // grid are set.
   void BlankCell(vtkIdType ptId);
   void UnBlankCell(vtkIdType ptId);
-  
-  // Description:
-  // Get the array that defines the blanking (visibility) of each point.
-  vtkUnsignedCharArray *GetPointVisibilityArray(); 
 
   // Description:
-  // Set an array that defines the (blanking) visibility of the points 
-  // in the grid. Make sure that length of the visibility array matches 
+  // Get the array that defines the blanking (visibility) of each point.
+  vtkUnsignedCharArray *GetPointVisibilityArray();
+
+  // Description:
+  // Set an array that defines the (blanking) visibility of the points
+  // in the grid. Make sure that length of the visibility array matches
   // the number of points in the grid.
   void SetPointVisibilityArray(vtkUnsignedCharArray *pointVisibility);
 
   // Description:
   // Get the array that defines the blanking (visibility) of each cell.
-  vtkUnsignedCharArray *GetCellVisibilityArray(); 
+  vtkUnsignedCharArray *GetCellVisibilityArray();
 
   // Description:
-  // Set an array that defines the (blanking) visibility of the cells 
-  // in the grid. Make sure that length of the visibility array matches 
+  // Set an array that defines the (blanking) visibility of the cells
+  // in the grid. Make sure that length of the visibility array matches
   // the number of points in the grid.
   void SetCellVisibilityArray(vtkUnsignedCharArray *pointVisibility);
 
@@ -172,7 +172,7 @@ public:
   // These methods should be called only after the dimensions of the
   // grid are set.
   unsigned char IsPointVisible(vtkIdType ptId);
-  
+
   // Description:
   // Return non-zero value if specified point is visible.
   // These methods should be called only after the dimensions of the
@@ -198,8 +198,8 @@ public:
 
   // Description:
   // Reallocates and copies to set the Extent to the UpdateExtent.
-  // This is used internally when the exact extent is requested, 
-  // and the source generated more than the update extent. 
+  // This is used internally when the exact extent is requested,
+  // and the source generated more than the update extent.
   virtual void Crop(const int* updateExtent);
 
   //BTX
@@ -210,10 +210,10 @@ public:
   //ETX
 
   // Description:
-  // Get a point in the grid. If adjustForExtent is true, (i,j,k) is 
+  // Get a point in the grid. If adjustForExtent is true, (i,j,k) is
   // interpreted as a position relative to the beginning of the extent.
   // If adjustForExtent is false, (i,j,k) is interpreted literally
-  // and the (i,j,k) point of the grid is returned regardless of the 
+  // and the (i,j,k) point of the grid is returned regardless of the
   // extent beginning.
   // The point coordinate is returned in 'p'.
   // The default adjustForExtent is true.
@@ -226,10 +226,10 @@ protected:
   // for the GetCell method
   vtkVertex *Vertex;
   vtkLine *Line;
-  vtkQuad *Quad;  
+  vtkQuad *Quad;
   vtkHexahedron *Hexahedron;
   vtkEmptyCell *EmptyCell;
-  
+
   int Dimensions[3];
   int DataDescription;
 
@@ -260,7 +260,7 @@ private:
 };
 
 
-inline vtkIdType vtkStructuredGrid::GetNumberOfCells() 
+inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
 {
   int nCells=1;
   int dims[3];

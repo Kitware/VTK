@@ -25,18 +25,18 @@
 // is derived from Edelsbrunner's work on "alpha shapes".) Also, it is
 // possible to generate "constrained triangulations" using this filter.
 // A constrained triangulation is one where edges and loops (i.e., polygons)
-// can be defined and the triangulation will preserve them (read on for 
+// can be defined and the triangulation will preserve them (read on for
 // more information).
 //
-// The 2D Delaunay triangulation is defined as the triangulation that 
+// The 2D Delaunay triangulation is defined as the triangulation that
 // satisfies the Delaunay criterion for n-dimensional simplexes (in this case
-// n=2 and the simplexes are triangles). This criterion states that a 
-// circumsphere of each simplex in a triangulation contains only the n+1 
-// defining points of the simplex. (See "The Visualization Toolkit" text 
-// for more information.) In two dimensions, this translates into an optimal 
-// triangulation. That is, the maximum interior angle of any triangle is less 
+// n=2 and the simplexes are triangles). This criterion states that a
+// circumsphere of each simplex in a triangulation contains only the n+1
+// defining points of the simplex. (See "The Visualization Toolkit" text
+// for more information.) In two dimensions, this translates into an optimal
+// triangulation. That is, the maximum interior angle of any triangle is less
 // than or equal to that of any possible triangulation.
-// 
+//
 // Delaunay triangulations are used to build topological structures
 // from unorganized (or unstructured) points. The input to this filter
 // is a list of points specified in 3D, even though the triangulation
@@ -55,8 +55,8 @@
 // If an input transform is used, then alpha values are applied (for the
 // most part) in the original data space.  The exception is when
 // BoundingTriangulation is on.  In this case, alpha values are applied in
-// the original data space unless a cell uses a bounding vertex.  
-// 
+// the original data space unless a cell uses a bounding vertex.
+//
 // The Delaunay triangulation can be numerically sensitive in some cases. To
 // prevent problems, try to avoid injecting points that will result in
 // triangles with bad aspect ratios (1000:1 or greater). In practice this
@@ -95,9 +95,9 @@
 // an input transform is used.
 
 // .SECTION Caveats
-// Points arranged on a regular lattice (termed degenerate cases) can be 
-// triangulated in more than one way (at least according to the Delaunay 
-// criterion). The choice of triangulation (as implemented by 
+// Points arranged on a regular lattice (termed degenerate cases) can be
+// triangulated in more than one way (at least according to the Delaunay
+// criterion). The choice of triangulation (as implemented by
 // this algorithm) depends on the order of the input points. The first three
 // points will form a triangle; other degenerate points will not break
 // this triangle.
@@ -107,13 +107,13 @@
 // You can control the definition of coincidence with the "Tolerance" instance
 // variable.
 //
-// The output of the Delaunay triangulation is supposedly a convex hull. In 
+// The output of the Delaunay triangulation is supposedly a convex hull. In
 // certain cases this implementation may not generate the convex hull. This
 // behavior can be controlled by the Offset instance variable. Offset is a
-// multiplier used to control the size of the initial triangulation. The 
+// multiplier used to control the size of the initial triangulation. The
 // larger the offset value, the more likely you will generate a convex hull;
 // but the more likely you are to see numerical problems.
- 
+
 // .SECTION See Also
 // vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
 
@@ -164,7 +164,7 @@ public:
   // Description:
   // Get a pointer to the source object.
   vtkPolyData *GetSource();
-  
+
   // Description:
   // Specify alpha (or distance) value to control output of this filter.
   // For a non-zero alpha value, only edges or triangles contained within
@@ -234,12 +234,12 @@ private:
   vtkPolyData *Mesh; //the created mesh
   double *Points;    //the raw points in double precision
   void SetPoint(vtkIdType id, double *x)
-    {vtkIdType idx=3*id; 
+    {vtkIdType idx=3*id;
     this->Points[idx] = x[0];
     this->Points[idx+1] = x[1];
     this->Points[idx+2] = x[2];
     }
-      
+
   void GetPoint(vtkIdType id, double x[3])
     {double *ptr = this->Points + 3*id;
     x[0] = *ptr++;

@@ -31,7 +31,7 @@
 /* private prototypes */
 
 //---------------------------------------------------------------------------
-class vtkMPEG2WriterInternal 
+class vtkMPEG2WriterInternal
 {
 public:
   vtkMPEG2WriterInternal();
@@ -64,7 +64,7 @@ extern "C"
     vtkGenericWarningMacro(<< text);
   }
 
-  unsigned char* vtkMPEG2WriterInternalGetImagePtr(const char* fname, 
+  unsigned char* vtkMPEG2WriterInternalGetImagePtr(const char* fname,
                                                    void *mpeg2_writer_internal)
   {
     return (static_cast<vtkMPEG2WriterInternal*>(mpeg2_writer_internal))->GetImagePtr(fname);
@@ -112,15 +112,15 @@ int vtkMPEG2WriterInternal::StoreImage(const char* name, vtkImageData* iid)
       scalarInfo->Set(vtkDataObject::FIELD_ARRAY_TYPE(), iid->GetScalarType());
       }
     }
-  
+
   int dims[3];
   id->GetDimensions(dims);
 
   int row_length = dims[0] * id->GetNumberOfScalarComponents();
 
-  const unsigned char *src_ptr = 
+  const unsigned char *src_ptr =
     (const unsigned char *)iid->GetScalarPointer();
-  src_ptr += iid->GetNumberOfPoints() * iid->GetNumberOfScalarComponents() 
+  src_ptr += iid->GetNumberOfPoints() * iid->GetNumberOfScalarComponents()
     - row_length;
 
   unsigned char *dest_ptr = (unsigned char *)id->GetScalarPointer();
@@ -198,7 +198,7 @@ void vtkMPEG2Writer::Start()
 {
   // Error checking
   this->Error = 1;
-  
+
   if ( this->Internals )
     {
     vtkErrorMacro("Movie already started");
@@ -265,12 +265,12 @@ void vtkMPEG2Writer::Write()
     this->Initialize();
     }
 
-  
+
   MPEG2_structure* str = this->Internals->GetMPEG2Structure();
   char buffer[1024];
   sprintf(buffer, str->tplorg, this->Time + str->frame0);
   this->Internals->StoreImage(buffer, input);
-                 
+
   int last = MPEG2_putseq_one(this->ActualWrittenTime, this->Time,str);
   if ( last >= 0 )
     {
@@ -396,7 +396,7 @@ void vtkMPEG2WriterInternal::Init()
 
   for (i=0; i<3; i++)
     {
-    size = (i==0) ? this->Structure->width*this->Structure->height : 
+    size = (i==0) ? this->Structure->width*this->Structure->height :
       this->Structure->chrom_width*this->Structure->chrom_height;
 
     if (!(this->Structure->newrefframe[i] = (unsigned char *)malloc(size)))
@@ -471,8 +471,8 @@ void vtkMPEG2WriterInternal::ReadParmFile( )
   fgets(line,254,fd); sscanf(line,"%d",&this->Structure->aspectratio);
   fgets(line,254,fd); sscanf(line,"%d",&this->Structure->frame_rate_code);
   fgets(line,254,fd); sscanf(line,"%lf",&this->Structure->bit_rate);
-  fgets(line,254,fd); sscanf(line,"%d",&this->Structure->vbv_buffer_size);   
-  fgets(line,254,fd); sscanf(line,"%d",&this->Structure->low_delay);     
+  fgets(line,254,fd); sscanf(line,"%d",&this->Structure->vbv_buffer_size);
+  fgets(line,254,fd); sscanf(line,"%d",&this->Structure->low_delay);
   fgets(line,254,fd); sscanf(line,"%d",&this->Structure->constrparms);
   fgets(line,254,fd); sscanf(line,"%d",&this->Structure->profile);
   fgets(line,254,fd); sscanf(line,"%d",&this->Structure->level);
@@ -488,10 +488,10 @@ void vtkMPEG2WriterInternal::ReadParmFile( )
   fgets(line,254,fd); sscanf(line,"%d",&this->Structure->topfirst);
   fgets(line,254,fd); sscanf(line,"%d %d %d",
     this->Structure->frame_pred_dct_tab,this->Structure->frame_pred_dct_tab+1,this->Structure->frame_pred_dct_tab+2);
-  
+
   fgets(line,254,fd); sscanf(line,"%d %d %d",
     this->Structure->conceal_tab,this->Structure->conceal_tab+1,this->Structure->conceal_tab+2);
-  
+
   fgets(line,254,fd); sscanf(line,"%d %d %d",
     this->Structure->qscale_tab,this->Structure->qscale_tab+1,this->Structure->qscale_tab+2);
 
@@ -583,7 +583,7 @@ void vtkMPEG2WriterInternal::ReadParmFile( )
   this->Structure->motion_data[1].forw_vert_f_code = 1;
   this->Structure->motion_data[1].sxf = 3;
   this->Structure->motion_data[1].syf = 3;
-  
+
   this->Structure->motion_data[1].back_hor_f_code = 1;
   this->Structure->motion_data[1].back_vert_f_code = 1;
   this->Structure->motion_data[1].sxb = 7;
@@ -593,7 +593,7 @@ void vtkMPEG2WriterInternal::ReadParmFile( )
   this->Structure->motion_data[2].forw_vert_f_code = 1;
   this->Structure->motion_data[2].sxf = 7;
   this->Structure->motion_data[2].syf = 7;
-  
+
   this->Structure->motion_data[2].back_hor_f_code = 1;
   this->Structure->motion_data[2].back_vert_f_code = 1;
   this->Structure->motion_data[2].sxb = 3;

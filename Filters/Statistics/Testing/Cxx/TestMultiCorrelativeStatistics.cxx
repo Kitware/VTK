@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkDoubleArray.h"
@@ -22,7 +22,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   int testStatus = 0;
 
   /* */
-  double mingledData[] = 
+  double mingledData[] =
     {
     46, 45,
     47, 49,
@@ -145,7 +145,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
     outputMeta->Dump();
     }
 
-  // Test Assess Mode 
+  // Test Assess Mode
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy( outputMetaDS );
 
@@ -167,7 +167,7 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   int tableIdx[] = { 0, 1, 3 };
 
   cout << "## Searching for outliers such that "
-       << outputData->GetColumnName( tableIdx[2] ) 
+       << outputData->GetColumnName( tableIdx[2] )
        << " > "
        << threshold
        << "\n";

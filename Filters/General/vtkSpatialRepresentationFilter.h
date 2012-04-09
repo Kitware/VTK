@@ -86,8 +86,8 @@ protected:
   vtkSpatialRepresentationFilter();
   ~vtkSpatialRepresentationFilter();
 
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*);
 
   int MaximumLevel;

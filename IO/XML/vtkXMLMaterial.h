@@ -15,10 +15,10 @@
 // .NAME vtkXMLMaterial - encapsulates a VTK Material description.
 // .SECTION Description
 // vtkXMLMaterial encapsulates VTK Material description. It keeps a pointer
-// to vtkXMLDataElement that defines the material and provides 
+// to vtkXMLDataElement that defines the material and provides
 // access to Shaders/Properties defined in it.
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkXMLMaterial_h
@@ -45,7 +45,7 @@ public:
   // search the Material repository. Returns null is it fails to
   // locate the material.
   static vtkXMLMaterial* CreateInstance(const char* name);
-  
+
   // Description:
   // Get number of elements of type Property.
   int GetNumberOfProperties();
@@ -86,14 +86,14 @@ public:
   // Description:
   // Get the Language used by the shaders in this Material.
   // The Language of a vtkXMLMaterial is based on the Language of it's
-  // shaders. 
+  // shaders.
   int GetShaderLanguage();
-  
+
   // Description:
   // Get the style the shaders.
   // \post valid_result: result==1 || result==2
   int GetShaderStyle();
-  
+
 protected:
   vtkXMLMaterial();
   ~vtkXMLMaterial();

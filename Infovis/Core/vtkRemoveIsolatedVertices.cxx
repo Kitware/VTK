@@ -47,24 +47,24 @@ vtkRemoveIsolatedVertices::~vtkRemoveIsolatedVertices()
 
 //----------------------------------------------------------------------------
 int vtkRemoveIsolatedVertices::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkGraph* input = vtkGraph::GetData(inputVector[0]);
-  
+
   // Set up our mutable graph helper.
-  vtkSmartPointer<vtkMutableGraphHelper> builder = 
+  vtkSmartPointer<vtkMutableGraphHelper> builder =
     vtkSmartPointer<vtkMutableGraphHelper>::New();
   if (vtkDirectedGraph::SafeDownCast(input))
     {
-    vtkSmartPointer<vtkMutableDirectedGraph> dir = 
+    vtkSmartPointer<vtkMutableDirectedGraph> dir =
       vtkSmartPointer<vtkMutableDirectedGraph>::New();
     builder->SetGraph(dir);
     }
   else
     {
-    vtkSmartPointer<vtkMutableUndirectedGraph> undir = 
+    vtkSmartPointer<vtkMutableUndirectedGraph> undir =
       vtkSmartPointer<vtkMutableUndirectedGraph>::New();
     builder->SetGraph(undir);
     }

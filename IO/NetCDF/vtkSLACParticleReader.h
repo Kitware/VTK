@@ -28,7 +28,7 @@
 // used at the Standford Linear Accelerator Center (SLAC).  The underlying
 // format uses netCDF to store arrays, but also imposes some conventions
 // to store a list of particles in 3D space.
-// 
+//
 // This reader supports pieces, but in actuality only loads anything in
 // piece 0.  All other pieces are empty.
 //

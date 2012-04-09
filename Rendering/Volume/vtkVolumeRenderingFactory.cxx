@@ -50,7 +50,7 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
   vtkDebugLeaks::DestructClass(vtkclassname);
 #endif
   const char *rl = vtkGraphicsFactory::GetRenderLibrary();
-  
+
 //  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
     // GPU Ray Cast Mapper
@@ -82,20 +82,20 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
       {
       return vtkOpenGLVolumeTextureMapper2D::New();
       }
-    
+
     // 3D Volume Texture Mapper
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper3D") == 0)
       {
       return vtkOpenGLVolumeTextureMapper3D::New();
       }
-    
+
     // Ray Cast Image Display Helper
     if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)
       {
       return vtkOpenGLRayCastImageDisplayHelper::New();
       }
     }
-        
+
   return 0;
 }
 

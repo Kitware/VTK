@@ -253,7 +253,7 @@ int vtkGlyph2D::RequestData(
         scalex = scaley = s;
         }
       }
-    
+
     if ( haveVectors )
       {
       if ( this->VectorMode == VTK_USE_NORMAL )
@@ -275,7 +275,7 @@ int vtkGlyph2D::RequestData(
         scalex = scaley = vMag;
         }
       }
-    
+
     // Clamp data scale if enabled
     if ( this->Clamping )
       {
@@ -286,13 +286,13 @@ int vtkGlyph2D::RequestData(
                 (scaley > this->Range[1] ? this->Range[1] : scaley));
       scaley = (scaley - this->Range[0]) / den;
       }
-    
+
     // Compute index into table of glyphs
     if ( this->IndexMode == VTK_INDEXING_OFF )
       {
       index = 0;
       }
-    else 
+    else
       {
       if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
         {
@@ -302,7 +302,7 @@ int vtkGlyph2D::RequestData(
         {
         value = vMag;
         }
-      
+
       index = static_cast<int>((value-this->Range[0])*numberOfSources/den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
@@ -316,7 +316,7 @@ int vtkGlyph2D::RequestData(
         numSourceCells = source->GetNumberOfCells();
         }
       }
-    
+
     // Make sure we're not indexing into empty glyph
     if ( this->GetSource(index, inputVector[1]) == NULL )
       {
@@ -328,31 +328,31 @@ int vtkGlyph2D::RequestData(
       {
       continue;
       }
-    
+
     // Now begin copying/transforming glyph
     trans->Identity();
-    
+
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
       cell = this->GetSource(index, inputVector[1])->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (pts->Reset(), i=0; i < npts; i++) 
+      for (pts->Reset(), i=0; i < npts; i++)
         {
         pts->InsertId(i,cellPts->GetId(i) + ptIncr);
         }
       output->InsertNextCell(cell->GetCellType(),pts);
       }
-    
+
     // translate Source to Input point
     input->GetPoint(inPtId, x);
     trans->Translate(x[0], x[1], 0.0);
-    
+
     if ( haveVectors )
       {
       // Copy Input vector
-      for (i=0; i < numSourcePts; i++) 
+      for (i=0; i < numSourcePts; i++)
         {
         newVectors->InsertTuple(i+ptIncr, v);
         }
@@ -362,16 +362,16 @@ int vtkGlyph2D::RequestData(
         trans->RotateWXYZ( theta, 0.0, 0.0, 1.0 );
         }
       }
-    
+
     // determine scale factor from scalars if appropriate
     if ( inScalars )
       {
       // Copy scalar value
       if (this->ColorMode == VTK_COLOR_BY_SCALE)
         {
-        for (i=0; i < numSourcePts; i++) 
+        for (i=0; i < numSourcePts; i++)
           {
-          newScalars->InsertTuple(i+ptIncr, &scalex); 
+          newScalars->InsertTuple(i+ptIncr, &scalex);
           }
         }
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
@@ -384,12 +384,12 @@ int vtkGlyph2D::RequestData(
       }
     if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
       {
-      for (i=0; i < numSourcePts; i++) 
+      for (i=0; i < numSourcePts; i++)
         {
         newScalars->InsertTuple(i+ptIncr, &vMag);
         }
       }
-    
+
     // scale data if appropriate
     if ( this->Scaling )
       {
@@ -402,7 +402,7 @@ int vtkGlyph2D::RequestData(
         scalex *= this->ScaleFactor;
         scaley *= this->ScaleFactor;
         }
-      
+
       if ( scalex == 0.0 )
         {
         scalex = 1.0e-10;
@@ -413,17 +413,17 @@ int vtkGlyph2D::RequestData(
         }
       trans->Scale(scalex,scaley,1.0);
       }
-    
+
     // multiply points and normals by resulting matrix
     trans->TransformPoints(sourcePts,newPts);
-    
+
     if ( haveNormals )
       {
       trans->TransformNormals(sourceNormals,newNormals);
       }
-    
+
     // Copy point data from source (if possible)
-    if ( pd ) 
+    if ( pd )
       {
       for (i=0; i < numSourcePts; i++)
         {
@@ -431,7 +431,7 @@ int vtkGlyph2D::RequestData(
         }
       }
     ptIncr += numSourcePts;
-    } 
+    }
 
   // Update ourselves and release memory
   //

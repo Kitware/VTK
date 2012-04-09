@@ -30,7 +30,7 @@ reader SetLimitsFileName "fullHead.lim"
 
 vtkPolyDataMapper mapper
     mapper SetInputConnection [reader GetOutputPort]
-    
+
 vtkActor head
     head SetMapper mapper
     eval [head GetProperty] SetColor $raw_sienna
@@ -49,10 +49,10 @@ ren1 AddActor head
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 eval ren1 SetBackground $slate_grey
-[ren1 GetActiveCamera] SetPosition 99.8847 537.926 15 
-[ren1 GetActiveCamera] SetFocalPoint 99.8847 109.81 15 
+[ren1 GetActiveCamera] SetPosition 99.8847 537.926 15
+[ren1 GetActiveCamera] SetFocalPoint 99.8847 109.81 15
 [ren1 GetActiveCamera] SetViewAngle 20
-[ren1 GetActiveCamera] SetViewUp 0 0 -1 
+[ren1 GetActiveCamera] SetViewUp 0 0 -1
 
 ren1 ResetCameraClippingRange
 

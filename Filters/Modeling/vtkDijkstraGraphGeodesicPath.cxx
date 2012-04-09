@@ -5,7 +5,7 @@
   Language:  C++
   Date:    $Date$
   Version:   $Revision$
-  
+
   Made by Rasmus Paulsen
   email:  rrp(at)imm.dtu.dk
   web:    www.imm.dtu.dk/~rrp/VTK
@@ -60,11 +60,11 @@ vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
 //----------------------------------------------------------------------------
 void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray *weights)
 {
-  if (!weights) 
+  if (!weights)
     {
     return;
     }
-  
+
   weights->Initialize();
   double *weightsArray = new double[this->Internals->CumulativeWeights.size()];
   std::copy(this->Internals->CumulativeWeights.begin(),
@@ -76,12 +76,12 @@ void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray *weights)
 int vtkDijkstraGraphGeodesicPath::RequestData(
   vtkInformation *           vtkNotUsed( request ),
   vtkInformationVector **    inputVector,
-  vtkInformationVector *     outputVector) 
+  vtkInformationVector *     outputVector)
 {
   vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo =   outputVector->GetInformationObject(0);
 
-  vtkPolyData *input = vtkPolyData::SafeDownCast(  
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
     {
@@ -94,7 +94,7 @@ int vtkDijkstraGraphGeodesicPath::RequestData(
     {
     return 0;
     }
-  
+
   if ( this->AdjacencyBuildTime.GetMTime() < input->GetMTime() )
     {
     this->Initialize( input );
@@ -108,7 +108,7 @@ int vtkDijkstraGraphGeodesicPath::RequestData(
     {
     return 0;
     }
-    
+
   this->ShortestPath( input, this->StartVertex, this->EndVertex );
   this->TraceShortestPath( input, output, this->StartVertex, this->EndVertex );
   return 1;
@@ -163,9 +163,9 @@ double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
   inData->GetPoint(u,p1);
   double p2[3];
   inData->GetPoint(v,p2);
-  
+
   double w = sqrt(vtkMath::Distance2BetweenPoints(p1, p2));
-  
+
   if (this->UseScalarWeights)
     {
     // Note this edge cost is not symmetric!
@@ -173,7 +173,7 @@ double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
       static_cast<vtkFloatArray*>(inData->GetPointData()->GetScalars());
     //    float s1 = scalars->GetValue(u);
     double s2 = static_cast<double>(scalars->GetValue(v));
-    
+
     double wt = s2*s2;
     if (wt != 0.0)
       {
@@ -193,12 +193,12 @@ void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet *inData)
   for ( int i = 0; i < ncells; i++)
     {
     // Possible types
-    //    VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, 
-    //    VTK_POLY_LINE,VTK_TRIANGLE, VTK_QUAD, 
+    //    VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE,
+    //    VTK_POLY_LINE,VTK_TRIANGLE, VTK_QUAD,
     //    VTK_POLYGON, or VTK_TRIANGLE_STRIP.
 
     vtkIdType ctype = pd->GetCellType(i);
-    
+
     // Until now only handle polys and triangles
     // TODO: All types
     if (ctype == VTK_POLYGON || ctype == VTK_TRIANGLE || ctype == VTK_LINE)
@@ -240,10 +240,10 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
 {
   vtkPoints   *points = vtkPoints::New();
   vtkCellArray *lines = vtkCellArray::New();
-  
+
   // n is far to many. Adjusted later
   lines->InsertNextCell(this->NumberOfVertices);
-  
+
   // trace backward
   int v = endv;
   double pt[3];
@@ -251,20 +251,20 @@ void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
   while (v != startv)
     {
     IdList->InsertNextId(v);
-    
+
     inData->GetPoint(v,pt);
     id = points->InsertNextPoint(pt);
     lines->InsertCellPoint(id);
-    
+
     v = this->Internals->Predecessors[v];
     }
 
   this->IdList->InsertNextId(v);
-  
+
   inData->GetPoint(v,pt);
   id = points->InsertNextPoint(pt);
   lines->InsertCellPoint(id);
-        
+
   lines->UpdateCellCount( points->GetNumberOfPoints() );
   outPoly->SetPoints(points);
   points->Delete();
@@ -280,7 +280,7 @@ void vtkDijkstraGraphGeodesicPath::Relax(const int& u, const int& v, const doubl
     {
     this->Internals->CumulativeWeights[v] = du;
     this->Internals->Predecessors[v] = u;
-    
+
     this->Internals->HeapDecreaseKey(v);
     }
 }
@@ -299,7 +299,7 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
       {
         double* pt = this->RepelVertices->GetPoint( i );
         u = inData->FindPoint( pt );
-        if ( u < 0 || u == startv || u == endv ) 
+        if ( u < 0 || u == startv || u == endv )
           {
           continue;
           }
@@ -308,10 +308,10 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
     }
 
   this->Internals->CumulativeWeights[startv] = 0;
-  
+
   this->Internals->HeapInsert(startv);
   this->Internals->OpenVertices[startv] = true;
-  
+
   bool stop = false;
   while ((u = this->Internals->HeapExtractMin()) >= 0 && !stop)
     {
@@ -319,26 +319,26 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
     this->Internals->ClosedVertices[u] = true;
     // remove u from OpenVertices
     this->Internals->OpenVertices[u] = false;
-    
+
     if (u == endv && this->StopWhenEndReached)
       {
       stop = true;
       }
-    
+
     std::map<int,double>::iterator it = this->Internals->Adjacency[u].begin();
-     
+
     // Update all vertices v adjacent to u
     for ( ; it != this->Internals->Adjacency[u].end(); ++it )
       {
       v = (*it).first;
-      
+
       // ClosedVertices is the set of vertices with determined shortest path...
       // do not use them again
       if ( !this->Internals->ClosedVertices[v] )
         {
-        // Only relax edges where the end is not in ClosedVertices 
+        // Only relax edges where the end is not in ClosedVertices
         // and edge is in OpenVertices
-        double w; 
+        double w;
         if ( this->Internals->BlockedVertices[v] )
         {
           w = VTK_FLOAT_MAX;
@@ -347,7 +347,7 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath( vtkDataSet *inData,
         {
           w = (*it).second + this->CalculateDynamicEdgeCost( inData, u, v );
         }
-        
+
         if ( this->Internals->OpenVertices[v] )
           {
           this->Relax(u, v, w);

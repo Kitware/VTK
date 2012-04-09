@@ -36,9 +36,9 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredGridReader : public vtkXMLUnstructuredDa
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredGridReader,vtkXMLUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLUnstructuredGridReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkUnstructuredGrid *GetOutput();
@@ -47,22 +47,22 @@ public:
 protected:
   vtkXMLUnstructuredGridReader();
   ~vtkXMLUnstructuredGridReader();
-  
+
   const char* GetDataSetName();
   void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
   void SetupOutputTotals();
   void SetupPieces(int numPieces);
   void DestroyPieces();
-  
+
   void SetupOutputData();
   int ReadPiece(vtkXMLDataElement* ePiece);
   void SetupNextPiece();
   int ReadPieceData();
-  
+
   // Read a data array whose tuples correspond to cells.
-  virtual int ReadArrayForCells(vtkXMLDataElement* da, 
+  virtual int ReadArrayForCells(vtkXMLDataElement* da,
     vtkAbstractArray* outArray);
-  
+
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.
   virtual vtkIdType GetNumberOfCellsInPiece(int piece);
@@ -72,11 +72,11 @@ protected:
   // The index of the cell in the output where the current piece
   // begins.
   vtkIdType StartCell;
-  
+
   // The Cells element for each piece.
   vtkXMLDataElement** CellElements;
   vtkIdType* NumberOfCells;
-  
+
   int CellsTimeStep;
   unsigned long CellsOffset;
 

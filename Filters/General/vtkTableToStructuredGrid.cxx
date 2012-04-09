@@ -75,7 +75,7 @@ int vtkTableToStructuredGrid::RequestData(
   vtkStructuredGrid* output = vtkStructuredGrid::GetData(outputVector, 0);
   vtkTable* input = vtkTable::GetData(inputVector[0], 0);
 
-  vtkStreamingDemandDrivenPipeline *sddp = 
+  vtkStreamingDemandDrivenPipeline *sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   int extent[6];
   sddp->GetOutputInformation(0)->Get(
@@ -112,7 +112,7 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
     }
 
   vtkPoints* newPoints = vtkPoints::New();
-  if (xarray == yarray && yarray == zarray && 
+  if (xarray == yarray && yarray == zarray &&
     this->XComponent == 0 &&
     this->YComponent == 1 &&
     this->ZComponent == 2 &&
@@ -158,20 +158,20 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
 void vtkTableToStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "WholeExtent: " 
+  os << indent << "WholeExtent: "
     << this->WholeExtent[0] << ", "
     << this->WholeExtent[1] << ", "
     << this->WholeExtent[2] << ", "
     << this->WholeExtent[3] << ", "
     << this->WholeExtent[4] << ", "
     << this->WholeExtent[5] << endl;
-  os << indent << "XColumn: " 
+  os << indent << "XColumn: "
     << (this->XColumn? this->XColumn : "(none)") << endl;
   os << indent << "XComponent: " << this->XComponent << endl;
-  os << indent << "YColumn: " 
+  os << indent << "YColumn: "
     << (this->YColumn? this->YColumn : "(none)") << endl;
   os << indent << "YComponent: " << this->YComponent << endl;
-  os << indent << "ZColumn: " 
+  os << indent << "ZColumn: "
     << (this->ZColumn? this->ZColumn : "(none)") << endl;
   os << indent << "ZComponent: " << this->ZComponent << endl;
 }

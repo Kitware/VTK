@@ -17,7 +17,7 @@
 // vtkQuadraticLinearWedge is a concrete implementation of vtkNonLinearCell to
 // represent a three-dimensional, 12-node isoparametric linear quadratic
 // wedge. The interpolation is the standard finite element, quadratic
-// isoparametric shape function in xy - layer and the linear functions in z - direction. 
+// isoparametric shape function in xy - layer and the linear functions in z - direction.
 // The cell includes mid-edge node in the triangle edges. The
 // ordering of the 12 points defining the cell is point ids (0-5,6-12)
 // where point ids 0-5 are the six corner vertices of the wedge; followed by

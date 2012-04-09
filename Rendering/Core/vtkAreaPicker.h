@@ -15,23 +15,23 @@
 // .NAME vtkAreaPicker - Picks props behind a selection rectangle on a viewport.
 //
 // .SECTION Description
-// The vtkAreaPicker picks all vtkProp3Ds that lie behind the screen space 
+// The vtkAreaPicker picks all vtkProp3Ds that lie behind the screen space
 // rectangle from x0,y0 and x1,y1. The selection is based upon the bounding
 // box of the prop and is thus not exact.
 //
-// Like vtkPicker, a pick results in a list of Prop3Ds because many props may 
+// Like vtkPicker, a pick results in a list of Prop3Ds because many props may
 // lie within the pick frustum. You can also get an AssemblyPath, which in this
 // case is defined to be the path to the one particular prop in the Prop3D list
-// that lies nearest to the near plane. 
+// that lies nearest to the near plane.
 //
 // This picker also returns the selection frustum, defined as either a
-// vtkPlanes, or a set of eight corner vertices in world space. The vtkPlanes 
+// vtkPlanes, or a set of eight corner vertices in world space. The vtkPlanes
 // version is an ImplicitFunction, which is suitable for use with the
-// vtkExtractGeometry. The six frustum planes are in order: left, right, 
+// vtkExtractGeometry. The six frustum planes are in order: left, right,
 // bottom, top, near, far
 //
-// Because this picker picks everything within a volume, the world pick point 
-// result is ill-defined. Therefore if you ask this class for the world pick 
+// Because this picker picks everything within a volume, the world pick point
+// result is ill-defined. Therefore if you ask this class for the world pick
 // position, you will get the centroid of the pick frustum. This may be outside
 // of all props in the prop list.
 //
@@ -63,7 +63,7 @@ public:
   // Description:
   // Set the default screen rectangle to pick in.
   void SetPickCoords(double x0, double y0, double x1, double y1);
-  
+
   // Description:
   // Set the default renderer to pick on.
   void SetRenderer(vtkRenderer *);
@@ -90,7 +90,7 @@ public:
   vtkGetObjectMacro(Mapper,vtkAbstractMapper3D);
 
   // Description:
-  // Get a pointer to the dataset that was picked (if any). If nothing 
+  // Get a pointer to the dataset that was picked (if any). If nothing
   // was picked then NULL is returned.
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
@@ -100,7 +100,7 @@ public:
   vtkProp3DCollection *GetProp3Ds() {return this->Prop3Ds;};
 
   // Description:
-  // Return the six planes that define the selection frustum. The implicit 
+  // Return the six planes that define the selection frustum. The implicit
   // function defined by the planes evaluates to negative inside and positive
   // outside.
   vtkGetObjectMacro(Frustum, vtkPlanes);
@@ -115,7 +115,7 @@ protected:
 
   virtual void Initialize();
   void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *renderer);
-  virtual int PickProps(vtkRenderer *renderer);  
+  virtual int PickProps(vtkRenderer *renderer);
   int TypeDecipher(vtkProp *, vtkAbstractMapper3D **);
 
   int ABoxFrustumIsect(double bounds[], double &mindist);

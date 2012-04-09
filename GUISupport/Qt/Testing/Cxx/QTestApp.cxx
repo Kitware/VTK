@@ -32,8 +32,8 @@ int QTestApp::Error = 0;
 QTestApp::QTestApp(int _argc, char** _argv)
 {
   qInstallMsgHandler(QTestApp::messageHandler);
-  
-  // CMake generated driver removes argv[0], 
+
+  // CMake generated driver removes argv[0],
   // so let's put a dummy back in
   this->Argv.append("qTestApp");
   for(int i=0; i<_argc; i++)
@@ -47,7 +47,7 @@ QTestApp::QTestApp(int _argc, char** _argv)
   this->Argc = this->Argvp.size();
   App = new QApplication(this->Argc, this->Argvp.data());
 }
-  
+
 QTestApp::~QTestApp()
 {
   delete App;
@@ -60,7 +60,7 @@ int QTestApp::exec()
     {
     QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
     }
-  
+
   int ret = QApplication::exec();
   return Error + ret;
 }
@@ -126,23 +126,23 @@ void QTestApp::keyClick(QWidget* w, Qt::Key key, Qt::KeyboardModifiers mod, int 
   keyUp(w, key, mod, 0);
 }
 
-void QTestApp::mouseDown(QWidget* w, QPoint pos, Qt::MouseButton btn, 
+void QTestApp::mouseDown(QWidget* w, QPoint pos, Qt::MouseButton btn,
                         Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
   QMouseEvent e(QEvent::MouseButtonPress, pos, btn, btn, mod);
   simulateEvent(w, &e);
 }
-  
-void QTestApp::mouseUp(QWidget* w, QPoint pos, Qt::MouseButton btn, 
+
+void QTestApp::mouseUp(QWidget* w, QPoint pos, Qt::MouseButton btn,
                       Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
   QMouseEvent e(QEvent::MouseButtonRelease, pos, btn, btn, mod);
   simulateEvent(w, &e);
 }
-  
-void QTestApp::mouseMove(QWidget* w, QPoint pos, Qt::MouseButton btn, 
+
+void QTestApp::mouseMove(QWidget* w, QPoint pos, Qt::MouseButton btn,
                         Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);
@@ -150,7 +150,7 @@ void QTestApp::mouseMove(QWidget* w, QPoint pos, Qt::MouseButton btn,
   simulateEvent(w, &e);
 }
 
-void QTestApp::mouseClick(QWidget* w, QPoint pos, Qt::MouseButton btn, 
+void QTestApp::mouseClick(QWidget* w, QPoint pos, Qt::MouseButton btn,
                          Qt::KeyboardModifiers mod, int ms)
 {
   delay(ms);

@@ -19,7 +19,7 @@
 // Render time will be measured, and will be used to select a LOD based on
 // the AllocatedRenderTime of this Prop3D. Depending on the type of the
 // mapper/property, a vtkActor or a vtkVolume will be created behind the
-// scenes. 
+// scenes.
 
 // .SECTION See Also
 // vtkProp3D vtkActor vtkVolume vtkLODActor
@@ -74,7 +74,7 @@ public:
   // indicating that no initial guess for rendering time is being supplied.
   // The returned integer value is an ID that can be used later to delete
   // this LOD, or set it as the selected LOD.
-  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, 
+  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back,
               vtkTexture *t, double time );
   int AddLOD( vtkMapper *m, vtkProperty *p, vtkTexture *t, double time );
   int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, double time );
@@ -89,7 +89,7 @@ public:
   // Description:
   // Get the current number of LODs.
   vtkGetMacro(NumberOfLODs, int);
- 
+
   // Description:
   // Get the current index, used to determine the ID of the next LOD that is
   // added.  Useful for guessing what IDs have been used (with NumberOfLODs,
@@ -156,7 +156,7 @@ public:
   // rendering because it has the largest render time that fits within
   // the allocated time, all LOD are then checked to see if any one can
   // render faster but has a lower (more resolution/better) level.
-  // This quantity is a double to ensure that a level can be inserted 
+  // This quantity is a double to ensure that a level can be inserted
   // between 2 and 3.
   void SetLODLevel( int id, double level );
   double GetLODLevel( int id );
@@ -164,15 +164,15 @@ public:
 
   // Description:
   // Access method that can be used to find out the estimated render time
-  // (the thing used to select an LOD) for a given LOD ID or index. 
+  // (the thing used to select an LOD) for a given LOD ID or index.
   // Value is returned in seconds.
   double GetLODEstimatedRenderTime( int id );
   double GetLODIndexEstimatedRenderTime( int index );
 
   // Description:
-  // Turn on / off automatic selection of LOD. 
-  // This is on by default. If it is off, then the SelectedLODID is 
-  // rendered regardless of rendering time or desired update rate. 
+  // Turn on / off automatic selection of LOD.
+  // This is on by default. If it is off, then the SelectedLODID is
+  // rendered regardless of rendering time or desired update rate.
   vtkSetClampMacro( AutomaticLODSelection, int, 0, 1 );
   vtkGetMacro( AutomaticLODSelection, int );
   vtkBooleanMacro( AutomaticLODSelection, int );
@@ -191,23 +191,23 @@ public:
   // Get the ID of the appropriate pick LOD index
   int GetPickLODID(void);
 
-  // Description: 
+  // Description:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
   virtual void GetActors(vtkPropCollection *);
   virtual void GetVolumes(vtkPropCollection *);
-  
+
   // Description:
-  // Set the id of the LOD that is to be used for picking when  automatic 
+  // Set the id of the LOD that is to be used for picking when  automatic
   // LOD pick selection is turned off.
   void SetSelectedPickLODID(int id);
   vtkGetMacro( SelectedPickLODID, int );
 
   // Description:
-  // Turn on / off automatic selection of picking LOD. 
-  // This is on by default. If it is off, then the SelectedLODID is 
-  // rendered regardless of rendering time or desired update rate. 
+  // Turn on / off automatic selection of picking LOD.
+  // This is on by default. If it is off, then the SelectedLODID is
+  // rendered regardless of rendering time or desired update rate.
   vtkSetClampMacro( AutomaticPickLODSelection, int, 0, 1 );
   vtkGetMacro( AutomaticPickLODSelection, int );
   vtkBooleanMacro( AutomaticPickLODSelection, int );
@@ -223,11 +223,11 @@ public:
   int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry( vtkViewport *ren);
   virtual int RenderVolumetricGeometry( vtkViewport *ren);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -241,12 +241,12 @@ public:
   void SetAllocatedRenderTime( double t, vtkViewport *vp );
 
   // Description:
-  // Used when the render process is aborted to restore the previous 
-  // estimated render time. Overridden here to allow previous time for a 
-  // particular LOD to be restored - otherwise the time for the last rendered 
+  // Used when the render process is aborted to restore the previous
+  // estimated render time. Overridden here to allow previous time for a
+  // particular LOD to be restored - otherwise the time for the last rendered
   // LOD will be copied into the currently selected LOD.
   void RestoreEstimatedRenderTime( );
-  
+
   // Description:
   // Override method from vtkProp in order to push this call down to the
   // selected LOD as well.

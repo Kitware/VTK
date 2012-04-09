@@ -18,7 +18,7 @@
 
 int TestImageDataLIC2D(int argc, char* argv[])
 {
-  char* fname =  
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SurfaceVectors.vtk");
   std::string filename = fname;
   filename = "--data=" + filename;
@@ -28,7 +28,7 @@ int TestImageDataLIC2D(int argc, char* argv[])
   std::string noise = fname;
   noise = "--noise=" + noise;
   delete [] fname;
-  
+
   char** new_argv = new char*[argc+10];
   for (int cc=0; cc < argc; cc++)
     {

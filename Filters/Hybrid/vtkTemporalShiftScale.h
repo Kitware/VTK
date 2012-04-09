@@ -19,13 +19,13 @@
 // by this filter, only the information accompanying the data is modified.
 
 // .SECTION Thanks
-// Ken Martin (Kitware) and John Bidiscombe of 
+// Ken Martin (Kitware) and John Bidiscombe of
 // CSCS - Swiss National Supercomputing Centre
 // for creating and contributing this class.
-// For related material, please refer to : 
+// For related material, please refer to :
 // John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture", 
-// IEEE Visualization 2007. 
+// "Time Dependent Processing in a Parallel Pipeline Architecture",
+// IEEE Visualization 2007.
 
 #ifndef __vtkTemporalShiftScale_h
 #define __vtkTemporalShiftScale_h
@@ -58,17 +58,17 @@ public:
   vtkGetMacro(Scale, double);
 
   // Description:
-  // If Periodic is true, requests for time will be wrapped around so that 
+  // If Periodic is true, requests for time will be wrapped around so that
   // the source appears to be a periodic time source. If data exists for times
   // {0,N-1}, setting periodic to true will cause time 0 to be produced when time
   // N, 2N, 2N etc is requested. This effectively gives the source the ability to
   // generate time data indefinitely in a loop.
-  // When combined with Shift/Scale, the time becomes periodic in the 
+  // When combined with Shift/Scale, the time becomes periodic in the
   // shifted and scaled time frame of reference.
   // Note: Since the input time may not start at zero, the wrapping of time
   // from the end of one period to the start of the next, will subtract the
   // initial time - a source with T{5..6} repeated periodicaly will have output
-  // time {5..6..7..8} etc. 
+  // time {5..6..7..8} etc.
   vtkSetMacro(Periodic, int);
   vtkGetMacro(Periodic, int);
   vtkBooleanMacro(Periodic, int);
@@ -86,7 +86,7 @@ public:
   vtkBooleanMacro(PeriodicEndCorrection, int);
 
   // Description:
-  // if Periodic time is enabled, this controls how many time periods time is reported 
+  // if Periodic time is enabled, this controls how many time periods time is reported
   // for. A filter cannot output an infinite number of time steps and therefore a finite
   // number of periods is generated when reporting time.
   vtkSetMacro(MaximumNumberOfPeriods, double);
@@ -108,14 +108,14 @@ protected:
   double PeriodicRange[2];
   int    PeriodicN;
   double TempMultiplier;
-  
+
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
                                    vtkInformationVector *);
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);

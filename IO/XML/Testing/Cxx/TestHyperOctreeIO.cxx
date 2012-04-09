@@ -63,7 +63,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   int interactive = 0;
 #endif
 
-  if (argc > 1) 
+  if (argc > 1)
     {
     for (int i = 0; i < argc; i++)
       {
@@ -71,11 +71,11 @@ int TestHyperOctreeIO(int argc, char* argv[])
         {
         i++;
         dimension = atoi(argv[i]);
-        if (dimension < 1) 
+        if (dimension < 1)
           {
           dimension = 1;
           }
-        if (dimension > 3) 
+        if (dimension > 3)
           {
           dimension = 3;
           }
@@ -84,11 +84,11 @@ int TestHyperOctreeIO(int argc, char* argv[])
         {
         i++;
         levels = atoi(argv[i]);
-        if (levels < 1) 
+        if (levels < 1)
           {
           levels = 1;
           }
-        if (levels > 10) 
+        if (levels > 10)
           {
           levels = 10;
           }
@@ -121,11 +121,11 @@ int TestHyperOctreeIO(int argc, char* argv[])
         {
         i++;
         ncontours = atoi(argv[i]);
-        if (ncontours < 1) 
+        if (ncontours < 1)
           {
           ncontours = 1;
           }
-        if (ncontours > 3) 
+        if (ncontours > 3)
           {
           ncontours = 3;
           }
@@ -171,7 +171,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   source->SetDepth(4);
   source->SetLevels(levels);
   source->SetMinLevels(0);
- 
+
   cout<<"update source..."<<endl;
   timer->StartTimer();
   source->Update(); // Update now, make things easier with a debugger
@@ -196,22 +196,22 @@ int TestHyperOctreeIO(int argc, char* argv[])
   writerX->SetInputConnection(0,source->GetOutputPort(0));
   writerX->SetFileName("HyperOctreeSample.vto");
   writerX->SetDataModeToAscii();
-  if (binary==1) 
+  if (binary==1)
     {
     writerX->SetDataModeToBinary();
     }
-  if (binary==2) 
+  if (binary==2)
     {
     writerX->SetDataModeToAppended();
     }
-  if (!compressed) 
+  if (!compressed)
     {
     writerX->SetCompressor(NULL);
     }
 
   cout<<"update writerX..."<<endl;
   timer->StartTimer();
-  writerX->Write(); 
+  writerX->Write();
   timer->StopTimer();
   cout<<"HyperOctree written"<<endl;
   cout<<"writerX time="<<timer->GetElapsedTime()<<" s"<<endl;
@@ -225,7 +225,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
 
   cout<<"update readerX..."<<endl;
   timer->StartTimer();
-  readerX->Update(); 
+  readerX->Update();
   timer->StopTimer();
   cout<<"readerX updated"<<endl;
   cout<<"readerX time="<<timer->GetElapsedTime()<<" s"<<endl;
@@ -236,19 +236,19 @@ int TestHyperOctreeIO(int argc, char* argv[])
     writerX->SetInputConnection(0,readerX->GetOutputPort(0));
     writerX->SetFileName("HyperOctreeSample2.vto");
     writerX->SetDataModeToAscii();
-    if (binary==1) 
+    if (binary==1)
       {
       writerX->SetDataModeToBinary();
       }
-    if (binary==2) 
+    if (binary==2)
       {
       writerX->SetDataModeToAppended();
       }
-    if (!compressed) 
+    if (!compressed)
       {
       writerX->SetCompressor(NULL);
       }
-    writerX->Write(); 
+    writerX->Write();
     writerX->Delete();
     cout<<"HyperOctree written again"<<endl;
     }
@@ -258,11 +258,11 @@ int TestHyperOctreeIO(int argc, char* argv[])
   vtkHyperOctreeContourFilter *contour=vtkHyperOctreeContourFilter::New();
   contour->SetNumberOfContours(ncontours);
   contour->SetValue(0,0.5);
-  if (ncontours > 1) 
+  if (ncontours > 1)
     {
     contour->SetValue(1,4.0);
     }
-  if (ncontours > 2) 
+  if (ncontours > 2)
     {
     contour->SetValue(2,8.0);
     }
@@ -286,11 +286,11 @@ int TestHyperOctreeIO(int argc, char* argv[])
 
   cout<<"update contour..."<<endl;
   timer->StartTimer();
-  contour->Update(); 
+  contour->Update();
   timer->StopTimer();
   cout<<"contour updated"<<endl;
   cout<<"contour time="<<timer->GetElapsedTime()<<" s"<<endl;
-    
+
   vtkHyperOctreeSurfaceFilter *surface=vtkHyperOctreeSurfaceFilter::New();
   vtkCompositeDataPipeline *exec = vtkCompositeDataPipeline::New();
   // Make sure we call SetExecutive right after the filter creation and
@@ -301,7 +301,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   hds->Delete();
 
   // This creates a blue to red lut.
-  vtkLookupTable *lut = vtkLookupTable::New(); 
+  vtkLookupTable *lut = vtkLookupTable::New();
   lut->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *cmapper = vtkPolyDataMapper::New();
@@ -313,7 +313,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   smapper->SetInputConnection(0,surface->GetOutputPort(0));
   smapper->SetLookupTable(lut);
   smapper->SetScalarModeToUseCellData();
-  
+
   if(contour->GetOutput()->GetCellData()!=0)
     {
     if(contour->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -346,7 +346,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
 
   int retVal = 1;
 #ifdef HYPEROCTREEIO_STANDALONE
-  if (interactive) 
+  if (interactive)
     {
     iren->Start();
     }
@@ -365,7 +365,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
 #endif
 
   // Cleanup
-  
+
   actor->Delete();
   smapper->Delete();
   cmapper->Delete();
@@ -374,7 +374,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   iren->Delete();
   renWin->Delete();
   renderer->Delete();
-  
+
   timer->Delete();
 
   //regresstest and IOCxxTests have opposite senses

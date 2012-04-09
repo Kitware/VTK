@@ -45,7 +45,7 @@ void vtkDefaultPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDefaultPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   this->NumberOfRenderedProps=0;
   this->RenderOpaqueGeometry(s);
   this->RenderTranslucentPolygonalGeometry(s);
@@ -60,7 +60,7 @@ void vtkDefaultPass::Render(const vtkRenderState *s)
 void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState *s)
 {
   assert("pre s_exits" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -78,7 +78,7 @@ void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState *s)
 void vtkDefaultPass::RenderFilteredOpaqueGeometry(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -102,7 +102,7 @@ void vtkDefaultPass::RenderTranslucentPolygonalGeometry(
   const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -122,7 +122,7 @@ void vtkDefaultPass::RenderFilteredTranslucentPolygonalGeometry(
   const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -144,7 +144,7 @@ void vtkDefaultPass::RenderFilteredTranslucentPolygonalGeometry(
 void vtkDefaultPass::RenderVolumetricGeometry(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -163,7 +163,7 @@ void vtkDefaultPass::RenderVolumetricGeometry(const vtkRenderState *s)
 void vtkDefaultPass::RenderFilteredVolumetricGeometry(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -187,7 +187,7 @@ void vtkDefaultPass::RenderFilteredVolumetricGeometry(const vtkRenderState *s)
 void vtkDefaultPass::RenderOverlay(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -205,7 +205,7 @@ void vtkDefaultPass::RenderOverlay(const vtkRenderState *s)
 void vtkDefaultPass::RenderFilteredOverlay(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)

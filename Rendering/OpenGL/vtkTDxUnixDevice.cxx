@@ -19,7 +19,7 @@
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 // Display *DisplayId; // Actually a "Display *" but we cannot include Xlib.h
 //  Window WindowId; // Actually a "Window" but we cannot include Xlib.h
-  
+
 
 #define SGI // Used in xdrvlib.h to define ParameterCheck
 
@@ -27,7 +27,7 @@
 extern "C" {
 #include "xdrvlib.h" // Magellan X-Window driver API.
 }
-  
+
 #include "vtkTDxMotionEventInfo.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
@@ -50,7 +50,7 @@ vtkTDxUnixDevice::vtkTDxUnixDevice()
   this->Interactor=0;
 //  this->DebugOn();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Destructor. If the device is not initialized, do nothing. If the device
@@ -70,7 +70,7 @@ vtkTDxUnixDeviceDisplay *vtkTDxUnixDevice::GetDisplayId() const
 {
   return this->DisplayId;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Get the ID of the X Window. Initial value is 0.
@@ -106,7 +106,7 @@ void vtkTDxUnixDevice::SetWindowId(vtkTDxUnixDeviceWindow id)
     this->Modified();
     }
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Initialize the device with the current display and window ids.
@@ -122,7 +122,7 @@ void vtkTDxUnixDevice::Initialize()
   assert("pre: not_yet_initialized" && !this->GetInitialized());
   assert("pre: valid_display" && this->GetDisplayId()!=0);
   assert("pre: valid_window" && this->GetWindowId()!=0);
-  
+
   int status=MagellanInit(static_cast<Display *>(this->DisplayId),
                           static_cast<Window>(this->WindowId));
   this->Initialized=status==1;
@@ -138,11 +138,11 @@ void vtkTDxUnixDevice::Initialize()
 void vtkTDxUnixDevice::Close()
 {
   assert("pre: initialized" && this->GetInitialized());
-  
+
   vtkDebugMacro(<< "Close()" );
   MagellanClose(static_cast<Display *>(this->DisplayId));
   this->Initialized=false;
-  
+
   assert("post: restored" && !this->GetInitialized());
 }
 
@@ -161,24 +161,24 @@ bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
   assert("pre: e_exists" && e!=0);
   assert("pre: e_is_client_message" &&
          static_cast<const XEvent *>(e)->type==ClientMessage);
-  
+
   MagellanFloatEvent info;
-  
+
   const XEvent *event=static_cast<const XEvent *>(e);
-  
+
   int deviceEvent=MagellanTranslateEvent(
     static_cast<Display *>(this->DisplayId),
     const_cast<XEvent *>(event),
     &info,
     this->TranslationScale,
     this->RotationScale);
-  
+
   vtkDebugMacro(<< "deviceEvent=" << deviceEvent);
-  
+
   vtkTDxMotionEventInfo motionInfo;
   int buttonInfo;
   double axis[3];
-  
+
   bool result;
   switch(deviceEvent)
     {
@@ -187,18 +187,18 @@ bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
       MagellanRemoveMotionEvents(static_cast<Display *>(this->DisplayId));
       motionInfo.X=info.MagellanData[MagellanX];
       motionInfo.Y=info.MagellanData[MagellanY];
-      
+
       // On Unix, the Z axis is reversed (wrong). We want to have a
       // right-handed coordinate system, so positive Z has to come towards us,
       // as on Windows.
       motionInfo.Z=-info.MagellanData[MagellanZ];
-      
+
       axis[0]=info.MagellanData[MagellanA];
       axis[1]=info.MagellanData[MagellanB];
-      
+
       // On Unix, the Z axis is reserved (wrong).
       axis[2]=-info.MagellanData[MagellanC];
-      
+
       motionInfo.Angle=vtkMath::Norm(axis);
       if(motionInfo.Angle==0.0)
         {
@@ -243,7 +243,7 @@ bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
       result=false;
       break;
     }
-  
+
   return result;
 }
 
@@ -255,7 +255,7 @@ bool vtkTDxUnixDevice::ProcessEvent(const vtkTDxUnixDeviceXEvent *e)
 void vtkTDxUnixDevice::SetSensitivity(double sensitivity)
 {
   assert("pre: initialized" && this->GetInitialized());
-  
+
   MagellanApplicationSensitivity(static_cast<Display *>(this->DisplayId),
                                  sensitivity);
 }
@@ -264,7 +264,7 @@ void vtkTDxUnixDevice::SetSensitivity(double sensitivity)
 void vtkTDxUnixDevice::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "RotationScale: " << this->RotationScale << endl;
   os << indent << "TranslationScale: " << this->TranslationScale << endl;
 }

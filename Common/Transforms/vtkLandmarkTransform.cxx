@@ -33,11 +33,11 @@ vtkLandmarkTransform::vtkLandmarkTransform()
 vtkLandmarkTransform::~vtkLandmarkTransform()
 {
   if(this->SourceLandmarks)
-    { 
+    {
     this->SourceLandmarks->Delete();
     }
   if(this->TargetLandmarks)
-    { 
+    {
     this->TargetLandmarks->Delete();
     }
 }
@@ -48,20 +48,20 @@ void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << "Mode: " << this->GetModeAsString() << "\n";
   os << "SourceLandmarks: " << this->SourceLandmarks << "\n";
-  if(this->SourceLandmarks) 
+  if(this->SourceLandmarks)
     {
     this->SourceLandmarks->PrintSelf(os,indent.GetNextIndent());
     }
   os << "TargetLandmarks: " << this->TargetLandmarks << "\n";
   if(this->TargetLandmarks)
-    { 
+    {
     this->TargetLandmarks->PrintSelf(os,indent.GetNextIndent());
     }
 }
 
 //----------------------------------------------------------------------------
 // Update the 4x4 matrix. Updates are only done as necessary.
- 
+
 void vtkLandmarkTransform::InternalUpdate()
 {
   vtkIdType i;
@@ -137,11 +137,11 @@ void vtkLandmarkTransform::InternalUpdate()
 
   double M[3][3];
   double AAT[3][3];
-  for(i=0;i<3;i++) 
+  for(i=0;i<3;i++)
     {
     AAT[i][0] = M[i][0]=0.0F; // fill M with zeros
-    AAT[i][1] = M[i][1]=0.0F; 
-    AAT[i][2] = M[i][2]=0.0F; 
+    AAT[i][1] = M[i][1]=0.0F;
+    AAT[i][2] = M[i][2]=0.0F;
     }
   vtkIdType pt;
   double a[3],b[3];
@@ -159,7 +159,7 @@ void vtkLandmarkTransform::InternalUpdate()
     b[1] -= target_centroid[1];
     b[2] -= target_centroid[2];
     // accumulate the products a*T(b) into the matrix M
-    for(i=0;i<3;i++) 
+    for(i=0;i<3;i++)
       {
       M[i][0] += a[i]*b[0];
       M[i][1] += a[i]*b[1];
@@ -188,7 +188,7 @@ void vtkLandmarkTransform::InternalUpdate()
     vtkMath::Multiply3x3(AAT,M,M);
 
     // this->Matrix = M^t
-    for(i=0;i<3;++i) 
+    for(i=0;i<3;++i)
       {
       for(j=0;j<3;++j)
         {
@@ -200,9 +200,9 @@ void vtkLandmarkTransform::InternalUpdate()
     {
     // compute required scaling factor (if desired)
     double scale = (double)sqrt(sb/sa);
-    
+
     // -- build the 4x4 matrix N --
-    
+
     double Ndata[4][4];
     double *N[4];
     for(i=0;i<4;i++)
@@ -243,7 +243,7 @@ void vtkLandmarkTransform::InternalUpdate()
     // (they are sorted in decreasing order for us by JacobiN)
     double w,x,y,z;
 
-    // first: if points are collinear, choose the quaternion that 
+    // first: if points are collinear, choose the quaternion that
     // results in the smallest rotation.
     if (eigenvalues[0] == eigenvalues[1] || N_PTS == 2)
       {
@@ -265,16 +265,16 @@ void vtkLandmarkTransform::InternalUpdate()
 
       // normalize the two vectors
       rs = sqrt(rs);
-      ds[0] /= rs; ds[1] /= rs; ds[2] /= rs; 
+      ds[0] /= rs; ds[1] /= rs; ds[2] /= rs;
       rt = sqrt(rt);
-      dt[0] /= rt; dt[1] /= rt; dt[2] /= rt; 
+      dt[0] /= rt; dt[1] /= rt; dt[2] /= rt;
 
       // take dot & cross product
       w = ds[0]*dt[0] + ds[1]*dt[1] + ds[2]*dt[2];
       x = ds[1]*dt[2] - ds[2]*dt[1];
       y = ds[2]*dt[0] - ds[0]*dt[2];
       z = ds[0]*dt[1] - ds[1]*dt[0];
-    
+
       double r = sqrt(x*x + y*y + z*z);
       double theta = atan2(r,w);
 
@@ -320,11 +320,11 @@ void vtkLandmarkTransform::InternalUpdate()
     double xz = x*z;
     double yz = y*z;
 
-    this->Matrix->Element[0][0] = ww + xx - yy - zz; 
+    this->Matrix->Element[0][0] = ww + xx - yy - zz;
     this->Matrix->Element[1][0] = 2.0*(wz + xy);
     this->Matrix->Element[2][0] = 2.0*(-wy + xz);
 
-    this->Matrix->Element[0][1] = 2.0*(-wz + xy);  
+    this->Matrix->Element[0][1] = 2.0*(-wz + xy);
     this->Matrix->Element[1][1] = ww - xx + yy - zz;
     this->Matrix->Element[2][1] = 2.0*(wx + yz);
 
@@ -334,7 +334,7 @@ void vtkLandmarkTransform::InternalUpdate()
 
     if (this->Mode != VTK_LANDMARK_RIGIDBODY)
       { // add in the scale factor (if desired)
-      for(i=0;i<3;i++) 
+      for(i=0;i<3;i++)
         {
         this->Matrix->Element[i][0] *= scale;
         this->Matrix->Element[i][1] *= scale;
@@ -378,7 +378,7 @@ unsigned long vtkLandmarkTransform::GetMTime()
 
   if (this->SourceLandmarks)
     {
-    mtime = this->SourceLandmarks->GetMTime(); 
+    mtime = this->SourceLandmarks->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -386,7 +386,7 @@ unsigned long vtkLandmarkTransform::GetMTime()
     }
   if (this->TargetLandmarks)
     {
-    mtime = this->TargetLandmarks->GetMTime(); 
+    mtime = this->TargetLandmarks->GetMTime();
     if (mtime > result)
       {
       result = mtime;
@@ -444,7 +444,7 @@ void vtkLandmarkTransform::Inverse()
 //----------------------------------------------------------------------------
 vtkAbstractTransform *vtkLandmarkTransform::MakeTransform()
 {
-  return vtkLandmarkTransform::New(); 
+  return vtkLandmarkTransform::New();
 }
 
 //----------------------------------------------------------------------------

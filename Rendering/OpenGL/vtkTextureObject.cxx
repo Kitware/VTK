@@ -82,7 +82,7 @@ GLint OpenGLWrap[5]=
   vtkgl::CLAMP_TO_BORDER,
   vtkgl::MIRRORED_REPEAT
 };
-  
+
 const char *WrapAsString[5]=
 {
   "Clamp",
@@ -121,7 +121,7 @@ GLenum OpenGLDepthInternalFormat[5]=
   vtkgl::DEPTH_COMPONENT32,
   vtkgl::DEPTH_COMPONENT32F,
 };
-  
+
 const char *DepthInternalFormatFilterAsString[6]=
 {
   "Native",
@@ -145,7 +145,7 @@ vtkTextureObject::vtkTextureObject()
   this->Width=this->Height=this->Depth=0;
   this->SupportsTextureInteger=false;
   this->SupportsTextureFloat=false;
-  
+
   this->WrapS=Repeat;
   this->WrapT=Repeat;
   this->WrapR=Repeat;
@@ -160,11 +160,11 @@ vtkTextureObject::vtkTextureObject()
   this->MaxLOD=1000.0f;
   this->BaseLevel=0;
   this->MaxLevel=1000;
-  
+
   this->DepthTextureCompare=false;
   this->DepthTextureCompareFunction=Lequal;
   this->DepthTextureMode=Luminance;
-  
+
   this->GenerateMipmap=false;
 }
 
@@ -181,17 +181,17 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win)
   if (renWin)
     {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
-    
+
     bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
     bool gl13=mgr->ExtensionSupported("GL_VERSION_1_3")==1;
     bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
-    
+
     bool npot=gl20 ||
       mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
-    
+
     bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
     bool multi=gl13 || mgr->ExtensionSupported("GL_ARB_multitexture");
-    
+
     return npot && tex3D && multi;
     }
   return false;
@@ -203,22 +203,22 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLExtensionManager* mgr)
   // Optional extension, requires GeForce8
   this->SupportsTextureInteger =
     mgr->LoadSupportedExtension("GL_EXT_texture_integer") != 0;
-  
+
   this->SupportsTextureFloat=
     mgr->ExtensionSupported("GL_ARB_texture_float")==1;
-  
+
   bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
   bool gl13=mgr->ExtensionSupported("GL_VERSION_1_3")==1;
   bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
-  
+
   bool npot=gl20 ||
     mgr->ExtensionSupported("GL_ARB_texture_non_power_of_two");
-  
+
   bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
   bool multi=gl13 || mgr->ExtensionSupported("GL_ARB_multitexture");
-  
+
   bool supported=npot && tex3D && multi;
-  
+
   if(supported)
     {
     // tex3D
@@ -313,7 +313,7 @@ void vtkTextureObject::CreateTexture()
       vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
       glTexParameteri(this->Target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
-      
+
       glTexParameteri(this->Target, GL_TEXTURE_WRAP_S, GL_CLAMP);
       vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
       glTexParameteri(this->Target, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -378,7 +378,7 @@ bool vtkTextureObject::IsBound()
     }
   return result;
 }
-  
+
 //----------------------------------------------------------------------------
 // Description:
 // Send all the texture object parameters to the hardware if not done yet.
@@ -386,14 +386,14 @@ bool vtkTextureObject::IsBound()
 void vtkTextureObject::SendParameters()
 {
   assert("pre: is_bound" && this->IsBound());
-  
+
   if(this->GetMTime()>this->SendParametersTime)
     {
     glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
     glTexParameteri(this->Target,GL_TEXTURE_WRAP_T,OpenGLWrap[this->WrapT]);
     glTexParameteri(this->Target,vtkgl::TEXTURE_WRAP_R,
                     OpenGLWrap[this->WrapR]);
-    
+
     glTexParameteri(this->Target,GL_TEXTURE_MIN_FILTER,
                     OpenGLMinFilter[this->MinificationFilter]);
     if(this->LinearMagnification)
@@ -404,18 +404,18 @@ void vtkTextureObject::SendParameters()
       {
       glTexParameteri(this->Target,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
       }
-    
+
     glTexParameterfv(this->Target,GL_TEXTURE_BORDER_COLOR,this->BorderColor);
-    
+
     glTexParameterf(this->Target,GL_TEXTURE_PRIORITY,this->Priority);
     glTexParameterf(this->Target,vtkgl::TEXTURE_MIN_LOD,this->MinLOD);
     glTexParameterf(this->Target,vtkgl::TEXTURE_MAX_LOD,this->MaxLOD);
     glTexParameteri(this->Target,vtkgl::TEXTURE_BASE_LEVEL,this->BaseLevel);
     glTexParameteri(this->Target,vtkgl::TEXTURE_MAX_LEVEL,this->MaxLevel);
-    
+
     glTexParameteri(this->Target,vtkgl::DEPTH_TEXTURE_MODE,
                     OpenGLDepthTextureMode[this->DepthTextureMode]);
-    
+
     if(DepthTextureCompare)
       {
       glTexParameteri(this->Target,vtkgl::TEXTURE_COMPARE_MODE,
@@ -426,11 +426,11 @@ void vtkTextureObject::SendParameters()
       glTexParameteri(this->Target,vtkgl::TEXTURE_COMPARE_MODE,
                       GL_NONE);
       }
-    
+
     glTexParameteri(this->Target,vtkgl::TEXTURE_COMPARE_FUNC,
                     OpenGLDepthTextureCompareFunction[this->DepthTextureCompareFunction]
       );
-    
+
     this->SendParametersTime.Modified();
     }
 }
@@ -447,7 +447,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
   // the format is LUMINANCE or LUMINANCE_ALPHA:
   // L: R=L, G=L, B=L
   // LA: R=L, G=L, B=L, A=A
-  
+
   // pre-condition
   if(vtktype==VTK_VOID && numComps != 1)
     {
@@ -497,7 +497,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA8;
           }
         }
-      
+
     case VTK_UNSIGNED_CHAR:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
         {
@@ -518,7 +518,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
         switch (numComps)
           {
           case 1:
-            return GL_LUMINANCE8;  
+            return GL_LUMINANCE8;
           case 2:
             return GL_LUMINANCE8_ALPHA8;
           case 3:
@@ -527,7 +527,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA8;
           }
         }
-      
+
     case VTK_SHORT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
         {
@@ -575,7 +575,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA16;
           }
         }
-      
+
     case VTK_UNSIGNED_SHORT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
         {
@@ -623,7 +623,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGBA16;
           }
         }
-      
+
     case VTK_INT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
         {
@@ -631,13 +631,13 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           {
           case 1:
             return vtkgl::LUMINANCE32I_EXT;
-            
+
           case 2:
             return vtkgl::LUMINANCE_ALPHA32I_EXT;
-            
+
           case 3:
             return vtkgl::RGB32I_EXT;
-            
+
           case 4:
             return vtkgl::RGBA32I_EXT;
           }
@@ -650,13 +650,13 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             {
             case 1:
               return vtkgl::LUMINANCE32F_ARB;
-              
+
             case 2:
               return vtkgl::LUMINANCE_ALPHA32F_ARB;
-              
+
             case 3:
               return vtkgl::RGB32F_ARB;
-              
+
             case 4:
               return vtkgl::RGBA32F_ARB;
             }
@@ -667,7 +667,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           return 0;
           }
         }
-      
+
     case VTK_UNSIGNED_INT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
         {
@@ -675,13 +675,13 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           {
           case 1:
             return vtkgl::LUMINANCE32UI_EXT;
-            
+
           case 2:
             return vtkgl::LUMINANCE_ALPHA32UI_EXT;
-            
+
           case 3:
             return vtkgl::RGB32UI_EXT;
-            
+
           case 4:
             return vtkgl::RGBA32UI_EXT;
           }
@@ -694,13 +694,13 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             {
             case 1:
               return vtkgl::LUMINANCE32F_ARB;
-              
+
             case 2:
               return vtkgl::LUMINANCE_ALPHA32F_ARB;
-              
+
             case 3:
               return vtkgl::RGB32F_ARB;
-              
+
             case 4:
               return vtkgl::RGBA32F_ARB;
             }
@@ -711,7 +711,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           return 0;
           }
         }
-      
+
     case VTK_FLOAT:
       if(this->SupportsTextureFloat)
         {
@@ -719,13 +719,13 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
           {
           case 1:
             return vtkgl::LUMINANCE32F_ARB;
-            
+
           case 2:
             return vtkgl::LUMINANCE_ALPHA32F_ARB;
-            
+
           case 3:
             return vtkgl::RGB32F_ARB;
-            
+
           case 4:
             return vtkgl::RGBA32F_ARB;
           }
@@ -786,7 +786,7 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
 static GLenum vtkGetType(int vtk_scalar_type)
 {
   // DON'T DEAL with VTK_CHAR as this is platform dependent.
-  
+
   switch (vtk_scalar_type)
     {
   case VTK_SIGNED_CHAR:
@@ -870,11 +870,11 @@ bool vtkTextureObject::Create1D(int numComps,
     vtkErrorMacro("Context mismatch. Cannot load data.");
     return false;
     }
-  
+
   GLenum target = GL_TEXTURE_1D;
 
   // Now, detemine texture parameters using the information from the pbo.
-  
+
   // * internalFormat depends on number of components and the data type.
   GLenum internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
                                                  shaderSupportsTextureInt);
@@ -928,7 +928,7 @@ bool vtkTextureObject::Create1D(int numComps,
 }
 
 //----------------------------------------------------------------------------
-bool vtkTextureObject::Create2D(unsigned int width, unsigned int height, 
+bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
                                 int numComps, vtkPixelBufferObject* pbo,
                                 bool shaderSupportsTextureInt)
 {
@@ -979,7 +979,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   this->CreateTexture();
   this->Bind();
 
-  pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);  
+  pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
   //vtkgl::ClampColorARB(vtkgl::CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE);
   vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
   // Source texture data from the PBO.
@@ -1020,21 +1020,21 @@ bool vtkTextureObject::CreateDepth(unsigned int width,
   assert("pre: context_exists" && this->GetContext()!=0);
   assert("pre: pbo_context_exists" && pbo->GetContext()!=0);
   assert("pre: context_match" && this->GetContext()==pbo->GetContext());
-  
+
 #ifdef VTK_TO_DEBUG
   cout << "pbo size=" << pbo->GetSize() << endl;
   cout << "width=" << width << endl;
   cout << "height=" << height << endl;
   cout << "width*height=" << width*height << endl;
 #endif
-  
+
   assert("pre: sizes_match" && pbo->GetSize()==width*height);
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
-  
+
   GLenum inFormat=OpenGLDepthInternalFormat[internalFormat];
   GLenum type=::vtkGetType(pbo->GetType());
-  
+
   this->Target=GL_TEXTURE_2D;
   this->Format=GL_DEPTH_COMPONENT;
   this->Type=type;
@@ -1043,7 +1043,7 @@ bool vtkTextureObject::CreateDepth(unsigned int width,
   this->Depth=1;
   this->NumberOfDimensions=2;
   this->Components=1;
-  
+
   this->CreateTexture();
   this->Bind();
 
@@ -1072,19 +1072,19 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
 {
   assert("pre: context_exists" && this->GetContext()!=0);
   assert("pre: raw_exists" && raw!=0);
-  
+
 #ifdef VTK_TO_DEBUG
   cout << "width=" << width << endl;
   cout << "height=" << height << endl;
   cout << "width*height=" << width*height << endl;
 #endif
-  
+
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
-  
+
   GLenum inFormat=OpenGLDepthInternalFormat[internalFormat];
   GLenum type=::vtkGetType(rawType);
-  
+
   this->Target=GL_TEXTURE_2D;
   this->Format=GL_DEPTH_COMPONENT;
   this->Type=type;
@@ -1093,10 +1093,10 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
   this->Depth=1;
   this->NumberOfDimensions=2;
   this->Components=1;
-  
+
   this->CreateTexture();
   this->Bind();
-  
+
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(this->Target, 0, static_cast<GLint>(inFormat),
                static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0,
@@ -1114,7 +1114,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width,unsigned int height,
   assert("pre: context_exists" && this->GetContext()!=0);
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
-  
+
   GLenum inFormat=OpenGLDepthInternalFormat[internalFormat];
   this->Target=GL_TEXTURE_2D;
   this->Format=GL_DEPTH_COMPONENT;
@@ -1124,10 +1124,10 @@ bool vtkTextureObject::AllocateDepth(unsigned int width,unsigned int height,
   this->Depth=1;
   this->NumberOfDimensions=2;
   this->Components=1;
-  
+
   this->CreateTexture();
   this->Bind();
-  
+
   glTexImage2D(this->Target, 0, static_cast<GLint>(inFormat),
                static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0,
                this->Format, this->Type,0);
@@ -1143,7 +1143,7 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
                                   int vtkType)
 {
   this->Target=GL_TEXTURE_1D;
-  
+
   if(this->Context==0)
     {
     vtkErrorMacro("No context specified. Cannot create texture.");
@@ -1151,12 +1151,12 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
     }
   GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
                                                   false);
-  
+
   // don't care, allocation only, no data transfer
   GLenum format = this->GetFormat(vtkType, numComps,false);
-  
+
   GLenum type = ::vtkGetType(vtkType);
-  
+
   this->Format = format;
   this->Type = type;
   this->Components = numComps;
@@ -1164,7 +1164,7 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
   this->Height = 1;
   this->Depth =1;
   this->NumberOfDimensions=1;
-  
+
   this->CreateTexture();
   this->Bind();
   glTexImage1D(this->Target, 0, static_cast<GLint>(internalFormat),
@@ -1181,8 +1181,8 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
                                   int numComps,int vtkType)
 {
   this->Target=GL_TEXTURE_2D;
-  
-  
+
+
   if(this->Context==0)
     {
     vtkErrorMacro("No context specified. Cannot create texture.");
@@ -1190,12 +1190,12 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
     }
   GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
                                                   false);
-  
+
   // don't care, allocation only, no data transfer
   GLenum format = this->GetFormat(vtkType, numComps,false);
-  
+
   GLenum type = ::vtkGetType(vtkType);
- 
+
   this->Format = format;
   this->Type = type;
   this->Components = numComps;
@@ -1203,7 +1203,7 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
   this->Height = height;
   this->Depth =1;
   this->NumberOfDimensions=2;
-  
+
   this->CreateTexture();
   this->Bind();
   glTexImage2D(this->Target, 0, static_cast<GLint>(internalFormat),
@@ -1212,7 +1212,7 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
   this->UnBind();
   return true;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Create a 3D color texture but does not initialize its values.
@@ -1222,7 +1222,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
                                   int vtkType)
 {
   this->Target=vtkgl::TEXTURE_3D;
-  
+
   if(this->Context==0)
     {
     vtkErrorMacro("No context specified. Cannot create texture.");
@@ -1230,12 +1230,12 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
     }
   GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
                                                   false);
-  
+
   // don't care, allocation only, no data transfer
   GLenum format = this->GetFormat(vtkType, numComps,false);
-  
+
   GLenum type = ::vtkGetType(vtkType);
- 
+
   this->Format = format;
   this->Type = type;
   this->Components = numComps;
@@ -1243,7 +1243,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
   this->Height = height;
   this->Depth =depth;
   this->NumberOfDimensions=3;
-  
+
   this->CreateTexture();
   this->Bind();
   vtkgl::TexImage3D(this->Target, 0, static_cast<GLint>(internalFormat),
@@ -1254,7 +1254,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
 }
 
 //----------------------------------------------------------------------------
-bool vtkTextureObject::Create3D(unsigned int width, unsigned int height, 
+bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
                                 unsigned int depth, int numComps,
                                 vtkPixelBufferObject* pbo,
                                 bool shaderSupportsTextureInt)
@@ -1326,7 +1326,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   this->Height = height;
   this->Depth = depth;
   this->NumberOfDimensions = 3;
-  
+
 #ifdef VTK_TO_TIMING
   timer->StopTimer();
   double time=timer->GetElapsedTime();
@@ -1523,7 +1523,7 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
   assert("pre: positive_height" && height>0);
   assert("pre: x_fit" && dstXmin+(srcXmax-srcXmin)<width);
   assert("pre: y_fit" && dstYmin+(srcYmax-srcYmin)<height);
-  
+
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -1531,34 +1531,34 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  
+
   glPushAttrib(GL_VIEWPORT_BIT|GL_POLYGON_BIT|GL_TEXTURE_BIT);
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glLoadIdentity();
-  
+
   glViewport(0,0,width,height);
   glDepthRange(0.0,1.0);
   glDisable(GL_POLYGON_OFFSET_FILL);
-  
+
   GLfloat minXTexCoord=static_cast<GLfloat>(
     static_cast<double>(srcXmin)/this->Width);
   GLfloat minYTexCoord=static_cast<GLfloat>(
     static_cast<double>(srcYmin)/this->Height);
-  
+
   GLfloat maxXTexCoord=static_cast<GLfloat>(
     static_cast<double>(srcXmax+1)/this->Width);
   GLfloat maxYTexCoord=static_cast<GLfloat>(
     static_cast<double>(srcYmax+1)/this->Height);
-  
+
   GLfloat dstXmax=static_cast<GLfloat>(dstXmin+srcXmax-srcXmin);
   GLfloat dstYmax=static_cast<GLfloat>(dstYmin+srcYmax-srcYmin);
-  
+
   // rasterization rules are different from points, lines and polygons.
   // the following vertex coordinates are only valid for 1:1 mapping in the
   // case of polygons.
-  
+
   // Draw a quad.
   glBegin(GL_TRIANGLE_FAN);
   glTexCoord2f(minXTexCoord,minYTexCoord);
@@ -1570,10 +1570,10 @@ void vtkTextureObject::CopyToFrameBuffer(int srcXmin,
   glTexCoord2f(minXTexCoord, maxYTexCoord);
   glVertex2f(static_cast<GLfloat>(dstXmin), dstYmax+1);
   glEnd();
-  
+
   glMatrixMode(GL_TEXTURE);
   glPopMatrix();
-  
+
   glPopAttrib();
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
@@ -1635,20 +1635,20 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "NumberOfDimensions: " << this->NumberOfDimensions << endl;
-  
+
   os << indent << "WrapS: " << WrapAsString[this->WrapS] << endl;
   os << indent << "WrapT: " << WrapAsString[this->WrapT] << endl;
   os << indent << "WrapR: " << WrapAsString[this->WrapR] << endl;
-  
+
   os << indent << "MinificationFilter: "
      << MinFilterAsString[this->MinificationFilter] << endl;
-  
+
   os << indent << "LinearMagnification: " << this->LinearMagnification << endl;
-  
+
   os << indent << "BorderColor: (" << this->BorderColor[0] << ","
      << this->BorderColor[1] << "," << this->BorderColor[2] << ","
      << this->BorderColor[3] << endl;
-  
+
   os << indent << "Priority: " << this->Priority <<  endl;
   os << indent << "MinLOD: " << this->MinLOD << endl;
   os << indent << "MaxLOD: " << this->MaxLOD << endl;

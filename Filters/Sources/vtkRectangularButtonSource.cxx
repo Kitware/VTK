@@ -28,7 +28,7 @@
 vtkStandardNewMacro(vtkRectangularButtonSource);
 
 //----------------------------------------------------------------------------
-// Construct 
+// Construct
 vtkRectangularButtonSource::vtkRectangularButtonSource()
 {
   this->Width = 0.5;
@@ -41,8 +41,8 @@ vtkRectangularButtonSource::vtkRectangularButtonSource()
 }
 
 //----------------------------------------------------------------------------
-// One half of the button is made up of nine (quad) polygons. 
-// 
+// One half of the button is made up of nine (quad) polygons.
+//
 static vtkIdType vtkRButtonPolys[72] = {
        0,1,5,4,     1,2,6,5,     2,3,7,6,     3,0,4,7,
        4,5,9,8,    5,6,10,9,   6,7,11,10,    7,4,8,11, 12,13,14,15,
@@ -64,23 +64,23 @@ int vtkRectangularButtonSource::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Generating rectangular button");
-  
+
   // Check input
   if ( this->Width <= 0.0 || this->Height <= 0.0 )
     {
     vtkErrorMacro(<<"Button must have non-zero height and width");
     return 1;
     }
-  
+
   // Create the button in several steps. First, create the button in
   // the x-y plane. After this, the z-depth is created. And if
   // it is a two-sided button, then a mirror reflection of the button
   // in the negative z-direction is created.
   int numPts = 16;
   int numCells = 9;
-  if ( this->TwoSided ) 
-    { 
-    numPts *= 2; 
+  if ( this->TwoSided )
+    {
+    numPts *= 2;
     numCells *= 2;
     }
 
@@ -114,7 +114,7 @@ int vtkRectangularButtonSource::RequestData(
     {
     double dX = (double)this->TextureDimensions[0];
     double dY = (double)this->TextureDimensions[1];
-    
+
     double f1 = textureX/dX;
     double f2 = textureY/dY;
     if ( f1 < f2 )
@@ -132,46 +132,46 @@ int vtkRectangularButtonSource::RequestData(
   // The first four points are around the base
   newPts->SetPoint(0, this->Center[0]-boxX, this->Center[1]-boxY, this->Center[2]+boxZ);
   newPts->SetPoint(1, this->Center[0]+boxX, this->Center[1]-boxY, this->Center[2]+boxZ);
-  newPts->SetPoint(2, this->Center[0]+boxX, this->Center[1]+boxY, this->Center[2]+boxZ); 
-  newPts->SetPoint(3, this->Center[0]-boxX, this->Center[1]+boxY, this->Center[2]+boxZ); 
+  newPts->SetPoint(2, this->Center[0]+boxX, this->Center[1]+boxY, this->Center[2]+boxZ);
+  newPts->SetPoint(3, this->Center[0]-boxX, this->Center[1]+boxY, this->Center[2]+boxZ);
 
   // The next four points are around the shoulder
-  newPts->SetPoint(4, this->Center[0]-shoulderX, this->Center[1]-shoulderY, this->Center[2]+shoulderZ); 
-  newPts->SetPoint(5, this->Center[0]+shoulderX, this->Center[1]-shoulderY, this->Center[2]+shoulderZ); 
-  newPts->SetPoint(6, this->Center[0]+shoulderX, this->Center[1]+shoulderY, this->Center[2]+shoulderZ); 
-  newPts->SetPoint(7, this->Center[0]-shoulderX, this->Center[1]+shoulderY, this->Center[2]+shoulderZ); 
+  newPts->SetPoint(4, this->Center[0]-shoulderX, this->Center[1]-shoulderY, this->Center[2]+shoulderZ);
+  newPts->SetPoint(5, this->Center[0]+shoulderX, this->Center[1]-shoulderY, this->Center[2]+shoulderZ);
+  newPts->SetPoint(6, this->Center[0]+shoulderX, this->Center[1]+shoulderY, this->Center[2]+shoulderZ);
+  newPts->SetPoint(7, this->Center[0]-shoulderX, this->Center[1]+shoulderY, this->Center[2]+shoulderZ);
 
   // The next four points are between the shoulder and texture region
-  newPts->SetPoint(8, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]+textureZ); 
-  newPts->SetPoint(9, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]+textureZ); 
-  newPts->SetPoint(10,this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]+textureZ);  
-  newPts->SetPoint(11,this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]+textureZ);  
+  newPts->SetPoint(8, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]+textureZ);
+  newPts->SetPoint(9, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]+textureZ);
+  newPts->SetPoint(10,this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]+textureZ);
+  newPts->SetPoint(11,this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]+textureZ);
 
   // The last four points define the texture region
-  newPts->SetPoint(12, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]+textureZ); 
-  newPts->SetPoint(13, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]+textureZ); 
-  newPts->SetPoint(14, this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]+textureZ); 
-  newPts->SetPoint(15, this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]+textureZ); 
+  newPts->SetPoint(12, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]+textureZ);
+  newPts->SetPoint(13, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]+textureZ);
+  newPts->SetPoint(14, this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]+textureZ);
+  newPts->SetPoint(15, this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]+textureZ);
 
   if ( this->TwoSided )
     {
     // The next four points are around the shoulder
-    newPts->SetPoint(16, this->Center[0]-shoulderX, this->Center[1]-shoulderY, this->Center[2]-shoulderZ); 
-    newPts->SetPoint(17, this->Center[0]+shoulderX, this->Center[1]-shoulderY, this->Center[2]-shoulderZ); 
-    newPts->SetPoint(18, this->Center[0]+shoulderX, this->Center[1]+shoulderY, this->Center[2]-shoulderZ); 
-    newPts->SetPoint(19, this->Center[0]-shoulderX, this->Center[1]+shoulderY, this->Center[2]-shoulderZ); 
+    newPts->SetPoint(16, this->Center[0]-shoulderX, this->Center[1]-shoulderY, this->Center[2]-shoulderZ);
+    newPts->SetPoint(17, this->Center[0]+shoulderX, this->Center[1]-shoulderY, this->Center[2]-shoulderZ);
+    newPts->SetPoint(18, this->Center[0]+shoulderX, this->Center[1]+shoulderY, this->Center[2]-shoulderZ);
+    newPts->SetPoint(19, this->Center[0]-shoulderX, this->Center[1]+shoulderY, this->Center[2]-shoulderZ);
 
     // The next four points are between the shoulder and texture region
-    newPts->SetPoint(20, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]-textureZ); 
-    newPts->SetPoint(21, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]-textureZ); 
-    newPts->SetPoint(22,this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]-textureZ);  
-    newPts->SetPoint(23,this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]-textureZ);  
+    newPts->SetPoint(20, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]-textureZ);
+    newPts->SetPoint(21, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]-textureZ);
+    newPts->SetPoint(22,this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]-textureZ);
+    newPts->SetPoint(23,this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]-textureZ);
 
     // The last four points define the texture region
-    newPts->SetPoint(24, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]-textureZ); 
-    newPts->SetPoint(25, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]-textureZ); 
-    newPts->SetPoint(26, this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]-textureZ); 
-    newPts->SetPoint(27, this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]-textureZ); 
+    newPts->SetPoint(24, this->Center[0]-textureX, this->Center[1]-textureY, this->Center[2]-textureZ);
+    newPts->SetPoint(25, this->Center[0]+textureX, this->Center[1]-textureY, this->Center[2]-textureZ);
+    newPts->SetPoint(26, this->Center[0]+textureX, this->Center[1]+textureY, this->Center[2]-textureZ);
+    newPts->SetPoint(27, this->Center[0]-textureX, this->Center[1]+textureY, this->Center[2]-textureZ);
     }
 
   // Generate the texture coordinates-----------------------------

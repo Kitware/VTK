@@ -33,7 +33,7 @@ public:
   static vtkCollectPolyData *New();
   vtkTypeMacro(vtkCollectPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // By defualt this filter uses the global controller,
   // but this method can be used to set another instead.

@@ -63,20 +63,20 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   this->FocalPoint = vtkPoints::New();
   this->FocalPoint->SetNumberOfPoints(1);
   this->FocalPoint->SetPoint(0, 0.0,0.0,0.0);
-  
+
   vtkDoubleArray *normals = vtkDoubleArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(1);
-  
+
   double normal[3];
   this->GetProjectionNormal( normal );
   normals->SetTuple(0,normal);
-  
+
   this->FocalData = vtkPolyData::New();
   this->FocalData->SetPoints(this->FocalPoint);
-  this->FocalData->GetPointData()->SetNormals(normals);  
+  this->FocalData->GetPointData()->SetNormals(normals);
   normals->Delete();
-  
+
   this->Glypher = vtkGlyph3D::New();
   this->Glypher->SetInputData(this->FocalData);
   this->Glypher->SetVectorModeToUseNormal();
@@ -113,11 +113,11 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   tpd->SetTransform( t );
   clean->Delete();
   cylinder->Delete();
-  
+
   this->SetActiveCursorShape(tpd->GetOutput());
   tpd->Delete();
   t->Delete();
-  
+
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->SetInputConnection(
     this->Glypher->GetOutputPort());
@@ -133,7 +133,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
 
   this->InteractionOffset[0] = 0.0;
   this->InteractionOffset[1] = 0.0;
-  
+
   this->BoundingPlanes = NULL;
 }
 
@@ -142,12 +142,12 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
 {
   this->FocalPoint->Delete();
   this->FocalData->Delete();
-  
+
   this->SetCursorShape( NULL );
   this->SetActiveCursorShape( NULL );
 
   this->RemoveAllBoundingPlanes();
-  
+
   this->Glypher->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
@@ -155,13 +155,13 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
   this->Property->Delete();
   this->SelectedProperty->Delete();
   this->ActiveProperty->Delete();
-  
+
   if ( this->ObliquePlane )
     {
     this->ObliquePlane->UnRegister(this);
     this->ObliquePlane = NULL;
     }
-  
+
   if (this->BoundingPlanes)
     {
     this->BoundingPlanes->UnRegister(this);
@@ -175,7 +175,7 @@ int vtkConstrainedPointHandleRepresentation::CheckConstraint(vtkRenderer *render
   double worldPos[3];
   double tolerance = 0.0;
   return  this->GetIntersectionPosition(eventPos, worldPos, tolerance, renderer);
-}                                        
+}
 
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::SetProjectionPosition(double position)
@@ -327,13 +327,13 @@ void vtkConstrainedPointHandleRepresentation::SetPosition(double xyz[3])
 }
 
 //-------------------------------------------------------------------------
-double *vtkConstrainedPointHandleRepresentation::GetPosition() 
+double *vtkConstrainedPointHandleRepresentation::GetPosition()
 {
   return this->FocalPoint->GetPoint(0);
 }
 
 //-------------------------------------------------------------------------
-void vtkConstrainedPointHandleRepresentation::GetPosition(double xyz[3]) 
+void vtkConstrainedPointHandleRepresentation::GetPosition(double xyz[3])
 {
   this->FocalPoint->GetPoint(0, xyz);
 }
@@ -341,7 +341,7 @@ void vtkConstrainedPointHandleRepresentation::GetPosition(double xyz[3])
 //-------------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::ShallowCopy(vtkProp* prop)
 {
-  vtkConstrainedPointHandleRepresentation *rep = 
+  vtkConstrainedPointHandleRepresentation *rep =
     vtkConstrainedPointHandleRepresentation::SafeDownCast(prop);
   if(rep)
     {
@@ -350,7 +350,7 @@ void vtkConstrainedPointHandleRepresentation::ShallowCopy(vtkProp* prop)
     this->ActiveProperty->DeepCopy(rep->GetActiveProperty());
     this->ProjectionNormal = rep->GetProjectionNormal();
     this->ProjectionPosition = rep->GetProjectionPosition();
-   
+
     this->SetObliquePlane(rep->GetObliquePlane());
     this->SetBoundingPlanes(rep->GetBoundingPlanes());
     }
@@ -360,18 +360,18 @@ void vtkConstrainedPointHandleRepresentation::ShallowCopy(vtkProp* prop)
 int vtkConstrainedPointHandleRepresentation::ComputeInteractionState(
   int X, int Y, int vtkNotUsed(modify))
 {
-  
+
   double pos[4], xyz[3];
   this->FocalPoint->GetPoint(0,pos);
   pos[3] = 1.0;
   this->Renderer->SetWorldPoint(pos);
   this->Renderer->WorldToDisplay();
   this->Renderer->GetDisplayPoint(pos);
-  
+
   xyz[0] = static_cast<double>(X);
   xyz[1] = static_cast<double>(Y);
   xyz[2] = pos[2];
-  
+
   this->VisibilityOn();
   double tol2 = this->Tolerance * this->Tolerance;
   if ( vtkMath::Distance2BetweenPoints(xyz,pos) <= tol2 )
@@ -408,18 +408,18 @@ void vtkConstrainedPointHandleRepresentation::StartWidgetInteraction(double star
 
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
-  
+
   // How far is this in pixels from the position of this widget?
   // Maintain this during interaction such as translating (don't
   // force center of widget to snap to mouse position)
-  
+
   // convert position to display coordinates
   double pos[3];
   this->GetDisplayPosition(pos);
 
   this->InteractionOffset[0] = pos[0] - startEventPos[0];
   this->InteractionOffset[1] = pos[1] - startEventPos[1];
-  
+
 }
 
 
@@ -466,15 +466,15 @@ void vtkConstrainedPointHandleRepresentation::Translate(double eventPos[2])
 }
 
 //----------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double eventPos[2], 
+int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double eventPos[2],
                                                                      double worldPos[3],
                                                                      double tolerance,
                                                                      vtkRenderer * renderer)
-{ 
+{
   double nearWorldPoint[4];
   double farWorldPoint[4];
   double tmp[3];
-  
+
   tmp[0] = eventPos[0] + this->InteractionOffset[0];
   tmp[1] = eventPos[1] + this->InteractionOffset[1];
   tmp[2] = 0.0;  // near plane
@@ -482,7 +482,7 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
     {
     renderer = this->Renderer;
     }
-  
+
   renderer->SetDisplayPoint(tmp);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(nearWorldPoint);
@@ -491,25 +491,25 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
   renderer->SetDisplayPoint(tmp);
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(farWorldPoint);
-  
+
   double normal[3];
   double origin[3];
 
   this->GetProjectionNormal( normal );
   this->GetProjectionOrigin( origin );
-  
+
   vtkCellPicker *picker = vtkCellPicker::New();
- 
-  picker->Pick(eventPos[0], eventPos[1], 0, renderer);   
+
+  picker->Pick(eventPos[0], eventPos[1], 0, renderer);
 
   vtkAssemblyPath *path = picker->GetPath();
-  
+
   if(path == 0)
    {
    return 0;
    }
   double pickPos[3];
-  picker->GetPickPosition(pickPos);   
+  picker->GetPickPosition(pickPos);
   path->Register(this);
   if ( this->BoundingPlanes )
     {
@@ -524,11 +524,11 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
         }
       }
     }
-    
+
   worldPos[0] = pickPos[0];
   worldPos[1] = pickPos[1];
   worldPos[2] = pickPos[2];
-  
+
   picker->Delete();
 
   return 1;
@@ -556,7 +556,7 @@ void vtkConstrainedPointHandleRepresentation::GetProjectionNormal( double normal
       break;
     case vtkConstrainedPointHandleRepresentation::Oblique:
       this->ObliquePlane->GetNormal(normal);
-      break;      
+      break;
     }
 }
 
@@ -582,7 +582,7 @@ void vtkConstrainedPointHandleRepresentation::GetProjectionOrigin( double origin
       break;
     case vtkConstrainedPointHandleRepresentation::Oblique:
       this->ObliquePlane->GetOrigin(origin);
-      break;      
+      break;
     }
 }
 
@@ -596,7 +596,7 @@ void vtkConstrainedPointHandleRepresentation::Scale(double eventPos[2])
   int *size = this->Renderer->GetSize();
   double dPos = static_cast<double>(eventPos[1]-this->LastEventPosition[1]);
   sf *= (1.0 + 2.0*(dPos / size[1])); //scale factor of 2.0 is arbitrary
-  
+
   // Scale the handle
   this->Glypher->SetScaleFactor(sf);
 }
@@ -645,7 +645,7 @@ void vtkConstrainedPointHandleRepresentation::BuildRepresentation()
   double normal[3];
   this->GetProjectionNormal( normal );
   this->FocalData->GetPointData()->GetNormals()->SetTuple(0,normal);
-  
+
   double *pos=this->WorldPosition->GetValue();
   this->FocalPoint->SetPoint(0, pos[0],pos[1],pos[2]);
   this->FocalPoint->Modified();
@@ -692,7 +692,7 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Projection Normal: ";
   if ( this->ProjectionNormal == vtkConstrainedPointHandleRepresentation::XAxis )
     {
@@ -710,7 +710,7 @@ void vtkConstrainedPointHandleRepresentation::PrintSelf(ostream& os, vtkIndent i
     {
     os << "Oblique\n";
     }
-  
+
   os << indent << "Active Property: ";
   this->ActiveProperty->PrintSelf(os,indent.GetNextIndent());
 

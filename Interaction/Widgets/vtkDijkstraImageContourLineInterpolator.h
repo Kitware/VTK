@@ -14,19 +14,19 @@
 =========================================================================*/
 // .NAME vtkDijkstraImageContourLineInterpolator - Contour interpolator for placing points on an image.
 //
-// .SECTION Description 
+// .SECTION Description
 // vtkDijkstraImageContourLineInterpolator interpolates and places
 // contour points on images. The class interpolates nodes by
-// computing a graph laying on the image data. By graph, we mean 
-// that the line interpolating the two end points traverses along 
-// pixels so as to form a shortest path. A Dijkstra algorithm is 
+// computing a graph laying on the image data. By graph, we mean
+// that the line interpolating the two end points traverses along
+// pixels so as to form a shortest path. A Dijkstra algorithm is
 // used to compute the path.
-// 
-// The class is meant to be used in conjunction with 
-// vtkImageActorPointPlacer. One reason for this coupling is a 
-// performance issue: both classes need to perform a cell pick, and 
+//
+// The class is meant to be used in conjunction with
+// vtkImageActorPointPlacer. One reason for this coupling is a
+// performance issue: both classes need to perform a cell pick, and
 // coupling avoids multiple cell picks (cell picks are slow).  Another
-// issue is that the interpolator may need to set the image input to 
+// issue is that the interpolator may need to set the image input to
 // its vtkDijkstraImageGeodesicPath ivar.
 //
 // .SECTION See Also

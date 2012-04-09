@@ -58,8 +58,8 @@ public:
 
   // Description:
   // Specify the desired part to extract. The part number must range between
-  // [0,NumberOfParts-1]. If the value is =(-1), then all parts will be 
-  // extracted. If the value is <(-1), then no parts will be  extracted but 
+  // [0,NumberOfParts-1]. If the value is =(-1), then all parts will be
+  // extracted. If the value is <(-1), then no parts will be  extracted but
   // the part colors will be updated.
   vtkSetMacro(PartNumber,int);
   vtkGetMacro(PartNumber,int);
@@ -69,7 +69,7 @@ public:
   vtkSetMacro(Merging,int);
   vtkGetMacro(Merging,int);
   vtkBooleanMacro(Merging,int);
-  
+
   // Description:
   // Specify a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.

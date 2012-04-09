@@ -44,7 +44,7 @@
 // (e.g. vtkWindowedSincPolyDataFilter).
 // Also note, Normals and Gradients are not computed.
 // .SECTION Caveats
-// This filter is specialized to volumes. If you are interested in 
+// This filter is specialized to volumes. If you are interested in
 // contouring other types of data, use the general vtkContourFilter. If you
 // want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
 // .SECTION See Also
@@ -66,7 +66,7 @@ protected:
   vtkDiscreteMarchingCubes();
   ~vtkDiscreteMarchingCubes();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
 private:

@@ -106,16 +106,16 @@ int vtkRecursiveDividingCubes::RequestData(
   NewVerts->InsertNextCell(0); //temporary cell count
 
   voxelPts = vtkIdList::New();
-  voxelPts->Allocate(8); 
+  voxelPts->Allocate(8);
   voxelPts->SetNumberOfIds(8);
 
   voxelScalars = vtkDoubleArray::New();
   voxelScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
   voxelScalars->Allocate(8*inScalars->GetNumberOfComponents());
-  
+
   //
-  // Loop over all cells checking to see which straddle the specified value. 
-  // Since we know that we are working with a volume, can create 
+  // Loop over all cells checking to see which straddle the specified value.
+  // Since we know that we are working with a volume, can create
   // appropriate data directly.
   //
   sliceSize = dim[0] * dim[1];
@@ -209,7 +209,7 @@ static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
 
 #define VTK_POINTS_PER_POLY_VERTEX 10000
 
-void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3], 
+void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
                                           double values[8])
 {
   int i;
@@ -255,7 +255,7 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
         vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
         }
       }
-    
+
     return;
     }
 

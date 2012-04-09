@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
@@ -81,7 +81,7 @@ void vtkRectilinearWipeWidget::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkRectilinearWipeWidget::Selected;
   self->GrabFocus(self->EventCallbackCommand);
@@ -89,7 +89,7 @@ void vtkRectilinearWipeWidget::SelectAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // This is redundant but necessary on some systems (windows) because the
   // cursor is switched during OS event processing and reverts to the default
   // cursor.
@@ -100,7 +100,7 @@ void vtkRectilinearWipeWidget::SelectAction(vtkAbstractWidget *w)
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
   self->WidgetRep->StartWidgetInteraction(eventPos);
-  
+
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -122,7 +122,7 @@ void vtkRectilinearWipeWidget::MoveAction(vtkAbstractWidget *w)
     self->SetCursor(self->WidgetRep->GetInteractionState());
     return;
     }
-  
+
   // Okay, adjust the representation
   double newEventPosition[2];
   newEventPosition[0] = static_cast<double>(X);
@@ -145,7 +145,7 @@ void vtkRectilinearWipeWidget::EndSelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Return state to not selected
   self->WidgetState = vtkRectilinearWipeWidget::Start;
   self->ReleaseFocus();
@@ -171,5 +171,5 @@ void vtkRectilinearWipeWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
 }

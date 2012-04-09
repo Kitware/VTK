@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkOpenGLProperty - OpenGL property
 // .SECTION Description
-// vtkOpenGLProperty is a concrete implementation of the abstract class 
+// vtkOpenGLProperty is a concrete implementation of the abstract class
 // vtkProperty. vtkOpenGLProperty interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOpenGLProperty_h
@@ -44,7 +44,7 @@ public:
   // Description:
   // Implement base class method.
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);
-  
+
   //BTX
   // Description:
   // This method is called after the actor has been rendered.
@@ -52,7 +52,7 @@ public:
   // any shaders allocated.
   virtual void PostRender(vtkActor *a,
                           vtkRenderer *r);
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this
   // property. The parameter window could be used to determine which graphic
@@ -64,16 +64,16 @@ public:
   // by defining a Material.
   vtkGetObjectMacro(PropProgram,vtkShaderProgram2);
   void SetPropProgram(vtkShaderProgram2 *);
-  
+
   // Description:
   // Get the object that can pass vertex attribute to a vtkShaderProgram2.
   virtual vtkShaderDeviceAdapter2* GetShaderDeviceAdapter2();
-  
+
   // Description:
   // Get the vtkShaderProgram2 object in use.
   vtkGetObjectMacro(CurrentShaderProgram2,vtkShaderProgram2);
   //ETX
-  
+
   // Description:
   // Provide values to initialize shader variables.
   // Useful to initialize shader variables that change over time
@@ -92,23 +92,23 @@ protected:
   // Description:
   // Load OpenGL extensions for multi texturing.
   void LoadMultiTexturingExtensions(vtkRenderer* ren);
-  
+
   // Description:
   // Read this->Material from new style shaders.
   virtual void ReadFrameworkMaterial();
-  
+
   // Owned. Result of merging the shader program of the renderer and the
   // PropProgram.
   vtkShaderProgram2 *CachedShaderProgram2;
-  
+
   vtkShaderProgram2 *LastRendererShaderProgram2; // just a ref
   vtkShaderProgram2 *LastPropProgram; // just a ref
   vtkShaderProgram2 *PropProgram; // owned
-  
+
   // Point to CachedShaderProgram2 if Shading is on and the context supports
   // it.
   vtkShaderProgram2 *CurrentShaderProgram2;
-  
+
   vtkShader2 *DefaultMainVS;
   vtkShader2 *DefaultMainFS;
   vtkShader2 *DefaultPropVS;
@@ -118,8 +118,8 @@ protected:
   bool UseDefaultPropVS;
   bool UseDefaultPropFS;
   vtkGLSLShaderDeviceAdapter2 *ShaderDeviceAdapter2;
-  
-  
+
+
 private:
   vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
   void operator=(const vtkOpenGLProperty&);  // Not implemented.

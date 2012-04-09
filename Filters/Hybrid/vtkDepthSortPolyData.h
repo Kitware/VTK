@@ -17,8 +17,8 @@
 // vtkDepthSortPolyData rearranges the order of cells so that certain
 // rendering operations (e.g., transparency or Painter's algorithms)
 // generate correct results. To use this filter you must specify the
-// direction vector along which to sort the cells. You can do this by 
-// specifying a camera and/or prop to define a view direction; or 
+// direction vector along which to sort the cells. You can do this by
+// specifying a camera and/or prop to define a view direction; or
 // explicitly set a view direction.
 
 // .SECTION Caveats
@@ -58,11 +58,11 @@ public:
   // poly data is sorted from back to front.
   vtkSetMacro(Direction,int);
   vtkGetMacro(Direction,int);
-  void SetDirectionToFrontToBack() 
+  void SetDirectionToFrontToBack()
     {this->SetDirection(VTK_DIRECTION_FRONT_TO_BACK);}
-  void SetDirectionToBackToFront() 
+  void SetDirectionToBackToFront()
     {this->SetDirection(VTK_DIRECTION_BACK_TO_FRONT);}
-  void SetDirectionToSpecifiedVector() 
+  void SetDirectionToSpecifiedVector()
     {this->SetDirection(VTK_DIRECTION_SPECIFIED_VECTOR);}
 
   // Description:
@@ -72,11 +72,11 @@ public:
   // first cell point is used.
   vtkSetMacro(DepthSortMode,int);
   vtkGetMacro(DepthSortMode,int);
-  void SetDepthSortModeToFirstPoint() 
+  void SetDepthSortModeToFirstPoint()
     {this->SetDepthSortMode(VTK_SORT_FIRST_POINT);}
-  void SetDepthSortModeToBoundsCenter() 
+  void SetDepthSortModeToBoundsCenter()
     {this->SetDepthSortMode(VTK_SORT_BOUNDS_CENTER);}
-  void SetDepthSortModeToParametricCenter() 
+  void SetDepthSortModeToParametricCenter()
     {this->SetDepthSortMode(VTK_SORT_PARAMETRIC_CENTER);}
 
   // Description:
@@ -138,7 +138,7 @@ protected:
   double Vector[3];
   double Origin[3];
   int SortScalars;
-  
+
 private:
   vtkDepthSortPolyData(const vtkDepthSortPolyData&);  // Not implemented.
   void operator=(const vtkDepthSortPolyData&);  // Not implemented.

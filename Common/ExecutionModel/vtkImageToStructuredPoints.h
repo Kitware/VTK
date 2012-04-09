@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageToStructuredPoints - Attaches image pipeline to VTK. 
+// .NAME vtkImageToStructuredPoints - Attaches image pipeline to VTK.
 // .SECTION Description
 // vtkImageToStructuredPoints changes an image cache format to
 // a structured points dataset.  It takes an Input plus an optional
@@ -26,7 +26,7 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
- 
+
 class vtkImageData;
 class vtkStructuredPoints;
 
@@ -36,7 +36,7 @@ public:
   static vtkImageToStructuredPoints *New();
   vtkTypeMacro(vtkImageToStructuredPoints,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set/Get the input object from the image pipeline.
   void SetVectorInputData(vtkImageData *input);
@@ -52,7 +52,7 @@ protected:
 
   // to translate the wholeExtent to have min 0 ( I do not like this hack).
   int Translate[3];
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

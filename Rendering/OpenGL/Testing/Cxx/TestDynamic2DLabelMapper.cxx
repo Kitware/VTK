@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This tests vtkDynamic2DLabelMapper 
+// This tests vtkDynamic2DLabelMapper
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
@@ -38,7 +38,7 @@
 int TestDynamic2DLabelMapper(int argc, char* argv[])
 {
   vtkIdType numPoints = 75;
-  
+
   VTK_CREATE(vtkPolyData, poly);
   VTK_CREATE(vtkPoints, pts);
   VTK_CREATE(vtkCellArray, cells);
@@ -52,7 +52,7 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
     x[1] = v*sin(v);
     x[2] = 0;
     pts->SetPoint(i, x);
-    
+
     cells->InsertNextCell(1, &i);
     }
   poly->SetPoints(pts);
@@ -70,12 +70,12 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   mapper->SetInputData(poly);
   VTK_CREATE(vtkActor2D, actor);
   actor->SetMapper(mapper);
-  
+
   VTK_CREATE(vtkPolyDataMapper, polyMapper);
   polyMapper->SetInputData(poly);
   VTK_CREATE(vtkActor, polyActor);
   polyActor->SetMapper(polyMapper);
-  
+
   VTK_CREATE(vtkRenderer, ren);
   ren->AddActor(actor);
   ren->AddActor(polyActor);
@@ -83,10 +83,10 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   win->AddRenderer(ren);
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(win);
-  
+
   ren->ResetCamera();
   win->Render();
-  
+
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -94,6 +94,6 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
     }
-    
+
   return !retVal;
 }

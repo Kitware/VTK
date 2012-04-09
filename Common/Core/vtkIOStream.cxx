@@ -91,7 +91,7 @@ static int vtkIOStreamScanStream(istream& is, char* buffer)
       base = 8;
       }
     }
-  
+
   // Determine the range of digits allowed for this number.
   const char* digits = "0123456789abcdefABCDEF";
   int maxDigitIndex = 10;
@@ -131,7 +131,7 @@ static int vtkIOStreamScanStream(istream& is, char* buffer)
     {
     out = buffer;
     }
-  
+
   // Terminate the string in the buffer.
   *out = '\0';
 
@@ -173,11 +173,11 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
       case 10: format[typeIndex] = type; break;
       case 16: format[typeIndex] = 'x'; break;
       };
-    
+
     // Use sscanf to parse the number from the buffer.
     T result;
     int success = (sscanf(buffer, format, &result) == 1)?1:0;
-    
+
     // Set flags for resulting state.
     if(is.peek() == EOF) { state |= ios_base::eofbit; }
     if(!success) { state |= ios_base::failbit; }
@@ -186,13 +186,13 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
     } catch(...) { state |= ios_base::badbit; }
 #   endif
     }
-  
+
 # if defined(VTK_USE_ANSI_STDLIB)
   is.setstate(ios_base::iostate(state));
 # else
   is.clear(state);
 # endif
-  return is;  
+  return is;
 }
 
 // Print a vtkIOStreamSLL or vtkIOStreamULL value to an output stream.

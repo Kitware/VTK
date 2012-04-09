@@ -40,7 +40,7 @@ class VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
 public:
   vtkTypeMacro(vtkOldStyleCallbackCommand,vtkCommand);
 
-  static vtkOldStyleCallbackCommand *New() 
+  static vtkOldStyleCallbackCommand *New()
     {return new vtkOldStyleCallbackCommand;};
 
   // Description:
@@ -49,13 +49,13 @@ public:
 
   // Description:
   // Methods to set and get client and callback information.
-  void SetClientData(void *cd) 
+  void SetClientData(void *cd)
     {this->ClientData = cd;};
-  void SetCallback(void (*f)(void *clientdata)) 
+  void SetCallback(void (*f)(void *clientdata))
     {this->Callback = f;};
   void SetClientDataDeleteCallback(void (*f)(void *))
     {this->ClientDataDeleteCallback = f;};
-  
+
   void *ClientData;
   void (*Callback)(void *);
   void (*ClientDataDeleteCallback)(void *);
@@ -67,4 +67,4 @@ protected:
 
 
 #endif /* __vtkOldStyleCallbackCommand_h */
- 
+

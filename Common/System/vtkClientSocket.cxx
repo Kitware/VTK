@@ -37,7 +37,7 @@ int vtkClientSocket::ConnectToServer(const char* hostName, int port)
     this->CloseSocket(this->SocketDescriptor);
     this->SocketDescriptor = -1;
     }
-  
+
   this->SocketDescriptor = this->CreateSocket();
   if (!this->SocketDescriptor)
     {

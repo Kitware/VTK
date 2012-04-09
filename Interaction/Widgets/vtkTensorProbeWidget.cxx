@@ -21,7 +21,7 @@
 #include "vtkCamera.h"
 #include "vtkRenderWindow.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkEllipsoidTensorProbeRepresentation.h"
@@ -50,7 +50,7 @@ vtkTensorProbeWidget::vtkTensorProbeWidget()
       vtkCommand::MouseMoveEvent,
       vtkWidgetEvent::Move,
       this, vtkTensorProbeWidget::MoveAction);
-  
+
   this->Selected = 0;
 }
 
@@ -71,7 +71,7 @@ void vtkTensorProbeWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------------------
 void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget *w)
 {
-  vtkTensorProbeWidget *self = 
+  vtkTensorProbeWidget *self =
     reinterpret_cast<vtkTensorProbeWidget*>(w);
 
   if ( !self->Selected )
@@ -81,7 +81,7 @@ void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget *w)
 
     int pos[2];
     self->Interactor->GetEventPosition(pos);
-  
+
     if (rep->SelectProbe(pos))
       {
       self->LastEventPosition[0] = pos[0];
@@ -95,7 +95,7 @@ void vtkTensorProbeWidget::SelectAction(vtkAbstractWidget *w)
 //-------------------------------------------------------------------------
 void vtkTensorProbeWidget::EndSelectAction(vtkAbstractWidget *w)
 {
-  vtkTensorProbeWidget *self = 
+  vtkTensorProbeWidget *self =
     reinterpret_cast<vtkTensorProbeWidget*>(w);
 
   if ( self->Selected )
@@ -110,7 +110,7 @@ void vtkTensorProbeWidget::EndSelectAction(vtkAbstractWidget *w)
 //-------------------------------------------------------------------------
 void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget *w)
 {
-  vtkTensorProbeWidget *self = 
+  vtkTensorProbeWidget *self =
     reinterpret_cast<vtkTensorProbeWidget*>(w);
 
   if ( self->Selected )
@@ -120,7 +120,7 @@ void vtkTensorProbeWidget::MoveAction(vtkAbstractWidget *w)
 
     int pos[2];
     self->Interactor->GetEventPosition(pos);
-  
+
     int delta0 = pos[0] - self->LastEventPosition[0];
     int delta1 = pos[1] - self->LastEventPosition[1];
     double motionVector[2] = { static_cast<double>(delta0),

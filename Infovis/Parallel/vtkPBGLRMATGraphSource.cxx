@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -85,13 +85,13 @@ vtkPBGLRMATGraphSource::~vtkPBGLRMATGraphSource()
 
 // ----------------------------------------------------------------------
 
-void 
+void
 vtkPBGLRMATGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfVertices: " << this->NumberOfVertices << endl;
   os << indent << "NumberOfEdges: " << this->NumberOfEdges << endl;
-  os << indent << "Probabilities: " << this->A << ", " << this->B << ", " 
+  os << indent << "Probabilities: " << this->A << ", " << this->B << ", "
      << this->C << ", " << this->D << endl;
   os << indent << "IncludeEdgeWeights: " << this->IncludeEdgeWeights << endl;
   os << indent << "AllowSelfLoops: " << this->AllowSelfLoops << endl;
@@ -109,7 +109,7 @@ vtkPBGLRMATGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 void vtkPBGLRMATGraphSource::SetNumberOfVertices(vtkIdType value)
 {
   vtkIdType mask = (vtkIdType) 1 << ((sizeof(vtkIdType) * CHAR_BIT) - 2);
-  while (mask != 0) 
+  while (mask != 0)
     {
     if (value & mask)
       {
@@ -129,7 +129,7 @@ void vtkPBGLRMATGraphSource::SetNumberOfVertices(vtkIdType value)
 }
 
 // ----------------------------------------------------------------------
-void 
+void
 vtkPBGLRMATGraphSource::SetProbabilities(double A, double B, double C, double D)
 {
   if (A + B + C + D != 1.0)
@@ -145,22 +145,22 @@ vtkPBGLRMATGraphSource::SetProbabilities(double A, double B, double C, double D)
 }
 
 // ----------------------------------------------------------------------
-void 
+void
 vtkPBGLRMATGraphSource::GetProbabilities(double *A, double *B, double *C, double *D)
 {
-  if (A) 
+  if (A)
     {
     *A = this->A;
     }
-  if (B) 
+  if (B)
     {
     *B = this->B;
     }
-  if (C) 
+  if (C)
     {
     *C = this->C;
     }
-  if (D) 
+  if (D)
     {
     *D = this->D;
     }
@@ -169,10 +169,10 @@ vtkPBGLRMATGraphSource::GetProbabilities(double *A, double *B, double *C, double
 
 // ----------------------------------------------------------------------
 
-int 
+int
 vtkPBGLRMATGraphSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector *outputVector)
 {
   int myRank;
@@ -182,11 +182,11 @@ vtkPBGLRMATGraphSource::RequestData(
 
   // Seed the random number generator so we can produce repeatable results
   vtkMath::RandomSeed(this->Seed);
-  
+
   // Create a mutable, directed graph.
   vtkSmartPointer<vtkMutableDirectedGraph> dirBuilder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
-    
+
   // Create a Parallel BGL distributed graph helper
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper
     = vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
@@ -219,7 +219,7 @@ vtkPBGLRMATGraphSource::RequestData(
     {
     MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices-1)) / 2;
     }
-  
+
   if (this->NumberOfEdges > MaxEdges)
     {
     this->NumberOfEdges = MaxEdges;
@@ -244,13 +244,13 @@ vtkPBGLRMATGraphSource::RequestData(
       vtkIdType s = 0;
       vtkIdType t = 0;
 
-      for (vtkIdType level = 1; level < numLevels; ++level) 
+      for (vtkIdType level = 1; level < numLevels; ++level)
         {
         bool sBit = vtkMath::Random() > (this->A + this->B);
-        bool tBit 
+        bool tBit
           = (vtkMath::Random() > (CNorm * (sBit ? 1 : 0)
                                   + ANorm * (sBit ? 1 : 0))) ? 1 : 0;
-        s |= ((vtkIdType) 1 << (level-1)) * (sBit ? 1 : 0); 
+        s |= ((vtkIdType) 1 << (level-1)) * (sBit ? 1 : 0);
         t |= ((vtkIdType) 1 << (level-1)) * (tBit ? 1 : 0);
         }
 
@@ -267,10 +267,10 @@ vtkPBGLRMATGraphSource::RequestData(
       // doesn't change the block distribution (computed below); it
       // sits on top of the block distribution.
 
-      vtkIdType sVertex 
+      vtkIdType sVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(s),
                                     distribution.GetLocalIndexOfElement(s));
-      vtkIdType tVertex 
+      vtkIdType tVertex
         = helper->MakeDistributedId(distribution.GetProcessorOfElement(t),
                                     distribution.GetLocalIndexOfElement(t));
 
@@ -334,7 +334,7 @@ vtkPBGLRMATGraphSource::RequestData(
     // Figure out how many edges come before us in the graph.
     vtkIdType numEdge = output->GetNumberOfEdges();
     boost::mpi::communicator world;
-    vtkIdType myStartEdge 
+    vtkIdType myStartEdge
       = boost::mpi::scan(world, numEdge, std::plus<vtkIdType>()) - numEdge;
 
     vtkSmartPointer<vtkIdTypeArray> edgeIds =
@@ -353,8 +353,8 @@ vtkPBGLRMATGraphSource::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkPBGLRMATGraphSource::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* )
 {
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);

@@ -66,7 +66,7 @@ vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
     {
     return NULL;
     }
-  
+
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
@@ -111,7 +111,7 @@ int vtkImageToStructuredPoints::RequestData(
   uExtent[3] += this->Translate[1];
   uExtent[4] += this->Translate[2];
   uExtent[5] += this->Translate[2];
-  
+
   // if the data extent matches the update extent then just pass the data
   // otherwise we must reformat and copy the data
   if (data)
@@ -147,17 +147,17 @@ int vtkImageToStructuredPoints::RequestData(
         return 1;
         }
 
-      // Get increments to march through data 
+      // Get increments to march through data
       data->GetIncrements(inIncX, inIncY, inIncZ);
-      
+
       // find the region to loop over
       rowLength = (uExtent[1] - uExtent[0]+1)*inIncX*data->GetScalarSize();
-      maxX = uExtent[1] - uExtent[0]; 
-      maxY = uExtent[3] - uExtent[2]; 
+      maxX = uExtent[1] - uExtent[0];
+      maxY = uExtent[3] - uExtent[2];
       maxZ = uExtent[5] - uExtent[4];
       inIncY *= data->GetScalarSize();
       inIncZ *= data->GetScalarSize();
-      
+
       // Loop through output pixels
       for (idxZ = 0; idxZ <= maxZ; idxZ++)
         {
@@ -171,7 +171,7 @@ int vtkImageToStructuredPoints::RequestData(
         }
       }
     }
-    
+
   if (vData)
     {
     // if the data extent matches the update extent then just pass the data
@@ -201,7 +201,7 @@ int vtkImageToStructuredPoints::RequestData(
       vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
       int numComp = vData->GetNumberOfScalarComponents();
       int idx = 0;
-      
+
       // Loop through ouput pixels
       for (idxZ = 0; idxZ <= maxZ; idxZ++)
         {
@@ -236,22 +236,22 @@ int vtkImageToStructuredPoints::RequestInformation (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *vInfo = inputVector[1]->GetInformationObject(0);
-  
+
   int whole[6], *tmp;
   double *spacing, origin[3];
-  
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
     {
     vtkErrorMacro("Missing scalar field on input information!");
     return 0;
     }
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
     inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
     inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
 
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),whole);    
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),whole);
   spacing = inInfo->Get(vtkDataObject::SPACING());
   inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
@@ -266,12 +266,12 @@ int vtkImageToStructuredPoints::RequestInformation (
     if (tmp[3] < whole[1]) {whole[3] = tmp[3];}
     if (tmp[5] < whole[1]) {whole[5] = tmp[5];}
     }
-    
+
   // slide min extent to 0,0,0 (I Hate this !!!!)
   this->Translate[0] = whole[0];
   this->Translate[1] = whole[2];
   this->Translate[2] = whole[4];
-  
+
   origin[0] += spacing[0] * whole[0];
   origin[1] += spacing[1] * whole[2];
   origin[2] += spacing[2] * whole[4];
@@ -279,7 +279,7 @@ int vtkImageToStructuredPoints::RequestInformation (
   whole[3] -= whole[2];
   whole[5] -= whole[4];
   whole[0] = whole[2] = whole[4] = 0;
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),whole,6);
   // Now should Origin and Spacing really be part of information?
   // How about xyx arrays in RectilinearGrid of Points in StructuredGrid?
@@ -308,7 +308,7 @@ int vtkImageToStructuredPoints::RequestUpdateExtent(
   ext[3] += this->Translate[1];
   ext[4] += this->Translate[2];
   ext[5] += this->Translate[2];
-  
+
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
   if (vInfo)

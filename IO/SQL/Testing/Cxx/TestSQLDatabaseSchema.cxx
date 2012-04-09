@@ -18,7 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkSQLDatabaseSchema.h"
@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStdString.h"
 
 #include <set>
- 
+
 int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
 {
   bool status = true;
@@ -57,7 +57,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   for ( int preHandle = 0; preHandle < numPre; ++ preHandle )
     {
     vtkStdString preName = schema->GetPreambleNameFromHandle( preHandle );
-    cerr << "Preamble name: " 
+    cerr << "Preamble name: "
          << preName
          << "\n";
 
@@ -73,7 +73,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
 
     vtkStdString preBackend = schema->GetPreambleBackendFromHandle( preHandle );
-    cerr << "Preamble backend: " 
+    cerr << "Preamble backend: "
          << preBackend
          << "\n";
 
@@ -111,7 +111,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   for ( int colHandle = 0; colHandle < numCol; ++ colHandle )
     {
     vtkStdString colName = schema->GetColumnNameFromHandle( tblHandle, colHandle );
-    cerr << "Column name: " 
+    cerr << "Column name: "
          << colName
          << "\n";
 
@@ -127,7 +127,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
 
     int colType = schema->GetColumnTypeFromHandle( tblHandle, colHandle );
-    cerr << "Column type: " 
+    cerr << "Column type: "
          << colType
          << "\n";
 
@@ -158,11 +158,11 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     cerr << "Read " << numIdx << " != 2 indices in test schema.\n";
     status = false;
     }
-  
+
   for ( int idxHandle = 0; idxHandle < numIdx; ++ idxHandle )
     {
     vtkStdString idxName = schema->GetIndexNameFromHandle( tblHandle, idxHandle );
-    cerr << "Index name: " 
+    cerr << "Index name: "
          << idxName
          << "\n";
 
@@ -178,7 +178,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
 
     int idxType = schema->GetIndexTypeFromHandle( tblHandle, idxHandle );
-    cerr << "Index type: " 
+    cerr << "Index type: "
          << idxType
          << "\n";
 
@@ -222,11 +222,11 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
     cerr << "Read " << numTrg << " != 3 triggers in test schema.\n";
     status = false;
     }
-  
+
   for ( int trgHandle = 0; trgHandle < numTrg; ++ trgHandle )
     {
     vtkStdString trgName = schema->GetTriggerNameFromHandle( tblHandle, trgHandle );
-    cerr << "Trigger name: " 
+    cerr << "Trigger name: "
          << trgName
          << "\n";
 
@@ -242,7 +242,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
 
     int trgType = schema->GetTriggerTypeFromHandle( tblHandle, trgHandle );
-    cerr << "Trigger type: " 
+    cerr << "Trigger type: "
          << trgType
          << "\n";
 
@@ -258,7 +258,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
 
     vtkStdString trgAction = schema->GetTriggerActionFromHandle( tblHandle, trgHandle );
-    cerr << "Trigger action: " 
+    cerr << "Trigger action: "
          << trgAction
          << "\n";
 
@@ -274,7 +274,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       }
 
     vtkStdString trgBackend = schema->GetTriggerBackendFromHandle( tblHandle, trgHandle );
-    cerr << "Trigger backend: " 
+    cerr << "Trigger backend: "
          << trgBackend
          << "\n";
 

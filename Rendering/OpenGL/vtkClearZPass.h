@@ -15,7 +15,7 @@
 // .NAME vtkClearZPass - Clear the depth buffer with a given value.
 // .SECTION Description
 // Clear the depth buffer with a given value.
-// 
+//
 // .SECTION See Also
 // vtkRenderPass
 
@@ -40,12 +40,12 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
   // Description:
   // Set/Get the depth value. Initial value is 1.0 (farest).
   vtkSetClampMacro(Depth,double,0.0,1.0);
   vtkGetMacro(Depth,double);
-  
+
  protected:
   // Description:
   // Default constructor.
@@ -54,9 +54,9 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkClearZPass();
-  
+
   double Depth;
-  
+
  private:
   vtkClearZPass(const vtkClearZPass&);  // Not implemented.
   void operator=(const vtkClearZPass&);  // Not implemented.

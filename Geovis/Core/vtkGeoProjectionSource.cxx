@@ -209,7 +209,7 @@ void vtkGeoProjectionSource::RefineAndComputeError(vtkGeoTerrainNode* node)
       vtkIdType ind01 =   latInd          * rgridSize[0] + lonInd + skip;
       vtkIdType ind11 = ( latInd + skip ) * rgridSize[0] + lonInd + skip;
       vtkIdType ind10 = ( latInd + skip ) * rgridSize[0] + lonInd;
-      
+
       refined->GetPoint(ind00, pt00);
       refined->GetPoint(ind01, pt01);
       refined->GetPoint(ind11, pt11);
@@ -269,7 +269,7 @@ bool vtkGeoProjectionSource::FetchRoot(vtkGeoTreeNode* r)
   proj->SetName(vtkGeoProjection::GetProjectionName(this->Projection));
   trans->SetDestinationProjection(proj);
   transformFilter->SetTransform(trans);
-  
+
   transformFilter->SetInputConnection(grat->GetOutputPort());
   transformFilter->Update();
   double* realBounds = transformFilter->GetOutput()->GetBounds();

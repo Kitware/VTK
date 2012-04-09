@@ -93,9 +93,9 @@ int vtkMCubesReader::RequestData(
   vtkIdType nodes[3];
   float direction, n[3], dummy[2];
   int byteOrder = this->GetDataByteOrder();
-  
+
   vtkDebugMacro(<<"Reading marching cubes file");
-  
+
   //
   // Initialize
   //
@@ -112,7 +112,7 @@ int vtkMCubesReader::RequestData(
     }
 
   // Try to read limits file to get bounds. Otherwise, read data.
-  if ( this->LimitsFileName != NULL && 
+  if ( this->LimitsFileName != NULL &&
   (limitp = fopen (this->LimitsFileName, "rb")) != NULL &&
   stat (this->FileName, &buf) == 0 )
     {
@@ -166,10 +166,10 @@ int vtkMCubesReader::RequestData(
     bounds[3] = fbounds[3];
     bounds[4] = fbounds[4];
     bounds[5] = fbounds[5];
-    
+
     // calculate the number of triangles and vertices from file size
     numTris = buf.st_size / (18*sizeof(float)); //3 points + normals
-    numPts = numTris * 3;           
+    numPts = numTris * 3;
     }
   else // read data to get bounds
     {
@@ -177,7 +177,7 @@ int vtkMCubesReader::RequestData(
     // cannot use vtkMath uninitialze bounds for this computation
     bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
     bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
-    for (i=0; fread(&point, sizeof(pointType), 1, fp); i++) 
+    for (i=0; fread(&point, sizeof(pointType), 1, fp); i++)
       {
       // swap bytes if necc
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
@@ -188,7 +188,7 @@ int vtkMCubesReader::RequestData(
         {
         vtkByteSwap::Swap4LERange((float *) (&point),6);
         }
-      for (j=0; j<3; j++) 
+      for (j=0; j<3; j++)
         {
         bounds[2*j] = (bounds[2*j] < point.x[j] ? bounds[2*j] : point.x[j]);
         bounds[2*j+1] = (bounds[2*j+1] > point.x[j] ? bounds[2*j+1] : point.x[j]);
@@ -213,13 +213,13 @@ int vtkMCubesReader::RequestData(
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numTris,3));
 
-  if ( this->Normals ) 
+  if ( this->Normals )
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(numPts,numPts);
     }
-  
+
   if ( this->Locator == NULL )
     {
     this->CreateDefaultLocator();
@@ -229,16 +229,16 @@ int vtkMCubesReader::RequestData(
   direction = this->FlipNormals ? -1.0 : 1.0;
 
   double dp[3];
-  for ( i=0; i<numTris; i++) 
+  for ( i=0; i<numTris; i++)
     {
-    for (j=0; j<3; j++) 
+    for (j=0; j<3; j++)
       {
       int val;
       val = static_cast<int>(
         fread (&point, static_cast<int>(sizeof(pointType)), 1, fp));
       if (val != 1)
          {
-         vtkErrorMacro(<<"Error reading triange " << i 
+         vtkErrorMacro(<<"Error reading triange " << i
                        << " (" << numTris << "), point/normal " << j);
          }
 
@@ -267,7 +267,7 @@ int vtkMCubesReader::RequestData(
         }
       }
     if ( nodes[0] != nodes[1] &&
-         nodes[0] != nodes[2] && 
+         nodes[0] != nodes[2] &&
          nodes[1] != nodes[2] )
       {
       newPolys->InsertNextCell(3,nodes);
@@ -277,8 +277,8 @@ int vtkMCubesReader::RequestData(
       numDegenerate++;
       }
     }
-  vtkDebugMacro(<< "Read: " 
-                << newPts->GetNumberOfPoints() << " points, " 
+  vtkDebugMacro(<< "Read: "
+                << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles\n"
                 << "(Removed " << numDegenerate << " degenerate triangles)");
 
@@ -292,7 +292,7 @@ int vtkMCubesReader::RequestData(
   output->SetPolys(newPolys);
   newPolys->Delete();
 
-  if (this->Normals) 
+  if (this->Normals)
     {
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
@@ -307,11 +307,11 @@ int vtkMCubesReader::RequestData(
   return 1;
 }
 
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkMCubesReader::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
@@ -416,9 +416,9 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
-  os << indent << "Limits File Name: " 
+  os << indent << "Limits File Name: "
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
   os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
   os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");

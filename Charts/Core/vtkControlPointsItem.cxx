@@ -486,7 +486,7 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   lightPenColor[1] = std::min(color[1] + 100, 255);
   lightPenColor[2] = std::min(color[2] + 100, 255);
   lightPenColor[3] = penOpacity;
-  
+
   unsigned char darkPenColor[4];
   darkPenColor[0] = std::max(color[0] - 50, 0);
   darkPenColor[1] = std::max(color[1] - 50, 0);
@@ -497,7 +497,7 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   painter->DrawArc(0.f, 0.f, radius - 1.0, 200.f, 380.f);
   painter->GetPen()->SetColor(invertShadow ? darkPenColor : lightPenColor);
   painter->DrawArc(0.f, 0.f, radius - 1.0, 20.f, 200.f);
-  
+
   painter->GetPen()->SetColor(color);
   if (this->PointToDelete == index && this->PointAboutToBeDeleted)
     {
@@ -509,7 +509,7 @@ void vtkControlPointsItem::DrawPoint(vtkContext2D* painter, vtkIdType index)
   painter->GetPen()->SetOpacity(penOpacity);
   //painter->GetPen()->SetWidth(width);
   painter->GetBrush()->SetOpacity(brushOpacity);
-  
+
   painter->PopMatrix();
 }
 
@@ -1465,7 +1465,7 @@ bool vtkControlPointsItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &m
 //-----------------------------------------------------------------------------
 bool vtkControlPointsItem::KeyPressEvent(const vtkContextKeyEvent &key)
 {
-  bool move = key.GetInteractor()->GetAltKey() != 0 || 
+  bool move = key.GetInteractor()->GetAltKey() != 0 ||
               key.GetInteractor()->GetKeySym() == vtkStdString("plus") ||
               key.GetInteractor()->GetKeySym() == vtkStdString("minus");
   bool select = !move && key.GetInteractor()->GetShiftKey() != 0;

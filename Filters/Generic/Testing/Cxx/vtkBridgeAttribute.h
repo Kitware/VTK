@@ -52,7 +52,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \post valid_result: (result==vtkCenteringPoints) ||
   //            (result==vtkCenteringCells) || (result==vtkCenteringBoundaries)
   int GetCentering();
-  
+
   // Description:
   // Type of the attribute: scalar, vector, normal, texture coordinate, tensor
   // \post valid_result: (result==vtkDataSetAttributes::SCALARS)
@@ -71,7 +71,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   //                   ||(result==VTK_UNSIGNED_LONG) ||(result==VTK_FLOAT)
   //                   ||(result==VTK_DOUBLE)        ||(result==VTK_ID_TYPE)
   int GetComponentType();
-  
+
   // Description:
   // Number of tuples.
   // \post valid_result: result>=0
@@ -88,19 +88,19 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
   // \post result_exists: result!=0
   double *GetRange(int component);
-  
+
   // Description:
   // Range of the attribute component `component'.
   // THREAD SAFE
   // \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
   void GetRange(int component,
                 double range[2]);
-  
+
   // Description:
   // Return the maximum euclidean norm for the tuples.
   // \post positive_result: result>=0
   double GetMaxNorm();
-  
+
   // Description:
   // Attribute at all points of cell `c'.
   // \pre c_exists: c!=0
@@ -108,7 +108,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \post result_exists: result!=0
   // \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
   virtual double *GetTuple(vtkGenericAdaptorCell *c);
-  
+
   // Description:
   // Put attribute at all points of cell `c' in `tuple'.
   // \pre c_exists: c!=0
@@ -116,7 +116,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \pre tuple_exists: tuple!=0
   // \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
   virtual void GetTuple(vtkGenericAdaptorCell *c, double *tuple);
-  
+
   // Description:
   // Attribute at all points of cell `c'.
   // \pre c_exists: c!=0
@@ -140,7 +140,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \post result_exists: result!=0
   // \post valid_result_size: sizeof(result)==GetNumberOfComponents()
   double *GetTuple(vtkGenericPointIterator *p);
-  
+
   // Description:
   // Put the value of the attribute at position `p' into `tuple'.
   // \pre p_exists: p!=0
@@ -148,7 +148,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \pre tuple_exists: tuple!=0
   // \pre valid_tuple_size: sizeof(tuple)>=GetNumberOfComponents()
   void GetTuple(vtkGenericPointIterator *p, double *tuple);
-  
+
   // Description:
   // Put component `i' of the attribute at all points of cell `c' in `values'.
   // \pre valid_component: (i>=0) && (i<GetNumberOfComponents())
@@ -164,19 +164,19 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \pre p_exists: p!=0
   // \pre p_valid: !p->IsAtEnd()
   double GetComponent(int i,vtkGenericPointIterator *p);
-  
+
   // Description:
   // Recursive duplication of `other' in `this'.
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   void DeepCopy(vtkGenericAttribute *other);
-  
+
   // Description:
   // Update `this' using fields of `other'.
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   void ShallowCopy(vtkGenericAttribute *other);
-  
+
   // Description:
   // Set the current attribute to be centered on points with attribute `i' of
   // `d'.
@@ -184,7 +184,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \pre valid_range: (i>=0) && (i<d->GetNumberOfArrays())
   void InitWithPointData(vtkPointData *d,
                          int i);
-  
+
   // Description:
   // Set the current attribute to be centered on cells with attribute `i' of
   // `d'.
@@ -192,7 +192,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // \pre valid_range: (i>=0) && (i<d->GetNumberOfArrays())
   void InitWithCellData(vtkCellData *d,
                         int i);
-  
+
 protected:
   // Description:
   // Default constructor: empty attribute, not valid
@@ -200,23 +200,23 @@ protected:
   // Description:
   // Destructor.
   virtual ~vtkBridgeAttribute();
-  
+
   // Description:
   // If size>InternalTupleCapacity, allocate enough memory.
   // \pre positive_size: size>0
   void AllocateInternalTuple(int size);
-  
+
   friend class vtkBridgeCell;
-  
+
   // only one of them is non-null at a time.
   vtkPointData *Pd;
   vtkCellData *Cd;
   vtkDataSetAttributes *Data; // always not-null, equal to either on Pd or Cd
   int AttributeNumber;
-  
+
   double *InternalTuple; // used by vtkBridgeCell
   int InternalTupleCapacity;
-  
+
 private:
   vtkBridgeAttribute(const vtkBridgeAttribute&); // Not implemented
   void operator=(const vtkBridgeAttribute&); // Not implemented

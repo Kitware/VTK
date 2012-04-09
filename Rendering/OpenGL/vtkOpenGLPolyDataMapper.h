@@ -15,7 +15,7 @@
 // .NAME vtkOpenGLPolyDataMapper - a PolyDataMapper for the OpenGL library
 // .SECTION Description
 // vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapper.
-// vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL 
+// vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL
 // rendering library.
 
 #ifndef __vtkOpenGLPolyDataMapper_h
@@ -53,13 +53,13 @@ public:
   // Description:
   // Draw method for OpenGL.
   virtual int Draw(vtkRenderer *ren, vtkActor *a);
-  
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
 
   void DrawPoints(int idx,
-                  vtkPoints *p, 
+                  vtkPoints *p,
                   vtkDataArray *n,
                   vtkUnsignedCharArray *c,
                   vtkDataArray *t,
@@ -67,9 +67,9 @@ protected:
                   int &noAbort,
                   vtkCellArray *ca,
                   vtkRenderer *ren);
-  
+
   void DrawLines(int idx,
-                 vtkPoints *p, 
+                 vtkPoints *p,
                  vtkDataArray *n,
                  vtkUnsignedCharArray *c,
                  vtkDataArray *t,
@@ -79,7 +79,7 @@ protected:
                  vtkRenderer *ren);
 
   void DrawPolygons(int idx,
-                    vtkPoints *p, 
+                    vtkPoints *p,
                     vtkDataArray *n,
                     vtkUnsignedCharArray *c,
                     vtkDataArray *t,
@@ -90,7 +90,7 @@ protected:
                     vtkRenderer *ren);
 
   void DrawTStrips(int idx,
-                   vtkPoints *p, 
+                   vtkPoints *p,
                    vtkDataArray *n,
                    vtkUnsignedCharArray *c,
                    vtkDataArray *t,
@@ -99,7 +99,7 @@ protected:
                    GLenum rep,
                    vtkCellArray *ca,
                    vtkRenderer *ren);
-    
+
   vtkIdType TotalCells;
   int ListId;
   vtkOpenGLTexture* InternalColorTexture;

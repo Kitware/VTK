@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRenderedGraphRepresentation - 
+// .NAME vtkRenderedGraphRepresentation -
 //
 // .SECTION Description
 
@@ -359,7 +359,7 @@ protected:
   virtual bool RemoveFromView(vtkView* view);
 
   virtual void PrepareForRendering(vtkRenderView* view);
-  
+
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
   virtual vtkUnicodeString GetHoverTextInternal(vtkSelection* sel);

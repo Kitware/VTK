@@ -24,7 +24,7 @@ def getNumberFromLine(line):
         ret.append(float(i))
     return ret
 
-# Parse an ASCII file and manually create a field. Then construct a 
+# Parse an ASCII file and manually create a field. Then construct a
 # dataset from the field.
 dos = vtk.vtkProgrammableDataObjectSource()
 
@@ -56,10 +56,10 @@ def parseFile():
     for i in range(0, numLines):
         val = getNumberFromLine(file.readline())
         for j in range(0, 8):
-            timeLate.InsertNextValue(val[j])            
+            timeLate.InsertNextValue(val[j])
     # Add the array
     fieldData.AddArray(timeLate)
-    
+
     # MONTHLY_PAYMENT - independent variable
     while file.readline()[:15] != "MONTHLY_PAYMENT":
         pass
@@ -70,7 +70,7 @@ def parseFile():
         val = getNumberFromLine(file.readline())
         for j in range(0, 8):
             monthlyPayment.InsertNextValue(val[j])
-            
+
     fieldData.AddArray(monthlyPayment)
 
     # UNPAID_PRINCIPLE - skip
@@ -89,27 +89,27 @@ def parseFile():
     # INTEREST_RATE - independent variable
     while file.readline()[:13] != "INTEREST_RATE":
         pass
-    
+
     interestRate = vtk.vtkFloatArray()
     interestRate.SetName("INTEREST_RATE")
     for i in range(0, numLines):
         val = getNumberFromLine(file.readline())
         for j in range(0, 8):
             interestRate.InsertNextValue(val[j])
-            
+
     fieldData.AddArray(interestRate)
 
     # MONTHLY_INCOME - independent variable
     while file.readline()[:14] != "MONTHLY_INCOME":
         pass
-    
+
     monthlyIncome = vtk.vtkFloatArray()
     monthlyIncome.SetName("MONTHLY_INCOME")
     for i in range(0, numLines):
         val = getNumberFromLine(file.readline())
         for j in range(0, 8):
             monthlyIncome.InsertNextValue(val[j])
-            
+
     fieldData.AddArray(monthlyIncome)
 
 # Arrange to call the parsing function when the programmable data
@@ -140,7 +140,7 @@ rf.AddOperation("MOVE", scalar, "DATA_OBJECT", "POINT_DATA")
 # Force the filter to execute. This is need to force the pipeline
 # to execute so that we can find the range of the array TIME_LATE
 rf.Update()
-# Set max to the second (GetRange returns [min,max]) of the "range of the 
+# Set max to the second (GetRange returns [min,max]) of the "range of the
 # array called scalar in the PointData of the output of rf"
 max = rf.GetOutput().GetPointData().GetArray(scalar).GetRange()[1]
 
@@ -151,7 +151,7 @@ calc.SetInputConnection(rf.GetOutputPort())
 # Working on point data
 calc.SetAttributeModeToUsePointData()
 # Map scalar to s. When setting function, we can use s to
-# represent the array scalar (TIME_LATE) 
+# represent the array scalar (TIME_LATE)
 calc.AddScalarVariable("s", scalar, 0)
 # Divide scalar by max (applies division to all components of the array)
 calc.SetFunction("s / %f"%max)
@@ -195,12 +195,12 @@ def CreateAxes():
     axes = vtk.vtkAxes()
     axes.SetOrigin(bounds[0], bounds[2], bounds[4])
     axes.SetScaleFactor(popSplatter.GetOutput().GetLength()/5.0)
-    
+
     axesTubes = vtk.vtkTubeFilter()
     axesTubes.SetInputConnection(axes.GetOutputPort())
     axesTubes.SetRadius(axes.GetScaleFactor()/25.0)
     axesTubes.SetNumberOfSides(6)
-    
+
     axesMapper = vtk.vtkPolyDataMapper()
     axesMapper.SetInputConnection(axesTubes.GetOutputPort())
 
@@ -219,32 +219,32 @@ def CreateAxes():
     XActor.SetScale(0.02, .02, .02)
     XActor.SetPosition(0.35, -0.05, -0.05)
     XActor.GetProperty().SetColor(0, 0, 0)
-    
+
     YText = vtk.vtkVectorText()
     YText.SetText(yAxis)
-    
+
     YTextMapper = vtk.vtkPolyDataMapper()
     YTextMapper.SetInputConnection(YText.GetOutputPort())
-    
+
     YActor = vtk.vtkFollower()
     YActor.SetMapper(YTextMapper)
     YActor.SetScale(0.02, .02, .02)
     YActor.SetPosition(-0.05, 0.35, -0.05)
     YActor.GetProperty().SetColor(0, 0, 0)
-    
+
     ZText = vtk.vtkVectorText()
     ZText.SetText(zAxis)
-    
+
     ZTextMapper = vtk.vtkPolyDataMapper()
     ZTextMapper.SetInputConnection(ZText.GetOutputPort())
-    
+
     ZActor = vtk.vtkFollower()
     ZActor.SetMapper(ZTextMapper)
     ZActor.SetScale(0.02, .02, .02)
     ZActor.SetPosition(-0.05, -0.05, 0.35)
     ZActor.GetProperty().SetColor(0, 0, 0)
     return axesActor, XActor, YActor, ZActor
- 
+
 axesActor, XActor, YActor, ZActor = CreateAxes()
 
 # Create the render window, renderer, interactor

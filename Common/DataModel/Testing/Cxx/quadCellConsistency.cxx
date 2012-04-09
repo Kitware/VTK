@@ -115,9 +115,9 @@ int quadCellConsistency(int, char *[])
   ret += CompareCellEdges(edge, qedge);
   ret += CompareCellFaces(edge, qedge);
 
-  
+
   qedge->Delete();
-  
+
   InitializeCell(culine);
   ret += CompareCellEdges(edge, culine);
   ret += CompareCellFaces(edge, culine);
@@ -137,7 +137,7 @@ int quadCellConsistency(int, char *[])
 
 
   qtri->Delete();
-  
+
 
   InitializeCell(bitri);
   ret += CompareCellEdges(tri, bitri);

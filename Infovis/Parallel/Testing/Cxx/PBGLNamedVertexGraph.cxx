@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -52,15 +52,15 @@ static const int ImmediateAddEdgeChance = 3;
 
 void TestNamedUndirectedGraph()
 {
-  // Create the distributed graph 
-  vtkSmartPointer<vtkMutableUndirectedGraph> 
+  // Create the distributed graph
+  vtkSmartPointer<vtkMutableUndirectedGraph>
     graph = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper 
+  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper
     = vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   graph->SetDistributedGraphHelper(helper);
 
   int rank = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   // Make it a graph with the pedigree IDs vertices
@@ -89,9 +89,9 @@ void TestNamedUndirectedGraph()
   while (vertices->HasNext())
     {
     vtkIdType vertex = vertices->Next();
-    vtkVariant pedigreeId 
+    vtkVariant pedigreeId
       = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
-    cout << "Rank #" << rank << ": vertex " << pedigreeId.ToString() << " (" 
+    cout << "Rank #" << rank << ": vertex " << pedigreeId.ToString() << " ("
          << hex << vertex << ")\n";
     cout.flush();
     }
@@ -111,15 +111,15 @@ void TestNamedUndirectedGraph()
 
 void TestWithStringArray()
 {
-  // Create the distributed graph 
-  vtkSmartPointer<vtkMutableUndirectedGraph> 
+  // Create the distributed graph
+  vtkSmartPointer<vtkMutableUndirectedGraph>
     graph = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper 
+  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper
     = vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   graph->SetDistributedGraphHelper(helper);
 
   int rank = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   // Make it a graph with the pedigree IDs vertices
@@ -148,9 +148,9 @@ void TestWithStringArray()
   while (vertices->HasNext())
     {
     vtkIdType vertex = vertices->Next();
-    vtkStdString pedigreeId 
+    vtkStdString pedigreeId
       = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
-    cout << "Rank #" << rank << ": vertex " << pedigreeId << " (" 
+    cout << "Rank #" << rank << ": vertex " << pedigreeId << " ("
          << hex << vertex << ")\n";
     cout.flush();
     }
@@ -170,15 +170,15 @@ void TestWithStringArray()
 
 void TestWithIntArray()
 {
-  // Create the distributed graph 
-  vtkSmartPointer<vtkMutableUndirectedGraph> 
+  // Create the distributed graph
+  vtkSmartPointer<vtkMutableUndirectedGraph>
     graph = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
-  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper 
+  vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper
     = vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   graph->SetDistributedGraphHelper(helper);
 
   int rank = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
 
   // Make it a graph with the pedigree IDs vertices
@@ -208,7 +208,7 @@ void TestWithIntArray()
     {
     vtkIdType vertex = vertices->Next();
     int pedigreeId = pedigreeIds->GetValue(helper->GetVertexIndex(vertex));
-    cout << "Rank #" << rank << ": vertex " << dec << pedigreeId << " (" 
+    cout << "Rank #" << rank << ": vertex " << dec << pedigreeId << " ("
          << hex << vertex << ")\n";
     cout.flush();
     }

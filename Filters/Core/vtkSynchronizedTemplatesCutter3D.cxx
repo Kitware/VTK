@@ -63,9 +63,9 @@ void vtkSynchronizedTemplatesCutter3DInitializeOutput(
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  long estimatedSize;  
-  
-  estimatedSize = (int) pow ((double) 
+  long estimatedSize;
+
+  estimatedSize = (int) pow ((double)
       ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
   if (estimatedSize < 1024)
     {
@@ -77,12 +77,12 @@ void vtkSynchronizedTemplatesCutter3DInitializeOutput(
   newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
 
   o->GetPointData()->CopyAllOn();
-  
+
   o->GetPointData()->InterpolateAllocate(input->GetPointData(),
                                          estimatedSize,estimatedSize/2);
   o->GetCellData()->CopyAllocate(input->GetCellData(),
                                  estimatedSize,estimatedSize/2);
-  
+
   o->SetPoints(newPts);
   newPts->Delete();
 
@@ -124,17 +124,17 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   int edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
   vtkCellData *inCD = data->GetCellData();
-  vtkPointData *outPD = output->GetPointData();  
-  vtkCellData *outCD = output->GetCellData();  
+  vtkPointData *outPD = output->GetPointData();
+  vtkCellData *outCD = output->GetCellData();
   // Use to be arguments
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   ptr += self->GetArrayComponent();
-  
+
   vtkSynchronizedTemplatesCutter3DInitializeOutput(exExt, data, output);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  
+
   // this is an exploded execute extent.
   xMin = exExt[0];
   xMax = exExt[1];
@@ -142,19 +142,19 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   yMax = exExt[3];
   zMin = exExt[4];
   zMax = exExt[5];
-  
+
   vtkImplicitFunction *func = self->GetCutFunction();
   if (!func)
     {
     return;
     }
-  
+
   // implicit functions are 1 component
   xInc = 1;
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
   scalarZInc = zInc;
-  
+
   // Kens increments, probably to do with edge array
   zstep = xdim*ydim;
   yisectstep = xdim*3;
@@ -171,7 +171,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   offsets[9] = (zstep - xdim)*3 + 1;
   offsets[10] = (zstep - xdim)*3 + 4;
   offsets[11] = zstep*3;
-    
+
   // allocate storage array
   int *isect1 = new int [xdim*ydim*3*2];
   // set impossible edges to -1
@@ -193,13 +193,13 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   scalars = new T [xdim*ydim*2];
   scalars1 = scalars;
   scalars2 = scalars + xdim*ydim;
-    
+
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
     {
     value = values[vidx];
     inPtrZ = ptr;
-    
+
     // fill the first slice
     z = origin[2] + spacing[2]*zMin;
     x[2] = z;
@@ -217,11 +217,11 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
         }
       }
     scalarZInc = -scalarZInc;
-    
+
     //==================================================================
     for (k = zMin; k <= zMax; k++)
       {
-      self->UpdateProgress((double)vidx/numContours + 
+      self->UpdateProgress((double)vidx/numContours +
                            (k-zMin)/((zMax - zMin+1.0)*numContours));
       inPtrY = inPtrZ;
 
@@ -250,7 +250,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
 
       z = origin[2] + spacing[2]*k;
       x[2] = z;
-      
+
       // swap the buffers
       if (k%2)
         {
@@ -262,7 +262,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
         isect2Ptr = isect1 + xdim*ydim*3;
         }
       else
-        { 
+        {
         offsets[8] = (-zstep - xdim)*3;
         offsets[9] = (-zstep - xdim)*3 + 1;
         offsets[10] = (-zstep - xdim)*3 + 4;
@@ -278,7 +278,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
         // Increments are different for cells.  Since the cells are not
         // contoured until the second row of templates, subtract 1 from
         // i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
-        inCellId = 
+        inCellId =
           (xMin-inExt[0]) + (inExt[1]-inExt[0])*
           ( (j-inExt[2]-1) + (k-inExt[4]-1)*(inExt[3]-inExt[2]) );
 
@@ -287,7 +287,7 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
 
         s1 = inPtrY;
         v1 = (*s1 < value ? 0 : 1);
-        
+
         inPtrX = inPtrY;
         for (i = xMin; i <= xMax; i++)
           {
@@ -421,9 +421,9 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
             }
           // To keep track of ids for interpolating attributes.
           ++edgePtId;
-          
+
           // now add any polys that need to be added
-          // basically look at the isect values, 
+          // basically look at the isect values,
           // form an index and lookup the polys
           if (j > yMin && i < xMax && k > zMin)
             {
@@ -440,8 +440,8 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
             idx = idx + (*(isect2Ptr -yisectstep +1) > -1 ? 4 : 0);
             idx = idx + (*(isect2Ptr -yisectstep +4) > -1 ? 2 : 0);
             idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
-            
-            tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2 
+
+            tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2
               + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
             while (*tablePtr != -1)
               {
@@ -490,16 +490,16 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
   vtkPolyData *output;
 
   vtkDebugMacro(<< "Executing Cutter3D structured contour");
-  
+
   output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
     vtkDebugMacro(<<"Cutter3D structured contours requires Cutter3D data");
     return;
     }
-  
-  
+
+
   // Check data type and execute appropriate function
   ContourImage(this, exExt, data, output, (double *)0);
 }
@@ -520,7 +520,7 @@ int vtkSynchronizedTemplatesCutter3D::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // to be safe recompute the 
+  // to be safe recompute the
   this->RequestUpdateExtent(request,inputVector,outputVector);
 
   // Just call the threaded execute directly.

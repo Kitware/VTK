@@ -90,7 +90,7 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                       double worldPos[3],
                                       double vtkNotUsed(worldOrient)[9] )
 {
-  if ( this->PropPicker->Pick(displayPos[0], 
+  if ( this->PropPicker->Pick(displayPos[0],
                               displayPos[1], 0.0, ren) )
     {
     if (vtkAssemblyPath *path = this->PropPicker->GetPath())
@@ -104,7 +104,7 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       vtkAssemblyNode *node = NULL;
       vtkCollectionSimpleIterator sit;
       this->SurfaceProps->InitTraversal(sit);
-      
+
       while (vtkProp *p = this->SurfaceProps->GetNextProp(sit))
         {
         vtkCollectionSimpleIterator psit;
@@ -119,7 +119,7 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
         if (found)
           {
           this->PropPicker->GetPickPosition(worldPos);
-          
+
           // Raise height by 0.01 ... this should be a method..
           double displyPos[3];
           vtkInteractorObserver::ComputeWorldToDisplay(ren,
@@ -137,7 +137,7 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
         }
       }
     }
-    
+
   return 0;
 }
 
@@ -149,21 +149,21 @@ int vtkPolyDataPointPlacer::ValidateWorldPosition( double worldPos[3],
 }
 
 //----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ValidateWorldPosition( 
+int vtkPolyDataPointPlacer::ValidateWorldPosition(
                      double vtkNotUsed(worldPos)[3] )
 {
   return 1;
 }
 
 //----------------------------------------------------------------------
-int vtkPolyDataPointPlacer::ValidateDisplayPosition( vtkRenderer *, 
+int vtkPolyDataPointPlacer::ValidateDisplayPosition( vtkRenderer *,
                                       double vtkNotUsed(displayPos)[2] )
 {
   // We could check here to ensure that the display point picks one of the
-  // terrain props, but the contour representation always calls 
-  // ComputeWorldPosition followed by 
-  // ValidateDisplayPosition/ValidateWorldPosition when it needs to 
-  // update a node... 
+  // terrain props, but the contour representation always calls
+  // ComputeWorldPosition followed by
+  // ValidateDisplayPosition/ValidateWorldPosition when it needs to
+  // update a node...
   //
   // So that would be wasting CPU cycles to perform
   // the same check twice..  Just return 1 here.

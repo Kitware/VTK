@@ -125,7 +125,7 @@ int vtkStreamLine::RequestData(
 
     tOffset = sPrev->t;
 
-    for ( i=1; 
+    for ( i=1;
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
@@ -147,12 +147,12 @@ int vtkStreamLine::RequestData(
         pts->InsertNextId(id);
         newVectors->InsertTuple(id,v);
 
-        if ( newScalars ) 
+        if ( newScalars )
           {
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           newScalars->InsertTuple(id,&s);
           }
-        
+
         if ( this->Vorticity )
           {
           // Store the rotation values. Used after all the streamlines
@@ -184,7 +184,7 @@ int vtkStreamLine::RequestData(
     double normal[3], local1[3], local2[3], length, costheta, sintheta;
 
     lineNormalGenerator->GenerateSlidingNormals(newPts,newLines,normals);
-    
+
     //  Loop over all lines, from the above code we are know that each line
     //  will have at least two points and that no points will be shared
     //  between lines. It is important to loop over the points used by the
@@ -199,9 +199,9 @@ int vtkStreamLine::RequestData(
         newVectors->GetTuple(linePts[i], v);
         // obtain two unit orthogonal vectors on the plane perpendicular to
         // the streamline
-        for(j=0; j<3; j++) 
-          { 
-          local1[j] = normal[j]; 
+        for(j=0; j<3; j++)
+          {
+          local1[j] = normal[j];
           }
         length = vtkMath::Normalize(local1);
         vtkMath::Cross(local1, v, local2);
@@ -222,14 +222,14 @@ int vtkStreamLine::RequestData(
     lineNormalGenerator->Delete();
     rotation->Delete();
     }
-    
+
   output->SetPoints(newPts);
   newPts->Delete();
 
   output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 
-  if ( newScalars ) 
+  if ( newScalars )
     {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);

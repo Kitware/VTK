@@ -75,7 +75,7 @@ void vtkMCubesWriter::WriteData()
   this->WriteMCubes(fp, pts, normals, polys);
   fclose (fp);
 
-  if (this->LimitsFileName) 
+  if (this->LimitsFileName)
     {
     vtkDebugMacro("Writing MCubes limits file");
     if ((fp = fopen(this->LimitsFileName, "w")) == NULL)
@@ -89,7 +89,7 @@ void vtkMCubesWriter::WriteData()
 }
 
 void vtkMCubesWriter::WriteMCubes(FILE *fp, vtkPoints *pts,
-                                  vtkDataArray *normals, 
+                                  vtkDataArray *normals,
                                   vtkCellArray *polys)
 {
   typedef struct {float x[3], n[3];} pointType;
@@ -152,7 +152,7 @@ void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Limits File Name: " 
+  os << indent << "Limits File Name: "
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
 }
 

@@ -66,7 +66,7 @@ inline int vtkXMLUtilitiesEncodeEntities(unsigned char c, ostream &output)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUtilities::EncodeString(const char *input, int input_encoding, 
+void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
                                    ostream &output, int output_encoding,
                                    int special_entities)
 {
@@ -77,7 +77,7 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
     return;
     }
 
-  // If either the input or output encoding is not specified, 
+  // If either the input or output encoding is not specified,
   // or they are the same, dump as is (if no entites had to be converted)
 
   int no_input_encoding = (input_encoding <= VTK_ENCODING_NONE ||
@@ -86,8 +86,8 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
   int no_output_encoding = (output_encoding <= VTK_ENCODING_NONE ||
                             output_encoding >= VTK_ENCODING_UNKNOWN);
 
-  if (!special_entities && 
-      (no_input_encoding || no_output_encoding || 
+  if (!special_entities &&
+      (no_input_encoding || no_output_encoding ||
        input_encoding == output_encoding))
     {
     output << input;
@@ -118,7 +118,7 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
 
   if (output_encoding == VTK_ENCODING_UTF_8)
     {
-    int from_iso_8859 = (input_encoding >= VTK_ENCODING_ISO_8859_1 && 
+    int from_iso_8859 = (input_encoding >= VTK_ENCODING_ISO_8859_1 &&
                          input_encoding <= VTK_ENCODING_ISO_8859_16);
 
     // From ISO-8859 or US-ASCII
@@ -137,14 +137,14 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
             // that later, but it seems weird. In the meantime, just
             // output the hex representation.
 
-            output << "&#x" 
-                   << hex << (0xC0 | (*str >> 6)) 
-                   << hex << (0x80 | (*str & 0x3F)) 
+            output << "&#x"
+                   << hex << (0xC0 | (*str >> 6))
+                   << hex << (0x80 | (*str & 0x3F))
                    << ';';
 #else
             output << "&#x" << hex << (int)(*str) << ';';
 #endif
-            } 
+            }
           else if (*str < 30)
             {
             output << "&#x" << hex << (int)(*str) << ';';
@@ -186,9 +186,9 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
 
   else if (input_encoding == VTK_ENCODING_UTF_8)
     {
-    int to_iso_8859 = (output_encoding >= VTK_ENCODING_ISO_8859_1 && 
+    int to_iso_8859 = (output_encoding >= VTK_ENCODING_ISO_8859_1 &&
                        output_encoding <=VTK_ENCODING_ISO_8859_16);
-    
+
     // To US-ASCII or ISO 8859
 
     if (output_encoding == VTK_ENCODING_US_ASCII || to_iso_8859)
@@ -224,7 +224,7 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement *elem, 
+void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement *elem,
                                         ostream &os,
                                         const char *sep)
 {
@@ -258,7 +258,7 @@ void vtkXMLUtilities::CollateAttributes(vtkXMLDataElement *elem,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem, 
+void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
                                      ostream &os,
                                      vtkIndent *indent,
                                      int indent_attributes)
@@ -324,9 +324,9 @@ void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
     vtkXMLUtilities::EncodeString(
       cdata, elem->GetAttributeEncoding(), os, VTK_ENCODING_UTF_8, 1);
     }
-  
+
   // Nested elements
-  
+
   if (nb_nested)
     {
     if (indent)
@@ -338,7 +338,7 @@ void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
       if (indent)
         {
         vtkIndent next_indent = indent->GetNextIndent();
-        vtkXMLUtilities::FlattenElement(elem->GetNestedElement(i), 
+        vtkXMLUtilities::FlattenElement(elem->GetNestedElement(i),
                                         os, &next_indent);
         }
       else
@@ -366,7 +366,7 @@ void vtkXMLUtilities::FlattenElement(vtkXMLDataElement *elem,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLUtilities::WriteElementToFile(vtkXMLDataElement *elem, 
+int vtkXMLUtilities::WriteElementToFile(vtkXMLDataElement *elem,
                                         const char *filename,
                                         vtkIndent *indent)
 {
@@ -377,7 +377,7 @@ int vtkXMLUtilities::WriteElementToFile(vtkXMLDataElement *elem,
 
   ofstream os(filename, ios::out);
   vtkXMLUtilities::FlattenElement(elem, os, indent);
-  
+
   os.flush();
   if (os.fail())
     {
@@ -421,7 +421,7 @@ vtkXMLUtilities::ReadElementFromString(const char *str, int encoding)
 
   vtksys_ios::stringstream strstr;
   strstr << str;
-  vtkXMLDataElement *res = 
+  vtkXMLDataElement *res =
     vtkXMLUtilities::ReadElementFromStream(strstr, encoding);
 
   return res;
@@ -448,7 +448,7 @@ void vtkXMLUtilities::ReadElementFromAttributeArray(
 {
   if(atts)
     {
-    // If the target encoding is VTK_ENCODING_NONE or VTK_ENCODING_UNKNOWN, 
+    // If the target encoding is VTK_ENCODING_NONE or VTK_ENCODING_UNKNOWN,
     // then keep the internal/default encoding, otherwise encode each
     // attribute using that new format
 
@@ -480,8 +480,8 @@ void vtkXMLUtilities::ReadElementFromAttributeArray(
 
 //----------------------------------------------------------------------------
 void vtkXMLUtilitiesFindSimilarElementsInternal(
-  vtkXMLDataElement *elem, 
-  vtkXMLDataElement *tree, 
+  vtkXMLDataElement *elem,
+  vtkXMLDataElement *tree,
   vtkXMLUtilitiesDataElementContainer *results)
 {
   if (!elem || !tree || !results || elem == tree)
@@ -507,8 +507,8 @@ void vtkXMLUtilitiesFindSimilarElementsInternal(
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem, 
-                                         vtkXMLDataElement *tree, 
+int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
+                                         vtkXMLDataElement *tree,
                                          vtkXMLDataElement ***results)
 {
   if (!elem || ! tree)
@@ -518,9 +518,9 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
 
   // Create a data element container, and find all similar elements
 
-  vtkXMLUtilitiesDataElementContainer *container = 
+  vtkXMLUtilitiesDataElementContainer *container =
     new vtkXMLUtilitiesDataElementContainer;
-  
+
   vtkXMLUtilitiesFindSimilarElementsInternal(elem, tree, container);
 
   // If nothing was found, exit now
@@ -534,7 +534,7 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
     *results = new vtkXMLDataElement* [size];
 
     size = 0;
-    for (vtkXMLUtilitiesDataElementContainer::const_iterator 
+    for (vtkXMLUtilitiesDataElementContainer::const_iterator
            it = container->begin(); it != container->end(); ++it)
       {
       if (*it)
@@ -543,7 +543,7 @@ int vtkXMLUtilities::FindSimilarElements(vtkXMLDataElement *elem,
         }
       }
     }
-  
+
   delete container;
 
   return size;
@@ -593,7 +593,7 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
 
   // Do not bother factoring something already factored
 
-  if (tree->GetName() && 
+  if (tree->GetName() &&
       !strcmp(tree->GetName(), VTK_XML_UTILITIES_FACTORED_REF_NAME))
     {
     return 0;
@@ -625,7 +625,7 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
 
   vtksys_ios::ostringstream id;
   id << buffer << tree->GetName();
-    
+
   vtkXMLDataElement *factored = vtkXMLDataElement::New();
   factored->SetName(VTK_XML_UTILITIES_FACTORED_NAME);
   factored->SetAttributeEncoding(pool->GetAttributeEncoding());
@@ -637,7 +637,7 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   tree_copy->DeepCopy(tree);
   factored->AddNestedElement(tree_copy);
   tree_copy->Delete();
-    
+
   for (int i = 0; i < nb_of_similar_trees; i++)
     {
     similar_trees[i]->RemoveAllAttributes();
@@ -706,7 +706,7 @@ int vtkXMLUtilities::UnFactorElementsInternal(vtkXMLDataElement *tree,
   if (tree->GetName() &&
       !strcmp(tree->GetName(), VTK_XML_UTILITIES_FACTORED_REF_NAME))
     {
-    vtkXMLDataElement *original_tree = 
+    vtkXMLDataElement *original_tree =
       pool->FindNestedElementWithNameAndAttribute(
         VTK_XML_UTILITIES_FACTORED_NAME, "Id", tree->GetAttribute("Id"));
     if (original_tree && original_tree->GetNumberOfNestedElements())

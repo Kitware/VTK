@@ -46,8 +46,8 @@ int FastSplatter(int argc, char *argv[])
                                / (SPLAT_IMAGE_SIZE/2.0) );
       double yCoord = 1 - fabs(  (j - SPLAT_IMAGE_SIZE/2)
                                / (SPLAT_IMAGE_SIZE/2.0) );
-      
-      SplatImage->SetScalarComponentFromDouble(i, j, 0, 0, 
+
+      SplatImage->SetScalarComponentFromDouble(i, j, 0, 0,
                                                xCoord * yCoord );
       }
     }
@@ -88,7 +88,7 @@ int FastSplatter(int argc, char *argv[])
   VTK_CREATE(vtkFastSplatter, splatter);
   splatter->SetInputData( SplatPoints );
   splatter->SetOutputDimensions( 2*SPLAT_IMAGE_SIZE,
-                                 2*SPLAT_IMAGE_SIZE, 
+                                 2*SPLAT_IMAGE_SIZE,
                                  1 );
   splatter->SetInputData(1, SplatImage );
 
@@ -99,7 +99,7 @@ int FastSplatter(int argc, char *argv[])
   resultScale->SetShift(0);
   resultScale->SetScale(255);
   resultScale->SetInputConnection( splatter->GetOutputPort() );
-  
+
   splatter->Update();
   resultScale->Update();
 

@@ -100,7 +100,7 @@ int vtkVectorNorm::RequestData(
         }
       newScalars->SetComponent(i,0,s);
 
-      if ( ! (i % progressInterval) ) 
+      if ( ! (i % progressInterval) )
         {
         vtkDebugMacro(<<"Computing point vector norm #" << i);
         this->UpdateProgress (0.5*i/numVectors);
@@ -141,7 +141,7 @@ int vtkVectorNorm::RequestData(
         maxScalar = s;
         }
       newScalars->SetComponent(i,0,s);
-      if ( ! (i % progressInterval) ) 
+      if ( ! (i % progressInterval) )
         {
         vtkDebugMacro(<<"Computing cell vector norm #" << i);
         this->UpdateProgress (0.5+0.5*i/numVectors);
@@ -183,7 +183,7 @@ const char *vtkVectorNorm::GetAttributeModeAsString(void)
     {
     return "UsePointData";
     }
-  else 
+  else
     {
     return "UseCellData";
     }
@@ -194,6 +194,6 @@ void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
-  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() 
+  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString()
      << endl;
 }

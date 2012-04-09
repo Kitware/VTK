@@ -39,7 +39,7 @@ public:
 protected:
   vtkImageImportExecutive() {};
   ~vtkImageImportExecutive() {};
-  
+
 private:
   vtkImageImportExecutive(const vtkImageImportExecutive&);  // Not implemented.
   void operator=(const vtkImageImportExecutive&);  // Not implemented.

@@ -69,12 +69,12 @@ public:
   static vtkInstantiator* New();
   vtkTypeMacro(vtkInstantiator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Create an instance of the class whose name is given.  If creation
   // fails, a NULL pointer is returned.
   static vtkObject* CreateInstance(const char* className);
-  
+
   //BTX
   typedef vtkObject* (*CreateFunction)();
 
@@ -93,21 +93,21 @@ public:
   static void UnRegisterInstantiator(const char* className,
                                      CreateFunction createFunction);
   //ETX
-  
+
 protected:
   vtkInstantiator();
   ~vtkInstantiator();
-  
+
   // Internal storage for registered creation functions.
   static vtkInstantiatorHashTable* CreatorTable;
-  
+
   static void ClassInitialize();
   static void ClassFinalize();
-  
+
   //BTX
   friend class vtkInstantiatorInitialize;
   //ETX
-  
+
 private:
   vtkInstantiator(const vtkInstantiator&);  // Not implemented.
   void operator=(const vtkInstantiator&);  // Not implemented.

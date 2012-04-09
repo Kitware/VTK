@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories 
+// Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkDataObjectCollection.h"
@@ -26,7 +26,7 @@ int TestCorrelativeStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  double mingledData[] = 
+  double mingledData[] =
     {
       46,
       45,
@@ -125,8 +125,8 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Pairs of interest
   int nMetricPairs = 2;
-  vtkStdString columnPairs[] = 
-    { 
+  vtkStdString columnPairs[] =
+    {
       "M0", "M1", // First pair
       "M2", "M1"  // Second pair
     };
@@ -141,10 +141,10 @@ int TestCorrelativeStatistics( int, char *[] )
   double varsY1[] = { 7.548397, 0. };
 
   // Covariance matrix of (metric 0, metric 1) and (metric 1, metric 2) pairs
-  double covariances1[] = { 6.14516, 0. }; 
+  double covariances1[] = { 6.14516, 0. };
 
   // Pearson r for each of the pairs
-  double correlations1[] = { 0.914433, vtkMath::Nan() }; 
+  double correlations1[] = { 0.914433, vtkMath::Nan() };
 
   // Thresholds for outlier detection
   double threshold[] = { 4., 1.8, 1.8 };
@@ -161,13 +161,13 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
-  // Select Column Pairs of Interest ( Learn Mode ) 
+  // Select Column Pairs of Interest ( Learn Mode )
   // 1.1: a valid pair
-  cs1->AddColumnPair( "M0", "M1" ); 
+  cs1->AddColumnPair( "M0", "M1" );
   // 1.2: the same valid pair, just reversed -- should thus be ignored
   cs1->AddColumnPair( "M1", "M0" );
   // 2: another valid pair
-  cs1->AddColumnPair( "M2", "M1" ); 
+  cs1->AddColumnPair( "M2", "M1" );
   // 3: an invalid pair
   cs1->AddColumnPair( "M1", "M3" );
 
@@ -279,7 +279,7 @@ int TestCorrelativeStatistics( int, char *[] )
         vtkGenericWarningMacro("Incorrect linear regression of Y on X");
         testStatus = 1;
         }
-      
+
       double testSlopeXY = outputDerived1->GetValueByName( r, "Slope X/Y" ).ToDouble();
       double testInterceptXY = outputDerived1->GetValueByName( r, "Intercept X/Y" ).ToDouble();
       if ( fabs ( testSlopeXY * testMeanY + testInterceptXY - testMeanX ) > 1.e-8 )
@@ -308,7 +308,7 @@ int TestCorrelativeStatistics( int, char *[] )
     cout << "\n";
     }
 
-  // Select Column Pairs of Interest ( Assess Mode ) 
+  // Select Column Pairs of Interest ( Assess Mode )
   cs1->ResetRequests(); // Clear existing pairs
   cs1->AddColumnPair( columnPairs[0], columnPairs[1] ); // A valid pair
 
@@ -331,7 +331,7 @@ int TestCorrelativeStatistics( int, char *[] )
       if ( fabs( assessed ) > threshold[i] )
         {
         ++ nOutliers;
-        
+
         cout << "     ("
              << outputData1->GetValueByName( r, columnPairs[0] ).ToDouble()
              << ","
@@ -347,8 +347,8 @@ int TestCorrelativeStatistics( int, char *[] )
       {
       vtkGenericWarningMacro("Expected "
                              <<testIntValue[i]
-                             <<" outliers, found " 
-                             << nOutliers 
+                             <<" outliers, found "
+                             << nOutliers
                              << ".");
       testStatus = 1;
       }
@@ -433,7 +433,7 @@ int TestCorrelativeStatistics( int, char *[] )
   // Finally, calculate the derived statistics of the aggregated model
   cs0->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, aggregated );
   cs0->SetLearnOption( false );
-  cs0->SetDeriveOption( true ); 
+  cs0->SetDeriveOption( true );
   cs0->SetAssessOption( false );
   cs0->Update();
 

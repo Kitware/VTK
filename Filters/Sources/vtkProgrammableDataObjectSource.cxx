@@ -31,7 +31,7 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
   vtkDataObject *output = vtkDataObject::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
 
@@ -95,7 +95,7 @@ int vtkProgrammableDataObjectSource::RequestData(
 void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->ExecuteMethod )
     {
     os << indent << "An ExecuteMethod has been defined\n";

@@ -115,7 +115,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
       if (numRemoteValidPoints > 0)
         {
         this->Controller->Receive(remoteProbeOutput, i, PROBE_COMMUNICATION_TAG);
-      
+
         remotePointData = remoteProbeOutput->GetPointData();
 
         vtkCharArray* maskArray = vtkCharArray::SafeDownCast(
@@ -136,7 +136,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
               if (raa != NULL)
                 {
                 oaa->SetTuple(pointId, pointId, raa);
-                }            
+                }
               }
             }
           }

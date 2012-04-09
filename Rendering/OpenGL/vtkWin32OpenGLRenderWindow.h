@@ -74,7 +74,7 @@ public:
   // Set the size of the window in pixels.
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);};
-  
+
   // Description:
   // Get the current size of the window in pixels.
   virtual int *GetSize();
@@ -83,7 +83,7 @@ public:
   // Set the position of the window.
   virtual void SetPosition(int,int);
   virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);};
-  
+
   // Description:
   // Get the current size of the screen in pixels.
   virtual int *GetScreenSize();
@@ -96,7 +96,7 @@ public:
   // Set the name of the window. This appears at the top of the window
   // normally.
   virtual void SetWindowName(const char *);
-  
+
   // Description:
   // Set this RenderWindow's window id to a pre-existing window.
   void SetWindowInfo(char *);
@@ -125,7 +125,7 @@ public:
   // Description:
   // Set the window id to a pre-existing window.
   virtual void  SetWindowId(HWND);
-  
+
   // Description:
   // Set the window's parent id to a pre-existing window.
   virtual void  SetParentId(HWND);
@@ -160,7 +160,7 @@ public:
   // Description:
   // Tells if this window is the current OpenGL context for the calling thread.
   virtual bool IsCurrent();
-  
+
   // Description:
   // Get report of capabilities for the render window
   const char *ReportCapabilities();
@@ -187,14 +187,14 @@ public:
   void SetupMemoryRendering(HBITMAP hbmp);
   void ResumeScreenRendering(void);
   HDC GetMemoryDC();
-  unsigned char *GetMemoryData(){return this->MemoryData;};  
+  unsigned char *GetMemoryData(){return this->MemoryData;};
 
   // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(HDC hDC);
-  virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug, 
+  virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug,
                                 int bpp=16, int zbpp=16);
-  
+
   // Description:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
@@ -202,7 +202,7 @@ public:
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  // Set cursor position in window (note that (0,0) is the lower left 
+  // Set cursor position in window (note that (0,0) is the lower left
   // corner).
   void HideCursor();
   void ShowCursor();
@@ -246,13 +246,13 @@ protected:
   HGLRC ScreenContextId;
 
   int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
-  
+
   //BTX
   // message handler
-  virtual LRESULT MessageProc(HWND hWnd, UINT message, 
+  virtual LRESULT MessageProc(HWND hWnd, UINT message,
                               WPARAM wParam, LPARAM lParam);
 
-  static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
+  static LRESULT APIENTRY WndProc(HWND hWnd, UINT message,
                                   WPARAM wParam, LPARAM lParam);
   //ETX
   int CursorHidden;

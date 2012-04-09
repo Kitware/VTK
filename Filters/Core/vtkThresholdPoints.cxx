@@ -26,7 +26,7 @@
 
 vtkStandardNewMacro(vtkThresholdPoints);
 
-// Construct with lower threshold=0, upper threshold=1, and threshold 
+// Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper.
 vtkThresholdPoints::vtkThresholdPoints()
 {
@@ -42,7 +42,7 @@ vtkThresholdPoints::vtkThresholdPoints()
 }
 
 // Criterion is cells whose scalars are less than lower threshold.
-void vtkThresholdPoints::ThresholdByLower(double lower) 
+void vtkThresholdPoints::ThresholdByLower(double lower)
 {
   int isModified=0;
 
@@ -54,16 +54,16 @@ void vtkThresholdPoints::ThresholdByLower(double lower)
 
   if ( this->LowerThreshold != lower )
     {
-    this->LowerThreshold = lower; 
+    this->LowerThreshold = lower;
     isModified=1;
     }
-  
+
   if(isModified)
     {
     this->Modified();
     }
 }
-                           
+
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdPoints::ThresholdByUpper(double upper)
 {
@@ -77,16 +77,16 @@ void vtkThresholdPoints::ThresholdByUpper(double upper)
 
   if ( this->UpperThreshold != upper )
     {
-    this->UpperThreshold = upper; 
+    this->UpperThreshold = upper;
     isModified=1;
     }
-  
+
   if(isModified)
     {
     this->Modified();
     }
 }
-                           
+
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
 {
@@ -103,7 +103,7 @@ void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
     this->LowerThreshold = lower;
     isModified=1;
     }
-  
+
   if ( this->UpperThreshold != upper )
     {
     this->UpperThreshold = upper;
@@ -115,7 +115,7 @@ void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
     this->Modified();
     }
 }
-  
+
 int vtkThresholdPoints::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -145,7 +145,7 @@ int vtkThresholdPoints::RequestData(
     vtkErrorMacro(<<"No scalar data to threshold");
     return 1;
     }
-     
+
   numPts = input->GetNumberOfPoints();
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
@@ -158,7 +158,7 @@ int vtkThresholdPoints::RequestData(
   // Check that the scalars of each point satisfy the threshold criterion
   int abort=0;
   vtkIdType progressInterval = numPts/20+1;
-  
+
   for (ptId=0; ptId < numPts && !abort; ptId++)
     {
     if ( !(ptId % progressInterval) )
@@ -167,7 +167,7 @@ int vtkThresholdPoints::RequestData(
       abort = this->GetAbortExecute();
       }
 
-    if ( (this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId,0)) ) 
+    if ( (this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId,0)) )
       {
       input->GetPoint(ptId, x);
       pts[0] = newPoints->InsertNextPoint(x);

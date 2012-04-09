@@ -83,8 +83,8 @@ int vtkUniformGrid::Initialize(const vtkAMRBox *def)
     }
   if (def->GetDimensionality()==2)
     {
-    // NOTE: Define it 3D, with the third dim 0. eg. (X,X,0)(X,X,0) 
-    vtkWarningMacro("Can't construct a 3D data set from a 2D box."); 
+    // NOTE: Define it 3D, with the third dim 0. eg. (X,X,0)(X,X,0)
+    vtkWarningMacro("Can't construct a 3D data set from a 2D box.");
     return 0;
     }
 
@@ -726,7 +726,7 @@ void vtkUniformGrid::ComputeScalarRange()
     double cellRange[2];
     double s;
     int id, num;
-    
+
     ptRange[0] =  VTK_DOUBLE_MAX;
     ptRange[1] =  VTK_DOUBLE_MIN;
     if ( ptScalars )
@@ -748,7 +748,7 @@ void vtkUniformGrid::ComputeScalarRange()
           }
         }
       }
-    
+
     cellRange[0] =  ptRange[0];
     cellRange[1] =  ptRange[1];
     if ( cellScalars )
@@ -770,7 +770,7 @@ void vtkUniformGrid::ComputeScalarRange()
           }
         }
       }
-    
+
     this->ScalarRange[0] = (cellRange[0] >= VTK_DOUBLE_MAX ? 0.0 : cellRange[0]);
     this->ScalarRange[1] = (cellRange[1] <= VTK_DOUBLE_MIN ? 1.0 : cellRange[1]);
     this->ScalarRangeComputeTime.Modified();

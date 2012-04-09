@@ -15,7 +15,7 @@
 // .NAME vtkBYUReader - read MOVIE.BYU polygon files
 // .SECTION Description
 // vtkBYUReader is a source object that reads MOVIE.BYU polygon files.
-// These files consist of a geometry file (.g), a scalar file (.s), a 
+// These files consist of a geometry file (.g), a scalar file (.s), a
 // displacement or vector file (.d), and a 2D texture coordinate file
 // (.t).
 
@@ -63,13 +63,13 @@ public:
   vtkSetMacro(ReadDisplacement,int);
   vtkGetMacro(ReadDisplacement,int);
   vtkBooleanMacro(ReadDisplacement,int);
-  
+
   // Description:
   // Turn on/off the reading of the scalar file.
   vtkSetMacro(ReadScalar,int);
   vtkGetMacro(ReadScalar,int);
   vtkBooleanMacro(ReadScalar,int);
-  
+
   // Description:
   // Turn on/off the reading of the texture coordinate file.
   // Specify name of geometry FileName.
@@ -95,7 +95,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // This source does not know how to generate pieces yet.
-  int ComputeDivisionExtents(vtkDataObject *output, 
+  int ComputeDivisionExtents(vtkDataObject *output,
                              int idx, int numDivisions);
 
   char *GeometryFileName;

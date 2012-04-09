@@ -108,14 +108,14 @@ unsigned int vtkNetworkHierarchy::ITON(vtkStdString ip)
 }
 
 int vtkNetworkHierarchy::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Storing the inputTable and outputTree handles
   vtkGraph *inputGraph = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -123,7 +123,7 @@ int vtkNetworkHierarchy::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Get the field to filter on
-  vtkAbstractArray* arr = 
+  vtkAbstractArray* arr =
     inputGraph->GetVertexData()->GetAbstractArray(this->IPArrayName);
   vtkStringArray* ipArray = vtkStringArray::SafeDownCast(arr);
   if (ipArray == NULL)
@@ -131,8 +131,8 @@ int vtkNetworkHierarchy::RequestData(
     vtkErrorMacro(<< "An string based ip array must be specified");
     return 0;
     }
-    
-    
+
+
   // Build subnet map
   typedef std::vector<std::pair<unsigned int, vtkIdType> > subnet_map_type;
   subnet_map_type SubnetMap;
@@ -142,16 +142,16 @@ int vtkNetworkHierarchy::RequestData(
     SubnetMap.push_back(vtksys_stl::make_pair(packedID,i));
     }
   vtksys_stl::sort(SubnetMap.begin(), SubnetMap.end());
-    
+
   // Create builder for the tree
   VTK_CREATE(vtkMutableDirectedGraph,builder);
-  
+
   // Make a bunch of blank vertices
   for(int i=0; i<inputGraph->GetNumberOfVertices(); ++i)
     {
     builder->AddVertex();
     }
-  
+
   // Get the input graph and copy the vertex data
   vtkDataSetAttributes *inputVertexData = inputGraph->GetVertexData();
   vtkDataSetAttributes *builderVertexData = builder->GetVertexData();
@@ -176,10 +176,10 @@ int vtkNetworkHierarchy::RequestData(
 
   // All new vertices will be placed in this domain.
   vtkStdString newVertexDomain = "subnet";
-  
+
   // Make the builder's field data a table
   // so we can call InsertNextBlankRow.
-  vtkSmartPointer<vtkTable> treeTable = 
+  vtkSmartPointer<vtkTable> treeTable =
     vtkSmartPointer<vtkTable>::New();
   treeTable->SetRowData(builder->GetVertexData());
 
@@ -191,7 +191,7 @@ int vtkNetworkHierarchy::RequestData(
     treeTable->GetRowData()->GetAbstractArray(pedIDArr->GetName(), pedIDColumn);
     treeTable->GetRowData()->GetAbstractArray("domain", domainColumn);
     }
-  
+
   // Add root
   vtkIdType rootID = builder->AddVertex();
   treeTable->InsertNextBlankRow();
@@ -204,13 +204,13 @@ int vtkNetworkHierarchy::RequestData(
     treeTable->SetValue(rootID, pedIDColumn, rootID);
     treeTable->SetValue(rootID, domainColumn, newVertexDomain);
     }
-  
+
   // Iterate through the different subnets
   subnet_map_type::iterator I;
-  int currentSubnet0 = -1; 
-  int currentSubnet1 = -1; 
+  int currentSubnet0 = -1;
+  int currentSubnet1 = -1;
   int currentSubnet2 = -1;
-  int subnets[4]; 
+  int subnets[4];
   vtkIdType currentParent0 = 0;
   vtkIdType currentParent1 = 0;
   vtkIdType currentParent2 = 0;
@@ -221,16 +221,16 @@ int vtkNetworkHierarchy::RequestData(
     unsigned int packedID = (*I).first;
     leafIndex = (*I).second;
     this->GetSubnets(packedID,subnets);
-    
+
     // Is this a new subnet 0
     if (subnets[0] != currentSubnet0)
       {
       // Add child
       treeIndex = builder->AddChild(rootID);
-      
+
       // Add vertex fields for the child
       treeTable->InsertNextBlankRow();
-      
+
       // Set the label for the child
       vtksys_ios::ostringstream subnetStream;
       subnetStream << subnets[0];
@@ -242,29 +242,29 @@ int vtkNetworkHierarchy::RequestData(
         treeTable->SetValue(treeIndex, pedIDColumn, treeIndex);
         treeTable->SetValue(treeIndex, domainColumn, newVertexDomain);
         }
-      
+
       // Store new parent/subnet info
       currentSubnet0 = subnets[0];
       currentParent0 = treeIndex;
-      
+
       // Invalidate subnets
       currentSubnet1 = currentSubnet2 = -1;
       }
-      
+
     // Is this a new subnet 1
     if (subnets[1] != currentSubnet1)
       {
       // Add child
       treeIndex = builder->AddChild(currentParent0);
-      
+
       // Add vertex fields for the child
       treeTable->InsertNextBlankRow();
-      
+
       // Set the label for the child
       vtksys_ios::ostringstream subnetStream;
       subnetStream << subnets[0] << "." << subnets[1];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
-      
+
       // Set pedigree ID and domain for the child
       if (pedIDArr)
         {
@@ -275,25 +275,25 @@ int vtkNetworkHierarchy::RequestData(
       // Store new parent/subnet info
       currentSubnet1 = subnets[1];
       currentParent1 = treeIndex;
-      
+
       // Invalidate subnets
       currentSubnet2 = -1;
       }
-      
+
     // Is this a new subnet 2
     if (subnets[2] != currentSubnet2)
       {
       // Add child
       treeIndex = builder->AddChild(currentParent1);
-      
+
       // Add vertex fields for the child
       treeTable->InsertNextBlankRow();
-      
+
       // Set the label for the child
       vtksys_ios::ostringstream subnetStream;
       subnetStream << subnets[0] << "." << subnets[1] << "." << subnets[2];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
-      
+
       // Set pedigree ID and domain for the child
       if (pedIDArr)
         {
@@ -305,17 +305,17 @@ int vtkNetworkHierarchy::RequestData(
       currentSubnet2 = subnets[2];
       currentParent2 = treeIndex;
       }
-    
+
     builder->AddEdge(currentParent2, leafIndex);
     }
-  
-    
+
+
   // Move the structure to the output
   if (!outputTree->CheckedShallowCopy(builder))
     {
     vtkErrorMacro(<<"Invalid tree structure!");
     return 0;
     }
-    
+
   return 1;
 }

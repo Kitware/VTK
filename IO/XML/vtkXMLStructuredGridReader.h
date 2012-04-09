@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkXMLStructuredGridReader,vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLStructuredGridReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkStructuredGrid *GetOutput();
@@ -45,22 +45,22 @@ public:
 
 protected:
   vtkXMLStructuredGridReader();
-  ~vtkXMLStructuredGridReader();  
-  
+  ~vtkXMLStructuredGridReader();
+
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
-  
+
   void SetupPieces(int numPieces);
   void DestroyPieces();
   void SetupOutputData();
-  
+
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
   // The elements representing the points for each piece.
   vtkXMLDataElement** PointElements;
-  
+
 private:
   vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&);  // Not implemented.
   void operator=(const vtkXMLStructuredGridReader&);  // Not implemented.

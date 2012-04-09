@@ -35,7 +35,7 @@ public:
   static vtkUniformVariables *New();
   vtkTypeMacro(vtkUniformVariables,vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
   // Description:
   // Set an integer uniform variable.
   // \pre name_exists: name!=0
@@ -65,7 +65,7 @@ public:
                     int numberOfComponents,
                     int numberOfElements,
                     int *value);
-  
+
   // Description:
   // Set an array of float uniform variables.
   // The array `value' is of size `numberOfElements'*`numberOfComponents.'.
@@ -88,11 +88,11 @@ public:
                         int rows,
                         int columns,
                         float *value);
-  
+
   // Description:
   // Remove uniform `name' from the list.
   void RemoveUniform(const char *name);
-  
+
   // Description:
   // Remove all uniforms from the list.
   void RemoveAllUniforms();
@@ -101,37 +101,37 @@ public:
   // \pre need a valid OpenGL context and a shader program in use.
   void Send(const char *name,
             int uniformIndex);
-  
+
   // Description:
   // Place the internal cursor on the first uniform.
   void Start();
-  
+
   // Description:
   // Is the iteration done?
   bool IsAtEnd();
-  
+
   // Description:
   // Name of the uniform at the current cursor position.
   // \pre not_done: !this->IsAtEnd()
   const char *GetCurrentName();
- 
+
   // Description:
   // \pre need a valid OpenGL context and a shader program in use.
   // \pre not_done: !this->IsAtEnd()
   void SendCurrentUniform(int uniformIndex);
-  
+
   // Description:
   // Move the cursor to the next uniform.
   // \pre not_done: !this->IsAtEnd()
   void Next();
-  
+
   // Description:
   // Copy all the variables from `other'. Any existing variable will be
   // deleted first.
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   void DeepCopy(vtkUniformVariables *other);
-  
+
   // Description:
   // Copy all the variables from `other'. Any existing variable will be
   // overwritten.
@@ -146,7 +146,7 @@ protected:
 private:
   vtkUniformVariables(const vtkUniformVariables&);  // Not implemented.
   void operator=(const vtkUniformVariables&);  // Not implemented.
-  
+
   vtkUniformVariablesMap *Map;
 };
 #endif

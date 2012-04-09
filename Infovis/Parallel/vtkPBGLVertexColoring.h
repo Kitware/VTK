@@ -22,7 +22,7 @@
 // colors of its adjacent vertices.
 //
 // .SECTION Description
-// This VTK class uses the Parallel BGL's implementation of Boman et al's 
+// This VTK class uses the Parallel BGL's implementation of Boman et al's
 // parallel vertex coloring algorithm.
 
 #ifndef __vtkPBGLVertexColoring_h
@@ -42,7 +42,7 @@ public:
   static vtkPBGLVertexColoring *New();
   vtkTypeMacro(vtkPBGLVertexColoring, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Sets the block size of the algorithm, which is the number of
   // vertices whose colors will be assigned before the processes
@@ -64,8 +64,8 @@ protected:
   ~vtkPBGLVertexColoring();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
@@ -73,12 +73,12 @@ protected:
 
   virtual int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
 
   vtkIdType BlockSize;
   char* ColorArrayName;
-  
+
   vtkPBGLVertexColoring(const vtkPBGLVertexColoring&);  // Not implemented.
   void operator=(const vtkPBGLVertexColoring&);  // Not implemented.
 };

@@ -46,7 +46,7 @@ public:
   // Get the XY plot used by this Widget. One is created automatically.
   virtual void SetXYPlotActor(vtkXYPlotActor *);
   vtkGetObjectMacro(XYPlotActor,vtkXYPlotActor);
-  
+
   // Description:
   // Methods for turning the interactor observer on and off.
   virtual void SetEnabled(int);
@@ -59,9 +59,9 @@ protected:
   vtkXYPlotActor *XYPlotActor;
 
   //handles the events
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
@@ -71,7 +71,7 @@ protected:
 
   // used to compute relative movements
   float StartPosition[2];
-  
+
 //BTX - manage the state of the widget
   int State;
   enum WidgetState

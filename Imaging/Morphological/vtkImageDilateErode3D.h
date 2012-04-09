@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageDilateErode3D will dilate one value and erode another.
 // It uses an elliptical foot print, and only erodes/dilates on the
-// boundary of the two values.  The filter is restricted to the 
+// boundary of the two values.  The filter is restricted to the
 // X, Y, and Z axes for now.  It can degenerate to a 2 or 1 dimensional
 // filter by setting the kernel size to 1 for a specific axis.
 
@@ -39,13 +39,13 @@ public:
   static vtkImageDilateErode3D *New();
   vtkTypeMacro(vtkImageDilateErode3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // This method sets the size of the neighborhood.  It also sets the 
+  // This method sets the size of the neighborhood.  It also sets the
   // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
 
-  
+
   // Description:
   // Set/Get the Dilate and Erode values to be used by this filter.
   vtkSetMacro(DilateValue, double);
@@ -60,7 +60,7 @@ protected:
   vtkImageEllipsoidSource *Ellipse;
   double DilateValue;
   double ErodeValue;
-    
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

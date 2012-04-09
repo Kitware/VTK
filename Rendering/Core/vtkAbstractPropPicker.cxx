@@ -140,7 +140,7 @@ vtkPropAssembly *vtkAbstractPropPicker::GetPropAssembly()
     return NULL;
     }
 }
-  
+
 void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -161,6 +161,6 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 #if defined(_COMPILER_VERSION)
 # pragma set woff 3303
 #endif
-#if defined(__INTEL_COMPILER) 
+#if defined(__INTEL_COMPILER)
 # pragma warning (disable:858)
 #endif

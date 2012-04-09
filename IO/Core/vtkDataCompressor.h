@@ -32,14 +32,14 @@ class VTKIOCORE_EXPORT vtkDataCompressor : public vtkObject
 public:
   vtkTypeMacro(vtkDataCompressor,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Description:  
+
+  // Description:
   // Get the maximum space that may be needed to store data of the
   // given uncompressed size after compression.  This is the minimum
   // size of the output buffer that can be passed to the four-argument
   // Compress method.
   virtual unsigned long GetMaximumCompressionSpace(unsigned long size)=0;
-  
+
   // Description:
   // Compress the given input data buffer into the given output
   // buffer.  The size of the output buffer must be at least as large
@@ -49,8 +49,8 @@ public:
                          unsigned long uncompressedSize,
                          unsigned char* compressedData,
                          unsigned long compressionSpace);
-  
-  // Description:  
+
+  // Description:
   // Uncompress the given input data into the given output buffer.
   // The size of the uncompressed data must be known by the caller.
   // It should be transmitted from the compressor by a means outside
@@ -59,14 +59,14 @@ public:
                            unsigned long compressedSize,
                            unsigned char* uncompressedData,
                            unsigned long uncompressedSize);
-  
+
   // Description:
   // Compress the given data.  A vtkUnsignedCharArray containing the
   // compressed data is returned with a reference count of 1.
   vtkUnsignedCharArray* Compress(const unsigned char* uncompressedData,
                                  unsigned long uncompressedSize);
-  
-  // Description:  
+
+  // Description:
   // Uncompress the given data.  A vtkUnsignedCharArray containing the
   // compressed data is returned with a reference count of 1.  The
   // size of the uncompressed data must be known by the caller.  It
@@ -78,13 +78,13 @@ public:
 protected:
   vtkDataCompressor();
   ~vtkDataCompressor();
-  
+
   // Actual compression method.  This must be provided by a subclass.
   // Must return the size of the compressed data, or zero on error.
   virtual unsigned long CompressBuffer(const unsigned char* uncompressedData,
                                        unsigned long uncompressedSize,
                                        unsigned char* compressedData,
-                                       unsigned long compressionSpace)=0;  
+                                       unsigned long compressionSpace)=0;
   // Actual decompression method.  This must be provided by a subclass.
   // Must return the size of the uncompressed data, or zero on error.
   virtual unsigned long UncompressBuffer(const unsigned char* compressedData,

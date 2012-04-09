@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRenderedHierarchyRepresentation - 
+// .NAME vtkRenderedHierarchyRepresentation -
 //
 // .SECTION Description
 
@@ -35,7 +35,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // 
+  //
   virtual void SetGraphEdgeLabelArrayName(const char* name)
     { this->SetGraphEdgeLabelArrayName(name, 0); }
   virtual void SetGraphEdgeLabelArrayName(const char* name, int idx);
@@ -113,7 +113,7 @@ protected:
   // Description:
   // Whether idx is a valid graph index.
   bool ValidIndex(int idx);
-  
+
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);

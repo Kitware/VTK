@@ -127,7 +127,7 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
       //cout << "popped " << pos.Vertex << "," << pos.Index << " off the stack" << endl;
 
       vtkIdType nchildren = this->Tree->GetNumberOfChildren(pos.Vertex);
-      while (pos.Index < nchildren && 
+      while (pos.Index < nchildren &&
              this->Color->GetValue(this->Tree->GetChild(pos.Vertex, pos.Index)) != this->WHITE)
         {
         pos.Index++;

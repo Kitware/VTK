@@ -207,7 +207,7 @@ int vtkApplyColors::RequestData(
     for (unsigned int a = 0; a < numAnnotations; ++a)
       {
       vtkAnnotation* ann = layers->GetAnnotation(a);
-      if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+      if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           ann->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
         {
         continue;

@@ -215,13 +215,13 @@ vtkVariant vtkQtSQLQuery::DataValue(vtkIdType c)
       {
       // Carefully storing BLOBs as vtkStrings. This
       // avoids the normal termination problems with
-      // zero's in the BLOBs... 
+      // zero's in the BLOBs...
       return vtkVariant(vtkStdString(v.toByteArray().data(), v.toByteArray().length()));
       }
     case QVariant::Invalid:
       return vtkVariant();
     default:
-      vtkErrorMacro(<< "Unhandled Qt variant type " 
+      vtkErrorMacro(<< "Unhandled Qt variant type "
         << v.type() << " found; returning string variant.");
       return vtkVariant(v.toString().toAscii().data());
     }

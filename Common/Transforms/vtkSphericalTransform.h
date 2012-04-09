@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSphericalTransform - spherical to rectangular coords and back
 // .SECTION Description
-// vtkSphericalTransform will convert (r,phi,theta) coordinates to 
+// vtkSphericalTransform will convert (r,phi,theta) coordinates to
 // (x,y,z) coordinates and back again.  The angles are given in radians.
 // By default, it converts spherical coordinates to rectangular, but
 // GetInverse() returns a transform that will do the opposite.  The equation

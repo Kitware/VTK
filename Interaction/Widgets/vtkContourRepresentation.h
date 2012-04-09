@@ -18,32 +18,32 @@
 // representations for the vtkContourWidget.
 //
 // .SECTION Managing contour points
-// The classes vtkContourRepresentationNode, vtkContourRepresentationInternals, 
-// vtkContourRepresentationPoint manage the data structure used to represent 
-// nodes and points on a contour. A contour may contain several nodes and 
+// The classes vtkContourRepresentationNode, vtkContourRepresentationInternals,
+// vtkContourRepresentationPoint manage the data structure used to represent
+// nodes and points on a contour. A contour may contain several nodes and
 // several more points. Nodes are usually the result of user clicked points on
-// the contour. Additional points are created between nodes to generate a 
+// the contour. Additional points are created between nodes to generate a
 // smooth curve using some Interpolator. See the method \c SetLineInterpolator.
 // \par
-// The data structure stores both the world and display positions for every 
-// point. (This may seem like a duplication.) The default behaviour of this 
+// The data structure stores both the world and display positions for every
+// point. (This may seem like a duplication.) The default behaviour of this
 // class is to use the WorldPosition to do all the math. Typically a point is
-// added at a given display position. Its corresponding world position is 
-// computed using the point placer and stored. Any query of the display 
-// position of a stored point is done via the Renderer, which computes the 
-// display position given a world position. 
-// 
-// \par 
-// So why maintain the display position ? Consider drawing a contour on a 
-// volume widget. You might want the contour to be located at a certain world
-// position in the volume or you might want to be overlayed over the window 
-// like an Actor2D. The default behaviour of this class is to provide the 
-// former behaviour. 
+// added at a given display position. Its corresponding world position is
+// computed using the point placer and stored. Any query of the display
+// position of a stored point is done via the Renderer, which computes the
+// display position given a world position.
 //
 // \par
-// To achieve the latter behaviour override the methods that return the display 
+// So why maintain the display position ? Consider drawing a contour on a
+// volume widget. You might want the contour to be located at a certain world
+// position in the volume or you might want to be overlayed over the window
+// like an Actor2D. The default behaviour of this class is to provide the
+// former behaviour.
+//
+// \par
+// To achieve the latter behaviour override the methods that return the display
 // position (to return the set display position instead of computing it from
-// the world positions) and the method \c BuildLines() to interpolate lines 
+// the world positions) and the method \c BuildLines() to interpolate lines
 // using their display positions intead of world positions.
 //
 // .SECTION See Also
@@ -105,14 +105,14 @@ public:
       this->Nodes[i]->Points.clear();
       delete this->Nodes[i];
       }
-    this->Nodes.clear(); 
-  }   
+    this->Nodes.clear();
+  }
 };
 //ETX
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
 {
-  //BTX  
+  //BTX
   friend class vtkContourWidget;
   //ETX
 public:
@@ -128,7 +128,7 @@ public:
   virtual int AddNodeAtWorldPosition( double worldPos[3] );
   virtual int AddNodeAtWorldPosition( double worldPos[3],
                                       double worldOrient[9] );
-  
+
   // Description:
   // Add a node at a specific display position. This will be
   // converted into a world position according to the current
@@ -146,7 +146,7 @@ public:
   virtual int ActivateNode( double displayPos[2] );
   virtual int ActivateNode( int displayPos[2] );
   virtual int ActivateNode( int X, int Y );
-  
+
   // Descirption:
   // Move the active node to a specified world position.
   // Will return 0 if there is no active node or the node
@@ -155,7 +155,7 @@ public:
   virtual int SetActiveNodeToWorldPosition( double pos[3] );
   virtual int SetActiveNodeToWorldPosition( double pos[3],
                                             double orient[9] );
-  
+
   // Description:
   // Move the active node based on a specified display position.
   // The display position will be converted into a world
@@ -165,9 +165,9 @@ public:
   virtual int SetActiveNodeToDisplayPosition( double pos[2] );
   virtual int SetActiveNodeToDisplayPosition( int pos[2] );
   virtual int SetActiveNodeToDisplayPosition( int X, int Y );
-  
+
   // Description:
-  // Set/Get whether the active or nth node is selected. 
+  // Set/Get whether the active or nth node is selected.
   virtual int ToggleActiveNodeSelected();
   virtual int GetActiveNodeSelected();
   virtual int GetNthNodeSelected(int);
@@ -177,12 +177,12 @@ public:
   // Get the world position of the active node. Will return
   // 0 if there is no active node, or 1 otherwise.
   virtual int GetActiveNodeWorldPosition( double pos[3] );
-  
+
   // Description:
   // Get the world orientation of the active node. Will return
-  // 0 if there is no active node, or 1 otherwise.  
+  // 0 if there is no active node, or 1 otherwise.
   virtual int GetActiveNodeWorldOrientation( double orient[9] );
-  
+
   // Description:
   // Get the display position of the active node. Will return
   // 0 if there is no active node, or 1 otherwise.
@@ -191,16 +191,16 @@ public:
   // Description:
   // Get the number of nodes.
   virtual int GetNumberOfNodes();
-  
+
   // Description:
   // Get the nth node's display position. Will return
-  // 1 on success, or 0 if there are not at least 
+  // 1 on success, or 0 if there are not at least
   // (n+1) nodes (0 based counting).
   virtual int GetNthNodeDisplayPosition( int n, double pos[2] );
-  
+
   // Description:
   // Get the nth node's world position. Will return
-  // 1 on success, or 0 if there are not at least 
+  // 1 on success, or 0 if there are not at least
   // (n+1) nodes (0 based counting).
   virtual int GetNthNodeWorldPosition( int n, double pos[3] );
 
@@ -209,40 +209,40 @@ public:
   // Get the nth node.
   virtual vtkContourRepresentationNode *GetNthNode(int n);
   //ETX
-  
+
   // Description:
   // Get the nth node's world orientation. Will return
-  // 1 on success, or 0 if there are not at least 
+  // 1 on success, or 0 if there are not at least
   // (n+1) nodes (0 based counting).
   virtual int GetNthNodeWorldOrientation( int n, double orient[9] );
-  
+
   // Description:
   // Set the nth node's display position. Display position
   // will be converted into world position according to the
   // constraints of the point placer. Will return
-  // 1 on success, or 0 if there are not at least 
+  // 1 on success, or 0 if there are not at least
   // (n+1) nodes (0 based counting) or the world position
   // is not valid.
   virtual int SetNthNodeDisplayPosition( int n, int X, int Y );
   virtual int SetNthNodeDisplayPosition( int n, int pos[2] );
   virtual int SetNthNodeDisplayPosition( int n, double pos[2] );
-  
+
   // Description:
   // Set the nth node's world position. Will return
-  // 1 on success, or 0 if there are not at least 
+  // 1 on success, or 0 if there are not at least
   // (n+1) nodes (0 based counting) or the world
   // position is not valid according to the point
   // placer.
   virtual int SetNthNodeWorldPosition( int n, double pos[3] );
   virtual int SetNthNodeWorldPosition( int n, double pos[3],
                                        double orient[9] );
-  
+
   // Description:
   // Get the nth node's slope. Will return
-  // 1 on success, or 0 if there are not at least 
+  // 1 on success, or 0 if there are not at least
   // (n+1) nodes (0 based counting).
   virtual int  GetNthNodeSlope( int idx, double slope[3] );
-  
+
   // Descirption:
   // For a given node n, get the number of intermediate
   // points between this node and the node at
@@ -251,20 +251,20 @@ public:
   // between node n and node 0. 0 is returned if n is
   // out of range.
   virtual int GetNumberOfIntermediatePoints( int n );
-  
+
   // Description:
   // Get the world position of the intermediate point at
   // index idx between nodes n and (n+1) (or n and 0 if
   // n is the last node and the loop is closed). Returns
   // 1 on success or 0 if n or idx are out of range.
-  virtual int GetIntermediatePointWorldPosition( int n, 
+  virtual int GetIntermediatePointWorldPosition( int n,
                                                  int idx, double point[3] );
-  
+
   // Description:
   // Add an intermediate point between node n and n+1
   // (or n and 0 if n is the last node and the loop is closed).
   // Returns 1 on success or 0 if n is out of range.
-  virtual int AddIntermediatePointWorldPosition( int n, 
+  virtual int AddIntermediatePointWorldPosition( int n,
                                                  double point[3] );
 
   // Description:
@@ -276,31 +276,31 @@ public:
                                double point[3], vtkIdType ptId );
 
   // Description:
-  // Delete the last node. Returns 1 on success or 0 if 
+  // Delete the last node. Returns 1 on success or 0 if
   // there were not any nodes.
   virtual int DeleteLastNode();
-  
+
   // Description:
   // Delete the active node. Returns 1 on success or 0 if
   // the active node did not indicate a valid node.
   virtual int DeleteActiveNode();
-  
+
   // Description:
   // Delete the nth node. Return 1 on success or 0 if n
   // is out of range.
   virtual int DeleteNthNode( int n );
-  
+
   // Description:
-  // Delete all nodes. 
+  // Delete all nodes.
   virtual void ClearAllNodes();
-  
+
   // Description:
-  // Given a specific X, Y pixel location, add a new node 
-  // on the contour at this location. 
+  // Given a specific X, Y pixel location, add a new node
+  // on the contour at this location.
   virtual int AddNodeOnContour( int X, int Y );
-  
+
   // Description:
-  // The tolerance to use when calculations are performed in 
+  // The tolerance to use when calculations are performed in
   // display coordinates
   vtkSetClampMacro(PixelTolerance,int,1,100);
   vtkGetMacro(PixelTolerance,int);
@@ -316,7 +316,7 @@ public:
     Outside=0,
     Nearby
   };
-  
+
   enum {
     Inactive = 0,
     Translate,
@@ -329,7 +329,7 @@ public:
   // Set / get the current operation. The widget is either
   // inactive, or it is being translated.
   vtkGetMacro( CurrentOperation, int );
-  vtkSetClampMacro( CurrentOperation, int, 
+  vtkSetClampMacro( CurrentOperation, int,
                     vtkContourRepresentation::Inactive,
                     vtkContourRepresentation::Scale );
   void SetCurrentOperationToInactive()
@@ -348,14 +348,14 @@ public:
   // for validating world positions.
   void SetPointPlacer( vtkPointPlacer * );
   vtkGetObjectMacro( PointPlacer, vtkPointPlacer );
-  
+
   // Description:
   // Set / Get the Line Interpolator. The line interpolator
   // is responsible for generating the line segments connecting
   // nodes.
   void SetLineInterpolator( vtkContourLineInterpolator *);
   vtkGetObjectMacro( LineInterpolator, vtkContourLineInterpolator );
-  
+
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void BuildRepresentation()=0;
@@ -370,14 +370,14 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport)=0;
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport)=0;
   virtual int HasTranslucentPolygonalGeometry()=0;
-  
+
   // Description:
   // Set / Get the ClosedLoop value. This ivar indicates whether the contour
-  // forms a closed loop. 
+  // forms a closed loop.
   void SetClosedLoop( int val );
   vtkGetMacro( ClosedLoop, int );
   vtkBooleanMacro( ClosedLoop, int );
-  
+
   // Description:
   // A flag to indicate whether to show the Selected nodes
   // Default is to set it to false.
@@ -387,12 +387,12 @@ public:
 
 //BTX
   // Description:
-  // Get the points in this contour as a vtkPolyData. 
+  // Get the points in this contour as a vtkPolyData.
   virtual vtkPolyData* GetContourRepresentationAsPolyData() = 0;
 //ETX
 
   // Description:
-  // Get the nodes and not the intermediate points in this 
+  // Get the nodes and not the intermediate points in this
   // contour as a vtkPolyData.
   void GetNodePolyData( vtkPolyData* poly );
 
@@ -401,22 +401,22 @@ public:
 protected:
   vtkContourRepresentation();
   ~vtkContourRepresentation();
-  
+
   // Selection tolerance for the handles
   int    PixelTolerance;
   double WorldTolerance;
 
   vtkPointPlacer             *PointPlacer;
   vtkContourLineInterpolator *LineInterpolator;
-  
+
   int ActiveNode;
-  
+
   int CurrentOperation;
   int ClosedLoop;
 
   // A flag to indicate whether to show the Selected nodes
   int                   ShowSelectedNodes;
-  
+
   vtkContourRepresentationInternals *Internal;
 
   void AddNodeAtPositionInternal( double worldPos[3],
@@ -428,19 +428,19 @@ protected:
 
   // Description:
   // Given a world position and orientation, this computes the display position
-  // using the renderer of this class. 
+  // using the renderer of this class.
   void GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
                                     double worldOrient[9], int displayPos[2] );
   void GetRendererComputedDisplayPositionFromWorldPosition( double worldPos[3],
                                     double worldOrient[9], double displayPos[2] );
-  
+
   virtual void UpdateLines( int index );
   void UpdateLine( int idx1, int idx2 );
 
-  virtual int FindClosestPointOnContour( int X, int Y, 
+  virtual int FindClosestPointOnContour( int X, int Y,
                                  double worldPos[3],
                                  int *idx );
-  
+
   virtual void BuildLines()=0;
 
   // This method is called when something changes in the point
@@ -450,7 +450,7 @@ protected:
   // too.
   virtual int  UpdateContour();
   vtkTimeStamp ContourBuildTime;
-  
+
   void ComputeMidpoint( double p1[3], double p2[3], double mid[3] )
     {
       mid[0] = (p1[0] + p2[0])/2;

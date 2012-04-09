@@ -31,7 +31,7 @@ grid0 SetDataExtent 0 30 0 30 0 30
 # use dilation to thicken the grid
 vtkImageContinuousDilate3D d
 d SetInputConnection [grid0 GetOutputPort]
-d SetKernelSize 3 3 3 
+d SetKernelSize 3 3 3
 
 # Now make a two component dependent
 vtkImageAppendComponents iac
@@ -43,7 +43,7 @@ vtkImageGaussianSource gs1
 gs1 SetWholeExtent 0 30 0 30 0 30
 gs1 SetMaximum 255.0
 gs1 SetStandardDeviation 4
-gs1 SetCenter 5 5 5 
+gs1 SetCenter 5 5 5
 
 vtkImageThreshold t1
 t1 SetInputConnection [gs1 GetOutputPort]
@@ -88,7 +88,7 @@ vtkImageAppendComponents iac3
 iac3 AddInputConnection [iac2 GetOutputPort]
 iac3 AddInputConnection [gs4 GetOutputPort]
 
-# create the four component dependend - 
+# create the four component dependend -
 # use lines in x, y, z for colors
 vtkImageGridSource gridR
 gridR SetDataScalarTypeToUnsignedChar
@@ -99,7 +99,7 @@ gridR SetDataExtent 0 30 0 30 0 30
 
 vtkImageContinuousDilate3D dR
 dR SetInputConnection [gridR GetOutputPort]
-dR SetKernelSize 2 2 2 
+dR SetKernelSize 2 2 2
 
 vtkImageGridSource gridG
 gridG SetDataScalarTypeToUnsignedChar
@@ -110,7 +110,7 @@ gridG SetDataExtent 0 30 0 30 0 30
 
 vtkImageContinuousDilate3D dG
 dG SetInputConnection [gridG GetOutputPort]
-dG SetKernelSize 2 2 2 
+dG SetKernelSize 2 2 2
 
 vtkImageGridSource gridB
 gridB SetDataScalarTypeToUnsignedChar
@@ -121,7 +121,7 @@ gridB SetDataExtent 0 30 0 30 0 30
 
 vtkImageContinuousDilate3D dB
 dB SetInputConnection [gridB GetOutputPort]
-dB SetKernelSize 2 2 2 
+dB SetKernelSize 2 2 2
 
 # need some appending
 vtkImageAppendComponents iacRG
@@ -180,23 +180,23 @@ rainbow AddHSVPoint 255 0.9 1.0 1.0
 
 # this is constant red
 vtkColorTransferFunction red
-red AddRGBPoint   0 1 0 0 
-red AddRGBPoint 255 1 0 0 
+red AddRGBPoint   0 1 0 0
+red AddRGBPoint 255 1 0 0
 
 # this is constant green
 vtkColorTransferFunction green
-green AddRGBPoint   0 0 1 0 
-green AddRGBPoint 255 0 1 0 
+green AddRGBPoint   0 0 1 0
+green AddRGBPoint 255 0 1 0
 
 # this is constant blue
 vtkColorTransferFunction blue
-blue AddRGBPoint   0 0 0 1 
-blue AddRGBPoint 255 0 0 1 
+blue AddRGBPoint   0 0 0 1
+blue AddRGBPoint 255 0 0 1
 
 # this is constant yellow
 vtkColorTransferFunction yellow
-yellow AddRGBPoint   0 1 1 0 
-yellow AddRGBPoint 255 1 1 0 
+yellow AddRGBPoint   0 1 1 0
+yellow AddRGBPoint 255 1 1 0
 
 
 vtkRenderer ren1
@@ -220,7 +220,7 @@ $culler SetSortingStyleToBackToFront
 
 for { set j 0 } { $j < 5 } { incr j } {
    for { set i 0 } { $i < 5 } { incr i } {
-      vtkVolumeProperty volumeProperty${i}${j} 
+      vtkVolumeProperty volumeProperty${i}${j}
       vtkFixedPointVolumeRayCastMapper volumeMapper${i}${j}
       volumeMapper${i}${j} SetSampleDistance 0.25
 
@@ -345,5 +345,5 @@ renWin Render
 ren1 ResetCameraClippingRange
 
 wm withdraw .
- 
+
 iren Initialize

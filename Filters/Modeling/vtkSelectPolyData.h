@@ -20,7 +20,7 @@
 // cut). Alternatively, this filter can be used to generate scalars.
 // These scalar values, which are a distance measure to the loop, can
 // be used to clip, contour. or extract data (i.e., anything that an
-// implicit function can do). 
+// implicit function can do).
 //
 // The loop is defined by an array of x-y-z point coordinates.
 // (Coordinates should be in the same coordinate space as the input
@@ -41,13 +41,13 @@
 // direction of and whose end point is closest to the line is
 // chosen. The edge is followed to the new end point, and the
 // procedure is repeated. This process continues until the entire loop
-// has been created. 
-// 
+// has been created.
+//
 // To determine what portion of the mesh is inside and outside of the
 // loop, three options are possible. 1) the smallest connected region,
 // 2) the largest connected region, and 3) the connected region
 // closest to a user specified point. (Set the ivar SelectionMode.)
-// 
+//
 // Once the loop is computed as above, the GenerateSelectionScalars
 // controls the output of the filter. If on, then scalar values are
 // generated based on distance to the loop lines. Otherwise, the cells
@@ -89,7 +89,7 @@ class VTKFILTERSMODELING_EXPORT vtkSelectPolyData : public vtkPolyDataAlgorithm
 {
 public:
   // Description:
-  // Instantiate object with InsideOut turned off, and 
+  // Instantiate object with InsideOut turned off, and
   // GenerateSelectionScalars turned off. The unselected output
   // is not generated, and the inside mode is the smallest region.
   static vtkSelectPolyData *New();
@@ -177,15 +177,15 @@ private:
 // Return the method of determining in/out of loop as a string.
 inline const char *vtkSelectPolyData::GetSelectionModeAsString(void)
 {
-  if ( this->SelectionMode == VTK_INSIDE_SMALLEST_REGION ) 
+  if ( this->SelectionMode == VTK_INSIDE_SMALLEST_REGION )
     {
     return "InsideSmallestRegion";
     }
-  else if ( this->SelectionMode == VTK_INSIDE_LARGEST_REGION ) 
+  else if ( this->SelectionMode == VTK_INSIDE_LARGEST_REGION )
     {
     return "InsideLargestRegion";
     }
-  else 
+  else
     {
     return "InsideClosestPointRegion";
     }

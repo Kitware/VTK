@@ -19,7 +19,7 @@
 
 vtkStandardNewMacro(vtkRungeKutta4);
 
-vtkRungeKutta4::vtkRungeKutta4() 
+vtkRungeKutta4::vtkRungeKutta4()
 {
   for(int i=0; i<3; i++)
     {
@@ -27,7 +27,7 @@ vtkRungeKutta4::vtkRungeKutta4()
     }
 }
 
-vtkRungeKutta4::~vtkRungeKutta4() 
+vtkRungeKutta4::~vtkRungeKutta4()
 {
   for(int i=0; i<3; i++)
     {
@@ -47,17 +47,17 @@ void vtkRungeKutta4::Initialize()
   // Allocate memory for temporary derivatives array
   for(int i=0; i<3; i++)
     {
-    this->NextDerivs[i] = 
+    this->NextDerivs[i] =
       new double[this->FunctionSet->GetNumberOfFunctions()];
     }
 }
-  
+
 // For a detailed description of Runge-Kutta methods,
 // see, for example, Numerical Recipes in (C/Fortran/Pascal) by
 // Press et al. (Cambridge University Press) or
 // Applied Numerical Analysis by C. F. Gerald and P. O. Wheatley
 // (Addison Wesley)
-int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                                     double t, double& delT, double& delTActual,
                                     double, double, double, double& error)
 {
@@ -78,7 +78,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
     vtkErrorMacro("Integrator not initialized!");
     return NOT_INITIALIZED;
     }
-  
+
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
   numVals = numDerivs + 1;
   for(i=0; i<numVals-1; i++)
@@ -112,7 +112,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
     {
     return OUT_OF_DOMAIN;
     }
-    
+
   for(i=0; i<numVals-1; i++)
     {
     this->Vals[i] = xprev[i] + delT/2.0*this->NextDerivs[0][i];
@@ -151,7 +151,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
 void vtkRungeKutta4::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Runge-Kutta 4 function derivatives: " 
+  os << indent << "Runge-Kutta 4 function derivatives: "
      << this->NextDerivs[0] << " " << this->NextDerivs[1]  << " "
      << this->NextDerivs[2] << endl;
 }

@@ -51,22 +51,22 @@ void main(void)
   vec3 eyeCoords=heyeCoords.xyz/heyeCoords.w;
   vec3 n=gl_NormalMatrix*gl_Normal;
   n=normalize(n);
-  
+
   int i=0;
   while(i<VTK_LIGHTING_NUMBER_OF_LIGHTS)
     {
     vec4 cpri;
     vec4 csec;
     initBlackColors(cpri,csec); // because ambient in previous pass.
-    
+
     lightSeparateSpecularColor(gl_LightSource[i],gl_FrontMaterial,eyeCoords,n,
                                false,cpri,csec);
 //    frontColors[i]=vec4(0.5,0.5,0.5,1.0); // cpri+csec;
-    
+
 //    frontColors[i]=gl_FrontMaterial.diffuse*gl_LightSource[i].diffuse;
-    
+
     frontColors[i]=cpri; //+csec;
-    
+
     // we could have everything in just gl_TextureMatrix[i] but this would
     // require to add code vtkOpenGLActor. Also the value of the uniform
     // gl_TextureMatrix[i] would have to be changed on each actor.
@@ -76,20 +76,20 @@ void main(void)
     //
     // gl_TextureMatrix[i] is actually:
     // scale_bias*projection_light[i]*view_light[i]*view_camera_inv
-    
+
     vec4 texCoord=gl_TextureMatrix[i]*heyeCoords;
     shadowCoord[i]=texCoord/texCoord.w;
     ++i;
     }
-  
+
   // we have to use the fixed-pipeline transform to avoid mismatching with
   // other passes.
   gl_Position=ftransform();
-  
+
   // propFuncVS(); // opportunity for the prop to execute its vertex shader.
-  
-  
-  
+
+
+
   // we don't initialize gl_FrontColor because we have an array of colors
   // in frontColors[].
 }

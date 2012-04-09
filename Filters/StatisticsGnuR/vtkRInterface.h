@@ -25,7 +25,7 @@
 //
 // This class defines a VTK interface to an embedded GNU R intepreter instance.  An
 // instance of the R interpreter is created when this class is instantiated.  Additional
-// instances of this class will share access the same R interpreter.  The R interpreter will 
+// instances of this class will share access the same R interpreter.  The R interpreter will
 // be shutdown when the application using this class exits.
 //
 // .SECTION See Also
@@ -61,7 +61,7 @@ public:
   int EvalRcommand(const char *commandName, int param);
 
   // Description:
-  // Evaluate an R script given in string on the embedded R interpreter.  Set showRoutput 
+  // Evaluate an R script given in string on the embedded R interpreter.  Set showRoutput
   // to turn on and off output from R.
   int EvalRscript(const char *string, bool showRoutput = true);
 
@@ -93,13 +93,13 @@ public:
 
   // Description:
   // Copies the R matrix or R list in RVariableName to the returned vtkTable.  If the operation fails,
-  // the method will return NULL.  If RVariableName is an R list, each list entry must be a vector of 
+  // the method will return NULL.  If RVariableName is an R list, each list entry must be a vector of
   // the same length.
   vtkTable* AssignRVariableToVTKTable(const char* RVariableName);
 
   // Description:
   // Copies the vtkTable given in table to an R list structure name RVariableName.  The R list
-  // will be length of the number of columns in table.  Each member of the list will contain a 
+  // will be length of the number of columns in table.  Each member of the list will contain a
   // column of table.
   void AssignVTKTableToRVariable(vtkTable* table, const char* RVariableName);
 

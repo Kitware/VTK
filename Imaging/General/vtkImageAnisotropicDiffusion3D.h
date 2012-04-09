@@ -21,7 +21,7 @@
 // in the neighborhood.  If "Edges" is on the 12 edge connected voxels
 // are included, and if "Corners" is on, the 8 corner connected voxels
 // are included.  "DiffusionFactor" determines how far a pixel value
-// moves toward its neighbors, and is insensitive to the number of 
+// moves toward its neighbors, and is insensitive to the number of
 // neighbors chosen.  The diffusion is anisotropic because it only occurs
 // when a gradient measure is below "GradientThreshold".  Two gradient measures
 // exist and are toggled by the "GradientMagnitudeThreshold" flag.
@@ -48,28 +48,28 @@ public:
   static vtkImageAnisotropicDiffusion3D *New();
   vtkTypeMacro(vtkImageAnisotropicDiffusion3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  
+
+
   // Description:
   // This method sets the number of interations which also affects the
   // input neighborhood needed to compute one output pixel.  Each iterations
   // requires an extra pixel layer on the neighborhood.  This is only relavent
   // when you are trying to stream or are requesting a sub extent of the "wholeExtent".
   void SetNumberOfIterations(int num);
-  
+
   // Description:
   // Get the number of iterations.
   vtkGetMacro(NumberOfIterations,int);
 
   // Description:
-  // Set/Get the difference threshold that stops diffusion. 
+  // Set/Get the difference threshold that stops diffusion.
   // when the difference between two pixel is greater than this threshold,
   // the pixels are not diffused.  This causes diffusion to avoid sharp edges.
-  // If the GradientMagnitudeThreshold is set, then gradient magnitude is used 
+  // If the GradientMagnitudeThreshold is set, then gradient magnitude is used
   // for comparison instead of pixel differences.
   vtkSetMacro(DiffusionThreshold,double);
   vtkGetMacro(DiffusionThreshold,double);
-  
+
   // Description:
   // Set/Get the difference factor
   vtkSetMacro(DiffusionFactor,double);
@@ -92,27 +92,27 @@ public:
   vtkSetMacro(GradientMagnitudeThreshold,int);
   vtkGetMacro(GradientMagnitudeThreshold,int);
   vtkBooleanMacro(GradientMagnitudeThreshold,int);
-  
+
 protected:
   vtkImageAnisotropicDiffusion3D();
   ~vtkImageAnisotropicDiffusion3D() {};
 
   int NumberOfIterations;
   double DiffusionThreshold;
-  double DiffusionFactor;  
+  double DiffusionFactor;
   // to determine which neighbors to diffuse
   int Faces;
   int Edges;
   int Corners;
   // What threshold to use
   int GradientMagnitudeThreshold;
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData, 
+                           vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
-  void Iterate(vtkImageData *in, vtkImageData *out, 
+  void Iterate(vtkImageData *in, vtkImageData *out,
                double ar0, double ar1, double ar3, int *coreExtent, int count);
 private:
   vtkImageAnisotropicDiffusion3D(const vtkImageAnisotropicDiffusion3D&);  // Not implemented.

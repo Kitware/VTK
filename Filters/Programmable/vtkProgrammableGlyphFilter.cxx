@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 
-// Construct object with scaling on, scaling mode is by scalar value, 
+// Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
 // initial sources are defined.
@@ -43,7 +43,7 @@ vtkProgrammableGlyphFilter::vtkProgrammableGlyphFilter()
   this->Point[0] = this->Point[1] = this->Point[2] = 0.0;
   this->PointId = -1;
   this->PointData = NULL;
-  
+
   this->ColorMode = VTK_COLOR_BY_INPUT;
 
   this->SetNumberOfInputPorts(2);
@@ -115,7 +115,7 @@ int vtkProgrammableGlyphFilter::RequestData(
 
   // Initialize
   vtkDebugMacro(<<"Generating programmable glyphs!");
-  
+
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No input points to glyph");
@@ -166,14 +166,14 @@ int vtkProgrammableGlyphFilter::RequestData(
       }
     }
 
-  // Loop over all points, invoking glyph method and Update(), 
+  // Loop over all points, invoking glyph method and Update(),
   // then append output of source to output of this filter.
-  //  
+  //
 //  this->Updating = 1; // to prevent infinite recursion
   this->PointData = input->GetPointData();
   for (this->PointId=0; this->PointId < numPts; this->PointId++)
     {
-    if ( ! (this->PointId % 10000) ) 
+    if ( ! (this->PointId % 10000) )
       {
       this->UpdateProgress ((double)this->PointId/numPts);
       if (this->GetAbortExecute())
@@ -183,13 +183,13 @@ int vtkProgrammableGlyphFilter::RequestData(
       }
 
     input->GetPoint(this->PointId, this->Point);
-    
-    if ( this->GlyphMethod ) 
+
+    if ( this->GlyphMethod )
       {
       (*this->GlyphMethod)(this->GlyphMethodArg);
       }
-    
-    if ( source ) 
+
+    if ( source )
       {
       // Update the source in case the GlyphMethod changed
       // its parameters.
@@ -213,20 +213,20 @@ int vtkProgrammableGlyphFilter::RequestData(
         id = newPts->InsertNextPoint(sourcePts->GetPoint(ptId));
         outputPD->CopyData(sourcePD, ptId, id);
         }
-      
+
       for (cellId=0; cellId < numSourceCells; cellId++)
         {
         cell = source->GetCell(cellId);
         cellPts = cell->GetPointIds();
         npts = cellPts->GetNumberOfIds();
-        for (pts->Reset(), i=0; i < npts; i++) 
+        for (pts->Reset(), i=0; i < npts; i++)
           {
           pts->InsertId(i,cellPts->GetId(i) + ptOffset);
           }
         id = output->InsertNextCell(cell->GetCellType(),pts);
         outputCD->CopyData(sourceCD, cellId, id);
         }
-      
+
       // If we're coloring the output with scalars, do that now
       if ( ptScalars )
         {
@@ -244,33 +244,33 @@ int vtkProgrammableGlyphFilter::RequestData(
           cellScalars->InsertNextValue(inCellScalars->GetComponent(idx,0));
           }
         }
-      
+
       ptOffset += numSourcePts;
-      
+
       }//if a source is available
     } //for all input points
 
 //  this->Updating = 0;
-  
+
   pts->Delete();
 
   output->SetPoints(newPts);
   newPts->Delete();
-  
+
   if ( ptScalars )
     {
     idx = outputPD->AddArray(ptScalars);
     outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     ptScalars->Delete();
     }
-  
+
   if ( cellScalars )
     {
     idx = outputCD->AddArray(cellScalars);
     outputCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     cellScalars->Delete();
     }
-  
+
   output->Squeeze();
 
   return 1;
@@ -313,7 +313,7 @@ const char *vtkProgrammableGlyphFilter::GetColorModeAsString(void)
     {
     return "ColorByInput";
     }
-  else 
+  else
     {
     return "ColorBySource";
     }

@@ -118,7 +118,7 @@ int vtkMapArrayValues::RequestData(
   // get the input and output
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if(!this->InputArrayName)
     {
     //vtkErrorMacro(<<"Input array not specified.");
@@ -192,14 +192,14 @@ int vtkMapArrayValues::RequestData(
     {
     return 1;
     }
-  vtkAbstractArray *outputArray = 
+  vtkAbstractArray *outputArray =
       vtkAbstractArray::CreateArray(this->OutputArrayType);
   vtkDataArray *outputDataArray = vtkDataArray::SafeDownCast(outputArray);
-  vtkStringArray *outputStringArray = 
+  vtkStringArray *outputStringArray =
       vtkStringArray::SafeDownCast(outputArray);
   outputArray->SetName(this->OutputArrayName);
 
-  // Are we copying the input array values to the output array before 
+  // Are we copying the input array values to the output array before
   // the mapping?
   if(this->PassArray)
     {
@@ -272,7 +272,7 @@ int vtkMapArrayValues::FillInputPortInformation(int vtkNotUsed(port), vtkInforma
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
-  return 1;  
+  return 1;
 }
 
 void vtkMapArrayValues::PrintSelf(ostream& os, vtkIndent indent)

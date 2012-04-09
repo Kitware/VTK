@@ -25,15 +25,15 @@ class MyProcess : public vtkProcess
 public:
   static MyProcess *New();
   vtkTypeMacro(MyProcess, vtkProcess);
-  
+
   virtual void Execute();
 
   void SetArgs(int anArgc,
                char *anArgv[]);
-  
+
 protected:
   MyProcess();
-  
+
   int Argc;
   char **Argv;
 };
@@ -50,7 +50,7 @@ void MyProcess::SetArgs(int anArgc,
                         char *anArgv[])
 {
   this->Argc=anArgc;
-  this->Argv=anArgv;  
+  this->Argv=anArgv;
 }
 
 void MyProcess::Execute()
@@ -58,13 +58,13 @@ void MyProcess::Execute()
   // multiprocess logic
   int numProcs=this->Controller->GetNumberOfProcesses();
   int me=this->Controller->GetLocalProcessId();
-  
+
   cout << "numProcs=" << numProcs << " me=" << me << endl;
   cout << "executable=" << this->Argv[0] << endl;
   cout << "argc=" << this->Argc << endl;
-  
+
   const int MY_RETURN_VALUE_MESSAGE=0x11;
-  
+
   if(me==0)
     {
     // root node
@@ -126,12 +126,12 @@ int main(int argc,char **argv)
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);
-  
+
   c->SetSingleProcessObject(p);
   c->SingleMethodExecute();
-  
+
   retVal=p->GetReturnValue();
-  
+
   p->Delete();
   c->Finalize();
   c->Delete();

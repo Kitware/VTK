@@ -59,7 +59,7 @@ vec3 getVector(ivec3 ijk, vec3 dims, sampler2D field)
   {
    if(uSlice==1)
     {
-     tcoord.xy=rcoord.xz; 
+     tcoord.xy=rcoord.xz;
     }
     else
     {
@@ -81,7 +81,7 @@ return m[0][0]*(m[2][2]*m[1][1] - m[2][1]*m[1][2])
 mat3 inverse(mat3 mm, float det)
 {
   mat3 m=transpose(mm);
-  
+
   mat3 adjM = mat3(
     m[2][2]*m[1][1]-m[2][1]*m[1][2], -(m[2][2]*m[0][1]-m[2][1]*m[0][2]),  m[1][2]*m[0][1]-m[1][1]*m[0][2],
   -(m[2][2]*m[1][0]-m[2][0]*m[1][2]),  m[2][2]*m[0][0]-m[2][0]*m[0][2], -(m[1][2]*m[0][0]-m[1][0]*m[0][2]),
@@ -94,7 +94,7 @@ mat3 inverse(mat3 mm, float det)
 mat3 jacobian(ivec3 ijk, vec3 dims, sampler2D tex)
 {
   // Jacobian is estimated with a central finite difference technique.
-  
+
   // get point coordinates at (i, j, k),
   //  vec3 pts_I_J_K  = getVector(ijk, dims, tex);
 
@@ -115,7 +115,7 @@ mat3 jacobian(ivec3 ijk, vec3 dims, sampler2D tex)
   vec3 col3 = 0.5*(pts_I_J_K1 - pts_I_J_KM1);
 
  if(uSlice==0)
-  { 
+  {
     col1[0]=1.0;
   }
  else
@@ -127,9 +127,9 @@ mat3 jacobian(ivec3 ijk, vec3 dims, sampler2D tex)
      else
       {
       col3[2]=1.0;
-      }     
-  }     
-  
+      }
+  }
+
   /*
   Jacobian is given by
   | dx/di, dx/dj, dx/dk |
@@ -167,7 +167,7 @@ void main(void)
 
   // compute partial derivative for X.
   mat3 J = jacobian(ijk, uDimensions, texPoints);
-  
+
   // compute inverse of J.
   vec3 vector = getVector(ijk, uDimensions, texVectorField);
   float detJ=determinant(J);

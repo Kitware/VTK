@@ -49,7 +49,7 @@ int TestImageResliceMapperBorder(int argc, char* argv[])
 
   reader->SetFileName(fname);
   delete[] fname;
- 
+
   vtkImageClip *clip = vtkImageClip::New();
   clip->SetInputConnection(reader->GetOutputPort());
   clip->SetOutputWholeExtent(100, 107, 100, 107, 0, 0);

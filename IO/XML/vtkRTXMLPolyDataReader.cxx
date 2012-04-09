@@ -107,7 +107,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
 
   vtkDirectory *dataDir = vtkDirectory::New();
   dataDir->Open(this->DataLocation);
-  
+
   // now check if there are new files available
   // and place them into the AvailableDataFileList
   int current = dataDir->GetNumberOfFiles();
@@ -130,7 +130,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
     dataDir->Delete();
     return VTK_OK;
     }
-  else 
+  else
     {
     dataDir->Delete();
     return VTK_ERROR;
@@ -149,7 +149,7 @@ char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
   int m = static_cast<int>(strlen(name));
   fullpath = new char[n+m+2];
   strcpy(fullpath,this->DataLocation);
-#if defined (_WIN32) // WINDOW style path      
+#if defined (_WIN32) // WINDOW style path
   if (fullpath[n-1] != '/' && fullpath[n-1] != '\\')
     {
 #if !defined(__CYGWIN__)
@@ -163,15 +163,15 @@ char* vtkRTXMLPolyDataReader::GetDataFileFullPathName(const char* name)
     {
     fullpath[n++] = '/';
     }
-#endif // 
+#endif //
   strcpy(&fullpath[n],name);
 
-  return fullpath; 
+  return fullpath;
 }
 
 void vtkRTXMLPolyDataReader::InitializeToCurrentDir()
 {
-  // TODO: need to add support for other platform like windows 
+  // TODO: need to add support for other platform like windows
   this->SetLocation("./");
 }
 
@@ -195,7 +195,7 @@ int vtkRTXMLPolyDataReader::IsProcessed(const char* fname)
 void vtkRTXMLPolyDataReader::ResetReader()
 {
   // assume the DataLocation is set at this point
-  // clean up the two vectors first 
+  // clean up the two vectors first
   this->Internal->ProcessedFileList.clear();
   this->Internal->AvailableDataFileList.clear();
 

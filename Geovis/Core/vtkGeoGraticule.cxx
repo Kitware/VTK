@@ -173,7 +173,7 @@ int vtkGeoGraticule::RequestData( vtkInformation*, vtkInformationVector**, vtkIn
   if ( latbds[1] >  90. )
     latbds[1] =  90.;
   // NB: Allow "out-of-bounds" values for longitude.
-  
+
 
   this->GenerateGraticule( output, latbds, lngbds );
 
@@ -297,7 +297,7 @@ int vtkGeoGraticule::ComputeLineLevel( int ticId, int baseLevel, const double* l
     if ( ticId % static_cast<int>( levelIncrements[curLevel] / levelIncrements[baseLevel] ) == 0 )
       {
       return curLevel;
-      } 
+      }
     }
   return baseLevel;
 }

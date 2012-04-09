@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkUnstructuredGridWriter - write vtk unstructured grid data file
 // .SECTION Description
-// vtkUnstructuredGridWriter is a source object that writes ASCII or binary 
+// vtkUnstructuredGridWriter is a source object that writes ASCII or binary
 // unstructured grid data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.

@@ -19,18 +19,18 @@
 
 vtkStandardNewMacro(vtkImageReader2Collection);
 
-void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
+void vtkImageReader2Collection::AddItem(vtkImageReader2 *f)
 {
   this->vtkCollection::AddItem(f);
 }
 
-vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 
-{ 
+vtkImageReader2 *vtkImageReader2Collection::GetNextItem()
+{
   return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
 }
 
 vtkImageReader2 *vtkImageReader2Collection::GetNextImageReader2(
-  vtkCollectionSimpleIterator &cookie) 
+  vtkCollectionSimpleIterator &cookie)
 {
   return static_cast<vtkImageReader2 *>(this->GetNextItemAsObject(cookie));
 }

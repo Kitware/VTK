@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkConditionVariable - mutual exclusion locking class
 // .SECTION Description
-// vtkConditionVariable allows the locking of variables which are accessed 
-// through different threads.  This header file also defines 
+// vtkConditionVariable allows the locking of variables which are accessed
+// through different threads.  This header file also defines
 // vtkSimpleConditionVariable which is not a subclass of vtkObject.
 //
 // The win32 implementation is based on notes provided by
@@ -80,14 +80,14 @@ typedef struct
   CRITICAL_SECTION WaitingThreadCountCritSec;
 
   // Number of threads to release when pthread_cond_broadcast()
-  // or pthread_cond_signal() is called. 
+  // or pthread_cond_signal() is called.
   int ReleaseCount;
 
   // Used to prevent one thread from decrementing ReleaseCount all
   // by itself instead of letting others respond.
   int NotifyCount;
 
-  // A manual-reset event that's used to block and release waiting threads. 
+  // A manual-reset event that's used to block and release waiting threads.
   vtkWindowsHANDLE Event;
 } pthread_cond_t;
 
@@ -113,7 +113,7 @@ public:
   static vtkSimpleConditionVariable* New();
 
   void Delete() { delete this; }
-  
+
   // Description:
   // Wake one thread waiting for the condition to change.
   void Signal();
@@ -127,7 +127,7 @@ public:
   // Upon entry, the mutex must be locked and the lock held by the calling thread.
   // Upon exit, the mutex will be locked and held by the calling thread.
   // Between entry and exit, the mutex will be unlocked and may be held by other threads.
-  // 
+  //
   // @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
   // @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
   int Wait( vtkSimpleMutexLock& mutex );
@@ -144,7 +144,7 @@ public:
   static vtkConditionVariable* New();
   vtkTypeMacro(vtkConditionVariable,vtkObject);
   void PrintSelf( ostream& os, vtkIndent indent );
-  
+
   // Description:
   // Wake one thread waiting for the condition to change.
   void Signal();
@@ -158,7 +158,7 @@ public:
   // Upon entry, the mutex must be locked and the lock held by the calling thread.
   // Upon exit, the mutex will be locked and held by the calling thread.
   // Between entry and exit, the mutex will be unlocked and may be held by other threads.
-  // 
+  //
   // @param mutex The mutex that should be locked on entry and will be locked on exit (but not in between)
   // @retval Normally, this function returns 0. Should a thread be interrupted by a signal, a non-zero value may be returned.
   int Wait( vtkMutexLock* mutex );

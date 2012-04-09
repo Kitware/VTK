@@ -34,10 +34,10 @@
 #include <vtksys/ios/sstream>
 
 // Reference value
-vtkIdType cardSelectionLinearSelector2D  = 20; 
+vtkIdType cardSelectionLinearSelector2D  = 20;
 
 // ------------------------------------------------------------------------------------------------
-static int CheckExtractedUGrid( vtkExtractSelection* extract, 
+static int CheckExtractedUGrid( vtkExtractSelection* extract,
                                 const char* tag,
                                 int testIdx,
                                 bool writeGrid )
@@ -66,12 +66,12 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 
   // Verify selection cardinality
   vtkIdType nCells = ugrid->GetNumberOfCells();
-  cout << tag 
-       << " contains " 
+  cout << tag
+       << " contains "
        << nCells
        << " cells."
        << endl;
-  
+
   if ( nCells != cardSelectionLinearSelector2D )
     {
     vtkGenericWarningMacro( "Incorrect cardinality: "
@@ -116,7 +116,7 @@ int TestLinearSelector2D( int argc, char * argv [] )
 {
   // Initialize test value
   int testIntValue = 0;
-  
+
   // Read 2D unstructured input mesh
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/SemiDisk/SemiDisk.vtk");
   vtkSmartPointer<vtkUnstructuredGridReader> reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
@@ -127,7 +127,7 @@ int TestLinearSelector2D( int argc, char * argv [] )
   // Create multi-block mesh for linear selector
   vtkSmartPointer<vtkMultiBlockDataSet> mesh = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   mesh->SetNumberOfBlocks( 1 );
-  mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
+  mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" );
   mesh->SetBlock( 0, reader->GetOutput() );
 
   // *****************************************************************************

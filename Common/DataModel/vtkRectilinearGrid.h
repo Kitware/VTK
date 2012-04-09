@@ -15,13 +15,13 @@
 // .NAME vtkRectilinearGrid - a dataset that is topologically regular with variable spacing in the three coordinate directions
 // .SECTION Description
 // vtkRectilinearGrid is a data object that is a concrete implementation of
-// vtkDataSet. vtkRectilinearGrid represents a geometric structure that is 
+// vtkDataSet. vtkRectilinearGrid represents a geometric structure that is
 // topologically regular with variable spacing in the three coordinate
 // directions x-y-z.
 //
 // To define a vtkRectilinearGrid, you must specify the dimensions of the
-// data and provide three arrays of values specifying the coordinates 
-// along the x-y-z axes. The coordinate arrays are specified using three 
+// data and provide three arrays of values specifying the coordinates
+// along the x-y-z axes. The coordinate arrays are specified using three
 // vtkDataArray objects (one for x, one for y, one for z).
 
 // .SECTION Caveats
@@ -79,9 +79,9 @@ public:
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
                      int& subId, double pcoords[3], double *weights);
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
-                     vtkIdType cellId, double tol2, int& subId, 
+                     vtkIdType cellId, double tol2, int& subId,
                      double pcoords[3], double *weights);
-  vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId, 
+  vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
                           double tol2, int& subId, double pcoords[3],
                           double *weights);
   int GetCellType(vtkIdType cellId);
@@ -169,7 +169,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);  
+  void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
 
   // Description:
@@ -178,8 +178,8 @@ public:
 
   // Description:
   // Reallocates and copies to set the Extent to the UpdateExtent.
-  // This is used internally when the exact extent is requested, 
-  // and the source generated more than the update extent. 
+  // This is used internally when the exact extent is requested,
+  // and the source generated more than the update extent.
   virtual void Crop(const int* updateExtent);
 
   //BTX
@@ -198,7 +198,7 @@ protected:
   vtkLine *Line;
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
-  
+
   int Dimensions[3];
   int DataDescription;
 
@@ -220,7 +220,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkRectilinearGrid::GetNumberOfCells() 
+inline vtkIdType vtkRectilinearGrid::GetNumberOfCells()
 {
   vtkIdType nCells=1;
   int i;

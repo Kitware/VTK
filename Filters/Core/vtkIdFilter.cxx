@@ -44,7 +44,7 @@ vtkIdFilter::~vtkIdFilter()
     }
 }
 
-// 
+//
 // Map ids into attribute data
 //
 int vtkIdFilter::RequestData(

@@ -49,7 +49,7 @@ static const float ISO_START=4250.0;
 static const float ISO_STEP=-1250.0;
 static const int ISO_NUM=3;
 // Just pick a tag which is available
-static const int ISO_VALUE_RMI_TAG=300; 
+static const int ISO_VALUE_RMI_TAG=300;
 static const int ISO_OUTPUT_TAG=301;
 
 struct ParallelIsoArgs_tmp
@@ -67,9 +67,9 @@ struct ParallelIsoRMIArgs_tmp
 };
 
 // call back to set the iso surface value.
-void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg), 
+void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
                     int vtkNotUsed(remoteArgLen), int vtkNotUsed(id))
-{ 
+{
   ParallelIsoRMIArgs_tmp* args = (ParallelIsoRMIArgs_tmp*)localArg;
 
   float val;
@@ -93,15 +93,15 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   int myid, numProcs;
   float val;
   ParallelIsoArgs_tmp* args = reinterpret_cast<ParallelIsoArgs_tmp*>(arg);
-  
+
   // Obtain the id of the running process and the total
   // number of processes
   myid = controller->GetLocalProcessId();
   numProcs = controller->GetNumberOfProcesses();
-    
+
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
-  char* fname = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, 
+  char* fname = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
                                                     "Data/headsq/quarter.nhdr");
   reader = vtkPNrrdReader::New();
   reader->SetFileName(fname);
@@ -117,7 +117,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   iso->SetValue(0, ISO_START);
   iso->ComputeScalarsOff();
   iso->ComputeGradientsOff();
-  
+
   // Compute a different color for each process.
   elev = vtkElevationFilter::New();
   elev->SetInputConnection(iso->GetOutputPort());
@@ -125,7 +125,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   elev->SetScalarRange(val, val+0.001);
 
   // Tell the pipeline which piece we want to update.
-  vtkStreamingDemandDrivenPipeline* exec = 
+  vtkStreamingDemandDrivenPipeline* exec =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(elev->GetExecutive());
   exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
   exec->SetUpdatePiece(exec->GetOutputInformation(0), myid);
@@ -181,7 +181,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       for (int i = 1; i < numProcs; ++i)
         {
         // trigger the RMI to change the iso surface value.
-        controller->TriggerRMI(i, ISO_VALUE_RMI_TAG);      
+        controller->TriggerRMI(i, ISO_VALUE_RMI_TAG);
         }
       for (int i = 1; i < numProcs; ++i)
         {
@@ -198,7 +198,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     // Tell the other processors to stop processing RMIs.
     for (int i = 1; i < numProcs; ++i)
       {
-      controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG); 
+      controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
       }
 
     vtkPolyData* outputCopy = vtkPolyData::New();
@@ -208,7 +208,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     app->Update();
     renWindow->Render();
 
-    *(args->retVal) = 
+    *(args->retVal) =
       vtkRegressionTester::Test(args->argc, args->argv, renWindow, 10);
 
     if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
@@ -225,7 +225,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     actor->Delete();
     cam->Delete();
     }
-  
+
   // clean up objects in all processes.
   reader->Delete();
   iso->Delete();
@@ -251,7 +251,7 @@ int main( int argc, char* argv[] )
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);
   pf->Delete();
- 
+
   // Added for regression test.
   // ----------------------------------------------
   int retVal = 1;

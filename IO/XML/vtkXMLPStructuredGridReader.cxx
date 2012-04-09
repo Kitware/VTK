@@ -89,7 +89,7 @@ int
 vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
-  
+
   // Find the PPoints element.
   this->PPointsElement = 0;
   int i;
@@ -103,7 +103,7 @@ vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
       this->PPointsElement = eNested;
       }
     }
-  
+
   if(!this->PPointsElement)
     {
     int extent[6];
@@ -116,7 +116,7 @@ vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
       return 0;
       }
     }
-  
+
   return 1;
 }
 
@@ -125,7 +125,7 @@ vtkXMLPStructuredGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 void vtkXMLPStructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  
+
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
   if(this->PPointsElement)
@@ -153,14 +153,14 @@ void vtkXMLPStructuredGridReader::SetupOutputData()
 int vtkXMLPStructuredGridReader::ReadPieceData()
 {
   if(!this->Superclass::ReadPieceData()) { return 0; }
-  
+
   // Copy the points.
   vtkStructuredGrid* input = this->GetPieceInput(this->Piece);
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-      this->GetCurrentOutput());  
+      this->GetCurrentOutput());
   this->CopyArrayForPoints(input->GetPoints()->GetData(),
                            output->GetPoints()->GetData());
-  
+
   return 1;
 }
 

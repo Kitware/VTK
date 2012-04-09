@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkVolumeCollection - a list of volumes
 // .SECTION Description
-// vtkVolumeCollection represents and provides methods to manipulate a 
-// list of volumes (i.e., vtkVolume and subclasses). The list is unsorted 
+// vtkVolumeCollection represents and provides methods to manipulate a
+// list of volumes (i.e., vtkVolume and subclasses). The list is unsorted
 // and duplicate entries are not prevented.
 
 // .SECTION see also
@@ -42,9 +42,9 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
     {
       this->vtkCollection::AddItem(a);
     }
-    
+
   // Description:
-  // Get the next Volume in the list. Return NULL when at the end of the 
+  // Get the next Volume in the list. Return NULL when at the end of the
   // list.
   vtkVolume *GetNextVolume() {
       return static_cast<vtkVolume *>(this->GetNextItemAsObject());};
@@ -57,9 +57,9 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
   vtkVolume *GetNextItem() { return this->GetNextVolume(); };
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkVolume *GetNextVolume(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkVolume *>(this->GetNextItemAsObject(cookie));};
   //ETX

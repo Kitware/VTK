@@ -39,13 +39,13 @@ public:
 
   // Description:
   // Set box type to AxisAligned (default) or Oriented.
-  // Use the method SetBounds() with AxisAligned mode, and SetCorners() 
+  // Use the method SetBounds() with AxisAligned mode, and SetCorners()
   // with Oriented mode.
   vtkSetMacro(BoxType,int);
   vtkGetMacro(BoxType,int);
-  void SetBoxTypeToAxisAligned() 
+  void SetBoxTypeToAxisAligned()
     {this->SetBoxType(VTK_BOX_TYPE_AXIS_ALIGNED);}
-  void SetBoxTypeToOriented() 
+  void SetBoxTypeToOriented()
     {this->SetBoxType(VTK_BOX_TYPE_ORIENTED);}
 
   // Description:

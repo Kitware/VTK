@@ -16,7 +16,7 @@
 // .SECTION Description
 // The class serves as an abstract geometrical representation for the
 // vtkTensorProbeWidget. It is left to the concrete implementation to render
-// the tensors as it desires. For instance, 
+// the tensors as it desires. For instance,
 // vtkEllipsoidTensorProbeRepresentation renders the tensors as ellipsoids.
 //
 // .SECTION See Also
@@ -53,7 +53,7 @@ public:
   vtkGetVector3Macro( ProbePosition, double );
   vtkSetMacro( ProbeCellId, vtkIdType );
   vtkGetMacro( ProbeCellId, vtkIdType );
-  
+
   // Description:
   // Set the trajectory that we are trying to probe tensors on
   virtual void SetTrajectory( vtkPolyData * );
@@ -74,15 +74,15 @@ public:
   virtual int Move( double motionVector[2] );
 
   // Description:
-  // See vtkProp for details.  
+  // See vtkProp for details.
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
-  
+
 protected:
   vtkTensorProbeRepresentation();
   ~vtkTensorProbeRepresentation();
 
-  void FindClosestPointOnPolyline( 
+  void FindClosestPointOnPolyline(
     double displayPos[2], double closestWorldPos[3], vtkIdType &cellId,
     int maxSpeed = 10 );
 

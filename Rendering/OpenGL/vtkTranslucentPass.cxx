@@ -42,7 +42,7 @@ void vtkTranslucentPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkTranslucentPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   this->NumberOfRenderedProps=0;
   this->RenderFilteredTranslucentPolygonalGeometry(s);
 }

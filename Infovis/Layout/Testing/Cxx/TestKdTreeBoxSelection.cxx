@@ -78,18 +78,18 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   bool threedim = false;
   for (int i = 1; i < argc; i++)
     {
-    if (!strcmp(argv[i], "-I")) 
+    if (!strcmp(argv[i], "-I"))
       {
       interactive = true;
       continue;
       }
-    if (!strcmp(argv[i], "-d")) 
+    if (!strcmp(argv[i], "-d"))
       {
       threedim = true;
       continue;
       }
 
-    cerr << argv[0] << " options:\n" 
+    cerr << argv[0] << " options:\n"
       << "  -I run interactively\n"
       << "  -d three-dimensional\n";
     return 0;
@@ -136,7 +136,7 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   //
 
   VTK_CREATE(vtkIdTypeArray, selection);
-  double bounds[6] = 
+  double bounds[6] =
     {-2, 2, -0.5, 3, -1, 1};
     //{-1, 1, -1, 1, -1, 1};
   kdTree->FindPointsInArea(bounds, selection);

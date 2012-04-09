@@ -3,7 +3,7 @@
   Program:   Visualization Toolkit
   Module:    vtkMeshQuality.h
   Language:  C++
-  Date:      $Date$ 
+  Date:      $Date$
   Version:   $Revision$
 
   Copyright 2003-2006 Sandia Corporation.
@@ -39,10 +39,10 @@
 // store only the final statistics.
 //
 // This version of the filter written by Philippe Pebay and David Thompson
-// overtakes an older version written by Leila Baghdadi, Hanif Ladak, and 
+// overtakes an older version written by Leila Baghdadi, Hanif Ladak, and
 // David Steinman at the Imaging Research Labs, Robarts Research Institute.
-// That version only supported tetrahedral radius ratio. See the 
-// CompatibilityModeOn() member for information on how to make this filter 
+// That version only supported tetrahedral radius ratio. See the
+// CompatibilityModeOn() member for information on how to make this filter
 // behave like the previous implementation.
 // For more information on the triangle quality functions of this class, cf.
 // Pebay & Baker 2003, Analysis of triangle quality measures, Math Comp 72:244.
@@ -52,9 +52,9 @@
 // .SECTION Caveats
 // While more general than before, this class does not address many
 // cell types, including wedges and pyramids in 3D and triangle strips
-// and fans in 2D (among others). 
+// and fans in 2D (among others).
 // Most quadrilateral quality functions are intended for planar quadrilaterals
-// only. 
+// only.
 // The minimal angle is not, strictly speaking, a quality function, but it is
 // provided because of its usage by many authors.
 
@@ -290,8 +290,8 @@ public:
   // The default is VTK_QUALITY_RADIUS_RATIO (identical to Verdict's aspect
   // ratio beta) and valid values also include
   // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_ASPECT_FROBENIUS, VTK_QUALITY_EDGE_RATIO,
-  // VTK_QUALITY_COLLAPSE_RATIO, VTK_QUALITY_ASPECT_BETA, VTK_QUALITY_ASPECT_GAMMA, 
-  // VTK_QUALITY_VOLUME, VTK_QUALITY_CONDITION, VTK_QUALITY_JACOBIAN, 
+  // VTK_QUALITY_COLLAPSE_RATIO, VTK_QUALITY_ASPECT_BETA, VTK_QUALITY_ASPECT_GAMMA,
+  // VTK_QUALITY_VOLUME, VTK_QUALITY_CONDITION, VTK_QUALITY_JACOBIAN,
   // VTK_QUALITY_SCALED_JACOBIAN, VTK_QUALITY_SHAPE, VTK_QUALITY_RELATIVE_SIZE_SQUARED,
   // VTK_QUALITY_SHAPE_AND_SIZE, and VTK_QUALITY_DISTORTION.
   vtkSetMacro(TetQualityMeasure,int);
@@ -364,7 +364,7 @@ public:
   // Description:
   // Set/Get the particular estimator used to measure the quality of hexahedra.
   // The default is VTK_QUALITY_MAX_ASPECT_FROBENIUS and valid values also include
-  // VTK_QUALITY_EDGE_RATIO, VTK_QUALITY_MAX_ASPECT_FROBENIUS, 
+  // VTK_QUALITY_EDGE_RATIO, VTK_QUALITY_MAX_ASPECT_FROBENIUS,
   // VTK_QUALITY_MAX_EDGE_RATIO, VTK_QUALITY_SKEW, VTK_QUALITY_TAPER, VTK_QUALITY_VOLUME,
   // VTK_QUALITY_STRETCH, VTK_QUALITY_DIAGONAL, VTK_QUALITY_DIMENSION,
   // VTK_QUALITY_ODDY, VTK_QUALITY_CONDITION, VTK_QUALITY_JACOBIAN,
@@ -466,7 +466,7 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The edge ratio of a triangle \f$t\f$ is: 
+  // The edge ratio of a triangle \f$t\f$ is:
   // \f$\frac{|t|_\infty}{|t|_0}\f$,
   // where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$t\f$.
@@ -477,9 +477,9 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The aspect ratio of a triangle \f$t\f$ is: 
+  // The aspect ratio of a triangle \f$t\f$ is:
   // \f$\frac{|t|_\infty}{2\sqrt{3}r}\f$,
-  // where \f$|t|_\infty\f$ and \f$r\f$ respectively denote the greatest edge 
+  // where \f$|t|_\infty\f$ and \f$r\f$ respectively denote the greatest edge
   // length and the inradius of \f$t\f$.
   static double TriangleAspectRatio( vtkCell* cell );
 
@@ -488,9 +488,9 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The radius ratio of a triangle \f$t\f$ is: 
+  // The radius ratio of a triangle \f$t\f$ is:
   // \f$\frac{R}{2r}\f$,
-  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and 
+  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and
   // the inradius of \f$t\f$.
   static double TriangleRadiusRatio( vtkCell* cell );
 
@@ -500,10 +500,10 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The Frobenius aspect of a triangle \f$t\f$, when the reference element is 
-  // equilateral, is: 
+  // The Frobenius aspect of a triangle \f$t\f$, when the reference element is
+  // equilateral, is:
   // \f$\frac{|t|^2_2}{2\sqrt{3}{\cal A}}\f$,
-  // where \f$|t|^2_2\f$ and \f$\cal A\f$ respectively denote the sum of the 
+  // where \f$|t|^2_2\f$ and \f$\cal A\f$ respectively denote the sum of the
   // squared edge lengths and the area of \f$t\f$.
   static double TriangleAspectFrobenius( vtkCell* cell );
 
@@ -571,64 +571,64 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The edge ratio of a quadrilateral \f$q\f$ is: 
+  // The edge ratio of a quadrilateral \f$q\f$ is:
   // \f$\frac{|q|_\infty}{|q|_0}\f$,
   // where \f$|q|_\infty\f$ and \f$|q|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$q\f$.
   static double QuadEdgeRatio( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the aspect ratio of a planar 
+  // This is a static function used to calculate the aspect ratio of a planar
   // quadrilateral.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
-  // The aspect ratio of a planar quadrilateral \f$q\f$ is: 
+  // The aspect ratio of a planar quadrilateral \f$q\f$ is:
   // \f$\frac{|q|_1|q|_\infty}{4{\cal A}}\f$,
-  // where \f$|q|_1\f$, \f$|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the 
+  // where \f$|q|_1\f$, \f$|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the
   // perimeter, the greatest edge length and the area of \f$q\f$.
   static double QuadAspectRatio( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the radius ratio of a planar 
-  // quadrilateral. The name is only used by analogy with the triangle radius 
+  // This is a static function used to calculate the radius ratio of a planar
+  // quadrilateral. The name is only used by analogy with the triangle radius
   // ratio, because in general a quadrilateral does not have a circumcircle nor
-  // an incircle. 
+  // an incircle.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
-  // The radius ratio of a planar quadrilateral \f$q\f$ is: 
+  // The radius ratio of a planar quadrilateral \f$q\f$ is:
   // \f$\frac{|q|_2h_{\max}}{\min_i{\cal A}_i}\f$,
-  // where \f$|q|_2\f$, \f$h_{\max}\f$ and \f$\min{\cal A}_i\f$ respectively denote 
-  // the sum of the squared edge lengths, the greatest amongst diagonal and edge 
+  // where \f$|q|_2\f$, \f$h_{\max}\f$ and \f$\min{\cal A}_i\f$ respectively denote
+  // the sum of the squared edge lengths, the greatest amongst diagonal and edge
   // lengths and the smallest area of the 4 triangles extractable from \f$q\f$.
   static double QuadRadiusRatio( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the average Frobenius aspect of 
-  // the 4 corner triangles of a planar quadrilateral, when the reference 
+  // This is a static function used to calculate the average Frobenius aspect of
+  // the 4 corner triangles of a planar quadrilateral, when the reference
   // triangle elements are right isosceles at the quadrangle vertices.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
-  // The Frobenius aspect of a triangle \f$t\f$, when the reference element is 
-  // right isosceles at vertex \f$V\f$, is: 
+  // The Frobenius aspect of a triangle \f$t\f$, when the reference element is
+  // right isosceles at vertex \f$V\f$, is:
   // \f$\frac{f^2+g^2}{4{\cal A}}\f$,
-  // where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the 
+  // where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the
   // squared lengths of the edges attached to \f$V\f$ and the area of \f$t\f$.
   static double QuadMedAspectFrobenius( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the maximal Frobenius aspect of 
-  // the 4 corner triangles of a planar quadrilateral, when the reference 
+  // This is a static function used to calculate the maximal Frobenius aspect of
+  // the 4 corner triangles of a planar quadrilateral, when the reference
   // triangle elements are right isosceles at the quadrangle vertices.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
-  // The Frobenius aspect of a triangle \f$t\f$, when the reference element is 
-  // right isosceles at vertex \f$V\f$, is: 
+  // The Frobenius aspect of a triangle \f$t\f$, when the reference element is
+  // right isosceles at vertex \f$V\f$, is:
   // \f$\frac{f^2+g^2}{4{\cal A}}\f$,
-  // where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the 
+  // where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the
   // squared lengths of the edges attached to \f$V\f$ and the area of \f$t\f$.
   static double QuadMaxAspectFrobenius( vtkCell* cell );
 
@@ -663,7 +663,7 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The edge ratio of a tetrahedron \f$K\f$ is: 
+  // The edge ratio of a tetrahedron \f$K\f$ is:
   // \f$\frac{|K|_\infty}{|K|_0}\f$,
   // where \f$|K|_\infty\f$ and \f$|K|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$K\f$.
@@ -674,9 +674,9 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The aspect ratio of a tetrahedron \f$K\f$ is: 
+  // The aspect ratio of a tetrahedron \f$K\f$ is:
   // \f$\frac{|K|_\infty}{2\sqrt{6}r}\f$,
-  // where \f$|K|_\infty\f$ and \f$r\f$ respectively denote the greatest edge 
+  // where \f$|K|_\infty\f$ and \f$r\f$ respectively denote the greatest edge
   // length and the inradius of \f$K\f$.
   static double TetAspectRatio( vtkCell* cell );
 
@@ -685,9 +685,9 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The radius ratio of a tetrahedron \f$K\f$ is: 
+  // The radius ratio of a tetrahedron \f$K\f$ is:
   // \f$\frac{R}{3r}\f$,
-  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and 
+  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and
   // the inradius of \f$K\f$.
   static double TetRadiusRatio( vtkCell* cell );
 
@@ -697,8 +697,8 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The Frobenius aspect of a tetrahedron \f$K\f$, when the reference element is 
-  // regular, is: 
+  // The Frobenius aspect of a tetrahedron \f$K\f$, when the reference element is
+  // regular, is:
   // \f$\frac{\frac{3}{2}(l_{11}+l_{22}+l_{33}) - (l_{12}+l_{13}+l_{23})}
   // {3(\sqrt{2}\det{T})^\frac{2}{3}}\f$,
   // where \f$T\f$ and \f$l_{ij}\f$ respectively denote the edge matrix of \f$K\f$
@@ -738,15 +738,15 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The edge ratio of a hexahedron \f$H\f$ is: 
+  // The edge ratio of a hexahedron \f$H\f$ is:
   // \f$\frac{|H|_\infty}{|H|_0}\f$,
   // where \f$|H|_\infty\f$ and \f$|H|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$H\f$.
   static double HexEdgeRatio( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the average Frobenius aspect of 
-  // the 8 corner tetrahedra of a hexahedron, when the reference 
+  // This is a static function used to calculate the average Frobenius aspect of
+  // the 8 corner tetrahedra of a hexahedron, when the reference
   // tetrahedral elements are right isosceles at the hexahedron vertices.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
@@ -754,8 +754,8 @@ public:
   static double HexMedAspectFrobenius( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the maximal Frobenius aspect of 
-  // the 8 corner tetrahedra of a hexahedron, when the reference 
+  // This is a static function used to calculate the maximal Frobenius aspect of
+  // the 8 corner tetrahedra of a hexahedron, when the reference
   // tetrahedral elements are right isosceles at the hexahedron vertices.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
@@ -845,7 +845,7 @@ public:
   // compatibility mode.
   //
   // Disabling compatibility mode does not affect the current
-  // volume computation or tetrahedral quality function settings. 
+  // volume computation or tetrahedral quality function settings.
   //
   // The final caveat to CompatibilityMode is that regardless of
   // its setting, the resulting array will be of type vtkDoubleArray

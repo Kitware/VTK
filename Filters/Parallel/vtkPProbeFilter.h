@@ -41,11 +41,11 @@ protected:
   vtkPProbeFilter();
   ~vtkPProbeFilter();
 
-  enum 
+  enum
     {
     PROBE_COMMUNICATION_TAG=1970
     };
-  
+
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

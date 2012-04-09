@@ -31,7 +31,7 @@ public:
   static vtkX3DExporterXMLWriter *New();
   vtkTypeMacro(vtkX3DExporterXMLWriter, vtkX3DExporterWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   virtual void CloseFile();
   virtual int OpenFile(const char* file);
   virtual void Flush();
@@ -44,7 +44,7 @@ public:
   // Elements
   void StartNode(int elementID);
   void EndNode();
-  
+
   // Attributes
   // SFString / MFString
   void SetField(int attributeID, const char*, bool mfstring = true);
@@ -69,7 +69,7 @@ protected:
   ~vtkX3DExporterXMLWriter();
 
 private:
- 
+
   const char* GetNewline() { return "\n"; };
   void AddDepth();
   void SubDepth();

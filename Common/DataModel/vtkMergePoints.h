@@ -50,11 +50,11 @@ public:
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
   int InsertUniquePoint(const double x[3], vtkIdType &ptId);
-  
+
 protected:
   vtkMergePoints() {};
   ~vtkMergePoints() {};
-  
+
 private:
   vtkMergePoints(const vtkMergePoints&);  // Not implemented.
   void operator=(const vtkMergePoints&);  // Not implemented.

@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkFacetReader);
 // Due to a buggy stream library on the HP and another on Mac OS X, we
 // need this very carefully written version of getline.  Returns true
 // if any data were read before the end-of-file was reached.
-// 
+//
 static bool GetLineFromStream(istream& is,
   std::string& line, bool *has_newline = 0)
 {
@@ -188,7 +188,7 @@ int vtkFacetReader::RequestData(
   // We will need append individual parts together. Once multiblock is
   // supported, this should go out.
   vtkSmartPointer<vtkAppendPolyData> appendPtr = vtkSmartPointer<vtkAppendPolyData>::New();
-  
+
   // Block garbage collection so that appends will not take too long.
   vtkGarbageCollector::DeferredCollectionPush();
 
@@ -215,10 +215,10 @@ int vtkFacetReader::RequestData(
     int cell_point_index = -1;
     int numpts = -1, tmp;
     if ( !GetLineFromStream(ifs, line) ||
-      sscanf(line.c_str(), "%d", &cell_point_index) != 1 || 
+      sscanf(line.c_str(), "%d", &cell_point_index) != 1 ||
       cell_point_index != 0 ||
       !GetLineFromStream(ifs, line) ||
-      sscanf(line.c_str(), "%d %d %d", &numpts, &tmp, &tmp) != 3 || 
+      sscanf(line.c_str(), "%d %d %d", &numpts, &tmp, &tmp) != 3 ||
       numpts < 0 )
       {
       vtkErrorMacro("Problem reading number of points");
@@ -251,7 +251,7 @@ int vtkFacetReader::RequestData(
 
     // Read cell point index
     if ( !GetLineFromStream(ifs, line) ||
-      sscanf(line.c_str(), "%d", &cell_point_index) != 1 || 
+      sscanf(line.c_str(), "%d", &cell_point_index) != 1 ||
       cell_point_index != 1 )
       {
       vtkErrorMacro("Cannot read cell/point index or it is not 1");
@@ -271,7 +271,7 @@ int vtkFacetReader::RequestData(
     // Read topology information
     int numcells = -1, numpointpercell = -1;
     if ( !GetLineFromStream(ifs, line) ||
-      sscanf(line.c_str(), "%d %d", &numcells, &numpointpercell) != 2 || 
+      sscanf(line.c_str(), "%d %d", &numcells, &numpointpercell) != 2 ||
       numcells < 0 || numpointpercell < 0 )
       {
       vtkErrorMacro("Problem reading number of cells and points per cell");
@@ -365,7 +365,7 @@ int vtkFacetReader::RequestData(
       {
       partNumberArray->SetTuple1(cc, part);
       }
-    
+
     // Create part and store it
     vtkPolyData* partGrid = vtkPolyData::New();
     switch ( num_points_per_cell )
@@ -402,7 +402,7 @@ int vtkFacetReader::RequestData(
     }
 
   // Release garbage collection
-  vtkGarbageCollector::DeferredCollectionPop();  
+  vtkGarbageCollector::DeferredCollectionPop();
   vtkDebugMacro("Done reading file: " << this->FileName);
 
   return 1;
@@ -413,7 +413,7 @@ void vtkFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
     << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 

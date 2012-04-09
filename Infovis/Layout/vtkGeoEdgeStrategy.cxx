@@ -51,7 +51,7 @@ void vtkGeoEdgeStrategy::Layout()
   vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeCount;
   vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeNumber;
   vtksys_stl::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
-  vtkSmartPointer<vtkEdgeListIterator> it = 
+  vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
   while (it->HasNext())
@@ -108,7 +108,7 @@ void vtkGeoEdgeStrategy::Layout()
       w[c] = (sourcePt[c] + targetPt[c])/2.0;
       }
     vtkMath::Normalize(w);
-    
+
     // The center of the circle used to draw the arc is a
     // point along the vector w scaled by the explode factor.
     // Use cur and total to separate parallel arcs.
@@ -118,7 +118,7 @@ void vtkGeoEdgeStrategy::Layout()
       center[c] = this->ExplodeFactor * this->GlobeRadius * w[c]
                   * (cur + 1) / total;
       }
-    
+
     // The vectors u and x are unit vectors pointing from the
     // center of the circle to the two endpoints of the arc,
     // lastPoint and curPoint, respectively.
@@ -131,10 +131,10 @@ void vtkGeoEdgeStrategy::Layout()
     double radius = vtkMath::Norm(u);
     vtkMath::Normalize(u);
     vtkMath::Normalize(x);
-    
+
     // Find the angle that the arc spans.
     double theta = acos(vtkMath::Dot(u, x));
-    
+
     // If the vectors u, x point toward the center of the earth, take
     // the larger angle between the vectors.
     // We determine whether u points toward the center of the earth
@@ -155,7 +155,7 @@ void vtkGeoEdgeStrategy::Layout()
     double v[3];
     vtkMath::Cross(n, u, v);
     vtkMath::Normalize(v);
-    
+
     // Use the general equation for a circle in three dimensions
     // to draw an arc from the last point to the current point.
     for (int s = 0; s < this->NumberOfSubdivisions; ++s)

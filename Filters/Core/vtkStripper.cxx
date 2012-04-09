@@ -86,7 +86,7 @@ int vtkStripper::RequestData(
   vtkIdType inNumVerts = input->GetVerts()->GetNumberOfCells();
   vtkIdType inNumLines = inLines->GetNumberOfCells();
   vtkIdType inNumPolys = inPolys->GetNumberOfCells();
-  
+
   mesh = vtkPolyData::New();
   mesh->SetPoints(input->GetPoints());
   mesh->SetLines(inLines);
@@ -126,7 +126,7 @@ int vtkStripper::RequestData(
 
     newfdStrips = vtkFieldData::New();
     newfdStrips->CopyStructure(cd);
-    // this is a very gross estimate since we cannot know how long the already 
+    // this is a very gross estimate since we cannot know how long the already
     // present strips are.
     newfdStrips->Allocate(3*inNumPolys + 3);
     }
@@ -218,8 +218,8 @@ int vtkStripper::RequestData(
     }
 
   // Loop over all cells and find one that hasn't been visited.
-  // Start a triangle strip (or poly-line) and mark as visited, and 
-  // then find a neighbor that isn't visited.  Add this to the strip 
+  // Start a triangle strip (or poly-line) and mark as visited, and
+  // then find a neighbor that isn't visited.  Add this to the strip
   // (or poly-line) and mark as visited (and so on).
   //
   longestStrip = 0; numStrips = 0;
@@ -230,7 +230,7 @@ int vtkStripper::RequestData(
   vtkIdType progressInterval=numCells/20 + 1;
   for ( cellId=0; cellId < numCells && !abort; cellId++)
     {
-    if ( !(cellId % progressInterval) ) 
+    if ( !(cellId % progressInterval) )
       {
       this->UpdateProgress ((float) cellId/numCells);
       abort = this->GetAbortExecute();
@@ -248,13 +248,13 @@ int vtkStripper::RequestData(
 
         mesh->GetCellPoints(cellId,numTriPts,triPts);
 
-        for (i=0; i<3; i++) 
+        for (i=0; i<3; i++)
           {
           pts[1] = triPts[i];
           pts[2] = triPts[(i+1)%3];
 
           mesh->GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
-          if ( cellIds->GetNumberOfIds() > 0 && 
+          if ( cellIds->GetNumberOfIds() > 0 &&
           !visited[neighbor=cellIds->GetId(0)] &&
           mesh->GetCellType(neighbor) == VTK_TRIANGLE )
             {
@@ -264,7 +264,7 @@ int vtkStripper::RequestData(
           }
         //  If no unvisited neighbor, just create the strip of one triangle.
         //
-        if ( i >= 3 ) 
+        if ( i >= 3 )
           {
           pts[0] = triPts[0];;
           pts[1] = triPts[1];
@@ -278,9 +278,9 @@ int vtkStripper::RequestData(
             {
             origStripIds->InsertNextValue(cellId);
             }
-          } 
-        else // continue strip 
-          { 
+          }
+        else // continue strip
+          {
           //  Have a neighbor.  March along grabbing new points
           //
           if (this->PassCellDataAsFieldData)
@@ -305,7 +305,7 @@ int vtkStripper::RequestData(
               }
             for (i=0; i<3; i++)
               {
-              if ( triPts[i] != pts[numPts-2] && 
+              if ( triPts[i] != pts[numPts-2] &&
               triPts[i] != pts[numPts-1] )
                 {
                 break;
@@ -316,21 +316,21 @@ int vtkStripper::RequestData(
             if (i < 3)
               {
               pts[numPts] = triPts[i];
-              mesh->GetCellEdgeNeighbors(neighbor, pts[numPts], 
+              mesh->GetCellEdgeNeighbors(neighbor, pts[numPts],
                                          pts[numPts-1], cellIds);
               numPts++;
               }
-            
+
             if ( numPts > longestStrip )
               {
               longestStrip = numPts;
               }
-            
+
             // note: if updates value of neighbor
             // Note2: for a degenerate triangle this test will
             // correctly fail because the visited[neighbor] will
             // now be visited
-            if ( cellIds->GetNumberOfIds() <= 0 || 
+            if ( cellIds->GetNumberOfIds() <= 0 ||
                  visited[neighbor=cellIds->GetId(0)] ||
                  mesh->GetCellType(neighbor) != VTK_TRIANGLE ||
                  numPts >= (this->MaximumLength+2) )
@@ -341,7 +341,7 @@ int vtkStripper::RequestData(
             } // while
           } // else continue strip
         } // if triangle
-      
+
       else if ( cellType == VTK_LINE )
         {
         //
@@ -353,7 +353,7 @@ int vtkStripper::RequestData(
 
         mesh->GetCellPoints(cellId,numLinePts,linePts);
 
-        for ( foundOne=i=0; !foundOne && i<2; i++) 
+        for ( foundOne=i=0; !foundOne && i<2; i++)
           {
           pts[0] = linePts[i];
           pts[1] = linePts[(i+1)%2];
@@ -384,12 +384,12 @@ int vtkStripper::RequestData(
           }
         //  If no unvisited neighbor, just create the poly-line from one line.
         //
-        if ( !foundOne ) 
+        if ( !foundOne )
           {
-          newLines->InsertNextCell(2,linePts);          
-          } 
+          newLines->InsertNextCell(2,linePts);
+          }
         else // continue poly-line
-          { 
+          {
           //  Have a neighbor.  March along grabbing new points
           //
           while ( neighbor >= 0 )
@@ -465,7 +465,7 @@ int vtkStripper::RequestData(
     originalPointIds->SetName("vtkOriginalPointIds");
     originalPointIds->SetNumberOfComponents(1);
     vtkPointData *outputPD = output->GetPointData();
-    outputPD->AddArray(originalPointIds);        
+    outputPD->AddArray(originalPointIds);
     vtkIdType numTup = output->GetNumberOfPoints();
     originalPointIds->SetNumberOfValues(numTup);
     for (vtkIdType cId = 0; cId < numTup; cId++)
@@ -474,22 +474,22 @@ int vtkStripper::RequestData(
       }
     originalPointIds->Delete();
     }
-  
+
   // output strips
   if ( newStrips )
     {
     newStrips->Squeeze();
     output->SetStrips(newStrips);
     newStrips->Delete();
-    vtkDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips 
-                  << " triangle strips \n\t(Average " 
-                  << (float)numCells/numStrips 
+    vtkDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips
+                  << " triangle strips \n\t(Average "
+                  << (float)numCells/numStrips
                   << " triangles per strip, longest strip = "
                   << ((longestStrip-2)>0?(longestStrip-2):0) << " triangles)");
 
     if ( newPolys->GetNumberOfCells() > 0 )
       {
-      vtkDebugMacro(<<"Passed " << newPolys->GetNumberOfCells() 
+      vtkDebugMacro(<<"Passed " << newPolys->GetNumberOfCells()
                     << " polygons");
       newPolys->Squeeze();
       output->SetPolys(newPolys);
@@ -503,8 +503,8 @@ int vtkStripper::RequestData(
     newLines->Squeeze();
     output->SetLines(newLines);
     newLines->Delete();
-    vtkDebugMacro (<<"Reduced " << numCells << " cells to " << numLines 
-                   << " poly-lines \n\t(Average " << (float)numCells/numLines 
+    vtkDebugMacro (<<"Reduced " << numCells << " cells to " << numLines
+                   << " poly-lines \n\t(Average " << (float)numCells/numLines
                    << " lines per poly-line, longest poly-line = "
                    << ((longestLine-1)>0?(longestLine-1):0) << " lines)");
 
@@ -594,7 +594,7 @@ int vtkStripper::RequestData(
     OriginalCellIds->Delete();
     }
 
-  
+
   return 1;
 }
 

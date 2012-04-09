@@ -36,15 +36,15 @@ class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 public:
   vtkTypeMacro(vtkRandomSequence,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Current value
   virtual double GetValue()=0;
-  
+
   // Description:
   // Move to the next number in the random sequence.
   virtual void Next()=0;
-  
+
 protected:
   vtkRandomSequence();
   virtual ~vtkRandomSequence();

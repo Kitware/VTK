@@ -59,7 +59,7 @@ const char* vtkXMLPRectilinearGridWriter::GetDefaultFileExtension()
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter*
 vtkXMLPRectilinearGridWriter::CreateStructuredPieceWriter()
-{  
+{
   // Create the writer for the piece.
   vtkXMLRectilinearGridWriter* pWriter = vtkXMLRectilinearGridWriter::New();
   pWriter->SetInputConnection(this->GetInputConnection(0, 0));
@@ -74,7 +74,7 @@ void vtkXMLPRectilinearGridWriter::WritePData(vtkIndent indent)
     {
     return;
     }
-  
+
   vtkRectilinearGrid* input = this->GetInput();
   this->WritePCoordinates(input->GetXCoordinates(), input->GetYCoordinates(),
                           input->GetZCoordinates(), indent);

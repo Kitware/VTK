@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
-// Instantiate object with no renderer; window selection turned off; 
+// Instantiate object with no renderer; window selection turned off;
 // tolerance set to 0.01; and select invisible off.
 vtkSelectVisiblePoints::vtkSelectVisiblePoints()
 {
@@ -71,7 +71,7 @@ int vtkSelectVisiblePoints::RequestData(
   vtkPointData *outPD=output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
   double x[4];
-  
+
   // Nothing to extract if there are no points in the data set.
   if ( numPts < 1 )
     {
@@ -134,7 +134,7 @@ int vtkSelectVisiblePoints::RequestData(
       }
 
     visible = IsPointOccluded(x, zPtr);
-    
+
     if ( (visible && !this->SelectInvisible) ||
          (!visible && this->SelectInvisible) )
       {

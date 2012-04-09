@@ -123,7 +123,7 @@ void vtkMetaImageWriter::Write( )
   dimSize[0] = ext[1]-ext[0]+1;
   dimSize[1] = ext[3]-ext[2]+1;
   dimSize[2] = ext[5]-ext[4]+1;
-  
+
   vtkmetaio::MET_ValueEnumType elementType;
 
   int scalarType = this->GetInput()->GetScalarType();
@@ -144,7 +144,7 @@ void vtkMetaImageWriter::Write( )
       vtkErrorMacro("Unknown scalar type." );
       return ;
     }
-  
+
   origin[0] += ext[0] * spacing[0];
   origin[1] += ext[2] * spacing[1];
   origin[2] += ext[4] * spacing[2];
@@ -187,6 +187,6 @@ void vtkMetaImageWriter::Write( )
 void vtkMetaImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "MHDFileName: " 
+  os << indent << "MHDFileName: "
                << (this->MHDFileName?this->MHDFileName:"(none)") << endl;
 }

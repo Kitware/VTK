@@ -36,8 +36,8 @@ protected:
   vtkBlockIdScalars();
   ~vtkBlockIdScalars();
 
-  int RequestData(vtkInformation *, 
-                  vtkInformationVector **, 
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
                   vtkInformationVector *);
 
   vtkDataObject* ColorBlock(vtkDataObject* input, int group);

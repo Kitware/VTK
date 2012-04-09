@@ -22,7 +22,7 @@
 // vtkParallelCoordinatesInteractorStyle allows the user to interactively manipulate
 // (rotate, pan, zoomm etc.) the camera.
 // Several events are overloaded from its superclass
-// vtkParallelCoordinatesInteractorStyle, hence the mouse bindings are 
+// vtkParallelCoordinatesInteractorStyle, hence the mouse bindings are
 // different. (The bindings
 // keep the camera's view plane normal perpendicular to the x-y plane.) In
 // summary the mouse events are as follows:
@@ -37,7 +37,7 @@
 // Note that the renderer's actors are not moved; instead the camera is moved.
 
 // .SECTION See Also
-// vtkInteractorStyle vtkInteractorStyleTrackballActor 
+// vtkInteractorStyle vtkInteractorStyleTrackballActor
 // vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
 
 #ifndef __vtkParallelCoordinatesInteractorStyle_h
@@ -102,7 +102,7 @@ public:
 
   // Description:
   // Override the "fly-to" (f keypress) for images.
-  virtual void OnChar();  
+  virtual void OnChar();
 protected:
   vtkParallelCoordinatesInteractorStyle();
   ~vtkParallelCoordinatesInteractorStyle();

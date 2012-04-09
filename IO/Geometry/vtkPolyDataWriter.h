@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPolyDataWriter - write vtk polygonal data
 // .SECTION Description
-// vtkPolyDataWriter is a source object that writes ASCII or binary 
+// vtkPolyDataWriter is a source object that writes ASCII or binary
 // polygonal data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.

@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkPBivariateLinearTableThreshold.h
 
@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 // for vtkTable data in parallel.
 //
 // .SECTION Description
-// Perform the table filtering operations provided by 
+// Perform the table filtering operations provided by
 // vtkBivariateLinearTableThreshold in parallel.
 
 #ifndef __vtkPBivariateLinearTableThreshold__h

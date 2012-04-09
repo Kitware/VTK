@@ -57,7 +57,7 @@ vtkTDxMacDevice::vtkTDxMacDevice()
   this->LastButtonState=0; // all buttons released.
 //  this->DebugOn();
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Destructor. If the device is not initialized, do nothing. If the device
@@ -93,23 +93,23 @@ void vtkTDxMacDevice::Initialize()
     {
     this->Initialized=true;
     }
-  
+
   this->LastButtonState=0; // all buttons released.
-  
+
   unsigned char *pString=
     this->CStringToPascalString(this->ClientApplicationName);
-  
+
   // this does not work, we have to use kConnexionClientWildcard and '\0'
   // this->ClientID=RegisterConnexionClient('MCTt',pString,kConnexionClientModeTakeOver,kConnexionMaskAll);
-  
+
   this->ClientID=RegisterConnexionClient(kConnexionClientWildcard,'\0',
                                           kConnexionClientModeTakeOver,
                                           kConnexionMaskAll);
-  
+
   vtkDebugMacro(<< "Registered with ClientID=" << this->ClientID);
-  
+
   delete[] pString;
-  
+
   vtkClientIDToDeviceObject.insert(std::pair<const UInt16,vtkTDxMacDevice *>(this->ClientID,this));
 }
 
@@ -123,14 +123,14 @@ void vtkTDxMacDevice::Initialize()
 void vtkTDxMacDevice::Close()
 {
   assert("pre: initialized" && this->GetInitialized());
-  
+
   vtkDebugMacro(<< "Close()" );
   UnregisterConnexionClient(this->ClientID);
-  
+
   // remove it from map
   std::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID>::iterator it=
     vtkClientIDToDeviceObject.find(this->ClientID);
-  
+
   if(it==vtkClientIDToDeviceObject.end())
     {
     vtkErrorMacro(<< "No matching vtkTDxMacDevice object for clientID=" << this->ClientID);
@@ -145,11 +145,11 @@ void vtkTDxMacDevice::Close()
     {
     CleanupConnexionHandlers();
     }
-  
+
   this->ClientID=0;
   this->LastButtonState=0; // all buttons released.
   this->Initialized=false;
-  
+
   assert("post: restored" && !this->GetInitialized());
 }
 
@@ -167,32 +167,32 @@ void vtkTDxMacDevice::ProcessEvent(const ConnexionDeviceState *s)
   assert("pre: initialized" && this->GetInitialized());
   assert("pre: s_exists" && s!=0);
   assert("pre: client_matches" && s->client==this->ClientID);
-  
+
   vtkTDxMotionEventInfo motionInfo;
   int buttonInfo;
   double axis[3];
   UInt16 mask;
   bool pressed;
-  
+
   switch(s->command)
     {
     case kConnexionCmdHandleAxis:
       vtkDebugMacro(<< "it is kConnexionCmdHandleAxis");
       motionInfo.X=s->axis[0]; // Tx: SInt16 between -1024 and 1024
-      
+
       // On Mac, the Y and Z axes are reversed (wrong). We want to have a
       // right-handed coordinate system, so positive Y has to go from bottom to
       // top and positive Z has to come towards us, as on Windows.
-      
+
       motionInfo.Y=-s->axis[1]; // Ty: SInt16 between -1024 and 1024
       motionInfo.Z=-s->axis[2]; // Tz: SInt16 between -1024 and 1014
-      
+
       axis[0]=s->axis[3]; // Rx: SInt16 between -1024 and 1024
-      
+
       // On Mac, the Y and Z axes are reversed (wrong).
       axis[1]=-s->axis[4]; // Ry: SInt16 between -1024 and 1024
       axis[2]=-s->axis[5]; // Rz: SInt16 between -1024 and 1024
-      
+
       motionInfo.Angle=vtkMath::Norm(axis);
       if(motionInfo.Angle==0.0)
         {
@@ -218,9 +218,9 @@ void vtkTDxMacDevice::ProcessEvent(const ConnexionDeviceState *s)
       mask=s->buttons^this->LastButtonState;
       vtkDebugMacro("mask=" << hex << mask << dec);
       this->LastButtonState=s->buttons;
-      
+
       pressed=(s->buttons&mask)!=0;
-      
+
       // find the button number (starting at 0).
       buttonInfo=0;
       mask=mask>>1;
@@ -252,7 +252,7 @@ void vtkTDxMacDevice::ProcessEvent(const ConnexionDeviceState *s)
 void vtkTDxMacDevice::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "ClientApplicationName=";
   if(this->ClientApplicationName!=0)
     {
@@ -282,10 +282,10 @@ unsigned char *vtkTDxMacDevice::CStringToPascalString(const char *s)
 {
   assert("pre: s_exists" && s!=0);
   assert("pre: s_small_enough" && strlen(s)<=255);
-  
+
   size_t l=strlen(s);
-  unsigned char *result=new unsigned char[l+2]; 
-  
+  unsigned char *result=new unsigned char[l+2];
+
   result[0]=static_cast<unsigned char>(l);
   result[l+1]=0;
   size_t i=0;
@@ -294,7 +294,7 @@ unsigned char *vtkTDxMacDevice::CStringToPascalString(const char *s)
     result[i+1]=static_cast<unsigned char>(s[i]);
     ++i;
     }
-  
+
   assert("post result_exists" && result!=0);
   return result;
 }
@@ -305,17 +305,17 @@ unsigned char *vtkTDxMacDevice::CStringToPascalString(const char *s)
 void vtkTDxMacDeviceMessageHandler(io_connect_t connection,
                                    natural_t messageType,
                                    void *messageArgument)
-{ 
+{
   ConnexionDeviceState *s;
   std::map<UInt16,vtkTDxMacDevice *,vtkLessThanClientID>::iterator it;
   vtkTDxMacDevice *device;
-  
+
   switch(messageType)
     {
     case kConnexionMsgDeviceState:
       s=static_cast<ConnexionDeviceState *>(messageArgument);
       it=vtkClientIDToDeviceObject.find(s->client);
-      
+
       if(it==vtkClientIDToDeviceObject.end())
         {
         // it can happen during initialization phase because of a race condition:
@@ -324,7 +324,7 @@ void vtkTDxMacDeviceMessageHandler(io_connect_t connection,
         // No worries.
         return;
         }
-      
+
       device=(*it).second;
       device->ProcessEvent(s);
       break;

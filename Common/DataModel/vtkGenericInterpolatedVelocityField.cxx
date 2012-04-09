@@ -37,7 +37,7 @@ vtkGenericInterpolatedVelocityField::vtkGenericInterpolatedVelocityField()
   this->CacheHit = 0;
   this->CacheMiss = 0;
   this->Caching = 1; // Caching on by default
-  
+
   this->VectorsSelection = 0;
 
   this->DataSets = new vtkGenericInterpolatedVelocityFieldDataSetsType;
@@ -84,7 +84,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(double* x, double* f)
         {
         this->ClearLastCell();
         retVal = this->FunctionValues(ds, x, f);
-        if (retVal) 
+        if (retVal)
           {
           this->LastDataSet = ds;
           return retVal;
@@ -103,7 +103,7 @@ const double vtkGenericInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
 // Evaluate u,v,w at x,y,z,t
 int vtkGenericInterpolatedVelocityField::FunctionValues(
   vtkGenericDataSet* dataset,
-  double* x, 
+  double* x,
   double* f)
 {
   int i, subId;
@@ -111,7 +111,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   double dist2;
   int ret;
   int attrib;
-  
+
   for(i=0; i<3; i++)
     {
     f[i] = 0;
@@ -148,14 +148,14 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
           }
       }
     }
-  
+
   if (!validState)
     {
     vtkErrorMacro(<<"Can't evaluate dataset!");
     return 0;
     }
 
-  double tol2 = 
+  double tol2 =
     dataset->GetLength() * vtkGenericInterpolatedVelocityField::TOLERANCE_SCALE;
 
   int found = 0;
@@ -163,7 +163,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
   if (this->Caching)
     {
     // See if the point is in the cached cell
-    if (this->GenCell==0 || this->GenCell->IsAtEnd() || 
+    if (this->GenCell==0 || this->GenCell->IsAtEnd() ||
         !(ret=this->GenCell->GetCell()->EvaluatePosition(x, 0, subId,
                                                          this->LastPCoords,
                                                          dist2))
@@ -198,7 +198,7 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(
       return 0;
       }
     }
-  
+
   this->GenCell->GetCell()->InterpolateTuple(vectors,this->LastPCoords,f);
 
   return 1;
@@ -305,7 +305,7 @@ void vtkGenericInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
     os << "off." << endl;
     }
 
-  os << indent << "VectorsSelection: " 
+  os << indent << "VectorsSelection: "
      << (this->VectorsSelection?this->VectorsSelection:"(none)") << endl;
   os << indent << "LastDataSet : "
      << this->LastDataSet << endl;

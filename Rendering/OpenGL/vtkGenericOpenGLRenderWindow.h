@@ -54,7 +54,7 @@ public:
   //! responsibility to watch for WindowIsCurrentEvent and set the bool* flag
   //! passed through the call data parameter.
   bool IsCurrent();
- 
+
   //! Returns if OpenGL is supported.  It is the class user's
   //! responsibility to watch for WindowSupportsOpenGLEvent and set the int* flag
   //! passed through the call data parameter.

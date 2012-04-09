@@ -40,10 +40,10 @@ protected:
   ~vtkImageTranslateExtent() {};
 
   int Translation[3];
-  
+
   virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:

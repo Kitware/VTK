@@ -44,11 +44,11 @@ ren1 AddActor plateActor
 ren1 SetBackground 1 1 1
 renWin SetSize 250 250
 
-[ren1 GetActiveCamera] SetPosition 13.3991 14.0764 9.97787 
-[ren1 GetActiveCamera] SetFocalPoint 1.50437 0.481517 4.52992 
+[ren1 GetActiveCamera] SetPosition 13.3991 14.0764 9.97787
+[ren1 GetActiveCamera] SetFocalPoint 1.50437 0.481517 4.52992
 [ren1 GetActiveCamera] SetViewAngle 30
-[ren1 GetActiveCamera] SetViewUp -0.120861 0.458556 -0.880408 
-[ren1 GetActiveCamera] SetClippingRange 12.5724 26.8374 
+[ren1 GetActiveCamera] SetViewUp -0.120861 0.458556 -0.880408
+[ren1 GetActiveCamera] SetClippingRange 12.5724 26.8374
 
 # render the image
 #

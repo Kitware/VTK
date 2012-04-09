@@ -1,13 +1,13 @@
 #!/usr/bin/env perl
 
-# This script tries to find deprecated classes and methods and replace 
-# them with new classes/methods. Please note that it can not fix all 
-# possible problems. However, it should be relatively easy to trace 
+# This script tries to find deprecated classes and methods and replace
+# them with new classes/methods. Please note that it can not fix all
+# possible problems. However, it should be relatively easy to trace
 # those problems from compilation errors.
 
 use Getopt::Long;
 
-if (!GetOptions("language:s" => \$language, 
+if (!GetOptions("language:s" => \$language,
 		"help" => \$help,
 		"update" => \$update,
 		"print-messages" => \$print))
@@ -28,7 +28,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
 }
 
 
-@cxxmessageids = 
+@cxxmessageids =
     (
      'vtkScalars\s*\*\s*([a-zA-Z0-9_-]*)\s*=\s*vtkScalars::New\([ ]*\)', 0,
      'vtkScalars\s*\*\s*([a-zA-Z0-9_-]*)\s*=\s*vtkScalars::New\(\s*VTK_UNSIGNED_CHAR\s*,\s*([1-4])\s*\);', 4,
@@ -60,7 +60,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'GetActiveScalars', 14,
      'vtkScalars([^a-zA-Z0-9])', 15,
 
-     
+
      'vtkVectors\s*\*\s*([a-zA-Z0-9_-]*)\s*=[ \t]vtkVectors::New\([ ]*\)\s*;', 100,
      'vtkVectors\.h', 1,
      '([a-zA-Z0-9_-]*)\s*=\s*vtkVectors::New\(\s*\)', 102,
@@ -75,7 +75,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'GetNumberOfVectors\s*\(', 16,
      'GetActiveVectors', 114,
      'vtkVectors([^a-zA-Z0-9])', 15,
-     
+
      'vtkNormals\s*\*\s*([a-zA-Z0-9_-]*)\s*=[ \t]vtkNormals::New\([ ]*\)\s*;', 100,
      'vtkNormals\.h', 1,
      '([a-zA-Z0-9_-]*)\s*=\s*vtkNormals::New\(\s*\)', 102,
@@ -89,7 +89,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'SetNumberOfNormals\s*\(', 113,
      'GetNumberOfNormals\s*\(', 16,
      'GetActiveNormals', 214,
-     'vtkNormals([^a-zA-Z0-9])', 15,     
+     'vtkNormals([^a-zA-Z0-9])', 15,
 
      'vtkTCoords\s*\*\s*([a-zA-Z0-9_-]*)\s*=[ \t]vtkTCoords::New\([ ]*\)\s*;', 300,
      'vtkTCoords\.h', 1,
@@ -103,7 +103,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'SetNumberOfTCoords\s*\(', 113,
      'GetNumberOfTCoords\s*\(', 16,
      'GetActiveTCoords', 314,
-     'vtkTCoords([^a-zA-Z0-9])', 15,     
+     'vtkTCoords([^a-zA-Z0-9])', 15,
 
      'vtkTensors\s*\*\s*([a-zA-Z0-9_-]*)\s*=[ \t]vtkTensors::New\([ ]*\)\s*;', 400,
      'vtkTensors\.h', 1,
@@ -117,7 +117,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'SetNumberOfTensors\s*\(', 113,
      'GetNumberOfTensors\s*\(', 16,
      'GetActiveTensors', 414,
-     'vtkTensors([^a-zA-Z0-9])', 15,     
+     'vtkTensors([^a-zA-Z0-9])', 15,
 
      'GetPointData\(\)->GetFieldData\(', 1000,
      'GetCellData\(\)->GetFieldData\(', 1001,
@@ -125,7 +125,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      );
 
 
-%cxxreps = 
+%cxxreps =
     (
      0 => 'vtkFloatArray \*$1 = vtkFloatArray::New\(\)',
      1 => 'vtkFloatArray\.h',
@@ -156,8 +156,8 @@ if ( !$print && ($#ARGV < 0 || $help) )
      26 => '$1 = vtkShortArray::New\(\); $1->SetNumberOfComponents\($2\);',
      27 => 'vtkShortArray \*$1 = vtkShortArray::New\(\);',
      28 => '$1 = vtkShortArray::New\(\);',
-     
-     
+
+
      100 => 'vtkFloatArray \*$1 = vtkFloatArray::New\(\); $1->SetNumberOfComponents\(3\);',
      102 => '$1 = vtkFloatArray::New\(\); $1->SetNumberOfComponents\(3\)',
      108 => 'GetTuple\(',
@@ -167,24 +167,24 @@ if ( !$print && ($#ARGV < 0 || $help) )
      113 => 'SetNumberOfTuples\(',
      114 => 'GetVectors',
      115 => 'SetTuple3\($1,$2,$3,$4\)',
-     
+
      214 => 'GetNormals',
-     
+
      300 => 'vtkFloatArray \*$1 = vtkFloatArray::New\(\); $1->SetNumberOfComponents\(2\);',
      302 => '$1 = vtkFloatArray::New\(\); $1->SetNumberOfComponents\(2\)',
      314 => 'GetTCoords',
-     
+
      400 => 'vtkFloatArray \*$1 = vtkFloatArray::New\(\); $1->SetNumberOfComponents\(9\);',
      402 => '$1 = vtkFloatArray::New\(\); $1->SetNumberOfComponents\(9\)',
      414 => 'GetTensors',
-     
+
      1000 => 'GetPointData\(',
      1001 => 'GetCellData\(',
      1002 => 'SaveImageAsPPM\( \/\/ Use a vtkWindowToImageFilter instead of SaveImageAsPPM',
      );
 
 
-@tclmessageids = 
+@tclmessageids =
     (
      'vtkScalars\s+([a-zA-Z0-9\$_-]*)', 0,
      'SetScalar\s+(\S+)\s*(\S+)', 1,
@@ -227,7 +227,7 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'source\s*\$VTK_TCL\/colors\.tcl', 1006,
      );
 
-%tclreps = 
+%tclreps =
     (
      0 => 'vtkFloatArray $1',
      1 => 'SetTuple1 $1 $2',
@@ -236,18 +236,18 @@ if ( !$print && ($#ARGV < 0 || $help) )
      4 => 'SetNumberOfTuples ',
      5 => 'GetNumberOfTuples ',
      6 => 'GetScalars ',
-     
+
      100 => 'vtkFloatArray $1; $1 SetNumberOfComponents 3',
      101 => 'SetTuple3 $1 $2 $3 $4',
      102 => 'InsertTuple3 ',
      103 => 'InsertNextTuple3 ',
      106 => 'GetVectors ',
-     
+
      206 => 'GetNormals ',
-     
+
      300 => 'vtkFloatArray $1; $1 SetNumberOfComponents 2',
      306 => 'GetTCoords ',
-     
+
      1000 => 'GetPointData\]',
      1001 => 'GetCellData\]',
      1002 => 'SaveImageAsPPM \# Use a vtkWindowToImageFilter instead of SaveImageAsPPM',
@@ -261,12 +261,12 @@ if ($language eq "c++")
 {
     @messageids = @cxxmessageids;
     %reps = %cxxreps;
-} 
+}
 elsif($language eq "tcl")
 {
     @messageids = @tclmessageids;
     %reps = %tclreps;
-} 
+}
 
 else
 {
@@ -287,7 +287,7 @@ if ( $print )
 
 foreach $filename (@ARGV)
 {
-    
+
     open(FPTR, "<$filename") or die "Could not open file $filename";
     open(OPTR, ">$filename.update") or die "Could not open file $filename.update";
 

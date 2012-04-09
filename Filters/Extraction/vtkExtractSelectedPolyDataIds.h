@@ -41,8 +41,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
   // Usual data generation method
-  int RequestData(vtkInformation *, 
-                  vtkInformationVector **, 
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
                   vtkInformationVector *);
 
 private:

@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricTorus.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -16,12 +16,12 @@
 // .SECTION Description
 // vtkParametricTorus generates a torus.
 //
-// For further information about this surface, please consult the 
-// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// For further information about this surface, please consult the
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
-// Andrew Maclean a.maclean@cas.edu.au for 
+// Andrew Maclean a.maclean@cas.edu.au for
 // creating and contributing the class.
 //
 #ifndef __vtkParametricTorus_h
@@ -36,14 +36,14 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricTorus : public vtkParam
 public:
   vtkTypeMacro(vtkParametricTorus,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Construct a torus with the following parameters:
   // MinimumU = 0, MaximumU = 2*Pi,
-  // MinimumV = 0, MaximumV = 2*Pi, 
+  // MinimumV = 0, MaximumV = 2*Pi,
   // JoinU = 1, JoinV = 1,
-  // TwistU = 0, TwistV = 0, 
-  // ClockwiseOrdering = 1, 
+  // TwistU = 0, TwistV = 0,
+  // ClockwiseOrdering = 1,
   // DerivativesAvailable = 1,
   // RingRadius = 1, CrossSectionRadius = 0.5.
   static vtkParametricTorus *New();
@@ -76,15 +76,15 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   //
-  // uvw are the parameters with Pt being the the Cartesian point, 
+  // uvw are the parameters with Pt being the the Cartesian point,
   // Duvw are the derivatives of this point with respect to u, v and w.
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
-  // If the user does not need to calculate a scalar, then the 
-  // instantiated function should return zero. 
+  // If the user does not need to calculate a scalar, then the
+  // instantiated function should return zero.
   //
   virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
 

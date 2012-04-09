@@ -47,7 +47,7 @@ public:
   // TODO: Change this to take in a vtkGeoTerrain to get altitude.
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
-  
+
   // Description:
   // The maximum number of pixels between points on the arcs.
   // If two adjacent points are farther than the threshold,
@@ -55,24 +55,24 @@ public:
   // is separated by at most the threshold.
   vtkSetMacro(MaximumPixelSeparation, double);
   vtkGetMacro(MaximumPixelSeparation, double);
-  
+
   // Description:
   // The minimum number of pixels between points on the arcs.
   // Points closer than the threshold will be skipped until
   // a point farther than the minimum threshold is reached.
   vtkSetMacro(MinimumPixelSeparation, double);
   vtkGetMacro(MinimumPixelSeparation, double);
-  
+
   // Description:
   // The renderer used to estimate the number of pixels between
   // points.
   virtual void SetRenderer(vtkRenderer *ren);
   vtkGetObjectMacro(Renderer, vtkRenderer);
-  
+
   // Description:
   // Return the modified time of this object.
   virtual unsigned long GetMTime();
-  
+
 protected:
   vtkGeoAdaptiveArcs();
   ~vtkGeoAdaptiveArcs();
@@ -80,7 +80,7 @@ protected:
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   vtkRenderer *Renderer;
   double GlobeRadius;
   double MaximumPixelSeparation;
@@ -89,7 +89,7 @@ protected:
   vtkPolyData* LastInput;
   vtkDoubleArray* InputLatitude;
   vtkDoubleArray* InputLongitude;
-  
+
 private:
   vtkGeoAdaptiveArcs(const vtkGeoAdaptiveArcs&);  // Not implemented.
   void operator=(const vtkGeoAdaptiveArcs&);  // Not implemented.

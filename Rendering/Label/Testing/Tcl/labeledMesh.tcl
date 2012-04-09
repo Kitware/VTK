@@ -71,7 +71,7 @@ vtkLabeledDataMapper ldm
     ldm SetLabelModeToLabelFieldData
 #    ldm SetLabeledComponent 0
 vtkActor2D pointLabels
-    pointLabels SetMapper ldm    
+    pointLabels SetMapper ldm
 
 # Create labels for cells
 vtkCellCenters cc
@@ -90,7 +90,7 @@ vtkLabeledDataMapper cellMapper
     cellMapper SetLabelModeToLabelFieldData
     [cellMapper GetLabelTextProperty] SetColor 0 1 0
 vtkActor2D cellLabels
-    cellLabels SetMapper cellMapper    
+    cellLabels SetMapper cellMapper
 
 # Add the actors to the renderer, set the background and size
 #

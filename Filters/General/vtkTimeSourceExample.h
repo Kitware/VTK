@@ -16,10 +16,10 @@
 // .SECTION Description
 // Creates a small easily understood time varying data set for testing.
 // The output is a vtkUntructuredGrid in which the point and cell values vary
-// over time in a sin wave. The analytic ivar controls whether the output 
+// over time in a sin wave. The analytic ivar controls whether the output
 // corresponds to a step function over time or is continuous.
-// The X and Y Amplitude ivars make the output move in the X and Y directions 
-// over time. The Growing ivar makes the number of cells in the output grow 
+// The X and Y Amplitude ivars make the output move in the X and Y directions
+// over time. The Growing ivar makes the number of cells in the output grow
 // and then shrink over time.
 
 #ifndef __vtkTimeSourceExample_h
@@ -53,7 +53,7 @@ public:
 
   //Description:
   //When off (the default) this produces a single cell data set.
-  //When on the the number of cells (in the Y direction) grows 
+  //When on the the number of cells (in the Y direction) grows
   //and shrinks over time along a hat function.
   vtkSetClampMacro(Growing, int, 0, 1);
   vtkGetMacro(Growing, int);
@@ -63,12 +63,12 @@ protected:
   vtkTimeSourceExample();
   ~vtkTimeSourceExample();
 
-  virtual int RequestInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*);
 
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*);
 
 

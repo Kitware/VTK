@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAbstractInterpolatedVelocityField - An abstract class for 
+// .NAME vtkAbstractInterpolatedVelocityField - An abstract class for
 //  obtaining the interpolated velocity values at a point
 //
 // .SECTION Description
@@ -20,44 +20,44 @@
 //  by performing cell interpolation on the underlying vtkDataSet. This is an
 //  abstract sub-class of vtkFunctionSet, NumberOfIndependentVariables = 4
 //  (x,y,z,t) and NumberOfFunctions = 3 (u,v,w). With a brute-force scheme,
-//  every time an evaluation is performed, the target cell containing point 
+//  every time an evaluation is performed, the target cell containing point
 //  (x,y,z) needs to be found by calling FindCell(), via either vtkDataSet or
-//  vtkAbstractCelllocator's sub-classes (vtkCellLocator & vtkModifiedBSPTree). 
+//  vtkAbstractCelllocator's sub-classes (vtkCellLocator & vtkModifiedBSPTree).
 //  As it incurs a large cost, one (for vtkCellLocatorInterpolatedVelocityField
-//  via vtkAbstractCellLocator) or two (for vtkInterpolatedVelocityField via 
+//  via vtkAbstractCellLocator) or two (for vtkInterpolatedVelocityField via
 //  vtkDataSet that involves vtkPointLocator in addressing vtkPointSet) levels
 //  of cell caching may be exploited to increase the performance.
 //
-//  For vtkInterpolatedVelocityField, level #0 begins with intra-cell caching. 
+//  For vtkInterpolatedVelocityField, level #0 begins with intra-cell caching.
 //  Specifically if the previous cell is valid and the next point is still in
-//  it ( i.e., vtkCell::EvaluatePosition() returns 1, coupled with newly created 
+//  it ( i.e., vtkCell::EvaluatePosition() returns 1, coupled with newly created
 //  parametric coordinates & weights ), the function values can be interpolated
-//  and only vtkCell::EvaluatePosition() is invoked. If this fails, then level #1 
-//  follows by inter-cell search for the target cell that contains the next point. 
-//  By an inter-cell search, the previous cell provides an important clue or serves 
+//  and only vtkCell::EvaluatePosition() is invoked. If this fails, then level #1
+//  follows by inter-cell search for the target cell that contains the next point.
+//  By an inter-cell search, the previous cell provides an important clue or serves
 //  as an immediate neighbor to aid in locating the target cell via vtkPointSet::
 //  FindCell(). If this still fails, a global cell location / search is invoked via
-//  vtkPointSet::FindCell(). Here regardless of either inter-cell or global search, 
+//  vtkPointSet::FindCell(). Here regardless of either inter-cell or global search,
 //  vtkPointLocator is in fact employed (for datasets of type vtkPointSet only, note
-//  vtkImageData and vtkRectilinearGrid are able to provide rapid and robust cell 
-//  location due to the simple mesh topology) as a crucial tool underlying the cell 
-//  locator. However, the use of vtkPointLocator makes vtkInterpolatedVelocityField 
+//  vtkImageData and vtkRectilinearGrid are able to provide rapid and robust cell
+//  location due to the simple mesh topology) as a crucial tool underlying the cell
+//  locator. However, the use of vtkPointLocator makes vtkInterpolatedVelocityField
 //  non-robust in cell location for vtkPointSet.
-//  
+//
 //  For vtkCellLocatorInterpolatedVelocityField, the only caching (level #0) works
-//  by intra-cell trial. In case of failure, a global search for the target cell is 
-//  invoked via vtkAbstractCellLocator::FindCell() and the actual work is done by 
-//  either vtkCellLocator or vtkModifiedBSPTree (for datasets of type vtkPointSet 
-//  only, while vtkImageData and vtkRectilinearGrid themselves are able to provide 
-//  fast robust cell location). Without the involvement of vtkPointLocator, robust 
-//  cell location is achieved for vtkPointSet. 
+//  by intra-cell trial. In case of failure, a global search for the target cell is
+//  invoked via vtkAbstractCellLocator::FindCell() and the actual work is done by
+//  either vtkCellLocator or vtkModifiedBSPTree (for datasets of type vtkPointSet
+//  only, while vtkImageData and vtkRectilinearGrid themselves are able to provide
+//  fast robust cell location). Without the involvement of vtkPointLocator, robust
+//  cell location is achieved for vtkPointSet.
 //
 // .SECTION Caveats
-//  vtkAbstractInterpolatedVelocityField is not thread safe. A new instance 
+//  vtkAbstractInterpolatedVelocityField is not thread safe. A new instance
 //  should be created by each thread.
 
 // .SECTION See Also
-//  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField 
+//  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
 //  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
 
@@ -83,12 +83,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAbstractInterpolatedVelocityField : public vt
 public:
   vtkTypeMacro( vtkAbstractInterpolatedVelocityField, vtkFunctionSet );
   void PrintSelf( ostream & os, vtkIndent indent );
-  
+
   // Description:
   // Set/Get the caching flag. If this flag is turned ON, there are two levels
   // of caching for derived concrete class vtkInterpolatedVelocityField and one
   // level of caching for derived concrete class vtkCellLocatorInterpolatedVelocityField.
-  // Otherwise a global cell location is always invoked for evaluating the 
+  // Otherwise a global cell location is always invoked for evaluating the
   // function values at any point.
   vtkSetMacro( Caching, bool );
   vtkGetMacro( Caching, bool );
@@ -98,9 +98,9 @@ public:
   // hits while CacheMiss is the number of level #0 cache misses.
   vtkGetMacro( CacheHit, int );
   vtkGetMacro( CacheMiss, int );
-  
+
   // Description:
-  // Get the most recently visited dataset and it id. The dataset is used 
+  // Get the most recently visited dataset and it id. The dataset is used
   // for a guess regarding where the next point will be, without searching
   // through all datasets. When setting the last dataset, care is needed as
   // no reference counting or checks are performed. This feature is intended
@@ -112,21 +112,21 @@ public:
   // Get/Set the id of the cell cached from last evaluation.
   vtkGetMacro( LastCellId, vtkIdType );
   virtual void SetLastCellId( vtkIdType c ) { this->LastCellId = c; }
-  
+
   // Description:
   // Set the id of the most recently visited cell of a dataset.
   virtual void SetLastCellId( vtkIdType c, int dataindex ) = 0;
-  
+
   // Description:
   // Get/Set the name of a spcified vector array. By default it is NULL, with
   // the active vector array for use.
   vtkGetStringMacro( VectorsSelection );
   void SelectVectors( const char * fieldName )
     { this->SetVectorsSelection( fieldName ); }
-    
+
   // Description:
   // Set/Get the flag indicating vector post-normalization (following vector
-  // interpolation). Vector post-normalization is required to avoid the 
+  // interpolation). Vector post-normalization is required to avoid the
   // 'curve-overshooting' problem (caused by high velocity magnitude) that
   // occurs when Cell-Length is used as the step size unit (particularly the
   // Minimum step size unit). Furthermore, it is required by RK45 to achieve,
@@ -138,23 +138,23 @@ public:
   // significantly-differing velocity magnitude values at the nodes (which is
   // the case with large cells), can be reflected as is. Also note that this
   // flag needs to be turned to FALSE after vtkInitialValueProblemSolver::
-  // ComputeNextStep() as subsequent operations, e.g., vorticity computation, 
+  // ComputeNextStep() as subsequent operations, e.g., vorticity computation,
   // may need non-normalized vectors.
   vtkSetMacro( NormalizeVector, bool );
   vtkGetMacro( NormalizeVector, bool );
-  
+
   // Description:
   // Import parameters. Sub-classes can add more after chaining.
   virtual void CopyParameters( vtkAbstractInterpolatedVelocityField * from )
     { this->Caching = from->Caching; }
-  
+
   // Description:
-  // Add a dataset for implicit velocity function evaluation. If more than 
+  // Add a dataset for implicit velocity function evaluation. If more than
   // one dataset is added, the evaluation point is searched in all until a
-  // match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF 
+  // match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
   // dataset FOR THREAD SAFETY REASONS.
   virtual void AddDataSet( vtkDataSet * dataset ) = 0;
-  
+
   // Description:
   // Evaluate the velocity field f at point (x, y, z).
   virtual int FunctionValues( double * x, double * f ) = 0;
@@ -163,7 +163,7 @@ public:
   // Set the last cell id to -1 to incur a global cell search for the next point.
   void ClearLastCellId() { this->LastCellId = -1; }
 
-  // Description: 
+  // Description:
   // Get the interpolation weights cached from last evaluation. Return 1 if the
   // cached cell is valid and 0 otherwise.
   int GetLastWeights( double * w );
@@ -172,7 +172,7 @@ public:
 protected:
   vtkAbstractInterpolatedVelocityField();
   ~vtkAbstractInterpolatedVelocityField();
-  
+
   static const double TOLERANCE_SCALE;
 
   int       CacheHit;
@@ -189,27 +189,27 @@ protected:
   vtkGenericCell * Cell;
   vtkGenericCell * GenCell; // the current cell
   vtkAbstractInterpolatedVelocityFieldDataSetsType * DataSets;
-  
+
   // Description:
-  // Set the name of a specific vector to be interpolated. 
+  // Set the name of a specific vector to be interpolated.
   vtkSetStringMacro( VectorsSelection );
-  
+
   // Description:
   // Evaluate the velocity field f at point (x, y, z) in a specified dataset
-  // by invoking vtkDataSet::FindCell() to locate the next cell if the given 
+  // by invoking vtkDataSet::FindCell() to locate the next cell if the given
   // point is outside the current cell. To address vtkPointSet, vtkPointLocator
-  // is involved via vtkPointSet::FindCell() in vtkInterpolatedVelocityField 
-  // for cell location. In vtkCellLocatorInterpolatedVelocityField, this function 
+  // is involved via vtkPointSet::FindCell() in vtkInterpolatedVelocityField
+  // for cell location. In vtkCellLocatorInterpolatedVelocityField, this function
   // is invoked just to handle vtkImageData and vtkRectilinearGrid that are not
   // assigned with any vtkAbstractCellLocatot-type cell locator.
   virtual int FunctionValues( vtkDataSet * ds, double * x, double * f );
-  
+
 //BTX
   friend class vtkTemporalInterpolatedVelocityField;
   // Description:
   // If all weights have been computed (parametric coords etc all valid), a
   // scalar/vector can be quickly interpolated using the known weights and
-  // the cached generic cell. This function is primarily reserved for use by 
+  // the cached generic cell. This function is primarily reserved for use by
   // vtkTemporalInterpolatedVelocityField
   void FastCompute( vtkDataArray * vectors, double f[3] );
   bool InterpolatePoint( vtkPointData * outPD, vtkIdType outIndex );

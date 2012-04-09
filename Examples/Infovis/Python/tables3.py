@@ -11,12 +11,12 @@ if __name__ == "__main__":
     csv_source.SetDetectNumericColumns(True)
     csv_source.SetFileName("table_data.csv")
     csv_source.Update()
-    
+
     T = csv_source.GetOutput()
-    
+
     print "Table loaded from CSV file:"
     T.Dump(6)
-    
+
     #
     # Add a new row to the table
     #
@@ -34,6 +34,6 @@ if __name__ == "__main__":
     row_number = 3
     for icol in range( T.GetNumberOfColumns() ):
         row.append( T.GetColumn(icol).GetValue( row_number ) )
-    
+
     print "\nExtracted row 3:"
     print row

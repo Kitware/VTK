@@ -22,7 +22,7 @@
 // vtkPChacoReader is a unstructured grid source object that reads
 // Chaco files.  The file is read by process 0 and converted into
 // a vtkUnstructuredGrid.  The vtkDistributedDataFilter is invoked
-// to divide the grid among the processes.  
+// to divide the grid among the processes.
 
 #ifndef __vtkPChacoReader_h
 #define __vtkPChacoReader_h

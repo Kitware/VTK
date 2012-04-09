@@ -33,28 +33,28 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkBoxMuellerRandomSequence* New();
-  
+
   // Description:
   // Current value.
   virtual double GetValue();
-  
+
   // Description:
   // Move to the next number in the random sequence.
   virtual void Next();
-  
+
   // Description:
   // Return the uniformly distributed sequence of random numbers.
   vtkRandomSequence *GetUniformSequence();
-  
+
   // Description:
   // Set the uniformly distributed sequence of random numbers.
   // Default is a .
   void SetUniformSequence(vtkRandomSequence *uniformSequence);
-  
+
 protected:
   vtkBoxMuellerRandomSequence();
   virtual ~vtkBoxMuellerRandomSequence();
-  
+
   vtkRandomSequence *UniformSequence;
   double Value;
 private:

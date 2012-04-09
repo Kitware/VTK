@@ -43,7 +43,7 @@ vtkImageAlgorithm::~vtkImageAlgorithm()
 
 //----------------------------------------------------------------------------
 void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
-{  
+{
   this->Superclass::PrintSelf(os,indent);
 }
 
@@ -59,7 +59,7 @@ int vtkImageAlgorithm::RequestData(
   // output is requesting the data, and pass that into ExecuteData
 
   // which output port did the request come from
-  int outputPort = 
+  int outputPort =
     request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
 
   // if output port is negative then that means this filter is calling the
@@ -68,9 +68,9 @@ int vtkImageAlgorithm::RequestData(
       {
       outputPort = 0;
       }
-  
+
   // get the data object
-  vtkInformation *outInfo = 
+  vtkInformation *outInfo =
     outputVector->GetInformationObject(outputPort);
   // call ExecuteData
   this->SetErrorCode( vtkErrorCode::NoError );
@@ -124,7 +124,7 @@ void vtkImageAlgorithm::ExecuteDataWithInformation(vtkDataObject *dobj, vtkInfor
 }
 
 //----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteData 
+// Assume that any source that implements ExecuteData
 // can handle an empty extent.
 void vtkImageAlgorithm::ExecuteData(vtkDataObject *)
 {
@@ -150,7 +150,7 @@ void vtkImageAlgorithm::CopyInputArrayAttributesToOutput
     // if the input is image data
     if (vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
       {
-      vtkInformation *info = 
+      vtkInformation *info =
         this->GetInputArrayFieldInformation(0, inputVector);
       if (info)
         {
@@ -164,14 +164,14 @@ void vtkImageAlgorithm::CopyInputArrayAttributesToOutput
               (outInfo->Get(vtkDataObject::DATA_OBJECT())))
             {
             // copy scalar type and scalar number of components
-            vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+            vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
                                                         scalarType, numComp);
             }
           }
         }
       }
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 int vtkImageAlgorithm::RequestInformation(
@@ -209,7 +209,7 @@ void vtkImageAlgorithm::AllocateOutputData(vtkImageData *output,
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output,
                                                     vtkInformation* outInfo)
-{ 
+{
   // set the extent to be the update extent
   vtkImageData *out = vtkImageData::SafeDownCast(output);
   if (out)
@@ -231,7 +231,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
     {
     return;
     }
-  
+
   int inExt[6];
   int outExt[6];
   vtkDataArray *inArray;
@@ -250,7 +250,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
   double *oOut = output->GetOrigin();
   double *sOut = output->GetSpacing();
   if (oIn[0] == oOut[0] && oIn[1] == oOut[1] && oIn[2] == oOut[2] &&
-      sIn[0] == sOut[0] && sIn[1] == sOut[1] && sIn[2] == sOut[2])   
+      sIn[0] == sOut[0] && sIn[1] == sOut[1] && sIn[2] == sOut[2])
     {
     output->GetPointData()->CopyAllOn();
     output->GetCellData()->CopyAllOn();
@@ -282,7 +282,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
       output->CopyAttributes(input);
       // Restore the scalars
       int idx = output->GetPointData()->AddArray(outArray);
-      output->GetPointData()->SetActiveAttribute(idx, 
+      output->GetPointData()->SetActiveAttribute(idx,
           vtkDataSetAttributes::SCALARS);
       outArray->UnRegister(this);
       }
@@ -304,11 +304,11 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
           }
         tmp->Register(this);
         output->GetPointData()->SetScalars(0);
-        output->GetPointData()->CopyAllocate(input->GetPointData(), 
+        output->GetPointData()->CopyAllocate(input->GetPointData(),
                                              output->GetNumberOfPoints());
         // Restore the scalars
         int idx = output->GetPointData()->AddArray(tmp);
-        output->GetPointData()->SetActiveAttribute(idx, 
+        output->GetPointData()->SetActiveAttribute(idx,
           vtkDataSetAttributes::SCALARS);
         tmp->UnRegister(this);
         // Now Copy The point data, but only if output is a subextent of the
@@ -332,8 +332,8 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
 
       if (input->GetCellData()->GetNumberOfArrays() > 0)
         {
-        output->GetCellData()->CopyAllocate(input->GetCellData(), 
-                                            output->GetNumberOfCells());  
+        output->GetCellData()->CopyAllocate(input->GetCellData(),
+                                            output->GetNumberOfCells());
         // Cell extent is one less than point extent.
         // Conditional to handle a colapsed axis (lower dimensional cells).
         if (inExt[0] < inExt[1]) {--inExt[1];}
@@ -343,7 +343,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
         if (outExt[0] < outExt[1]) {--outExt[1];}
         if (outExt[2] < outExt[3]) {--outExt[3];}
         if (outExt[4] < outExt[5]) {--outExt[5];}
-        // Now Copy The cell data, but only if output is a subextent of the input.  
+        // Now Copy The cell data, but only if output is a subextent of the input.
         if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
             outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
             outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
@@ -381,7 +381,7 @@ int vtkImageAlgorithm::FillOutputPortInformation(
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
-  
+
   return 1;
 }
 

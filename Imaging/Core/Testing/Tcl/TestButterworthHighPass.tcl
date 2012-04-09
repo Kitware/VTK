@@ -10,7 +10,7 @@ reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkImageFFT fft
 fft SetDimensionality 2
-fft SetInputConnection [reader GetOutputPort] 
+fft SetInputConnection [reader GetOutputPort]
 #fft DebugOn
 
 vtkImageButterworthHighPass highPass

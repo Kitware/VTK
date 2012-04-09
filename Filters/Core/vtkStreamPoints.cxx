@@ -63,7 +63,7 @@ int vtkStreamPoints::RequestData(
     }
   vtkIdList *pts;
 
-  this->SavePointInterval = this->TimeIncrement;  
+  this->SavePointInterval = this->TimeIncrement;
   this->vtkStreamer::Integrate(input, source);
   if ( this->NumberOfStreamers <= 0 )
     {
@@ -77,7 +77,7 @@ int vtkStreamPoints::RequestData(
   newVectors  = vtkFloatArray::New();
   newVectors->SetNumberOfComponents(3);
   newVectors ->Allocate(3000);
-  if ( input->GetPointData()->GetScalars() || this->SpeedScalars 
+  if ( input->GetPointData()->GetScalars() || this->SpeedScalars
     || this->OrientationScalars)
     {
     newScalars = vtkFloatArray::New();
@@ -85,7 +85,7 @@ int vtkStreamPoints::RequestData(
     }
   newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
-  
+
   //
   // Loop over all streamers generating points
   //
@@ -94,7 +94,7 @@ int vtkStreamPoints::RequestData(
     // tOffset is the time that the next point will have.
     tOffset = 0.0;
 
-    for ( sPrev=sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
+    for ( sPrev=sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0;
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
@@ -118,12 +118,12 @@ int vtkStreamPoints::RequestData(
           pts->InsertNextId(id);
           newVectors->InsertTuple(id,v);
 
-          if ( newScalars ) 
+          if ( newScalars )
             {
             s = sPrev->s + r * (sPtr->s - sPrev->s);
             newScalars->InsertTuple(id,&s);
             }
-  
+
           tOffset += this->TimeIncrement;
           } // while
 
@@ -149,7 +149,7 @@ int vtkStreamPoints::RequestData(
   output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 
-  if ( newScalars ) 
+  if ( newScalars )
     {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);

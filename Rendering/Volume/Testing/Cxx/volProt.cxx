@@ -38,21 +38,21 @@
 int volProt( int argc, char *argv[] )
 {
   int i, j, k, l;
-  
+
   // Create the renderers, render window, and interactor
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   vtkRenderer *ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  
+
   // Read the data from a vtk file
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
   reader->SetFileName(fname);
   reader->Update();
   delete [] fname;
-  
+
   // Create a transfer function mapping scalar value to opacity
   vtkPiecewiseFunction *oTFun = vtkPiecewiseFunction::New();
   oTFun->AddSegment(10, 0.0, 255, 0.3);
@@ -64,7 +64,7 @@ int volProt( int argc, char *argv[] )
   // Create a transfer function mapping scalar value to color (grey)
   vtkPiecewiseFunction *gTFun = vtkPiecewiseFunction::New();
   gTFun->AddSegment(0, 1.0, 255, 1.0);
-    
+
   // Create a transfer function mapping scalar value to color (color)
   vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
   cTFun->AddRGBPoint(   0, 1.0, 0.0, 0.0 );
@@ -98,12 +98,12 @@ int volProt( int argc, char *argv[] )
           prop[index]->SetSpecular(0.2);
           prop[index]->SetSpecularPower(50.0);
           prop[index]->SetScalarOpacity(oTFun);
-          
+
           if ( l )
             {
             prop[index]->SetGradientOpacity( goTFun );
             }
-          
+
           if ( j )
             {
             prop[index]->SetColor( cTFun );
@@ -112,7 +112,7 @@ int volProt( int argc, char *argv[] )
             {
             prop[index]->SetColor( gTFun );
             }
-          
+
           if ( i )
             {
             prop[index]->SetInterpolationTypeToNearest();
@@ -121,7 +121,7 @@ int volProt( int argc, char *argv[] )
             {
             prop[index]->SetInterpolationTypeToLinear();
             }
-          
+
           index++;
           }
         }
@@ -136,8 +136,8 @@ int volProt( int argc, char *argv[] )
     for ( i = 0; i < 2; i++ )
       {
       mipprop[index] = vtkVolumeProperty::New();
-      mipprop[index]->SetScalarOpacity(oTFun2);          
-          
+      mipprop[index]->SetScalarOpacity(oTFun2);
+
       if ( j )
         {
         mipprop[index]->SetColor( cTFun );
@@ -146,7 +146,7 @@ int volProt( int argc, char *argv[] )
         {
         mipprop[index]->SetColor( gTFun );
         }
-      
+
       if ( i )
         {
         mipprop[index]->SetInterpolationTypeToNearest();
@@ -155,40 +155,40 @@ int volProt( int argc, char *argv[] )
         {
         mipprop[index]->SetInterpolationTypeToLinear();
         }
-          
+
       index++;
       }
     }
 
-  
+
 
   // Create compositing ray functions
-  vtkVolumeRayCastCompositeFunction *compositeFunction1 = 
+  vtkVolumeRayCastCompositeFunction *compositeFunction1 =
     vtkVolumeRayCastCompositeFunction::New();
   compositeFunction1->SetCompositeMethodToInterpolateFirst();
 
-  vtkVolumeRayCastCompositeFunction *compositeFunction2 = 
+  vtkVolumeRayCastCompositeFunction *compositeFunction2 =
     vtkVolumeRayCastCompositeFunction::New();
   compositeFunction2->SetCompositeMethodToClassifyFirst();
 
-  
+
   // Create mip ray functions
-  vtkVolumeRayCastMIPFunction *MIPFunction1 = 
+  vtkVolumeRayCastMIPFunction *MIPFunction1 =
     vtkVolumeRayCastMIPFunction::New();
   MIPFunction1->SetMaximizeMethodToScalarValue();
 
-  vtkVolumeRayCastMIPFunction *MIPFunction2 = 
+  vtkVolumeRayCastMIPFunction *MIPFunction2 =
     vtkVolumeRayCastMIPFunction::New();
   MIPFunction2->SetMaximizeMethodToOpacity();
 
   // Create an isosurface ray function
-  vtkVolumeRayCastIsosurfaceFunction *isosurfaceFunction = 
+  vtkVolumeRayCastIsosurfaceFunction *isosurfaceFunction =
     vtkVolumeRayCastIsosurfaceFunction::New();
   isosurfaceFunction->SetIsoValue(80);
 
-  vtkFiniteDifferenceGradientEstimator *gradest = 
+  vtkFiniteDifferenceGradientEstimator *gradest =
     vtkFiniteDifferenceGradientEstimator::New();
-  
+
   // Create 56 volumes
   vtkVolume *volume[56];
   index = 0;
@@ -202,8 +202,8 @@ int volProt( int argc, char *argv[] )
       index++;
       }
     }
-  
-  
+
+
   // Create 48 ray cast mappers - 32 composite, 8 mip, 8 isosurface
   vtkVolumeRayCastMapper *raycastMapper[48];
   for ( i = 0; i < 48; i++ )
@@ -227,17 +227,17 @@ int volProt( int argc, char *argv[] )
       {
       if ( i < 36 )
         {
-        raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction1 );  
+        raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction1 );
         volume[i]->SetProperty( mipprop[i-32] );
         }
       else if ( i < 40 )
         {
-        raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction2 );  
+        raycastMapper[i]->SetVolumeRayCastFunction( MIPFunction2 );
         volume[i]->SetProperty( mipprop[i-36] );
         }
-      else 
+      else
         {
-        raycastMapper[i]->SetVolumeRayCastFunction( isosurfaceFunction );  
+        raycastMapper[i]->SetVolumeRayCastFunction( isosurfaceFunction );
         volume[i]->SetProperty( prop[i-40] );
         }
       }
@@ -248,17 +248,17 @@ int volProt( int argc, char *argv[] )
   for ( i = 0; i < 8; i++ )
     {
     textureMapper[i] = vtkVolumeTextureMapper2D::New();
-    textureMapper[i]->SetInputConnection( reader->GetOutputPort() );    
+    textureMapper[i]->SetInputConnection( reader->GetOutputPort() );
     volume[i+48]->SetMapper( textureMapper[i] );
     volume[i+48]->SetProperty( prop[i*2] );
     }
-  
+
 
   renWin->SetSize(400,350);
 
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.5);
-  
+
   renWin->Render();
 
   int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
@@ -271,7 +271,7 @@ int volProt( int argc, char *argv[] )
     {
     iren->Start();
     }
-  
+
   // Clean up
   reader->Delete();
   oTFun->Delete();
@@ -308,7 +308,7 @@ int volProt( int argc, char *argv[] )
   ren->Delete();
   iren->Delete();
   renWin->Delete();
-  
+
   return !retVal;
 }
 

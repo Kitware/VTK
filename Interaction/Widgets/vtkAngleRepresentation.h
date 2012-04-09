@@ -117,7 +117,7 @@ public:
   virtual void StartWidgetInteraction(double e[2]);
   virtual void CenterWidgetInteraction(double e[2]);
   virtual void WidgetInteraction(double e[2]);
-  
+
 protected:
   vtkAngleRepresentation();
   ~vtkAngleRepresentation();
@@ -135,10 +135,10 @@ protected:
   int Ray1Visibility;
   int Ray2Visibility;
   int ArcVisibility;
-  
+
   // Format for the label
   char *LabelFormat;
-  
+
 private:
   vtkAngleRepresentation(const vtkAngleRepresentation&);  //Not implemented
   void operator=(const vtkAngleRepresentation&);  //Not implemented

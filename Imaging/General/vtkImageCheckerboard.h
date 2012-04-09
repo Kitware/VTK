@@ -43,15 +43,15 @@ public:
   // Set the two inputs to this filter
   virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
   virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
-  
+
 protected:
   vtkImageCheckerboard();
   ~vtkImageCheckerboard() {};
 
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
   int NumberOfDivisions[3];

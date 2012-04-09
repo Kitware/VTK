@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageWrapPad performs a modulo operation on the output pixel index
 // to determine the source input index.  The new image extent of the
-// output has to be specified.  Input has to be the same scalar type as 
+// output has to be specified.  Input has to be the same scalar type as
 // output.
 
 

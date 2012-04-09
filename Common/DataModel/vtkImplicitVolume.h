@@ -16,14 +16,14 @@
 // .SECTION Description
 // vtkImplicitVolume treats a volume (e.g., structured point dataset)
 // as if it were an implicit function. This means it computes a function
-// value and gradient. vtkImplicitVolume is a concrete implementation of 
+// value and gradient. vtkImplicitVolume is a concrete implementation of
 // vtkImplicitFunction.
 //
-// vtkImplicitDataSet computes the function (at the point x) by performing 
+// vtkImplicitDataSet computes the function (at the point x) by performing
 // cell interpolation. That is, it finds the cell containing x, and then
 // uses the cell's interpolation functions to compute an interpolated
 // scalar value at x. (A similar approach is used to find the
-// gradient, if requested.) Points outside of the dataset are assigned 
+// gradient, if requested.) Points outside of the dataset are assigned
 // the value of the ivar OutValue, and the gradient value OutGradient.
 
 // .SECTION Caveats

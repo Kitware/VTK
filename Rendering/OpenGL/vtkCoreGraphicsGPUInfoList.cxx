@@ -32,7 +32,7 @@ void vtkCoreGraphicsGPUInfoList::Probe()
     {
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
-    
+
     CGError err=CGDisplayNoErr;
     CGDirectDisplayID *displays=NULL;
     CGDisplayCount dspCount=0;
@@ -46,7 +46,7 @@ void vtkCoreGraphicsGPUInfoList::Probe()
       err=CGGetActiveDisplayList(dspCount,
                                  displays,
                                  &dspCount);
-      
+
       size_t c=dspCount; // there are `c' GPUS.
       this->Array->v.resize(c);
       size_t i=0;
@@ -54,23 +54,23 @@ void vtkCoreGraphicsGPUInfoList::Probe()
         {
         vtkGPUInfo *info=vtkGPUInfo::New();
         this->Array->v[i]=info;
-        
+
         io_service_t dspPort=CGDisplayIOServicePort(displays[i]);
-        
+
         // Note: the QA1168 Apple sample code is wrong as it uses
         // kIOFBMemorySizeKey. Also it does not work in 64-bit because it
         // used "long".
         // Our method is to get the value of property "VRAM,totalsize"
-        // We cannot (yet) distinguish between dedicated video memory 
+        // We cannot (yet) distinguish between dedicated video memory
         // (for example 512MB for a nVidia GeForce 9600M GT) and
         // dedicated system memory (for example 256MB for a nVidia GeForce
         // 9400M).
-        
+
         // Look for property
         CFTypeRef typeCode = IORegistryEntrySearchCFProperty(
           dspPort,kIOServicePlane,CFSTR("VRAM,totalsize"),kCFAllocatorDefault,
           kIORegistryIterateRecursively | kIORegistryIterateParents);
-        
+
         if(typeCode!=0)
           {
           if(CFGetTypeID(typeCode)==CFDataGetTypeID())

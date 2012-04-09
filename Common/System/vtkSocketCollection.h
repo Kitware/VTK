@@ -37,7 +37,7 @@ public:
 
   // Description:
   // Select all Connected sockets in the collection. If msec is specified,
-  // it timesout after msec milliseconds on inactivity. 
+  // it timesout after msec milliseconds on inactivity.
   // Returns 0 on timeout, -1 on error; 1 is a socket was selected.
   // The selected socket can be retrieved by GetLastSelectedSocket().
   int SelectSockets(unsigned long msec =0);
@@ -47,11 +47,11 @@ public:
   // NULL otherwise.
   vtkSocket* GetLastSelectedSocket()
     {return this->SelectedSocket; }
-  
+
   // Description:
   // Overridden to unset SelectedSocket.
   void ReplaceItem(int i, vtkObject *);
-  void RemoveItem(int i);  
+  void RemoveItem(int i);
   void RemoveItem(vtkObject *);
   void RemoveAllItems();
 protected:
@@ -62,7 +62,7 @@ protected:
 private:
   // Hide the standard AddItem.
   void AddItem(vtkObject* o) { this->Superclass::AddItem(o); }
-  
+
 private:
   vtkSocketCollection(const vtkSocketCollection&); // Not implemented.
   void operator=(const vtkSocketCollection&); // Not implemented.

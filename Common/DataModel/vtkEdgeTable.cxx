@@ -42,7 +42,7 @@ vtkEdgeTable::vtkEdgeTable()
 void vtkEdgeTable::Initialize()
 {
   vtkIdType i;
-  
+
   if ( this->Table )
     {
     for (i=0; i < this->TableSize; i++)
@@ -87,7 +87,7 @@ void vtkEdgeTable::Initialize()
     this->Points->Delete();
     this->Points = NULL;
     }
-    
+
   this->TableSize = 0;
   this->NumberOfEdges = 0;
 }
@@ -136,7 +136,7 @@ void vtkEdgeTable::Reset()
     {
     this->Points->Reset();
     }
-    
+
   this->NumberOfEdges = 0;
 }
 
@@ -150,7 +150,7 @@ vtkEdgeTable::~vtkEdgeTable()
 int vtkEdgeTable::InitEdgeInsertion(vtkIdType numPoints, int storeAttributes)
 {
   vtkIdType i;
-  
+
   numPoints = (numPoints < 1 ? 1 : numPoints);
 
   // Discard old memory if not enough has been previously allocated
@@ -184,7 +184,7 @@ int vtkEdgeTable::InitEdgeInsertion(vtkIdType numPoints, int storeAttributes)
       }
     this->TableSize = numPoints;
     }
-  
+
   // Otherwise, reuse the old memory
   else
     {
@@ -216,7 +216,7 @@ vtkIdType vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2)
     search = p1;
     }
 
-  if ( this->Table[index] == NULL ) 
+  if ( this->Table[index] == NULL )
     {
     return (-1);
     }
@@ -258,7 +258,7 @@ void vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2, void* &ptr)
     search = p1;
     }
 
-  if ( this->Table[index] == NULL ) 
+  if ( this->Table[index] == NULL )
     {
     ptr = NULL;
     }
@@ -305,13 +305,13 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
     {
     this->Resize(index+1);
     }
-  
+
   if ( index > this->TableMaxId )
     {
     this->TableMaxId = index;
     }
 
-  if ( this->Table[index] == NULL ) 
+  if ( this->Table[index] == NULL )
     {
     this->Table[index] = vtkIdList::New();
     this->Table[index]->Allocate(6,12);
@@ -337,7 +337,7 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
 }
 
 //----------------------------------------------------------------------------
-void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, 
+void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2,
                               vtkIdType attributeId)
 {
   vtkIdType index, search;
@@ -363,7 +363,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2,
     this->TableMaxId = index;
     }
 
-  if ( this->Table[index] == NULL ) 
+  if ( this->Table[index] == NULL )
     {
     this->Table[index] = vtkIdList::New();
     this->Table[index]->Allocate(6,12);
@@ -408,7 +408,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
     this->TableMaxId = index;
     }
 
-  if ( this->Table[index] == NULL ) 
+  if ( this->Table[index] == NULL )
     {
     this->Table[index] = vtkIdList::New();
     this->Table[index]->Allocate(6,12);
@@ -442,10 +442,10 @@ void vtkEdgeTable::InitTraversal()
 // return value is an id that can be used for accessing attributes.
 vtkIdType vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2)
 {
-  for ( ; this->Position[0] <= this->TableMaxId; 
+  for ( ; this->Position[0] <= this->TableMaxId;
   this->Position[0]++, this->Position[1]=(-1) )
     {
-    if ( this->Table[this->Position[0]] != NULL && 
+    if ( this->Table[this->Position[0]] != NULL &&
     ++this->Position[1] < this->Table[this->Position[0]]->GetNumberOfIds() )
       {
       p1 = this->Position[0];
@@ -470,10 +470,10 @@ vtkIdType vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2)
 // return value is either 1 for success or 0 if the list is exhausted.
 int vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr)
 {
-  for ( ; this->Position[0] <= this->TableMaxId; 
+  for ( ; this->Position[0] <= this->TableMaxId;
   this->Position[0]++, this->Position[1]=(-1) )
     {
-    if ( this->Table[this->Position[0]] != NULL && 
+    if ( this->Table[this->Position[0]] != NULL &&
     ++this->Position[1] < this->Table[this->Position[0]]->GetNumberOfIds() )
       {
       p1 = this->Position[0];
@@ -502,7 +502,7 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
 
   if (sz >= this->TableSize)
     {
-    newSize = this->TableSize + 
+    newSize = this->TableSize +
               extend*(((sz-this->TableSize)/extend)+1);
     }
   else

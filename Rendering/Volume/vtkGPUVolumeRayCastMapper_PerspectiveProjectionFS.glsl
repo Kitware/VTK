@@ -36,22 +36,22 @@ void incrementalRayDirection()
 {
   // Direction of the ray in texture space, not normalized.
   rayDir=pos-cameraPosition;
-  
+
   // x^2, y^2, z^2
   vec3 normDir=rayDir*rayDir;
   normDir.x=dot(normDir,matrix1);
-  
+
   // xy,yz,zx
   vec3 coefs=rayDir*rayDir.yxz;
   coefs.x=dot(coefs,matrix2);
 
   // n^2
   normDir.x=normDir.x+coefs.x;
-  
+
   // 1/n
   // normDir=1/sqrt(normDir)
   normDir.x=inversesqrt(normDir.x);
-  
+
   // Final scale factor for the ray direction in texture space
   // normDir=normDir*sampleDistance
   normDir.x=normDir.x*sampleDistance;

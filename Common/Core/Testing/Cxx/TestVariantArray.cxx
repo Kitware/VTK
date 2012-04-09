@@ -59,9 +59,9 @@ int TestLookup()
   array->SetValue(3, "b");
 
   array->LookupValue("a", idList);
-  if (idList->GetNumberOfIds() != 3) 
+  if (idList->GetNumberOfIds() != 3)
     {
-    cerr << "Expected 3 a's, found " << idList->GetNumberOfIds() 
+    cerr << "Expected 3 a's, found " << idList->GetNumberOfIds()
          << " of them\n";
     return 1;
     }
@@ -73,9 +73,9 @@ int TestLookup()
     }
 
   array->LookupValue("b", idList);
-  if (idList->GetNumberOfIds() != 1) 
+  if (idList->GetNumberOfIds() != 1)
     {
-    cerr << "Expected 1 b, found " << idList->GetNumberOfIds() 
+    cerr << "Expected 1 b, found " << idList->GetNumberOfIds()
          << " of them\n";
     return 1;
     }
@@ -89,9 +89,9 @@ int TestLookup()
   array->SetValue(1, "b");
 
   array->LookupValue("a", idList);
-  if (idList->GetNumberOfIds() != 2) 
+  if (idList->GetNumberOfIds() != 2)
     {
-    cerr << "Expected 2 a's, found " << idList->GetNumberOfIds() 
+    cerr << "Expected 2 a's, found " << idList->GetNumberOfIds()
          << " of them\n";
     return 1;
     }
@@ -103,9 +103,9 @@ int TestLookup()
     }
 
   array->LookupValue("b", idList);
-  if (idList->GetNumberOfIds() != 2) 
+  if (idList->GetNumberOfIds() != 2)
     {
-    cerr << "Expected 2 b's, found " << idList->GetNumberOfIds() 
+    cerr << "Expected 2 b's, found " << idList->GetNumberOfIds()
          << " of them\n";
     return 1;
     }
@@ -137,7 +137,7 @@ int TestVariantArray(int, char*[])
   // * int Allocate(vtkIdType sz);
   // * void Initialize();
   // * void SetNumberOfTuples(vtkIdType number);
-  // * void Squeeze(); 
+  // * void Squeeze();
   // * int Resize(vtkIdType numTuples);
   // * void SetNumberOfValues(vtkIdType number);
   // * void SetVoidArray(void *arr, vtkIdType size, int save);
@@ -318,8 +318,8 @@ int TestVariantArray(int, char*[])
   // * void DeepCopy(vtkAbstractArray *da);
   //   void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   //     vtkAbstractArray* source,  double* weights);
-  //   void InterpolateTuple(vtkIdType i, 
-  //     vtkIdType id1, vtkAbstractArray* source1, 
+  //   void InterpolateTuple(vtkIdType i,
+  //     vtkIdType id1, vtkAbstractArray* source1,
   //     vtkIdType id2, vtkAbstractArray* source2, double t);
 
   if (arr->IsNumeric())
@@ -334,8 +334,8 @@ int TestVariantArray(int, char*[])
     exit(1);
     }
 
-  if (arr->GetActualMemorySize() == 0 
-    || arr->GetDataTypeSize() == 0 
+  if (arr->GetActualMemorySize() == 0
+    || arr->GetDataTypeSize() == 0
     || arr->GetElementComponentSize() == 0)
     {
     cerr << "One of the size functions returned zero." << endl;
@@ -344,7 +344,7 @@ int TestVariantArray(int, char*[])
 
   if (arr->GetNumberOfValues() != static_cast<vtkIdType>(vec.size()))
     {
-    cerr << "Sizes do not match (" 
+    cerr << "Sizes do not match ("
          << arr->GetNumberOfValues() << " != " << vec.size() << ")" << endl;
     exit(1);
     }
@@ -361,7 +361,7 @@ int TestVariantArray(int, char*[])
     }
 
   cerr << "Check using an iterator." << endl;
-  vtkArrayIteratorTemplate<vtkVariant>* iter 
+  vtkArrayIteratorTemplate<vtkVariant>* iter
     = static_cast<vtkArrayIteratorTemplate<vtkVariant>*>(arr->NewIterator());
   for (vtkIdType i = 0; i < iter->GetNumberOfValues(); i++)
     {

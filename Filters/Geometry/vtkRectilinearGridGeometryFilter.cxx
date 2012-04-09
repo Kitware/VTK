@@ -82,7 +82,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
   outCD = output->GetCellData();
   dims = input->GetDimensions();
   //
-  // Based on the dimensions of the rectilinear data, 
+  // Based on the dimensions of the rectilinear data,
   // and the extent of the geometry,
   // compute the combined extent plus the dimensionality of the data
   //
@@ -133,7 +133,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
                                               : (extent[4]-1)*(dims[0]-1)*(dims[1]-1);
     }
 
-  switch (dimension) 
+  switch (dimension)
     {
     default:
       break;
@@ -158,7 +158,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
 
       for (dir[0]=dir[1]=dir[2]=totPoints=0, i=0; i<3; i++)
         {
-        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 ) 
+        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 )
           {
           dir[0] = i;
           totPoints = diff[i] + 1;
@@ -174,7 +174,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
 //
 //  Load data
 //
-      if ( dir[0] == 0 ) 
+      if ( dir[0] == 0 )
         {
         offset[0] = 1;
         }
@@ -187,7 +187,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
         offset[0] = dims[0]*dims[1];
         }
 
-      for (i=0; i<totPoints; i++) 
+      for (i=0; i<totPoints; i++)
         {
         idx = startIdx + i*offset[0];
         input->GetPoint(idx, x);
@@ -195,7 +195,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
         outPD->CopyData(pd,idx,ptIds[0]);
         }
 
-      if ( dir[0] == 0 ) 
+      if ( dir[0] == 0 )
         {
         offset[0] = 1;
         }
@@ -208,7 +208,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
         offset[0] = (dims[0] - 1) * (dims[1] - 1);
         }
 
-      for (i=0; i<(totPoints-1); i++) 
+      for (i=0; i<(totPoints-1); i++)
         {
         idx = startCellIdx + i*offset[0];
         ptIds[0] = i;
@@ -246,7 +246,7 @@ int vtkRectilinearGridGeometryFilter::RequestData(
 //
 //  Create polygons
 //
-      for (i=0; i<2; i++) 
+      for (i=0; i<2; i++)
         {
         if ( dir[i] == 0 )
           {
@@ -264,9 +264,9 @@ int vtkRectilinearGridGeometryFilter::RequestData(
 
       // create points whether visible or not.  Makes coding easier but generates
       // extra data.
-      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
+      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++)
         {
-        for (i=0; i < (diff[dir[0]]+1); i++) 
+        for (i=0; i < (diff[dir[0]]+1); i++)
           {
           idx = pos + i*offset[0];
           input->GetPoint(idx, x);
@@ -276,9 +276,9 @@ int vtkRectilinearGridGeometryFilter::RequestData(
         pos += offset[1];
         }
 
-      // create any polygon who has a visible vertex.  To turn off a polygon, all 
+      // create any polygon who has a visible vertex.  To turn off a polygon, all
       // vertices have to be blanked.
-      for (i=0; i<2; i++) 
+      for (i=0; i<2; i++)
         {
         if ( dir[i] == 0 )
           {
@@ -294,9 +294,9 @@ int vtkRectilinearGridGeometryFilter::RequestData(
           }
         }
 
-      for (pos=startCellIdx, j=0; j < diff[dir[1]]; j++) 
+      for (pos=startCellIdx, j=0; j < diff[dir[1]]; j++)
         {
-        for (i=0; i < diff[dir[0]]; i++) 
+        for (i=0; i < diff[dir[0]]; i++)
           {
           idx = pos + i*offset[0];
           ptIds[0] = i + j*(diff[dir[0]]+1);
@@ -334,12 +334,12 @@ int vtkRectilinearGridGeometryFilter::RequestData(
       offset[0] = dims[0];
       offset[1] = dims[0]*dims[1];
 
-      for (k=0; k < (diff[2]+1); k++) 
+      for (k=0; k < (diff[2]+1); k++)
         {
-        for (j=0; j < (diff[1]+1); j++) 
+        for (j=0; j < (diff[1]+1); j++)
           {
           pos = startIdx + j*offset[0] + k*offset[1];
-          for (i=0; i < (diff[0]+1); i++) 
+          for (i=0; i < (diff[0]+1); i++)
             {
             input->GetPoint(pos+i, x);
             ptIds[0] = newPts->InsertNextPoint(x);

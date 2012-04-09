@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkOutlineCornerSource - create wireframe outline corners around bounding box
 // .SECTION Description
-// vtkOutlineCornerSource creates wireframe outline corners around a user-specified 
+// vtkOutlineCornerSource creates wireframe outline corners around a user-specified
 // bounding box.
 
 #ifndef __vtkOutlineCornerSource_h

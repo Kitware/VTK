@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkPExtractHistogram2D.cxx
 
@@ -49,12 +49,12 @@ void vtkPExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Controller: " << this->Controller << endl;
 }
 //------------------------------------------------------------------------------
-void vtkPExtractHistogram2D::Learn(vtkTable *inData, 
+void vtkPExtractHistogram2D::Learn(vtkTable *inData,
                                    vtkTable* inParameters,
                                    vtkMultiBlockDataSet *outMeta)
 {
   vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
-  if ( ! primaryTab ) 
+  if ( ! primaryTab )
     {
     return;
     }
@@ -149,7 +149,7 @@ int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* 
     vtkErrorMacro(<< myid << ": Reduce failed!");
     return 0;
     }
-  
+
   r[0] = allRange[0];
   r[1] = allRange[1];
   r[2] = allRange[2];

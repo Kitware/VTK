@@ -37,11 +37,11 @@ vtkArcPlotter::vtkArcPlotter()
   this->Radius = 0.5;
   this->Height = 0.5;
   this->Offset = 0.0;
-  
+
   this->DefaultNormal[0] = this->DefaultNormal[1] = 0.0;
   this->DefaultNormal[2] = 1.0;
   this->UseDefaultNormal = 0;
-  
+
   this->FieldDataArray = 0;
 
   this->DataRange = NULL;
@@ -95,14 +95,14 @@ int vtkArcPlotter::RequestData(
   double *range, offset;
   int plotNum, compNum;
   vtkPoints *projPts;
-  
+
   inPD = input->GetPointData();
-  
+
   // Initialize
   //
   vtkDebugMacro(<<"Plotting along arc");
 
-  if ( !(inPts=input->GetPoints()) || 
+  if ( !(inPts=input->GetPoints()) ||
   (numPts=inPts->GetNumberOfPoints()) < 1 ||
   !(inLines=input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
@@ -144,7 +144,7 @@ int vtkArcPlotter::RequestData(
     projPts = inPts; //use existing points
     }
 
-  // For each polyline, compute a normal that lies in the 
+  // For each polyline, compute a normal that lies in the
   // projection plane and is roughly perpendicular to the projected
   // polyline. Then generate the arc.
   //
@@ -152,7 +152,7 @@ int vtkArcPlotter::RequestData(
   newPts->Allocate(numPts,numPts);
   lineNormals = vtkFloatArray::New();
   lineNormals->SetNumberOfComponents(3);
- 
+
   newLines = vtkCellArray::New();
   newLines->Allocate(inLines->GetSize());
 
@@ -183,7 +183,7 @@ int vtkArcPlotter::RequestData(
         }
       lineNormals->SetTuple(npts-1,n);
       }
-    
+
     // Now average the normal calculation to get smoother results
     //
     vtkIdType window = npts / 100;
@@ -218,7 +218,7 @@ int vtkArcPlotter::RequestData(
     this->UpdateProgress(0.50);
 
     // For each component, create an offset plot.
-    for (plotNum=0, compNum=this->StartComp; compNum <= this->EndComp; 
+    for (plotNum=0, compNum=this->StartComp; compNum <= this->EndComp;
          compNum++, plotNum++)
       {
       offset = this->Radius + plotNum*this->Offset;
@@ -231,14 +231,14 @@ int vtkArcPlotter::RequestData(
         {
         this->Data->GetTuple(pts[i], this->Tuple);
         lineNormals->GetTuple(i,n);
-        id = this->OffsetPoint(pts[i], inPts, n, newPts, 
+        id = this->OffsetPoint(pts[i], inPts, n, newPts,
                                offset, range, this->Tuple[compNum]);
         newLines->InsertCellPoint(id);
         }
       } //for all components
     } //for all polylines
   this->UpdateProgress(0.90);
-  
+
   lineNormals->Delete();
   if ( projPts != inPts )
     {
@@ -259,7 +259,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
   vtkIdType i;
   int j;
   double *range;
-  
+
   this->Data = NULL;
   switch (this->PlotMode)
     {
@@ -269,25 +269,25 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
         this->Data = pd->GetScalars();
         }
       break;
-    case VTK_PLOT_VECTORS:   
+    case VTK_PLOT_VECTORS:
       if ( pd->GetVectors() )
         {
         this->Data = pd->GetVectors();
         }
       break;
-    case VTK_PLOT_NORMALS:    
+    case VTK_PLOT_NORMALS:
       if ( pd->GetNormals() )
         {
         this->Data = pd->GetNormals();
         }
       break;
-    case VTK_PLOT_TCOORDS:    
+    case VTK_PLOT_TCOORDS:
       if ( pd->GetTCoords() )
         {
         this->Data = pd->GetTCoords();
         }
       break;
-    case VTK_PLOT_TENSORS:    
+    case VTK_PLOT_TENSORS:
       if ( pd->GetTensors() )
         {
         this->Data = pd->GetTensors();
@@ -309,8 +309,8 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
       this->ActiveComponent = (this->PlotComponent < this->NumberOfComponents ?
                            this->PlotComponent : this->NumberOfComponents - 1);
       this->StartComp = this->EndComp = this->ActiveComponent;
-      } 
-    else 
+      }
+    else
       {
       this->StartComp = 0;
       this->EndComp = this->NumberOfComponents - 1;
@@ -321,14 +321,14 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
     vtkErrorMacro(<<"Need input data to plot");
     return 0;
     }
-  
+
   // Get the range of the components (for scaling the plot later)
   if ( this->DataRange )
     {
     delete [] this->DataRange;
     delete [] this->Tuple;
     }
-  
+
   this->DataRange = new double [2*this->NumberOfComponents];
   this->Tuple = new double [this->NumberOfComponents];
 
@@ -338,7 +338,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
     range[0] =  VTK_LARGE_FLOAT;
     range[1] =  -VTK_LARGE_FLOAT;
     }
-  
+
   for (i=0; i<numPts; i++)
     {
     this->Data->GetTuple(i, this->Tuple);
@@ -361,15 +361,15 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
 }
 
 
-int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3], 
-                                vtkPoints *newPts, double offset, 
+int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
+                                vtkPoints *newPts, double offset,
                                 double *range, double v)
 {
   double x[3], xNew[3];
   int i;
   double median = (range[0] + range[1])/2.0;
   double denom = range[1] - range[0];
-  
+
   inPts->GetPoint(ptId, x);
   for (i=0; i<3; i++)
     {
@@ -408,7 +408,7 @@ void vtkArcPlotter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Camera: (none)\n";
     }
-  
+
   os << indent << "Plot Mode: ";
   if ( this->PlotMode == VTK_PLOT_SCALARS )
     {
@@ -447,12 +447,12 @@ void vtkArcPlotter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
 
-  os << indent << "Use Default Normal: " 
+  os << indent << "Use Default Normal: "
      << (this->UseDefaultNormal ? "On\n" : "Off\n");
-  os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] 
-     << ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] 
+  os << indent << "Default Normal: " << "( " << this->DefaultNormal[0]
+     << ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2]
      << " )\n";
-  
+
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Height: " << this->Height << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

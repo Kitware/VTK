@@ -20,13 +20,13 @@
 // coordinates. For example, by using the the Scale ivar, you can shift
 // texture coordinates that range from (0->1) to range from (0->10) (useful
 // for repeated patterns).
-// 
-// The filter operates on texture coordinates of dimension 1->3. The texture 
+//
+// The filter operates on texture coordinates of dimension 1->3. The texture
 // coordinates are referred to as r-s-t. If the texture map is two dimensional,
 // the t-coordinate (and operations on the t-coordinate) are ignored.
 
 // .SECTION See Also
-// vtkTextureMapToPlane  vtkTextureMapToCylinder 
+// vtkTextureMapToPlane  vtkTextureMapToCylinder
 // vtkTextureMapToSphere vtkThresholdTextureCoords vtkTexture
 
 #ifndef __vtkTransformTextureCoords_h
@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Set/Get the position of the texture map. Setting the position translates
-  // the texture map by the amount specified. 
+  // the texture map by the amount specified.
   vtkSetVector3Macro(Position,double);
   vtkGetVectorMacro(Position,double,3);
 
@@ -57,9 +57,9 @@ public:
   // translate or shift of the texture coordinates).
   void AddPosition(double deltaR, double deltaS, double deltaT);
   void AddPosition(double deltaPosition[3]);
-  
+
   // Description:
-  // Set/Get the scale of the texture map. Scaling in performed independently 
+  // Set/Get the scale of the texture map. Scaling in performed independently
   // on the r, s and t axes.
   vtkSetVector3Macro(Scale,double);
   vtkGetVectorMacro(Scale,double,3);
@@ -67,27 +67,27 @@ public:
   // Description:
   // Set/Get the origin of the texture map. This is the point about which the
   // texture map is flipped (e.g., rotated). Since a typical texture map ranges
-  // from (0,1) in the r-s-t coordinates, the default origin is set at 
+  // from (0,1) in the r-s-t coordinates, the default origin is set at
   // (0.5,0.5,0.5).
   vtkSetVector3Macro(Origin,double);
   vtkGetVectorMacro(Origin,double,3);
 
   // Description:
-  // Boolean indicates whether the texture map should be flipped around the 
+  // Boolean indicates whether the texture map should be flipped around the
   // s-axis. Note that the flips occur around the texture origin.
   vtkSetMacro(FlipR,int);
   vtkGetMacro(FlipR,int);
   vtkBooleanMacro(FlipR,int);
 
   // Description:
-  // Boolean indicates whether the texture map should be flipped around the 
+  // Boolean indicates whether the texture map should be flipped around the
   // s-axis. Note that the flips occur around the texture origin.
   vtkSetMacro(FlipS,int);
   vtkGetMacro(FlipS,int);
   vtkBooleanMacro(FlipS,int);
 
   // Description:
-  // Boolean indicates whether the texture map should be flipped around the 
+  // Boolean indicates whether the texture map should be flipped around the
   // t-axis. Note that the flips occur around the texture origin.
   vtkSetMacro(FlipT,int);
   vtkGetMacro(FlipT,int);

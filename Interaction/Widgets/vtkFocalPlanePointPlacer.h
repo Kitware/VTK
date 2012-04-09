@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME
 // .SECTION Description
-// 
+//
 //
 // .SECTION See Also
 
@@ -47,10 +47,10 @@ public:
   // focal plane. This method is typically used to place a
   // point for the first time.
   int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2], 
+                            double displayPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
-  
+
   // Description:
   // Given a renderer, a display position, and a reference
   // world position, compute a new world position. The
@@ -61,21 +61,21 @@ public:
   // position. This method is typically used to move existing
   // points.
   int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2], 
+                            double displayPos[2],
                             double refWorldPos[3],
                             double worldPos[3],
                             double worldOrient[9] );
-  
+
   // Description:
   // Validate a world position. All world positions
   // are valid so these methods always return 1.
   int ValidateWorldPosition( double worldPos[3] );
   int ValidateWorldPosition( double worldPos[3],
                              double worldOrient[9]);
-  
+
   // Description:
   // Optionally specify a signed offset from the focal plane for the points to
-  // be placed at.  If negative, the constraint plane is offset closer to the 
+  // be placed at.  If negative, the constraint plane is offset closer to the
   // camera. If positive, its further away from the camera.
   vtkSetMacro( Offset, double );
   vtkGetMacro( Offset, double );
@@ -91,7 +91,7 @@ protected:
   ~vtkFocalPlanePointPlacer();
 
   void GetCurrentOrientation( double worldOrient[9] );
-  
+
   double PointBounds[6];
   double Offset;
 

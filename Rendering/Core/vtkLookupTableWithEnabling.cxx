@@ -23,9 +23,9 @@ vtkStandardNewMacro(vtkLookupTableWithEnabling);
 
 vtkCxxSetObjectMacro(vtkLookupTableWithEnabling,EnabledArray,vtkDataArray);
 
-// Construct with range=(0,1); and hsv ranges set up for rainbow color table 
+// Construct with range=(0,1); and hsv ranges set up for rainbow color table
 // (from red to blue).
-vtkLookupTableWithEnabling::vtkLookupTableWithEnabling(int sze, int ext) : 
+vtkLookupTableWithEnabling::vtkLookupTableWithEnabling(int sze, int ext) :
   vtkLookupTable(sze, ext)
 {
   this->EnabledArray = 0;
@@ -98,7 +98,7 @@ void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
 
 //----------------------------------------------------------------------------
 // Apply log to value, with appropriate constraints.
-inline double vtkApplyLogScale(double v, double range[2], 
+inline double vtkApplyLogScale(double v, double range[2],
                                double logRange[2])
 {
   // is the range set for negative numbers?
@@ -133,11 +133,11 @@ inline double vtkApplyLogScale(double v, double range[2],
       }
     }
   return v;
-}                 
+}
 
 //----------------------------------------------------------------------------
 // Apply shift/scale to the scalar value v and do table lookup.
-inline unsigned char *vtkLinearLookup(double v,   
+inline unsigned char *vtkLinearLookup(double v,
                                       unsigned char *table,
                                       double maxIndex,
                                       double shift, double scale)
@@ -161,8 +161,8 @@ inline unsigned char *vtkLinearLookup(double v,
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template<class T>
-void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *input, 
-                           unsigned char *output, int length, 
+void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *input,
+                           unsigned char *output, int length,
                            int inIncr, int outFormat)
 {
   int i = length;
@@ -175,13 +175,13 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
   unsigned char r, g, b;
 
   bool hasEnabledArray = false;
-  if(self->GetEnabledArray() && 
+  if(self->GetEnabledArray() &&
      self->GetEnabledArray()->GetNumberOfTuples() == length)
     {
     hasEnabledArray = true;
     }
 
-  if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required 
+  if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required
     {
     if (self->GetScale() == VTK_SCALE_LOG10)
       {
@@ -201,10 +201,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       if (outFormat == VTK_RGBA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
             !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -220,16 +220,16 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
             *output++ = *cptr++;
             *output++ = *cptr++;
             }
-          *output++ = *cptr++;     
+          *output++ = *cptr++;
           input += inIncr;
           }
         }
       else if (outFormat == VTK_RGB)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
              !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -250,11 +250,11 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           *output++ = cptr[3];
           input += inIncr;
@@ -262,11 +262,11 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else // outFormat == VTK_LUMINANCE
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           input += inIncr;
           }
@@ -289,9 +289,9 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
 
       if (outFormat == VTK_RGBA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
             !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -308,15 +308,15 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
             *output++ = *cptr++;
             *output++ = *cptr++;
             *output++ = *cptr++;
-            }  
+            }
           input += inIncr;
           }
         }
       else if (outFormat == VTK_RGB)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
              !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -337,10 +337,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           *output++ = cptr[3];
           input += inIncr;
@@ -348,10 +348,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else // outFormat == VTK_LUMINANCE
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           input += inIncr;
           }
@@ -379,10 +379,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       if (outFormat == VTK_RGBA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
              !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -404,10 +404,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else if (outFormat == VTK_RGB)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
              !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -428,11 +428,11 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           *output++ = static_cast<unsigned char>(alpha*cptr[3]);
           input += inIncr;
@@ -440,11 +440,11 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else // outFormat == VTK_LUMINANCE
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
           val = vtkApplyLogScale(*input, range, logRange);
-          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(val, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           input += inIncr;
           }
@@ -467,10 +467,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
 
       if (outFormat == VTK_RGBA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-          if(hasEnabledArray && 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+          if(hasEnabledArray &&
              !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
             self->DisableColor(cptr[0],cptr[1],cptr[2],&r,&g,&b);
@@ -499,9 +499,9 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else if (outFormat == VTK_RGB)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
           if(hasEnabledArray &&
              !self->GetEnabledArray()->GetTuple1(length-i-1))
             {
@@ -522,10 +522,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else if (outFormat == VTK_LUMINANCE_ALPHA)
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           *output++ = static_cast<unsigned char>(cptr[3]*alpha);
           input += inIncr;
@@ -533,10 +533,10 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
         }
       else // outFormat == VTK_LUMINANCE
         {
-        while (--i >= 0) 
+        while (--i >= 0)
           {
-          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale); 
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 + 
+          cptr = vtkLinearLookup(*input, table, maxIndex, shift, scale);
+          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
                                                  cptr[2]*0.11 + 0.5);
           input += inIncr;
           }
@@ -546,9 +546,9 @@ void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling *self, T *inpu
 }
 
 //----------------------------------------------------------------------------
-void vtkLookupTableWithEnabling::MapScalarsThroughTable2(void *input, 
+void vtkLookupTableWithEnabling::MapScalarsThroughTable2(void *input,
                                              unsigned char *output,
-                                             int inputDataType, 
+                                             int inputDataType,
                                              int numberOfValues,
                                              int inputIncrement,
                                              int outputFormat)
@@ -583,7 +583,7 @@ void vtkLookupTableWithEnabling::MapScalarsThroughTable2(void *input,
       vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
       return;
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkLookupTableWithEnabling::PrintSelf(ostream& os, vtkIndent indent)

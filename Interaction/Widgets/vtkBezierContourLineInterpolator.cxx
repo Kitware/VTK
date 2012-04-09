@@ -41,18 +41,18 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
 {
   int maxRecursion = 0;
   int tmp = 3;
-  
+
   while ( 2*tmp < this->MaximumCurveLineSegments )
     {
     tmp *= 2;
     maxRecursion++;
     }
-  
+
   if ( maxRecursion == 0 )
     {
     return 1;
     }
-  
+
   // There are four control points with 3 components each, plus one
   // value for the recursion depth of this point
   double *controlPointsStack = new double[(3*4+1)*(maxRecursion+1)];
@@ -89,21 +89,21 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
     {
     //process last point on stack
     int recursionLevel = static_cast<int>(controlPointsStack[13*(stackCount-1)]);
-    
+
     p1 = controlPointsStack + 13*(stackCount-1)+1;
     p2 = controlPointsStack + 13*(stackCount-1)+4;
     p3 = controlPointsStack + 13*(stackCount-1)+7;
     p4 = controlPointsStack + 13*(stackCount-1)+10;
-    
+
     double totalDist = 0;
     totalDist += sqrt(vtkMath::Distance2BetweenPoints(p1,p2));
     totalDist += sqrt(vtkMath::Distance2BetweenPoints(p2,p3));
     totalDist += sqrt(vtkMath::Distance2BetweenPoints(p3,p4));
-    
+
     distance = sqrt(vtkMath::Distance2BetweenPoints(p1,p4));
-    
+
     if ( recursionLevel >= maxRecursion || distance == 0 ||
-         (totalDist - distance)/distance < this->MaximumCurveError ) 
+         (totalDist - distance)/distance < this->MaximumCurveError )
       {
       rep->AddIntermediatePointWorldPosition( idx1, p2 );
       rep->AddIntermediatePointWorldPosition( idx1, p3 );
@@ -117,57 +117,57 @@ int vtkBezierContourLineInterpolator::InterpolateLine( vtkRenderer *vtkNotUsed(r
     else
       {
       double p12[3], p23[3], p34[3], p123[3], p234[3], p1234[3];
-      
+
       this->ComputeMidpoint( p1, p2, p12 );
       this->ComputeMidpoint( p2, p3, p23 );
       this->ComputeMidpoint( p3, p4, p34 );
       this->ComputeMidpoint( p12, p23, p123 );
       this->ComputeMidpoint( p23, p34, p234 );
       this->ComputeMidpoint( p123, p234, p1234 );
-      
+
       // add these two points to the stack
       controlPointsStack[13*(stackCount-1)] = recursionLevel+1;
       controlPointsStack[13*(stackCount)] = recursionLevel+1;
-      
+
       double *newp1 = controlPointsStack + 13*(stackCount)+1;
       double *newp2 = controlPointsStack + 13*(stackCount)+4;
       double *newp3 = controlPointsStack + 13*(stackCount)+7;
       double *newp4 = controlPointsStack + 13*(stackCount)+10;
-      
+
       newp1[0] = p1[0];
       newp1[1] = p1[1];
       newp1[2] = p1[2];
-      
+
       newp2[0] = p12[0];
       newp2[1] = p12[1];
       newp2[2] = p12[2];
-      
+
       newp3[0] = p123[0];
       newp3[1] = p123[1];
       newp3[2] = p123[2];
-      
+
       newp4[0] = p1234[0];
       newp4[1] = p1234[1];
       newp4[2] = p1234[2];
-      
+
       p1[0] = p1234[0];
       p1[1] = p1234[1];
       p1[2] = p1234[2];
-      
+
       p2[0] = p234[0];
       p2[1] = p234[1];
       p2[2] = p234[2];
-      
+
       p3[0] = p34[0];
       p3[1] = p34[1];
       p3[2] = p34[2];
-      
+
       stackCount++;
       }
     }
-  
+
   delete [] controlPointsStack;
-  
+
   return 1;
 }
 
@@ -221,10 +221,10 @@ void vtkBezierContourLineInterpolator::GetSpan( int nodeIndex,
 //----------------------------------------------------------------------
 void vtkBezierContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);  
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum Curve Error: " << this->MaximumCurveError << "\n";
-  os << indent << "Maximum Curve Line Segments: " 
+  os << indent << "Maximum Curve Line Segments: "
      << this->MaximumCurveLineSegments << "\n";
 }
 

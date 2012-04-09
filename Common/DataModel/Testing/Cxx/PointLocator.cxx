@@ -42,7 +42,7 @@ int PointLocator( int argc, char *argv[] )
     sphereMapper->SetInputConnection(sphere->GetOutputPort());
   vtkActor *sphereActor = vtkActor::New();
     sphereActor->SetMapper(sphereMapper);
-    
+
   vtkSphereSource *spot = vtkSphereSource::New();
     spot->SetPhiResolution(6);
     spot->SetThetaResolution(6);
@@ -51,12 +51,12 @@ int PointLocator( int argc, char *argv[] )
   vtkPolyDataMapper *spotMapper = vtkPolyDataMapper::New();
     spotMapper->SetInputConnection(spot->GetOutputPort());
 
-  // Build a locator 
+  // Build a locator
   vtkPointLocator *pointLocator = vtkPointLocator::New();
   pointLocator->SetDataSet(sphere->GetOutput());
   pointLocator->BuildLocator();
 
-  // 
+  //
   double p1[] = {2.0, 1.0, 3.0};
 
   // Find closest point
@@ -85,7 +85,7 @@ int PointLocator( int argc, char *argv[] )
       sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
       sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
     closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
-  
+
   renderer->AddActor(sphereActor);
   renderer->AddActor(closestPointActor);
   renderer->AddActor(closestPointActor2);

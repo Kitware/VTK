@@ -1,4 +1,4 @@
-# See if we need to link the socket library 
+# See if we need to link the socket library
 INCLUDE(CheckLibraryExists)
 INCLUDE(CheckSymbolExists)
 

@@ -65,7 +65,7 @@ int vtkPointDataToCellData::RequestData(
     return 1;
     }
   weights=new double[maxCellSize];
-  
+
   cellPts = vtkIdList::New();
   cellPts->Allocate(maxCellSize);
 

@@ -3,6 +3,6 @@ vtk_module(vtkFiltersStatisticsGnuR
     vtkFiltersStatistics
   DEPENDS
     vtkCommonCore
-    vtkCommonExecutionModel 
+    vtkCommonExecutionModel
     vtkFiltersStatistics
   EXCLUDE_FROM_ALL)

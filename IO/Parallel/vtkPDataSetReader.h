@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPDataSetReader - Manages reading pieces of a data set.
 // .SECTION Description
-// vtkPDataSetReader will read a piece of a file, it takes as input 
+// vtkPDataSetReader will read a piece of a file, it takes as input
 // a metadata file that lists all of the files in a data set.
 
 
@@ -39,10 +39,10 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // This is set when UpdateInformation is called. 
+  // This is set when UpdateInformation is called.
   // It shows the type of the output.
   vtkGetMacro(DataType, int);
-  
+
   // Description:
   // Called to determine if the file can be read by the reader.
   int CanReadFile(const char* filename);
@@ -51,32 +51,32 @@ protected:
   vtkPDataSetReader();
   ~vtkPDataSetReader();
 
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
   void ReadPVTKFileInformation(ifstream *fp,
-                               vtkInformation* request, 
+                               vtkInformation* request,
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector);
   void ReadVTKFileInformation(ifstream *fp,
-                               vtkInformation* request, 
+                               vtkInformation* request,
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector);
 
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*);
-  int PolyDataExecute(vtkInformation*, 
-                      vtkInformationVector**, 
+  int PolyDataExecute(vtkInformation*,
+                      vtkInformationVector**,
                       vtkInformationVector*);
-  int UnstructuredGridExecute(vtkInformation*, 
-                              vtkInformationVector**, 
+  int UnstructuredGridExecute(vtkInformation*,
+                              vtkInformationVector**,
                               vtkInformationVector*);
-  int ImageDataExecute(vtkInformation*, 
-                       vtkInformationVector**, 
+  int ImageDataExecute(vtkInformation*,
+                       vtkInformationVector**,
                        vtkInformationVector*);
-  int StructuredGridExecute(vtkInformation*, 
-                            vtkInformationVector**, 
+  int StructuredGridExecute(vtkInformation*,
+                            vtkInformationVector**,
                             vtkInformationVector*);
 
   void CoverExtent(int ext[6], int *pieceMask);

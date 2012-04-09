@@ -17,7 +17,7 @@
 // vtkProgrammableDataObjectSource is a source object that is programmable by
 // the user. The output of the filter is a data object (vtkDataObject) which
 // represents data via an instance of field data. To use this object, you
-// must specify a function that creates the output.  
+// must specify a function that creates the output.
 //
 // Example use of this filter includes reading tabular data and encoding it
 // as vtkFieldData. You can then use filters like vtkDataObjectToDataSetFilter
@@ -25,7 +25,7 @@
 // important use of this class is that it allows users of interpreters (e.g.,
 // Tcl or Java) the ability to write source objects without having to
 // recompile C++ code or generate new libraries.
-// 
+//
 // .SECTION See Also
 // vtkProgrammableFilter vtkProgrammableAttributeDataFilter
 // vtkProgrammableSource vtkDataObjectToDataSetFilter

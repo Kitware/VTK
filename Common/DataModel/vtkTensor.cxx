@@ -34,7 +34,7 @@ vtkTensor::vtkTensor()
 void vtkTensor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   for (int j=0; j<3; j++)
     {
     os << indent;

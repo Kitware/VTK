@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkSparseArrayToTable.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -116,8 +116,8 @@ int vtkSparseArrayToTable::FillInputPortInformation(int port, vtkInformation* in
 // ----------------------------------------------------------------------
 
 int vtkSparseArrayToTable::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   try
@@ -125,9 +125,9 @@ int vtkSparseArrayToTable::RequestData(
     vtkArrayData* const input_array_data = vtkArrayData::GetData(inputVector[0]);
     if(input_array_data->GetNumberOfArrays() != 1)
       throw std::runtime_error("vtkSparseArrayToTable requires a vtkArrayData containing exactly one array.");
-    
+
     vtkArray* const input_array = input_array_data->GetArray(static_cast<vtkIdType>(0));
-    
+
     vtkTable* const output_table = vtkTable::GetData(outputVector);
 
     if(Convert<double, vtkDoubleArray>(input_array, this->ValueColumn, output_table)) return 1;

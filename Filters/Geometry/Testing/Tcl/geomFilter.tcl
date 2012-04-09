@@ -22,10 +22,10 @@ vtkGeometryFilter gf2
     gf2 ExtentClippingOn
     gf2 SetExtent 10 17 -6 6 23 37
     gf2 PointClippingOn
-    gf2 SetPointMinimum 0 
+    gf2 SetPointMinimum 0
     gf2 SetPointMaximum 10000
     gf2 CellClippingOn
-    gf2 SetCellMinimum 0 
+    gf2 SetCellMinimum 0
     gf2 SetCellMaximum 7500
 vtkPolyDataMapper g2Mapper
     g2Mapper SetInputConnection [gf2 GetOutputPort]
@@ -49,10 +49,10 @@ vtkGeometryFilter gf4
     gf4 ExtentClippingOn
     gf4 SetExtent 10 17 -6 6 23 37
     gf4 PointClippingOn
-    gf4 SetPointMinimum 0 
+    gf4 SetPointMinimum 0
     gf4 SetPointMaximum 10000
     gf4 CellClippingOn
-    gf4 SetCellMinimum 0 
+    gf4 SetCellMinimum 0
     gf4 SetCellMaximum 7500
 vtkPolyDataMapper g4Mapper
     g4Mapper SetInputConnection [gf4 GetOutputPort]
@@ -82,10 +82,10 @@ vtkGeometryFilter gf6
     gf6 ExtentClippingOn
     gf6 SetExtent 10 17 -6 6 23 37
     gf6 PointClippingOn
-    gf6 SetPointMinimum 0 
+    gf6 SetPointMinimum 0
     gf6 SetPointMaximum 10000
     gf6 CellClippingOn
-    gf6 SetCellMinimum 0 
+    gf6 SetCellMinimum 0
     gf6 SetCellMaximum 7500
 vtkPolyDataMapper g6Mapper
     g6Mapper SetInputConnection [gf6 GetOutputPort]
@@ -112,10 +112,10 @@ vtkGeometryFilter gf8
     gf8 ExtentClippingOn
     gf8 SetExtent 0 1 -2 2 0 4
     gf8 PointClippingOn
-    gf8 SetPointMinimum 0 
+    gf8 SetPointMinimum 0
     gf8 SetPointMaximum 10000
     gf8 CellClippingOn
-    gf8 SetCellMinimum 0 
+    gf8 SetCellMinimum 0
     gf8 SetCellMaximum 7500
 vtkPolyDataMapper g8Mapper
     g8Mapper SetInputConnection [gf8 GetOutputPort]

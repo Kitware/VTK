@@ -38,10 +38,10 @@ int TestMetaIO(int argc, char *argv[])
   vtkMetaImageReader *reader = vtkMetaImageReader::New();
   reader->SetFileName(argv[1]);
   reader->Update();
-  cout << "10, 10, 10 : (1) : " 
+  cout << "10, 10, 10 : (1) : "
        << reader->GetOutput()->GetScalarComponentAsFloat(10, 10, 10, 0)
        << endl;
-  cout << "24, 37, 10 : (168) : " 
+  cout << "24, 37, 10 : (168) : "
        << reader->GetOutput()->GetScalarComponentAsFloat(24, 37, 10, 0)
        << endl;
 
@@ -69,7 +69,7 @@ int TestMetaIO(int argc, char *argv[])
       {
       for(int x=ext[0]; x<=ext[1]; x++)
         {
-        error += fabs( 
+        error += fabs(
                   readerStd->GetOutput()->GetScalarComponentAsFloat(x, y, z, 0)
                   -
                   readerNew->GetOutput()->GetScalarComponentAsFloat(x, y, z, 0)

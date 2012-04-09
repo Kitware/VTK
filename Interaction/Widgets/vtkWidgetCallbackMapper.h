@@ -64,14 +64,14 @@ public:
   // Different flavors of the SetCallbackMethod() are available depending on
   // what sort of modifiers are to be associated with a particular event.
   // Typically the widgets should use this method to set up their event
-  // callbacks. If modifiers are not provided (i.e., the VTKEvent is a 
+  // callbacks. If modifiers are not provided (i.e., the VTKEvent is a
   // unsigned long eventId) then modifiers are ignored. Otherwise, a vtkEvent
   // instance is used to fully quality the events.
-  void SetCallbackMethod(unsigned long VTKEvent, unsigned long widgetEvent, 
+  void SetCallbackMethod(unsigned long VTKEvent, unsigned long widgetEvent,
                          vtkAbstractWidget *w, CallbackType f);
-  void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode, 
+  void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode,
                          int repeatCount, const char* keySym,
-                         unsigned long widgetEvent, 
+                         unsigned long widgetEvent,
                          vtkAbstractWidget *w, CallbackType f);
   //void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,
   //                       vtkAbstractWidget *w, CallbackType f);
@@ -80,7 +80,7 @@ public:
   // This method invokes the callback given a widget event. A non-zero value
   // is returned if the listed event is registered.
   void InvokeCallback(unsigned long widgetEvent);
-  
+
 protected:
   vtkWidgetCallbackMapper();
   ~vtkWidgetCallbackMapper();
@@ -90,14 +90,14 @@ protected:
 
   // Invoke the method associated with a particular widget event
   vtkCallbackMap *CallbackMap;
-  
+
   // Description:
   // This method is used to assign a callback (implemented as a static class
   // method) to a particular widget event. This is an internal method used by
   // widgets to map widget events into invocations of class methods.
-  void SetCallbackMethod(unsigned long widgetEvent, 
+  void SetCallbackMethod(unsigned long widgetEvent,
                          vtkAbstractWidget *w, CallbackType f);
-  
+
 
 private:
   vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&);  //Not implemented
@@ -107,4 +107,4 @@ private:
 
 
 #endif /* __vtkWidgetCallbackMapper_h */
- 
+

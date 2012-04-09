@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkTemporalDataSet);
 //----------------------------------------------------------------------------
 vtkTemporalDataSet::vtkTemporalDataSet()
 {
-  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), 
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(),
                          VTK_TIME_EXTENT);
 }
 

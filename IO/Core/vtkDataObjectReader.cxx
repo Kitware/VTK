@@ -28,7 +28,7 @@ vtkDataObjectReader::vtkDataObjectReader()
   vtkDataObject *output = vtkDataObject::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
 }
@@ -62,7 +62,7 @@ int vtkDataObjectReader::RequestData(
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   char line[256];
   vtkFieldData *field=NULL;
 
@@ -94,7 +94,7 @@ int vtkDataObjectReader::RequestData(
       return 1;
       }
 
-    else 
+    else
       {
       vtkErrorMacro(<< "Unrecognized keyword: " << line);
       this->CloseVTKFile();

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSynchronizedTemplates2D - generate isoline(s) from a structured points set
 // .SECTION Description
-// vtkSynchronizedTemplates2D is a 2D implementation of the synchronized 
+// vtkSynchronizedTemplates2D is a 2D implementation of the synchronized
 // template algorithm. Note that vtkContourFilter will automatically
 // use this class when appropriate.
 
@@ -46,7 +46,7 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 
@@ -91,7 +91,7 @@ public:
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
   // Description:
-  // Option to set the point scalars of the output.  The scalars will be the 
+  // Option to set the point scalars of the output.  The scalars will be the
   // iso value of course.  By default this flag is on.
   vtkSetMacro(ComputeScalars,int);
   vtkGetMacro(ComputeScalars,int);
@@ -101,7 +101,7 @@ public:
   // Set/get which component of the scalar array to contour on; defaults to 0.
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  
+
 protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();

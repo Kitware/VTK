@@ -114,7 +114,7 @@ int vtkImplicitFunctionToImageStencil::RequestData(
       int r1 = extent[0];
       int r2 = extent[1];
 
-      if (count%target == 0) 
+      if (count%target == 0)
         {
         this->UpdateProgress(count/(50.0*target));
         }
@@ -143,7 +143,7 @@ int vtkImplicitFunctionToImageStencil::RequestData(
         { // if inside at end, cap off the sub extent
         data->InsertNextExtent(r1, extent[1], idY, idZ);
         }
-      } // for idY    
+      } // for idY
     } // for idZ
 
   return 1;

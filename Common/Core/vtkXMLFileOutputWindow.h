@@ -17,17 +17,17 @@
 // Writes debug/warning/error output to an XML file. Uses prefined XML
 // tags for each text display method. The text is processed to replace
 // XML markup characters.
-// 
+//
 //   DisplayText - <Text>
-// 
+//
 //   DisplayErrorText - <Error>
-// 
+//
 //   DisplayWarningText - <Warning>
-// 
+//
 //   DisplayGenericWarningText - <GenericWarning>
-// 
+//
 //   DisplayDebugText - <Debug>
-// 
+//
 // The method DisplayTag outputs the text unprocessed. To use this
 // class, instantiate it and then call SetInstance(this).
 
@@ -61,8 +61,8 @@ public:
   virtual void DisplayTag(const char*);
 
 protected:
-  vtkXMLFileOutputWindow() {}; 
-  virtual ~vtkXMLFileOutputWindow() {}; 
+  vtkXMLFileOutputWindow() {};
+  virtual ~vtkXMLFileOutputWindow() {};
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);

@@ -26,7 +26,7 @@
 // 1) left button click over the image, hold and drag draws a free hand line.
 // 2) left button click and release erases the widget line,
 // if it exists, and repositions the first handle.
-// 3) middle button click starts a snap drawn line.  The line is terminated by 
+// 3) middle button click starts a snap drawn line.  The line is terminated by
 // clicking the middle button while depressing the ctrl key.
 // 4) when tracing a continuous or snap drawn line, if the last cursor position
 // is within a specified tolerance to the first handle, the widget line will form

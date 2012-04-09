@@ -72,8 +72,8 @@ void vtkRISReader::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------
 
 int vtkRISReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   // Check that the filename has been specified
@@ -94,18 +94,18 @@ int vtkRISReader::RequestData(
   // Get the total size of the file ...
   file.seekg(0, ios::end);
   const int total_bytes = file.tellg();
-  
+
   // Go back to the top of the file
   file.seekg(0, ios::beg);
 
   // Store the text data into a vtkTable
   vtkTable* table = vtkTable::GetData(outputVector);
-  
+
   // Keep a mapping of column-name to column-index for quick lookups ...
   std::map<std::string, vtkIdType> columns;
 
   std::string line_buffer;
-  
+
   const std::string delimiter(this->Delimiter ? this->Delimiter : "");
   int record_count = 0;
 
@@ -115,7 +115,7 @@ int vtkRISReader::RequestData(
     // Skip empty lines ...
     if(line_buffer.empty())
       continue;
-    
+
     // Stop if we exceed the maximum number of records ...
     if(this->MaxRecords && record_count >= this->MaxRecords)
       break;
@@ -125,7 +125,7 @@ int vtkRISReader::RequestData(
       : 0.5;
 
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-      
+
     // Add a new row to the table for the record ...
     table->InsertNextBlankRow();
 
@@ -135,7 +135,7 @@ int vtkRISReader::RequestData(
       const std::string tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
         ? line_buffer.substr(0, 2)
         : std::string();
-        
+
       if(tag_type == "ER")
         break;
 
@@ -162,7 +162,7 @@ int vtkRISReader::RequestData(
           break;
           }
         }
-        
+
       // If necessary, add a new column to the table to store this value ...
       if(!columns.count(tag_type))
         {
@@ -173,15 +173,15 @@ int vtkRISReader::RequestData(
         table->AddColumn(new_column);
         new_column->Delete();
         }
-      
+
       // Set the table value ...
       table->SetValue(record_count, columns[tag_type], tag_value.c_str());
       }
-  
+
     // Keep track of the current record count ...
     ++record_count;
     }
-/*  
+/*
   // Loop through every line in the file ...
   std::string tag;
   std::string tag_type;
@@ -191,17 +191,17 @@ int vtkRISReader::RequestData(
     {
     if(this->MaxRecords && record_count >= this->MaxRecords)
       break;
-    
+
     // Skip empty lines ...
     if(line_buffer.empty())
       continue;
-    
+
     double progress = total_bytes
       ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes)
       : 0.5;
-      
+
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-    
+
     // Try to extract the tag, tag type, and tag value ...
     if(line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' ')
       {
@@ -225,7 +225,7 @@ int vtkRISReader::RequestData(
     // If necessary, add a new row to the table to store this value ...
     while(table->GetNumberOfRows() < record_count + 1)
       table->InsertNextBlankRow();
-    
+
     // If necessary, add a new column to the table to store this value ...
     if(!columns.count(tag_type))
       {
@@ -236,7 +236,7 @@ int vtkRISReader::RequestData(
       table->AddColumn(new_column);
       new_column->Delete();
       }
-    
+
     // Set the table value ...
     vtkStdString old_value = table->GetValue(record_count, columns[tag_type]).ToString();
     if(old_value.empty())
@@ -264,10 +264,10 @@ int vtkRISReader::RequestData(
 static istream& my_getline(istream& input, std::string& output, char delimiter)
 {
   output = "";
-  
+
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
-  
+
   while ((nextValue = input.get()) != EOF &&
          numCharactersRead < output.max_size())
     {
@@ -287,6 +287,6 @@ static istream& my_getline(istream& input, std::string& output, char delimiter)
       output += downcast;
       }
     }
-    
+
   return input;
 }

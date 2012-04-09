@@ -42,7 +42,7 @@ function(vtk_add_wrapping module_name module_srcs)
         ${VTK_BINARY_DIR}/Utilities
         ${${vtk-module}_SOURCE_DIR}
         )
-    
+
       vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
         "${module_srcs}")
 

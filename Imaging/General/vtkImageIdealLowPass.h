@@ -60,7 +60,7 @@ protected:
   ~vtkImageIdealLowPass() {};
 
   double CutOff[3];
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

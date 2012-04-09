@@ -58,7 +58,7 @@ const char* vtkXMLPPolyDataWriter::GetDefaultFileExtension()
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter*
 vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
-{  
+{
   // Create the writer for the piece.
   vtkXMLPolyDataWriter* pWriter = vtkXMLPolyDataWriter::New();
   pWriter->SetInputConnection(this->GetInputConnection(0, 0));

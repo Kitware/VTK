@@ -55,21 +55,21 @@ public:
   vtkBooleanMacro(InverseNormal,int);
 
   // Description:
-  // If this flag is on, material order in reversed. 
+  // If this flag is on, material order in reversed.
   // Otherwise, materials are sorted in ascending order depending on the given ordering array.
   vtkSetMacro(ReverseMaterialOrder,int);
   vtkGetMacro(ReverseMaterialOrder,int);
   vtkBooleanMacro(ReverseMaterialOrder,int);
 
   // Description:
-  // Set/Get OnionPeel flag. if this flag is on, the normal vector of the first 
+  // Set/Get OnionPeel flag. if this flag is on, the normal vector of the first
   // material (which depends on material ordering) is used for all materials.
   vtkSetMacro(OnionPeel,int);
   vtkGetMacro(OnionPeel,int);
   vtkBooleanMacro(OnionPeel,int);
 
   // Description:
-  // Turns on/off AxisSymetric computation of 2D interfaces. 
+  // Turns on/off AxisSymetric computation of 2D interfaces.
   // in axis symetric mode, 2D meshes are understood as volumes of revolution.
   vtkSetMacro(AxisSymetric,int);
   vtkGetMacro(AxisSymetric,int);
@@ -93,12 +93,12 @@ public:
   // Set/Get minimum and maximum volume fraction value. if a material fills a volume above the minimum value, the material is considered to be void. if a material fills a volume fraction beyond the maximum value it is considered as filling the whole volume.
   vtkSetVector2Macro(VolumeFractionRange,double);
   vtkGetVectorMacro(VolumeFractionRange,double,2);
- 
+
   // Description:
   // Sets/Gets the number of materials.
   virtual void SetNumberOfMaterials(int n);
   virtual int GetNumberOfMaterials();
- 
+
   // Description:
   // Set/Get whether all material blocks should be used, irrespective of the material block mapping.
   vtkSetMacro(UseAllBlocks,bool);

@@ -35,7 +35,7 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData,
                                                       vtkInformation* outInfo)
 {
   int updateExtent[6], idx;
-  
+
   memcpy(updateExtent, uExt, 6*sizeof(int));
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
@@ -83,7 +83,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   int *wExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   this->AllocateOutputScalars(outData, uExt, wExt, outInfo);
-  
+
   short *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   short *outPtr0, *outPtr1, *outPtr2, *outPtrC;
   vtkIdType inInc0, inInc1, inInc2;
@@ -95,7 +95,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   int outExt[6];
   unsigned long count = 0;
   unsigned long target;
-  
+
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),outExt);
 
   // this filter expects that inputand output are short
@@ -115,10 +115,10 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   this->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   this->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
   numberOfComponents = inData->GetNumberOfScalarComponents();
-  
+
   target = static_cast<unsigned long>((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
-  
+
   // loop over all the extra axes
   inPtr2 = static_cast<short *>(inData->GetScalarPointerForExtent(outExt));
   outPtr2 = static_cast<short *>(outData->GetScalarPointerForExtent(outExt));
@@ -162,7 +162,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(
               }
             *outPtr0 = distN;
             }
-          
+
           if (distP < big)
             {
             ++distP;
@@ -171,17 +171,17 @@ int vtkImageCityBlockDistance::IterativeRequestData(
             {
             --distN;
             }
-          
+
           inPtr0 += inInc0;
           outPtr0 += outInc0;
           }
-        
+
         // backward pass
         distP = big;
         distN = -big;
         // Undo the last increment to put us at the last pixel
         // (input is no longer needed)
-        outPtr0 -= outInc0;  
+        outPtr0 -= outInc0;
         for (idx0 = max0; idx0 >= min0; --idx0)
           {
           if (*outPtr0 >= 0)
@@ -200,7 +200,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(
               }
             *outPtr0 = distN;
             }
-          
+
           if (distP < big)
             {
             ++distP;
@@ -209,10 +209,10 @@ int vtkImageCityBlockDistance::IterativeRequestData(
             {
             --distN;
             }
-          
+
           outPtr0 -= outInc0;
           }
-        
+
         inPtrC += 1;
         outPtrC += 1;
         }
@@ -221,7 +221,7 @@ int vtkImageCityBlockDistance::IterativeRequestData(
       }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }     
+    }
 
   return 1;
 }

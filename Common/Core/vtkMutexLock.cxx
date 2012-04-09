@@ -27,7 +27,7 @@ vtkSimpleMutexLock *vtkSimpleMutexLock::New()
   return new vtkSimpleMutexLock;
 }
 
-// Construct a new vtkMutexLock 
+// Construct a new vtkMutexLock
 vtkSimpleMutexLock::vtkSimpleMutexLock()
 {
 #ifdef VTK_USE_SPROC
@@ -35,7 +35,7 @@ vtkSimpleMutexLock::vtkSimpleMutexLock()
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
-  this->MutexLock = CreateMutex( NULL, FALSE, NULL ); 
+  this->MutexLock = CreateMutex( NULL, FALSE, NULL );
 #endif
 
 #ifdef VTK_USE_PTHREADS

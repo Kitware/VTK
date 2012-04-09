@@ -124,7 +124,7 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
   vtkSelection *output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   output->Initialize();
-  
+
   // If there are no inputs, we are done.
   int numInputs = this->GetNumberOfInputConnections(0);
   if (numInputs == 0)
@@ -148,11 +148,11 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
           outputNode->ShallowCopy(inputNode);
           output->AddNode(outputNode);
           }
-        } 
+        }
       } // for each input
     return 1;
     }
-  
+
   // The first non-null selection determines the required content type of all selections.
   int idx = 0;
   vtkSelection *first = NULL;
@@ -162,15 +162,15 @@ int vtkAppendSelection::RequestData(vtkInformation *vtkNotUsed(request),
     first = vtkSelection::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     idx++;
     }
-  
+
   // If they are all null, return.
   if (first == NULL)
     {
     return 1;
     }
-  
+
   output->ShallowCopy(first);
-  
+
   // Take the union of all non-null selections
   for (; idx < numInputs; ++idx)
     {

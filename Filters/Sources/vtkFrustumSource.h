@@ -47,47 +47,47 @@ public:
   // is called, an error message will be emitted and RequestData() will
   // return right away.
   vtkGetObjectMacro(Planes,vtkPlanes);
-  
+
   // Description:
   // Set the 6 planes defining the frustum.
   virtual void SetPlanes(vtkPlanes *planes);
-  
+
   // Description:
   // Tells if some extra lines will be generated. Initial value is true.
   vtkGetMacro(ShowLines,bool);
   vtkSetMacro(ShowLines,bool);
   vtkBooleanMacro(ShowLines,bool);
-  
+
   // Description:
   // Length of the extra lines. This a stricly positive value.
   // Initial value is 1.0.
   vtkGetMacro(LinesLength,double);
   vtkSetMacro(LinesLength,double);
-  
+
   // Description:
   // Modified GetMTime because of Planes.
   unsigned long GetMTime();
-  
+
 protected:
   // Description:
   // Default construtor. Planes=NULL. ShowLines=true. LinesLength=1.0.
   vtkFrustumSource();
-  
+
   virtual ~vtkFrustumSource();
 
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
-  
+
   // Description:
   // Compute the intersection of 3 planes.
   void ComputePoint(int planes[3],
                     double *pt);
-  
+
   vtkPlanes *Planes;
   bool ShowLines;
   double LinesLength;
-  
+
 private:
   vtkFrustumSource(const vtkFrustumSource&);  // Not implemented.
   void operator=(const vtkFrustumSource&);  // Not implemented.

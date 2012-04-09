@@ -15,10 +15,10 @@
 // .NAME vtkAbstractPointLocator - abstract class to quickly locate points in 3-space
 // .SECTION Description
 // vtkAbstractPointLocator is an abstract spatial search object to quickly locate points
-// in 3D. vtkAbstractPointLocator works by dividing a specified region of space into 
-// "rectangular" buckets, and then keeping a list of points that 
-// lie in each bucket. Typical operation involves giving a position in 3D 
-// and finding the closest point.  The points are provided from the specified 
+// in 3D. vtkAbstractPointLocator works by dividing a specified region of space into
+// "rectangular" buckets, and then keeping a list of points that
+// lie in each bucket. Typical operation involves giving a position in 3D
+// and finding the closest point.  The points are provided from the specified
 // dataset input.
 
 #ifndef __vtkAbstractPointLocator_h
@@ -44,7 +44,7 @@ public:
   vtkIdType FindClosestPoint(double x, double y, double z);
 
   // Description:
-  // Given a position x and a radius r, return the id of the point 
+  // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // dist2 returns the squared distance to the point.
   virtual vtkIdType FindClosestPointWithinRadius(
@@ -69,9 +69,9 @@ public:
   // indirectly called from a single thread first.
   virtual void FindPointsWithinRadius(double R, const double x[3],
                                       vtkIdList *result) = 0;
-  void FindPointsWithinRadius(double R, double x, double y, double z, 
+  void FindPointsWithinRadius(double R, double x, double y, double z,
                                       vtkIdList *result);
-  
+
   // Description:
   // Provide an accessor to the bounds.
   virtual double *GetBounds() { return this->Bounds; }

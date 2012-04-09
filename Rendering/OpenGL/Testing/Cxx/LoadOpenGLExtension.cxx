@@ -247,11 +247,11 @@ int LoadOpenGLExtension(int argc, char *argv[])
     cbc->SetCallback(ImageCallback);
     renwin->AddObserver(vtkCommand::EndEvent, cbc);
     cbc->Delete();
-    
+
     // This is a bit of a hack.  The EndEvent on the render window will swap
     // the buffers.
     renwin->SwapBuffersOff();
-    
+
     cout << "Do test render with convolution on." << endl;
     renwin->Render();
     }

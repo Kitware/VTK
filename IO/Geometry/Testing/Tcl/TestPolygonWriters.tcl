@@ -39,11 +39,11 @@ ren1 AddActor brain
 
 renWin SetSize 320 240
 
-[ren1 GetActiveCamera] SetPosition 149.653 -65.3464 96.0401 
-[ren1 GetActiveCamera] SetFocalPoint 146.003 22.3839 0.260541 
+[ren1 GetActiveCamera] SetPosition 149.653 -65.3464 96.0401
+[ren1 GetActiveCamera] SetFocalPoint 146.003 22.3839 0.260541
 [ren1 GetActiveCamera] SetViewAngle 30
-[ren1 GetActiveCamera] SetViewUp -0.255578 -0.717754 -0.647695 
-[ren1 GetActiveCamera] SetClippingRange 79.2526 194.052 
+[ren1 GetActiveCamera] SetViewUp -0.255578 -0.717754 -0.647695
+[ren1 GetActiveCamera] SetClippingRange 79.2526 194.052
 
 iren Initialize
 renWin Render
@@ -71,13 +71,13 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    dsw SetFileName "brain.dsw"
    dsw Write
    file delete -force "brain.dsw"
-   
+
    vtkPolyDataWriter pdw
    pdw SetInputConnection [smooth GetOutputPort]
    pdw SetFileName "brain.pdw"
    pdw Write
    file delete -force "brain.pdw"
-   
+
    if { [info command "vtkIVWriter"] != "" } {
       vtkIVWriter iv
       iv SetInputConnection [smooth GetOutputPort]
@@ -85,12 +85,12 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
       iv Write
       file delete -force "brain.iv"
    }
-   
+
    #
    # the next writers only handle triangles
    vtkTriangleFilter triangles
    triangles SetInputConnection [smooth GetOutputPort]
-   
+
    if { [info command "vtkIVWriter"] != "" } {
       vtkIVWriter iv2
       iv2 SetInputConnection [triangles GetOutputPort]
@@ -98,7 +98,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
       iv2 Write
       file delete -force "brain2.iv"
    }
-   
+
    if { [info command "vtkIVWriter"] != "" } {
       vtkExtractEdges edges
       edges SetInputConnection [triangles GetOutputPort]
@@ -108,7 +108,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
       iv3 Write
       file delete -force "brain3.iv"
    }
-   
+
    vtkBYUWriter byu
    byu SetGeometryFileName "brain.g"
    byu SetScalarFileName "brain.s"
@@ -118,7 +118,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    file delete -force "brain.g"
    file delete -force "brain.s"
    file delete -force "brain.d"
-   
+
    vtkMCubesWriter mcubes
    mcubes SetInputConnection [triangles GetOutputPort]
    mcubes SetFileName "brain.tri"
@@ -126,13 +126,13 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    mcubes Write
    file delete -force "brain.lim"
    file delete -force "brain.tri"
-   
+
    vtkSTLWriter stl
    stl SetInputConnection [triangles GetOutputPort]
    stl SetFileName "brain.stl"
    stl Write
    file delete -force "brain.stl"
-   
+
    vtkSTLWriter stlBinary
    stlBinary SetInputConnection [triangles GetOutputPort]
    stlBinary SetFileName "brainBinary.stl"
@@ -146,6 +146,6 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    cgm Write
    file delete -force "brain.cgm"
 }
- 
-  
-   
+
+
+

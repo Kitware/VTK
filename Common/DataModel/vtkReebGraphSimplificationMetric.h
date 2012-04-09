@@ -15,15 +15,15 @@
 // .NAME vtkReebGraphSimplificationMetric - abstract class for custom Reeb graph
 // simplification metric design.
 //
-// This class makes it possible to design customized simplification metric 
-// evaluation algorithms, enabling the user to control the definition of what 
+// This class makes it possible to design customized simplification metric
+// evaluation algorithms, enabling the user to control the definition of what
 // should be considered as noise or signal in the topological filtering process.
-// 
+//
 // References:
 // "Topological persistence and simplification",
 // H. Edelsbrunner, D. Letscher, and A. Zomorodian,
 // Discrete Computational Geometry, 28:511-533, 2002.
-// 
+//
 // "Extreme elevation on a 2-manifold",
 // P.K. Agarwal, H. Edelsbrunner, J. Harer, and Y. Wang,
 // ACM Symposium on Computational Geometry, pp. 357-365, 2004.
@@ -54,7 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkReebGraphSimplificationMetric :
   public vtkObject
 {
 public:
-  static vtkReebGraphSimplificationMetric* New(); 
+  static vtkReebGraphSimplificationMetric* New();
   vtkTypeMacro(vtkReebGraphSimplificationMetric, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -81,7 +81,7 @@ public:
   // smallest the more likely the arc will be removed, depending on the
   // user-defined simplification threshold).
   virtual double ComputeMetric(vtkDataSet *mesh, vtkDataArray *field,
-    vtkIdType startCriticalPoint, vtkAbstractArray *vertexList, 
+    vtkIdType startCriticalPoint, vtkAbstractArray *vertexList,
     vtkIdType endCriticalPoint);
 
 protected:
@@ -89,11 +89,11 @@ protected:
   ~vtkReebGraphSimplificationMetric();
 
   double    LowerBound, UpperBound;
-  
+
 private:
   vtkReebGraphSimplificationMetric(const vtkReebGraphSimplificationMetric&);
   // Not implemented.
-  void operator=(const vtkReebGraphSimplificationMetric&);  
+  void operator=(const vtkReebGraphSimplificationMetric&);
   // Not implemented.
 };
 

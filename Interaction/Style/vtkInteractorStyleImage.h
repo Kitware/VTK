@@ -50,7 +50,7 @@
 // Note that the renderer's actors are not moved; instead the camera is moved.
 
 // .SECTION See Also
-// vtkInteractorStyle vtkInteractorStyleTrackballActor 
+// vtkInteractorStyle vtkInteractorStyleTrackballActor
 // vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
 
 #ifndef __vtkInteractorStyleImage_h
@@ -84,7 +84,7 @@ public:
   // Some useful information for handling window level
   vtkGetVector2Macro(WindowLevelStartPosition,int);
   vtkGetVector2Macro(WindowLevelCurrentPosition,int);
-  
+
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
@@ -107,8 +107,8 @@ public:
   virtual void WindowLevel();
   virtual void Pick();
   virtual void Slice();
-  
-  // Interaction mode entry points used internally.  
+
+  // Interaction mode entry points used internally.
   virtual void StartWindowLevel();
   virtual void EndWindowLevel();
   virtual void StartPick();
@@ -167,7 +167,7 @@ protected:
   int WindowLevelCurrentPosition[2];
   double WindowLevelInitial[2];
   vtkImageProperty *CurrentImageProperty;
- 
+
   int InteractionMode;
   double XViewRightVector[3];
   double XViewUpVector[3];

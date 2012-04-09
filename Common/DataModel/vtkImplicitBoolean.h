@@ -26,7 +26,7 @@
 // value of all implicit functions. The VTK_INTERSECTION operator takes the
 // maximum value of all implicit functions. The VTK_DIFFERENCE operator
 // subtracts the 2nd through last implicit functions from the first. The
-// VTK_UNION_OF_MAGNITUDES takes the minimum absolute value of the 
+// VTK_UNION_OF_MAGNITUDES takes the minimum absolute value of the
 // implicit functions.
 
 #ifndef __vtkImplicitBoolean_h
@@ -34,7 +34,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
- 
+
 class vtkImplicitFunctionCollection;
 
 #define VTK_UNION 0
@@ -82,16 +82,16 @@ public:
   // Specify the type of boolean operation.
   vtkSetClampMacro(OperationType,int,VTK_UNION,VTK_UNION_OF_MAGNITUDES);
   vtkGetMacro(OperationType,int);
-  void SetOperationTypeToUnion() 
+  void SetOperationTypeToUnion()
     {this->SetOperationType(VTK_UNION);};
-  void SetOperationTypeToIntersection() 
+  void SetOperationTypeToIntersection()
     {this->SetOperationType(VTK_INTERSECTION);};
-  void SetOperationTypeToDifference() 
+  void SetOperationTypeToDifference()
     {this->SetOperationType(VTK_DIFFERENCE);};
-  void SetOperationTypeToUnionOfMagnitudes() 
+  void SetOperationTypeToUnionOfMagnitudes()
     {this->SetOperationType(VTK_UNION_OF_MAGNITUDES);};
   const char *GetOperationTypeAsString();
-  
+
 protected:
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
@@ -113,15 +113,15 @@ inline const char *vtkImplicitBoolean::GetOperationTypeAsString(void)
     {
     return "Union";
     }
-  else if ( this->OperationType == VTK_INTERSECTION ) 
+  else if ( this->OperationType == VTK_INTERSECTION )
     {
     return "Intersection";
     }
-  else if ( this->OperationType == VTK_DIFFERENCE ) 
+  else if ( this->OperationType == VTK_DIFFERENCE )
     {
     return "Difference";
     }
-  else 
+  else
     {
     return "UnionOfMagnitudes";
     }

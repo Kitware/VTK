@@ -44,7 +44,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LeftBorderOffset = 50;
   this->BottomBorderOffset = 30;
   this->CornerOffsetFactor = 2.0;
-  
+
   this->RightAxis = vtkAxisActor2D::New();
   this->RightAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->RightAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
@@ -90,7 +90,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LegendMapper->SetInputData(this->Legend);
   this->LegendActor = vtkActor2D::New();
   this->LegendActor->SetMapper(this->LegendMapper);
-  
+
   // Create the legend
   vtkIdType pts[4];
   this->LegendPoints->SetNumberOfPoints(10);
@@ -117,7 +117,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   colors->SetTuple3(3,255,255,255);
   this->Legend->GetCellData()->SetScalars(colors);
   colors->Delete();
-  
+
   // Now the text. The first five are for the 0,1/4,1/2,3/4,1 labels.
   this->LegendTitleProperty = vtkTextProperty::New();
   this->LegendTitleProperty->SetJustificationToCentered();
@@ -148,7 +148,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   this->LabelMappers[2]->SetInput("1/2");
   this->LabelMappers[3]->SetInput("3/4");
   this->LabelMappers[4]->SetInput("1");
-  
+
   this->Coordinate = vtkCoordinate::New();
   this->Coordinate->SetCoordinateSystemToDisplay();
 }
@@ -160,12 +160,12 @@ vtkLegendScaleActor::~vtkLegendScaleActor()
   this->TopAxis->Delete();
   this->LeftAxis->Delete();
   this->BottomAxis->Delete();
-  
+
   this->Legend->Delete();
   this->LegendPoints->Delete();
   this->LegendMapper->Delete();
   this->LegendActor->Delete();
-  
+
   for (int i=0; i<6; i++)
     {
     this->LabelMappers[i]->Delete();
@@ -198,7 +198,7 @@ void vtkLegendScaleActor::ReleaseGraphicsResources(vtkWindow *w)
 int vtkLegendScaleActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   this->BuildRepresentation(viewport);
-  
+
   int renderedSomething=0;
   if ( this->RightAxisVisibility )
     {
@@ -268,13 +268,13 @@ int vtkLegendScaleActor::RenderOverlay(vtkViewport *viewport)
 void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
 {
   if ( 1 ) //it's probably best just to rerender every time
-//   if ( this->GetMTime() > this->BuildTime || 
+//   if ( this->GetMTime() > this->BuildTime ||
 //        (this->Renderer && this->Renderer->GetVTKWindow() &&
 //         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
     // Specify the locations of the axes.
     int *size = viewport->GetSize();
-    
+
     this->RightAxis->GetPositionCoordinate()->
       SetValue(size[0]-this->RightBorderOffset,
         this->CornerOffsetFactor*this->BottomBorderOffset,0.0);
@@ -314,7 +314,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
         SetValue(size[0]-this->CornerOffsetFactor*this->RightBorderOffset,
           this->BottomBorderOffset,0.0);
       }
-    
+
 
     // Now specify the axis values
     if ( this->LabelMode == XY_COORDINATES )
@@ -375,7 +375,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
       d = sqrt (vtkMath::Distance2BetweenPoints(xL,xR));
       this->BottomAxis->SetRange(-d/2.0,d/2.0);
       }
-    
+
     if ( this->LegendVisibility )
       {
       // Update the position
@@ -392,7 +392,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
       this->LegendPoints->SetPoint(7, x1+2*delX,20,0);
       this->LegendPoints->SetPoint(8, x1+3*delX,20,0);
       this->LegendPoints->SetPoint(9, x1+4*delX,20,0);
-      
+
       // Specify the position of the legend title
       this->LabelActors[5]->SetPosition(0.5*size[0],22);
       this->Coordinate->SetValue(0.33333*size[0],15,0.0);
@@ -405,7 +405,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
       char buf[256];
       sprintf(buf,"Scale 1 : %g",len);
       this->LabelMappers[5]->SetInput(buf);
-      
+
       // Now specify the position of the legend labels
       x = this->LegendPoints->GetPoint(0);
       this->LabelActors[0]->SetPosition(x[0],x[1]-1);
@@ -510,19 +510,19 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "XY_Coordinates\n";
     }
-  
-  os << indent << "Right Axis Visibility: " 
+
+  os << indent << "Right Axis Visibility: "
      << (this->RightAxisVisibility ? "On\n" : "Off\n");
-  os << indent << "Top Axis Visibility: " 
+  os << indent << "Top Axis Visibility: "
      << (this->TopAxisVisibility ? "On\n" : "Off\n");
-  os << indent << "Left Axis Visibility: " 
+  os << indent << "Left Axis Visibility: "
      << (this->LeftAxisVisibility ? "On\n" : "Off\n");
-  os << indent << "Bottom Axis Visibility: " 
+  os << indent << "Bottom Axis Visibility: "
      << (this->BottomAxisVisibility ? "On\n" : "Off\n");
-  os << indent << "Legend Visibility: " 
+  os << indent << "Legend Visibility: "
      << (this->LegendVisibility ? "On\n" : "Off\n");
   os << indent << "Corner Offset Factor: " << this->CornerOffsetFactor << "\n";
-  
+
   os << indent << "Right Border Offset: " << this->RightBorderOffset << "\n";
   os << indent << "Top Border Offset: " << this->TopBorderOffset << "\n";
   os << indent << "Left Border Offset: " << this->LeftBorderOffset << "\n";
@@ -546,7 +546,7 @@ void vtkLegendScaleActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
-  
+
   os << indent << "Right Axis: ";
   if ( this->RightAxis )
     {

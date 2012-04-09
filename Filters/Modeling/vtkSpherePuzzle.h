@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSpherePuzzle - create a polygonal sphere centered at the origin
 // .SECTION Description
-// vtkSpherePuzzle creates 
+// vtkSpherePuzzle creates
 
 #ifndef __vtkSpherePuzzle_h
 #define __vtkSpherePuzzle_h
@@ -53,13 +53,13 @@ public:
   // Otherwise it encodes the move into a unique integer so that
   // the caller can determine if the move state has changed.
   // This will answer the question, "Should I render."
-  int SetPoint(double x, double y, double z);  
+  int SetPoint(double x, double y, double z);
 
   // Description:
   // Move actually implements the pending move. When percentage
   // is 100, the pending move becomes inactive, and SetPoint
   // will have to be called again to setup another move.
-  void MovePoint(int percentage);  
+  void MovePoint(int percentage);
 
   // Description:
   // For drawing state as arrows.
@@ -71,10 +71,10 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void MarkVertical(int section);
-  void MarkHorizontal(int section);  
-  
+  void MarkHorizontal(int section);
+
   int State[32];
-  
+
   // Stuff for storing a partial move.
   int PieceMask[32];
   vtkTransform *Transform;

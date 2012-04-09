@@ -594,7 +594,7 @@ void vtkUnstructuredGridLinearRayIntegrator::IntegrateRay(
 static inline float erf_fitting_function(float u)
 {
   return
-    - 1.26551223 + u*(1.00002368 + u*(0.37409196 + u*(0.09678418 + 
+    - 1.26551223 + u*(1.00002368 + u*(0.37409196 + u*(0.09678418 +
         u*(-0.18628806 + u*(0.27886807 + u*(-1.13520398 + u*(1.48851587 +
         u*(-0.82215223 + u*0.17087277))))))));
 }

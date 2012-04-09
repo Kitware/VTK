@@ -92,29 +92,29 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
     return 0;
     }
 #endif
-  
+
   // Get the projection of the left, mid and right points
   double leftProjPoint[2];
   double midProjPoint[2];
 //  double rightProjPoint[2];
-  
+
   this->Coordinate->SetValue(leftPoint);
   double *pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
-  
+
   // pix is a volatile pointer
   leftProjPoint[0] = pix[0];
   leftProjPoint[1] = pix[1];
-  
+
   this->Coordinate->SetValue(midPoint);
   pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
-  
+
   // pix is a volatile pointer
   midProjPoint[0] = pix[0];
   midProjPoint[1] = pix[1];
-  
+
   this->Coordinate->SetValue(rightPoint);
   pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
-  
+
   // distance between the line (leftProjPoint,rightProjPoint) and the point midProjPoint.
   return this->Distance2LinePoint(leftProjPoint,pix,midProjPoint)>this->PixelTolerance;
 }
@@ -146,29 +146,29 @@ double vtkViewDependentErrorMetric::GetError(double *leftPoint,
     //don't need to do anything:
     return 0;
     }
-  
+
   // Get the projection of the left, mid and right points
   double leftProjPoint[2];
   double midProjPoint[2];
 //  double rightProjPoint[2];
-  
+
   this->Coordinate->SetValue(leftPoint);
   double *pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
-  
+
   // pix is a volatile pointer
   leftProjPoint[0] = pix[0];
   leftProjPoint[1] = pix[1];
-  
+
   this->Coordinate->SetValue(midPoint);
   pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
-  
+
   // pix is a volatile pointer
   midProjPoint[0] = pix[0];
   midProjPoint[1] = pix[1];
-  
+
   this->Coordinate->SetValue(rightPoint);
   pix = this->Coordinate->GetComputedDoubleDisplayValue(this->Viewport);
-  
+
   // distance between the line (leftProjPoint,rightProjPoint) and the point midProjPoint.
   return this->Distance2LinePoint(leftProjPoint,pix,midProjPoint);
 }
@@ -185,20 +185,20 @@ double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2],
   double u[2];
   double v[2];
   double w[2];
-  
+
   u[0] = y[0] - x[0];
   u[1] = y[1] - x[1];
-  
+
   vtkMath::Normalize2D(u);
-  
+
   v[0] = z[0] - x[0];
   v[1] = z[1] - x[1];
-  
+
   double dot = vtkMath::Dot2D(u,v);
-  
+
   w[0] = v[0] - dot*u[0];
   w[1] = v[1] - dot*u[1];
-  
+
   return vtkMath::Dot2D(w,w);
 }
 
@@ -206,7 +206,7 @@ double vtkViewDependentErrorMetric::Distance2LinePoint(double x[2],
 void vtkViewDependentErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "PixelTolerance: "  << this->PixelTolerance << endl;
   os << indent << "ViewPort: ";
   if( this->Viewport )

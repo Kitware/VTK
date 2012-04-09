@@ -2113,25 +2113,25 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   bladeVeloc->SetNumberOfComponents(1);
   bladeVeloc->SetNumberOfTuples(this->NumberOfBladePoints);
   blade->GetPointData()->AddArray(bladeVeloc);
-  
+
   vtkFloatArray* bladeAzimUVW = vtkFloatArray::New();
   bladeAzimUVW->SetName("Blade Azimuthal UVW");
   bladeAzimUVW->SetNumberOfComponents(3);
   bladeAzimUVW->SetNumberOfTuples(this->NumberOfBladePoints);
   blade->GetPointData()->AddArray(bladeAzimUVW);
-  
+
   vtkFloatArray* bladeAxialUVW = vtkFloatArray::New();
   bladeAxialUVW->SetName("Blade Axial UVW");
   bladeAxialUVW->SetNumberOfComponents(3);
   bladeAxialUVW->SetNumberOfTuples(this->NumberOfBladePoints);
   blade->GetPointData()->AddArray(bladeAxialUVW);
-  
+
   vtkFloatArray* bladeDragUVW = vtkFloatArray::New();
   bladeDragUVW->SetName("Blade Drag UVW");
   bladeDragUVW->SetNumberOfComponents(3);
   bladeDragUVW->SetNumberOfTuples(this->NumberOfBladePoints);
   blade->GetPointData()->AddArray(bladeDragUVW);
-  
+
   vtkFloatArray* bladeLiftUVW = vtkFloatArray::New();
   bladeLiftUVW->SetName("Blade Lift UVW");
   bladeLiftUVW->SetNumberOfComponents(3);
@@ -2148,7 +2148,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
 
   int linesRead = 0;
   float bladeAzimUVWVec[3]  = { 0.0, 0.0, 0.0 },
-        bladeAxialUVWVec[3] = { 1.0, 0.0, 0.0 }, 
+        bladeAxialUVWVec[3] = { 1.0, 0.0, 0.0 },
         bladeDragUVWVec[3]  = { 0.0, 0.0, 0.0 },
         bladeLiftUVWVec[3]  = { 0.0, 0.0, 0.0 };
   int   turbineHeaderStartIndex = 0, turbineIDHeader = 0;
@@ -2201,7 +2201,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     // count is updated. this ensures that the component id of future blades
     // start from a valid index
     if (turbineID != lastTurbineID)
-      { 
+      {
       bladeComponentCount = (int)compBlock[indx-1];
       lastTurbineID       = turbineID;
       }
@@ -2224,9 +2224,9 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
       float radialVeloc = angularVelocity*sqrt(dist);
       bladeVeloc->InsertTuple1(firstPoint + side, radialVeloc);
       }
-    
-    // compute blade's various drag/lift/etc vectors; 
-    // re-use for all cross-sections per blade. 
+
+    // compute blade's various drag/lift/etc vectors;
+    // re-use for all cross-sections per blade.
     int sectionNum = (firstPoint/NUM_PART_SIDES)%100;
     if (sectionNum == 0)
       {
@@ -2237,28 +2237,28 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
       // points from trailing edge
       this->BPoints->GetPoint(numBPnts-1, pntD);
       this->BPoints->GetPoint(numBPnts-2, pntC);
-      float vec1[3] = { pntD[0] - pntC[0], pntD[1] - pntC[1], 
+      float vec1[3] = { pntD[0] - pntC[0], pntD[1] - pntC[1],
                         pntD[2] - pntC[2] };
       float vec2[3] = { 1.0, 0.0, 0.0};
       vtkMath::Cross(vec2, vec1, bladeAzimUVWVec);
       vtkMath::Normalize(bladeAzimUVWVec);
-        
+
       // for drag, we require "chord line," requires one point
       // from leading edge
       double pntA[3];
       this->BPoints->GetPoint(numBPnts-4, pntA);
       // chord line
       bladeDragUVWVec[0] = pntC[0] - pntA[0];
-      bladeDragUVWVec[1] = pntC[1] - pntA[1];  
+      bladeDragUVWVec[1] = pntC[1] - pntA[1];
       bladeDragUVWVec[2] = pntC[2] - pntA[2];
       vtkMath::Normalize(bladeDragUVWVec);
       vtkMath::Cross(bladeDragUVWVec, vec1, bladeLiftUVWVec);
       vtkMath::Normalize(bladeLiftUVWVec);
       }
-      
+
     for (int side = 0; side < NUM_PART_SIDES; side++)
       {
-      bladeAzimUVW->InsertTuple(firstPoint  + side, bladeAzimUVWVec); 
+      bladeAzimUVW->InsertTuple(firstPoint  + side, bladeAzimUVWVec);
       bladeAxialUVW->InsertTuple(firstPoint + side, bladeAxialUVWVec);
       bladeDragUVW->InsertTuple(firstPoint  + side, bladeDragUVWVec);
       bladeLiftUVW->InsertTuple(firstPoint  + side, bladeLiftUVWVec);
@@ -2298,16 +2298,16 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
     cell[2] = firstPoint + 2;
     cell[3] = firstPoint + 3;
     cell[4] = firstPoint + 4;
-    
+
     for (int k = 0; k < 5; k++)
     {
-      bladeVeloc->InsertTuple1(k + firstPoint, 0.0);  
+      bladeVeloc->InsertTuple1(k + firstPoint, 0.0);
       bladeAzimUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
       bladeAxialUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
       bladeDragUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
       bladeLiftUVW->InsertTuple3(k + firstPoint, 0.0, 0.0, 0.0);
     }
-      
+
     index += NUM_BASE_SIDES;
     blade->InsertNextCell(VTK_PYRAMID, NUM_BASE_SIDES, cell);
 

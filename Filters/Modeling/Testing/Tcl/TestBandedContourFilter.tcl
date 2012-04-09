@@ -15,21 +15,21 @@ vtkPoints pts
   pts InsertPoint 7  2 2 0
   pts InsertPoint 8  3 0 0
   pts InsertPoint 9  3 1 0
-  pts InsertPoint 10 3 2 0 
+  pts InsertPoint 10 3 2 0
   pts InsertPoint 11 4 0 0
-  pts InsertPoint 12 6 0 0 
-  pts InsertPoint 13 5 2 0 
+  pts InsertPoint 12 6 0 0
+  pts InsertPoint 13 5 2 0
   pts InsertPoint 14 7 0 0
-  pts InsertPoint 15 9 0 0 
-  pts InsertPoint 16 7 2 0 
-  pts InsertPoint 17 9 2 0 
+  pts InsertPoint 15 9 0 0
+  pts InsertPoint 16 7 2 0
+  pts InsertPoint 17 9 2 0
   pts InsertPoint 18 10 0 0
-  pts InsertPoint 19 12 0 0 
-  pts InsertPoint 20 10 1 0 
-  pts InsertPoint 21 12 1 0 
-  pts InsertPoint 22 10 2 0 
-  pts InsertPoint 23 12 2 0 
-  pts InsertPoint 24 10 3 0 
+  pts InsertPoint 19 12 0 0
+  pts InsertPoint 20 10 1 0
+  pts InsertPoint 21 12 1 0
+  pts InsertPoint 22 10 2 0
+  pts InsertPoint 23 12 2 0
+  pts InsertPoint 24 10 3 0
   pts InsertPoint 25 12 3 0
 
 vtkCellArray verts
@@ -114,7 +114,7 @@ vtkPolyData polyData
 
 vtkBandedPolyDataContourFilter bf
   bf SetInputData polyData
-  bf GenerateValues 3 25 75 
+  bf GenerateValues 3 25 75
 vtkPolyDataMapper mapper
   mapper SetInputConnection [bf GetOutputPort]
   mapper SetScalarModeToUseCellData
@@ -132,7 +132,7 @@ vtkLabeledDataMapper ldm
 #  ldm SetLabelFormat "%g"
   ldm SetLabelModeToLabelFieldData
 vtkActor2D pointLabels
-  pointLabels SetMapper ldm    
+  pointLabels SetMapper ldm
 
 
 # Create the RenderWindow, Renderer and both Actors

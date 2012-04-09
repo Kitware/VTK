@@ -48,9 +48,9 @@
 // difference in height field to reduced TIN); and 4) relative error (the
 // absolute error is normalized by the diagonal of the bounding box of the
 // height field).
-// 
+//
 // .SECTION Caveats
-// This algorithm requires the entire input dataset to be in memory, hence it 
+// This algorithm requires the entire input dataset to be in memory, hence it
 // may not work for extremely large images. Invoking BoundaryVertexDeletionOff
 // will allow you to stitch together images with matching boundaries.
 //
@@ -99,13 +99,13 @@ public:
   // error (normalized by the length of the diagonal of the image).
   vtkSetClampMacro(ErrorMeasure,int,VTK_ERROR_NUMBER_OF_TRIANGLES,VTK_ERROR_RELATIVE);
   vtkGetMacro(ErrorMeasure,int);
-  void SetErrorMeasureToNumberOfTriangles() 
+  void SetErrorMeasureToNumberOfTriangles()
     {this->SetErrorMeasure(VTK_ERROR_NUMBER_OF_TRIANGLES);}
-  void SetErrorMeasureToSpecifiedReduction() 
+  void SetErrorMeasureToSpecifiedReduction()
     {this->SetErrorMeasure(VTK_ERROR_SPECIFIED_REDUCTION);}
-  void SetErrorMeasureToAbsoluteError() 
+  void SetErrorMeasureToAbsoluteError()
     {this->SetErrorMeasure(VTK_ERROR_ABSOLUTE);}
-  void SetErrorMeasureToRelativeError() 
+  void SetErrorMeasureToRelativeError()
     {this->SetErrorMeasure(VTK_ERROR_RELATIVE);}
 
   // Description:
@@ -189,16 +189,16 @@ protected:
   vtkPriorityQueue                          *TerrainError; //errors for each pt in height field
   vtkGreedyTerrainDecimationTerrainInfoType *TerrainInfo;  //owning triangle for each pt
   vtkGreedyTerrainDecimationPointInfoType   *PointInfo;    //map mesh pt id to input pt id
-  
+
   //Make a guess at initial allocation
   void EstimateOutputSize(const vtkIdType numInputPts, vtkIdType &numPts, vtkIdType &numTris);
-  
+
   //Returns non-zero if the error measure is satisfied.
   virtual int SatisfiesErrorMeasure(double error);
 
   //Insert all the boundary vertices into the TIN
   void InsertBoundaryVertices();
-    
+
   //Insert a point into the triangulation; get a point from the triangulation
   vtkIdType AddPointToTriangulation(vtkIdType inputPtId);
   vtkIdType InsertNextPoint(vtkIdType inputPtId, double x[3]);
@@ -220,7 +220,7 @@ protected:
 
   int CharacterizeTriangle(int ij1[2], int ij2[2], int ij[3],
                            int* &min, int* &max, int* &midL, int* &midR,
-                           int* &mid, int mid2[2], double h[3], double &hMin, double &hMax, 
+                           int* &mid, int mid2[2], double h[3], double &hMin, double &hMax,
                            double &hL, double &hR);
 
 private:

@@ -86,7 +86,7 @@ int vtkPLYReader::RequestData(
     {"vertex_indices", PLY_INT, PLY_INT,
      static_cast<int>(offsetof(plyFace,verts)),
      1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,nverts))},
-    {"intensity", PLY_UCHAR, PLY_UCHAR, 
+    {"intensity", PLY_UCHAR, PLY_UCHAR,
      static_cast<int>(offsetof(plyFace,intensity)), 0, 0, 0, 0},
     {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,red)), 0, 0, 0, 0},
     {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,green)), 0, 0, 0, 0},
@@ -104,7 +104,7 @@ int vtkPLYReader::RequestData(
   int nelems, fileType, numElems, nprops;
   char **elist, *elemName;
   float version;
-  
+
   if ( !(ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist,
                                             &fileType, &version)) )
     {
@@ -186,7 +186,7 @@ int vtkPLYReader::RequestData(
       vtkPoints *pts = vtkPoints::New();
       pts->SetDataTypeToFloat();
       pts->SetNumberOfPoints(numPts);
-      
+
       // Setup to read the PLY elements
       vtkPLY::ply_get_property (ply, elemName, &vertProps[0]);
       vtkPLY::ply_get_property (ply, elemName, &vertProps[1]);
@@ -240,7 +240,7 @@ int vtkPLYReader::RequestData(
         RGBCells->SetNumberOfComponents(3);
         RGBCells->SetNumberOfTuples(numPolys);
         }
-      
+
       // grab all the face elements
       for (int j=0; j < numPolys; j++)
         {
@@ -269,14 +269,14 @@ int vtkPLYReader::RequestData(
 
     free(elist[i]); //allocated by ply_open_for_reading
     elist[i] = NULL;
-    
+
     }//for all elements of the PLY file
   free(elist); //allocated by ply_open_for_reading
-  
+
   vtkDebugMacro( <<"Read: " << numPts << " points, "
                  << numPolys << " polygons");
 
-  // close the PLY file 
+  // close the PLY file
   vtkPLY::ply_close (ply);
 
   return 1;

@@ -40,7 +40,7 @@ vtkEvent::~vtkEvent()
 // Comparison against event with no modifiers
 int vtkEvent::operator==(unsigned long VTKEvent)
 {
-  if ( this->EventId == VTKEvent ) 
+  if ( this->EventId == VTKEvent )
     {
     return 1;
     }
@@ -53,7 +53,7 @@ int vtkEvent::operator==(unsigned long VTKEvent)
 // Comparison against event with modifiers
 int vtkEvent::operator==(vtkEvent *e)
 {
-  if ( this->EventId != e->EventId ) 
+  if ( this->EventId != e->EventId )
     {
     return 0;
     }
@@ -63,17 +63,17 @@ int vtkEvent::operator==(vtkEvent *e)
     {
     return 0;
     }
-  if ( this->KeyCode != '\0' && e->KeyCode != '\0' && 
+  if ( this->KeyCode != '\0' && e->KeyCode != '\0' &&
        this->KeyCode != e->KeyCode )
     {
     return 0;
     }
-  if ( this->RepeatCount != 0 && e->RepeatCount != 0 && 
+  if ( this->RepeatCount != 0 && e->RepeatCount != 0 &&
        this->RepeatCount != e->RepeatCount )
     {
     return 0;
     }
-  if ( this->KeySym != NULL && e->KeySym != NULL && 
+  if ( this->KeySym != NULL && e->KeySym != NULL &&
        strcmp(this->KeySym,e->KeySym) != 0 )
     {
     return 0;
@@ -99,7 +99,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   //List all the events and their translations
   os << indent << "Event Id: " << this->EventId << "\n";
 
@@ -116,7 +116,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->Modifier << "\n";
     }
-  
+
   os << indent << "Key Code: ";
   if ( this->KeyCode == 0 )
     {
@@ -126,7 +126,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->KeyCode << "\n";
     }
-  
+
   os << indent << "Repeat Count: ";
   if ( this->RepeatCount == 0 )
     {
@@ -136,7 +136,7 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->RepeatCount << "\n";
     }
-  
+
   os << indent << "Key Sym: ";
   if ( this->KeySym == 0 )
     {
@@ -146,5 +146,5 @@ void vtkEvent::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << this->KeySym << "\n";
     }
-  
+
 }

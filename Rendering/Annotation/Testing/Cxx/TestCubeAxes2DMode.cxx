@@ -122,6 +122,6 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
     {
     interactor->Start();
     }
-   
+
   return !retVal;
 }

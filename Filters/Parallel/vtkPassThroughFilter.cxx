@@ -40,7 +40,7 @@ int vtkPassThroughFilter::RequestData(
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
-  
+
   // Pass all. (data object's field data is passed by the
   // superclass after this method)
   output->GetPointData()->PassData( input->GetPointData() );

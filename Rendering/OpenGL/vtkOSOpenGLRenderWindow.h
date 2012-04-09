@@ -100,11 +100,11 @@ public:
   // Description:
   // Tells if this window is the current OpenGL context for the calling thread.
   virtual bool IsCurrent();
-  
+
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
-  // MakeCurrent() reverts to original behavior of cache-checking     
-  // on the next render.     
+  // MakeCurrent() reverts to original behavior of cache-checking
+  // on the next render.
   void SetForceMakeCurrent();
 
   // Description:
@@ -132,14 +132,14 @@ public:
   virtual void *GetGenericDrawable()  {return 0;}
 
   // Description:
-  // Set the X display id for this RenderWindow to use to a pre-existing 
+  // Set the X display id for this RenderWindow to use to a pre-existing
   // X display id.
   void     SetDisplayId(void *) {}
 
   // Description:
   // Sets the parent of the window that WILL BE created.
   void     SetParentId(void *);
-  
+
   // Description:
   // Set this RenderWindow's X window id to a pre-existing window.
   void     SetWindowId(void *);
@@ -167,7 +167,7 @@ public:
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
-  
+
   // Description:
   // Set this RenderWindow's X window id to a pre-existing window.
   void     SetWindowInfo(char *info);
@@ -203,7 +203,7 @@ protected:
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int width, int height);
 
-  
+
 private:
   vtkOSOpenGLRenderWindow(const vtkOSOpenGLRenderWindow&);  // Not implemented.
   void operator=(const vtkOSOpenGLRenderWindow&);  // Not implemented.

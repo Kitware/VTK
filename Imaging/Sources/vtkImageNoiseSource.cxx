@@ -37,12 +37,12 @@ vtkImageNoiseSource::vtkImageNoiseSource()
 
 
 //----------------------------------------------------------------------------
-void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax, 
+void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax,
                                          int yMin, int yMax,
                                          int zMin, int zMax)
 {
   int modified = 0;
-  
+
   if (this->WholeExtent[0] != xMin)
     {
     modified = 1;
@@ -99,12 +99,12 @@ void vtkImageNoiseSource::ExecuteDataWithInformation(vtkDataObject *output,
                                                      vtkInformation *outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
-  
+
   if (data->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro("Execute: This source only outputs doubles");
     }
-  
+
   vtkImageProgressIterator<double> outIt(data, data->GetExtent(), this, 0);
 
   // Loop through ouput pixels

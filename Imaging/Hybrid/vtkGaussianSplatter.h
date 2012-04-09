@@ -27,15 +27,15 @@
 //     f(x) = ScaleFactor * exp( ExponentFactor*((r/Radius)**2) )
 //
 // where x is the current voxel sample point; r is the distance |x-p|
-// ExponentFactor <= 0.0, and ScaleFactor can be multiplied by the scalar 
+// ExponentFactor <= 0.0, and ScaleFactor can be multiplied by the scalar
 // value of the point p that is currently being splatted.
 //
-// If points normals are present (and NormalWarping is on), then the splat 
+// If points normals are present (and NormalWarping is on), then the splat
 // function becomes elliptical (as compared to the spherical one described
 // by the previous equation). The Gaussian distribution function then
 // becomes:
-// 
-//     f(x) = ScaleFactor * 
+//
+//     f(x) = ScaleFactor *
 //               exp( ExponentFactor*( ((rxy/E)**2 + z**2)/R**2) )
 //
 // where E is a user-defined eccentricity factor that controls the elliptical
@@ -50,12 +50,12 @@
 // topology) when none exists.
 
 // .SECTION Caveats
-// The input to this filter is any dataset type. This filter can be used 
-// to resample any form of data, i.e., the input data need not be 
-// unstructured. 
+// The input to this filter is any dataset type. This filter can be used
+// to resample any form of data, i.e., the input data need not be
+// unstructured.
 //
 // Some voxels may never receive a contribution during the splatting process.
-// The final value of these points can be specified with the "NullValue" 
+// The final value of these points can be specified with the "NullValue"
 // instance variable.
 
 // .SECTION See Also
@@ -80,8 +80,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with dimensions=(50,50,50); automatic computation of 
-  // bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
+  // Construct object with dimensions=(50,50,50); automatic computation of
+  // bounds; a splat radius of 0.1; an exponent factor of -5; and normal and
   // scalar warping turned on.
   static vtkGaussianSplatter *New();
 
@@ -151,9 +151,9 @@ public:
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
-  
+
   // Description:
-  // Specify the cap value to use. (This instance variable only has effect 
+  // Specify the cap value to use. (This instance variable only has effect
   // if the ivar Capping is on.)
   vtkSetMacro(CapValue,double);
   vtkGetMacro(CapValue,double);
@@ -191,11 +191,11 @@ protected:
   ~vtkGaussianSplatter() {};
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector **, 
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector **,
                                   vtkInformationVector *);
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
   void Cap(vtkDoubleArray *s);
 
@@ -211,11 +211,11 @@ protected:
   double CapValue; // value to use for capping
   int AccumulationMode; // how to combine scalar values
 
-  double Gaussian(double x[3]);  
-  double EccentricGaussian(double x[3]);  
-  double ScalarSampling(double s) 
+  double Gaussian(double x[3]);
+  double EccentricGaussian(double x[3]);
+  double ScalarSampling(double s)
     {return this->ScaleFactor * s;}
-  double PositionSampling(double) 
+  double PositionSampling(double)
     {return this->ScaleFactor;}
   void SetScalar(int idx, double dist2, vtkDoubleArray *newScalars);
 

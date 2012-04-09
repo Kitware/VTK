@@ -15,7 +15,7 @@
 //
 // This example creates a polygonal model of a cone, and then renders it to
 // the screen. It will rotate the cone 360 degrees and then exit. The basic
-// setup of source -> mapper -> actor -> renderer -> renderwindow is 
+// setup of source -> mapper -> actor -> renderer -> renderwindow is
 // typical of most VTK programs.
 //
 
@@ -80,7 +80,7 @@ int TestProjectedHexahedra(int argc,
   // Create transfer mapping scalar value to opacity
   VTK_CREATE(vtkPiecewiseFunction, opacityTransferFunction);
   opacityTransferFunction->AddPoint(0.0, 0.0);
- 
+
   opacityTransferFunction->AddPoint(8.0, 2.0);
 
   opacityTransferFunction->AddPoint(10.0, 1.5);
@@ -94,7 +94,7 @@ int TestProjectedHexahedra(int argc,
   colorTransferFunction->AddRGBPoint(8.0, 1.0, 0.0, 0.0);
 
   colorTransferFunction->AddRGBPoint(10.0, 0.0, 0.0, 1.0);
-  
+
   colorTransferFunction->AddRGBPoint(12.0, 0.0, 1.0, 0.0);
 
   // The property describes how the data will look
@@ -145,7 +145,7 @@ int TestProjectedHexahedra(int argc,
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
-  
+
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
     {
     return 0;

@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkMergeFields);
 
-char vtkMergeFields::FieldLocationNames[3][12] 
+char vtkMergeFields::FieldLocationNames[3][12]
 = { "DATA_OBJECT",
     "POINT_DATA",
     "CELL_DATA" };
@@ -103,7 +103,7 @@ void vtkMergeFields::SetOutputField(const char* name, const char* fieldLoc)
 
 }
 
-void vtkMergeFields::Merge(int component, const char* arrayName, 
+void vtkMergeFields::Merge(int component, const char* arrayName,
                            int sourceComp)
 {
   if (!arrayName)
@@ -147,7 +147,7 @@ int vtkMergeFields::RequestData(
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
-  
+
   // Pass all. (data object's field data is passed by the
   // superclass after this method)
   output->GetPointData()->PassData( input->GetPointData() );
@@ -224,7 +224,7 @@ int vtkMergeFields::RequestData(
           }
         }
       }
-    } 
+    }
   while (cur);
   if (!sameNumTuples)
     {
@@ -267,7 +267,7 @@ int vtkMergeFields::RequestData(
     inputArray = fd->GetArray(before->FieldName);
     if (inputArray)
       {
-      if (!this->MergeArray(inputArray, outputArray, 
+      if (!this->MergeArray(inputArray, outputArray,
                             before->SourceIndex, before->Index))
         {
         outputArray->Delete();
@@ -278,12 +278,12 @@ int vtkMergeFields::RequestData(
       {
       if (before->FieldName)
         {
-        vtkWarningMacro("Input array " << before->FieldName 
+        vtkWarningMacro("Input array " << before->FieldName
                         << " does not exist.");
         }
       continue;
       }
-    } 
+    }
   while (cur);
   outputFD->AddArray(outputArray);
   outputArray->Delete();
@@ -293,7 +293,7 @@ int vtkMergeFields::RequestData(
 
 // fast pointer copy
 template <class T>
-void vtkMergeFieldsCopyTuples(T* input, T* output, vtkIdType numTuples, 
+void vtkMergeFieldsCopyTuples(T* input, T* output, vtkIdType numTuples,
                 int numInComp, int numOutComp, int inComp, int outComp)
 {
   for (int i=0; i<numTuples; i++)
@@ -323,10 +323,10 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
       switch (out->GetDataType())
         {
         vtkTemplateMacro(
-          vtkMergeFieldsCopyTuples((VTK_TT *)in->GetVoidPointer(0), 
+          vtkMergeFieldsCopyTuples((VTK_TT *)in->GetVoidPointer(0),
                                    (VTK_TT *)out->GetVoidPointer(0), numTuples,
-                                   in->GetNumberOfComponents(), 
-                                   out->GetNumberOfComponents(), 
+                                   in->GetNumberOfComponents(),
+                                   out->GetNumberOfComponents(),
                                    inComp, outComp ));
         // This is not supported by the template macro.
         // Switch to using the float interface.
@@ -352,7 +352,7 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
         }
       }
     }
-  
+
   return 1;
 
 }
@@ -394,12 +394,12 @@ void vtkMergeFields::DeleteAllComponents()
   Component* cur = this->GetFirst();
   if (!cur) {return;}
   Component* before;
-  do 
+  do
     {
     before = cur;
     cur = cur->Next;
     delete before;
-    } 
+    }
   while (cur);
   this->Head = 0;
   this->Tail = 0;
@@ -443,6 +443,6 @@ void vtkMergeFields::PrintAllComponents(ostream& os, vtkIndent indent)
     cur = cur->Next;
     os << endl;
     this->PrintComponent(before, os, indent);
-    } 
+    }
   while (cur);
 }

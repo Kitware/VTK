@@ -1,7 +1,7 @@
 package require vtk
 
 # this script tests vtkImageReslice with various axes permutations,
-# in order to cover a nasty set of "if" statements that check 
+# in order to cover a nasty set of "if" statements that check
 # the intersections of the raster lines with the input bounding box.
 
 # Image pipeline
@@ -71,31 +71,31 @@ vtkImageMapper mapper2
   mapper2 SetInputConnection [reslice2 GetOutputPort]
   mapper2 SetColorWindow 2000
   mapper2 SetColorLevel 1000
-  mapper2 SetZSlice 0 
+  mapper2 SetZSlice 0
 
 vtkImageMapper mapper3
   mapper3 SetInputConnection [reslice3 GetOutputPort]
   mapper3 SetColorWindow 2000
   mapper3 SetColorLevel 1000
-  mapper3 SetZSlice 0 
+  mapper3 SetZSlice 0
 
 vtkImageMapper mapper4
   mapper4 SetInputConnection [reslice4 GetOutputPort]
   mapper4 SetColorWindow 2000
   mapper4 SetColorLevel 1000
-  mapper4 SetZSlice 0 
+  mapper4 SetZSlice 0
 
 vtkImageMapper mapper5
   mapper5 SetInputConnection [reslice5 GetOutputPort]
   mapper5 SetColorWindow 2000
   mapper5 SetColorLevel 1000
-  mapper5 SetZSlice 0 
+  mapper5 SetZSlice 0
 
 vtkImageMapper mapper6
   mapper6 SetInputConnection [reslice6 GetOutputPort]
   mapper6 SetColorWindow 2000
   mapper6 SetColorLevel 1000
-  mapper6 SetZSlice 0 
+  mapper6 SetZSlice 0
 
 vtkActor2D actor1
   actor1 SetMapper mapper1

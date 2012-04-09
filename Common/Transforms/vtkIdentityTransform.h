@@ -37,30 +37,30 @@ public:
 
   // Description:
   // Apply the transformation to a series of points, and append the
-  // results to outPts.  
+  // results to outPts.
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
 
   // Description:
   // Apply the transformation to a series of normals, and append the
-  // results to outNms.  
+  // results to outNms.
   void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
 
   // Description:
   // Apply the transformation to a series of vectors, and append the
-  // results to outVrs.  
+  // results to outVrs.
   void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs);
 
   // Description:
   // Apply the transformation to a combination of points, normals
-  // and vectors.  
-  void TransformPointsNormalsVectors(vtkPoints *inPts, 
-                                     vtkPoints *outPts, 
-                                     vtkDataArray *inNms, 
+  // and vectors.
+  void TransformPointsNormalsVectors(vtkPoints *inPts,
+                                     vtkPoints *outPts,
+                                     vtkDataArray *inNms,
                                      vtkDataArray *outNms,
-                                     vtkDataArray *inVrs, 
+                                     vtkDataArray *inVrs,
                                      vtkDataArray *outVrs);
 
-  // Invert the transformation.  This doesn't do anything to the 
+  // Invert the transformation.  This doesn't do anything to the
   // identity transformation.
   void Inverse() {};
 

@@ -76,7 +76,7 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
   int hasTris = 0;
   vtkIdType numCellPts = 0, *pts = 0;
   polys->InitTraversal();
-  
+
   while(polys->GetNextCell(numCellPts, pts))
     {
     if (numCellPts == 3)
@@ -88,14 +88,14 @@ int vtkInterpolatingSubdivisionFilter::RequestData(
         }
       }
     }
-  
+
   if (!hasTris)
     {
     vtkWarningMacro( << this->GetClassName() << " only operates on triangles, but this data set has no triangles to operate on.");
     inputDS->Delete();
     return 1;
     }
-  
+
   for (level = 0; level < this->NumberOfSubdivisions; level++)
     {
     // Generate topology  for the input dataset

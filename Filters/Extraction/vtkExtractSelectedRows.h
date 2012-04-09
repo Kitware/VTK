@@ -47,7 +47,7 @@ public:
   // Description:
   // A convenience method for setting the third input (i.e. the annotation layers).
   void SetAnnotationLayersConnection(vtkAlgorithmOutput* in);
-  
+
   // Description:
   // Specify the first vtkGraph input and the second vtkSelection input.
   int FillInputPortInformation(int port, vtkInformation* info);
@@ -64,10 +64,10 @@ protected:
   ~vtkExtractSelectedRows();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-   
+
   bool AddOriginalRowIdsArray;
 private:
   vtkExtractSelectedRows(const vtkExtractSelectedRows&); // Not implemented

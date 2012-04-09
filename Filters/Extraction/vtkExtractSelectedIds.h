@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkExtractSelectedIds extracts a set of cells and points from within a
 // vtkDataSet. The set of ids to extract are listed within a vtkSelection.
-// This filter adds a scalar array called vtkOriginalCellIds that says what 
-// input cell produced each output cell. This is an example of a Pedigree ID 
+// This filter adds a scalar array called vtkOriginalCellIds that says what
+// input cell produced each output cell. This is an example of a Pedigree ID
 // which helps to trace back results. Depending on whether the selection has
 // GLOBALIDS, VALUES or INDICES, the selection will use the contents of the
 // array named in the GLOBALIDS DataSetAttribute, and arbitrary array, or the
@@ -49,14 +49,14 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
 
 
-  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input, 
+  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
                    vtkDataSet *output);
-  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input, 
+  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input,
                     vtkDataSet *output);
 
 private:

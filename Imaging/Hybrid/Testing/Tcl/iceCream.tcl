@@ -39,7 +39,7 @@ vtkImplicitBoolean theCream
 # iso-surface to create geometry
 vtkSampleFunction theConeSample
     theConeSample SetImplicitFunction theCone
-    theConeSample SetModelBounds -1 1.5 -1.25 1.25 -1.25 1.25 
+    theConeSample SetModelBounds -1 1.5 -1.25 1.25 -1.25 1.25
     theConeSample SetSampleDimensions 60 60 60
     theConeSample ComputeNormalsOff
 vtkMarchingContourFilter theConeSurface
@@ -55,7 +55,7 @@ vtkActor coneActor
 # iso-surface to create geometry
 vtkSampleFunction theCreamSample
     theCreamSample SetImplicitFunction theCream
-    theCreamSample SetModelBounds  0 2.5 -1.25 1.25 -1.25 1.25 
+    theCreamSample SetModelBounds  0 2.5 -1.25 1.25 -1.25 1.25
     theCreamSample SetSampleDimensions 60 60 60
     theCreamSample ComputeNormalsOff
 vtkMarchingContourFilter theCreamSurface

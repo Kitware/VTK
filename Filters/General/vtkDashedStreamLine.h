@@ -14,16 +14,16 @@
 =========================================================================*/
 // .NAME vtkDashedStreamLine - generate constant-time dashed streamline in arbitrary dataset
 // .SECTION Description
-// vtkDashedStreamLine is a filter that generates a "dashed" streamline for 
-// an arbitrary dataset. The streamline consists of a series of dashes, each 
+// vtkDashedStreamLine is a filter that generates a "dashed" streamline for
+// an arbitrary dataset. The streamline consists of a series of dashes, each
 // of which represents (approximately) a constant time increment. Thus, in the
-// resulting visual representation, relatively long dashes represent areas of 
+// resulting visual representation, relatively long dashes represent areas of
 // high velocity, and small dashes represent areas of low velocity.
 //
-// vtkDashedStreamLine introduces the instance variable DashFactor. 
+// vtkDashedStreamLine introduces the instance variable DashFactor.
 // DashFactor interacts with its superclass' instance variable StepLength to
-// create the dashes. DashFactor is the percentage of the StepLength line 
-// segment that is visible. Thus, if the DashFactor=0.75, the dashes will be 
+// create the dashes. DashFactor is the percentage of the StepLength line
+// segment that is visible. Thus, if the DashFactor=0.75, the dashes will be
 // "three-quarters on" and "one-quarter off".
 
 // .SECTION See Also
@@ -44,7 +44,7 @@ public:
 
   // Description:
   // For each dash, specify the fraction of the dash that is "on". A factor
-  // of 1.0 will result in a continuous line, a factor of 0.5 will result in 
+  // of 1.0 will result in a continuous line, a factor of 0.5 will result in
   // dashed that are half on and half off.
   vtkSetClampMacro(DashFactor,double,0.01,1.0);
   vtkGetMacro(DashFactor,double);
@@ -58,7 +58,7 @@ protected:
 
   // the fraction of on versus off in dash
   double DashFactor;
-  
+
 private:
   vtkDashedStreamLine(const vtkDashedStreamLine&);  // Not implemented.
   void operator=(const vtkDashedStreamLine&);  // Not implemented.

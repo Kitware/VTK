@@ -30,10 +30,10 @@
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
-// feature edge smoothing turned off; feature 
+// feature edge smoothing turned off; feature
 
-// angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
-// on. Error scalars and vectors are not generated (by default). The 
+// angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
+// on. Error scalars and vectors are not generated (by default). The
 // convergence criterion is 0.0 of the bounding box diagonal.
 vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
 {
@@ -58,12 +58,12 @@ vtkWindowedSincPolyDataFilter::vtkWindowedSincPolyDataFilter()
 #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 // Special structure for marking vertices
-typedef struct _vtkMeshVertex 
+typedef struct _vtkMeshVertex
   {
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
-    
+
 int vtkWindowedSincPolyDataFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -101,7 +101,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   double theta_pb, k_pb, sigma, p_x0[3], p_x1[3], p_x3[3];
   double *w, *c, *cprime;
   int zero, one, two, three;
-  
+
 //
 // Check input
 //
@@ -116,7 +116,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   CosFeatureAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle) );
   CosEdgeAngle    = cos( vtkMath::RadiansFromDegrees( this->EdgeAngle) );
 
-  vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells 
+  vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells
                << " cells with:\n"
                << "\tIterations= " << this->NumberOfIterations << "\n"
                << "\tPassBand= " << this->PassBand << "\n"
@@ -144,7 +144,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 // Peform topological analysis. What we're gonna do is build a connectivity
 // array of connected vertices. The outcome will be one of three
 // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
-// VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected 
+// VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected
 // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
 // using a subset of the attached vertices.
 //
@@ -157,9 +157,9 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     }
 
   inPts = input->GetPoints();
-  
+
   // check vertices first. Vertices are never smoothed_--------------
-  for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
+  for (inVerts=input->GetVerts(), inVerts->InitTraversal();
   inVerts->GetNextCell(npts,pts); )
     {
     for (j=0; j<npts; j++)
@@ -171,7 +171,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   this->UpdateProgress(0.10);
 
   // now check lines. Only manifold lines can be smoothed------------
-  for (inLines=input->GetLines(), inLines->InitTraversal(); 
+  for (inLines=input->GetLines(), inLines->InitTraversal();
   inLines->GetNextCell(npts,pts); )
     {
     for (j=0; j<npts; j++)
@@ -246,10 +246,10 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     Mesh->BuildLinks(); //to do neighborhood searching
     polys = Mesh->GetPolys();
 
-    for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
+    for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts);
          cellId++)
       {
-      for (i=0; i < npts; i++) 
+      for (i=0; i < npts; i++)
         {
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
@@ -296,7 +296,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
             }
           }
 
-        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
+        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId )
           {
           if (this->FeatureEdgeSmoothing)
             {
@@ -304,7 +304,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
             Mesh->GetCellPoints(nei,numNeiPts,neiPts);
             vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
 
-            if ( vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
+            if ( vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle )
               {
               edge = VTK_FEATURE_EDGE_VERTEX;
               }
@@ -378,7 +378,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
       { //see how many edges; if two, what the angle is
 
-      if ( !this->BoundarySmoothing && 
+      if ( !this->BoundarySmoothing &&
       Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
         {
         Verts[i].type = VTK_FIXED_VERTEX;
@@ -478,7 +478,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   // University)
 
   // The formulas here follow the notation of Taubin's TR, i.e.
-  // newPts[zero], newPts[one], etc. 
+  // newPts[zero], newPts[one], etc.
 
   // calculate weights and filter coefficients
   k_pb = this->PassBand;   // reasonable default for k_pb in [0, 2] is 0.1
@@ -491,7 +491,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   cprime = new double[this->NumberOfIterations+1];
 
   double zerovector[3];
-  zerovector[0] = zerovector[1] = zerovector[2] = 0.0;    
+  zerovector[0] = zerovector[1] = zerovector[2] = 0.0;
 
   //
   // Calculate the weights and the Chebychev coefficients c.
@@ -510,7 +510,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   double f_kpb = 0.0, fprime_kpb;
   int done = 0;
   sigma = 0.0;
-  
+
   for (j=0; !done && (j<500); j++)
     {
     // Chebyshev coefficients
@@ -520,7 +520,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       c[i] = 2.0*w[i]*sin(((double)i)*(theta_pb+sigma))/
         (((double)i)*vtkMath::Pi());
       }
-    
+
     // calculate the Chebyshev coefficients for the derivative of the filter
     cprime[this->NumberOfIterations] = 0.0;
     cprime[this->NumberOfIterations-1] = 0.0;
@@ -556,7 +556,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     // if f_kpb is not close enough to 1.0, then adjust sigma
     if (this->NumberOfIterations > 1)
       {
-      if (fabs(f_kpb - 1.0) >= 1e-3)   
+      if (fabs(f_kpb - 1.0) >= 1e-3)
         {
         sigma -= (f_kpb - 1.0)/fprime_kpb;   // Newton-Rhapson (want f=1)
         }
@@ -577,9 +577,9 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     {
     vtkErrorMacro(<< "An optimal offset for the smoothing filter could not be found.  Unpredictable smoothing/shrinkage may result.");
     }
-  
+
   // first iteration
-  for (i=0; i<numPts; i++) 
+  for (i=0; i<numPts; i++)
     {
     if ( Verts[i].edges != NULL &&
          (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
@@ -587,7 +587,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       // point is allowed to move
       newPts[zero]->GetPoint(i, x); //use current points
       deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-      
+
       // calculate the negative of the laplacian
       for (j=0; j<npts; j++) //for all connected points
         {
@@ -603,7 +603,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
         deltaX[k] = x[k] - 0.5*deltaX[k];
         }
       newPts[one]->SetPoint(i, deltaX);
-      
+
       // calculate newPts[three] = c0 newPts[zero] + c1 newPts[one]
       for (k=0; k < 3; k++)
         {
@@ -626,7 +626,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       newPts[three]->SetPoint(i, newPts[zero]->GetPoint(i));
       }
     }//for all points
-  
+
   // for the rest of the iterations
   for ( iterationNumber=2, abortExecute=0;
         iterationNumber <= this->NumberOfIterations && !abortExecute;
@@ -641,8 +641,8 @@ int vtkWindowedSincPolyDataFilter::RequestData(
         break;
         }
       }
-    
-    for (i=0; i<numPts; i++) 
+
+    for (i=0; i<numPts; i++)
       {
       if ( Verts[i].edges != NULL &&
            (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
@@ -650,9 +650,9 @@ int vtkWindowedSincPolyDataFilter::RequestData(
         // point is allowed to move
         newPts[zero]->GetPoint(i, p_x0); //use current points
         newPts[one]->GetPoint(i, p_x1);
-        
+
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-        
+
         // calculate the negative laplacian of x1
         for (j=0; j<npts; j++)
           {
@@ -662,7 +662,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
             deltaX[k] += (p_x1[k] - y[k]) / npts;
             }
           }//for all connected points
-        
+
         // Taubin:  x2 = (x1 - x0) + (x1 - x2)
         for (k=0; k<3; k++)
           {
@@ -672,7 +672,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 
         // smooth the vertex (x3 = x3 + cj x2)
         newPts[three]->GetPoint(i, p_x3);
-        for (k=0;k<3;k++) 
+        for (k=0;k<3;k++)
           {
           xNew[k] = p_x3[k] + c[iterationNumber] * deltaX[k];
           }
@@ -695,29 +695,29 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     zero = (1+zero)%3;
     one = (1+one)%3;
     two = (1+two)%3;
-    
+
     }//for all iterations or until converge
-  
+
   // move the iteration count back down so that it matches the
   // actual number of iterations executed
   --iterationNumber;
-  
+
   // set zero to three so the correct set of positions is outputted
   zero = three;
-  
+
   delete [] w;
   delete [] c;
   delete [] cprime;
-  
+
   vtkDebugMacro(<<"Performed " << iterationNumber << " smoothing passes");
-  
+
   // if we scaled the data down to the unit cube, then scale data back
   // up to the original space
   if (this->NormalizeCoordinates)
     {
     // Re-position the coordinated
     double repositionedPoint[3];
-    for (i=0; i<numPts; i++) 
+    for (i=0; i<numPts; i++)
       {
       newPts[zero]->GetPoint(i, repositionedPoint);
       for (j=0; j<3; ++j)
@@ -749,7 +749,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
-  
+
   if ( this->GenerateErrorVectors )
     {
     vtkFloatArray *newVectors = vtkFloatArray::New();
@@ -782,7 +782,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 
   // finally delete the constructed (local) mesh
   inMesh->Delete();
-  
+
   //free up connectivity storage
   for (i=0; i<numPts; i++)
     {

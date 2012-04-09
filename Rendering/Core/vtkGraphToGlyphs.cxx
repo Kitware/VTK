@@ -163,7 +163,7 @@ int vtkGraphToGlyphs::RequestData(
   this->Glyph->Update();
 
   output->ShallowCopy(this->Glyph->GetOutput());
-  
+
   return 1;
 }
 

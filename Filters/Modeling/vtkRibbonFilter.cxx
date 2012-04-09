@@ -28,7 +28,7 @@
 
 vtkStandardNewMacro(vtkRibbonFilter);
 
-// Construct ribbon so that width is 0.1, the width does 
+// Construct ribbon so that width is 0.1, the width does
 // not vary with scalar values, and the width factor is 2.0.
 vtkRibbonFilter::vtkRibbonFilter()
 {
@@ -39,9 +39,9 @@ vtkRibbonFilter::vtkRibbonFilter()
 
   this->DefaultNormal[0] = this->DefaultNormal[1] = 0.0;
   this->DefaultNormal[2] = 1.0;
-  
+
   this->UseDefaultNormal = 0;
-  
+
   this->GenerateTCoords = 0;
   this->TextureLength = 1.0;
 
@@ -102,9 +102,9 @@ int vtkRibbonFilter::RequestData(
   //
   vtkDebugMacro(<<"Creating ribbon");
 
-  if ( !(inPts=input->GetPoints()) || 
+  if ( !(inPts=input->GetPoints()) ||
       (numPts = inPts->GetNumberOfPoints()) < 1 ||
-      !(inLines = input->GetLines()) || 
+      !(inLines = input->GetLines()) ||
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
     return 1;
@@ -156,7 +156,7 @@ int vtkRibbonFilter::RequestData(
       // This allows each different polylines to share vertices, but have
       // their normals (and hence their ribbons) calculated independently
       generateNormals = 1;
-      }      
+      }
     }
 
   // If varying width, get appropriate info.
@@ -182,7 +182,7 @@ int vtkRibbonFilter::RequestData(
   //
   this->Theta = vtkMath::RadiansFromDegrees( this->Angle );
   vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
-  for (inCellId=0, inLines->InitTraversal(); 
+  for (inCellId=0, inLines->InitTraversal();
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
     this->UpdateProgress((double)inCellId/numLines);
@@ -196,7 +196,7 @@ int vtkRibbonFilter::RequestData(
 
     // If necessary calculate normals, each polyline calculates its
     // normals independently, avoiding conflicts at shared vertices.
-    if (generateNormals) 
+    if (generateNormals)
       {
       singlePolyline->Reset(); //avoid instantiation
       singlePolyline->InsertNextCell(npts,pts);
@@ -217,7 +217,7 @@ int vtkRibbonFilter::RequestData(
       vtkWarningMacro(<< "Could not generate points!");
       continue; //skip ribboning this polyline
       }
-      
+
     // Generate the strip for this polyline
     //
     this->GenerateStrip(offset,npts,pts,inCellId,cd,outCD,newStrips);
@@ -264,9 +264,9 @@ int vtkRibbonFilter::RequestData(
   return 1;
 }
 
-int vtkRibbonFilter::GeneratePoints(vtkIdType offset, 
+int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
                                   vtkIdType npts, vtkIdType *pts,
-                                  vtkPoints *inPts, vtkPoints *newPts, 
+                                  vtkPoints *inPts, vtkPoints *newPts,
                                   vtkPointData *pd, vtkPointData *outPD,
                                   vtkFloatArray *newNormals,
                                   vtkDataArray *inScalars, double range[2],
@@ -286,7 +286,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
   double sFactor=1.0;
   vtkIdType ptId=offset;
 
-  // Use "averaged" segment to create beveled effect. 
+  // Use "averaged" segment to create beveled effect.
   // Watch out for first and last points.
   //
   for (j=0; j < npts; j++)
@@ -295,7 +295,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
       {
       inPts->GetPoint(pts[0],p);
       inPts->GetPoint(pts[1],pNext);
-      for (i=0; i<3; i++) 
+      for (i=0; i<3; i++)
         {
         sNext[i] = pNext[i] - p[i];
         sPrev[i] = sNext[i];
@@ -365,7 +365,7 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
     vtkMath::Cross(s,n,w);
     if ( vtkMath::Normalize(w) == 0.0)
       {
-      vtkWarningMacro(<<"Bad normal s = " <<s[0]<<" "<<s[1]<<" "<< s[2] 
+      vtkWarningMacro(<<"Bad normal s = " <<s[0]<<" "<<s[1]<<" "<< s[2]
                       << " n = " << n[0] << " " << n[1] << " " << n[2]);
       return 0;
       }
@@ -376,12 +376,12 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
     // Compute a scale factor based on scalars or vectors
     if ( inScalars && this->VaryWidth ) // varying by scalar values
       {
-      sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
-                (inScalars->GetComponent(pts[j],0) - range[0]) 
+      sFactor = 1.0 + ((this->WidthFactor - 1.0) *
+                (inScalars->GetComponent(pts[j],0) - range[0])
                        / (range[1]-range[0]));
       }
 
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       v[i] = (w[i]*cos(this->Theta) + nP[i]*sin(this->Theta));
       sp[i] = p[i] + this->Width * sFactor * v[i];
@@ -396,12 +396,12 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
     outPD->CopyData(pd,pts[j],ptId);
     ptId++;
     }//for all points in polyline
-  
+
   return 1;
 }
 
-void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts, 
-                                    vtkIdType* vtkNotUsed(pts), 
+void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts,
+                                    vtkIdType* vtkNotUsed(pts),
                                     vtkIdType inCellId,
                                     vtkCellData *cd, vtkCellData *outCD,
                                     vtkCellArray *newStrips)
@@ -410,7 +410,7 @@ void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts,
 
   outCellId = newStrips->InsertNextCell(npts*2);
   outCD->CopyData(cd,inCellId,outCellId);
-  for (i=0; i < npts; i++) 
+  for (i=0; i < npts; i++)
     {
     idx = 2*i;
     newStrips->InsertCellPoint(offset+idx);
@@ -419,8 +419,8 @@ void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts,
 }
 
 void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
-                                            vtkIdType npts, vtkIdType *pts, 
-                                            vtkPoints *inPts, 
+                                            vtkIdType npts, vtkIdType *pts,
+                                            vtkPoints *inPts,
                                             vtkDataArray *inScalars,
                                             vtkFloatArray *newTCoords)
 {
@@ -504,15 +504,15 @@ const char *vtkRibbonFilter::GetGenerateTCoordsAsString(void)
     {
     return "GenerateTCoordsOff";
     }
-  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS ) 
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
     {
     return "GenerateTCoordsFromScalar";
     }
-  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ) 
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH )
     {
     return "GenerateTCoordsFromLength";
     }
-  else 
+  else
     {
     return "GenerateTCoordsFromNormalizedLength";
     }
@@ -527,12 +527,12 @@ void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VaryWidth: " << (this->VaryWidth ? "On\n" : "Off\n");
   os << indent << "Width Factor: " << this->WidthFactor << "\n";
   os << indent << "Use Default Normal: " << this->UseDefaultNormal << "\n";
-  os << indent << "Default Normal: " << "( " 
-     << this->DefaultNormal[0] << ", " 
-     << this->DefaultNormal[1] << ", " 
+  os << indent << "Default Normal: " << "( "
+     << this->DefaultNormal[0] << ", "
+     << this->DefaultNormal[1] << ", "
      << this->DefaultNormal[2] << " )\n";
 
-  os << indent << "Generate TCoords: " 
+  os << indent << "Generate TCoords: "
      << this->GetGenerateTCoordsAsString() << endl;
   os << indent << "Texture Length: " << this->TextureLength << endl;
 }

@@ -48,14 +48,14 @@ POSSIBILITY OF SUCH DAMAGES.
 // .NAME vtkMINCImageWriter - A writer for MINC files.
 // .SECTION Description
 // MINC is a NetCDF-based medical image file format that was developed
-// at the Montreal Neurological Institute in 1992. 
+// at the Montreal Neurological Institute in 1992.
 // The data is written slice-by-slice, and this writer is therefore
 // suitable for streaming MINC data that is larger than the memory
 // size through VTK.  This writer can also produce files with up to
 // 4 dimensions, where the fourth dimension is provided by using
 // AddInput() to specify multiple input data sets.  If you want to
 // set header information for the file, you must supply a
-// vtkMINCImageAttributes 
+// vtkMINCImageAttributes
 // .SECTION See Also
 // vtkMINCImageReader vtkMINCImageAttributes
 // .SECTION Thanks
@@ -85,7 +85,7 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the entension for this file format. 
+  // Get the entension for this file format.
   virtual const char* GetFileExtensions() {
     return ".mnc"; }
 
@@ -108,7 +108,7 @@ public:
   // Description:
   // Set a matrix that describes the orientation of the data.  The
   // three columns of this matrix should give the unit-vector
-  // directions for the VTK x, y and z dimensions respectively.  
+  // directions for the VTK x, y and z dimensions respectively.
   // The writer will use this information to determine how to map
   // the VTK dimensions to the canonical MINC dimensions, and if
   // necessary, the writer will re-order one or more dimensions
@@ -132,7 +132,7 @@ public:
   // other useful metadata.
   virtual void SetImageAttributes(vtkMINCImageAttributes *attributes);
   virtual vtkMINCImageAttributes *GetImageAttributes() {
-    return this->ImageAttributes; }; 
+    return this->ImageAttributes; };
 
   // Description:
   // Set whether to validate that all variable attributes that
@@ -149,12 +149,12 @@ public:
 
 protected:
   vtkMINCImageWriter();
-  ~vtkMINCImageWriter();  
+  ~vtkMINCImageWriter();
 
   int MINCImageType;
   int MINCImageTypeSigned;
   int MINCImageMinMaxDims;
-  
+
   vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
@@ -186,7 +186,7 @@ protected:
   virtual int IndexFromDimensionName(const char *dimName);
   virtual void ComputePermutationFromOrientation(int permutation[3],
                                                  int flip[3]);
-  virtual int CreateMINCDimensions(vtkImageData *input, int timeStep, 
+  virtual int CreateMINCDimensions(vtkImageData *input, int timeStep,
                                    int *dimids);
   virtual int CreateMINCVariables(vtkImageData *input, int timeStep,
                                   int *dimids);

@@ -23,7 +23,7 @@
 #
 # NOTE: case folding does not preserve normalization formats!
 #
-# For information on case folding, including how to have case folding 
+# For information on case folding, including how to have case folding
 # preserve normalization formats, see Section 3.13 Default Case Algorithms in
 # The Unicode Standard, Version 5.0.
 #

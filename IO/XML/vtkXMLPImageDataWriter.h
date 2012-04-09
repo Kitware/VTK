@@ -43,19 +43,19 @@ public:
   // Get/Set the writer's input.
   vtkImageData* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLPImageDataWriter();
   ~vtkXMLPImageDataWriter();
-  
+
   const char* GetDataSetName();
   void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
-  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter(); 
-  
+  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 

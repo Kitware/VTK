@@ -48,14 +48,14 @@ public:
   static vtkEnSight6BinaryReader *New();
   vtkTypeMacro(vtkEnSight6BinaryReader, vtkEnSightReader);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-  
+
 protected:
   vtkEnSight6BinaryReader();
   ~vtkEnSight6BinaryReader();
 
   // Returns 1 if successful.  Sets file size as a side action.
   int OpenFile(const char* filename);
-  
+
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
   virtual int ReadGeometryFile(const char* fileName, int timeStep,
@@ -75,7 +75,7 @@ protected:
                                  int timeStep, vtkMultiBlockDataSet *output,
                                  int measured = 0, int numberOfComponents = 1,
                                  int component = 0);
-  
+
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
@@ -114,19 +114,19 @@ protected:
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached.
-  virtual int CreateUnstructuredGridOutput(int partId, 
+  virtual int CreateUnstructuredGridOutput(int partId,
                                            char line[256],
                                            const char* name,
                                            vtkMultiBlockDataSet *output);
-  
+
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGridOutput.  Return 0 if EOF reached.
-  virtual int CreateStructuredGridOutput(int partId, 
+  virtual int CreateStructuredGridOutput(int partId,
                                          char line[256],
                                          const char* name,
                                          vtkMultiBlockDataSet *output);
-  
+
   // Description:
   // Internal function to read in a line up to 80 characters.
   // Returns zero if there was an error.
@@ -153,17 +153,17 @@ protected:
   int SkipTimeStep();
   int SkipStructuredGrid(char line[256]);
   int SkipUnstructuredGrid(char line[256]);
-  
+
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;
   vtkIdTypeArray* UnstructuredNodeIds; // matching of node ids to point ids
-  
+
   int ElementIdsListed;
 
   // The size of the file is used to choose byte order.
   int FileSize;
-  
+
   ifstream *IFile;
 private:
   vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&);  // Not implemented.

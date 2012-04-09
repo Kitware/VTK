@@ -44,10 +44,10 @@ protected:
   ~vtkTableToTreeFilter();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
   int FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation* info);
   int FillInputPortInformation(

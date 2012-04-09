@@ -120,8 +120,8 @@ void vtkScalarBarRepresentation::WidgetInteraction(double eventPos[2])
   double par2[2];
   par1[0] = fpos1[0];
   par1[1] = fpos1[1];
-  par2[0] = fpos1[0] + fpos2[0];  
-  par2[1] = fpos1[1] + fpos2[1];  
+  par2[0] = fpos1[0] + fpos2[0];
+  par2[1] = fpos1[1] + fpos2[1];
   double center[2];
   center[0] = fpos1[0] + 0.5*fpos2[0];
   center[1] = fpos1[1] + 0.5*fpos2[1];

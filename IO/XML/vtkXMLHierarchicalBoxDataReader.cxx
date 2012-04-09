@@ -61,11 +61,11 @@ int vtkXMLHierarchicalBoxDataReader::FillOutputPortInformation(
 
 //----------------------------------------------------------------------------
 // This only reads 0.* version files.
-void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element, 
-  vtkCompositeDataSet* composite, const char* filePath, 
+void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
+  vtkCompositeDataSet* composite, const char* filePath,
   unsigned int &dataSetIndex)
 {
-  vtkHierarchicalBoxDataSet* hbox = 
+  vtkHierarchicalBoxDataSet* hbox =
     vtkHierarchicalBoxDataSet::SafeDownCast(composite);
 
   unsigned int numElems = element->GetNumberOfNestedElements();
@@ -123,7 +123,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
         }
       amrBox.SetDimensionality( childDS->GetDataDimension() );
       amrBox.SetGridDescription( childDS->GetGridDescription( ) );
-      hbox->SetDataSet(level, index, amrBox, childDS); 
+      hbox->SetDataSet(level, index, amrBox, childDS);
       }
     dataSetIndex++;
     }
@@ -132,11 +132,11 @@ void vtkXMLHierarchicalBoxDataReader::ReadVersion0(vtkXMLDataElement* element,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element, 
-  vtkCompositeDataSet* composite, const char* filePath, 
+void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
+  vtkCompositeDataSet* composite, const char* filePath,
   unsigned int &dataSetIndex)
 {
-  vtkHierarchicalBoxDataSet* hbox = 
+  vtkHierarchicalBoxDataSet* hbox =
     vtkHierarchicalBoxDataSet::SafeDownCast(composite);
   if (!hbox)
     {
@@ -157,7 +157,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
   for (unsigned int cc=0; cc < maxElems; ++cc)
     {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
-    if (!childXML || !childXML->GetName() || 
+    if (!childXML || !childXML->GetName() ||
       strcmp(childXML->GetName(), "Block") != 0)
       {
       continue;
@@ -184,7 +184,7 @@ void vtkXMLHierarchicalBoxDataReader::ReadComposite(vtkXMLDataElement* element,
     for (unsigned int kk=0; kk < numDatasets; ++kk)
       {
       vtkXMLDataElement* datasetXML = childXML->GetNestedElement(kk);
-      if (!datasetXML || !datasetXML->GetName() || 
+      if (!datasetXML || !datasetXML->GetName() ||
         strcmp(datasetXML->GetName(), "DataSet") != 0)
         {
         continue;

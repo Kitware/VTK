@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
   Program:   Visualization Toolkit
   Module:    vtkPixelBufferObject.cxx
 
@@ -88,15 +88,15 @@ bool vtkPixelBufferObject::IsSupported(vtkRenderWindow* win)
   if (renWin)
     {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
-    
+
     bool vbo=mgr->ExtensionSupported("GL_VERSION_1_5") ||
       mgr->ExtensionSupported("GL_ARB_vertex_buffer_object");
-    
+
     // pbo extension does not define new functions but uses functions defined
     // by vbo extension.
     bool pbo=mgr->ExtensionSupported("GL_VERSION_2_1") ||
       mgr->ExtensionSupported("GL_ARB_pixel_buffer_object");
-    
+
     return vbo && pbo;
     }
   return false;
@@ -108,15 +108,15 @@ bool vtkPixelBufferObject::LoadRequiredExtensions(
 {
   bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5")==1;
   bool gl21=mgr->ExtensionSupported("GL_VERSION_2_1")==1;
-  
+
   bool vbo=gl15 || mgr->ExtensionSupported("GL_ARB_vertex_buffer_object");
-  
+
   // pbo extension does not define new functions but uses functions defined
   // by vbo extension.
   bool pbo=gl21 || mgr->ExtensionSupported("GL_ARB_pixel_buffer_object");
-  
+
   bool result=vbo && pbo;
-  
+
   if(result)
     {
     if(gl15)
@@ -139,9 +139,9 @@ void vtkPixelBufferObject::SetContext(vtkRenderWindow* renWin)
     {
     return;
     }
-  
-  this->DestroyBuffer(); 
-  
+
+  this->DestroyBuffer();
+
   vtkOpenGLRenderWindow* openGLRenWin =
     vtkOpenGLRenderWindow::SafeDownCast(renWin);
   this->Context = openGLRenWin;
@@ -153,7 +153,7 @@ void vtkPixelBufferObject::SetContext(vtkRenderWindow* renWin)
       vtkErrorMacro("Required OpenGL extensions not supported by the context.");
       }
     }
-  
+
   this->Modified();
 }
 
@@ -171,21 +171,21 @@ void vtkPixelBufferObject::Bind(BufferType type)
     vtkErrorMacro("No context specified. Cannot Bind.");
     return;
     }
-  
+
   this->CreateBuffer();
-  
+
   GLenum target = static_cast<GLenum>(this->BufferTarget);
   switch (type)
     {
     case vtkPixelBufferObject::PACKED_BUFFER:
       target =  vtkgl::PIXEL_PACK_BUFFER_ARB;
       break;
-      
+
     case vtkPixelBufferObject::UNPACKED_BUFFER:
       target = vtkgl::PIXEL_UNPACK_BUFFER_ARB;
       break;
     }
-  
+
   if (this->BufferTarget && this->BufferTarget != target)
     {
     this->UnBind();
@@ -270,9 +270,9 @@ public:
     {
       //  cout<<"incs[3]="<<continuousIncrements[0]<<" "<<continuousIncrements[1]
       //      <<" "<<continuousIncrements[2]<<endl;
-      
+
       T* fIoMem = static_cast<T*>(pboPtr);
-      
+
       int numComp;
       int *permutation=0;
       if(components==0)
@@ -291,8 +291,8 @@ public:
         numComp=components;
         permutation=componentList;
         }
-      
-      vtkIdType tupleSize = 
+
+      vtkIdType tupleSize =
         static_cast<vtkIdType>(numComponents + continuousIncrements[0]);
       for (unsigned int zz=0; zz < dims[2]; zz++)
         {
@@ -305,7 +305,7 @@ public:
               *fIoMem = inData[permutation[compNo]];
 //              cout<<"upload[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<
 //              compNo<<"] from inData to pbo="<<(double)(*fIoMem)<<endl;
-              
+
               fIoMem++;
               }
             inData += tupleSize+continuousIncrements[0];
@@ -316,7 +316,7 @@ public:
         // Reached end of 2D plane.
         inData += continuousIncrements[2] * tupleSize;
         }
-      
+
       if(components==0)
         {
         delete[] permutation;
@@ -337,7 +337,7 @@ public:
                      int *componentList)
     {
       float* fIoMem = static_cast<float*>(pboPtr);
-      
+
       int numComp;
       int *permutation=0;
       if(components==0)
@@ -356,8 +356,8 @@ public:
         numComp=components;
         permutation=componentList;
         }
-      
-      vtkIdType tupleSize = 
+
+      vtkIdType tupleSize =
         static_cast<vtkIdType>(numComponents + continuousIncrements[0]);
       for (unsigned int zz=0; zz < dims[2]; zz++)
         {
@@ -368,12 +368,12 @@ public:
             for (int compNo=0; compNo < numComponents; compNo++)
               {
               *fIoMem = static_cast<float>(inData[permutation[compNo]]);
-              
+
               //        cout<<"upload specialized double[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<compNo<<"] from inData="<<(*inData)<<" to pbo="<<(*fIoMem)<<endl;
-              
+
               fIoMem++;
               }
-            
+
             inData += tupleSize+continuousIncrements[0];
             }
           // Reached end of row, go to start of next row.
@@ -402,20 +402,20 @@ bool vtkPixelBufferObject::Upload3D(
   vtkTimerLog *timer=vtkTimerLog::New();
   timer->StartTimer();
 #endif
-  
+
   if (!this->Context)
     {
     vtkErrorMacro("No context specified. Cannot upload data.");
     return false;
     }
-  
+
   this->CreateBuffer();
-  
+
 //  this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   this->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
-  
+
   unsigned int size;
-  
+
   if(components==0)
     {
     size = dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(numComponents);
@@ -424,8 +424,8 @@ bool vtkPixelBufferObject::Upload3D(
     {
     size = dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(components);
     }
-  
-  
+
+
   if(data!=0)
     {
     this->Usage=StreamDraw;
@@ -434,8 +434,8 @@ bool vtkPixelBufferObject::Upload3D(
     {
     this->Usage=StreamRead;
     }
-  
-  vtkgl::BufferData(this->BufferTarget, 
+
+  vtkgl::BufferData(this->BufferTarget,
                     size*static_cast<unsigned int>(::vtkGetSize(type)),
                     NULL,OpenGLBufferObjectUsage[this->Usage]);
   vtkGraphicErrorMacro(this->Context,"");
@@ -445,19 +445,19 @@ bool vtkPixelBufferObject::Upload3D(
     this->Type = VTK_FLOAT;
     }
   this->Size = size;
-  
+
 #ifdef  VTK_PBO_DEBUG
   GLint value;
   glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING,&value);
-  
+
   cout << pthread_self() << "this->Handle=" << this->Handle << " pixel unpack buffer=" << value << endl;
   glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING,&value);
-  
+
   cout << pthread_self() << "this->Handle=" << this->Handle << " pixel pack buffer=" << value << endl;
-  
+
   vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_MAPPED,&value);
-  
-  
+
+
   cout << pthread_self() << "this->Handle=" << this->Handle << " packed buffer is";
   if(value==GL_TRUE)
     {
@@ -467,9 +467,9 @@ bool vtkPixelBufferObject::Upload3D(
     {
     cout << " not mapped." << endl;
     }
-  
+
   vtkgl::GetBufferParameteriv(this->BufferTarget,vtkgl::BUFFER_MAPPED,&value);
-  
+
   cout << pthread_self() << "this->Handle=" << this->Handle << " buffer target is";
   if(value==GL_TRUE)
     {
@@ -493,7 +493,7 @@ bool vtkPixelBufferObject::Upload3D(
     switch (type)
       {
       vtkTemplateMacro(
-        ::vtkUpload3D< VTK_TT >::Upload(ioMem, static_cast<VTK_TT*>(data), 
+        ::vtkUpload3D< VTK_TT >::Upload(ioMem, static_cast<VTK_TT*>(data),
                                         dims, numComponents,
                                         continuousIncrements,
                                         components,componentList);
@@ -513,7 +513,7 @@ bool vtkPixelBufferObject::Upload3D(
 #endif
     vtkGraphicErrorMacro(this->Context,"");
     }
-  
+
   this->UnBind();
 #ifdef VTK_PBO_TIMING
   timer->StopTimer();
@@ -635,28 +635,28 @@ bool vtkPixelBufferObject::Download3D(
     vtkErrorMacro("No GPU data available.");
     return false;
     }
-  
+
   if (this->Size < dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(numcomps))
     {
     vtkErrorMacro("Size too small.");
     return false;
     }
-  
+
   this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-  
-  
+
+
 #ifdef  VTK_PBO_DEBUG
   GLint value;
   glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING,&value);
-  
+
   cout << pthread_self() << "d this->Handle=" << this->Handle << " pixel unpack buffer=" << value << endl;
   glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING,&value);
-  
+
   cout << pthread_self() << "d this->Handle=" << this->Handle << " pixel pack buffer=" << value << endl;
-  
+
   vtkgl::GetBufferParameteriv(vtkgl::PIXEL_PACK_BUFFER,vtkgl::BUFFER_MAPPED,&value);
-  
-  
+
+
   cout << pthread_self() << "d this->Handle=" << this->Handle << " packed buffer is";
   if(value==GL_TRUE)
     {
@@ -666,9 +666,9 @@ bool vtkPixelBufferObject::Download3D(
     {
     cout << " not mapped." << endl;
     }
-  
+
   vtkgl::GetBufferParameteriv(this->BufferTarget,vtkgl::BUFFER_MAPPED,&value);
-  
+
   cout << pthread_self() << "d this->Handle=" << this->Handle << " buffer target is";
   if(value==GL_TRUE)
     {
@@ -678,9 +678,9 @@ bool vtkPixelBufferObject::Download3D(
     {
     cout << " not mapped." << endl;
     }
-  
-  
-  
+
+
+
   cout << pthread_self() << "d this->Handle=" << this->Handle  << " mapping" << endl;
 #endif
   void* ioMem = vtkgl::MapBuffer(this->BufferTarget, vtkgl::READ_ONLY);
@@ -692,7 +692,7 @@ bool vtkPixelBufferObject::Download3D(
   cout << pthread_self() << "d type="<< type << endl;
   cout << pthread_self() << "d this->Type="<< this->Type << endl;
 #endif
-  
+
 #ifdef  VTK_PBO_DEBUG
   cout << pthread_self() << "d2 type="<< type << endl;
   cout << pthread_self() << "d2 this->Type="<< this->Type << endl;
@@ -718,14 +718,14 @@ bool vtkPixelBufferObject::Download3D(
 #endif
   vtkGraphicErrorMacro(this->Context,"after UnmapBuffer");
   this->UnBind();
-  
+
 #ifdef VTK_PBO_TIMING
   timer->StopTimer();
   double time=timer->GetElapsedTime();
   timer->Delete();
   cout<<"dowmload data from PBO"<<time<<" seconds."<<endl;
 #endif
-  
+
   return true;
 }
 

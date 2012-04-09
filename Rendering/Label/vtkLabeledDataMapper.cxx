@@ -94,7 +94,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->Implementation->TextProperties[0] = prop;
 
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "type");
-  
+
   this->Transform = 0;
   this->CoordinateSystem = vtkLabeledDataMapper::WORLD;
 }
@@ -116,7 +116,7 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
       }
     delete [] this->TextMappers;
     }
-  
+
   this->SetFieldDataName(NULL);
   this->SetTransform(NULL);
   delete this->Implementation;
@@ -198,7 +198,7 @@ void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //----------------------------------------------------------------------------
-void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport, 
+void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
                                          vtkActor2D *actor)
 {
   for (int i=0; i<this->NumberOfLabels; i++)
@@ -230,7 +230,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 }
 
 //----------------------------------------------------------------------------
-void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
+void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                                                 vtkActor2D *actor)
 {
   vtkTextProperty *tprop = this->Implementation->TextProperties[0];
@@ -266,7 +266,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
   // Check to see whether we have to rebuild everything
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        inputDO->GetMTime() > this->BuildTime ||
        propMTime > this->BuildTime)
     {
@@ -314,7 +314,7 @@ void vtkLabeledDataMapper::BuildLabels()
     this->AllocateLabels(cd->GetNumberOfPoints());
     this->NumberOfLabels = 0;
     vtkCompositeDataIterator* iter = cd->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
       iter->GoToNextItem())
       {
       ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
@@ -355,7 +355,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     case VTK_LABEL_IDS:
     {
       pointIdLabels = 1;
-    }; 
+    };
     break;
     case VTK_LABEL_SCALARS:
       if ( pd->GetScalars() )
@@ -363,25 +363,25 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         numericData = pd->GetScalars();
         }
       break;
-    case VTK_LABEL_VECTORS:   
+    case VTK_LABEL_VECTORS:
       if ( pd->GetVectors() )
         {
         numericData = pd->GetVectors();
         }
       break;
-    case VTK_LABEL_NORMALS:    
+    case VTK_LABEL_NORMALS:
       if ( pd->GetNormals() )
         {
         numericData = pd->GetNormals();
         }
       break;
-    case VTK_LABEL_TCOORDS:    
+    case VTK_LABEL_TCOORDS:
       if ( pd->GetTCoords() )
         {
         numericData = pd->GetTCoords();
         }
       break;
-    case VTK_LABEL_TENSORS:    
+    case VTK_LABEL_TENSORS:
       if ( pd->GetTensors() )
         {
         numericData = pd->GetTensors();
@@ -418,12 +418,12 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     activeComp = 0;
     if ( this->LabeledComponent >= 0 )
       {
-      activeComp = (this->LabeledComponent < numComp ? 
+      activeComp = (this->LabeledComponent < numComp ?
                     this->LabeledComponent : numComp - 1);
       numComp = 1;
       }
     }
-  else 
+  else
     {
     if ( stringData )
       {
@@ -441,7 +441,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
                         << this->FieldDataName << ") "
                         << "in input.");
         }
-      else 
+      else
         {
         vtkWarningMacro(<< "Could not find label array ("
                         << "index " << this->FieldDataArray << ") "
@@ -455,7 +455,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   vtkStdString FormatString;
   if (this->LabelFormat)
     {
-    // The user has specified a format string.  
+    // The user has specified a format string.
     vtkDebugMacro(<<"Using user-specified format string " << this->LabelFormat);
     FormatString = this->LabelFormat;
     }
@@ -464,7 +464,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     // Try to come up with some sane default.
     if (pointIdLabels)
       {
-      FormatString = "%d"; 
+      FormatString = "%d";
       }
     else if (numericData)
       {
@@ -529,15 +529,15 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       }
     else
       {
-      FormatString = "BUG - COULDN'T DETECT DATA TYPE"; 
+      FormatString = "BUG - COULDN'T DETECT DATA TYPE";
       }
 
     vtkDebugMacro(<<"Using default format string " << FormatString.c_str());
 
     } // Done building default format string
- 
-  int numCurLabels = input->GetNumberOfPoints(); 
-  // We are assured that 
+
+  int numCurLabels = input->GetNumberOfPoints();
+  // We are assured that
   // this->NumberOfLabelsAllocated >= (this->NumberOfLabels + numCurLabels)
   if (this->NumberOfLabelsAllocated < (this->NumberOfLabels + numCurLabels))
     {
@@ -545,7 +545,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       "Number of labels must be allocated before this method is called.");
     return;
     }
-  
+
   // ----------------------------------------
   // Now we actually construct the label strings
   //
@@ -557,45 +557,45 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     this->GetInputAbstractArrayToProcess(0, input));
   for (i=0; i < numCurLabels; i++)
     {
-    vtkStdString ResultString; 
+    vtkStdString ResultString;
 
     if ( pointIdLabels )
       {
       sprintf(TempString, LiveFormatString, i);
       ResultString = TempString;
       }
-    else 
+    else
       {
       if ( numericData )
         {
         void *rawData = numericData->GetVoidPointer(i*numComp);
-        
+
         if ( numComp == 1 )
           {
           switch (numericData->GetDataType())
             {
-            vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString, 
+            vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString,
                 LiveFormatString, activeComp, static_cast<VTK_TT *>(rawData)));
             }
           ResultString = TempString;
-          } 
+          }
         else // numComp != 1
           {
           ResultString = "(";
-          
+
           // Print each component in turn and add it to the string.
           for (j = 0; j < numComp; ++j)
             {
             switch (numericData->GetDataType())
               {
               vtkTemplateMacro(
-                vtkLabeledDataMapper_PrintComponent(TempString, 
-                                                    LiveFormatString, 
-                                                    j, 
+                vtkLabeledDataMapper_PrintComponent(TempString,
+                                                    LiveFormatString,
+                                                    j,
                                                     static_cast<VTK_TT *>(rawData)));
               }
             ResultString += TempString;
-            
+
             if (j < (numComp-1))
               {
               ResultString += ' ';
@@ -624,12 +624,12 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           }
         else // the user specified a label format
           {
-          SNPRINTF(TempString, 1023, LiveFormatString, 
+          SNPRINTF(TempString, 1023, LiveFormatString,
                    stringData->GetValue(i).c_str());
           ResultString = TempString;
           } // done printing strings with label format
         } // done printing strings
-      } // done creating string 
+      } // done creating string
 
     this->TextMappers[i+this->NumberOfLabels]->SetInput(ResultString.c_str());
 
@@ -740,7 +740,7 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
   os << indent << "Field Data Name: " << (this->FieldDataName ? this->FieldDataName : "Null") << "\n";
-  
+
   os << indent << "Transform: " << (this->Transform ? "" : "(none)") << endl;
   if (this->Transform)
     {
@@ -760,12 +760,12 @@ vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
     this->FieldDataName = NULL;
     }
 
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FieldDataArray to " << arrayIndex ); 
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FieldDataArray to " << arrayIndex );
 
-  if (this->FieldDataArray != (arrayIndex < 0 ? 0 : 
+  if (this->FieldDataArray != (arrayIndex < 0 ? 0 :
                                (arrayIndex > VTK_LARGE_INTEGER ? VTK_LARGE_INTEGER : arrayIndex)))
     {
-    this->FieldDataArray = ( arrayIndex < 0 ? 0 : 
+    this->FieldDataArray = ( arrayIndex < 0 ? 0 :
                              (arrayIndex > VTK_LARGE_INTEGER ? VTK_LARGE_INTEGER : arrayIndex ));
     this->Modified();
     }
@@ -795,21 +795,21 @@ vtkLabeledDataMapper::GetMTime()
 void
 vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
 {
-  vtkDebugMacro(<< this->GetClassName() 
-                << " (" << this << "): setting " << "FieldDataName" 
-                << " to " << (arrayName?arrayName:"(null)") ); 
+  vtkDebugMacro(<< this->GetClassName()
+                << " (" << this << "): setting " << "FieldDataName"
+                << " to " << (arrayName?arrayName:"(null)") );
 
-  if ( this->FieldDataName == NULL && arrayName == NULL) { return; } 
-  if ( this->FieldDataName && arrayName && (!strcmp(this->FieldDataName,arrayName))) { return;} 
-  if (this->FieldDataName) { delete [] this->FieldDataName; } 
-  if (arrayName) 
-    { 
-    this->FieldDataName = new char[strlen(arrayName)+1]; 
-    strcpy(this->FieldDataName,arrayName); 
-    } 
-   else 
-    { 
-    this->FieldDataName = NULL; 
-    } 
-  this->Modified(); 
+  if ( this->FieldDataName == NULL && arrayName == NULL) { return; }
+  if ( this->FieldDataName && arrayName && (!strcmp(this->FieldDataName,arrayName))) { return;}
+  if (this->FieldDataName) { delete [] this->FieldDataName; }
+  if (arrayName)
+    {
+    this->FieldDataName = new char[strlen(arrayName)+1];
+    strcpy(this->FieldDataName,arrayName);
+    }
+   else
+    {
+    this->FieldDataName = NULL;
+    }
+  this->Modified();
 }

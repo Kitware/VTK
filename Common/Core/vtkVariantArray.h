@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkVariantArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // 
+  //
   // Functions required by vtkAbstractArray
   //
 
@@ -66,7 +66,7 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Return the underlying data type. An integer indicating data type is 
+  // Return the underlying data type. An integer indicating data type is
   // returned as specified in vtkSetGet.h.
   virtual int GetDataType();
 
@@ -81,34 +81,34 @@ public:
   // array.  For vtkDataArray and subclasses this is the size of the
   // data type.  For vtkStringArray, this is
   // sizeof(vtkStdString::value_type), which winds up being
-  // sizeof(char).  
+  // sizeof(char).
   virtual int GetElementComponentSize();
 
   // Description:
-  // Set the number of tuples (a component group) in the array. Note that 
+  // Set the number of tuples (a component group) in the array. Note that
   // this may allocate space depending on the number of components.
   virtual void SetNumberOfTuples(vtkIdType number);
 
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not 
+  // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array. 
+  // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
-  
+
   // Description:
-  // Return a void pointer. For image pipeline interface and other 
+  // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
   virtual void *GetVoidPointer(vtkIdType id);
 
@@ -120,7 +120,7 @@ public:
 
   // Description:
   // Set the ith tuple in this array as the interpolated tuple value,
-  // given the ptIndices in the source array and associated 
+  // given the ptIndices in the source array and associated
   // interpolation weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
@@ -128,21 +128,21 @@ public:
     vtkAbstractArray* source,  double* weights);
 
   // Description
-  // Insert the ith tuple in this array as interpolated from the two values, 
-  // p1 and p2, and an interpolation factor, t. 
-  // The interpolation factor ranges from (0,1), 
-  // with t=0 located at p1. This method assumes that the three arrays are of 
+  // Insert the ith tuple in this array as interpolated from the two values,
+  // p1 and p2, and an interpolation factor, t.
+  // The interpolation factor ranges from (0,1),
+  // with t=0 located at p1. This method assumes that the three arrays are of
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i, 
-    vtkIdType id1, vtkAbstractArray* source1, 
+  virtual void InterpolateTuple(vtkIdType i,
+    vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t);
-    
+
   // Description:
   // Free any unnecessary memory.
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  virtual void Squeeze(); 
+  virtual void Squeeze();
 
   // Description:
   // Resize the array while conserving the data.  Returns 1 if
@@ -150,11 +150,11 @@ public:
   virtual int Resize(vtkIdType numTuples);
 
   // Description:
-  // This method lets the user specify data to be held by the array.  The 
-  // array argument is a pointer to the data.  size is the size of 
+  // This method lets the user specify data to be held by the array.  The
+  // array argument is a pointer to the data.  size is the size of
   // the array supplied by the user.  Set save to 1 to keep the class
   // from deleting the array when it cleans up or reallocates memory.
-  // The class uses the actual array provided; it does not copy the data 
+  // The class uses the actual array provided; it does not copy the data
   // from the supplied array.
   virtual void SetVoidArray(void *arr,
                             vtkIdType size,
@@ -164,17 +164,17 @@ public:
   // Return the memory in kilobytes consumed by this data array. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
-  // actually represent the data represented by this object. The 
-  // information returned is valid only after the pipeline has 
+  // actually represent the data represented by this object. The
+  // information returned is valid only after the pipeline has
   // been updated.
   virtual unsigned long GetActualMemorySize();
-  
+
   // Description:
   // Since each item can be of a different type, we say that a variant array is not numeric.
   virtual int IsNumeric();
 
   // Description:
-  // Subclasses must override this method and provide the right 
+  // Subclasses must override this method and provide the right
   // kind of templated vtkArrayIteratorTemplate.
   virtual vtkArrayIterator* NewIterator();
 
@@ -230,7 +230,7 @@ public:
   // Return the indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
-  
+
   // Description:
   // Tell the array explicitly that the data has changed.
   // This is only necessary to call when you modify the array contents
@@ -243,7 +243,7 @@ public:
   // Description:
   // Tell the array explicitly that a single data element has
   // changed. Like DataChanged(), then is only necessary when you
-  // modify the array contents without using the array's API. 
+  // modify the array contents without using the array's API.
   virtual void DataElementChanged(vtkIdType id);
 
   // Description:
@@ -256,7 +256,7 @@ public:
   // This destructor is public to work around a bug in version 1.36.0 of
   // the Boost.Serialization library.
   ~vtkVariantArray();
-  
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkVariantArray(vtkIdType numComp=1);

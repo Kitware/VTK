@@ -87,7 +87,7 @@ protected:
 
   // file to read/write from
   char *FileName;
-  
+
   // control whether to read from string
   int ReadFromInputString;
   char *InputString;
@@ -105,7 +105,7 @@ protected:
   virtual void WriteEvent(const char* event, int pos[2], int ctrlKey,
                           int shiftKey, int keyCode, int repeatCount,
                           char* keySym);
-  
+
   virtual void ReadEvent();
 
 //BTX - manage the state of the recorder
@@ -123,8 +123,8 @@ protected:
 private:
   vtkInteractorEventRecorder(const vtkInteractorEventRecorder&);  // Not implemented.
   void operator=(const vtkInteractorEventRecorder&);  // Not implemented.
-  
+
 };
 
 #endif /* __vtkInteractorEventRecorder_h */
- 
+

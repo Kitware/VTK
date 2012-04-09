@@ -87,7 +87,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
   double n[3], v1[3], v2[3], v3[3];
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
-  
+
   if ((fp = fopen(this->FileName, "w")) == NULL)
     {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
@@ -105,7 +105,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
     return;
     }
 //
-//  Write out triangle polygons.  In not a triangle polygon, only first 
+//  Write out triangle polygons.  In not a triangle polygon, only first
 //  three vertices are written.
 //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
@@ -172,7 +172,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
     }
-  
+
   //  Write header
   //
   vtkDebugMacro("Writing Binary STL file");
@@ -209,7 +209,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     return;
     }
 
-  //  Write out triangle polygons.  In not a triangle polygon, only first 
+  //  Write out triangle polygons.  In not a triangle polygon, only first
   //  three vertices are written.
   //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
@@ -217,14 +217,14 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     pts->GetPoint(indx[0],v1);
     pts->GetPoint(indx[1],v2);
     pts->GetPoint(indx[2],v3);
-    
+
     vtkTriangle::ComputeNormal(pts, npts, indx, dn);
     float n[3];
     n[0] = (float)dn[0];
     n[1] = (float)dn[1];
-    n[2] = (float)dn[2];    
-    vtkByteSwap::Swap4LE(n); 
-    vtkByteSwap::Swap4LE(n+1); 
+    n[2] = (float)dn[2];
+    vtkByteSwap::Swap4LE(n);
+    vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
     if (fwrite (n, 4, 3, fp) < 3)
       {
@@ -233,9 +233,9 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
       return;
       }
 
-    n[0] = (float)v1[0];  n[1] = (float)v1[1];  n[2] = (float)v1[2]; 
-    vtkByteSwap::Swap4LE(n); 
-    vtkByteSwap::Swap4LE(n+1); 
+    n[0] = (float)v1[0];  n[1] = (float)v1[1];  n[2] = (float)v1[2];
+    vtkByteSwap::Swap4LE(n);
+    vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
     if (fwrite (n, 4, 3, fp) < 3)
       {
@@ -244,9 +244,9 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
       return;
       }
 
-    n[0] = (float)v2[0];  n[1] = (float)v2[1];  n[2] = (float)v2[2]; 
-    vtkByteSwap::Swap4LE(n); 
-    vtkByteSwap::Swap4LE(n+1); 
+    n[0] = (float)v2[0];  n[1] = (float)v2[1];  n[2] = (float)v2[2];
+    vtkByteSwap::Swap4LE(n);
+    vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
     if (fwrite (n, 4, 3, fp) < 3)
       {
@@ -255,9 +255,9 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
       return;
       }
 
-    n[0] = (float)v3[0];  n[1] = (float)v3[1];  n[2] = (float)v3[2]; 
-    vtkByteSwap::Swap4LE(n); 
-    vtkByteSwap::Swap4LE(n+1); 
+    n[0] = (float)v3[0];  n[1] = (float)v3[1];  n[2] = (float)v3[2];
+    vtkByteSwap::Swap4LE(n);
+    vtkByteSwap::Swap4LE(n+1);
     vtkByteSwap::Swap4LE(n+2);
     if (fwrite (n, 4, 3, fp) < 3)
       {

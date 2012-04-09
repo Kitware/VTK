@@ -118,7 +118,7 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
     //   indicating where the scalar field values start (when
     //   isosurfacing, the embedding dimension may be smaller
     //   than the number of parametric coordinates).
-    // @param viewtrans is the viewing transform (from model to 
+    // @param viewtrans is the viewing transform (from model to
     //   screen coordinates). Applying this transform to p0, p1, etc.,
     //   should yield screen-space coordinates.
     // @param pixelSize is the width and height of a pixel in

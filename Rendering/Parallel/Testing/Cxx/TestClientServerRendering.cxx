@@ -66,7 +66,7 @@ public:
   virtual void Execute();
 private:
   // Creates the visualization pipeline and adds it to the renderer.
-  void CreatePipeline(vtkRenderer* renderer); 
+  void CreatePipeline(vtkRenderer* renderer);
 
   // Setups render passes.
   void SetupRenderPasses(vtkRenderer* renderer);

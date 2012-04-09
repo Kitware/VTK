@@ -33,39 +33,39 @@ public:
   vtkTypeMacro(vtkOutputStream,vtkObject);
   static vtkOutputStream *New();
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //BTX
   // Description:
   // Get/Set the real output stream.
   vtkSetMacro(Stream, ostream*);
   vtkGetMacro(Stream, ostream*);
   //ETX
-  
-  // Description:  
+
+  // Description:
   // Called after the stream position has been set by the caller, but
   // before any Write calls.  The stream position should not be
   // adjusted by the caller until after an EndWriting call.
   virtual int StartWriting();
-  
+
   // Description:
   // Write output data of the given length.
   virtual int Write(const unsigned char* data, unsigned long length);
   int Write(const char* data, unsigned long length);
-  
+
   // Description:
   // Called after all desired calls to Write have been made.  After
   // this call, the caller is free to change the position of the
   // stream.  Additional writes should not be done until after another
   // call to StartWriting.
   virtual int EndWriting();
-  
+
 protected:
   vtkOutputStream();
-  ~vtkOutputStream();  
-  
+  ~vtkOutputStream();
+
   // The real output stream.
   ostream* Stream;
-  
+
 private:
   vtkOutputStream(const vtkOutputStream&);  // Not implemented.
   void operator=(const vtkOutputStream&);  // Not implemented.

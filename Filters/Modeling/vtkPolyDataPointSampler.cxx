@@ -33,7 +33,7 @@ vtkPolyDataPointSampler::vtkPolyDataPointSampler()
   this->GenerateVertexPoints = 1;
   this->GenerateEdgePoints = 1;
   this->GenerateInteriorPoints = 1;
-  
+
   this->GenerateVertices = 1;
 }
 
@@ -67,14 +67,14 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
     }
   vtkPoints *inPts = input->GetPoints();
   vtkIdType numInputPts = input->GetNumberOfPoints();
-  
+
   // Prepare output
   int abort;
   double x0[3], x1[3];
   vtkIdType i, *pts, npts;
   vtkPoints *newPts = input->GetPoints()->NewInstance();
   this->Distance2 = this->Distance*this->Distance;
-  
+
   // First the vertex points
   if ( this->GenerateVertexPoints )
     {
@@ -82,7 +82,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
     }
   this->UpdateProgress (0.1);
   abort = this->GetAbortExecute();
-  
+
   // Now the edge points
   vtkCellArray *inPolys = input->GetPolys();
   vtkCellArray *inStrips = input->GetStrips();
@@ -91,7 +91,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
     vtkEdgeTable *eTable = vtkEdgeTable::New();
     eTable->InitEdgeInsertion(numInputPts);
     vtkCellArray *inLines = input->GetLines();
-    
+
     for ( inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
       for (i=0; i<(npts-1); i++)
@@ -169,7 +169,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
       }
     eTable->Delete();
     }
-  
+
   this->UpdateProgress (0.5);
   abort = this->GetAbortExecute();
 
@@ -193,7 +193,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
     abort = this->GetAbortExecute();
 
     // Next the triangle strips
-    for ( inStrips->InitTraversal(); 
+    for ( inStrips->InitTraversal();
           inStrips->GetNextCell(npts,pts) && !abort; )
       {
       vtkIdType stripPts[3];
@@ -206,7 +206,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
         }
       }//for all strips
     }//for interior points
-  
+
   this->UpdateProgress (0.90);
   abort = this->GetAbortExecute();
 
@@ -251,9 +251,9 @@ void vtkPolyDataPointSampler::SampleEdge(vtkPoints *pts, double x0[3], double x1
       }
     }
 }
-  
+
 //------------------------------------------------------------------------
-void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts, 
+void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts,
                                              vtkIdType *pts)
 {
   double x0[3], x1[3], x2[3];
@@ -289,9 +289,9 @@ void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts
       }
     }
 }
-  
+
 //------------------------------------------------------------------------
-void vtkPolyDataPointSampler::SamplePolygon(vtkPoints *newPts, vtkPoints *inPts, 
+void vtkPolyDataPointSampler::SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
                                             vtkIdType npts, vtkIdType *pts)
 {
   // Specialize for quads
@@ -340,13 +340,13 @@ void vtkPolyDataPointSampler::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Distance: " << this->Distance << "\n";
 
-  os << indent << "Generate Vertex Points: " 
+  os << indent << "Generate Vertex Points: "
      << (this->GenerateVertexPoints ? "On\n" : "Off\n");
-  os << indent << "Generate Edge Points: " 
+  os << indent << "Generate Edge Points: "
      << (this->GenerateEdgePoints ? "On\n" : "Off\n");
-  os << indent << "Generate Interior Points: " 
+  os << indent << "Generate Interior Points: "
      << (this->GenerateInteriorPoints ? "On\n" : "Off\n");
 
-  os << indent << "Generate Vertices: " 
+  os << indent << "Generate Vertices: "
      << (this->GenerateVertices ? "On\n" : "Off\n");
 }

@@ -15,8 +15,8 @@
 // .NAME vtkCompositer - Super class for composite algorthms.
 //
 // .SECTION Description
-// vtkCompositer operates in multiple processes.  Each compositer has 
-// a render window.  They use vtkMultiProcessControllers to communicate 
+// vtkCompositer operates in multiple processes.  Each compositer has
+// a render window.  They use vtkMultiProcessControllers to communicate
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency well.
 //
@@ -63,13 +63,13 @@ public:
   static void DeleteArray(vtkDataArray* da);
   static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
                                vtkIdType size);
-  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
+  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca,
                                       int numComp, vtkIdType size);
-  
+
 protected:
   vtkCompositer();
   ~vtkCompositer();
-  
+
   vtkMultiProcessController *Controller;
   int NumberOfProcesses;
 

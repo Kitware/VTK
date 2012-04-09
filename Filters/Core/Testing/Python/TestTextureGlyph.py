@@ -30,7 +30,7 @@ class TestTextureGlyph(Testing.vtkTest):
         polys.InsertNextCell(1)
         polys.InsertCellPoint(1)
         polys.InsertNextCell(1)
-        polys.InsertCellPoint(2)        
+        polys.InsertCellPoint(2)
         pd = vtk.vtkPolyData()
         pd.SetPoints(pts)
         pd.SetPolys(polys)
@@ -91,4 +91,4 @@ class TestTextureGlyph(Testing.vtkTest):
 
 if __name__ == "__main__":
     Testing.main([(TestTextureGlyph, 'test')])
-        
+

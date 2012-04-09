@@ -32,43 +32,43 @@ vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 {
   this->NeighborhoodSize = 20;
   // negative values cause the algorithm to make a reasonable guess
-  this->SampleSpacing = -1.0; 
+  this->SampleSpacing = -1.0;
 }
 
 // some simple routines for vector math
-void vtkCopyBToA(double* a,double* b) 
-{ 
-  for(int i=0;i<3;i++) 
+void vtkCopyBToA(double* a,double* b)
+{
+  for(int i=0;i<3;i++)
     {
-    a[i] = b[i]; 
+    a[i] = b[i];
     }
 }
-void vtkSubtractBFromA(double* a,double* b) 
-{ 
-  for(int i=0;i<3;i++) 
+void vtkSubtractBFromA(double* a,double* b)
+{
+  for(int i=0;i<3;i++)
     {
-    a[i] -= b[i]; 
+    a[i] -= b[i];
     }
 }
-void vtkAddBToA(double* a,double* b) 
-{ 
-  for(int i=0;i<3;i++) 
+void vtkAddBToA(double* a,double* b)
+{
+  for(int i=0;i<3;i++)
     {
-    a[i] += b[i]; 
+    a[i] += b[i];
     }
 }
-void vtkMultiplyBy(double* a,double f) 
-{ 
-  for(int i=0;i<3;i++) 
+void vtkMultiplyBy(double* a,double f)
+{
+  for(int i=0;i<3;i++)
     {
-    a[i] *= f; 
+    a[i] *= f;
     }
 }
-void vtkDivideBy(double* a,double f) 
-{ 
-  for(int i=0;i<3;i++) 
+void vtkDivideBy(double* a,double f)
+{
+  for(int i=0;i<3;i++)
     {
-    a[i] /= f; 
+    a[i] /= f;
     }
 }
 
@@ -79,14 +79,14 @@ void vtkSRFreeVector(double *v, long nl, long nh);
 double *vtkSRVector(long nl, long nh);
 
 // set a matrix to zero
-void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch) 
-{ 
-  int i,j; 
-  for(i=nrl;i<=nrh;i++) 
+void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch)
+{
+  int i,j;
+  for(i=nrl;i<=nrh;i++)
     {
-    for(j=ncl;j<=nch;j++) 
+    for(j=ncl;j<=nch;j++)
       {
-      m[i][j] = 0.0; 
+      m[i][j] = 0.0;
       }
     }
 }
@@ -96,13 +96,13 @@ void vtkSRAddOuterProduct(double **m,double *v);
 
 // scalar multiply a matrix
 void vtkSRMultiply(double **m,double f,long nrl, long nrh, long ncl, long nch)
-{ 
-  int i,j; 
-  for(i=nrl;i<=nrh;i++) 
+{
+  int i,j;
+  for(i=nrl;i<=nrh;i++)
     {
-    for(j=ncl;j<=nch;j++) 
+    for(j=ncl;j<=nch;j++)
       {
-      m[i][j] *= f; 
+      m[i][j] *= f;
       }
     }
 }
@@ -132,7 +132,7 @@ int vtkSurfaceReconstructionFilter::RequestInformation (
 }
 
 //-----------------------------------------------------------------------------
-struct SurfacePoint 
+struct SurfacePoint
 {
   double loc[3];
   double o[3],n[3]; // plane centre and normal
@@ -155,12 +155,12 @@ int vtkSurfaceReconstructionFilter::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // get the output
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   const vtkIdType COUNT = input->GetNumberOfPoints();
   SurfacePoint *surfacePoints;
 
@@ -173,7 +173,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
     return 1;
     }
   surfacePoints = new SurfacePoint[COUNT];
-  
+
   vtkDebugMacro(<<"Reconstructing " << COUNT << " points");
 
   //time_t start_time,t1,t2,t3,t4;
@@ -221,7 +221,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
   for(i=0;i<COUNT;i++)
     {
     SurfacePoint *p = &surfacePoints[i];
-    
+
     // first find the centroid of the neighbors
     vtkCopyBToA(p->o,p->loc);
     int number=1;
@@ -279,7 +279,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
     // (bit inefficient to do this for every point, as cost is symmetric)
     for(j=0;j<p->neighbors->GetNumberOfIds();j++)
       {
-      p->costs[j] = 1.0 - 
+      p->costs[j] = 1.0 -
         fabs(vtkMath::Dot(p->n,surfacePoints[p->neighbors->GetId(j)].n));
       }
     }
@@ -297,10 +297,10 @@ int vtkSurfaceReconstructionFilter::RequestData(
   // vertex as visited, add any new neighbors to the neighbors list.
 
   int orientationPropagation=1;
-  if(orientationPropagation) 
+  if(orientationPropagation)
     {// set to false if you don't want orientation propagation (for testing)
     vtkIdList *nearby = vtkIdList::New(); // list of nearby, unvisited points
-    
+
     // start with some vertex
     int first=0; // index of starting vertex
     surfacePoints[first].isVisited = 1;
@@ -309,10 +309,10 @@ int vtkSurfaceReconstructionFilter::RequestData(
       {
       nearby->InsertNextId(surfacePoints[first].neighbors->GetId(j));
       }
-    
+
     double cost,lowestCost;
     int cheapestNearby = 0, connectedVisited = 0;
-    
+
     // repeat until nearby is empty:
     while(nearby->GetNumberOfIds()>0)
       {
@@ -330,7 +330,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
             {
             cost = surfacePoints[iNearby].costs[j];
             // pick lowest cost for this nearby point
-            if(cost<lowestCost) 
+            if(cost<lowestCost)
               {
               lowestCost = cost;
               cheapestNearby = iNearby;
@@ -350,7 +350,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
         vtkErrorMacro (<< "Internal error in vtkSurfaceReconstructionFilter");
         return 0;
         }
-      
+
       // correct the orientation of the point if necessary
       if(vtkMath::Dot(surfacePoints[cheapestNearby].n,
                       surfacePoints[connectedVisited].n)<0.0F)
@@ -364,7 +364,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
         vtkErrorMacro (<< "Internal error in vtkSurfaceReconstructionFilter");
         return 0;
         }
-      
+
       surfacePoints[cheapestNearby].isVisited = 1;
       // remove from nearby
       nearby->DeleteId(cheapestNearby);
@@ -378,7 +378,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
           }
         }
       }
-    
+
     nearby->Delete();
     }
 
@@ -404,7 +404,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
                               (bounds[3]-bounds[2])*(bounds[5]-bounds[4]) /
                               static_cast<double>(COUNT),
                               static_cast<double>(1.0/3.0));
- 
+
     vtkDebugMacro(<<"Estimated sample spacing as: " << this->SampleSpacing );
     }
 
@@ -422,7 +422,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
     {
     dim[i] = static_cast<int>((bottomright[i]-topleft[i])/this->SampleSpacing);
     }
-  
+
   vtkDebugMacro(<<"Created output volume of dimensions: ("
                 << dim[0] << ", " << dim[1] << ", " << dim[2] << ")" );
 
@@ -434,12 +434,12 @@ int vtkSurfaceReconstructionFilter::RequestData(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
 
-  vtkFloatArray *newScalars = 
+  vtkFloatArray *newScalars =
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
   outInfo->Set(vtkDataObject::SPACING(),
                this->SampleSpacing, this->SampleSpacing, this->SampleSpacing);
   outInfo->Set(vtkDataObject::ORIGIN(),topleft,3);
-  
+
   // initialise the point locator (have to use point insertion because we
   // need to set our own bounds, slightly larger than the dataset to allow
   // for sampling around the edge)
@@ -471,7 +471,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
         point[0] = topleft[0] + x*this->SampleSpacing;
         // find the distance from the probe to the plane of the nearest point
         iClosestPoint = locator->FindClosestInsertedPoint(point);
-        if(iClosestPoint==-1) 
+        if(iClosestPoint==-1)
           {
           vtkErrorMacro (<< "Internal error");
           return 0;
@@ -486,7 +486,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
   locator->Delete();
   newPts->Delete();
   }
-  
+
   //time(&t4);
   // Clear up everything
   delete [] surfacePoints;
@@ -497,7 +497,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
 void vtkSurfaceReconstructionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Neighborhood Size:" << this->NeighborhoodSize << "\n";
   os << indent << "Sample Spacing:" << this->SampleSpacing << "\n";
 }
@@ -518,48 +518,48 @@ void vtkSRAddOuterProduct(double **m,double *v)
 #define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
-double *vtkSRVector(long nl, long nh)        
-{ 
+double *vtkSRVector(long nl, long nh)
+{
   double *v;
 
   v = new double [nh-nl+1+VTK_NR_END];
-  if (!v) 
+  if (!v)
     {
     vtkGenericWarningMacro(<<"allocation failure in vector()");
     return NULL;
     }
-  
-  return (v-nl+VTK_NR_END); 
+
+  return (v-nl+VTK_NR_END);
 }
 
 // allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
-double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)        
+double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
 {
   long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
   double **m;
 
   // allocate pointers to rows
   m = new double * [nrow+VTK_NR_END];
-  if (!m) 
+  if (!m)
     {
     vtkGenericWarningMacro(<<"allocation failure 1 in Matrix()");
     return NULL;
     }
-  
+
   m += VTK_NR_END;
   m -= nrl;
 
   // allocate rows and set pointers to them
   m[nrl] = new double[nrow*ncol+VTK_NR_END];
-  if (!m[nrl]) 
+  if (!m[nrl])
     {
     vtkGenericWarningMacro("allocation failure 2 in Matrix()");
     return NULL;
     }
-  
+
   m[nrl] += VTK_NR_END;
   m[nrl] -= ncl;
-  for(i=nrl+1;i<=nrh;i++) 
+  for(i=nrl+1;i<=nrh;i++)
     {
     m[i] = m[i-1]+ncol;
     }
@@ -570,14 +570,14 @@ double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
 
 // free a double vector allocated with SRVector()
 void vtkSRFreeVector(double *v, long nl, long vtkNotUsed(nh))
-{ 
+{
   delete [] (v+nl-VTK_NR_END);
 }
 
 // free a double matrix allocated by Matrix()
 void vtkSRFreeMatrix(double **m, long nrl, long vtkNotUsed(nrh),
                      long ncl, long vtkNotUsed(nch))
-        
+
 {
   delete [] (m[nrl]+ncl-VTK_NR_END);
   delete [] (m+nrl-VTK_NR_END);

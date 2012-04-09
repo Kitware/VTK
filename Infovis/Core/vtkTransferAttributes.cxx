@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkTransferAttributes.cxx
 
@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataObject.h"
-#include "vtkDataSet.h" 
+#include "vtkDataSet.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
@@ -104,17 +104,17 @@ int vtkTransferAttributes::RequestData(
   vtkInformation *targetInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   vtkDataObject* sourceInput = sourceInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* targetInput = targetInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   output->ShallowCopy(targetInput);
-  
+
   // get the input and output
   int item_count_source = 0;
   vtkDataSetAttributes* dsa_source = 0;
-  if (vtkDataSet::SafeDownCast(sourceInput) && 
+  if (vtkDataSet::SafeDownCast(sourceInput) &&
       this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     dsa_source = vtkDataSet::SafeDownCast(sourceInput)->GetPointData();
@@ -132,7 +132,7 @@ int vtkTransferAttributes::RequestData(
     dsa_source = vtkGraph::SafeDownCast(sourceInput)->GetVertexData();
     item_count_source = vtkGraph::SafeDownCast(sourceInput)->GetNumberOfVertices();
     }
-  else if (vtkGraph::SafeDownCast(sourceInput) && 
+  else if (vtkGraph::SafeDownCast(sourceInput) &&
            this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_EDGES)
     {
     dsa_source = vtkGraph::SafeDownCast(sourceInput)->GetEdgeData();
@@ -146,15 +146,15 @@ int vtkTransferAttributes::RequestData(
     }
   else
     {
-    // ERROR 
+    // ERROR
     vtkErrorMacro( "Input type must be specified as a dataset, graph or table." );
     return 0;
     }
-  
+
   vtkDataSetAttributes* dsa_target = 0;
   vtkDataSetAttributes* dsa_out = 0;
   int item_count_target = 0;
-  if (vtkDataSet::SafeDownCast(targetInput) && 
+  if (vtkDataSet::SafeDownCast(targetInput) &&
       this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     dsa_target = vtkDataSet::SafeDownCast(targetInput)->GetPointData();
@@ -175,7 +175,7 @@ int vtkTransferAttributes::RequestData(
     dsa_out = vtkGraph::SafeDownCast(output)->GetVertexData();
     item_count_target = vtkGraph::SafeDownCast(targetInput)->GetNumberOfVertices();
     }
-  else if (vtkGraph::SafeDownCast(targetInput) && 
+  else if (vtkGraph::SafeDownCast(targetInput) &&
            this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_EDGES)
     {
     dsa_target = vtkGraph::SafeDownCast(targetInput)->GetEdgeData();
@@ -191,20 +191,20 @@ int vtkTransferAttributes::RequestData(
     }
   else
     {
-    // ERROR 
+    // ERROR
     vtkErrorMacro( "Input type must be specified as a dataset, graph or table." );
     return 0;
     }
-  
+
   if( this->SourceArrayName == 0 || this->TargetArrayName == 0 )
     {
     vtkErrorMacro( "Must specify source and target array names for the transfer." );
     return 0;
     }
-  
+
   vtkAbstractArray* sourceIdArray = dsa_source->GetPedigreeIds();
   vtkAbstractArray* targetIdArray = dsa_target->GetPedigreeIds();
-  
+
   // Check for valid pedigree id arrays.
   if (!sourceIdArray)
     {
@@ -216,7 +216,7 @@ int vtkTransferAttributes::RequestData(
     vtkErrorMacro("TargetInput pedigree id array not found.");
     return 0;
     }
-  
+
   if( item_count_source != sourceIdArray->GetNumberOfTuples() )
     {
     vtkErrorMacro( "The number of pedigree ids must be equal to the number of items in the source data object." );
@@ -227,7 +227,7 @@ int vtkTransferAttributes::RequestData(
     vtkErrorMacro( "The number of pedigree ids must be equal to the number of items in the target data object." );
     return 0;
     }
-  
+
   // Create a map from sourceInput indices to targetInput indices
   // If we are using DirectMapping this is trivial
   // we just create an identity map
@@ -246,20 +246,20 @@ int vtkTransferAttributes::RequestData(
       sourceIndexToTargetIndex[i] = i;
       }
     }
-  
+
   // Okay if we do not have direct mapping then we need
   // to do some templated madness to go from an arbitrary
   // type to a nice vtkIdType to vtkIdType mapping
   if (!this->DirectMapping)
     {
     map<vtkVariant,vtkIdType,vtkVariantLessThan> sourceInputIdMap;
-    
+
     // Create a map from sourceInput id to sourceInput index
     for( i=0; i<sourceIdArray->GetNumberOfTuples(); i++)
       {
       sourceInputIdMap[vtkGetVariantValue(sourceIdArray,i)] = i;
       }
-    
+
     // Now create the map from sourceInput index to targetInput index
     for( i=0; i < targetIdArray->GetNumberOfTuples(); i++)
       {
@@ -270,38 +270,38 @@ int vtkTransferAttributes::RequestData(
         }
       }
     }
-  
+
   vtkAbstractArray *sourceArray = dsa_source->GetAbstractArray( this->SourceArrayName );
   vtkAbstractArray *targetArray = vtkAbstractArray::CreateArray(sourceArray->GetDataType());
   targetArray->SetName( this->TargetArrayName );
-  
+
   targetArray->SetNumberOfComponents(sourceArray->GetNumberOfComponents());
   targetArray->SetNumberOfTuples(targetIdArray->GetNumberOfTuples());
-  
+
   for( i = 0; i < targetArray->GetNumberOfTuples(); i++)
     {
     targetArray->InsertVariantValue(i, this->DefaultValue);
     }
-  
+
   for( i = 0; i < sourceArray->GetNumberOfTuples(); i++)
     {
     if( sourceArray->GetVariantValue(i) < 0 )
       {
-      cout << sourceIndexToTargetIndex[i] << " " 
-           << sourceArray->GetVariantValue(i).ToString() << " " 
-           << sourceArray->GetNumberOfTuples() << " " 
-           << sourceIdArray->GetNumberOfTuples() << " " 
+      cout << sourceIndexToTargetIndex[i] << " "
+           << sourceArray->GetVariantValue(i).ToString() << " "
+           << sourceArray->GetNumberOfTuples() << " "
+           << sourceIdArray->GetNumberOfTuples() << " "
            << i << endl;
-      
+
       vtkErrorMacro( "Bad value..." );
       continue;
       }
     targetArray->SetTuple(sourceIndexToTargetIndex[i], i, sourceArray);
     }
-  
+
   dsa_out->AddArray(targetArray);
   targetArray->Delete();
-  
+
   return 1;
 }
 

@@ -69,7 +69,7 @@ int otherFieldData(int,char *[])
     {
     return 1;
     }
-  
+
   /* Obsolete API.
   double tuple[10];
   // initialize tuple before using it to set something
@@ -91,4 +91,4 @@ int otherFieldData(int,char *[])
 
   return 0;
 
-} 
+}

@@ -134,11 +134,11 @@ void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor
   // See if we already had one
   vtkRenderWindowInteractor *mrwi = this->GetInteractor();
   vtkRenderer *ren;
-  if (mrwi && mrwi->GetRenderWindow()) 
+  if (mrwi && mrwi->GetRenderWindow())
     {
     this->FindPokedRenderer(0, 0);
     ren = this->CurrentRenderer;
-    if (ren) 
+    if (ren)
       {
       ren->RemoveActor(SelectionActor);
       ren->RemoveActor(HighlightActor);
@@ -149,7 +149,7 @@ void vtkInteractorStyleTreeMapHover::SetInteractor(vtkRenderWindowInteractor
     {
     this->FindPokedRenderer(0, 0);
     ren = this->CurrentRenderer;
-    if (ren) 
+    if (ren)
       {
       ren->AddActor(SelectionActor);
       ren->AddActor(HighlightActor);
@@ -180,7 +180,7 @@ void vtkInteractorStyleTreeMapHover::PrintSelf(ostream& os, vtkIndent indent)
 vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
 {
   vtkIdType id=-1;
-  
+
   vtkRenderer* r = this->CurrentRenderer;
   if (r == NULL)
     {
@@ -191,7 +191,7 @@ vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
   this->Picker->Pick(x, y, 0, r);
   double pos[3];
   this->Picker->GetPickPosition(pos);
-  
+
   if (this->Layout != NULL)
     {
     float posFloat[3];
@@ -201,7 +201,7 @@ vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
       }
     id = Layout->FindVertex(posFloat);
     }
-    
+
   return id;
 }
 
@@ -233,7 +233,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
   // Use the hardware picker to find a point in world coordinates.
   float binfo[4];
   vtkIdType id = this->GetTreeMapIdAtPos(x,y);
-  
+
   if (id != -1)
     {
     this->GetBoundingBoxForTreeMapItem(id,binfo);
@@ -242,7 +242,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
   double loc[2] = {static_cast<double>(x),
                    static_cast<double>(y)};
   this->Balloon->EndWidgetInteraction(loc);
-  
+
   if ((this->Layout!=NULL) && (this->Layout->GetOutput()!=NULL))
     {
 
@@ -263,7 +263,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
       double z;
       if (this->TreeMapToPolyData != NULL)
         {
-        z = this->TreeMapToPolyData->GetLevelDeltaZ() 
+        z = this->TreeMapToPolyData->GetLevelDeltaZ()
           * (tree->GetLevel(id) + 1);
         }
       else
@@ -292,13 +292,13 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
     }
 }
 
-void vtkInteractorStyleTreeMapHover::SetHighLightColor(double r, 
+void vtkInteractorStyleTreeMapHover::SetHighLightColor(double r,
                                                        double g, double b)
 {
   this->HighlightActor->GetProperty()->SetColor(r, g, b);
 }
 
-void vtkInteractorStyleTreeMapHover::SetSelectionLightColor(double r, 
+void vtkInteractorStyleTreeMapHover::SetSelectionLightColor(double r,
                                                             double g, double b)
 {
   this->SelectionActor->GetProperty()->SetColor(r, g, b);
@@ -331,7 +331,7 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
-  
+
 #if 0
   vtkRenderer* r = this->CurrentRenderer;
   if (r == NULL)
@@ -348,13 +348,13 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
   double loc[2] = {x, y};
   this->Balloon->EndWidgetInteraction(loc);
 #endif
-  
+
   this->CurrentSelectedId = GetTreeMapIdAtPos(x,y);
 
   // Get the pedigree id of this object and
   // send out an event with that id as data
   vtkIdType id = this->CurrentSelectedId;
-  vtkAbstractArray* absArray = 
+  vtkAbstractArray* absArray =
     this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(
       "PedigreeVertexId");
   if (absArray)
@@ -388,7 +388,7 @@ void vtkInteractorStyleTreeMapHover::HighLightCurrentSelectedItem()
     double z;
     if (this->TreeMapToPolyData != NULL)
       {
-      z = this->TreeMapToPolyData->GetLevelDeltaZ() 
+      z = this->TreeMapToPolyData->GetLevelDeltaZ()
         * (tree->GetLevel(this->CurrentSelectedId) + 1);
       }
     else

@@ -41,7 +41,7 @@ void vtkPropPicker::Initialize()
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick(double selectionX, double selectionY, 
+int vtkPropPicker::Pick(double selectionX, double selectionY,
                         double vtkNotUsed(z), vtkRenderer *renderer)
 {
   if ( this->PickFromList )
@@ -69,7 +69,7 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkPropPicker::PickProp(double selectionX, double selectionY, 
+int vtkPropPicker::PickProp(double selectionX, double selectionY,
                             vtkRenderer *renderer)
 {
   //  Initialize picking process
@@ -94,7 +94,7 @@ int vtkPropPicker::PickProp(double selectionX, double selectionY,
     this->WorldPointPicker->GetPickPosition(this->PickPosition);
     this->Path->GetLastNode()->GetViewProp()->Pick();
     this->InvokeEvent(vtkCommand::PickEvent,NULL);
-    } 
+    }
 
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 

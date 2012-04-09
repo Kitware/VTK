@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Thanks to Jean M. Favre (CSCS, Swiss Center for Scientific Computing) who 
+// Thanks to Jean M. Favre (CSCS, Swiss Center for Scientific Computing) who
 // developed this class.
 // Please address all comments to Jean Favre (jfavre at cscs.ch)
 
@@ -85,15 +85,15 @@ void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
-  os << indent << "Number Of Node Fields: " 
+  os << indent << "Number Of Node Fields: "
      << this->NumberOfNodeFields << endl;
 
   os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
-  os << indent << "Number Of Cell Fields: " 
+  os << indent << "Number Of Cell Fields: "
      << this->NumberOfCellFields << endl;
 }
 
@@ -112,7 +112,7 @@ void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid *output)
 
   if(this->NumberOfCellFields)
     {
-    this->ReadCellData(output); 
+    this->ReadCellData(output);
     }
 
   delete this->FileStream;
@@ -147,7 +147,7 @@ int vtkGAMBITReader::RequestInformation(
     vtkErrorMacro("No filename specified");
     return 0;
     }
-  
+
   this->FileStream = new ifstream(this->FileName, ios::in);
 
   if (this->FileStream->fail())
@@ -214,7 +214,7 @@ void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid *output)
   vtkPoints *points = vtkPoints::New();
   points->SetData(coords);
   coords->Delete();
-  
+
   output->SetPoints(points);
   points->Delete();
 }
@@ -443,7 +443,7 @@ void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid *output)
       vtkErrorMacro( << "cell type: " << ntype << " is not supported\n");
       return;
       }
-    }  // for all cell, read the indices 
+    }  // for all cell, read the indices
   }
   // read here the end of section
   this->FileStream->get(c); this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);

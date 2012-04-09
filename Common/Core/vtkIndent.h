@@ -15,7 +15,7 @@
 
 // .NAME vtkIndent - a simple class to control print indentation
 // .SECTION Description
-// vtkIndent is used to control indentation during the chaining print 
+// vtkIndent is used to control indentation during the chaining print
 // process. This way nested objects can correctly indent themselves.
 
 #ifndef __vtkIndent_h
@@ -35,7 +35,7 @@ public:
   static vtkIndent *New();
 
   // Description:
-  // Determine the next indentation level. Keep indenting by two until the 
+  // Determine the next indentation level. Keep indenting by two until the
   // max of forty.
   vtkIndent GetNextIndent();
 
@@ -47,7 +47,7 @@ public:
 
 protected:
   int Indent;
-  
+
 };
 
 #endif

@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkXMLImageDataReader,vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLImageDataReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkImageData *GetOutput();
@@ -50,16 +50,16 @@ public:
 
 protected:
   vtkXMLImageDataReader();
-  ~vtkXMLImageDataReader();  
-  
+  ~vtkXMLImageDataReader();
+
   double Origin[3];
   double Spacing[3];
   int PieceExtent[6];
-  
+
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
   virtual void SetupUpdateExtentInformation(vtkInformation *outInfo);
- 
+
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
 
   // Setup the output's information.
@@ -68,7 +68,7 @@ protected:
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
 
-  
+
 private:
   vtkXMLImageDataReader(const vtkXMLImageDataReader&);  // Not implemented.
   void operator=(const vtkXMLImageDataReader&);  // Not implemented.

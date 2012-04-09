@@ -642,7 +642,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(0,0);
       break;
     case 2: // Ruprecht-Müller Case 2a
-      comparisonBits = 
+      comparisonBits =
         (permlen[0] <= permlen[1] ? 1 : 0) | (permlen[0] >= permlen[1] ? 2 : 0) |
         0;
       if ( (comparisonBits & 3) == 3 )
@@ -688,7 +688,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(2,0);
       break;
     case 4: // Ruprecht-Müller Case 3a
-      comparisonBits = 
+      comparisonBits =
         (permlen[0] <= permlen[2] ? 1 : 0) | (permlen[0] >= permlen[2] ? 2 : 0) |
         (permlen[0] <= permlen[3] ? 4 : 0) | (permlen[0] >= permlen[3] ? 8 : 0) |
         (permlen[2] <= permlen[3] ? 16 : 0) | (permlen[2] >= permlen[3] ? 32 : 0) |
@@ -812,7 +812,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
       VTK_TESSELLATOR_INCR_SUBCASE_COUNT(4,0);
       break;
     case 6: // Ruprecht-Müller Case 3c
-      comparisonBits = 
+      comparisonBits =
         (permlen[0] <= permlen[3] ? 1 : 0) | (permlen[0] >= permlen[3] ? 2 : 0) |
         (permlen[0] <= permlen[1] ? 4 : 0) | (permlen[0] >= permlen[1] ? 8 : 0) |
         0;
@@ -892,7 +892,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         }
       break;
     case 7: // Ruprecht-Müller Case 3d
-      comparisonBits = 
+      comparisonBits =
         (permlen[0] <= permlen[2] ? 1 : 0) | (permlen[0] >= permlen[2] ? 2 : 0) |
         (permlen[0] <= permlen[4] ? 4 : 0) | (permlen[0] >= permlen[4] ? 8 : 0) |
         0;
@@ -972,7 +972,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         }
       break;
     case 8: // Ruprecht-Müller Case 4a
-      comparisonBits = 
+      comparisonBits =
         (permlen[4] <= permlen[5] ? 1 : 0) | (permlen[4] >= permlen[5] ? 2 : 0) |
         (permlen[3] <= permlen[4] ? 4 : 0) | (permlen[3] >= permlen[4] ? 8 : 0) |
         0;
@@ -1056,7 +1056,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         }
       break;
     case 9: // Ruprecht-Müller Case 4b
-      comparisonBits = 
+      comparisonBits =
         (permlen[2] <= permlen[3] ? 1 : 0) | (permlen[2] >= permlen[3] ? 2 : 0) |
         (permlen[1] <= permlen[2] ? 4 : 0) | (permlen[1] >= permlen[2] ? 8 : 0) |
         (permlen[1] <= permlen[4] ? 16 : 0) | (permlen[1] >= permlen[4] ? 32 : 0) |
@@ -1406,7 +1406,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
         }
       break;
     case 10: // Ruprecht-Müller Case 5
-      comparisonBits = 
+      comparisonBits =
         (permlen[1] <= permlen[2] ? 1 : 0) | (permlen[1] >= permlen[2] ? 2 : 0) |
         (permlen[3] <= permlen[4] ? 4 : 0) | (permlen[3] >= permlen[4] ? 8 : 0) |
         0;
@@ -1557,7 +1557,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
 /*
  * The array below is indexed by the edge code for a tetrahedron.
  * Looking up a row with a tet's edge code will return C and P.
- * C is a configuration number and P is a permutation index. 
+ * C is a configuration number and P is a permutation index.
  *
  * C is based on the case number from Ruprecht and
  * Müller's (1998) paper on adaptive tetrahedra. (The case
@@ -1660,7 +1660,7 @@ int vtkStreamingTessellator::EdgeCodesToCaseCodesPlusPermutation[64][2] =
 };
 
 
-/* Does this mean anything? If so, then you are either 
+/* Does this mean anything? If so, then you are either
  * superstitious or much more clever than I (or both?).
  */
 /* permutation index, P:  0  1  2  3  4  5  6  7  8  9 10 11 */
@@ -1737,7 +1737,7 @@ vtkIdType vtkStreamingTessellator::PermutationsFromIndex[24][14] =
  * input tetrahedron.
  */
 
-vtkIdType vtkStreamingTessellator::TetrahedralDecompositions[] = 
+vtkIdType vtkStreamingTessellator::TetrahedralDecompositions[] =
 {
 // case 1_0
    2,

@@ -76,7 +76,7 @@ void vtkVolumeOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << "(none)\n";
-    } 
+    }
 
   os << indent << "GenerateFaces: "
      << (this->GenerateFaces ? "On\n" : "Off\n" );
@@ -395,7 +395,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
             (j == 2 && tolPtId[dim1][2] == 3))
           {
           continue;
-          } 
+          }
 
         // Loop over rectangle along the "dim" dimension
         for (int k = 0; k < 3; k++)
@@ -407,7 +407,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
               (k == 2 && tolPtId[dim0][2] == 3))
             {
             continue;
-            } 
+            }
 
           // The points in the rectangle, which are nudged over to the
           // volume bounds if the cropping planes are within tolerance
@@ -539,7 +539,7 @@ void vtkVolumeOutlineSource::GenerateLines(
               (k == 2 && tolPtId[dim0][2] == 3))
             {
             continue;
-            } 
+            }
 
           // The endpoints of the segment, which are nudged over to the
           // volume bounds if the cropping planes are within tolerance
@@ -554,7 +554,7 @@ void vtkVolumeOutlineSource::GenerateLines(
           idx[dim0] = k;
 
           // Loop through the four cubes adjacent to the line segment,
-          // in order to determine whether the line segment is on an 
+          // in order to determine whether the line segment is on an
           // edge: only the edge lines will be drawn.  The "bitCheck"
           // holds a bit for each of these four cubes.
           int bitCheck = 0;
@@ -582,11 +582,11 @@ void vtkVolumeOutlineSource::GenerateLines(
             }
 
           // Whether we need a line depends on the the value of bitCheck.
-          // Values 0000, 0011, 0110, 1100, 1001, 1111 don't need lines. 
+          // Values 0000, 0011, 0110, 1100, 1001, 1111 don't need lines.
           // Build a bitfield to check our bitfield values against, each
-          // set bit in this new bitfield corresponds to a non-edge case. 
+          // set bit in this new bitfield corresponds to a non-edge case.
           const int noLineValues = ((1 << 0x0) | (1 << 0x3) | (1 << 0x6) |
-                                    (1 << 0x9) | (1 << 0xc) | (1 << 0xf)); 
+                                    (1 << 0x9) | (1 << 0xc) | (1 << 0xf));
 
           // If our line segment is an edge, there is lots of work to do.
           if (((noLineValues >> bitCheck) & 1) == 0)
@@ -634,7 +634,7 @@ void vtkVolumeOutlineSource::GenerateLines(
                 {
                 scalars->InsertNextTupleValue(colors[active]);
                 }
-              } 
+              }
             }
 
           } // loop over k
@@ -657,7 +657,7 @@ void vtkVolumeOutlineSource::GeneratePoints(
   vtkCellArray *cellArrays[2];
   cellArrays[0] = lines;
   cellArrays[1] = polys;
-  
+
   for (int arrayId = 0; arrayId < 2; arrayId++)
     {
     if (cellArrays[arrayId])
@@ -686,7 +686,7 @@ void vtkVolumeOutlineSource::GeneratePoints(
     {
     // If we're halfway done, switch over to the next 32 bits
     if (i == 2) { pointBits = pointBits2; }
- 
+
     for (int j = 0; j < 4; j++)
       {
       for (int k = 0; k < 4; k++)
@@ -711,7 +711,7 @@ void vtkVolumeOutlineSource::GeneratePoints(
                 {
                 for (int ii = 0; ii < npts; ii++)
                   {
-                  if (pts[ii] == ptId) { pts[ii] = newPtId; } 
+                  if (pts[ii] == ptId) { pts[ii] = newPtId; }
                   }
                 }
               }

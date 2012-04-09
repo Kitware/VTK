@@ -30,7 +30,7 @@ view.ResetCamera()
 view.Render()
 
 #Here's the window with David's original layout methodology
-#  Aside from the theme elements in the view above, the notable 
+#  Aside from the theme elements in the view above, the notable
 #  difference between the two views is the angling on the edges.
 layout = vtkGraphLayout()
 layout.SetLayoutStrategy(strategy)

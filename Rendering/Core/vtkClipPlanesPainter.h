@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClipPlanesPainter - abstract class defining interface for 
+// .NAME vtkClipPlanesPainter - abstract class defining interface for
 // painter that manages clipping.
 
 #ifndef __vtkClipPlanesPainter_h
@@ -42,12 +42,12 @@ public:
 protected:
   vtkClipPlanesPainter();
   ~vtkClipPlanesPainter();
-  
+
   // Description:
   // Called before RenderInternal() if the Information has been changed
   // since the last time this method was called.
   virtual void ProcessInformation(vtkInformation*);
-  
+
   void SetClippingPlanes(vtkPlaneCollection*);
   vtkPlaneCollection* ClippingPlanes;
 private:

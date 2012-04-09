@@ -19,7 +19,7 @@
 // vtkHandleRepresentations to place and manipulate the three points defining
 // the angle representation. (Note: the three points are referred to as Point1,
 // Center, and Point2, at the two end points (Point1 and Point2) and Center
-// (around which the angle is measured). This particular implementation is a 
+// (around which the angle is measured). This particular implementation is a
 // 2D representation, meaning that it draws in the overlay plane.
 
 // .SECTION See Also
@@ -73,7 +73,7 @@ public:
   vtkGetObjectMacro(Ray1,vtkLeaderActor2D);
   vtkGetObjectMacro(Ray2,vtkLeaderActor2D);
   vtkGetObjectMacro(Arc,vtkLeaderActor2D);
-  
+
   // Description:
   // Method defined by vtkWidgetRepresentation superclass and
   // needed here.

@@ -389,7 +389,7 @@ void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
   knots[numKnots-3] = 1.0;
   knots[numKnots-2] = 1.0;
   knots[numKnots-1] = 1.0;
-  
+
   vtkIdType i;
   for (i = 4; i < numKnots-4; ++i)
     {

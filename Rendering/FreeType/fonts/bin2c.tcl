@@ -19,7 +19,7 @@ proc convert_bin_to_c {bin_file_name} {
     puts "$bin_file_name is open for reading."
 
     # Read contents of binary file
-    
+
     fconfigure $bin_file_id -translation binary
 
     if {[catch {read $bin_file_id} contents]} {
@@ -41,7 +41,7 @@ proc convert_bin_to_c {bin_file_name} {
     }
 
     puts "$bin_file_name is closed."
-    
+
     # Open C file
 
     set bin_file_rootname [file rootname $bin_file_name]
@@ -72,7 +72,7 @@ proc convert_bin_to_c {bin_file_name} {
     }
 
     puts $c_file_id "\n};"
-    
+
     # Close C file
 
     if {[catch {close $c_file_id}]} {

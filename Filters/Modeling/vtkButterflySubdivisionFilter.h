@@ -23,11 +23,11 @@
 // 1996, ACM SIGGRAPH, pp.189-192. This scheme improves previous
 // butterfly subdivisions with special treatment of vertices with valence
 // other than 6.
-// 
+//
 // Currently, the filter only operates on triangles. Users should use the
 // vtkTriangleFilter to triangulate meshes that contain polygons or
 // triangle strips.
-// 
+//
 // The filter interpolates point data using the same scheme. New
 // triangles created at a subdivision step will have the cell data of
 // their parent cell.

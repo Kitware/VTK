@@ -24,15 +24,15 @@
 // a 50x50x50 structured grid is given by (0,49, 0,49, 0,0).
 //
 // The output of this filter is affected by the structured grid blanking.
-// If blanking is on, and a blanking array defined, then those cells 
+// If blanking is on, and a blanking array defined, then those cells
 // attached to blanked points are not output. (Blanking is a property of
 // the input vtkStructuredGrid.)
 
 // .SECTION Caveats
 // If you don't know the dimensions of the input dataset, you can use a large
-// number to specify extent (the number will be clamped appropriately). For 
-// example, if the dataset dimensions are 50x50x50, and you want a the fifth 
-// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will 
+// number to specify extent (the number will be clamped appropriately). For
+// example, if the dataset dimensions are 50x50x50, and you want a the fifth
+// k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will
 // automatically be clamped to 49.
 
 // .SECTION See Also

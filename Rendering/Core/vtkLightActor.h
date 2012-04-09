@@ -56,7 +56,7 @@ public:
   // The spotlight to represent. Initial value is NULL.
   void SetLight(vtkLight *light);
   vtkGetObjectMacro(Light,vtkLight);
-  
+
   // Description:
   // Set/Get the location of the near and far clipping planes along the
   // direction of projection.  Both of these values must be positive.
@@ -65,7 +65,7 @@ public:
                         double dFar);
   void SetClippingRange(const double a[2]);
   vtkGetVector2Macro(ClippingRange,double);
-  
+
   // Description:
   // Support the standard render methods.
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
@@ -87,25 +87,25 @@ public:
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
   unsigned long int GetMTime();
-  
+
 protected:
   vtkLightActor();
   ~vtkLightActor();
-  
+
   void UpdateViewProps();
-  
+
   vtkLight *Light;
   double ClippingRange[2];
-  
+
   vtkConeSource *ConeSource;
   vtkPolyDataMapper *ConeMapper;
   vtkActor *ConeActor;
-  
+
   vtkCamera *CameraLight;
   vtkCameraActor *FrustumActor;
 
   vtkBoundingBox *BoundingBox;
-  
+
 private:
   vtkLightActor(const vtkLightActor&);  // Not implemented.
   void operator=(const vtkLightActor&);  // Not implemented.

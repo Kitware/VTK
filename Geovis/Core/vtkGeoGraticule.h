@@ -84,7 +84,7 @@ public:
   // Description:
   // Set//get the type(s) of cells that will be
   // output by the filter. By default, polylines
-  // are output. You may also request quadrilaterals. 
+  // are output. You may also request quadrilaterals.
   // This is a bit vector of GeometryType enums.
   vtkSetMacro(GeometryType,int);
   vtkGetMacro(GeometryType,int);

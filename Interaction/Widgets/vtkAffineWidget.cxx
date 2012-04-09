@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 
@@ -122,7 +122,7 @@ void vtkAffineWidget::SelectAction(vtkAbstractWidget *w)
                          self->Interactor->GetControlKey();
   reinterpret_cast<vtkAffineRepresentation*>(self->WidgetRep)->
     ComputeInteractionState(X, Y, self->ModifierActive);
-  
+
   if ( self->WidgetRep->GetInteractionState() == vtkAffineRepresentation::Outside )
     {
     return;
@@ -221,7 +221,7 @@ void vtkAffineWidget::EndSelectAction(vtkAbstractWidget *w)
   eventPos[0] = static_cast<double>(X);
   eventPos[1] = static_cast<double>(Y);
   self->WidgetRep->EndWidgetInteraction(eventPos);
-    
+
   // return to initial state
   self->WidgetState = vtkAffineWidget::Start;
   self->ModifierActive = 0;

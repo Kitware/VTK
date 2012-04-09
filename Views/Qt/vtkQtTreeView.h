@@ -20,7 +20,7 @@
 // .NAME vtkQtTreeView - A VTK view based on a Qt tree view.
 //
 // .SECTION Description
-// vtkQtTreeView is a VTK view using an underlying QTreeView. 
+// vtkQtTreeView is a VTK view using an underlying QTreeView.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
@@ -62,14 +62,14 @@ public:
   static vtkQtTreeView *New();
   vtkTypeMacro(vtkQtTreeView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the main container of this view (a  QWidget).
   // The application typically places the view with a call
   // to GetWidget(): something like this
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
-  
+
   // Description:
   // Have the view show/hide its column headers (default is ON)
   void SetShowHeaders(bool);
@@ -152,7 +152,7 @@ public:
   // The array to use for coloring items in view.  Default is "color".
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
-  
+
   // Description:
   // Whether to color vertices.  Default is off.
   void SetColorByArray(bool vis);
@@ -175,7 +175,7 @@ private:
   void SetVTKSelection();
   unsigned long CurrentSelectionMTime;
   unsigned long LastInputMTime;
-  
+
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);
 
@@ -189,12 +189,12 @@ private:
   QAbstractItemView* View;
   char* ColorArrayNameInternal;
   QFilterTreeProxyModel* TreeFilter;
-  
+
   vtkSmartPointer<vtkApplyColors> ApplyColors;
-  
+
   vtkQtTreeView(const vtkQtTreeView&);  // Not implemented.
   void operator=(const vtkQtTreeView&);  // Not implemented.
-  
+
 };
 
 #endif

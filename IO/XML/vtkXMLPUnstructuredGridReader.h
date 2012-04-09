@@ -35,34 +35,34 @@ class VTKIOXML_EXPORT vtkXMLPUnstructuredGridReader : public vtkXMLPUnstructured
 {
 public:
   vtkTypeMacro(vtkXMLPUnstructuredGridReader,vtkXMLPUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPUnstructuredGridReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
-  
+
 protected:
   vtkXMLPUnstructuredGridReader();
   ~vtkXMLPUnstructuredGridReader();
-  
+
   const char* GetDataSetName();
   void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
   void SetupOutputTotals();
-  
+
   void SetupOutputData();
   void SetupNextPiece();
   int ReadPieceData();
-  
+
   void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray);
   vtkXMLDataReader* CreatePieceReader();
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
   // The index of the cell in the output where the current piece
   // begins.
-  vtkIdType StartCell;  
-  
+  vtkIdType StartCell;
+
 private:
   vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&);  // Not implemented.
   void operator=(const vtkXMLPUnstructuredGridReader&);  // Not implemented.

@@ -89,9 +89,9 @@ vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
   this->LeftRepresentation->SetMinimumValue(1);
   this->LeftRepresentation->SetMaximumValue(10);
   this->LeftRepresentation->SetSliderShapeToCylinder();
-  
+
   this->CornerOffset = 0.00;
-  this->OrthoAxis = 2; 
+  this->OrthoAxis = 2;
 }
 
 //----------------------------------------------------------------------
@@ -344,7 +344,7 @@ void vtkCheckerboardRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->ImageActor )
     {
     os << indent << "Image Actor: " << this->ImageActor << "\n";
@@ -362,7 +362,7 @@ void vtkCheckerboardRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Image Checkerboard: (none)\n";
     }
-  
+
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
 
   os << indent << "Top Representation\n";

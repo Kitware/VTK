@@ -19,7 +19,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
@@ -89,7 +89,7 @@ vtkBoxWidget2::vtkBoxWidget2()
 
 //----------------------------------------------------------------------------
 vtkBoxWidget2::~vtkBoxWidget2()
-{  
+{
 }
 
 //----------------------------------------------------------------------
@@ -101,15 +101,15 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkBoxWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -121,11 +121,11 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Test for states that involve face or handle picking here so
   // selection highlighting doesn't happen if that interaction is disabled.
   // Non-handle-grabbing transformations are tested in the "Action" methods.
-  
+
   // Rotation
   if (interactionState == vtkBoxRepresentation::Rotating
        && self->RotationEnabled == 0)
@@ -149,15 +149,15 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
   {
     return;
   }
-  
+
   // We are definitely selected
   self->WidgetState = vtkBoxWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
-  
+
   // The SetInteractionState has the side effect of highlighting the widget
   reinterpret_cast<vtkBoxRepresentation*>(self->WidgetRep)->
     SetInteractionState(interactionState);
- 
+
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
@@ -175,19 +175,19 @@ void vtkBoxWidget2::TranslateAction(vtkAbstractWidget *w)
   {
     return;
   }
-  
+
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkBoxWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -199,13 +199,13 @@ void vtkBoxWidget2::TranslateAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkBoxWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
   reinterpret_cast<vtkBoxRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkBoxRepresentation::Translating);
-  
+
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
@@ -223,19 +223,19 @@ void vtkBoxWidget2::ScaleAction(vtkAbstractWidget *w)
   {
     return;
   }
-  
+
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkBoxWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -247,7 +247,7 @@ void vtkBoxWidget2::ScaleAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkBoxWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -271,7 +271,7 @@ void vtkBoxWidget2::MoveAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
@@ -296,7 +296,7 @@ void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Return state to not active
   self->WidgetState = vtkBoxWidget2::Start;
   reinterpret_cast<vtkBoxRepresentation*>(self->WidgetRep)->

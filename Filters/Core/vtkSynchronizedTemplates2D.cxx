@@ -96,10 +96,10 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   double s0, s1, s2, value;
   int i, j;
   int lineCases[64];
-  
+
   // The update extent may be different than the extent of the image.
-  // The only problem with using the update extent is that one or two 
-  // sources enlarge the update extent.  This behavior is slated to be 
+  // The only problem with using the update extent is that one or two
+  // sources enlarge the update extent.  This behavior is slated to be
   // eliminated.
   vtkIdType *incs = input->GetIncrements();
   int *ext = input->GetExtent();
@@ -107,7 +107,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   int min0, max0, dim0;
   int min1, max1;
   int inc0, inc1;
-  
+
   // Figure out which plane the image lies in.
   if (updateExt[4] == updateExt[5])
     { // z collapsed
@@ -145,20 +145,20 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
     inc1 = incs[2];
     x[0] = origin[0] + (updateExt[0]*spacing[0]);
     }
-  else 
+  else
     {
     vtkGenericWarningMacro("Expecting 2D data.");
     return;
     }
   dim0 = max0-min0+1;
-  
-  
+
+
   // setup the table entries
   for (i = 0; i < 64; i++)
     {
     lineCases[i] = -1;
     }
-  
+
   lineCases[12] = 3;
   lineCases[13] = dim0*2;
 
@@ -181,7 +181,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   lineCases[61] = 1;
   lineCases[62] = 3;
   lineCases[63] = dim0*2;
-    
+
   // allocate storage arrays
   int *isect1 = new int [dim0*4];
   isect1[dim0*2-2] = -1;
@@ -189,13 +189,13 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   isect1[dim0*4-2] = -1;
   isect1[dim0*4-1] = -1;
 
-  
+
   // Compute the staring location.  We may be operating
   // on a part of the image.
-  scalars += incs[0]*(updateExt[0]-ext[0]) 
+  scalars += incs[0]*(updateExt[0]-ext[0])
     + incs[1]*(updateExt[2]-ext[2])
     + incs[2]*(updateExt[4]-ext[4]) + self->GetArrayComponent();
-  
+
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
     {
@@ -206,20 +206,20 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
     lineCases[21] = dim0*2;
     lineCases[37] = dim0*2;
     lineCases[63] = dim0*2;
-    
+
     value = values[vidx];
-    
+
     // Traverse all pixel cells, generating line segements using templates
     for (j = min1; j <= max1; j++)
       {
       inPtr = rowPtr;
       rowPtr += inc1;
-      
+
       // set the y coordinate
       y = origin[axis1] + j*spacing[axis1];
       // first compute the intersections
       s1 = *inPtr;
-      
+
       // swap the buffers
       if (j%2)
         {
@@ -239,7 +239,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
         isect1Ptr = isect1 + dim0*2;
         isect2Ptr = isect1;
         }
-      
+
       for (i = min0; i < max0; i++)
         {
         s0 = s1;
@@ -316,18 +316,18 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
               }
             }
           }
-        
+
         if (j > min1)
-          {       
+          {
           // now add any lines that need to be added
-          // basically look at the isect values, 
+          // basically look at the isect values,
           // form an index and lookup the lines
           idx = (*isect1Ptr > -1 ? 8 : 0);
           idx = idx + (*(isect1Ptr +1) > -1 ? 4 : 0);
           idx = idx + (*(isect1Ptr +3) > -1 ? 2 : 0);
           idx = idx + (*isect2Ptr > -1 ? 1 : 0);
           tablePtr = lineCases + idx*4;
-          
+
           if (*tablePtr != -1)
             {
             ptIds[0] = *(isect1Ptr + *tablePtr);
@@ -416,10 +416,10 @@ int vtkSynchronizedTemplates2D::RequestData(
   int           *ext;
   int           dims[3];
   int           dataSize, estimatedSize;
-  
+
 
   vtkDebugMacro(<< "Executing 2D structured contour");
-  
+
   ext =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   inScalars = this->GetInputArrayToProcess(0,inputVector);
@@ -436,13 +436,13 @@ int vtkSynchronizedTemplates2D::RequestData(
                   "ArrayComponent must be smaller than " << numComps);
     return 1;
     }
-  
+
   // We have to compute the dimenisons from the update extent because
   // the extent may be larger.
   dims[0] = ext[1]-ext[0]+1;
   dims[1] = ext[3]-ext[2]+1;
   dims[2] = ext[5]-ext[4]+1;
-  
+
   //
   // Check dimensionality of data and get appropriate form
   //
@@ -486,12 +486,12 @@ int vtkSynchronizedTemplates2D::RequestData(
     newScalars->SetName(inScalars->GetName());
     }
 
-  vtkDebugMacro(<<"Created: " 
-               << newPts->GetNumberOfPoints() << " points, " 
+  vtkDebugMacro(<<"Created: "
+               << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
   //
   // Update ourselves.  Because we don't know up front how many lines
-  // we've created, take care to reclaim memory. 
+  // we've created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();
@@ -529,7 +529,7 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "ComputeScalarsOff\n";  
+    os << indent << "ComputeScalarsOff\n";
     }
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }

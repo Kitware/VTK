@@ -19,7 +19,7 @@
 // at the cells of the model. A cell-based fielddata stores the material id.
 
 // .SECTION Thanks
-// Thanks to Jean M. Favre (CSCS, Swiss Center for Scientific Computing) who 
+// Thanks to Jean M. Favre (CSCS, Swiss Center for Scientific Computing) who
 // developed this class.
 // Please address all comments to Jean Favre (jfavre at cscs.ch)
 

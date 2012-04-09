@@ -14,7 +14,7 @@
 =========================================================================*/
 // This example demonstrates how to use a vtkHyperOctreeSampleFunction and
 // apply a vtkHyperOctreeCutter filter on it.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -50,9 +50,9 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   vtkTimerLog *timer=vtkTimerLog::New();
-  
+
   // 3D
   vtkHyperOctreeSampleFunction *source3d=vtkHyperOctreeSampleFunction::New();
   vtkSphere *f3d=vtkSphere::New();
@@ -68,20 +68,20 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   source3d->SetDepth(4);
   source3d->SetLevels(6); // 10
   source3d->SetMinLevels(0);
- 
+
   cout<<"update source3d..."<<endl;
   timer->StartTimer();
   source3d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated3d"<<endl;
   cout<<"source3d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   vtkHyperOctreeContourFilter *contour3d=vtkHyperOctreeContourFilter::New();
   contour3d->SetNumberOfContours(3);
   contour3d->SetValue(0,0.5);
   contour3d->SetValue(1,4.0);
   contour3d->SetValue(2,8.0);
-  
+
   contour3d->SetInputConnection(0,source3d->GetOutputPort(0));
   source3d->Delete();
   cout<<"update contour3d..."<<endl;
@@ -90,18 +90,18 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   timer->StopTimer();
   cout<<"contour3d updated"<<endl;
   cout<<"contour3d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
-  
+
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut3d = vtkLookupTable::New(); 
+  vtkLookupTable *lut3d = vtkLookupTable::New();
   lut3d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper3d = vtkPolyDataMapper::New();
   mapper3d->SetInputConnection(0, contour3d->GetOutputPort(0) );
   contour3d->Delete();
-    
+
   mapper3d->SetLookupTable(lut3d);
-  
+
   if(contour3d->GetOutput()->GetCellData()!=0)
     {
     if(contour3d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -110,11 +110,11 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
                                 GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor3d = vtkActor::New();
   actor3d->SetMapper(mapper3d);
   renderer->AddActor(actor3d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer3d=vtkXMLPolyDataWriter::New();
@@ -124,7 +124,7 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   writer3d->Write();
   writer3d->Delete();
 #endif // #ifdef WRITE_RESULT
-  
+
   // 2D
   vtkHyperOctreeSampleFunction *source2d=vtkHyperOctreeSampleFunction::New();
   vtkSphere *f2d=vtkSphere::New();
@@ -140,21 +140,21 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   source2d->SetDepth(4);
   source2d->SetLevels(10); // 7
   source2d->SetMinLevels(0);
- 
+
   cout<<"update source2d..."<<endl;
   timer->StartTimer();
   source2d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated2d"<<endl;
   cout<<"source2d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
-  
+
+
   vtkHyperOctreeContourFilter *contour2d=vtkHyperOctreeContourFilter::New();
   contour2d->SetNumberOfContours(3);
   contour2d->SetValue(0,0.5);
   contour2d->SetValue(1,4.0);
   contour2d->SetValue(2,8.0);
-  
+
   contour2d->SetInputConnection(0,source2d->GetOutputPort(0));
   source2d->Delete();
   cout<<"update contour2d..."<<endl;
@@ -163,9 +163,9 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   timer->StopTimer();
   cout<<"contour2d updated"<<endl;
   cout<<"contour2d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut2d = vtkLookupTable::New(); 
+  vtkLookupTable *lut2d = vtkLookupTable::New();
   lut2d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper2d = vtkPolyDataMapper::New();
@@ -181,12 +181,12 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor2d = vtkActor::New();
   actor2d->SetPosition(5,0,0);
   actor2d->SetMapper(mapper2d);
   renderer->AddActor(actor2d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer2d=vtkXMLPolyDataWriter::New();
@@ -212,21 +212,21 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   source1d->SetDepth(4);
   source1d->SetLevels(10); // 7
   source1d->SetMinLevels(0);
- 
+
   cout<<"update source1d..."<<endl;
   timer->StartTimer();
   source1d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated1d"<<endl;
   cout<<"source1d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
-  
+
+
   vtkHyperOctreeContourFilter *contour1d=vtkHyperOctreeContourFilter::New();
   contour1d->SetNumberOfContours(3);
   contour1d->SetValue(0,0.5);
   contour1d->SetValue(1,4.0);
   contour1d->SetValue(2,8.0);
-  
+
   contour1d->SetInputConnection(0,source1d->GetOutputPort(0));
   source1d->Delete();
   cout<<"update contour1d..."<<endl;
@@ -235,16 +235,16 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   timer->StopTimer();
   cout<<"contour1d updated"<<endl;
   cout<<"contour1d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut1d = vtkLookupTable::New(); 
+  vtkLookupTable *lut1d = vtkLookupTable::New();
   lut1d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper1d = vtkPolyDataMapper::New();
   mapper1d->SetInputConnection(0,contour1d->GetOutputPort(0));
   mapper1d->SetLookupTable(lut1d);
   mapper1d->SetScalarModeToUseCellData();
-  
+
   if(contour1d->GetOutput()->GetCellData()!=0)
     {
     if(contour1d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -253,12 +253,12 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor1d = vtkActor::New();
   actor1d->SetPosition(10,0,0);
   actor1d->SetMapper(mapper1d);
   renderer->AddActor(actor1d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer1d=vtkXMLPolyDataWriter::New();
@@ -276,7 +276,7 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   renderer->ResetCamera();
   cam->Azimuth(180);
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -287,11 +287,11 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
-  
+
   mapper3d->Delete();
   actor3d->Delete();
   lut3d->Delete();
-  
+
   mapper2d->Delete();
   actor2d->Delete();
   lut2d->Delete();
@@ -303,6 +303,6 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   contour1d->Delete();
 
   timer->Delete();
-  
+
   return !retVal;
 }

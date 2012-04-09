@@ -31,12 +31,12 @@ class VTKFILTERSGENERAL_EXPORT vtkReflectionFilter : public vtkDataObjectAlgorit
 {
 public:
   static vtkReflectionFilter *New();
-  
+
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
 //BTX
-  enum ReflectionPlane 
+  enum ReflectionPlane
   {
     USE_X_MIN = 0,
     USE_Y_MIN = 1,
@@ -76,7 +76,7 @@ public:
   vtkSetMacro(CopyInput, int);
   vtkGetMacro(CopyInput, int);
   vtkBooleanMacro(CopyInput, int);
-  
+
 protected:
   vtkReflectionFilter();
   ~vtkReflectionFilter();
@@ -104,9 +104,9 @@ protected:
   int Plane;
   double Center;
   int CopyInput;
-  
+
   void FlipVector(double tuple[3], int mirrorDir[3]);
-  
+
 private:
   vtkReflectionFilter(const vtkReflectionFilter&);  // Not implemented
   void operator=(const vtkReflectionFilter&);  // Not implemented

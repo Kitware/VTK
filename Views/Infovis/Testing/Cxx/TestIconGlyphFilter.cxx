@@ -33,7 +33,7 @@
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
 
-  
+
 int TestIconGlyphFilter( int argc, char *argv[])
 {
   char* fname =
@@ -88,7 +88,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   graph->AddEdge(5, 6);
   graph->AddEdge(6, 7);
   graph->AddEdge(7, 0);
- 
+
   iconIndex->InsertNextTuple1(1);
   iconIndex->InsertNextTuple1(4);
   iconIndex->InsertNextTuple1(26);
@@ -103,7 +103,7 @@ int TestIconGlyphFilter( int argc, char *argv[])
   view->SetRepresentationFromInput(graph);
   view->SetLayoutStrategyToSimple2D();
   view->ResetCamera();
-  
+
   vtkTexture * texture =  vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   view->SetIconTexture(texture);

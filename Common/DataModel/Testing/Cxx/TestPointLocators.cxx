@@ -24,7 +24,7 @@
 // returns true if 2 points are equidistant from x, within a tolerance
 bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2,
                           vtkPointSet* grid)
-{ 
+{
   if(id1 == id2)
     {
     return true;
@@ -40,19 +40,19 @@ bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2,
     differenceDist2 = -differenceDist2;
     }
 
-  if(differenceDist2/(firstDist2+secondDist2) > 
+  if(differenceDist2/(firstDist2+secondDist2) >
      .00001)
     {
     cerr << "Results do not match (first dist2="
          << firstDist2 << " , second dist2=" << secondDist2 << ") ";
     return false;
-    }  
+    }
   return true;
 }
 
 // checks that every point in firstList has a matching point (based
 // on distance) in secondList
-bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList, 
+bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList,
                               vtkIdList* secondList,
                               vtkPointSet* grid)
 {
@@ -71,7 +71,7 @@ bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList,
       {
       for(vtkIdType kid=0;kid<secondList->GetNumberOfIds();kid++)
         {
-        if(ArePointsEquidistant(x, firstList->GetId(uid), 
+        if(ArePointsEquidistant(x, firstList->GetId(uid),
                                 secondList->GetId(kid), grid))
           {
           found = 1;
@@ -85,35 +85,35 @@ bool DoesListHaveProperPoints(double x[3], vtkIdList* firstList,
       }
     }
   return 1;
-  
+
 }
 
-// This test compares results for different point locators since they should 
+// This test compares results for different point locators since they should
 // all return the same results (within a tolerance)
-int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLocator* locator2)  
+int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLocator* locator2)
 {
   int rval = 0;
   int i, j, k, kOffset, jOffset, offset;
   float x[3];
   static int dims[3]={39,31,31};
-  
+
   // Create the structured grid.
   vtkStructuredGrid *sgrid = vtkStructuredGrid::New();
     sgrid->SetDimensions(dims);
 
-  // We also create the points. 
+  // We also create the points.
   vtkPoints *points = vtkPoints::New();
     points->Allocate(dims[0]*dims[1]*dims[2]);
-  
+
   for ( k=0; k<dims[2]; k++)
     {
     x[2] = 1.0 + k*1.2;
     kOffset = k * dims[0] * dims[1];
-    for (j=0; j<dims[1]; j++) 
+    for (j=0; j<dims[1]; j++)
       {
       x[1] = sqrt(10.+j*2.);
       jOffset = j * dims[0];
-      for (i=0; i<dims[0]; i++) 
+      for (i=0; i<dims[0]; i++)
         {
         x[0] = 1+i*i*.5;
         offset = i + jOffset + kOffset;
@@ -126,7 +126,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
 
   locator1->SetDataSet(sgrid);
   locator2->SetDataSet(sgrid);
-  
+
   double bounds[6];
   sgrid->GetBounds(bounds);
   for(i=0;i<3;i++)
@@ -151,11 +151,11 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
       rval++;
       }
     int N = 1+i*250/numSearchPoints; // test different amounts of points to search for
-    locator1->FindClosestNPoints(N, point, locator1List);  
+    locator1->FindClosestNPoints(N, point, locator1List);
     locator2->FindClosestNPoints(N, point, locator2List);
     if(!ArePointsEquidistant(point, locator1Pt, locator1List->GetId(0), sgrid))
       {
-      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator1.\n";      
+      cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator1.\n";
       rval++;
       }
     if(!ArePointsEquidistant(point, locator2Pt, locator2List->GetId(0), sgrid))
@@ -163,7 +163,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
       cerr << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator2.\n";
       rval++;
       }
-    
+
     for(j=0;j<N;j++)
       {
       if(!ArePointsEquidistant(point, locator2List->GetId(j), locator1List->GetId(j), sgrid))
@@ -245,7 +245,7 @@ int TestKdTreePointLocator()
     pointA[2] = ((double) rand()) / RAND_MAX;
     A->SetPoint( point, pointA );
     }
- 
+
   vtkKdTree * kd = vtkKdTree::New();
   kd->BuildLocatorFromPoints( A );
 
@@ -279,8 +279,8 @@ int TestKdTreePointLocator()
       }
     if ( (idA != closest_id ) && ( diff/ld2 > .00001 ))
       {
-      cerr << "KdTree found the closest point to be " << ld2 
-           << " away but a brute force method returned a closer distance of " 
+      cerr << "KdTree found the closest point to be " << ld2
+           << " away but a brute force method returned a closer distance of "
                 << min_dist2 << endl;
       rval++;
       }
@@ -288,7 +288,7 @@ int TestKdTreePointLocator()
 
   kd->Delete();
   A->Delete();
-  
+
   return rval;
 }
 
@@ -301,7 +301,7 @@ int TestPointLocators(int , char *[])
   int rval = ComparePointLocators(uniformLocator, kdTreeLocator);
 
   vtkOctreePointLocator* octreeLocator = vtkOctreePointLocator::New();
-  
+
   cout << "Comparing vtkOctreePointLocator to vtkKdTreePointLocator.\n";
   rval += ComparePointLocators(octreeLocator, kdTreeLocator);
 

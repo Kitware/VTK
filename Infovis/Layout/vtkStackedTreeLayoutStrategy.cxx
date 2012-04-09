@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
   Program:   Visualization Toolkit
   Module:    vtkStackedTreeLayoutStrategy.cxx
 
@@ -152,7 +152,7 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
       {
       x = 0.5*(sector_coords[0] + sector_coords[1]);
       y = 0.5*(sector_coords[2] + sector_coords[3]);
-      z = 0.;  
+      z = 0.;
 
       textRotationArray->SetValue( i, 0 );
       textBoundedSizeArray->SetValue( 2*i, sector_coords[1] - sector_coords[0]);
@@ -175,13 +175,13 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
         x = r * cos( vtkMath::RadiansFromDegrees( theta ) );
         y = r * sin( vtkMath::RadiansFromDegrees( theta ) );
         z = 0.;
-        
+
         double sector_arc_length = r * vtkMath::RadiansFromDegrees(sector_coords[1] - sector_coords[0]);
         double radial_arc_length = sector_coords[3] - sector_coords[2];
         double aspect_ratio = sector_arc_length / radial_arc_length;
         if( aspect_ratio > 1 )
           {
-          //sector length is greater than radial length; 
+          //sector length is greater than radial length;
           // align text with the sector
           if( theta > 0. && theta < 180. )
             {
@@ -372,7 +372,7 @@ void vtkStackedTreeLayoutStrategy::LayoutChildren(
     }
   //FIXME - we may want to do this instead...
   //double new_outer_rad = new_interior_rad +this->RingThickness[level];
- 
+
   double radial_spacing = this->ShrinkPercentage * this->RingThickness;
   new_outer_rad -= radial_spacing;
   //new_interior_rad += 0.5*radial_spacing;
@@ -566,13 +566,13 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
         }
       boundsInfo->GetTupleValue(child, blimits); // Get the extents of the child
 
-      // the range checking below doesn't work if either or both of blimits > 360  
+      // the range checking below doesn't work if either or both of blimits > 360
       if ((blimits[0] > 360.0) && (blimits[1] > 360.0))
         {
         blimits[0] -= 360.0;
         blimits[1] -= 360.0;
         }
-      else if ((blimits[0] < 360.0) && (blimits[1] > 360.0) && (polar_location[1] < 360.0)) 
+      else if ((blimits[0] < 360.0) && (blimits[1] > 360.0) && (polar_location[1] < 360.0))
         {  // if the range spans the rollover at 0/360 on the circle
         if (polar_location[1] < 90.0)
           {

@@ -74,7 +74,7 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePieceAttributes()
     {
     return;
     }
-  
+
   vtkUnstructuredGrid* input = this->GetInput();
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
 }
@@ -83,30 +83,30 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePieceAttributes()
 void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 {
   vtkUnstructuredGrid* input = this->GetInput();
-  
+
   // Split progress range by the approximate fraction of data written
   // by each step in this method.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
-  
+
   // Set the range of progress for superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   // Set range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Write the cell specifications.
   this->WriteCellsInline("Cells", input->GetCells(),
-                         input->GetCellTypesArray(), 
+                         input->GetCellTypesArray(),
                          input->GetFaces(),
                          input->GetFaceLocations(),
                          indent);
@@ -138,7 +138,7 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceAttributes(int index)
     {
     return;
     }
-  
+
   this->NumberOfCellsPositions[index] =
     this->ReserveAttributeSpace("NumberOfCells");
 }
@@ -153,8 +153,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
     {
     return;
     }
-  
-  this->WriteCellsAppended("Cells", input->GetCellTypesArray(), 
+
+  this->WriteCellsAppended("Cells", input->GetCellTypesArray(),
                            indent, &this->CellsOM->GetPiece(index));
 }
 
@@ -172,29 +172,29 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
     return;
     }
   os.seekp(returnPosition);
-  
+
   // Split progress range by the approximate fraction of data written
   // by each step in this method.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
-  
+
   // Set the range of progress for superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   // Set range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Write the cell specification arrays.
-  this->WriteCellsAppendedData( input->GetCells(), 
+  this->WriteCellsAppendedData( input->GetCells(),
     input->GetCellTypesArray(), input->GetFaces(),
     input->GetFaceLocations(), this->CurrentTimeIndex,
     &this->CellsOM->GetPiece(index));
@@ -210,14 +210,14 @@ vtkIdType vtkXMLUnstructuredGridWriter::GetNumberOfInputCells()
 void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
 {
   vtkUnstructuredGrid* input = this->GetInput();
-  
+
   // The superclass will write point/cell data and point specifications.
   int pdArrays = input->GetPointData()->GetNumberOfArrays();
   int cdArrays = input->GetCellData()->GetNumberOfArrays();
   vtkIdType pdSize = pdArrays*this->GetNumberOfInputPoints();
   vtkIdType cdSize = cdArrays*this->GetNumberOfInputCells();
   vtkIdType pointsSize = this->GetNumberOfInputPoints();
-  
+
   // This class will write cell specifications.
   vtkIdType connectSize;
   if(input->GetCells()==0)
@@ -231,7 +231,7 @@ void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
     }
   vtkIdType offsetSize = input->GetNumberOfCells();
   vtkIdType typesSize = input->GetNumberOfCells();
-  
+
   int total = (pdSize+cdSize+pointsSize+connectSize+offsetSize+typesSize);
   if(total == 0)
     {

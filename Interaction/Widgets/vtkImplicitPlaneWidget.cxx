@@ -1062,7 +1062,7 @@ void vtkImplicitPlaneWidget::SetOrigin(double x, double y, double z)
 //----------------------------------------------------------------------------
 // Description:
 // Set the origin of the plane.
-void vtkImplicitPlaneWidget::SetOrigin(double x[3]) 
+void vtkImplicitPlaneWidget::SetOrigin(double x[3])
 {
   double *bounds = this->Outline->GetOutput()->GetBounds();
   for (int i=0; i<3; i++)
@@ -1083,13 +1083,13 @@ void vtkImplicitPlaneWidget::SetOrigin(double x[3])
 //----------------------------------------------------------------------------
 // Description:
 // Get the origin of the plane.
-double* vtkImplicitPlaneWidget::GetOrigin() 
+double* vtkImplicitPlaneWidget::GetOrigin()
 {
   return this->Plane->GetOrigin();
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneWidget::GetOrigin(double xyz[3]) 
+void vtkImplicitPlaneWidget::GetOrigin(double xyz[3])
 {
   this->Plane->GetOrigin(xyz);
 }
@@ -1097,7 +1097,7 @@ void vtkImplicitPlaneWidget::GetOrigin(double xyz[3])
 //----------------------------------------------------------------------------
 // Description:
 // Set the normal to the plane.
-void vtkImplicitPlaneWidget::SetNormal(double x, double y, double z) 
+void vtkImplicitPlaneWidget::SetNormal(double x, double y, double z)
 {
   double n[3];
   n[0] = x;
@@ -1111,7 +1111,7 @@ void vtkImplicitPlaneWidget::SetNormal(double x, double y, double z)
 //----------------------------------------------------------------------------
 // Description:
 // Set the normal to the plane.
-void vtkImplicitPlaneWidget::SetNormal(double n[3]) 
+void vtkImplicitPlaneWidget::SetNormal(double n[3])
 {
   this->SetNormal(n[0], n[1], n[2]);
 }
@@ -1119,13 +1119,13 @@ void vtkImplicitPlaneWidget::SetNormal(double n[3])
 //----------------------------------------------------------------------------
 // Description:
 // Get the normal to the plane.
-double* vtkImplicitPlaneWidget::GetNormal() 
+double* vtkImplicitPlaneWidget::GetNormal()
 {
   return this->Plane->GetNormal();
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneWidget::GetNormal(double xyz[3]) 
+void vtkImplicitPlaneWidget::GetNormal(double xyz[3])
 {
   this->Plane->GetNormal(xyz);
 }
@@ -1201,8 +1201,8 @@ void vtkImplicitPlaneWidget::SetNormalToZAxis (int var)
 
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget::GetPolyData(vtkPolyData *pd)
-{ 
-  pd->ShallowCopy(this->Cutter->GetOutput()); 
+{
+  pd->ShallowCopy(this->Cutter->GetOutput());
 }
 
 //----------------------------------------------------------------------------
@@ -1218,7 +1218,7 @@ void vtkImplicitPlaneWidget::GetPlane(vtkPlane *plane)
     {
     return;
     }
-  
+
   plane->SetNormal(this->Plane->GetNormal());
   plane->SetOrigin(this->Plane->GetOrigin());
 }

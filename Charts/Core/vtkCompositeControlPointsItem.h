@@ -59,7 +59,7 @@ public:
     ColorAndOpacityPointsFunction = 3
   };
   // Description:
-  // PointsFunction controls wether the points represent the 
+  // PointsFunction controls wether the points represent the
   // ColorTransferFunction, OpacityTransferFunction or both.
   // If ColorPointsFunction, only the points of the ColorTransfer function are
   // used.

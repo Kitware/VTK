@@ -77,7 +77,7 @@
 // See vtkSNL/Rendering/Shaders/vtkCamera.cg
 //
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkCgShader_h
@@ -100,7 +100,7 @@ public:
   static vtkCgShader *New();
   vtkTypeMacro(vtkCgShader, vtkShader);
   void PrintSelf(ostream &os, vtkIndent indent);
- 
+
   // Called to compile the shader code.
   // The vtkShaderProgram calls this method only when
   // vtkShader::IsCompiled() returns false.
@@ -110,7 +110,7 @@ public:
 
   // Description:
   // In this method the shader can enable/bind itself. This is applicable
-  // only to Cg, since in GLSL, individual shaders in a program can't be 
+  // only to Cg, since in GLSL, individual shaders in a program can't be
   // enabled/bound.
   virtual void  Bind();
 
@@ -136,7 +136,7 @@ public:
   // Shader variables over to the shader. This is called by the ShaderProgram
   // during each render. We override this method for Cg shaders, since for Cg shaders,
   // we need to ensure that the actor transformations are pushed before
-  // state matrix uniform variables are bound. 
+  // state matrix uniform variables are bound.
   virtual void PassShaderVariables(vtkActor* actor, vtkRenderer* ren);
 //BTX
 protected:
@@ -151,9 +151,9 @@ protected:
 
   // Description:
   // Equivalent to cgGLSetMatrixParameterfc and glUniformMatrix.
-  virtual void SetMatrixParameter(const char* name, int numValues, 
+  virtual void SetMatrixParameter(const char* name, int numValues,
     int order, const float* value);
-  virtual void SetMatrixParameter(const char* name, int numValues, 
+  virtual void SetMatrixParameter(const char* name, int numValues,
     int order, const double* value);
   virtual void SetMatrixParameter(const char* name, const char* state_matix_type,
     const char* transform_type);
@@ -165,7 +165,7 @@ protected:
 private:
   vtkCgShader(const vtkCgShader&); // Not Implemented
   void operator=(const vtkCgShader&); // Not Implemented
-  
+
   vtkCgShaderInternals* Internals;
 //ETX
 };

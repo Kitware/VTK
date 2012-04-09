@@ -34,7 +34,7 @@ int TestLineSource( int argc, char* argv[] )
 {
   (void)argc;
   (void)argv;
-  
+
   {
   // Test double functions
   double p1[3] = {1.0, 0.0, 0.0};
@@ -96,6 +96,6 @@ int TestLineSource( int argc, char* argv[] )
     return EXIT_FAILURE;
     }
   }
-  
+
   return EXIT_SUCCESS;
 }

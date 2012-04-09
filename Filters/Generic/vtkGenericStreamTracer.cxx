@@ -46,7 +46,7 @@ const double vtkGenericStreamTracer::EPSILON = 1.0E-12;
 vtkGenericStreamTracer::vtkGenericStreamTracer()
 {
   this->SetNumberOfInputPorts(2);
-  
+
   this->Integrator = vtkRungeKutta2::New();
   this->IntegrationDirection = FORWARD;
   for(int i=0; i<3; i++)
@@ -109,7 +109,7 @@ vtkDataSet *vtkGenericStreamTracer::GetSource()
 
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::AddInputData(vtkGenericDataSet* input)
-{  
+{
   this->Superclass::AddInputData(input);
 }
 
@@ -117,7 +117,7 @@ void vtkGenericStreamTracer::AddInputData(vtkGenericDataSet* input)
 //----------------------------------------------------------------------------
 int vtkGenericStreamTracer
 ::FillInputPortInformation(int port, vtkInformation* info)
-{ 
+{
   if(!this->Superclass::FillInputPortInformation(port, info))
     {
     return 0;
@@ -359,10 +359,10 @@ double vtkGenericStreamTracer::ConvertToTime(
       retVal = interval.Interval;
       break;
     case LENGTH_UNIT:
-      retVal = interval.Interval/speed; 
+      retVal = interval.Interval/speed;
       break;
     case CELL_LENGTH_UNIT:
-      retVal = interval.Interval*cellLength/speed; 
+      retVal = interval.Interval*cellLength/speed;
       break;
     }
   return retVal;
@@ -381,10 +381,10 @@ double vtkGenericStreamTracer::ConvertToLength(
       retVal = interval.Interval * speed;
       break;
     case LENGTH_UNIT:
-      retVal = interval.Interval; 
+      retVal = interval.Interval;
       break;
     case CELL_LENGTH_UNIT:
-      retVal = interval.Interval*cellLength; 
+      retVal = interval.Interval*cellLength;
       break;
     }
   return retVal;
@@ -403,10 +403,10 @@ double vtkGenericStreamTracer::ConvertToCellLength(
       retVal = (interval.Interval * speed)/cellLength;
       break;
     case LENGTH_UNIT:
-      retVal = interval.Interval/cellLength; 
+      retVal = interval.Interval/cellLength;
       break;
     case CELL_LENGTH_UNIT:
-      retVal = interval.Interval; 
+      retVal = interval.Interval;
       break;
     }
   return retVal;
@@ -414,9 +414,9 @@ double vtkGenericStreamTracer::ConvertToCellLength(
 
 //-----------------------------------------------------------------------------
 double vtkGenericStreamTracer::ConvertToUnit(
-  vtkGenericStreamTracer::IntervalInformation& interval, 
-  int unit, 
-  double cellLength, 
+  vtkGenericStreamTracer::IntervalInformation& interval,
+  int unit,
+  double cellLength,
   double speed)
 {
   double retVal = 0.0;
@@ -451,7 +451,7 @@ void vtkGenericStreamTracer::ConvertIntervals(double& step,
     }
   else
     {
-    minStep = this->ConvertToTime(this->MinimumIntegrationStep, cellLength,  
+    minStep = this->ConvertToTime(this->MinimumIntegrationStep, cellLength,
                                   speed);
     }
   if ( this->MaximumIntegrationStep.Interval <= 0.0 )
@@ -460,13 +460,13 @@ void vtkGenericStreamTracer::ConvertIntervals(double& step,
     }
   else
     {
-    maxStep = this->ConvertToTime(this->MaximumIntegrationStep,cellLength, 
+    maxStep = this->ConvertToTime(this->MaximumIntegrationStep,cellLength,
                                   speed);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkGenericStreamTracer::CalculateVorticity(vtkGenericAdaptorCell* cell, 
+void vtkGenericStreamTracer::CalculateVorticity(vtkGenericAdaptorCell* cell,
                                                 double pcoords[3],
                                                 vtkGenericAttribute *attribute,
                                                 double vorticity[3])
@@ -474,10 +474,10 @@ void vtkGenericStreamTracer::CalculateVorticity(vtkGenericAdaptorCell* cell,
   assert("pre: attribute_exists" && attribute!=0);
   assert("pre: point_centered_attribute" && attribute->GetCentering()==vtkPointCentered);
   assert("pre: vector_attribute" && attribute->GetType()==vtkDataSetAttributes::VECTORS);
-  
+
   double derivs[9];
   cell->Derivatives(0,pcoords,attribute,derivs);
-  
+
   vorticity[0] = derivs[7] - derivs[5];
   vorticity[1] = derivs[2] - derivs[6];
   vorticity[2] = derivs[3] - derivs[1];
@@ -598,7 +598,7 @@ int vtkGenericStreamTracer::RequestData(
   vtkIdList* seedIds = 0;
   vtkIntArray* integrationDirections = 0;
   this->InitializeSeeds(seeds, seedIds, integrationDirections);
-  
+
   if (seeds)
     {
     double lastPoint[3];
@@ -614,9 +614,9 @@ int vtkGenericStreamTracer::RequestData(
       }
     this->Integrate(input,
                     output,
-                    seeds, 
-                    seedIds, 
-                    integrationDirections, 
+                    seeds,
+                    seedIds,
+                    integrationDirections,
                     lastPoint,
                     func);
     func->Delete();
@@ -645,7 +645,7 @@ int vtkGenericStreamTracer::CheckInputs(
     func->CopyParameters(this->InterpolatorPrototype);
     }
   func->SelectVectors(this->InputVectorsSelection);
- 
+
   // Add all the inputs ( except source, of course ) which
   // have the appropriate vectors and compute the maximum
   // cell size.
@@ -655,7 +655,7 @@ int vtkGenericStreamTracer::CheckInputs(
     {
     vtkInformation *info = inputVector[0]->GetInformationObject(i);
     vtkGenericDataSet* inp=0;
-  
+
     if(info!=0)
       {
       inp = vtkGenericDataSet::SafeDownCast(
@@ -668,7 +668,7 @@ int vtkGenericStreamTracer::CheckInputs(
       if(this->InputVectorsSelection!=0)
         {
         attrib=inp->GetAttributes()->FindAttribute(this->InputVectorsSelection);
-        
+
         attributeFound=attrib>=0;
         if(attributeFound)
           {
@@ -683,7 +683,7 @@ int vtkGenericStreamTracer::CheckInputs(
         int c=inp->GetAttributes()->GetNumberOfAttributes();
         while(attrib<c&&!attributeFound)
           {
-          attributeFound = 
+          attributeFound =
             (inp->GetAttributes()->GetAttribute(attrib)->GetType() ==
              vtkDataSetAttributes::VECTORS)
             &&
@@ -718,12 +718,12 @@ int vtkGenericStreamTracer::CheckInputs(
 void vtkGenericStreamTracer::Integrate(
   vtkGenericDataSet *input0,
   vtkPolyData* output,
-  vtkDataArray* seedSource, 
+  vtkDataArray* seedSource,
   vtkIdList* seedIds,
   vtkIntArray* integrationDirections,
   double lastPoint[3],
   vtkGenericInterpolatedVelocityField* func)
-{ 
+{
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
 
@@ -732,7 +732,7 @@ void vtkGenericStreamTracer::Integrate(
   vtkDataSetAttributes* outputCD = output->GetCellData();
   vtkGenericDataSet* input;
   vtkGenericAttribute* inVectors;
-  
+
   int direction=1;
 
   if (this->GetIntegrator() == 0)
@@ -741,12 +741,12 @@ void vtkGenericStreamTracer::Integrate(
     return;
     }
 
-  // Used in GetCell() 
+  // Used in GetCell()
 //  vtkGenericCell* cell = vtkGenericCell::New();
   vtkGenericAdaptorCell *cell=0;
-  
+
   // Create a new integrator, the type is the same as Integrator
-  vtkInitialValueProblemSolver* integrator = 
+  vtkInitialValueProblemSolver* integrator =
     this->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
@@ -766,7 +766,7 @@ void vtkGenericStreamTracer::Integrate(
   // This array explains why the integration stopped
   vtkIntArray* retVals = vtkIntArray::New();
   retVals->SetName("ReasonForTermination");
-  
+
   vtkDoubleArray* vorticity = 0;
   vtkDoubleArray* rotation = 0;
   vtkDoubleArray* angularVel = 0;
@@ -782,20 +782,20 @@ void vtkGenericStreamTracer::Integrate(
     angularVel = vtkDoubleArray::New();
     angularVel->SetName("AngularVelocity");
     }
-  
+
   // We will interpolate all point attributes of the input on
   // each point of the output (unless they are turned off)
   // Note that we are using only the first input, if there are more
   // than one, the attributes have to match.
-  
+
   // prepare the output attributes
   vtkGenericAttributeCollection *attributes=input0->GetAttributes();
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
-  
+
   int c = attributes->GetNumberOfAttributes();
   int attributeType;
-  
+
   // Only point centered attributes will be interpolated.
   // Cell centered attributes are not ignored and not copied in output:
   // is a missing part in vtkStreamTracer? Need to ask to the Berk.
@@ -810,7 +810,7 @@ void vtkGenericStreamTracer::Integrate(
       attributeArray->SetName(attribute->GetName());
       outputPD->AddArray(attributeArray);
       attributeArray->Delete();
-      
+
       if(outputPD->GetAttribute(attributeType)==0)
         {
         outputPD->SetActiveAttribute(outputPD->GetNumberOfArrays()-1,
@@ -819,8 +819,8 @@ void vtkGenericStreamTracer::Integrate(
       }
     }
   double *values = new double[outputPD->GetNumberOfComponents()]; // point centered attributes at some point.
-  
-  
+
+
   // Note:  It is an overestimation to have the estimate the same number of
   // output points and input points.  We sill have to squeeze at end.
 
@@ -848,12 +848,12 @@ void vtkGenericStreamTracer::Integrate(
     // temporary variables used in the integration
     double point1[3], point2[3], pcoords[3], vort[3], omega;
     vtkIdType index, numPts=0;
-    
+
     // Clear the last cell to avoid starting a search from
     // the last point in the streamline
     func->ClearLastCell();
 
-    
+
     // Initial point
     seedSource->GetTuple(seedIds->GetId(currentLine), point1);
     memcpy(point2, point1, 3*sizeof(double));
@@ -868,7 +868,7 @@ void vtkGenericStreamTracer::Integrate(
     time->InsertNextValue(0.0);
 
     // We will always pass a time step to the integrator.
-    // If the user specifies a step size with another unit, we will 
+    // If the user specifies a step size with another unit, we will
     // have to convert it to time.
     IntervalInformation delT;
     delT.Unit = TIME_UNIT;
@@ -884,9 +884,9 @@ void vtkGenericStreamTracer::Integrate(
     // Make sure we use the dataset found
     // by the vtkGenericInterpolatedVelocityField
     input = func->GetLastDataSet();
-    
+
     inVectors=input->GetAttributes()->GetAttribute(input->GetAttributes()->FindAttribute(this->InputVectorsSelection));
-    
+
     // Convert intervals to time unit
     cell=func->GetLastCell();
     cellLength = sqrt(static_cast<double>(cell->GetLength2()));
@@ -895,7 +895,7 @@ void vtkGenericStreamTracer::Integrate(
     // Never call conversion methods if speed == 0
     if (speed != 0.0)
       {
-      this->ConvertIntervals(delT.Interval, minStep, maxStep, direction, 
+      this->ConvertIntervals(delT.Interval, minStep, maxStep, direction,
                              cellLength, speed);
       }
 
@@ -903,7 +903,7 @@ void vtkGenericStreamTracer::Integrate(
     func->GetLastLocalCoordinates(pcoords);
     cell->InterpolateTuple(input->GetAttributes(),pcoords,
                            values);
-    
+
     double *p = values;
     vtkDataArray *dataArray;
     c = outputPD->GetNumberOfArrays();
@@ -914,7 +914,7 @@ void vtkGenericStreamTracer::Integrate(
       dataArray->InsertTuple(nextPoint,p);
       p += dataArray->GetNumberOfComponents();
       }
-    
+
     // Compute vorticity if required
     // This can be used later for streamribbon generation.
     if (this->ComputeVorticity)
@@ -927,7 +927,7 @@ void vtkGenericStreamTracer::Integrate(
       // accurate than this one!
       vtkGenericStreamTracer::CalculateVorticity(cell, pcoords, inVectors,
                                                  vort);
-      
+
       vorticity->InsertNextTuple(vort);
       // rotation
       // local rotation = vorticity . unit tangent ( i.e. velocity/speed )
@@ -947,7 +947,7 @@ void vtkGenericStreamTracer::Integrate(
 
     vtkIdType numSteps = 0;
     double error = 0;
-    // Integrate until the maximum propagation length is reached, 
+    // Integrate until the maximum propagation length is reached,
     // maximum number of steps is reached or until a boundary is encountered.
     // Begin Integration
     while ( propagation < this->MaximumPropagation.Interval )
@@ -961,7 +961,7 @@ void vtkGenericStreamTracer::Integrate(
 
       if ( numSteps++ % 1000 == 1 )
         {
-        progress = 
+        progress =
           (currentLine + propagation / this->MaximumPropagation.Interval) /
           numLines ;
         this->UpdateProgress(progress);
@@ -982,10 +982,10 @@ void vtkGenericStreamTracer::Integrate(
 
       // If, with the next step, propagation will be larger than
       // max, reduce it so that it is (approximately) equal to max.
-      aStep.Interval = fabs(this->ConvertToUnit(delT, 
+      aStep.Interval = fabs(this->ConvertToUnit(delT,
                                                 this->MaximumPropagation.Unit,
                                                 cellLength, speed));
-      if ( (propagation + aStep.Interval) >  
+      if ( (propagation + aStep.Interval) >
            this->MaximumPropagation.Interval )
         {
         aStep.Interval = this->MaximumPropagation.Interval - propagation;
@@ -1000,12 +1000,12 @@ void vtkGenericStreamTracer::Integrate(
         maxStep = delT.Interval;
         }
       this->LastUsedTimeStep = delT.Interval;
-          
+
       // Calculate the next step using the integrator provided
       // Break if the next point is out of bounds.
       if ((tmp=
-           integrator->ComputeNextStep(point1, point2, 0, delT.Interval, 
-                                       stepTaken, minStep, maxStep, 
+           integrator->ComputeNextStep(point1, point2, 0, delT.Interval,
+                                       stepTaken, minStep, maxStep,
                                        this->MaximumError, error)) != 0)
         {
         retVal = tmp;
@@ -1015,7 +1015,7 @@ void vtkGenericStreamTracer::Integrate(
 
       accumTime += stepTaken;
       // Calculate propagation (using the same units as MaximumPropagation
-      propagation += fabs(this->ConvertToUnit(delT, 
+      propagation += fabs(this->ConvertToUnit(delT,
                                               this->MaximumPropagation.Unit,
                                               cellLength, speed));
 
@@ -1033,12 +1033,12 @@ void vtkGenericStreamTracer::Integrate(
         memcpy(lastPoint, point2, 3*sizeof(double));
         break;
         }
-      
+
       // Make sure we use the dataset found by the vtkInterpolatedVelocityField
       input = func->GetLastDataSet();
 
       inVectors=input->GetAttributes()->GetAttribute(input->GetAttributes()->FindAttribute(this->InputVectorsSelection));
-      
+
 
       // Point is valid. Insert it.
       numPts++;
@@ -1049,14 +1049,14 @@ void vtkGenericStreamTracer::Integrate(
       // Calculate cell length and speed to be used in unit conversions
       cell=func->GetLastCell();
       cellLength = sqrt(static_cast<double>(cell->GetLength2()));
-    
+
       speed = vtkMath::Norm(velocity);
 
       // Interpolate all point attributes on current point
       func->GetLastLocalCoordinates(pcoords);
       cell->InterpolateTuple(input->GetAttributes(),pcoords,
                              values);
-      
+
       p = values;
       c = outputPD->GetNumberOfArrays();
       for(j = 0; j<c; ++j)
@@ -1069,10 +1069,10 @@ void vtkGenericStreamTracer::Integrate(
       // Compute vorticity if required
       // This can be used later for streamribbon generation.
       if (this->ComputeVorticity)
-        {        
+        {
         vtkGenericStreamTracer::CalculateVorticity(cell, pcoords, inVectors,
                                                  vort);
-        
+
         vorticity->InsertNextTuple(vort);
         // rotation
         // angular velocity = vorticity . unit tangent ( i.e. velocity/speed )
@@ -1082,7 +1082,7 @@ void vtkGenericStreamTracer::Integrate(
         omega *= this->RotationScale;
         index = angularVel->InsertNextValue(omega);
         rotation->InsertNextValue(rotation->GetValue(index-1) +
-                                  (angularVel->GetValue(index-1) + omega)/2 * 
+                                  (angularVel->GetValue(index-1) + omega)/2 *
                                   (accumTime - time->GetValue(index-1)));
         }
 
@@ -1094,12 +1094,12 @@ void vtkGenericStreamTracer::Integrate(
         }
 
       // Convert all intervals to time
-      this->ConvertIntervals(step, minStep, maxStep, direction, 
+      this->ConvertIntervals(step, minStep, maxStep, direction,
                              cellLength, speed);
 
 
       // If the solver is adaptive and the next time step (delT.Interval)
-      // that the solver wants to use is smaller than minStep or larger 
+      // that the solver wants to use is smaller than minStep or larger
       // than maxStep, re-adjust it. This has to be done every step
       // because minStep and maxStep can change depending on the cell
       // size (unless it is specified in time units)
@@ -1149,7 +1149,7 @@ void vtkGenericStreamTracer::Integrate(
       outputPD->AddArray(rotation);
       outputPD->AddArray(angularVel);
       }
-    
+
     vtkIdType numPts = outputPoints->GetNumberOfPoints();
     if ( numPts > 1 )
       {
@@ -1171,7 +1171,7 @@ void vtkGenericStreamTracer::Integrate(
     angularVel->Delete();
     }
 
- 
+
   retVals->Delete();
 
   outputPoints->Delete();
@@ -1181,9 +1181,9 @@ void vtkGenericStreamTracer::Integrate(
 
 
   integrator->Delete();
-  
+
   delete[] values;
-  
+
   output->Squeeze();
   return;
 }
@@ -1209,7 +1209,7 @@ void vtkGenericStreamTracer::GenerateNormals(vtkPolyData* output,
       vtkDoubleArray* normals = vtkDoubleArray::New();
       normals->SetNumberOfComponents(3);
       normals->SetNumberOfTuples(numPts);
-        
+
       lineNormalGenerator->GenerateSlidingNormals(outputPoints,
                                                   outputLines,
                                                   normals,
@@ -1220,7 +1220,7 @@ void vtkGenericStreamTracer::GenerateNormals(vtkPolyData* output,
       double normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
       double velocity[3];
       normals->SetName("Normals");
-      vtkDataArray* newVectors = 
+      vtkDataArray* newVectors =
         outputPD->GetVectors(this->InputVectorsSelection);
       for(i=0; i<numPts; i++)
         {
@@ -1260,8 +1260,8 @@ void vtkGenericStreamTracer::GenerateNormals(vtkPolyData* output,
 // does a lot less (for example, does not compute attributes)
 // than Integrate.
 void vtkGenericStreamTracer::SimpleIntegrate(
-  double seed[3], 
-  double lastPoint[3], 
+  double seed[3],
+  double lastPoint[3],
   double delt,
   vtkGenericInterpolatedVelocityField* func)
 {
@@ -1278,7 +1278,7 @@ void vtkGenericStreamTracer::SimpleIntegrate(
   memcpy(point1, lastPoint, 3*sizeof(double));
 
   // Create a new integrator, the type is the same as Integrator
-  vtkInitialValueProblemSolver* integrator = 
+  vtkInitialValueProblemSolver* integrator =
     this->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
@@ -1292,7 +1292,7 @@ void vtkGenericStreamTracer::SimpleIntegrate(
 
     // Calculate the next step using the integrator provided
     // Break if the next point is out of bounds.
-    if (integrator->ComputeNextStep(point1, point2, 0, delt, 
+    if (integrator->ComputeNextStep(point1, point2, 0, delt,
                                      stepTaken, 0, 0, 0, error) != 0)
       {
       memcpy(lastPoint, point2, 3*sizeof(double));
@@ -1333,7 +1333,7 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os,
                                        vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Start position: " 
+  os << indent << "Start position: "
      << this->StartPosition[0] << " "
      << this->StartPosition[1] << " "
      << this->StartPosition[2] << endl;
@@ -1353,8 +1353,8 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os,
       break;
     }
   os << endl;
-  
-  os << indent << "Min. integration step: " 
+
+  os << indent << "Min. integration step: "
      << this->MinimumIntegrationStep.Interval
      << " unit: ";
   switch (this->MinimumIntegrationStep.Unit)
@@ -1371,7 +1371,7 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os,
     }
   os << endl;
 
-  os << indent << "Max. integration step: " 
+  os << indent << "Max. integration step: "
      << this->MaximumIntegrationStep.Interval
      << " unit: ";
   switch (this->MaximumIntegrationStep.Unit)
@@ -1388,7 +1388,7 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os,
     }
   os << endl;
 
-  os << indent << "Initial integration step: " 
+  os << indent << "Initial integration step: "
      << this->InitialIntegrationStep.Interval
      << " unit: ";
   switch (this->InitialIntegrationStep.Unit)
@@ -1419,16 +1419,16 @@ void vtkGenericStreamTracer::PrintSelf(ostream& os,
 
   os << indent << "Integrator: " << this->Integrator << endl;
   os << indent << "Maximum error: " << this->MaximumError << endl;
-  os << indent << "Max. number of steps: " << this->MaximumNumberOfSteps 
+  os << indent << "Max. number of steps: " << this->MaximumNumberOfSteps
      << endl;
-  os << indent << "Vorticity computation: " 
+  os << indent << "Vorticity computation: "
      << (this->ComputeVorticity ? " On" : " Off") << endl;
   os << indent << "Rotation scale: " << this->RotationScale << endl;
 
   if (this->InputVectorsSelection)
     {
     os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
-    } 
+    }
 }
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetSourceConnection(vtkAlgorithmOutput* algOutput)

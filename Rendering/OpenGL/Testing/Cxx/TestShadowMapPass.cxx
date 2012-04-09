@@ -19,7 +19,7 @@
 // * 2 spotlights: one in the direction of the box, another one in the
 // direction of the sphere. Both lights are above the box, the cone and
 // the sphere.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -77,11 +77,11 @@ int TestShadowMapPass(int argc, char* argv[])
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->SetMultiSamples(0);
-  
+
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
@@ -89,31 +89,31 @@ int TestShadowMapPass(int argc, char* argv[])
   vtkOpenGLRenderer *glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
 
   vtkCameraPass *cameraP=vtkCameraPass::New();
-  
+
   vtkOpaquePass *opaque=vtkOpaquePass::New();
-  
+
   vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
   peeling->SetMaximumNumberOfPeels(200);
   peeling->SetOcclusionRatio(0.1);
-  
+
   vtkTranslucentPass *translucent=vtkTranslucentPass::New();
   peeling->SetTranslucentPass(translucent);
-  
+
   vtkVolumetricPass *volume=vtkVolumetricPass::New();
   vtkOverlayPass *overlay=vtkOverlayPass::New();
-  
+
   vtkLightsPass *lights=vtkLightsPass::New();
-  
+
   vtkSequencePass *opaqueSequence=vtkSequencePass::New();
-  
+
   vtkRenderPassCollection *passes2=vtkRenderPassCollection::New();
   passes2->AddItem(lights);
   passes2->AddItem(opaque);
   opaqueSequence->SetPasses(passes2);
-  
+
   vtkCameraPass *opaqueCameraPass=vtkCameraPass::New();
   opaqueCameraPass->SetDelegatePass(opaqueSequence);
-  
+
   vtkShadowMapBakerPass *shadowsBaker=vtkShadowMapBakerPass::New();
   shadowsBaker->SetOpaquePass(opaqueCameraPass);
   shadowsBaker->SetResolution(1024);
@@ -124,7 +124,7 @@ int TestShadowMapPass(int argc, char* argv[])
   vtkShadowMapPass *shadows=vtkShadowMapPass::New();
   shadows->SetShadowMapBakerPass(shadowsBaker);
   shadows->SetOpaquePass(opaqueSequence);
-  
+
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
   passes->AddItem(shadowsBaker);
@@ -135,21 +135,21 @@ int TestShadowMapPass(int argc, char* argv[])
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  
-  
+
+
   glrenderer->SetPass(cameraP);
-  
+
   vtkPlaneSource *rectangleSource=vtkPlaneSource::New();
   rectangleSource->SetOrigin(-5.0,0.0,5.0);
   rectangleSource->SetPoint1(5.0,0.0,5.0);
   rectangleSource->SetPoint2(-5.0,0.0,-5.0);
   rectangleSource->SetResolution(100,100);
-  
+
   vtkPolyDataMapper *rectangleMapper=vtkPolyDataMapper::New();
   rectangleMapper->SetInputConnection(rectangleSource->GetOutputPort());
   rectangleSource->Delete();
   rectangleMapper->SetScalarVisibility(0);
-  
+
   vtkActor *rectangleActor=vtkActor::New();
   vtkInformation *rectangleKeyProperties=vtkInformation::New();
   rectangleKeyProperties->Set(vtkShadowMapBakerPass::OCCLUDER(),0); // dummy val.
@@ -160,7 +160,7 @@ int TestShadowMapPass(int argc, char* argv[])
   rectangleMapper->Delete();
   rectangleActor->SetVisibility(1);
   rectangleActor->GetProperty()->SetColor(1.0,1.0,1.0);
-  
+
   vtkCubeSource *boxSource=vtkCubeSource::New();
   boxSource->SetXLength(2.0);
   vtkPolyDataNormals *boxNormals=vtkPolyDataNormals::New();
@@ -169,7 +169,7 @@ int TestShadowMapPass(int argc, char* argv[])
   boxNormals->SetComputeCellNormals(1);
   boxNormals->Update();
   boxNormals->GetOutput()->GetPointData()->SetNormals(0);
-  
+
   vtkPolyDataMapper *boxMapper=vtkPolyDataMapper::New();
   boxMapper->SetInputConnection(boxNormals->GetOutputPort());
   boxNormals->Delete();
@@ -182,13 +182,13 @@ int TestShadowMapPass(int argc, char* argv[])
   boxKeyProperties->Set(vtkShadowMapBakerPass::RECEIVER(),0); // dummy val.
   boxActor->SetPropertyKeys(boxKeyProperties);
   boxKeyProperties->Delete();
-  
+
   boxActor->SetMapper(boxMapper);
   boxMapper->Delete();
   boxActor->SetVisibility(1);
   boxActor->SetPosition(-2.0,2.0,0.0);
   boxActor->GetProperty()->SetColor(1.0,0.0,0.0);
-  
+
   vtkConeSource *coneSource=vtkConeSource::New();
   coneSource->SetResolution(24);
   coneSource->SetDirection(1.0,1.0,1.0);
@@ -209,7 +209,7 @@ int TestShadowMapPass(int argc, char* argv[])
   coneActor->SetPosition(0.0,1.0,1.0);
   coneActor->GetProperty()->SetColor(0.0,0.0,1.0);
 //  coneActor->GetProperty()->SetLighting(false);
-  
+
   vtkSphereSource *sphereSource=vtkSphereSource::New();
   sphereSource->SetThetaResolution(32);
   sphereSource->SetPhiResolution(32);
@@ -229,7 +229,7 @@ int TestShadowMapPass(int argc, char* argv[])
   sphereActor->SetVisibility(1);
   sphereActor->SetPosition(2.0,2.0,-1.0);
   sphereActor->GetProperty()->SetColor(1.0,1.0,0.0);
-  
+
   renderer->AddViewProp(rectangleActor);
   rectangleActor->Delete();
   renderer->AddViewProp(boxActor);
@@ -238,10 +238,10 @@ int TestShadowMapPass(int argc, char* argv[])
   coneActor->Delete();
   renderer->AddViewProp(sphereActor);
   sphereActor->Delete();
-  
-  
+
+
   // Spotlights.
-  
+
   // lighting the box.
   vtkLight *l1=vtkLight::New();
   l1->SetPosition(-4.0,4.0,-1.0);
@@ -251,7 +251,7 @@ int TestShadowMapPass(int argc, char* argv[])
   renderer->AddLight(l1);
   l1->SetSwitch(1);
   l1->Delete();
-  
+
   // lighting the sphere
   vtkLight *l2=vtkLight::New();
   l2->SetPosition(4.0,5.0,1.0);
@@ -262,15 +262,15 @@ int TestShadowMapPass(int argc, char* argv[])
   renderer->AddLight(l2);
   l2->SetSwitch(1);
   l2->Delete();
-  
-  
+
+
   AddLightActors(renderer);
-  
+
   renderer->SetBackground(0.66,0.66,0.66);
   renderer->SetBackground2(157.0/255.0*0.66,186/255.0*0.66,192.0/255.0*0.66);
   renderer->SetGradientBackground(true);
   renWin->SetSize(400,400);
-  
+
   renWin->Render();
   if(peeling->GetLastRenderingUsedDepthPeeling())
     {
@@ -280,21 +280,21 @@ int TestShadowMapPass(int argc, char* argv[])
     {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
     }
-  
+
   renderer->ResetCamera();
   vtkCamera *camera=renderer->GetActiveCamera();
   camera->Azimuth(40.0);
   camera->Elevation(10.0);
-  
+
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
   iren->Delete();
-  
+
    opaqueCameraPass->Delete();
   opaqueSequence->Delete();
   passes2->Delete();
@@ -309,6 +309,6 @@ int TestShadowMapPass(int argc, char* argv[])
   cameraP->Delete();
   lights->Delete();
   shadowsBaker->Delete();
-  
+
   return !retVal;
 }

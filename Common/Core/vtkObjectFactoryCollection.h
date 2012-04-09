@@ -40,17 +40,17 @@ public:
     {
       this->vtkCollection::AddItem(t);
     }
-  
+
   // Description:
   // Get the next ObjectFactory in the list. Return NULL when the end of the
   // list is reached.
-  vtkObjectFactory *GetNextItem() 
+  vtkObjectFactory *GetNextItem()
     { return static_cast<vtkObjectFactory *>(this->GetNextItemAsObject());}
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkObjectFactory *GetNextObjectFactory(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkObjectFactory *>(
       this->GetNextItemAsObject(cookie));};

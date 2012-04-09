@@ -86,7 +86,7 @@ vtkHyperOctree* vtkHyperOctreeAlgorithm::GetHyperOctreeInput(int port)
 int vtkHyperOctreeAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
-{ 
+{
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {

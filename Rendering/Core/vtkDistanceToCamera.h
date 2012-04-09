@@ -57,7 +57,7 @@ public:
   vtkSetMacro(Scaling, bool);
   vtkGetMacro(Scaling, bool);
   vtkBooleanMacro(Scaling, bool);
-  
+
   // Description:
   // The modified time of this filter.
   virtual unsigned long GetMTime();
@@ -65,7 +65,7 @@ public:
 protected:
   vtkDistanceToCamera();
   ~vtkDistanceToCamera();
-  
+
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
@@ -79,7 +79,7 @@ protected:
   double LastCameraFocalPoint[3];
   double LastCameraViewUp[3];
   double LastCameraParallelScale;
-  
+
 private:
   vtkDistanceToCamera(const vtkDistanceToCamera&);  // Not implemented.
   void operator=(const vtkDistanceToCamera&);  // Not implemented.

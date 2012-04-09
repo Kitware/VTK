@@ -25,7 +25,7 @@
 
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkCoincidentTopologyResolutionPainter);
-vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter, 
+vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter,
   RESOLVE_COINCIDENT_TOPOLOGY, Integer);
 vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter, Z_SHIFT, Double);
 vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter,
@@ -44,11 +44,11 @@ vtkCoincidentTopologyResolutionPainter::vtkCoincidentTopologyResolutionPainter()
 //-----------------------------------------------------------------------------
 vtkCoincidentTopologyResolutionPainter::~vtkCoincidentTopologyResolutionPainter()
 {
-  
+
 }
 
 //-----------------------------------------------------------------------------
-vtkCoincidentTopologyResolutionPainter* 
+vtkCoincidentTopologyResolutionPainter*
 vtkCoincidentTopologyResolutionPainter::New()
 {
   vtkObject* o = vtkGraphicsFactory::CreateInstance(
@@ -86,7 +86,7 @@ void vtkCoincidentTopologyResolutionPainter::ProcessInformation(
 }
 
 //-----------------------------------------------------------------------------
-void vtkCoincidentTopologyResolutionPainter::PrintSelf(ostream& os, 
+void vtkCoincidentTopologyResolutionPainter::PrintSelf(ostream& os,
   vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

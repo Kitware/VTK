@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkSelectionSource - Generate selection from given set of ids
-// vtkSelectionSource generates a vtkSelection from a set of 
+// vtkSelectionSource generates a vtkSelection from a set of
 // (piece id, cell id) pairs. It will only generate the selection values
 // that match UPDATE_PIECE_NUMBER (i.e. piece == UPDATE_PIECE_NUMBER).
 
@@ -33,7 +33,7 @@ public:
   static vtkSelectionSource *New();
   vtkTypeMacro(vtkSelectionSource,vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Add a (piece, id) to the selection set. The source will generate
   // only the ids for which piece == UPDATE_PIECE_NUMBER.
@@ -76,7 +76,7 @@ public:
 
   // Description:
   // Set the content type for the generated selection.
-  // Possible values are as defined by 
+  // Possible values are as defined by
   // vtkSelection::SelectionContent.
   vtkSetMacro(ContentType, int);
   vtkGetMacro(ContentType, int);
@@ -89,13 +89,13 @@ public:
   vtkGetMacro(FieldType, int);
 
   // Description:
-  // When extracting by points, extract the cells that contain the 
+  // When extracting by points, extract the cells that contain the
   // passing points.
   vtkSetMacro(ContainingCells, int);
   vtkGetMacro(ContainingCells, int);
 
   // Description:
-  // Determines whether the selection describes what to include or exclude. 
+  // Determines whether the selection describes what to include or exclude.
   // Default is 0, meaning include.
   vtkSetMacro(Inverse, int);
   vtkGetMacro(Inverse, int);
@@ -110,7 +110,7 @@ public:
   // Default is component 0. Use -1 for magnitude.
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
-  
+
   // Description:
   // If CompositeIndex < 0 then COMPOSITE_INDEX() is not added to the output.
   vtkSetMacro(CompositeIndex, int);

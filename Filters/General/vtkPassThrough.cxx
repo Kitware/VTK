@@ -37,14 +37,14 @@ vtkPassThrough::~vtkPassThrough()
 void vtkPassThrough::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "DeepCopyInput: " 
+  os << indent << "DeepCopyInput: "
      << (this->DeepCopyInput ? "on" : "off") << endl;
 }
 
 //----------------------------------------------------------------------------
 int vtkPassThrough::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);

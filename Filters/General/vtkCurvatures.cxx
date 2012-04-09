@@ -84,7 +84,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     double *meanCurvatureData = meanCurvature->GetPointer(0);
     //     data
     int v, v_l, v_r, v_o,  f, F, n, nv;// n short for neighbor
-    
+
     //     create-allocate
     double n_f[3]; // normal of facet (could be stored for later?)
     double n_n[3]; // normal of edge
@@ -325,9 +325,9 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
 {
   this->GetGaussCurvature(output);
   this->GetMeanCurvature(output);
-  
+
   vtkIdType numPts = input->GetNumberOfPoints();
-  
+
   vtkDoubleArray *maximumCurvature = vtkDoubleArray::New();
   maximumCurvature->SetNumberOfComponents(1);
   maximumCurvature->SetNumberOfTuples(numPts);
@@ -335,13 +335,13 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
   output->GetPointData()->AddArray(maximumCurvature);
   output->GetPointData()->SetActiveScalars("Maximum_Curvature");
   maximumCurvature->Delete();
-  
+
   vtkDoubleArray *gauss = static_cast<vtkDoubleArray *>(
     output->GetPointData()->GetArray("Gauss_Curvature"));
   vtkDoubleArray *mean = static_cast<vtkDoubleArray *>(
     output->GetPointData()->GetArray("Mean_Curvature"));
   double k, h, k_max,tmp;
-  
+
   for (vtkIdType i = 0; i<numPts; i++)
     {
     k = gauss->GetComponent(i,0);
@@ -359,16 +359,16 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
       k_max = 0;
       }
     maximumCurvature->SetComponent(i, 0, k_max);
-    }    
+    }
 }
 
 void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
 {
   this->GetGaussCurvature(output);
   this->GetMeanCurvature(output);
-  
+
   vtkIdType numPts = input->GetNumberOfPoints();
-  
+
   vtkDoubleArray *minimumCurvature = vtkDoubleArray::New();
   minimumCurvature->SetNumberOfComponents(1);
   minimumCurvature->SetNumberOfTuples(numPts);
@@ -376,13 +376,13 @@ void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
   output->GetPointData()->AddArray(minimumCurvature);
   output->GetPointData()->SetActiveScalars("Minimum_Curvature");
   minimumCurvature->Delete();
-  
+
   vtkDoubleArray *gauss = static_cast<vtkDoubleArray *>(
     output->GetPointData()->GetArray("Gauss_Curvature"));
   vtkDoubleArray *mean = static_cast<vtkDoubleArray *>(
     output->GetPointData()->GetArray("Mean_Curvature"));
   double k, h, k_min,tmp;
-  
+
   for (vtkIdType i = 0; i<numPts; i++)
     {
     k = gauss->GetComponent(i,0);
@@ -400,7 +400,7 @@ void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
       k_min = 0;
       }
     minimumCurvature->SetComponent(i, 0, k_min);
-    }  
+    }
 }
 
 //-------------------------------------------------------
@@ -449,7 +449,7 @@ int vtkCurvatures::RequestData(
     {
     this->GetMinimumCurvature(input, output);
     }
-  else 
+  else
     {
     vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
     return 1;

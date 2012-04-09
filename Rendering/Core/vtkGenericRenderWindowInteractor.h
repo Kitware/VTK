@@ -34,7 +34,7 @@ public:
   static vtkGenericRenderWindowInteractor *New();
   vtkTypeMacro(vtkGenericRenderWindowInteractor,vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Fire TimerEvent. SetEventInformation should be called just prior
   // to calling any of these methods. These methods will Invoke the
@@ -60,7 +60,7 @@ protected:
   vtkGenericRenderWindowInteractor();
   ~vtkGenericRenderWindowInteractor();
 
-  // Description: 
+  // Description:
   // Generic internal timer methods. See the superclass for detailed
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);

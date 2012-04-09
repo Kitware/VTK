@@ -378,7 +378,7 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
           // After LIST there is an optional subdimension (see next case below).
           subDimension = (  (filepatterninfo.size() > 1)
                           ? atoi(filepatterninfo[1].c_str()) : numDimensions );
-          
+
           // In this mode files are listed one per line to the end of the file.
           while (1)
             {

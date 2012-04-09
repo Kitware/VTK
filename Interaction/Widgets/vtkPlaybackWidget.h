@@ -15,12 +15,12 @@
 // .NAME vtkPlaybackWidget - 2D widget for controlling a playback stream
 // .SECTION Description
 // This class provides support for interactively controlling the playback of
-// a serial stream of information (e.g., animation sequence, video, etc.). 
-// Controls for play, stop, advance one step forward, advance one step backward, 
-// jump to beginning, and jump to end are available. 
+// a serial stream of information (e.g., animation sequence, video, etc.).
+// Controls for play, stop, advance one step forward, advance one step backward,
+// jump to beginning, and jump to end are available.
 
 // .SECTION See Also
-// vtkBorderWidget 
+// vtkBorderWidget
 
 
 #ifndef __vtkPlaybackWidget_h
@@ -50,9 +50,9 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkPlaybackRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:
@@ -60,7 +60,7 @@ protected:
   ~vtkPlaybackWidget();
 
   // Description:
-  // When selecting the interior of this widget, special operations occur 
+  // When selecting the interior of this widget, special operations occur
   // (i.e., operating the playback controls).
   virtual void SelectRegion(double eventPos[2]);
 

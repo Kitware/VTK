@@ -16,7 +16,7 @@
 // .SECTION Description
 // Like it super class, this filter averages the cell data around
 // a point to get new point data.  This subclass requests a layer of
-// ghost cells to make the results invariant to pieces.  There is a 
+// ghost cells to make the results invariant to pieces.  There is a
 // "PieceInvariant" flag that lets the user change the behavior
 // of the filter to that of its superclass.
 
@@ -35,7 +35,7 @@ public:
   static vtkPCellDataToPointData *New();
 
   // Description:
-  // To get piece invariance, this filter has to request an 
+  // To get piece invariance, this filter has to request an
   // extra ghost level.  By default piece invariance is on.
   vtkSetMacro(PieceInvariant, int);
   vtkGetMacro(PieceInvariant, int);

@@ -44,7 +44,7 @@ static const int scMsgLength = 10;
 static void CleanUp(vtkSmartPointer<vtkSocketCommunicator> vtkNotUsed(comm),
                     vtkSmartPointer<vtkSocketController> vtkNotUsed(contr))
 {
-  // This will close the connection as well as delete 
+  // This will close the connection as well as delete
   // the communicator
   // Deleting no longer necessary with smart pointers.
 //   comm->Delete();
@@ -240,11 +240,11 @@ int main(int argc, char** argv)
     CleanUp(comm, contr);
     return 1;
     }
-  if (da2->GetNumberOfTuples() == 0) 
+  if (da2->GetNumberOfTuples() == 0)
     {
     cout << "receive null data array successful" << endl;
-    } 
-  else 
+    }
+  else
     {
     cout << "receive null data array failed" << endl;
     }

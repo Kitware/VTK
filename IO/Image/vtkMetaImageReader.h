@@ -43,7 +43,7 @@
 //      endian order. You might want to play with this value when moving data
 //      between different computer platforms.
 //    * ElementDataFile is the name of the file containing the raw binary data
-//      of the image. This file must be in the same directory as the header. 
+//      of the image. This file must be in the same directory as the header.
 //
 // MetaImage headers are expected to have extension: ".mha" or ".mhd"
 //
@@ -52,7 +52,7 @@
 // class.
 
 // .SECTION Caveats
-// 
+//
 
 // .SECTION See Also
 
@@ -63,7 +63,7 @@
 #include "vtkImageReader2.h"
 
 //BTX
-namespace vtkmetaio { class MetaImage; } // forward declaration  
+namespace vtkmetaio { class MetaImage; } // forward declaration
 //ETX
 
 class VTKIOIMAGE_EXPORT vtkMetaImageReader : public vtkImageReader2
@@ -76,10 +76,10 @@ public:
   // Construct object with FlipNormals turned off and Normals set to true.
   static vtkMetaImageReader *New();
 
-  virtual const char * GetFileExtensions() 
+  virtual const char * GetFileExtensions()
     { return ".mhd .mha"; }
 
-  virtual const char * GetDescriptiveName() 
+  virtual const char * GetDescriptiveName()
     { return "MetaIO Library: MetaImage"; }
 
   // These duplicate functions in vtkImageReader2, vtkMedicalImageReader.
@@ -102,7 +102,7 @@ public:
   vtkGetMacro(BitsAllocated, int);
   vtkGetStringMacro(DistanceUnits);
   vtkGetStringMacro(AnatomicalOrientation);
-  vtkGetMacro(GantryAngle, double); 
+  vtkGetMacro(GantryAngle, double);
   vtkGetStringMacro(PatientName);
   vtkGetStringMacro(PatientID);
   vtkGetStringMacro(Date);
@@ -124,11 +124,11 @@ protected:
 
   // These functions make no sense for this (or most) file readers
   // and should be hidden from the user...but then the getsettest fails.
-  /*virtual void SetFilePrefix(const char * arg) 
+  /*virtual void SetFilePrefix(const char * arg)
     { vtkImageReader2::SetFilePrefix(arg); }
   virtual void SetFilePattern(const char * arg)
     { vtkImageReader2::SetFilePattern(arg); }
-  virtual void SetDataScalarType(int type) 
+  virtual void SetDataScalarType(int type)
     { vtkImageReader2::SetDataScalarType(type); }
   virtual void SetDataScalarTypeToFloat()
     { this->SetDataScalarType(VTK_FLOAT); }
@@ -147,8 +147,8 @@ protected:
   vtkSetMacro(FileDimensionality, int);
   vtkSetVector3Macro(DataSpacing, double);
   vtkSetVector3Macro(DataOrigin, double);
-  vtkSetMacro(HeaderSize, unsigned long); 
-  unsigned long GetHeaderSize(unsigned long) 
+  vtkSetMacro(HeaderSize, unsigned long);
+  unsigned long GetHeaderSize(unsigned long)
     { return 0; }
   virtual void SetDataByteOrderToBigEndian()
     { this->SetDataByteOrderToBigEndian(); }
@@ -159,17 +159,17 @@ protected:
   vtkSetMacro(FileNameSliceOffset,int);
   vtkSetMacro(FileNameSliceSpacing,int);
   vtkSetMacro(SwapBytes, int);
-  virtual int OpenFile() 
+  virtual int OpenFile()
     { return vtkImageReader2::OpenFile(); }
-  virtual void SeekFile(int i, int j, int k) 
+  virtual void SeekFile(int i, int j, int k)
     { vtkImageReader2::SeekFile(i, j, k); }
   vtkSetMacro(FileLowerLeft, int);
-  virtual void ComputeInternalFileName(int slice) 
+  virtual void ComputeInternalFileName(int slice)
     { vtkImageReader2::ComputeInternalFileName(slice); }
   vtkGetStringMacro(InternalFileName)
-  const char * GetDataByteOrderAsString(void) 
+  const char * GetDataByteOrderAsString(void)
     { return vtkImageReader2::GetDataByteOrderAsString(); }
-  unsigned long GetHeaderSize(void) 
+  unsigned long GetHeaderSize(void)
     { return vtkImageReader2::GetHeaderSize(); }*/
 
   void ExecuteInformation();

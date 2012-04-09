@@ -50,7 +50,7 @@ void trace(void)
   float t=0.0;
   vec4 sample;
   bool changed=false;
-  
+
   // We NEED two nested while loops. It is a trick to work around hardware
   // limitation about the maximum number of loops.
   while(inside)
@@ -66,7 +66,7 @@ void trace(void)
         }
       pos=pos+rayDir;
       t+=1.0;
-      
+
       // yes, t<tMax && all(greaterThanEqual(pos,lowBounds))
       // && all(lessThanEqual(pos,highBounds));
       // looks better but the latest nVidia 177.80 has a bug...
@@ -75,7 +75,7 @@ void trace(void)
         && pos.z<=highBounds.z;
       }
     }
-  
+
   if(changed)
     {
     vec4 opacity=texture1D(opacityTexture,maxValue);

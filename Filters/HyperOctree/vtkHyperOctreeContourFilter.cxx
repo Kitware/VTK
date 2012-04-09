@@ -52,7 +52,7 @@
 void vtkHyperOctreeContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
@@ -72,23 +72,23 @@ public:
   std::set<vtkIdType> Set;
 };
 
-class vtkHyperOctreeContourPointsGrabber; 
+class vtkHyperOctreeContourPointsGrabber;
 
 class vtkHyperOctreeContourPointsGrabber : public vtkHyperOctreePointsGrabber
 {
 public:
   static vtkHyperOctreeContourPointsGrabber *New();
-  
+
   vtkTypeMacro(vtkHyperOctreeContourPointsGrabber,vtkHyperOctreePointsGrabber);
-  
+
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the dimension of the hyperoctree.
   // \pre valid_dim: (dim==2 || dim==3)
   // \post is_set: GetDimension()==dim
   virtual void SetDimension(int dim);
-  
+
   // Description:
   // Initialize the points insertion scheme.
   // Actually, it is just a trick to initialize the IdSet from the filter.
@@ -97,7 +97,7 @@ public:
   // that lie on an hyperoctant.
   // \pre only_in_3d: GetDimension()==3
   virtual void InitPointInsertion();
-  
+
   // Description:
   // Insert a point, assuming the point is unique and does not require a
   // locator. Tt does not mean it does not use a locator. It just mean that
@@ -106,43 +106,43 @@ public:
                            double pt[3],
                            double pcoords[3],
                            int ijk[3]);
-  
+
   // Description:
   // Insert a point using a locator.
   virtual void InsertPointWithMerge(vtkIdType ptId,
                                     double pt[3],
                                     double pcoords[3],
                                     int ijk[3]);
-  
+
   // Description:
   // Insert a point in the quadtree case.
   virtual void InsertPoint2D(double pt[3],
                              int ijk[3]);
-  
+
   // Description:
   // Return the ordered triangulator.
   vtkOrderedTriangulator *GetTriangulator();
-  
+
   // Description:
   // Return the polygon.
   vtkPolygon *GetPolygon();
-  
+
   // Description:
   // Init the locator.
   void InitLocator(vtkPoints *pts,
                    double bounds[6]);
-  
+
   // Description:
   // Return the id in the locator after a call to InsertPoint*().
   vtkIdType GetLastPtId();
-  
+
   void SetFilter(vtkHyperOctreeContourFilter *filter);
-  
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctreeContourPointsGrabber();
   ~vtkHyperOctreeContourPointsGrabber();
-  
+
   vtkHyperOctreeContourFilter *Filter;
   vtkOrderedTriangulator *Triangulator;
   vtkPolygon *Polygon;
@@ -153,7 +153,7 @@ private:
   vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&);  // Not implemented.
   void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
 };
-  
+
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 
 //----------------------------------------------------------------------------
@@ -162,42 +162,42 @@ vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 vtkHyperOctreeContourFilter::vtkHyperOctreeContourFilter()
 {
   this->ContourValues = vtkContourValues::New();
-  
+
   this->Locator = NULL;
-  
+
   this->SetNumberOfOutputPorts(1);
 
   // by default process active cell scalars
   // This is points because octree returns dual grid.
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
-  
+
   this->Input=0;
   this->Output=0;
- 
+
   this->NewVerts=0;
   this->NewLines=0;
   this->NewPolys=0;
-  
+
   this->InCD=0;
   this->OutCD=0;
   this->OutPD=0;
   this->Triangulator=0;
-  
+
   this->Tetra=0;
   this->TetScalars=0;
   this->PointScalars=0;
   this->CellScalars=0;
-  
+
   this->Cursor=0;
   this->NeighborCursor=0;
   this->Sibling=0;
-  
+
   this->InScalars=0;
   this->Grabber=0;
   this->Polygon=0;
   this->SortBy=VTK_SORT_BY_VALUE;
-  
+
   this->Line=0;
 }
 
@@ -220,9 +220,9 @@ unsigned long vtkHyperOctreeContourFilter::GetMTime()
   unsigned long mTime=this->Superclass::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
   unsigned long time;
-  
+
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
-  
+
   if ( this->Locator != NULL )
     {
     time = this->Locator->GetMTime();
@@ -241,15 +241,15 @@ int vtkHyperOctreeContourFilter::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  
+
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
- 
+
   // get the input
   this->Input = vtkHyperOctree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if(this->Input->GetNumberOfLevels()==1)
     {
     // just the root. There is absolutely no chance
@@ -257,7 +257,7 @@ int vtkHyperOctreeContourFilter::RequestData(
     this->Input=0;
     return 1;
     }
-  
+
   this->InScalars=this->GetInputArrayToProcess(0,inputVector);
   if(this->InScalars==0)
     {
@@ -265,7 +265,7 @@ int vtkHyperOctreeContourFilter::RequestData(
     this->Input=0;
     return 1;
     }
-  
+
   int numContours=this->ContourValues->GetNumberOfContours();
   if(numContours==0)
     {
@@ -273,12 +273,12 @@ int vtkHyperOctreeContourFilter::RequestData(
     this->Input=0;
     return 1;
     }
-  
+
   double *values=this->ContourValues->GetValues();
-  
+
   // If all the contour values are out of the range of the input scalar
   // there is no chance to get a contour, just exit.
- 
+
   double range[2];
   this->InScalars->GetRange(range);
   int i=0;
@@ -294,17 +294,17 @@ int vtkHyperOctreeContourFilter::RequestData(
     this->Input=0;
     return 1;
     }
-  
-  
+
+
   this->Output=vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkIdType numPts=this->Input->GetMaxNumberOfPoints(0);
   vtkIdType numCells = this->Input->GetNumberOfLeaves();
-  
+
   vtkPoints *newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
-  
+
   // allocate the output and associated helper classes
   vtkIdType estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -312,40 +312,40 @@ int vtkHyperOctreeContourFilter::RequestData(
     {
     estimatedSize = 1024;
     }
-  
- 
+
+
   this->NewVerts=vtkCellArray::New();
   this->NewVerts->Allocate(estimatedSize,estimatedSize/2);
   this->NewLines = vtkCellArray::New();
   this->NewLines->Allocate(estimatedSize,estimatedSize/2);
   this->NewPolys = vtkCellArray::New();
   this->NewPolys->Allocate(estimatedSize,estimatedSize/2);
-  
+
   // locator used to merge potentially duplicate points
   if(this->Locator == NULL)
     {
     this->CreateDefaultLocator();
     }
-  
+
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
- 
+
   this->InCD=static_cast<vtkCellData*>(this->Input->GetLeafData());
   // Scalars are added to this, so we need to make a copy.
   this->InPD = vtkPointData::New();
   // Since the dataset API returns the dual, cell and point data are switched.
   this->InPD->ShallowCopy(this->Input->GetCellData());
-  
+
   this->OutCD=this->Output->GetCellData();
   this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
-    
+
   this->OutPD=this->Output->GetPointData();
   this->OutPD->CopyAllocate(this->Input->GetPointData(),estimatedSize,estimatedSize/2);
   this->OutPD->CopyScalarsOn();
-  
+
   static double bounds[6]={0,1,0,1,0,1};
-  
+
   vtkPoints *originalPoints=0;
-  
+
   switch(this->Input->GetDimension())
     {
     case 3:
@@ -367,7 +367,7 @@ int vtkHyperOctreeContourFilter::RequestData(
       this->Grabber->SetDimension(2);
       originalPoints=vtkPoints::New();
       originalPoints->Allocate(numPts,numPts/2);
-      
+
       this->Grabber->InitLocator(originalPoints,this->Input->GetBounds());
       this->Polygon=this->Grabber->GetPolygon();
       break;
@@ -381,28 +381,28 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->PointScalars=vtkDoubleArray::New();
   this->PointScalars->SetName(this->InScalars->GetName());
   this->PointScalars->Allocate(estimatedSize);
-  
+
   this->TotalCounter=0;
   this->TemplateCounter=0;
-  
+
   int j=0;
   while(j<65536)
     {
     this->CellTypeCounter[j]=0; // up-to-65536 points per octant
     ++j;
     }
-  
+
   this->Cursor=this->Input->NewCellCursor();
   this->NeighborCursor=this->Input->NewCellCursor();
   this->Sibling=this->Input->NewCellCursor();
-  
+
   this->PointScalars->SetNumberOfComponents(1);
   this->PointScalars->Allocate(estimatedSize);
   this->Cursor->ToRoot();
-  
-  
+
+
   this->CellScalars=vtkDoubleArray::New();
-  
+
   // let's go
   if(this->Input->GetDimension()==1)
     {
@@ -421,24 +421,24 @@ int vtkHyperOctreeContourFilter::RequestData(
     {
     this->ContourNode();
     }
-  
+
   this->CellScalars->UnRegister(this);
   this->CellScalars=0;
-  
+
   this->PointScalars->UnRegister(this);
   this->PointScalars=0;
-  
+
   this->InCD=0;
-  
+
   this->Cursor->UnRegister(this);
   this->Cursor=0;
   this->NeighborCursor->UnRegister(this);
   this->NeighborCursor=0;
   this->Sibling->UnRegister(this);
   this->Sibling=0;
- 
+
 //  cout<<"ClipHyperOctree: "<<this->TemplateCounter<<" templates over "<<this->TotalCounter<<" octants, ratio="<<(this->TemplateCounter/static_cast<double>(this->TotalCounter))<<endl;
-  
+
   j=0;
   while(j<65536)
     {
@@ -448,7 +448,7 @@ int vtkHyperOctreeContourFilter::RequestData(
       }
     ++j;
     }
-  
+
   switch(this->Input->GetDimension())
     {
     case 3:
@@ -475,13 +475,13 @@ int vtkHyperOctreeContourFilter::RequestData(
       assert("check: impossible case" && 0);
       break;
     }
-  
+
   this->OutPD=0;
   this->Input=0;
-  
+
   this->Output->SetPoints(newPoints);
   newPoints->Delete();
-  
+
   if (this->NewVerts->GetNumberOfCells()>0)
     {
     this->Output->SetVerts(this->NewVerts);
@@ -495,28 +495,28 @@ int vtkHyperOctreeContourFilter::RequestData(
     }
   this->NewLines->Delete();
   this->NewLines=0;
-  
+
   if (this->NewPolys->GetNumberOfCells()>0)
     {
     this->Output->SetPolys(this->NewPolys);
     }
   this->NewPolys->Delete();
   this->NewPolys=0;
-  
+
   this->OutCD=0;
   this->InPD->Delete();
   this->InPD = 0;
-  
+
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
   this->Output=0;
-  
+
   assert("post: input_is_null" && this->Input==0);
   assert("post: output_is_null" && this->Output==0);
   assert("post: incd_is_null" && this->InCD==0);
   assert("post: outpd_is_null" && this->OutPD==0);
   assert("post: outcd_is_null" && this->OutCD==0);
-  
+
   return 1;
 }
 
@@ -539,13 +539,13 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
     vtkIdType cellId=this->Cursor->GetLeafId();
     double cellValue=this->InScalars->GetTuple1(cellId);
     int level=this->Cursor->GetCurrentLevel();
-    
+
     int target[3];
     target[1]=0;
     target[2]=0;
     target[0]=this->Cursor->GetIndex(0);
     double rightValue;
-  
+
     if(target[0]>=(1<<(level-1)))
       {
       rightValue=cellValue;
@@ -555,7 +555,7 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
       this->NeighborCursor->MoveToNode(target,level);
       rightValue=(cellValue+this->InScalars->GetTuple1(this->NeighborCursor->GetLeafId()))*0.5;
       }
-    
+
     // build a line and contour it.
     double pt[3];
     pt[1]=this->Input->GetOrigin()[1];
@@ -566,22 +566,22 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
     pt[0]+=this->Input->GetSize()[0]/(1<<level);
     this->LeftCoord=pt[0]; // for the next step
     this->Line->GetPoints()->SetPoint(1,pt);
-    
+
     this->CellScalars->SetNumberOfComponents(1);
     this->CellScalars->SetNumberOfTuples(2);
-    
+
     this->CellScalars->SetValue(0,this->LeftValue);
     this->CellScalars->SetValue(1,rightValue);
-      
+
     // It was a bad idea to modify the input PointData.
     // We made a copy.
     //vtkPointData *inPD=this->Input->GetPointData(); // void
     this->InPD->SetScalars(this->PointScalars); // void
-    
+
     if ( this->SortBy == VTK_SORT_BY_CELL )
       {
       double value = this->ContourValues->GetValue(this->Iter);
-      this->Line->Contour(value, this->CellScalars, this->Locator, 
+      this->Line->Contour(value, this->CellScalars, this->Locator,
                           this->NewVerts,this->NewLines,this->NewPolys,
                           this->InPD,this->OutPD,this->InCD,cellId,
                           this->OutCD);
@@ -594,16 +594,16 @@ void vtkHyperOctreeContourFilter::ContourNode1D()
       while(iter<numContours)
         {
         double value = this->ContourValues->GetValue(iter);
-        this->Line->Contour(value, this->CellScalars, this->Locator, 
+        this->Line->Contour(value, this->CellScalars, this->Locator,
                             this->NewVerts,this->NewLines,
                             this->NewPolys,this->InPD,this->OutPD,
                             this->InCD,cellId,this->OutCD);
-          
+
           ++iter;
           }
         }
-    
-    
+
+
     // initialize the left value for the next leaf.
     this->LeftValue=rightValue;
     }
@@ -639,34 +639,34 @@ void vtkHyperOctreeContourFilter::ContourNode()
     // Even if there is no children, the neighbor cell tessellation
     // has to be compatible with the current cell tessellation.
     // In any case, we need the ordered triangulator.
-    
-      
+
+
     // Add the points of the current leaf
     // use the bounds
     int i;
     int j;
     int k;
-    
+
     int x;
     int y;
     int z;
-    
+
     // resolution in point along each axis.
     int resolution=(1<<(this->Input->GetNumberOfLevels()-1))+1;
 
     int level=this->Cursor->GetCurrentLevel();
     int deltaLevel=this->Input->GetNumberOfLevels()-1-level;
     assert("check: positive_deltaLevel" && deltaLevel>=0);
-    
+
     double ratio=1.0/(resolution-1);
-    
+
     double pt[3];
     double pcoords[3];
     int pijk[3];
     int qijk[3];
-    
+
     int numContours=0; // initialized to removed warnings
-    
+
     if ( this->SortBy == VTK_SORT_BY_VALUE )
       {
       numContours=this->ContourValues->GetNumberOfContours();
@@ -678,12 +678,12 @@ void vtkHyperOctreeContourFilter::ContourNode()
       double pbounds[6]={0,1,0,1,0,1};
       double *size=this->Input->GetSize();
       double *origin=this->Input->GetOrigin();
-      
+
       this->Triangulator->InitTriangulation(pbounds,nbpts);
-      
+
       this->Triangulator->PreSortedOff();
       this->Grabber->InitPointInsertion();
-      
+
       i=this->Cursor->GetIndex(0);
       j=this->Cursor->GetIndex(1);
       k=this->Cursor->GetIndex(2);
@@ -709,9 +709,9 @@ void vtkHyperOctreeContourFilter::ContourNode()
               pt[coord]=pcoords[coord]*size[coord]+origin[coord];
               ++coord;
               }
-            
+
             assert("check: in_bounds" && pt[0]>=this->Input->GetBounds()[0] && pt[0]<=this->Input->GetBounds()[1] && pt[1]>=this->Input->GetBounds()[2] && pt[1]<=this->Input->GetBounds()[3] && pt[2]>=this->Input->GetBounds()[4] && pt[2]<=this->Input->GetBounds()[5]);
-            
+
             this->Grabber->InsertPoint(0,pt,pcoords,qijk);
             ++x;
             ++pijk[0];
@@ -723,9 +723,9 @@ void vtkHyperOctreeContourFilter::ContourNode()
         ++pijk[2];
         }
       }
-    
+
     int lastLevelLeaf=level>=(this->Input->GetNumberOfLevels()-1);
-    
+
     if(this->Input->GetDimension()==3)
       {
       if(!lastLevelLeaf)
@@ -735,19 +735,19 @@ void vtkHyperOctreeContourFilter::ContourNode()
         // that have children on my face, or if the parent of my parent
         // has sibling with children that have children, that have children
         // on my face, until I reach the root...
-        
+
         // list the 3 faces of the parent, the current node is laying on.
         int faces[3];
-        
+
         int child=this->Cursor->GetChildIndex();
-        
+
         faces[0]=(child&1)==1; // false: -x, true: +x
         faces[1]=(child&2)==2; // false: -y, true: +y
         faces[2]=(child&4)==4; // false: -z, true: +z
-        
+
         // sibling on faces that are not on a parent face
         int siblings[3];
-        
+
         int inc=1;
         i=0;
         while(i<3)
@@ -763,11 +763,11 @@ void vtkHyperOctreeContourFilter::ContourNode()
           ++i;
           inc<<=1;
           }
-        
+
         this->Sibling->ToSameNode(this->Cursor);
         this->Sibling->ToParent();
         // ask the 3 sibling, one on each face of the current node
-        i=0; 
+        i=0;
         int faceOffset=0;
         while(i<3)
           {
@@ -776,7 +776,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
           if(!this->Sibling->CurrentIsLeaf())
             {
             assert("check: if the sibling is not a leaf we cannot be at the last level" && level<(this->Input->GetNumberOfLevels()-1));
-            
+
             // get the points of this sibling on some given face
             int siblingFace=faceOffset;
             if(faces[i])
@@ -790,32 +790,32 @@ void vtkHyperOctreeContourFilter::ContourNode()
           ++i;
           faceOffset+=2;
           }
-        
+
         // Get points on faces shared with the parent node.
         this->Input->GetPointsOnParentFaces(faces,level,this->Cursor,
                                             this->Grabber);
-        
+
         // Get the points from the edge-only neighbors.
         int childIndices[3];
         childIndices[2]=(child&4)>>2;
         childIndices[1]=(child&2)>>1;
         childIndices[0]=child&1;
-        
+
         assert("check valid_range_c2" && childIndices[2]>=0 &&
                childIndices[2]<=1);
         assert("check valid_range_c1" && childIndices[1]>=0 &&
                childIndices[1]<=1);
         assert("check valid_range_c0" && childIndices[0]>=0 &&
                childIndices[0]<=1);
-        
+
         // First the edges aligned on X axis
         int axis=0;
         int a=2;
         int b=1;
-        
+
         this->Sibling->ToSameNode(this->Cursor);
         this->Sibling->ToParent();
-        
+
         while(axis<3)
           {
           k=0;
@@ -862,20 +862,20 @@ void vtkHyperOctreeContourFilter::ContourNode()
       {
       // this->Input->GetDimension()==2
       // counter- clockwise direction matters here.
-      
+
       int edges[2];
       int child=this->Cursor->GetChildIndex();
       double *size=this->Input->GetSize();
       double *origin=this->Input->GetOrigin();
-      
+
       this->Polygon->GetPointIds()->SetNumberOfIds(0);
       this->Polygon->GetPoints()->SetNumberOfPoints(0);
-      
+
       if(!lastLevelLeaf)
         {
         this->Sibling->ToSameNode(this->Cursor);
         this->Sibling->ToParent();
-        
+
         // list the 2 edges of the parent, the current node is laying on.
         edges[0]=(child&1)==1; // false: -x, true: +x
         edges[1]=(child&2)==2; // false: -y, true: +y
@@ -885,27 +885,27 @@ void vtkHyperOctreeContourFilter::ContourNode()
         edges[0]=0;
         edges[1]=0;
         }
-      
+
       i=this->Cursor->GetIndex(0);
       j=this->Cursor->GetIndex(1);
-    
-      
+
+
       // Insert vertex (xmin,ymin)
       pijk[0]=i;
       pijk[1]=j;
-      
+
       qijk[0]=pijk[0]<<deltaLevel;
       qijk[1]=pijk[1]<<deltaLevel;
-      
+
       pcoords[0]=qijk[0]*ratio;
       pcoords[1]=qijk[1]*ratio;
-      
+
       pt[0]=pcoords[0]*size[0]+origin[0];
       pt[1]=pcoords[1]*size[1]+origin[1];
       pt[2]=origin[2];
-      
+
       this->Grabber->InsertPoint2D(pt,qijk);
-      
+
       if(!lastLevelLeaf)
         {
         // Process edge (-y)
@@ -927,15 +927,15 @@ void vtkHyperOctreeContourFilter::ContourNode()
                                                this->Grabber); // 2==-y
           }
         }
-      
+
       // Insert vertex (xmax,ymin)
       pijk[0]=i+1;
       qijk[0]=pijk[0]<<deltaLevel;
       pcoords[0]=qijk[0]*ratio;
       pt[0]=pcoords[0]*size[0]+origin[0];
-      
+
       this->Grabber->InsertPoint2D(pt,qijk);
-      
+
       if(!lastLevelLeaf)
         {
         // Process edge (+x)
@@ -957,14 +957,14 @@ void vtkHyperOctreeContourFilter::ContourNode()
           this->Sibling->ToParent();
           }
         }
-      
+
       // Insert vertex (xmax,ymax)
       pijk[1]=j+1;
       qijk[1]=pijk[1]<<deltaLevel;
       pcoords[1]=qijk[1]*ratio;
       pt[1]=pcoords[1]*size[1]+origin[1];
       this->Grabber->InsertPoint2D(pt,qijk);
-    
+
       if(!lastLevelLeaf)
         {
         // Process edge (+y)
@@ -986,16 +986,16 @@ void vtkHyperOctreeContourFilter::ContourNode()
           this->Sibling->ToParent();
           }
         }
-      
-      
+
+
       // Insert vertex (xmin,ymax)
       pijk[0]=i;
       qijk[0]=pijk[0]<<deltaLevel;
       pcoords[0]=qijk[0]*ratio;
       pt[0]=pcoords[0]*size[0]+origin[0];
-      
+
       this->Grabber->InsertPoint2D(pt,qijk);
-      
+
       if(!lastLevelLeaf)
         {
         // Process edge (-x)
@@ -1018,16 +1018,16 @@ void vtkHyperOctreeContourFilter::ContourNode()
           }
         }
       }
-    
+
     if(this->Input->GetDimension()==3)
-      {     
+      {
       int c=this->Triangulator->GetNumberOfPoints();
-      
-      
+
+
       this->CellScalars->SetNumberOfComponents(1);
       this->CellScalars->SetNumberOfTuples(c);
-      
-      
+
+
       // very important: we have to build the scalars value on the cell
       // BEFORE a call to Triangulate().
       i=0;
@@ -1037,7 +1037,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
         this->CellScalars->InsertValue(i,this->PointScalars->GetValue(ptId));
         ++i;
         }
-      
+
       if(c==8)
         {
         // only the vertices of a voxel: fast path.
@@ -1057,14 +1057,14 @@ void vtkHyperOctreeContourFilter::ContourNode()
           this->CellTypeCounter[this->Triangulator->GetNumberOfPoints()-1]++;
           }
         }
-      
+
       // perform contour
-      
+
       vtkIdType cellId=this->Cursor->GetLeafId();
-           
+
       // I made a copy of the input point data so it is ok modify.
       this->InPD->SetScalars(this->PointScalars); // otherwise, it crashes
-       
+
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
         double value = this->ContourValues->GetValue(this->Iter);
@@ -1076,7 +1076,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
         while(!done)
           {
           ++numTetras;
-          this->Tetra->Contour(value, this->TetScalars, this->Locator, 
+          this->Tetra->Contour(value, this->TetScalars, this->Locator,
                                this->NewVerts,this->NewLines,this->NewPolys,
                                this->InPD,this->OutPD,this->InCD,cellId,
                                this->OutCD);
@@ -1100,7 +1100,7 @@ void vtkHyperOctreeContourFilter::ContourNode()
           while(iter<numContours)
             {
             double value = this->ContourValues->GetValue(iter);
-            this->Tetra->Contour(value, this->TetScalars, this->Locator, 
+            this->Tetra->Contour(value, this->TetScalars, this->Locator,
                                  this->NewVerts,this->NewLines,
                                  this->NewPolys,this->InPD,this->OutPD,
                                  this->InCD,cellId,this->OutCD);
@@ -1115,16 +1115,16 @@ void vtkHyperOctreeContourFilter::ContourNode()
     else
       {
       // this->Input->GetDimension()==2
-     
+
       // perform contour
-      
+
       vtkIdType cellId=this->Cursor->GetLeafId();
-      
+
       int c=this->Polygon->GetPoints()->GetNumberOfPoints();
-     
+
       this->CellScalars->SetNumberOfComponents(1);
       this->CellScalars->SetNumberOfTuples(c);
-      
+
       i=0;
       while(i<c)
         {
@@ -1132,14 +1132,14 @@ void vtkHyperOctreeContourFilter::ContourNode()
         this->CellScalars->SetValue(i,this->PointScalars->GetValue(ptId));
         ++i;
         }
-      
+
       // I made a copy of the input point data, so it is OK to modify.
       this->InPD->SetScalars(this->PointScalars); // void
-      
+
       if ( this->SortBy == VTK_SORT_BY_CELL )
         {
         double value = this->ContourValues->GetValue(this->Iter);
-        this->Polygon->Contour(value, this->CellScalars, this->Locator, 
+        this->Polygon->Contour(value, this->CellScalars, this->Locator,
                                this->NewVerts,this->NewLines,this->NewPolys,
                                this->InPD,this->OutPD,this->InCD,cellId,
                                this->OutCD);
@@ -1151,11 +1151,11 @@ void vtkHyperOctreeContourFilter::ContourNode()
         while(iter<numContours)
           {
           double value = this->ContourValues->GetValue(iter);
-          this->Polygon->Contour(value, this->CellScalars, this->Locator, 
+          this->Polygon->Contour(value, this->CellScalars, this->Locator,
                                  this->NewVerts,this->NewLines,
                                  this->NewPolys,this->InPD,this->OutPD,
                                  this->InCD,cellId,this->OutCD);
-          
+
           ++iter;
           }
         }
@@ -1173,16 +1173,16 @@ double vtkHyperOctreeContourFilter::ComputePointValue(int ptIndices[3])
   // A implies B: !A||B
   assert("pre: all_set" &&
          (this->Input->GetDimension()!=2 || ptIndices[2]==0));
-  
+
   int target[3];
   double result=0;
   double nb=0;
-  
+
   int kmax;
   int jmax;
   int level=this->Input->GetNumberOfLevels();
   int maxCellIdx=1<<(level-1);
-  
+
   switch(this->Input->GetDimension())
     {
     case 3:
@@ -1198,7 +1198,7 @@ double vtkHyperOctreeContourFilter::ComputePointValue(int ptIndices[3])
       jmax=1;
       break;
     }
-  
+
   int k=0;
   while(k<kmax)
     {
@@ -1223,7 +1223,7 @@ double vtkHyperOctreeContourFilter::ComputePointValue(int ptIndices[3])
       }
     ++k;
     }
-  
+
   if(nb>1)
     {
     result/=nb;
@@ -1232,7 +1232,7 @@ double vtkHyperOctreeContourFilter::ComputePointValue(int ptIndices[3])
 }
 
 //----------------------------------------------------------------------------
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkHyperOctreeContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
@@ -1240,7 +1240,7 @@ void vtkHyperOctreeContourFilter::SetLocator(vtkIncrementalPointLocator *locator
     {
     return;
     }
-  
+
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);
@@ -1414,7 +1414,7 @@ void vtkHyperOctreeContourPointsGrabber::InsertPoint2D(double pt[3],
     double value=this->Filter->ComputePointValue(ijk);
     this->Filter->PointScalars->InsertValue(this->LastPtId,value);
     }
-    
+
   this->Polygon->GetPointIds()->InsertNextId(this->LastPtId);
   this->Polygon->GetPoints()->InsertNextPoint(pt);
 }

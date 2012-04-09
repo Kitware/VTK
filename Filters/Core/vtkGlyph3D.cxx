@@ -160,7 +160,7 @@ int vtkGlyph3D::RequestData(
     {
     inCScalars = inSScalars;
     }
-  
+
   vtkDataArray* temp = 0;
   if (pd)
     {
@@ -178,7 +178,7 @@ int vtkGlyph3D::RequestData(
 
   requestedGhostLevel =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
+
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
     {
@@ -249,7 +249,7 @@ int vtkGlyph3D::RequestData(
     defaultPoints = NULL;
     source = defaultSource;
     }
-  
+
   if ( this->IndexMode != VTK_INDEXING_OFF )
     {
     pd = NULL;
@@ -299,7 +299,7 @@ int vtkGlyph3D::RequestData(
       {
       haveTCoords = 0;
       }
-    
+
     // Prepare to copy output.
     pd = input->GetPointData();
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
@@ -364,7 +364,7 @@ int vtkGlyph3D::RequestData(
     newTCoords->Allocate(numComps*numPts*numSourcePts);
     newTCoords->SetName("TCoords");
     }
-    
+
   // Setting up for calls to PolyData::InsertNextCell()
   if (this->IndexMode != VTK_INDEXING_OFF )
     {
@@ -406,7 +406,7 @@ int vtkGlyph3D::RequestData(
         scalex = scaley = scalez = s;
         }
       }
-    
+
     if ( haveVectors )
       {
       vtkDataArray *array3D = this->VectorMode == VTK_USE_NORMAL? inNormals : inVectors;
@@ -442,7 +442,7 @@ int vtkGlyph3D::RequestData(
         scalex = scaley = scalez = vMag;
         }
       }
-    
+
     // Clamp data scale if enabled
     if ( this->Clamping )
       {
@@ -456,13 +456,13 @@ int vtkGlyph3D::RequestData(
                 (scalez > this->Range[1] ? this->Range[1] : scalez));
       scalez = (scalez - this->Range[0]) / den;
       }
-    
+
     // Compute index into table of glyphs
     if ( this->IndexMode == VTK_INDEXING_OFF )
       {
       index = 0;
       }
-    else 
+    else
       {
       if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
         {
@@ -472,7 +472,7 @@ int vtkGlyph3D::RequestData(
         {
         value = vMag;
         }
-      
+
       index = static_cast<int>((value - this->Range[0])*numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
@@ -494,11 +494,11 @@ int vtkGlyph3D::RequestData(
       }
 
     // Check ghost points.
-    // If we are processing a piece, we do not want to duplicate 
+    // If we are processing a piece, we do not want to duplicate
     // glyphs on the borders.  The corrct check here is:
     // ghostLevel > 0.  I am leaving this over glyphing here because
-    // it make a nice example (sphereGhost.tcl) to show the 
-    // point ghost levels with the glyph filter.  I am not certain 
+    // it make a nice example (sphereGhost.tcl) to show the
+    // point ghost levels with the glyph filter.  I am not certain
     // of the usefulness of point ghost levels over 1, but I will have
     // to think about it.
     if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
@@ -510,7 +510,7 @@ int vtkGlyph3D::RequestData(
       {
       continue;
       }
-    
+
     // Now begin copying/transforming glyph
     trans->Identity();
 
@@ -520,21 +520,21 @@ int vtkGlyph3D::RequestData(
       cell = source->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (pts->Reset(), i=0; i < npts; i++) 
+      for (pts->Reset(), i=0; i < npts; i++)
         {
         pts->InsertId(i,cellPts->GetId(i) + ptIncr);
         }
       output->InsertNextCell(cell->GetCellType(),pts);
       }
-    
+
     // translate Source to Input point
     input->GetPoint(inPtId, x);
     trans->Translate(x[0], x[1], x[2]);
-    
+
     if ( haveVectors )
       {
       // Copy Input vector
-      for (i=0; i < numSourcePts; i++) 
+      for (i=0; i < numSourcePts; i++)
         {
         newVectors->InsertTuple(i+ptIncr, v);
         }
@@ -557,7 +557,7 @@ int vtkGlyph3D::RequestData(
           }
         }
       }
-    
+
     if (haveTCoords)
       {
       for (i = 0; i < numSourcePts; i++)
@@ -566,7 +566,7 @@ int vtkGlyph3D::RequestData(
         newTCoords->InsertTuple(i+ptIncr, tc);
         }
       }
-    
+
     // determine scale factor from scalars if appropriate
     // Copy scalar value
     if (inSScalars && (this->ColorMode == VTK_COLOR_BY_SCALE))
@@ -585,12 +585,12 @@ int vtkGlyph3D::RequestData(
       }
     if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
       {
-      for (i=0; i < numSourcePts; i++) 
+      for (i=0; i < numSourcePts; i++)
         {
         newScalars->InsertTuple(i+ptIncr, &vMag);
         }
       }
-    
+
     // scale data if appropriate
     if ( this->Scaling )
       {
@@ -604,7 +604,7 @@ int vtkGlyph3D::RequestData(
         scaley *= this->ScaleFactor;
         scalez *= this->ScaleFactor;
         }
-      
+
       if ( scalex == 0.0 )
         {
         scalex = 1.0e-10;
@@ -631,14 +631,14 @@ int vtkGlyph3D::RequestData(
       {
       trans->TransformPoints(sourcePts,newPts);
       }
-    
+
     if ( haveNormals )
       {
       trans->TransformNormals(sourceNormals,newNormals);
       }
-    
+
     // Copy point data from source (if possible)
-    if ( pd ) 
+    if ( pd )
       {
       for (i=0; i < numSourcePts; i++)
         {
@@ -664,8 +664,8 @@ int vtkGlyph3D::RequestData(
 
     ptIncr += numSourcePts;
     cellIncr += numSourceCells;
-    } 
-  
+    }
+
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -695,7 +695,7 @@ int vtkGlyph3D::RequestData(
     outputPD->SetTCoords(newTCoords);
     newTCoords->Delete();
     }
-  
+
   output->Squeeze();
   trans->Delete();
   pts->Delete();
@@ -814,7 +814,7 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
-  
+
   os << indent << "Scale Mode: ";
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
     {

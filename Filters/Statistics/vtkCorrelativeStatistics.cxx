@@ -66,10 +66,10 @@ void vtkCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
                                           vtkMultiBlockDataSet* outMeta )
 {
-  if ( ! outMeta ) 
-    { 
-    return; 
-    } 
+  if ( ! outMeta )
+    {
+    return;
+    }
 
   // Get hold of the first model (data object) in the collection
   vtkCollectionSimpleIterator it;
@@ -78,9 +78,9 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
   // Verify that the first input model is indeed contained in a multiblock data set
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-  if ( ! inMeta ) 
-    { 
-    return; 
+  if ( ! inMeta )
+    {
+    return;
     }
 
   // Verify that the first primary statistics are indeed contained in a table
@@ -106,13 +106,13 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     {
     // Verify that the model is indeed contained in a table
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-    if ( ! inMeta ) 
-      { 
+    if ( ! inMeta )
+      {
       aggregatedTab->Delete();
 
-      return; 
+      return;
       }
-    
+
     // Verify that the current primary statistics are indeed contained in a table
     primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
     if ( ! primaryTab )
@@ -149,7 +149,7 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double M2X = aggregatedTab->GetValueByName( r, "M2 X" ).ToDouble();
       double M2Y = aggregatedTab->GetValueByName( r, "M2 Y" ).ToDouble();
       double MXY = aggregatedTab->GetValueByName( r, "M XY" ).ToDouble();
-      
+
       // Get current model statistics
       int n_c = primaryTab->GetValueByName( r, "Cardinality" ).ToInt();
       double meanX_c = primaryTab->GetValueByName( r, "Mean X" ).ToDouble();
@@ -157,9 +157,9 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double M2X_c = primaryTab->GetValueByName( r, "M2 X" ).ToDouble();
       double M2Y_c = primaryTab->GetValueByName( r, "M2 Y" ).ToDouble();
       double MXY_c = primaryTab->GetValueByName( r, "M XY" ).ToDouble();
-      
+
       // Update global statics
-      int N = n + n_c; 
+      int N = n + n_c;
 
       double invN = 1. / static_cast<double>( N );
 
@@ -170,14 +170,14 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double deltaY_sur_N = deltaY * invN;
 
       int prod_n = n * n_c;
- 
-      M2X += M2X_c 
+
+      M2X += M2X_c
         + prod_n * deltaX * deltaX_sur_N;
 
-      M2Y += M2Y_c 
+      M2Y += M2Y_c
         + prod_n * deltaY * deltaY_sur_N;
 
-      MXY += MXY_c 
+      MXY += MXY_c
         + prod_n * deltaX * deltaY_sur_N;
 
       meanX += n_c * deltaX_sur_N;
@@ -242,12 +242,12 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
   doubleCol->SetName( "Mean X" );
   primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Mean Y" );
   primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
-  
+
   doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "M2 X" );
   primaryTab->AddColumn( doubleCol );
@@ -265,7 +265,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one pair of column of interest (if there are others, they are ignored)
@@ -288,7 +288,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
                        << ". Ignoring this pair." );
       continue;
       }
-    
+
     double meanX = 0.;
     double meanY = 0.;
     double mom2X = 0.;
@@ -317,7 +317,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
     vtkVariantArray* row = vtkVariantArray::New();
 
     row->SetNumberOfValues( 8 );
-    
+
     row->SetValue( 0, nRow );
     row->SetValue( 1, colX );
     row->SetValue( 2, colY );
@@ -331,7 +331,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 
     row->Delete();
     }
-    
+
   // Finally set first block of output meta port to primary statistics table
   outMeta->SetNumberOfBlocks( 1 );
   outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
@@ -360,12 +360,12 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                  "Variance Y",
                                  "Covariance",
                                  "Determinant",
-                                 "Slope Y/X", 
-                                 "Intercept Y/X", 
-                                 "Slope X/Y", 
-                                 "Intercept X/Y", 
+                                 "Slope Y/X",
+                                 "Intercept Y/X",
+                                 "Slope X/Y",
+                                 "Intercept X/Y",
                                  "Pearson r" };
-  
+
   // Create table for derived statistics
   vtkIdType nRow = primaryTab->GetNumberOfRows();
   vtkTable* derivedTab = vtkTable::New();
@@ -383,7 +383,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   // Storage for stdv x, stdv y, var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r, D
-  double* derivedVals = new double[numDoubles]; // 
+  double* derivedVals = new double[numDoubles]; //
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -410,7 +410,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       varY  = m2Y * inv_nm1;
       covXY = mXY * inv_nm1;
       }
-    
+
     derivedVals[0] = varX;
     derivedVals[1] = varY;
     derivedVals[2] = covXY;
@@ -419,7 +419,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // There will be NaN values in linear regression if covariance matrix is not positive definite
     double meanX = primaryTab->GetValueByName( i, "Mean X" ).ToDouble();
     double meanY = primaryTab->GetValueByName( i, "Mean Y" ).ToDouble();
-    
+
     // variable Y on variable X:
     //   slope (explicitly handle degenerate cases)
       if ( varX < VTK_DBL_MIN )
@@ -432,7 +432,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         }
     //   intersect
     derivedVals[5] = meanY - derivedVals[4] * meanX;
-    
+
     //   variable X on variable Y:
     //   slope (explicitly handle degenerate cases)
       if ( varY < VTK_DBL_MIN )
@@ -445,7 +445,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         }
     //   intersect
     derivedVals[7] = meanX - derivedVals[6] * meanY;
-    
+
     // correlation coefficient (be consistent with degenerate cases detected above)
     if ( varX < VTK_DBL_MIN
          || varY < VTK_DBL_MIN )
@@ -456,7 +456,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       {
       derivedVals[8] = covXY / sqrt( varX * varY );
       }
-    
+
     for ( int j = 0; j < numDoubles; ++ j )
       {
       derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
@@ -661,7 +661,7 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
           // Read and center observation
           x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
           y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
-          
+
           // Update third and fourth order sums for each eigencoordinate
           tmp = x * x;
           sum3X += tmp * x;
@@ -670,13 +670,13 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
           sum3Y += tmp * y;
           sum4Y += tmp * tmp;
           }
-        
+
         // Normalize all sums with corresponding eigenvalues and powers
         sum3X *= sum3X;
         tmp = sX2 * sX2;
         sum3X /= ( tmp * sX2 );
         sum4X /= tmp;
-        
+
         sum3Y *= sum3Y;
         tmp = sY2 * sY2;
         sum3Y /= ( tmp * sY2 );
@@ -690,16 +690,16 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
         double sqdS = sqrt( trS * trS - 4 * detS );
         double eigS1 = .5 * ( trS + sqdS );
         double eigS2 = .5 * ( trS - sqdS );
-        
+
         // Calculate transformation matrix H so S = H diag(eigSi) H^t
         double w = .5 * ( sX2 - sY2 - sqdS );
         double f = 1. / sqrt ( sXY2 + w * w );
-        
+
         // Diagonal terms of H are identical
-        double hd = f * sXY; 
+        double hd = f * sXY;
         double h21 = f * ( eigS1 - sX2 );
         double h12 = f * ( eigS2 - sY2 );
-        
+
         // Now iterate over all observations
         double x, y, t1, t2;
         for ( vtkIdType j = 0; j < nRowData; ++ j )
@@ -707,11 +707,11 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
           // Read and center observation
           x = inData->GetValueByName( j, varNameX ).ToDouble() - mX;
           y = inData->GetValueByName( j, varNameY ).ToDouble() - mY;
-          
+
           // Transform coordinates into eigencoordinates
           t1 = hd * x + h21 * y;
           t2 = h12 * x + hd * y;
-          
+
           // Update third and fourth order sums for each eigencoordinate
           tmp = t1 * t1;
           sum3X += tmp * t1;
@@ -720,13 +720,13 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
           sum3Y += tmp * t2;
           sum4Y += tmp * tmp;
           }
-        
+
         // Normalize all sums with corresponding eigenvalues and powers
         sum3X *= sum3X;
         tmp = eigS1 * eigS1;
         sum3X /= ( tmp * eigS1 );
         sum4X /= tmp;
-        
+
         sum3Y *= sum3Y;
         tmp = eigS2 * eigS2;
         sum3Y /= ( tmp * eigS2 );
@@ -832,7 +832,7 @@ public:
     // Center observation for efficiency
     double x_c = x - this->MeanX;
     double y_c = y - this->MeanY;
-    
+
     // Calculate 2-d squared Mahalanobis distance (Nan for degenerate cases)
     double smd  =  this->InvDetXY * ( this->VarY * x_c * x_c - 2. * this->CovXY * x_c * y_c + this->VarX * y_c * y_c );
 
@@ -857,11 +857,11 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     AssessFunctor*& dfunc )
 {
   dfunc = 0;
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta
        || inMeta->GetNumberOfBlocks() < 2 )
-    { 
-    return; 
+    {
+    return;
     }
 
   vtkTable* primaryTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
@@ -893,13 +893,13 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  // Loop over parameters table until the requested variables are found 
+  // Loop over parameters table until the requested variables are found
   for ( int r = 0; r < nRowPrim; ++ r )
     {
     if ( varX->GetValue( r ) == varNameX
-         && 
+         &&
          varY->GetValue( r ) == varNameY )
-      { 
+      {
       // Grab the data for the requested variables
       vtkAbstractArray* arrX = outData->GetColumnByName( varNameX );
       vtkAbstractArray* arrY = outData->GetColumnByName( varNameY );
@@ -907,7 +907,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
         {
         return;
         }
-      
+
       // For descriptive statistics, types must be convertible to DataArrays (e.g., StringArrays do not fit here).
       vtkDataArray* valsX = vtkDataArray::SafeDownCast( arrX );
       vtkDataArray* valsY = vtkDataArray::SafeDownCast( arrY );
@@ -921,16 +921,16 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
       double meanY = primaryTab->GetValueByName( r, "Mean Y" ).ToDouble();
 
       // Fetch necessary values from derived model
-      // NB: If derived values were specified (and not calculated by Derive) 
+      // NB: If derived values were specified (and not calculated by Derive)
       //     and are mutually inconsistent, then incorrect assessments will be produced
       double varianceX = derivedTab->GetValueByName( r, "Variance X" ).ToDouble();
       double varianceY = derivedTab->GetValueByName( r, "Variance Y" ).ToDouble();
       double covXY = derivedTab->GetValueByName( r, "Covariance" ).ToDouble();
       double detXY = derivedTab->GetValueByName( r, "Determinant" ).ToDouble();
-      double slopeYX = derivedTab->GetValueByName( r, "Slope Y/X" ).ToDouble(); 
-      double slopeXY = derivedTab->GetValueByName( r, "Slope X/Y" ).ToDouble(); 
-      double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble(); 
-      double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble(); 
+      double slopeYX = derivedTab->GetValueByName( r, "Slope Y/X" ).ToDouble();
+      double slopeXY = derivedTab->GetValueByName( r, "Slope X/Y" ).ToDouble();
+      double interYX = derivedTab->GetValueByName( r, "Intercept Y/X" ).ToDouble();
+      double interXY = derivedTab->GetValueByName( r, "Intercept X/Y" ).ToDouble();
 
       // Mahalanobis distance will always be Nan for degenerate covariance matrices
       double invDetXY;
@@ -944,7 +944,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
         {
         invDetXY = 1. / detXY;
         }
-        
+
       dfunc = new BivariateRegressionDeviationsFunctor( valsX,
                                                         valsY,
                                                         meanX,
@@ -957,7 +957,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                         slopeXY,
                                                         interYX,
                                                         interXY );
-      
+
       // Parameters of requested column pair were found, no need to continue
       return;
       }

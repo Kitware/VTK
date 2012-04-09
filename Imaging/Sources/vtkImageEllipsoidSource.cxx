@@ -39,7 +39,7 @@ vtkImageEllipsoidSource::vtkImageEllipsoidSource()
   this->Radius[2] = 70.0;
   this->InValue = 255.0;
   this->OutValue = 0.0;
-  
+
   this->OutputScalarType = VTK_UNSIGNED_CHAR;
   this->SetNumberOfInputPorts(0);
 }
@@ -55,10 +55,10 @@ void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";
-  
+
   os << indent << "Radius: (" << this->Radius[0] << ", "
      << this->Radius[1] << ", " << this->Radius[2] << ")\n";
-  
+
   os << indent << "InValue: " << this->InValue << "\n";
   os << indent << "OutValue: " << this->OutValue << "\n";
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
@@ -67,7 +67,7 @@ void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])
 {
   int idx;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     if (this->WholeExtent[idx] != extent[idx])
@@ -79,12 +79,12 @@ void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::SetWholeExtent(int minX, int maxX, 
+void vtkImageEllipsoidSource::SetWholeExtent(int minX, int maxX,
                                             int minY, int maxY,
                                             int minZ, int maxZ)
 {
   int extent[6];
-  
+
   extent[0] = minX;  extent[1] = maxX;
   extent[2] = minY;  extent[3] = maxY;
   extent[4] = minZ;  extent[5] = maxZ;
@@ -96,7 +96,7 @@ void vtkImageEllipsoidSource::SetWholeExtent(int minX, int maxX,
 void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
 {
   int idx;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->WholeExtent[idx];
@@ -111,7 +111,7 @@ int vtkImageEllipsoidSource::RequestInformation (
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  
+
   outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
   outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -161,10 +161,10 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
       else
         {
         temp = VTK_DOUBLE_MAX;
-        }  
+        }
       }
-    
-    
+
+
     s2 = temp * temp;
     for (idx1 = ext[2]; !self->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
@@ -173,7 +173,7 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
         self->UpdateProgress(count/(50.0*target));
         }
       count++;
-      
+
       // handle divide by zero
       if (radius[1] != 0.0)
         {
@@ -188,9 +188,9 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
         else
           {
           temp = VTK_DOUBLE_MAX;
-          }  
+          }
         }
-      
+
       s1 = temp * temp;
       for (idx0 = min0; idx0 <= max0; ++idx0)
         {
@@ -208,7 +208,7 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
           else
             {
             temp = VTK_DOUBLE_MAX;
-            }  
+            }
           }
 
         s0 = temp * temp;
@@ -235,19 +235,19 @@ int vtkImageEllipsoidSource::RequestData(
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);  
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *data = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int extent[6];
 
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
-  
+
   data->SetExtent(extent);
   data->AllocateScalars(outInfo);
-  
-  void *ptr;  
+
+  void *ptr;
   ptr = data->GetScalarPointerForExtent(extent);
-  
+
   switch (data->GetScalarType())
     {
     vtkTemplateMacro(

@@ -15,7 +15,7 @@ vtkPDBReader pdb0
   pdb0 SetBScale 1.0
 
 vtkSphereSource Sphere0
-  Sphere0 SetCenter 0 0 0 
+  Sphere0 SetCenter 0 0 0
   Sphere0 SetRadius 1
   Sphere0 SetThetaResolution 8
   Sphere0 SetStartTheta 0

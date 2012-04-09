@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* vtkSuperquadric originally written by Michael Halle, 
+/* vtkSuperquadric originally written by Michael Halle,
    Brigham and Women's Hospital, July 1998.
 
    Based on "Rigid physically based superquadrics", A. H. Barr,
@@ -76,7 +76,7 @@ void vtkSuperquadricSource::SetPhiResolution(int i)
     {
     i =  VTK_MAX_SUPERQUADRIC_RESOLUTION;
     }
-  
+
   if (this->PhiResolution != i)
     {
     this->PhiResolution = i;
@@ -95,7 +95,7 @@ void vtkSuperquadricSource::SetThetaResolution(int i)
     {
     i =  VTK_MAX_SUPERQUADRIC_RESOLUTION;
     }
-  
+
   if (this->ThetaResolution != i)
     {
     this->ThetaResolution = i;
@@ -183,7 +183,7 @@ int vtkSuperquadricSource::RequestData(
     alpha = (1.0 / this->Thickness);
     dims[0] /= (alpha + 1.0);
     dims[1] /= (alpha + 1.0);
-    dims[2] /= (alpha + 1.0);    
+    dims[2] /= (alpha + 1.0);
     }
   else
     {

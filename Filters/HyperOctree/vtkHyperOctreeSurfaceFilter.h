@@ -67,7 +67,7 @@ public:
 protected:
   vtkHyperOctreeSurfaceFilter();
   ~vtkHyperOctreeSurfaceFilter();
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
@@ -78,18 +78,18 @@ protected:
   void GenerateFaces(double bounds[6],
                      vtkIdType ptIds[8],
                      int onFace[6]);
-  
+
   // Description:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
-  
+
   int Merging;
   vtkIncrementalPointLocator *Locator;
-  
+
   // Variables used by generate recursively.
   // It avoids to pass to much argument.
   vtkDataSetAttributes *InputCD;
-  
+
   vtkHyperOctreeCursor *Cursor;
   vtkPoints *OutPts;
   vtkCellArray *OutCells;

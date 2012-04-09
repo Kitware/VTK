@@ -44,21 +44,21 @@ public:
   // Get/Set the writer's input.
   vtkUnstructuredGrid* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLPUnstructuredGridWriter();
   ~vtkXMLPUnstructuredGridWriter();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
-  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter(); 
-  
+  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
+
 private:
   vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&);  // Not implemented.
   void operator=(const vtkXMLPUnstructuredGridWriter&);  // Not implemented.

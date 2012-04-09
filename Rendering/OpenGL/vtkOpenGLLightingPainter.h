@@ -16,7 +16,7 @@
 // .SECTION Description
 // This painter manages lighting.
 // Ligting is disabled when rendering points/lines and no normals are present
-// or rendering Polygons/TStrips and representation is points and no normals 
+// or rendering Polygons/TStrips and representation is points and no normals
 // are present.
 
 #ifndef __vtkOpenGLLightingPainter_h
@@ -49,10 +49,10 @@ protected:
   ~vtkOpenGLLightingPainter();
 
   // Description:
-  // Setups lighting state before calling render on delegate 
+  // Setups lighting state before calling render on delegate
   // painter.
   virtual void RenderInternal(vtkRenderer *renderer,
-                              vtkActor *actor, 
+                              vtkActor *actor,
                               unsigned long typeflags,
                               bool forceCompileOnly);
 

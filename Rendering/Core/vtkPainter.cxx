@@ -46,10 +46,10 @@ vtkInformationKeyMacro(vtkPainter, HIGH_QUALITY, Integer);
 class vtkPainterObserver : public vtkCommand
 {
 public:
-  static vtkPainterObserver* New() 
+  static vtkPainterObserver* New()
     { return new vtkPainterObserver; }
 
-  virtual void Execute(vtkObject *caller, 
+  virtual void Execute(vtkObject *caller,
     unsigned long event, void* vtkNotUsed(v))
     {
     vtkPainter* delegate = vtkPainter::SafeDownCast(caller);
@@ -112,15 +112,15 @@ vtkPainter::~vtkPainter()
 void vtkPainter::UpdateProgress(double amount)
 {
   this->Progress = amount;
-  this->InvokeEvent(vtkCommand::ProgressEvent, 
+  this->InvokeEvent(vtkCommand::ProgressEvent,
     reinterpret_cast<void *>(&amount));
 }
 
 //-----------------------------------------------------------------------------
-void vtkPainter::UpdateDelegateProgress(vtkPainter* vtkNotUsed(delegate), 
+void vtkPainter::UpdateDelegateProgress(vtkPainter* vtkNotUsed(delegate),
   double amount)
 {
-  double scaled_amount = this->ProgressOffset + 
+  double scaled_amount = this->ProgressOffset +
     this->ProgressScaleFactor * amount;
   this->UpdateProgress(scaled_amount);
 }
@@ -182,25 +182,25 @@ void vtkPainter::ObserverPainterProgress(vtkPainter* p)
 void vtkPainter::ReportReferences(vtkGarbageCollector *collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->DelegatePainter, 
+  vtkGarbageCollectorReport(collector, this->DelegatePainter,
     "Delegate Painter");
   vtkGarbageCollectorReport(collector, this->Input, "Input");
 }
 
 //-----------------------------------------------------------------------------
-void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor, 
+void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor,
                         unsigned long typeflags, bool forceCompileOnly)
 {
   this->TimeToDraw = 0.0;
   if (renderer->GetRenderWindow()->CheckAbortStatus())
     {
     return;
-    } 
+    }
 
   if (this->InformationProcessTime < this->Information->GetMTime())
     {
     // If the information object was modified, some subclass may
-    // want to get the modified information. 
+    // want to get the modified information.
     // Using ProcessInformation avoids the need to access the Information
     // object during each render, thus reducing unnecessary
     // expensive information key accesses.
@@ -213,7 +213,7 @@ void vtkPainter::Render(vtkRenderer* renderer, vtkActor* actor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+void vtkPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                                 unsigned long typeflags, bool forceCompileOnly)
 {
   if (this->DelegatePainter)
@@ -233,7 +233,7 @@ void vtkPainter::UpdateDelegatePainter()
 void vtkPainter::PassInformation(vtkPainter* toPainter)
 {
   /*
-  if (this->Information->GetMTime() > 
+  if (this->Information->GetMTime() >
   toPainter->GetInformation()->GetMTime())
   {
   // We have updated information, pass it on to
@@ -275,7 +275,7 @@ void vtkPainter::UpdateBounds(double bounds[6])
 //-----------------------------------------------------------------------------
 // Description:
 // Helper method to get input array to process.
-vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation, 
+vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation,
   int fieldAttributeType,
   vtkDataSet* inputDS,
   bool *use_cell_data)
@@ -291,7 +291,7 @@ vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation,
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
-    vtkAbstractArray* array = 
+    vtkAbstractArray* array =
       inputDS->GetPointData()->GetAbstractAttribute(fieldAttributeType);
     if (array)
       {
@@ -323,7 +323,7 @@ vtkAbstractArray* vtkPainter::GetInputArrayToProcess(int fieldAssociation,
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
-    vtkAbstractArray* array = 
+    vtkAbstractArray* array =
       inputDS->GetPointData()->GetAbstractArray(name);
     if (array)
       {
@@ -355,7 +355,7 @@ void vtkPainter::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  
+
   os << indent << "DelegatePainter: " ;
   if (this->DelegatePainter)
     {
@@ -366,6 +366,6 @@ void vtkPainter::PrintSelf(ostream &os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  
+
 }
 

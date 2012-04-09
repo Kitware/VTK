@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    TestMatlabEngineFilter.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -161,7 +161,7 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     mef->SetMatlabScript("a = sqrt(a + 5.0);\n");
     mef->Update();
 
-    vtkDenseArray<double>* const dense_array = 
+    vtkDenseArray<double>* const dense_array =
                  vtkDenseArray<double>::SafeDownCast(vtkArrayData::SafeDownCast(mef->GetOutput())->GetArray(1));
     test_expression(dense_array);
 

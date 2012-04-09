@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkRTAnalyticSource - Create an image for regression testing
 // .SECTION Description
-// vtkRTAnalyticSource just produces images with pixel values determined 
+// vtkRTAnalyticSource just produces images with pixel values determined
 // by a Maximum*Gaussian*XMag*sin(XFreq*x)*sin(YFreq*y)*cos(ZFreq*z)
 // Values are float scalars on point data with name "RTData".
 
@@ -37,7 +37,7 @@ public:
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
                       int zMin, int zMax);
   vtkGetVector6Macro(WholeExtent, int);
-  
+
   // Description:
   // Set/Get the center of function. Initial value is {0.0,0.0,0.0}
   vtkSetVector3Macro(Center, double);

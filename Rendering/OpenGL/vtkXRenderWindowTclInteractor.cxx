@@ -263,7 +263,7 @@ void vtkXRenderWindowTclInteractor::Disable()
     {
     return;
     }
-  
+
   // Remove the all the events that we registered for EXCEPT for
   // StructureNotifyMask event since we need to keep track of the window
   // size (we will not render if we are disabled, we simply track the window
@@ -316,7 +316,7 @@ int vtkXRenderWindowTclInteractor::InternalCreateTimer(int timerId,
 
 
 //-------------------------------------------------------------------------
-int vtkXRenderWindowTclInteractor::InternalDestroyTimer(int platformTimerId) 
+int vtkXRenderWindowTclInteractor::InternalDestroyTimer(int platformTimerId)
 {
   return this->Internal->DestroyTimer(platformTimerId);
 }

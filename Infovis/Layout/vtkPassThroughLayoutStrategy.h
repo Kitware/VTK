@@ -43,7 +43,7 @@ public:
   // This strategy sets up some data structures
   // for faster processing of each Layout() call
   virtual void Initialize();
-  
+
   // Description:
   // This is the layout method where the graph that was
   // set in SetGraph() is laid out. The method can either
@@ -51,7 +51,7 @@ public:
   // graph. If you have an iterative layout please implement
   // the IsLayoutComplete() method.
   virtual void Layout();
-  
+
   // Description:
   // I'm an iterative layout so this method lets the caller
   // know if I'm done laying out the graph

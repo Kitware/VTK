@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 // vtkGeoMath provides some useful geographic calculations.
-   
+
 #ifndef __vtkGeoMath_h
 #define __vtkGeoMath_h
 
@@ -49,7 +49,7 @@ public:
   // Units are in meters.
   // Note that having altitude realtive to sea level causes issues.
   static void   LongLatAltToRect(double lla[3], double rect[3]);
-  
+
 protected:
   vtkGeoMath();
   ~vtkGeoMath();

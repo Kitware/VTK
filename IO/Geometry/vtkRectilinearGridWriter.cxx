@@ -49,7 +49,7 @@ void vtkRectilinearGridWriter::WriteData()
   //
   // Write rectilinear grid specific stuff
   //
-  *fp << "DATASET RECTILINEAR_GRID\n"; 
+  *fp << "DATASET RECTILINEAR_GRID\n";
 
   // Write data owned by the dataset
   if (!this->WriteDataSetData(fp, input))

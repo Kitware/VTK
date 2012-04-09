@@ -61,9 +61,9 @@ public:
   vtkGetMacro(OutputTrueValue, double);
 
     // Description:
-  // Set the Input1 of this filter. 
+  // Set the Input1 of this filter.
   virtual void SetInput1Data(vtkDataObject *input) { this->SetInputData(0,input);};
-  
+
   // Description:
   // Set the Input2 of this filter.
   virtual void SetInput2Data(vtkDataObject *input) { this->SetInputData(1,input);};

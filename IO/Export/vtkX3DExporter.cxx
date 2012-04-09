@@ -58,23 +58,23 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   vtkIdType cellOffset,
   vtkCellArray* cells,
   vtkUnsignedCharArray* colors, bool cell_colors,
-  vtkDataArray* normals, bool cell_normals, 
-  vtkDataArray* tcoords, 
+  vtkDataArray* normals, bool cell_normals,
+  vtkDataArray* tcoords,
   bool common_data_written, int index, vtkX3DExporterWriter* writer);
-static void vtkX3DExporterWriteData(vtkPoints *points, 
+static void vtkX3DExporterWriteData(vtkPoints *points,
   vtkDataArray *normals,
-  vtkDataArray *tcoords, 
+  vtkDataArray *tcoords,
   vtkUnsignedCharArray *colors,
   int index, vtkX3DExporterWriter* writer);
-static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int index, 
+static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int index,
   vtkX3DExporterWriter* writer);
 static bool vtkX3DExporterWriterRenderVerts(
   vtkPoints* points, vtkCellArray* cells,
   vtkUnsignedCharArray* colors, bool cell_colors,  vtkX3DExporterWriter* writer);
 static bool vtkX3DExporterWriterRenderPoints(
-  vtkPolyData* pd, 
+  vtkPolyData* pd,
   vtkUnsignedCharArray* colors,
-  bool cell_colors,  
+  bool cell_colors,
   vtkX3DExporterWriter* writer);
 
 //----------------------------------------------------------------------------
@@ -364,7 +364,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
       writer->StartNode(PointLight);
       }
     else
-      { 
+      {
       writer->StartNode(SpotLight);
       writer->SetField(direction, SFVEC3F, dir);
       writer->SetField(cutOffAngle,static_cast<float>(aLight->GetConeAngle()));
@@ -382,7 +382,7 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
   // TODO: Check correct color
   writer->SetField(color, SFCOLOR, colord);
   writer->SetField(intensity, static_cast<float>(aLight->GetIntensity()));
-  writer->SetField(on, aLight->GetSwitch() ? true : false); 
+  writer->SetField(on, aLight->GetSwitch() ? true : false);
   writer->EndNode();
   writer->Flush();
 }
@@ -553,8 +553,8 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       this->WriteAnAppearance(anActor, writeEmissiveColor, writer);
       // Write Geometry
       vtkX3DExporterWriterRenderFaceSet(VTK_POLYGON, representation, points,
-        (numVerts+numLines), polys, 
-        colors, cell_colors, normals, cell_normals, 
+        (numVerts+numLines), polys,
+        colors, cell_colors, normals, cell_normals,
         tcoords, common_data_written, index, writer);
       writer->EndNode();  // close the  Shape
       common_data_written = true;
@@ -568,8 +568,8 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       // Write Geometry
       vtkX3DExporterWriterRenderFaceSet(VTK_TRIANGLE_STRIP,
         representation, points,
-        (numVerts+numLines+numPolys), tstrips, 
-        colors, cell_colors, normals, cell_normals, 
+        (numVerts+numLines+numPolys), tstrips,
+        colors, cell_colors, normals, cell_normals,
         tcoords, common_data_written, index, writer);
       writer->EndNode();  // close the  Shape
       common_data_written = true;
@@ -582,13 +582,13 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
       this->WriteAnAppearance(anActor, writeEmissiveColor, writer);
       // Write Geometry
       vtkX3DExporterWriterRenderFaceSet(VTK_POLY_LINE,
-        (representation==VTK_SURFACE? VTK_WIREFRAME:representation), 
-        points, (numVerts), lines, 
-        colors, cell_colors, normals, cell_normals, 
+        (representation==VTK_SURFACE? VTK_WIREFRAME:representation),
+        points, (numVerts), lines,
+        colors, cell_colors, normals, cell_normals,
         tcoords, common_data_written, index, writer);
       writer->EndNode();  // close the  Shape
       common_data_written = true;
-      }      
+      }
 
     if (numVerts > 0)
       {
@@ -762,7 +762,7 @@ void vtkX3DExporter::WriteAnAppearance(vtkActor *anActor, bool emissive,
   tempd[0]*=tempf2;
   tempd[1]*=tempf2;
   tempd[2]*=tempf2;
-  writer->SetField(specularColor, SFCOLOR, tempd);  
+  writer->SetField(specularColor, SFCOLOR, tempd);
 
   // Material shininess
   writer->SetField(shininess,static_cast<float>(prop->GetSpecularPower()/128.0));
@@ -800,7 +800,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
   scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 
   // make sure scalars are non null
-  if (!scalars) 
+  if (!scalars)
     {
     vtkErrorMacro(<< "No scalar values found for texture input!\n");
     return;
@@ -818,7 +818,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
     }
 
   // we only support 2d texture maps right now
-  // so one of the three sizes must be 1, but it 
+  // so one of the three sizes must be 1, but it
   // could be any of them, so lets find it
   if (size[0] == 1)
     {
@@ -897,8 +897,8 @@ static bool vtkX3DExporterWriterUsingCellColors(vtkActor* anActor)
   int cellFlag = 0;
   vtkMapper* mapper = anActor->GetMapper();
   vtkAbstractMapper::GetScalars(
-    mapper->GetInput(), 
-    mapper->GetScalarMode(), 
+    mapper->GetInput(),
+    mapper->GetScalarMode(),
     mapper->GetArrayAccessMode(),
     mapper->GetArrayId(),
     mapper->GetArrayName(), cellFlag);
@@ -913,8 +913,8 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   vtkIdType cellOffset,
   vtkCellArray* cells,
   vtkUnsignedCharArray* colors, bool cell_colors,
-  vtkDataArray* normals, bool cell_normals, 
-  vtkDataArray* tcoords, 
+  vtkDataArray* normals, bool cell_normals,
+  vtkDataArray* tcoords,
   bool common_data_written, int index, vtkX3DExporterWriter* writer)
 {
   std::vector<int> coordIndexVector;
@@ -1022,11 +1022,11 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   return true;
 }
 
-static void vtkX3DExporterWriteData(vtkPoints *points, 
+static void vtkX3DExporterWriteData(vtkPoints *points,
   vtkDataArray *normals,
-  vtkDataArray *tcoords, 
+  vtkDataArray *tcoords,
   vtkUnsignedCharArray *colors,
-  int index, 
+  int index,
   vtkX3DExporterWriter* writer)
 {
   char indexString[100];
@@ -1080,7 +1080,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
     }
 }
 
-static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int index, 
+static void vtkX3DExporterUseData(bool normals, bool tcoords, bool colors, int index,
   vtkX3DExporterWriter* writer)
 {
   char indexString[100];
@@ -1160,11 +1160,11 @@ static bool vtkX3DExporterWriterRenderVerts(
     writer->SetField(point, &(colorVector.front()), colorVector.size());
     writer->EndNode();
     }
-  return true; 
+  return true;
 }
 
 static bool vtkX3DExporterWriterRenderPoints(
-  vtkPolyData* pd, 
+  vtkPolyData* pd,
   vtkUnsignedCharArray* colors,
   bool cell_colors
   ,  vtkX3DExporterWriter* writer)
@@ -1251,7 +1251,7 @@ static bool vtkX3DExporterWriterRenderPoints(
     writer->EndNode(); // Color
     }
   writer->EndNode(); // PointSet
-  return true; 
+  return true;
 }
 //----------------------------------------------------------------------------
 char *vtkX3DExporter::RegisterAndGetOutputString()

@@ -74,7 +74,7 @@ vtkGlyph2D glypher
   glypher SetSourceData 3 [gs3 GetOutput]
   glypher SetSourceData 4 [gs4 GetOutput]
   glypher SetSourceData 5 [gs5 GetOutput]
-  glypher SetIndexModeToScalar 
+  glypher SetIndexModeToScalar
   glypher SetRange 0 5
   glypher SetScaleModeToDataScalingOff
 

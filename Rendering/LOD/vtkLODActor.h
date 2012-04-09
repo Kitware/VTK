@@ -70,18 +70,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Creates a vtkLODActor with the following defaults: origin(0,0,0) 
+  // Creates a vtkLODActor with the following defaults: origin(0,0,0)
   // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0). NumberOfCloudPoints is set to 150.
   static vtkLODActor *New();
 
   // Description:
   // This causes the actor to be rendered. It, in turn, will render the actor's
-  // property and then mapper.  
+  // property and then mapper.
   virtual void Render(vtkRenderer *, vtkMapper *);
 
   // Description:
-  // This method is used internally by the rendering process. We overide 
+  // This method is used internally by the rendering process. We overide
   // the superclass method to properly set the estimated render time.
   int RenderOpaqueGeometry(vtkViewport *viewport);
 
@@ -95,10 +95,10 @@ public:
   // Add another level of detail.  They do not have to be in any order
   // of complexity.
   void AddLODMapper(vtkMapper *mapper);
-  
+
   // Description:
   // You may plug in your own filters to decimate/subsample the input. The
-  // default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints 
+  // default is to use a vtkOutlineFilter (low-res) and vtkMaskPoints
   // (medium-res).
   virtual void SetLowResFilter( vtkPolyDataAlgorithm * );
   virtual void SetMediumResFilter( vtkPolyDataAlgorithm * );
@@ -118,7 +118,7 @@ public:
   // Description:
   // When this objects gets modified, this method also modifies the object.
   void Modified();
-  
+
   // Description:
   // Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
@@ -130,13 +130,13 @@ protected:
   vtkActor            *Device;
   vtkMapperCollection *LODMappers;
 
-  // We can create our own LOD filters. The default is to use a 
+  // We can create our own LOD filters. The default is to use a
   //
   vtkPolyDataAlgorithm  * LowResFilter;
   vtkPolyDataAlgorithm  * MediumResFilter;
   vtkPolyDataMapper     * LowMapper;
   vtkPolyDataMapper     * MediumMapper;
-  
+
   vtkTimeStamp            BuildTime;
   int                     NumberOfCloudPoints;
 

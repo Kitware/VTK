@@ -60,7 +60,7 @@ vtkImageProcessingPass::~vtkImageProcessingPass()
 void vtkImageProcessingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "DelegatePass:";
   if(this->DelegatePass!=0)
     {
@@ -93,24 +93,24 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   assert("pre: fbo_has_context" && fbo->GetContext()!=0);
   assert("pre: target_exists" && target!=0);
   assert("pre: target_has_context" && target->GetContext()!=0);
-  
+
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
   cout << "width=" << width << endl;
   cout << "height=" << height << endl;
   cout << "newWidth=" << newWidth << endl;
   cout << "newHeight=" << newHeight << endl;
 #endif
-  
+
   vtkRenderer *r=s->GetRenderer();
   vtkRenderState s2(r);
   s2.SetPropArrayAndCount(s->GetPropArray(),s->GetPropArrayCount());
-  
+
   // Adapt camera to new window size
   vtkCamera *savedCamera=r->GetActiveCamera();
   savedCamera->Register(this);
   vtkCamera *newCamera=vtkCamera::New();
   newCamera->DeepCopy(savedCamera);
-  
+
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
   cout << "old camera params=";
   savedCamera->Print(cout);
@@ -118,7 +118,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   newCamera->Print(cout);
 #endif
   r->SetActiveCamera(newCamera);
-  
+
   if(newCamera->GetParallelProjection())
     {
     newCamera->SetParallelScale(
@@ -137,75 +137,75 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
       {
       large=newHeight;
       small=height;
-      
+
       }
     double angle=vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
-    
+
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
     cout << "old angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;
 #endif
-    
+
     angle=atan(tan(angle)*large/static_cast<double>(small));
-    
+
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
     cout << "new angle =" << angle << " rad="<< vtkMath::DegreesFromRadians(angle) << " deg" <<endl;
 #endif
-    
+
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
     }
-  
+
   s2.SetFrameBuffer(fbo);
-  
+
   if(target->GetWidth()!=static_cast<unsigned int>(newWidth) ||
        target->GetHeight()!=static_cast<unsigned int>(newHeight))
       {
       target->Create2D(newWidth,newHeight,4,VTK_UNSIGNED_CHAR,false);
       }
-  
+
   fbo->SetNumberOfRenderTargets(1);
   fbo->SetColorBuffer(0,target);
-  
+
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the
   // render of the previous frame.
   fbo->SetActiveBuffer(0);
-  
+
   fbo->SetDepthBufferNeeded(true);
   fbo->StartNonOrtho(newWidth,newHeight,false);
   glViewport(0, 0, newWidth, newHeight);
   glScissor(0, 0, newWidth, newHeight);
-  
+
   // 2. Delegate render in FBO
   glEnable(GL_DEPTH_TEST);
   this->DelegatePass->Render(&s2);
   this->NumberOfRenderedProps+=
     this->DelegatePass->GetNumberOfRenderedProps();
-  
+
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
   vtkPixelBufferObject *pbo=target->Download();
-  
+
   unsigned int dims[2];
   vtkIdType continuousInc[3];
-  
+
   dims[0]=static_cast<unsigned int>(newWidth);
   dims[1]=static_cast<unsigned int>(newHeight);
   continuousInc[0]=0;
   continuousInc[1]=0;
   continuousInc[2]=0;
-  
+
   int byteSize=newWidth*newHeight*4*sizeof(float);
   float *buffer=new float[newWidth*newHeight*4];
   pbo->Download2D(VTK_FLOAT,buffer,dims,4,continuousInc);
-    
+
   vtkImageImport *importer=vtkImageImport::New();
   importer->CopyImportVoidPointer(buffer,static_cast<int>(byteSize));
   importer->SetDataScalarTypeToFloat();
   importer->SetNumberOfScalarComponents(4);
   importer->SetWholeExtent(0,newWidth-1,0,newHeight-1,0,0);
   importer->SetDataExtentToWholeExtent();
-  
+
   importer->Update();
-    
+
   vtkPNGWriter *writer=vtkPNGWriter::New();
   writer->SetFileName("ip.png");
   writer->SetInputConnection(importer->GetOutputPort());
@@ -214,11 +214,11 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   writer->Write();
   cout << "Wrote " << writer->GetFileName() << endl;
   writer->Delete();
-  
+
   pbo->Delete();
   delete[] buffer;
 #endif
-  
+
   newCamera->Delete();
   r->SetActiveCamera(savedCamera);
   savedCamera->UnRegister(this);

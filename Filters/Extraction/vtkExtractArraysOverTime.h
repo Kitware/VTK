@@ -15,7 +15,7 @@
 // .NAME vtkExtractArraysOverTime - extracts a selection over time.
 // .SECTION Description
 // vtkExtractArraysOverTime extracts a selection over time.
-// The output is a multiblock dataset. If selection content type is  
+// The output is a multiblock dataset. If selection content type is
 // vtkSelection::Locations, then each output block corresponds to each probed
 // location. Otherwise, each output block corresponds to an extracted cell/point
 // depending on whether the selection field type is CELL or POINT.
@@ -25,7 +25,7 @@
 // to a column named Point Coordinates or Points (if Point Coordinates
 // exists in the input).
 // This algorithm does not produce a TIME_STEPS or TIME_RANGE information
-// because it works across time. 
+// because it works across time.
 // .Section Caveat
 // This algorithm works only with source that produce TIME_STEPS().
 // Continuous time range is not yet supported.
@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Get the number of time steps
-  vtkGetMacro(NumberOfTimeSteps,int);    
+  vtkGetMacro(NumberOfTimeSteps,int);
 
   // Description:
   // Convenience method to specify the selection connection (2nd input
@@ -67,7 +67,7 @@ protected:
   ~vtkExtractArraysOverTime();
 
   virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector, 
+                                 vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
   virtual int RequestUpdateExtent(vtkInformation* request,
                                   vtkInformationVector** inputVector,
@@ -90,8 +90,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Description:
-  // This method doesn't care about the content type of the selection, 
-  // just grabs the value. 
+  // This method doesn't care about the content type of the selection,
+  // just grabs the value.
   bool UpdateFastPathIDs(
     vtkInformationVector** inputV, vtkInformation* outInfo);
 
@@ -101,7 +101,7 @@ protected:
   void CopyFastPathDataToOutput(vtkDataSet *input, vtkTable *output);
 
 
-  void ExecuteAtTimeStep(vtkInformationVector** inputV, 
+  void ExecuteAtTimeStep(vtkInformationVector** inputV,
     vtkInformation* outInfo);
 
   int CurrentTimeIndex;

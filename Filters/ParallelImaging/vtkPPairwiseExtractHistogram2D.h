@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPPairwiseExtractHistogram2D - compute a 2D histogram between 
+// .NAME vtkPPairwiseExtractHistogram2D - compute a 2D histogram between
 //  all adjacent columns of an input vtkTable in parallel.
 //
 // .SECTION Description
@@ -33,7 +33,7 @@
 //
 // .SECTION See Also
 //  vtkExtractHistogram2D vtkPairwiseExtractHistogram2D vtkPExtractHistogram2D
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------

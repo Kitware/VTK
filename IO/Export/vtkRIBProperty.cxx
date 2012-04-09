@@ -55,13 +55,13 @@ vtkRIBProperty::~vtkRIBProperty()
 void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
 {
   int ref;
-  
+
   // Copy this property's ivars into the property to be rendered
   ref = this->Property->GetReferenceCount();
   this->Property->DeepCopy(this);
   //this->Property->SetDeleteMethod(NULL);
   this->Property->SetReferenceCount(ref);
-  
+
   // Render the property
   this->Property->Render (anActor, ren);
 }
@@ -76,7 +76,7 @@ void vtkRIBProperty::SetVariable (char *variable, char *value)
   // format of line is: Declare "variable" "type"\n
   this->Declarations = new char [strlen ("Declare ") +
                               strlen (variable) +
-                              strlen (value) + 
+                              strlen (value) +
                               8];
 
   sprintf (this->Declarations, "Declare \"%s\" \"%s\"\n", variable, value);
@@ -93,7 +93,7 @@ void vtkRIBProperty::AddVariable (char *variable, char *value)
     {
     char *newVariable = new char [strlen ("Declare ") +
                                   strlen (variable) +
-                                  strlen (value) + 
+                                  strlen (value) +
                                   8];
 
     sprintf (newVariable, "Declare \"%s\" \"%s\"\n", variable, value);
@@ -117,7 +117,7 @@ void vtkRIBProperty::SetParameter (char *parameter, char *value)
 
   // format of line is: "parameter" "value"
   this->Parameters = new char [strlen (parameter) +
-                              strlen (value) + 
+                              strlen (value) +
                               7];
 
   sprintf (this->Parameters, " \"%s\" [%s]", parameter, value);
@@ -133,7 +133,7 @@ void vtkRIBProperty::AddParameter (char *Parameter, char *value)
   else
     {
     char *newParameter = new char [strlen (Parameter) +
-                                  strlen (value) + 
+                                  strlen (value) +
                                   7];
 
     sprintf (newParameter, " \"%s\" [%s]", Parameter, value);
@@ -161,7 +161,7 @@ char *vtkRIBProperty::GetDeclarations ()
 void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   if (this->SurfaceShader)
     {
     os << indent << "SurfaceShader: " << this->SurfaceShader << "\n";

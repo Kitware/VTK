@@ -92,7 +92,7 @@ public:
   virtual void ExitCallback();
 
   // Description:
-  // This method is for internal use only.  Track the Carbon mouse deltas 
+  // This method is for internal use only.  Track the Carbon mouse deltas
   // Carbon events that don't provide mouse position directly.
   void GetLastMouseDelta(int delta[2]) {
     delta[0] = this->LastMouseDelta[0]; delta[1] = this->LastMouseDelta[1]; };
@@ -141,7 +141,7 @@ protected:
   static void *ClassExitMethodArg;
   //ETX
 
-  // Description: 
+  // Description:
   // Carbon-specific internal timer methods. See the superclass for detailed
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
@@ -150,7 +150,7 @@ protected:
 #ifdef VTK_USE_TDX
   vtkTDxMacDevice *Device;
 #endif
-  
+
 private:
   vtkCarbonRenderWindowInteractor(const vtkCarbonRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkCarbonRenderWindowInteractor&);  // Not implemented.

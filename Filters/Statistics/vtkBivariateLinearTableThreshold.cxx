@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkBivariateLinearTableThreshold.cxx
 
@@ -43,9 +43,9 @@ vtkBivariateLinearTableThreshold::vtkBivariateLinearTableThreshold()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(2);
-  
+
   this->Implementation = new Internals;
-  
+
   this->Initialize();
 }
 
@@ -108,7 +108,7 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
     return 0;
     }
 
-  outRowIdsTable->Initialize();  
+  outRowIdsTable->Initialize();
   outRowIdsTable->AddColumn(outIds);
 
   outRowDataTable->Initialize();
@@ -137,13 +137,13 @@ int vtkBivariateLinearTableThreshold::FillInputPortInformation( int port, vtkInf
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     return 1;
     }
-  
+
   return 0;
 }
 
 int vtkBivariateLinearTableThreshold::FillOutputPortInformation( int port, vtkInformation* info )
 {
-  if ( port == OUTPUT_ROW_IDS || 
+  if ( port == OUTPUT_ROW_IDS ||
        port == OUTPUT_ROW_DATA)
     {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
@@ -188,7 +188,7 @@ void vtkBivariateLinearTableThreshold::ClearColumnsToThreshold()
 vtkIdTypeArray* vtkBivariateLinearTableThreshold::GetSelectedRowIds(int selection)
 {
   vtkTable* table = vtkTable::SafeDownCast(this->GetOutput());
-  
+
   if (!table)
     return NULL;
 
@@ -321,7 +321,7 @@ int vtkBivariateLinearTableThreshold::ThresholdAbove(double x, double y)
     {
     c = this->LineEquations->GetTuple3(i);
     v = c[0]*x + c[1]*y + c[2];
-  
+
     if ((this->GetInclusive() && v >= 0) ||
         (!this->GetInclusive() && v > 0))
       {
@@ -338,7 +338,7 @@ int vtkBivariateLinearTableThreshold::ThresholdBelow(double x, double y)
     {
     c = this->LineEquations->GetTuple3(i);
     v = c[0]*x + c[1]*y + c[2];
-  
+
     if ((this->GetInclusive() && v <= 0) ||
         (!this->GetInclusive() && v < 0))
       {
@@ -362,7 +362,7 @@ int vtkBivariateLinearTableThreshold::ThresholdNear(double x, double y)
 
       double dxn = dx/this->ColumnRanges[0];
       double dyn = dy/this->ColumnRanges[1];
-    
+
       v = sqrt(dxn*dxn+dyn*dyn);
       }
     else

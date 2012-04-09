@@ -31,7 +31,7 @@
 // .SECTION Shader Operations are shader library operations that are performed
 // on individual shaders, that is, without consideration of the partner shader.
 //
-// .SECTION Program Operations are shader library operations that treat the 
+// .SECTION Program Operations are shader library operations that treat the
 // vertex and fragment shader as a single unit.
 //
 // .SECTION Design
@@ -45,7 +45,7 @@
 // .SECTION See Also
 // vtkCgShaderProgram, vtkGLSLShaderProgram
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkShaderProgram_h

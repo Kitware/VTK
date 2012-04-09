@@ -19,8 +19,8 @@
 // the output is always complex doubles with real values in component0, and
 // imaginary values in component1.  The filter is fastest for images that
 // have power of two sizes.  The filter uses a butterfly fitlers for each
-// prime factor of the dimension.  This makes images with prime number dimensions 
-// (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes) 
+// prime factor of the dimension.  This makes images with prime number dimensions
+// (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes)
 // FFT's are decomposed so that each axis executes in series.
 
 
@@ -39,14 +39,14 @@ public:
 
 
   // Description:
-  // Used internally for streaming and threads.  
+  // Used internally for streaming and threads.
   // Splits output update extent into num pieces.
   // This method needs to be called num times.  Results must not overlap for
   // consistent starting extent.  Subclass can override this method.
   // This method returns the number of pieces resulting from a
-  // successful split.  This can be from 1 to "total".  
+  // successful split.  This can be from 1 to "total".
   // If 1 is returned, the extent cannot be split.
-  int SplitExtent(int splitExt[6], int startExt[6], 
+  int SplitExtent(int splitExt[6], int startExt[6],
                   int num, int total);
 
 protected:
@@ -57,7 +57,7 @@ protected:
                                           vtkInformation* out);
   virtual int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out);
-  
+
   virtual void ThreadedRequestData(
     vtkInformation* vtkNotUsed( request ),
     vtkInformationVector** inputVector,

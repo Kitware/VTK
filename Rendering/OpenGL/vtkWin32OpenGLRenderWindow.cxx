@@ -534,8 +534,8 @@ bool WGLisExtensionSupported(const char *extension)
     }
 }
 
-void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags, 
-                                                  int debug, int bpp, 
+void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
+                                                  int debug, int bpp,
                                                   int zbpp)
 {
   // Create a dummy window, needed for calling wglGetProcAddress.

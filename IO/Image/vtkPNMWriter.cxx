@@ -38,10 +38,10 @@ void vtkPNMWriter::WriteFileHeader(ofstream *file,
     min2 = wExt[2],
     max2 = wExt[3];
   int bpp;
-  
+
   // Find the length of the rows to write.
   bpp = cache->GetNumberOfScalarComponents();
-  
+
   // spit out the pnm header
   if (bpp == 1)
     {
@@ -49,7 +49,7 @@ void vtkPNMWriter::WriteFileHeader(ofstream *file,
     *file << "# pgm file written by the visualization toolkit\n";
     *file << (max1 - min1 + 1) << " " << (max2 - min2 + 1) << "\n255\n";
     }
-  else 
+  else
     {
     *file << "P6\n";
     *file << "# ppm file written by the visualization toolkit\n";
@@ -68,7 +68,7 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
   unsigned long target;
   float progress = this->Progress;
   float area;
-  
+
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
     {
@@ -80,19 +80,19 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
   switch (data->GetScalarType())
     {
     case VTK_UNSIGNED_CHAR:
-      rowLength = sizeof(unsigned char); 
+      rowLength = sizeof(unsigned char);
       break;
     default:
       vtkErrorMacro("PNMWriter only accepts unsigned char scalars!");
-      return; 
+      return;
     }
   rowLength *= data->GetNumberOfScalarComponents();
 
   area = static_cast<float>(((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-                             (extent[1] - extent[0] + 1))) / 
+                             (extent[1] - extent[0] + 1))) /
          static_cast<float>(((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
                              (wExtent[1] -wExtent[0] + 1)));
-    
+
   target = (unsigned long)((extent[5]-extent[4]+1)*
                            (extent[3]-extent[2]+1)/(50.0*area));
   target++;

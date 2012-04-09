@@ -39,7 +39,7 @@ public:
   vtkTypeMacro(vtkXMLHyperOctreeWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLHyperOctreeWriter* New();
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
@@ -49,10 +49,10 @@ public:
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLHyperOctreeWriter();
-  ~vtkXMLHyperOctreeWriter();  
+  ~vtkXMLHyperOctreeWriter();
 
   const char* GetDataSetName();
 
@@ -60,7 +60,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   //The most important method, make the XML file for my input.
-  int WriteData();  
+  int WriteData();
 
   //<HyperOctree ...
   int StartPrimElement(vtkIndent);
@@ -86,7 +86,7 @@ protected:
   OffsetsManagerGroup * TopologyOM;
   OffsetsManagerGroup * PointDataOM;
   OffsetsManagerGroup * CellDataOM;
-  
+
 private:
   vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&);  // Not implemented.
   void operator=(const vtkXMLHyperOctreeWriter&);  // Not implemented.

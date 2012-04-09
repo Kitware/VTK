@@ -65,7 +65,7 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
     vtkIdType lastVertex = this->Graph->GetNumberOfVertices();
 
     int myRank = -1;
-    vtkDistributedGraphHelper *helper 
+    vtkDistributedGraphHelper *helper
       = this->Graph->GetDistributedGraphHelper();
     if (helper)
       {
@@ -73,7 +73,7 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
       this->Vertex = helper->MakeDistributedId(myRank, this->Vertex);
       lastVertex = helper->MakeDistributedId(myRank, lastVertex);
       }
-      
+
     // Find a vertex with nonzero out degree.
     while (this->Vertex < lastVertex &&
            this->Graph->GetOutDegree(this->Vertex) == 0)
@@ -89,7 +89,7 @@ void vtkEdgeListIterator::SetGraph(vtkGraph *graph)
       // entirely-local edges whose source is greater than the target.
       if (!this->Directed)
         {
-        while (this->Current != 0 
+        while (this->Current != 0
                && (// Skip non-local edges.
                    (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                    // Skip entirely-local edges where Source > Target
@@ -118,7 +118,7 @@ vtkEdgeType vtkEdgeListIterator::Next()
   if (!this->Directed)
     {
     int myRank = -1;
-    vtkDistributedGraphHelper *helper 
+    vtkDistributedGraphHelper *helper
       = this->Graph->GetDistributedGraphHelper();
 
     if (helper)
@@ -126,11 +126,11 @@ vtkEdgeType vtkEdgeListIterator::Next()
       myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
       }
 
-    while (this->Current != 0 
+    while (this->Current != 0
            && (// Skip non-local edges.
                (helper && helper->GetEdgeOwner(this->Current->Id) != myRank)
                // Skip entirely-local edges where Source > Target
-               || (((helper 
+               || (((helper
                      && myRank == helper->GetVertexOwner(this->Current->Target))
                     || !helper)
                    && this->Vertex > this->Current->Target)))
@@ -170,7 +170,7 @@ void vtkEdgeListIterator::Increment()
   vtkDistributedGraphHelper *helper = this->Graph->GetDistributedGraphHelper();
   if (helper)
     {
-    int myRank 
+    int myRank
       = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
     this->Vertex = helper->MakeDistributedId(myRank, this->Vertex);
     lastVertex = helper->MakeDistributedId(myRank, lastVertex);

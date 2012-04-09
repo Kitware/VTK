@@ -75,8 +75,8 @@ vtkTulipReader::~vtkTulipReader()
 void vtkTulipReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "FileName: " 
+
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
@@ -352,23 +352,23 @@ int vtkTulipReader::RequestData(
       assert(tok.Type == vtkTulipReaderToken::TEXT);
       vtkStdString name = tok.StringValue;
 
-      // The existing types are the following 
-      // bool : This type is used to store boolean on elements. 
-      // color : This type is used to store the color of elements. 
-      //   The color is defined with a sequence of four integer from 0 to 255. 
-      //   "(red,green,blue,alpha)" 
-      // double : This is used to store 64 bits real on elements. 
-      // layout : This type is used to store 3D nodes position. 
-      //   The position of nodes is defined by a set of 3 doubles 
-      //   "(x_coord,y_coord,z_coord)". 
-      //   The position of edges is a list of 3D points. 
-      //   These points are the bends of edges. 
-      //   "((x_coord1,y_coord1,z_coord1)(x_coord2,y_coord2,z_coord2))" 
-      // int : This type is used to store integers on elements. 
-      // size : This type is used to store the size of elements. 
-      //   The size is defined with a sequence of three double. 
-      //   "(width,heigth,depth)" 
-      // string : This is used to store text on elements. 
+      // The existing types are the following
+      // bool : This type is used to store boolean on elements.
+      // color : This type is used to store the color of elements.
+      //   The color is defined with a sequence of four integer from 0 to 255.
+      //   "(red,green,blue,alpha)"
+      // double : This is used to store 64 bits real on elements.
+      // layout : This type is used to store 3D nodes position.
+      //   The position of nodes is defined by a set of 3 doubles
+      //   "(x_coord,y_coord,z_coord)".
+      //   The position of edges is a list of 3D points.
+      //   These points are the bends of edges.
+      //   "((x_coord1,y_coord1,z_coord1)(x_coord2,y_coord2,z_coord2))"
+      // int : This type is used to store integers on elements.
+      // size : This type is used to store the size of elements.
+      //   The size is defined with a sequence of three double.
+      //   "(width,heigth,depth)"
+      // string : This is used to store text on elements.
 
       if (type == "string")
         {
@@ -549,7 +549,7 @@ int vtkTulipReader::RequestData(
         vtkTulipReaderNextToken(fin, tok);
         }
       }
-    
+
     vtkTulipReaderNextToken(fin, tok);
     }
   assert(parentage.size() == 1);
@@ -621,7 +621,7 @@ my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
-  
+
   while ((nextValue = in.get()) != EOF &&
          numCharactersRead < out.max_size())
     {

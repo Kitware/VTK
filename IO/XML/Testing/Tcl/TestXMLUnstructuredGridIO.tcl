@@ -14,13 +14,13 @@ vtkUnstructuredGridReader ugReader
 vtkExtractUnstructuredGridPiece extract
   extract SetInputConnection [ugReader GetOutputPort]
 
-# write various versions 
+# write various versions
 vtkXMLUnstructuredGridWriter ugWriter
   ugWriter SetFileName $file0
   ugWriter SetDataModeToAscii
   ugWriter SetInputConnection [ugReader GetOutputPort]
   ugWriter Write
-  
+
   ugWriter SetFileName $file1
   ugWriter SetInputConnection [extract GetOutputPort]
   ugWriter SetDataModeToAppended
@@ -39,7 +39,7 @@ vtkXMLUnstructuredGridReader reader
   reader Update
 
 vtkUnstructuredGrid ug0
-  ug0 DeepCopy [reader GetOutput] 
+  ug0 DeepCopy [reader GetOutput]
 
 vtkDataSetSurfaceFilter sF
   sF SetInputData ug0
@@ -57,7 +57,7 @@ reader SetFileName $file1
 
 vtkDataSetSurfaceFilter sF1
   sF1 SetInputConnection [reader GetOutputPort]
-  
+
 vtkPolyDataMapper mapper1
   mapper1 SetInputConnection [sF1 GetOutputPort]
   mapper1 SetPiece 1
@@ -73,7 +73,7 @@ vtkXMLUnstructuredGridReader reader2
 
 vtkDataSetSurfaceFilter sF2
   sF2 SetInputConnection [reader2 GetOutputPort]
-  
+
 vtkPolyDataMapper mapper2
   mapper2 SetInputConnection [sF2 GetOutputPort]
   mapper2 SetPiece 1
@@ -100,7 +100,7 @@ ren1 AddActor actor2
 
 ren1 ResetCamera
 [ren1 GetActiveCamera] SetPosition 180 55 65
-[ren1 GetActiveCamera] SetFocalPoint 3.5 32 15 
+[ren1 GetActiveCamera] SetFocalPoint 3.5 32 15
 renWin SetSize 300 300
 iren Initialize
 renWin Render

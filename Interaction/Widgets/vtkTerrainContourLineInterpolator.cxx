@@ -46,18 +46,18 @@ void vtkTerrainContourLineInterpolator::SetImageData(vtkImageData *image)
 {
   if (this->ImageData != image)
     {
-    vtkImageData *temp = this->ImageData;       
+    vtkImageData *temp = this->ImageData;
     this->ImageData = image;
-    if (this->ImageData != NULL) 
-      { 
-      this->ImageData->Register(this); 
+    if (this->ImageData != NULL)
+      {
+      this->ImageData->Register(this);
       this->Projector->SetSourceData(this->ImageData);
       }
     if (temp != NULL)
       {
       temp->UnRegister(this);
       }
-    this->Modified(); 
+    this->Modified();
     }
 }
 
@@ -80,7 +80,7 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   pts->InsertNextPoint(p2);
   vtkCellArray *lines = vtkCellArray::New();
   lines-> InsertNextCell (2);
-  lines-> InsertCellPoint(0); 
+  lines-> InsertCellPoint(0);
   lines-> InsertCellPoint(1);
 
   vtkPolyData *terrainPath = vtkPolyData::New();
@@ -88,7 +88,7 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   terrainPath->SetLines(lines);
   lines->Delete();
   pts->Delete();
-  
+
   this->Projector->SetInputData(terrainPath);
   this->Projector->Update();
   terrainPath->Delete();
@@ -98,9 +98,9 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   vtkCellArray *interpolatedCells = interpolatedPd->GetLines();
 
   vtkIdType *ptIdx, npts = 0;
-  
+
   // Add an ordered set of lines to the representation...
-  // The Projected path is a recursive filter and will not generate an ordered 
+  // The Projected path is a recursive filter and will not generate an ordered
   // set of points. It generates a vtkPolyData with several lines. Each line
   // contains 2 points. We will, from this polydata figure out the ordered set
   // of points that form the projected path..
@@ -109,17 +109,17 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   bool traversalDone = false;
   while (!traversalDone)
     {
-    for (interpolatedCells->InitTraversal(); 
+    for (interpolatedCells->InitTraversal();
          interpolatedCells->GetNextCell(npts, ptIdx); )
-      { 
-    
+      {
+
       double p[3];
       interpolatedPts->GetPoint(ptIdx[0], p);
 
       if ((p[0]-p1[0])*(p[0]-p1[0]) + (p[1]-p1[1])*(p[1]-p1[1]) < tolerance)
         {
         interpolatedPts->GetPoint(ptIdx[npts-1], p1);
-        if ((p2[0]-p1[0])*(p2[0]-p1[0]) 
+        if ((p2[0]-p1[0])*(p2[0]-p1[0])
             + (p2[1]-p1[1])*(p2[1]-p1[1]) < tolerance)
           {
           --npts;
@@ -140,7 +140,7 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
 }
 
 //----------------------------------------------------------------------
-int vtkTerrainContourLineInterpolator::UpdateNode( vtkRenderer *, 
+int vtkTerrainContourLineInterpolator::UpdateNode( vtkRenderer *,
                                       vtkContourRepresentation *,
                  double * vtkNotUsed(node), int vtkNotUsed(idx) )
 {
@@ -150,7 +150,7 @@ int vtkTerrainContourLineInterpolator::UpdateNode( vtkRenderer *,
 //----------------------------------------------------------------------
 void vtkTerrainContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);  
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ImageData: " << this->ImageData << endl;
   if (this->ImageData)

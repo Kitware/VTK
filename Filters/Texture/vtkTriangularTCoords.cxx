@@ -57,7 +57,7 @@ int vtkTriangularTCoords::RequestData(
   vtkCellArray *newPolys;
   double p1[3], p2[3], p3[3];
   double tCoords[6];
-  vtkPointData *pointData = output->GetPointData(); 
+  vtkPointData *pointData = output->GetPointData();
 
   // Initialize
   //
@@ -69,7 +69,7 @@ int vtkTriangularTCoords::RequestData(
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
 
-  // Count the number of new points and other primitives that 
+  // Count the number of new points and other primitives that
   // need to be created.
   //
   numNewPts = input->GetNumberOfVerts();
@@ -118,7 +118,7 @@ int vtkTriangularTCoords::RequestData(
 
   int abort=0;
   vtkIdType progressInterval=numCells/20 + 1;
-  for (cellId=0, inPolys->InitTraversal(); 
+  for (cellId=0, inPolys->InitTraversal();
        inPolys->GetNextCell(npts,pts) && !abort; cellId++)
     {
     if ( !(cellId % progressInterval) )
@@ -126,7 +126,7 @@ int vtkTriangularTCoords::RequestData(
       this->UpdateProgress((double)cellId/numCells);
       abort = this->GetAbortExecute();
       }
-    
+
     if (npts != 3)
       {
       if (errorLogging) vtkWarningMacro(
@@ -147,7 +147,7 @@ int vtkTriangularTCoords::RequestData(
 
   // Triangle strips
   //
-  for (inStrips->InitTraversal(); 
+  for (inStrips->InitTraversal();
        inStrips->GetNextCell(npts,pts) && !abort; cellId++)
     {
     if ( !(cellId % progressInterval) )
@@ -175,7 +175,7 @@ int vtkTriangularTCoords::RequestData(
       newTCoords->InsertNextTuple (&tCoords[4]);
 
       // flip orientation for odd tris
-      if (j%2) 
+      if (j%2)
         {
         tmp = newIds[0];
         newIds[0] = newIds[2];

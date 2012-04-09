@@ -107,10 +107,10 @@ public:
     SEXP cmdSexp, cmdexpr = R_NilValue;
     int error;
 
-  
+
     PROTECT(cmdSexp = allocVector(STRSXP, 1));
     SET_STRING_ELT(cmdSexp, 0, mkChar(rcommand.c_str()));
-  
+
     cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
     for(int i = 0; i < length(cmdexpr); i++)
       {
@@ -221,7 +221,7 @@ int vtkRInterface::EvalRscript(const char *string, bool showRoutput)
   ParseStatus status;
   SEXP cmdSexp, cmdexpr = R_NilValue;
   SEXP ans;
-  int i; 
+  int i;
   int error;
 
   PROTECT(cmdSexp = allocVector(STRSXP, 1));
@@ -390,7 +390,7 @@ int vtkRInterface::FillOutputBuffer()
 
     fseek(fp,0,SEEK_END);
     len = ftell(fp);
-    
+
     if(len == 0)
       {
       return(1);

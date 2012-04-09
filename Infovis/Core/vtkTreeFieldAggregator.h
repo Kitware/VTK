@@ -62,7 +62,7 @@ public:
   vtkSetMacro(LeafVertexUnitSize, bool);
   vtkGetMacro(LeafVertexUnitSize, bool);
   vtkBooleanMacro(LeafVertexUnitSize, bool);
- 
+
   // Description:
   // If set, the leaf values in the tree will be logarithmically scaled (base 10).
   vtkSetMacro(LogScale, bool);
@@ -73,7 +73,7 @@ protected:
   ~vtkTreeFieldAggregator();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
 private:
   char* Field;
   bool LeafVertexUnitSize;

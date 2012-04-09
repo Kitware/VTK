@@ -59,7 +59,7 @@ vtkStandardNewMacro(vtkGenericCell);
 vtkGenericCell::vtkGenericCell()
 {
   this->Cell = vtkEmptyCell::New();
-}  
+}
 
 //----------------------------------------------------------------------------
 vtkGenericCell::~vtkGenericCell()
@@ -160,25 +160,25 @@ int vtkGenericCell::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 }
 
 //----------------------------------------------------------------------------
-int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3], 
-                                    int& subId, double pcoords[3], 
+int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3],
+                                    int& subId, double pcoords[3],
                                     double& dist2, double *weights)
 {
-  return this->Cell->EvaluatePosition(x, closestPoint, subId, 
+  return this->Cell->EvaluatePosition(x, closestPoint, subId,
                                       pcoords, dist2, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3], 
+void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3],
                                      double x[3], double *weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars, 
+void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars,
                              vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-                             vtkCellArray *lines, vtkCellArray *polys, 
+                             vtkCellArray *lines, vtkCellArray *polys,
                              vtkPointData *inPd, vtkPointData *outPd,
                              vtkCellData *inCd, vtkIdType cellId,
                              vtkCellData *outCd)
@@ -188,7 +188,7 @@ void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars,
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars, 
+void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars,
                           vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
                           vtkPointData *inPd, vtkPointData *outPd,
                           vtkCellData *inCd, vtkIdType cellId,
@@ -213,7 +213,7 @@ int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericCell::Derivatives(int subId, double pcoords[3], double *values, 
+void vtkGenericCell::Derivatives(int subId, double pcoords[3], double *values,
                                  int dim, double *derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
@@ -393,7 +393,7 @@ void vtkGenericCell::InterpolateDerivs(double pcoords[3], double *derivs)
 void vtkGenericCell::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Cell:\n";
   this->Cell->PrintSelf(os,indent.GetNextIndent());
 }

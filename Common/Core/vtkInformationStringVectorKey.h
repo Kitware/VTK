@@ -42,7 +42,7 @@ public:
   void Set(vtkInformation* info, const char* value, int idx = 0);
   const char* Get(vtkInformation* info, int idx = 0);
   int Length(vtkInformation* info);
-  
+
   // Description:
   // Copy the entry associated with this key from one information
   // object to another.  If there is no entry in the first information

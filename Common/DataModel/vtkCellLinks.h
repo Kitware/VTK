@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkCellLinks - object represents upward pointers from points to list of cells using each point
 // .SECTION Description
-// vtkCellLinks is a supplemental object to vtkCellArray and vtkCellTypes, 
+// vtkCellLinks is a supplemental object to vtkCellArray and vtkCellTypes,
 // enabling access from points to the cells using the points. vtkCellLinks is
-// a list of Links, each link represents a dynamic list of cell id's using the 
-// point. The information provided by this object can be used to determine 
+// a list of Links, each link represents a dynamic list of cell id's using the
+// point. The information provided by this object can be used to determine
 // neighbors and construct other local topological information.
 // .SECTION See Also
 // vtkCellArray vtkCellTypes
@@ -77,7 +77,7 @@ public:
   vtkIdType InsertNextPoint(int numLinks);
 
   // Description:
-  // Insert a cell id into the list of cells (at the end) using the cell id 
+  // Insert a cell id into the list of cells (at the end) using the cell id
   // provided. (Make sure to extend the link list (if necessary) using the
   // method ResizeCellList().)
   void InsertNextCellReference(vtkIdType ptId, vtkIdType cellId);
@@ -112,14 +112,14 @@ public:
   void Reset();
 
   // Description:
-  // Return the memory in kilobytes consumed by this cell links array. 
-  // Used to support streaming and reading/writing data. The value 
-  // returned is guaranteed to be greater than or equal to the memory 
-  // required to actually represent the data represented by this object. 
-  // The information returned is valid only after the pipeline has 
+  // Return the memory in kilobytes consumed by this cell links array.
+  // Used to support streaming and reading/writing data. The value
+  // returned is guaranteed to be greater than or equal to the memory
+  // required to actually represent the data represented by this object.
+  // The information returned is valid only after the pipeline has
   // been updated.
   unsigned long GetActualMemorySize();
-  
+
   // Description:
   // Standard DeepCopy method.  Since this object contains no reference
   // to other objects, there is no ShallowCopy.
@@ -153,7 +153,7 @@ private:
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::InsertCellReference(vtkIdType ptId,
                                               unsigned short pos,
-                                              vtkIdType cellId) 
+                                              vtkIdType cellId)
 {
   this->Array[ptId].cells[pos] = cellId;
 }
@@ -168,7 +168,7 @@ inline void vtkCellLinks::DeletePoint(vtkIdType ptId)
 
 //----------------------------------------------------------------------------
 inline void vtkCellLinks::InsertNextCellReference(vtkIdType ptId,
-                                                  vtkIdType cellId) 
+                                                  vtkIdType cellId)
 {
   this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
 }
@@ -204,7 +204,7 @@ inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
 {
   int newSize;
   vtkIdType *cells;
-  
+
   newSize = this->Array[ptId].ncells + size;
   cells = new vtkIdType[newSize];
   memcpy(cells, this->Array[ptId].cells,

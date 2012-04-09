@@ -63,7 +63,7 @@ void vtkTreeLayoutStrategy::Layout()
   {
     return;
   }
-    
+
   vtkTree* tree = vtkTree::SafeDownCast(this->Graph);
   if (tree == NULL)
     {
@@ -101,7 +101,7 @@ void vtkTreeLayoutStrategy::Layout()
     vtkDataSetAttributes *data = tree->GetVertexData();
     data->AddArray(anglesArray);
   }
-  
+
   // Check if the distance array is defined.
   vtkDataArray* distanceArr = NULL;
   if (this->DistanceArrayName != NULL)
@@ -146,12 +146,12 @@ void vtkTreeLayoutStrategy::Layout()
       maxLevel = tree->GetLevel(vertex);
       }
     }
-  
+
   // Divide the "extra spacing" between tree branches among all internal nodes.
-  // When the angle is 360, we want to divide by 
+  // When the angle is 360, we want to divide by
   // internalCount - 1 (taking out just the root),
   // so that there is extra space where the tree meets itself.
-  // When the angle is lower (here we say 270 or lower), 
+  // When the angle is lower (here we say 270 or lower),
   // we should to divide by internalCount - lastLeafLevel,
   // so that the tree ends exactly at the sweep angle end points.
   // To do this, we interpolate between these values.
@@ -165,9 +165,9 @@ void vtkTreeLayoutStrategy::Layout()
   double internalSpacing = 0.0;
   if (internalCountInterp != 0.0)
     {
-    internalSpacing = (1.0 - this->LeafSpacing) / internalCountInterp;    
+    internalSpacing = (1.0 - this->LeafSpacing) / internalCountInterp;
     }
-  
+
   // Divide the spacing between tree leaves among all leaf nodes.
   // This is similar to the interpolation for internal spacing.
   // When the angle is close to 360, we want space between the first and last leaf nodes.
@@ -175,9 +175,9 @@ void vtkTreeLayoutStrategy::Layout()
   // by leafCount - 1 to take out this extra space.
   double leafCountInterp = alpha*leafCount + (1.0 - alpha)*(leafCount - 1);
   double leafSpacing = this->LeafSpacing / leafCountInterp;
-  
+
   double spacing = this->LogSpacingValue;
-  
+
   // The distance between level L-1 and L is s^L.
   // Thus, if s < 1 then the distance between levels gets smaller in higher levels,
   //       if s = 1 the distance remains the same, and
@@ -228,15 +228,15 @@ void vtkTreeLayoutStrategy::Layout()
       double ang;
       if (tree->IsLeaf(vertex))
         {
-        
+
         // 1) Compute the position in the arc
-        // 2) Spin around so that the tree leaves are at 
+        // 2) Spin around so that the tree leaves are at
         //    the bottom and centered
         // 3) Convert to radians
         double angleInDegrees = curPlace * this->Angle;
-        
-        angleInDegrees -= (90+this->Angle/2); 
-        
+
+        angleInDegrees -= (90+this->Angle/2);
+
         // Convert to radians
         ang = angleInDegrees * vtkMath::Pi() / 180.0;
 
@@ -300,7 +300,7 @@ void vtkTreeLayoutStrategy::Layout()
 
         subtended_angle[0] = angle1;
         subtended_angle[1] = angle2;
-        anglesArray->SetTuple( vertex, subtended_angle );        
+        anglesArray->SetTuple( vertex, subtended_angle );
         }
       x = height * cos(ang);
       y = height * sin(ang);
@@ -354,7 +354,7 @@ void vtkTreeLayoutStrategy::Layout()
       newPoints->SetPoint(p, y);
       }
     }
-  
+
   // Copy coordinates back into the original graph
   if (vtkTree::SafeDownCast(this->Graph))
     {
@@ -386,7 +386,7 @@ void vtkTreeLayoutStrategy::Layout()
   iter->Delete();
   newPoints->Delete();
   anglesArray->Delete();
-} 
+}
 
 void vtkTreeLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {

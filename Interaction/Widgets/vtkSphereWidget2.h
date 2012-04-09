@@ -40,7 +40,7 @@
 //   LeftButtonPressEvent - select the handle or sphere
 //   LeftButtonReleaseEvent - release the handle ot sphere
 //   MouseMoveEvent - move the handle or translate the sphere
-// In all the cases, independent of what is picked, the widget responds to the 
+// In all the cases, independent of what is picked, the widget responds to the
 // following VTK events:
 //   MiddleButtonPressEvent - translate the representation
 //   MiddleButtonReleaseEvent - stop translating the representation
@@ -50,7 +50,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkSphereWidget2's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
@@ -73,7 +73,7 @@
 // .SECTION Caveats
 // Note that in some cases the widget can be picked even when it is "behind"
 // other actors.  This is an intended feature and not a bug.
-// 
+//
 // This class, and the affiliated vtkSphereRepresentation, are second generation
 // VTK widgets. An earlier version of this functionality was defined in the
 // class vtkSphereWidget.
@@ -109,7 +109,7 @@ public:
   // vtkProp so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkSphereRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Control the behavior of the widget (i.e., how it processes
   // events). Translation, and scaling can all be enabled and disabled.
@@ -133,7 +133,7 @@ protected:
   int WidgetState;
   enum _WidgetState {Start=0,Active};
 //ETX
-  
+
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);

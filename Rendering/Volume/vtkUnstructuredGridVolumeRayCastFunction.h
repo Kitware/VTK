@@ -16,8 +16,8 @@
 // .NAME vtkUnstructuredGridVolumeRayCastFunction - a superclass for ray casting functions
 
 // .SECTION Description
-// vtkUnstructuredGridVolumeRayCastFunction is a superclass for ray casting functions that 
-// can be used within a vtkUnstructuredGridVolumeRayCastMapper. 
+// vtkUnstructuredGridVolumeRayCastFunction is a superclass for ray casting functions that
+// can be used within a vtkUnstructuredGridVolumeRayCastMapper.
 
 // .SECTION See Also
 // vtkUnstructuredGridVolumeRayCastMapper vtkUnstructuredGridVolumeRayIntegrator
@@ -40,7 +40,7 @@ public:
 
 //BTX
   virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol )=0;
-  
+
   virtual void Finalize( )=0;
 
  // Description:

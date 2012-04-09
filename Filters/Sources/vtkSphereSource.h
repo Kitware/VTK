@@ -22,9 +22,9 @@
 // the sphere uses triangles; however you can set LatLongTessellation to
 // produce a tessellation using quadrilaterals.
 // .SECTION Caveats
-// Resolution means the number of latitude or longitude lines for a complete 
-// sphere. If you create partial spheres the number of latitude/longitude 
-// lines may be off by one. 
+// Resolution means the number of latitude or longitude lines for a complete
+// sphere. If you create partial spheres the number of latitude/longitude
+// lines may be off by one.
 
 #ifndef __vtkSphereSource_h
 #define __vtkSphereSource_h

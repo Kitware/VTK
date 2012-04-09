@@ -96,7 +96,7 @@ public:
 
   // Description:
   // Set the number of rows in the table. Note that memory allocation might be performed
-  // as a result of this, but no memory will be released. 
+  // as a result of this, but no memory will be released.
   void SetNumberOfRows(const vtkIdType );
 
   // Description:
@@ -178,7 +178,7 @@ public:
   // Description:
   // Set a value in the table by row index and column name as a variant.
   void SetValueByName(vtkIdType row, const char* col, vtkVariant value);
-  
+
   // Description:
   // Initialize to an empty table.
   virtual void Initialize();

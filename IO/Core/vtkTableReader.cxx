@@ -92,7 +92,7 @@ int vtkTableReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Return all data in the first piece ...
   if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
@@ -105,7 +105,7 @@ int vtkTableReader::RequestData(
     {
     return 1;
     }
-  
+
   // Read table-specific stuff
   char line[256];
   if(!this->ReadString(line))

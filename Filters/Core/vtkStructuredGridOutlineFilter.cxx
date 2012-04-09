@@ -60,7 +60,7 @@ int vtkStructuredGridOutlineFilter::RequestData(
     {
     return 1;
     }
-  
+
   newLines = vtkCellArray::New();
   newPts = vtkPoints::New();
 
@@ -68,7 +68,7 @@ int vtkStructuredGridOutlineFilter::RequestData(
   wExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Since it is possible that the extent is larger than the whole extent,
-  // and we want the outline to be the whole extent, 
+  // and we want the outline to be the whole extent,
   // compute the clipped extent.
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), cExt);
   for (i = 0; i < 3; ++i)
@@ -84,7 +84,7 @@ int vtkStructuredGridOutlineFilter::RequestData(
     }
 
   for (i = 0; i < 12; i++ )
-    {  
+    {
     // Find the start of this edge, the length of this edge, and increment.
     xInc = 1;
     yInc = ext[1]-ext[0]+1;
@@ -213,7 +213,7 @@ int vtkStructuredGridOutlineFilter::RequestData(
         inc = xInc;
         break;
       }
-    
+
     if (edgeFlag && num > 1)
       {
       offset = newPts->GetNumberOfPoints();

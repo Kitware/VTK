@@ -72,8 +72,8 @@ void vtkISIReader::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------
 
 int vtkISIReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector* outputVector)
 {
   // Check that the filename has been specified
@@ -94,13 +94,13 @@ int vtkISIReader::RequestData(
   // Get the total size of the file ...
   file.seekg(0, ios::end);
   const int total_bytes = file.tellg();
-  
+
   // Go back to the top of the file
   file.seekg(0, ios::beg);
 
   // Store the text data into a vtkTable
   vtkTable* table = vtkTable::GetData(outputVector);
-  
+
   // Keep a mapping of column-name to column-index for quick lookups ...
   std::map<std::string, vtkIdType> columns;
 
@@ -112,7 +112,7 @@ int vtkISIReader::RequestData(
     vtkErrorMacro(<< "File " << this->FileName << " is not an ISI file");
     return 0;
     }
-    
+
   my_getline(file, line_buffer);
   if(line_buffer != "VR 1.0")
     {
@@ -122,7 +122,7 @@ int vtkISIReader::RequestData(
 
   const std::string delimiter(this->Delimiter ? this->Delimiter : "");
   int record_count = 0;
-  
+
   // For each record in the file ...
   for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
     {
@@ -135,7 +135,7 @@ int vtkISIReader::RequestData(
       : 0.5;
 
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-      
+
     // Add a new row to the table for the record ...
     table->InsertNextBlankRow();
 
@@ -156,12 +156,12 @@ int vtkISIReader::RequestData(
         const std::string next_tag_type = line_buffer.size() >= 2 ? line_buffer.substr(0, 2) : std::string();
         if(next_tag_type != "  ")
           break;
-        
+
         const std::string next_tag_value = line_buffer.size() > 3 ? line_buffer.substr(3) : std::string();
-        
+
         tag_value += delimiter + next_tag_value;
         }
-        
+
       // If necessary, add a new column to the table to store this value ...
       if(!columns.count(tag_type))
         {
@@ -172,15 +172,15 @@ int vtkISIReader::RequestData(
         table->AddColumn(new_column);
         new_column->Delete();
         }
-      
+
       // Set the table value ...
       table->SetValue(record_count, columns[tag_type], tag_value.c_str());
       }
-  
+
     // Keep track of the current record count ...
     ++record_count;
     }
-  
+
   return 1;
 }
 
@@ -189,10 +189,10 @@ int vtkISIReader::RequestData(
 static istream& my_getline(istream& input, std::string& output, char delimiter)
 {
   output = "";
-  
+
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
-  
+
   while ((nextValue = input.get()) != EOF &&
          numCharactersRead < output.max_size())
     {
@@ -212,6 +212,6 @@ static istream& my_getline(istream& input, std::string& output, char delimiter)
       output += downcast;
       }
     }
-    
+
   return input;
 }

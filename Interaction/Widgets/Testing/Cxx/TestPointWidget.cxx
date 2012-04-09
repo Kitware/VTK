@@ -526,7 +526,7 @@ char PointWidgetEventLog[] =
 class vtkmyPWCallback : public vtkCommand
 {
 public:
-  static vtkmyPWCallback *New() 
+  static vtkmyPWCallback *New()
   { return new vtkmyPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
@@ -541,9 +541,9 @@ public:
 
 int TestPointWidget( int argc, char *argv[] )
 {
-  char* fname = 
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
-  char* fname2 = 
+  char* fname2 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
 
   // Start by loading some data.
@@ -663,6 +663,6 @@ int TestPointWidget( int argc, char *argv[] )
   iren->Start();
 
   recorder->Off();
-  
+
   return EXIT_SUCCESS;
 }

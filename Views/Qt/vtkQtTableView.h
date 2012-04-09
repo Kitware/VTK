@@ -20,7 +20,7 @@
 // .NAME vtkQtTableView - A VTK view based on a Qt Table view.
 //
 // .SECTION Description
-// vtkQtTableView is a VTK view using an underlying QTableView. 
+// vtkQtTableView is a VTK view using an underlying QTableView.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
@@ -54,18 +54,18 @@ public:
   static vtkQtTableView *New();
   vtkTypeMacro(vtkQtTableView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the main container of this view (a  QWidget).
   // The application typically places the view with a call
   // to GetWidget(): something like this
   // this->ui->box->layout()->addWidget(this->View->GetWidget());
   virtual QWidget* GetWidget();
-  
+
   // Description:
   // Have the view show/hide its column headers
   void SetShowVerticalHeaders(bool);
-  
+
   // Description:
   // Have the view show/hide its row headers
   void SetShowHorizontalHeaders(bool);
@@ -79,7 +79,7 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-  
+
   // Description:
   // The field type to copy into the output table.
   // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
@@ -95,14 +95,14 @@ public:
   // Sorting is enabled by default (turn off for large tables);
   void SetSortingEnabled(bool);
 
-  // Description: 
-  // Whether or not to display all columns from the input table or to use the 
+  // Description:
+  // Whether or not to display all columns from the input table or to use the
   // ColumnName provided.
   // FIXME: This should be replaced with an Add/Remove column API.
   void SetShowAll(bool);
   vtkGetMacro(ShowAll, bool);
 
-  // Description: 
+  // Description:
   // The name of a single column to display.
   // FIXME: This should be replaced with an Add/Remove column API.
   vtkSetStringMacro(ColumnName);
@@ -139,7 +139,7 @@ public:
   // The array to use for coloring items in view.  Default is "color".
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
-  
+
   // Description:
   // Whether to color vertices.  Default is off.
   void SetColorByArray(bool vis);
@@ -192,14 +192,14 @@ private:
   unsigned long LastSelectionMTime;
   unsigned long LastInputMTime;
   unsigned long LastMTime;
-  
+
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);
 
   QPointer<QTableView> TableView;
   vtkQtTableModelAdapter* TableAdapter;
   QSortFilterProxyModel* TableSorter;
-  int FieldType;    
+  int FieldType;
   bool ShowAll;
   char* ColumnName;
   bool InSelectionChanged;
@@ -210,10 +210,10 @@ private:
   vtkSmartPointer<vtkAddMembershipArray> AddSelectedColumn;
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
-  
+
   vtkQtTableView(const vtkQtTableView&);  // Not implemented.
   void operator=(const vtkQtTableView&);  // Not implemented.
-  
+
 };
 
 #endif

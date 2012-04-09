@@ -55,7 +55,7 @@ void vtkGenericSubdivisionErrorMetric::SetDataSet(vtkGenericDataSet *ds)
 void vtkGenericSubdivisionErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "GenericCell: "  << this->GenericCell << endl;
   os << indent << "DataSet: "  << this->DataSet << endl;
 }

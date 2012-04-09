@@ -18,7 +18,7 @@
 // This command will intercept the event, and use InvokeEvent
 // on a 'target' as if that object was the one that invoked the event instead
 // of the object this commmand was attached to using AddObserver.
-// 
+//
 // .SECTION See Also
 // vtkCommand
 
@@ -33,12 +33,12 @@ class VTKCOMMONCORE_EXPORT vtkEventForwarderCommand : public vtkCommand
 public:
   vtkTypeMacro(vtkEventForwarderCommand,vtkCommand);
 
-  static vtkEventForwarderCommand *New() 
+  static vtkEventForwarderCommand *New()
     {return new vtkEventForwarderCommand;};
 
   // Description:
   // Satisfy the superclass API for callbacks. Recall that the caller is
-  // the instance invoking the event; eid is the event id (see 
+  // the instance invoking the event; eid is the event id (see
   // vtkCommand.h); and calldata is information sent when the callback
   // was invoked (e.g., progress value in the vtkCommand::ProgressEvent).
   void Execute(vtkObject *caller, unsigned long eid, void *callData);
@@ -46,11 +46,11 @@ public:
   // Description:
   // Methods to set and get client and callback information, and the callback
   // function.
-  virtual void SetTarget(vtkObject *obj) 
+  virtual void SetTarget(vtkObject *obj)
     { this->Target = obj; }
   virtual void* GetTarget()
     { return this->Target; }
-  
+
 protected:
 
   vtkObject *Target;

@@ -41,14 +41,14 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
   void AddItem(vtkLight *a);
 
   // Description:
-  // Get the next light in the list. NULL is returned when the collection is 
+  // Get the next light in the list. NULL is returned when the collection is
   // exhausted.
   vtkLight *GetNextItem();
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkLight *GetNextLight(vtkCollectionSimpleIterator &cookie);
   //ETX
 

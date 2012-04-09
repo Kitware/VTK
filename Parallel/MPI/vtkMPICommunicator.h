@@ -19,9 +19,9 @@
 // The actual creation (with MPI_Comm_create) occurs in Initialize
 // which takes as arguments a super-communicator and a group of
 // process ids. The new communicator is created by including the
-// processes contained in the group. The global communicator 
+// processes contained in the group. The global communicator
 // (equivalent to MPI_COMM_WORLD) can be obtained using the class
-// method GetWorldCommunicator. It is important to note that 
+// method GetWorldCommunicator. It is important to note that
 // this communicator should not be used on the processes not contained
 // in the group. For example, if the group contains processes 0 and 1,
 // controller->SetCommunicator(communicator) would cause an MPI error
@@ -65,7 +65,7 @@ public:
 
   vtkTypeMacro( vtkMPICommunicator,vtkCommunicator);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Creates an empty communicator.
   static vtkMPICommunicator* New();
@@ -74,7 +74,7 @@ public:
   // Returns the singleton which behaves as the global
   // communicator (MPI_COMM_WORLD)
   static vtkMPICommunicator* GetWorldCommunicator();
-  
+
 
   // Description:
   // Used to initialize the communicator (i.e. create the underlying MPI_Comm).
@@ -97,8 +97,8 @@ public:
                                int remoteProcessId, int tag);
 
   // Description:
-  // This method sends data to another process (non-blocking).  
-  // Tag eliminates ambiguity when multiple sends or receives 
+  // This method sends data to another process (non-blocking).
+  // Tag eliminates ambiguity when multiple sends or receives
   // exist in the same process. The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message. Return values are 1
@@ -107,35 +107,35 @@ public:
                   Request& req);
   int NoBlockSend(const unsigned long* data, int length, int remoteProcessId,
                   int tag, Request& req);
-  int NoBlockSend(const char* data, int length, int remoteProcessId, 
+  int NoBlockSend(const char* data, int length, int remoteProcessId,
                   int tag, Request& req);
   int NoBlockSend(const unsigned char* data, int length, int remoteProcessId,
                     int tag, Request& req);
-  int NoBlockSend(const float* data, int length, int remoteProcessId, 
+  int NoBlockSend(const float* data, int length, int remoteProcessId,
                   int tag, Request& req);
-  int NoBlockSend(const double* data, int length, int remoteProcessId, 
+  int NoBlockSend(const double* data, int length, int remoteProcessId,
                   int tag, Request& req);
 
   // Description:
-  // This method receives data from a corresponding send (non-blocking). 
+  // This method receives data from a corresponding send (non-blocking).
   // The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message. Return values
   // are 1 for success and 0 otherwise.
-  int NoBlockReceive(int* data, int length, int remoteProcessId, 
+  int NoBlockReceive(int* data, int length, int remoteProcessId,
                      int tag, Request& req);
-  int NoBlockReceive(unsigned long* data, int length, 
+  int NoBlockReceive(unsigned long* data, int length,
                      int remoteProcessId, int tag, Request& req);
-  int NoBlockReceive(char* data, int length, int remoteProcessId, 
+  int NoBlockReceive(char* data, int length, int remoteProcessId,
                      int tag, Request& req);
   int NoBlockReceive(unsigned char* data, int length, int remoteProcessId,
                      int tag, Request& req);
-  int NoBlockReceive(float* data, int length, int remoteProcessId, 
+  int NoBlockReceive(float* data, int length, int remoteProcessId,
                      int tag, Request& req);
-  int NoBlockReceive(double* data, int length, int remoteProcessId, 
+  int NoBlockReceive(double* data, int length, int remoteProcessId,
                      int tag, Request& req);
 #ifdef VTK_USE_64BIT_IDS
-  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, 
+  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId,
                      int tag, Request& req);
 #endif
 
@@ -292,7 +292,7 @@ protected:
   // stored data EXCEPT the MPI communicator handle which is
   // duplicated with MPI_Comm_dup(). Therefore, although the
   // processes in the communicator remain the same, a new context
-  // is created. This prevents the two communicators from 
+  // is created. This prevents the two communicators from
   // intefering with each other during message send/receives even
   // if the tags are the same.
   void Duplicate(vtkMPICommunicator* source);
@@ -300,7 +300,7 @@ protected:
   // Description:
   // Implementation for receive data.
   virtual int ReceiveDataInternal(
-    char* data, int length, int sizeoftype, 
+    char* data, int length, int sizeoftype,
     int remoteProcessId, int tag,
     vtkMPICommunicatorReceiveDataInfo* info,
     int useCopy, int& senderId);

@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -68,7 +68,7 @@ class pbgl_bfs_distance_recorder : public default_bfs_visitor
 {
 public:
   pbgl_bfs_distance_recorder() { }
-  pbgl_bfs_distance_recorder(DistanceMap dist, vtkIdType* far) 
+  pbgl_bfs_distance_recorder(DistanceMap dist, vtkIdType* far)
     : d(dist), far_vertex(far), far_dist(-1) { *far_vertex = -1; }
 
   template <typename Vertex, typename Graph>
@@ -82,7 +82,7 @@ public:
   }
 
   template <typename Edge, typename Graph>
-  void tree_edge(Edge e, const Graph& g) 
+  void tree_edge(Edge e, const Graph& g)
   {
     typename graph_traits<Graph>::vertex_descriptor
     u = source(e, g), v = target(e, g);
@@ -99,7 +99,7 @@ private:
 // the furthest vertex. This ordering favors vertices on processors
 // with a lower rank. Used only for the Parallel BGL breadth-first
 // search.
-class furthest_vertex 
+class furthest_vertex
 {
 public:
   furthest_vertex() : graph(0) { }
@@ -109,10 +109,10 @@ public:
   std::pair<vtkIdType, int> operator()(std::pair<vtkIdType, int> x, std::pair<vtkIdType, int> y) const
   {
     vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
-    if (x.second > y.second 
-        || (x.second == y.second 
+    if (x.second > y.second
+        || (x.second == y.second
             && helper->GetVertexOwner(x.first) < helper->GetVertexOwner(y.first))
-        || (x.second == y.second 
+        || (x.second == y.second
             && helper->GetVertexOwner(x.first) == helper->GetVertexOwner(y.first)
             && helper->GetVertexIndex(x.first) < helper->GetVertexIndex(y.first)))
       {
@@ -127,7 +127,7 @@ public:
 private:
   vtkGraph *graph;
 };
-  
+
 // Constructor/Destructor
 vtkPBGLBreadthFirstSearch::vtkPBGLBreadthFirstSearch()
 {
@@ -156,7 +156,7 @@ void vtkPBGLBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 }
 
 // Description:
-// Set the index (into the vertex array) of the 
+// Set the index (into the vertex array) of the
 // breadth first search 'origin' vertex.
 void vtkPBGLBreadthFirstSearch::SetOriginVertex(vtkIdType index)
 {
@@ -164,11 +164,11 @@ void vtkPBGLBreadthFirstSearch::SetOriginVertex(vtkIdType index)
   this->InputArrayName = NULL; // Reset any origin set by another method
   this->Modified();
 }
-  
+
 // Description:
 // Set the breadth first search 'origin' vertex.
 // This method is basically the same as above
-// but allows the application to simply specify 
+// but allows the application to simply specify
 // an array name and value, instead of having to
 // know the specific index of the vertex.
 void vtkPBGLBreadthFirstSearch::SetOriginVertex(
@@ -213,13 +213,13 @@ vtkIdType vtkPBGLBreadthFirstSearch::GetVertexIndex(
         return i;
         }
       }
-    } 
-    
+    }
+
   // Failed
   vtkErrorMacro("Did not find a valid vertex index...");
   return 0;
-} 
-  
+}
+
 
 int vtkPBGLBreadthFirstSearch::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -267,23 +267,23 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     }
   else
     {
-    // Now figure out the origin vertex of the 
+    // Now figure out the origin vertex of the
     // breadth first search
     if (this->InputArrayName)
       {
       vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->InputArrayName);
-    
-      // Does the array exist at all?  
+
+      // Does the array exist at all?
       if (abstract == NULL)
         {
         vtkErrorMacro("Could not find array named " << this->InputArrayName);
         return 0;
         }
-        
-      this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue); 
-      }   
+
+      this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
+      }
     }
-  
+
   // Create the attribute array
   vtkIntArray* BFSArray = vtkIntArray::New();
   if (this->OutputArrayName)
@@ -295,7 +295,7 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     BFSArray->SetName("BFS");
     }
   BFSArray->SetNumberOfTuples(output->GetNumberOfVertices());
-  
+
   // Initialize the BFS array to all 0's
   for(int i=0;i< BFSArray->GetNumberOfTuples(); ++i)
     {
@@ -335,7 +335,7 @@ int vtkPBGLBreadthFirstSearch::RequestData(
   typedef boost::parallel::distributed_property_map<
             boost::graph::distributed::mpi_process_group,
             boost::vtkVertexGlobalMap,
-            vector_property_map<default_color_type> 
+            vector_property_map<default_color_type>
           > DistributedColorMap;
   DistributedColorMap distribColor(pbglHelper->GetProcessGroup(),
                                    boost::vtkVertexGlobalMap(output),
@@ -344,12 +344,12 @@ int vtkPBGLBreadthFirstSearch::RequestData(
   // Distributed distance map
   typedef vtkDistributedVertexPropertyMapType<vtkIntArray>::type
     DistributedDistanceMap;
-  
+
   // Distributed distance recorder
   DistributedDistanceMap distribBFSArray
     = MakeDistributedVertexPropertyMap(output, BFSArray);
   set_property_map_role(boost::vertex_distance, distribBFSArray);
-  pbgl_bfs_distance_recorder<DistributedDistanceMap> 
+  pbgl_bfs_distance_recorder<DistributedDistanceMap>
     bfsVisitor(distribBFSArray, &maxFromRootVertex);
 
   // The use of parallel_bfs_helper works around the fact that a
@@ -359,8 +359,8 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     {
     vtkDirectedGraph *g = vtkDirectedGraph::SafeDownCast(output);
     boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
-                                       distribColor, 
-                                       bfsVisitor, 
+                                       distribColor,
+                                       bfsVisitor,
                                        boost::detail::error_property_not_found(),
                                        get(vertex_index, g));
     }
@@ -368,7 +368,7 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
     boost::detail::parallel_bfs_helper(g, this->OriginVertexIndex,
-                                       distribColor, bfsVisitor, 
+                                       distribColor, bfsVisitor,
                                        boost::detail::error_property_not_found(),
                                        get(vertex_index, g));
     }
@@ -393,13 +393,13 @@ int vtkPBGLBreadthFirstSearch::RequestData(
     {
     vtkSelection* sel = vtkSelection::GetData(outputVector, 1);
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
-    
+
     // Set the output based on the output selection type
     if (!strcmp(OutputSelectionType,"MAX_DIST_FROM_ROOT"))
       {
       ids->InsertNextValue(maxFromRootVertex);
       }
-    
+
     vtkSmartPointer<vtkSelectionNode> node = vtkSmartPointer<vtkSelectionNode>::New();
     sel->AddNode(node);
     node->SetSelectionList(ids);
@@ -414,16 +414,16 @@ int vtkPBGLBreadthFirstSearch::RequestData(
 void vtkPBGLBreadthFirstSearch::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
-  
-  os << indent << "InputArrayName: " 
+
+  os << indent << "InputArrayName: "
      << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
-     
-  os << indent << "OutputArrayName: " 
+
+  os << indent << "OutputArrayName: "
      << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
-     
-  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;  
+
+  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
 
   os << indent << "OutputSelection: "
      << (this->OutputSelection ? "on" : "off") << endl;

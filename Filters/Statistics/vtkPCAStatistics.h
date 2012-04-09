@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 // - or some combination thereof.
 // Additionally, the user may specify some threshold energy or
 // eigenvector entry below which the basis is truncated. This allows
-// projection into a lower-dimensional state while minimizing (in a 
+// projection into a lower-dimensional state while minimizing (in a
 // least squares sense) the projection error.
 //
 // In the test operation, a Jarque-Bera-Srivastava test of n-d normality is performed.
@@ -202,7 +202,7 @@ public:
   vtkGetMacro(FixedBasisEnergy,double);
 
   // Description:
-  // A convenience method (in particular for access from other applications) to 
+  // A convenience method (in particular for access from other applications) to
   // set parameter values.
   // Return true if setting of requested parameter name was excuted, false otherwise.
   virtual bool SetParameter( const char* parameter,
@@ -231,8 +231,8 @@ protected:
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable*, 
-                       vtkMultiBlockDataSet*, 
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
                        vtkTable* );
   //BTX
   // Description:
@@ -240,10 +240,10 @@ protected:
   // R implementation if R is present.
   virtual vtkDoubleArray* CalculatePValues(vtkIdTypeArray*, vtkDoubleArray*);
 
-  //BTX  
+  //BTX
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* inData, 
+  virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );

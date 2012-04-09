@@ -37,7 +37,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char TestDistanceWidgetEventLog[] = 
+char TestDistanceWidgetEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 292 123 0 0 0 0 0\n"
@@ -812,7 +812,7 @@ char TestDistanceWidgetEventLog[] =
 class vtkDistanceCallback : public vtkCommand
 {
 public:
-  static vtkDistanceCallback *New() 
+  static vtkDistanceCallback *New()
     { return new vtkDistanceCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*);
   vtkDistanceCallback():Renderer(0),RenderWindow(0),DistanceWidget(0),Distance(0) {}
@@ -843,7 +843,7 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
   else
     {
     int pid = *(reinterpret_cast<int*>(callData));
-    
+
     //From the point id, get the display coordinates
     double pos1[3], pos2[3], *pos;
     this->Distance->GetPoint1DisplayPosition(pos1);
@@ -930,7 +930,7 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     std::cerr << "Error setting ruler distance to 0.25, get returned " << rep->GetRulerDistance() << std::endl;
     return EXIT_FAILURE;
     }
-  
+
   vtkProperty2D *prop2D = rep->GetAxisProperty();
   if (!prop2D)
     {
@@ -938,14 +938,14 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return EXIT_FAILURE;
     }
   prop2D->SetColor(1.0, 0.0, 1.0);
-  
+
   VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
- 
-  
+
+
   VTK_CREATE(vtkDistanceCallback, mcbk);
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
@@ -1045,7 +1045,7 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return EXIT_FAILURE;
     }
   std::cout << "New distance = " << distance << std::endl;
-  
+
   double p1d[3];
   rep->GetPoint1DisplayPosition(p1d);
   std::cout << "Point 1 Display Position: " << p1d[0] << ", " << p1d[1] << ", " << p1d[2] << std::endl;

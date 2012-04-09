@@ -64,7 +64,7 @@ int vtkMultiBlockDataGroupFilter::RequestData(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) 
+  if (!output)
     {
     return 0;
     }

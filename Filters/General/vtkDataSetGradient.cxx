@@ -121,7 +121,7 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
   else
     {
     vtkErrorMacro(<<"input array must be cell or point data\n");
-    return 0;     
+    return 0;
     }
 
   // we're just adding a scalar field
@@ -212,9 +212,9 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
     //_output->GetPointData()->SetVectors( gradientArray );
     }
   gradientArray->Delete();
-  
+
   vtkDebugMacro(<<_output->GetClassName()<<" @ "<<_output<<" :\n");
-  
+
   return 1;
 }
 

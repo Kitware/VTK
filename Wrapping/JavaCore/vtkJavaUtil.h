@@ -33,7 +33,7 @@ extern JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env,
              float *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env,
              float *arr, int size);
-extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, 
+extern JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env,
               double *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, short *arr, int size);
 extern JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *arr, int size);
@@ -56,7 +56,7 @@ extern JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *
 
 // this is the void pointer parameter passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.
-struct vtkJavaVoidFuncArg 
+struct vtkJavaVoidFuncArg
 {
   JavaVM *vm;
   jobject  uobj;
@@ -74,9 +74,9 @@ public:
   void SetGlobalRef(jobject obj) { this->uobj = obj; };
   void SetMethodID(jmethodID id) { this->mid = id; };
   void AssignJavaVM(JNIEnv *env) { env->GetJavaVM(&(this->vm)); };
-  
+
   void Execute(vtkObject *, unsigned long, void *);
-  
+
   JavaVM *vm;
   jobject  uobj;
   jmethodID mid;

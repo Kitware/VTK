@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the Polygon
 
@@ -31,7 +31,7 @@ bool fuzzyCompare(A a, A b) {
 int TestPolygon(int,char *[])
 {
   vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
-  
+
   polygon->GetPointIds()->SetNumberOfIds(4);
   polygon->GetPointIds()->SetId(0,0);
   polygon->GetPointIds()->SetId(1,1);
@@ -43,7 +43,7 @@ int TestPolygon(int,char *[])
   polygon->GetPoints()->SetPoint(1, 2.0, 0.0, 0.0);
   polygon->GetPoints()->SetPoint(2, 2.0, 2.0, 0.0);
   polygon->GetPoints()->SetPoint(3, 0.0, 2.0, 0.0);
-  
+
   double area = polygon->ComputeArea();
 
   if(!fuzzyCompare(area, 4.0))
@@ -88,7 +88,7 @@ int TestPolygon(int,char *[])
   //////////////////// Polygon intersection test //////////////////
   {
   vtkSmartPointer<vtkPolygon> polygon1 = vtkSmartPointer<vtkPolygon>::New();
-  
+
   polygon1->GetPointIds()->SetNumberOfIds(4);
   polygon1->GetPointIds()->SetId(0,0);
   polygon1->GetPointIds()->SetId(1,1);
@@ -116,7 +116,7 @@ int TestPolygon(int,char *[])
   polygon1->GetBounds(bounds1);
 
   vtkSmartPointer<vtkPolygon> polygon2 = vtkSmartPointer<vtkPolygon>::New();
-  
+
   polygon2->GetPointIds()->SetNumberOfIds(4);
   polygon2->GetPointIds()->SetId(0,0);
   polygon2->GetPointIds()->SetId(1,1);

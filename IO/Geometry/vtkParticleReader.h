@@ -12,21 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParticleReader - Read ASCII or binary particle 
-//                            data and (optionally) one scalar 
+// .NAME vtkParticleReader - Read ASCII or binary particle
+//                            data and (optionally) one scalar
 //                            value associated with each particle.
 // .SECTION Description
-// vtkParticleReader reads either a binary or a text file of 
+// vtkParticleReader reads either a binary or a text file of
 //  particles. Each particle can have associated with it an optional
-//  scalar value. So the format is: x, y, z, scalar 
-//  (all floats or doubles). The text file can consist of a comma 
-//  delimited set of values. In most cases vtkParticleReader can 
-//  automatically determine whether the file is text or binary. 
-//  The data can be either float or double. 
-//  Progress updates are provided. 
-//  With respect to binary files, random access into the file to read 
+//  scalar value. So the format is: x, y, z, scalar
+//  (all floats or doubles). The text file can consist of a comma
+//  delimited set of values. In most cases vtkParticleReader can
+//  automatically determine whether the file is text or binary.
+//  The data can be either float or double.
+//  Progress updates are provided.
+//  With respect to binary files, random access into the file to read
 //  pieces is supported.
-//  
+//
 
 #ifndef __vtkParticleReader_h
 #define __vtkParticleReader_h
@@ -43,7 +43,7 @@ class VTKIOGEOMETRY_EXPORT vtkParticleReader : public vtkPolyDataAlgorithm
 public:
   static vtkParticleReader *New();
   vtkTypeMacro(vtkParticleReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name.
@@ -60,9 +60,9 @@ public:
   // the same file on a LittleEndian machine will result in swapping.
   // As a quick note most UNIX machines are BigEndian while PC's
   // and VAX tend to be LittleEndian. So if the file you are reading
-  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian 
+  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian
   // otherwise SetDataByteOrderToBigEndian. Not used when reading
-  // text files. 
+  // text files.
   void SetDataByteOrderToBigEndian();
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
@@ -75,7 +75,7 @@ public:
   vtkSetMacro(SwapBytes,int);
   int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);
-  
+
   // Description:
   // Default: 1. If 1 then each particle has a value associated with it.
   vtkSetMacro(HasScalar,int);
@@ -84,7 +84,7 @@ public:
 
   // Description:
   // Get/Set the file type.  The options are:
-  // - FILE_TYPE_IS_UNKNOWN (default) the class 
+  // - FILE_TYPE_IS_UNKNOWN (default) the class
   //     will attempt to determine the file type.
   //     If this fails then you should set the file type
   //     yourself.
@@ -117,13 +117,13 @@ protected:
 
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   // Description:
-  // The format that will be read if the file is a text file is: 
+  // The format that will be read if the file is a text file is:
   // x, y, z, s (where s is some scalar value associated with the particle).
-  // Each line corresponding to a particle is terminated with a line feed. 
+  // Each line corresponding to a particle is terminated with a line feed.
   // If y, z, or s is missing, zero is substituted for them.
-  // Comment lines in the file are handled as follows: 
+  // Comment lines in the file are handled as follows:
   // 1) Any line containing "\/\/" "\#" "\%" anywhere in the line is discarded.
   // 2) Lines containing "\/\*" are discarded until a "\*\/" is found. The line
   // following the "\*\/" will be read.
@@ -131,7 +131,7 @@ protected:
   int ProduceOutputFromTextFileFloat(vtkInformationVector *outputVector);
 
   // Description:
-  // This reader assumes that the file is binary and consists of floating 
+  // This reader assumes that the file is binary and consists of floating
   // point values by default.
   int ProduceOutputFromBinaryFileDouble(vtkInformationVector *outputVector);
   int ProduceOutputFromBinaryFileFloat(vtkInformationVector *outputVector);
@@ -143,10 +143,10 @@ protected:
   // various classifications. The classification of the file is not infallible
   // but should work correctly most of the time. If it fails, use SetFileTypeToText()
   // or SetFileTypeToBinary() to set the file type.
-  // This algorithm probably only identifies ASCII text correctly and will not 
+  // This algorithm probably only identifies ASCII text correctly and will not
   // work for UTF-8 UCS-2 (or UTF-16) or UCS-4 or EBCIDIC.
   int DetermineFileType();
-  
+
   // Description:
   // Update of the progress.
   void DoProgressUpdate( size_t & bytesRead, size_t & fileLength );
@@ -159,10 +159,10 @@ protected:
   // - FILE_TYPE_IS_TEXT, the file type is text.
   // - FILE_TYPE_IS_BINARY, the file type is binary.
   // </pre>
-  enum FILE_TYPE { FILE_TYPE_IS_UNKNOWN = 0, 
+  enum FILE_TYPE { FILE_TYPE_IS_UNKNOWN = 0,
     FILE_TYPE_IS_TEXT, FILE_TYPE_IS_BINARY };
   //ETX
-  
+
   int HasScalar;
   // Description:
   // Used to decide which reader should be used.
@@ -172,7 +172,7 @@ protected:
   int DataType;
 
   // Description:
-  // Set an alliquot of bytes.  
+  // Set an alliquot of bytes.
   size_t Alliquot;
   // Description:
   // Count of the number of alliquots processed.

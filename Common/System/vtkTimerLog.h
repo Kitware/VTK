@@ -79,7 +79,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This flag will turn loging of events off or on.  
+  // This flag will turn loging of events off or on.
   // By default, logging is on.
   static void SetLogging(int v) {vtkTimerLog::Logging = v;}
   static int GetLogging() {return vtkTimerLog::Logging;}
@@ -97,7 +97,7 @@ public:
   // string.
   static void FormatAndMarkEvent(const char *EventString, ...);
 //ETX
-  
+
   // Description:
   // Write the timing table out to a file.  Calculate some helpful
   // statistics (deltas and  percentages) in the process.
@@ -156,7 +156,7 @@ public:
   void StopTimer();
 
   // Description:
-  // Returns the difference between StartTime and EndTime as 
+  // Returns the difference between StartTime and EndTime as
   // a doubleing point value indicating the elapsed time in seconds.
   double GetElapsedTime();
 

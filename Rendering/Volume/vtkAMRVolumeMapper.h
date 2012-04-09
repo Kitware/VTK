@@ -15,11 +15,11 @@
 // .NAME vtkAMRVolumeMapper - AMR class for a volume mapper
 
 // .SECTION Description
-// vtkAMRVolumeMapper is the  definition of a volume mapper.  
+// vtkAMRVolumeMapper is the  definition of a volume mapper.
 // for AMR Structured Data
 
 // .SECTION see also
-//  
+//
 
 #ifndef __vtkAMRVolumeMapper_h
 #define __vtkAMRVolumeMapper_h
@@ -46,17 +46,17 @@ public:
   virtual void SetInputData( vtkImageData* );
   virtual void SetInputData( vtkDataSet* );
   virtual void SetInputData( vtkOverlappingAMR* );
-  virtual void SetInputConnection (int port, vtkAlgorithmOutput *input);   
+  virtual void SetInputConnection (int port, vtkAlgorithmOutput *input);
   virtual void SetInputConnection (vtkAlgorithmOutput *input)
   {this->SetInputConnection(0, input);}
- 
+
   // Description:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual double *GetBounds();
   virtual void GetBounds(double bounds[6])
     {this->vtkVolumeMapper::GetBounds(bounds); };
-  
+
   // Description:
   // Control how the mapper works with scalar point data and cell attribute
   // data.  By default (ScalarModeToDefault), the mapper will use point data,
@@ -68,7 +68,7 @@ public:
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
   // data array, you must call SelectScalarArray.
   virtual void SetScalarMode(int mode);
-  
+
   // Description:
   // Set/Get the blend mode. Currently this is only supported
   // by the vtkFixedPointVolumeRayCastMapper - other mappers
@@ -85,9 +85,9 @@ public:
   // you can specify which scalar array to use during rendering.
   // The transfer function in the vtkVolumeProperty (attached to the calling
   // vtkVolume) will decide how to convert vectors to colors.
-  virtual void SelectScalarArray(int arrayNum); 
-  virtual void SelectScalarArray(const char* arrayName); 
-  
+  virtual void SelectScalarArray(int arrayNum);
+  virtual void SelectScalarArray(const char* arrayName);
+
   // Description:
   // Get the array name or number and component to use for rendering.
   virtual char* GetArrayName();
@@ -96,7 +96,7 @@ public:
 
   // Description:
   // Return the method for obtaining scalar data.
-  const char *GetScalarModeAsString(); 
+  const char *GetScalarModeAsString();
   // Description:
   // Turn On/Off orthogonal cropping. (Clipping planes are
   // perpendicular to the coordinate axes.)
@@ -107,7 +107,7 @@ public:
   // Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
   // These planes are defined in volume coordinates - spacing and origin are
   // considered.
-  virtual void SetCroppingRegionPlanes(double arg1, double arg2, double arg3, 
+  virtual void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
                                        double arg4, double arg5, double arg6);
   virtual void SetCroppingRegionPlanes(double *planes)
     {this->SetCroppingRegionPlanes(
@@ -117,17 +117,17 @@ public:
   virtual double *GetCroppingRegionPlanes();
   // Description:
   // Set the flags for the cropping regions. The clipping planes divide the
-  // volume into 27 regions - there is one bit for each region. The regions 
-  // start from the one containing voxel (0,0,0), moving along the x axis 
-  // fastest, the y axis next, and the z axis slowest. These are represented 
-  // from the lowest bit to bit number 27 in the integer containing the 
-  // flags. There are several convenience functions to set some common 
-  // configurations - subvolume (the default), fence (between any of the 
-  // clip plane pairs), inverted fence, cross (between any two of the 
+  // volume into 27 regions - there is one bit for each region. The regions
+  // start from the one containing voxel (0,0,0), moving along the x axis
+  // fastest, the y axis next, and the z axis slowest. These are represented
+  // from the lowest bit to bit number 27 in the integer containing the
+  // flags. There are several convenience functions to set some common
+  // configurations - subvolume (the default), fence (between any of the
+  // clip plane pairs), inverted fence, cross (between any two of the
   // clip plane pairs) and inverted cross.
   virtual void SetCroppingRegionFlags(int mode);
   virtual int GetCroppingRegionFlags();
-  
+
 //BTX
 // The possible values for the default and current render mode ivars
   enum
@@ -206,7 +206,7 @@ public:
   // The default is 128x128x128
   vtkSetVector3Macro(NumberOfSamples,int);
   vtkGetVector3Macro(NumberOfSamples,int);
-  
+
   // Description:
   // Set the rate at or above this render will be considered interactive.
   // If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
@@ -234,7 +234,7 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
-  
+
   void ProcessUpdateExtentRequest(vtkRenderer *renderer, vtkInformation*info,
                                   vtkInformationVector **inputVector,
                                   vtkInformationVector *outputVector);
@@ -267,11 +267,11 @@ public:
 protected:
   vtkAMRVolumeMapper();
   ~vtkAMRVolumeMapper();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
   void UpdateGrid();
-  
+
   vtkSmartVolumeMapper *InternalMapper;
   vtkAMRResampleFilter *Resampler;
   vtkUniformGrid *Grid;
@@ -287,7 +287,7 @@ protected:
   // focal point
   double LastFocalPointPosition[3];
   double LastPostionFPDistance;
-  // This is used when determing if 
+  // This is used when determing if
   // either the camera or focal point has
   // move enough to cause the resampler to update
   double ResamplerUpdateTolerance;

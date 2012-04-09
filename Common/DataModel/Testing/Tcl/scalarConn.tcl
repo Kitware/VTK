@@ -20,7 +20,7 @@ vtkConnectivityFilter conn
   conn SetExtractionModeToCellSeededRegions
   conn AddSeed 105
 
-# Create a surface 
+# Create a surface
 vtkContourFilter contours
   contours SetInputConnection [conn GetOutputPort]
 #  contours SetInputConnection [sample GetOutputPort]

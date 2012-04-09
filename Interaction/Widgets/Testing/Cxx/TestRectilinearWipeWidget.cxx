@@ -511,10 +511,10 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkRectilinearWipeWidget> wipeWidget =
     vtkSmartPointer<vtkRectilinearWipeWidget>::New();
   wipeWidget->SetInteractor(iren);
-  
+
   vtkRectilinearWipeRepresentation *wipeWidgetRep=
     static_cast<vtkRectilinearWipeRepresentation *>(wipeWidget->GetRepresentation());
-  
+
   wipeWidgetRep->SetImageActor(wipeActor);
   wipeWidgetRep->SetRectilinearWipe(wipe);
   wipeWidgetRep->GetProperty()->SetLineWidth(2.0);
@@ -532,6 +532,6 @@ int TestRectilinearWipeWidget( int argc, char *argv[] )
   renWin->Render();
   wipeWidget->On();
 
-  return vtkTesting::InteractorEventLoop( argc, argv, iren, eventLog );  
+  return vtkTesting::InteractorEventLoop( argc, argv, iren, eventLog );
 }
 

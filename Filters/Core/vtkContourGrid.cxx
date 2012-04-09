@@ -94,7 +94,7 @@ template <class T>
 void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                            vtkPolyData *output,
                            vtkDataArray *inScalars, T *scalarArrayPtr,
-                           int numContours, double *values, 
+                           int numContours, double *values,
                            int computeScalars,
                            int useScalarTree,vtkScalarTree *&scalarTree)
 {
@@ -142,7 +142,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   cellScalars = inScalars->NewInstance();
   cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
    cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
-  
+
    // locator used to merge potentially duplicate points
   locator->InitPointInsertion (newPts, input->GetBounds(),estimatedSize);
 
@@ -166,10 +166,10 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
     // I create a table that maps cell type to cell dimensionality,
     // because I need a fast way to get cell dimensionality.
     // This assumes GetCell is slow and GetCellType is fast.
-    // I do not like hard coding a list of cell types here, 
+    // I do not like hard coding a list of cell types here,
     // but I do not want to add GetCellDimension(vtkIdType cellId)
     // to the vtkDataSet API.  Since I anticipate that the output
-    // will change to vtkUnstructuredGrid.  This temporary solution 
+    // will change to vtkUnstructuredGrid.  This temporary solution
     // is acceptable.
     //
     int cellType;
@@ -201,12 +201,12 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
           continue;
           }
         cellArrayIt++;
-        
+
         //find min and max values in scalar data
         range[0] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
         range[1] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
         cellArrayIt++;
-        
+
         for (i = 1; i < numPoints; i++)
           {
           tempScalar = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
@@ -220,8 +220,8 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
             range[1] = tempScalar;
             } //if tempScalar >= max range value
           } // for all points in this cell
-        
-        if (dimensionality == 3 &&  ! (cellId % 5000) ) 
+
+        if (dimensionality == 3 &&  ! (cellId % 5000) )
           {
           self->UpdateProgress (static_cast<double>(cellId)/numCells);
           if (self->GetAbortExecute())
@@ -230,7 +230,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
             break;
             }
           }
-        
+
         for (i = 0; i < numContours; i++)
           {
           if ((values[i] >= range[0]) && (values[i] <= range[1]))
@@ -238,13 +238,13 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
             needCell = 1;
             } // if contour value in range for this cell
           } // end for numContours
-        
+
         if (needCell)
           {
           cell = input->GetCell(cellId);
           cellPts = cell->GetPointIds();
           inScalars->GetTuples(cellPts,cellScalars);
-          
+
           for (i=0; i < numContours; i++)
             {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
@@ -272,12 +272,12 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
       }
     scalarTree->SetDataSet(input);
     //
-    // Loop over all contour values.  Then for each contour value, 
+    // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
     //
     for (i=0; i < numContours; i++)
       {
-      for ( scalarTree->InitTraversal(values[i]); 
+      for ( scalarTree->InitTraversal(values[i]);
           (cell=scalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
         {
         cell->Contour(values[i], cellScalars, locator,
@@ -290,12 +290,12 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
 
   //
   // Update ourselves.  Because we don't know up front how many verts, lines,
-  // polys we've created, take care to reclaim memory. 
+  // polys we've created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();
   cellScalars->Delete();
-  
+
   if (newVerts->GetNumberOfCells())
     {
     output->SetVerts(newVerts);
@@ -361,13 +361,13 @@ int vtkContourGrid::RequestData(
     }
 
   scalarArrayPtr = inScalars->GetVoidPointer(0);
-        
+
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(
       vtkContourGridExecute(this, input, output, inScalars,
                             static_cast<VTK_TT *>(scalarArrayPtr),
-                            numContours, values,computeScalars, useScalarTree, 
+                            numContours, values,computeScalars, useScalarTree,
                             scalarTree));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -377,11 +377,11 @@ int vtkContourGrid::RequestData(
   return 1;
 }
 
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkContourGrid::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
@@ -418,13 +418,13 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Compute Gradients: " 
+  os << indent << "Compute Gradients: "
      << (this->ComputeGradients ? "On\n" : "Off\n");
-  os << indent << "Compute Normals: " 
+  os << indent << "Compute Normals: "
      << (this->ComputeNormals ? "On\n" : "Off\n");
-  os << indent << "Compute Scalars: " 
+  os << indent << "Compute Scalars: "
      << (this->ComputeScalars ? "On\n" : "Off\n");
-  os << indent << "Use Scalar Tree: " 
+  os << indent << "Use Scalar Tree: "
      << (this->UseScalarTree ? "On\n" : "Off\n");
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());

@@ -1,6 +1,6 @@
 package require vtk
 
-# we have to make sure it works with multiple scalar components 
+# we have to make sure it works with multiple scalar components
 
 # Image pipeline
 

@@ -118,7 +118,7 @@ int vtkProgrammableAttributeDataFilter::RequestData(
   // Output data is the same as input data by default.
   output->GetCellData()->PassData(input->GetCellData());
   output->GetPointData()->PassData(input->GetPointData());
-  
+
   // Now invoke the procedure, if specified.
   if ( this->ExecuteMethod != NULL )
     {
@@ -134,7 +134,7 @@ void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent
 
   os << indent << "Input DataSets:\n";
   this->InputList->PrintSelf(os,indent.GetNextIndent());
-  
+
   if ( this->ExecuteMethod )
     {
     os << indent << "An ExecuteMethod has been defined\n";

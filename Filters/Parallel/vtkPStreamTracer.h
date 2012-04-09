@@ -63,8 +63,8 @@ protected:
 
   // See the implementation for comments
   void SendCellPoint(vtkPolyData* data,
-                     vtkIdType streamId, 
-                     vtkIdType idx, 
+                     vtkIdType streamId,
+                     vtkIdType idx,
                      int sendToId);
   void ReceiveCellPoint(vtkPolyData* tomod, int streamId, vtkIdType idx);
   void SendFirstPoints(vtkPolyData *output);

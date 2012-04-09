@@ -55,9 +55,9 @@ public:
   vtkSetClampMacro( MaximizeMethod, int,
         VTK_MAXIMIZE_SCALAR_VALUE, VTK_MAXIMIZE_OPACITY );
   vtkGetMacro(MaximizeMethod,int);
-  void SetMaximizeMethodToScalarValue() 
+  void SetMaximizeMethodToScalarValue()
     {this->SetMaximizeMethod(VTK_MAXIMIZE_SCALAR_VALUE);}
-  void SetMaximizeMethodToOpacity() 
+  void SetMaximizeMethodToOpacity()
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   const char *GetMaximizeMethodAsString(void);
 

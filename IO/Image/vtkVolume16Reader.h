@@ -16,16 +16,16 @@
 // .SECTION Description
 // vtkVolume16Reader is a source object that reads 16 bit image files.
 //
-// Volume16Reader creates structured point datasets. The dimension of the 
-// dataset depends upon the number of files read. Reading a single file 
-// results in a 2D image, while reading more than one file results in a 
+// Volume16Reader creates structured point datasets. The dimension of the
+// dataset depends upon the number of files read. Reading a single file
+// results in a 2D image, while reading more than one file results in a
 // 3D volume.
 //
 // File names are created using FilePattern and FilePrefix as follows:
 // sprintf (filename, FilePattern, FilePrefix, number);
 // where number is in the range ImageRange[0] to ImageRange[1]. If
 // ImageRange[1] <= ImageRange[0], then slice number ImageRange[0] is
-// read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice 
+// read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice
 // number. The default behavior is to read a single file (i.e., image slice 1).
 //
 // The DataMask instance variable is used to read data files with imbedded
@@ -62,7 +62,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
+  // Construct object with NULL file prefix; file pattern "%s.%d"; image range
   // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
   // header size 0; and byte swapping turned off.
   static vtkVolume16Reader *New();
@@ -94,7 +94,7 @@ public:
   // As a quick note most UNIX machines are BigEndian while PC's
   // and VAX tend to be LittleEndian. So if the file you are reading
   // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian otherwise
-  // SetDataByteOrderToBigEndian. 
+  // SetDataByteOrderToBigEndian.
   void SetDataByteOrderToBigEndian();
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
@@ -138,7 +138,7 @@ protected:
   void AdjustSpacingAndOrigin(int dimensions[3], double Spacing[3], double origin[3]);
   void ReadImage(int ImageNumber, vtkUnsignedShortArray *);
   void ReadVolume(int FirstImage, int LastImage, vtkUnsignedShortArray *);
-  int Read16BitImage(FILE *fp, unsigned short *pixels, int xsize, int ysize, 
+  int Read16BitImage(FILE *fp, unsigned short *pixels, int xsize, int ysize,
                      int skip, int swapBytes);
 
 private:

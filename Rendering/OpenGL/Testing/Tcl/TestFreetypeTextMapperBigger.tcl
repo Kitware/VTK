@@ -22,8 +22,8 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 set i 0
 
 foreach family {
-    Arial 
-    Courier 
+    Arial
+    Courier
     Times
 } {
     foreach {bold italic} {

@@ -40,7 +40,7 @@ public:
   // it defaults to 10.
   void SetCacheSize(int size);
   int GetCacheSize();
-  
+
 protected:
   vtkImageCacheFilter();
   ~vtkImageCacheFilter();
@@ -48,7 +48,7 @@ protected:
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
   virtual void ExecuteData(vtkDataObject *);
-  
+
 private:
   vtkImageCacheFilter(const vtkImageCacheFilter&);  // Not implemented.
   void operator=(const vtkImageCacheFilter&);  // Not implemented.

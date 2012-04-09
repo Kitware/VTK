@@ -16,12 +16,12 @@
 // .SECTION Description
 // vtkProjectedTexture assigns texture coordinates to a dataset as if
 // the texture was projected from a slide projected located somewhere in the
-// scene.  Methods are provided to position the projector and aim it at a 
+// scene.  Methods are provided to position the projector and aim it at a
 // location, to set the width of the projector's frustum, and to set the
-// range of texture coordinates assigned to the dataset.  
+// range of texture coordinates assigned to the dataset.
 //
 // Objects in the scene that appear behind the projector are also assigned
-// texture coordinates; the projected image is left-right and top-bottom 
+// texture coordinates; the projected image is left-right and top-bottom
 // flipped, much as a lens' focus flips the rays of light that pass through
 // it.  A warning is issued if a point in the dataset falls at the focus
 // of the projector.
@@ -70,7 +70,7 @@ public:
   // Description:
   // Get the normalized orientation vector of the projector.
   vtkGetVectorMacro(Orientation,double,3);
-  
+
   // Description:
   // Set/Get the up vector of the projector.
   vtkSetVector3Macro(Up,double);
@@ -78,8 +78,8 @@ public:
 
   // Description:
   // Set/Get the aspect ratio of a perpendicular cross-section of the
-  // the projector's frustum.  The aspect ratio consists of three 
-  // numbers:  (x, y, z), where x is the width of the 
+  // the projector's frustum.  The aspect ratio consists of three
+  // numbers:  (x, y, z), where x is the width of the
   // frustum, y is the height, and z is the perpendicular
   // distance from the focus of the projector.
   //
@@ -97,7 +97,7 @@ public:
   // Specify t-coordinate range for texture s-t coordinate pair.
   vtkSetVector2Macro(TRange,double);
   vtkGetVectorMacro(TRange,double,2);
-  
+
 protected:
   vtkProjectedTexture();
   ~vtkProjectedTexture() {};

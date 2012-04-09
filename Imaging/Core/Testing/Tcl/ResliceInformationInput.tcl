@@ -17,7 +17,7 @@ reslice SetInformationInput [reader GetOutput]
 
 # reset the image back to the way it was (you don't have
 # to do this, it is just put in as an example)
-vtkImageChangeInformation information2 
+vtkImageChangeInformation information2
 information2 SetInputConnection [reslice GetOutputPort]
 information2 SetInformationInputData [reader GetOutput]
 

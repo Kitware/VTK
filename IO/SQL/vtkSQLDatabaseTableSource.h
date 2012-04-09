@@ -21,7 +21,7 @@
 //
 // .SECTION Description
 // This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToTable to
-// provide a convenience class for generating tables from databases. 
+// provide a convenience class for generating tables from databases.
 // Also this class can be easily wrapped and used within ParaView / OverView.
 
 #ifndef __vtkSQLDatabaseTableSource_h
@@ -60,25 +60,25 @@ public:
   vtkSetMacro(GeneratePedigreeIds, bool);
   vtkGetMacro(GeneratePedigreeIds, bool);
   vtkBooleanMacro(GeneratePedigreeIds, bool);
- 
+
 protected:
   vtkSQLDatabaseTableSource();
   ~vtkSQLDatabaseTableSource();
-  
+
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-  
+
 private:
   vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&); // Not implemented
   void operator=(const vtkSQLDatabaseTableSource&);   // Not implemented
 
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;
-  
+
   // Description:
-  // This intercepts events from the graph layout class 
+  // This intercepts events from the graph layout class
   // and re-emits them as if they came from this class.
   vtkEventForwarderCommand *EventForwarder;
 

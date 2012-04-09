@@ -75,7 +75,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     if ( ! this->Interactor )
       {
       vtkErrorMacro(<<"The interactor must be set prior to enabling the widget");
@@ -95,7 +95,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  
+
   else //disabling------------------
     {
     vtkDebugMacro(<<"Disabling widget");
@@ -104,7 +104,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     this->Enabled = 0;
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
@@ -163,6 +163,6 @@ void vtkHoverWidget::SelectAction(vtkAbstractWidget *w)
 void vtkHoverWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Timer Duration: " << this->TimerDuration << "\n";
 }

@@ -89,7 +89,7 @@ int
 vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
-  
+
   // Find the PCoordinates element.
   this->PCoordinatesElement = 0;
   int i;
@@ -103,7 +103,7 @@ vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
       this->PCoordinatesElement = eNested;
       }
     }
-  
+
   // If there is any volume, we require a PCoordinates element.
   if(!this->PCoordinatesElement)
     {
@@ -118,7 +118,7 @@ vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
       return 0;
       }
     }
-  
+
   return 1;
 }
 
@@ -127,7 +127,7 @@ vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 void vtkXMLPRectilinearGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  
+
   if(!this->PCoordinatesElement)
     {
     // Empty volume.
@@ -136,17 +136,17 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
 
   // Allocate the coordinate arrays.
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
-      this->GetCurrentOutput());  
+      this->GetCurrentOutput());
 
   vtkXMLDataElement* xc = this->PCoordinatesElement->GetNestedElement(0);
   vtkXMLDataElement* yc = this->PCoordinatesElement->GetNestedElement(1);
   vtkXMLDataElement* zc = this->PCoordinatesElement->GetNestedElement(2);
-  
+
   // Create the coordinate arrays (all are data arrays).
-  vtkAbstractArray* ax = this->CreateArray(xc); 
+  vtkAbstractArray* ax = this->CreateArray(xc);
   vtkAbstractArray* ay = this->CreateArray(yc);
   vtkAbstractArray* az = this->CreateArray(zc);
-  
+
   vtkDataArray* x = vtkDataArray::SafeDownCast(ax);
   vtkDataArray* y = vtkDataArray::SafeDownCast(ay);
   vtkDataArray* z = vtkDataArray::SafeDownCast(az);
@@ -175,7 +175,7 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
 int vtkXMLPRectilinearGridReader::ReadPieceData()
 {
   if(!this->Superclass::ReadPieceData()) { return 0; }
-  
+
   // Copy the coordinates arrays from the input piece.
   vtkRectilinearGrid* input = this->GetPieceInput(this->Piece);
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
@@ -189,7 +189,7 @@ int vtkXMLPRectilinearGridReader::ReadPieceData()
   this->CopySubCoordinates(this->SubPieceExtent+4, this->UpdateExtent+4,
                            this->SubExtent+4, input->GetZCoordinates(),
                            output->GetZCoordinates());
-  
+
   return 1;
 }
 
@@ -208,11 +208,11 @@ void vtkXMLPRectilinearGridReader::CopySubCoordinates(int* inBounds,
 {
   unsigned int components = inArray->GetNumberOfComponents();
   unsigned int tupleSize = inArray->GetDataTypeSize()*components;
-  
+
   int destStartIndex = subBounds[0] - outBounds[0];
   int sourceStartIndex = subBounds[0] - inBounds[0];
   int length = subBounds[1] - subBounds[0] + 1;
-  
+
   memcpy(outArray->GetVoidPointer(destStartIndex*components),
          inArray->GetVoidPointer(sourceStartIndex*components),
          length*tupleSize);

@@ -14,17 +14,17 @@
 #    Otherwise check if the output is evaluated by the calling CMake code. If so,
 #    check what the source file would have printed when called with the given arguments.
 # The HAVE_CMAKE_REQUIRE_LARGE_FILE_SUPPORT variable holds the build result for this TRY_RUN().
-# 
+#
 # Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/CMakeFiles/CMakeTmp/src.cxx
 # Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-CMAKE_REQUIRE_LARGE_FILE_SUPPORT
-# Run arguments : 
+# Run arguments :
 #    Called from: [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMakeLists.txt
 
-SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 
+SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT
      "1"
      CACHE STRING "Result from TRY_RUN" FORCE)
 
-SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT 
+SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT
      "NOTFOUND"
      CACHE STRING "Output from TRY_RUN" FORCE)
 
@@ -39,18 +39,18 @@ SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT
 #    Otherwise check if the output is evaluated by the calling CMake code. If so,
 #    check what the source file would have printed when called with the given arguments.
 # The SHARED_LIBRARY_PATH_INFO_COMPILED variable holds the build result for this TRY_RUN().
-# 
+#
 # Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/SharedLibraryPathInfo.cxx
 # Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-SHARED_LIBRARY_PATH_TYPE
 # Run arguments :  LDPATH
 #    Called from: [2]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/SharedLibraryPathVarName.cmake
 #                 [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMakeLists.txt
 
-SET( SHARED_LIBRARY_PATH_TYPE 
+SET( SHARED_LIBRARY_PATH_TYPE
      "0"
      CACHE STRING "Result from TRY_RUN" FORCE)
 
-SET( SHARED_LIBRARY_PATH_TYPE__TRYRUN_OUTPUT 
+SET( SHARED_LIBRARY_PATH_TYPE__TRYRUN_OUTPUT
      ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
@@ -60,14 +60,14 @@ SET( SHARED_LIBRARY_PATH_TYPE__TRYRUN_OUTPUT
 #    target platform. If so, set VTK_TYPE_CHAR_IS_SIGNED to
 #    the exit code (in many cases 0 for success), otherwise enter "FAILED_TO_RUN".
 # The VTK_TYPE_CHAR_IS_SIGNED_COMPILED variable holds the build result for this TRY_RUN().
-# 
+#
 # Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/vtkTestCharSignedness.cxx
 # Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-VTK_TYPE_CHAR_IS_SIGNED
-# Run arguments : 
+# Run arguments :
 #    Called from: [2]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/vtkTestTypes.cmake
 #                 [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMakeLists.txt
 
-SET( VTK_TYPE_CHAR_IS_SIGNED 
+SET( VTK_TYPE_CHAR_IS_SIGNED
      "1"
      CACHE STRING "Result from TRY_RUN" FORCE)
 
@@ -77,14 +77,14 @@ SET( VTK_TYPE_CHAR_IS_SIGNED
 #    target platform. If so, set VTK_ANSI_STREAM_EOF_RESULT to
 #    the exit code (in many cases 0 for success), otherwise enter "FAILED_TO_RUN".
 # The VTK_ANSI_STREAM_EOF_COMPILED variable holds the build result for this TRY_RUN().
-# 
+#
 # Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/CMake/vtkTestStreamEOF.cxx
 # Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-VTK_ANSI_STREAM_EOF_RESULT
-# Run arguments : 
+# Run arguments :
 #    Called from: [2]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/vtkTestStreamsLibrary.cmake
 #                 [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMakeLists.txt
 
-SET( VTK_ANSI_STREAM_EOF_RESULT 
+SET( VTK_ANSI_STREAM_EOF_RESULT
      "0"
      CACHE STRING "Result from TRY_RUN" FORCE)
 
@@ -99,17 +99,17 @@ SET( VTK_ANSI_STREAM_EOF_RESULT
 #    Otherwise check if the output is evaluated by the calling CMake code. If so,
 #    check what the source file would have printed when called with the given arguments.
 # The KWSYS_LFS_WORKS_COMPILED variable holds the build result for this TRY_RUN().
-# 
+#
 # Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/Utilities/kwsys/kwsysPlatformTestsCXX.cxx
 # Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-KWSYS_LFS_WORKS
-# Run arguments : 
+# Run arguments :
 #    Called from: [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/Utilities/kwsys/CMakeLists.txt
 
-SET( KWSYS_LFS_WORKS 
+SET( KWSYS_LFS_WORKS
      "0"
      CACHE STRING "Result from TRY_RUN" FORCE)
 
-SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT 
+SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT
      "NOTFOUND"
      CACHE STRING "Output from TRY_RUN" FORCE)
 

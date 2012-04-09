@@ -33,13 +33,13 @@ void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
   // Check sizes
   if (table->GetNumberOfRows() != static_cast<vtkIdType>(stdTable[0].size()))
     {
-    cout << "Number of rows is incorrect (" 
+    cout << "Number of rows is incorrect ("
          << table->GetNumberOfRows() << " != " << stdTable.size() << ")" << endl;
     exit(1);
     }
   if (table->GetNumberOfColumns() != static_cast<vtkIdType>(stdTable.size()))
     {
-    cout << "Number of columns is incorrect (" 
+    cout << "Number of columns is incorrect ("
          << table->GetNumberOfColumns() << " != " << stdTable.size() << ")" << endl;
     exit(1);
     }

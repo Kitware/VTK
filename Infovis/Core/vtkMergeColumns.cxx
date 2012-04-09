@@ -49,8 +49,8 @@ void vtkMergeColumnsCombine(T* col1, T* col2, T* merged, vtkIdType size)
 }
 
 int vtkMergeColumns::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get input tables
@@ -62,7 +62,7 @@ int vtkMergeColumns::RequestData(
   vtkInformation* outputInfo = outputVector->GetInformationObject(0);
   vtkTable* output = vtkTable::SafeDownCast(
     outputInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   output->ShallowCopy(input);
 
   vtkAbstractArray* col1 = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
@@ -82,10 +82,10 @@ int vtkMergeColumns::RequestData(
     vtkErrorMacro("The columns must be of the same type.");
     return 0;
     }
-  
+
   output->RemoveColumnByName(col1->GetName());
   output->RemoveColumnByName(col2->GetName());
-  
+
   vtkAbstractArray* merged = vtkAbstractArray::CreateArray(col1->GetDataType());
   merged->SetName(this->MergedColumnName);
   merged->SetNumberOfTuples(col1->GetNumberOfTuples());
@@ -100,7 +100,7 @@ int vtkMergeColumns::RequestData(
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
         {
         vtkStdString combined = col1Str->GetValue(i);
-        if (col1Str->GetValue(i).length() > 0 && 
+        if (col1Str->GetValue(i).length() > 0 &&
             col2Str->GetValue(i).length() > 0)
           {
           combined += " ";
@@ -118,7 +118,7 @@ int vtkMergeColumns::RequestData(
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
         {
         vtkUnicodeString combined = col1Str->GetValue(i);
-        if (!col1Str->GetValue(i).empty() && 
+        if (!col1Str->GetValue(i).empty() &&
             !col2Str->GetValue(i).empty())
           {
           combined += vtkUnicodeString::from_utf8(" ");
@@ -129,12 +129,12 @@ int vtkMergeColumns::RequestData(
       break;
       }
     vtkTemplateMacro(vtkMergeColumnsCombine(
-      static_cast<VTK_TT*>(col1->GetVoidPointer(0)), 
-      static_cast<VTK_TT*>(col2->GetVoidPointer(0)), 
+      static_cast<VTK_TT*>(col1->GetVoidPointer(0)),
+      static_cast<VTK_TT*>(col2->GetVoidPointer(0)),
       static_cast<VTK_TT*>(merged->GetVoidPointer(0)),
       merged->GetNumberOfTuples()));
     }
-  
+
   output->AddColumn(merged);
   merged->Delete();
 
@@ -144,6 +144,6 @@ int vtkMergeColumns::RequestData(
 void vtkMergeColumns::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "MergedColumnName: " 
+  os << indent << "MergedColumnName: "
      << (this->MergedColumnName ? this->MergedColumnName : "(null)") << endl;
 }

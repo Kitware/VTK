@@ -104,7 +104,7 @@ public:
   const char* GetCellArrayName(int index);
   int GetPointArrayStatus(const char* name);
   int GetCellArrayStatus(const char* name);
-  void SetPointArrayStatus(const char* name, int status);  
+  void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
 
   void DisableAllCellArrays();
@@ -184,7 +184,7 @@ private:
   int ReadFloatBlock(int n, float *block);
   int ReadIntBlock(int n, int *block);
   void ReadXYZCoords(vtkFloatArray *coords);
-  void ReadBinaryCellTopology(vtkIntArray *material, int *types, 
+  void ReadBinaryCellTopology(vtkIntArray *material, int *types,
                               vtkIdTypeArray *listcells);
   void ReadASCIICellTopology(vtkIntArray *material, vtkUnstructuredGrid *output);
 

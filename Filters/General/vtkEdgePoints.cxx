@@ -108,7 +108,7 @@ int vtkEdgePoints::RequestData(
   cellScalars = inScalars->NewInstance();
   cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
-  
+
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // interpolate data along edge; copy cell data
@@ -125,7 +125,7 @@ int vtkEdgePoints::RequestData(
   vtkGenericCell *cell = vtkGenericCell::New();
   for (cellId=0; cellId < numCells && !abort; cellId++)
     {
-    if ( ! (cellId % progressInterval) ) 
+    if ( ! (cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Processing #" << cellId);
       this->UpdateProgress (static_cast<double>(cellId)/numCells);
@@ -152,7 +152,7 @@ int vtkEdgePoints::RequestData(
       {
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
         {
-        cell->Contour(this->Value, cellScalars, this->Locator, newVerts, 
+        cell->Contour(this->Value, cellScalars, this->Locator, newVerts,
                       NULL, NULL, inPd, outPd, inCd, cellId, outCd);
         }
 
@@ -170,7 +170,7 @@ int vtkEdgePoints::RequestData(
           (s0 >= this->Value && s1 < this->Value) )
             {
             //ordering intersection direction avoids numerical problems
-            deltaScalar = s1 - s0; 
+            deltaScalar = s1 - s0;
             if (deltaScalar > 0)
               {
               e0 = 0; e1 = 1;
@@ -209,8 +209,8 @@ int vtkEdgePoints::RequestData(
 
   vtkDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");
 
-  // Update ourselves.  Because we don't know up front how many verts we've 
-  // created, take care to reclaim memory. 
+  // Update ourselves.  Because we don't know up front how many verts we've
+  // created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();
@@ -220,7 +220,7 @@ int vtkEdgePoints::RequestData(
 
   this->Locator->Initialize();//free up any extra memory
   output->Squeeze();
-  
+
   cellScalars->Delete();
 
   return 1;

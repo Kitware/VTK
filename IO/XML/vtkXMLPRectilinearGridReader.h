@@ -37,16 +37,16 @@ public:
   vtkTypeMacro(vtkXMLPRectilinearGridReader,vtkXMLPStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPRectilinearGridReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
-  
+
 protected:
   vtkXMLPRectilinearGridReader();
   ~vtkXMLPRectilinearGridReader();
-  
+
   vtkRectilinearGrid* GetPieceInput(int index);
 
   void SetupEmptyOutput();

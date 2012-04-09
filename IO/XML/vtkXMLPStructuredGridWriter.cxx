@@ -60,7 +60,7 @@ const char* vtkXMLPStructuredGridWriter::GetDefaultFileExtension()
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter*
 vtkXMLPStructuredGridWriter::CreateStructuredPieceWriter()
-{  
+{
   // Create the writer for the piece.
   vtkXMLStructuredGridWriter* pWriter = vtkXMLStructuredGridWriter::New();
   pWriter->SetInputConnection(this->GetInputConnection(0, 0));
@@ -75,7 +75,7 @@ void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
     {
     return;
     }
-  vtkStructuredGrid* input = this->GetInput();  
+  vtkStructuredGrid* input = this->GetInput();
   this->WritePPoints(input->GetPoints(), indent);
 }
 

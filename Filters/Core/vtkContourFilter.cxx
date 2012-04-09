@@ -120,15 +120,15 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
                                           vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *input = 
+  vtkDataSet *input =
     vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
 
-  vtkInformation *fInfo = 
-    vtkDataObject::GetActiveFieldInformation(inInfo, 
-                                             vtkDataObject::FIELD_ASSOCIATION_POINTS, 
+  vtkInformation *fInfo =
+    vtkDataObject::GetActiveFieldInformation(inInfo,
+                                             vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                              vtkDataSetAttributes::SCALARS);
   int sType = VTK_DOUBLE;
   if (fInfo)
@@ -138,7 +138,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
 
   // handle 2D images
   int i;
-  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT && 
+  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT &&
       !vtkUniformGrid::SafeDownCast(input))
     {
     int dim = 3;
@@ -155,8 +155,8 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
       {
       --dim;
       }
-    
-    if ( dim == 2 ) 
+
+    if ( dim == 2 )
       {
       this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
       for (i=0; i < numContours; i++)
@@ -176,7 +176,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
         }
       this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
       this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
-      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);      
+      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
       return this->SynchronizedTemplates3D->
         ProcessRequest(request,inputVector,outputVector);
       }
@@ -237,7 +237,7 @@ int vtkContourFilter::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input) 
+  if (!input)
     {
     return 0;
     }
@@ -246,13 +246,13 @@ int vtkContourFilter::RequestData(
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
   int i;
-  
+
   // is there data to process?
   if (!this->GetInputArrayToProcess(0, inputVector))
     {
     return 1;
     }
-  
+
   int sType = this->GetInputArrayToProcess(0, inputVector)->GetDataType();
 
   // handle 2D images
@@ -273,8 +273,8 @@ int vtkContourFilter::RequestData(
       {
       --dim;
       }
-    
-    if ( dim == 2 ) 
+
+    if ( dim == 2 )
       {
       this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
       for (i=0; i < numContours; i++)
@@ -283,10 +283,10 @@ int vtkContourFilter::RequestData(
         }
       this->SynchronizedTemplates2D->
         SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-      return 
+      return
         this->SynchronizedTemplates2D->ProcessRequest(request,inputVector,outputVector);
       }
-    else if ( dim == 3 ) 
+    else if ( dim == 3 )
       {
       this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
       for (i=0; i < numContours; i++)
@@ -295,14 +295,14 @@ int vtkContourFilter::RequestData(
         }
       this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
       this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
-      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);      
+      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
       this->SynchronizedTemplates3D->
         SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
 
       return this->SynchronizedTemplates3D->ProcessRequest(request,inputVector,outputVector);
       }
     } //if image data
-  
+
   // handle 3D RGrids
   if (vtkRectilinearGrid::SafeDownCast(input) && sType != VTK_BIT)
     {
@@ -324,7 +324,7 @@ int vtkContourFilter::RequestData(
         ProcessRequest(request,inputVector,outputVector);
       }
     } // if 3D Rgrid
-  
+
   // handle 3D SGrids
   if (vtkStructuredGrid::SafeDownCast(input) && sType != VTK_BIT)
     {
@@ -377,7 +377,7 @@ int vtkContourFilter::RequestData(
       {
       cgrid->SetLocator( this->Locator );
       }
-      
+
     for (i = 0; i < numContours; i++)
       {
       cgrid->SetValue(i, values[i]);
@@ -426,13 +426,13 @@ int vtkContourFilter::RequestData(
     cellScalars = inScalars->NewInstance();
     cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
-    
+
     // locator used to merge potentially duplicate points
     if ( this->Locator == NULL )
       {
       this->CreateDefaultLocator();
       }
-    this->Locator->InitPointInsertion (newPts, 
+    this->Locator->InitPointInsertion (newPts,
                                        input->GetBounds(),estimatedSize);
 
     // interpolate data along edge
@@ -443,7 +443,7 @@ int vtkContourFilter::RequestData(
       }
     outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
     outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
-    
+
     // If enabled, build a scalar tree to accelerate search
     //
     if ( !this->UseScalarTree )
@@ -456,10 +456,10 @@ int vtkContourFilter::RequestData(
       // I create a table that maps cell type to cell dimensionality,
       // because I need a fast way to get cell dimensionality.
       // This assumes GetCell is slow and GetCellType is fast.
-      // I do not like hard coding a list of cell types here, 
+      // I do not like hard coding a list of cell types here,
       // but I do not want to add GetCellDimension(vtkIdType cellId)
       // to the vtkDataSet API.  Since I anticipate that the output
-      // will change to vtkUnstructuredGrid.  This temporary solution 
+      // will change to vtkUnstructuredGrid.  This temporary solution
       // is acceptable.
       //
       int cellType;
@@ -494,20 +494,20 @@ int vtkContourFilter::RequestData(
               cellScalars->GetNumberOfComponents()*cellPts->GetNumberOfIds());
             }
           inScalars->GetTuples(cellPts,cellScalars);
-        
-          if (dimensionality == 3 &&  ! (cellId % 5000) ) 
+
+          if (dimensionality == 3 &&  ! (cellId % 5000) )
             {
             vtkDebugMacro(<<"Contouring #" << cellId);
             this->UpdateProgress (static_cast<double>(cellId)/numCells);
             abortExecute = this->GetAbortExecute();
             }
-        
+
           for (i=0; i < numContours; i++)
             {
-            cell->Contour(values[i], cellScalars, this->Locator, 
+            cell->Contour(values[i], cellScalars, this->Locator,
                           newVerts, newLines, newPolys, inPd, outPd,
                           inCd, cellId, outCd);
-          
+
             } // for all contour values
           } // for all cells
         } // for all dimensions
@@ -526,53 +526,53 @@ int vtkContourFilter::RequestData(
       // verts, lines and polys in vtkPolyData.  The solution
       // is to convert this filter to create unstructured grid.
       //
-      // Loop over all contour values.  Then for each contour value, 
+      // Loop over all contour values.  Then for each contour value,
       // loop over all cells.
       //
       for (i=0; i < numContours; i++)
         {
-        for ( this->ScalarTree->InitTraversal(values[i]); 
+        for ( this->ScalarTree->InitTraversal(values[i]);
               (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
           {
-          cell->Contour(values[i], cellScalars, this->Locator, 
+          cell->Contour(values[i], cellScalars, this->Locator,
                         newVerts, newLines, newPolys, inPd, outPd,
                         inCd, cellId, outCd);
-          
+
           } //for all cells
         } //for all contour values
       } //using scalar tree
-    
-    vtkDebugMacro(<<"Created: " 
-                  << newPts->GetNumberOfPoints() << " points, " 
-                  << newVerts->GetNumberOfCells() << " verts, " 
-                  << newLines->GetNumberOfCells() << " lines, " 
+
+    vtkDebugMacro(<<"Created: "
+                  << newPts->GetNumberOfPoints() << " points, "
+                  << newVerts->GetNumberOfCells() << " verts, "
+                  << newLines->GetNumberOfCells() << " lines, "
                   << newPolys->GetNumberOfCells() << " triangles");
 
     // Update ourselves.  Because we don't know up front how many verts, lines,
-    // polys we've created, take care to reclaim memory. 
+    // polys we've created, take care to reclaim memory.
     //
     output->SetPoints(newPts);
     newPts->Delete();
     cellScalars->Delete();
-    
+
     if (newVerts->GetNumberOfCells())
       {
       output->SetVerts(newVerts);
       }
     newVerts->Delete();
-    
+
     if (newLines->GetNumberOfCells())
       {
       output->SetLines(newLines);
       }
     newLines->Delete();
-    
+
     if (newPolys->GetNumberOfCells())
       {
       output->SetPolys(newPolys);
       }
     newPolys->Delete();
-    
+
     this->Locator->Initialize();//releases leftover memory
     output->Squeeze();
     } //else if not vtkUnstructuredGrid
@@ -580,11 +580,11 @@ int vtkContourFilter::RequestData(
   return 1;
 }
 
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
@@ -724,16 +724,16 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Compute Gradients: " 
+  os << indent << "Compute Gradients: "
      << (this->ComputeGradients ? "On\n" : "Off\n");
-  os << indent << "Compute Normals: " 
+  os << indent << "Compute Normals: "
      << (this->ComputeNormals ? "On\n" : "Off\n");
-  os << indent << "Compute Scalars: " 
+  os << indent << "Compute Scalars: "
      << (this->ComputeScalars ? "On\n" : "Off\n");
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
-  os << indent << "Use Scalar Tree: " 
+  os << indent << "Use Scalar Tree: "
      << (this->UseScalarTree ? "On\n" : "Off\n");
   if ( this->ScalarTree )
     {

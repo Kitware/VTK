@@ -47,16 +47,16 @@ public:
   // Action on motion event. Default implementation is empty.
   // \pre: motionInfo_exist: motionInfo!=0
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
-  
+
   // Description:
   // Action on button pressed event. Default implementation is empty.
   virtual void OnButtonPressedEvent(int button);
-  
+
   // Description:
   // Action on button released event. Default implementation is empty.
   virtual void OnButtonReleasedEvent(int button);
   //ETX
-  
+
   // Description:
   // Dispatch the events TDxMotionEvent, TDxButtonPressEvent and
   // TDxButtonReleaseEvent to OnMotionEvent(), OnButtonPressedEvent() and
@@ -68,21 +68,21 @@ public:
   virtual void ProcessEvent(vtkRenderer *renderer,
                             unsigned long event,
                             void *calldata);
-  
+
   // Description:
   // 3Dconnexion device settings. (sensitivity, individual axis filters).
   // Initial object is not null.
   vtkGetObjectMacro(Settings,vtkTDxInteractorStyleSettings);
   virtual void SetSettings(vtkTDxInteractorStyleSettings *settings);
-  
+
 protected:
   vtkTDxInteractorStyle();
   virtual ~vtkTDxInteractorStyle();
-  
+
   vtkTDxInteractorStyleSettings *Settings;
-  
+
   vtkRenderer *Renderer;
-  
+
 private:
   vtkTDxInteractorStyle(const vtkTDxInteractorStyle&);  // Not implemented.
   void operator=(const vtkTDxInteractorStyle&);  // Not implemented.

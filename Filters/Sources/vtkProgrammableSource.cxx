@@ -146,7 +146,7 @@ vtkStructuredGrid *vtkProgrammableSource::GetStructuredGridOutput()
     {
     return NULL;
     }
-  
+
   this->RequestedDataType = VTK_STRUCTURED_GRID;
   return vtkStructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(2));

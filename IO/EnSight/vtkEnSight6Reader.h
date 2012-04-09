@@ -48,11 +48,11 @@ public:
   static vtkEnSight6Reader *New();
   vtkTypeMacro(vtkEnSight6Reader, vtkEnSightReader);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-  
+
 protected:
   vtkEnSight6Reader();
   ~vtkEnSight6Reader();
-  
+
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
   virtual int ReadGeometryFile(const char* fileName, int timeStep,
@@ -73,7 +73,7 @@ protected:
                                  int measured = 0,
                                  int numberOfComponents = 1,
                                  int component = 0);
-  
+
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
@@ -111,19 +111,19 @@ protected:
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached.
-  virtual int CreateUnstructuredGridOutput(int partId, 
-                                           char line[256], 
+  virtual int CreateUnstructuredGridOutput(int partId,
+                                           char line[256],
                                            const char* name,
                                            vtkMultiBlockDataSet *output);
-  
+
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGridOutput.  Return 0 if EOF reached.
-  virtual int CreateStructuredGridOutput(int partId, 
+  virtual int CreateStructuredGridOutput(int partId,
                                          char line[256],
                                          const char* name,
                                          vtkMultiBlockDataSet *output);
-  
+
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;

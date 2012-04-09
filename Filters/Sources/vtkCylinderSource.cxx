@@ -57,11 +57,11 @@ int vtkCylinderSource::RequestData(
   double *center = this->Center;
   int i, idx;
   vtkIdType pts[VTK_CELL_SIZE];
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
-  
+
 //
 // Set things up; allocate memory
 //
@@ -71,7 +71,7 @@ int vtkCylinderSource::RequestData(
     numPts = 4*this->Resolution;
     numPolys = this->Resolution + 2;
     }
-  else 
+  else
     {
     numPts = 2*this->Resolution;
     numPolys = this->Resolution;
@@ -97,8 +97,8 @@ int vtkCylinderSource::RequestData(
     {
     // x coordinate
     nbot[0] = ntop[0] = cos(i*angle);
-    xbot[0] = (nbot[0] * this->Radius) + center[0]; 
-    xtop[0] = (ntop[0] * this->Radius) + center[0]; 
+    xbot[0] = (nbot[0] * this->Radius) + center[0];
+    xtop[0] = (ntop[0] * this->Radius) + center[0];
     tcbot[0] = tctop[0] = fabs(2.0*i/this->Resolution - 1.0);
 
     // y coordinate
@@ -110,8 +110,8 @@ int vtkCylinderSource::RequestData(
 
     // z coordinate
     nbot[2] = ntop[2] = -sin(i*angle);
-    xbot[2] = (nbot[2] * this->Radius) + center[2]; 
-    xtop[2] = (ntop[2] * this->Radius) + center[2]; 
+    xbot[2] = (nbot[2] * this->Radius) + center[2];
+    xtop[2] = (ntop[2] * this->Radius) + center[2];
 
     idx = 2*i;
     newPoints->InsertPoint(idx,xbot);

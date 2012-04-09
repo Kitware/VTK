@@ -128,16 +128,16 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   colorArray->SetNumberOfTuples(numRows);
 
   priority = vtkIntArray::SafeDownCast(table->GetColumnByName("Priority"));
-  
+
   for(i = 0; i < numRows; i++)
     {
-    colorArray->SetValue(i, log(static_cast<double>(priority->GetValue(i)) + 1.0)); 
+    colorArray->SetValue(i, log(static_cast<double>(priority->GetValue(i)) + 1.0));
     }
 
   timer->StartTimer();
 
 
-  vtkSmartPointer<vtkMutableUndirectedGraph > graph = 
+  vtkSmartPointer<vtkMutableUndirectedGraph > graph =
     vtkSmartPointer<vtkMutableUndirectedGraph >::New();
   graph->GetVertexData()->PassData(table->GetRowData());
   graph->GetVertexData()->AddArray(colorArray);
@@ -147,7 +147,7 @@ int TestGeoView2DPopulation(int argc, char* argv[])
     graph->AddVertex();
     }
 
-  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep = 
+  vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
     vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
   graphRep->SetInputData(graph);
   graphRep->SetVertexLabelArrayName("LabelText1");
@@ -158,7 +158,7 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   graphRep->SetEdgeVisibility(false);
   graphRep->SetLayoutStrategyToAssignCoordinates("Longitude", "Latitude");
   graphRep->GetVertexLabelTextProperty()->ShadowOn();
-  
+
   view->AddRepresentation(graphRep);
 
   timer->StopTimer();
@@ -182,7 +182,7 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   double scalex = (bounds[1] - bounds[0])/2.0;
   double scaley = (bounds[3] - bounds[2])/2.0;
   double scale = (scalex > scaley) ? scalex : scaley;
-  
+
   view->GetRenderer()->ResetCamera();
   view->GetRenderer()->GetActiveCamera()->SetParallelScale(scale);
 

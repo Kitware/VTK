@@ -13,10 +13,10 @@
 
 =========================================================================*/
 // .NAME vtkInteractorStyle - provide event-driven interface to the rendering window (defines trackball mode)
-// .SECTION Description 
+// .SECTION Description
 // vtkInteractorStyle is a base class implementing the majority of motion
 // control routines and defines an event driven interface to support
-// vtkRenderWindowInteractor. vtkRenderWindowInteractor implements 
+// vtkRenderWindowInteractor. vtkRenderWindowInteractor implements
 // platform dependent key/mouse routing and timer control, which forwards
 // events in a neutral form to vtkInteractorStyle.
 //
@@ -57,18 +57,18 @@
 // - Keypress e: exit the application.
 // - Keypress f: fly to the picked point
 // - Keypress p: perform a pick operation. The render window interactor has
-// an internal instance of vtkCellPicker that it uses to pick. 
+// an internal instance of vtkCellPicker that it uses to pick.
 // - Keypress r: reset the camera view along the current view
 // direction. Centers the actors and moves the camera so that all actors are
 // visible.
 // - Keypress s: modify the representation of all actors so that they are
-// surfaces.  
+// surfaces.
 // - Keypress u: invoke the user-defined function. Typically,
 // this keypress will bring up an interactor that you can type commands in.
 // Typing u calls UserCallBack() on the vtkRenderWindowInteractor, which
 // invokes a vtkCommand::UserEvent. In other words, to define a user-defined
 // callback, just add an observer to the vtkCommand::UserEvent on the
-// vtkRenderWindowInteractor object. 
+// vtkRenderWindowInteractor object.
 // - Keypress w: modify the representation of all actors so that they are
 // wireframe.
 //
@@ -156,11 +156,11 @@ public:
   vtkSetClampMacro(AutoAdjustCameraClippingRange, int, 0, 1 );
   vtkGetMacro(AutoAdjustCameraClippingRange, int );
   vtkBooleanMacro(AutoAdjustCameraClippingRange, int );
-  
+
   // Description:
   // When an event occurs, we must determine which Renderer the event
   // occurred within, since one RenderWindow may contain multiple
-  // renderers. 
+  // renderers.
   void FindPokedRenderer(int,int);
 
   // Description:
@@ -187,7 +187,7 @@ public:
   vtkGetMacro(HandleObservers,int);
   vtkBooleanMacro(HandleObservers,int);
 
-  // Description:                                                  
+  // Description:
   // Generic event bindings can be overridden in subclasses
   virtual void OnMouseMove() {};
   virtual void OnLeftButtonDown() {};
@@ -254,9 +254,9 @@ public:
   virtual void StopState();
 
   // Description:
-  // Interaction mode entry points used internally.  
-  virtual void StartAnimate();  
-  virtual void StopAnimate();  
+  // Interaction mode entry points used internally.
+  virtual void StartAnimate();
+  virtual void StopAnimate();
   virtual void StartRotate();
   virtual void EndRotate();
   virtual void StartZoom();
@@ -274,9 +274,9 @@ public:
 
   // Description:
   // When picking successfully selects an actor, this method highlights the
-  // picked prop appropriately. Currently this is done by placing a bounding 
+  // picked prop appropriately. Currently this is done by placing a bounding
   // box around a picked vtkProp3D, and using the PickColor to highlight a
-  // vtkProp2D. 
+  // vtkProp2D.
   virtual void HighlightProp(vtkProp *prop);
   virtual void HighlightActor2D(vtkActor2D *actor2D);
   virtual void HighlightProp3D(vtkProp3D *prop3D);
@@ -288,7 +288,7 @@ public:
   vtkGetVectorMacro(PickColor, double, 3);
 
   // Description:
-  // Set/Get the mouse wheel motion factor. Default to 1.0. Set it to a 
+  // Set/Get the mouse wheel motion factor. Default to 1.0. Set it to a
   // different value to emphasize or de-emphasize the action triggered by
   // mouse wheel motion.
   vtkSetMacro(MouseWheelMotionFactor, double);
@@ -299,30 +299,30 @@ public:
   // object of class vtkTdxInteractorStyleCamera.
   vtkGetObjectMacro(TDxStyle,vtkTDxInteractorStyle);
   virtual void SetTDxStyle(vtkTDxInteractorStyle *tdxStyle);
-  
+
   // Description:
   // Called by the callback to process 3DConnexion device events.
   void DelegateTDxEvent(unsigned long event,
                         void *calldata);
-  
+
 protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
-  
+
   // Description:
   // Main process event method
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
-  
+
   // Keep track of current state
-  int State;  
-  int AnimState;  
+  int State;
+  int AnimState;
 
   // Should observers be handled here, should we fire timers
-  int HandleObservers; 
-  int UseTimers;       
+  int HandleObservers;
+  int UseTimers;
   int TimerId; //keep track of the timers that are created/destroyed
 
   int AutoAdjustCameraClippingRange;
@@ -340,12 +340,12 @@ protected:
 
   // Control the timer duration
   unsigned long  TimerDuration; //in milliseconds
-  
+
   // Forward events to the RenderWindowInteractor
   vtkEventForwarderCommand * EventForwarder;
 
   vtkTDxInteractorStyle *TDxStyle;
-  
+
 private:
   vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.
   void operator=(const vtkInteractorStyle&);  // Not implemented.

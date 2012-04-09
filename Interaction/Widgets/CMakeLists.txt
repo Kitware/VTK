@@ -126,8 +126,8 @@ set(Module_SRCS
   vtkResliceCursorWidget.cxx
   vtkResliceCursorActor.cxx
   vtkResliceCursorPicker.cxx
-  vtkResliceCursor.cxx 
-  vtkResliceCursorPolyDataAlgorithm.cxx 
+  vtkResliceCursor.cxx
+  vtkResliceCursorPolyDataAlgorithm.cxx
   )
 
 set_source_files_properties(

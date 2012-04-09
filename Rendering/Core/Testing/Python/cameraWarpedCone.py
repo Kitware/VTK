@@ -42,6 +42,6 @@ trans.SetMatrix(mat)
 ren.AddActor(coneActor)
 
 ren.ResetCamera();
-ren.GetActiveCamera().SetUserTransform(trans); 
+ren.GetActiveCamera().SetUserTransform(trans);
 
 renWin.Render()

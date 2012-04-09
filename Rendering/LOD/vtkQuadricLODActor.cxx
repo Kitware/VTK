@@ -51,7 +51,7 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   this->DataConfiguration = UNKNOWN;
   this->PropType = ACTOR;
   this->Camera = NULL;
-  
+
   // Internal data members
   this->CachedInteractiveFrameRate = 0.0;
 
@@ -61,19 +61,19 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   // mapper for LOD actor
   this->LODMapper = vtkPolyDataMapper::New();
   this->LODMapper->ImmediateModeRenderingOff();
-  
+
   // A internal matrix for performance
   vtkMatrix4x4 *m = vtkMatrix4x4::New();
   this->LODActor->SetUserMatrix(m);
   m->Delete();
-  
+
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricLODActor::~vtkQuadricLODActor()
 {
   this->LODFilter->Delete();
-  
+
   this->LODActor->Delete();
   this->LODActor = NULL;
   this->LODMapper->Delete();
@@ -83,7 +83,7 @@ vtkQuadricLODActor::~vtkQuadricLODActor()
 //----------------------------------------------------------------------------
 int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
 {
-  int renderedSomething = 0; 
+  int renderedSomething = 0;
   vtkRenderer* ren = static_cast<vtkRenderer*>(vp);
 
   if ( ! this->Mapper )
@@ -101,8 +101,8 @@ int vtkQuadricLODActor::RenderOpaqueGeometry(vtkViewport *vp)
       {
       this->BackfaceProperty->BackfaceRender(this, ren);
       }
-    
-    // render the texture 
+
+    // render the texture
     if (this->Texture)
       {
       this->Texture->Render(ren);
@@ -139,7 +139,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     vtkErrorMacro("No mapper for actor.");
     return;
     }
-  
+
   // determine out how much time we have to render
   allowedTime = this->AllocatedRenderTime;
   double frameRate = ren->GetRenderWindow()->GetInteractor()->GetDesiredUpdateRate();
@@ -164,8 +164,8 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     }
 
   // Build LOD only if necessary
-  if ( (interactiveRender || !this->DeferLODConstruction) && 
-       (this->GetMTime() > this->BuildTime || 
+  if ( (interactiveRender || !this->DeferLODConstruction) &&
+       (this->GetMTime() > this->BuildTime ||
         this->Mapper->GetMTime() > this->BuildTime ||
         this->CachedInteractiveFrameRate < 0.9*frameRate || this->CachedInteractiveFrameRate > 1.1*frameRate) )
     {
@@ -199,7 +199,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
       {
       if (frameRate >= FPSTable[i] && frameRate <= FPSTable[i+1] )
         {
-        dim = static_cast<int>((DIMTable[i] + 
+        dim = static_cast<int>((DIMTable[i] +
                                 (frameRate-FPSTable[i])/(FPSTable[i+1]-FPSTable[i]) * (DIMTable[i+1]-DIMTable[i])));
         break;
         }
@@ -263,7 +263,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
         }
       this->LODFilter->SetNumberOfDivisions(nDivs);
       }//data configuration not explicitly specified
-    
+
     vtkDebugMacro("QC bin size: " << dim);
     this->LODFilter->AutoAdjustNumberOfDivisionsOff();
     this->LODFilter->SetInputConnection(this->Mapper->GetInputConnection(0, 0));
@@ -275,7 +275,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     // rate is requested.
     matrix = this->LODActor->GetUserMatrix();
     this->GetMatrix(matrix);
-  
+
     this->LODMapper->Update();
     if ( this->Static )
       {
@@ -308,7 +308,7 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->GetMatrix(matrix);
     vtkDebugMacro("----Full render (best,allowed): " << bestTime << "," << allowedTime);
     }
-    
+
   // render the property
   if (!this->Property)
     {
@@ -316,20 +316,20 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->GetProperty();
     }
   this->Property->Render(this, ren);
-  
+
   if (this->BackfaceProperty)
     {
     this->BackfaceProperty->BackfaceRender(this, ren);
     this->LODActor->SetBackfaceProperty(this->BackfaceProperty);
     }
   this->LODActor->SetProperty(this->Property);
-  
+
   // render the texture
   if (this->Texture)
     {
     this->Texture->Render(ren);
     }
-  
+
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
   this->LODActor->Render(ren,bestMapper);
@@ -360,7 +360,7 @@ void vtkQuadricLODActor::SetCamera(vtkCamera *camera)
     follower->SetCamera(camera);
     }
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -406,7 +406,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Unknown\n";
     }
-  
+
   os << indent << "LOD Filter: ";
   if ( this->LODFilter )
     {
@@ -416,8 +416,8 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
-  
-  os << indent << "Maximum Display List Size: " 
+
+  os << indent << "Maximum Display List Size: "
      << this->MaximumDisplayListSize << "\n";
 
   os << indent << "Prop Type: ";
@@ -425,7 +425,7 @@ void vtkQuadricLODActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Follower\n";
     }
-  else 
+  else
     {
     os << "Actor\n";
     }

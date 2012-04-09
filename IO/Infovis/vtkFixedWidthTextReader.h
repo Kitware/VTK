@@ -24,9 +24,9 @@
 //
 // vtkFixedWidthTextReader reads in a table from a text file where
 // each column occupies a certain number of characters.
-// 
+//
 // This class emits ProgressEvent for every 100 lines it reads.
-// 
+//
 // .SECTION Caveats
 //
 // This first version of the reader will assume that all fields have
@@ -80,8 +80,8 @@ public:
   ~vtkFixedWidthTextReader();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   void OpenFile();

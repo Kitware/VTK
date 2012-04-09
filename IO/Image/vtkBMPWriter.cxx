@@ -32,11 +32,11 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file,
   long temp;
   int width, height, dataWidth;
   int row;
-  
+
   // Find the length of the rows to write.
   width = (wExt[1] - wExt[0] + 1);
   height = (wExt[3] - wExt[2] + 1);
-  
+
   dataWidth = ((width*3+3)/4)*4;
 
   // spit out the BMP header
@@ -54,23 +54,23 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file,
   file->put((char)0);
   file->put((char)0);
   file->put((char)0);
-  
+
   // info header
   file->put((char)40);
   file->put((char)0);
   file->put((char)0);
   file->put((char)0);
-  
+
   file->put((char)(width%256));
   file->put((char)(width/256));
   file->put((char)0);
   file->put((char)0);
-  
+
   file->put((char)(height%256));
   file->put((char)(height/256));
   file->put((char)0);
   file->put((char)0);
-  
+
   file->put((char)1);
   file->put((char)0);
   file->put((char)24);
@@ -92,9 +92,9 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   unsigned long target;
   float progress = this->Progress;
   float area;
-  
+
   bpp = data->GetNumberOfScalarComponents();
-  
+
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
     {
@@ -106,7 +106,7 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("BMPWriter only accepts unsigned char scalars!");
-    return; 
+    return;
     }
 
   // Row length of x axis
@@ -114,10 +114,10 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowAdder = (4 - ((extent[1]-extent[0] + 1)*3)%4)%4;
 
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-          (extent[1] - extent[0] + 1)) / 
+          (extent[1] - extent[0] + 1)) /
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
      (wExtent[1] -wExtent[0] + 1));
-    
+
   target = (unsigned long)((extent[5]-extent[4]+1)*
                            (extent[3]-extent[2]+1)/(50.0*area));
   target++;

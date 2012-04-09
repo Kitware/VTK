@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkDotProductSimilarity.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -67,7 +67,7 @@ public:
     // Prune small values down to our minimum size ...
     while((this->size() > this->MinimumCount) && (this->begin()->first < this->MinimumThreshold))
       this->erase(this->begin());
-      
+
     // Prune small values down to our maximum size ...
     while(this->size() > this->MaximumCount)
       this->erase(this->begin());
@@ -171,8 +171,8 @@ static double DotProduct(
 }
 
 int vtkDotProductSimilarity::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   try
@@ -221,10 +221,10 @@ int vtkDotProductSimilarity::RequestData(
 
     // Get output arrays ...
     vtkTable* const output = vtkTable::GetData(outputVector);
-   
+
     vtkIdTypeArray* const source_array = vtkIdTypeArray::New();
     source_array->SetName("source");
-    
+
     vtkIdTypeArray* const target_array = vtkIdTypeArray::New();
     target_array->SetName("target");
 
@@ -250,7 +250,7 @@ int vtkDotProductSimilarity::RequestData(
             // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
             similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_b, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_b), vector_b));
             }
-            
+
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
             {
             source_array->InsertNextValue(vector_a);
@@ -271,7 +271,7 @@ int vtkDotProductSimilarity::RequestData(
             // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
             similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_b, input_array_a, vector_b, vector_a, vector_dimension, component_dimension, components_b, components_a), vector_a));
             }
-            
+
           for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
             {
             source_array->InsertNextValue(vector_b);
@@ -302,7 +302,7 @@ int vtkDotProductSimilarity::RequestData(
           // Can't use std::make_pair - see http://sahajtechstyle.blogspot.com/2007/11/whats-wrong-with-sun-studio-c.html
           similarities.insert(std::pair<const double, vtkIdType>(DotProduct(input_array_a, input_array_a, vector_a, vector_b, vector_dimension, component_dimension, components_a, components_a), vector_b));
           }
-          
+
         for(similarities_t::const_iterator similarity = similarities.begin(); similarity != similarities.end(); ++similarity)
           {
           source_array->InsertNextValue(vector_a);

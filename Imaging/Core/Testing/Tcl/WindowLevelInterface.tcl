@@ -25,7 +25,7 @@ proc InitializeWindowLevelInterface {} {
      -command SetSlice -variable sliceNumber
 #   button .slice.up -text "Up" -command SliceUp
 #   button .slice.down -text "Down" -command SliceDown
-   
+
    frame .wl
    frame .wl.f1
    label .wl.f1.windowLabel -text "Window"
@@ -42,12 +42,12 @@ proc InitializeWindowLevelInterface {} {
       set res [expr 0.05 * $w]
       .wl.f1.window configure -resolution $res -from $res -to [expr 2.0 * $w]
       .wl.f2.level configure -resolution $res \
-	-from [expr 0.0 + $l - $w] -to [expr 0.0 + $l + $w] 
+	-from [expr 0.0 + $l - $w] -to [expr 0.0 + $l + $w]
    }
 
    .wl.f1.window set $w
    .wl.f2.level set $l
-   
+
    frame .ex
    button .ex.exit -text "Exit" -command "exit"
 
@@ -58,7 +58,7 @@ proc InitializeWindowLevelInterface {} {
    pack .wl.f2.levelLabel .wl.f2.level -side left
    pack .ex.exit -side left
 }
-   
+
 proc SetSlice { slice } {
    global sliceNumber viewer
 

@@ -23,7 +23,7 @@ reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 SetResliceTransform transform
 reslice1 SetInterpolationModeToCubic
 reslice1 SetOutputSpacing 0.65 0.65 1.5
-reslice1 SetOutputOrigin 80 120 40 
+reslice1 SetOutputOrigin 80 120 40
 reslice1 SetOutputExtent 0 63 0 63 0 0
 
 vtkImageReslice reslice2
@@ -31,7 +31,7 @@ reslice2 SetInputConnection [reader GetOutputPort]
 reslice2 SetResliceTransform transform
 reslice2 SetInterpolationModeToLinear
 reslice2 SetOutputSpacing 0.65 0.65 1.5
-reslice2 SetOutputOrigin 80 120 40 
+reslice2 SetOutputOrigin 80 120 40
 reslice2 SetOutputExtent 0 63 0 63 0 0
 
 vtkImageReslice reslice3
@@ -39,7 +39,7 @@ reslice3 SetInputConnection [reader GetOutputPort]
 reslice3 SetResliceTransform transform
 reslice3 SetInterpolationModeToNearestNeighbor
 reslice3 SetOutputSpacing 0.65 0.65 1.5
-reslice3 SetOutputOrigin 80 120 40 
+reslice3 SetOutputOrigin 80 120 40
 reslice3 SetOutputExtent 0 63 0 63 0 0
 
 vtkImageReslice reslice4
@@ -47,7 +47,7 @@ reslice4 SetInputConnection [reader GetOutputPort]
 reslice4 SetResliceTransform transform
 reslice4 SetInterpolationModeToLinear
 reslice4 SetOutputSpacing 3.2 3.2 1.5
-reslice4 SetOutputOrigin 0 0 40 
+reslice4 SetOutputOrigin 0 0 40
 reslice4 SetOutputExtent 0 63 0 63 0 0
 
 vtkImageMapper mapper1
@@ -60,19 +60,19 @@ vtkImageMapper mapper2
   mapper2 SetInputConnection [reslice2 GetOutputPort]
   mapper2 SetColorWindow 2000
   mapper2 SetColorLevel 1000
-  mapper2 SetZSlice 0 
+  mapper2 SetZSlice 0
 
 vtkImageMapper mapper3
   mapper3 SetInputConnection [reslice3 GetOutputPort]
   mapper3 SetColorWindow 2000
   mapper3 SetColorLevel 1000
-  mapper3 SetZSlice 0 
+  mapper3 SetZSlice 0
 
 vtkImageMapper mapper4
   mapper4 SetInputConnection [reslice4 GetOutputPort]
   mapper4 SetColorWindow 2000
   mapper4 SetColorLevel 1000
-  mapper4 SetZSlice 0 
+  mapper4 SetZSlice 0
 
 vtkActor2D actor1
   actor1 SetMapper mapper1

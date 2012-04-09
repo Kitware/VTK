@@ -36,7 +36,7 @@ int TestGPURayCastFourComponentsComposite(int argc,
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   char *cfname=
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
-  
+
   vtkXMLImageDataReader *reader=vtkXMLImageDataReader::New();
   reader->SetFileName(cfname);
   delete [] cfname;
@@ -47,34 +47,34 @@ int TestGPURayCastFourComponentsComposite(int argc,
   renWin->SetSize(301,300);
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   renWin->Render();
-  
+
   vtkGPUVolumeRayCastMapper *volumeMapper;
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
-  
+
   volumeMapper=vtkGPUVolumeRayCastMapper::New();
   volumeMapper->SetBlendModeToComposite();
   volumeMapper->SetInputConnection(
     reader->GetOutputPort());
-  
+
   vtkPiecewiseFunction *opacity=vtkPiecewiseFunction::New();
   opacity->AddPoint(0,0);
   opacity->AddPoint(255,1);
-  
+
   volumeProperty=vtkVolumeProperty::New();
   volumeProperty->IndependentComponentsOff();
   volumeProperty->ShadeOff();
   volumeProperty->SetScalarOpacity(opacity);
-  
+
   volume=vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
-  
+
   int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
-  
+
   int retVal;
   if(valid)
     {
@@ -93,18 +93,18 @@ int TestGPURayCastFourComponentsComposite(int argc,
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
-  
+
   iren->Delete();
   renWin->Delete();
   ren1->Delete();
   volumeMapper->Delete();
   volumeProperty->Delete();
   volume->Delete();
-     
+
   opacity->Delete();
-  
+
   reader->Delete();
-  
+
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
     {
     return 0;

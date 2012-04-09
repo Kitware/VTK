@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkConeSource - generate polygonal cone 
+// .NAME vtkConeSource - generate polygonal cone
 // .SECTION Description
 // vtkConeSource creates a cone centered at a specified point and pointing in
 // a specified direction. (By default, the center is the origin and the
@@ -102,7 +102,7 @@ protected:
   int Capping;
   double Center[3];
   double Direction[3];
-  
+
 private:
   vtkConeSource(const vtkConeSource&);  // Not implemented.
   void operator=(const vtkConeSource&);  // Not implemented.

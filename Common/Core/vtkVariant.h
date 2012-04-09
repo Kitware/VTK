@@ -123,7 +123,7 @@ public:
   // Description:
   // Create an __int64 variant.
   vtkVariant(__int64 value);
-  
+
   // Description:
   // Create an unsigned __int64 variant.
   vtkVariant(unsigned __int64 value);
@@ -367,12 +367,12 @@ public:
   //
   // * When comparing type X with a string, type X will first be
   //   converted to string, then compared lexically (the usual
-  //   behavior of string::operator< and company).  
+  //   behavior of string::operator< and company).
   //
   // * vtkObject pointers will be converted to an unsigned integer of
   //   appropriate size.  If both variants contain vtkObjects then
   //   they are comparable directly.
-  // 
+  //
   // * Comparing char values with strings will not work the way you
   //   might expect if you're treating a char as a numeric type.  Char
   //   values are written to strings as literal ASCII characters

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -48,7 +48,7 @@ static vtkIdType verticesPerNode = 1000;
 void TestDirectedGraph()
 {
   // Create a new graph
-  vtkSmartPointer<vtkMutableDirectedGraph> graph 
+  vtkSmartPointer<vtkMutableDirectedGraph> graph
     = vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Create a Parallel BGL distributed graph helper
@@ -58,7 +58,7 @@ void TestDirectedGraph()
   // Hook the distributed graph helper into the graph. graph will then
   // be a distributed graph.
   graph->SetDistributedGraphHelper(helper);
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -150,10 +150,10 @@ void TestDirectedGraph()
     {
     (cout << " verifying...").flush();
     }
-  
+
   graph = vtkMutableDirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
-  vtkIntArray *distArray 
+  vtkIntArray *distArray
     = vtkIntArray::SafeDownCast(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
@@ -180,7 +180,7 @@ void TestDirectedGraph()
 void TestUndirectedGraph()
 {
   // Create a new graph
-  vtkSmartPointer<vtkMutableUndirectedGraph> graph 
+  vtkSmartPointer<vtkMutableUndirectedGraph> graph
     = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
   // Create a Parallel BGL distributed graph helper
@@ -190,7 +190,7 @@ void TestUndirectedGraph()
   // Hook the distributed graph helper into the graph. graph will then
   // be a distributed graph.
   graph->SetDistributedGraphHelper(helper);
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -282,10 +282,10 @@ void TestUndirectedGraph()
     {
     (cout << " verifying...").flush();
     }
-  
+
   graph = vtkMutableUndirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
-  vtkIntArray *distArray 
+  vtkIntArray *distArray
     = vtkIntArray::SafeDownCast(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)

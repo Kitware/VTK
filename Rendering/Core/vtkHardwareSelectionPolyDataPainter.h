@@ -47,8 +47,8 @@ protected:
   ~vtkHardwareSelectionPolyDataPainter();
 
   // Description:
-  // Generates rendering primitives of appropriate type(s). Multiple types 
-  // of primitives can be requested by or-ring the primitive flags. 
+  // Generates rendering primitives of appropriate type(s). Multiple types
+  // of primitives can be requested by or-ring the primitive flags.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     unsigned long typeflags, bool forceCompileOnly);
 

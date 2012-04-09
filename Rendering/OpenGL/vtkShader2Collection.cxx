@@ -20,9 +20,9 @@
 vtkStandardNewMacro(vtkShader2Collection);
 
 // ----------------------------------------------------------------------------
-// Description: 
+// Description:
 // Reentrant safe way to get an object in a collection. Just pass the
-// same cookie back and forth. 
+// same cookie back and forth.
 vtkShader2 *vtkShader2Collection::GetNextShader(
 vtkCollectionSimpleIterator &cookie)
 {
@@ -65,20 +65,20 @@ void vtkShader2Collection::AddItem(vtkObject *o)
 }
 
 // ----------------------------------------------------------------------------
-void vtkShader2Collection::AddItem(vtkShader2 *a) 
+void vtkShader2Collection::AddItem(vtkShader2 *a)
 {
   this->vtkCollection::AddItem(a);
 }
 
 // ----------------------------------------------------------------------------
-vtkShader2 *vtkShader2Collection::GetNextShader() 
-{ 
+vtkShader2 *vtkShader2Collection::GetNextShader()
+{
   return static_cast<vtkShader2 *>(this->GetNextItemAsObject());
 }
 
 // ----------------------------------------------------------------------------
-vtkShader2 *vtkShader2Collection::GetLastShader() 
-{ 
+vtkShader2 *vtkShader2Collection::GetLastShader()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;
@@ -99,7 +99,7 @@ void vtkShader2Collection::AddCollection(vtkShader2Collection *other)
 {
   assert("pre: other_exists" && other!=0);
   assert("pre: not_self" && other!=this);
-  
+
   other->InitTraversal();
   vtkShader2 *s=other->GetNextShader();
   while(s!=0)
@@ -120,7 +120,7 @@ void vtkShader2Collection::RemoveCollection(vtkShader2Collection *other)
 {
   assert("pre: other_exists" && other!=0);
   assert("pre: not_self" && other!=this);
-  
+
   other->InitTraversal();
   vtkShader2 *s=other->GetNextShader();
   if(s!=0)
@@ -150,7 +150,7 @@ void vtkShader2Collection::RemoveCollection(vtkShader2Collection *other)
 bool vtkShader2Collection::HasVertexShaders()
 {
   bool result=false;
-  
+
   this->InitTraversal();
   vtkShader2 *s=this->GetNextShader();
   while(!result && s!=0)
@@ -158,7 +158,7 @@ bool vtkShader2Collection::HasVertexShaders()
     result=s->GetType()==VTK_SHADER_TYPE_VERTEX;
     s=this->GetNextShader();
     }
-  
+
   return result;
 }
 
@@ -168,7 +168,7 @@ bool vtkShader2Collection::HasVertexShaders()
 bool vtkShader2Collection::HasTessellationControlShaders()
 {
   bool result=false;
-  
+
   this->InitTraversal();
   vtkShader2 *s=this->GetNextShader();
   while(!result && s!=0)
@@ -176,7 +176,7 @@ bool vtkShader2Collection::HasTessellationControlShaders()
     result=s->GetType()==VTK_SHADER_TYPE_TESSELLATION_CONTROL;
     s=this->GetNextShader();
     }
-  
+
   return result;
 }
 
@@ -186,7 +186,7 @@ bool vtkShader2Collection::HasTessellationControlShaders()
 bool vtkShader2Collection::HasTessellationEvaluationShaders()
 {
   bool result=false;
-  
+
   this->InitTraversal();
   vtkShader2 *s=this->GetNextShader();
   while(!result && s!=0)
@@ -194,7 +194,7 @@ bool vtkShader2Collection::HasTessellationEvaluationShaders()
     result=s->GetType()==VTK_SHADER_TYPE_TESSELLATION_EVALUATION;
     s=this->GetNextShader();
     }
-  
+
   return result;
 }
 
@@ -204,7 +204,7 @@ bool vtkShader2Collection::HasTessellationEvaluationShaders()
 bool vtkShader2Collection::HasGeometryShaders()
 {
   bool result=false;
-  
+
   this->InitTraversal();
   vtkShader2 *s=this->GetNextShader();
   while(!result && s!=0)
@@ -212,7 +212,7 @@ bool vtkShader2Collection::HasGeometryShaders()
     result=s->GetType()==VTK_SHADER_TYPE_GEOMETRY;
     s=this->GetNextShader();
     }
-  
+
   return result;
 }
 
@@ -225,7 +225,7 @@ bool vtkShader2Collection::HasGeometryShaders()
 bool vtkShader2Collection::HasFragmentShaders()
 {
   bool result=false;
-  
+
   this->InitTraversal();
   vtkShader2 *s=this->GetNextShader();
   while(!result && s!=0)
@@ -233,7 +233,7 @@ bool vtkShader2Collection::HasFragmentShaders()
     result=s->GetType()==VTK_SHADER_TYPE_FRAGMENT;
     s=this->GetNextShader();
     }
-  
+
   return result;
 }
 

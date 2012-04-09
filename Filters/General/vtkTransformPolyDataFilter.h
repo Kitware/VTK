@@ -24,8 +24,8 @@
 // to scale, rotate, and translate objects. The difference between the
 // two methods is that vtkActor's transformation simply effects where
 // objects are rendered (via the graphics pipeline), whereas
-// vtkTransformPolyDataFilter actually modifies point coordinates in the 
-// visualization pipeline. This is necessary for some objects 
+// vtkTransformPolyDataFilter actually modifies point coordinates in the
+// visualization pipeline. This is necessary for some objects
 // (e.g., vtkProbeFilter) that require point coordinates as input.
 
 // .SECTION See Also

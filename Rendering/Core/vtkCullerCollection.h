@@ -19,7 +19,7 @@
 // duplicate entries are not prevented.
 
 // .SECTION see also
-// vtkCuller vtkCollection 
+// vtkCuller vtkCollection
 
 #ifndef __vtkCullerCollection_h
 #define __vtkCullerCollection_h
@@ -45,18 +45,18 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
   // Description:
   // Get the next Culler in the list.
   vtkCuller *GetNextItem()
-    { 
+    {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject());
     }
-  
+
   // Description:
   // Get the last Culler in the list.
   vtkCuller *GetLastItem();
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkCuller *GetNextCuller(vtkCollectionSimpleIterator &cookie)
     {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));
@@ -80,8 +80,8 @@ private:
 };
 
 
-inline vtkCuller *vtkCullerCollection::GetLastItem() 
-{ 
+inline vtkCuller *vtkCullerCollection::GetLastItem()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;

@@ -78,7 +78,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     vtkErrorMacro(<< "No input!\n");
     return;
-    } 
+    }
 
   // Need a lookup table
   //
@@ -90,7 +90,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   // Now can create appropriate mapper
   //
-  if ( this->PolyDataMapper == NULL ) 
+  if ( this->PolyDataMapper == NULL )
     {
     vtkDataSetSurfaceFilter *gf = vtkDataSetSurfaceFilter::New();
     vtkPolyDataMapper *pm = vtkPolyDataMapper::New();
@@ -102,12 +102,12 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   // share clipping planes with the PolyDataMapper
   //
-  if (this->ClippingPlanes != this->PolyDataMapper->GetClippingPlanes()) 
+  if (this->ClippingPlanes != this->PolyDataMapper->GetClippingPlanes())
     {
     this->PolyDataMapper->SetClippingPlanes(this->ClippingPlanes);
     }
 
-  // For efficiency: if input type is vtkPolyData, there's no need to 
+  // For efficiency: if input type is vtkPolyData, there's no need to
   // pass it thru the geometry filter.
   //
   if ( this->GetInput()->GetDataObjectType() == VTK_POLY_DATA )
@@ -121,7 +121,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->PolyDataMapper->SetInputConnection(
       this->GeometryExtractor->GetOutputPort());
     }
-  
+
   // update ourselves in case something has changed
   this->PolyDataMapper->SetLookupTable(this->GetLookupTable());
   this->PolyDataMapper->SetScalarVisibility(this->GetScalarVisibility());
@@ -147,7 +147,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
       this->PolyDataMapper->ColorByArrayComponent(this->ArrayName,ArrayComponent);
       }
     }
-  
+
   this->PolyDataMapper->Render(ren,act);
   this->TimeToDraw = this->PolyDataMapper->GetTimeToDraw();
 }

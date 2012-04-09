@@ -5,7 +5,7 @@ package require vtkinteraction
 # This script uses a 3D box widget to define a "clipping box" to clip some
 # simple geometry (a mace). Make sure that you hit the "W" key to activate the widget.
 
-# create a sphere source 
+# create a sphere source
 #
 vtkSphereSource sphere
 vtkConeSource cone

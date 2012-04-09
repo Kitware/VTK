@@ -47,12 +47,12 @@ public:
 
   // Description:
   // Return an array that contains the kernel.
-  double* GetKernel3x3(); 
+  double* GetKernel3x3();
   void GetKernel3x3(double kernel[9]);
-  double* GetKernel5x5(); 
+  double* GetKernel5x5();
   void GetKernel5x5(double kernel[25]);
 //BTX
-  double* GetKernel7x7(); 
+  double* GetKernel7x7();
   void GetKernel7x7(double kernel[49]);
 //ETX
 
@@ -66,12 +66,12 @@ public:
 
   // Description:
   // Return an array that contains the kernel
-  double* GetKernel3x3x3(); 
+  double* GetKernel3x3x3();
   void GetKernel3x3x3(double kernel[27]);
 //BTX
-  double* GetKernel5x5x5(); 
+  double* GetKernel5x5x5();
   void GetKernel5x5x5(double kernel[125]);
-  double* GetKernel7x7x7(); 
+  double* GetKernel7x7x7();
   void GetKernel7x7x7(double kernel[343]);
 //ETX
 
@@ -89,7 +89,7 @@ protected:
   double* GetKernel();
   void SetKernel(const double* kernel,
                  int sizeX, int sizeY, int sizeZ);
-  
+
 
   int KernelSize[3];
   double Kernel[343];

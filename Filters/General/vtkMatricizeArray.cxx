@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkMatricizeArray.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -50,8 +50,8 @@ void vtkMatricizeArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkMatricizeArray::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
@@ -60,7 +60,7 @@ int vtkMatricizeArray::RequestData(
     vtkErrorMacro(<< "vtkMatricizeArray requires vtkArrayData containing exactly one array as input.");
     return 0;
     }
-    
+
   vtkSparseArray<double>* const input_array = vtkSparseArray<double>::SafeDownCast(
     input->GetArray(static_cast<vtkIdType>(0)));
   if(!input_array)
@@ -104,7 +104,7 @@ int vtkMatricizeArray::RequestData(
       stride *= input_extents[i].GetSize();
       }
     }
-    
+
   std::vector<vtkIdType> temp(input_array->GetDimensions());
 
   vtkArrayCoordinates coordinates;

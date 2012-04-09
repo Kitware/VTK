@@ -109,7 +109,7 @@ int TestStringToCategory(int argc, char* argv[])
     {
     iren->Initialize();
     iren->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

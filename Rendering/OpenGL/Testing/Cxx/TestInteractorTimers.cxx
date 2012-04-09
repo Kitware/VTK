@@ -167,7 +167,7 @@ int TestInteractorTimers(int argc, char* argv[])
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow(renWin);  
+  iren->SetRenderWindow(renWin);
 
   // Initialize must be called prior to creating timer events.
   //

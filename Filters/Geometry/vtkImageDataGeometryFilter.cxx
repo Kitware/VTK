@@ -134,7 +134,7 @@ int vtkImageDataGeometryFilter::RequestData(
                                               : (extent[4]-1)*(dims[0]-1)*(dims[1]-1);
     }
 
-  switch (dimension) 
+  switch (dimension)
     {
     default:
       break;
@@ -159,7 +159,7 @@ int vtkImageDataGeometryFilter::RequestData(
 
       for (dir[0]=dir[1]=dir[2]=totPoints=0, i=0; i<3; i++)
         {
-        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 ) 
+        if ( (diff[i] = extent[2*i+1] - extent[2*i]) > 0 )
           {
           dir[0] = i;
           totPoints = diff[i] + 1;
@@ -175,7 +175,7 @@ int vtkImageDataGeometryFilter::RequestData(
 //
 //  Load data
 //
-      if ( dir[0] == 0 ) 
+      if ( dir[0] == 0 )
         {
         offset[0] = 1;
         }
@@ -188,7 +188,7 @@ int vtkImageDataGeometryFilter::RequestData(
         offset[0] = dims[0]*dims[1];
         }
 
-      for (i=0; i<totPoints; i++) 
+      for (i=0; i<totPoints; i++)
         {
         idx = startIdx + i*offset[0];
         input->GetPoint(idx, x);
@@ -196,7 +196,7 @@ int vtkImageDataGeometryFilter::RequestData(
         outPD->CopyData(pd,idx,ptIds[0]);
         }
 
-      if ( dir[0] == 0 ) 
+      if ( dir[0] == 0 )
         {
         offset[0] = 1;
         }
@@ -209,7 +209,7 @@ int vtkImageDataGeometryFilter::RequestData(
         offset[0] = (dims[0] - 1) * (dims[1] - 1);
         }
 
-      for (i=0; i<(totPoints-1); i++) 
+      for (i=0; i<(totPoints-1); i++)
         {
         idx = startCellIdx + i*offset[0];
         ptIds[0] = i;
@@ -254,7 +254,7 @@ int vtkImageDataGeometryFilter::RequestData(
 //
 //  Create vertices
 //
-      for (i=0; i<2; i++) 
+      for (i=0; i<2; i++)
         {
         if ( dir[i] == 0 )
           {
@@ -270,9 +270,9 @@ int vtkImageDataGeometryFilter::RequestData(
           }
         }
 
-      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
+      for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++)
         {
-        for (i=0; i < (diff[dir[0]]+1); i++) 
+        for (i=0; i < (diff[dir[0]]+1); i++)
           {
           idx = pos + i*offset[0];
           input->GetPoint(idx, x);
@@ -285,7 +285,7 @@ int vtkImageDataGeometryFilter::RequestData(
 //
 //  Create cells
 //
-      for (i=0; i<2; i++) 
+      for (i=0; i<2; i++)
         {
         if ( dir[i] == 0 )
           {
@@ -301,9 +301,9 @@ int vtkImageDataGeometryFilter::RequestData(
           }
         }
 
-      for (pos=startCellIdx, j=0; j < diff[dir[1]]; j++) 
+      for (pos=startCellIdx, j=0; j < diff[dir[1]]; j++)
         {
-        for (i=0; i < diff[dir[0]]; i++) 
+        for (i=0; i < diff[dir[0]]; i++)
           {
           idx = pos + i*offset[0];
           ptIds[0] = i + j*(diff[dir[0]]+1);
@@ -373,12 +373,12 @@ int vtkImageDataGeometryFilter::RequestData(
       offset[0] = dims[0];
       offset[1] = dims[0]*dims[1];
 
-      for (k=0; k < (diff[2]+1); k++) 
+      for (k=0; k < (diff[2]+1); k++)
         {
-        for (j=0; j < (diff[1]+1); j++) 
+        for (j=0; j < (diff[1]+1); j++)
           {
           pos = startIdx + j*offset[0] + k*offset[1];
-          for (i=0; i < (diff[0]+1); i++) 
+          for (i=0; i < (diff[0]+1); i++)
             {
             input->GetPoint(pos+i, x);
             ptIds[0] = newPts->InsertNextPoint(x);
@@ -421,8 +421,8 @@ int vtkImageDataGeometryFilter::RequestData(
   return 1;
 }
 
-void vtkImageDataGeometryFilter::SetExtent(int iMin, int iMax, 
-                                                  int jMin, int jMax, 
+void vtkImageDataGeometryFilter::SetExtent(int iMin, int iMax,
+                                                  int jMin, int jMax,
                                                   int kMin, int kMax)
 {
   int extent[6];

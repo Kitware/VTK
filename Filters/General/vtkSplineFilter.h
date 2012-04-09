@@ -119,7 +119,7 @@ public:
 
   // Description:
   // Control the conversion of units during the texture coordinates
-  // calculation. The TextureLength indicates what length (whether 
+  // calculation. The TextureLength indicates what length (whether
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space.
   vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
@@ -128,7 +128,7 @@ public:
 protected:
   vtkSplineFilter();
   ~vtkSplineFilter();
-  
+
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
@@ -144,8 +144,8 @@ protected:
   double     TextureLength; //this length is mapped to [0,1) texture space
 
   //helper methods
-  int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
-                     vtkPoints *inPts, vtkPoints *newPts, vtkPointData *pd, 
+  int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
+                     vtkPoints *inPts, vtkPoints *newPts, vtkPointData *pd,
                      vtkPointData *outPD, int genTCoords,
                      vtkFloatArray *newTCoords);
 

@@ -33,7 +33,7 @@
 class VTKBenchmark
 {
 public:
-  
+
   // Description:
   // The main entry point for the benchmark
   int Run();
@@ -44,7 +44,7 @@ private:
 
   double BuildTheFractal();
   double DrawTheFractal();
-  
+
   vtkSmartPointer<vtkTimerLog> Timer;
   vtkSmartPointer<vtkImageMandelbrotSource> Mandelbrot;
   vtkSmartPointer<vtkImageGaussianSmooth> GaussianSmooth;
@@ -56,7 +56,7 @@ private:
   int ImmediateMode;
   int ScalarColoring;
   int UseNormals;
-  
+
   // all times are in seconds
   double DataBuildTime;
 };
@@ -78,12 +78,12 @@ VTKBenchmark::VTKBenchmark()
 }
 
 double VTKBenchmark::BuildTheFractal()
-{ 
+{
   cerr << "Building Fractal ... (this may take a minute or two)\n";
 
   // time the data creation
   this->Timer->StartTimer();
-  
+
   // first we want to create some data, a 256 cubed Mandelbrot src
   this->Mandelbrot->SetWholeExtent(0,255,0,255,0,255);
   this->Mandelbrot->SetOriginCX(-1.75,-1.25,-1,0);
@@ -96,13 +96,13 @@ double VTKBenchmark::BuildTheFractal()
   // extract a sphere from the fractal volume
   vtkSmartPointer<vtkSphere> sphere =
     vtkSmartPointer<vtkSphere>::New();
-  
+
   // add two contours
   cerr << "Cutting...\n";
   this->Cutter->SetInputConnection(this->GaussianSmooth->GetOutputPort());
   this->Cutter->SetCutFunction(sphere);
   this->Cutter->Update();
-  
+
   // convert it to all triangles
   cerr << "Converting to Triangles...\n";
   this->TriFilter->SetInputConnection(this->Cutter->GetOutputPort());
@@ -118,35 +118,35 @@ double VTKBenchmark::BuildTheFractal()
   this->Stripper->SetInputConnection(this->Normals->GetOutputPort());
   this->Stripper->Update();
 
-  
-  cerr << "Number Of Triangles: " << 
+
+  cerr << "Number Of Triangles: " <<
     this->TriFilter->GetOutput()->GetNumberOfPolys() << "\n";
-  cerr << "Average Strip Length: " << 
+  cerr << "Average Strip Length: " <<
     static_cast<double>(this->TriFilter->GetOutput()->GetNumberOfPolys())/
     static_cast<double>(this->Stripper->GetOutput()->GetNumberOfStrips()) << "\n";
-  
+
   this->Timer->StopTimer();
 
   return this->Timer->GetElapsedTime();
 }
 
-  
+
 int VTKBenchmark::Run()
 {
   this->DataBuildTime = this->BuildTheFractal();
-  
+
   cerr << "Build Rate: " << 1.0/this->DataBuildTime << "\n";
 
-  for (this->ImmediateMode = 0; this->ImmediateMode < 2; 
+  for (this->ImmediateMode = 0; this->ImmediateMode < 2;
        this->ImmediateMode++)
     {
-    for (this->ScalarColoring = 0; this->ScalarColoring < 2; 
+    for (this->ScalarColoring = 0; this->ScalarColoring < 2;
          this->ScalarColoring++)
       {
-      for (this->UseNormals = 0; this->UseNormals < 2; 
+      for (this->UseNormals = 0; this->UseNormals < 2;
            this->UseNormals++)
         {
-        cerr << "Render Rate: " 
+        cerr << "Render Rate: "
              << (this->ImmediateMode ? "IMED " : "     ")
              << (this->ScalarColoring ? "SCAL " : "     ")
              << (this->UseNormals ? "NORM " : "     ")
@@ -154,20 +154,20 @@ int VTKBenchmark::Run()
         }
       }
     }
-  
+
   return 0;
 }
 
 
 double VTKBenchmark::DrawTheFractal()
-{    
+{
   // create a rendering window and both renderers
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWindow = 
+  vtkSmartPointer<vtkRenderWindow> renWindow =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWindow->AddRenderer(ren1);
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper = 
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
 
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
@@ -184,21 +184,21 @@ double VTKBenchmark::DrawTheFractal()
   mapper->SetImmediateModeRendering(this->ImmediateMode);
   mapper->SetScalarVisibility(this->ScalarColoring);
   mapper->SetScalarRange(5,30);
-  
+
   actor->SetMapper(mapper);
   ren1->AddActor(actor);
-  
+
   // set the size of our window
   renWindow->SetSize(500,500);
-  
+
   // set the viewports and background of the renderers
   ren1->SetBackground(0.2,0.3,0.5);
 
   // draw the resulting scene
   renWindow->Render();
-  
+
   this->Timer->StartTimer();
-  
+
   // do a azimuth of the cameras 50 degrees per iteration
   ren1->GetActiveCamera()->Azimuth(50);
   renWindow->Render();
@@ -219,7 +219,7 @@ double VTKBenchmark::DrawTheFractal()
   // compute the M triangles per second
   double numTris =
     static_cast<double>(this->TriFilter->GetOutput()->GetNumberOfPolys());
-  
+
   return 6.0e-6*numTris/this->Timer->GetElapsedTime();
 }
 
@@ -231,7 +231,7 @@ int main( int argc, char *argv[] )
   if (argc > 1)
     {
     cerr << argv[0] << " takes no arguments\n";
-    }  
+    }
   return a.Run();
 }
 

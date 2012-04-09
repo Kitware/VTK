@@ -49,7 +49,7 @@ public:
   // The layout strategy to use during graph layout.
   void SetLayoutStrategy(vtkGraphLayoutStrategy *strategy);
   vtkGetObjectMacro(LayoutStrategy, vtkGraphLayoutStrategy);
-  
+
   // Description:
   // Ask the layout algorithm if the layout is complete
   virtual int IsLayoutComplete();
@@ -89,7 +89,7 @@ protected:
   vtkEventForwarderCommand *EventForwarder;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
 private:
 
   vtkGraph* LastInput;

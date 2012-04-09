@@ -25,7 +25,7 @@
 // adjust font characteristics, etc. (Please see the superclass for a
 // description of event bindings.)
 //
-// Note that this widget extends the behavior of its superclass 
+// Note that this widget extends the behavior of its superclass
 // vtkBorderWidget. The end point of the leader can be selected and
 // moved around with an internal vtkHandleWidget.
 
@@ -69,7 +69,7 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkCaptionRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Specify a vtkCaptionActor2D to manage. This is convenient, alternative
   // method to SetRepresentation(). It internally create a vtkCaptionRepresentation
@@ -78,7 +78,7 @@ public:
   vtkCaptionActor2D *GetCaptionActor2D();
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:
@@ -90,7 +90,7 @@ protected:
 
   // Widget for the anchor point
   vtkHandleWidget *HandleWidget;
-  
+
   // Special callbacks for the anchor interaction
   void StartAnchorInteraction();
   void AnchorInteraction();
@@ -98,7 +98,7 @@ protected:
 
 //BTX
   friend class vtkCaptionAnchorCallback;
-//ETX  
+//ETX
 
 private:
   vtkCaptionWidget(const vtkCaptionWidget&);  //Not implemented

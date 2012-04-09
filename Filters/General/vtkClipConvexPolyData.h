@@ -40,27 +40,27 @@ public:
   // This also sets the D value.
   void SetPlanes(vtkPlaneCollection *planes);
   vtkGetObjectMacro(Planes,vtkPlaneCollection);
-  
+
   // Description:
   // Redefines this method, as this filter depends on time of its components
   // (planes)
   virtual unsigned long int GetMTime();
-  
+
 protected:
   vtkClipConvexPolyData();
   ~vtkClipConvexPolyData();
-  
+
   // The method that does it all...
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector);
-  
+
   // Description:
   // Clip the input with a given plane `p'.
   // tolerance ?
   void ClipWithPlane(vtkPlane *p,
                      double tolerance);
-  
+
   // Description:
   // Tells if clipping the input by plane `p' creates some degeneracies.
   bool HasDegeneracies(vtkPlane *p);
@@ -68,18 +68,18 @@ protected:
   // Description:
   // Delete calculation data.
   void ClearInternals();
-  
+
   // Description:
   // ?
   void ClearNewVertices();
-  
+
   // Description:
   // ?
   void RemoveEmptyPolygons();
-  
+
   vtkPlaneCollection *Planes;
   vtkClipConvexPolyDataInternals *Internal;
-  
+
 private:
   vtkClipConvexPolyData(const vtkClipConvexPolyData&);  // Not implemented.
   void operator=(const vtkClipConvexPolyData&);  // Not implemented.

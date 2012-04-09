@@ -42,12 +42,12 @@ int TestNetworkViews(int argc, char* argv[])
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
   string file = dataRoot+"/Data/Infovis/SQLite/ports_protocols.db";
-  
+
   //Pull the table (that represents relationships/edges) from the database
   VTK_CREATE( vtkSQLDatabaseTableSource, databaseToEdgeTable );
   databaseToEdgeTable->SetURL("sqlite://" + file);
   databaseToEdgeTable->SetQuery("select src, dst, dport, protocol, port_protocol from tcp");
-  
+
   //Pull the table (that represents entities/vertices) from the database
   VTK_CREATE( vtkSQLDatabaseTableSource, databaseToVertexTable );
   databaseToVertexTable->SetURL("sqlite://" + file);
@@ -66,7 +66,7 @@ int TestNetworkViews(int argc, char* argv[])
   ip_tree->AddInputConnection(graph->GetOutputPort());
 
   VTK_CREATE( vtkTreeRingView, dummy );
-  
+
   //Create a view on city/region/country
   VTK_CREATE( vtkTreeRingView, view1 );
   view1->DisplayHoverTextOff();
@@ -101,9 +101,9 @@ int TestNetworkViews(int argc, char* argv[])
     {
     view1->GetInteractor()->Initialize();
     view1->GetInteractor()->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
-  
+
   return !retVal;
 }

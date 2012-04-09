@@ -44,9 +44,9 @@
 void colorCells(void *arg)
 {
   VTK_CREATE(vtkMath, randomColorGenerator);
-  vtkProgrammableAttributeDataFilter * randomColors = 
+  vtkProgrammableAttributeDataFilter * randomColors =
     static_cast<vtkProgrammableAttributeDataFilter *>(arg);
-  vtkPolyData * input = 
+  vtkPolyData * input =
     vtkPolyData::SafeDownCast(randomColors->GetInput());
   vtkPolyData * output = randomColors->GetPolyDataOutput();
   int numCells = input->GetNumberOfCells();
@@ -93,7 +93,7 @@ int TestTilingCxx(int argc, char* argv[])
   scalarBar->SetHeight(0.9);
   scalarBar->SetLabelFormat("%-#6.3f");
 
-  // Test the Get/Set Position 
+  // Test the Get/Set Position
   scalarBar->SetPosition(scalarBar->GetPosition());
 
   // Create graphics stuff

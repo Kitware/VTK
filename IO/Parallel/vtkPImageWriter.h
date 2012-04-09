@@ -17,7 +17,7 @@
 // vtkPImageWriter writes images to files with any data type. The data type of
 // the file is the same scalar type as the input.  The dimensionality
 // determines whether the data will be written in one or multiple files.
-// This class is used as the superclass of most image writing classes 
+// This class is used as the superclass of most image writing classes
 // such as vtkBMPWriter etc. It supports streaming.
 
 #ifndef __vtkPImageWriter_h
@@ -32,7 +32,7 @@ class VTKIOPARALLEL_EXPORT vtkPImageWriter : public vtkImageWriter
 public:
   static vtkPImageWriter *New();
   vtkTypeMacro(vtkPImageWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set / Get the memory limit in kilobytes. The writer will
@@ -45,12 +45,12 @@ protected:
   ~vtkPImageWriter();
 
   unsigned long MemoryLimit;
-  
+
   virtual void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ofstream *file);
-  virtual void RecursiveWrite(int dim, vtkImageData *cache, 
-                              vtkImageData *data, vtkInformation* inInfo, ofstream *file) 
+  virtual void RecursiveWrite(int dim, vtkImageData *cache,
+                              vtkImageData *data, vtkInformation* inInfo, ofstream *file)
   {this->vtkImageWriter::RecursiveWrite(dim,cache,data,inInfo,file);};
-  
+
   vtkPipelineSize *SizeEstimator;
 private:
   vtkPImageWriter(const vtkPImageWriter&);  // Not implemented.

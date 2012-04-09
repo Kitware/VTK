@@ -78,7 +78,7 @@ public:
   // Description:
   // Current interaction state
   vtkGetMacro(Interaction, int);
-  
+
   //BTX
   enum
     {
@@ -99,25 +99,25 @@ public:
 protected:
   vtkInteractorStyleRubberBand2D();
   ~vtkInteractorStyleRubberBand2D();
-  
+
   // The interaction mode
   int Interaction;
-  
+
   // Draws the selection rubber band
   void RedrawRubberBand();
-  
+
   // The end position of the selection
   int StartPosition[2];
-  
+
   // The start position of the selection
   int EndPosition[2];
-  
+
   // The pixel array for the rubber band
   vtkUnsignedCharArray* PixelArray;
 
   // Whether to render when the mouse moves
   bool RenderOnMouseMove;
-  
+
 private:
   vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&); // Not implemented
   void operator=(const vtkInteractorStyleRubberBand2D&); // Not implemented

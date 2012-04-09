@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkAnnotationLayers.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -32,7 +32,7 @@
 
 #include <vector>
 
-/* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio 
+/* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio
    instead of the remove stl algorithm. */
 #if defined (__BORLANDC__) && (__BORLANDC__ == 0x0560)
 # define remove borland_remove

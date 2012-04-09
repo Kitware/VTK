@@ -35,16 +35,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set desired spacing.  
+  // Set desired spacing.
   // Zero is a reserved value indicating spacing has not been set.
   void SetAxisOutputSpacing(int axis, double spacing);
-  
+
   // Description:
   // Set/Get Magnification factors.
   // Zero is a reserved value indicating values have not been computed.
   void SetAxisMagnificationFactor(int axis, double factor);
   double GetAxisMagnificationFactor(int axis, vtkInformation *inInfo=0);
-  
+
   // Description:
   // Dimensionality is the number of axes which are considered during
   // execution. To process images dimensionality would be set to 2.
@@ -60,7 +60,7 @@ protected:
   double MagnificationFactors[3];
   double OutputSpacing[3];
   int Dimensionality;
-  
+
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:

@@ -122,7 +122,7 @@ public:
   // Set the name of the window. This appears at the top of the window
   // normally.
   virtual void SetWindowName(const char *);
-  
+
   // Description:
   // Set this RenderWindow's window id to a pre-existing window.
   void SetWindowInfo(char *);
@@ -165,7 +165,7 @@ public:
   // Set the parent HIView.
   virtual void SetParentId(HIViewRef);
   void  SetParentId(void *foo) {this->SetParentId((HIViewRef)foo);};
-  
+
   // Description:
   // Set the HIVIew pointer to a pre-existing window.
   virtual void SetWindowId(HIViewRef);
@@ -195,7 +195,7 @@ public:
   // Description:
   // Tells if this window is the current OpenGL context for the calling thread.
   virtual bool IsCurrent();
-  
+
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
@@ -206,7 +206,7 @@ public:
   // Is this render window using hardware acceleration? 0-false, 1-true.
   // Always true for Carbon.
   virtual int IsDirect();
-  
+
   // Description:
   // Check to see if an event is pending for this window.
   // This is a useful check to abort a long render.
@@ -221,14 +221,14 @@ public:
   // default cursor if you want VTK to display a 3D cursor instead.
   void HideCursor();
   void ShowCursor();
-  
+
   void UpdateSizeAndPosition(int xPos, int yPos, int xSize, int ySize);
 
   // Description:
   // Fix the GL region.  The AGL_BUFFER_RECT and AGL_CLIP_REGION will be updated
   void UpdateGLRegion();
 
-  
+
 protected:
   vtkCarbonRenderWindow();
   ~vtkCarbonRenderWindow();
@@ -260,7 +260,7 @@ protected:
 
   void CreateAWindow();
   void DestroyWindow();
-  
+
   void CreateOffScreenWindow(int x, int y);
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int x, int y);

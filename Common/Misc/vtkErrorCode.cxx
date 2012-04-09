@@ -21,7 +21,7 @@
 // this list should only contain the initial, contiguous
 // set of error codes and should not include UserError
 static const char *vtkErrorCodeErrorStrings[] = {
-  "NoError", 
+  "NoError",
   "FileNotFoundError",
   "CannotOpenFileError",
   "UnrecognizedFileTypeError",
@@ -45,7 +45,7 @@ const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
     {
     error -= FirstVTKErrorCode;
     }
-  
+
   // find length of table
   if (!numerrors)
     {
@@ -67,13 +67,13 @@ const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
     return "NoError";
     }
 }
-  
+
 unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
-{  
+{
   unsigned long i;
 
   for (i = 0; vtkErrorCodeErrorStrings[i] != NULL; i++)
-    { 
+    {
     if (!strcmp(vtkErrorCodeErrorStrings[i],error))
       {
       return i;
@@ -86,7 +86,7 @@ unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
   return vtkErrorCode::NoError;
 }
 
-  
+
 unsigned long vtkErrorCode::GetLastSystemError()
 {
   return static_cast<unsigned long>(errno);

@@ -94,7 +94,7 @@ public:
   // default value is 0.0.
   vtkSetMacro(Value,double);
   vtkGetMacro(Value,double);
-  
+
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered inside the
   // implicit function if its value is greater than the Value ivar. When
@@ -113,8 +113,8 @@ public:
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be 
-  // interpolated from the implicit function values, and not the 
+  // If this flag is enabled, then the output scalar values will be
+  // interpolated from the implicit function values, and not the
   // input scalar data. If you enable this flag but do not provide an
   // implicit function an error will be reported.
   vtkSetMacro(GenerateClipScalars,int);
@@ -147,15 +147,15 @@ public:
   // of degenerate tetrahedra.
   vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
   vtkGetMacro(MergeTolerance,double);
-  
+
   // Description:
-  // Set / Get a spatial locator for merging points. By default, 
+  // Set / Get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -172,15 +172,15 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
-                vtkDataArray *cellScalars, vtkIdList *tetraIds, 
-                vtkPoints *tetraPts, vtkPointData *inPD, vtkPointData *outPD, 
-                vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
+  void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars,
+                vtkDataArray *cellScalars, vtkIdList *tetraIds,
+                vtkPoints *tetraPts, vtkPointData *inPD, vtkPointData *outPD,
+                vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                 vtkCellData *clippedCD, int insideOut);
   void ClipVoxel(double value, vtkDataArray *cellScalars, int flip,
                  double origin[3], double spacing[3], vtkIdList *cellIds,
-                 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD, 
-                 vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
+                 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD,
+                 vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                  vtkCellData *clippedCD);
 
   vtkImplicitFunction *ClipFunction;
@@ -192,10 +192,10 @@ protected:
   int                  Mixed3DCellGeneration;
   int                  GenerateClippedOutput;
   vtkUnstructuredGrid *ClippedOutput;
-  
+
 private:
   vtkOrderedTriangulator *Triangulator;
-  
+
   // Used temporarily to pass data around
   vtkIdType             NumberOfCells;
   vtkCellArray          *Connectivity;

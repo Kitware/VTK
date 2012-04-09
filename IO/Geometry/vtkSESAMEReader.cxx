@@ -48,7 +48,7 @@ public:
     this->TableArrays.clear();
     this->TableArrayStatus.clear();
     }
-  
+
   MyInternal()
     {
     this->File = NULL;
@@ -192,7 +192,7 @@ int vtkSESAMEReader::IsValidFile()
     {
     return 0;
     }
-  
+
   // check that it is valid
   int a,b,c;
   int ret = fscanf(f, TableLineFormat, &a,&b,&c);
@@ -223,7 +223,7 @@ const char* vtkSESAMEReader::GetFileName()
 {
   return this->Internal->FileName.c_str();
 }
-  
+
 int vtkSESAMEReader::OpenFile()
 {
   //already open
@@ -244,7 +244,7 @@ int vtkSESAMEReader::OpenFile()
     vtkErrorMacro(<<"Unable to open file " << this->GetFileName());
     return 0;
     }
-  
+
   // check that it is valid
   int a,b,c;
   int ret = fscanf(this->Internal->File, TableLineFormat, &a,&b,&c);
@@ -298,7 +298,7 @@ void vtkSESAMEReader::SetTable(int tableId)
     if(TableIndex(tableId) != -1)
       {
       this->Internal->TableId = tableId;
-      
+
       // clean out info about the previous table
       this->Internal->ClearArrays();
       this->Modified();
@@ -377,7 +377,7 @@ int vtkSESAMEReader::RequestInformation(vtkInformation *,
     int tableId;
 
     // read lines from the file the whole file
-    while( fgets(buffer, SESAME_NUM_CHARS, this->Internal->File) != NULL ) 
+    while( fgets(buffer, SESAME_NUM_CHARS, this->Internal->File) != NULL )
       {
       // see if the line matches the  " 0 9999 602" format
       if(sscanf(buffer, TableLineFormat, &dummy, &internalId, &tableId) == 3)
@@ -410,7 +410,7 @@ int vtkSESAMEReader::RequestInformation(vtkInformation *,
       outputVector->GetInformationObject(0)->Set(
         vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
         0, (int)(v[0]) - 1,
-        0, (int)(v[1]) - 1, 
+        0, (int)(v[1]) - 1,
         0, 0 );
       }
     }
@@ -494,7 +494,7 @@ void vtkSESAMEReader::ReadTable(vtkRectilinearGrid* output)
     //xCoords->InsertNextTuple1( v[4] );
     //numRead = 3;
     }
-  
+
   unsigned int i;
   std::vector<vtkFloatArray*> scalars;
   for(i=0; i<this->Internal->TableArrayStatus.size(); i++)
@@ -575,7 +575,7 @@ void vtkSESAMEReader::ReadTable(vtkRectilinearGrid* output)
       }
     }
 
-  for(i=scalarIndex+1; 
+  for(i=scalarIndex+1;
       i<this->Internal->TableArrayStatus.size();
       i++)
     {
@@ -586,11 +586,11 @@ void vtkSESAMEReader::ReadTable(vtkRectilinearGrid* output)
       scalars[i]->InsertNextTuple1(0.0);
       }
     }
-  
+
   output->SetXCoordinates( xCoords );
   output->SetYCoordinates( yCoords );
   output->SetZCoordinates( zCoords );
-  
+
   output->GetPointData()->Reset();
 
   for(i=0; i<scalars.size(); i++)
@@ -615,15 +615,15 @@ void vtkSESAMEReader::ReadTable(vtkRectilinearGrid* output)
 int vtkSESAMEReader::ReadTableValueLine ( float *v1, float *v2,
   float *v3, float *v4, float *v5)
 {
-  // by definition, a line of this file is 80 characters long 
-  // when we start reading the data values, the end of the line is a tag 
+  // by definition, a line of this file is 80 characters long
+  // when we start reading the data values, the end of the line is a tag
   // (see note below), which we have to ignore in order to read the data
   // properly.
   //
   char buffer[SESAME_NUM_CHARS + 1];
   buffer[SESAME_NUM_CHARS] = '\0';
   int numRead = 0;
-  if ( fgets(buffer, SESAME_NUM_CHARS, this->Internal->File) != NULL ) 
+  if ( fgets(buffer, SESAME_NUM_CHARS, this->Internal->File) != NULL )
     {
     int dummy;
     int internalId;
@@ -635,11 +635,11 @@ int vtkSESAMEReader::ReadTableValueLine ( float *v1, float *v2,
       // this is the start of a new table
       numRead = 0;
       }
-    else 
+    else
       {
       // ignore the last 5 characters of the line (see notes above)
       buffer[75] = '\0';
-      numRead = sscanf( buffer, "%e%e%e%e%e", v1, v2, v3, v4, v5); 
+      numRead = sscanf( buffer, "%e%e%e%e%e", v1, v2, v3, v4, v5);
       }
     }
 

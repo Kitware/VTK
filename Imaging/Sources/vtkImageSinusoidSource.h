@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageSinusoidSource - Create an image with sinusoidal pixel values.
 // .SECTION Description
-// vtkImageSinusoidSource just produces images with pixel values determined 
+// vtkImageSinusoidSource just produces images with pixel values determined
 // by a sinusoid.
 
 
@@ -35,14 +35,14 @@ public:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
                       int zMin, int zMax);
-  
+
   // Description:
   // Set/Get the direction vector which determines the sinusoidal
   // orientation. The magnitude is ignored.
   void SetDirection(double,double,double);
   void SetDirection(double dir[3]);
   vtkGetVector3Macro(Direction, double);
-  
+
   // Description:
   // Set/Get the period of the sinusoid in pixels.
   vtkSetMacro(Period, double);

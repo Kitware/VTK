@@ -204,7 +204,7 @@ protected:
   double BackgroundOpacity;
   double BackgroundColor[3];
 
-private: 
+private:
   vtkLabelPlacementMapper(const vtkLabelPlacementMapper&);  // Not implemented.
   void operator=(const vtkLabelPlacementMapper&);  // Not implemented.
 };

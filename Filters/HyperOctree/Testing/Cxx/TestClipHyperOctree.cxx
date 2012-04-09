@@ -14,7 +14,7 @@
 =========================================================================*/
 // This example demonstrates how to use a vtkHyperOctreeSampleFunction and
 // apply a vtkClipHyperOctree filter on it.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -53,9 +53,9 @@ int TestClipHyperOctree(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   vtkTimerLog *timer=vtkTimerLog::New();
-  
+
   // 3D
   vtkHyperOctreeSampleFunction *source3d=vtkHyperOctreeSampleFunction::New();
   vtkSphere *f3d=vtkSphere::New();
@@ -71,14 +71,14 @@ int TestClipHyperOctree(int argc, char* argv[])
   source3d->SetDepth(4);
   source3d->SetLevels(6); // 10
   source3d->SetMinLevels(0);
- 
+
   cout<<"update source3d..."<<endl;
   timer->StartTimer();
   source3d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated3d"<<endl;
   cout<<"source3d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   vtkClipHyperOctree *clipper3d=vtkClipHyperOctree::New();
   vtkPlane *p3d=vtkPlane::New();
   p3d->SetOrigin(0.4,0.4,0.4);
@@ -97,21 +97,21 @@ int TestClipHyperOctree(int argc, char* argv[])
   vtkGeometryFilter *surface3d=vtkGeometryFilter::New();
   surface3d->SetInputConnection(0,clipper3d->GetOutputPort(0));
   clipper3d->Delete();
-  
+
   cout<<"update surface3d..."<<endl;
   surface3d->Update(); //So that we can call GetRange() on the scalars
   cout<<"surface3d updated"<<endl;
-  
+
   assert(surface3d->GetOutput()!=0);
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut3d = vtkLookupTable::New(); 
+  vtkLookupTable *lut3d = vtkLookupTable::New();
   lut3d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper3d = vtkPolyDataMapper::New();
   mapper3d->SetInputConnection(0,surface3d->GetOutputPort(0));
   mapper3d->SetLookupTable(lut3d);
-  
+
   if(surface3d->GetOutput()->GetCellData()!=0)
     {
     if(surface3d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -120,11 +120,11 @@ int TestClipHyperOctree(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor3d = vtkActor::New();
   actor3d->SetMapper(mapper3d);
   renderer->AddActor(actor3d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer3d=vtkXMLUnstructuredGridWriter::New();
@@ -150,14 +150,14 @@ int TestClipHyperOctree(int argc, char* argv[])
   source2d->SetDepth(4);
   source2d->SetLevels(10); // 7
   source2d->SetMinLevels(0);
- 
+
   cout<<"update source2d..."<<endl;
   timer->StartTimer();
   source2d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated2d"<<endl;
   cout<<"source2d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   vtkClipHyperOctree *clipper2d=vtkClipHyperOctree::New();
   vtkPlane *p2d=vtkPlane::New();
   p2d->SetOrigin(0.4,0.4,0.4);
@@ -176,21 +176,21 @@ int TestClipHyperOctree(int argc, char* argv[])
   vtkGeometryFilter *surface2d=vtkGeometryFilter::New();
   surface2d->SetInputConnection(0,clipper2d->GetOutputPort(0));
   clipper2d->Delete();
-  
+
   cout<<"update surface2d..."<<endl;
   surface2d->Update(); //So that we can call GetRange() on the scalars
   cout<<"surface2d updated"<<endl;
-  
+
   assert(surface2d->GetOutput()!=0);
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut2d = vtkLookupTable::New(); 
+  vtkLookupTable *lut2d = vtkLookupTable::New();
   lut2d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper2d = vtkPolyDataMapper::New();
   mapper2d->SetInputConnection(0,surface2d->GetOutputPort(0));
   mapper2d->SetLookupTable(lut2d);
-  
+
   if(surface2d->GetOutput()->GetCellData()!=0)
     {
     if(surface2d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -199,12 +199,12 @@ int TestClipHyperOctree(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor2d = vtkActor::New();
   actor2d->SetPosition(5,0,0);
   actor2d->SetMapper(mapper2d);
   renderer->AddActor(actor2d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer2d=vtkXMLUnstructuredGridWriter::New();
@@ -230,14 +230,14 @@ int TestClipHyperOctree(int argc, char* argv[])
   source1d->SetDepth(4);
   source1d->SetLevels(10); // 7
   source1d->SetMinLevels(0);
- 
+
   cout<<"update source1d..."<<endl;
   timer->StartTimer();
   source1d->Update(); // Update now, make things easier with a debugger
   timer->StopTimer();
   cout<<"source updated1d"<<endl;
   cout<<"source1d time="<<timer->GetElapsedTime()<<" s"<<endl;
-  
+
   vtkClipHyperOctree *clipper1d=vtkClipHyperOctree::New();
   vtkPlane *p1d=vtkPlane::New();
   p1d->SetOrigin(0.4,0.4,0.4);
@@ -256,21 +256,21 @@ int TestClipHyperOctree(int argc, char* argv[])
   vtkGeometryFilter *surface1d=vtkGeometryFilter::New();
   surface1d->SetInputConnection(0,clipper1d->GetOutputPort(0));
   clipper1d->Delete();
-  
+
   cout<<"update surface1d..."<<endl;
   surface1d->Update(); //So that we can call GetRange() on the scalars
   cout<<"surface1d updated"<<endl;
-  
+
   assert(surface1d->GetOutput()!=0);
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut1d = vtkLookupTable::New(); 
+  vtkLookupTable *lut1d = vtkLookupTable::New();
   lut1d->SetHueRange (0.667, 0.0);
 
   vtkPolyDataMapper *mapper1d = vtkPolyDataMapper::New();
   mapper1d->SetInputConnection(0,surface1d->GetOutputPort(0));
   mapper1d->SetLookupTable(lut1d);
-  
+
   if(surface1d->GetOutput()->GetCellData()!=0)
     {
     if(surface1d->GetOutput()->GetCellData()->GetScalars()!=0)
@@ -279,12 +279,12 @@ int TestClipHyperOctree(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor1d = vtkActor::New();
   actor1d->SetPosition(10,0,0);
   actor1d->SetMapper(mapper1d);
   renderer->AddActor(actor1d);
-  
+
 #ifdef WRITE_RESULT
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer1d=vtkXMLUnstructuredGridWriter::New();
@@ -302,7 +302,7 @@ int TestClipHyperOctree(int argc, char* argv[])
   renderer->ResetCamera();
   cam->Azimuth(180);
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -313,23 +313,23 @@ int TestClipHyperOctree(int argc, char* argv[])
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
-  
+
   mapper3d->Delete();
   actor3d->Delete();
   surface3d->Delete();
   lut3d->Delete();
-  
+
   mapper2d->Delete();
   actor2d->Delete();
   surface2d->Delete();
   lut2d->Delete();
-  
+
   mapper1d->Delete();
   actor1d->Delete();
   surface1d->Delete();
   lut1d->Delete();
-  
+
   timer->Delete();
-  
+
   return !retVal;
 }

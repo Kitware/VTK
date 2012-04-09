@@ -53,7 +53,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
   // Create multi-block data set for quad-based sweep
   vtkNew<vtkMultiBlockDataSet> lineMB;
   lineMB->SetNumberOfBlocks( 1 );
-  lineMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Line" ); 
+  lineMB->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Line" );
   lineMB->SetBlock( 0, line->GetOutput() );
 
   // Create 3/4 of a cylinder by rotational extrusion
@@ -111,7 +111,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
   renWin->AddRenderer( ren1.GetPointer() );
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
-  
+
   // Create a good view angle
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 0.576398, 28.8199 );

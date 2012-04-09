@@ -16,7 +16,7 @@ vtkTriangularTexture aTriangularTexture
     aTriangularTexture SetScaleFactor 1.3
     aTriangularTexture SetXSize 64
     aTriangularTexture SetYSize 64
-  
+
 vtkSphereSource aSphere
     aSphere SetThetaResolution 20
     aSphere SetPhiResolution 20

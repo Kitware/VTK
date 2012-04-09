@@ -103,7 +103,7 @@ void vtkJavaScriptDataWriter::WriteData()
   vtkTable* input_table = vtkTable::SafeDownCast(this->GetInput());
 
   // Check for valid input
-  if (!input_table) 
+  if (!input_table)
     {
     vtkErrorMacro(<< "vtkJavaScriptDataWriter can only write vtkTable.");
     return;
@@ -161,7 +161,7 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
     // row header
     (*stream_ptr) << rowHeader;
 
-    // Now for each column put out in the form 
+    // Now for each column put out in the form
     // colname1: data1, colname2: data2, etc
     for ( int c = 0; c < numCols; ++ c )
       {
@@ -194,8 +194,8 @@ void vtkJavaScriptDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "VariableName: " << this->VariableName << endl;
-  os << indent << "FileName: " << (this->FileName? this->FileName : "none") 
+  os << indent << "FileName: " << (this->FileName? this->FileName : "none")
     << endl;
-  os << indent << "IncludeFieldNames: " << 
+  os << indent << "IncludeFieldNames: " <<
     (this->IncludeFieldNames ? "true" : "false") << endl;
 }

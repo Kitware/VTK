@@ -23,7 +23,7 @@
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
-vtkTIFFWriter::vtkTIFFWriter() 
+vtkTIFFWriter::vtkTIFFWriter()
 {
   this->TIFFPtr = 0;
   this->Compression = vtkTIFFWriter::PackBits;
@@ -37,17 +37,17 @@ public:
   static tsize_t TIFFRead(thandle_t, tdata_t, tsize_t) { return 0; }
 
   // Write data
-  static tsize_t TIFFWrite(thandle_t fd, tdata_t buf, tsize_t size) 
+  static tsize_t TIFFWrite(thandle_t fd, tdata_t buf, tsize_t size)
     {
     ostream *out = reinterpret_cast<ostream *>(fd);
     out->write(static_cast<char *>(buf), size);
     return out->fail() ? static_cast<tsize_t>(0) : size;
     }
 
-  static toff_t TIFFSeek(thandle_t fd, toff_t off, int whence) 
+  static toff_t TIFFSeek(thandle_t fd, toff_t off, int whence)
     {
     ostream *out = reinterpret_cast<ostream *>(fd);
-    switch (whence) 
+    switch (whence)
       {
       case SEEK_SET:
         out->seekp(off, ios::beg);
@@ -67,7 +67,7 @@ public:
   // File will be closed by the superclass
   static int TIFFClose(thandle_t) { return 1; }
 
-  static toff_t TIFFSize(thandle_t fd) 
+  static toff_t TIFFSize(thandle_t fd)
     {
     ostream *out = reinterpret_cast<ostream *>(fd);
     out->seekp(0, ios::end);
@@ -124,12 +124,12 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data, int wExt
 
   TIFF* tif = TIFFClientOpen(this->InternalFileName, "w",
     (thandle_t) ost,
-    reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFRead), 
+    reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFRead),
     reinterpret_cast<TIFFReadWriteProc>(vtkTIFFWriterIO::TIFFWrite),
     reinterpret_cast<TIFFSeekProc>(vtkTIFFWriterIO::TIFFSeek),
-    reinterpret_cast<TIFFCloseProc>(vtkTIFFWriterIO::TIFFClose), 
+    reinterpret_cast<TIFFCloseProc>(vtkTIFFWriterIO::TIFFClose),
     reinterpret_cast<TIFFSizeProc>(vtkTIFFWriterIO::TIFFSize),
-    reinterpret_cast<TIFFMapFileProc>(vtkTIFFWriterIO::TIFFMapFile), 
+    reinterpret_cast<TIFFMapFileProc>(vtkTIFFWriterIO::TIFFMapFile),
     reinterpret_cast<TIFFUnmapFileProc>(vtkTIFFWriterIO::TIFFUnmapFile)
     );
   if ( !tif )
@@ -235,13 +235,13 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
     }
 
   // take into consideration the scalar type
-  if( data->GetScalarType() != VTK_UNSIGNED_CHAR 
+  if( data->GetScalarType() != VTK_UNSIGNED_CHAR
    && data->GetScalarType() != VTK_UNSIGNED_SHORT
    && data->GetScalarType() != VTK_FLOAT
    )
     {
     vtkErrorMacro("TIFFWriter only accepts unsigned char/short or float scalars!");
-    return; 
+    return;
     }
 
   int row = 0;

@@ -38,7 +38,7 @@ public:
   typedef std::set<vtkIdType> IDSetType;
   typedef std::vector<IDSetType> IDsType;
   IDsType IDs;
-  
+
   typedef std::set<vtkStdString> StringIDSetType;
   typedef std::vector<StringIDSetType> StringIDsType;
   StringIDsType StringIDs;
@@ -54,7 +54,7 @@ vtkSelectionSource::vtkSelectionSource()
 {
   this->SetNumberOfInputPorts(0);
   this->Internal = new vtkSelectionSourceInternals;
-  
+
   this->ContentType = vtkSelectionNode::INDICES;
   this->FieldType = vtkSelectionNode::CELL;
   this->ContainingCells = 1;
@@ -312,8 +312,8 @@ int vtkSelectionSource::RequestData(
     (this->ContentType == vtkSelectionNode::PEDIGREEIDS) ||
     (this->ContentType == vtkSelectionNode::INDICES)) &&
     !this->Internal->StringIDs.empty())
-    {    
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), 
+    {
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(),
       this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(),
       this->FieldType);
@@ -345,10 +345,10 @@ int vtkSelectionSource::RequestData(
           {
           continue;
           }
-        
+
         vtkSelectionSourceInternals::StringIDSetType& selSet =
           this->Internal->StringIDs[idx];
-        
+
         if (selSet.size() > 0)
           {
           // Create the selection list
@@ -359,7 +359,7 @@ int vtkSelectionSource::RequestData(
           for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
             {
             selectionList->SetValue(idx2, *iter);
-            } 
+            }
           }
         }
       }
@@ -371,8 +371,8 @@ int vtkSelectionSource::RequestData(
     (this->ContentType == vtkSelectionNode::PEDIGREEIDS) ||
     (this->ContentType == vtkSelectionNode::INDICES)) &&
     this->Internal->StringIDs.empty())
-    {    
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), 
+    {
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(),
       this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(),
       this->FieldType);
@@ -404,10 +404,10 @@ int vtkSelectionSource::RequestData(
           {
           continue;
           }
-        
+
         vtkSelectionSourceInternals::IDSetType& selSet =
           this->Internal->IDs[idx];
-        
+
         if (selSet.size() > 0)
           {
           // Create the selection list
@@ -418,20 +418,20 @@ int vtkSelectionSource::RequestData(
           for (vtkIdType idx2=0; iter != selSet.end(); iter++, idx2++)
             {
             selectionList->SetValue(idx2, *iter);
-            }  
+            }
           }
         }
       }
     }
-  
+
   if (this->ContentType == vtkSelectionNode::LOCATIONS)
     {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), 
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(),
                                  this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(),
                                  this->FieldType);
     // Create the selection list
-    vtkDoubleArray* selectionList = vtkDoubleArray::New(); 
+    vtkDoubleArray* selectionList = vtkDoubleArray::New();
     selectionList->SetNumberOfComponents(3);
     selectionList->SetNumberOfValues(this->Internal->Locations.size());
 
@@ -444,19 +444,19 @@ int vtkSelectionSource::RequestData(
       }
 
     output->SetSelectionList(selectionList);
-    selectionList->Delete();    
+    selectionList->Delete();
     }
 
   if (this->ContentType == vtkSelectionNode::THRESHOLDS)
     {
-    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), 
+    oProperties->Set(vtkSelectionNode::CONTENT_TYPE(),
                                  this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(),
                                  this->FieldType);
     oProperties->Set(vtkSelectionNode::COMPONENT_NUMBER(),
                      this->ArrayComponent);
     // Create the selection list
-    vtkDoubleArray* selectionList = vtkDoubleArray::New(); 
+    vtkDoubleArray* selectionList = vtkDoubleArray::New();
     selectionList->SetNumberOfComponents(1);
     selectionList->SetNumberOfValues(this->Internal->Thresholds.size());
 
@@ -469,7 +469,7 @@ int vtkSelectionSource::RequestData(
       }
 
     output->SetSelectionList(selectionList);
-    selectionList->Delete();    
+    selectionList->Delete();
     }
 
   if (this->ContentType == vtkSelectionNode::FRUSTUM)
@@ -477,7 +477,7 @@ int vtkSelectionSource::RequestData(
     oProperties->Set(vtkSelectionNode::CONTENT_TYPE(), this->ContentType);
     oProperties->Set(vtkSelectionNode::FIELD_TYPE(), this->FieldType);
     // Create the selection list
-    vtkDoubleArray* selectionList = vtkDoubleArray::New(); 
+    vtkDoubleArray* selectionList = vtkDoubleArray::New();
     selectionList->SetNumberOfComponents(4);
     selectionList->SetNumberOfTuples(8);
     for (vtkIdType cc=0; cc < 32; cc++)
@@ -486,7 +486,7 @@ int vtkSelectionSource::RequestData(
       }
 
     output->SetSelectionList(selectionList);
-    selectionList->Delete();    
+    selectionList->Delete();
     }
 
   if (this->ContentType == vtkSelectionNode::BLOCKS)
@@ -514,7 +514,7 @@ int vtkSelectionSource::RequestData(
     }
 
   oProperties->Set(vtkSelectionNode::CONTAINING_CELLS(),
-                               this->ContainingCells);  
+                               this->ContainingCells);
 
   oProperties->Set(vtkSelectionNode::INVERSE(),
                                this->Inverse);

@@ -17,7 +17,7 @@
 // .SECTION Description
 // vtkCompositePolyDataMapper2 is similar to vtkCompositePolyDataMapper except
 // that instead of creating individual mapper for each block in the composite
-// dataset, it iterates over the blocks internally. 
+// dataset, it iterates over the blocks internally.
 
 #ifndef __vtkCompositePolyDataMapper2_h
 #define __vtkCompositePolyDataMapper2_h

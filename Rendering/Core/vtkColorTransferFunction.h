@@ -17,7 +17,7 @@
 // .SECTION Description
 // vtkColorTransferFunction is a color mapping in RGB or HSV space that
 // uses piecewise hermite functions to allow interpolation that can be
-// piecewise constant, piecewise linear, or somewhere in-between 
+// piecewise constant, piecewise linear, or somewhere in-between
 // (a modified piecewise hermite function that squishes the function
 // according to a sharpness parameter). The function also allows for
 // the specification of the midpoint (the place where the function
@@ -60,14 +60,14 @@ public:
   // Description:
   // How many points are there defining this function?
   int GetSize();
-  
+
   // Description:
   // Add/Remove a point to/from the function defined in RGB or HSV
   // Return the index of the point (0 based), or -1 on error.
   // See the description of class vtkPiecewiseFunction for an explanation of
   // midpoint and sharpness.
   int AddRGBPoint( double x, double r, double g, double b );
-  int AddRGBPoint( double x, double r, double g, double b, 
+  int AddRGBPoint( double x, double r, double g, double b,
                    double midpoint, double sharpness );
   int AddHSVPoint( double x, double h, double s, double v );
   int AddHSVPoint( double x, double h, double s, double v,
@@ -75,19 +75,19 @@ public:
   int RemovePoint( double x );
 
   // Description:
-  // Add two points to the function and remove all the points 
+  // Add two points to the function and remove all the points
   // between them
-  void AddRGBSegment( double x1, double r1, double g1, double b1, 
+  void AddRGBSegment( double x1, double r1, double g1, double b1,
                       double x2, double r2, double g2, double b2 );
-  void AddHSVSegment( double x1, double h1, double s1, double v1, 
+  void AddHSVSegment( double x1, double h1, double s1, double v1,
                       double x2, double h2, double s2, double v2 );
-  
+
   // Description:
   // Remove all points
   void RemoveAllPoints();
 
   // Description:
-  // Returns an RGB color for the specified scalar value 
+  // Returns an RGB color for the specified scalar value
   double *GetColor(double x) {
     return vtkScalarsToColors::GetColor(x); }
   void GetColor(double x, double rgb[3]);
@@ -100,11 +100,11 @@ public:
 
   // Description:
   // For the node specified by index, set/get the
-  // location (X), R, G, and B values, midpoint, and 
+  // location (X), R, G, and B values, midpoint, and
   // sharpness values at the node.
   int GetNodeValue( int index, double val[6] );
   int SetNodeValue( int index, double val[6] );
-  
+
   // Description:
   // Map one value through the lookup table.
   virtual unsigned char *MapValue(double v);
@@ -127,8 +127,8 @@ public:
 
   // Description:
   // Construct a color transfer function from a table. Function range is
-  // is set to [x1, x2], each function size is set to size, and function 
-  // points are regularly spaced between x1 and x2. Parameter "table" is 
+  // is set to [x1, x2], each function size is set to size, and function
+  // points are regularly spaced between x1 and x2. Parameter "table" is
   // assumed to be a block of memory of size [3*size]
   void BuildFunctionFromTable( double x1, double x2, int size, double *table);
 
@@ -137,7 +137,7 @@ public:
   vtkSetClampMacro( Clamping, int, 0, 1 );
   vtkGetMacro( Clamping, int );
   vtkBooleanMacro( Clamping, int );
-  
+
   // Description:
   // Set/Get the color space used for interpolation: RGB, HSV, CIELAB, or
   // Diverging.  In HSV mode, if HSVWrap is on, it will take the shortest path
@@ -170,7 +170,7 @@ public:
   // RGB 3-tuple color of doubles in the range [0,1].
   vtkSetVector3Macro(NanColor, double);
   vtkGetVector3Macro(NanColor, double);
-    
+
   // Description:
   // Returns a list of all nodes
   // Fills from a pointer to data stored in a similar list of nodes.
@@ -182,7 +182,7 @@ public:
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                      int inputDataType, int numberOfValues,
                                      int inputIncrement, int outputIncrement);
-  
+
   // Description:
   // Toggle whether to allow duplicate scalar values in the color transfer
   // function (off by default).
@@ -199,7 +199,7 @@ protected:
   ~vtkColorTransferFunction();
 
   vtkColorTransferFunctionInternals *Internal;
-  
+
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
@@ -217,12 +217,12 @@ protected:
 
   // The color to use for not-a-number.
   double NanColor[3];
-  
+
   double     *Function;
-  
+
   // The min and max node locations
   double Range[2];
-  
+
   // An evaluated color (0 to 255 RGBA A=255)
   unsigned char UnsignedCharRGBAValue[4];
 
@@ -231,7 +231,7 @@ protected:
   vtkTimeStamp BuildTime;
   unsigned char *Table;
   int TableSize;
-  
+
   // Description:
   // Set the range of scalars being mapped. The set has no functionality
   // in this subclass of vtkScalarsToColors.
@@ -244,7 +244,7 @@ protected:
   void SortAndUpdateRange();
   // Returns true if the range has been updated and Modified() has been called
   bool UpdateRange();
- 
+
   // Description:
   // Moves point from oldX to newX. It removed the point from oldX. If any point
   // existed at newX, it will also be removed.

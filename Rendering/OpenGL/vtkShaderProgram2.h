@@ -71,7 +71,7 @@ public:
   // Returns if the context supports the required extensions.
   static bool IsSupported(vtkOpenGLRenderWindow *context);
   static bool LoadExtensions(vtkOpenGLRenderWindow *context);
-  
+
   // Description:
   // Tell if vtkErrorMacro should be called when there is a build error or not.
   // It is useful to switch it to false when building a shader is
@@ -81,9 +81,9 @@ public:
   // the value of PrintErrors flag.
   vtkGetMacro(PrintErrors,bool);
   vtkSetMacro(PrintErrors,bool);
-  
+
   // Description:
-  // Get/Set the context. This does not increase the reference count of the 
+  // Get/Set the context. This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
@@ -100,33 +100,33 @@ public:
   // If yes, it means the vertex processing of the fixed-pipeline is bypassed.
   // If no, it means the vertex processing of the fixed-pipeline is used.
   bool HasVertexShaders();
-  
+
   // Description:
   // Tells if at least one of the shaders is a tessellation control shader.
   bool HasTessellationControlShaders();
-  
+
   // Description:
   // Tells if at least one of the shaders is a tessellation evaluation shader.
   bool HasTessellationEvaluationShaders();
-  
+
   // Description:
   // Tells if at least one of the shaders is a geometry shader.
   bool HasGeometryShaders();
-  
+
   // Description:
   // Tells if at least one of the shaders is a fragment shader.
   // If yes, it means the fragment processing of the fixed-pipeline is
   // bypassed.
   // If no, it means the fragment processing of the fixed-pipeline is used.
   bool HasFragmentShaders();
-  
+
   // Description:
   // Tell if the shader program is valid with the current OpenGL state.
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->Context()->IsCurrent()
   // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   bool IsValid();
-  
+
   // Description:
   // If not done yet, compile all the shaders and link the program.
   // The status of the build can then be query with GetLastBuildStatus()
@@ -134,14 +134,14 @@ public:
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
   void Build();
-  
+
   // Description:
   // Send the uniform variables values to the program.
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
   // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   void SendUniforms();
-  
+
   // Description:
   // Introspection. Return the list of active uniform variables of the program.
   // \pre context_is_set: this->GetContext()!=0
@@ -149,20 +149,20 @@ public:
   // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   void PrintActiveUniformVariables(ostream &os,
                                    vtkIndent indent);
-  
+
   // Description:
   // Call PrintActiveUniformVariables on cout. Useful for calling inside gdb.
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->Context()->IsCurrent()
   // \pre built this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   void PrintActiveUniformVariablesOnCout();
-  
+
   // Description:
   // Tell if the program is the one currently used by OpenGL.
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
   bool IsUsed();
-  
+
   // Description:
   // Use the shader program.
   // It saves the current shader program or fixed-pipeline in use.
@@ -170,13 +170,13 @@ public:
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
   void Use();
-  
+
   // Description:
   // Restore the previous shader program (or fixed-pipeline).
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
   void Restore();
-  
+
   // Description:
   // Force the current shader program to be the fixed-pipeline.
   // Warning: this call will be compiled if called inside a display list
@@ -194,19 +194,19 @@ public:
   // result==VTK_SHADER_PROGRAM2_LINK_FAILED ||
   // result==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   int GetLastBuildStatus();
-  
+
   // Description:
   // Return the log of the last link as a string.
   // Initial value is the empty string ""='\0'.
   // \post result_exists: result!=0
   const char *GetLastLinkLog();
-  
+
   // Description:
   // Return the log of the last call to IsValid as a string.
   // Initial value is the empty string ""='\0'.
   // \post result_exists: result!=0
   const char *GetLastValidateLog();
-  
+
   // Description:
   // Release OpenGL resource (program id and sub-resources).
   virtual void ReleaseGraphicsResources();
@@ -219,13 +219,13 @@ public:
   // \pre name_exists: name!=0
   // \pre built: this->GetLastBuildStatus()==VTK_SHADER_PROGRAM2_LINK_SUCCEEDED
   int GetAttributeLocation(const char *name);
-  
+
   // Description:
   // Get/Set the list of uniform variables values.
   // Initial value is an empty list (not null pointer).
   vtkGetObjectMacro(UniformVariables,vtkUniformVariables);
   virtual void SetUniformVariables(vtkUniformVariables *variables);
-  
+
   // Description:
   // Tells if a display list is under construction with GL_COMPILE mode.
   // Return false if there is no display list under construction of if the
@@ -235,7 +235,7 @@ public:
   // \pre context_is_set: this->GetContext()!=0
   // \pre current_context_matches: this->GetContext()->IsCurrent()
   bool DisplayListUnderCreationInCompileMode();
-  
+
   // Description:
   // Specific to the geometry shader part of the program.
   // Relevant only when HasGeometryShaders() is true.
@@ -281,31 +281,31 @@ public:
 protected:
   vtkShaderProgram2();
   virtual ~vtkShaderProgram2();
-  
+
   unsigned int Id; // actually GLuint. Initial value is 0.
   unsigned int SavedId;
-  
+
   vtkTimeStamp LastLinkTime;
   vtkTimeStamp LastSendUniformsTime;
-  
+
   vtkShaderProgram2Uniforms *Uniforms;
   vtkShader2Collection *Shaders;
-  
+
   int LastBuildStatus; // Initial value is VTK_SHADER_PROGRAM2_COMPILE_FAILED
-  
+
   char *LastLinkLog; // Initial value is the empty string ""='\0'
   size_t LastLinkLogCapacity; // Initial value is 8.
-  
+
   char *LastValidateLog; // Initial value is the empty string ""='\0'
   size_t LastValidateLogCapacity; // Initial value is 8.
-  
+
   vtkUniformVariables *UniformVariables; // Initial values is an empty list
-  
+
   bool PrintErrors; // use vtkErrorMacro ?
-  
+
   vtkOpenGLRenderWindow *Context;
   bool ExtensionsLoaded;
-  
+
   int GeometryTypeIn;
   int GeometryTypeOut;
   int GeometryVerticesOut;

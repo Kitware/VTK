@@ -17,7 +17,7 @@
 #include "vtkFunctionSet.h"
 
 
-vtkInitialValueProblemSolver::vtkInitialValueProblemSolver() 
+vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
 {
   this->FunctionSet = 0;
   this->Vals = 0;
@@ -26,7 +26,7 @@ vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
   this->Adaptive = 0;
 }
 
-vtkInitialValueProblemSolver::~vtkInitialValueProblemSolver() 
+vtkInitialValueProblemSolver::~vtkInitialValueProblemSolver()
 {
   this->SetFunctionSet(0);
   delete[] this->Vals;
@@ -70,9 +70,9 @@ void vtkInitialValueProblemSolver::Initialize()
     {
     return;
     }
-  this->Vals = 
+  this->Vals =
     new double[this->FunctionSet->GetNumberOfIndependentVariables()];
-  this->Derivs = 
+  this->Derivs =
     new double[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;
 }

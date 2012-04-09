@@ -28,33 +28,33 @@ class VTKIOXML_EXPORT vtkXMLFileReadTester: public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLFileReadTester,vtkXMLParser);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLFileReadTester* New();
-  
+
   // Description:
   // Try to read the file given by FileName.  Returns 1 if the file is
   // a VTK XML file, and 0 otherwise.
   int TestReadFile();
-  
+
   // Description:
   // Get/Set the name of the file tested by TestReadFile().
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  
+
   // Description:
   // Get the data type of the XML file tested.  If the file could not
   // be read, returns NULL.
   vtkGetStringMacro(FileDataType);
-  
+
   // Description:
   // Get the file version of the XML file tested.  If the file could not
   // be read, returns NULL.
   vtkGetStringMacro(FileVersion);
-  
+
 protected:
   vtkXMLFileReadTester();
   ~vtkXMLFileReadTester();
-  
+
   void StartElement(const char* name, const char** atts);
   int ParsingComplete();
   void ReportStrayAttribute(const char*, const char*, const char*) {}
@@ -62,15 +62,15 @@ protected:
   void ReportBadAttribute(const char*, const char*, const char*) {}
   void ReportUnknownElement(const char*) {}
   void ReportXmlParseError() {}
-  
+
   char* FileName;
   char* FileDataType;
   char* FileVersion;
   int Done;
-  
+
   vtkSetStringMacro(FileDataType);
   vtkSetStringMacro(FileVersion);
-  
+
 private:
   vtkXMLFileReadTester(const vtkXMLFileReadTester&);  // Not implemented.
   void operator=(const vtkXMLFileReadTester&);  // Not implemented.

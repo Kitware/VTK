@@ -55,16 +55,16 @@ public:
   vtkGetObjectMacro ( ZKernel, vtkFloatArray );
 
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Overload standard modified time function. If kernel arrays are modified,
   // then this object is modified as well.
   unsigned long int GetMTime();
-  
+
 protected:
   vtkImageSeparableConvolution();
   ~vtkImageSeparableConvolution();
-  
+
   vtkFloatArray* XKernel;
   vtkFloatArray* YKernel;
   vtkFloatArray* ZKernel;

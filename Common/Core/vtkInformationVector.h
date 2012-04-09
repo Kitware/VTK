@@ -65,9 +65,9 @@ public:
 
   // Description:
   // Copy all information entries from the given vtkInformation
-  // instance.  Any previously existing entries are removed.  If 
-  // deep==1, a deep copy of the information structure is performed (new 
-  // instances of any contained vtkInformation and vtkInformationVector 
+  // instance.  Any previously existing entries are removed.  If
+  // deep==1, a deep copy of the information structure is performed (new
+  // instances of any contained vtkInformation and vtkInformationVector
   // objects are created).
   void Copy(vtkInformationVector* from, int deep=0);
 
@@ -79,7 +79,7 @@ protected:
   vtkInformationVectorInternals* Internal;
 
   int NumberOfInformationObjects;
-  
+
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 private:

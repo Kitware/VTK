@@ -16,16 +16,16 @@
 // .SECTION Description
 // vtkFillHolesFilter is a filter that identifies and fills holes in
 // input vtkPolyData meshes. Holes are identified by locating
-// boundary edges, linking them together into loops, and then 
-// triangulating the resulting loops. Note that you can specify 
+// boundary edges, linking them together into loops, and then
+// triangulating the resulting loops. Note that you can specify
 // an approximate limit to the size of the hole that can be filled.
-// 
+//
 // .SECTION Caveats
-// Note that any mesh with boundary edges by definition has a 
+// Note that any mesh with boundary edges by definition has a
 // topological hole. This even includes a reactangular grid
 // (e.g., the output of vtkPlaneSource). In such situations, if
 // the outer hole is filled, retriangulation of the hole will cause
-// geometric overlap of the mesh. This can be prevented by using 
+// geometric overlap of the mesh. This can be prevented by using
 // the hole size instance variable to prevent the larger holes
 // from being triangulated.
 //

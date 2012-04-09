@@ -20,7 +20,7 @@ foreach operator $logics {
 
     vtkImageEllipsoidSource sphere2${operator}
       sphere2${operator} SetCenter 161 100 0
-      sphere2${operator} SetRadius 70 70 70 
+      sphere2${operator} SetRadius 70 70 70
       sphere2${operator} SetOutputScalarTypeTo${ScalarType}
       sphere2${operator} Update
 

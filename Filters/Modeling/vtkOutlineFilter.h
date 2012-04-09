@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkOutlineFilter - create wireframe outline for arbitrary data set
 // .SECTION Description
-// vtkOutlineFilter is a filter that generates a wireframe outline of any 
-// data set. The outline consists of the twelve edges of the dataset 
+// vtkOutlineFilter is a filter that generates a wireframe outline of any
+// data set. The outline consists of the twelve edges of the dataset
 // bounding box.
 
 #ifndef __vtkOutlineFilter_h

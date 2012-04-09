@@ -36,7 +36,7 @@ vtkInstantiatorNewMacro(vtkVolumeTextureMapper3D);
 // This method moves the scalars from the input volume into volume1 (and
 // possibly volume2) which are the 3D texture maps used for rendering.
 //
-// In the case where our volume is a power of two, the copy is done 
+// In the case where our volume is a power of two, the copy is done
 // directly. If we need to resample, then trilinear interpolation is used.
 //
 // A shift/scale is applied to the input scalar value to produce an 8 bit
@@ -45,7 +45,7 @@ vtkInstantiatorNewMacro(vtkVolumeTextureMapper3D);
 // When the input data is one component, the scalar value is placed in the
 // second component of the two component volume1. The first component is
 // filled in later with the gradient magnitude.
-// 
+//
 // When the input data is two component non-independent, the first component
 // of the input data is placed in the first component of volume1, and the
 // second component of the input data is placed in the third component of
@@ -195,7 +195,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
     {
     outPtr  = volume1;
     outPtr2 = volume2;
- 
+
     for ( k = 0; k < outputDimensions[2]; k++ )
       {
       fz = k * sampleRate[2];
@@ -215,11 +215,11 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
           x  = vtkMath::Floor( fx );
           wx = fx - x;
 
-          inPtr = 
+          inPtr =
             dataPtr + components * ( z*inputDimensions[0]*inputDimensions[1] +
                                      y*inputDimensions[0] +
                                      x );
-          
+
           if ( components == 1 )
             {
             float A, B, C, D, E, F, G, H;
@@ -232,7 +232,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
             G = static_cast<float>(*(inPtr+inputDimensions[0]*inputDimensions[1]+inputDimensions[0]));
             H = static_cast<float>(*(inPtr+inputDimensions[0]*inputDimensions[1]+inputDimensions[0]+1));
 
-            float val = 
+            float val =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*A +
               (    wx)*(1.0-wy)*(1.0-wz)*B +
               (1.0-wx)*(    wy)*(1.0-wz)*C +
@@ -267,7 +267,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
             H1 = static_cast<float>(*(inPtr+2*inputDimensions[0]*inputDimensions[1]+2*inputDimensions[0]+2));
             H2 = static_cast<float>(*(inPtr+2*inputDimensions[0]*inputDimensions[1]+2*inputDimensions[0]+3));
 
-            float val1 = 
+            float val1 =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*A1 +
               (    wx)*(1.0-wy)*(1.0-wz)*B1 +
               (1.0-wx)*(    wy)*(1.0-wz)*C1 +
@@ -278,7 +278,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
               (    wx)*(    wy)*(    wz)*H1;
 
 
-            float val2 = 
+            float val2 =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*A2 +
               (    wx)*(1.0-wy)*(1.0-wz)*B2 +
               (1.0-wx)*(    wy)*(1.0-wz)*C2 +
@@ -296,7 +296,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
             idx = static_cast<int>((val2 + offset) * scale);
             *(outPtr++) = idx;
             }
-          else 
+          else
             {
             float Ar, Br, Cr, Dr, Er, Fr, Gr, Hr;
             float Ag, Bg, Cg, Dg, Eg, Fg, Gg, Hg;
@@ -335,7 +335,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
             Hb = static_cast<float>(*(inPtr+4*inputDimensions[0]*inputDimensions[1]+4*inputDimensions[0]+6));
             Ha = static_cast<float>(*(inPtr+4*inputDimensions[0]*inputDimensions[1]+4*inputDimensions[0]+7));
 
-            float valr = 
+            float valr =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*Ar +
               (    wx)*(1.0-wy)*(1.0-wz)*Br +
               (1.0-wx)*(    wy)*(1.0-wz)*Cr +
@@ -345,7 +345,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
               (1.0-wx)*(    wy)*(    wz)*Gr +
               (    wx)*(    wy)*(    wz)*Hr;
 
-            float valg = 
+            float valg =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*Ag +
               (    wx)*(1.0-wy)*(1.0-wz)*Bg +
               (1.0-wx)*(    wy)*(1.0-wz)*Cg +
@@ -355,7 +355,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
               (1.0-wx)*(    wy)*(    wz)*Gg +
               (    wx)*(    wy)*(    wz)*Hg;
 
-            float valb = 
+            float valb =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*Ab +
               (    wx)*(1.0-wy)*(1.0-wz)*Bb +
               (1.0-wx)*(    wy)*(1.0-wz)*Cb +
@@ -365,7 +365,7 @@ void vtkVolumeTextureMapper3DComputeScalars( T *dataPtr,
               (1.0-wx)*(    wy)*(    wz)*Gb +
               (    wx)*(    wy)*(    wz)*Hb;
 
-            float vala = 
+            float vala =
               (1.0-wx)*(1.0-wy)*(1.0-wz)*Aa +
               (    wx)*(1.0-wy)*(1.0-wz)*Ba +
               (1.0-wx)*(    wy)*(1.0-wz)*Ca +
@@ -433,9 +433,9 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
   sampleRate[0] = outputSpacing[0] / static_cast<double>(spacing[0]);
   sampleRate[1] = outputSpacing[1] / static_cast<double>(spacing[1]);
   sampleRate[2] = outputSpacing[2] / static_cast<double>(spacing[2]);
- 
+
   int components = me->GetNumberOfScalarComponents(input);
- 
+
   int dim[3];
   input->GetDimensions(dim);
 
@@ -448,7 +448,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
   aspect[0] = spacing[0] * 2.0 / avgSpacing;
   aspect[1] = spacing[1] * 2.0 / avgSpacing;
   aspect[2] = spacing[2] * 2.0 / avgSpacing;
-  
+
   double scale = 255.0 / (0.25*(scalarRange[1] - scalarRange[0]));
 
   // Get the length at or below which normals are considered to
@@ -486,7 +486,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
     gradmagIncrement = components+1;
     gradmagOffset = components-1;
     }
-  else 
+  else
     {
     normals = volume3;
     gradmags = volume2;
@@ -557,7 +557,7 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
           G = static_cast<float>(*(samplePtr+components*dim[0]*dim[1]+components*dim[0]));
           H = static_cast<float>(*(samplePtr+components*dim[0]*dim[1]+components*dim[0]+components));
 
-          sample[i] = 
+          sample[i] =
             (1.0-wx)*(1.0-wy)*(1.0-wz)*A +
             (    wx)*(1.0-wy)*(1.0-wz)*B +
             (1.0-wx)*(    wy)*(1.0-wz)*C +
@@ -582,8 +582,8 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
         // Compute the gradient magnitude
         t = sqrt( n[0]*n[0] + n[1]*n[1] + n[2]*n[2] );
 
-        // Encode this into an 4 bit value 
-        gvalue = t * scale; 
+        // Encode this into an 4 bit value
+        gvalue = t * scale;
 
         gvalue = (gvalue<0.0)?(0.0):(gvalue);
         gvalue = (gvalue>255.0)?(255.0):(gvalue);
@@ -626,8 +626,8 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
 //    if ( z%8 == 7 )
 //      {
 //      float args[1];
-//      args[0] = 
-//        static_cast<float>(z - z_start) / 
+//      args[0] =
+//        static_cast<float>(z - z_start) /
 //        static_cast<float>(z_limit - z_start - 1);
 //      me->InvokeEvent( vtkEvent::VolumeMapperComputeGradientsProgressEvent, args );
 //      }
@@ -646,10 +646,10 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
 
   // The input used when creating the textures
   this->SavedTextureInput             = NULL;
-  
+
   // The input used when creating the color tables
   this->SavedParametersInput           = NULL;
-  
+
   this->SavedRGBFunction              = NULL;
   this->SavedGrayFunction             = NULL;
   this->SavedScalarOpacityFunction    = NULL;
@@ -667,14 +667,14 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
   this->VolumeDimensions[0]=0;
   this->VolumeDimensions[1]=0;
   this->VolumeDimensions[2]=0;
-  
+
   this->SampleDistance                = 1.0;
   this->ActualSampleDistance          = 1.0;
-  
+
   this->RenderMethod                  = vtkVolumeTextureMapper3D::NO_METHOD;
   this->PreferredRenderMethod         =
     vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD;
-  
+
   this->UseCompressedTexture          = false;
   this->SupportsNonPowerOfTwoTextures = false;
 }
@@ -694,13 +694,13 @@ vtkVolumeTextureMapper3D::~vtkVolumeTextureMapper3D()
 vtkVolumeTextureMapper3D *vtkVolumeTextureMapper3D::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = 
+  vtkObject* ret =
     vtkVolumeRenderingFactory::CreateInstance("vtkVolumeTextureMapper3D");
   return static_cast<vtkVolumeTextureMapper3D *>(ret);
 }
 
 //-----------------------------------------------------------------------------
-void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren, 
+void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
                                                 vtkVolume *vol,
                                                 double inBounds[6] )
 {
@@ -711,14 +711,14 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
 
   camera->GetPosition( position );
   camera->GetFocalPoint( focalPoint );
- 
+
   position[3]   = 1.0;
   focalPoint[3] = 1.0;
-  
-  // Pass the focal point and position through the inverse of the 
+
+  // Pass the focal point and position through the inverse of the
   // volume's matrix to map back into the data coordinates. We
   // are going to compute these polygons in the coordinate system
-  // of the input data - this is easiest since this data must be 
+  // of the input data - this is easiest since this data must be
   // axis aligned. Then we'll use OpenGL to transform these polygons
   // into the world coordinate system through the use of the
   // volume's matrix.
@@ -728,7 +728,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   matrix->MultiplyPoint( position, position );
   matrix->MultiplyPoint( focalPoint, focalPoint );
   matrix->Delete();
-  
+
   if ( position[3] )
     {
     position[0] /= position[3];
@@ -747,16 +747,16 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   plane[0] = focalPoint[0] - position[0];
   plane[1] = focalPoint[1] - position[1];
   plane[2] = focalPoint[2] - position[2];
-  
+
   vtkMath::Normalize( plane );
-  
+
   plane[3] = -(plane[0] * position[0] + plane[1] * position[1] +
                plane[2] * position[2]);
- 
+
   // Find the min and max distances of the boundary points of the volume
   double minDistance = VTK_DOUBLE_MAX;
   double maxDistance = VTK_DOUBLE_MIN;
- 
+
   // The inBounds parameter is the bounds we are using for clipping the
   // texture planes against. First we need to clip these against the bounds
   // of the volume to make sure they don't exceed it.
@@ -770,13 +770,13 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   bounds[3] = (inBounds[3]<volBounds[3])?(inBounds[3]):(volBounds[3]);
   bounds[4] = (inBounds[4]>volBounds[4])?(inBounds[4]):(volBounds[4]);
   bounds[5] = (inBounds[5]<volBounds[5])?(inBounds[5]):(volBounds[5]);
- 
+
   // Create 8 vertices for the bounding box we are rendering
   int i, j, k;
   double vertices[8][3];
- 
+
   int idx = 0;
- 
+
   for ( k = 0; k < 2; k++ )
     {
     for ( j = 0; j < 2; j++ )
@@ -787,7 +787,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
         vertices[idx][1] = bounds[2+j];
         vertices[idx][0] = bounds[i];
 
-        double d = 
+        double d =
           plane[0] * vertices[idx][0] +
           plane[1] * vertices[idx][1] +
           plane[2] * vertices[idx][2] +
@@ -805,35 +805,35 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
 
   int dim[6];
   this->GetVolumeDimensions(dim);
- 
+
   float tCoordOffset[3], tCoordScale[3];
 
   tCoordOffset[0] = 0.5 / dim[0];
   tCoordOffset[1] = 0.5 / dim[1];
   tCoordOffset[2] = 0.5 / dim[2];
- 
+
   tCoordScale[0] =  (dim[0]-1) / static_cast<float>(dim[0]);
   tCoordScale[1] =  (dim[1]-1) / static_cast<float>(dim[1]);
   tCoordScale[2] =  (dim[2]-1) / static_cast<float>(dim[2]);
 
   float spacing[3];
   this->GetVolumeSpacing( spacing );
- 
-  double offset = 
+
+  double offset =
     0.333 * 0.5 * (spacing[0] + spacing[1] + spacing[2]);
- 
+
   minDistance += 0.1*offset;
   maxDistance -= 0.1*offset;
- 
+
   minDistance = (minDistance < offset)?(offset):(minDistance);
- 
+
   double stepSize = this->ActualSampleDistance;
- 
+
   // Determine the number of polygons
   int numPolys = static_cast<int>(
     (maxDistance - minDistance)/static_cast<double>(stepSize));
- 
-  // Check if we have space, free old space only if it is too small 
+
+  // Check if we have space, free old space only if it is too small
   if ( this->BufferSize < numPolys )
     {
     delete [] this->PolygonBuffer;
@@ -844,16 +844,16 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
     this->PolygonBuffer = new float [36*this->BufferSize];
     this->IntersectionBuffer = new float [12*this->BufferSize];
     }
- 
+
   this->NumberOfPolygons = numPolys;
- 
+
   // Compute the intersection points for each edge of the volume
   int lines[12][2] = { {0,1}, {1,3}, {2,3}, {0,2},
                        {4,5}, {5,7}, {6,7}, {4,6},
                        {0,4}, {1,5}, {3,7}, {2,6} };
- 
+
   float *iptr, *pptr;
- 
+
   for ( i = 0; i < 12; i++ )
     {
     double line[3];
@@ -861,14 +861,14 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
     line[0] = vertices[lines[i][1]][0] - vertices[lines[i][0]][0];
     line[1] = vertices[lines[i][1]][1] - vertices[lines[i][0]][1];
     line[2] = vertices[lines[i][1]][2] - vertices[lines[i][0]][2];
- 
+
     double d = maxDistance;
- 
+
     iptr = this->IntersectionBuffer + i;
 
     double planeDotLineOrigin = vtkMath::Dot( plane, vertices[lines[i][0]] );
     double planeDotLine       = vtkMath::Dot( plane, line );
- 
+
     double t, increment;
 
     if ( planeDotLine != 0.0 )
@@ -892,7 +892,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
     }
 
   // Compute the polygons by determining which edges were intersected
-  int neighborLines[12][6] = 
+  int neighborLines[12][6] =
   { {  1,  2,  3,  4,  8,  9}, {  0,  2,  3,  5,  9, 10},
     {  0,  1,  3,  6, 10, 11}, {  0,  1,  2,  7,  8, 11},
     {  0,  5,  6,  7,  8,  9}, {  1,  4,  6,  7,  9, 10},
@@ -904,7 +904,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   {{0,0,0,0}, {1,0,0,1}, {0,1,0,0}, {0,0,0,1},
    {0,0,1,0}, {1,0,1,1}, {0,1,1,0}, {0,0,1,1},
    {0,0,0,2}, {1,0,0,2}, {1,1,0,2}, {0,1,0,2}};
- 
+
   double low[3];
   double high[3];
 
@@ -924,7 +924,7 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
 
   iptr = this->IntersectionBuffer;
   pptr = this->PolygonBuffer;
- 
+
   for ( i = 0; i < numPolys; i++ )
     {
     // Look for a starting point
@@ -951,27 +951,27 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
         {
         double t = iptr[current];
 
-        *(pptr + idx*6)     = 
+        *(pptr + idx*6)     =
           tCoord[current][0] * tCoordScale[0] + tCoordOffset[0];
-        *(pptr + idx*6 + 1) = 
+        *(pptr + idx*6 + 1) =
           tCoord[current][1] * tCoordScale[1] + tCoordOffset[1];
-        *(pptr + idx*6 + 2) = 
+        *(pptr + idx*6 + 2) =
           tCoord[current][2] * tCoordScale[2] + tCoordOffset[2];
-        
+
         int coord = static_cast<int>(tCoord[current][3]);
-        *(pptr + idx*6 + coord) = 
+        *(pptr + idx*6 + coord) =
           (low[coord] + t*(high[coord]-low[coord]))*tCoordScale[coord] + tCoordOffset[coord];
 
         *(pptr + idx*6 + 3) = static_cast<float>(
-          vertices[lines[current][0]][0] + 
+          vertices[lines[current][0]][0] +
           t*(vertices[lines[current][1]][0] - vertices[lines[current][0]][0]));
-        
+
         *(pptr + idx*6 + 4) = static_cast<float>(
-          vertices[lines[current][0]][1] + 
+          vertices[lines[current][0]][1] +
           t*(vertices[lines[current][1]][1] - vertices[lines[current][0]][1]));
-        
+
         *(pptr + idx*6 + 5) = static_cast<float>(
-          vertices[lines[current][0]][2] + 
+          vertices[lines[current][0]][2] +
           t*(vertices[lines[current][1]][2] - vertices[lines[current][0]][2]));
 
         idx++;
@@ -979,9 +979,9 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
         j = 0;
 
         while ( j < 6 &&
-                (*(this->IntersectionBuffer + i*12 + 
-                   neighborLines[current][j]) < 0 || 
-                 neighborLines[current][j] == previous) ) 
+                (*(this->IntersectionBuffer + i*12 +
+                   neighborLines[current][j]) < 0 ||
+                 neighborLines[current][j] == previous) )
           {
           j++;
           }
@@ -1016,19 +1016,19 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   // Get the image data
   vtkImageData *input = this->GetInput();
   this->GetInputAlgorithm()->Update();
- 
+
   // Has the volume changed in some way?
   if ( this->SavedTextureInput != input ||
        this->SavedTextureMTime.GetMTime() < input->GetMTime() )
     {
     needToUpdate = 1;
     }
- 
+
   if ( !needToUpdate )
     {
     return 0;
     }
- 
+
   this->SavedTextureInput = input;
   this->SavedTextureMTime.Modified();
 
@@ -1055,9 +1055,9 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
     }
 
   int components = scalarArray->GetNumberOfComponents();
-  
+
   int powerOfTwoDim[3];
-  
+
   if(this->SupportsNonPowerOfTwoTextures)
     {
      for ( int i = 0; i < 3; i++ )
@@ -1076,7 +1076,7 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
         }
       }
     }
- 
+
   while ( ! this->IsTextureSizeSupported( powerOfTwoDim,components ) )
     {
     if ( powerOfTwoDim[0] >= powerOfTwoDim[1] &&
@@ -1094,13 +1094,13 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
       powerOfTwoDim[2] /= 2;
       }
     }
- 
+
   int neededSize = powerOfTwoDim[0] * powerOfTwoDim[1] * powerOfTwoDim[2];
- 
+
   // What is the spacing?
   double spacing[3];
   input->GetSpacing(spacing);
- 
+
   // Is it the right size? If not, allocate it.
   if ( this->VolumeSize != neededSize ||
        this->VolumeComponents != components )
@@ -1131,22 +1131,22 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
     this->VolumeSize       = neededSize;
     this->VolumeComponents = components;
     }
- 
+
   // Find the scalar range
   double scalarRange[2];
   scalarArray->GetRange(scalarRange, components-1);
- 
+
   // Is the difference between max and min less than 4096? If so, and if
   // the data is not of float or double type, use a simple offset mapping.
   // If the difference between max and min is 4096 or greater, or the data
   // is of type float or double, we must use an offset / scaling mapping.
-  // In this case, the array size will be 4096 - we need to figure out the 
+  // In this case, the array size will be 4096 - we need to figure out the
   // offset and scale factor.
   float offset;
   float scale;
- 
+
   int arraySizeNeeded;
- 
+
   int scalarType = scalarArray->GetDataType();
 
   if ( scalarType == VTK_FLOAT ||
@@ -1160,10 +1160,10 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   else
     {
     arraySizeNeeded = static_cast<int>(scalarRange[1] - scalarRange[0] + 1);
-    offset          = -scalarRange[0]; 
+    offset          = -scalarRange[0];
     scale           = 1.0;
    }
- 
+
   this->ColorTableSize   = arraySizeNeeded;
   this->ColorTableOffset = offset;
   this->ColorTableScale  = scale;
@@ -1172,13 +1172,13 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
   this->VolumeDimensions[0] = powerOfTwoDim[0];
   this->VolumeDimensions[1] = powerOfTwoDim[1];
   this->VolumeDimensions[2] = powerOfTwoDim[2];
- 
+
   // Compute the new spacing
-  this->VolumeSpacing[0] = 
+  this->VolumeSpacing[0] =
     (dim[0]-1.01)*spacing[0] / static_cast<double>(this->VolumeDimensions[0]-1);
-  this->VolumeSpacing[1] = 
+  this->VolumeSpacing[1] =
     (dim[1]-1.01)*spacing[1] / static_cast<double>(this->VolumeDimensions[1]-1);
-  this->VolumeSpacing[2] = 
+  this->VolumeSpacing[2] =
     ((dim[2])-1.01)*spacing[2] / static_cast<double>(this->VolumeDimensions[2]-1);
 
 
@@ -1198,7 +1198,7 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
 
   switch ( scalarType )
     {
-    vtkTemplateMacro( 
+    vtkTemplateMacro(
       vtkVolumeTextureMapper3DComputeGradients(
         static_cast<VTK_TT *>(dataPtr), this,
         scalarRange,
@@ -1226,7 +1226,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
     {
     needToUpdate = 1;
     }
- 
+
   // What sample distance are we going to use for rendering? If we
   // have to render quickly according to our allocated render time,
   // don't necessary obey the sample distance requested by the user.
@@ -1236,7 +1236,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
     {
     float spacing[3];
     this->GetVolumeSpacing(spacing);
-    this->ActualSampleDistance = 
+    this->ActualSampleDistance =
       0.333 * (static_cast<double>(spacing[0]) + static_cast<double>(spacing[1]) + static_cast<double>(spacing[2]));
     }
 
@@ -1251,7 +1251,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
 
   vtkColorTransferFunction *rgbFunc  = NULL;
   vtkPiecewiseFunction     *grayFunc = NULL;
- 
+
   // How many color channels for this component?
   int colorChannels = vol->GetProperty()->GetColorChannels(0);
 
@@ -1287,35 +1287,35 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
         }
       }
     }
- 
+
   // Has the scalar opacity transfer function changed in some way?
-  vtkPiecewiseFunction *scalarOpacityFunc = 
+  vtkPiecewiseFunction *scalarOpacityFunc =
     vol->GetProperty()->GetScalarOpacity(0);
   if ( this->SavedScalarOpacityFunction != scalarOpacityFunc ||
-       this->SavedParametersMTime.GetMTime() < 
+       this->SavedParametersMTime.GetMTime() <
        scalarOpacityFunc->GetMTime() )
     {
     needToUpdate = 1;
     }
 
   // Has the gradient opacity transfer function changed in some way?
-  vtkPiecewiseFunction *gradientOpacityFunc = 
+  vtkPiecewiseFunction *gradientOpacityFunc =
     vol->GetProperty()->GetGradientOpacity(0);
   if ( this->SavedGradientOpacityFunction != gradientOpacityFunc ||
-       this->SavedParametersMTime.GetMTime() < 
+       this->SavedParametersMTime.GetMTime() <
        gradientOpacityFunc->GetMTime() )
     {
     needToUpdate = 1;
     }
 
 
-  double scalarOpacityDistance = 
+  double scalarOpacityDistance =
     vol->GetProperty()->GetScalarOpacityUnitDistance(0);
   if ( this->SavedScalarOpacityDistance != scalarOpacityDistance )
     {
     needToUpdate = 1;
     }
-  
+
   // If we have not found any need to update, return now
   if ( !needToUpdate )
     {
@@ -1330,7 +1330,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   this->SavedSampleDistance          = this->ActualSampleDistance;
   this->SavedScalarOpacityDistance   = scalarOpacityDistance;
   this->SavedParametersInput         = input;
-  
+
   this->SavedParametersMTime.Modified();
 
   // Find the scalar range
@@ -1347,7 +1347,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
     return 0;
     }
   scalarArray->GetRange(scalarRange, components-1);
-  
+
   int arraySizeNeeded = this->ColorTableSize;
 
   if ( components < 3 )
@@ -1355,21 +1355,21 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
     // Sample the transfer functions between the min and max.
     if ( colorChannels == 1 )
       {
-      grayFunc->GetTable( scalarRange[0], scalarRange[1], 
+      grayFunc->GetTable( scalarRange[0], scalarRange[1],
                           arraySizeNeeded, this->TempArray1 );
       }
     else
       {
-      rgbFunc->GetTable( scalarRange[0], scalarRange[1], 
+      rgbFunc->GetTable( scalarRange[0], scalarRange[1],
                          arraySizeNeeded, this->TempArray1 );
       }
     }
-  
-  scalarOpacityFunc->GetTable( scalarRange[0], scalarRange[1], 
+
+  scalarOpacityFunc->GetTable( scalarRange[0], scalarRange[1],
                                arraySizeNeeded, this->TempArray2 );
 
   float goArray[256];
-  gradientOpacityFunc->GetTable( 0, (scalarRange[1] - scalarRange[0])*0.25, 
+  gradientOpacityFunc->GetTable( 0, (scalarRange[1] - scalarRange[0])*0.25,
                                  256, goArray );
 
   // Correct the opacity array for the spacing between the planes.
@@ -1389,7 +1389,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
   int goLoop;
   unsigned char *ptr, *rgbptr, *aptr;
   float *fptr1;
- 
+
   switch (components)
     {
     case 1:
@@ -1432,12 +1432,12 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
 
     case 2:
       // Move the two temp float arrays into one RGB unsigned char array and
-      // one alpha array. 
+      // one alpha array.
       rgbptr = this->ColorLookup;
       aptr   = this->AlphaLookup;
-      
+
       if ( colorChannels == 1 )
-        {  
+        {
         for ( i = 0; i < arraySizeNeeded; i++ )
           {
           fptr1 = this->TempArray1;
@@ -1480,12 +1480,12 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
           }
         }
       break;
-      
+
     case 3:
     case 4:
       // Move the two temp float arrays into one alpha array
       aptr   = this->AlphaLookup;
-      
+
       for ( goLoop = 0; goLoop < 256; goLoop++ )
         {
         fptr2 = this->TempArray2;
@@ -1515,13 +1515,13 @@ void vtkVolumeTextureMapper3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Render Method: " << this->RenderMethod << endl;
   os << indent << "Preferred Render Method: " << this->PreferredRenderMethod << endl;
   os << indent << "NumberOfPolygons: " << this->NumberOfPolygons << endl;
-  os << indent << "ActualSampleDistance: " 
+  os << indent << "ActualSampleDistance: "
      << this->ActualSampleDistance << endl;
   os << indent << "VolumeDimensions: " << this->VolumeDimensions[0] << " "
      << this->VolumeDimensions[1] << " " << this->VolumeDimensions[2] << endl;
   os << indent << "VolumeSpacing: " << this->VolumeSpacing[0] << " "
      << this->VolumeSpacing[1] << " " << this->VolumeSpacing[2] << endl;
-  
+
   os << indent << "UseCompressedTexture: " << this->UseCompressedTexture
      << endl;
 }

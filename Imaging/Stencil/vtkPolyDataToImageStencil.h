@@ -23,7 +23,7 @@ conditions are met:
 1) Redistribution of the source code, in verbatim or modified
    form, must retain the above copyright notice, this license,
    the following disclaimer, and any notices that refer to this
-   license and/or the following disclaimer.  
+   license and/or the following disclaimer.
 
 2) Redistribution in binary form must include the above copyright
    notice, a copy of this license and the following disclaimer
@@ -78,7 +78,7 @@ public:
   // Specify the implicit function to convert into a stencil.
   virtual void SetInputData(vtkPolyData*);
   vtkPolyData *GetInput();
-  
+
   // Description:
   // The tolerance to apply in when determining whether a voxel
   // is inside the stencil, given as a fraction of a voxel.

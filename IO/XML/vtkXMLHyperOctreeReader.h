@@ -39,15 +39,15 @@ public:
   vtkTypeMacro(vtkXMLHyperOctreeReader,vtkXMLDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLHyperOctreeReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkHyperOctree *GetOutput();
   vtkHyperOctree *GetOutput(int idx);
-  
+
 protected:
   vtkXMLHyperOctreeReader();
-  ~vtkXMLHyperOctreeReader();  
+  ~vtkXMLHyperOctreeReader();
 
   const char* GetDataSetName();
 
@@ -67,7 +67,7 @@ protected:
   virtual int ReadArrayForCells(vtkXMLDataElement* da,
                                 vtkAbstractArray* outArray);
 
-  
+
 
   // The most important stuff is here.
   // Read the rest of the file and create the HyperOctree.

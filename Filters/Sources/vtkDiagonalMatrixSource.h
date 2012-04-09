@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkDiagonalMatrixSource.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -87,8 +87,8 @@ protected:
   ~vtkDiagonalMatrixSource();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

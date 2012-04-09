@@ -59,10 +59,10 @@ private:
 vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
   vtkRenderWindow *rw)
 {
-  
+
   this->ScreenMapped = rw->GetMapped();
   this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
-  
+
   // OpenGL specific
   this->OffScreenContextId = NULL;
   this->OffScreenWindow = NULL;
@@ -74,12 +74,12 @@ vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
 #define MAX_LIGHTS 8
 
 // a couple of routines for offscreen rendering
-void vtkOSMesaDestroyWindow(void *Window) 
+void vtkOSMesaDestroyWindow(void *Window)
 {
   free(Window);
 }
 
-void *vtkOSMesaCreateWindow(int width, int height) 
+void *vtkOSMesaCreateWindow(int width, int height)
 {
   return malloc(width*height*4);
 }
@@ -93,7 +93,7 @@ vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
   this->OwnWindow = 0;
- 
+
   this->Internal = new vtkOSOpenGLRenderWindowInternal(this);
 
   this->Capabilities = 0;
@@ -123,7 +123,7 @@ void vtkOSOpenGLRenderWindow::Frame()
   this->MakeCurrent();
   glFlush();
 }
- 
+
 //
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
@@ -149,7 +149,7 @@ void vtkOSOpenGLRenderWindow::CreateAWindow()
 void vtkOSOpenGLRenderWindow::DestroyWindow()
 {
   this->MakeCurrent();
-  
+
   // tell each of the renderers that this render window/graphics context
   // is being removed (the RendererCollection is removed by vtkRenderWindow's
   // destructor)
@@ -169,7 +169,7 @@ void vtkOSOpenGLRenderWindow::DestroyWindow()
     delete[] this->Capabilities;
     this->Capabilities = 0;
     }
-    
+
   // make sure all other code knows we're not mapped anymore
   this->Mapped = 0;
 
@@ -177,7 +177,7 @@ void vtkOSOpenGLRenderWindow::DestroyWindow()
 
 void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 {
-  
+
   this->DoubleBuffer = 0;
 
   if (!this->Internal->OffScreenWindow)
@@ -194,12 +194,12 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
   this->Mapped = 0;
   this->Size[0] = width;
   this->Size[1] = height;
-  
+
   this->MakeCurrent();
 
   // tell our renderers about us
   vtkRenderer* ren;
-  for (this->Renderers->InitTraversal(); 
+  for (this->Renderers->InitTraversal();
        (ren = this->Renderers->GetNextItem());)
     {
     ren->SetRenderWindow(0);
@@ -211,7 +211,7 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
 void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
 {
-  
+
   // release graphic resources.
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rit;
@@ -251,7 +251,7 @@ void vtkOSOpenGLRenderWindow::WindowInitialize (void)
 
   // tell our renderers about us
   vtkRenderer* ren;
-  for (this->Renderers->InitTraversal(); 
+  for (this->Renderers->InitTraversal();
        (ren = this->Renderers->GetNextItem());)
     {
     ren->SetRenderWindow(0);
@@ -296,11 +296,11 @@ void vtkOSOpenGLRenderWindow::WindowRemap()
   // shut everything down
   this->Finalize();
 
-  // set the default windowid 
+  // set the default windowid
 //   this->WindowId = this->NextWindowId;
 //   this->NextWindowId = (Window)NULL;
 
-  // set everything up again 
+  // set everything up again
   this->Initialize();
 }
 
@@ -309,7 +309,7 @@ void vtkOSOpenGLRenderWindow::Start(void)
 {
   this->Initialize();
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 }
 
@@ -338,12 +338,12 @@ void vtkOSOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkOSOpenGLRenderWindow::MakeCurrent()
 {
-  // set the current window 
+  // set the current window
   if (this->Internal->OffScreenContextId)
     {
-    if (OSMesaMakeCurrent(this->Internal->OffScreenContextId, 
-                          this->Internal->OffScreenWindow, GL_UNSIGNED_BYTE, 
-                          this->Size[0], this->Size[1]) != GL_TRUE) 
+    if (OSMesaMakeCurrent(this->Internal->OffScreenContextId,
+                          this->Internal->OffScreenWindow, GL_UNSIGNED_BYTE,
+                          this->Size[0], this->Size[1]) != GL_TRUE)
       {
       vtkWarningMacro("failed call to OSMesaMakeCurrent");
       }
@@ -409,11 +409,11 @@ void vtkOSOpenGLRenderWindow::SetPosition(int x, int y)
 void vtkOSOpenGLRenderWindow::SetWindowInfo(char *info)
 {
   int tmp;
-  
+
   this->OwnDisplay = 1;
 
   sscanf(info,"%i",&tmp);
- 
+
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
@@ -421,7 +421,7 @@ void vtkOSOpenGLRenderWindow::SetNextWindowInfo(char *info)
 {
   int tmp;
   sscanf(info,"%i",&tmp);
- 
+
 //   this->SetNextWindowId((Window)tmp);
 }
 
@@ -429,12 +429,12 @@ void vtkOSOpenGLRenderWindow::SetNextWindowInfo(char *info)
 void vtkOSOpenGLRenderWindow::SetParentInfo(char *info)
 {
   int tmp;
-  
-  // get the default display connection 
+
+  // get the default display connection
   this->OwnDisplay = 1;
 
   sscanf(info,"%i",&tmp);
- 
+
 //   this->SetParentId(tmp);
 }
 
@@ -452,7 +452,7 @@ const char* vtkOSOpenGLRenderWindow::ReportCapabilities()
   MakeCurrent();
 
 //   int scrnum = DefaultScreen(this->DisplayId);
-  
+
   const char *glVendor = (const char *) glGetString(GL_VENDOR);
   const char *glRenderer = (const char *) glGetString(GL_RENDERER);
   const char *glVersion = (const char *) glGetString(GL_VERSION);
@@ -496,7 +496,7 @@ void vtkOSOpenGLRenderWindow::SetWindowName(const char * cname)
 // Specify the X window id to use if a WindowRemap is done.
 /*void vtkOSOpenGLRenderWindow::SetNextWindowId(Window arg)
 {
-  vtkDebugMacro(<< "Setting NextWindowId to " << (void *)arg << "\n"); 
+  vtkDebugMacro(<< "Setting NextWindowId to " << (void *)arg << "\n");
 
   this->NextWindowId = arg;
 }*/
@@ -507,11 +507,11 @@ void vtkOSOpenGLRenderWindow::SetNextWindowId(void *arg)
 }
 
 
-// Set the X display id for this RenderWindow to use to a pre-existing 
+// Set the X display id for this RenderWindow to use to a pre-existing
 // X display id.
 /*void vtkOSOpenGLRenderWindow::SetDisplayId(Display  *arg)
 {
-  vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
+  vtkDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n");
 
   this->DisplayId = arg;
   this->OwnDisplay = 0;
@@ -526,8 +526,8 @@ void vtkOSOpenGLRenderWindow::SetNextWindowId(void *arg)
 
 //============================================================================
 // Stuff above this is almost a mirror of vtkOSOpenGLRenderWindow.
-// The code specific to OpenGL Off-Screen stuff may eventually be 
-// put in a supper class so this whole file could just be included 
+// The code specific to OpenGL Off-Screen stuff may eventually be
+// put in a supper class so this whole file could just be included
 // (mangled) from vtkOSOpenGLRenderWindow like the other OpenGL classes.
 //============================================================================
 

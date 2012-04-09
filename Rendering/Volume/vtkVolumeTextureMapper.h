@@ -87,7 +87,7 @@ public:
     { return this->GetGradientMagnitudeScale(); };
   virtual float GetGradientMagnitudeBias(int)
     { return this->GetGradientMagnitudeBias(); };
-  
+
 //ETX
 
 
@@ -124,7 +124,7 @@ protected:
   unsigned char  *GradientMagnitudes;
 
   float           SampleDistance;
-  
+
   vtkRenderWindow *RenderWindow;
 private:
   vtkVolumeTextureMapper(const vtkVolumeTextureMapper&);  // Not implemented.

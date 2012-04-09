@@ -39,7 +39,7 @@ void vtkAbstractMapper3D::GetBounds(double bounds[6])
 double *vtkAbstractMapper3D::GetCenter()
 {
   this->GetBounds();
-  for (int i=0; i<3; i++) 
+  for (int i=0; i<3; i++)
     {
     this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
     }
@@ -57,7 +57,7 @@ double vtkAbstractMapper3D::GetLength()
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
     }
- 
+
   return sqrt(l);
 }
 

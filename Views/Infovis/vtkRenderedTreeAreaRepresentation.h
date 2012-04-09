@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkRenderedTreeAreaRepresentation - 
+// .NAME vtkRenderedTreeAreaRepresentation -
 //
 // .SECTION Description
 
@@ -212,12 +212,12 @@ public:
   // vtkDynamic2DLabelMapper or vtkTreeMapLabelMapper.
   virtual void SetAreaLabelMapper(vtkLabeledDataMapper* mapper);
   vtkGetObjectMacro(AreaLabelMapper, vtkLabeledDataMapper);
-  
+
   // Description:
   // Apply the theme to this view.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  // Description: 
+  // Description:
   // Visibility of scalar bar actor for edges.
   virtual void SetEdgeScalarBarVisibility(bool b);
   virtual bool GetEdgeScalarBarVisibility();
@@ -230,7 +230,7 @@ protected:
   // Called by the view to add/remove this representation.
   virtual bool AddToView(vtkView* view);
   virtual bool RemoveFromView(vtkView* view);
-  
+
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel);
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
@@ -272,7 +272,7 @@ protected:
   vtkSmartPointer<vtkPointSetToLabelHierarchy>     AreaLabelHierarchy;
   vtkSmartPointer<vtkPolyData>                     EmptyPolyData;
   //ETX
-  
+
   vtkSetStringMacro(AreaSizeArrayNameInternal);
   vtkGetStringMacro(AreaSizeArrayNameInternal);
   char* AreaSizeArrayNameInternal;

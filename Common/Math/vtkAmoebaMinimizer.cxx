@@ -51,13 +51,13 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
   this->AmoebaHighValue = 0;
   this->AmoebaNStepsNoImprovement = 0;
 }
-  
+
 //----------------------------------------------------------------------------
 vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
 {
   this->TerminateAmoeba();
 
-  if ((this->FunctionArg) && (this->FunctionArgDelete)) 
+  if ((this->FunctionArg) && (this->FunctionArgDelete))
     {
     (*this->FunctionArgDelete)(this->FunctionArg);
     }
@@ -89,7 +89,7 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
     }
 
   this->NumberOfParameters = 0;
-} 
+}
 
 //----------------------------------------------------------------------------
 void vtkAmoebaMinimizer::PrintSelf(ostream& os, vtkIndent indent)
@@ -287,7 +287,7 @@ void vtkAmoebaMinimizer::SetParameterScale(int i, double scale)
     vtkErrorMacro("SetParameterScale: parameter number out of range: " << i);
     return;
     }
-      
+
   if (this->ParameterScales[i] != scale)
     {
     this->ParameterScales[i] = scale;
@@ -501,13 +501,13 @@ static  int  vtkAmoebaNumericallyClose(double  n1,
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : InitializeAmoeba
-@INPUT      : 
-@OUTPUT     : 
-@RETURNS    : 
+@INPUT      :
+@OUTPUT     :
+@RETURNS    :
 @DESCRIPTION: Initializes the amoeba structure to minimize the function.
-@METHOD     : 
-@GLOBALS    : 
-@CALLS      : 
+@METHOD     :
+@GLOBALS    :
+@CALLS      :
 @CREATED    :         1993    David MacDonald
 @MODIFIED   :         2002    David Gobbi
 ---------------------------------------------------------------------------- */
@@ -527,7 +527,7 @@ void  vtkAmoebaMinimizer::InitializeAmoeba()
     {
     this->AmoebaVertices[i] = this->AmoebaVertices[i-1] + n_parameters;
     }
-  
+
   this->AmoebaValues = new double[n_parameters+1];
 
   this->AmoebaSum = new double[n_parameters];
@@ -544,7 +544,7 @@ void  vtkAmoebaMinimizer::InitializeAmoeba()
       this->AmoebaVertices[i][j] = this->ParameterValues[j];
       if( i > 0 && j == i - 1 )
         {
-        this->AmoebaVertices[i][j] = 
+        this->AmoebaVertices[i][j] =
           this->ParameterValues[j] + this->ParameterScales[j];
         }
       this->AmoebaSum[j] += this->ParameterValues[j];
@@ -568,14 +568,14 @@ void  vtkAmoebaMinimizer::InitializeAmoeba()
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : GetAmoebaParameterValues
-@INPUT      : 
-@OUTPUT     : 
-@RETURNS    : 
+@INPUT      :
+@OUTPUT     :
+@RETURNS    :
 @DESCRIPTION: Passes back the current position of the amoeba (best value),
               and returns the function value at that point.
-@METHOD     : 
-@GLOBALS    : 
-@CALLS      : 
+@METHOD     :
+@GLOBALS    :
+@CALLS      :
 @CREATED    :         1993    David MacDonald
 @MODIFIED   :         2002    David Gobbi
 ---------------------------------------------------------------------------- */
@@ -603,13 +603,13 @@ void vtkAmoebaMinimizer::GetAmoebaParameterValues()
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : TerminateAmoeba
-@INPUT      : 
-@OUTPUT     : 
-@RETURNS    : 
+@INPUT      :
+@OUTPUT     :
+@RETURNS    :
 @DESCRIPTION: Frees the amoeba.
-@METHOD     : 
-@GLOBALS    : 
-@CALLS      : 
+@METHOD     :
+@GLOBALS    :
+@CALLS      :
 @CREATED    :         1993    David MacDonald
 @MODIFIED   :         2002    David Gobbi
 ---------------------------------------------------------------------------- */
@@ -639,15 +639,15 @@ void  vtkAmoebaMinimizer::TerminateAmoeba()
 @INPUT      : sum
               high
               fac
-@OUTPUT     : 
+@OUTPUT     :
 @RETURNS    : value
 @DESCRIPTION: Does a modification to the high vertex of the amoeba and
               returns the value of the new point.  If the new point is
               better (smaller value), it replaces the high vertex of the
               amoeba.
-@METHOD     : 
-@GLOBALS    : 
-@CALLS      : 
+@METHOD     :
+@GLOBALS    :
+@CALLS      :
 @CREATED    :         1993    David MacDonald
 @MODIFIED   :         2002    David Gobbi
 ---------------------------------------------------------------------------- */
@@ -688,18 +688,18 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
 
 /* ----------------------------- MNI Header -----------------------------------
 @NAME       : PerformAmoeba
-@INPUT      : 
-@OUTPUT     : 
-          
+@INPUT      :
+@OUTPUT     :
+
 @RETURNS    : true if numerically significant improvement
 @DESCRIPTION: Performs one iteration of an amoeba, returning true if a
               numerically significant improvement has been found recently.
               Even if it returns 0, you can keep calling this function,
-              since it may be contracting with no improvement, but will 
+              since it may be contracting with no improvement, but will
               eventually shrink small enough to get an improvment.
-@METHOD     : 
-@GLOBALS    : 
-@CALLS      : 
+@METHOD     :
+@GLOBALS    :
+@CALLS      :
 @CREATED    :         1993    David MacDonald
 @MODIFIED   :         2002    David Gobbi
 ---------------------------------------------------------------------------- */
@@ -783,7 +783,7 @@ int vtkAmoebaMinimizer::PerformAmoeba()
                                         this->AmoebaVertices[low][j]) / 2.0;
             this->AmoebaVertices[i][j] = this->ParameterValues[j];
             }
-          
+
           this->EvaluateFunction();
           this->AmoebaValues[i] = this->FunctionValue;
           }

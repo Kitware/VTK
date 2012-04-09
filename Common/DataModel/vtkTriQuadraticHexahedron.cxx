@@ -698,7 +698,7 @@ void vtkTriQuadraticHexahedron::InterpolationDerivs (double pcoords[3],
   derivs[79] = g2r * g2s * g3t_t;
   derivs[80] = g2r * g2s * g2t_t;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
   for(int i = 0; i < 81; i++)
     derivs[i] *= 2;
 

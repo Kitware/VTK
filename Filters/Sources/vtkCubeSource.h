@@ -15,7 +15,7 @@
 // .NAME vtkCubeSource - create a polygonal representation of a cube
 // .SECTION Description
 // vtkCubeSource creates a cube centered at origin. The cube is represented
-// with four-sided polygons. It is possible to specify the length, width, 
+// with four-sided polygons. It is possible to specify the length, width,
 // and height of the cube independently.
 
 #ifndef __vtkCubeSource_h

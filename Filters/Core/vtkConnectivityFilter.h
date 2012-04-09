@@ -130,7 +130,7 @@ public:
   void DeleteSpecifiedRegion(int id);
 
   // Description:
-  // Use to specify x-y-z point coordinates when extracting the region 
+  // Use to specify x-y-z point coordinates when extracting the region
   // closest to a specified point.
   vtkSetVector3Macro(ClosestPoint,double);
   vtkGetVectorMacro(ClosestPoint,double,3);
@@ -175,7 +175,7 @@ private:
   vtkIdTypeArray *NewScalars;
   vtkIdTypeArray *NewCellScalars;
   vtkIdType RegionNumber;
-  vtkIdType PointNumber;    
+  vtkIdType PointNumber;
   vtkIdType NumCellsInRegion;
   vtkDataArray *InScalars;
   vtkIdList *Wave;
@@ -191,27 +191,27 @@ private:
 // Return the method of extraction as a string.
 inline const char *vtkConnectivityFilter::GetExtractionModeAsString(void)
 {
-  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ) 
+  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
     {
     return "ExtractPointSeededRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
     {
     return "ExtractCellSeededRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS )
     {
     return "ExtractSpecifiedRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS )
     {
     return "ExtractAllRegions";
     }
-  else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ) 
+  else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
     {
     return "ExtractClosestPointRegion";
     }
-  else 
+  else
     {
     return "ExtractLargestRegion";
     }

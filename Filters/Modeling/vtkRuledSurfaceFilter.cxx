@@ -85,7 +85,7 @@ int vtkRuledSurfaceFilter::RequestData(
     {
     return 1;
     }
-  
+
   if ( this->PassLines )
     {
     output->SetLines(inLines);
@@ -122,7 +122,7 @@ int vtkRuledSurfaceFilter::RequestData(
     }
 
   // For each pair of lines (as selected by Offset and OnRatio), create a
-  // stripe (a ruled surfac between two lines). 
+  // stripe (a ruled surfac between two lines).
   //
   inLines->InitTraversal();
   inLines->GetNextCell(npts,pts);
@@ -151,7 +151,7 @@ int vtkRuledSurfaceFilter::RequestData(
           break;
         }//switch
       }//generate this stripe
-    
+
     //Get the next line for generating the next stripe
     npts = npts2;
     pts = pts2;
@@ -161,7 +161,7 @@ int vtkRuledSurfaceFilter::RequestData(
         {
         inLines->InitTraversal();
         }
-      else 
+      else
         {
         i++; //will cause the loop to end
         }
@@ -172,8 +172,8 @@ int vtkRuledSurfaceFilter::RequestData(
 }
 
 void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
-                                      vtkPoints *inPts, vtkPoints *newPts, 
-                                      int npts, vtkIdType *pts, 
+                                      vtkPoints *inPts, vtkPoints *newPts,
+                                      int npts, vtkIdType *pts,
                                       int npts2, vtkIdType *pts2)
 {
   vtkIdType offset, id;
@@ -189,7 +189,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
   double d0, d1, l0, l1;
   double pt[3], pt0[3], pt1[3], pt00[3], pt01[3], pt10[3], pt11[3];
   int i00, i01, i10, i11;
-  
+
   if (this->Resolution[0] < 1)
     {
     vtkErrorMacro(<< "Resolution[0] must be greater than 0");
@@ -227,7 +227,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
   // forces allocation so that SetPoint() can be safely used
   offset = newPts->GetNumberOfPoints();
   newPts->InsertPoint(offset+(this->Resolution[0]+1)*(this->Resolution[1]+1)-1,
-                      0.0, 0.0, 0.0); 
+                      0.0, 0.0, 0.0);
   newStrips = output->GetStrips();
 
   // We'll construct the points for the ruled surface in column major order,
@@ -263,7 +263,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
   inPts->GetPoint(pts[1], pt01);
   inPts->GetPoint(pts2[0], pt10);
   inPts->GetPoint(pts2[1], pt11);
-  
+
   for (i=0; i < this->Resolution[0]+1; i++)
     {
     // compute the end points a rule, one point from the first polyline,
@@ -387,26 +387,26 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPolyData *input,
     }
 }
 
-void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts, 
+void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
                                        int npts, vtkIdType *pts,
                                        int npts2, vtkIdType *pts2)
 {
   int loc, loc2, next2;
   vtkCellArray *newPolys=output->GetPolys();
   double x[3], y[3], a[3], b[3], xa, xb, ya, distance2;
-      
+
   // Compute distance factor based on first two points
   //
 
   vtkIdType endLoop2, startLoop2, i;
-  
+
   if (!this->OrientLoops)
     {
     endLoop2 = npts2 - 1;
     startLoop2 = 0;
     inPts->GetPoint(pts[0],x);
     inPts->GetPoint(pts2[0],y);
-    distance2 = vtkMath::Distance2BetweenPoints(x,y) * 
+    distance2 = vtkMath::Distance2BetweenPoints(x,y) *
       this->DistanceFactor * this->DistanceFactor;
     }
   else
@@ -447,18 +447,18 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
   bool endOfLoop2 = false;
   while ( loc < (npts-1) || (!endOfLoop2))
     {
-    
+
     // Determine the next point in loop 2
     next2 = loc2+1;
     if ((!startLoop2) && (next2 == endLoop2))
       {
-      // If we started 0 then when we hit the end of the loop 
+      // If we started 0 then when we hit the end of the loop
       // we are done
       endOfLoop2 = true;
       }
     else if (next2 == startLoop2)
       {
-      // If we are here we have reached the end of the loop 
+      // If we are here we have reached the end of the loop
       // though we need to still process the starting point a second time
       // to close the surface
       endOfLoop2 = true;
@@ -524,7 +524,7 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
           }
         loc2 = next2;
         }
-      else 
+      else
         {
         if ( ya <= distance2 && xa <= distance2 )
           {
@@ -538,14 +538,14 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
       }//where in the lines
     }//while still building the stripe
 }
-  
+
 const char *vtkRuledSurfaceFilter::GetRuledModeAsString(void)
 {
   if ( this->RuledMode == VTK_RULED_MODE_RESAMPLE )
     {
     return "Resample";
     }
-  else //if ( this->RuledMode == VTK_RULED_MODE_POINT_WALK ) 
+  else //if ( this->RuledMode == VTK_RULED_MODE_POINT_WALK )
     {
     return "PointWalk";
     }

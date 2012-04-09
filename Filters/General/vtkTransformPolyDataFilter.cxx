@@ -90,14 +90,14 @@ int vtkTransformPolyDataFilter::RequestData(
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
-  if ( inVectors ) 
+  if ( inVectors )
     {
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3*numPts);
     newVectors->SetName(inVectors->GetName());
     }
-  if ( inNormals ) 
+  if ( inNormals )
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
@@ -118,7 +118,7 @@ int vtkTransformPolyDataFilter::RequestData(
   else
     {
     this->Transform->TransformPoints(inPts,newPts);
-    }  
+    }
 
   this->UpdateProgress (.6);
 
@@ -127,7 +127,7 @@ int vtkTransformPolyDataFilter::RequestData(
   vtkLinearTransform* lt = vtkLinearTransform::SafeDownCast(this->Transform);
   if (lt)
     {
-    if ( inCellVectors ) 
+    if ( inCellVectors )
       {
       newCellVectors = vtkFloatArray::New();
       newCellVectors->SetNumberOfComponents(3);
@@ -135,7 +135,7 @@ int vtkTransformPolyDataFilter::RequestData(
       newCellVectors->SetName( inCellVectors->GetName() );
       lt->TransformVectors(inCellVectors,newCellVectors);
       }
-    if ( inCellNormals ) 
+    if ( inCellNormals )
       {
       newCellNormals = vtkFloatArray::New();
       newCellNormals->SetNumberOfComponents(3);

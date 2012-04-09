@@ -18,7 +18,7 @@
 // for a polygonal mesh. The user specifies if they would like the point
 // and/or cell normals to be computed by setting the ComputeCellNormals
 // and ComputePointNormals flags.
-// 
+//
 // The computed normals (a vtkFloatArray) are set to be the active normals
 // (using SetNormals()) of the PointData and/or the CellData (respectively)
 // of the output PolyData. The name of these arrays is "Normals", so they
@@ -34,14 +34,14 @@
 //
 // The algorithm works by determining normals for each polygon and then
 // averaging them at shared points. When sharp edges are present, the edges
-// are split and new points generated to prevent blurry edges (due to 
+// are split and new points generated to prevent blurry edges (due to
 // Gouraud shading).
 
 // .SECTION Caveats
 // Normals are computed only for polygons and triangle strips. Normals are
 // not computed for lines or vertices.
 //
-// Triangle strips are broken up into triangle polygons. You may want to 
+// Triangle strips are broken up into triangle polygons. You may want to
 // restrip the triangles.
 
 #ifndef __vtkPolyDataNormals_h
@@ -61,7 +61,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct with feature angle=30, splitting and consistency turned on, 
+  // Construct with feature angle=30, splitting and consistency turned on,
   // flipNormals turned off, and non-manifold traversal turned on.
   // ComputePointNormals is on and ComputeCellNormals is off.
   static vtkPolyDataNormals *New();
@@ -91,9 +91,9 @@ public:
   // (i.e. no boundary edges) and no non-manifold edges. If these
   // constraints do not hold, all bets are off. This option adds some
   // computational complexity, and is useful if you don't want to have
-  // to inspect the rendered image to determine whether to turn on the 
-  // FlipNormals flag. However, this flag can work with the FlipNormals 
-  // flag, and if both are set, all the normals in the output will 
+  // to inspect the rendered image to determine whether to turn on the
+  // FlipNormals flag. However, this flag can work with the FlipNormals
+  // flag, and if both are set, all the normals in the output will
   // point "inward".
   vtkSetMacro(AutoOrientNormals, int);
   vtkGetMacro(AutoOrientNormals, int);
@@ -127,7 +127,7 @@ public:
   vtkSetMacro(NonManifoldTraversal,int);
   vtkGetMacro(NonManifoldTraversal,int);
   vtkBooleanMacro(NonManifoldTraversal,int);
-  
+
 protected:
   vtkPolyDataNormals();
   ~vtkPolyDataNormals() {};

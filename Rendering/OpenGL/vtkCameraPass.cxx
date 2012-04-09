@@ -48,7 +48,7 @@ vtkCameraPass::~vtkCameraPass()
 void vtkCameraPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   os << indent << "AspectRatioOverride: " << this->AspectRatioOverride
     << endl;
   os << indent << "DelegatePass:";
@@ -80,9 +80,9 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   assert("pre: s_exists" && s!=0);
 
   this->NumberOfRenderedProps=0;
-  
+
   vtkRenderer *ren=s->GetRenderer();
-  
+
   if (!ren->IsActiveCameraCreated())
     {
     vtkDebugMacro(<< "No cameras are on, creating one.");
@@ -92,29 +92,29 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     // renderer is part of a vtkRenderWindow, the camera
     // will already have been created as part of the
     // DoStereoRender() method.
-    
+
     // this is ren->GetActiveCameraAndResetIfCreated();
     ren->GetActiveCamera();
     ren->ResetCamera();
     }
-  
+
   vtkCamera *camera=ren->GetActiveCamera();
-  
+
   int lowerLeft[2];
   int usize;
   int vsize;
   vtkMatrix4x4 *matrix=vtkMatrix4x4::New();
 
   vtkFrameBufferObject *fbo=s->GetFrameBuffer();
-  
+
   if(fbo==0)
     {
     vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-    
+
     // find out if we should stereo render
     bool stereo = win->GetStereoRender()==1;
     this->GetTiledSizeAndOrigin(s, &usize,&vsize,lowerLeft,lowerLeft+1);
-    
+
     // if were on a stereo renderer draw to special parts of screen
     if(stereo)
       {
@@ -163,7 +163,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
       if (win->GetDoubleBuffer())
         {
         glDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
-        
+
         // Reading back buffer means back left. see OpenGL spec.
         // because one can write to two buffers at a time but can only read from
         // one buffer at a time.
@@ -172,7 +172,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
       else
         {
         glDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
-        
+
         // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
@@ -209,10 +209,10 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
   glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
-  
+
   double aspectModification = this->AspectRatioOverride > 0.0?
     this->AspectRatioOverride : 1.0;
-  
+
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
     {
@@ -224,37 +224,37 @@ void vtkCameraPass::Render(const vtkRenderState *s)
     {
     int size[2]; size[0] = usize; size[1] = vsize;
     glLoadIdentity();
-    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(), 
+    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(),
                      ren->GetPickWidth(), ren->GetPickHeight(),
                      lowerLeft, size);
     glMultMatrixd(matrix->Element[0]);
     }
   else
     {
-    // insert camera view transformation 
+    // insert camera view transformation
     glLoadMatrixd(matrix->Element[0]);
     }
 
   glMatrixMode(GL_MODELVIEW);
 
   glLoadIdentity();
-  
+
   matrix->DeepCopy(camera->GetViewTransformMatrix());
   matrix->Transpose();
-  
-  // insert camera view transformation 
+
+  // insert camera view transformation
   glMultMatrixd(matrix->Element[0]);
 
-  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase() 
+  if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
     {
     ren->Clear();
     }
-  
+
   matrix->Delete();
-  
+
   // Done with camera initialization. The delegate can be called.
-  
+
   if(this->DelegatePass!=0)
     {
     this->DelegatePass->Render(s);

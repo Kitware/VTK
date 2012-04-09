@@ -138,11 +138,11 @@ public:
   // Currently TextActor is not oriented around its AlignmentPoint.
   void SetAlignmentPoint(int point);
   int GetAlignmentPoint();
-  
+
   // Description:
-  // Counterclockwise rotation around the Alignment point.  
+  // Counterclockwise rotation around the Alignment point.
   // Units are in degrees and defaults to 0.
-  // The orientation in the text property rotates the text in the 
+  // The orientation in the text property rotates the text in the
   // texture map.  It will proba ly not give you the effect you
   // desire.
   void SetOrientation(float orientation);
@@ -152,13 +152,13 @@ public:
   // Set/Get the text property.
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
-  
+
   // Description:
   // Enable non-linear scaling of font sizes. This is useful in combination
   // with scaled text. With small windows you want to use the entire scaled
   // text area. With larger windows you want to reduce the font size some so
-  // that the entire area is not used. These values modify the computed font 
-  // size as follows:  
+  // that the entire area is not used. These values modify the computed font
+  // size as follows:
   //   newFontSize = pow(FontSize,exponent)*pow(target,1.0 - exponent)
   // typically exponent should be around 0.7 and target should be around 10
   virtual void SetNonLinearFontScale(double exponent, int target);
@@ -207,7 +207,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;};
   virtual int RenderOverlay(vtkViewport* viewport);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
@@ -247,14 +247,14 @@ protected:
   // Stuff needed to display the image text as a texture map.
   vtkPolyData* Rectangle;
   vtkPoints*   RectanglePoints;
-  vtkTexture *Texture; 
-  
-  virtual void ComputeRectangle(vtkViewport *viewport); 
+  vtkTexture *Texture;
+
+  virtual void ComputeRectangle(vtkViewport *viewport);
 
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated
   // texture map and multiple actors can share one texture.
-  // This was added for orienated text which is rendered with a 
+  // This was added for orienated text which is rendered with a
   // vtkPolyDataMaper2D and a texture.
   virtual void SetTexture(vtkTexture*);
   vtkGetObjectMacro(Texture,vtkTexture);

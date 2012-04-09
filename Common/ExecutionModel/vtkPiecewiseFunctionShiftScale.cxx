@@ -47,11 +47,11 @@ int vtkPiecewiseFunctionShiftScale::RequestData(
 
   double *inFunction = input->GetDataPointer();
   int numInValues = input->GetSize();
-  
+
   output->RemoveAllPoints();
-  
+
   int i;
-  
+
   for (i = 0; i < numInValues; i++)
     {
     output->AddPoint((inFunction[2*i] + this->PositionShift) *
@@ -66,7 +66,7 @@ int vtkPiecewiseFunctionShiftScale::RequestData(
 void vtkPiecewiseFunctionShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "PositionShift: " << this->PositionShift << "\n";
   os << indent << "PositionScale: " << this->PositionScale << "\n";
   os << indent << "ValueShift: " << this->ValueShift << "\n";

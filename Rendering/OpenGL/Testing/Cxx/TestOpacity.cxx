@@ -14,7 +14,7 @@
 =========================================================================*/
 // This test covers rendering translucent materials with depth peeling
 // technique.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -53,11 +53,11 @@ int TestOpacity(int argc, char* argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   // We create a bunch of translucent spheres with an opaque plane in
   // the middle
   // we create a uniform grid and glyph it with a spherical shape.
-  
+
   // Create the glyph source
   vtkSphereSource *sphere=vtkSphereSource::New();
   sphere->SetRadius(1);
@@ -68,15 +68,15 @@ int TestOpacity(int argc, char* argv[])
   sphere->SetEndTheta(360.0);
   sphere->SetStartPhi(0.0);
   sphere->SetEndPhi(360.0);
-  sphere->SetLatLongTessellation(0);  
-  
+  sphere->SetLatLongTessellation(0);
+
   vtkCubeSource *cube=vtkCubeSource::New();
   cube->SetXLength(1.0);
   cube->SetYLength(1.0);
   cube->SetZLength(1.0);
   cube->SetCenter(0.0,0.0,0.0);
-  
-  
+
+
   vtkImageGridSource *grid=vtkImageGridSource::New();
   grid->SetGridSpacing(1,1,1);
   grid->SetGridOrigin(0,0,0);
@@ -87,10 +87,10 @@ int TestOpacity(int argc, char* argv[])
   grid->SetDataSpacing(0.1,0.1,0.1);
   grid->SetDataOrigin(0.0,0.0,0.0);
   grid->Update(); // to get the range
-  
+
   double range[2];
   grid->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
-  
+
   vtkGlyph3D *glyph=vtkGlyph3D::New();
   glyph->SetInputConnection(0,grid->GetOutputPort(0));
   grid->Delete();
@@ -111,43 +111,43 @@ int TestOpacity(int argc, char* argv[])
   glyph->SetVectorModeToUseVector();
   glyph->SetIndexModeToOff();
   glyph->SetGeneratePointIds(0);
-  
+
   vtkPolyDataMapper *mapper=vtkPolyDataMapper::New();
   mapper->SetInputConnection(glyph->GetOutputPort(0));
   glyph->Delete();
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut = vtkLookupTable::New(); 
+  vtkLookupTable *lut = vtkLookupTable::New();
   lut->SetHueRange (0.667, 0.0);
   mapper->SetLookupTable(lut);
   lut->Delete();
   mapper->SetScalarRange(range);
-  
+
   vtkActor *actor=vtkActor::New();
   actor->SetMapper(mapper);
   mapper->Delete();
   renderer->AddActor(actor);
   actor->Delete();
-  
+
   vtkProperty *property=vtkProperty::New();
   property->SetOpacity(0.2);
   property->SetColor(0.0,1.0,0.0);
   actor->SetProperty(property);
   property->Delete();
-  
+
   vtkPlaneSource *plane=vtkPlaneSource::New();
   plane->SetCenter(0.5,0.5,0.5);
-  
+
   vtkPolyDataMapper *planeMapper=vtkPolyDataMapper::New();
   planeMapper->SetInputConnection(0,plane->GetOutputPort(0));
   plane->Delete();
-  
+
   vtkActor *planeActor=vtkActor::New();
   planeActor->SetMapper(planeMapper);
   planeMapper->Delete();
   renderer->AddActor(planeActor);
   planeActor->Delete();
-  
+
   vtkProperty *planeProperty=vtkProperty::New();
   planeProperty->SetOpacity(1.0);
   planeProperty->SetColor(1.0,0.0,0.0);
@@ -155,19 +155,19 @@ int TestOpacity(int argc, char* argv[])
   planeProperty->Delete();
   planeProperty->SetBackfaceCulling(0);
   planeProperty->SetFrontfaceCulling(0);
-  
+
   renderer->SetUseDepthPeeling(1);
   renderer->SetMaximumNumberOfPeels(200);
   renderer->SetOcclusionRatio(0.1);
-  
+
   property->SetBackfaceCulling(1);
   property->SetFrontfaceCulling(0);
-  
+
   // Standard testing code.
   renderer->SetBackground(0.0,0.5,0.0);
   renWin->SetSize(300,300);
   renWin->Render();
-  
+
   if(renderer->GetLastRenderingUsedDepthPeeling())
     {
     cout<<"depth peeling was used"<<endl;
@@ -184,6 +184,6 @@ int TestOpacity(int argc, char* argv[])
 
   // Cleanup
   iren->Delete();
-  
+
   return !retVal;
 }

@@ -109,9 +109,9 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 }
 
 //----------------------------------------------------------------------------
-// Input a data of 0's and "UnconnectedValue"s. Seeds of this object are 
+// Input a data of 0's and "UnconnectedValue"s. Seeds of this object are
 // used to find connected pixels.
-// All pixels connected to seeds are set to ConnectedValue.  
+// All pixels connected to seeds are set to ConnectedValue.
 // The data has to be unsigned char.
 void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int extent[6])
 {
@@ -129,7 +129,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
     seed = this->PopSeed();
     // just in case the seed has not been marked visited.
     *(static_cast<unsigned char *>(seed->Pointer)) = this->ConnectedValue;
-    // Add neighbors 
+    // Add neighbors
     newIndex[0] = seed->Index[0];
     newIndex[1] = seed->Index[1];
     newIndex[2] = seed->Index[2];
@@ -168,7 +168,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
       ++pIncs;
       ++pIndex;
       }
-    
+
     // Delete seed
     delete seed;
     }
@@ -183,4 +183,4 @@ void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UnconnectedValue: " << this->UnconnectedValue << "\n";
 
 }
- 
+

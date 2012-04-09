@@ -44,22 +44,22 @@ public:
   // Get/Set the writer's input.
   vtkRectilinearGrid* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLPRectilinearGridWriter();
   ~vtkXMLPRectilinearGridWriter();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
-  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter(); 
+  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
   void WritePData(vtkIndent indent);
-  
+
 private:
   vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
   void operator=(const vtkXMLPRectilinearGridWriter&);  // Not implemented.

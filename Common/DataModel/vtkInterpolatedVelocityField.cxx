@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro( vtkInterpolatedVelocityField ); 
+vtkStandardNewMacro( vtkInterpolatedVelocityField );
 
 //----------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
@@ -41,23 +41,23 @@ void vtkInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
       delete[] this->Weights;
       this->Weights = NULL;
       }
-    this->Weights = new double[size]; 
+    this->Weights = new double[size];
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkInterpolatedVelocityField::SetLastCellId( vtkIdType c, int dataindex )
 {
-  this->LastCellId  = c; 
+  this->LastCellId  = c;
   this->LastDataSet = ( *this->DataSets )[dataindex];
-  
+
   // if the dataset changes, then the cached cell is invalidated
   // we might as well prefetch the cached cell either way
   if ( this->LastCellId != -1 )
   {
     this->LastDataSet->GetCell( this->LastCellId, this->GenCell );
-  } 
-  
+  }
+
   this->LastDataSetIndex = dataindex;
 }
 
@@ -75,12 +75,12 @@ int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
     {
     ds = this->LastDataSet;
     }
-    
+
   int retVal = this->FunctionValues( ds, x, f );
-  
+
   if ( !retVal )
     {
-    for( this->LastDataSetIndex = 0; 
+    for( this->LastDataSetIndex = 0;
          this->LastDataSetIndex < static_cast<int>( this->DataSets->size() );
          this->LastDataSetIndex ++ )
       {
@@ -89,7 +89,7 @@ int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
         {
         this->ClearLastCellId();
         retVal = this->FunctionValues( ds, x, f );
-        if ( retVal ) 
+        if ( retVal )
           {
           this->LastDataSet = ds;
           return retVal;
@@ -101,7 +101,7 @@ int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
     this->LastDataSet = (*this->DataSets)[0];
     return 0;
     }
-    
+
   return retVal;
 }
 

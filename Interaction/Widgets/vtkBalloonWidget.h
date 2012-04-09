@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkBalloonWidget - popup text balloons above instance of vtkProp when hovering occurs
-// .SECTION Description 
+// .SECTION Description
 // The vtkBalloonWidget is used to popup text and/or an image when the mouse
 // hovers over an instance of vtkProp. The widget keeps track of
 // (vtkProp,vtkBalloon) pairs (where the internal vtkBalloon class is defined
@@ -21,7 +21,7 @@
 // moving for a user-specified period of time over the vtkProp, then the
 // vtkBalloon is drawn nearby the vtkProp. Note that an instance of
 // vtkBalloonRepresentation is used to draw the balloon.
-// 
+//
 // To use this widget, specify an instance of vtkBalloonWidget and a
 // representation (e.g., vtkBalloonRepresentation). Then list all instances
 // of vtkProp, a text string, and/or an instance of vtkImageData to be
@@ -41,12 +41,12 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkBalloonWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Move -- start the timer
 //   vtkWidgetEvent::TimedOut -- when hovering occurs,
-//   vtkWidgetEvent::SelectAction -- activate any callbacks associated 
+//   vtkWidgetEvent::SelectAction -- activate any callbacks associated
 //                                   with the balloon.
 // </pre>
 //
@@ -101,25 +101,25 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkBalloonRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkBalloonRepresentation.
   vtkBalloonRepresentation *GetBalloonRepresentation()
     {return reinterpret_cast<vtkBalloonRepresentation*>(this->WidgetRep);}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
   // Description:
   // Add and remove text and/or an image to be associated with a vtkProp. You
-  // may add one or both of them. 
+  // may add one or both of them.
   void AddBalloon(vtkProp *prop, vtkStdString *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str) //for wrapping
     {this->AddBalloon(prop,str,NULL);}
   void RemoveBalloon(vtkProp *prop);
-  
+
   // Description:
   // Methods to retrieve the information associated with each vtkProp (i.e.,
   // the information that makes up each balloon). A NULL will be returned if
@@ -139,7 +139,7 @@ public:
   // value may be NULL (if hovering over nothing or the mouse is moving).
   virtual vtkProp *GetCurrentProp()
     {return this->CurrentProp;}
-  
+
   // Description:
   // Set/Get the object used to perform pick operations. Since the
   // vtkBalloonWidget operates on vtkProps, the picker must be a subclass of
@@ -155,7 +155,7 @@ protected:
   // This class implements the method called from its superclass.
   virtual int SubclassEndHoverAction();
   virtual int SubclassHoverAction();
-  
+
   // Classes for managing balloons
   vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,vtkStdString)
 
@@ -164,7 +164,7 @@ protected:
 
   // The vtkProp that is being hovered over (which may be NULL)
   vtkProp *CurrentProp;
-  
+
 private:
   vtkBalloonWidget(const vtkBalloonWidget&);  //Not implemented
   void operator=(const vtkBalloonWidget&);  //Not implemented

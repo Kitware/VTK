@@ -45,7 +45,7 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   // Create a generating polydata
   vtkSphereSource *ss = vtkSphereSource::New();
   ss->SetPhiResolution(25);
@@ -84,13 +84,13 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   // Add actors
   renderer->AddActor(actor);
   renderer->AddActor(actor2);
-  
+
   // Standard testing code.
   renWin->SetSize(500,250);
   renWin->Render();
   renderer->GetActiveCamera()->Zoom(2);
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -101,7 +101,7 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
-  
+
   ss->Delete();
   sampler->Delete();
   stripper->Delete();
@@ -110,6 +110,6 @@ int TestPolyDataPointSampler(int argc, char* argv[])
   mapper2->Delete();
   actor->Delete();
   actor2->Delete();
-  
+
   return !retVal;
 }

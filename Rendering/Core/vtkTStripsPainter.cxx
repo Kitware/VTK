@@ -133,7 +133,7 @@ if ( vcount > 2) \
   device->SendAttribute(vtkPointData::NORMALS, 3,\
     VTK_DOUBLE, polyNorm); \
 } \
-vcount++; 
+vcount++;
 
 //-----------------------------------------------------------------------------
 #define TStripNormalStart \
@@ -148,7 +148,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   vtkPolyData* pd = this->GetInputAsPolyData();
   vtkPoints* p = pd->GetPoints();
   vtkCellArray* ca = pd->GetStrips();
-  vtkIdType cellNum = pd->GetNumberOfVerts() + 
+  vtkIdType cellNum = pd->GetNumberOfVerts() +
     pd->GetNumberOfLines() + pd->GetNumberOfPolys();
   vtkIdType cellNumStart = cellNum;
   vtkIdType totalCells = ca->GetNumberOfCells();
@@ -163,7 +163,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   vtkIdType normIdx[3];
 
   int rep = VTK_TRIANGLE_STRIP;
-  
+
   if (ca->GetNumberOfCells() == 0)
     {
     return 1;
@@ -197,15 +197,15 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   case 0:
     if (this->BuildNormals)
       {
-      vtkDrawPolysMacro(rep, 
-        TStripNormal; 
+      vtkDrawPolysMacro(rep,
+        TStripNormal;
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         TStripNormalStart,;);
       }
     else
       {
-      vtkDrawPolysMacro(rep, 
+      vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
           ptype, points, 3**ptIds);,
         ;,;);
@@ -221,7 +221,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   case VTK_PDM_COLORS:
     if (this->BuildNormals)
       {
-      vtkDrawPolysMacro(rep, 
+      vtkDrawPolysMacro(rep,
         TStripNormal
         device->SendAttribute(vtkPointData::SCALARS, 4,
           VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
@@ -231,7 +231,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
       }
     else
       {
-      vtkDrawPolysMacro(rep, 
+      vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::SCALARS, 4,
           VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -243,8 +243,8 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     if (this->BuildNormals)
       {
 
-      vtkDrawPolysMacro(rep, 
-        TStripNormal 
+      vtkDrawPolysMacro(rep,
+        TStripNormal
         device->SendAttribute(vtkPointData::SCALARS, 3,
           VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -254,7 +254,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
       }
     else
       {
-      vtkDrawPolysMacro(rep, 
+      vtkDrawPolysMacro(rep,
         device->SendAttribute(vtkPointData::SCALARS, 3,
           VTK_UNSIGNED_CHAR, colors + (*ptIds<<2));
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -272,7 +272,7 @@ int vtkTStripsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
         ptype, points, 3**ptIds);,;,;);
     break;
   case VTK_PDM_NORMALS | VTK_PDM_COLORS  | VTK_PDM_OPAQUE_COLORS:
-    vtkDrawPolysMacro(rep, 
+    vtkDrawPolysMacro(rep,
       device->SendAttribute(vtkPointData::NORMALS, 3,
         ntype, normals, 3**ptIds);
       device->SendAttribute(vtkPointData::SCALARS, 3,

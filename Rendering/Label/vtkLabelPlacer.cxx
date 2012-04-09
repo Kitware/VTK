@@ -146,7 +146,7 @@ public:
         {
         std::vector<ScreenTile>* trow = &this->Tiles[tx];
         // Do this check here for speed, even though we repeat w/ small mod below.
-        if ( ! (*trow)[ty].IsSpotOpen( opacity, r ) ) 
+        if ( ! (*trow)[ty].IsSpotOpen( opacity, r ) )
           return false;
         }
       }
@@ -263,9 +263,9 @@ void vtkLabelPlacer::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "UseUnicodeStrings: " << ( this->UseUnicodeStrings ? "ON" : "OFF" ) << "\n";
   os << indent << "IteratorType: " << this->IteratorType << "\n";
   os << indent << "OutputTraversedBounds: " << (this->OutputTraversedBounds ? "ON" : "OFF" ) << "\n";
-  os << indent << "GeneratePerturbedLabelSpokes: " 
+  os << indent << "GeneratePerturbedLabelSpokes: "
     << (this->GeneratePerturbedLabelSpokes ? "ON" : "OFF" ) << "\n";
-  os << indent << "UseDepthBuffer: " 
+  os << indent << "UseDepthBuffer: "
     << (this->UseDepthBuffer ? "ON" : "OFF" ) << "\n";
   os << indent << "OutputCoordinateSystem: " << this->OutputCoordinateSystem << "\n";
 }
@@ -423,7 +423,7 @@ int vtkLabelPlacer::RequestData(
     {
     nameArr0->SetName( "LabelText" );
     ouData0->GetPointData()->AddArray( nameArr0 );
-    }  
+    }
     nameArr0->Delete();
     nameUArr0->Delete();
 
@@ -442,11 +442,11 @@ int vtkLabelPlacer::RequestData(
   ouData0->GetPointData()->AddArray( idArr0 );
   idArr0->Delete();
 
-  vtkStringArray* nameArr = vtkStringArray::SafeDownCast( 
+  vtkStringArray* nameArr = vtkStringArray::SafeDownCast(
     inData->GetLabels());
-  vtkUnicodeStringArray* nameUArr = vtkUnicodeStringArray::SafeDownCast( 
+  vtkUnicodeStringArray* nameUArr = vtkUnicodeStringArray::SafeDownCast(
     inData->GetLabels());
-  vtkIntArray* iconIndexArr = vtkIntArray::SafeDownCast( 
+  vtkIntArray* iconIndexArr = vtkIntArray::SafeDownCast(
     inData->GetIconIndices());
 
   if ( ! inData )
@@ -682,7 +682,7 @@ int vtkLabelPlacer::RequestData(
       {
       continue; // cull label not in frame
       }
-    
+
     switch ( gravity & VerticalBitMask )
       {
     case VerticalBottomBit:
@@ -754,7 +754,7 @@ int vtkLabelPlacer::RequestData(
     if ( this->Buckets->PlaceLabel( opacity, ll[0], ur[0], ll[1], ur[1] ) )
       {
       renderedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
-#if 0 
+#if 0
       if ( renderedLabelArea > allowableLabelArea )
         {
         vtkDebugMacro("Early exit due to large rendered label area");

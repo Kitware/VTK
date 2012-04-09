@@ -64,7 +64,7 @@ void vtkImplicitSelectionLoop::Initialize()
     {
     // Make sure points define a loop with a normal
     vtkPolygon::ComputeNormal(this->Loop, this->Normal);
-    if ( this->Normal[0] == 0.0 && this->Normal[1] == 0.0 && 
+    if ( this->Normal[0] == 0.0 && this->Normal[1] == 0.0 &&
          this->Normal[2] == 0.0 )
       {
       vtkErrorMacro(<<"Cannot determine inside/outside of loop");
@@ -122,8 +122,8 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
        xProj[1] >= this->Bounds[2] && xProj[1] <= this->Bounds[3] &&
        xProj[2] >= this->Bounds[4] && xProj[2] <= this->Bounds[5] &&
        this->Polygon->
-       PointInPolygon(xProj , numPts, 
-                      vtkDoubleArray::SafeDownCast(this->Polygon->Points->GetData())->GetPointer(0), 
+       PointInPolygon(xProj , numPts,
+                      vtkDoubleArray::SafeDownCast(this->Polygon->Points->GetData())->GetPointer(0),
                       this->Bounds,this->Normal) == 1 )
     {
     inside = 1;
@@ -147,7 +147,7 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
 }
 
 //----------------------------------------------------------------------------
-// Evaluate gradient of the implicit function. Use a numerical scheme: evaluate 
+// Evaluate gradient of the implicit function. Use a numerical scheme: evaluate
 // the function at four points (O,O+dx,O+dy,O+dz) and approximate the gradient.
 // It's damn slow.
 void vtkImplicitSelectionLoop::EvaluateGradient(double x[3], double n[3])
@@ -204,9 +204,9 @@ void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Loop not defined\n";
     }
 
-  os << indent << "Automatic Normal Generation: " 
+  os << indent << "Automatic Normal Generation: "
      << (this->AutomaticNormalGeneration ? "On\n" : "Off\n");
 
-  os << indent << "Normal: (" << this->Normal[0] << ", " 
+  os << indent << "Normal: (" << this->Normal[0] << ", "
      << this->Normal[1] << ", " << this->Normal[2] << ")\n";
 }

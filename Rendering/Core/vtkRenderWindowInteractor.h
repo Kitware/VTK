@@ -19,7 +19,7 @@
 // vtkRenderWindowInteractor provides a platform-independent interaction
 // mechanism for mouse/key/time events. It serves as a base class for
 // platform-dependent implementations that handle routing of mouse/key/timer
-// messages to vtkInteractorObserver and its subclasses. vtkRenderWindowInteractor 
+// messages to vtkInteractorObserver and its subclasses. vtkRenderWindowInteractor
 // also provides controls for picking, rendering frame rate, and headlights.
 //
 // vtkRenderWindowInteractor has changed from previous implementations and
@@ -74,7 +74,7 @@ public:
   // interactor will work.
   virtual void Initialize();
   void ReInitialize() {  this->Initialized = 0; this->Enabled = 0;
-                        this->Initialize(); } 
+                        this->Initialize(); }
 
   // Description:
   // This Method detects loops of RenderWindow-Interactor,
@@ -226,7 +226,7 @@ public:
   // Set/Get the desired update rate. This is used by vtkLODActor's to tell
   // them how quickly they need to render.  This update is in effect only
   // when the camera is being rotated, or zoomed.  When the interactor is
-  // still, the StillUpdateRate is used instead. 
+  // still, the StillUpdateRate is used instead.
   // The default is 15.
   vtkSetClampMacro(DesiredUpdateRate,double,0.0001,VTK_LARGE_FLOAT);
   vtkGetMacro(DesiredUpdateRate,double);
@@ -245,8 +245,8 @@ public:
 
   // Description:
   // Set/Get the object used to perform pick operations. In order to
-  // pick instances of vtkProp, the picker must be a subclass of 
-  // vtkAbstractPropPicker, meaning that it can identify a particular 
+  // pick instances of vtkProp, the picker must be a subclass of
+  // vtkAbstractPropPicker, meaning that it can identify a particular
   // instance of vtkProp.
   virtual void SetPicker(vtkAbstractPicker*);
   vtkGetObjectMacro(Picker,vtkAbstractPicker);
@@ -263,7 +263,7 @@ public:
   virtual void UserCallback();
   virtual void StartPickCallback();
   virtual void EndPickCallback();
-  
+
   // Description:
   // Get the current position of the mouse.
   virtual void GetMousePosition(int *x, int *y) { *x = 0 ; *y = 0; }
@@ -275,7 +275,7 @@ public:
   void ShowCursor();
 
   // Description:
-  // Render the scene. Just pass the render call on to the 
+  // Render the scene. Just pass the render call on to the
   // associated vtkRenderWindow.
   virtual void Render();
 
@@ -302,7 +302,7 @@ public:
   vtkGetMacro(Dolly,double);
 
   // Description:
-  // Set/Get information about the current event. 
+  // Set/Get information about the current event.
   // The current x,y position is in the EventPosition, and the previous
   // event position is in LastEventPosition, updated automatically each
   // time EventPosition is set using its Set() method. Mouse positions
@@ -313,7 +313,7 @@ public:
   vtkSetVector2Macro(LastEventPosition,int);
   virtual void SetEventPosition(int x, int y)
   {
-    vtkDebugMacro(<< this->GetClassName() << " (" << this 
+    vtkDebugMacro(<< this->GetClassName() << " (" << this
                   << "): setting EventPosition to (" << x << "," << y << ")");
     if (this->EventPosition[0] != x || this->EventPosition[1] != y ||
         this->LastEventPosition[0] != x || this->LastEventPosition[1] != y)
@@ -328,7 +328,7 @@ public:
   virtual void SetEventPosition(int pos[2])
   {
     this->SetEventPosition(pos[0], pos[1]);
-  } 
+  }
   virtual void SetEventPositionFlipY(int x, int y)
   {
     this->SetEventPosition(x, this->Size[1] - y - 1);
@@ -374,11 +374,11 @@ public:
 
   // Description:
   // Set all the event information in one call.
-  void SetEventInformation(int x, 
-                           int y, 
-                           int ctrl=0, 
-                           int shift=0, 
-                           char keycode=0, 
+  void SetEventInformation(int x,
+                           int y,
+                           int ctrl=0,
+                           int shift=0,
+                           char keycode=0,
                            int repeatcount=0,
                            const char* keysym=0)
     {
@@ -398,30 +398,30 @@ public:
     }
 
   // Description:
-  // Calls SetEventInformation, but flips the Y based on the current Size[1] 
+  // Calls SetEventInformation, but flips the Y based on the current Size[1]
   // value (i.e. y = this->Size[1] - y - 1).
-  void SetEventInformationFlipY(int x, 
-                                int y, 
-                                int ctrl=0, 
-                                int shift=0, 
-                                char keycode=0, 
+  void SetEventInformationFlipY(int x,
+                                int y,
+                                int ctrl=0,
+                                int shift=0,
+                                char keycode=0,
                                 int repeatcount=0,
                                 const char* keysym=0)
     {
-      this->SetEventInformation(x, 
-                                this->Size[1] - y - 1, 
-                                ctrl, 
-                                shift, 
-                                keycode, 
-                                repeatcount, 
+      this->SetEventInformation(x,
+                                this->Size[1] - y - 1,
+                                ctrl,
+                                shift,
+                                keycode,
+                                repeatcount,
                                 keysym);
     }
 
   // Description:
   // Set all the keyboard-related event information in one call.
-  void SetKeyEventInformation(int ctrl=0, 
-                              int shift=0, 
-                              char keycode=0, 
+  void SetKeyEventInformation(int ctrl=0,
+                              int shift=0,
+                              char keycode=0,
                               int repeatcount=0,
                               const char* keysym=0)
     {
@@ -443,7 +443,7 @@ public:
   // This is useful for letting someone else change the size of
   // the rendering window and just letting the interactor
   // know about the change.
-  // The current event width/height (if any) is in EventSize 
+  // The current event width/height (if any) is in EventSize
   // (Expose event, for example).
   // Window size is measured in pixels.
   vtkSetVector2Macro(Size,int);
@@ -496,7 +496,7 @@ public:
   virtual void KeyReleaseEvent();
   virtual void CharEvent();
   virtual void ExitEvent();
-  
+
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
@@ -514,7 +514,7 @@ protected:
   int    LightFollowCamera;
   int    ActorMode;
   double DesiredUpdateRate;
-  double StillUpdateRate;  
+  double StillUpdateRate;
 
   // Event information
   int   AltKey;
@@ -522,7 +522,7 @@ protected:
   int   ShiftKey;
   char  KeyCode;
   int   RepeatCount;
-  char* KeySym; 
+  char* KeySym;
   int   EventPosition[2];
   int   LastEventPosition[2];
   int   EventSize[2];
@@ -570,13 +570,13 @@ protected:
   int GetCurrentTimerId();
 //ETX
 
-  // Force the interactor to handle the Start() event loop, ignoring any 
-  // overrides. (Overrides are registered by observing StartEvent on the 
+  // Force the interactor to handle the Start() event loop, ignoring any
+  // overrides. (Overrides are registered by observing StartEvent on the
   // interactor.)
   int HandleEventLoop;
-  
+
   bool UseTDx; // 3DConnexion device.
-  
+
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkRenderWindowInteractor&);  // Not implemented.

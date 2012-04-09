@@ -83,7 +83,7 @@ void vtkDijkstraImageGeodesicPath::SetInputData( vtkDataObject *input )
   int n = 0;
   for ( int i = 0; i < 3; ++i )
     {
-    if ( dimensions[i] != 1 ) 
+    if ( dimensions[i] != 1 )
       {
       u[n++] = i;
       }
@@ -126,14 +126,14 @@ int vtkDijkstraImageGeodesicPath::FillInputPortInformation( int port,
 
 //----------------------------------------------------------------------------
 int vtkDijkstraImageGeodesicPath::RequestData( vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector ) 
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector )
 {
   vtkInformation* costInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo  = outputVector->GetInformationObject(0);
 
-  vtkImageData* image = 
-    vtkImageData::SafeDownCast( costInfo->Get(vtkDataObject::DATA_OBJECT()) );    
-  
+  vtkImageData* image =
+    vtkImageData::SafeDownCast( costInfo->Get(vtkDataObject::DATA_OBJECT()) );
+
   if ( !image )
     {
     return 0;
@@ -155,14 +155,14 @@ int vtkDijkstraImageGeodesicPath::RequestData( vtkInformation* vtkNotUsed( reque
     {
     // if the filter's static cost weights change, then update them
     if ( this->RebuildStaticCosts  )
-    { 
+    {
        this->UpdateStaticCosts( image );
     }
     this->Reset();
     }
 
   this->ShortestPath( image, this->StartVertex, this->EndVertex );
-  this->TraceShortestPath( image, output, this->StartVertex, this->EndVertex ); 
+  this->TraceShortestPath( image, output, this->StartVertex, this->EndVertex );
 
   return 1;
 }
@@ -190,7 +190,7 @@ double vtkDijkstraImageGeodesicPath::CalculateStaticEdgeCost(
 
   if ( this->EdgeLengthWeight != 0.0 )
     {
-    cost += this->EdgeLengthWeight*( sqrt( 
+    cost += this->EdgeLengthWeight*( sqrt(
       vtkMath::Distance2BetweenPoints( p1, p2 ) )/this->PixelSize );
     }
 
@@ -216,13 +216,13 @@ double vtkDijkstraImageGeodesicPath::CalculateDynamicEdgeCost(
       image->GetPoint( u, p1 );
       double p2[3];
       image->GetPoint( v, p2 );
-   
+
       double p10[3] = { p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2] };
       double p21[3] = { p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2] };
 
       vtkMath::Normalize( p10 );
       vtkMath::Normalize( p21 );
-    
+
       // the range of dot product of two unit vectors is [-1, 1] so normalize
       // the maximum curvature from 2 to 1
       cost = this->CurvatureWeight*( 0.5*fabs( vtkMath::Dot( p10, p21 ) - 1.0 ) );
@@ -248,7 +248,7 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
   double cost;
 
   for ( int i = 0; i < ncells; ++i )
-    {    
+    {
     image->GetCellPoints ( i, ptIds );
 
     for( int j = 0; j < 6; ++j )

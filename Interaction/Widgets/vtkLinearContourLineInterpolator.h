@@ -31,24 +31,24 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkLinearContourLineInterpolator
                           : public vtkContourLineInterpolator
 {
 public:
-  
+
   // Description:
   // Instantiate this class.
   static vtkLinearContourLineInterpolator *New();
-  
+
   // Description:
   // Standard methods for instances of this class.
   vtkTypeMacro(vtkLinearContourLineInterpolator,vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual int InterpolateLine( vtkRenderer *ren, 
+  virtual int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
                                int idx1, int idx2 );
-  
+
 protected:
   vtkLinearContourLineInterpolator();
   ~vtkLinearContourLineInterpolator();
- 
+
 private:
   vtkLinearContourLineInterpolator(const vtkLinearContourLineInterpolator&);  //Not implemented
   void operator=(const vtkLinearContourLineInterpolator&);  //Not implemented

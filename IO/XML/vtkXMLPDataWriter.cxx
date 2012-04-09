@@ -30,7 +30,7 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
   this->GhostLevel = 0;
   this->WriteSummaryFileInitialized = 0;
   this->WriteSummaryFile = 0;
-  
+
   this->PathName = 0;
   this->FileNameBase = 0;
   this->FileNameExtension = 0;
@@ -88,7 +88,7 @@ int vtkXMLPDataWriter::WriteInternal()
     {
     return result;
     }
-  
+
   // Decide whether to write the summary file.
   int writeSummary = 0;
   if(this->WriteSummaryFileInitialized)
@@ -99,7 +99,7 @@ int vtkXMLPDataWriter::WriteInternal()
     {
     writeSummary = 1;
     }
-  
+
   // Write the summary file if requested.
   if(result && writeSummary)
     {
@@ -107,7 +107,7 @@ int vtkXMLPDataWriter::WriteInternal()
       {
       int i;
       vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
-      
+
       for (i = this->StartPiece; i < this->EndPiece; i++)
         {
         char* fileName = this->CreatePieceFileName(i, this->PathName);
@@ -117,14 +117,14 @@ int vtkXMLPDataWriter::WriteInternal()
       return 0;
       }
     }
-  
+
   return result;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPDataWriter::WritePrimaryElementAttributes(ostream &, vtkIndent)
 {
-  this->WriteScalarAttribute("GhostLevel", this->GhostLevel);  
+  this->WriteScalarAttribute("GhostLevel", this->GhostLevel);
 }
 
 //----------------------------------------------------------------------------
@@ -134,13 +134,13 @@ int vtkXMLPDataWriter::WriteData()
   ostream& os = *(this->Stream);
   vtkIndent indent = vtkIndent().GetNextIndent();
   vtkIndent nextIndent = indent.GetNextIndent();
-  
+
   this->StartFile();
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return 0;
     }
-  
+
   os << indent << "<" << this->GetDataSetName();
   this->WritePrimaryElementAttributes(os, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -148,7 +148,7 @@ int vtkXMLPDataWriter::WriteData()
     return 0;
     }
   os << ">\n";
-  
+
   // Write the information needed for a reader to produce the output's
   // information during UpdateInformation without reading a piece.
   this->WritePData(indent.GetNextIndent());
@@ -156,7 +156,7 @@ int vtkXMLPDataWriter::WriteData()
     {
     return 0;
     }
-  
+
   // Write the elements referencing each piece and its file.
   int i;
   for(i=0;i < this->NumberOfPieces; ++i)
@@ -169,7 +169,7 @@ int vtkXMLPDataWriter::WriteData()
       }
     os << "/>\n";
     }
-  
+
   os << indent << "</" << this->GetDataSetName() << ">\n";
 
   this->EndFile();
@@ -177,14 +177,14 @@ int vtkXMLPDataWriter::WriteData()
     {
     return 0;
     }
-  
+
   return 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPDataWriter::WritePData(vtkIndent indent)
 {
-  vtkDataSet* input = this->GetInputAsDataSet();  
+  vtkDataSet* input = this->GetInputAsDataSet();
   this->WritePPointData(input->GetPointData(), indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
@@ -212,12 +212,12 @@ void vtkXMLPDataWriter::SplitFileName()
   char* begin = fileName;
   char* end = fileName + length;
   char* s;
-  
+
 #if defined(_WIN32)
   // Convert to UNIX-style slashes.
   for(s=begin;s != end;++s) { if(*s == '\\') { *s = '/'; } }
 #endif
-  
+
   // Extract the path name up to the last '/'.
   if(this->PathName) { delete [] this->PathName; this->PathName = 0; }
   char* rbegin = end-1;
@@ -231,7 +231,7 @@ void vtkXMLPDataWriter::SplitFileName()
     this->PathName[length] = '\0';
     begin = s+1;
     }
-  
+
   // "begin" now points at the beginning of the file name.
   // Look for the first "." to pull off the longest extension.
   if(this->FileNameExtension)
@@ -245,14 +245,14 @@ void vtkXMLPDataWriter::SplitFileName()
     this->FileNameExtension[length] = '\0';
     end = s;
     }
-  
+
   // "end" now points to end of the file name.
   if(this->FileNameBase) { delete [] this->FileNameBase; }
   length = end-begin;
   this->FileNameBase = new char[length+1];
   strncpy(this->FileNameBase, begin, length);
   this->FileNameBase[length] = '\0';
-  
+
   // Cleanup temporary name.
   delete [] fileName;
 }
@@ -263,16 +263,16 @@ char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
   vtksys_ios::ostringstream fn_with_warning_C4701;
   if(path) { fn_with_warning_C4701 << path; }
   fn_with_warning_C4701 << this->FileNameBase << "_" << index;
-  if(this->PieceFileNameExtension) 
+  if(this->PieceFileNameExtension)
   { fn_with_warning_C4701 << this->PieceFileNameExtension; }
-  //if(this->FileNameExtension) 
+  //if(this->FileNameExtension)
   //{ fn_with_warning_C4701 << this->FileNameExtension; }
 
   size_t len = fn_with_warning_C4701.str().length();
   char *buffer = new char[len + 1];
   strncpy(buffer, fn_with_warning_C4701.str().c_str(), len);
   buffer[len] = '\0';
-  
+
   return buffer;
 }
 
@@ -283,7 +283,7 @@ int vtkXMLPDataWriter::WritePieces()
   // same size.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  
+
   // Write each piece from StartPiece to EndPiece.
   int i;
   for(i=this->StartPiece; i <= this->EndPiece; ++i)
@@ -295,7 +295,7 @@ int vtkXMLPDataWriter::WritePieces()
       // Writing a piece failed.  Delete files for previous pieces and
       // abort.
       vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
-      
+
       for(int j=this->StartPiece; j < i; ++j)
         {
         char* fileName = this->CreatePieceFileName(j, this->PathName);
@@ -315,7 +315,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   // our own writer.
   vtkXMLWriter* pWriter = this->CreatePieceWriter(index);
   pWriter->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
-  
+
   // Set the file name.
   if(!this->PieceFileNameExtension)
     {
@@ -327,21 +327,21 @@ int vtkXMLPDataWriter::WritePiece(int index)
   char* fileName = this->CreatePieceFileName(index, this->PathName);
   pWriter->SetFileName(fileName);
   delete [] fileName;
-  
+
   // Copy the writer settings.
   pWriter->SetCompressor(this->Compressor);
   pWriter->SetDataMode(this->DataMode);
   pWriter->SetByteOrder(this->ByteOrder);
   pWriter->SetEncodeAppendedData(this->EncodeAppendedData);
-  
+
   // Write the piece.
   int result = pWriter->Write();
   this->SetErrorCode(pWriter->GetErrorCode());
-  
+
   // Cleanup.
   pWriter->RemoveObserver(this->ProgressObserver);
   pWriter->Delete();
-  
+
   return result;
 }
 

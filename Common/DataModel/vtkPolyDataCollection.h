@@ -15,7 +15,7 @@
 // .NAME vtkPolyDataCollection - maintain a list of polygonal data objects
 // .SECTION Description
 // vtkPolyDataCollection is an object that creates and manipulates lists of
-// datasets of type vtkPolyData. 
+// datasets of type vtkPolyData.
 
 // .SECTION See Also
 // vtkDataSetCollection vtkCollection
@@ -44,18 +44,18 @@ public:
 
   // Description:
   // Get the next poly data in the list.
-  vtkPolyData *GetNextItem() { 
+  vtkPolyData *GetNextItem() {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject());};
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkPolyData *GetNextPolyData(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject(cookie));};
   //ETX
 
-protected:  
+protected:
   vtkPolyDataCollection() {};
   ~vtkPolyDataCollection() {};
 

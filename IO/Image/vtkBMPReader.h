@@ -19,15 +19,15 @@
 // Usually, all BMPs are converted to 24bit RGB, but BMPs may be output
 // as 8bit images with a LookupTable if the Allow8BitBMP flag is set.
 //
-// BMPReader creates structured point datasets. The dimension of the 
-// dataset depends upon the number of files read. Reading a single file 
-// results in a 2D image, while reading more than one file results in a 
+// BMPReader creates structured point datasets. The dimension of the
+// dataset depends upon the number of files read. Reading a single file
+// results in a 2D image, while reading more than one file results in a
 // 3D volume.
 //
 // To read a volume, files must be of the form "FileName.<number>"
-// (e.g., foo.bmp.0, foo.bmp.1, ...). You must also specify the image 
+// (e.g., foo.bmp.0, foo.bmp.1, ...). You must also specify the image
 // range. This range specifies the beginning and ending files to read (range
-// can be any pair of non-negative numbers). 
+// can be any pair of non-negative numbers).
 //
 // The default behavior is to read a single file. In this case, the form
 // of the file is simply "FileName" (e.g., foo.bmp).
@@ -53,27 +53,27 @@ public:
   // Description:
   // Returns the depth of the BMP, either 8 or 24.
   vtkGetMacro(Depth,int);
-  
+
   // Description:
   // Is the given file a BMP file?
   virtual int CanReadFile(const char* fname);
 
   // Description:
   // Get the file extensions for this format.
-  // Returns a string with a space separated list of extensions in 
+  // Returns a string with a space separated list of extensions in
   // the format .extension
   virtual const char* GetFileExtensions()
     {
       return ".bmp";
     }
 
-  // Description: 
+  // Description:
   // Return a descriptive name for the file format that might be useful in a GUI.
   virtual const char* GetDescriptiveName()
     {
       return "Windows BMP";
     }
-  
+
   // Description:
   // If this flag is set and the BMP reader encounters an 8bit file,
   // the data will be kept as unsigned chars and a lookuptable will be
@@ -98,7 +98,7 @@ protected:
   short Depth;
   int Allow8BitBMP;
   vtkLookupTable *LookupTable;
-  
+
   virtual void ComputeDataIncrements();
   virtual void ExecuteInformation();
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo);

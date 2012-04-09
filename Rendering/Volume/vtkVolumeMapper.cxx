@@ -27,20 +27,20 @@ vtkVolumeMapper::vtkVolumeMapper()
   int i;
 
   this->BlendMode = vtkVolumeMapper::COMPOSITE_BLEND;
-  
+
   this->Cropping = 0;
   for ( i = 0; i < 3; i++ )
     {
     this->CroppingRegionPlanes[2*i    ]      = 0;
     this->CroppingRegionPlanes[2*i + 1]      = 1;
     this->VoxelCroppingRegionPlanes[2*i]     = 0;
-    this->VoxelCroppingRegionPlanes[2*i + 1] = 1;    
+    this->VoxelCroppingRegionPlanes[2*i + 1] = 1;
     }
   this->CroppingRegionFlags = VTK_CROP_SUBVOLUME;
 }
 
 vtkVolumeMapper::~vtkVolumeMapper()
-{  
+{
 }
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
@@ -52,17 +52,17 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
   origin[0] = bds[0];
   origin[1] = bds[2];
   origin[2] = bds[4];
-  
+
   for ( int i = 0; i < 6; i++ )
     {
     this->VoxelCroppingRegionPlanes[i] =
       (this->CroppingRegionPlanes[i] - origin[i/2]) / spacing[i/2];
-    
-    this->VoxelCroppingRegionPlanes[i] = 
+
+    this->VoxelCroppingRegionPlanes[i] =
       ( this->VoxelCroppingRegionPlanes[i] < 0 ) ?
       ( 0 ) : ( this->VoxelCroppingRegionPlanes[i] );
 
-    this->VoxelCroppingRegionPlanes[i] = 
+    this->VoxelCroppingRegionPlanes[i] =
       ( this->VoxelCroppingRegionPlanes[i] > dimensions[i/2]-1 ) ?
       ( dimensions[i/2]-1 ) : ( this->VoxelCroppingRegionPlanes[i] );
     }
@@ -70,9 +70,9 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 
 void vtkVolumeMapper::SetInputData( vtkDataSet *genericInput )
 {
-  vtkImageData *input = 
+  vtkImageData *input =
     vtkImageData::SafeDownCast( genericInput );
-  
+
   if ( input )
     {
     this->SetInputData( input );
@@ -106,19 +106,19 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
 
-  os << indent << "Cropping Region Planes: " << endl 
-     << indent << "  In X: " << this->CroppingRegionPlanes[0] 
-     << " to " << this->CroppingRegionPlanes[1] << endl 
-     << indent << "  In Y: " << this->CroppingRegionPlanes[2] 
-     << " to " << this->CroppingRegionPlanes[3] << endl 
-     << indent << "  In Z: " << this->CroppingRegionPlanes[4] 
+  os << indent << "Cropping Region Planes: " << endl
+     << indent << "  In X: " << this->CroppingRegionPlanes[0]
+     << " to " << this->CroppingRegionPlanes[1] << endl
+     << indent << "  In Y: " << this->CroppingRegionPlanes[2]
+     << " to " << this->CroppingRegionPlanes[3] << endl
+     << indent << "  In Z: " << this->CroppingRegionPlanes[4]
      << " to " << this->CroppingRegionPlanes[5] << endl;
- 
-  os << indent << "Cropping Region Flags: " 
+
+  os << indent << "Cropping Region Flags: "
      << this->CroppingRegionFlags << endl;
 
   os << indent << "BlendMode: " << this->BlendMode << endl;
-  
+
   // Don't print this->VoxelCroppingRegionPlanes
 }
 

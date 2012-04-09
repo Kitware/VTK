@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
@@ -79,7 +79,7 @@ vtkLineWidget2::vtkLineWidget2()
 
 //----------------------------------------------------------------------------
 vtkLineWidget2::~vtkLineWidget2()
-{  
+{
   this->Point1Widget->Delete();
   this->Point2Widget->Delete();
   this->LineHandle->Delete();
@@ -131,7 +131,7 @@ void vtkLineWidget2::SelectAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // We are definitely selected
   self->WidgetState = vtkLineWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -154,7 +154,7 @@ void vtkLineWidget2::TranslateAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Modify the state, we are selected
   int state = self->WidgetRep->GetInteractionState();
   if ( state == vtkLineRepresentation::OnP1 )
@@ -167,7 +167,7 @@ void vtkLineWidget2::TranslateAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkLineRepresentation::TranslatingP2);
     }
-  else 
+  else
     {
     reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkLineRepresentation::OnLine);
@@ -176,7 +176,7 @@ void vtkLineWidget2::TranslateAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // We are definitely selected
   self->WidgetState = vtkLineWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -199,17 +199,17 @@ void vtkLineWidget2::ScaleAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   reinterpret_cast<vtkLineRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkLineRepresentation::Scaling);
   self->Interactor->Disable();
   self->LineHandle->SetEnabled(0);
   self->Interactor->Enable();
-  
+
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // We are definitely selected
   self->WidgetState = vtkLineWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -293,7 +293,7 @@ void vtkLineWidget2::EndSelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Return state to not active
   self->WidgetState = vtkLineWidget2::Start;
   self->ReleaseFocus();

@@ -57,12 +57,12 @@ int vtkImageSobel3D::RequestInformation (vtkInformation *request,
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageSobel3DExecute(vtkImageSobel3D *self,
-                            vtkImageData *inData, T *inPtr, 
-                            vtkImageData *outData, int *outExt, 
+                            vtkImageData *inData, T *inPtr,
+                            vtkImageData *outData, int *outExt,
                             double *outPtr, int id, vtkInformation *inInfo)
 {
   double r0, r1, r2, *r;
@@ -84,7 +84,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   unsigned long count = 0;
   unsigned long target;
 
-  // Get boundary information 
+  // Get boundary information
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExt);
   inWholeMin0 = inWholeExt[0];
   inWholeMax0 = inWholeExt[1];
@@ -92,14 +92,14 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   inWholeMax1 = inWholeExt[3];
   inWholeMin2 = inWholeExt[4];
   inWholeMax2 = inWholeExt[5];
-  
+
   // Get information to march through data (skip component)
-  inData->GetIncrements(inInc0, inInc1, inInc2); 
-  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  outData->GetIncrements(outInc0, outInc1, outInc2);
   min0 = outExt[0];   max0 = outExt[1];
   min1 = outExt[2];   max1 = outExt[3];
   min2 = outExt[4];   max2 = outExt[5];
-  
+
   // We want the input pixel to correspond to output
   inPtr = static_cast<T *>(inData->GetScalarPointer(min0,min1,min2));
 
@@ -109,7 +109,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   r0 = 0.060445 / r[0];
   r1 = 0.060445 / r[1];
   r2 = 0.060445 / r[2];
-  
+
   target = static_cast<unsigned long>((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
 
@@ -125,7 +125,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
     inPtr1 = inPtr2;
     for (outIdx1 = min1; !self->AbortExecute && outIdx1 <= max1; ++outIdx1)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -149,11 +149,11 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc0L;
         inPtrR = inPtr0 + inInc0R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += static_cast<double>(inPtrR[inInc1L] + inPtrR[inInc1R] 
+        sum += static_cast<double>(inPtrR[inInc1L] + inPtrR[inInc1R]
                 + inPtrR[inInc2L] + inPtrR[inInc2R]);
         sum += static_cast<double>(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
                          + inPtrR[inInc1R+inInc2L] + inPtrR[inInc1R+inInc2R]));
-        sum -= static_cast<double>(inPtrL[inInc1L] + inPtrL[inInc1R] 
+        sum -= static_cast<double>(inPtrL[inInc1L] + inPtrL[inInc1R]
                 + inPtrL[inInc2L] + inPtrL[inInc2R]);
         sum -= static_cast<double>(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
                          + inPtrL[inInc1R+inInc2L] + inPtrL[inInc1R+inInc2R]));
@@ -163,11 +163,11 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc1L;
         inPtrR = inPtr0 + inInc1R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R] 
+        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R]
                 + inPtrR[inInc2L] + inPtrR[inInc2R]);
         sum += static_cast<double>(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
                          + inPtrR[inInc0R+inInc2L] + inPtrR[inInc0R+inInc2R]));
-        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R] 
+        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R]
                 + inPtrL[inInc2L] + inPtrL[inInc2R]);
         sum -= static_cast<double>(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
                          + inPtrL[inInc0R+inInc2L] + inPtrL[inInc0R+inInc2R]));
@@ -177,11 +177,11 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc2L;
         inPtrR = inPtr0 + inInc2R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R] 
+        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R]
                 + inPtrR[inInc1L] + inPtrR[inInc1R]);
         sum += static_cast<double>(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
                          + inPtrR[inInc0R+inInc1L] + inPtrR[inInc0R+inInc1R]));
-        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R] 
+        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R]
                 + inPtrL[inInc1L] + inPtrL[inInc1R]);
         sum -= static_cast<double>(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
                          + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
@@ -236,7 +236,7 @@ void vtkImageSobel3D::ThreadedRequestData(
                   << ", must be double");
     return;
     }
-  
+
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(

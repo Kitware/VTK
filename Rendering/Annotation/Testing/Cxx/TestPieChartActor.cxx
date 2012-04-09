@@ -45,7 +45,7 @@ int TestPieChartActor( int argc, char * argv [] )
 
   vtkDataObject *dobj = vtkDataObject::New();
   dobj->GetFieldData()->AddArray(bitter);
-  
+
   vtkPieChartActor *actor = vtkPieChartActor::New();
   actor->SetInputData(dobj);
   actor->SetTitle("Pie Chart");

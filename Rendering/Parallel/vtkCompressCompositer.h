@@ -15,8 +15,8 @@
 // .NAME vtkCompressCompositer - Implements compressed tree based compositing.
 //
 // .SECTION Description
-// vtkCompressCompositer operates in multiple processes.  Each compositer has 
-// a render window.  They use vtkMultiProcessController to communicate 
+// vtkCompressCompositer operates in multiple processes.  Each compositer has
+// a render window.  They use vtkMultiProcessController to communicate
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency.  Compositing is run length encoding
 // of background pixels.
@@ -56,11 +56,11 @@ public:
 
   static void CompositeImagePair(vtkFloatArray *localZ, vtkDataArray *localP,
                                  vtkFloatArray *remoteZ, vtkDataArray *remoteP,
-                                 vtkFloatArray *outZ, vtkDataArray *outP); 
+                                 vtkFloatArray *outZ, vtkDataArray *outP);
 protected:
   vtkCompressCompositer();
   ~vtkCompressCompositer();
-  
+
 
   vtkDataArray *InternalPData;
   vtkFloatArray *InternalZData;

@@ -14,17 +14,17 @@
 =========================================================================*/
 // .NAME vtkRecursiveDividingCubes - create points laying on isosurface (using recursive approach)
 // .SECTION Description
-// vtkRecursiveDividingCubes is a filter that generates points laying on a 
-// surface of constant scalar value (i.e., an isosurface). Dense point 
-// clouds (i.e., at screen resolution) will appear as a surface. Less dense 
-// clouds can be used as a source to generate streamlines or to generate 
+// vtkRecursiveDividingCubes is a filter that generates points laying on a
+// surface of constant scalar value (i.e., an isosurface). Dense point
+// clouds (i.e., at screen resolution) will appear as a surface. Less dense
+// clouds can be used as a source to generate streamlines or to generate
 // "transparent" surfaces.
 //
-// This implementation differs from vtkDividingCubes in that it uses a 
-// recursive procedure. In many cases this can result in generating 
+// This implementation differs from vtkDividingCubes in that it uses a
+// recursive procedure. In many cases this can result in generating
 // more points than the procedural implementation of vtkDividingCubes. This is
-// because the recursive procedure divides voxels by multiples of powers of 
-// two. This can over-constrain subdivision. One of the advantages of the 
+// because the recursive procedure divides voxels by multiples of powers of
+// two. This can over-constrain subdivision. One of the advantages of the
 // recursive technique is that the recursion is terminated earlier, which in
 // some cases can be more efficient.
 
@@ -77,7 +77,7 @@ protected:
 
   // working variable
   int Count;
-  
+
   // to replace a static
   vtkVoxel *Voxel;
 private:

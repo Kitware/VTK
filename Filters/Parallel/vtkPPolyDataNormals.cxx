@@ -45,7 +45,7 @@ int vtkPPolyDataNormals::RequestData(
     {
     return 0;
     }
-  
+
   if (this->PieceInvariant)
     {
     output->RemoveGhostCells(

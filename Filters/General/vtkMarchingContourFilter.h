@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkMarchingContourFilter - generate isosurfaces/isolines from scalar values
 // .SECTION Description
-// vtkMarchingContourFilter is a filter that takes as input any dataset and 
-// generates on output isosurfaces and/or isolines. The exact form 
-// of the output depends upon the dimensionality of the input data. 
-// Data consisting of 3D cells will generate isosurfaces, data 
-// consisting of 2D cells will generate isolines, and data with 1D 
-// or 0D cells will generate isopoints. Combinations of output type 
+// vtkMarchingContourFilter is a filter that takes as input any dataset and
+// generates on output isosurfaces and/or isolines. The exact form
+// of the output depends upon the dimensionality of the input data.
+// Data consisting of 3D cells will generate isosurfaces, data
+// consisting of 2D cells will generate isolines, and data with 1D
+// or 0D cells will generate isopoints. Combinations of output type
 // are possible if the input dimension is mixed.
 //
 // This filter will identify special dataset types (e.g., structured
@@ -27,7 +27,7 @@
 // data. For examples, if the input dataset type is a volume, this
 // filter will create an internal vtkMarchingCubes instance and use
 // it. This gives much better performance.
-// 
+//
 // To use this filter you must specify one or more contour values.
 // You can either use the method SetValue() to specify each contour
 // value, or use GenerateValues() to generate a series of evenly
@@ -118,7 +118,7 @@ public:
   vtkBooleanMacro(UseScalarTree,int);
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -142,9 +142,9 @@ protected:
   vtkIncrementalPointLocator *Locator;
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
-  
+
   //special contouring for structured points
-  void StructuredPointsContour(int dim, vtkDataSet *input, vtkPolyData *output); 
+  void StructuredPointsContour(int dim, vtkDataSet *input, vtkPolyData *output);
   //special contouring for image data
   void ImageContour(int dim, vtkDataSet *input, vtkPolyData *output);
   //default if not structured data
@@ -155,7 +155,7 @@ private:
 };
 
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
+// Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
 inline void vtkMarchingContourFilter::SetValue(int i, double value)
 {

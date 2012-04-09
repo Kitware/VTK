@@ -64,7 +64,7 @@ void vtkOpenGLTexture::Initialize(vtkRenderer * vtkNotUsed(ren))
 }
 
 // ----------------------------------------------------------------------------
-// Release the graphics resources used by this texture.  
+// Release the graphics resources used by this texture.
 void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   if (this->Index && renWin && renWin->GetMapped())
@@ -115,7 +115,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   // to load when only the desired update rate changed).
   // If a better check is required, check something more specific,
   // like the graphics context.
-  vtkOpenGLRenderWindow* renWin = 
+  vtkOpenGLRenderWindow* renWin =
     static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
 
   if(this->BlendingMode != VTK_TEXTURE_BLENDING_MODE_NONE
@@ -171,8 +171,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
       input->GetMTime() > this->LoadTime.GetMTime() ||
-      (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >  
-       this->LoadTime.GetMTime()) || 
+      (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >
+       this->LoadTime.GetMTime()) ||
        renWin != this->RenderWindow.GetPointer() ||
        renWin->GetContextCreationTime() > this->LoadTime)
     {
@@ -189,7 +189,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     scalars = this->GetInputArrayToProcess(0, input);
 
     // make sure scalars are non null
-    if (!scalars) 
+    if (!scalars)
       {
       vtkErrorMacro(<< "No scalar values found for texture input!");
       return;
@@ -225,7 +225,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
 
     // we only support 2d texture maps right now
-    // so one of the three sizes must be 1, but it 
+    // so one of the three sizes must be 1, but it
     // could be any of them, so lets find it
     if (size[0] == 1)
       {
@@ -248,8 +248,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
           }
         }
       }
-    
-    
+
+
     if(!this->CheckedHardwareSupport)
       {
       vtkOpenGLExtensionManager *m=renWin->GetExtensionManager();
@@ -259,9 +259,9 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         || m->ExtensionSupported("GL_ARB_texture_non_power_of_two");
       this->SupportsPBO=vtkPixelBufferObject::IsSupported(renWin);
       }
-    
+
     // -- decide whether the texture needs to be resampled --
-    
+
     GLint maxDimGL;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxDimGL);
     // if larger than permitted by the graphics library then must resample
@@ -270,7 +270,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       {
       vtkDebugMacro( "Texture too big for gl, maximum is " << maxDimGL);
       }
-    
+
     if(!resampleNeeded && !this->SupportsNonPowerOfTwoTextures)
       {
       // xsize and ysize must be a power of 2 in OpenGL
@@ -291,7 +291,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     if(resampleNeeded)
       {
       vtkDebugMacro(<< "Resampling texture to power of two for OpenGL");
-      resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr, 
+      resultData = this->ResampleToPowerOfTwo(xsize, ysize, dataPtr,
                                               bytesPerPixel);
       }
 
@@ -305,12 +305,12 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       {
       this->ReleaseGraphicsResources(this->RenderWindow);
       }
-    
+
      this->RenderWindow = ren->GetRenderWindow();
-     
+
     // make the new context current before we mess with opengl
     this->RenderWindow->MakeCurrent();
- 
+
     // define a display list for this texture
     // get a unique display list id
 
@@ -415,7 +415,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       // non-blocking call
       this->PBO->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
       glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
-                    xsize, ysize, 0, format, 
+                    xsize, ysize, 0, format,
                     GL_UNSIGNED_BYTE,0);
       this->PBO->UnBind();
       }
@@ -423,17 +423,17 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       {
       // blocking call
       glTexImage2D( GL_TEXTURE_2D, 0 , internalFormat,
-                    xsize, ysize, 0, format, 
+                    xsize, ysize, 0, format,
                     GL_UNSIGNED_BYTE,
                     static_cast<const GLvoid *>(resultData) );
-      
+
       }
 #ifndef GL_VERSION_1_1
     glEndList ();
 #endif
     // modify the load time to the current time
     this->LoadTime.Modified();
-    
+
     // free memory
     if (resultData != dataPtr)
       {
@@ -447,7 +447,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 #else
   glCallList(this->Index);
 #endif
-  
+
   // don't accept fragments if they have zero opacity. this will stop the
   // zbuffer from be blocked by totally transparent texture fragments.
   glAlphaFunc (GL_GREATER, static_cast<GLclampf>(0));
@@ -469,7 +469,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
   glMatrixMode(GL_TEXTURE);
   glLoadIdentity();
 
-  // build transformation 
+  // build transformation
   if (this->Transform)
     {
     double *mat = this->Transform->GetMatrix()->Element[0];
@@ -490,17 +490,17 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     mat2[13] = mat[7];
     mat2[14] = mat[11];
     mat2[15] = mat[15];
-    
-    // insert texture transformation 
+
+    // insert texture transformation
     glMultMatrixd(mat2);
     }
   glMatrixMode(GL_MODELVIEW);
-  
+
   GLint uUseTexture=-1;
   GLint uTexture=-1;
-  
+
   vtkOpenGLRenderer *oRenderer=static_cast<vtkOpenGLRenderer *>(ren);
- 
+
   if(oRenderer->GetDepthPeelingHigherLayer())
     {
     uUseTexture=oRenderer->GetUseTextureUniformVariable();
@@ -541,7 +541,7 @@ static int FindPowerOfTwo(int i)
         size = maxDimGL ;
     }
   // end of Tim's additions
- 
+
   return size;
 }
 
@@ -598,7 +598,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
       {
       pcoords[0] = i*hx;
       iIdx = static_cast<int>(pcoords[0]);
-      if ( iIdx >= (xs-1) ) 
+      if ( iIdx >= (xs-1) )
         {
         iIdx = xs - 2;
         pcoords[0] = 1.0;
@@ -616,7 +616,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
       p4 = p3 + bpp;
 
       // Compute interpolation weights interpolate components
-      w0 = rm*sm; 
+      w0 = rm*sm;
       w1 = pcoords[0]*sm;
       w2 = rm*pcoords[1];
       w3 = pcoords[0]*pcoords[1];
@@ -630,7 +630,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs,
 
   xs = xsize;
   ys = ysize;
-  
+
   return tptr;
 }
 

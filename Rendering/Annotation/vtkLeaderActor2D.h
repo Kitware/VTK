@@ -28,7 +28,7 @@
 // Position and Position2 vtkCoordinates to place an instance of
 // vtkLeaderActor2D (i.e., these two data members represent the start and end
 // points of the leader).  Using these vtkCoordinates you can specify the position
-// of the leader in a variety of coordinate systems. 
+// of the leader in a variety of coordinate systems.
 //
 // To control the appearance of the actor, use the superclasses
 // vtkActor2D::vtkProperty2D and the vtkTextProperty objects associated with
@@ -66,7 +66,7 @@ public:
   // between the two points defined by the superclasses' Position and
   // Position2 ivars, then the leader will be curved. A positive radius will
   // produce a curve such that the center is to the right of the line from
-  // Position and Position2; a negative radius will produce a curve in the 
+  // Position and Position2; a negative radius will produce a curve in the
   // opposite sense. By default, the radius is set to zero and thus there
   // is no curvature. Note that the radius is expresses as a multiple of
   // the distance between (Position,Position2); this avoids issues relative
@@ -84,10 +84,10 @@ public:
   // Set/Get the text property of the label.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the factor that controls the overall size of the fonts used
-  // to label the leader. 
+  // to label the leader.
   vtkSetClampMacro(LabelFactor, double, 0.1, 2.0);
   vtkGetMacro(LabelFactor, double);
 
@@ -96,7 +96,7 @@ public:
   // and appearance of arrow heads.
   enum {VTK_ARROW_NONE=0,VTK_ARROW_POINT1,VTK_ARROW_POINT2,VTK_ARROW_BOTH};
   enum {VTK_ARROW_FILLED=0,VTK_ARROW_OPEN,VTK_ARROW_HOLLOW};
-//ETX  
+//ETX
 
   // Description:
   // Control whether arrow heads are drawn on the leader. Arrows may be
@@ -161,11 +161,11 @@ public:
   int RenderOverlay(vtkViewport* viewport);
   int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *) {return 0;}
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   void ReleaseGraphicsResources(vtkWindow *);
   void ShallowCopy(vtkProp *prop);
 
@@ -175,11 +175,11 @@ protected:
 
   // Internal helper methods
   virtual void BuildLeader(vtkViewport *viewport);
-  int SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper, 
+  int SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper,
                   int *targetSize, double factor, int *stringSize);
   int ClipLeader(double xL[3], int stringSize[2], double p1[3], double ray[3],
                  double c1[3], double c2[3]);
-  void BuildCurvedLeader(double p1[3], double p2[3], double ray[3], double rayLength, 
+  void BuildCurvedLeader(double p1[3], double p2[3], double ray[3], double rayLength,
                          double theta, vtkViewport *viewport, int viewportChanged);
   int InStringBox(double center[3], int stringSize[2], double x[3]);
 

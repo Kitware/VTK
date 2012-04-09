@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // .NAME vtkBitArrayIterator - Iterator for vtkBitArray.
-// This iterator iterates over a vtkBitArray. It uses the double interface 
+// This iterator iterates over a vtkBitArray. It uses the double interface
 // to get/set bit values.
 
 #ifndef __vtkBitArrayIterator_h
@@ -33,15 +33,15 @@ public:
   // Description:
   // Set the array this iterator will iterate over.
   // After Initialize() has been called, the iterator is valid
-  // so long as the Array has not been modified 
+  // so long as the Array has not been modified
   // (except using the iterator itself).
   // If the array is modified, the iterator must be re-intialized.
   virtual void Initialize(vtkAbstractArray* array);
-  
+
   // Description:
   // Get the array.
   vtkAbstractArray* GetArray();
-  
+
   // Description:
   // Must be called only after Initialize.
   int* GetTuple(vtkIdType id) ;
@@ -49,7 +49,7 @@ public:
   // Description:
   // Must be called only after Initialize.
   int GetValue(vtkIdType id);
-  
+
   // Description:
   // Must be called only after Initialize.
   vtkIdType GetNumberOfTuples();
@@ -83,7 +83,7 @@ public:
 protected:
   vtkBitArrayIterator();
   ~vtkBitArrayIterator();
-  
+
   int *Tuple;
   int TupleSize;
   void SetArray(vtkBitArray* b);

@@ -57,8 +57,8 @@ vtkDataSetMapper map3
 
 vtkActor triActor
   triActor SetMapper map3
-  triActor AddPosition 2 0 0 
-  
+  triActor AddPosition 2 0 0
+
 # Create graphics stuff
 #
 vtkRenderer ren1

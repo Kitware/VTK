@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Set the representation (i.e., appearance) of the sphere. Different
-  // representations are useful depending on the application. 
+  // representations are useful depending on the application.
   vtkSetClampMacro(Representation,int,VTK_SPHERE_OFF,VTK_SPHERE_SURFACE);
   vtkGetMacro(Representation,int);
   void SetRepresentationToOff()
@@ -117,9 +117,9 @@ public:
   void SetCenter(double c[3]);
   void SetCenter(double x, double y, double z)
     {double c[3]; c[0]=x; c[1]=y; c[2]=z; this->SetCenter(c);}
-  double* GetCenter() 
+  double* GetCenter()
     {return this->SphereSource->GetCenter();}
-  void GetCenter(double xyz[3]) 
+  void GetCenter(double xyz[3])
     {this->SphereSource->GetCenter(xyz);}
 
   // Description:
@@ -145,7 +145,7 @@ public:
   void SetHandlePosition(double x, double y, double z)
     {double p[3]; p[0]=x; p[1]=y; p[2]=z; this->SetHandlePosition(p);}
   vtkGetVector3Macro(HandlePosition,double);
-  
+
   // Description:
   // Set/Get the direction vector of the handle relative to the center of
   // the sphere. This may affect the position of the handle and the radius
@@ -159,7 +159,7 @@ public:
   // Enable/disable a label that displays the location of the handle in
   // spherical coordinates (radius,theta,phi). The two angles, theta and
   // phi, are displayed in degrees. Note that phi is measured from the
-  // north pole down towards the equator; and theta is the angle around 
+  // north pole down towards the equator; and theta is the angle around
   // the north/south axis.
   vtkSetMacro(HandleText,int);
   vtkGetMacro(HandleText,int);
@@ -188,28 +188,28 @@ public:
   void GetSphere(vtkSphere *sphere);
 
   // Description:
-  // Get the sphere properties. The properties of the sphere when selected 
+  // Get the sphere properties. The properties of the sphere when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(SphereProperty,vtkProperty);
   vtkGetObjectMacro(SelectedSphereProperty,vtkProperty);
-  
+
   // Description:
   // Get the handle properties (the little ball on the sphere is the
   // handle). The properties of the handle when selected and unselected
   // can be  manipulated.
   vtkGetObjectMacro(HandleProperty,vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
-  
+
   // Description:
-  // Get the handle text property. This can be used to control the appearance 
+  // Get the handle text property. This can be used to control the appearance
   // of the handle text.
   vtkGetObjectMacro(HandleTextProperty,vtkTextProperty);
-  
+
   // Description:
-  // Get the property of the radial line. This can be used to control the 
+  // Get the property of the radial line. This can be used to control the
   // appearance of the optional line connecting the center to the handle.
   vtkGetObjectMacro(RadialLineProperty,vtkProperty);
-  
+
   // Description:
   // The interaction state may be set from a widget (e.g., vtkSphereWidget2) or
   // other object. This controls how the interaction with the widget
@@ -221,7 +221,7 @@ public:
   void SetInteractionState(int state);
 
   // Description:
-  // These are methods that satisfy vtkWidgetRepresentation's API. Note that a 
+  // These are methods that satisfy vtkWidgetRepresentation's API. Note that a
   // version of place widget is available where the center and handle position
   // are specified.
   virtual void PlaceWidget(double bounds[6]);
@@ -231,7 +231,7 @@ public:
   virtual void StartWidgetInteraction(double e[2]);
   virtual void WidgetInteraction(double e[2]);
   virtual double *GetBounds();
-  
+
   // Description:
   // Methods supporting, and required by, the rendering process.
   virtual void ReleaseGraphicsResources(vtkWindow*);
@@ -239,14 +239,14 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 protected:
   vtkSphereRepresentation();
   ~vtkSphereRepresentation();
 
   // Manage how the representation appears
   double LastEventPosition[3];
-  
+
   // the sphere
   vtkActor            *SphereActor;
   vtkPolyDataMapper   *SphereMapper;
@@ -260,13 +260,13 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *SpherePicker;
   double LastPickPosition[3];
-  
+
   // Methods to manipulate the sphere widget
   void Translate(double *p1, double *p2);
   void Scale(double *p1, double *p2, int X, int Y);
   void PlaceHandle(double *center, double radius);
   virtual void SizeHandles();
-  
+
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *SphereProperty;
@@ -296,7 +296,7 @@ protected:
   vtkLineSource     *RadialLineSource;
   vtkPolyDataMapper *RadialLineMapper;
   vtkActor          *RadialLineActor;
-  
+
 private:
   vtkSphereRepresentation(const vtkSphereRepresentation&);  //Not implemented
   void operator=(const vtkSphereRepresentation&);  //Not implemented

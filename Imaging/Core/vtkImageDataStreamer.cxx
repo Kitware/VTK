@@ -31,7 +31,7 @@ vtkImageDataStreamer::vtkImageDataStreamer()
   // default to 10 divisions
   this->NumberOfStreamDivisions = 10;
   this->CurrentDivision = 0;
-  
+
   // create default translator
   this->ExtentTranslator = vtkExtentTranslator::New();
 
@@ -73,7 +73,7 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     {
     // we must set the extent on the input
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    
+
     // get the requested update extent
     int outExt[6];
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
@@ -89,19 +89,19 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
       {
       translator->GetExtent(inExt);
       }
-    
+
     inputVector[0]->GetInformationObject(0)
       ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
-    
+
     return 1;
     }
-  
+
   // generate the data
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     // get the output data object
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    vtkImageData *output = 
+    vtkImageData *output =
       vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
 
@@ -115,18 +115,18 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
 
     // actually copy the data
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-    vtkImageData *input = 
+    vtkImageData *input =
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     int inExt[6];
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
-    output->CopyAndCastFrom(input, inExt);    
+    output->CopyAndCastFrom(input, inExt);
 
     // update the progress
     this->UpdateProgress(
       static_cast<float>(this->CurrentDivision+1.0)
       /static_cast<float>(this->NumberOfStreamDivisions));
-    
+
     this->CurrentDivision++;
     if (this->CurrentDivision == this->NumberOfStreamDivisions)
       {
@@ -134,7 +134,7 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentDivision = 0;
       }
-    
+
     return 1;
     }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);

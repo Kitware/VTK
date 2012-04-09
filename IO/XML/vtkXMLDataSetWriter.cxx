@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLDataSetWriter::vtkXMLDataSetWriter()
-{  
+{
   // Setup a callback for the internal writer to report progress.
   this->ProgressObserver = vtkCallbackCommand::New();
   this->ProgressObserver->SetCallback(&vtkXMLDataSetWriter::ProgressCallbackFunction);
@@ -63,10 +63,10 @@ vtkDataSet* vtkXMLDataSetWriter::GetInput()
 
 //----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::WriteInternal()
-{  
+{
   vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
   vtkXMLWriter* writer = 0;
-  
+
   // Create a writer based on the data set type.
   switch (this->GetInput()->GetDataObjectType())
     {
@@ -108,7 +108,7 @@ int vtkXMLDataSetWriter::WriteInternal()
       writer = w;
       } break;
     }
-  
+
   // Make sure we got a valid writer for the data set.
   if(!writer)
     {
@@ -116,7 +116,7 @@ int vtkXMLDataSetWriter::WriteInternal()
                   << this->GetInput()->GetDataObjectType());
     return 0;
     }
-  
+
   // Copy the settings to the writer.
   writer->SetDebug(this->GetDebug());
   writer->SetFileName(this->GetFileName());
@@ -126,10 +126,10 @@ int vtkXMLDataSetWriter::WriteInternal()
   writer->SetDataMode(this->GetDataMode());
   writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
   writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
-  
+
   // Try to write.
   int result = writer->Write();
-  
+
   // Cleanup.
   writer->RemoveObserver(this->ProgressObserver);
   writer->Delete();

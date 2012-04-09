@@ -25,8 +25,8 @@ vtkConeSource cone
 vtkGlyph3D glyph
   glyph SetInputConnection [sphere GetOutputPort]
   glyph SetSourceConnection [cone GetOutputPort]
-  glyph SetVectorModeToUseNormal 
-  glyph SetScaleModeToScaleByVector 
+  glyph SetVectorModeToUseNormal
+  glyph SetScaleModeToScaleByVector
   glyph SetScaleFactor 0.25
 
 vtkPolyDataMapper spikeMapper
@@ -54,7 +54,7 @@ renWin SetSize 200 200
 renWin DoubleBufferOff
 
 # do the first render and then zoom in a little
-renWin Render 
+renWin Render
 [ren1 GetActiveCamera] SetFocalPoint 0 0 0
 [ren1 GetActiveCamera] Zoom 1.8
 [ren1 GetActiveCamera] SetFocalDisk 0.05

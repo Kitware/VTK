@@ -29,7 +29,7 @@
 vtkStandardNewMacro(vtkOctreePointLocatorNode);
 
 //----------------------------------------------------------------------------
-vtkOctreePointLocatorNode::vtkOctreePointLocatorNode() : 
+vtkOctreePointLocatorNode::vtkOctreePointLocatorNode() :
   NumberOfPoints(0), Children(NULL), ID(-1), MinID(-1)
 {
   // set the min and max data value and bounds since we won't know it
@@ -86,7 +86,7 @@ void vtkOctreePointLocatorNode::CreateChildNodes()
 
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::DeleteChildNodes()
-{     
+{
   if(this->Children)
     {
     for(int i=0;i<8;i++)
@@ -96,7 +96,7 @@ void vtkOctreePointLocatorNode::DeleteChildNodes()
     delete []this->Children;
     this->Children = 0;
     }
-}       
+}
 
 //----------------------------------------------------------------------------
 vtkOctreePointLocatorNode* vtkOctreePointLocatorNode::GetChild(int i)
@@ -136,7 +136,7 @@ int vtkOctreePointLocatorNode::GetSubOctantIndex(
 
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
-  vtkOctreePointLocatorNode* Parent, int & NextLeafId, int & NextMinId, 
+  vtkOctreePointLocatorNode* Parent, int & NextLeafId, int & NextMinId,
   float* coordinates)
 {
   this->MinID = NextMinId;
@@ -244,14 +244,14 @@ void vtkOctreePointLocatorNode::GetDataBounds(double *b) const
 
 //----------------------------------------------------------------------------
 // Squared distance from any point anywhere to the boundary of spatial region
-//   
+//
 double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
   double x, double y, double z, vtkOctreePointLocatorNode* top,
   int useDataBounds=0)
 {
   return this->_GetDistance2ToBoundary(x, y, z, NULL, 0, top, useDataBounds);
 }
- 
+
 //----------------------------------------------------------------------------
 // Squared distance from any point anywhere to the boundary of spatial region,
 // and give me the point on the boundary closest to this point.
@@ -275,7 +275,7 @@ double vtkOctreePointLocatorNode::GetDistance2ToInnerBoundary(
 }
 
 //----------------------------------------------------------------------------
-double vtkOctreePointLocatorNode::_GetDistance2ToBoundary( 
+double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
   double x, double y, double z,  // from this point
   double *p,              // set to point on boundary that is closest
   int innerBoundaryOnly, // ignore boundaries on "outside"
@@ -303,7 +303,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 
   if (innerBoundaryOnly)
     {
-    // We want the distance to the nearest inner boundary, because we 
+    // We want the distance to the nearest inner boundary, because we
     // are only interested in boundaries such that there may be points on
     // the other side.  This option only makes sense when the point supplied
     // is inside this node (region).
@@ -334,7 +334,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       {
       minDistance = x - xmin;
       mindim = 0;
-  
+
       if ((dist = xmax - x) < minDistance)
         {
         mindim = 1;
@@ -366,42 +366,42 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       int first = 1;
       minDistance = VTK_LARGE_FLOAT; // Suppresses warning message.
 
-      if ((xmin != outerBoundaryMin[0]) && 
+      if ((xmin != outerBoundaryMin[0]) &&
           (((dist = x - xmin) < minDistance) || first))
         {
         mindim = 0;
         minDistance = dist;
         first = 0;
         }
-      if ((xmax != outerBoundaryMax[0]) && 
+      if ((xmax != outerBoundaryMax[0]) &&
           (((dist = xmax - x) < minDistance) || first))
         {
         mindim = 1;
         minDistance = dist;
         first = 0;
         }
-      if ((ymin != outerBoundaryMin[1]) && 
+      if ((ymin != outerBoundaryMin[1]) &&
           (((dist = y - ymin) < minDistance) || first))
         {
         mindim = 2;
         minDistance = dist;
         first = 0;
         }
-      if ((ymax != outerBoundaryMax[1]) && 
+      if ((ymax != outerBoundaryMax[1]) &&
           (((dist = ymax - y) < minDistance) || first))
         {
         mindim = 3;
         minDistance = dist;
         first = 0;
         }
-      if ((zmin != outerBoundaryMin[2]) && 
+      if ((zmin != outerBoundaryMin[2]) &&
           (((dist = z - zmin) < minDistance) || first))
         {
         mindim = 4;
         minDistance = dist;
         first = 0;
         }
-      if ((zmax != outerBoundaryMax[2]) && 
+      if ((zmax != outerBoundaryMax[2]) &&
           (((dist = zmax - z) < minDistance) || first))
         {
         mindim = 5;
@@ -420,27 +420,27 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       p[0] = x; p[1] = y; p[2] = z;
 
 
-      if (mindim == 0)      
+      if (mindim == 0)
         {
         p[0] = xmin;
         }
-      else if (mindim == 1) 
+      else if (mindim == 1)
         {
         p[0] = xmax;
         }
-      else if (mindim == 2) 
+      else if (mindim == 2)
         {
         p[1] = ymin;
         }
-      else if (mindim == 3) 
+      else if (mindim == 3)
         {
         p[1] = ymax;
         }
-      else if (mindim == 4) 
+      else if (mindim == 4)
         {
         p[2] = zmin;
         }
-      else if (mindim == 5) 
+      else if (mindim == 5)
         {
         p[2] = zmax;
         }
@@ -514,7 +514,7 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 }
 
 //----------------------------------------------------------------------------
-int vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double z, 
+int vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double z,
                                  int useDataBounds=0)
 {
   double *min, *max;
@@ -589,19 +589,19 @@ int vtkOctreePointLocatorNode::IntersectsRegion(
 
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
   os << indent << "Children: " << this->Children << endl;
   os << indent << "ID: " << this->ID << endl;
   os << indent << "MinID: " << this->MinID << endl;
-  os << indent << "MinBounds: " << this->MinBounds[0] << " " 
+  os << indent << "MinBounds: " << this->MinBounds[0] << " "
      << this->MinBounds[1] << " " << this->MinBounds[2] << endl;
-  os << indent << "MaxBounds: " << this->MaxBounds[0] << " " 
+  os << indent << "MaxBounds: " << this->MaxBounds[0] << " "
      << this->MaxBounds[1] << " " << this->MaxBounds[2] << endl;
-  os << indent << "MinDataBounds: " << this->MinDataBounds[0] << " " 
+  os << indent << "MinDataBounds: " << this->MinDataBounds[0] << " "
      << this->MinDataBounds[1] << " " << this->MinDataBounds[2] << endl;
-  os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " " 
+  os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " "
      << this->MaxDataBounds[1] << " " << this->MaxDataBounds[2] << endl;
 }

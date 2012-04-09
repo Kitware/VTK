@@ -57,11 +57,11 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
 {
  public:
   vtkTypeMacro(vtkPCAAnalysisFilter,vtkMultiBlockDataSetAlgorithm);
-  
+
   // Description:
   // Prints information about the state of the filter.
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Creates with similarity transform.
   static vtkPCAAnalysisFilter *New();
@@ -69,7 +69,7 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
   // Description:
   // Get the vector of eigenvalues sorted in descending order
   vtkGetObjectMacro(Evals, vtkFloatArray);
-  
+
   // Description:
   // Fills the shape with:
   //
@@ -86,7 +86,7 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
 
   // Description:
   // Return the bsize parameters b that best model the given shape
-  // (in standard deviations). 
+  // (in standard deviations).
   // That is that the given shape will be approximated by:
   //
   // shape ~ mean + b[0] * sqrt(eigenvalue[0]) * eigenvector[0]

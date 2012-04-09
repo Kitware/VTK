@@ -22,12 +22,12 @@ vtkStandardNewMacro(vtkActorCollection);
 void vtkActorCollection::ApplyProperties(vtkProperty *p)
 {
   vtkActor *actor;
-  
+
   if ( p == NULL )
     {
     return;
     }
-  
+
   vtkCollectionSimpleIterator ait;
   for ( this->InitTraversal(ait); (actor=this->GetNextActor(ait)); )
     {

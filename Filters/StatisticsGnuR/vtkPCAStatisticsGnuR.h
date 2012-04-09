@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 // - or some combination thereof.
 // Additionally, the user may specify some threshold energy or
 // eigenvector entry below which the basis is truncated. This allows
-// projection into a lower-dimensional state while minimizing (in a 
+// projection into a lower-dimensional state while minimizing (in a
 // least squares sense) the projection error.
 //
 // In the test operation, a Jarque-Bera-Srivastava test of n-d normality is performed.

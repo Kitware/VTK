@@ -26,12 +26,12 @@ vtkStandardNewMacro(vtkCheckerboardWidget);
 
 
 // The checkerboard simply observes the behavior of four vtkSliderWidgets.
-// Here we create the command/observer classes to respond to the 
+// Here we create the command/observer classes to respond to the
 // slider widgets.
 class vtkCWCallback : public vtkCommand
 {
 public:
-  static vtkCWCallback *New() 
+  static vtkCWCallback *New()
     { return new vtkCWCallback; }
   virtual void Execute(vtkObject *, unsigned long eventId, void*)
     {
@@ -68,7 +68,7 @@ vtkCheckerboardWidget::vtkCheckerboardWidget()
 
   // Set up the callbacks on the sliders
   vtkCWCallback *cwCallback0 = vtkCWCallback::New();
-  cwCallback0->CheckerboardWidget = this; 
+  cwCallback0->CheckerboardWidget = this;
   cwCallback0->SliderNumber = vtkCheckerboardRepresentation::TopSlider;
   this->TopSlider->AddObserver(vtkCommand::StartInteractionEvent, cwCallback0, this->Priority);
   this->TopSlider->AddObserver(vtkCommand::InteractionEvent, cwCallback0, this->Priority);
@@ -135,7 +135,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     if ( ! this->CurrentRenderer )
       {
       this->SetCurrentRenderer(
@@ -148,17 +148,17 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
         }
       }
 
-    // Everything is ok, enable the representation 
+    // Everything is ok, enable the representation
     this->Enabled = 1;
     this->CreateDefaultRepresentation();
     this->WidgetRep->SetRenderer(this->CurrentRenderer);
-    
+
     // Configure this slider widgets
     this->TopSlider->SetInteractor(this->Interactor);
     this->RightSlider->SetInteractor(this->Interactor);
     this->BottomSlider->SetInteractor(this->Interactor);
     this->LeftSlider->SetInteractor(this->Interactor);
-    
+
     // Make sure there is a representation
     this->WidgetRep->BuildRepresentation();
     this->TopSlider->SetRepresentation(reinterpret_cast<vtkCheckerboardRepresentation*>
@@ -169,8 +169,8 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
                                           (this->WidgetRep)->GetBottomRepresentation());
     this->LeftSlider->SetRepresentation(reinterpret_cast<vtkCheckerboardRepresentation*>
                                         (this->WidgetRep)->GetLeftRepresentation());
-    
-    
+
+
     // We temporarily disable the sliders to avoid multiple renders
     this->Interactor->Disable();
     this->TopSlider->SetEnabled(1);
@@ -182,7 +182,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
     // Add the actors
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  
+
   else //disabling------------------
     {
     vtkDebugMacro(<<"Disabling checkerboard widget");
@@ -191,17 +191,17 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     this->Enabled = 0;
 
-    // Turn off the slider widgets. Temporariliy disable 
+    // Turn off the slider widgets. Temporariliy disable
     this->Interactor->Disable();
     this->TopSlider->SetEnabled(0);
     this->RightSlider->SetEnabled(0);
     this->BottomSlider->SetEnabled(0);
     this->LeftSlider->SetEnabled(0);
     this->Interactor->Enable();
-    
+
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     this->SetCurrentRenderer(NULL);
     }
@@ -236,7 +236,7 @@ void vtkCheckerboardWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->TopSlider )
     {
     os << indent << "Top Slider: " << this->TopSlider << "\n";

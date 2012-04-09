@@ -68,8 +68,8 @@ public:
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);
   vtkBooleanMacro(ClampOverflow, int);
-  
-  
+
+
 protected:
   vtkImageCast();
   ~vtkImageCast() {};
@@ -77,8 +77,8 @@ protected:
   int ClampOverflow;
   int OutputScalarType;
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
+
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 
 private:

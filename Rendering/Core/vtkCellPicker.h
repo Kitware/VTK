@@ -26,7 +26,7 @@
 // For all prop types, it returns point and cell information, plus the
 // normal of the surface that was intersected at the pick position.  For
 // volumes and images, it also returns (i,j,k) coordinates for the point
-// and the cell that were picked.  
+// and the cell that were picked.
 //
 // .SECTION See Also
 // vtkPicker vtkPointPicker vtkVolumePicker
@@ -65,12 +65,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Perform pick operation with selection point provided. Normally the 
+  // Perform pick operation with selection point provided. Normally the
   // first two values are the (x,y) pixel coordinates for the pick, and
   // the third value is z=0. The return value will be non-zero if
   // something was successfully picked.
-  virtual int Pick(double selectionX, double selectionY, double selectionZ, 
-                   vtkRenderer *renderer);  
+  virtual int Pick(double selectionX, double selectionY, double selectionZ,
+                   vtkRenderer *renderer);
 
   // Description:
   // Add a locator for one of the data sets that will be included in the
@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Set the opacity isovalue to use for defining volume surfaces.  The
-  // pick will occur at the location along the pick ray where the 
+  // pick will occur at the location along the pick ray where the
   // opacity of the volume is equal to this isovalue.  If you want to do
   // the pick based on an actual data isovalue rather than the opacity,
   // then pass the data value through the scalar opacity function before
@@ -203,18 +203,18 @@ protected:
 
   virtual void ResetPickInfo();
 
-  virtual double IntersectWithLine(double p1[3], double p2[3], double tol, 
-                                  vtkAssemblyPath *path, vtkProp3D *p, 
+  virtual double IntersectWithLine(double p1[3], double p2[3], double tol,
+                                  vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m);
 
   virtual double IntersectActorWithLine(const double p1[3], const double p2[3],
-                                        double t1, double t2, double tol, 
+                                        double t1, double t2, double tol,
                                         vtkProp3D *prop, vtkMapper *mapper);
 
   virtual double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,
-                                         vtkProp3D *prop, 
+                                         vtkProp3D *prop,
                                          vtkAbstractVolumeMapper *mapper);
 
   virtual double IntersectImageWithLine(const double p1[3],
@@ -225,7 +225,7 @@ protected:
 
   virtual double IntersectProp3DWithLine(const double p1[3],
                                          const double p2[3],
-                                         double t1, double t2, double tol, 
+                                         double t1, double t2, double tol,
                                          vtkProp3D *prop,
                                          vtkAbstractMapper3D *mapper);
 
@@ -287,7 +287,7 @@ private:
   vtkGenericCell *Cell; //used to accelerate picking
   vtkIdList *PointIds; // used to accelerate picking
   vtkDoubleArray *Gradients; //used in volume picking
-  
+
 private:
   vtkCellPicker(const vtkCellPicker&);  // Not implemented.
   void operator=(const vtkCellPicker&);  // Not implemented.

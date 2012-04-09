@@ -34,7 +34,7 @@ public:
   static vtkTDxInteractorStyleSettings *New();
   vtkTypeMacro(vtkTDxInteractorStyleSettings,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Sensitivity of the rotation angle. This can be any value:
   // positive, negative, null.
@@ -47,25 +47,25 @@ public:
   // - x>1.0: faster
   vtkSetMacro(AngleSensitivity,double);
   vtkGetMacro(AngleSensitivity,double);
-  
+
   // Description:
   // Use or mask the rotation component around the X-axis. Initial value is
   // true.
   vtkSetMacro(UseRotationX,bool);
   vtkGetMacro(UseRotationX,bool);
-  
+
   // Description:
   // Use or mask the rotation component around the Y-axis. Initial value is
   // true.
   vtkSetMacro(UseRotationY,bool);
   vtkGetMacro(UseRotationY,bool);
-  
+
   // Description:
   // Use or mask the rotation component around the Z-axis. Initial value is
   // true.
   vtkSetMacro(UseRotationZ,bool);
   vtkGetMacro(UseRotationZ,bool);
-  
+
   // Description:
   // Sensitivity of the translation along the X-axis. This can be any value:
   // positive, negative, null.
@@ -79,19 +79,19 @@ public:
   // Initial value is 1.0
   vtkSetMacro(TranslationXSensitivity,double);
   vtkGetMacro(TranslationXSensitivity,double);
-  
+
   // Description:
   // Sensitivity of the translation along the Y-axis.
   // See comment of SetTranslationXSensitivity().
   vtkSetMacro(TranslationYSensitivity,double);
   vtkGetMacro(TranslationYSensitivity,double);
-  
+
   // Description:
   // Sensitivity of the translation along the Z-axis.
   // See comment of SetTranslationXSensitivity().
   vtkSetMacro(TranslationZSensitivity,double);
   vtkGetMacro(TranslationZSensitivity,double);
-  
+
 protected:
   vtkTDxInteractorStyleSettings();
   virtual ~vtkTDxInteractorStyleSettings();
@@ -100,11 +100,11 @@ protected:
   bool UseRotationX;
   bool UseRotationY;
   bool UseRotationZ;
-  
+
   double TranslationXSensitivity;
   double TranslationYSensitivity;
   double TranslationZSensitivity;
-  
+
 private:
   vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&);  // Not implemented.
   void operator=(const vtkTDxInteractorStyleSettings&);  // Not implemented.

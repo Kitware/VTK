@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkTypeMacro(vtkTexturedActor2D, vtkActor2D);
 
-  // Description: 
+  // Description:
   // Set/Get the texture object to control rendering texture maps.  This will
   // be a vtkTexture object. An actor does not need to have an associated
   // texture map and multiple actors can share one texture.

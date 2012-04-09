@@ -44,7 +44,7 @@ public:
   virtual void *GetGenericWindowId()  = 0;
   virtual void *GetGenericParentId()  = 0;
   virtual void *GetGenericContext()   = 0;
-  virtual void *GetGenericDrawable()  = 0;  
+  virtual void *GetGenericDrawable()  = 0;
   virtual void SetWindowInfo(char *) = 0;
   virtual void SetParentInfo(char *) = 0;
 
@@ -76,8 +76,8 @@ public:
   vtkBooleanMacro(Mapped,int);
 
   // Description:
-  // Turn on/off erasing the screen between images. This allows multiple 
-  // exposure sequences if turned on. You will need to turn double 
+  // Turn on/off erasing the screen between images. This allows multiple
+  // exposure sequences if turned on. You will need to turn double
   // buffering off or make use of the SwapBuffers methods to prevent
   // you from swapping buffers between exposures.
   vtkSetMacro(Erase,int);
@@ -96,14 +96,14 @@ public:
   vtkSetStringMacro(WindowName);
 
   // Description:
-  // Ask each viewport owned by this Window to render its image and 
+  // Ask each viewport owned by this Window to render its image and
   // synchronize this process.
   virtual void Render() = 0;
 
   // Description:
   // Get the pixel data of an image, transmitted as RGBRGBRGB. The
-  // front argument indicates if the front buffer should be used or the back 
-  // buffer. It is the caller's responsibility to delete the resulting 
+  // front argument indicates if the front buffer should be used or the back
+  // buffer. It is the caller's responsibility to delete the resulting
   // array. It is very important to realize that the memory in this array
   // is organized from the bottom of the window to the top. The origin
   // of the screen is in the lower left corner. The y axis increases as
@@ -121,7 +121,7 @@ public:
   // device being rendered (or printed).
   vtkGetMacro(DPI,int);
   vtkSetClampMacro(DPI,int,1,3000);
-  
+
   // Description:
   // Create a window in memory instead of on the screen. This may not be
   // supported for every type of window and on some windows you may need to
@@ -162,7 +162,7 @@ protected:
   double TileViewport[4];
   int    TileSize[2];
   int    TileScale[2];
-  
+
 private:
   vtkWindow(const vtkWindow&);  // Not implemented.
   void operator=(const vtkWindow&);  // Not implemented.

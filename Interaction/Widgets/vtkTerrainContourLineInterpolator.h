@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkTerrainContourLineInterpolator - Contour interpolator for DEM data.
 //
-// .SECTION Description 
+// .SECTION Description
 // vtkTerrainContourLineInterpolator interpolates nodes on height field data.
-// The class is meant to be used in conjunciton with a vtkContourWidget, 
-// enabling you to draw paths on terrain data. The class internally uses a 
+// The class is meant to be used in conjunciton with a vtkContourWidget,
+// enabling you to draw paths on terrain data. The class internally uses a
 // vtkProjectedTerrainPath. Users can set kind of interpolation
 // desired between two node points by setting the modes of the this filter.
 // For instance:
@@ -29,7 +29,7 @@
 // interpolator->SetHeightOffset(25.0);
 // \endcode
 //
-// You are required to set the ImageData to this class as the height-field 
+// You are required to set the ImageData to this class as the height-field
 // image.
 //
 // .SECTION See Also
@@ -60,19 +60,19 @@ public:
 
   // Description:
   // Interpolate to create lines between contour nodes idx1 and idx2.
-  // Depending on the projection mode, the interpolated line may either 
-  // hug the terrain, just connect the two points with a straight line or 
-  // a non-occluded interpolation. 
+  // Depending on the projection mode, the interpolated line may either
+  // hug the terrain, just connect the two points with a straight line or
+  // a non-occluded interpolation.
   // Used internally by vtkContourRepresentation.
-  virtual int InterpolateLine( vtkRenderer *ren, 
+  virtual int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
                                int idx1, int idx2 );
-  
+
   // Description:
   // The interpolator is given a chance to update the node.
   // Used internally by vtkContourRepresentation
   // Returns 0 if the node (world position) is unchanged.
-  virtual int UpdateNode( vtkRenderer *, 
+  virtual int UpdateNode( vtkRenderer *,
                           vtkContourRepresentation *,
                           double * vtkNotUsed(node), int vtkNotUsed(idx) );
 
@@ -94,7 +94,7 @@ protected:
   ~vtkTerrainContourLineInterpolator();
 
   vtkImageData              *ImageData; // height field data
-  vtkProjectedTerrainPath   *Projector; 
+  vtkProjectedTerrainPath   *Projector;
 
 private:
   vtkTerrainContourLineInterpolator(const vtkTerrainContourLineInterpolator&);  //Not implemented

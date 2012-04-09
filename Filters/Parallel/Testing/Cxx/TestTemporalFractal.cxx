@@ -39,7 +39,7 @@ int TestTemporalFractal(int argc, char *argv[])
   prototype->Delete();
 
   // create temporal fractals
-  vtkSmartPointer<vtkTemporalFractal> fractal = 
+  vtkSmartPointer<vtkTemporalFractal> fractal =
     vtkSmartPointer<vtkTemporalFractal>::New();
   fractal->SetMaximumLevel(3);
   fractal->DiscreteTimeStepsOn();
@@ -47,51 +47,51 @@ int TestTemporalFractal(int argc, char *argv[])
 //  fractal->SetAdaptiveSubdivision(0);
 
   // shift and scale the time range to that it run from -0.5 to 0.5
-  vtkSmartPointer<vtkTemporalShiftScale> tempss = 
+  vtkSmartPointer<vtkTemporalShiftScale> tempss =
     vtkSmartPointer<vtkTemporalShiftScale>::New();
   tempss->SetScale(0.1);
   tempss->SetPostShift(-0.5);
   tempss->SetInputConnection(fractal->GetOutputPort());
 
   // interpolate if needed
-  vtkSmartPointer<vtkTemporalInterpolator> interp = 
+  vtkSmartPointer<vtkTemporalInterpolator> interp =
     vtkSmartPointer<vtkTemporalInterpolator>::New();
   interp->SetInputConnection(tempss->GetOutputPort());
-  
-  vtkSmartPointer<vtkThreshold> contour = 
+
+  vtkSmartPointer<vtkThreshold> contour =
     vtkSmartPointer<vtkThreshold>::New();
   contour->SetInputConnection(interp->GetOutputPort());
   contour->ThresholdByUpper(0.5);
 
-  vtkSmartPointer<vtkCompositeDataGeometryFilter> geom = 
+  vtkSmartPointer<vtkCompositeDataGeometryFilter> geom =
     vtkSmartPointer<vtkCompositeDataGeometryFilter>::New();
   geom->SetInputConnection(contour->GetOutputPort());
 
   // map them
-  vtkSmartPointer<vtkPolyDataMapper> mapper = 
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(geom->GetOutputPort());
-  
+
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkRenderer> renderer = 
+  vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = 
+  vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = 
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
   renderer->AddActor( actor );
   renderer->SetBackground(0.5, 0.5, 0.5);
 
   renWin->AddRenderer( renderer );
-  renWin->SetSize( 300, 300 ); 
+  renWin->SetSize( 300, 300 );
   iren->SetRenderWindow( renWin );
   renWin->Render();
 
   // ask for some specific data points
-  vtkStreamingDemandDrivenPipeline *sdd = 
+  vtkStreamingDemandDrivenPipeline *sdd =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
   double times[1];
   times[0] = -0.6;
@@ -104,7 +104,7 @@ int TestTemporalFractal(int argc, char *argv[])
     renderer->ResetCameraClippingRange();
     renWin->Render();
     }
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {

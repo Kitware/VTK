@@ -31,21 +31,21 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageEllipsoidSource : public vtkImageAlgorith
 public:
   static vtkImageEllipsoidSource *New();
   vtkTypeMacro(vtkImageEllipsoidSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int extent[6]);
-  void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
+  void SetWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetWholeExtent(int extent[6]);
   int *GetWholeExtent() {return this->WholeExtent;}
-  
+
   // Description:
   // Set/Get the center of the ellipsoid.
   vtkSetVector3Macro(Center, double);
   vtkGetVector3Macro(Center, double);
-  
+
   // Description:
   // Set/Get the radius of the ellipsoid.
   vtkSetVector3Macro(Radius, double);
@@ -60,7 +60,7 @@ public:
   // Set/Get the outside pixel values.
   vtkSetMacro(OutValue,double);
   vtkGetMacro(OutValue,double);
-  
+
   // Description:
   // Set what type of scalar data this source should generate.
   vtkSetMacro(OutputScalarType,int);
@@ -85,7 +85,7 @@ public:
     {this->SetOutputScalarType(VTK_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
-  
+
 protected:
   vtkImageEllipsoidSource();
   ~vtkImageEllipsoidSource();
@@ -96,12 +96,12 @@ protected:
   double InValue;
   double OutValue;
   int OutputScalarType;
-  
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector **, 
+
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector **,
                                   vtkInformationVector *);
 
-  virtual int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *,
                           vtkInformationVector **, vtkInformationVector *);
 
 private:

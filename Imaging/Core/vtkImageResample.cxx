@@ -45,7 +45,7 @@ void vtkImageResample::SetAxisOutputSpacing(int axis, double spacing)
     vtkErrorMacro("Bad axis: " << axis);
     return;
     }
-  
+
   if (this->OutputSpacing[axis] != spacing)
     {
     this->OutputSpacing[axis] = spacing;
@@ -67,7 +67,7 @@ void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
     vtkErrorMacro("Bad axis: " << axis);
     return;
     }
-  
+
   if (this->MagnificationFactors[axis] == factor)
     {
     return;
@@ -87,7 +87,7 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis,
     vtkErrorMacro("Bad axis: " << axis);
     return 0.0;
     }
-  
+
   if (this->MagnificationFactors[axis] == 0.0)
     {
     double *inputSpacing;
@@ -102,15 +102,15 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis,
       inInfo = this->GetExecutive()->GetInputInformation(0, 0);
       }
     inputSpacing = inInfo->Get(vtkDataObject::SPACING());
-    this->MagnificationFactors[axis] = 
+    this->MagnificationFactors[axis] =
       inputSpacing[axis] / this->OutputSpacing[axis];
-    
+
     }
 
-  vtkDebugMacro("Returning magnification factor " 
+  vtkDebugMacro("Returning magnification factor "
                 <<  this->MagnificationFactors[axis] << " for axis "
                 << axis);
-  
+
   return this->MagnificationFactors[axis];
 }
 
@@ -130,12 +130,12 @@ int vtkImageResample::RequestInformation(
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
   inInfo->Get(vtkDataObject::SPACING(), spacing);
-  
+
   for (axis = 0; axis < 3; axis++)
     {
     wholeMin = ext[axis*2];
     wholeMax = ext[axis*2+1];
-    
+
     // Scale the output extent
     factor = 1.0;
     if (axis < this->Dimensionality)
@@ -145,13 +145,13 @@ int vtkImageResample::RequestInformation(
 
     wholeMin = static_cast<int>(ceil(static_cast<double>(wholeMin) * factor));
     wholeMax = static_cast<int>(floor(static_cast<double>(wholeMax) * factor));
-    
+
     // Change the data spacing
     spacing[axis] /= factor;
-    
+
     ext[axis*2] = wholeMin;
     ext[axis*2+1] = wholeMax;
-    
+
     // just in case  the input spacing has changed.
     if (this->OutputSpacing[axis] != 0.0)
       {

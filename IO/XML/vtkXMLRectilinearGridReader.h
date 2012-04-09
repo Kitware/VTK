@@ -37,19 +37,19 @@ public:
   vtkTypeMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLRectilinearGridReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkRectilinearGrid *GetOutput();
   vtkRectilinearGrid *GetOutput(int idx);
-  
+
 protected:
   vtkXMLRectilinearGridReader();
-  ~vtkXMLRectilinearGridReader();  
-  
+  ~vtkXMLRectilinearGridReader();
+
   const char* GetDataSetName();
   void SetOutputExtent(int* extent);
-  
+
   void SetupPieces(int numPieces);
   void DestroyPieces();
   void SetupOutputData();
@@ -58,10 +58,10 @@ protected:
   int ReadSubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                          vtkXMLDataElement* da, vtkDataArray* array);
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
   // The elements representing the coordinate arrays for each piece.
   vtkXMLDataElement** CoordinateElements;
-  
+
 private:
   vtkXMLRectilinearGridReader(const vtkXMLRectilinearGridReader&);  // Not implemented.
   void operator=(const vtkXMLRectilinearGridReader&);  // Not implemented.

@@ -15,9 +15,9 @@
 // .NAME vtkPointAccumulator - Container class that manages appending data arrays of points.
 // .SECTION Description
 //
-// The template types are T_CPP for the c++ data type and T_VTK for 
-// the VTK data type. Eg: if T_CCP==double the T_VTK must be 
-// vtkDoubleArray. The main difference between the way this 
+// The template types are T_CPP for the c++ data type and T_VTK for
+// the VTK data type. Eg: if T_CCP==double the T_VTK must be
+// vtkDoubleArray. The main difference between the way this
 // works and if you were to do the same thing with a data array is
 // that here the memory grows by exactly what is needed, and
 // in VTK data arrays the memory will grow by at least twice
@@ -61,7 +61,7 @@ class vtkPointAccumulator
       return this->NPts==0;
     }
     // Description:
-    // Extend the internal store and get a pointer to 
+    // Extend the internal store and get a pointer to
     // the newly added memory.
     T_CPP *Expand(vtkIdType n)
     {

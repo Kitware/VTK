@@ -15,8 +15,8 @@
 // .NAME vtkImageShiftScale - shift and scale an input image
 // .SECTION Description
 // With vtkImageShiftScale Pixels are shifted (a constant value added)
-// and then scaled (multiplied by a scalar. As a convenience, this class 
-// allows you to set the output scalar type similar to vtkImageCast. 
+// and then scaled (multiplied by a scalar. As a convenience, this class
+// allows you to set the output scalar type similar to vtkImageCast.
 // This is because shift scale operations frequently convert data types.
 
 
@@ -45,7 +45,7 @@ public:
   vtkGetMacro(Scale,double);
 
   // Description:
-  // Set the desired output scalar type. The result of the shift 
+  // Set the desired output scalar type. The result of the shift
   // and scale operations is cast to the type specified.
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
@@ -77,7 +77,7 @@ public:
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);
   vtkBooleanMacro(ClampOverflow, int);
-  
+
 protected:
   vtkImageShiftScale();
   ~vtkImageShiftScale();

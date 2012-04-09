@@ -40,7 +40,7 @@ public:
   // Description:
   // Tell if the device is initialized. Initial value is false.
   bool GetInitialized() const;
-  
+
   // Description:
   // Close the device. This is called by the destructor.
   // You don't have to close the device explicitly, as the destructor do it
@@ -48,25 +48,25 @@ public:
   // \pre initialized: GetInitialized().
   // \post restored: !GetInitialized()
   virtual void Close()=0;
-  
+
   // Description:
   // Get the interactor on which events will be invoked.
   // Initial value is 0.
   // Called by the Interactor itself ONLY.
   vtkRenderWindowInteractor *GetInteractor() const;
-  
+
   // Description:
   // Set the interactor on which events will be invoked.
   // Initial value is 0.
   // Called by the Interactor itself ONLY.
   // It can be called if the device is initialized or not.
   void SetInteractor(vtkRenderWindowInteractor *i);
-  
+
 protected:
   // Description:
   // Default constructor. Just set initial values for Initialized (false).
   vtkTDxDevice();
-  
+
   // Description:
   // Destructor. If the device is not initialized, do nothing. If the device
   // is initialized, close the device. This behavior has to be implemented
@@ -75,7 +75,7 @@ protected:
 
   bool Initialized;
   vtkRenderWindowInteractor *Interactor;
-  
+
 private:
   vtkTDxDevice(const vtkTDxDevice&);  // Not implemented.
   void operator=(const vtkTDxDevice&);  // Not implemented.

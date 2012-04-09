@@ -370,11 +370,11 @@ char TSBWeventLog[] =
 
 int TestScalarBarWidget( int argc, char *argv[] )
 {
-  char* fname = 
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
-  char* fname2 = 
+  char* fname2 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
-  
+
   // Start by loading some data.
   vtkSmartPointer<vtkMultiBlockPLOT3DReader> pl3d =
     vtkSmartPointer<vtkMultiBlockPLOT3DReader>::New();
@@ -384,16 +384,16 @@ int TestScalarBarWidget( int argc, char *argv[] )
   pl3d->SetVectorFunctionNumber(202);
   pl3d->Update();
   vtkDataSet* pl3d_block0 = vtkDataSet::SafeDownCast(pl3d->GetOutput()->GetBlock(0));
-  
+
   delete [] fname;
   delete [] fname2;
-  
+
   // An outline is shown for context.
   vtkSmartPointer<vtkStructuredGridGeometryFilter> outline =
     vtkSmartPointer<vtkStructuredGridGeometryFilter>::New();
   outline->SetInputData(pl3d_block0);
   outline->SetExtent(0,100,0,100,9,9);
-  
+
   vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   outlineMapper->SetInputConnection(outline->GetOutputPort());
@@ -419,7 +419,7 @@ int TestScalarBarWidget( int argc, char *argv[] )
   scalarWidget->SetInteractor(iren);
   scalarWidget->GetScalarBarActor()->SetTitle("Temperature");
   scalarWidget->GetScalarBarActor()->SetLookupTable(outlineMapper->GetLookupTable());
-  
+
   ren1->AddActor(outlineActor);
 
   // Add the actors to the renderer, set the background and size
@@ -442,13 +442,13 @@ int TestScalarBarWidget( int argc, char *argv[] )
   //scalarWidget->EnabledOn();
   recorder->Play();
   //recorder->EnabledOn();
-  
+
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
   recorder->Off();
 
   iren->Start();
-  
+
   recorder->Off();
 
   return EXIT_SUCCESS;

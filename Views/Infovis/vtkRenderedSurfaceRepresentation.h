@@ -49,7 +49,7 @@ public:
   static vtkRenderedSurfaceRepresentation *New();
   vtkTypeMacro(vtkRenderedSurfaceRepresentation, vtkRenderedRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //Description:
   //Sets the color array name
   virtual void SetCellColorArrayName(const char* arrayName);
@@ -70,27 +70,27 @@ protected:
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
-  
+
   // Description:
   // Performs per-render operations.
   virtual void PrepareForRendering(vtkRenderView* view);
-  
+
   // Description:
   // Adds the representation to the view.  This is called from
   // vtkView::AddRepresentation().
   virtual bool AddToView(vtkView* view);
-  
+
   // Description:
   // Removes the representation to the view.  This is called from
   // vtkView::RemoveRepresentation().
   virtual bool RemoveFromView(vtkView* view);
-  
+
   // Description:
   // Convert the selection to a type appropriate for sharing with other
   // representations through vtkAnnotationLink.
   // If the selection cannot be applied to this representation, returns NULL.
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);
-  
+
   // Description:
   // Internal pipeline objects.
   vtkTransformFilter*   TransformFilter;

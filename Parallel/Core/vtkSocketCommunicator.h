@@ -15,8 +15,8 @@
 // .NAME vtkSocketCommunicator - Process communication using Sockets
 // .SECTION Description
 // This is a concrete implementation of vtkCommunicator which supports
-// interprocess communication using BSD style sockets. 
-// It supports byte swapping for the communication of  machines 
+// interprocess communication using BSD style sockets.
+// It supports byte swapping for the communication of  machines
 // with different endianness.
 
 // .SECTION Caveats
@@ -150,7 +150,7 @@ public:
   virtual void SetLogStream(ostream* stream);
   virtual ostream* GetLogStream();
   //ETX
-  
+
   // Description:
   // Log messages to the given file.  The file is truncated unless the
   // second argument is non-zero (default is to truncate).  If the
@@ -171,7 +171,7 @@ public:
 
   // Description:
   // Performs handshake. This uses vtkClientSocket::ConnectingSide to decide
-  // whether to perform ServerSideHandshake or ClientSideHandshake. 
+  // whether to perform ServerSideHandshake or ClientSideHandshake.
   int Handshake();
 
   // Description:
@@ -218,15 +218,15 @@ protected:
   int RemoteHas64BitIds;
   int PerformHandshake;
   int IsServer;
-  
+
   int ReportErrors;
 
   ofstream* LogFile;
   ostream* LogStream;
-  
+
   vtkSocketCommunicator();
   ~vtkSocketCommunicator();
-  
+
   // Wrappers around send/recv calls to implement loops.  Return 1 for
   // success, and 0 for failure.
   int SendTagged(const void* data, int wordSize, int numWords, int tag,
@@ -238,7 +238,7 @@ protected:
 
   int ReceivedTaggedFromBuffer(
     void* data, int wordSize, int numWords, int tag, const char* logName);
-  
+
   // Description:
   // Fix byte order for received data.
   void FixByteOrder(void* data, int wordSize, int numWords);
@@ -269,7 +269,7 @@ private:
   //  Buffer to save messages received with different tag than requested.
   class vtkMessageBuffer;
   vtkMessageBuffer* ReceivedMessageBuffer;
-  
+
 //ETX
 };
 

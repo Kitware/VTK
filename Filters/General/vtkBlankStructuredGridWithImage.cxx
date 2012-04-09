@@ -53,7 +53,7 @@ vtkImageData *vtkBlankStructuredGridWithImage::GetBlankingInput()
     {
     return NULL;
     }
-  
+
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
 }
@@ -80,7 +80,7 @@ int vtkBlankStructuredGridWithImage::RequestData(
   int gridDims[3], imageDims[3];
 
   vtkDebugMacro(<< "Adding image blanking");
-  
+
   // Perform error checking
   grid->GetDimensions(gridDims);
   image->GetDimensions(imageDims);
@@ -94,14 +94,14 @@ int vtkBlankStructuredGridWithImage::RequestData(
                   << gridDims[1] << " " << gridDims[2] << ".");
     return 1;
     }
-  
+
   if ( image->GetScalarType() != VTK_UNSIGNED_CHAR ||
        image->GetNumberOfScalarComponents() != 1 )
     {
     vtkErrorMacro(<<"This filter requires unsigned char images with one component");
     return 1;
     }
-  
+
   // Get the image, set it as the blanking array.
   unsigned char *data=static_cast<unsigned char *>(image->GetScalarPointer());
   vtkUnsignedCharArray *dataArray = vtkUnsignedCharArray::New();
@@ -111,7 +111,7 @@ int vtkBlankStructuredGridWithImage::RequestData(
   output->GetPointData()->PassData(grid->GetPointData());
   output->GetCellData()->PassData(grid->GetCellData());
   output->SetPointVisibilityArray(dataArray);
-  
+
   dataArray->Delete();
 
   return 1;

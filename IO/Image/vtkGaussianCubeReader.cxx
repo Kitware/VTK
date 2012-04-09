@@ -154,7 +154,7 @@ int vtkGaussianCubeReader::RequestData(
   elements[13] = 0;
   elements[14] = 0;
   elements[15] = 1;
-  
+
   vtkDebugMacro(<< "Grid Size " << n1 << " " << n2 << " " << n3);
 
   Transform->SetMatrix(elements);
@@ -171,7 +171,7 @@ int vtkGaussianCubeReader::RequestData(
       fclose (fp);
       return 0;
       }
-    for(k = 0; k < numberOfOrbitals; k++) 
+    for(k = 0; k < numberOfOrbitals; k++)
       {
       if (fscanf(fp,"%f", &tmp) != 1)
         {
@@ -201,12 +201,12 @@ int vtkGaussianCubeReader::RequestData(
   cubedata = (float *)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
   N1N2 = n1*n2;
 
-  for(i = 0; i < n1; i++) 
+  for(i = 0; i < n1; i++)
     {
     JN1 = 0;
-    for(j = 0; j < n2; j++) 
+    for(j = 0; j < n2; j++)
       {
-      for(k = 0; k < n3; k++) 
+      for(k = 0; k < n3; k++)
         {
         if (fscanf(fp,"%f", &tmp) != 1)
           {
@@ -232,7 +232,7 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
   float x[3];
   float dummy;
 
-  for(i = 0; i < this->NumberOfAtoms; i++) 
+  for(i = 0; i < this->NumberOfAtoms; i++)
     {
     if (fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2) != 5)
       {
@@ -264,7 +264,7 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << "Filename: " << (this->FileName?this->FileName:"(none)") << "\n";
-  
+
   os << "Transform: ";
   if( this->Transform )
     {
@@ -289,18 +289,18 @@ int vtkGaussianCubeReader::RequestInformation(
 
   FILE *fp;
   char title[256];
-  
+
   if (!this->FileName)
     {
     return 0;
     }
-  
+
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
     }
-  
+
   if (!fgets(title, 256, fp))
     {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
@@ -326,7 +326,7 @@ int vtkGaussianCubeReader::RequestInformation(
     fclose (fp);
     return 0;
     }
-  
+
   if (fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd) != 4)
     {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
@@ -348,7 +348,7 @@ int vtkGaussianCubeReader::RequestInformation(
     fclose (fp);
     return 0;
     }
-  
+
   vtkDebugMacro(<< "Grid Size " << n1 << " " << n2 << " " << n3);
   gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                 0, n1-1, 0, n2-1, 0, n3-1);

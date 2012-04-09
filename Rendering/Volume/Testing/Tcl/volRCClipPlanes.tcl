@@ -19,23 +19,23 @@ vtkColorTransferFunction colorTransferFunction
     colorTransferFunction AddRGBPoint   0 0 0 0
     colorTransferFunction AddRGBPoint 200 1 0 1
     colorTransferFunction AddRGBPoint 100 0 0 0
-    colorTransferFunction RemovePoint 100 
-    colorTransferFunction RemovePoint   0 
-    colorTransferFunction RemovePoint 200 
+    colorTransferFunction RemovePoint 100
+    colorTransferFunction RemovePoint   0
+    colorTransferFunction RemovePoint 200
     colorTransferFunction AddHSVPoint 100 1 1 1
     colorTransferFunction AddHSVPoint   0 0 0 0
     colorTransferFunction AddHSVPoint 200 1 0 1
     colorTransferFunction AddHSVPoint 100 0 0 0
-    colorTransferFunction RemovePoint   0 
-    colorTransferFunction RemovePoint 200 
-    colorTransferFunction RemovePoint 100 
-    colorTransferFunction AddRGBSegment   0 1 1 1 100 0 0 0 
-    colorTransferFunction AddRGBSegment  50 1 1 1 150 0 0 0 
-    colorTransferFunction AddRGBSegment  60 1 1 1  90 0 0 0 
-    colorTransferFunction AddHSVSegment  90 1 1 1 105 0 0 0 
-    colorTransferFunction AddHSVSegment  40 1 1 1 155 0 0 0 
-    colorTransferFunction AddHSVSegment  30 1 1 1  95 0 0 0 
-   
+    colorTransferFunction RemovePoint   0
+    colorTransferFunction RemovePoint 200
+    colorTransferFunction RemovePoint 100
+    colorTransferFunction AddRGBSegment   0 1 1 1 100 0 0 0
+    colorTransferFunction AddRGBSegment  50 1 1 1 150 0 0 0
+    colorTransferFunction AddRGBSegment  60 1 1 1  90 0 0 0
+    colorTransferFunction AddHSVSegment  90 1 1 1 105 0 0 0
+    colorTransferFunction AddHSVSegment  40 1 1 1 155 0 0 0
+    colorTransferFunction AddHSVSegment  30 1 1 1  95 0 0 0
+
 
     colorTransferFunction RemoveAllPoints
     colorTransferFunction AddHSVPoint      0.0 0.01 1.0 1.0
@@ -119,5 +119,5 @@ renWin Render
 [ren1 GetActiveCamera] Zoom 2.0
 
 wm withdraw .
- 
+
 iren Initialize

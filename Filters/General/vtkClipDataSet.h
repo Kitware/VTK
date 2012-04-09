@@ -82,7 +82,7 @@ public:
   // UseValueAsOffset is true and a clip function is defined.
   vtkSetMacro(Value,double);
   vtkGetMacro(Value,double);
-  
+
   // Description:
   // If UseValueAsOffset is true, Value is used as an offset parameter to
   // the implicit function. Otherwise, Value is used only when clipping
@@ -104,14 +104,14 @@ public:
 
   // Description
   // Specify the implicit function with which to perform the
-  // clipping. If you do not define an implicit function, 
+  // clipping. If you do not define an implicit function,
   // then the selected input scalar data will be used for clipping.
   virtual void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be 
-  // interpolated from the implicit function values, and not the 
+  // If this flag is enabled, then the output scalar values will be
+  // interpolated from the implicit function values, and not the
   // input scalar data. If you enable this flag but do not provide an
   // implicit function an error will be reported.
   vtkSetMacro(GenerateClipScalars,int);
@@ -132,7 +132,7 @@ public:
   // instance variable.
   vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
   vtkGetMacro(MergeTolerance,double);
-  
+
   // Description:
   // Return the Clipped output.
   vtkUnstructuredGrid *GetClippedOutput();
@@ -144,7 +144,7 @@ public:
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -165,7 +165,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   vtkImplicitFunction *ClipFunction;
-  
+
   vtkIncrementalPointLocator *Locator;
   int InsideOut;
   double Value;

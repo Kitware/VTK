@@ -28,14 +28,14 @@ vtkStandardNewMacro(vtkGeoImageNode);
 
 
 //----------------------------------------------------------------------------
-vtkGeoImageNode::vtkGeoImageNode() 
+vtkGeoImageNode::vtkGeoImageNode()
 {
   this->Image = vtkSmartPointer<vtkImageData>::New();
   this->Texture = vtkSmartPointer<vtkTexture>::New();
 }
 
 //-----------------------------------------------------------------------------
-vtkGeoImageNode::~vtkGeoImageNode() 
+vtkGeoImageNode::~vtkGeoImageNode()
 {
 }
 
@@ -92,11 +92,11 @@ vtkGeoImageNode* vtkGeoImageNode::GetParent()
 // resamples every time a tile is selected anr changed otherwise.
 //
 // We have two choises for dealing with images.
-// 
-// 1: Treat pixels like cell data.  
+//
+// 1: Treat pixels like cell data.
 //   This makes subsampling easy.  Simply use vtkImageShrink3D.
-//   Tile images do not overlap.  
-//   Difficult: 
+//   Tile images do not overlap.
+//   Difficult:
 //   Texture mapping is point data.  TCoords have to be extended half a pixel.
 //   vtkImageData is point data.  Have to handle meta data extenal to object.
 //   Interpolated texture map will have seams between tiles.
@@ -113,7 +113,7 @@ void vtkGeoImageNode::CropImageForTile(
 {
   int ext[6];
   int wholeExt[6];
-  
+
   // I am keeping this all external to the imageData object because
   // I consider pixels are cells not points.
   image->GetExtent(ext);
@@ -124,13 +124,13 @@ void vtkGeoImageNode::CropImageForTile(
   spacing[1] = (imageLonLatExt[3]-imageLonLatExt[2])/(ext[3]-ext[2]+1);
   origin[0] = imageLonLatExt[0] - ext[0]*spacing[0];
   origin[1] = imageLonLatExt[2] - ext[2]*spacing[1];
-  
+
   // Compute the minimum extent that covers the terrain patch.
   ext[0] = static_cast<int>(floor((this->LongitudeRange[0]-origin[0])/spacing[0]));
   ext[1] = static_cast<int>(ceil((this->LongitudeRange[1]-origin[0])/spacing[0]));
   ext[2] = static_cast<int>(floor((this->LatitudeRange[0]-origin[1])/spacing[1]));
   ext[3] = static_cast<int>(ceil((this->LatitudeRange[1]-origin[1])/spacing[1]));
-  
+
   int dims[2];
   dims[0] = this->PowerOfTwo(ext[1]-ext[0]+1);
   dims[1] = this->PowerOfTwo(ext[3]-ext[2]+1);
@@ -154,20 +154,20 @@ void vtkGeoImageNode::CropImageForTile(
     {
     ext[2] = wholeExt[2];
     }
-  
+
   if (this->Image == 0)
     {
     this->Image = vtkSmartPointer<vtkImageData>::New();
     }
   this->Image->ShallowCopy(image);
   this->Image->Crop(ext);
-  
+
   // Now set the longitude and latitude range based on the actual image size.
   this->LongitudeRange[0] = origin[0] + ext[0]*spacing[0];
   this->LongitudeRange[1] = origin[0] + (ext[1]+1)*spacing[0];
   this->LatitudeRange[0] = origin[1] + ext[2]*spacing[1];
   this->LatitudeRange[1] = origin[1] + (ext[3]+1)*spacing[1];
-  
+
   // Save out the image to verify we are processing properly
   if (prefix)
     {
@@ -219,7 +219,7 @@ int vtkGeoImageNode::PowerOfTwo(int val)
     val = val >> 1;
     tmp = tmp << 1;
     }
-    
+
   if ( ! nextHigherFlag)
     {
     tmp = tmp >> 1;

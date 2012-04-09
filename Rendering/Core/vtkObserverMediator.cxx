@@ -33,7 +33,7 @@ struct vtkObserverCompare
   {
     float p1 = w1->GetPriority();
     float p2 = w2->GetPriority();
-    
+
     if ( p1 < p2 )
       {
       return true;
@@ -70,7 +70,7 @@ vtkObserverMediator::vtkObserverMediator()
 {
   this->Interactor = NULL;
   this->ObserverMap = new vtkObserverMap;
-  
+
   this->CurrentObserver = NULL;
   this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
 }
@@ -89,8 +89,8 @@ void vtkObserverMediator::SetInteractor(vtkRenderWindowInteractor* i)
 }
 
 //----------------------------------------------------------------------------
-// This  mediation process works by keeping track of non-default cursor 
-// requests. 
+// This  mediation process works by keeping track of non-default cursor
+// requests.
 // Ties are broken based on widget priority (hence the priority queue).
 int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int requestedShape)
 {
@@ -98,7 +98,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
     {
     return 0;
     }
-  
+
   // First remove previous requests from the map. Note we have to use our own
   // special version of find() because the sorting of the map using the function
   // vtkObserverCompare() screws up the usual find().
@@ -123,7 +123,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
   else if ( requestedShape != VTK_CURSOR_DEFAULT )
     {
     (*this->ObserverMap)[w] = requestedShape;
-  
+
     // Find the highest priority and set that
     if ( ! this->ObserverMap->empty() )
       {
@@ -139,7 +139,7 @@ int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int reques
         }
       }
     }
-  
+
   return 0;
 }
 
@@ -159,7 +159,7 @@ void vtkObserverMediator::RemoveAllCursorShapeRequests(vtkInteractorObserver *w)
       }
     }
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkObserverMediator::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -175,5 +175,5 @@ void vtkObserverMediator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(None)\n";
     }
-    
+
 }

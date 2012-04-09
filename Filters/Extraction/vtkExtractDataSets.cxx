@@ -34,7 +34,7 @@ public:
     {
     unsigned int Level;
     unsigned int Index;
-    
+
     bool operator() (const Node& n1, const Node& n2) const
       {
       if (n1.Level == n2.Level)

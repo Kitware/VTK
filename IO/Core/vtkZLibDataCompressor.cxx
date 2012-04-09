@@ -26,7 +26,7 @@ vtkZLibDataCompressor::vtkZLibDataCompressor()
 
 //----------------------------------------------------------------------------
 vtkZLibDataCompressor::~vtkZLibDataCompressor()
-{ 
+{
 }
 
 //----------------------------------------------------------------------------
@@ -47,14 +47,14 @@ vtkZLibDataCompressor::CompressBuffer(const unsigned char* uncompressedData,
   unsigned long compressedSize = compressionSpace;
   Bytef* cd = reinterpret_cast<Bytef*>(compressedData);
   const Bytef* ud = reinterpret_cast<const Bytef*>(uncompressedData);
-  
+
   // Call zlib's compress function.
   if(compress2(cd, &compressedSize, ud, uncompressedSize, this->CompressionLevel) != Z_OK)
     {
     vtkErrorMacro("Zlib error while compressing data.");
     return 0;
     }
-  
+
   return compressedSize;
 }
 
@@ -64,18 +64,18 @@ vtkZLibDataCompressor::UncompressBuffer(const unsigned char* compressedData,
                                         unsigned long compressedSize,
                                         unsigned char* uncompressedData,
                                         unsigned long uncompressedSize)
-{  
+{
   unsigned long decSize = uncompressedSize;
   Bytef* ud = reinterpret_cast<Bytef*>(uncompressedData);
   const Bytef* cd = reinterpret_cast<const Bytef*>(compressedData);
-  
+
   // Call zlib's uncompress function.
   if(uncompress(ud, &decSize, cd, compressedSize) != Z_OK)
-    {    
+    {
     vtkErrorMacro("Zlib error while uncompressing data.");
     return 0;
     }
-  
+
   // Make sure the output size matched that expected.
   if(decSize != uncompressedSize)
     {
@@ -83,7 +83,7 @@ vtkZLibDataCompressor::UncompressBuffer(const unsigned char* compressedData,
                   "Expected " << uncompressedSize << " and got " << decSize);
     return 0;
     }
-  
+
   return decSize;
 }
 

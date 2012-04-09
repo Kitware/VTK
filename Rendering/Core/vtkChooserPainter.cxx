@@ -103,8 +103,8 @@ void vtkChooserPainter::PrepareForRendering(vtkRenderer* ren, vtkActor* actor)
 {
   // Ensure that the renderer chain is up-to-date.
   if (this->PaintersChoiceTime < this->MTime ||
-    this->PaintersChoiceTime < this->Information->GetMTime() || 
-    this->LastRenderer != ren || 
+    this->PaintersChoiceTime < this->Information->GetMTime() ||
+    this->LastRenderer != ren ||
     this->PaintersChoiceTime < this->GetInput()->GetMTime())
     {
     this->LastRenderer = ren;
@@ -147,7 +147,7 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer, vtkActor* actor)
   const char *strippaintertype;
 
   vtkPolyDataPainter* painter;
-  
+
   this->SelectPainters(renderer, actor, vertpaintertype, linepaintertype,
                        polypaintertype, strippaintertype);
   vtkDebugMacro(<< "Selected " << vertpaintertype << ", "
@@ -249,7 +249,7 @@ void vtkChooserPainter::SelectPainters(vtkRenderer *vtkNotUsed(renderer),
   lineptype = "vtkLinesPainter";
   polyptype = "vtkPolygonsPainter";
   stripptype = "vtkTStripsPainter";
-  // No elaborate selection as yet. 
+  // No elaborate selection as yet.
   // Merely create the pipeline as the vtkOpenGLPolyDataMapper.
 }
 
@@ -283,7 +283,7 @@ vtkPolyDataPainter* vtkChooserPainter::CreatePainter(const char *paintertype)
 }
 
 //-----------------------------------------------------------------------------
-void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                                        unsigned long typeflags,
                                        bool forceCompileOnly)
 {
@@ -292,16 +292,16 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
   vtkIdType numLines = pdInput->GetNumberOfLines();
   vtkIdType numPolys = pdInput->GetNumberOfPolys();
   vtkIdType numStrips = pdInput->GetNumberOfStrips();
-  
-  vtkIdType total_cells = (typeflags & vtkPainter::VERTS)? 
+
+  vtkIdType total_cells = (typeflags & vtkPainter::VERTS)?
     pdInput->GetNumberOfVerts() : 0;
-  total_cells += (typeflags & vtkPainter::LINES)? 
+  total_cells += (typeflags & vtkPainter::LINES)?
     pdInput->GetNumberOfLines() : 0;
-  total_cells += (typeflags & vtkPainter::POLYS)? 
+  total_cells += (typeflags & vtkPainter::POLYS)?
     pdInput->GetNumberOfPolys() : 0;
-  total_cells += (typeflags & vtkPainter::STRIPS)? 
+  total_cells += (typeflags & vtkPainter::STRIPS)?
     pdInput->GetNumberOfStrips() : 0;
-  
+
   if (total_cells == 0)
     {
     // nothing to render.
@@ -319,7 +319,7 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     this->TimeToDraw += this->VertPainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
     }
-  
+
   if ((typeflags & vtkPainter::LINES) && numLines>0 )
     {
     //cout << this << "Lines" << endl;
@@ -329,8 +329,8 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     this->TimeToDraw += this->LinePainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
     }
-  
-  
+
+
   if ((typeflags & vtkPainter::POLYS) && numPolys>0 )
     {
     //cout << this << "Polys" << endl;
@@ -375,7 +375,7 @@ void vtkChooserPainter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "LinePainter: " << this->LinePainter << endl;
   os << indent << "PolyPainter: " << this->PolyPainter << endl;
   os << indent << "StripPainter: " << this->StripPainter << endl;
-  os << indent << "UseLinesPainterForWireframes: " 
+  os << indent << "UseLinesPainterForWireframes: "
     << this->UseLinesPainterForWireframes << endl;
 }
 

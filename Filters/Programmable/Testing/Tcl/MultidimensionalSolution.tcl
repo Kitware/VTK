@@ -1,16 +1,16 @@
 #
-# The dataset read by this exercise ("combVectors.vtk") has field data 
-# associated with the pointdata, namely two vector fields. In this exercise, 
-# you will convert both sets of field data into attribute data. Mappers only 
-# process attribute data, not field data. So we must convert the field data to 
+# The dataset read by this exercise ("combVectors.vtk") has field data
+# associated with the pointdata, namely two vector fields. In this exercise,
+# you will convert both sets of field data into attribute data. Mappers only
+# process attribute data, not field data. So we must convert the field data to
 # attribute data in order to display it.  (You'll need to determine the "names"
 # of the two vector fields in the field data.)
 #
-# If there is time remaining, you might consider adding a programmable filter 
-# to convert the two sets of vectors into a single scalar field, representing 
+# If there is time remaining, you might consider adding a programmable filter
+# to convert the two sets of vectors into a single scalar field, representing
 # the angle between the two vector fields.
 #
-# You will most likely use vtkFieldDataToAttributeDataFilter, vtkHedgeHog, 
+# You will most likely use vtkFieldDataToAttributeDataFilter, vtkHedgeHog,
 # and vtkProgrammableAttributeDataFilter.
 #
 package require vtk
@@ -75,7 +75,7 @@ pressureGradient SetScaleFactor 0.00002
 
 proc ExecuteDot {} {
    # proc for ProgrammableAttributeDataFilter.  Note the use of "double()"
-   # in the calculations.  This protects us from Tcl using ints and 
+   # in the calculations.  This protects us from Tcl using ints and
    # overflowing.
 
    set inputs [dotProduct GetInputList]
@@ -91,7 +91,7 @@ proc ExecuteDot {} {
    for {set i 0} {$i < $numPts} {incr i} {
        set v0 [$vectors0 GetTuple3 $i]
        set v1 [$vectors1 GetTuple3 $i]
-       
+
        set v0x [lindex $v0 0]
        set v0y [lindex $v0 1]
        set v0z [lindex $v0 2]
@@ -125,7 +125,7 @@ proc ExecuteDot {} {
 
 #
 # We use the ProgrammableAttributeDataFilter to compute the cosine
-# of the angle between the two vector fields (i.e. the dot product 
+# of the angle between the two vector fields (i.e. the dot product
 # normalized by the product of the vector lengths).
 #
 #
@@ -146,7 +146,7 @@ vtkPolyDataMapper velocityMapper
 vtkLODActor velocityActor
     velocityActor SetMapper velocityMapper
     velocityActor SetNumberOfCloudPoints 1000
-    eval [velocityActor GetProperty] SetColor 1 0 0 
+    eval [velocityActor GetProperty] SetColor 1 0 0
 
 vtkPolyDataMapper pressureGradientMapper
     pressureGradientMapper SetInputConnection [pressureGradient GetOutputPort]
@@ -165,9 +165,9 @@ vtkLODActor dotActor
     dotActor SetMapper dotMapper
     dotActor SetNumberOfCloudPoints 1000
 
-# 
+#
 # The PLOT3DReader is used to draw the outline of the original dataset.
-# 
+#
 vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
     pl3d Update

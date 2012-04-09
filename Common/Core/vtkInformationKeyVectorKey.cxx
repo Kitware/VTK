@@ -118,7 +118,7 @@ void vtkInformationKeyVectorKey::RemoveItem(vtkInformation* info,
   vtkInformationKeyVectorValue* v =
     static_cast<vtkInformationKeyVectorValue *>
     (this->GetAsObjectBase(info));
-  
+
   if(v)
     {
     std::vector<vtkInformationKey*>::iterator it=std::find(v->Value.begin(),v->Value.end(),value);
@@ -139,7 +139,7 @@ vtkInformationKey** vtkInformationKeyVectorKey::Get(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-vtkInformationKey* vtkInformationKeyVectorKey::Get(vtkInformation* info, 
+vtkInformationKey* vtkInformationKeyVectorKey::Get(vtkInformation* info,
                                                    int idx)
 {
   if (idx >= this->Length(info))

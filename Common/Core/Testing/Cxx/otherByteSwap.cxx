@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the byte swapper
 
@@ -26,7 +26,7 @@ int TestByteSwap(ostream& strm)
 {
   // actual test
   strm << "Test vtkByteSwap Start" << endl;
-  
+
   char check[1024];
   short sword[2];
   char cword[1024];
@@ -156,6 +156,6 @@ int TestByteSwap(ostream& strm)
 
 int otherByteSwap(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return TestByteSwap(vtkmsg_with_warning_C4701);
-} 
+}

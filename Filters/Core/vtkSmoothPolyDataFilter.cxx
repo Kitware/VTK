@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 typedef struct _vtkSmoothPoint {
     vtkIdType     cellId;  // cell
     int     subId;   // cell sub id
-    double   p[3];    // parametric coords in cell 
+    double   p[3];    // parametric coords in cell
 } vtkSmoothPoint;
 
 class vtkSmoothPoints { //;prevent man page generation
@@ -50,7 +50,7 @@ public:
     };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkSmoothPoint *GetSmoothPoint(vtkIdType i) {return this->Array + i;};
-  vtkSmoothPoint *InsertSmoothPoint(vtkIdType ptId) 
+  vtkSmoothPoint *InsertSmoothPoint(vtkIdType ptId)
     {
     if ( ptId >= this->Size )
       {
@@ -73,7 +73,7 @@ public:
 
 vtkSmoothPoints::vtkSmoothPoints()
 {
-  this->MaxId = -1; 
+  this->MaxId = -1;
   this->Array = new vtkSmoothPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
@@ -86,7 +86,7 @@ vtkSmoothPoint *vtkSmoothPoints::Resize(vtkIdType sz)
 
   if (sz >= this->Size)
     {
-    newSize = this->Size + 
+    newSize = this->Size +
       this->Extend*(((sz-this->Size)/this->Extend)+1);
     }
   else
@@ -110,9 +110,9 @@ vtkSmoothPoint *vtkSmoothPoints::Resize(vtkIdType sz)
 //
 
 // Construct object with number of iterations 20; relaxation factor .01;
-// feature edge smoothing turned off; feature 
-// angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
-// on. Error scalars and vectors are not generated (by default). The 
+// feature edge smoothing turned off; feature
+// angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned
+// on. Error scalars and vectors are not generated (by default). The
 // convergence criterion is 0.0 of the bounding box diagonal.
 vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 {
@@ -154,12 +154,12 @@ vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
 #define VTK_BOUNDARY_EDGE_VERTEX 3
 
 // Special structure for marking vertices
-typedef struct _vtkMeshVertex 
+typedef struct _vtkMeshVertex
   {
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
-    
+
 int vtkSmoothPolyDataFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -215,7 +215,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   CosFeatureAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle) );
   CosEdgeAngle =    cos( vtkMath::RadiansFromDegrees( this->EdgeAngle) );
 
-  vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells 
+  vtkDebugMacro(<<"Smoothing " << numPts << " vertices, " << numCells
                << " cells with:\n"
                << "\tConvergence= " << this->Convergence << "\n"
                << "\tIterations= " << this->NumberOfIterations << "\n"
@@ -226,7 +226,7 @@ int vtkSmoothPolyDataFilter::RequestData(
                << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
                << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
 
-  if ( this->NumberOfIterations <= 0 || this->RelaxationFactor == 0.0) 
+  if ( this->NumberOfIterations <= 0 || this->RelaxationFactor == 0.0)
     { //don't do anything! pass data through
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
@@ -237,7 +237,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   // Peform topological analysis. What we're gonna do is build a connectivity
   // array of connected vertices. The outcome will be one of three
   // classifications for a vertex: VTK_SIMPLE_VERTEX, VTK_FIXED_VERTEX. or
-  // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected 
+  // VTK_EDGE_VERTEX. Simple vertices are smoothed using all connected
   // vertices. FIXED vertices are never smoothed. Edge vertices are smoothed
   // using a subset of the attached vertices.
   //
@@ -251,9 +251,9 @@ int vtkSmoothPolyDataFilter::RequestData(
 
   inPts = input->GetPoints();
   conv = this->Convergence * input->GetLength();
-  
+
   // check vertices first. Vertices are never smoothed_--------------
-  for (inVerts=input->GetVerts(), inVerts->InitTraversal(); 
+  for (inVerts=input->GetVerts(), inVerts->InitTraversal();
   inVerts->GetNextCell(npts,pts); )
     {
     for (j=0; j<npts; j++)
@@ -264,7 +264,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   this->UpdateProgress(0.10);
 
   // now check lines. Only manifold lines can be smoothed------------
-  for (inLines=input->GetLines(), inLines->InitTraversal(); 
+  for (inLines=input->GetLines(), inLines->InitTraversal();
   inLines->GetNextCell(npts,pts); )
     {
     for (j=0; j<npts; j++)
@@ -339,10 +339,10 @@ int vtkSmoothPolyDataFilter::RequestData(
     polys = Mesh->GetPolys();
     this->UpdateProgress(0.375);
 
-    for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
+    for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts);
     cellId++)
       {
-      for (i=0; i < npts; i++) 
+      for (i=0; i < npts; i++)
         {
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
@@ -383,14 +383,14 @@ int vtkSmoothPolyDataFilter::RequestData(
             }
           }
 
-        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
+        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId )
           {
           vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
           Mesh->GetCellPoints(nei,numNeiPts,neiPts);
           vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
 
           if ( this->FeatureEdgeSmoothing &&
-          vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 
+          vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle )
             {
             edge = VTK_FEATURE_EDGE_VERTEX;
             }
@@ -438,7 +438,7 @@ int vtkSmoothPolyDataFilter::RequestData(
 
     inMesh->Delete();
     if (toTris) {toTris->Delete();}
-    
+
     neighbors->Delete();
     }//if strips or polys
 
@@ -461,7 +461,7 @@ int vtkSmoothPolyDataFilter::RequestData(
     Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
       { //see how many edges; if two, what the angle is
 
-      if ( !this->BoundarySmoothing && 
+      if ( !this->BoundarySmoothing &&
       Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
         {
         Verts[i].type = VTK_FIXED_VERTEX;
@@ -519,7 +519,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
 
-  // If Source defined, we do constrained smoothing (that is, points are 
+  // If Source defined, we do constrained smoothing (that is, points are
   // constrained to the surface of the mesh object).
   if ( source )
     {
@@ -527,14 +527,14 @@ int vtkSmoothPolyDataFilter::RequestData(
     vtkSmoothPoint *sPtr;
     cellLocator = vtkCellLocator::New();
     w = new double[source->GetMaxCellSize()];
-    
+
     cellLocator->SetDataSet(source);
     cellLocator->BuildLocator();
-    
+
     for (i=0; i < numPts; i++)
       {
       sPtr = this->SmoothPoints->InsertSmoothPoint(i);
-      cellLocator->FindClosestPoint(inPts->GetPoint(i), closestPt, 
+      cellLocator->FindClosestPoint(inPts->GetPoint(i), closestPt,
                                     sPtr->cellId, sPtr->subId, dist2);
       newPts->SetPoint(i, closestPt);
       }
@@ -548,7 +548,7 @@ int vtkSmoothPolyDataFilter::RequestData(
     }
 
   factor = this->RelaxationFactor;
-  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0, abortExecute=0; 
+  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0, abortExecute=0;
   maxDist > conv && iterationNumber < this->NumberOfIterations && !abortExecute;
   iterationNumber++ )
     {
@@ -564,7 +564,7 @@ int vtkSmoothPolyDataFilter::RequestData(
       }
 
     maxDist=0.0;
-    for (i=0; i<numPts; i++) 
+    for (i=0; i<numPts; i++)
       {
       if ( Verts[i].type != VTK_FIXED_VERTEX && Verts[i].edges != NULL &&
       (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
@@ -580,13 +580,13 @@ int vtkSmoothPolyDataFilter::RequestData(
             }
           }//for all connected points
 
-        for (k=0;k<3;k++) 
+        for (k=0;k<3;k++)
           {
           xNew[k] = x[k] + factor * deltaX[k];
           }
 
         // Constrain point to surface
-        if ( source ) 
+        if ( source )
           {
           vtkSmoothPoint *sPtr = this->SmoothPoints->GetSmoothPoint(i);
           vtkCell *cell=NULL;
@@ -599,7 +599,7 @@ int vtkSmoothPolyDataFilter::RequestData(
           if ( !cell || cell->EvaluatePosition(xNew, closestPt,
           sPtr->subId, sPtr->p, dist2, w) == 0)
             { // not in cell anymore
-            cellLocator->FindClosestPoint(xNew, closestPt, sPtr->cellId, 
+            cellLocator->FindClosestPoint(xNew, closestPt, sPtr->cellId,
                                           sPtr->subId, dist2);
             }
           for (k=0; k<3; k++)
@@ -676,7 +676,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   //free up connectivity storage
   for (i=0; i<numPts; i++)
     {
-    if ( Verts[i].edges != NULL ) 
+    if ( Verts[i].edges != NULL )
       {
       Verts[i].edges->Delete();
       Verts[i].edges = NULL;
@@ -694,7 +694,7 @@ int vtkSmoothPolyDataFilter::FillInputPortInformation(int port,
     {
     return 0;
     }
-  
+
   if (port == 1)
     {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);

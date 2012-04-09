@@ -49,26 +49,26 @@ public:
   // Description:
   // Return the time point for a date and time.
   static vtkTypeUInt64 DateTimeToTimePoint(
-    int year, int month, int day, 
+    int year, int month, int day,
     int hour, int minute, int sec, int millis = 0);
 
   // Description:
   // Retrieve the year, month, and day of a time point.
   // Everything but the first argument are output parameters.
-  static void GetDate(vtkTypeUInt64 time, 
+  static void GetDate(vtkTypeUInt64 time,
     int& year, int& month, int& day);
 
   // Description:
   // Retrieve the hour, minute, second, and milliseconds of a time point.
   // Everything but the first argument are output parameters.
-  static void GetTime(vtkTypeUInt64 time, 
+  static void GetTime(vtkTypeUInt64 time,
     int& hour, int& minute, int& second, int& millis);
 
   // Description:
   // Retrieve the date and time of a time point.
   // Everything but the first argument are output parameters.
-  static void GetDateTime(vtkTypeUInt64 time, 
-    int& year, int& month, int& day, 
+  static void GetDateTime(vtkTypeUInt64 time,
+    int& year, int& month, int& day,
     int& hour, int& minute, int& second, int& millis);
 
   // Description:

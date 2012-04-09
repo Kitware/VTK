@@ -36,7 +36,7 @@ void vtkSphericalTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkSphericalTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 {
-  vtkSphericalTransform *sphericalTransform = 
+  vtkSphericalTransform *sphericalTransform =
     static_cast<vtkSphericalTransform *>(transform);
 
   // copy these even though they aren't used
@@ -92,7 +92,7 @@ void vtkRectangularToSpherical(const T inPoint[3], T outPoint[3])
   T x = inPoint[0];
   T y = inPoint[1];
   T z = inPoint[2];
-  
+
   T RR = x*x + y*y;
   T r = sqrt(RR + z*z);
 

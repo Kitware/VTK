@@ -116,9 +116,9 @@ void vtkImageCastExecute(vtkImageCast *self,
 {
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro(vtkImageCastExecute(self, 
+    vtkTemplateMacro(vtkImageCastExecute(self,
                                          inData, outData, outExt, id,
-                                         static_cast<T *>(0), 
+                                         static_cast<T *>(0),
                                          static_cast<VTK_TT *>(0)));
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
@@ -134,15 +134,15 @@ void vtkImageCastExecute(vtkImageCast *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageCast::ThreadedExecute (vtkImageData *inData, 
+void vtkImageCast::ThreadedExecute (vtkImageData *inData,
                                    vtkImageData *outData,
                                    int outExt[6], int id)
 {
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageCastExecute(this, inData, 
-                          outData, outExt, id, 
+      vtkImageCastExecute(this, inData,
+                          outData, outExt, id,
                           static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
@@ -161,7 +161,7 @@ void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "On\n";
     }
-  else 
+  else
     {
     os << "Off\n";
     }

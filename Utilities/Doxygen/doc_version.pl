@@ -39,7 +39,7 @@
 #   - fix RCS/CVS tags problem (regexp replacement when this file is in a CVS)
 #
 # 0.14 (barre) :
-#   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them 
+#   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them
 #
 # 0.13 (barre) :
 #   - change doxygen command style from \ to @ to match javadoc, autodoc, etc.
@@ -67,7 +67,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 # -------------------------------------------------------------------------
 # Defaults (add options as you want: "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    version_file => "../../CMakeLists.txt",
    revison_file => "../../Common/vtkVersion.h",
@@ -159,7 +159,7 @@ my $destination_file = $args{"to"} . "/" . $args{"store"};
 print "Building version documentation to ", $destination_file, "\n";
 
 sysopen(DEST_FILE,
-        $destination_file, 
+        $destination_file,
         O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
   or croak "$PROGNAME: unable to open destination file " . $destination_file . "\n";
 

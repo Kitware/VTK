@@ -51,21 +51,21 @@ vtkDataSet* vtkDataSetAlgorithm::GetOutput(int port)
 
 //----------------------------------------------------------------------------
 // Get the output as vtkImageData
-vtkImageData *vtkDataSetAlgorithm::GetImageDataOutput() 
+vtkImageData *vtkDataSetAlgorithm::GetImageDataOutput()
 {
   return vtkImageData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkPolyData.
-vtkPolyData *vtkDataSetAlgorithm::GetPolyDataOutput() 
+vtkPolyData *vtkDataSetAlgorithm::GetPolyDataOutput()
 {
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------
 // Get the output as vtkStructuredPoints.
-vtkStructuredPoints *vtkDataSetAlgorithm::GetStructuredPointsOutput() 
+vtkStructuredPoints *vtkDataSetAlgorithm::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
@@ -85,7 +85,7 @@ vtkUnstructuredGrid *vtkDataSetAlgorithm::GetUnstructuredGridOutput()
 }
 
 //----------------------------------------------------------------------------
-// Get the output as vtkRectilinearGrid. 
+// Get the output as vtkRectilinearGrid.
 vtkRectilinearGrid *vtkDataSetAlgorithm::GetRectilinearGridOutput()
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
@@ -153,8 +153,8 @@ vtkDataObject* vtkDataSetAlgorithm::GetInput(int port)
 
 //----------------------------------------------------------------------------
 int vtkDataSetAlgorithm::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // generate the data
@@ -185,8 +185,8 @@ int vtkDataSetAlgorithm::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkDataSetAlgorithm::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -196,7 +196,7 @@ int vtkDataSetAlgorithm::RequestDataObject(
     }
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if (input)
     {
     // for each output
@@ -205,8 +205,8 @@ int vtkDataSetAlgorithm::RequestDataObject(
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataSet *output = vtkDataSet::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataSet* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);

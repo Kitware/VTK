@@ -37,7 +37,7 @@ int TestArcEdges(int argc, char* argv[])
   VTK_CREATE(vtkRenderer, ren);
   VTK_CREATE(vtkRenderWindow, win);
   win->SetMultiSamples(0);
-  
+
   VTK_CREATE(vtkRenderWindowInteractor, iren);
 
   source->SetNumberOfVertices(3);

@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Description
 // vtkCocoaTkUtilities provide access to the Tk internals for Cocoa
 // implementations of Tk.  These internals must be implemented in a .mm
-// file, since Cocoa is Objective-C, but the header file itself is 
+// file, since Cocoa is Objective-C, but the header file itself is
 // pure C++ so that it can be included by other VTK classes.
 //
 // .SECTION See Also
@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 // .SECTION Warning
 // This header must be in C++ only because it is included by .cxx files.
-// That means no Objective-C may be used. That's why some instance variables 
+// That means no Objective-C may be used. That's why some instance variables
 // are void* instead of what they really should be.
 
 #ifndef __vtkvtkCocoaTkUtilities_h
@@ -51,7 +51,7 @@ public:
 protected:
   vtkCocoaTkUtilities() {};
   ~vtkCocoaTkUtilities() {};
-  
+
 private:
   vtkCocoaTkUtilities(const vtkCocoaTkUtilities&);  // Not implemented.
   void operator=(const vtkCocoaTkUtilities&);  // Not implemented.

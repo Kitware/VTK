@@ -115,7 +115,7 @@ vtkPCosmoHaloFinder::vtkPCosmoHaloFinder()
   this->ComputeSOD = 0;
   this->SODCenterType = 0;
 
-  this->RhoC = RHO_C; 
+  this->RhoC = RHO_C;
   this->SODMass = SOD_MASS;
   this->MinRadiusFactor = MIN_RADIUS_FACTOR;
   this->MaxRadiusFactor = MAX_RADIUS_FACTOR;
@@ -157,7 +157,7 @@ void vtkPCosmoHaloFinder::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ComputeSOD: " << this->ComputeSOD << endl;
   os << indent << "SODCenterType: " << this->SODCenterType << endl;
 
-  os << indent << "RhoC: " << this->RhoC << endl; 
+  os << indent << "RhoC: " << this->RhoC << endl;
   os << indent << "SODMass: " << this->SODMass << endl;
   os << indent << "MinRadiusFactor: " << this->MinRadiusFactor << endl;
   os << indent << "MaxRadiusFactor: " << this->MaxRadiusFactor << endl;

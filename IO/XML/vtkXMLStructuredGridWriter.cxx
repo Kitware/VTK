@@ -91,7 +91,7 @@ void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index,
     {
     return;
     }
-  this->WritePointsAppended(this->GetInput()->GetPoints(), indent, 
+  this->WritePointsAppended(this->GetInput()->GetPoints(), indent,
     &this->PointsOM->GetPiece(index));
 }
 
@@ -104,22 +104,22 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Write the points array.
-  this->WritePointsAppendedData(this->GetInput()->GetPoints(), 
+  this->WritePointsAppendedData(this->GetInput()->GetPoints(),
                                 this->CurrentTimeIndex,
                                 &this->PointsOM->GetPiece(index));
 }
@@ -133,20 +133,20 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Write the points array.
   this->WritePointsInline(this->GetInput()->GetPoints(), indent);
 }
@@ -159,13 +159,13 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   int dims[3] = {extent[1]-extent[0],
                  extent[3]-extent[2],
                  extent[5]-extent[4]};
-  
+
   // The amount of data written by the superclass comes from the
   // point/cell data arrays.
-  vtkIdType superclassPieceSize = 
+  vtkIdType superclassPieceSize =
     (this->GetInput()->GetPointData()->GetNumberOfArrays()*dims[0]*dims[1]*dims[2]+
      this->GetInput()->GetCellData()->GetNumberOfArrays()*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
-  
+
   // The total data written includes the points array.
   vtkIdType totalPieceSize =
     superclassPieceSize + (dims[0] * dims[1] * dims[2]);

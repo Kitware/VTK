@@ -17,16 +17,16 @@
 // .SECTION Description
 // vtkTemporalPathLineFilter takes any dataset as input, it extracts the point
 // locations of all cells over time to build up a polyline trail.
-// The point number (index) is used as the 'key' if the points are randomly 
+// The point number (index) is used as the 'key' if the points are randomly
 // changing their respective order in the points list, then you should specify
 // a scalar that represents the unique ID. This is intended to handle the output
 // of a filter such as the TemporalStreamTracer.
-// 
+//
 // .SECTION See Also
 // vtkTemporalStreamTracer
 //
 // .SECTION Thanks
-// John Bidiscombe of 
+// John Bidiscombe of
 // CSCS - Swiss National Supercomputing Centre
 // for creating and contributing this class.
 
@@ -62,7 +62,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlg
     // example: setting MaskPoints to 10 will track every 10th point
     vtkSetMacro(MaskPoints,int);
     vtkGetMacro(MaskPoints,int);
-    
+
     // Description:
     // If the Particles being traced animate for a long time, the
     // trails or traces will become long and stringy. Setting
@@ -72,7 +72,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlg
     // which progresses as the particle moves
     vtkSetMacro(MaxTrackLength,unsigned int);
     vtkGetMacro(MaxTrackLength,unsigned int);
-    
+
     // Description:
     // Specify the name of a scalar array which will be used to fetch
     // the index of each point. This is necessary only if the particles
@@ -88,18 +88,18 @@ class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlg
     // on the other side, the track left will be unrepresentative.
     // Set a MaxStepDistance{x,y,z} which acts as a threshold above which
     // if a step occurs larger than the value (for the dimension), the track will
-    // be dropped and restarted after the step. (ie the part before the wrap 
+    // be dropped and restarted after the step. (ie the part before the wrap
     // around will be dropped and the newer part kept).
     vtkSetVector3Macro(MaxStepDistance,double);
     vtkGetVector3Macro(MaxStepDistance,double);
-    
+
     // Description:
     // When a particle 'disappears', the trail belonging to it is removed from
     // the list. When this flag is enabled, dead trails will persist
     // until the next time the list is cleared. Use carefully as it may cause
     // excessive memory consumption if left on by mistake.
     vtkSetMacro(KeepDeadTrails,int);
-    vtkGetMacro(KeepDeadTrails,int);   
+    vtkGetMacro(KeepDeadTrails,int);
 
     // Description:
     // Flush will wipe any existing data so that traces can be restarted from

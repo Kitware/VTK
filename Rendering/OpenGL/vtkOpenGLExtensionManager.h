@@ -187,7 +187,7 @@ public:
   // extension loaded properly by paying attention to the return value.
   virtual int LoadSupportedExtension(const char *name);
 
-  
+
   // Description:
   // Loads all the functions associated with the given core-promoted extension
   // into the appropriate static members of vtkgl associated with the OpenGL
@@ -273,7 +273,7 @@ protected:
   vtkTimeStamp BuildTime;
 
   virtual void ReadOpenGLExtensions();
-  
+
   // Description:
   // Wrap around the generated vtkgl::LoadExtension to deal with OpenGL 1.2
   // and its optional part GL_ARB_imaging. Also functions like

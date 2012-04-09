@@ -17,7 +17,7 @@
 //
 // .SECTION Description
 // All weights are normalized so they will sum to 1.
-// Images must have the same extents. Output is 
+// Images must have the same extents. Output is
 //
 // .SECTION Thanks
 // The original author of this class is Lauren O'Donnell (MIT) for Slicer

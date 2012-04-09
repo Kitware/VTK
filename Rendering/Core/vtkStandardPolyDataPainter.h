@@ -60,18 +60,18 @@ public:
 protected:
   vtkStandardPolyDataPainter();
   ~vtkStandardPolyDataPainter();
-  
+
   // Description:
-  // Generates rendering primitives of appropriate type(s). Multiple types 
-  // of preimitives can be requested by or-ring the primitive flags. 
+  // Generates rendering primitives of appropriate type(s). Multiple types
+  // of preimitives can be requested by or-ring the primitive flags.
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
   void DrawCells(int mode, vtkCellArray *connectivity,
-                 vtkIdType startCellId, 
+                 vtkIdType startCellId,
                  vtkShaderDeviceAdapter *shaderDevice,
                  vtkShaderDeviceAdapter2 *shaderDevice2,
-                 vtkRenderer *renderer, 
+                 vtkRenderer *renderer,
                  int buildnormals, int interpolation);
 
   // Description:

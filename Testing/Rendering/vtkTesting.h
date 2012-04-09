@@ -16,11 +16,11 @@
 // .SECTION Description
 //
 //  This is a VTK regression testing framework. Looks like this:
-// 
+//
 //  vtkTesting* t = vtkTesting::New();
 //
 //  Two options for setting arguments
-//  
+//
 //  Option 1:
 //  for ( cc = 1; cc < argc; cc ++ )
 //    {
@@ -34,16 +34,16 @@
 //  t->AddArgument(my_valid_image);
 //
 //  ...
-//  
+//
 //  Two options of doing testing:
-//  
+//
 //  Option 1:
 //  t->SetRenderWindow(renWin);
 //  int res = t->RegressionTest(threshold);
 //
 //  Option 2:
 //  int res = t->RegressionTest(test_image, threshold);
-//  
+//
 //  ...
 //
 //  if ( res == vtkTesting::PASSED )
@@ -89,19 +89,19 @@ public:
   static int Test(int argc, char *argv[], vtkRenderWindow *rw, double thresh);
 
   // Description:
-  // This method is intended to be a comprehensive, one line replacement for 
-  // vtkRegressionTest and for the replay based testing using 
-  // vtkInteractorEventRecorder greatly simplifying API and code bloat. It scans 
+  // This method is intended to be a comprehensive, one line replacement for
+  // vtkRegressionTest and for the replay based testing using
+  // vtkInteractorEventRecorder greatly simplifying API and code bloat. It scans
   // the command line specified for the following :
   // - If a "--DisableReplay" is specified, it disables the testing replay. This
-  //   is particularly useful in enabling the user to exercise the widgets. 
-  //   Typically the widgets are defined by the testing replay, so the user 
+  //   is particularly useful in enabling the user to exercise the widgets.
+  //   Typically the widgets are defined by the testing replay, so the user
   //   misses out on playing around with the widget definition behaviour.
-  // - If a "--Record" is specified in the command line, it records the 
+  // - If a "--Record" is specified in the command line, it records the
   //   interactions into a "vtkInteractorEventRecorder.log" file. This is useful
   //   when creating the playback stream that is plugged into tests.
   //
-  // Typical usage in a test for a VTK widget that needs playback 
+  // Typical usage in a test for a VTK widget that needs playback
   // testing / recording is :
   //
   //   const char TestFooWidgetTestLog[] = {
@@ -123,11 +123,11 @@ public:
   //     return vtkTesting::InteractorEventLoop( argc, argv, iren );
   //   }
   //
-  static int InteractorEventLoop( int argc, char *argv[], 
+  static int InteractorEventLoop( int argc, char *argv[],
       vtkRenderWindowInteractor *iren, const char *stream = NULL );
-  
+
 //ETX
-  
+
   // Description:
   // Use front buffer for tests. By default use back buffer.
   vtkSetClampMacro(FrontBuffer, int, 0, 1);
@@ -146,13 +146,13 @@ public:
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os);
 
   // Description:
-  // Compute the average L2 norm between all point data data arrays 
+  // Compute the average L2 norm between all point data data arrays
   // of types float and double present in the data sets "dsA" and "dsB"
-  // (this includes instances of vtkPoints) Compare the result of 
+  // (this includes instances of vtkPoints) Compare the result of
   // each L2 comutation to "tol".
   int CompareAverageOfL2Norm(vtkDataSet *pdA, vtkDataSet *pdB, double tol);
   // Description:
-  // Compute the average L2 norm between two data arrays "daA" and "daB" 
+  // Compute the average L2 norm between two data arrays "daA" and "daB"
   // and compare against "tol".
   int CompareAverageOfL2Norm(vtkDataArray *daA, vtkDataArray *daB, double tol);
 
@@ -180,17 +180,17 @@ public:
 
   //BTX
   // Description:
-  // Search for a specific argument by name and return its value 
+  // Search for a specific argument by name and return its value
   // (assumed to be the next on the command tail). Up to caller
   // to delete the returned string.
   char *GetArgument(const char *arg);
-  //ETX 
+  //ETX
 
   // Description
-  // This method delete all arguments in vtkTesting, this way you can reuse 
+  // This method delete all arguments in vtkTesting, this way you can reuse
   // it in a loop where you would have multiple testing.
   void CleanArguments();
-  
+
   // Description:
   // Get some parameters from the command line arguments, env, or defaults
   const char *GetDataRoot();
@@ -222,7 +222,7 @@ public:
   // Description:
   // Get/Set verbosity level. A level of 0 is quiet.
   vtkSetMacro(Verbose, int);
-  vtkGetMacro(Verbose, int);  
+  vtkGetMacro(Verbose, int);
 
 protected:
   vtkTesting();
@@ -238,14 +238,14 @@ protected:
   char *TempDirectory;
   int BorderOffset;
   int Verbose;
-  
+
 //BTX
   std::vector<std::string> Args;
 //ETX
   char *DataRoot;
   double StartWallTime;
   double StartCPUTime;
-  
+
 private:
   vtkTesting(const vtkTesting&);  // Not implemented.
   void operator=(const vtkTesting&);  // Not implemented.

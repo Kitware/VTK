@@ -16,12 +16,12 @@
 //
 // .SECTION Description
 //  As a special sub-class of vtkPointLocator, vtkNonMergingPointLocator is
-//  intended for direct / check-free insertion of points into a vtkPoints 
-//  object. In other words, any given point is always directly inserted. 
-//  The name emphasizes the difference between this class and its sibling 
-//  class vtkMergePoints in that the latter class performs check-based zero 
+//  intended for direct / check-free insertion of points into a vtkPoints
+//  object. In other words, any given point is always directly inserted.
+//  The name emphasizes the difference between this class and its sibling
+//  class vtkMergePoints in that the latter class performs check-based zero
 //  tolerance point insertion (or to 'merge' exactly duplicate / coincident
-//  points) by exploiting the uniform bin mechanism employed by the parent 
+//  points) by exploiting the uniform bin mechanism employed by the parent
 //  class vtkPointLocator. vtkPointLocator allows for generic (zero and non-
 //  zero) tolerance point insertion as well as point location.
 //
@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonMergingPointLocator : public vtkPointLocat
 {
 public:
   static vtkNonMergingPointLocator * New();
-  
+
   vtkTypeMacro( vtkNonMergingPointLocator, vtkPointLocator );
   void PrintSelf( ostream & os, vtkIndent indent );
 
@@ -56,14 +56,14 @@ public:
   // Description:
   // Determine whether a given point x has been inserted into the points list.
   // Return 0 if a duplicate has been inserted in the list, or 1 else. Note
-  // this function always returns 1 since any point is always inserted. The 
+  // this function always returns 1 since any point is always inserted. The
   // index of the point is returned via ptId.
   virtual int InsertUniquePoint( const double x[3], vtkIdType & ptId );
-  
+
 protected:
   vtkNonMergingPointLocator() { };
   ~vtkNonMergingPointLocator() { };
-  
+
 private:
   vtkNonMergingPointLocator( const vtkNonMergingPointLocator & );  // Not implemented.
   void operator = ( const vtkNonMergingPointLocator & );  // Not implemented.

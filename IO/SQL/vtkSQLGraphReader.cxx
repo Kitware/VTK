@@ -96,8 +96,8 @@ vtkCxxSetObjectMacro(vtkSQLGraphReader, VertexQuery, vtkSQLQuery);
 vtkCxxSetObjectMacro(vtkSQLGraphReader, EdgeQuery, vtkSQLQuery);
 
 int vtkSQLGraphReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** , 
+  vtkInformation*,
+  vtkInformationVector** ,
   vtkInformationVector* outputVector)
 {
   // Check for valid inputs
@@ -139,21 +139,21 @@ int vtkSQLGraphReader::RequestData(
   vtkSmartPointer<vtkRowQueryToTable> edgeReader = vtkSmartPointer<vtkRowQueryToTable>::New();
   edgeReader->SetQuery(this->EdgeQuery);
   edgeReader->Update();
-  
+
   const char* domain = "default";
   if (this->VertexIdField)
     {
     domain = this->VertexIdField;
     }
-  
+
   filter->SetInputConnection(edgeReader->GetOutputPort());
   filter->AddLinkVertex(this->SourceField, domain);
   filter->AddLinkVertex(this->TargetField, domain);
   filter->AddLinkEdge(this->SourceField, this->TargetField);
-  
+
   vtkSmartPointer<vtkAssignCoordinates> assign = vtkSmartPointer<vtkAssignCoordinates>::New();
   assign->SetInputConnection(filter->GetOutputPort());
-  
+
   // Set up the internal filter to use the vertex table
   if (this->VertexQuery != NULL)
     {
@@ -207,12 +207,12 @@ int vtkSQLGraphReader::RequestData(
 }
 
 int vtkSQLGraphReader::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** , 
+  vtkInformation*,
+  vtkInformationVector** ,
   vtkInformationVector*)
 {
   vtkDataObject *current = this->GetExecutive()->GetOutputData(0);
-  if (!current 
+  if (!current
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
     {

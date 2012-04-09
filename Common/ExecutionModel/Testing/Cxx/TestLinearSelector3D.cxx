@@ -34,7 +34,7 @@
 #include <vtksys/ios/sstream>
 
 // Reference values
-vtkIdType cardSelection[] = 
+vtkIdType cardSelection[] =
 {
   54,
   54,
@@ -43,7 +43,7 @@ vtkIdType cardSelection[] =
 };
 
 // ------------------------------------------------------------------------------------------------
-static int CheckExtractedUGrid( vtkExtractSelection* extract, 
+static int CheckExtractedUGrid( vtkExtractSelection* extract,
                                 const char* tag,
                                 int testIdx,
                                 bool writeGrid )
@@ -72,12 +72,12 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 
   // Verify selection cardinality
   vtkIdType nCells = ugrid->GetNumberOfCells();
-  cout << tag 
-       << " contains " 
+  cout << tag
+       << " contains "
        << nCells
        << " cells."
        << endl;
-  
+
   if ( nCells != cardSelection[testIdx] )
     {
     vtkGenericWarningMacro( "Incorrect cardinality: "
@@ -122,7 +122,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
 {
   // Initialize test value
   int testIntValue = 0;
-  
+
   // Read 3D unstructured input mesh
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/AngularSector.vtk");
   vtkSmartPointer<vtkUnstructuredGridReader> reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
@@ -133,7 +133,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
   // Create multi-block mesh for linear selector
   vtkSmartPointer<vtkMultiBlockDataSet> mesh = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   mesh->SetNumberOfBlocks( 1 );
-  mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" ); 
+  mesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Mesh" );
   mesh->SetBlock( 0, reader->GetOutput() );
 
   // *****************************************************************************
@@ -167,7 +167,7 @@ int TestLinearSelector3D( int argc, char * argv [] )
   ls1->SetEndPoint( .23, .0, .0 );
   ls1->IncludeVerticesOff();
   ls1->SetVertexEliminationTolerance( 1.e-12 );
-  
+
   // Extract selection from mesh
   vtkSmartPointer<vtkExtractSelection> es1 =  vtkSmartPointer<vtkExtractSelection>::New();
   es1->SetInputData( 0, mesh );

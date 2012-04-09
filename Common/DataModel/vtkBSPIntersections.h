@@ -78,40 +78,40 @@ public:
   int GetRegionDataBounds(int regionID, double bounds[6]);
 
   // Description:
-  //    Determine whether a region of the spatial decomposition 
+  //    Determine whether a region of the spatial decomposition
   //    intersects an axis aligned box.
-  int IntersectsBox(int regionId, double *x); 
-  int IntersectsBox(int regionId, double xmin, double xmax, 
-                    double ymin, double ymax, 
-                    double zmin, double zmax); 
+  int IntersectsBox(int regionId, double *x);
+  int IntersectsBox(int regionId, double xmin, double xmax,
+                    double ymin, double ymax,
+                    double zmin, double zmax);
 
   // Description:
-  //    Compute a list of the Ids of all regions that 
+  //    Compute a list of the Ids of all regions that
   //    intersect the specified axis aligned box.
   //    Returns: the number of ids in the list.
-  int IntersectsBox(int *ids, int len,  double *x); 
-  int IntersectsBox(int *ids, int len,  double x0, double x1, 
-                    double y0, double y1, double z0, double z1); 
+  int IntersectsBox(int *ids, int len,  double *x);
+  int IntersectsBox(int *ids, int len,  double x0, double x1,
+                    double y0, double y1, double z0, double z1);
 
   // Description:
-  //    Determine whether a region of the spatial decomposition 
-  //    intersects a sphere, given the center of the sphere 
+  //    Determine whether a region of the spatial decomposition
+  //    intersects a sphere, given the center of the sphere
   //    and the square of it's radius.
-  int IntersectsSphere2(int regionId, 
+  int IntersectsSphere2(int regionId,
                         double x, double y, double z, double rSquared);
 
   // Description:
-  //    Compute a list of the Ids of all regions that 
+  //    Compute a list of the Ids of all regions that
   //    intersect the specified sphere.  The sphere is given
   //    by it's center and the square of it's radius.
   //    Returns: the number of ids in the list.
-  int IntersectsSphere2(int *ids, int len, 
+  int IntersectsSphere2(int *ids, int len,
                         double x, double y, double z, double rSquared);
 
   // Description:
   //    Determine whether a region of the spatial decomposition
   //    intersects the given cell.  If you already
-  //    know the region that the cell centroid lies in, provide 
+  //    know the region that the cell centroid lies in, provide
   //    that as the last argument to make the computation quicker.
   int IntersectsCell(int regionId, vtkCell *cell, int cellRegion=-1);
 
@@ -168,7 +168,7 @@ private:
 
   int _IntersectsBox(vtkKdNode *node, int *ids, int len,
                      double x0, double x1,
-                     double y0, double y1, 
+                     double y0, double y1,
                      double z0, double z1);
 
   int _IntersectsSphere2(vtkKdNode *node, int *ids, int len,

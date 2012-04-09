@@ -45,7 +45,7 @@ public:
   // Description:
   // Before writing the current data out, set the TimeValue (optional)
   // The TimeValue is a float/double value that corresonds to the real
-  // time of the data, it may not be regular, whereas the TimeSteps 
+  // time of the data, it may not be regular, whereas the TimeSteps
   // are simple increments.
   vtkSetMacro(TimeValue,double);
   vtkGetMacro(TimeValue,double);
@@ -56,12 +56,12 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // When running in parallel, this writer may be capable of 
+  // When running in parallel, this writer may be capable of
   // Collective IO operations (HDF5). By default, this is off.
   vtkSetMacro(CollectiveIO,int);
   vtkGetMacro(CollectiveIO,int);
   void SetWriteModeToCollective();
-  void SetWriteModeToIndependent();  
+  void SetWriteModeToIndependent();
 
   // Description:
   // Close the file after a write. This is optional but

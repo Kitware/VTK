@@ -87,10 +87,10 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WFlags f)
 
   // default to enable mouse events when a mouse button isn't down
   // so we can send enter/leave events to VTK
-  this->setMouseTracking(true);       
-  
+  this->setMouseTracking(true);
+
   // set expanding to take up space for better default layouts
-  this->setSizePolicy( 
+  this->setSizePolicy(
     QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
     );
 
@@ -115,7 +115,7 @@ QVTKWidget::~QVTKWidget()
 {
   // get rid of the VTK window
   this->SetRenderWindow(NULL);
-  
+
   this->mCachedImage->Delete();
 
   if(mPaintEngine)
@@ -206,7 +206,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
     {
     // register new window
     this->mRenWin->Register(NULL);
-     
+
     // if it is mapped somewhere else, unmap it
     if(this->mRenWin->GetMapped())
       {
@@ -220,20 +220,20 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
 
     // special x11 setup
     x11_setup_window();
-    
+
     // give the qt window id to the vtk window
     this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
 
     // tell the vtk window what the size of this window is
     this->mRenWin->vtkRenderWindow::SetSize(this->width(), this->height());
     this->mRenWin->vtkRenderWindow::SetPosition(this->x(), this->y());
-    
+
     // have VTK start this window and create the necessary graphics resources
     if(isVisible())
       {
       this->mRenWin->Start();
       }
-    
+
     // if an interactor wasn't provided, we'll make one by default
     if(!this->mRenWin->GetInteractor())
       {
@@ -242,18 +242,18 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       iren->SetUseTDx(this->UseTDx);
       this->mRenWin->SetInteractor(iren);
       iren->Initialize();
-      
+
       // now set the default style
       vtkInteractorStyle* s = vtkInteractorStyleTrackballCamera::New();
       iren->SetInteractorStyle(s);
-      
+
       iren->Delete();
       s->Delete();
       }
-    
+
     // tell the interactor the size of this window
     this->mRenWin->GetInteractor()->SetSize(this->width(), this->height());
-    
+
     // Add an observer to monitor when the image changes.  Should work most
     // of the time.  The application will have to call
     // markCachedImageAsDirty for any other case.
@@ -268,12 +268,12 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
   if(mRenWin && !this->DirtyRegionHandlerUPP)
     {
     this->DirtyRegionHandlerUPP = NewEventHandlerUPP(QVTKWidget::DirtyRegionProcessor);
-    static EventTypeSpec events[] = { {'cute', 20}, {'Cute', 20} };  
+    static EventTypeSpec events[] = { {'cute', 20}, {'Cute', 20} };
     // kEventClassQt, kEventQtRequestWindowChange from qt_mac_p.h
-    // Suggested by Sam Magnuson at Trolltech as best portabile hack 
+    // Suggested by Sam Magnuson at Trolltech as best portabile hack
     // around Apple's missing functionality in HI Toolbox.
-    InstallEventHandler(GetApplicationEventTarget(), this->DirtyRegionHandlerUPP, 
-                        GetEventTypeCount(events), events, 
+    InstallEventHandler(GetApplicationEventTarget(), this->DirtyRegionHandlerUPP,
+                        GetEventTypeCount(events), events,
                         reinterpret_cast<void*>(this), &this->DirtyRegionHandler);
     }
   else if(!mRenWin && this->DirtyRegionHandlerUPP)
@@ -307,7 +307,7 @@ void QVTKWidget::markCachedImageAsDirty()
 
 void QVTKWidget::saveImageToCache()
 {
-  if (this->cachedImageCleanFlag) 
+  if (this->cachedImageCleanFlag)
     {
     return;
     }
@@ -319,7 +319,7 @@ void QVTKWidget::saveImageToCache()
   vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
     this->mCachedImage->GetPointData()->GetScalars());
   // We use back-buffer if
-  this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1, 
+  this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1,
     this->mRenWin->GetDoubleBuffer()? 0 /*back*/ : 1 /*front*/, array);
   this->cachedImageCleanFlag = true;
   emit cachedImageClean();
@@ -391,7 +391,7 @@ bool QVTKWidget::event(QEvent* e)
         }
       }
     }
-  
+
   if(QObject::event(e))
     {
     return TRUE;
@@ -441,7 +441,7 @@ void QVTKWidget::moveEvent(QMoveEvent* e)
     {
     return;
     }
-    
+
   // Don't set size on subclass of vtkRenderWindow or it triggers recursion.
   // Getting this event in the first place means the window was already
   // resized and we're updating the sizes in VTK.
@@ -462,7 +462,7 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     {
     return;
     }
-  
+
   // if we have a saved image, use it
   if (this->paintCachedImage())
     {
@@ -485,7 +485,7 @@ void QVTKWidget::paintEvent(QPaintEvent* )
     pixels->Delete();
     img = img.rgbSwapped();
     img = img.mirrored();
-    
+
     QPainter painter(this);
     painter.drawImage(QPointF(0.0,0.0), img);
     return;
@@ -504,7 +504,7 @@ void QVTKWidget::mousePressEvent(QMouseEvent* e)
     {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
     }
-  
+
 }
 
 /*! handle mouse move event
@@ -584,9 +584,9 @@ void QVTKWidget::wheelEvent(QWheelEvent* e)
 
 void QVTKWidget::focusInEvent(QFocusEvent* e)
 {
-  // These prevent updates when the window 
+  // These prevent updates when the window
   // gains or loses focus.  By default, Qt
-  // does an update because the color group's 
+  // does an update because the color group's
   // active status changes.  We don't even use
   // color groups so we do nothing here.
 
@@ -596,9 +596,9 @@ void QVTKWidget::focusInEvent(QFocusEvent* e)
 
 void QVTKWidget::focusOutEvent(QFocusEvent* e)
 {
-  // These prevent updates when the window 
+  // These prevent updates when the window
   // gains or loses focus.  By default, Qt
-  // does an update because the color group's 
+  // does an update because the color group's
   // active status changes.  We don't even use
   // color groups so we do nothing here.
 

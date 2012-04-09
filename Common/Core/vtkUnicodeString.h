@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkUnicodeString.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -57,7 +57,7 @@ typedef vtkTypeUInt32 vtkUnicodeStringValueType;
 // The following should be eventually placed in vtkSetGet.h
 //
 
-// This is same as extra extended template macro with an 
+// This is same as extra extended template macro with an
 // additional case for VTK_UNICODE_STRING
 #define vtkSuperExtraExtendedTemplateMacro(call)                                 \
   vtkExtraExtendedTemplateMacro(call);                                            \
@@ -77,7 +77,7 @@ public:
     typedef std::string::difference_type difference_type;
     typedef value_type* pointer;
     typedef value_type& reference;
-  
+
     const_iterator();
 
     value_type operator*() const;
@@ -176,11 +176,11 @@ public:
 
   // Description:
   // Append a Unicode character to the end of the sequence.
-  vtkUnicodeString& operator+=(value_type); 
+  vtkUnicodeString& operator+=(value_type);
   // Description:
   // Append a Unicode sequence to the end of the current sequence.
   vtkUnicodeString& operator+=(const vtkUnicodeString& rhs);
-  
+
   // Description:
   // Append a Unicode character to the end of the sequence.
   void push_back(value_type);
@@ -196,7 +196,7 @@ public:
   void assign(const vtkUnicodeString& value);
   void assign(size_type count, value_type character);
   void assign(const_iterator begin, const_iterator end);
- 
+
   // Description:
   // Resets the string to an empty sequence
   void clear();
@@ -220,9 +220,9 @@ public:
 
   // Description:
   // Returns a subset of the current sequence that up-to 'count' characters in length,
-  // starting at character 'offset'. 
+  // starting at character 'offset'.
   vtkUnicodeString substr(size_type offset = 0, size_type count = npos) const;
-  
+
   // Description:
   // Swap the sequences stored by two strings.
   void swap(vtkUnicodeString&);

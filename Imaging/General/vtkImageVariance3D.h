@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageVariance3D - Variance in a neighborhood.
 // .SECTION Description
-// vtkImageVariance3D replaces each pixel with a measurement of 
+// vtkImageVariance3D replaces each pixel with a measurement of
 // pixel variance in a elliptical neighborhood centered on that pixel.
 // The value computed is not exactly the variance.
 // The difference between the neighbor values and center value is computed
@@ -37,18 +37,18 @@ public:
   static vtkImageVariance3D *New();
   vtkTypeMacro(vtkImageVariance3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // This method sets the size of the neighborhood.  It also sets the default
   // middle of the neighborhood and computes the Elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
-  
+
 protected:
   vtkImageVariance3D();
   ~vtkImageVariance3D();
 
   vtkImageEllipsoidSource *Ellipse;
-    
+
   virtual int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
                                   vtkInformationVector *outputVector);

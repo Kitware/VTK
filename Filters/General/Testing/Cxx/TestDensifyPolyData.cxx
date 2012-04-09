@@ -83,8 +83,8 @@ int TestDensifyPolyData(int argc, char *argv[])
   VTK_CREATE( vtkDensifyPolyData, densifyFilter2 );
   densifyFilter2->SetInputConnection(sphere->GetOutputPort());
   densifyFilter2->SetNumberOfSubdivisions(1);
-  
-  
+
+
   // Throw the stuff on the screen.
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
@@ -92,7 +92,7 @@ int TestDensifyPolyData(int argc, char *argv[])
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
-  
+
   VTK_CREATE(vtkPolyDataMapper, mapper1);
   mapper1->SetInputData(boxPolydata);
 
@@ -106,7 +106,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   renderer1->SetViewport(0, 0, 0.5, 0.5);
   renwin->AddRenderer(renderer1);
   actor1->GetProperty()->SetRepresentationToWireframe();
-  
+
   VTK_CREATE(vtkPolyDataMapper, mapper2);
   mapper2->SetInputConnection(densifyFilter->GetOutputPort());
 
@@ -134,7 +134,7 @@ int TestDensifyPolyData(int argc, char *argv[])
   renderer3->SetViewport(0, 0.5, 0.5, 1);
   renwin->AddRenderer(renderer3);
   actor3->GetProperty()->SetRepresentationToWireframe();
-  
+
   VTK_CREATE(vtkPolyDataMapper, mapper4);
   mapper4->SetInputConnection(densifyFilter2->GetOutputPort());
 
@@ -157,7 +157,7 @@ int TestDensifyPolyData(int argc, char *argv[])
     {
     iren->Start();
     }
-  
+
   writer->Delete();
   boxPolydata->Delete();
   boxPoints->Delete();

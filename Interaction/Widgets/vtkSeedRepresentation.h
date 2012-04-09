@@ -17,7 +17,7 @@
 // The vtkSeedRepresentation is a superclass for classes representing the
 // vtkSeedWidget. This representation consists of one or more handles
 // (vtkHandleRepresentation) which are used to place and manipulate the
-// points defining the collection of seeds. 
+// points defining the collection of seeds.
 
 // .SECTION See Also
 // vtkSeedWidget vtkHandleRepresentation vtkSeedRepresentation
@@ -64,7 +64,7 @@ public:
   // method, create a dummy vtkHandleWidget (or subclass), and then invoke
   // this method with this dummy. Then the vtkSeedRepresentation uses this
   // dummy to clone vtkHandleWidgets of the same type. Make sure you set the
-  // handle representation before the widget is enabled. 
+  // handle representation before the widget is enabled.
   void SetHandleRepresentation( vtkHandleRepresentation *handle );
 
   // Description:
@@ -114,7 +114,7 @@ public:
   // These are methods that satisfy vtkWidgetRepresentation's API.
   virtual void BuildRepresentation();
   virtual int ComputeInteractionState( int X, int Y, int modify = 0 );
-  
+
 protected:
   vtkSeedRepresentation();
   ~vtkSeedRepresentation();
@@ -125,7 +125,7 @@ protected:
 
   // Selection tolerance for the handles
   int Tolerance;
-  
+
   // The active seed (handle) based on the last ComputeInteractionState()
   int ActiveHandle;
 

@@ -61,11 +61,11 @@ public:
   // Set/get the image property (relevant only if an image is shown).
   virtual void SetImageProperty(vtkProperty2D *p);
   vtkGetObjectMacro(ImageProperty,vtkProperty2D);
-    
+
   // Description:
   // Satisfy the superclasses' API.
   virtual void BuildRepresentation();
-  
+
   // Description:
   // These methods are necessary to make this representation behave as
   // a vtkProp.

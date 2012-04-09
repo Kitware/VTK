@@ -20,7 +20,7 @@
     <Member name="BackfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
     <Member name="FrontfaceCulling" number_of_elements="1"  type="Int" value="0"> </Member>
   </Property>
-  
+
   <Shader scope="Vertex" name="OrangeBook/Ch11/Ch11ToyBallVert.glsl" location="OrangeBook/Ch11/Ch11ToyBallVert.glsl"  language="GLSL" entry="main">
     <Uniform type="vec4" name="BallCenter" number_of_elements="4" value="1.0 1.0 1.0 1.0"> </Uniform>
   </Shader>

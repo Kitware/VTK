@@ -19,7 +19,7 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
       SET (CONVERTED_TESTS ${CONVERTED_TESTS} "${output}")
       SET (CONVERSIONLIST ${CONVERSIONLIST} "${input};${output}")
       SET (TESTS_TO_CONVERT ${TESTS_TO_CONVERT} "${input}")
-    
+
       #Add the py test.
       IF (${VTK_DATA_ROOT})
         ADD_TEST(${test}Python ${VTK_PYTHON_EXE}
@@ -28,7 +28,7 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
           -D ${VTK_DATA_ROOT}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/${kit_name}/${test}.png
-          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
+          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
           -A "${VTK_LIBRARY_DIR}"
           )
       ELSE (${VTK_DATA_ROOT})
@@ -37,7 +37,7 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
           ${output}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/${kit_name}/${test}.png
-          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
+          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
           -A "${VTK_LIBRARY_DIR}"
           )
       ENDIF (${VTK_DATA_ROOT})
@@ -55,10 +55,10 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
       ARGS ${CONVERTER_SCRIPT}
       -l "${output_dir}/vtkTestsToConvert"
       -t "${output_dir}/conversion_complete"
-      -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
+      -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
       -A "${VTK_BINARY_DIR}/Wrapping/Python"
       -A "${VTK_LIBRARY_DIR}"
-      DEPENDS ${TESTS_TO_CONVERT} 
+      DEPENDS ${TESTS_TO_CONVERT}
       ${output_dir}/vtkTestsToConvert
       ${CONVERTER_SCRIPT}
       COMMENT "Converting Tcl test"
@@ -71,4 +71,4 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
     # TODO: add explicit dependency between the vtk{Name}Kit.cmake files and the
     # the test conversion.
   ENDIF(NOT "${${tcl_tests}}" STREQUAL "")
-ENDMACRO (CONVERT_TCL_TEST_TO_PY) 
+ENDMACRO (CONVERT_TCL_TEST_TO_PY)

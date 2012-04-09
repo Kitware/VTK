@@ -56,9 +56,9 @@ protected:
   virtual int ExecuteData(vtkInformation* request,
                           vtkInformationVector** inInfoVec,
                           vtkInformationVector* outInfoVec);
-  
+
   int CacheSize;
-  
+
   vtkDataObject **Data;
   unsigned long *Times;
 

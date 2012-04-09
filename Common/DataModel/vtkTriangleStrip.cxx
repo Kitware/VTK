@@ -40,7 +40,7 @@ vtkTriangleStrip::~vtkTriangleStrip()
 
 //----------------------------------------------------------------------------
 int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
-                                      int& subId, double pcoords[3], 
+                                      int& subId, double pcoords[3],
                                       double& minDist2, double *weights)
 {
   double pc[3], dist2;
@@ -67,8 +67,8 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
       return_status = status;
       if (closestPoint)
         {
-        closestPoint[0] = closest[0]; 
-        closestPoint[1] = closest[1]; 
+        closestPoint[0] = closest[0];
+        closestPoint[1] = closest[1];
         closestPoint[2] = closest[2];
         }
       subId = i;
@@ -82,8 +82,8 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
       }
     }
 
-  weights[i] = 0.0;  
-  weights[i+1] = 0.0;  
+  weights[i] = 0.0;
+  weights[i+1] = 0.0;
 
   weights[subId] = activeWeights[0];
   weights[subId+1] = activeWeights[1];
@@ -93,7 +93,7 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangleStrip::EvaluateLocation(int& subId, double pcoords[3], 
+void vtkTriangleStrip::EvaluateLocation(int& subId, double pcoords[3],
                                         double x[3], double *weights)
 {
   int i;
@@ -131,9 +131,9 @@ int vtkTriangleStrip::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangleStrip::Contour(double value, vtkDataArray *cellScalars, 
+void vtkTriangleStrip::Contour(double value, vtkDataArray *cellScalars,
                                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-                               vtkCellArray *lines, vtkCellArray *polys, 
+                               vtkCellArray *lines, vtkCellArray *polys,
                                vtkPointData *inPd, vtkPointData *outPd,
                                vtkCellData *inCd, vtkIdType cellId,
                                vtkCellData *outCd)
@@ -197,7 +197,7 @@ vtkCell *vtkTriangleStrip::GetEdge(int edgeId)
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 // Intersect sub-triangles
 //
 int vtkTriangleStrip::IntersectWithLine(double p1[3], double p2[3], double tol,
@@ -222,7 +222,7 @@ int vtkTriangleStrip::IntersectWithLine(double p1[3], double p2[3], double tol,
 }
 
 //----------------------------------------------------------------------------
-int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                   vtkPoints *pts)
 {
   int numTris = this->Points->GetNumberOfPoints()-2;
@@ -247,7 +247,7 @@ int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangleStrip::Derivatives(int subId, double pcoords[3], double *values, 
+void vtkTriangleStrip::Derivatives(int subId, double pcoords[3], double *values,
                                    int dim, double *derivs)
 {
   this->Triangle->Points->SetPoint(0,this->Points->GetPoint(subId));
@@ -258,7 +258,7 @@ void vtkTriangleStrip::Derivatives(int subId, double pcoords[3], double *values,
 }
 
 //----------------------------------------------------------------------------
-// Given a triangle strip, decompose it into (triangle) polygons. The 
+// Given a triangle strip, decompose it into (triangle) polygons. The
 // polygons are appended to the end of the list of polygons.
 void vtkTriangleStrip::DecomposeStrip(int npts, vtkIdType *pts,
                                       vtkCellArray *polys)
@@ -289,7 +289,7 @@ void vtkTriangleStrip::DecomposeStrip(int npts, vtkIdType *pts,
 }
 
 //----------------------------------------------------------------------------
-void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars, 
+void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars,
                             vtkIncrementalPointLocator *locator, vtkCellArray *tris,
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
@@ -311,7 +311,7 @@ void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars,
       {
       id1 = i; id2 = i + 1; id3 = i + 2;
       }
-  
+
     this->Triangle->Points->SetPoint(0,this->Points->GetPoint(id1));
     this->Triangle->Points->SetPoint(1,this->Points->GetPoint(id2));
     this->Triangle->Points->SetPoint(2,this->Points->GetPoint(id3));
@@ -324,7 +324,7 @@ void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars,
     triScalars->SetTuple(1,cellScalars->GetTuple(id2));
     triScalars->SetTuple(2,cellScalars->GetTuple(id3));
 
-    this->Triangle->Clip(value, triScalars, locator, tris, inPd, outPd, 
+    this->Triangle->Clip(value, triScalars, locator, tris, inPd, outPd,
                         inCd, cellId, outCd, insideOut);
     }
 
@@ -357,7 +357,7 @@ void vtkTriangleStrip::InterpolateDerivs(double pcoords[3], double *derivs)
 void vtkTriangleStrip::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Triangle:\n";

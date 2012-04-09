@@ -15,7 +15,7 @@
 // This example demonstrates how to implement a vtkGenericDataSet
 // (here vtkBridgeDataSet) and to use vtkGenericDataSetTessellator filter on
 // it.
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -77,7 +77,7 @@ class SwitchLabelsCallback
 public:
   static SwitchLabelsCallback *New()
     { return new SwitchLabelsCallback; }
-  
+
   void SetLabeledDataMapper(vtkLabeledDataMapper *aLabeledDataMapper)
     {
       this->LabeledDataMapper=aLabeledDataMapper;
@@ -86,7 +86,7 @@ public:
     {
       this->RenWin=aRenWin;
     }
-  
+
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
@@ -119,13 +119,13 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 //  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet4.vtu");
 //  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tetraMesh.vtu");
 //  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
-  
+
 //  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
 //  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadQuad01.vtu");
-  
+
   reader->SetFileName( cfname );
   delete[] cfname;
-  
+
   // Force reading
   reader->Update();
 
@@ -133,63 +133,63 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   vtkBridgeDataSet *ds=vtkBridgeDataSet::New();
   ds->SetDataSet( reader->GetOutput() );
   reader->Delete();
-  
+
   // Set the error metric thresholds:
   // 1. for the geometric error metric
   vtkGeometricErrorMetric *geometricError=vtkGeometricErrorMetric::New();
   geometricError->SetRelativeGeometricTolerance(0.1,ds);
-  
+
   ds->GetTessellator()->GetErrorMetrics()->AddItem(geometricError);
   geometricError->Delete();
-  
+
   // 2. for the attribute error metric
   vtkAttributesErrorMetric *attributesError=vtkAttributesErrorMetric::New();
   attributesError->SetAttributeTolerance(0.01); // 0.11, 0.005
-  
+
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
   cout<<"input unstructured grid: "<<ds<<endl;
-  
+
   static_cast<vtkSimpleCellTessellator *>(ds->GetTessellator())->SetSubdivisionLevels(0,100);
   vtkIndent indent;
   ds->PrintSelf(cout,indent);
-  
+
   // Create the filter
   vtkGenericDataSetTessellator *tessellator = vtkGenericDataSetTessellator::New();
   tessellator->SetInputData(ds);
 
   tessellator->Update(); //So that we can call GetRange() on the scalars
-  
+
   assert(tessellator->GetOutput()!=0);
-  
+
   // for debugging clipping on the hexa
 #if 0
   vtkExtractGeometry *eg=vtkExtractGeometry::New();
   eg->SetInputConnection(tessellator->GetOutputPort());
-  
+
   vtkSphere *sphere=vtkSphere::New();
   sphere->SetRadius(0.1);
   sphere->SetCenter(0,0,0);
-  
+
   eg->SetImplicitFunction(sphere);
   eg->SetExtractInside(1);
   eg->SetExtractBoundaryCells(0);
-  
+
   vtkXMLUnstructuredGridWriter *cwriter=vtkXMLUnstructuredGridWriter::New();
   cwriter->SetInputConnection(eg->GetOutputPort());
   cwriter->SetFileName("extracted_tessellated.vtu");
   cwriter->SetDataModeToAscii();
   cwriter->Write();
-  
+
   cwriter->Delete();
   sphere->Delete();
   eg->Delete();
 #endif
-  
+
   // This creates a blue to red lut.
-  vtkLookupTable *lut = vtkLookupTable::New(); 
+  vtkLookupTable *lut = vtkLookupTable::New();
   lut->SetHueRange (0.667, 0.0);
-  
+
 #ifdef WITH_GEOMETRY_FILTER
   vtkGeometryFilter *geom = vtkGeometryFilter::New();
   geom->SetInputConnection(tessellator->GetOutputPort());
@@ -209,11 +209,11 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
                               GetScalars()->GetRange());
       }
     }
-  
+
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
-  
+
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
@@ -233,14 +233,14 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   renderer->AddActor(actorLabel);
   actorLabel->SetVisibility(0);
   actorLabel->Delete();
-  
+
   // Standard testing code.
   renderer->SetBackground(0.5,0.5,0.5);
   renWin->SetSize(300,300);
   renWin->Render();
-  
+
   tessellator->GetOutput()->PrintSelf(cout,indent);
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -261,6 +261,6 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   tessellator->Delete();
   ds->Delete();
   lut->Delete();
-  
+
   return !retVal;
 }

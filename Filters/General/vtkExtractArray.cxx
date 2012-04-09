@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkExtractArray.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -62,8 +62,8 @@ int vtkExtractArray::FillInputPortInformation(int port, vtkInformation* info)
 }
 
 int vtkExtractArray::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);

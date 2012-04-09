@@ -49,7 +49,7 @@ void vtkRotationFilter::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "Axis: " << this->Axis << endl;
   os << indent << "CopyInput: " << this->CopyInput << endl;
-  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1] 
+  os << indent << "Center: (" << this->Center[0] << "," << this->Center[1]
                << "," << this->Center[2] << ")" << endl;
   os << indent << "NumberOfCopies: " << this->NumberOfCopies << endl;
   os << indent << "Angle: " << this->Angle << endl;
@@ -193,7 +193,7 @@ int vtkRotationFilter::RequestData(
     }
 
   // Generate rotated cells.
-  for (k = 0; k < this->GetNumberOfCopies(); k++)  
+  for (k = 0; k < this->GetNumberOfCopies(); k++)
     {
     for (i = 0; i < numCells; i++)
       {

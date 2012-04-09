@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, InputData, vtkImageData );
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
 // the Input, EncodedNormal, and GradientMagnitude. Also,
 // indicate that the IndexTable has not yet been initialized. The
-// GradientMagnitudeRange and the GradientMangitudeTable are 
+// GradientMagnitudeRange and the GradientMangitudeTable are
 // initialized to default values - these will change in the future
 // when magnitude of gradient opacities are included
 vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
@@ -54,13 +54,13 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->ZeroNormalThreshold        = 0.0;
   this->ZeroPad                    = 1;
   this->BoundsClip                 = 0;
-  this->Bounds[0] = 
-    this->Bounds[1] = 
-    this->Bounds[2] = 
+  this->Bounds[0] =
+    this->Bounds[1] =
+    this->Bounds[2] =
     this->Bounds[3] =
     this->Bounds[4] =
     this->Bounds[5] = 0;
-  
+
 }
 
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
@@ -69,7 +69,7 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
   this->SetInputData(NULL);
   this->Threader->Delete();
   this->Threader = NULL;
-  
+
   if ( this->EncodedNormals )
     {
     delete [] this->EncodedNormals;
@@ -106,7 +106,7 @@ void vtkEncodedGradientEstimator::SetZeroNormalThreshold( float v )
     }
 }
 
-void 
+void
 vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
 {
   // If we are setting it to its current value, don't do anything
@@ -133,13 +133,13 @@ vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
   this->Modified();
 }
 
-int vtkEncodedGradientEstimator::GetEncodedNormalIndex( vtkIdType xyzIndex ) 
+int vtkEncodedGradientEstimator::GetEncodedNormalIndex( vtkIdType xyzIndex )
 {
   this->Update();
   return *(this->EncodedNormals + xyzIndex);
 }
 
-int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xIndex, 
+int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xIndex,
                                                         int yIndex,
                                                         int zIndex )
 {
@@ -180,20 +180,20 @@ void vtkEncodedGradientEstimator::Update( )
     vtkErrorMacro(<< "No input in gradient estimator.");
     return;
     }
-    
-  if ( this->GetMTime() > this->BuildTime || 
+
+  if ( this->GetMTime() > this->BuildTime ||
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
        this->InputData->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
     {
-    
+
     startSeconds = vtkTimerLog::GetUniversalTime();
     startCPUSeconds = vtkTimerLog::GetCPUTime();
-    
+
     // Get the dimensions of the data and its aspect ratio
     this->InputData->GetDimensions( scalarInputSize );
     this->InputData->GetSpacing( scalarInputAspect );
-    
+
     // If we previously have allocated space for the encoded normals,
     // and this space is no longer the right size, delete it
     if ( this->EncodedNormalsSize[0] != scalarInputSize[0] ||
@@ -239,7 +239,7 @@ void vtkEncodedGradientEstimator::Update( )
     this->InputAspect[2] = static_cast<float>(scalarInputAspect[2]);
     // memcpy( this->InputAspect, scalarInputAspect, 3 * sizeof(float) );
 
-    if ( this->CylinderClip && 
+    if ( this->CylinderClip &&
          (this->InputSize[0] == this->InputSize[1]) )
       {
       this->UseCylinderClip = 1;
@@ -255,7 +255,7 @@ void vtkEncodedGradientEstimator::Update( )
 
     endSeconds = vtkTimerLog::GetUniversalTime();
     endCPUSeconds = vtkTimerLog::GetCPUTime();
-  
+
     this->LastUpdateTimeInSeconds    = static_cast<float>(endSeconds    - startSeconds);
     this->LastUpdateTimeInCPUSeconds = static_cast<float>(endCPUSeconds - startCPUSeconds);
     }
@@ -317,54 +317,54 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "DirectionEncoder: (none)\n";
     }
 
-  os << indent << "Build Time: " 
+  os << indent << "Build Time: "
      << this->BuildTime.GetMTime() << endl;
 
-  os << indent << "Gradient Magnitude Scale: " 
+  os << indent << "Gradient Magnitude Scale: "
      << this->GradientMagnitudeScale << endl;
 
-  os << indent << "Gradient Magnitude Bias: " 
+  os << indent << "Gradient Magnitude Bias: "
      << this->GradientMagnitudeBias << endl;
 
-  os << indent << "Zero Pad: " 
+  os << indent << "Zero Pad: "
      << ((this->ZeroPad)?"On":"Off") << endl;
-  
-  os << indent << "Bounds Clip: " 
+
+  os << indent << "Bounds Clip: "
      << ((this->BoundsClip)?"On":"Off") << endl;
-  
+
   os << indent << "Bounds: ("
-     << this->Bounds[0] << ", " << this->Bounds[1] << ", " 
-     << this->Bounds[2] << ", " << this->Bounds[3] << ", " 
+     << this->Bounds[0] << ", " << this->Bounds[1] << ", "
+     << this->Bounds[2] << ", " << this->Bounds[3] << ", "
      << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
 
-  os << indent << "Zero Normal Threshold: " 
+  os << indent << "Zero Normal Threshold: "
      << this->ZeroNormalThreshold << endl;
-    
-  os << indent << "Compute Gradient Magnitudes: " 
+
+  os << indent << "Compute Gradient Magnitudes: "
      << ((this->ComputeGradientMagnitudes)?"On":"Off") << endl;
 
-  os << indent << "Cylinder Clip: " 
+  os << indent << "Cylinder Clip: "
      << ((this->CylinderClip)?"On":"Off") << endl;
 
-  os << indent << "Number Of Threads: " 
+  os << indent << "Number Of Threads: "
      << this->NumberOfThreads << endl;
 
-  os << indent << "Last Update Time In Seconds: " 
+  os << indent << "Last Update Time In Seconds: "
      << this->LastUpdateTimeInSeconds << endl;
 
-  os << indent << "Last Update Time In CPU Seconds: " 
+  os << indent << "Last Update Time In CPU Seconds: "
      << this->LastUpdateTimeInCPUSeconds << endl;
 
   // I don't want to print out these variables - they are
   // internal and the get methods are included only for access
   // within the threaded function
-  // os << indent << "Use Cylinder Clip: " 
+  // os << indent << "Use Cylinder Clip: "
   //    << this->UseCylinderClip << endl;
-  // os << indent << " Input Size: " 
+  // os << indent << " Input Size: "
   //    << this->InputSize << endl;
-  // os << indent << " Input Aspect Clip: " 
+  // os << indent << " Input Aspect Clip: "
   //    << this->InputAspect << endl;
-  
+
 }
 
 //----------------------------------------------------------------------------

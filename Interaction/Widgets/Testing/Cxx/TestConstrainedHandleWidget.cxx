@@ -40,7 +40,7 @@
 int TestConstrainedHandleWidget( int argc, char *argv[] )
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
-   
+
   vtkSmartPointer<vtkVolume16Reader> v16 =
     vtkSmartPointer<vtkVolume16Reader>::New();
   v16->SetDataDimensions(64, 64);
@@ -52,7 +52,7 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   v16->SetDataMask(0x7fff);
   v16->Update();
   delete[] fname;
-    
+
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
@@ -64,7 +64,7 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   shifter->SetInputConnection(v16->GetOutputPort());
   shifter->ReleaseDataFlagOff();
   shifter->Update();
-  
+
   vtkSmartPointer<vtkImageActor> imageActor =
     vtkSmartPointer<vtkImageActor>::New();
   imageActor->GetMapper()->SetInputConnection(shifter->GetOutputPort());
@@ -72,7 +72,7 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
 //  imageActor->SetDisplayExtent(0, 63, 0, 63, 46, 46);
   imageActor->SetDisplayExtent(0, 63, 30, 30, 0, 92);
   imageActor->InterpolateOn();
-    
+
   // Create the RenderWindow, Renderer and both Actors
   //
   vtkSmartPointer<vtkRenderer> ren1 =
@@ -107,7 +107,7 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
 
   double bounds[6];
   imageActor->GetBounds( bounds );
-  
+
   vtkSmartPointer<vtkPlane> p1 =
     vtkSmartPointer<vtkPlane>::New();
   p1->SetOrigin( bounds[0], bounds[2], bounds[4] );
@@ -132,19 +132,19 @@ int TestConstrainedHandleWidget( int argc, char *argv[] )
   handleRep->AddBoundingPlane(p2);
   handleRep->AddBoundingPlane(p3);
   handleRep->AddBoundingPlane(p4);
-  
-    
+
+
   // render the image
   //
   ren1->GetActiveCamera()->SetPosition(0,0,0);
-  ren1->GetActiveCamera()->SetFocalPoint(0,1,0);  
+  ren1->GetActiveCamera()->SetFocalPoint(0,1,0);
   ren1->GetActiveCamera()->SetViewUp(0,0,1);
   ren1->ResetCamera();
   iren->Initialize();
   renWin->Render();
 
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 
 }

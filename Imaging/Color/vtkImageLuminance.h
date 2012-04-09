@@ -32,7 +32,7 @@ public:
 protected:
   vtkImageLuminance();
   ~vtkImageLuminance() {};
-  
+
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**,
                                   vtkInformationVector *);
 

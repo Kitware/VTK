@@ -52,7 +52,7 @@ void vtkPolyDataSourceWidget::PlaceWidget()
     bounds[4] = -1.0;
     bounds[5] = 1.0;
     }
-    
+
   this->PlaceWidget(bounds);
 }
 

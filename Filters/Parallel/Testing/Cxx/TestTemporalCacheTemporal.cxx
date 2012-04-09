@@ -37,9 +37,9 @@ class vtkTestTemporalCacheTemporalExecuteCallback
 public:
   static vtkTestTemporalCacheTemporalExecuteCallback *New()
   { return new vtkTestTemporalCacheTemporalExecuteCallback; }
-  
+
   virtual void Execute(vtkObject *caller, unsigned long, void*)
-  { 
+  {
     // count the number of timesteps requested
     vtkTemporalFractal *f = vtkTemporalFractal::SafeDownCast(caller);
     vtkInformation *info = f->GetExecutive()->GetOutputInformation(0);
@@ -50,7 +50,7 @@ public:
       std::vector<double> steps;
       steps.resize(Length);
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &steps[0]);
-      for (int i=0; i<Length; ++i) 
+      for (int i=0; i<Length; ++i)
         {
 //        cout << steps[i] << " ";
         }
@@ -70,7 +70,7 @@ int TestTemporalCacheTemporal(int , char *[])
   prototype->Delete();
 
   // create temporal fractals
-  vtkSmartPointer<vtkTemporalFractal> fractal = 
+  vtkSmartPointer<vtkTemporalFractal> fractal =
     vtkSmartPointer<vtkTemporalFractal>::New();
   fractal->SetMaximumLevel(2);
   fractal->DiscreteTimeStepsOn();
@@ -84,58 +84,58 @@ int TestTemporalCacheTemporal(int , char *[])
   executecb->Delete();
 
   // cache the data to prevent regenerating some of it
-  vtkSmartPointer<vtkTemporalDataSetCache> cache = 
+  vtkSmartPointer<vtkTemporalDataSetCache> cache =
     vtkSmartPointer<vtkTemporalDataSetCache>::New();
   cache->SetInputConnection(fractal->GetOutputPort());
   cache->SetCacheSize(2);
 
   // interpolate if needed
-  vtkSmartPointer<vtkTemporalInterpolator> interp = 
+  vtkSmartPointer<vtkTemporalInterpolator> interp =
     vtkSmartPointer<vtkTemporalInterpolator>::New();
   //interp->SetInputConnection(fractal->GetOutputPort());
   interp->SetInputConnection(cache->GetOutputPort());
-  
+
   // cache the data coming out of the interpolator
-  vtkSmartPointer<vtkTemporalDataSetCache> cache2 = 
+  vtkSmartPointer<vtkTemporalDataSetCache> cache2 =
     vtkSmartPointer<vtkTemporalDataSetCache>::New();
   cache2->SetInputConnection(interp->GetOutputPort());
   cache2->SetCacheSize(11);
 
-  vtkSmartPointer<vtkThreshold> contour = 
+  vtkSmartPointer<vtkThreshold> contour =
     vtkSmartPointer<vtkThreshold>::New();
   //contour->SetInputConnection(interp->GetOutputPort());
   contour->SetInputConnection(cache2->GetOutputPort());
   contour->ThresholdByUpper(0.5);
 
-  vtkSmartPointer<vtkCompositeDataGeometryFilter> geom = 
+  vtkSmartPointer<vtkCompositeDataGeometryFilter> geom =
     vtkSmartPointer<vtkCompositeDataGeometryFilter>::New();
   geom->SetInputConnection(contour->GetOutputPort());
 
   // map them
-  vtkSmartPointer<vtkPolyDataMapper> mapper = 
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(geom->GetOutputPort());
-  
+
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkRenderer> renderer = 
+  vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin = 
+  vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = 
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
   renderer->AddActor( actor );
   renderer->SetBackground(0.5, 0.5, 0.5);
 
   renWin->AddRenderer( renderer );
-  renWin->SetSize( 300, 300 ); 
+  renWin->SetSize( 300, 300 );
   iren->SetRenderWindow( renWin );
   renWin->Render();
 
   // ask for some specific data points
-  vtkStreamingDemandDrivenPipeline *sdd = 
+  vtkStreamingDemandDrivenPipeline *sdd =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
   double times[1];
   times[0] = 0;

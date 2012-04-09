@@ -17,7 +17,7 @@
  * This work (vtkInteractorStyleUnicam.h) was produced under a grant from
  * the Department of Energy to Brown University.  Neither Brown University
  * nor the authors assert any copyright with respect to this work and it may
- * be used, reproduced, and distributed without permission.  
+ * be used, reproduced, and distributed without permission.
  */
 
 // .NAME vtkInteractorStyleUnicam - provides Unicam navigation style
@@ -28,47 +28,47 @@
 // implementation, it uses the right mouse button, leaving the middle and
 // left available for other functions.) For more information, see the paper
 // at:
-// 
+//
 //    ftp://ftp.cs.brown.edu/pub/papers/graphics/research/unicam.pdf
-// 
+//
 // The following is a brief description of the UniCam Camera Controls.  You
 // can perform 3 operations on the camera: rotate, pan, and dolly the camera.
 // All operations are reached through the right mouse button & mouse
 // movements.
-// 
+//
 // IMPORTANT: UniCam assumes there is an axis that makes sense as a "up"
 // vector for the world.  By default, this axis is defined to be the
 // vector <0,0,1>.  You can set it explicitly for the data you are
 // viewing with the 'SetWorldUpVector(..)' method in C++, or similarly
 // in Tcl/Tk (or other interpreted languages).
-// 
+//
 // 1. ROTATE:
-// 
+//
 // Position the cursor over the point you wish to rotate around and press and
 // release the left mouse button.  A 'focus dot' appears indicating the
 // point that will be the center of rotation.  To rotate, press and hold the
 // left mouse button and drag the mouse.. release the button to complete the
 // rotation.
-// 
+//
 // Rotations can be done without placing a focus dot first by moving the
 // mouse cursor to within 10% of the window border & pressing and holding the
 // left button followed by dragging the mouse.  The last focus dot position
 // will be re-used.
-// 
+//
 // 2. PAN:
-// 
+//
 // Click and hold the left mouse button, and initially move the mouse left
 // or right.  The point under the initial pick will pick correlate w/ the
 // mouse tip-- (i.e., direct manipulation).
-// 
+//
 // 3. DOLLY (+ PAN):
-// 
+//
 // Click and hold the left mouse button, and initially move the mouse up or
 // down.  Moving the mouse down will dolly towards the picked point, and moving
 // the mouse up will dolly away from it.  Dollying occurs relative to the
 // picked point which simplifies the task of dollying towards a region of
 // interest. Left and right mouse movements will pan the camera left and right.
-// 
+//
 // .SECTION Caveats
 // (NOTE: This implementation of Unicam assumes a perspective camera.  It
 // could be modified relatively easily to also support an orthographic
@@ -84,20 +84,20 @@
 class vtkCamera;
 class vtkWorldPointPicker;
 
-// 
+//
 // XXX - would have preferred to make these enumerations within the class,
 //    enum { NONE=0, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT };
 //    enum {CAM_INT_ROT, CAM_INT_CHOOSE, CAM_INT_PAN, CAM_INT_DOLLY};
 // but vtkWrapTcl signaled a "syntax error" when it parsed the 'enum' line.
 // So, am making them defines which is what the other classes that want
 // to have constants appear to do.
-// 
+//
 // buttons pressed
 #define VTK_UNICAM_NONE           0
 #define VTK_UNICAM_BUTTON_LEFT    1
 #define VTK_UNICAM_BUTTON_MIDDLE  2
 #define VTK_UNICAM_BUTTON_RIGHT   3
-// 
+//
 // camera modes
 #define VTK_UNICAM_CAM_INT_ROT    0
 #define VTK_UNICAM_CAM_INT_CHOOSE 1
@@ -110,7 +110,7 @@ public:
   static vtkInteractorStyleUnicam *New();
   vtkTypeMacro(vtkInteractorStyleUnicam,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   void SetWorldUpVector(double a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
   void SetWorldUpVector(double x, double y, double z);
   vtkGetVectorMacro(WorldUpVector, double, 3);
@@ -132,7 +132,7 @@ protected:
   virtual ~vtkInteractorStyleUnicam();
 
   vtkWorldPointPicker *InteractionPicker;
-  
+
   int      ButtonDown;   // which button is down
   double   DTime;        // time mouse button was pressed
   double   Dist;         // distance the mouse has moved since button press

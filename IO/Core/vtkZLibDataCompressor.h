@@ -28,9 +28,9 @@ class VTKIOCORE_EXPORT vtkZLibDataCompressor : public vtkDataCompressor
 public:
   vtkTypeMacro(vtkZLibDataCompressor,vtkDataCompressor);
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkZLibDataCompressor* New();  
-  
-  // Description:  
+  static vtkZLibDataCompressor* New();
+
+  // Description:
   // Get the maximum space that may be needed to store data of the
   // given uncompressed size after compression.  This is the minimum
   // size of the output buffer that can be passed to the four-argument
@@ -41,11 +41,11 @@ public:
   // Get/Set the compression level.
   vtkSetClampMacro(CompressionLevel, int, 0, 9);
   vtkGetMacro(CompressionLevel, int);
-  
+
 protected:
   vtkZLibDataCompressor();
   ~vtkZLibDataCompressor();
-  
+
   int CompressionLevel;
 
   // Compression method required by vtkDataCompressor.

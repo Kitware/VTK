@@ -17,8 +17,8 @@
 // The vtkAffineWidget is used to perform affine transformations on objects.
 // (Affine transformations are transformations that keep parallel lines parallel.
 // Affine transformations include translation, scaling, rotation, and shearing.)
-// 
-// To use this widget, set the widget representation. The representation 
+//
+// To use this widget, set the widget representation. The representation
 // maintains a transformation matrix and other instance variables consistent
 // with the transformations applied by this widget.
 //
@@ -33,7 +33,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkAffineWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- focal point is being selected
@@ -77,14 +77,14 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkAffineRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkAffineRepresentation.
   vtkAffineRepresentation *GetAffineRepresentation()
     {return reinterpret_cast<vtkAffineRepresentation*>(this->WidgetRep);}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
   // Description:
@@ -114,7 +114,7 @@ protected:
     Active
   };
 //ETX
-  
+
   // Keep track whether key modifier key is pressed
   int ModifierActive;
 

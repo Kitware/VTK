@@ -42,7 +42,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Returns the SIL. 
+  // Returns the SIL.
   // This is valid only after Go().
   vtkGetObjectMacro(SIL, vtkMutableDirectedGraph);
 
@@ -112,7 +112,7 @@ protected:
   vtkIdType AddCrossEdgeToSIL(vtkIdType src, vtkIdType dst);
 
   // Description:
-  // Returns the vertex id for the "part" with given 
+  // Returns the vertex id for the "part" with given
   // part_number_instance_string formed as
   // "{part-number} Instance: {part-instance}"
   vtkIdType GetPartVertex(const char* part_number_instance_string);
@@ -143,7 +143,7 @@ protected:
 
   // Maps a block-id to the "{part-number} Instance: {part-instance}" string.
   std::map<int, std::string> BlockID_To_Part;
-  
+
   vtkMutableDirectedGraph* SIL;
   vtkSmartPointer<vtkStringArray> NamesArray;
   vtkSmartPointer<vtkUnsignedCharArray> CrossEdgesArray;

@@ -27,7 +27,7 @@ try:
 except ImportError:
     print "Please install PIL (Python Imaging Library) to run this test."
     sys.exit(0)
-    
+
 
 class TestGL2PSExporter(Testing.vtkTest):
     # Create these as class attributes so that they are only created
@@ -83,7 +83,7 @@ class TestGL2PSExporter(Testing.vtkTest):
         for f in files:
             if os.path.isfile(f):
                 os.remove(f)
-        
+
     def testVectorEPS(self):
         """Test vector EPS output."""
         # Get a temporary file name.  Set the extension to empty since
@@ -94,7 +94,7 @@ class TestGL2PSExporter(Testing.vtkTest):
         exp.SetRenderWindow(self.renWin)
         exp.SetFilePrefix(tmp_eps)
         # Turn off compression so PIL can read file.
-        exp.CompressOff() 
+        exp.CompressOff()
         exp.SetSortToBSP()
         exp.DrawBackgroundOn()
         exp.Write()
@@ -115,7 +115,7 @@ class TestGL2PSExporter(Testing.vtkTest):
         # exception is raised and the temporary files won't be
         # removed.
         self._cleanup([tmp_eps, tmp_png])
-        
+
         img_file = "TestGL2PSExporter.png"
         Testing.compareImageWithSavedImage(img,
                                            Testing.getAbsImagePath(img_file))
@@ -132,7 +132,7 @@ class TestGL2PSExporter(Testing.vtkTest):
         exp.SetRenderWindow(self.renWin)
         exp.SetFilePrefix(tmp_eps)
         # Turn off compression so PIL can read file.
-        exp.CompressOff() 
+        exp.CompressOff()
         exp.SetSortToOff()
         exp.DrawBackgroundOn()
         exp.Write3DPropsAsRasterImageOn()
@@ -154,7 +154,7 @@ class TestGL2PSExporter(Testing.vtkTest):
         # exception is raised and the temporary files won't be
         # removed.
         self._cleanup([tmp_eps, tmp_png])
-        
+
         img_file = "TestGL2PSExporter.png"
         Testing.compareImageWithSavedImage(img,
                                            Testing.getAbsImagePath(img_file))

@@ -25,8 +25,8 @@
 //
 // .SECTION Thanks
 // Slice and dice algorithm comes from:
-// Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach. 
-// ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99. 
+// Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach.
+// ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99.
 
 #ifndef __vtkSliceAndDiceLayoutStrategy_h
 #define __vtkSliceAndDiceLayoutStrategy_h

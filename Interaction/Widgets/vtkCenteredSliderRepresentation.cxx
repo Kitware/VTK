@@ -64,7 +64,7 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->ArcStart = 1.0 - this->TubeSize + this->ButtonSize;
   this->ArcEnd = 1.0 - this->ButtonSize;
 
-  // The points and the transformation for the points. 
+  // The points and the transformation for the points.
   this->XForm = vtkTransform::New();
   this->Points = vtkPoints::New();
   this->Points->SetNumberOfPoints(2*this->ArcCount + 12);
@@ -80,14 +80,14 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->TubeMapper = vtkPolyDataMapper2D::New();
   this->TubeMapper->SetInputConnection(
     this->TubeXForm->GetOutputPort());
-  
+
   this->TubeProperty = vtkProperty2D::New();
   this->TubeProperty->SetOpacity(0.6);
 
   this->TubeActor = vtkActor2D::New();
   this->TubeActor->SetMapper(this->TubeMapper);
   this->TubeActor->SetProperty(this->TubeProperty);
-  
+
   this->SelectedProperty = vtkProperty2D::New();
   this->SelectedProperty->SetOpacity(1.0);
 
@@ -109,7 +109,7 @@ vtkCenteredSliderRepresentation::vtkCenteredSliderRepresentation()
   this->SliderMapper = vtkPolyDataMapper2D::New();
   this->SliderMapper->SetInputConnection(
     this->SliderXForm->GetOutputPort());
-  
+
   this->SliderProperty = vtkProperty2D::New();
   this->SliderProperty->SetColor(1,1,1);
 
@@ -166,7 +166,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
     this->TubeCells->InsertCellPoint(this->ArcCount+i+5);
     }
 
-  vtkSmartPointer<vtkUnsignedCharArray> colors = 
+  vtkSmartPointer<vtkUnsignedCharArray> colors =
     vtkSmartPointer<vtkUnsignedCharArray>::New();
   colors->SetNumberOfComponents(4);
   colors->SetNumberOfTuples(this->ArcCount*2+12);
@@ -183,7 +183,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
 
   unsigned char col[4];
   col[0] = 255; col[1] = 255; col[2] = 255; col[3] = 200;
-  
+
   // build tube points
   this->Points->SetPoint(0, 0.0, 1.0, 0.0);
   this->Points->SetPoint(1, 0.0, this->ArcEnd, 0.0);
@@ -227,13 +227,13 @@ void vtkCenteredSliderRepresentation::BuildTube()
     }
 
   // last four points are the slider
-  this->Points->SetPoint(this->ArcCount*2+8, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+8, 0.0,
                          (this->ArcStart + this->ArcEnd)/2.0 + 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+9, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+9, 0.0,
                          (this->ArcStart + this->ArcEnd)/2.0 - 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+10, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+10, 1.0,
                          (this->ArcStart + this->ArcEnd)/2.0 - 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+11, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+11, 1.0,
                          (this->ArcStart + this->ArcEnd)/2.0 + 0.025, 0.0);
   col[0] = 255; col[1] = 255; col[2] = 255; col[3] = 255;
   colors->SetTupleValue(this->ArcCount*2+8,col);
@@ -250,21 +250,21 @@ vtkCenteredSliderRepresentation::~vtkCenteredSliderRepresentation()
 
   this->XForm->Delete();
   this->Points->Delete();
-  
+
   this->SliderCells->Delete();
   this->Slider->Delete();
   this->SliderXForm->Delete();
   this->SliderMapper->Delete();
   this->SliderActor->Delete();
   this->SliderProperty->Delete();
-  
+
   this->Tube->Delete();
   this->TubeCells->Delete();
   this->TubeXForm->Delete();
   this->TubeMapper->Delete();
   this->TubeActor->Delete();
   this->TubeProperty->Delete();
-  
+
   this->SelectedProperty->Delete();
 
   this->LabelProperty->Delete();
@@ -279,12 +279,12 @@ vtkCoordinate *vtkCenteredSliderRepresentation::GetPoint1Coordinate()
 
 void vtkCenteredSliderRepresentation::StartWidgetInteraction(double eventPos[2])
 {
-  this->ComputeInteractionState(static_cast<int>(eventPos[0]), 
+  this->ComputeInteractionState(static_cast<int>(eventPos[0]),
                                 static_cast<int>(eventPos[1]));
 }
 
 //----------------------------------------------------------------------
-int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y, 
+int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y,
                                                              int /*modify*/)
 {
   // where is the pick
@@ -322,9 +322,9 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y,
     this->ComputePickPosition(x,y);
     return this->InteractionState;
     }
-  
+
   // on the bottom aka left cap
-  if ( pcoord[1] >= 1.0 - this->TubeSize && 
+  if ( pcoord[1] >= 1.0 - this->TubeSize &&
        pcoord[1] <= 1.0 - this->TubeSize + this->ArcStart)
     {
     this->InteractionState = vtkSliderRepresentation::LeftCap;
@@ -337,7 +337,7 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y,
     this->InteractionState = vtkSliderRepresentation::RightCap;
     return this->InteractionState;
     }
-  
+
   this->InteractionState = vtkSliderRepresentation::Outside;
   return this->InteractionState;
 }
@@ -346,7 +346,7 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y,
 void vtkCenteredSliderRepresentation::WidgetInteraction(double eventPos[2])
 {
   double t = this->ComputePickPosition(eventPos[0], eventPos[1]);
-  this->SetValue(this->MinimumValue + 
+  this->SetValue(this->MinimumValue +
                  t*(this->MaximumValue-this->MinimumValue));
   this->BuildRepresentation();
 }
@@ -376,9 +376,9 @@ double vtkCenteredSliderRepresentation
   this->PickedT = (y - p1[1])/(p2[1] - p1[1]);
   this->PickedT = (this->PickedT - this->ArcStart)/
     (this->ArcEnd - this->ArcStart);
-  
 
-  this->PickedT = ( this->PickedT < 0 ? 0.0 : 
+
+  this->PickedT = ( this->PickedT < 0 ? 0.0 :
                     (this->PickedT > 1.0 ? 1.0 : this->PickedT) );
 
   return this->PickedT;
@@ -402,7 +402,7 @@ void vtkCenteredSliderRepresentation::Highlight(int highlight)
 //----------------------------------------------------------------------
 void vtkCenteredSliderRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() <= this->BuildTime && 
+  if ( this->GetMTime() <= this->BuildTime &&
        (!this->Renderer || !this->Renderer->GetVTKWindow() ||
         this->Renderer->GetVTKWindow()->GetMTime() <= this->BuildTime) )
     {
@@ -418,30 +418,30 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
     }
 
   this->XForm->Identity();
-  
+
   // scale and position and rotate the polydata
   int *p1 = this->Point1Coordinate->GetComputedViewportValue(this->Renderer);
   int *p2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
-  
+
   double xsize = p2[0] - p1[0];
   double ysize = p2[1] - p1[1];
-  
+
   this->XForm->Translate(p1[0], p1[1], 0.0);
   this->XForm->Scale(xsize,ysize,1.0);
-  
+
   // adjust the slider position
-  double t = (this->Value-this->MinimumValue) / 
+  double t = (this->Value-this->MinimumValue) /
     (this->MaximumValue-this->MinimumValue);
   double pos = this->ArcStart + t*(this->ArcEnd - this->ArcStart);
-  this->Points->SetPoint(this->ArcCount*2+8, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+8, 0.0,
                          pos - 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+9, 0.0, 
+  this->Points->SetPoint(this->ArcCount*2+9, 0.0,
                          pos + 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+10, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+10, 1.0,
                          pos + 0.025, 0.0);
-  this->Points->SetPoint(this->ArcCount*2+11, 1.0, 
+  this->Points->SetPoint(this->ArcCount*2+11, 1.0,
                          pos - 0.025, 0.0);
-  
+
 
   this->LabelActor->SetPosition(p1[0]+xsize*0.5,p1[1]);
   this->LabelProperty->SetFontSize(static_cast<int>(xsize*0.8));

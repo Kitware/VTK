@@ -148,7 +148,7 @@ int vtkImplicitTextureCoords::RequestData(
     newTCoords->InsertTuple(ptId,tCoord);
     }
 //
-// Scale and shift texture coordinates into (0,1) range, with 0.0 implicit 
+// Scale and shift texture coordinates into (0,1) range, with 0.0 implicit
 // function value equal to texture coordinate value of 0.5
 //
   for (i=0; i<tcoordDim; i++)

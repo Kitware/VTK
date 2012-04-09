@@ -60,7 +60,7 @@ vtkPolyData cutPoly; #This trick defines polygons as polyline loop
   cutPoly SetPoints [[cutStrips GetOutput] GetPoints]
   cutPoly SetPolys [[cutStrips GetOutput] GetLines]
 
-# Triangle filter is robust enough to ignore the duplicate point at the 
+# Triangle filter is robust enough to ignore the duplicate point at the
 # beginning and end of the polygons and triangulate them.
 vtkTriangleFilter cutTriangles
   cutTriangles SetInputData cutPoly

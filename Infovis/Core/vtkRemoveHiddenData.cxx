@@ -113,9 +113,9 @@ int vtkRemoveHiddenData::RequestData(
 
     // Only if the annotation is both enabled AND hidden will
     // its selection get added
-    if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+    if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
         ann->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
-        ann->GetInformation()->Has(vtkAnnotation::HIDE()) && 
+        ann->GetInformation()->Has(vtkAnnotation::HIDE()) &&
         ann->GetInformation()->Get(vtkAnnotation::HIDE())==1 )
       {
       selection->Union(ann->GetSelection());

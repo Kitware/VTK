@@ -13,15 +13,15 @@
 
 =========================================================================*/
 // .NAME vtkDefaultPainter - sets up a default chain of painters.
-// 
+//
 // .SECTION Description
 // This painter does not do any actual rendering.
-// Sets up a default pipeline of painters to mimick the behaiour of 
+// Sets up a default pipeline of painters to mimick the behaiour of
 // old vtkPolyDataMapper. The chain is as follows:
 // input--> vtkScalarsToColorsPainter --> vtkClipPlanesPainter -->
 // vtkDisplayListPainter --> vtkCompositePainter -->
 // vtkCoincidentTopologyResolutionPainter -->
-// vtkLightingPainter --> vtkRepresentationPainter --> 
+// vtkLightingPainter --> vtkRepresentationPainter -->
 // \<Delegate of vtkDefaultPainter\>.
 // Typically, the delegate of the default painter be one that is capable of r
 // rendering graphics primitives or a vtkChooserPainter which can select appropriate
@@ -47,7 +47,7 @@ public:
   static vtkDefaultPainter *New();
   vtkTypeMacro(vtkDefaultPainter, vtkPainter);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-  
+
   // Description:
   // Get/Set the painter that maps scalars to colors.
   void SetScalarsToColorsPainter(vtkScalarsToColorsPainter*);
@@ -93,19 +93,19 @@ public:
   virtual vtkPainter* GetDelegatePainter() { return this->DefaultPainterDelegate; }
 
   // Description:
-  // Overridden to setup the chain of painter depending on the 
+  // Overridden to setup the chain of painter depending on the
   // actor representation. The chain is rebuilt if
-  // this->MTime has changed 
+  // this->MTime has changed
   // since last BuildPainterChain();
   // Building of the chain does not depend on input polydata,
   // hence it does not check if the input has changed at all.
-  virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void Render(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags, bool forceCompileOnly);
 
   // Description:
   // Release any graphics resources that are being consumed by this painter.
   // The parameter window could be used to determine which graphic
-  // resources to release. 
+  // resources to release.
   // The call is propagated to the delegate painter, if any.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 

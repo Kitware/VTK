@@ -42,8 +42,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get/Set the context. Context must be a vtkOpenGLRenderWindow. 
-  // This does not increase the reference count of the 
+  // Get/Set the context. Context must be a vtkOpenGLRenderWindow.
+  // This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
@@ -51,7 +51,7 @@ public:
   vtkRenderWindow *GetContext();
 
   // Description:
-  // User must take care that width/height match the dimensions of 
+  // User must take care that width/height match the dimensions of
   // the user defined texture attachments.
   // This method makes the "active buffers" the buffers that will get drawn
   // into by subsequent drawing calls.
@@ -95,7 +95,7 @@ public:
     {
       this->SetActiveBuffers(1, &index);
     }
-  
+
   // Description:
   // Choose the buffer to render into.
   // This is available only if the GL_ARB_draw_buffers extension is supported
@@ -144,7 +144,7 @@ public:
   // available attachement points for SetColorAttachment().
   // The return value is valid only if GetContext is non-null.
   unsigned int GetMaximumNumberOfRenderTargets();
-  
+
   // Description:
   // Dimensions in pixels of the framebuffer.
   vtkGetVector2Macro(LastSize,int);
@@ -158,27 +158,27 @@ protected:
   // Description:
   // Display the status of the current framebuffer on the standard output.
   void CheckFrameBufferStatus();
-  
+
   // Description:
   // Display all the attachments of the current framebuffer object.
   void DisplayFrameBufferAttachments();
-  
+
   // Description:
   // Display a given attachment for the current framebuffer object.
   void DisplayFrameBufferAttachment(unsigned int uattachment);
-  
+
   // Description:
   // Display the draw buffers.
   void DisplayDrawBuffers();
-  
+
   // Description:
   // Display the read buffer.
   void DisplayReadBuffer();
-  
+
   // Description:
   // Display any buffer (convert value into string).
   void DisplayBuffer(int value);
-  
+
   vtkFrameBufferObject();
   ~vtkFrameBufferObject();
 
@@ -192,9 +192,9 @@ protected:
 
   unsigned int NumberOfRenderTargets;
   // TODO: add support for stencil buffer.
- 
+
   int LastSize[2];
- 
+
   void CreateFBO();
   void DestroyFBO();
   void Create(int width,

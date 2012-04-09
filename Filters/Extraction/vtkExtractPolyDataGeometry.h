@@ -17,12 +17,12 @@
 // .SECTION Description
 // vtkExtractPolyDataGeometry extracts from its input vtkPolyData all cells
 // that are either completely inside or outside of a specified implicit
-// function. This filter is specialized to vtkPolyData. On output the 
+// function. This filter is specialized to vtkPolyData. On output the
 // filter generates vtkPolyData.
 //
 // To use this filter you must specify an implicit function. You must also
-// specify whether to extract cells laying inside or outside of the implicit 
-// function. (The inside of an implicit function is the negative values 
+// specify whether to extract cells laying inside or outside of the implicit
+// function. (The inside of an implicit function is the negative values
 // region.) An option exists to extract cells that are neither inside nor
 // outside (i.e., boundary).
 //
@@ -60,8 +60,8 @@ public:
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
 
   // Description:
-  // Boolean controls whether to extract cells that are inside of implicit 
-  // function (ExtractInside == 1) or outside of implicit function 
+  // Boolean controls whether to extract cells that are inside of implicit
+  // function (ExtractInside == 1) or outside of implicit function
   // (ExtractInside == 0).
   vtkSetMacro(ExtractInside,int);
   vtkGetMacro(ExtractInside,int);

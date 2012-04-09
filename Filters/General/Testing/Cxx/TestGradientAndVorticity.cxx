@@ -37,7 +37,7 @@
 namespace
 {
   double Tolerance = 0.00001;
-  
+
   bool ArePointsWithinTolerance(double v1, double v2)
   {
     if(v1 == v2)
@@ -50,7 +50,7 @@ namespace
         {
         return true;
         }
-      cout << fabs(v2) << " (fabs(v2)) should be less than " 
+      cout << fabs(v2) << " (fabs(v2)) should be less than "
            << Tolerance << endl;
       return false;
       }
@@ -58,7 +58,7 @@ namespace
       {
         return true;
         }
-    cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than " 
+    cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
          << Tolerance << endl;
     return false;
   }
@@ -81,7 +81,7 @@ namespace
       cell->EvaluateLocation(subId, parametricCenter, point, weights);
       for(int j=0;j<numberOfComponents;j++)
         {// +offset makes the curl/vorticity nonzero
-        tupleValues[j] = point[(j+offset)%3]; 
+        tupleValues[j] = point[(j+offset)%3];
         }
       array->SetTupleValue(i, &tupleValues[0]);
       }
@@ -104,14 +104,14 @@ namespace
       grid->GetPoint(i, point);
       for(int j=0;j<numberOfComponents;j++)
         {// +offset makes the curl/vorticity nonzero
-        tupleValues[j] = point[(j+offset)%3]; 
+        tupleValues[j] = point[(j+offset)%3];
         }
       array->SetTupleValue(i, &tupleValues[0]);
       }
     array->SetName(arrayName);
     grid->GetPointData()->AddArray(array);
   }
-  
+
 //-----------------------------------------------------------------------------
   int IsGradientCorrect(vtkDoubleArray* gradients, int offset)
   {
@@ -143,7 +143,7 @@ namespace
       }
     return 1;
   }
-  
+
 //-----------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // vorticity from it
@@ -161,24 +161,24 @@ namespace
       double* v = vorticity->GetTuple(i);
       if(!ArePointsWithinTolerance(v[0], g[7]-g[5]))
         {
-        vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " << 
+        vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " <<
                                g[7]-g[5] << " difference is " << (v[0]-g[7]+g[5]));
         return 0;
         }
       else if(!ArePointsWithinTolerance(v[1], g[2]-g[6]))
         {
-        vtkGenericWarningMacro("Bad vorticity[1] value " << v[1] << " " << 
+        vtkGenericWarningMacro("Bad vorticity[1] value " << v[1] << " " <<
                                g[2]-g[6] << " difference is " << (v[1]-g[2]+g[6]));
         return 0;
         }
       else if(!ArePointsWithinTolerance(v[2], g[3]-g[1]))
         {
-        vtkGenericWarningMacro("Bad vorticity[2] value " << v[2] << " " << 
+        vtkGenericWarningMacro("Bad vorticity[2] value " << v[2] << " " <<
                                g[3]-g[1] << " difference is " << (v[2]-g[3]+g[1]));
         return 0;
         }
       }
-    
+
     return 1;
   }
 
@@ -222,7 +222,7 @@ namespace
 //-----------------------------------------------------------------------------
   int PerformTest(vtkDataSet* grid)
   {
-    // Cleaning out the existing field data so that I can replace it with 
+    // Cleaning out the existing field data so that I can replace it with
     // an analytic function that I know the gradient of
     grid->GetPointData()->Initialize();
     grid->GetCellData()->Initialize();
@@ -231,27 +231,27 @@ namespace
     int numberOfComponents = 3;
     CreateCellData(grid, numberOfComponents, offset, fieldName);
     CreatePointData(grid, numberOfComponents, offset, fieldName);
-    
+
     VTK_CREATE(vtkGradientFilter, cellGradients);
     cellGradients->SetInputData(grid);
     cellGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
     const char resultName[] = "Result";
     cellGradients->SetResultArrayName(resultName);
-    
+
     VTK_CREATE(vtkGradientFilter, pointGradients);
     pointGradients->SetInputData(grid);
     pointGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
     pointGradients->SetResultArrayName(resultName);
-    
+
     cellGradients->Update();
     pointGradients->Update();
-    
+
     vtkDoubleArray* gradCellArray = vtkDoubleArray::SafeDownCast(
       vtkDataSet::SafeDownCast(
         cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
-    
+
     if(!grid->IsA("vtkUnstructuredGrid"))
       {
       // ignore cell gradients if this is an unstructured grid
@@ -261,17 +261,17 @@ namespace
         return 1;
         }
       }
-    
+
     vtkDoubleArray* gradPointArray = vtkDoubleArray::SafeDownCast(
       vtkDataSet::SafeDownCast(
         pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
-    
+
     if(!IsGradientCorrect(gradPointArray, offset))
       {
       return 1;
       }
-    
-    if(numberOfComponents == 3) 
+
+    if(numberOfComponents == 3)
       {
       // now check on the vorticity calculations
       VTK_CREATE(vtkGradientFilter, cellVorticity);
@@ -281,7 +281,7 @@ namespace
       cellVorticity->SetResultArrayName(resultName);
       cellVorticity->SetComputeVorticity(1);
       cellVorticity->Update();
-      
+
       VTK_CREATE(vtkGradientFilter, pointVorticity);
       pointVorticity->SetInputData(grid);
       pointVorticity->SetInputScalars(
@@ -290,22 +290,22 @@ namespace
       pointVorticity->SetComputeVorticity(1);
       pointVorticity->SetComputeQCriterion(1);
       pointVorticity->Update();
-      
+
       // cell stuff
       vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
           cellVorticity->GetOutput())->GetCellData()->GetArray(resultName));
-      
+
       if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
         {
         return 1;
         }
-      
+
       // point stuff
       vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
         vtkDataSet::SafeDownCast(
           pointVorticity->GetOutput())->GetPointData()->GetArray(resultName));
-      
+
       if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
         {
         return 1;
@@ -318,7 +318,7 @@ namespace
         return 1;
         }
       }
-    
+
     return 0;
   }
 } // end local namespace
@@ -367,6 +367,6 @@ int TestGradientAndVorticity(int argc, char *argv[])
     vtkCell* cell = grid->GetCell(id);
     ug->InsertNextCell(cell->GetCellType(), cell->GetPointIds());
     }
-  
+
   return PerformTest(ug);
 }

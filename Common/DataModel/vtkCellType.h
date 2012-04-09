@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkCellType - define types of cells
 // .SECTION Description
-// vtkCellType defines the allowable cell types in the visualization 
-// library (vtk). In vtk, datasets consist of collections of cells. 
-// Different datasets consist of different cell types. The cells may be 
+// vtkCellType defines the allowable cell types in the visualization
+// library (vtk). In vtk, datasets consist of collections of cells.
+// Different datasets consist of different cell types. The cells may be
 // explicitly represented (as in vtkPolyData), or may be implicit to the
 // data type (as in vtkStructuredPoints).
 
@@ -24,8 +24,8 @@
 #define __vtkCellType_h
 
 // To add a new cell type, define a new integer type flag here, then
-// create a subclass of vtkCell to implement the proper behavior. You 
-// may have to modify the following methods: vtkDataSet (and subclasses) 
+// create a subclass of vtkCell to implement the proper behavior. You
+// may have to modify the following methods: vtkDataSet (and subclasses)
 // GetCell() and vtkGenericCell::SetCellType(). Also, to do the job right,
 // you'll also have to modify some filters (vtkGeometryFilter...) and
 // regression tests (example scripts) to reflect the new cell addition.

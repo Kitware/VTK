@@ -58,7 +58,7 @@ int vtkTemporalSnapToTimeStep::RequestInformation (
     int numTimes =
       inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->InputTimeValues.resize(numTimes);
-    inInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 
+    inInfo->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
       &this->InputTimeValues[0] );
     this->HasDiscrete = 1;
     }
@@ -85,22 +85,22 @@ int vtkTemporalSnapToTimeStep::RequestData(
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   vtkTemporalDataSet *inData = vtkTemporalDataSet::SafeDownCast
     (inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
     (outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // shallow copy the data
   if (inData && outData)
     {
     outData->ShallowCopy(inData);
     }
-  
+
   // fill in the time steps
-  int inLength = 
+  int inLength =
     inData->GetInformation()->Length(vtkDataObject::DATA_TIME_STEPS());
-  double *inTimes = 
+  double *inTimes =
     inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS());
   double *outTimes = new double [inLength];
   int i;
@@ -111,7 +111,7 @@ int vtkTemporalSnapToTimeStep::RequestData(
   outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
                                  outTimes, inLength);
   delete [] outTimes;
-                                 
+
   return 1;
 }
 
@@ -130,13 +130,13 @@ int vtkTemporalSnapToTimeStep::RequestUpdateExtent (
     {
     double *upTimes =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    int numTimes = 
+    int numTimes =
       outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
     double *inTimes = new double [numTimes];
     int i;
     for (i = 0; i < numTimes; ++i)
       {
-      if (!this->HasDiscrete || this->InputTimeValues.size()==0) 
+      if (!this->HasDiscrete || this->InputTimeValues.size()==0)
         {
         inTimes[i] = upTimes[i];
         }
@@ -144,15 +144,15 @@ int vtkTemporalSnapToTimeStep::RequestUpdateExtent (
         {
         double dist = VTK_DOUBLE_MAX;
         int index = -1;
-        for (unsigned int t=0; t<this->InputTimeValues.size(); t++) 
+        for (unsigned int t=0; t<this->InputTimeValues.size(); t++)
           {
           double thisdist = fabs(upTimes[i]-this->InputTimeValues[t]);
-          if (this->SnapMode==VTK_SNAP_NEAREST && thisdist<dist) 
+          if (this->SnapMode==VTK_SNAP_NEAREST && thisdist<dist)
             {
             index = t;
             dist = thisdist;
             }
-          else if (this->SnapMode==VTK_SNAP_NEXTBELOW_OR_EQUAL) 
+          else if (this->SnapMode==VTK_SNAP_NEXTBELOW_OR_EQUAL)
             {
             if (this->InputTimeValues[t]==upTimes[i])
               {
@@ -168,7 +168,7 @@ int vtkTemporalSnapToTimeStep::RequestUpdateExtent (
               break;
               }
             }
-          else if (this->SnapMode==VTK_SNAP_NEXTABOVE_OR_EQUAL) 
+          else if (this->SnapMode==VTK_SNAP_NEXTABOVE_OR_EQUAL)
             {
             if (this->InputTimeValues[t]==upTimes[i])
               {

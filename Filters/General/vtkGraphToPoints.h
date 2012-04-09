@@ -37,15 +37,15 @@ public:
   static vtkGraphToPoints *New();
   vtkTypeMacro(vtkGraphToPoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
 protected:
   vtkGraphToPoints();
   ~vtkGraphToPoints() {}
-  
+
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   // Description:
   // Set the input type of the algorithm to vtkGraph.
   int FillInputPortInformation(int port, vtkInformation* info);

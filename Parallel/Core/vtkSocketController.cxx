@@ -52,7 +52,7 @@ void vtkSocketController::Initialize(int* , char***)
     }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  WSAData wsaData;  
+  WSAData wsaData;
   if (WSAStartup(WSA_VERSION, &wsaData))
     {
     vtkErrorMacro("Could not initialize sockets !");
@@ -90,23 +90,23 @@ void vtkSocketController::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkSocketController::WaitForConnection(int port)
-{ 
+{
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-    WaitForConnection(port); 
+    WaitForConnection(port);
 }
 
 //----------------------------------------------------------------------------
 void vtkSocketController::CloseConnection()
-{ 
+{
   vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-    CloseConnection(); 
+    CloseConnection();
 }
 
 //----------------------------------------------------------------------------
 int vtkSocketController::ConnectTo(const char* hostName, int port )
-{ 
+{
   return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-    ConnectTo(hostName, port); 
+    ConnectTo(hostName, port);
 }
 
 //----------------------------------------------------------------------------

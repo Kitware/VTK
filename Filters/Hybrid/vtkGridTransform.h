@@ -45,7 +45,7 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the grid transform (the grid transform must have three 
+  // Set/Get the grid transform (the grid transform must have three
   // components for displacement in x, y, and z respectively).
   // The vtkGridTransform class will never modify the data.
   // Note that SetDisplacementGridData() does not setup a pipeline
@@ -129,7 +129,7 @@ protected:
   int InterpolationMode;
   double DisplacementScale;
   double DisplacementShift;
-  
+
   void *GridPointer;
   int GridScalarType;
   double GridSpacing[3];
@@ -160,7 +160,7 @@ inline const char *vtkGridTransform::GetInterpolationModeAsString()
     default:
       return "";
     }
-}  
+}
 //ETX
 
 #endif

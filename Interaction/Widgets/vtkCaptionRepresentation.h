@@ -24,8 +24,8 @@
 // dialogoues to adjust font characteristics, etc. (Please see the superclass
 // for a description of event bindings.)
 //
-// Note that this widget extends the behavior of its superclass 
-// vtkBorderRepresentation. 
+// Note that this widget extends the behavior of its superclass
+// vtkBorderRepresentation.
 
 // .SECTION See Also
 // vtkCaptionWidget vtkBorderWidget vtkBorderRepresentation vtkCaptionActor
@@ -79,7 +79,7 @@ public:
   virtual void BuildRepresentation();
   virtual void GetSize(double size[2])
     {size[0]=2.0; size[1]=2.0;}
-  
+
   // Description:
   // These methods are necessary to make this representation behave as
   // a vtkProp.
@@ -91,11 +91,11 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
 
   // Description:
-  // Set/Get the factor that controls the overall size of the fonts 
-  // of the caption when the text actor's ScaledText is OFF 
+  // Set/Get the factor that controls the overall size of the fonts
+  // of the caption when the text actor's ScaledText is OFF
   vtkSetClampMacro(FontFactor, double, 0.1, 10.0);
   vtkGetMacro(FontFactor, double);
-  
+
 protected:
   vtkCaptionRepresentation();
   ~vtkCaptionRepresentation();
@@ -103,12 +103,12 @@ protected:
   // the text to manage
   vtkCaptionActor2D *CaptionActor2D;
   vtkConeSource     *CaptionGlyph;
-  
+
   int PointWidgetState;
   int DisplayAttachmentPoint[2];
   double FontFactor;
 
-  // Internal representation for the anchor 
+  // Internal representation for the anchor
   vtkPointHandleRepresentation3D *AnchorRepresentation;
 
   // Check and adjust boundaries according to the size of the caption text

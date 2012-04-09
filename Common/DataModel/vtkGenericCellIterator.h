@@ -50,12 +50,12 @@ public:
   // Description:
   // Is the iterator at the end of traversal?
   virtual int IsAtEnd() = 0;
-  
+
   // Description:
   // Create an empty cell. The user is responsible for deleting it.
   // \post result_exists: result!=0
   virtual vtkGenericAdaptorCell *NewCell() = 0;
-  
+
   // Description:
   // Get the cell at current position. The cell should be instantiated
   // with the NewCell() method.
@@ -63,14 +63,14 @@ public:
   // \pre c_exists: c!=0
   // THREAD SAFE
   virtual void GetCell(vtkGenericAdaptorCell *c) = 0;
-  
+
   // Description:
   // Get the cell at the current traversal position.
   // NOT THREAD SAFE
   // \pre not_at_end: !IsAtEnd()
   // \post result_exits: result!=0
   virtual vtkGenericAdaptorCell *GetCell() = 0;
-  
+
   // Description:
   // Move the iterator to the next position in the list.
   // \pre not_at_end: !IsAtEnd()
@@ -79,7 +79,7 @@ public:
 protected:
   vtkGenericCellIterator();
   virtual ~vtkGenericCellIterator();
-  
+
 private:
   vtkGenericCellIterator(const vtkGenericCellIterator&);  // Not implemented.
   void operator=(const vtkGenericCellIterator&);  // Not implemented.

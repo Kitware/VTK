@@ -6,7 +6,7 @@
 //
 // Author: Bert Freudenberg <bert@isg.cs.uni-magdeburg.de>
 //
-// Copyright (c) 2002-2003 3Dlabs, Inc. 
+// Copyright (c) 2002-2003 3Dlabs, Inc.
 //
 // See 3Dlabs-License.txt for license information
 //

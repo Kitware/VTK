@@ -47,7 +47,7 @@ inline int vtkBase64OutputStream::EncodeTriplet(unsigned char c0,
                                     &out[0], &out[1], &out[2], &out[3]);
   return (this->Stream->write(reinterpret_cast<char*>(out), 4)? 1:0);
 }
-  
+
 //----------------------------------------------------------------------------
 inline int vtkBase64OutputStream:: EncodeEnding(unsigned char c0,
                                                 unsigned char c1)
@@ -99,11 +99,11 @@ int vtkBase64OutputStream::EndWriting()
 //----------------------------------------------------------------------------
 int vtkBase64OutputStream::Write(const unsigned char* data,
                                  unsigned long length)
-{ 
+{
   unsigned long totalLength = this->BufferLength + length;
   const unsigned char* in = data;
   const unsigned char* end = data+length;
-  
+
   if(totalLength >= 3)
     {
     if(this->BufferLength == 1)
@@ -120,13 +120,13 @@ int vtkBase64OutputStream::Write(const unsigned char* data,
       this->BufferLength = 0;
       }
     }
-  
+
   while((end - in) >= 3)
     {
     if(!this->EncodeTriplet(in[0], in[1], in[2])) { return 0; }
     in += 3;
     }
-  
+
   while(in != end)
     {
     this->Buffer[this->BufferLength++] = *in++;

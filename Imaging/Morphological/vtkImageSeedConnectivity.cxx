@@ -58,11 +58,11 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
 {
   int idx, newIndex[3];
   vtkImageConnectorSeed *seed;
-  
+
   if (num > 3)
     {
     num = 3;
-    } 
+    }
   for (idx = 0; idx < num; ++idx)
     {
     newIndex[idx] = index[idx];
@@ -149,20 +149,20 @@ int vtkImageSeedConnectivity::RequestData(
 
   // Pick an intermediate value (In some cases, we could eliminate the last threshold.)
   temp1 = 1;
-  while (temp1 == this->InputConnectValue || 
+  while (temp1 == this->InputConnectValue ||
          temp1 == this->OutputUnconnectedValue ||
          temp1 == this->OutputConnectedValue)
     {
     ++temp1;
     }
   temp2 = temp1 + 1;
-  while (temp2 == this->InputConnectValue || 
+  while (temp2 == this->InputConnectValue ||
          temp2 == this->OutputUnconnectedValue ||
          temp2 == this->OutputConnectedValue)
     {
     ++temp2;
     }
-  
+
   //-------
   // threshold to eliminate unknown values ( only intermediate and 0)
   inData->GetIncrements(inInc0, inInc1, inInc2);
@@ -199,13 +199,13 @@ int vtkImageSeedConnectivity::RequestData(
     inPtr2 += inInc2;
     outPtr2 += outInc2;
     }
-  
+
   this->UpdateProgress(0.2);
   if (this->AbortExecute)
     {
     return 1;
     }
-  
+
   //-------
   // find actual seeds in this image. (only scan along the first axis for now)
   this->Connector->RemoveAllSeeds();
@@ -248,7 +248,7 @@ int vtkImageSeedConnectivity::RequestData(
   // connect
   this->Connector->SetUnconnectedValue(temp1);
   this->Connector->SetConnectedValue(temp2);
-  this->Connector->MarkData(outData, this->Dimensionality, 
+  this->Connector->MarkData(outData, this->Dimensionality,
                             this->GetOutput()->GetExtent());
 
   this->UpdateProgress(0.9);

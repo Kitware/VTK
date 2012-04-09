@@ -47,7 +47,7 @@ vtkImageReader2::vtkImageReader2()
 
   this->DataScalarType = VTK_SHORT;
   this->NumberOfScalarComponents = 1;
-  
+
   this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
 
   this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
@@ -55,17 +55,17 @@ vtkImageReader2::vtkImageReader2()
   this->DataExtent[0] = this->DataExtent[2] = this->DataExtent[4] = 0;
   this->DataExtent[1] = this->DataExtent[3] = this->DataExtent[5] = 0;
 
-  this->DataIncrements[0] = this->DataIncrements[1] = 
+  this->DataIncrements[0] = this->DataIncrements[1] =
   this->DataIncrements[2] = this->DataIncrements[3] = 1;
-  
+
   this->FileNames = NULL;
 
   this->FileName = NULL;
   this->InternalFileName = NULL;
-  
+
   this->HeaderSize = 0;
   this->ManualHeaderSize = 0;
-  
+
   this->FileNameSliceOffset = 0;
   this->FileNameSliceSpacing = 1;
 
@@ -85,7 +85,7 @@ vtkImageReader2::~vtkImageReader2()
     delete this->File;
     this->File = NULL;
     }
-  
+
   if (this->FileNames)
     {
     this->FileNames->Delete();
@@ -114,7 +114,7 @@ vtkImageReader2::~vtkImageReader2()
 }
 
 //----------------------------------------------------------------------------
-// This function sets the name of the file. 
+// This function sets the name of the file.
 void vtkImageReader2::ComputeInternalFileName(int slice)
 {
   // delete any old filename
@@ -123,7 +123,7 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     delete [] this->InternalFileName;
     this->InternalFileName = NULL;
     }
-  
+
   if (!this->FileName && !this->FilePattern && !this->FileNames)
     {
     vtkErrorMacro(<<"Either a FileName, FileNames, or FilePattern"
@@ -143,16 +143,16 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     this->InternalFileName = new char [strlen(this->FileName) + 10];
     sprintf(this->InternalFileName,"%s",this->FileName);
     }
-  else 
+  else
     {
-    int slicenum = 
+    int slicenum =
       slice * this->FileNameSliceSpacing
       + this->FileNameSliceOffset;
     if (this->FilePrefix && this->FilePattern)
       {
       this->InternalFileName = new char [strlen(this->FilePrefix) +
                                         strlen(this->FilePattern) + 10];
-      sprintf (this->InternalFileName, this->FilePattern, 
+      sprintf (this->InternalFileName, this->FilePattern,
                this->FilePrefix, slicenum);
       }
     else if (this->FilePattern)
@@ -187,7 +187,7 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
 
 
 //----------------------------------------------------------------------------
-// This function sets the name of the file. 
+// This function sets the name of the file.
 void vtkImageReader2::SetFileName(const char *name)
 {
   if ( this->FileName && name && (!strcmp(this->FileName,name)))
@@ -224,7 +224,7 @@ void vtkImageReader2::SetFileName(const char *name)
 }
 
 //----------------------------------------------------------------------------
-// This function sets an array containing file names 
+// This function sets an array containing file names
 void vtkImageReader2::SetFileNames(vtkStringArray *filenames)
 {
   if (filenames == this->FileNames)
@@ -304,7 +304,7 @@ void vtkImageReader2::SetFilePrefix(const char *prefix)
 // pattern of a series: image.001, image.002 ...
 void vtkImageReader2::SetFilePattern(const char *pattern)
 {
-  if ( this->FilePattern && pattern && 
+  if ( this->FilePattern && pattern &&
        (!strcmp(this->FilePattern,pattern)))
     {
     return;
@@ -424,31 +424,31 @@ const char *vtkImageReader2::GetDataByteOrderAsString()
 void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
-  
+
   this->Superclass::PrintSelf(os,indent);
 
-  // this->File, this->Colors need not be printed  
+  // this->File, this->Colors need not be printed
   os << indent << "FileName: " <<
     (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "FileNames: " << this->FileNames << "\n";
-  os << indent << "FilePrefix: " << 
+  os << indent << "FilePrefix: " <<
     (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
-  os << indent << "FilePattern: " << 
+  os << indent << "FilePattern: " <<
     (this->FilePattern ? this->FilePattern : "(none)") << "\n";
 
-  os << indent << "FileNameSliceOffset: " 
+  os << indent << "FileNameSliceOffset: "
      << this->FileNameSliceOffset << "\n";
-  os << indent << "FileNameSliceSpacing: " 
+  os << indent << "FileNameSliceSpacing: "
      << this->FileNameSliceSpacing << "\n";
 
-  os << indent << "DataScalarType: " 
+  os << indent << "DataScalarType: "
      << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
-  os << indent << "NumberOfScalarComponents: " 
+  os << indent << "NumberOfScalarComponents: "
      << this->NumberOfScalarComponents << "\n";
- 
+
   os << indent << "File Dimensionality: " << this->FileDimensionality << "\n";
 
-  os << indent << "File Lower Left: " << 
+  os << indent << "File Lower Left: " <<
     (this->FileLowerLeft ? "On\n" : "Off\n");
 
   os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
@@ -459,28 +459,28 @@ void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->DataIncrements[idx];
     }
   os << ")\n";
-  
+
   os << indent << "DataExtent: (" << this->DataExtent[0];
   for (idx = 1; idx < 6; ++idx)
     {
     os << ", " << this->DataExtent[idx];
     }
   os << ")\n";
-  
+
   os << indent << "DataSpacing: (" << this->DataSpacing[0];
   for (idx = 1; idx < 3; ++idx)
     {
     os << ", " << this->DataSpacing[idx];
     }
   os << ")\n";
-  
+
   os << indent << "DataOrigin: (" << this->DataOrigin[0];
   for (idx = 1; idx < 3; ++idx)
     {
     os << ", " << this->DataOrigin[idx];
     }
   os << ")\n";
-  
+
   os << indent << "HeaderSize: " << this->HeaderSize << "\n";
 
   if ( this->InternalFileName )
@@ -527,7 +527,7 @@ int vtkImageReader2::RequestInformation (
     this->DataExtent[4] = 0;
     this->DataExtent[5] = this->FileNames->GetNumberOfValues()-1;
     }
- 
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
@@ -549,7 +549,7 @@ void vtkImageReader2::SetHeaderSize(unsigned long size)
     }
   this->ManualHeaderSize = 1;
 }
-  
+
 
 //----------------------------------------------------------------------------
 template <class T>
@@ -565,7 +565,7 @@ void vtkImageReader2::ComputeDataIncrements()
 {
   int idx;
   unsigned long fileDataLength;
-  
+
   // Determine the expected length of the data ...
   switch (this->DataScalarType)
     {
@@ -578,7 +578,7 @@ void vtkImageReader2::ComputeDataIncrements()
     }
 
   fileDataLength *= this->NumberOfScalarComponents;
-  
+
   // compute the fileDataLength (in units of bytes)
   for (idx = 0; idx < 3; ++idx)
     {
@@ -607,7 +607,7 @@ int vtkImageReader2::OpenFile()
     delete this->File;
     this->File = NULL;
     }
-  
+
   // Open the new file
   vtkDebugMacro(<< "Initialize: opening file " << this->InternalFileName);
   struct stat fs;
@@ -670,7 +670,7 @@ unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
                    (long)this->DataIncrements[this->GetFileDimensionality()]);
       }
     }
-  
+
   return this->HeaderSize;
 }
 
@@ -680,30 +680,30 @@ void vtkImageReader2::SeekFile(int i, int j, int k)
   unsigned long streamStart;
 
   // convert data extent into constants that can be used to seek.
-  streamStart = 
+  streamStart =
     (i - this->DataExtent[0]) * this->DataIncrements[0];
-  
+
   if (this->FileLowerLeft)
     {
-    streamStart = streamStart + 
+    streamStart = streamStart +
       (j - this->DataExtent[2]) * this->DataIncrements[1];
     }
   else
     {
-    streamStart = streamStart + 
-      (this->DataExtent[3] - this->DataExtent[2] - j) * 
+    streamStart = streamStart +
+      (this->DataExtent[3] - this->DataExtent[2] - j) *
       this->DataIncrements[1];
     }
-  
+
   // handle three and four dimensional files
   if (this->GetFileDimensionality() >= 3)
     {
-    streamStart = streamStart + 
+    streamStart = streamStart +
       (k - this->DataExtent[4]) * this->DataIncrements[2];
     }
-  
+
   streamStart += this->GetHeaderSize(k);
-  
+
   // error checking
   if (!this->File)
     {
@@ -732,16 +732,16 @@ void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data, OT *outPtr
   int outExtent[6];
   unsigned long count = 0;
   unsigned long target;
-  
+
   // Get the requested extents and increments
   data->GetExtent(outExtent);
   data->GetIncrements(outIncr);
   nComponents = data->GetNumberOfScalarComponents();
-  
+
   // length of a row, num pixels read at a time
-  int pixelRead = outExtent[1] - outExtent[0] + 1; 
-  streamRead = (long)(pixelRead*nComponents*sizeof(OT));  
-  
+  int pixelRead = outExtent[1] - outExtent[0] + 1;
+  streamRead = (long)(pixelRead*nComponents*sizeof(OT));
+
   // create a buffer to hold a row of the data
   target = (unsigned long)((outExtent[5]-outExtent[4]+1)*
                            (outExtent[3]-outExtent[2]+1)/50.0);
@@ -768,7 +768,7 @@ void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data, OT *outPtr
         }
       }
     outPtr1 = outPtr2;
-    for (idx1 = outExtent[2]; 
+    for (idx1 = outExtent[2];
          !self->AbortExecute && idx1 <= outExtent[3]; ++idx1)
       {
       if (!(count%target))
@@ -776,7 +776,7 @@ void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data, OT *outPtr
         self->UpdateProgress(count/(50.0*target));
         }
       count++;
-      
+
       // seek to the correct row
       self->SeekFile(outExtent[0],idx1,idx2);
       // read the row.
@@ -806,9 +806,9 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject *output,
                                                  vtkInformation *outInfo)
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
-  
+
   void *ptr;
-  
+
   if (!this->FileName && !this->FilePattern)
     {
     vtkErrorMacro("Either a valid FileName or FilePattern must be specified.");
@@ -821,11 +821,11 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject *output,
   int *ext = data->GetExtent();
 #endif
 
-  vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
+  vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", "
         << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);
-  
+
   this->ComputeDataIncrements();
-  
+
   // Call the correct templated function for the output
   ptr = data->GetScalarPointer();
   switch (this->GetDataScalarType())
@@ -833,12 +833,12 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject *output,
     vtkTemplateMacro(vtkImageReader2Update(this, data, (VTK_TT *)(ptr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
-    }   
+    }
 }
 
 
 //----------------------------------------------------------------------------
-// Set the data type of pixels in the file.  
+// Set the data type of pixels in the file.
 // If you want the output scalar type to have a different value, set it
 // after this method is called.
 void vtkImageReader2::SetDataScalarType(int type)
@@ -847,7 +847,7 @@ void vtkImageReader2::SetDataScalarType(int type)
     {
     return;
     }
-  
+
   this->Modified();
   this->DataScalarType = type;
   // Set the default output scalar type

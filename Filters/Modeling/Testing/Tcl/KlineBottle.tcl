@@ -2,38 +2,38 @@ package require vtk
 package require vtkinteraction
 
 vtkPoints points
-points InsertNextPoint 0 -16 0 
-points InsertNextPoint 0 0 -14 
-points InsertNextPoint 0 0 14 
-points InsertNextPoint 14 0 0 
-points InsertNextPoint 10 20 -10 
-points InsertNextPoint 10 20 10 
-points InsertNextPoint 10 -20 -10 
-points InsertNextPoint 10 -20 10 
-points InsertNextPoint -10 -20 -10 
-points InsertNextPoint -10 -20 10 
-points InsertNextPoint -10 20 -10 
-points InsertNextPoint -10 20 10 
-points InsertNextPoint -2 27 0 
-points InsertNextPoint 0 27 2 
-points InsertNextPoint 0 27 -2 
-points InsertNextPoint 2 27 0 
-points InsertNextPoint -14 4 -1 
-points InsertNextPoint -14 3 0 
-points InsertNextPoint -14 5 0 
-points InsertNextPoint -14 4 1 
-points InsertNextPoint -1 38 -2 
-points InsertNextPoint -1 38 2 
-points InsertNextPoint 2 35 -2 
-points InsertNextPoint 2 35 2 
-points InsertNextPoint 17 42 0 
-points InsertNextPoint 15 40 2 
-points InsertNextPoint 15 39 -2 
-points InsertNextPoint 13 37 0 
-points InsertNextPoint 19 -2 -2 
-points InsertNextPoint 19 -2 2 
-points InsertNextPoint 15 2 -2 
-points InsertNextPoint 15 2 2 
+points InsertNextPoint 0 -16 0
+points InsertNextPoint 0 0 -14
+points InsertNextPoint 0 0 14
+points InsertNextPoint 14 0 0
+points InsertNextPoint 10 20 -10
+points InsertNextPoint 10 20 10
+points InsertNextPoint 10 -20 -10
+points InsertNextPoint 10 -20 10
+points InsertNextPoint -10 -20 -10
+points InsertNextPoint -10 -20 10
+points InsertNextPoint -10 20 -10
+points InsertNextPoint -10 20 10
+points InsertNextPoint -2 27 0
+points InsertNextPoint 0 27 2
+points InsertNextPoint 0 27 -2
+points InsertNextPoint 2 27 0
+points InsertNextPoint -14 4 -1
+points InsertNextPoint -14 3 0
+points InsertNextPoint -14 5 0
+points InsertNextPoint -14 4 1
+points InsertNextPoint -1 38 -2
+points InsertNextPoint -1 38 2
+points InsertNextPoint 2 35 -2
+points InsertNextPoint 2 35 2
+points InsertNextPoint 17 42 0
+points InsertNextPoint 15 40 2
+points InsertNextPoint 15 39 -2
+points InsertNextPoint 13 37 0
+points InsertNextPoint 19 -2 -2
+points InsertNextPoint 19 -2 2
+points InsertNextPoint 15 2 -2
+points InsertNextPoint 15 2 2
 
 vtkCellArray faces
 faces InsertNextCell 3

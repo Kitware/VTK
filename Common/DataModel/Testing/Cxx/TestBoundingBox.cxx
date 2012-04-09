@@ -20,7 +20,7 @@
 #include <limits>
 
 #define TestBoundingBoxFailMacro(b,msg) if(!(b)){std::cerr <<msg<<std::endl;return EXIT_FAILURE;}
- 
+
 int TestBoundingBox(int,char *[])
 {
     {
@@ -31,7 +31,7 @@ int TestBoundingBox(int,char *[])
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
     TestBoundingBoxFailMacro(res && bb[0]==-1 && bb[1]==0,"Intersect Plane Failed!")
-    }      
+    }
     {
     double n[3]={0,0,1};
     double p[3]={0,0,0};
@@ -49,7 +49,7 @@ int TestBoundingBox(int,char *[])
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
     TestBoundingBoxFailMacro(res && bb[4]==-1 && bb[5]==0,"Intersect Plane Failed!")
-    } 
+    }
     {
     double n[3]={0,-1,0};
     double p[3]={0,0,0};
@@ -58,7 +58,7 @@ int TestBoundingBox(int,char *[])
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
     TestBoundingBoxFailMacro(res && bb[2]==-1 && bb[3]==0,"Intersect Plane Failed!")
-    }   
+    }
 
     {
     double n[3]={1,1,1};
@@ -67,10 +67,10 @@ int TestBoundingBox(int,char *[])
     vtkBoundingBox bbox(bb);
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
-    TestBoundingBoxFailMacro( !res 
+    TestBoundingBoxFailMacro( !res
       && bb[0] ==-1 && bb[1]==1
-      && bb[2] ==-1 && bb[3]==1 
+      && bb[2] ==-1 && bb[3]==1
       && bb[4] ==-1 && bb[5] ==1,"Intersect Plane Failed!")
-    }  
+    }
   return EXIT_SUCCESS;
 }

@@ -88,7 +88,7 @@ int vtkPBGLCollapseParallelEdgesRequestData(
 
   // Prepare vertex data.
   vtkAbstractArray *input_pedigrees = input->GetVertexData()->GetPedigreeIds();
-  vtkAbstractArray *pedigrees 
+  vtkAbstractArray *pedigrees
     = vtkAbstractArray::CreateArray(input_pedigrees->GetDataType());
   pedigrees->SetName(input_pedigrees->GetName());
   builder->GetVertexData()->AddArray(pedigrees);

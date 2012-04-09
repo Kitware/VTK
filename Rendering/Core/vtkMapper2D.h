@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapper2D : public vtkAbstractMapper
 public:
   vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};
   virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {};
   virtual void RenderTranslucentPolygonalGeometry(vtkViewport*, vtkActor2D*) {}

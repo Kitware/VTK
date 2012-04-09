@@ -1,5 +1,5 @@
 set(MyTests
-  # TestBSplineWarp.cxx           # Fixme after vtkImageViewer deps 
+  # TestBSplineWarp.cxx           # Fixme after vtkImageViewer deps
   TestPolyDataSilhouette.cxx
 )
 

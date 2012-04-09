@@ -58,9 +58,9 @@ int vtkImageActorPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     {
     return 0;
     }
-  
-  return this->Placer->ComputeWorldPosition( ren, displayPos, 
-                                             refWorldPos, worldPos, 
+
+  return this->Placer->ComputeWorldPosition( ren, displayPos,
+                                             refWorldPos, worldPos,
                                              worldOrient );
 }
 
@@ -74,7 +74,7 @@ int vtkImageActorPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
     {
     return 0;
     }
-  
+
   return this->Placer->ComputeWorldPosition( ren, displayPos, worldPos, worldOrient );
 }
 
@@ -86,7 +86,7 @@ int vtkImageActorPointPlacer::ValidateWorldPosition( double worldPos[3],
     {
     return 0;
     }
-  
+
   return this->Placer->ValidateWorldPosition( worldPos, worldOrient );
 }
 
@@ -97,7 +97,7 @@ int vtkImageActorPointPlacer::ValidateWorldPosition( double worldPos[3] )
     {
     return 0;
     }
-  
+
   return this->Placer->ValidateWorldPosition( worldPos );
 }
 
@@ -110,8 +110,8 @@ int vtkImageActorPointPlacer::UpdateWorldPosition( vtkRenderer *ren,
     {
     return 0;
     }
-  
-  return this->Placer->UpdateWorldPosition( ren, 
+
+  return this->Placer->UpdateWorldPosition( ren,
                                             worldPos,
                                             worldOrient );
 }
@@ -130,13 +130,13 @@ int vtkImageActorPointPlacer::UpdateInternalState()
     {
     return 0;
     }
-  
+
   double spacing[3];
   input->GetSpacing(spacing);
 
   double origin[3];
   input->GetOrigin(origin);
-  
+
   double bounds[6];
   this->ImageActor->GetBounds(bounds);
   if (this->Bounds[0] != VTK_DOUBLE_MAX)
@@ -148,7 +148,7 @@ int vtkImageActorPointPlacer::UpdateInternalState()
     bounds[4] = (bounds[4] < this->Bounds[4]) ? this->Bounds[4] : bounds[4];
     bounds[5] = (bounds[5] > this->Bounds[5]) ? this->Bounds[5] : bounds[5];
     }
-  
+
   int displayExtent[6];
   this->ImageActor->GetDisplayExtent(displayExtent);
 
@@ -190,14 +190,14 @@ int vtkImageActorPointPlacer::UpdateInternalState()
     this->SavedBounds[3] = bounds[3];
     this->SavedBounds[4] = bounds[4];
     this->SavedBounds[5] = bounds[5];
-    
+
     this->Placer->SetProjectionNormal(axis);
     this->Placer->SetProjectionPosition(position);
-    
+
     this->Placer->RemoveAllBoundingPlanes();
-    
+
     vtkPlane *plane;
-    
+
     if ( axis != vtkBoundedPlanePointPlacer::XAxis )
       {
       plane = vtkPlane::New();
@@ -205,7 +205,7 @@ int vtkImageActorPointPlacer::UpdateInternalState()
       plane->SetNormal( 1.0, 0.0, 0.0 );
       this->Placer->AddBoundingPlane( plane );
       plane->Delete();
-      
+
       plane = vtkPlane::New();
       plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
       plane->SetNormal( -1.0, 0.0, 0.0 );
@@ -220,7 +220,7 @@ int vtkImageActorPointPlacer::UpdateInternalState()
       plane->SetNormal( 0.0, 1.0, 0.0 );
       this->Placer->AddBoundingPlane( plane );
       plane->Delete();
-      
+
       plane = vtkPlane::New();
       plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
       plane->SetNormal( 0.0, -1.0, 0.0 );
@@ -235,27 +235,27 @@ int vtkImageActorPointPlacer::UpdateInternalState()
       plane->SetNormal( 0.0, 0.0, 1.0 );
       this->Placer->AddBoundingPlane( plane );
       plane->Delete();
-      
+
       plane = vtkPlane::New();
       plane->SetOrigin( bounds[1], bounds[3], bounds[5] );
       plane->SetNormal( 0.0, 0.0, -1.0 );
       this->Placer->AddBoundingPlane( plane );
       plane->Delete();
       }
-    
+
     this->Modified();
-    }     
-  
+    }
+
   return 1;
 }
 
 //----------------------------------------------------------------------
 void vtkImageActorPointPlacer::SetWorldTolerance( double tol )
 {
-  if (this->WorldTolerance != 
+  if (this->WorldTolerance !=
       (tol<0.0?0.0:(tol>VTK_DOUBLE_MAX?VTK_DOUBLE_MAX:tol)))
     {
-    this->WorldTolerance = 
+    this->WorldTolerance =
       (tol<0.0?0.0:(tol>VTK_DOUBLE_MAX?VTK_DOUBLE_MAX:tol));
     this->Placer->SetWorldTolerance(tol);
     this->Modified();
@@ -266,7 +266,7 @@ void vtkImageActorPointPlacer::SetWorldTolerance( double tol )
 void vtkImageActorPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   double *bounds = this->GetBounds();
   if ( bounds != NULL )
     {

@@ -23,12 +23,12 @@
 // which do not include support for camera parameters.
 //
 // vtkExporter provides the convenience methods StartWrite() and EndWrite().
-// These methods are executed before and after execution of the Write() 
+// These methods are executed before and after execution of the Write()
 // method. You can also specify arguments to these methods.
 // This class defines SetInput and GetInput methods which take or return
-// a vtkRenderWindow.  
+// a vtkRenderWindow.
 // .SECTION Caveats
-// Every subclass of vtkExporter must implement a WriteData() method. 
+// Every subclass of vtkExporter must implement a WriteData() method.
 
 // .SECTION See Also
 // vtkOBJExporter vtkRenderWindow vtkWriter
@@ -47,7 +47,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Write data to output. Method executes subclasses WriteData() method, as 
+  // Write data to output. Method executes subclasses WriteData() method, as
   // well as StartWrite() and EndWrite() methods.
   virtual void Write();
 
@@ -59,7 +59,7 @@ public:
   // Set/Get the rendering window that contains the scene to be written.
   virtual void SetRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
-  
+
   // Description:
   // These methods are provided for backward compatibility. Will disappear
   // soon.

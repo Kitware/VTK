@@ -52,7 +52,7 @@ void vtkAssembly::AddPart(vtkProp3D *prop)
     this->Parts->AddItem(prop);
     prop->AddConsumer(this);
     this->Modified();
-    } 
+    }
 }
 
 // Remove a part from the list of parts,
@@ -63,7 +63,7 @@ void vtkAssembly::RemovePart(vtkProp3D *prop)
     prop->RemoveConsumer(this);
     this->Parts->RemoveItem(prop);
     this->Modified();
-    } 
+    }
 }
 
 // Shallow copy another assembly.
@@ -92,7 +92,7 @@ void vtkAssembly::ShallowCopy(vtkProp *prop)
 }
 
 // Render this assembly and all its Parts. The rendering process is recursive.
-// Note that a mapper need not be defined. If not defined, then no geometry 
+// Note that a mapper need not be defined. If not defined, then no geometry
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
@@ -107,9 +107,9 @@ int vtkAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
 
   // for allocating render time between components
   // simple equal allocation
-  fraction = this->AllocatedRenderTime 
+  fraction = this->AllocatedRenderTime
     / static_cast<double>(this->Paths->GetNumberOfItems());
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
@@ -138,7 +138,7 @@ int vtkAssembly::HasTranslucentPolygonalGeometry()
   int result = 0;
 
   this->UpdatePaths();
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); !result && (path = this->Paths->GetNextPath(sit)); )
@@ -155,7 +155,7 @@ int vtkAssembly::HasTranslucentPolygonalGeometry()
 
 
 // Render this assembly and all its Parts. The rendering process is recursive.
-// Note that a mapper need not be defined. If not defined, then no geometry 
+// Note that a mapper need not be defined. If not defined, then no geometry
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
@@ -170,9 +170,9 @@ int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
 
   // for allocating render time between components
   // simple equal allocation
-  fraction = this->AllocatedRenderTime 
+  fraction = this->AllocatedRenderTime
     / static_cast<double>(this->Paths->GetNumberOfItems());
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
@@ -193,7 +193,7 @@ int vtkAssembly::RenderVolumetricGeometry(vtkViewport *ren)
 }
 
 // Render this assembly and all its Parts. The rendering process is recursive.
-// Note that a mapper need not be defined. If not defined, then no geometry 
+// Note that a mapper need not be defined. If not defined, then no geometry
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
@@ -208,9 +208,9 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 
   // for allocating render time between components
   // simple equal allocation
-  fraction = this->AllocatedRenderTime 
+  fraction = this->AllocatedRenderTime
     / static_cast<double>(this->Paths->GetNumberOfItems());
-  
+
   // render the Paths
   vtkCollectionSimpleIterator sit;
   for ( this->Paths->InitTraversal(sit); (path = this->Paths->GetNextPath(sit)); )
@@ -235,7 +235,7 @@ void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
   vtkProp3D *prop3D;
 
   vtkCollectionSimpleIterator pit;
-  for ( this->Parts->InitTraversal(pit); 
+  for ( this->Parts->InitTraversal(pit);
         (prop3D = this->Parts->GetNextProp3D(pit)); )
     {
     prop3D->ReleaseGraphicsResources(renWin);
@@ -284,7 +284,7 @@ void vtkAssembly::InitPathTraversal()
   this->Paths->InitTraversal();
 }
 
-// Return the next part in the hierarchy of assembly Parts.  This method 
+// Return the next part in the hierarchy of assembly Parts.  This method
 // returns a properly transformed and updated actor.
 vtkAssemblyPath *vtkAssembly::GetNextPath()
 {
@@ -324,18 +324,18 @@ void vtkAssembly::UpdatePaths()
 
     //add ourselves to the path to start things off
     path->AddNode(this,this->GetMatrix());
-    
+
     // Add nodes as we proceed down the hierarchy
     vtkProp3D *prop3D;
     vtkCollectionSimpleIterator pit;
-    for ( this->Parts->InitTraversal(pit); 
+    for ( this->Parts->InitTraversal(pit);
           (prop3D = this->Parts->GetNextProp3D(pit)); )
       {
       path->AddNode(prop3D,prop3D->GetMatrix());
 
       // dive into the hierarchy
       prop3D->BuildPaths(this->Paths,path);
-      
+
       // when returned, pop the last node off of the
       // current path
       path->DeleteLastNode();
@@ -353,7 +353,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
   vtkProp3D *prop3D;
 
   vtkCollectionSimpleIterator pit;
-  for ( this->Parts->InitTraversal(pit); 
+  for ( this->Parts->InitTraversal(pit);
         (prop3D = this->Parts->GetNextProp3D(pit)); )
     {
     path->AddNode(prop3D,prop3D->GetMatrix());
@@ -435,7 +435,7 @@ unsigned long int vtkAssembly::GetMTime()
   vtkProp3D *prop;
 
   vtkCollectionSimpleIterator pit;
-  for (this->Parts->InitTraversal(pit); 
+  for (this->Parts->InitTraversal(pit);
        (prop = this->Parts->GetNextProp3D(pit)); )
     {
     time = prop->GetMTime();

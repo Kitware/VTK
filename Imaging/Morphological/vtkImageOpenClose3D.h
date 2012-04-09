@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageOpenClose3D - Will perform opening or closing.
 // .SECTION Description
-// vtkImageOpenClose3D performs opening or closing by having two 
+// vtkImageOpenClose3D performs opening or closing by having two
 // vtkImageErodeDilates in series.  The size of operation
 // is determined by the method SetKernelSize, and the operator is an ellipse.
 // OpenValue and CloseValue determine how the filter behaves.  For binary
@@ -50,7 +50,7 @@ public:
   // This method considers the sub filters MTimes when computing this objects
   // modified time.
   unsigned long int GetMTime();
-  
+
   // Description:
   // Turn debugging output on. (in sub filters also)
   void DebugOn();
@@ -59,7 +59,7 @@ public:
   // Description:
   // Pass modified message to sub filters.
   void Modified();
-  
+
   // Forward Source messages to filter1
 
   // Description:
@@ -67,7 +67,7 @@ public:
   void SetKernelSize(int size0, int size1, int size2);
 
   // Description:
-  // Determines the value that will opened.  
+  // Determines the value that will opened.
   // Open value is first eroded, and then dilated.
   void SetOpenValue(double value);
   double GetOpenValue();
@@ -77,7 +77,7 @@ public:
   // Close value is first dilated, and then eroded
   void SetCloseValue(double value);
   double GetCloseValue();
-  
+
   // Description:
   // Needed for Progress functions
   vtkGetObjectMacro(Filter0, vtkImageDilateErode3D);
@@ -101,7 +101,7 @@ public:
 protected:
   vtkImageOpenClose3D();
   ~vtkImageOpenClose3D();
-  
+
   vtkImageDilateErode3D *Filter0;
   vtkImageDilateErode3D *Filter1;
 

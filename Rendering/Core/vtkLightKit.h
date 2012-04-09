@@ -19,7 +19,7 @@
 // ugly without significant effort).  Use a LightKit when you want
 // more control over your lighting than you can get with the default
 // vtk light, which is a headlight located at the camera. (HeadLights
-// are very simple to use, but they don't show the shape of objects very 
+// are very simple to use, but they don't show the shape of objects very
 // well, don't give a good sense of "up" and "down", and don't evenly
 // light the object.)
 //
@@ -28,10 +28,10 @@
 // positioned so that it appears like an overhead light (like the sun,
 // or a ceiling light).  It is generally positioned to shine down on the
 // scene from about a 45 degree angle vertically and at least a little
-// offset side to side.  The key light usually at least about twice as 
+// offset side to side.  The key light usually at least about twice as
 // bright as the total of all other lights in the scene to provide good
 // modeling of object features.
-// 
+//
 // The other lights in the kit (the fill light, headlight, and a pair of
 // back lights) are weaker sources that provide extra
 // illumination to fill in the spots that the key light misses.  The
@@ -68,10 +68,10 @@
 // defines a special color spectrum called "warmth" from which light
 // colors can be chosen, where 0 is cold blue, 0.5 is neutral white,
 // and 1 is deep sunset red.  Colors close to 0.5 are "cool whites" and
-// "warm whites," respectively. 
+// "warm whites," respectively.
 //
 // Since colors far from white on the warmth scale appear less bright,
-// key-to-fill and key-to-headlight ratios are skewed by 
+// key-to-fill and key-to-headlight ratios are skewed by
 // key, fill, and headlight colors.  If the flag MaintainLuminance
 // is set, vtkLightKit will attempt to compensate for these perceptual
 // differences by increasing the brightness of more saturated colors.
@@ -126,11 +126,11 @@ public:
   // Description:
   // Set/Get the intensity of the key light.  The key light is the
   // brightest light in the scene.  The intensities of the other two
-  // lights are ratios of the key light's intensity.  
-  vtkSetMacro(KeyLightIntensity, double);  
+  // lights are ratios of the key light's intensity.
+  vtkSetMacro(KeyLightIntensity, double);
   vtkGetMacro(KeyLightIntensity, double);
 
-  // Description: 
+  // Description:
   // Set/Get the key-to-fill ratio.  This ratio controls
   // how bright the fill light is compared to the key light: larger
   // values correspond to a dimmer fill light.  The purpose of the
@@ -143,7 +143,7 @@ public:
   vtkSetClampMacro(KeyToFillRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToFillRatio, double);
 
-  // Description: 
+  // Description:
   // Set/Get the key-to-headlight ratio.  Similar to the key-to-fill
   // ratio, this ratio controls how bright the headlight light is
   // compared to the key light: larger values correspond to a dimmer
@@ -156,7 +156,7 @@ public:
   vtkSetClampMacro(KeyToHeadRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToHeadRatio, double);
 
-  // Description: 
+  // Description:
   // Set/Get the key-to-back light ratio.  This ratio controls
   // how bright the back lights are compared to the key light: larger
   // values correspond to dimmer back lights.  The back lights fill
@@ -165,7 +165,7 @@ public:
   vtkSetClampMacro(KeyToBackRatio, double, 0.5, VTK_DOUBLE_MAX);
   vtkGetMacro(KeyToBackRatio, double);
 
-  // Description: 
+  // Description:
   // Set the warmth of each the lights.  Warmth is a parameter that
   // varies from 0 to 1, where 0 is "cold" (looks icy or lit by a very
   // blue sky), 1 is "warm" (the red of a very red sunset, or the
@@ -203,7 +203,7 @@ public:
   vtkGetMacro(MaintainLuminance, int);
   vtkSetMacro(MaintainLuminance, int);
 
-  // Description: 
+  // Description:
   // Get/Set the position of the key, fill, and back lights
   // using angular methods.  Elevation corresponds to latitude,
   // azimuth to longitude.  It is recommended that the key light
@@ -216,7 +216,7 @@ public:
   // the right).  They are generally set at the equator (elevation = 0),
   // and at approximately 120 degrees (lighting from each side and behind).
   void SetKeyLightAngle(double elevation, double azimuth);
-  void SetKeyLightAngle(double angle[2]) { 
+  void SetKeyLightAngle(double angle[2]) {
     this->SetKeyLightAngle(angle[0], angle[1]); };
 
   void SetKeyLightElevation(double x) {
@@ -233,7 +233,7 @@ public:
     double ang[2]; this->GetKeyLightAngle(ang); return ang[1]; };
 
   void SetFillLightAngle(double elevation, double azimuth);
-  void SetFillLightAngle(double angle[2]) { 
+  void SetFillLightAngle(double angle[2]) {
     this->SetFillLightAngle(angle[0], angle[1]); };
 
   void SetFillLightElevation(double x) {
@@ -250,7 +250,7 @@ public:
     double ang[2]; this->GetFillLightAngle(ang); return ang[1]; };
 
   void SetBackLightAngle(double elevation, double azimuth);
-  void SetBackLightAngle(double angle[2]) { 
+  void SetBackLightAngle(double angle[2]) {
     this->SetBackLightAngle(angle[0], angle[1]); };
 
   void SetBackLightElevation(double x) {
@@ -267,7 +267,7 @@ public:
     double ang[2]; this->GetBackLightAngle(ang); return ang[1]; };
 
   // Description:
-  // Add lights to, or remove lights from, a renderer.  
+  // Add lights to, or remove lights from, a renderer.
   // Lights may be added to more than one renderer, if desired.
   void AddLightsToRenderer(vtkRenderer *renderer);
   void RemoveLightsFromRenderer(vtkRenderer *renderer);
@@ -290,10 +290,10 @@ public:
   // The difference from GetStringFromSubType is that it returns
   // a shorter strings (useful for GUI with minimun space)
   static const char *GetShortStringFromSubType(int subtype);
-  
+
   // Description:
   // Return the possible subtype from a given type. You have to pass
-  // in a number i [0,3] no check is done. 
+  // in a number i [0,3] no check is done.
   static LightKitSubType GetSubType(LightKitType type, int i);
 
 protected:
@@ -310,7 +310,7 @@ protected:
   double KeyToFillRatio;
   double KeyToHeadRatio;
   double KeyToBackRatio;
-  
+
   vtkLight *KeyLight;
   double KeyLightWarmth;
   double KeyLightAngle[2];

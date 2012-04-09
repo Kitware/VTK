@@ -40,11 +40,11 @@ public:
   vtkTypeMacro(vtkActor2D,vtkProp);
 
   // Description:
-  // Creates an actor2D with the following defaults: 
+  // Creates an actor2D with the following defaults:
   // position (0,0) (coordinate system is viewport);
   // at layer 0.
   static vtkActor2D* New();
-  
+
   // Description:
   // Support the standard render methods.
   virtual int RenderOverlay(vtkViewport *viewport);
@@ -54,7 +54,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Set/Get the vtkMapper2D which defines the data to be drawn.
   virtual void SetMapper(vtkMapper2D *mapper);

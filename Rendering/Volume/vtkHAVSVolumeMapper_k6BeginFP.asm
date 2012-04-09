@@ -3,15 +3,15 @@
 # Copyright 2005 by University of Utah
 #
 # Hardware-Assisted Visibility Sorting
-# 
+#
 # The program consists of the following steps:
 #
 # 1. Clear k-buffers entries 1 and 2 to -1.0
-# 
+#
 # The following textures are used:
-# 
-#   Tex 1: k-buffer entries 1 and 2 
-#   Tex 2: k-buffer entries 3 and 4 
+#
+#   Tex 1: k-buffer entries 1 and 2
+#   Tex 2: k-buffer entries 3 and 4
 #   Tex 3: k-buffer entries 5 and 6
 #
 

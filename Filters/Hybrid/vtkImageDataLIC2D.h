@@ -38,7 +38,7 @@
 //  GL_ARB_pixel_buffer_object
 //
 // .SECTION see also
-//  vtkImageAlgorithm vtkImageNoiseSource 
+//  vtkImageAlgorithm vtkImageNoiseSource
 
 #ifndef __vtkImageDataLIC2D_h
 #define __vtkImageDataLIC2D_h
@@ -58,8 +58,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get/Set the context. Context must be a vtkOpenGLRenderWindow. 
-  // This does not increase the reference count of the 
+  // Get/Set the context. Context must be a vtkOpenGLRenderWindow.
+  // This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions. Return 0 upon failure and 1 upon success.
@@ -72,7 +72,7 @@ public:
   // In term of visual quality, the greater the better.
   vtkSetMacro(Steps,int);
   vtkGetMacro(Steps,int);
-  
+
   // Description:
   // Step size.
   // Specify the step size as a unit of the cell length of the input vector
@@ -90,21 +90,21 @@ public:
   // The the magnification factor. Default is 1
   vtkSetClampMacro(Magnification, int, 1, VTK_INT_MAX);
   vtkGetMacro(Magnification, int);
-  
+
   // Description:
   // Check if the required OpenGL extensions / GPU are supported.
   vtkGetMacro( OpenGLExtensionsSupported, int );
-  
+
   // Description:
   // Check if FBO is started properly.
   int  GetFBOSuccess() { return this->FBOSuccess; }
-  
+
   // Description:
   // Check if LIC runs properly.
   int  GetLICSuccess() { return this->LICSuccess; }
 
 
-  void TranslateInputExtent(const int* inExt, 
+  void TranslateInputExtent(const int* inExt,
     const int* inWholeExtent, int *outExt);
 
 //BTX
@@ -112,7 +112,7 @@ protected:
   vtkImageDataLIC2D();
   ~vtkImageDataLIC2D();
 
-  virtual int RequestInformation(vtkInformation *, 
+  virtual int RequestInformation(vtkInformation *,
     vtkInformationVector **, vtkInformationVector *);
 
   // Description:
@@ -122,11 +122,11 @@ protected:
   // Redefined from the superclass.
   virtual int FillInputPortInformation(int port,
                                        vtkInformation *info);
-  
+
   int RequestUpdateExtent (vtkInformation * vtkNotUsed(request),
                            vtkInformationVector **inputVector,
                            vtkInformationVector *vtkNotUsed( outputVector ));
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
@@ -145,7 +145,7 @@ protected:
   bool OwnWindow;
   int  FBOSuccess;
   int  LICSuccess;
-  
+
 private:
   vtkImageDataLIC2D(const vtkImageDataLIC2D&); // Not implemented.
   void operator=(const vtkImageDataLIC2D&); // Not implemented.

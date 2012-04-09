@@ -101,7 +101,7 @@ macro(vtk_module_enable vtk-module _needed_by)
     foreach(dep IN LISTS VTK_MODULE_${vtk-module}_DEPENDS)
       vtk_module_enable(${dep} ${vtk-module})
     endforeach()
-    
+
     foreach(test IN LISTS ${vtk-module}_TESTED_BY)
         vtk_module_enable(${test} "")
     endforeach()
@@ -191,15 +191,15 @@ endmacro()
 
 # Build all modules.
 foreach(vtk-module ${VTK_MODULES_ENABLED})
-  
+
   set(_module ${vtk-module})
-  
+
   if(NOT ${_module}_IS_TEST)
     init_module_vars()
   else()
     set(vtk-module ${${_module}_TESTS_FOR})
   endif()
-  
+
   include("${${_module}_SOURCE_DIR}/vtk-module-init.cmake" OPTIONAL)
   add_subdirectory("${${_module}_SOURCE_DIR}" "${${_module}_BINARY_DIR}")
 endforeach()

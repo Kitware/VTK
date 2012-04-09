@@ -221,6 +221,6 @@ double vtkDSPFilterDefinition::GetForwardNumeratorWeight(int a_which)
 //----------------------------------------------------------------------------
 void vtkDSPFilterDefinition::PrintSelf(ostream &os, vtkIndent indent)
 {
- 
+
   this->Superclass::PrintSelf( os, indent );
 }

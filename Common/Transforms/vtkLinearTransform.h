@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkLinearTransform - abstract superclass for linear transformations
 // .SECTION Description
-// vtkLinearTransform provides a generic interface for linear 
-// (affine or 12 degree-of-freedom) geometric transformations. 
+// vtkLinearTransform provides a generic interface for linear
+// (affine or 12 degree-of-freedom) geometric transformations.
 // .SECTION see also
-// vtkTransform vtkIdentityTransform 
+// vtkTransform vtkIdentityTransform
 
 
 #ifndef __vtkLinearTransform_h
@@ -123,31 +123,31 @@ public:
 
   // Description:
   // Apply the transformation to a series of points, and append the
-  // results to outPts.  
+  // results to outPts.
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
 
   // Description:
   // Apply the transformation to a series of normals, and append the
-  // results to outNms.  
+  // results to outNms.
   virtual void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
 
   // Description:
   // Apply the transformation to a series of vectors, and append the
-  // results to outVrs.  
+  // results to outVrs.
   virtual void TransformVectors(vtkDataArray *inVrs, vtkDataArray *outVrs);
 
   // Description:
   // Apply the transformation to a combination of points, normals
-  // and vectors.  
-  void TransformPointsNormalsVectors(vtkPoints *inPts, 
-                                     vtkPoints *outPts, 
-                                     vtkDataArray *inNms, 
+  // and vectors.
+  void TransformPointsNormalsVectors(vtkPoints *inPts,
+                                     vtkPoints *outPts,
+                                     vtkDataArray *inNms,
                                      vtkDataArray *outNms,
-                                     vtkDataArray *inVrs, 
+                                     vtkDataArray *inVrs,
                                      vtkDataArray *outVrs);
 
   // Description:
-  // Just like GetInverse, but it includes a typecast to 
+  // Just like GetInverse, but it includes a typecast to
   // vtkLinearTransform.
   vtkLinearTransform *GetLinearInverse()
     {

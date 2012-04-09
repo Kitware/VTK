@@ -34,7 +34,7 @@ void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree, vtkIdType Vertex)
     {
     Stream << Vertex << " " << Tree->GetParent(Vertex) << "\n";
     }
-  
+
   vtkIdType count = Tree->GetNumberOfChildren(Vertex);
   for(vtkIdType child = 0; child != count; ++child)
     {
@@ -69,8 +69,8 @@ void vtkTreeWriter::WriteData()
     return;
     }
 
-  *fp << "DATASET TREE\n"; 
-  
+  *fp << "DATASET TREE\n";
+
   int error_occurred = 0;
 
   if(!error_occurred && !this->WriteFieldData(fp, input->GetFieldData()))

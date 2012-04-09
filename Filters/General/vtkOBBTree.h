@@ -15,31 +15,31 @@
 // .NAME vtkOBBTree - generate oriented bounding box (OBB) tree
 // .SECTION Description
 // vtkOBBTree is an object to generate oriented bounding box (OBB) trees.
-// An oriented bounding box is a bounding box that does not necessarily line 
-// up along coordinate axes. The OBB tree is a hierarchical tree structure 
+// An oriented bounding box is a bounding box that does not necessarily line
+// up along coordinate axes. The OBB tree is a hierarchical tree structure
 // of such boxes, where deeper levels of OBB confine smaller regions of space.
 //
 // To build the OBB, a recursive, top-down process is used. First, the root OBB
 // is constructed by finding the mean and covariance matrix of the cells (and
 // their points) that define the dataset. The eigenvectors of the covariance
-// matrix are extracted, giving a set of three orthogonal vectors that define 
-// the tightest-fitting OBB. To create the two children OBB's, a split plane 
-// is found that (approximately) divides the number cells in half. These are 
+// matrix are extracted, giving a set of three orthogonal vectors that define
+// the tightest-fitting OBB. To create the two children OBB's, a split plane
+// is found that (approximately) divides the number cells in half. These are
 // then assigned to the children OBB's. This process then continues until
 // the MaxLevel ivar limits the recursion, or no split plane can be found.
 //
-// A good reference for OBB-trees is Gottschalk & Manocha in Proceedings of 
+// A good reference for OBB-trees is Gottschalk & Manocha in Proceedings of
 // Siggraph `96.
 
 // .SECTION Caveats
-// Since this algorithms works from a list of cells, the OBB tree will only 
-// bound the "geometry" attached to the cells if the convex hull of the 
+// Since this algorithms works from a list of cells, the OBB tree will only
+// bound the "geometry" attached to the cells if the convex hull of the
 // cells bounds the geometry.
 //
-// Long, skinny cells (i.e., cells with poor aspect ratio) may cause 
+// Long, skinny cells (i.e., cells with poor aspect ratio) may cause
 // unsatisfactory results. This is due to the fact that this is a top-down
 // implementation of the OBB tree, requiring that one or more complete cells
-// are contained in each OBB. This requirement makes it hard to find good 
+// are contained in each OBB. This requirement makes it hard to find good
 // split planes during the recursion process. A bottom-up implementation would
 // go a long way to correcting this problem.
 
@@ -100,7 +100,7 @@ public:
   virtual int IntersectWithLine(
     double a0[3], double a1[3], double tol,
     double& t, double x[3], double pcoords[3],
-    int &subId) 
+    int &subId)
   {
     return Superclass::
       IntersectWithLine(a0, a1, tol,t, x, pcoords, subId);
@@ -155,12 +155,12 @@ public:
     Superclass::
       FindClosestPoint(x, closestPoint, cellId, subId, dist2);
   }
-  
+
   // Description:
   // reimplemented from vtkAbstractCellLocator to support bad compilers
   virtual void FindClosestPoint(
     double x[3], double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId, 
+    vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2)
   {
     Superclass::
@@ -177,7 +177,7 @@ public:
     return Superclass::FindClosestPointWithinRadius
       (x, radius, closestPoint, cellId, subId, dist2);
   }
- 
+
   // Description:
   // reimplemented from vtkAbstractCellLocator to support bad compilers
   virtual vtkIdType FindClosestPointWithinRadius(
@@ -200,12 +200,12 @@ public:
     return Superclass::FindClosestPointWithinRadius
       (x, radius, closestPoint, cell, cellId, subId, dist2, inside);
   }
-  
+
   // Description:
   // Compute an OBB from the list of points given. Return the corner point
   // and the three axes defining the orientation of the OBB. Also return
   // a sorted list of relative "sizes" of axes for comparison purposes.
-  static void ComputeOBB(vtkPoints *pts, double corner[3], double max[3], 
+  static void ComputeOBB(vtkPoints *pts, double corner[3], double max[3],
                   double mid[3], double min[3], double size[3]);
 
   // Description:
@@ -274,7 +274,7 @@ protected:
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added
   // so that the functionality can be accessed.
-  void ComputeOBB(vtkIdList *cells, double corner[3], double max[3], 
+  void ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
                        double mid[3], double min[3], double size[3]);
 
   vtkOBBNode *Tree;
@@ -284,7 +284,7 @@ protected:
   int OBBCount;
 
   void DeleteTree(vtkOBBNode *OBBptr);
-  void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel, 
+  void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
                         vtkPoints* pts, vtkCellArray *polys);
 
   //ETX

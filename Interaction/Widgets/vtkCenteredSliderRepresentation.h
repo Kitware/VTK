@@ -96,12 +96,12 @@ public:
   // Get the properties for the tube and slider
   vtkGetObjectMacro(TubeProperty,vtkProperty2D);
   vtkGetObjectMacro(SliderProperty,vtkProperty2D);
-  
+
   // Description:
   // Get the selection property. This property is used to modify the
   // appearance of selected objects (e.g., the slider).
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
-  
+
   // Description:
   // Set/Get the properties for the label and title text.
   vtkGetObjectMacro(LabelProperty,vtkTextProperty);
@@ -146,14 +146,14 @@ protected:
   vtkPolyDataMapper2D *SliderMapper;
   vtkActor2D          *SliderActor;
   vtkProperty2D       *SliderProperty;
-  
+
   vtkCellArray        *TubeCells;
   vtkPolyData         *Tube;
   vtkTransformPolyDataFilter *TubeXForm;
   vtkPolyDataMapper2D *TubeMapper;
   vtkActor2D          *TubeActor;
   vtkProperty2D       *TubeProperty;
-  
+
   vtkTextProperty     *LabelProperty;
   vtkTextActor        *LabelActor;
 

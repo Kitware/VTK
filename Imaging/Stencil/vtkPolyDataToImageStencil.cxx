@@ -23,7 +23,7 @@ conditions are met:
 1) Redistribution of the source code, in verbatim or modified
    form, must retain the above copyright notice, this license,
    the following disclaimer, and any notices that refer to this
-   license and/or the following disclaimer.  
+   license and/or the following disclaimer.
 
 2) Redistribution in binary form must include the above copyright
    notice, a copy of this license and the following disclaimer
@@ -93,7 +93,7 @@ vtkPolyData *vtkPolyDataToImageStencil::GetInput()
     {
     return NULL;
     }
-  
+
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
@@ -191,13 +191,13 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
 
   // Allocate space for the cell data
   outCD->CopyAllocate(inCD, 1000);
-    
+
   // locator used to merge potentially duplicate points
   locator->InitPointInsertion(newPoints, input->GetBounds());
 
   // Compute some information for progress methods
   vtkGenericCell *cell = vtkGenericCell::New();
-  
+
   // Loop over all cells; get scalar values for all cell points
   // and process each cell.
   vtkIdType numCells = input->GetNumberOfCells();
@@ -224,7 +224,7 @@ void vtkPolyDataToImageStencil::PolyDataCutter(
     }
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
-  // polys we've created, take care to reclaim memory. 
+  // polys we've created, take care to reclaim memory.
   cell->Delete();
   cellScalars->Delete();
 
@@ -252,12 +252,12 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
   // Description of algorithm:
   // 1) cut the polydata at each z slice to create polylines
   // 2) find all "loose ends" and connect them to make polygons
-  //    (if the input polydata is closed, there will be no loose ends) 
+  //    (if the input polydata is closed, there will be no loose ends)
   // 3) go through all line segments, and for each integer y value on
   //    a line segment, store the x value at that point in a bucket
   // 4) for each z integer index, find all the stored x values
   //    and use them to create one z slice of the vtkStencilData
-    
+
   // the spacing and origin of the generated stencil
   double *spacing = data->GetSpacing();
   double *origin = data->GetOrigin();
@@ -319,7 +319,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
       // if no polys, select polylines instead
       this->PolyDataSelector(input, slice, z, spacing[2], locator);
       }
-    
+
     if (!slice->GetNumberOfLines())
       {
       continue;
@@ -345,7 +345,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
     vtkIdList *looseEndIdList = vtkIdList::New();
     vtkIdList *looseEndNeighborList = vtkIdList::New();
     vtkSignedCharArray *inflectionPointList = vtkSignedCharArray::New();
-    
+
     // find all points with just a single adjacent point,
     // also look for inflection points i.e. where the y direction changes
     for (vtkIdType i = 0; i < numberOfPoints; i++)
@@ -356,7 +356,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
       int numberOfNeighbors = 0;
       vtkIdType neighborId = 0;
-      
+
       lines->InitTraversal();
       vtkIdType npts;
       vtkIdType *pointIds;
@@ -419,7 +419,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
 
       // search for the loose end closest to the first one
       double maxval = -VTK_LARGE_FLOAT;
-      
+
       for(vtkIdType j = 1; j < looseEndIdList->GetNumberOfIds(); j++)
         {
         vtkIdType currentLooseEndId = looseEndIdList->GetId( j );
@@ -490,7 +490,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(
         // check to see if line contains a lower inflection point
         bool inflection1 = (inflectionPointList->GetValue(pts[j-1]) != 0);
         bool inflection2 = (inflectionPointList->GetValue(pts[j]) != 0);
-      
+
         raster.InsertLine(point1, point2, inflection1, inflection2);
         }
       }

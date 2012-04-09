@@ -88,14 +88,14 @@ protected:
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.

@@ -31,7 +31,7 @@ vtkStructuredPointsReader::vtkStructuredPointsReader()
   vtkStructuredPoints *output = vtkStructuredPoints::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
 }
@@ -74,11 +74,11 @@ int vtkStructuredPointsReader::RequestInformation(
 int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
 {
   this->SetErrorCode( vtkErrorCode::NoError );
-  
+
   char line[256];
   int dimsRead=0, arRead=0, originRead=0;
   int done=0;
-  
+
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
     return 1;
@@ -102,7 +102,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
       this->CloseVTKFile ();
       this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
       return 1;
-      } 
+      }
 
     if ( strncmp(this->LowerCase(line),"structured_points",17) )
       {
@@ -119,12 +119,12 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
         {
         break;
         }
-      
+
       if ( ! strncmp(this->LowerCase(line), "dimensions",10) )
         {
         int dim[3];
-        if (!(this->Read(dim) && 
-              this->Read(dim+1) && 
+        if (!(this->Read(dim) &&
+              this->Read(dim+1) &&
               this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
@@ -138,13 +138,13 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
                      0,dim[0]-1,0,dim[1]-1,0,dim[2]-1);
         dimsRead = 1;
         }
-      
-      else if ( !strncmp(line,"aspect_ratio",12) || 
+
+      else if ( !strncmp(line,"aspect_ratio",12) ||
                 !strncmp(line,"spacing",7) )
         {
         double ar[3];
-        if (!(this->Read(ar) && 
-              this->Read(ar+1) && 
+        if (!(this->Read(ar) &&
+              this->Read(ar+1) &&
               this->Read(ar+2)))
           {
           vtkErrorMacro(<<"Error reading spacing!");
@@ -155,12 +155,12 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
         outInfo->Set(vtkDataObject::SPACING(), ar, 3);
         arRead = 1;
         }
-      
+
       else if ( ! strncmp(line,"origin",6) )
         {
         double origin[3];
-        if (!(this->Read(origin) && 
-              this->Read(origin+1) && 
+        if (!(this->Read(origin) &&
+              this->Read(origin+1) &&
               this->Read(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
@@ -171,7 +171,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
         outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
         originRead = 1;
         }
-      
+
       else if ( ! strncmp(line, "point_data", 10) )
         {
         int npts;
@@ -192,7 +192,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
             int scalarType = VTK_DOUBLE;
             this->ReadString(line);
             this->ReadString(line);
-            
+
             if ( ! strncmp(line, "bit", 3) )
               {
               scalarType = VTK_BIT;
@@ -204,7 +204,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
             else if ( ! strncmp(line, "unsigned_char", 13) )
               {
               scalarType = VTK_UNSIGNED_CHAR;
-              }   
+              }
             else if ( ! strncmp(line, "short", 5) )
               {
               scalarType = VTK_SHORT;
@@ -237,7 +237,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
               {
               scalarType = VTK_DOUBLE;
               }
-            
+
             // the next string could be an integer number of components or a
             // lookup table
             this->ReadString(line);
@@ -247,7 +247,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
               numComp = atoi(line);
               if (numComp < 1 || !this->ReadString(line))
                 {
-                vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
+                vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
                               << (this->FileName?this->FileName:"(Null FileName)"));
                 return 1;
                 }
@@ -290,13 +290,13 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
         break; //out of this loop
         }
       }
-    
-    if ( !dimsRead || !arRead || !originRead) 
+
+    if ( !dimsRead || !arRead || !originRead)
       {
       vtkWarningMacro(<<"Not all meta data was read form the file.");
       }
     }
-  
+
   this->CloseVTKFile ();
 
   return 1;
@@ -376,8 +376,8 @@ int vtkStructuredPointsReader::RequestData(
       else if ( ! strncmp(line, "dimensions",10) )
         {
         int dim[3];
-        if (!(this->Read(dim) && 
-              this->Read(dim+1) && 
+        if (!(this->Read(dim) &&
+              this->Read(dim+1) &&
               this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
@@ -395,8 +395,8 @@ int vtkStructuredPointsReader::RequestData(
       else if ( !strncmp(line,"aspect_ratio",12) || !strncmp(line,"spacing",7) )
         {
         double ar[3];
-        if (!(this->Read(ar) && 
-              this->Read(ar+1) && 
+        if (!(this->Read(ar) &&
+              this->Read(ar+1) &&
               this->Read(ar+2)))
           {
           vtkErrorMacro(<<"Error reading spacing!");
@@ -412,8 +412,8 @@ int vtkStructuredPointsReader::RequestData(
       else if ( ! strncmp(line,"origin",6) )
         {
         double origin[3];
-        if (!(this->Read(origin) && 
-              this->Read(origin+1) && 
+        if (!(this->Read(origin) &&
+              this->Read(origin+1) &&
               this->Read(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
@@ -435,7 +435,7 @@ int vtkStructuredPointsReader::RequestData(
           this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
           }
-        
+
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match data values!");
@@ -457,7 +457,7 @@ int vtkStructuredPointsReader::RequestData(
           this->SetErrorCode( vtkErrorCode::FileFormatError );
           return 1;
           }
-        
+
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match data values!");
@@ -510,7 +510,7 @@ int vtkStructuredPointsReader::RequestData(
     this->ReadPointData(output, numPts);
     }
 
-  else 
+  else
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }

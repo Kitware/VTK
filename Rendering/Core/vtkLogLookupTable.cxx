@@ -19,9 +19,9 @@
 
 vtkStandardNewMacro(vtkLogLookupTable);
 
-// Construct with (minimum,maximum) range 1 to 10 (based on 
+// Construct with (minimum,maximum) range 1 to 10 (based on
 // logarithmic values).
-vtkLogLookupTable::vtkLogLookupTable(int sze, int ext) 
+vtkLogLookupTable::vtkLogLookupTable(int sze, int ext)
   : vtkLookupTable(sze,ext)
 {
   this->Scale = VTK_SCALE_LOG10;

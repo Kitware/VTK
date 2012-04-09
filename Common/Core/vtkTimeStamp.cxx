@@ -63,7 +63,7 @@ void vtkTimeStamp::Modified()
 #else
   static unsigned long vtkTimeStampTime = 0;
   static vtkSimpleCriticalSection TimeStampCritSec;
-  
+
   TimeStampCritSec.Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
   TimeStampCritSec.Unlock();

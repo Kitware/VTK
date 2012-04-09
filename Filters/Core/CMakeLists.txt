@@ -63,7 +63,7 @@ set(Module_SRCS
   vtkVectorDot.cxx
   vtkVectorNorm.cxx
   vtkWindowedSincPolyDataFilter.cxx
-  
+
   vtkCutter.cxx
   vtkGridSynchronizedTemplates3D.cxx
   vtkRectilinearSynchronizedTemplates.cxx

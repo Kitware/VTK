@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -126,11 +126,11 @@ int vtkPBGLVertexColoring::RequestData(
   DistributedColorMap colorMap
     = MakeDistributedVertexPropertyMap(output, colorArray);
 
-  // Execute the algorithm itself  
+  // Execute the algorithm itself
   if (vtkUndirectedGraph::SafeDownCast(output))
     {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
-    boost::graph::distributed::boman_et_al_graph_coloring(g, colorMap, 
+    boost::graph::distributed::boman_et_al_graph_coloring(g, colorMap,
                                                           this->BlockSize);
     }
   else
@@ -142,18 +142,18 @@ int vtkPBGLVertexColoring::RequestData(
   // Add color array to the output
   output->GetVertexData()->AddArray(colorArray);
   colorArray->Delete();
-  
+
   return 1;
 }
 
 void vtkPBGLVertexColoring::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "BlockSize: " << this->BlockSize << endl;
-     
-  os << indent << "ColorArrayName: " 
-     << (this->ColorArrayName ? this->ColorArrayName : "(none)") 
+
+  os << indent << "ColorArrayName: "
+     << (this->ColorArrayName ? this->ColorArrayName : "(none)")
      << endl;
 }
 

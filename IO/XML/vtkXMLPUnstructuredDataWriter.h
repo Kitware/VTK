@@ -31,23 +31,23 @@ class VTKIOXML_EXPORT vtkXMLPUnstructuredDataWriter : public vtkXMLPDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPUnstructuredDataWriter,vtkXMLPDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
                      vtkInformationVector*);
-  
+
 protected:
   vtkXMLPUnstructuredDataWriter();
   ~vtkXMLPUnstructuredDataWriter();
-  
+
   vtkPointSet* GetInputAsPointSet();
-  
+
   virtual vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter()=0;
   vtkXMLWriter* CreatePieceWriter(int index);
   void WritePData(vtkIndent indent);
-  
+
 private:
   vtkXMLPUnstructuredDataWriter(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
   void operator=(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.

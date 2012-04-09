@@ -39,20 +39,20 @@ public:
   static vtkHyperOctreeToUniformGridFilter *New();
   vtkTypeMacro(vtkHyperOctreeToUniformGridFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
 protected:
   vtkHyperOctreeToUniformGridFilter();
   ~vtkHyperOctreeToUniformGridFilter();
-  
+
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  
+
   void CopyCellData(int cellExtent[6]);
-  
+
   // Variables used by generate recursively.
   // It avoids to pass to much argument.
   vtkDataSetAttributes *InputCD;
@@ -61,7 +61,7 @@ protected:
   int YExtent;
   int ZExtent;
   vtkImageData *Output;
-  
+
 private:
   vtkHyperOctreeToUniformGridFilter(const vtkHyperOctreeToUniformGridFilter&);  // Not implemented.
   void operator=(const vtkHyperOctreeToUniformGridFilter&);  // Not implemented.

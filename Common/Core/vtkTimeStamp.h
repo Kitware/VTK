@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTimeStamp - record modification and/or execution time
 // .SECTION Description
-// vtkTimeStamp records a unique time when the method Modified() is 
+// vtkTimeStamp records a unique time when the method Modified() is
 // executed. This time is guaranteed to be monotonically increasing.
 // Classes use this object to record modified and/or execution time.
 // There is built in support for the binary < and > comparison

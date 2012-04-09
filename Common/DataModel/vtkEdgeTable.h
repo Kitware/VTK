@@ -21,7 +21,7 @@
 // The attribute information may take the form of vtkIdType id's, void*
 // pointers, or points. To store attributes, make sure that
 // InitEdgeInsertion() is invoked with the storeAttributes flag set properly.
-// If points are inserted, use the methods InitPointInsertion() and 
+// If points are inserted, use the methods InitPointInsertion() and
 // InsertUniquePoint().
 
 #ifndef __vtkEdgeTable_h
@@ -92,7 +92,7 @@ public:
   // InsertEdge() methods.
   void InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr);
 
-  // Description: 
+  // Description:
   // Return an integer id for the edge, or an attribute id of the edge
   // (p1,p2) if the edge has been previously defined (it depends upon
   // which version of InsertEdge() is being used); otherwise -1. The
@@ -100,7 +100,7 @@ public:
   // the edge.
   vtkIdType IsEdge(vtkIdType p1, vtkIdType p2);
 
-  // Description: 
+  // Description:
   // Similar to above, but returns a void* pointer is InitEdgeInsertion()
   // has been called with storeAttributes==2. A NULL pointer value
   // is returned if the edge does not exist.
@@ -114,7 +114,7 @@ public:
 
   // Description:
   // Insert a unique point on the specified edge. Invoke this method only
-  // after InitPointInsertion() has been called. Return 0 if point was 
+  // after InitPointInsertion() has been called. Return 0 if point was
   // already in the list, otherwise return 1.
   int InsertUniquePoint(vtkIdType p1, vtkIdType p2, double x[3],
                         vtkIdType &ptId);
@@ -133,7 +133,7 @@ public:
   // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
   vtkIdType GetNextEdge(vtkIdType &p1, vtkIdType &p2);
 
-  // Description: 
+  // Description:
   // Similar to above, but fills a void* pointer if InitEdgeInsertion()
   // has been called with storeAttributes==2. A NULL pointer value
   // is filled otherwise.  Returns 0 if list is exhausted.

@@ -52,7 +52,7 @@ int vtkOutlineCornerFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkDebugMacro(<< "Creating dataset outline");
 
   //

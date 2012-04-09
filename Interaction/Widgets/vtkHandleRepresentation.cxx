@@ -55,11 +55,11 @@ vtkHandleRepresentation::~vtkHandleRepresentation()
 void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 {
   if (this->Renderer && this->PointPlacer)
-    { 
+    {
     if (this->PointPlacer->ValidateDisplayPosition( this->Renderer, displyPos ))
       {
       double worldPos[3], worldOrient[9];
-      if (this->PointPlacer->ComputeWorldPosition( 
+      if (this->PointPlacer->ComputeWorldPosition(
             this->Renderer, displyPos, worldPos, worldOrient ))
         {
         this->DisplayPosition->SetValue(displyPos);
@@ -68,7 +68,7 @@ void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
         }
       }
     }
-  else 
+  else
     {
     this->DisplayPosition->SetValue(displyPos);
     this->DisplayPositionTime.Modified();
@@ -110,7 +110,7 @@ void vtkHandleRepresentation::SetWorldPosition(double pos[3])
       this->WorldPositionTime.Modified();
       }
     }
-  else 
+  else
   {
   this->WorldPosition->SetValue(pos);
   this->WorldPositionTime.Modified();
@@ -178,7 +178,7 @@ unsigned long vtkHandleRepresentation::GetMTime()
   mTime = ( wMTime > mTime ? wMTime : mTime );
   unsigned long dMTime=this->DisplayPosition->GetMTime();
   mTime = ( dMTime > mTime ? dMTime : mTime );
-  
+
   return mTime;
 }
 
@@ -187,7 +187,7 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   double p[3];
   this->GetDisplayPosition(p);
   os << indent << "Display Position: (" << p[0] << ", "
@@ -197,17 +197,17 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "World Position: (" << p[0] << ", "
                << p[1] << ", " << p[2] << ")\n";
 
-  os << indent << "Constrained: " 
+  os << indent << "Constrained: "
      << (this->Constrained ? "On" : "Off") << "\n";
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 
-  os << indent << "Active Representation: " 
+  os << indent << "Active Representation: "
      << (this->ActiveRepresentation ? "On" : "Off") << "\n";
 
   if ( this->PointPlacer )
     {
-    os << indent << "PointPlacer:\n"; 
+    os << indent << "PointPlacer:\n";
     this->PointPlacer->PrintSelf( os, indent.GetNextIndent() );
     }
   else

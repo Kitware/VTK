@@ -229,7 +229,7 @@ int vtkConvertSelectionDomain::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkAnnotationLayers* inputAnn = vtkAnnotationLayers::SafeDownCast(input);
-  
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkAnnotationLayers* outputAnn = vtkAnnotationLayers::SafeDownCast(output);

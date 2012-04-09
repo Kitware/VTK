@@ -46,7 +46,7 @@
 int TestMultiTexturing(int argc, char *argv[])
 {
 
-  
+
   char* fname1 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/RedCircle.png");
   char* fname2 =
@@ -118,13 +118,13 @@ int TestMultiTexturing(int argc, char *argv[])
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
   mapper->SetInputData(polyData);
 
   vtkActor * actor = vtkActor::New();
 
-  vtkOpenGLHardwareSupport * hardware = 
+  vtkOpenGLHardwareSupport * hardware =
     vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
 
   bool supported=hardware->GetSupportsMultiTexturing();
@@ -133,7 +133,7 @@ int TestMultiTexturing(int argc, char *argv[])
     {
     tu=hardware->GetNumberOfFixedTextureUnits();
     }
-  
+
   if(supported && tu > 2)
     {
     mapper->MapDataArrayToMultiTextureAttribute(
@@ -174,12 +174,12 @@ int TestMultiTexturing(int argc, char *argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
-  
+
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
-  
+
   polyData->Delete();
   mapper->Delete();
   actor->Delete();

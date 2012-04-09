@@ -54,7 +54,7 @@ public:
   // Move the iterator to the next position in the list.
   // \pre not_off: !IsAtEnd()
   virtual void Next() = 0;
- 
+
   // Description:
   // Get the coordinates of the point at the current iterator position.
   // \pre not_off: !IsAtEnd()
@@ -66,18 +66,18 @@ public:
   // \pre not_off: !IsAtEnd()
   // \pre x_exists: x!=0
   virtual void GetPosition(double x[3]) = 0;
-  
+
   // Description:
   // Return the unique identifier for the point, could be non-contiguous.
   // \pre not_off: !IsAtEnd()
   virtual vtkIdType GetId() = 0;
-  
+
 protected:
   // Description:
   // Destructor.
   vtkGenericPointIterator();
   virtual ~vtkGenericPointIterator();
-  
+
 private:
   vtkGenericPointIterator(const vtkGenericPointIterator&);  // Not implemented.
   void operator=(const vtkGenericPointIterator&);  // Not implemented.

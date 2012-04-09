@@ -19,7 +19,7 @@
 // .NAME vtkGraphInternals - Internal representation of vtkGraph
 //
 // .SECTION Description
-// This is the internal representation of vtkGraph, used only in rare cases 
+// This is the internal representation of vtkGraph, used only in rare cases
 // where one must modify that representation.
 
 #ifndef __vtkGraphInternals_h

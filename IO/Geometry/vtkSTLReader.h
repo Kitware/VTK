@@ -14,15 +14,15 @@
 =========================================================================*/
 // .NAME vtkSTLReader - read ASCII or binary stereo lithography files
 // .SECTION Description
-// vtkSTLReader is a source object that reads ASCII or binary stereo 
+// vtkSTLReader is a source object that reads ASCII or binary stereo
 // lithography files (.stl files). The FileName must be specified to
 // vtkSTLReader. The object automatically detects whether the file is
 // ASCII or binary.
 //
-// .stl files are quite inefficient since they duplicate vertex 
-// definitions. By setting the Merging boolean you can control whether the 
-// point data is merged after reading. Merging is performed by default, 
-// however, merging requires a large amount of temporary storage since a 
+// .stl files are quite inefficient since they duplicate vertex
+// definitions. By setting the Merging boolean you can control whether the
+// point data is merged after reading. Merging is performed by default,
+// however, merging requires a large amount of temporary storage since a
 // 3D hash table must be constructed.
 
 // .SECTION Caveats
@@ -59,7 +59,7 @@ public:
   // Specify file name of stereo lithography file.
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-      
+
   // Description:
   // Turn on/off merging of points/triangles.
   vtkSetMacro(Merging,int);
@@ -77,7 +77,7 @@ public:
   // default an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
-      
+
 protected:
   vtkSTLReader();
   ~vtkSTLReader();
@@ -93,7 +93,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
-  int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*, 
+  int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*,
                    vtkFloatArray* scalars=0);
   int GetSTLFileType(const char *filename);
 private:

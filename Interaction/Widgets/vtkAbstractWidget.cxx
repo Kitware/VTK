@@ -18,7 +18,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkRenderer.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
@@ -48,7 +48,7 @@ vtkAbstractWidget::vtkAbstractWidget()
   this->ProcessEvents = 1;
 
   // Okay, set up the event translations for the subclasses.
-  this->EventTranslator = vtkWidgetEventTranslator::New(); 
+  this->EventTranslator = vtkWidgetEventTranslator::New();
   this->CallbackMapper = vtkWidgetCallbackMapper::New();
   this->CallbackMapper->SetEventTranslator(this->EventTranslator);
 }
@@ -198,12 +198,12 @@ void vtkAbstractWidget::SetEnabled(int enabling)
 }
 
 //-------------------------------------------------------------------------
-void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object), 
+void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
                                        unsigned long vtkEvent,
-                                       void* clientdata, 
+                                       void* clientdata,
                                        void* calldata)
 {
-  vtkAbstractWidget* self = 
+  vtkAbstractWidget* self =
     reinterpret_cast<vtkAbstractWidget *>( clientdata );
 
   // if ProcessEvents is Off, we ignore all interaction events.
@@ -215,7 +215,7 @@ void vtkAbstractWidget::ProcessEventsHandler(vtkObject* vtkNotUsed(object),
   int modifier = vtkEvent::GetModifier(self->Interactor);
   unsigned long widgetEvent = vtkWidgetEvent::NoEvent;
 
-  // If neither the ctrl nor the shift keys are pressed, give 
+  // If neither the ctrl nor the shift keys are pressed, give
   // NoModifier a preference over AnyModifer.
   if (modifier == vtkEvent::AnyModifier)
     {
@@ -265,8 +265,8 @@ void vtkAbstractWidget::SetPriority( float f )
     // interactor observer maintains a sorted list of command-observers, sorted
     // by prioirty. The sorting happens only during insertion of a command-
     // observer into the list. Yeah.. Look at the documentation of SetPriority
-    // in vtkInteractorObserver. That documentation recommends setting the 
-    // interactor to NULL and back again. We won't do that because it will 
+    // in vtkInteractorObserver. That documentation recommends setting the
+    // interactor to NULL and back again. We won't do that because it will
     // cause two unnecessary re-renders, (cause we'd have had to enable and
     // disable the widgets).
     if (this->Enabled)
@@ -276,12 +276,12 @@ void vtkAbstractWidget::SetPriority( float f )
         this->Interactor->RemoveObserver(this->CharObserverTag);
         this->Interactor->RemoveObserver(this->DeleteObserverTag);
         this->CharObserverTag = this->Interactor->AddObserver(
-            vtkCommand::CharEvent, 
-            this->KeyPressCallbackCommand, 
+            vtkCommand::CharEvent,
+            this->KeyPressCallbackCommand,
             this->Priority);
         this->DeleteObserverTag = this->Interactor->AddObserver(
-            vtkCommand::DeleteEvent, 
-            this->KeyPressCallbackCommand, 
+            vtkCommand::DeleteEvent,
+            this->KeyPressCallbackCommand,
             this->Priority);
         }
 
@@ -319,8 +319,8 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
- 
-  os << indent << "ProcessEvents: " 
+
+  os << indent << "ProcessEvents: "
     << (this->ProcessEvents? "On" : "Off") << "\n";
 
   if ( this->WidgetRep )
@@ -332,7 +332,7 @@ void vtkAbstractWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Widget Representation: (none)\n";
     }
 
-  os << indent << "Manages Cursor: " 
+  os << indent << "Manages Cursor: "
     << (this->ManagesCursor? "On" : "Off") << "\n";
 
   os << indent << "Parent: " << this->Parent << "\n";

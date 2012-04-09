@@ -642,7 +642,7 @@ char TestAngleWidget3DEventLog[] =
 class vtkAngleCallback : public vtkCommand
 {
 public:
-  static vtkAngleCallback *New() 
+  static vtkAngleCallback *New()
     { return new vtkAngleCallback; }
   virtual void Execute(vtkObject*, unsigned long eid, void*)
     {
@@ -677,7 +677,7 @@ public:
 // The actual test function
 int TestAngleWidget3D( int argc, char *argv[] )
 {
-  vtkSmartPointer<vtkSphereSource> ss 
+  vtkSmartPointer<vtkSphereSource> ss
     = vtkSmartPointer<vtkSphereSource>::New();
 
   // Create the RenderWindow, Renderer and both Actors
@@ -686,33 +686,33 @@ int TestAngleWidget3D( int argc, char *argv[] )
   vtkSmartPointer< vtkRenderWindow > renWin = vtkSmartPointer< vtkRenderWindow >::New();
   renWin->AddRenderer(ren1);
 
-  vtkSmartPointer< vtkRenderWindowInteractor > iren 
+  vtkSmartPointer< vtkRenderWindowInteractor > iren
     = vtkSmartPointer< vtkRenderWindowInteractor >::New();
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
   //
-  vtkSmartPointer< vtkPolyDataMapper > mapper 
+  vtkSmartPointer< vtkPolyDataMapper > mapper
     = vtkSmartPointer< vtkPolyDataMapper >::New();
   mapper->SetInputConnection(ss->GetOutputPort());
   vtkSmartPointer< vtkActor > actor = vtkSmartPointer< vtkActor >::New();
   actor->SetMapper(mapper);
 
   // Create the widget and its representation
-  vtkSmartPointer< vtkPointHandleRepresentation3D > handle 
+  vtkSmartPointer< vtkPointHandleRepresentation3D > handle
     = vtkSmartPointer< vtkPointHandleRepresentation3D >::New();
   handle->GetProperty()->SetColor(1,0,0);
-  vtkSmartPointer< vtkAngleRepresentation3D > rep 
+  vtkSmartPointer< vtkAngleRepresentation3D > rep
     = vtkSmartPointer< vtkAngleRepresentation3D >::New();
   rep->SetHandleRepresentation(handle);
 
-  vtkSmartPointer< vtkAngleWidget > widget 
+  vtkSmartPointer< vtkAngleWidget > widget
     = vtkSmartPointer< vtkAngleWidget >::New();
   widget->SetInteractor(iren);
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-  vtkSmartPointer< vtkAngleCallback > mcbk 
+  vtkSmartPointer< vtkAngleCallback > mcbk
     = vtkSmartPointer< vtkAngleCallback >::New();
   mcbk->Rep = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,mcbk);
@@ -731,7 +731,7 @@ int TestAngleWidget3D( int argc, char *argv[] )
   widget->On();
   renWin->Render();
 
-  return vtkTesting::InteractorEventLoop( 
+  return vtkTesting::InteractorEventLoop(
       argc, argv, iren, TestAngleWidget3DEventLog );
 }
 

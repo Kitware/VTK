@@ -21,7 +21,7 @@
 // then any modifications to the matrix will automatically be reflected in
 // the output of the filter.
 // .SECTION See Also
-// vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform  
+// vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform
 
 #ifndef __vtkMatrixToHomogeneousTransform_h
 #define __vtkMatrixToHomogeneousTransform_h

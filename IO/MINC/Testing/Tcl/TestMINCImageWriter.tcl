@@ -33,7 +33,7 @@ if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    vtkMINCImageWriter minc2
    minc2 SetImageAttributes attributes
    minc2 SetInputConnection [reader GetOutputPort]
-   minc2 SetFileName "$dir/minc2.mnc"    
+   minc2 SetFileName "$dir/minc2.mnc"
 
    vtkMINCImageWriter minc3
    minc3 SetImageAttributes attributes
@@ -44,7 +44,7 @@ if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    minc1 Write
    minc2 Write
    minc3 Write
-   
+
    vtkMINCImageReader reader2
    reader2 SetFileName "$dir/minc3.mnc"
    reader2 RescaleRealValuesOn

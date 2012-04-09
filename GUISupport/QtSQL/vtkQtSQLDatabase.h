@@ -53,7 +53,7 @@ public:
   // Description:
   // Close the connection to the database.
   virtual void Close();
-  
+
   // Description:
   // Return whether the database has an open connection
   virtual bool IsOpen();
@@ -61,11 +61,11 @@ public:
   // Description:
   // Return an empty query on this database.
   virtual vtkSQLQuery* GetQueryInstance();
-  
+
   // Description:
   // Get the list of tables from the database
   vtkStringArray* GetTables();
-  
+
   // Description:
   // Get the list of fields for a particular table
   vtkStringArray* GetRecord(const char *table);
@@ -75,7 +75,7 @@ public:
   // Note that this is mainly for use with the VTK parallel server.
   // Serial VTK developers should prefer to use GetRecord() instead.
   vtkStringArray* GetColumns();
-  
+
   // Description:
   // Set the table used by GetColumns()
   // Note that this is mainly for use with the VTK parallel server.
@@ -89,11 +89,11 @@ public:
   // Description:
   // Did the last operation generate an error
   bool HasError();
-  
+
   // Description:
   // Get the last error text from the database
   const char* GetLastErrorText();
-  
+
   // Description:
   // String representing Qt database type (e.g. "mysql").
   vtkGetStringMacro(DatabaseType);
@@ -123,13 +123,13 @@ public:
   // The port used for connecting to the database.
   vtkSetClampMacro(Port, int, 0, VTK_INT_MAX);
   vtkGetMacro(Port, int);
-  
+
   // Description:
   // Create a the proper subclass given a URL.
   // The URL format for SQL databases is a true URL of the form:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
   static vtkSQLDatabase* CreateFromURL( const char* URL );
-  
+
   // Description:
   // Get the URL of the database.
   virtual vtkStdString GetURL();
@@ -137,7 +137,7 @@ public:
 protected:
   vtkQtSQLDatabase();
   ~vtkQtSQLDatabase();
-  
+
   char* DatabaseType;
   char* HostName;
   char* UserName;
@@ -150,24 +150,24 @@ protected:
   friend class vtkQtSQLQuery;
 
   // Description:
-  // Overridden to determine connection parameters given the URL. 
+  // Overridden to determine connection parameters given the URL.
   // This is called by CreateFromURL() to initialize the instance.
   // Look at CreateFromURL() for details about the URL format.
   virtual bool ParseURL(const char* url);
 private:
-  
+
   // Storing the tables in the database, this array
   // is accessible through GetTables() method
   vtkStringArray *myTables;
-  
+
   // Storing the currect record list from any one
   // of the tables in the database, this array is
   // accessible through GetRecord(const char *table)
   vtkStringArray *currentRecord;
-  
+
   // Used to assign unique identifiers for database instances
   static int id;
-  
+
   vtkQtSQLDatabase(const vtkQtSQLDatabase &); // Not implemented.
   void operator=(const vtkQtSQLDatabase &); // Not implemented.
 };

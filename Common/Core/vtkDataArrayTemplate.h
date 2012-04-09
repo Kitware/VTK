@@ -238,7 +238,7 @@ public:
   // Description:
   // Returns a vtkArrayIteratorTemplate<T>.
   virtual vtkArrayIterator* NewIterator();
-  
+
   // Description:
   // Return the indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value);

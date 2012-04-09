@@ -69,8 +69,8 @@ public:
   // Description:
   // Methods for activating this widget. Note that the widget representation
   // must be specified or the widget will not appear.
-  // ProcessEvents (On by default) must be On for Enabled widget to respond 
-  // to interaction. If ProcessEvents is Off, enabling/disabling a widget 
+  // ProcessEvents (On by default) must be On for Enabled widget to respond
+  // to interaction. If ProcessEvents is Off, enabling/disabling a widget
   // merely affects the visibility of the representation.
   virtual void SetEnabled(int);
 
@@ -88,7 +88,7 @@ public:
   // the user to override the default event bindings.
   vtkWidgetEventTranslator *GetEventTranslator()
     {return this->EventTranslator;}
-  
+
   // Description:
   // Create the default widget representation if one is not set. The
   // representation defines the geometry of the widget (i.e., how it appears)
@@ -121,7 +121,7 @@ public:
       this->CreateDefaultRepresentation();
       return this->WidgetRep;
     }
-  
+
   // Description:
   // Turn on or off the management of the cursor. Cursor management is
   // typically disabled for subclasses when composite widgets are
@@ -134,7 +134,7 @@ public:
 
   // Description:
   // Override the superclass method. This will automatically change the
-  // priority of the widget. Unlike the superclass documentation, no 
+  // priority of the widget. Unlike the superclass documentation, no
   // methods such as SetInteractor to null and reset it etc. are necessary
   virtual void SetPriority( float );
 

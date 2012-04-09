@@ -62,7 +62,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
 
   if (this->RemoveMapping(attributeName))
     {
-    vtkWarningMacro("Replacing existsing mapping for attribute " 
+    vtkWarningMacro("Replacing existsing mapping for attribute "
       << attributeName);
     }
 
@@ -85,7 +85,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
 
   if (this->RemoveMapping(attributeName.str().c_str()))
     {
-    vtkWarningMacro("Replacing existsing mapping for attribute " 
+    vtkWarningMacro("Replacing existsing mapping for attribute "
       << attributeName);
     }
 
@@ -195,6 +195,6 @@ void vtkGenericVertexAttributeMapping::PrintSelf(ostream& os, vtkIndent indent)
       << iter->ArrayName.c_str() << ", "
       << iter->FieldAssociation << ", "
       << iter->Component << endl;
-    } 
+    }
 }
 

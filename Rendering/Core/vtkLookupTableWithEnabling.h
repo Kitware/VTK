@@ -14,11 +14,11 @@
 =========================================================================*/
 // .NAME vtkLookupTableWithEnabling - A lookup table that allows for an
 // optional array to be provided that specifies which scalars to "enable" and
-// which to "disable".  
+// which to "disable".
 //
 // .SECTION Description
 // vtkLookupTableWithEnabling "disables" or "grays out" output colors
-// based on whether the given value in EnabledArray is "0" or not. 
+// based on whether the given value in EnabledArray is "0" or not.
 //
 //
 // .SECTION Caveats
@@ -39,26 +39,26 @@ class VTKRENDERINGCORE_EXPORT vtkLookupTableWithEnabling : public vtkLookupTable
 {
 public:
   static vtkLookupTableWithEnabling *New();
-  
+
   vtkTypeMacro(vtkLookupTableWithEnabling,vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // This must be set before MapScalars() is called.
   // Indices of this array must map directly to those in the scalars array
-  // passed to MapScalars(). 
-  // Values of 0 in the array indicate the color should be desaturatated. 
+  // passed to MapScalars().
+  // Values of 0 in the array indicate the color should be desaturatated.
   vtkGetObjectMacro(EnabledArray,vtkDataArray);
   virtual void SetEnabledArray(vtkDataArray *enabledArray);
 
   // Description:
-  // Map a set of scalars through the lookup table. 
+  // Map a set of scalars through the lookup table.
   void MapScalarsThroughTable2(void *input, unsigned char *output,
                                int inputDataType, int numberOfValues,
                                int inputIncrement, int outputIncrement);
 
   // Description:
-  // A convenience method for taking a color and desaturating it.  
+  // A convenience method for taking a color and desaturating it.
   virtual void DisableColor(unsigned char r, unsigned char g, unsigned char b,
                    unsigned char *rd, unsigned char *gd, unsigned char *bd);
 
@@ -67,7 +67,7 @@ protected:
   ~vtkLookupTableWithEnabling();
 
   vtkDataArray *EnabledArray;
-  
+
 private:
   vtkLookupTableWithEnabling(const vtkLookupTableWithEnabling&);  // Not implemented.
   void operator=(const vtkLookupTableWithEnabling&);  // Not implemented.

@@ -40,13 +40,13 @@ public:
   // input.  Maximum also specifies the maximum of the Saturation.
   vtkSetMacro(Maximum,double);
   vtkGetMacro(Maximum,double);
-  
+
 protected:
   vtkImageRGBToHSV();
   ~vtkImageRGBToHSV() {};
 
   double Maximum;
-  
+
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:

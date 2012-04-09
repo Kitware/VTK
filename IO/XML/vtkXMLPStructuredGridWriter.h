@@ -38,25 +38,25 @@ public:
   static vtkXMLPStructuredGridWriter* New();
   vtkTypeMacro(vtkXMLPStructuredGridWriter,vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
   vtkStructuredGrid* GetInput();
   //ETX
-  
+
 protected:
   vtkXMLPStructuredGridWriter();
   ~vtkXMLPStructuredGridWriter();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
   const char* GetDefaultFileExtension();
-  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter(); 
+  vtkXMLStructuredDataWriter* CreateStructuredPieceWriter();
   void WritePData(vtkIndent indent);
-  
+
 private:
   vtkXMLPStructuredGridWriter(const vtkXMLPStructuredGridWriter&);  // Not implemented.
   void operator=(const vtkXMLPStructuredGridWriter&);  // Not implemented.

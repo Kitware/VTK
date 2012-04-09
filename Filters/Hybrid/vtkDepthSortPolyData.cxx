@@ -47,7 +47,7 @@ vtkDepthSortPolyData::vtkDepthSortPolyData()
 vtkDepthSortPolyData::~vtkDepthSortPolyData()
 {
   this->Transform->Delete();
-  
+
   if ( this->Camera )
     {
     this->Camera->Delete();
@@ -76,8 +76,8 @@ typedef struct _vtkSortValues {
   vtkIdType cellId;
 } vtkSortValues;
 
-extern "C" 
-{  
+extern "C"
+{
   int vtkCompareBackToFront(const void *val1, const void *val2)
   {
     if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
@@ -95,7 +95,7 @@ extern "C"
   }
 }
 
-extern "C" 
+extern "C"
 {
   int vtkCompareFrontToBack(const void *val1, const void *val2)
   {
@@ -144,7 +144,7 @@ int vtkDepthSortPolyData::RequestData(
   int type, npts, subId;
   vtkIdType newId;
   vtkIdType *pts;
-  
+
   // Initialize
   //
   vtkDebugMacro(<<"Sorting polygonal data");
@@ -165,7 +165,7 @@ int vtkDepthSortPolyData::RequestData(
       vtkErrorMacro(<<"Need a camera to sort");
       return 0;
       }
-  
+
     this->ComputeProjectionVector(vector, origin);
     }
   cell=vtkGenericCell::New();
@@ -218,12 +218,12 @@ int vtkDepthSortPolyData::RequestData(
   // Sort the depths
   if ( this->Direction == VTK_DIRECTION_FRONT_TO_BACK )
     {
-    qsort((void *)depth, numCells, sizeof(vtkSortValues), 
+    qsort((void *)depth, numCells, sizeof(vtkSortValues),
           vtkCompareFrontToBack);
     }
   else
     {
-    qsort((void *)depth, numCells, sizeof(vtkSortValues), 
+    qsort((void *)depth, numCells, sizeof(vtkSortValues),
           vtkCompareBackToFront);
     }
   this->UpdateProgress(0.60);
@@ -265,7 +265,7 @@ int vtkDepthSortPolyData::RequestData(
     sortScalars->Delete();
     }
 
-  // Clean up and get out    
+  // Clean up and get out
   tmpInput->Delete();
   delete [] depth;
   cell->Delete();
@@ -274,17 +274,17 @@ int vtkDepthSortPolyData::RequestData(
   return 1;
 }
 
-void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3], 
+void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3],
                                                    double origin[3])
 {
   double *focalPoint = this->Camera->GetFocalPoint();
   double *position = this->Camera->GetPosition();
- 
+
   // If a camera is present, use it
   if ( !this->Prop3D )
     {
     for(int i=0; i<3; i++)
-      { 
+      {
       vector[i] = focalPoint[i] - position[i];
       origin[i] = position[i];
       }
@@ -308,7 +308,7 @@ void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3],
     this->Transform->TransformPoint(focalPt,focalPt);
     this->Transform->TransformPoint(pos,pos);
 
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       vector[i] = focalPt[i] - pos[i];
       origin[i] = pos[i];
@@ -320,7 +320,7 @@ void vtkDepthSortPolyData::ComputeProjectionVector(double vector[3],
 unsigned long int vtkDepthSortPolyData::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
- 
+
   if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
     {
     unsigned long time;
@@ -373,16 +373,16 @@ void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Front To Back";
     }
-  else 
+  else
     {
     os << "Specified Direction: ";
-    os << "(" << this->Vector[0] << ", " << this->Vector[1] << ", " 
+    os << "(" << this->Vector[0] << ", " << this->Vector[1] << ", "
        << this->Vector[2] << ")\n";
     os << "Specified Origin: ";
-    os << "(" << this->Origin[0] << ", " << this->Origin[1] << ", " 
+    os << "(" << this->Origin[0] << ", " << this->Origin[1] << ", "
        << this->Origin[2] << ")\n";
     }
-  
+
   os << indent << "Depth Sort Mode: ";
   if ( this->DepthSortMode == VTK_SORT_FIRST_POINT )
     {
@@ -392,10 +392,10 @@ void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Bounding Box Center" << endl;
     }
-  else 
+  else
     {
     os << "Paramteric Center" << endl;
     }
-  
+
   os << indent << "Sort Scalars: " << (this->SortScalars ? "On\n" : "Off\n");
 }

@@ -28,7 +28,7 @@ class vtkObjectFactory;
 
 class VTKCOMMONCORE_EXPORT vtkOverrideInformation : public vtkObject
 {
-public: 
+public:
   static vtkOverrideInformation* New();
   vtkTypeMacro(vtkOverrideInformation,vtkObject);
   // Description:
@@ -37,28 +37,28 @@ public:
 
   // Description:
   // Returns the name of the class being overriden.  For example,
-  // if you had a factory that provided an override for 
+  // if you had a factory that provided an override for
   // vtkVertex, then this funciton would return "vtkVertex"
-  const char* GetClassOverrideName() 
-    { 
-      return this->ClassOverrideName; 
+  const char* GetClassOverrideName()
+    {
+      return this->ClassOverrideName;
     }
-  
+
   // Description:
   // Returns the name of the class that will override the class.
   // For example, if you had a factory that provided an override for
   // vtkVertex called vtkMyVertex, then this would return "vtkMyVertex"
   const char* GetClassOverrideWithName()
-    { 
-      return this->ClassOverrideWithName; 
+    {
+      return this->ClassOverrideWithName;
     }
-  
+
   // Description:
   // Return a human readable or GUI displayable description of this
-  // override.   
+  // override.
   const char* GetDescription()
-    { 
-      return this->Description; 
+    {
+      return this->Description;
     }
 
   // Description:
@@ -85,11 +85,11 @@ private:
 //BTX
   friend class vtkObjectFactory;
 //ETX
-  
+
   char* ClassOverrideName;
   char* ClassOverrideWithName;
   char* Description;
-  vtkObjectFactory* ObjectFactory;  
+  vtkObjectFactory* ObjectFactory;
 private:
   vtkOverrideInformation(const vtkOverrideInformation&);  // Not implemented.
   void operator=(const vtkOverrideInformation&);  // Not implemented.

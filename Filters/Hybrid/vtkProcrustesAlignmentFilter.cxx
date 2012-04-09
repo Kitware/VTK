@@ -57,9 +57,9 @@ static inline void Centroid(vtkPoints* pd, double *cp)
 {
   // Center point
   cp[0] = 0; cp[1] = 0; cp[2] = 0;
-  
+
   int np = pd->GetNumberOfPoints();
-  
+
   // Calculate center of shape
   for (int i = 0; i < np; i++)
     {
@@ -75,7 +75,7 @@ static inline void Centroid(vtkPoints* pd, double *cp)
 static inline double CentroidSize(vtkPoints* pd, double *cp)
 {
   Centroid(pd, cp);
-  
+
   double S = 0;
   for (int i = 0; i < pd->GetNumberOfPoints(); i++)
     {
@@ -83,7 +83,7 @@ static inline double CentroidSize(vtkPoints* pd, double *cp)
     pd->GetPoint(i, p);
     S += vtkMath::Distance2BetweenPoints(p,cp);
   }
-  
+
   return sqrt(S);
 }
 
@@ -119,9 +119,9 @@ static inline int NormaliseShape(vtkPoints* pd)
   double S = CentroidSize(pd, cp);
   if (S == 0)
     return 0;
-  
+
   double tp[3];
-  tp[0] = -cp[0]; tp[1] = -cp[1]; tp[2] = -cp[2]; 
+  tp[0] = -cp[0]; tp[1] = -cp[1]; tp[2] = -cp[2];
   TranslateShape(pd, tp);
   ScaleShape(pd, 1/S);
   return 1;
@@ -221,7 +221,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
 //  vtkPoints *mean_points = vtkPoints::New();
   this->MeanPoints->DeepCopy(input->GetPoints());
   // our initial estimate of the mean comes from the first example in the set
-  
+
 
   // Move to the mutual centroid of the data if requested.
   if (this->GetStartFromCentroid())
@@ -250,7 +250,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
     meanCentroid[0] /= N_SETS;
     meanCentroid[1] /= N_SETS;
     meanCentroid[2] /= N_SETS;
-  
+
     double translate[3];
     translate[0] = meanCentroid[0] - firstCentroid[0];
     translate[1] = meanCentroid[1] - firstCentroid[1];
@@ -269,12 +269,12 @@ int vtkProcrustesAlignmentFilter::RequestData(
   // to avoid shrinking
   if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY)
   {
-    if (!NormaliseShape(MeanPoints)) 
+    if (!NormaliseShape(MeanPoints))
       {
       vtkErrorMacro(<<"Centroid size zero");
       return 1;
       }
-    if (!NormaliseShape(first_mean)) 
+    if (!NormaliseShape(first_mean))
       {
       vtkErrorMacro(<<"Centroid size zero");
       return 1;
@@ -290,7 +290,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
   int converged=0; // bool converged=false
   int iterations=0;
   const int MAX_ITERATIONS=5;
-  double difference; 
+  double difference;
   double point[3],p[3],p2[3];
   double outPoint[3];
   do { // (while not converged)
@@ -338,7 +338,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
 
     // align the new mean with the fixed mean if the transform
     // is similarity or rigidbody. It is not yet decided what to do with affine
-    if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY || 
+    if (this->LandmarkTransform->GetMode() == VTK_LANDMARK_SIMILARITY ||
         this->LandmarkTransform->GetMode() == VTK_LANDMARK_RIGIDBODY){
       this->LandmarkTransform->SetSourceLandmarks(new_mean);
       this->LandmarkTransform->SetTargetLandmarks(first_mean);
@@ -377,7 +377,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
     // test for convergence
     iterations++;
     vtkDebugMacro( << "Difference after " << iterations << " iteration(s) is: " << difference);
-    if(difference<1e-6 || iterations>=MAX_ITERATIONS) 
+    if(difference<1e-6 || iterations>=MAX_ITERATIONS)
       {
       converged=1; // true
       }
@@ -387,13 +387,13 @@ int vtkProcrustesAlignmentFilter::RequestData(
     // Procrustes shouldn't need more than 2 or 3 iterations but things could go wrong
     // so we impose an iteration limit to avoid getting stuck in an infinite loop.
 
-  } while(!converged);  
+  } while(!converged);
 
   if(iterations>=MAX_ITERATIONS)
     {
     vtkDebugMacro( << "Procrustes did not converge in  " << MAX_ITERATIONS << " iterations! Objects may not be aligned. Difference = " <<
                    difference);
-    // we don't throw an Error here since the shapes most probably *are* aligned, but the 
+    // we don't throw an Error here since the shapes most probably *are* aligned, but the
     // numerical precision is worse than our convergence test anticipated.
     }
   else
@@ -416,6 +416,6 @@ void vtkProcrustesAlignmentFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   this->LandmarkTransform->PrintSelf(os,indent.GetNextIndent());
   this->MeanPoints->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "Start From Centroid: " 
+  os << indent << "Start From Centroid: "
      << (this->StartFromCentroid ? "On\n" : "Off\n");
 }

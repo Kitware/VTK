@@ -16,8 +16,8 @@
 
 // .SECTION Description
 // vtkVolumeMapper is the abstract definition of a volume mapper for regular
-// rectilinear data (vtkImageData).  Several  basic types of volume mappers 
-// are supported. 
+// rectilinear data (vtkImageData).  Several  basic types of volume mappers
+// are supported.
 
 // .SECTION see also
 // vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
@@ -70,7 +70,7 @@ public:
   void SetBlendModeToAdditive()
     { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
   vtkGetMacro( BlendMode, int );
-  
+
   // Description:
   // Turn On/Off orthogonal cropping. (Clipping planes are
   // perpendicular to the coordinate axes.)
@@ -86,34 +86,34 @@ public:
   vtkGetVectorMacro(  CroppingRegionPlanes, double, 6 );
 
   // Description:
-  // Get the cropping region planes in voxels. Only valid during the 
+  // Get the cropping region planes in voxels. Only valid during the
   // rendering process
   vtkGetVectorMacro( VoxelCroppingRegionPlanes, double, 6 );
-  
+
   // Description:
   // Set the flags for the cropping regions. The clipping planes divide the
-  // volume into 27 regions - there is one bit for each region. The regions 
-  // start from the one containing voxel (0,0,0), moving along the x axis 
-  // fastest, the y axis next, and the z axis slowest. These are represented 
-  // from the lowest bit to bit number 27 in the integer containing the 
-  // flags. There are several convenience functions to set some common 
-  // configurations - subvolume (the default), fence (between any of the 
-  // clip plane pairs), inverted fence, cross (between any two of the 
+  // volume into 27 regions - there is one bit for each region. The regions
+  // start from the one containing voxel (0,0,0), moving along the x axis
+  // fastest, the y axis next, and the z axis slowest. These are represented
+  // from the lowest bit to bit number 27 in the integer containing the
+  // flags. There are several convenience functions to set some common
+  // configurations - subvolume (the default), fence (between any of the
+  // clip plane pairs), inverted fence, cross (between any two of the
   // clip plane pairs) and inverted cross.
   vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
   vtkGetMacro( CroppingRegionFlags, int );
-  void SetCroppingRegionFlagsToSubVolume() 
+  void SetCroppingRegionFlagsToSubVolume()
     {this->SetCroppingRegionFlags( VTK_CROP_SUBVOLUME );};
-  void SetCroppingRegionFlagsToFence() 
+  void SetCroppingRegionFlagsToFence()
     {this->SetCroppingRegionFlags( VTK_CROP_FENCE );};
-  void SetCroppingRegionFlagsToInvertedFence() 
+  void SetCroppingRegionFlagsToInvertedFence()
     {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_FENCE );};
-  void SetCroppingRegionFlagsToCross() 
+  void SetCroppingRegionFlagsToCross()
     {this->SetCroppingRegionFlags( VTK_CROP_CROSS );};
-  void SetCroppingRegionFlagsToInvertedCross() 
+  void SetCroppingRegionFlagsToInvertedCross()
     {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
 
-//BTX  
+//BTX
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -127,8 +127,8 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
-  
-  enum 
+
+  enum
   {
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND,
@@ -150,9 +150,9 @@ protected:
   double               VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
-  
+
   virtual int FillInputPortInformation(int, vtkInformation*);
-  
+
 private:
   vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.
   void operator=(const vtkVolumeMapper&);  // Not implemented.

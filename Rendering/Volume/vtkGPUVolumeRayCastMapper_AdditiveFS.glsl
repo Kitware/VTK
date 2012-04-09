@@ -48,7 +48,7 @@ void trace(void)
   float sumValue=initialValue();
   bool inside=true;
   vec4 sample;
-  
+
   float t=0.0;
   // We NEED two nested while loops. It is trick to work around hardware
   // limitation about the maximum number of loops.
@@ -57,12 +57,12 @@ void trace(void)
     while(inside)
       {
       sample=texture3D(dataSetTexture,pos);
-      
+
       vec4 opacity=texture1D(opacityTexture,sample.r);
       sumValue=sumValue+opacity.a*sample.r;
       pos=pos+rayDir;
       t+=1.0;
-      
+
       // yes, t<tMax && all(greaterThanEqual(pos,lowBounds))
       // && all(lessThanEqual(pos,highBounds));
       // looks better but the latest nVidia 177.80 has a bug...
@@ -74,6 +74,6 @@ void trace(void)
 
   float clampedValue=clamp(sumValue,0.0,1.0);
   vec4 color=vec4(clampedValue,clampedValue,clampedValue,1.0); // opaque
-  
+
   writeColorAndSumScalar(color,sumValue);
 }

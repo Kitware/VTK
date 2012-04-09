@@ -54,8 +54,8 @@ void vtkGenerateIndexArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 int vtkGenerateIndexArray::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
@@ -66,8 +66,8 @@ int vtkGenerateIndexArray::ProcessRequest(
 }
 
 int vtkGenerateIndexArray::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -76,7 +76,7 @@ int vtkGenerateIndexArray::RequestDataObject(
     return 0;
     }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
     // for each output
@@ -84,8 +84,8 @@ int vtkGenerateIndexArray::RequestDataObject(
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
@@ -108,7 +108,7 @@ int vtkGenerateIndexArray::RequestData(
     vtkErrorMacro(<< "No array name defined.");
     return 0;
     }
-  
+
   // Make a shallow-copy of our input ...
   vtkDataObject* const input = vtkDataObject::GetData(inputVector[0]);
   vtkDataObject* const output = vtkDataObject::GetData(outputVector);
@@ -216,5 +216,5 @@ int vtkGenerateIndexArray::RequestData(
     }
 
   return 1;
-} 
+}
 

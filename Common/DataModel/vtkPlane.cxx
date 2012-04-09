@@ -35,7 +35,7 @@ double vtkPlane::DistanceToPlane(double x[3])
   return this->DistanceToPlane(x, this->GetNormal(), this->GetOrigin());
 }
 
-void vtkPlane::ProjectPoint(double x[3], double origin[3], 
+void vtkPlane::ProjectPoint(double x[3], double origin[3],
                             double normal[3], double xproj[3])
 {
   double t, xo[3];
@@ -60,7 +60,7 @@ void vtkPlane::ProjectVector(double v[3], double origin[3], double normal[3],
                              double vproj[3])
 {
   (void)origin;
-  
+
   // This function uses this equation:
   // projected = vector - (vector dot Normal)Normal
   // Where 'Normal' is unit length
@@ -95,7 +95,7 @@ void vtkPlane::Push(double distance)
   this->Modified();
 }
 
-// Project a point x onto plane defined by origin and normal. The 
+// Project a point x onto plane defined by origin and normal. The
 // projected point is returned in xproj. NOTE : normal NOT required to
 // have magnitude 1.
 void vtkPlane::GeneralizedProjectPoint(double x[3], double origin[3],
@@ -132,8 +132,8 @@ void vtkPlane::GeneralizedProjectPoint(double x[3], double xproj[3])
 // Evaluate plane equation for point x[3].
 double vtkPlane::EvaluateFunction(double x[3])
 {
-  return ( this->Normal[0]*(x[0]-this->Origin[0]) + 
-           this->Normal[1]*(x[1]-this->Origin[1]) + 
+  return ( this->Normal[0]*(x[0]-this->Origin[0]) +
+           this->Normal[1]*(x[1]-this->Origin[1]) +
            this->Normal[2]*(x[2]-this->Origin[2]) );
 }
 
@@ -145,34 +145,34 @@ void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
     n[i] = this->Normal[i];
     }
 }
- 
+
 #define VTK_PLANE_TOL 1.0e-06
 
 // Given a line defined by the two points p1,p2; and a plane defined by the
 // normal n and point p0, compute an intersection. The parametric
-// coordinate along the line is returned in t, and the coordinates of 
+// coordinate along the line is returned in t, and the coordinates of
 // intersection are returned in x. A zero is returned if the plane and line
 // do not intersect between (0<=t<=1). If the plane and line are parallel,
 // zero is returned and t is set to VTK_LARGE_DOUBLE.
-int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3], 
+int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3],
                                double p0[3], double& t, double x[3])
 {
   double num, den, p21[3];
   double fabsden, fabstolerance;
 
   // Compute line vector
-  // 
+  //
   p21[0] = p2[0] - p1[0];
   p21[1] = p2[1] - p1[1];
   p21[2] = p2[2] - p1[2];
 
   // Compute denominator.  If ~0, line and plane are parallel.
-  // 
+  //
   num = vtkMath::Dot(n,p0) - ( n[0]*p1[0] + n[1]*p1[1] + n[2]*p1[2] ) ;
   den = n[0]*p21[0] + n[1]*p21[1] + n[2]*p21[2];
   //
   // If denominator with respect to numerator is "zero", then the line and
-  // plane are considered parallel. 
+  // plane are considered parallel.
   //
 
   // trying to avoid an expensive call to fabs()
@@ -224,9 +224,9 @@ void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Normal: (" << this->Normal[0] << ", " 
+  os << indent << "Normal: (" << this->Normal[0] << ", "
     << this->Normal[1] << ", " << this->Normal[2] << ")\n";
 
-  os << indent << "Origin: (" << this->Origin[0] << ", " 
+  os << indent << "Origin: (" << this->Origin[0] << ", "
     << this->Origin[1] << ", " << this->Origin[2] << ")\n";
 }

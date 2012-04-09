@@ -35,9 +35,9 @@ public:
   vtkTypeMacro(vtkQtTimePointUtility,vtkObject);
 
   static QDateTime TimePointToQDateTime(vtkTypeUInt64 time);
-  static vtkTypeUInt64 QDateTimeToTimePoint(QDateTime time);  
-  static vtkTypeUInt64 QDateToTimePoint(QDate date);  
-  static vtkTypeUInt64 QTimeToTimePoint(QTime time);  
+  static vtkTypeUInt64 QDateTimeToTimePoint(QDateTime time);
+  static vtkTypeUInt64 QDateToTimePoint(QDate date);
+  static vtkTypeUInt64 QTimeToTimePoint(QTime time);
 
 protected:
   vtkQtTimePointUtility() {};

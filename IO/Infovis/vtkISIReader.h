@@ -49,7 +49,7 @@ public:
   // Set/get the file to load
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
-  
+
   // Description:
   // Set/get the delimiter to be used for concatenating field data (default: ";")
   vtkGetStringMacro(Delimiter);
@@ -65,8 +65,8 @@ public:
   ~vtkISIReader();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   char* FileName;

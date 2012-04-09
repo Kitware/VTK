@@ -16,7 +16,7 @@
 // .SECTION Description
 // Writes debug/warning/error output to a log file instead of the console.
 // To use this class, instantiate it and then call SetInstance(this).
-// 
+//
 
 #ifndef __vtkFileOutputWindow_h
 #define __vtkFileOutputWindow_h
@@ -45,7 +45,7 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Turns on buffer flushing for the output 
+  // Turns on buffer flushing for the output
   // to the log file.
   vtkSetMacro(Flush, int);
   vtkGetMacro(Flush, int);
@@ -61,8 +61,8 @@ public:
   vtkBooleanMacro(Append, int);
 
 protected:
-  vtkFileOutputWindow(); 
-  virtual ~vtkFileOutputWindow(); 
+  vtkFileOutputWindow();
+  virtual ~vtkFileOutputWindow();
   void Initialize();
 
   char* FileName;

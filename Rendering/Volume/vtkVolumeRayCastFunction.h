@@ -16,7 +16,7 @@
 // .NAME vtkVolumeRayCastFunction - a superclass for ray casting functions
 
 // .SECTION Description
-// vtkVolumeRayCastFunction is a superclass for ray casting functions that 
+// vtkVolumeRayCastFunction is a superclass for ray casting functions that
 // can be used within a vtkVolumeRayCastMapper. This includes for example,
 // vtkVolumeRayCastCompositeFunction, vtkVolumeRayCastMIPFunction, and
 // vtkVolumeRayCastIsosurfaceFunction.
@@ -36,9 +36,9 @@ class vtkVolume;
 class vtkVolumeRayCastMapper;
 
 // Define a couple of structures we need to hold all the important information
-// This first structure hold the dynamic information - stuff that changes per 
+// This first structure hold the dynamic information - stuff that changes per
 // ray
-typedef struct 
+typedef struct
 {
   // These are the return values - RGBA
   float Color[4];
@@ -49,11 +49,11 @@ typedef struct
   float                        TransformedEnd[4];
   float                        TransformedDirection[4];
   float                        TransformedIncrement[3];
-  
+
   // The number of steps we want to take if this is
   // a ray caster that takes steps
   int                          NumberOfStepsToTake;
-  
+
   // The number of steps we actually take if this is
   // a ray caster that takes steps
   int                          NumberOfStepsTaken;
@@ -62,14 +62,14 @@ typedef struct
 
 // This second structure hold the static information - things that don't
 // change over the whole image
-typedef struct 
+typedef struct
 {
   // A pointer to the volume
   vtkVolume                   *Volume;
 
   // A pointer to the renderer
   vtkRenderer                 *Renderer;
-  
+
   // Matrices for switching from view to volume coordinate, and back
   float                        WorldToVoxelsMatrix[16];
   float                        VoxelsToWorldMatrix[16];
@@ -77,8 +77,8 @@ typedef struct
 
   float                       *ClippingPlane;
   int                          NumberOfClippingPlanes;
-  
-  // The camera thickness (distance between near and far) is necessary 
+
+  // The camera thickness (distance between near and far) is necessary
   // for computing sampling distance
   float                        CameraThickness;
 
@@ -116,12 +116,12 @@ typedef struct
   int                          ImageViewportSize[2];
   int                          ImageOrigin[2];
   unsigned char               *Image;
-  
+
   int                         *RowBounds;
 
   // Is a MIP ray cast function in use? This will control
-  // how subsegments of the ray are combined when non-subvolume 
-  // cropping is used. If maximize opacity is used, the color[3] 
+  // how subsegments of the ray are combined when non-subvolume
+  // cropping is used. If maximize opacity is used, the color[3]
   // value is used to find the max othersize the dynamicInfo->ScalarValue
   // value is used
   int                          MIPFunction;
@@ -139,7 +139,7 @@ public:
   // Do the basic initialization. This includes saving the parameters
   // passed in into local variables, as well as grabbing some useful
   // info from the volume property and normal encoder. This initialize
-  // routine is called once per render. It also calls the 
+  // routine is called once per render. It also calls the
   // SpecificFunctionInitialize of the subclass function.
   void FunctionInitialize( vtkRenderer *ren,
                            vtkVolume   *vol,

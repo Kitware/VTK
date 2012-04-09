@@ -21,7 +21,7 @@
 
 // .NAME vtkCompassRepresentation - provide a compass
 // .SECTION Description
-// This class is used to represent and render a compass.  
+// This class is used to represent and render a compass.
 
 
 #ifndef __vtkCompassRepresentation_h
@@ -62,7 +62,7 @@ public:
   vtkTypeMacro(vtkCompassRepresentation,
                        vtkContinuousValueWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Position the first end point of the slider. Note that this point is an
   // instance of vtkCoordinate, meaning that Point 1 can be specified in a
@@ -82,15 +82,15 @@ public:
   vtkCoordinate *GetPoint2Coordinate();
 
   // Description:
-  // Get the slider properties. The properties of the slider when selected 
+  // Get the slider properties. The properties of the slider when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(RingProperty,vtkProperty2D);
-  
+
   // Description:
   // Get the selection property. This property is used to modify the
   // appearance of selected objects (e.g., the slider).
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
-  
+
   // Description:
   // Set/Get the properties for the label and title text.
   vtkGetObjectMacro(LabelProperty,vtkTextProperty);
@@ -174,7 +174,7 @@ protected:
 
   vtkPolyDataMapper2D *BackdropMapper;
   vtkActor2D          *Backdrop;
-  
+
   vtkTextProperty     *LabelProperty;
   vtkTextActor        *LabelActor;
   vtkTextProperty     *StatusProperty;
@@ -196,7 +196,7 @@ protected:
   double Distance;
 
 private:
-  vtkCompassRepresentation(const vtkCompassRepresentation&); //Not implemented 
+  vtkCompassRepresentation(const vtkCompassRepresentation&); //Not implemented
   void operator=(const vtkCompassRepresentation&); //Not implemented
 };
 

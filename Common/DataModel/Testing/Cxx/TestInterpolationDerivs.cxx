@@ -106,7 +106,7 @@ int TestOneInterpolationDerivs()
 int TestInterpolationDerivs(int, char *[])
 {
   int r = 0;
-  
+
   // Subclasses of vtkCell3D
   //r += TestOneInterpolationDerivs<vtkEmptyCell>(); // not implemented
   //r += TestOneInterpolationDerivs<vtkGenericCell>(); // not implemented

@@ -85,20 +85,20 @@ public:
   virtual const char* GetTitleText();
 
   // Description:
-  // Get the slider properties. The properties of the slider when selected 
+  // Get the slider properties. The properties of the slider when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(SliderProperty,vtkProperty2D);
-  
+
   // Description:
-  // Get the properties for the tube and end caps. 
+  // Get the properties for the tube and end caps.
   vtkGetObjectMacro(TubeProperty,vtkProperty2D);
   vtkGetObjectMacro(CapProperty,vtkProperty2D);
-  
+
   // Description:
   // Get the selection property. This property is used to modify the appearance of
   // selected objects (e.g., the slider).
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
-  
+
   // Description:
   // Set/Get the properties for the label and title text.
   vtkGetObjectMacro(LabelProperty,vtkTextProperty);
@@ -143,21 +143,21 @@ protected:
   vtkPolyDataMapper2D *SliderMapper;
   vtkActor2D          *SliderActor;
   vtkProperty2D       *SliderProperty;
-  
+
   vtkCellArray        *TubeCells;
   vtkPolyData         *Tube;
   vtkTransformPolyDataFilter *TubeXForm;
   vtkPolyDataMapper2D *TubeMapper;
   vtkActor2D          *TubeActor;
   vtkProperty2D       *TubeProperty;
-  
+
   vtkCellArray        *CapCells;
   vtkPolyData         *Cap;
   vtkTransformPolyDataFilter *CapXForm;
   vtkPolyDataMapper2D *CapMapper;
   vtkActor2D          *CapActor;
   vtkProperty2D       *CapProperty;
-  
+
   vtkTextProperty     *LabelProperty;
   vtkTextMapper       *LabelMapper;
   vtkActor2D          *LabelActor;

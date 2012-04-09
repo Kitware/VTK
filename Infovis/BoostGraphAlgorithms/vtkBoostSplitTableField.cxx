@@ -35,7 +35,7 @@ public:
   typedef boost::char_separator<char> delimiter_t;
   typedef boost::tokenizer<delimiter_t> tokenizer_t;
   typedef std::vector<tokenizer_t*> tokenizers_t;
-  
+
   static void GenerateRows(const tokenizers_t& tokenizers, const unsigned int column_index, vtkVariantArray* input_row, vtkVariantArray* output_row, vtkTable* output_table)
   {
     if(column_index == tokenizers.size())
@@ -93,16 +93,16 @@ void vtkBoostSplitTableField::AddField(const char* field, const char* delimiters
 {
   assert(field);
   assert(delimiters);
-  
+
   this->Fields->InsertNextValue(field);
   this->Delimiters->InsertNextValue(delimiters);
-  
+
   this->Modified();
 }
 
 int vtkBoostSplitTableField::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkTable* const input = vtkTable::GetData(inputVector[0]);
@@ -142,7 +142,7 @@ int vtkBoostSplitTableField::RequestData(
   for(vtkIdType column = 0; column < input->GetNumberOfColumns(); ++column)
     {
     tokenizers.push_back(static_cast<implementation::tokenizer_t*>(0));
-    
+
     for(vtkIdType field = 0; field < this->Fields->GetNumberOfValues(); ++field)
       {
       if(this->Fields->GetValue(field) == input->GetColumn(column)->GetName())
@@ -161,7 +161,7 @@ int vtkBoostSplitTableField::RequestData(
     {
     vtkVariantArray* const input_row = input->GetRow(i);
     implementation::GenerateRows(tokenizers, 0, input_row, output_row, output);
-    
+
     double progress = static_cast<double>(i) / static_cast<double>(input->GetNumberOfRows());
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
     }

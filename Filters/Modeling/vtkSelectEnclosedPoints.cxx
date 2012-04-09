@@ -43,7 +43,7 @@ vtkSelectEnclosedPoints::vtkSelectEnclosedPoints()
   this->Tolerance = 0.001;
 
   this->InsideOutsideArray = NULL;
-  
+
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
   this->Cell = vtkGenericCell::New();
@@ -112,7 +112,7 @@ int vtkSelectEnclosedPoints::RequestData(
   marks->SetNumberOfValues(numPts);
   vtkIdType ptId;
   double x[3];
-  
+
   int abort=0;
   vtkIdType progressInterval=numPts/20+1;
   for ( ptId=0; ptId < numPts && !abort; ptId++ )
@@ -134,7 +134,7 @@ int vtkSelectEnclosedPoints::RequestData(
       marks->SetValue(ptId,(this->InsideOut?1:0));
       }
     }
-  
+
   // Copy all the input geometry and data to the output.
   output->CopyStructure(input);
   output->GetPointData()->PassData(input->GetPointData());
@@ -155,7 +155,7 @@ int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData *surface)
 {
   vtkPolyData *checker = vtkPolyData::New();
   checker->CopyStructure(surface);
-  
+
   vtkFeatureEdges *features = vtkFeatureEdges::New();
   features->SetInputData(checker);
   features->BoundaryEdgesOn();
@@ -163,11 +163,11 @@ int vtkSelectEnclosedPoints::IsSurfaceClosed(vtkPolyData *surface)
   features->ManifoldEdgesOff();
   features->FeatureEdgesOff();
   features->Update();
-  
+
   vtkIdType numCells = features->GetOutput()->GetNumberOfCells();
   features->Delete();
   checker->Delete();
-  
+
   if ( numCells > 0 )
     {
     return 0;
@@ -203,7 +203,7 @@ int vtkSelectEnclosedPoints::IsInside(vtkIdType inputPtId)
     {
     return 0;
     }
-  else 
+  else
     {
     return 1;
     }
@@ -234,7 +234,7 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
     {
     return 0;
     }
-  
+
   //  Perform in/out by shooting random rays. Multiple rays are fired
   //  to improve accuracy of the result.
   //
@@ -255,7 +255,7 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
 
   for (deltaVotes = 0, iterNumber = 1;
        (iterNumber < VTK_MAX_ITER) && (abs(deltaVotes) < VTK_VOTE_THRESHOLD);
-       iterNumber++) 
+       iterNumber++)
     {
     //  Define a random ray to fire.
     rayMag = 0.0;
@@ -289,7 +289,7 @@ int vtkSelectEnclosedPoints::IsInsideSurface(double x[3])
         numInts++;
         }
       } //for all candidate cells
-    
+
     // Count the result
     if ( (numInts % 2) == 0)
       {
@@ -387,7 +387,7 @@ void vtkSelectEnclosedPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Inside Out: "
      << (this->InsideOut ? "On\n" : "Off\n");
-  
+
   os << indent << "Tolerance: " << this->Tolerance << "\n";
 }
 

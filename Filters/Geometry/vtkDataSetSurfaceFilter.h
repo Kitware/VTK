@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkDataSetSurfaceFilter - Extracts outer (polygonal) surface.
 // .SECTION Description
-// vtkDataSetSurfaceFilter is a faster version of vtkGeometry filter, but it 
+// vtkDataSetSurfaceFilter is a faster version of vtkGeometry filter, but it
 // does not have an option to select bounds.  It may use more memory than
-// vtkGeometryFilter.  It only has one option: whether to use triangle strips 
+// vtkGeometryFilter.  It only has one option: whether to use triangle strips
 // when the input type is structured.
 
 // .SECTION See Also
@@ -68,9 +68,9 @@ public:
   vtkGetMacro(PieceInvariant, int);
 
   // Description:
-  // If on, the output polygonal dataset will have a celldata array that 
+  // If on, the output polygonal dataset will have a celldata array that
   // holds the cell index of the original 3D cell that produced each output
-  // cell. This is useful for cell picking. The default is off to conserve 
+  // cell. This is useful for cell picking. The default is off to conserve
   // memory. Note that PassThroughCellIds will be ignored if UseStrips is on,
   // since in that case each tringle strip can represent more than on of the
   // input cells.
@@ -154,7 +154,7 @@ protected:
   ~vtkDataSetSurfaceFilter();
 
   int UseStrips;
-  
+
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -204,7 +204,7 @@ protected:
   vtkIdType QuadHashTraversalIndex;
 
   vtkIdType *PointMap;
-  vtkIdType GetOutputPointId(vtkIdType inPtId, vtkDataSet *input, 
+  vtkIdType GetOutputPointId(vtkIdType inPtId, vtkDataSet *input,
                              vtkPoints *outPts, vtkPointData *outPD);
 //BTX
   class vtkEdgeInterpolationMap;
@@ -214,9 +214,9 @@ protected:
                                    vtkDataSet *input, vtkCell *cell,
                                    double pcoords[3], vtkPoints *outPts,
                                    vtkPointData *outPD);
-  
+
   vtkIdType NumberOfNewCells;
-  
+
   // Better memory allocation for faces (hash)
   void InitFastGeomQuadAllocation(vtkIdType numberOfCells);
   vtkFastGeomQuad* NewFastGeomQuad(int numPts);

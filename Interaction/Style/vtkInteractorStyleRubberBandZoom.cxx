@@ -42,10 +42,10 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
     {
     return;
     }
-  
+
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
-  this->EndPosition[1] = this->Interactor->GetEventPosition()[1];  
-  int *size = this->Interactor->GetRenderWindow()->GetSize();  
+  this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
+  int *size = this->Interactor->GetRenderWindow()->GetSize();
   if (this->EndPosition[0] > (size[0]-1))
     {
     this->EndPosition[0] = size[0]-1;
@@ -62,12 +62,12 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
     {
     this->EndPosition[1] = 0;
     }
-  
+
   vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);
-  
+
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
-  
+
   int min[2], max[2];
   min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
@@ -97,9 +97,9 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
     pixels[3*(i*size[0]+max[0])+1] = 255 ^ pixels[3*(i*size[0]+max[0])+1];
     pixels[3*(i*size[0]+max[0])+2] = 255 ^ pixels[3*(i*size[0]+max[0])+2];
     }
-  
+
   this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 1);
-  
+
   tmpPixelArray->Delete();
 }
 
@@ -110,21 +110,21 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
     return;
     }
   this->Moving = 1;
-  
+
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
-  
+
   this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
   this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
   this->EndPosition[0] = this->StartPosition[0];
   this->EndPosition[1] = this->StartPosition[1];
-  
+
   this->PixelArray->Initialize();
   this->PixelArray->SetNumberOfComponents(3);
   int *size = renWin->GetSize();
   this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
-  
+
   renWin->GetPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
-  
+
   this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
 }
 
@@ -151,7 +151,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   int *size = this->CurrentRenderer->GetSize();
   int *origin = this->CurrentRenderer->GetOrigin();
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
-  
+
   int min[2];
   double rbcenter[3];
   min[0] = this->StartPosition[0] < this->EndPosition[0] ?
@@ -162,7 +162,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   rbcenter[0] = min[0] + 0.5*width;
   rbcenter[1] = min[1] + 0.5*height;
   rbcenter[2] = 0;
-  
+
   this->CurrentRenderer->SetDisplayPoint(rbcenter);
   this->CurrentRenderer->DisplayToView();
   this->CurrentRenderer->ViewToWorld();
@@ -244,7 +244,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
       }
     cam->SetClippingRange(clippingRange);
     }
-  
+
   this->Interactor->Render();
 }
 

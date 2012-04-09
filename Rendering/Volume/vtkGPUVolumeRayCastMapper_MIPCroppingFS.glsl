@@ -46,7 +46,7 @@ void writeColorAndMaxScalar(vec4 sample,
   gl_FragData[0].g =sample.g * opacity.a;
   gl_FragData[0].b =sample.b * opacity.a;
   gl_FragData[0].a=opacity.a;
-  
+
   // max scalar framebuffer
   gl_FragData[1].r=maxValue;
   gl_FragData[1].g=0.0;

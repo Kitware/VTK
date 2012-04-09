@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkAnnotation.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -72,16 +72,16 @@ public:
   // The color for this annotation.
   // This is stored as a value between 0 and 1.
   static vtkInformationDoubleKey* OPACITY();
-  
+
   // Description:
   // An icon index for this annotation.
   static vtkInformationIntegerKey* ICON_INDEX();
 
   // Description:
-  // Whether or not this annotation is enabled. 
+  // Whether or not this annotation is enabled.
   // A value of 1 means enabled, 0 disabled.
   static vtkInformationIntegerKey* ENABLE();
-  
+
   // Description:
   // Whether or not this annotation is visible.
   static vtkInformationIntegerKey* HIDE();

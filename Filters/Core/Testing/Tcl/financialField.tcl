@@ -17,16 +17,16 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetDataSetTypeToPolyData
     #format: component#, arrayname, arraycomp, minArrayId, maxArrayId, normalize
     do2ds DefaultNormalizeOn
-    do2ds SetPointComponent 0 $xAxis 0 
+    do2ds SetPointComponent 0 $xAxis 0
     do2ds SetPointComponent 1 $yAxis 0 0 $size 1
-    do2ds SetPointComponent 2 $zAxis 0 
+    do2ds SetPointComponent 2 $zAxis 0
     do2ds Update
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInputConnection [do2ds GetOutputPort]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad DefaultNormalizeOn
-    fd2ad SetScalarComponent 0 $scalar 0 
+    fd2ad SetScalarComponent 0 $scalar 0
 
 # construct pipeline for original population
 vtkGaussianSplatter popSplatter

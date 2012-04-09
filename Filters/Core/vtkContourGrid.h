@@ -114,7 +114,7 @@ public:
   vtkBooleanMacro(UseScalarTree,int);
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -139,14 +139,14 @@ protected:
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
   vtkEdgeTable *EdgeTable;
-  
+
 private:
   vtkContourGrid(const vtkContourGrid&);  // Not implemented.
   void operator=(const vtkContourGrid&);  // Not implemented.
 };
 
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
+// Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
 inline void vtkContourGrid::SetValue(int i, double value)
 {this->ContourValues->SetValue(i,value);}

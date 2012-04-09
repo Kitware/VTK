@@ -21,7 +21,7 @@
 // vtkLogoWidget.
 
 // .SECTION See Also
-// vtkBorderWidget 
+// vtkBorderWidget
 
 
 #ifndef __vtkLogoWidget_h
@@ -51,9 +51,9 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkLogoRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:

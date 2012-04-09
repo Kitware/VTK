@@ -72,7 +72,7 @@ public:
   {
     typedef vtkPoolAllocator<H> other;
   };
-  
+
   pointer address(reference r) const
     {
       return &r;
@@ -81,7 +81,7 @@ public:
     {
       return &r;
     }
-  
+
   // Space for n Gs.
   // Comment from the norm:
   // Memory is allocated for `n' objects of type G but objects are not
@@ -90,9 +90,9 @@ public:
   pointer allocate(size_type n,
                    vtkPoolAllocator<void>::const_pointer VTK_NOT_USED(hint)=0)
     {
-      
+
     }
-  
+
   // Deallocate n Gs, don't destroy.
   // Comment from the norm:
   // All `n' G objects in the area pointed by `p' must be destroyed prior to
@@ -104,10 +104,10 @@ public:
     {
       // Pre-conditions
       assert("p_exists" && p!=0);
-      
-      
+
+
     }
-  
+
   // Comment from the norm:
   // The largest value that can meaningfully be passed to allocate().
   size_type max_size() const throw()
@@ -115,7 +115,7 @@ public:
       // Implementation is the same than in gcc:
       return size_t(-1)/sizeof(G);
     }
-  
+
   // Default constructor.
   vtkPoolAllocator() throw()
     {
@@ -126,19 +126,19 @@ public:
     {
       assert("check: NOT USED" & 0);
     }
-  
+
   // Destructor.
   ~vtkPoolAllocator() throw()
     {
     }
- 
+
   // Return the size of the chunks.
   // \post positive_result: result>0
   static int GetChunkSize()
     {
       return this.Allocator.GetChunkSize();
     }
-  
+
   // Set the chunk size.
   // \pre positive_size: size>0.
   // \post is_set: value==GetChunkSize()
@@ -146,24 +146,24 @@ public:
     {
       // Pre-conditions.
       assert("pre: positive_size" && size>0);
-      
+
       this.Allocator.SeChunkSize(size);
-      
+
       // Post-conditions.
       assert("post: is_set" && value==this.GetChunkSize());
     }
-  
+
   // Initialize *p by val.
   // Comment from the norm:
   // Effect: new((void *)p) G(val)
   void construct(pointer p,
                  const G &val);
-  
+
   // Destroy *p but don't deallocate.
   // Comment from the norm:
   // Effect: ((G*)p)->~G()
   void destroy(pointer p);
- 
+
 protected:
   static vtkPoolManager<G> Allocator;
 };
@@ -205,7 +205,7 @@ public:
       this->Chunks=0;
       this->ChunkSize=VTK_DEFAULT_CHUNK_SIZE;
     }
-  
+
   // Initialize the pool with a set of empty chunks.
   void Init()
     {
@@ -215,13 +215,13 @@ public:
         this->Chunks->reserve(VTK_DEFAULT_NUMBER_OF_CHUNKS);
         }
     }
-  
+
   // Is the pool initialized?
   int IsInitialized()
     {
       return this->Chunks!=0;
     }
-  
+
   // Return a new `G' object.
   // \pre is_initialized: IsInitialized()
   G *Allocate()
@@ -267,7 +267,7 @@ public:
         }
       return result;
     }
-  
+
   // Destructor.
   ~vtkPoolManager()
     {
@@ -283,14 +283,14 @@ public:
         delete Chunks;
         }
     }
-  
+
   // Return the size of the chunks.
   // \post positive_result: result>0
   unsigned int GetChunkSize()
     {
       return this->ChunkSize;
     }
-  
+
   // Set the chunk size.
   // \pre not_yet_initialized: !IsInitialized()
   // \pre positive_size: size>0.
@@ -300,9 +300,9 @@ public:
       // Pre-conditions.
       assert("pre: not_yet_initialized" && !this->IsInitialized());
       assert("pre: positive_size" && size>0);
-      
+
       this->ChunkSize=size;
-      
+
       // Post-conditions.
       assert("post: is_set" && size==this->GetChunkSize());
     }
@@ -331,25 +331,25 @@ public:
   // VTK_BIQUADRATIC_TRIANGLE
   // VTK_QUADRATIC_LINEAR_QUAD
   vtkIdType Type;
-  
+
   // Dataset point Ids that form the surfel.
   vtkIdType Points[VTK_MAXIMUM_NUMBER_OF_POINTS];
-  
+
   // Number of points defining the cell.
   // For cells with a fixed number of points like triangle, it looks redundant.
   // However, it is useful for polygon (pentagonal or hexagonal face).
   vtkIdType NumberOfPoints;
-  
+
   // Index of the point with the smallest dataset point Id.
   // SmallestIdx>=0 && SmallestIdx<NumberOfPoints.
   // Its dataset point Id is given by Points[SmallestIdx]
   vtkIdType SmallestIdx;
-  
+
   // Id of the 3D cell this surfel belongs to,
   // -1 if it belongs to more than one (it means the surfel is not on the
   // boundary of the dataset, so it will be not visible.
   vtkIdType Cell3DId;
-  
+
   // A surfel is also an element of a one-way linked list: in the hashtable,
   // each key entry is a one-way linked list of Surfels.
   vtkSurfel *Next;
@@ -373,7 +373,7 @@ public:
       assert("pre: positive_number" && numberOfPoints>0);
       assert("pre: pool_exists" && pool!=0);
       assert("pre: initialized_pool" && pool->IsInitialized());
-      
+
       this->Pool=pool;
       int i=0;
       int c=numberOfPoints;
@@ -384,7 +384,7 @@ public:
         }
     }
   std::vector<vtkSurfel *> HashTable;
-  
+
   // Add a face defined by its cell type `faceType', its number of points,
   // its list of points and the cellId of the 3D cell it belongs to.
   // \pre valid_range: numberOfPoints>=0 && numberOfPoints<=VTK_MAXIMUM_NUMBER_OF_POINTS
@@ -394,14 +394,14 @@ public:
                   vtkIdType points[VTK_MAXIMUM_NUMBER_OF_POINTS])
     {
       assert("pre: valid_range" && numberOfPoints>=0 && numberOfPoints<=VTK_MAXIMUM_NUMBER_OF_POINTS);
-      
+
       // Compute the smallest id among the corner points.
       int smallestIdx;
       vtkIdType smallestId;
       int i;
-      
+
       int numberOfCornerPoints;
-      
+
       switch(faceType)
         {
         case VTK_QUADRATIC_TRIANGLE:
@@ -417,7 +417,7 @@ public:
           numberOfCornerPoints=numberOfPoints;
           break;
         }
-      
+
       smallestIdx=0;
       smallestId=points[smallestIdx];
       i=1;
@@ -430,10 +430,10 @@ public:
           }
         ++i;
         }
-      
+
       // Compute the hashkey/code
       size_t key=(faceType*VTK_HASH_PRIME+smallestId)%(this->HashTable.size());
-      
+
       // Get the list at this key (several not equal faces can share the
       // same hashcode). This is the first element in the list.
       vtkSurfel *first=this->HashTable[key];
@@ -442,7 +442,7 @@ public:
         {
         // empty list.
         surfel=this->Pool->Allocate();
-        
+
         //Just add this new face.
         this->HashTable[key]=surfel;
         }
@@ -464,10 +464,10 @@ public:
               // 10 32, 45, smallestIdx=1, go<-
               // 23 01, 54, smallestIdx=2, go->
               // 32 10, 54, smallestIdx=3, go<-
-              
+
               // if current=0 or 2, other face has to be 1 or 3
               // if current=1 or 3, other face has to be 0 or 2
-              
+
               if(points[0]==current->Points[1])
                 {
                 found=(points[1]==current->Points[0] &&
@@ -496,11 +496,11 @@ public:
               {
               // If the face is already from another cell. The the first
               // corner point with smallest id will match.
-              
+
               // The other corner points
               // will be given in reverse order (opposite orientation)
               i=0;
-              while(found && i<numberOfCornerPoints) 
+              while(found && i<numberOfCornerPoints)
                 {
                 // we add numberOfPoints before modulo. Modulo does not work
                 // with negative values.
@@ -508,14 +508,14 @@ public:
                   ==points[(smallestIdx+i)%numberOfCornerPoints];
                 ++i;
                 }
-              
+
               // Check for other kind of points for none linear faces.
               switch(faceType)
                 {
                 case VTK_QUADRATIC_TRIANGLE:
                   // the mid-edge points
                   i=0;
-                  while(found && i<3) 
+                  while(found && i<3)
                     {
                     // we add numberOfPoints before modulo. Modulo does not work
                     // with negative values.
@@ -528,10 +528,10 @@ public:
                 case VTK_BIQUADRATIC_TRIANGLE:
                   // the center point
                   found=current->Points[6]==points[6];
-                  
+
                   // the mid-edge points
                   i=0;
-                  while(found && i<3) 
+                  while(found && i<3)
                     {
                     // we add numberOfPoints before modulo. Modulo does not work
                     // with negative values.
@@ -544,7 +544,7 @@ public:
                 case VTK_QUADRATIC_QUAD:
                   // the mid-edge points
                   i=0;
-                  while(found && i<4) 
+                  while(found && i<4)
                     {
                     // we add numberOfPoints before modulo. Modulo does not work
                     // with negative values.
@@ -556,10 +556,10 @@ public:
                 case VTK_BIQUADRATIC_QUAD:
                   // the center point
                   found=current->Points[8]==points[8];
-                  
+
                   // the mid-edge points
                   i=0;
-                  while(found && i<4) 
+                  while(found && i<4)
                     {
                     // we add numberOfPoints before modulo. Modulo does not work
                     // with negative values.
@@ -605,7 +605,7 @@ public:
 protected:
   vtkPoolManager<vtkSurfel> *Pool;
 };
-  
+
 //-----------------------------------------------------------------------------
 // Object used to traverse an hashtable of surfels.
 class vtkHashTableOfSurfelsCursor
@@ -619,14 +619,14 @@ public:
       this->Table=table;
       this->AtEnd=1;
     }
-  
+
   // Move the cursor to the first surfel.
   // If the table is empty, the cursor is at the end of the table.
   void Start()
     {
       this->CurrentKey=0;
       this->CurrentSurfel=0;
-      
+
       size_t c=Table->HashTable.size();
       int done=this->CurrentKey>=c;
       if(!done)
@@ -646,20 +646,20 @@ public:
         }
       this->AtEnd=this->CurrentSurfel==0;
     }
-  
+
   // Is the cursor at the end of the table? (ie. no more surfel?)
   int IsAtEnd()
     {
       return this->AtEnd;
     }
-  
+
   // Return the surfel the cursor is pointing to.
   vtkSurfel *GetCurrentSurfel()
     {
       assert("pre: not_at_end"&& !IsAtEnd());
       return this->CurrentSurfel;
     }
-  
+
   // Move the cursor to the next available surfel.
   // If there is no more surfel, the cursor is at the end of the table.
   void Next()
@@ -689,7 +689,7 @@ public:
         this->AtEnd=this->CurrentSurfel==0;
         }
     }
-  
+
 protected:
   vtkHashTableOfSurfels *Table;
   size_t CurrentKey;
@@ -725,7 +725,7 @@ vtkUnstructuredGridGeometryFilter::vtkUnstructuredGridGeometryFilter()
 
   this->Merging = 1;
   this->Locator = NULL;
-  
+
   this->HashTable=0;
 }
 
@@ -803,7 +803,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
 //  this->DebugOn();
-  
+
   // Input
   vtkIdType numCells=input->GetNumberOfCells();
   if(numCells==0)
@@ -816,22 +816,22 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPoints *inPts=input->GetPoints();
   vtkCellArray *connectivity=input->GetCells();
-  
+
   // Output
   vtkPointData *outputPD=output->GetPointData();
-  vtkCellData *outputCD=output->GetCellData(); 
+  vtkCellData *outputCD=output->GetCellData();
 //  vtkUnsignedCharArray *types=vtkUnsignedCharArray::New();
 //  types->Allocate(numCells);
 //  vtkIdTypeArray *locs=vtkIdTypeArray::New();
 //  locs->Allocate(numCells);
 //  vtkCellArray *conn=vtkCellArray::New();
 //  conn->Allocate(numCells);
- 
+
   // Ghost cells
   unsigned char updateLevel=(unsigned char)(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-  
-  
+
+
   unsigned char *cellGhostLevels=0;
   vtkDataArray *temp=0;
   if(cd!=0)
@@ -847,7 +847,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     vtkDebugMacro("No appropriate ghost levels field available.");
     }
 
-  
+
   // Visibility of cells.
   char *cellVis;
   int allVisible=(!this->CellClipping) && (!this->PointClipping) &&
@@ -866,7 +866,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   vtkIdType *pts=0;
   int i;
   double x[3];
-  
+
   // Loop over the cells determining what's visible
   if(!allVisible)
     {
@@ -898,17 +898,17 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
                                x[1] > this->Extent[3] ||
                                x[2] < this->Extent[4] ||
                                x[2] > this->Extent[5] )) );
-           
+
           ++i;
           }//for each point
         }//if point clipping needs checking
       ++cellId;
       }//for all cells
     }//if not all visible
-  
+
   vtkIdList *cellIds=vtkIdList::New();
-  
-  
+
+
   vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   output->Allocate(numCells);
@@ -921,7 +921,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     originalPointIds->SetNumberOfComponents(1);
     originalPointIds->Allocate(numPts, numPts/2);
     }
- 
+
   outputCD->CopyAllocate(cd,numCells,numCells/2);
   vtkSmartPointer<vtkIdTypeArray> originalCellIds;
   if (this->PassThroughCellIds)
@@ -933,7 +933,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     }
 
   vtkIdType *pointMap=0;
-  
+
   if(this->Merging)
     {
     if(this->Locator==0)
@@ -950,23 +950,23 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       pointMap[i]=-1; //initialize as unused
       }
     }
-  
+
   // Traverse cells to extract geometry
   int progressCount = 0;
   int abort=0;
   vtkIdType progressInterval = numCells/20 + 1;
-  
+
   vtkPoolManager<vtkSurfel> *pool=new vtkPoolManager<vtkSurfel>;
   pool->Init();
   this->HashTable=new vtkHashTableOfSurfels(numPts,pool);
   unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
 
   connectivity->InitTraversal();
-  
+
   vtkIdType ptId;
   vtkIdType newPtId;
   vtkIdType newCellId;
-  
+
   for(cellId=0; cellId<numCells && !abort; cellId++)
     {
     //Progress and abort method support
@@ -978,9 +978,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       progressCount = 0;
       }
     progressCount++;
-    
+
     vtkIdType points[VTK_MAXIMUM_NUMBER_OF_POINTS];
-   
+
     connectivity->GetNextCell(npts,pts);
     if ( allVisible || cellVis[cellId] )
       {
@@ -1029,7 +1029,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
             cellIds->InsertNextId(pointMap[ptId]);
             }
           }//keeping original point list
-        
+
         newCellId = output->InsertNextCell(cellType,cellIds);
         outputCD->CopyData(cd, cellId, newCellId);
         if (this->PassThroughCellIds)
@@ -1387,9 +1387,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
         }
       } //if cell is visible
     } //for all cells
-  
+
   // Loop over visible surfel (coming from a unique cell) in the hashtable:
-  
+
   vtkHashTableOfSurfelsCursor cursor;
   cursor.Init(this->HashTable);
   cursor.Start();
@@ -1403,7 +1403,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
       npts=surfel->NumberOfPoints;
       // Dataset point Ids that form the surfel.
       pts=surfel->Points;
-      
+
       cellIds->Reset();
       if ( this->Merging )
         {
@@ -1440,7 +1440,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
           cellIds->InsertNextId(pointMap[ptId]);
           }
         }//keeping original point list
-      
+
       newCellId = output->InsertNextCell(cellType,cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
       if (this->PassThroughCellIds)
@@ -1457,12 +1457,12 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   cellIds->Delete();
   delete this->HashTable;
   delete pool;
-  
-  
+
+
   // Set the output.
   output->SetPoints(newPts);
   newPts->Delete();
-  
+
 //  output->SetCells(types,locs,conn);
 
   if (this->PassThroughPointIds)
@@ -1473,12 +1473,12 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
     {
     outputCD->AddArray(originalCellIds);
     }
-  
+
   if(!this->Merging && this->Locator)
     {
-    this->Locator->Initialize(); 
+    this->Locator->Initialize();
     }
-  
+
 //  types->Delete();
 //  locs->Delete();
 //  conn->Delete();
@@ -1492,7 +1492,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
 // default an instance of vtkMergePoints is used.
 void vtkUnstructuredGridGeometryFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
@@ -1500,7 +1500,7 @@ void vtkUnstructuredGridGeometryFilter::SetLocator(vtkIncrementalPointLocator *l
     {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }    
+    }
   if ( locator )
     {
     locator->Register(this);
@@ -1590,14 +1590,14 @@ int vtkUnstructuredGridGeometryFilter::RequestUpdateExtent(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   int piece, numPieces, ghostLevels;
-  
+
   piece =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevels =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
+
   if (numPieces > 1)
     {
     ++ghostLevels;

@@ -87,7 +87,7 @@ void vtkDirectXGPUInfoList::Probe()
     {
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
-    
+
     IDirect3D9 *pD3D9=0;
     pD3D9=Direct3DCreate9(D3D_SDK_VERSION);
     if(pD3D9!=0)
@@ -99,7 +99,7 @@ void vtkDirectXGPUInfoList::Probe()
         {
         HMONITOR m=pD3D9->GetAdapterMonitor(static_cast<UINT>(i));
         vtkGPUInfo *info=vtkGPUInfo::New();
-        
+
         // DXGI API (Windows Vista and later)
         bool status=this->ProbeInfoWithDXGI(m,info);
         if(!status)
@@ -128,9 +128,9 @@ bool vtkDirectXGPUInfoList::ProbeInfoWithDXGI(HMONITOR m,
 {
   assert("pre: m_exists" && m!=0);
   assert("pre: info_exist" && info!=0);
-  
+
   bool result; // true=supports DXGI and memory found.
-  
+
   // DXGI API initialization
 #ifdef UNICODE
   HINSTANCE hDXGI=LoadLibrary(L"dxgi.dll");
@@ -146,7 +146,7 @@ bool vtkDirectXGPUInfoList::ProbeInfoWithDXGI(HMONITOR m,
       GetProcAddress(hDXGI,"CreateDXGIFactory"));
     pCreateDXGIFactory(__uuidof(IDXGIFactory),
                        reinterpret_cast<LPVOID *>(&pDXGIFactory));
-    
+
     // Find the adapter that matches monitor m.
     IDXGIAdapter *pAdapter=NULL;
     bool found=false;
@@ -179,7 +179,7 @@ bool vtkDirectXGPUInfoList::ProbeInfoWithDXGI(HMONITOR m,
         }
       ++i;
       }
-    
+
     if(found)
       {
       DXGI_ADAPTER_DESC desc;
@@ -203,13 +203,13 @@ void vtkDirectXGPUInfoList::ProbeInfoWithWMI(HMONITOR m,
 {
   assert("pre: m_exists" && m!=0);
   assert("pre: info_exist" && info!=0);
-  
+
   HRESULT hrCoInitialize=CoInitialize(0);
   IWbemLocator *pIWbemLocator=NULL;
   HRESULT hr=CoCreateInstance(CLSID_WbemLocator,NULL,CLSCTX_INPROC_SERVER,
                               IID_IWbemLocator,
                               reinterpret_cast<LPVOID *>(&pIWbemLocator));
-  
+
   if(SUCCEEDED(hr) && pIWbemLocator!=0)
     {
     // Using the locator, connect to WMI in the given namespace.
@@ -224,42 +224,42 @@ void vtkDirectXGPUInfoList::ProbeInfoWithWMI(HMONITOR m,
       if(hinstOle32!=0)
         {
         PfnCoSetProxyBlanket pfnCoSetProxyBlanket=NULL;
-        
+
         pfnCoSetProxyBlanket=reinterpret_cast<PfnCoSetProxyBlanket>(
           GetProcAddress(hinstOle32,"CoSetProxyBlanket"));
         if(pfnCoSetProxyBlanket!=NULL)
           {
-          // Switch security level to IMPERSONATE. 
+          // Switch security level to IMPERSONATE.
           pfnCoSetProxyBlanket(pIWbemServices,RPC_C_AUTHN_WINNT,
                                RPC_C_AUTHZ_NONE,NULL,RPC_C_AUTHN_LEVEL_CALL,
                                RPC_C_IMP_LEVEL_IMPERSONATE,NULL,0);
           }
         FreeLibrary(hinstOle32);
         }
-      
+
       IEnumWbemClassObject *pEnumVideoControllers=NULL;
       BSTR pClassName=NULL;
       pClassName=SysAllocString(L"Win32_VideoController");
       hr=pIWbemServices->CreateInstanceEnum(pClassName,0,NULL,
                                             &pEnumVideoControllers);
-      
+
       if(SUCCEEDED(hr) && pEnumVideoControllers!=0)
         {
         const int videoControllersCapacity=10; // just get the first 10.
         IWbemClassObject *pVideoControllers[videoControllersCapacity]={0};
         DWORD uReturned=0;
-        
+
         // Get the first one in the list
         pEnumVideoControllers->Reset();
         hr=pEnumVideoControllers->Next(5000, // timeout in 5 seconds
                                        videoControllersCapacity,
                                        pVideoControllers,&uReturned);
-        
+
         if(SUCCEEDED(hr))
           {
           WCHAR strInputDeviceID[512];
           this->GetDeviceIDFromHMonitor(m,strInputDeviceID,512);
-          
+
           bool found=false;
           UINT iController=0;
           while(!found && iController<uReturned)
@@ -297,7 +297,7 @@ void vtkDirectXGPUInfoList::ProbeInfoWithWMI(HMONITOR m,
             }
           }
         }
-      
+
       if(pClassName!=0)
         {
         SysFreeString(pClassName);
@@ -307,7 +307,7 @@ void vtkDirectXGPUInfoList::ProbeInfoWithWMI(HMONITOR m,
         pEnumVideoControllers->Release();
         }
       }
-    
+
     if(pNamespace!=0)
       {
       SysFreeString(pNamespace);
@@ -317,12 +317,12 @@ void vtkDirectXGPUInfoList::ProbeInfoWithWMI(HMONITOR m,
       pIWbemServices->Release();
       }
     }
-  
+
   if(pIWbemLocator!=0)
     {
     pIWbemLocator->Release();
     }
-  
+
   if(SUCCEEDED(hrCoInitialize))
     {
     CoUninitialize();
@@ -337,41 +337,41 @@ bool vtkDirectXGPUInfoList::GetDeviceIDFromHMonitor(HMONITOR hm,
   assert("pre: hm_exists" && hm!=0);
   assert("pre: strDeviceID_exists" && strDeviceID!=0);
   assert("pre: cchDeviceID_is_positive" && cchDeviceID>0);
-  
+
   bool result=false;
 #ifdef UNICODE
   HINSTANCE hInstDDraw=LoadLibrary(L"ddraw.dll");
 #else
   HINSTANCE hInstDDraw=LoadLibrary("ddraw.dll");
-#endif  
+#endif
   if(hInstDDraw!=0)
     {
     DDRAW_MATCH match;
     ZeroMemory(&match,sizeof(DDRAW_MATCH));
     match.hMonitor=hm;
-    
+
     LPDIRECTDRAWENUMERATEEXA pDirectDrawEnumerateEx=NULL;
     pDirectDrawEnumerateEx=reinterpret_cast<LPDIRECTDRAWENUMERATEEXA>(
       GetProcAddress(hInstDDraw, "DirectDrawEnumerateExA"));
-    
+
     if(pDirectDrawEnumerateEx!=0)
       {
       pDirectDrawEnumerateEx(DDEnumCallbackEx,static_cast<VOID*>(&match),
                              DDENUM_ATTACHEDSECONDARYDEVICES);
       }
-    
+
     if(match.bFound)
       {
       LONG iDevice=0;
       DISPLAY_DEVICEA dispdev;
-      
+
       ZeroMemory(&dispdev,sizeof(dispdev));
       dispdev.cb=sizeof(dispdev);
-      
+
       bool done=false;
       while(!done && EnumDisplayDevicesA(NULL,iDevice,
                                          static_cast<DISPLAY_DEVICEA *>(&dispdev),0))
-        { 
+        {
         // Skip devices that are monitors that echo another display
         // (DISPLAY_DEVICE_MIRRORING_DRIVER)
         // Skip devices that aren't attached since they cause problems

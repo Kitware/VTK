@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the CellArray
 
@@ -83,6 +83,6 @@ int TestCellArray(ostream& strm)
 
 int otherCellArray(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return TestCellArray(vtkmsg_with_warning_C4701);
-} 
+}

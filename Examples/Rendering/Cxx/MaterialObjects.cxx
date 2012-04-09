@@ -160,7 +160,7 @@ void gridLayoutActors( std::vector<vtkActor*> actors )
 #if 0
         cout << id << " : ";
         cout << actors[id]->GetPosition()[0] << " , ";
-        cout << actors[id]->GetPosition()[1] << " , "; 
+        cout << actors[id]->GetPosition()[1] << " , ";
         cout << actors[id]->GetPosition()[2] << endl;
 #endif
         }
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
   gridLayoutActors( actors );
 
 
-  // Create the graphics structure. The renderer renders into the 
+  // Create the graphics structure. The renderer renders into the
   // render window. The render window interactor captures mouse events
   // and will perform appropriate camera or actor manipulation
   // depending on the nature of the events.
@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
 #if 0
   ren1->GetActiveCamera()->SetParallelScale(1.5);
 #endif
-  
+
   // This starts the event loop and invokes an initial render.
   //
   iren->Initialize();

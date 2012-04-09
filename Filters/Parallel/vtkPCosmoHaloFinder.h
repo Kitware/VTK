@@ -159,7 +159,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGrid
   vtkGetMacro(SODMass, float);
 
   // Description:
-  // Specify the minimum radius factor 
+  // Specify the minimum radius factor
   // (default 0.5)
   vtkSetMacro(MinRadiusFactor, float);
   vtkGetMacro(MinRadiusFactor, float);
@@ -218,7 +218,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPCosmoHaloFinder : public vtkUnstructuredGrid
   float SODMass; // Initial SOD mass (1.0e14)
   float MinRadiusFactor; // Minimum factor of SOD radius (0.5)
   float MaxRadiusFactor; // Maximum factor of SOD radius (2.0)
-  int SODBins; // Number of log scale bins for SOD (20) 
+  int SODBins; // Number of log scale bins for SOD (20)
   int MinFOFSize; // Minimum FOF size for SOD (1000)
   float MinFOFMass; // Minimum FOF mass for SOD (5.0e12)
 

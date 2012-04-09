@@ -22,7 +22,7 @@
 // things tested is the "winding" of the tetrahedra.  There are two rotationally
 // independent ways to specify a tetrahedra:
 //
-//        v3                    v3      
+//        v3                    v3
 //        /|\                   /|\                     //
 //       / | \                 / | \                    //
 //      /  |  \               /  |  \                   //

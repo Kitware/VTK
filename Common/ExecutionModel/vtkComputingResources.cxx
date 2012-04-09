@@ -14,7 +14,7 @@
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
-  
+
   This is part of the Parallel Dataflow System originally developed by
   Huy T. Vo and Claudio T. Silva. For more information, see:
 
@@ -40,35 +40,35 @@
 vtkStandardNewMacro(vtkComputingResources);
 
 //----------------------------------------------------------------------------
-class vtkCPUResource: public vtkProcessingUnitResource 
+class vtkCPUResource: public vtkProcessingUnitResource
 {
 public:
-  virtual int ProcessingUnit() 
+  virtual int ProcessingUnit()
   {
     return vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU;
   }
-  
-  virtual bool HasResource() 
+
+  virtual bool HasResource()
   {
     return this->NumberOfThreads > 0;
   }
-  
-  virtual void Clear() 
+
+  virtual void Clear()
   {
     this->NumberOfThreads = 0;
   }
-  
-  virtual void ObtainMinimum() 
+
+  virtual void ObtainMinimum()
   {
     this->NumberOfThreads = 1;
   }
-  
-  virtual void ObtainMaximum() 
+
+  virtual void ObtainMaximum()
   {
     this->NumberOfThreads = vtkMultiThreader::GetGlobalDefaultNumberOfThreads();
   }
-  
-  virtual void IncreaseByRatio(float ratio, vtkProcessingUnitResource *refResource) 
+
+  virtual void IncreaseByRatio(float ratio, vtkProcessingUnitResource *refResource)
   {
     vtkCPUResource *other = static_cast<vtkCPUResource*>(refResource);
     int thisNThread = (int)(ratio*other->NumberOfThreads+0.5);
@@ -78,31 +78,31 @@ public:
       }
     this->NumberOfThreads += thisNThread;
   }
-  
-  virtual void AllocateFor(vtkThreadedStreamingPipeline *exec) 
+
+  virtual void AllocateFor(vtkThreadedStreamingPipeline *exec)
   {
-    if (exec->GetAlgorithm()->IsA("vtkThreadedImageAlgorithm")) 
+    if (exec->GetAlgorithm()->IsA("vtkThreadedImageAlgorithm"))
       {
       vtkThreadedImageAlgorithm::SafeDownCast(exec->GetAlgorithm())
         ->SetNumberOfThreads(this->NumberOfThreads);
       }
   }
 
-  virtual bool CanAccommodate(vtkProcessingUnitResource *refResource) 
+  virtual bool CanAccommodate(vtkProcessingUnitResource *refResource)
   {
     vtkCPUResource *other = static_cast<vtkCPUResource*>(refResource);
     return this->NumberOfThreads>=other->NumberOfThreads;
-  }  
-  
-  virtual void Reserve(vtkProcessingUnitResource *refResource) 
+  }
+
+  virtual void Reserve(vtkProcessingUnitResource *refResource)
   {
-    vtkCPUResource *other = static_cast<vtkCPUResource*>(refResource);    
+    vtkCPUResource *other = static_cast<vtkCPUResource*>(refResource);
     this->NumberOfThreads -= other->NumberOfThreads;
   }
-  
-  virtual void Collect(vtkProcessingUnitResource *refResource) 
+
+  virtual void Collect(vtkProcessingUnitResource *refResource)
   {
-    vtkCPUResource *other = static_cast<vtkCPUResource*>(refResource);    
+    vtkCPUResource *other = static_cast<vtkCPUResource*>(refResource);
     this->NumberOfThreads += other->NumberOfThreads;
   }
 
@@ -112,42 +112,42 @@ private:
 
 //----------------------------------------------------------------------------
 // This needs to reimplement
-class vtkGPUResource: public vtkProcessingUnitResource 
+class vtkGPUResource: public vtkProcessingUnitResource
 {
 public:
-  virtual int ProcessingUnit() 
+  virtual int ProcessingUnit()
   {
     return vtkThreadedStreamingPipeline::PROCESSING_UNIT_GPU;
   }
-  
-  virtual bool HasResource() 
+
+  virtual bool HasResource()
   {
     return false;
   }
-  
+
   virtual void Clear() {}
-  
+
   virtual void ObtainMinimum() {}
-  
+
   virtual void ObtainMaximum() {}
-  
-  virtual void IncreaseByRatio(float vtkNotUsed(ratio), 
+
+  virtual void IncreaseByRatio(float vtkNotUsed(ratio),
                                vtkProcessingUnitResource* vtkNotUsed(refResource)) {}
-  
-  virtual void AllocateFor(vtkThreadedStreamingPipeline* vtkNotUsed(exec)) 
+
+  virtual void AllocateFor(vtkThreadedStreamingPipeline* vtkNotUsed(exec))
   {
     fprintf(stderr, "vtkGPUResource NEEDS TO BE IMPLEMENTED!!!!\n");
   }
-  
+
   bool CanAccommodate(vtkProcessingUnitResource* vtkNotUsed(refResource))
   {
     return false;
   }
-  
+
   void Reserve(vtkProcessingUnitResource* vtkNotUsed(refResource)) {}
-  
+
   void Collect(vtkProcessingUnitResource* vtkNotUsed(refResource)) {}
-  
+
 private:
 };
 
@@ -169,11 +169,11 @@ vtkComputingResources::vtkComputingResources() :
 }
 
 //----------------------------------------------------------------------------
-vtkComputingResources::~vtkComputingResources() 
+vtkComputingResources::~vtkComputingResources()
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.begin();
-  for (; i != this->Implementation->ResourceMap.end(); i++) 
+  for (; i != this->Implementation->ResourceMap.end(); i++)
     {
     delete (*i).second;
     }
@@ -190,7 +190,7 @@ void vtkComputingResources::PrintSelf(ostream &os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkProcessingUnitResource *vtkComputingResources::GetResourceFor(int processingUnit)
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.find(processingUnit);
   if (i != this->Implementation->ResourceMap.end())
     {
@@ -200,20 +200,20 @@ vtkProcessingUnitResource *vtkComputingResources::GetResourceFor(int processingU
 }
 
 //----------------------------------------------------------------------------
-void vtkComputingResources::Clear() 
+void vtkComputingResources::Clear()
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.begin();
-  for (; i != this->Implementation->ResourceMap.end(); i++) 
+  for (; i != this->Implementation->ResourceMap.end(); i++)
     {
     (*i).second->Clear();
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkComputingResources::ObtainMinimumResources() 
+void vtkComputingResources::ObtainMinimumResources()
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.begin();
   for (; i != this->Implementation->ResourceMap.end(); i++) {
     (*i).second->ObtainMinimum();
@@ -221,9 +221,9 @@ void vtkComputingResources::ObtainMinimumResources()
 }
 
 //----------------------------------------------------------------------------
-void vtkComputingResources::ObtainMaximumResources() 
+void vtkComputingResources::ObtainMaximumResources()
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.begin();
   for (; i != this->Implementation->ResourceMap.end(); i++) {
     (*i).second->ObtainMaximum();
@@ -231,12 +231,12 @@ void vtkComputingResources::ObtainMaximumResources()
 }
 
 //----------------------------------------------------------------------------
-void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec, 
-                                   vtkInformation* vtkNotUsed(info)) 
+void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec,
+                                   vtkInformation* vtkNotUsed(info))
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.begin();
-  for (; i != this->Implementation->ResourceMap.end(); i++) 
+  for (; i != this->Implementation->ResourceMap.end(); i++)
     {
     int resource = vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU;
 //     if (exec->GetAlgorithm()->GetInformation()->
@@ -244,7 +244,7 @@ void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec,
 //       resource = exec->GetAlgorithm()->GetInformation()->
 //         Get(vtkThreadedStreamingPipeline::PROCESSING_UNIT());
     if (((*i).first & resource) &&
-        (*i).second->HasResource()) 
+        (*i).second->HasResource())
       {
       (*i).second->AllocateFor(exec);
       fprintf(stderr, "UPDATE %s\n", exec->GetAlgorithm()->GetClassName());
@@ -255,11 +255,11 @@ void vtkComputingResources::Deploy(vtkThreadedStreamingPipeline *exec,
 }
 
 //----------------------------------------------------------------------------
-bool vtkComputingResources::Reserve(vtkComputingResources *res) 
+bool vtkComputingResources::Reserve(vtkComputingResources *res)
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
-  implementation::ProcessingUnitToResourceHashMap::iterator j = 
+  implementation::ProcessingUnitToResourceHashMap::iterator j =
     res->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
   bool ok = (*i).second->CanAccommodate((*j).second);
   if (ok)
@@ -270,11 +270,11 @@ bool vtkComputingResources::Reserve(vtkComputingResources *res)
 }
 
 //----------------------------------------------------------------------------
-void vtkComputingResources::Collect(vtkComputingResources *res) 
+void vtkComputingResources::Collect(vtkComputingResources *res)
 {
-  implementation::ProcessingUnitToResourceHashMap::iterator i = 
+  implementation::ProcessingUnitToResourceHashMap::iterator i =
     this->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
-  implementation::ProcessingUnitToResourceHashMap::iterator j = 
+  implementation::ProcessingUnitToResourceHashMap::iterator j =
     res->Implementation->ResourceMap.find(vtkThreadedStreamingPipeline::PROCESSING_UNIT_CPU);
   (*i).second->Collect((*j).second);
 }

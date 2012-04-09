@@ -84,7 +84,7 @@ public:
 
   // Description:
   // Control piece size based on the maximum number of points per piece.
-  // (This ivar has effect only when the DiceMode is set to 
+  // (This ivar has effect only when the DiceMode is set to
   // SetDiceModeToNumberOfPoints().)
   vtkSetClampMacro(NumberOfPointsPerPiece,int,1000,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfPointsPerPiece,int);

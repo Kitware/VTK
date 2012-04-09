@@ -18,11 +18,11 @@
 // converts position to other coordinate systems. It also supports relative
 // positioning, so you can create a cascade of vtkCoordinate objects (no loops
 // please!) that refer to each other. The typical usage of this object is
-// to set the coordinate system in which to represent a position (e.g., 
+// to set the coordinate system in which to represent a position (e.g.,
 // SetCoordinateSystemToNormalizedDisplay()), set the value of the coordinate
-// (e.g., SetValue()), and then invoke the appropriate method to convert to 
+// (e.g., SetValue()), and then invoke the appropriate method to convert to
 // another coordinate system (e.g., GetComputedWorldValue()).
-// 
+//
 // The coordinate systems in vtk are as follows:
 //<PRE>
 //  DISPLAY -             x-y pixel values in window
@@ -65,7 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Creates an instance of this class with the following defaults: 
+  // Creates an instance of this class with the following defaults:
   // value of  (0,0,0) in world  coordinates.
   static vtkCoordinate* New();
 
@@ -76,15 +76,15 @@ public:
   vtkSetMacro(CoordinateSystem, int);
   vtkGetMacro(CoordinateSystem, int);
   void SetCoordinateSystemToDisplay() {this->SetCoordinateSystem(VTK_DISPLAY);}
-  void SetCoordinateSystemToNormalizedDisplay() 
+  void SetCoordinateSystemToNormalizedDisplay()
         {this->SetCoordinateSystem(VTK_NORMALIZED_DISPLAY);}
-  void SetCoordinateSystemToViewport() 
+  void SetCoordinateSystemToViewport()
         {this->SetCoordinateSystem(VTK_VIEWPORT);}
-  void SetCoordinateSystemToNormalizedViewport() 
+  void SetCoordinateSystemToNormalizedViewport()
         {this->SetCoordinateSystem(VTK_NORMALIZED_VIEWPORT);}
   void SetCoordinateSystemToView() {this->SetCoordinateSystem(VTK_VIEW);}
   void SetCoordinateSystemToWorld() {this->SetCoordinateSystem(VTK_WORLD);}
-    
+
   const char *GetCoordinateSystemAsString ();
 
   // Description:
@@ -93,7 +93,7 @@ public:
   vtkSetVector3Macro(Value,double);
   vtkGetVector3Macro(Value,double);
   void SetValue(double a, double b) { this->SetValue(a,b,0.0);}
-  
+
   // Description:
   // If this coordinate is relative to another coordinate,
   // then specify that coordinate as the ReferenceCoordinate.

@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkIVWriter);
 void vtkIVWriter::WriteData()
 {
   FILE *fp;
-  
+
   // make sure the user specified a FileName
   if ( this->FileName == NULL)
     {
@@ -41,7 +41,7 @@ void vtkIVWriter::WriteData()
     vtkErrorMacro(<< "unable to open OpenInventor file: " << this->FileName);
     return;
     }
-  
+
   //
   //  Write header
   //
@@ -49,9 +49,9 @@ void vtkIVWriter::WriteData()
   fprintf(fp,"#Inventor V2.0 ascii\n");
   fprintf(fp,"# OpenInventor file written by the visualization toolkit\n\n");
   this->WritePolyData(this->GetInput(), fp);
-  if (fclose(fp)) 
+  if (fclose(fp))
     {
-    vtkErrorMacro(<< this->FileName 
+    vtkErrorMacro(<< this->FileName
                   << " did not close successfully. Check disk space.");
     }
 }
@@ -66,7 +66,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkIdType *indx = 0;
   vtkUnsignedCharArray *colors=NULL;
   int offset=0;
-  
+
   points = pd->GetPoints();
 
   // create colors for vertices
@@ -87,9 +87,9 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       lut->Delete();
       }
     }
-  
+
   fprintf(fp,"Separator {\n");
-  
+
   // Point data (coordinates)
   fprintf(fp,"\tCoordinate3 {\n");
   fprintf(fp,"\t\tpoint [\n");
@@ -106,23 +106,23 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     }
   fprintf(fp, "\n\t\t]");
   fprintf(fp, "\t}\n");
-  
+
   // Per vertex coloring
   fprintf(fp,"\tMaterialBinding {\n");
   fprintf(fp,"\t\tvalue PER_VERTEX_INDEXED\n");
   fprintf(fp,"\t}\n");
-  
+
   // Colors, if any
-  if (colors) 
+  if (colors)
     {
     fprintf(fp,"\tMaterial {\n");
     fprintf(fp,"\t\tdiffuseColor [\n");
     fprintf(fp, "\t\t\t");
-    for (i=0; i<colors->GetNumberOfTuples(); i++) 
+    for (i=0; i<colors->GetNumberOfTuples(); i++)
       {
       unsigned char *rgba;
       rgba = colors->GetPointer(4*i);
-      fprintf(fp, "%g %g %g, ", rgba[0]/255.0f, 
+      fprintf(fp, "%g %g %g, ", rgba[0]/255.0f,
               rgba[1]/255.0f, rgba[2]/255.0f);
       if (!((i+1)%2))
         {
@@ -131,10 +131,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
       }
     fprintf(fp, "\n\t\t]\n");
     fprintf(fp,"\t}\n");
-    colors->Delete();        
+    colors->Delete();
     }
 
-  
+
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
     {
@@ -154,13 +154,13 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\t\t]\n");
     fprintf(fp,"\t}\n");
     }
-  
+
   // write out lines if any
   if (pd->GetNumberOfLines() > 0)
     {
     fprintf(fp,"\tIndexedLineSet {\n");
     fprintf(fp,"\t\tcoordIndex  [\n");
-    
+
     cells = pd->GetLines();
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
       {
@@ -175,7 +175,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\t\t]\n");
     fprintf(fp,"\t}\n");
     }
-  
+
   // write out verts if any
   if (pd->GetNumberOfVerts() > 0)
     {
@@ -195,12 +195,12 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\t\t]\n");
     fprintf(fp,"\t}\n");
     }
-  
-  
+
+
   // write out tstrips if any
   if (pd->GetNumberOfStrips() > 0)
     {
-    
+
     fprintf(fp,"\tIndexedTriangleStripSet {\n");
     fprintf(fp,"\t\tcoordIndex [\n");
     cells = pd->GetStrips();
@@ -217,7 +217,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\t\t]\n");
     fprintf(fp,"\t}\n");
     }
-  
+
   fprintf(fp,"}\n"); // close the  Shape
 
 }

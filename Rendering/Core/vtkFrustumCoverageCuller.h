@@ -99,5 +99,5 @@ private:
   void operator=(const vtkFrustumCoverageCuller&);  // Not implemented.
 };
 
-                                         
+
 #endif

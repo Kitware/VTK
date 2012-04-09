@@ -26,7 +26,7 @@ void main(void)
 {
   vec2 tcoord=gl_TexCoord[0].st;
   vec2 offset=vec2(offsetx,offsety);
-  
+
   gl_FragColor=coef[0]*texture2D(source,tcoord-offset)
     +coef[1]*texture2D(source,tcoord)
     +coef[2]*texture2D(source,tcoord+offset);

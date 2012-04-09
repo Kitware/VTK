@@ -56,7 +56,7 @@ void DatabaseSchemaWith2Tables::Create()
     "BEGIN "
     "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
     "RETURN NEW; "
-    "END; $btable$ LANGUAGE PLPGSQL", 
+    "END; $btable$ LANGUAGE PLPGSQL",
      VTK_SQL_POSTGRESQL );
 
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
@@ -72,13 +72,13 @@ void DatabaseSchemaWith2Tables::Create()
     vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "somenmbr",
     vtkSQLDatabaseSchema::END_INDEX_TOKEN,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "inserttrigger", "DO NOTHING", 
+      "inserttrigger", "DO NOTHING",
       VTK_SQL_SQLITE,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "inserttrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()", 
+      "inserttrigger", "FOR EACH ROW EXECUTE PROCEDURE somefunction ()",
       VTK_SQL_POSTGRESQL,
     vtkSQLDatabaseSchema::TRIGGER_TOKEN,  vtkSQLDatabaseSchema::AFTER_INSERT,
-      "inserttrigger", "FOR EACH ROW INSERT INTO btable SET somevalue = NEW.somenmbr", 
+      "inserttrigger", "FOR EACH ROW INSERT INTO btable SET somevalue = NEW.somenmbr",
       VTK_SQL_MYSQL,
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );

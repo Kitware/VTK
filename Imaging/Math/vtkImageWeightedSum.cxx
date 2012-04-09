@@ -55,7 +55,7 @@ void vtkImageWeightedSum::SetWeight(vtkIdType id, double weight)
 }
 
 //----------------------------------------------------------------------------
-double vtkImageWeightedSum::CalculateTotalWeight() 
+double vtkImageWeightedSum::CalculateTotalWeight()
 {
   double totalWeight = 0.0;
 
@@ -193,10 +193,10 @@ int vtkImageWeightedSum::RequestInformation (
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageWeightedSum::ThreadedRequestData (
-  vtkInformation * vtkNotUsed( request ), 
+  vtkInformation * vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {

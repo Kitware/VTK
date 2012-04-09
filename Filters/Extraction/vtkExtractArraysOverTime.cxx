@@ -91,7 +91,7 @@ private:
   int ContentType;
 
   void AddTimeStepInternal(unsigned int cid, double time, vtkDataObject* data);
-  void AddTimeStepInternalForLocations(unsigned int composite_index, 
+  void AddTimeStepInternalForLocations(unsigned int composite_index,
     double time, vtkDataSet* input);
   vtkValue* GetOutput(const vtkKey& key, vtkDataSetAttributes* inDSA);
 
@@ -154,7 +154,7 @@ public:
     }
 
   // Description:
-  // Add the output of the extract selection filter. 
+  // Add the output of the extract selection filter.
   void AddTimeStep(double time, vtkDataObject* data);
 
   // Description:
@@ -202,7 +202,7 @@ public:
           this->TimeArray->GetName());
         value.Output->GetRowData()->AddArray(this->TimeArray);
 
- 
+
         if (value.PointCoordinatesArray)
           {
           value.Output->GetRowData()->RemoveArray(
@@ -243,7 +243,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddFastPathTimeline(
   vtkDataSetAttributes* outputAttributes = value->Output->GetRowData();
 
   for (int j=0; j<numFieldArrays; j++)
-    {  
+    {
     vtkAbstractArray* inFieldArray = ifd->GetAbstractArray(j);
     if (inFieldArray && inFieldArray->GetName())
       {
@@ -372,7 +372,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
 {
   if (this->ContentType == vtkSelectionNode::LOCATIONS)
     {
-    this->AddTimeStepInternalForLocations(composite_index, time, 
+    this->AddTimeStepInternalForLocations(composite_index, time,
       vtkDataSet::SafeDownCast(input));
     return;
     }
@@ -400,7 +400,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
     return;
     }
 
-  vtkIdTypeArray* idsArray = 
+  vtkIdTypeArray* idsArray =
     vtkIdTypeArray::SafeDownCast(inDSA->GetArray(idarrayname));
 
   if (this->ContentType == vtkSelectionNode::GLOBALIDS)
@@ -516,8 +516,8 @@ vtkExtractArraysOverTime::vtkInternal::GetOutput(
       {
       timeArray->SetName("Time");
       }
-    
-    if (this->FieldType == vtkSelectionNode::POINT || 
+
+    if (this->FieldType == vtkSelectionNode::POINT ||
       this->ContentType == vtkSelectionNode::LOCATIONS)
       {
       // These are the point coordinates of the original data
@@ -601,7 +601,7 @@ int vtkExtractArraysOverTime::FillInputPortInformation(
   if (port==0)
     {
     // We can handle composite datasets.
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
     }
   else
     {
@@ -620,7 +620,7 @@ int vtkExtractArraysOverTime::RequestInformation(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if ( inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) )
     {
-    this->NumberOfTimeSteps = 
+    this->NumberOfTimeSteps =
       inInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     }
   else
@@ -639,7 +639,7 @@ int vtkExtractArraysOverTime::RequestInformation(
     this->UseFastPath = false;
     }
 
-  // The output of this filter does not contain a specific time, rather 
+  // The output of this filter does not contain a specific time, rather
   // it contains a collection of time steps. Also, this filter does not
   // respond to time requests. Therefore, we remove all time information
   // from the output.
@@ -676,8 +676,8 @@ int vtkExtractArraysOverTime::RequestUpdateExtent(
     {
     double timeReq[1];
     timeReq[0] = inTimes[this->CurrentTimeIndex];
-    inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), 
-                 timeReq, 
+    inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
+                 timeReq,
                  1);
     }
 
@@ -709,7 +709,7 @@ int vtkExtractArraysOverTime::RequestUpdateExtent(
 
   /* Again, extent related stuff is no longer relevant since we are not
    * producing rectilinear grid as the output, instead it is multiblock.
-   */ 
+   */
 
   return 1;
 }
@@ -799,7 +799,7 @@ int vtkExtractArraysOverTime::RequestData(
         }
 
       // Grab the selected id (either an index, or global id)
-      // from the input selection. 
+      // from the input selection.
       if (!this->UpdateFastPathIDs(inputVector, outInfo))
         {
         vtkWarningMacro("Could not generate the fast path request correctly. "
@@ -812,7 +812,7 @@ int vtkExtractArraysOverTime::RequestData(
         return 1;
         }
       }
-    } 
+    }
 
   // If we get here, there is no fast-path option available.
   this->ExecuteAtTimeStep(inputVector, outInfo);
@@ -823,7 +823,7 @@ int vtkExtractArraysOverTime::RequestData(
     {
     this->PostExecute(request, inputVector, outputVector);
     }
-  
+
   return 1;
 }
 
@@ -846,7 +846,7 @@ void vtkExtractArraysOverTime::PostExecute(
 //    vtkErrorMacro(<< "This filter can extract only 1 cell or "
 //                  << " point at a time. Only the first index"
 //                  << " was extracted");
-//    
+//
 //  }
 
   //Use the vtkValidPointMask array to zero any invalid samples.
@@ -857,7 +857,7 @@ void vtkExtractArraysOverTime::PostExecute(
 
 //----------------------------------------------------------------------------
 void vtkExtractArraysOverTime::ExecuteAtTimeStep(
-  vtkInformationVector** inputVector, 
+  vtkInformationVector** inputVector,
   vtkInformation* outInfo)
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -871,7 +871,7 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
 
   vtkSelection* selInputClone = selInput->NewInstance();
   selInputClone->ShallowCopy(selInput);
- 
+
   vtkExtractSelection* filter = vtkExtractSelection::New();
   filter->SetPreserveTopology(0);
   filter->SetUseProbeForLocations(1);
@@ -963,9 +963,9 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
     }
 
   vtkTable* output = vtkTable::New();
-  
+
   outputAttributes = output->GetPointData();
-    
+
   if(!inputAttributes || !outputAttributes)
     {
     vtkErrorMacro("Unsupported field type.");
@@ -973,10 +973,10 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
     }
 
   for (int j=0; j<numFieldArrays; j++)
-    {  
+    {
     vtkDataArray* inFieldArray = ifd->GetArray(j);
-    if (inFieldArray && 
-        inFieldArray->GetName() && 
+    if (inFieldArray &&
+        inFieldArray->GetName() &&
         !inFieldArray->IsA("vtkIdTypeArray"))
       {
       vtkStdString fieldName = inFieldArray->GetName();
@@ -984,7 +984,7 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
       if(idx != vtkStdString::npos)
         {
         vtkStdString actualName = fieldName.substr(0,idx);
-        vtkDataArray *outArray = 
+        vtkDataArray *outArray =
               outputAttributes->GetArray(actualName.c_str());
         outArray->SetNumberOfTuples(inFieldArray->GetNumberOfTuples());
         numArrays++;
@@ -1011,8 +1011,8 @@ void vtkExtractArraysOverTime::CollectFastPathInput(vtkDataObject* input)
       outputAttributes->GetArray("Time")->SetTuple1(m,m);
       }
     }
-    
-  vtkUnsignedCharArray* validPts = 
+
+  vtkUnsignedCharArray* validPts =
     vtkUnsignedCharArray::SafeDownCast(
       output->GetPointData()->GetArray("vtkValidPointMask"));
 
@@ -1078,7 +1078,7 @@ static bool vtkUpdateFastPathIDsInternal(
 
 //----------------------------------------------------------------------------
 // Returns index or global id depending on the selection type.
-bool vtkExtractArraysOverTime::UpdateFastPathIDs(vtkInformationVector** inputV, 
+bool vtkExtractArraysOverTime::UpdateFastPathIDs(vtkInformationVector** inputV,
   vtkInformation* outInfo)
 {
   this->Internal->FastPathIDs.clear();
@@ -1095,10 +1095,10 @@ bool vtkExtractArraysOverTime::UpdateFastPathIDs(vtkInformationVector** inputV,
   vtkInformation* inInfo2 = inputV[1]->GetInformationObject(0);
   vtkSelection* selection = vtkSelection::GetData(inInfo2);
 
-  if ((this->ContentType == vtkSelectionNode::INDICES) ||        
+  if ((this->ContentType == vtkSelectionNode::INDICES) ||
     (this->ContentType == vtkSelectionNode::GLOBALIDS))
     {
-    bool status = ::vtkUpdateFastPathIDsInternal(selection, piece, 
+    bool status = ::vtkUpdateFastPathIDsInternal(selection, piece,
       this->Internal->FastPathIDs,
       this->Internal->FastPathCompositeIDs);
     if (this->ContentType == vtkSelectionNode::GLOBALIDS)

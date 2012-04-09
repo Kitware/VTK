@@ -46,7 +46,7 @@ public:
 protected:
   vtkVertexDegree();
   ~vtkVertexDegree();
-  
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:

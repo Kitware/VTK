@@ -688,7 +688,7 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
       {
       pcoords[0] = pcoords[1];
       pcoords[1] = pcoords[2];
-      pcoords[2] = 0.0;  
+      pcoords[2] = 0.0;
       }
     else if( this->DataDescription == VTK_XY_PLANE )
       {
@@ -772,11 +772,11 @@ void vtkImageData::ComputeBounds()
     int swapXBounds = (spacing[0] < 0);  // 1 if true, 0 if false
     int swapYBounds = (spacing[1] < 0);  // 1 if true, 0 if false
     int swapZBounds = (spacing[2] < 0);  // 1 if true, 0 if false
-    
+
     this->Bounds[0] = origin[0] + (extent[0+swapXBounds] * spacing[0]);
     this->Bounds[2] = origin[1] + (extent[2+swapYBounds] * spacing[1]);
     this->Bounds[4] = origin[2] + (extent[4+swapZBounds] * spacing[2]);
-    
+
     this->Bounds[1] = origin[0] + (extent[1-swapXBounds] * spacing[0]);
     this->Bounds[3] = origin[1] + (extent[3-swapYBounds] * spacing[1]);
     this->Bounds[5] = origin[2] + (extent[5-swapZBounds] * spacing[2]);
@@ -1067,7 +1067,7 @@ bool vtkImageData::HasNumberOfScalarComponents(vtkInformation* meta_data)
 {
   vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
     meta_data,
-    FIELD_ASSOCIATION_POINTS, 
+    FIELD_ASSOCIATION_POINTS,
     vtkDataSetAttributes::SCALARS);
   if (!scalarInfo)
     {
@@ -1081,7 +1081,7 @@ int vtkImageData::GetNumberOfScalarComponents(vtkInformation* meta_data)
 {
   vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(
     meta_data,
-    FIELD_ASSOCIATION_POINTS, 
+    FIELD_ASSOCIATION_POINTS,
     vtkDataSetAttributes::SCALARS);
   if (scalarInfo && scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()))
     {

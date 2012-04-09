@@ -70,7 +70,7 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
       } \
     </Shader> \
   </Material>";
-  
+
   vtkSphereSource * sphere = vtkSphereSource::New();
   sphere->SetRadius(5);
   sphere->SetPhiResolution(20);
@@ -103,24 +103,24 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
-  
+
   // All the passes.
   vtkCameraPass *cameraP=vtkCameraPass::New();
-  
+
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkOpaquePass *opaque=vtkOpaquePass::New();
   vtkDepthPeelingPass *peeling=vtkDepthPeelingPass::New();
   peeling->SetMaximumNumberOfPeels(200);
   peeling->SetOcclusionRatio(0.1);
-  
+
   vtkTranslucentPass *translucent=vtkTranslucentPass::New();
   peeling->SetTranslucentPass(translucent);
-  
+
   vtkVolumetricPass *volume=vtkVolumetricPass::New();
   vtkOverlayPass *overlay=vtkOverlayPass::New();
-  
+
   vtkLightsPass *lights=vtkLightsPass::New();
-  
+
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
@@ -130,7 +130,7 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
   glrenderer->SetPass(cameraP);
-  
+
   opaque->Delete();
   peeling->Delete();
   translucent->Delete();
@@ -141,13 +141,13 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
   cameraP->Delete();
   lights->Delete();
 
-  
+
   vtkRenderWindowInteractor *interactor = vtkRenderWindowInteractor::New();
   interactor->SetRenderWindow(renWin);
 
   renWin->SetSize(400,400);
   renWin->Render();
-  
+
   int retVal;
   if(MesaHasVTKBug8135())
     {
@@ -160,7 +160,7 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
     renderer->AddActor(actor);
     renderer->ResetCamera();
     renWin->Render();
-    
+
     if(peeling->GetLastRenderingUsedDepthPeeling())
       {
       cout<<"depth peeling was used"<<endl;
@@ -171,7 +171,7 @@ int TestGenericVertexAttributesGLSLDepthPeelingPass(int argc, char *argv[])
       }
     interactor->Initialize();
     renWin->Render();
-    
+
     retVal = vtkRegressionTestImageThreshold(renWin,18);
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
       {

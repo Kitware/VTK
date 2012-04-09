@@ -89,7 +89,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
     return 1;
     }
 
-  vtkIdTypeArray* idArray = 
+  vtkIdTypeArray* idArray =
     vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
 
   if (!idArray)
@@ -97,7 +97,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
     return 1;
     }
 
-  vtkIdType numCells = 
+  vtkIdType numCells =
     idArray->GetNumberOfComponents()*idArray->GetNumberOfTuples();
 
   if (numCells == 0)
@@ -146,7 +146,7 @@ int vtkExtractSelectedPolyDataIds::FillInputPortInformation(
 {
   if (port==0)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");    
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     }
   else
     {

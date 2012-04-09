@@ -37,7 +37,7 @@ class VTKIOXML_EXPORT vtkXMLPStructuredDataReader : public vtkXMLPDataReader
 public:
   vtkTypeMacro(vtkXMLPStructuredDataReader,vtkXMLPDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get an extent translator that will create pieces matching the
   // input file's piece breakdown.  This can be used further down the
@@ -45,26 +45,26 @@ public:
   // The translator is only valid after an UpdateInformation has been
   // called.
   virtual vtkExtentTranslator* GetExtentTranslator();
-  
+
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
   virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
 protected:
   vtkXMLPStructuredDataReader();
   ~vtkXMLPStructuredDataReader();
-  
+
   vtkIdType GetNumberOfPoints();
   vtkIdType GetNumberOfCells();
   void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray);
   void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray);
-  
+
   virtual void SetOutputExtent(int* extent)=0;
   virtual void GetPieceInputExtent(int index, int* extent)=0;
-  
+
   // Pipeline execute data driver.  Called by vtkXMLReader.
   void ReadXMLData();
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
-  
+
   void SetupOutputData();
 
   void SetupPieces(int numPieces);
@@ -76,17 +76,17 @@ protected:
                      int* subExtent, int* subDimensions,
                      vtkDataArray* inArray, vtkDataArray* outArray);
   int ComputePieceSubExtents();
-  
+
   //vtkTableExtentTranslator* ExtentTranslator;
   vtkExtentSplitter* ExtentSplitter;
-  
+
   // The extent to be updated in the output.
   int UpdateExtent[6];
   int PointDimensions[3];
   vtkIdType PointIncrements[3];
   int CellDimensions[3];
   vtkIdType CellIncrements[3];
-  
+
   // The extent currently being read from a piece.
   int SubExtent[6];
   int SubPointDimensions[3];
@@ -96,7 +96,7 @@ protected:
   vtkIdType SubPiecePointIncrements[3];
   int SubPieceCellDimensions[3];
   vtkIdType SubPieceCellIncrements[3];
-  
+
   // Information per-piece.
   int* PieceExtents;
 

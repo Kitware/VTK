@@ -111,12 +111,12 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 vtkMPICommunicator* vtkMPIController::WorldRMICommunicator=0;
 
 //----------------------------------------------------------------------------
-void vtkMPIController::TriggerRMIInternal(int remoteProcessId, 
+void vtkMPIController::TriggerRMIInternal(int remoteProcessId,
     void* arg, int argLength, int rmiTag, bool propagate)
 {
   vtkMPICommunicator* mpiComm = vtkMPICommunicator::SafeDownCast(
     this->RMICommunicator);
-  int use_ssend = mpiComm->GetUseSsend(); 
+  int use_ssend = mpiComm->GetUseSsend();
   if (vtkMPIController::UseSsendForRMI == 1 && use_ssend == 0)
     {
     mpiComm->SetUseSsend(1);
@@ -138,7 +138,7 @@ void vtkMPIController::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkMPIController::Initialize(int* argc, char*** argv, 
+void vtkMPIController::Initialize(int* argc, char*** argv,
                                   int initializedExternally)
 {
   if (vtkMPIController::Initialized)
@@ -146,7 +146,7 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
     vtkWarningMacro("Already initialized.");
     return;
     }
-  
+
   // Can be done once in the program.
   vtkMPIController::Initialized = 1;
   if (initializedExternally == 0)
@@ -183,7 +183,7 @@ const char* vtkMPIController::GetProcessorName()
 void vtkMPIController::Finalize(int finalizedExternally)
 {
   if (vtkMPIController::Initialized)
-    { 
+    {
     vtkMPIController::WorldRMICommunicator->Delete();
     vtkMPIController::WorldRMICommunicator = 0;
     vtkMPICommunicator::WorldCommunicator->Delete();
@@ -200,29 +200,29 @@ void vtkMPIController::Finalize(int finalizedExternally)
       }
     vtkMPIController::Initialized = 0;
     this->Modified();
-    }  
-  
+    }
+
 }
 
-// Called by SetCommunicator and constructor. It frees but does 
+// Called by SetCommunicator and constructor. It frees but does
 // not set RMIHandle (which should not be set by using MPI_Comm_dup
 // during construction).
 void vtkMPIController::InitializeCommunicator(vtkMPICommunicator* comm)
 {
-  if (this->Communicator != comm) 
-    { 
-    if (this->Communicator != 0) 
-      { 
-      this->Communicator->UnRegister(this); 
+  if (this->Communicator != comm)
+    {
+    if (this->Communicator != 0)
+      {
+      this->Communicator->UnRegister(this);
       }
-    this->Communicator = comm; 
-    if (this->Communicator != 0) 
-      { 
-      this->Communicator->Register(this); 
-      } 
+    this->Communicator = comm;
+    if (this->Communicator != 0)
+      {
+      this->Communicator->Register(this);
+      }
 
-    this->Modified(); 
-    }  
+    this->Modified();
+    }
 
 
 }
@@ -284,7 +284,7 @@ void vtkMPIController::MultipleMethodExecute()
     }
 
   int i = this->GetLocalProcessId();
-  
+
   if (i < this->GetNumberOfProcesses())
     {
     vtkProcessFunctionType multipleMethod;

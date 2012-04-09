@@ -50,8 +50,8 @@ protected:
   ~vtkPipelineGraphSource();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   vtkCollection* Sinks;

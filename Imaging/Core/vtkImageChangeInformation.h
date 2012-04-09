@@ -64,9 +64,9 @@ public:
 
   // Description:
   // Set the Origin of the output so that image coordinate (0,0,0)
-  // lies at the Center of the data set.  This will override 
-  // SetOutputOrigin.  This is often a useful operation to apply 
-  // before using vtkImageReslice to apply a transformation to an image. 
+  // lies at the Center of the data set.  This will override
+  // SetOutputOrigin.  This is often a useful operation to apply
+  // before using vtkImageReslice to apply a transformation to an image.
   vtkSetMacro(CenterImage, int);
   vtkBooleanMacro(CenterImage, int);
   vtkGetMacro(CenterImage, int);
@@ -77,7 +77,7 @@ public:
   vtkGetVector3Macro(ExtentTranslation, int);
 
   // Description:
-  // Apply a scale factor to the spacing. 
+  // Apply a scale factor to the spacing.
   vtkSetVector3Macro(SpacingScale, double);
   vtkGetVector3Macro(SpacingScale, double);
 
@@ -101,21 +101,21 @@ protected:
   int OutputExtentStart[3];
   int ExtentTranslation[3];
   int FinalExtentTranslation[3];
-  
+
   double OutputSpacing[3];
   double SpacingScale[3];
 
   double OutputOrigin[3];
   double OriginScale[3];
   double OriginTranslation[3];
-  
+
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
                                    vtkInformationVector *);
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);

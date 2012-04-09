@@ -120,7 +120,7 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
 {
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
-  if (!otree) 
+  if (!otree)
     {
     vtkErrorMacro(<< "Could not get output tree.");
     return -1;
@@ -134,10 +134,10 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     // vtkErrorMacro(<< "Output Tree does not have box information.");
     return -1;
     }
-  
+
   // Check to see that we are in the dataset at all
   float blimits[4];
- 
+
   vtkIdType vertex = otree->GetRoot();
   vtkFloatArray *boxInfo = vtkFloatArray::SafeDownCast(array);
   // Now try to find the vertex that contains the point
@@ -148,11 +148,11 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
     // Point is not in the tree at all
     return -1;
     }
-  
-  // Now traverse the children to try and find 
-  // the vertex that contains the point  
+
+  // Now traverse the children to try and find
+  // the vertex that contains the point
   vtkIdType child;
-  if (binfo) 
+  if (binfo)
     {
     binfo[0] = blimits[0];
     binfo[1] = blimits[1];
@@ -162,7 +162,7 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
 
   vtkAdjacentVertexIterator *it = vtkAdjacentVertexIterator::New();
   otree->GetAdjacentVertices(vertex, it);
-  while (it->HasNext()) 
+  while (it->HasNext())
     {
     child = it->Next();
     boxInfo->GetTupleValue(child, blimits); // Get the extents of the child
@@ -180,12 +180,12 @@ vtkIdType vtkTreeMapLayout::FindVertex(float pnt[2], float *binfo)
 
   return vertex;
 }
- 
+
 void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float *binfo)
 {
   // Do we have an output?
   vtkTree* otree = this->GetOutput();
-  if (!otree) 
+  if (!otree)
     {
     vtkErrorMacro(<< "Could not get output tree.");
     return;

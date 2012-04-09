@@ -56,8 +56,8 @@ int vtkDataObjectToTable::FillInputPortInformation(
 
 //---------------------------------------------------------------------------
 int vtkDataObjectToTable::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get input data
@@ -77,7 +77,7 @@ int vtkDataObjectToTable::RequestData(
     }
 
   vtkDataSetAttributes* data = vtkDataSetAttributes::New();
-  
+
   switch(this->FieldType)
     {
     case FIELD_DATA:
@@ -123,7 +123,7 @@ int vtkDataObjectToTable::RequestData(
         }
       break;
     }
-    
+
   output->SetRowData(data);
   data->Delete();
   return 1;

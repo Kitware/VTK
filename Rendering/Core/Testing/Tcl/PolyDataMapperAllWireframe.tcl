@@ -24,11 +24,11 @@ vtkPoints triangleStripPoints
 vtkFloatArray triangleStripTCoords
   triangleStripTCoords SetNumberOfComponents 2
   triangleStripTCoords SetNumberOfTuples 5
-  triangleStripTCoords InsertTuple2 0 0 1 
-  triangleStripTCoords InsertTuple2 1 0 0 
-  triangleStripTCoords InsertTuple2 2 .5 1 
-  triangleStripTCoords InsertTuple2 3 .5 0 
-  triangleStripTCoords InsertTuple2 4 1 1 
+  triangleStripTCoords InsertTuple2 0 0 1
+  triangleStripTCoords InsertTuple2 1 0 0
+  triangleStripTCoords InsertTuple2 2 .5 1
+  triangleStripTCoords InsertTuple2 3 .5 0
+  triangleStripTCoords InsertTuple2 4 1 1
 
 vtkFloatArray triangleStripPointScalars
   triangleStripPointScalars SetNumberOfTuples 5
@@ -92,7 +92,7 @@ foreach type $types {
       mapper$i SetScalarRange 0 4
     vtkActor actor$i
       actor$i SetMapper mapper$i
-  
+
       if {[expr $mask & 1] != 0} {
         [grid$i GetPointData] SetNormals triangleStripPointNormals
       }
@@ -112,7 +112,7 @@ foreach type $types {
         [grid$i GetCellData] SetNormals triangleStripCellNormals
       }
     actor$i AddPosition [expr $j * 2] [expr $k * 2] 0
-    ren1 AddActor actor$i 
+    ren1 AddActor actor$i
     [actor$i GetProperty] SetRepresentationToWireframe
     incr j
     if {$j >= 6} {set j 0; incr k};

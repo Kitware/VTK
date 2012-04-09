@@ -109,8 +109,8 @@ public:
 
   // Description:
   // Get the pipeline information vectors for the given input port.
-  vtkInformationVector* GetInputInformation(int port);  
-  
+  vtkInformationVector* GetInputInformation(int port);
+
   // Description:
   // Get the pipeline information vectors for all inputs
   vtkInformationVector** GetInputInformation();
@@ -128,7 +128,7 @@ public:
   // Description:
   // Get the data object for an input port of the algorithm.
   virtual vtkDataObject* GetInputData(int port, int connection);
-  virtual vtkDataObject* GetInputData(int port, int connection, 
+  virtual vtkDataObject* GetInputData(int port, int connection,
                                       vtkInformationVector **inInfoVec);
 
   // Description:

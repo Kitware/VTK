@@ -15,7 +15,7 @@
 // .NAME vtkByteSwap - perform machine dependent byte swapping
 // .SECTION Description
 // vtkByteSwap is used by other classes to perform machine dependent byte
-// swapping. Byte swapping is often used when reading or writing binary 
+// swapping. Byte swapping is often used when reading or writing binary
 // files.
 #ifndef __vtkByteSwap_h
 #define __vtkByteSwap_h
@@ -117,7 +117,7 @@ public:
 protected:
   vtkByteSwap();
   ~vtkByteSwap();
-  
+
 private:
   vtkByteSwap(const vtkByteSwap&);  // Not implemented.
   void operator=(const vtkByteSwap&);  // Not implemented.

@@ -15,10 +15,10 @@
 // .NAME vtkRectilinearGridClip - Reduces the image extent of the input.
 // .SECTION Description
 // vtkRectilinearGridClip  will make an image smaller.  The output must have
-// an image extent which is the subset of the input.  The filter has two 
-// modes of operation: 
-// 1: By default, the data is not copied in this filter. 
-// Only the whole extent is modified.  
+// an image extent which is the subset of the input.  The filter has two
+// modes of operation:
+// 1: By default, the data is not copied in this filter.
+// Only the whole extent is modified.
 // 2: If ClipDataOn is set, then you will get no more that the clipped
 // extent.
 #ifndef __vtkRectilinearGridClip_h
@@ -40,7 +40,7 @@ public:
   // Description:
   // The whole extent of the output has to be set explicitly.
   void SetOutputWholeExtent(int extent[6], vtkInformation *outInfo=0);
-  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
+  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
@@ -69,7 +69,7 @@ protected:
   int OutputWholeExtent[6];
 
   int ClipData;
-  
+
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);

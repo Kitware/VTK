@@ -15,8 +15,8 @@
 // .NAME vtkImageDecomposeFilter - Filters that execute axes in series.
 // .SECTION Description
 // This superclass molds the vtkImageIterateFilter superclass so
-// it iterates over the axes.  The filter uses dimensionality to 
-// determine how many axes to execute (starting from x).  
+// it iterates over the axes.  The filter uses dimensionality to
+// determine how many axes to execute (starting from x).
 // The filter also provides convenience methods for permuting information
 // retrieved from input, output and vtkImageData.
 
@@ -48,7 +48,7 @@ public:
                          vtkIdType &inc1, vtkIdType &inc2);
   void PermuteExtent(int *extent, int &min0, int &max0, int &min1, int &max1,
                      int &min2, int &max2);
-  
+
 protected:
   vtkImageDecomposeFilter();
   ~vtkImageDecomposeFilter() {};

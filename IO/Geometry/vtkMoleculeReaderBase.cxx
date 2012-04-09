@@ -84,7 +84,7 @@ static double vtkMoleculeReaderBaseRadius[] = {
   1.2, 1.22, 1.75,  /* "H " "He" "Li" */
   1.50, 1.90, 1.80, /* "Be" "B " "C " */
   1.70, 1.60, 1.35, /* "N " "O " "F " */
-  1.60, 2.31, 1.70, 
+  1.60, 2.31, 1.70,
   2.05, 2.00, 2.70,
   1.85, 1.81, 1.91,
   2.31, 1.74, 1.80,
@@ -169,12 +169,12 @@ int vtkMoleculeReaderBase::RequestData(
 
   FILE *fp;
 
-  if (!this->FileName) 
+  if (!this->FileName)
     {
     return 0;
     }
 
-  if ((fp = fopen(this->FileName, "r")) == NULL) 
+  if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
@@ -226,7 +226,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
   output->SetLines(newBonds);
   newBonds->Delete();
 
-  vtkDebugMacro(<< "read " << this->NumberOfAtoms << " atoms and found " 
+  vtkDebugMacro(<< "read " << this->NumberOfAtoms << " atoms and found "
                 << newBonds->GetNumberOfCells() << " bonds" << endl);
 
   if ( this->RGB )
@@ -291,11 +291,11 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   vtkIdType bond[2];
 
   nbonds = 0;
-  for(i = this->NumberOfAtoms - 1; i > 0; i--) 
+  for(i = this->NumberOfAtoms - 1; i > 0; i--)
     {
     bond[0] = i;
     newPts->GetPoint(i, X);
-    for(j = i - 1; j >= 0 ; j--) 
+    for(j = i - 1; j >= 0 ; j--)
       {
       /*
        * The outer loop index 'i' is AFTER the inner loop 'j': 'i'
@@ -305,11 +305,11 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
        * the 'j' loop when 'i' is a hydrogen and we make a bond to it.
        * Working backwards like this makes it easy to find the heavy
        * atom that came 'just before' the Hydrogen. mp
-       * Base distance criteria on vdw...lb                                 
+       * Base distance criteria on vdw...lb
        */
 
       /* never bond hydrogens to each other... */
-      if (atype->GetValue(i) == 0 && atype->GetValue(j) == 0) 
+      if (atype->GetValue(i) == 0 && atype->GetValue(j) == 0)
         {
         continue;
         }
@@ -331,21 +331,21 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
       dx = X[0] - Y[0];
       dist = dx * dx;
 
-      if(dist > max ) 
+      if(dist > max )
         {
         continue;
         }
 
       dy = X[1] - Y[1];
       dist += dy * dy;
-      if(dist > max ) 
+      if(dist > max )
         {
         continue;
         }
 
       dz = X[2] - Y[2];
       dist += dz * dz;
-      if(dist > max ) 
+      if(dist > max )
         {
         continue;
         }
@@ -366,16 +366,16 @@ int vtkMoleculeReaderBase::MakeAtomType(const char *atype)
   int       anum=0;
 
   a = atype[0];
-  if (islower(a)) 
+  if (islower(a))
     {
     a = toupper(a);
     }
   b = atype[1];
-  if (islower(b)) 
+  if (islower(b))
     {
     b = toupper(b);
     }
-  switch (a) 
+  switch (a)
     {
   case 'A':
     if(b == 'C') anum = 89;
@@ -522,7 +522,7 @@ void vtkMoleculeReaderBase::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
     << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "NumberOfAtoms: " << this->NumberOfAtoms  << endl;
   os << indent << "HBScale: " << this->HBScale << endl;

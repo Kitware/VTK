@@ -26,8 +26,8 @@
 #define VTKTCL_EXPORT
 #endif
 
-extern VTKTCL_EXPORT void vtkTclUpdateCommand(Tcl_Interp *interp, 
-                                              char *name,  
+extern VTKTCL_EXPORT void vtkTclUpdateCommand(Tcl_Interp *interp,
+                                              char *name,
                                               vtkObject *obj);
 
 extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *,
@@ -35,7 +35,7 @@ extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *,
                                                      void *, void *);
 extern VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd);
 
-extern VTKTCL_EXPORT void 
+extern VTKTCL_EXPORT void
 vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp,
                            const char *targetType);
 
@@ -45,15 +45,15 @@ vtkTclGetPointerFromObject(const char *name, const char *result_type,
 
 extern VTKTCL_EXPORT void vtkTclVoidFunc(void *);
 extern VTKTCL_EXPORT void vtkTclVoidFuncArgDelete(void *);
-extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, 
+extern VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp,
                                               ClientData arg);
 extern VTKTCL_EXPORT int  vtkTclInDelete(Tcl_Interp *interp);
 
-extern VTKTCL_EXPORT int vtkTclNewInstanceCommand(ClientData cd, 
+extern VTKTCL_EXPORT int vtkTclNewInstanceCommand(ClientData cd,
                                                   Tcl_Interp *interp,
                                                   int argc, char *argv[]);
 extern VTKTCL_EXPORT void vtkTclDeleteCommandStruct(ClientData cd);
-extern VTKTCL_EXPORT 
+extern VTKTCL_EXPORT
 void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
                      ClientData (*NewCommand)(),
                      int (*CommandFunction)(ClientData cd,
@@ -67,17 +67,17 @@ public:
 
   void SetStringCommand(const char *arg);
   void SetInterp(Tcl_Interp *interp) { this->Interp = interp; };
-  
+
   void Execute(vtkObject *, unsigned long, void *);
 
   char *StringCommand;
   Tcl_Interp *Interp;
 protected:
   vtkTclCommand();
-  ~vtkTclCommand(); 
+  ~vtkTclCommand();
 };
 
-typedef struct _vtkTclVoidFuncArg 
+typedef struct _vtkTclVoidFuncArg
 {
   Tcl_Interp *interp;
   char *command;

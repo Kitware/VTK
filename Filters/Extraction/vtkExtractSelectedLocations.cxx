@@ -56,7 +56,7 @@ int vtkExtractSelectedLocations::RequestData(
   vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // verify the input, selection and ouptut
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -70,7 +70,7 @@ int vtkExtractSelectedLocations::RequestData(
     {
     //When not given a selection, quietly select nothing.
     return 1;
-    }  
+    }
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -92,9 +92,9 @@ int vtkExtractSelectedLocations::RequestData(
 
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkDebugMacro(<< "Extracting from dataset");
-  
+
   int fieldType = vtkSelectionNode::CELL;
   if (node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()))
     {
@@ -116,7 +116,7 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
   vtkPoints* newPts = vtkPoints::New();
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
-  
+
   vtkPointData* inPD = input->GetPointData();
   vtkPointData* outPD = output->GetPointData();
   outPD->SetCopyGlobalIds(1);
@@ -125,7 +125,7 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
   vtkIdTypeArray* originalPtIds = vtkIdTypeArray::New();
   originalPtIds->SetName("vtkOriginalPointIds");
   originalPtIds->SetNumberOfComponents(1);
-  
+
   for (i = 0; i < numPts; i++)
     {
     if (inArray[i] > 0)
@@ -139,7 +139,7 @@ void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet* output
       pointMap[i] = -1;
       }
     }
-  
+
   // outputDS must be either vtkPolyData or vtkUnstructuredGrid
   vtkPointSet::SafeDownCast(output)->SetPoints(newPts);
   newPts->Delete();
@@ -154,16 +154,16 @@ void vtkExtractSelectedLocationsCopyCells(vtkDataSet* input, T* output, signed c
 {
   vtkIdType numCells = input->GetNumberOfCells();
   output->Allocate(numCells / 4);
-  
+
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
   outCD->SetCopyGlobalIds(1);
   outCD->CopyAllocate(inCD);
-  
+
   vtkIdTypeArray* originalIds = vtkIdTypeArray::New();
   originalIds->SetNumberOfComponents(1);
   originalIds->SetName("vtkOriginalCellIds");
-  
+
   vtkIdType i, j, newId = 0;
   vtkIdList* ptIds = vtkIdList::New();
   for (i = 0; i < numCells; i++)
@@ -192,7 +192,7 @@ void vtkExtractSelectedLocationsCopyCells(vtkDataSet* input, T* output, signed c
       originalIds->InsertNextValue(i);
       }
     }
-  
+
   outCD->AddArray(originalIds);
   originalIds->Delete();
   ptIds->Delete();
@@ -205,7 +205,7 @@ int vtkExtractSelectedLocations::ExtractCells(
   vtkDataSet *output)
 {
   //get a hold of input data structures and allocate output data structures
-  vtkDoubleArray *locArray = 
+  vtkDoubleArray *locArray =
     vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
 
   if (!locArray)
@@ -279,7 +279,7 @@ int vtkExtractSelectedLocations::ExtractCells(
   int subId;
   double pcoords[3];
   double* weights = new double[input->GetMaxCellSize()];
- 
+
   vtkIdType ptId, cellId, locArrayIndex;
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
     {
@@ -307,7 +307,7 @@ int vtkExtractSelectedLocations::ExtractCells(
         }
       }
     }
-  
+
   delete [] weights;
   cell->Delete();
 
@@ -466,7 +466,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
         if (dx+dy+dz > epsSquared)
           {
           ptId = -1;
-          }          
+          }
         }
       }
 
@@ -528,7 +528,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
         }
       }
     delete [] pointMap;
-    this->UpdateProgress(1.0);      
+    this->UpdateProgress(1.0);
     }
 
   output->Squeeze();

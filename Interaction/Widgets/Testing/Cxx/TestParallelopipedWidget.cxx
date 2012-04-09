@@ -60,13 +60,13 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
-                                                        
+
   vtkSmartPointer<vtkAppendPolyData> append =
     vtkSmartPointer<vtkAppendPolyData>::New();
   append->AddInputConnection(glyph->GetOutputPort());
   append->AddInputConnection(sphere->GetOutputPort());
   append->Update();
-  
+
   vtkSmartPointer<vtkCubeSource>  cube =
     vtkSmartPointer<vtkCubeSource>::New();
   double bounds[6];
@@ -84,7 +84,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   bounds[4] = -1.0;
   bounds[5] = 1.0;
   cube->SetBounds(bounds);
-  
+
   vtkSmartPointer<vtkMatrix4x4>  affineMatrix =
     vtkSmartPointer<vtkMatrix4x4>::New();
   const double m[] = { 1.0,  0.1,  0.2,  0.0,
@@ -101,14 +101,14 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   transformFilter->SetTransform(transform);
   transformFilter->SetInputConnection(cube->GetOutputPort());
   transformFilter->Update();
-  
+
   vtkSmartPointer<vtkPoints>  parallelopipedPoints =
     vtkSmartPointer<vtkPoints>::New();
   parallelopipedPoints->DeepCopy(transformFilter->GetOutput()->GetPoints());
-  
+
   transformFilter->SetInputConnection(append->GetOutputPort());
   transformFilter->Update();
-  
+
   vtkSmartPointer<vtkPolyDataMapper> maceMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(transformFilter->GetOutputPort());
@@ -142,7 +142,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   renWin->Render();
 
   widget->EnabledOn();
-  
+
   vtkSmartPointer<vtkCubeAxesActor2D> axes =
     vtkSmartPointer<vtkCubeAxesActor2D>::New();
   axes ->SetInputConnection (transformFilter-> GetOutputPort());
@@ -151,7 +151,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   axes ->SetFlyModeToOuterEdges();
   axes ->SetFontFactor (0.8);
   renderer-> AddViewProp( axes );
-  
+
   iren->Start();
 
   return EXIT_SUCCESS;

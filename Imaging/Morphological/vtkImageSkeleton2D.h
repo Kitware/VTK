@@ -15,10 +15,10 @@
 // .NAME vtkImageSkeleton2D - Skeleton of 2D images.
 // .SECTION Description
 // vtkImageSkeleton2D should leave only single pixel width lines
-// of non-zero-valued pixels (values of 1 are not allowed).  
+// of non-zero-valued pixels (values of 1 are not allowed).
 // It works by erosion on a 3x3 neighborhood with special rules.
 // The number of iterations determines how far the filter can erode.
-// There are three pruning levels:  
+// There are three pruning levels:
 //  prune == 0 will leave traces on all angles...
 //  prune == 1 will not leave traces on 135 degree angles, but will on 90.
 //  prune == 2 does not leave traces on any angles leaving only closed loops.

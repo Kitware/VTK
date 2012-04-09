@@ -48,7 +48,7 @@ template<typename ReaderT, typename DataT>
 void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* Output)
 {
   ReaderT* const reader = ReaderT::New();
-  
+
   reader->SetFileName(this->GetFileName());
   reader->SetInputArray(this->GetInputArray());
   reader->SetInputString(this->GetInputString(),
@@ -98,7 +98,7 @@ vtkGenericDataObjectReader::~vtkGenericDataObjectReader()
 
 int vtkGenericDataObjectReader::RequestDataObject(
   vtkInformation* /*information*/,
-  vtkInformationVector** /*inputVector*/, 
+  vtkInformationVector** /*inputVector*/,
   vtkInformationVector* outputVector)
 {
   if(this->GetFileName() == NULL &&
@@ -119,7 +119,7 @@ int vtkGenericDataObjectReader::RequestDataObject(
     return 1;
     }
 
-  if(!output || output->GetDataObjectType() != outputType) 
+  if(!output || output->GetDataObjectType() != outputType)
     {
     switch (outputType)
       {
@@ -248,7 +248,7 @@ int vtkGenericDataObjectReader::RequestData(
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   vtkDebugMacro(<<"Reading vtk dataset...");
 
   switch (this->ReadOutputType())
@@ -330,7 +330,7 @@ int vtkGenericDataObjectReader::RequestData(
 int vtkGenericDataObjectReader::ReadOutputType()
 {
   char line[256];
-  
+
   vtkDebugMacro(<<"Reading vtk data object...");
 
   if(!this->OpenVTKFile() || !this->ReadHeader())
@@ -358,7 +358,7 @@ int vtkGenericDataObjectReader::ReadOutputType()
       }
 
     this->CloseVTKFile();
-    
+
     if(!strncmp(this->LowerCase(line), "directed_graph", 5))
       {
       return VTK_DIRECTED_GRAPH;
@@ -434,17 +434,17 @@ vtkPolyData *vtkGenericDataObjectReader::GetPolyDataOutput()
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
-vtkRectilinearGrid *vtkGenericDataObjectReader::GetRectilinearGridOutput() 
+vtkRectilinearGrid *vtkGenericDataObjectReader::GetRectilinearGridOutput()
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
 
-vtkStructuredGrid *vtkGenericDataObjectReader::GetStructuredGridOutput() 
+vtkStructuredGrid *vtkGenericDataObjectReader::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-vtkStructuredPoints *vtkGenericDataObjectReader::GetStructuredPointsOutput() 
+vtkStructuredPoints *vtkGenericDataObjectReader::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
@@ -459,7 +459,7 @@ vtkTree *vtkGenericDataObjectReader::GetTreeOutput()
   return vtkTree::SafeDownCast(this->GetOutput());
 }
 
-vtkUnstructuredGrid *vtkGenericDataObjectReader::GetUnstructuredGridOutput() 
+vtkUnstructuredGrid *vtkGenericDataObjectReader::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }

@@ -159,7 +159,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     this->CheckerboardImage(this->ImageReslice->GetOutput(),
       ren->GetActiveCamera(), property);
     }
-     
+
   // delegate to vtkImageSliceMapper
   this->SliceMapper->SetInputConnection(
     this->ImageReslice->GetOutputPort());
@@ -389,7 +389,7 @@ int vtkImageResliceMapper::ProcessRequest(
 
     // set the number of threads to use when executing
     this->ImageReslice->SetNumberOfThreads(this->NumberOfThreads);
- 
+
     // delegate request to vtkImageReslice (generally not a good thing to
     // do, but I'm familiar with the vtkImageReslice code that gets called).
     return this->ImageReslice->ProcessRequest(
@@ -1251,7 +1251,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
       }
     }
 
-  // go through the edges and find the new points 
+  // go through the edges and find the new points
   for (int j = 0; j < 12; j++)
     {
     // verts from edges (sorry about this..)
@@ -1259,7 +1259,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
     int i2 = (i1 ^ (1 << (j>>2)));
 
     double *weights = weights2;
-    bool *side = above; 
+    bool *side = above;
     int m = 1 + (this->SlabThickness > 0);
     for (int k = 0; k < m; k++)
       {
@@ -1284,7 +1284,7 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
 
   if (n > 0)
     {
-    // centroid 
+    // centroid
     cx /= n;
     cy /= n;
 
@@ -1304,9 +1304,9 @@ void vtkImageResliceMapper::UpdatePolygonCoords(vtkRenderer *ren)
         {
         int jj3 = jj*3;
         angles[jj] = angles[jj-1];
-        coords[jj3] = coords[jj3-3]; 
-        coords[jj3+1] = coords[jj3-2]; 
-        coords[jj3+2] = coords[jj3-1]; 
+        coords[jj3] = coords[jj3-3];
+        coords[jj3+1] = coords[jj3-2];
+        coords[jj3+2] = coords[jj3-1];
         }
       int kk3 = kk*3;
       angles[kk] = t;

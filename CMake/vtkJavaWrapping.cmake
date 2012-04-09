@@ -3,7 +3,7 @@ if(VTK_WRAP_JAVA)
   find_package(Java)
   find_package(JNI)
   include(vtkWrapJava)
-  
+
   IF(JAVA_AWT_LIBRARY)
   FOREACH(__java_library ${JAVA_AWT_LIBRARY})
     GET_FILENAME_COMPONENT(JAVA_LIB_DIR ${__java_library} PATH)
@@ -18,7 +18,7 @@ if(VTK_WRAP_JAVA)
     ENDIF(EXISTS ${JAVA_LIB_DIR}/server)
   ENDFOREACH(__java_library)
   ENDIF(JAVA_AWT_LIBRARY)
-  
+
   include_directories(
     ${JAVA_INCLUDE_PATH}
     ${JAVA_INCLUDE_PATH2}
@@ -42,7 +42,7 @@ function(vtk_add_java_wrapping module_name module_srcs)
   endif()
 
   target_link_libraries(vtk${wrap_name}Java ${module_name} vtkWrappingJavaCore)
-  include_directories(${vtkWrappingJavaCore_SOURCE_DIR} 
+  include_directories(${vtkWrappingJavaCore_SOURCE_DIR}
     ${vtkWrappingJavaCore_BINARY_DIR}
     )
 

@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricEllipsoid.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -16,13 +16,13 @@
 // .SECTION Description
 // vtkParametricEllipsoid generates an ellipsoid.
 // If all the radii are the same, we have a sphere.
-// An oblate spheroid occurs if RadiusX = RadiusY > RadiusZ. 
+// An oblate spheroid occurs if RadiusX = RadiusY > RadiusZ.
 // Here the Z-axis forms the symmetry axis. To a first
 // approximation, this is the shape of the earth.
 // A prolate spheroid occurs if RadiusX = RadiusY < RadiusZ.
 //
-// For further information about this surface, please consult the 
-// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// For further information about this surface, please consult the
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
@@ -40,15 +40,15 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid : public vtkP
 public:
   vtkTypeMacro(vtkParametricEllipsoid,vtkParametricFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Construct an ellipsoid with the following parameters:
-  // MinimumU = 0, MaximumU = 2*Pi, 
-  // MinimumV = 0, MaximumV = Pi, 
-  // JoinU = 1, JoinV = 0, 
-  // TwistU = 0, TwistV = 0, 
+  // MinimumU = 0, MaximumU = 2*Pi,
+  // MinimumV = 0, MaximumV = Pi,
+  // JoinU = 1, JoinV = 0,
+  // TwistU = 0, TwistV = 0,
   // ClockwiseOrdering = 1,
-  // DerivativesAvailable = 1, 
+  // DerivativesAvailable = 1,
   // XRadius = 1, YRadius = 1,
   // ZRadius = 1, a sphere in this case.
   static vtkParametricEllipsoid *New();
@@ -84,15 +84,15 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   //
-  // uvw are the parameters with Pt being the the cartesian point, 
+  // uvw are the parameters with Pt being the the cartesian point,
   // Duvw are the derivatives of this point with respect to u, v and w.
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
-  // If the user does not need to calculate a scalar, then the 
-  // instantiated function should return zero. 
+  // If the user does not need to calculate a scalar, then the
+  // instantiated function should return zero.
   //
   virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
 

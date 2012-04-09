@@ -48,8 +48,8 @@ void vtkDataObjectWriter::WriteData()
   // Write FieldData data specific stuff
   //
   this->Writer->WriteFieldData(fp, f);
-  
-  this->Writer->CloseVTKFile(fp);  
+
+  this->Writer->CloseVTKFile(fp);
 
   this->Writer->SetInputData(NULL);
 }
@@ -57,8 +57,8 @@ void vtkDataObjectWriter::WriteData()
 void vtkDataObjectWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "File Name: " 
+
+  os << indent << "File Name: "
      << (this->Writer->GetFileName() ? this->Writer->GetFileName() : "(none)") << "\n";
 
   if ( this->Writer->GetFileType() == VTK_BINARY )

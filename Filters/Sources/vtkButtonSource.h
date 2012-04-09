@@ -23,8 +23,8 @@
 // regions are assigned a texture coordinate specified by the user.  In this
 // way the shoulder region can be colored by the texture.
 //
-// Creating a vtkButtonSource requires specifying its center point. 
-// (Subclasses have other attributes that must be set to control 
+// Creating a vtkButtonSource requires specifying its center point.
+// (Subclasses have other attributes that must be set to control
 // the shape of the button.) You must also specify how to control
 // the shape of the texture region; i.e., whether to size the
 // texture region proportional to the texture dimensions or whether
@@ -66,9 +66,9 @@ public:
   vtkSetClampMacro(TextureStyle,int,VTK_TEXTURE_STYLE_FIT_IMAGE,
                                     VTK_TEXTURE_STYLE_PROPORTIONAL);
   vtkGetMacro(TextureStyle,int);
-  void SetTextureStyleToFitImage() 
+  void SetTextureStyleToFitImage()
     {this->SetTextureStyle(VTK_TEXTURE_STYLE_FIT_IMAGE);}
-  void SetTextureStyleToProportional() 
+  void SetTextureStyleToProportional()
     {this->SetTextureStyle(VTK_TEXTURE_STYLE_PROPORTIONAL);}
 
   // Description:
@@ -85,7 +85,7 @@ public:
   // Description:
   // Indicate whether the button is single or double sided. A double sided
   // button can be viewed from two sides...it looks sort of like a "pill."
-  // A single-sided button is meant to viewed from a single side; it looks 
+  // A single-sided button is meant to viewed from a single side; it looks
   // like a "clam-shell."
   vtkSetMacro(TwoSided,int);
   vtkGetMacro(TwoSided,int);

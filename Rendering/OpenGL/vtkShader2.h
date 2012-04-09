@@ -58,18 +58,18 @@ public:
   static vtkShader2 *New();
   vtkTypeMacro(vtkShader2,vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
   // Description:
   // Returns if the context supports the required extensions.
   static bool IsSupported(vtkOpenGLRenderWindow *context);
   static bool LoadExtensions(vtkOpenGLRenderWindow *context);
-  
+
   // Description:
   // String containing the shader source code. Reminder SetString makes a copy
   // of its argument.
   vtkGetStringMacro(SourceCode);
   vtkSetStringMacro(SourceCode);
-  
+
   // Description:
   // Return the shader type, .
   // \post valid_result: result==VTK_SHADER_TYPE_VERTEX ||
@@ -78,7 +78,7 @@ public:
   // result==VTK_SHADER_TYPE_GEOMETRY ||
   // result==VTK_SHADER_TYPE_FRAGMENT.
   vtkGetMacro(Type,int);
-  
+
   // Description:
   // Set the shader type, .
   // \pre valid_type: type==VTK_SHADER_TYPE_VERTEX ||
@@ -88,76 +88,76 @@ public:
   // type==VTK_SHADER_TYPE_FRAGMENT.
   // \post is_set: GetType()==type.
   vtkSetMacro(Type,int);
-  
+
   // Description:
   // Return the shader type as a string.
   const char *GetTypeAsString();
-  
+
   // Description:
   // Compile the shader code.
   // The result of compilation can be query with GetLastCompileStatus()
   // The log of compilation can be query with GetLastCompileLog()
   // \pre SourceCode_exists: this->GetSourceCode()!=0
   void Compile();
-  
+
   // Description:
   // Tells if the last call to compile succeeded (true) or not (false).
   // Initial value is false.
   bool GetLastCompileStatus();
-  
+
   // Description:
   // Return the log of the last call to compile as a string.
   // Initial value is the empty string ""='\0'.
   // \post result_exists: result!=0
   const char *GetLastCompileLog();
-  
+
   // Description:
-  // Get/Set the context. This does not increase the reference count of the 
+  // Get/Set the context. This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
   void SetContext(vtkOpenGLRenderWindow *context);
   vtkGetObjectMacro(Context,vtkOpenGLRenderWindow);
-  
+
   // Description:
   // Release OpenGL resource (shader id).
   virtual void ReleaseGraphicsResources();
-  
+
   // Description:
   // Return the OpenGL shader object id.
   vtkGetMacro(Id,unsigned int);
-  
+
   // Description:
   // Get/Set the list of uniform variables values.
   // Initial value is an empty list (not null pointer).
   vtkGetObjectMacro(UniformVariables,vtkUniformVariables);
   virtual void SetUniformVariables(vtkUniformVariables *variables);
-  
+
 protected:
   // Description:
   // Default constructor. SourceCode is NULL. Type is vertex.
   vtkShader2();
-  
+
   // Description:
   // Destructor. Delete SourceCode and LastCompileLog if any.
   virtual ~vtkShader2();
-  
+
   char *SourceCode;
   int Type;
-  
+
   unsigned int Id; // actually GLuint. Initial value is 0.
-  
+
   bool LastCompileStatus; // Initial value is false.
   char *LastCompileLog; // Initial value is the empty string ""='\0'.
   size_t LastCompileLogCapacity; // Initial value is 8.
-  
+
   vtkTimeStamp LastCompileTime;
   vtkUniformVariables *UniformVariables; // Initial values is an empty list
   vtkOpenGLRenderWindow *Context;
-  
+
   bool ExtensionsLoaded;
   bool SupportGeometryShader;
-  
+
 private:
   vtkShader2(const vtkShader2&); // Not implemented.
   void operator=(const vtkShader2&); // Not implemented.

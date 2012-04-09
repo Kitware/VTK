@@ -75,7 +75,7 @@ void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy)
       {
       this->LayoutStrategy->Register(this);
       this->ObserverTag =
-        this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent, 
+        this->LayoutStrategy->AddObserver(vtkCommand::ProgressEvent,
                                           this->EventForwarder);
       if (this->InternalGraph)
         {
@@ -90,7 +90,7 @@ void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy)
       }
     this->Modified();
     }
-  
+
 }
 
 // ----------------------------------------------------------------------
@@ -140,10 +140,10 @@ int vtkEdgeLayout::RequestData(vtkInformation *vtkNotUsed(request),
   // we'll replace that with a deep copy.  For everything else a
   // shallow copy is sufficient.
   this->InternalGraph->ShallowCopy(input);
-    
+
   // Copy the edge layout points.
   this->InternalGraph->DeepCopyEdgePoints(input);
-  
+
   // Give the layout strategy a pointer to the input.  We set it to
   // NULL first to force the layout algorithm to re-initialize
   // itself.  This is necessary in case the input is the same data

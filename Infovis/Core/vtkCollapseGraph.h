@@ -60,12 +60,12 @@ protected:
   ~vtkCollapseGraph();
 
   int FillInputPortInformation(int port, vtkInformation* info);
-  
+
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
- 
+
 private:
   vtkCollapseGraph(const vtkCollapseGraph&); // Not implemented
   void operator=(const vtkCollapseGraph&);   // Not implemented

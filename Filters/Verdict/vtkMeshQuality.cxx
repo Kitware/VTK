@@ -97,9 +97,9 @@ void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent )
      << QualityMeasureNames[this->TetQualityMeasure] << endl;
   os << indent << "HexQualityMeasure: "
      << QualityMeasureNames[this->HexQualityMeasure] << endl;
-  os << indent << "Volume: " 
+  os << indent << "Volume: "
      << (this->Volume ? onStr : offStr) << endl;
-  os << indent << "CompatibilityMode: " 
+  os << indent << "CompatibilityMode: "
      << (this->CompatibilityMode ? onStr : offStr) << endl;
 }
 
@@ -752,7 +752,7 @@ int vtkMeshQuality::RequestData(
     {
     qtrim = Eqtri = qtriM = Eqtri2 = 0.;
     }
-  
+
   if ( nqua )
     {
     Eqqua  /= static_cast<double>( nqua );
@@ -763,7 +763,7 @@ int vtkMeshQuality::RequestData(
     {
     qquam = Eqqua = qquaM = Eqqua2 = 0.;
     }
-  
+
   if ( ntet )
     {
     Eqtet  /= static_cast<double>( ntet );

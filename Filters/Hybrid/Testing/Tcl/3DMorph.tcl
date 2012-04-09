@@ -76,10 +76,10 @@ ren1 SetActiveCamera camera
 
 #  now  make a renderer and tell it about lights and actors
 renWin SetSize 300 350
-  
+
 ren1 AddActor blobby
 ren1 SetBackground 1 1 1
-renWin Render 
+renWin Render
 
 set subIters 4.0
 for {set i 0} {$i < 2} {incr i} {

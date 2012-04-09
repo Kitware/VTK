@@ -41,7 +41,7 @@ vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)
 }
 
 VTKTCL_EXPORT int vtkTclInDelete(Tcl_Interp *interp)
-{  
+{
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
   if (is)
     {
@@ -52,8 +52,8 @@ VTKTCL_EXPORT int vtkTclInDelete(Tcl_Interp *interp)
 
 
 // just another way into DeleteCommand
-VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *obj, 
-                                              unsigned long vtkNotUsed(eventId), 
+VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *obj,
+                                              unsigned long vtkNotUsed(eventId),
                                               void *cd, void *)
 {
   vtkTclCommandArgStruct *as = static_cast<vtkTclCommandArgStruct *>(cd);
@@ -61,10 +61,10 @@ VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(vtkObject *obj,
   Tcl_HashEntry *entry;
   char *temp;
   vtkTclInterpStruct *is = vtkGetInterpStruct(as->Interp);
-  
+
   // lookup the objects name
   sprintf(temps,"%p",obj);
-  entry = Tcl_FindHashEntry(&is->PointerLookup,temps); 
+  entry = Tcl_FindHashEntry(&is->PointerLookup,temps);
   if (entry)
     {
     temp = static_cast<char *>(Tcl_GetHashValue(entry));
@@ -95,7 +95,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
 
   // lookup the objects name
   sprintf(temps,"%p",as->Pointer);
-  entry = Tcl_FindHashEntry(&is->PointerLookup,temps); 
+  entry = Tcl_FindHashEntry(&is->PointerLookup,temps);
   if (!entry)
     {
     return;
@@ -103,7 +103,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
 
   temp = static_cast<char *>(Tcl_GetHashValue(entry));
   args[0] = temp;
-  
+
   // first we clear the delete callback since we will
   // always remove this object from the hash regardless
   // of if it has really been freed.
@@ -112,12 +112,12 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
                                interp, error));
   tobject->RemoveObserver(as->Tag);
   as->Tag = 0;
-  
+
   // get the command function and invoke the delete operation
   entry = Tcl_FindHashEntry(&is->CommandLookup,temp);
   command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))(
     Tcl_GetHashValue(entry));
-  
+
   // do we need to delete the c++ obj
   if (strncmp(temp,"vtkTemp",7))
     {
@@ -126,15 +126,15 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
     is->InDelete = 0;
     }
 
-  // the actual C++ object may not be freed yet. So we 
+  // the actual C++ object may not be freed yet. So we
   // force it to be free from the hash table.
   Tcl_DeleteHashEntry(entry);
-  entry = Tcl_FindHashEntry(&is->PointerLookup,temps); 
+  entry = Tcl_FindHashEntry(&is->PointerLookup,temps);
   Tcl_DeleteHashEntry(entry);
   entry = Tcl_FindHashEntry(&is->InstanceLookup,temp);
   Tcl_DeleteHashEntry(entry);
   delete as;
-  
+
   if (is->DebugOn)
     {
     vtkGenericWarningMacro("vtkTcl Attempting to free object named " << temp);
@@ -151,7 +151,7 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
   Tcl_HashSearch search;
   char * tmp;
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
-  
+
   if (argc < 2)
     {
     return TCL_OK;
@@ -159,7 +159,7 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
 
   if (!strcmp(argv[1],"DeleteAllObjects"))
     {
-    for (entry = Tcl_FirstHashEntry(&is->PointerLookup,&search); 
+    for (entry = Tcl_FirstHashEntry(&is->PointerLookup,&search);
          entry != NULL;
          entry = Tcl_FirstHashEntry(&is->PointerLookup,&search))
       {
@@ -177,7 +177,7 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
     }
   if (!strcmp(argv[1],"ListAllInstances"))
     {
-    for (entry = Tcl_FirstHashEntry(&is->InstanceLookup,&search); 
+    for (entry = Tcl_FirstHashEntry(&is->InstanceLookup,&search);
          entry != NULL; entry = Tcl_NextHashEntry(&search))
       {
       Tcl_AppendResult(interp,
@@ -248,7 +248,7 @@ vtkTclUpdateCommand(Tcl_Interp *interp, char *name,  vtkObject *temp)
     {
     return;
     }
-  
+
   // is the current command the same
   Tcl_CmdInfo cinfo;
   Tcl_GetCommandInfo(interp, name, &cinfo);
@@ -279,7 +279,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
     Tcl_ResetResult(interp);
     return;
     }
-  
+
   /* return a pointer to a vtk Object */
   if (is->DebugOn)
     {
@@ -288,15 +288,15 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
 
   /* first we must look up the pointer to see if it already exists */
   sprintf(temps,"%p",temp);
-  if ((entry = Tcl_FindHashEntry(&is->PointerLookup,temps))) 
+  if ((entry = Tcl_FindHashEntry(&is->PointerLookup,temps)))
     {
     if (is->DebugOn)
       {
-        vtkGenericWarningMacro("Found name: " 
-                               << static_cast<char *>(Tcl_GetHashValue(entry)) 
+        vtkGenericWarningMacro("Found name: "
+                               << static_cast<char *>(Tcl_GetHashValue(entry))
                                << " for vtk pointer: " << temp);
       }
-    
+
     /* while we are at it store the name since it is required anyhow */
     Tcl_SetResult(interp, static_cast<char *>(Tcl_GetHashValue(entry)), TCL_VOLATILE);
     return;
@@ -305,7 +305,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   /* we must create a new name if it isn't NULL */
   sprintf(name,"vtkTemp%i",is->Number);
   is->Number++;
-  
+
   if (is->DebugOn)
     {
       vtkGenericWarningMacro("Created name: " << name
@@ -375,20 +375,20 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
                     reinterpret_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
   entry = Tcl_CreateHashEntry(&is->CommandLookup,name,&is_new);
   Tcl_SetHashValue(entry,(ClientData)(command));
-  
+
   // setup the delete callback
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(vtkTclDeleteObjectFromHash);
   cbc->SetClientData(static_cast<void *>(as));
   as->Tag = temp->AddObserver(vtkCommand::DeleteEvent, cbc);
   cbc->Delete();
-  
+
   Tcl_SetResult(interp, static_cast<char *>(name), TCL_VOLATILE);
 }
-      
+
 VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
                                                const char *result_type,
-                                               Tcl_Interp *interp, 
+                                               Tcl_Interp *interp,
                                                int &error)
 {
   Tcl_HashEntry *entry;
@@ -403,7 +403,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     {
     return NULL;
     }
-  
+
   // object names cannot start with a number
   if ((name[0] >= '0')&&(name[0] <= '9'))
     {
@@ -506,7 +506,7 @@ VTKTCL_EXPORT void vtkTclVoidFuncArgDelete(void *arg)
   vtkTclVoidFuncArg *arg2;
 
   arg2 = static_cast<vtkTclVoidFuncArg *>(arg);
-  
+
   // free the string and then structure
   delete [] arg2->command;
   delete arg2;
@@ -521,7 +521,7 @@ VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
 
   // iteratively search hash table for command function
   entry = Tcl_FirstHashEntry(&is->CommandLookup, &srch);
-  if (!entry) 
+  if (!entry)
     {
     Tcl_ResetResult(interp);
     return;
@@ -537,7 +537,7 @@ VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
         }
       else
         {
-        Tcl_AppendResult(interp, " ", Tcl_GetHashKey(&is->CommandLookup,entry), 
+        Tcl_AppendResult(interp, " ", Tcl_GetHashKey(&is->CommandLookup,entry),
                          NULL);
         }
       }
@@ -545,7 +545,7 @@ VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
     }
 }
 
-  
+
 int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
                              int argc, char *argv[])
 {
@@ -565,14 +565,14 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     }
 
   if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))
-    { 
+    {
     Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
     Tcl_AppendResult(interp, ": vtk object cannot start with a numeric.", NULL);
     return TCL_ERROR;
     }
-  
+
   if (Tcl_FindHashEntry(&is->InstanceLookup,argv[1]))
-    { 
+    {
     if (is->DeleteExistingObjectOnNew)
       {
       Tcl_DeleteCommand(interp, argv[1]);
@@ -618,7 +618,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   sprintf(temps,"%p",static_cast<void *>(temp));
   entry = Tcl_CreateHashEntry(&is->PointerLookup,temps,&is_new);
   Tcl_SetHashValue(entry,static_cast<ClientData>(strdup(argv[1])));
-  
+
   // check to see if we can find the command function based on class name
   char *tstr = strdup(static_cast<vtkObject *>(temp)->GetClassName());
   if (Tcl_GetCommandInfo(interp,tstr,&cinf))
@@ -652,7 +652,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
                     reinterpret_cast<Tcl_CmdDeleteProc *>(vtkTclGenericDeleteObject));
   entry = Tcl_CreateHashEntry(&is->CommandLookup,argv[1],&is_new);
   Tcl_SetHashValue(entry,(ClientData)(cs->CommandFunction));
-  
+
   // setup the delete callback
   vtkCallbackCommand *cbc = vtkCallbackCommand::New();
   cbc->SetCallback(vtkTclDeleteObjectFromHash);
@@ -690,13 +690,13 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
 
 
 vtkTclCommand::vtkTclCommand()
-{ 
-  this->Interp = NULL; 
+{
+  this->Interp = NULL;
   this->StringCommand = NULL;
 }
 
-vtkTclCommand::~vtkTclCommand() 
-{ 
+vtkTclCommand::~vtkTclCommand()
+{
   if(this->StringCommand) { delete [] this->StringCommand; }
 }
 
@@ -706,7 +706,7 @@ void vtkTclCommand::SetStringCommand(const char *arg)
   this->StringCommand = new char[strlen(arg)+1];
   strcpy(this->StringCommand, arg);
 }
-  
+
 void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
 {
   int res;
@@ -714,7 +714,7 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
   res = Tcl_GlobalEval(this->Interp, this->StringCommand);
 #else
   res = Tcl_EvalEx(this->Interp, this->StringCommand, -1, TCL_EVAL_GLOBAL);
-#endif  
+#endif
 
   if (res == TCL_ERROR)
     {
@@ -729,14 +729,14 @@ void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
       {
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
                              this->StringCommand << endl <<
-                             " at line number " << 
+                             " at line number " <<
                              this->Interp->errorLine);
       }
     }
   else if (res == -1)
     {
     this->AbortFlagOn();
-    } 
+    }
 }
 
 void vtkTclApplicationInitExecutable(int vtkNotUsed(argc),

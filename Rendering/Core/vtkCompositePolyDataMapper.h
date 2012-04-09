@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class uses a set of vtkPolyDataMappers to render input data
 // which may be hierarchical. The input to this mapper may be
-// either vtkPolyData or a vtkCompositeDataSet built from 
+// either vtkPolyData or a vtkCompositeDataSet built from
 // polydata. If something other than vtkPolyData is encountered,
 // an error message will be produced.
 // .SECTION see also
@@ -43,23 +43,23 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Standard method for rendering a mapper. This method will be 
+  // Standard method for rendering a mapper. This method will be
   // called by the actor.
   void Render(vtkRenderer *ren, vtkActor *a);
-  
+
   // Description:
   // Standard vtkProp method to get 3D bounds of a 3D prop
   double *GetBounds();
-  void GetBounds(double bounds[6]) { this->Superclass::GetBounds( bounds ); };  
+  void GetBounds(double bounds[6]) { this->Superclass::GetBounds( bounds ); };
 
   // Description:
-  // Release the underlying resources associated with this mapper  
+  // Release the underlying resources associated with this mapper
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
   vtkCompositePolyDataMapper();
   ~vtkCompositePolyDataMapper();
-  
+
   // Description:
   // We need to override this method because the standard streaming
   // demand driven pipeline is not what we want - we are expecting
@@ -69,7 +69,7 @@ protected:
   // Description:
   // Need to define the type of data handled by this mapper.
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  
+
   // Description:
   // This is the build method for creating the internal polydata
   // mapper that do the actual work
@@ -92,12 +92,12 @@ protected:
   // rendering. We save then so that they can keep their
   // display lists.
   vtkCompositePolyDataMapperInternals *Internal;
-  
+
   // Description:
-  // Time stamp for when we need to update the 
+  // Time stamp for when we need to update the
   // internal mappers
-  vtkTimeStamp InternalMappersBuildTime; 
-  
+  vtkTimeStamp InternalMappersBuildTime;
+
 private:
   vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&);  // Not implemented.
   void operator=(const vtkCompositePolyDataMapper&);    // Not implemented.

@@ -589,7 +589,7 @@ void vtkResliceCursorRepresentation
     vtkImageData::SafeDownCast(reslice->GetInput())->
       GetScalarRange( range );
     reslice->SetBackgroundLevel(range[0]);
-      
+
     this->ColorMap->SetInputConnection(reslice->GetOutputPort());
     reslice->TransformInputSamplingOff();
     reslice->AutoCropOutputOn();

@@ -87,13 +87,13 @@ vtkMILVideoSource::~vtkMILVideoSource()
     }
 
   this->SetMILSystemType(0);
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "VideoChannel: " << this->VideoChannel << "\n";
 
   os << indent << "ContrastLevel: " << this->ContrastLevel << "\n";
@@ -154,7 +154,7 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
       break;
     }
 
-  os << indent << "MILSystemType: " << 
+  os << indent << "MILSystemType: " <<
     (this->MILSystemType ? this->MILSystemType : "Default") << "\n";
 
   os << indent << "MILSystemNumber: " << this->MILSystemNumber << "\n";
@@ -249,7 +249,7 @@ char *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
 
 //----------------------------------------------------------------------------
 static void vtkMILVideoSourceSetChannel(long digID, int channel)
-{ 
+{
   if (digID == 0)
     {
     return;
@@ -278,14 +278,14 @@ static void vtkMILVideoSourceSetChannel(long digID, int channel)
 
 //----------------------------------------------------------------------------
 static void vtkMILVideoSourceSetLevel(long digID, int ref, float level)
-{ 
+{
   if (digID == 0)
     {
     return;
     }
 
   long int_level = M_MIN_LEVEL + level*(M_MAX_LEVEL-M_MIN_LEVEL);
-  
+
   if (int_level < M_MIN_LEVEL)
     {
     int_level = M_MIN_LEVEL;
@@ -317,7 +317,7 @@ static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
     {
     shrink_y = 1;
     }
-  
+
   // convert shrink_x, shrink_y to power of 2
   int i;
   for (i = 0; shrink_x; i++)
@@ -330,7 +330,7 @@ static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
     shrink_y = shrink_y >> 1;
     }
   shrink_y = 1 << (i-1);
-  
+
   MdigControl(digID,M_GRAB_SCALE_X,1.0/shrink_x);
   MdigControl(digID,M_GRAB_SCALE_Y,1.0/shrink_y);
 }
@@ -338,10 +338,10 @@ static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::Initialize()
 {
-  static char *system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, 
+  static char *system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II,
                                   VTK_MIL_METEOR_II_DIG, VTK_MIL_METEOR_II_CL,
                                   VTK_MIL_METEOR_II_1394, VTK_MIL_CORONA_II,
-                                  VTK_MIL_CORONA, VTK_MIL_PULSAR, 
+                                  VTK_MIL_CORONA, VTK_MIL_PULSAR,
                                   VTK_MIL_GENESIS, VTK_MIL_GENESIS_PLUS,
                                   VTK_MIL_ORION, VTK_MIL_CRONOS,
                                   VTK_MIL_ODYSSEY, 0 };
@@ -365,7 +365,7 @@ void vtkMILVideoSource::Initialize()
       vtkErrorMacro(<< "Initialize: couldn't open MIL application\n");
       return;
       }
-    this->MILAppInternallyAllocated = 1;    
+    this->MILAppInternallyAllocated = 1;
     }
 
   long version = MappInquire(M_VERSION,M_NULL);
@@ -444,7 +444,7 @@ void vtkMILVideoSource::Initialize()
 
   // update frame buffer again to reflect any changes
   this->UpdateFrameBuffer();
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::ReleaseSystemResources()
@@ -515,14 +515,14 @@ long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void *UserPtr)
     if (rate > 0)
       {
       frame_stride = (int)(30/rate);
-      if (format == VTK_MIL_CCIR || 
+      if (format == VTK_MIL_CCIR ||
           format == VTK_MIL_PAL ||
           format == VTK_MIL_SECAM)
         {
         frame_stride = (int)(25/rate);
         }
       }
-    if ((rate > 0 && ++(self->FrameCounter) >= frame_stride) || 
+    if ((rate > 0 && ++(self->FrameCounter) >= frame_stride) ||
         self->ForceGrab)
       {
       self->InternalGrab();
@@ -557,7 +557,7 @@ void vtkMILVideoSource::InternalGrab()
 
   int index = this->FrameBufferIndex;
 
-  this->FrameBufferTimeStamps[index] = 
+  this->FrameBufferTimeStamps[index] =
     this->CreateTimeStampForFrame(this->LastFrameCount + 1);
   if (this->FrameCount++ == 0)
     {
@@ -585,7 +585,7 @@ void vtkMILVideoSource::InternalGrab()
       MbufGetColor2d(this->MILBufID,M_RGB24+M_PACKED,M_ALL_BAND,
                      offsetX,offsetY,sizeX,sizeY,ptr);
       }
-    else if (depth == 4) 
+    else if (depth == 4)
       {
       MbufGetColor2d(this->MILBufID,M_RGB32+M_PACKED,M_ALL_BAND,
                      offsetX,offsetY,sizeX,sizeY,ptr);
@@ -596,7 +596,7 @@ void vtkMILVideoSource::InternalGrab()
 
   this->FrameBufferMutex->Unlock();
 }
-  
+
 //----------------------------------------------------------------------------
 // for accurate timing of the transformation: this solves a differential
 // equation that works to smooth out the jitter in the times that
@@ -608,7 +608,7 @@ double vtkMILVideoSource::CreateTimeStampForFrame(unsigned long framecount)
   double frameperiod = ((timestamp - this->LastTimeStamp)/
                         (framecount - this->LastFrameCount));
   double deltaperiod = (frameperiod - this->EstimatedFramePeriod)*0.01;
-  
+
   this->EstimatedFramePeriod += deltaperiod;
   this->LastTimeStamp += ((framecount - this->LastFrameCount)*
                           this->NextFramePeriod);
@@ -634,7 +634,7 @@ double vtkMILVideoSource::CreateTimeStampForFrame(unsigned long framecount)
     {
     diffperiod = maxdiff;
     }
- 
+
   this->NextFramePeriod = this->EstimatedFramePeriod + diffperiod;
 
   return this->LastTimeStamp;
@@ -712,7 +712,7 @@ void vtkMILVideoSource::Record()
 
   this->Modified();
 }
-    
+
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::Stop()
 {
@@ -758,14 +758,14 @@ void vtkMILVideoSource::SetMILErrorMessages(int yesno)
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
 {
-  if (x == this->FrameSize[0] && 
-      y == this->FrameSize[1] && 
+  if (x == this->FrameSize[0] &&
+      y == this->FrameSize[1] &&
       z == this->FrameSize[2])
     {
     return;
     }
 
-  if (x < 1 || y < 1 || z != 1) 
+  if (x < 1 || y < 1 || z != 1)
     {
     vtkErrorMacro(<< "SetFrameSize: Illegal frame size");
     return;
@@ -775,7 +775,7 @@ void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
   this->FrameSize[1] = y;
   this->FrameSize[2] = z;
 
-  if (this->Initialized) 
+  if (this->Initialized)
     {
     this->FrameBufferMutex->Lock();
     this->UpdateFrameBuffer();
@@ -875,13 +875,13 @@ void vtkMILVideoSource::SetVideoFormat(int format)
     }
 
   this->VideoFormat = format;
-  
+
   // don't do anything if the digitizer isn't initialized
   if (this->Initialized)
     {
     this->AllocateMILDigitizer();
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::SetVideoInput(int input)
@@ -890,7 +890,7 @@ void vtkMILVideoSource::SetVideoInput(int input)
     {
     return;
     }
-  
+
   this->VideoInput = input;
 
   // don't do anything if the digitizer isn't initialized
@@ -898,7 +898,7 @@ void vtkMILVideoSource::SetVideoInput(int input)
     {
     this->AllocateMILDigitizer();
     }
-}  
+}
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::SetVideoChannel(int channel)
@@ -1144,13 +1144,13 @@ void vtkMILVideoSource::AllocateMILBuffer()
     MbufFree(this->MILBufID);
     }
 
-  if (this->OutputFormat != VTK_LUMINANCE && 
+  if (this->OutputFormat != VTK_LUMINANCE &&
       this->OutputFormat != VTK_RGB &&
       this->OutputFormat != VTK_RGBA)
     {
     vtkWarningMacro(<< "Initialize: unsupported OutputFormat");
     this->vtkVideoSource::SetOutputFormat(VTK_LUMINANCE);
-    } 
+    }
 
   if (this->OutputFormat == VTK_LUMINANCE)
     {

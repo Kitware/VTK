@@ -41,12 +41,12 @@ public:
   static vtkGraphToPolyData *New();
   vtkTypeMacro(vtkGraphToPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Create a second output containing points and orientation vectors
   // for drawing arrows or other glyphs on edges.  This output should be
   // set as the first input to vtkGlyph3D to place glyphs on the edges.
-  // vtkGlyphSource2D's VTK_EDGEARROW_GLYPH provides a good glyph for 
+  // vtkGlyphSource2D's VTK_EDGEARROW_GLYPH provides a good glyph for
   // drawing arrows.
   // Default value is off.
   vtkSetMacro(EdgeGlyphOutput, bool);
@@ -61,11 +61,11 @@ public:
   // The default value is 1.
   vtkSetMacro(EdgeGlyphPosition, double);
   vtkGetMacro(EdgeGlyphPosition, double);
-  
+
 protected:
   vtkGraphToPolyData();
   ~vtkGraphToPolyData() {}
-  
+
   bool EdgeGlyphOutput;
   double EdgeGlyphPosition;
   bool ArcEdges;
@@ -74,7 +74,7 @@ protected:
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   // Description:
   // Set the input type of the algorithm to vtkGraph.
   int FillInputPortInformation(int port, vtkInformation* info);

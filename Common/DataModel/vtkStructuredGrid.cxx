@@ -49,12 +49,12 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->Quad = vtkQuad::New();
   this->Hexahedron = vtkHexahedron::New();
   this->EmptyCell = vtkEmptyCell::New();
-  
+
   this->Dimensions[0] = 0;
   this->Dimensions[1] = 0;
   this->Dimensions[2] = 0;
   this->DataDescription = VTK_EMPTY;
-  
+
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
 
@@ -125,7 +125,7 @@ void vtkStructuredGrid::Initialize()
 int vtkStructuredGrid::GetCellType(vtkIdType cellId)
 {
   // see whether the cell is blanked
-  if ( (this->PointVisibility->IsConstrained() || 
+  if ( (this->PointVisibility->IsConstrained() ||
         this->CellVisibility->IsConstrained())
        && !this->IsCellVisible(cellId) )
     {
@@ -134,10 +134,10 @@ int vtkStructuredGrid::GetCellType(vtkIdType cellId)
 
   switch (this->DataDescription)
     {
-    case VTK_EMPTY: 
+    case VTK_EMPTY:
       return VTK_EMPTY_CELL;
 
-    case VTK_SINGLE_POINT: 
+    case VTK_SINGLE_POINT:
       return VTK_VERTEX;
 
     case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE:
@@ -162,16 +162,16 @@ vtkCell *vtkStructuredGrid::GetCell(vtkIdType cellId)
   vtkIdType idx;
   int i, j, k;
   int d01, offset1, offset2;
- 
+
   // Make sure data is defined
   if ( ! this->Points )
     {
     vtkErrorMacro (<<"No data");
     return NULL;
     }
- 
+
   // see whether the cell is blanked
-  if ( (this->PointVisibility->IsConstrained() || 
+  if ( (this->PointVisibility->IsConstrained() ||
         this->CellVisibility->IsConstrained())
        && !this->IsCellVisible(cellId) )
     {
@@ -292,15 +292,15 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   int   i, j, k;
   int   d01, offset1, offset2;
   double x[3];
- 
+
   // Make sure data is defined
   if ( ! this->Points )
     {
     vtkErrorMacro (<<"No data");
     }
- 
+
   // see whether the cell is blanked
-  if ( (this->PointVisibility->IsConstrained() || 
+  if ( (this->PointVisibility->IsConstrained() ||
         this->CellVisibility->IsConstrained())
        && !this->IsCellVisible(cellId) )
     {
@@ -313,7 +313,7 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 
   switch (this->DataDescription)
     {
-    case VTK_EMPTY: 
+    case VTK_EMPTY:
       cell->SetCellTypeToEmptyCell();
       return;
 
@@ -427,16 +427,16 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   int offset1 = 0;
   int offset2 = 0;
   double x[3];
-  
+
   // Make sure data is defined
   if ( ! this->Points )
     {
     vtkErrorMacro (<<"No data");
     return;
     }
-  
+
   vtkMath::UninitializeBounds(bounds);
-  
+
   // Update dimensions
   this->GetDimensions();
 
@@ -745,7 +745,7 @@ unsigned char vtkStructuredGrid::IsCellVisible(vtkIdType cellId)
       return 0;
       }
     }
-  
+
   return 1;
 }
 
@@ -772,7 +772,7 @@ void vtkStructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 
   int iMin, iMax, jMin, jMax, kMin, kMax;
   vtkIdType d01 = this->Dimensions[0]*this->Dimensions[1];
- 
+
   ptIds->Reset();
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
@@ -877,14 +877,14 @@ void vtkStructuredGrid::SetExtent(int extent[6])
     {
     vtkErrorMacro (<< "Bad Extent, retaining previous values");
     }
-  
+
   if (description == VTK_UNCHANGED)
     {
     return;
     }
-  
+
   this->DataDescription = description;
-  
+
   this->Modified();
   this->Dimensions[0] = extent[1] - extent[0] + 1;
   this->Dimensions[1] = extent[3] - extent[2] + 1;
@@ -892,7 +892,7 @@ void vtkStructuredGrid::SetExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkStructuredGrid::SetExtent(int xMin, int xMax, 
+void vtkStructuredGrid::SetExtent(int xMin, int xMax,
                                   int yMin, int yMax,
                                   int zMin, int zMax)
 {
@@ -901,17 +901,17 @@ void vtkStructuredGrid::SetExtent(int xMin, int xMax,
   extent[0] = xMin; extent[1] = xMax;
   extent[2] = yMin; extent[3] = yMax;
   extent[4] = zMin; extent[5] = zMax;
-  
+
   this->SetExtent(extent);
 }
 
-int *vtkStructuredGrid::GetDimensions () 
+int *vtkStructuredGrid::GetDimensions ()
 {
   this->GetDimensions(this->Dimensions);
   return this->Dimensions;
-} 
+}
 
-void vtkStructuredGrid::GetDimensions (int dim[3]) 
+void vtkStructuredGrid::GetDimensions (int dim[3])
 {
   const int* extent = this->Extent;
   dim[0] = extent[1] - extent[0] + 1;
@@ -933,14 +933,14 @@ void vtkStructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       return;
 
     case 1: case 2: case 4: //vertex, edge, face neighbors
-      vtkStructuredData::GetCellNeighbors(cellId, ptIds, 
+      vtkStructuredData::GetCellNeighbors(cellId, ptIds,
                                           cellIds, this->GetDimensions());
       break;
-      
+
     default:
       this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
     }
-  
+
   // If blanking, remove blanked cells.
   if ( this->PointVisibility->IsConstrained() )
     {
@@ -1023,7 +1023,7 @@ void vtkStructuredGrid::GetScalarRange(double range[2])
   double cellRange[2];
   double s;
   int id, num;
-  
+
   ptRange[0] =  VTK_DOUBLE_MAX;
   ptRange[1] =  VTK_DOUBLE_MIN;
   if ( ptScalars )
@@ -1082,7 +1082,7 @@ void vtkStructuredGrid::Crop(const int* updateExtent)
   int uExt[6];
   const int* extent = this->Extent;
 
-  // If the update extent is larger than the extent, 
+  // If the update extent is larger than the extent,
   // we cannot do anything about it here.
   for (i = 0; i < 3; ++i)
     {
@@ -1097,7 +1097,7 @@ void vtkStructuredGrid::Crop(const int* updateExtent)
       uExt[i*2+1] = extent[i*2+1];
       }
     }
-  
+
   // If extents already match, then we need to do nothing.
   if (extent[0] == uExt[0] && extent[1] == uExt[1]
       && extent[2] == uExt[2] && extent[3] == uExt[3]
@@ -1134,7 +1134,7 @@ void vtkStructuredGrid::Crop(const int* updateExtent)
     //
     newGrid->SetExtent(uExt);
     outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-    newPts = inPts->NewInstance(); 
+    newPts = inPts->NewInstance();
     newPts->SetDataType(inPts->GetDataType());
     newPts->SetNumberOfPoints(outSize);
     outPD->CopyAllocate(inPD,outSize,outSize);
@@ -1145,7 +1145,7 @@ void vtkStructuredGrid::Crop(const int* updateExtent)
     inInc1 = (extent[1]-extent[0]+1);
     inInc2 = inInc1*(extent[3]-extent[2]+1);
     for ( k=uExt[4]; k <= uExt[5]; ++k)
-      { 
+      {
       kOffset = (k - extent[4]) * inInc2;
       for ( j=uExt[2]; j <= uExt[3]; ++j)
         {
@@ -1216,7 +1216,7 @@ unsigned char vtkStructuredGrid::GetPointBlanking()
 //----------------------------------------------------------------------------
 unsigned char vtkStructuredGrid::GetCellBlanking()
 {
-  return this->PointVisibility->IsConstrained() || 
+  return this->PointVisibility->IsConstrained() ||
     this->CellVisibility->IsConstrained();
 }
 
@@ -1237,16 +1237,16 @@ void vtkStructuredGrid::GetPoint(
     int i,int j,int k,double p[3],bool adjustForExtent)
 {
   int extent[6];
-  this->GetExtent(extent);  
+  this->GetExtent(extent);
 
-  if(i < extent[0] || i > extent[1] || 
-     j < extent[2] || j > extent[3] || 
+  if(i < extent[0] || i > extent[1] ||
+     j < extent[2] || j > extent[3] ||
      k < extent[4] || k > extent[5])
     {
     vtkErrorMacro("ERROR: IJK coordinates are outside of grid extent!");
     return; // out of bounds!
     }
-  
+
   int pos[3];
   pos[0] = i;
   pos[1] = j;
@@ -1261,9 +1261,9 @@ void vtkStructuredGrid::GetPoint(
   else
     {
     int dim[3];
-    this->GetDimensions(dim);  
+    this->GetDimensions(dim);
     id = vtkStructuredData::ComputePointId(dim, pos);
     }
 
-  this->GetPoint(id, p);  
+  this->GetPoint(id, p);
 }

@@ -93,7 +93,7 @@ vtkCubeAxesActor axes
     axes SetYLabelFormat "%6.1f"
     axes SetZLabelFormat "%6.1f"
     axes SetFlyModeToOuterEdges
-ren1 AddViewProp axes 
+ren1 AddViewProp axes
 
 vtkCubeAxesActor axes2
     axes2 SetBounds [lindex $bounds 0] [lindex $bounds 1] [lindex $bounds 2] \
@@ -103,7 +103,7 @@ vtkCubeAxesActor axes2
     axes2 SetYLabelFormat [axes GetYLabelFormat]
     axes2 SetZLabelFormat [axes GetZLabelFormat]
     axes2 SetFlyModeToClosestTriad
-ren2 AddViewProp axes2 
+ren2 AddViewProp axes2
 
 vtkCubeAxesActor axes3
     axes3 SetBounds [lindex $bounds 0] [lindex $bounds 1] [lindex $bounds 2] \

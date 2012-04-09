@@ -24,22 +24,22 @@ void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
   vtkCollection::DeleteElement(e);
 }
 
-// Desctructor for the vtkActor2DCollection class. This removes all 
+// Desctructor for the vtkActor2DCollection class. This removes all
 // objects from the collection.
 vtkActor2DCollection::~vtkActor2DCollection()
 {
   this->RemoveAllItems();
 }
 
-// Sort and then render the collection of 2D actors.  
+// Sort and then render the collection of 2D actors.
 void vtkActor2DCollection::RenderOverlay(vtkViewport* viewport)
 {
   if (this->NumberOfItems != 0)
     {
-    this->Sort();  
+    this->Sort();
     vtkActor2D* tempActor;
     vtkCollectionSimpleIterator adit;
-    for ( this->InitTraversal(adit); 
+    for ( this->InitTraversal(adit);
           (tempActor = this->GetNextActor2D(adit));)
       {
       // Make sure that the actor is visible before rendering
@@ -51,7 +51,7 @@ void vtkActor2DCollection::RenderOverlay(vtkViewport* viewport)
     }
 }
 
-// Add an actor to the list.  The new actor is 
+// Add an actor to the list.  The new actor is
 // inserted in the list according to it's layer
 // number.
 void vtkActor2DCollection::AddItem(vtkActor2D *a)
@@ -63,7 +63,7 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
   if (this->Top == NULL)
     {
     vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Adding item to top of the list");
-  
+
     this->Top = elem;
     elem->Item = a;
     elem->Next = NULL;
@@ -111,7 +111,7 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
 void vtkActor2DCollection::Sort()
 {
    int index;
-   
+
    vtkDebugMacro(<<"vtkActor2DCollection::Sort");
 
    int numElems  = this->GetNumberOfItems();
@@ -142,7 +142,7 @@ void vtkActor2DCollection::Sort()
     min = i;
     for (j = i + 1; j < numElems ; j++)
       {
-      if(actorPtrArr[j]->GetLayerNumber() < actorPtrArr[min]->GetLayerNumber()) 
+      if(actorPtrArr[j]->GetLayerNumber() < actorPtrArr[min]->GetLayerNumber())
         {
         min = j;
         }
@@ -163,7 +163,7 @@ void vtkActor2DCollection::Sort()
   vtkDebugMacro(<<"vtkActor2DCollection::Sort - Rearraging the linked list.");
   // Now move the items around in the linked list -
   // keep the links the same, but swap around the items
- 
+
   vtkCollectionElement* elem = this->Top;
   elem->Item = actorPtrArr[0];
 

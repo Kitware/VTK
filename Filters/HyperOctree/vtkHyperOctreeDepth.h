@@ -43,10 +43,10 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   virtual int FillOutputPortInformation(int port, vtkInformation *info);
-  
+
   vtkHyperOctree *Input;
   vtkHyperOctree *Output;
-      
+
   void TraverseAndCount(vtkHyperOctreeCursor *, int depth);
 
   vtkIntArray *GeneratedDepths;

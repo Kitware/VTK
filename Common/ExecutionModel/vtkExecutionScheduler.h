@@ -14,7 +14,7 @@
 =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
-  
+
   This is part of the Parallel Dataflow System originally developed by
   Huy T. Vo and Claudio T. Silva. For more information, see:
 
@@ -60,49 +60,49 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
-  // Return the global instance of the scheduler 
+  // Return the global instance of the scheduler
   static vtkExecutionScheduler *GetGlobalScheduler();
 
  // Description:
   // Key to store the priority of a task
   static vtkInformationIntegerKey* TASK_PRIORITY();
 
-  // Description:  
+  // Description:
   // Put the current set of executives (modules) to the be scheduled given its
   // dependency graph which will be used to compute the set
   // topological orders
   void Schedule(vtkExecutiveCollection *execs, vtkInformation *info);
-  
+
   // Description:
   // Put the current set of executives (modules) to the be scheduled
   // given its dependency graph which will be used to compute the set
   // topological orders. Then wait for their execution to be complete
   void SchedulePropagate(vtkExecutiveCollection *execs, vtkInformation *info);
-  
+
   // Description:
   // Wait until the current set of executives (modules) have finished executing
   void WaitUntilDone(vtkExecutiveCollection *execs);
-  
-  // Description:  
+
+  // Description:
   // Wait until the current set of executives (modules) have their inputs released
   void WaitUntilReleased(vtkExecutiveCollection *execs);
 
   // Description:
   // Wait for all tasks to be done
   void WaitUntilAllDone();
-  
+
   // Description:
   // Wait for a task that is on the scheduling queue to be done. If
   // the task is not there, this will return immediately. If the exec
   // is NULL, any task that is done will trigger this the return
   void WaitForTaskDone(vtkExecutive *exec);
-  
+
   // Description:
   // Similar to WaitForTaskDone but return whenever input connections
   // of a task are released instead of done computing. But exec cannot
   // be NULL.
   void WaitForInputsReleased(vtkExecutive *exec);
-  
+
   // Description:
   // Return the thread messager reserved for the given exec to notify
   // when it is done
@@ -126,12 +126,12 @@ public:
   // Re-acquire the resource released earlier by ReleaseResource
   void ReacquireResources(vtkExecutive *exec);
 
-  // Description:  
+  // Description:
   // Redistribute the thread resources over the network from a sink
   // with a maximum resource
   void RescheduleNetwork(vtkExecutive *sink);
-  
-  // Description:  
+
+  // Description:
   // Redistribute the thread resources from a sink given a certain
   // amount of resource
   void RescheduleFrom(vtkExecutive *sink, vtkComputingResources *resources);
@@ -152,12 +152,12 @@ protected:
   implementation* const Implementation;
   friend class implementation;
 
-  // Description:  
+  // Description:
   // The scheduling thread that is responsible for queueing up module
   // execution in the right order
   friend void * vtkExecutionScheduler_ScheduleThread(void *data);
 
-  // Description:  
+  // Description:
   // Execute thread function that is responsible for forking process
   // for each module
   friend void * vtkExecutionScheduler_ExecuteThread(void *data);
@@ -173,7 +173,7 @@ protected:
 private:
   vtkExecutionScheduler(const vtkExecutionScheduler&);  // Not implemented.
   void operator=(const vtkExecutionScheduler&);  // Not implemented.
-  
+
 };
 
 #endif

@@ -64,21 +64,21 @@ void vtkXMLPImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkInden
     {
     return;
     }
-  
+
   vtkImageData* input = this->GetInput();
   this->WriteVectorAttribute("Origin", 3, input->GetOrigin());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());
 }
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataWriter*
 vtkXMLPImageDataWriter::CreateStructuredPieceWriter()
-{  
+{
   // Create the writer for the piece.
   vtkXMLImageDataWriter* pWriter = vtkXMLImageDataWriter::New();
   pWriter->SetInputConnection(this->GetInputConnection(0, 0));

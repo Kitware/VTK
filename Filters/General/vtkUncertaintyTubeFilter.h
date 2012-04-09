@@ -22,7 +22,7 @@
 // .SECTION Caveats
 // The vector uncertainty values define an axis-aligned ellipsoid at each
 // polyline point. The uncertainty tubes can be envisioned as the
-// interpolation of these ellipsoids between the points defining the 
+// interpolation of these ellipsoids between the points defining the
 // polyline (or rather, the interpolation of the cross section of the
 // ellipsoids alog the polyline).
 

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    BoostArrayRandomSparseArraySource.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -54,12 +54,12 @@ int BoostArrayRandomSparseArraySource(int vtkNotUsed(argc),
     source->Update();
 
     vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0));
-    
+
     cout << "sparse random source:\n";
 
     cout << setprecision(17);
     vtkPrintCoordinateFormat(cout, sparse_array);
-    
+
     test_expression(sparse_array);
     test_expression(sparse_array->GetValue(vtkArrayCoordinates(0, 0, 0)) == 0.0);
     test_expression(sparse_array->GetValue(vtkArrayCoordinates(0, 0, 1)) == 0.0);

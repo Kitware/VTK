@@ -15,7 +15,7 @@
 // .NAME vtkVolumeOutlineSource - outline of volume cropping region
 // .SECTION Description
 // vtkVolumeOutlineSource generates a wireframe outline that corresponds
-// to the cropping region of a vtkVolumeMapper.  It requires a 
+// to the cropping region of a vtkVolumeMapper.  It requires a
 // vtkVolumeMapper as input.  The GenerateFaces option turns on the
 // solid faces of the outline, and the GenerateScalars option generates
 // color scalars.  When GenerateScalars is on, it is possible to set
@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Set whether to generate an outline wherever an input face was
-  // cut by a plane.  This is on by default. 
+  // cut by a plane.  This is on by default.
   vtkSetMacro(GenerateOutline, int);
   vtkBooleanMacro(GenerateOutline, int);
   vtkGetMacro(GenerateOutline, int);
@@ -86,7 +86,7 @@ public:
   // Description:
   // Set the color of the active cropping plane.  This has no effect unless
   // GenerateScalars is On and ActivePlaneId is non-negative.  The default
-  // color is yellow. 
+  // color is yellow.
   vtkSetVector3Macro(ActivePlaneColor, double);
   vtkGetVector3Macro(ActivePlaneColor, double);
 

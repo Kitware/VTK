@@ -81,7 +81,7 @@ public:
   // Set/Get the function to be evaluated.
   virtual void SetFunction(const char* function);
   vtkGetStringMacro(Function);
-  
+
   // Description:
   // Add an array name to the list of arrays used in the function and specify
   // which components of the array to use in evaluating the function.  The
@@ -90,7 +90,7 @@ public:
   void AddScalarArrayName(const char* arrayName, int component = 0);
   void AddVectorArrayName(const char* arrayName, int component0 = 0,
                           int component1 = 1, int component2 = 2);
-  
+
   // Description:
   // Add a variable name, a corresponding array name, and which components of
   // the array to use.
@@ -108,7 +108,7 @@ public:
   void AddCoordinateVectorVariable(const char* variableName,
                                    int component0 = 0, int component1 = 1,
                                    int component2 = 2);
-  
+
   // Description:
   // Set the name of the array in which to store the result of
   // evaluating this function.  If this is the name of an existing array,
@@ -131,7 +131,7 @@ public:
   vtkGetMacro(CoordinateResults, int);
   vtkSetMacro(CoordinateResults, int);
   vtkBooleanMacro(CoordinateResults, int);
-  
+
   // Description:
   // Control whether the filter operates on point data or cell data.
   // By default (AttributeModeToDefault), the filter uses point
@@ -141,34 +141,34 @@ public:
   // (AttributeModeToUseVertexData) or edge data (AttributeModeToUseEdgeData).
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault() 
+  void SetAttributeModeToDefault()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
-  void SetAttributeModeToUsePointData() 
+  void SetAttributeModeToUsePointData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData() 
+  void SetAttributeModeToUseCellData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
-  void SetAttributeModeToUseVertexData() 
+  void SetAttributeModeToUseVertexData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA);};
-  void SetAttributeModeToUseEdgeData() 
+  void SetAttributeModeToUseEdgeData()
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_EDGE_DATA);};
   const char *GetAttributeModeAsString();
 
   // Description:
   // Remove all the variable names and their associated array names.
   void RemoveAllVariables();
-  
+
   // Description:
   // Remove all the scalar variable names and their associated array names.
   virtual void RemoveScalarVariables();
-  
+
   // Description:
   // Remove all the scalar variable names and their associated array names.
   virtual void RemoveVectorVariables();
-  
+
   // Description:
   // Remove all the coordinate variables.
   virtual void RemoveCoordinateScalarVariables();
-  
+
   // Description:
   // Remove all the coordinate variables.
   virtual void RemoveCoordinateVectorVariables();
@@ -189,7 +189,7 @@ public:
   int* GetSelectedVectorComponents(int i);
   vtkGetMacro(NumberOfScalarArrays, int);
   vtkGetMacro(NumberOfVectorArrays, int);
-  
+
   // Description:
   // When ReplaceInvalidValues is on, all invalid values (such as
   // sqrt(-2), note that function parser does not handle complex
@@ -206,7 +206,7 @@ protected:
   ~vtkArrayCalculator();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   char  * Function;
   char  * ResultArrayName;
   char ** ScalarArrayNames;
@@ -222,7 +222,7 @@ protected:
 
   int     ReplaceInvalidValues;
   double  ReplacementValue;
-  
+
   int     CoordinateResults;
   char ** CoordinateScalarVariableNames;
   char ** CoordinateVectorVariableNames;

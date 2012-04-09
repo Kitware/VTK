@@ -120,6 +120,6 @@ void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: (" << this->Center[0] << ", "
                               << this->Center[1] << ", "
                               << this->Center[2] << ")\n";
-  os << indent << "Distribution: " << 
+  os << indent << "Distribution: " <<
      ((this->Distribution == VTK_POINT_SHELL) ? "Shell\n" : "Uniform\n");
 }

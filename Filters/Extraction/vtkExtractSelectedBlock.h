@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedBlock 
+// .NAME vtkExtractSelectedBlock
 // .SECTION Description
 
 #ifndef __vtkExtractSelectedBlock_h
@@ -34,7 +34,7 @@ protected:
   ~vtkExtractSelectedBlock();
 
   // Generate the output.
-  virtual int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *,
     vtkInformationVector **, vtkInformationVector *);
 
   // Description:

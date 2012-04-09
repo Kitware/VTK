@@ -34,7 +34,7 @@ vtkSimpleElevationFilter::vtkSimpleElevationFilter()
   this->Vector[2] = 1.0;
 }
 
-// Convert position along ray into scalar value.  Example use includes 
+// Convert position along ray into scalar value.  Example use includes
 // coloring terrain by elevation.
 //
 int vtkSimpleElevationFilter::RequestData(
@@ -88,7 +88,7 @@ int vtkSimpleElevationFilter::RequestData(
   vtkIdType progressInterval=numPts/20 + 1;
   for (i=0; i<numPts && !abort; i++)
     {
-    if ( ! (i % progressInterval) ) 
+    if ( ! (i % progressInterval) )
       {
       this->UpdateProgress ((double)i/numPts);
       abort = this->GetAbortExecute();

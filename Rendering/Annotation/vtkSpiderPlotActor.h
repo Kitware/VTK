@@ -29,7 +29,7 @@
 // as the rows or columns of the field). There are also many other instance
 // variables that control the look of the plot includes its title and legend.
 //
-// Set the text property/attributes of the title and the labels through the 
+// Set the text property/attributes of the title and the labels through the
 // vtkTextProperty objects associated with these components.
 
 // .SECTION Caveats
@@ -90,7 +90,7 @@ public:
 
   // Description:
   // Specify whether to use the rows or columns as independent variables.
-  // If columns, then each row represents a separate point. If rows, then 
+  // If columns, then each row represents a separate point. If rows, then
   // each column represents a separate point.
   vtkSetClampMacro(IndependentVariables,int,VTK_IV_COLUMN, VTK_IV_ROW);
   vtkGetMacro(IndependentVariables,int);
@@ -114,10 +114,10 @@ public:
   // Set/Get the title text property.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Enable/Disable the display axes titles. These are arranged on the end
   // of each radial axis on the circumference of the spider plot. The label
-  // text strings are derived from the names of the data object arrays 
+  // text strings are derived from the names of the data object arrays
   // associated with the input.
   vtkSetMacro(LabelVisibility, int);
   vtkGetMacro(LabelVisibility, int);
@@ -129,7 +129,7 @@ public:
   // set.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-      
+
   // Description:
   // Specify the number of circumferential rings. If set to zero, then
   // none will be shown; othewise the specified number will be shown.
@@ -144,7 +144,7 @@ public:
 
   // Description:
   // Specify the range of data on each radial axis. If not specified,
-  // then the range is computed automatically. 
+  // then the range is computed automatically.
   void SetAxisRange(int i, double min, double max);
   void SetAxisRange(int i, double range[2]);
   void GetAxisRange(int i, double range[2]);
@@ -152,7 +152,7 @@ public:
   // Description:
   // Specify colors for each plot. If not specified, they are automatically generated.
   void SetPlotColor(int i, double r, double g, double b);
-  void SetPlotColor(int i, const double color[3]) 
+  void SetPlotColor(int i, const double color[3])
     { this->SetPlotColor(i, color[0], color[1], color[2]); }
   double *GetPlotColor(int i);
 
@@ -165,7 +165,7 @@ public:
   vtkBooleanMacro(LegendVisibility, int);
 
   // Description:
-  // Retrieve handles to the legend box. This is useful if you would like 
+  // Retrieve handles to the legend box. This is useful if you would like
   // to manually control the legend appearance.
   vtkGetObjectMacro(LegendActor,vtkLegendBoxActor);
 
@@ -174,7 +174,7 @@ public:
   int RenderOverlay(vtkViewport*);
   int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* ) {return 0;}
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
@@ -196,7 +196,7 @@ private:
   int IndependentVariables;    // Use column or row
   int TitleVisibility;         // Should I see the title?
   char *Title;                 // The title string
-  vtkTextProperty *TitleTextProperty; 
+  vtkTextProperty *TitleTextProperty;
   int LabelVisibility;
   vtkTextProperty *LabelTextProperty;
   vtkAxisLabelArray *Labels;
@@ -221,11 +221,11 @@ private:
   vtkPolyData         *WebData;    // The web of the spider plot
   vtkPolyDataMapper2D *WebMapper;
   vtkActor2D          *WebActor;
-  
+
   vtkPolyData         *PlotData;    // The lines drawn within the axes
   vtkPolyDataMapper2D *PlotMapper;
   vtkActor2D          *PlotActor;
-  
+
   vtkTimeStamp  BuildTime;
 
   double Center[3];

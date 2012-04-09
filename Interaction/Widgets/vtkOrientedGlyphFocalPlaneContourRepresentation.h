@@ -14,16 +14,16 @@
 =========================================================================*/
 // .NAME vtkOrientedGlyphFocalPlaneContourRepresentation - Contours constrained
 // to a focal plane.
-// 
+//
 // .SECTION Description
-// This class is used to represent a contour drawn on the focal plane (usually 
+// This class is used to represent a contour drawn on the focal plane (usually
 // overlayed on top of an image or volume widget).
-// The class was written in order to be able to draw contours on a volume widget 
-// and have the contours overlayed on the focal plane in order to do contour 
+// The class was written in order to be able to draw contours on a volume widget
+// and have the contours overlayed on the focal plane in order to do contour
 // segmentation.
-// 
+//
 // .SECTION See Also
-// vtkOrientedGlyphContourRepresentation 
+// vtkOrientedGlyphContourRepresentation
 
 #ifndef __vtkOrientedGlyphFocalPlaneContourRepresentation_h
 #define __vtkOrientedGlyphFocalPlaneContourRepresentation_h
@@ -68,19 +68,19 @@ public:
   vtkPolyData *GetActiveCursorShape();
 
   // Description:
-  // This is the property used when the handle is not active 
+  // This is the property used when the handle is not active
   // (the mouse is not near the handle)
   vtkGetObjectMacro(Property,vtkProperty2D);
-  
+
   // Description:
   // This is the property used when the user is interacting
   // with the handle.
   vtkGetObjectMacro(ActiveProperty,vtkProperty2D);
-  
+
   // Description:
   // This is the property used by the lines.
   vtkGetObjectMacro(LinesProperty,vtkProperty2D);
-  
+
   // Description:
   // Subclasses of vtkOrientedGlyphFocalPlaneContourRepresentation must implement these methods. These
   // are the methods that the widget and its representation use to
@@ -99,19 +99,19 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
-  // Get the points in this contour as a vtkPolyData. 
+  // Get the points in this contour as a vtkPolyData.
   virtual vtkPolyData * GetContourRepresentationAsPolyData();
-  
+
   // Description:
   // Direction cosines of the plane on which the contour lies
   // on in world co-ordinates. This would be the same matrix that would be
   // set in vtkImageReslice or vtkImagePlaneWidget if there were a plane
-  // passing through the contour points. The origin must be the origin of the 
+  // passing through the contour points. The origin must be the origin of the
   // data under the contour.
   vtkMatrix4x4   *GetContourPlaneDirectionCosines(const double origin[3]);
- 
+
 protected:
   vtkOrientedGlyphFocalPlaneContourRepresentation();
   ~vtkOrientedGlyphFocalPlaneContourRepresentation();
@@ -136,14 +136,14 @@ protected:
   vtkActor2D           *LinesActor;
 
   // The polydata represents the contour in world coordinates. It is updated
-  // (kept in sync with Lines) every time the GetContourRepresentationAsPolyData() 
-  // method is called. 
+  // (kept in sync with Lines) every time the GetContourRepresentationAsPolyData()
+  // method is called.
   vtkPolyData          *LinesWorldCoordinates;
 
   // Support picking
   double LastPickPosition[3];
   double LastEventPosition[2];
-  
+
   // Methods to manipulate the cursor
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
@@ -161,14 +161,14 @@ protected:
   vtkMatrix4x4  *ContourPlaneDirectionCosines;
 
   void           CreateDefaultProperties();
-  
-  
+
+
   // Distance between where the mouse event happens and where the
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
 
   void BuildLines();
-  
+
 private:
   vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&);  //Not implemented
   void operator=(const vtkOrientedGlyphFocalPlaneContourRepresentation&);  //Not implemented

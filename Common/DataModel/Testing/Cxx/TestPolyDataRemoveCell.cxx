@@ -106,7 +106,7 @@ int TestPolyDataRemoveCell(int , char *[])
   poly->DeleteCell(numCells-1); // strip
 
   poly->RemoveDeletedCells();
-  
+
   if(poly->GetNumberOfCells() != numCells-4)
     {
     cout << "Wrong number of cells after removal.\n";
@@ -144,7 +144,7 @@ int TestPolyDataRemoveCell(int , char *[])
       if(pts[j] != data[j+1])
         {
         cout << "Problem with  point " << j << " for cell " << i << endl;
-        return 1;        
+        return 1;
         }
       }
     }

@@ -87,7 +87,7 @@ public:
   void SetShowBorderToOff() {this->SetShowBorder(BORDER_OFF);}
   void SetShowBorderToOn() {this->SetShowBorder(BORDER_ON);}
   void SetShowBorderToActive() {this->SetShowBorder(BORDER_ACTIVE);}
-  
+
   // Description:
   // Specify the properties of the border.
   vtkGetObjectMacro(BorderProperty,vtkProperty2D);
@@ -96,7 +96,7 @@ public:
   // Indicate whether resizing operations should keep the x-y directions
   // proportional to one another. Also, if ProportionalResize is on, then
   // the rectangle (Position,Position2) is a bounding rectangle, and the
-  // representation will be placed in the rectangle in such a way as to 
+  // representation will be placed in the rectangle in such a way as to
   // preserve the aspect ratio of the representation.
   vtkSetMacro(ProportionalResize,int);
   vtkGetMacro(ProportionalResize,int);
@@ -158,7 +158,7 @@ public:
   virtual void GetSize(double size[2])
     {size[0]=1.0; size[1]=1.0;}
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
-  
+
   // Description:
   // These methods are necessary to make this representation behave as
   // a vtkProp.
@@ -168,7 +168,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 protected:
   vtkBorderRepresentation();
   ~vtkBorderRepresentation();
@@ -180,7 +180,7 @@ protected:
   int           Tolerance;
   int           Moving;
   double        SelectionPoint[2];
-  
+
   // Layout (position of lower left and upper right corners of border)
   vtkCoordinate *PositionCoordinate;
   vtkCoordinate *Position2Coordinate;
@@ -191,7 +191,7 @@ protected:
   virtual void NegotiateLayout();
 
   // Keep track of start position when moving border
-  double StartPosition[2]; 
+  double StartPosition[2];
 
   // Border representation. Subclasses may use the BWTransform class
   // to transform their geometry into the region surrounded by the border.
@@ -205,7 +205,7 @@ protected:
   // Constraints on size
   int MinimumSize[2];
   int MaximumSize[2];
-  
+
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&);  //Not implemented
   void operator=(const vtkBorderRepresentation&);  //Not implemented

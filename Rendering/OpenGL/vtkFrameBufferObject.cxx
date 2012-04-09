@@ -69,24 +69,24 @@ bool vtkFrameBufferObject::IsSupported(vtkRenderWindow *win)
   if(renWin!=0)
     {
       vtkOpenGLExtensionManager *mgr=renWin->GetExtensionManager();
-      
+
       bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
       bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4")==1;
       bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5")==1;
       bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
-      
+
       bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
-      
+
       bool depthTexture24=gl14 ||
         mgr->ExtensionSupported("GL_ARB_depth_texture");
-      
+
       bool occlusion=gl15 ||
         mgr->ExtensionSupported("GL_ARB_occlusion_query");
-      
+
       bool drawbuffers=gl20 || mgr->ExtensionSupported("GL_ARB_draw_buffers");
-      
+
       bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object")==1;
-      
+
       return tex3D && depthTexture24 && occlusion && drawbuffers && fbo;
     }
   return false;
@@ -97,26 +97,26 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
                                               vtkOpenGLExtensionManager*mgr)
 {
   // Load extensions using vtkOpenGLExtensionManager
-  
+
   bool gl12=mgr->ExtensionSupported("GL_VERSION_1_2")==1;
   bool gl14=mgr->ExtensionSupported("GL_VERSION_1_4")==1;
   bool gl15=mgr->ExtensionSupported("GL_VERSION_1_5")==1;
   bool gl20=mgr->ExtensionSupported("GL_VERSION_2_0")==1;
-  
+
   bool tex3D=gl12 || mgr->ExtensionSupported("GL_EXT_texture3D");
-  
+
   bool depthTexture24=gl14 ||
     mgr->ExtensionSupported("GL_ARB_depth_texture");
-  
+
   bool occlusion=gl15 ||
     mgr->ExtensionSupported("GL_ARB_occlusion_query");
-  
+
   bool drawbuffers=gl20 || mgr->ExtensionSupported("GL_ARB_draw_buffers");
-  
+
   bool fbo=mgr->ExtensionSupported("GL_EXT_framebuffer_object")==1;
-  
+
   bool supported=tex3D && depthTexture24 && occlusion && drawbuffers && fbo;
-  
+
   if(supported)
     {
     if(gl12)
@@ -127,7 +127,7 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
       {
       mgr->LoadCorePromotedExtension("GL_EXT_texture3D");
       }
-    
+
     if(gl14)
       {
       mgr->LoadSupportedExtension("GL_VERSION_1_4");
@@ -136,7 +136,7 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
       {
       mgr->LoadCorePromotedExtension("GL_ARB_depth_texture");
       }
-    
+
     if(gl15)
       {
       mgr->LoadSupportedExtension("GL_VERSION_1_5");
@@ -145,7 +145,7 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
       {
       mgr->LoadCorePromotedExtension("GL_ARB_occlusion_query");
       }
-    
+
     if(gl20)
       {
       mgr->LoadSupportedExtension("GL_VERSION_2_0");
@@ -154,10 +154,10 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(
       {
       mgr->LoadCorePromotedExtension("GL_ARB_draw_buffers");
       }
-    
+
     mgr->LoadSupportedExtension("GL_EXT_framebuffer_object");
     }
-  
+
   return supported;
 }
 
@@ -168,7 +168,7 @@ void vtkFrameBufferObject::SetContext(vtkRenderWindow *renWin)
     {
     return;
     }
-  
+
   if(this->Context!=0)
     {
     this->DestroyFBO();
@@ -208,12 +208,12 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
     }
 
   this->Bind();
-  
+
   // this->CheckFrameBufferStatus();
-  
+
   // If width/height changed since last render, we need to resize the
   // buffers.
-  if (this->LastSize[0] != width || this->LastSize[1] != height || 
+  if (this->LastSize[0] != width || this->LastSize[1] != height ||
     (this->DepthBuffer && !this->DepthBufferNeeded) ||
     (this->DepthBufferNeeded && !this->DepthBuffer))
     {
@@ -222,7 +222,7 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
     }
 
   if (this->LastSize[0] != width || this->LastSize[1] != height
-    || this->ColorBuffersDirty 
+    || this->ColorBuffersDirty
     || this->DepthBufferNeeded)
     {
     this->CreateBuffers(width, height);
@@ -240,7 +240,7 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
   // Note this is because we are using FBO through the EXT extension.
   // This is not true with the ARB extension (which we are not using here
   // as it exists only on OpenGL 3.0 drivers)
-  
+
   GLenum status = vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
   if (status != vtkgl::FRAMEBUFFER_COMPLETE_EXT)
     {
@@ -248,7 +248,7 @@ bool vtkFrameBufferObject::StartNonOrtho(int width,
     this->CheckFrameBufferStatus();
     return false;
     }
-  
+
   return true;
 }
 
@@ -385,8 +385,8 @@ void vtkFrameBufferObject::CreateBuffers(int width, int height)
     vtkgl::RenderbufferStorageEXT(vtkgl::RENDERBUFFER_EXT,
       vtkgl::DEPTH_COMPONENT24, width, height);
     // Attach the depth buffer to the FBO.
-    vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT, 
-      vtkgl::DEPTH_ATTACHMENT_EXT, 
+    vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
+      vtkgl::DEPTH_ATTACHMENT_EXT,
       vtkgl::RENDERBUFFER_EXT, this->DepthBuffer);
     }
 }
@@ -403,7 +403,7 @@ void vtkFrameBufferObject::DestroyBuffers()
 }
 
 //----------------------------------------------------------------------------
-// Destroy color buffers 
+// Destroy color buffers
 void vtkFrameBufferObject::DestroyColorBuffers()
 {
   this->ColorBuffers.clear();
@@ -478,14 +478,14 @@ void vtkFrameBufferObject::CreateColorBuffers(
         vtkErrorMacro("Invalid zSlice " << zSlice << ". Using 0.");
         zSlice = 0;
         }
-      vtkgl::FramebufferTexture3DEXT(vtkgl::FRAMEBUFFER_EXT, 
+      vtkgl::FramebufferTexture3DEXT(vtkgl::FRAMEBUFFER_EXT,
         vtkgl::COLOR_ATTACHMENT0_EXT+cc,
         vtkgl::TEXTURE_3D, colorBuffer->GetHandle(), 0, zSlice);
       vtkGraphicErrorMacro(this->Context,"__FILE__ __LINE__");
       }
     this->ColorBuffers[cc] = colorBuffer;
     }
-  
+
   unsigned int attachments=this->GetMaximumNumberOfRenderTargets();
   while(cc<attachments)
     {
@@ -663,7 +663,7 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachments()
     {
     cout<<"Current framebuffer is bind to framebuffer object "
         <<framebufferBinding<<endl;
-    
+
     GLint maxColorAttachments;
     glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS_EXT,&maxColorAttachments);
     vtkGraphicErrorMacro(this->Context,"after getting MAX_COLOR_ATTACHMENTS_EXT");
@@ -688,14 +688,14 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
   unsigned int uattachment)
 {
   GLenum attachment=static_cast<GLenum>(uattachment);
-  
+
   GLint params;
   vtkgl::GetFramebufferAttachmentParameterivEXT(
     vtkgl::FRAMEBUFFER_EXT,attachment,
     vtkgl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT,&params);
-  
+
   vtkGraphicErrorMacro(this->Context,"after getting FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT");
-  
+
   switch(params)
     {
     case GL_NONE:
@@ -728,7 +728,7 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
        vtkgl::GetFramebufferAttachmentParameterivEXT(
          vtkgl::FRAMEBUFFER_EXT,attachment,
          vtkgl::FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT,&params);
-       
+
        vtkGraphicErrorMacro(this->Context,"after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT");
       if(params==0)
         {
@@ -747,11 +747,11 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
         vtkgl::FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT,&params);
 //      this->PrintError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT");
       cout<<" this attachment is a renderbuffer with name: "<<params<<endl;
-      
+
       vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,params);
 //      this->PrintError(
 //        "after getting binding the current RENDERBUFFER_EXT to params");
-      
+
       vtkgl::GetRenderbufferParameterivEXT(vtkgl::RENDERBUFFER_EXT,
                                            vtkgl::RENDERBUFFER_WIDTH_EXT,
                                            &params);
@@ -766,9 +766,9 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
         vtkgl::RENDERBUFFER_EXT,vtkgl::RENDERBUFFER_INTERNAL_FORMAT_EXT,
         &params);
 //      this->PrintError("after getting RENDERBUFFER_INTERNAL_FORMAT_EXT");
-      
+
       cout<<" renderbuffer internal format=0x"<< hex<<params<<dec<<endl;
-      
+
       vtkgl::GetRenderbufferParameterivEXT(vtkgl::RENDERBUFFER_EXT,
                                            vtkgl::RENDERBUFFER_RED_SIZE_EXT,
                                            &params);
@@ -818,7 +818,7 @@ void vtkFrameBufferObject::DisplayDrawBuffers()
 {
   GLint ivalue;
   glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS,&ivalue);
-  
+
   cout<<"there ";
   if(ivalue<=1)
     {
@@ -839,14 +839,14 @@ void vtkFrameBufferObject::DisplayDrawBuffers()
   while(i<c)
     {
     glGetIntegerv(vtkgl::DRAW_BUFFER0+i,&ivalue);
-    
+
     cout << "draw buffer["<<i<<"]=";
     this->DisplayBuffer(ivalue);
     cout << endl;
     ++i;
     }
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Display the read buffer.

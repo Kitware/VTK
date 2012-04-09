@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTableWriter - write vtkTable to a file
 // .SECTION Description
-// vtkTableWriter is a sink object that writes ASCII or binary 
+// vtkTableWriter is a sink object that writes ASCII or binary
 // vtkTable data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.

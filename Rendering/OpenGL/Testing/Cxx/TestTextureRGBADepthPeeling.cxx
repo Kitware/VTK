@@ -84,7 +84,7 @@ int TestTextureRGBADepthPeeling(int argc, char *argv[])
     {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
     }
-  
+
   interactor->Initialize();
   renWin->Render();
 

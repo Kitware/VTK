@@ -1087,7 +1087,7 @@ bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other)
     return false;
     }
 
-  // Compare each coordinate of the corners.  Stop if at 
+  // Compare each coordinate of the corners.  Stop if at
   // anytime the box becomes invalid - i.e. there is no intersection
   switch( this->Dimension )
     {
@@ -1177,7 +1177,7 @@ bool vtkAMRBox::Intersect(const vtkAMRBox &other)
     return false;
     }
 
-  // Compare each coordinate of the corners.  Stop if at 
+  // Compare each coordinate of the corners.  Stop if at
   // anytime the box becomes invalid - i.e. there is no intersection
   switch( this->Dimension )
     {

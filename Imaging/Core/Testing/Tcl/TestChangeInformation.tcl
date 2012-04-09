@@ -15,12 +15,12 @@ information CenterImageOn
 
 vtkImageReslice reslice
 reslice SetInputConnection [information GetOutputPort]
-reslice SetResliceAxesDirectionCosines 0.866025 -0.5 0  0.5 0.866025 0  0 0 1  
+reslice SetResliceAxesDirectionCosines 0.866025 -0.5 0  0.5 0.866025 0  0 0 1
 reslice SetInterpolationModeToCubic
 
 # reset the image back to the way it was (you don't have
 # to do this, it is just put in as an example)
-vtkImageChangeInformation information2 
+vtkImageChangeInformation information2
 information2 SetInputConnection [reslice GetOutputPort]
 information2 SetInformationInputData [reader GetOutput]
 

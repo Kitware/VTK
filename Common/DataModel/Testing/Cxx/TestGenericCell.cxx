@@ -35,7 +35,7 @@ int TestGenericCell(int , char *[])
     int a = cell->GetParametricCenter(center);
     (void)a;
     double *pcoords = cell->GetParametricCoords();
-    if( cell->GetCellType() != VTK_EMPTY_CELL 
+    if( cell->GetCellType() != VTK_EMPTY_CELL
      && cell->GetCellType() != VTK_POLY_VERTEX // FIXME
      && cell->GetCellType() != VTK_POLY_LINE // FIXME
      && cell->GetCellType() != VTK_TRIANGLE_STRIP // FIXME

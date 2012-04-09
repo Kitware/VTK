@@ -35,7 +35,7 @@ public:
   // A value of zero means no grid.
   vtkSetVector3Macro(GridSpacing,int);
   vtkGetVector3Macro(GridSpacing,int);
-  
+
   // Description:
   // Set/Get the grid origin, in ijk integer values.  Default (0,0,0).
   vtkSetVector3Macro(GridOrigin,int);
@@ -63,7 +63,7 @@ public:
   void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
   vtkGetMacro(DataScalarType, int);
-  const char *GetDataScalarTypeAsString() { 
+  const char *GetDataScalarTypeAsString() {
     return vtkImageScalarTypeNameMacro(this->DataScalarType); }
 
   // Description:
@@ -76,7 +76,7 @@ public:
   // Set/Get the pixel spacing.
   vtkSetVector3Macro(DataSpacing,double);
   vtkGetVector3Macro(DataSpacing,double);
-  
+
   // Description:
   // Set/Get the origin of the data.
   vtkSetVector3Macro(DataOrigin,double);

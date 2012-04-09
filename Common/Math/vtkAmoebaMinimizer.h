@@ -75,13 +75,13 @@ public:
   // Get the value of a parameter at the current stage of the minimization.
   // Call this method within the function that you are minimizing in order
   // to get the current parameter values.  It is preferable to specify
-  // parameters by name rather than by index. 
+  // parameters by name rather than by index.
   double GetParameterValue(const char *name);
   double GetParameterValue(int i) { return this->ParameterValues[i]; };
 
   // Description:
   // For completeness, an unchecked method to get the name for particular
-  // parameter (the result will be NULL if no name was set).  
+  // parameter (the result will be NULL if no name was set).
   const char *GetParameterName(int i) { return this->ParameterNames[i]; };
 
   // Description:
@@ -95,17 +95,17 @@ public:
 
   // Description:
   // Iterate until the minimum is found to within the specified tolerance,
-  // or until the MaxIterations has been reached. 
+  // or until the MaxIterations has been reached.
   virtual void Minimize();
 
   // Description:
   // Perform one iteration of minimization.  Returns zero if the tolerance
-  // stopping criterion has been met.  
+  // stopping criterion has been met.
   virtual int Iterate();
 
   // Description:
   // Get the function value resulting from the minimization.
-  vtkSetMacro(FunctionValue,double); 
+  vtkSetMacro(FunctionValue,double);
   double GetFunctionValue() { return this->FunctionValue; };
 
   // Description:
@@ -154,7 +154,7 @@ protected:
   vtkAmoebaMinimizer();
   ~vtkAmoebaMinimizer();
 
-//BTX  
+//BTX
   void (*Function)(void *);
   void (*FunctionArgDelete)(void *);
   void *FunctionArg;
@@ -176,7 +176,7 @@ protected:
   int FunctionEvaluations;
 
 private:
-// specific to amoeba simplex minimization 
+// specific to amoeba simplex minimization
 //BTX
   double **AmoebaVertices;
   double *AmoebaValues;
@@ -184,7 +184,7 @@ private:
   double AmoebaSize;
   double AmoebaHighValue;
   int AmoebaNStepsNoImprovement;
-  
+
   void InitializeAmoeba();
   void GetAmoebaParameterValues();
   void TerminateAmoeba();

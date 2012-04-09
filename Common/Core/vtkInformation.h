@@ -68,7 +68,7 @@ class vtkInformationVector;
 #endif
 
 
-class VTK_INFORMATION_EXPORT vtkInformation : public vtkObject 
+class VTK_INFORMATION_EXPORT vtkInformation : public vtkObject
 {
 public:
   VTKCOMMONCORE_EXPORT static vtkInformation *New();

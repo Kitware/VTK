@@ -44,14 +44,14 @@ public:
   // Get/Set the writer's input.
   vtkPolyData* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLPolyDataWriter();
-  ~vtkXMLPolyDataWriter();  
+  ~vtkXMLPolyDataWriter();
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
@@ -60,10 +60,10 @@ protected:
 
   virtual void AllocatePositionArrays();
   virtual void DeletePositionArrays();
-   
+
   void WriteInlinePieceAttributes();
   void WriteInlinePiece(vtkIndent indent);
-  
+
   void WriteAppendedPieceAttributes(int index);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);

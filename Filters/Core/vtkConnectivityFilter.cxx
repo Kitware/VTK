@@ -44,12 +44,12 @@ vtkConnectivityFilter::vtkConnectivityFilter()
 
   this->ClosestPoint[0] = this->ClosestPoint[1] = this->ClosestPoint[2] = 0.0;
 
-  this->CellScalars = vtkFloatArray::New(); 
+  this->CellScalars = vtkFloatArray::New();
   this->CellScalars->Allocate(8);
 
   this->NeighborCellPointIds = vtkIdList::New();
   this->NeighborCellPointIds->Allocate(8);
-  
+
   this->Seeds = vtkIdList::New();
   this->SpecifiedRegionIds = vtkIdList::New();
 
@@ -88,7 +88,7 @@ int vtkConnectivityFilter::RequestData(
   int largestRegionId = 0;
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
-  
+
   vtkDebugMacro(<<"Executing connectivity filter.");
 
   //  Check input/allocate storage
@@ -104,13 +104,13 @@ int vtkConnectivityFilter::RequestData(
   // See whether to consider scalar connectivity
   //
   this->InScalars = input->GetPointData()->GetScalars();
-  if ( !this->ScalarConnectivity ) 
+  if ( !this->ScalarConnectivity )
     {
     this->InScalars = NULL;
     }
   else
     {
-    if ( this->ScalarRange[1] < this->ScalarRange[0] ) 
+    if ( this->ScalarRange[1] < this->ScalarRange[0] )
       {
       this->ScalarRange[1] = this->ScalarRange[0];
       }
@@ -124,7 +124,7 @@ int vtkConnectivityFilter::RequestData(
     {
     this->Visited[i] = -1;
     }
-  this->PointMap = new vtkIdType[numPts];  
+  this->PointMap = new vtkIdType[numPts];
   for ( i=0; i < numPts; i++ )
     {
     this->PointMap[i] = -1;
@@ -142,7 +142,7 @@ int vtkConnectivityFilter::RequestData(
   newPts->Allocate(numPts);
 
   // Traverse all cells marking those visited.  Each new search
-  // starts a new connected region. Connected region grows 
+  // starts a new connected region. Connected region grows
   // using a connected wave propagation.
   //
   this->Wave = vtkIdList::New();
@@ -154,14 +154,14 @@ int vtkConnectivityFilter::RequestData(
   this->RegionNumber = 0;
   maxCellsInRegion = 0;
 
-  this->CellIds = vtkIdList::New(); 
+  this->CellIds = vtkIdList::New();
   this->CellIds->Allocate(8, VTK_CELL_SIZE);
-  this->PointIds = vtkIdList::New(); 
+  this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(8, VTK_CELL_SIZE);
 
-  if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS && 
+  if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS &&
   this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&
-  this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_REGION ) 
+  this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_REGION )
     { //visit all cells marking with region number
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -170,7 +170,7 @@ int vtkConnectivityFilter::RequestData(
         this->UpdateProgress (0.1 + 0.8*cellId/numCells);
         }
 
-      if ( this->Visited[cellId] < 0 ) 
+      if ( this->Visited[cellId] < 0 )
         {
         this->NumCellsInRegion = 0;
         this->Wave->InsertNextId(cellId);
@@ -195,13 +195,13 @@ int vtkConnectivityFilter::RequestData(
 
     if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
       {
-      for (i=0; i < this->Seeds->GetNumberOfIds(); i++) 
+      for (i=0; i < this->Seeds->GetNumberOfIds(); i++)
         {
         pt = this->Seeds->GetId(i);
-        if ( pt >= 0 ) 
+        if ( pt >= 0 )
           {
           input->GetPointCells(pt,this->CellIds);
-          for (j=0; j < this->CellIds->GetNumberOfIds(); j++) 
+          for (j=0; j < this->CellIds->GetNumberOfIds(); j++)
             {
             this->Wave->InsertNextId(this->CellIds->GetId(j));
             }
@@ -210,7 +210,7 @@ int vtkConnectivityFilter::RequestData(
       }
     else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
       {
-      for (i=0; i < this->Seeds->GetNumberOfIds(); i++) 
+      for (i=0; i < this->Seeds->GetNumberOfIds(); i++)
         {
         cellId = this->Seeds->GetId(i);
         if ( cellId >= 0 )
@@ -234,7 +234,7 @@ int vtkConnectivityFilter::RequestData(
           }
         }
       input->GetPointCells(minId,this->CellIds);
-      for (j=0; j < this->CellIds->GetNumberOfIds(); j++) 
+      for (j=0; j < this->CellIds->GetNumberOfIds(); j++)
         {
         this->Wave->InsertNextId(this->CellIds->GetId(j));
         }
@@ -298,11 +298,11 @@ int vtkConnectivityFilter::RequestData(
           {
           vtkUnstructuredGrid::SafeDownCast(input)->
             GetFaceStream(cellId, this->PointIds);
-          vtkUnstructuredGrid::ConvertFaceStreamPointIds(this->PointIds, 
+          vtkUnstructuredGrid::ConvertFaceStreamPointIds(this->PointIds,
                                                          this->PointMap);
           }
         else
-          {        
+          {
           input->GetCellPoints(cellId, this->PointIds);
           for (i=0; i < this->PointIds->GetNumberOfIds(); i++)
             {
@@ -339,11 +339,11 @@ int vtkConnectivityFilter::RequestData(
             {
             vtkUnstructuredGrid::SafeDownCast(input)->
               GetFaceStream(cellId, this->PointIds);
-            vtkUnstructuredGrid::ConvertFaceStreamPointIds(this->PointIds, 
+            vtkUnstructuredGrid::ConvertFaceStreamPointIds(this->PointIds,
                                                            this->PointMap);
             }
           else
-            {        
+            {
             input->GetCellPoints(cellId, this->PointIds);
             for (i=0; i < this->PointIds->GetNumberOfIds(); i++)
               {
@@ -370,11 +370,11 @@ int vtkConnectivityFilter::RequestData(
           {
           vtkUnstructuredGrid::SafeDownCast(input)->
             GetFaceStream(cellId, this->PointIds);
-          vtkUnstructuredGrid::ConvertFaceStreamPointIds(this->PointIds, 
+          vtkUnstructuredGrid::ConvertFaceStreamPointIds(this->PointIds,
                                                          this->PointMap);
           }
         else
-          {        
+          {
           input->GetCellPoints(cellId, this->PointIds);
           for (i=0; i < this->PointIds->GetNumberOfIds(); i++)
             {
@@ -394,7 +394,7 @@ int vtkConnectivityFilter::RequestData(
   this->PointIds->Delete();
   this->CellIds->Delete();
   output->Squeeze();
-  vtkDataArray* outScalars = 0; 
+  vtkDataArray* outScalars = 0;
   if (this->ColorRegions && (outScalars=output->GetPointData()->GetScalars()))
     {
     outScalars->Resize(output->GetNumberOfPoints());
@@ -435,7 +435,7 @@ void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
         input->GetCellPoints(cellId, this->PointIds);
 
         numPts = this->PointIds->GetNumberOfIds();
-        for (j=0; j < numPts; j++) 
+        for (j=0; j < numPts; j++)
           {
           if ( this->PointMap[ptId=this->PointIds->GetId(j)] < 0 )
             {
@@ -475,7 +475,7 @@ void vtkConnectivityFilter::TraverseAndMark (vtkDataSet *input)
                   range[1] = s;
                   }
                 }
-              if ( range[1] >= this->ScalarRange[0] && 
+              if ( range[1] >= this->ScalarRange[0] &&
                    range[0] <= this->ScalarRange[1] )
                 {
                 this->Wave2->InsertNextId(cellId);
@@ -560,12 +560,12 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Extraction Mode: ";
   os << this->GetExtractionModeAsString() << "\n";
 
-  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", " 
+  os << indent << "Closest Point: (" << this->ClosestPoint[0] << ", "
      << this->ClosestPoint[1] << ", " << this->ClosestPoint[2] << ")\n";
 
   os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
 
-  os << indent << "Scalar Connectivity: " 
+  os << indent << "Scalar Connectivity: "
      << (this->ScalarConnectivity ? "On\n" : "Off\n");
 
   double *range = this->GetScalarRange();

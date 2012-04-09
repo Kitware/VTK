@@ -51,8 +51,8 @@ vtkMergeTables::~vtkMergeTables()
 
 //---------------------------------------------------------------------------
 int vtkMergeTables::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get input tables
@@ -67,7 +67,7 @@ int vtkMergeTables::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkTable* output = vtkTable::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if (!this->FirstTablePrefix || !this->SecondTablePrefix)
     {
     vtkErrorMacro("FirstTablePrefix and/or SecondTablePrefix must be non-null.");
@@ -104,13 +104,13 @@ int vtkMergeTables::RequestData(
     output->AddColumn(newCol);
     newCol->Delete();
     }
-  
+
   // Add empty values
   for (int r = 0; r < table2->GetNumberOfRows(); r++)
     {
     output->InsertNextBlankRow();
     }
-  
+
   // Add columns from table 2
   vtkStringArray* toMerge = vtkStringArray::New();
   vtkTable* tempTable = vtkTable::New();
@@ -162,13 +162,13 @@ int vtkMergeTables::RequestData(
     tempTable->AddColumn(newCol);
     newCol->Delete();
     }
-  
+
   // Add empty values
   for (int r = 0; r < table1->GetNumberOfRows(); r++)
     {
     tempTable->InsertNextBlankRow();
     }
-  
+
   // Add values from table 2
   for (int r = 0; r < table2->GetNumberOfRows(); r++)
     {
@@ -179,7 +179,7 @@ int vtkMergeTables::RequestData(
       tempCol->InsertNextTuple(r, col);
       }
     }
-    
+
   // Move the columns from the temp table to the output table
   for (int c = 0; c < tempTable->GetNumberOfColumns(); c++)
     {
@@ -211,7 +211,7 @@ int vtkMergeTables::RequestData(
     }
   mergeColumns->Delete();
   toMerge->Delete();
-  
+
   output->ShallowCopy(temp);
   temp->Delete();
 
@@ -227,8 +227,8 @@ int vtkMergeTables::RequestData(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
     }
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), npieces);
-  output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);  
-  
+  output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
+
   return 1;
 }
 

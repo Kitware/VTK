@@ -148,7 +148,7 @@ public:
   // Set/Get the labels text properties for the legend title and labels.
   vtkGetObjectMacro(LegendTitleProperty,vtkTextProperty);
   vtkGetObjectMacro(LegendLabelProperty,vtkTextProperty);
-      
+
   // Description:
   // These are methods to retrieve the vtkAxisActors used to represent
   // the four axes that form this representation. Users may retrieve and
@@ -176,19 +176,19 @@ protected:
   int    LeftBorderOffset;
   int    BottomBorderOffset;
   double CornerOffsetFactor;
-  
+
   // The four axes around the borders of the renderer
   vtkAxisActor2D *RightAxis;
   vtkAxisActor2D *TopAxis;
   vtkAxisActor2D *LeftAxis;
   vtkAxisActor2D *BottomAxis;
-  
+
   // Control the display of the axes
   int RightAxisVisibility;
   int TopAxisVisibility;
   int LeftAxisVisibility;
   int BottomAxisVisibility;
-  
+
   // Support for the legend.
   int                  LegendVisibility;
   vtkPolyData         *Legend;
@@ -200,7 +200,7 @@ protected:
   vtkTextProperty     *LegendTitleProperty;
   vtkTextProperty     *LegendLabelProperty;
   vtkCoordinate       *Coordinate;
-  
+
   vtkTimeStamp         BuildTime;
 
 private:

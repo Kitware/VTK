@@ -68,7 +68,7 @@ public:
   void SetSelectedProperty(vtkProperty2D*);
   vtkGetObjectMacro(Property,vtkProperty2D);
   vtkGetObjectMacro(SelectedProperty,vtkProperty2D);
-  
+
   // Description:
   // Subclasses of vtkPointHandleRepresentation2D must implement these
   // methods. These are the methods that the widget and its representation
@@ -95,7 +95,7 @@ public:
   // space. Since this class constrains points to lie in an overlay
   // plane anyway, we don't care. Just returns.
   virtual void SetPointPlacer ( vtkPointPlacer * );
-  
+
 protected:
   vtkPointHandleRepresentation2D();
   ~vtkPointHandleRepresentation2D();
@@ -111,7 +111,7 @@ protected:
   // Support picking
   double LastPickPosition[3];
   double LastEventPosition[2];
-  
+
   // Methods to manipulate the cursor
   int  ConstraintAxis;
   void Translate(double eventPos[2]);
@@ -125,12 +125,12 @@ protected:
   vtkProperty2D *Property;
   vtkProperty2D *SelectedProperty;
   void           CreateDefaultProperties();
-  
+
   // The size of the hot spot.
   int    DetermineConstraintAxis(int constraint, double eventPos[2]);
   int    WaitingForMotion;
   int    WaitCount;
-  
+
 private:
   vtkPointHandleRepresentation2D(const vtkPointHandleRepresentation2D&);  //Not implemented
   void operator=(const vtkPointHandleRepresentation2D&);  //Not implemented

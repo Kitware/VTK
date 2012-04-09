@@ -26,7 +26,7 @@
 // and shines on the camera's focal point.  A CameraLight also moves with
 // the camera, but may not be coincident to it.  CameraLights are defined
 // in a normalized coordinate space where the camera is located at (0, 0, 1),
-// the camera is looking at (0, 0, 0), and up is (0, 1, 0).  Finally, a 
+// the camera is looking at (0, 0, 0), and up is (0, 1, 0).  Finally, a
 // SceneLight is part of the scene itself and does not move with the camera.
 // (Renderers are responsible for moving the light based on its type.)
 //
@@ -58,7 +58,7 @@ public:
   // Description:
   // Create a light with the focal point at the origin and its position
   // set to (0,0,1). The light is a SceneLight, its color is white
-  // (black ambient, white diffuse, white specular), 
+  // (black ambient, white diffuse, white specular),
   // intensity=1, the light is turned on, positional lighting is off,
   // ConeAngle=30, AttenuationValues=(1,0,0), Exponent=1 and the
   // TransformMatrix is NULL.
@@ -70,7 +70,7 @@ public:
   // like reference counting, timestamp and observers are not copied).
   // This is a shallow clone (TransformMatrix is referenced)
   virtual vtkLight *ShallowClone();
-  
+
   // Description:
   // Abstract interface to renderer. Each concrete subclass of vtkLight
   // will load its data into the graphics system in response to this method
@@ -89,24 +89,24 @@ public:
   vtkGetVectorMacro(DiffuseColor,double,3);
   vtkSetVector3Macro(SpecularColor,double);
   vtkGetVectorMacro(SpecularColor,double,3);
-  void SetColor(double, double, double); 
+  void SetColor(double, double, double);
   void SetColor(double a[3]) { this->SetColor(a[0], a[1], a[2]); }
 
   // Description:
   // Set/Get the position of the light.
   // Note: The position of the light is defined in the coordinate
   // space indicated by its transformation matrix (if it exists).
-  // Thus, to get the light's world space position, use 
+  // Thus, to get the light's world space position, use
   // vtkGetTransformedPosition() instead of vtkGetPosition().
   vtkSetVector3Macro(Position,double);
   vtkGetVectorMacro(Position,double,3);
   void SetPosition(float *a) {this->SetPosition(a[0],a[1],a[2]);};
-  
+
   // Description:
   // Set/Get the point at which the light is shining.
   // Note: The focal point of the light is defined in the coordinate
   // space indicated by its transformation matrix (if it exists).
-  // Thus, to get the light's world space focal point, use 
+  // Thus, to get the light's world space focal point, use
   // vtkGetTransformedFocalPoint() instead of vtkGetFocalPoint().
   vtkSetVector3Macro(FocalPoint,double);
   vtkGetVectorMacro(FocalPoint,double,3);
@@ -151,7 +151,7 @@ public:
 
   // Description:
   // Set/Get the light's transformation matrix.  If a matrix is set for
-  // a light, the light's parameters (position and focal point) are 
+  // a light, the light's parameters (position and focal point) are
   // transformed by the matrix before being rendered.
   virtual void SetTransformMatrix(vtkMatrix4x4*);
   vtkGetObjectMacro(TransformMatrix,vtkMatrix4x4);
@@ -176,7 +176,7 @@ public:
   // Angles are given in degrees.  If the light is a
   // positional light, it is made directional instead.
   void SetDirectionAngle(double elevation, double azimuth);
-  void SetDirectionAngle(double ang[2]) { 
+  void SetDirectionAngle(double ang[2]) {
     this->SetDirectionAngle(ang[0], ang[1]); };
 
   // Description:
@@ -188,12 +188,12 @@ public:
   // A SceneLight is a light located in the world coordinate space.  A light
   // is initially created as a scene light.
   //
-  // A Headlight is always located at the camera and is pointed at the 
+  // A Headlight is always located at the camera and is pointed at the
   // camera's focal point.  The renderer is free to modify the position and
   // focal point of the camera at any time.
   //
   // A CameraLight is also attached to the camera, but is not necessarily
-  // located at the camera's position.  CameraLights are defined in a 
+  // located at the camera's position.  CameraLights are defined in a
   // coordinate space where the camera is located at (0, 0, 1), looking
   // towards (0, 0, 0) at a distance of 1, with up being (0, 1, 0).
   //
@@ -219,7 +219,7 @@ public:
 
   void ReadSelf(istream& is);
   void WriteSelf(ostream& os);
-  
+
 protected:
   vtkLight();
   ~vtkLight();

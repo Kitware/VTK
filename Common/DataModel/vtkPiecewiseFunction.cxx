@@ -54,7 +54,7 @@ public:
   bool operator () ( const vtkPiecewiseFunctionNode *node )
     {
       return node->X == this->X;
-    } 
+    }
 };
 
 // A find method for finding nodes inside a specified range
@@ -67,7 +67,7 @@ public:
     {
       return ( node->X >= this->X1 &&
                node->X <= this->X2 );
-    } 
+    }
 };
 
 // A find method for finding nodes outside a specified range
@@ -80,7 +80,7 @@ public:
     {
       return ( node->X < this->X1 ||
                node->X > this->X2 );
-    } 
+    }
 };
 
 // The internal structure for containing the STL objects
@@ -115,12 +115,12 @@ vtkPiecewiseFunction::~vtkPiecewiseFunction()
     {
     delete [] this->Function;
     }
-  
+
   for(unsigned int i=0;i<this->Internal->Nodes.size();i++)
     {
     delete this->Internal->Nodes[i];
     }
-  this->Internal->Nodes.clear(); 
+  this->Internal->Nodes.clear();
   delete this->Internal;
 }
 
@@ -141,7 +141,7 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
       }
     this->Modified();
     }
-  
+
   // Do the superclass
   this->Superclass::DeepCopy(o);
 }
@@ -235,7 +235,7 @@ const char *vtkPiecewiseFunction::GetType()
             function_type = 3;  // Varied
             break;
           }
-        } 
+        }
       }
 
     prev_value = value;
@@ -263,18 +263,18 @@ const char *vtkPiecewiseFunction::GetType()
 }
 
 // Since we no longer store the data in an array, we must
-// copy out of the vector into an array. No modified check - 
+// copy out of the vector into an array. No modified check -
 // could be added if performance is a problem
 double *vtkPiecewiseFunction::GetDataPointer()
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
-  
+
   if ( this->Function )
     {
     delete [] this->Function;
     this->Function = NULL;
     }
-  
+
   if ( size > 0 )
     {
     this->Function = new double[size*2];
@@ -284,7 +284,7 @@ double *vtkPiecewiseFunction::GetDataPointer()
       this->Function[2*i+1] = this->Internal->Nodes[i]->Y;
       }
     }
-  
+
   return this->Function;
 }
 
@@ -312,7 +312,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
       }
     }
 
-  // If every specified point has a zero value then return 
+  // If every specified point has a zero value then return
   // a large value
   if( all_zero )
     {
@@ -326,7 +326,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
       x = this->Internal->Nodes[i-1]->X;
       }
     else
-      // If this is the first point in the function, return its 
+      // If this is the first point in the function, return its
       // value is clamping is off, otherwise VTK_DOUBLE_MIN if
       // clamping is on.
       {
@@ -340,7 +340,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
         }
       }
     }
- 
+
   return x;
 }
 
@@ -348,18 +348,18 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
 int vtkPiecewiseFunction::GetNodeValue( int index, double val[4] )
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
-  
+
   if ( index < 0 || index >= size )
     {
     vtkErrorMacro("Index out of range!");
     return -1;
     }
-  
+
   val[0] = this->Internal->Nodes[index]->X;
   val[1] = this->Internal->Nodes[index]->Y;
   val[2] = this->Internal->Nodes[index]->Midpoint;
   val[3] = this->Internal->Nodes[index]->Sharpness;
-  
+
   return 1;
 }
 
@@ -367,13 +367,13 @@ int vtkPiecewiseFunction::GetNodeValue( int index, double val[4] )
 int vtkPiecewiseFunction::SetNodeValue( int index, double val[4] )
 {
   int size = static_cast<int>(this->Internal->Nodes.size());
-  
+
   if ( index < 0 || index >= size )
     {
     vtkErrorMacro("Index out of range!");
     return -1;
     }
-  
+
   double oldX = this->Internal->Nodes[index]->X;
   this->Internal->Nodes[index]->X = val[0];
   this->Internal->Nodes[index]->Y = val[1];
@@ -415,30 +415,30 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
     vtkErrorMacro("Midpoint outside range [0.0, 1.0]");
     return -1;
     }
-  
+
   if ( sharpness < 0.0 || sharpness > 1.0 )
     {
     vtkErrorMacro("Sharpness outside range [0.0, 1.0]");
     return -1;
     }
-  
+
   // remove any node already at this X location
   if (!this->AllowDuplicateScalars)
     {
     this->RemovePoint( x );
     }
-  
+
   // Create the new node
   vtkPiecewiseFunctionNode *node = new vtkPiecewiseFunctionNode;
   node->X         = x;
   node->Y         = y;
   node->Sharpness = sharpness;
   node->Midpoint  = midpoint;
-  
+
   // Add it, then sort to get everything in order
   this->Internal->Nodes.push_back(node);
   this->SortAndUpdateRange();
-  
+
   // Now find this node so we can return the index
   unsigned int i;
   for ( i = 0; i < this->Internal->Nodes.size(); i++ )
@@ -448,9 +448,9 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
       break;
       }
     }
-  
+
   int retVal;
-  
+
   // If we didn't find it, something went horribly wrong so
   // return -1
   if ( i < this->Internal->Nodes.size() )
@@ -461,7 +461,7 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
     {
     retVal = -1;
     }
-  
+
   return retVal;
 }
 
@@ -522,9 +522,9 @@ int vtkPiecewiseFunction::RemovePoint( double x )
       break;
       }
     }
-  
+
   int retVal;
-  
+
   // If the node doesn't exist, we return -1
   if ( i < this->Internal->Nodes.size() )
     {
@@ -534,15 +534,15 @@ int vtkPiecewiseFunction::RemovePoint( double x )
     {
     return -1;
     }
-  
+
   // Now use STL to find it, so that we can remove it
   this->Internal->FindNodeEqual.X = x;
-  
+
   std::vector<vtkPiecewiseFunctionNode*>::iterator iter =
     std::find_if(this->Internal->Nodes.begin(),
                     this->Internal->Nodes.end(),
                     this->Internal->FindNodeEqual );
-  
+
   // Actually delete it
   if ( iter != this->Internal->Nodes.end() )
     {
@@ -566,8 +566,8 @@ int vtkPiecewiseFunction::RemovePoint( double x )
      // didn't exist...
      return -1;
      }
-   
-  
+
+
   return retVal;
 }
 
@@ -578,32 +578,32 @@ void vtkPiecewiseFunction::RemoveAllPoints()
     {
     delete this->Internal->Nodes[i];
     }
-  this->Internal->Nodes.clear(); 
+  this->Internal->Nodes.clear();
 
   this->SortAndUpdateRange();
 }
 
 // Add in end points of line and remove any points between them
 // Legacy method with no way to specify midpoint and sharpness
-void vtkPiecewiseFunction::AddSegment( double x1, double y1, 
+void vtkPiecewiseFunction::AddSegment( double x1, double y1,
                                        double x2, double y2 )
 {
-  int done;  
-  
+  int done;
+
   // First, find all points in this range and remove them
   done = 0;
   while ( !done )
     {
     done = 1;
-    
+
     this->Internal->FindNodeInRange.X1 = x1;
     this->Internal->FindNodeInRange.X2 = x2;
-  
+
     std::vector<vtkPiecewiseFunctionNode*>::iterator iter =
       std::find_if(this->Internal->Nodes.begin(),
                       this->Internal->Nodes.end(),
                       this->Internal->FindNodeInRange );
-  
+
     if ( iter != this->Internal->Nodes.end() )
       {
       delete *iter;
@@ -612,17 +612,17 @@ void vtkPiecewiseFunction::AddSegment( double x1, double y1,
       done = 0;
       }
     }
-  
+
   // Now add the points
   this->AddPoint( x1, y1, 0.5, 0.0 );
   this->AddPoint( x2, y2, 0.5, 0.0 );
 }
 
-// Return the value of the function at a position 
+// Return the value of the function at a position
 double vtkPiecewiseFunction::GetValue( double x )
 {
   double table[1];
-  this->GetTable( x, x, 1, table );  
+  this->GetTable( x, x, 1, table );
   return table[0];
 }
 
@@ -637,7 +637,7 @@ int vtkPiecewiseFunction::AdjustRange(double range[2])
     }
 
   double *function_range = this->GetRange();
-  
+
   // Make sure we have points at each end of the range
 
   if (function_range[0] < range[0])
@@ -659,21 +659,21 @@ int vtkPiecewiseFunction::AdjustRange(double range[2])
     }
 
   // Remove all points out-of-range
-  int done;  
-  
+  int done;
+
   done = 0;
   while ( !done )
     {
     done = 1;
-    
+
     this->Internal->FindNodeOutOfRange.X1 = range[0];
     this->Internal->FindNodeOutOfRange.X2 = range[1];
-  
+
     std::vector<vtkPiecewiseFunctionNode*>::iterator iter =
       std::find_if(this->Internal->Nodes.begin(),
                       this->Internal->Nodes.end(),
                       this->Internal->FindNodeOutOfRange );
-  
+
     if ( iter != this->Internal->Nodes.end() )
       {
       delete *iter;
@@ -688,14 +688,14 @@ int vtkPiecewiseFunction::AdjustRange(double range[2])
 }
 
 // Returns a table of function values evaluated at regular intervals
-void vtkPiecewiseFunction::GetTable( double xStart, double xEnd, 
-                                     int size, double* table, 
+void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
+                                     int size, double* table,
                                      int stride )
 {
   int i;
   int idx = 0;
   int numNodes = static_cast<int>(this->Internal->Nodes.size());
-  
+
   // Need to keep track of the last value so that
   // we can fill in table locations past this with
   // this value if Clamping is On.
@@ -704,22 +704,22 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
     {
     lastValue = this->Internal->Nodes[numNodes-1]->Y;
     }
-  
+
   double *tptr     = NULL;
-  double x         = 0.0;  
+  double x         = 0.0;
   double x1        = 0.0;
   double x2        = 0.0;
   double y1        = 0.0;
   double y2        = 0.0;
   double midpoint  = 0.0;
   double sharpness = 0.0;
-    
+
   // For each table entry
   for ( i = 0; i < size; i++ )
     {
     // Find our location in the table
     tptr = table + stride*i;
-    
+
     // Find our X location. If we are taking only 1 sample, make
     // it halfway between start and end (usually start and end will
     // be the same in this case)
@@ -731,7 +731,7 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
       {
       x = 0.5*(xStart+xEnd);
       }
-    
+
     // Do we need to move to the next node?
     while ( idx < numNodes &&
             x > this->Internal->Nodes[idx]->X )
@@ -745,29 +745,29 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
         {
         x1 = this->Internal->Nodes[idx-1]->X;
         x2 = this->Internal->Nodes[idx  ]->X;
-        
+
         y1 = this->Internal->Nodes[idx-1]->Y;
         y2 = this->Internal->Nodes[idx  ]->Y;
-        
+
         // We only need the previous midpoint and sharpness
         // since these control this region
         midpoint  = this->Internal->Nodes[idx-1]->Midpoint;
         sharpness = this->Internal->Nodes[idx-1]->Sharpness;
-        
+
         // Move midpoint away from extreme ends of range to avoid
         // degenerate math
         if ( midpoint < 0.00001 )
           {
           midpoint = 0.00001;
           }
-        
+
         if ( midpoint > 0.99999 )
           {
           midpoint = 0.99999;
           }
         }
       }
-    
+
     // Are we at the end? If so, just use the last value
     if ( idx >= numNodes )
       {
@@ -781,12 +781,12 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
     // Otherwise, we are between two nodes - interpolate
     else
       {
-      // Our first attempt at a normalized location [0,1] - 
-      // we will be modifying this based on midpoint and 
+      // Our first attempt at a normalized location [0,1] -
+      // we will be modifying this based on midpoint and
       // sharpness to get the curve shape we want and to have
       // it pass through (y1+y2)/2 at the midpoint.
       double s = (x - x1) / (x2 - x1);
-      
+
       // Readjust based on the midpoint - linear adjustment
       if ( s < midpoint )
         {
@@ -796,8 +796,8 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
         {
         s = 0.5 + 0.5*(s-midpoint)/(1.0-midpoint);
         }
-      
-      // override for sharpness > 0.99 
+
+      // override for sharpness > 0.99
       // In this case we just want piecewise constant
       if ( sharpness > 0.99 )
         {
@@ -814,22 +814,22 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
           continue;
           }
         }
-      
+
       // Override for sharpness < 0.01
       // In this case we want piecewise linear
       if ( sharpness < 0.01 )
         {
-        // Simple linear interpolation 
+        // Simple linear interpolation
         *tptr = (1-s)*y1 + s*y2;
         continue;
-        }    
-      
+        }
+
       // We have a sharpness between [0.01, 0.99] - we will
       // used a modified hermite curve interpolation where we
       // derive the slope based on the sharpness, and we compress
       // the curve non-linearly based on the sharpness
-      
-      // First, we will adjust our position based on sharpness in 
+
+      // First, we will adjust our position based on sharpness in
       // order to make the curve sharper (closer to piecewise constant)
       if ( s < .5 )
         {
@@ -839,50 +839,50 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
         {
         s = 1.0 - 0.5 * pow((1.0-s)*2,1+10*sharpness);
         }
-      
+
       // Compute some coefficients we will need for the hermite curve
       double ss = s*s;
       double sss = ss*s;
-      
+
       double h1 =  2*sss - 3*ss + 1;
       double h2 = -2*sss + 3*ss;
       double h3 =    sss - 2*ss + s;
       double h4 =    sss -   ss;
-      
+
       double slope;
       double t;
 
       // Use one slope for both end points
       slope = y2 - y1;
       t = (1.0 - sharpness)*slope;
-      
+
       // Compute the value
       *tptr = h1*y1 + h2*y2 + h3*t + h4*t;
-      
+
       // Final error check to make sure we don't go outside
       // the Y range
       double min = (y1<y2)?(y1):(y2);
       double max = (y1>y2)?(y1):(y2);
-      
+
       *tptr = (*tptr < min)?(min):(*tptr);
       *tptr = (*tptr > max)?(max):(*tptr);
-      
+
       }
     }
 }
 
 // Copy from double table to float
-void vtkPiecewiseFunction::GetTable( double xStart, double xEnd, 
-                                     int size, float* table, 
+void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
+                                     int size, float* table,
                                      int stride )
 {
   double *tmpTable = new double [size];
-  
+
   this->GetTable( xStart, xEnd, size, tmpTable, 1 );
-  
+
   double *tmpPtr = tmpTable;
   float *tPtr = table;
-  
+
   for ( int i = 0; i < size; i++ )
     {
     *tPtr = static_cast<float>(*tmpPtr);
@@ -896,20 +896,20 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
 // Given a table of values, build the piecewise function. Legacy method
 // that does not allow for midpoint and sharpness control
 void vtkPiecewiseFunction::BuildFunctionFromTable( double xStart, double xEnd,
-                                                   int size, double* table, 
+                                                   int size, double* table,
                                                    int stride )
 {
   double inc = 0.0;
   double *tptr = table;
 
   this->RemoveAllPoints();
-  
-  
+
+
   if( size > 1 )
     {
     inc = (xEnd-xStart)/static_cast<double>(size-1);
     }
-  
+
   int i;
   for (i=0; i < size; i++)
     {
@@ -918,15 +918,15 @@ void vtkPiecewiseFunction::BuildFunctionFromTable( double xStart, double xEnd,
     node->Y   = *tptr;
     node->Sharpness = 0.0;
     node->Midpoint  = 0.5;
-  
+
     this->Internal->Nodes.push_back(node);
     tptr += stride;
     }
-  
+
   this->SortAndUpdateRange();
 }
 
-// Given a pointer to an array of values, build the piecewise function. 
+// Given a pointer to an array of values, build the piecewise function.
 // Legacy method that does not allow for midpoint and sharpness control
 void vtkPiecewiseFunction::FillFromDataPointer(int nb, double *ptr)
 {
@@ -934,9 +934,9 @@ void vtkPiecewiseFunction::FillFromDataPointer(int nb, double *ptr)
     {
     return;
     }
-  
+
   this->RemoveAllPoints();
-  
+
   double *inPtr = ptr;
 
   int i;
@@ -947,11 +947,11 @@ void vtkPiecewiseFunction::FillFromDataPointer(int nb, double *ptr)
     node->Y  = inPtr[1];
     node->Sharpness = 0.0;
     node->Midpoint  = 0.5;
-  
+
     this->Internal->Nodes.push_back(node);
     inPtr += 2;
     }
-  
+
   this->SortAndUpdateRange();
 }
 
@@ -973,19 +973,19 @@ vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformationVector* v,
 void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   unsigned int i;
 
   os << indent << "Clamping: " << this->Clamping << endl;
   os << indent << "Range: [" << this->Range[0] << ","
-     << this->Range[1] << "]" << endl;  
+     << this->Range[1] << "]" << endl;
   os << indent << "Function Points: " << this->Internal->Nodes.size() << endl;
   for( i = 0; i < this->Internal->Nodes.size(); i++ )
     {
-    os << indent << "  " << i << " X: " 
-       << this->Internal->Nodes[i]->X << " Y: " 
+    os << indent << "  " << i << " X: "
+       << this->Internal->Nodes[i]->X << " Y: "
        << this->Internal->Nodes[i]->Y << " Sharpness: "
-       << this->Internal->Nodes[i]->Sharpness << " Midpoint: " 
+       << this->Internal->Nodes[i]->Sharpness << " Midpoint: "
        << this->Internal->Nodes[i]->Midpoint << endl;
     }
   os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars

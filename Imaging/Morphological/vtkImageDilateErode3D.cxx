@@ -34,7 +34,7 @@ vtkImageDilateErode3D::vtkImageDilateErode3D()
 
   this->DilateValue = 0.0;
   this->ErodeValue = 255.0;
-  
+
   this->Ellipse = vtkImageEllipsoidSource::New();
   // Setup the Ellipse to default size
   this->SetKernelSize(1, 1, 1);
@@ -60,12 +60,12 @@ void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// This method sets the size of the neighborhood.  It also sets the 
+// This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the eliptical foot print.
 void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
-  
+
   if (this->KernelSize[0] != size0)
     {
     modified = 1;
@@ -88,8 +88,8 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
   if (modified)
     {
     this->Modified();
-    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
-                                  0, this->KernelSize[1]-1, 
+    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1,
+                                  0, this->KernelSize[1]-1,
                                   0, this->KernelSize[2]-1);
     this->Ellipse->SetCenter(static_cast<double>(this->KernelSize[0]-1)*0.5,
                              static_cast<double>(this->KernelSize[1]-1)*0.5,
@@ -101,8 +101,8 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
     vtkInformation *ellipseOutInfo =
       this->Ellipse->GetExecutive()->GetOutputInformation(0);
     ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                        0, this->KernelSize[0]-1, 
-                        0, this->KernelSize[1]-1, 
+                        0, this->KernelSize[0]-1,
+                        0, this->KernelSize[1]-1,
                         0, this->KernelSize[2]-1);
     this->Ellipse->Update();
     }
@@ -116,8 +116,8 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
 template <class T>
 void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
                                   vtkImageData *mask,
-                                  vtkImageData *inData, T *inPtr, 
-                                  vtkImageData *outData, int *outExt, 
+                                  vtkImageData *inData, T *inPtr,
+                                  vtkImageData *outData, int *outExt,
                                   T *outPtr, int id, vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
@@ -175,14 +175,14 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
   // Setup mask info
   maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
-  
+
   // in and out should be marching through corresponding pixels.
   inPtr = static_cast<T *>(inData->GetScalarPointer(outMin0, outMin1, outMin2));
 
   target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
                                       (outMax1-outMin1+1)/50.0);
   target++;
-  
+
   // loop through components
   for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
     {
@@ -193,10 +193,10 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
       {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
-      for (outIdx1 = outMin1; 
+      for (outIdx1 = outMin1;
            !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
         {
-        if (!id) 
+        if (!id)
           {
           if (!(count%target))
             {
@@ -209,15 +209,15 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
         inPtr0 = inPtr1;
         for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
           {
-          
+
           // Default behavior (copy input pixel)
           *outPtr0 = *inPtr0;
           if (*inPtr0 == erodeValue)
             {
             // loop through neighborhood pixels
-            // as sort of a hack to handle boundaries, 
+            // as sort of a hack to handle boundaries,
             // input pointer will be marching through data that does not exist.
-            hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
+            hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0
               - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
             maskPtr2 = maskPtr;
             for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
@@ -243,7 +243,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
                       *outPtr0 = dilateValue;
                       }
                     }
-                
+
                   hoodPtr0 += inInc0;
                   maskPtr0 += maskInc0;
                   }
@@ -254,7 +254,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
               maskPtr2 += maskInc2;
               }
             }
-          
+
           inPtr0 += inInc0;
           outPtr0 += outInc0;
           }
@@ -278,7 +278,7 @@ void vtkImageDilateErode3D::ThreadedRequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
-  vtkImageData **outData, 
+  vtkImageData **outData,
   int outExt[6], int id)
 {
   int inExt[6], wholeExt[6];
@@ -300,7 +300,7 @@ void vtkImageDilateErode3D::ThreadedRequestData(
   // this filter expects the output type to be same as input
   if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, " 
+    vtkErrorMacro(<< "Execute: output ScalarType, "
       << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input scalar type");
     return;
@@ -311,7 +311,7 @@ void vtkImageDilateErode3D::ThreadedRequestData(
     vtkTemplateMacro(
       vtkImageDilateErode3DExecute(this, mask, inData[0][0],
                                    static_cast<VTK_TT *>(inPtr),outData[0],
-                                   outExt, 
+                                   outExt,
                                    static_cast<VTK_TT *>(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

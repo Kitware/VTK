@@ -54,54 +54,54 @@ public:
   // must return true if and only if an array contains numeric data.
   // All vtkDataArray subclasses contain numeric data, hence this method
   // always returns 1(true).
-  virtual int IsNumeric() 
+  virtual int IsNumeric()
     { return 1; }
 
   // Description:
   // Return the size, in bytes, of the lowest-level element of an
   // array.  For vtkDataArray and subclasses this is the size of the
-  // data type. 
-  virtual int GetElementComponentSize() 
+  // data type.
+  virtual int GetElementComponentSize()
     { return this->GetDataTypeSize(); }
 
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not 
+  // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array. 
+  // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // This pure virtual function is redeclared here to avoid
-  // declaration hidden warnings. 
+  // declaration hidden warnings.
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array. 
+  // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
   // This pure virtual function is redeclared here to avoid
-  // declaration hidden warnings. 
+  // declaration hidden warnings.
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
 
   // Description:
   // Given a list of point ids, return an array of tuples.
-  // You must insure that the output array has been previously 
+  // You must insure that the output array has been previously
   // allocated with enough space to hold the data.
   virtual void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output);
 
   // Description:
-  // Get the tuples for the range of points ids specified 
-  // (i.e., p1->p2 inclusive). You must insure that the output array has 
+  // Get the tuples for the range of points ids specified
+  // (i.e., p1->p2 inclusive). You must insure that the output array has
   // been previously allocated with enough space to hold the data.
   virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
 
 
   // Description:
   // Set the ith tuple in this array as the interpolated tuple value,
-  // given the ptIndices in the source array and associated 
+  // given the ptIndices in the source array and associated
   // interpolation weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
@@ -109,10 +109,10 @@ public:
     vtkAbstractArray* source,  double* weights);
 
   // Description
-  // Insert the ith tuple in this array as interpolated from the two values, 
-  // p1 and p2, and an interpolation factor, t. 
-  // The interpolation factor ranges from (0,1), 
-  // with t=0 located at p1. This method assumes that the three arrays are of 
+  // Insert the ith tuple in this array as interpolated from the two values,
+  // p1 and p2, and an interpolation factor, t.
+  // The interpolation factor ranges from (0,1),
+  // with t=0 located at p1. This method assumes that the three arrays are of
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
   virtual void InterpolateTuple(vtkIdType i,
@@ -133,7 +133,7 @@ public:
 
   // Description:
   // These methods are included as convenience for the wrappers.
-  // GetTuple() and SetTuple() which return/take arrays can not be 
+  // GetTuple() and SetTuple() which return/take arrays can not be
   // used from wrapped languages. These methods can be used instead.
   double GetTuple1(vtkIdType i);
   double* GetTuple2(vtkIdType i);
@@ -150,7 +150,7 @@ public:
 
   // Description:
   // These methods are included as convenience for the wrappers.
-  // GetTuple() and SetTuple() which return/take arrays can not be 
+  // GetTuple() and SetTuple() which return/take arrays can not be
   // used from wrapped languages. These methods can be used instead.
   void SetTuple1(vtkIdType i, double value);
   void SetTuple2(vtkIdType i, double val0, double val1);
@@ -169,7 +169,7 @@ public:
 
   // Description:
   // These methods are included as convenience for the wrappers.
-  // InsertTuple() which takes arrays can not be 
+  // InsertTuple() which takes arrays can not be
   // used from wrapped languages. These methods can be used instead.
   void InsertTuple1(vtkIdType i, double value);
   void InsertTuple2(vtkIdType i, double val0, double val1);
@@ -189,7 +189,7 @@ public:
 
   // Description:
   // These methods are included as convenience for the wrappers.
-  // InsertTuple() which takes arrays can not be 
+  // InsertTuple() which takes arrays can not be
   // used from wrapped languages. These methods can be used instead.
   void InsertNextTuple1(double value);
   void InsertNextTuple2(double val0, double val1);
@@ -210,19 +210,19 @@ public:
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
-  // Note that i is less than NumberOfTuples and j is less than 
+  // Note that i is less than NumberOfTuples and j is less than
   // NumberOfComponents.
   virtual double GetComponent(vtkIdType i, int j);
 
   // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than
-  //  NumberOfComponents. Make sure enough memory has been allocated 
+  //  NumberOfComponents. Make sure enough memory has been allocated
   // (use SetNumberOfTuples() and SetNumberOfComponents()).
   virtual void SetComponent(vtkIdType i, int j, double c);
 
   // Description:
-  // Insert the data component at ith tuple and jth component location. 
+  // Insert the data component at ith tuple and jth component location.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertComponent(vtkIdType i, int j, double c);
 
@@ -258,7 +258,7 @@ public:
   // a component on this data array.
   virtual void CopyComponent(int j, vtkDataArray *from,
                              int fromComponent);
- 
+
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
@@ -269,8 +269,8 @@ public:
   // Return the memory in kilobytes consumed by this data array. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
-  // actually represent the data represented by this object. The 
-  // information returned is valid only after the pipeline has 
+  // actually represent the data represented by this object. The
+  // information returned is valid only after the pipeline has
   // been updated.
   virtual unsigned long GetActualMemorySize();
 
@@ -301,7 +301,7 @@ public:
     return this->Range;
     }
   // Description:
-  // Return the range of the array values for the 0th component. 
+  // Return the range of the array values for the 0th component.
   // Range is copied into the array provided.
   double* GetRange()
     {
@@ -315,7 +315,7 @@ public:
   // Description:
   // These methods return the Min and Max possible range of the native
   // data type. For example if a vtkScalars consists of unsigned char
-  // data these will return (0,255). 
+  // data these will return (0,255).
   void GetDataTypeRange(double range[2]);
   double GetDataTypeMin();
   double GetDataTypeMax();
@@ -346,7 +346,7 @@ public:
   // <b>before</b> modifying the information object.  Otherwise it is
   // possible for modifications to the array to take place without the bounds
   // on the component being updated since the modification time of the
-  // vtkInformation object is used to determine when the COMPONENT_RANGE 
+  // vtkInformation object is used to determine when the COMPONENT_RANGE
   // values are out of date.
   static vtkInformationInformationVectorKey* PER_COMPONENT();
   // Description:
@@ -392,7 +392,7 @@ protected:
 
 private:
   double* GetTupleN(vtkIdType i, int n);
-  
+
 private:
   vtkDataArray(const vtkDataArray&);  // Not implemented.
   void operator=(const vtkDataArray&);  // Not implemented.

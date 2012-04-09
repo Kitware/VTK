@@ -25,8 +25,8 @@ vtkStandardNewMacro(vtkGraphInternals);
 
 //----------------------------------------------------------------------------
 vtkGraphInternals::vtkGraphInternals()
-{ 
-  this->NumberOfEdges = 0; 
+{
+  this->NumberOfEdges = 0;
   this->LastRemoteEdgeId = -1;
   this->UsingPedigreeIds = false;
 }

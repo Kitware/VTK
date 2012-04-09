@@ -38,7 +38,7 @@ public:
   vtkTypeMacro(vtkFixedPointVolumeRayCastMIPHelper,vtkFixedPointVolumeRayCastHelper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  virtual void  GenerateImage( int threadID, 
+  virtual void  GenerateImage( int threadID,
                                int threadCount,
                                vtkVolume *vol,
                                vtkFixedPointVolumeRayCastMapper *mapper);

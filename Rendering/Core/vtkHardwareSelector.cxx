@@ -245,7 +245,7 @@ void vtkHardwareSelector::BeginRenderProp()
   device->MakeLighting(0);
   device->MakeBlending(0);
   //cout << "In BeginRenderProp" << endl;
-  //glFinish(); 
+  //glFinish();
   if (this->CurrentPass == ACTOR_PASS)
     {
     int propid = this->PropID;
@@ -374,7 +374,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
   //could affect colors
 
   int propsRenderered = 0;
-  // loop through props and give them a chance to 
+  // loop through props and give them a chance to
   // render themselves as opaque geometry
   for (int i = 0; i < propArrayCount; i++ )
     {
@@ -697,7 +697,7 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
     os << "FIELD_ASSOCIATION_POINTS" << endl;
     break;
   case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-    os << "FIELD_ASSOCIATION_CELLS" << endl; 
+    os << "FIELD_ASSOCIATION_CELLS" << endl;
     break;
   case vtkDataObject::FIELD_ASSOCIATION_VERTICES:
     os << "FIELD_ASSOCIATION_VERTICES" << endl;

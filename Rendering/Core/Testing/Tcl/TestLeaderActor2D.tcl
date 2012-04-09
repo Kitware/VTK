@@ -34,7 +34,7 @@ vtkLeaderActor2D leader4
     leader4 SetRadius 1.0
     leader4 SetLabel "Leader4"
     leader4 AutoLabelOn
-    
+
 # Create graphics stuff
 # Create the RenderWindow, Renderer and both Actors
 #

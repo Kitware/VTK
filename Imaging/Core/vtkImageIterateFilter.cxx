@@ -230,13 +230,13 @@ vtkImageIterateFilter::IterativeRequestData(vtkInformation* request,
 void vtkImageIterateFilter::SetNumberOfIterations(int num)
 {
   int idx;
-  
+
   if (num == this->NumberOfIterations)
     {
     return;
     }
-  
-  // delete previous temporary caches 
+
+  // delete previous temporary caches
   // (first and last are global input and output)
   if (this->IterationData)
     {
@@ -254,7 +254,7 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     {
     return;
     }
-  
+
   // create new ones (first and last set later to input and output)
   this->IterationData =
     reinterpret_cast<vtkAlgorithm **>( new void *[num + 1]);

@@ -42,13 +42,13 @@ int TestImageReader2Factory(int argc, char *argv[])
 
   int error = 0;
 
-  vtkSmartPointer< vtkImageReader2Factory > imageFactory = 
+  vtkSmartPointer< vtkImageReader2Factory > imageFactory =
     vtkSmartPointer< vtkImageReader2Factory >::New();
 
   cout << "Filename = " << argv[1] << endl;
 
-  vtkImageReader2 * imageReader = 
-    imageFactory->CreateImageReader2( argv[1] );  
+  vtkImageReader2 * imageReader =
+    imageFactory->CreateImageReader2( argv[1] );
 
   imageReader->SetFileName( argv[1] );
   imageReader->Update();

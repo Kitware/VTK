@@ -41,7 +41,7 @@ public:
   vtkGetMacro(SimplificationThreshold, double);
 
   // Description:
-  // Set the persistence metric evaluation code 
+  // Set the persistence metric evaluation code
   // Default value: NULL (standard topological persistence).
   void SetSimplificationMetric(vtkReebGraphSimplificationMetric *metric);
 

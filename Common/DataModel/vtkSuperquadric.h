@@ -23,9 +23,9 @@
 // the shape of the superquadric.  The Toroidal boolean controls whether
 // a toroidal superquadric is produced.  If so, the Thickness parameter
 // controls the thickness of the toroid:  0 is the thinnest allowable
-// toroid, and 1 has a minimum sized hole.  The Scale parameters allow 
+// toroid, and 1 has a minimum sized hole.  The Scale parameters allow
 // the superquadric to be scaled in x, y, and z (normal vectors are correctly
-// generated in any case).  The Size parameter controls size of the 
+// generated in any case).  The Size parameter controls size of the
 // superquadric.
 //
 // This code is based on "Rigid physically based superquadrics", A. H. Barr,
@@ -78,10 +78,10 @@ public:
   vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
 
   // Description:
-  // Set/Get Superquadric north/south roundness. 
+  // Set/Get Superquadric north/south roundness.
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
   vtkGetMacro(PhiRoundness,double);
-  void SetPhiRoundness(double e); 
+  void SetPhiRoundness(double e);
 
   // Description:
   // Set/Get Superquadric east/west roundness.

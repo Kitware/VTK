@@ -40,8 +40,8 @@ protected:
   vtkOverlappingAMRLevelIdScalars();
   ~vtkOverlappingAMRLevelIdScalars();
 
-  int RequestData(vtkInformation *, 
-                  vtkInformationVector **, 
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
                   vtkInformationVector *);
 
   void AddColorLevels(vtkUniformGridAMR *input, vtkUniformGridAMR *output);

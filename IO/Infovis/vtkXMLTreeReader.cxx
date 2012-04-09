@@ -67,7 +67,7 @@ vtkXMLTreeReader::~vtkXMLTreeReader()
 void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " 
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "ReadCharData: "
      << (this->ReadCharData ? "on" : "off") << endl;
@@ -75,7 +75,7 @@ void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ReadTagName ? "on" : "off") << endl;
   os << indent << "MaskArrays: "
      << (this->MaskArrays ? "on" : "off") << endl;
-  os << indent << "XMLString: " 
+  os << indent << "XMLString: "
      << (this->XMLString ? this->XMLString : "(none)") << endl;
   os << indent << "EdgePedigreeIdArrayName: "
      << (this->EdgePedigreeIdArrayName ? this->EdgePedigreeIdArrayName : "(null)") << endl;
@@ -116,11 +116,11 @@ void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
       }
 
     // Append the node tag and character data to the vtkPointData
-    if (nameArr) // If the reader has ReadTagName = ON then populate this array 
+    if (nameArr) // If the reader has ReadTagName = ON then populate this array
       {
       nameArr->InsertValue(vertex, reinterpret_cast<const char*>(curNode->name));
       }
-    
+
     // Append the element attributes to the vtkPointData
     for (xmlAttr *curAttr = curNode->properties; curAttr; curAttr = curAttr->next)
       {
@@ -175,8 +175,8 @@ void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
 }
 
 int vtkXMLTreeReader::RequestData(
-  vtkInformation*, 
-  vtkInformationVector**, 
+  vtkInformation*,
+  vtkInformationVector**,
   vtkInformationVector *outputVector)
 {
   if (!this->FileName && !this->XMLString)
@@ -199,11 +199,11 @@ int vtkXMLTreeReader::RequestData(
 
   // Store the XML hierarchy into a vtkMutableDirectedGraph,
   // later to be placed in a vtkTree.
-  vtkSmartPointer<vtkMutableDirectedGraph> builder = 
+  vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   vtkDataSetAttributes *data = builder->GetVertexData();
-  
+
   if (this->ReadTagName)
     {
     vtkStringArray *nameArr = vtkStringArray::New();
@@ -219,7 +219,7 @@ int vtkXMLTreeReader::RequestData(
     data->AddArray(charArr);
     charArr->Delete();
     }
-  
+
   // Get the root element node
   xmlNode *rootElement = xmlDocGetRootElement(doc);
   vtkXMLTreeReaderProcessElement(builder, -1, rootElement, this->ReadCharData, this->MaskArrays);

@@ -37,24 +37,24 @@ public:
   vtkTypeMacro(vtkCollectionIterator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCollectionIterator* New();
-  
+
   // Description:
   // Set/Get the collection over which to iterate.
   virtual void SetCollection(vtkCollection*);
   vtkGetObjectMacro(Collection, vtkCollection);
-  
+
   // Description:
   // Position the iterator at the first item in the collection.
   void InitTraversal() { this->GoToFirstItem(); }
-  
+
   // Description:
   // Position the iterator at the first item in the collection.
   void GoToFirstItem();
-  
+
   // Description:
   // Move the iterator to the next item in the collection.
   void GoToNextItem();
-  
+
   // Description:
   // Test whether the iterator is currently positioned at a valid item.
   // Returns 1 for yes, 0 for no.
@@ -68,10 +68,10 @@ public:
 protected:
   vtkCollectionIterator();
   ~vtkCollectionIterator();
-  
+
   // The collection over which we are iterating.
   vtkCollection* Collection;
-  
+
   // The current iterator position.
   vtkCollectionElement* Element;
 

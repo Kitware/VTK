@@ -72,7 +72,7 @@ public:
   virtual vtkProperty *GetLineProperty();
 
   // Description:
-  // Set/Get position of the label title in normalized coordinates [0,1]. 
+  // Set/Get position of the label title in normalized coordinates [0,1].
   // 0 is at the start of the line whereas 1 is at the end.
   void SetLabelPosition(double labelPosition);
   vtkGetMacro(LabelPosition, double);

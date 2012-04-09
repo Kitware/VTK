@@ -107,7 +107,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
 
   if (referenceModel->rowCount() != 1)
     {
-    fail("Expected reference model to have exactly 1 row");    
+    fail("Expected reference model to have exactly 1 row");
     }
 
   if (referenceModel->data(referenceModel->index(0, 1)) != baseReferenceCount)
@@ -145,7 +145,7 @@ int TestQtDebugLeaksView(int argc, char* argv[])
 
   if (referenceModel->rowCount() != 2)
     {
-    fail("Expected reference model to have exactly 2 rows");    
+    fail("Expected reference model to have exactly 2 rows");
     }
 
   newReference = NULL;

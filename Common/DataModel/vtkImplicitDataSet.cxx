@@ -70,7 +70,7 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
     }
 
   // See if a dataset has been specified
-  if ( !this->DataSet || 
+  if ( !this->DataSet ||
        !(scalars = this->DataSet->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate dataset!");
@@ -131,7 +131,7 @@ void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
     }
 
   // See if a dataset has been specified
-  if ( !this->DataSet || 
+  if ( !this->DataSet ||
        !(scalars = this->DataSet->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate gradient!");
@@ -171,7 +171,7 @@ void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Out Value: " << this->OutValue << "\n";
-  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", " 
+  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", "
      << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
 
   if ( this->DataSet )

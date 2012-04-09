@@ -41,18 +41,18 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   this->Points->Allocate(500);
   this->AtomType->Allocate(500);
 
-  vtkDebugMacro( << "PDB File (" << this->HBScale 
+  vtkDebugMacro( << "PDB File (" << this->HBScale
     << ", " << this->BScale << ")");
   while(fgets(linebuf, sizeof linebuf, fp) != NULL &&
-    strncmp("END", linebuf, 3)) 
+    strncmp("END", linebuf, 3))
     {
     if((0==strncmp("ATOM",linebuf,4) || 0==strncmp("atom",linebuf,4)) ||
-      (0==strncmp("HETATM",linebuf,6) || 0==strncmp("hetatm",linebuf,6))) 
+      (0==strncmp("HETATM",linebuf,6) || 0==strncmp("hetatm",linebuf,6)))
       {
       sscanf(&linebuf[12],"%4s", dum1);
       sscanf(&linebuf[17],"%3s", dum2);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
-      if(hydr == 0) 
+      if(hydr == 0)
         {
         this->Points->InsertNextPoint(x);
 
@@ -62,8 +62,8 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
           }
 
         this->NumberOfAtoms++;
-        } 
-      else if( !(dum1[0]=='H' || dum1[0]=='h') ) 
+        }
+      else if( !(dum1[0]=='H' || dum1[0]=='h') )
         { /* skip hydrogen */
         this->Points->InsertNextPoint(x);
         for(j=0, i=static_cast<int>(strspn(dum1, " ")); i < 5; i++)

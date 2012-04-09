@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkBlankStructuredGridWithImage - blank a structured grid with an image
 // .SECTION Description
-// This filter can be used to set the blanking in a structured grid with 
-// an image. The filter takes two inputs: the structured grid to blank, 
+// This filter can be used to set the blanking in a structured grid with
+// an image. The filter takes two inputs: the structured grid to blank,
 // and the image used to set the blanking. Make sure that the dimensions of
 // both the image and the structured grid are identical.
 //

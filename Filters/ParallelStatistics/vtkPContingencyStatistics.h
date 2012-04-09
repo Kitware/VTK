@@ -20,12 +20,12 @@
 // .NAME vtkPContingencyStatistics - A class for parallel bivariate contingency statistics
 // .SECTION Description
 // vtkPContingencyStatistics is vtkContingencyStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each 
+// It learns and derives the global statistical model on each node, but assesses each
 // individual data points on the node that owns it.
 
 // .NOTE: It is assumed that the keys in the contingency table be contained in the set {0,...,n-1}
 // of successive integers, where n is the number of rows of the summary table.
-// If this requirement is not fulfilled, then the outcome of the parallel update of contingency 
+// If this requirement is not fulfilled, then the outcome of the parallel update of contingency
 // tables is unpredictable but will most likely be a crash.
 // Note that this requirement is consistent with the way contingency tables are constructed
 // by the (serial) superclass and thus, if you are using this class as it is intended to be ran,

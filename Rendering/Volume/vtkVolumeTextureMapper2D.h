@@ -34,7 +34,7 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   static vtkVolumeTextureMapper2D *New();
-  
+
   // Description:
   // Target size in pixels of each size of the texture for downloading. Default is
   // 512x512 - so a 512x512 texture will be tiled with as many slices of the volume
@@ -43,7 +43,7 @@ public:
   // of two.
   vtkSetVector2Macro( TargetTextureSize, int );
   vtkGetVector2Macro( TargetTextureSize, int );
-  
+
   // Description:
   // This is the maximum number of planes that will be created for texture mapping
   // the volume. If the volume has more voxels than this along the viewing direction,
@@ -60,7 +60,7 @@ public:
   // the textures) then the textures will be saved.
   vtkSetMacro( MaximumStorageSize, int );
   vtkGetMacro( MaximumStorageSize, int );
-  
+
 //BTX
 
   // Description:
@@ -79,13 +79,13 @@ public:
   // Made public only for access from the templated method. Not a vtkGetMacro
   // to avoid the PrintSelf defect.
   int GetInternalSkipFactor() {return this->InternalSkipFactor;};
-  
+
   int *GetAxisTextureSize() {return &(this->AxisTextureSize[0][0]);};
 
   int GetSaveTextures() {return this->SaveTextures;};
 
   unsigned char *GetTexture() {return this->Texture;};
-  
+
 //ETX
 
 
@@ -95,7 +95,7 @@ protected:
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol )
     {this->InitializeRender( ren, vol, -1 );}
-  
+
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol, int majorDirection );
 
   void GenerateTexturesAndRenderQuads( vtkRenderer *ren, vtkVolume *vol );
@@ -106,17 +106,17 @@ protected:
   int  MaximumNumberOfPlanes;
   int  InternalSkipFactor;
   int  MaximumStorageSize;
-  
+
   unsigned char  *Texture;
   int             TextureSize;
   int             SaveTextures;
   vtkTimeStamp    TextureMTime;
-  
+
   int             AxisTextureSize[3][3];
   void            ComputeAxisTextureSize( int axis, int *size );
-  
+
   void           RenderSavedTexture();
-  
+
 private:
   vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&);  // Not implemented.
   void operator=(const vtkVolumeTextureMapper2D&);  // Not implemented.

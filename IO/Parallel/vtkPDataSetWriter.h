@@ -49,9 +49,9 @@ public:
   // if this value is larger than 0.
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
-  
+
   // Description:
-  // This is the range of pieces that that this writer is 
+  // This is the range of pieces that that this writer is
   // responsible for writing.  All pieces must be written
   // by some process.  The process that writes piece 0 also
   // writes the pvtk file that lists all the piece file names.
@@ -59,7 +59,7 @@ public:
   vtkGetMacro(StartPiece, int);
   vtkSetMacro(EndPiece, int);
   vtkGetMacro(EndPiece, int);
-  
+
   // Description:
   // This file pattern uses the file name and piece number
   // to contruct a file name for the piece file.
@@ -81,9 +81,9 @@ protected:
 
 //BTX
   ostream *OpenFile();
-  int WriteUnstructuredMetaData(vtkDataSet *input, 
+  int WriteUnstructuredMetaData(vtkDataSet *input,
                                 char *root, char *str, ostream *fptr);
-  int WriteImageMetaData(vtkImageData *input, 
+  int WriteImageMetaData(vtkImageData *input,
                          char *root, char *str, ostream *fptr);
   int WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
                                    char *root, char *str, ostream *fptr);
@@ -101,7 +101,7 @@ protected:
   char *FilePattern;
 
   void DeleteFiles();
-  
+
 private:
   vtkPDataSetWriter(const vtkPDataSetWriter&); // Not implemented
   void operator=(const vtkPDataSetWriter&); // Not implemented

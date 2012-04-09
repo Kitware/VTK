@@ -43,13 +43,13 @@ public:
   // Maximum also specifies the maximum of the Saturation, and R, G, B.
   vtkSetMacro(Maximum,double);
   vtkGetMacro(Maximum,double);
-  
+
 protected:
   vtkImageHSVToRGB();
   ~vtkImageHSVToRGB() {};
 
   double Maximum;
-  
+
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:

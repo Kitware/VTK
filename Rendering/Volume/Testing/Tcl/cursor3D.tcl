@@ -1,9 +1,9 @@
-# This little example shows how a cursor can be created in 
+# This little example shows how a cursor can be created in
 # image viewers, and renderers.  The standard TkImageViewerWidget and
 # TkRenderWidget bindings are used.  There is a new binding:
-# middle button in the image viewer sets the position of the cursor.  
+# middle button in the image viewer sets the position of the cursor.
 
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 
 package require vtk
@@ -40,7 +40,7 @@ vtkImageCursor3D image_cursor
 
 vtkAxes axes
   axes SymmetricOn
-  axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z 
+  axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z
   axes SetScaleFactor 50.0
 
 vtkPolyDataMapper axes_mapper
@@ -128,7 +128,7 @@ vtkRenderWindow renWin2
 # Create the GUI: two renderer widgets and a quit button
 
 wm withdraw .
-toplevel .top 
+toplevel .top
 
 # Set the window manager (wm command) so that it registers a
 # command to handle the WM_DELETE_WINDOW protocal request. This
@@ -248,7 +248,7 @@ proc SetCursor {x y z} {
     set CURSOR_X $x
     set CURSOR_Y $y
     set CURSOR_Z $z
-    axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z 
+    axes SetOrigin $CURSOR_X $CURSOR_Y $CURSOR_Z
     image_cursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
 	[expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
     viewer Render

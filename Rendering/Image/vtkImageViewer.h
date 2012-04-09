@@ -38,7 +38,7 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageViewer : public vtkObject
 {
 public:
   static vtkImageViewer *New();
-  
+
   vtkTypeMacro(vtkImageViewer,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -49,7 +49,7 @@ public:
   // Description:
   // Render the resulting image.
   virtual void Render(void);
-  
+
   // Description:
   // Set/Get the input to the viewer.
   void SetInputData(vtkImageData *in) {this->ImageMapper->SetInputData(in);};
@@ -61,12 +61,12 @@ public:
   // What is the possible Min/ Max z slices available.
   int GetWholeZMin() {return this->ImageMapper->GetWholeZMin();};
   int GetWholeZMax() {return this->ImageMapper->GetWholeZMax();};
-  
+
   // Description:
   // Set/Get the current Z Slice to display
   int GetZSlice() {return this->ImageMapper->GetZSlice();};
   void SetZSlice(int s) {this->ImageMapper->SetZSlice(s);};
-  
+
   // Description:
   // Sets window/level for mapping pixels to colors.
   double GetColorWindow() {return this->ImageMapper->GetColorWindow();};
@@ -91,19 +91,19 @@ public:
   int *GetSize() {return this->RenderWindow->GetSize();};
   void SetSize(int a,int b) {this->RenderWindow->SetSize(a,b);};
   virtual void SetSize(int a[2]);
-  
+
   // Description:
   // Get the internal objects
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
   vtkGetObjectMacro(Renderer, vtkRenderer);
   vtkGetObjectMacro(ImageMapper,vtkImageMapper);
   vtkGetObjectMacro(Actor2D,vtkActor2D);
-  
+
   // Description:
   // Create and attach an interactor for this window
   void SetupInteractor(vtkRenderWindowInteractor *);
-  
-  // Description:  
+
+  // Description:
   // Create a window in memory instead of on the screen. This may not
   // be supported for every type of window and on some windows you may
   // need to invoke this prior to the first render.

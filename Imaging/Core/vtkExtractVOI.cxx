@@ -92,7 +92,7 @@ int vtkExtractVOI::RequestUpdateExtent(
     {
     ext[5] = voi[5];
     }
-  
+
   // I do not think we need this extra check, but it cannot hurt.
   if (ext[0] < inWholeExt[0])
     {
@@ -102,7 +102,7 @@ int vtkExtractVOI::RequestUpdateExtent(
     {
     ext[1] = inWholeExt[1];
     }
-  
+
   if (ext[2] < inWholeExt[2])
     {
     ext[2] = inWholeExt[2];
@@ -111,7 +111,7 @@ int vtkExtractVOI::RequestUpdateExtent(
     {
     ext[3] = inWholeExt[3];
     }
-  
+
   if (ext[4] < inWholeExt[4])
     {
     ext[4] = inWholeExt[4];
@@ -119,8 +119,8 @@ int vtkExtractVOI::RequestUpdateExtent(
   if (ext[5] > inWholeExt[5])
     {
     ext[5] = inWholeExt[5];
-    }  
-  
+    }
+
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
   // We can handle anything.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
@@ -158,7 +158,7 @@ int vtkExtractVOI::RequestInformation(
   for ( i=0; i < 3; i++ )
     {
     // Empty request.
-    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] || 
+    if (voi[2*i+1] < voi[2*i] || voi[2*i+1] < wholeExtent[2*i] ||
         voi[2*i] > wholeExtent[2*i+1])
       {
       outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -245,7 +245,7 @@ int vtkExtractVOI::RequestData(
 
   const vtkTypeInt32* inWholeExt32;
   vtkIdType inWholeExt[6];
-  
+
   vtkIdType iIn, jIn, kIn;
   vtkIdType outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
@@ -258,7 +258,7 @@ int vtkExtractVOI::RequestData(
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt32);
   uExt[0] = uExt32[0]; uExt[1] = uExt32[1]; uExt[2] = uExt32[2];
   uExt[3] = uExt32[3]; uExt[4] = uExt32[4]; uExt[5] = uExt32[5];
-  
+
   inExt32 = input->GetExtent();
   inExt[0] = inExt32[0]; inExt[1] = inExt32[1]; inExt[2] = inExt32[2];
   inExt[3] = inExt32[3]; inExt[4] = inExt32[4]; inExt[5] = inExt32[5];
@@ -275,13 +275,13 @@ int vtkExtractVOI::RequestData(
 
   // Clip the VOI by the input whole extent
   inWholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  inWholeExt[0] = inWholeExt32[0]; 
-  inWholeExt[1] = inWholeExt32[1]; 
+  inWholeExt[0] = inWholeExt32[0];
+  inWholeExt[1] = inWholeExt32[1];
   inWholeExt[2] = inWholeExt32[2];
-  inWholeExt[3] = inWholeExt32[3]; 
-  inWholeExt[4] = inWholeExt32[4]; 
+  inWholeExt[3] = inWholeExt32[3];
+  inWholeExt[4] = inWholeExt32[4];
   inWholeExt[5] = inWholeExt32[5];
-  
+
   for (i = 0; i < 3; ++i)
     {
     voi[i*2] = this->VOI[2*i];
@@ -298,7 +298,7 @@ int vtkExtractVOI::RequestData(
 
   // Compute the shift.
   // The shift is necessary because the starting VOI may not be on stride boundary.
-  // We need to duplicate the computation done in 
+  // We need to duplicate the computation done in
   // ExecuteInformtation for the output whole extent.
   // Use shift as temporary variable (output mins).
   shift[0] = static_cast<vtkIdType>(
@@ -319,7 +319,7 @@ int vtkExtractVOI::RequestData(
        uExt[2] <= inExt[2] && uExt[3] >= inExt[3] &&
        uExt[4] <= inExt[4] && uExt[5] >= inExt[5] &&
        rate[0] == 1 && rate[1] == 1 && rate[2] == 1)
-    { 
+    {
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     vtkDebugMacro(<<"Passed data through bacause input and output are the same");
@@ -408,11 +408,11 @@ void vtkExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
-  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " 
+  os << indent << "  Imin,Imax: (" << this->VOI[0] << ", "
      << this->VOI[1] << ")\n";
-  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", " 
+  os << indent << "  Jmin,Jmax: (" << this->VOI[2] << ", "
      << this->VOI[3] << ")\n";
-  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", " 
+  os << indent << "  Kmin,Kmax: (" << this->VOI[4] << ", "
      << this->VOI[5] << ")\n";
 
   os << indent << "Sample Rate: (" << this->SampleRate[0] << ", "

@@ -21,7 +21,7 @@
 // face is shared by two tetrahedra, except those tetrahedra on the
 // boundary. All tetrahedra are right handed.
 //
-// Note that 12 tetrahedra per cell means adding a point in the 
+// Note that 12 tetrahedra per cell means adding a point in the
 // center of the cell.
 //
 // In order to subdivide some cells into 5 and some cells into 12 tetrahedra:
@@ -34,7 +34,7 @@
 // the tetrahedron came.
 //
 // .SECTION Thanks
-//    This class was developed by Samson J. Timoner of the 
+//    This class was developed by Samson J. Timoner of the
 //    MIT Artificial Intelligence Laboratory
 //
 // .SECTION See Also
@@ -94,9 +94,9 @@ public:
                 const double tol=0.001);
   // Description:
   // This version of the function for the wrappers
-  void SetInput(const double ExtentX, 
+  void SetInput(const double ExtentX,
                 const double ExtentY,
-                const double ExtentZ, 
+                const double ExtentZ,
                 const double SpacingX,
                 const double SpacingY,
                 const double SpacingZ,
@@ -122,13 +122,13 @@ protected:
   // Description:
   // Determine how to Divide each cell (voxel) in the RectilinearGrid
   // Overwrites VoxelSubdivisionType with flipping information for forming the mesh
-  static void DetermineGridDivisionTypes(vtkRectilinearGrid *RectGrid, 
+  static void DetermineGridDivisionTypes(vtkRectilinearGrid *RectGrid,
                                          vtkSignedCharArray *VoxelSubdivisionType,
                                          const int &TetraPerCell);
 
   // Description:
   // Take the grid and make it into a tetrahedral mesh.
-  static void GridToTetMesh(vtkRectilinearGrid *RectGrid, 
+  static void GridToTetMesh(vtkRectilinearGrid *RectGrid,
                             vtkSignedCharArray *VoxelSubdivisionType,
                             const int &TetraPerCell,
                             const int &RememberVoxelId,

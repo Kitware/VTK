@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkImageDivergence - Divergence of a vector field.
 // .SECTION Description
-// vtkImageDivergence takes a 3D vector field 
-// and creates a scalar field which 
+// vtkImageDivergence takes a 3D vector field
+// and creates a scalar field which
 // which represents the rate of change of the vector field.
 // The definition of Divergence:
 // Given V = P(x,y,z), Q(x,y,z), R(x,y,z),

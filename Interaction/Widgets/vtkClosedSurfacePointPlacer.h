@@ -15,11 +15,11 @@
 // .NAME vtkClosedSurfacePointPlacer - PointPlacer to constrain validity within a set of convex planes
 // .SECTION Description
 // This placer takes a set of boudning planes and constraints the validity
-// within the supplied convex planes. It is used by the 
-// ParallelopPipedRepresentation to place constraints on the motion the 
+// within the supplied convex planes. It is used by the
+// ParallelopPipedRepresentation to place constraints on the motion the
 // handles within the parallelopiped.
-// 
-// .SECTION See Also 
+//
+// .SECTION See Also
 // vtkParallelopipedRepresentation
 
 #ifndef __vtkClosedSurfacePointPlacer_h
@@ -60,12 +60,12 @@ public:
   void SetBoundingPlanes(vtkPlanes *planes);
 
   // Description:
-  // Given a renderer and a display position, compute the 
-  // world position and world orientation for this point. 
+  // Given a renderer and a display position, compute the
+  // world position and world orientation for this point.
   // A plane is defined by a combination of the
   // ProjectionNormal, ProjectionOrigin, and ObliquePlane
   // ivars. The display position is projected onto this
-  // plane to determine a world position, and the 
+  // plane to determine a world position, and the
   // orientation is set to the normal of the plane. If
   // the point cannot project onto the plane or if it
   // falls outside the bounds imposed by the
@@ -73,32 +73,32 @@ public:
   // returned to indicate a valid return position and
   // orientation.
   int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2], 
+                            double displayPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
-  
+
   // Description:
   // Given a renderer, a display position and a reference position, "worldPos"
   // is calculated as :
   //   Consider the line "L" that passes through the supplied "displayPos" and
   // is parallel to the direction of projection of the camera. Clip this line
-  // segment with the parallelopiped, let's call it "L_segment". The computed 
-  // world position, "worldPos" will be the point on "L_segment" that is 
+  // segment with the parallelopiped, let's call it "L_segment". The computed
+  // world position, "worldPos" will be the point on "L_segment" that is
   // closest to refWorldPos.
   // NOTE: Note that a set of bounding planes must be supplied. The Oblique
   //       plane, if supplied is ignored.
   int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2], 
+                            double displayPos[2],
                             double refWorldPos[2],
                             double worldPos[3],
                             double worldOrient[9] );
-  
+
   // Description:
   // Give a world position check if it is valid - does
   // it lie on the plane and within the bounds? Returns
   // 1 if it is valid, 0 otherwise.
   int ValidateWorldPosition( double worldPos[3] );
-  
+
   // Descrption:
   // Orientationation is ignored, and the above method
   // is called instead.
@@ -110,7 +110,7 @@ public:
   // Must be greater than 0. Default is 0.
   vtkSetClampMacro( MinimumDistance, double, 0.0, VTK_DOUBLE_MAX );
   vtkGetMacro( MinimumDistance, double );
-  
+
 protected:
   vtkClosedSurfacePointPlacer();
   ~vtkClosedSurfacePointPlacer();
@@ -119,9 +119,9 @@ protected:
   // plane
   vtkPlaneCollection *BoundingPlanes;
 
-  // Calculate the distance of a point from the Object. Negative 
+  // Calculate the distance of a point from the Object. Negative
   // values imply that the point is outside. Positive values imply that it is
-  // inside. The closest point to the object is returned in closestPt. 
+  // inside. The closest point to the object is returned in closestPt.
   static double GetDistanceFromObject( double               pos[3],
                                        vtkPlaneCollection * pc,
                                        double               closestPt[3]);
@@ -130,7 +130,7 @@ protected:
 
   double               MinimumDistance;
   vtkPlaneCollection * InnerBoundingPlanes;
-  
+
 private:
   vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&);  //Not implemented
   void operator=(const vtkClosedSurfacePointPlacer&);  //Not implemented

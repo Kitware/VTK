@@ -34,25 +34,25 @@ public:
   static vtkImageRange3D *New();
   vtkTypeMacro(vtkImageRange3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // This method sets the size of the neighborhood.  It also sets the 
+  // This method sets the size of the neighborhood.  It also sets the
   // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
-  
+
 protected:
   vtkImageRange3D();
   ~vtkImageRange3D();
 
   vtkImageEllipsoidSource *Ellipse;
-    
+
   virtual int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
                                   vtkInformationVector *outputVector);
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData, 
+                           vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,

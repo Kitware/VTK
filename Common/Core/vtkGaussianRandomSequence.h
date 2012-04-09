@@ -30,7 +30,7 @@ class VTKCOMMONCORE_EXPORT vtkGaussianRandomSequence : public vtkRandomSequence
 public:
   vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Convenient method to return a value given the mean and standard deviation
   // of the Gaussian distribution from the the Gaussian distribution of mean=0
@@ -38,7 +38,7 @@ public:
   // be overridden by a subclass.
   virtual double GetScaledValue(double mean,
                                 double standardDeviation);
-  
+
 protected:
   vtkGaussianRandomSequence();
   virtual ~vtkGaussianRandomSequence();

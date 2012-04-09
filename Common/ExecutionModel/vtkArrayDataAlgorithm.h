@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayDataAlgorithm.h
-  
+
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.

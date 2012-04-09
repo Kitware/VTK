@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
   Program:   Visualization Toolkit
   Module:    vtkImageMagnify.h
 
@@ -32,24 +32,24 @@ public:
   static vtkImageMagnify *New();
   vtkTypeMacro(vtkImageMagnify,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set/Get the integer magnification factors in the i-j-k directions.
   // Initially, factors are set to 1 in all directions.
   vtkSetVector3Macro(MagnificationFactors,int);
   vtkGetVector3Macro(MagnificationFactors,int);
-  
+
   // Description:
   // Turn interpolation on and off (pixel replication is used when off).
   // Initially, interpolation is off.
   vtkSetMacro(Interpolate,int);
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
-  
+
 protected:
   vtkImageMagnify();
   ~vtkImageMagnify() {};
-  
+
   int MagnificationFactors[3];
   int Interpolate;
   virtual int RequestUpdateExtent(vtkInformation *,
@@ -58,7 +58,7 @@ protected:
   virtual int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
                                  vtkInformationVector *);
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

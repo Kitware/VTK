@@ -38,13 +38,13 @@ public:
   // Set/Get the scale factor for the logarithmic function.
   vtkSetMacro(Constant,double);
   vtkGetMacro(Constant,double);
-  
+
 protected:
   vtkImageLogarithmicScale();
   ~vtkImageLogarithmicScale() {};
 
   double Constant;
-  
+
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);
 private:

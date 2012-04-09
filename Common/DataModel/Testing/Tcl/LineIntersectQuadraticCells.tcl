@@ -398,11 +398,11 @@ renWin SetSize 400 200
 # specify properties
 ren1 AddActor aEdgeActor
 ren1 AddActor aTriActor
-ren1 AddActor aQuadActor 
-ren1 AddActor aTetActor 
-ren1 AddActor aHexActor 
-ren1 AddActor aWedgeActor 
-ren1 AddActor aPyramidActor 
+ren1 AddActor aQuadActor
+ren1 AddActor aTetActor
+ren1 AddActor aHexActor
+ren1 AddActor aWedgeActor
+ren1 AddActor aPyramidActor
 
 # places everyone!!
 aTriActor AddPosition 2 0 0

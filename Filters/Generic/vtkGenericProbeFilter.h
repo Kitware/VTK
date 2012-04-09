@@ -63,16 +63,16 @@ public:
   // Get the list of point ids in the output that contain attribute data
   // interpolated from the source.
   vtkGetObjectMacro(ValidPoints, vtkIdTypeArray);
-  
+
 protected:
   vtkGenericProbeFilter();
   ~vtkGenericProbeFilter();
 
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int FillInputPortInformation(int, vtkInformation*);
-  
+
   vtkIdTypeArray *ValidPoints;
 
 private:

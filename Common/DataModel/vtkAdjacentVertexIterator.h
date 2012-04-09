@@ -26,9 +26,9 @@
 // the iterator.
 //
 // .SECTION See Also
-// 
+//
 // .SECTION Thanks
-// 
+//
 
 #ifndef __vtkAdjacentVertexIterator_h
 #define __vtkAdjacentVertexIterator_h
@@ -55,7 +55,7 @@ public:
   // Get the graph and vertex associated with this iterator.
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
-  
+
   // Description:
   // Returns the next edge in the graph.
   vtkIdType Next()
@@ -79,7 +79,7 @@ protected:
   // Description:
   // Protected method for setting the graph used
   // by Initialize().
-  virtual void SetGraph(vtkGraph *graph);  
+  virtual void SetGraph(vtkGraph *graph);
 
   vtkGraph            *Graph;
   const vtkOutEdgeType *Current;

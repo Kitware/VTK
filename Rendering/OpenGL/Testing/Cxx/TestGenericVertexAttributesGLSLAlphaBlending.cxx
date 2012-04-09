@@ -58,7 +58,7 @@ int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
       } \
     </Shader> \
   </Material>";
-  
+
   vtkSphereSource * sphere = vtkSphereSource::New();
   sphere->SetRadius(5);
   sphere->SetPhiResolution(20);
@@ -92,7 +92,7 @@ int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
 
   renWin->SetSize(400,400);
   renWin->Render();
-  
+
   int retVal;
   if(MesaHasVTKBug8135())
     {
@@ -105,7 +105,7 @@ int TestGenericVertexAttributesGLSLAlphaBlending(int argc, char *argv[])
     renderer->AddActor(actor);
     renderer->ResetCamera();
     renWin->Render();
-  
+
     interactor->Initialize();
     renWin->Render();
 

@@ -16,9 +16,9 @@
 //
 // .SECTION Description
 // This interactor style allows the user to draw a rectangle in the render
-// window by hitting 'r' and then using the left mouse button.  
+// window by hitting 'r' and then using the left mouse button.
 // When the mouse button is released, the attached picker operates on the pixel
-// in the center of the selection rectangle. If the picker happens to be a 
+// in the center of the selection rectangle. If the picker happens to be a
 // vtkAreaPicker it will operate on the entire selection rectangle.
 // When the 'p' key is hit the above pick operation occurs on a 1x1 rectangle.
 // In other respects it behaves the same as its parent class.
@@ -49,14 +49,14 @@ public:
   virtual void OnLeftButtonDown();
   virtual void OnLeftButtonUp();
   virtual void OnChar();
-  
+
 protected:
   vtkInteractorStyleRubberBandPick();
   ~vtkInteractorStyleRubberBandPick();
-  
+
   virtual void Pick();
   void RedrawRubberBand();
-  
+
   int StartPosition[2];
   int EndPosition[2];
 

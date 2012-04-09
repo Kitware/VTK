@@ -26,7 +26,7 @@
 //
 // .SECTION See Also
 // vtkCompassWidget vtkInteractorStyle
-   
+
 #ifndef __vtkGeoInteractorStyle_h
 #define __vtkGeoInteractorStyle_h
 
@@ -61,7 +61,7 @@ public:
   virtual void OnMiddleButtonDown();
   virtual void OnRightButtonDown();
   virtual void OnChar();
-  
+
   virtual void RubberBandZoom();
   virtual void Pan();
   virtual void Dolly();
@@ -78,7 +78,7 @@ public:
   // Description:
   // This can be used to set the camera to the standard view of the earth.
   void ResetCamera();
-  
+
   //! Called when the sub widgets have an interaction
   void WidgetInteraction(vtkObject *caller);
 
@@ -87,14 +87,14 @@ public:
   // (Satisfy superclass API.)
   virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
-  int ViewportToWorld(double x, double y, 
+  int ViewportToWorld(double x, double y,
                       double &wx, double &wy, double &wz);
   void WorldToLongLat(double wx, double wy, double wz,
                       double &lon, double &lat);
-  void ViewportToLongLat(double x, double y, 
+  void ViewportToLongLat(double x, double y,
                          double &lon, double &lat);
-  int GetRayIntersection(double origin[3], 
-                         double direction[3], 
+  int GetRayIntersection(double origin[3],
+                         double direction[3],
                          double intersection[3]);
 
   // Description:
@@ -106,7 +106,7 @@ public:
   vtkGetMacro(LockHeading, bool);
   vtkSetMacro(LockHeading, bool);
   vtkBooleanMacro(LockHeading, bool);
-  
+
   // Description:
   // Called after camera properties are modified
   void ResetCameraClippingRange();
@@ -117,8 +117,8 @@ protected:
 
   // To avoid a warning.
   // We should really inherit directy from vtkInteractorStyle
-  virtual void Dolly(double);  
-  
+  virtual void Dolly(double);
+
   void OnTimer();
   // Used to get a constant speed regardless of frame rate.
   double LastTime;
@@ -131,9 +131,9 @@ protected:
   void DisableRubberBandRedraw();
   bool InRubberBandRectangle(int x, int y);
   void DrawRectangle();
-    
+
   void KeepCameraAboveGround(vtkCamera* camera);
-  void UpdateLights();  
+  void UpdateLights();
   void GetPanCenter(double &px, double &py);
 
   int StartPosition[2];
@@ -152,7 +152,7 @@ protected:
   vtkSmartPointer<vtkCommand> EventCommand;
 
 //ETX
-  
+
 private:
   vtkGeoInteractorStyle(const vtkGeoInteractorStyle&);  // Not implemented.
   void operator=(const vtkGeoInteractorStyle&);  // Not implemented.

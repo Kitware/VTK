@@ -292,20 +292,20 @@ void vtkTessellatorFilter::SetTessellator( vtkStreamingTessellator* t )
     {
     return;
     }
-  
+
   if ( this->Tessellator )
     {
     this->Tessellator->UnRegister( this );
     }
-  
-  this->Tessellator = t; 
-  
+
+  this->Tessellator = t;
+
   if ( this->Tessellator )
     {
     this->Tessellator->Register( this );
     this->Tessellator->SetSubdivisionAlgorithm( this->Subdivider );
     }
-  
+
   this->Modified();
 }
 
@@ -315,26 +315,26 @@ void vtkTessellatorFilter::SetSubdivider( vtkDataSetEdgeSubdivisionCriterion* s 
     {
     return;
     }
-  
+
   if ( this->Subdivider )
     {
     this->Subdivider->UnRegister( this );
     }
-  
+
   this->Subdivider = s;
-  
+
   if ( this->Subdivider )
     {
     this->Subdivider->Register( this );
     }
-  
+
   if ( this->Tessellator )
     {
     this->Tessellator->SetSubdivisionAlgorithm( this->Subdivider );
     }
-  
+
   this->Modified();
-} 
+}
 
 void vtkTessellatorFilter::SetFieldCriterion( int s, double err )
 {
@@ -357,7 +357,7 @@ void vtkTessellatorFilter::ResetFieldCriteria()
 void vtkTessellatorFilter::SetupOutput(
   vtkDataSet* input, vtkUnstructuredGrid* output )
 {
-  this->OutputMesh = output; 
+  this->OutputMesh = output;
 
   // avoid doing all the stupid checks on NumberOfOutputs for every
   // triangle/line.
@@ -376,7 +376,7 @@ void vtkTessellatorFilter::SetupOutput(
   // interpolated and passed on to the output mesh.
   vtkPointData* fields = input->GetPointData();
   vtkDataSetAttributes* outarrays = this->OutputMesh->GetPointData();
-  outarrays->Initialize(); 
+  outarrays->Initialize();
   // empty, turn off all attributes, and set CopyAllOn to true.
 
   this->OutputAttributes = new vtkDataArray* [ fields->GetNumberOfArrays() ];
@@ -391,7 +391,7 @@ void vtkTessellatorFilter::SetupOutput(
       {
       continue;
       }
-    
+
     vtkDataArray* array = fields->GetArray( a );
     this->OutputAttributes[ attrib ] = vtkDataArray::CreateDataArray( array->GetDataType() );
     this->OutputAttributes[ attrib ]->SetNumberOfComponents( array->GetNumberOfComponents() );
@@ -571,7 +571,7 @@ vtkIdType quadTriTris[][3] =
   {4,2,5}
 };
 
-vtkIdType biQuadTriTris[][3] = 
+vtkIdType biQuadTriTris[][3] =
 {
   {0,3,6},
   {3,1,6},
@@ -724,7 +724,7 @@ vtkIdType linTetEdges[][2] =
   {2,3}
 };
 
-vtkIdType quadTetTetrahedra[][4] = 
+vtkIdType quadTetTetrahedra[][4] =
 {
   {4,7,6,0},
   {5,6,9,2},
@@ -736,7 +736,7 @@ vtkIdType quadTetTetrahedra[][4] =
   {6,8,9,7}
 };
 
-vtkIdType quadTetTris[][3] = 
+vtkIdType quadTetTris[][3] =
 {
   {0,6,4},
   {4,6,5},
@@ -1154,7 +1154,7 @@ int vtkTessellatorFilter::RequestData(
           }
         continue;
         }
-      else if ( np == VTK_VOXEL || np == VTK_HEXAHEDRON || 
+      else if ( np == VTK_VOXEL || np == VTK_HEXAHEDRON ||
         np == VTK_QUADRATIC_HEXAHEDRON )
         {
         np = 27;
@@ -1453,24 +1453,24 @@ int vtkTessellatorFilter::RequestData(
       case 3:
         for ( tet=0; tet<nprim; ++tet, outconn += 4 )
           {
-          this->Tessellator->AdaptivelySample3Facet( pts[outconn[0]], 
-            pts[outconn[1]], 
-            pts[outconn[2]], 
+          this->Tessellator->AdaptivelySample3Facet( pts[outconn[0]],
+            pts[outconn[1]],
+            pts[outconn[2]],
             pts[outconn[3]] );
           }
         break;
       case 2:
         for ( tri=0; tri<nprim; ++tri, outconn += 3 )
           {
-          this->Tessellator->AdaptivelySample2Facet( pts[outconn[0]], 
-            pts[outconn[1]], 
+          this->Tessellator->AdaptivelySample2Facet( pts[outconn[0]],
+            pts[outconn[1]],
             pts[outconn[2]] );
           }
         break;
       case 1:
         for ( edg=0; edg<nprim; ++edg, outconn += 2 )
           {
-          this->Tessellator->AdaptivelySample1Facet( pts[outconn[0]], 
+          this->Tessellator->AdaptivelySample1Facet( pts[outconn[0]],
             pts[outconn[1]] );
           }
         break;

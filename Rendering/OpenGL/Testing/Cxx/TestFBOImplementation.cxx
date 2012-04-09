@@ -183,7 +183,7 @@ void DisplayFrameBufferAttachments()
     {
     cout<<"Current framebuffer is bind to framebuffer object "
         <<framebufferBinding<<endl;
-    
+
     GLint maxColorAttachments;
     glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS_EXT,&maxColorAttachments);
     CheckOpenGLError("after getting MAX_COLOR_ATTACHMENTS_EXT");
@@ -207,14 +207,14 @@ void DisplayFrameBufferAttachments()
 void DisplayFrameBufferAttachment(unsigned int uattachment)
 {
   GLenum attachment=static_cast<GLenum>(uattachment);
-  
+
   GLint params;
   vtkgl::GetFramebufferAttachmentParameterivEXT(
     vtkgl::FRAMEBUFFER_EXT,attachment,
     vtkgl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT,&params);
-  
+
   CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT");
-  
+
   switch(params)
     {
     case GL_NONE:
@@ -249,7 +249,7 @@ void DisplayFrameBufferAttachment(unsigned int uattachment)
       vtkgl::GetFramebufferAttachmentParameterivEXT(
         vtkgl::FRAMEBUFFER_EXT,attachment,
         vtkgl::FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT,&params);
-       
+
       CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT");
       if(params==0)
         {
@@ -268,11 +268,11 @@ void DisplayFrameBufferAttachment(unsigned int uattachment)
         vtkgl::FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT,&params);
       CheckOpenGLError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT");
       cout<<" this attachment is a renderbuffer with name: "<<params<<endl;
-      
+
       vtkgl::BindRenderbufferEXT(vtkgl::RENDERBUFFER_EXT,params);
       CheckOpenGLError(
         "after getting binding the current RENDERBUFFER_EXT to params");
-      
+
       vtkgl::GetRenderbufferParameterivEXT(vtkgl::RENDERBUFFER_EXT,
                                            vtkgl::RENDERBUFFER_WIDTH_EXT,
                                            &params);
@@ -287,9 +287,9 @@ void DisplayFrameBufferAttachment(unsigned int uattachment)
         vtkgl::RENDERBUFFER_EXT,vtkgl::RENDERBUFFER_INTERNAL_FORMAT_EXT,
         &params);
       CheckOpenGLError("after getting RENDERBUFFER_INTERNAL_FORMAT_EXT");
-      
+
       cout<<" renderbuffer internal format=0x"<< hex<<params<<dec<<endl;
-      
+
       vtkgl::GetRenderbufferParameterivEXT(vtkgl::RENDERBUFFER_EXT,
                                            vtkgl::RENDERBUFFER_RED_SIZE_EXT,
                                            &params);
@@ -350,7 +350,7 @@ const char *TextureCompressionFormat(GLint value)
   const char *result;
   switch(value)
     {
-    // 
+    //
     case vtkgl::COMPRESSED_RGB_S3TC_DXT1_EXT:
       result="GL_COMPRESSED_RGB_S3TC_DXT1_EXT";
       break;
@@ -363,7 +363,7 @@ const char *TextureCompressionFormat(GLint value)
     case vtkgl::COMPRESSED_RGBA_S3TC_DXT5_EXT:
       result="GL_COMPRESSED_RGBA_S3TC_DXT5_EXT";
       break;
-      
+
       // extension 3DFX_texture_compression_FXT1
     case vtkgl::COMPRESSED_RGB_FXT1_3DFX:
       result="GL_COMPRESSED_RGB_FXT1_3DFX";
@@ -371,7 +371,7 @@ const char *TextureCompressionFormat(GLint value)
     case vtkgl::COMPRESSED_RGBA_FXT1_3DFX:
       result="GL_COMPRESSED_RGBA_FXT1_3DFX";
       break;
-      
+
       // extension GL_EXT_texture_sRGB (or OpenGL>=2.1)
     case vtkgl::COMPRESSED_SRGB_S3TC_DXT1_EXT:
       result="GL_COMPRESSED_SRGB_S3TC_DXT1_EXT";
@@ -414,7 +414,7 @@ const char *MinMagModToString(int minMagMode)
       break;
     case GL_LINEAR_MIPMAP_LINEAR:
       result="GL_LINEAR_MIPMAP_LINEAR";
-      break;  
+      break;
     default:
       result=0;
 //      assert("check: impossible case." && 0);
@@ -809,10 +809,10 @@ void QueryTextureObject(GLenum target)
                                  || target==vtkgl::PROXY_TEXTURE_3D
                                  || target==vtkgl::TEXTURE_RECTANGLE_ARB
                                  || target==vtkgl::PROXY_TEXTURE_RECTANGLE_ARB ));
-  
+
   GLint ivalue[4];
   GLfloat fvalue[4];
-  
+
   glGetTexParameterfv(target,GL_TEXTURE_BORDER_COLOR,fvalue);
   CheckOpenGLError("");
   cout<<"border color="<<fvalue[0]<<" "<<fvalue[1]<<" "<<fvalue[2]<<" "
@@ -946,10 +946,10 @@ void QueryTextureImage(GLenum target)
                                  || target==vtkgl::PROXY_TEXTURE_3D
                                  || target==vtkgl::TEXTURE_RECTANGLE_ARB
                                  || target==vtkgl::PROXY_TEXTURE_RECTANGLE_ARB ));
-  
+
   GLint ivalue[4];
   GLint iv;
-  
+
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_WIDTH,ivalue);
   CheckOpenGLError("");
   cout<<" width="<<ivalue[0]<<endl;
@@ -977,7 +977,7 @@ void QueryTextureImage(GLenum target)
     }
   cout<<endl;
   cout<<" real internal format=";
-  
+
   glGetTexLevelParameteriv(target,0,GL_TEXTURE_RED_SIZE,ivalue);
   CheckOpenGLError("");
   if(ivalue[0]>0)
@@ -1069,7 +1069,7 @@ void QueryTextureImage(GLenum target)
       }
     cout<<iv;
     }
-  
+
   cout<<endl;
   glGetTexLevelParameteriv(target,0,vtkgl::TEXTURE_COMPRESSED,ivalue);
   CheckOpenGLError("");
@@ -1086,33 +1086,33 @@ void QueryTextureImage(GLenum target)
 void QueryTexture1D()
 {
   // void GetBooleanv(value,ivalue)  GLboolean
-  
+
   GLboolean bvalue[4];
   GLint ivalue[4];
-  
+
   // State per texture unit and binding point
   bvalue[0]=glIsEnabled(GL_TEXTURE_1D);
   cout<<"2D texturing is enabled:"<< BooleanToString(bvalue[0]) << endl;
   glGetIntegerv(GL_TEXTURE_BINDING_1D,ivalue);
   cout<<"texture object "<<ivalue[0]<<" is bind to texture 1d."<<endl;
-  
+
   // State per texture object
   QueryTextureObject(GL_TEXTURE_1D);
-  
+
   // State per texture image
   QueryTextureImage(GL_TEXTURE_1D);
-  
+
   // Texture environment and generation
-  
+
 }
 
 void QueryTexture2D()
 {
   // void GetBooleanv(value,ivalue)  GLboolean
-  
+
   GLboolean bvalue[4];
   GLint ivalue[4];
-  
+
   // State per texture unit and binding point
   bvalue[0]=glIsEnabled(GL_TEXTURE_2D);
   CheckOpenGLError("");
@@ -1120,7 +1120,7 @@ void QueryTexture2D()
   glGetIntegerv(GL_TEXTURE_BINDING_2D,ivalue);
   CheckOpenGLError("");
   cout<<"texture object "<<ivalue[0]<<" is bind to texture 2d."<<endl;
-  
+
   // State per texture object
   QueryTextureObject(GL_TEXTURE_2D);
   CheckOpenGLError("");
@@ -1128,52 +1128,52 @@ void QueryTexture2D()
   QueryTextureImage(GL_TEXTURE_2D);
   CheckOpenGLError("");
   // Texture environment and generation
-  
+
 }
 
 void QueryTexture2DRectangle()
 {
   // void GetBooleanv(value,ivalue)  GLboolean
-  
+
   GLboolean bvalue[4];
   GLint ivalue[4];
-  
+
   // State per texture unit and binding point
   bvalue[0]=glIsEnabled(vtkgl::TEXTURE_RECTANGLE_ARB);
   cout<<"2D rect texturing is enabled:"<< BooleanToString(bvalue[0]) << endl;
   glGetIntegerv(vtkgl::TEXTURE_BINDING_RECTANGLE_ARB,ivalue);
   cout<<"texture object "<<ivalue[0]<<" is bind to texture 2d rect."<<endl;
-  
+
   // State per texture object
   QueryTextureObject(vtkgl::TEXTURE_RECTANGLE_ARB);
-  
+
   // State per texture image
   QueryTextureImage(vtkgl::TEXTURE_RECTANGLE_ARB);
-  
+
   // Texture environment and generation
-  
+
 }
 void QueryTexture3D()
 {
   // void GetBooleanv(value,ivalue)  GLboolean
-  
+
   GLboolean bvalue[4];
   GLint ivalue[4];
-  
+
   // State per texture unit and binding point
   bvalue[0]=glIsEnabled(vtkgl::TEXTURE_3D);
   cout<<"3D texturing is enabled:"<< BooleanToString(bvalue[0]) << endl;
   glGetIntegerv(vtkgl::TEXTURE_BINDING_3D,ivalue);
   cout<<"texture object "<<ivalue[0]<<" is bind to texture 3d."<<endl;
-  
+
   // State per texture object
   QueryTextureObject(vtkgl::TEXTURE_3D);
-  
+
   // State per texture image
   QueryTextureImage(vtkgl::TEXTURE_3D);
-  
+
   // Texture environment and generation
-  
+
 }
 
 int textureSizes[2][2]={{64,32}, // spec says min of max is 64.
@@ -1379,7 +1379,7 @@ int textureWrap[5]={GL_CLAMP,
 int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
 {
   int result;
-  
+
   switch(f)
     {
     case GL_ALPHA4:
@@ -1485,7 +1485,7 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
       break;
     default:
       result=0;
-      assert("check: impossible case." && 0); 
+      assert("check: impossible case." && 0);
       break;
     }
   return result;
@@ -1494,7 +1494,7 @@ int FromTextureSizedInternalFormatsToBaseInternalFormat(int f)
 bool TextureSizedInternalFormatIsInteger(int f)
 {
   bool result;
-  
+
   switch(f)
     {
     case vtkgl::ALPHA8I_EXT:
@@ -1538,10 +1538,10 @@ bool TextureSizedInternalFormatIsInteger(int f)
     default:
       result=false;
     }
-  
+
   return result;
 }
-  
+
 int FromBaseInternalFormatToFormat(int f,
                                    bool isInteger)
 {
@@ -1640,9 +1640,9 @@ void TestTextureFormatsAndFBO()
   // wrapping mode: edge edge_clamp
   // linear/nearest.
   // size POT or NPOT
-  
+
   bool supportedtextureSizedInternalFormats[NumberOftextureSizedInternalFormats];
-  
+
   int i=0;
   while(i<NumberOftextureSizedInternalFormats)
     {
@@ -1675,7 +1675,7 @@ void TestTextureFormatsAndFBO()
       supportedtextureSizedInternalFormats[i]=false;
       ++i;
       }
-    }  
+    }
    if(!integer_texture_supported)
     {
     i=51;
@@ -1685,9 +1685,9 @@ void TestTextureFormatsAndFBO()
       ++i;
       }
     }
-   
+
   GLuint textureObject;
-  
+
   int numberOfTarget=1;
   if(ARB_texture_rectangle_supported)
     {
@@ -1706,7 +1706,7 @@ void TestTextureFormatsAndFBO()
         int textureSizeIdx=0;
         while(textureSizeIdx<2)
           {
-          
+
           int internalFormatIndex=0;
           while(internalFormatIndex<NumberOftextureSizedInternalFormats)
             {
@@ -1714,7 +1714,7 @@ void TestTextureFormatsAndFBO()
               {
             cout<<"----------------------------------------------------"<<endl;
             cout<<"Test "<<TargetToString(target)<<" "<<WrapModeToString(textureWrap[wrapIdx])<<" "<<MinMagModToString(textureMinMag[magIdx]);
-            
+
             if(textureSizeIdx==0)
               {
               cout<<" POT";
@@ -1725,14 +1725,14 @@ void TestTextureFormatsAndFBO()
               }
             int internalFormat=textureSizedInternalFormats[internalFormatIndex];
             cout<<" "<<InternalTextureFormatToString(internalFormat)<<endl;
-            
-            
+
+
             glGenTextures(1,&textureObject);
             CheckOpenGLError("after glGenTextures");
             glBindTexture(target,textureObject);
             CheckOpenGLError("after glBindTexture");
             glTexParameteri(target, GL_TEXTURE_WRAP_S, textureWrap[wrapIdx]);
-            
+
             GLenum errorCode=glGetError();
             if((textureWrap[wrapIdx]==GL_REPEAT || textureWrap[wrapIdx]==static_cast<GLint>(vtkgl::MIRRORED_REPEAT)) && errorCode==GL_INVALID_ENUM && target==vtkgl::TEXTURE_RECTANGLE_ARB)
               {
@@ -1747,7 +1747,7 @@ void TestTextureFormatsAndFBO()
                 }
               }
             glTexParameteri(target, GL_TEXTURE_WRAP_T, textureWrap[wrapIdx]);
-            
+
             errorCode=glGetError();
             if((textureWrap[wrapIdx]==GL_REPEAT || textureWrap[wrapIdx]==static_cast<GLint>(vtkgl::MIRRORED_REPEAT)) && errorCode==GL_INVALID_ENUM && target==vtkgl::TEXTURE_RECTANGLE_ARB)
               {
@@ -1761,28 +1761,28 @@ void TestTextureFormatsAndFBO()
                      << OpenGLErrorMessage2(errorCode) << "after GL_TEXTURE_WRAP_T" <<endl;
                 }
               }
-            
+
             glTexParameteri(target, GL_TEXTURE_MIN_FILTER, textureMinMag[magIdx]);
             CheckOpenGLError("after GL_TEXTURE_MIN_FILTER");
             glTexParameteri(target, GL_TEXTURE_MAG_FILTER, textureMinMag[magIdx]);
             CheckOpenGLError("after GL_TEXTURE_MAG_FILTER");
 
-            
+
             int format= FromBaseInternalFormatToFormat(
               FromTextureSizedInternalFormatsToBaseInternalFormat(internalFormat),
               TextureSizedInternalFormatIsInteger(internalFormat));
             int type=GL_UNSIGNED_BYTE;
-            
+
             glTexImage2D(textureProxyTarget[targetIdx],0,internalFormat,
                          textureSizes[textureSizeIdx][0],
                          textureSizes[textureSizeIdx][1],
                          0, format, type, NULL );
             CheckOpenGLError("after glTexImage2D on proxy");
-            
+
             GLint width;
             glGetTexLevelParameteriv(textureProxyTarget[targetIdx],0,
                                      GL_TEXTURE_WIDTH,&width);
-            
+
             CheckOpenGLError("after getting proxy result");
             if(width!=0)
               {
@@ -1801,7 +1801,7 @@ void TestTextureFormatsAndFBO()
                 QueryTexture2DRectangle();
                 }
               CheckOpenGLError("after querying the current texture");
-              
+
               if(vtkgl::GenFramebuffersEXT!=0) // FBO supported
                 {
                 // Try an FBO with just one color attachment:
@@ -1817,7 +1817,7 @@ void TestTextureFormatsAndFBO()
                                                target, textureObject, 0);
                 CheckOpenGLError("");
                 CheckFrameBufferStatus();
-                
+
                 // Detach the color buffer
                 vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
                                                vtkgl::COLOR_ATTACHMENT0_EXT,
@@ -1876,110 +1876,110 @@ void TestVisual(int multiSample,
   vtkOpenGLExtensionManager *extensions = vtkOpenGLExtensionManager::New();
   extensions->SetRenderWindow(renwin);
   renwin->Render();
-  
+
   cout<<"OpenGL 1.1 Implementation dependent values : "<<endl;
-  
+
   GLint value[2];
   GLboolean bvalue[1];
   GLfloat fvalue[2];
-  
+
   const GLubyte *svalue=glGetString(GL_EXTENSIONS);
   cout<<"GL_EXTENSIONS="<<svalue<<" . Supported extensions."<<endl;
-  
+
   svalue=glGetString(GL_RENDERER);
   cout<<"GL_RENDERER="<<svalue<<" . Renderer string."<<endl;
-  
+
   svalue=glGetString(GL_VENDOR);
   cout<<"GL_VENDOR="<<svalue<<" . Vendor string."<<endl;
-  
+
   svalue=glGetString(GL_VERSION);
   cout<<"GL_VERSION="<<svalue<<" . OpenGL version supported."<<endl;
-  
+
   glGetIntegerv(GL_MAX_LIGHTS,value);
   cout<<"GL_MAX_LIGHTS="<<value[0]<<" . Maximum number of lights. Min is 8."<<endl;
   CheckMinValidValue(value[0],8);
-  
+
   glGetIntegerv(GL_MAX_CLIP_PLANES,value);
   cout<<"GL_MAX_CLIP_PLANES="<<value[0]<<" . Maximum number of user clipping planes. Min is 6."<<endl;
   CheckMinValidValue(value[0],6);
-  
+
   glGetIntegerv(GL_MAX_MODELVIEW_STACK_DEPTH,value);
   cout<<"GL_MAX_MODELVIEW_STACK_DEPTH="<<value[0]<<" . Maximum model-view stack depth. Min is 32."<<endl;
   CheckMinValidValue(value[0],32);
-  
+
   glGetIntegerv(GL_MAX_PROJECTION_STACK_DEPTH,value);
   cout<<"GL_MAX_PROJECTION_STACK_DEPTH="<<value[0]<<" . Maximum projection matrix stack depth. Min is 2."<<endl;
   CheckMinValidValue(value[0],2);
-  
+
   glGetIntegerv(GL_MAX_TEXTURE_STACK_DEPTH,value);
   cout<<"GL_MAX_TEXTURE_STACK_DEPTH="<<value[0]<<" . Maximum number depth of texture matrix stack. Min is 2."<<endl;
   CheckMinValidValue(value[0],2);
-  
+
   glGetIntegerv(GL_SUBPIXEL_BITS,value);
   cout<<"GL_SUBPIXEL_BITS="<<value[0]<<" . Number of bits of subpixel precision in screen x_w and y_w. Min is 4."<<endl;
   CheckMinValidValue(value[0],4);
-  
+
   glGetIntegerv(GL_MAX_TEXTURE_SIZE,value);
   cout<<"GL_MAX_TEXTURE_SIZE="<<value[0]<<" . Maximum texture image dimension. Min is 64."<<endl;
   CheckMinValidValue(value[0],64);
   cout<<"It means that the maximum 2D texture size is "<<value[0]<<"x"<<value[0]<<endl;
   cout<<"It also means that "<<(value[0]+1)<<"x1 is too large"<<endl;
-  
+
   glGetIntegerv(GL_MAX_PIXEL_MAP_TABLE,value);
   cout<<"GL_MAX_PIXEL_MAP_TABLE="<<value[0]<<" . Maximum size of a PixelMap translation table. Min is 32."<<endl;
   CheckMinValidValue(value[0],32);
-  
+
   glGetIntegerv(GL_MAX_NAME_STACK_DEPTH,value);
   cout<<"GL_MAX_NAME_STACK_DEPTH="<<value[0]<<" . Maximum selection name stack depth. Min is 64."<<endl;
   CheckMinValidValue(value[0],64);
-  
+
   glGetIntegerv(GL_MAX_LIST_NESTING,value);
   cout<<"GL_MAX_LIST_NESTING="<<value[0]<<" . Maximum display list call nesting. Min is 64."<<endl;
   CheckMinValidValue(value[0],64);
-  
+
   glGetIntegerv(GL_MAX_EVAL_ORDER,value);
   cout<<"GL_MAX_EVAL_ORDER="<<value[0]<<" . Maximum evaluator polynomial order. Min is 8."<<endl;
   CheckMinValidValue(value[0],8);
-  
+
   glGetIntegerv(GL_MAX_VIEWPORT_DIMS,value);
   cout<<"GL_MAX_VIEWPORT_DIMS="<<value[0]<<"x"<<value[1]<<". Maximum viewport dimensions"<<endl;
-  
+
   glGetIntegerv(GL_MAX_ATTRIB_STACK_DEPTH,value);
   cout<<"GL_MAX_ATTRIB_STACK_DEPTH="<<value[0]<<". Maximum depth of the server attribute stack. Min is 16."<<endl;
   CheckMinValidValue(value[0],16);
-  
+
   glGetIntegerv(GL_MAX_CLIENT_ATTRIB_STACK_DEPTH,value);
   cout<<"GL_MAX_CLIENT_ATTRIB_STACK_DEPTH="<<value[0]<<". Maximum depth of the client attribute stack. Min is 16."<<endl;
   CheckMinValidValue(value[0],16);
-  
+
   glGetIntegerv(GL_AUX_BUFFERS,value);
   cout<<"GL_AUX_BUFFERS="<<value[0]<<". Number of auxiliary buffers. Min is 0."<<endl;
   CheckMinValidValue(value[0],0);
-  
+
   glGetBooleanv(GL_RGBA_MODE,bvalue);
   cout<<"GL_RGBA_MODE="<<BooleanToString(bvalue[0])<<". True if color buffers store rgba."<<endl;
   glGetBooleanv(GL_INDEX_MODE,bvalue);
   cout<<"GL_INDEX_MODE="<<BooleanToString(bvalue[0])<<". True if color buffers store indexes."<<endl;
-  
+
   glGetBooleanv(GL_DOUBLEBUFFER,bvalue);
   cout<<"GL_DOUBLEBUFFER="<<BooleanToString(bvalue[0])<<". True if front and back buffers exist."<<endl;
-  
+
   glGetBooleanv(GL_STEREO,bvalue);
   cout<<"GL_STEREO="<<BooleanToString(bvalue[0])<<". True if left and right buffers exist."<<endl;
   glGetFloatv(GL_POINT_SIZE_RANGE,fvalue);
   cout<<"GL_POINT_SIZE_RANGE="<<fvalue[0]<<","<<fvalue[1]<<". Range (lo to hi) of antialiased point sizes. Min is (1,1)"<<endl;
   // check range.
-  
+
   glGetFloatv(GL_POINT_SIZE_GRANULARITY,fvalue);
   cout<<"GL_POINT_SIZE_GRANULARITY="<<fvalue[0]<<". Antialiased point size granularity."<<endl;
-  
+
   glGetFloatv(GL_LINE_WIDTH_RANGE,fvalue);
   cout<<"GL_LINE_WIDTH_RANGE="<<fvalue[0]<<","<<fvalue[1]<<". Range (lo to hi) of antialiased line widths. Min is (1,1)"<<endl;
   // check range.
-  
+
   glGetFloatv(GL_LINE_WIDTH_GRANULARITY,fvalue);
   cout<<"GL_LINE_WIDTH_GRANULARITY="<<fvalue[0]<<". Antialiased line width granularity."<<endl;
-  
+
   glGetIntegerv(GL_RED_BITS,value);
   cout<<"GL_RED_BITS="<<value[0]<<". Number of bits per red component in color buffers."<<endl;
   glGetIntegerv(GL_GREEN_BITS,value);
@@ -1992,10 +1992,10 @@ void TestVisual(int multiSample,
   cout<<"GL_INDEX_BITS="<<value[0]<<". Number of bits per index component in color buffers."<<endl;
   glGetIntegerv(GL_DEPTH_BITS,value);
   cout<<"GL_DEPTH_BITS="<<value[0]<<". Number of depth buffer planes."<<endl;
-  
+
   glGetIntegerv(GL_STENCIL_BITS,value);
   cout<<"GL_STENCIL_BITS="<<value[0]<<". Number of stencil planes."<<endl;
-    
+
   glGetIntegerv(GL_ACCUM_RED_BITS,value);
   cout<<"GL_ACCUM_RED_BITS="<<value[0]<<". Number of bits per red component in the accumulation buffer."<<endl;
   glGetIntegerv(GL_ACCUM_GREEN_BITS,value);
@@ -2004,74 +2004,74 @@ void TestVisual(int multiSample,
   cout<<"GL_ACCUM_BLUE_BITS="<<value[0]<<". Number of bits per blue component in accumulation buffer."<<endl;
   glGetIntegerv(GL_ACCUM_ALPHA_BITS,value);
   cout<<"GL_ACCUM_ALPHA_BITS="<<value[0]<<". Number of bits per alpha component in accumulation buffer."<<endl;
-  
+
   if(extensions->LoadSupportedExtension("GL_VERSION_1_2"))
     {
     cout<<endl<<"OpenGL 1.2 Implementation dependent values : "<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,value);
     cout<<"GL_MAX_3D_TEXTURE_SIZE="<<value[0]<<" . Maximum 3D texture image dimension. Min is 16."<<endl;
     CheckMinValidValue(value[0],16);
     cout<<"It means that the maximum 3D texture size is "<<value[0]<<"x"<<value[0]<<"x"<<value[0]<<endl;
     cout<<"It also means that "<<(value[0]+1)<<"x1x1 is too large"<<endl;
-    
+
     glGetFloatv(vtkgl::ALIASED_POINT_SIZE_RANGE,fvalue);
     cout<<"GL_ALIASED_POINT_SIZE_RANGE="<<fvalue[0]<<","<<fvalue[1]<<". Range (lo to hi) of aliased point sizes. Min is (1,1)"<<endl;
     // check range.
-    
+
     glGetFloatv(vtkgl::SMOOTH_POINT_SIZE_RANGE,fvalue);
     cout<<"GL_SMOOTH_POINT_SIZE_RANGE (GL_POINT_SIZE_RANGE in 1.1)="<<fvalue[0]<<","<<fvalue[1]<<". Range (lo to hi) of antialiased point sizes. Min is (1,1)"<<endl;
     // check range.
-    
+
     glGetFloatv(vtkgl::SMOOTH_POINT_SIZE_GRANULARITY,fvalue);
     cout<<"GL_SMOOTH_POINT_SIZE_GRANULARITY (GL_POINT_SIZE_GRANULARITY in 1.1)="<<fvalue[0]<<". Antialiased point size granularity."<<endl;
-    
+
     glGetFloatv(vtkgl::ALIASED_LINE_WIDTH_RANGE,fvalue);
     cout<<"GL_ALIASED_LINE_WIDTH_RANGE="<<fvalue[0]<<","<<fvalue[1]<<". Range (lo to hi) of aliased line widths. Min is (1,1)"<<endl;
     // check range.
-    
+
     glGetFloatv(vtkgl::SMOOTH_LINE_WIDTH_RANGE,fvalue);
     cout<<"GL_SMOOTH_LINE_WIDTH_RANGE (GL_LINE_WIDTH_RANGE in 1.1)="<<fvalue[0]<<","<<fvalue[1]<<". Range (lo to hi) of antialiased line widths. Min is (1,1)"<<endl;
     // check range.
-    
+
     glGetFloatv(vtkgl::SMOOTH_LINE_WIDTH_GRANULARITY,fvalue);
     cout<<"GL_SMOOTH_LINE_WIDTH_GRANULARITY (GL_LINE_WIDTH_GRANULARITY in 1.1)="<<fvalue[0]<<". Antialiased line width granularity."<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_ELEMENTS_INDICES,value);
     cout<<"GL_MAX_ELEMENTS_INDICES="<<value[0]<<" . Recommended maximum number of DrawRangeElements indices."<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_ELEMENTS_VERTICES,value);
     cout<<"GL_MAX_ELEMENTS_VERTICES="<<value[0]<<" . Recommended maximum number of DrawRangeElements vertices."<<endl;
-    
+
     if(extensions->LoadSupportedExtension("GL_ARB_imaging"))
       {
       cout<<"imaging subset is supported."<<endl;
-      
+
       glGetIntegerv(vtkgl::MAX_COLOR_MATRIX_STACK_DEPTH,value);
       cout<<"GL_MAX_COLOR_MATRIX_STACK_DEPTH="<<value[0]<<" . Maximum color matrix stack depth. Min is 2."<<endl;
       CheckMinValidValue(value[0],2);
-      
+
       vtkgl::GetConvolutionParameteriv(vtkgl::CONVOLUTION_1D,
                                        vtkgl::MAX_CONVOLUTION_WIDTH,value);
-     
+
       cout<<"for GL_CONVOLUTION_1D, GL_MAX_CONVOLUTION_WIDTH="<<value[0]<<" . Maximum width of the convolution filter. Min is 3."<<endl;
       CheckMinValidValue(value[0],3);
-    
+
       vtkgl::GetConvolutionParameteriv(vtkgl::CONVOLUTION_2D,
                                        vtkgl::MAX_CONVOLUTION_WIDTH,value);
       cout<<"for GL_CONVOLUTION_2D, GL_MAX_CONVOLUTION_WIDTH="<<value[0]<<" . Maximum width of the convolution filter. Min is 3."<<endl;
       CheckMinValidValue(value[0],3);
-      
+
       vtkgl::GetConvolutionParameteriv(vtkgl::CONVOLUTION_2D,
                                        vtkgl::MAX_CONVOLUTION_HEIGHT,value);
       cout<<"for GL_CONVOLUTION_2D, GL_MAX_CONVOLUTION_HEIGHT="<<value[0]<<" . Maximum height of the convolution filter. Min is 3."<<endl;
       CheckMinValidValue(value[0],3);
-      
+
       vtkgl::GetConvolutionParameteriv(vtkgl::SEPARABLE_2D,
                                        vtkgl::MAX_CONVOLUTION_WIDTH,value);
       cout<<"for GL_SEPARABLE_2D, GL_MAX_CONVOLUTION_WIDTH="<<value[0]<<" . Maximum width of the convolution filter. Min is 3."<<endl;
       CheckMinValidValue(value[0],3);
-      
+
       vtkgl::GetConvolutionParameteriv(vtkgl::SEPARABLE_2D,
                                        vtkgl::MAX_CONVOLUTION_HEIGHT,value);
       cout<<"for GL_SEPARABLE_2D, GL_MAX_CONVOLUTION_HEIGHT="<<value[0]<<" . Maximum height of the convolution filter. Min is 3."<<endl;
@@ -2090,26 +2090,26 @@ void TestVisual(int multiSample,
     CheckMinValidValue(value[0],16);
     cout<<"It means that the maximum cube map texture size is "<<value[0]<<"x"<<value[0]<<endl;
     cout<<"It also means that "<<(value[0]+1)<<"x1 is too large"<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS,value);
     cout<<"GL_MAX_TEXTURE_UNITS="<<value[0]<<" . Number of (fixed-function) texture units. Min is 2. Max is 32."<<endl;
     CheckMinValidValue(value[0],2);
     CheckMaxValidValue(value[0],32);
-    
+
     glGetIntegerv(vtkgl::SAMPLE_BUFFERS,value);
     cout<<"GL_SAMPLE_BUFFERS="<<value[0]<<" . Number of multisample buffers. Min is 0."<<endl;
     CheckMinValidValue(value[0],0);
-    
+
     glGetIntegerv(vtkgl::SAMPLES,value);
     cout<<"GL_SAMPLES="<<value[0]<<" . Coverage mask size. Min is 0."<<endl;
     CheckMinValidValue(value[0],0);
-    
+
     GLint count;
-    
+
     glGetIntegerv(vtkgl::NUM_COMPRESSED_TEXTURE_FORMATS,&count);
     cout<<"GL_NUM_COMPRESSED_TEXTURE_FORMATS="<<count<<" . Number of enumerated compressed texture formats."<<endl;
     CheckMinValidValue(count,0);
-    
+
     if(count>0)
       {
       GLint *ivalues=new GLint[count];
@@ -2132,86 +2132,86 @@ void TestVisual(int multiSample,
     cout<<"GL_MAX_TEXTURE_LOD_BIAS="<<fvalue[0]<<" . Maximum absolute texture level of detail bias. Min is 2.0."<<endl;
     CheckMinValidFValue(fvalue[0],2.0);
     }
-  
+
   depth_texture_supported=extensions->ExtensionSupported("GL_VERSION_1_4") ||
     extensions->ExtensionSupported("GL_ARB_depth_texture");
-  
+
   if(extensions->LoadSupportedExtension("GL_VERSION_1_5"))
     {
     cout<<endl<<"OpenGL 1.5 Implementation dependent values : "<<endl;
-    
+
     vtkgl::GetQueryiv(vtkgl::SAMPLES_PASSED,vtkgl::QUERY_COUNTER_BITS,value);
     cout<<"GL_QUERY_COUNTER_BITS="<<value[0]<<" . Occlusion query counter bits. Max is 32."<<endl;
     CheckMaxValidValue(value[0],32);
     }
-  
+
   if(extensions->LoadSupportedExtension("GL_VERSION_2_0"))
     {
     cout<<endl<<"OpenGL 2.0 Implementation dependent values : "<<endl;
-    
+
     svalue=glGetString(vtkgl::SHADING_LANGUAGE_VERSION);
     cout<<"GL_SHADING_LANGUAGE_VERSION="<<svalue<<" . Shading Language version supported."<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_VERTEX_ATTRIBS,value);
     cout<<"GL_MAX_VERTEX_ATTRIBS="<<value[0]<<" . Number of active vertex attributes. Min is 16."<<endl;
     CheckMinValidValue(value[0],16);
-    
+
     glGetIntegerv(vtkgl::MAX_VERTEX_UNIFORM_COMPONENTS,value);
     cout<<"GL_MAX_VERTEX_UNIFORM_COMPONENTS="<<value[0]<<" . Number of words for vertex shader uniform variables. Min is 512."<<endl;
     CheckMinValidValue(value[0],512);
-    
+
     glGetIntegerv(vtkgl::MAX_VARYING_FLOATS,value);
     cout<<"GL_MAX_VARYING_FLOATS="<<value[0]<<" . Number of floats for varying variables. Min is 32."<<endl;
     CheckMinValidValue(value[0],32);
-    
+
     glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS,value);
     cout<<"GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS="<<value[0]<<" . Total number of texture units accessible by the GL. Min is 2."<<endl;
     CheckMinValidValue(value[0],2);
-    
+
     glGetIntegerv(vtkgl::MAX_VERTEX_TEXTURE_IMAGE_UNITS,value);
     cout<<"GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS="<<value[0]<<" . Number of texture image units accessible by a vertex shader. Min is 0."<<endl;
     CheckMinValidValue(value[0],0);
-    
+
     glGetIntegerv(vtkgl::MAX_TEXTURE_IMAGE_UNITS,value);
     cout<<"GL_MAX_TEXTURE_IMAGE_UNITS="<<value[0]<<" . Number of texture image units accessible by fragment processing. Min is 2."<<endl;
     CheckMinValidValue(value[0],2);
-    
+
     glGetIntegerv(vtkgl::MAX_TEXTURE_COORDS,value);
     cout<<"GL_MAX_TEXTURE_COORDS="<<value[0]<<" . Number of texture coordinate sets. Min is 2."<<endl;
     CheckMinValidValue(value[0],2);
-    
+
     glGetIntegerv(vtkgl::MAX_FRAGMENT_UNIFORM_COMPONENTS,value);
     cout<<"GL_MAX_FRAGMENT_UNIFORM_COMPONENTS="<<value[0]<<" . Number of words for fragment shader uniform variables. Min is 64."<<endl;
     CheckMinValidValue(value[0],64);
-    
+
     glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS,value);
     cout<<"GL_MAX_DRAW_BUFFERS="<<value[0]<<" . Maximum number of active draw buffers. Min is 1."<<endl;
     CheckMinValidValue(value[0],1);
     }
 
-  
+
   srgb_texture_supported=extensions->ExtensionSupported("GL_VERSION_2_1") ||
     extensions->ExtensionSupported("GL_EXT_texture_sRGB");
   float_texture_supported=extensions->LoadSupportedExtension("GL_ARB_texture_float")==1;
   integer_texture_supported=extensions->ExtensionSupported("GL_EXT_texture_integer")==1;
-  
+
   ARB_texture_rectangle_supported=extensions->LoadSupportedExtension("GL_ARB_texture_rectangle")==1;
-  
+
   if(ARB_texture_rectangle_supported)
     {
     cout<<endl<<"GL_ARB_texture_rectangle extension Implementation dependent values : "<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_RECTANGLE_TEXTURE_SIZE_ARB,value);
     cout<<"MAX_RECTANGLE_TEXTURE_SIZE_ARB="<<value[0]<<" . Maximum rectangle texture image dimension. Min is 64."<<endl;
     CheckMinValidValue(value[0],64);
     cout<<"It means that the maximum rectangle texture size is "<<value[0]<<"x"<<value[0]<<endl;
     cout<<"It also means that "<<(value[0]+1)<<"x1 is too large"<<endl;
     }
-  
+
   if(extensions->LoadSupportedExtension("GL_EXT_framebuffer_object"))
     {
     cout<<endl<<"GL_EXT_framebuffer_object extension Implementation dependent values : "<<endl;
-    
+
     glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS_EXT,value);
     cout<<"MAX_COLOR_ATTACHMENTS_EXT="<<value[0]<<" . Maximum number of attachment points to color buffers when using framebuffer objects. Min is 1."<<endl;
     CheckMinValidValue(value[0],1);
@@ -2245,7 +2245,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       }
     ++multisample;
     }
-  
+
   vtkRenderWindow *renwin = vtkRenderWindow::New();
   renwin->SetAlphaBitPlanes(1);
   renwin->SetSize(250, 250);
@@ -2263,7 +2263,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
   QueryTexture2D();
   QueryTexture1D();
-  
+
   if(ARB_texture_rectangle_supported)
     {
     QueryTexture2DRectangle();
@@ -2272,7 +2272,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // Check if non-power-of-two texture is supported based on glError not
   // on the OpenGL version returned by the driver or on the list of
   // extensions returned by the driver.
-  
+
   // clean glError
   GLenum errorCode=glGetError();
   glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,64,64,0, GL_RGBA, GL_FLOAT, NULL );
@@ -2289,12 +2289,12 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cout << "Loading a none-power-of-two texture failed with the following"
          << "error:" << OpenGLErrorMessage2(errorCode) <<endl;
     }
-  
-  
-  
-  
+
+
+
+
   TestTextureFormatsAndFBO();
-  
+
   renderer->Delete();
   renwin->Delete();
 

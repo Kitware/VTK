@@ -16,19 +16,19 @@
 // .SECTION Description
 // vtkAnimationCue and vtkAnimationScene provide the framework to support
 // animations in VTK. vtkAnimationCue represents an entity that changes/
-// animates with time, while vtkAnimationScene represents scene or setup 
+// animates with time, while vtkAnimationScene represents scene or setup
 // for the animation, which consists on individual cues or other scenes.
 //
 // A cue has three states: UNINITIALIZED, ACTIVE and INACTIVE.
 // UNINITIALIZED represents an point in time before the start time of the cue.
 // The cue is in ACTIVE state at a point in time between start time and end time
 // for the cue. While, beyond the end time, it is in INACTIVE state.
-// When the cue enters the ACTIVE state, StartAnimationCueEvent is fired. This 
+// When the cue enters the ACTIVE state, StartAnimationCueEvent is fired. This
 // event may be handled to initialize the entity to be animated.
-// When the cue leaves the ACTIVE state, EndAnimationCueEvent is fired, which 
+// When the cue leaves the ACTIVE state, EndAnimationCueEvent is fired, which
 // can be handled to cleanup after having run the animation.
 // For every request to render during the ACTIVE state, AnimationCueTickEvent is
-// fired, which must be handled to perform the actual animation. 
+// fired, which must be handled to perform the actual animation.
 // .SECTION See Also
 // vtkAnimationScene
 
@@ -51,7 +51,7 @@ public:
   // Depending upon the cue time mode, these times are either
   // normalized [0,1] or relative to the scene that contains the cue.
   // All this information is also available by asking the cue
-  // directly for it within the handler. Thus, this information can 
+  // directly for it within the handler. Thus, this information can
   // be accessed in wrapped languages.
   class AnimationCueInfo
     {
@@ -63,18 +63,18 @@ public:
     double ClockTime;   // valid only in AnimationCueTickEvent handler
     };
   //ETX
-  
+
   // Description:
-  // Get/Set the time mode. In Normalized mode, the start and end 
-  // times of the cue are normalized [0,1] with respect to the start and 
+  // Get/Set the time mode. In Normalized mode, the start and end
+  // times of the cue are normalized [0,1] with respect to the start and
   // end times of the container scene. In Relative mode the start and end
-  // time of the cue are specified in offset seconds relative to the 
+  // time of the cue are specified in offset seconds relative to the
   // start time of the container scene.
   virtual void SetTimeMode(int mode);
   vtkGetMacro(TimeMode, int);
-  void SetTimeModeToRelative() 
+  void SetTimeModeToRelative()
     { this->SetTimeMode(TIMEMODE_RELATIVE); }
-  void SetTimeModeToNormalized() 
+  void SetTimeModeToNormalized()
     { this->SetTimeMode(TIMEMODE_NORMALIZED); }
 
   // Description:
@@ -83,7 +83,7 @@ public:
   // ACTIVE state. if Current time i < StartTime, the Cue is in
   // UNINITIALIZED state. Whenever the cue enters the ACTIVE state from
   // an INACTIVE state, it triggers the StartEvent.
-  // The Start time is in seconds relative to the start of the 
+  // The Start time is in seconds relative to the start of the
   // container Scene (when in Relative time mode) or is normalized
   // over the span of the container Scene (when in Normalized time mode).
   vtkSetMacro(StartTime, double);
@@ -92,22 +92,22 @@ public:
   // Description:
   // Get/Set the End time for this cue.
   // When the current time is > EndTime, the Cue is in
-  // INACTIVE state. Whenever the cue leaves an ACTIVE state to enter 
+  // INACTIVE state. Whenever the cue leaves an ACTIVE state to enter
   // INACTIVE state, the EndEvent is triggered.
-  // The End time is in seconds relative to the start of the 
+  // The End time is in seconds relative to the start of the
   // container Scene (when in Relative time mode) or is normalized
   // over the span of the container Scene (when in Normalized time mode).
   vtkSetMacro(EndTime, double);
   vtkGetMacro(EndTime, double);
- 
+
   // Description:
   // Indicates a tick or point in time in the animation.
   // Triggers a Tick event if currenttime >= StartTime and
   // currenttime <= EndTime.
   // Whenever the state of the cue changes,
-  // either StartEvent or EndEvent is triggerred depending upon 
+  // either StartEvent or EndEvent is triggerred depending upon
   // whether the cue entered Active state or quit active state respectively.
-  // The current time is relative to the start of the container Scene 
+  // The current time is relative to the start of the container Scene
   // (when in Relative time mode) or is normalized
   // over the span of the container Scene (when in Normalized time mode).
   // deltatime is the time since last call to Tick. deltatime also can be in seconds
@@ -131,7 +131,7 @@ public:
   virtual void Finalize();
 
   // Description:
-  // This is valid only in a AnimationCueTickEvent handler. 
+  // This is valid only in a AnimationCueTickEvent handler.
   // Before firing the event the animation cue sets the AnimationTime to
   // the time of the tick.
   vtkGetMacro(AnimationTime, double);
@@ -143,7 +143,7 @@ public:
   vtkGetMacro(DeltaTime, double);
 
   // Description:
-  // This is valid only in a AnimationCueTickEvent handler. 
+  // This is valid only in a AnimationCueTickEvent handler.
   // Before firing the event the animation cue sets the ClockTime to
   // the time of the tick. ClockTime is directly the time from the animation
   // scene neither normalized nor offsetted to the start of the scene.
@@ -170,13 +170,13 @@ protected:
   double EndTime;
   int TimeMode;
 
-  // These are set when the AnimationCueTickEvent event 
+  // These are set when the AnimationCueTickEvent event
   // is fired. Thus giving access to the information in
   // the AnimationCueInfo struct in wrapped languages.
   double AnimationTime;
   double DeltaTime;
   double ClockTime;
-  
+
   // Description:
   // Current state of the Cue.
   int CueState;
@@ -189,7 +189,7 @@ protected:
   virtual void TickInternal(double currenttime, double deltatime,
     double clocktime);
   virtual void EndCueInternal();
- 
+
 private:
   vtkAnimationCue(const vtkAnimationCue&);  // Not implemented.
   void operator=(const vtkAnimationCue&);  // Not implemented.

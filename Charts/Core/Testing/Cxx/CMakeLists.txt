@@ -75,7 +75,7 @@
           -V Baseline/Charts/${TName}.png
           -E ${_error_threshold})
     else()
-      add_test(NAME Charts-${TName} 
+      add_test(NAME Charts-${TName}
         COMMAND ${vtk-module}CxxTests ${TName})
     endif()
   endforeach()

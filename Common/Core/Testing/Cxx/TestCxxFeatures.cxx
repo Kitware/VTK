@@ -200,7 +200,7 @@ int TestFullySpecializedFunction()
     }
   int should_be_1 = FullySpecializedFunction(static_cast<int*>(0));
   if(should_be_1 != 1)
-    {    
+    {
     cerr << "FullySpecializedFunction(int*) returned "
          << should_be_1 << ", not 1.\n";
     result = 0;
@@ -327,7 +327,7 @@ int TestFullySpecializedClass()
     }
   int should_be_1 = FullySpecializedClass<float>::Method();
   if(should_be_1 != 1)
-    {    
+    {
     cerr << "FullySpecializedClass<float>::Method() returned "
          << should_be_1 << ", not 1.\n";
     result = 0;
@@ -449,13 +449,13 @@ int TestBinaryWriting()
   int result = 1;
   // ios::binary does not exist on SGI and OSF cxx (DEC)
   // it failed to compile on these machines:
-  // ct02_oc.crd IRIX64-6.5-CC-64 
-  // manifold IRIX64-6.5-CC-n32  
-  // kulu.crd IRIX64-6.5-CC-o32 
-  // a62.iue.tuwien.ac.at OSF1-V5.1-cxx 
+  // ct02_oc.crd IRIX64-6.5-CC-64
+  // manifold IRIX64-6.5-CC-n32
+  // kulu.crd IRIX64-6.5-CC-o32
+  // a62.iue.tuwien.ac.at OSF1-V5.1-cxx
 #if defined(VTK_CXX_SGI) || defined( __DECCXX_VER)
   ofstream fout_with_warning_C4701("TestCxxFeatures_TestBinaryWriting", ios::out );
-#else  
+#else
   ofstream fout_with_warning_C4701("TestCxxFeatures_TestBinaryWriting", ios::out | ios::binary);
 #endif
   if(!fout_with_warning_C4701)
@@ -659,7 +659,7 @@ int TestSetLocale()
 {
   char *oldLocale = strdup(setlocale(LC_NUMERIC,NULL));
   setlocale(LC_NUMERIC,"English");
-  
+
   // restore the local
   if (oldLocale)
     {
@@ -697,7 +697,7 @@ int main()
   DO_TEST(TestException);
 #endif
   DO_TEST(TestSetLocale);
-  
+
 #if defined(_MSC_VER) && defined(_DEBUG)
   // just call the code to shut up a linker warning
   int retVal = 0;

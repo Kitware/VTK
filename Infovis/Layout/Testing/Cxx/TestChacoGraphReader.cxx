@@ -64,7 +64,7 @@ int TestChacoGraphReader(int argc, char* argv[])
     {
     iren->Initialize();
     iren->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

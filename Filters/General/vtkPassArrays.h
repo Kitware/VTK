@@ -66,18 +66,18 @@ public:
   static vtkPassArrays* New();
   vtkTypeMacro(vtkPassArrays,vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Adds an array to pass through.
   // fieldType where the array that should be passed (point data, cell data, etc.).
   // It should be one of the constants defined in the vtkDataObject::AttributeTypes
   // enumeration.
   virtual void AddArray(int fieldType, const char* name);
-  
+
   // Description:
   // Clear all arrays to pass through.
   virtual void ClearArrays();
-  
+
   // Description:
   // Instead of passing only the specified arrays, remove the specified arrays
   // and keep all other arrays. Default is off.
@@ -107,7 +107,7 @@ public:
 
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -120,10 +120,10 @@ protected:
   virtual int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
-  
+
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   bool RemoveArrays;
@@ -133,7 +133,7 @@ protected:
   class Internals;
   Internals* Implementation;
   //ETX
-    
+
 private:
   vtkPassArrays(const vtkPassArrays&); // Not implemented
   void operator=(const vtkPassArrays&);   // Not implemented

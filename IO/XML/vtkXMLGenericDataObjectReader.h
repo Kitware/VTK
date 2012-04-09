@@ -82,12 +82,12 @@ public:
 protected:
   vtkXMLGenericDataObjectReader();
   ~vtkXMLGenericDataObjectReader();
-  
+
   // Description:
   // Overridden method. Not used. Return "vtkDataObject".
   const char* GetDataSetName();
-  
-  
+
+
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
                                 vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,

@@ -12,7 +12,7 @@
   PURPOSE.  See the above copyright notice for more information.
 
   =========================================================================*/
-// .NAME vtkDataSetGradientPrecompute 
+// .NAME vtkDataSetGradientPrecompute
 //
 // .SECTION Description
 // Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
@@ -43,7 +43,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetA
  protected:
   vtkDataSetGradientPrecompute ();
   ~vtkDataSetGradientPrecompute ();
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
  private:

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkGenericCutter - cut a vtkGenericDataSet with an implicit function or scalar data
 // .SECTION Description
-// vtkGenericCutter is a filter to cut through data using any subclass of 
+// vtkGenericCutter is a filter to cut through data using any subclass of
 // vtkImplicitFunction. That is, a polygonal surface is created
 // corresponding to the implicit function F(x,y,z) = value(s), where
 // you can specify one or more values used to cut with.
@@ -66,10 +66,10 @@ public:
   static vtkGenericCutter *New();
 
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value);
- 
+
   // Description:
   // Get the ith contour value.
   double GetValue(int i);
@@ -84,7 +84,7 @@ public:
   // GetNumberOfContours() values in the list. Make sure you allocate
   // enough memory to hold the list.
   void GetValues(double *contourValues);
- 
+
   // Description:
   // Set the number of contours to place into the list. You only really
   // need to use this method to reduce list size. The method SetValue()
@@ -124,30 +124,30 @@ public:
   vtkBooleanMacro(GenerateCutScalars,int);
 
   // Description:
-  // Specify a spatial locator for merging points. By default, 
+  // Specify a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
 protected:
   vtkGenericCutter(vtkImplicitFunction *cf=NULL);
   ~vtkGenericCutter();
-  
+
   // Description:
   // Actual implementation of the cutter operation.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int, vtkInformation*);
-  
+
   vtkImplicitFunction *CutFunction;
   vtkIncrementalPointLocator *Locator;
   vtkContourValues    *ContourValues;
   int                 GenerateCutScalars;
-  
+
   // Used internal by vtkGenericAdaptorCell::Contour()
   vtkPointData *InternalPD;
   vtkPointData *SecondaryPD;

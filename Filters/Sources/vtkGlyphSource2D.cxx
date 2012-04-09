@@ -57,7 +57,7 @@ int vtkGlyphSource2D::RequestData(
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   //Allocate storage
   vtkPoints *pts = vtkPoints::New();
   pts->Allocate(6,6);
@@ -89,7 +89,7 @@ int vtkGlyphSource2D::RequestData(
     this->CreateCross(pts,lines,polys,colors,this->Scale2);
     this->Filled = filled;
     }
-  
+
   //Call the right function
   switch (this->GlyphType)
     {
@@ -132,7 +132,7 @@ int vtkGlyphSource2D::RequestData(
       this->CreateEdgeArrow(pts,lines,polys,colors);
       break;
     }
-  
+
   this->TransformGlyph(pts);
 
   //Clean up
@@ -141,10 +141,10 @@ int vtkGlyphSource2D::RequestData(
 
   output->SetVerts(verts);
   verts->Delete();
-  
+
   output->SetLines(lines);
   lines->Delete();
-  
+
   output->SetPolys(polys);
   polys->Delete();
 
@@ -166,7 +166,7 @@ void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
   double x[3];
   int i;
   int numPts=pts->GetNumberOfPoints();
-  
+
   if ( this->RotationAngle == 0.0 )
     {
     for (i=0; i<numPts; i++)
@@ -206,7 +206,7 @@ void vtkGlyphSource2D::CreateVertex(vtkPoints *pts, vtkCellArray *verts,
 }
 
 void vtkGlyphSource2D::CreateCross(vtkPoints *pts, vtkCellArray *lines,
-                                   vtkCellArray *polys, vtkUnsignedCharArray *colors, 
+                                   vtkCellArray *polys, vtkUnsignedCharArray *colors,
                                    double scale)
 {
   vtkIdType ptIds[4];
@@ -340,7 +340,7 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
     x[1] = 0.5 * sin(i*theta);
     ptIds[i] = pts->InsertNextPoint(x);
     }
-  
+
   if ( this->Filled )
     {
     polys->InsertNextCell(8,ptIds);
@@ -493,7 +493,7 @@ void vtkGlyphSource2D::CreateEdgeArrow(vtkPoints *pts, vtkCellArray *lines,
   ptIds[0] = pts->InsertNextPoint(-1.0,   x, 0.0);
   ptIds[1] = pts->InsertNextPoint( 0.0, 0.0, 0.0);
   ptIds[2] = pts->InsertNextPoint(-1.0,  -x, 0.0);
-  
+
   if ( this->Filled )
     {
     polys->InsertNextCell(3,ptIds);
@@ -541,14 +541,14 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Center: (" << this->Center[0] << ", " 
+  os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";
 
   os << indent << "Scale: " << this->Scale << "\n";
   os << indent << "Scale2: " << this->Scale2 << "\n";
   os << indent << "Rotation Angle: " << this->RotationAngle << "\n";
 
-  os << indent << "Color: (" << this->Color[0] << ", " 
+  os << indent << "Color: (" << this->Color[0] << ", "
      << this->Color[1] << ", " << this->Color[2] << ")\n";
 
   os << indent << "Filled: " << (this->Filled ? "On\n" : "Off\n");

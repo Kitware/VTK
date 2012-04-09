@@ -37,14 +37,14 @@ class VTKIOIMAGE_EXPORT vtkImageReader : public vtkImageReader2
 public:
   static vtkImageReader *New();
   vtkTypeMacro(vtkImageReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/get the data VOI. You can limit the reader to only
-  // read a subset of the data. 
+  // read a subset of the data.
   vtkSetVector6Macro(DataVOI,int);
   vtkGetVector6Macro(DataVOI,int);
-  
+
   // Description:
   // Set/Get the Data mask.  The data mask is a simply integer whose bits are
   // treated as a mask to the bits read from disk.  That is, the data mask is
@@ -53,7 +53,7 @@ public:
   // data size required to be read (using the least significant bits).
   vtkGetMacro(DataMask, vtkTypeUInt64);
   vtkSetMacro(DataMask, vtkTypeUInt64);
-  
+
   // Description:
   // Set/Get transformation matrix to transform the data from slice space
   // into world space. This matrix must be a permutation matrix. To qualify,
@@ -69,12 +69,12 @@ public:
                                            vtkIdType outIncr[3]);
 
   int OpenAndSeekFile(int extent[6], int slice);
-  
+
   // Description:
   // Set/get the scalar array name for this data set.
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
-  
+
 protected:
   vtkImageReader();
   ~vtkImageReader();
@@ -91,9 +91,9 @@ protected:
                                     vtkIdType outIncr[3]);
 
   int DataVOI[6];
-  
+
   char *ScalarArrayName;
-  
+
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);

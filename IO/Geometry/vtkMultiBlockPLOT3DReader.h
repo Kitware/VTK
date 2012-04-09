@@ -20,18 +20,18 @@
 // computational fluid dynamics. Please see the "PLOT3D User's Manual"
 // available from NASA Ames Research Center, Moffett Field CA.
 //
-// PLOT3D files consist of a grid file (also known as XYZ file), an 
-// optional solution file (also known as a Q file), and an optional function 
-// file that contains user created data (currently unsupported). The Q file 
-// contains solution  information as follows: the four parameters free stream 
-// mach number (Fsmach), angle of attack (Alpha), Reynolds number (Re), and 
+// PLOT3D files consist of a grid file (also known as XYZ file), an
+// optional solution file (also known as a Q file), and an optional function
+// file that contains user created data (currently unsupported). The Q file
+// contains solution  information as follows: the four parameters free stream
+// mach number (Fsmach), angle of attack (Alpha), Reynolds number (Re), and
 // total integration time (Time). This information is stored in an array
 // called Properties in the FieldData of each output (tuple 0: fsmach, tuple 1:
-// alpha, tuple 2: re, tuple 3: time). In addition, the solution file contains 
+// alpha, tuple 2: re, tuple 3: time). In addition, the solution file contains
 // the flow density (scalar), flow momentum (vector), and flow energy (scalar).
 //
 // The reader can generate additional scalars and vectors (or "functions")
-// from this information. To use vtkMultiBlockPLOT3DReader, you must specify the 
+// from this information. To use vtkMultiBlockPLOT3DReader, you must specify the
 // particular function number for the scalar and vector you want to visualize.
 // This implementation of the reader provides the following functions. The
 // scalar functions are:
@@ -55,7 +55,7 @@
 //    210 - pressure gradient.
 //
 // (Other functions are described in the PLOT3D spec, but only those listed are
-// implemented here.) Note that by default, this reader creates the density 
+// implemented here.) Note that by default, this reader creates the density
 // scalar (100) and momentum vector (202) as output. (These are just read in
 // from the solution file.) Please note that the validity of computation is
 // a function of this class's gas constants (R, Gamma) and the equations used.
@@ -103,11 +103,11 @@ public:
 
   // Description:
   // This returns the number of outputs this reader will produce.
-  // This number is equal to the number of grids in the current 
+  // This number is equal to the number of grids in the current
   // file. This method has to be called before getting any output
   // if the number of outputs will be greater than 1 (the first
   // output is always the same). Note that every time this method
-  // is invoked, the header file is opened and part of the header 
+  // is invoked, the header file is opened and part of the header
   // is read.
   int GetNumberOfBlocks();
   int GetNumberOfGrids() { return this->GetNumberOfBlocks(); }
@@ -121,7 +121,7 @@ public:
 
   // Description:
   // Does the file to be read contain information about number of
-  // grids. In some PLOT3D files, the first value contains the number 
+  // grids. In some PLOT3D files, the first value contains the number
   // of grids (even if there is only 1). If reading such a file,
   // set this to true.
   vtkSetMacro(MultiGrid, int);
@@ -155,7 +155,7 @@ public:
   // Try to read a binary file even if the file length seems to be
   // inconsistent with the header information. Use this with caution,
   // if the file length is not the same as calculated from the header.
-  // either the file is corrupt or the settings are wrong. 
+  // either the file is corrupt or the settings are wrong.
   vtkSetMacro(ForceRead, int);
   vtkGetMacro(ForceRead, int);
   vtkBooleanMacro(ForceRead, int);
@@ -197,7 +197,7 @@ public:
   vtkGetMacro(Wvinf,double);
 
   // Description:
-  // Specify the scalar function to extract. If ==(-1), then no scalar 
+  // Specify the scalar function to extract. If ==(-1), then no scalar
   // function is extracted.
   void SetScalarFunctionNumber(int num);
   vtkGetMacro(ScalarFunctionNumber,int);
@@ -222,7 +222,7 @@ public:
   virtual int CanReadBinaryFile(const char* fname);
 
 //BTX
-  enum 
+  enum
   {
     FILE_BIG_ENDIAN=0,
     FILE_LITTLE_ENDIAN=1
@@ -283,7 +283,7 @@ protected:
   long FileSize;
 
   //parameters used in computing derived functions
-  double R; 
+  double R;
   double Gamma;
   double Uvinf;
   double Vvinf;
@@ -302,19 +302,19 @@ protected:
   // First pass at automatically detecting configuration
   int GenerateDefaultConfiguration();
   int VerifySettings(char* buf, int bufSize);
-  
+
   void ReadIntBlockV(char** buf, int n, int* block);
   void SkipByteCountV(char** buf);
 
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*);
-  virtual int RequestInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*);
-  
+
 private:
 
   vtkMultiBlockPLOT3DReaderInternals* Internal;

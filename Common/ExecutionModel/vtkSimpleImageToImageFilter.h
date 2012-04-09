@@ -21,7 +21,7 @@
 // this as the superclass. The subclass has to provide only an execute
 // method which takes input and output as arguments. Memory allocation
 // is handled in vtkSimpleImageToImageFilter. Also, you are guaranteed to
-// have a valid input in the Execute(input, output) method. By default, 
+// have a valid input in the Execute(input, output) method. By default,
 // this filter
 // requests it's input's whole extent and copies the input's information
 // (spacing, whole extent etc...) to the output. If the output's setup
@@ -51,13 +51,13 @@ protected:
   ~vtkSimpleImageToImageFilter();
 
   // These are called by the superclass.
-  virtual int RequestUpdateExtent (vtkInformation *, 
-                                   vtkInformationVector **, 
+  virtual int RequestUpdateExtent (vtkInformation *,
+                                   vtkInformationVector **,
                                    vtkInformationVector *);
 
   // You don't have to touch this unless you have a good reason.
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
 
   // In the simplest case, this is the only method you need to define.

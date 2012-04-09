@@ -90,7 +90,7 @@ proc get_ivar { string } {
       if { $verbose >= 2 } {
         puts "    Macro: $ivar_string"
       }
-    } 
+    }
   }
 
   return [string trim $ivar_string]
@@ -219,9 +219,9 @@ proc check_header_file { filename } {
               set class_list($class_name.i.$ivar) 0
             }
           }
-        } 
+        }
       }
-    } 
+    }
 
     # If a class was found within the file then increment the class count
     if { $class_found } {
@@ -276,7 +276,7 @@ proc check_printself { filename } {
 
       # Find the first open curly bracket
       if { $search_state == 1 } {
- 
+
         while { [string length $data] > 0 && $curly_open == 0 } {
 
           # Check for an open curly bracket
@@ -336,7 +336,7 @@ proc check_printself { filename } {
 
           # Check for open and close curly braces
           if { [string compare "\{" $token] == 0 } {
-            incr curly_open 
+            incr curly_open
           } elseif { [string compare "\}" $token] == 0 } {
             incr curly_close
           } elseif { [string compare "this" $token] == 0 } {
@@ -346,7 +346,7 @@ proc check_printself { filename } {
             # Check if this is an array. If so, remove bracket
             #if { [string first "\[" $data] > -1 } {
             #  set token_end [expr $token_end - 1];
-            #} 
+            #}
 
             set ivar [string range $data $start $token_end]
 
@@ -354,7 +354,7 @@ proc check_printself { filename } {
             #if { [string first "(" $ivar] > -1 } {
             #  set token_end [expr $token_end - 1];
             #  set ivar [string range $data $start $token_end]
-            #} 
+            #}
 
             if { [string first "Get" $ivar] > -1 } {
               set start [expr $start + 3];
@@ -365,7 +365,7 @@ proc check_printself { filename } {
               }
 
               set ivar [string range $data $start $token_end]
-            } 
+            }
 
             set ivar [string trim $ivar]
 
@@ -404,7 +404,7 @@ proc read_directory { dirname } {
       # Check that a PrintSelf() is defined
       check_header_file $headername
 
-      # Check that the PrintSelf() method accesses the appropriate ivars 
+      # Check that the PrintSelf() method accesses the appropriate ivars
       if { $class_name != "" && [list_contains "$class_name.p"] == 1 } {
         set length [string length $headername]
         set filename [string range $headername 0 [expr $length - 3] ]
@@ -683,11 +683,11 @@ proc clear_results { } {
 }
 
 proc measure_vtk {kit} {
-   
+
    global pd_id
-   
+
    global verbose
-   
+
    global class_list
    global class_count
    global class_print_count
@@ -695,37 +695,37 @@ proc measure_vtk {kit} {
    global ivar_count
    global ivar_miss_count
    global super_miss_count
-   
+
    global total_class_count
    global total_class_print_count
    global total_printself_miss_count
    global total_ivar_count
    global total_ivar_miss_count
    global total_super_miss_count
-   
+
    open_files
-   
+
    clear_results
-   
+
    read_directory "$kit"
-   
+
    print_toolkit_results $kit
-   
+
    set total_class_count [expr $total_class_count + $class_count]
    set total_class_print_count [expr $total_class_print_count + $class_print_count]
    set total_printself_miss_count [expr $total_printself_miss_count + $printself_miss_count];
    set total_ivar_count [expr $total_ivar_count + $ivar_count];
    set total_ivar_miss_count [expr $total_ivar_miss_count + $ivar_miss_count];
    set total_super_miss_count [expr $total_super_miss_count + $super_miss_count];
-   
+
    print_totals
-   
+
    if { $verbose } {
       parray class_list
    }
 
    close_files
-   
+
 }
 measure_vtk [lindex $argv 0]
 

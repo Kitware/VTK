@@ -20,7 +20,7 @@
 // strides like the vtkExtract grid filter.
 
 // .SECTION See Also
-// vtkExtractGrid vtkImageClip vtkGeometryFilter vtkExtractGeometry vtkExtractVOI 
+// vtkExtractGrid vtkImageClip vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
 // vtkStructuredGridGeometryFilter
 
 #ifndef __vtkExtractRectilinearGrid_h
@@ -39,7 +39,7 @@ public:
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured grid
   // dataset can be of any topological dimension (i.e., point, line, plane,
-  // or 3D grid). 
+  // or 3D grid).
   vtkSetVector6Macro(VOI,int);
   vtkGetVectorMacro(VOI,int,6);
 
@@ -70,11 +70,11 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int VOI[6];
   int SampleRate[3];
   int IncludeBoundary;
-  
+
 private:
   vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.
   void operator=(const vtkExtractRectilinearGrid&);  // Not implemented.

@@ -53,7 +53,7 @@ public:
 
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -70,10 +70,10 @@ protected:
   char* OutputArrayName;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
 private:
   vtkStringToTimePoint(const vtkStringToTimePoint&); // Not implemented
   void operator=(const vtkStringToTimePoint&);   // Not implemented

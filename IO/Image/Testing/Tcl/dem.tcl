@@ -54,7 +54,7 @@ eval elevation$lod SetScalarRange $lo $hi
 
   vtkCastToConcrete toPoly$lod
     toPoly$lod SetInputConnection [elevation$lod GetOutputPort]
-  
+
   vtkPolyDataNormals normals$lod
     normals$lod SetInputConnection [toPoly$lod GetOutputPort]
     normals$lod SetFeatureAngle 60

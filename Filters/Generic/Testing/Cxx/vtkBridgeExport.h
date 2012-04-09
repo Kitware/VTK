@@ -15,7 +15,7 @@
 // .NAME vtkBridgeExport - manage Windows system differences
 // .SECTION Description
 // The vtkBridgeExport captures some system differences between Unix and
-// Windows operating systems. 
+// Windows operating systems.
 
 #ifndef __vtkBridgeExport_h
 #define __vtkBridgeExport_h
@@ -29,9 +29,9 @@
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 
  #if defined(vtkBridge_EXPORTS)
-  #define VTK_BRIDGE_EXPORT __declspec( dllexport ) 
+  #define VTK_BRIDGE_EXPORT __declspec( dllexport )
  #else
-  #define VTK_BRIDGE_EXPORT __declspec( dllimport ) 
+  #define VTK_BRIDGE_EXPORT __declspec( dllimport )
  #endif
 #else
  #define VTK_BRIDGE_EXPORT

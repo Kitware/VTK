@@ -77,5 +77,5 @@ void vtkPlaybackWidget::SelectRegion(double eventPos[2])
 void vtkPlaybackWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
 }

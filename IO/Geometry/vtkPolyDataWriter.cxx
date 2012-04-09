@@ -55,8 +55,8 @@ void vtkPolyDataWriter::WriteData()
   //
   // Write polygonal data specific stuff
   //
-  *fp << "DATASET POLYDATA\n"; 
-  
+  *fp << "DATASET POLYDATA\n";
+
   //
   // Write data owned by the dataset
   int errorOccured = 0;

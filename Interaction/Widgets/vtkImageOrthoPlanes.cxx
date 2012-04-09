@@ -109,8 +109,8 @@ void vtkImageOrthoPlanes::HandlePlaneEvent(
     {
     if (this->Planes[i] == currentImagePlane)
       {
-      indexOfModifiedPlane = (i % 3); 
-      break; 
+      indexOfModifiedPlane = (i % 3);
+      break;
       }
     }
 
@@ -131,12 +131,12 @@ void vtkImageOrthoPlanes::HandlePlaneEvent(
   double ySize = vtkMath::Norm(v2);
   vtkMath::Normalize(v1);
   vtkMath::Normalize(v2);
-  
+
   // Extract the three columns of the current orientation matrix
   double u1[3]; u1[0] = 1; u1[1] = 0; u1[2] = 0;
   double u2[3]; u2[0] = 0; u2[1] = 1; u2[2] = 0;
   double u3[3]; u3[0] = 0; u3[1] = 0; u3[2] = 1;
-  
+
   this->Transform->TransformVector(u1, u1);
   this->Transform->TransformVector(u2, u2);
   this->Transform->TransformVector(u3, u3);
@@ -166,7 +166,7 @@ void vtkImageOrthoPlanes::HandlePlaneEvent(
     default:
       break;
     }
-    
+
   // Use the dot product to determine whether the plane has rotated
   if (fabs(1.0 - dot1) > 1e-8 || fabs(1.0 - dot2) > 1e-8)
     {
@@ -212,7 +212,7 @@ void vtkImageOrthoPlanes::HandlePlaneEvent(
     vec[1] = newCenter[1] - oldCenter[1];
     vec[2] = newCenter[2] - oldCenter[2];
 
-    if (fabs(vtkMath::Dot(v1, vec)) < 1e-5 && 
+    if (fabs(vtkMath::Dot(v1, vec)) < 1e-5 &&
         fabs(vtkMath::Dot(v2, vec)) < 1e-5)
       {
       this->HandlePlanePush(currentImagePlane, indexOfModifiedPlane);
@@ -230,7 +230,7 @@ void vtkImageOrthoPlanes::HandlePlanePush(
   int indexOfModifiedPlane)
 {
   int i = indexOfModifiedPlane;
-    
+
   // Get the bounds of the image data
   double bounds[6];
   this->GetBounds(bounds);
@@ -244,7 +244,7 @@ void vtkImageOrthoPlanes::HandlePlanePush(
   this->Origin[i][i] = center[i];
   this->Point1[i][i] = center[i];
   this->Point2[i][i] = center[i];
-  
+
   double origin[3];
   double point1[3];
   double point2[3];
@@ -281,7 +281,7 @@ void vtkImageOrthoPlanes::HandlePlanePush(
   for (int j = i; j < this->NumberOfPlanes; j += 3)
     {
     vtkImagePlaneWidget *planeWidget = this->Planes[j];
-    
+
     if (planeWidget && planeWidget != currentImagePlane)
       {
       planeWidget->SetOrigin(origin);
@@ -315,7 +315,7 @@ void vtkImageOrthoPlanes::HandlePlaneTranslate(
   double vec[3];
   vec[0] = newCenter[0] - oldCenter[0];
   vec[1] = newCenter[1] - oldCenter[1];
-  vec[2] = newCenter[2] - oldCenter[2];  
+  vec[2] = newCenter[2] - oldCenter[2];
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
@@ -325,7 +325,7 @@ void vtkImageOrthoPlanes::HandlePlaneTranslate(
   matrix->SetElement(1, 3, matrix->GetElement(1, 3) + vec[1]);
   matrix->SetElement(2, 3, matrix->GetElement(2, 3) + vec[2]);
 
-  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);  
+  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);
 
   matrix->Delete();
 }
@@ -347,7 +347,7 @@ void vtkImageOrthoPlanes::HandlePlaneRotation(
     this->Transform->TransformVector(col, col);
     scale[i] = vtkMath::Norm(col);
     }
-    
+
   // Create a matrix from the plane orientation
   double v1[3];
   double v2[3];
@@ -389,7 +389,7 @@ void vtkImageOrthoPlanes::HandlePlaneRotation(
     default:
       break;
     }
-  
+
   // Get the center of the rotated plane
   double center[3];
   currentImagePlane->GetCenter(center);
@@ -401,7 +401,7 @@ void vtkImageOrthoPlanes::HandlePlaneRotation(
   translation[2] = 0.0;
 
   this->Transform->TransformPoint(translation, translation);
-  
+
   // Invert and multiply by new rotation to get the relative rotation
   vtkTransform *rotationTransform = vtkTransform::New();
   rotationTransform->PostMultiply();
@@ -410,8 +410,8 @@ void vtkImageOrthoPlanes::HandlePlaneRotation(
   rotationTransform->Concatenate(
     this->Transform->GetLinearInverse()->GetMatrix());
   rotationTransform->Concatenate(matrix);
-      
-  // Make this into a rotation about the center of the modified plane 
+
+  // Make this into a rotation about the center of the modified plane
   rotationTransform->PreMultiply();
   rotationTransform->Translate(-center[0], -center[1], -center[2]);
   rotationTransform->PostMultiply();
@@ -420,11 +420,11 @@ void vtkImageOrthoPlanes::HandlePlaneRotation(
   rotationTransform->TransformPoint(translation, translation);
   rotationTransform->Delete();
 
-  matrix->SetElement(0, 3, translation[0]); 
-  matrix->SetElement(1, 3, translation[1]); 
-  matrix->SetElement(2, 3, translation[2]); 
- 
-  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);  
+  matrix->SetElement(0, 3, translation[0]);
+  matrix->SetElement(1, 3, translation[1]);
+  matrix->SetElement(2, 3, translation[2]);
+
+  this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);
 
   matrix->Delete();
 }
@@ -468,14 +468,14 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
 
   // Get the center for the scale
   double center[3];
-  currentImagePlane->GetCenter(center);  
+  currentImagePlane->GetCenter(center);
 
   // Get the previous center
   double oldCenter[3];
   oldCenter[0] = 0.5*(q1[0] + q2[0]);
   oldCenter[1] = 0.5*(q1[1] + q2[1]);
   oldCenter[2] = 0.5*(q1[2] + q2[2]);
-  
+
   // Check whether the center has changed position.  If it has, then
   // the user has grabbed a corner.
   double zScale = 1.0;
@@ -582,7 +582,7 @@ void vtkImageOrthoPlanes::HandlePlaneScale(
   this->SetTransformMatrix(matrix, currentImagePlane, indexOfModifiedPlane);
 
   matrix->Delete();
-}    
+}
 
 //-----------------------------------------------------------------------
 void vtkImageOrthoPlanes::SetTransformMatrix(
@@ -595,7 +595,7 @@ void vtkImageOrthoPlanes::SetTransformMatrix(
   // Set the new transform
   this->Transform->Identity();
   this->Transform->Concatenate(matrix);
-      
+
   // Apply this transform to the three planes
   for (i = 0; i < 3; i++)
     {
@@ -614,12 +614,12 @@ void vtkImageOrthoPlanes::SetTransformMatrix(
       this->Transform->TransformPoint(this->Origin[i], origin);
       this->Transform->TransformPoint(this->Point1[i], point1);
       this->Transform->TransformPoint(this->Point2[i], point2);
-      }      
+      }
 
     for (int j = i; j < this->NumberOfPlanes; j += 3)
       {
       vtkImagePlaneWidget *planeWidget = this->Planes[j];
-    
+
       if (planeWidget != 0 && planeWidget != currentImagePlane)
         {
         planeWidget->SetOrigin(origin);
@@ -670,7 +670,7 @@ void vtkImageOrthoPlanes::SetPlane(
       this->Planes[j]->RemoveObserver(this->ObserverTags[j]);
       this->Planes[j]->Delete();
       }
-     
+
     this->Planes[j] = currentImagePlane;
 
     if (currentImagePlane == 0)
@@ -701,7 +701,7 @@ void vtkImageOrthoPlanes::SetPlane(
       currentImagePlane->SetOrigin(this->Origin[i]);
       currentImagePlane->SetPoint1(this->Point1[i]);
       currentImagePlane->SetPoint2(this->Point2[i]);
-      }    
+      }
 
     currentImagePlane->Register(this);
     }
@@ -720,7 +720,7 @@ vtkImagePlaneWidget* vtkImageOrthoPlanes::GetPlane(int i)
      vtkErrorMacro("requested invalid plane index");
      return 0;
     }
-  else 
+  else
     {
     return this->Planes[i];
     }
@@ -740,7 +740,7 @@ void vtkImageOrthoPlanes::ResetPlanes()
     this->Planes[i]->GetCenter(center);
     intersection[(i+1)%3] = center[(i+1)%3];
     }
-  
+
   for (i = 0; i < 3; i++)
     {
     this->Origin[i][i] = intersection[i];
@@ -796,7 +796,7 @@ void vtkImageOrthoPlanes::GetBounds(double bounds[6])
 void vtkImageOrthoPlanes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Transform: " << this->Transform << "\n";
   this->Transform->PrintSelf(os, indent.GetNextIndent());
 }

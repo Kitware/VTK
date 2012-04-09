@@ -155,7 +155,7 @@ int CellLocator( int argc, char *argv[] )
     destinPnt[1] = sourcePnt[1] - rayLen * normalVec[1];
     destinPnt[2] = sourcePnt[2] - rayLen * normalVec[2];
 
-    if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t, 
+    if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
                                     intersect, paraCoord, sub_id, cell_id, cell) )
     numIntersected ++;
     }
@@ -192,7 +192,7 @@ int CellLocator( int argc, char *argv[] )
     sphereMapper->SetInputConnection(sphere->GetOutputPort());
   vtkActor *sphereActor = vtkActor::New();
     sphereActor->SetMapper(sphereMapper);
-    
+
   vtkSphereSource *spot = vtkSphereSource::New();
     spot->SetPhiResolution(6);
     spot->SetThetaResolution(6);
@@ -201,7 +201,7 @@ int CellLocator( int argc, char *argv[] )
   vtkPolyDataMapper *spotMapper = vtkPolyDataMapper::New();
     spotMapper->SetInputConnection(spot->GetOutputPort());
 
-  // Build a locator 
+  // Build a locator
   vtkCellLocator *cellLocator = vtkCellLocator::New();
   cellLocator->SetDataSet(sphere->GetOutput());
   cellLocator->BuildLocator();
@@ -237,7 +237,7 @@ int CellLocator( int argc, char *argv[] )
     closestPointActor2->SetMapper(spotMapper);
     closestPointActor2->SetPosition(ptline[0],ptline[1],ptline[2]);
     closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
-  
+
   renderer->AddActor(sphereActor);
   renderer->AddActor(intersectLineActor);
   renderer->AddActor(closestPointActor);

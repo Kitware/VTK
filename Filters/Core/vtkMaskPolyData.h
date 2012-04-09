@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkMaskPolyData is a filter that sub-samples the cells of input polygonal
 // data. The user specifies every nth item, with an initial offset to begin
-// sampling. 
+// sampling.
 
 // .SECTION See Also
 // vtkMaskPoints

@@ -40,9 +40,9 @@ ren AddActor sphereActor
 ren ResetCamera
 set camera [ren GetActiveCamera]
 #$camera SetPosition 68.1939 -23.4323 12.6465
-#$camera SetViewUp 0.46563 0.882375 0.0678508  
-#$camera SetFocalPoint 3.65707 11.4552 1.83509 
-#$camera SetClippingRange 59.2626 101.825 
+#$camera SetViewUp 0.46563 0.882375 0.0678508
+#$camera SetFocalPoint 3.65707 11.4552 1.83509
+#$camera SetClippingRange 59.2626 101.825
 
 vtkRenderWindow renWin
 renWin AddRenderer ren

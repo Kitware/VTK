@@ -39,7 +39,7 @@ vtkPolyVertex::~vtkPolyVertex()
 
 //----------------------------------------------------------------------------
 int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
-                                   int& subId, double pcoords[3], 
+                                   int& subId, double pcoords[3],
                                    double& minDist2, double *weights)
 {
   int numPts=this->Points->GetNumberOfPoints();
@@ -81,8 +81,8 @@ int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyVertex::EvaluateLocation(int& subId, 
-                                     double vtkNotUsed(pcoords)[3], 
+void vtkPolyVertex::EvaluateLocation(int& subId,
+                                     double vtkNotUsed(pcoords)[3],
                                      double x[3], double *weights)
 {
   int i;
@@ -112,24 +112,24 @@ int vtkPolyVertex::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyVertex::Contour(double value, vtkDataArray *cellScalars, 
+void vtkPolyVertex::Contour(double value, vtkDataArray *cellScalars,
                             vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-                            vtkCellArray *vtkNotUsed(lines), 
-                            vtkCellArray *vtkNotUsed(polys), 
+                            vtkCellArray *vtkNotUsed(lines),
+                            vtkCellArray *vtkNotUsed(polys),
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
                             vtkCellData *outCd)
 {
   int i, numPts=this->Points->GetNumberOfPoints(), newCellId;
   vtkIdType pts[1];
-  
+
   for (i=0; i < numPts; i++)
     {
     if ( value == cellScalars->GetComponent(i,0) )
       {
       pts[0] = locator->InsertNextPoint(this->Points->GetPoint(i));
       if ( outPd )
-        {   
+        {
         outPd->CopyData(inPd,this->PointIds->GetId(i),pts[0]);
         }
       newCellId = verts->InsertNextCell(1,pts);
@@ -142,8 +142,8 @@ void vtkPolyVertex::Contour(double value, vtkDataArray *cellScalars,
 //
 // Intersect with sub-vertices
 //
-int vtkPolyVertex::IntersectWithLine(double p1[3], double p2[3], 
-                                    double tol, double& t, double x[3], 
+int vtkPolyVertex::IntersectWithLine(double p1[3], double p2[3],
+                                    double tol, double& t, double x[3],
                                     double pcoords[3], int& subId)
 {
   int subTest, numPts=this->Points->GetNumberOfPoints();
@@ -162,7 +162,7 @@ int vtkPolyVertex::IntersectWithLine(double p1[3], double p2[3],
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                vtkPoints *pts)
 {
   int subId;
@@ -178,9 +178,9 @@ int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyVertex::Derivatives(int vtkNotUsed(subId), 
-                                double vtkNotUsed(pcoords)[3], 
-                                double *vtkNotUsed(values), 
+void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
+                                double vtkNotUsed(pcoords)[3],
+                                double *vtkNotUsed(values),
                                 int dim, double *derivs)
 {
   int i, idx;
@@ -195,7 +195,7 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyVertex::Clip(double value, vtkDataArray *cellScalars, 
+void vtkPolyVertex::Clip(double value, vtkDataArray *cellScalars,
                          vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                          vtkPointData *inPd, vtkPointData *outPd,
                          vtkCellData *inCd, vtkIdType cellId,
@@ -204,7 +204,7 @@ void vtkPolyVertex::Clip(double value, vtkDataArray *cellScalars,
   double s, x[3];
   int i, newCellId, numPts=this->Points->GetNumberOfPoints();
   vtkIdType pts[1];
-  
+
   for ( i=0; i < numPts; i++ )
     {
     s = cellScalars->GetComponent(i, 0);
@@ -248,7 +248,7 @@ void vtkPolyVertex::InterpolateDerivs(double pcoords[3], double *derivs)
 void vtkPolyVertex::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Vertex:\n";
   this->Vertex->PrintSelf(os,indent.GetNextIndent());
 }

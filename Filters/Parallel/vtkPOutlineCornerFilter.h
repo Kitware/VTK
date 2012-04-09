@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPOutlineCornerFilter - create wireframe outline corners for arbitrary data set
 // .SECTION Description
-// vtkPOutlineCornerFilter works like vtkOutlineCornerFilter, 
+// vtkPOutlineCornerFilter works like vtkOutlineCornerFilter,
 // but it looks for data
 // partitions in other processes.  It assumes the filter is operated
 // in a data parallel pipeline.

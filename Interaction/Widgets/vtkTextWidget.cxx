@@ -74,5 +74,5 @@ void vtkTextWidget::CreateDefaultRepresentation()
 void vtkTextWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
 }

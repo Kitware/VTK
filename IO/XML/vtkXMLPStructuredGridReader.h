@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkXMLPStructuredGridReader,vtkXMLPStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPStructuredGridReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkStructuredGrid *GetOutput();
@@ -45,11 +45,11 @@ public:
   // Description:
   // Needed for ParaView
   vtkStructuredGrid* GetOutput(int idx);
-  
+
 protected:
   vtkXMLPStructuredGridReader();
   ~vtkXMLPStructuredGridReader();
-  
+
   vtkStructuredGrid* GetPieceInput(int index);
 
   void SetupEmptyOutput();
@@ -59,12 +59,12 @@ protected:
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputData();
   int ReadPieceData();
-  vtkXMLDataReader* CreatePieceReader();  
+  vtkXMLDataReader* CreatePieceReader();
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
   // The PPoints element with point information.
   vtkXMLDataElement* PPointsElement;
-  
+
 private:
   vtkXMLPStructuredGridReader(const vtkXMLPStructuredGridReader&);  // Not implemented.
   void operator=(const vtkXMLPStructuredGridReader&);  // Not implemented.

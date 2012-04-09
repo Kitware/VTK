@@ -19,7 +19,7 @@ vtkContourFilter stemp
 vtkPolyDataMapper mapper
     mapper SetInputConnection [stemp GetOutputPort]
 	mapper ScalarVisibilityOff
-    
+
 vtkActor head
     head SetMapper mapper
     eval [head GetProperty] SetColor 1 0.7 0.6
@@ -39,10 +39,10 @@ ren1 SetBackground 1 1 1
 renWin SetSize 400 400
 eval ren1 SetBackground 0.5 0.5 0.6
 
-[ren1 GetActiveCamera] SetPosition 99.8847 537.926 15 
-[ren1 GetActiveCamera] SetFocalPoint 99.8847 109.81 15 
+[ren1 GetActiveCamera] SetPosition 99.8847 537.926 15
+[ren1 GetActiveCamera] SetFocalPoint 99.8847 109.81 15
 [ren1 GetActiveCamera] SetViewAngle 20
-[ren1 GetActiveCamera] SetViewUp 0 0 -1 
+[ren1 GetActiveCamera] SetViewUp 0 0 -1
 
 ren1 ResetCameraClippingRange
 

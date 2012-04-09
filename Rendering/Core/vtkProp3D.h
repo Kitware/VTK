@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProp3D - represents an 3D object for placement in a rendered scene 
+// .NAME vtkProp3D - represents an 3D object for placement in a rendered scene
 // .SECTION Description
 // vtkProp3D is an abstract class used to represent an entity in a rendering
 // scene (i.e., vtkProp3D is a vtkProp with an associated transformation
@@ -21,7 +21,7 @@
 // matrix as follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale)
 // Rot(y) Rot(x) Rot (z) Trans(origin) Trans(position). Both vtkActor and
 // vtkVolume are specializations of class vtkProp.  The constructor defaults
-// to: origin(0,0,0) position=(0,0,0) orientation=(0,0,0), no user defined 
+// to: origin(0,0,0) position=(0,0,0) orientation=(0,0,0), no user defined
 // matrix or transform, and no texture map.
 
 // .SECTION See Also
@@ -49,53 +49,53 @@ public:
 
   // Description:
   // Set/Get/Add the position of the Prop3D in world coordinates.
-  virtual void SetPosition(double _arg1, double _arg2, double _arg3) 
-    { 
-      vtkDebugMacro(<< this->GetClassName() << " (" << this << 
-      "): setting Position to (" << _arg1 << "," << _arg2 << "," << 
-      _arg3 << ")"); 
+  virtual void SetPosition(double _arg1, double _arg2, double _arg3)
+    {
+      vtkDebugMacro(<< this->GetClassName() << " (" << this <<
+      "): setting Position to (" << _arg1 << "," << _arg2 << "," <<
+      _arg3 << ")");
       if ((this->Position[0] != _arg1)||
           (this->Position[1] != _arg2)||
-          (this->Position[2] != _arg3)) 
-        { 
-        this->Position[0] = _arg1; 
-        this->Position[1] = _arg2; 
-        this->Position[2] = _arg3; 
-        this->Modified(); 
+          (this->Position[2] != _arg3))
+        {
+        this->Position[0] = _arg1;
+        this->Position[1] = _arg2;
+        this->Position[2] = _arg3;
+        this->Modified();
         this->IsIdentity = 0;
-        } 
-    }; 
-  virtual void SetPosition (double _arg[3]) 
-    { 
+        }
+    };
+  virtual void SetPosition (double _arg[3])
+    {
       this->SetPosition (_arg[0], _arg[1], _arg[2]);
-    } 
+    }
   vtkGetVectorMacro(Position,double,3);
   void AddPosition(double deltaPosition[3]);
   void AddPosition(double deltaX,double deltaY,double deltaZ);
 
   // Description:
-  // Set/Get the origin of the Prop3D. This is the point about which all 
+  // Set/Get the origin of the Prop3D. This is the point about which all
   // rotations take place.
-  virtual void SetOrigin(double _arg1, double _arg2, double _arg3) 
-    { 
-      vtkDebugMacro(<< this->GetClassName() << " (" << this << 
-      "): setting Origin to (" << _arg1 << "," << _arg2 << "," << 
-      _arg3 << ")"); 
+  virtual void SetOrigin(double _arg1, double _arg2, double _arg3)
+    {
+      vtkDebugMacro(<< this->GetClassName() << " (" << this <<
+      "): setting Origin to (" << _arg1 << "," << _arg2 << "," <<
+      _arg3 << ")");
       if ((this->Origin[0] != _arg1)||
           (this->Origin[1] != _arg2)||
-          (this->Origin[2] != _arg3)) 
-        { 
-        this->Origin[0] = _arg1; 
-        this->Origin[1] = _arg2; 
-        this->Origin[2] = _arg3; 
-        this->Modified(); 
+          (this->Origin[2] != _arg3))
+        {
+        this->Origin[0] = _arg1;
+        this->Origin[1] = _arg2;
+        this->Origin[2] = _arg3;
+        this->Modified();
         this->IsIdentity = 0;
-        } 
-    }; 
-  virtual void SetOrigin(double _arg[3]) 
-    { 
+        }
+    };
+  virtual void SetOrigin(double _arg[3])
+    {
       this->SetOrigin (_arg[0], _arg[1], _arg[2]);
-    } 
+    }
   vtkGetVectorMacro(Origin,double,3);
 
   // Description:
@@ -160,7 +160,7 @@ public:
   // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   void GetBounds(double bounds[6]);
   virtual double *GetBounds() = 0;
-  
+
   // Description:
   // Get the center of the bounding box in world coordinates.
   double *GetCenter();
@@ -226,14 +226,14 @@ public:
 
   // Description:
   // Returns the orientation of the Prop3D as s vector of X,Y and Z rotation.
-  // The ordering in which these rotations must be done to generate the 
-  // same matrix is RotateZ, RotateX, and finally RotateY. See also 
+  // The ordering in which these rotations must be done to generate the
+  // same matrix is RotateZ, RotateX, and finally RotateY. See also
   // SetOrientation.
   double *GetOrientation();
   void GetOrientation(double o[3]);
 
   // Description:
-  // Returns the WXYZ orientation of the Prop3D. 
+  // Returns the WXYZ orientation of the Prop3D.
   double *GetOrientationWXYZ();
 
   // Description:
@@ -267,29 +267,29 @@ public:
   void InitPathTraversal();
 
   // Description:
-  // Get the vtkProp3D's mtime 
+  // Get the vtkProp3D's mtime
   unsigned long int GetMTime();
 
   // Description:
   // Get the modified time of the user matrix or user transform.
   unsigned long int GetUserTransformMatrixMTime();
- 
+
   // Description:
   // Generate the matrix based on ivars
   virtual void ComputeMatrix();
 
   // Description:
   // Get a pointer to an internal vtkMatrix4x4. that represents
-  vtkMatrix4x4 *GetMatrix() 
-    { 
+  vtkMatrix4x4 *GetMatrix()
+    {
       this->ComputeMatrix();
-      return this->Matrix; 
+      return this->Matrix;
     }
 
-  // Description: 
+  // Description:
   // Is the matrix for this actor identity
   vtkGetMacro(IsIdentity,int);
-  
+
 protected:
   vtkProp3D();
   ~vtkProp3D();

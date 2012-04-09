@@ -15,7 +15,7 @@
 // .NAME vtkOverrideInformationCollection - maintain a list of override information objects
 // .SECTION Description
 // vtkOverrideInformationCollection is an object that creates and manipulates
-// lists of objects of type vtkOverrideInformation. 
+// lists of objects of type vtkOverrideInformation.
 // .SECTION See Also
 // vtkCollection
 
@@ -40,11 +40,11 @@ public:
   // Description:
   // Get the next OverrideInformation in the list.
   vtkOverrideInformation *GetNextItem();
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkOverrideInformation *GetNextOverrideInformation(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkOverrideInformation *>(
@@ -54,7 +54,7 @@ public:
 protected:
   vtkOverrideInformationCollection() {};
   ~vtkOverrideInformationCollection() {};
-  
+
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -65,13 +65,13 @@ private:
   void operator=(const vtkOverrideInformationCollection&);  // Not implemented.
 };
 
-inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f) 
+inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f)
 {
   this->vtkCollection::AddItem(f);
 }
 
-inline vtkOverrideInformation *vtkOverrideInformationCollection::GetNextItem() 
-{ 
+inline vtkOverrideInformation *vtkOverrideInformationCollection::GetNextItem()
+{
   return static_cast<vtkOverrideInformation *>(this->GetNextItemAsObject());
 }
 

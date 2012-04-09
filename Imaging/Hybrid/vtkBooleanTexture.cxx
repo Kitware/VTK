@@ -50,7 +50,7 @@ int vtkBooleanTexture::RequestInformation (
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  
+
   int wExt[6];
   wExt[0] = 0;
   wExt[1] = this->XSize - 1;
@@ -58,7 +58,7 @@ int vtkBooleanTexture::RequestInformation (
   wExt[3] = this->YSize - 1;
   wExt[4] = 0;
   wExt[5] = 0;
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt,6);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 2);
   return 1;
@@ -71,9 +71,9 @@ void vtkBooleanTexture::ExecuteDataWithInformation(vtkDataObject *outp,
   int midILower, midJLower, midIUpper, midJUpper;
   vtkImageData *output = this->AllocateOutputData(
     outp, outInfo);
-  vtkUnsignedCharArray *newScalars = 
+  vtkUnsignedCharArray *newScalars =
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
-  
+
   if (!newScalars || this->XSize*this->YSize < 1 )
     {
     vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");
@@ -95,17 +95,17 @@ void vtkBooleanTexture::ExecuteDataWithInformation(vtkDataObject *outp,
 // Create texture map
 //
   int count = 0;
-  for (j = 0; j < this->YSize; j++) 
+  for (j = 0; j < this->YSize; j++)
     {
-    for (i = 0; i < this->XSize; i++) 
+    for (i = 0; i < this->XSize; i++)
       {
-      if (i < midILower && j < midJLower) 
+      if (i < midILower && j < midJLower)
         {
         newScalars->SetValue(count,this->InIn[0]);
         count++;
         newScalars->SetValue(count,this->InIn[1]);
         }
-      else if (i > midIUpper && j < midJLower) 
+      else if (i > midIUpper && j < midJLower)
         {
         newScalars->SetValue(count,this->OutIn[0]);
         count++;

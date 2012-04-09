@@ -39,12 +39,12 @@ public:
   // Cell array that contains the material values.
   vtkSetStringMacro(MaterialArrayName);
   vtkGetStringMacro(MaterialArrayName);
-  
+
   // Description:
   // Material to probe.
   vtkSetMacro(Material, int);
   vtkGetMacro(Material, int);
-  
+
   // Description:
   // For now, we just use the cell values.
   // The array name to cut.
@@ -55,14 +55,14 @@ public:
   // The last piece of information that specifies the plane.
   vtkSetVector3Macro(UpVector, double);
   vtkGetVector3Macro(UpVector, double);
-  
+
   // Description:
   // Accesses to the values computed during the execute method.  They
   // could be used to get a good camera view for the resulting plane.
   vtkGetVector3Macro(MaximumPoint, double);
   vtkGetVector3Macro(CenterPoint, double);
   vtkGetVector3Macro(Normal, double);
-  
+
 protected:
   vtkCutMaterial();
   ~vtkCutMaterial();
@@ -79,9 +79,9 @@ protected:
   double MaximumPoint[3];
   double CenterPoint[3];
   double Normal[3];
-  
+
   vtkPlane *PlaneFunction;
-  
+
 private:
   vtkCutMaterial(const vtkCutMaterial&);  // Not implemented.
   void operator=(const vtkCutMaterial&);  // Not implemented.

@@ -15,10 +15,10 @@
 // .NAME vtkAppendFilter - appends one or more datasets together into a single unstructured grid
 // .SECTION Description
 // vtkAppendFilter is a filter that appends one of more datasets into a single
-// unstructured grid. All geometry is extracted and appended, but point 
-// attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted 
-// and appended only if all datasets have the point attributes available. 
-// (For example, if one dataset has scalars but another does not, scalars will 
+// unstructured grid. All geometry is extracted and appended, but point
+// attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted
+// and appended only if all datasets have the point attributes available.
+// (For example, if one dataset has scalars but another does not, scalars will
 // not be appended.)
 
 // .SECTION See Also
@@ -44,7 +44,7 @@ public:
   // Description:
   // Get any input of this filter.
   vtkDataSet *GetInput(int idx);
-  vtkDataSet *GetInput() 
+  vtkDataSet *GetInput()
     {return this->GetInput( 0 );}
 //ETX
 
@@ -79,7 +79,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  
+
   // Description:
   // This function appends multiple blocks / pieces into a vtkUnstructuredGrid
   // data by using a point locator to merge duplicate points (when ghost cell
@@ -87,7 +87,7 @@ protected:
   // This function should be called by RequestData() only.
   int     AppendBlocksWithPointLocator( vtkInformationVector ** inputVector,
                                         vtkInformationVector  * outputVector );
-  
+
 
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.

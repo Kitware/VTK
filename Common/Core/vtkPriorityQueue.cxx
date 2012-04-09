@@ -64,7 +64,7 @@ void vtkPriorityQueue::Insert(double priority, vtkIdType id)
   vtkPriorityQueue::Item temp;
 
   // check and make sure item hasn't been inserted before
-  if ( id <= this->ItemLocation->GetMaxId() && 
+  if ( id <= this->ItemLocation->GetMaxId() &&
        this->ItemLocation->GetValue(id) != -1 )
     {
     return;
@@ -80,8 +80,8 @@ void vtkPriorityQueue::Insert(double priority, vtkIdType id)
   if ( id >= this->ItemLocation->GetSize() ) //might have to resize and initialize
     {
     vtkIdType oldSize = this->ItemLocation->GetSize();
-    this->ItemLocation->InsertValue(id,this->MaxId); 
-    for (i=oldSize; i < this->ItemLocation->GetSize(); i++) 
+    this->ItemLocation->InsertValue(id,this->MaxId);
+    for (i=oldSize; i < this->ItemLocation->GetSize(); i++)
       {
       this->ItemLocation->SetValue(i, -1);
       }
@@ -91,8 +91,8 @@ void vtkPriorityQueue::Insert(double priority, vtkIdType id)
   this->ItemLocation->InsertValue(id,this->MaxId);
 
   // now begin percolating towards top of tree
-  for ( i=this->MaxId; 
-  i > 0 && this->Array[i].priority < this->Array[(idx=(i-1)/2)].priority; 
+  for ( i=this->MaxId;
+  i > 0 && this->Array[i].priority < this->Array[(idx=(i-1)/2)].priority;
   i=idx)
     {
     temp = this->Array[i];
@@ -123,7 +123,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
     {
     return -1;
     }
- 
+
   id = this->Array[location].id;
   priority = this->Array[location].priority;
 
@@ -145,7 +145,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
     {
     idx = 2*i + 1;
 
-    if ( this->Array[idx].priority < this->Array[idx+1].priority || 
+    if ( this->Array[idx].priority < this->Array[idx+1].priority ||
          idx == this->MaxId )
       {
       j = idx;
@@ -170,7 +170,7 @@ vtkIdType vtkPriorityQueue::Pop(vtkIdType location, double &priority)
       break;
       }
     }
- 
+
   // percolate up the tree from the specified location
   for ( idx=0, i=location; i > 0; i=idx )
     {
@@ -234,7 +234,7 @@ vtkPriorityQueue::Item *vtkPriorityQueue::Resize(const vtkIdType sz)
 void vtkPriorityQueue::Reset()
 {
   this->MaxId = -1;
- 
+
   for (int i=0; i <= this->ItemLocation->GetMaxId(); i++)
     {
     this->ItemLocation->SetValue(i,-1);

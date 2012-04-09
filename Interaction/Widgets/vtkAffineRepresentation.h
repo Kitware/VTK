@@ -27,7 +27,7 @@
 // The separation of the widget event handling and representation enables
 // users and developers to create new appearances for the widget. It also
 // facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the 
+// events, and remote representations of the widget are slaves to the
 // client (and do not handle events).
 
 // .SECTION See Also
@@ -67,16 +67,16 @@ public:
 //BTX
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
-  // widget. 
+  // widget.
   enum _InteractionState
   {
-    Outside=0, Rotate, Translate, TranslateX, TranslateY, ScaleWEdge, ScaleEEdge, 
+    Outside=0, Rotate, Translate, TranslateX, TranslateY, ScaleWEdge, ScaleEEdge,
     ScaleNEdge, ScaleSEdge, ScaleNE, ScaleSW, ScaleNW, ScaleSE,
-    ShearEEdge, ShearWEdge, ShearNEdge, ShearSEdge, 
+    ShearEEdge, ShearWEdge, ShearNEdge, ShearSEdge,
     MoveOriginX, MoveOriginY, MoveOrigin
   };
 //ETX
-  
+
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.
   virtual void ShallowCopy(vtkProp *prop);
@@ -87,7 +87,7 @@ protected:
 
   // The tolerance for selecting different parts of the widget.
   int Tolerance;
-  
+
   // The internal transformation matrix
   vtkTransform *Transform;
 

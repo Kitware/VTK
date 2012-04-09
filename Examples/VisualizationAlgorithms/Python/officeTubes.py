@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# This example demonstrates the use of streamlines generated from seeds, 
+# This example demonstrates the use of streamlines generated from seeds,
 # combined with a tube filter to create several streamtubes.
 
 import vtk

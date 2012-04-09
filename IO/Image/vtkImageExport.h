@@ -38,16 +38,16 @@ public:
   static vtkImageExport *New();
   vtkTypeMacro(vtkImageExport,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the number of bytes required for the output C array.
   vtkIdType GetDataMemorySize();
 
   // Description:
   // Get the (x,y,z) index dimensions of the data.  Please note
-  // that C arrays are indexed in decreasing order, i.e. array[z][y][x]. 
+  // that C arrays are indexed in decreasing order, i.e. array[z][y][x].
   void GetDataDimensions(int *ptr);
-  int *GetDataDimensions() { 
+  int *GetDataDimensions() {
     this->GetDataDimensions(this->DataDimensions);
     return this->DataDimensions; }
 
@@ -61,10 +61,10 @@ public:
   // Get the scalar type of the data.  The scalar type of the C array
   // must match the scalar type of the data.
   int GetDataScalarType();
-  const char *GetDataScalarTypeAsString() { 
+  const char *GetDataScalarTypeAsString() {
     return vtkImageScalarTypeNameMacro(this->GetDataScalarType()); }
 
-  // Description: 
+  // Description:
   // Get miscellaneous additional information about the data.
   int *GetDataExtent();
   void GetDataExtent(int *ptr);
@@ -80,7 +80,7 @@ public:
 //ETX
 
   // Description:
-  // Set/Get whether the data goes to the exported memory starting 
+  // Set/Get whether the data goes to the exported memory starting
   // in the lower left corner or upper left corner.  Default: On.
   // When this flag is Off, the image will be flipped vertically
   // before it is exported.
@@ -115,7 +115,7 @@ public:
   // Description:
   // Get the user data that should be passed to the callback functions.
   void* GetCallbackUserData();
-  
+
   //BTX
   // Description:
   // These are function pointer types for the pipeline connection
@@ -125,13 +125,13 @@ public:
   typedef int* (*WholeExtentCallbackType)(void*);
   typedef double* (*SpacingCallbackType)(void*);
   typedef double* (*OriginCallbackType)(void*);
-  typedef const char* (*ScalarTypeCallbackType)(void*); 
+  typedef const char* (*ScalarTypeCallbackType)(void*);
   typedef int (*NumberOfComponentsCallbackType)(void*);
   typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
   typedef void (*UpdateDataCallbackType)(void*);
   typedef int* (*DataExtentCallbackType)(void*);
   typedef void* (*BufferPointerCallbackType)(void*);
-  
+
   // Description:
   // Get pointers to the pipeline interface callbacks.
   UpdateInformationCallbackType     GetUpdateInformationCallback() const;
@@ -150,7 +150,7 @@ public:
 protected:
   vtkImageExport();
   ~vtkImageExport();
-  
+
   // This is called by the superclass.
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
@@ -158,7 +158,7 @@ protected:
 
   virtual void UpdateInformationCallback();
   virtual int PipelineModifiedCallback();
-  virtual void UpdateDataCallback();  
+  virtual void UpdateDataCallback();
   virtual int* WholeExtentCallback();
   virtual double* SpacingCallback();
   virtual double* OriginCallback();
@@ -174,7 +174,7 @@ protected:
 
   unsigned long LastPipelineMTime;
 
-private:  
+private:
   vtkImageExport(const vtkImageExport&);  // Not implemented.
   void operator=(const vtkImageExport&);  // Not implemented.
 
@@ -183,7 +183,7 @@ private:
   static int* WholeExtentCallbackFunction(void*);
   static double* SpacingCallbackFunction(void*);
   static double* OriginCallbackFunction(void*);
-  static const char* ScalarTypeCallbackFunction(void*); 
+  static const char* ScalarTypeCallbackFunction(void*);
   static int NumberOfComponentsCallbackFunction(void*);
   static void PropagateUpdateExtentCallbackFunction(void*, int*);
   static void UpdateDataCallbackFunction(void*);

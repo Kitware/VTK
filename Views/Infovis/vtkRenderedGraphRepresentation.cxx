@@ -83,7 +83,7 @@
 #include <ctype.h> // So borland 5.6 can find tolower
 #include <vtksys/ios/sstream>
 
-/* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio 
+/* Fix for BORLAND 5.6 bug where it wrongly chooses remove(const char *) in stdio
    instead of the remove stl algorithm. */
 #if defined (__BORLANDC__) && (__BORLANDC__ == 0x0560)
 # define remove borland_remove
@@ -149,7 +149,7 @@ vtkRenderedGraphRepresentation::vtkRenderedGraphRepresentation()
      ApplyColors -> GraphToPoly -> EdgeMapper -> EdgeActor
      ApplyColors -> ApplyVertexIcons
      Coincident -> OutlineGlyph -> OutlineMapper -> OutlineActor
-     
+
      VertexDegree -> GraphToPoints
      GraphToPoints -> VertexLabelHierarchy -> "vtkRenderView Labels"
      GraphToPoints -> VertexIcons -> VertexIconPriority -> "vtkRenderView Icons"
@@ -440,7 +440,7 @@ void vtkRenderedGraphRepresentation::AddVertexIconType(const char* name, int typ
 {
   this->ApplyVertexIcons->SetIconType(name, type);
   this->ApplyVertexIcons->UseLookupTableOn();
-}  
+}
 
 void vtkRenderedGraphRepresentation::AddEdgeIconType(const char*, int)
 {
@@ -1383,8 +1383,8 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
       vertexList->InsertNextValue(data->GetTargetVertex(eid));
       }
     }
-  
-  // If there is no selection list, return 
+
+  // If there is no selection list, return
   if (vertexList->GetNumberOfTuples() == 0)
     {
     return;
@@ -1406,19 +1406,19 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
 
     if (position[0] < bounds[0])
       {
-      bounds[0] = position[0]; 
+      bounds[0] = position[0];
       }
     if (position[0] > bounds[1])
       {
-      bounds[1] = position[0]; 
+      bounds[1] = position[0];
       }
     if (position[1] < bounds[2])
       {
-      bounds[2] = position[1]; 
+      bounds[2] = position[1];
       }
     if (position[1] > bounds[3])
       {
-      bounds[3] = position[1]; 
+      bounds[3] = position[1];
       }
     }
 }

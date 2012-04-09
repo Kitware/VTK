@@ -20,7 +20,7 @@
 // .NAME vtkPKMeansStatisitcs - A class for parallel k means clustering
 // .SECTION Description
 // vtkPKMeansStatistics is vtkKMeansStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each 
+// It learns and derives the global statistical model on each node, but assesses each
 // individual data points on the node that owns it.
 
 // .SECTION Thanks
@@ -66,7 +66,7 @@ public:
   // Description:
   // Subroutine to initialize cluster centerss if not provided by the user.
   virtual void CreateInitialClusterCenters(vtkIdType numToAllocate,
-                                           vtkIdTypeArray* numberOfClusters,     
+                                           vtkIdTypeArray* numberOfClusters,
                                            vtkTable* inData,
                                            vtkTable* curClusterElements,
                                            vtkTable* newClusterElements);

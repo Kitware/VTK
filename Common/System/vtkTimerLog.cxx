@@ -167,12 +167,12 @@ void vtkTimerLog::MarkEvent(const char *event)
       {
       vtkTimerLog::AllocateLog();
       }
-    
+
 #ifdef _WIN32
 #ifdef _WIN32_WCE
     SYSTEMTIME st;
     GetLocalTime(&st);
-    SystemTimeToFileTime(&st, &(vtkTimerLog::FirstWallTime)); 
+    SystemTimeToFileTime(&st, &(vtkTimerLog::FirstWallTime));
 #else
     ::ftime( &(vtkTimerLog::FirstWallTime) );
 #endif
@@ -180,7 +180,7 @@ void vtkTimerLog::MarkEvent(const char *event)
     gettimeofday( &(vtkTimerLog::FirstWallTime), NULL );
     times(&FirstCpuTicks);
 #endif
-    
+
     vtkTimerLog::TimerLog[0].Indent = vtkTimerLog::Indent;
     vtkTimerLog::TimerLog[0].WallTime = 0.0;
     vtkTimerLog::TimerLog[0].CpuTicks = 0;
@@ -189,23 +189,23 @@ void vtkTimerLog::MarkEvent(const char *event)
     vtkTimerLog::NextEntry = 1;
     return;
     }
-  
+
 #ifdef _WIN32
 #ifdef _WIN32_WCE
     SYSTEMTIME st;
     GetLocalTime(&st);
-    SystemTimeToFileTime(&st, &(vtkTimerLog::CurrentWallTime)); 
-    time_diff = (vtkTimerLog::CurrentWallTime.dwHighDateTime - 
+    SystemTimeToFileTime(&st, &(vtkTimerLog::CurrentWallTime));
+    time_diff = (vtkTimerLog::CurrentWallTime.dwHighDateTime -
       vtkTimerLog::FirstWallTime.dwHighDateTime);
     time_diff = time_diff * 429.4967296;
-    time_diff = time_diff + ((vtkTimerLog::CurrentWallTime.dwLowDateTime - 
+    time_diff = time_diff + ((vtkTimerLog::CurrentWallTime.dwLowDateTime -
       vtkTimerLog::FirstWallTime.dwLowDateTime) / 10000000.0);
 #else
   static double scale = 1.0/1000.0;
   ::ftime( &(vtkTimerLog::CurrentWallTime) );
-  time_diff = 
+  time_diff =
     vtkTimerLog::CurrentWallTime.time - vtkTimerLog::FirstWallTime.time;
-  time_diff += 
+  time_diff +=
     (vtkTimerLog::CurrentWallTime.millitm
      - vtkTimerLog::FirstWallTime.millitm) * scale;
 #endif
@@ -215,7 +215,7 @@ void vtkTimerLog::MarkEvent(const char *event)
   gettimeofday( &(vtkTimerLog::CurrentWallTime), NULL );
   time_diff  =  vtkTimerLog::CurrentWallTime.tv_sec
     - vtkTimerLog::FirstWallTime.tv_sec;
-  time_diff += 
+  time_diff +=
     (vtkTimerLog::CurrentWallTime.tv_usec
      - vtkTimerLog::FirstWallTime.tv_usec) * scale;
 
@@ -279,7 +279,7 @@ int vtkTimerLog::GetNumberOfEvents()
    else
     {
     return vtkTimerLog::NextEntry;
-    } 
+    }
 }
 
 
@@ -309,7 +309,7 @@ int vtkTimerLog::GetEventIndent(int idx)
 {
   vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
 
-  if (tmp) 
+  if (tmp)
     {
     return tmp->Indent;
     }
@@ -324,7 +324,7 @@ double vtkTimerLog::GetEventWallTime(int idx)
 {
   vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
 
-  if (tmp) 
+  if (tmp)
     {
     return tmp->WallTime;
     }
@@ -339,7 +339,7 @@ const char* vtkTimerLog::GetEventString(int idx)
 {
   vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
 
-  if (tmp) 
+  if (tmp)
     {
     return tmp->Event;
     }
@@ -361,7 +361,7 @@ void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
   int indent1;
   int nextIndent;
   double dtime;
-  
+
   num = vtkTimerLog::GetNumberOfEvents();
 
   for (i1=0; i1 < num; i1++)
@@ -402,7 +402,7 @@ void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
         *os << vtkTimerLog::GetEventString(i1);
         if (i2 > i1)
           { // Start event.
-          *os << ",  " << dtime << " seconds\n"; 
+          *os << ",  " << dtime << " seconds\n";
           }
         else
           { // Singlton event.
@@ -411,7 +411,7 @@ void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
         }
       }
     }
-  
+
 #endif
 }
 
@@ -423,7 +423,7 @@ void vtkTimerLog::DumpLog(const char *filename)
 #ifndef _WIN32_WCE
   ofstream os_with_warning_C4701(filename);
   int i;
-    
+
   if ( vtkTimerLog::WrapFlag )
     {
     vtkTimerLog::DumpEntry(os_with_warning_C4701, 0,
@@ -477,7 +477,7 @@ void vtkTimerLog::DumpLog(const char *filename)
                       vtkTimerLog::TimerLog[i].Event);
       }
     }
-  
+
   os_with_warning_C4701.close();
 #endif
 }
@@ -504,17 +504,17 @@ void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
     {
     for (i=vtkTimerLog::NextEntry; i<vtkTimerLog::MaxEntries; i++)
       {
-      os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" << 
+      os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" <<
         TimerLog[i].CpuTicks << "\t\t" << TimerLog[i].Event << "\n";
       }
     }
-  
+
   for (i=0; i<vtkTimerLog::NextEntry; i++)
     {
-    os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" << 
+    os << indent << i << "\t\t" << TimerLog[i].WallTime << "\t\t" <<
       TimerLog[i].CpuTicks << "\t\t" << TimerLog[i].Event << "\n";
     }
-  
+
   os << "\n" << indent << "StartTime: " << this->StartTime << "\n";
   os << indent << "WrapFlag: " << vtkTimerLog::WrapFlag << "\n";
 }
@@ -535,10 +535,10 @@ double vtkTimerLog::GetUniversalTime()
   FILETIME CurrentTime;
   SYSTEMTIME st;
   GetLocalTime(&st);
-  SystemTimeToFileTime(&st, &CurrentTime); 
+  SystemTimeToFileTime(&st, &CurrentTime);
   currentTimeInSeconds = CurrentTime.dwHighDateTime;
   currentTimeInSeconds *= 429.4967296;
-  currentTimeInSeconds = currentTimeInSeconds + 
+  currentTimeInSeconds = currentTimeInSeconds +
         CurrentTime.dwLowDateTime / 10000000.0;
 #else
   timeb CurrentTime;
@@ -581,7 +581,7 @@ void vtkTimerLog::StopTimer()
 }
 
 //----------------------------------------------------------------------------
-// Returns the difference between StartTime and EndTime as 
+// Returns the difference between StartTime and EndTime as
 // a floating point value indicating the elapsed time in seconds.
 double vtkTimerLog::GetElapsedTime()
 {
@@ -589,7 +589,7 @@ double vtkTimerLog::GetElapsedTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkTimerLog::DumpEntry(ostream& os, int index, double ttime, 
+void vtkTimerLog::DumpEntry(ostream& os, int index, double ttime,
                             double deltatime,
                             int tick, int deltatick, const char *event)
 {
@@ -649,7 +649,7 @@ void vtkTimerLog::SetMaxEntries(int a)
   vtkTimerLog::WrapFlag = 0;
   vtkTimerLog::NextEntry = num;
 }
-  
+
 
 //----------------------------------------------------------------------------
 int vtkTimerLog::GetMaxEntries()

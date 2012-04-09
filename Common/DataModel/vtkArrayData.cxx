@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayData.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -87,9 +87,9 @@ void vtkArrayData::AddArray(vtkArray* array)
     }
 
   // See http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
-  // Language Feature: Partial Specializations 
+  // Language Feature: Partial Specializations
   // Workaround
-  
+
   int n=0;
 #ifdef _RWSTD_NO_CLASS_PARTIAL_SPEC
   std::count(this->Implementation->Arrays.begin(),
@@ -98,7 +98,7 @@ void vtkArrayData::AddArray(vtkArray* array)
   n=std::count(this->Implementation->Arrays.begin(),
                   this->Implementation->Arrays.end(),array);
 #endif
-  
+
   if(n!=0)
     {
     vtkErrorMacro(<< "Cannot add array twice.");
@@ -136,7 +136,7 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
     vtkErrorMacro(<< "Array index out-of-range.");
     return 0;
     }
-    
+
   return this->Implementation->Arrays[static_cast<size_t>(index)];
 }
 
@@ -147,7 +147,7 @@ vtkArray* vtkArrayData::GetArrayByName(const char *name)
     vtkErrorMacro(<< "No name passed into routine.");
     return 0;
     }
-    
+
   vtkArray *temp = 0;
   for (vtkIdType ctr=0; ctr<this->GetNumberOfArrays(); ctr++)
     {

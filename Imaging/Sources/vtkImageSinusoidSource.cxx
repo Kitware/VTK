@@ -30,7 +30,7 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
   this->Direction[0] = 1.0;
   this->Direction[1] = 0.0;
   this->Direction[2] = 0.0;
-  
+
   this->Amplitude = 255.0;
   this->Phase = 0.0;
   this->Period = 20.0;
@@ -38,7 +38,7 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
   this->WholeExtent[0] = 0;  this->WholeExtent[1] = 255;
   this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
-  
+
   this->SetNumberOfInputPorts(0);
 }
 
@@ -58,33 +58,33 @@ void vtkImageSinusoidSource::SetDirection(double v0, double v1, double v2)
     vtkErrorMacro("Zero direction vector");
     return;
     }
-  
+
   // normalize
   sum = 1.0 / sqrt(sum);
   v0 *= sum;
   v1 *= sum;
   v2 *= sum;
-  
-  if (this->Direction[0] == v0 && this->Direction[1] == v1 
+
+  if (this->Direction[0] == v0 && this->Direction[1] == v1
       && this->Direction[2] == v2)
     {
     return;
     }
-  
+
   this->Direction[0] = v0;
   this->Direction[1] = v1;
   this->Direction[2] = v2;
-  
+
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSinusoidSource::SetWholeExtent(int xMin, int xMax, 
+void vtkImageSinusoidSource::SetWholeExtent(int xMin, int xMax,
                                             int yMin, int yMax,
                                             int zMin, int zMax)
 {
   int modified = 0;
-  
+
   if (this->WholeExtent[0] != xMin)
     {
     modified = 1;
@@ -152,20 +152,20 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
   double yContrib, zContrib, xContrib;
   unsigned long count = 0;
   unsigned long target;
-  
+
   if (data->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro("Execute: This source only outputs doubles");
     }
-  
+
   outExt = data->GetExtent();
-  
+
   // find the region to loop over
   maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   outPtr = static_cast<double *>(
     data->GetScalarPointer(outExt[0],outExt[2],outExt[4]));
@@ -190,8 +190,8 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
         xContrib = this->Direction[0] * static_cast<double>(idxX + outExt[0]);
         // find dot product
         sum = zContrib + yContrib + xContrib;
-        
-        *outPtr = this->Amplitude * 
+
+        *outPtr = this->Amplitude *
           cos((6.2831853 * sum / this->Period) - this->Phase);
         outPtr++;
         }

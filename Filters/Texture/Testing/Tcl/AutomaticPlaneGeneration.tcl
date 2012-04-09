@@ -18,7 +18,7 @@ vtkPlaneSource aPlane
 
 vtkPNMReader imageIn
   imageIn SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
-  
+
 vtkTexture texture
   texture SetInputConnection [imageIn GetOutputPort]
 

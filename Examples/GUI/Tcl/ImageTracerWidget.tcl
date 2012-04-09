@@ -6,18 +6,18 @@ package require vtkinteraction
 # The button actions and key modifiers are as follows for controlling the
 # widget:
 # 1) left button click over the image, hold and drag draws a free hand line.
-# 2) left button click and release erases the widget line, if it exists, and 
+# 2) left button click and release erases the widget line, if it exists, and
 # repositions the handle.
 # 3) middle button click starts a snap line.  The snap line can be
 # terminated by clicking the middle button while depressing the ctrl key.
 # 4) when tracing or snap drawing a line, if the last cursor position is
-# within specified tolerance to the first handle, the widget line will form 
+# within specified tolerance to the first handle, the widget line will form
 # a closed loop with only one handle.
 # 5) right button clicking and holding on any handle that is part of a snap
 # line allows handle dragging.  Any existing line segments are updated
 # accordingly.
 # 6) ctrl key + right button down on any handle will erase it. Any existing
-# snap line segments are updated accordingly.  If the line was formed by 
+# snap line segments are updated accordingly.  If the line was formed by
 # continous tracing, the line is deleted leaving one handle.
 # 7) shift key + right button down on any snap line segment will insert a
 # handle at the cursor position.  The snap line segment is split accordingly.
@@ -49,8 +49,8 @@ vtkImageShiftScale shifter
   shifter ReleaseDataFlagOff
   shifter Update
 
-# Display a y-z plane. 
-# 
+# Display a y-z plane.
+#
 vtkImageActor imageActor
   [imageActor GetMapper] SetInputConnection [shifter GetOutputPort]
   imageActor VisibilityOn
@@ -78,7 +78,7 @@ vtkRenderWindow renWin
   renWin AddRenderer ren2
   renWin SetSize 600 300
 
-ren1 SetViewport 0 0 0.5 1 
+ren1 SetViewport 0 0 0.5 1
 ren2 SetViewport 0.5 0 1 1
 
 vtkInteractorStyleImage interactor
@@ -89,12 +89,12 @@ vtkRenderWindowInteractor iren
 
 vtkExtractVOI extract
   extract SetVOI 31 31 0 63 0 92
-  extract SetSampleRate 1 1 1 
+  extract SetSampleRate 1 1 1
   extract SetInputConnection [shifter GetOutputPort]
   extract ReleaseDataFlagOff
   extract Update
 
-vtkImageActor imageActor2  
+vtkImageActor imageActor2
   [imageActor2 GetMapper] SetInputConnection [extract GetOutputPort]
   imageActor2 VisibilityOn
   imageActor2 SetDisplayExtent  31 31 0 63 0 92
@@ -145,7 +145,7 @@ vtkSplineWidget isw
   isw SetDefaultRenderer ren2
   isw SetInputConnection [extract GetOutputPort]
   isw SetInteractor iren
-  set bnds [imageActor2 GetBounds] 
+  set bnds [imageActor2 GetBounds]
   isw PlaceWidget [lindex $bnds 0] [lindex $bnds 1] [lindex $bnds 2] [lindex $bnds 3] [lindex $bnds 4] [lindex $bnds 5]
   isw ProjectToPlaneOn
   isw SetProjectionNormalToXAxes
@@ -164,13 +164,13 @@ vtkPoints points
 vtkPolyData spoly
 
 # Set up a pipleline to demonstrate extraction of a 2D
-# region of interest.  Defining a closed clockwise path using the 
+# region of interest.  Defining a closed clockwise path using the
 # tracer widget will extract all pixels within the loop.  A counter
 # clockwise path provides the dual region of interest.
 #
 vtkLinearExtrusionFilter extrude
   extrude SetInputData spoly
-  extrude SetScaleFactor 1 
+  extrude SetScaleFactor 1
   extrude SetExtrusionTypeToNormalExtrusion
   extrude SetVector 1 0 0
 
@@ -230,7 +230,7 @@ wm withdraw .
 proc AdjustSpline { } {
 
   set closed [itw IsClosed]
-  
+
   if { $closed } {
     isw ClosedOn
   } else {
@@ -245,8 +245,8 @@ proc AdjustSpline { } {
 
   itw GetPath poly
   set pts [poly GetPoints]
-   
-  isw InitializeHandles $pts  
+
+  isw InitializeHandles $pts
 
   if { $closed } {
     isw GetPolyData spoly
@@ -255,12 +255,12 @@ proc AdjustSpline { } {
     }
 }
 
-proc AdjustTracer { } { 
-  
+proc AdjustTracer { } {
+
   set npts [isw GetNumberOfHandles]
-  
-  points Reset  
- 
+
+  points Reset
+
   for {set i 0} {$i < $npts} {incr i} {
     set pt [isw GetHandlePosition $i]
     points InsertNextPoint [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
@@ -268,7 +268,7 @@ proc AdjustTracer { } {
 
   set closed [isw IsClosed]
 
-  if { $closed } {    
+  if { $closed } {
     set ac [itw GetAutoClose]
     if { $ac } {
       set pt [isw GetHandlePosition 0]
@@ -281,5 +281,5 @@ proc AdjustTracer { } {
     [imageActor2 GetMapper] SetInputConnection [extract GetOutputPort]
     }
 
-  itw InitializeHandles points  
+  itw InitializeHandles points
 }

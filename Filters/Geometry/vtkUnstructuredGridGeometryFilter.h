@@ -91,7 +91,7 @@ public:
 
   // Description:
   // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-  void SetExtent(double xMin, double xMax, double yMin, double yMax, 
+  void SetExtent(double xMin, double xMax, double yMin, double yMax,
                  double zMin, double zMax);
 
   // Description:
@@ -157,7 +157,7 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  
+
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkIdType PointMaximum;
@@ -176,9 +176,9 @@ protected:
 
   int Merging;
   vtkIncrementalPointLocator *Locator;
-  
+
   vtkHashTableOfSurfels *HashTable;
-  
+
 private:
   vtkUnstructuredGridGeometryFilter(const vtkUnstructuredGridGeometryFilter&);  // Not implemented.
   void operator=(const vtkUnstructuredGridGeometryFilter&);  // Not implemented.

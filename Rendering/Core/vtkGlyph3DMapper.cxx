@@ -49,7 +49,7 @@ static T vtkClamp(T val, T min, T max)
   return val;
 }
 //----------------------------------------------------------------------------
-// return the correct type of vtkGlyph3DMapper 
+// return the correct type of vtkGlyph3DMapper
 vtkGlyph3DMapper *vtkGlyph3DMapper::New()
 {
   // First try to create the object from the vtkObjectFactory

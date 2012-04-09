@@ -85,7 +85,7 @@ int vtkPointPlacer::ValidateWorldPosition( double vtkNotUsed(worldPos)[3],
 }
 
 //----------------------------------------------------------------------
-int vtkPointPlacer::ValidateDisplayPosition( vtkRenderer *, 
+int vtkPointPlacer::ValidateDisplayPosition( vtkRenderer *,
                                              double vtkNotUsed(displayPos)[2] )
 {
   return 1;
@@ -94,7 +94,7 @@ int vtkPointPlacer::ValidateDisplayPosition( vtkRenderer *,
 //----------------------------------------------------------------------
 void vtkPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);  
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Pixel Tolerance: " << this->PixelTolerance << "\n";
   os << indent << "World Tolerance: " << this->WorldTolerance << "\n";

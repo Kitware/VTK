@@ -92,8 +92,8 @@ int vtkAddMembershipArray::FillInputPortInformation(
 
 //---------------------------------------------------------------------------
 int vtkAddMembershipArray::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -112,7 +112,7 @@ int vtkAddMembershipArray::RequestData(
     if(!this->InputArrayName || !this->InputValues)
       return 1;
 
-    vtkDataSetAttributes* ds = 0;;  
+    vtkDataSetAttributes* ds = 0;;
     switch(this->FieldType)
       {
       case vtkAddMembershipArray::VERTEX_DATA:
@@ -140,13 +140,13 @@ int vtkAddMembershipArray::RequestData(
       vtkErrorMacro("Unsupported input field type.");
       return 0;
       }
-    
+
     vtkIntArray *vals = vtkIntArray::New();
     vals->SetNumberOfTuples(ds->GetNumberOfTuples());
     vals->SetNumberOfComponents(1);
     vals->SetName(this->OutputArrayName);
     vals->FillComponent(0,0);
-    
+
     vtkAbstractArray *inputArray = ds->GetAbstractArray(this->InputArrayName);
     if(inputArray && this->InputValues)
       {
@@ -183,7 +183,7 @@ int vtkAddMembershipArray::RequestData(
     for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
       {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
-      if (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+      if (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
         {
         continue;
@@ -205,8 +205,8 @@ int vtkAddMembershipArray::RequestData(
     {
     vtkConvertSelection::GetSelectedRows(selection, table, rowList);
     }
-  
-  if (vertexList->GetNumberOfTuples() != 0) 
+
+  if (vertexList->GetNumberOfTuples() != 0)
     {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
     vals->SetNumberOfTuples(graph->GetVertexData()->GetNumberOfTuples());
@@ -221,7 +221,7 @@ int vtkAddMembershipArray::RequestData(
     graph->GetVertexData()->AddArray(vals);
     }
 
-  if (edgeList->GetNumberOfTuples() != 0) 
+  if (edgeList->GetNumberOfTuples() != 0)
     {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
     vals->SetNumberOfTuples(graph->GetEdgeData()->GetNumberOfTuples());
@@ -236,7 +236,7 @@ int vtkAddMembershipArray::RequestData(
     graph->GetEdgeData()->AddArray(vals);
     }
 
-  if (rowList->GetNumberOfTuples() != 0) 
+  if (rowList->GetNumberOfTuples() != 0)
     {
     vtkSmartPointer<vtkIntArray> vals = vtkSmartPointer<vtkIntArray>::New();
     vals->SetNumberOfTuples(table->GetRowData()->GetNumberOfTuples());
@@ -259,9 +259,9 @@ void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FieldType: " << this->FieldType << endl;
-  os << indent << "OutputArrayName: " 
+  os << indent << "OutputArrayName: "
     << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
-  os << indent << "InputArrayName: " 
+  os << indent << "InputArrayName: "
     << (this->InputArrayName ? this->InputArrayName : "(none)") << endl;
   if(this->InputValues)
     {

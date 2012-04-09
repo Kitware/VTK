@@ -17,10 +17,10 @@
 //
 // Interpolates each scalar/vector field in a vtkUnstrcturedGrid
 // on its input to a specific set of quadrature points. The
-// set of quadrature points is specified per array via a 
-// dictionary (ie an instance of vtkInformationQuadratureSchemeDefinitionVectorKey). 
+// set of quadrature points is specified per array via a
+// dictionary (ie an instance of vtkInformationQuadratureSchemeDefinitionVectorKey).
 // contained in the array. The interpolated fields are placed
-// in FieldData along with a set of per cell indexes, that allow 
+// in FieldData along with a set of per cell indexes, that allow
 // random access to a given cells quadrature points.
 //
 // .SECTION See Also

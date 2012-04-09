@@ -89,11 +89,11 @@ public:
   vtkGetMacro(Direction,int);
   void SetDirectionToSpecifiedVector()
       {this->SetDirection( VTK_DIRECTION_SPECIFIED_VECTOR ); }
-  void SetDirectionToSpecifiedOrigin()  
+  void SetDirectionToSpecifiedOrigin()
       {this->SetDirection( VTK_DIRECTION_SPECIFIED_ORIGIN ); }
-  void SetDirectionToCameraVector()  
+  void SetDirectionToCameraVector()
       {this->SetDirection( VTK_DIRECTION_CAMERA_VECTOR ); }
-  void SetDirectionToCameraOrigin()  
+  void SetDirectionToCameraOrigin()
       {this->SetDirection( VTK_DIRECTION_CAMERA_ORIGIN ); }
 
   // Description:

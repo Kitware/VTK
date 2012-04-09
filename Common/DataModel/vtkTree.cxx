@@ -102,7 +102,7 @@ bool vtkTree::IsLeaf(vtkIdType vertex)
 {
   return (this->GetNumberOfChildren(vertex) == 0);
 }
-  
+
 //----------------------------------------------------------------------------
 vtkTree *vtkTree::GetData(vtkInformation *info)
 {
@@ -169,7 +169,7 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
   vector<bool> visited(g->GetNumberOfVertices(), false);
   vector<vtkIdType> stack;
   stack.push_back(root);
-  vtkSmartPointer<vtkOutEdgeIterator> outIter = 
+  vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   while (!stack.empty())
     {

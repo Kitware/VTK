@@ -144,71 +144,71 @@ public:
   static vtkInformationIntegerKey* DIMENSION();
   static vtkInformationDoubleVectorKey* SIZES();
   static vtkHyperOctree *New();
-  
+
   vtkTypeMacro(vtkHyperOctree,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Return what type of dataset this is.
   int GetDataObjectType();
-  
+
   // Description:
   // Copy the geometric and topological structure of an input rectilinear grid
   // object.
   void CopyStructure(vtkDataSet *ds);
-  
+
   // Return the node describes by the path from the root.
   // Path is a sequence of number between 0 and 7.
   // \pre path_exists: path!=0
   // \pre node_exists: IsANode(path)
 //  vtkOctree *GetNode(vtkPath *path);
-  
+
   // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
   // 3D:octree (8 children))
   // \post valid_result: result>=1 && result<=3
   int GetDimension();
-  
+
   // Description:
   // Set the dimension of the tree with `dim'. See GetDimension() for details.
   // \pre valid_dim: dim>=1 && dim<=3
   // \post dimension_is_set: GetDimension()==dim
   void SetDimension(int dim);
-  
+
   // Return if the node for the given path exists or not.
   // \pre path_exists: path!=0
 //  int IsANode(vtkPath *path);
-  
+
   // Return if the node for the given path is a leaf or not.
   // \pre path_exists: path!=0
   // \pre node_exists: IsANode(path)
 //  int IsALeaf(vtkPath *path);
-  
+
   // Measurement: topology
-  
+
   // Description:
   // Return the number of cells in the dual grid.
   // \post positive_result: result>=0
   vtkIdType GetNumberOfCells();
-  
+
   // Description:
   // Get the number of leaves in the tree.
   vtkIdType GetNumberOfLeaves();
-  
+
   // Description:
   // Return the number of points in the dual grid.
   // \post positive_result: result>=0
   vtkIdType GetNumberOfPoints();
-  
+
   // Description:
   // Return the number of points corresponding to an hyperoctree starting at
   // level `level' where all the leaves at at the last level. In this case, the
   // hyperoctree is like a uniform grid. So this number is the number of points
-  // of the uniform grid. 
+  // of the uniform grid.
   // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
   // \post definition: result==(2^(GetNumberOfLevels()-level-1)+1)^GetDimension()
   vtkIdType GetMaxNumberOfPoints(int level);
-  
+
   // Description:
   // Return the number of points corresponding to the boundary of an
   // hyperoctree starting at level `level' where all the leaves at at the last
@@ -221,48 +221,48 @@ public:
   // \post min_result: result>=GetMaxNumberOfPoints(this->GetNumberOfLevels()-1)
   // \post max_result: result<=GetMaxNumberOfPoints(level)
   vtkIdType GetMaxNumberOfPointsOnBoundary(int level);
- 
+
   // Description:
   // Return the number of cells corresponding to the boundary of a cell
-  // of level `level' where all the leaves at at the last level. 
+  // of level `level' where all the leaves at at the last level.
   // \pre positive_level: level>=0 && level<this->GetNumberOfLevels()
   // \post positive_result: result>=0
   vtkIdType GetMaxNumberOfCellsOnBoundary(int level);
-  
+
   // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
   vtkIdType GetNumberOfLevels();
 
   // Measurement: geometry
-  
+
   // Description:
   // Set the size on each axis.
   vtkSetVector3Macro(Size,double);
-  
+
   // Description:
   // Return the size on each axis.
   vtkGetVector3Macro(Size,double);
-  
+
   // Description:
   // Set the origin (position of corner (0,0,0) of the root.
   vtkSetVector3Macro(Origin,double);
   // Return the origin (position of corner (0,0,0) ) of the root.
   vtkGetVector3Macro(Origin,double);
-  
+
   // Description:
   // Create a new cursor: an object that can traverse
   // the cell of an hyperoctree.
   // \post result_exists: result!=0
   vtkHyperOctreeCursor *NewCellCursor();
-    
+
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
   void SubdivideLeaf(vtkHyperOctreeCursor *leaf);
-  
+
   // Description:
   // Collapse a node for which all children are leaves.
   // At the end, cursor points on the leaf that used to be a node.
@@ -270,7 +270,7 @@ public:
   // \pre node_is_node: !node->CurrentIsLeaf()
   // \pre children_are_leaves: node->CurrentIsTerminalNode()
   void CollapseTerminalNode(vtkHyperOctreeCursor *node);
-  
+
   // Description:
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   // THIS METHOD IS NOT THREAD SAFE.
@@ -282,21 +282,21 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetPoint(vtkIdType id, double x[3]);
-  
+
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS NOT THREAD SAFE.
   virtual vtkCell *GetCell(vtkIdType cellId);
 
   // Description:
-  // Get cell with cellId such that: 0 <= cellId < NumberOfCells. 
+  // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // This is a thread-safe alternative to the previous GetCell()
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  
-   
+
+
   // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -317,14 +317,14 @@ public:
   // THE DATASET IS NOT MODIFIED
   virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
 
-  
+
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
   // cell specified (e.g., cellId). Note that the list consists of only
   // cells that use ALL the points provided.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
+  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                 vtkIdList *cellIds);
 
   virtual vtkIdType FindPoint(double x[3]);
@@ -344,7 +344,7 @@ public:
                              double *weights);
 
   // Description:
-  // This is a version of the above method that can be used with 
+  // This is a version of the above method that can be used with
   // multithreaded applications. A vtkGenericCell must be passed in
   // to be used in internal calls that might be made to GetCell()
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -353,24 +353,24 @@ public:
                              vtkGenericCell *gencell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
                              double *weights);
-  
+
   // Description:
   // Restore data object to initial state,
   // THIS METHOD IS NOT THREAD SAFE.
   void Initialize();
-  
+
   // Description:
   // Convenience method returns largest cell size in dataset. This is generally
   // used to allocate memory for supporting data structures.
   // This is the number of points of a cell.
   // THIS METHOD IS THREAD SAFE
   virtual int GetMaxCellSize();
-  
+
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);  
+  void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
-  
+
   // Description:
   // Get the points of node `sibling' on its face `face'.
   // \pre sibling_exists: sibling!=0
@@ -382,7 +382,7 @@ public:
                        int face,
                        int level,
                        vtkHyperOctreePointsGrabber *grabber);
- 
+
   // Description:
   // Get the points of the parent node of `cursor' on its faces `faces' at
   // level `level' or deeper.
@@ -394,7 +394,7 @@ public:
                               int level,
                               vtkHyperOctreeCursor *cursor,
                               vtkHyperOctreePointsGrabber *grabber);
-  
+
   // Description:
   // Get the points of node `sibling' on its edge `axis','k','j'.
   // If axis==0, the edge is X-aligned and k gives the z coordinate and j the
@@ -414,7 +414,7 @@ public:
                        int k,
                        int j,
                        vtkHyperOctreePointsGrabber *grabber);
-  
+
   // Description:
   // Get the points of the parent node of `cursor' on its edge `axis','k','j'
   // at level `level' or deeper.
@@ -434,7 +434,7 @@ public:
                              int k,
                              int j,
                              vtkHyperOctreePointsGrabber *grabber);
-  
+
   // Description:
   // Get the points of node `sibling' on its edge `edge'.
   // \pre sibling_exists: sibling!=0
@@ -446,7 +446,7 @@ public:
                          int edge,
                          int level,
                          vtkHyperOctreePointsGrabber *grabber);
-  
+
   // Description:
   // Get the points of the parent node of `cursor' on its edge `edge' at
   // level `level' or deeper. (edge=0 for -X, 1 for +X, 2 for -Y, 3 for +Y)
@@ -458,12 +458,12 @@ public:
                                int edge,
                                int level,
                                vtkHyperOctreePointsGrabber *grabber);
-  
+
   // Description:
   // A generic way to set the leaf data attributes.
   // This can be either point data for dual or cell data for normal grid.
   vtkDataSetAttributes* GetLeafData();
-  
+
   // Description:
   // Switch between returning leaves as cells, or the dual grid.
   void SetDualGridFlag(int flag);
@@ -491,12 +491,12 @@ protected:
   ~vtkHyperOctree();
 
   void ComputeBounds();
-  
+
   int Dimension; // 1, 2 or 3.
-  
+
   double Size[3]; // size on each axis
   double Origin[3]; // position of corner (0,0,0) of the root.
-  
+
   vtkHyperOctreeInternal *CellTree;
 
   vtkHyperOctreeCursor *TmpChild; // to avoid allocation in the loop
@@ -504,25 +504,25 @@ protected:
   //BTX
   friend class vtkHyperOctreeLightWeightCursor;
   //ETX
-  
+
   // Initialize the arrays if necessary, then return it.
   void UpdateDualArrays();
   vtkPoints* GetLeafCenters();
   vtkIdTypeArray* GetCornerLeafIds();
   vtkPoints *LeafCenters;
   vtkIdTypeArray *CornerLeafIds;
-  
+
   void UpdateGridArrays();
   vtkPoints* GetCornerPoints();
   vtkIdTypeArray* GetLeafCornerIds();
   vtkPoints* CornerPoints;
   vtkIdTypeArray* LeafCornerIds;
-  
+
   void DeleteInternalArrays();
 
-  void TraverseDualRecursively(vtkHyperOctreeLightWeightCursor* neighborhood, 
+  void TraverseDualRecursively(vtkHyperOctreeLightWeightCursor* neighborhood,
                                unsigned short *xyzIds, int level);
-  void TraverseGridRecursively(vtkHyperOctreeLightWeightCursor* neighborhood, 
+  void TraverseGridRecursively(vtkHyperOctreeLightWeightCursor* neighborhood,
                                unsigned char* visited,
                                double* origin, double* size);
   void EvaluateDualCorner(vtkHyperOctreeLightWeightCursor* neighborhood);
@@ -536,23 +536,23 @@ protected:
   // This will be shorter when we get rid of the 3x3x3 neighborhood.
   // I was using unsigned char, but VS60 optimized build had a problem.
   int NeighborhoodTraversalTable[216];
-  void GenerateGridNeighborhoodTraversalTable();  
-  void GenerateDualNeighborhoodTraversalTable();  
+  void GenerateGridNeighborhoodTraversalTable();
+  void GenerateDualNeighborhoodTraversalTable();
 
   // for the GetCell method
   vtkLine *Line;
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
 
-  vtkCellLinks* Links;  
+  vtkCellLinks* Links;
   void BuildLinks();
 
-  vtkIdType RecursiveFindPoint(double x[3], 
-    vtkHyperOctreeLightWeightCursor* cursor, 
+  vtkIdType RecursiveFindPoint(double x[3],
+    vtkHyperOctreeLightWeightCursor* cursor,
     double *origin, double *size);
 
   // This toggles the data set API between the leaf cells and
-  // the dual grid (leaves are points, corners are cells). 
+  // the dual grid (leaves are points, corners are cells).
   int DualGridFlag;
 
 private:
@@ -565,7 +565,7 @@ private:
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeLightWeightCursor
 {
-public:  
+public:
   vtkHyperOctreeLightWeightCursor();
   ~vtkHyperOctreeLightWeightCursor();
 

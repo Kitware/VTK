@@ -252,9 +252,9 @@ void vtkWindowToImageFilter::RequestData(
   winsize[0] = this->Input->GetSize()[0];
   winsize[1] = this->Input->GetSize()[1];
 
-  size[0] = int(this->Viewport[2]* winsize[0] + 0.5) 
+  size[0] = int(this->Viewport[2]* winsize[0] + 0.5)
             - int(this->Viewport[0]* winsize[0]);
-  size[1] = int(this->Viewport[3]* winsize[1] + 0.5) 
+  size[1] = int(this->Viewport[3]* winsize[1] + 0.5)
             - int(this->Viewport[1]* winsize[1]);
 
   rowSize = size[0]*out->GetNumberOfScalarComponents();
@@ -437,7 +437,7 @@ void vtkWindowToImageFilter::RequestData(
           pixels =
             this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
                                       int(this->Viewport[1]* winsize[1]),
-                                      int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                      int(this->Viewport[2]* winsize[0] + 0.5) - 1,
                                       int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
           }
         else
@@ -445,7 +445,7 @@ void vtkWindowToImageFilter::RequestData(
           pixels =
             renWin->GetRGBACharPixelData(int(this->Viewport[0]* winsize[0]),
                                          int(this->Viewport[1]* winsize[1]),
-                                         int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                         int(this->Viewport[2]* winsize[0] + 0.5) - 1,
                                          int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
 
           }
@@ -502,7 +502,7 @@ void vtkWindowToImageFilter::RequestData(
         float *pixels, *pixels1, *outPtr;
         pixels = renWin->GetZbufferData(int(this->Viewport[0]* winsize[0]),
                                         int(this->Viewport[1]* winsize[1]),
-                                        int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                        int(this->Viewport[2]* winsize[0] + 0.5) - 1,
                                         int(this->Viewport[3]* winsize[1] + 0.5) - 1);
 
         pixels1 = pixels;

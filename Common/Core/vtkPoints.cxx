@@ -152,7 +152,7 @@ void vtkPoints::SetDataType(int dataType)
     {
     return;
     }
-  
+
   this->Modified();
 
   this->Data->Delete();
@@ -203,7 +203,7 @@ void vtkPoints::DeepCopy(vtkPoints *da)
     }
 }
 
-// Shallow copy of data (i.e. via reference counting). Checks 
+// Shallow copy of data (i.e. via reference counting). Checks
 // consistency to make sure this operation makes sense.
 void vtkPoints::ShallowCopy(vtkPoints *da)
 {
@@ -218,7 +218,7 @@ unsigned long vtkPoints::GetActualMemorySize()
 void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   double *bounds;
 
   os << indent << "Data: " << this->Data << "\n";

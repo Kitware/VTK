@@ -29,23 +29,23 @@ public:
   vtkTypeMacro(vtkBase64InputStream,vtkInputStream);
   static vtkBase64InputStream *New();
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Called after the stream position has been set by the caller, but
   // before any Seek or Read calls.  The stream position should not be
   // adjusted by the caller until after an EndReading call.
   void StartReading();
-  
+
   // Description:
   // Seek to the given offset in the input data.  Returns 1 for
   // success, 0 for failure.
   int Seek(unsigned long offset);
-  
+
   // Description:
   // Read input data of the given length.  Returns amount actually
   // read.
   unsigned long Read(unsigned char* data, unsigned long length);
-  
+
   // Description:
   // Called after all desired calls to Seek and Read have been made.
   // After this call, the caller is free to change the position of the
@@ -54,12 +54,12 @@ public:
   void EndReading();
 protected:
   vtkBase64InputStream();
-  ~vtkBase64InputStream();  
-  
+  ~vtkBase64InputStream();
+
   // Number of decoded bytes left in Buffer from last call to Read.
   int BufferLength;
   unsigned char Buffer[2];
-  
+
   // Reads 4 bytes from the input stream and decodes them into 3 bytes.
   int DecodeTriplet(unsigned char& c0, unsigned char& c1, unsigned char& c2);
 

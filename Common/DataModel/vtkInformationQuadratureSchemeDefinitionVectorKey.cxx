@@ -45,7 +45,7 @@ private:
 
 //----------------------------------------------------------------------------
 vtkInformationQuadratureSchemeDefinitionVectorKey::vtkInformationQuadratureSchemeDefinitionVectorKey(
-        const char* name, 
+        const char* name,
         const char* location)
         :
         vtkInformationKey(name, location)
@@ -139,7 +139,7 @@ void vtkInformationQuadratureSchemeDefinitionVectorKey::SetRange(
 // {
 //   vtkInformationQuadratureSchemeDefinitionVectorValue* base =
 //     static_cast<vtkInformationQuadratureSchemeDefinitionVectorValue *>(this->GetAsObjectBase(info));
-// 
+//
 //   return
 //     (base!=NULL && !base->GetVector().empty())?(&base->GetVector()[0]):0;
 // }
@@ -361,7 +361,7 @@ int vtkInformationQuadratureSchemeDefinitionVectorKey::RestoreState(
     }
   // Process all nested tags. Each is assumed to be a valid definition
   // tag. If any of the tags are invalid or not definition tags they
-  // will be skipped, and warnings will be generated. 
+  // will be skipped, and warnings will be generated.
   int nDefns=root->GetNumberOfNestedElements();
   for (int defnId=0; defnId<nDefns; ++defnId)
     {

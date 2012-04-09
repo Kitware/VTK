@@ -172,7 +172,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         {
         ++countPD;
         }
-      if (ds->GetNumberOfCells() > 0 )  
+      if (ds->GetNumberOfCells() > 0 )
         {
         ++countCD;
         } // for a data set that has cells
@@ -181,12 +181,12 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 
   // These are used to determine which fields are available for appending
   vtkDataSetAttributes::FieldList ptList(countPD);
-  vtkDataSetAttributes::FieldList cellList(countCD);  
+  vtkDataSetAttributes::FieldList cellList(countCD);
 
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
     {
-    ds = inputs[idx]; 
+    ds = inputs[idx];
     if (ds != NULL)
       {
       // Skip points and cells if there are no points.  Empty inputs may have no arrays.
@@ -207,7 +207,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         } // for a data set that has points
 
       // Although we cannot have cells without points ... let's not nest.
-      if (ds->GetNumberOfCells() > 0 )  
+      if (ds->GetNumberOfCells() > 0 )
         {
         // keep track of the size of the poly cell array
         if (ds->GetPolys())
@@ -469,21 +469,21 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
             }
           else if (cellId < polysIndex)
             {
-            // outCellId = number of lines we already added + total number of 
+            // outCellId = number of lines we already added + total number of
             // verts expected in the output.
             outCellId = linesOffset + numVerts;
             linesOffset++;
             }
           else if (cellId < stripsIndex)
             {
-            // outCellId = number of polys we already added + total number of 
+            // outCellId = number of polys we already added + total number of
             // verts and lines expected in the output.
             outCellId = polysOffset + numLines + numVerts;
             polysOffset++;
             }
           else
             {
-            // outCellId = number of tstrips we already added + total number of 
+            // outCellId = number of tstrips we already added + total number of
             // polys, verts and lines expected in the output.
             outCellId = stripsOffset + numPolys + numLines + numVerts;
             stripsOffset++;
@@ -526,7 +526,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       ptOffset += numPts;
       }
     }
-  
+
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -557,7 +557,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     output->GetPointData()->SetTensors(newPtTensors);
     newPtTensors->Delete();
     }
-  
+
   if ( newVerts->GetNumberOfCells() > 0 )
     {
     output->SetVerts(newVerts);
@@ -631,7 +631,7 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
   piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
+
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
@@ -644,7 +644,7 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
     piece = piece * numInputs;
     numPieces = numPieces * numInputs;
     }
- 
+
   vtkInformation *inInfo;
   // just copy the Update extent as default behavior.
   for (idx = 0; idx < numInputs; ++idx)
@@ -672,7 +672,7 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
         }
       }
     }
-  
+
   return 1;
 }
 
@@ -722,7 +722,7 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
     vtkErrorMacro("Destination not big enough");
     return;
     }
-  
+
   // convert from tuples to components.
   offset *= src->GetNumberOfComponents();
   length = src->GetMaxId() + 1;
@@ -816,7 +816,7 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
   pSrc = src->GetPointer();
   end = pSrc + src->GetNumberOfConnectivityEntries();
   pNum = pSrc;
-  
+
   while (pSrc < end)
     {
     if (pSrc == pNum)
@@ -832,7 +832,7 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
       *pDest++ = offset + *pSrc++;
       }
     }
-  
+
   return pDest;
 }
 

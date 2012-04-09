@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkX3DExporterFIWriterHelper - 
+// .NAME vtkX3DExporterFIWriterHelper -
 // .SECTION Description
 
 #ifndef __vtkX3DExporterFIWriterHelper_h
@@ -28,7 +28,7 @@
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
-class vtkX3DExporterFIWriterHelper 
+class vtkX3DExporterFIWriterHelper
 {
 public:
   union float_to_unsigned_int_to_bytes
@@ -44,7 +44,7 @@ public:
       // We want to start at position 3
       assert(writer->CurrentBytePos == 2);
 
-      // ITU C.19.3.4: If the alternative encoding-algorithm is present, 
+      // ITU C.19.3.4: If the alternative encoding-algorithm is present,
       // then the two bits '11' (discriminant) are appended
       writer->PutBits("11");
       // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 7,
@@ -79,7 +79,7 @@ public:
       // We want to start at position 3
       assert(writer->CurrentBytePos == 2);
 
-      // ITU C.19.3.4: If the alternative encoding-algorithm is present, 
+      // ITU C.19.3.4: If the alternative encoding-algorithm is present,
       // then the two bits '11' (discriminant) are appended
       writer->PutBits("11");
       // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 4,
@@ -100,7 +100,7 @@ public:
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
 
-    // ITU C.19.3.1 If the alternative utf-8 is present, then the two bits '00' 
+    // ITU C.19.3.1 If the alternative utf-8 is present, then the two bits '00'
     // are appended to the bit stream.
     writer->PutBits("00");
     // ITU C.19.4: The component bytes is encoded as described in C.23.
@@ -226,7 +226,7 @@ public:
       // We want to start at position 3
       assert(writer->CurrentBytePos == 2);
 
-      // ITU C.19.3.4: If the alternative encoding-algorithm is present, 
+      // ITU C.19.3.4: If the alternative encoding-algorithm is present,
       // then the two bits '11' (discriminant) are appended
       writer->PutBits("11");
       // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 33
@@ -310,7 +310,7 @@ public:
       delete buffer;
 
       vtkX3DExporterFIWriterHelper::EncodeNonEmptyByteString5(writer, bytes);
-      if (image) 
+      if (image)
         {
         compressor->SetCompressionLevel(5);
         }
@@ -321,7 +321,7 @@ public:
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
 
-    // ITU C.19.3.4: If the alternative encoding-algorithm is present, 
+    // ITU C.19.3.4: If the alternative encoding-algorithm is present,
     // then the two bits '11' (discriminant) are appended
     writer->PutBits("11");
     // ITU 10.8.1: This encoding algorithm has a vocabulary table index of 33

@@ -35,7 +35,7 @@ class VTKIOXML_EXPORT vtkXMLPUnstructuredDataReader : public vtkXMLPDataReader
 public:
   vtkTypeMacro(vtkXMLPUnstructuredDataReader,vtkXMLPDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
   virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
@@ -43,7 +43,7 @@ public:
 protected:
   vtkXMLPUnstructuredDataReader();
   ~vtkXMLPUnstructuredDataReader();
-  
+
   vtkPointSet* GetOutputAsPointSet();
   vtkPointSet* GetPieceInputAsPointSet(int piece);
   virtual void SetupOutputTotals();
@@ -51,7 +51,7 @@ protected:
   vtkIdType GetNumberOfPoints();
   vtkIdType GetNumberOfCells();
   void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray);
-  
+
   void SetupEmptyOutput();
 
   // Setup the output's information.
@@ -60,36 +60,36 @@ protected:
   void SetupOutputData();
   virtual void GetOutputUpdateExtent(int& piece, int& numberOfPieces,
                                      int& ghostLevel)=0;
-  
+
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData();  
+  void ReadXMLData();
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupUpdateExtent(int piece, int numberOfPieces, int ghostLevel);
-  
+
   int ReadPieceData();
   void CopyCellArray(vtkIdType totalNumberOfCells, vtkCellArray* inCells,
                      vtkCellArray* outCells);
-  
+
   // Get the number of points/cells in the given piece.  Valid after
   // UpdateInformation.
   virtual vtkIdType GetNumberOfPointsInPiece(int piece);
   virtual vtkIdType GetNumberOfCellsInPiece(int piece);
-  
+
   // The update request.
   int UpdatePiece;
   int UpdateNumberOfPieces;
   int UpdateGhostLevel;
-  
+
   // The range of pieces from the file that will form the UpdatePiece.
   int StartPiece;
   int EndPiece;
   vtkIdType TotalNumberOfPoints;
   vtkIdType TotalNumberOfCells;
   vtkIdType StartPoint;
-  
+
   // The PPoints element with point information.
   vtkXMLDataElement* PPointsElement;
-  
+
 private:
   vtkXMLPUnstructuredDataReader(const vtkXMLPUnstructuredDataReader&);  // Not implemented.
   void operator=(const vtkXMLPUnstructuredDataReader&);  // Not implemented.

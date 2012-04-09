@@ -70,7 +70,7 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   VTK_CREATE( vtkRenderer, renderer );
   VTK_CREATE( vtkRenderWindow, renWin );
   renWin->SetMultiSamples(0); // ensure to have the same test image everywhere
-  
+
   VTK_CREATE( vtkRenderWindowInteractor, iren );
   VTK_CREATE( vtkQtLabelSurface, qtLabelPlacer );
   VTK_CREATE( vtkLabeledDataMapper, labeledMapper );
@@ -126,7 +126,7 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   stringData->InsertNextValue("Tokyo");
   stringData->InsertNextValue("Warsaw");
   stringData->InsertNextValue("Washington");
-  
+
   polyData->GetPointData()->AddArray(stringData);
 
   qtLabelSizeCalculator->SetInputData(polyData);
@@ -166,9 +166,9 @@ int TestQtLabelSizeCalculator(int argc, char *argv[])
   qtLabelPlacer->SetFieldDataName("LabelText");
 //  cairoLabelSizeCalculator->SetRenderWindow( qtLabelPlacer->GetCairoRenderWindow() );
 
-  VTK_CREATE( vtkPolyDataMapper2D, polyDataMapper2 ); 
+  VTK_CREATE( vtkPolyDataMapper2D, polyDataMapper2 );
   polyDataMapper2->SetInputConnection( qtLabelPlacer->GetOutputPort(1) );
-  VTK_CREATE( vtkTexturedActor2D, actor2 ); 
+  VTK_CREATE( vtkTexturedActor2D, actor2 );
   actor2->SetMapper( polyDataMapper2 );
   qtLabelPlacer->Update();
   VTK_CREATE( vtkTexture, texture );

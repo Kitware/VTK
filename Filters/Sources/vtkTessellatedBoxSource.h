@@ -41,12 +41,12 @@ public:
   static vtkTessellatedBoxSource *New();
   vtkTypeMacro(vtkTessellatedBoxSource,vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the bounds of the box. See GetBounds() for a detail description.
   // \pre xmin<=xmax && ymin<=ymax && zmin<zmax
   vtkSetVector6Macro(Bounds, double);
-  
+
   // Description:
   // Bounds of the box in world coordinates. This a 6-uple of xmin,xmax,ymin,
   // ymax,zmin and zmax. Initial value is (-0.5,0.5,-0.5,0.5,-0.5,0.5), bounds
@@ -54,17 +54,17 @@ public:
   // xmin<=xmax, ymin<=ymax and zmin<zmax.
   // \post xmin<=xmax && ymin<=ymax && zmin<zmax
   vtkGetVector6Macro(Bounds, double);
-  
+
   // Description:
   // Set the level of subdivision of the faces.
   // \pre positive_level: level>=0
   vtkSetMacro(Level,int);
-  
+
   // Description:
   // Level of subdivision of the faces. Initial value is 0.
   // \post positive_level: level>=0
   vtkGetMacro(Level,int);
-  
+
   // Description:
   // Flag to tell the source to duplicate points shared between faces
   // (vertices of the box and internal edge points). Initial value is false.
@@ -73,40 +73,40 @@ public:
   vtkSetMacro(DuplicateSharedPoints, int);
   vtkGetMacro(DuplicateSharedPoints, int);
   vtkBooleanMacro(DuplicateSharedPoints, int);
-  
+
   // Description:
   // Flag to tell the source to generate either a quad or two triangle for a
   // set of four points. Initial value is false (generate triangles).
   vtkSetMacro(Quads, int);
   vtkGetMacro(Quads, int);
   vtkBooleanMacro(Quads, int);
-  
+
 protected:
    vtkTessellatedBoxSource();
   ~vtkTessellatedBoxSource();
-  
+
   // Description:
   // Called by the superclass. Send the WHOLE_BOUNDING_BOX key.
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
-  
+
   // Description:
   // Called by the superclass. Actual creation of the points and cells
   // happens here.
   virtual int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outpuVector);
-  
-  
+
+
   void DuplicateSharedPointsMethod(double *bounds,
                                    vtkPoints *points,
                                    vtkCellArray *polys);
-  
+
   void MinimalPointsMethod(double *bounds,
                            vtkPoints *points,
                            vtkCellArray *polys);
-  
+
   // Description:
   // Compute the pointId of point (i,j) of face f.
   // Used by MinimalPointsMethod().
@@ -116,7 +116,7 @@ protected:
   vtkIdType LocalFacePointCoordinatesToPointId(int f,
                                                int i,
                                                int j);
-  
+
   // Description:
   // Build one of the face of the box with some level of tessellation.
   // facePoints[0] is the lower-left point
@@ -130,12 +130,12 @@ protected:
                  vtkIdType firstPointId,
                  double facePoints[3][3],
                  int changed);
-  
+
   double Bounds[6];
   int Level;
   int DuplicateSharedPoints;
   int Quads;
-  
+
 private:
   vtkTessellatedBoxSource(const vtkTessellatedBoxSource&);  // Not implemented.
   void operator=(const vtkTessellatedBoxSource&);  // Not implemented.

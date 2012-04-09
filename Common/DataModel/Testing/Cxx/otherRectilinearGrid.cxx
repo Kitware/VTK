@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests vtkRectilinearGrid
 
@@ -43,7 +43,7 @@ int TestORG(ostream& strm)
   vtkRectilinearGrid *rg2Dxz = vtkRectilinearGrid::New();
   vtkRectilinearGrid *rg2Dyz = vtkRectilinearGrid::New();
   vtkRectilinearGrid *rg3D = vtkRectilinearGrid::New();
-  
+
   vtkDoubleArray *xdata = vtkDoubleArray::New();
   vtkDoubleArray *ydata = vtkDoubleArray::New();
   vtkDoubleArray *zdata = vtkDoubleArray::New();
@@ -59,35 +59,35 @@ int TestORG(ostream& strm)
   rg3D->SetXCoordinates(xdata);
   rg3D->SetYCoordinates(ydata);
   rg3D->SetZCoordinates(zdata);
-  
+
   rg2Dxy->SetDimensions(20,20,1);
   rg2Dxy->SetXCoordinates(xdata);
   rg2Dxy->SetYCoordinates(ydata);
-  
+
   rg2Dxz->SetDimensions(20,1,20);
   rg2Dxz->SetXCoordinates(xdata);
   rg2Dxz->SetZCoordinates(zdata);
-  
+
   rg2Dyz->SetDimensions(1,20,20);
   rg2Dyz->SetYCoordinates(ydata);
   rg2Dyz->SetZCoordinates(zdata);
-  
+
   rg1Dx->SetDimensions(20,1,1);
   rg1Dx->SetXCoordinates(xdata);
-  
+
   rg1Dy->SetDimensions(1,20,1);
   rg1Dy->SetYCoordinates(ydata);
   strm << *rg1Dy;
-  
+
   rg1Dz->SetDimensions(1,1,20);
   rg1Dz->SetZCoordinates(zdata);
-  
+
   rg0D->SetDimensions(1,1,1);
-  
+
   vtkShortArray *shortScalars3D = vtkShortArray::New();
   shortScalars3D->SetNumberOfComponents(3);
   shortScalars3D->SetNumberOfTuples(20*20*20);
-  
+
   int l = 0;
   for (k = 0; k < 20; k++)
     {
@@ -102,11 +102,11 @@ int TestORG(ostream& strm)
         }
       }
     }
-  
+
   vtkShortArray *shortScalars2D = vtkShortArray::New();
   shortScalars2D->SetNumberOfComponents(2);
   shortScalars2D->SetNumberOfTuples(20*20);
-  
+
   l = 0;
   for (j = 0; j < 20; j++)
     {
@@ -117,25 +117,25 @@ int TestORG(ostream& strm)
       l++;
       }
     }
-  
+
   vtkShortArray *shortScalars1D = vtkShortArray::New();
   shortScalars1D->SetNumberOfComponents(1);
   shortScalars1D->SetNumberOfTuples(20);
-  
+
   l = 0;
   for (i = 0; i < 20; i++)
     {
     shortScalars1D->InsertComponent(l,0,i);
     l++;
     }
-  
+
   vtkShortArray *shortScalars0D = vtkShortArray::New();
   shortScalars0D->SetNumberOfComponents(1);
   shortScalars0D->SetNumberOfTuples(1);
 
   l = 0;
   shortScalars0D->InsertComponent(l,0,0);
-  
+
   rg3D->GetPointData()->SetScalars(shortScalars3D);
   rg2Dxy->GetPointData()->SetScalars(shortScalars2D);
   rg2Dxz->GetPointData()->SetScalars(shortScalars2D);
@@ -144,24 +144,24 @@ int TestORG(ostream& strm)
   rg1Dy->GetPointData()->SetScalars(shortScalars1D);
   rg1Dz->GetPointData()->SetScalars(shortScalars1D);
   rg0D->GetPointData()->SetScalars(shortScalars0D);
-  
+
   strm << "rg3D:" << *rg3D;
-  
+
   // Test shallow copy
   vtkRectilinearGrid *scrg3D = vtkRectilinearGrid::New();
   scrg3D->ShallowCopy(rg3D);
   strm << "ShallowCopy(rg3D):" << *scrg3D;
-  
+
   // Test deep copy
   vtkRectilinearGrid *dcrg3D = vtkRectilinearGrid::New();
   dcrg3D->DeepCopy(rg3D);
   strm << "DeepCopy(rg3D):" << *dcrg3D;
-  
+
   // Test GetCell
   vtkIdList *ids = vtkIdList::New();
   int cellId;
   int ii;
-  
+
   i = 10; j = 15; k = 7;
   cellId = k * (19 * 19) + j * 19 + i;
   vtkCell *cell3D = rg3D->GetCell(cellId);
@@ -198,7 +198,7 @@ int TestORG(ostream& strm)
     strm << ids->GetId(ii) << " ";
     }
   strm << endl << endl;
-  
+
   i = 10; j = 15;
   cellId = j * 19 + i;
   cell2D = rg2Dyz->GetCell(j * 19 + i);
@@ -210,7 +210,7 @@ int TestORG(ostream& strm)
     strm << ids->GetId(ii) << " ";
     }
   strm << endl << endl;
-  
+
   i = 10;
   cellId = i;
   vtkCell *cell1D = rg1Dx->GetCell(i);
@@ -222,7 +222,7 @@ int TestORG(ostream& strm)
     strm << ids->GetId(ii) << " ";
     }
   strm << endl << endl;
-  
+
   i = 10;
   cellId = i;
   cell1D = rg1Dy->GetCell(i);
@@ -234,7 +234,7 @@ int TestORG(ostream& strm)
     strm << ids->GetId(ii) << " ";
     }
   strm << endl << endl;
-  
+
   i = 10;
   cellId = i;
   cell1D = rg1Dz->GetCell(i);
@@ -246,7 +246,7 @@ int TestORG(ostream& strm)
     strm << ids->GetId(ii) << " ";
     }
   strm << endl << endl;
-  
+
   cellId = 0;
   vtkCell *cell0D = rg0D->GetCell(0);
   strm << "cell0D: " << *cell0D;
@@ -257,7 +257,7 @@ int TestORG(ostream& strm)
     strm << ids->GetId(ii) << " ";
     }
   strm << endl << endl;
-  
+
   // Test Thread Safe GetCell
   vtkGenericCell *gcell3D = vtkGenericCell::New();
   vtkGenericCell *gcell2D = vtkGenericCell::New();
@@ -300,93 +300,93 @@ int TestORG(ostream& strm)
   strm << "gcell0D: " << *gcell0D;
 
   // Test GetCellBounds
-  
+
   double bounds[6];
   rg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(rg3D): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg2Dxy->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(rg2Dxy): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg2Dxz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(rg2Dxz): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg2Dyz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(rg2Dyz): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg1Dx->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1x): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg1Dy->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1Dy): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg1Dz->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1Dz): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   rg0D->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg0D): "
        << bounds[0] << ", " << bounds[1] << ", "
        << bounds[2] << ", " << bounds[3] << ", "
        << bounds[4] << ", " << bounds[5] << endl;
-    
+
   // Test GetPoint
-  
+
   double point[6];
   rg3D->GetPoint(k * (20 * 20) + j * 20 + i, point);
   strm << "GetPoint(rg3D): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg2Dxy->GetPoint(j * 20 + i, point);
   strm << "GetPoint(rg2Dxy): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg2Dxz->GetPoint(j * 20 + i, point);
   strm << "GetPoint(rg2Dxz): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg2Dyz->GetPoint(j * 20  + i, point);
   strm << "GetPoint(rg2Dyz): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg1Dx->GetPoint(i, point);
   strm << "GetPoint(rg1x): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg1Dy->GetPoint(i, point);
   strm << "GetPoint(rg1Dy): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg1Dz->GetPoint(i, point);
   strm << "GetPoint(rg1Dz): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
-    
+
   rg0D->GetPoint(0, point);
   strm << "GetPoint(rg0D): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
 
   // Test FindPoint
-  
+
   double point3D[3] = {10, 12, 14};
 
   rg3D->GetPoint(rg3D->FindPoint(point3D), point);
@@ -431,11 +431,11 @@ int TestORG(ostream& strm)
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
 
   // Test FindAndGetCell
-  
+
   double pcoords[3], weights[8];
   int subId;
   vtkCell *dummyCell = NULL;
-  
+
   point3D[0] = 10.5;
   point3D[1] = 12.1;
   point3D[2] = 14.7;
@@ -458,7 +458,7 @@ int TestORG(ostream& strm)
     strm << "FindAndGetCell(rg2Dxy) not found!" << endl;
     return 1;
     }
-  
+
   strm << "FindAndGetCell(rg2Dxy): " << *found;
   strm << "pcoords: "
        << pcoords[0] << ", " << pcoords[1] << endl;
@@ -475,7 +475,7 @@ int TestORG(ostream& strm)
     strm << "FindAndGetCell(rg2Dxz) not found!" << endl;
     return 1;
     }
-  
+
   strm << "FindAndGetCell(rg2Dxz): " << *found;
   strm << "pcoords: "
        << pcoords[0] << ", " << pcoords[1] << endl;
@@ -492,7 +492,7 @@ int TestORG(ostream& strm)
     strm << "FindAndGetCell(rg2Dyz) not found!" << endl;
     return 1;
     }
-  
+
   strm << "FindAndGetCell(rg2Dyz): " << *found;
   strm << "pcoords: "
        << pcoords[0] << ", " << pcoords[1] << endl;
@@ -507,7 +507,7 @@ int TestORG(ostream& strm)
     strm << "FindAndGetCell(rg1Dx) not found!" << endl;
     return 1;
     }
-  
+
   strm << "FindAndGetCell(rg1Dx): " << *found;
   strm << "pcoords: "
        << pcoords[0] << endl;
@@ -523,7 +523,7 @@ int TestORG(ostream& strm)
     strm << "FindAndGetCell(rg1Dy) not found!" << endl;
     return 1;
     }
-  
+
   strm << "FindAndGetCell(rg1Dy): " << *found;
   strm << "pcoords: "
        << pcoords[0] << endl;
@@ -539,7 +539,7 @@ int TestORG(ostream& strm)
     strm << "FindAndGetCell(rg1Dz) not found!" << endl;
     return 1;
     }
-  
+
   strm << "FindAndGetCell(rg1Dz): " << *found;
   strm << "pcoords: "
        << pcoords[0] << endl;
@@ -557,7 +557,7 @@ int TestORG(ostream& strm)
   strm << "GetCellType(rg1Dy): " << rg1Dy->GetCellType(0) << endl;
   strm << "GetCellType(rg1Dz): " << rg1Dz->GetCellType(0) << endl;
   strm << "GetCellType(rg0D): " << rg0D->GetCellType(0) << endl;
-  
+
   // Test GetActualMemorySize
 
   strm << "GetActualMemorySize(rg3D): " << rg3D->GetActualMemorySize() << endl;
@@ -568,8 +568,8 @@ int TestORG(ostream& strm)
   strm << "GetActualMemorySize(rg1Dy): " << rg1Dy->GetActualMemorySize() << endl;
   strm << "GetActualMemorySize(rg1Dz): " << rg1Dz->GetActualMemorySize() << endl;
   strm << "GetActualMemorySize(rg0D): " << rg0D->GetActualMemorySize() << endl;
-  
-  // Cleanup  
+
+  // Cleanup
   rg0D->Delete();
   rg1Dx->Delete();
   rg1Dy->Delete();
@@ -599,6 +599,6 @@ int TestORG(ostream& strm)
 
 int otherRectilinearGrid(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   return TestORG(vtkmsg_with_warning_C4701);
-} 
+}

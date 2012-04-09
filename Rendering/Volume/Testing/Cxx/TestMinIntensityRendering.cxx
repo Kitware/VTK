@@ -39,18 +39,18 @@ int TestMinIntensityRendering( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
   vtkRenderer *ren = vtkRenderer::New();
   renWin->AddRenderer(ren);
-  
+
   // Read the data from a vtk file
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
   reader->SetFileName(fname);
   reader->Update();
   delete [] fname;
-  
+
   // Create a transfer function mapping scalar value to opacity
   vtkPiecewiseFunction *oTFun = vtkPiecewiseFunction::New();
   oTFun->AddSegment(0, 1.0, 256, 0.1);
-    
+
   vtkColorTransferFunction *cTFun = vtkColorTransferFunction::New();
   cTFun->AddRGBPoint(   0, 1.0, 1.0, 1.0 );
   cTFun->AddRGBPoint( 255, 1.0, 1.0, 1.0 );
@@ -60,31 +60,31 @@ int TestMinIntensityRendering( int argc, char *argv[] )
   clip->SetInputConnection( reader->GetOutputPort() );
   clip->SetOutputWholeExtent(0,66,0,66,30,37);
   clip->ClipDataOn();
-  
+
   vtkVolumeProperty *property = vtkVolumeProperty::New();
   property->SetScalarOpacity(oTFun);
   property->SetColor(cTFun);
   property->SetInterpolationTypeToLinear();
-  
+
   vtkFixedPointVolumeRayCastMapper *mapper = vtkFixedPointVolumeRayCastMapper::New();
   mapper->SetBlendModeToMinimumIntensity();
   mapper->SetInputConnection( clip->GetOutputPort() );
-  
+
   vtkVolume *volume = vtkVolume::New();
   volume->SetMapper(mapper);
   volume->SetProperty(property);
-  
-  
+
+
   ren->AddViewProp(volume);
-  
+
   renWin->Render();
   int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
-  
+
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
-  
+
   volume->Delete();
   mapper->Delete();
   property->Delete();
@@ -95,14 +95,14 @@ int TestMinIntensityRendering( int argc, char *argv[] )
   renWin->Delete();
   iren->Delete();
   ren->Delete();
-  
-  
+
+
   return !retVal;
-  
+
 }
 
 
-  
+
 
 
 

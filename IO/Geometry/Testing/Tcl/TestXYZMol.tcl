@@ -12,7 +12,7 @@ vtkXYZMolReader pdb0
   pdb0 SetFileName "$VTK_DATA_ROOT/Data/thio3xx.xyz"
 
 vtkSphereSource Sphere0
-  Sphere0 SetCenter 0 0 0 
+  Sphere0 SetCenter 0 0 0
   Sphere0 SetRadius 1
   Sphere0 SetThetaResolution 8
   Sphere0 SetStartTheta 0

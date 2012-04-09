@@ -59,13 +59,13 @@ int vtkFillHolesFilter::RequestData(
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
 
   vtkDebugMacro(<<"Executing hole fill operation");
-  
+
   // check the input, build data structures as necessary
   vtkIdType numPts, npts, *pts;
   vtkPoints *inPts=input->GetPoints();
   vtkIdType numPolys = input->GetNumberOfPolys();
   vtkIdType numStrips = input->GetNumberOfStrips();
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || !inPts || 
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || !inPts ||
        (numPolys < 1 && numStrips < 1) )
     {
     vtkDebugMacro(<<"No input data!");
@@ -108,14 +108,14 @@ int vtkFillHolesFilter::RequestData(
   newLines->Allocate(numPts/10);
   Lines->SetLines(newLines);
   Lines->SetPoints(inPts);
-  
+
   // grab all free edges and place them into a temporary polydata
   int abort=0;
   vtkIdType cellId, p1, p2, numNei, i, numCells=newPolys->GetNumberOfCells();
   vtkIdType progressInterval=numCells/20+1;
   vtkIdList *neighbors = vtkIdList::New();
   neighbors->Allocate(VTK_CELL_SIZE);
-  for (cellId=0, newPolys->InitTraversal(); 
+  for (cellId=0, newPolys->InitTraversal();
        newPolys->GetNextCell(npts,pts) && !abort; cellId++)
     {
     if ( ! (cellId % progressInterval) ) //manage progress / early abort
@@ -124,7 +124,7 @@ int vtkFillHolesFilter::RequestData(
       abort = this->GetAbortExecute();
       }
 
-    for (i=0; i < npts; i++) 
+    for (i=0; i < npts; i++)
       {
       p1 = pts[i];
       p2 = pts[(i+1)%npts];
@@ -140,7 +140,7 @@ int vtkFillHolesFilter::RequestData(
         }
       }
     }
-  
+
   // Track all free edges and see whether polygons can be built from them.
   // For each polygon of appropriate HoleSize, triangulate the hole and
   // add to the output list of cells
@@ -227,7 +227,7 @@ int vtkFillHolesFilter::RequestData(
     endId->Delete();
     delete [] visited;
     }//if loops present in the input
-  
+
   // Clean up
   neighbors->Delete();
   Lines->Delete();

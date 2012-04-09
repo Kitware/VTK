@@ -51,7 +51,7 @@ void vtkLinearExtrusionFilter::ViaNormal(double x[3], vtkIdType id,
 }
 
 void vtkLinearExtrusionFilter::ViaVector(double x[3],
-                                           vtkIdType vtkNotUsed(id), 
+                                           vtkIdType vtkNotUsed(id),
                                            vtkDataArray *vtkNotUsed(n))
 {
   for (vtkIdType i=0; i<3; i++)
@@ -150,11 +150,11 @@ int vtkLinearExtrusionFilter::RequestData(
   mesh->SetLines(inLines);
   mesh->SetPolys(inPolys);
   mesh->SetStrips(inStrips);
-  if (inPolys->GetNumberOfCells() || inStrips->GetNumberOfCells()) 
+  if (inPolys->GetNumberOfCells() || inStrips->GetNumberOfCells())
     {
     mesh->BuildLinks();
     }
-  
+
   cellIds = vtkIdList::New();
   cellIds->Allocate(VTK_CELL_SIZE);
 
@@ -170,7 +170,7 @@ int vtkLinearExtrusionFilter::RequestData(
   outputPD->CopyNormalsOff();
   outputPD->CopyAllocate(pd,2*numPts);
   newPts = vtkPoints::New(); newPts->SetNumberOfPoints(2*numPts);
-  if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
+  if ( (ncells=inVerts->GetNumberOfCells()) > 0 )
     {
     newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(ncells,2));
@@ -187,7 +187,7 @@ int vtkLinearExtrusionFilter::RequestData(
 
   // copy points
   for (ptId=0; ptId < numPts; ptId++)
-    { 
+    {
     if ( ! (ptId % progressInterval) ) //manage progress / early abort
       {
       this->UpdateProgress (0.25*ptId/numPts);
@@ -200,7 +200,7 @@ int vtkLinearExtrusionFilter::RequestData(
     outputPD->CopyData(pd,ptId,ptId);
     outputPD->CopyData(pd,ptId,ptId+numPts);
     }
-  
+
   // We need the cellid to copy cell data. Skip points and lines.
   inCellId = outCellId =0;
   if (input->GetVerts())
@@ -240,7 +240,7 @@ int vtkLinearExtrusionFilter::RequestData(
         ++inCellId;
         }
       }
-    
+
     if ( inStrips->GetNumberOfCells() > 0 )
       {
       for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
@@ -259,7 +259,7 @@ int vtkLinearExtrusionFilter::RequestData(
     }
   this->UpdateProgress (0.4);
 
-  // Loop over all polygons and triangle strips searching for boundary edges. 
+  // Loop over all polygons and triangle strips searching for boundary edges.
   // If boundary edge found, extrude triangle strip.
   //
   progressInterval=numCells/10+1;
@@ -365,13 +365,13 @@ int vtkLinearExtrusionFilter::RequestData(
   cellIds->Delete();
   mesh->Delete();
 
-  if ( newLines ) 
+  if ( newLines )
     {
     output->SetLines(newLines);
     newLines->Delete();
     }
 
-  if ( newPolys ) 
+  if ( newPolys )
     {
     output->SetPolys(newPolys);
     newPolys->Delete();
@@ -392,7 +392,7 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   if ( this->ExtrusionType == VTK_VECTOR_EXTRUSION )
     {
     os << indent << "Extrusion Type: Extrude along vector\n";
-    os << indent << "Vector: (" << this->Vector[0] << ", " 
+    os << indent << "Vector: (" << this->Vector[0] << ", "
        << this->Vector[1] << ", " << this->Vector[2] << ")\n";
     }
   else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION )
@@ -402,7 +402,7 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   else //POINT_EXTRUSION
     {
     os << indent << "Extrusion Type: Extrude towards point\n";
-    os << indent << "Extrusion Point: (" << this->ExtrusionPoint[0] << ", " 
+    os << indent << "Extrusion Point: (" << this->ExtrusionPoint[0] << ", "
        << this->ExtrusionPoint[1] << ", " << this->ExtrusionPoint[2] << ")\n";
     }
 

@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricSpline.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -32,14 +32,14 @@ vtkParametricSpline::vtkParametricSpline()
   this->XSpline = vtkCardinalSpline::New();
   this->YSpline = vtkCardinalSpline::New();
   this->ZSpline = vtkCardinalSpline::New();
-  
+
   this->Closed = 0;
   this->LeftConstraint = 1;
   this->LeftValue = 0.0;
   this->RightConstraint = 1;
   this->RightValue = 0.0;
   this->ParameterizeByLength = 1;
-  
+
   this->InitializeTime = 0;
 }
 
@@ -232,13 +232,13 @@ int vtkParametricSpline::Initialize()
   this->XSpline->SetRightConstraint(this->GetRightConstraint());
   this->XSpline->SetLeftValue(this->GetLeftValue());
   this->XSpline->SetRightValue(this->GetRightValue());
-  
+
   this->YSpline->SetClosed(this->GetClosed());
   this->YSpline->SetLeftConstraint(this->GetLeftConstraint());
   this->YSpline->SetRightConstraint(this->GetRightConstraint());
   this->YSpline->SetLeftValue(this->GetLeftValue());
   this->YSpline->SetRightValue(this->GetRightValue());
-  
+
   this->ZSpline->SetClosed(this->GetClosed());
   this->ZSpline->SetLeftConstraint(this->GetLeftConstraint());
   this->ZSpline->SetRightConstraint(this->GetRightConstraint());

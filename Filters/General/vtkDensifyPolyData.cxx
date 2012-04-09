@@ -32,7 +32,7 @@ class vtkDensifyPolyDataInternals
 {
 public:
 
-  // Constructor with params : 
+  // Constructor with params :
   //  - vertices of the triangle to be decimated,
   //  - number of vertices
   //  - ptIds of these vertices
@@ -40,7 +40,7 @@ public:
   //    can be assigned ptIds starting from this value.
   //  - Number of subdivisions
   vtkDensifyPolyDataInternals( double    * verts,
-                                    vtkIdType   numVerts, 
+                                    vtkIdType   numVerts,
                                     vtkIdType * vertIds,
                                     vtkIdType  & numPoints,
                                     unsigned int nSubdivisions)
@@ -48,7 +48,7 @@ public:
     this->NumPoints = this->StartPointId = this->CurrentPointId = numPoints;
     Polygon p( verts, numVerts, vertIds );
     this->Polygons.push_back( p );
-    
+
     // The actual work: subdivision of the supplied polygon is done here.
     for (unsigned int i = 0; i < nSubdivisions; i++)
       {
@@ -65,17 +65,17 @@ public:
   public:
     // Construct a polygon.
     //  nPts:        number of vertices in the polygon
-    //  p:           Array of vertices, organized as p0[0], p0[1], p0[2], 
+    //  p:           Array of vertices, organized as p0[0], p0[1], p0[2],
     //               p1[0], ..
     //  ptIds:       The pointids of the vertices.
-    //  parentPtIds: PointIds of the parent polygon (if one exists), ie the 
+    //  parentPtIds: PointIds of the parent polygon (if one exists), ie the
     //               polygon this is intended to represent a subdivision of.
     //
-    Polygon( double *p, vtkIdType nPts, vtkIdType *ptIds, 
+    Polygon( double *p, vtkIdType nPts, vtkIdType *ptIds,
              vtkIdType nParentPoints = 0, vtkIdType *parentPtIds = NULL)
       {
       this->Verts   = new double[3*nPts];
-      this->VertIds = new vtkIdType[nPts];      
+      this->VertIds = new vtkIdType[nPts];
       this->NumVerts = nPts;
       for (vtkIdType i = 0; i < nPts; i++ )
         {
@@ -102,14 +102,14 @@ public:
       }
 
     // Default constructor
-    Polygon() 
+    Polygon()
       {
       this->NumVerts = this->NumParentVerts = 0;
       this->VertIds = this->ParentVertIds = NULL;
       this->Verts = NULL;
       }
-    
-    ~Polygon() 
+
+    ~Polygon()
       {
       this->Clear();
       }
@@ -175,7 +175,7 @@ public:
           {
           this->ParentVertIds[i] = p.ParentVertIds[i];
           }
-        }        
+        }
       else
         {
         this->ParentVertIds = NULL;
@@ -222,7 +222,7 @@ public:
         {
         if (this->VertIds[i] == id)
           {
-          p[0] = this->Verts[3*i];  
+          p[0] = this->Verts[3*i];
           p[1] = this->Verts[3*i+1];
           p[2] = this->Verts[3*i+2];
           return true;
@@ -241,7 +241,7 @@ public:
   // A container of polygons.
   typedef std::vector< Polygon > PolygonsType;
 
-  // After subdivision, use this method to get the next point. 
+  // After subdivision, use this method to get the next point.
   // Returns the pointId of the point. Returns -1 if no more points.
   vtkIdType GetNextPoint( double p[3], vtkIdList * parentPointIds = NULL )
     {
@@ -270,8 +270,8 @@ public:
     }
 
   // After subdivision, methods to get the next cell (polygon) point Ids.
-  // Returns false if no more cells. 
-  vtkIdType * GetNextCell( 
+  // Returns false if no more cells.
+  vtkIdType * GetNextCell(
       vtkIdType & numVerts /* number of verts in the returned ids */ )
     {
     vtkIdType *vertIds = NULL;
@@ -301,19 +301,19 @@ public:
     // Subdivide the polygon by fanning out triangles from the centroid of the
     // polygon over to each of the vertices of the polygon.
     double centroid[3];
-    t.GetCentroid( centroid );    
-    
+    t.GetCentroid( centroid );
+
     for (vtkIdType i = 0; i < t.NumVerts; i++)
       {
       vtkIdType id1 = i, id2 = (i+1)%(t.NumVerts), id3 = this->NumPoints;
 
       // verts for the new triangle.
-      double verts[9] = 
+      double verts[9] =
         {  t.Verts[3*id1], t.Verts[3*id1+1], t.Verts[3*id1+2],
            t.Verts[3*id2], t.Verts[3*id2+1], t.Verts[3*id2+2],
            centroid[0],    centroid[1],      centroid[2]       };
       vtkIdType vertIds[3] = { t.VertIds[id1], t.VertIds[id2], id3 };
-      polygons.push_back( 
+      polygons.push_back(
           Polygon( verts, 3, vertIds, t.NumVerts, t.VertIds ) );
       }
 
@@ -340,8 +340,8 @@ public:
 
 private:
   PolygonsType            Polygons;
-  vtkIdType               NumPoints;  
-  vtkIdType               StartPointId;  
+  vtkIdType               NumPoints;
+  vtkIdType               StartPointId;
   vtkIdType               CurrentPointId;
   PolygonsType::iterator  PolygonsIterator;
 };
@@ -404,7 +404,7 @@ int vtkDensifyPolyData::RequestData(
   // Will be at least that big.. in reality much larger..
   outputPolys->Allocate( outputPolys->EstimateSize( inputNumCells, 3 ) );
 
-  // Copy pointdata structure from input. There will be at least as many 
+  // Copy pointdata structure from input. There will be at least as many
   // points as in the input.
   vtkPointData * inputPD  = input->GetPointData();
   vtkCellData  * inputCD  = input->GetCellData();
@@ -443,10 +443,10 @@ int vtkDensifyPolyData::RequestData(
       outputCD->CopyData( inputCD, cellId, newCellId );
       continue;
       }
-    
+
     double triangleOrQuadPoints[4*3]; // points of the cell (triangle or quad)
     double *p;
-    
+
     if(cellType==VTK_POLYGON)
       {
       p=new double[npts*3];
@@ -455,12 +455,12 @@ int vtkDensifyPolyData::RequestData(
       {
       p=triangleOrQuadPoints;
       }
-    
+
     for (vtkIdType j=0; j < npts; j++)
       {
       inputPoints->GetPoint(ptIds[j], p+(3*j));
       }
-    
+
     // Check constraints..
     unsigned int nSubdivisions = VTK_UNSIGNED_INT_MAX;
 
@@ -487,26 +487,26 @@ int vtkDensifyPolyData::RequestData(
       //  = nPts * pow(3, nSubdivisions-1)
       outputNumCells += (npts * static_cast< vtkIdType >(
                            pow(3.0,static_cast<int>(nSubdivisions-1))));
-      
+
       // Ensure that we have enough space to hold the new cell data. (This does
-      // not actually resize the array at every step of the iteration.) It will 
-      // end up resizing when 
+      // not actually resize the array at every step of the iteration.) It will
+      // end up resizing when
       // outputNumCells = { 2*inputNumCells, 4*inputNumCells, 8*inputNumCells,
       //                    16*inputNumCells, .... }.
       outputCD->CopyAllocate( outputCD, outputNumCells );
-      
-      vtkDensifyPolyDataInternals 
+
+      vtkDensifyPolyDataInternals
         polygons( p, npts, ptIds, outputNumPoints, nSubdivisions );
-      
+
       // Insert points and cells generated by subdividing this polygon
-      // nSubdivisions times. Generate the point data and the cell data 
+      // nSubdivisions times. Generate the point data and the cell data
       // for the new cell points and cells.
-      
+
       outputPD->CopyAllocate( outputPD, outputNumPoints);
       while ((ptId = polygons.GetNextPoint(q, parentPointIds)) != -1)
-        {  
-        
-        // Interpolation weights for interpolating point data at the 
+        {
+
+        // Interpolation weights for interpolating point data at the
         // subdivided polygon
         vtkIdType nParentVerts = parentPointIds->GetNumberOfIds();
         double *interpolationWeights = new double [nParentVerts];
@@ -515,14 +515,14 @@ int vtkDensifyPolyData::RequestData(
           {
           interpolationWeights[i] = weight;
           }
-        
+
         outputPoints->InsertNextPoint( q );
-        outputPD->InterpolatePoint( inputPD, ptId, 
-                                    parentPointIds, interpolationWeights );  
-        
+        outputPD->InterpolatePoint( inputPD, ptId,
+                                    parentPointIds, interpolationWeights );
+
         delete [] interpolationWeights;
-        } 
-      
+        }
+
       vtkIdType numNewCellVerts;
       while (vtkIdType * newCellVertIds = polygons.GetNextCell(numNewCellVerts))
         {
@@ -537,7 +537,7 @@ int vtkDensifyPolyData::RequestData(
       }
     } // for every cell
 
-  
+
   output->SetPoints( outputPoints );
   output->SetPolys( outputPolys );
 
@@ -567,8 +567,8 @@ int vtkDensifyPolyData::FillInputPortInformation(
 void vtkDensifyPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "Number of Subdivisions: " 
-     << this->NumberOfSubdivisions << endl;  
+
+  os << indent << "Number of Subdivisions: "
+     << this->NumberOfSubdivisions << endl;
 }
 

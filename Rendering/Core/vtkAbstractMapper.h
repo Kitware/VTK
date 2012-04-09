@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkAbstractMapper - abstract class specifies interface to map data
 // .SECTION Description
-// vtkAbstractMapper is an abstract class to specify interface between data and 
-// graphics primitives or software rendering techniques. Subclasses of 
+// vtkAbstractMapper is an abstract class to specify interface between data and
+// graphics primitives or software rendering techniques. Subclasses of
 // vtkAbstractMapper can be used for rendering 2D data, geometry, or volumetric
 // data.
 //
@@ -90,13 +90,13 @@ public:
 
   // Description:
   // Internal helper function for getting the active scalars. The scalar
-  // mode indicates where the scalars come from.  The cellFlag is a 
+  // mode indicates where the scalars come from.  The cellFlag is a
   // return value that is set when the scalars actually are cell scalars.
   // (0 for point scalars, 1 for cell scalars, 2 for field scalars)
-  // The arrayAccessMode is used to indicate how to retrieve the scalars from 
+  // The arrayAccessMode is used to indicate how to retrieve the scalars from
   // field data, per id or per name (if the scalarMode indicates that).
   static vtkDataArray *GetScalars(vtkDataSet *input, int scalarMode,
-                                  int arrayAccessMode, int arrayId, 
+                                  int arrayAccessMode, int arrayId,
                                   const char *arrayName, int& cellFlag);
 
 protected:

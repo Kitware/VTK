@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkRectangularButtonSource creates a rectangular shaped button with
 // texture coordinates suitable for application of a texture map. This
-// provides a way to make nice looking 3D buttons. The buttons are 
+// provides a way to make nice looking 3D buttons. The buttons are
 // represented as vtkPolyData that includes texture coordinates and
 // normals. The button lies in the x-y plane.
 //
@@ -26,7 +26,7 @@
 // The distance from the floor to the top of the box is the depth; the other
 // directions are the length (x-direction) and height (y-direction). In
 // this particular widget the box can have a smaller bottom than top. The
-// ratio in size between bottom and top is called the box ratio (by 
+// ratio in size between bottom and top is called the box ratio (by
 // default=1.0). The ratio of the texture region to the shoulder region
 // is the texture ratio. And finally the texture region may be out of plane
 // compared to the shoulder. The texture height ratio controls this.
@@ -87,7 +87,7 @@ public:
   // shoulder region. This number must be 0<=tr<=1.
   // If the texture style is to fit the image, then satisfying
   // the texture ratio may only be possible in one of the
-  // two directions (length or width) depending on the 
+  // two directions (length or width) depending on the
   // dimensions of the texture.
   vtkSetClampMacro(TextureRatio,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(TextureRatio,double);

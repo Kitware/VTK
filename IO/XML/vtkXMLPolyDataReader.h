@@ -35,40 +35,40 @@ class VTKIOXML_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPolyDataReader,vtkXMLUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkPolyData *GetOutput();
   vtkPolyData *GetOutput(int idx);
-  
+
   // Description:
   // Get the number of verts/lines/strips/polys in the output.
   virtual vtkIdType GetNumberOfVerts();
   virtual vtkIdType GetNumberOfLines();
   virtual vtkIdType GetNumberOfStrips();
   virtual vtkIdType GetNumberOfPolys();
-  
+
 protected:
   vtkXMLPolyDataReader();
   ~vtkXMLPolyDataReader();
-  
+
   const char* GetDataSetName();
   void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
   void SetupOutputTotals();
   void SetupNextPiece();
   void SetupPieces(int numPieces);
   void DestroyPieces();
-  
+
   void SetupOutputData();
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();
-  
+
   // Read a data array whose tuples coorrespond to cells.
-  virtual int ReadArrayForCells(vtkXMLDataElement* da, 
+  virtual int ReadArrayForCells(vtkXMLDataElement* da,
     vtkAbstractArray* outArray);
-  
+
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.
   virtual vtkIdType GetNumberOfCellsInPiece(int piece);
@@ -84,7 +84,7 @@ protected:
   vtkIdType StartLine;
   vtkIdType StartStrip;
   vtkIdType StartPoly;
-  
+
   // The cell elements for each piece.
   vtkXMLDataElement** VertElements;
   vtkXMLDataElement** LineElements;

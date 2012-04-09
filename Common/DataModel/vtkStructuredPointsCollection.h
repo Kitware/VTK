@@ -38,7 +38,7 @@ public:
     {
       this->vtkCollection::AddItem(ds);
     }
-  
+
   // Description:
   // Get the next item in the collection. NULL is returned if the collection
   // is exhausted.
@@ -46,9 +46,9 @@ public:
     return static_cast<vtkStructuredPoints *>(this->GetNextItemAsObject());};
 
     //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkStructuredPoints *GetNextStructuredPoints(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkStructuredPoints *>(
@@ -58,8 +58,8 @@ public:
 protected:
   vtkStructuredPointsCollection() {};
   ~vtkStructuredPointsCollection() {};
-  
-  
+
+
 
 private:
   // hide the standard AddItem from the user and the compiler.

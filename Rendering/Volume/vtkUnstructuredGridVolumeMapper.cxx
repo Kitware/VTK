@@ -28,14 +28,14 @@ vtkUnstructuredGridVolumeMapper::vtkUnstructuredGridVolumeMapper()
 }
 
 vtkUnstructuredGridVolumeMapper::~vtkUnstructuredGridVolumeMapper()
-{  
+{
 }
 
 void vtkUnstructuredGridVolumeMapper::SetInputData( vtkDataSet *genericInput )
 {
-  vtkUnstructuredGrid *input = 
+  vtkUnstructuredGrid *input =
     vtkUnstructuredGrid::SafeDownCast( genericInput );
-  
+
   if ( input )
     {
     this->SetInputData( input );
@@ -66,7 +66,7 @@ vtkUnstructuredGrid *vtkUnstructuredGridVolumeMapper::GetInput()
 void vtkUnstructuredGridVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Blend Mode: " << this->BlendMode << endl;
 }
 

@@ -79,7 +79,7 @@ void vtkQtRecordView::SetFieldType(int type)
 }
 
 void vtkQtRecordView::AddRepresentationInternal(vtkDataRepresentation* rep)
-{    
+{
   vtkAlgorithmOutput *conn;
   conn = rep->GetInputConnection();
 
@@ -87,7 +87,7 @@ void vtkQtRecordView::AddRepresentationInternal(vtkDataRepresentation* rep)
 }
 
 void vtkQtRecordView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
-{   
+{
   vtkAlgorithmOutput *conn;
   conn = rep->GetInputConnection();
   this->DataObjectToTable->RemoveInputConnection(0, conn);
@@ -129,7 +129,7 @@ void vtkQtRecordView::Update()
 
   vtkSmartPointer<vtkSelection> cs;
   cs.TakeReference(vtkConvertSelection::ToSelectionType(
-    rep->GetAnnotationLink()->GetCurrentSelection(), 
+    rep->GetAnnotationLink()->GetCurrentSelection(),
     table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
   vtkSelectionNode *node = cs->GetNode(0);
   const vtkIdType column_count = table->GetNumberOfColumns();

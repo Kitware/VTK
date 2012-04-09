@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageNormalize - Normalizes that scalar components for each point.
 // .SECTION Description
-// For each point, vtkImageNormalize normalizes the vector defined by the 
+// For each point, vtkImageNormalize normalizes the vector defined by the
 // scalar components.  If the magnitude of this vector is zero, the output
 // vector is zero also.
 
@@ -37,7 +37,7 @@ protected:
   ~vtkImageNormalize() {};
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
-  
+
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:

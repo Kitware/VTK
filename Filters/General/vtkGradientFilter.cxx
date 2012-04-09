@@ -45,9 +45,9 @@
 
 vtkStandardNewMacro(vtkGradientFilter);
 
-namespace 
+namespace
 {
-  // helper function to replace the gradient of a vector 
+  // helper function to replace the gradient of a vector
   // with the vorticity/curl of that vector
 //-----------------------------------------------------------------------------
   template<class data_type>
@@ -81,7 +81,7 @@ namespace
     int numberOfInputComponents, int computeVorticity, data_type* qCriterion);
 
   int GetCellParametricData(
-    vtkIdType pointId, double pointCoord[3], vtkCell *cell, int & subId, 
+    vtkIdType pointId, double pointCoord[3], vtkCell *cell, int & subId,
     double parametricCoord[3]);
 
   template<class data_type>
@@ -109,9 +109,9 @@ namespace
     return 0;
   }
 
-  // generic way to get the coordinate for either a cell (using 
+  // generic way to get the coordinate for either a cell (using
   // the parametric center) or a point
-  void GetGridEntityCoordinate(vtkDataSet* grid, int fieldAssociation, 
+  void GetGridEntityCoordinate(vtkDataSet* grid, int fieldAssociation,
                                vtkIdType index, double coords[3])
   {
     if(fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
@@ -200,13 +200,13 @@ int vtkGradientFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
   // since this class is pretty inefficient for data types that use 3D extents,
   // we'll punt on the ghost levels for them, too.
   int piece, numPieces, ghostLevels;
-  
+
   piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces = outInfo->Get(
                    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevels = outInfo->Get(
              vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
+
   if (numPieces > 1)
     {
     ++ghostLevels;
@@ -238,7 +238,7 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
     = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDataArray *array = this->GetInputArrayToProcess(0, inputVector);
-  
+
   if (array == NULL)
     {
     vtkErrorMacro("No input array.");
@@ -306,11 +306,11 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
     vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(output);
     // Currently the only grids that ghost cells can be removed from
     // are unstructured grids and polydatas
-    if (pd) 
+    if (pd)
       {
       pd->RemoveGhostCells(ghostLevel+1);
       }
-    else if (ug) 
+    else if (ug)
       {
       ug->RemoveGhostCells(ghostLevel+1);
       }
@@ -572,7 +572,7 @@ namespace {
     vtkIdList* currentPoint = vtkIdList::New();
     currentPoint->SetNumberOfIds(1);
     vtkIdList* cellsOnPoint = vtkIdList::New();
-    
+
     vtkIdType numpts = structure->GetNumberOfPoints();
     std::vector<data_type> g(3*numberOfInputComponents);
 
@@ -596,7 +596,7 @@ namespace {
         {
         g[i] = 0;
         }
-      
+
       // Iterate on all cells and find all points connected to current point
       // by an edge.
       for (vtkIdType neighbor = 0; neighbor < numCellNeighbors; neighbor++)
@@ -604,7 +604,7 @@ namespace {
         vtkCell *cell = structure->GetCell(cellsOnPoint->GetId(neighbor));
         int subId;
         double parametricCoord[3];
-        if(GetCellParametricData(point, pointcoords, cell, 
+        if(GetCellParametricData(point, pointcoords, cell,
                                  subId, parametricCoord))
           {
           numValidCellNeighbors++;
@@ -618,11 +618,11 @@ namespace {
               values[i] = static_cast<double>(
                 array[cell->GetPointId(i)*numberOfInputComponents+InputComponent]);
               }
-            
+
             double derivative[3];
             // Get derivative of cell at point.
             cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
-            
+
             g[InputComponent*3] += static_cast<data_type>(derivative[0]);
             g[InputComponent*3+1] += static_cast<data_type>(derivative[1]);
             g[InputComponent*3+2] += static_cast<data_type>(derivative[2]);
@@ -651,13 +651,13 @@ namespace {
         gradients[point*numberOfOutputComponents+i] = g[i];
         }
       }  // iterating over points in grid
-    
+
     currentPoint->Delete();
     cellsOnPoint->Delete();
   }
-  
+
 //-----------------------------------------------------------------------------
-  int GetCellParametricData(vtkIdType pointId, double pointCoord[3], 
+  int GetCellParametricData(vtkIdType pointId, double pointCoord[3],
                             vtkCell *cell, int &subId, double parametricCoord[3])
   {
     // Watch out for degenerate cells.  They make the derivative calculation
@@ -666,7 +666,7 @@ namespace {
     int timesPointRegistered = 0;
     for (int i = 0; i < pointIds->GetNumberOfIds(); i++)
       {
-      if (pointId == pointIds->GetId(i)) 
+      if (pointId == pointIds->GetId(i))
         {
         timesPointRegistered++;
         }
@@ -676,14 +676,14 @@ namespace {
       // The cell should have the point exactly once.  Not good.
       return 0;
       }
-    
+
     double dummy;
     int numpoints = cell->GetNumberOfPoints();
-    std::vector<double> values(numpoints);    
+    std::vector<double> values(numpoints);
     // Get parametric position of point.
     cell->EvaluatePosition(pointCoord, NULL, subId, parametricCoord,
                            dummy, &values[0]/*Really another dummy.*/);
-    
+
     return 1;
   }
 
@@ -778,12 +778,12 @@ namespace {
         }
       }
     int ijsize = dims[0]*dims[1];
-    
-    for (k=0; k<dims[2]; k++) 
+
+    for (k=0; k<dims[2]; k++)
       {
-      for (j=0; j<dims[1]; j++) 
+      for (j=0; j<dims[1]; j++)
         {
-        for (i=0; i<dims[0]; i++) 
+        for (i=0; i<dims[0]; i++)
           {
           //  Xi derivatives.
           if ( dims[0] == 1 ) // 2D in this direction
@@ -800,7 +800,7 @@ namespace {
               plusvalues[inputComponent] = minusvalues[inputComponent] = 0;
               }
             }
-          else if ( i == 0 ) 
+          else if ( i == 0 )
             {
             factor = 1.0;
             idx = (i+1) + j*dims[0] + k*ijsize;
@@ -813,8 +813,8 @@ namespace {
               plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
-            } 
-          else if ( i == (dims[0]-1) ) 
+            }
+          else if ( i == (dims[0]-1) )
             {
             factor = 1.0;
             idx = i + j*dims[0] + k*ijsize;
@@ -827,8 +827,8 @@ namespace {
               plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
-            } 
-          else 
+            }
+          else
             {
             factor = 0.5;
             idx = (i+1) + j*dims[0] + k*ijsize;
@@ -842,16 +842,16 @@ namespace {
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
             }
-          
+
           xxi = factor * (xp[0] - xm[0]);
           yxi = factor * (xp[1] - xm[1]);
           zxi = factor * (xp[2] - xm[2]);
           for(inputComponent=0;inputComponent<numberOfInputComponents;inputComponent++)
             {
-            dValuesdXi[inputComponent] = factor * 
+            dValuesdXi[inputComponent] = factor *
               (plusvalues[inputComponent] - minusvalues[inputComponent]);
             }
-          
+
           //  Eta derivatives.
           if ( dims[1] == 1 ) // 2D in this direction
             {
@@ -867,7 +867,7 @@ namespace {
               plusvalues[inputComponent] = minusvalues[inputComponent] = 0;
               }
             }
-          else if ( j == 0 ) 
+          else if ( j == 0 )
             {
             factor = 1.0;
             idx = i + (j+1)*dims[0] + k*ijsize;
@@ -880,8 +880,8 @@ namespace {
               plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
-            } 
-          else if ( j == (dims[1]-1) ) 
+            }
+          else if ( j == (dims[1]-1) )
             {
             factor = 1.0;
             idx = i + j*dims[0] + k*ijsize;
@@ -894,8 +894,8 @@ namespace {
               plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
-            } 
-          else 
+            }
+          else
             {
             factor = 0.5;
             idx = i + (j+1)*dims[0] + k*ijsize;
@@ -915,10 +915,10 @@ namespace {
           zeta = factor * (xp[2] - xm[2]);
           for(inputComponent=0;inputComponent<numberOfInputComponents;inputComponent++)
             {
-            dValuesdEta[inputComponent] = factor * 
+            dValuesdEta[inputComponent] = factor *
               (plusvalues[inputComponent] - minusvalues[inputComponent]);
             }
-          
+
           //  Zeta derivatives.
           if ( dims[2] == 1 ) // 2D in this direction
             {
@@ -934,7 +934,7 @@ namespace {
               }
             xp[2] = 1.0;
             }
-          else if ( k == 0 ) 
+          else if ( k == 0 )
             {
             factor = 1.0;
             idx = i + j*dims[0] + (k+1)*ijsize;
@@ -947,8 +947,8 @@ namespace {
               plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
-            } 
-          else if ( k == (dims[2]-1) ) 
+            }
+          else if ( k == (dims[2]-1) )
             {
             factor = 1.0;
             idx = i + j*dims[0] + k*ijsize;
@@ -961,8 +961,8 @@ namespace {
               plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
-            } 
-          else 
+            }
+          else
             {
             factor = 0.5;
             idx = i + j*dims[0] + (k+1)*ijsize;
@@ -976,16 +976,16 @@ namespace {
               minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
               }
             }
-          
+
           xzeta = factor * (xp[0] - xm[0]);
           yzeta = factor * (xp[1] - xm[1]);
           zzeta = factor * (xp[2] - xm[2]);
           for(inputComponent=0;inputComponent<numberOfInputComponents;inputComponent++)
             {
-            dValuesdZeta[inputComponent] = factor * 
+            dValuesdZeta[inputComponent] = factor *
               (plusvalues[inputComponent] - minusvalues[inputComponent]);
             }
-          
+
           // Now calculate the Jacobian.  Grids occasionally have
           // singularities, or points where the Jacobian is infinite (the
           // inverse is zero).  For these cases, we'll set the Jacobian to
@@ -1002,17 +1002,17 @@ namespace {
           xix  =  aj*(yeta*zzeta-zeta*yzeta);
           xiy  = -aj*(xeta*zzeta-zeta*xzeta);
           xiz  =  aj*(xeta*yzeta-yeta*xzeta);
-          
+
           //  Eta metrics.
           etax = -aj*(yxi*zzeta-zxi*yzeta);
           etay =  aj*(xxi*zzeta-zxi*xzeta);
           etaz = -aj*(xxi*yzeta-yxi*xzeta);
-          
+
           //  Zeta metrics.
           zetax=  aj*(yxi*zeta-zxi*yeta);
           zetay= -aj*(xxi*zeta-zxi*xeta);
           zetaz=  aj*(xxi*yeta-yxi*xeta);
-          
+
           // Finally compute the actual derivatives
           idx = i + j*dims[0] + k*ijsize;
           for(inputComponent=0;inputComponent<numberOfInputComponents;inputComponent++)
@@ -1025,7 +1025,7 @@ namespace {
             g[inputComponent*3+1] = static_cast<data_type>(
               xiy*dValuesdXi[inputComponent]+etay*dValuesdEta[inputComponent]+
               zetay*dValuesdZeta[inputComponent]);
-            
+
             g[inputComponent*3+2] = static_cast<data_type>(
               xiz*dValuesdXi[inputComponent]+etaz*dValuesdEta[inputComponent]+
               zetaz*dValuesdZeta[inputComponent]);
@@ -1042,10 +1042,10 @@ namespace {
           for(int component=0;component<numberOfOutputComponents;component++)
             {
             gradients[idx*numberOfOutputComponents+component] = g[component];
-            }  
+            }
           }
         }
-      } 
+      }
   }
 
 } // end anonymous namespace

@@ -167,7 +167,7 @@ vtkSurfaceLICPainter::~vtkSurfaceLICPainter()
 void vtkSurfaceLICPainter::SetInputArrayToProcess(int fieldAssociation,
   const char* name)
 {
-  if (this->Internals->FieldAssociation != fieldAssociation || 
+  if (this->Internals->FieldAssociation != fieldAssociation ||
     !this->Internals->FieldNameSet ||
     this->Internals->FieldName != name)
     {
@@ -182,7 +182,7 @@ void vtkSurfaceLICPainter::SetInputArrayToProcess(int fieldAssociation,
 void vtkSurfaceLICPainter::SetInputArrayToProcess(int fieldAssociation,
   int fieldAttributeType)
 {
-  if (this->Internals->FieldAssociation != fieldAssociation || 
+  if (this->Internals->FieldAssociation != fieldAssociation ||
     this->Internals->FieldNameSet ||
     this->Internals->FieldAttributeType != fieldAttributeType)
     {
@@ -261,10 +261,10 @@ void vtkSurfaceLICPainter::PrepareForRendering
     this->RenderingPreparationSuccess = 0;
     return;
     }
-    
+
   vtkOpenGLRenderWindow * renWin = vtkOpenGLRenderWindow::SafeDownCast
                                    ( renderer->GetRenderWindow() );
-    
+
   if (  !this->IsSupported( renWin )  )
     {
     this->RenderingPreparationSuccess = 0;
@@ -280,7 +280,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
     noise = NULL;
     }
 
-  if ( this->Internals->LastRenderWindow && 
+  if ( this->Internals->LastRenderWindow &&
        this->Internals->LastRenderWindow != renWin )
     {
     // Cleanup all graphics resources associated with the old render window.
@@ -291,16 +291,16 @@ void vtkSurfaceLICPainter::PrepareForRendering
 
   // we get the view port size (not the renderwindow size).
   int viewsize[2], vieworigin[2];
-  renderer->GetTiledSizeAndOrigin( &viewsize[0],   &viewsize[1], 
+  renderer->GetTiledSizeAndOrigin( &viewsize[0],   &viewsize[1],
                                    &vieworigin[0], &vieworigin[1] );
 
-  if ( this->Internals->LastViewportSize[0] != viewsize[0] || 
+  if ( this->Internals->LastViewportSize[0] != viewsize[0] ||
        this->Internals->LastViewportSize[1] != viewsize[1] )
     {
     // View size has changed, we need to re-generate the textures.
     this->Internals->ClearTextures();
     }
-    
+
   this->Internals->LastViewportSize[0] = viewsize[0];
   this->Internals->LastViewportSize[1] = viewsize[1];
 
@@ -331,7 +331,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
     {
     vtkTextureObject * velocityImage = vtkTextureObject::New();
     velocityImage->SetContext( renWin );
-    velocityImage->Create2D( viewsize[0], viewsize[1], 4, VTK_FLOAT, false ); 
+    velocityImage->Create2D( viewsize[0], viewsize[1], 4, VTK_FLOAT, false );
                   // (r,g) == surface vector in image space
                   // (b) == depth.
                   // a == unused.
@@ -345,24 +345,24 @@ void vtkSurfaceLICPainter::PrepareForRendering
     {
     vtkShaderProgram2 * pgmPass1 = vtkShaderProgram2::New();
     pgmPass1->SetContext( renWin );
-    
+
     vtkShader2 * s1 = vtkShader2::New();
     s1->SetSourceCode( vtkSurfaceLICPainter_vs1 );
     s1->SetType( VTK_SHADER_TYPE_VERTEX );
     s1->SetContext( pgmPass1->GetContext() );
-    
+
     vtkShader2 * s2 = vtkShader2::New();
     s2->SetSourceCode( vtkSurfaceLICPainter_fs1 );
     s2->SetType( VTK_SHADER_TYPE_FRAGMENT );
     s2->SetContext( pgmPass1->GetContext() );
-    
+
     pgmPass1->GetShaders()->AddItem( s1 );
     pgmPass1->GetShaders()->AddItem( s2 );
     s1->Delete();
     s2->Delete();
     s1 = NULL;
     s2 = NULL;
-    
+
     this->Internals->LightingHelper->Initialize
                                      ( pgmPass1, VTK_SHADER_TYPE_VERTEX );
     this->Internals->ColorMaterialHelper->Initialize( pgmPass1 );
@@ -399,7 +399,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
     {
     vtkShaderProgram2 * pgmPass2 = vtkShaderProgram2::New();
     pgmPass2->SetContext( renWin );
-    
+
     vtkShader2 * s3 = vtkShader2::New();
     s3->SetSourceCode( vtkSurfaceLICPainter_fs2 );
     s3->SetType( VTK_SHADER_TYPE_FRAGMENT );
@@ -407,7 +407,7 @@ void vtkSurfaceLICPainter::PrepareForRendering
     pgmPass2->GetShaders()->AddItem( s3 );
     s3->Delete();
     s3 = NULL;
-    
+
     this->Internals->PassTwo = pgmPass2;
     pgmPass2->Delete();
     pgmPass2 = NULL;
@@ -509,22 +509,22 @@ void vtkSurfaceLICPainter::PrepareForRendering
       vtkClamp( displayPt[1]/*-vieworigin[1]*/, 0.0, viewsize[1] - 1.0 ), 0.0 );
     }
 
-  this->Internals->ViewportExtent[0] = 
+  this->Internals->ViewportExtent[0] =
         static_cast<unsigned int>( box.GetMinPoint()[0] );
-  this->Internals->ViewportExtent[1] = 
+  this->Internals->ViewportExtent[1] =
         static_cast<unsigned int>( box.GetMaxPoint()[0] );
-  this->Internals->ViewportExtent[2] = 
+  this->Internals->ViewportExtent[2] =
         static_cast<unsigned int>( box.GetMinPoint()[1] );
-  this->Internals->ViewportExtent[3] = 
+  this->Internals->ViewportExtent[3] =
         static_cast<unsigned int>( box.GetMaxPoint()[1] );
 
   vtkDebugMacro( << "ViewportExtent: " << this->Internals->ViewportExtent[0]
-                 << ", " << this->Internals->ViewportExtent[1]  
-                 << ", " << this->Internals->ViewportExtent[2]  
+                 << ", " << this->Internals->ViewportExtent[1]
+                 << ", " << this->Internals->ViewportExtent[2]
                  << ", " << this->Internals->ViewportExtent[3] << endl );
-                 
+
   this->Superclass::PrepareForRendering( renderer, actor );
-  
+
   this->RenderingPreparationSuccess = 1;
 }
 
@@ -533,7 +533,7 @@ void vtkSurfaceLICPainter::RenderInternal
    ( vtkRenderer * renderer,  vtkActor * actor,
      unsigned long typeflags, bool forceCompileOnly )
 {
-  if (  !this->RenderingPreparationSuccess  ||  
+  if (  !this->RenderingPreparationSuccess  ||
         !this->CanRenderLIC( renderer, actor )  )
     {
     this->Superclass::RenderInternal
@@ -555,7 +555,7 @@ void vtkSurfaceLICPainter::RenderInternal
   // TODO: eventually we'll add code to generate the LIC only if the camera
   // position has changed or the input dataset has changed. Currently, we always
   // rebuild the LIC.
-  
+
   // * PASS ONE
   //   * Render geometry
   //   * Outputs:
@@ -586,7 +586,7 @@ void vtkSurfaceLICPainter::RenderInternal
   // Set scissor to work with on the area covered by the data.
   glEnable(GL_SCISSOR_TEST);
   glScissor(this->Internals->ViewportExtent[0],
-    this->Internals->ViewportExtent[2], 
+    this->Internals->ViewportExtent[2],
     this->Internals->ViewportExtent[1]-this->Internals->ViewportExtent[0]+1,
     this->Internals->ViewportExtent[3]-this->Internals->ViewportExtent[2]+1);
 
@@ -599,7 +599,7 @@ void vtkSurfaceLICPainter::RenderInternal
     this->LICSuccess = 0;
     return;
     }
-    
+
   glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
   this->Internals->ColorMaterialHelper->PrepareForRendering();
@@ -617,7 +617,7 @@ void vtkSurfaceLICPainter::RenderInternal
     {
     vtkErrorMacro(<<" validation of the program failed: "<<this->Internals->PassOne->GetLastValidateLog());
     }
-  
+
   this->Internals->ColorMaterialHelper->Render();
 
   this->Superclass::RenderInternal(renderer, actor, typeflags,
@@ -637,7 +637,7 @@ void vtkSurfaceLICPainter::RenderInternal
   // (assuming 1 pixel is a unit square):
   double stepsize = this->StepSize * sqrt(2.0) /
                     sqrt(  static_cast< double > ( licSize[0] * licSize[0] +
-                                                   licSize[1] * licSize[1] 
+                                                   licSize[1] * licSize[1]
                                                  )
                         );
   vtkLineIntegralConvolution2D * licer = vtkLineIntegralConvolution2D::New();
@@ -651,7 +651,7 @@ void vtkSurfaceLICPainter::RenderInternal
     this->LICSuccess = 0;
     return;
     }
-    
+
   licer->SetNumberOfSteps( this->NumberOfSteps );
   licer->SetLICStepSize( stepsize );
   licer->SetEnhancedLIC( this->EnhancedLIC );
@@ -676,7 +676,7 @@ void vtkSurfaceLICPainter::RenderInternal
 
   glFinish();
 
-  // * Now render lic on-to the scene with 
+  // * Now render lic on-to the scene with
   renWin->MakeCurrent();
 
   this->Internals->PassTwo->Build();
@@ -692,15 +692,15 @@ void vtkSurfaceLICPainter::RenderInternal
   lic->Bind();
   int value=0;
   this->Internals->PassTwo->GetUniformVariables()->SetUniformi("texLIC",1,&value);
-  
+
   vtkgl::ActiveTexture(vtkgl::TEXTURE1);
   this->Internals->GeometryImage->Bind();
-  
+
   value=1;
   this->Internals->PassTwo->GetUniformVariables()->SetUniformi("texGeometry",1,&value);
   vtkgl::ActiveTexture(vtkgl::TEXTURE2);
   this->Internals->VelocityImage->Bind();
-  
+
   value=2;
   this->Internals->PassTwo->GetUniformVariables()->SetUniformi("texDepth",1,&value);
 
@@ -721,13 +721,13 @@ void vtkSurfaceLICPainter::RenderInternal
   // vtkFrameBufferObject disables depth-test, we need to enable it.
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_SCISSOR_TEST);
-  
+
   this->Internals->PassTwo->Use();
   if(!this->Internals->PassTwo->IsValid())
     {
     vtkErrorMacro(<<" validation of the program failed: "<<this->Internals->PassTwo->GetLastValidateLog());
     }
-  
+
   glBegin(GL_QUADS);
   glTexCoord2f(0.0, 0.0);
   vtkgl::MultiTexCoord2f(vtkgl::TEXTURE1,
@@ -808,10 +808,10 @@ bool vtkSurfaceLICPainter::PrepareOutput()
   // TODO: Handle composite datasets.
   vtkDataObject* input = this->GetInput();
 
-  if (  !this->Output || 
+  if (  !this->Output ||
         !this->Output->IsA( input->GetClassName() ) ||
-       ( this->Output->GetMTime() < this->GetMTime( ) ) || 
-       ( this->Output->GetMTime() < input->GetMTime() ) 
+       ( this->Output->GetMTime() < this->GetMTime( ) ) ||
+       ( this->Output->GetMTime() < input->GetMTime() )
      )
     {
     this->Internals->HasVectors = true;
@@ -926,12 +926,12 @@ bool vtkSurfaceLICPainter::FixTCoords(vtkDataSet* ds)
 void vtkSurfaceLICPainter::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  
+
   os << indent << "Enable: "        << this->Enable        << endl;
   os << indent << "StepSize: "      << this->StepSize      << endl;
   os << indent << "EnhancedLIC: "   << this->EnhancedLIC   << endl;
   os << indent << "LICIntensity: "  << this->LICIntensity  << endl;
   os << indent << "NumberOfSteps: " << this->NumberOfSteps << endl;
-  os << indent << "RenderingPreparationSuccess: " 
+  os << indent << "RenderingPreparationSuccess: "
                << this->RenderingPreparationSuccess << endl;
 }

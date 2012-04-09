@@ -56,7 +56,7 @@
 // focus (within the hot spot), the initial motion defines a vector which is
 // compared to the x-y-z axes. The motion is constrained to the axis that is
 // most parallel to the initial motion vector.
-// 
+//
 
 // .SECTION See Also
 // vtk3DWidget vtkLineWidget vtkBoxWidget vtkPlaneWidget
@@ -90,7 +90,7 @@ public:
   virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
@@ -98,7 +98,7 @@ public:
   // Grab the polydata (including points) that defines the point. A
   // single point and a vertex compose the vtkPolyData.
   void GetPolyData(vtkPolyData *pd);
-  
+
   // Description:
   // Set/Get the position of the point. Note that if the position is set
   // outside of the bounding box, it will be clamped to the boundary of
@@ -107,9 +107,9 @@ public:
     {this->Cursor3D->SetFocalPoint(x,y,z);}
   void SetPosition(double x[3])
     {this->SetPosition(x[0],x[1],x[2]);}
-  double* GetPosition() 
+  double* GetPosition()
     {return this->Cursor3D->GetFocalPoint();}
-  void GetPosition(double xyz[3]) 
+  void GetPosition(double xyz[3])
     {this->Cursor3D->GetFocalPoint(xyz);}
 
   // Description:
@@ -168,7 +168,7 @@ public:
     { this->SetTranslationMode(1); }
   void TranslationModeOff()
     { this->SetTranslationMode(0); }
-  
+
   // Description:
   // Convenience methods to turn outline and shadows on and off.
   void AllOn()
@@ -187,27 +187,27 @@ public:
     }
 
   // Description:
-  // Get the handle properties (the little balls are the handles). The 
-  // properties of the handles when selected and normal can be 
+  // Get the handle properties (the little balls are the handles). The
+  // properties of the handles when selected and normal can be
   // set.
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  
+
   // Description:
   // Set the "hot spot" size; i.e., the region around the focus, in which the
   // motion vector is used to control the constrained sliding action. Note the
-  // size is specified as a fraction of the length of the diagonal of the 
+  // size is specified as a fraction of the length of the diagonal of the
   // point widget's bounding box.
   vtkSetClampMacro(HotSpotSize,double,0.0,1.0);
   vtkGetMacro(HotSpotSize,double);
-  
+
 protected:
   vtkPointWidget();
   ~vtkPointWidget();
 
 //BTX - manage the state of the widget
   friend class vtkLineWidget;
-  
+
   int State;
   enum WidgetState
   {
@@ -218,11 +218,11 @@ protected:
     Outside
   };
 //ETX
-    
+
   // Handles the events
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
@@ -233,7 +233,7 @@ protected:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
-  
+
   // the cursor3D
   vtkActor          *Actor;
   vtkPolyDataMapper *Mapper;
@@ -242,7 +242,7 @@ protected:
 
   // Do the picking
   vtkCellPicker *CursorPicker;
-  
+
   // Methods to manipulate the cursor
   int ConstraintAxis;
   void Translate(double *p1, double *p2);
@@ -255,13 +255,13 @@ protected:
   vtkProperty *Property;
   vtkProperty *SelectedProperty;
   void CreateDefaultProperties();
-  
+
   // The size of the hot spot.
   double HotSpotSize;
   int DetermineConstraintAxis(int constraint, double *x);
   int WaitingForMotion;
   int WaitCount;
-  
+
 private:
   vtkPointWidget(const vtkPointWidget&);  //Not implemented
   void operator=(const vtkPointWidget&);  //Not implemented

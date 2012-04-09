@@ -70,15 +70,15 @@ public:
   // Closes the file if open
   virtual void CloseFile() = 0;
   // Flush can be called optionally after some operations to
-  // flush the buffer to the filestream. A writer not necessarily 
+  // flush the buffer to the filestream. A writer not necessarily
   // implements this function
   virtual void Flush() {};
 
   // Description:
-  // Starts a document and sets all necessary informations, 
+  // Starts a document and sets all necessary informations,
   // i.e. the header of the implemented encoding
   virtual void StartDocument() = 0;
-  
+
   // Description:
   // Ends a document and sets all necessary informations
   // or necessary bytes to finish the encoding correctly
@@ -91,36 +91,36 @@ public:
   // corresponding Start/EndNode() calls for every node
   virtual void StartNode(int nodeID) = 0;
   virtual void EndNode() = 0;
-  
+
   // Description:
   // Sets the field specified with attributeID
   // of the active node to the given value.
   // The type of the field is SFString and MFString
   //virtual void SetField(int attributeID, const std::string &value) = 0;
   virtual void SetField(int attributeID, const char* value, bool mfstring = false) = 0;
-  
+
   // Description:
   // Sets the field specified with attributeID
   // of the active node to the given value.
-  // The type of the field is SFInt32 
+  // The type of the field is SFInt32
   virtual void SetField(int attributeID, int) = 0;
-  
+
   // Description:
   // Sets the field specified with attributeID
   // of the active node to the given value.
   // The type of the field is SFFloat
   virtual void SetField(int attributeID, float) = 0;
-  
+
   // Description:
   // Sets the field specified with attributeID
   // of the active node to the given value.
-  // The type of the field is SFDouble 
+  // The type of the field is SFDouble
   virtual void SetField(int attributeID, double) = 0;
 
   // Description:
   // Sets the field specified with attributeID
   // of the active node to the given value.
-  // The type of the field is SFBool 
+  // The type of the field is SFBool
   virtual void SetField(int attributeID, bool) = 0;
 
   // Description:
@@ -129,7 +129,7 @@ public:
   // The type of the field is specified with type
   // Supported types: SFVEC3F, SFCOLOR, SFROTATION
   virtual void SetField(int attributeID, int type, const double* a) = 0;
-  
+
   // Description:
   // Sets the field specified with attributeID
   // of the active node to the given value.

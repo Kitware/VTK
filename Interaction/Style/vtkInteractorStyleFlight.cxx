@@ -197,7 +197,7 @@ void vtkInteractorStyleFlight::EndReverseFly()
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::OnTimer()
 {
-  switch (this->State) 
+  switch (this->State)
     {
     case VTKIS_FORWARDFLY:
       this->ForwardFly();
@@ -617,7 +617,7 @@ void vtkInteractorStyleFlight::SetupMotionVars(vtkCamera *cam)
 
   double bounds[6];
   this->CurrentRenderer->ComputeVisiblePropBounds( bounds );
-  if ( !vtkMath::AreBoundsInitialized(bounds) ) 
+  if ( !vtkMath::AreBoundsInitialized(bounds) )
     {
     this->DiagonalLength = 1.0;
     }
@@ -666,7 +666,7 @@ void vtkInteractorStyleFlight::FlyByMouse(vtkCamera* cam)
   double a_vector[3];
   double speed  = this->DiagonalLength * this->MotionStepSize * this->MotionUserScale;
   speed = speed * ( this->Interactor->GetShiftKey() ? this->MotionAccelerationFactor : 1.0);
-  if (this->DisableMotion) 
+  if (this->DisableMotion)
     {
     speed = 0;
     }
@@ -714,7 +714,7 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
 {
   double speed  = this->DiagonalLength * this->MotionStepSize * this->MotionUserScale;
   speed = speed * ( this->Interactor->GetShiftKey() ? this->MotionAccelerationFactor : 1.0);
-  if (this->DisableMotion) 
+  if (this->DisableMotion)
     {
     speed = 0;
     }
@@ -722,10 +722,10 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
   double aspeed = this->AngleStepSize* (this->Interactor->GetShiftKey() ? this->AngleAccelerationFactor : 1.0);
   double a_vector[3];
   // Left and right
-  if (this->Interactor->GetControlKey()) 
+  if (this->Interactor->GetControlKey())
     { // Sidestep
     this->GetLRVector(a_vector, cam);
-    if (this->KeysDown & 1) 
+    if (this->KeysDown & 1)
       {
       this->MotionAlongVector(a_vector,-speed, cam);
       }
@@ -733,24 +733,24 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
       {
       this->MotionAlongVector(a_vector, speed, cam);
       }
-    } 
-  else 
+    }
+  else
     {
     if (this->KeysDown & 1)
       {
       cam->Yaw( aspeed);
       }
-    if (this->KeysDown & 2) 
+    if (this->KeysDown & 2)
       {
       cam->Yaw(-aspeed);
       }
     }
 
   // Up and Down
-  if (this->Interactor->GetControlKey()) 
+  if (this->Interactor->GetControlKey())
     { // Sidestep
     cam->GetViewUp(a_vector);
-    if (this->KeysDown & 4) 
+    if (this->KeysDown & 4)
       {
       this->MotionAlongVector(a_vector,-speed, cam);
       }
@@ -758,14 +758,14 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
       {
       this->MotionAlongVector(a_vector, speed, cam);
       }
-    } 
-  else 
+    }
+  else
     {
-    if (this->KeysDown & 4) 
+    if (this->KeysDown & 4)
       {
       cam->Pitch(-aspeed);
       }
-    if (this->KeysDown & 8) 
+    if (this->KeysDown & 8)
       {
       cam->Pitch( aspeed);
       }
@@ -773,7 +773,7 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
 
   // forward and backward
   cam->GetDirectionOfProjection(a_vector);
-  if (this->KeysDown & 16) 
+  if (this->KeysDown & 16)
     {
     this->MotionAlongVector(a_vector, speed, cam);
     }
@@ -784,7 +784,7 @@ void vtkInteractorStyleFlight::FlyByKey(vtkCamera* cam)
 }
 
 //---------------------------------------------------------------------------
-void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent) 
+void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "MotionStepSize: "

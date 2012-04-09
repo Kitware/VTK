@@ -78,7 +78,7 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.9, 0.8);
   this->Position2Coordinate->SetReferenceCoordinate(NULL);
-  
+
   this->ConnectionHolder = vtkSpiderPlotActorConnection::New();
 
   this->IndependentVariables = VTK_IV_COLUMN;
@@ -141,9 +141,9 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
   this->WebActor = vtkActor2D::New();
   this->WebActor->SetMapper(this->WebMapper);
 
-  this->LastPosition[0] = 
-    this->LastPosition[1] = 
-    this->LastPosition2[0] = 
+  this->LastPosition[0] =
+    this->LastPosition[1] =
+    this->LastPosition2[0] =
     this->LastPosition2[1] = 0;
 
   this->P1[0] = this->P1[1] = this->P2[0] = this->P2[1] = 0.0;
@@ -160,7 +160,7 @@ vtkSpiderPlotActor::~vtkSpiderPlotActor()
     delete [] this->Title;
     this->Title = NULL;
     }
-  
+
   delete this->Labels;
   delete this->Ranges;
   this->SetLabelTextProperty(NULL);
@@ -168,14 +168,14 @@ vtkSpiderPlotActor::~vtkSpiderPlotActor()
 
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
-  
+
   this->Initialize();
-  
+
   this->TitleMapper->Delete();
   this->TitleMapper = NULL;
   this->TitleActor->Delete();
   this->TitleActor = NULL;
-  
+
   this->WebData->Delete();
   this->WebMapper->Delete();
   this->WebActor->Delete();
@@ -268,7 +268,7 @@ int vtkSpiderPlotActor::RenderOverlay(vtkViewport *viewport)
       renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
       }
     }
-  
+
   if ( this->LegendVisibility )
     {
     renderedSomething += this->LegendActor->RenderOverlay(viewport);
@@ -311,7 +311,7 @@ int vtkSpiderPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
       }
     }
-  
+
   if ( this->LegendVisibility )
     {
     renderedSomething += this->LegendActor->RenderOpaqueGeometry(viewport);
@@ -328,12 +328,12 @@ int vtkSpiderPlotActor::HasTranslucentPolygonalGeometry()
   return 0;
 }
 
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
 {
   // Initialize
   vtkDebugMacro(<<"Building spider plot");
-  
+
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
   if (!this->GetInput())
@@ -355,11 +355,11 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
 
   // Viewport change may not require rebuild
   int positionsHaveChanged = 0;
-  if (viewport->GetMTime() > this->BuildTime || 
-      (viewport->GetVTKWindow() && 
+  if (viewport->GetMTime() > this->BuildTime ||
+      (viewport->GetVTKWindow() &&
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
-    int *lastPosition = 
+    int *lastPosition =
       this->PositionCoordinate->GetComputedViewportValue(viewport);
     int *lastPosition2 =
       this->Position2Coordinate->GetComputedViewportValue(viewport);
@@ -375,7 +375,7 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
       positionsHaveChanged = 1;
       }
     }
-  
+
   // Check modified time to see whether we have to rebuild.
   this->ConnectionHolder->GetInputAlgorithm()->Update();
 
@@ -396,7 +396,7 @@ int vtkSpiderPlotActor::BuildPlot(vtkViewport *viewport)
 
     this->BuildTime.Modified();
     } // If need to rebuild the plot
-  
+
   return 1;
 }
 
@@ -435,7 +435,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     {
     return 0;
     }
-  
+
   // Determine the shape of the field
   int numComponents = field->GetNumberOfComponents(); //number of components
   // Note: numComponents also includes the non-numeric arrays.
@@ -476,7 +476,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     vtkErrorMacro(<<"No field data to plot");
     return 0;
     }
-  
+
   // We need to loop over the field to determine the range of
   // each independent variable.
   this->Mins = new double [this->N];
@@ -543,7 +543,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       }
     for (i=0; i < this->N; i++)
       {
-      this->Ranges->push_back(vtkAxisRange(this->Mins[i],this->Maxs[i]));     
+      this->Ranges->push_back(vtkAxisRange(this->Mins[i],this->Maxs[i]));
       }
     }//if automatic range computation
   else//specified correctly
@@ -556,7 +556,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       this->Maxs[i] = range.Max;
       }
     }
-  
+
   // Get the location of the corners of the box
   double *p1 = this->PositionCoordinate->GetComputedDoubleViewportValue(viewport);
   double *p2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
@@ -578,7 +578,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     {
     legendSpace = 0.15;
     }
-  
+
   double d1 = p2[0] - legendSpace*(p2[0]-p1[0]) - p1[0];
   double d2 = p2[1] - titleSpace*(p2[1]-p1[1]) - p1[1];
 
@@ -782,7 +782,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       lines->InsertCellPoint(firstId);
       }
     }
-  
+
   //Display the legend
   if ( this->LegendVisibility )
     {
@@ -846,7 +846,7 @@ void vtkSpiderPlotActor::SetAxisLabel(const int i, const char *label)
     {
     return;
     }
-  
+
   if ( static_cast<unsigned int>(i) >= this->Labels->size() )
     {
     this->Labels->resize(i+1);
@@ -862,7 +862,7 @@ const char* vtkSpiderPlotActor::GetAxisLabel(int i)
     {
     return NULL;
     }
-  
+
   return this->Labels->at(i).c_str();
 }
 
@@ -873,7 +873,7 @@ void vtkSpiderPlotActor::SetAxisRange(int i, double min, double max)
     {
     return;
     }
-  
+
   if ( static_cast<unsigned int>(i) >= this->Ranges->size() )
     {
     this->Ranges->resize(i+1);
@@ -895,7 +895,7 @@ void vtkSpiderPlotActor::GetAxisRange(int i, double range[2])
     {
     return;
     }
-  
+
   vtkAxisRange arange = this->Ranges->at(i);
   range[0] = arange.Min;
   range[1] = arange.Max;
@@ -932,9 +932,9 @@ void vtkSpiderPlotActor::PrintSelf(ostream& os, vtkIndent indent)
     os << "Rows\n";
     }
 
-  os << indent << "Title Visibility: " 
+  os << indent << "Title Visibility: "
      << (this->TitleVisibility ? "On\n" : "Off\n");
-  
+
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
 
   if (this->TitleTextProperty)
@@ -947,9 +947,9 @@ void vtkSpiderPlotActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Title Text Property: (none)\n";
     }
 
-  os << indent << "Label Visibility: " 
+  os << indent << "Label Visibility: "
      << (this->LabelVisibility ? "On\n" : "Off\n");
-  
+
   if (this->LabelTextProperty)
     {
     os << indent << "Label Text Property:\n";
@@ -962,10 +962,10 @@ void vtkSpiderPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number of Rings: " << this->NumberOfRings << "\n";
 
-  os << indent << "Legend Visibility: " 
+  os << indent << "Legend Visibility: "
      << (this->LegendVisibility ? "On\n" : "Off\n");
-  
-  os << indent << "Legend Actor: " 
+
+  os << indent << "Legend Actor: "
      << this->LegendActor << "\n";
   this->LegendActor->PrintSelf(os, indent.GetNextIndent());
 

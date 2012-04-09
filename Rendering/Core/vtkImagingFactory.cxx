@@ -27,10 +27,10 @@ vtkStandardNewMacro(vtkImagingFactory);
 const char *vtkImagingFactoryGetRenderLibrary()
 {
   const char *temp;
-  
+
   // first check the environment variable
   temp = getenv("VTK_RENDERER");
-  
+
   // Backward compatibility
   if ( temp )
     {
@@ -42,16 +42,16 @@ const char *vtkImagingFactoryGetRenderLibrary()
       {
       temp = "Win32OpenGL";
       }
-    else if (strcmp("Mesa",temp) && strcmp("OpenGL",temp) && 
+    else if (strcmp("Mesa",temp) && strcmp("OpenGL",temp) &&
              strcmp("Win32OpenGL",temp))
       {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
       temp = NULL;
       }
     }
-  
+
   // if nothing is set then work down the list of possible renderers
-  
+
   return temp;
 }
 

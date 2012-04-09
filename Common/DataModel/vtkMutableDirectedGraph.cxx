@@ -60,7 +60,7 @@ vtkIdType vtkMutableDirectedGraph::SetNumberOfVertices( vtkIdType numVerts )
 //----------------------------------------------------------------------------
 vtkIdType vtkMutableDirectedGraph::AddVertex()
 {
-  if (this->Internals->UsingPedigreeIds && 
+  if (this->Internals->UsingPedigreeIds &&
       this->GetDistributedGraphHelper() != 0)
     {
     vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
@@ -129,7 +129,7 @@ vtkEdgeType vtkMutableDirectedGraph::AddEdge(vtkIdType u, const vtkVariant& v,
 }
 
 //----------------------------------------------------------------------------
-vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u, 
+vtkEdgeType vtkMutableDirectedGraph::AddEdge(const vtkVariant& u,
                                              const vtkVariant& v,
                                              vtkVariantArray *propertyArr)
 {
@@ -196,7 +196,7 @@ void vtkMutableDirectedGraph::LazyAddEdge(vtkIdType u, const vtkVariant& v,
 }
 
 //----------------------------------------------------------------------------
-void vtkMutableDirectedGraph::LazyAddEdge(const vtkVariant& u, 
+void vtkMutableDirectedGraph::LazyAddEdge(const vtkVariant& u,
                                           const vtkVariant& v,
                                           vtkVariantArray *propertyArr)
 {

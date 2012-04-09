@@ -24,7 +24,7 @@
 #include <vtksys/ios/sstream>
 
 
-namespace 
+namespace
 {
   const char hex_digits[] = "0123456789ABCDEF";
 };
@@ -65,7 +65,7 @@ vtkDataObject *vtkWriter::GetInput(int port)
 }
 
 
-// Write data to output. Method executes subclasses WriteData() method, as 
+// Write data to output. Method executes subclasses WriteData() method, as
 // well as StartMethod() and EndMethod() methods.
 int vtkWriter::Write()
 {
@@ -101,7 +101,7 @@ int vtkWriter::RequestData(
   vtkInformationVector *)
 {
   this->SetErrorCode(vtkErrorCode::NoError);
-  
+
   vtkDataObject *input = this->GetInput();
   int idx;
 
@@ -157,7 +157,7 @@ void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent)
 {
   if ( !name || !resname )
-    {   
+    {
     return;
     }
   int cc = 0;
@@ -195,7 +195,7 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
 void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePercent)
 {
   if (!name)
-    {   
+    {
     return;
     }
   int cc = 0;

@@ -30,13 +30,13 @@ vtkStandardNewMacro(vtkClosedSurfacePointPlacer);
 vtkCxxSetObjectMacro(vtkClosedSurfacePointPlacer, BoundingPlanes,vtkPlaneCollection);
 
 //----------------------------------------------------------------------
-// Place holder structure to find the two planes that would best cut 
-// a line with a plane. We do this freaky stuff because we cannot use 
+// Place holder structure to find the two planes that would best cut
+// a line with a plane. We do this freaky stuff because we cannot use
 // absolute tolerances. Sometimes a point may be intersected by two planes
 // when it is on a corner etc... Believe me, I found this necessary.
 //
 // Plane   : The plane that we found had intersected the line in question
-// p       : The intersection point of the line and the plane. 
+// p       : The intersection point of the line and the plane.
 // Distance: Distance of the point "p" from the object. Negative distances
 //           mean that it is outside.
 struct vtkClosedSurfacePointPlacerNode
@@ -45,11 +45,11 @@ struct vtkClosedSurfacePointPlacerNode
   mutable vtkPlane * Plane;
   double             Distance;
   double             p[3];
-  static bool Sort( const Self &a, const Self &b ) 
+  static bool Sort( const Self &a, const Self &b )
      { return a.Distance > b.Distance; }
   bool operator==(const Self &a) const { return a.Plane == this->Plane; }
   bool operator!=(const Self &a) const { return a.Plane != this->Plane; }
-  vtkClosedSurfacePointPlacerNode() 
+  vtkClosedSurfacePointPlacerNode()
     { Plane = NULL; Distance = VTK_DOUBLE_MIN; }
 };
 
@@ -64,7 +64,7 @@ vtkClosedSurfacePointPlacer::vtkClosedSurfacePointPlacer()
 //----------------------------------------------------------------------
 vtkClosedSurfacePointPlacer::~vtkClosedSurfacePointPlacer()
 {
-  this->RemoveAllBoundingPlanes();  
+  this->RemoveAllBoundingPlanes();
   if (this->BoundingPlanes)
     {
     this->BoundingPlanes->UnRegister(this);
@@ -142,7 +142,7 @@ void vtkClosedSurfacePointPlacer::BuildPlanes()
 
   double normal[3], origin[3];
   vtkPlane *p;
-  for (this->BoundingPlanes->InitTraversal(); 
+  for (this->BoundingPlanes->InitTraversal();
       (p = this->BoundingPlanes->GetNextItem());  )
     {
     p->GetNormal(normal);
@@ -165,10 +165,10 @@ void vtkClosedSurfacePointPlacer::BuildPlanes()
 // is calculated as :
 //   Consider the line "L" that passes through the supplied "displayPos" and
 // is parallel to the direction of projection of the camera. Clip this line
-// segment with the parallelopiped, let's call it "L_segment". The computed 
-// world position, "worldPos" will be the point on "L_segment" that is closest 
+// segment with the parallelopiped, let's call it "L_segment". The computed
+// world position, "worldPos" will be the point on "L_segment" that is closest
 // to refWorldPos.
-int vtkClosedSurfacePointPlacer::ComputeWorldPosition( 
+int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
     vtkRenderer * ren,
     double        displayPos[2],
     double        refWorldPos[3],
@@ -185,27 +185,27 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
   double directionOfProjection[3], t, d[3],
          currentWorldPos[4], ls[2][3], fp[4];
 
-  vtkInteractorObserver::ComputeWorldToDisplay( ren, 
+  vtkInteractorObserver::ComputeWorldToDisplay( ren,
     refWorldPos[0], refWorldPos[1], refWorldPos[2], fp );
 
   ren->GetActiveCamera()->
         GetDirectionOfProjection(directionOfProjection);
-  vtkInteractorObserver::ComputeDisplayToWorld( ren, 
+  vtkInteractorObserver::ComputeDisplayToWorld( ren,
       displayPos[0], displayPos[1], fp[2], currentWorldPos);
 
-  // The line "L" defined by two points, l0 and l1. The line-segment 
-  // end-points will be defined by points ls[2][3]. 
-  double l0[3] = {currentWorldPos[0] - directionOfProjection[0], 
-                  currentWorldPos[1] - directionOfProjection[1], 
-                  currentWorldPos[2] - directionOfProjection[2] }; 
-  double l1[3] = {currentWorldPos[0] + directionOfProjection[0], 
+  // The line "L" defined by two points, l0 and l1. The line-segment
+  // end-points will be defined by points ls[2][3].
+  double l0[3] = {currentWorldPos[0] - directionOfProjection[0],
+                  currentWorldPos[1] - directionOfProjection[1],
+                  currentWorldPos[2] - directionOfProjection[2] };
+  double l1[3] = {currentWorldPos[0] + directionOfProjection[0],
                   currentWorldPos[1] + directionOfProjection[1],
-                  currentWorldPos[2] + directionOfProjection[2] }; 
+                  currentWorldPos[2] + directionOfProjection[2] };
 
   // Traverse all the planes to clip the line.
 
   vtkPlaneCollection *pc = this->InnerBoundingPlanes;
-  
+
   // Stores candidate intersections with the parallelopiped. This was found
   // necessary instead of a simple two point intersection test because of
   // tolerances in vtkPlane::EvaluatePosition when the handle was very close
@@ -220,9 +220,9 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
     vtkPlane * plane = static_cast< vtkPlane * >(pc->GetItemAsObject(n));
     vtkClosedSurfacePointPlacerNode node;
 
-    vtkPlane::IntersectWithLine( l0, l1, 
+    vtkPlane::IntersectWithLine( l0, l1,
           plane->GetNormal(), plane->GetOrigin(), t, node.p );
-    
+
     // The IF below insures that the line and the plane aren't parallel.
     if (t != VTK_DOUBLE_MAX)
       {
@@ -230,37 +230,37 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
       node.Distance = this->GetDistanceFromObject(
                          node.p, this->InnerBoundingPlanes, d);
       intersections.push_back(node);
-      vtkDebugMacro( << "We aren't parallel to plane with normal: (" 
-        << plane->GetNormal()[0] << "," << plane->GetNormal()[1] << "," 
+      vtkDebugMacro( << "We aren't parallel to plane with normal: ("
+        << plane->GetNormal()[0] << "," << plane->GetNormal()[1] << ","
         << plane->GetNormal()[2] << ")" );
-      vtkDebugMacro( << "Size of inersections = " << intersections.size() 
+      vtkDebugMacro( << "Size of inersections = " << intersections.size()
         << " Distance: " << node.Distance << " Plane: " << plane );
       }
     }
 
   std::sort( intersections.begin(),
-                intersections.end(), 
+                intersections.end(),
                 vtkClosedSurfacePointPlacerNode::Sort);
-  
+
   // Now pick the top two candidates, insuring that the line at least intersects
-  // with the object. If we have fewer than 2 in the queue, or if the 
+  // with the object. If we have fewer than 2 in the queue, or if the
   // top candidate is outsude, we have failed to intersect the object.
-  
+
   std::vector< vtkClosedSurfacePointPlacerNode >
               ::const_iterator it = intersections.begin();
-  if ( intersections.size() < 2 || 
+  if ( intersections.size() < 2 ||
          it ->Distance < (-1.0 * this->WorldTolerance) ||
       (++it)->Distance < (-1.0 * this->WorldTolerance))
     {
     // The display point points to a location outside the object. Just
-    // return 0. In actuality, I'd like to return the closest point in the 
+    // return 0. In actuality, I'd like to return the closest point in the
     // object. For this I require an algorithm that can, given a point "p" and
     // an object "O", defined by a set of bounding planes, find the point on
     // "O" that is closest to "p"
 
-    return 0; 
+    return 0;
     }
-  
+
   it = intersections.begin();
   for (int i = 0; i < 2; i++, ++it)
     {
@@ -279,17 +279,17 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(
   worldPos[1] = ls[0][1] * (1.0-t) + ls[1][1] * t;
   worldPos[2] = ls[0][2] * (1.0-t) + ls[1][2] * t;
 
-  vtkDebugMacro( << "Reference Pos: (" << refWorldPos[0] << "," 
+  vtkDebugMacro( << "Reference Pos: (" << refWorldPos[0] << ","
     << refWorldPos[1] << "," << refWorldPos[2] << ")  Line segment from "
-    << "the eye along the direction of projection, clipped by the object [(" 
-    << ls[0][0] << "," << ls[0][1] << "," << ls[0][2] << ") - (" << ls[1][0] 
+    << "the eye along the direction of projection, clipped by the object [("
+    << ls[0][0] << "," << ls[0][1] << "," << ls[0][2] << ") - (" << ls[1][0]
     << "," << ls[1][1] << "," << ls[1][2] << ")] Computed position (that is "
-    << "the closest point on this segment to ReferencePos: (" << worldPos[0] 
+    << "the closest point on this segment to ReferencePos: (" << worldPos[0]
     << "," << worldPos[1] << "," << worldPos[2] << ")" );
 
   return 1;
 }
-  
+
 //----------------------------------------------------------------------
 int vtkClosedSurfacePointPlacer
 ::ComputeWorldPosition( vtkRenderer *,
@@ -317,9 +317,9 @@ int vtkClosedSurfacePointPlacer::ValidateWorldPosition( double worldPos[3] )
   if ( this->InnerBoundingPlanes )
     {
     vtkPlane *p;
-    
+
     this->InnerBoundingPlanes->InitTraversal();
-    
+
     while ( (p = this->InnerBoundingPlanes->GetNextItem()) )
       {
       if ( p->EvaluateFunction( worldPos ) < this->WorldTolerance )
@@ -332,17 +332,17 @@ int vtkClosedSurfacePointPlacer::ValidateWorldPosition( double worldPos[3] )
 }
 
 //----------------------------------------------------------------------
-// Calculate the distance of a point from the Object. Negative 
+// Calculate the distance of a point from the Object. Negative
 // values imply that the point is outside. Positive values imply that it is
-// inside. The closest point to the object is returned in closestPt. 
+// inside. The closest point to the object is returned in closestPt.
 double vtkClosedSurfacePointPlacer
-::GetDistanceFromObject( double               pos[3], 
+::GetDistanceFromObject( double               pos[3],
                          vtkPlaneCollection * pc,
                          double               closestPt[3])
 {
   vtkPlane *minPlane = NULL;
   double    minD     = VTK_DOUBLE_MAX;
-  
+
   pc->InitTraversal();
   while ( vtkPlane * p = pc->GetNextItem() )
     {
@@ -353,8 +353,8 @@ double vtkClosedSurfacePointPlacer
       minPlane = p;
       }
     }
-  
-  vtkPlane::ProjectPoint( pos, minPlane->GetOrigin(), 
+
+  vtkPlane::ProjectPoint( pos, minPlane->GetOrigin(),
                           minPlane->GetNormal(), closestPt );
   return minD;
 }
@@ -363,7 +363,7 @@ double vtkClosedSurfacePointPlacer
 void vtkClosedSurfacePointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Bounding Planes:\n";
   if ( this->BoundingPlanes )
     {

@@ -40,7 +40,7 @@ unsigned long int vtkImplicitBoolean::GetMTime()
   vtkImplicitFunction *f;
 
   vtkCollectionSimpleIterator sit;
-  for (this->FunctionList->InitTraversal(sit); 
+  for (this->FunctionList->InitTraversal(sit);
        (f=this->FunctionList->GetNextImplicitFunction(sit)); )
     {
     fMtime = f->GetMTime();
@@ -83,11 +83,11 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
     {
     return value;
     }
-  
+
   vtkCollectionSimpleIterator sit;
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
-    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
          (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( (v=f->FunctionValue(x)) < value )
@@ -99,7 +99,7 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
 
   else if ( this->OperationType == VTK_INTERSECTION )
     { //take maximum value
-    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit); 
+    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( (v=f->FunctionValue(x)) > value )
@@ -111,7 +111,7 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
 
   else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
     { //take minimum absolute value
-    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( (v=fabs(f->FunctionValue(x))) < value )
@@ -130,7 +130,7 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
       value = firstF->FunctionValue(x);
       }
 
-    for (this->FunctionList->InitTraversal(sit); 
+    for (this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( f != firstF )
@@ -162,7 +162,7 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
 
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
-    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( (v=f->FunctionValue(x)) < value )
@@ -175,10 +175,10 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
 
   else if ( this->OperationType == VTK_INTERSECTION )
     { //take maximum value
-    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit); 
+    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
-      if ( (v=f->FunctionValue(x)) > value ) 
+      if ( (v=f->FunctionValue(x)) > value )
         {
         value = v;
         f->FunctionGradient(x,g);
@@ -188,7 +188,7 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
 
   if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
     { //take minimum value
-    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( (v=fabs(f->FunctionValue(x))) < value )
@@ -207,11 +207,11 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
     if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != NULL )
       {
       value = firstF->FunctionValue(x);
-      firstF->FunctionGradient(x,gTemp); 
+      firstF->FunctionGradient(x,gTemp);
       g[0] = -1.0*gTemp[0]; g[1] = -1.0*gTemp[1]; g[2] = -1.0*gTemp[2];
       }
 
-    for (this->FunctionList->InitTraversal(sit); 
+    for (this->FunctionList->InitTraversal(sit);
     (f=this->FunctionList->GetNextImplicitFunction(sit)); )
       {
       if ( f != firstF )

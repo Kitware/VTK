@@ -52,7 +52,7 @@ vtkStructuredGrid* vtkXMLStructuredGridReader::GetOutput(int idx)
 {
   return vtkStructuredGrid::SafeDownCast( this->GetOutputDataObject(idx) );
 }
-  
+
 
 //----------------------------------------------------------------------------
 const char* vtkXMLStructuredGridReader::GetDataSetName()
@@ -89,7 +89,7 @@ void vtkXMLStructuredGridReader::DestroyPieces()
 int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
   if(!this->Superclass::ReadPiece(ePiece)) { return 0; }
-  
+
   // Find the Points element in the piece.
   int i;
   this->PointElements[this->Piece] = 0;
@@ -102,7 +102,7 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
       this->PointElements[this->Piece] = eNested;
       }
     }
-  
+
   // If there is any volume, we require a Points element.
   int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
   if(!this->PointElements[this->Piece] &&
@@ -114,7 +114,7 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
                   "or element does not have exactly 1 array.");
     return 0;
     }
-  
+
   return 1;
 }
 
@@ -123,10 +123,10 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 void vtkXMLStructuredGridReader::SetupOutputData()
 {
   this->Superclass::SetupOutputData();
-  
+
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
-  
+
   // Use the configuration of the first piece since all are the same.
   vtkXMLDataElement* ePoints = this->PointElements[0];
   if (ePoints)
@@ -150,7 +150,7 @@ void vtkXMLStructuredGridReader::SetupOutputData()
       this->DataError = 1;
       }
     }
-  
+
   vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetPoints(points);
   points->Delete();
 }
@@ -165,7 +165,7 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   vtkIdType superclassPieceSize =
     (this->NumberOfPointArrays*dims[0]*dims[1]*dims[2]+
      this->NumberOfCellArrays*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
-  
+
   // Total amount of data in this piece comes from point/cell data
   // arrays and the point specifications themselves.
   vtkIdType totalPieceSize =
@@ -174,7 +174,7 @@ int vtkXMLStructuredGridReader::ReadPieceData()
     {
     totalPieceSize = 1;
     }
-  
+
   // Split the progress range based on the approximate fraction of
   // data that will be read by each step in this method.
   float progressRange[2] = {0,0};
@@ -185,22 +185,22 @@ int vtkXMLStructuredGridReader::ReadPieceData()
       float(superclassPieceSize) / totalPieceSize,
       1
     };
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass read its data.
   if(!this->Superclass::ReadPieceData()) { return 0; }
-  
+
   if(!this->PointElements[this->Piece])
     {
     // Empty volume.
     return 1;
     }
-  
+
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the points array.
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
       this->GetCurrentOutput());

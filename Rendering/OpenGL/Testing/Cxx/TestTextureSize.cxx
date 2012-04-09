@@ -99,11 +99,11 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   textureCoords->SetPolys(cells.GetPointer());
   textureCoords->GetPointData()->SetTCoords(tcoords.GetPointer());
 
-  vtkNew<vtkPolyDataMapper2D> polyDataMapper; 
+  vtkNew<vtkPolyDataMapper2D> polyDataMapper;
   polyDataMapper->SetInputData( textureCoords.GetPointer() );
 
   int textureSizes[23][2] =
-    {{1,2}, {1,3}, {1,4}, {1,5}, {1,255}, {1,256}, {257,1}, 
+    {{1,2}, {1,3}, {1,4}, {1,5}, {1,255}, {1,256}, {257,1},
      {2,1}, {3,1}, {4,1}, {5,1}, {255,1}, {256,1}, {257,1},
      {1,1}, {2,2}, {3,3}, {3,3}, {255,255}, {256,256}, {257,257},
      {2047,2047}, {4097,4097}};
@@ -113,7 +113,7 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     for (int c = 0; c < 3; ++c)
       {
       int* size = textureSizes[i];
-      vtkSmartPointer<vtkImageData> image = 
+      vtkSmartPointer<vtkImageData> image =
         vtkSmartPointer<vtkImageData>::Take(
           createTexture2D(size[0], size[1], componentSizes[c]));
       if (image.GetPointer() == 0)

@@ -52,18 +52,18 @@ int vtkXMLFileReadTester::TestReadFile()
     {
     return 0;
     }
-  
+
   ifstream inFile(this->FileName);
   if(!inFile)
     {
     return 0;
     }
-  
+
   this->SetStream(&inFile);
   this->Done = 0;
-  
+
   this->Parse();
-  
+
   if(this->Done)
     {
     return 1;
@@ -76,7 +76,7 @@ void vtkXMLFileReadTester::StartElement(const char* name, const char** atts)
 {
   this->Done = 1;
   if(strcmp(name, "VTKFile") == 0)
-    {      
+    {
     unsigned int i;
     for(i=0; atts[i] && atts[i+1]; i+=2)
       {

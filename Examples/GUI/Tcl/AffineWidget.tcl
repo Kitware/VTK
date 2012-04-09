@@ -105,5 +105,5 @@ wm withdraw .
 
 proc WidgetCallback  { } {
   rep GetTransform transform
-  imageActor SetUserTransform transform 
+  imageActor SetUserTransform transform
 }

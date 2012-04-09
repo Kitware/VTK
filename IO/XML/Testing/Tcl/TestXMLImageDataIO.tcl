@@ -19,13 +19,13 @@ vtkExtractVOI extract
   extract SetVOI 0 63 0 63 0 45
   extract Update
 
-# write just a piece (extracted piece) as well as the whole thing  
+# write just a piece (extracted piece) as well as the whole thing
 vtkXMLImageDataWriter idWriter
   idWriter SetFileName $file0
   idWriter SetDataModeToAscii
   idWriter SetInputConnection [extract GetOutputPort]
   idWriter Write
-  
+
   idWriter SetFileName $file1
   idWriter SetDataModeToAppended
   idWriter SetInputConnection [imageReader GetOutputPort]
@@ -49,7 +49,7 @@ vtkImageData id0
 vtkContourFilter cF0
   cF0 SetInputData id0
   cF0 SetValue 0 500
-  
+
 vtkPolyDataMapper mapper0
   mapper0 SetInputConnection [cF0 GetOutputPort]
   mapper0 ScalarVisibilityOff

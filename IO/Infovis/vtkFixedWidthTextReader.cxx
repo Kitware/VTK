@@ -38,10 +38,10 @@
 vtkStandardNewMacro(vtkFixedWidthTextReader);
 
 // Function body at bottom of file
-static int splitString(const vtkStdString& input, 
+static int splitString(const vtkStdString& input,
                        unsigned int fieldWidth,
                        bool stripWhitespace,
-                       vtksys_stl::vector<vtkStdString>& results, 
+                       vtksys_stl::vector<vtkStdString>& results,
                        bool includeEmpties=true);
 
 
@@ -74,20 +74,20 @@ vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
 void vtkFixedWidthTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " 
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Field width: " << this->FieldWidth << endl;
   os << indent << "Strip leading/trailing whitespace: "
      << (this->StripWhiteSpace ? "Yes" : "No") << endl;
-  os << indent << "HaveHeaders: " 
+  os << indent << "HaveHeaders: "
      << (this->HaveHeaders ? "Yes" : "No") << endl;
 }
 
 // ----------------------------------------------------------------------
 
 int vtkFixedWidthTextReader::RequestData(
-                                        vtkInformation*, 
-                                        vtkInformationVector**, 
+                                        vtkInformation*,
+                                        vtkInformationVector**,
                                         vtkInformationVector* outputVector)
 {
   int numLines = 0;
@@ -105,7 +105,7 @@ int vtkFixedWidthTextReader::RequestData(
     vtkErrorMacro(<<"vtkFixedWidthTextReader: Couldn't open file!");
     return 2;
     }
-  
+
   // The first line of the file might contain the headers, so we want
   // to be a little bit careful about it.  If we don't have headers
   // we'll have to make something up.
@@ -116,7 +116,7 @@ int vtkFixedWidthTextReader::RequestData(
   my_getline(infile, firstLine);
 
 //  vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
-   
+
   if (this->HaveHeaders)
     {
     splitString(firstLine,
@@ -148,13 +148,13 @@ int vtkFixedWidthTextReader::RequestData(
   // field.
   vtksys_stl::vector<vtkStdString>::const_iterator fieldIter;
   for(fieldIter = headers.begin(); fieldIter != headers.end(); ++fieldIter)
-    { 
+    {
     vtkStringArray* array = vtkStringArray::New();
     array->SetName((*fieldIter).c_str());
     table->AddColumn(array);
     array->Delete();
     }
-  
+
   // If the first line did not contain headers then we need to add it
   // to the table.
   if (!this->HaveHeaders)
@@ -165,7 +165,7 @@ int vtkFixedWidthTextReader::RequestData(
       {
       dataArray->InsertNextValue(vtkVariant(*I));
       }
-    
+
     // Insert the data into the table
     table->InsertNextRow(dataArray);
     dataArray->Delete();
@@ -201,7 +201,7 @@ int vtkFixedWidthTextReader::RequestData(
       {
       dataArray->InsertNextValue(vtkVariant(*I));
       }
-    
+
     // Pad out any missing columns
     while (dataArray->GetNumberOfTuples() < table->GetNumberOfColumns())
       {
@@ -212,7 +212,7 @@ int vtkFixedWidthTextReader::RequestData(
     table->InsertNextRow(dataArray);
     dataArray->Delete();
     }
- 
+
   infile.close();
 
   return 1;
@@ -220,11 +220,11 @@ int vtkFixedWidthTextReader::RequestData(
 
 // ----------------------------------------------------------------------
 
-static int 
-splitString(const vtkStdString& input, 
+static int
+splitString(const vtkStdString& input,
             unsigned int fieldWidth,
             bool stripWhitespace,
-            vtksys_stl::vector<vtkStdString>& results, 
+            vtksys_stl::vector<vtkStdString>& results,
             bool includeEmpties)
 {
   if (input.size() == 0)
@@ -240,24 +240,24 @@ splitString(const vtkStdString& input,
   while (thisField * fieldWidth < input.size())
     {
     thisFieldText = input.substr(thisField*fieldWidth, fieldWidth);
-    
+
     if (stripWhitespace)
       {
       unsigned int startIndex = 0, endIndex = static_cast<unsigned int>(thisFieldText.size()) - 1;
-      while (startIndex < thisFieldText.size() && 
+      while (startIndex < thisFieldText.size() &&
              isspace(static_cast<int>(thisFieldText.at(startIndex))))
         {
         ++startIndex;
         }
-      while (endIndex > 0 && 
+      while (endIndex > 0 &&
              isspace(static_cast<int>(thisFieldText.at(endIndex))))
         {
         -- endIndex;
         }
-      
+
       if (startIndex <= endIndex)
         {
-        parsedField = 
+        parsedField =
           thisFieldText.substr(startIndex, (endIndex - startIndex) + 1);
         }
       else
@@ -287,7 +287,7 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
-  
+
   while ((nextValue = in.get()) != EOF &&
          numCharactersRead < out.max_size())
     {
@@ -306,6 +306,6 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
 
   return numCharactersRead;
 }
-  
-      
-  
+
+
+

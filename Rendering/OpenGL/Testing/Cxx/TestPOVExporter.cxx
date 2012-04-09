@@ -50,7 +50,7 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   sphereActor->GetProperty()->SetDiffuseColor(0.8900, 0.8100, 0.3400);
   sphereActor->GetProperty()->SetSpecular(0.4);
   sphereActor->GetProperty()->SetSpecularPower(20);
-  
+
   // create the spikes by glyphing the sphere with a cone.  Create the
   // mapper and actor for the glyphs.
   vtkConeSource *cone = vtkConeSource::New();
@@ -68,23 +68,23 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   spikeActor->GetProperty()->SetDiffuseColor(1.0000, 0.3882, 0.2784);
   spikeActor->GetProperty()->SetSpecular(0.4);
   spikeActor->GetProperty()->SetSpecularPower(20);
-  
+
   // Create the Renderer, RenderWindow, etc. and set the Picker.
   vtkRenderer *ren = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren);
-  
+
   ren->AddActor(sphereActor);
   ren->AddActor(spikeActor);
   ren->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(300,300);
-  
+
   ren->ResetCamera();
   vtkCamera *cam1 = ren->GetActiveCamera();
   cam1->Zoom(1.4);
 
   renWin->Render();
-  
+
   // Instead of letting renderer to render the scene, we use
   // an exportor to save it to a file.
   vtkPOVExporter *povexp = vtkPOVExporter::New();
@@ -94,7 +94,7 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   povexp->Write();
   cout << "Done writing file TestPOVExporter.pov..." << endl;
-  
+
   povexp->Delete();
 
   exists =
@@ -118,7 +118,7 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     cerr << "ERROR: 2 - Test failing because TestPOVExporter.pov file has zero length..." << endl;
     }
 
-  renWin->Delete();  
+  renWin->Delete();
   ren->Delete();
   spikeActor->Delete();
   spikeMapper->Delete();

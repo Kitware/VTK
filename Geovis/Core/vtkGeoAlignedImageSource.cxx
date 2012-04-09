@@ -140,9 +140,9 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
   int numLevels = 0;
   while (imageDims[0] > 300 || imageDims[1] > 300)
     {
-    imageDims[0] = static_cast<int>(floor(imageDims[0] / 
+    imageDims[0] = static_cast<int>(floor(imageDims[0] /
         static_cast<double>(shrink->GetShrinkFactors()[0])));
-    imageDims[1] = static_cast<int>(floor(imageDims[1] / 
+    imageDims[1] = static_cast<int>(floor(imageDims[1] /
         static_cast<double>(shrink->GetShrinkFactors()[1])));
     numLevels++;
     }
@@ -156,7 +156,7 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
   // the image size before traversing.  This way we can avoid issues
   // with the bottom up approach.  Specifically, we do not need
   // to combine tiles, or worry about seams from smoothing.
-  
+
   // This is not the best termination condition, but it will do.
   // This should also work for images that do not cover the whole globe.
   vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();

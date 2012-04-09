@@ -13,7 +13,7 @@ vtkSampleFunction sample
   sample SetSampleDimensions 20 20 20
   sample SetImplicitFunction quadric
   sample ComputeNormalsOff
-    
+
 # Generate tetrahedral mesh
 vtkClipVolume clip
   clip SetInputConnection [sample GetOutputPort]

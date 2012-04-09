@@ -94,7 +94,7 @@ int TestTreeRingView(int argc, char* argv[])
   view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->ResetCamera();
   view->Render();
-  
+
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

@@ -101,12 +101,12 @@ public:
   // the DataArray refers.  If the TransformIndexArray is not specified,
   // the weights of each point are assumed to map directly to a transform.
   // This DataArray must be of type UnsignedShort, which effectively
-  // limits the number of transforms to 65536 if a transform index 
+  // limits the number of transforms to 65536 if a transform index
   // array is used.
-  // 
+  //
   // The filter will first look for the array in the input's PointData
   // FieldData.  If the array isn't there, the filter looks in the
-  // input's FieldData.  The TransformIndexArray can have tuples of any 
+  // input's FieldData.  The TransformIndexArray can have tuples of any
   // length, but must have a tuple for every point in the input data set.
   // This array transforms points, normals, and vectors.
   vtkSetStringMacro(TransformIndexArray);
@@ -114,7 +114,7 @@ public:
 
   // Description:
   // The CellDataWeightArray is analogous to the WeightArray, except
-  // for CellData.  The array is searched for first in the CellData 
+  // for CellData.  The array is searched for first in the CellData
   // FieldData, then in the input's FieldData.  The data array must have
   // a tuple for each cell.  This array is used to transform only normals
   // and vectors.
@@ -138,7 +138,7 @@ public:
   // Description:
   // Set the number of transforms for the filter.  References to non-existent
   // filter numbers in the data array is equivalent to a weight of zero
-  // (i.e., no contribution of that filter or weight).  The maximum number of 
+  // (i.e., no contribution of that filter or weight).  The maximum number of
   // transforms is limited to 65536 if transform index arrays are used.
   virtual void SetNumberOfTransforms(int num);
   vtkGetMacro(NumberOfTransforms, int);

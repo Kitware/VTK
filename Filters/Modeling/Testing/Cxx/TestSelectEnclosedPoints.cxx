@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This example demonstrates the use of vtkGenerateSurfaceIntersectionLines
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -45,7 +45,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   // Create a containing surface
   vtkSphereSource *ss = vtkSphereSource::New();
   ss->SetPhiResolution(25);
@@ -61,7 +61,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   // Generate some random points
   vtkMath::RandomSeed(1177);
   vtkPoints *points = vtkPoints::New();
-  for (int i=0; i < 500; i++) 
+  for (int i=0; i < 500; i++)
     {
     double x=vtkMath::Random(2.25,7.0);
     double y=vtkMath::Random(1,10);
@@ -71,7 +71,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   points->SetPoint(0,4.5,5.5,5.0);
   vtkPolyData *profile = vtkPolyData::New();
   profile->SetPoints(points);
-  
+
   vtkSelectEnclosedPoints *select = vtkSelectEnclosedPoints::New();
   select->SetInputData(profile);
   select->SetSurfaceConnection(ss->GetOutputPort());
@@ -79,7 +79,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
 
   vtkThresholdPoints *thresh = vtkThresholdPoints::New();
   thresh->SetInputConnection(select->GetOutputPort());
-  thresh->SetInputArrayToProcess(0,0,0, 
+  thresh->SetInputArrayToProcess(0,0,0,
                                  vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                  "SelectedPoints");
   thresh->ThresholdByUpper(0.9);
@@ -92,7 +92,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
 
   vtkPolyDataMapper *pointsMapper = vtkPolyDataMapper::New();
   pointsMapper->SetInputConnection(glypher->GetOutputPort());
-  
+
   vtkActor *pointsActor = vtkActor::New();
   pointsActor->SetMapper(pointsMapper);
   pointsActor->GetProperty()->SetColor(1,0,0);
@@ -100,11 +100,11 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   // Add actors
 //  renderer->AddActor(actor);
   renderer->AddActor(pointsActor);
-  
+
   // Standard testing code.
   renWin->SetSize(300,300);
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -115,11 +115,11 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
-  
+
   ss->Delete();
   mapper->Delete();
   actor->Delete();
-  
+
   points->Delete();
   profile->Delete();
   thresh->Delete();
@@ -128,6 +128,6 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   glypher->Delete();
   pointsMapper->Delete();
   pointsActor->Delete();
-  
+
   return !retVal;
 }

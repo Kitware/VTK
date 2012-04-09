@@ -92,5 +92,5 @@ lod AutomaticLODSelectionOn
 renWin Render
 
 wm withdraw .
- 
+
 iren Initialize

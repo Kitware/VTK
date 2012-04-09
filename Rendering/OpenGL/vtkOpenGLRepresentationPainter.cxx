@@ -37,7 +37,7 @@ vtkOpenGLRepresentationPainter::~vtkOpenGLRepresentationPainter()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer, 
+void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
                                                     vtkActor *actor,
                                                     unsigned long typeflags,
                                                     bool forceCompileOnly)
@@ -71,7 +71,7 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     break;
     }
 
-  bool draw_surface_with_edges = 
+  bool draw_surface_with_edges =
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
   if (draw_surface_with_edges)
     {
@@ -85,7 +85,7 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     {
     glDisable(GL_POLYGON_OFFSET_FILL);
     }
-  this->TimeToDraw += this->DelegatePainter? 
+  this->TimeToDraw += this->DelegatePainter?
     this->DelegatePainter->GetTimeToDraw() : 0;
   if (reset_needed)
     {
@@ -108,13 +108,13 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     glPolygonMode(face, GL_LINE);
 
     // Disable textures when rendering the surface edges.
-    // This ensures that edges are always drawn solid. 
+    // This ensures that edges are always drawn solid.
     glDisable(GL_TEXTURE_2D);
 
     this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
     this->Superclass::RenderInternal(renderer, actor, typeflags,
                                      forceCompileOnly);
-    this->TimeToDraw += this->DelegatePainter? 
+    this->TimeToDraw += this->DelegatePainter?
       this->DelegatePainter->GetTimeToDraw() : 0;
     this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
 

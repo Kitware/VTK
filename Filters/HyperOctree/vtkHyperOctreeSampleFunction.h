@@ -36,14 +36,14 @@ class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeSampleFunction : public vtkHype
 public:
   vtkTypeMacro(vtkHyperOctreeSampleFunction,vtkHyperOctreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   static vtkHyperOctreeSampleFunction *New();
 
   // Description:
   // Return the maximum number of levels of the hyperoctree.
   // \post positive_result: result>=1
   int GetLevels();
-  
+
   // Description:
   // Set the maximum number of levels of the hyperoctree. If
   // GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
@@ -51,91 +51,91 @@ public:
   // \post is_set: this->GetLevels()==levels
   // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
   void SetLevels(int levels);
-  
+
   // Description:
   // Return the minimal number of levels of systematic subdivision.
   // \post positive_result: result>=0
   int GetMinLevels();
-  
+
   // Description:
   // Set the minimal number of levels of systematic subdivision.
   // \pre positive_minLevels: minLevels>=0
   // \post is_set: this->GetMinLevels()==minLevels
   void SetMinLevels(int minLevels);
-  
+
   // Description:
   // Return the threshold over which a subdivision is required.
   // \post positive_result: result>0
   double GetThreshold();
-  
+
   // Description:
   // Set the threshold over which a subdivision is required.
   // \pre positive_threshold: threshold>=0
   // \post is_set: this->GetThreshold()==threshold
   void SetThreshold(double threshold);
-  
+
   // Description:
   // Return the dimension of the tree (1D:binary tree(2 children), 2D:quadtree(4 children),
   // 3D:octree (8 children))
   // \post valid_result: result>=1 && result<=3
   int GetDimension();
-  
+
    // Set the dimension of the tree with `dim'. See GetDimension() for details.
   // \pre valid_dim: dim>=1 && dim<=3
   // \post dimension_is_set: GetDimension()==dim
   void SetDimension(int dim);
-    
+
   // Description:
   // Set the size on each axis.
   vtkSetVector3Macro(Size,double);
-  
+
   // Description:
   // Return the size on each axis.
   vtkGetVector3Macro(Size,double);
-  
+
   // Description:
   // Set the origin (position of corner (0,0,0) of the root.
   vtkSetVector3Macro(Origin,double);
   // Return the origin (position of corner (0,0,0) ) of the root.
   vtkGetVector3Macro(Origin,double);
-  
+
   // Description:
   // Return the length along the x-axis.
   // \post positive_result: result>0
   double GetWidth();
-  
+
   // Description:
   // Set the length along the x-axis.
   // \pre positive_width: width>0
   // \post width_is_set: GetWidth()==width
   void SetWidth(double width);
-  
+
   // Description:
   // Return the length along the y-axis.
   // Relevant only if GetDimension()>=2
   // \post positive_result: result>0
   double GetHeight();
-  
+
   // Description:
   // Set the length along the y-axis.
   // Relevant only if GetDimension()>=2
   // \pre positive_height: height>0
   // \post height_is_set: GetHeight()==height
   void SetHeight(double height);
-  
+
   // Description:
   // Return the length along the z-axis.
   // Relevant only if GetDimension()>=3
   // \post positive_result: result>0
   double GetDepth();
-  
+
   // Description:
   // Return the length along the z-axis.
   // Relevant only if GetDimension()>=3
   // \pre positive_depth: depth>0
   // \post depth_is_set: GetDepth()==depth
   void SetDepth(double depth);
-  
+
   // Description:
   // Specify the implicit function to use to generate data.
   virtual void SetImplicitFunction(vtkImplicitFunction*);
@@ -178,28 +178,28 @@ protected:
   // Threshold is 0.1.
   vtkHyperOctreeSampleFunction();
   ~vtkHyperOctreeSampleFunction();
-  
+
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector ** vtkNotUsed( inputVector ),
                           vtkInformationVector *outputVector);
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void Subdivide(vtkHyperOctreeCursor *cursor,
                  int level,
                  vtkHyperOctree *output);
-  
+
   int Dimension;
   double Size[3]; // size on each axis
   double Origin[3]; // position of corner (0,0,0) of the root.
   int Levels;
   int MinLevels;
-  
+
   int OutputScalarType;
   vtkImplicitFunction *ImplicitFunction;
   double Threshold;
-  
+
 private:
   vtkHyperOctreeSampleFunction(const vtkHyperOctreeSampleFunction&);  // Not implemented.
   void operator=(const vtkHyperOctreeSampleFunction&);  // Not implemented.

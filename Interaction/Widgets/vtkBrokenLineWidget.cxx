@@ -697,7 +697,7 @@ void vtkBrokenLineWidget::OnRightButtonDown()
   vtkAssemblyPath *path;
   this->HandlePicker->Pick( X, Y, 0., this->CurrentRenderer );
   path = this->HandlePicker->GetPath();
-  
+
   if ( path != NULL )
     {
     switch ( this->State )
@@ -1050,7 +1050,7 @@ void vtkBrokenLineWidget::PlaceWidget( double bds[6])
 {
   double bounds[6], center[3];
   this->AdjustBounds( bds, bounds, center );
-      
+
   if ( this->ProjectToPlane )
     {
     this->ProjectPointsToPlane();
@@ -1092,7 +1092,7 @@ void vtkBrokenLineWidget::PlaceWidget( double bds[6])
 
 void vtkBrokenLineWidget::SetProjectionPosition( double position )
 {
-  this->ProjectionPosition = position; 
+  this->ProjectionPosition = position;
   if ( this->ProjectToPlane )
     {
     this->ProjectPointsToPlane();
@@ -1120,7 +1120,7 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
     vtkGenericWarningMacro(<<"Minimum of 2 points required to define a broken line.");
     return;
     }
-      
+
   double radius = this->HandleGeometry[0]->GetRadius();
   this->Initialize();
 
@@ -1150,7 +1150,7 @@ void vtkBrokenLineWidget::SetNumberOfHandles( int npts )
     {
     if ( ! this->CurrentRenderer )
       {
-      this->SetCurrentRenderer( 
+      this->SetCurrentRenderer(
                                this->Interactor->FindPokedRenderer(
                                                                    this->Interactor->GetLastEventPosition()[0],
                                                                    this->Interactor->GetLastEventPosition()[1]) );
@@ -1329,13 +1329,13 @@ void vtkBrokenLineWidget::EraseHandle( const int& index )
 void vtkBrokenLineWidget::InitializeHandles( vtkPoints* points )
 {
   if ( ! points )
-    { 
+    {
     return;
     }
 
   int npts = points->GetNumberOfPoints();
   if ( npts < 2 )
-    { 
+    {
     return;
     }
 

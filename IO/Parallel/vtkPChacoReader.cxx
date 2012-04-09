@@ -46,7 +46,7 @@ vtkPChacoReader::vtkPChacoReader()
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
- 
+
 //----------------------------------------------------------------------------
 vtkPChacoReader::~vtkPChacoReader()
 {
@@ -111,7 +111,7 @@ int vtkPChacoReader::RequestInformation(
 
   if (this->MyId == 0)
     {
-    retVal = 
+    retVal =
       this->Superclass::RequestInformation(request, inputVector, outputVector);
     }
 
@@ -157,8 +157,8 @@ int vtkPChacoReader::RequestInformation(
         this->NumberOfVertexWeights     = static_cast<int>(metadata[5]);
         this->NumberOfEdgeWeights       = static_cast<int>(metadata[6]);
         this->GraphFileHasVertexNumbers = static_cast<int>(metadata[7]);
-  
-        this->MakeWeightArrayNames(this->NumberOfVertexWeights, 
+
+        this->MakeWeightArrayNames(this->NumberOfVertexWeights,
                                    this->NumberOfEdgeWeights);
 
         this->SetCurrentBaseName(this->BaseName);
@@ -196,18 +196,18 @@ int vtkPChacoReader::RequestData(
 
   int i=0;
 
-  int oops = ((piece != this->MyId) || (numPieces != this->NumProcesses)); 
+  int oops = ((piece != this->MyId) || (numPieces != this->NumProcesses));
   int sum = 0;
 
   contr->Reduce(&oops, &sum, 1, vtkCommunicator::SUM_OP, 0);
   contr->Broadcast(&sum, 1, 0);
- 
+
   if (sum > 0)
     {
     // I don't know if this situation can occur, but we'll try to handle it.
 
     int *myPiece = new int [this->NumProcesses];
-  
+
     contr->AllGather(&piece, myPiece, 1);
 
     vtkMultiProcessController *subController;
@@ -232,7 +232,7 @@ int vtkPChacoReader::RequestData(
 
     delete [] myPiece;
 
-    if (nparticipants < numPieces) // Can this happen?  
+    if (nparticipants < numPieces) // Can this happen?
       {
       group->Delete();
       output->Initialize();
@@ -272,12 +272,12 @@ int vtkPChacoReader::RequestData(
 
   if (numPieces > 1)
     {
-    contr->Broadcast(&retVal, 1, pieceZeroProc); 
+    contr->Broadcast(&retVal, 1, pieceZeroProc);
 
     if (retVal == 1)
       {
-      retVal = this->DivideCells(contr, output, pieceZeroProc); 
-      } 
+      retVal = this->DivideCells(contr, output, pieceZeroProc);
+      }
     }
 
   if (contr != this->Controller)
@@ -291,7 +291,7 @@ int vtkPChacoReader::RequestData(
 void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 {
   int i;
-  // Note: The cell and point arrays should be added in the same order in 
+  // Note: The cell and point arrays should be added in the same order in
   // which they are added in vtkChacoReader::BuildOutputGrid.  See "Note" in
   // vtkChacoReader.cxx.
 
@@ -346,7 +346,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
     }
 }
 //----------------------------------------------------------------------------
-int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr, 
+int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
                                   vtkUnstructuredGrid *output, int source)
 {
   int retVal = 1;
@@ -500,12 +500,12 @@ vtkUnstructuredGrid  *
   else
     {
     tmp->ShallowCopy(ug);
-  
+
     vtkExtractCells *ec = vtkExtractCells::New();
     ec->AddCellRange(from, to);
     ec->SetInputData(tmp);
     ec->Update();
-  
+
     tmp->Initialize();
     tmp->ShallowCopy(ec->GetOutput());
     ec->Delete();
@@ -514,15 +514,15 @@ vtkUnstructuredGrid  *
   return tmp;
 }
 char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &len)
-{   
+{
   // taken from vtkCommunicator::WriteDataSet
-    
+
   vtkUnstructuredGrid *copy;
   vtkDataSetWriter *writer = vtkDataSetWriter::New();
-    
-  copy = extractedGrid->NewInstance(); 
+
+  copy = extractedGrid->NewInstance();
   copy->ShallowCopy(extractedGrid);
-    
+
   // There is a problem with binary files with no data.
   if (copy->GetNumberOfCells() > 0)
     {
@@ -530,16 +530,16 @@ char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &
     }
   writer->WriteToOutputStringOn();
   writer->SetInputData(copy);
-  
+
   writer->Write();
-    
+
   len = writer->GetOutputStringLength();
 
   char *packedFormat = writer->RegisterAndGetOutputString();
 
   writer->Delete();
-    
-  copy->Delete(); 
+
+  copy->Delete();
 
   return packedFormat;
 }

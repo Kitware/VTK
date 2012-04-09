@@ -15,8 +15,8 @@
 #include "vtkVolumeReader.h"
 
 
-// Construct object with NULL file prefix; file pattern "%s.%d"; image range 
-// set to (1,1); 
+// Construct object with NULL file prefix; file pattern "%s.%d"; image range
+// set to (1,1);
 vtkVolumeReader::vtkVolumeReader()
 {
   this->FilePrefix = NULL;
@@ -34,7 +34,7 @@ vtkVolumeReader::~vtkVolumeReader ()
     {
     delete [] this->FilePrefix;
     }
-  
+
   delete [] this->FilePattern;
 }
 
@@ -50,6 +50,6 @@ void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
                                     << this->DataSpacing[2] << ")\n";
   os << indent << "FilePrefix: " << (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
   os << indent << "FilePattern: " << (this->FilePattern ? this->FilePattern : "(none)") << "\n";
-  os << indent << "Image Range: (" << this->ImageRange[0] << ", " 
+  os << indent << "Image Range: (" << this->ImageRange[0] << ", "
      << this->ImageRange[1] << ")\n";
 }

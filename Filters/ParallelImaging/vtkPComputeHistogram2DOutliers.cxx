@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkPComputeHistogram2DOutliers.cxx
 
@@ -65,7 +65,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 {
   if(!this->Superclass::RequestData(request,inputVector,outputVector))
     return 0;
-  
+
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
     {
     // Nothing to do for single process.
@@ -106,7 +106,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
 
     // gathers all of the array lengths together
     comm->AllGather(&myLength, &recvLengths[0], 1);
-    
+
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
     for (int j=0; j<numProcesses; j++)
@@ -115,14 +115,14 @@ int vtkPComputeHistogram2DOutliers::RequestData(
       totalLength += recvLengths[j];
       recvLengths[j] *= typeSize;
       }
-    
+
     // communicating this as a byte array :/
     vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
     received->SetNumberOfTuples(totalLength);
-    
+
     char* sendBuf = (char*) col->GetVoidPointer(0);
     char* recvBuf = (char*) received->GetVoidPointer(0);
-    
+
     comm->AllGatherV(sendBuf, recvBuf, myLength*typeSize, &recvLengths[0], &recvOffsets[0]);
 
     gatheredTable->AddColumn(received);

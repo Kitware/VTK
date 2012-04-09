@@ -70,7 +70,7 @@ if { [ llength $files ] < 1 } {
 
 set count 0
 foreach { a } $files {
-   regsub -all {\\} $a {/} b 
+   regsub -all {\\} $a {/} b
    if { [ lsearch $IgnoreFileList $b ] >= 0 } {
 	puts "Ignoring: $b"
     } else {
@@ -79,7 +79,7 @@ foreach { a } $files {
 }
 
 if { $count > 0 } {
-    puts "" 
+    puts ""
     puts "Found \"$SearchMessage\" $count times"
     exit 1
 }

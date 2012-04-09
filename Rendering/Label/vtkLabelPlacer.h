@@ -191,7 +191,7 @@ protected:
   double LastCameraParallelScale;
   int IteratorType;
   int OutputCoordinateSystem;
-  
+
 private:
   vtkLabelPlacer( const vtkLabelPlacer& ); // Not implemented.
   void operator = ( const vtkLabelPlacer& ); // Not implemented.

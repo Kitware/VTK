@@ -35,18 +35,18 @@ class VTKIOXML_EXPORT vtkXMLPPolyDataReader : public vtkXMLPUnstructuredDataRead
 {
 public:
   vtkTypeMacro(vtkXMLPPolyDataReader,vtkXMLPUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent);  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPPolyDataReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkPolyData *GetOutput();
   vtkPolyData *GetOutput(int idx);
-  
+
 protected:
   vtkXMLPPolyDataReader();
   ~vtkXMLPPolyDataReader();
-  
+
   const char* GetDataSetName();
   void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel);
   vtkIdType GetNumberOfCellsInPiece(int piece);
@@ -55,15 +55,15 @@ protected:
   vtkIdType GetNumberOfStripsInPiece(int piece);
   vtkIdType GetNumberOfPolysInPiece(int piece);
   void SetupOutputTotals();
-  
+
   void SetupOutputData();
   void SetupNextPiece();
   int ReadPieceData();
-  
+
   void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray);
   vtkXMLDataReader* CreatePieceReader();
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
   // The size of the UpdatePiece.
   vtkIdType TotalNumberOfVerts;
   vtkIdType TotalNumberOfLines;
@@ -73,7 +73,7 @@ protected:
   vtkIdType StartLine;
   vtkIdType StartStrip;
   vtkIdType StartPoly;
-  
+
 private:
   vtkXMLPPolyDataReader(const vtkXMLPPolyDataReader&);  // Not implemented.
   void operator=(const vtkXMLPPolyDataReader&);  // Not implemented.

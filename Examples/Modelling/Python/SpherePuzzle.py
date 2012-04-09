@@ -82,7 +82,7 @@ def MotionCallback(obj, event):
     global in_piece_rotation
     global LastVal
     if in_piece_rotation:
-        return 
+        return
 
     iren = renWin.GetInteractor()
     istyle = iren.GetInteractorStyle().GetCurrentStyle()
@@ -90,7 +90,7 @@ def MotionCallback(obj, event):
     # Return if the user is performing interaction
     if istyle.GetState():
         return
- 
+
     # Get mouse position
     pos = iren.GetEventPosition()
     x, y = pos
@@ -112,10 +112,10 @@ def CharCallback(obj, event):
     keycode = iren.GetKeyCode()
     if keycode != "m" and keycode != "M":
         return
-    
+
     pos = iren.GetEventPosition()
     ButtonCallback(pos[0], pos[1])
- 
+
 
 def ButtonCallback(x, y):
     global in_piece_rotation
@@ -136,7 +136,7 @@ def ButtonCallback(x, y):
         root.update()
 
     in_piece_rotation = 0
- 
+
 root.update()
 
 # Modify some bindings, use the interactor style 'switch'

@@ -14,29 +14,29 @@
 =========================================================================*/
 // .NAME vtkCubeAxesActor2D - create a 2D plot of a bounding box edges - used for navigation
 // .SECTION Description
-// vtkCubeAxesActor2D is a composite actor that draws three axes of the 
+// vtkCubeAxesActor2D is a composite actor that draws three axes of the
 // bounding box of an input dataset. The axes include labels and titles
-// for the x-y-z axes. The algorithm selects the axes that are on the 
+// for the x-y-z axes. The algorithm selects the axes that are on the
 // "exterior" of the bounding box, exterior as determined from examining
 // outer edges of the bounding box in projection (display) space. Alternatively,
 // the edges closest to the viewer (i.e., camera position) can be drawn.
-// 
+//
 // To use this object you must define a bounding box and the camera used
-// to render the vtkCubeAxesActor2D. The camera is used to control the 
+// to render the vtkCubeAxesActor2D. The camera is used to control the
 // scaling and position of the vtkCubeAxesActor2D so that it fits in the
 // viewport and always remains visible.)
 //
 // The font property of the axes titles and labels can be modified through the
 // AxisTitleTextProperty and AxisLabelTextProperty attributes. You may also
-// use the GetXAxisActor2D, GetYAxisActor2D or GetZAxisActor2D methods 
+// use the GetXAxisActor2D, GetYAxisActor2D or GetZAxisActor2D methods
 // to access each individual axis actor to modify their font properties.
 //
 // The bounding box to use is defined in one of three ways. First, if the Input
-// ivar is defined, then the input dataset's bounds is used. If the Input is 
+// ivar is defined, then the input dataset's bounds is used. If the Input is
 // not defined, and the Prop (superclass of all actors) is defined, then the
 // Prop's bounds is used. If neither the Input or Prop is defined, then the
 // Bounds instance variable (an array of six doubles) is used.
-// 
+//
 // .SECTION See Also
 // vtkActor2D vtkAxisActor2D vtkXYPlotActor vtkTextProperty
 
@@ -68,7 +68,7 @@ public:
   // set to Arial; and label format "6.3g". The number of labels per axis
   // is set to 3.
   static vtkCubeAxesActor2D *New();
-  
+
   // Description:
   // Draw the axes as per the vtkProp superclass' API.
   int RenderOverlay(vtkViewport*);
@@ -78,7 +78,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Use the bounding box of this input dataset to draw the cube axes. If this
   // is not specified, then the class will attempt to determine the bounds from
@@ -101,19 +101,19 @@ public:
   // sure that the min's are less than the max's.
   vtkSetVector6Macro(Bounds,double);
   double *GetBounds();
-  void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax, 
+  void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax,
                  double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
 
   // Description:
   // Explicitly specify the range of values used on the bounds.
-  // The ranges are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), 
+  // The ranges are specified according to (xmin,xmax, ymin,ymax, zmin,zmax),
   // making sure that the min's are less than the max's.
   vtkSetVector6Macro(Ranges,double);
   double *GetRanges();
-  void GetRanges(double& xmin, double& xmax, double& ymin, double& ymax, 
+  void GetRanges(double& xmin, double& xmax, double& ymin, double& ymax,
                  double& zmin, double& zmax);
-  void GetRanges(double ranges[6]);  
+  void GetRanges(double ranges[6]);
 
   // Description:
   // Explicitly specify an origin for the axes. These usually intersect at one of the
@@ -132,14 +132,14 @@ public:
   vtkBooleanMacro(UseRanges,int);
 
   // Description:
-  // Set/Get the camera to perform scaling and translation of the 
+  // Set/Get the camera to perform scaling and translation of the
   // vtkCubeAxesActor2D.
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
   // Specify a mode to control how the axes are drawn: either outer edges
-  // or closest triad to the camera position, or you may also disable flying 
+  // or closest triad to the camera position, or you may also disable flying
   // of the axes.
   vtkSetClampMacro(FlyMode, int, VTK_FLY_OUTER_EDGES, VTK_FLY_NONE);
   vtkGetMacro(FlyMode, int);
@@ -160,14 +160,14 @@ public:
   vtkBooleanMacro(Scaling,int);
 
   // Description:
-  // Set/Get the number of annotation labels to show along the x, y, and 
+  // Set/Get the number of annotation labels to show along the x, y, and
   // z axes. This values is a suggestion: the number of labels may vary
   // depending on the particulars of the data.
   vtkSetClampMacro(NumberOfLabels, int, 0, 50);
   vtkGetMacro(NumberOfLabels, int);
-  
+
   // Description:
-  // Set/Get the labels for the x, y, and z axes. By default, 
+  // Set/Get the labels for the x, y, and z axes. By default,
   // use "X", "Y" and "Z".
   vtkSetStringMacro(XLabel);
   vtkGetStringMacro(XLabel);
@@ -191,32 +191,32 @@ public:
   // be controlled individually through the GetX/Y/ZAxisActor2D() methods.
   virtual void SetAxisTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(AxisTitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Set/Get the labels text property of all axes. Note that each axis can
   // be controlled individually through the GetX/Y/ZAxisActor2D() methods.
   virtual void SetAxisLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(AxisLabelTextProperty,vtkTextProperty);
-      
+
   // Description:
   // Set/Get the format with which to print the labels on each of the
   // x-y-z axes.
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  
+
   // Description:
   // Set/Get the factor that controls the overall size of the fonts used
-  // to label and title the axes. 
+  // to label and title the axes.
   vtkSetClampMacro(FontFactor, double, 0.1, 2.0);
   vtkGetMacro(FontFactor, double);
 
   // Description:
   // Set/Get the inertial factor that controls how often (i.e, how
-  // many renders) the axes can switch position (jump from one axes 
+  // many renders) the axes can switch position (jump from one axes
   // to another).
   vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
   vtkGetMacro(Inertia, int);
-  
+
   // Description:
   // Set/Get the variable that controls whether the actual
   // bounds of the dataset are always shown. Setting this variable
@@ -229,7 +229,7 @@ public:
 
   // Description:
   // Specify an offset value to "pull back" the axes from the corner at
-  // which they are joined to avoid overlap of axes labels. The 
+  // which they are joined to avoid overlap of axes labels. The
   // "CornerOffset" is the fraction of the axis length to pull back.
   vtkSetMacro(CornerOffset, double);
   vtkGetMacro(CornerOffset, double);
@@ -270,11 +270,11 @@ protected:
   vtkCamera *Camera;
   int FlyMode;
   int Scaling;
-  
+
   vtkAxisActor2D *XAxis;
   vtkAxisActor2D *YAxis;
   vtkAxisActor2D *ZAxis;
-  
+
   vtkTextProperty *AxisTitleTextProperty;
   vtkTextProperty *AxisLabelTextProperty;
 
@@ -296,24 +296,24 @@ protected:
   int   Inertia;
   int   RenderCount;
   int   InertiaAxes[8];
-  
+
   int RenderSomething;
-  
+
   // Always show the actual bounds of the object
   int ShowActualBounds;
 
   double XOrigin;
   double YOrigin;
   double ZOrigin;
-  
+
   // various helper methods
-  void TransformBounds(vtkViewport *viewport, double bounds[6], 
+  void TransformBounds(vtkViewport *viewport, double bounds[6],
                        double pts[8][3]);
   int ClipBounds(vtkViewport *viewport, double pts[8][3], double bounds[6]);
   double EvaluatePoint(double planes[24], double x[3]);
   double EvaluateBounds(double planes[24], double bounds[6]);
-  void AdjustAxes(double pts[8][3], double bounds[6], 
-                  int idx, int xIdx, int yIdx, int zIdx, int zIdx2, 
+  void AdjustAxes(double pts[8][3], double bounds[6],
+                  int idx, int xIdx, int yIdx, int zIdx, int zIdx2,
                   int xAxes, int yAxes, int zAxes,
                   double xCoords[4], double yCoords[4], double zCoords[4],
                   double xRange[2], double yRange[2], double zRange[2]);

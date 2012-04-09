@@ -32,7 +32,7 @@ vtkContourValues::~vtkContourValues()
 }
 
 // Set the ith contour value.
-void vtkContourValues::SetValue(int i, double value) 
+void vtkContourValues::SetValue(int i, double value)
 {
   int numContours=this->Contours->GetMaxId()+1;
   i = (i < 0 ? 0 : i);
@@ -46,7 +46,7 @@ void vtkContourValues::SetValue(int i, double value)
 
 // Get the ith contour value. The return value will be clamped if the
 // index i is out of range.
-double vtkContourValues::GetValue(int i) 
+double vtkContourValues::GetValue(int i)
 {
   i = (i < 0 ? 0 : i);
   i = (i > this->Contours->GetMaxId() ? this->Contours->GetMaxId() : i);
@@ -55,7 +55,7 @@ double vtkContourValues::GetValue(int i)
 
 // Return a pointer to a list of contour values. The contents of the
 // list will be garbage if the number of contours <= 0.
-double *vtkContourValues::GetValues() 
+double *vtkContourValues::GetValues()
 {
   return this->Contours->GetPointer(0);
 }
@@ -122,7 +122,7 @@ void vtkContourValues::SetNumberOfContours(const int number)
 
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-void vtkContourValues::GenerateValues(int numContours, double rangeStart, 
+void vtkContourValues::GenerateValues(int numContours, double rangeStart,
                                      double rangeEnd)
 {
   double range[2];
@@ -157,7 +157,7 @@ void vtkContourValues::GenerateValues(int numContours, double range[2])
 }
 
 // Return the number of contours in the
-int vtkContourValues::GetNumberOfContours() 
+int vtkContourValues::GetNumberOfContours()
 {
   return this->Contours->GetMaxId()+1;
 }
@@ -165,7 +165,7 @@ int vtkContourValues::GetNumberOfContours()
 void vtkContourValues::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   int i, numContours=this->Contours->GetMaxId() + 1;
 
   os << indent << "Contour Values: \n";

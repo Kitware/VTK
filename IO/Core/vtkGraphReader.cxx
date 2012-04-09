@@ -93,7 +93,7 @@ int vtkGraphReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Return all data in the first piece ...
   if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
@@ -110,9 +110,9 @@ int vtkGraphReader::RequestData(
     return 1;
     }
 
-  vtkSmartPointer<vtkMutableDirectedGraph> dir_builder = 
+  vtkSmartPointer<vtkMutableDirectedGraph> dir_builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
-  vtkSmartPointer<vtkMutableUndirectedGraph> undir_builder = 
+  vtkSmartPointer<vtkMutableUndirectedGraph> undir_builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
   vtkGraph *builder = 0;
   if (directed)
@@ -146,7 +146,7 @@ int vtkGraphReader::RequestData(
       field_data->Delete();
       continue;
       }
-      
+
     if(!strncmp(this->LowerCase(line), "points", 6))
       {
       int point_count = 0;
@@ -160,7 +160,7 @@ int vtkGraphReader::RequestData(
       this->ReadPoints(builder, point_count);
       continue;
       }
-      
+
     if(!strncmp(this->LowerCase(line), "vertices", 8))
       {
       int vertex_count = 0;
@@ -203,7 +203,7 @@ int vtkGraphReader::RequestData(
           this->CloseVTKFile();
           return 1;
           }
-        
+
         if (directed)
           {
           dir_builder->AddEdge(source, target);
@@ -230,7 +230,7 @@ int vtkGraphReader::RequestData(
       this->ReadVertexData(builder, vertex_count);
       continue;
       }
-      
+
     if(!strncmp(this->LowerCase(line), "edge_data", 9))
       {
       int edge_count = 0;
@@ -248,10 +248,10 @@ int vtkGraphReader::RequestData(
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
 
-  vtkDebugMacro(<< "Read " 
-    << builder->GetNumberOfVertices() 
+  vtkDebugMacro(<< "Read "
+    << builder->GetNumberOfVertices()
     << " vertices and "
-    << builder->GetNumberOfEdges() 
+    << builder->GetNumberOfEdges()
     << " edges.\n");
 
   this->CloseVTKFile ();
@@ -273,7 +273,7 @@ int vtkGraphReader::RequestData(
     {
     vtkErrorMacro(<<"Invalid graph structure, returning empty graph.");
     }
-      
+
   return 1;
 }
 
@@ -284,7 +284,7 @@ int vtkGraphReader::ReadGraphDirectedness(bool & directed)
     {
     return 0;
     }
-  
+
   // Read graph-specific stuff
   char line[256];
   if(!this->ReadString(line))
@@ -333,7 +333,7 @@ int vtkGraphReader::FillOutputPortInformation(int, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-int vtkGraphReader::RequestDataObject(vtkInformation *, 
+int vtkGraphReader::RequestDataObject(vtkInformation *,
                                       vtkInformationVector **,
                                       vtkInformationVector *)
 {

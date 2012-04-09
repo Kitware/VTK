@@ -29,7 +29,7 @@
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
 
-  
+
 int TestIconGlyphFilterGravity( int argc, char *argv[])
 {
   char* fname =
@@ -68,7 +68,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     }
 
   int size[] = {24, 24};
-  
+
   vtkIconGlyphFilter * iconFilter = vtkIconGlyphFilter::New();
 
   iconFilter->SetInputData(pointSet);
@@ -98,7 +98,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex2->InsertNextTuple1(i + 8);
     }
-  
+
   vtkIconGlyphFilter * iconFilter2 = vtkIconGlyphFilter::New();
 
   iconFilter2->SetInputData(pointSet2);
@@ -128,7 +128,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex3->InsertNextTuple1(i + 16);
     }
-  
+
   vtkIconGlyphFilter * iconFilter3 = vtkIconGlyphFilter::New();
 
   iconFilter3->SetInputData(pointSet3);
@@ -158,7 +158,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex4->InsertNextTuple1(i + 24);
     }
-  
+
   vtkIconGlyphFilter * iconFilter4 = vtkIconGlyphFilter::New();
 
   iconFilter4->SetInputData(pointSet4);
@@ -188,7 +188,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex5->InsertNextTuple1(i + 32);
     }
-  
+
   vtkIconGlyphFilter * iconFilter5 = vtkIconGlyphFilter::New();
 
   iconFilter5->SetInputData(pointSet5);
@@ -218,7 +218,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex6->InsertNextTuple1(i + 40);
     }
-  
+
   vtkIconGlyphFilter * iconFilter6 = vtkIconGlyphFilter::New();
 
   iconFilter6->SetInputData(pointSet6);
@@ -248,7 +248,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex7->InsertNextTuple1(i + 48);
     }
-  
+
   vtkIconGlyphFilter * iconFilter7 = vtkIconGlyphFilter::New();
 
   iconFilter7->SetInputData(pointSet7);
@@ -278,7 +278,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex8->InsertNextTuple1(i + 56);
     }
-  
+
   vtkIconGlyphFilter * iconFilter8 = vtkIconGlyphFilter::New();
 
   iconFilter8->SetInputData(pointSet8);
@@ -308,7 +308,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
     {
     iconIndex9->InsertNextTuple1(i + 64);
     }
-  
+
   vtkIconGlyphFilter * iconFilter9 = vtkIconGlyphFilter::New();
 
   iconFilter9->SetInputData(pointSet9);
@@ -333,7 +333,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
 
   vtkTexturedActor2D * iconActor = vtkTexturedActor2D::New();
   iconActor->SetMapper(mapper);
-  
+
   vtkTexture * texture =  vtkTexture::New();
   texture->SetInputConnection(imageReader->GetOutputPort());
   iconActor->SetTexture(texture);
@@ -342,7 +342,7 @@ int TestIconGlyphFilterGravity( int argc, char *argv[])
   vtkRenderWindow * renWin = vtkRenderWindow::New();
   renWin->SetSize(208, 260);
   renWin->AddRenderer(renderer);
-  
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 

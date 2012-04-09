@@ -43,21 +43,21 @@ public:
   // Get/Set the writer's input.
   vtkPolyData* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLPPolyDataWriter();
   ~vtkXMLPPolyDataWriter();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   const char* GetDataSetName();
-  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter(); 
-  
+  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
+
 private:
   vtkXMLPPolyDataWriter(const vtkXMLPPolyDataWriter&);  // Not implemented.
   void operator=(const vtkXMLPPolyDataWriter&);  // Not implemented.

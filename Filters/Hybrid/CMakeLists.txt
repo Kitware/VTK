@@ -25,7 +25,7 @@ set(Module_SRCS
   vtkWeightedTransformFilter.cxx
   # FIXME: These should not be in filters.
   vtkStructuredGridLIC2D.cxx
-  vtkStructuredGridLIC2D_fs.cxx 
+  vtkStructuredGridLIC2D_fs.cxx
   )
 
 set(shader_files

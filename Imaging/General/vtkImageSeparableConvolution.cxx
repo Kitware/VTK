@@ -32,10 +32,10 @@ void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outIma
 {
 
   // Consider the kernel to be centered at (int) ( (kernelSize - 1 ) / 2.0 )
-  
+
   int center = static_cast<int>((kernelSize - 1) / 2.0);
   int i, j, k, kStart, iStart, iEnd, count;
-  
+
   for ( i = 0; i < imageSize; ++i )
     {
     outImage[i] = 0.0;
@@ -45,7 +45,7 @@ void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outIma
 //      {
 //      iStart = 0;
 //      }
-    
+
 //    iEnd = i + center;
 //    if ( iEnd > imageSize - 1 )
 //      {
@@ -61,7 +61,7 @@ void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outIma
       ++iStart;
       --k;
       }
-    
+
     iEnd = i + center;
     k = 0;
     while ( iEnd > imageSize - 1 )
@@ -142,7 +142,7 @@ int vtkImageSeparableConvolution::IterativeRequestInformation(
 int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
-  int *wholeExtent = 
+  int *wholeExtent =
     input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   vtkFloatArray* KernelArray = NULL;
@@ -162,11 +162,11 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   if ( KernelArray )
     {
     kernelSize = KernelArray->GetNumberOfTuples();
-    kernelSize = static_cast<int>((kernelSize - 1) / 2.0); 
+    kernelSize = static_cast<int>((kernelSize - 1) / 2.0);
     }
-  
+
   int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  
+
   // Assumes that the input update extent has been initialized to output ...
   int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
@@ -175,14 +175,14 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
     {
     inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
     }
-  
-  inExt[this->Iteration * 2 + 1] = 
+
+  inExt[this->Iteration * 2 + 1] =
     outExt[this->Iteration * 2 + 1] + kernelSize;
   if ( inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1] )
     {
     inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
     }
-  
+
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 
   return 1;
@@ -213,7 +213,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   self->PermuteExtent(inExt, inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
   self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
-  
+
   target = static_cast<unsigned long>(
     (inMax2-inMin2+1)*(inMax1-inMin1+1)/50.0);
   target++;
@@ -251,7 +251,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   float* outImage = new float[imageSize];
   float* imagePtr;
 
-  
+
   // loop over all the extra axes
   inPtr2 = static_cast<T *>(inData->GetScalarPointerForExtent(inExt));
   outPtr2 = static_cast<float *>(outData->GetScalarPointerForExtent(outExt));
@@ -286,7 +286,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
         // If we don't have a kernel, just copy to the output
         imagePtr = image;
         }
-      
+
       // Copy to output, be aware that we only copy to the extent that was asked for
       outPtr0 = outPtr1;
       imagePtr = imagePtr + (outMin0 - inMin0);
@@ -302,7 +302,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
     inPtr2 += inInc2;
     outPtr2 += outInc2;
     }
-  
+
   delete [] image;
   delete [] outImage;
   if ( kernel )
@@ -360,13 +360,13 @@ int vtkImageSeparableConvolution::IterativeRequestData(
       return 1;
       }
     }
-  
+
   if (inData->GetNumberOfScalarComponents() != 1)
     {
     vtkErrorMacro(<< "ImageSeparableConvolution only works on 1 component input for the moment.");
     return 1;
     }
-  
+
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
     {
@@ -378,9 +378,9 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageSeparableConvolutionExecute( 
-        this, inData, outData, static_cast<VTK_TT*>(0), 
-        inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), 
+      vtkImageSeparableConvolutionExecute(
+        this, inData, outData, static_cast<VTK_TT*>(0),
+        inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

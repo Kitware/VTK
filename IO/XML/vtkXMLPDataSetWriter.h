@@ -35,28 +35,28 @@ public:
   vtkTypeMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPDataSetWriter* New();
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
   vtkDataSet* GetInput();
   //ETX
-  
+
 protected:
   vtkXMLPDataSetWriter();
   ~vtkXMLPDataSetWriter();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Override writing method from superclass.
   virtual int WriteInternal();
-  
+
   // Dummies to satisfy pure virtuals from superclass.
   const char* GetDataSetName();
   const char* GetDefaultFileExtension();
-  vtkXMLWriter* CreatePieceWriter(int index);  
-  
+  vtkXMLWriter* CreatePieceWriter(int index);
+
 private:
   vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&);  // Not implemented.
   void operator=(const vtkXMLPDataSetWriter&);  // Not implemented.

@@ -66,7 +66,7 @@ vtkInformationKeyMacro(vtkDataObject, DATA_GEOMETRY_UNMODIFIED, Integer);
 vtkInformationKeyMacro(vtkDataObject, SIL, DataObject);
 
 
-// Initialize static member that controls global data release 
+// Initialize static member that controls global data release
 // after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
 
@@ -141,7 +141,7 @@ unsigned long int vtkDataObject::GetMTime()
     unsigned long mtime = this->FieldData->GetMTime();
     result = ( mtime > result ? mtime : result);
     }
-  
+
   return result;
 }
 
@@ -177,13 +177,13 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 }
 
 //----------------------------------------------------------------------------
-vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info, 
+vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info,
     int fieldAssociation, int attributeType)
 {
   int i;
   vtkInformation *fieldDataInfo;
   vtkInformationVector *fieldDataInfoVector;
-  
+
   if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
     {
     fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
@@ -224,14 +224,14 @@ vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info,
 }
 
 //----------------------------------------------------------------------------
-vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info, 
-                                                        int fieldAssociation, 
+vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info,
+                                                        int fieldAssociation,
                                                         const char *name)
 {
   int i;
   vtkInformation *fieldDataInfo;
   vtkInformationVector *fieldDataInfoVector;
-  
+
   if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
     {
     fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
@@ -253,12 +253,12 @@ vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info,
     vtkGenericWarningMacro("Unrecognized field association!");
     return NULL;
     }
-  
+
   if (!fieldDataInfoVector)
     {
     return NULL;
     }
-  
+
   for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
     {
     fieldDataInfo = fieldDataInfoVector->GetInformationObject(i);
@@ -272,14 +272,14 @@ vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info,
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info, 
-                                                int fieldAssociation, 
+void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info,
+                                                int fieldAssociation,
                                                 const char *name)
 {
   int i;
   vtkInformation *fieldDataInfo;
   vtkInformationVector *fieldDataInfoVector;
-  
+
   if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
     {
     fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
@@ -301,12 +301,12 @@ void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info,
     vtkGenericWarningMacro("Unrecognized field association!");
     return;
     }
-  
+
   if (!fieldDataInfoVector)
     {
     return;
     }
-  
+
   for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
     {
     fieldDataInfo = fieldDataInfoVector->GetInformationObject(i);
@@ -321,7 +321,7 @@ void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info,
 }
 
 //----------------------------------------------------------------------------
-vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info, 
+vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
                                                   int fieldAssociation,
                                                   const char *attributeName,
                                                   int attributeType)
@@ -329,7 +329,7 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
   int i;
   vtkInformation *fieldDataInfo;
   vtkInformationVector *fieldDataInfoVector;
-  
+
   if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
     {
     fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
@@ -397,9 +397,9 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
       fieldDataInfo->Set( FIELD_ACTIVE_ATTRIBUTE(), activeAttribute );
       }
     }
-  
+
   // if we didn't find a matching field, create one
-  if (!activeField) 
+  if (!activeField)
     {
     activeField = vtkInformation::New();
     activeField->Set( FIELD_ACTIVE_ATTRIBUTE(), 1 << attributeType);
@@ -416,7 +416,7 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::SetActiveAttributeInfo(vtkInformation *info, 
+void vtkDataObject::SetActiveAttributeInfo(vtkInformation *info,
                                           int fieldAssociation,
                                           int attributeType,
                                           const char *name,
@@ -424,7 +424,7 @@ void vtkDataObject::SetActiveAttributeInfo(vtkInformation *info,
                                           int numComponents,
                                           int numTuples)
 {
-  vtkInformation *attrInfo = vtkDataObject::GetActiveFieldInformation(info, 
+  vtkInformation *attrInfo = vtkDataObject::GetActiveFieldInformation(info,
     fieldAssociation, attributeType);
   if (!attrInfo)
     {
@@ -470,7 +470,7 @@ void vtkDataObject::SetActiveAttributeInfo(vtkInformation *info,
 void vtkDataObject::SetPointDataActiveScalarInfo(vtkInformation *info,
                                         int arrayType, int numComponents)
   {
-  vtkDataObject::SetActiveAttributeInfo(info, FIELD_ASSOCIATION_POINTS, 
+  vtkDataObject::SetActiveAttributeInfo(info, FIELD_ASSOCIATION_POINTS,
     vtkDataSetAttributes::SCALARS, NULL, arrayType, numComponents, -1);
   }
 
@@ -554,7 +554,7 @@ void vtkDataObject::ShallowCopy(vtkDataObject *src)
 void vtkDataObject::DeepCopy(vtkDataObject *src)
 {
   vtkFieldData *srcFieldData = src->GetFieldData();
-  
+
   this->InternalDataObjectCopy(src);
 
   if (srcFieldData)
@@ -574,7 +574,7 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
 void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 {
   this->DataReleased = src->DataReleased;
-  
+
   // Do not copy pipeline specific information from data object to
   // data object. This meta-data is specific to the algorithm and the
   // what was requested of it when it executed. What looks like a single
@@ -605,7 +605,7 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     {
     this->Information->CopyEntry(src->Information, DATA_RESOLUTION(), 1);
     }
-  
+
   // This also caused a pipeline problem.
   // An input pipelineMTime was copied to output.  Pipeline did not execute...
   // We do not copy MTime of object, so why should we copy these.

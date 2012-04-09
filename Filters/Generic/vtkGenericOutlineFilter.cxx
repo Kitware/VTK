@@ -52,7 +52,7 @@ int vtkGenericOutlineFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
 //  vtkPolyData *output = this->GetOutput();
-  
+
   vtkDebugMacro(<< "Creating dataset outline");
 
   //
@@ -77,18 +77,18 @@ int vtkGenericOutlineFilter::RequestInformation(
 //  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 //  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  
+
   vtkDebugMacro(<< "Creating dataset outline");
 
   //
   // Let OutlineSource do all the work
   //
-  
+
   int result = this->Superclass::RequestInformation(request,inputVector,
                                                     outputVector);
 
   this->OutlineSource->UpdateInformation();
-  
+
   return result;
 }
 

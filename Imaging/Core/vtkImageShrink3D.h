@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkImageShrink3D - Subsamples an image.
 // .SECTION Description
-// vtkImageShrink3D shrinks an image by sub sampling on a 
-// uniform grid (integer multiples).  
+// vtkImageShrink3D shrinks an image by sub sampling on a
+// uniform grid (integer multiples).
 
 #ifndef __vtkImageShrink3D_h
 #define __vtkImageShrink3D_h
@@ -30,7 +30,7 @@ public:
   static vtkImageShrink3D *New();
   vtkTypeMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set/Get the shrink factors
   vtkSetVector3Macro(ShrinkFactors,int);
@@ -50,23 +50,23 @@ public:
   void SetAveraging(int);
   int GetAveraging() {return this->GetMean();};
   vtkBooleanMacro(Averaging,int);
-  
+
   void SetMean(int);
   vtkGetMacro(Mean,int);
   vtkBooleanMacro(Mean,int);
-  
+
   void SetMinimum(int);
   vtkGetMacro(Minimum,int);
   vtkBooleanMacro(Minimum,int);
-  
+
   void SetMaximum(int);
   vtkGetMacro(Maximum,int);
   vtkBooleanMacro(Maximum,int);
-  
+
   void SetMedian(int);
   vtkGetMacro(Median,int);
   vtkBooleanMacro(Median,int);
-  
+
 protected:
   vtkImageShrink3D();
   ~vtkImageShrink3D() {};
@@ -80,11 +80,11 @@ protected:
 
   virtual int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData, 
+                           vtkImageData ***inData, vtkImageData **outData,
                            int ext[6], int id);
 
   void InternalRequestUpdateExtent(int *inExt, int *outExt);

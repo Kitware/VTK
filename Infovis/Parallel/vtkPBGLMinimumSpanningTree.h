@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkPBGLMinimumSpanningTree - Minimum spanning tree of a 
+// .NAME vtkPBGLMinimumSpanningTree - Minimum spanning tree of a
 // distributed vtkGraph.
 //
 // .SECTION Description
@@ -45,7 +45,7 @@ public:
   static vtkPBGLMinimumSpanningTree *New();
   vtkTypeMacro(vtkPBGLMinimumSpanningTree, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the name of the edge-weight input array, which must name an
   // array that is part of the edge data of the input graph and
@@ -65,8 +65,8 @@ protected:
   ~vtkPBGLMinimumSpanningTree();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
@@ -74,11 +74,11 @@ protected:
 
   virtual int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
   char* EdgeWeightArrayName;
   char* OutputSelectionType;
-  
+
   vtkPBGLMinimumSpanningTree(const vtkPBGLMinimumSpanningTree&);  // Not implemented.
   void operator=(const vtkPBGLMinimumSpanningTree&);  // Not implemented.
 };

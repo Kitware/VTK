@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkEllipsoidTensorProbeRepresentation - A concrete implementation of vtkTensorProbeRepresentation that renders tensors as ellipoids.
 // .SECTION Description
-// vtkEllipsoidTensorProbeRepresentation is a concrete implementation of 
+// vtkEllipsoidTensorProbeRepresentation is a concrete implementation of
 // vtkTensorProbeRepresentation. It renders tensors as ellipsoids. Locations
-// between two points when probed have the tensors linearly interpolated 
+// between two points when probed have the tensors linearly interpolated
 // from the neighboring locations on the polyline.
 //
 // .SECTION See Also
@@ -52,16 +52,16 @@ public:
   virtual int SelectProbe( int pos[2] );
 
   // Description:
-  // See vtkProp for details.  
+  // See vtkProp for details.
   virtual void GetActors(vtkPropCollection *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
-  
+
 protected:
   vtkEllipsoidTensorProbeRepresentation();
   ~vtkEllipsoidTensorProbeRepresentation();
 
   // Get the interpolated tensor at the current position
-  void EvaluateTensor( double t[9] ); 
+  void EvaluateTensor( double t[9] );
 
   vtkActor           * EllipsoidActor;
   vtkPolyDataMapper  * EllipsoidMapper;
@@ -71,9 +71,9 @@ protected:
   vtkPolyDataNormals * PolyDataNormals;
 
 private:
-  vtkEllipsoidTensorProbeRepresentation(const 
+  vtkEllipsoidTensorProbeRepresentation(const
       vtkEllipsoidTensorProbeRepresentation&);  //Not implemented
-  void operator=(const 
+  void operator=(const
       vtkEllipsoidTensorProbeRepresentation&);  //Not implemented
 
 };

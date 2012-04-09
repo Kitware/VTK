@@ -20,7 +20,7 @@
 // recording by hitting the "record" button, manipulate the camera (by using
 // an interactor, direct scripting, or any other means), and then save the
 // camera view. Repeat this process to record a series of views.  The user
-// can then play back interpolated camera views using the 
+// can then play back interpolated camera views using the
 // vtkCameraInterpolator.
 
 // .SECTION See Also
@@ -54,9 +54,9 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkCameraRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
 protected:
@@ -64,7 +64,7 @@ protected:
   ~vtkCameraWidget();
 
   // Description:
-  // When selecting the interior of this widget, special operations occur 
+  // When selecting the interior of this widget, special operations occur
   // (i.e., adding a camera view, deleting a path, animating a path). Thus
   // this methods overrides the superclasses' method.
   virtual void SelectRegion(double eventPos[2]);

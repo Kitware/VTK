@@ -43,7 +43,7 @@ public:
   // TODO: Change this to take in a vtkGeoTerrain to get altitude.
   vtkSetMacro(GlobeRadius, double);
   vtkGetMacro(GlobeRadius, double);
-  
+
   // Description:
   // Factor on which to "explode" the arcs away from the surface.
   // A value of 0.0 keeps the values on the surface.
@@ -52,7 +52,7 @@ public:
   // The default is 0.2.
   vtkSetMacro(ExplodeFactor, double);
   vtkGetMacro(ExplodeFactor, double);
-  
+
   // Description:
   // The number of subdivisions in the arc.
   // The default is 20.
@@ -62,7 +62,7 @@ public:
   // Description:
   // Perform the layout.
   virtual void Layout();
-  
+
 protected:
   vtkGeoEdgeStrategy();
   ~vtkGeoEdgeStrategy() {}
@@ -70,7 +70,7 @@ protected:
   double GlobeRadius;
   double ExplodeFactor;
   int NumberOfSubdivisions;
-  
+
 private:
   vtkGeoEdgeStrategy(const vtkGeoEdgeStrategy&);  // Not implemented.
   void operator=(const vtkGeoEdgeStrategy&);  // Not implemented.

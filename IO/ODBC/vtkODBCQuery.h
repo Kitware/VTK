@@ -88,7 +88,7 @@ public:
   const char* GetLastErrorText();
 
   // Description:
-  // Begin, commit, or roll back a transaction.  
+  // Begin, commit, or roll back a transaction.
   bool BeginTransaction();
   bool CommitTransaction();
   bool RollbackTransaction();
@@ -146,7 +146,7 @@ protected:
   vtkGetStringMacro(QueryText);
 
   char *QueryText;
-  
+
 private:
   vtkODBCQuery(const vtkODBCQuery &); // Not implemented.
   void operator=(const vtkODBCQuery &); // Not implemented.

@@ -47,7 +47,7 @@ vtkRenderer ren$scalarFunction
   ren$scalarFunction SetActiveCamera camera
   ren$scalarFunction AddLight light
   renWin AddRenderer ren$scalarFunction
-    ren$scalarFunction SetBackground [math Random .5 1] [math Random .5 1] [math Random .5 1] 
+    ren$scalarFunction SetBackground [math Random .5 1] [math Random .5 1] [math Random .5 1]
 ren$scalarFunction AddActor actor$scalarFunction
 
 vtkTextMapper textMapper$scalarFunction

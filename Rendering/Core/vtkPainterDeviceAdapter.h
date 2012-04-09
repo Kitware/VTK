@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Calls glMultiTex
-  virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute, 
+  virtual void SendMultiTextureCoords(int numcomp, int type, const void *attribute,
                                       int idx, vtkIdType offset) = 0;
 
   // Description:
@@ -169,7 +169,7 @@ public:
   // Description:
   // Turns antialiasing on and off.
   virtual void MakeMultisampling(int mode) = 0;
- 
+
   // Description:
   // Returns current antialiasing setting.
   virtual int QueryMultisampling() = 0;
@@ -177,7 +177,7 @@ public:
   // Description:
   // Turns blending on and off.
   virtual void MakeBlending(int mode) = 0;
- 
+
   // Description:
   // Returns current blending setting.
   virtual int QueryBlending() = 0;

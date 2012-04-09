@@ -53,18 +53,18 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericContourFilter : public vtkPolyDataAlgor
 public:
   vtkTypeMacro(vtkGenericContourFilter,
                        vtkPolyDataAlgorithm);
-  
+
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with initial range (0,1) and single contour value
   // of 0.0.
   static vtkGenericContourFilter *New();
-  
+
   //BTX
   typedef double PointType[3];  // Arbitrary definition of a point
   //ETX
-  
+
   // Description:
   // Methods to set / get contour values.
   void SetValue(int i, float value);
@@ -107,7 +107,7 @@ public:
   vtkBooleanMacro(ComputeScalars,int);
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -129,23 +129,23 @@ protected:
   ~vtkGenericContourFilter();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int FillInputPortInformation(int, vtkInformation*);
-  
+
   vtkContourValues *ContourValues;
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkIncrementalPointLocator *Locator;
-  
+
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
-  
+
   // Used internal by vtkGenericAdaptorCell::Contour()
   vtkPointData *InternalPD;
   vtkPointData *SecondaryPD;
   vtkCellData  *SecondaryCD;
-  
+
 private:
   vtkGenericContourFilter(const vtkGenericContourFilter&);  // Not implemented.
   void operator=(const vtkGenericContourFilter&);  // Not implemented.

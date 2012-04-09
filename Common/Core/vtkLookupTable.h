@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkLookupTable - map scalar values into colors via a lookup table
 // .SECTION Description
-// vtkLookupTable is an object that is used by mapper objects to map scalar 
-// values into rgba (red-green-blue-alpha transparency) color specification, 
-// or rgba into scalar values. The color table can be created by direct 
-// insertion of color values, or by specifying  hue, saturation, value, and 
+// vtkLookupTable is an object that is used by mapper objects to map scalar
+// values into rgba (red-green-blue-alpha transparency) color specification,
+// or rgba into scalar values. The color table can be created by direct
+// insertion of color values, or by specifying  hue, saturation, value, and
 // alpha range and generating a table.
 //
 // .SECTION Caveats
@@ -44,24 +44,24 @@ class VTKCOMMONCORE_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
   // Description:
-  // Construct with range=[0,1]; and hsv ranges set up for rainbow color table 
+  // Construct with range=[0,1]; and hsv ranges set up for rainbow color table
   // (from red to blue).
   static vtkLookupTable *New();
-  
+
   vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Return true if all of the values defining the mapping have an opacity
   // equal to 1. Default implementation return true.
   virtual int IsOpaque();
-  
+
   // Description:
   // Allocate a color table of specified size.
   int Allocate(int sz=256, int ext=256);
-  
+
   // Description:
-  // Generate lookup table from hue, saturation, value, alpha min/max values. 
+  // Generate lookup table from hue, saturation, value, alpha min/max values.
   // Table is built from linear ramp of each value.
   virtual void Build();
 
@@ -75,12 +75,12 @@ public:
 
   // Description:
   // Set the shape of the table ramp to either linear or S-curve.
-  // The default is S-curve, which tails off gradually at either end.  
+  // The default is S-curve, which tails off gradually at either end.
   // The equation used for the S-curve is y = (sin((x - 1/2)*pi) + 1)/2,
   // while the equation for the linear ramp is simply y = x.  For an
-  // S-curve greyscale ramp, you should set NumberOfTableValues to 402 
+  // S-curve greyscale ramp, you should set NumberOfTableValues to 402
   // (which is 256*pi/2) to provide room for the tails of the ramp.
-  // The equation for the SQRT is y = sqrt(x).  
+  // The equation for the SQRT is y = sqrt(x).
   vtkSetMacro(Ramp,int);
   void SetRampToLinear() { this->SetRamp(VTK_RAMP_LINEAR); };
   void SetRampToSCurve() { this->SetRamp(VTK_RAMP_SCURVE); };
@@ -101,30 +101,30 @@ public:
   // values less than minimum range value are clamped to minimum range value.
   // Scalar values greater than maximum range value are clamped to maximum
   // range value.
-  void SetTableRange(double r[2]); 
+  void SetTableRange(double r[2]);
   virtual void SetTableRange(double min, double max);
   vtkGetVectorMacro(TableRange,double,2);
 
   // Description:
-  // Set the range in hue (using automatic generation). Hue ranges 
+  // Set the range in hue (using automatic generation). Hue ranges
   // between [0,1].
   vtkSetVector2Macro(HueRange,double);
   vtkGetVector2Macro(HueRange,double);
 
   // Description:
-  // Set the range in saturation (using automatic generation). Saturation 
+  // Set the range in saturation (using automatic generation). Saturation
   // ranges between [0,1].
   vtkSetVector2Macro(SaturationRange,double);
   vtkGetVector2Macro(SaturationRange,double);
 
   // Description:
-  // Set the range in value (using automatic generation). Value ranges 
+  // Set the range in value (using automatic generation). Value ranges
   // between [0,1].
   vtkSetVector2Macro(ValueRange,double);
   vtkGetVector2Macro(ValueRange,double);
 
   // Description:
-  // Set the range in alpha (using automatic generation). Alpha ranges from 
+  // Set the range in alpha (using automatic generation). Alpha ranges from
   // [0,1].
   vtkSetVector2Macro(AlphaRange,double);
   vtkGetVector2Macro(AlphaRange,double);
@@ -167,7 +167,7 @@ public:
   void SetTableValue(vtkIdType indx, double rgba[4]);
 
   // Description:
-  // Directly load color into lookup table. Use [0,1] double values for color 
+  // Directly load color into lookup table. Use [0,1] double values for color
   // component specification.
   void SetTableValue(vtkIdType indx, double r, double g, double b, double a=1.0);
 
@@ -189,7 +189,7 @@ public:
 
   // Description:
   // Get pointer to data. Useful for direct writes into object. MaxId is bumped
-  // by number (and memory allocated if necessary). Id is the location you 
+  // by number (and memory allocated if necessary). Id is the location you
   // wish to write into; number is the number of rgba values to write.
   unsigned char *WritePointer(const vtkIdType id, const int number);
 
@@ -271,14 +271,14 @@ protected:
 
   int OpaqueFlag;
   vtkTimeStamp OpaqueFlagBuildTime;
-  
+
 private:
   vtkLookupTable(const vtkLookupTable&);  // Not implemented.
   void operator=(const vtkLookupTable&);  // Not implemented.
 };
 
 //----------------------------------------------------------------------------
-inline unsigned char *vtkLookupTable::WritePointer(const vtkIdType id, 
+inline unsigned char *vtkLookupTable::WritePointer(const vtkIdType id,
                                                    const int number)
 {
   this->InsertTime.Modified();

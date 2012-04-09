@@ -13,7 +13,7 @@ set(Module_SRCS
   vtkBoostLogWeighting.cxx
   vtkBoostPrimMinimumSpanningTree.cxx
   vtkBoostRandomSparseArraySource.cxx
-  vtkBoostSplitTableField.cxx  
+  vtkBoostSplitTableField.cxx
   )
 
 vtk_module_library(vtkInfovisBoostGraphAlgorithms ${Module_SRCS})

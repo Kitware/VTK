@@ -976,7 +976,7 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
     else
       {
       ++it;
-      }     
+      }
     }
 
 #if 0
@@ -1655,7 +1655,7 @@ void vtkOrderedTriangulator::AddTemplate()
     OTTemplate *otplate = new(this->TemplateHeap)
       OTTemplate(this->Mesh->NumberOfTetrasClassifiedInside,this->TemplateHeap);
     (*tlist)[index] = otplate;
- 
+
     // Now fill in the connectivity list
     int i;
     TetraListIterator t;

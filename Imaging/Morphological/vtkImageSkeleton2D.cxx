@@ -80,12 +80,12 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 // This is my best attempt at skeleton.  The rules are a little hacked up,
-// but it is the only way I can think of to get the 
+// but it is the only way I can think of to get the
 // desired results with a 3x3 kernel.
 template <class T>
 void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
-                               vtkImageData *inData, T *inPtr, 
-                               vtkImageData *outData, int *outExt, 
+                               vtkImageData *inData, T *inPtr,
+                               vtkImageData *outData, int *outExt,
                                T *outPtr, int id,
                                int wholeExt[6])
 {
@@ -110,13 +110,13 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   wholeMax1 = wholeExt[3];
 
   // Get information to march through data
-  inData->GetIncrements(inInc0, inInc1, inInc2); 
-  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  outData->GetIncrements(outInc0, outInc1, outInc2);
   outMin0 = outExt[0];  outMax0 = outExt[1];
   outMin1 = outExt[2];  outMax1 = outExt[3];
   outMin2 = outExt[4];  outMax2 = outExt[5];
   numComps = inData->GetNumberOfScalarComponents();
-  
+
   target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
                                       (outMax1-outMin1+1)/50.0);
   target++;
@@ -131,7 +131,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
       inPtr1 = inPtr2;
       for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
         {
-        if (!id) 
+        if (!id)
           {
           if (!(count%target))
             {
@@ -147,36 +147,36 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
             {
             // neighbors independent of boundaries
             n[0] = (idx0>wholeMin0) ? static_cast<float>(*(inPtr0-inInc0)) : 0;
-            n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
+            n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1)
               ? static_cast<float>(*(inPtr0-inInc0-inInc1)) : 0;
             n[2] = (idx1>wholeMin1) ? static_cast<float>(*(inPtr0-inInc1)) : 0;
-            n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0) 
+            n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0)
               ? static_cast<float>(*(inPtr0-inInc1+inInc0)) : 0;
             n[4] = (idx0<wholeMax0) ? static_cast<float>(*(inPtr0+inInc0)) : 0;
-            n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1) 
+            n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1)
               ? static_cast<float>(*(inPtr0+inInc0+inInc1)) : 0;
             n[6] = (idx1<wholeMax1) ? static_cast<float>(*(inPtr0+inInc1)) : 0;
-            n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
+            n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0)
               ? static_cast<float>(*(inPtr0+inInc1-inInc0)) : 0;
-            
+
             // Lets try a case table. (shifting bits would be faster)
             erodeCase = 0;
-            if (n[7] > 0) {++erodeCase;} 
+            if (n[7] > 0) {++erodeCase;}
             erodeCase *= 2;
-            if (n[6] > 0) {++erodeCase;} 
+            if (n[6] > 0) {++erodeCase;}
             erodeCase *= 2;
-            if (n[5] > 0) {++erodeCase;} 
+            if (n[5] > 0) {++erodeCase;}
             erodeCase *= 2;
-            if (n[4] > 0) {++erodeCase;} 
+            if (n[4] > 0) {++erodeCase;}
             erodeCase *= 2;
-            if (n[3] > 0) {++erodeCase;} 
+            if (n[3] > 0) {++erodeCase;}
             erodeCase *= 2;
-            if (n[2] > 0) {++erodeCase;} 
+            if (n[2] > 0) {++erodeCase;}
             erodeCase *= 2;
-            if (n[1] > 0) {++erodeCase;} 
+            if (n[1] > 0) {++erodeCase;}
             erodeCase *= 2;
             if (n[0] > 0) {++erodeCase;}
-            
+
             if (erodeCase == 54 || erodeCase == 216)
               { // erode
               // 54 top part of diagonal / double thick line
@@ -193,7 +193,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
               // old heuristic method
               countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
               countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
-              
+
               // special case to void split dependent results.
               // (should we just have a case table?)
               if (countFaces == 2 && countCorners == 0 &&
@@ -201,34 +201,34 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                 {
                 *inPtr0 = 1;
                 }
-              
+
               // special case
               if (prune > 1 && ((countFaces + countCorners) <= 1))
                 {
                 *inPtr0 = 1;
                 }
-              
+
               // one of four face neighbors has to be off
               if (n[0] == 0 || n[2] == 0 ||
                   n[4] == 0 || n[6] == 0)
                 {
                 // Special condition not to prune diamond corners
                 if (prune > 1 || countFaces != 1 || countCorners != 2 ||
-                    ((n[1]==0 || n[2]==0 || n[3]==0) && 
-                     (n[3]==0 || n[4]==0 || n[5]==0) && 
-                     (n[5]==0 || n[6]==0 || n[7]==0) && 
+                    ((n[1]==0 || n[2]==0 || n[3]==0) &&
+                     (n[3]==0 || n[4]==0 || n[5]==0) &&
+                     (n[5]==0 || n[6]==0 || n[7]==0) &&
                      (n[7]==0 || n[0]==0 || n[1]==0)))
                   {
                   // special condition (making another prune level)
                   // pruning 135 degree corners
                   if (prune || countFaces != 2 || countCorners != 2 ||
-                      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) && 
-                       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) && 
-                       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) && 
-                       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) && 
-                       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) && 
-                       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) && 
-                       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) && 
+                      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) &&
+                       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) &&
+                       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) &&
+                       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) &&
+                       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) &&
+                       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) &&
+                       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) &&
                        (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
                     {
                     // remaining pixels need to be connected.
@@ -238,14 +238,14 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                         (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
                         (n[7] == 0 || n[6] > 1 || n[0] > 1))
                       {
-                      // opposite faces 
+                      // opposite faces
                       // (special condition so double thick lines
                       // will not be completely eroded)
                       if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
                           (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
                         {
                         // check to stop pruning (sort of a hack huristic)
-                        if (prune > 1 || (countFaces > 2) || 
+                        if (prune > 1 || (countFaces > 2) ||
                             ((countFaces == 2) && (countCorners > 1)))
                           {
                           *inPtr0 = 1;
@@ -256,7 +256,7 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                   }
                 }
               }
-            
+
             }
           inPtr0 += inInc0;
           }
@@ -291,15 +291,15 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
             {
             *outPtr0 = *inPtr0;
             }
-      
+
           inPtr0 += inInc0;
-          outPtr0 += outInc0;      
+          outPtr0 += outInc0;
           }
         inPtr1 += inInc1;
-        outPtr1 += outInc1;      
+        outPtr1 += outInc1;
         }
       inPtr2 += inInc2;
-      outPtr2 += outInc2;      
+      outPtr2 += outInc2;
       }
     ++inPtr;
     ++outPtr;
@@ -328,7 +328,7 @@ void vtkImageSkeleton2D::ThreadedRequestData(
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *tempData;
   int inExt[6], wholeExt[6];
-  
+
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
@@ -341,7 +341,7 @@ void vtkImageSkeleton2D::ThreadedRequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
     {
@@ -361,7 +361,7 @@ void vtkImageSkeleton2D::ThreadedRequestData(
     {
     vtkTemplateMacro(
       vtkImageSkeleton2DExecute(this, tempData,
-                                static_cast<VTK_TT *>(inPtr), outData, outExt, 
+                                static_cast<VTK_TT *>(inPtr), outData, outExt,
                                 static_cast<VTK_TT *>(outPtr), id,
                                 wholeExt));
     default:

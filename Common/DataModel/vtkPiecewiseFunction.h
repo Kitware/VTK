@@ -14,11 +14,11 @@
 =========================================================================*/
 
 // .NAME vtkPiecewiseFunction - Defines a 1D piecewise function.
-// 
+//
 // .SECTION Description
 // Defines a piecewise function mapping. This mapping allows the addition
 // of control points, and allows the user to control the function between
-// the control points. A piecewise hermite curve is used between control 
+// the control points. A piecewise hermite curve is used between control
 // points, based on the sharpness and midpoint parameters. A sharpness of
 // 0 yields a piecewise linear function and a sharpness of 1 yields a
 // piecewise constant function. The midpoint is the normalized distance
@@ -27,7 +27,7 @@
 // to control the transition to the next node (the last node's values are
 // ignored) Outside the range of nodes, the values are 0 if Clamping is off,
 // or the nearest node point if Clamping is on. Using the legacy methods for
-// adding points  (which do not have Sharpness and Midpoint parameters) 
+// adding points  (which do not have Sharpness and Midpoint parameters)
 // will default to Midpoint = 0.5 (halfway between the control points) and
 // Sharpness = 0.0 (linear).
 
@@ -52,7 +52,7 @@ public:
   // Description:
   // Return what type of dataset this is.
   int GetDataObjectType() {return VTK_PIECEWISE_FUNCTION;};
-  
+
   // Description:
   // Get the number of points used to specify the function
   int  GetSize();
@@ -66,7 +66,7 @@ public:
   int RemovePoint( double x );
 
   // Description:
-  // Removes all points from the function. 
+  // Removes all points from the function.
   void RemoveAllPoints();
 
   // Description:
@@ -78,21 +78,21 @@ public:
 
   // Description:
   // Returns the value of the function at the specified location using
-  // the specified interpolation. 
+  // the specified interpolation.
   double GetValue( double x );
 
   // Description:
   // For the node specified by index, set/get the
-  // location (X), value (Y), midpoint, and sharpness 
+  // location (X), value (Y), midpoint, and sharpness
   // values at the node.
   int GetNodeValue( int index, double val[4] );
   int SetNodeValue( int index, double val[4] );
-  
+
   // Description:
   // Returns a pointer to the data stored in the table.
   // Fills from a pointer to data stored in a similar table. These are
   // legacy methods which will be maintained for compatibility - however,
-  // note that the vtkPiecewiseFunction no longer stores the nodes 
+  // note that the vtkPiecewiseFunction no longer stores the nodes
   // in a double array internally.
   double *GetDataPointer();
   void FillFromDataPointer(int, double*);
@@ -109,7 +109,7 @@ public:
 
   // Description:
   // Fills in an array of function values evaluated at regular intervals.
-  // Parameter "stride" is used to step through the output "table". 
+  // Parameter "stride" is used to step through the output "table".
   void GetTable( double x1, double x2, int size, float *table, int stride=1 );
   void GetTable( double x1, double x2, int size, double *table, int stride=1 );
 
@@ -117,16 +117,16 @@ public:
   // Constructs a piecewise function from a table.  Function range is
   // is set to [x1, x2], function size is set to size, and function points
   // are regularly spaced between x1 and x2.  Parameter "stride" is
-  // is step through the input table.  
+  // is step through the input table.
   void BuildFunctionFromTable( double x1, double x2, int size,
                                double *table, int stride=1 );
-  
+
   // Description:
   // When zero range clamping is Off, GetValue() returns 0.0 when a
   // value is requested outside of the points specified.
   // When zero range clamping is On, GetValue() returns the value at
-  // the value at the lowest point for a request below all points 
-  // specified and returns the value at the highest point for a request 
+  // the value at the lowest point for a request below all points
+  // specified and returns the value at the highest point for a request
   // above all points specified. On is the default.
   vtkSetMacro( Clamping, int );
   vtkGetMacro( Clamping, int );
@@ -149,7 +149,7 @@ public:
   // Description:
   // Clears out the current function. A newly created vtkPiecewiseFunction
   // is alreay initialized, so there is no need to call this method which
-  // in turn simply calls RemoveAllPoints() 
+  // in turn simply calls RemoveAllPoints()
   void Initialize();
 
   //BTX
@@ -172,7 +172,7 @@ protected:
 
   // The internal STL structures
   vtkPiecewiseFunctionInternals *Internal;
-  
+
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
@@ -191,7 +191,7 @@ protected:
   void SortAndUpdateRange();
   // Returns true if the range has been updated and Modified() has been called
   bool UpdateRange();
-  
+
   int AllowDuplicateScalars;
 
 private:

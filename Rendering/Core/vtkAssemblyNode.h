@@ -27,7 +27,7 @@
 // The assembly node is guaranteed to contain a reference to an instance
 // of vtkMatrix4x4 if the prop referred to by the node is of type
 // vtkProp3D (or subclass). The matrix is evaluated through the assembly
-// path, so the assembly node's matrix is a function of its location in 
+// path, so the assembly node's matrix is a function of its location in
 // the vtkAssemblyPath.
 //
 // vtkAssemblyNode does not reference count its association with vtkProp.
@@ -71,7 +71,7 @@ public:
   // the matrix is used for computation by vtkAssemblyPath.
   void SetMatrix(vtkMatrix4x4 *matrix);
   vtkGetObjectMacro(Matrix, vtkMatrix4x4);
-  
+
   // Description:
   // Override the standard GetMTime() to check for the modified times
   // of the prop and matrix.
@@ -84,7 +84,7 @@ protected:
 private:
   vtkProp *ViewProp; //reference to vtkProp
   vtkMatrix4x4 *Matrix; //associated matrix
-  
+
 private:
   void operator=(const vtkAssemblyNode&); // Not implemented.
   vtkAssemblyNode(const vtkAssemblyNode&); // Not implemented.

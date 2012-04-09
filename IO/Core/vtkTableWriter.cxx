@@ -47,12 +47,12 @@ void vtkTableWriter::WriteData()
   //
   // Write table specific stuff
   //
-  *fp << "DATASET TABLE\n"; 
+  *fp << "DATASET TABLE\n";
 
   this->WriteFieldData(fp, this->GetInput()->GetFieldData());
   this->WriteRowData(fp, this->GetInput());
 
-  this->CloseVTKFile(fp);  
+  this->CloseVTKFile(fp);
 }
 
 int vtkTableWriter::FillInputPortInformation(int, vtkInformation *info)

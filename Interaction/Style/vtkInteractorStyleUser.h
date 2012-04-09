@@ -14,7 +14,7 @@
 =========================================================================*/
 
 // .NAME vtkInteractorStyleUser - provides customizable interaction routines
-// 
+//
 // .SECTION Description
 // The most common way to customize user interaction is to write a subclass
 // of vtkInteractorStyle: vtkInteractorStyleUser allows you to customize
@@ -34,7 +34,7 @@
 #include "vtkInteractorStyle.h"
 
 // new motion flag
-#define VTKIS_USERINTERACTION 8 
+#define VTKIS_USERINTERACTION 8
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUser : public vtkInteractorStyle
 {
@@ -42,9 +42,9 @@ public:
   static vtkInteractorStyleUser *New();
   vtkTypeMacro(vtkInteractorStyleUser,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // Get the most recent mouse position during mouse motion.  
+  // Get the most recent mouse position during mouse motion.
   // In your user interaction method, you must use this to track
   // the mouse movement.  Do not use GetEventPosition(), which records
   // the last position where a mouse button was pressed.
@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Get the previous mouse position during mouse motion, or after
-  // a key press.  This can be used to calculate the relative 
+  // a key press.  This can be used to calculate the relative
   // displacement of the mouse.
   vtkGetVector2Macro(OldPos,int);
 
@@ -67,7 +67,7 @@ public:
   vtkGetMacro(Char,int);
 
   // Description:
-  // Get the KeySym (in the same format as Tk KeySyms) for a 
+  // Get the KeySym (in the same format as Tk KeySyms) for a
   // KeyPress or KeyRelease method.
   vtkGetStringMacro(KeySym);
 

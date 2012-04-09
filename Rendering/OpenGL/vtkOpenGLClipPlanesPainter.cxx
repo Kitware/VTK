@@ -36,7 +36,7 @@ vtkOpenGLClipPlanesPainter::~vtkOpenGLClipPlanesPainter()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer, 
+void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
                                                 vtkActor *actor,
                                                 unsigned long typeflags,
                                                 bool forceCompileOnly)
@@ -73,7 +73,7 @@ void vtkOpenGLClipPlanesPainter::RenderInternal(vtkRenderer *renderer,
     double origin[4], normal[3];
 
     for (i = 0; i < numClipPlanes; i++)
-      {    
+      {
       plane = static_cast<vtkPlane *>(clipPlanes->GetItemAsObject(i));
 
       plane->GetOrigin(origin);

@@ -93,7 +93,7 @@ void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
     this->Modified();
     }
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Number of texture units supported by the OpenGL context.
@@ -101,9 +101,9 @@ int vtkTextureUnitManager::GetNumberOfTextureUnits()
 {
   return this->NumberOfTextureUnits;
 }
-  
+
 // ----------------------------------------------------------------------------
-// Description: 
+// Description:
 // Reserve a texture unit. It returns its number.
 // It returns -1 if the allocation failed (because there is no more
 // texture unit left).
@@ -119,7 +119,7 @@ int vtkTextureUnitManager::Allocate()
     found=!this->TextureUnits[i];
     ++i;
     }
-  
+
   int result;
   if(found)
     {
@@ -130,12 +130,12 @@ int vtkTextureUnitManager::Allocate()
     {
     result=-1;
     }
-  
+
   assert("post: valid_result" && (result==-1 || (result>=0 && result<this->GetNumberOfTextureUnits())));
   assert("post: allocated" && (result==-1 || this->IsAllocated(result)));
   return result;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Tell if texture unit `textureUnitId' is already allocated.
@@ -145,7 +145,7 @@ bool vtkTextureUnitManager::IsAllocated(int textureUnitId)
   assert("pre: valid_textureUnitId_range" && textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits());
   return this->TextureUnits[textureUnitId];
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Release a texture unit.
@@ -155,15 +155,15 @@ void vtkTextureUnitManager::Free(int textureUnitId)
 {
   assert("pre: valid_textureUnitId" && (textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()));
   assert("pre: allocated_textureUnitId" && this->IsAllocated(textureUnitId));
-  
+
   this->TextureUnits[textureUnitId]=false;
 }
-  
+
 // ----------------------------------------------------------------------------
 void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
+
   os << indent << "Context: ";
   if(this->Context!=0)
     {

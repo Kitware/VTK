@@ -63,7 +63,7 @@ void vtkSpline::SetParametricRange(double tMin, double tMax)
 
     this->ParametricRange[0] = tMin;
     this->ParametricRange[1] = tMax;
-    
+
     this->Modified();
     }
 }

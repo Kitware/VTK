@@ -20,7 +20,7 @@
 // .NAME vtkPCorrelativeStatistics - A class for parallel bivariate correlative statistics
 // .SECTION Description
 // vtkPCorrelativeStatistics is vtkCorrelativeStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each 
+// It learns and derives the global statistical model on each node, but assesses each
 // individual data points on the node that owns it.
 
 // .SECTION Thanks

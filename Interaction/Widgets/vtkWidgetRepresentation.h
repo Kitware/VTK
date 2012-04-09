@@ -22,7 +22,7 @@
 // vtkWidgetRepresentation also defines an API that enables it to be paired
 // with a subclass vtkAbstractWidget, meaning that it can be driven by a
 // widget, serving to represent the widget as the widget responds to
-// registered events. 
+// registered events.
 //
 // The API defined here should be regarded as a guideline for implementing
 // widgets and widget representations. Widget behavior is complex, as is the
@@ -33,7 +33,7 @@
 // The separation of the widget event handling and representation enables
 // users and developers to create new appearances for the widget. It also
 // facilitates parallel processing, where the client application handles
-// events, and remote representations of the widget are slaves to the 
+// events, and remote representations of the widget are slaves to the
 // client (and do not handle events).
 
 
@@ -77,13 +77,13 @@ public:
   // should be implemented when possible to insure that the VTK widget hierarchy
   // remains self-consistent.
   // <pre>
-  // PlaceWidget() - given a bounding box (xmin,xmax,ymin,ymax,zmin,zmax), place 
-  //                 the widget inside of it. The current orientation of the widget 
+  // PlaceWidget() - given a bounding box (xmin,xmax,ymin,ymax,zmin,zmax), place
+  //                 the widget inside of it. The current orientation of the widget
   //                 is preserved, only scaling and translation is performed.
   // StartWidgetInteraction() - generally corresponds to a initial event (e.g.,
   //                            mouse down) that starts the interaction process
   //                            with the widget.
-  // WidgetInteraction() - invoked when an event causes the widget to change 
+  // WidgetInteraction() - invoked when an event causes the widget to change
   //                       appearance.
   // EndWidgetInteraction() - generally corresponds to a final event (e.g., mouse up)
   //                          and completes the interaction sequence.
@@ -91,7 +91,7 @@ public:
   //                             possible flag that modifies the computation,
   //                             what is the state of the widget?
   // GetInteractionState() - return the current state of the widget. Note that the
-  //                         value of "0" typically refers to "outside". The 
+  //                         value of "0" typically refers to "outside". The
   //                         interaction state is strictly a function of the
   //                         representation, and the widget/represent must agree
   //                         on what they mean.
@@ -135,7 +135,7 @@ public:
   vtkGetMacro( NeedToRender, int );
   vtkSetClampMacro( NeedToRender, int, 0, 1 );
   vtkBooleanMacro( NeedToRender, int );
-  
+
   // Description:
   // Methods to make this class behave as a vtkProp. They are repeated here (from the
   // vtkProp superclass) as a reminder to the widget implementor. Failure to implement
@@ -153,7 +153,7 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
   virtual int RenderVolumetricGeometry(vtkViewport *vtkNotUsed(viewport)) {return 0;}
   virtual int HasTranslucentPolygonalGeometry() { return 0; }
-  
+
 protected:
   vtkWidgetRepresentation();
   ~vtkWidgetRepresentation();
@@ -188,10 +188,10 @@ protected:
   double HandleSize; //controlling relative size of widget handles
   double SizeHandlesRelativeToViewport(double factor, double pos[3]);
   double SizeHandlesInPixels(double factor,double pos[3]);
-  
+
   // Try and reduce multiple renders
   int NeedToRender;
-  
+
   // This is the time that the representation was built. This data member
   // can be used to reduce the time spent building the widget.
   vtkTimeStamp  BuildTime;

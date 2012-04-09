@@ -59,38 +59,38 @@ int TestQtLabeler(int argc, char *argv[])
   int iteratorType = vtkLabelHierarchy::FULL_SORT;
   bool showBounds = true;
 
-  vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator = 
+  vtkSmartPointer<vtkLabelSizeCalculator> labelSizeCalculator =
     vtkSmartPointer<vtkLabelSizeCalculator>::New();
-  vtkSmartPointer<vtkLabelPlacer> labelPlacer = 
+  vtkSmartPointer<vtkLabelPlacer> labelPlacer =
     vtkSmartPointer<vtkLabelPlacer>::New();
-  vtkSmartPointer<vtkLabelPlacer> labelPlacer2 = 
+  vtkSmartPointer<vtkLabelPlacer> labelPlacer2 =
     vtkSmartPointer<vtkLabelPlacer>::New();
-  vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy = 
+  vtkSmartPointer<vtkPointSetToLabelHierarchy> pointSetToLabelHierarchy =
     vtkSmartPointer<vtkPointSetToLabelHierarchy>::New();
 
-  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper = 
+  vtkSmartPointer<vtkPolyDataMapper> polyDataMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  vtkSmartPointer<vtkActor> actor = 
+  vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
 
-  vtkSmartPointer<vtkRenderer> renderer = 
+  vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
-  
-  vtkSmartPointer<vtkRenderWindow> renWin = 
+
+  vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0); // ensure to have the same test image everywhere
-  
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = 
+
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
 
-  vtkSmartPointer<vtkQtLabelSurface> cairoLabelPlacer = 
+  vtkSmartPointer<vtkQtLabelSurface> cairoLabelPlacer =
     vtkSmartPointer<vtkQtLabelSurface>::New();
-  vtkSmartPointer<vtkLabeledDataMapper> labeledMapper = 
+  vtkSmartPointer<vtkLabeledDataMapper> labeledMapper =
     vtkSmartPointer<vtkLabeledDataMapper>::New();
-  vtkSmartPointer<vtkActor2D> textActor2 = 
+  vtkSmartPointer<vtkActor2D> textActor2 =
     vtkSmartPointer<vtkActor2D>::New();
 
-  vtkSmartPointer<vtkPoints> points = 
+  vtkSmartPointer<vtkPoints> points =
     vtkSmartPointer<vtkPoints>::New();
 
   for(i = 0; i < 29; i++)
@@ -99,7 +99,7 @@ int TestQtLabeler(int argc, char *argv[])
     }
   points->InsertPoint( 29, 5.0, 5.0, 0.0 );
 
-  vtkSmartPointer<vtkCellArray> cells = 
+  vtkSmartPointer<vtkCellArray> cells =
     vtkSmartPointer<vtkCellArray>::New();
 
   cells->InsertNextCell(30);
@@ -108,12 +108,12 @@ int TestQtLabeler(int argc, char *argv[])
     cells->InsertCellPoint(i);
     }
 
-  vtkSmartPointer<vtkPolyData> polyData = 
+  vtkSmartPointer<vtkPolyData> polyData =
     vtkSmartPointer<vtkPolyData>::New();
   polyData->SetPoints(points);
   polyData->SetVerts(cells);
 
-  vtkSmartPointer<vtkStringArray> stringData = 
+  vtkSmartPointer<vtkStringArray> stringData =
     vtkSmartPointer<vtkStringArray>::New();
   stringData->SetName("PlaceNames");
   stringData->InsertNextValue("<span>\302\242 \302\245 Abu Dhabi</span>");
@@ -146,9 +146,9 @@ int TestQtLabeler(int argc, char *argv[])
   stringData->InsertNextValue("Tokyo");
   stringData->InsertNextValue("Warsaw");
   stringData->InsertNextValue("Washington");
-  
+
   polyData->GetPointData()->AddArray(stringData);
-  
+
   labelSizeCalculator->SetInputData(polyData);
   labelSizeCalculator->GetFontProperty()->SetFontSize( 12 );
   labelSizeCalculator->GetFontProperty()->SetFontFamily( vtkTextProperty::GetFontFamilyFromString( "Arial" ) );
@@ -202,9 +202,9 @@ int TestQtLabeler(int argc, char *argv[])
   labeledMapper->SetLabelModeToLabelFieldData();
   textActor2->SetMapper(labeledMapper);
 
-  VTK_CREATE( vtkPolyDataMapper2D, polyDataMapper2 ); 
+  VTK_CREATE( vtkPolyDataMapper2D, polyDataMapper2 );
   polyDataMapper2->SetInputConnection( cairoLabelPlacer->GetOutputPort(1) );
-  VTK_CREATE( vtkTexturedActor2D, actor2 ); 
+  VTK_CREATE( vtkTexturedActor2D, actor2 );
   actor2->SetMapper( polyDataMapper2 );
   cairoLabelPlacer->Update();
   VTK_CREATE( vtkTexture, texture );

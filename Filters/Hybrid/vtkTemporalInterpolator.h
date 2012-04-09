@@ -16,10 +16,10 @@
 // .SECTION Description
 // vtkTemporalInterpolator interpolates between two time steps to
 // produce new data for an arbitrary T.
-// vtkTemporalInterpolator has three modes of operation. 
-// The default mode is to produce a continuous range of time 
-// values as output, which enables a filter downstream to request 
-// any value of T within the range. 
+// vtkTemporalInterpolator has three modes of operation.
+// The default mode is to produce a continuous range of time
+// values as output, which enables a filter downstream to request
+// any value of T within the range.
 // The second mode of operation is enabled by setting
 // DiscreteTimeStepInterval to a non zero value. When this mode is
 // activated, the filter will report a finite number of Time steps
@@ -28,12 +28,12 @@
 // missing datasets for certain T values and you simply wish to smooth
 // over the missing steps but otherwise use the original data.
 // The third mode of operation is enabled by setting
-// ResampleFactor to a non zero positive integer value. 
-// When this mode is activated, the filter will report a finite number 
+// ResampleFactor to a non zero positive integer value.
+// When this mode is activated, the filter will report a finite number
 // of Time steps which contain the original steps, plus N new values between
 // each original step 1/ResampleFactor time units apart.
 // Note that if the input time steps are irregular, then using ResampleFactor
-// will produce an irregular sequence of regular steps between 
+// will produce an irregular sequence of regular steps between
 // each of the original irregular steps (clear enough, yes?).
 //
 // @TODO
@@ -41,13 +41,13 @@
 // as most calls assume only two timesteps are used.
 
 // .SECTION Thanks
-// Ken Martin (Kitware) and John Bidiscombe of 
+// Ken Martin (Kitware) and John Bidiscombe of
 // CSCS - Swiss National Supercomputing Centre
 // for creating and contributing this class.
-// For related material, please refer to : 
+// For related material, please refer to :
 // John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture", 
-// IEEE Visualization 2007. 
+// "Time Dependent Processing in a Parallel Pipeline Architecture",
+// IEEE Visualization 2007.
 
 #ifndef __vtkTemporalInterpolator_h
 #define __vtkTemporalInterpolator_h
@@ -65,7 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // If you require a discrete number of outputs steps, to be 
+  // If you require a discrete number of outputs steps, to be
   // generated from an input source - for example, you required
   // N steps separated by T, then set DiscreteTimeStepInterval to T
   // and you will get TIME_RANGE/DiscreteTimeStepInterval steps
@@ -105,7 +105,7 @@ protected:
   virtual int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
                                  vtkInformationVector *);
-  
+
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);
@@ -113,7 +113,7 @@ protected:
   // Description:
   // General interpolation routine for any type on input data. This is
   // called recursively when heirarchical/multiblock data is encountered
-  vtkDataObject *InterpolateDataObject(vtkDataObject *in1, 
+  vtkDataObject *InterpolateDataObject(vtkDataObject *in1,
                                        vtkDataObject *in2,
                                        double ratio);
 
@@ -121,19 +121,19 @@ protected:
   // Root level interpolation for a concrete dataset object.
   // Point/Cell data and points are interpolated.
   // Needs improving if connectivity is to be handled
-  virtual vtkDataSet *InterpolateDataSet(vtkDataSet *in1, 
+  virtual vtkDataSet *InterpolateDataSet(vtkDataSet *in1,
                                          vtkDataSet *in2,
                                          double ratio);
 
   // Description:
   // Interpolate a single vtkDataArray. Called from the Interpolation routine
   // on the points and pointdata/celldata
-  virtual vtkDataArray *InterpolateDataArray(double ratio, 
-                                             vtkDataArray **arrays, 
+  virtual vtkDataArray *InterpolateDataArray(double ratio,
+                                             vtkDataArray **arrays,
                                              vtkIdType N);
 
   // Description:
-  // Called just before interpolation of each dataset to ensure 
+  // Called just before interpolation of each dataset to ensure
   // each data array has the same number of tuples/components etc
   virtual bool VerifyArrays(vtkDataArray **arrays, int N);
 

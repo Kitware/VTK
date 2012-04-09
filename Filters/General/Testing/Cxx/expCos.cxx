@@ -45,7 +45,7 @@ int expCos( int argc, char *argv[] )
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   // create plane to warp
   vtkPlaneSource *plane = vtkPlaneSource::New();
   plane->SetResolution (300,300);
@@ -57,13 +57,13 @@ int expCos( int argc, char *argv[] )
   transF->SetInputConnection(plane->GetOutputPort());
   transF->SetTransform(transform);
   transF->Update();
-  
-  // compute Bessel function and derivatives. This portion could be 
+
+  // compute Bessel function and derivatives. This portion could be
   // encapsulated into source or filter object.
   //
   vtkPolyData *input = transF->GetOutput();
   numPts = input->GetNumberOfPoints();
-  
+
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
 
@@ -86,20 +86,20 @@ int expCos( int argc, char *argv[] )
     }
   newPts->Delete(); //reference counting - it's ok
   derivs->Delete();
-  
+
   // warp plane
   vtkWarpScalar *warp = vtkWarpScalar::New();
   warp->SetInputData(bessel);
   warp->XYPlaneOn();
   warp->SetScaleFactor(0.5);
-  
+
   // mapper and actor
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
   mapper->SetInputConnection(warp->GetOutputPort());
   double tmp[2];
   bessel->GetScalarRange(tmp);
   mapper->SetScalarRange(tmp[0],tmp[1]);
-  
+
   vtkActor *carpet = vtkActor::New();
   carpet->SetMapper(mapper);
 

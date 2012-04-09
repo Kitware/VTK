@@ -39,7 +39,7 @@ using std::string;
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char GraphLayoutViewEventLog[] = 
+char GraphLayoutViewEventLog[] =
 "# StreamVersion 1\n"
 "RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 291 110 0 0 0 0 0\n"
@@ -1111,10 +1111,10 @@ int TestGraphLayoutView(int argc, char* argv[])
     }
   t->GetEdgeData()->AddArray(dist);
   t->GetEdgeData()->AddArray(label);
-  
+
   VTK_CREATE(vtkStringToNumeric, numeric);
   numeric->SetInputData(t);
-  
+
   // Graph layout view
   VTK_CREATE(vtkGraphLayoutView, view);
   view->DisplayHoverTextOn();
@@ -1161,13 +1161,13 @@ int TestGraphLayoutView(int argc, char* argv[])
     // testing option fails.
     recorder->Off();
     }
-  
+
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

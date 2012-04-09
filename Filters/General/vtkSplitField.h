@@ -36,7 +36,7 @@
 // Note that, by default, the original array is also passed through.
 
 // .SECTION Caveats
-// When using Tcl, Java, Python or Visual Basic bindings, the array name 
+// When using Tcl, Java, Python or Visual Basic bindings, the array name
 // can not be one of the  AttributeTypes when calling Split() which takes
 // strings as arguments. The Tcl (Java etc.) command will
 // always assume the string corresponds to an attribute type when
@@ -100,7 +100,7 @@ public:
   struct Component
   {
     int Index;
-    char* FieldName;   
+    char* FieldName;
     Component* Next;   // linked list
     void SetName(const char* name)
       {

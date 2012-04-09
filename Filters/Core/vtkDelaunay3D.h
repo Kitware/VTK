@@ -20,25 +20,25 @@
 // output of the filter is an unstructured grid dataset. Usually the
 // output is a tetrahedral mesh, but if a non-zero alpha distance
 // value is specified (called the "alpha" value), then only tetrahedra,
-// triangles, edges, and vertices laying within the alpha radius are 
+// triangles, edges, and vertices laying within the alpha radius are
 // output. In other words, non-zero alpha values may result in arbitrary
-// combinations of tetrahedra, triangles, lines, and vertices. (The notion 
+// combinations of tetrahedra, triangles, lines, and vertices. (The notion
 // of alpha value is derived from Edelsbrunner's work on "alpha shapes".)
-// 
+//
 // The 3D Delaunay triangulation is defined as the triangulation that
 // satisfies the Delaunay criterion for n-dimensional simplexes (in
 // this case n=3 and the simplexes are tetrahedra). This criterion
 // states that a circumsphere of each simplex in a triangulation
 // contains only the n+1 defining points of the simplex. (See text for
 // more information.) While in two dimensions this translates into an
-// "optimal" triangulation, this is not true in 3D, since a measurement 
+// "optimal" triangulation, this is not true in 3D, since a measurement
 // for optimality in 3D is not agreed on.
 //
 // Delaunay triangulations are used to build topological structures
 // from unorganized (or unstructured) points. The input to this filter
-// is a list of points specified in 3D. (If you wish to create 2D 
+// is a list of points specified in 3D. (If you wish to create 2D
 // triangulations see vtkDelaunay2D.) The output is an unstructured grid.
-// 
+//
 // The Delaunay triangulation can be numerically sensitive. To prevent
 // problems, try to avoid injecting points that will result in
 // triangles with bad aspect ratios (1000:1 or greater). In practice
@@ -50,9 +50,9 @@
 // triangulation process.
 
 // .SECTION Caveats
-// Points arranged on a regular lattice (termed degenerate cases) can be 
-// triangulated in more than one way (at least according to the Delaunay 
-// criterion). The choice of triangulation (as implemented by 
+// Points arranged on a regular lattice (termed degenerate cases) can be
+// triangulated in more than one way (at least according to the Delaunay
+// criterion). The choice of triangulation (as implemented by
 // this algorithm) depends on the order of the input points. The first four
 // points will form a tetrahedron; other degenerate points (relative to this
 // initial tetrahedron) will not break it.
@@ -62,10 +62,10 @@
 // unique input points.  You can control the definition of coincidence
 // with the "Tolerance" instance variable.
 //
-// The output of the Delaunay triangulation is supposedly a convex hull. In 
+// The output of the Delaunay triangulation is supposedly a convex hull. In
 // certain cases this implementation may not generate the convex hull. This
 // behavior can be controlled by the Offset instance variable. Offset is a
-// multiplier used to control the size of the initial triangulation. The 
+// multiplier used to control the size of the initial triangulation. The
 // larger the offset value, the more likely you will generate a convex hull;
 // and the more likely you are to see numerical problems.
 //
@@ -108,7 +108,7 @@ public:
 
   // Description:
   // Specify alpha (or distance) value to control output of this filter.
-  // For a non-zero alpha value, only edges, faces, or tetra contained 
+  // For a non-zero alpha value, only edges, faces, or tetra contained
   // within the circumsphere (of radius alpha) will be output. Otherwise,
   // only tetrahedra will be output.
   vtkSetClampMacro(Alpha,double,0.0,VTK_DOUBLE_MAX);
@@ -137,18 +137,18 @@ public:
   vtkBooleanMacro(BoundingTriangulation,int);
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkPointLocator is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to eliminate "coincident" points.
   void CreateDefaultLocator();
 
   // Description:
-  // This is a helper method used with InsertPoint() to create 
+  // This is a helper method used with InsertPoint() to create
   // tetrahedronalizations of points. Its purpose is construct an initial
   // Delaunay triangulation into which to inject other points. You must
   // specify the center of a cubical bounding box and its length, as well
@@ -158,7 +158,7 @@ public:
   // Note: This initialization method places points forming bounding octahedron
   // at the end of the Mesh's point list. That is, InsertPoint() assumes that
   // you will be inserting points between (0,numPtsToInsert-1).
-  vtkUnstructuredGrid *InitPointInsertion(double center[3], double length, 
+  vtkUnstructuredGrid *InitPointInsertion(double center[3], double length,
                                           vtkIdType numPts, vtkPoints* &pts);
 
   // Description:
@@ -175,7 +175,7 @@ public:
 
   // Description:
   // Invoke this method after all points have been inserted. The purpose of
-  // the method is to clean up internal data structures. Note that the 
+  // the method is to clean up internal data structures. Note that the
   // (vtkUnstructuredGrid *)Mesh returned from InitPointInsertion() is NOT
   // deleted, you still are responsible for cleaning that up.
   void EndPointInsertion();
@@ -196,7 +196,7 @@ protected:
   double Offset;
 
   vtkIncrementalPointLocator *Locator;  //help locate points faster
-  
+
   vtkTetraArray *TetraArray; //used to keep track of circumspheres/neighbors
   int FindTetra(vtkUnstructuredGrid *Mesh, double x[3], vtkIdType tetId,
                 int depth);
@@ -211,7 +211,7 @@ protected:
   int *References;
 
   vtkIdType FindEnclosingFaces(double x[3], vtkUnstructuredGrid *Mesh,
-                               vtkIdList *tetras, vtkIdList *faces, 
+                               vtkIdList *tetras, vtkIdList *faces,
                                vtkIncrementalPointLocator *Locator);
 
   virtual int FillInputPortInformation(int, vtkInformation*);

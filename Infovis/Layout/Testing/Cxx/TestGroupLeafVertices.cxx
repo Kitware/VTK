@@ -46,13 +46,13 @@ int TestGroupLeafVertices(int argc, char* argv[])
   int imode = 0; // Interactive mode
   for(int i = 1; i < argc; i++)
     {
-    if (!strcmp(argv[i], "-I")) 
+    if (!strcmp(argv[i], "-I"))
       {
       imode = 1;
       continue;
       }
 
-    cerr << argv[0] << " Options:\n  " 
+    cerr << argv[0] << " Options:\n  "
       << " -h (prints this message)\n  "
       << " -I (run interactively)\n  ";
     return 0;

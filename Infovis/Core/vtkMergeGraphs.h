@@ -89,8 +89,8 @@ protected:
   ~vtkMergeGraphs();
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);

@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExtractSelectedLocations - extract cells within a dataset that 
+// .NAME vtkExtractSelectedLocations - extract cells within a dataset that
 // contain the locations listen in the vtkSelection.
 // .SECTION Description
-// vtkExtractSelectedLocations extracts all cells whose volume contain at least 
-// one point listed in the LOCATIONS content of the vtkSelection. This filter 
-// adds a scalar array called vtkOriginalCellIds that says what input cell 
+// vtkExtractSelectedLocations extracts all cells whose volume contain at least
+// one point listed in the LOCATIONS content of the vtkSelection. This filter
+// adds a scalar array called vtkOriginalCellIds that says what input cell
 // produced each output cell. This is an example of a Pedigree ID which helps
 // to trace back results.
 // .SECTION See Also
@@ -44,13 +44,13 @@ protected:
   ~vtkExtractSelectedLocations();
 
   // Usual data generation method
-  int RequestData(vtkInformation *, 
-                  vtkInformationVector **, 
+  int RequestData(vtkInformation *,
+                  vtkInformationVector **,
                   vtkInformationVector *);
 
-  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input, 
+  int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
                    vtkDataSet *output);
-  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input, 
+  int ExtractPoints(vtkSelectionNode *sel, vtkDataSet *input,
                     vtkDataSet *output);
 
 private:

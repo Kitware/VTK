@@ -54,7 +54,7 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -62,14 +62,14 @@ protected:
   vtkPieceRequestFilter();
   ~vtkPieceRequestFilter() {};
 
-  virtual int RequestDataObject(vtkInformation* request, 
-                                vtkInformationVector** inputVector, 
+  virtual int RequestDataObject(vtkInformation* request,
+                                vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
-  
-  virtual int RequestData(vtkInformation*, 
-                          vtkInformationVector**, 
+
+  virtual int RequestData(vtkInformation*,
+                          vtkInformationVector**,
                           vtkInformationVector*);
-  
+
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);

@@ -22,13 +22,13 @@
 #include "vtkAlgorithm.h"
 
 template <class DType>
-vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd, 
-                                                       int *ext, 
-                                                       vtkAlgorithm *po, 
-                                                       int id) : 
+vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd,
+                                                       int *ext,
+                                                       vtkAlgorithm *po,
+                                                       int id) :
   vtkImageIterator<DType>(imgd,ext)
 {
-  this->Target = 
+  this->Target =
     static_cast<unsigned long>((ext[5] - ext[4]+1)*(ext[3] - ext[2]+1)/50.0);
   this->Target++;
   this->Count = 0;

@@ -24,9 +24,9 @@
 // inside the convex region.
 //
 // There are several methods to define the set of planes. The most general is
-// to supply an instance of vtkPoints and an instance of vtkDataArray. (The 
-// points define a point on the plane, and the normals corresponding plane 
-// normals.) Two other specialized ways are to 1) supply six planes defining 
+// to supply an instance of vtkPoints and an instance of vtkDataArray. (The
+// points define a point on the plane, and the normals corresponding plane
+// normals.) Two other specialized ways are to 1) supply six planes defining
 // the view frustrum of a camera, and 2) provide a bounding box.
 
 // .SECTION See Also
@@ -63,7 +63,7 @@ public:
   // Specify a list of points defining points through which the planes pass.
   virtual void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points,vtkPoints);
-  
+
   // Description:
   // Specify a list of normal vectors for the planes. There is a one-to-one
   // correspondence between plane points and plane normals.
@@ -71,7 +71,7 @@ public:
   vtkGetObjectMacro(Normals,vtkDataArray);
 
   // Description:
-  // An alternative method to specify six planes defined by the camera view 
+  // An alternative method to specify six planes defined by the camera view
   // frustrum. See vtkCamera::GetFrustumPlanes() documentation.
   void SetFrustumPlanes(double planes[24]);
 
@@ -86,11 +86,11 @@ public:
   // Description:
   // Return the number of planes in the set of planes.
   int GetNumberOfPlanes();
-  
+
   // Description:
   // Create and return a pointer to a vtkPlane object at the ith
   // position. Asking for a plane outside the allowable range returns NULL.
-  // This method always returns the same object. 
+  // This method always returns the same object.
   // Use GetPlane(int i, vtkPlane *plane) instead
   vtkPlane *GetPlane(int i);
   void GetPlane(int i, vtkPlane *plane);

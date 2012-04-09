@@ -91,7 +91,7 @@ public:
   // (that UpdateInformation has been called)
   int SetUpdateExtentToWholeExtent(int port);
   static int SetUpdateExtentToWholeExtent(vtkInformation *);
-  
+
   // Description:
   // Get/Set the update extent for output ports that use 3D extents.
   int SetUpdateExtent(int port, int extent[6]);
@@ -104,9 +104,9 @@ public:
   // Set/Get the update piece, update number of pieces, and update
   // number of ghost levels for an output port.  Similar to update
   // extent in 3D.
-  int SetUpdateExtent(int port, 
+  int SetUpdateExtent(int port,
                       int piece, int numPieces, int ghostLevel);
-  static int SetUpdateExtent(vtkInformation *, 
+  static int SetUpdateExtent(vtkInformation *,
                              int piece, int numPieces, int ghostLevel);
   static int SetUpdatePiece(vtkInformation *, int piece);
   static int GetUpdatePiece(vtkInformation *);
@@ -270,12 +270,12 @@ public:
   static vtkInformationIntegerKey* REMOVE_ATTRIBUTE_INFORMATION();
 
   // Description:
-  // The following keys are meant to be used by an algorithm that 
+  // The following keys are meant to be used by an algorithm that
   // works with temporal data. Rather than re-executing the pipeline
   // for each timestep, if the reader, as part of its API, contains
   // a faster way to read temporal data, algorithms may use these
   // keys to request temporal data from the reader.
-  // See also: vtkExtractArraysOverTime. 
+  // See also: vtkExtractArraysOverTime.
 
   // Key to allow a reader to advertise that it supports a fast-path
   // for reading data over time.
@@ -289,10 +289,10 @@ public:
   static vtkInformationIdTypeKey* FAST_PATH_OBJECT_ID();
 
   // Description:
-  // Issues pipeline request to determine and return the priority of the 
-  // piece described by the current update extent. The priority is a 
-  // number between 0.0 and 1.0 with 0 meaning skippable (REQUEST_DATA 
-  // not needed) and 1.0 meaning important. 
+  // Issues pipeline request to determine and return the priority of the
+  // piece described by the current update extent. The priority is a
+  // number between 0.0 and 1.0 with 0 meaning skippable (REQUEST_DATA
+  // not needed) and 1.0 meaning important.
   double ComputePriority()
     {
       return this->ComputePriority(0);
@@ -313,14 +313,14 @@ protected:
 
   // Keep track of the update time request corresponding to the
   // previous executing. If the previous update request did not
-  // correspond to an existing time step and the reader chose 
+  // correspond to an existing time step and the reader chose
   // a time step with it's own logic, the data time step will
   // be different than the request. If the same time step is
   // requested again, there is no need to re-execute the algorithm.
   // We know that it does not have this time step.
   static vtkInformationDoubleVectorKey* PREVIOUS_UPDATE_TIME_STEPS();
 
-  // Keep track of the fast path keys corresponding to the 
+  // Keep track of the fast path keys corresponding to the
   // previous executing. If all key values are the same as their
   // counterparts in the previous request, we do not need to re-execute.
   static vtkInformationIdTypeKey* PREVIOUS_FAST_PATH_OBJECT_ID();
@@ -382,7 +382,7 @@ protected:
 
   // did the most recent PUE do anything ?
   int LastPropogateUpdateExtentShortCircuited;
-  
+
 private:
   vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.

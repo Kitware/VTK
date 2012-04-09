@@ -86,7 +86,7 @@ vtkVolumeTextureMapper2D volumeMapper1
 vtkVolume volume1
     volume1 SetMapper volumeMapper1
     volume1 SetProperty volumeProperty
-       
+
 vtkVolumeOutlineSource outline1
     outline1 SetVolumeMapper volumeMapper1
     outline1 GenerateFacesOn

@@ -30,7 +30,7 @@ set n [$fileNames1 GetNumberOfValues]
 if { $n != $numberOfFiles1 } {
     for { set i 0 } { $i < $n } { incr i } {
         puts [$fileNames1 GetValue $i]
-    } 
+    }
     puts "GetNumberOfValues should return $numberOfFiles1, not $n"
     exit 1
 }
@@ -50,7 +50,7 @@ set n [$fileNames2 GetNumberOfValues]
 if { $n != $numberOfFiles2} {
     for { set i 0 } { $i < $n } { incr i } {
         puts [$fileNames2 GetValue $i]
-    } 
+    }
     puts "GetNumberOfValues should return $numberOfFiles2, not $n"
     exit 1
 }

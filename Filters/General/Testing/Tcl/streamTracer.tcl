@@ -35,7 +35,7 @@ streamer SetInputConnection [reader GetOutputPort]
 streamer SetStartPosition 0.1 2.1 0.5
 streamer SetMaximumPropagation 500
 streamer SetIntegrationStepUnit 2
-streamer SetMinimumIntegrationStep 0.1 
+streamer SetMinimumIntegrationStep 0.1
 streamer SetMaximumIntegrationStep 1.0
 streamer SetInitialIntegrationStep 0.2
 streamer SetIntegrationDirection 0
@@ -63,11 +63,11 @@ ren1 AddActor streamActor
 
 ren1 SetBackground 0.4 0.4 0.5
 
-set cam [ren1 GetActiveCamera] 
-$cam SetPosition -2.35599 -3.35001 4.59236 
-$cam SetFocalPoint 2.255 2.255 1.28413 
+set cam [ren1 GetActiveCamera]
+$cam SetPosition -2.35599 -3.35001 4.59236
+$cam SetFocalPoint 2.255 2.255 1.28413
 $cam SetViewUp 0.311311 0.279912 0.908149
-$cam SetClippingRange 1.12294 16.6226 
+$cam SetClippingRange 1.12294 16.6226
 
 renWin SetSize 300 200
 iren AddObserver UserEvent {wm deiconify .vtkInteract}

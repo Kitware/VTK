@@ -77,7 +77,7 @@ void vtkBridgePointIteratorOne::Next()
   assert("pre: not_off" && !IsAtEnd());
   this->cIsAtEnd=1;
 }
- 
+
 //-----------------------------------------------------------------------------
 // Description:
 // Point at iterator position.
@@ -86,9 +86,9 @@ void vtkBridgePointIteratorOne::Next()
 double *vtkBridgePointIteratorOne::GetPosition()
 {
   assert("pre: not_off" && !IsAtEnd());
-  
+
   double *result=this->DataSet->Implementation->GetPoint(this->Id);
-  
+
   assert("post: result_exists" && result!=0);
   return result;
 }
@@ -104,7 +104,7 @@ void vtkBridgePointIteratorOne::GetPosition(double x[3])
   assert("pre: x_exists" && x!=0);
   this->DataSet->Implementation->GetPoint(this->Id,x);
 }
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // Unique identifier for the point, could be non-contiguous
@@ -112,7 +112,7 @@ void vtkBridgePointIteratorOne::GetPosition(double x[3])
 vtkIdType vtkBridgePointIteratorOne::GetId()
 {
   assert("pre: not_off" && !IsAtEnd());
-  
+
   return this->Id;
 }
 
@@ -125,9 +125,9 @@ vtkIdType vtkBridgePointIteratorOne::GetId()
 void vtkBridgePointIteratorOne::InitWithOnePoint(vtkBridgeDataSet *ds,
                                                  vtkIdType id)
 {
-  assert("pre: valid_id" && 
+  assert("pre: valid_id" &&
          ((!ds!=0)|| ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
-  
+
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
   this->Id=id;
 }

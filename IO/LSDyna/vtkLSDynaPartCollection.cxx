@@ -45,13 +45,13 @@ namespace
     PartInfo(vtkLSDynaPart *p, const int& type, const vtkIdType& pId,
              const vtkIdType& start, const vtkIdType& npts):
       numCells(1), //we are inserting the first cell when we create this so start with 1
-      startId(start), 
+      startId(start),
       cellStructureSize(npts), //start with number of points in first cell
       partId(pId)
     {
       //we store the part id our selves because we can have null parts
       //if the user has disabled reading that part
-      this->part = p;      
+      this->part = p;
       if(this->part)
         {
         this->part->SetPartType(type);
@@ -674,7 +674,7 @@ void vtkLSDynaPartCollection::FillCellArray(T *buffer,
   const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId,
   vtkIdType numCells, const int& numPropertiesInCell)
 {
-  //we only need to iterate the array for the subsection we need  
+  //we only need to iterate the array for the subsection we need
   T* loc = buffer;
   vtkIdType size, globalStartId;
   vtkLSDynaPart *part;
@@ -755,7 +755,7 @@ void vtkLSDynaPartCollection::FillCellUserIdArray(T *buffer,
   vtkLSDynaPart *part;
   this->Storage->InitCellIteration(type,startId);
   while(this->Storage->GetNextCellPart(globalStartId,size,part))
-    {    
+    {
     vtkIdType start = std::max(globalStartId,startId);
     vtkIdType end = std::min(globalStartId+size,startId+numCells);
     if(end<start)
@@ -768,7 +768,7 @@ void vtkLSDynaPartCollection::FillCellUserIdArray(T *buffer,
       part->EnableCellUserIds();
       for(vtkIdType i=0; i<is; i+=numWordsPerIdType)
         {
-        part->SetNextCellUserIds((vtkIdType)loc[i]);        
+        part->SetNextCellUserIds((vtkIdType)loc[i]);
         }
       }
     //perfectly valid to have a NULL part being returned
@@ -952,7 +952,7 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
   std::list<vtkLSDynaPart*>::iterator partIt;
 
   sortedParts.sort(sortPartsOnGlobalIds);
-  
+
   //find the max as the subset of points
   const vtkIdType maxGlobalPoint(sortedParts.back()->GetMaxGlobalPointId());
   vtkIdType minGlobalPoint = maxGlobalPoint;
@@ -977,9 +977,9 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
     {
     p->Fam.BufferChunk(LSDynaFamily::Float,bufferChunkSize);
     buf = p->Fam.GetBufferAs<T>();
-    
+
     partIt = sortedParts.begin();
-    while(partIt!=sortedParts.end() && 
+    while(partIt!=sortedParts.end() &&
           (*partIt)->GetMaxGlobalPointId() < offset)
       {
       //remove all parts from the list that have already been
@@ -987,7 +987,7 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
       sortedParts.pop_front();
       partIt = sortedParts.begin();
       }
-    
+
     while(partIt!=sortedParts.end())
       {
       //only read the points which have a point that lies within this section

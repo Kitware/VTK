@@ -54,46 +54,46 @@ public:
   static vtkView *New();
   vtkTypeMacro(vtkView, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Adds the representation to the view.
   void AddRepresentation(vtkDataRepresentation* rep);
-  
+
   // Description:
   // Set the representation to the view.
   void SetRepresentation(vtkDataRepresentation* rep);
- 
+
   // Description:
-  // Convenience method which creates a simple representation with the 
+  // Convenience method which creates a simple representation with the
   // connection and adds it to the view.
   // Returns the representation internally created.
-  // NOTE: The returned representation pointer is not reference-counted, 
-  // so you MUST call Register() on the representation if you want to 
+  // NOTE: The returned representation pointer is not reference-counted,
+  // so you MUST call Register() on the representation if you want to
   // keep a reference to it.
   vtkDataRepresentation* AddRepresentationFromInputConnection(vtkAlgorithmOutput* conn);
 
   // Description:
-  // Convenience method which sets the representation with the 
+  // Convenience method which sets the representation with the
   // connection and adds it to the view.
   // Returns the representation internally created.
-  // NOTE: The returned representation pointer is not reference-counted, 
-  // so you MUST call Register() on the representation if you want to 
+  // NOTE: The returned representation pointer is not reference-counted,
+  // so you MUST call Register() on the representation if you want to
   // keep a reference to it.
   vtkDataRepresentation* SetRepresentationFromInputConnection(vtkAlgorithmOutput* conn);
 
   // Description:
-  // Convenience method which creates a simple representation with the 
+  // Convenience method which creates a simple representation with the
   // specified input and adds it to the view.
-  // NOTE: The returned representation pointer is not reference-counted, 
-  // so you MUST call Register() on the representation if you want to 
+  // NOTE: The returned representation pointer is not reference-counted,
+  // so you MUST call Register() on the representation if you want to
   // keep a reference to it.
   vtkDataRepresentation* AddRepresentationFromInput(vtkDataObject* input);
 
   // Description:
-  // Convenience method which sets the representation to the 
+  // Convenience method which sets the representation to the
   // specified input and adds it to the view.
-  // NOTE: The returned representation pointer is not reference-counted, 
-  // so you MUST call Register() on the representation if you want to 
+  // NOTE: The returned representation pointer is not reference-counted,
+  // so you MUST call Register() on the representation if you want to
   // keep a reference to it.
   vtkDataRepresentation* SetRepresentationFromInput(vtkDataObject* input);
 
@@ -104,10 +104,10 @@ public:
   // Description:
   // Removes any representation with this connection from the view.
   void RemoveRepresentation(vtkAlgorithmOutput* rep);
-  
+
   // Description:
   // Removes all representations from the view.
-  void RemoveAllRepresentations(); 
+  void RemoveAllRepresentations();
 
   // Description:
   // Returns the number of representations from first port(0) in this view.
@@ -124,7 +124,7 @@ public:
   // Description:
   // Update the view.
   virtual void Update();
-  
+
   // Description:
   // Apply a theme to the view.
   virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
@@ -166,7 +166,7 @@ public:
       { return this->Progress; }
     };
   //ETX
-  
+
   // Description:
   // Meant for use by subclasses and vtkRepresentation subclasses.
   // Call this method to register vtkObjects (generally
@@ -185,12 +185,12 @@ public:
 protected:
   vtkView();
   ~vtkView();
-  
+
   // Description:
   // Called to process events.
   // The superclass processes selection changed events from its representations.
   // This may be overridden by subclasses to process additional events.
-  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, 
+  virtual void ProcessEvents(vtkObject* caller, unsigned long eventId,
     void* callData);
 
   // Description:
@@ -213,7 +213,7 @@ protected:
   vtkGetMacro(ReuseSingleRepresentation, bool);
   vtkBooleanMacro(ReuseSingleRepresentation, bool);
   bool ReuseSingleRepresentation;
-  
+
 private:
   vtkView(const vtkView&);  // Not implemented.
   void operator=(const vtkView&);  // Not implemented.

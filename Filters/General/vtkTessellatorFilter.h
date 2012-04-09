@@ -121,7 +121,7 @@ protected:
   ~vtkTessellatorFilter();
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  
+
   // Description:
   // Called by RequestData to set up a multitude of member variables used by
   // the per-primitive output functions (OutputLine, OutputTriangle, and
@@ -157,34 +157,34 @@ protected:
   vtkDataArray** OutputAttributes;
   int* OutputAttributeIndices;
 
-  static void AddAPoint( const double*, 
-                         vtkEdgeSubdivisionCriterion*, 
-                         void*, 
+  static void AddAPoint( const double*,
+                         vtkEdgeSubdivisionCriterion*,
+                         void*,
                          const void* );
-  static void AddALine( const double*, 
-                        const double*, 
-                        vtkEdgeSubdivisionCriterion*, 
-                        void*, 
+  static void AddALine( const double*,
+                        const double*,
+                        vtkEdgeSubdivisionCriterion*,
+                        void*,
                         const void* );
-  static void AddATriangle( const double*, 
-                            const double*, 
-                            const double*, 
-                            vtkEdgeSubdivisionCriterion*, 
-                            void*, 
+  static void AddATriangle( const double*,
+                            const double*,
+                            const double*,
+                            vtkEdgeSubdivisionCriterion*,
+                            void*,
                             const void* );
-  static void AddATetrahedron( const double*, 
-                               const double*, 
-                               const double*, 
-                               const double*, 
-                               vtkEdgeSubdivisionCriterion*, 
-                               void*, 
+  static void AddATetrahedron( const double*,
+                               const double*,
+                               const double*,
+                               const double*,
+                               vtkEdgeSubdivisionCriterion*,
+                               void*,
                                const void* );
   void OutputPoint( const double* );
   void OutputLine( const double*, const double* );
   void OutputTriangle( const double*, const double*, const double* );
-  void OutputTetrahedron( const double*, 
-                          const double*, 
-                          const double*, 
+  void OutputTetrahedron( const double*,
+                          const double*,
+                          const double*,
                           const double* );
   //ETX
 
@@ -194,9 +194,9 @@ private:
 };
 
 //BTX
-inline int vtkTessellatorFilter::GetOutputDimension() const 
-{ 
-  return this->OutputDimension; 
+inline int vtkTessellatorFilter::GetOutputDimension() const
+{
+  return this->OutputDimension;
 }
 //ETX
 

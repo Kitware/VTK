@@ -17,11 +17,11 @@
 
 vtkStandardNewMacro(vtkReferenceCount);
 
-vtkReferenceCount::vtkReferenceCount() 
+vtkReferenceCount::vtkReferenceCount()
 {
 }
 
-vtkReferenceCount::~vtkReferenceCount() 
+vtkReferenceCount::~vtkReferenceCount()
 {
 }
 

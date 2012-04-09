@@ -75,7 +75,7 @@ int TestUncertaintyTubeFilter( int argc, char* argv[] )
   lines->InsertCellPoint(7);
   lines->InsertCellPoint(8);
   lines->InsertCellPoint(9);
-  
+
   vtkPolyData *pd = vtkPolyData::New();
   pd->SetPoints(newPts);
   pd->SetLines(lines);

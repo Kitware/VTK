@@ -52,8 +52,8 @@ protected:
   ~vtkPerturbCoincidentVertices();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

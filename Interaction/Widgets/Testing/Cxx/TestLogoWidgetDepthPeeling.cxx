@@ -49,11 +49,11 @@ int TestLogoWidgetDepthPeeling( int argc, char *argv[] )
   renWin->AddRenderer(ren1);
   renWin->SetMultiSamples(1);
   renWin->SetAlphaBitPlanes(1);
-  
+
   ren1->SetUseDepthPeeling(1);
   ren1->SetMaximumNumberOfPeels(200);
   ren1->SetOcclusionRatio(0.1);
-  
+
   vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
     vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -66,10 +66,10 @@ int TestLogoWidgetDepthPeeling( int argc, char *argv[] )
   vtkSmartPointer<vtkTIFFReader> image1 =
     vtkSmartPointer<vtkTIFFReader>::New();
   image1->SetFileName(fname);
-  /* 
-  "beach.tif" image contains ORIENTATION tag which is 
-  ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF 
-  reader parses this tag and sets the internal TIFF image 
+  /*
+  "beach.tif" image contains ORIENTATION tag which is
+  ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
+  reader parses this tag and sets the internal TIFF image
   orientation accordingly.  To overwrite this orientation with a vtk
   convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
   SetOrientationType method with parameter value of 4.
@@ -94,7 +94,7 @@ int TestLogoWidgetDepthPeeling( int argc, char *argv[] )
   property->SetOpacity(0.2);
   property->SetColor(0.0,1.0,0.0);
   sph->SetProperty(property);
-  
+
   vtkSmartPointer<vtkCylinderSource> cs =
     vtkSmartPointer<vtkCylinderSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> csMapper =
@@ -104,7 +104,7 @@ int TestLogoWidgetDepthPeeling( int argc, char *argv[] )
     vtkSmartPointer<vtkActor>::New();
   cyl->SetMapper(csMapper);
   cyl->AddPosition(5,0,0);
-  
+
   vtkSmartPointer<vtkConeSource> coneSource =
     vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> coneMapper =
@@ -154,7 +154,7 @@ int TestLogoWidgetDepthPeeling( int argc, char *argv[] )
   recorder->Off();
 
   iren->Start();
- 
+
   return EXIT_SUCCESS;
 
 }

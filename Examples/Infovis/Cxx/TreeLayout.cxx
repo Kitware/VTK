@@ -66,20 +66,20 @@ int main(int argc, char* argv[])
     {
     colorArray = argv[3];
     }
-  
+
   // Read in the XML file into a tree.
-  // This creates a tree with string columns for every attribute 
+  // This creates a tree with string columns for every attribute
   // present in the file, plus the special arrays named .tagname
   // (containing the XML tag name) and .chardata (containg the
   // character data within the tag).
   vtkXMLTreeReader* reader = vtkXMLTreeReader::New();
   reader->SetFileName(filename);
-  
+
   // Automatically convert string columns containing numeric
   // values into integer and double arrays.
   vtkStringToNumeric* stringToNumeric = vtkStringToNumeric::New();
   stringToNumeric->SetInputConnection(reader->GetOutputPort());
-  
+
   // Retrieve the tree from the pipeline so we can check whether
   // the specified label and color arrays exist.
   stringToNumeric->Update();
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
     usage();
     return 0;
     }
-  if (colorArray && 
+  if (colorArray &&
       tree->GetVertexData()->GetAbstractArray(colorArray) == NULL)
     {
     cerr << "ERROR: The color attribute " << colorArray << " is not defined in the file." << endl;
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
     usage();
     return 0;
     }
-  if (colorArray && 
+  if (colorArray &&
       vtkDataArray::SafeDownCast(tree->GetVertexData()->GetAbstractArray(colorArray)) == NULL)
     {
     cerr << "ERROR: The color attribute " << colorArray << " does not have numeric values." << endl;
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     usage();
     return 0;
     }
-  
+
   // If coloring the vertices, get the range of the color array.
   double colorRange[2] = {0, 1};
   if (colorArray)
@@ -119,17 +119,17 @@ int main(int argc, char* argv[])
       tree->GetVertexData()->GetAbstractArray(colorArray));
     color->GetRange(colorRange);
     }
-  
+
   // Layout the tree using vtkGraphLayout.
   vtkGraphLayout* layout = vtkGraphLayout::New();
   layout->SetInputConnection(stringToNumeric->GetOutputPort());
-  
+
   // Specify that we want to use the tree layout strategy.
   vtkTreeLayoutStrategy* strategy = vtkTreeLayoutStrategy::New();
   strategy->RadialOn();              // Radial layout (as opposed to standard top-down layout)
   strategy->SetAngle(360.0);         // The tree fills a full circular arc.
   layout->SetLayoutStrategy(strategy);
-  
+
   // vtkGraphToPolyData converts a graph or tree to polydata.
   vtkGraphToPolyData* graphToPoly = vtkGraphToPolyData::New();
   graphToPoly->SetInputConnection(layout->GetOutputPort());
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
   vtkActor* edgeActor = vtkActor::New();
   edgeActor->SetMapper(edgeMapper);
   edgeActor->GetProperty()->SetColor(0.0, 0.5, 1.0);
-  
+
   // Glyph the points of the tree polydata to create
   // VTK_VERTEX cells at each vertex in the tree.
   vtkGlyph3D* vertGlyph = vtkGlyph3D::New();
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
   vtkGlyphSource2D* glyphSource = vtkGlyphSource2D::New();
   glyphSource->SetGlyphTypeToVertex();
   vertGlyph->SetInputConnection(1, glyphSource->GetOutputPort());
-  
+
   // Create a mapper for the vertices, and tell the mapper
   // to use the specified color array.
   vtkPolyDataMapper* vertMapper = vtkPolyDataMapper::New();
@@ -160,14 +160,14 @@ int main(int argc, char* argv[])
     vertMapper->SelectColorArray(colorArray);
     vertMapper->SetScalarRange(colorRange);
     }
-    
+
   // Create an actor for the vertices.  Move the actor forward
   // in the z direction so it is drawn on top of the edge actor.
   vtkActor* vertActor = vtkActor::New();
   vertActor->SetMapper(vertMapper);
   vertActor->GetProperty()->SetPointSize(5);
   vertActor->SetPosition(0, 0, 0.001);
-  
+
   // Use a dynamic label mapper to draw the labels.  This mapper
   // does not allow labels to overlap, as long as the camera is
   // not rotated from pointing down the z axis.
@@ -182,28 +182,28 @@ int main(int argc, char* argv[])
     }
   vtkActor2D* labelActor = vtkActor2D::New();
   labelActor->SetMapper(labelMapper);
-  
+
   // Add the edges, vertices, and labels to the renderer.
   vtkRenderer* ren = vtkRenderer::New();
   ren->SetBackground(0.8, 0.8, 0.8);
   ren->AddActor(edgeActor);
   ren->AddActor(vertActor);
   ren->AddActor(labelActor);
-  
+
   // Setup the render window and interactor.
   vtkRenderWindow* win = vtkRenderWindow::New();
   win->AddRenderer(ren);
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(win);
-  
+
   // Constrain movement to zoom and pan using the image interactor style.
   vtkInteractorStyleImage* style = vtkInteractorStyleImage::New();
   iren->SetInteractorStyle(style);
-  
+
   // Start the main application loop.
   iren->Initialize();
   iren->Start();
-  
+
   // Clean up.
   style->Delete();
   iren->Delete();
@@ -222,6 +222,6 @@ int main(int argc, char* argv[])
   layout->Delete();
   stringToNumeric->Delete();
   reader->Delete();
-  
+
   return 0;
 }

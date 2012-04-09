@@ -136,7 +136,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   CREATE_NEW(reader,vtkGenericDataObjectReader);
   reader->SetFileName(filename.c_str());
   reader->Update();
-  
+
   double bounds[6];
   vtkDataSet::SafeDownCast(reader->GetOutput())->GetBounds(bounds);
 
@@ -190,7 +190,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   probe->SetSourceConnection(reader->GetOutputPort());
   probe->SetInputData(probeData);
   probe->Update();
-  
+
   CREATE_NEW(renWin, vtkRenderWindow);
   renWin->Render();
 
@@ -199,14 +199,14 @@ int ImageDataLIC2D(int argc, char* argv[])
   output->SetSpacing(probeData->GetSpacing());
   output->SetOrigin(probeData->GetOrigin());
   output->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-  
+
   CREATE_NEW( filter, vtkImageDataLIC2D );
   if (  filter->SetContext( renWin ) == 0  )
     {
     cout << "Required OpenGL extensions / GPU not supported." << endl;
     return 0;
     }
-    
+
   filter->SetInputConnection(0, probe->GetOutputPort(0));
 
   if (noise_filename != "")
@@ -248,7 +248,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
     CREATE_NEW(clone, vtkImageData);
     clone->ShallowCopy(filter->GetOutput());
-    
+
     // input is double between 0.0 and 1.0. Cast it between [0, 255].
     CREATE_NEW(caster, vtkImageShiftScale);
     caster->SetInputData(clone);
@@ -292,7 +292,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   CREATE_NEW(tp, vtkTrivialProducer);
   tp->SetOutput(output);
-  int retVal = (!tester->IsValidImageSpecified() || 
+  int retVal = (!tester->IsValidImageSpecified() ||
     (tester->RegressionTest(tp, 10) == vtkTesting::PASSED))? /*success*/ 0 : /*failure*/ 1;
   tp->Delete();
   return retVal;

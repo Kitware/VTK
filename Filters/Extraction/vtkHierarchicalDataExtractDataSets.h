@@ -30,7 +30,7 @@ struct vtkHierarchicalDataExtractDataSetsInternals;
 //ETX
 
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractDataSets :
-  public vtkExtractDataSets 
+  public vtkExtractDataSets
 {
 public:
   vtkTypeMacro(vtkHierarchicalDataExtractDataSets,vtkExtractDataSets);

@@ -89,7 +89,7 @@ public:
   vtkGetMacro(SliderShape, int);
   void SetSliderShapeToSphere() { this->SetSliderShape(SphereShape); }
   void SetSliderShapeToCylinder() { this->SetSliderShape(CylinderShape); }
-  
+
   // Description:
   // Set the rotation of the slider widget around the axis of the widget. This is
   // used to control which way the widget is initially oriented. (This is especially
@@ -98,20 +98,20 @@ public:
   vtkGetMacro(Rotation,double);
 
   // Description:
-  // Get the slider properties. The properties of the slider when selected 
+  // Get the slider properties. The properties of the slider when selected
   // and unselected can be manipulated.
   vtkGetObjectMacro(SliderProperty,vtkProperty);
-  
+
   // Description:
-  // Get the properties for the tube and end caps. 
+  // Get the properties for the tube and end caps.
   vtkGetObjectMacro(TubeProperty,vtkProperty);
   vtkGetObjectMacro(CapProperty,vtkProperty);
-  
+
   // Description:
   // Get the selection property. This property is used to modify the appearance of
   // selected objects (e.g., the slider).
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  
+
   // Description:
   // Methods to interface with the vtkSliderWidget.
   virtual void PlaceWidget(double bounds[6]);
@@ -128,7 +128,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Override GetMTime to include point coordinates
   virtual unsigned long GetMTime();
@@ -146,7 +146,7 @@ protected:
   // of the slider
   double        SP1[3];
   double        SP2[3];
-  
+
   // More ivars controlling the appearance of the widget
   double Rotation;
   int    SliderShape;
@@ -159,7 +159,7 @@ protected:
 
   // The widget consists of several actors, all grouped
   // together using an assembly. This makes it easier to
-  // perform the final transformation into 
+  // perform the final transformation into
   vtkAssembly *WidgetAssembly;
 
   // Cylinder used by other objects
@@ -170,14 +170,14 @@ protected:
   vtkPolyDataMapper *TubeMapper;
   vtkActor          *TubeActor;
   vtkProperty       *TubeProperty;
-  
+
   // The slider
   vtkSphereSource   *SliderSource;
   vtkPolyDataMapper *SliderMapper;
   vtkActor          *SliderActor;
   vtkProperty       *SliderProperty;
   vtkProperty       *SelectedProperty;
-  
+
   // The left cap
   vtkPolyDataMapper *LeftCapMapper;
   vtkActor          *LeftCapActor;
@@ -186,23 +186,23 @@ protected:
   // The right cap
   vtkPolyDataMapper *RightCapMapper;
   vtkActor          *RightCapActor;
-  
+
   // The text. There is an extra transform used to rotate
   // both the title and label
   vtkVectorText     *LabelText;
   vtkPolyDataMapper *LabelMapper;
   vtkActor          *LabelActor;
-  
+
   vtkVectorText     *TitleText;
   vtkPolyDataMapper *TitleMapper;
   vtkActor          *TitleActor;
 
-  // Transform used during slider motion 
+  // Transform used during slider motion
   vtkMatrix4x4 *Matrix;
   vtkTransform *Transform;
 
 //BTX - manage the state of the widget
-  enum _SliderShape {    
+  enum _SliderShape {
     SphereShape,
     CylinderShape
   };

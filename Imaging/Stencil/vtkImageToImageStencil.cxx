@@ -62,7 +62,7 @@ vtkImageData *vtkImageToImageStencil::GetInput()
     {
     return NULL;
     }
-  
+
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
@@ -135,7 +135,7 @@ int vtkImageToImageStencil::RequestData(
     {
     for (int idY = extent[2]; idY <= extent[3]; idY++)
       {
-      if (count%target == 0) 
+      if (count%target == 0)
         {
         this->UpdateProgress(count/(50.0*target));
         }

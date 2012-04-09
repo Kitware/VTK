@@ -14,20 +14,20 @@
 =========================================================================*/
 // .NAME vtkLocator - abstract base class for objects that accelerate spatial searches
 // .SECTION Description
-// vtkLocator is an abstract base class for spatial search objects, or 
-// locators. The principle behind locators is that they divide 3-space into 
-// small pieces (or "buckets") that can be quickly found in response to 
-// queries like point location, line intersection, or object-object 
+// vtkLocator is an abstract base class for spatial search objects, or
+// locators. The principle behind locators is that they divide 3-space into
+// small pieces (or "buckets") that can be quickly found in response to
+// queries like point location, line intersection, or object-object
 // intersection.
 //
-// The purpose of this base class is to provide ivars and methods shared by 
+// The purpose of this base class is to provide ivars and methods shared by
 // all locators. The GenerateRepresentation() is one such interesting method.
 // This method works in conjunction with vtkLocatorFilter to create polygonal
 // representations for the locator. For example, if the locator is an OBB tree
-// (i.e., vtkOBBTree.h), then the representation is a set of one or more 
+// (i.e., vtkOBBTree.h), then the representation is a set of one or more
 // oriented bounding boxes, depending upon the specified level.
-// 
-// Locators typically work as follows. One or more "entities", such as 
+//
+// Locators typically work as follows. One or more "entities", such as
 // points or cells, are inserted into the tree. These entities are associated
 // with one or more buckets. Then, when performing geometric operations, the
 // operations are performed first on the buckets, and then if the operation
@@ -35,7 +35,7 @@
 // collision tests, the locators are collided first to identify intersecting
 // buckets. If an intersection is found, more expensive operations are then
 // carried out on the entities in the bucket.
-// 
+//
 // To obtain good performance, locators are often organized in a tree
 // structure.  In such a structure, there are frequently multiple "levels"
 // corresponding to different nodes in the tree. So the word level (in the
@@ -68,14 +68,14 @@ public:
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:
-  // Set the maximum allowable level for the tree. If the Automatic ivar is 
+  // Set the maximum allowable level for the tree. If the Automatic ivar is
   // off, this will be the target depth of the locator.
   // Initial value is 8.
   vtkSetClampMacro(MaxLevel,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxLevel,int);
 
   // Description:
-  // Get the level of the locator (determined automatically if Automatic is 
+  // Get the level of the locator (determined automatically if Automatic is
   // true). The value of this ivar may change each time the locator is built.
   // Initial value is 8.
   vtkGetMacro(Level,int);
@@ -96,7 +96,7 @@ public:
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Cause the locator to rebuild itself if it or its input dataset has 
+  // Cause the locator to rebuild itself if it or its input dataset has
   // changed.
   virtual void Update();
 
@@ -113,9 +113,9 @@ public:
   virtual void FreeSearchStructure() = 0;
 
   // Description:
-  // Method to build a representation at a particular level. Note that the 
+  // Method to build a representation at a particular level. Note that the
   // method GetLevel() returns the maximum number of levels available for
-  // the tree. You must provide a vtkPolyData object into which to place the 
+  // the tree. You must provide a vtkPolyData object into which to place the
   // data.
   virtual void GenerateRepresentation(int level, vtkPolyData *pd) = 0;
 

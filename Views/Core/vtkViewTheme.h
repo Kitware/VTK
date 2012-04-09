@@ -60,7 +60,7 @@ public:
   vtkGetVector3Macro(PointColor, double);
   vtkSetMacro(PointOpacity, double);
   vtkGetMacro(PointOpacity, double);
-  
+
   // Description:
   // The ranges to use in the point lookup table.
   // You may also do this by accessing the point lookup table directly
@@ -107,7 +107,7 @@ public:
   vtkGetVector3Macro(CellColor, double);
   vtkSetMacro(CellOpacity, double);
   vtkGetMacro(CellOpacity, double);
-  
+
   // Description:
   // The ranges to use in the cell lookup table.
   // You may also do this by accessing the cell lookup table directly
@@ -151,14 +151,14 @@ public:
   // The color of any outlines in the view.
   vtkSetVector3Macro(OutlineColor, double);
   vtkGetVector3Macro(OutlineColor, double);
-  
+
   // Description:
   // The color of selected points or vertices.
   vtkSetVector3Macro(SelectedPointColor, double);
   vtkGetVector3Macro(SelectedPointColor, double);
   vtkSetMacro(SelectedPointOpacity, double);
   vtkGetMacro(SelectedPointOpacity, double);
-  
+
   // Description:
   // The color of selected cells or edges.
   vtkSetVector3Macro(SelectedCellColor, double);
@@ -170,12 +170,12 @@ public:
   // The view background color.
   vtkSetVector3Macro(BackgroundColor, double);
   vtkGetVector3Macro(BackgroundColor, double);
-  
+
   // Description:
   // The second background color (for gradients).
   vtkSetVector3Macro(BackgroundColor2, double);
   vtkGetVector3Macro(BackgroundColor2, double);
-  
+
   // Description:
   // The text property to use for labelling points/vertices.
   virtual void SetPointTextProperty(vtkTextProperty* tprop);
@@ -236,7 +236,7 @@ protected:
 
   double CellColor[3];
   double CellOpacity;
-  
+
   double OutlineColor[3];
 
   double SelectedPointColor[3];

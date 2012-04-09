@@ -101,7 +101,7 @@ void vtkOpenGLDisplayListPainter::ReleaseGraphicsResources(vtkWindow* win)
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
-                                                 vtkActor *actor, 
+                                                 vtkActor *actor,
                                                  unsigned long typeflags,
                                                  bool forceCompileOnly)
 {
@@ -146,12 +146,12 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
     this->LastWindow = 0;
     }
 
-  vtkInternals::DisplayListMapType::iterator iter = 
+  vtkInternals::DisplayListMapType::iterator iter =
     this->Internals->DisplayListMap.find(typeflags);
   if (iter == this->Internals->DisplayListMap.end())
     {
     GLuint list = glGenLists(1);
-    
+
     glNewList(list, GL_COMPILE);
     // generate the display list.
     this->Superclass::RenderInternal(renderer, actor, typeflags,
@@ -173,7 +173,7 @@ void vtkOpenGLDisplayListPainter::RenderInternal(vtkRenderer *renderer,
     // if nothing has changed we use an old display list else
     // we use the newly generated list.
     glCallList(iter->second);
-    // glFinish(); // To compute time correctly, we need to wait 
+    // glFinish(); // To compute time correctly, we need to wait
     // till OpenGL finishes.
     this->Timer->StopTimer();
     this->TimeToDraw += this->Timer->GetElapsedTime();

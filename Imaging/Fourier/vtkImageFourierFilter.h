@@ -73,7 +73,7 @@ typedef struct{
   cOut = _vtkImageComplexMultiplyTemp; \
 }
 
-// This macro calculates exp(cIn) and puts the result in cOut 
+// This macro calculates exp(cIn) and puts the result in cOut
 #define vtkImageComplexExponential(cIn, cOut) \
 { \
   double tmp = exp(cIn.Real); \
@@ -88,8 +88,8 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageFourierFilter : public vtkImageDecomposeF
 {
 public:
   vtkTypeMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);
-  
-  
+
+
   // public for templated functions of this object
   //BTX
 
@@ -107,17 +107,17 @@ public:
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
   //ETX
-  
+
 protected:
   vtkImageFourierFilter() {};
   ~vtkImageFourierFilter() {};
 
   //BTX
-  void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out, 
+  void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int fb);
   void ExecuteFftStepN(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int n, int fb);
-  void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out, 
+  void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out,
                                  int N, int fb);
   //ETX
 private:

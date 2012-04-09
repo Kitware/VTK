@@ -39,7 +39,7 @@ public:
   // Description:
   // Perform the layout.
   void Layout();
-  
+
 protected:
   vtkCircularLayoutStrategy();
   ~vtkCircularLayoutStrategy();

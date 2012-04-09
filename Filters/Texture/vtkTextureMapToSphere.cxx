@@ -25,7 +25,7 @@
 
 vtkStandardNewMacro(vtkTextureMapToSphere);
 
-// Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
+// Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The
 // sphere center is automatically computed.
 vtkTextureMapToSphere::vtkTextureMapToSphere()
 {
@@ -193,9 +193,9 @@ void vtkTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Automatic Sphere Generation: " << 
+  os << indent << "Automatic Sphere Generation: " <<
                   (this->AutomaticSphereGeneration ? "On\n" : "Off\n");
-  os << indent << "Prevent Seam: " << 
+  os << indent << "Prevent Seam: " <<
                   (this->PreventSeam ? "On\n" : "Off\n");
   os << indent << "Center: (" << this->Center[0] << ", "
                               << this->Center[1] << ", "

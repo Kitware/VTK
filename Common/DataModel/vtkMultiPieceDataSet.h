@@ -15,14 +15,14 @@
 // .NAME vtkMultiPieceDataSet - composite dataset to encapsulates pieces of
 // dataset.
 // .SECTION Description
-// A vtkMultiPieceDataSet dataset groups multiple data pieces together. 
-// For example, say that a simulation broke a volume into 16 piece so that 
-// each piece can be processed with 1 process in parallel. We want to load 
-// this volume in a visualization cluster of 4 nodes. Each node will get 4 
-// pieces, not necessarily forming a whole rectangular piece. In this case, 
-// it is not possible to append the 4 pieces together into a vtkImageData. 
-// In this case, these 4 pieces can be collected together using a 
-// vtkMultiPieceDataSet. 
+// A vtkMultiPieceDataSet dataset groups multiple data pieces together.
+// For example, say that a simulation broke a volume into 16 piece so that
+// each piece can be processed with 1 process in parallel. We want to load
+// this volume in a visualization cluster of 4 nodes. Each node will get 4
+// pieces, not necessarily forming a whole rectangular piece. In this case,
+// it is not possible to append the 4 pieces together into a vtkImageData.
+// In this case, these 4 pieces can be collected together using a
+// vtkMultiPieceDataSet.
 // Note that vtkMultiPieceDataSet is intended to be included in other composite
 // datasets eg. vtkMultiBlockDataSet, vtkHierarchicalBoxDataSet. Hence the lack
 // of algorithms producting vtkMultiPieceDataSet.
@@ -57,12 +57,12 @@ public:
   unsigned int GetNumberOfPieces();
 
   // Description:
-  // Returns the piece at the given index. 
+  // Returns the piece at the given index.
   vtkDataSet* GetPiece(unsigned int pieceno);
   vtkDataObject* GetPieceAsDataObject(unsigned int pieceno);
 
   // Description:
-  // Sets the data object as the given piece. The total number of pieces will 
+  // Sets the data object as the given piece. The total number of pieces will
   // be resized to fit the requested piece no.
   void SetPiece(unsigned int pieceno, vtkDataObject* piece);
 

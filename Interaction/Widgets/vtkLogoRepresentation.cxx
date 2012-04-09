@@ -43,7 +43,7 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   // Initialize the data members
   this->Image = NULL;
   this->ImageProperty = vtkProperty2D::New();
-  
+
   // Setup the pipeline
   this->Texture = vtkTexture::New();
   this->TexturePolyData = vtkPolyData::New();
@@ -64,9 +64,9 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   tc->InsertComponent(0,0, 0.0);  tc->InsertComponent(0,1, 0.0);
   tc->InsertComponent(1,0, 1.0);  tc->InsertComponent(1,1, 0.0);
   tc->InsertComponent(2,0, 1.0);  tc->InsertComponent(2,1, 1.0);
-  tc->InsertComponent(3,0, 0.0);  tc->InsertComponent(3,1, 1.0);  
+  tc->InsertComponent(3,0, 0.0);  tc->InsertComponent(3,1, 1.0);
   this->TexturePolyData->GetPointData()->SetTCoords(tc);
-  tc->Delete();  
+  tc->Delete();
   this->TextureMapper = vtkPolyDataMapper2D::New();
   this->TextureMapper->SetInputData(this->TexturePolyData);
   this->TextureActor = vtkActor2D::New();
@@ -82,7 +82,7 @@ vtkLogoRepresentation::vtkLogoRepresentation()
   this->Moving = 1;
   this->ShowBorder = vtkBorderRepresentation::BORDER_ACTIVE;
   this->PositionCoordinate->SetValue(0.9, 0.025);
-  this->Position2Coordinate->SetValue(0.075, 0.075); 
+  this->Position2Coordinate->SetValue(0.075, 0.075);
 }
 
 //-------------------------------------------------------------------------
@@ -119,7 +119,7 @@ inline void vtkLogoRepresentation::AdjustImageSize(double o[2],
     imageSize[0] *= r0;
     imageSize[1] *= r0;
     }
-  
+
   if ( imageSize[0] < borderSize[0] )
     {
     o[0] += (borderSize[0]-imageSize[0])/2.0;
@@ -133,7 +133,7 @@ inline void vtkLogoRepresentation::AdjustImageSize(double o[2],
 //-------------------------------------------------------------------------
 void vtkLogoRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -210,7 +210,7 @@ int vtkLogoRepresentation::RenderOverlay(vtkViewport *v)
 void vtkLogoRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Image )
     {
     os << indent << "Image:\n";

@@ -22,23 +22,23 @@
 //
 // .SECTION Description
 //  This class takes a table and one or more vtkImageData histograms as input
-//  and computes the outliers in that data.  In general it does so by 
+//  and computes the outliers in that data.  In general it does so by
 //  identifying histogram bins that are removed by a median (salt and pepper)
 //  filter and below a threshold.  This threshold is automatically identified
 //  to retrieve a number of outliers close to a user-determined value.  This
 //  value is set by calling SetPreferredNumberOfOutliers(int).
 //
-//  The image data input can come either as a multiple vtkImageData via the 
-//  repeatable INPUT_HISTOGRAM_IMAGE_DATA port, or as a single 
+//  The image data input can come either as a multiple vtkImageData via the
+//  repeatable INPUT_HISTOGRAM_IMAGE_DATA port, or as a single
 //  vtkMultiBlockDataSet containing vtkImageData objects as blocks.  One
 //  or the other must be set, not both (or neither).
-// 
+//
 //  The output can be retrieved as a set of row ids in a vtkSelection or
 //  as a vtkTable containing the actual outlier row data.
 //
 // .SECTION See Also
 //  vtkExtractHistogram2D vtkPComputeHistogram2DOutliers
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 //------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ public:
   vtkSetMacro(PreferredNumberOfOutliers,int);
   vtkGetMacro(PreferredNumberOfOutliers,int);
 
-  // 
+  //
   vtkTable* GetOutputTable();
 //BTX
   enum InputPorts
@@ -83,9 +83,9 @@ public:
 
   // Description:
   // Set the source table data, from which data will be filtered.
-  void SetInputTableConnection(vtkAlgorithmOutput* cxn) 
+  void SetInputTableConnection(vtkAlgorithmOutput* cxn)
   { this->SetInputConnection(INPUT_TABLE_DATA,cxn); }
-  
+
   // Description:
   // Set the input histogram data as a (repeatable) vtkImageData
   void SetInputHistogramImageDataConnection(vtkAlgorithmOutput* cxn)
@@ -120,7 +120,7 @@ protected:
   // Description:
   // Compute the thresholds (bin extents) that contain outliers for a single vtkImageData histogram
   virtual int ComputeOutlierThresholds(vtkImageData* histogram, vtkDoubleArray* thresholds, double threshold);
-  
+
   // Description:
   // Take a set of range thresholds (bin extents) and filter out rows from the input table data that
   // fits inside those thresholds.

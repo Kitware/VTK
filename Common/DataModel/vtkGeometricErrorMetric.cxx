@@ -96,7 +96,7 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
   cout<<"this->SmallestSize="<<this->SmallestSize<<endl;
   this->Relative=1;
   tmp=tmp*tmp;
-  
+
   if(this->AbsoluteGeometricTolerance!=tmp)
     {
     this->AbsoluteGeometricTolerance = tmp;
@@ -216,19 +216,19 @@ double vtkGeometricErrorMetric::Distance2LinePoint(double x[3],
   u[0] = y[0] - x[0];
   u[1] = y[1] - x[1];
   u[2] = y[2] - x[2];
-  
+
   vtkMath::Normalize(u);
-  
+
   v[0] = z[0] - x[0];
   v[1] = z[1] - x[1];
   v[2] = z[2] - x[2];
-  
+
   double dot = vtkMath::Dot(u,v);
-  
+
   w[0] = v[0] - dot*u[0];
   w[1] = v[1] - dot*u[1];
   w[2] = v[2] - dot*u[2];
-  
+
   return vtkMath::Dot(w,w);
 }
 
@@ -236,6 +236,6 @@ double vtkGeometricErrorMetric::Distance2LinePoint(double x[3],
 void vtkGeometricErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "AbsoluteGeometricTolerance: "  << this->AbsoluteGeometricTolerance << endl;
 }

@@ -94,7 +94,7 @@ int vtkTreeReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Return all data in the first piece ...
   if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
@@ -107,7 +107,7 @@ int vtkTreeReader::RequestData(
     {
     return 1;
     }
-  
+
   // Read table-specific stuff
   char line[256];
   if(!this->ReadString(line))
@@ -190,7 +190,7 @@ int vtkTreeReader::RequestData(
         builder->AddVertex();
         }
 
-      // Reparent the existing vertices so their order and topology match the original      
+      // Reparent the existing vertices so their order and topology match the original
       int child = 0;
       int parent = 0;
       for(int edge = 0; edge != edge_count; ++edge)
@@ -228,7 +228,7 @@ int vtkTreeReader::RequestData(
       this->ReadVertexData(output, vertex_count);
       continue;
       }
-      
+
     if(!strncmp(this->LowerCase(line), "edge_data", 9))
       {
       int edge_count = 0;

@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkDEMReader reads digital elevation files and creates image data.
 // Digital elevation files are produced by the
-// <A HREF="http://www.usgs.gov">US Geological Survey</A>. 
+// <A HREF="http://www.usgs.gov">US Geological Survey</A>.
 // A complete description of the DEM file is located at the USGS site.
 // The reader reads the entire dem file and create a vtkImageData that
 // contains a single scalar component that is the elevation in meters.
@@ -51,9 +51,9 @@ public:
   vtkSetClampMacro(ElevationReference,int,REFERENCE_SEA_LEVEL,
                    REFERENCE_ELEVATION_BOUNDS);
   vtkGetMacro(ElevationReference,int);
-  void SetElevationReferenceToSeaLevel() 
+  void SetElevationReferenceToSeaLevel()
     {this->SetElevationReference(REFERENCE_SEA_LEVEL);}
-  void SetElevationReferenceToElevationBounds() 
+  void SetElevationReferenceToElevationBounds()
     {this->SetElevationReference(REFERENCE_ELEVATION_BOUNDS);}
   const char *GetElevationReferenceAsString(void);
 
@@ -123,8 +123,8 @@ public:
   // Description:
   // Reads the DEM Type A record to compute the extent, origin and
   // spacing of the image data. The number of scalar components is set
-  // to 1 and the output scalar type is VTK_FLOAT. 
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, 
+  // to 1 and the output scalar type is VTK_FLOAT.
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
 
 protected:
@@ -154,8 +154,8 @@ protected:
   int ProfileSeekOffset;
   int ElevationReference;
 
-  void ComputeExtentOriginAndSpacing (int extent[6], 
-                                      double origin[6], 
+  void ComputeExtentOriginAndSpacing (int extent[6],
+                                      double origin[6],
                                       double spacing[6]);
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);

@@ -41,7 +41,7 @@ foreach wipe $wipes {
       wiper${wipe} SetInput2Data [image2 GetOutput]
       wiper${wipe} SetPosition 20 20
       wiper${wipe} SetWipeTo${wipe}
-  
+
     vtkImageMapper mapper${wipe}
       mapper${wipe} SetInputConnection [wiper${wipe} GetOutputPort]
       mapper${wipe} SetColorWindow 255

@@ -59,7 +59,7 @@ void vtkInformationInformationKey::ShallowCopy(vtkInformation* from,
 void vtkInformationInformationKey::DeepCopy(vtkInformation* from,
                                         vtkInformation* to)
 {
-  vtkInformation *toInfo = vtkInformation::New();   
+  vtkInformation *toInfo = vtkInformation::New();
   toInfo->Copy(this->Get(from), 1);
   this->Set(to, toInfo);
   toInfo->Delete();

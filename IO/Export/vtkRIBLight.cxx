@@ -35,13 +35,13 @@ vtkRIBLight::~vtkRIBLight()
 void vtkRIBLight::Render(vtkRenderer *ren, int index)
 {
   int ref;
-  
+
   // Copy this light's ivars into the light to be rendered
   ref = this->Light->GetReferenceCount();
   this->Light->DeepCopy(this);
   //this->Light->SetDeleteMethod(NULL);
   this->Light->SetReferenceCount(ref);
-  
+
   // Render the light
   this->Light->Render (ren, index);
 }
@@ -49,7 +49,7 @@ void vtkRIBLight::Render(vtkRenderer *ren, int index)
 void vtkRIBLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
 
   os << indent << "Shadows: " << (this->Shadows ? "On\n" : "Off\n");
 }

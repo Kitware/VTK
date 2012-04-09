@@ -133,7 +133,7 @@ public:
     {
       return this->Position;
     }
-  
+
 private:
   vtkFieldNode* Position;
   vtkFieldList* List;
@@ -251,7 +251,7 @@ int vtkMergeFilter::RequestData(
   vtkInformation *normalsInfo = inputVector[3]->GetInformationObject(0);
   vtkInformation *tCoordsInfo = inputVector[4]->GetInformationObject(0);
   vtkInformation *tensorsInfo = inputVector[5]->GetInformationObject(0);
-  
+
   // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -306,7 +306,7 @@ int vtkMergeFilter::RequestData(
   vtkDataArray *cellTensors = NULL;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  
+
   vtkDebugMacro(<<"Merging data!");
 
   // geometry needs to be copied
@@ -316,8 +316,8 @@ int vtkMergeFilter::RequestData(
     vtkWarningMacro(<<"Nothing to merge!");
     }
   numCells = input->GetNumberOfCells();
-  
-  if ( scalarsData ) 
+
+  if ( scalarsData )
     {
     pd = scalarsData->GetPointData();
     scalars = pd->GetScalars();
@@ -333,7 +333,7 @@ int vtkMergeFilter::RequestData(
       }
     }
 
-  if ( vectorsData ) 
+  if ( vectorsData )
     {
     pd = vectorsData->GetPointData();
     vectors = pd->GetVectors();
@@ -349,7 +349,7 @@ int vtkMergeFilter::RequestData(
       }
     }
 
-  if ( normalsData ) 
+  if ( normalsData )
     {
     pd = normalsData->GetPointData();
     normals = pd->GetNormals();
@@ -365,7 +365,7 @@ int vtkMergeFilter::RequestData(
       }
     }
 
-  if ( tCoordsData ) 
+  if ( tCoordsData )
     {
     pd = tCoordsData->GetPointData();
     tcoords = pd->GetTCoords();
@@ -381,7 +381,7 @@ int vtkMergeFilter::RequestData(
       }
     }
 
-  if ( tensorsData ) 
+  if ( tensorsData )
     {
     pd = tensorsData->GetPointData();
     tensors = pd->GetTensors();
@@ -415,7 +415,7 @@ int vtkMergeFilter::RequestData(
     {
     outputCD->SetVectors(cellVectors);
     }
-    
+
   if ( numPts == numNormals )
     {
     outputPD->SetNormals(normals);
@@ -476,7 +476,7 @@ int vtkMergeFilter::RequestData(
 //----------------------------------------------------------------------------
 //  Trick:  Abstract data types that may or may not be the same type
 // (structured/unstructured), but the points/cells match up.
-// Output/Geometry may be structured while ScalarInput may be 
+// Output/Geometry may be structured while ScalarInput may be
 // unstructured (but really have same triangulation/topology as geometry).
 // Just request all the input. Always generate all of the output (todo).
 int vtkMergeFilter::RequestUpdateExtent(
@@ -486,7 +486,7 @@ int vtkMergeFilter::RequestUpdateExtent(
 {
   vtkInformation *inputInfo;
   int idx;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     inputInfo = inputVector[idx]->GetInformationObject(0);

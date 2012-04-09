@@ -35,7 +35,7 @@ vtkCachedStreamingDemandDrivenPipeline
   this->CacheSize = 0;
   this->Data = NULL;
   this->Times = NULL;
-  
+
   this->SetCacheSize(10);
 }
 
@@ -50,14 +50,14 @@ vtkCachedStreamingDemandDrivenPipeline
 void vtkCachedStreamingDemandDrivenPipeline::SetCacheSize(int size)
 {
   int idx;
-  
+
   if (size == this->CacheSize)
     {
     return;
     }
-  
+
   this->Modified();
-  
+
   // free the old data
   for (idx = 0; idx < this->CacheSize; ++idx)
     {
@@ -77,13 +77,13 @@ void vtkCachedStreamingDemandDrivenPipeline::SetCacheSize(int size)
     delete [] this->Times;
     this->Times = NULL;
     }
-  
+
   this->CacheSize = size;
   if (size == 0)
     {
     return;
     }
-  
+
   this->Data = new vtkDataObject* [size];
   this->Times = new unsigned long [size];
 
@@ -120,9 +120,9 @@ int vtkCachedStreamingDemandDrivenPipeline::Update(int port)
     int retval = 1;
     // some streaming filters can request that the pipeline execute multiple
     // times for a single update
-    do 
+    do
       {
-      retval =  
+      retval =
         this->PropagateUpdateExtent(port) && this->UpdateData(port) && retval;
       }
     while (this->ContinueExecuting);
@@ -194,15 +194,15 @@ int vtkCachedStreamingDemandDrivenPipeline
       if (this->Data[i])
         {
         dataInfo = this->Data[i]->GetInformation();
-        
+
         // Check the unstructured extent.  If we do not have the requested
         // piece, we need to execute.
         int dataPiece = dataInfo->Get(vtkDataObject::DATA_PIECE_NUMBER());
-        int dataNumberOfPieces = 
+        int dataNumberOfPieces =
           dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-        int dataGhostLevel = 
+        int dataGhostLevel =
           dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
-        if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == 
+        if (dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
             VTK_PIECES_EXTENT && dataPiece == updatePiece &&
             dataNumberOfPieces == updateNumberOfPieces &&
             dataGhostLevel == updateGhostLevel)
@@ -229,7 +229,7 @@ int vtkCachedStreamingDemandDrivenPipeline
         {
         dataInfo = this->Data[i]->GetInformation();
         dataInfo->Get(vtkDataObject::DATA_EXTENT(), dataExtent);
-        if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == 
+        if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
            VTK_3D_EXTENT &&
            !(updateExtent[0] < dataExtent[0] ||
              updateExtent[1] > dataExtent[1] ||
@@ -257,7 +257,7 @@ int vtkCachedStreamingDemandDrivenPipeline
         }
       }
     }
-  
+
   // We do need to execute
   return 1;
 }
@@ -275,14 +275,14 @@ int vtkCachedStreamingDemandDrivenPipeline
     vtkErrorMacro("vtkCachedStreamingDemandDrivenPipeline can only be used for algorithms with one output and one input");
     return 0;
     }
-  
+
   // first do the ususal thing
   int result = this->Superclass::ExecuteData(request, inInfoVec, outInfoVec);
-  
+
   // then save the newly generated data
   unsigned long bestTime = VTK_LARGE_INTEGER;
   int bestIdx = 0;
-  
+
   // Save the image in cache.
   // Find a spot to put the data.
   for (int i = 0; i < this->CacheSize; ++i)
@@ -308,17 +308,17 @@ int vtkCachedStreamingDemandDrivenPipeline
     }
   this->Data[bestIdx]->ReleaseData();
 
-  vtkImageData *id = vtkImageData::SafeDownCast(dataObject);  
+  vtkImageData *id = vtkImageData::SafeDownCast(dataObject);
   if (id)
     {
     vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
-    vtkImageData *input = 
+    vtkImageData *input =
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     id->SetExtent(input->GetExtent());
     id->GetPointData()->PassData(input->GetPointData());
     id->DataHasBeenGenerated();
     }
-  
+
   vtkImageData *id2 = vtkImageData::SafeDownCast(this->Data[bestIdx]);
   if (id && id2)
     {
@@ -326,8 +326,8 @@ int vtkCachedStreamingDemandDrivenPipeline
     id2->GetPointData()->SetScalars(
       id->GetPointData()->GetScalars());
     }
-  
+
   this->Times[bestIdx] = dataObject->GetUpdateTime();
-  
+
   return result;
 }

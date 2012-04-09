@@ -30,8 +30,8 @@ public:
 
   // Description:
   // Connects to host. Returns 0 on success, -1 on error.
-  int ConnectToServer(const char* hostname, int port); 
- 
+  int ConnectToServer(const char* hostname, int port);
+
   // Description:
   // Returns if the socket is on the connecting side (the side that requests a
   // ConnectToServer() or on the connected side (the side that was waiting for

@@ -110,7 +110,7 @@ int vtkBSPIntersections::BuildRegionList()
     {
     return 0;
     }
-      
+
   if (this->RegionList)
     {
     delete [] this->RegionList;
@@ -174,7 +174,7 @@ int vtkBSPIntersections::SelfRegister(vtkKdNode *kd)
       {
       return 1;
       }
-    this->RegionList[id] = kd; 
+    this->RegionList[id] = kd;
     }
   else
     {
@@ -281,7 +281,7 @@ int vtkBSPIntersections::IntersectsBox(int regionId, double *x)
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsBox(int regionId, double x0, double x1, 
+int vtkBSPIntersections::IntersectsBox(int regionId, double x0, double x1,
                            double y0, double y1, double z0, double z1)
 {
   REGIONIDCHECK_RETURNERR(regionId, 0);
@@ -299,7 +299,7 @@ int vtkBSPIntersections::IntersectsBox(int *ids, int len, double *x)
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::IntersectsBox(int *ids, int len, 
+int vtkBSPIntersections::IntersectsBox(int *ids, int len,
                              double x0, double x1,
                              double y0, double y1, double z0, double z1)
 {
@@ -316,7 +316,7 @@ int vtkBSPIntersections::IntersectsBox(int *ids, int len,
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len, 
+int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
                              double x0, double x1,
                              double y0, double y1, double z0, double z1)
 {
@@ -326,7 +326,7 @@ int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
   result = node->IntersectsBox(x0, x1, y0, y1, z0, z1,
                              this->ComputeIntersectionsUsingDataBounds);
 
-  if (!result) 
+  if (!result)
     {
     return 0;
     }
@@ -357,8 +357,8 @@ int vtkBSPIntersections::_IntersectsBox(vtkKdNode *node, int *ids, int len,
 //----------------------------------------------------------------------------
 // Intersection with a sphere---------------------------------------
 //
-int vtkBSPIntersections::IntersectsSphere2(int regionId, double x, double y, double z, 
-                                double rSquared) 
+int vtkBSPIntersections::IntersectsSphere2(int regionId, double x, double y, double z,
+                                double rSquared)
 {
   REGIONIDCHECK_RETURNERR(regionId, 0);
 
@@ -371,45 +371,45 @@ int vtkBSPIntersections::IntersectsSphere2(int regionId, double x, double y, dou
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::IntersectsSphere2(int *ids, int len,
                        double x, double y, double z, double rSquared)
-{                            
+{
   REGIONCHECK(0)
 
   int nnodes = 0;
-  
+
   if (len > 0)
     {
-    nnodes = this->_IntersectsSphere2(this->Cuts->GetKdNodeTree(), 
+    nnodes = this->_IntersectsSphere2(this->Cuts->GetKdNodeTree(),
       ids, len, x, y, z, rSquared);
-    }                        
+    }
   return nnodes;
-} 
+}
 
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
                                   double x, double y, double z, double rSquared)
-{                            
+{
   int result, nnodes1, nnodes2, listlen;
   int *idlist;
-  
+
   result = node->IntersectsSphere2(x, y, z, rSquared,
                              this->ComputeIntersectionsUsingDataBounds);
-                             
-  if (!result) 
+
+  if (!result)
     {
     return 0;
     }
-  
+
   if (node->GetLeft() == NULL)
     {
     ids[0] = node->GetID();
     return 1;
     }
-    
+
   nnodes1 = _IntersectsSphere2(node->GetLeft(), ids, len, x, y, z, rSquared);
-  
+
   idlist = ids + nnodes1;
   listlen = len - nnodes1;
-  
+
   if (listlen > 0)
     {
     nnodes2 = _IntersectsSphere2(node->GetRight(), idlist, listlen, x, y, z, rSquared);
@@ -428,7 +428,7 @@ int vtkBSPIntersections::_IntersectsSphere2(vtkKdNode *node, int *ids, int len,
 
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::IntersectsCell(int regionId, vtkCell *cell, int cellRegion)
-{                            
+{
   REGIONIDCHECK_RETURNERR(regionId, 0);
 
   vtkKdNode *node = this->RegionList[regionId];
@@ -438,10 +438,10 @@ int vtkBSPIntersections::IntersectsCell(int regionId, vtkCell *cell, int cellReg
 }
 //----------------------------------------------------------------------------
 void vtkBSPIntersections::SetCellBounds(vtkCell *cell, double *bounds)
-{   
+{
   vtkPoints *pts = cell->GetPoints();
   pts->Modified();         // VTK bug - so bounds will be re-calculated
-  pts->GetBounds(bounds);            
+  pts->GetBounds(bounds);
 }
 //----------------------------------------------------------------------------
 int vtkBSPIntersections::IntersectsCell(int *ids, int len, vtkCell *cell, int cellRegion)
@@ -472,9 +472,9 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
 
       idlist = ids + nnodes1;
       listlen = len - nnodes1;
-  
-      if (listlen > 0) 
-        {       
+
+      if (listlen > 0)
+        {
         nnodes2 = this->_IntersectsCell(node->GetRight(), idlist, listlen, cell,
                                   cellRegion);
         }
@@ -482,7 +482,7 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
         {
         nnodes2 = 0;
         }
-  
+
       result = nnodes1 + nnodes2;
       }
     else
@@ -491,7 +491,7 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
 
       result = 1;
       }
-    } 
+    }
   else
     {
     result = 0;
@@ -502,7 +502,7 @@ int vtkBSPIntersections::_IntersectsCell(vtkKdNode *node, int *ids, int len,
 
 //----------------------------------------------------------------------------
 void vtkBSPIntersections::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Cuts: ";

@@ -60,7 +60,7 @@ int vtkStringToNumeric::CountItemsToConvert(vtkFieldData *fieldData)
     {
     vtkAbstractArray *array = fieldData->GetAbstractArray(arr);
     vtkStringArray* stringArray = vtkStringArray::SafeDownCast(array);
-    vtkUnicodeStringArray* unicodeArray = 
+    vtkUnicodeStringArray* unicodeArray =
       vtkUnicodeStringArray::SafeDownCast(array);
     if (!stringArray && !unicodeArray)
       {
@@ -76,14 +76,14 @@ int vtkStringToNumeric::CountItemsToConvert(vtkFieldData *fieldData)
 }
 
 int vtkStringToNumeric::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // Get the input and output objects
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -147,7 +147,7 @@ int vtkStringToNumeric::RequestData(
     {
     this->ConvertArrays(outputTable->GetRowData());
     }
-  
+
   return 1;
 }
 
@@ -163,7 +163,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
       {
       continue;
       }
-    
+
     vtkIdType numTuples,numComps;
     vtkStdString arrayName;
     if (stringArray)
@@ -184,13 +184,13 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     doubleArray->SetNumberOfComponents(numComps);
     doubleArray->SetNumberOfTuples(numTuples);
     doubleArray->SetName(arrayName);
-  
+
     // Set up the output array
     vtkIntArray* intArray = vtkIntArray::New();
     intArray->SetNumberOfComponents(numComps);
     intArray->SetNumberOfTuples(numTuples);
     intArray->SetName(arrayName);
-  
+
     // Convert the strings to time point values
     bool allInteger = true;
     bool allNumeric = true;
@@ -210,7 +210,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
         }
       else
         {
-        str = unicodeArray->GetValue(i).utf8_str(); 
+        str = unicodeArray->GetValue(i).utf8_str();
         }
 
       if (this->TrimWhitespacePriorToNumericConversion)
@@ -271,7 +271,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
       {
       // Calling AddArray will replace the old array since the names match.
       // Are they all ints, and did I test anything?
-      if (!this->ForceDouble && allInteger && (numTuples*numComps)) 
+      if (!this->ForceDouble && allInteger && (numTuples*numComps))
         {
         fieldData->AddArray(intArray);
         }
@@ -287,8 +287,8 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
 
 //----------------------------------------------------------------------------
 int vtkStringToNumeric::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // create the output
@@ -301,8 +301,8 @@ int vtkStringToNumeric::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkStringToNumeric::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -311,7 +311,7 @@ int vtkStringToNumeric::RequestDataObject(
     return 0;
     }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
     // for each output
@@ -319,8 +319,8 @@ int vtkStringToNumeric::RequestDataObject(
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
@@ -335,13 +335,13 @@ int vtkStringToNumeric::RequestDataObject(
 void vtkStringToNumeric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "ConvertFieldData: " 
+  os << indent << "ConvertFieldData: "
     << (this->ConvertFieldData ? "on" : "off") << endl;
-  os << indent << "ConvertPointData: " 
+  os << indent << "ConvertPointData: "
     << (this->ConvertPointData ? "on" : "off") << endl;
-  os << indent << "ConvertCellData: " 
+  os << indent << "ConvertCellData: "
     << (this->ConvertCellData ? "on" : "off") << endl;
-  os << indent << "ForceDouble: " 
+  os << indent << "ForceDouble: "
     << (this->ForceDouble ? "on" : "off") << endl;
   os << indent << "DefaultIntegerValue: "
     << this->DefaultIntegerValue << endl;

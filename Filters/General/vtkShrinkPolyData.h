@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkShrinkPolyData - shrink cells composing PolyData
 // .SECTION Description
-// vtkShrinkPolyData shrinks cells composing a polygonal dataset (e.g., 
-// vertices, lines, polygons, and triangle strips) towards their centroid. 
+// vtkShrinkPolyData shrinks cells composing a polygonal dataset (e.g.,
+// vertices, lines, polygons, and triangle strips) towards their centroid.
 // The centroid of a cell is computed as the average position of the
 // cell points. Shrinking results in disconnecting the cells from
 // one another. The output dataset type of this filter is polygonal data.
@@ -27,7 +27,7 @@
 // .SECTION Caveats
 // It is possible to turn cells inside out or cause self intersection
 // in special cases.
-// Users should use the vtkTriangleFilter to triangulate meshes that 
+// Users should use the vtkTriangleFilter to triangulate meshes that
 // contain triangle strips.
 
 // .SECTION See Also

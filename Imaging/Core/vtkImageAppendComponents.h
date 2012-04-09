@@ -16,7 +16,7 @@
 // one output.
 // .SECTION Description
 // vtkImageAppendComponents takes the components from two inputs and merges
-// them into one output. If Input1 has M components, and Input2 has N 
+// them into one output. If Input1 has M components, and Input2 has N
 // components, the output will have M+N components with input1
 // components coming first.
 
@@ -64,10 +64,10 @@ public:
 protected:
   vtkImageAppendComponents() {};
   ~vtkImageAppendComponents() {};
-  
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector **, 
+
+  virtual int RequestInformation (vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,

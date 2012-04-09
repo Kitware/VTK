@@ -33,36 +33,36 @@ class VTKIOXML_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
 public:
   vtkTypeMacro(vtkXMLStructuredDataWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get/Set the number of pieces used to stream the image through the
   // pipeline while writing to the file.
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
-  
+
   // Description:
   // Get/Set the extent of the input that should be treated as the
   // WholeExtent in the output file.  The default is the WholeExtent
   // of the input.
   vtkSetVector6Macro(WriteExtent, int);
   vtkGetVector6Macro(WriteExtent, int);
-  
+
   // Description:
   // Get/Set the extent translator used for streaming.
   virtual void SetExtentTranslator(vtkExtentTranslator*);
   vtkGetObjectMacro(ExtentTranslator, vtkExtentTranslator);
-  
+
 protected:
   vtkXMLStructuredDataWriter();
-  ~vtkXMLStructuredDataWriter();  
-  
+  ~vtkXMLStructuredDataWriter();
+
   // Writing drivers defined by subclasses.
   virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
   virtual void WriteInlinePiece(vtkIndent indent);
   virtual void GetInputExtent(int* extent)=0;
-  
+
   virtual int WriteHeader();
   virtual int WriteAPiece();
   virtual int WriteFooter();
@@ -77,11 +77,11 @@ protected:
   vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
                           int i, int j, int k);
   void CalculatePieceFractions(float* fractions);
-  
+
   // Define utility methods required by vtkXMLWriter.
   virtual vtkAbstractArray* CreateArrayForPoints(vtkAbstractArray* inArray);
   virtual vtkAbstractArray* CreateArrayForCells(vtkAbstractArray* inArray);
-  
+
   void SetInputUpdateExtent(int piece);
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
@@ -91,13 +91,13 @@ protected:
 
   // The extent of the input to write, as specified by user
   int WriteExtent[6];
-  
+
   // The actual extent of the input to write.
   int InternalWriteExtent[6];
-  
+
   // Number of pieces used for streaming.
   int NumberOfPieces;
-  
+
   // Translate piece number to extent.
   vtkExtentTranslator* ExtentTranslator;
 
@@ -109,7 +109,7 @@ protected:
   // Store offset position (add TimeStep support)
   OffsetsManagerArray *PointDataOM;
   OffsetsManagerArray *CellDataOM;
- 
+
 private:
   vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&);  // Not implemented.
   void operator=(const vtkXMLStructuredDataWriter&);  // Not implemented.

@@ -66,7 +66,7 @@ int TestPLYReader( int argc, char *argv[] )
 
   // interact with data
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

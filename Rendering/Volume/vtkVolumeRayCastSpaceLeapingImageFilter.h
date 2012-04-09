@@ -71,7 +71,7 @@ public:
   vtkSetMacro( UpdateGradientOpacityFlags, int );
   vtkGetMacro( UpdateGradientOpacityFlags, int );
   vtkBooleanMacro( UpdateGradientOpacityFlags, int );
-  
+
   // Description:
   // Get the last execution time. This is updated every
   // time the scalars or the gradient opacity values are computed
@@ -231,7 +231,7 @@ protected:
                                   int *uExtent);
   virtual vtkImageData *AllocateOutputData(vtkDataObject *out,
                                            vtkInformation *outInfo);
-  
+
 private:
   vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
   void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.

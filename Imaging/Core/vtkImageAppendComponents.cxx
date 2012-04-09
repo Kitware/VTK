@@ -79,15 +79,15 @@ int vtkImageAppendComponents::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inScalarInfo;
-  
+
   int idx1, num;
   num = 0;
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
     {
     inScalarInfo = vtkDataObject::GetActiveFieldInformation(
-      inputVector[0]->GetInformationObject(idx1), 
+      inputVector[0]->GetInformationObject(idx1),
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-    if (inScalarInfo && 
+    if (inScalarInfo &&
       inScalarInfo->Has( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) )
       {
       num += inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() );
@@ -102,8 +102,8 @@ int vtkImageAppendComponents::RequestInformation (
 // This templated function executes the filter for any type of data.
 template <class T>
 void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
-                                     vtkImageData *inData, 
-                                     vtkImageData *outData, 
+                                     vtkImageData *inData,
+                                     vtkImageData *outData,
                                      int outComp,
                                      int outExt[6], int id, T *)
 {
@@ -112,7 +112,7 @@ void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
   int numIn = inData->GetNumberOfScalarComponents();
   int numSkip = outData->GetNumberOfScalarComponents() - numIn;
   int i;
-  
+
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
@@ -136,7 +136,7 @@ void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 }
 
 //----------------------------------------------------------------------------
-int vtkImageAppendComponents::FillInputPortInformation(int i, 
+int vtkImageAppendComponents::FillInputPortInformation(int i,
                                                        vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
@@ -148,11 +148,11 @@ int vtkImageAppendComponents::FillInputPortInformation(int i,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageAppendComponents::ThreadedRequestData (  
-  vtkInformation * vtkNotUsed( request ), 
-  vtkInformationVector** vtkNotUsed( inputVector ), 
+void vtkImageAppendComponents::ThreadedRequestData (
+  vtkInformation * vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData, 
+  vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
@@ -166,18 +166,18 @@ void vtkImageAppendComponents::ThreadedRequestData (
       // this filter expects that input is the same type as output.
       if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
         {
-        vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" 
-                      << inData[0][idx1]->GetScalarType() 
-                      << "), must match output ScalarType (" 
+        vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType ("
+                      << inData[0][idx1]->GetScalarType()
+                      << "), must match output ScalarType ("
                       << outData[0]->GetScalarType() << ")");
         return;
         }
       switch (inData[0][idx1]->GetScalarType())
         {
         vtkTemplateMacro(
-          vtkImageAppendComponentsExecute ( this, 
-                                            inData[0][idx1], outData[0], 
-                                            outComp, outExt, id, 
+          vtkImageAppendComponentsExecute ( this,
+                                            inData[0][idx1], outData[0],
+                                            outComp, outExt, id,
                                             static_cast<VTK_TT *>(0)) );
        default:
          vtkErrorMacro(<< "Execute: Unknown ScalarType");

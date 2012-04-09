@@ -29,7 +29,7 @@
 // TranslucentPass. This delegate is therefore used multiple times.
 //
 // Its delegate is usually set to a vtkTranslucentPass.
-// 
+//
 // .SECTION See Also
 // vtkRenderPass, vtkTranslucentPass
 
@@ -57,13 +57,13 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources.
   // \pre w_exists: w!=0
   void ReleaseGraphicsResources(vtkWindow *w);
-  
+
   // Description:
   // Delegate for rendering the translucent polygonal geometry.
   // If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -82,7 +82,7 @@ public:
   // may speed-up the rendering with small impact on the quality.
   vtkSetClampMacro(OcclusionRatio,double,0.0,0.5);
   vtkGetMacro(OcclusionRatio,double);
-  
+
   // Description:
   // In case of depth peeling, define the maximum number of peeling layers.
   // Initial value is 4. A special value of 0 means no maximum limit.
@@ -101,7 +101,7 @@ public:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
 //  int GetDepthPeelingHigherLayer();
-  
+
  protected:
   // Description:
   // Default constructor. TranslucentPass is set to NULL.
@@ -119,7 +119,7 @@ public:
   // Description:
   // Check the compilation status of some fragment shader source.
   void CheckCompilation(unsigned int fragmentShader);
-  
+
   // Description:
   // Render a peel layer. If there is no more GPU RAM to save the texture,
   // return false otherwise returns true. Also if layer==0 and no prop have
@@ -140,7 +140,7 @@ public:
   int ViewportY;
   int ViewportWidth;
   int ViewportHeight;
-  
+
   // Description:
   // Actual depth format: vtkgl::DEPTH_COMPONENT16_ARB
   // or vtkgl::DEPTH_COMPONENT24_ARB
@@ -155,7 +155,7 @@ public:
   // Initial value is 0.0, meaning rendering have to be exact. Greater values
   // may speed-up the rendering with small impact on the quality.
   double OcclusionRatio;
-   
+
   // Description:
   // In case of depth peeling, define the maximum number of peeling layers.
   // Initial value is 4. A special value of 0 means no maximum limit.
@@ -167,7 +167,7 @@ public:
   // Description:
   // Used by the depth peeling technique to store the transparency layers.
   vtkDepthPeelingPassLayerList *LayerList;
-  
+
   unsigned int OpaqueLayerZ;
   unsigned int TransparentLayerZ;
 //  unsigned int ProgramShader;
@@ -177,13 +177,13 @@ public:
   // If so, the uniform variables UseTexture and Texture can be set.
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int DepthPeelingHigherLayer;
-  
+
   vtkShaderProgram2 *Prog;
   vtkShader2 *Shader;
-  
+
   int ShadowTexUnit; // texture unit allocated for the shadow texture
   int OpaqueShadowTexUnit; // texture unit allocated for the opaque shadow tex.
-  
+
  private:
   vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
   void operator=(const vtkDepthPeelingPass&);  // Not implemented.

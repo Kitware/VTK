@@ -15,8 +15,8 @@
 // .NAME vtkTkImageViewerWidget - a Tk Widget for viewing vtk images
 
 // .SECTION Description
-// vtkTkImageViewerWidget is a Tk widget that you can render into. It has a 
-// GetImageViewer method that returns a vtkImageViewer. You can also 
+// vtkTkImageViewerWidget is a Tk widget that you can render into. It has a
+// GetImageViewer method that returns a vtkImageViewer. You can also
 // specify a vtkImageViewer to be used when creating the widget by using
 // the -iv option. It also takes -width and -height options.
 // Events can be bound on this widget just like any other Tk widget.

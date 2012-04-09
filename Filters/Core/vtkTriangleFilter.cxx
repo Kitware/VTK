@@ -96,7 +96,7 @@ int vtkTriangleFilter::RequestData(
       cellNum += cells->GetNumberOfCells(); //skip over verts
       }
     }
-  
+
   // lines
   if ( !abort && input->GetLines()->GetNumberOfCells() > 0 )
     {
@@ -149,7 +149,7 @@ int vtkTriangleFilter::RequestData(
     int numSimplices;
     vtkPolygon *poly=vtkPolygon::New();
     vtkIdType triPts[3];
-    
+
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts) && !abort; cellNum++)
       {
       if ( ! (cellNum % updateInterval) ) //manage progress reports / early abort
@@ -189,7 +189,7 @@ int vtkTriangleFilter::RequestData(
     ptIds->Delete();
     poly->Delete();
     }
-  
+
   //strips
   if ( !abort && input->GetStrips()->GetNumberOfCells() > 0 )
     {

@@ -15,13 +15,13 @@
 #ifndef __vtkRegressionTestImage_h
 #define __vtkRegressionTestImage_h
 
-// Includes and a macro necessary for saving the image produced by a cxx 
+// Includes and a macro necessary for saving the image produced by a cxx
 // example program. This capability is critical for regression testing.
 // This function returns 1 if test passed, 0 if test failed.
 
 #include "vtkTesting.h"
 
-class vtkRegressionTester : public vtkTesting 
+class vtkRegressionTester : public vtkTesting
 {
 protected:
   vtkRegressionTester() {};

@@ -59,7 +59,7 @@ public:
   void SetFontFamilyToArial();
   void SetFontFamilyToCourier();
   void SetFontFamilyToTimes();
-  static int GetFontFamilyFromString( const char *f ); 
+  static int GetFontFamilyFromString( const char *f );
   static const char *GetFontFamilyAsString( int f );
 
   // Description:
@@ -203,19 +203,19 @@ inline void vtkTextProperty::SetFontFamilyToTimes()
 
 inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
 {
-  if ( strcmp( f, GetFontFamilyAsString( VTK_ARIAL ) ) == 0 ) 
+  if ( strcmp( f, GetFontFamilyAsString( VTK_ARIAL ) ) == 0 )
     {
-    return VTK_ARIAL; 
+    return VTK_ARIAL;
     }
-  else if ( strcmp( f, GetFontFamilyAsString( VTK_COURIER ) ) == 0 ) 
+  else if ( strcmp( f, GetFontFamilyAsString( VTK_COURIER ) ) == 0 )
     {
-    return VTK_COURIER; 
+    return VTK_COURIER;
     }
-  else if ( strcmp( f, GetFontFamilyAsString( VTK_TIMES ) ) == 0 ) 
+  else if ( strcmp( f, GetFontFamilyAsString( VTK_TIMES ) ) == 0 )
     {
-    return VTK_TIMES; 
+    return VTK_TIMES;
     }
-  return VTK_UNKNOWN_FONT; 
+  return VTK_UNKNOWN_FONT;
 }
 
 inline int vtkTextProperty::GetFontFamily()

@@ -86,7 +86,7 @@ public:
   // This method is used to specify the type of handle representation to
   // use for the three internal vtkHandleWidgets within vtkLineWidget2.
   // To use this method, create a dummy vtkHandleWidget (or subclass),
-  // and then invoke this method with this dummy. Then the 
+  // and then invoke this method with this dummy. Then the
   // vtkLineRepresentation uses this dummy to clone three vtkHandleWidgets
   // of the same type. Make sure you set the handle representation before
   // the widget is enabled. (The method InstantiateHandleRepresentation()
@@ -95,23 +95,23 @@ public:
   void InstantiateHandleRepresentation();
 
   // Description:
-  // Get the three handle representations used for the vtkLineWidget2. 
+  // Get the three handle representations used for the vtkLineWidget2.
   vtkGetObjectMacro(Point1Representation,vtkPointHandleRepresentation3D);
   vtkGetObjectMacro(Point2Representation,vtkPointHandleRepresentation3D);
   vtkGetObjectMacro(LineHandleRepresentation,vtkPointHandleRepresentation3D);
 
   // Description:
-  // Get the end-point (sphere) properties. The properties of the end-points 
+  // Get the end-point (sphere) properties. The properties of the end-points
   // when selected and unselected can be manipulated.
   vtkGetObjectMacro(EndPointProperty,vtkProperty);
   vtkGetObjectMacro(SelectedEndPointProperty,vtkProperty);
 
   // Description:
-  // Get the end-point (sphere) properties. The properties of the end-points 
+  // Get the end-point (sphere) properties. The properties of the end-points
   // when selected and unselected can be manipulated.
   vtkGetObjectMacro(EndPoint2Property,vtkProperty);
   vtkGetObjectMacro(SelectedEndPoint2Property,vtkProperty);
-  
+
   // Description:
   // Get the line properties. The properties of the line when selected
   // and unselected can be manipulated.
@@ -120,7 +120,7 @@ public:
 
   // Description:
   // The tolerance representing the distance to the widget (in pixels) in
-  // which the cursor is considered near enough to the line or end point 
+  // which the cursor is considered near enough to the line or end point
   // to be active.
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
@@ -149,7 +149,7 @@ public:
   virtual void StartWidgetInteraction(double e[2]);
   virtual void WidgetInteraction(double e[2]);
   virtual double *GetBounds();
-  
+
   // Description:
   // Methods supporting the rendering process.
   virtual void GetActors(vtkPropCollection *pc);
@@ -157,7 +157,7 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
-  
+
 //BTX - manage the state of the widget
   enum {Outside=0,OnP1,OnP2,TranslatingP1,TranslatingP2,OnLine,Scaling};
 //ETX
@@ -199,7 +199,7 @@ public:
   // will not print the angle value.
   vtkSetStringMacro(DistanceAnnotationFormat);
   vtkGetStringMacro(DistanceAnnotationFormat);
-  
+
   // Description:
   // Scale text (font size along each dimension).
   void SetDistanceAnnotationScale(double x, double y, double z)
@@ -216,7 +216,7 @@ public:
   // Description:
   // Get the distance between the points.
   double GetDistance();
-  
+
 
   // Description:
   // Convenience method to set the line color.
@@ -284,8 +284,8 @@ protected:
 
   // Support GetBounds() method
   vtkBox *BoundingBox;
-  
-  // Need to keep track if we have successfully initialized the display position. 
+
+  // Need to keep track if we have successfully initialized the display position.
   // The widget tends to do stuff in world coordinates, put if the renderer has
   // not been assigned, then certain operations do not properly update the display
   // position.
@@ -297,7 +297,7 @@ protected:
 
   vtkFollower       *TextActor;
   vtkPolyDataMapper *TextMapper;
-  vtkVectorText     *TextInput;  
+  vtkVectorText     *TextInput;
   double             Distance;
   bool               AnnotationTextScaleInitialized;
 

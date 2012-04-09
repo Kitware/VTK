@@ -29,7 +29,7 @@ vtkContourLineInterpolator::~vtkContourLineInterpolator()
 }
 
 //----------------------------------------------------------------------
-int vtkContourLineInterpolator::UpdateNode( vtkRenderer *, 
+int vtkContourLineInterpolator::UpdateNode( vtkRenderer *,
                                             vtkContourRepresentation *,
                  double * vtkNotUsed(node), int vtkNotUsed(idx) )
 {
@@ -86,5 +86,5 @@ void vtkContourLineInterpolator::GetSpan( int nodeIndex,
 //----------------------------------------------------------------------
 void vtkContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);  
+  this->Superclass::PrintSelf(os,indent);
 }

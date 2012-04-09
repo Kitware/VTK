@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkCaptionWidget);
 class vtkCaptionAnchorCallback : public vtkCommand
 {
 public:
-  static vtkCaptionAnchorCallback *New() 
+  static vtkCaptionAnchorCallback *New()
     { return new vtkCaptionAnchorCallback; }
   virtual void Execute(vtkObject*, unsigned long eventId, void*)
     {
@@ -60,7 +60,7 @@ vtkCaptionWidget::vtkCaptionWidget()
   // This is so Enable/Disable events are caught by the anchor and then
   // dispatched to the BorderWidget.
   this->HandleWidget = vtkHandleWidget::New();
-  this->HandleWidget->SetPriority(this->Priority+0.01); 
+  this->HandleWidget->SetPriority(this->Priority+0.01);
   this->HandleWidget->KeyPressActivationOff();
 
   // over ride the call back mapper on the border widget superclass to move
@@ -91,7 +91,7 @@ void vtkCaptionWidget::SetEnabled(int enabling)
     {
     this->Interactor->Disable(); //avoid extra renders
     }
-  
+
   if ( enabling )
     {
     this->CreateDefaultRepresentation();
@@ -108,7 +108,7 @@ void vtkCaptionWidget::SetEnabled(int enabling)
     {
     this->Interactor->Enable();
     }
-  
+
   this->Superclass::SetEnabled(enabling);
 }
 
@@ -180,5 +180,5 @@ void vtkCaptionWidget::EndAnchorInteraction()
 void vtkCaptionWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
 }

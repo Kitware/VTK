@@ -52,12 +52,12 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
 }
 
 // ----------------------------------------------------------------------------
-void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax, 
+void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax,
                                          int yMin, int yMax,
                                          int zMin, int zMax)
 {
   int modified = 0;
-  
+
   if (this->WholeExtent[0] != xMin)
     {
     modified = 1;
@@ -102,7 +102,7 @@ int vtkRTAnalyticSource::RequestInformation(
 {
   // get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   int tmpExt[6], i;
   for (i = 0; i < 3; i++)
     {
@@ -149,7 +149,7 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *output,
 
   data->SetSpacing(this->SubsampleRate, this->SubsampleRate,
                    this->SubsampleRate);
-  
+
   outExt = data->GetExtent();
   int i;
   for (i = 0; i < 3; i++)
@@ -162,13 +162,13 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *output,
 
   // find the region to loop over
   maxX = newOutExt[1] - newOutExt[0];
-  maxY = newOutExt[3] - newOutExt[2]; 
+  maxY = newOutExt[3] - newOutExt[2];
   maxZ = newOutExt[5] - newOutExt[4];
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   outPtr = static_cast<float *>(data->GetScalarPointer(outExt[0],outExt[2],outExt[4]));
-  
+
   target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
   target++;
 
@@ -219,7 +219,7 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *output,
           x /= (whlExt[1] - whlExt[0]);
           }
         sum = sum + (x * x);
-        *outPtr = this->Maximum * exp(-sum * temp2) 
+        *outPtr = this->Maximum * exp(-sum * temp2)
           + this->XMag*sin(this->XFreq*x)
           + this->YMag*sin(this->YFreq*y)
           + this->ZMag*cos(this->ZFreq*z);

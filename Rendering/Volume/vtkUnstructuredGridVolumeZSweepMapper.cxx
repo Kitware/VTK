@@ -70,7 +70,7 @@ public:
   vtkPixelListEntry()
     {
     }
-  
+
   void Init(double values[VTK_VALUES_SIZE],
             double zView,
             bool exitFace)
@@ -84,26 +84,26 @@ public:
         }
       this->ExitFace = exitFace;
     }
-  
-  
+
+
   // Return the interpolated values at this pixel.
   inline double *GetValues() { return this->Values; }
   // Return the interpolated z coordinate in view space at this pixel.
   inline double GetZview() const { return this->Zview; }
   // Return whether the fragment comes from an external face.
   inline bool GetExitFace() const { return this->ExitFace; }
-  
+
   vtkPixelListEntry *GetPrevious() { return this->Previous; }
   vtkPixelListEntry *GetNext() { return this->Next; }
-  
+
   void SetPrevious(vtkPixelListEntry *e) { this->Previous=e; }
   void SetNext(vtkPixelListEntry *e) { this->Next=e; }
-  
+
 protected:
   double Values[VTK_VALUES_SIZE];
   double Zview;
   bool ExitFace;
-  
+
   // List structure: both for the free block list (one-way) and any
   // pixel list (two-way)
   vtkPixelListEntry *Next;
@@ -120,7 +120,7 @@ class vtkVertexEntry
 {
 public:
   vtkVertexEntry() {}
-  
+
   vtkVertexEntry(int screenX,
                  int screenY,
                  double xWorld,
@@ -130,13 +130,13 @@ public:
                  double scalar,
                  double invW)
     :ScreenX(screenX),ScreenY(screenY),Zview(zView),InvW(invW)
-    { 
+    {
       this->Values[VTK_VALUES_X_INDEX]=xWorld;
       this->Values[VTK_VALUES_Y_INDEX]=yWorld;
       this->Values[VTK_VALUES_Z_INDEX]=zWorld;
       this->Values[VTK_VALUES_SCALAR_INDEX]=scalar;
     }
-  
+
   void Set(int screenX,
            int screenY,
            double xWorld,
@@ -155,7 +155,7 @@ public:
       this->Values[VTK_VALUES_SCALAR_INDEX]=scalar;
       this->InvW=invW;
     }
-  
+
   int GetScreenX()
     {
       return this->ScreenX;
@@ -176,7 +176,7 @@ public:
     {
       return this->InvW;
     }
-  
+
   vtkVertexEntry &operator=(const vtkVertexEntry &other) {
     ScreenX = other.ScreenX;
     ScreenY = other.ScreenY;
@@ -191,7 +191,7 @@ public:
       *this = other;
       }
   }
-  
+
 protected:
   int ScreenX;
   int ScreenY;
@@ -292,10 +292,10 @@ public:
     {
       double z0=v0->GetZview();
       double z2=v2->GetZview();
-      
+
       double invW0=v0->GetInvW();
       double invW2=v2->GetInvW();
-      
+
       double pv0[VTK_VALUES_SIZE];
       double pv2[VTK_VALUES_SIZE];
       int i=0;
@@ -306,20 +306,20 @@ public:
         pv2[i]=v2->GetValues()[i]*invW2;
         ++i;
         }
-      
+
       this->InvW=invW0;
       this->Zview=z0;
-      
+
       int x0=v0->GetScreenX();
       int x2=v2->GetScreenX();
-     
+
       this->X0=x0;
       this->X2=x2;
-      
+
       this->V2=v2;
-      
+
       this->X=x0;
-      
+
       if(dx20==0)
         {
         this->Case=VTK_CASE_VERTICAL;
@@ -354,7 +354,7 @@ public:
             this->SDy=dy20;
             this->XStep=dx20/dy20; // integral division
             this->Dx=dx20-this->XStep*this->SDy;
-            
+
             double invDy20=1.0/dy20;
             i=0;
             while(i<VTK_VALUES_SIZE)
@@ -384,7 +384,7 @@ public:
             this->Dz=(z2-z0)*invDx20;
             this->InvWStep=this->DinvW*this->XStep;
             this->ZStep=this->Dz*this->XStep;
-            
+
 #else
             if(!onRight)
               {
@@ -393,11 +393,11 @@ public:
               this->Dy2=dy20<<1; // *2
               this->Dx2=dx20<<1; // *2
               this->Error=dx20;
-              
+
               this->XStep=dx20/dy20; // integral division
-              
+
               this->ErrorStep=this->XStep*this->Dy2;
-              
+
               double invDx20=1.0/dx20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -414,7 +414,7 @@ public:
             else
               {
               this->Case=VTK_CASE_HORIZONTAL_END;
-              
+
               this->InvW2=invW2;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -422,15 +422,15 @@ public:
                 this->PValues2[i]=pv2[i];
                 ++i;
                 }
-             
+
               this->Zview2=z2;
-                
+
               this->Dy2=dy20<<1; // *2
               this->Dx2=dx20<<1; // *2
               this->Error=dx20;
               this->XStep=dx20/dy20;
               this->ErrorStep=this->XStep*this->Dy2;
-              
+
               double invDx20=1.0/dx20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -443,7 +443,7 @@ public:
               this->Dz=(z2-z0)*invDx20;
               this->InvWStep=this->DinvW*this->XStep;
               this->ZStep=this->Dz*this->XStep;
-              
+
               while(this->Error<this->Dx2)
                 {
                 this->X+=this->IncX;
@@ -455,7 +455,7 @@ public:
                   ++i;
                   }
                 this->Zview+=this->Dz;
-                
+
                 this->Error+=this->Dy2;
                 }
               this->Error-=this->Dx2;
@@ -477,7 +477,7 @@ public:
             if(dx20==dy20)
               {
               this->Case=VTK_CASE_DIAGONAL;
-              
+
               double invDy20=1.0/dy20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -502,7 +502,7 @@ public:
               this->Error=0;
               this->SDy=dy20;
               this->Dx=dx20;
-              
+
               double invDy20=1.0/dy20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -517,7 +517,7 @@ public:
               this->Dx2=dx20<<1; // *2
               this->Dy2=dy20<<1; // *2
               this->Error=dy20;
-              
+
               double invDy20=1.0/dy20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -550,7 +550,7 @@ public:
             this->SDy=-dy20;
             this->XStep=dx20/dy20; // integral division
             this->Dx=dx20+this->XStep*this->SDy;
-            
+
             double invDy20=1.0/dy20;
             i=0;
             while(i<VTK_VALUES_SIZE)
@@ -561,7 +561,7 @@ public:
             this->DinvW=(invW2-invW0)*invDy20;
             this->Dz=(z2-z0)*invDy20;
 #else
-#ifdef MOST_SIGNIFICANT  
+#ifdef MOST_SIGNIFICANT
             this->Case=VTK_CASE_HORIZONTAL_MS;
             this->XStep=dx20/dy20; // integral division
             this->Dy=dy20;
@@ -580,8 +580,8 @@ public:
             this->Dz=(z2-z0)*invDx20;
             this->InvWStep=-this->DinvW*this->XStep;
             this->ZStep=-this->Dz*this->XStep;
-            
-            
+
+
 #else
             if(onRight)
               {
@@ -592,9 +592,9 @@ public:
               this->Error=-dx20;
               this->XStep=dx20/dy20;
               this->ErrorStep=-this->XStep*this->Dy2;
-              
+
               double invDx20=-1.0/dx20;
-              
+
               i=0;
               while(i<VTK_VALUES_SIZE)
                 {
@@ -610,7 +610,7 @@ public:
             else
               {
               this->Case=VTK_CASE_HORIZONTAL_END;
-              
+
               this->InvW2=invW2;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -619,15 +619,15 @@ public:
                 ++i;
                 }
               this->Zview2=z2;
-              
+
               this->Dy2=dy20<<1; // *2
               this->Dx2=(-dx20)<<1; // *2
               this->Error=-dx20;
               this->XStep=dx20/dy20;
               this->ErrorStep=-this->XStep*this->Dy2;
-              
+
               double invDx20=-1.0/dx20;
-              
+
               i=0;
               while(i<VTK_VALUES_SIZE)
                 {
@@ -639,7 +639,7 @@ public:
               this->Dz=(z2-z0)*invDx20;
               this->InvWStep=-this->DinvW*this->XStep;
               this->ZStep=-this->Dz*this->XStep;
-              
+
               while(this->Error<this->Dx2)
                 {
                 this->X+=this->IncX;
@@ -651,12 +651,12 @@ public:
                   ++i;
                   }
                 this->Zview+=this->Dz;
-                
+
                 this->Error+=this->Dy2;
                 }
               this->Error-=this->Dx2;
               this->X-=this->IncX;
-              
+
               this->InvW-= this->DinvW;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -674,7 +674,7 @@ public:
             if(dx20==-dy20)
               {
               this->Case=VTK_CASE_DIAGONAL;
-              
+
               double invDy20=1.0/dy20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -690,7 +690,7 @@ public:
 #ifdef EDGE_EQUATION
               if(onRight)
                 {
-                this->Case=VTK_CASE_VERTICAL_OUT_TO_IN; 
+                this->Case=VTK_CASE_VERTICAL_OUT_TO_IN;
                 }
               else
                 {
@@ -699,7 +699,7 @@ public:
               this->Error=0;
               this->SDy=-dy20;
               this->Dx=dx20;
-              
+
               double invDy20=1.0/dy20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -714,7 +714,7 @@ public:
               this->Dx2=(-dx20)<<1; // *2
               this->Dy2=dy20<<1; // *2
               this->Error=dy20;
-              
+
               double invDy20=1.0/dy20;
               i=0;
               while(i<VTK_VALUES_SIZE)
@@ -730,7 +730,7 @@ public:
           }
         }
     }
-  
+
   // Check that the current abscissa is in the range given by the vertices.
   int ValidXRange()
     {
@@ -751,7 +751,7 @@ public:
   double GetInvW() { return this->InvW; }
   double *GetPValues() { return this->PValues; }
   double GetZview() { return this->Zview; }
-  
+
   void NextLine(int y)
     {
       int i;
@@ -810,7 +810,7 @@ public:
               this->Error+=this->SDy;
 #ifdef STRICTLY_INSIDE
               assert("check: positive_equation" && this->Error>0);
-#else           
+#else
               assert("check: positive_equation" && this->Error>=0);
 #endif
               this->X+=this->IncX;
@@ -895,7 +895,7 @@ public:
             }
           this->Zview+=this->Dz;
           break;
-          
+
         case VTK_CASE_HORIZONTAL_OUT_TO_IN:
           this->Error-=this->Dx;
           this->X+=this->XStep;
@@ -943,7 +943,7 @@ public:
             }
           this->Zview+=this->Dz;
           break;
-          
+
         case  VTK_CASE_HORIZONTAL_IN_TO_OUT:
           this->Error+=this->SDy-this->Dx;
           this->X+=this->XStep;
@@ -977,7 +977,7 @@ public:
               {
               this->Error-=this->SDy;
 #ifdef STRICTLY_INSIDE
-//            assert("check: negative_equation" && this->Error<0);  
+//            assert("check: negative_equation" && this->Error<0);
 #else
               assert("check: negative_equation" && this->Error<=0);
 #endif
@@ -997,7 +997,7 @@ public:
             }
           this->Zview+=this->Dz;
           break;
-          
+
         case VTK_CASE_HORIZONTAL_BEGIN:
           if(this->First)
             {
@@ -1006,7 +1006,7 @@ public:
           else
             {
             this->X+=this->XStep;
-            
+
             this->InvW+=this->InvWStep;
             i=0;
             while(i<VTK_VALUES_SIZE)
@@ -1028,7 +1028,7 @@ public:
               ++i;
               }
             this->Zview+=this->Dz;
-            
+
             this->Error+=this->Dy2;
             }
           this->Error-=this->Dx2;
@@ -1049,7 +1049,7 @@ public:
           else
             {
             this->X+=this->XStep;
-            
+
             this->InvW+=this->InvWStep;
             i=0;
             while(i<VTK_VALUES_SIZE)
@@ -1058,9 +1058,9 @@ public:
               ++i;
               }
             this->Zview+=this->ZStep;
-            
+
             this->Error+=this->ErrorStep;
-            
+
             while(this->Error<this->Dx2)
               {
               this->X+=this->IncX;
@@ -1072,12 +1072,12 @@ public:
                 ++i;
                 }
               this->Zview+=this->Dz;
-              
+
               this->Error+=this->Dy2;
               }
             this->Error-=this->Dx2;
             }
-          break; 
+          break;
         case VTK_CASE_HORIZONTAL_MS:
           this->Error+=this->ErrorStep;
           if(this->Error>=this->Dy)
@@ -1110,7 +1110,7 @@ public:
           vtkGenericWarningMacro(<< "Undefined edge case");
         }
     }
-  
+
   void SkipLines(int deltaY,
                  int y)
     {
@@ -1119,7 +1119,7 @@ public:
         this->NextLine(0);
         return;
         }
-      
+
       int firstDeltaY;
       int i;
       switch(this->Case)
@@ -1182,7 +1182,7 @@ public:
             {
 #ifdef STRICTLY_INSIDE
             while(this->Error>=0) // we are no more on the left side
-#else            
+#else
             while(this->Error>0) // we are no more on the left side
 #endif
               {
@@ -1237,7 +1237,7 @@ public:
             }
           this->Zview+=this->Dz*deltaY;
           break;
-          
+
         case VTK_CASE_HORIZONTAL_OUT_TO_IN:
           this->Error-=this->Dx*deltaY;
           this->X+=this->XStep*deltaY;
@@ -1313,9 +1313,9 @@ public:
             }
           this->Zview+=this->Dz*deltaY;
           break;
-          
+
         case VTK_CASE_HORIZONTAL_BEGIN:
-          
+
           if(this->First)
             {
             this->First=0;
@@ -1325,9 +1325,9 @@ public:
             {
             firstDeltaY=deltaY;
             }
-          
+
           this->X+=this->XStep*firstDeltaY;
-          
+
           this->InvW+=this->InvWStep*firstDeltaY;
           i=0;
           while(i<VTK_VALUES_SIZE)
@@ -1337,7 +1337,7 @@ public:
             }
           this->Zview+=this->ZStep*firstDeltaY;
           this->Error+=this->ErrorStep*firstDeltaY;
-          
+
           while(this->Error<this->Dx2)
             {
             this->X+=this->IncX;
@@ -1349,7 +1349,7 @@ public:
               ++i;
               }
             this->Zview+=this->Dz;
-            
+
             this->Error+=this->Dy2;
             }
           this->Error-=this->Dx2;
@@ -1370,7 +1370,7 @@ public:
           else
             {
             this->X+=this->XStep*deltaY;
-            
+
             this->InvW+=this->InvWStep*deltaY;
             i=0;
             while(i<VTK_VALUES_SIZE)
@@ -1379,9 +1379,9 @@ public:
               ++i;
               }
             this->Zview+=this->ZStep*deltaY;
-            
+
             this->Error+=this->ErrorStep*deltaY;
-            
+
             while(this->Error<this->Dx2)
               {
               this->X+=this->IncX;
@@ -1393,7 +1393,7 @@ public:
                 ++i;
                 }
               this->Zview+=this->Dz;
-              
+
               this->Error+=this->Dy2;
               }
             this->Error-=this->Dx2;
@@ -1410,7 +1410,7 @@ public:
             ++i;
             }
           this->Zview+=this->ZStep*deltaY;
-          
+
           while(this->Error>=this->Dy)
             {
             this->Error-=this->Dy2;
@@ -1427,10 +1427,10 @@ public:
           break;
         }
     }
-  
+
 protected:
   int Case;
-  int Error; // error to the mid-point 
+  int Error; // error to the mid-point
   int Dx2; // 2*dx
   int Dy2; // 2*dy
   int First; // use only with VTK_CASE_HORIZONTAL_BEGIN case
@@ -1438,14 +1438,14 @@ protected:
   int ErrorStep; // XStep*Dy2
 
   vtkVertexEntry *V2;
-  
+
   int IncX; // -1 or 1
-  
+
   int X; // Current abscissa
-  
+
   int X0; // for debugging
   int X2; // for debugging
-  
+
   // Slope of 1/w
   double DinvW;
   // Current 1/W
@@ -1454,7 +1454,7 @@ protected:
   double InvWStep;
   // 1/W at the end vertex
   double InvW2;
-  
+
   // Slope of the z coordinate in view space
   double Dz;
   // current z in view space
@@ -1463,18 +1463,18 @@ protected:
   double ZStep;
   // z coordinate in view space at the end vertex
   double Zview2;
-  
+
   // Slope of each projected values on the edge
   double Dpv[VTK_VALUES_SIZE];
-  
-  
+
+
   // Current projected values
   double PValues[VTK_VALUES_SIZE];
   // Dpv*XStep
   double PValuesStep[VTK_VALUES_SIZE];
   // Values at the end vertex.
   double PValues2[VTK_VALUES_SIZE];
-  
+
   int Dy; // VTK_HORIZONTAL_MS
   int SDy; // VTK_VERTICAL_LEFT/RIGHT
   int Dx; // VTK_VERTICAL_LEFT/RIGHT
@@ -1501,10 +1501,10 @@ public:
         this->Top.Init(v0,v1,dx10,dy10,onRight);
         this->Current=&this->Top;
         }
-      
+
       int dx21=v2->GetScreenX()-v1->GetScreenX();
       int dy21=v2->GetScreenY()-v1->GetScreenY();
-      
+
       if(dy21!=0)
         {
         this->Bottom.Init(v1,v2,dx21,dy21,onRight);
@@ -1514,18 +1514,18 @@ public:
           }
         }
     }
-  
+
   int GetX() { return this->Current->GetX(); }
   double GetInvW() { return this->Current->GetInvW(); }
   double GetZview() { return this->Current->GetZview(); }
   double *GetPValues() { return this->Current->GetPValues(); }
- 
+
   void OnBottom(int skipped, int y)
     {
       this->Current=&this->Bottom;
       this->Current->OnBottom(skipped,y);
     }
-  
+
   void NextLine(int y)
     {
       this->Current->NextLine(y);
@@ -1535,7 +1535,7 @@ public:
     {
       this->Current->SkipLines(deltaY,y);
     }
-  
+
 protected:
   vtkSimpleScreenEdge Top;
   vtkSimpleScreenEdge Bottom;
@@ -1564,11 +1564,11 @@ public:
     {
 //      assert("pre: dx>=0" && x1-x0>=0);
       // x0=x1: the span is just a point
-      
+
       int i;
       if(x0!=x1)
         {
-        
+
         double invDx10=1.0/(x1-x0);
         i=0;
         while(i<VTK_VALUES_SIZE)
@@ -1590,7 +1590,7 @@ public:
         this->DinvW=0;
         this->Dz=0;
         }
-      
+
       this->Zview=zView0;
       this->InvW=invW0;
       i=0;
@@ -1604,25 +1604,25 @@ public:
       this->X=x0;
       this->X1=x1;
     }
-  
+
   // Is the current state after the right point?
   int IsAtEnd()
     {
       return this->X>this->X1;
     }
-  
+
   // Current abscissa.
   int GetX() { return this->X; }
   // Current values.
   double *GetValues() { return this->Values; }
   // Current z coordinate in view space.
   double GetZview() { return this->Zview; }
-  
+
   // Go the next abscissa from left to right.
   void NextPixel()
     {
       ++this->X;
-      
+
        this->InvW+=this->DinvW;
        int i=0;
        double w=1/this->InvW;
@@ -1634,27 +1634,27 @@ public:
          }
        this->Zview+=this->Dz;
     }
-  
+
 protected:
   int X1; // abscissa at the right point.
-  
+
   int X; // current abscissa
-  
+
   // Slope of 1/w
   double DinvW;
   // current 1/W
   double InvW;
-  
+
   // Slope of the z coordinate in view space
   double Dz;
   // current z coordinate in view space
   double Zview;
-  
+
   // Slope of each projected values on the span
   double Dpv[VTK_VALUES_SIZE];
   // Current projected values
   double PValues[VTK_VALUES_SIZE];
-  
+
   // Current values: Values=PValues/InvW
   double Values[VTK_VALUES_SIZE];
 };
@@ -1698,7 +1698,7 @@ public:
   vtkPixelListEntry *GetFirst() { return this->Array; }
   vtkPixelListEntry *GetLast() { return this->Last; }
   void SetNext(vtkPixelListEntryBlock *other) { this->Next=other; }
-  
+
 protected:
   vtkIdType Size;
   vtkPixelListEntryBlock *Next;
@@ -1743,7 +1743,7 @@ public:
   void FreeEntry(vtkPixelListEntry *e)
     {
       assert("pre: e_exists" && e!=0);
-      
+
       // the following line works even if this->FirstFreeElement==0
       e->SetNext(this->FirstFreeElement);
       this->FirstFreeElement=e;
@@ -1759,7 +1759,7 @@ public:
       this->FirstFreeElement=first;
     }
 protected:
-  
+
   void AllocateBlock(vtkIdType size)
     {
       assert("pre: positive_size" && size>0);
@@ -1768,13 +1768,13 @@ protected:
       // Update the block linked list: starts with the new block
       b->SetNext(this->FirstBlock);
       this->FirstBlock=b;
-      
+
       // Update the free element linked list.
       // It works even if this->FirstFreeElement==0
       b->GetLast()->SetNext(this->FirstFreeElement);
       this->FirstFreeElement=b->GetFirst();
     }
-  
+
   vtkPixelListEntryBlock *FirstBlock;
   vtkPixelListEntry *FirstFreeElement;
   vtkIdType Size; // overall size, in number of elements, not in bytes
@@ -1794,7 +1794,7 @@ public:
       return this->First;
     }
   vtkIdType GetSize() { return this->Size; }
-  
+
   void AddAndSort(vtkPixelListEntry *p)
     {
       assert("pre: p_exists" && p!=0);
@@ -1871,13 +1871,13 @@ public:
         }
       ++this->Size;
     }
-  
+
   // the return pointer is used by the memory manager.
   void RemoveFirst(vtkPixelListEntryMemory *mm)
     {
       assert("pre: not_empty" && this->Size>0);
       assert("pre: mm_exists" && mm!=0);
-      
+
       vtkPixelListEntry *p=this->First;
       if(this->Size>1)
         {
@@ -1887,7 +1887,7 @@ public:
       --this->Size;
       mm->FreeEntry(p);
     }
-  
+
   // the return pointer on the first element is used by the memory manager.
   void Clear(vtkPixelListEntryMemory *mm)
     {
@@ -1912,32 +1912,32 @@ class vtkPixelListFrame
 {
 public:
   typedef std::vector<vtkPixelList> VectorType;
- 
+
   vtkPixelListFrame(int size)
     :Vector(size)
     {
     }
-  
+
   // Return width*height
   vtkIdType GetSize() { return this->Vector.size(); }
-  
+
   // Return the size of the list at pixel `i'.
   vtkIdType GetListSize(int i)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       return this->Vector[i].GetSize();
     }
-  
+
   // Add a value the pixel list of pixel `i' and sort it in the list.
   void AddAndSort(int i,
                   vtkPixelListEntry *pixelEntry)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       assert("pre: pixelEntry_exists" &&  pixelEntry!=0);
-      
+
       this->Vector[i].AddAndSort(pixelEntry);
     }
-  
+
   // Return the first entry for pixel `i'.
   vtkPixelListEntry *GetFront(int i)
     {
@@ -1945,7 +1945,7 @@ public:
       assert("pre: not_empty" && this->GetListSize(i)>0);
       return this->Vector[i].GetFirst();
     }
-  
+
   // Remove the first entry for pixel `i'.
   void PopFront(int i,
                 vtkPixelListEntryMemory *mm)
@@ -1955,7 +1955,7 @@ public:
       assert("pre: mm_exists" && mm!=0);
       this->Vector[i].RemoveFirst(mm);
     }
-  
+
   // Return the begin iterator for pixel `i'.
   vtkPixelListEntry *GetFirst(int i)
     {
@@ -1983,7 +1983,7 @@ public:
         ++i;
         }
     }
-  
+
   // Destructor.
   ~vtkPixelListFrame()
     {
@@ -2008,14 +2008,14 @@ public:
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       return &(this->Vector[i]);
     }
-  
+
 protected:
   VectorType Vector;
-  
+
   // the STL specification claims that
   // size() on a std: :list is permitted to be O(n)!!!!
 //  std::vector<vtkIdType> Sizes;
-  
+
 //  std::list<vtkPixelListEntry *>::iterator It;
 //  std::list<vtkPixelListEntry *>::iterator PreviousIt;
 //  std::list<vtkPixelListEntry *>::iterator ItEnd;
@@ -2045,7 +2045,7 @@ public:
       this->Rendered = 0;
       this->ExternalSide = externalSide;
     }
-  
+
   // Return the 3 face ids.
   inline vtkIdType *GetFaceIds() { return this->FaceIds; }
 
@@ -2058,7 +2058,7 @@ public:
       return (this->FaceIds[0]==faceIds[0])&&(this->FaceIds[1]==faceIds[1])
         &&(this->FaceIds[2]==faceIds[2]);
     }
-  
+
   void Ref() { ++this->Count; }
   void Unref()
     {
@@ -2068,16 +2068,16 @@ public:
         delete this;
         }
     }
-  
+
   int GetRendered() { return this->Rendered; }
   void SetRendered(int value) { this->Rendered=value; }
-  
+
   double GetScalar(int index)
     {
       assert("pre: valid_index" && index>=0 && index<=1);
       return this->Scalar[index];
     }
-  
+
   void SetScalar(int index,
                  double value)
     {
@@ -2085,7 +2085,7 @@ public:
       this->Scalar[index]=value;
       assert("post: is_set" && this->GetScalar(index)==value);
     }
-  
+
 protected:
   vtkIdType FaceIds[3];
   int Count;
@@ -2094,7 +2094,7 @@ protected:
 
   double Scalar[2]; // 0: value for positive orientation,
   // 1: value for negative orientation.
- 
+
 private:
   vtkFace(); // not implemented
   vtkFace(const vtkFace &other); // not implemented
@@ -2111,7 +2111,7 @@ public:
   VectorType Vector;
 
   std::list<vtkFace *> AllFaces; // to set up rendering to false.
-  
+
   // Initialize with the number of vertices.
   vtkUseSet(int size)
     :Vector(size)
@@ -2126,7 +2126,7 @@ public:
       this->CellScalars=0;
       this->NumberOfComponents=0;
     }
-  
+
   // Destructor.
   ~vtkUseSet()
     {
@@ -2151,7 +2151,7 @@ public:
         this->AllFaces.pop_front();
         }
     }
-  
+
   void SetCellScalars(int cellScalars)
     {
       this->CellScalars=cellScalars;
@@ -2161,7 +2161,7 @@ public:
       assert("pre: cell_mode" && this->CellScalars);
       this->NumberOfComponents=numberOfComponents;
     }
-  
+
   // For each vertex, clear the list of faces incident to it.
   // also set number of cells per vertex to 0.
   void Clear()
@@ -2188,7 +2188,7 @@ public:
         this->AllFaces.pop_front();
         }
     }
-  
+
   // Add face to each vertex only if the useset does not have the face yet.
   void AddFace(vtkIdType faceIds[3],
                vtkDataArray *scalars,
@@ -2303,8 +2303,8 @@ public:
           }
         }
     }
-  
-  
+
+
   void SetNotRendered()
     {
       std::list<vtkFace *>::iterator it;
@@ -2322,10 +2322,10 @@ protected:
   // Return pointer to face faceIds if the use set of vertex faceIds[0] have
   // this face, otherwise return null.
   vtkFace *GetFace(vtkIdType faceIds[3])
-    {    
+    {
       std::list<vtkFace *> *useSet=this->Vector[faceIds[0]];
       vtkFace *result=0;
-      
+
       if(useSet!=0)
         {
         this->It=(*useSet).begin();
@@ -2344,11 +2344,11 @@ protected:
         }
       return result;
     }
-  
+
   int CellScalars;
   int NumberOfComponents;
-  
-  
+
+
   // Used in GetFace()
   std::list<vtkFace *>::iterator It;
   std::list<vtkFace *>::iterator ItEnd;
@@ -2360,7 +2360,7 @@ class vtkVertices
 public:
   typedef std::vector<vtkVertexEntry> VectorType;
   VectorType Vector;
-  
+
   // Initialize with the number of vertices.
   vtkVertices(int size)
     :Vector(size)
@@ -2387,22 +2387,22 @@ vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
 vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
 {
   this->MaxPixelListSize=64; // default value.
-  
+
   this->ImageSampleDistance        =  1.0;
   this->MinimumImageSampleDistance =  1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->AutoAdjustSampleDistances  =  1;
-  
+
   this->ImageMemorySize[0]     = 0;
   this->ImageMemorySize[1]     = 0;
-  
+
   this->Image                  = NULL;
   this->RealRGBAImage=0;
 
   this->RenderTimeTable        = NULL;
   this->RenderVolumeTable      = NULL;
   this->RenderRendererTable    = NULL;
-  this->RenderTableSize        = 0;  
+  this->RenderTableSize        = 0;
   this->RenderTableEntries     = 0;
 
   this->ZBuffer                = NULL;
@@ -2410,38 +2410,38 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
   this->ZBufferSize[1]         = 0;
   this->ZBufferOrigin[0]       = 0;
   this->ZBufferOrigin[1]       = 0;
-  
+
   this->IntermixIntersectingGeometry = 1;
 
   this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
-  
+
   this->PixelListFrame=0;
-  
+
   this->Cell=vtkGenericCell::New();
 
   this->EventList=vtkPriorityQueue::New();
-  
+
   this->UseSet=0;
   this->Vertices=0;
-  
+
   this->PerspectiveTransform = vtkTransform::New();
   this->PerspectiveMatrix = vtkMatrix4x4::New();
-  
+
   this->SimpleEdge=new vtkSimpleScreenEdge;
   this->DoubleEdge=new vtkDoubleScreenEdge;
-  
+
   this->Span=new vtkSpan;
-  
+
   this->RayIntegrator = NULL;
   this->RealRayIntegrator = NULL;
-  
+
   this->IntersectionLengths=vtkDoubleArray::New();
   this->IntersectionLengths->SetNumberOfValues(1);
   this->NearIntersections=vtkDoubleArray::New();
   this->NearIntersections->SetNumberOfValues(1);
   this->FarIntersections=vtkDoubleArray::New();
   this->FarIntersections->SetNumberOfValues(1);
-  
+
   this->MemoryManager=0;
 }
 
@@ -2458,45 +2458,45 @@ vtkUnstructuredGridVolumeZSweepMapper::~vtkUnstructuredGridVolumeZSweepMapper()
     }
   this->Cell->Delete();
   this->EventList->Delete();
-  
+
   this->ImageDisplayHelper->Delete();
-  
+
   if(this->UseSet!=0)
     {
     delete this->UseSet;
     }
-  
+
   if(this->Vertices!=0)
     {
     delete this->Vertices;
     }
-  
+
   this->PerspectiveTransform->Delete();
   this->PerspectiveMatrix->Delete();
 
   delete this->SimpleEdge;
   delete this->DoubleEdge;
   delete this->Span;
-  
+
   if ( this->Image )
     {
     delete [] this->Image;
     delete [] this->RealRGBAImage;
     }
-  
+
   if ( this->RenderTableSize )
     {
     delete [] this->RenderTimeTable;
     delete [] this->RenderVolumeTable;
     delete [] this->RenderRendererTable;
     }
-  
+
   this->SetRayIntegrator(NULL);
   if (this->RealRayIntegrator)
     {
     this->RealRayIntegrator->UnRegister(this);
     }
-  
+
   this->IntersectionLengths->Delete();
   this->NearIntersections->Delete();
   this->FarIntersections->Delete();
@@ -2504,11 +2504,11 @@ vtkUnstructuredGridVolumeZSweepMapper::~vtkUnstructuredGridVolumeZSweepMapper()
 
 //-----------------------------------------------------------------------------
 float vtkUnstructuredGridVolumeZSweepMapper::RetrieveRenderTime(
-  vtkRenderer *ren, 
+  vtkRenderer *ren,
   vtkVolume   *vol )
 {
   int i;
-  
+
   for ( i = 0; i < this->RenderTableEntries; i++ )
     {
     if ( this->RenderVolumeTable[i] == vol &&
@@ -2517,14 +2517,14 @@ float vtkUnstructuredGridVolumeZSweepMapper::RetrieveRenderTime(
       return this->RenderTimeTable[i];
       }
     }
-  
+
   return 0.0;
 }
 
 //-----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeZSweepMapper::StoreRenderTime(
-  vtkRenderer *ren, 
-  vtkVolume   *vol, 
+  vtkRenderer *ren,
+  vtkVolume   *vol,
   float       time )
 {
   int i;
@@ -2537,8 +2537,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::StoreRenderTime(
       return;
       }
     }
-  
-  
+
+
   // Need to increase size
   if ( this->RenderTableEntries >= this->RenderTableSize )
     {
@@ -2550,31 +2550,31 @@ void vtkUnstructuredGridVolumeZSweepMapper::StoreRenderTime(
       {
       this->RenderTableSize *= 2;
       }
-    
+
     float       *oldTimePtr     = this->RenderTimeTable;
     vtkVolume   **oldVolumePtr   = this->RenderVolumeTable;
     vtkRenderer **oldRendererPtr = this->RenderRendererTable;
-    
+
     this->RenderTimeTable     = new float [this->RenderTableSize];
     this->RenderVolumeTable   = new vtkVolume *[this->RenderTableSize];
     this->RenderRendererTable = new vtkRenderer *[this->RenderTableSize];
-    
+
     for (i = 0; i < this->RenderTableEntries; i++ )
       {
       this->RenderTimeTable[i] = oldTimePtr[i];
       this->RenderVolumeTable[i] = oldVolumePtr[i];
       this->RenderRendererTable[i] = oldRendererPtr[i];
       }
-    
+
     delete [] oldTimePtr;
     delete [] oldVolumePtr;
     delete [] oldRendererPtr;
     }
-  
+
   this->RenderTimeTable[this->RenderTableEntries] = time;
   this->RenderVolumeTable[this->RenderTableEntries] = vol;
   this->RenderRendererTable[this->RenderTableEntries] = ren;
-  
+
   this->RenderTableEntries++;
 }
 
@@ -2586,13 +2586,13 @@ void vtkUnstructuredGridVolumeZSweepMapper::PrintSelf(ostream& os,
 
   os << indent << "Max Pixel List Size: " << this->MaxPixelListSize << "\n";
 
-  os << indent << "Image Sample Distance: " 
+  os << indent << "Image Sample Distance: "
      << this->ImageSampleDistance << "\n";
-  os << indent << "Minimum Image Sample Distance: " 
+  os << indent << "Minimum Image Sample Distance: "
      << this->MinimumImageSampleDistance << "\n";
-  os << indent << "Maximum Image Sample Distance: " 
+  os << indent << "Maximum Image Sample Distance: "
      << this->MaximumImageSampleDistance << "\n";
-  os << indent << "Auto Adjust Sample Distances: " 
+  os << indent << "Auto Adjust Sample Distances: "
      << this->AutoAdjustSampleDistances << "\n";
   os << indent << "Intermix Intersecting Geometry: "
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
@@ -2600,7 +2600,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::PrintSelf(ostream& os,
   // The PrintSelf test just search for words in the PrintSelf function
   // We add here the internal variable we don't want to display:
   // this->ImageViewportSize this->ImageOrigin this->ImageInUseSize
-  
+
   if (this->RayIntegrator)
     {
     os << indent << "RayIntegrator: "
@@ -2643,7 +2643,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::SetMaxPixelListSize(int size)
     this->RealRayIntegrator->Register(this);                            \
     this->RealRayIntegrator->Delete();                                  \
     }                                                                   \
-  
+
 //-----------------------------------------------------------------------------
 // Description:
 // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -2653,14 +2653,14 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
                                                    vtkVolume *vol)
 {
   vtkDebugMacro(<<"Render");
-  
+
   // Check for input
   if(this->GetInput()==0)
     {
     vtkErrorMacro(<< "No Input!");
     return;
     }
-  
+
   this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode,
                                    this->ArrayAccessMode,
                                    this->ArrayId, this->ArrayName,
@@ -2671,11 +2671,11 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     vtkErrorMacro("Can't use the ZSweep mapper without scalars!");
     return;
     }
-  
+
   this->GetInputAlgorithm()->UpdateInformation();
   this->GetInputAlgorithm()->SetUpdateExtentToWholeExtent();
   this->GetInputAlgorithm()->Update();
-  
+
    // Check to make sure we have an appropriate integrator.
   if (this->RayIntegrator)
     {
@@ -2710,15 +2710,15 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
   // Start timing now. We didn't want to capture the update of the
   // input data in the times
   this->Timer->StartTimer();
-  
+
   int oldImageMemorySize[2];
   oldImageMemorySize[0] = this->ImageMemorySize[0];
   oldImageMemorySize[1] = this->ImageMemorySize[1];
 
   // If we are automatically adjusting the size to achieve a desired frame
-  // rate, then do that adjustment here. Base the new image sample distance 
+  // rate, then do that adjustment here. Base the new image sample distance
   // on the previous one and the previous render time. Don't let
-  // the adjusted image sample distance be less than the minimum image sample 
+  // the adjusted image sample distance be less than the minimum image sample
   // distance or more than the maximum image sample distance.
   float oldImageSampleDistance = this->ImageSampleDistance;
   if ( this->AutoAdjustSampleDistances )
@@ -2726,29 +2726,29 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     float oldTime = this->RetrieveRenderTime( ren, vol );
     float newTime = vol->GetAllocatedRenderTime();
     this->ImageSampleDistance *= sqrt(oldTime / newTime);
-    this->ImageSampleDistance = 
+    this->ImageSampleDistance =
       (this->ImageSampleDistance>this->MaximumImageSampleDistance)?
       (this->MaximumImageSampleDistance):(this->ImageSampleDistance);
-    this->ImageSampleDistance = 
+    this->ImageSampleDistance =
       (this->ImageSampleDistance<this->MinimumImageSampleDistance)?
       (this->MinimumImageSampleDistance):(this->ImageSampleDistance);
     }
-  
+
   // The full image fills the viewport. First, compute the actual viewport
   // size, then divide by the ImageSampleDistance to find the full image
   // size in pixels
   int width, height;
   ren->GetTiledSize(&width, &height);
-  this->ImageViewportSize[0] = 
+  this->ImageViewportSize[0] =
     static_cast<int>(width/this->ImageSampleDistance);
-  this->ImageViewportSize[1] = 
+  this->ImageViewportSize[1] =
     static_cast<int>(height/this->ImageSampleDistance);
 
   this->ImageInUseSize[0] = this->ImageViewportSize[0];
   this->ImageInUseSize[1] = this->ImageViewportSize[1];
   this->ImageOrigin[0] = 0;
   this->ImageOrigin[1] = 0;
-  
+
   // What is a power of 2 size big enough to fit this image?
   this->ImageMemorySize[0] = 32;
   this->ImageMemorySize[1] = 32;
@@ -2760,7 +2760,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     {
     this->ImageMemorySize[1] *= 2;
     }
-  
+
   // If the old image size is much too big (more than twice in
   // either direction) then set the old width to 0 which will
   // cause the image to be recreated
@@ -2769,7 +2769,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     {
     oldImageMemorySize[0] = 0;
     }
-  
+
   // If the old image is big enough (but not too big - we handled
   // that above) then we'll bump up our required size to the
   // previous one. This will keep us from thrashing.
@@ -2779,9 +2779,9 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     this->ImageMemorySize[0] = oldImageMemorySize[0];
     this->ImageMemorySize[1] = oldImageMemorySize[1];
     }
-  
+
   int bufferSize=this->ImageMemorySize[0] * this->ImageMemorySize[1] * 4;
-  
+
   // Do we already have a texture big enough? If not, create a new one and
   // clear it.
   if ( !this->Image ||
@@ -2800,7 +2800,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
 
   // We have to clear the image, each time:
   memset(this->Image,0,bufferSize);
-  
+
   vtkIdType j=0;
   while(j<bufferSize)
     {
@@ -2810,48 +2810,48 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     this->RealRGBAImage[j+3]=0;
     j+=4;
     }
-  
+
   // Capture the zbuffer if necessary
-  if ( this->IntermixIntersectingGeometry && 
+  if ( this->IntermixIntersectingGeometry &&
        ren->GetNumberOfPropsRendered() )
     {
     int x1, x2, y1, y2;
     double *viewport   =  ren->GetViewport();
     int *renWinSize   =  ren->GetRenderWindow()->GetSize();
-    
+
     // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
-    // coordinates. 
+    // coordinates.
     x1 = static_cast<int> (
       viewport[0] * static_cast<float>(renWinSize[0]) +
       static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance );
     y1 = static_cast<int> (
       viewport[1] * static_cast<float>(renWinSize[1]) +
       static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
-    
+
     // compute z buffer size
     this->ZBufferSize[0] = static_cast<int>(
       static_cast<float>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
     this->ZBufferSize[1] = static_cast<int>(
       static_cast<float>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
-    
+
     // Use the size to compute (x2,y2) in window coordinates
     x2 = x1 + this->ZBufferSize[0] - 1;
     y2 = y1 + this->ZBufferSize[1] - 1;
-    
+
     // This is the z buffer origin (in viewport coordinates)
     this->ZBufferOrigin[0] = static_cast<int>(
       static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
     this->ZBufferOrigin[1] = static_cast<int>(
       static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
-    
+
     // Capture the z buffer
     this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);
     }
-      
+
   this->RealRayIntegrator->Initialize(vol, this->Scalars);
-  
+
   // Here is the Zsweep algorithm:
-  
+
   // 1. For each vertex, find the list of incident faces (the "use set") (3.1)
   // In the original paper, it deals with incident cells but the chapter about
   // the parallel version in the dissertation deals with faces, which makes
@@ -2861,28 +2861,28 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
   vtkDebugMacro(<<"BuildUseSets: start");
   this->BuildUseSets();
   vtkDebugMacro(<<"BuildUseSets: done");
-  
+
   // 2. Sort the vertices by z-coordinates (view-dependent) in view space.
   // For each vertex, compute its camera coordinates and sort it
   // by z in an heap. The heap is called the "event list".
   // The heap stores the Id of the vertices.
-  // It is view-dependent. 
+  // It is view-dependent.
   vtkDebugMacro(<<"ProjectAndSortVertices: start");
   this->ProjectAndSortVertices(ren,vol);
   vtkDebugMacro(<<"ProjectAndSortVertices: done");
-  
+
   // 3. Create an empty "pixel list" (two way linked list) for each pixel of
   //    the screen.
   vtkDebugMacro(<<"CreateAndCleanPixelList: start");
   this->CreateAndCleanPixelList();
   vtkDebugMacro(<<"CreateAndCleanPixelList: done");
-  
+
   // 4. Main loop
   // (section 2 paragraph 11)
   vtkDebugMacro(<<"MainLoop: start");
   this->MainLoop(ren->GetRenderWindow());
   vtkDebugMacro(<<"MainLoop: done");
-  
+
   // The algorithm is done: send to result to the final image.
   if ( !ren->GetRenderWindow()->GetAbortRender() )
     {
@@ -2897,7 +2897,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
       }
 
     // copy the double image into the unsigned char image:
-    
+
     j=0;
     while(j<bufferSize)
       {
@@ -2926,7 +2926,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
                      this->ImageOrigin,
                      depth,
                      this->Image );
-    
+
     this->Timer->StopTimer();
     this->TimeToDraw = this->Timer->GetElapsedTime();
     this->StoreRenderTime( ren, vol, this->TimeToDraw );
@@ -2935,13 +2935,13 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     {
     this->ImageSampleDistance = oldImageSampleDistance;
     }
-  
+
   if ( this->ZBuffer )
     {
     delete [] this->ZBuffer;
     this->ZBuffer = NULL;
     }
-  
+
   this->UpdateProgress(1.0);
 }
 
@@ -2987,40 +2987,40 @@ void vtkUnstructuredGridVolumeZSweepMapper::AllocateVertices(vtkIdType size)
 void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
 {
   int needsUpdate = 0;
-  
+
   // If we have never created the list, we need updating
   if (this->UseSet==0 )
     {
     needsUpdate = 1;
     }
-  
+
   // If the data has changed in some way then we need to update
   vtkUnstructuredGrid *input = this->GetInput();
   if ( input->GetMTime() > this->SavedTriangleListMTime.GetMTime() )
     {
     needsUpdate = 1;
     }
-  
+
   if(this->CellScalars &&
      this->GetMTime() > this->SavedTriangleListMTime.GetMTime())
     {
     needsUpdate=1;
     }
-  
+
   // If we don't need updating, return
   if ( !needsUpdate )
     {
     return;
     }
-  
+
   vtkIdType numberOfCells=input->GetNumberOfCells();
   vtkIdType numberOfPoints=input->GetNumberOfPoints();
 
   vtkIdList *cellNeighbors = vtkIdList::New();
-  
+
   // init the use set of each vertex
   this->AllocateUseSet(numberOfPoints);
-  
+
   this->UseSet->SetCellScalars(this->CellScalars);
   if(this->CellScalars)
     {
@@ -3032,7 +3032,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
   while(cellIdx<numberOfCells)
     {
     input->GetCell(cellIdx,this->Cell);
-    
+
     vtkIdType faces=this->Cell->GetNumberOfFaces();
     vtkIdType faceidx=0;
     vtkCell *face;
@@ -3048,11 +3048,11 @@ void vtkUnstructuredGridVolumeZSweepMapper::BuildUseSets()
       int orientationChanged=this->ReorderTriangle(faceIds,orderedFaceIds);
       input->GetCellNeighbors(cellIdx, face->GetPointIds(), cellNeighbors);
       bool external = (cellNeighbors->GetNumberOfIds() == 0);
-      
+
       // Add face only if it is not already in the useset.
       this->UseSet->AddFace(orderedFaceIds, this->Scalars,
                             cellIdx, orientationChanged, external);
-      
+
       ++faceidx;
       }
     ++cellIdx;
@@ -3121,14 +3121,14 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   vtkVolume *vol)
 {
   assert("pre: empty list" && this->EventList->GetNumberOfItems()==0);
-  
+
   vtkUnstructuredGrid *input = this->GetInput();
   vtkIdType numberOfPoints=input->GetNumberOfPoints();
-  
+
   vtkIdType pointId=0;
   vtkVertexEntry *vertex=0;
   // Pre-computation for the projection.
-  
+
   ren->ComputeAspect();
   double *aspect = ren->GetAspect();
 
@@ -3141,35 +3141,35 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   this->PerspectiveTransform->Concatenate(vol->GetMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
-  
+
   this->AllocateVertices(numberOfPoints);
-  
+
   while(pointId<numberOfPoints)
     {
     vertex=&(this->Vertices->Vector[pointId]);
-    
+
     // Projection
     //
     double inPoint[4];
     input->GetPoint(pointId,inPoint);
     inPoint[3] = 1.0;
-    
+
     double outPoint[4];
     this->PerspectiveMatrix->MultiplyPoint( inPoint, outPoint );
     assert("outPoint[3]" && outPoint[3]!=0.0);
-    
+
     double invW=1/outPoint[3];
     double zView = outPoint[2]*invW;
-    
+
     int xScreen=static_cast<int>((outPoint[0]*invW+1)*0.5*this->ImageViewportSize[0]-this->ImageOrigin[0]);
     int yScreen=static_cast<int>((outPoint[1]*invW+1)*0.5*this->ImageViewportSize[1]-this->ImageOrigin[1]);
-    
+
     double outWorldPoint[4];
 
     vol->GetMatrix()->MultiplyPoint( inPoint, outWorldPoint );
 
     assert("check: vol no projection" && outWorldPoint[3]==1);
-    
+
     double scalar;
     if(this->CellScalars) // cell attribute
       {
@@ -3195,11 +3195,11 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
         scalar=sqrt(scalar);
         }
       }
-   
+
     vertex->Set(xScreen,yScreen,outWorldPoint[0]/outWorldPoint[3],
                 outWorldPoint[1]/outWorldPoint[3],
                 outWorldPoint[2]/outWorldPoint[3],zView,scalar,invW);
-    
+
     // Sorting
     //
     // we store -z because the top of the priority list is the
@@ -3226,7 +3226,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CreateAndCleanPixelList()
       this->PixelListFrame=0;
       }
     }
-  
+
   if(this->PixelListFrame==0)
     {
     this->PixelListFrame=new vtkPixelListFrame(size);
@@ -3239,7 +3239,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
   double previousZTarget=0.0;
   double zTarget;
   vtkIdType vertex;
-  
+
 // used to know if the next vertex is on the same plane
   double currentZ; // than the previous one. If so, the z-target has to be
   // updated (without calling the compositing function)
@@ -3247,15 +3247,15 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
     {
     return; // we are done.
     }
-  
+
   // initialize the "previous z-target" to the z-coordinate of the first
   // vertex.
   vertex=this->EventList->Peek(0,previousZTarget);
-  
+
 #ifdef BACK_TO_FRONT
   previousZTarget=-previousZTarget; // because the EventList store -z
 #endif
-  
+
   // (section 2 paragraph 11)
   // initialize the "z-target" with the maximum z-coordinate of the adjacent
   // vertices to the first vertex. The adjacent vertices can be found
@@ -3265,30 +3265,30 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
   zTarget=previousZTarget;
   std::list<vtkFace *>::iterator it;
   std::list<vtkFace *>::iterator itEnd;
-  
+
 //  this->MaxRecordedPixelListSize=0;
   this->MaxPixelListSizeReached=0;
   this->XBounds[0]=this->ImageInUseSize[0];
   this->XBounds[1]=0;
   this->YBounds[0]=this->ImageInUseSize[1];
   this->YBounds[1]=0;
-  
+
   vtkIdType progressCount=0;
   vtkIdType sum=this->EventList->GetNumberOfItems();
-  
+
   if(this->MemoryManager==0)
     {
     this->MemoryManager=new vtkPixelListEntryMemory;
     }
-  
+
   this->UseSet->SetNotRendered();
-  
+
   int aborded=0;
   // for each vertex of the "event list"
   while(this->EventList->GetNumberOfItems()>0)
     {
     this->UpdateProgress(static_cast<double>(progressCount)/sum);
-    
+
     aborded=renWin->CheckAbortStatus();
     if(aborded)
       {
@@ -3301,11 +3301,11 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
     if(this->UseSet->Vector[vertex]!=0)
       { // otherwise the vertex is not useful, basically this is the
       // end we reached the last ztarget
-      
+
 #ifdef BACK_TO_FRONT
     currentZ=-currentZ; // because the EventList store -z
 #endif
-    
+
     if(previousZTarget==currentZ)
       {
       // the new vertex is on the same sweep plane than the previous vertex
@@ -3314,7 +3314,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
       // This is also the case for the first vertex.
       it=this->UseSet->Vector[vertex]->begin();
       itEnd=this->UseSet->Vector[vertex]->end();
-      
+
       // for each face incident with the vertex
       while(it!=itEnd)
         {
@@ -3338,7 +3338,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
         ++it;
         }
       }
-  
+
     // Time to call the composite function?
 #ifdef BACK_TO_FRONT
     if(currentZ<zTarget)
@@ -3347,10 +3347,10 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 #endif
       {
       this->CompositeFunction(zTarget);
-      
+
       // Update the zTarget
       previousZTarget=zTarget;
-      
+
       it=this->UseSet->Vector[vertex]->begin();
       itEnd=this->UseSet->Vector[vertex]->end();
       // for each cell incident with the vertex
@@ -3384,14 +3384,14 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
         // We do not update the zTarget in this case.
         }
       }
-    
+
     //  use the "use set" (cells) of the vertex to get the cells that are
     //  incident on the vertex, and that have this vertex as
     //  minimal z-coordinate,
-    
+
     it=this->UseSet->Vector[vertex]->begin();
     itEnd=this->UseSet->Vector[vertex]->end();
-    
+
     while(it!=itEnd)
       {
       vtkFace *face=(*it);
@@ -3411,7 +3411,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
       vtkIdType *vids=face->GetFaceIds();
       vtkIdType minVertex=vids[0];
       double farestZ=this->Vertices->Vector[vids[0]].GetZview();
-      
+
       vtkIdType i=1;
       while(i<3)
         {
@@ -3436,7 +3436,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
         this->RasterizeFace(vids);
 //        face->SetRendered(1);
         }
-#endif // face search      
+#endif // face search
       ++it;
       }
       } // if useset of vertex is not null
@@ -3459,7 +3459,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
     }
   this->PixelListFrame->Clean(this->MemoryManager);
 //  vtkDebugMacro(<<"MaxRecordedPixelListSize="<<this->MaxRecordedPixelListSize);
-  
+
   assert("post: empty_list" && this->EventList->GetNumberOfItems()==0);
 }
 
@@ -3467,39 +3467,39 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
 {
   vtkPolyData *dataset=vtkPolyData::New();
-  
+
   vtkIdType height=this->ImageInUseSize[1];
   vtkIdType width=this->ImageInUseSize[0];
   vtkPixelListEntry *current;
   vtkIdType i;
-  
+
   vtkPoints *pts=vtkPoints::New();
   pts->SetDataTypeToDouble();
-  
+
   vtkDoubleArray *dataArray=vtkDoubleArray::New();
   vtkCellArray *vertices=vtkCellArray::New();
   vtkIdType pointId=0;
-  
+
 //  height=151;
 //  width=151;
-  
+
   vtkIdType y=0; //150;
   while(y<height)
     {
     vtkIdType x=0; //150;
     while(x<width)
-      {     
+      {
       i=y*this->ImageInUseSize[0]+x;
       current=this->PixelListFrame->GetFirst(i);
       while(current!=0)
         {
         double *values=current->GetValues();
-        
+
         double point[3];
         point[0]=x;
         point[1]=y;
         point[2]=values[2]; // zWorld
-        
+
         pts->InsertNextPoint(point);
         dataArray->InsertNextValue(values[3]);
         vertices->InsertNextCell(1,&pointId);
@@ -3516,7 +3516,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
   vertices->Delete();
   dataset->GetPointData()->SetScalars(dataArray);
   dataArray->Delete();
-  
+
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
   writer->SetFileName("pixellistframe.vtp");
   writer->SetInputData(dataset);
@@ -3536,13 +3536,13 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeFace(vtkIdType faceIds[3],
   // second vertex v1 (y-order)
   // Hence, on one side there one edge (v0v2), on the other side there are two
   // edges (v0v1 and v1v2).
-  
+
   vtkVertexEntry *v0=&(this->Vertices->Vector[faceIds[0]]);
   vtkVertexEntry *v1=&(this->Vertices->Vector[faceIds[1]]);
   vtkVertexEntry *v2=&(this->Vertices->Vector[faceIds[2]]);
 
   bool exitFace = false;
-  
+
   // Find the orientation of the triangle on the screen to get the right
   // scalar
   if((externalSide != vtkFace::NOT_EXTERNAL) || this->CellScalars)
@@ -3591,7 +3591,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeFace(vtkIdType faceIds[3],
 #endif
       }
     }
-  
+
   this->RasterizeTriangle(v0,v1,v2,exitFace);
 }
 
@@ -3607,20 +3607,20 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
   assert("pre: ve0_exists" && ve0!=0);
   assert("pre: ve1_exists" && ve1!=0);
   assert("pre: ve2_exists" && ve2!=0);
-  
+
   vtkVertexEntry *v0=ve0;
   vtkVertexEntry *v1=ve1;
   vtkVertexEntry *v2=ve2;
-  
+
   // The triangle is splitted by an horizontal line passing through the
   // second vertex v1 (y-order)
   // Hence, on one side there one edge (v0v2), on the other side there are two
   // edges (v0v1 and v1v2).
-  
+
   // Order vertices by y screen.
-  
+
   vtkVertexEntry *tmp;
-  
+
   if(v0->GetScreenY()>v1->GetScreenY())
     {
     tmp=v0;
@@ -3643,7 +3643,7 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
       v2=tmp;
       }
     }
-  
+
   if(v0->GetScreenY()<this->YBounds[0])
     {
     if(v0->GetScreenY()>=0)
@@ -3666,9 +3666,9 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
       this->YBounds[1]=this->ImageInUseSize[1]-1;
       }
     }
-  
+
   int x=v0->GetScreenX();
-  
+
   if(x<this->XBounds[0])
     {
     if(x>=0)
@@ -3695,7 +3695,7 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
       }
     }
   x=v1->GetScreenX();
-  
+
   if(x<this->XBounds[0])
     {
     if(x>=0)
@@ -3721,9 +3721,9 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
         }
       }
     }
-  
+
   x=v2->GetScreenX();
-  
+
   if(x<this->XBounds[0])
     {
     if(x>=0)
@@ -3749,17 +3749,17 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
         }
       }
     }
-  
+
   int dy20=v2->GetScreenY()-v0->GetScreenY();
   int dx10=v1->GetScreenX()-v0->GetScreenX();
   int dx20=v2->GetScreenX()-v0->GetScreenX();
   int dy10=v1->GetScreenY()-v0->GetScreenY();
-  
+
   int det=dy20*dx10-dx20*dy10;
-  
+
   vtkScreenEdge *leftEdge=0;
   vtkScreenEdge *rightEdge=0;
-  
+
   if(det==0) //v0v1v2 aligned or v0=v1=v2
     {
     // easy case: v0=v1=v2 render the 3 points
@@ -3781,7 +3781,7 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
           p0->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
           }
         this->PixelListFrame->AddAndSort(i,p0);
-        
+
         vtkPixelListEntry *p1=this->MemoryManager->AllocateEntry();
         p1->Init(v1->GetValues(),v1->GetZview(), externalFace);
         if(this->CellScalars)
@@ -3789,7 +3789,7 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
           p1->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
           }
         this->PixelListFrame->AddAndSort(i,p1);
-        
+
         vtkPixelListEntry *p2=this->MemoryManager->AllocateEntry();
         p2->Init(v2->GetValues(),v2->GetZview(), externalFace);
         if(this->CellScalars)
@@ -3797,18 +3797,18 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
           p2->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
           }
         this->PixelListFrame->AddAndSort(i,p2);
-        
-        
+
+
 //        if(this->PixelListFrame->GetListSize(i)>this->MaxRecordedPixelListSize)
 //          {
 //          this->MaxRecordedPixelListSize=this->PixelListFrame->GetListSize(i);
 //          }
-        
+
         if(!this->MaxPixelListSizeReached)
           {
           this->MaxPixelListSizeReached=this->PixelListFrame->GetListSize(i)>
             this->MaxPixelListSize;
-          } 
+          }
         }
       }
     else // line
@@ -3837,21 +3837,21 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
        rightEdge=this->SimpleEdge;
        }
     }
-  
+
   int y=v0->GetScreenY();
   int y1=v1->GetScreenY();
   int y2=v2->GetScreenY();
-  
+
   int skipped=0;
-  
+
   if(y1>=0) // clipping
     {
-    
+
     if(y1>=this->ImageInUseSize[1]) // clipping
       {
       y1=this->ImageInUseSize[1]-1;
       }
-    
+
     while(y<=y1)
       {
       if(y>=0 && y<this->ImageInUseSize[1]) // clipping
@@ -3873,17 +3873,17 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
     y=y1;
     skipped=1;
     }
-  
+
   if(y<this->ImageInUseSize[1]) // clipping
     {
     leftEdge->OnBottom(skipped,y);
     rightEdge->OnBottom(skipped,y);
-    
+
     if(y2>=this->ImageInUseSize[1]) // clipping
       {
       y2=this->ImageInUseSize[1]-1;
       }
-    
+
     while(y<=y2)
       {
       if(y>=0) // clipping, needed in case of no top
@@ -3905,9 +3905,9 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeSpan(int y,
 {
   assert("pre: left_exists" && left!=0);
   assert("pre: right_exists" && right!=0);
-  
+
   vtkIdType i=y*this->ImageInUseSize[0];
-  
+
   this->Span->Init(left->GetX(),
                    left->GetInvW(),
                    left->GetPValues(),
@@ -3916,7 +3916,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeSpan(int y,
                    right->GetInvW(),
                    right->GetPValues(),
                    right->GetZview());
-  
+
   while(!this->Span->IsAtEnd())
     {
     int x=this->Span->GetX();
@@ -3926,19 +3926,19 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeSpan(int y,
       // Write the pixel
       vtkPixelListEntry *p=this->MemoryManager->AllocateEntry();
       p->Init(this->Span->GetValues(),this->Span->GetZview(), exitFace);
-      
+
       if(this->CellScalars)
         {
         p->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
         }
       this->PixelListFrame->AddAndSort(j,p);
-      
-      
+
+
 //      if(this->PixelListFrame->GetListSize(j)>this->MaxRecordedPixelListSize)
 //        {
 //        this->MaxRecordedPixelListSize=this->PixelListFrame->GetListSize(j);
 //        }
-      
+
       if(!this->MaxPixelListSizeReached)
         {
         this->MaxPixelListSizeReached=this->PixelListFrame->GetListSize(j)>
@@ -3964,33 +3964,33 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
   assert("pre: v0_exists" && v0!=0);
   assert("pre: v1_exists" && v1!=0);
   assert("pre: y_ordered" && v0->GetScreenY()<=v1->GetScreenY());
-  
+
   int lineCase;
   int xIncrement; // if true increment x, if false increment y
   int dx;
   int dy;
   int xSign;
-  
+
   // initialization is not useful, it is just to remove compiler warnings
   int dx2=0;
   int dy2=0;
   int e=0;
-  
+
   double values[VTK_VALUES_SIZE];
   double pValues[VTK_VALUES_SIZE];
-  
+
   double dPv[VTK_VALUES_SIZE];
   double dInvW;
   double dZ;
-  
+
   double zView;
   double invW;
-  
+
   int i;
-  
+
   int x=v0->GetScreenX();
   int y=v0->GetScreenY();
-  
+
   // 1. Find the case
   dx=v1->GetScreenX()-v0->GetScreenX();
   if(dx<0)
@@ -4017,7 +4017,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
       dy2=dy<<1;
       e=dx;
       }
-    
+
     double invDx=1.0/dx;
     i=0;
     invW=v0->GetInvW();
@@ -4050,23 +4050,23 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
           // Write the pixel
           vtkPixelListEntry *p0=this->MemoryManager->AllocateEntry();
           p0->Init(v0->GetValues(),v0->GetZview(), exitFace);
-          
+
           if(this->CellScalars)
             {
             p0->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
             }
           this->PixelListFrame->AddAndSort(j,p0);
-          
+
           // Write the pixel
           vtkPixelListEntry *p1=this->MemoryManager->AllocateEntry();
           p1->Init(v1->GetValues(),v1->GetZview(), exitFace);
-          
+
           if(this->CellScalars)
             {
             p1->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
             }
           this->PixelListFrame->AddAndSort(j,p1);
-          
+
           if(!this->MaxPixelListSizeReached)
             {
             this->MaxPixelListSizeReached=this->PixelListFrame->GetListSize(j)>
@@ -4111,7 +4111,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
     zView=v0->GetZview();
     dZ=(v1->GetZview()-zView)*invDy;
     }
-      
+
   // 2. Iterate over each pixel of the straight line.
   int done=0;
   while(!done)
@@ -4124,20 +4124,20 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeLine(vtkVertexEntry *v0,
       // Write the pixel
       vtkPixelListEntry *p0=this->MemoryManager->AllocateEntry();
       p0->Init(values,zView,exitFace);
-      
+
       if(this->CellScalars)
         {
         p0->GetValues()[VTK_VALUES_SCALAR_INDEX]=this->FaceScalars[this->FaceSide];
         }
       this->PixelListFrame->AddAndSort(j,p0);
-   
+
       if(!this->MaxPixelListSizeReached)
         {
         this->MaxPixelListSizeReached=this->PixelListFrame->GetListSize(j)>
           this->MaxPixelListSize;
         }
       }
-    
+
     // next pixel
     switch(lineCase)
       {
@@ -4221,17 +4221,17 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
 {
   int y=this->YBounds[0];
   vtkIdType i=y*this->ImageInUseSize[0]+this->XBounds[0];
-  
+
   vtkIdType index=(y*this->ImageMemorySize[0]+this->XBounds[0])<< 2; // *4
   vtkIdType indexStep=this->ImageMemorySize[0]<<2; // *4
-  
+
   vtkPixelListEntry *current;
   vtkPixelListEntry *next;
   double zBuffer=0;
-  
+
   int newXBounds[2];
   int newYBounds[2];
-  
+
   newXBounds[0]=this->ImageInUseSize[0];
   newXBounds[1]=0;
   newYBounds[0]=this->ImageInUseSize[1];
@@ -4240,7 +4240,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
   int xMin=this->XBounds[0];
   int xMax=this->XBounds[1];
   int yMax=this->YBounds[1];
-  
+
   vtkPixelList *pixel;
   int x;
   vtkIdType j;
@@ -4249,7 +4249,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
   int doIntegration;
   double length;
   float *color;
-  
+
   // for each pixel in the bounding box
   while(y<=yMax)
     {
@@ -4269,13 +4269,13 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
 #else
         done=current->GetZview()>=zTarget || next->GetZview()>=zTarget;
 #endif
-        
+
         if(!done && this->ZBuffer!=0)
           {
           // value of the z buffer at the current pixel.
           zBuffer=this->GetZBufferValue(x,y);
           }
-        
+
         while(!done)
           {
           if (current->GetExitFace())
@@ -4297,7 +4297,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
               doIntegration=1;
               }
             }
-          
+
           if(doIntegration)
             {
             if(current->GetZview()!=next->GetZview())
@@ -4310,7 +4310,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
                 {
                 color=this->RealRGBAImage+index2;
                 this->IntersectionLengths->SetValue(0,length);
-                
+
                 if(this->CellScalars)
                   {
                   // same value for near and far intersection
@@ -4336,7 +4336,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
                 } // length!=0
               } // current->GetZview()!=next->GetZview()
             } // doIntegration
-          
+
           // Next entry
           pixel->RemoveFirst(this->MemoryManager); // remove current
           done=pixel->GetSize()<2; // empty queue?
@@ -4377,7 +4377,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
             }
           }
         }
-      
+
       // next abscissa
       ++j;
       index2+=4;
@@ -4388,7 +4388,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
     index+=indexStep;
     ++y;
     }
-  
+
   // Update the bounding box. Useful for the delayed compositing
 
   this->XBounds[0]=newXBounds[0];
@@ -4398,7 +4398,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
 
   this->MaxPixelListSizeReached=0;
 }
- 
+
 //-----------------------------------------------------------------------------
 // Description:
 // Convert and clamp a float color component into a unsigned char.
@@ -4425,13 +4425,13 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetZBufferValue(int x,
                                                               int y)
 {
   int xPos, yPos;
-  
+
   xPos = static_cast<int>(static_cast<float>(x) * this->ImageSampleDistance);
   yPos = static_cast<int>(static_cast<float>(y) * this->ImageSampleDistance);
-  
+
   xPos = (xPos >= this->ZBufferSize[0])?(this->ZBufferSize[0]-1):(xPos);
   yPos = (yPos >= this->ZBufferSize[1])?(this->ZBufferSize[1]-1):(yPos);
-  
+
   return *(this->ZBuffer + yPos*this->ZBufferSize[0] + xPos);
 }
 
@@ -4442,7 +4442,7 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
 {
   double bounds[6];
   vol->GetBounds( bounds );
-  
+
   ren->ComputeAspect();
   double *aspect = ren->GetAspect();
 
@@ -4454,9 +4454,9 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
     cam->GetProjectionTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
   this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
-  
+
   double minZ = 1.0;
-  
+
   for ( int k = 0; k < 2; k++ )
     {
     for ( int j = 0; j < 2; j++ )
@@ -4468,7 +4468,7 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
         inPoint[1] = bounds[2+j];
         inPoint[2] = bounds[4+k];
         inPoint[3] = 1.0;
-        
+
         double outPoint[4];
         this->PerspectiveMatrix->MultiplyPoint( inPoint, outPoint );
         double testZ = outPoint[2] / outPoint[3];
@@ -4476,6 +4476,6 @@ double vtkUnstructuredGridVolumeZSweepMapper::GetMinimumBoundsDepth(
         }
       }
     }
-  
+
   return minZ;
 }

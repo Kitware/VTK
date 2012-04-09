@@ -608,7 +608,7 @@ const char TestTensorProbeWidgetEventLog[] =
 
 
 int TestTensorProbeWidget( int argc, char *argv[] )
-{ 
+{
   vtkSmartPointer<vtkXMLPolyDataReader> r =
     vtkSmartPointer<vtkXMLPolyDataReader>::New();
   const char *cfname=
@@ -617,7 +617,7 @@ int TestTensorProbeWidget( int argc, char *argv[] )
   r->SetFileName(cfname);
   r->Update();
   delete[] cfname;
-  
+
   vtkPolyData *pd = r->GetOutput();
 
   // Create the RenderWindow, Renderer
@@ -633,9 +633,9 @@ int TestTensorProbeWidget( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 
   vtkSmartPointer<vtkTensorProbeWidget> w =
-    vtkSmartPointer<vtkTensorProbeWidget>::New(); 
+    vtkSmartPointer<vtkTensorProbeWidget>::New();
   w->SetInteractor(iren);
-  vtkTensorProbeRepresentation * rep = 
+  vtkTensorProbeRepresentation * rep =
     vtkTensorProbeRepresentation::SafeDownCast(
       w->GetRepresentation());
   rep->SetTrajectory(pd);
@@ -653,6 +653,6 @@ int TestTensorProbeWidget( int argc, char *argv[] )
   renWin->Render();
 
 
-  return vtkTesting::InteractorEventLoop( 
+  return vtkTesting::InteractorEventLoop(
       argc, argv, iren, TestTensorProbeWidgetEventLog );
 }

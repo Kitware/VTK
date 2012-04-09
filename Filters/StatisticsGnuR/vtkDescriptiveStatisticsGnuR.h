@@ -16,7 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 // R to calculate p-values
 //
 // .SECTION Description
-// Given a selection of columns of interest in an input data table, this 
+// Given a selection of columns of interest in an input data table, this
 // class provides the following functionalities, depending on the chosen
 // execution options:
 // * Learn: calculate extremal values, sample mean, and M2, M3, and M4 aggregates
@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   input model.
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 

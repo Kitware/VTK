@@ -15,7 +15,7 @@
 // .NAME vtkVoxelModeller - convert an arbitrary dataset to a voxel representation
 // .SECTION Description
 // vtkVoxelModeller is a filter that converts an arbitrary data set to a
-// structured point (i.e., voxel) representation. It is very similar to 
+// structured point (i.e., voxel) representation. It is very similar to
 // vtkImplicitModeller, except that it doesn't record distance; instead it
 // records occupancy. By default it supports a compact output of 0/1
 // VTK_BIT. Other vtk scalar types can be specified. The Foreground and
@@ -40,7 +40,7 @@ public:
   // Description:
   // Construct an instance of vtkVoxelModeller with its sample dimensions
   // set to (50,50,50), and so that the model bounds are
-  // automatically computed from its input. The maximum distance is set to 
+  // automatically computed from its input. The maximum distance is set to
   // examine the whole grid. This could be made much faster, and probably
   // will be in the future.
   static vtkVoxelModeller *New();
@@ -108,8 +108,8 @@ protected:
   vtkVoxelModeller();
   ~vtkVoxelModeller() {};
 
-  virtual int RequestInformation (vtkInformation *, 
-                                  vtkInformationVector **, 
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector **,
                                   vtkInformationVector *);
 
   // see vtkAlgorithm for details

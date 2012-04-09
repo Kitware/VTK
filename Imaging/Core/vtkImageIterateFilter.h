@@ -19,7 +19,7 @@
 // and output caches are temporarily changed to "fool" the subclasses.  I
 // believe the correct solution is to pass the in and out cache to the
 // subclasses methods as arguments.  Now the data is passes.  Can the caches
-// be passed, and data retrieved from the cache? 
+// be passed, and data retrieved from the cache?
 
 #ifndef __vtkImageIterateFilter_h
 #define __vtkImageIterateFilter_h
@@ -37,7 +37,7 @@ public:
   // Get which iteration is current being performed. Normally the
   // user will not access this method.
   vtkGetMacro(Iteration,int);
-  vtkGetMacro(NumberOfIterations,int);  
+  vtkGetMacro(NumberOfIterations,int);
 
 protected:
   vtkImageIterateFilter();
@@ -71,10 +71,10 @@ protected:
   // for filters that execute multiple times.
   int NumberOfIterations;
   int Iteration;
-  // A list of intermediate caches that is created when 
+  // A list of intermediate caches that is created when
   // is called SetNumberOfIterations()
   vtkAlgorithm **IterationData;
-  
+
   vtkInformationVector* InputVector;
   vtkInformationVector* OutputVector;
 private:

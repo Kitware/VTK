@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME 
+// .NAME
 // .SECTION Description
 // This program tests quadratic cell EvaluatePosition() and EvaluateLocation()
 // methods.
@@ -92,9 +92,9 @@ int TestQE(ostream& strm)
 
   vtkQuadraticPyramid *pyra = vtkQuadraticPyramid::New();
   vtkQuadraticHexahedron *pyra2 = hex->NewInstance();
-  
+
   // New quadratic cells
-  
+
   vtkQuadraticLinearQuad *quadlin = vtkQuadraticLinearQuad::New();
   vtkQuadraticLinearQuad *quadlin2 = quadlin->NewInstance();
 
@@ -157,7 +157,7 @@ int TestQE(ostream& strm)
   edge->GetPoints()->SetPoint(1, 1, 0, .5);
   edge->GetPoints()->SetPoint(2, 0.5, 0.25, .2);
 
-  edge->EvaluatePosition(edgePoint[0], edgeClosest, subId, edgePCoords, 
+  edge->EvaluatePosition(edgePoint[0], edgeClosest, subId, edgePCoords,
                          dist2, edgeWeights);
 
   // vtkQuadraticTriangle
@@ -179,7 +179,7 @@ int TestQE(ostream& strm)
   tri->GetPoints()->SetPoint(4, 0.75, 0.4, 0);
   tri->GetPoints()->SetPoint(5, 0.25, 0.4, 0);
 
-  tri->EvaluatePosition(triPoint[0], triClosest, subId, triPCoords, 
+  tri->EvaluatePosition(triPoint[0], triClosest, subId, triPCoords,
                         dist2, triWeights);
 
 
@@ -206,7 +206,7 @@ int TestQE(ostream& strm)
   quad->GetPoints()->SetPoint(6, 0.5, 1.0, 0.0);
   quad->GetPoints()->SetPoint(7, 0.0, 0.5, 0.0);
 
-  quad->EvaluatePosition(quadPoint[0], quadClosest, subId, quadPCoords, 
+  quad->EvaluatePosition(quadPoint[0], quadClosest, subId, quadPCoords,
                          dist2, quadWeights);
 
   // vtkQuadraticTetra
@@ -236,7 +236,7 @@ int TestQE(ostream& strm)
   tetra->GetPoints()->SetPoint(8, 0.75, 0.2, 0.5);
   tetra->GetPoints()->SetPoint(9, 0.50, 0.6, 0.5);
 
-  tetra->EvaluatePosition(tetraPoint[0], tetraClosest, subId, tetraPCoords, 
+  tetra->EvaluatePosition(tetraPoint[0], tetraClosest, subId, tetraPCoords,
                          dist2, tetraWeights);
 
 
@@ -287,7 +287,7 @@ int TestQE(ostream& strm)
   hex->GetPoints()->SetPoint(18, 1, 1, 0.5);
   hex->GetPoints()->SetPoint(19, 0, 1, 0.5);
 
-  hex->EvaluatePosition(hexPoint[0], hexClosest, subId, hexPCoords, 
+  hex->EvaluatePosition(hexPoint[0], hexClosest, subId, hexPCoords,
                          dist2, hexWeights);
 
   // vtkQuadraticWedge
@@ -327,7 +327,7 @@ int TestQE(ostream& strm)
   wedge->GetPoints()->SetPoint(13, 1, 0, 0.5);
   wedge->GetPoints()->SetPoint(14, 0, 1, 0.5);
 
-  wedge->EvaluatePosition(wedgePoint[0], wedgeClosest, subId, wedgePCoords, 
+  wedge->EvaluatePosition(wedgePoint[0], wedgeClosest, subId, wedgePCoords,
                          dist2, wedgeWeights);
 
   // vtkQuadraticPyramid
@@ -363,7 +363,7 @@ int TestQE(ostream& strm)
   pyra->GetPoints()->SetPoint(11, 0.5, 0.5, 0.5  );
   pyra->GetPoints()->SetPoint(12, 0, 0.5, 0.5  );
 
-  pyra->EvaluatePosition(pyraPoint[0], pyraClosest, subId, pyraPCoords, 
+  pyra->EvaluatePosition(pyraPoint[0], pyraClosest, subId, pyraPCoords,
                          dist2, pyraWeights);
 
   // New quadratic cells
@@ -380,7 +380,7 @@ int TestQE(ostream& strm)
   for(i = 0; i < quadlin->GetNumberOfPoints(); i++)
     quadlin->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
 
-  quadlin->EvaluatePosition(quadlinPoint[0], quadlinClosest, subId, quadlinPCoords, 
+  quadlin->EvaluatePosition(quadlinPoint[0], quadlinClosest, subId, quadlinPCoords,
                          dist2, quadlinWeights);
 
   // vtkBiQuadraticQuad
@@ -395,7 +395,7 @@ int TestQE(ostream& strm)
   for(i = 0; i < biquad->GetNumberOfPoints(); i++)
     biquad->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
 
-  biquad->EvaluatePosition(biquadPoint[0], biquadClosest, subId, biquadPCoords, 
+  biquad->EvaluatePosition(biquadPoint[0], biquadClosest, subId, biquadPCoords,
                          dist2, biquadWeights);
 
   // vtkQuadraticLinearWedge
@@ -410,7 +410,7 @@ int TestQE(ostream& strm)
   for(i = 0; i < wedgelin->GetNumberOfPoints(); i++)
     wedgelin->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
 
-  wedgelin->EvaluatePosition(wedgelinPoint[0], wedgelinClosest, subId, wedgelinPCoords, 
+  wedgelin->EvaluatePosition(wedgelinPoint[0], wedgelinClosest, subId, wedgelinPCoords,
                          dist2, wedgelinWeights);
 
   // vtkBiQuadraticQuadraticWedge
@@ -425,7 +425,7 @@ int TestQE(ostream& strm)
   for(i = 0; i < biwedge->GetNumberOfPoints(); i++)
     biwedge->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
 
-  biwedge->EvaluatePosition(biwedgePoint[0], biwedgeClosest, subId, biwedgePCoords, 
+  biwedge->EvaluatePosition(biwedgePoint[0], biwedgeClosest, subId, biwedgePCoords,
                          dist2, biwedgeWeights);
 
   // vtkBiQuadraticQuadraticHexahedron
@@ -440,7 +440,7 @@ int TestQE(ostream& strm)
   for(i = 0; i < bihex->GetNumberOfPoints(); i++)
     bihex->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
 
-  bihex->EvaluatePosition(bihexPoint[0], bihexClosest, subId, bihexPCoords, 
+  bihex->EvaluatePosition(bihexPoint[0], bihexClosest, subId, bihexPCoords,
                          dist2, bihexWeights);
 
   // vtkTriQuadraticHexahedron
@@ -455,11 +455,11 @@ int TestQE(ostream& strm)
   for(i = 0; i < trihex->GetNumberOfPoints(); i++)
     trihex->GetPoints()->SetPoint(i, paramcoor[i*3], paramcoor[i*3 + 1], paramcoor[i*3 + 2]);
 
-  trihex->EvaluatePosition(trihexPoint[0], trihexClosest, subId, trihexPCoords, 
+  trihex->EvaluatePosition(trihexPoint[0], trihexClosest, subId, trihexPCoords,
                          dist2, trihexWeights);
 
-  
- 
+
+
   // vtkBiQuadraticTriangle
   double bitriPCoords[3], bitriWeights[14], bitriPosition[3];
   double bitriPoint[1][3] = {{0.5, 0.266667, 0.0}};
@@ -480,11 +480,11 @@ int TestQE(ostream& strm)
   bitri->GetPoints()->SetPoint(5, 0.25, 0.4, 0);
   bitri->GetPoints()->SetPoint(6, 0.45, 0.24, 0);
 
-  bitri->EvaluatePosition(bitriPoint[0], bitriClosest, subId, bitriPCoords, 
+  bitri->EvaluatePosition(bitriPoint[0], bitriClosest, subId, bitriPCoords,
                         dist2, bitriWeights);
 
 
-  // vtkCubicLine 
+  // vtkCubicLine
 
   double culinePCoords[3], culineWeights[4];
   double culinePoint[1][3] = {{0.25, 0.125, 0.0}};
@@ -494,7 +494,7 @@ int TestQE(ostream& strm)
   culine->GetPointIds()->SetId(1,1);
   culine->GetPointIds()->SetId(2,2);
   culine->GetPointIds()->SetId(3,3);
- 
+
 
   culine->GetPoints()->SetPoint(0, 0, 0, 0);
   culine->GetPoints()->SetPoint(1, 1, 0, 0);
@@ -502,10 +502,10 @@ int TestQE(ostream& strm)
   culine->GetPoints()->SetPoint(3, (1.0/3.0), 0.1, 0);
 
 
-  culine->EvaluatePosition(culinePoint[0], culineClosest, subId, culinePCoords, 
+  culine->EvaluatePosition(culinePoint[0], culineClosest, subId, culinePCoords,
                         dist2, culineWeights);
 
-  
+
   strm << "Test vtkCell::EvaluatePosition End" << endl;
 
   //-------------------------------------------------------------

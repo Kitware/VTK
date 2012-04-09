@@ -27,7 +27,7 @@ vtkWidgetSet::vtkWidgetSet()
 //----------------------------------------------------------------------
 vtkWidgetSet::~vtkWidgetSet()
 {
-  for (WidgetIteratorType it  = this->Widget.begin(); 
+  for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)
     {
     (*it)->UnRegister(this);
@@ -37,11 +37,11 @@ vtkWidgetSet::~vtkWidgetSet()
 //----------------------------------------------------------------------
 void vtkWidgetSet::SetEnabled(int enabling)
 {
-  for (WidgetIteratorType it  = this->Widget.begin(); 
+  for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)
     {
     (*it)->SetEnabled(enabling);
-    } 
+    }
 }
 
 //----------------------------------------------------------------------
@@ -65,7 +65,7 @@ void vtkWidgetSet::AddWidget( vtkAbstractWidget *w )
 //----------------------------------------------------------------------
 void vtkWidgetSet::RemoveWidget( vtkAbstractWidget * w)
 {
-  for (WidgetIteratorType it  = this->Widget.begin(); 
+  for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)
     {
     if (*it == w)

@@ -36,7 +36,7 @@ vtkLightingHelper::~vtkLightingHelper()
 }
 
 //----------------------------------------------------------------------------
-void vtkLightingHelper::Initialize(vtkShaderProgram2* pgm, 
+void vtkLightingHelper::Initialize(vtkShaderProgram2* pgm,
   vtkShader2Type mode)
 {
   if (this->Shader != pgm)
@@ -68,11 +68,11 @@ void vtkLightingHelper::PrepareForRendering()
 
   for (int cc=0; cc < VTK_MAX_LIGHTS; cc++)
     {
-    // use the light's 4th diffuse component to store an enabled bit  
+    // use the light's 4th diffuse component to store an enabled bit
     GLfloat lightDiffuse[4];
     glGetLightfv(GL_LIGHT0 + cc, GL_DIFFUSE, lightDiffuse);
 
-    // enable/disable the light for fixed function  
+    // enable/disable the light for fixed function
     if (glIsEnabled(GL_LIGHT0 + cc))
       {
       lightDiffuse[3] = 1;

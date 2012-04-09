@@ -15,7 +15,7 @@
 // .NAME vtkOpenGLClipPlanesPainter - painter that manages clipping
 // .SECTION Description
 // This painter is an openGL specific painter which handles clipplanes.
-// This painter must typically be placed before the painter that 
+// This painter must typically be placed before the painter that
 // do the primitive rendering.
 
 #ifndef __vtkOpenGLClipPlanesPainter_h
@@ -41,7 +41,7 @@ protected:
   // Generates rendering primitives of appropriate type(s).
   // Uses the clipping planes to set up clipping regions.
   // typeflags are ignored by this painter.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 private:
   vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&); // Not implemented.

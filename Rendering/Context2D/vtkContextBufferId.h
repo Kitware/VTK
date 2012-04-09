@@ -36,24 +36,24 @@ public:
   // Description:
   // Creates a 2D Painter object.
   static vtkContextBufferId *New();
-  
+
   // Description:
   // Allocate the memory for at least Width*Height elements.
   // \pre positive_width: GetWidth()>0
   // \pre positive_height: GetHeight()>0
   virtual void Allocate();
-  
+
   // Description:
   // Tell if the buffer has been allocated.
   virtual bool IsAllocated() const;
-  
+
   // Description:
   // Copy the contents of the current read buffer to the internal array
   // starting at lower left corner of the framebuffer (srcXmin,srcYmin).
   // \pre is_allocated: this->IsAllocated()
   virtual void SetValues(int srcXmin,
                          int srcYmin);
-  
+
   // Description:
   // Return item under abscissa x and ordinate y.
   // Abscissa go from left to right.
@@ -62,11 +62,11 @@ public:
   // \pre is_allocated: IsAllocated()
   // \post valid_result: result>=-1
   virtual vtkIdType GetPickedItem(int x, int y);
-  
+
 protected:
   vtkContextBufferId();
   virtual ~vtkContextBufferId();
-  
+
   // Description:
   // Set the value at index `i'.
   // \pre is_allocated: this->IsAllocated()
@@ -74,15 +74,15 @@ protected:
   // \post is_set: this->GetValue(i)==value
   void SetValue(vtkIdType i,
                 int value);
-  
+
   // Description:
   // Get the value at index `i'.
   // \pre is_allocated: this->IsAllocated()
   // \pre valid_i: i>=0 i<this->GetWidth()*this->GetHeight()
   int GetValue(vtkIdType i);
-  
+
   vtkIntArray *IdArray;
-  
+
 private:
   vtkContextBufferId(const vtkContextBufferId &); // Not implemented.
   void operator=(const vtkContextBufferId &);   // Not implemented.

@@ -44,7 +44,7 @@
 #include <vtksys/ios/sstream>
 #include <sys/stat.h>
 
-#define BUFFER_SIZE 32768 
+#define BUFFER_SIZE 32768
 
 vtkStandardNewMacro(vtkMatlabEngineFilter);
 
@@ -177,17 +177,17 @@ void vtkMatlabEngineFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CurrentTime: " << endl;
 
-  if (this->CurrentTime) 
+  if (this->CurrentTime)
     {
-    this->CurrentTime->PrintSelf(os, indent.GetNextIndent()); 
+    this->CurrentTime->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
     os << indent << "(none)" << endl;
     }
- 
+
   os << indent << "TimeRange: " << endl;
-  
+
   if (this->TimeRange)
     {
     this->TimeRange->PrintSelf(os, indent.GetNextIndent());
@@ -234,8 +234,8 @@ void vtkMatlabEngineFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkMatlabEngineFilter::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // create the output
@@ -248,8 +248,8 @@ int vtkMatlabEngineFilter::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkMatlabEngineFilter::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -258,7 +258,7 @@ int vtkMatlabEngineFilter::RequestDataObject(
     return 0;
     }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
     // for each output
@@ -266,8 +266,8 @@ int vtkMatlabEngineFilter::RequestDataObject(
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataObject* newOutput = input->NewInstance();
         newOutput->SetPipelineInformation(info);
@@ -281,8 +281,8 @@ int vtkMatlabEngineFilter::RequestDataObject(
 
 
 
-int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request), 
-                                       vtkInformationVector **inputVector, 
+int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
+                                       vtkInformationVector **inputVector,
                                        vtkInformationVector *outputVector)
 {
 
@@ -427,7 +427,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
       return(1);
       }
 
-    for(VectorIterator = this->mefi->PutArrNames.begin(); 
+    for(VectorIterator = this->mefi->PutArrNames.begin();
         VectorIterator != this->mefi->PutArrNames.end();
         VectorIterator++)
       {
@@ -489,7 +489,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
         }
       }
 
-    for(VectorIterator = this->mefi->GetArrNames.begin(); 
+    for(VectorIterator = this->mefi->GetArrNames.begin();
         VectorIterator != this->mefi->GetArrNames.end();
         VectorIterator++)
       {
@@ -582,7 +582,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
       return(1);
       }
 
-    for(VectorIterator = this->mefi->PutArrNames.begin(); 
+    for(VectorIterator = this->mefi->PutArrNames.begin();
         VectorIterator != this->mefi->PutArrNames.end();
         VectorIterator++)
       {
@@ -645,7 +645,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
       }
 
 
-    for(VectorIterator = this->mefi->GetArrNames.begin(); 
+    for(VectorIterator = this->mefi->GetArrNames.begin();
         VectorIterator != this->mefi->GetArrNames.end();
         VectorIterator++){
       currentArray = this->mengi->GetVtkDataArray(VectorIterator->MatArrName.c_str());
@@ -688,7 +688,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
     }
   else if(adinp) /* Array Data */
     {
-    for(VectorIterator = this->mefi->PutArrNames.begin(); 
+    for(VectorIterator = this->mefi->PutArrNames.begin();
         VectorIterator != this->mefi->PutArrNames.end();
         VectorIterator++)
       {
@@ -743,7 +743,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
           }
         }
 
-      for(VectorIterator = this->mefi->GetArrNames.begin(); 
+      for(VectorIterator = this->mefi->GetArrNames.begin();
           VectorIterator != this->mefi->GetArrNames.end();
           VectorIterator++)
         {
@@ -797,7 +797,7 @@ int vtkMatlabEngineFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
     return(1);
     }
 
-  for(VectorIterator = this->mefi->PutArrNames.begin(); 
+  for(VectorIterator = this->mefi->PutArrNames.begin();
       VectorIterator != this->mefi->PutArrNames.end();
       VectorIterator++)
     {
@@ -859,7 +859,7 @@ int vtkMatlabEngineFilter::ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout)
         }
       }
 
-    for(VectorIterator = this->mefi->GetArrNames.begin(); 
+    for(VectorIterator = this->mefi->GetArrNames.begin();
         VectorIterator != this->mefi->GetArrNames.end();
         VectorIterator++)
       {

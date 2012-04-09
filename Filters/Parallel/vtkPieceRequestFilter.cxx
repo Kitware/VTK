@@ -57,8 +57,8 @@ void vtkPieceRequestFilter::SetInputData(int index, vtkDataObject* input)
 
 //----------------------------------------------------------------------------
 int vtkPieceRequestFilter::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   // generate the data
@@ -83,8 +83,8 @@ int vtkPieceRequestFilter::ProcessRequest(
 
 //----------------------------------------------------------------------------
 int vtkPieceRequestFilter::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -93,7 +93,7 @@ int vtkPieceRequestFilter::RequestDataObject(
     return 0;
     }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  
+
   if (input)
     {
     // for each output
@@ -101,8 +101,8 @@ int vtkPieceRequestFilter::RequestDataObject(
       {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
@@ -115,8 +115,8 @@ int vtkPieceRequestFilter::RequestDataObject(
 }
 
 //----------------------------------------------------------------------------
-int vtkPieceRequestFilter::RequestData(vtkInformation* vtkNotUsed(request), 
-                                       vtkInformationVector** inputVector, 
+int vtkPieceRequestFilter::RequestData(vtkInformation* vtkNotUsed(request),
+                                       vtkInformationVector** inputVector,
                                        vtkInformationVector* outputVector)
 {
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0]);
@@ -124,7 +124,7 @@ int vtkPieceRequestFilter::RequestData(vtkInformation* vtkNotUsed(request),
   output->ShallowCopy(input);
   return 1;
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkPieceRequestFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
                                                vtkInformationVector** inputVector,

@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkPicker - superclass for 3D geometric pickers (uses ray cast)
 // .SECTION Description
-// vtkPicker is used to select instances of vtkProp3D by shooting a ray 
-// into a graphics window and intersecting with the actor's bounding box. 
-// The ray is defined from a point defined in window (or pixel) coordinates, 
+// vtkPicker is used to select instances of vtkProp3D by shooting a ray
+// into a graphics window and intersecting with the actor's bounding box.
+// The ray is defined from a point defined in window (or pixel) coordinates,
 // and a point located from the camera's position.
 //
-// vtkPicker may return more than one vtkProp3D, since more than one bounding 
+// vtkPicker may return more than one vtkProp3D, since more than one bounding
 // box may be intersected. vtkPicker returns an unsorted list of props that
 // were hit, and a list of the corresponding world points of the hits.
 // For the vtkProp3D that is closest to the camera, vtkPicker returns the
@@ -63,7 +63,7 @@ public:
   vtkGetMacro(Tolerance,double);
 
   // Description:
-  // Return position in mapper (i.e., non-transformed) coordinates of 
+  // Return position in mapper (i.e., non-transformed) coordinates of
   // pick point.
   vtkGetVectorMacro(MapperPosition,double,3);
 
@@ -72,7 +72,7 @@ public:
   vtkGetObjectMacro(Mapper,vtkAbstractMapper3D);
 
   // Description:
-  // Get a pointer to the dataset that was picked (if any). If nothing 
+  // Get a pointer to the dataset that was picked (if any). If nothing
   // was picked then NULL is returned.
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
@@ -92,30 +92,30 @@ public:
   // were intersected at. The order of this list will match the order of
   // GetProp3Ds.
   vtkPoints *GetPickedPositions() {return this->PickedPositions;};
-  
-  // Description:
-  // Perform pick operation with selection point provided. Normally the 
-  // first two values for the selection point are x-y pixel coordinate, and
-  // the third value is =0. Return non-zero if something was successfully 
-  // picked.
-  virtual int Pick(double selectionX, double selectionY, double selectionZ, 
-                   vtkRenderer *renderer);  
 
-  // Description: 
+  // Description:
+  // Perform pick operation with selection point provided. Normally the
+  // first two values for the selection point are x-y pixel coordinate, and
+  // the third value is =0. Return non-zero if something was successfully
+  // picked.
+  virtual int Pick(double selectionX, double selectionY, double selectionZ,
+                   vtkRenderer *renderer);
+
+  // Description:
   // Perform pick operation with selection point provided. Normally the first
   // two values for the selection point are x-y pixel coordinate, and the
   // third value is =0. Return non-zero if something was successfully picked.
   int Pick(double selectionPt[3], vtkRenderer *ren)
     {return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren);};
-      
+
 protected:
   vtkPicker();
   ~vtkPicker();
 
-  void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m, 
+  void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m,
                   double tMin, double mapperPos[3]);
-  virtual double IntersectWithLine(double p1[3], double p2[3], double tol, 
-                                  vtkAssemblyPath *path, vtkProp3D *p, 
+  virtual double IntersectWithLine(double p1[3], double p2[3], double tol,
+                                  vtkAssemblyPath *path, vtkProp3D *p,
                                   vtkAbstractMapper3D *m);
   virtual void Initialize();
 
@@ -130,7 +130,7 @@ protected:
   vtkActorCollection *Actors; //candidate actors (based on bounding box)
   vtkProp3DCollection *Prop3Ds; //candidate actors (based on bounding box)
   vtkPoints *PickedPositions; // candidate positions
-  
+
 private:
   vtkPicker(const vtkPicker&);  // Not implemented.
   void operator=(const vtkPicker&);  // Not implemented.

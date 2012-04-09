@@ -158,7 +158,7 @@ public:
   virtual bool GetUseRectangularCoordinates();
   vtkBooleanMacro(UseRectangularCoordinates, bool);
 
-  // Description: 
+  // Description:
   // Visibility of scalar bar actor for edges.
   virtual void SetEdgeScalarBarVisibility(bool b);
   virtual bool GetEdgeScalarBarVisibility();

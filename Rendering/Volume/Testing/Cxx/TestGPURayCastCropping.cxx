@@ -64,7 +64,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
   opacityTransferFunction->AddPoint(30.0, 0.0);
   opacityTransferFunction->AddPoint(80.0, 0.5);
   opacityTransferFunction->AddPoint(255.0,0.5);
-  
+
   // Create transfer mapping scalar value to color.
   vtkColorTransferFunction *colorTransferFunction
     = vtkColorTransferFunction::New();
@@ -83,7 +83,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
   volumeProperty->ShadeOn(); //
   volumeProperty->SetInterpolationTypeToLinear();
 
-  
+
   ren1->SetBackground(0.1,0.2,0.4);
   renWin->SetSize(600, 300);
   renWin->Render();
@@ -102,12 +102,12 @@ int TestGPURayCastCropping(int argc, char *argv[])
       volumeMapper[i][j]->SetSampleDistance(0.25);
       volumeMapper[i][j]->CroppingOn();
       volumeMapper[i][j]->SetCroppingRegionPlanes(17,33,17,33,17,33);
-        
+
       vtkVolume *volume=vtkVolume::New();
       volume->SetMapper(volumeMapper[i][j]);
       volumeMapper[i][j]->Delete();
       volume->SetProperty(volumeProperty);
-      
+
       vtkTransform *userMatrix=vtkTransform::New();
       userMatrix->PostMultiply();
       userMatrix->Identity();
@@ -123,7 +123,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
         userMatrix->RotateX(20);
         userMatrix->RotateY(j*90+20);
         }
-      
+
       userMatrix->Translate(j*55+25,i*55+25,0);
       volume->SetUserTransform(userMatrix);
       userMatrix->Delete();
@@ -141,7 +141,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
 
   int I=1;
   int J=0;
-  
+
   volumeMapper[0][0]->SetCroppingRegionFlagsToSubVolume();
   volumeMapper[0][1]->SetCroppingRegionFlagsToCross();
   volumeMapper[0][2]->SetCroppingRegionFlagsToInvertedCross();
@@ -154,7 +154,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
   volumeMapper[1][3]->SetCroppingRegionFlags(67117057);
   ren1->GetCullers()->InitTraversal();
   vtkCuller *culler=ren1->GetCullers()->GetNextItem();
-  
+
   vtkFrustumCoverageCuller *fc=vtkFrustumCoverageCuller::SafeDownCast(culler);
   if(fc!=0)
     {
@@ -164,11 +164,11 @@ int TestGPURayCastCropping(int argc, char *argv[])
     {
     cout<<"culler is not a vtkFrustumCoverageCuller"<<endl;
     }
-  
+
   // First test if mapper is supported
-  
+
   int valid=volumeMapper[I][J]->IsRenderSupported(renWin,volumeProperty);
-  
+
   int retVal;
   if(valid)
     {
@@ -188,7 +188,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
-  
+
   // Clean up.
   iren->Delete();
 

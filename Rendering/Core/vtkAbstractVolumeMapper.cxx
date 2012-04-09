@@ -20,14 +20,14 @@
 #include "vtkMath.h"
 
 
-// Construct a vtkAbstractVolumeMapper 
+// Construct a vtkAbstractVolumeMapper
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
 {
   vtkMath::UninitializeBounds(this->Bounds);
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
-  
+
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  
+
   this->ArrayName = new char[1];
   this->ArrayName[0] = '\0';
   this->ArrayId = -1;
@@ -39,11 +39,11 @@ vtkAbstractVolumeMapper::~vtkAbstractVolumeMapper()
   delete[] this->ArrayName;
 }
 
-// Get the bounds for the input of this mapper as 
+// Get the bounds for the input of this mapper as
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkAbstractVolumeMapper::GetBounds()
 {
-  if ( ! this->GetDataSetInput() ) 
+  if ( ! this->GetDataSetInput() )
     {
     vtkMath::UninitializeBounds(this->Bounds);
     return this->Bounds;
@@ -118,7 +118,7 @@ const char *vtkAbstractVolumeMapper::GetScalarModeAsString(void)
     {
     return "UseCellData";
     }
-  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA ) 
+  else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
     {
     return "UsePointData";
     }
@@ -130,7 +130,7 @@ const char *vtkAbstractVolumeMapper::GetScalarModeAsString(void)
     {
     return "UseCellFieldData";
     }
-  else 
+  else
     {
     return "Default";
     }
@@ -141,7 +141,7 @@ void vtkAbstractVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "ScalarMode: " << this->GetScalarModeAsString() << endl;
-  
+
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
        this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
     {

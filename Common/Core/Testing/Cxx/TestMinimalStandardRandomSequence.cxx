@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // This program tests the vtkMinimalStandardRandomSequence class.
 //
 // Correctness test is described in first column, page 1195:
 // A seed of 1 at step 1 should give a seed of 1043618065 at step 10001.
-// 
+//
 // ref: "Random Number Generators: Good Ones are Hard to Find,"
 // by Stephen K. Park and Keith W. Miller in Communications of the ACM,
 // 31, 10 (Oct. 1988) pp. 1192-1201.
@@ -33,14 +33,14 @@ int TestMinimalStandardRandomSequence(int,char *[])
 {
   vtkMinimalStandardRandomSequence *seq
     =vtkMinimalStandardRandomSequence::New();
-  
+
   seq->SetSeedOnly(1);
-  
+
   bool status=true;
-  
+
   // Check seed has been set
   status=seq->GetSeed()==1;
-  
+
   if(status)
     {
     int i=0;
@@ -61,7 +61,7 @@ int TestMinimalStandardRandomSequence(int,char *[])
     {
     cout << "FAILED: seed is not 1, it is " << seq->GetSeed() << endl;
     }
-  
+
   vtkMath::RandomSeed(1);
   int i=0;
   while(i<9997)
@@ -76,7 +76,7 @@ int TestMinimalStandardRandomSequence(int,char *[])
     cout << "FAILED: static seed is not 1043618065, it is " << vtkMath::GetSeed()
          << endl;
     }
-  
+
   seq->SetSeed(1);
   i=0;
   while(i<9997)
@@ -93,7 +93,7 @@ int TestMinimalStandardRandomSequence(int,char *[])
     }
   seq->Delete();
   int result;
-  
+
   if(status)
     {
     // passed.
@@ -105,4 +105,4 @@ int TestMinimalStandardRandomSequence(int,char *[])
     result=1;
     }
   return result;
-} 
+}

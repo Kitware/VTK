@@ -68,11 +68,11 @@ public:
   // Description:
   // Return data in current row, field c
   virtual vtkVariant DataValue(vtkIdType c);
-  
+
   // Description:
   // Returns true if an error is set, otherwise false.
   virtual bool HasError();
-  
+
   // Description:
   // Get the last error text from the query
   virtual const char* GetLastErrorText();
@@ -90,7 +90,7 @@ private:
   vtkSetStringMacro(LastErrorText);
 
   char* LastErrorText;
-    
+
   vtkQtSQLQuery(const vtkQtSQLQuery &); // Not implemented.
   void operator=(const vtkQtSQLQuery &); // Not implemented.
 };

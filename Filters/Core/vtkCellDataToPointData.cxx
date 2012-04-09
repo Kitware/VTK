@@ -85,7 +85,7 @@ int vtkCellDataToPointData::RequestData(
     return 1;
     }
   weights = new double[VTK_MAX_CELLS_PER_POINT];
-  
+
   // Pass the point data first. The fields and attributes
   // which also exist in the cell data of the input will
   // be over-written during CopyAllocate
@@ -133,7 +133,7 @@ int vtkCellDataToPointData::RequestData(
 
   cellIds->Delete();
   delete [] weights;
-  
+
   return 1;
 }
 
@@ -181,7 +181,7 @@ namespace
       {
       // guard against divide by zero
       if (unsigned int const denum = num->GetValue(pid))
-        { 
+        {
         // divide point data by the number of cells using it <==>
         // point_data /= denum
         std::transform(dstbeg, dstbeg+ncomps, dstbeg,

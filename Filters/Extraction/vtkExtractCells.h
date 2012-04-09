@@ -21,8 +21,8 @@
 //
 // .SECTION Description
 //    Given a vtkDataSet and a list of cell Ids, create a vtkUnstructuredGrid
-//    composed of these cells.  If the cell list is empty when vtkExtractCells 
-//    executes, it will set up the ugrid, point and cell arrays, with no points, 
+//    composed of these cells.  If the cell list is empty when vtkExtractCells
+//    executes, it will set up the ugrid, point and cell arrays, with no points,
 //    cells or data.
 
 #ifndef __vtkExtractCells_h
@@ -48,7 +48,7 @@ public:
   // will be composed of.  Replaces any other cell ID list supplied
   // so far.  (Set to NULL to free memory used by cell list.)
 
-  void SetCellList(vtkIdList *l); 
+  void SetCellList(vtkIdList *l);
 
   // Description:
   // Add the supplied list of cell IDs to those that will be included

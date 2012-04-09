@@ -37,7 +37,7 @@ void vtkGenericAttribute::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Name: " << this->GetName() << endl;
   os << indent << "Number of components: " << this->GetNumberOfComponents() << endl;
   os << indent << "Centering: ";
-  
+
   switch(this->GetCentering())
     {
     case vtkPointCentered:

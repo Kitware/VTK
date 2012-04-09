@@ -43,8 +43,8 @@ int SelectionCompare(
     }
   if (a->GetContentType() == vtkSelectionNode::VALUES)
     {
-    if (!alist->GetName() || 
-        !blist->GetName() || 
+    if (!alist->GetName() ||
+        !blist->GetName() ||
         strcmp(alist->GetName(), blist->GetName()))
       {
       cerr << "ERROR: The array names do not match." << endl;
@@ -84,13 +84,13 @@ int SelectionCompare(
         {
         if (alist->GetValue(i) != blist->GetValue(i))
           {
-          cerr << "ERROR: Selection lists do not match at sel " 
-               << i 
-               << "(" 
-               << alist->GetValue(i) 
-               << " != " 
-               << blist->GetValue(i) 
-               << ")." 
+          cerr << "ERROR: Selection lists do not match at sel "
+               << i
+               << "("
+               << alist->GetValue(i)
+               << " != "
+               << blist->GetValue(i)
+               << ")."
                << endl;
           errors++;
           break;
@@ -122,7 +122,7 @@ int SelectionCompare(
 }
 
 int TestAppendSelectionCase(
-  vtkSelection* input1, 
+  vtkSelection* input1,
   vtkSelection* input2,
   vtkSelection* correct)
 {

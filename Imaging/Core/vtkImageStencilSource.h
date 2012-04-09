@@ -17,7 +17,7 @@
 // vtkImageStencilSource is a superclass for filters that generate image
 // stencils.  Given a clipping object such as a vtkImplicitFunction, it
 // will set up a list of clipping extents for each x-row through the
-// image data.  The extents for each x-row can be retrieved via the 
+// image data.  The extents for each x-row can be retrieved via the
 // GetNextExtent() method after the extent lists have been built
 // with the BuildExtents() method.  For large images, using clipping
 // extents is much more memory efficient (and slightly more time-efficient)

@@ -36,8 +36,8 @@ proc rtOtherTest { fileid } {
            b Delete
         }
   catch {
-           $a b 
-           $a c 
+           $a b
+           $a c
            set d [b SafeDownCast c]
            b Delete
            c Delete

@@ -47,36 +47,36 @@ public:
 };
 static bool TestGlyph3D_WithBadArray()
 {
-  vtkSmartPointer<vtkDoubleArray> vectors = 
+  vtkSmartPointer<vtkDoubleArray> vectors =
     vtkSmartPointer<vtkDoubleArray>::New();
-  vectors->SetName("Normals"); 
+  vectors->SetName("Normals");
   vectors->SetNumberOfComponents(4);
   vectors->InsertNextTuple4(1,1,1,1);
- 
-  vtkSmartPointer<vtkPoints> points = 
-    vtkSmartPointer<vtkPoints>::New();
-  points->InsertNextPoint(0,0,0); 
-  vtkSmartPointer<vtkPolyData> polydata = 
-    vtkSmartPointer<vtkPolyData>::New(); 
-  polydata->SetPoints(points);
-   
-  polydata->GetPointData()->AddArray(vectors); 
 
-  vtkSmartPointer<vtkPolyData> glyph = 
+  vtkSmartPointer<vtkPoints> points =
+    vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(0,0,0);
+  vtkSmartPointer<vtkPolyData> polydata =
     vtkSmartPointer<vtkPolyData>::New();
- 
-  vtkSmartPointer<vtkConeSource> glyphSource = 
+  polydata->SetPoints(points);
+
+  polydata->GetPointData()->AddArray(vectors);
+
+  vtkSmartPointer<vtkPolyData> glyph =
+    vtkSmartPointer<vtkPolyData>::New();
+
+  vtkSmartPointer<vtkConeSource> glyphSource =
       vtkSmartPointer<vtkConeSource>::New();
- 
-  vtkSmartPointer<vtkGlyph3D> glyph3D = 
-    vtkSmartPointer<vtkGlyph3D>::New(); 
+
+  vtkSmartPointer<vtkGlyph3D> glyph3D =
+    vtkSmartPointer<vtkGlyph3D>::New();
   glyph3D->SetSourceConnection(glyphSource->GetOutputPort());
   glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
-  glyph3D->SetVectorModeToUseVector(); 
+  glyph3D->SetVectorModeToUseVector();
   ErrorObserver*  errorObserver= new ErrorObserver();
   glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver,&ErrorObserver::onErrorEvent);
-  glyph3D->Update(); 
+  glyph3D->Update();
   bool res = errorObserver->GetError();
   delete errorObserver;
   return res;
@@ -89,44 +89,44 @@ int TestGlyph3D(int argc, char* argv[])
     return EXIT_FAILURE;
     }
 
-  vtkSmartPointer<vtkDoubleArray> vectors = 
+  vtkSmartPointer<vtkDoubleArray> vectors =
     vtkSmartPointer<vtkDoubleArray>::New();
-  vectors->SetName("Normals"); 
+  vectors->SetName("Normals");
   vectors->SetNumberOfComponents(2);
   vectors->InsertNextTuple2(1,1);
   vectors->InsertNextTuple2(1,0);
-  vectors->InsertNextTuple2(0,1); 
+  vectors->InsertNextTuple2(0,1);
 
-  vtkSmartPointer<vtkPoints> points = 
+  vtkSmartPointer<vtkPoints> points =
     vtkSmartPointer<vtkPoints>::New();
   points->InsertNextPoint(0,0,0);
   points->InsertNextPoint(1,1,1);
   points->InsertNextPoint(2,2,2);
 
-  vtkSmartPointer<vtkPolyData> polydata = 
-    vtkSmartPointer<vtkPolyData>::New(); 
+  vtkSmartPointer<vtkPolyData> polydata =
+    vtkSmartPointer<vtkPolyData>::New();
   polydata->SetPoints(points);
-  
- 
+
+
   polydata->GetPointData()->AddArray(vectors);
 
-  vtkSmartPointer<vtkPolyData> glyph = 
+  vtkSmartPointer<vtkPolyData> glyph =
     vtkSmartPointer<vtkPolyData>::New();
- 
-  vtkSmartPointer<vtkConeSource> glyphSource = 
+
+  vtkSmartPointer<vtkConeSource> glyphSource =
       vtkSmartPointer<vtkConeSource>::New();
- 
-  vtkSmartPointer<vtkGlyph3D> glyph3D = 
-    vtkSmartPointer<vtkGlyph3D>::New(); 
+
+  vtkSmartPointer<vtkGlyph3D> glyph3D =
+    vtkSmartPointer<vtkGlyph3D>::New();
   glyph3D->SetSourceConnection(glyphSource->GetOutputPort());
   glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
   glyph3D->SetVectorModeToUseVector();
-  glyph3D->Update(); 
+  glyph3D->Update();
 
   // Visualize
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper = 
+  vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(glyph3D->GetOutputPort());
 

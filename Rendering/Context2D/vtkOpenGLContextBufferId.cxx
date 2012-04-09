@@ -81,7 +81,7 @@ void vtkOpenGLContextBufferId::Allocate()
   assert("pre: positive_width" && this->GetWidth()>0);
   assert("pre: positive_height" && this->GetHeight()>0);
   assert("pre: context_is_set" && this->GetContext()!=0);
-  
+
   if(this->Texture==0)
     {
     this->Texture=vtkTextureObject::New();
@@ -107,7 +107,7 @@ void vtkOpenGLContextBufferId::SetValues(int srcXmin,
                                          int srcYmin)
 {
   assert("pre: is_allocated" && this->IsAllocated());
-  
+
   // copy the current read buffer to the texture.
   this->Texture->CopyFromFrameBuffer(srcXmin,srcYmin,0,0,this->Width,
                                      this->Height);
@@ -142,7 +142,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       bool savedAlphaTest=glIsEnabled(GL_ALPHA_TEST)==GL_TRUE;
       bool savedStencilTest=glIsEnabled(GL_STENCIL_TEST)==GL_TRUE;
       bool savedBlend=glIsEnabled(GL_BLEND)==GL_TRUE;
-      
+
       if(savedDrawBuffer!=GL_BACK_LEFT)
         {
         glDrawBuffer(GL_BACK_LEFT);
@@ -163,7 +163,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
         {
         glDisable(GL_BLEND);
         }
-      
+
       // Fixed-pipeline stuff
       vtkgl::ActiveTexture(vtkgl::TEXTURE0);
       this->Texture->Bind();
@@ -172,11 +172,11 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,this->Width,this->Height);
       glDisable(GL_TEXTURE_2D);
       glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // restore
-      
+
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
       glReadBuffer(GL_BACK_LEFT);
-      
+
       // To workaround pixel ownership test,
       // get value from current read buffer at pixel (x,y) instead of just
       // (0,0).
@@ -186,7 +186,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
       rgb[1]=1;
       rgb[2]=8;
       glReadPixels(x,y,1,1,GL_RGB,GL_UNSIGNED_BYTE,rgb);
-      
+
       if(savedReadBuffer!=GL_BACK_LEFT)
         {
         glReadBuffer(static_cast<GLenum>(savedReadBuffer));
@@ -211,10 +211,10 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
         {
         glEnable(GL_BLEND);
         }
-      
+
       int value=(static_cast<int>(rgb[0])<<16)|(static_cast<int>(rgb[1])<<8)
         |static_cast<int>(rgb[2]);
-    
+
       result=static_cast<vtkIdType>(value-1);
       }
     }

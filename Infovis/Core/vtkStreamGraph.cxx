@@ -63,8 +63,8 @@ vtkStreamGraph::~vtkStreamGraph()
 
 //---------------------------------------------------------------------------
 int vtkStreamGraph::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkInformation* input_info = inputVector[0]->GetInformationObject(0);

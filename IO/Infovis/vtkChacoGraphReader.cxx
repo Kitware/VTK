@@ -81,8 +81,8 @@ vtkChacoGraphReader::~vtkChacoGraphReader()
 void vtkChacoGraphReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "FileName: " 
+
+  os << indent << "FileName: "
      << (this->FileName ? this->FileName : "(none)") << endl;
 }
 
@@ -209,7 +209,7 @@ my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
-  
+
   while ((nextValue = in.get()) != EOF &&
          numCharactersRead < out.max_size())
     {

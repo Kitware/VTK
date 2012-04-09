@@ -44,7 +44,7 @@ int vtkBlockIdScalars::RequestData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkMultiBlockDataSet *input = vtkMultiBlockDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input) 
+  if (!input)
     {
     return 0;
     }
@@ -52,7 +52,7 @@ int vtkBlockIdScalars::RequestData(
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) 
+  if (!output)
     {
     return 0;
     }
@@ -65,7 +65,7 @@ int vtkBlockIdScalars::RequestData(
   iter->VisitOnlyLeavesOff();
 
   int blockIdx = 0;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
     iter->GoToNextItem(), blockIdx++)
     {
     vtkDataObject* dObj = iter->GetCurrentDataObject();
@@ -100,7 +100,7 @@ vtkDataObject* vtkBlockIdScalars::ColorBlock(
 
     vtkCompositeDataIterator* inIter = mbInput->NewIterator();
     inIter->VisitOnlyLeavesOn();
-    for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); 
+    for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal();
       inIter->GoToNextItem())
       {
       vtkDataObject* src = inIter->GetCurrentDataObject();

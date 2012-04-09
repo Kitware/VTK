@@ -36,7 +36,7 @@
 // relative value of the point ids.
 //
 // .SECTION See Also
-// vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric vtkAttributesErrorMetric 
+// vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric vtkAttributesErrorMetric
 // vtkGeometricErrorMetric vtkViewDependentErrorMetric
 
 #ifndef __vtkSimpleCellTessellator_h
@@ -103,7 +103,7 @@ public:
   // \pre internalPd_exists: internalPd!=0
   void Tessellate(vtkGenericAdaptorCell *cell,
                   vtkGenericAttributeCollection *att,
-                  vtkDoubleArray *points, 
+                  vtkDoubleArray *points,
                   vtkCellArray *cellArray,
                   vtkPointData *internalPd );
 
@@ -121,16 +121,16 @@ public:
                    vtkDoubleArray *points,
                    vtkCellArray *cellArray,
                    vtkPointData *internalPd);
-  
+
   // Description:
   // Reset the output for repeated use of this class.
   void Reset();
 
- 
+
   // Description:
   // Initialize the tessellator with a data set `ds'.
   void Initialize(vtkGenericDataSet *ds);
-  
+
   // Description:
   // Return the number of fixed subdivisions. It is used to prevent from
   // infinite loop in degenerated cases. For order 3 or higher, if the
@@ -144,7 +144,7 @@ public:
   // subdivisions.
   // \post positive_result: result>=0 && result<=GetMaxSubdivisionLevel()
   int GetFixedSubdivisions();
-  
+
   // Description:
   // Return the maximum level of subdivision. It is used to prevent from
   // infinite loop in degenerated cases. For order 3 or higher, if the
@@ -153,26 +153,26 @@ public:
   // neither fixed nor adaptive.
   // \post positive_result: result>=GetFixedSubdivisions()
   int GetMaxSubdivisionLevel();
-  
+
   // Description:
   // Return the maximum number of adaptive subdivisions.
   // \post valid_result: result==GetMaxSubdivisionLevel()-GetFixedSubdivisions()
   int GetMaxAdaptiveSubdivisions();
-  
+
   // Description:
   // Set the number of fixed subdivisions. See GetFixedSubdivisions() for
   // more explanations.
   // \pre positive_level: level>=0 && level<=GetMaxSubdivisionLevel()
   // \post is_set: GetFixedSubdivisions()==level
   void SetFixedSubdivisions(int level);
-  
+
   // Description:
   // Set the maximum level of subdivision. See GetMaxSubdivisionLevel() for
   // more explanations.
   // \pre positive_level: level>=GetFixedSubdivisions()
   // \post is_set: level==GetMaxSubdivisionLevel()
   void SetMaxSubdivisionLevel(int level);
-  
+
   // Description:
   // Set both the number of fixed subdivisions and the maximum level of
   // subdivisions. See GetFixedSubdivisions(), GetMaxSubdivisionLevel() and
@@ -183,21 +183,21 @@ public:
   // \post maxLevel_is_set: maxLevel==GetMaxSubdivisionLevel()
   void SetSubdivisionLevels(int fixed,
                             int maxLevel);
-  
-  
+
+
 protected:
   vtkSimpleCellTessellator();
   ~vtkSimpleCellTessellator();
-  
+
   // Description:
   // Extract point `pointId' from the edge table to the output point and output
   // point data.
   void CopyPoint(vtkIdType pointId);
-  
+
   // Description:
   //HashTable instead of vtkPointLocator
   vtkGenericEdgeTable *EdgeTable;
-  
+
   void InsertEdgesIntoEdgeTable( vtkTriangleTile &tri );
   void RemoveEdgesFromEdgeTable( vtkTriangleTile &tri );
   void InsertPointsIntoEdgeTable( vtkTriangleTile &tri );
@@ -225,7 +225,7 @@ protected:
                      vtkIdType *ids,
                      int *edgeIds,
                      int *faceIds);
-  
+
   // Description:
   // Triangulate a triangle of `cell'. This triangle can be the top-level
   // triangle if the cell is a triangle or a toplevel sub-triangle is the cell
@@ -248,7 +248,7 @@ protected:
                            vtkDoubleArray *points,
                            vtkCellArray *cellArray,
                            vtkPointData *internalPd);
-  
+
   // Description:
   // To access the higher order cell from third party library
   vtkGenericAdaptorCell *GenericCell;
@@ -257,26 +257,26 @@ protected:
   // Allocate some memory if Scalars does not exists or is smaller than size.
   // \pre positive_size: size>0
   void AllocateScalars(int size);
-  
+
   // Description:
   // Scalar buffer used to save the interpolate values of the attributes
   // The capacity is at least the number of components of the attribute
   // collection ot the current cell.
-  
+
   // Scalar buffer that stores the global coordinates, parametric coordinates,
   // attributes at left, mid and right point. The format is:
-  // lxlylz lrlslt [lalb lcldle...] mxmymz mrmsmt [mamb mcmdme...] 
+  // lxlylz lrlslt [lalb lcldle...] mxmymz mrmsmt [mamb mcmdme...]
   // rxryrz rrrsrt [rarb rcrdre...]
   // The ScalarsCapacity>=(6+attributeCollection->GetNumberOfComponents())*3
-  
+
   double *Scalars;
   int ScalarsCapacity;
-  
+
   // Description:
   // Number of double value to skip to go to the next point into Scalars array
   // It is 6+attributeCollection->GetNumberOfComponents()
   int PointOffset;
-  
+
   // Description:
   // Used to iterate over edges boundaries in GetNumberOfCellsUsingEdges()
   vtkGenericCellIterator    *CellIterator;
@@ -291,12 +291,12 @@ protected:
   vtkCellArray       *TessellateCellArray;
   vtkPointData *TessellatePointData;
 
-  int FindEdgeReferenceCount(double p1[3], double p2[3], 
+  int FindEdgeReferenceCount(double p1[3], double p2[3],
                              vtkIdType &e1, vtkIdType &e2);
 
   int GetNumberOfCellsUsingFace( int faceId );
   int GetNumberOfCellsUsingEdge( int edgeId );
-  
+
   // Description:
   // Is the edge defined by vertices (`p1',`p2') in parametric coordinates on
   // some edge of the original tetrahedron? If yes return on which edge it is,
@@ -305,7 +305,7 @@ protected:
   // \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
   // \post valid_result: (result==-1) || ( result>=0 && result<=5 )
   int IsEdgeOnFace(double p1[3], double p2[3]);
-  
+
   // Description:
   // Return 1 if the parent of edge defined by vertices (`p1',`p2') in
   // parametric coordinates, is an edge; 3 if there is no parent (the edge is
@@ -314,7 +314,7 @@ protected:
   // \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
   // \post valid_result: (result==1)||(result==3)
   int FindEdgeParent2D(double p1[3], double p2[3], int &localId);
-  
+
   // Description:
   // Return 1 if the parent of edge defined by vertices (`p1',`p2') in
   // parametric coordinates, is an edge; 2 if the parent is a face, 3 if there
@@ -324,31 +324,31 @@ protected:
   // \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
   // \post valid_result: result>=1 && result<=3
   int FindEdgeParent(double p1[3], double p2[3], int &localId);
-  
+
   // Description:
   // Allocate some memory if PointIds does not exist or is smaller than size.
   // \pre positive_size: size>0
   void AllocatePointIds(int size);
-  
+
   // Description:
   // Are the faces `originalFace' and `face' equal?
   // The result is independent from any order or orientation.
   // \pre originalFace_exists: originalFace!=0
   int FacesAreEqual(int *originalFace,
                     int face[3]);
-  
+
   // Description:
   // Dataset to be tessellated.
   vtkGenericDataSet *DataSet;
-  
+
   // Description:
   // Number of points in the dataset to be tessellated.
   vtkIdType NumberOfPoints;
-  
+
   int FixedSubdivisions;
   int MaxSubdivisionLevel;
   int CurrentSubdivisionLevel;
-  
+
   // Description:
   // For each edge (6) of the sub-tetra, there is the id of the original edge
   // or -1 if the edge is not an original edge
@@ -357,30 +357,30 @@ protected:
   // For each face (4) of the sub-tetra, there is the id of the original face
   // or -1 if the face is not an original face
   int *FaceIds;
-  
+
   // The following variables are for complex cells.
-  
+
   // Used to create tetra from more complex cells, because the tessellator
   // is supposed to deal with simplices only.
   vtkOrderedTriangulator *Triangulator;
-  
+
   // Used to store the sub-tetra during the tessellation of complex
   // cells.
   vtkCellArray *Connectivity;
-  
+
   // Used to create triangles from a face of a complex cell.
   vtkPolygon *Polygon;
-  
+
   // Used to store the sub-triangles during the tessellation of complex cells.
   vtkIdList *TriangleIds;
-  
+
   vtkIdType *PointIds;
   int PointIdsCapacity;
-  
+
 private:
   vtkSimpleCellTessellator(const vtkSimpleCellTessellator&);  // Not implemented.
   void operator=(const vtkSimpleCellTessellator&);  // Not implemented.
-  
+
   //BTX
   friend class vtkTetraTile;
   friend class vtkTriangleTile;

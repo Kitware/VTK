@@ -57,7 +57,7 @@ int vtkHedgeHog::RequestData(
   double x[3], v[3];
   double newX[3];
   vtkPointData *outputPD = output->GetPointData();
-  
+
   // Initialize
   //
   numPts = input->GetNumberOfPoints();
@@ -98,7 +98,7 @@ int vtkHedgeHog::RequestData(
         break;
         }
       }
-    
+
     input->GetPoint(ptId, x);
     if (this->VectorMode == VTK_USE_VECTOR)
       {
@@ -147,6 +147,6 @@ void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-  os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ? 
+  os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ?
                                        "Orient by vector\n" : "Orient by normal\n");
 }

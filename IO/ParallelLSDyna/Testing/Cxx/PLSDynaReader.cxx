@@ -55,9 +55,9 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
   vtkNew<vtkPLSDynaReader> reader;
 
   char *meshFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                  "Data/LSDyna/hemi.draw/hemi_draw.d3plot");  
-  reader->SetFileName(meshFileName);  
-  
+                                  "Data/LSDyna/hemi.draw/hemi_draw.d3plot");
+  reader->SetFileName(meshFileName);
+
   // Extract geometry that we can render.
   vtkNew<vtkCompositeDataGeometryFilter> geometry;
   geometry->SetInputConnection(reader->GetOutputPort());
@@ -66,7 +66,7 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(geometry->GetOutputPort());
   mapper->SetScalarModeToUsePointFieldData();
-  
+
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());
 

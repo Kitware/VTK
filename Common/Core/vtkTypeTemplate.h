@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTypeTemplate.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -52,7 +52,7 @@ public:
 
     return 0;
   }
-  
+
 protected:
   virtual vtkObjectBase* NewInstanceInternal() const
   {
@@ -70,7 +70,7 @@ protected:
       }
     return BaseT::IsTypeOf(type);
   }
-  
+
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.

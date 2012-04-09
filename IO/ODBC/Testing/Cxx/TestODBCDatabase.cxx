@@ -58,14 +58,14 @@ int TestODBCDatabase( int, char ** const )
          << query->GetLastErrorText() << endl;
     return 1;
     }
-  
+
   int i;
   for ( i = 0; i < 20; ++ i )
     {
     vtksys_ios::ostringstream queryBuf;
 
     queryBuf << "INSERT INTO people VALUES('John Doe "
-             << i 
+             << i
              << "', " << i << ", " << 10*i + 0.5 << ")";
     cout << queryBuf.str() << endl;
     query->SetQuery( queryBuf.str().c_str() );
@@ -137,7 +137,7 @@ int TestODBCDatabase( int, char ** const )
       }
     cerr << endl;
     }
-  
+
   cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if ( !query->Execute() )
     {

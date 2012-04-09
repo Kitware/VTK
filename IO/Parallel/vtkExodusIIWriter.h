@@ -19,7 +19,7 @@
 
 // .NAME vtkExodusIIWriter - Write Exodus II files
 // .SECTION Description
-//     This is a vtkWriter that writes it's vtkUnstructuredGrid 
+//     This is a vtkWriter that writes it's vtkUnstructuredGrid
 //     input out to an Exodus II file.  Go to http://endo.sandia.gov/SEACAS/
 //     for more information about the Exodus II format.
 //
@@ -32,7 +32,7 @@
 //     a vtkModelMetadata object and embed it in a vtkUnstructuredGrid
 //     in a series of field arrays.  This writer searches for these
 //     field arrays and will use the metadata contained in them
-//     when creating the new Exodus II file. 
+//     when creating the new Exodus II file.
 //
 //     You can also explicitly give the vtkExodusIIWriter a
 //     vtkModelMetadata object to use when writing the file.
@@ -43,9 +43,9 @@
 //     If you don't provide a block ID element array, we'll create a
 //     block for each cell type that appears in the unstructured grid.
 //
-//     However if this writer is part of a parallel application (hence 
-//     writing out a distributed Exodus file), then we need at the very 
-//     least a list of all the block IDs that appear in the file.  And 
+//     However if this writer is part of a parallel application (hence
+//     writing out a distributed Exodus file), then we need at the very
+//     least a list of all the block IDs that appear in the file.  And
 //     we need the element array of block IDs for the input unstructured grid.
 //
 //     In the absence of a vtkModelMetadata object, you can also provide
@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Specify the vtkModelMetadata object which contains the Exodus file
-  // model information (metadata) absent in the vtkUnstructuredGrid.  If you 
+  // model information (metadata) absent in the vtkUnstructuredGrid.  If you
   // have this object, you don't need to set any other values before writing.
   // (Just the FileName and the Input.)
   // Note that the vtkExodusReader can create and attach a vtkModelMetadata
@@ -131,7 +131,7 @@ public:
   vtkBooleanMacro(WriteOutBlockIdArray, int);
 
   // Description:
-  //   By default, the integer array containing the global Node Ids 
+  //   By default, the integer array containing the global Node Ids
   //   is not included when the new Exodus II file is written out.  If
   //   you do want to include this array, set WriteOutGlobalNodeIdArray to ON.
 
@@ -140,7 +140,7 @@ public:
   vtkBooleanMacro(WriteOutGlobalNodeIdArray, int);
 
   // Description:
-  //   By default, the integer array containing the global Element Ids 
+  //   By default, the integer array containing the global Element Ids
   //   is not included when the new Exodus II file is written out.  If you
   //   do want to include this array, set WriteOutGlobalElementIdArray to ON.
 
@@ -187,7 +187,7 @@ protected:
   int CurrentTimeIndex;
   int FileTimeOffset;
 
-//BTX 
+//BTX
   vtkDataObject *OriginalInput;
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
@@ -196,7 +196,7 @@ protected:
 
   struct Block
   {
-    Block () 
+    Block ()
       {
       this->Type = 0;
       this->NumElements = 0;
@@ -245,18 +245,18 @@ protected:
   int NumberOfScalarElementArrays;
   int NumberOfScalarNodeArrays;
 //ETX
-  
+
 //BTX
   std::vector< std::vector<int> > CellToElementOffset;
 //ETX
   // By BlockId, and within block ID by element variable, with variables
   // appearing in the same order in which they appear in OutputElementArrayNames
-  
+
   int *BlockElementVariableTruthTable;
   int AllVariablesDefinedInAllBlocks;
 
   int BlockVariableTruthValue(int blockIdx, int varIdx);
-  
+
 //BTX
   char *StrDupWithNew (const char *s);
   void StringUppercase (std::string& str);
@@ -277,7 +277,7 @@ protected:
                    vtkInformationVector* outputVector);
 
   void WriteData ();
-  
+
   int FlattenHierarchy (vtkDataObject* input, bool& changed);
 
   int CreateNewExodusFile ();
@@ -292,14 +292,14 @@ protected:
   int ParseMetadata ();
   int CreateDefaultMetadata ();
   char *GetCellTypeName (int t);
-  
+
   int CreateBlockIdMetadata(vtkModelMetadata *em);
   int CreateBlockVariableMetadata (vtkModelMetadata* em);
-  
+
 //BTX
   void ConvertVariableNames (std::map<std::string, VariableInfo>& variableMap);
   char **FlattenOutVariableNames (
-            int nScalarArrays, 
+            int nScalarArrays,
             const std::map<std::string, VariableInfo>& variableMap);
   std::string CreateNameForScalarArray (const char *root,
                                            int component,

@@ -284,7 +284,7 @@ int vtkMatlabEngineInterface::PutVtkArray(const char* name, vtkArray* vda)
 
 }
 
- 
+
 vtkArray* vtkMatlabEngineInterface::GetVtkArray(const char* name)
 {
 

@@ -37,7 +37,7 @@ int main(int, char*[])
   vtkIdType d = graph->AddChild(b);
   vtkIdType e = graph->AddChild(c);
   vtkIdType f = graph->AddChild(c);
-  
+
   vtkStringArray* labels = vtkStringArray::New();
   labels->SetName("Label");
   labels->InsertValue(a, "a");
@@ -47,10 +47,10 @@ int main(int, char*[])
   labels->InsertValue(e, "e");
   labels->InsertValue(f, "f");
   graph->GetVertexData()->AddArray(labels);
-  
+
   vtkTree* tree = vtkTree::New();
   tree->CheckedShallowCopy(graph);
-  
+
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   view->SetRepresentationFromInput(tree);
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
@@ -60,14 +60,14 @@ int main(int, char*[])
   view->SetColorVertices(true);
   view->SetVertexLabelArrayName("Label");
   view->SetVertexLabelVisibility(true);
-  
+
   view->ResetCamera();
   view->GetInteractor()->Start();
-  
+
   graph->Delete();
   labels->Delete();
   tree->Delete();
   view->Delete();
-  
+
   return 0;
 }

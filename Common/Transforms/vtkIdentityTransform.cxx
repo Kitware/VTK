@@ -56,11 +56,11 @@ void vtkIdentityTransformPoint(T2 in[3], T3 out[3])
   out[0] = in[0];
   out[1] = in[1];
   out[2] = in[2];
-}  
+}
 
 //------------------------------------------------------------------------
 template<class T2, class T3, class T4>
-void vtkIdentityTransformDerivative(T2 in[3], T3 out[3], 
+void vtkIdentityTransformDerivative(T2 in[3], T3 out[3],
                                     T4 derivative[3][3])
 {
   out[0] = in[0];
@@ -68,24 +68,24 @@ void vtkIdentityTransformDerivative(T2 in[3], T3 out[3],
   out[2] = in[2];
 
   vtkMath::Identity3x3(derivative);
-}  
+}
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformPoint(const float in[3], 
+void vtkIdentityTransform::InternalTransformPoint(const float in[3],
                                                   float out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformPoint(const double in[3], 
+void vtkIdentityTransform::InternalTransformPoint(const double in[3],
                                                   double out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformNormal(const float in[3], 
+void vtkIdentityTransform::InternalTransformNormal(const float in[3],
                                                    float out[3])
 {
   vtkIdentityTransformPoint(in,out);
@@ -93,7 +93,7 @@ void vtkIdentityTransform::InternalTransformNormal(const float in[3],
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformNormal(const double in[3], 
+void vtkIdentityTransform::InternalTransformNormal(const double in[3],
                                                    double out[3])
 {
   vtkIdentityTransformPoint(in,out);
@@ -101,21 +101,21 @@ void vtkIdentityTransform::InternalTransformNormal(const double in[3],
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformVector(const float in[3], 
+void vtkIdentityTransform::InternalTransformVector(const float in[3],
                                                    float out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformVector(const double in[3], 
+void vtkIdentityTransform::InternalTransformVector(const double in[3],
                                                    double out[3])
 {
   vtkIdentityTransformPoint(in,out);
 }
 
 //----------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformDerivative(const float in[3], 
+void vtkIdentityTransform::InternalTransformDerivative(const float in[3],
                                                        float out[3],
                                                        float derivative[3][3])
 {
@@ -123,7 +123,7 @@ void vtkIdentityTransform::InternalTransformDerivative(const float in[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkIdentityTransform::InternalTransformDerivative(const double in[3], 
+void vtkIdentityTransform::InternalTransformDerivative(const double in[3],
                                                        double out[3],
                                                        double derivative[3][3])
 {
@@ -131,17 +131,17 @@ void vtkIdentityTransform::InternalTransformDerivative(const double in[3],
 }
 
 //----------------------------------------------------------------------------
-// Transform the normals and vectors using the derivative of the 
+// Transform the normals and vectors using the derivative of the
 // transformation.  Either inNms or inVrs can be set to NULL.
 // Normals are multiplied by the inverse transpose of the transform
 // derivative, while vectors are simply multiplied by the derivative.
 // Note that the derivative of the inverse transform is simply the
-// inverse of the derivative of the forward transform. 
-void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts, 
+// inverse of the derivative of the forward transform.
+void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                          vtkPoints *outPts,
-                                                         vtkDataArray *inNms, 
+                                                         vtkDataArray *inNms,
                                                          vtkDataArray *outNms,
-                                                         vtkDataArray *inVrs, 
+                                                         vtkDataArray *inVrs,
                                                          vtkDataArray *outVrs)
 {
   this->TransformPoints(inPts,outPts);
@@ -156,11 +156,11 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 }
 
 //----------------------------------------------------------------------------
-void vtkIdentityTransform::TransformPoints(vtkPoints *inPts, 
+void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
                                            vtkPoints *outPts)
 {
   int n = inPts->GetNumberOfPoints();
-  double point[3];  
+  double point[3];
 
   for (int i = 0; i < n; i++)
     {
@@ -170,12 +170,12 @@ void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
 }
 
 //----------------------------------------------------------------------------
-void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms, 
+void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
                                             vtkDataArray *outNms)
 {
   int n = inNms->GetNumberOfTuples();
   double normal[3];
-  
+
   for (int i = 0; i < n; i++)
     {
     inNms->GetTuple(i,normal);
@@ -184,12 +184,12 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
 }
 
 //----------------------------------------------------------------------------
-void vtkIdentityTransform::TransformVectors(vtkDataArray *inNms, 
+void vtkIdentityTransform::TransformVectors(vtkDataArray *inNms,
                                             vtkDataArray *outNms)
 {
   int n = inNms->GetNumberOfTuples();
   double vect[3];
-  
+
   for (int i = 0; i < n; i++)
     {
     inNms->GetTuple(i,vect);

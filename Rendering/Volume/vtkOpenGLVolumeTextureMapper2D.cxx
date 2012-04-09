@@ -47,7 +47,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   matrix = vol->GetMatrix();
   vtkMatrix4x4::Transpose(*matrix->Element, matrixForGL);
 
-  // insert model transformation 
+  // insert model transformation
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glMultMatrixd(matrixForGL);
@@ -87,19 +87,19 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
 
   glColor3f( 1.0, 1.0, 1.0 );
 
-  this->GenerateTexturesAndRenderQuads( ren, vol ); 
-    
+  this->GenerateTexturesAndRenderQuads( ren, vol );
+
   // pop transformation matrix
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   glDisable( GL_TEXTURE_2D );
-  
+
 #ifdef GL_VERSION_1_1
   glFlush();
   glDeleteTextures(1, &tempIndex);
 #endif
-  
+
   // Turn lighting back on
   glEnable( GL_LIGHTING );
 
@@ -108,7 +108,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
     glDisable(static_cast<GLenum>(GL_CLIP_PLANE0+i));
     }
 
-  this->Timer->StopTimer();      
+  this->Timer->StopTimer();
 
   this->TimeToDraw = static_cast<float>(this->Timer->GetElapsedTime());
 
@@ -117,20 +117,20 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
   if ( this->TimeToDraw == 0.0 )
     {
     this->TimeToDraw = 0.0001;
-    }   
+    }
 }
 
 void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
-                                                  float *v, 
+                                                  float *v,
                                                   float *t,
                                                   unsigned char *texture,
                                                   int size[2], int reverseFlag )
 {
 #ifdef GL_VERSION_1_1
-  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, size[0], size[1], 
+  glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, size[0], size[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, texture );
 #else
-  glTexImage2D( GL_TEXTURE_2D, 0, 4, size[0], size[1], 
+  glTexImage2D( GL_TEXTURE_2D, 0, 4, size[0], size[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, texture );
 #endif
 
@@ -138,13 +138,13 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
 
   float *tptr, *vptr;
   int i, j;
-  
+
   if ( reverseFlag )
     {
     for ( i = 0; i < numQuads; i++ )
       {
       tptr = t+2*4*(numQuads-i-1);
-      vptr = v+3*4*(numQuads-i-1);    
+      vptr = v+3*4*(numQuads-i-1);
       for ( j = 0; j < 4; j++ )
         {
         glTexCoord2fv( tptr );
@@ -156,8 +156,8 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
     }
   else
     {
-    tptr = t; 
-    vptr = v;    
+    tptr = t;
+    vptr = v;
     for ( i = 0; i < numQuads*4; i++ )
       {
       glTexCoord2fv( tptr );
@@ -166,7 +166,7 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
       vptr += 3;
       }
     }
-  
+
   glEnd();
 }
 

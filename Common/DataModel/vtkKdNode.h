@@ -23,7 +23,7 @@
 //     as nodes in a binary tree.
 //
 // .SECTION Description
-//     
+//
 // .SECTION See Also
 //      vtkKdTree vtkOBSPCuts
 
@@ -104,12 +104,12 @@ public:
   double *GetMaxDataBounds() {return this->MaxVal;}
 
   // Description:
-  //   Set the xmin, ymin and zmin value of the bounds of this 
+  //   Set the xmin, ymin and zmin value of the bounds of this
   //   data within this region
   void SetMinDataBounds(double *mb);
 
   // Description:
-  //   Set the xmax, ymax and zmax value of the bounds of this 
+  //   Set the xmax, ymax and zmax value of the bounds of this
   //   data within this region
   void SetMaxDataBounds(double *mb);
 
@@ -162,7 +162,7 @@ public:
 
   // Description:
   //   Return 1 if this spatial region intersects a sphere described by
-  //   it's center and the square of it's radius. Use the possibly smaller 
+  //   it's center and the square of it's radius. Use the possibly smaller
   //   bounds of the points within the region if useDataBounds is non-zero.
   int IntersectsSphere2(double x, double y, double z, double rSquared,
                         int useDataBounds);
@@ -172,7 +172,7 @@ public:
   //   by planes, and it is capable of computing intersections of
   //   boxes with itself.  Return 1 if this spatial region intersects
   //   the spatial region described by the vtkPlanesIntersection object.
-  //   Use the possibly smaller bounds of the points within the region 
+  //   Use the possibly smaller bounds of the points within the region
   //   if useDataBounds is non-zero.
   int IntersectsRegion(vtkPlanesIntersection *pi, int useDataBounds);
 
@@ -182,21 +182,21 @@ public:
   //   provide that as an argument.  If you already know the bounds of the
   //   cell, provide that as well, in the form of xmin,xmax,ymin,ymax,zmin,
   //   zmax.  Either of these may speed the calculation.
-  //   Use the possibly smaller bounds of the points within the region 
+  //   Use the possibly smaller bounds of the points within the region
   //   if useDataBounds is non-zero.
-  int IntersectsCell(vtkCell *cell, int useDataBounds, 
+  int IntersectsCell(vtkCell *cell, int useDataBounds,
                      int cellRegion=-1, double *cellBounds=NULL);
-  
+
   // Description:
   //   Return 1 if this spatial region entirely contains a box specified
-  //   by it's bounds. Use the possibly smaller 
+  //   by it's bounds. Use the possibly smaller
   //   bounds of the points within the region if useDataBounds is non-zero.
   int ContainsBox(double x1,double x2,double y1,double y2,double z1,double z2,
                   int useDataBounds);
 
   // Description:
   //   Return 1 if this spatial region entirely contains the given point.
-  //   Use the possibly smaller bounds of the points within the region 
+  //   Use the possibly smaller bounds of the points within the region
   //   if useDataBounds is non-zero.
   int ContainsPoint(double x, double y, double z, int useDataBounds);
 
@@ -241,7 +241,7 @@ private:
   double MinVal[3];    // spatial bounds of data within node
   double MaxVal[3];    // spatial bounds of data within node
   int NumberOfPoints;
-  
+
   vtkKdNode *Up;
 
   vtkKdNode *Left;

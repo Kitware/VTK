@@ -45,33 +45,33 @@ int TestLSDynaReaderSPH( int argc, char *argv[] )
   reader->Update();
   delete [] fname;
 
-  vtkNew<vtkCompositeDataGeometryFilter> geom1;  
+  vtkNew<vtkCompositeDataGeometryFilter> geom1;
   geom1->SetInputConnection(0, reader->GetOutputPort(0));
-  
+
   // Create a mapper.
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(geom1->GetOutputPort());
   mapper->SetScalarModeToUsePointFieldData();
-  
+
   // Create the actor.
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());
-  
+
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.GetPointer()); 
+  renWin->AddRenderer(ren.GetPointer());
   iren->SetRenderWindow(renWin.GetPointer());
-  
+
   ren->AddActor(actor.GetPointer());
   ren->SetBackground(0,0,0);
   renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

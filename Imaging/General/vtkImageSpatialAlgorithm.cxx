@@ -38,9 +38,9 @@ vtkImageSpatialAlgorithm::vtkImageSpatialAlgorithm()
 
 //----------------------------------------------------------------------------
 void vtkImageSpatialAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
-{  
+{
   this->Superclass::PrintSelf(os, indent);
-  
+
   int idx;
 
   os << indent << "KernelSize: (" << this->KernelSize[0];
@@ -67,8 +67,8 @@ int vtkImageSpatialAlgorithm::RequestInformation (
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
-  // Take this opportunity to override the defaults. 
+
+  // Take this opportunity to override the defaults.
   int extent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
@@ -79,7 +79,7 @@ int vtkImageSpatialAlgorithm::RequestInformation (
 
 //----------------------------------------------------------------------------
 // A helper method to compute output image extent
-void vtkImageSpatialAlgorithm::ComputeOutputWholeExtent(int extent[6], 
+void vtkImageSpatialAlgorithm::ComputeOutputWholeExtent(int extent[6],
                                                         int handleBoundaries)
 {
   int idx;
@@ -93,13 +93,13 @@ void vtkImageSpatialAlgorithm::ComputeOutputWholeExtent(int extent[6],
       extent[idx*2+1] -= (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
       }
     }
-  
+
 }
 
 //----------------------------------------------------------------------------
 // This method computes the extent of the input region necessary to generate
-// an output region.  Before this method is called "region" should have the 
-// extent of the output region.  After this method finishes, "region" should 
+// an output region.  Before this method is called "region" should have the
+// extent of the output region.  After this method finishes, "region" should
 // have the extent of the required input region.
 int vtkImageSpatialAlgorithm::RequestUpdateExtent(
   vtkInformation *vtkNotUsed(request),
@@ -107,7 +107,7 @@ int vtkImageSpatialAlgorithm::RequestUpdateExtent(
   vtkInformationVector *outputVector)
 {
   int wholeExtent[6], extent[6], inExtent[6];
-  
+
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -136,7 +136,7 @@ void vtkImageSpatialAlgorithm::InternalRequestUpdateExtent(int *extent,
     // Expand to get inRegion Extent
     extent[idx*2] -= this->KernelMiddle[idx];
     extent[idx*2+1] += (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
-    
+
     // If the expanded region is out of the IMAGE Extent (grow min)
     if (extent[idx*2] < wholeExtent[idx*2])
       {
@@ -150,7 +150,7 @@ void vtkImageSpatialAlgorithm::InternalRequestUpdateExtent(int *extent,
         vtkWarningMacro(<< "Required region is out of the image extent.");
         }
       }
-    // If the expanded region is out of the IMAGE Extent (shrink max)      
+    // If the expanded region is out of the IMAGE Extent (shrink max)
     if (extent[idx*2+1] > wholeExtent[idx*2+1])
       {
       if (this->HandleBoundaries)

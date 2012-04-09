@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkCylindricalTransform - cylindrical to rectangular coords and back
 // .SECTION Description
-// vtkCylindricalTransform will convert (r,theta,z) coordinates to 
+// vtkCylindricalTransform will convert (r,theta,z) coordinates to
 // (x,y,z) coordinates and back again.  The angles are given in radians.
 // By default, it converts cylindrical coordinates to rectangular, but
 // GetInverse() returns a transform that will do the opposite.  The

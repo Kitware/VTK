@@ -74,7 +74,7 @@ int vtkMergeDataObjectFilter::RequestData(
     {
     dataObjectInfo = inputVector[1]->GetInformationObject(0);
     }
-  
+
   // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -87,7 +87,7 @@ int vtkMergeDataObjectFilter::RequestData(
     }
 
   vtkFieldData *fd;
-  
+
   vtkDebugMacro(<<"Merging dataset and data object");
 
   if (!dataObject)
@@ -132,19 +132,19 @@ int vtkMergeDataObjectFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkMergeDataObjectFilter::SetOutputFieldToDataObjectField() 
+void vtkMergeDataObjectFilter::SetOutputFieldToDataObjectField()
 {
   this->SetOutputField(VTK_DATA_OBJECT_FIELD);
 }
 
 //----------------------------------------------------------------------------
-void vtkMergeDataObjectFilter::SetOutputFieldToPointDataField() 
+void vtkMergeDataObjectFilter::SetOutputFieldToPointDataField()
 {
   this->SetOutputField(VTK_POINT_DATA_FIELD);
 }
 
 //----------------------------------------------------------------------------
-void vtkMergeDataObjectFilter::SetOutputFieldToCellDataField() 
+void vtkMergeDataObjectFilter::SetOutputFieldToCellDataField()
 {
   this->SetOutputField(VTK_CELL_DATA_FIELD);
 }

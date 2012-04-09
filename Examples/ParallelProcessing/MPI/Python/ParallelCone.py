@@ -20,7 +20,7 @@ try:
     del v
 except Exception, (bar):
     print "No mesa", bar
-    
+
 
 
 #print "I am process: %d / %d" % (myProcId, numProcs)

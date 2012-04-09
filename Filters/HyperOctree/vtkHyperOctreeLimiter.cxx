@@ -55,13 +55,13 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   this->Input = vtkHyperOctree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   this->Output=vtkHyperOctree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));  
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   outInfo->Set(vtkHyperOctree::LEVELS(), this->GetMaximumLevel());
 
   double Size[3];
   this->Input->GetSize(Size);
-  this->Output->SetSize(Size);  
+  this->Output->SetSize(Size);
 
   this->TopSize = 1.0;
   if (Size[0] != 0.0) TopSize = TopSize * Size[0];
@@ -78,7 +78,7 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   //TODO: this is incorrect, so I use Insert and Squeeze instead of Set.
   int aMaximumLevel = inInfo->Get(vtkHyperOctree::LEVELS());
   vtkIdType fact=(1<<(aMaximumLevel-1));
-  vtkIdType maxNumberOfCells=fact*fact;  
+  vtkIdType maxNumberOfCells=fact*fact;
 
   //give the output the same number and type of attribute data arrays
   int pos = 0;
@@ -88,11 +88,11 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   int nparrays = ipd->GetNumberOfArrays();
   for (a = 0; a < nparrays; a++)
     {
-    vtkDataArray *ida = ipd->GetArray(a);    
+    vtkDataArray *ida = ipd->GetArray(a);
     vtkDataArray *oda = opd->GetArray(ida->GetName());
     if (oda == NULL)
       {
-      oda = ida->NewInstance(); 
+      oda = ida->NewInstance();
       oda->SetName(ida->GetName());
       oda->SetNumberOfTuples(maxNumberOfCells);
       opd->AddArray(oda);
@@ -156,7 +156,7 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
 
   for (a = 0; a < nparrays; a++)
     {
-    vtkDataArray *oda = opd->GetArray(a);    
+    vtkDataArray *oda = opd->GetArray(a);
     oda->Squeeze();
     }
   for (a = 0; a < ncarrays; a++)
@@ -254,19 +254,19 @@ void vtkHyperOctreeLimiter::BuildNextCell(vtkHyperOctreeCursor *incursor,
       this->SizeAtPrunePoint = 1.0/this->MeasureCell(depth);
 
       //start off with nothing before accumulating
-      
+
       for (int s = 0; s < this->AccumSize; s++)
         {
         this->AccumScratch[s] = 0.0;
         }
 
-      //recursively accumulate the length/area/volume weighted attribute data 
+      //recursively accumulate the length/area/volume weighted attribute data
       //contribution from all leaves interior
       int i=0;
       while(i<this->NumChildren)
         {
         incursor->ToChild(i);
-        
+
         this->AddInteriorAttributes(incursor, depth+1);
 
         incursor->ToParent();
@@ -308,7 +308,7 @@ void vtkHyperOctreeLimiter::BuildNextCell(vtkHyperOctreeCursor *incursor,
       {
       //create the new cell in the output tree
       //cerr << "creating " << depth << endl;
-      this->Output->SubdivideLeaf(outcursor); 
+      this->Output->SubdivideLeaf(outcursor);
       }
 
     //keep searching until we find leaves or reach the specified depth
@@ -433,7 +433,7 @@ int vtkHyperOctreeLimiter::GetMaximumLevel()
 {
   return this->MaximumLevel;
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkHyperOctreeLimiter::SetMaximumLevel(int levels)
 {
@@ -441,7 +441,7 @@ void vtkHyperOctreeLimiter::SetMaximumLevel(int levels)
     {
     levels = 1;
     }
-    
+
   this->Modified();
   this->MaximumLevel=levels;
 }

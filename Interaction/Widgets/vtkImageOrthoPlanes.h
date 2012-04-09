@@ -38,7 +38,7 @@ public:
   static vtkImageOrthoPlanes *New();
   vtkTypeMacro(vtkImageOrthoPlanes,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // You must set three planes for the widget.
   void SetPlane(int i, vtkImagePlaneWidget *imagePlaneWidget);
@@ -72,21 +72,21 @@ protected:
   void SetTransformMatrix(vtkMatrix4x4 *matrix,
                           vtkImagePlaneWidget *currentImagePlane,
                           int indexOfModifiedPlane);
-  
+
   void GetBounds(double bounds[3]);
 
   // The plane definitions prior to any rotations or scales
   double Origin[3][3];
   double Point1[3][3];
   double Point2[3][3];
-  
+
   // The current position and orientation of the bounding box with
   // respect to the origin.
   vtkTransform *Transform;
 
   // An array to hold the planes
   vtkImagePlaneWidget** Planes;
- 
+
   // The number of planes.
   int NumberOfPlanes;
 

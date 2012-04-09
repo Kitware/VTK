@@ -90,7 +90,7 @@ int vtkTensorProbeRepresentation::Move( double motionVector[2] )
   this->Renderer->SetWorldPoint(p);
   this->Renderer->WorldToDisplay();
   this->Renderer->GetDisplayPoint(displayPos);
-  
+
   displayPos[0] += motionVector[0];
   displayPos[1] += motionVector[1];
 
@@ -108,7 +108,7 @@ int vtkTensorProbeRepresentation::Move( double motionVector[2] )
 
 //----------------------------------------------------------------------
 void vtkTensorProbeRepresentation
-::FindClosestPointOnPolyline( 
+::FindClosestPointOnPolyline(
     double displayPos[2], double closestWorldPos[3], vtkIdType &cellId,
     int maxSpeed )
 {
@@ -120,10 +120,10 @@ void vtkTensorProbeRepresentation
   vtkIdType minCellId = max( this->ProbeCellId - maxSpeed, 0 );
   vtkIdType maxCellId = min( this->ProbeCellId + maxSpeed, npts-1 );
 
-  double closestT=0.0, closestDist = VTK_DOUBLE_MAX, 
-         pprev[3]= {0.0, 0.0, 0.0}, t, closestPt[3], dist, 
+  double closestT=0.0, closestDist = VTK_DOUBLE_MAX,
+         pprev[3]= {0.0, 0.0, 0.0}, t, closestPt[3], dist,
          x[3] = { displayPos[0], displayPos[1], 0.0 };
-         
+
   for (vtkIdType id = minCellId; id <= maxCellId; id++)
     {
 
@@ -177,7 +177,7 @@ void vtkTensorProbeRepresentation
   closestWorldPos[0] = closestT* p1[0] + (1-closestT) * p2[0];
   closestWorldPos[1] = closestT* p1[1] + (1-closestT) * p2[1];
   closestWorldPos[2] = closestT* p1[2] + (1-closestT) * p2[2];
-}  
+}
 
 //----------------------------------------------------------------------
 // Set the probe position as the one closest to the center
@@ -234,10 +234,10 @@ void vtkTensorProbeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TrajectoryActor: " << this->TrajectoryActor << endl;
   os << indent << "TrajectoryMapper: " << this->TrajectoryMapper << endl;
   os << indent << "Trajectory: " << this->Trajectory << endl;
-  os << indent << "ProbePosition: (" 
-     << this->ProbePosition[0] << "," 
+  os << indent << "ProbePosition: ("
+     << this->ProbePosition[0] << ","
      << this->ProbePosition[1] << ","
      << this->ProbePosition[2] << ")" << endl;
-  os << indent << "ProbeCellId: " << this->ProbeCellId << endl; 
+  os << indent << "ProbeCellId: " << this->ProbeCellId << endl;
 }
 

@@ -36,8 +36,8 @@ int main( int argc, char *argv[] )
   int i;
   int l, w, nActors, N, n;
   vtkIdType aPnts;
-  
-  if (argc != 5) 
+
+  if (argc != 5)
     {
     l = 10;
     w = 10;
@@ -52,9 +52,9 @@ int main( int argc, char *argv[] )
     nActors = atoi(argv[4]);
     }
 
-  // n is the number of points per level 
+  // n is the number of points per level
   n = l * w;
-  // N is the total number of points 
+  // N is the total number of points
   N = aPnts * nActors;
 
   float x, y, z;
@@ -63,11 +63,11 @@ int main( int argc, char *argv[] )
     {
     cdata[j] = j;
     }
-  
+
   vtkProperty *prop = vtkProperty::New();
 
   //vtkGarbageCollector::DeferredCollectionPush();
-  
+
   // create a rendering window and both renderers
   vtkRenderer *ren1 = vtkRenderer::New();
   ren1->GetCullers()->InitTraversal();
@@ -77,9 +77,9 @@ int main( int argc, char *argv[] )
   // Create a cube polydata
   vtkPoints *cpnts = vtkPoints::New();
   cpnts->SetNumberOfPoints(14);
-  
+
   vtkCellArray *ccells = vtkCellArray::New();
-  
+
   cpnts->SetPoint(0,   .1, -.1, -.1);
   cpnts->SetPoint(1,  -.1, -.1, -.1);
   cpnts->SetPoint(2,   .1,  .1, -.1);
@@ -100,7 +100,7 @@ int main( int argc, char *argv[] )
     {
     a[i] = i;
     }
-  
+
   ccells->InsertNextCell(14L, a);
   ccells->Squeeze();
 
@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
   cube->SetStrips(ccells);
   cpnts->Delete();
   ccells->Delete();
-  
+
   vtkPolyDataMapper *mapper;
   vtkCellArray *cells;
   vtkActor *actor;
@@ -122,16 +122,16 @@ int main( int argc, char *argv[] )
   x = 0.0;
   y = 0.0;
   z = 0.0;
-  for (i = 0; i < N; i ++) 
+  for (i = 0; i < N; i ++)
     {
     // See if we need to start a new actor
-    if ((i % aPnts) == 0) 
+    if ((i % aPnts) == 0)
       {
       if (pnts)
         {
         pnts->Delete();
         }
-      
+
       pnts = vtkPoints::New();
       cells = vtkCellArray::New();
       data = vtkPolyData::New();
@@ -168,25 +168,25 @@ int main( int argc, char *argv[] )
     }
 
     // See if we are on a new level)
-    if ((i % n) == 0) 
+    if ((i % n) == 0)
       {
       z += 1.0;
       x = 0.0;
       y = 0.0;
-      } 
-    else 
+      }
+    else
       {
-      if ((i % l) == 0) 
+      if ((i % l) == 0)
         {
         x += 1.0;
         y = 0.0;
-        } 
-      else 
+        }
+      else
         {
         y += 1.0;
         }
       }
-  
+
     pnts->SetPoint(i % aPnts, x, y, z);
     pnts->Modified();
     }
@@ -195,10 +195,10 @@ int main( int argc, char *argv[] )
     {
     pnts->Delete();
     }
-  
+
   // set the size of our window
   renWindow->SetSize(500,500);
-  
+
   // set the viewports and background of the renderers
   //  ren1->SetViewport(0,0,0.5,1);
   ren1->SetBackground(0.2,0.3,0.5);
@@ -207,30 +207,30 @@ int main( int argc, char *argv[] )
   renWindow->Render();
   ren1->GetActiveCamera()->Azimuth(3);
   renWindow->Render();
-  
+
   // Set up times
   vtkTimerLog *tl = vtkTimerLog::New();
-  
+
   tl->StartTimer();
-  
+
   // do a azimuth of the cameras 3 degrees per iteration
-  // for (i = 0; i < 360; i += 3) 
+  // for (i = 0; i < 360; i += 3)
 #if 1
-  for (i = 0; i < 360; i += 9) 
+  for (i = 0; i < 360; i += 9)
     {
     ren1->GetActiveCamera()->Azimuth(3);
     renWindow->Render();
     }
 #endif
   tl->StopTimer();
-  
+
   cerr << "Wall Time = " << tl->GetElapsedTime() << "\n";
   cerr << "FrameRate = " << 120.0 / tl->GetElapsedTime() << "\n";
 
   // Clean up
   cube->Delete();
-  vtkGarbageCollector::SetGlobalDebugFlag(1);  
-  vtkGarbageCollector::SetGlobalDebugFlag(0);  
+  vtkGarbageCollector::SetGlobalDebugFlag(1);
+  vtkGarbageCollector::SetGlobalDebugFlag(0);
   prop->Delete();
   ren1->Delete();
   renWindow->Delete();

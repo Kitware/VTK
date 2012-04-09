@@ -21,7 +21,7 @@ int TestGPUInfo(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkGPUInfoList *l=vtkGPUInfoList::New();
   l->Probe();
   int c=l->GetNumberOfGPUs();
-  
+
   cout << "There is " << c << " GPU(s)."<< endl;
   int i=0;
   while(i<c)
@@ -38,6 +38,6 @@ int TestGPUInfo(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     ++i;
     }
   l->Delete();
-  
+
   return 0; // 0==never fails.
 }

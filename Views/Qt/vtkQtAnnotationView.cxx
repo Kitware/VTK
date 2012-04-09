@@ -56,7 +56,7 @@ vtkQtAnnotationView::vtkQtAnnotationView()
   this->View = new QTableView();
   this->Adapter = new vtkQtAnnotationLayersModelAdapter();
   this->View->setModel(this->Adapter);
-  
+
   // Set up some default properties
   this->View->setSelectionMode(QAbstractItemView::ExtendedSelection);
   this->View->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -71,9 +71,9 @@ vtkQtAnnotationView::vtkQtAnnotationView()
 
   this->LastInputMTime = 0;
 
-  QObject::connect(this->View->selectionModel(), 
+  QObject::connect(this->View->selectionModel(),
       SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-      this, 
+      this,
       SLOT(slotQtSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
@@ -94,9 +94,9 @@ QWidget* vtkQtAnnotationView::GetWidget()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1), 
+void vtkQtAnnotationView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   const QItemSelection& vtkNotUsed(s2))
-{   
+{
   vtkDataObject* data = this->Adapter->GetVTKDataObject();
   if(!data)
     return;
@@ -144,7 +144,7 @@ void vtkQtAnnotationView::Update()
   if (a->GetMTime() != this->LastInputMTime)
     {
     this->LastInputMTime = a->GetMTime();
-  
+
     this->Adapter->SetVTKDataObject(0);
     this->Adapter->SetVTKDataObject(a);
     }

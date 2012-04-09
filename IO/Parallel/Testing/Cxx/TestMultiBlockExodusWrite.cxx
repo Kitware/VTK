@@ -24,8 +24,8 @@
 int TestMultiBlockExodusWrite (int argc, char *argv[])
 {
   char *InputFile;
-  
-  InputFile = 
+
+  InputFile =
     vtkTestUtilities::ExpandDataFileName (argc, argv, "Data/edgeFaceElem.exii");
   if (!InputFile)
     {
@@ -33,7 +33,7 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     }
 
   VTK_CREATE (vtkExodusIIReader, reader);
-  if (!reader->CanReadFile (InputFile)) 
+  if (!reader->CanReadFile (InputFile))
     {
     return 1;
     }
@@ -43,7 +43,7 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   reader->Update ();
 
   vtkMultiBlockDataSet* mbds = reader->GetOutput ();
-  if (!mbds) 
+  if (!mbds)
     {
     return 1;
     }
@@ -52,11 +52,11 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     {
     return 1;
     }
-  if (elems->GetNumberOfBlocks () != 2) 
+  if (elems->GetNumberOfBlocks () != 2)
     {
     return 1;
     }
-  
+
   vtkFieldData *ifieldData = elems->GetBlock(0)->GetFieldData ();
   int index;
   if (ifieldData->GetArray ("CALIBER", index) == 0)
@@ -101,7 +101,7 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   outputReader->Update ();
 
   mbds = outputReader->GetOutput ();
-  if (!mbds) 
+  if (!mbds)
     {
     return 1;
     }
@@ -110,11 +110,11 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     {
     return 1;
     }
-  if (elems->GetNumberOfBlocks () != 2) 
+  if (elems->GetNumberOfBlocks () != 2)
     {
     return 1;
     }
-  
+
   ifieldData = elems->GetBlock(0)->GetFieldData ();
   if (ifieldData->GetArray ("CALIBER", index) == 0)
     {
@@ -168,9 +168,9 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
     }
 
 /*
-  VTK_CREATE (vtkWindowToImageFilter, w2i); 
+  VTK_CREATE (vtkWindowToImageFilter, w2i);
   w2i->SetInput (renderWindow);
-  
+
   VTK_CREATE (vtkPNGWriter, img);
   img->SetInputConnection (w2i->GetOutputPort ());
   img->SetFileName ("TestMultiBlockExodusWrite.png");

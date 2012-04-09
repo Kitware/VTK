@@ -70,7 +70,7 @@ void vtkExtractBlock::RemoveAllIndices()
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractBlock::CopySubTree(vtkCompositeDataIterator* loc, 
+void vtkExtractBlock::CopySubTree(vtkCompositeDataIterator* loc,
   vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input)
 {
   vtkDataObject* inputNode = input->GetDataSet(loc);
@@ -237,7 +237,7 @@ bool vtkExtractBlock::Prune(vtkMultiBlockDataSet* mblock)
       if (!prune)
         {
         vtkMultiBlockDataSet* prunedBlock = vtkMultiBlockDataSet::SafeDownCast(block);
-        if (this->MaintainStructure == 0 && 
+        if (this->MaintainStructure == 0 &&
           prunedBlock && prunedBlock->GetNumberOfBlocks()==1)
           {
           // shrink redundant branches.

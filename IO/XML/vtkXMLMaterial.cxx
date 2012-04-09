@@ -72,7 +72,7 @@ vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
 
   // First, look for material library files.
   // Then, look for Repository files.
-  
+
   char* xml = vtkMaterialLibrary::GetMaterial(name);
   if (xml)
     {
@@ -81,7 +81,7 @@ vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
     delete []xml;
     return material;
     }
-  
+
   char* filename = vtkXMLShader::LocateFile(name);
   if( filename )
     {
@@ -101,11 +101,11 @@ vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
 void vtkXMLMaterial::SetRootElement(vtkXMLDataElement* root)
 {
   this->Internals->Initialize();
-  
+
   vtkSetObjectBodyMacro(RootElement, vtkXMLDataElement, root);
   if (this->RootElement)
     {
-    // Update the internal data structure to 
+    // Update the internal data structure to
     // avoid repeated searches.
     int numElems = this->RootElement->GetNumberOfNestedElements();
     for (int i=0; i<numElems; i++)
@@ -285,7 +285,7 @@ int vtkXMLMaterial::GetShaderStyle()
         }
       }
     }
-  
+
   assert("post: valid_result" && (result==1 || result==2) );
   return result;
 }
@@ -296,9 +296,9 @@ void vtkXMLMaterial::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Number of Properties: " << this->GetNumberOfProperties()
     << endl;
-  os << indent << "Number of Vertex Shaders: " 
+  os << indent << "Number of Vertex Shaders: "
     << this->GetNumberOfVertexShaders() << endl;
-  os << indent << "Number of Fragment Shaders: " 
+  os << indent << "Number of Fragment Shaders: "
     << this->GetNumberOfFragmentShaders() << endl;
   os << indent << "RootElement: ";
   if (this->RootElement)

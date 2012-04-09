@@ -92,7 +92,7 @@ int vtkGenericGlyph3DFilter::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  
+
 
   vtkPointData *pd = NULL;
   //  vtkDataArray *inScalars;
@@ -103,10 +103,10 @@ int vtkGenericGlyph3DFilter::RequestData(
   vtkGenericAttribute *inVectors=0;
   vtkGenericAttribute *inNormals=0;
   //  vtkGenericAttribute *sourceNormals=0;
- 
+
   int requestedGhostLevel=0;
   unsigned char* inGhostLevels=0;
-  
+
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
   int index;
   vtkPoints *sourcePts = NULL;
@@ -133,13 +133,13 @@ int vtkGenericGlyph3DFilter::RequestData(
   int attrib=-1;
 
   vtkDebugMacro(<<"Generating glyphs");
-  
+
   if (!input)
     {
     vtkErrorMacro(<<"No input");
     return 1;
     }
-  
+
   attributes = input->GetAttributes();
   if((attributes==0) || (attributes->IsEmpty()))
     {
@@ -233,7 +233,7 @@ int vtkGenericGlyph3DFilter::RequestData(
 
   requestedGhostLevel = output->GetUpdateGhostLevel();
 #endif
-  
+
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
     {
@@ -306,7 +306,7 @@ int vtkGenericGlyph3DFilter::RequestData(
     defaultPoints->Delete();
     defaultPoints = NULL;
     }
-  
+
   if ( this->IndexMode != VTK_INDEXING_OFF )
     {
     pd = NULL;
@@ -416,7 +416,7 @@ int vtkGenericGlyph3DFilter::RequestData(
   inPtId=0; // used only for the progress information
 
 //  vtkGenericAdaptorCell *acell=0;
-//  vtkCellIterator *it=input->NewVertexIterator();  
+//  vtkCellIterator *it=input->NewVertexIterator();
   vtkGenericPointIterator *it=input->NewPointIterator();
   it->Begin();
   while(!it->IsAtEnd())
@@ -443,7 +443,7 @@ int vtkGenericGlyph3DFilter::RequestData(
         scalex = scaley = scalez = s;
         }
       }
-    
+
     if ( haveVectors )
       {
       if ( this->VectorMode == VTK_USE_NORMAL )
@@ -468,7 +468,7 @@ int vtkGenericGlyph3DFilter::RequestData(
         scalex = scaley = scalez = vMag;
         }
       }
-    
+
     // Clamp data scale if enabled
     if ( this->Clamping )
       {
@@ -482,13 +482,13 @@ int vtkGenericGlyph3DFilter::RequestData(
                 (scalez > this->Range[1] ? this->Range[1] : scalez));
       scalez = (scalez - this->Range[0]) / den;
       }
-    
+
     // Compute index into table of glyphs
     if ( this->IndexMode == VTK_INDEXING_OFF )
       {
       index = 0;
       }
-    else 
+    else
       {
       if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
         {
@@ -498,12 +498,12 @@ int vtkGenericGlyph3DFilter::RequestData(
         {
         value = vMag;
         }
-      
+
       index = static_cast<int>(
         static_cast<double>(value - this->Range[0]) * numberOfSources / den);
       index = (index < 0 ? 0 :
                (index >= numberOfSources ? (numberOfSources-1) : index));
-      
+
       if ( this->GetSource(index) != NULL )
         {
         sourcePts = this->GetSource(index)->GetPoints();
@@ -512,7 +512,7 @@ int vtkGenericGlyph3DFilter::RequestData(
         numSourceCells = this->GetSource(index)->GetNumberOfCells();
         }
       }
-    
+
     // Make sure we're not indexing into empty glyph
     if ( this->GetSource(index) == NULL )
       {
@@ -520,43 +520,43 @@ int vtkGenericGlyph3DFilter::RequestData(
       }
 
     // Check ghost points.
-    // If we are processing a piece, we do not want to duplicate 
+    // If we are processing a piece, we do not want to duplicate
     // glyphs on the borders.  The corrct check here is:
     // ghostLevel > 0.  I am leaving this over glyphing here because
-    // it make a nice example (sphereGhost.tcl) to show the 
-    // point ghost levels with the glyph filter.  I am not certain 
+    // it make a nice example (sphereGhost.tcl) to show the
+    // point ghost levels with the glyph filter.  I am not certain
     // of the usefulness of point ghost levels over 1, but I will have
     // to think about it.
     if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
       {
       continue;
       }
-    
+
     // Now begin copying/transforming glyph
     trans->Identity();
-    
+
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
       cell = this->GetSource(index)->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (pts->Reset(), i=0; i < npts; i++) 
+      for (pts->Reset(), i=0; i < npts; i++)
         {
         pts->InsertId(i,cellPts->GetId(i) + ptIncr);
         }
       output->InsertNextCell(cell->GetCellType(),pts);
       }
-    
+
     // translate Source to Input point
     //    input->GetPoint(inPtId, x);
     it->GetPosition(x);
     trans->Translate(x[0], x[1], x[2]);
-    
+
     if ( haveVectors )
       {
       // Copy Input vector
-      for (i=0; i < numSourcePts; i++) 
+      for (i=0; i < numSourcePts; i++)
         {
         newVectors->InsertTuple(i+ptIncr, v);
         }
@@ -580,14 +580,14 @@ int vtkGenericGlyph3DFilter::RequestData(
           }
         }
       }
-    
+
     // determine scale factor from scalars if appropriate
     if ( inScalars )
       {
       // Copy scalar value
       if (this->ColorMode == VTK_COLOR_BY_SCALE)
         {
-        for (i=0; i < numSourcePts; i++) 
+        for (i=0; i < numSourcePts; i++)
           {
           newScalars->InsertTuple(i+ptIncr, &scalex); // = scaley = scalez
           }
@@ -603,12 +603,12 @@ int vtkGenericGlyph3DFilter::RequestData(
       }
     if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
       {
-      for (i=0; i < numSourcePts; i++) 
+      for (i=0; i < numSourcePts; i++)
         {
         newScalars->InsertTuple(i+ptIncr, &vMag);
         }
       }
-    
+
     // scale data if appropriate
     if ( this->Scaling )
       {
@@ -622,7 +622,7 @@ int vtkGenericGlyph3DFilter::RequestData(
         scaley *= this->ScaleFactor;
         scalez *= this->ScaleFactor;
         }
-      
+
       if ( scalex == 0.0 )
         {
         scalex = 1.0e-10;
@@ -637,18 +637,18 @@ int vtkGenericGlyph3DFilter::RequestData(
         }
       trans->Scale(scalex,scaley,scalez);
       }
-    
+
     // multiply points and normals by resulting matrix
     trans->TransformPoints(sourcePts,newPts);
-    
+
     if ( haveNormals )
       {
       trans->TransformNormals(sourceNormals,newNormals);
       }
-    
+
     // Copy point data from source (if possible): WRONG to from source but
     // from input.
-    if ( pd ) 
+    if ( pd )
       {
       for (i=0; i < numSourcePts; i++)
         {
@@ -667,9 +667,9 @@ int vtkGenericGlyph3DFilter::RequestData(
     it->Next();
     ptIncr += numSourcePts;
     inPtId++;
-    } 
+    }
   it->Delete();
-  
+
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -808,7 +808,7 @@ void vtkGenericGlyph3DFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
-  
+
   os << indent << "Scale Mode: ";
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
     {
@@ -842,11 +842,11 @@ void vtkGenericGlyph3DFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Indexing off\n";
     }
-  os << indent << "InputScalarsSelection: " 
+  os << indent << "InputScalarsSelection: "
      << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
-  os << indent << "InputVectorsSelection: " 
+  os << indent << "InputVectorsSelection: "
      << (this->InputVectorsSelection ? this->InputVectorsSelection : "(none)") << "\n";
-  os << indent << "InputNormalsSelection: " 
+  os << indent << "InputNormalsSelection: "
      << (this->InputNormalsSelection ? this->InputNormalsSelection : "(none)") << "\n";
 }
 
@@ -859,10 +859,10 @@ int vtkGenericGlyph3DFilter::RequestUpdateExtent(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
- 
-  
+
+
   if (sourceInfo)
     {
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),

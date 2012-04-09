@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkMutexLock - mutual exclusion locking class
 // .SECTION Description
-// vtkMutexLock allows the locking of variables which are accessed 
-// through different threads.  This header file also defines 
+// vtkMutexLock allows the locking of variables which are accessed
+// through different threads.  This header file also defines
 // vtkSimpleMutexLock which is not a subclass of vtkObject.
 
 #ifndef __vtkMutexLock_h
@@ -36,7 +36,7 @@ typedef abilock_t vtkMutexType;
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 typedef pthread_mutex_t vtkMutexType;
 #endif
- 
+
 #ifdef VTK_USE_WIN32_THREADS
 typedef vtkWindowsHANDLE vtkMutexType;
 #endif
@@ -60,7 +60,7 @@ public:
   static vtkSimpleMutexLock *New();
 
   void Delete() {delete this;}
-  
+
   // Description:
   // Lock the vtkMutexLock
   void Lock( void );
@@ -83,7 +83,7 @@ public:
 
   vtkTypeMacro(vtkMutexLock,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Lock the vtkMutexLock
   void Lock( void );

@@ -82,13 +82,13 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
   this->ExtentTranslator->GetExtent(outExtent);
   int* inBounds = inExtent+xyz*2;
   int* outBounds = outExtent+xyz*2;
-  
+
   if(!a)
     {
     // There are no coordinates.  This can happen with empty input.
     return vtkFloatArray::New();
     }
-  
+
   if((inBounds[0] == outBounds[0]) && (inBounds[1] == outBounds[1]))
     {
     // Use the entire coordinates array.
@@ -108,7 +108,7 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
     b->SetNumberOfTuples(tuples);
     memcpy(b->GetVoidPointer(0), a->GetVoidPointer(offset), tuples*tupleSize);
     return b;
-    }  
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPiece(int index,
     {
     return;
     }
-  
+
   this->WriteCoordinatesAppended(this->GetInput()->GetXCoordinates(),
                                  this->GetInput()->GetYCoordinates(),
                                  this->GetInput()->GetZCoordinates(),
@@ -150,20 +150,20 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPieceData(int index)
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   // Set the range of progress for the coordinates arrays.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Write the coordinates arrays.
   this->WriteCoordinatesAppendedData(this->GetInput()->GetXCoordinates(),
                                      this->GetInput()->GetYCoordinates(),
@@ -182,20 +182,20 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(vtkIndent indent)
   this->GetProgressRange(progressRange);
   float fractions[3];
   this->CalculateSuperclassFraction(fractions);
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
-  
+
   // Set the range of progress for the coordinates arrays.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Write the coordinates arrays.
   this->WriteCoordinatesInline(this->GetInput()->GetXCoordinates(),
                                this->GetInput()->GetYCoordinates(),
@@ -213,13 +213,13 @@ void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
   int dims[3] = {extent[1]-extent[0]+1,
                  extent[3]-extent[2]+1,
                  extent[5]-extent[4]+1};
-  
+
   // The amount of data written by the superclass comes from the
   // point/cell data arrays.
-  vtkIdType superclassPieceSize = 
+  vtkIdType superclassPieceSize =
     (this->GetInput()->GetPointData()->GetNumberOfArrays()*dims[0]*dims[1]*dims[2]+
      this->GetInput()->GetCellData()->GetNumberOfArrays()*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));
-  
+
   // The total data written includes the coordinate arrays.
   vtkIdType totalPieceSize =
     superclassPieceSize + dims[0] + dims[1] + dims[2];

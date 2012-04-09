@@ -18,7 +18,7 @@ vtkRenderWindowInteractor iren
 
 #
 # the importer created the renderer
-set renCollection [renWin GetRenderers] 
+set renCollection [renWin GetRenderers]
 $renCollection InitTraversal
 set ren [$renCollection GetNextItem]
 

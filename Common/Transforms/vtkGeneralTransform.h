@@ -19,7 +19,7 @@
 // not as efficient as the other two, however, because arbitrary
 // transformations cannot be concatenated by matrix multiplication.
 // Transform concatenation is simulated by passing each input point
-// through each transform in turn.  
+// through each transform in turn.
 // .SECTION see also
 // vtkTransform vtkPerspectiveTransform
 
@@ -38,9 +38,9 @@ public:
 
   vtkTypeMacro(vtkGeneralTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // Set this transformation to the identity transformation.  If 
+  // Set this transformation to the identity transformation.  If
   // the transform has an Input, then the transformation will be
   // reset so that it is the same as the Input.
   void Identity() { this->Concatenation->Identity(); this->Modified(); };
@@ -63,7 +63,7 @@ public:
   // Create a rotation matrix and concatenate it with the current
   // transformation according to PreMultiply or PostMultiply semantics.
   // The angle is in degrees, and (x,y,z) specifies the axis that the
-  // rotation will be performed around. 
+  // rotation will be performed around.
   void RotateWXYZ(double angle, double x, double y, double z) {
     this->Concatenation->Rotate(angle,x,y,z); };
   void RotateWXYZ(double angle, const double axis[3]) {
@@ -91,7 +91,7 @@ public:
   // Description:
   // Concatenates the matrix with the current transformation according
   // to PreMultiply or PostMultiply semantics.
-  void Concatenate(vtkMatrix4x4 *matrix) { 
+  void Concatenate(vtkMatrix4x4 *matrix) {
     this->Concatenate(*matrix->Element); };
   void Concatenate(const double elements[16]) {
     this->Concatenation->Concatenate(elements); };
@@ -110,7 +110,7 @@ public:
   // current transformation.  In homogeneous matrix notation, M = M*A where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
-  void PreMultiply() { 
+  void PreMultiply() {
     if (this->Concatenation->GetPreMultiplyFlag()) { return; }
     this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); };
 
@@ -120,7 +120,7 @@ public:
   // current transformation.  In homogeneous matrix notation, M = A*M where
   // M is the current transformation matrix and A is the applied matrix.
   // The default is PreMultiply.
-  void PostMultiply()  { 
+  void PostMultiply()  {
     if (!this->Concatenation->GetPreMultiplyFlag()) { return; }
     this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
 
@@ -128,12 +128,12 @@ public:
   // Get the total number of transformations that are linked into this
   // one via Concatenate() operations or via SetInput().
   int GetNumberOfConcatenatedTransforms() {
-    return this->Concatenation->GetNumberOfTransforms() + 
+    return this->Concatenation->GetNumberOfTransforms() +
       (this->Input == NULL ? 0 : 1); };
 
   // Description
   // Get one of the concatenated transformations as a vtkAbstractTransform.
-  // These transformations are applied, in series, every time the 
+  // These transformations are applied, in series, every time the
   // transformation of a coordinate occurs.  This method is provided
   // to make it possible to decompose a transformation into its
   // constituents, for example to save a transformation to a file.
@@ -143,7 +143,7 @@ public:
     else if (i < this->Concatenation->GetNumberOfPreTransforms()) {
       return this->Concatenation->GetTransform(i); }
     else if (i > this->Concatenation->GetNumberOfPreTransforms()) {
-      return this->Concatenation->GetTransform(i-1); } 
+      return this->Concatenation->GetTransform(i-1); }
     else if (this->GetInverseFlag()) {
       return this->Input->GetInverse(); }
     else {
@@ -170,13 +170,13 @@ public:
 
   // Description:
   // Pushes the current transformation onto the transformation stack.
-  void Push() { if (this->Stack == NULL) { 
+  void Push() { if (this->Stack == NULL) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
-                this->Stack->Push(&this->Concatenation); 
+                this->Stack->Push(&this->Concatenation);
                 this->Modified(); };
 
   // Description:
-  // Deletes the transformation on the top of the stack and sets the top 
+  // Deletes the transformation on the top of the stack and sets the top
   // to the next transformation on the stack.
   void Pop() { if (this->Stack == NULL) { return; }
                this->Stack->Pop(&this->Concatenation);

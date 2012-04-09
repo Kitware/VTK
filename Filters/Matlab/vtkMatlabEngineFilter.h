@@ -22,7 +22,7 @@
 //
 // .SECTION Description
 //
-// This VTK uses the vtkMatlabEngineInterface class to perform calculations on 
+// This VTK uses the vtkMatlabEngineInterface class to perform calculations on
 // VTK array input using the Matlab Engine.
 //
 // .SECTION See Also
@@ -85,14 +85,14 @@ public:
   // Provide Matlab script executed by the Matlab Engine from an input file.
   vtkSetStringMacro(ScriptFname);
   vtkGetStringMacro(ScriptFname);
-  
+
   // Description:
   // Make Matlab Engine console visible.  Default is off.
   vtkSetMacro(EngineVisible,int);
   vtkGetMacro(EngineVisible,int);
 
   // Description:
-  // Write Matlab Engine text output to standard output. 
+  // Write Matlab Engine text output to standard output.
   vtkSetMacro(EngineOutput,int);
   vtkGetMacro(EngineOutput,int);
 
@@ -108,14 +108,14 @@ public:
   vtkGetMacro(TimeOutput,int);
 
   // Description:
-  // Create VTK_BLOCK_ID and VTK_NUMBER_OF_BLOCKS variables in Matlab 
+  // Create VTK_BLOCK_ID and VTK_NUMBER_OF_BLOCKS variables in Matlab
   // when processing composite data sets.
   vtkSetMacro(BlockInfoOutput,int);
   vtkGetMacro(BlockInfoOutput,int);
 
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -123,8 +123,8 @@ protected:
 
   int SetMatlabScriptFromFile(const char* fname);
 
-  virtual int RequestData(vtkInformation *vtkNotUsed(request), 
-                          vtkInformationVector **inputVector, 
+  virtual int RequestData(vtkInformation *vtkNotUsed(request),
+                          vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
   // Description:
@@ -143,7 +143,7 @@ private:
 
   // Implementation details
   vtkMatlabEngineFilterInternals* mefi;
-  
+
   int ProcessDataSet(vtkDataSet* dsinp, vtkDataSet* dsout);
 
   vtkMatlabEngineInterface* mengi;
@@ -160,7 +160,7 @@ private:
   vtkDoubleArray* TimeSteps;
   vtkDoubleArray* BlockId;
   vtkDoubleArray* NumBlocks;
-  
+
 };
 
 #endif

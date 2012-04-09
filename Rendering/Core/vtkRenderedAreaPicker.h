@@ -16,13 +16,13 @@
 // a selection rectangle on a viewport.
 //
 // .SECTION Description
-// Like vtkAreaPicker, this class picks all props within a selection area 
+// Like vtkAreaPicker, this class picks all props within a selection area
 // on the screen. The difference is in implementation. This class uses
-// graphics hardware to perform the test where the other uses software 
-// bounding box/frustum intersection testing. 
+// graphics hardware to perform the test where the other uses software
+// bounding box/frustum intersection testing.
 //
-// This picker is more conservative than vtkAreaPicker. It will reject 
-// some objects that pass the bounding box test of vtkAreaPicker. This 
+// This picker is more conservative than vtkAreaPicker. It will reject
+// some objects that pass the bounding box test of vtkAreaPicker. This
 // will happen, for instance, when picking through a corner of the bounding
 // box when the data set does not have any visible geometry in that corner.
 #ifndef __vtkRenderedAreaPicker_h

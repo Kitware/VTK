@@ -20,8 +20,8 @@
 // .NAME vtkQtRecordView - Superclass for QAbstractItemView-based views.
 //
 // .SECTION Description
-// This superclass provides all the plumbing to integrate a QAbstractItemView 
-// into the VTK view framework, including reporting selection changes and 
+// This superclass provides all the plumbing to integrate a QAbstractItemView
+// into the VTK view framework, including reporting selection changes and
 // detecting selection changes from linked views.
 //
 // .SECTION Thanks
@@ -65,7 +65,7 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-  
+
   // Description:
   // The field type to copy into the output table.
   // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
@@ -78,15 +78,15 @@ public:
   // Description:
   // Updates the view.
   virtual void Update();
-  
+
 protected:
-  
+
   vtkQtRecordView();
   ~vtkQtRecordView();
-    
+
   virtual void AddRepresentationInternal(vtkDataRepresentation* rep);
   virtual void RemoveRepresentationInternal(vtkDataRepresentation* rep);
-    
+
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
 
   QPointer<QTextEdit> TextWidget;
@@ -99,7 +99,7 @@ protected:
 private:
   vtkQtRecordView(const vtkQtRecordView&);  // Not implemented.
   void operator=(const vtkQtRecordView&);  // Not implemented.
-  
+
   unsigned long CurrentSelectionMTime;
   unsigned long LastInputMTime;
   unsigned long LastMTime;

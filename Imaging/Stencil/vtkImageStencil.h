@@ -76,13 +76,13 @@ public:
 protected:
   vtkImageStencil();
   ~vtkImageStencil();
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
-  
+
   int ReverseStencil;
   double BackgroundColor[4];
 

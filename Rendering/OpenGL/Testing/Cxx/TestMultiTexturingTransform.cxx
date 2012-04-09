@@ -117,7 +117,7 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   transformRed->Translate(0.0, 0.125, 0.0);
   transformRed->Scale(2.0, 2.0, 0.0);
   transformBlue->Translate(0.5, 0.0, 0.0);
-  
+
   textureRed->SetTransform(transformRed);
   textureBlue->SetTransform(transformBlue);
   textureGreen->SetTransform(transformGreen);
@@ -126,12 +126,12 @@ int TestMultiTexturingTransform(int argc, char *argv[])
   vtkRenderWindow * renWin = vtkRenderWindow::New();
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
-  
+
   vtkPolyDataMapper * mapper = vtkPolyDataMapper::New();
   mapper->SetInputData(polyData);
   vtkActor * actor = vtkActor::New();
 
-  vtkOpenGLHardwareSupport * hardware = 
+  vtkOpenGLHardwareSupport * hardware =
     vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetHardwareSupport();
 
   bool supported=hardware->GetSupportsMultiTexturing();

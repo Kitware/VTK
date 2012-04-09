@@ -6,7 +6,7 @@ vtkRenderer ren1
 
 vtkRenderWindow renWin
 renWin AddRenderer ren1
-renWin StereoCapableWindowOn  
+renWin StereoCapableWindowOn
 
 vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin

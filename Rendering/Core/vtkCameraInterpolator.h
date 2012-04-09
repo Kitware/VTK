@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkCameraInterpolator.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -33,9 +33,9 @@
 // .SECTION Caveats
 // The interpolator classes are initialized the first time InterpolateCamera()
 // is called. Any later changes to the interpolators, or additions to the list of
-// cameras to be interpolated, causes a reinitialization of the 
+// cameras to be interpolated, causes a reinitialization of the
 // interpolators the next time InterpolateCamera() is invoked. Thus the
-// best performance is obtained by 1) configuring the interpolators, 2) adding 
+// best performance is obtained by 1) configuring the interpolators, 2) adding
 // all the cameras, and 3) finally performing interpolation.
 //
 // Currently position, focal point and view up are interpolated to define
@@ -78,7 +78,7 @@ public:
   // Description:
   // Clear the list of cameras.
   void Initialize();
-  
+
   // Description:
   // Add another camera to the list of cameras defining
   // the camera function. Note that using the same time t value

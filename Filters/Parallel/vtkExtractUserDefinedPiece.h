@@ -21,10 +21,10 @@
 //
 // .SECTION Description
 // Provided a function that determines which cells are zero-level
-// cells ("the piece"), this class outputs the piece with the 
-// requested number of ghost levels.  The only difference between 
-// this class and the class it is derived from is that the 
-// zero-level cells are specified by a function you provide, 
+// cells ("the piece"), this class outputs the piece with the
+// requested number of ghost levels.  The only difference between
+// this class and the class it is derived from is that the
+// zero-level cells are specified by a function you provide,
 // instead of determined by dividing up the cells based on cell Id.
 //
 // .SECTION See Also
@@ -47,7 +47,7 @@ public:
   typedef int (*UserDefFunc)(vtkIdType cellID, vtkUnstructuredGrid *grid, void *constantData);
 //ETX
 
-  // Set the function used to identify the piece.  The function should 
+  // Set the function used to identify the piece.  The function should
   // return 1 if the cell is in the piece, and 0 otherwise.
   void SetPieceFunction(UserDefFunc func) {this->InPiece = func; this->Modified();}
 

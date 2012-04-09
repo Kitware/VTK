@@ -32,7 +32,7 @@ vtkGenericRenderWindowInteractor::~vtkGenericRenderWindowInteractor()
 //------------------------------------------------------------------
 void vtkGenericRenderWindowInteractor::TimerEvent()
 {
-  if (!this->Enabled) 
+  if (!this->Enabled)
     {
     return;
     }

@@ -53,7 +53,7 @@ vtkIdType LookupValue(vtksys_stl::vector<vtksys_stl::pair<int, vtkIdType> >& loo
 {
   NodeCompare comp;
   vtksys_stl::pair<int, vtkIdType> val(value, 0);
-  vtksys_stl::pair<int, vtkIdType> found = 
+  vtksys_stl::pair<int, vtkIdType> found =
     *vtksys_stl::lower_bound(lookup.begin(), lookup.end(), val, comp);
   if (found.first == value)
     {
@@ -76,7 +76,7 @@ vtkIdType LookupValue(vtkIntArray* lookup, vtkIdTypeArray* index, int value)
 int TestArrayLookupBit(vtkIdType numVal)
 {
   int errors = 0;
-  
+
   // Create the array
   vtkIdType arrSize = (numVal-1)*numVal/2;
   VTK_CREATE(vtkBitArray, arr);
@@ -84,11 +84,11 @@ int TestArrayLookupBit(vtkIdType numVal)
     {
     arr->InsertNextValue(i < arrSize/2);
     }
-  
+
   //
   // Test lookup implemented inside data array
   //
-  
+
   // Time the lookup creation
   VTK_CREATE(vtkTimerLog, timer);
   timer->StartTimer();
@@ -104,7 +104,7 @@ int TestArrayLookupBit(vtkIdType numVal)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-  
+
   // Time list lookup
   VTK_CREATE(vtkIdList, list);
   timer->StartTimer();
@@ -114,7 +114,7 @@ int TestArrayLookupBit(vtkIdType numVal)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-  
+
   // Test for correctness (-1)
   vtkIdType index = -1;
   index = arr->LookupValue(-1);
@@ -129,7 +129,7 @@ int TestArrayLookupBit(vtkIdType numVal)
     cerr << "ERROR: lookup found " << list->GetNumberOfIds() << " matches but there should be " << 0 << endl;
     errors++;
     }
-  
+
   // Test for correctness (0)
   index = arr->LookupValue(0);
   if (index < arrSize/2 || index > arrSize-1)
@@ -154,7 +154,7 @@ int TestArrayLookupBit(vtkIdType numVal)
         }
       }
     }
-    
+
   // Test for correctness (1)
   index = arr->LookupValue(1);
   if (index < 0 || index > arrSize/2-1)
@@ -179,14 +179,14 @@ int TestArrayLookupBit(vtkIdType numVal)
         }
       }
     }
-  
+
   return errors;
 }
 
 int TestArrayLookupVariant(vtkIdType numVal)
 {
   int errors = 0;
-  
+
   // Create the array
   vtkIdType arrSize = (numVal-1)*numVal/2;
   VTK_CREATE(vtkVariantArray, arr);
@@ -197,11 +197,11 @@ int TestArrayLookupVariant(vtkIdType numVal)
       arr->InsertNextValue(numVal-1-i);
       }
     }
-  
+
   //
   // Test lookup implemented inside data array
   //
-  
+
   // Time the lookup creation
   VTK_CREATE(vtkTimerLog, timer);
   timer->StartTimer();
@@ -217,7 +217,7 @@ int TestArrayLookupVariant(vtkIdType numVal)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-  
+
   // Time list lookup
   VTK_CREATE(vtkIdList, list);
   timer->StartTimer();
@@ -227,7 +227,7 @@ int TestArrayLookupVariant(vtkIdType numVal)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-    
+
   // Test for correctness
   vtkIdType correctIndex = arrSize;
   for (vtkIdType i = 0; i < numVal; i++)
@@ -277,7 +277,7 @@ int TestArrayLookupVariant(vtkIdType numVal)
 int TestArrayLookupString(vtkIdType numVal)
 {
   int errors = 0;
-  
+
   // Create the array
   vtkIdType arrSize = (numVal-1)*numVal/2;
   VTK_CREATE(vtkStringArray, arr);
@@ -288,11 +288,11 @@ int TestArrayLookupString(vtkIdType numVal)
       arr->InsertNextValue(vtkVariant(numVal-1-i).ToString());
       }
     }
-  
+
   //
   // Test lookup implemented inside data array
   //
-  
+
   // Time the lookup creation
   VTK_CREATE(vtkTimerLog, timer);
   timer->StartTimer();
@@ -308,7 +308,7 @@ int TestArrayLookupString(vtkIdType numVal)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-  
+
   // Time list lookup
   VTK_CREATE(vtkIdList, list);
   timer->StartTimer();
@@ -318,7 +318,7 @@ int TestArrayLookupString(vtkIdType numVal)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-    
+
   // Test for correctness
   vtkIdType correctIndex = arrSize;
   for (vtkIdType i = 0; i < numVal; i++)
@@ -368,7 +368,7 @@ int TestArrayLookupString(vtkIdType numVal)
 int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
 {
   int errors = 0;
-  
+
   // Create the array
   vtkIdType arrSize = (numVal-1)*numVal/2;
   VTK_CREATE(vtkIntArray, arr);
@@ -379,11 +379,11 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
       arr->InsertNextValue(numVal-1-i);
       }
     }
-  
+
   //
   // Test lookup implemented inside data array
   //
-  
+
   // Time the lookup creation
   VTK_CREATE(vtkTimerLog, timer);
   timer->StartTimer();
@@ -399,7 +399,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-  
+
   // Time list lookup
   VTK_CREATE(vtkIdList, list);
   timer->StartTimer();
@@ -409,7 +409,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     }
   timer->StopTimer();
   cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-    
+
   // Test for correctness
   vtkIdType correctIndex = arrSize;
   for (vtkIdType i = 0; i < numVal; i++)
@@ -453,13 +453,13 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
         }
       }
     }
-  
+
   if (runComparison)
     {
     //
     // Test STL map lookup
     //
-    
+
     // Time the lookup creation
     timer->StartTimer();
     int* ptr = arr->GetPointer(0);
@@ -470,7 +470,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
       }
     timer->StopTimer();
     cerr << "," << timer->GetElapsedTime();
-    
+
     // Time simple lookup
     timer->StartTimer();
     for (vtkIdType i = 0; i < numVal; i++)
@@ -479,7 +479,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
       }
     timer->StopTimer();
     cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-    
+
     // Test for correctness
     correctIndex = arrSize;
     for (vtkIdType i = 0; i < numVal; i++)
@@ -497,11 +497,11 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
         errors++;
         }
       }
-    
+
     //
     // Test STL vector lookup
     //
-    
+
     // Time lookup creation
     timer->StartTimer();
     ptr = arr->GetPointer(0);
@@ -514,7 +514,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     vtksys_stl::sort(vec.begin(), vec.end(), comp);
     timer->StopTimer();
     cerr << "," << timer->GetElapsedTime();
-    
+
     // Time simple lookup
     timer->StartTimer();
     for (vtkIdType i = 0; i < numVal; i++)
@@ -523,7 +523,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
       }
     timer->StopTimer();
     cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-    
+
     // Test for correctness
     correctIndex = arrSize;
     for (vtkIdType i = 0; i < numVal; i++)
@@ -541,11 +541,11 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
         errors++;
         }
       }
-        
+
     //
     // Test sorted data array lookup
     //
-    
+
     // Time lookup creation
     timer->StartTimer();
     VTK_CREATE(vtkIdTypeArray, indices);
@@ -560,7 +560,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     vtkSortDataArray::Sort(sorted, indices);
     timer->StopTimer();
     cerr << "," << timer->GetElapsedTime();
-      
+
     // Time simple lookup
     timer->StartTimer();
     for (vtkIdType i = 0; i < numVal; i++)
@@ -569,7 +569,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
       }
     timer->StopTimer();
     cerr << "," << (timer->GetElapsedTime() / static_cast<double>(numVal));
-    
+
     // Test for correctness
     correctIndex = arrSize;
     for (vtkIdType i = 0; i < numVal; i++)
@@ -588,7 +588,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
         }
       }
     }
-  
+
   return errors;
 }
 
@@ -622,13 +622,13 @@ int TestArrayLookup(int argc, char* argv[])
       steps = atoi(argv[i]);
       }
     }
-  
+
   vtkIdType stepSize = (max-min)/(steps-1);
   if (stepSize <= 0)
     {
     stepSize = 1;
     }
-  
+
   int errors = 0;
   cerr << "distinct values";
   cerr << ",size";

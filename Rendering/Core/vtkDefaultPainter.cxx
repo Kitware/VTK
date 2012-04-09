@@ -29,7 +29,7 @@
 
 vtkStandardNewMacro(vtkDefaultPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, DefaultPainterDelegate, vtkPainter);
-vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter, 
+vtkCxxSetObjectMacro(vtkDefaultPainter, ScalarsToColorsPainter,
   vtkScalarsToColorsPainter);
 vtkCxxSetObjectMacro(vtkDefaultPainter, ClipPlanesPainter,
   vtkClipPlanesPainter);
@@ -169,7 +169,7 @@ void vtkDefaultPainter::BuildPainterChain()
     prevPainter = painter;
     headPainter = (headPainter)? headPainter : painter;
     }
-  
+
   painter = this->GetCoincidentTopologyResolutionPainter();
   if (painter)
     {
@@ -179,7 +179,7 @@ void vtkDefaultPainter::BuildPainterChain()
       }
     prevPainter = painter;
     headPainter = (headPainter)? headPainter : painter;
-    }  
+    }
 
   // this will set in internal delegate painter.
   this->Superclass::SetDelegatePainter(headPainter);
@@ -189,7 +189,7 @@ void vtkDefaultPainter::BuildPainterChain()
     }
 }
 //-----------------------------------------------------------------------------
-void vtkDefaultPainter::Render(vtkRenderer* renderer, vtkActor* actor, 
+void vtkDefaultPainter::Render(vtkRenderer* renderer, vtkActor* actor,
                                unsigned long typeflags, bool forceCompileOnly)
 {
   if (this->ChainBuildTime < this->MTime)
@@ -232,7 +232,7 @@ void vtkDefaultPainter::ReportReferences(vtkGarbageCollector* collector)
     "ClipPlanes Painter");
   vtkGarbageCollectorReport(collector, this->CompositePainter,
     "Composite Painter");
-  vtkGarbageCollectorReport(collector, 
+  vtkGarbageCollectorReport(collector,
     this->CoincidentTopologyResolutionPainter,
     "CoincidentTopologyResolution Painter");
   vtkGarbageCollectorReport(collector, this->LightingPainter,
@@ -336,7 +336,7 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
- 
+
   os << indent << "LightingPainter: " ;
   if (this->LightingPainter)
     {
@@ -347,7 +347,7 @@ void vtkDefaultPainter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
-  
+
   os << indent << "RepresentationPainter: " ;
   if (this->RepresentationPainter)
     {

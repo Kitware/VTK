@@ -40,7 +40,7 @@ protected:
   ~vtkPDBReader();
 
   void ReadSpecificMolecule(FILE* fp);
-  
+
 private:
   vtkPDBReader(const vtkPDBReader&);  // Not implemented.
   void operator=(const vtkPDBReader&);  // Not implemented.

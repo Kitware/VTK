@@ -15,10 +15,10 @@
 // .NAME vtkRibbonFilter - create oriented ribbons from lines defined in polygonal dataset
 // .SECTION Description
 // vtkRibbonFilter is a filter to create oriented ribbons from lines defined
-// in polygonal dataset. The orientation of the ribbon is along the line 
-// segments and perpendicular to "projected" line normals. Projected line 
-// normals are the original line normals projected to be perpendicular to 
-// the local line segment. An offset angle can be specified to rotate the 
+// in polygonal dataset. The orientation of the ribbon is along the line
+// segments and perpendicular to "projected" line normals. Projected line
+// normals are the original line normals projected to be perpendicular to
+// the local line segment. An offset angle can be specified to rotate the
 // ribbon with respect to the normal.
 //
 // .SECTION Caveats
@@ -55,12 +55,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct ribbon so that width is 0.1, the width does 
+  // Construct ribbon so that width is 0.1, the width does
   // not vary with scalar values, and the width factor is 2.0.
   static vtkRibbonFilter *New();
 
   // Description:
-  // Set the "half" width of the ribbon. If the width is allowed to vary, 
+  // Set the "half" width of the ribbon. If the width is allowed to vary,
   // this is the minimum width. The default is 0.5
   vtkSetClampMacro(Width,double,0,VTK_DOUBLE_MAX);
   vtkGetMacro(Width,double);
@@ -115,7 +115,7 @@ public:
 
   // Description:
   // Control the conversion of units during the texture coordinates
-  // calculation. The TextureLength indicates what length (whether 
+  // calculation. The TextureLength indicates what length (whether
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space. The default is 1.0
   vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
@@ -137,18 +137,18 @@ protected:
 
   // Helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
-                     vtkPoints *inPts, vtkPoints *newPts, 
+                     vtkPoints *inPts, vtkPoints *newPts,
                      vtkPointData *pd, vtkPointData *outPD,
                      vtkFloatArray *newNormals, vtkDataArray *inScalars,
                      double range[2], vtkDataArray *inNormals);
-  void GenerateStrip(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
+  void GenerateStrip(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
                      vtkIdType inCellId, vtkCellData *cd, vtkCellData *outCD,
                      vtkCellArray *newStrips);
   void GenerateTextureCoords(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
                              vtkPoints *inPts, vtkDataArray *inScalars,
                              vtkFloatArray *newTCoords);
   vtkIdType ComputeOffset(vtkIdType offset,vtkIdType npts);
-  
+
   // Helper data members
   double Theta;
 

@@ -63,8 +63,8 @@ ren2 SetActiveCamera camera
 ren3 SetActiveCamera camera
 ren4 SetActiveCamera camera
 
-[ren1 GetActiveCamera] SetPosition 0.314753 -0.0699988 -0.264225 
-[ren1 GetActiveCamera] SetFocalPoint 0.00188636 -0.136847 -5.84226e-09 
+[ren1 GetActiveCamera] SetPosition 0.314753 -0.0699988 -0.264225
+[ren1 GetActiveCamera] SetFocalPoint 0.00188636 -0.136847 -5.84226e-09
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] SetViewUp  0 1 0
 

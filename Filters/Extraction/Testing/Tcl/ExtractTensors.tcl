@@ -79,7 +79,7 @@ vtkConeSource coneSrc
 vtkPolyDataMapper coneMap
     coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
-    coneActor SetMapper coneMap;    
+    coneActor SetMapper coneMap;
     coneActor SetPosition 0 0 11
     coneActor RotateY 90
     eval [coneActor GetProperty] SetColor 1 0 0
@@ -104,4 +104,4 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 
 # prevent the tk window from showing up then start the event loop
-wm withdraw . 
+wm withdraw .

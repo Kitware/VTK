@@ -44,7 +44,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
   int len;
   int comment;
   char* ptr;
-  do 
+  do
     {
     comment = 0;
     if ( !fgets(line, maxlen, fp) )
@@ -70,7 +70,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
       {
       comment = 1;
       }
-    } 
+    }
   while ( comment );
   //cout << "Have line that is not a comment: [" << line << "]" << endl;
   len = static_cast<int>(strlen(line));
@@ -171,9 +171,9 @@ int vtkXYZMolReader::CanReadFile(const char* name)
   // First make sure the file exists.  This prevents an empty file
   // from being created on older compilers.
   struct stat fs;
-  if(stat(name, &fs) != 0) 
-    { 
-    return 0; 
+  if(stat(name, &fs) != 0)
+    {
+    return 0;
     }
 
   FILE* fp = fopen(name, "r");
@@ -219,7 +219,7 @@ int vtkXYZMolReader::CanReadFile(const char* name)
       valid = 3;
       }
     }
-  
+
   fclose(fp);
   return valid;
 }
@@ -246,7 +246,7 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
 
   this->AtomType->Allocate(1024);
   this->Points->Allocate(1024);
-  
+
   while ( (lptr = this->GetNextLine(fp, buffer, maxlen)) )
     {
     if ( ( cnt == 0 || ccnt == num ) && this->GetLine1(lptr, &num) )

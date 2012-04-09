@@ -32,7 +32,7 @@ vtkMPIEventLog::vtkMPIEventLog()
 {
 
   this->Active = 0;
-  
+
 }
 
 void vtkMPIEventLog::InitializeLogging()
@@ -48,7 +48,7 @@ void vtkMPIEventLog::FinalizeLogging(const char* fname)
 int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
 {
   int err, processId;
-  if ( (err = MPI_Comm_rank(MPI_COMM_WORLD,&processId)) 
+  if ( (err = MPI_Comm_rank(MPI_COMM_WORLD,&processId))
        != MPI_SUCCESS)
     {
     char *msg = vtkMPIController::ErrorString(err);
@@ -62,14 +62,14 @@ int vtkMPIEventLog::SetDescription(const char* name, const char* desc)
     {
     this->BeginId = MPE_Log_get_event_number();
     this->EndId = MPE_Log_get_event_number();
-    MPE_Describe_state(this->BeginId, this->EndId, const_cast<char*>(name), 
+    MPE_Describe_state(this->BeginId, this->EndId, const_cast<char*>(name),
                        const_cast<char*>(desc));
     }
   MPI_Bcast(&this->BeginId, 1, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Bcast(&this->EndId, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   return 1;
-} 
+}
 
 void vtkMPIEventLog::StartLogging()
 {

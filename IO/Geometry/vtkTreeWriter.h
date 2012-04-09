@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTreeWriter - write vtkTree data to a file
 // .SECTION Description
-// vtkTreeWriter is a sink object that writes ASCII or binary 
+// vtkTreeWriter is a sink object that writes ASCII or binary
 // vtkTree data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.

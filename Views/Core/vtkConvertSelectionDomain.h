@@ -55,16 +55,16 @@ protected:
   ~vtkConvertSelectionDomain();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   virtual int FillInputPortInformation(
     int port, vtkInformation* info);
-  
+
   virtual int FillOutputPortInformation(
     int port, vtkInformation* info);
-  
+
 private:
   vtkConvertSelectionDomain(const vtkConvertSelectionDomain&);  // Not implemented.
   void operator=(const vtkConvertSelectionDomain&);  // Not implemented.

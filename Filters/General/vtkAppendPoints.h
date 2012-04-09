@@ -16,7 +16,7 @@
 //
 // .SECTION Description
 // vtkAppendPoints is a filter that appends the points and associated data
-// of one or more polygonal (vtkPolyData) datasets. This filter can optionally 
+// of one or more polygonal (vtkPolyData) datasets. This filter can optionally
 // add a new array marking the input index that the point came from.
 
 // .SECTION See Also
@@ -47,7 +47,7 @@ protected:
   ~vtkAppendPoints();
 
   // Usual data generation method
-  virtual int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *,
                           vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 

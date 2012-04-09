@@ -161,7 +161,7 @@ int vtkDistanceToCamera::RequestData(
       return 0;
       }
     }
-  
+
   output->ShallowCopy(input);
   vtkIdType numPoints = input->GetNumberOfPoints();
   vtkSmartPointer<vtkDoubleArray> distArr =

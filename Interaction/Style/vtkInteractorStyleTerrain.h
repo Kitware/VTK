@@ -35,10 +35,10 @@
 // The class also supports some keypress events. The "r" key resets the
 // camera.  The "e" key invokes the exit callback and by default exits the
 // program. The "f" key sets a new camera focal point and flys towards that
-// point. The "u" key invokes the user event. The "3" key toggles between 
+// point. The "u" key invokes the user event. The "3" key toggles between
 // stereo and non-stero mode. The "l" key toggles on/off a latitude/longitude
 // markers that can be used to estimate/control position.
-// 
+//
 
 // .SECTION See Also
 // vtkInteractorObserver vtkInteractorStyle vtk3DWidget
@@ -104,13 +104,13 @@ protected:
 
   void SelectRepresentation();
   void CreateLatLong();
-  
+
   double MotionFactor;
 
 private:
   vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&);  // Not implemented.
   void operator=(const vtkInteractorStyleTerrain&);  // Not implemented.
-  
+
 };
 
 #endif

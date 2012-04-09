@@ -28,7 +28,7 @@
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
-{  
+{
   this->PointElements = 0;
   this->NumberOfPoints = 0;
   this->TotalNumberOfPoints = 0;
@@ -75,11 +75,11 @@ vtkXMLUnstructuredDataReader
       const char* aName = eNested->GetAttribute("Name");
       if(aName && (strcmp(aName, name) == 0))
         {
-        int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+        int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
           this->NumberOfTimeSteps, this->TimeSteps);
         assert( numTimeSteps <= this->NumberOfTimeSteps );
         // Check if CurrentTimeStep is in the array and particular field is also:
-        int isCurrentTimeInArray = 
+        int isCurrentTimeInArray =
           vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
         // If no time is specified or if time is specified and match then read
         if( !numTimeSteps || isCurrentTimeInArray )
@@ -113,7 +113,7 @@ vtkXMLUnstructuredDataReader::ConvertToIdTypeArray(vtkDataArray* a)
     {
     return ida;
     }
-  
+
   // Need to convert the data.
   ida = vtkIdTypeArray::New();
   ida->SetNumberOfComponents(a->GetNumberOfComponents());
@@ -146,7 +146,7 @@ vtkXMLUnstructuredDataReader::ConvertToUnsignedCharArray(vtkDataArray* a)
     {
     return uca;
     }
-  
+
   // Need to convert the data.
   uca = vtkUnsignedCharArray::New();
   uca->SetNumberOfComponents(a->GetNumberOfComponents());
@@ -182,7 +182,7 @@ void vtkXMLUnstructuredDataReader::SetupOutputTotals()
   for(int i=this->StartPiece; i < this->EndPiece; ++i)
     {
     this->TotalNumberOfPoints += this->NumberOfPoints[i];
-    }  
+    }
   this->StartPoint = 0;
 }
 
@@ -200,14 +200,14 @@ void vtkXMLUnstructuredDataReader::SetupUpdateExtent(int piece,
   this->UpdatePiece = piece;
   this->UpdateNumberOfPieces = numberOfPieces;
   this->UpdateGhostLevel = ghostLevel;
-  
+
   // If more pieces are requested than available, just return empty
   // pieces for the extra ones.
   if(this->UpdateNumberOfPieces > this->NumberOfPieces)
     {
     this->UpdateNumberOfPieces = this->NumberOfPieces;
     }
-  
+
   // Find the range of pieces to read.
   if(this->UpdatePiece < this->UpdateNumberOfPieces)
     {
@@ -221,14 +221,14 @@ void vtkXMLUnstructuredDataReader::SetupUpdateExtent(int piece,
     this->StartPiece = 0;
     this->EndPiece = 0;
     }
-  
+
   // Find the total size of the output.
-  this->SetupOutputTotals(); 
+  this->SetupOutputTotals();
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataReader::ReadXMLData()
-{  
+{
   // Get the update request.
   int piece;
   int numberOfPieces;
@@ -240,30 +240,30 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevel = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
+
   vtkDebugMacro("Updating piece " << piece << " of " << numberOfPieces
                 << " with ghost level " << ghostLevel);
-  
+
   // Setup the range of pieces that will be read.
   this->SetupUpdateExtent(piece, numberOfPieces, ghostLevel);
-  
+
   // If there are no data to read, stop now.
   if(this->StartPiece == this->EndPiece)
     {
     return;
     }
-  
+
   vtkDebugMacro("Reading piece range [" << this->StartPiece
-                << ", " << this->EndPiece << ") from file.");  
-  
+                << ", " << this->EndPiece << ") from file.");
+
   // Let superclasses read data.  This also allocates output data.
-  this->Superclass::ReadXMLData();  
-  
+  this->Superclass::ReadXMLData();
+
   // Split current progress range based on fraction contributed by
   // each piece.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  
+
   // Calculate the cumulative fraction of data contributed by each
   // piece (for progress).
   float* fractions = new float[this->EndPiece-this->StartPiece+1];
@@ -273,7 +273,7 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
     {
     int index = i-this->StartPiece;
     fractions[index+1] = (fractions[index] +
-                          this->GetNumberOfPointsInPiece(i) + 
+                          this->GetNumberOfPointsInPiece(i) +
                           this->GetNumberOfCellsInPiece(i));
     }
   if(fractions[this->EndPiece-this->StartPiece] == 0)
@@ -285,14 +285,14 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
     int index = i-this->StartPiece;
     fractions[index+1] = fractions[index+1] / fractions[this->EndPiece-this->StartPiece];
     }
-  
+
   // Read the data needed from each piece.
   for(i=this->StartPiece; (i < this->EndPiece && !this->AbortExecute &&
                            !this->DataError); ++i)
     {
     // Set the range of progress for this piece.
     this->SetProgressRange(progressRange, i-this->StartPiece, fractions);
-    
+
     if(!this->Superclass::ReadPieceData(i))
       {
       // An error occurred while reading the piece.
@@ -300,7 +300,7 @@ void vtkXMLUnstructuredDataReader::ReadXMLData()
       }
     this->SetupNextPiece();
     }
-  
+
   delete [] fractions;
 }
 
@@ -351,7 +351,7 @@ vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfPointsInPiece(int piece)
 void vtkXMLUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
-   
+
   // Set the maximum number of pieces that can be provided by this
   // reader.
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
@@ -362,10 +362,10 @@ void vtkXMLUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInf
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
 {
-  vtkInformation *localInfo = 
+  vtkInformation *localInfo =
     this->GetExecutive()->GetOutputInformation( port );
   this->Superclass::CopyOutputInformation(outInfo, port);
-  outInfo->CopyEntry(localInfo, 
+  outInfo->CopyEntry(localInfo,
     vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES() );
 }
 
@@ -377,7 +377,7 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
 
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
-  
+
   // Use the configuration of the first piece since all are the same.
   vtkXMLDataElement* ePoints = this->PointElements[0];
   if (ePoints)
@@ -401,7 +401,7 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
       this->DataError = 1;
       }
     }
-  
+
   vtkPointSet::SafeDownCast(this->GetCurrentOutput())->SetPoints(points);
   points->Delete();
 }
@@ -413,7 +413,7 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
     {
     return 0;
     }
-  
+
   if(!ePiece->GetScalarAttribute("NumberOfPoints",
                                  this->NumberOfPoints[this->Piece]))
     {
@@ -422,7 +422,7 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
     this->NumberOfPoints[this->Piece] = 0;
     return 0;
     }
-  
+
   // Find the Points element in the piece.
   int i;
   this->PointElements[this->Piece] = 0;
@@ -439,7 +439,7 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
         }
       }
     }
-  
+
   // If there are some points, we require a Points element.
   if(!this->PointElements[this->Piece] &&
      (this->NumberOfPoints[this->Piece] > 0))
@@ -447,8 +447,8 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
     vtkErrorMacro("A piece is missing its Points element "
                   "or element does not have exactly 1 array.");
     return 0;
-    }  
-  
+    }
+
   return 1;
 }
 
@@ -460,7 +460,7 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
   vtkIdType superclassPieceSize =
     (this->NumberOfPointArrays*this->GetNumberOfPointsInPiece(this->Piece)+
      this->NumberOfCellArrays*this->GetNumberOfCellsInPiece(this->Piece));
-  
+
   // Total amount of data in this piece comes from point/cell data
   // arrays and the point specifications themselves.
   vtkIdType totalPieceSize =
@@ -469,7 +469,7 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
     {
     totalPieceSize = 1;
     }
-  
+
   // Split the progress range based on the approximate fraction of
   // data that will be read by each step in this method.
   float progressRange[2] = {0,0};
@@ -480,21 +480,21 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
       float(superclassPieceSize)/totalPieceSize,
       1
     };
-  
+
   // Set the range of progress for the superclass.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Let the superclass read its data.
-  if(!this->Superclass::ReadPieceData()) 
-    { 
-    return 0; 
+  if(!this->Superclass::ReadPieceData())
+    {
+    return 0;
     }
-  
+
   vtkPointSet* output = vtkPointSet::SafeDownCast(this->GetCurrentOutput());
-  
+
   // Set the range of progress for the Points.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the points array.
   vtkXMLDataElement* ePoints = this->PointElements[this->Piece];
   if(ePoints)
@@ -503,7 +503,7 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
              !this->AbortExecute);++i)
       {
       vtkXMLDataElement* eNested = ePoints->GetNestedElement(i);
-      if( strcmp(eNested->GetName(), "DataArray") != 0  && 
+      if( strcmp(eNested->GetName(), "DataArray") != 0  &&
         strcmp(eNested->GetName(),"Array") != 0 )
         {
         vtkErrorMacro("Invalid Array.");
@@ -524,7 +524,7 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
         }
       }
     }
-  
+
   return 1;
 }
 
@@ -538,14 +538,14 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     {
     return 1;
     }
-  else 
+  else
     {
     if(!eCells)
       {
       return 0;
       }
     }
-  
+
   // Split progress range into 1/5 for offsets array and 4/5 for
   // connectivity array.  This assumes an average of 4 points per
   // cell.  Unfortunately, we cannot know the length of the
@@ -553,10 +553,10 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
   float fractions[3] = {0, 0.2, 1};
-  
+
   // Set range of progress for offsets array.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Read the cell offsets.
   vtkXMLDataElement* eOffsets = this->FindDataArrayWithName(eCells, "offsets");
   if(!eOffsets)
@@ -581,14 +581,14 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     return 0;
     }
   c1->SetNumberOfTuples(numberOfCells);
-  if(!this->ReadArrayValues(eOffsets, 0, c1, 
+  if(!this->ReadArrayValues(eOffsets, 0, c1,
       0, numberOfCells))
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
                   << " in piece " << this->Piece
                   << " because the \"offsets\" array is not long enough.");
     return 0;
-    }  
+    }
   vtkIdTypeArray* cellOffsets = this->ConvertToIdTypeArray(c1);
   if(!cellOffsets)
     {
@@ -620,7 +620,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
 
   // Set range of progress for connectivity array.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the cell point connectivity array.
   vtkIdType cpLength = cellOffsets->GetValue(numberOfCells-1);
   vtkXMLDataElement* eConn = this->FindDataArrayWithName(eCells, "connectivity");
@@ -663,7 +663,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     cellOffsets->Delete();
     return 0;
     }
-  
+
 
   // Allocate memory in the output connectivity array.
   vtkIdType curSize = 0;
@@ -680,7 +680,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   vtkIdType newSize = curSize+numberOfCells+cellPoints->GetNumberOfTuples();
   vtkIdType* cptr = outCells->WritePointer(totalNumberOfCells, newSize);
   cptr += curSize;
-  
+
   // Copy the connectivity data.
   vtkIdType previousOffset = 0;
   for(i=0; i < numberOfCells; ++i)
@@ -698,10 +698,10 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     cptr += length;
     previousOffset += length;
     }
-  
+
   cellPoints->Delete();
   cellOffsets->Delete();
-  
+
   return 1;
 }
 
@@ -716,27 +716,27 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
     {
     return 1;
     }
-  else 
+  else
     {
     if(!eCells || !outFaces || !outFaceOffsets)
       {
       return 0;
       }
     }
-  
+
   // Split progress range into 1/5 for faces array and 4/5 for
   // faceoffsets array.  This assumes an average of 4 points per
-  // face.  Unfortunately, we cannot know the length ahead of time 
+  // face.  Unfortunately, we cannot know the length ahead of time
   // to calculate the real fraction.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
   float fractions[3] = {0, 0.2, 1};
-  
+
   // Set range of progress for offsets array.
   this->SetProgressRange(progressRange, 0, fractions);
-  
+
   // Read the cell offsets.
-  vtkXMLDataElement* efaceOffsets = 
+  vtkXMLDataElement* efaceOffsets =
     this->FindDataArrayWithName(eCells, "faceoffsets");
   if(!efaceOffsets)
     {
@@ -766,7 +766,7 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
                   << " in piece " << this->Piece
                   << " because the \"faceoffsets\" array is not long enough.");
     return 0;
-    }  
+    }
   vtkIdTypeArray* faceOffsets = this->ConvertToIdTypeArray(c1);
   if(!faceOffsets)
     {
@@ -778,9 +778,9 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
     }
 
   // Note that faceOffsets[i] points to the end of the i-th cell's faces + 1. We
-  // now Extract the size of the faces array from faceOffsets array. We compute 
-  // it by subtracting the size of outFaces from the maximum value of faceOffset 
-  // array element. The faceOffsets array is incremental, but contains -1 to 
+  // now Extract the size of the faces array from faceOffsets array. We compute
+  // it by subtracting the size of outFaces from the maximum value of faceOffset
+  // array element. The faceOffsets array is incremental, but contains -1 to
   // indicate a non-polyhedron cell.
   vtkIdType* faceoffsetPtr = faceOffsets->GetPointer(0);
   vtkIdType maxOffset = -1;
@@ -792,19 +792,19 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
       break;
       }
     }
-  
+
   vtkIdType facesArrayLength = maxOffset - outFaces->GetNumberOfTuples();
-  
+
   // special handling of the case of all non-polyhedron cells
   if (facesArrayLength <= 0)
     {
     faceOffsets->Delete();
     return 1;
     }
-  
+
   // Set range of progress for faces array.
   this->SetProgressRange(progressRange, 1, fractions);
-  
+
   // Read the faces array.
   vtkXMLDataElement* efaces = this->FindDataArrayWithName(eCells, "faces");
   if(!efaces)
@@ -849,9 +849,9 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
 
 
   // Copy the contents of the faceoffsets array.
-  // Note that faceOffsets[i] points to the end of the i-th cell + 1. While 
-  // vtkUnstructuredGrid::FaceLocations[i] points to the beginning of the 
-  // i-th cell. Need to convert. Also note that for both arrays, a 
+  // Note that faceOffsets[i] points to the end of the i-th cell + 1. While
+  // vtkUnstructuredGrid::FaceLocations[i] points to the beginning of the
+  // i-th cell. Need to convert. Also note that for both arrays, a
   // non-polyhedron cell has a offset of -1.
   vtkIdType* facesPtr = faces->GetPointer(0);
   vtkIdType startLoc = outFaceOffsets->GetNumberOfTuples();
@@ -878,7 +878,7 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
         }
       }
     }
-  
+
   // sanity check
   if (currLoc - startLoc != facesArrayLength)
     {
@@ -889,7 +889,7 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
     return 0;
     }
 
-  // Copy the contents of the faces array. 
+  // Copy the contents of the faces array.
   startLoc = outFaces->GetNumberOfTuples();
   vtkIdType length = faces->GetNumberOfTuples();
   vtkIdType* outFacesPtr = outFaces->WritePointer(startLoc, length);
@@ -909,7 +909,7 @@ int vtkXMLUnstructuredDataReader::ReadArrayForPoints(vtkXMLDataElement* da,
                                                      vtkAbstractArray* outArray)
 {
   vtkIdType startPoint = this->StartPoint;
-  vtkIdType numPoints = this->NumberOfPoints[this->Piece];  
+  vtkIdType numPoints = this->NumberOfPoints[this->Piece];
   vtkIdType components = outArray->GetNumberOfComponents();
   return this->ReadArrayValues(da, startPoint*components,outArray,
     0, numPoints*components);
@@ -919,7 +919,7 @@ int vtkXMLUnstructuredDataReader::ReadArrayForPoints(vtkXMLDataElement* da,
 int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eNested)
 {
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
     this->NumberOfTimeSteps, this->TimeSteps);
   assert( numTimeSteps <= this->NumberOfTimeSteps );
   if (!numTimeSteps && !this->NumberOfTimeSteps)
@@ -928,10 +928,10 @@ int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eN
     return 1;
     }
   // else TimeStep was specified but no TimeValues associated were found
-  assert( this->NumberOfTimeSteps ); 
+  assert( this->NumberOfTimeSteps );
 
   // case numTimeSteps > 1
-  int isCurrentTimeInArray = 
+  int isCurrentTimeInArray =
     vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
   if( !isCurrentTimeInArray && numTimeSteps)
     {
@@ -961,10 +961,10 @@ int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eN
       this->PointsTimeStep = this->CurrentTimeStep;
       return 1;
       }
-    int isLastTimeInArray = 
+    int isLastTimeInArray =
       vtkXMLReader::IsTimeStepInArray(this->PointsTimeStep, this->TimeSteps, numTimeSteps);
      // If no time is specified or if time is specified and match then read
-    if (isCurrentTimeInArray && !isLastTimeInArray) 
+    if (isCurrentTimeInArray && !isLastTimeInArray)
       {
       // CurrentTimeStep is in TimeSteps but Last is not := need to read
       // Update last PointsTimeStep read
@@ -982,7 +982,7 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
   int &cellstimestep, unsigned long &cellsoffset)
 {
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep",
     this->NumberOfTimeSteps, this->TimeSteps);
   assert( numTimeSteps <= this->NumberOfTimeSteps );
   if (!numTimeSteps && !this->NumberOfTimeSteps)
@@ -991,10 +991,10 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
     return 1;
     }
   // else TimeStep was specified but no TimeValues associated were found
-  assert( !this->NumberOfTimeSteps ); 
+  assert( !this->NumberOfTimeSteps );
 
   // case numTimeSteps > 1
-  int isCurrentTimeInArray = 
+  int isCurrentTimeInArray =
     vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
   if( !isCurrentTimeInArray && numTimeSteps)
     {
@@ -1024,7 +1024,7 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
       cellstimestep = this->CurrentTimeStep;
       return 1;
       }
-    int isLastTimeInArray = 
+    int isLastTimeInArray =
       vtkXMLReader::IsTimeStepInArray(cellstimestep, this->TimeSteps, numTimeSteps);
      // If no time is specified or if time is specified and match then read
     if (isCurrentTimeInArray && !isLastTimeInArray)

@@ -62,7 +62,7 @@ vtkJPEGWriter::~vtkJPEGWriter()
 void vtkJPEGWriter::Write()
 {
   this->SetErrorCode(vtkErrorCode::NoError);
-  
+
   // Error checking
   if ( this->GetInput() == NULL )
     {
@@ -75,13 +75,13 @@ void vtkJPEGWriter::Write()
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
-  
+
   // Make sure the file name is allocated
-  this->InternalFileName = 
+  this->InternalFileName =
     new char[(this->FileName ? strlen(this->FileName) : 1) +
             (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
             (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
-  
+
   // Fill in image information.
   vtkDemandDrivenPipeline::SafeDownCast(this->GetInputExecutive(0, 0))->UpdateInformation();
   int *wExtent;
@@ -92,7 +92,7 @@ void vtkJPEGWriter::Write()
   this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
   // loop over the z axis and write the slices
-  for (this->FileNumber = wExtent[4]; this->FileNumber <= wExtent[5]; 
+  for (this->FileNumber = wExtent[4]; this->FileNumber <= wExtent[5];
        ++this->FileNumber)
     {
     this->MaximumFileNumber = this->FileNumber;
@@ -108,11 +108,11 @@ void vtkJPEGWriter::Write()
       {
       sprintf(this->InternalFileName,"%s",this->FileName);
       }
-    else 
+    else
       {
       if (this->FilePrefix)
         {
-        sprintf(this->InternalFileName, this->FilePattern, 
+        sprintf(this->InternalFileName, this->FilePattern,
                 this->FilePrefix, this->FileNumber);
         }
       else
@@ -241,7 +241,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     {
     vtkWarningMacro("JPEGWriter only supports unsigned char input");
     return;
-    }   
+    }
 
   if (data->GetNumberOfScalarComponents() > MAX_COMPONENTS)
     {
@@ -250,7 +250,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     }
 
   // overriding jpeg_error_mgr so we don't exit when an error happens
-  
+
   // Create the jpeg compression object and error handler
   struct jpeg_compress_struct cinfo;
   struct VTK_JPEG_ERROR_MANAGER jerr;
@@ -278,7 +278,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return;
     }
-  
+
   jpeg_create_compress(&cinfo);
 
   // set the destination file
@@ -296,11 +296,11 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     {
     jpeg_stdio_dest(&cinfo, this->TempFP);
     }
-  
+
   // set the information about image
   unsigned int width, height;
   width = uExtent[1] - uExtent[0] + 1;
-  height = uExtent[3] - uExtent[2] + 1;  
+  height = uExtent[3] - uExtent[2] + 1;
 
   cinfo.image_width = width;    /* image width and height, in pixels */
   cinfo.image_height = height;
@@ -323,7 +323,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     {
     jpeg_simple_progression(&cinfo);
     }
-  
+
   // start compression
   jpeg_start_compress(&cinfo, TRUE);
 
@@ -339,7 +339,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
     outPtr = (unsigned char *)outPtr + rowInc;
     }
   jpeg_write_scanlines(&cinfo, row_pointers, height);
-  
+
   if (!this->WriteToMemory)
     {
     if (fflush(this->TempFP) == EOF)
@@ -349,14 +349,14 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
       return;
       }
     }
-  
+
   // finish the compression
   jpeg_finish_compress(&cinfo);
-  
+
   // clean up and close the file
   delete [] row_pointers;
   jpeg_destroy_compress(&cinfo);
-  
+
   if (!this->WriteToMemory)
     {
     fclose(this->TempFP);

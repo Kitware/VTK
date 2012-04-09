@@ -26,12 +26,12 @@
 // specify a rectangular region in the data. (Note that these are 0-offset.)
 // You can also specify a sampling rate to subsample the data.
 //
-// Typical applications of this filter are to extract a plane from a grid for 
+// Typical applications of this filter are to extract a plane from a grid for
 // contouring, subsampling large grids to reduce data size, or extracting
 // regions of a grid with interesting data.
 
 // .SECTION See Also
-// vtkGeometryFilter vtkExtractGeometry vtkExtractVOI 
+// vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
 // vtkStructuredGridGeometryFilter
 
 #ifndef __vtkExtractGrid_h
@@ -50,7 +50,7 @@ public:
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured grid
   // dataset can be of any topological dimension (i.e., point, line, plane,
-  // or 3D grid). 
+  // or 3D grid).
   vtkSetVector6Macro(VOI,int);
   vtkGetVectorMacro(VOI,int,6);
 
@@ -81,11 +81,11 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int VOI[6];
   int SampleRate[3];
   int IncludeBoundary;
-  
+
 private:
   vtkExtractGrid(const vtkExtractGrid&);  // Not implemented.
   void operator=(const vtkExtractGrid&);  // Not implemented.

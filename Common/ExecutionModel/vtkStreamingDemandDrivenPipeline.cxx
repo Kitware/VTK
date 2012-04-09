@@ -135,7 +135,7 @@ int vtkStreamingDemandDrivenPipeline
       {
       outputPort = request->Get(FROM_OUTPUT_PORT());
       }
-    
+
     // Make sure the information on the output port is valid.
     if(!this->VerifyOutputInformation(outputPort,inInfoVec,outInfoVec))
       {
@@ -204,7 +204,7 @@ int vtkStreamingDemandDrivenPipeline
     // If we need to execute, propagate the update extent.
     int result = 1;
     int N2E = this->NeedToExecuteData(outputPort,inInfoVec,outInfoVec);
-    if (!N2E && 
+    if (!N2E &&
         outInfo &&
         this->GetNumberOfInputPorts() &&
         inInfoVec[0]->GetNumberOfInformationObjects () > 0)
@@ -220,7 +220,7 @@ int vtkStreamingDemandDrivenPipeline
         {
         if (outNumberOfPieces != 1)
           {
-          int outPiece = outInfo->Get(UPDATE_PIECE_NUMBER()); 
+          int outPiece = outInfo->Get(UPDATE_PIECE_NUMBER());
           int inPiece = inInfo->Get(UPDATE_PIECE_NUMBER());
           if (inPiece != outPiece)
             {
@@ -235,12 +235,12 @@ int vtkStreamingDemandDrivenPipeline
               }
             }
           }
-        }      
+        }
       }
     if(N2E)
       {
       // Make sure input types are valid before algorithm does anything.
-      if(!this->InputCountIsValid(inInfoVec) || 
+      if(!this->InputCountIsValid(inInfoVec) ||
          !this->InputTypeIsValid(inInfoVec))
         {
         result = 0;
@@ -323,7 +323,7 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     int retval = 1;
     // some streaming filters can request that the pipeline execute multiple
     // times for a single update
-    do 
+    do
       {
       retval = retval && this->PropagateUpdateExtent(port);
       if (retval && !this->LastPropogateUpdateExtentShortCircuited)
@@ -433,7 +433,7 @@ vtkStreamingDemandDrivenPipeline
   // Let the superclass copy first.
   this->Superclass::CopyDefaultInformation(request, direction,
                                            inInfoVec, outInfoVec);
-  
+
   if(request->Has(REQUEST_INFORMATION()))
     {
     if(this->GetNumberOfInputPorts() > 0)
@@ -490,9 +490,9 @@ vtkStreamingDemandDrivenPipeline
         continue;
         }
       vtkInformation* dataInfo = dataObject->GetInformation();
-      if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == 
-         VTK_PIECES_EXTENT || 
-         dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == 
+      if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
+         VTK_PIECES_EXTENT ||
+         dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) ==
          VTK_TIME_EXTENT)
         {
         if (!outInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
@@ -632,7 +632,7 @@ vtkStreamingDemandDrivenPipeline
               inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
               inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
               }
-            
+
             if(outData->GetExtentType() == VTK_PIECES_EXTENT)
               {
               int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
@@ -666,7 +666,7 @@ vtkStreamingDemandDrivenPipeline
     }
   if(request->Has(REQUEST_UPDATE_EXTENT_INFORMATION()))
     {
-    // Copy the meta information across that algorithm as long as 
+    // Copy the meta information across that algorithm as long as
     // the algorithm doesn't change the information that the meta-information
     // is about.
     if(this->GetNumberOfInputPorts() > 0 &&
@@ -904,7 +904,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     // Algorithms process this request before it is forwarded.
     this->UpdateExtentRequest->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
     }
-  
+
   this->UpdateExtentRequest->Set(FROM_OUTPUT_PORT(), outputPort);
 
   // Send the request.
@@ -947,7 +947,7 @@ int vtkStreamingDemandDrivenPipeline
 
   // Check extents.
   vtkInformation* dataInfo = dataObject->GetInformation();
-  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT 
+  if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT
      || dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_TIME_EXTENT)
     {
     // For an unstructured extent, make sure the update request
@@ -1060,7 +1060,7 @@ int vtkStreamingDemandDrivenPipeline
       return 0;
       }
     }
-  
+
   return 1;
 }
 
@@ -1175,7 +1175,7 @@ vtkStreamingDemandDrivenPipeline
             }
           }
         }
-      
+
       // Copy the update piece information from the update port to
       // the data piece information of all output ports UNLESS the
       // algorithm already specified it.
@@ -1187,18 +1187,18 @@ vtkStreamingDemandDrivenPipeline
         dataInfo->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), numPieces);
         dataInfo->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
         }
-        
+
       if (!dataInfo->Has(vtkDataObject::DATA_RESOLUTION()) &&
           outInfo->Has(UPDATE_RESOLUTION()))
         {
-        // It does not. 
+        // It does not.
         // Does the input have it? If yes, copy it.
         vtkDataObject* input = 0;
         if (this->GetNumberOfInputPorts() > 0)
           {
           input = this->GetInputData(0, 0);
           }
-        if (input && 
+        if (input &&
             input->GetInformation()->Has(vtkDataObject::DATA_RESOLUTION()))
           {
           dataInfo->CopyEntry(input->GetInformation(),
@@ -1222,14 +1222,14 @@ vtkStreamingDemandDrivenPipeline
       if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEPS()) &&
           outInfo->Has(TIME_RANGE()))
         {
-        // It does not. 
+        // It does not.
         // Does the input have it? If yes, copy it.
         vtkDataObject* input = 0;
         if (this->GetNumberOfInputPorts() > 0)
           {
           input = this->GetInputData(0, 0);
           }
-          if (input && 
+          if (input &&
               input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()))
           {
           dataInfo->CopyEntry(input->GetInformation(),
@@ -1488,7 +1488,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnFastPathData(
     return 0;
     }
 
-  // When all the fast-path keys are the same as all the previous ones, 
+  // When all the fast-path keys are the same as all the previous ones,
   // don't re-execute.
   if (outInfo->Has(FAST_PATH_OBJECT_ID()) &&
       outInfo->Has(FAST_PATH_OBJECT_TYPE()) &&
@@ -1497,7 +1497,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnFastPathData(
       outInfo->Has(PREVIOUS_FAST_PATH_OBJECT_TYPE()) &&
       outInfo->Has(PREVIOUS_FAST_PATH_ID_TYPE()))
     {
-    if( (outInfo->Get(FAST_PATH_OBJECT_ID()) == 
+    if( (outInfo->Get(FAST_PATH_OBJECT_ID()) ==
             outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_ID())) &&
         (strcmp(outInfo->Get(FAST_PATH_OBJECT_TYPE()),
                 outInfo->Get(PREVIOUS_FAST_PATH_OBJECT_TYPE())) == 0) &&
@@ -1505,7 +1505,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnFastPathData(
                 outInfo->Get(PREVIOUS_FAST_PATH_ID_TYPE())) == 0) )
       {
       return 0;
-      }  
+      }
     }
 
   return 1;
@@ -1754,7 +1754,7 @@ int vtkStreamingDemandDrivenPipeline
     {
     if(data->GetExtentType() == VTK_3D_EXTENT)
       {
-      if(vtkExtentTranslator* translator = 
+      if(vtkExtentTranslator* translator =
          vtkStreamingDemandDrivenPipeline::GetExtentTranslator(info))
         {
         int wholeExtent[6];
@@ -2103,7 +2103,7 @@ vtkStreamingDemandDrivenPipeline::GetExtentTranslator(vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::SetWholeBoundingBox(int port, 
+int vtkStreamingDemandDrivenPipeline::SetWholeBoundingBox(int port,
                                                           double extent[6])
 {
   if(!this->OutputPortIndexInRange(port, "set whole bounding box on"))
@@ -2148,7 +2148,7 @@ double* vtkStreamingDemandDrivenPipeline::GetWholeBoundingBox(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::SetPieceBoundingBox(int port, 
+int vtkStreamingDemandDrivenPipeline::SetPieceBoundingBox(int port,
                                                           double extent[6])
 {
   if(!this->OutputPortIndexInRange(port, "set piece bounding box on"))

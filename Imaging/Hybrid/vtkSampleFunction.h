@@ -102,7 +102,7 @@ public:
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
-  
+
   // Description:
   // Set the cap value.
   vtkSetMacro(CapValue,double);
@@ -119,13 +119,13 @@ public:
   // "scalars".
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
-  
+
   // Description:
   // Set/get the normal array name for this data set. Initial value is
   // "normals".
   vtkSetStringMacro(NormalArrayName);
   vtkGetStringMacro(NormalArrayName);
-  
+
   // Description:
   // Return the MTime also considering the implicit function.
   unsigned long GetMTime();
@@ -138,13 +138,13 @@ protected:
   // OutputScalarType set to VTK_DOUBLE, ImplicitFunction set to NULL,
   // ScalarArrayName is "" and NormalArrayName is "".
   vtkSampleFunction();
-  
+
   ~vtkSampleFunction();
 
   virtual void ReportReferences(vtkGarbageCollector*);
 
   void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *);
-  virtual int RequestInformation (vtkInformation *, 
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
   void Cap(vtkDataArray *s);
@@ -158,7 +158,7 @@ protected:
   int ComputeNormals;
   char *ScalarArrayName;
   char *NormalArrayName;
-  
+
 private:
   vtkSampleFunction(const vtkSampleFunction&);  // Not implemented.
   void operator=(const vtkSampleFunction&);  // Not implemented.

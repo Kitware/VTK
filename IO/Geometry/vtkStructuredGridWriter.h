@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkStructuredGridWriter - write vtk structured grid data file
 // .SECTION Description
-// vtkStructuredGridWriter is a source object that writes ASCII or binary 
+// vtkStructuredGridWriter is a source object that writes ASCII or binary
 // structured grid data files in vtk format. See text for format details.
 
 // .SECTION Caveats

@@ -91,7 +91,7 @@ int vtkImageFlip::RequestInformation(
     {
     // set the output Origin such that when the image flips about its origin
     // (meaning the real origin, not what vtkImageData calls "Origin") the
-    // transformed output bounds exactly overlay the input bounds. 
+    // transformed output bounds exactly overlay the input bounds.
     origin[iflip] = - origin[iflip]
       - spacing[iflip]*(wholeExt[2*iflip] + wholeExt[2*iflip+1]);
     }
@@ -100,14 +100,14 @@ int vtkImageFlip::RequestInformation(
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
     {
     vtkErrorMacro("Missing scalar field on input information!");
     return 0;
     }
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
     inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
     inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
   return 1;

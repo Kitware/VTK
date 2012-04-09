@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkBoostLogWeighting.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -42,7 +42,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
 //BTX
-  enum 
+  enum
   {
     BASE_E = 0,
     BASE_2 = 1
@@ -66,8 +66,8 @@ protected:
   ~vtkBoostLogWeighting();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

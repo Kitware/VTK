@@ -54,8 +54,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get/Set the context. Context must be a vtkOpenGLRenderWindow. 
-  // This does not increase the reference count of the 
+  // Get/Set the context. Context must be a vtkOpenGLRenderWindow.
+  // This does not increase the reference count of the
   // context to avoid reference loops.
   // SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions. Return 0 upon failure and 1 upon success.
@@ -68,7 +68,7 @@ public:
   // In term of visual quality, the greater the better.
   vtkSetMacro(Steps,int);
   vtkGetMacro(Steps,int);
-  
+
   // Description:
   // Step size.
   // WE ARE NOT SURE YET about the space where we define the step.
@@ -87,15 +87,15 @@ public:
   // The the magnification factor. Default is 1
   vtkSetClampMacro(Magnification, int, 1, VTK_INT_MAX);
   vtkGetMacro(Magnification, int);
-  
+
   // Description:
   // Check if the required OpenGL extensions / GPU are supported.
   vtkGetMacro( OpenGLExtensionsSupported, int );
-  
+
   // Description:
   // Check if FBO is started properly.
   int   GetFBOSuccess() { return this->FBOSuccess; }
-  
+
   // Description:
   // Check if LIC runs properly.
   int   GetLICSuccess() { return this->LICSuccess; }
@@ -112,7 +112,7 @@ protected:
   // Redefined from the superclass.
   virtual int FillInputPortInformation(int port,
                                        vtkInformation *info);
-  
+
   // Description:
   // Fill the output port information objects for this algorithm.
   // This is invoked by the first call to GetOutputPortInformation for
@@ -120,24 +120,24 @@ protected:
   // Redefined from the superclass.
   virtual int FillOutputPortInformation(int port,
                                         vtkInformation *info);
-  
-  virtual int RequestInformation(vtkInformation *request, 
+
+  virtual int RequestInformation(vtkInformation *request,
          vtkInformationVector **inputVector,
          vtkInformationVector *outputVector);
 
   int RequestUpdateExtent (vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector);
-  
+
   // Description:
   // Stolen from vtkImageAlgorithm. Should be in vtkStructuredGridAlgorithm.
   void AllocateOutputData(vtkDataObject *output,
                           vtkInformation *outInfo);
-  
+
   // Description:
   // Stolen from vtkImageData. Should be in vtkStructuredGrid.
   void AllocateScalars(vtkStructuredGrid *sg, vtkInformation *outInfo);
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
@@ -155,7 +155,7 @@ protected:
   bool   OwnWindow;
   int    FBOSuccess;
   int    LICSuccess;
-  
+
 private:
   vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&); // Not implemented.
   void operator=(const vtkStructuredGridLIC2D&); // Not implemented.

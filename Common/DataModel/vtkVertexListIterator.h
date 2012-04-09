@@ -26,7 +26,7 @@
 // iterator.
 //
 // .SECTION See Also
-// vtkGraph 
+// vtkGraph
 
 #ifndef __vtkVertexListIterator_h
 #define __vtkVertexListIterator_h
@@ -47,12 +47,12 @@ public:
 
   // Description:
   // Setup the iterator with a graph.
-  virtual void SetGraph(vtkGraph *graph);  
+  virtual void SetGraph(vtkGraph *graph);
 
   // Description:
   // Get the graph associated with this iterator.
   vtkGetObjectMacro(Graph, vtkGraph);
-  
+
   // Description:
   // Returns the next edge in the graph.
   vtkIdType Next()

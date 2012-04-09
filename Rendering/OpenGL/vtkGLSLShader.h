@@ -53,7 +53,7 @@
 // sample3D -- Not yet implemented in this class.
 // sampler1DShadow -- Not yet implemented in this class.
 // sampler1DShadow -- Not yet implemented in this class.
-// 
+//
 // User-Defined structures:
 // uniform struct
 //  NOTE: these must be defined and declared  outside of the 'main' shader
@@ -61,7 +61,7 @@
 //
 //
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkGLSLShader_h
@@ -85,7 +85,7 @@ public:
   static vtkGLSLShader *New();
   vtkTypeMacro(vtkGLSLShader, vtkShader);
   void PrintSelf(ostream &os, vtkIndent indent);
-  
+
   // Description:
   // Called to compile the shader code.
   // The subclasses must only compile the code in this method.
@@ -133,9 +133,9 @@ protected:
 
   // Description:
   // Equivalent to cgGLSetMatrixParameterfc and glUniformMatrix.
-  virtual void SetMatrixParameter(const char* name, int numValues, 
+  virtual void SetMatrixParameter(const char* name, int numValues,
     int order, const float* value);
-  virtual void SetMatrixParameter(const char* name, int numValues, 
+  virtual void SetMatrixParameter(const char* name, int numValues,
     int order, const double* value);
   virtual void SetMatrixParameter(const char* name, const char* state_matix_type,
     const char* transform_type);

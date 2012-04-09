@@ -18,7 +18,7 @@ vtkRectilinearGrid emptyRG
 
 proc TestOne {cname} {
 
-   $cname b 
+   $cname b
 
    if {[b IsA "vtkAlgorithm"]} {
         catch {b Update}
@@ -62,14 +62,14 @@ set classExceptions {
    vtkDistributedDataFilter
 }
 
-proc rtTestEmptyInputTest { fileid } { 
+proc rtTestEmptyInputTest { fileid } {
    global classExceptions
    # for every class
    set all [lsort [info command vtk*]]
    foreach a $all {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
-         puts  -nonewline "Testing -- $a - " 
+         puts  -nonewline "Testing -- $a - "
          flush stdout
          TestOne $a
          puts "done"
@@ -90,6 +90,6 @@ emptySG Delete
 emptyUG Delete
 emptyRG Delete
 
-exit 
+exit
 
 

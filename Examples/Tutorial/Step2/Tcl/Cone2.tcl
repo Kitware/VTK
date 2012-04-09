@@ -1,7 +1,7 @@
 #
 # This example shows how to add an observer to a Tcl program. It extends
 # the Step1/Tcl/Cone.tcl Tcl example (see that example for information on
-# the basic setup). 
+# the basic setup).
 #
 # VTK uses a command/observer design pattern. That is, observers watch for
 # particular events that any vtkObject (or subclass) may invoke on
@@ -11,7 +11,7 @@
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
@@ -36,7 +36,7 @@ coneMapper SetInputConnection [cone GetOutputPort]
 vtkActor coneActor
 coneActor SetMapper coneMapper
 
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 

@@ -15,12 +15,12 @@
 // .NAME vtkCastToConcrete - works around type-checking limitations
 // .SECTION Description
 // vtkCastToConcrete is a filter that works around type-checking limitations
-// in the filter classes. Some filters generate abstract types on output, 
+// in the filter classes. Some filters generate abstract types on output,
 // and cannot be connected to the input of filters requiring a concrete
 // input type. For example, vtkElevationFilter generates vtkDataSet for output,
-// and cannot be connected to vtkDecimate, because vtkDecimate requires 
-// vtkPolyData as input. This is true even though (in this example) the input 
-// to vtkElevationFilter is of type vtkPolyData, and you know the output of 
+// and cannot be connected to vtkDecimate, because vtkDecimate requires
+// vtkPolyData as input. This is true even though (in this example) the input
+// to vtkElevationFilter is of type vtkPolyData, and you know the output of
 // vtkElevationFilter is the same type as its input.
 //
 // vtkCastToConcrete performs run-time checking to insure that output type

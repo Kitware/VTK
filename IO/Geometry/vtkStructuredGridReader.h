@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkStructuredGridReader - read vtk structured grid data file
 // .SECTION Description
-// vtkStructuredGridReader is a source object that reads ASCII or binary 
+// vtkStructuredGridReader is a source object that reads ASCII or binary
 // structured grid data files in vtk format. (see text for format details).
 // The output of this reader is a single vtkStructuredGrid data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -44,7 +44,7 @@ public:
   // Get the output of this reader.
   vtkStructuredGrid *GetOutput();
   vtkStructuredGrid *GetOutput(int idx);
-  void SetOutput(vtkStructuredGrid *output);  
+  void SetOutput(vtkStructuredGrid *output);
 
   // Description:
   // Read the meta information from the file.  This needs to be public to it

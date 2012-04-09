@@ -49,7 +49,7 @@ void vtkVolumePicker::PrintSelf(ostream& os, vtkIndent indent)
 void vtkVolumePicker::ResetPickInfo()
 {
   this->Superclass::ResetPickInfo();
-  
+
   this->CroppingPlaneId = -1;
 }
 
@@ -60,14 +60,14 @@ void vtkVolumePicker::ResetPickInfo()
 double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
                                                 const double p2[3],
                                                 double t1, double t2,
-                                                vtkProp3D *prop, 
+                                                vtkProp3D *prop,
                                                 vtkAbstractVolumeMapper *mapper)
 {
   double tMin = VTK_DOUBLE_MAX;
 
   vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
   vtkVolumeMapper *vmapper = vtkVolumeMapper::SafeDownCast(mapper);
-  
+
   if (data == 0)
     {
     // This picker only works with image inputs
@@ -101,7 +101,7 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
   // s1 is the cropping plane intersection, initialize to large value
   double s1 = s1List[0] = VTK_DOUBLE_MAX;
   planeIdList[0] = -1;
- 
+
   // Find the cropping bounds in structured coordinates
   double bounds[6];
   for (int j = 0; j < 6; j++)
@@ -114,8 +114,8 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
     vmapper->GetCroppingRegionPlanes(bounds);
     for (int j = 0; j < 3; j++)
       {
-      double b1 = (bounds[2*j] - origin[j])/spacing[j]; 
-      double b2 = (bounds[2*j+1] - origin[j])/spacing[j]; 
+      double b1 = (bounds[2*j] - origin[j])/spacing[j];
+      double b2 = (bounds[2*j+1] - origin[j])/spacing[j];
       bounds[2*j] = (b1 < b2 ? b1 : b2);
       bounds[2*j+1] = (b1 < b2 ? b2 : b1);
       if (bounds[2*j] < extent[2*j]) { bounds[2*j] = extent[2*j]; }
@@ -328,12 +328,12 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
         // Need to know if the ray is entering the volume, i.e. whether
         // the adjacent block that the ray is coming from is "off", because
         // we can't define a clip plane unless it is off.
-        static int blockInc[3] = {1, 3, 9}; 
+        static int blockInc[3] = {1, 3, 9};
         int noPlane = 1;
 
         if (xi[k] == 1)
           {
-          noPlane = (flags >> (blockId + blockInc[k]*(2*l - 1)) & 1); 
+          noPlane = (flags >> (blockId + blockInc[k]*(2*l - 1)) & 1);
           if (!noPlane)
             {
             planeIdList[numSegments] = plane1;
@@ -378,7 +378,7 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
       {
       break;
       }
- 
+
     // Use the exit plane to choose the next block
     int k = plane2 / 2;
     xi[k] += 2*(plane2 - 2*k) - 1;
@@ -404,7 +404,7 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
       break;
       }
     }
- 
+
   return numSegments;
 }
 

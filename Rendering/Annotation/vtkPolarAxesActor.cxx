@@ -82,11 +82,11 @@ void vtkPolarAxesActor::PrintSelf( ostream& os, vtkIndent indent )
     os << indent << "Camera: (none)\n";
     }
 
-  os << indent << "EnableDistanceLOD: "   
+  os << indent << "EnableDistanceLOD: "
      << ( this->EnableDistanceLOD ? "On" : "Off" ) << endl;
   os << indent << "DistanceLODThreshold: "   << this->DistanceLODThreshold    << "\n";
 
-  os << indent << "EnableViewAngleLOD: "   
+  os << indent << "EnableViewAngleLOD: "
      << ( this->EnableViewAngleLOD ? "On" : "Off" ) << endl;
   os << indent << "ViewAngleLODThreshold: "   << this->ViewAngleLODThreshold    << "\n";
 
@@ -532,7 +532,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
                      << ".");
     return;
     }
-  
+
   if ( this->MaximumAngle - this->MinimumAngle > 360. )
     {
     // Incorrect angle input
@@ -542,10 +542,10 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
                      << " > 360 deg." );
     return;
     }
-  
+
   // Determine the bounds
   this->CalculateBounds();
-  
+
   // Set polar axis endpoints
   vtkAxisActor* axis = this->PolarAxis;
   double ox = this->Pole[0] + this->MaximumRadius;
@@ -568,7 +568,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
   axis->SetTickVisibility( this->PolarTickVisibility );
   axis->SetTickLocation( VTK_TICKS_BOTH );
   axis->SetMajorTickSize( .02 * this->MaximumRadius );
-  
+
   // Set polar axis labels
   axis->SetLabelVisibility( this->PolarLabelVisibility );
   axis->SetLabelTextProperty( this->PolarAxisLabelTextProperty );
@@ -651,7 +651,7 @@ void vtkPolarAxesActor::BuildRadialAxes()
   double offset = .67 * ( this->LabelScreenOffset + this->ScreenSize * 0.5 );
 
   // Create requested number of radial axes
-  double dAlpha = 
+  double dAlpha =
     ( this->MaximumAngle  - this->MinimumAngle ) / ( this->NumberOfRadialAxes - 1. );
   double alpha = this->MinimumAngle;
   for ( int i = 0; i < this->NumberOfRadialAxes;  ++ i, alpha += dAlpha )
@@ -675,12 +675,12 @@ void vtkPolarAxesActor::BuildRadialAxes()
 
     // Set radial axis title with polar angle as title for non-polar axes
     if ( this->PolarAxisVisibility && fabs( alpha ) < 2. )
-      { 
+      {
       // Prevent conflict between radial and polar axes titles
       axis->SetTitleVisibility( false );
 
       if ( fabs( alpha ) < this->SmallestVisiblePolarAngle )
-        { 
+        {
         // Do not show radial axes too close to polar axis
         axis->SetAxisVisibility( false );
         }
@@ -739,7 +739,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
     delta = pow( 10., this->FFix( pow10 ) );
     double fnt = this->MaximumRadius / delta;
     fnt  = this->FFix( fnt );
-    int numTicks = fnt <= 0.5 ? 
+    int numTicks = fnt <= 0.5 ?
       static_cast<int>( this->FFix( fnt ) ) : static_cast<int>( this->FFix( fnt ) + 1 );
 
     // If not enough tick points in this decade, scale down
@@ -897,9 +897,9 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
   // Scale polar axis title
   vtkAxisActor* axis = this->PolarAxis;
   double newTitleScale
-    = vtkAxisFollower::AutoScale( viewport, 
+    = vtkAxisFollower::AutoScale( viewport,
                                   this->Camera,
-                                  this->ScreenSize, 
+                                  this->ScreenSize,
                                   axis->GetTitleActor()->GetPosition() );
   axis->SetTitleScale( newTitleScale );
 
@@ -907,10 +907,10 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
   vtkAxisFollower** labelActors = axis->GetLabelActors();
   for( int i = 0; i < axis->GetNumberOfLabelsBuilt(); ++ i )
     {
-    double newLabelScale 
+    double newLabelScale
       = vtkAxisFollower::AutoScale( viewport,
-                                    this->Camera, 
-                                    this->ScreenSize, 
+                                    this->Camera,
+                                    this->ScreenSize,
                                     labelActors[i]->GetPosition() );
     labelActors[i]->SetScale( newLabelScale );
     }
@@ -920,8 +920,8 @@ void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
     {
     axis = this->RadialAxes[i];
     // Scale title
-    newTitleScale 
-      = vtkAxisFollower::AutoScale( viewport, 
+    newTitleScale
+      = vtkAxisFollower::AutoScale( viewport,
                                     this->Camera,
                                     this->ScreenSize,
                                     axis->GetTitleActor()->GetPosition() );

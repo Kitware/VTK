@@ -34,7 +34,7 @@ vtkPointWidget::vtkPointWidget()
 {
   this->State = vtkPointWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkPointWidget::ProcessEvents);
-  
+
   // Represent the line
   this->Cursor3D = vtkCursor3D::New();
   this->Mapper = vtkPolyDataMapper::New();
@@ -69,7 +69,7 @@ vtkPointWidget::vtkPointWidget()
 
   // Override superclass'
   this->PlaceFactor = 1.0;
-  
+
   // The size of the hot spot
   this->HotSpotSize = 0.05;
   this->WaitingForMotion = 0;
@@ -103,7 +103,7 @@ void vtkPointWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     if ( ! this->CurrentRenderer )
       {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
@@ -119,19 +119,19 @@ void vtkPointWidget::SetEnabled(int enabling)
 
     // listen for the following events
     vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand, 
+    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand,
                    this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, 
+    i->AddObserver(vtkCommand::LeftButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonPressEvent, 
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, 
+    i->AddObserver(vtkCommand::RightButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
 
     // Add the line
@@ -141,7 +141,7 @@ void vtkPointWidget::SetEnabled(int enabling)
 
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
-  
+
   else //disabling----------------------------------------------------------
     {
     vtkDebugMacro(<<"Disabling point widget");
@@ -150,7 +150,7 @@ void vtkPointWidget::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     this->Enabled = 0;
 
     // don't listen for events any more
@@ -166,9 +166,9 @@ void vtkPointWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkPointWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+void vtkPointWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                    unsigned long event,
-                                   void* clientdata, 
+                                   void* clientdata,
                                    void* vtkNotUsed(calldata))
 {
   vtkPointWidget* self = reinterpret_cast<vtkPointWidget *>( clientdata );
@@ -230,7 +230,7 @@ void vtkPointWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "YShadows: " << (this->GetYShadows() ? "On\n" : "Off\n");
   os << indent << "ZShadows: " << (this->GetZShadows() ? "On\n" : "Off\n");
 
-  os << indent << "Translation Mode: " 
+  os << indent << "Translation Mode: "
      << (this->Cursor3D->GetTranslationMode() ? "On\n" : "Off\n");
 
   os << indent << "Hot Spot Size: " << this->HotSpotSize << "\n";
@@ -261,7 +261,7 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double *x)
     {
     return constraint;
     }
-  
+
   // Okay, figure out constraint. First see if the choice is
   // outside the hot spot
   if ( ! this->WaitingForMotion )
@@ -282,7 +282,7 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double *x)
       return -1;
       }
     }
-  else if ( this->WaitingForMotion && x ) 
+  else if ( this->WaitingForMotion && x )
     {
     double v[3];
     this->WaitingForMotion = 0;
@@ -308,7 +308,7 @@ void vtkPointWidget::OnLeftButtonDown()
     this->State = vtkPointWidget::Outside;
     return;
     }
-  
+
   vtkAssemblyPath *path;
   this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->CursorPicker->GetPath();
@@ -325,7 +325,7 @@ void vtkPointWidget::OnLeftButtonDown()
     this->ConstraintAxis = -1;
     return;
     }
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -360,7 +360,7 @@ void vtkPointWidget::OnMiddleButtonDown()
     this->State = vtkPointWidget::Outside;
     return;
     }
-  
+
   // Okay, we can process this.
   vtkAssemblyPath *path;
   this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
@@ -377,7 +377,7 @@ void vtkPointWidget::OnMiddleButtonDown()
     this->ConstraintAxis = -1;
     return;
     }
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -394,7 +394,7 @@ void vtkPointWidget::OnMiddleButtonUp()
 
   this->State = vtkPointWidget::Start;
   this->Highlight(0);
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -412,7 +412,7 @@ void vtkPointWidget::OnRightButtonDown()
     this->State = vtkPointWidget::Outside;
     return;
     }
-  
+
   // Okay, we can process this. Pick the cursor.
   vtkAssemblyPath *path;
   this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
@@ -433,7 +433,7 @@ void vtkPointWidget::OnRightButtonDown()
     this->ConstraintAxis = -1;
     return;
     }
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -450,7 +450,7 @@ void vtkPointWidget::OnRightButtonUp()
 
   this->State = vtkPointWidget::Start;
   this->Highlight(0);
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
@@ -460,12 +460,12 @@ void vtkPointWidget::OnRightButtonUp()
 void vtkPointWidget::OnMouseMove()
 {
   // See whether we're active
-  if ( this->State == vtkPointWidget::Outside || 
+  if ( this->State == vtkPointWidget::Outside ||
        this->State == vtkPointWidget::Start )
     {
     return;
     }
-  
+
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -493,7 +493,7 @@ void vtkPointWidget::OnMouseMove()
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
       {
-      this->ConstraintAxis = 
+      this->ConstraintAxis =
         this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
       this->MoveFocus(prevPickPoint, pickPoint);
       }
@@ -512,7 +512,7 @@ void vtkPointWidget::OnMouseMove()
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
       {
-      this->ConstraintAxis = 
+      this->ConstraintAxis =
         this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
       this->Translate(prevPickPoint, pickPoint);
       }
@@ -548,7 +548,7 @@ void vtkPointWidget::MoveFocus(double *p1, double *p2)
     focus[1] += v[1];
     focus[2] += v[2];
     }
-  
+
   this->Cursor3D->SetFocalPoint(focus);
 }
 
@@ -560,7 +560,7 @@ void vtkPointWidget::Translate(double *p1, double *p2)
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
-  
+
   double *bounds = this->Cursor3D->GetModelBounds();
   double *pos = this->Cursor3D->GetFocalPoint();
   double newBounds[6], newFocus[3];
@@ -576,14 +576,14 @@ void vtkPointWidget::Translate(double *p1, double *p2)
         }
       }
     }
-  
+
   for (i=0; i<3; i++)
     {
     newBounds[2*i] = bounds[2*i] + v[i];
     newBounds[2*i+1] = bounds[2*i+1] + v[i];
     newFocus[i] = pos[i] + v[i];
     }
-  
+
   this->Cursor3D->SetModelBounds(newBounds);
   this->Cursor3D->SetFocalPoint(newFocus);
 }
@@ -601,7 +601,7 @@ void vtkPointWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   double *focus = this->Cursor3D->GetFocalPoint();
 
   // Compute the scale factor
-  double sf = vtkMath::Norm(v) / 
+  double sf = vtkMath::Norm(v) /
     sqrt( (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
           (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -614,7 +614,7 @@ void vtkPointWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
     {
     sf = 1.0 - sf;
     }
-  
+
   // Move the end points
   double newBounds[6];
   for (int i=0; i<3; i++)
@@ -646,7 +646,7 @@ void vtkPointWidget::PlaceWidget(double bds[6])
   double bounds[6], center[3];
 
   this->AdjustBounds(bds, bounds, center);
-  
+
   this->Cursor3D->SetModelBounds(bounds);
   this->Cursor3D->SetFocalPoint(center);
   this->Cursor3D->Update();
@@ -663,6 +663,6 @@ void vtkPointWidget::PlaceWidget(double bds[6])
 
 void vtkPointWidget::GetPolyData(vtkPolyData *pd)
 {
-  this->Cursor3D->Update(); 
-  pd->DeepCopy(this->Cursor3D->GetFocus()); 
+  this->Cursor3D->Update();
+  pd->DeepCopy(this->Cursor3D->GetFocus());
 }

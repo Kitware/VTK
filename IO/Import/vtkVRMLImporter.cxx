@@ -42,7 +42,7 @@ char *alloca ();
 
 =========================================================================*/
 /* ======================================================================
- 
+
    Importer based on BNF Yacc and Lex parser definition from:
 
         **************************************************
@@ -103,7 +103,7 @@ public:
 #pragma warning( default : 4251 )
 #endif
 
-//ETX  
+//ETX
 };
 
 // Heap to manage memory leaks
@@ -135,7 +135,7 @@ char* vtkVRMLAllocator::StrDup(const char *str)
 }
 
 
-// Provide isatty prototype for Cygwin. 
+// Provide isatty prototype for Cygwin.
 #ifdef __CYGWIN__
 #include <unistd.h>
 #endif
@@ -184,7 +184,7 @@ public:
     {
       return vtkVRMLAllocator::AllocateMemory(n);
     }
-  
+
   void operator delete(void *vtkNotUsed(ptr)) {}
 };
 
@@ -222,38 +222,38 @@ public:
   int hasEventOut(const char *name) const;
   int hasField(const char *name) const;
   int hasExposedField(const char *name) const;
-    
+
   const char *getName() const { return name; }
 
   void* operator new(size_t n)
     {
       return vtkVRMLAllocator::AllocateMemory(n);
     }
-  
+
   void operator delete(void *vtkNotUsed(ptr)) {}
 
   struct NameTypeRec {
     char *name;
     int type;
-    
+
     void* operator new(size_t n)
       {
         return vtkVRMLAllocator::AllocateMemory(n);
       }
-    
+
     void operator delete(void *vtkNotUsed(ptr)) {}
-    
+
   };
 
 // This is used to keep track of which field in which type of node is being
 // parsed.  Field are nested (nodes are contained inside MFNode/SFNode fields)
 // so a stack of these is needed:
-  struct FieldRec 
+  struct FieldRec
   {
     const VrmlNodeType *nodeType;
     const char *fieldName;
   };
-        
+
   // Node types are stored in this data structure:
   static vtkVRMLVectorType<VrmlNodeType*>* typeList;
   static vtkVRMLVectorType<vtkVRMLUseStruct *>* useList;
@@ -296,21 +296,21 @@ VrmlNodeType::VrmlNodeType(const char *nm)
 VrmlNodeType::~VrmlNodeType()
 {
   // Free strings duplicated when fields/eventIns/eventOuts added:
-  
+
   int i;
-  for (i = 0;i < eventIns.Count(); i++) 
+  for (i = 0;i < eventIns.Count(); i++)
     {
     NameTypeRec *r = eventIns[i];
 //    free(r->name);
     delete r;
     }
-  for (i = 0;i < eventOuts.Count(); i++) 
+  for (i = 0;i < eventOuts.Count(); i++)
     {
     NameTypeRec *r = eventOuts[i];
 //    free(r->name);
     delete r;
     }
-  for (i = 0;i < fields.Count(); i++) 
+  for (i = 0;i < fields.Count(); i++)
     {
     NameTypeRec *r = fields[i];
 //    free(r->name);
@@ -321,7 +321,7 @@ VrmlNodeType::~VrmlNodeType()
 void
 VrmlNodeType::addToNameSpace(VrmlNodeType *_type)
 {
-  if (find(_type->getName()) != NULL) 
+  if (find(_type->getName()) != NULL)
     {
     cerr << "PROTO " << _type->getName() << " already defined\n";
     return;
@@ -344,15 +344,15 @@ void
 VrmlNodeType::popNameSpace()
 {
   // Remove everything up to and including the next NULL marker:
-  for (int i = 0;i < typeList->Count(); i++) 
+  for (int i = 0;i < typeList->Count(); i++)
     {
     VrmlNodeType *nodeType = typeList->Pop();
-    
-    if (nodeType == NULL) 
+
+    if (nodeType == NULL)
       {
       break;
       }
-    else 
+    else
       {
       // NOTE:  Instead of just deleting the VrmlNodeTypes, you will
       // probably want to reference count or garbage collect them, since
@@ -367,10 +367,10 @@ const VrmlNodeType *
 VrmlNodeType::find(const char *_name)
 {
   // Look through the type stack:
-  for (int i = 0;i < typeList->Count(); i++) 
+  for (int i = 0;i < typeList->Count(); i++)
     {
     const VrmlNodeType *nt = (*typeList)[i];
-    if (nt != NULL && strcmp(nt->getName(),_name) == 0) 
+    if (nt != NULL && strcmp(nt->getName(),_name) == 0)
       {
       return nt;
       }
@@ -448,7 +448,7 @@ VrmlNodeType::hasExposedField(const char *nodeName) const
 int
 VrmlNodeType::has(const vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeName) const
 {
-  for (int i = 0;i < recs.Count(); i++) 
+  for (int i = 0;i < recs.Count(); i++)
     {
     NameTypeRec *n = recs.Get(i);
     if (strcmp(n->name, nodeName) == 0)
@@ -504,7 +504,7 @@ VrmlNodeType::has(const vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeN
 //
 // Parser for VRML 2.0 files.
 // This is a minimal parser that does NOT generate an in-memory scene graph.
-// 
+//
 
 // The original parser was developed on a Windows 95 PC with
 // Borland's C++ 5.0 development tools.  This was then ported
@@ -547,7 +547,7 @@ static int addField(const char *type, const char *name);
 static int addEventIn(const char *type, const char *name);
 static int addEventOut(const char *type, const char *name);
 static int addExposedField(const char *type, const char *name);
-static int add(void (VrmlNodeType::*)(const char *, int), const char *, 
+static int add(void (VrmlNodeType::*)(const char *, int), const char *,
                const char *);
 static int fieldType(const char *type);
 static void inScript();
@@ -565,7 +565,7 @@ typedef union {
    * Node *node;
    * list<Node *> *nodeList;
    */
-  
+
   float           sffloat;
   vtkPoints       *vec3f;
   vtkFloatArray   *vec2f;
@@ -1364,7 +1364,7 @@ yyparse(vtkVRMLImporter* self)
   { inScript(); //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 44:
-  { inScript(); 
+  { inScript();
   int type = fieldType(yyvsp[-1].string);
   expect(type); ;
   break;}
@@ -1395,7 +1395,7 @@ yyparse(vtkVRMLImporter* self)
   }
   /* the action file gets copied in in place of this dollarsign */
 
-  
+
   yyvsp -= yylen;
   yyssp -= yylen;
 #ifdef YYLSP_NEEDED
@@ -1616,11 +1616,11 @@ endProto()
   VrmlNodeType::popNameSpace();
 
   // Add this proto definition:
-  if (CurrentProtoStack->Count() == 0) 
+  if (CurrentProtoStack->Count() == 0)
     {
     cerr << "Error: Empty PROTO stack!\n";
     }
-  else 
+  else
     {
     VrmlNodeType *t = CurrentProtoStack->Top();
     CurrentProtoStack->Pop();
@@ -1651,12 +1651,12 @@ addExposedField(const char *type, const char *name)
 }
 
 static int
-add(void (VrmlNodeType::*func)(const char *, int), 
+add(void (VrmlNodeType::*func)(const char *, int),
     const char *typeString, const char *name)
 {
   int type = fieldType(typeString);
 
-  if (type == 0) 
+  if (type == 0)
     {
     cerr << "Error: invalid field type: " << type << "\n";
     }
@@ -1664,7 +1664,7 @@ add(void (VrmlNodeType::*func)(const char *, int),
   // Need to add support for Script nodes:
   // if (inScript) ... ???
 
-  if (CurrentProtoStack->Count() == 0) 
+  if (CurrentProtoStack->Count() == 0)
     {
     cerr << "Error: declaration outside of prototype\n";
     return 0;
@@ -1708,7 +1708,7 @@ inScript()
 {
   VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   if (fr->nodeType == NULL ||
-      strcmp(fr->nodeType->getName(), "Script") != 0) 
+      strcmp(fr->nodeType->getName(), "Script") != 0)
     {
     yyerror("interface declaration outside of Script or prototype");
     }
@@ -4304,7 +4304,7 @@ int yylex ( vtkVRMLImporter* self )
   if (expectToken != 0) {
   if (yy_flex_debug)
     fprintf(stderr,"LEX--> Start State %d\n", expectToken);
-      
+
   /*
    * Annoying.  This big switch is necessary because
    * LEX wants to assign particular numbers to start
@@ -4336,7 +4336,7 @@ int yylex ( vtkVRMLImporter* self )
     /* field happens in the parser. */
   case MFNODE: expectToken = 0; return MFNODE;
   case SFNODE: expectToken = 0; return SFNODE;
-        
+
   default: yyerror("ACK: Bad expectToken"); break;
   }
   }
@@ -4483,7 +4483,7 @@ int yylex ( vtkVRMLImporter* self )
         /* Legal identifiers: */
       case 14:
         YY_USER_ACTION
-          { 
+          {
           yylval.string = vtkVRMLAllocator::StrDup(yytext);
           return IDENTIFIER; }
         /* All fields may have an IS declaration: */
@@ -4545,7 +4545,7 @@ int yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
           { BEGIN NODE; expectToken = 0;
           yylval.sfint = atoi(yytext);
-          return SFINT32; 
+          return SFINT32;
           }
       case 24:
         YY_USER_ACTION
@@ -4580,8 +4580,8 @@ int yylex ( vtkVRMLImporter* self )
           { BEGIN NODE; expectToken = 0; return SFVEC2F; }
       case 28:
         YY_USER_ACTION
-        { 
-        if (parsing_mf) 
+        {
+        if (parsing_mf)
           {
           // .. add to array...
           float num[2];
@@ -4590,9 +4590,9 @@ int yylex ( vtkVRMLImporter* self )
           // equivalent to: sscanf(yytext, "%f %f", &num[0], &num[1]);
           yylval.vec2f->InsertNextTuple(num);
           }
-        else 
+        else
           {
-          BEGIN NODE; expectToken = 0; 
+          BEGIN NODE; expectToken = 0;
           return MFVEC2F;
           }
         }
@@ -4716,7 +4716,7 @@ int yylex ( vtkVRMLImporter* self )
           { int w, h;
           sscanf(yytext, "%d %d", &w, &h);
           sfImageIntsExpected = 1+w*h;
-          sfImageIntsParsed = 0;                          
+          sfImageIntsParsed = 0;
           BEGIN IN_SFIMG;
           }
         YY_BREAK
@@ -5525,16 +5525,16 @@ vtkVRMLImporter::~vtkVRMLImporter()
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << "Defined names in File:" << endl;
   if (VrmlNodeType::useList)
     {
-      for (int i = 0;i < VrmlNodeType::useList->Count();i++) 
+      for (int i = 0;i < VrmlNodeType::useList->Count();i++)
         {
-        os << "\tName: " << (*VrmlNodeType::useList)[i]->defName 
-           << " is a " << (*VrmlNodeType::useList)[i]->defObject->GetClassName() 
+        os << "\tName: " << (*VrmlNodeType::useList)[i]->defName
+           << " is a " << (*VrmlNodeType::useList)[i]->defObject->GetClassName()
            << endl;
         }
     }
@@ -5549,7 +5549,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
   vtkPolyDataMapper *pmap;
 
   const VrmlNodeType *t = VrmlNodeType::find(nodeType);
-  if (t == NULL) 
+  if (t == NULL)
     {
     char tmp[1000];
     sprintf(tmp, "Unknown node type '%s'", nodeType);
@@ -5560,21 +5560,21 @@ vtkVRMLImporter::enterNode(const char *nodeType)
   fr->nodeType = t;
   fr->fieldName = NULL;
   *VrmlNodeType::currentField += fr;
-  if (strcmp(fr->nodeType->getName(), "Appearance") == 0) 
+  if (strcmp(fr->nodeType->getName(), "Appearance") == 0)
     {
     if (this->CurrentProperty)
       {
       this->CurrentProperty->Delete();
       }
     this->CurrentProperty = vtkProperty::New();
-    if (creatingDEF) 
+    if (creatingDEF)
       {
-      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, 
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName,
                                                      this->CurrentProperty);
       creatingDEF = 0;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Box") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Box") == 0)
     {
     pmap = vtkPolyDataMapper::New();
     vtkCubeSource *cube= vtkCubeSource::New();
@@ -5590,13 +5590,13 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       this->CurrentSource->Delete();
       }
     this->CurrentSource = cube;
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Cone") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Cone") == 0)
     {
     pmap = vtkPolyDataMapper::New();
     vtkConeSource *cone= vtkConeSource::New();
@@ -5613,13 +5613,13 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       this->CurrentSource->Delete();
       }
     this->CurrentSource = cone;
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Cylinder") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Cylinder") == 0)
     {
     pmap = vtkPolyDataMapper::New();
     vtkCylinderSource *cyl= vtkCylinderSource::New();
@@ -5636,14 +5636,14 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       this->CurrentSource->Delete();
       }
     this->CurrentSource = cyl;
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
-                
+
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0)
     {
     if (this->CurrentLight)
       {
@@ -5651,16 +5651,16 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       }
     this->CurrentLight = vtkLight::New();
     this->Renderer->AddLight(this->CurrentLight);
-    if (creatingDEF) 
+    if (creatingDEF)
       {
-      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, 
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName,
                                                      this->CurrentLight);
       creatingDEF = 0;
       }
     }
   else if (strcmp(fr->nodeType->getName(), "IndexedFaceSet") == 0 ||
            strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
-           strcmp(fr->nodeType->getName(), "PointSet") == 0) 
+           strcmp(fr->nodeType->getName(), "PointSet") == 0)
     {
     pmap = vtkPolyDataMapper::New();
     pmap->SetScalarVisibility(0);
@@ -5679,13 +5679,13 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       this->CurrentScalars->Delete();
       }
     this->CurrentScalars = vtkFloatArray::New();
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Shape") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Shape") == 0)
     {
     actor = vtkActor::New();
     if (this->CurrentProperty)
@@ -5702,13 +5702,13 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentActor = actor;
     // Add actor to renderer
     this->Renderer->AddActor(actor);
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, actor);
       creatingDEF= 0;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Sphere") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Sphere") == 0)
     {
     pmap = vtkPolyDataMapper::New();
     vtkSphereSource *sphere = vtkSphereSource::New();
@@ -5724,13 +5724,13 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       {
       this->CurrentActor->SetProperty(this->CurrentProperty);
       }
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF= 0;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Transform") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Transform") == 0)
     {
     this->CurrentTransform->Push();
     }
@@ -5743,11 +5743,11 @@ vtkVRMLImporter::exitNode()
   assert(fr != NULL);
   VrmlNodeType::currentField->Pop();
 
-  // Exiting this means we need to setup the color mode and 
+  // Exiting this means we need to setup the color mode and
   // normals and other fun stuff.
   if (strcmp(fr->nodeType->getName(), "IndexedFaceSet") == 0 ||
       strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
-      strcmp(fr->nodeType->getName(), "PointSet") == 0) 
+      strcmp(fr->nodeType->getName(), "PointSet") == 0)
     {
     // if tcoords exactly correspond with vertices (or there aren't any)
     // then can map straight through as usual
@@ -5762,7 +5762,7 @@ vtkVRMLImporter::exitNode()
         tcoords_correspond=0; // false, must rejig
     else if (this->CurrentNormals && this->CurrentNormals->GetNumberOfTuples()!=this->CurrentPoints->GetNumberOfPoints())
         tcoords_correspond=0; // false, must rejig
-    else 
+    else
       {
       // the number of polygon faces and texture faces must be equal.
       // if they are not then something is wrong
@@ -5778,7 +5778,7 @@ vtkVRMLImporter::exitNode()
         vtkErrorMacro(<<"Number of faces does not match normal faces, output may not be correct")
         tcoords_correspond=1; // don't rejig
         }
-      else 
+      else
         {
         // count of tcoords and points is the same, must run through indices to see if they
         // correspond by index point-for-point
@@ -5795,14 +5795,14 @@ vtkVRMLImporter::exitNode()
             {
             this->CurrentMapper->GetInput()->GetPolys()->GetNextCell(n_pts,pts);
             this->CurrentTCoordCells->GetNextCell(n_tcoord_pts,tcoord_pts);
-            if (n_pts!=n_tcoord_pts) 
+            if (n_pts!=n_tcoord_pts)
               {
               vtkErrorMacro(<<"Face size differs to texture face size, output may not be correct")
               break;
               }
-            for (j=0;j<n_pts;j++) 
+            for (j=0;j<n_pts;j++)
               {
-              if (pts[j]!=tcoord_pts[j]) 
+              if (pts[j]!=tcoord_pts[j])
                 {
                 tcoords_correspond=0; // have found an exception
                 break;
@@ -5823,14 +5823,14 @@ vtkVRMLImporter::exitNode()
             {
             this->CurrentMapper->GetInput()->GetPolys()->GetNextCell(n_pts,pts);
             this->CurrentNormalCells->GetNextCell(n_normal_pts,normal_pts);
-            if (n_pts!=n_normal_pts) 
+            if (n_pts!=n_normal_pts)
               {
               vtkErrorMacro(<<"Face size differs to normal face size, output may not be correct")
               break;
               }
-            for (j=0;j<n_pts;j++) 
+            for (j=0;j<n_pts;j++)
               {
-              if (pts[j]!=normal_pts[j]) 
+              if (pts[j]!=normal_pts[j])
                 {
                 tcoords_correspond=0; // have found an exception
                 break;
@@ -5847,13 +5847,13 @@ vtkVRMLImporter::exitNode()
       ((vtkPolyData *)this->CurrentMapper->GetInput())->SetPoints(this->CurrentPoints);
       // We always create a scalar object in the enternode method.
       ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetScalars(CurrentScalars);
-      if (this->CurrentNormals) 
+      if (this->CurrentNormals)
         {
         ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetNormals(CurrentNormals);
         this->CurrentNormals->Delete();
         this->CurrentNormals = NULL;
         }
-      if (this->CurrentTCoords) 
+      if (this->CurrentTCoords)
         {
         ((vtkPolyData *)this->CurrentMapper->GetInput())->GetPointData()->SetTCoords(CurrentTCoords);
         this->CurrentTCoords->Delete();
@@ -5862,7 +5862,7 @@ vtkVRMLImporter::exitNode()
       }
     else  // must rejig
       {
-      
+
       vtkDebugMacro(<<"Duplicating vertices so that tcoords and normals are correct");
 
       vtkPoints *new_points = vtkPoints::New();
@@ -5889,34 +5889,34 @@ vtkVRMLImporter::exitNode()
       vtkIdType n_pts=-1,*pts = &DUMMY_WARNING_PREVENTION_MECHANISM;
       vtkIdType n_tcoord_pts=-1,*tcoord_pts = &DUMMY_WARNING_PREVENTION_MECHANISM;
       vtkIdType n_normal_pts=-1,*normal_pts = &DUMMY_WARNING_PREVENTION_MECHANISM;
-      for (i=0;i<this->CurrentMapper->GetInput()->GetPolys()->GetNumberOfCells();i++) 
+      for (i=0;i<this->CurrentMapper->GetInput()->GetPolys()->GetNumberOfCells();i++)
         {
 
-        this->CurrentMapper->GetInput()->GetPolys()->GetNextCell(n_pts,pts); 
+        this->CurrentMapper->GetInput()->GetPolys()->GetNextCell(n_pts,pts);
         if (this->CurrentTCoordCells)
           this->CurrentTCoordCells->GetNextCell(n_tcoord_pts,tcoord_pts);
         if (this->CurrentNormalCells)
           this->CurrentNormalCells->GetNextCell(n_normal_pts,normal_pts);
 
-        // If some vertices have tcoords and not others 
+        // If some vertices have tcoords and not others
         // then we must do something else VTK will complain. (crash on render attempt)
-        // Easiest solution is to delete polys that don't have complete tcoords (if there 
+        // Easiest solution is to delete polys that don't have complete tcoords (if there
         // are any tcoords in the dataset)
 
-        if (this->CurrentTCoords && n_pts!=n_tcoord_pts && this->CurrentTCoords->GetNumberOfTuples()>0) 
+        if (this->CurrentTCoords && n_pts!=n_tcoord_pts && this->CurrentTCoords->GetNumberOfTuples()>0)
           {
           // skip this poly
           vtkDebugMacro(<<"Skipping poly "<<i+1<<" (1-based index)");
           }
-        else if (this->CurrentNormals && n_pts!=n_normal_pts && this->CurrentNormals->GetNumberOfTuples()>0) 
+        else if (this->CurrentNormals && n_pts!=n_normal_pts && this->CurrentNormals->GetNumberOfTuples()>0)
           {
           // skip this poly
           vtkDebugMacro(<<"Skipping poly "<<i+1<<" (1-based index)");
           }
-        else 
+        else
           {
           // copy the corresponding points, tcoords and normals across
-          for (j=0;j<n_pts;j++) 
+          for (j=0;j<n_pts;j++)
             {
             // copy the tcoord for this point across (if there is one)
             if (this->CurrentTCoords && n_tcoord_pts>0)
@@ -5931,7 +5931,7 @@ vtkVRMLImporter::exitNode()
             // the vertex index in the polys structure (pts is a pointer into it)
             pts[j] = new_points->InsertNextPoint(this->CurrentPoints->GetPoint(pts[j]));
             }
-          // copy this poly (pointing at the new points) into the new polys list 
+          // copy this poly (pointing at the new points) into the new polys list
           new_polys->InsertNextCell(n_pts,pts);
           }
         }
@@ -5954,7 +5954,7 @@ vtkVRMLImporter::exitNode()
       new_scalars->Delete();
       }
 
-    if (this->CurrentLut) 
+    if (this->CurrentLut)
       {
       this->CurrentScalars->InsertNextValue(this->CurrentLut->GetNumberOfColors());
       this->CurrentMapper->SetLookupTable(CurrentLut);
@@ -5966,17 +5966,17 @@ vtkVRMLImporter::exitNode()
       this->CurrentLut = NULL;
       }
     }
-  else if (strcmp(fr->nodeType->getName(), "Shape") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Shape") == 0)
     {
     if (this->CurrentProperty)
       this->CurrentActor->SetProperty(this->CurrentProperty);
     }
   // simply pop the current transform
-  else if (strcmp(fr->nodeType->getName(), "Transform") == 0) 
+  else if (strcmp(fr->nodeType->getName(), "Transform") == 0)
     {
     this->CurrentTransform->Pop();
     }
-  
+
   delete fr;
 }
 
@@ -5989,7 +5989,7 @@ vtkVRMLImporter::enterField(const char *fieldName)
   assert(fr != NULL);
 
   fr->fieldName = fieldName;
-  if (fr->nodeType != NULL) 
+  if (fr->nodeType != NULL)
     {
     // enterField is called when parsing eventIn and eventOut IS
     // declarations, in which case we don't need to do anything special--
@@ -5997,14 +5997,14 @@ vtkVRMLImporter::enterField(const char *fieldName)
     if (fr->nodeType->hasEventIn(fieldName) ||
         fr->nodeType->hasEventOut(fieldName))
       return;
-    
+
     int type = fr->nodeType->hasField(fieldName);
-    if (type != 0) 
+    if (type != 0)
       {
       // Let the lexer know what field type to expect:
       expect(type);
       }
-    else 
+    else
       {
       cerr << "Error: Node's of type " << fr->nodeType->getName() <<
         " do not have fields/eventIn/eventOut named " <<
@@ -6021,35 +6021,35 @@ vtkVRMLImporter::exitField()
   VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   assert(fr != NULL);
   // For the radius field
-  if (strcmp(fr->fieldName, "radius") == 0) 
+  if (strcmp(fr->fieldName, "radius") == 0)
     {
     // Set the Sphere radius
-    if (strcmp(fr->nodeType->getName(), "Sphere") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Sphere") == 0)
       {
       ((vtkSphereSource *)(this->CurrentSource))->SetRadius(yylval.sffloat);
       }
     // Set the Cylinder radius
-    if (strcmp(fr->nodeType->getName(), "Cylinder") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Cylinder") == 0)
       {
       ((vtkCylinderSource *)this->CurrentSource)->SetRadius(yylval.sffloat);
       }
     }
   // for the ambientIntensity field
-  else if (strcmp(fr->fieldName, "ambientIntensity") == 0) 
+  else if (strcmp(fr->fieldName, "ambientIntensity") == 0)
     {
     // Add to the current light
-    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
+    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0)
       {
       this->CurrentLight->SetIntensity(yylval.sffloat);
       }
     // or the current material
-    else if (strcmp(fr->nodeType->getName(), "Material") == 0) 
+    else if (strcmp(fr->nodeType->getName(), "Material") == 0)
       {
       this->CurrentProperty->SetAmbient(yylval.sffloat);
       }
     }
   // For diffuseColor field, only in material node
-  else if (strcmp(fr->fieldName, "diffuseColor") == 0) 
+  else if (strcmp(fr->fieldName, "diffuseColor") == 0)
     {
     this->CurrentProperty->SetDiffuseColor(
       yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
@@ -6058,7 +6058,7 @@ vtkVRMLImporter::exitField()
     yylval.vec3f = NULL;
     }
   // For emissiveColor field, only in material node
-  else if (strcmp(fr->fieldName, "emissiveColor") == 0) 
+  else if (strcmp(fr->fieldName, "emissiveColor") == 0)
     {
     this->CurrentProperty->SetAmbientColor(
       yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
@@ -6066,12 +6066,12 @@ vtkVRMLImporter::exitField()
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For shininess field, only in material node
-  else if (strcmp(fr->fieldName, "shininess") == 0) 
+  else if (strcmp(fr->fieldName, "shininess") == 0)
     {
     this->CurrentProperty->SetSpecularPower(yylval.sffloat);
     }
   // For specularcolor field, only in material node
-  else if (strcmp(fr->fieldName, "specularColor") == 0) 
+  else if (strcmp(fr->fieldName, "specularColor") == 0)
     {
     this->CurrentProperty->SetSpecularColor(
       yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
@@ -6079,15 +6079,15 @@ vtkVRMLImporter::exitField()
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
   // For transparency field, only in material node
-  else if (strcmp(fr->fieldName, "transparency") == 0) 
+  else if (strcmp(fr->fieldName, "transparency") == 0)
     {
     this->CurrentProperty->SetOpacity(1.0 - yylval.sffloat);
     }
   // For the translation field
-  else if (strcmp(fr->fieldName, "translation") == 0) 
+  else if (strcmp(fr->fieldName, "translation") == 0)
     {
     // in the Transform node.
-    if (strcmp(fr->nodeType->getName(), "Transform") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Transform") == 0)
       {
       double *dtmp = yylval.vec3f->GetPoint(0);
       this->CurrentTransform->Translate(dtmp[0],dtmp[1],dtmp[2]);
@@ -6096,49 +6096,49 @@ vtkVRMLImporter::exitField()
       }
     }
   // For the scale field
-  else if (strcmp(fr->fieldName, "scale") == 0) 
+  else if (strcmp(fr->fieldName, "scale") == 0)
     {
     // In the transform node
-    if (strcmp(fr->nodeType->getName(), "Transform") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Transform") == 0)
       {
       double *dtmp = yylval.vec3f->GetPoint(0);
       this->CurrentTransform->Scale(dtmp[0],dtmp[1],dtmp[2]);
-      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); 
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
       yylval.vec3f = NULL;
       }
     }
   // For the size field
-  else if (strcmp(fr->fieldName, "size") == 0) 
+  else if (strcmp(fr->fieldName, "size") == 0)
     {
     // set the current source (has to be a CubeSource)
-    if (strcmp(fr->nodeType->getName(), "Box") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Box") == 0)
       {
       double *dtmp = yylval.vec3f->GetPoint(0);
       ((vtkCubeSource *)this->CurrentSource)->SetXLength(dtmp[0]);
       ((vtkCubeSource *)this->CurrentSource)->SetYLength(dtmp[1]);
       ((vtkCubeSource *)this->CurrentSource)->SetZLength(dtmp[2]);
-      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f); 
+      yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
       yylval.vec3f = NULL;
       }
     }
   // For the height field
-  else if (strcmp(fr->fieldName, "height") == 0) 
+  else if (strcmp(fr->fieldName, "height") == 0)
     {
     // Set the current Cone height
-    if (strcmp(fr->nodeType->getName(), "Cone") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Cone") == 0)
       {
       ((vtkConeSource *)this->CurrentSource)->SetHeight(yylval.sffloat);
       }
     // or set the current Cylinder height
-    if (strcmp(fr->nodeType->getName(), "Cylinder") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Cylinder") == 0)
       {
       ((vtkCylinderSource *)this->CurrentSource)->SetHeight(yylval.sffloat);
       }
     }
   // For the bottomRadius field (Only in the Cone object)
-  else if (strcmp(fr->fieldName, "bottomRadius") == 0) 
+  else if (strcmp(fr->fieldName, "bottomRadius") == 0)
     {
-    if (strcmp(fr->nodeType->getName(), "Cone") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Cone") == 0)
       {
       ((vtkConeSource *)this->CurrentSource)->SetRadius(yylval.sffloat);
       }
@@ -6148,10 +6148,10 @@ vtkVRMLImporter::exitField()
   //              vtkCamera *acam = vtkCamera::New();
   //              acam->SetPosition(vals);
   //              this->Renderer->SetActiveCamera(acam);
-  //              yylval.vec3f->Delete();yylval.vec3f = NULL; 
+  //              yylval.vec3f->Delete();yylval.vec3f = NULL;
   //      }
   // Handle coordIndex for Indexed????Sets
-  else if (strcmp(fr->fieldName, "coordIndex") == 0) 
+  else if (strcmp(fr->fieldName, "coordIndex") == 0)
     {
     vtkCellArray *cells;
     int index, i, cnt;
@@ -6160,16 +6160,16 @@ vtkVRMLImporter::exitField()
     pd = vtkPolyData::New();
     cells = vtkCellArray::New();
     index = i = cnt = 0;
-    for (i = 0;i <= yylval.mfint32->GetMaxId();i++) 
+    for (i = 0;i <= yylval.mfint32->GetMaxId();i++)
       {
-      if (yylval.mfint32->GetValue(i) == -1) 
+      if (yylval.mfint32->GetValue(i) == -1)
         {
         cells->InsertNextCell(cnt,
                               (vtkIdType*)yylval.mfint32->GetPointer(index));
         index = i+1;
         cnt = 0;
         }
-      else 
+      else
         {
         cnt++;
         }
@@ -6182,17 +6182,17 @@ vtkVRMLImporter::exitField()
       {
       pd->SetLines(cells);
       }
-    
+
     this->CurrentMapper->SetInputData(pd);
     pd->Delete();
     cells->Delete();
     yylval.mfint32->Reset();this->DeleteObject(yylval.mfint32);
     }
   // Handle point field
-  else if (strcmp(fr->fieldName, "point") == 0) 
+  else if (strcmp(fr->fieldName, "point") == 0)
     {
     // If for a coordinate node, simply used created FloatPoints
-    if (strcmp(fr->nodeType->getName(), "Coordinate") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Coordinate") == 0)
       {
       if (this->CurrentPoints)
         {
@@ -6201,11 +6201,11 @@ vtkVRMLImporter::exitField()
       this->CurrentPoints = yylval.vec3f;
       // Seed the scalars with default values.
       this->CurrentScalars->Reset();
-      for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++) 
+      for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++)
         {
         this->CurrentScalars->InsertNextValue(i);
         }
-      if (creatingDEF) 
+      if (creatingDEF)
         {
         *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
         creatingDEF = 0;
@@ -6222,11 +6222,11 @@ vtkVRMLImporter::exitField()
       }
     }
   // Handle coord field, simply set the CurrentPoints
-  else if (strcmp(fr->fieldName, "coord") == 0) 
+  else if (strcmp(fr->fieldName, "coord") == 0)
     {
     this->CurrentPoints = yylval.vec3f;
     this->CurrentPoints->Register(this);
-    if (creatingDEF) 
+    if (creatingDEF)
       {
       *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
       creatingDEF = 0;
@@ -6241,23 +6241,23 @@ vtkVRMLImporter::exitField()
 
       pd = vtkPolyData::New();
       cells = vtkCellArray::New();
-      for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
+      for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++)
         {
         cells->InsertNextCell(1, &i);
         }
 
       pd->SetVerts(cells);
-    
+
       this->CurrentMapper->SetInputData(pd);
       pd->Delete();
       cells->Delete();
       }
     }
   // Handle color field
-  else if (strcmp(fr->fieldName, "color") == 0) 
+  else if (strcmp(fr->fieldName, "color") == 0)
     {
     // For the Light nodes
-    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
+    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0)
       {
       this->CurrentLight->SetColor(
         yylval.vec3f->GetPoint(0)[0],yylval.vec3f->GetPoint(0)[1],
@@ -6268,14 +6268,14 @@ vtkVRMLImporter::exitField()
     // For the Color node, Insert colors into lookup table
     // These are associated with the points in the coord field
     // and also in the colorIndex field
-    if (strcmp(fr->nodeType->getName(), "Color") == 0) 
+    if (strcmp(fr->nodeType->getName(), "Color") == 0)
       {
-      double vals4[4]; 
+      double vals4[4];
       vals4[3] = 1.0;
       vtkLookupTable *lut = vtkLookupTable::New();
       lut->SetNumberOfColors(yylval.vec3f->GetNumberOfPoints());
       lut->Build();
-      for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
+      for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++)
         {
         yylval.vec3f->GetPoint(i, vals4);
         lut->SetTableValue(i, vals4);
@@ -6285,7 +6285,7 @@ vtkVRMLImporter::exitField()
         this->CurrentLut->Delete();
         }
       this->CurrentLut = lut;
-      if (creatingDEF) 
+      if (creatingDEF)
         {
         *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, this->CurrentLut);
         creatingDEF = 0;
@@ -6293,7 +6293,7 @@ vtkVRMLImporter::exitField()
       }
     }
   // Handle colorIndex field, always for a Indexed????Set
-  else if (strcmp(fr->fieldName, "colorIndex") == 0) 
+  else if (strcmp(fr->fieldName, "colorIndex") == 0)
     {
     vtkCellArray *cells;
     int index, j;
@@ -6312,9 +6312,9 @@ vtkVRMLImporter::exitField()
     // we assume index by vertex.
     if ((yylval.mfint32->GetMaxId() + 1) == pd->GetNumberOfPolys())
       {
-      for (int i=0;i <= yylval.mfint32->GetMaxId();i++) 
+      for (int i=0;i <= yylval.mfint32->GetMaxId();i++)
         {
-        if (yylval.mfint32->GetValue(i) >= 0) 
+        if (yylval.mfint32->GetValue(i) >= 0)
           {
           cells->GetNextCell(npts, pts);
 		  for (j = 0; j < npts; j++)
@@ -6328,16 +6328,16 @@ vtkVRMLImporter::exitField()
 	else
       {
       cells->GetNextCell(npts, pts);
-      for (int i=0;i <= yylval.mfint32->GetMaxId();i++) 
+      for (int i=0;i <= yylval.mfint32->GetMaxId();i++)
         {
-        if (yylval.mfint32->GetValue(index) == -1) 
+        if (yylval.mfint32->GetValue(index) == -1)
           {
           cells->GetNextCell(npts, pts);
           // Pass by the -1
           index++;
           j = 0;
           }
-        else 
+        else
           {
           // Redirect color into scalar position
           this->CurrentScalars->SetComponent(pts[j++], 0,
@@ -6347,43 +6347,43 @@ vtkVRMLImporter::exitField()
       }
     }
   // Handle direction field
-  else if (strcmp(fr->fieldName, "direction") == 0) 
+  else if (strcmp(fr->fieldName, "direction") == 0)
     {
     // For Directional light.
     if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) {
     this->CurrentLight->SetFocalPoint(yylval.vec3f->GetPoint(0));
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);yylval.vec3f = NULL;
     }
-    // For 
+    // For
     }
   // Handle intensity field
-  else if (strcmp(fr->fieldName, "intensity") == 0) 
+  else if (strcmp(fr->fieldName, "intensity") == 0)
     {
     // For Directional light.
-    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
+    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0)
       {
       this->CurrentLight->SetIntensity(yylval.sffloat);
       }
-    // For 
+    // For
     }
   // Handle on field
-  else if (strcmp(fr->fieldName, "on") == 0) 
+  else if (strcmp(fr->fieldName, "on") == 0)
     {
     // For Directional light.
-    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0) 
+    if (strcmp(fr->nodeType->getName(), "DirectionalLight") == 0)
       {
       this->CurrentLight->SetSwitch(yylval.sfint);
       }
-    // For 
+    // For
     }
   // Handle colorPerVertex field
-  else if (strcmp(fr->fieldName, "colorPerVertex") == 0) 
+  else if (strcmp(fr->fieldName, "colorPerVertex") == 0)
     {
     // Same for all geometry nodes.
     this->CurrentMapper->SetScalarVisibility(yylval.sfint);
     }
   // Handle vector field for Normal Node
-  else if (strcmp(fr->fieldName, "vector") == 0) 
+  else if (strcmp(fr->fieldName, "vector") == 0)
     {
     // For all floats in the vec3f, copy to the normal structure.
     if (this->CurrentNormals)
@@ -6393,21 +6393,21 @@ vtkVRMLImporter::exitField()
     this->CurrentNormals = vtkFloatArray::New();
     this->CurrentNormals->SetNumberOfComponents(3);
     this->CurrentNormals->SetNumberOfTuples(yylval.vec3f->GetNumberOfPoints());
-    for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
+    for (int i=0;i < yylval.vec3f->GetNumberOfPoints();i++)
       {
       this->CurrentNormals->InsertTuple(i, yylval.vec3f->GetPoint(i));
       }
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
-  else if (strcmp(fr->fieldName, "location") == 0) 
+  else if (strcmp(fr->fieldName, "location") == 0)
     {
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
-  else if (strcmp(fr->fieldName, "position") == 0) 
+  else if (strcmp(fr->fieldName, "position") == 0)
     {
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
-  else if (strcmp(fr->fieldName, "center") == 0) 
+  else if (strcmp(fr->fieldName, "center") == 0)
     {
     yylval.vec3f->Reset();this->DeleteObject(yylval.vec3f);
     }
@@ -6421,16 +6421,16 @@ vtkVRMLImporter::exitField()
     // read the indices of the tcoords and assign accordingly
     int index, i, cnt;
     index = i = cnt = 0;
-    for (i = 0;i <= yylval.mfint32->GetMaxId();i++) 
+    for (i = 0;i <= yylval.mfint32->GetMaxId();i++)
       {
-      if (yylval.mfint32->GetValue(i) == -1) 
+      if (yylval.mfint32->GetValue(i) == -1)
         {
         this->CurrentTCoordCells->InsertNextCell(cnt,
                               (vtkIdType*)yylval.mfint32->GetPointer(index));
         index = i+1;
         cnt = 0;
         }
-      else 
+      else
         {
         cnt++;
         }
@@ -6447,16 +6447,16 @@ vtkVRMLImporter::exitField()
     // read the indices of the normals and assign accordingly
     int index, i, cnt;
     index = i = cnt = 0;
-    for (i = 0;i <= yylval.mfint32->GetMaxId();i++) 
+    for (i = 0;i <= yylval.mfint32->GetMaxId();i++)
       {
-      if (yylval.mfint32->GetValue(i) == -1) 
+      if (yylval.mfint32->GetValue(i) == -1)
         {
         this->CurrentNormalCells->InsertNextCell(cnt,
                               (vtkIdType*)yylval.mfint32->GetPointer(index));
         index = i+1;
         cnt = 0;
         }
-      else 
+      else
         {
         cnt++;
         }
@@ -6469,13 +6469,13 @@ vtkVRMLImporter::exitField()
   fr->fieldName = NULL;
 }
 
-void 
+void
 vtkVRMLImporter::useNode(const char *name) {
 
   vtkObject *useO;
-  if ((useO = this->GetVRMLDEFObject(name))) 
+  if ((useO = this->GetVRMLDEFObject(name)))
     {
-    if (strstr(useO->GetClassName(), "Actor")) 
+    if (strstr(useO->GetClassName(), "Actor"))
       {
       vtkActor *_act = vtkActor::New();
       _act->ShallowCopy((vtkActor *)useO);
@@ -6491,7 +6491,7 @@ vtkVRMLImporter::useNode(const char *name) {
       this->CurrentActor = _act;
       this->Renderer->AddActor(_act);
       }
-    else if (strstr(useO->GetClassName(), "PolyDataMapper")) 
+    else if (strstr(useO->GetClassName(), "PolyDataMapper"))
       {
       vtkActor *_act = vtkActor::New();
       _act->SetMapper((vtkPolyDataMapper *)useO);
@@ -6509,7 +6509,7 @@ vtkVRMLImporter::useNode(const char *name) {
       this->CurrentActor = _act;
       this->Renderer->AddActor(_act);
       }
-    else if (strcmp(useO->GetClassName(), "vtkPoints") == 0) 
+    else if (strcmp(useO->GetClassName(), "vtkPoints") == 0)
       {
       yylval.vec3f = (vtkPoints *) useO;
       if (this->CurrentPoints)
@@ -6518,7 +6518,7 @@ vtkVRMLImporter::useNode(const char *name) {
         }
       this->CurrentPoints = (vtkPoints *) useO;
       }
-    else if (strcmp(useO->GetClassName(), "vtkLookupTable") == 0) 
+    else if (strcmp(useO->GetClassName(), "vtkLookupTable") == 0)
       {
       if (this->CurrentLut)
         {
@@ -6527,7 +6527,7 @@ vtkVRMLImporter::useNode(const char *name) {
       this->CurrentLut = (vtkLookupTable *) useO;
       // Seed the scalars with default values.
       this->CurrentScalars->Reset();
-      for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++) 
+      for (int i=0;i < this->CurrentPoints->GetNumberOfPoints();i++)
         {
         this->CurrentScalars->InsertNextValue(i);
         }
@@ -6542,10 +6542,10 @@ vtkVRMLImporter::GetVRMLDEFObject(const char *name)
 {
   // Look through the type stack:
   // Need to go from top of stack since last DEF created is most current
-  for (int i = VrmlNodeType::useList->Count()-1;i >=0 ; i--) 
+  for (int i = VrmlNodeType::useList->Count()-1;i >=0 ; i--)
     {
     const vtkVRMLUseStruct *nt = (*VrmlNodeType::useList)[i];
-    if (nt != NULL && strcmp(nt->defName,name) == 0) 
+    if (nt != NULL && strcmp(nt->defName,name) == 0)
       {
       return nt->defObject;
       }
@@ -6562,7 +6562,7 @@ static void memyyInput(char *buf, int &result, int max_size) {
     strlen(strncpy(buf, standardNodes[memyyInput_i], max_size)));
   memyyInput_j = result - static_cast<int>(
     strlen(standardNodes[memyyInput_i]));
-  if ( memyyInput_j == 0 ) 
+  if ( memyyInput_j == 0 )
     {
     memyyInput_i++;
     }
@@ -6571,13 +6571,13 @@ static void memyyInput(char *buf, int &result, int max_size) {
 // Needed to reset the lex input routine to default.
 static void defyyInput(char *buf, int &result, int max_size) {
   if ( yy_current_buffer->yy_is_interactive )
-    { 
-    int c = getc( yyin ); 
-    result = c == EOF ? 0 : 1; 
-    buf[0] = (char) c; 
-    } 
-  else if( ((result = static_cast<int>(fread( buf, 1, max_size, yyin ))) == 0) 
-            && ferror( yyin ) ) 
+    {
+    int c = getc( yyin );
+    result = c == EOF ? 0 : 1;
+    buf[0] = (char) c;
+    }
+  else if( ((result = static_cast<int>(fread( buf, 1, max_size, yyin ))) == 0)
+            && ferror( yyin ) )
     {
     YY_FATAL_ERROR( "input in flex scanner failed" );
     }

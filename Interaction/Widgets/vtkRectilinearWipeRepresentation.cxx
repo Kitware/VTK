@@ -60,7 +60,7 @@ vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
   this->Wipe = vtkPolyData::New();
   this->Wipe->SetPoints(this->Points);
   this->Wipe->SetLines(this->Lines);
-  
+
   vtkCoordinate *coordinate = vtkCoordinate::New();
   coordinate->SetCoordinateSystemToWorld();
 
@@ -68,7 +68,7 @@ vtkRectilinearWipeRepresentation::vtkRectilinearWipeRepresentation()
   this->WipeMapper->SetInputData(this->Wipe);
   this->WipeMapper->SetTransformCoordinate(coordinate);
   coordinate->Delete();
-  
+
   this->WipeActor = vtkActor2D::New();
   this->WipeActor->SetMapper(this->WipeMapper);
   this->WipeActor->SetProperty(this->Property);
@@ -99,10 +99,10 @@ int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int 
 {
   this->InteractionState = vtkRectilinearWipeRepresentation::Outside;
 
-  // Check if the widget is initialized, ie BuildRepresentation has been 
+  // Check if the widget is initialized, ie BuildRepresentation has been
   // invoked at least once
-  if (this->ActiveParts != -1) 
-    {  
+  if (this->ActiveParts != -1)
+    {
 
     // Start by grabbing the five points that define the horizontal and vertical
     // panes, plus the center point
@@ -113,12 +113,12 @@ int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int 
     double *p7 = pts + 3*7;
     double *p8 = pts + 3*8;
 
-    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p4[0],p4[1],p4[2], this->DP4); 
+    vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p4[0],p4[1],p4[2], this->DP4);
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p5[0],p5[1],p5[2], this->DP5);
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p6[0],p6[1],p6[2], this->DP6);
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p7[0],p7[1],p7[2], this->DP7);
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, p8[0],p8[1],p8[2], this->DP8);
-    
+
     // Compare the distance between the current event position and the widget
     double xyz[3], t, closest[3];
     xyz[0] = X;
@@ -126,7 +126,7 @@ int vtkRectilinearWipeRepresentation::ComputeInteractionState(int X, int Y, int 
     xyz[2] = this->DP4[2] = this->DP5[2] = this->DP6[2] = this->DP7[2] = this->DP8[2] = 0.0;
 
     double tol = this->Tolerance * this->Tolerance;
-    if ( (this->ActiveParts & 16) && 
+    if ( (this->ActiveParts & 16) &&
          vtkMath::Distance2BetweenPoints(xyz,this->DP8) <= tol )
       {
       this->InteractionState = vtkRectilinearWipeRepresentation::MovingCenter;
@@ -192,11 +192,11 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
   double l75 = vtkMath::Normalize(v75);
   double l46 = vtkMath::Normalize(v46);
 
-  double xPixels = this->Dims[this->I] * 
-    (v75[0]*(newEventPos[0] - this->StartEventPosition[0]) + 
+  double xPixels = this->Dims[this->I] *
+    (v75[0]*(newEventPos[0] - this->StartEventPosition[0]) +
      v75[1]*(newEventPos[1] - this->StartEventPosition[1])) / l75;
-  double yPixels = this->Dims[this->J] * 
-    (v46[0]*(newEventPos[0] - this->StartEventPosition[0]) + 
+  double yPixels = this->Dims[this->J] *
+    (v46[0]*(newEventPos[0] - this->StartEventPosition[0]) +
      v46[1]*(newEventPos[1] - this->StartEventPosition[1])) / l46;
 
   int newPosition[2];
@@ -215,15 +215,15 @@ void vtkRectilinearWipeRepresentation::WidgetInteraction(double newEventPos[2])
       newPosition[0] += static_cast<int>(xPixels + 0.5);
       newPosition[1] += static_cast<int>(yPixels + 0.5);
     }
-  
+
   newPosition[0] = (newPosition[0] < 0 ? 0 : newPosition[0] );
-  newPosition[0] = (newPosition[0] >= this->Dims[this->I] ? 
+  newPosition[0] = (newPosition[0] >= this->Dims[this->I] ?
                     this->Dims[this->I] - 1 : newPosition[0] );
-  
+
   newPosition[1] = (newPosition[1] < 0 ? 0 : newPosition[1] );
-  newPosition[1] = (newPosition[1] >= this->Dims[this->J] ? 
+  newPosition[1] = (newPosition[1] >= this->Dims[this->J] ?
                     this->Dims[this->J] - 1 : newPosition[1] );
-  
+
   this->RectilinearWipe->SetPosition(newPosition);
 
   // Rebuild the widget based on the change
@@ -268,7 +268,7 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     p1[0] = bounds[0]; p1[1] = bounds[3]; p1[2] = bounds[4];
     p2[0] = bounds[0]; p2[1] = bounds[3]; p2[2] = bounds[5];
     p3[0] = bounds[0]; p3[1] = bounds[2]; p3[2] = bounds[5];
-    this->Points->SetPoint(8, bounds[0], 
+    this->Points->SetPoint(8, bounds[0],
                            p0[1] + s*(p1[1]-p0[1]), p1[2] + t*(p2[2]-p1[2]));
     }
   else if ( orthoAxis == 1 ) //y-axis
@@ -303,9 +303,9 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
   this->Points->SetPoint(1, p1);
   this->Points->SetPoint(2, p2);
   this->Points->SetPoint(3, p3);
-  
+
   // mid-edge
-  this->Points->SetPoint(4, p0[0] + s*(p1[0]-p0[0]), p0[1] + s*(p1[1]-p0[1]), 
+  this->Points->SetPoint(4, p0[0] + s*(p1[0]-p0[0]), p0[1] + s*(p1[1]-p0[1]),
                          p0[2] + s*(p1[2]-p0[2]));
   this->Points->SetPoint(5, p1[0] + t*(p2[0]-p1[0]), p1[1] + t*(p2[1]-p1[1]),
                          p1[2] + t*(p2[2]-p1[2]));
@@ -342,23 +342,23 @@ void vtkRectilinearWipeRepresentation::BuildRepresentation()
     }
   else if ( wipe == VTK_WIPE_VERTICAL )
     {
-    this->ActiveParts |= 2; 
-    this->ActiveParts |= 8; 
+    this->ActiveParts |= 2;
+    this->ActiveParts |= 8;
     this->Lines->InsertNextCell(2);
     this->Lines->InsertCellPoint(5);
     this->Lines->InsertCellPoint(7);
     }
   else if ( wipe == VTK_WIPE_HORIZONTAL )
     {
-    this->ActiveParts |= 1; 
-    this->ActiveParts |= 4; 
+    this->ActiveParts |= 1;
+    this->ActiveParts |= 4;
     this->Lines->InsertNextCell(2);
     this->Lines->InsertCellPoint(4);
     this->Lines->InsertCellPoint(6);
     }
   else if ( wipe == VTK_WIPE_LOWER_LEFT )
     {
-    this->ActiveParts |= 1; 
+    this->ActiveParts |= 1;
     this->ActiveParts |= 8;
     this->ActiveParts |= 16;
     this->Lines->InsertNextCell(3);
@@ -441,7 +441,7 @@ void vtkRectilinearWipeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->ImageActor )
     {
     os << indent << "Image Actor: " << this->ImageActor << "\n";
@@ -459,7 +459,7 @@ void vtkRectilinearWipeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Image RectilinearWipe: (none)\n";
     }
-  
+
   if ( this->Property )
     {
     os << indent << "Property:\n";

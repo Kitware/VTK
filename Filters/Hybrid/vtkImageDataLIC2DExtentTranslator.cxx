@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkImageDataLIC2DExtentTranslator.h"
 
-#include "vtkObjectFactory.h" 
+#include "vtkObjectFactory.h"
 #include "vtkImageDataLIC2D.h"
 
 vtkStandardNewMacro(vtkImageDataLIC2DExtentTranslator);
@@ -24,11 +24,11 @@ vtkImageDataLIC2DExtentTranslator::vtkImageDataLIC2DExtentTranslator()
 {
   this->Algorithm = 0;
   this->InputExtentTranslator = 0;
-  this->InputWholeExtent[0] = 
-    this->InputWholeExtent[1] = 
-    this->InputWholeExtent[2] = 
-    this->InputWholeExtent[3] = 
-    this->InputWholeExtent[4] = 
+  this->InputWholeExtent[0] =
+    this->InputWholeExtent[1] =
+    this->InputWholeExtent[2] =
+    this->InputWholeExtent[3] =
+    this->InputWholeExtent[4] =
     this->InputWholeExtent[5] = 0;
 }
 
@@ -56,9 +56,9 @@ vtkImageDataLIC2D* vtkImageDataLIC2DExtentTranslator::GetAlgorithm()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageDataLIC2DExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces, 
-                                     int ghostLevel, int *wholeExtent, 
-                                     int *resultExtent, int splitMode, 
+int vtkImageDataLIC2DExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
+                                     int ghostLevel, int *wholeExtent,
+                                     int *resultExtent, int splitMode,
                                      int byPoints)
 {
   if (!this->Algorithm)
@@ -79,15 +79,15 @@ int vtkImageDataLIC2DExtentTranslator::PieceToExtentThreadSafe(int piece, int nu
 void vtkImageDataLIC2DExtentTranslator::PrintSelf( ostream & os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  
+
   os << indent << "Algorithm: "               << this->Algorithm << endl;
-  os << indent << "InputWholeExtent: ("          
-               << this->InputWholeExtent[0]   << ", " 
+  os << indent << "InputWholeExtent: ("
+               << this->InputWholeExtent[0]   << ", "
                << this->InputWholeExtent[1]   << ", "
                << this->InputWholeExtent[2]   << ", "
                << this->InputWholeExtent[3]   << ", "
                << this->InputWholeExtent[4]   << ", "
                << this->InputWholeExtent[5]   << ")" << endl;
-  os << indent << "InputExtentTranslator: " 
+  os << indent << "InputExtentTranslator: "
                << this->InputExtentTranslator << endl;
 }

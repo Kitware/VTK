@@ -1,4 +1,4 @@
-SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN 
+SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 "
     // Set defaults
     vtkTestingInteractor::ValidBaseline =
@@ -64,7 +64,7 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 )
 
 SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
-"    
+"
    if (!interactive)
      {
      if (vtkTestingInteractor::TestReturnStatus != -1)

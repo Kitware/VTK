@@ -344,7 +344,7 @@ int vtkLoopSubdivisionFilter::RequestData(
   vtkIdType numPts = 0, *pts = 0;
 
   input->BuildLinks();
-  
+
   polys->InitTraversal();
   while (polys->GetNextCell(numPts, pts))
     {
@@ -357,12 +357,12 @@ int vtkLoopSubdivisionFilter::RequestData(
         }
       }
     }
-  
+
   if (!hasTris)
     {
     vtkWarningMacro("vtkLoopSubdivisionFilter only operates on triangles, but this data set has no triangles to operate on.")
     return 0;
     }
-  
+
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }

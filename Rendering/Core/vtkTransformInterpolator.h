@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkTransformInterpolator.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -39,9 +39,9 @@
 // .SECTION Caveats
 // The interpolator classes are initialized when the InterpolateTransform()
 // is called. Any changes to the interpolators, or additions to the list of
-// transforms to be interpolated, causes a reinitialization of the 
+// transforms to be interpolated, causes a reinitialization of the
 // interpolators the next time InterpolateTransform() is invoked. Thus the
-// best performance is obtained by 1) configuring the interpolators, 2) adding 
+// best performance is obtained by 1) configuring the interpolators, 2) adding
 // all the transforms, and 3) finally performing interpolation.
 
 #ifndef __vtkTransformInterpolator_h
@@ -83,7 +83,7 @@ public:
   // Description:
   // Clear the list of transforms.
   void Initialize();
-  
+
   // Description:
   // Add another transform to the list of transformations defining
   // the transform function. Note that using the same time t value
@@ -173,12 +173,12 @@ protected:
   vtkTupleInterpolator      *PositionInterpolator;
   vtkTupleInterpolator      *ScaleInterpolator;
   vtkQuaternionInterpolator *RotationInterpolator;
-  
+
   // Initialize the interpolating splines
   int Initialized;
   vtkTimeStamp InitializeTime;
   void InitializeInterpolation();
-  
+
   // Keep track of inserted data
   vtkTransformList *TransformList;
 

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkStructuredPointsReader - read vtk structured points data file
 // .SECTION Description
-// vtkStructuredPointsReader is a source object that reads ASCII or binary 
+// vtkStructuredPointsReader is a source object that reads ASCII or binary
 // structured points data files in vtk format (see text for format details).
 // The output of this reader is a single vtkStructuredPoints data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -45,7 +45,7 @@ public:
   void SetOutput(vtkStructuredPoints *output);
   vtkStructuredPoints *GetOutput(int idx);
   vtkStructuredPoints *GetOutput();
-  
+
   // Description:
   // Read the meta information from the file.  This needs to be public to it
   // can be accessed by vtkDataSetReader.

@@ -19,7 +19,7 @@
 // entries are not prevented.
 
 // .SECTION see also
-// vtkActor vtkCollection 
+// vtkActor vtkCollection
 
 #ifndef __vtkActorCollection_h
 #define __vtkActorCollection_h
@@ -58,12 +58,12 @@ public:
 
   // Description:
   // Apply properties to all actors in this collection.
-  void ApplyProperties(vtkProperty *p); 
+  void ApplyProperties(vtkProperty *p);
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkActor *GetNextActor(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkActor *>(this->GetNextItemAsObject(cookie));};
   //ETX
@@ -71,7 +71,7 @@ public:
 protected:
   vtkActorCollection() {};
   ~vtkActorCollection() {};
-    
+
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -83,18 +83,18 @@ private:
   void operator=(const vtkActorCollection&);  // Not implemented.
 };
 
-inline void vtkActorCollection::AddItem(vtkActor *a) 
+inline void vtkActorCollection::AddItem(vtkActor *a)
 {
   this->vtkCollection::AddItem(a);
 }
 
-inline vtkActor *vtkActorCollection::GetNextActor() 
-{ 
+inline vtkActor *vtkActorCollection::GetNextActor()
+{
   return static_cast<vtkActor *>(this->GetNextItemAsObject());
 }
 
-inline vtkActor *vtkActorCollection::GetLastActor() 
-{ 
+inline vtkActor *vtkActorCollection::GetLastActor()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;
@@ -105,12 +105,12 @@ inline vtkActor *vtkActorCollection::GetLastActor()
     }
 }
 
-inline vtkActor *vtkActorCollection::GetNextItem() 
-{ 
+inline vtkActor *vtkActorCollection::GetNextItem()
+{
   return this->GetNextActor();
 }
 
-inline vtkActor *vtkActorCollection::GetLastItem() 
+inline vtkActor *vtkActorCollection::GetLastItem()
 {
   return this->GetLastActor();
 }

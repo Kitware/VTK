@@ -126,7 +126,7 @@ int vtkSphereSource::RequestData(
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(3*numPts);
   newNormals->SetName("Normals");
-  
+
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
 
@@ -163,7 +163,7 @@ int vtkSphereSource::RequestData(
   startTheta *= vtkMath::Pi() / 180.0;
   endTheta = (localEndTheta > localStartTheta ? localEndTheta : localStartTheta);
   endTheta *= vtkMath::Pi() / 180.0;
-  
+
   startPhi = (this->StartPhi < this->EndPhi ? this->StartPhi : this->EndPhi);
   startPhi *= vtkMath::Pi() / 180.0;
   endPhi = (this->EndPhi > this->StartPhi ? this->EndPhi : this->StartPhi);
@@ -218,7 +218,7 @@ int vtkSphereSource::RequestData(
     {
     --localThetaResolution;
     }
-  
+
   if ( this->StartPhi <= 0.0 )  // around north pole
     {
     for (i=0; i < localThetaResolution; i++)
@@ -229,11 +229,11 @@ int vtkSphereSource::RequestData(
       newPolys->InsertNextCell(3, pts);
       }
     }
-  
+
   if ( this->EndPhi >= 180.0 ) // around south pole
     {
     numOffset = phiResolution - 1 + numPoles;
-    
+
     for (i=0; i < localThetaResolution; i++)
       {
       pts[0] = phiResolution*i + numOffset;
@@ -297,7 +297,7 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Theta End: " << this->EndTheta << "\n";
   os << indent << "Phi End: " << this->EndPhi << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
-  os << indent << "Center: (" << this->Center[0] << ", " 
+  os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";
   os << indent
      << "LatLong Tessellation: " << this->LatLongTessellation << "\n";

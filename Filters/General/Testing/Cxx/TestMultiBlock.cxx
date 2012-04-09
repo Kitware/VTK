@@ -13,8 +13,8 @@
 
 =========================================================================*/
 // This example demonstrates how hierarchical box (uniform rectilinear)
-// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class. 
-// 
+// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class.
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -57,9 +57,9 @@ int TestMultiBlock(int argc, char* argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  char* xyzname = 
+  char* xyzname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.xyz");
-  char* qname = 
+  char* qname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.q");
 
   vtkMultiBlockPLOT3DReader* reader = vtkMultiBlockPLOT3DReader::New();
@@ -71,7 +71,7 @@ int TestMultiBlock(int argc, char* argv[])
   delete[] qname;
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom = 
+  vtkCompositeDataGeometryFilter* geom =
     vtkCompositeDataGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
@@ -92,7 +92,7 @@ int TestMultiBlock(int argc, char* argv[])
   ocf->SetInputConnection(0, reader->GetOutputPort(0));
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom2 = 
+  vtkCompositeDataGeometryFilter* geom2 =
     vtkCompositeDataGeometryFilter::New();
   geom2->SetInputConnection(0, ocf->GetOutputPort(0));
 
@@ -115,7 +115,7 @@ int TestMultiBlock(int argc, char* argv[])
   contour->SetValue(0, 149);
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom3 = 
+  vtkCompositeDataGeometryFilter* geom3 =
     vtkCompositeDataGeometryFilter::New();
   geom3->SetInputConnection(0, contour->GetOutputPort(0));
 
@@ -126,7 +126,7 @@ int TestMultiBlock(int argc, char* argv[])
   contActor->SetMapper(contMapper);
   contActor->GetProperty()->SetColor(1, 0, 0);
   ren->AddActor(contActor);
-  
+
   // Standard testing code.
   eds->Delete();
   ocf->Delete();
@@ -145,7 +145,7 @@ int TestMultiBlock(int argc, char* argv[])
     {
     iren->Start();
     }
-  
+
   // Cleanup
   geom->Delete();
   shMapper->Delete();
@@ -155,7 +155,7 @@ int TestMultiBlock(int argc, char* argv[])
   iren->Delete();
   reader->Delete();
   shrink->Delete();
-  
+
   vtkAlgorithm::SetDefaultExecutivePrototype(0);
   return !retVal;
 }

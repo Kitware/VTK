@@ -15,7 +15,7 @@
 // .NAME vtkTransformToGrid - create a grid for a vtkGridTransform
 // .SECTION Description
 // vtkTransformToGrid takes any transform as input and produces a grid
-// for use by a vtkGridTransform.  This can be used, for example, to 
+// for use by a vtkGridTransform.  This can be used, for example, to
 // invert a grid transform, concatenate two grid transforms, or to
 // convert a thin plate spline transform into a grid transform.
 // .SECTION See Also
@@ -94,10 +94,10 @@ protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();
 
-  void RequestInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *,
                            vtkInformationVector **, vtkInformationVector *);
 
-  void RequestData(vtkInformation *, 
+  void RequestData(vtkInformation *,
                    vtkInformationVector **, vtkInformationVector *);
 
   // Description:

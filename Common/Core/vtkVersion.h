@@ -43,16 +43,16 @@ public:
   static vtkVersion *New();
   vtkTypeMacro(vtkVersion,vtkObject);
 
-  // Description: 
+  // Description:
   // Return the version of vtk this object is a part of.
   // A variety of methods are included. GetVTKSourceVersion returns a string
-  // with an identifier which timestamps a particular source tree. 
+  // with an identifier which timestamps a particular source tree.
   static const char *GetVTKVersion() { return VTK_VERSION; }
   static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; }
   static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; }
   static int GetVTKBuildVersion() { return VTK_BUILD_VERSION; }
   static const char *GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
-  
+
 protected:
   vtkVersion() {}; //insure constructor/destructor protected
   ~vtkVersion() {};
@@ -61,5 +61,5 @@ private:
   void operator=(const vtkVersion&);  // Not implemented.
 };
 
-#endif 
+#endif
 

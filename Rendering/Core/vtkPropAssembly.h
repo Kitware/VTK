@@ -21,7 +21,7 @@
 // A vtkPropAssembly object can be used in place of an vtkProp since it is a
 // subclass of vtkProp. The difference is that vtkPropAssembly maintains a
 // list of other prop and prop assembly instances (its "parts") that form the
-// assembly. Note that this process is recursive: you can create groups 
+// assembly. Note that this process is recursive: you can create groups
 // consisting of prop assemblies to arbitrary depth.
 //
 // vtkPropAssembly's and vtkProp's that compose a prop assembly need not be
@@ -34,7 +34,7 @@
 // actor or assembly used in one hierarchy is also used in other
 // hierarchies. However, make that there are no cycles (e.g.,
 // parent->child->parent), this will cause program failure.
- 
+
 // .SECTION See Also
 // vtkProp3D vtkActor vtkAssembly vtkActor2D vtkVolume
 
@@ -65,7 +65,7 @@ public:
   // Description:
   // Return the list of parts.
   vtkPropCollection *GetParts();
-  
+
   // Description:
   // Render this assembly and all its parts.  The rendering process is
   // recursive. The parts of each assembly are rendered only if the
@@ -78,7 +78,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -118,7 +118,7 @@ public:
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Overload the superclass' vtkProp BuildPaths() method.
   void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
-//ETX  
+//ETX
 
 protected:
   vtkPropAssembly();
@@ -126,7 +126,7 @@ protected:
 
   vtkPropCollection *Parts;
   double Bounds[6];
-  
+
   // Support the BuildPaths() method,
   vtkTimeStamp PathTime;
   void UpdatePaths(); //apply transformations and properties recursively

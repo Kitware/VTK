@@ -42,7 +42,7 @@ void vtkOverlayPass::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOverlayPass::Render(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-  
+
   this->NumberOfRenderedProps=0;
   this->RenderFilteredOverlay(s);
 }

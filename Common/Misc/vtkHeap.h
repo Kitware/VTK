@@ -57,7 +57,7 @@ public:
   // Description:
   // Allocate the memory requested.
   void* AllocateMemory(size_t n);
-  
+
   // Description:
   // Set/Get the size at which blocks are allocated. If a memory
   // request is bigger than the block size, then that size
@@ -76,12 +76,12 @@ public:
   // reuse of previously allocated memory which may be
   // beneficial to performance in many cases.
   void Reset();
-  
+
   // Description:
   // Convenience method performs string duplication.
   char* StringDup(const char* str);
 
-protected:  
+protected:
   vtkHeap();
   ~vtkHeap();
 
@@ -100,7 +100,7 @@ protected:
   vtkHeapBlock* Current;
   // Manage the memory in the block
   size_t Position; //the position in the Current block
-  
+
 private:
   vtkHeap(const vtkHeap&); // Not implemented.
   void operator=(const vtkHeap&);  // Not implemented.

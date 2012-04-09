@@ -15,7 +15,7 @@
 // .NAME vtkSynchronizedTemplates3D - generate isosurface from structured points
 
 // .SECTION Description
-// vtkSynchronizedTemplates3D is a 3D implementation of the synchronized 
+// vtkSynchronizedTemplates3D is a 3D implementation of the synchronized
 // template algorithm. Note that vtkContourFilter will automatically
 // use this class when appropriate.
 
@@ -41,7 +41,7 @@ public:
 
   vtkTypeMacro(vtkSynchronizedTemplates3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
@@ -73,7 +73,7 @@ public:
   vtkBooleanMacro(ComputeScalars,int);
 
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 
@@ -129,7 +129,7 @@ public:
   // collector: ask for many input pieces, but generate one output.  Limit is
   // in KBytes
   void SetInputMemoryLimit(unsigned long limit);
-  unsigned long GetInputMemoryLimit();  
+  unsigned long GetInputMemoryLimit();
 
   // Description:
   // Set/get which component of the scalar array to contour on; defaults to 0.
@@ -148,7 +148,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
-  
+
   int ExecuteExtent[6];
 
   int ArrayComponent;

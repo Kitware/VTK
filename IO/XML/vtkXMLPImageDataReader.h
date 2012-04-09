@@ -37,12 +37,12 @@ public:
   vtkTypeMacro(vtkXMLPImageDataReader,vtkXMLPStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPImageDataReader *New();
-  
+
   // Description:
   // Get the reader's output.
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx);
-  
+
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
   virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
@@ -50,10 +50,10 @@ public:
 protected:
   vtkXMLPImageDataReader();
   ~vtkXMLPImageDataReader();
-  
+
   double Origin[3];
   double Spacing[3];
-  
+
   vtkImageData* GetPieceInput(int index);
 
   void SetupEmptyOutput();
@@ -67,7 +67,7 @@ protected:
 
   vtkXMLDataReader* CreatePieceReader();
   virtual int FillOutputPortInformation(int, vtkInformation*);
-  
+
 private:
   vtkXMLPImageDataReader(const vtkXMLPImageDataReader&);  // Not implemented.
   void operator=(const vtkXMLPImageDataReader&);  // Not implemented.

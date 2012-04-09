@@ -21,7 +21,7 @@
 // streaming, and it does not supported threaded execution (because it has
 // to process the entire image).
 //
-// To use this filter, you typically set the number of colors 
+// To use this filter, you typically set the number of colors
 // (between 2 and 65536), execute it, and then retrieve the lookup table.
 // The colors can then be using the lookup table and the image index.
 
@@ -41,7 +41,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set / Get the number of color index values to produce - must be 
+  // Set / Get the number of color index values to produce - must be
   // a number between 2 and 65536.
   vtkSetClampMacro( NumberOfColors, int, 2, 65536 );
   vtkGetMacro( NumberOfColors, int );
@@ -56,11 +56,11 @@ public:
   vtkGetMacro( LookupIndexExecuteTime, double );
 
 //BTX
-  // Description: 
+  // Description:
   // For internal use only - get the type of the image
   vtkGetMacro( InputType, int );
 
-  // Description: 
+  // Description:
   // For internal use only - set the times for execution
   vtkSetMacro( InitializeExecuteTime, double );
   vtkSetMacro( BuildTreeExecuteTime, double );

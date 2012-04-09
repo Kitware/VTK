@@ -52,12 +52,12 @@ int vtkDiskSource::RequestData(
   vtkIdType pts[4];
   double theta, deltaRadius;
   double cosTheta, sinTheta;
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkCellArray *newPolys;
-  
+
   // Set things up; allocate memory
   //
-  numPts = (this->RadialResolution + 1) * 
+  numPts = (this->RadialResolution + 1) *
            (this->CircumferentialResolution + 1);
   numPolys = this->RadialResolution * this->CircumferentialResolution;
   newPoints = vtkPoints::New();
@@ -70,7 +70,7 @@ int vtkDiskSource::RequestData(
   theta = 2.0 * vtkMath::Pi() / this->CircumferentialResolution;
   deltaRadius = (this->OuterRadius - this->InnerRadius)/this->RadialResolution;
 
-  for (i=0; i < this->CircumferentialResolution; i++) 
+  for (i=0; i < this->CircumferentialResolution; i++)
     {
     cosTheta = cos(i*theta);
     sinTheta = sin(i*theta);
@@ -85,9 +85,9 @@ int vtkDiskSource::RequestData(
 
   //  Create connectivity
   //
-  for (i=0; i < this->CircumferentialResolution; i++) 
+  for (i=0; i < this->CircumferentialResolution; i++)
     {
-    for (j=0; j < this->RadialResolution; j++) 
+    for (j=0; j < this->RadialResolution; j++)
       {
       pts[0] = i*(this->RadialResolution+1) + j;
       pts[1] = pts[0] + 1;

@@ -10,7 +10,7 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-# Read a data file. This originally was a Cyberware laser digitizer scan 
+# Read a data file. This originally was a Cyberware laser digitizer scan
 # of Fran J.'s face. Surface normals are generated based on local geometry
 # (i.e., the polygon normals surrounding eash point are averaged). We flip
 # the normals because we want them to point out from Fran's face.

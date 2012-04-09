@@ -15,7 +15,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkLinearSelector - select cells intersecting a line (possibly broken)
 //
 // .SECTION Description
-// This filter takes a vtkCompositeDataSet as input and a line segment as parameter. 
+// This filter takes a vtkCompositeDataSet as input and a line segment as parameter.
 // It outputs a vtkSelection identifying all the cells intersecting the given line segment.
 //
 // .SECTION Thanks

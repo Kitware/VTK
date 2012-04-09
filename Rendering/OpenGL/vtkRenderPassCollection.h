@@ -19,7 +19,7 @@
 // list. The list is unsorted and duplicate entries are not prevented.
 
 // .SECTION see also
-// vtkRenderPass vtkCollection 
+// vtkRenderPass vtkCollection
 
 #ifndef __vtkRenderPassCollection_h
 #define __vtkRenderPassCollection_h
@@ -35,7 +35,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
   static vtkRenderPassCollection *New();
   vtkTypeMacro(vtkRenderPassCollection,vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Add an RenderPass to the list.
   void AddItem(vtkRenderPass *pass);
@@ -47,11 +47,11 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
   // Description:
   // Get the last RenderPass in the list.
   vtkRenderPass *GetLastRenderPass();
-    
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkRenderPass *GetNextRenderPass(vtkCollectionSimpleIterator &cookie);
   //ETX
 

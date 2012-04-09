@@ -88,10 +88,10 @@ int vtkVectorDot::RequestData(
   //
   int abort=0;
   vtkIdType progressInterval=numPts/20 + 1;
-  for (min=VTK_DOUBLE_MAX,max=(-VTK_DOUBLE_MAX),ptId=0; 
+  for (min=VTK_DOUBLE_MAX,max=(-VTK_DOUBLE_MAX),ptId=0;
        ptId < numPts && !abort; ptId++)
     {
-    if ( ! (ptId % progressInterval) ) 
+    if ( ! (ptId % progressInterval) )
       {
       this->UpdateProgress ((double)ptId/numPts);
       abort = this->GetAbortExecute();

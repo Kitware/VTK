@@ -25,13 +25,13 @@ vtkStandardNewMacro(vtkGESignaReader);
 
 
 int vtkGESignaReader::CanReadFile(const char* fname)
-{ 
+{
   FILE *fp = fopen(fname, "rb");
   if (!fp)
     {
     return 0;
     }
-  
+
   int magic;
   if (fread(&magic, 4, 1, fp) != 1)
     {
@@ -39,7 +39,7 @@ int vtkGESignaReader::CanReadFile(const char* fname)
     return 0;
     }
   vtkByteSwap::Swap4BE(&magic);
-  
+
   if (magic != 0x494d4746) // "IMGF"
     {
     fclose(fp);
@@ -73,7 +73,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
     }
   vtkByteSwap::Swap4BE(&magic);
-  
+
   if (magic != 0x494d4746)
     {
     vtkErrorMacro(<<"Unknown file type! Not a GE ximg file!");
@@ -246,7 +246,7 @@ void vtkGESignaReader::ExecuteInformation()
     }
   tmpStr[3] = 0;
   this->SetModality(tmpStr);
-  
+
   // seek to the series and read some info
   // series number
   fseek(fp, seriesHdrOffset + 10, SEEK_SET);
@@ -293,7 +293,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
     }
   vtkByteSwap::Swap4BE(&spacingY);
-  fseek(fp, imgHdrOffset + 116, SEEK_SET);  
+  fseek(fp, imgHdrOffset + 116, SEEK_SET);
   if (fread(&spacingZ, 4, 1, fp) != 1)
     {
     vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
@@ -303,7 +303,7 @@ void vtkGESignaReader::ExecuteInformation()
     }
   vtkByteSwap::Swap4BE(&spacingZ);
   // Slice Thickness
-  fseek(fp, imgHdrOffset + 26, SEEK_SET);  
+  fseek(fp, imgHdrOffset + 26, SEEK_SET);
   if (fread(&tmpZ, 4, 1, fp) != 1)
     {
     vtkErrorMacro ("GESignaReader error reading file: " << this->FileName
@@ -313,7 +313,7 @@ void vtkGESignaReader::ExecuteInformation()
     }
   vtkByteSwap::Swap4BE(&tmpZ);
   spacingZ = spacingZ + tmpZ;
-  
+
   float origX, origY, origZ;
   fseek(fp, imgHdrOffset + 154, SEEK_SET);
   // read TLHC
@@ -372,7 +372,7 @@ void vtkGESignaReader::ExecuteInformation()
   origX = origX - tmpX;
   origY = origY - tmpY;
   origZ = origZ - tmpZ;
-  
+
   // read BRHC
   if (fread(&tmpX, 4, 1, fp) != 1)
     {
@@ -418,9 +418,9 @@ void vtkGESignaReader::ExecuteInformation()
   362 - char[17] - coil name
   640 - short    - ETL for FSE
    */
-  
+
   this->SetDataOrigin(origX, origY, origZ);
-  
+
   this->DataExtent[0] = 0;
   this->DataExtent[1] = width - 1;
   this->DataExtent[2] = 0;
@@ -442,46 +442,46 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
 {
   unsigned short row;
   unsigned short last_pixel=0;
-  for (row=0; row<height; ++row) 
+  for (row=0; row<height; ++row)
     {
       unsigned short j;
       unsigned short start;
       unsigned short end;
-      
-      if (compress == 2 || compress == 4) 
+
+      if (compress == 2 || compress == 4)
         { // packed/compacked
           start=map_left[row];
           end=start+map_wide[row];
         }
-      else 
+      else
         {
           start=0;
           end=width;
         }
       // Pad the first "empty" part of the line ...
-      for (j=0; j<start; j++) 
+      for (j=0; j<start; j++)
         {
           (*output) = 0;
           ++output;
         }
 
-      if (compress == 3 || compress == 4) 
+      if (compress == 3 || compress == 4)
         { // compressed/compacked
-          while (start<end) 
+          while (start<end)
             {
               unsigned char byte;
               if (!fread(&byte,1,1,infp))
                 {
                   return;
                 }
-              if (byte & 0x80) 
+              if (byte & 0x80)
                 {
                   unsigned char byte2;
                   if (!fread(&byte2,1,1,infp))
                     {
                       return;
                     }
-                  if (byte & 0x40) 
+                  if (byte & 0x40)
                     {      // next word
                       if (!fread(&byte,1,1,infp))
                         {
@@ -490,13 +490,13 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
                       last_pixel=
                         (((unsigned short)byte2<<8)+byte);
                     }
-                  else 
+                  else
                     {                  // 14 bit delta
-                      if (byte & 0x20) 
+                      if (byte & 0x20)
                         {
                           byte|=0xe0;
                         }
-                      else 
+                      else
                         {
                           byte&=0x1f;
                         }
@@ -504,9 +504,9 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
                         (((short)byte<<8)+byte2);
                     }
                 }
-              else 
+              else
                 {                          // 7 bit delta
-                  if (byte & 0x40) 
+                  if (byte & 0x40)
                     {
                       byte|=0xc0;
                     }
@@ -517,9 +517,9 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
               ++start;
             }
         }
-      else 
+      else
         {
-          while (start<end) 
+          while (start<end)
             {
               unsigned short u;
               if (!fread(&u,2,1,infp))
@@ -532,9 +532,9 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
               ++start;
             }
         }
-      
+
       // Pad the last "empty" part of the line ...
-      for (j=end; j<width; j++) 
+      for (j=end; j<width; j++)
         {
           (*output) = 0;
           ++output;
@@ -543,7 +543,7 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
 }
 
 
-void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr, 
+void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
                              int *outExt, vtkIdType *)
 {
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
@@ -561,7 +561,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
     return;
     }
   vtkByteSwap::Swap4BE(&magic);
-  
+
   if (magic != 0x494d4746)
     {
     vtkGenericWarningMacro(<<"Unknown file type! Not a GE ximg file!");
@@ -620,7 +620,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
   short *leftMap = 0;
   short *widthMap = 0;
 
-  if (compression == 2 || compression == 4) 
+  if (compression == 2 || compression == 4)
     { // packed/compacked
       leftMap = new short [height];
       widthMap = new short [height];
@@ -635,7 +635,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
         return;
         }
       vtkByteSwap::Swap4BE(&packHdrOffset);
-      
+
       // now seek to the pack header and read some values
       fseek(fp, packHdrOffset, SEEK_SET);
       // read in the maps
@@ -667,7 +667,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
   // read in the pixels
   unsigned short *tmp = new unsigned short [width*height];
   int *dext = self->GetDataExtent();
-  vtkcopygenesisimage(fp, dext[1] + 1, dext[3] + 1, 
+  vtkcopygenesisimage(fp, dext[1] + 1, dext[3] + 1,
                       compression, leftMap, widthMap, tmp);
 
   // now copy into desired extent
@@ -694,7 +694,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 //----------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
-void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data, 
+void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data,
                             unsigned short *outPtr)
 {
   vtkIdType outIncr[3];
@@ -735,7 +735,7 @@ void vtkGESignaReader::ExecuteDataWithInformation(vtkDataObject *output,
   data->GetPointData()->GetScalars()->SetName("GESignalImage");
 
   this->ComputeDataIncrements();
-  
+
   // Call the correct templated function for the output
   void *outPtr;
 

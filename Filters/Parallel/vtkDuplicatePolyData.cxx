@@ -35,7 +35,7 @@ vtkDuplicatePolyData::vtkDuplicatePolyData()
 {
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
-  this->SetController(vtkMultiProcessController::GetGlobalController());  
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   this->Synchronous = 1;
 
   this->Schedule = NULL;
@@ -203,7 +203,7 @@ int vtkDuplicatePolyData::RequestUpdateExtent(
 
   return 1;
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkDuplicatePolyData::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -240,7 +240,7 @@ int vtkDuplicatePolyData::RequestData(
       }
     return 1;
     }
-  
+
   myId = this->Controller->GetLocalProcessId();
 
   // Collect.
@@ -322,7 +322,7 @@ void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   int i, j;
-  
+
   os << indent << "Controller: (" << this->Controller << ")\n";
   if (this->SocketController)
     {

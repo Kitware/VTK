@@ -19,7 +19,7 @@
 // vtkHandleRepresentations to place and manipulate the three points defining
 // the angle representation. (Note: the three points are referred to as Point1,
 // Center, and Point2, at the two end points (Point1 and Point2) and Center
-// (around which the angle is measured). This particular implementation is a 
+// (around which the angle is measured). This particular implementation is a
 // 3D representation, meaning that it draws in the overlay plane.
 
 // .SECTION See Also
@@ -83,12 +83,12 @@ public:
   vtkGetObjectMacro(Ray2,vtkActor);
   vtkGetObjectMacro(Arc,vtkActor);
   vtkGetObjectMacro(TextActor,vtkFollower);
-  
+
   // Description:
   // Scale text.
   virtual void SetTextActorScale( double scale[3] );
   virtual double * GetTextActorScale();
-  
+
   // Description:
   // Method defined by vtkWidgetRepresentation superclass and
   // needed here.
@@ -106,9 +106,9 @@ protected:
   ~vtkAngleRepresentation3D();
 
   // The pieces that make up the angle representations
-  vtkLineSource     *Line1Source;  
-  vtkLineSource     *Line2Source;  
-  vtkArcSource      *ArcSource;  
+  vtkLineSource     *Line1Source;
+  vtkLineSource     *Line2Source;
+  vtkArcSource      *ArcSource;
   vtkPolyDataMapper *Line1Mapper;
   vtkPolyDataMapper *Line2Mapper;
   vtkPolyDataMapper *ArcMapper;

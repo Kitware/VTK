@@ -159,7 +159,7 @@ vtkMINCImageAttributes::vtkMINCImageAttributes()
 vtkMINCImageAttributes::~vtkMINCImageAttributes()
 {
   this->SetName(0);
-  
+
   if (this->DimensionNames)
     {
     this->DimensionNames->Delete();
@@ -207,7 +207,7 @@ void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Name: " 
+  os << indent << "Name: "
      << (this->Name ? this->Name : "(none)") << "\n";
   os << indent << "DataType: " << this->DataType << "\n";
   os << indent << "DimensionNames: " << this->DimensionNames << "\n";
@@ -215,7 +215,7 @@ void vtkMINCImageAttributes::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VariableNames: " << this->VariableNames << "\n";
   os << indent << "ImageMin: " << this->ImageMin << "\n";
   os << indent << "ImageMax: " << this->ImageMax << "\n";
-  os << indent << "NumberOfImageMinMaxDimensions: " 
+  os << indent << "NumberOfImageMinMaxDimensions: "
      << this->NumberOfImageMinMaxDimensions << "\n";
   os << indent << "ValidateAttributes: "
      << (this->ValidateAttributes ? "On\n" : "Off\n");
@@ -329,7 +329,7 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
           *cp++ = '.';
           *cp = '\0';
           break;
-          } 
+          }
         }
       os << storage;
       }
@@ -416,7 +416,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
 
   os << "netcdf " << name << " {\n";
   os << "dimensions:\n";
-  
+
   int ndim = 0;
   if (this->DimensionNames)
     {
@@ -531,7 +531,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
                   case '\b':
                     text[j++] = '\\';
                     text[j] = '\b';
-                    break;                    
+                    break;
                   case '\n':
                     text[j++] = '\\';
                     text[j] = 'n';
@@ -1377,7 +1377,7 @@ int vtkMINCImageAttributes::ValidateAttribute(
       result = this->ValidateAcquisitionAttribute(varname, attname, array);
       }
     }
-  
+
   return result;
 }
 
@@ -1388,8 +1388,8 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
   range[0] = 0.0;
   range[1] = 1.0;
 
-  // Look for the valid_range attribute of the data. 
-  vtkDoubleArray *rangearray = 
+  // Look for the valid_range attribute of the data.
+  vtkDoubleArray *rangearray =
     vtkDoubleArray::SafeDownCast(this->GetAttributeValueAsArray(
                                    MIimage, MIvalid_range));
   if (rangearray)
@@ -1501,12 +1501,12 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
 
   this->SetImageMin(source->GetImageMin());
   this->SetImageMax(source->GetImageMax());
-  this->SetNumberOfImageMinMaxDimensions( 
+  this->SetNumberOfImageMinMaxDimensions(
     source->GetNumberOfImageMinMaxDimensions());
 
   this->DimensionNames->DeepCopy(source->GetDimensionNames());
   this->DimensionLengths->DeepCopy(source->GetDimensionLengths());
-  
+
   this->VariableNames->Reset();
   this->AttributeValues->Clear();
   this->AttributeNames->Clear();

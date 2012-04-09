@@ -26,7 +26,7 @@ pl3d_output = pl3d.GetOutput().GetBlock(0)
 outline = vtk.vtkStructuredGridOutlineFilter()
 outline.SetInputData(pl3d_output)
 
-outlineMapper = vtk.vtkPolyDataMapper() 
+outlineMapper = vtk.vtkPolyDataMapper()
 outlineMapper.SetInputConnection(outline.GetOutputPort())
 
 outlineActor = vtk.vtkActor()
@@ -56,7 +56,7 @@ mmapper.SetInputConnection(seeds.GetOutputPort())
 mactor = vtk.vtkActor()
 mactor.SetMapper(mmapper)
 ren.AddActor(mactor)
-                      
+
 ren.AddActor(actor)
 ren.AddActor(outlineActor)
 

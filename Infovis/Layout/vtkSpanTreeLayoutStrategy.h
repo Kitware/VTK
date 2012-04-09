@@ -21,7 +21,7 @@
 // .NAME vtkSpanTreeLayoutStrategy
 // .SECTION Description
 // vtkSpanTreeLayout is a strategy for drawing directed graphs that
-// works by first extracting a spanning tree (more accurately, a 
+// works by first extracting a spanning tree (more accurately, a
 // spanning forest), and using this both to position graph vertices
 // and to plan the placement of non-tree edges.  The latter are drawn
 // with the aid of edge points to produce a tidy drawing.
@@ -40,9 +40,9 @@
 // spaced along the z-axis, precluding for example the use of a radial
 // or balloon layout.
 //
-// vtkSpanTreeLayout is based on an approach to 3D graph layout first 
-// developed as part of the "tulip" tool by Dr. David Auber at LaBRI, 
-// U.Bordeaux: see www.tulip-software.org   
+// vtkSpanTreeLayout is based on an approach to 3D graph layout first
+// developed as part of the "tulip" tool by Dr. David Auber at LaBRI,
+// U.Bordeaux: see www.tulip-software.org
 //
 // This implementation departs from the original version in that:
 // (a) it is reconstructed to use Titan/VTK data structures;
@@ -54,7 +54,7 @@
 //     different results depending on the data.
 //
 // .SECTION Thanks
-// Thanks to David Duke from the University of Leeds for providing this 
+// Thanks to David Duke from the University of Leeds for providing this
 // implementation.
 
 
@@ -85,14 +85,14 @@ public:
   // Description:
   // Perform the layout.
   void Layout();
-  
+
 protected:
   vtkSpanTreeLayoutStrategy();
   ~vtkSpanTreeLayoutStrategy();
 
   vtkGraphLayoutStrategy *TreeLayout;
   bool DepthFirstSpanningTree;
-  
+
 private:
   vtkSpanTreeLayoutStrategy(const vtkSpanTreeLayoutStrategy&);  // Not implemented.
   void operator=(const vtkSpanTreeLayoutStrategy&);  // Not implemented.

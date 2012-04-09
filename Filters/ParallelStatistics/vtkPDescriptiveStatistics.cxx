@@ -66,7 +66,7 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
   this->Superclass::Learn( inData, inParameters, outMeta );
 
   vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
-  if ( ! primaryTab ) 
+  if ( ! primaryTab )
     {
     return;
     }
@@ -95,8 +95,8 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
   // (All) gather all sample sizes
   int n_l = primaryTab->GetValueByName( 0, "Cardinality" ).ToInt(); // Cardinality
   int* n_g = new int[np];
-  com->AllGather( &n_l, n_g, 1 ); 
-  
+  com->AllGather( &n_l, n_g, 1 );
+
   // Iterate over all parameter rows
   for ( int r = 0; r < nRow; ++ r )
     {
@@ -107,9 +107,9 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
     extrema_l[1] = - primaryTab->GetValueByName( r, "Maximum" ).ToDouble();
 
     double extrema_g[2];
-    com->AllReduce( extrema_l, 
-                    extrema_g, 
-                    2, 
+    com->AllReduce( extrema_l,
+                    extrema_g,
+                    2,
                     vtkCommunicator::MIN_OP );
     primaryTab->SetValueByName( r, "Minimum", extrema_g[0] );
     // max = - min ( - max )
@@ -134,14 +134,14 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
     for ( int i = 1; i < np; ++ i )
       {
       int ns_l = n_g[i];
-      int N = ns + ns_l; 
+      int N = ns + ns_l;
 
       int o = 4 * i;
       double mean_part = M_g[o];
       double mom2_part = M_g[o + 1];
       double mom3_part = M_g[o + 2];
       double mom4_part = M_g[o + 3];
-      
+
       double delta = mean_part - mean;
       double delta_sur_N = delta / static_cast<double>( N );
       double delta2_sur_N2 = delta_sur_N * delta_sur_N;
@@ -149,17 +149,17 @@ void vtkPDescriptiveStatistics::Learn( vtkTable* inData,
       int ns2 = ns * ns;
       int ns_l2 = ns_l * ns_l;
       int prod_ns = ns * ns_l;
- 
-      mom4 += mom4_part 
+
+      mom4 += mom4_part
         + prod_ns * ( ns2 - prod_ns + ns_l2 ) * delta * delta_sur_N * delta2_sur_N2
         + 6. * ( ns2 * mom2_part + ns_l2 * mom2 ) * delta2_sur_N2
         + 4. * ( ns * mom3_part - ns_l * mom3 ) * delta_sur_N;
 
-      mom3 += mom3_part 
+      mom3 += mom3_part
         + prod_ns * ( ns - ns_l ) * delta * delta2_sur_N2
         + 3. * ( ns * mom2_part - ns_l * mom2 ) * delta_sur_N;
 
-      mom2 += mom2_part 
+      mom2 += mom2_part
         + prod_ns * delta * delta_sur_N;
 
       mean += ns_l * delta_sur_N;

@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkComputeHistogram2DOutliers.cxx
 
@@ -65,8 +65,8 @@ int vtkComputeHistogram2DOutliers::RequestData(
   vtkInformation *outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
   vtkTable* outputTable = vtkTable::SafeDownCast(
     outTableInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
-    
+
+
   // get the input table data
   vtkInformation *inDataInfo = inputVector[INPUT_TABLE_DATA]->GetInformationObject(0);
   if (!inDataInfo)
@@ -170,7 +170,7 @@ int vtkComputeHistogram2DOutliers::RequestData(
   return 1;
 }
 //------------------------------------------------------------------------------
-int vtkComputeHistogram2DOutliers::FillInputPortInformation(int port, 
+int vtkComputeHistogram2DOutliers::FillInputPortInformation(int port,
                                                             vtkInformation* info)
 {
   if (port == vtkComputeHistogram2DOutliers::INPUT_TABLE_DATA)
@@ -196,7 +196,7 @@ int vtkComputeHistogram2DOutliers::FillInputPortInformation(int port,
 }
 
 //------------------------------------------------------------------------------
-int vtkComputeHistogram2DOutliers::FillOutputPortInformation(int port, 
+int vtkComputeHistogram2DOutliers::FillOutputPortInformation(int port,
                                                              vtkInformation* info)
 {
   if (port == vtkComputeHistogram2DOutliers::OUTPUT_SELECTED_ROWS)
@@ -221,7 +221,7 @@ void vtkComputeHistogram2DOutliers::PrintSelf(ostream& os, vtkIndent indent)
 }
 //------------------------------------------------------------------------------
 // Tries to find the right number of outliers.  Not the smartest thing
-// in the world yet.  It basically starts off with a low percentage threshold 
+// in the world yet.  It basically starts off with a low percentage threshold
 // (i.e. outlier bins must have a count smaller than pct * maximum bin cuont),
 // find outliers, and grows the percentage if there are too outliers.  The
 // growth process is geometric until it finds enough, then it backtracks and
@@ -268,7 +268,7 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkCollection* histo
       }
 
     // Did the number of outliers get closer to the preferred number?  If so, keep them.
-    if (abs(tmpNumOutliers - this->PreferredNumberOfOutliers) <= 
+    if (abs(tmpNumOutliers - this->PreferredNumberOfOutliers) <=
         abs(numOutliers - this->PreferredNumberOfOutliers))
       {
       thresholds->RemoveAllItems();
@@ -306,18 +306,18 @@ int vtkComputeHistogram2DOutliers::ComputeOutlierThresholds(vtkImageData* histog
   vtkSmartPointer<vtkImageMedian3D> median = vtkSmartPointer<vtkImageMedian3D>::New();
   median->SetInputData(histogram);
   median->SetKernelSize(3,3,1);
-  median->Update();    
+  median->Update();
 
   vtkDataArray* histArray = histogram->GetPointData()->GetScalars();
   vtkDataArray* filtArray = median->GetOutput()->GetPointData()->GetScalars();
-  
+
   int dims[3] = { 0,0,0 };
   double sp[3] = { 0,0,0 };
   double o[3] = {0,0,0};
   histogram->GetDimensions(dims);
   histogram->GetSpacing(sp);
   histogram->GetOrigin(o);
-  
+
   int x,y,numOutliers=0;
   double hval,fval;
   for (int j=0; j<histArray->GetNumberOfTuples(); j++)
@@ -358,7 +358,7 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
 
   int numColumns = data->GetNumberOfColumns();
 
-  // store the matching rows in a vtkIdList since this list 
+  // store the matching rows in a vtkIdList since this list
   // can check for uniqueness, and I don't want duplicate rows.
   vtkSmartPointer<vtkIdList> uniqueRowIds = vtkSmartPointer<vtkIdList>::New();
   for (int i=0; i<numColumns-1; i++)
@@ -370,7 +370,7 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
     for (int j=0; j<currThresholds->GetNumberOfTuples(); j++)
       {
       double *t = currThresholds->GetTuple(j);
-      
+
       for (int k=0; k<col1->GetNumberOfTuples(); k++)
         {
         double v1 = col1->GetComponent(k,0);

@@ -14,7 +14,7 @@ class @VTK_MAKE_INSTANTIATOR_EXPORT_MACRO@ @VTK_MAKE_INSTANTIATOR_CLASS_NAME@
   static void ClassInitialize();
   static void ClassFinalize();
   static unsigned int Count;
-}; 
+};
 
 static @VTK_MAKE_INSTANTIATOR_CLASS_NAME@ @VTK_MAKE_INSTANTIATOR_CLASS_NAME@Initializer;
 

@@ -30,13 +30,13 @@ public:
   static vtkExtractPolyDataPiece *New();
   vtkTypeMacro(vtkExtractPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Turn on/off creating ghost cells (on by default).
   vtkSetMacro(CreateGhostCells, int);
   vtkGetMacro(CreateGhostCells, int);
   vtkBooleanMacro(CreateGhostCells, int);
-  
+
 protected:
   vtkExtractPolyDataPiece();
   ~vtkExtractPolyDataPiece() {};
@@ -45,13 +45,13 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
- 
+
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
                        int piece, int numPieces, vtkPolyData *input);
-  
+
   void AddGhostLevel(vtkPolyData *input, vtkIntArray *cellTags, int ghostLevel);
-  
+
   int CreateGhostCells;
 private:
   vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&);  // Not implemented.

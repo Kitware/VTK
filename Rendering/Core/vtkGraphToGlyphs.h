@@ -70,7 +70,7 @@ public:
   // or circle depending on the hardware.
   vtkSetMacro(GlyphType, int);
   vtkGetMacro(GlyphType, int);
-  
+
   // Description:
   // Whether to fill the glyph, or to just render the outline.
   vtkSetMacro(Filled, bool);
@@ -102,11 +102,11 @@ public:
 protected:
   vtkGraphToGlyphs();
   ~vtkGraphToGlyphs();
-  
+
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   // Description:
   // Set the input type of the algorithm to vtkGraph.
   int FillInputPortInformation(int port, vtkInformation* info);

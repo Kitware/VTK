@@ -52,7 +52,7 @@ vtkDataSet *vtkAppendFilter::GetInput(int idx)
     {
     return NULL;
     }
-  
+
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
 }
@@ -80,21 +80,21 @@ void vtkAppendFilter::RemoveInputData(vtkDataSet *ds)
 vtkDataSetCollection *vtkAppendFilter::GetInputList()
 {
   int idx;
-  
+
   if (this->InputList)
     {
     this->InputList->Delete();
     }
   this->InputList = vtkDataSetCollection::New();
-  
+
   for (idx = 0; idx < this->GetNumberOfInputConnections(0); ++idx)
     {
     if (this->GetInput(idx))
       {
       this->InputList->AddItem(this->GetInput(idx));
       }
-    }  
-  
+    }
+
   return this->InputList;
 }
 
@@ -112,7 +112,7 @@ int vtkAppendFilter::RequestData(
      // (originally the code was checking for ghost cells only on 1st input,
      // that's not sufficient).
      bool has_ghost_cells = false;
-     for (int cc=0; (has_ghost_cells == false) && 
+     for (int cc=0; (has_ghost_cells == false) &&
        cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
        {
        vtkDataSet * tempData = vtkDataSet::GetData(inputVector[0], cc);
@@ -127,7 +127,7 @@ int vtkAppendFilter::RequestData(
        return this->AppendBlocksWithPointLocator( inputVector, outputVector );
        }
      }
-  
+
   // get the output info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -150,9 +150,9 @@ int vtkAppendFilter::RequestData(
 
   vtkDebugMacro(<<"Appending data together");
 
-  // Loop over all data sets, checking to see what data is common to 
-  // all inputs. Note that data is common if 1) it is the same attribute 
-  // type (scalar, vector, etc.), 2) it is the same native type (int, 
+  // Loop over all data sets, checking to see what data is common to
+  // all inputs. Note that data is common if 1) it is the same attribute
+  // type (scalar, vector, etc.), 2) it is the same native type (int,
   // float, etc.), and 3) if a data array in a field, if it has the same name.
   count   = 0;
   decimal = 0.0;
@@ -194,7 +194,7 @@ int vtkAppendFilter::RequestData(
         {
         ptList.IntersectFieldList(pd);
         }
-      
+
       cd = ds->GetCellData();
       if ( firstCD )
         {
@@ -213,7 +213,7 @@ int vtkAppendFilter::RequestData(
     vtkDebugMacro(<<"No data to append!");
     return 1;
     }
-  
+
   // Now can allocate memory
   output->Allocate(numCells); //allocate storage for geometry/topology
   outputPD->CopyGlobalIdsOn();
@@ -225,7 +225,7 @@ int vtkAppendFilter::RequestData(
   newPts->SetNumberOfPoints(numPts);
   ptIds = vtkIdList::New(); ptIds->Allocate(VTK_CELL_SIZE);
   newPtIds = vtkIdList::New(); newPtIds->Allocate(VTK_CELL_SIZE);
-  
+
   // Append each input dataset together
   //
   tenth = (numPts + numCells)/10 + 1;
@@ -245,23 +245,23 @@ int vtkAppendFilter::RequestData(
       numPts = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
       pd = ds->GetPointData();
-      
+
       // copy points and point data
       for (ptId=0; ptId < numPts && !abort; ptId++)
         {
         newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
         outputPD->CopyData(ptList,pd,inputCount,ptId,ptId+ptOffset);
-        
+
         // Update progress
         count++;
-        if ( !(count % tenth) ) 
+        if ( !(count % tenth) )
           {
           decimal += 0.1;
           this->UpdateProgress (decimal);
           abort = this->GetAbortExecute();
           }
         }
-      
+
       cd = ds->GetCellData();
       // copy cell and cell data
       vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(ds);
@@ -293,10 +293,10 @@ int vtkAppendFilter::RequestData(
           newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
           outputCD->CopyData(cellList,cd,inputCount,cellId,newCellId);
           }
-        
+
         // Update progress
         count++;
-        if ( !(count % tenth) ) 
+        if ( !(count % tenth) )
           {
           decimal += 0.1;
           this->UpdateProgress (decimal);
@@ -307,7 +307,7 @@ int vtkAppendFilter::RequestData(
       ++inputCount;
       }
     }
-  
+
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -318,13 +318,13 @@ int vtkAppendFilter::RequestData(
   output->Squeeze();
   return 1;
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkAppendFilter::AppendBlocksWithPointLocator
  ( vtkInformationVector ** inputVector, vtkInformationVector  * outputVector )
 {
   vtkInformation      * outInf = outputVector->GetInformationObject( 0 );
-  vtkUnstructuredGrid * output = 
+  vtkUnstructuredGrid * output =
   vtkUnstructuredGrid::SafeDownCast
                        (  outInf->Get( vtkDataObject::DATA_OBJECT() )  );
   outInf = NULL;
@@ -338,7 +338,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
                                };
   vtkIdType      ptId,   cellId;
   vtkIdType      numPts, numCells;
-  vtkIdType      inputCount, ptOffset, cellOffset;           
+  vtkIdType      inputCount, ptOffset, cellOffset;
   vtkIdList    * ptIds    = NULL;
   vtkIdList    * newPtIds = NULL;
   vtkPoints    * newPts   = NULL;
@@ -347,25 +347,25 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   vtkCellData  * outputCD = output->GetCellData();
   vtkPointData * pd       = NULL;
   vtkPointData * outputPD = output->GetPointData();
-                          
+
   vtkDebugMacro( <<"Appending data together" );
 
-  // Loop over all data sets, checking to see what data is common to 
-  // all inputs. Note that data is common if 1) it is the same attribute 
-  // type (scalar, vector, etc.), 2) it is the same native type (int, 
+  // Loop over all data sets, checking to see what data is common to
+  // all inputs. Note that data is common if 1) it is the same attribute
+  // type (scalar, vector, etc.), 2) it is the same native type (int,
   // float, etc.), and 3) if a data array in a field, if it has the same name.
   count    = 0;
   numPts   = 0;
   decimal  = 0.0;
   numCells = 0;
-  
+
   int   firstPD   = 1;
   int   firstCD   = 1;
   int   numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkInformation  * inInfo = NULL;
   vtkDataSetAttributes::FieldList ptList  ( numInputs );
   vtkDataSetAttributes::FieldList cellList( numInputs );
-  
+
   for ( idx = 0; idx < numInputs; idx ++ )
     {
     ds     = NULL;
@@ -374,7 +374,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
       {
       ds = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
       }
-      
+
     if ( ds != NULL )
       {
       if ( ds->GetNumberOfPoints() <= 0 && ds->GetNumberOfCells() <= 0 )
@@ -384,7 +384,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
 
       numPts   += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
-      
+
       // for merging duplicate points
       localBox    = ds->GetBounds();
       dataBbox[0] = ( localBox[0] < dataBbox[0] ) ? localBox[0] : dataBbox[0];
@@ -405,7 +405,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
         {
         ptList.IntersectFieldList( pd );
         }
-      
+
       cd = ds->GetCellData();
       if ( firstCD )
         {
@@ -424,15 +424,15 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
     vtkDebugMacro( <<"No data to append!" );
     return 1;
     }
-  
+
   // Now can allocate memory
   output->Allocate( numCells );
   newPts = vtkPoints::New();
-  ptIds  = vtkIdList::New(); 
+  ptIds  = vtkIdList::New();
   ptIds->Allocate( VTK_CELL_SIZE );
-  newPtIds = vtkIdList::New(); 
+  newPtIds = vtkIdList::New();
   newPtIds->Allocate( VTK_CELL_SIZE );
-  
+
   // for merging duplicate points
   int             beInserted;
   vtkIdType       globalPtId;
@@ -442,7 +442,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   vtkIncrementalOctreePointLocator::New();
   ptInserter->SetTolerance( 0.0 );
   ptInserter->InitPointInsertion( newPts, dataBbox );
-  
+
   // append the blocks / pieces in terms of the geoemtry and topology
   count    = 0;
   tenth    = ( numPts + numCells ) / 10 + 1;
@@ -456,37 +456,37 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
       ds = vtkDataSet::SafeDownCast
                        (  inInfo->Get( vtkDataObject::DATA_OBJECT() )  );
       }
-      
+
     if (   ds != NULL &&
          ( ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0 )
        )
       {
       numPts   = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
-      
+
       // copy points --- merge duplicate points if any
       for ( ptId = 0; ptId < numPts && !abort; ptId ++ )
         {
         beInserted = ptInserter->InsertUniquePoint
                      (  ds->GetPoint( ptId ),  globalPtId  );
         globalIdxs[ ptId + ptOffset ] = globalPtId;
-        duplicated[ ptId + ptOffset ] = static_cast <unsigned char> 
+        duplicated[ ptId + ptOffset ] = static_cast <unsigned char>
                                         ( 1 - beInserted );
-        
+
         count ++;
-        if (  !( count % tenth )  ) 
+        if (  !( count % tenth )  )
           {
           decimal += 0.1;
           this->UpdateProgress ( decimal );
           abort    = this->GetAbortExecute();
           }
         }
-      
+
       // copy cells --- using the new (global) point Ids
       for ( cellId = 0; cellId < numCells && !abort; cellId ++ )
         {
         newPtIds->Reset();
-        if (vtkUnstructuredGrid::SafeDownCast(ds) && 
+        if (vtkUnstructuredGrid::SafeDownCast(ds) &&
             ds->GetCellType( cellId ) == VTK_POLYHEDRON)
           {
           vtkUnstructuredGrid * ug = vtkUnstructuredGrid::SafeDownCast(ds);
@@ -513,22 +513,22 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
             }
           output->InsertNextCell(  ds->GetCellType( cellId ),  newPtIds  );
           }
-        
+
         count ++;
-        if (  !( count % tenth )  ) 
+        if (  !( count % tenth )  )
           {
           decimal += 0.1;
           this->UpdateProgress( decimal );
           abort    = this->GetAbortExecute();
           }
         }
-      
+
       ptOffset += numPts;
       }
     }
-  
+
   // copy the associated point data and cell data
-  count      = 0;  
+  count      = 0;
   numPts     = newPts->GetNumberOfPoints(); // unique points
   tenth      = ( numPts + numCells ) / 10 + 1;
   ptOffset   = 0;
@@ -538,7 +538,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   outputPD->CopyAllocate( ptList, numPts );
   outputCD->CopyGlobalIdsOn();
   outputCD->CopyAllocate( cellList, numCells );
-  
+
   for ( idx = 0; idx < numInputs && !abort; idx ++ )
     {
     ds     = NULL;
@@ -548,58 +548,58 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
       ds = vtkDataSet::SafeDownCast
                        (  inInfo->Get( vtkDataObject::DATA_OBJECT() )  );
       }
-      
+
     if (   ds != NULL &&
-         ( ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0 ) 
+         ( ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0 )
        )
       {
       numPts   = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
-      
+
       // copy point data
       pd = ds->GetPointData();
       for ( ptId = 0; ptId < numPts && !abort; ptId ++ )
         {
         if (  duplicated[ ptId + ptOffset ]  ==  0  )
           {
-          outputPD->CopyData(  ptList,  pd,  inputCount,  ptId, 
+          outputPD->CopyData(  ptList,  pd,  inputCount,  ptId,
                                globalIdxs[ ptId + ptOffset ]  );
           }
-        
+
         count ++;
-        if (  !( count % tenth )  ) 
+        if (  !( count % tenth )  )
           {
           decimal += 0.1;
           this->UpdateProgress( decimal );
           abort    = this->GetAbortExecute();
           }
         }
-      
+
       // copy cell data
       cd = ds->GetCellData();
       for ( cellId = 0; cellId < numCells && !abort; cellId ++ )
         {
-        outputCD->CopyData( cellList, cd, inputCount, cellId, 
+        outputCD->CopyData( cellList, cd, inputCount, cellId,
                             cellOffset + cellId );
-        
+
         count ++;
-        if (  !( count % tenth )  ) 
+        if (  !( count % tenth )  )
           {
           decimal += 0.1;
           this->UpdateProgress ( decimal );
           abort    = this->GetAbortExecute();
           }
         }
-        
+
       inputCount ++;
       ptOffset   += numPts;
       cellOffset += numCells;
       }
     }
-  
+
   // attach the points
   output->SetPoints( newPts );
-  
+
   // memory deallocation
   delete [] duplicated;
   delete [] globalIdxs;
@@ -607,7 +607,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   newPtIds->Delete();
   newPts->Delete();
   ptIds->Delete();
-  
+
   duplicated = NULL;
   globalIdxs = NULL;
   ptInserter = NULL;
@@ -621,7 +621,7 @@ int vtkAppendFilter::AppendBlocksWithPointLocator
   pd         = NULL;
   cd         = NULL;
   ds         = NULL;
-  
+
   return 1;
 }
 

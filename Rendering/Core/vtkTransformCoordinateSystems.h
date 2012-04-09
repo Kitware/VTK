@@ -48,26 +48,26 @@ public:
   // input coordinate system is World.
   vtkSetMacro(InputCoordinateSystem, int);
   vtkGetMacro(InputCoordinateSystem, int);
-  void SetInputCoordinateSystemToDisplay() 
+  void SetInputCoordinateSystemToDisplay()
     {this->SetInputCoordinateSystem(VTK_DISPLAY);}
-  void SetInputCoordinateSystemToViewport() 
+  void SetInputCoordinateSystemToViewport()
     {this->SetInputCoordinateSystem(VTK_VIEWPORT);}
-  void SetInputCoordinateSystemToWorld() 
+  void SetInputCoordinateSystemToWorld()
     {this->SetInputCoordinateSystem(VTK_WORLD);}
-    
+
   // Description:
   // Set/get the coordinate system to which to transform the output.
   // The current options are World, Viewport, and Display. By default the
   // output coordinate system is Display.
   vtkSetMacro(OutputCoordinateSystem, int);
   vtkGetMacro(OutputCoordinateSystem, int);
-  void SetOutputCoordinateSystemToDisplay() 
+  void SetOutputCoordinateSystemToDisplay()
     {this->SetOutputCoordinateSystem(VTK_DISPLAY);}
-  void SetOutputCoordinateSystemToViewport() 
+  void SetOutputCoordinateSystemToViewport()
     {this->SetOutputCoordinateSystem(VTK_VIEWPORT);}
-  void SetOutputCoordinateSystemToWorld() 
+  void SetOutputCoordinateSystemToWorld()
     {this->SetOutputCoordinateSystem(VTK_WORLD);}
-    
+
   // Description:
   // Return the MTime also considering the instance of vtkCoordinate.
   unsigned long GetMTime();

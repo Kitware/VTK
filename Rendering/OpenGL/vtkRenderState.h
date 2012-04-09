@@ -73,7 +73,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderState
   // Description:
   // Get the window size of the state.
   void GetWindowSize(int size[2]) const;
-  
+
   // Description:
   // Return the array of filtered props. See SetPropArrayAndCount().
   vtkProp **GetPropArray() const;

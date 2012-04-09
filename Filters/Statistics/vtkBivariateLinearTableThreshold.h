@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkBivariateLinearTableThreshold.h
 
@@ -18,19 +18,19 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 // .NAME vtkBivariateLinearTableThreshold - performs line-based thresholding
-// for vtkTable data. 
+// for vtkTable data.
 //
 // .SECTION Description
 // Class for filtering the rows of a two numeric columns of a vtkTable.  The
 // columns are treated as the two variables of a line.  This filter will
 // then iterate through the rows of the table determining if X,Y values pairs
-// are above/below/between/near one or more lines.  
+// are above/below/between/near one or more lines.
 //
-// The "between" mode checks to see if a row is contained within the convex 
+// The "between" mode checks to see if a row is contained within the convex
 // hull of all of the specified lines.  The "near" mode checks if a row is
 // within a distance threshold two one of the specified lines.  This class
 // is used in conjunction with various plotting classes, so it is useful
-// to rescale the X,Y axes to a particular range of values.  Distance 
+// to rescale the X,Y axes to a particular range of values.  Distance
 // comparisons can be performed in the scaled space by setting the CustomRanges
 // ivar and enabling UseNormalizedDistance.
 
@@ -62,7 +62,7 @@ public:
   // Description:
   // Add a numeric column to the pair of columns to be thresholded.  Call twice.
   void AddColumnToThreshold(vtkIdType column, vtkIdType component);
-  
+
   // Description:
   // Return how many columns have been added.  Hopefully 2.
   int GetNumberOfColumnsToThreshold();
@@ -93,7 +93,7 @@ public:
     BLT_BETWEEN
   };
   //ETX
-  
+
   // Description:
   // Reset the columns to threshold, column ranges, etc.
   void Initialize();
@@ -127,7 +127,7 @@ public:
   void SetLinearThresholdTypeToBetween() { this->SetLinearThresholdType(vtkBivariateLinearTableThreshold::BLT_BETWEEN); }
 
   // Description:
-  // Manually access the maximum/minimum x,y values.  This is used in 
+  // Manually access the maximum/minimum x,y values.  This is used in
   // conjunction with UseNormalizedDistance when determining if a row
   // passes the threshold.
   vtkSetVector2Macro(ColumnRanges,double);
@@ -141,7 +141,7 @@ public:
   // Description:
   // Renormalize the space of the data such that the X and Y axes are
   // "square" over the specified ColumnRanges.  This essentially scales
-  // the data space so that ColumnRanges[1]-ColumnRanges[0] = 1.0 and 
+  // the data space so that ColumnRanges[1]-ColumnRanges[0] = 1.0 and
   // ColumnRanges[3]-ColumnRanges[2] = 1.0.  Used for scatter plot distance
   // calculations.  Be sure to set DistanceThreshold accordingly, when used.
   vtkSetMacro(UseNormalizedDistance,int);
@@ -155,7 +155,7 @@ public:
   // Description:
   // Convert the point-slope line formula to implicit form.
   static void ComputeImplicitLineFunction(double* p, double slope, double* abc);
-  
+
 protected:
   vtkBivariateLinearTableThreshold();
   virtual ~vtkBivariateLinearTableThreshold();
@@ -198,7 +198,7 @@ protected:
   int ThresholdNear(double x, double y);
 
   // Description:
-  // Determine if x,y is between ANY TWO of the specified lines.  
+  // Determine if x,y is between ANY TWO of the specified lines.
   int ThresholdBetween(double x, double y);
 private:
   vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&); // Not implemented

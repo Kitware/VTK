@@ -19,16 +19,16 @@
 
 vtkStandardNewMacro(vtkRungeKutta2);
 
-vtkRungeKutta2::vtkRungeKutta2() 
+vtkRungeKutta2::vtkRungeKutta2()
 {
 }
 
-vtkRungeKutta2::~vtkRungeKutta2() 
+vtkRungeKutta2::~vtkRungeKutta2()
 {
 }
 
 // Calculate next time step
-int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                                     double t, double& delT, double& delTActual,
                                     double, double, double, double& error)
 {
@@ -48,7 +48,7 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
     vtkErrorMacro("Integrator not initialized!");
     return NOT_INITIALIZED;
     }
-  
+
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
   numVals = numDerivs + 1;
   for(i=0; i<numVals-1; i++)
@@ -84,7 +84,7 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
     memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     return OUT_OF_DOMAIN;
     }
-    
+
   // Calculate x_i using improved values of derivatives
   for(i=0; i<numDerivs; i++)
     {

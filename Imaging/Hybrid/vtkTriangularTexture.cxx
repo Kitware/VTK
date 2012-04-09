@@ -36,7 +36,7 @@ vtkTriangularTexture::vtkTriangularTexture()
   this->SetNumberOfInputPorts(0);
 }
 
-void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor, 
+void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor,
                                  vtkUnsignedCharArray *newScalars)
 {
   int i, j;
@@ -55,7 +55,7 @@ void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor,
 
   for (j = 0; j < YSize; j++)
     {
-    for (i = 0; i < XSize; i++) 
+    for (i = 0; i < XSize; i++)
       {
       point[0] = i / XScale;
       point[1] = j / YScale;
@@ -83,11 +83,11 @@ void vtkOpaqueAtElementCentroid (int XSize, int YSize, double ScaleFactor,
       AGrayValue[1] = static_cast<unsigned char>(opacity * 255);
       newScalars->SetValue ((XSize*j + i)*2, AGrayValue[0]);
       newScalars->SetValue ((XSize*j + i)*2 + 1, AGrayValue[1]);
-      }         
+      }
     }
 }
 
-void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor, 
+void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor,
                           vtkUnsignedCharArray *newScalars)
 {
   int i, j;
@@ -104,9 +104,9 @@ void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor,
   point[2] = 0.0;
   AGrayValue[0] = AGrayValue[1] = 255;
 
-  for (j = 0; j < YSize; j++) 
+  for (j = 0; j < YSize; j++)
     {
-    for (i = 0; i < XSize; i++) 
+    for (i = 0; i < XSize; i++)
       {
       point[0] = i / XScale;
       point[1] = j / YScale;
@@ -135,7 +135,7 @@ void vtkOpaqueAtVertices (int XSize, int YSize, double ScaleFactor,
       AGrayValue[1] = static_cast<unsigned char>(opacity * 255);
       newScalars->SetValue ((XSize*j + i)*2, AGrayValue[0]);
       newScalars->SetValue ((XSize*j + i)*2 + 1, AGrayValue[1]);
-      }         
+      }
     }
 }
 
@@ -147,9 +147,9 @@ int vtkTriangularTexture::RequestInformation (
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  
+
   int wExt[6] = {0,this->XSize -1, 0, this->YSize - 1, 0,0};
-    
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt,6);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 2);
   return 1;
@@ -159,24 +159,24 @@ void vtkTriangularTexture::ExecuteDataWithInformation(vtkDataObject *outp,
                                                       vtkInformation *outInfo)
 {
   vtkImageData *output = this->AllocateOutputData(outp, outInfo);
-  vtkUnsignedCharArray *newScalars = 
+  vtkUnsignedCharArray *newScalars =
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
-  
+
   if (this->XSize*this->YSize < 1)
     {
     vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");
     return;
     }
 
-  switch (this->TexturePattern) 
+  switch (this->TexturePattern)
     {
     case 1: // opaque at element vertices
-      vtkOpaqueAtVertices (this->XSize, this->YSize, 
+      vtkOpaqueAtVertices (this->XSize, this->YSize,
                            this->ScaleFactor, newScalars);
       break;
 
     case 2: // opaque at element centroid
-      vtkOpaqueAtElementCentroid (this->XSize, this->YSize, 
+      vtkOpaqueAtElementCentroid (this->XSize, this->YSize,
                                   this->ScaleFactor, newScalars);
       break;
 

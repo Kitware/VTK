@@ -40,12 +40,12 @@ vtkTDxInteractorStyleSettings::~vtkTDxInteractorStyleSettings()
 void vtkTDxInteractorStyleSettings::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "AngleSensitivity: " << this->AngleSensitivity << endl;
   os << indent << "UseRotationX: " << this->UseRotationX << endl;
   os << indent << "UseRotationY: " << this->UseRotationY << endl;
   os << indent << "UseRotationZ: " << this->UseRotationZ << endl;
-  
+
   os << indent << "TranslationXSensitivity: " <<
     this->TranslationXSensitivity << endl;
   os << indent << "TranslationYSensitivity: " <<

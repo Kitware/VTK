@@ -116,7 +116,7 @@ int vtkClipPolyData::RequestData(
   vtkIdType cellId, i, updateTime;
   vtkPoints *cellPts;
   vtkDataArray *clipScalars;
-  vtkFloatArray *cellScalars; 
+  vtkFloatArray *cellScalars;
   vtkGenericCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
   vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
@@ -126,14 +126,14 @@ int vtkClipPolyData::RequestData(
   double s;
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
   vtkIdType numPts=input->GetNumberOfPoints();
-  vtkPoints *inPts=input->GetPoints();  
+  vtkPoints *inPts=input->GetPoints();
   int numberOfPoints;
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD = output->GetCellData();
   vtkCellData *outClippedCD = NULL;
-  
+
   vtkDebugMacro(<< "Clipping polygonal data");
-  
+
   // Initialize self; create output objects
   //
   if ( numPts < 1 || inPts == NULL )
@@ -201,7 +201,7 @@ int vtkClipPolyData::RequestData(
     this->CreateDefaultLocator();
     }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
- 
+
   if ( !this->GenerateClipScalars && !input->GetPointData()->GetScalars())
     {
     outPD->CopyScalarsOff();
@@ -229,7 +229,7 @@ int vtkClipPolyData::RequestData(
 
   cellScalars = vtkFloatArray::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
-  
+
   // perform clipping on cells
   int abort=0;
   updateTime = numCells/20 + 1;  // update roughly every 5%
@@ -284,24 +284,24 @@ int vtkClipPolyData::RequestData(
     } //for each cell
   cell->Delete();
 
-  vtkDebugMacro(<<"Created: " 
-               << newPoints->GetNumberOfPoints() << " points, " 
-               << newVerts->GetNumberOfCells() << " verts, " 
-               << newLines->GetNumberOfCells() << " lines, " 
+  vtkDebugMacro(<<"Created: "
+               << newPoints->GetNumberOfPoints() << " points, "
+               << newVerts->GetNumberOfCells() << " verts, "
+               << newLines->GetNumberOfCells() << " lines, "
                << newPolys->GetNumberOfCells() << " polys");
 
   if ( this->GenerateClippedOutput )
     {
-    vtkDebugMacro(<<"Created (clipped output): " 
-                 << clippedVerts->GetNumberOfCells() << " verts, " 
-                 << clippedLines->GetNumberOfCells() << " lines, " 
+    vtkDebugMacro(<<"Created (clipped output): "
+                 << clippedVerts->GetNumberOfCells() << " verts, "
+                 << clippedLines->GetNumberOfCells() << " lines, "
                  << clippedPolys->GetNumberOfCells() << " triangles");
     }
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
-  // polys we've created, take care to reclaim memory. 
+  // polys we've created, take care to reclaim memory.
   //
-  if ( this->ClipFunction ) 
+  if ( this->ClipFunction )
     {
     clipScalars->Delete();
     inPD->Delete();
@@ -346,7 +346,7 @@ int vtkClipPolyData::RequestData(
       this->GetClippedOutput()->SetPolys(clippedPolys);
       }
     clippedPolys->Delete();
-    
+
     this->GetClippedOutput()->GetPointData()->PassData(outPD);
     this->GetClippedOutput()->Squeeze();
     }
@@ -354,7 +354,7 @@ int vtkClipPolyData::RequestData(
   output->SetPoints(newPoints);
   newPoints->Delete();
   cellScalars->Delete();
-  
+
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
 
@@ -363,7 +363,7 @@ int vtkClipPolyData::RequestData(
 
 
 //----------------------------------------------------------------------------
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkClipPolyData::SetLocator(vtkIncrementalPointLocator *locator)
 {
@@ -371,7 +371,7 @@ void vtkClipPolyData::SetLocator(vtkIncrementalPointLocator *locator)
     {
     return;
     }
-  
+
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);

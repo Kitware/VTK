@@ -41,8 +41,8 @@ public:
 
   // Description:
   // Get/Set the painter used to do the actual rendering.
-  // By default, vtkDefaultPainter is used to build the rendering 
-  // painter chain for color mapping/clipping etc. followed by 
+  // By default, vtkDefaultPainter is used to build the rendering
+  // painter chain for color mapping/clipping etc. followed by
   // a vtkChooserPainter which renders the primitives.
   vtkGetObjectMacro(Painter, vtkPainter);
   void SetPainter(vtkPainter*);
@@ -55,7 +55,7 @@ public:
 
   // Description:
   // Select a data array from the point/cell data
-  // and map it to a generic vertex attribute. 
+  // and map it to a generic vertex attribute.
   // vertexAttributeName is the name of the vertex attribute.
   // dataArrayName is the name of the data array.
   // fieldAssociation indicates when the data array is a point data array or
@@ -78,7 +78,7 @@ public:
   // Description:
   // Remove all vertex attributes.
   virtual void RemoveAllVertexAttributeMappings();
-  
+
   // Description:
   // Get/Set the painter used when rendering the selection pass.
   vtkGetObjectMacro(SelectionPainter, vtkPainter);
@@ -114,7 +114,7 @@ protected:
   virtual void ComputeBounds();
 
   // Description:
-  // Called when the PainterInformation becomes obsolete. 
+  // Called when the PainterInformation becomes obsolete.
   // It is called before UpdateBounds or Render is initiated on the Painter
   virtual void UpdatePainterInformation();
 
@@ -125,7 +125,7 @@ protected:
   vtkInformation* PainterInformation;
   vtkTimeStamp PainterUpdateTime;
   vtkPainter* Painter;
-  // Painter used when rendering for hardware selection 
+  // Painter used when rendering for hardware selection
   // (look at vtkHardwareSelector).
   vtkPainter* SelectionPainter;
   vtkPainterPolyDataMapperObserver* Observer;

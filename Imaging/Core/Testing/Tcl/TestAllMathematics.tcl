@@ -19,7 +19,7 @@ sphere1 Update
 
 vtkImageEllipsoidSource sphere2
 sphere2 SetCenter 60 30 0
-sphere2 SetRadius 20 20 20 
+sphere2 SetRadius 20 20 20
 sphere2 SetInValue .2
 sphere2 SetOutValue .5
 sphere2 SetOutputScalarTypeToFloat
@@ -78,7 +78,7 @@ foreach operator $mathematics {
 
 # make the last oerator finish the row
 set vp [imager${operator} GetViewport]
-imager${operator} SetViewport [lindex $vp 0] [lindex $vp 1] 1 1 
+imager${operator} SetViewport [lindex $vp 0] [lindex $vp 1] 1 1
 
 imgWin SetSize 600 300
 imgWin Render

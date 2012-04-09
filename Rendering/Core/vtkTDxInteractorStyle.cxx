@@ -46,10 +46,10 @@ void vtkTDxInteractorStyle::ProcessEvent(vtkRenderer *renderer,
 {
   vtkDebugMacro(<<"vtkTDxInteractorStyle::ProcessEvent()");
   this->Renderer=renderer;
-  
+
   vtkTDxMotionEventInfo *motionInfo;
   int *buttonInfo;
-  
+
   switch(event)
     {
     case vtkCommand::TDxMotionEvent:
@@ -76,13 +76,13 @@ void vtkTDxInteractorStyle::OnMotionEvent(
 {
   vtkDebugMacro(<<"vtkTDxInteractorStyle::OnMotionEvent()");
 }
- 
+
 // ----------------------------------------------------------------------------
 void vtkTDxInteractorStyle::OnButtonPressedEvent(int vtkNotUsed(button))
 {
   vtkDebugMacro(<<"vtkTDxInteractorStyle::OnButtonPressedEvent()");
 }
-  
+
 // ----------------------------------------------------------------------------
 void vtkTDxInteractorStyle::OnButtonReleasedEvent(int vtkNotUsed(button))
 {
@@ -93,7 +93,7 @@ void vtkTDxInteractorStyle::OnButtonReleasedEvent(int vtkNotUsed(button))
 void vtkTDxInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Settings: ";
   if(this->Settings==0)
     {

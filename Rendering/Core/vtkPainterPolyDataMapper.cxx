@@ -97,7 +97,7 @@ vtkPainterPolyDataMapper::~vtkPainterPolyDataMapper()
 //---------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::MapDataArrayToVertexAttribute(
   const char* vertexAttributeName,
-  const char* dataArrayName, 
+  const char* dataArrayName,
   int field,
   int componentno)
 {
@@ -125,7 +125,7 @@ void vtkPainterPolyDataMapper::MapDataArrayToVertexAttribute(
 //---------------------------------------------------------------------------
 void vtkPainterPolyDataMapper::MapDataArrayToMultiTextureAttribute(
   int unit,
-  const char* dataArrayName, 
+  const char* dataArrayName,
   int field,
   int componentno)
 {
@@ -239,23 +239,23 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
 
   info->Set(vtkScalarsToColorsPainter::USE_LOOKUP_TABLE_SCALAR_RANGE(),
     this->GetUseLookupTableScalarRange());
-  info->Set(vtkScalarsToColorsPainter::SCALAR_RANGE(), 
+  info->Set(vtkScalarsToColorsPainter::SCALAR_RANGE(),
     this->GetScalarRange(), 2);
   info->Set(vtkScalarsToColorsPainter::SCALAR_MODE(), this->GetScalarMode());
   info->Set(vtkScalarsToColorsPainter::COLOR_MODE(), this->GetColorMode());
   info->Set(vtkScalarsToColorsPainter::INTERPOLATE_SCALARS_BEFORE_MAPPING(),
     this->GetInterpolateScalarsBeforeMapping());
   info->Set(vtkScalarsToColorsPainter::LOOKUP_TABLE(), this->LookupTable);
-  info->Set(vtkScalarsToColorsPainter::SCALAR_VISIBILITY(), 
+  info->Set(vtkScalarsToColorsPainter::SCALAR_VISIBILITY(),
     this->GetScalarVisibility());
-  info->Set(vtkScalarsToColorsPainter::ARRAY_ACCESS_MODE(), 
+  info->Set(vtkScalarsToColorsPainter::ARRAY_ACCESS_MODE(),
     this->ArrayAccessMode);
   info->Set(vtkScalarsToColorsPainter::ARRAY_ID(), this->ArrayId);
   info->Set(vtkScalarsToColorsPainter::ARRAY_NAME(), this->ArrayName);
   info->Set(vtkScalarsToColorsPainter::ARRAY_COMPONENT(), this->ArrayComponent);
-  info->Set(vtkScalarsToColorsPainter::SCALAR_MATERIAL_MODE(), 
+  info->Set(vtkScalarsToColorsPainter::SCALAR_MATERIAL_MODE(),
     this->GetScalarMaterialMode());
-  
+
   info->Set(vtkClipPlanesPainter::CLIPPING_PLANES(), this->ClippingPlanes);
 
   info->Set(vtkCoincidentTopologyResolutionPainter::RESOLVE_COINCIDENT_TOPOLOGY(),
@@ -269,7 +269,7 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
   info->Set(vtkCoincidentTopologyResolutionPainter::POLYGON_OFFSET_FACES(),
     this->GetResolveCoincidentTopologyPolygonOffsetFaces());
 
-  int immr = (this->ImmediateModeRendering || 
+  int immr = (this->ImmediateModeRendering ||
               vtkMapper::GetGlobalImmediateModeRendering());
   info->Set(vtkDisplayListPainter::IMMEDIATE_MODE_RENDERING(), immr);
 }

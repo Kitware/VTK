@@ -55,7 +55,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Control the output index array name.  Default: "index". 
+  // Control the output index array name.  Default: "index".
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
 
@@ -89,9 +89,9 @@ public:
 protected:
   vtkGenerateIndexArray();
   ~vtkGenerateIndexArray();
- 
+
   virtual int ProcessRequest(
-    vtkInformation* request, 
+    vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
@@ -99,7 +99,7 @@ protected:
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
-  
+
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,

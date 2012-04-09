@@ -103,17 +103,17 @@ public:
   virtual void FastDelete();
 
   // Description:
-  // Create an object with Debug turned off, modified time initialized 
+  // Create an object with Debug turned off, modified time initialized
   // to zero, and reference counting on.
-  static vtkObjectBase *New() 
+  static vtkObjectBase *New()
     {return new vtkObjectBase;}
-  
+
 #ifdef _WIN32
   // avoid dll boundary problems
   void* operator new( size_t tSize );
   void operator delete( void* p );
-#endif 
-  
+#endif
+
   // Description:
   // Print an object to an ostream. This is the method to call
   // when you wish to see print the internal state of an object.
@@ -140,13 +140,13 @@ public:
 
   // Description:
   // Return the current reference count of this object.
-  int  GetReferenceCount() 
+  int  GetReferenceCount()
     {return this->ReferenceCount;}
 
   // Description:
   // Sets the reference count. (This is very dangerous, use with care.)
   void SetReferenceCount(int);
-  
+
   // Description:
   // Prints a list of the class .cxx file CVS revisions for all
   // classes in the object's inheritance chain.  The format of the
@@ -155,13 +155,13 @@ public:
   // ends with the most-derived class.  This is useful for programs
   // wishing to do serialization of VTK objects.
   void PrintRevisions(ostream& os);
-  
+
 protected:
-  vtkObjectBase(); 
-  virtual ~vtkObjectBase(); 
+  vtkObjectBase();
+  virtual ~vtkObjectBase();
 
   virtual void CollectRevisions(ostream& os);
-  
+
   int ReferenceCount;
   vtkWeakPointerBase **WeakPointers;
 

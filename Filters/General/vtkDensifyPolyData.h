@@ -17,13 +17,13 @@
 // centroid
 //
 // .SECTION Description
-// The filter takes any polygonal data as input and will tessellate cells that 
-// are planar polygons present by fanning out triangles from its centroid. 
+// The filter takes any polygonal data as input and will tessellate cells that
+// are planar polygons present by fanning out triangles from its centroid.
 // Other cells are simply passed through to the output.  PointData, if present,
 // is interpolated via linear interpolation. CellData for any tessellated cell
-// is simply copied over from its parent cell. Planar polygons are assumed to 
+// is simply copied over from its parent cell. Planar polygons are assumed to
 // be convex. Funny things will happen if they are not.
-// 
+//
 // The number of subdivisions can be controlled by the parameter
 // NumberOfSubdivisions.
 
@@ -49,17 +49,17 @@ protected:
   vtkDensifyPolyData();
   ~vtkDensifyPolyData();
 
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
 
   unsigned int NumberOfSubdivisions;
 
 private:
   virtual int FillInputPortInformation(int, vtkInformation*);
-  
+
   vtkDensifyPolyData(const vtkDensifyPolyData&);  // Not implemented.
-  void operator=(const vtkDensifyPolyData&);  // Not implemented.  
+  void operator=(const vtkDensifyPolyData&);  // Not implemented.
 };
 
 #endif

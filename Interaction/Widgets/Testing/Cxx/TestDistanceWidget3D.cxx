@@ -940,7 +940,7 @@ int TestDistanceWidget3D( int argc, char *argv[] )
     return EXIT_FAILURE;
     }
 
-  
+
   if (!rep->GetLineProperty())
     {
     std::cerr << "Error getting representation line property" << endl;
@@ -976,7 +976,7 @@ int TestDistanceWidget3D( int argc, char *argv[] )
     return EXIT_FAILURE;
     }
   labelActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
-  
+
   VTK_CREATE(vtkDistanceWidget, widget);
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);

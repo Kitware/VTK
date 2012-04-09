@@ -67,7 +67,7 @@ public:
 
   void AllocateParts();
 
-  //Description: Insert a cell of a given type and material index to the 
+  //Description: Insert a cell of a given type and material index to the
   //collection.
   //NOTE: the cellIndex is relative to the collection. So in parallel
   //the cellIndex will be from 0 to MaxId-MinId
@@ -107,7 +107,7 @@ public:
   //Description:
   //Adds a property for all parts of a certain type
   void AddProperty(const LSDynaMetaData::LSDYNA_TYPES& type, const char* name,
-                    const int& offset, const int& numComps);  
+                    const int& offset, const int& numComps);
   void FillCellProperties(float *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
                           const vtkIdType& startId, const vtkIdType& numCells,
                           const int& numPropertiesInCell);
@@ -119,7 +119,7 @@ public:
   //Adds User Ids for all parts of a certain type
   void ReadCellUserIds(
       const LSDynaMetaData::LSDYNA_TYPES& type, const int& status);
-  
+
   template<typename T>
   void FillCellUserId(T *buffer,const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells)
@@ -169,7 +169,7 @@ private:
   void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
 
   LSDynaMetaData *MetaData;
-  
+
   class LSDynaPartStorage;
   LSDynaPartStorage* Storage;
 };

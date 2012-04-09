@@ -38,7 +38,7 @@ bool vtkTDxDevice::GetInitialized() const
 {
   return this->Initialized;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Get the interactor on which events will be invoked.

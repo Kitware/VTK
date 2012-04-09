@@ -41,9 +41,9 @@ class vtkStringArrayVector;
 class VTKIOCORE_EXPORT vtkSortFileNames : public vtkObject
 {
 public:
-  
+
   vtkTypeMacro(vtkSortFileNames,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSortFileNames *New();
 
   // Description:
@@ -86,7 +86,7 @@ public:
   // Set a list of file names to group and sort.
   void SetInputFileNames(vtkStringArray *input);
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
-  
+
   // Description:
   // Get the full list of sorted filenames.
   virtual vtkStringArray *GetFileNames();
@@ -135,11 +135,11 @@ protected:
   virtual void SortFileNames(vtkStringArray *input, vtkStringArray *output);
 
   // Description:
-  // Separate a string array into groups and append them to the output. 
+  // Separate a string array into groups and append them to the output.
   virtual void GroupFileNames(vtkStringArray *input,
                               vtkStringArrayVector *output);
-  
-  
+
+
 private:
   vtkSortFileNames(const vtkSortFileNames&);  // Not implemented.
   void operator=(const vtkSortFileNames&);  // Not implemented.

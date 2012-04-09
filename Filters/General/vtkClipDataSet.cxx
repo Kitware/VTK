@@ -177,14 +177,14 @@ int vtkClipDataSet::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
-  
+
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD[2];
   vtkPoints *newPoints;
-  vtkFloatArray *cellScalars; 
+  vtkFloatArray *cellScalars;
   vtkDataArray *clipScalars;
   vtkPoints *cellPts;
   vtkIdList *cellIds;
@@ -205,11 +205,11 @@ int vtkClipDataSet::RequestData(
   outCD[1] = 0;
 
   vtkDebugMacro(<< "Clipping dataset");
-  
+
   int inputObjectType = input->GetDataObjectType();
 
   // if we have volumes
-  if (inputObjectType == VTK_STRUCTURED_POINTS || 
+  if (inputObjectType == VTK_STRUCTURED_POINTS ||
       inputObjectType == VTK_IMAGE_DATA)
     {
     int dimension;
@@ -278,7 +278,7 @@ int vtkClipDataSet::RequestData(
     }
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts,numPts/2);
-  
+
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
@@ -401,7 +401,7 @@ int vtkClipDataSet::RequestData(
                inPD, outPD, inCD, cellId, outCD[0], this->InsideOut);
     numNew[0] = conn[0]->GetNumberOfCells() - num[0];
     num[0] = conn[0]->GetNumberOfCells();
- 
+
     if ( this->GenerateClippedOutput )
       {
       cell->Clip(value, cellScalars, this->Locator, conn[1],
@@ -412,13 +412,13 @@ int vtkClipDataSet::RequestData(
 
     for (i=0; i<numOutputs; i++) //for both outputs
       {
-      for (j=0; j < numNew[i]; j++) 
+      for (j=0; j < numNew[i]; j++)
         {
         if (cell->GetCellType() == VTK_POLYHEDRON)
           {
           //Polyhedron cells have a special cell connectivity format
           //(nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...).
-          //But we don't need to deal with it here. The special case is handled 
+          //But we don't need to deal with it here. The special case is handled
           //by vtkUnstructuredGrid::SetCells(), which will be called next.
           types[i]->InsertNextValue(VTK_POLYHEDRON);
           }
@@ -426,7 +426,7 @@ int vtkClipDataSet::RequestData(
           {
           locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
           conn[i]->GetNextCell(npts,pts);
-          
+
           //For each new cell added, got to set the type of the cell
           switch ( cell->GetCellDimension() )
             {
@@ -439,7 +439,7 @@ int vtkClipDataSet::RequestData(
               break;
 
             case 2: //polygons are generated------------------------------
-              cellType = (npts == 3 ? VTK_TRIANGLE : 
+              cellType = (npts == 3 ? VTK_TRIANGLE :
                           (npts == 4 ? VTK_QUAD : VTK_POLYGON));
               break;
 
@@ -457,12 +457,12 @@ int vtkClipDataSet::RequestData(
   cell->Delete();
   cellScalars->Delete();
 
-  if ( this->ClipFunction ) 
+  if ( this->ClipFunction )
     {
     clipScalars->Delete();
     inPD->Delete();
     }
-  
+
   output->SetPoints(newPoints);
   output->SetCells(types[0], locs[0], conn[0]);
   conn[0]->Delete();
@@ -477,7 +477,7 @@ int vtkClipDataSet::RequestData(
     types[1]->Delete();
     locs[1]->Delete();
     }
-  
+
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
@@ -486,7 +486,7 @@ int vtkClipDataSet::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkClipDataSet::ClipPoints(vtkDataSet* input, 
+int vtkClipDataSet::ClipPoints(vtkDataSet* input,
                                vtkUnstructuredGrid* output,
                                vtkInformationVector** inputVector)
 {
@@ -534,7 +534,7 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
     }
   else
     {
-    vtkDataArray* clipScalars = 
+    vtkDataArray* clipScalars =
       this->GetInputArrayToProcess(0,inputVector);
     if (clipScalars)
       {
@@ -572,7 +572,7 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
 }
 
 //----------------------------------------------------------------------------
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator *locator)
 {
@@ -580,7 +580,7 @@ void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator *locator)
     {
     return;
     }
-  
+
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);
@@ -612,14 +612,14 @@ void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
 {
   vtkClipVolume *clipVolume = vtkClipVolume::New();
 
-  clipVolume->AddObserver(vtkCommand::ProgressEvent, 
+  clipVolume->AddObserver(vtkCommand::ProgressEvent,
                           this->InternalProgressObserver);
 
   // We cannot set the input directly.  This messes up the partitioning.
   // output->UpdateNumberOfPieces gets set to 1.
   vtkImageData* tmp = vtkImageData::New();
   tmp->ShallowCopy(vtkImageData::SafeDownCast(input));
-  
+
   clipVolume->SetInputData(tmp);
   double value = 0.0;
   if (this->UseValueAsOffset || !this->ClipFunction)
@@ -678,13 +678,13 @@ void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 
-  os << indent << "Generate Clip Scalars: " 
+  os << indent << "Generate Clip Scalars: "
      << (this->GenerateClipScalars ? "On\n" : "Off\n");
 
-  os << indent << "Generate Clipped Output: " 
+  os << indent << "Generate Clipped Output: "
      << (this->GenerateClippedOutput ? "On\n" : "Off\n");
 
-  os << indent << "UseValueAsOffset: " 
+  os << indent << "UseValueAsOffset: "
      << (this->UseValueAsOffset ? "On\n" : "Off\n");
 }
 

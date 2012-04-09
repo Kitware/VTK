@@ -58,11 +58,11 @@ private:
 
 //----------------------------------------------------------------------------
 vtkAnnotationLink::vtkAnnotationLink()
-{  
+{
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(3);
   this->AnnotationLayers = vtkAnnotationLayers::New();
-  this->DomainMaps = vtkDataObjectCollection::New();  
+  this->DomainMaps = vtkDataObjectCollection::New();
 
   this->Observer = Command::New();
   this->Observer->SetTarget(this);
@@ -113,7 +113,7 @@ void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
     if (this->AnnotationLayers != NULL)
       {
       this->AnnotationLayers->Register(this);
-      this->AnnotationLayers->AddObserver(vtkCommand::ModifiedEvent, 
+      this->AnnotationLayers->AddObserver(vtkCommand::ModifiedEvent,
                                         this->Observer);
       }
     if (tmp != NULL)
@@ -203,11 +203,11 @@ int vtkAnnotationLink::RequestData(
   vtkInformation *mapInfo = outVector->GetInformationObject(1);
   vtkMultiBlockDataSet* maps = vtkMultiBlockDataSet::SafeDownCast(
     mapInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkInformation *selInfo = outVector->GetInformationObject(2);
   vtkSelection* sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // Give preference to input annotations
   if (input)
     {

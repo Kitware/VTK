@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayNorm.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -78,7 +78,7 @@ void vtkArrayNorm::SetL(int value)
     vtkErrorMacro(<< "Cannot compute array norm for L < 1");
     return;
     }
-  
+
   if(this->L == value)
     return;
 
@@ -87,8 +87,8 @@ void vtkArrayNorm::SetL(int value)
 }
 
 int vtkArrayNorm::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   try
@@ -114,7 +114,7 @@ int vtkArrayNorm::RequestData(
     // Setup our output ...
     std::ostringstream array_name;
     array_name << "L" << this->L << "_norm";
-    
+
     vtkDenseArray<double>* const output_array = vtkDenseArray<double>::New();
     output_array->SetName(array_name.str());
     output_array->Resize(input_array->GetExtent(vector_dimension));

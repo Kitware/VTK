@@ -40,17 +40,17 @@ public:
 
 protected:
   vtkXMLMultiBlockDataReader();
-  ~vtkXMLMultiBlockDataReader();  
+  ~vtkXMLMultiBlockDataReader();
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  virtual void ReadComposite(vtkXMLDataElement* element, 
-    vtkCompositeDataSet* composite, const char* filePath, 
+  virtual void ReadComposite(vtkXMLDataElement* element,
+    vtkCompositeDataSet* composite, const char* filePath,
     unsigned int &dataSetIndex);
 
   // Reads file version < 1.0.
-  virtual void ReadVersion0(vtkXMLDataElement* element, 
-    vtkCompositeDataSet* composite, const char* filePath, 
+  virtual void ReadVersion0(vtkXMLDataElement* element,
+    vtkCompositeDataSet* composite, const char* filePath,
     unsigned int &dataSetIndex);
 
   // Get the name of the data set being read.

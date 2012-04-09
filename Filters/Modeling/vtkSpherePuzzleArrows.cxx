@@ -164,12 +164,12 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
     x = cos(theta+thetaOff)*sin(phi+phiOff);
     y = sin(theta+thetaOff)*sin(phi+phiOff);
     z = cos(phi+phiOff);
-    ptId3 = 
+    ptId3 =
       pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
     x = cos(theta+2*thetaOff)*sin(phi+2*phiOff);
     y = sin(theta+2*thetaOff)*sin(phi+2*phiOff);
     z = cos(phi+2*phiOff);
-    ptId4 = 
+    ptId4 =
       pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
     // Create the rectangle.
     polys->InsertNextCell(4);
@@ -203,7 +203,7 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
 }
 
 //----------------------------------------------------------------------------
-void vtkSpherePuzzleArrows::SetPermutation(vtkSpherePuzzle *puz) 
+void vtkSpherePuzzleArrows::SetPermutation(vtkSpherePuzzle *puz)
 {
   this->SetPermutation(puz->GetState());
 }

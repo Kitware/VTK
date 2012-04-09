@@ -45,7 +45,7 @@ public:
   // not support the required extensions
   int IsRenderSupported(vtkVolumeProperty *,
                         vtkRenderer *ren);
-  
+
 //BTX
 
   // Description:
@@ -59,20 +59,20 @@ public:
   // Desciption:
   // Initialize when we go to render, or go to answer the
   // IsRenderSupported question. Don't call unless we have
-  // a valid OpenGL context! 
+  // a valid OpenGL context!
   vtkGetMacro( Initialized, int );
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
-  
+
 protected:
   vtkOpenGLVolumeTextureMapper3D();
   ~vtkOpenGLVolumeTextureMapper3D();
 
-//BTX  
+//BTX
 
   void GetLightInformation(vtkRenderer *ren,
                            vtkVolume *vol,
@@ -80,9 +80,9 @@ protected:
                            GLfloat lightDiffuseColor[2][4],
                            GLfloat lightSpecularColor[2][4],
                            GLfloat halfwayVector[2][4],
-                           GLfloat *ambient );  
+                           GLfloat *ambient );
 //ETX
-    
+
   int              Initialized;
   GLuint           Volume1Index;
   GLuint           Volume2Index;
@@ -90,17 +90,17 @@ protected:
   GLuint           ColorLookupIndex;
   GLuint           AlphaLookupIndex;
   vtkRenderWindow *RenderWindow;
-  
+
   bool SupportsCompressedTexture;
   bool SupportsNonPowerOfTwoTextures;
-  
+
   // Actual internal texture format (uncompressed vs compressed)
   // Computed in Render()
   int InternalAlpha; // GLint
   int InternalLA; // GLint
   int InternalRGB; // GLint
   int InternalRGBA; // GLint
-  
+
   void Initialize(vtkRenderer *r);
 
   virtual void RenderNV(vtkRenderer *ren, vtkVolume *vol);
@@ -120,7 +120,7 @@ protected:
   void RenderTwoDependentShadeNV( vtkRenderer *ren, vtkVolume *vol );
   void RenderFourDependentNoShadeNV( vtkRenderer *ren, vtkVolume *vol );
   void RenderFourDependentShadeNV( vtkRenderer *ren, vtkVolume *vol );
-  
+
   void SetupOneIndependentTextures( vtkRenderer *ren, vtkVolume *vol );
   void SetupTwoDependentTextures( vtkRenderer *ren, vtkVolume *vol );
   void SetupFourDependentTextures( vtkRenderer *ren, vtkVolume *vol );
@@ -135,13 +135,13 @@ protected:
 
   void DeleteTextureIndex( GLuint *index );
   void CreateTextureIndex( GLuint *index );
-  
+
   void RenderPolygons( vtkRenderer *ren,
                        vtkVolume *vol,
                        int stages[4] );
 
   void SetupProgramLocalsForShadingFP( vtkRenderer *ren, vtkVolume *vol );
-  
+
   // Description:
   // Check if we can support this texture size for the number of components.
   int IsTextureSizeSupported(int size[3],

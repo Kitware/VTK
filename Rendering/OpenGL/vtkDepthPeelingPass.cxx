@@ -58,13 +58,13 @@ vtkDepthPeelingPass::vtkDepthPeelingPass()
   this->Prog->GetShaders()->AddItem(this->Shader);
   this->Shader->SetSourceCode(vtkDepthPeeling_fs);
   this->Shader->SetType(VTK_SHADER_TYPE_FRAGMENT);
-  
+
   vtkUniformVariables *v=this->Shader->GetUniformVariables();
-  
+
   this->ShadowTexUnit=-1; // not allocated
   this->OpaqueShadowTexUnit=-1; // not allocated
-  
-  
+
+
   int value;
   value=1;
   v->SetUniformi("shadowTex",1,&value);
@@ -101,12 +101,12 @@ void vtkDepthPeelingPass::ReleaseGraphicsResources(vtkWindow *w)
 void vtkDepthPeelingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "OcclusionRation: " << this->OcclusionRatio << endl;
-  
+
   os << indent << "MaximumNumberOfPeels: " << this->MaximumNumberOfPeels
      << endl;
-  
+
   os << indent << "LastRenderingUsedDepthPeeling: ";
   if(this->LastRenderingUsedDepthPeeling)
     {
@@ -116,7 +116,7 @@ void vtkDepthPeelingPass::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Off" << endl;
     }
-  
+
   os << indent << "TranslucentPass:";
   if(this->TranslucentPass!=0)
     {
@@ -137,7 +137,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   assert("pre: s_exists" && s!=0);
 
   this->NumberOfRenderedProps=0;
-  
+
   if(this->TranslucentPass==0)
     {
       vtkWarningMacro(<<"No TranslucentPass delegate set. Nothing can be rendered.");
@@ -172,7 +172,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 
   // Depth peeling.
   vtkRenderer *r=s->GetRenderer();
-  
+
   if(s->GetFrameBuffer()==0)
     {
     // get the viewport dimensions
@@ -188,7 +188,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     this->ViewportX=0;
     this->ViewportY=0;
     }
-    
+
   // get z bits
   GLint depthBits;
   glGetIntegerv(GL_DEPTH_BITS,&depthBits);
@@ -205,7 +205,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     GLuint opaqueLayerRgba=0;
     glGenTextures(1,&opaqueLayerZ);
     this->OpaqueLayerZ=opaqueLayerZ;
-    
+
     glGenTextures(1,&opaqueLayerRgba);
     // opaque z format
 //    vtkgl::ActiveTexture(vtkgl::TEXTURE1 );
@@ -224,7 +224,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,
                     vtkgl::TEXTURE_COMPARE_FUNC,
                     GL_LESS);
-    
+
     // Allocate memory
     glTexImage2D(vtkgl::PROXY_TEXTURE_RECTANGLE_ARB,0,this->DepthFormat,
                  this->ViewportWidth,this->ViewportHeight,
@@ -275,13 +275,13 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       this->NumberOfRenderedProps=this->TranslucentPass->GetNumberOfRenderedProps();
       return;
       }
-    
+
     // Have to be set before a call to UpdateTranslucentPolygonalGeometry()
     // because UpdateTranslucentPolygonalGeometry() will eventually call
     // vtkOpenGLActor::Render() that uses this flag.
     this->LastRenderingUsedDepthPeeling=true;
     this->SetLastRenderingUsedDepthPeeling(s->GetRenderer(),true);
-    
+
     glTexImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8,
                  this->ViewportWidth,this->ViewportHeight, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, 0);
@@ -289,38 +289,38 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glCopyTexSubImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, 0, 0, this->ViewportX,
                         this->ViewportY,this->ViewportWidth,
                         this->ViewportHeight);
-    
+
     GLuint queryId;
     vtkgl::GenQueries(1,&queryId);
     int stop=0;
     int infiniteLoop=this->MaximumNumberOfPeels==0;
-    
+
     unsigned int threshold=static_cast<unsigned int>(this->ViewportWidth*this->ViewportHeight*OcclusionRatio);
     this->LayerList=new vtkDepthPeelingPassLayerList;
-    
+
     // save the default blend function.
     glPushAttrib(GL_COLOR_BUFFER_BIT);
-    
+
     int multiSampleStatus=glIsEnabled(vtkgl::MULTISAMPLE);
-    
+
     if(multiSampleStatus)
       {
       glDisable(vtkgl::MULTISAMPLE);
       }
     glDisable(GL_BLEND);
-    
+
     vtkUniformVariables *v=this->Shader->GetUniformVariables();
     float value;
     value=this->ViewportX;
     v->SetUniformf("offsetX",1,&value);
     value=this->ViewportY;
     v->SetUniformf("offsetY",1,&value);
-    
-    
+
+
     this->Prog->SetContext(static_cast<vtkOpenGLRenderWindow *>(
                              s->GetRenderer()->GetRenderWindow()));
     this->Shader->SetContext(this->Prog->GetContext());
-      
+
     GLuint nbPixels=0;
     GLuint previousNbPixels=0;
     int l=0;
@@ -329,7 +329,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       vtkgl::BeginQuery(vtkgl::SAMPLES_PASSED,queryId);
       stop=!this->RenderPeel(s,l);
       vtkgl::EndQuery(vtkgl::SAMPLES_PASSED);
-      // blocking call 
+      // blocking call
       previousNbPixels=nbPixels;
       if(!stop || l>0) // stop && l==0 <=> no translucent geometry
         {
@@ -345,7 +345,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
           }
         }
       }
-    
+
     if(l>1) // some higher layer, we allocated some tex unit in RenderPeel()
       {
       vtkTextureUnitManager *m=
@@ -355,7 +355,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       this->ShadowTexUnit=-1;
       this->OpaqueShadowTexUnit=-1;
       }
-    
+
     if(multiSampleStatus)
       {
       glEnable(vtkgl::MULTISAMPLE);
@@ -372,7 +372,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       glDeleteTextures(1,&transparentLayerZ);
       this->TransparentLayerZ=0;
       }
-    
+
     // Finally, draw sorted opacity
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -383,17 +383,17 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glLoadIdentity();
     glClearColor( static_cast<GLclampf>(0),static_cast<GLclampf>(0),
                   static_cast<GLclampf>(0),static_cast<GLclampf>(0));
-    
+
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    
+
     vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glEnable(vtkgl::TEXTURE_RECTANGLE_ARB);
-    
+
     // actor in wireframe may have change that
     glPolygonMode(GL_FRONT, GL_FILL);
-    
+
     glDisable(GL_BLEND);
     // First the opaque layer
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,opaqueLayerRgba);
@@ -407,7 +407,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glTexCoord2f(0, this->ViewportHeight);
     glVertex2f(0, this->ViewportHeight);
     glEnd();
-    
+
     vtkgl::BlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
                              GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -417,7 +417,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     while(it!=itEnd)
       {
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,(*it));
-      
+
       glBegin(GL_QUADS);
       glTexCoord2f(0, 0);
       glVertex2f(0, 0);
@@ -432,7 +432,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       }
     // Restore the default blend function for the next stage (overlay)
     glPopAttrib();
-  
+
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glDisable(vtkgl::TEXTURE_RECTANGLE_ARB);
     glEnable(GL_DEPTH_TEST);
@@ -440,7 +440,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-    
+
     // Destroy the layers
     size_t c=this->LayerList->List.size();
     GLuint *ids=new GLuint[c];
@@ -456,7 +456,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     delete[] ids;
     delete this->LayerList;
     this->LayerList=0;
-    
+
     glDeleteTextures(1,&opaqueLayerRgba);
     glDeleteTextures(1,&opaqueLayerZ);
     this->NumberOfRenderedProps=this->TranslucentPass->GetNumberOfRenderedProps();
@@ -472,12 +472,12 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
       this->IsChecked=true;
       this->CheckTime.Modified();
       vtkOpenGLExtensionManager *extensions=w->GetExtensionManager();
-      
+
       bool supports_GL_1_3=extensions->ExtensionSupported("GL_VERSION_1_3")==1;
       bool supports_GL_1_4=extensions->ExtensionSupported("GL_VERSION_1_4")==1;
       bool supports_GL_1_5=extensions->ExtensionSupported("GL_VERSION_1_5")==1;
       bool supports_GL_2_0=extensions->ExtensionSupported("GL_VERSION_2_0")==1;
-      
+
       bool supports_vertex_shader;
       bool supports_fragment_shader;
       bool supports_shader_objects;
@@ -506,7 +506,7 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         supports_occlusion_query=extensions->ExtensionSupported("GL_ARB_occlusion_query")==1;
         supports_shadow_funcs=extensions->ExtensionSupported("GL_EXT_shadow_funcs")==1;
         }
-      
+
       bool supports_depth_texture;
       bool supports_shadow;
       bool supports_blend_func_separate;
@@ -522,9 +522,9 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         supports_shadow=extensions->ExtensionSupported("GL_ARB_shadow")==1;
         supports_blend_func_separate=extensions->ExtensionSupported("GL_EXT_blend_func_separate")==1;
         }
-      
+
       bool supports_GL_ARB_texture_rectangle=extensions->ExtensionSupported("GL_ARB_texture_rectangle")==1;
-      
+
       // spec claims it is GL_SGIS_texture_edge_clamp, reality shows it is
       // GL_EXT_texture_edge_clamp on Nvidia.
       // part of OpenGL 1.2 core
@@ -540,11 +540,11 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
           supports_edge_clamp=extensions->ExtensionSupported("GL_EXT_texture_edge_clamp")==1;
           }
         }
-      
+
       GLint alphaBits;
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       bool supportsAtLeast8AlphaBits=alphaBits>=8;
-      
+
       this->IsSupported =
         supports_depth_texture &&
         supports_shadow &&
@@ -558,7 +558,7 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         supports_GL_ARB_texture_rectangle &&
         supports_edge_clamp &&
         supportsAtLeast8AlphaBits;
-      
+
       if(this->IsSupported)
         {
         vtkDebugMacro("depth peeling supported");
@@ -580,7 +580,7 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
           {
           extensions->LoadCorePromotedExtension("GL_EXT_blend_func_separate");
           }
-        
+
         if(supports_GL_2_0)
           {
           extensions->LoadExtension("GL_VERSION_2_0");
@@ -599,7 +599,7 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
           {
           extensions->LoadCorePromotedExtension("GL_ARB_occlusion_query");
           }
-        
+
         extensions->LoadExtension("GL_ARB_texture_rectangle");
         }
       else
@@ -662,15 +662,15 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
         const char* gl_renderer =
           reinterpret_cast<const char *>(glGetString(GL_RENDERER));
         int isATI = strstr(gl_renderer, "ATI") != 0;
-        
+
         bool isMesa=strstr(gl_renderer, "Mesa") != 0;
-        
+
         if(isMesa || isATI)
           {
           this->IsSupported = false;
           }
         }
-      
+
       if(this->IsSupported)
         {
         // Some OpenGL implementations such as ATI
@@ -745,23 +745,23 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
 {
   assert("pre: s_exists" && s!=0);
   assert("pre: positive_layer" && layer>=0);
-  
+
   GLbitfield mask=GL_COLOR_BUFFER_BIT;
   if(layer>0)
     {
     mask=mask|GL_DEPTH_BUFFER_BIT;
     }
-  
+
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(mask);
-  
+
 //  vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->OpaqueShadowTexUnit);
 //  glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
 //  vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->ShadowTexUnit);
-  
+
   vtkOpenGLRenderer *oRenderer=
     static_cast<vtkOpenGLRenderer *>(s->GetRenderer());
-  
+
   if(layer>0)
     {
     if(layer==1)
@@ -788,7 +788,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
       ivalue=this->OpaqueShadowTexUnit; //2
       v->SetUniformi("opaqueShadowTex",1,&ivalue);
       }
-    
+
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->OpaqueShadowTexUnit);
     glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->OpaqueLayerZ);
     vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->ShadowTexUnit);
@@ -796,7 +796,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     oRenderer->SetShaderProgram(this->Prog);
 //    this->Prog->Use();
     }
-  
+
   vtkgl::ActiveTexture(vtkgl::TEXTURE0 );
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   this->DepthPeelingHigherLayer=layer>0;
@@ -807,7 +807,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     this->DepthPeelingHigherLayer=0;
     oRenderer->SetShaderProgram(0);
     }
-  
+
   GLint width;
 //  vtkgl::ActiveTexture(vtkgl::TEXTURE0+this->ShadowTexUnit);
   if(layer==0)
@@ -818,7 +818,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
       glGenTextures(1,&transparentLayerZ);
       this->TransparentLayerZ=static_cast<unsigned int>(transparentLayerZ);
       glBindTexture(vtkgl::TEXTURE_RECTANGLE_ARB,this->TransparentLayerZ);
-      
+
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,
                       GL_NEAREST);
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,
@@ -833,7 +833,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
       glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,
                       vtkgl::TEXTURE_COMPARE_FUNC,
                       GL_GREATER);
-      
+
       // Allocate memory
       glTexImage2D(vtkgl::PROXY_TEXTURE_RECTANGLE_ARB,0,this->DepthFormat,
                    this->ViewportWidth,this->ViewportHeight,
@@ -862,7 +862,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
     glCopyTexSubImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, 0, 0, this->ViewportX,
                         this->ViewportY,this->ViewportWidth,
                         this->ViewportHeight);
-    
+
     // Grab the rgba buffer
     GLuint rgba;
     glGenTextures(1,&rgba);
@@ -872,7 +872,7 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
                     GL_NEAREST);
     glTexParameteri(vtkgl::TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,
                     GL_NEAREST);
-    
+
     // Allocate memory
     glTexImage2D(vtkgl::PROXY_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8,
                  this->ViewportWidth,this->ViewportHeight,
@@ -885,11 +885,11 @@ int vtkDepthPeelingPass::RenderPeel(const vtkRenderState *s,
       glDeleteTextures(1,&rgba);
       return 0;
       }
-    
+
     glTexImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8,
                  this->ViewportWidth,this->ViewportHeight, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, 0);
-    
+
     // Grab the rgba-buffer
     glCopyTexSubImage2D(vtkgl::TEXTURE_RECTANGLE_ARB, 0, 0, 0, this->ViewportX,
                         this->ViewportY,this->ViewportWidth,

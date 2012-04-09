@@ -57,12 +57,12 @@ void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// This method sets the size of the neighborhood.  It also sets the 
+// This method sets the size of the neighborhood.  It also sets the
 // default middle of the neighborhood and computes the eliptical foot print.
 void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
-  
+
   if (this->KernelSize[0] != size0)
     {
     modified = 1;
@@ -85,8 +85,8 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
   if (modified)
     {
     this->Modified();
-    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
-                                  0, this->KernelSize[1]-1, 
+    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1,
+                                  0, this->KernelSize[1]-1,
                                   0, this->KernelSize[2]-1);
     this->Ellipse->SetCenter(static_cast<float>(this->KernelSize[0]-1)*0.5,
                              static_cast<float>(this->KernelSize[1]-1)*0.5,
@@ -98,8 +98,8 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
     vtkInformation *ellipseOutInfo =
       this->Ellipse->GetExecutive()->GetOutputInformation(0);
     ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                        0, this->KernelSize[0]-1, 
-                        0, this->KernelSize[1]-1, 
+                        0, this->KernelSize[0]-1,
+                        0, this->KernelSize[1]-1,
                         0, this->KernelSize[2]-1);
     this->Ellipse->Update();
     }
@@ -113,8 +113,8 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
 template <class T>
 void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
                                       vtkImageData *mask,
-                                      vtkImageData *inData, T *inPtr, 
-                                      vtkImageData *outData, 
+                                      vtkImageData *inData, T *inPtr,
+                                      vtkImageData *outData,
                                       int *outExt, T *outPtr, int id,
                                       vtkDataArray *inArray,
                                       vtkInformation *inInfo)
@@ -146,7 +146,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   int *inExt = inData->GetExtent();
 
   // Get information to march through data
-  inData->GetIncrements(inInc0, inInc1, inInc2); 
+  inData->GetIncrements(inInc0, inInc1, inInc2);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
   inImageMin0 = inImageExt[0];
   inImageMax0 = inImageExt[1];
@@ -154,12 +154,12 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   inImageMax1 = inImageExt[3];
   inImageMin2 = inImageExt[4];
   inImageMax2 = inImageExt[5];
-  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  outData->GetIncrements(outInc0, outInc1, outInc2);
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
   outMin2 = outExt[4];   outMax2 = outExt[5];
   numComps = outData->GetNumberOfScalarComponents();
-  
+
   // Get ivars of this object (easier than making friends)
   kernelSize = self->GetKernelSize();
   kernelMiddle = self->GetKernelMiddle();
@@ -173,7 +173,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   // Setup mask info
   maskPtr = static_cast<unsigned char *>(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
-  
+
   // in and out should be marching through corresponding pixels.
   inPtr = static_cast<T *>(inArray->GetVoidPointer((outMin0-inExt[0])*inInc0 +
                                                    (outMin1-inExt[2])*inInc1 +
@@ -182,7 +182,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   target = static_cast<unsigned long>(numComps*(outMax2-outMin2+1)*
                                       (outMax1-outMin1+1)/50.0);
   target++;
-  
+
   // loop through components
   for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
     {
@@ -193,10 +193,10 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
       {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
-      for (outIdx1 = outMin1; 
+      for (outIdx1 = outMin1;
            !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
         {
-        if (!id) 
+        if (!id)
           {
           if (!(count%target))
             {
@@ -208,13 +208,13 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
         inPtr0 = inPtr1;
         for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
           {
-          
+
           // Find min
           pixelMin = *inPtr0;
           // loop through neighborhood pixels
-          // as sort of a hack to handle boundaries, 
+          // as sort of a hack to handle boundaries,
           // input pointer will be marching through data that does not exist.
-          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
+          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0
             - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
           maskPtr2 = maskPtr;
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
@@ -243,7 +243,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
                       }
                     }
                   }
-                
+
                 hoodPtr0 += inInc0;
                 maskPtr0 += maskInc0;
                 }
@@ -254,7 +254,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
             maskPtr2 += maskInc2;
             }
           *outPtr0 = pixelMin;
-          
+
           inPtr0 += inInc0;
           outPtr0 += outInc0;
           }
@@ -278,7 +278,7 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
-  vtkImageData **outData, 
+  vtkImageData **outData,
   int outExt[6], int id)
 {
   // return if nothing to do
@@ -313,19 +313,19 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
   // this filter expects the output type to be same as input
   if (outData[0]->GetScalarType() != inArray->GetDataType())
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, " 
+    vtkErrorMacro(<< "Execute: output ScalarType, "
       << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input array data type");
     return;
     }
-  
+
   switch (inArray->GetDataType())
     {
     vtkTemplateMacro(
-      vtkImageContinuousErode3DExecute(this, mask, 
-                                       inData[0][0], 
-                                       static_cast<VTK_TT *>(inPtr), 
-                                       outData[0], outExt, 
+      vtkImageContinuousErode3DExecute(this, mask,
+                                       inData[0][0],
+                                       static_cast<VTK_TT *>(inPtr),
+                                       outData[0], outExt,
                                        static_cast<VTK_TT *>(outPtr),id,
                                        inArray,
                                        inInfo));

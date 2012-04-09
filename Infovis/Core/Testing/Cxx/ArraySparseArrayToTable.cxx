@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    ArraySparseArrayToTable.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -47,10 +47,10 @@ int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->AddValue(0, 0, 0, 1);
     array->AddValue(1, 2, 3, 2);
     array->AddValue(4, 5, 6, 3);
-  
+
     vtkSmartPointer<vtkArrayData> array_data = vtkSmartPointer<vtkArrayData>::New();
     array_data->AddArray(array);
-   
+
     vtkSmartPointer<vtkSparseArrayToTable> convert = vtkSmartPointer<vtkSparseArrayToTable>::New();
     convert->SetInputData(0, array_data);
     convert->SetValueColumn("value");
@@ -58,15 +58,15 @@ int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkTable* const table = convert->GetOutput();
     table->Dump(8);
-  
+
     test_expression(table->GetNumberOfColumns() == 4);
     test_expression(table->GetColumn(0)->GetName() == vtkStdString("i"));
     test_expression(table->GetColumn(1)->GetName() == vtkStdString("j"));
     test_expression(table->GetColumn(2)->GetName() == vtkStdString("k"));
     test_expression(table->GetColumn(3)->GetName() == vtkStdString("value"));
-   
+
     test_expression(table->GetNumberOfRows() == 3);
-    
+
     test_expression(table->GetValue(0, 0).ToInt() == 0);
     test_expression(table->GetValue(0, 1).ToInt() == 0);
     test_expression(table->GetValue(0, 2).ToInt() == 0);

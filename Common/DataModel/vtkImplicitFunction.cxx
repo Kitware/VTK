@@ -90,7 +90,7 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 
     // The gradient must be transformed using the same math as is
     // use for a normal to a surface: it must be multiplied by the
-    // inverse of the transposed inverse of the Jacobian matrix of 
+    // inverse of the transposed inverse of the Jacobian matrix of
     // the transform, which is just the transpose of the Jacobian.
     vtkMath::Transpose3x3(A,A);
     vtkMath::Multiply3x3(A,g,g);
@@ -102,7 +102,7 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
        if you feed certain VTK filters a transform with a flip
        the gradient will point in the wrong direction and they
        will never converge to a result */
-       
+
     if (vtkMath::Determinant3x3(A) < 0)
       {
       g[0] = -g[0];

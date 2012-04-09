@@ -15,14 +15,14 @@
 // .NAME vtkMFIXReader - reads a dataset in MFIX file format
 // .SECTION Description
 // vtkMFIXReader creates an unstructured grid dataset. It reads a restart
-// file and a set of sp files.  The restart file contains the mesh 
-// information.  MFIX meshes are either cylindrical or rectilinear, but 
-// this reader will convert them to an unstructured grid.  The sp files 
-// contain transient data for the cells.  Each sp file has one or more 
-// variables stored inside it.  
+// file and a set of sp files.  The restart file contains the mesh
+// information.  MFIX meshes are either cylindrical or rectilinear, but
+// this reader will convert them to an unstructured grid.  The sp files
+// contain transient data for the cells.  Each sp file has one or more
+// variables stored inside it.
 
 // .SECTION Thanks
-// Thanks to Phil Nicoletti and Brian Dotson at the National Energy 
+// Thanks to Phil Nicoletti and Brian Dotson at the National Energy
 // Technology Laboratory who developed this class.
 // Please address all comments to Brian Dotson (brian.dotson@netl.doe.gov)
 
@@ -72,12 +72,12 @@ public:
   // Description:
   // Get the number of data components at the nodes and cells.
   vtkGetMacro(NumberOfCellFields,int);
-  
+
   // Description:
   // Which TimeStep to read.
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
- 
+
   // Description:
   // Returns the number of timesteps.
   vtkGetMacro(NumberOfTimeSteps, int);
@@ -110,7 +110,7 @@ public:
   // Description:
   // Get the range of cell data.
   void GetCellDataRange(int cellComp, int index, float *min, float *max);
-  
+
 protected:
   vtkMFIXReader();
   ~vtkMFIXReader();
@@ -137,15 +137,15 @@ protected:
   int ActualTimeStep;
   int CurrentTimeStep;
   int NumberOfTimeSteps;
-  int *TimeSteps; 
+  int *TimeSteps;
   int TimeStepRange[2];
   int TimeStepWasReadOnce;
-  
+
   //
   //  MFIX Variables
   //
 
-  vtkFloatArray **CellDataArray; // Arrays for variables that will 
+  vtkFloatArray **CellDataArray; // Arrays for variables that will
                                  //attach to mesh
   vtkPoints *Points;            // Points array for building grid
   vtkUnstructuredGrid *Mesh;    // Unstructured Grid
@@ -160,7 +160,7 @@ protected:
   vtkDoubleArray *C;            // Array used to parse restart file
   vtkIntArray *TempI;           // Array used to parse restart file
   vtkDoubleArray *TempD;        // Array used to parse restart file
-  vtkIntArray *SpxFileExists;   // Array for keeping track of 
+  vtkIntArray *SpxFileExists;   // Array for keeping track of
                                 // what spx files exist.
 
   char FileExtension[15];
@@ -210,23 +210,23 @@ protected:
   //
 
   int MaximumTimestep;              // maximum timesteps amongst the variables
-  int SPXRecordsPerTimestep;        // number of records in a single 
+  int SPXRecordsPerTimestep;        // number of records in a single
                                     // timestep for a variable
   vtkIntArray *SPXToNVarTable;      // number of variables in each spx file
-  vtkIntArray *VariableToSkipTable; // skip value for each variable, this 
-                                    // is needed in spx files 
+  vtkIntArray *VariableToSkipTable; // skip value for each variable, this
+                                    // is needed in spx files
                                     // with more than one variable.
   vtkIntArray *VariableTimesteps;   // number of timesteps for each variable
-  vtkIntArray *VariableTimestepTable;  // Since the number of timesteps 
+  vtkIntArray *VariableTimestepTable;  // Since the number of timesteps
                                        // vary between variables
-                                       //  this is a table that looks 
-                                       //  up the appropriate timestep 
+                                       //  this is a table that looks
+                                       //  up the appropriate timestep
                                        // for the particular variable.
-  vtkIntArray *variableIndexToSPX;  //  This gives the spx file number for the 
+  vtkIntArray *variableIndexToSPX;  //  This gives the spx file number for the
                                     //  particular variable.
-  vtkIntArray *VariableIndexToSPX;  //  This gives the spx file number for the 
+  vtkIntArray *VariableIndexToSPX;  //  This gives the spx file number for the
                                     //  particular variable.
-  vtkIntArray *SPXTimestepIndexTable; //  This a table look up for the index 
+  vtkIntArray *SPXTimestepIndexTable; //  This a table look up for the index
                               //  into a file for a certain variable.
 
 private:
@@ -257,7 +257,7 @@ private:
   void MakeSPXTimeStepIndexTable(int nvars);
   void CalculateMaxTimeStep();
   void GetNumberOfVariablesInSPXFiles();
-  void FillVectorVariable( int xindex, int yindex, int zindex, 
+  void FillVectorVariable( int xindex, int yindex, int zindex,
          vtkFloatArray *v);
   void ConvertVectorFromCylindricalToCartesian( int xindex, int zindex);
   void GetAllTimes(vtkInformationVector *outputVector);

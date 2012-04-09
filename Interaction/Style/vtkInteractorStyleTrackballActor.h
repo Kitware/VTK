@@ -78,7 +78,7 @@ protected:
                        int NumRotation,
                        double **rotate,
                        double *scale);
-  
+
   double MotionFactor;
 
   vtkProp3D *InteractionProp;

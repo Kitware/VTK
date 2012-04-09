@@ -12,45 +12,45 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Tests the class vtkImageActorPointPlacer. 
+// Tests the class vtkImageActorPointPlacer.
 //
 // A feature central to most widgets is the translation of 2D coordinates to 3D
 // coordinates. As you delve down into the inner workings of a widget, you will
 // realize that it is critical to define how 2D coordinates are mapped to 3D
 // world coordinates.
-// 
-// Note that interactions happen in a 2D window. ie. The XWindow server is going to 
-// tell us that the user pressed his mouse button at pixel location (X,Y). 
-// 
+//
+// Note that interactions happen in a 2D window. ie. The XWindow server is going to
+// tell us that the user pressed his mouse button at pixel location (X,Y).
+//
 //  This location (X,Y) could map to any location in 3D space (x,y,z). How do
-// we define this mapping ? VTK provides a few standard ways to define this 
+// we define this mapping ? VTK provides a few standard ways to define this
 // mapping and a framework to create your own mapping. This is done via
 // vtkPointPlacer.
-// 
-//   * vtkFocalPlanePointPlacer: 
-//      
+//
+//   * vtkFocalPlanePointPlacer:
+//
 //       Converts 2D display positions to world positions such that they lie on
 //       the focal plane.
-// 
+//
 //   * vtkPolygonalSurfacePointPlacer:
-//  
+//
 //       Converts 2D display positions to world positions such that they lie on
 //       the surface of one or more specified polygonal objects.
-// 
+//
 //   * vtkImageActorPointPlacer
-//  
-//       Converts 2D display positions to world positions such that they lie on 
+//
+//       Converts 2D display positions to world positions such that they lie on
 //       a specified ImageActor
-// 
+//
 //   * vtkBoundedPlanePointPlacer
-//      
-//       Converts 2D display positions to world positions such that they lie 
+//
+//       Converts 2D display positions to world positions such that they lie
 //       within a set of specified bounding planes.
-// 
+//
 //   * vtkTerrainContourPointPlacer - On a terrain..
-// 
-// 
-// Point placers provide an extensible framework to specify constraints on the 
+//
+//
+// Point placers provide an extensible framework to specify constraints on the
 // placement of widgets.
 
 #include "vtkSmartPointer.h"
@@ -799,7 +799,7 @@ char TestImageActorContourWidgetLog[] =
 class vtkSliderCallback2 : public vtkCommand
 {
 public:
-  static vtkSliderCallback2 *New() 
+  static vtkSliderCallback2 *New()
     { return new vtkSliderCallback2; }
   void SetImageViewer(vtkImageViewer2 *viewer)
     { this->Viewer =  viewer; }
@@ -822,7 +822,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
     {
     disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
     followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
-    }  
+    }
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
@@ -837,7 +837,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   v16->SetDataMask(0x7fff);
   v16->Update();
   delete[] fname;
-    
+
   double range[2];
   v16->GetOutput()->GetScalarRange(range);
 
@@ -850,7 +850,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   shifter->ReleaseDataFlagOff();
   shifter->Update();
 
-  
+
   vtkSmartPointer<vtkImageViewer2> imageViewer =
     vtkSmartPointer<vtkImageViewer2>::New();
   imageViewer->SetInputConnection(shifter->GetOutputPort());
@@ -866,8 +866,8 @@ int TestImageActorContourWidget(int argc, char *argv[])
   imageViewer->Render();
   imageViewer->GetRenderer()->ResetCamera();
 
-  imageViewer->Render();    
-  
+  imageViewer->Render();
+
   vtkSmartPointer<vtkSliderRepresentation2D> SliderRepres =
     vtkSmartPointer<vtkSliderRepresentation2D>::New();
   int min = imageViewer->GetSliceMin();
@@ -896,11 +896,11 @@ int TestImageActorContourWidget(int argc, char *argv[])
   SliderWidget->KeyPressActivationOff();
   SliderWidget->SetAnimationModeToAnimate();
   SliderWidget->SetEnabled(true);
-  
+
   vtkSmartPointer<vtkSliderCallback2> SliderCb =
     vtkSmartPointer<vtkSliderCallback2>::New();
   SliderCb->SetImageViewer(imageViewer);
-  SliderWidget->AddObserver(vtkCommand::InteractionEvent, SliderCb);  
+  SliderWidget->AddObserver(vtkCommand::InteractionEvent, SliderCb);
 
   imageViewer->SetSlice(static_cast<int>(SliderRepres->GetValue()));
 
@@ -910,7 +910,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   vtkSmartPointer<vtkOrientedGlyphContourRepresentation> rep =
     vtkSmartPointer<vtkOrientedGlyphContourRepresentation>::New();
   ContourWidget->SetRepresentation(rep);
-  
+
   vtkSmartPointer<vtkImageActorPointPlacer>  imageActorPointPlacer =
     vtkSmartPointer<vtkImageActorPointPlacer>::New();
   imageActorPointPlacer->SetImageActor(imageViewer->GetImageActor());
@@ -948,7 +948,7 @@ int TestImageActorContourWidget(int argc, char *argv[])
   recorder->Off();
 
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 }
 

@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkTupleInterpolator.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -32,7 +32,7 @@
 // to linear, in which case the specified spline has no effect on the
 // interpolation.
 
-// .SECTION Caveats 
+// .SECTION Caveats
 // Setting the number of components or changing the type of interpolation
 // causes the list of tuples to be reset, so any data inserted up to that
 // point is lost. Bisection methods are used to speed up the search for the
@@ -80,7 +80,7 @@ public:
   // Description:
   // Reset the class so that it contains no (t,tuple) information.
   void Initialize();
-  
+
   // Description:
   // Add another tuple to the list of tuples to be interpolated.  Note that
   // using the same time t value more than once replaces the previous tuple
@@ -151,7 +151,7 @@ protected:
   void InitializeInterpolation();
   vtkPiecewiseFunction    **Linear;
   vtkSpline               **Spline;
-  
+
 
 private:
   vtkTupleInterpolator(const vtkTupleInterpolator&);  // Not implemented.

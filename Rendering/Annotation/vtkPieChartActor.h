@@ -22,7 +22,7 @@
 // variables that control the look of the plot includes its title,
 // and legend.
 //
-// Set the text property/attributes of the title and the labels through the 
+// Set the text property/attributes of the title and the labels through the
 // vtkTextProperty objects associated with these components.
 
 // .SECTION See Also
@@ -85,7 +85,7 @@ public:
   // appearance of the plot title.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Enable/Disable the display of pie piece labels.
   vtkSetMacro(LabelVisibility, int);
@@ -97,12 +97,12 @@ public:
   // of all pie piece labels.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-      
+
   // Description:
-  // Specify colors for each piece of pie. If not specified, they are 
+  // Specify colors for each piece of pie. If not specified, they are
   // automatically generated.
   void SetPieceColor(int i, double r, double g, double b);
-  void SetPieceColor(int i, const double color[3]) 
+  void SetPieceColor(int i, const double color[3])
     { this->SetPieceColor(i, color[0], color[1], color[2]); }
   double *GetPieceColor(int i);
 
@@ -121,7 +121,7 @@ public:
   vtkBooleanMacro(LegendVisibility, int);
 
   // Description:
-  // Retrieve handles to the legend box. This is useful if you would like 
+  // Retrieve handles to the legend box. This is useful if you would like
   // to manually control the legend appearance.
   vtkGetObjectMacro(LegendActor,vtkLegendBoxActor);
 
@@ -134,7 +134,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
@@ -153,7 +153,7 @@ private:
   vtkIdType ComponentNumber;
   int TitleVisibility;         // Should I see the title?
   char *Title;                 // The title string
-  vtkTextProperty *TitleTextProperty; 
+  vtkTextProperty *TitleTextProperty;
   int LabelVisibility;
   vtkTextProperty *LabelTextProperty;
   vtkPieceLabelArray *Labels;
@@ -175,11 +175,11 @@ private:
   vtkPolyData         *WebData;    // The web of the spider plot
   vtkPolyDataMapper2D *WebMapper;
   vtkActor2D          *WebActor;
-  
+
   vtkPolyData         *PlotData;    // The lines drawn within the axes
   vtkPolyDataMapper2D *PlotMapper;
   vtkActor2D          *PlotActor;
-  
+
   vtkTimeStamp  BuildTime;
 
   double Center[3];

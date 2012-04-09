@@ -23,25 +23,25 @@
 
 
 // Grab everything we need for rendering now. This procedure will be called
-// during the initialization phase of ray casting. It is called once per 
+// during the initialization phase of ray casting. It is called once per
 // image. All Gets are done here for both performance and multithreading
 // reentrant requirements reasons. At the end, the SpecificFunctionInitialize
 // is called to give the subclass a chance to do its thing.
-void vtkVolumeRayCastFunction::FunctionInitialize( 
-                                vtkRenderer *ren, 
+void vtkVolumeRayCastFunction::FunctionInitialize(
+                                vtkRenderer *ren,
                                 vtkVolume *vol,
                                 vtkVolumeRayCastStaticInfo *staticInfo )
 {
-  vtkVolumeRayCastMapper *mapper = 
+  vtkVolumeRayCastMapper *mapper =
     vtkVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );
-  
+
   if ( !mapper )
     {
     vtkErrorMacro(
     "Function initialized called with a volume that does not use ray casting");
     return;
     }
-  
+
   // Is shading on?
   staticInfo->Shading = vol->GetProperty()->GetShade();
 
@@ -58,7 +58,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   mapper->GetInput()->GetSpacing( staticInfo->DataSpacing );
   mapper->GetInput()->GetOrigin( staticInfo->DataOrigin );
 
-  // What are the data increments? 
+  // What are the data increments?
   // (One voxel, one row, and one slice offsets)
   staticInfo->DataIncrement[0] = 1;
   staticInfo->DataIncrement[1] = static_cast<vtkIdType>(staticInfo->DataSize[0]);
@@ -74,25 +74,25 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // direction as well.
   if ( staticInfo->Shading )
     {
-    staticInfo->EncodedNormals = 
+    staticInfo->EncodedNormals =
       mapper->GetGradientEstimator()->GetEncodedNormals();
 
     // Get the diffuse shading tables from the normal encoder
     // in the volume ray cast mapper
-    staticInfo->RedDiffuseShadingTable = 
+    staticInfo->RedDiffuseShadingTable =
       mapper->GetGradientShader()->GetRedDiffuseShadingTable(vol);
-    staticInfo->GreenDiffuseShadingTable = 
+    staticInfo->GreenDiffuseShadingTable =
       mapper->GetGradientShader()->GetGreenDiffuseShadingTable(vol);
-    staticInfo->BlueDiffuseShadingTable = 
+    staticInfo->BlueDiffuseShadingTable =
       mapper->GetGradientShader()->GetBlueDiffuseShadingTable(vol);
-    
+
     // Get the specular shading tables from the normal encoder
     // in the volume ray cast mapper
-    staticInfo->RedSpecularShadingTable = 
+    staticInfo->RedSpecularShadingTable =
       mapper->GetGradientShader()->GetRedSpecularShadingTable(vol);
-    staticInfo->GreenSpecularShadingTable = 
+    staticInfo->GreenSpecularShadingTable =
       mapper->GetGradientShader()->GetGreenSpecularShadingTable(vol);
-    staticInfo->BlueSpecularShadingTable = 
+    staticInfo->BlueSpecularShadingTable =
       mapper->GetGradientShader()->GetBlueSpecularShadingTable(vol);
     }
   else
@@ -108,10 +108,10 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
 
   // We need the gradient magnitudes only if we are classifying opacity
   // based on them. Otherwise we can just leave them NULL
-  if ( vol->GetGradientOpacityArray() && 
+  if ( vol->GetGradientOpacityArray() &&
        vol->GetGradientOpacityConstant() == -1.0 )
     {
-    staticInfo->GradientMagnitudes = 
+    staticInfo->GradientMagnitudes =
       mapper->GetGradientEstimator()->GetGradientMagnitudes();
     }
   else
@@ -122,7 +122,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // By default the blending is not MIP - the MIP function will turn this
   // on
   staticInfo->MIPFunction = 0;
-  
+
   // Give the subclass a chance to do any initialization it needs
   // to do
   this->SpecificFunctionInitialize( ren, vol, staticInfo, mapper );

@@ -29,12 +29,12 @@
 int TestQtInitialization(int , char* [])
 {
   int error_count = 0;
-  
+
   // Because we share the same process with other tests, verify that
   // an instance of QCoreApplication hasn't already been created.  This
   // ensures that we don't introduce false-positives in case some other test
   // has an instance of QCoreApplication floating-around ...
-  
+
   if(QCoreApplication::instance())
    {
    cerr << "Internal test error ... QCoreApplication already exists" << endl;
@@ -42,7 +42,7 @@ int TestQtInitialization(int , char* [])
    }
 
   vtkSmartPointer<vtkQtInitialization> initialization = vtkSmartPointer<vtkQtInitialization>::New();
-  
+
   if(!QCoreApplication::instance())
    {
    cerr << "QCoreApplication not initialized" << endl;

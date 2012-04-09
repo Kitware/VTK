@@ -65,7 +65,7 @@ namespace
     GlobalSynRenderWindowsMapType;
   GlobalSynRenderWindowsMapType GlobalSynRenderWindowsMap;
 
-  void RenderRMI(void *vtkNotUsed(localArg), 
+  void RenderRMI(void *vtkNotUsed(localArg),
     void *remoteArg, int remoteArgLength,
     int vtkNotUsed(remoteProcessId))
     {
@@ -171,7 +171,7 @@ void vtkSynchronizedRenderWindows::SetParallelController(
     {
     return;
     }
- 
+
   vtkSetObjectBodyMacro(
     ParallelController, vtkMultiProcessController, controller);
 
@@ -197,7 +197,7 @@ void vtkSynchronizedRenderWindows::AbortRender()
 void vtkSynchronizedRenderWindows::HandleStartRender()
 {
   if (!this->RenderWindow || !this->ParallelRendering ||
-    !this->ParallelController || 
+    !this->ParallelController ||
     (!this->Identifier && this->RenderEventPropagation))
     {
     return;

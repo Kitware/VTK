@@ -231,7 +231,7 @@ char TestLineWidgetEventLog[] =
 class vtkLWCallback : public vtkCommand
 {
 public:
-  static vtkLWCallback *New() 
+  static vtkLWCallback *New()
   { return new vtkLWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
@@ -246,9 +246,9 @@ public:
 
 int TestLineWidget( int argc, char *argv[] )
 {
-  char* fname = 
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
-  char* fname2 = 
+  char* fname2 =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combq.bin");
 
   // Start by loading some data.
@@ -374,6 +374,6 @@ int TestLineWidget( int argc, char *argv[] )
   recorder->Off();
 
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 }

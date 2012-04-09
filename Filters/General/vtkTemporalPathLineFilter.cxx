@@ -57,10 +57,10 @@ class ParticleTrail : public vtkObject {
     CoordList     Coords;
     FieldList     Fields;
     //
-    ParticleTrail() { 
+    ParticleTrail() {
       this->TrailId      = 0;
       this->FrontPointId = 0;
-      this->GlobalId     = ParticleTrail::UniqueId++; 
+      this->GlobalId     = ParticleTrail::UniqueId++;
     }
 
     static long int UniqueId;
@@ -180,7 +180,7 @@ int vtkTemporalPathLineFilter::RequestInformation(
   return 1;
 }
 //---------------------------------------------------------------------------
-TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i) 
+TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
 {
   TrailPointer trail;
   vtkTemporalPathLineFilterInternals::TrailIterator t = this->Internals->Trails.find(i);
@@ -212,7 +212,7 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
       trail->Fields[j]->SetNumberOfTuples(this->MaxTrackLength);
       }
   }
-  else 
+  else
   {
     trail = t->second;
   }
@@ -222,7 +222,7 @@ TrailPointer vtkTemporalPathLineFilter::GetTrail(vtkIdType i)
 #define vtkTTFEQUAL(p,q) (p[0]==q[0] && p[1]==q[1] && p[2]==q[2])
 //---------------------------------------------------------------------------
 void vtkTemporalPathLineFilter::IncrementTrail(
-  TrailPointer trail, vtkDataSet *input, vtkIdType id) 
+  TrailPointer trail, vtkDataSet *input, vtkIdType id)
 {
   //
   // After a clip operation, some points might not exist anymore
@@ -233,7 +233,7 @@ void vtkTemporalPathLineFilter::IncrementTrail(
     trail->updated = 1;
     return;
   }
-  // if for some reason, two particles have the same ID, only update once 
+  // if for some reason, two particles have the same ID, only update once
   // and use the point that is closest to the last point on the trail
   if (trail->updated && trail->length>0) {
     unsigned int lastindex = (trail->lastpoint-2)%this->MaxTrackLength;
@@ -242,7 +242,7 @@ void vtkTemporalPathLineFilter::IncrementTrail(
     double *coord1a = trail->Coords[thisindex].x;
     double *coord1b = input->GetPoint(id);
     if (vtkMath::Distance2BetweenPoints(coord0, coord1b)<
-        vtkMath::Distance2BetweenPoints(coord0, coord1a)) 
+        vtkMath::Distance2BetweenPoints(coord0, coord1a))
     {
       // new point is closer to previous than the one already present.
       // replace with this one.
@@ -253,7 +253,7 @@ void vtkTemporalPathLineFilter::IncrementTrail(
           trail->lastpoint, id, this->Internals->InputFieldArrays[fieldId]);
         }
     }
-    // all indices have been updated already, so just exit 
+    // all indices have been updated already, so just exit
     return;
   }
   //
@@ -280,7 +280,7 @@ void vtkTemporalPathLineFilter::IncrementTrail(
     //
     if (distx>this->MaxStepDistance[0] ||
         disty>this->MaxStepDistance[1] ||
-        distz>this->MaxStepDistance[2]) 
+        distz>this->MaxStepDistance[2])
     {
       trail->alive = 0;
       trail->updated = 1;
@@ -350,7 +350,7 @@ int vtkTemporalPathLineFilter::RequestData(
   // we don't always know how many trails there will be so guess 1000 for allocation of
   // point scalars on the second Particle output
   pointPointData->Initialize();
-  pointPointData->CopyAllocate(inputPointData, 1000); 
+  pointPointData->CopyAllocate(inputPointData, 1000);
 
   //
   // Get Ids if they are there and check they didn't change
@@ -414,13 +414,13 @@ int vtkTemporalPathLineFilter::RequestData(
     }
 
   //
-  // Clear all trails' 'alive' flag so that 
+  // Clear all trails' 'alive' flag so that
   // 'dead' ones can be removed at the end
   // Increment Trail marks the trail as alive
   //
   for (vtkTemporalPathLineFilterInternals::TrailIterator t=
-    this->Internals->Trails.begin(); 
-    t!=this->Internals->Trails.end(); t++) 
+    this->Internals->Trails.begin();
+    t!=this->Internals->Trails.end(); t++)
   {
     t->second->alive = 0;
     t->second->updated = 0;
@@ -493,8 +493,8 @@ int vtkTemporalPathLineFilter::RequestData(
     std::vector<vtkIdType> deadIds;
     deadIds.reserve(this->Internals->Trails.size());
     for (vtkTemporalPathLineFilterInternals::TrailIterator t=
-      this->Internals->Trails.begin(); 
-      t!=this->Internals->Trails.end(); t++) 
+      this->Internals->Trails.begin();
+      t!=this->Internals->Trails.end(); t++)
     {
       if (!t->second->alive) deadIds.push_back(t->first);
     }
@@ -524,8 +524,8 @@ int vtkTemporalPathLineFilter::RequestData(
   vtkIdType VertexId=0;
   //
   for (vtkTemporalPathLineFilterInternals::TrailIterator t=
-    this->Internals->Trails.begin(); 
-    t!=this->Internals->Trails.end(); t++) 
+    this->Internals->Trails.begin();
+    t!=this->Internals->Trails.end(); t++)
   {
     TrailPointer tp = t->second;
     if (tp->length>0) {
@@ -557,8 +557,8 @@ int vtkTemporalPathLineFilter::RequestData(
 
   output0->SetPoints(this->LineCoordinates);
   output0->SetLines(this->PolyLines);
-  outPD->AddArray(this->TrailId);    
-  outPD->SetScalars(this->TrailId); 
+  outPD->AddArray(this->TrailId);
+  outPD->SetScalars(this->TrailId);
   this->Internals->InputFieldArrays.resize(0);
 
   // Vertex at Front of Trail
@@ -585,16 +585,16 @@ void vtkTemporalPathLineFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "MaskPoints: " 
+  os << indent << "MaskPoints: "
     << this->MaskPoints << "\n";
-  os << indent << "MaxTrackLength: " 
+  os << indent << "MaxTrackLength: "
     << this->MaxTrackLength << "\n";
-  os << indent << "IdChannelArray: " 
+  os << indent << "IdChannelArray: "
     << (this->IdChannelArray ? this->IdChannelArray : "None") << "\n";
-  os << indent << "MaxStepDistance: {" 
+  os << indent << "MaxStepDistance: {"
      << this->MaxStepDistance[0] << ","
      << this->MaxStepDistance[1] << ","
      << this->MaxStepDistance[2] << "}\n";
-  os << indent << "KeepDeadTrails: " 
+  os << indent << "KeepDeadTrails: "
     << this->KeepDeadTrails << "\n";
 }

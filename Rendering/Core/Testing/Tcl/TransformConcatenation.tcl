@@ -1,6 +1,6 @@
 package require vtk
 
-# This example demonstrates how to set up flexible joints using 
+# This example demonstrates how to set up flexible joints using
 # the transformation pipeline and vtkTransformPolyDataFilter.
 
 
@@ -42,7 +42,7 @@ vtkTransform joint1
 vtkTransform t2
 t2 SetInput t1
 t2 Translate 0 1.6 0
-t2 Concatenate joint1 
+t2 Concatenate joint1
 
 vtkTransformPolyDataFilter f2
 f2 SetInputConnection [c2 GetOutputPort]

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkGraphReader - read vtkGraph data file
 // .SECTION Description
-// vtkGraphReader is a source object that reads ASCII or binary 
+// vtkGraphReader is a source object that reads ASCII or binary
 // vtkGraph data files in vtk format. (see text for format details).
 // The output of this reader is a single vtkGraph data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -45,7 +45,7 @@ public:
   vtkGraph *GetOutput();
   vtkGraph *GetOutput(int idx);
   void SetOutput(vtkGraph *output);
-  
+
 protected:
   vtkGraphReader();
   ~vtkGraphReader();
@@ -70,7 +70,7 @@ protected:
   // Read beginning of file to determine whether the graph is directed.
   virtual int ReadGraphDirectedness(bool & directed);
 
-  
+
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkGraphReader(const vtkGraphReader&);  // Not implemented.

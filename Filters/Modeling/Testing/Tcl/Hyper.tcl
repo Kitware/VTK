@@ -41,9 +41,9 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    rSP SetTensorsName "pointload"
    rSP SetScalarsName "effective_stress"
    rSP Update
-   
+
    set input [rSP GetOutput]
-   
+
    file delete -force "wSP.vtk"
 } else {
    set input [ptLoad GetOutput]
@@ -157,7 +157,7 @@ vtkConeSource coneSrc
 vtkPolyDataMapper coneMap
     coneMap SetInputConnection [coneSrc GetOutputPort]
 vtkActor coneActor
-    coneActor SetMapper coneMap;    
+    coneActor SetMapper coneMap;
     coneActor SetPosition 0 0 11
     coneActor RotateY 90
     eval [coneActor GetProperty] SetColor 1 0 0

@@ -48,7 +48,7 @@ vtkRenderedAreaPicker::~vtkRenderedAreaPicker()
 
 //--------------------------------------------------------------------------
 // Does what this class is meant to do.
-int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1, 
+int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
                                     vtkRenderer *renderer)
 {
   int picked = 0;
@@ -80,13 +80,13 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
     //invoke the pick event
     propCandidate = this->Path->GetLastNode()->GetViewProp();
 
-    //find the mapper and dataset corresponding to the picked prop        
+    //find the mapper and dataset corresponding to the picked prop
     pickable = this->TypeDecipher(propCandidate, &mapper);
     if ( pickable )
-      { 
+      {
       if ( mapper )
         {
-        this->Mapper = mapper; 
+        this->Mapper = mapper;
         vtkMapper *map1;
         vtkAbstractVolumeMapper *vmap;
         vtkImageMapper3D *imap;
@@ -108,7 +108,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
         else
           {
           this->DataSet = NULL;
-          }              
+          }
         }//mapper
       }//pickable
 

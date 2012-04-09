@@ -88,7 +88,7 @@ void vtkXMLShader::SetRootElement(vtkXMLDataElement* root)
 }
 
 //-----------------------------------------------------------------------------
-// Note that this method allocates a new string which must be deleted by 
+// Note that this method allocates a new string which must be deleted by
 // the caller.
 char* vtkXMLShader::LocateFile(const char* filename)
 {
@@ -131,7 +131,7 @@ char* vtkXMLShader::LocateFile(const char* filename)
     path += filename;
     if (vtksys::SystemTools::FileExists(path.c_str()))
       {
-      return vtksys::SystemTools::DuplicateString(path.c_str()); 
+      return vtksys::SystemTools::DuplicateString(path.c_str());
       }
     }
   return NULL;
@@ -271,7 +271,7 @@ int vtkXMLShader::GetStyle()
         }
       }
     }
-  
+
   assert("post valid_result" && (result==1 || result==2) );
   return result;
 }
@@ -296,10 +296,10 @@ const char** vtkXMLShader::GetArgs()
     {
     return 0;
     }
-  
+
   std::vector<std::string> args;
   vtksys::SystemTools::Split(this->RootElement->GetAttribute("args"), args, ' ');
-  
+
   int i;
   int size = static_cast<int>(args.size());
   if (size == 0)
@@ -391,7 +391,7 @@ void vtkXMLShader::PrintSelf(ostream& os, vtkIndent indent)
     os << "GLSL";
     }
   os << endl;
- 
+
   os << indent << "Location: ";
   switch (this->GetLocation())
     {
@@ -410,7 +410,7 @@ void vtkXMLShader::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << endl;
 
-  os << indent << "Entry: " 
+  os << indent << "Entry: "
     <<  (this->GetEntry()? this->GetEntry() : "(none)") << endl;
   os << indent << "Args: ";
   const char** args = this->GetArgs();

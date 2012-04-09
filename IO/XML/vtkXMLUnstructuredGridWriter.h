@@ -43,17 +43,17 @@ public:
   //BTX
   // Description:
   // Get/Set the writer's input.
-  vtkUnstructuredGrid* GetInput();  
+  vtkUnstructuredGrid* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLUnstructuredGridWriter();
-  ~vtkXMLUnstructuredGridWriter();  
-  
+  ~vtkXMLUnstructuredGridWriter();
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -64,14 +64,14 @@ protected:
 
   void WriteInlinePieceAttributes();
   void WriteInlinePiece(vtkIndent indent);
-  
+
   void WriteAppendedPieceAttributes(int index);
   void WriteAppendedPiece(int index, vtkIndent indent);
-  void WriteAppendedPieceData(int index);  
-  
+  void WriteAppendedPieceData(int index);
+
   virtual vtkIdType GetNumberOfInputCells();
   void CalculateSuperclassFraction(float* fractions);
-  
+
   // Positions of attributes for each piece.
   unsigned long* NumberOfCellsPositions;
   OffsetsManagerArray *CellsOM; //one per piece

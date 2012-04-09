@@ -41,7 +41,7 @@ void vtkTableExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
     vtkIndent nextIndent = indent.GetNextIndent();
     int* extent = this->ExtentTable;
     int i;
-    
+
     os << indent << "ExtentTable: 0: "
        << extent[0] << " " << extent[1] << " "
        << extent[2] << " " << extent[3] << " "
@@ -60,14 +60,14 @@ void vtkTableExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ExtentTable: (none)\n";
     }
   os << indent << "MaximumGhostLevel: " << this->MaximumGhostLevel << "\n";
-  os << indent << "NumberOfPiecesInTable: " 
+  os << indent << "NumberOfPiecesInTable: "
      << this->NumberOfPiecesInTable << "\n";
   if(this->PieceAvailable)
     {
     vtkIndent nextIndent = indent.GetNextIndent();
     int* available = this->PieceAvailable;
     int i;
-    
+
     os << indent << "PieceAvailable: 0: " << *available << "\n";
     for(i=1;i < this->NumberOfPiecesInTable;++i)
       {
@@ -118,7 +118,7 @@ void vtkTableExtentTranslator::SetNumberOfPiecesInTable(int pieces)
     delete [] this->PieceAvailable;
     this->PieceAvailable = 0;
     }
-  
+
   // Create and initialize a new extent table if there are any pieces.
   // Assume all pieces are available.
   if(this->NumberOfPiecesInTable > 0)
@@ -213,11 +213,11 @@ int vtkTableExtentTranslator::PieceToExtentByPoints()
 
 //----------------------------------------------------------------------------
 int
-vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces, 
-                                                  int ghostLevel, 
-                                                  int *wholeExtent, 
-                                                  int *resultExtent, 
-                                                  int vtkNotUsed(splitMode), 
+vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
+                                                  int ghostLevel,
+                                                  int *wholeExtent,
+                                                  int *resultExtent,
+                                                  int vtkNotUsed(splitMode),
                                                   int byPoints)
 {
   if (byPoints)
@@ -232,7 +232,7 @@ vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
     vtkErrorMacro("Piece " << piece << " does not exist.");
     return 0;
     }
-  
+
   if(ghostLevel > this->MaximumGhostLevel)
     {
     vtkWarningMacro("Ghost level " << ghostLevel
@@ -277,7 +277,7 @@ vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
     resultExtent[3] += this->GhostLevel;
     resultExtent[4] -= this->GhostLevel;
     resultExtent[5] += this->GhostLevel;
-    
+
     if (resultExtent[0] < wholeExtent[0])
       {
       resultExtent[0] = wholeExtent[0];
@@ -303,7 +303,7 @@ vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
       resultExtent[5] = wholeExtent[5];
       }
     }
-  
+
   return 1;
 
 }

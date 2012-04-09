@@ -60,7 +60,7 @@ public:
   // BTX
   void WriteToStream(ostream* ost);
   // ETX
-  
+
 protected:
   vtkFacetWriter();
   ~vtkFacetWriter();

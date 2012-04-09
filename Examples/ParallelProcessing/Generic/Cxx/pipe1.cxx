@@ -24,7 +24,7 @@ static float XFreq = 60;
 
 // Increments XFreq of the synthetic source
 static void IncrementXFreq(vtkObject *vtkNotUsed( caller ),
-                           unsigned long vtkNotUsed(eventId), 
+                           unsigned long vtkNotUsed(eventId),
                            void *sr, void *)
 {
   vtkRTAnalyticSource* source1 = reinterpret_cast<vtkRTAnalyticSource*>(sr);
@@ -35,7 +35,7 @@ static void IncrementXFreq(vtkObject *vtkNotUsed( caller ),
 
 // Pipe 1 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
-void pipe1(vtkMultiProcessController* vtkNotUsed(controller), 
+void pipe1(vtkMultiProcessController* vtkNotUsed(controller),
            void* vtkNotUsed(arg))
 {
   double extent = 20;
@@ -43,7 +43,7 @@ void pipe1(vtkMultiProcessController* vtkNotUsed(controller),
 
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
-  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent, 
+  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent,
                            -1*iextent, iextent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );
@@ -67,10 +67,10 @@ void pipe1(vtkMultiProcessController* vtkNotUsed(controller),
   cbc->SetClientData((void *)source1);
   op->AddObserver(vtkCommand::EndEvent,cbc);
   cbc->Delete();
-  
+
   // Process requests
   op->WaitForUpdate();
-  
+
   // Cleanup
   op->Delete();
   source1->Delete();

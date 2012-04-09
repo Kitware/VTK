@@ -17,20 +17,20 @@
 // vtkAssignAttribute is use to label a field (vtkDataArray) as an attribute.
 // A field name or an attribute to labeled can be specified. For example:
 // @verbatim
-// aa->Assign("foo", vtkDataSetAttributes::SCALARS, 
+// aa->Assign("foo", vtkDataSetAttributes::SCALARS,
 //            vtkAssignAttribute::POINT_DATA);
 // @endverbatim
 // tells vtkAssignAttribute to make the array in the point data called
 // "foo" the active scalars. On the other hand,
 // @verbatim
-// aa->Assign(vtkDataSetAttributes::VECTORS, vtkDataSetAttributes::SCALARS, 
+// aa->Assign(vtkDataSetAttributes::VECTORS, vtkDataSetAttributes::SCALARS,
 //            vtkAssignAttribute::POINT_DATA);
 // @endverbatim
 // tells vtkAssignAttribute to make the active vectors also the active
 // scalars. The same can be done more easily from Tcl by using the Assign()
 // method which takes strings:
 // @verbatim
-// aa Assign "foo" SCALARS POINT_DATA 
+// aa Assign "foo" SCALARS POINT_DATA
 // or
 // aa Assign SCALARS VECTORS POINT_DATA
 //
@@ -39,7 +39,7 @@
 // @endverbatim
 
 // .SECTION Caveats
-// When using Tcl, Java, Python or Visual Basic bindings, the array name 
+// When using Tcl, Java, Python or Visual Basic bindings, the array name
 // can not be one of the  AttributeTypes when calling Assign() which takes
 // strings as arguments. The Tcl (Java etc.) command will
 // always assume the string corresponds to an attribute type when
@@ -82,7 +82,7 @@ public:
   // Description:
   // Helper method used by other language bindings. Allows the caller to
   // specify arguments as strings instead of enums.
-  void Assign(const char* name, const char* attributeType, 
+  void Assign(const char* name, const char* attributeType,
               const char* attributeLoc);
 
 

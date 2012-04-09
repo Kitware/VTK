@@ -204,7 +204,7 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return;
     }
-  
+
 //
 // Write data
 //
@@ -409,19 +409,19 @@ void vtkBYUWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Geometry File Name: " 
+  os << indent << "Geometry File Name: "
      << (this->GeometryFileName ? this->GeometryFileName : "(none)") << "\n";
 
   os << indent << "Write Displacement: " << (this->WriteDisplacement ? "On\n" : "Off\n");
-  os << indent << "Displacement File Name: " 
+  os << indent << "Displacement File Name: "
      << (this->DisplacementFileName ? this->DisplacementFileName : "(none)") << "\n";
 
   os << indent << "Write Scalar: " << (this->WriteScalar ? "On\n" : "Off\n");
-  os << indent << "Scalar File Name: " 
+  os << indent << "Scalar File Name: "
      << (this->ScalarFileName ? this->ScalarFileName : "(none)") << "\n";
 
   os << indent << "Write Texture: " << (this->WriteTexture ? "On\n" : "Off\n");
-  os << indent << "Texture File Name: " 
+  os << indent << "Texture File Name: "
      << (this->TextureFileName ? this->TextureFileName : "(none)") << "\n";
 }
 

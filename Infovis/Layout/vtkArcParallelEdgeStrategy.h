@@ -46,13 +46,13 @@ public:
   // Get/Set the number of subdivisions on each edge.
   vtkGetMacro(NumberOfSubdivisions, int);
   vtkSetMacro(NumberOfSubdivisions, int);
-  
+
 protected:
   vtkArcParallelEdgeStrategy();
   ~vtkArcParallelEdgeStrategy();
 
   int NumberOfSubdivisions;
-  
+
 private:
   vtkArcParallelEdgeStrategy(const vtkArcParallelEdgeStrategy&);  // Not implemented.
   void operator=(const vtkArcParallelEdgeStrategy&);  // Not implemented.

@@ -33,7 +33,7 @@
 int TestAssignAttribute(int, char *[])
 {
   int errors = 0;
-  
+
   VTK_CREATE(vtkMutableUndirectedGraph, graph);
   VTK_CREATE(vtkPolyData, poly);
   VTK_CREATE(vtkPoints, pts);
@@ -60,8 +60,8 @@ int TestAssignAttribute(int, char *[])
   VTK_CREATE(vtkAssignAttribute, assign);
 
   assign->SetInputData(graph);
-  assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::VERTEX_DATA);  
-  assign->Update();  
+  assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::VERTEX_DATA);
+  assign->Update();
   vtkGraph *output = vtkGraph::SafeDownCast(assign->GetOutput());
   if (output->GetVertexData()->GetScalars() != scalars.GetPointer())
     {
@@ -69,7 +69,7 @@ int TestAssignAttribute(int, char *[])
     ++errors;
     }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::EDGE_DATA);
-  assign->Update();  
+  assign->Update();
   output = vtkGraph::SafeDownCast(assign->GetOutput());
   if (output->GetEdgeData()->GetScalars() != scalars.GetPointer())
     {
@@ -78,8 +78,8 @@ int TestAssignAttribute(int, char *[])
     }
 
   assign->SetInputData(poly);
-  assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);  
-  assign->Update();  
+  assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::POINT_DATA);
+  assign->Update();
   vtkPolyData *outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetPointData()->GetScalars() != scalars.GetPointer())
     {
@@ -87,7 +87,7 @@ int TestAssignAttribute(int, char *[])
     ++errors;
     }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::CELL_DATA);
-  assign->Update();  
+  assign->Update();
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetCellData()->GetScalars() != scalars.GetPointer())
     {

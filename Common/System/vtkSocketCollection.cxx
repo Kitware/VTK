@@ -41,14 +41,14 @@ int vtkSocketCollection::SelectSockets(unsigned long msec /*=0*/)
 {
   // clear last selected socket.
   this->SelectedSocket = 0;
-  
+
   int max = this->GetNumberOfItems();
   if (max <= 0)
     {
     vtkErrorMacro("No sockets to select.");
     return -1;
     }
-  
+
   int* socket_indices = new int[max];
   int* sockets_to_select = new int[max];
   int no_of_sockets = 0;
@@ -83,16 +83,16 @@ int vtkSocketCollection::SelectSockets(unsigned long msec /*=0*/)
     {
     actual_index = socket_indices[index];
     }
-  
+
   iter->Delete();
   delete []sockets_to_select;
   delete []socket_indices;
-  
+
   if (res <= 0 || index == -1)
     {
     return res;
     }
-  
+
   this->SelectedSocket = vtkSocket::SafeDownCast(
     this->GetItemAsObject(actual_index));
   return 1;

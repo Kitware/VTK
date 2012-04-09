@@ -89,7 +89,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
   double radIncr = this->DeltaRadius / this->Resolution;
   double transIncr = this->Translation / this->Resolution;
   double angleIncr = vtkMath::RadiansFromDegrees( blockAngle ) / this->Resolution;
-       
+
   // Sweep over set resolution
   for ( int i = 1; i <= this->Resolution; ++ i )
     {
@@ -127,7 +127,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
           }
         double psi = asin( tempd );
 
-        if ( psi < 0. ) 
+        if ( psi < 0. )
           {
           if ( theta < ( vtkMath::Pi() / 2. ) )
             {
@@ -138,7 +138,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
             theta = vtkMath::Pi() - psi;
             }
           }
-              
+
         //increment angle
         radius += i*radIncr;
         newX[this->Axis] = x[this->Axis] + i * transIncr;
@@ -151,7 +151,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
         newX[idx1] = 0.;
         newX[idx2] = 0.;
         }
-      
+
       // Update swept mesh
       newPts->InsertPoint( ptId + i * numPts, newX );
       outPD->CopyData( pd, ptId, ptId + i * numPts );
@@ -266,7 +266,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       outPD->CopyAllocate( pd,( this->Resolution+1 )*numPts );
       newPts = vtkPoints::New();
       newPts->Allocate( ( this->Resolution+1 )*numPts );
-      if ( ( ncells=inVerts->GetNumberOfCells() ) > 0 ) 
+      if ( ( ncells=inVerts->GetNumberOfCells() ) > 0 )
         {
         newLines = vtkCellArray::New();
         newLines->Allocate( newLines->EstimateSize( ncells,this->Resolution+1 ) );
@@ -328,11 +328,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
         }//if there are verts generating lines
       this->UpdateProgress ( 0.25 );
       abort = this->GetAbortExecute();
-  
+
       // If capping is on, copy 2D cells to output ( plus create cap ). Notice
       // that polygons are done first, then strips.
       //
-      if ( this->Capping && ( blockAngle != 360.0 || this->DeltaRadius != 0.0 
+      if ( this->Capping && ( blockAngle != 360.0 || this->DeltaRadius != 0.0
                               || this->Translation != 0.0 ) )
         {
         if ( inPolys->GetNumberOfCells() > 0 )
@@ -363,7 +363,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
           {
           newStrips = vtkCellArray::New();
           newStrips->Allocate( inStrips->GetSize() );
-       
+
           for ( vtkIdType cellId = 0; cellId < numCells && !abort; ++ cellId )
             {
             type = mesh->GetCellType( cellId );
@@ -421,11 +421,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
                 }
               }
             }//if a line
-       
-          else if ( type == VTK_TRIANGLE 
-                    || type == VTK_QUAD 
-                    || type == VTK_POLYGON 
-                    || type == VTK_TRIANGLE_STRIP ) 
+
+          else if ( type == VTK_TRIANGLE
+                    || type == VTK_QUAD
+                    || type == VTK_POLYGON
+                    || type == VTK_TRIANGLE_STRIP )
             {// create strips from boundary edges
             mesh->GetCell( cellId,cell );
             numEdges = cell->GetNumberOfEdges();
@@ -437,7 +437,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
                 p1 = edge->PointIds->GetId( j );
                 p2 = edge->PointIds->GetId( j+1 );
                 mesh->GetCellEdgeNeighbors( cellId, p1, p2, cellIds );
-                
+
                 if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
                   {
                   vtkIdType idxPt;
@@ -459,7 +459,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
               } //for each edge
             } //for each polygon or triangle strip
           }//for all cells
-    
+
         cellIds->Delete();
         cell->Delete();
         } //if strips are being generated
@@ -470,19 +470,19 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       newPts->Delete();
       mesh->Delete();
 
-      if ( newLines ) 
+      if ( newLines )
         {
         output->SetLines( newLines );
         newLines->Delete();
         }
-  
-      if ( newPolys ) 
+
+      if ( newPolys )
         {
         output->SetPolys( newPolys );
         newPolys->Delete();
         }
-  
-      if ( newStrips ) 
+
+      if ( newStrips )
         {
         output->SetStrips( newStrips );
         newStrips->Delete();
@@ -501,7 +501,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
     } /* Iterate over input blocks */
   inputIterator->Delete();
 
-   
+
   // build final composite output. also tagging blocks with their associated Id
   compositeOutput->SetNumberOfBlocks( static_cast<unsigned int>( outputBlocks.size() ) );
   int blockIndex=0;

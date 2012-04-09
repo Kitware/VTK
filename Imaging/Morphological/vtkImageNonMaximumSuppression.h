@@ -38,12 +38,12 @@ public:
   static vtkImageNonMaximumSuppression *New();
   vtkTypeMacro(vtkImageNonMaximumSuppression,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the magnitude and vector inputs.
   void SetMagnitudeInputData(vtkImageData *input) {this->SetInputData(0,input);};
   void SetVectorInputData(vtkImageData *input) {this->SetInputData(1,input);};
-  
+
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated
   // So central differences can get values.
@@ -55,29 +55,29 @@ public:
   // Determines how the input is interpreted (set of 2d slices or a 3D volume)
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
-  
+
 protected:
   vtkImageNonMaximumSuppression();
   ~vtkImageNonMaximumSuppression() {};
 
   int HandleBoundaries;
   int Dimensionality;
-  
-  virtual int RequestInformation (vtkInformation *, 
+
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
 
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
-  
-  virtual void ThreadedRequestData(vtkInformation *request, 
-                                   vtkInformationVector **inputVector, 
+
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
-                                   vtkImageData ***inData, 
+                                   vtkImageData ***inData,
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
-  
+
 private:
   vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);  // Not implemented.
   void operator=(const vtkImageNonMaximumSuppression&);  // Not implemented.

@@ -13,7 +13,7 @@ sphereMapper.GlobalImmediateModeRenderingOn()
 sphereActor = vtk.vtkLODActor()
 sphereActor.SetMapper(sphereMapper)
 
-# Create a scaled text actor. 
+# Create a scaled text actor.
 # Set the text, font, justification, and properties (bold, italics,
 # etc.).
 textActor = vtk.vtkTextActor()

@@ -28,14 +28,14 @@
 // particular shader. Descendants of this class inherit this functionality and
 // additionally interface to specific shader libraries like NVidia's Cg and
 // OpenGL2.0 (GLSL) to perform operations, on individual shaders.
-// 
+//
 // During each render, the vtkShaderProgram calls Compile(),
 // PassShaderVariables(), Bind() and after the actor has been rendered,
 // calls Unbind(), in that order.
 // .SECTION See Also
 // vtkCgShader vtkGLSLShader
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkShader_h
@@ -77,7 +77,7 @@ public:
 
   // Description:
   // In this method the shader can enable/bind itself. This is applicable
-  // only to Cg, since in GLSL, individual shaders in a program can't be 
+  // only to Cg, since in GLSL, individual shaders in a program can't be
   // enabled/bound.
   virtual void  Bind() { }
 
@@ -91,7 +91,7 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) { }
-  
+
   // Description:
   // Get/Set the XMLShader representation for this shader.
   // A shader is not valid without a XMLShader.
@@ -105,7 +105,7 @@ public:
   // Description:
   // Methods to add shader variables to this shader.
   // The shader variable type must match with that declared in
-  // the Material xml, otherwise, the variable is not made available 
+  // the Material xml, otherwise, the variable is not made available
   // to the shader.
   void AddShaderVariable(const char* name, int num_of_elements,
     const int *values);
@@ -123,7 +123,7 @@ public:
   // Returns the type of a Shader variable with the given name.
   // Return 0 on error.
   int GetShaderVariableType(const char* name);
-  
+
   // Description:
   // Methods to get the value of shader variables with the given name.
   // Values must be at least the size of the shader variable (obtained
@@ -156,8 +156,8 @@ protected:
   // variable elements and process them.
   virtual void SetShaderParameters(vtkActor*, vtkRenderer*,
                                    vtkXMLDataElement*);
-  
-  
+
+
   // Description:
   // Processes <Uniform /> elements.
   void SetUniformParameter(vtkActor*, vtkRenderer*, vtkXMLDataElement*);
@@ -189,19 +189,19 @@ protected:
   // Description:
   // Equivalent to cgGLSetParameter and glUniform.
   // Subclasses must override these and perform GLSL or Cg calls.
-  virtual void SetUniformParameter(const char* name, int numValues, 
+  virtual void SetUniformParameter(const char* name, int numValues,
     const int* value) =0;
-  virtual void SetUniformParameter(const char* name, int numValues, 
+  virtual void SetUniformParameter(const char* name, int numValues,
     const float* value)=0;
-  virtual void SetUniformParameter(const char* name, int numValues, 
+  virtual void SetUniformParameter(const char* name, int numValues,
     const double* value)=0;
 
   // Description:
   // Equivalent to cgGLSetMatrixParameterfc and glUniformMatrix.
   // Subclasses must override these and perform GLSL or Cg calls.
-  virtual void SetMatrixParameter(const char* name, int numValues, 
+  virtual void SetMatrixParameter(const char* name, int numValues,
     int order, const float* value)=0;
-  virtual void SetMatrixParameter(const char* name, int numValues, 
+  virtual void SetMatrixParameter(const char* name, int numValues,
     int order, const double* value)=0;
   virtual void SetMatrixParameter(const char* name, const char* state_matix_type,
     const char* transform_type)=0;
@@ -215,7 +215,7 @@ protected:
   // and perform GLSL or Cg calls.
   virtual void SetSamplerParameter(const char* name, vtkTexture* texture,
                                    int textureIndex)=0;
- 
+
   vtkTimeStamp PassShaderVariablesTime;
 private:
   vtkShader(const vtkShader&); // Not Implemented

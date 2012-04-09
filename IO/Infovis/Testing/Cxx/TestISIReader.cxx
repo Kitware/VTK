@@ -40,15 +40,15 @@ int TestISIReader(int argc, char* argv[])
   vtkSmartPointer<vtkISIReader> reader = vtkSmartPointer<vtkISIReader>::New();
   reader->SetFileName(file);
   delete[] file;
-  reader->Update(); 
+  reader->Update();
   vtkTable* const table = reader->GetOutput();
 
-  int error_count = 0; 
+  int error_count = 0;
 
   // Test the size of the output table ...
   TestValue(table->GetNumberOfColumns(), vtkIdType(37), "Column count", error_count);
   TestValue(table->GetNumberOfRows(), vtkIdType(501), "Row count", error_count);
-  
+
   // Test a sampling of the table columns ...
   TestValue(vtkStdString(table->GetColumnName(0)), vtkStdString("PT"), "Column 0", error_count);
   TestValue(vtkStdString(table->GetColumnName(1)), vtkStdString("AU"), "Column 1", error_count);
@@ -68,6 +68,6 @@ int TestISIReader(int argc, char* argv[])
   TestValue(table->GetValue(499, 20).ToString(), vtkStdString("JAN 30"), "value 499, 20", error_count);
   TestValue(table->GetValue(499, 21).ToString(), vtkStdString("1996"), "value 499, 21", error_count);
   TestValue(table->GetValue(499, 22).ToString(), vtkStdString("17"), "value 499, 22", error_count);
-  
+
   return error_count;
 }

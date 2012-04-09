@@ -60,19 +60,19 @@ public:
   // but this method can be used to set another instead.
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  
-  
+
+
 protected:
   vtkProcessIdScalars();
   ~vtkProcessIdScalars();
-  
+
   // Append the pieces.
   int RequestData(
     vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   vtkIntArray *MakeProcessIdScalars(int piece, vtkIdType numScalars);
   vtkFloatArray *MakeRandomScalars(int piece, vtkIdType numScalars);
-  
+
   vtkSetMacro(CellScalarsFlag,int);
   int CellScalarsFlag;
   int RandomMode;

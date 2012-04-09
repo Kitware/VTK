@@ -14,30 +14,30 @@
 =========================================================================*/
 // .NAME vtkImplicitTextureCoords - generate 1D, 2D, or 3D texture coordinates based on implicit function(s)
 // .SECTION Description
-// vtkImplicitTextureCoords is a filter to generate 1D, 2D, or 3D texture 
-// coordinates from one, two, or three implicit functions, respectively. 
+// vtkImplicitTextureCoords is a filter to generate 1D, 2D, or 3D texture
+// coordinates from one, two, or three implicit functions, respectively.
 // In combinations with a vtkBooleanTexture map (or another texture map of
 // your own creation), the texture coordinates can be used to highlight
 //(via color or intensity) or cut (via transparency) dataset geometry without
-// any complex geometric processing. (Note: the texture coordinates are 
+// any complex geometric processing. (Note: the texture coordinates are
 // referred to as r-s-t coordinates.)
 //
-// The texture coordinates are automatically normalized to lie between (0,1). 
-// Thus, no matter what the implicit functions evaluate to, the resulting 
-// texture coordinates lie between (0,1), with the zero implicit function 
-// value mapped to the 0.5 texture coordinates value. Depending upon the 
-// maximum negative/positive implicit function values, the full (0,1) range 
-// may not be occupied (i.e., the positive/negative ranges are mapped using 
+// The texture coordinates are automatically normalized to lie between (0,1).
+// Thus, no matter what the implicit functions evaluate to, the resulting
+// texture coordinates lie between (0,1), with the zero implicit function
+// value mapped to the 0.5 texture coordinates value. Depending upon the
+// maximum negative/positive implicit function values, the full (0,1) range
+// may not be occupied (i.e., the positive/negative ranges are mapped using
 // the same scale factor).
 //
-// A boolean variable InvertTexture is available to flip the texture 
-// coordinates around 0.5 (value 1.0 becomes 0.0, 0.25->0.75). This is 
+// A boolean variable InvertTexture is available to flip the texture
+// coordinates around 0.5 (value 1.0 becomes 0.0, 0.25->0.75). This is
 // equivalent to flipping the texture map (but a whole lot easier).
 
 // .SECTION Caveats
 // You can use the transformation capabilities of vtkImplicitFunction to
-// orient, translate, and scale the implicit functions. Also, the dimension of 
-// the texture coordinates is implicitly defined by the number of implicit 
+// orient, translate, and scale the implicit functions. Also, the dimension of
+// the texture coordinates is implicitly defined by the number of implicit
 // functions defined.
 
 // .SECTION See Also
@@ -61,7 +61,7 @@ public:
   // Create object with texture dimension=2 and no r-s-t implicit functions
   // defined and FlipTexture turned off.
   static vtkImplicitTextureCoords *New();
-  
+
   // Description:
   // Specify an implicit function to compute the r texture coordinate.
   virtual void SetRFunction(vtkImplicitFunction*);
@@ -82,8 +82,8 @@ public:
   // function (i.e., a rotation around the r-s-t=0.5 axis).
   vtkSetMacro(FlipTexture,int);
   vtkGetMacro(FlipTexture,int);
-  vtkBooleanMacro(FlipTexture,int);  
-  
+  vtkBooleanMacro(FlipTexture,int);
+
 protected:
   vtkImplicitTextureCoords();
   ~vtkImplicitTextureCoords();

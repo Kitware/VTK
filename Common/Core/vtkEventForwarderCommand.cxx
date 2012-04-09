@@ -17,13 +17,13 @@
 #include "vtkObject.h"
 
 //----------------------------------------------------------------
-vtkEventForwarderCommand::vtkEventForwarderCommand() 
-{ 
+vtkEventForwarderCommand::vtkEventForwarderCommand()
+{
   this->Target = NULL;
 }
 
 //----------------------------------------------------------------
-void vtkEventForwarderCommand::Execute(vtkObject *, 
+void vtkEventForwarderCommand::Execute(vtkObject *,
                                        unsigned long event,
                                        void *call_data)
 {

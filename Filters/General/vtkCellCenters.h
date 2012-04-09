@@ -14,13 +14,13 @@
 =========================================================================*/
 // .NAME vtkCellCenters - generate points at center of cells
 // .SECTION Description
-// vtkCellCenters is a filter that takes as input any dataset and 
+// vtkCellCenters is a filter that takes as input any dataset and
 // generates on output points at the center of the cells in the dataset.
-// These points can be used for placing glyphs (vtkGlyph3D) or labeling 
+// These points can be used for placing glyphs (vtkGlyph3D) or labeling
 // (vtkLabeledDataMapper). (The center is the parametric center of the
 // cell, not necessarily the geometric or bounding box center.) The cell
 // attributes will be associated with the points on output.
-// 
+//
 // .SECTION Caveats
 // You can choose to generate just points or points and vertex cells.
 // Vertex cells are drawn during rendering; points are not. Use the ivar

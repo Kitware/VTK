@@ -38,16 +38,16 @@ class VTK_BRIDGE_EXPORT vtkBridgeCellIteratorStrategy : public vtkGenericCellIte
 public:
   vtkTypeMacro(vtkBridgeCellIteratorStrategy,vtkGenericCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Create an empty cell. NOT USED
   // \post result_exists: result!=0
   vtkGenericAdaptorCell *NewCell();
-  
+
 protected:
   vtkBridgeCellIteratorStrategy() {}
   virtual ~vtkBridgeCellIteratorStrategy() {}
-  
+
 private:
   vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&); // Not implemented
   void operator=(const vtkBridgeCellIteratorStrategy&); // Not implemented

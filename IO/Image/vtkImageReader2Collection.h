@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageReader2Collection - maintain a list of image readers 
+// .NAME vtkImageReader2Collection - maintain a list of image readers
 // .SECTION Description
 // vtkImageReader2Collection is an object that creates and manipulates
-// lists of objects of type vtkImageReader2 and its subclasses. 
+// lists of objects of type vtkImageReader2 and its subclasses.
 // .SECTION See Also
 // vtkCollection vtkPlaneCollection
 
@@ -41,18 +41,18 @@ public:
   // Description:
   // Get the next image reader in the list.
   vtkImageReader2 *GetNextItem();
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkImageReader2 *GetNextImageReader2(vtkCollectionSimpleIterator &cookie);
   //ETX
 
 protected:
   vtkImageReader2Collection() {};
   ~vtkImageReader2Collection() {};
-  
+
 
 private:
   // hide the standard AddItem from the user and the compiler.

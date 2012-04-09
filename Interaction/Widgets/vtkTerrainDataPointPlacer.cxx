@@ -72,7 +72,7 @@ int vtkTerrainDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
                                       double worldPos[3],
                                       double vtkNotUsed(worldOrient)[9] )
 {
-  if ( this->PropPicker->Pick(displayPos[0], 
+  if ( this->PropPicker->Pick(displayPos[0],
                               displayPos[1], 0.0, ren) )
     {
     if (vtkAssemblyPath *path = this->PropPicker->GetPath())
@@ -86,7 +86,7 @@ int vtkTerrainDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       vtkAssemblyNode *node = NULL;
       vtkCollectionSimpleIterator sit;
       this->TerrainProps->InitTraversal(sit);
-      
+
       while (vtkProp *p = this->TerrainProps->GetNextProp(sit))
         {
         vtkCollectionSimpleIterator psit;
@@ -107,7 +107,7 @@ int vtkTerrainDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
         }
       }
     }
-    
+
   return 0;
 }
 
@@ -119,21 +119,21 @@ int vtkTerrainDataPointPlacer::ValidateWorldPosition( double worldPos[3],
 }
 
 //----------------------------------------------------------------------
-int vtkTerrainDataPointPlacer::ValidateWorldPosition( 
+int vtkTerrainDataPointPlacer::ValidateWorldPosition(
                      double vtkNotUsed(worldPos)[3] )
 {
   return 1;
 }
 
 //----------------------------------------------------------------------
-int vtkTerrainDataPointPlacer::ValidateDisplayPosition( vtkRenderer *, 
+int vtkTerrainDataPointPlacer::ValidateDisplayPosition( vtkRenderer *,
                                       double vtkNotUsed(displayPos)[2] )
 {
   // We could check here to ensure that the display point picks one of the
-  // terrain props, but the contour representation always calls 
-  // ComputeWorldPosition followed by 
-  // ValidateDisplayPosition/ValidateWorldPosition when it needs to 
-  // update a node... 
+  // terrain props, but the contour representation always calls
+  // ComputeWorldPosition followed by
+  // ValidateDisplayPosition/ValidateWorldPosition when it needs to
+  // update a node...
   //
   // So that would be wasting CPU cycles to perform
   // the same check twice..  Just return 1 here.

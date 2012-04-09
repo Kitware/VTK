@@ -15,20 +15,20 @@
 // .NAME vtkMarchingSquares - generate isoline(s) from structured points set
 // .SECTION Description
 // vtkMarchingSquares is a filter that takes as input a structured points set
-// and generates on output one or more isolines.  One or more contour values 
-// must be specified to generate the isolines.  Alternatively, you can specify 
-// a min/max scalar range and the number of contours to generate a series of 
-// evenly spaced contour values. 
+// and generates on output one or more isolines.  One or more contour values
+// must be specified to generate the isolines.  Alternatively, you can specify
+// a min/max scalar range and the number of contours to generate a series of
+// evenly spaced contour values.
 //
-// To generate contour lines the input data must be of topological dimension 2 
+// To generate contour lines the input data must be of topological dimension 2
 // (i.e., an image). If not, you can use the ImageRange ivar to select an
 // image plane from an input volume. This avoids having to extract a plane first
 // (using vtkExtractSubVolume).  The filter deals with this by first
-// trying to use the input data directly, and if not a 2D image, then uses the 
+// trying to use the input data directly, and if not a 2D image, then uses the
 // ImageRange ivar to reduce it to an image.
 
 // .SECTION Caveats
-// This filter is specialized to images. If you are interested in 
+// This filter is specialized to images. If you are interested in
 // contouring other types of data, use the general vtkContourFilter.
 // .SECTION See Also
 // vtkContourFilter vtkMarchingCubes vtkSliceCubes vtkDividingCubes
@@ -52,13 +52,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the i-j-k index range which define a plane on which to generate 
+  // Set/Get the i-j-k index range which define a plane on which to generate
   // contour lines. Using this ivar it is possible to input a 3D volume
-  // directly and then generate contour lines on one of the i-j-k planes, or 
+  // directly and then generate contour lines on one of the i-j-k planes, or
   // a portion of a plane.
   vtkSetVectorMacro(ImageRange,int,6);
   vtkGetVectorMacro(ImageRange,int,6);
-  void SetImageRange(int imin, int imax, int jmin, int jmax, 
+  void SetImageRange(int imin, int imax, int jmin, int jmax,
                      int kmin, int kmax);
 
   // Description:
@@ -80,7 +80,7 @@ public:
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. 
+  // Create default locator. Used to create one when none is specified.
   // The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -101,7 +101,7 @@ private:
 };
 
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
+// Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
 inline void vtkMarchingSquares::SetValue(int i, double value)
 {this->ContourValues->SetValue(i,value);}

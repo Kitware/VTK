@@ -43,7 +43,7 @@ public:
   // The layout strategy to use during graph layout.
   void SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy);
   vtkGetObjectMacro(LayoutStrategy, vtkEdgeLayoutStrategy);
-  
+
   // Description:
   // Get the modification time of the layout algorithm.
   virtual unsigned long GetMTime();
@@ -61,10 +61,10 @@ protected:
   unsigned long ObserverTag;
 
   int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
-  
+
 private:
 
   vtkGraph *InternalGraph;

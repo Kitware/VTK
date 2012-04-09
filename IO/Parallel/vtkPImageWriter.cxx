@@ -45,7 +45,7 @@ vtkStandardNewMacro(vtkPImageWriter);
 vtkPImageWriter::vtkPImageWriter()
 {
   // Set a default memory limit of a gigabyte
-  this->MemoryLimit = 1000000; 
+  this->MemoryLimit = 1000000;
 
   this->SizeEstimator = vtkPipelineSize::New();
 }
@@ -90,11 +90,11 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       {
       sprintf(this->InternalFileName,"%s",this->FileName);
       }
-    else 
+    else
       {
       if (this->FilePrefix)
         {
-        sprintf(this->InternalFileName, this->FilePattern, 
+        sprintf(this->InternalFileName, this->FilePattern,
                 this->FilePrefix, this->FileNumber);
         }
       else
@@ -111,7 +111,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     fileOpenedHere = 1;
     if (file->fail())
       {
-      vtkErrorMacro("RecursiveWrite: Could not open file " << 
+      vtkErrorMacro("RecursiveWrite: Could not open file " <<
                     this->InternalFileName);
       delete file;
       return;
@@ -160,11 +160,11 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // the we will split the current axis
   int* updateExtent = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
   this->GetInput()->GetAxisUpdateExtent(axis, min, max, updateExtent);
-  
-  vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
-        << "), UpdateMemory: " << inputMemorySize 
+
+  vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max
+        << "), UpdateMemory: " << inputMemorySize
         << ", Limit: " << this->MemoryLimit << endl);
-  
+
   if (min == max)
     {
     if (axis > 0)
@@ -178,7 +178,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     vtkPIWCloseFile;
     return;
     }
-  
+
   mid = (min + max) / 2;
 
   int axisUpdateExtent[6];
@@ -190,7 +190,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
     this->RecursiveWrite(axis,cache,inInfo,file);
-    
+
     // second half
     cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
@@ -202,13 +202,13 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
     this->RecursiveWrite(axis,cache,inInfo,file);
-    
+
     // second half
     cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
     this->RecursiveWrite(axis,cache,inInfo,file);
     }
-    
+
   // restore original extent
   cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
   vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);

@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -125,7 +125,7 @@ int vtkPBGLConnectedComponents::RequestData(
   DistributedComponentMap componentMap
     = MakeDistributedVertexPropertyMap(output, componentArray);
 
-  // Execute the algorithm itself  
+  // Execute the algorithm itself
   if (vtkUndirectedGraph::SafeDownCast(output))
     {
     // Distributed parent map. Used for scratch space in the algorithm
@@ -156,16 +156,16 @@ int vtkPBGLConnectedComponents::RequestData(
   // Add component array to the output
   output->GetVertexData()->AddArray(componentArray);
   componentArray->Delete();
-  
+
   return 1;
 }
 
 void vtkPBGLConnectedComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "ComponentArrayName: " 
-     << (this->ComponentArrayName ? this->ComponentArrayName : "(none)") 
+
+  os << indent << "ComponentArrayName: "
+     << (this->ComponentArrayName ? this->ComponentArrayName : "(none)")
      << endl;
 }
 

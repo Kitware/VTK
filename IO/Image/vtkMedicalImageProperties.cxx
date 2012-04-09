@@ -175,7 +175,7 @@ public:
         return static_cast<int>(cit->first);
         }
       ++cit;
-      } 
+      }
     return -1; // uid not found.
     }
   void Print(ostream &os, vtkIndent indent)
@@ -1082,9 +1082,9 @@ void vtkMedicalImageProperties::PrintSelf(ostream& os, vtkIndent indent)
     os << this->Exposure;
     }
 
-  os << indent << "Direction Cosine: (" << this->DirectionCosine[0] << ", " 
+  os << indent << "Direction Cosine: (" << this->DirectionCosine[0] << ", "
      << this->DirectionCosine[1] << ", " << this->DirectionCosine[2] << "), ("
-     << this->DirectionCosine[3] << ", " << this->DirectionCosine[4] 
+     << this->DirectionCosine[3] << ", " << this->DirectionCosine[4]
      << ", " << this->DirectionCosine[5] << ")\n";
 
   this->Internals->Print(os << "\n", indent.GetNextIndent() );

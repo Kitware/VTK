@@ -56,7 +56,7 @@ int vtkGeoArcs::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
+
   // Prepare to copy cell data
   output->GetCellData()->CopyAllocate(input->GetCellData());
 
@@ -68,13 +68,13 @@ int vtkGeoArcs::RequestData(
   lines->InitTraversal();
   for (vtkIdType i = 0; i < lines->GetNumberOfCells(); i++)
     {
-      vtkIdType npts=0; // to remove warning 
+      vtkIdType npts=0; // to remove warning
     vtkIdType* pts=0; // to remove warning
     lines->GetNextCell(npts, pts);
-    
+
     double lastPoint[3];
     newPoints->GetPoint(pts[0], lastPoint);
-    
+
     for (vtkIdType p = 1; p < npts; ++p)
       {
       // Create the new cell
@@ -83,7 +83,7 @@ int vtkGeoArcs::RequestData(
 
       double curPoint[3];
       newPoints->GetPoint(pts[p], curPoint);
-      
+
       // Find w, a unit vector pointing from the center of the
       // earth directly inbetween the two endpoints.
       double w[3];
@@ -92,7 +92,7 @@ int vtkGeoArcs::RequestData(
         w[c] = (lastPoint[c] + curPoint[c])/2.0;
         }
       vtkMath::Normalize(w);
-      
+
       // The center of the circle used to draw the arc is a
       // point along the vector w scaled by the explode factor.
       double center[3];
@@ -100,7 +100,7 @@ int vtkGeoArcs::RequestData(
         {
         center[c] = this->ExplodeFactor * this->GlobeRadius * w[c];
         }
-      
+
       // The vectors u and x are unit vectors pointing from the
       // center of the circle to the two endpoints of the arc,
       // lastPoint and curPoint, respectively.
@@ -113,10 +113,10 @@ int vtkGeoArcs::RequestData(
       double radius = vtkMath::Norm(u);
       vtkMath::Normalize(u);
       vtkMath::Normalize(x);
-      
+
       // Find the angle that the arc spans.
       double theta = acos(vtkMath::Dot(u, x));
-      
+
       // If the vectors u, x point toward the center of the earth, take
       // the larger angle between the vectors.
       // We determine whether u points toward the center of the earth
@@ -137,7 +137,7 @@ int vtkGeoArcs::RequestData(
       double v[3];
       vtkMath::Cross(n, u, v);
       vtkMath::Normalize(v);
-      
+
       // Use the general equation for a circle in three dimensions
       // to draw an arc from the last point to the current point.
       for (int s = 0; s < this->NumberOfSubdivisions; ++s)
@@ -151,7 +151,7 @@ int vtkGeoArcs::RequestData(
         vtkIdType newPt = newPoints->InsertNextPoint(circlePt);
         newLines->InsertCellPoint(newPt);
         }
-      
+
       for (int c = 0; c < 3; ++c)
         {
         lastPoint[c] = curPoint[c];

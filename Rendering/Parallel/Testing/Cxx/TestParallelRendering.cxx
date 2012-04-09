@@ -38,14 +38,14 @@ class MyProcess : public vtkProcess
 public:
   static MyProcess *New();
   vtkTypeRevisionMacro(MyProcess, vtkProcess);
-  
+
   virtual void Execute();
 
   void SetArgs(int anArgc,
                char *anArgv[])
     {
       this->Argc=anArgc;
-      this->Argv=anArgv;  
+      this->Argv=anArgv;
     }
 
   void CreatePipeline(vtkRenderer* renderer)
@@ -56,7 +56,7 @@ public:
     vtkSphereSource* sphere = vtkSphereSource::New();
     sphere->SetPhiResolution(100);
     sphere->SetThetaResolution(100);
-    
+
     vtkPieceScalars *piecescalars = vtkPieceScalars::New();
     piecescalars->SetInputConnection(sphere->GetOutputPort());
     piecescalars->SetScalarModeToCellData();
@@ -79,10 +79,10 @@ public:
     piecescalars->Delete();
     sphere->Delete();
     }
-  
+
 protected:
   MyProcess() { this->Argc = 0; this->Argv = NULL; }
-  
+
   int Argc;
   char **Argv;
 };
@@ -166,10 +166,10 @@ int main(int argc, char **argv)
 
   MyProcess *p=MyProcess::New();
   p->SetArgs(argc,argv);
-  
+
   contr->SetSingleProcessObject(p);
   contr->SingleMethodExecute();
-  
+
   retVal=p->GetReturnValue();
 
   p->Delete();

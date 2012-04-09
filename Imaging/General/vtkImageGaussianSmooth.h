@@ -32,11 +32,11 @@ public:
 
   // Description:
   // Creates an instance of vtkImageGaussianSmooth with the following
-  // defaults: Dimensionality 3, StandardDeviations( 2, 2, 2), 
+  // defaults: Dimensionality 3, StandardDeviations( 2, 2, 2),
   // Radius Factors ( 1.5, 1.5, 1.5)
   static vtkImageGaussianSmooth *New();
-  
-  
+
+
   // Description:
   // Sets/Gets the Standard deviation of the gaussian in pixel units.
   vtkSetVector3Macro(StandardDeviations, double);
@@ -51,12 +51,12 @@ public:
   // These methods are provided for compatibility with old scripts
   void SetStandardDeviation(double a,double b)
         {this->SetStandardDeviations(a,b,0.0);}
-  void SetStandardDeviation(double a,double b,double c) 
+  void SetStandardDeviation(double a,double b,double c)
         {this->SetStandardDeviations(a,b,c);}
 
   // Description:
   // Sets/Gets the Radius Factors of the gaussian (no unit).
-  // The radius factors determine how far out the gaussian kernel will 
+  // The radius factors determine how far out the gaussian kernel will
   // go before being clamped to zero.
   vtkSetVector3Macro(RadiusFactors, double);
   void SetRadiusFactors(double f, double f2) {
@@ -77,7 +77,7 @@ protected:
   int Dimensionality;
   double StandardDeviations[3];
   double RadiusFactors[3];
-  
+
   void ComputeKernel(double *kernel, int min, int max, double std);
   virtual int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void InternalRequestUpdateExtent(int *, int*);
@@ -90,7 +90,7 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
-  
+
 private:
   vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);  // Not implemented.
   void operator=(const vtkImageGaussianSmooth&);  // Not implemented.

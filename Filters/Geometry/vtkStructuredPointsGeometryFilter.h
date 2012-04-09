@@ -27,7 +27,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter : public vtkIm
 {
 public:
   vtkTypeMacro(vtkStructuredPointsGeometryFilter,vtkImageDataGeometryFilter);
-  
+
   // Description:
   // Construct with initial extent of all the data
   static vtkStructuredPointsGeometryFilter *New();

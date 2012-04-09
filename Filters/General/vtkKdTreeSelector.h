@@ -107,10 +107,10 @@ protected:
     int port, vtkInformation* info);
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
 private:
   vtkKdTreeSelector(const vtkKdTreeSelector&); // Not implemented
   void operator=(const vtkKdTreeSelector&);   // Not implemented

@@ -55,7 +55,7 @@ int vtkHyperOctreeDepth::RequestData(vtkInformation *vtkNotUsed(request),
   this->Input = vtkHyperOctree::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   this->Output=vtkHyperOctree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));  
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   this->Output->ShallowCopy(this->Input);
 
@@ -74,7 +74,7 @@ int vtkHyperOctreeDepth::RequestData(vtkInformation *vtkNotUsed(request),
   this->GeneratedDepths->Allocate(maxNumberOfCells);
   this->GeneratedDepths->SetName("Depth");
   this->Output->GetLeafData()->AddArray(this->GeneratedDepths);
-      
+
   vtkHyperOctreeCursor *cursor=this->Input->NewCellCursor();
   cursor->ToRoot();
 
@@ -98,7 +98,7 @@ void vtkHyperOctreeDepth::TraverseAndCount(vtkHyperOctreeCursor *cursor,
     }
   else
     {
-    //this node has 'nchildren' children, 
+    //this node has 'nchildren' children,
     //some of which are internal nodes, so we must continue down
     int i=0;
     while(i<this->NumChildren)

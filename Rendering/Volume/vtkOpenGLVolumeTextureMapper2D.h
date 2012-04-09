@@ -34,7 +34,7 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   static vtkOpenGLVolumeTextureMapper2D *New();
-  
+
 //BTX
 
   // Description:

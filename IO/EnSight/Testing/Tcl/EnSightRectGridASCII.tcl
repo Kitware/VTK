@@ -13,13 +13,13 @@ reader SetDefaultExecutivePrototype cdp
     reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/RectGrid_ascii.case"
     reader Update
 vtkCastToConcrete toRectilinearGrid
-#    toRectilinearGrid SetInputConnection [reader GetOutputPort] 
+#    toRectilinearGrid SetInputConnection [reader GetOutputPort]
 toRectilinearGrid SetInputData [[reader GetOutput] GetBlock 0]
     toRectilinearGrid Update
 
 vtkRectilinearGridGeometryFilter plane
     plane SetInputData [toRectilinearGrid GetRectilinearGridOutput]
-    plane SetExtent 0 100 0 100 15 15 
+    plane SetExtent 0 100 0 100 15 15
 vtkTriangleFilter tri
     tri SetInputConnection [plane GetOutputPort]
 vtkWarpVector warper

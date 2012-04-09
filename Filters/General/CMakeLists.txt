@@ -116,7 +116,7 @@ set(Module_SRCS
   vtkNonOverlappingAMRAlgorithm.cxx
   vtkOverlappingAMRLevelIdScalars.cxx
   vtkExtractArray.cxx
-  
+
   vtkMatricizeArray.cxx
   vtkExtractArray.cxx
   vtkNormalizeMatrixVectors.cxx

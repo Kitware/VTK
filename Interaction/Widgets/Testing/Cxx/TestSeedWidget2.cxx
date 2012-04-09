@@ -45,7 +45,7 @@
 class vtkSeedCallback : public vtkCommand
 {
 public:
-  static vtkSeedCallback *New() 
+  static vtkSeedCallback *New()
     { return new vtkSeedCallback; }
   virtual void Execute(vtkObject*, unsigned long eid, void*)
     {
@@ -149,6 +149,6 @@ int TestSeedWidget2( int argc, char *argv[] )
   recorder->Off();
 
   iren->Start();
-  
+
   return EXIT_SUCCESS;
 }

@@ -15,13 +15,13 @@
 // .NAME vtkBlankStructuredGrid - translate point attribute data into a blanking field
 
 // .SECTION Description
-// vtkBlankStructuredGrid is a filter that sets the blanking field in a 
+// vtkBlankStructuredGrid is a filter that sets the blanking field in a
 // vtkStructuredGrid dataset. The blanking field is set by examining a
 // specified point attribute data array (e.g., scalars) and converting
 // values in the data array to either a "1" (visible) or "0" (blanked) value
 // in the blanking array. The values to be blanked are specified by giving
 // a min/max range. All data values in the data array indicated and laying
-// within the range specified (inclusive on both ends) are translated to 
+// within the range specified (inclusive on both ends) are translated to
 // a "off" blanking value.
 
 // .SECTION See Also
@@ -77,13 +77,13 @@ protected:
   ~vtkBlankStructuredGrid();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   double MinBlankingValue;
   double MaxBlankingValue;
   char  *ArrayName;
   int   ArrayId;
   int   Component;
-  
+
 private:
   vtkBlankStructuredGrid(const vtkBlankStructuredGrid&);  // Not implemented.
   void operator=(const vtkBlankStructuredGrid&);  // Not implemented.

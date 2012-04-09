@@ -70,7 +70,7 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "FileName: " << (this->FileName? this->FileName : "(none)")
      << "\n";
-  os << indent << "IgnoreCharacterData: " 
+  os << indent << "IgnoreCharacterData: "
      << (this->IgnoreCharacterData?"On":"Off")
      << endl;
   os << indent << "Encoding: " << (this->Encoding? this->Encoding : "(none)")
@@ -237,7 +237,7 @@ int vtkXMLParser::Parse()
   XML_SetElementHandler(static_cast<XML_Parser>(this->Parser),
                         &vtkXMLParserStartElement,
                         &vtkXMLParserEndElement);
-  if (!this->IgnoreCharacterData)   
+  if (!this->IgnoreCharacterData)
     {
     XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
                                 &vtkXMLParserCharacterDataHandler);
@@ -301,7 +301,7 @@ int vtkXMLParser::InitializeParser()
   XML_SetElementHandler(static_cast<XML_Parser>(this->Parser),
                         &vtkXMLParserStartElement,
                         &vtkXMLParserEndElement);
-  if (!this->IgnoreCharacterData)   
+  if (!this->IgnoreCharacterData)
     {
     XML_SetCharacterDataHandler(static_cast<XML_Parser>(this->Parser),
                                 &vtkXMLParserCharacterDataHandler);
@@ -479,7 +479,7 @@ void vtkXMLParser::ReportXmlParseError()
     << XML_GetCurrentColumnNumber(static_cast<XML_Parser>(this->Parser))
     << ", byte index "
     << XML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser))
-    << ": " 
+    << ": "
     << XML_ErrorString(XML_GetErrorCode(static_cast<XML_Parser>(this->Parser))));
 }
 

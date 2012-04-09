@@ -15,10 +15,10 @@
 
 // .NAME vtkEncodedGradientEstimator - Superclass for gradient estimation
 // .SECTION Description
-// vtkEncodedGradientEstimator is an abstract superclass for gradient 
+// vtkEncodedGradientEstimator is an abstract superclass for gradient
 // estimation. It takes a scalar input of vtkImageData, computes
-// a gradient value for every point, and encodes this value into a 
-// three byte value (2 for direction, 1 for magnitude) using the 
+// a gradient value for every point, and encodes this value into a
+// three byte value (2 for direction, 1 for magnitude) using the
 // vtkDirectionEncoder. The direction encoder is defaulted to a
 // vtkRecursiveSphereDirectionEncoder, but can be overridden with the
 // SetDirectionEncoder method. The scale and the bias values for the gradient
@@ -45,7 +45,7 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Set/Get the scalar input for which the normals will be 
+  // Set/Get the scalar input for which the normals will be
   // calculated. Note that this call does not setup a pipeline
   // connection. vtkEncodedGradientEstimator is not an algorithm
   // and does not update its input. If you are directly using this
@@ -67,9 +67,9 @@ public:
   vtkSetClampMacro( BoundsClip, int, 0, 1 );
   vtkGetMacro( BoundsClip, int );
   vtkBooleanMacro( BoundsClip, int );
-  
+
   // Description:
-  // Set / Get the bounds of the computation (used if 
+  // Set / Get the bounds of the computation (used if
   // this->ComputationBounds is 1.) The bounds are specified
   // xmin, xmax, ymin, ymax, zmin, zmax.
   vtkSetVector6Macro( Bounds, int );
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Get the encoded normals.
-  unsigned short  *GetEncodedNormals( void ); 
+  unsigned short  *GetEncodedNormals( void );
 
   // Description:
   // Get the encoded normal at an x,y,z location in the volume
@@ -130,10 +130,10 @@ public:
   int *GetCircleLimits() { return this->CircleLimits; };
 
   // Description:
-  // Set / Get the ZeroNormalThreshold - this defines the minimum magnitude 
-  // of a gradient that is considered sufficient to define a 
+  // Set / Get the ZeroNormalThreshold - this defines the minimum magnitude
+  // of a gradient that is considered sufficient to define a
   // direction. Gradients with magnitudes at or less than this value are given
-  // a "zero normal" index. These are handled specially in the shader, 
+  // a "zero normal" index. These are handled specially in the shader,
   // and you can set the intensity of light for these zero normals in
   // the gradient shader.
   void SetZeroNormalThreshold( float v );
@@ -145,8 +145,8 @@ public:
   vtkSetClampMacro( ZeroPad, int, 0, 1 );
   vtkGetMacro( ZeroPad, int );
   vtkBooleanMacro( ZeroPad, int );
-  
-  
+
+
   // These variables should be protected but are being
   // made public to be accessible to the templated function.
   // We used to have the templated function as a friend, but
@@ -169,7 +169,7 @@ public:
   vtkGetVectorMacro( InputSize, int, 3 );
   vtkGetVectorMacro( InputAspect, float, 3 );
 //ETX
-  
+
 protected:
   vtkEncodedGradientEstimator();
   ~vtkEncodedGradientEstimator();
@@ -198,7 +198,7 @@ protected:
   int                        CircleLimitsSize;
   int                        UseCylinderClip;
   void                       ComputeCircleLimits( int size );
-  
+
   int                        BoundsClip;
   int                        Bounds[6];
 
@@ -206,13 +206,13 @@ protected:
   float                      InputAspect[3];
 
   int                        ComputeGradientMagnitudes;
-  
+
   int                        ZeroPad;
-  
+
 private:
   vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&);  // Not implemented.
   void operator=(const vtkEncodedGradientEstimator&);  // Not implemented.
-}; 
+};
 
 
 #endif

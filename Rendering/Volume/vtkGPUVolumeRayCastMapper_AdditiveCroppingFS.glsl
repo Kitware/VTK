@@ -42,7 +42,7 @@ void writeColorAndSumScalar(vec4 color,
 {
   // color framebuffer
   gl_FragData[0]=color;
-  
+
   // sum scalar framebuffer.
   gl_FragData[1].r=sumValue;
   gl_FragData[1].g=0.0;

@@ -8,7 +8,7 @@ package require vtkinteraction
 
 vtkRenderer ren1
 # turn off all cullers
-[ren1 GetCullers] RemoveAllItems 
+[ren1 GetCullers] RemoveAllItems
 
 vtkRenderWindow renWin
   renWin AddRenderer ren1
@@ -68,7 +68,7 @@ vtkPoints hexahedronPoints
   hexahedronPoints InsertPoint 5 1 0 1
   hexahedronPoints InsertPoint 6 1 1 1
   hexahedronPoints InsertPoint 7 0 1 1
-  
+
 vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 0 0
   [aHexahedron GetPointIds] SetId 1 1
@@ -78,10 +78,10 @@ vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 5 5
   [aHexahedron GetPointIds] SetId 6 6
   [aHexahedron GetPointIds] SetId 7 7
-  
+
 set bHexahedron [aHexahedron NewInstance]
 $bHexahedron DeepCopy aHexahedron
-  
+
 vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid Allocate 1 1
   aHexahedronGrid InsertNextCell [aHexahedron GetCellType] [aHexahedron GetPointIds]
@@ -273,9 +273,9 @@ vtkPoints trianglePoints
 vtkFloatArray triangleTCoords
   triangleTCoords SetNumberOfComponents 2
   triangleTCoords SetNumberOfTuples 3
-  triangleTCoords InsertTuple2 0 1 1 
-  triangleTCoords InsertTuple2 1 2 2 
-  triangleTCoords InsertTuple2 2 3 3 
+  triangleTCoords InsertTuple2 0 1 1
+  triangleTCoords InsertTuple2 1 2 2
+  triangleTCoords InsertTuple2 2 3 3
 
 vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 0 0
@@ -344,11 +344,11 @@ vtkPoints triangleStripPoints
 vtkFloatArray triangleStripTCoords
   triangleStripTCoords SetNumberOfComponents 2
   triangleStripTCoords SetNumberOfTuples 3
-  triangleStripTCoords InsertTuple2 0 1 1 
-  triangleStripTCoords InsertTuple2 1 2 2 
-  triangleStripTCoords InsertTuple2 2 3 3 
-  triangleStripTCoords InsertTuple2 3 4 4 
-  triangleStripTCoords InsertTuple2 4 5 5 
+  triangleStripTCoords InsertTuple2 0 1 1
+  triangleStripTCoords InsertTuple2 1 2 2
+  triangleStripTCoords InsertTuple2 2 3 3
+  triangleStripTCoords InsertTuple2 3 4 4
+  triangleStripTCoords InsertTuple2 4 5 5
 
 vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetNumberOfIds 5
@@ -491,16 +491,16 @@ vtkActor aPolyVertexActor
 
 vtkPoints pentaPoints
   pentaPoints SetNumberOfPoints 10
-  pentaPoints InsertPoint 0 0.25 0.0 0.0  
-  pentaPoints InsertPoint 1 0.75 0.0 0.0 
-  pentaPoints InsertPoint 2 1.0  0.5 0.0  
-  pentaPoints InsertPoint 3 0.5  1.0 0.0 
-  pentaPoints InsertPoint 4 0.0  0.5 0.0  
-  pentaPoints InsertPoint 5 0.25 0.0 1.0  
-  pentaPoints InsertPoint 6 0.75 0.0 1.0  
-  pentaPoints InsertPoint 7 1.0  0.5 1.0  
-  pentaPoints InsertPoint 8 0.5  1.0 1.0 
-  pentaPoints InsertPoint 9 0.0  0.5 1.0 
+  pentaPoints InsertPoint 0 0.25 0.0 0.0
+  pentaPoints InsertPoint 1 0.75 0.0 0.0
+  pentaPoints InsertPoint 2 1.0  0.5 0.0
+  pentaPoints InsertPoint 3 0.5  1.0 0.0
+  pentaPoints InsertPoint 4 0.0  0.5 0.0
+  pentaPoints InsertPoint 5 0.25 0.0 1.0
+  pentaPoints InsertPoint 6 0.75 0.0 1.0
+  pentaPoints InsertPoint 7 1.0  0.5 1.0
+  pentaPoints InsertPoint 8 0.5  1.0 1.0
+  pentaPoints InsertPoint 9 0.0  0.5 1.0
 
 vtkPentagonalPrism aPenta
   [aPenta GetPointIds] SetId 0 0
@@ -537,19 +537,19 @@ vtkActor aPentaActor
 
 vtkPoints hexaPoints
   hexaPoints SetNumberOfPoints 12
-  hexaPoints InsertPoint 0 0.0 0.0 0.0  
-  hexaPoints InsertPoint 1 0.5 0.0 0.0 
-  hexaPoints InsertPoint 2 1.0 0.5 0.0  
-  hexaPoints InsertPoint 3 1.0 1.0 0.0 
-  hexaPoints InsertPoint 4 0.5 1.0 0.0  
-  hexaPoints InsertPoint 5 0.0 0.5 0.0 
-  hexaPoints InsertPoint 6 0.0 0.0 1.0  
-  hexaPoints InsertPoint 7 0.5 0.0 1.0 
-  hexaPoints InsertPoint 8 1.0 0.5 1.0  
-  hexaPoints InsertPoint 9 1.0 1.0 1.0 
-  hexaPoints InsertPoint 10 0.5 1.0 1.0  
+  hexaPoints InsertPoint 0 0.0 0.0 0.0
+  hexaPoints InsertPoint 1 0.5 0.0 0.0
+  hexaPoints InsertPoint 2 1.0 0.5 0.0
+  hexaPoints InsertPoint 3 1.0 1.0 0.0
+  hexaPoints InsertPoint 4 0.5 1.0 0.0
+  hexaPoints InsertPoint 5 0.0 0.5 0.0
+  hexaPoints InsertPoint 6 0.0 0.0 1.0
+  hexaPoints InsertPoint 7 0.5 0.0 1.0
+  hexaPoints InsertPoint 8 1.0 0.5 1.0
+  hexaPoints InsertPoint 9 1.0 1.0 1.0
+  hexaPoints InsertPoint 10 0.5 1.0 1.0
   hexaPoints InsertPoint 11 0.0 0.5 1.0
-                         
+
 vtkHexagonalPrism aHexa
   [aHexa GetPointIds] SetId 0 0
   [aHexa GetPointIds] SetId 1 1
@@ -702,7 +702,7 @@ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
    file delete -force $dir/cells.wrl
    oogl Write
    file delete -force $dir/cells.oogl
-   
+
    if { [info command vtkRIBExporter] != "" } {
       rib Write
       file delete -force $dir/cells.rib

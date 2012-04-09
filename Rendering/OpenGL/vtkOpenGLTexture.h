@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkOpenGLTexture - OpenGL texture map
 // .SECTION Description
-// vtkOpenGLTexture is a concrete implementation of the abstract class 
+// vtkOpenGLTexture is a concrete implementation of the abstract class
 // vtkTexture. vtkOpenGLTexture interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOpenGLTexture_h
@@ -41,7 +41,7 @@ public:
   // Description:
   // Implement base class method.
   void Load(vtkRenderer *ren);
-  
+
   // Descsription:
   // Clean up after the rendering is complete.
   virtual void PostRender(vtkRenderer *ren);
@@ -50,10 +50,10 @@ public:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
   // resources to release. Using the same texture object in multiple
-  // render windows is NOT currently supported. 
+  // render windows is NOT currently supported.
   void ReleaseGraphicsResources(vtkWindow *);
 
-  
+
   // Description:
   // Get the openGL texture name to which this texture is bound.
   // This is available only if GL version >= 1.1
@@ -63,7 +63,7 @@ protected:
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
 
-  unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize, 
+  unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize,
                                       unsigned char *dptr, int bpp);
 
   vtkTimeStamp   LoadTime;
@@ -73,7 +73,7 @@ protected:
   bool SupportsNonPowerOfTwoTextures;
   bool SupportsPBO;
   vtkPixelBufferObject *PBO;
-  
+
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
   void operator=(const vtkOpenGLTexture&);  // Not implemented.

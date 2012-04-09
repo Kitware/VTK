@@ -83,8 +83,8 @@ protected:
   ~vtkTulipReader();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
   // Description:

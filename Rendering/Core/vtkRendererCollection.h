@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkRendererCollection - a list of renderers
 // .SECTION Description
-// vtkRendererCollection represents and provides methods to manipulate a list 
-// of renderers (i.e., vtkRenderer and subclasses). The list is unsorted and 
+// vtkRendererCollection represents and provides methods to manipulate a list
+// of renderers (i.e., vtkRenderer and subclasses). The list is unsorted and
 // duplicate entries are not prevented.
 
 // .SECTION see also
@@ -41,10 +41,10 @@ class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
     {
     this->vtkCollection::AddItem(a);
     }
-  
-  
+
+
   // Description:
-  // Get the next Renderer in the list. Return NULL when at the end of the 
+  // Get the next Renderer in the list. Return NULL when at the end of the
   // list.
   vtkRenderer *GetNextItem() {
     return static_cast<vtkRenderer *>(this->GetNextItemAsObject());};
@@ -54,19 +54,19 @@ class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
   void Render();
 
   // Description:
-  // Get the first Renderer in the list. Return NULL when at the end of the 
+  // Get the first Renderer in the list. Return NULL when at the end of the
   // list.
   vtkRenderer *GetFirstRenderer();
 
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie));};
   //ETX
 
-protected:  
+protected:
   vtkRendererCollection() {};
   ~vtkRendererCollection() {};
 

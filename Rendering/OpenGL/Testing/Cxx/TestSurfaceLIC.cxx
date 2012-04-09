@@ -19,7 +19,7 @@
 
 int TestSurfaceLIC(int argc, char* argv[])
 {
-  char* fname =  
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref_surface.vtp");
   std::string filename = fname;
   filename = "--data=" + filename;
@@ -33,10 +33,10 @@ int TestSurfaceLIC(int argc, char* argv[])
     }
   new_argv[argc++] = vtksys::SystemTools::DuplicateString(filename.c_str());
   new_argv[argc++] = vtksys::SystemTools::DuplicateString(vectors.c_str());
-  
+
   RenderingMode = SURFACE_LIC_TEST;
   int status = SurfaceLIC(argc, new_argv);
-  
+
   for (int kk=0; kk < argc; kk++)
     {
     delete [] new_argv[kk];

@@ -150,7 +150,7 @@ int vtkCleanPolyData::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkPoints   *inPts = input->GetPoints();
   vtkIdType   numPts = input->GetNumberOfPoints();
 
@@ -191,11 +191,11 @@ int vtkCleanPolyData::RequestData(
   if ( this->PointMerging )
     {
     this->CreateDefaultLocator(input);
-    if (this->ToleranceIsAbsolute) 
+    if (this->ToleranceIsAbsolute)
       {
       this->Locator->SetTolerance(this->AbsoluteTolerance);
-      } 
-    else 
+      }
+    else
       {
       this->Locator->SetTolerance(this->Tolerance*input->GetLength());
       }
@@ -212,7 +212,7 @@ int vtkCleanPolyData::RequestData(
       pointMap[i] = -1; //initialize unused
       }
     }
-  
+
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData  *outputCD = output->GetCellData();
   outputPD->CopyAllocate(inputPD);
@@ -234,16 +234,16 @@ int vtkCleanPolyData::RequestData(
   //
   // Vertices are renumbered and we remove duplicates
   inCellID = 0;
-  if ( !this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0 ) 
+  if ( !this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0 )
     {
     newVerts = vtkCellArray::New();
     newVerts->Allocate(inVerts->GetSize());
 
     vtkDebugMacro(<<"Starting Verts "<<inCellID);
-    for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); 
-         inCellID++) 
+    for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts);
+         inCellID++)
       {
-      for ( numNewPts=0, i=0; i < npts; i++ ) 
+      for ( numNewPts=0, i=0; i < npts; i++ )
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
@@ -256,18 +256,18 @@ int vtkCleanPolyData::RequestData(
             outputPD->CopyData(inputPD,pts[i],ptId);
             }
           }
-        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) )
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
         updatedPts[numNewPts++] = ptId;
         }//for all points of vertex cell
 
-      if ( numNewPts > 0 ) 
+      if ( numNewPts > 0 )
         {
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
-        if ( vertIDcounter != newId) 
+        if ( vertIDcounter != newId)
           {
           vtkErrorMacro(<<"Vertex ID fault in vertex test");
           }
@@ -278,7 +278,7 @@ int vtkCleanPolyData::RequestData(
   this->UpdateProgress(0.25);
 
   // lines reduced to one point are eliminated or made into verts
-  if ( !this->GetAbortExecute() && inLines->GetNumberOfCells() > 0 ) 
+  if ( !this->GetAbortExecute() && inLines->GetNumberOfCells() > 0 )
     {
     newLines = vtkCellArray::New();
     newLines->Allocate(inLines->GetSize());
@@ -288,7 +288,7 @@ int vtkCleanPolyData::RequestData(
     vtkDebugMacro(<<"Starting Lines "<<inCellID);
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); inCellID++)
       {
-      for ( numNewPts=0, i=0; i<npts; i++ ) 
+      for ( numNewPts=0, i=0; i<npts; i++ )
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
@@ -301,50 +301,50 @@ int vtkCleanPolyData::RequestData(
             outputPD->CopyData(inputPD,pts[i],ptId);
             }
           }
-        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) )
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
-        if ( i == 0 || ptId != updatedPts[numNewPts-1] ) 
+        if ( i == 0 || ptId != updatedPts[numNewPts-1] )
           {
           updatedPts[numNewPts++] = ptId;
           }
         }//for all cell points
-      if ( (numNewPts>1) || !this->ConvertLinesToPoints ) 
+      if ( (numNewPts>1) || !this->ConvertLinesToPoints )
         {
         newId = newLines->InsertNextCell(numNewPts,updatedPts);
         outLineData->CopyData(inputCD, inCellID, newId);
-        if (lineIDcounter!=newId) 
+        if (lineIDcounter!=newId)
           {
           vtkErrorMacro(<<"Line ID fault in line test");
           }
         lineIDcounter++;
-        } 
-      else if ( numNewPts==1 ) 
+        }
+      else if ( numNewPts==1 )
         {
-        if (!newVerts) 
+        if (!newVerts)
           {
           newVerts = vtkCellArray::New();
           newVerts->Allocate(5);
           }
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
-        if (vertIDcounter!=newId) 
+        if (vertIDcounter!=newId)
           {
           vtkErrorMacro(<<"Vertex ID fault in line test");
           }
         vertIDcounter++;
         }
       }
-    vtkDebugMacro(<<"Removed " 
-             << inLines->GetNumberOfCells() - newLines->GetNumberOfCells() 
+    vtkDebugMacro(<<"Removed "
+             << inLines->GetNumberOfCells() - newLines->GetNumberOfCells()
              << " lines");
     }
   this->UpdateProgress(0.50);
 
   // polygons reduced to two points or less are either eliminated
   // or converted to lines or points if enabled
-  if ( !this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0 ) 
+  if ( !this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0 )
     {
     newPolys = vtkCellArray::New();
     newPolys->Allocate(inPolys->GetSize());
@@ -354,7 +354,7 @@ int vtkCleanPolyData::RequestData(
     vtkDebugMacro(<<"Starting Polys "<<inCellID);
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); inCellID++)
       {
-      for ( numNewPts=0, i=0; i<npts; i++ ) 
+      for ( numNewPts=0, i=0; i<npts; i++ )
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
@@ -367,32 +367,32 @@ int vtkCleanPolyData::RequestData(
             outputPD->CopyData(inputPD,pts[i],ptId);
             }
           }
-        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) )
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
-        if ( i == 0 || ptId != updatedPts[numNewPts-1] ) 
+        if ( i == 0 || ptId != updatedPts[numNewPts-1] )
           {
           updatedPts[numNewPts++] = ptId;
           }
         } //for points in cell
-      if ( numNewPts>2 && updatedPts[0] == updatedPts[numNewPts-1] ) 
+      if ( numNewPts>2 && updatedPts[0] == updatedPts[numNewPts-1] )
         {
         numNewPts--;
         }
-      if ( (numNewPts > 2) || !this->ConvertPolysToLines ) 
+      if ( (numNewPts > 2) || !this->ConvertPolysToLines )
         {
         newId = newPolys->InsertNextCell(numNewPts,updatedPts);
         outPolyData->CopyData(inputCD, inCellID, newId);
-        if (polyIDcounter!=newId) 
+        if (polyIDcounter!=newId)
           {
           vtkErrorMacro(<<"Poly ID fault in poly test");
           }
         polyIDcounter++;
-        } 
-      else if ( (numNewPts==2) || !this->ConvertLinesToPoints ) 
+        }
+      else if ( (numNewPts==2) || !this->ConvertLinesToPoints )
         {
-        if (!newLines) 
+        if (!newLines)
           {
           newLines = vtkCellArray::New();
           newLines->Allocate(5);
@@ -401,46 +401,46 @@ int vtkCleanPolyData::RequestData(
           }
         newId = newLines->InsertNextCell(numNewPts,updatedPts);
         outLineData->CopyData(inputCD, inCellID, newId);
-        if (lineIDcounter!=newId) 
+        if (lineIDcounter!=newId)
           {
           vtkErrorMacro(<<"Line ID fault in poly test");
           }
         lineIDcounter++;
-        } 
-      else if ( numNewPts==1 ) 
+        }
+      else if ( numNewPts==1 )
         {
-        if (!newVerts) 
+        if (!newVerts)
           {
           newVerts = vtkCellArray::New();
           newVerts->Allocate(5);
           }
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
-        if (vertIDcounter!=newId) 
+        if (vertIDcounter!=newId)
           {
           vtkErrorMacro(<<"Vertex ID fault in poly test");
           }
         vertIDcounter++;
         }
       }
-    vtkDebugMacro(<<"Removed " 
-           << inPolys->GetNumberOfCells() - newPolys->GetNumberOfCells() 
+    vtkDebugMacro(<<"Removed "
+           << inPolys->GetNumberOfCells() - newPolys->GetNumberOfCells()
            << " polys");
     }
   this->UpdateProgress(0.75);
 
   // triangle strips can reduced to polys/lines/points etc
-  if ( !this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0 ) 
+  if ( !this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0 )
     {
     newStrips = vtkCellArray::New();
     newStrips->Allocate(inStrips->GetSize());
     outStrpData = vtkCellData::New();
     outStrpData->CopyAllocate(inputCD);
 
-    for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); 
-         inCellID++) 
+    for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts);
+         inCellID++)
       {
-      for ( numNewPts=0, i=0; i < npts; i++ ) 
+      for ( numNewPts=0, i=0; i < npts; i++ )
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
@@ -453,28 +453,28 @@ int vtkCleanPolyData::RequestData(
             outputPD->CopyData(inputPD,pts[i],ptId);
             }
           }
-        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) )
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
-        if ( i == 0 || ptId != updatedPts[numNewPts-1] ) 
+        if ( i == 0 || ptId != updatedPts[numNewPts-1] )
           {
           updatedPts[numNewPts++] = ptId;
           }
         }
-      if ( (numNewPts > 3) || !this->ConvertStripsToPolys ) 
+      if ( (numNewPts > 3) || !this->ConvertStripsToPolys )
         {
         newId = newStrips->InsertNextCell(numNewPts,updatedPts);
         outStrpData->CopyData(inputCD, inCellID, newId);
-        if (strpIDcounter!=newId) 
+        if (strpIDcounter!=newId)
           {
           vtkErrorMacro(<<"Strip ID fault in strip test");
           }
         strpIDcounter++;
-        } 
-      else if ( (numNewPts==3) || !this->ConvertPolysToLines ) 
+        }
+      else if ( (numNewPts==3) || !this->ConvertPolysToLines )
         {
-        if (!newPolys) 
+        if (!newPolys)
           {
           newPolys = vtkCellArray::New();
           newPolys->Allocate(5);
@@ -483,15 +483,15 @@ int vtkCleanPolyData::RequestData(
           }
         newId = newPolys->InsertNextCell(numNewPts,updatedPts);
         outPolyData->CopyData(inputCD, inCellID, newId);
-        if (polyIDcounter!=newId) 
+        if (polyIDcounter!=newId)
           {
           vtkErrorMacro(<<"Poly ID fault in strip test");
           }
         polyIDcounter++;
-        } 
-      else if ( (numNewPts==2) || !this->ConvertLinesToPoints ) 
+        }
+      else if ( (numNewPts==2) || !this->ConvertLinesToPoints )
         {
-        if (!newLines) 
+        if (!newLines)
           {
           newLines = vtkCellArray::New();
           newLines->Allocate(5);
@@ -500,34 +500,34 @@ int vtkCleanPolyData::RequestData(
           }
         newId = newLines->InsertNextCell(numNewPts,updatedPts);
         outLineData->CopyData(inputCD, inCellID, newId);
-        if (lineIDcounter!=newId) 
+        if (lineIDcounter!=newId)
           {
           vtkErrorMacro(<<"Line ID fault in strip test");
           }
         lineIDcounter++;
-        } 
-      else if ( numNewPts==1 ) 
+        }
+      else if ( numNewPts==1 )
         {
-        if (!newVerts) 
+        if (!newVerts)
           {
           newVerts = vtkCellArray::New();
           newVerts->Allocate(5);
           }
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
-        if (vertIDcounter!=newId) 
+        if (vertIDcounter!=newId)
           {
           vtkErrorMacro(<<"Vertex ID fault in strip test");
           }
         vertIDcounter++;
         }
       }
-    vtkDebugMacro(<<"Removed " 
-              << inStrips->GetNumberOfCells() - newStrips->GetNumberOfCells() 
+    vtkDebugMacro(<<"Removed "
+              << inStrips->GetNumberOfCells() - newStrips->GetNumberOfCells()
               << " strips");
     }
 
-  vtkDebugMacro(<<"Removed " 
+  vtkDebugMacro(<<"Removed "
                 << numPts - newPts->GetNumberOfPoints() << " points");
 
   // Update ourselves and release memory
@@ -546,25 +546,25 @@ int vtkCleanPolyData::RequestData(
   // Now transfer all CellData from Lines/Polys/Strips into final
   // Cell data output
   int CombinedCellID = vertIDcounter;
-  if (newLines) 
+  if (newLines)
     {
-    for (i=0; i<lineIDcounter; i++, CombinedCellID++) 
+    for (i=0; i<lineIDcounter; i++, CombinedCellID++)
       {
       outputCD->CopyData(outLineData, i, CombinedCellID);
       }
     outLineData->Delete();
     }
-  if (newPolys) 
+  if (newPolys)
     {
-    for (i=0; i<polyIDcounter; i++, CombinedCellID++) 
+    for (i=0; i<polyIDcounter; i++, CombinedCellID++)
       {
       outputCD->CopyData(outPolyData, i, CombinedCellID);
       }
     outPolyData->Delete();
     }
-  if (newStrips) 
+  if (newStrips)
     {
-    for (i=0; i<strpIDcounter; i++, CombinedCellID++) 
+    for (i=0; i<strpIDcounter; i++, CombinedCellID++)
       {
       outputCD->CopyData(outStrpData, i, CombinedCellID);
       }
@@ -574,25 +574,25 @@ int vtkCleanPolyData::RequestData(
   output->SetPoints(newPts);
   newPts->Squeeze();
   newPts->Delete();
-  if (newVerts) 
+  if (newVerts)
     {
     newVerts->Squeeze();
     output->SetVerts(newVerts);
     newVerts->Delete();
     }
-  if (newLines) 
+  if (newLines)
     {
     newLines->Squeeze();
     output->SetLines(newLines);
     newLines->Delete();
     }
-  if (newPolys) 
+  if (newPolys)
     {
     newPolys->Squeeze();
     output->SetPolys(newPolys);
     newPolys->Delete();
     }
-  if (newStrips) 
+  if (newStrips)
     {
     newStrips->Squeeze();
     output->SetStrips(newStrips);

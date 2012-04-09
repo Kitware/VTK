@@ -73,7 +73,7 @@ inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
   double f = vtkHomogeneousTransformPoint(M,in,out);
 
   for (int i = 0; i < 3; i++)
-    { 
+    {
     derivative[0][i] = static_cast<T4>((M[0][i] - M[3][i]*out[0])*f);
     derivative[1][i] = static_cast<T4>((M[1][i] - M[3][i]*out[1])*f);
     derivative[2][i] = static_cast<T4>((M[2][i] - M[3][i]*out[2])*f);
@@ -81,21 +81,21 @@ inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
 }
 
 //------------------------------------------------------------------------
-void vtkHomogeneousTransform::InternalTransformPoint(const float in[3], 
+void vtkHomogeneousTransform::InternalTransformPoint(const float in[3],
                                                      float out[3])
 {
   vtkHomogeneousTransformPoint(this->Matrix->Element,in,out);
 }
 
 //------------------------------------------------------------------------
-void vtkHomogeneousTransform::InternalTransformPoint(const double in[3], 
+void vtkHomogeneousTransform::InternalTransformPoint(const double in[3],
                                                      double out[3])
 {
   vtkHomogeneousTransformPoint(this->Matrix->Element,in,out);
 }
 
 //----------------------------------------------------------------------------
-void vtkHomogeneousTransform::InternalTransformDerivative(const float in[3], 
+void vtkHomogeneousTransform::InternalTransformDerivative(const float in[3],
                                                     float out[3],
                                                     float derivative[3][3])
 {
@@ -103,7 +103,7 @@ void vtkHomogeneousTransform::InternalTransformDerivative(const float in[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkHomogeneousTransform::InternalTransformDerivative(const double in[3], 
+void vtkHomogeneousTransform::InternalTransformDerivative(const double in[3],
                                                     double out[3],
                                                     double derivative[3][3])
 {
@@ -111,12 +111,12 @@ void vtkHomogeneousTransform::InternalTransformDerivative(const double in[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts, 
+void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts,
                                               vtkPoints *outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
-  double point[3];  
+  double point[3];
 
   this->Update();
 
@@ -131,17 +131,17 @@ void vtkHomogeneousTransform::TransformPoints(vtkPoints *inPts,
 }
 
 //----------------------------------------------------------------------------
-// Transform the normals and vectors using the derivative of the 
+// Transform the normals and vectors using the derivative of the
 // transformation.  Either inNms or inVrs can be set to NULL.
 // Normals are multiplied by the inverse transpose of the transform
 // derivative, while vectors are simply multiplied by the derivative.
 // Note that the derivative of the inverse transform is simply the
-// inverse of the derivative of the forward transform. 
-void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts, 
+// inverse of the derivative of the forward transform.
+void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                             vtkPoints *outPts,
-                                                            vtkDataArray *inNms, 
+                                                            vtkDataArray *inNms,
                                                             vtkDataArray *outNms,
-                                                            vtkDataArray *inVrs, 
+                                                            vtkDataArray *inVrs,
                                                             vtkDataArray *outVrs)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
@@ -149,12 +149,12 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   double L[4][4];
   double inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
   double w;
-  
+
   this->Update();
 
   if (inNms)
     { // need inverse of the matrix to calculate normals
-    vtkMatrix4x4::DeepCopy(*L,this->Matrix);  
+    vtkMatrix4x4::DeepCopy(*L,this->Matrix);
     vtkMatrix4x4::Invert(*L,*L);
     vtkMatrix4x4::Transpose(*L,*L);
     }
@@ -168,7 +168,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     outPts->InsertNextPoint(outPnt);
 
     if (inVrs)
-      { 
+      {
       inVrs->GetTuple(i,inVec);
 
       // do the linear homogeneous transformation
@@ -187,7 +187,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       }
 
     if (inNms)
-      { 
+      {
       inNms->GetTuple(i,inNrm);
 
       // calculate the w component of the normal
@@ -209,8 +209,8 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 // update and copy out the current matrix
 void vtkHomogeneousTransform::GetMatrix(vtkMatrix4x4 *m)
 {
-  this->Update(); 
-  m->DeepCopy(this->Matrix); 
+  this->Update();
+  m->DeepCopy(this->Matrix);
 }
 
 //----------------------------------------------------------------------------

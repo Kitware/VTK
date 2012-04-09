@@ -59,8 +59,8 @@ protected:
   ~vtkMoleculeReaderBase();
 
   char *FileName;
-  double BScale;  
-  double HBScale; 
+  double BScale;
+  double HBScale;
   int NumberOfAtoms;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
@@ -74,7 +74,7 @@ protected:
   vtkIdTypeArray *AtomType;
 
   virtual void ReadSpecificMolecule(FILE* fp) = 0;
-  
+
 private:
   vtkMoleculeReaderBase(const vtkMoleculeReaderBase&);  // Not implemented.
   void operator=(const vtkMoleculeReaderBase&);  // Not implemented.

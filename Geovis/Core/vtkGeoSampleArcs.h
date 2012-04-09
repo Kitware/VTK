@@ -81,7 +81,7 @@ public:
     { this->SetOutputCoordinateSystem(RECTANGULAR); }
   virtual void SetOutputCoordinateSystemToSpherical()
     { this->SetOutputCoordinateSystem(SPHERICAL); }
-  
+
 protected:
   vtkGeoSampleArcs();
   ~vtkGeoSampleArcs();
@@ -89,12 +89,12 @@ protected:
   // Description:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   double GlobeRadius;
   double MaximumDistanceMeters;
   int InputCoordinateSystem;
   int OutputCoordinateSystem;
-  
+
 private:
   vtkGeoSampleArcs(const vtkGeoSampleArcs&);  // Not implemented.
   void operator=(const vtkGeoSampleArcs&);  // Not implemented.

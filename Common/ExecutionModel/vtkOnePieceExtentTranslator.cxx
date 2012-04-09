@@ -29,11 +29,11 @@ vtkOnePieceExtentTranslator::~vtkOnePieceExtentTranslator()
 
 //-----------------------------------------------------------------------------
 int vtkOnePieceExtentTranslator::PieceToExtentThreadSafe(
-  int vtkNotUsed(piece), 
-  int vtkNotUsed(numPieces), 
-  int vtkNotUsed(ghostLevel), 
-  int *wholeExtent, int *resultExtent, 
-  int vtkNotUsed(splitMode), 
+  int vtkNotUsed(piece),
+  int vtkNotUsed(numPieces),
+  int vtkNotUsed(ghostLevel),
+  int *wholeExtent, int *resultExtent,
+  int vtkNotUsed(splitMode),
   int vtkNotUsed(byPoints))
 {
   memcpy(resultExtent, wholeExtent, sizeof(int)*6);

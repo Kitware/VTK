@@ -64,7 +64,7 @@ void vtkContingencyStatisticsGnuR::CalculatePValues( vtkTable* outTab)
   vtkIdTypeArray* dimCol = vtkIdTypeArray::SafeDownCast( outTab->GetColumn(0) );
   vtkDoubleArray* chi2Col = vtkDoubleArray::SafeDownCast( outTab->GetColumn(1));
   vtkDoubleArray* chi2yCol = vtkDoubleArray::SafeDownCast( outTab->GetColumn(2));
-  
+
   // Prepare VTK - R interface
   vtkRInterface* ri = vtkRInterface::New();
 

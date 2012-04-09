@@ -53,7 +53,7 @@ int vtkMaskPolyData::RequestData(
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
   int abortExecute=0;
-  
+
   // Check input / pass data through
   //
   numCells = input->GetNumberOfCells();
@@ -66,13 +66,13 @@ int vtkMaskPolyData::RequestData(
 
   output->Allocate(input,numCells);
   input->BuildCells();
-  
+
   // Traverse topological lists and traverse
   //
   vtkIdType tenth = numCells/10 + 1;
   for (id=this->Offset; id < numCells && !abortExecute; id+=this->OnRatio)
     {
-    if ( ! (id % tenth) ) 
+    if ( ! (id % tenth) )
       {
       this->UpdateProgress ((float)id/numCells);
       abortExecute = this->GetAbortExecute();

@@ -37,7 +37,7 @@ void vtkDataSetWriter::WriteData()
   int type;
   vtkDataWriter *writer;
   vtkAlgorithmOutput *input = this->GetInputConnection(0, 0);
-  
+
   vtkDebugMacro(<<"Writing vtk dataset...");
 
   type = this->GetInput()->GetDataObjectType();

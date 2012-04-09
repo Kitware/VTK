@@ -19,8 +19,8 @@
 
 // .NAME vtkEnSightWriter - write vtk unstructured grid data as an EnSight file
 // .SECTION Description
-// vtkEnSightWriter is a source object that writes binary 
-// unstructured grid data files in EnSight format. See EnSight Manual for 
+// vtkEnSightWriter is a source object that writes binary
+// unstructured grid data files in EnSight format. See EnSight Manual for
 // format details
 
 // .SECTION Caveats
@@ -109,7 +109,7 @@ public:
   // Writes the case file that EnSight is capable of reading
   // The other data files must be written before the case file
   // and the input must be one of the time steps
-  // variables must be the same for all time steps or the case file will be 
+  // variables must be the same for all time steps or the case file will be
   // missing variables
   virtual void WriteCaseFile(int TotalTimeSteps);
   virtual void WriteSOSCaseFile(int NumProcs);

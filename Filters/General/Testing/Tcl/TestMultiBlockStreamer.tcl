@@ -54,20 +54,20 @@ Ren1 AddActor Actor5
 
 vtkExtractGrid ExtractGrid0
 ExtractGrid0 SetInputData $output
-ExtractGrid0 SetVOI 0 14 0 32 0 24 
-ExtractGrid0 SetSampleRate 1 1 1 
+ExtractGrid0 SetVOI 0 14 0 32 0 24
+ExtractGrid0 SetSampleRate 1 1 1
 ExtractGrid0 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid1
 ExtractGrid1 SetInputData $output
-ExtractGrid1 SetVOI 14 29 0 32 0 24 
-ExtractGrid1 SetSampleRate 1 1 1 
+ExtractGrid1 SetVOI 14 29 0 32 0 24
+ExtractGrid1 SetSampleRate 1 1 1
 ExtractGrid1 SetIncludeBoundary 0
 
 vtkExtractGrid ExtractGrid2
 ExtractGrid2 SetInputData $output
-ExtractGrid2 SetVOI 29 56 0 32 0 24 
-ExtractGrid2 SetSampleRate 1 1 1 
+ExtractGrid2 SetVOI 29 56 0 32 0 24
+ExtractGrid2 SetSampleRate 1 1 1
 ExtractGrid2 SetIncludeBoundary 0
 
 vtkLineSource LineSourceWidget0
@@ -107,7 +107,7 @@ vtkRibbonFilter Ribbon0
 Ribbon0 SetInputConnection [aa GetOutputPort]
 Ribbon0 SetWidth 0.1
 Ribbon0 SetAngle 0
-Ribbon0 SetDefaultNormal 0 0 1 
+Ribbon0 SetDefaultNormal 0 0 1
 Ribbon0 SetVaryWidth 0
 
 vtkLookupTable LookupTable1

@@ -38,12 +38,12 @@ public:
   // Construct the error metric with a default relative attribute accuracy
   // equal to 0.1.
   static vtkAttributesErrorMetric *New();
-  
+
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkAttributesErrorMetric,vtkGenericSubdivisionErrorMetric);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Absolute tolerance of the active scalar (attribute+component).
   // Subdivision is required if the square distance between the real attribute
@@ -52,7 +52,7 @@ public:
   // This is the attribute accuracy.
   // 0.01 will give better result than 0.1.
   vtkGetMacro(AbsoluteAttributeTolerance, double);
-  
+
   // Description:
   // Set the absolute attribute accuracy to `value'. See
   // GetAbsoluteAttributeTolerance() for details.
@@ -63,7 +63,7 @@ public:
   // cannot compute the range.
   // \pre valid_range_value: value>0
   void SetAbsoluteAttributeTolerance(double value);
-  
+
   // Description:
   // Relative tolerance of the active scalar (attribute+component).
   // Subdivision is required if the square distance between the real attribute
@@ -72,7 +72,7 @@ public:
   // This is the attribute accuracy.
   // 0.01 will give better result than 0.1.
   vtkGetMacro(AttributeTolerance, double);
-  
+
   // Description:
   // Set the relative attribute accuracy to `value'. See
   // GetAttributeTolerance() for details.
@@ -99,7 +99,7 @@ public:
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
                               double alpha);
-  
+
   // Description:
   // Return the error at the mid-point. The type of error depends on the state
   // of the concrete error metric. For instance, it can return an absolute
@@ -114,28 +114,28 @@ public:
   // \post positive_result: result>=0
   double GetError(double *leftPoint, double *midPoint,
                   double *rightPoint, double alpha);
-  
+
 protected:
   vtkAttributesErrorMetric();
   virtual ~vtkAttributesErrorMetric();
-  
+
   // Description:
   // Compute the square absolute attribute tolerance, only if the cached value
   // is obsolete.
   void ComputeSquareAbsoluteAttributeTolerance();
-  
+
   double AttributeTolerance;
-  
+
   double SquareAbsoluteAttributeTolerance; // cached value computed from
   // AttributeTolerance and active attribute/component
-  
+
   double AbsoluteAttributeTolerance;
   int DefinedByAbsolute;
-  
+
   vtkTimeStamp SquareAbsoluteAttributeToleranceComputeTime;
-  
+
   double Range; // cached value computed from active attribute/component
-  
+
   vtkGenericAttributeCollection *AttributeCollection;
 
 private:

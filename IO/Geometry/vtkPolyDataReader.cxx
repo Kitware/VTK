@@ -30,7 +30,7 @@ vtkPolyDataReader::vtkPolyDataReader()
   vtkPolyData *output = vtkPolyData::New();
   this->SetOutput(output);
   // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
+  // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();
 }
@@ -72,18 +72,18 @@ int vtkPolyDataReader::RequestUpdateExtent(
   piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  
+
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
     return 1;
     }
-  
+
   if (ghostLevel < 0)
     {
     return 1;
     }
-  
+
   return 1;
 }
 
@@ -102,7 +102,7 @@ int vtkPolyDataReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int *tempArray;
   vtkIdType *idArray;
-  
+
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 
   if ( !(this->OpenVTKFile()) || !this->ReadHeader())
@@ -129,7 +129,7 @@ int vtkPolyDataReader::RequestData(
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
       return 1;
-      } 
+      }
 
     if ( strncmp(this->LowerCase(line),"polydata",8) )
       {
@@ -269,7 +269,7 @@ int vtkPolyDataReader::RequestData(
           this->CloseVTKFile ();
           return 1;
           }
-        
+
         if ( ncells != output->GetNumberOfCells() )
           {
           vtkErrorMacro(<<"Number of cells don't match number data values!");
@@ -288,7 +288,7 @@ int vtkPolyDataReader::RequestData(
           this->CloseVTKFile ();
           return 1;
           }
-        
+
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match number data values!");
@@ -308,8 +308,8 @@ int vtkPolyDataReader::RequestData(
       }
 
       if ( ! output->GetPoints() ) vtkWarningMacro(<<"No points read!");
-      if ( !(output->GetVerts() || output->GetLines() || 
-      output->GetPolys() || output->GetStrips()) ) 
+      if ( !(output->GetVerts() || output->GetLines() ||
+      output->GetPolys() || output->GetStrips()) )
         vtkWarningMacro(<<"No topology read!");
     }
 
@@ -339,7 +339,7 @@ int vtkPolyDataReader::RequestData(
     this->ReadPointData(output, numPts);
     }
 
-  else 
+  else
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }

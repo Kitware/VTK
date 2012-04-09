@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -33,7 +33,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   int errors = 0;
 
   // Build a vtkVariantArray with a variety of values in it.
-  vtkSmartPointer<vtkVariantArray> sourceArray 
+  vtkSmartPointer<vtkVariantArray> sourceArray
     =  vtkSmartPointer<vtkVariantArray>::New();
   sourceArray->SetName("Values");
   sourceArray->SetNumberOfTuples(6);
@@ -50,7 +50,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   out << static_cast<const vtkVariantArray&>(*sourceArray);
 
   // De-serialize the array
-  vtkSmartPointer<vtkVariantArray> sinkArray 
+  vtkSmartPointer<vtkVariantArray> sinkArray
     =  vtkSmartPointer<vtkVariantArray>::New();
   std::istringstream in_stream(out_stream.str());
   boost::archive::text_iarchive in(in_stream);
@@ -59,7 +59,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Check that the arrays are the same
   if (strcmp(sourceArray->GetName(), sinkArray->GetName()))
     {
-    cerr << "Sink array has name \"" << sinkArray->GetName() 
+    cerr << "Sink array has name \"" << sinkArray->GetName()
          << "\", should be \"" << sourceArray->GetName() << "\".\n";
     ++errors;
     }
@@ -99,10 +99,10 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   VTK_VARIANT_ARRAY_DATA_CHECK(2,ToDouble,"Double");
   if (strcmp(sourceArray->GetValue(3).ToString(),
              sinkArray->GetValue(3).ToString()))
-    {                                              
+    {
     cerr << "String mismatch: \"" << sourceArray->GetValue(3).ToString()
          << "\" vs. \"" << sinkArray->GetValue(3).ToString() << "\".\n";
-    ++errors;                                                          
+    ++errors;
     }
   VTK_VARIANT_ARRAY_DATA_CHECK(4,ToInt,"Int");
   VTK_VARIANT_ARRAY_DATA_CHECK(5,ToLong,"Long");

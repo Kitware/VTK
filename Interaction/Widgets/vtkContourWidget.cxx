@@ -115,7 +115,7 @@ void vtkContourWidget::CreateDefaultRepresentation()
 //----------------------------------------------------------------------
 void vtkContourWidget::CloseLoop()
 {
-  vtkContourRepresentation *rep = 
+  vtkContourRepresentation *rep =
     reinterpret_cast<vtkContourRepresentation*>(this->WidgetRep);
   if ( !rep->GetClosedLoop() && rep->GetNumberOfNodes() > 1 )
     {
@@ -229,7 +229,7 @@ void vtkContourWidget::AddFinalPointAction(vtkAbstractWidget *w)
   if ( self->WidgetState !=  vtkContourWidget::Manipulate &&
        rep->GetNumberOfNodes() >= 1 )
     {
-    // In follow cursor and continuous draw mode, the "extra" node 
+    // In follow cursor and continuous draw mode, the "extra" node
     // has already been added for us.
     if ( !self->FollowCursor && !self->ContinuousDraw )
       {
@@ -434,7 +434,7 @@ void vtkContourWidget::DeleteAction( vtkAbstractWidget *w )
     return;
     }
 
-  vtkContourRepresentation *rep = 
+  vtkContourRepresentation *rep =
     reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
 
   if ( self->WidgetState == vtkContourWidget::Define )
@@ -484,7 +484,7 @@ void vtkContourWidget::MoveAction( vtkAbstractWidget *w )
 
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  vtkContourRepresentation *rep = 
+  vtkContourRepresentation *rep =
     reinterpret_cast<vtkContourRepresentation*>(self->WidgetRep);
 
   if ( self->WidgetState == vtkContourWidget::Define )
@@ -508,7 +508,7 @@ void vtkContourWidget::MoveAction( vtkAbstractWidget *w )
                                          (Y - displayPos[1]) * (Y - displayPos[1]));
 
         const bool mustCloseLoop =
-            ( distance2 < pixelTolerance2 && numNodes > 2 ) || 
+            ( distance2 < pixelTolerance2 && numNodes > 2 ) ||
             ( self->ContinuousDraw && numNodes > pixelTolerance && distance2 < pixelTolerance2 );
 
         if ( mustCloseLoop != ( rep->GetClosedLoop() == 1 ) )

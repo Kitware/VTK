@@ -39,7 +39,7 @@ void vtkXGPUInfoList::Probe()
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
     bool found=false;
-    
+
 #ifdef VTK_USE_NVCONTROL
     // see sample code in nvidia-settings-1.0/samples/nv-control-info.c
     Display *dpy=XOpenDisplay(NULL); // we use the environment variable DISPLAY

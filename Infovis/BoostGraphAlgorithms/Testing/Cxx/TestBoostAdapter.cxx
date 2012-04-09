@@ -56,7 +56,7 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
 {
   typedef typename graph_traits<Graph>::edge_descriptor Edge;
   typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
-  
+
   VTK_CREATE(vtkTimerLog, timer);
   typename graph_traits<Graph>::vertex_iterator vi, viEnd;
 
@@ -176,7 +176,7 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
   typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
 
   VTK_CREATE(vtkTimerLog, timer);
-  
+
   vector<Vertex> graphVerts;
   vector<Edge> graphEdges;
   typename graph_traits<Graph>::vertex_iterator vi, viEnd;
@@ -189,10 +189,10 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     }
   timer->StopTimer();
   cerr << "vertex insertion: " << timer->GetElapsedTime() / numVertices  << " sec." << endl;
-  
+
   if (static_cast<int>(num_vertices(g)) != numVertices)
     {
-    cerr << "ERROR: Number of vertices (" << num_vertices(g) 
+    cerr << "ERROR: Number of vertices (" << num_vertices(g)
          << ") not as expected (" << numVertices << ")." << endl;
     errors++;
     }
@@ -214,7 +214,7 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
 
   if (static_cast<int>(num_edges(g)) != numEdges)
     {
-    cerr << "ERROR: Number of edges (" << num_edges(g) 
+    cerr << "ERROR: Number of edges (" << num_edges(g)
          << ") not as expected (" << numEdges << ")." << endl;
     errors++;
     }
@@ -224,9 +224,9 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
     {
     graphEdges.push_back(*ei);
     }
-  
+
   TestTraversal(g, repeat, errors);
-  
+
 #if 0
   timer->StartTimer();
   while (num_edges(g) > 0)
@@ -259,7 +259,7 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   ListGraph listGraph;
   TestGraph(listGraph, numVertices, numEdges, repeat, errors);
   cerr << "...done." << endl << endl;
-  
+
   cerr << "Testing boost vector graph..." << endl;
   typedef adjacency_list<vecS, vecS, directedS, property<vertex_index_t, unsigned int>, property<edge_index_t, unsigned int>, no_property, vecS> VectorGraph;
   VectorGraph vectorGraph;
@@ -277,7 +277,7 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   TestGraph(dg, numVertices, numEdges, repeat, errors);
   dg->Delete();
   cerr << "...done." << endl << endl;
-  
+
   cerr << "Testing tree adapter..." << endl;
   vtkMutableDirectedGraph *builder = vtkMutableDirectedGraph::New();
   builder->AddVertex();
@@ -295,6 +295,6 @@ int TestBoostAdapter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   builder->Delete();
   t->Delete();
   cerr << "...done." << endl << endl;
-  
+
   return errors;
 }

@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkAdjacencyMatrixToEdgeTable.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -47,7 +47,7 @@ vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable() :
   MinimumThreshold(0.5)
 {
   this->SetValueArrayName("value");
-  
+
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
@@ -85,8 +85,8 @@ int vtkAdjacencyMatrixToEdgeTable::FillInputPortInformation(int port, vtkInforma
 // ----------------------------------------------------------------------
 
 int vtkAdjacencyMatrixToEdgeTable::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkArrayData* const input = vtkArrayData::GetData(inputVector[0]);
@@ -95,7 +95,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
     vtkErrorMacro(<< this->GetClassName() << " requires an input vtkArrayData containing one array.");
     return 0;
     }
-  
+
   vtkDenseArray<double>* const input_array = vtkDenseArray<double>::SafeDownCast(
     input->GetArray(static_cast<vtkIdType>(0)));
   if(!input_array)

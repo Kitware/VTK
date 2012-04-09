@@ -83,7 +83,7 @@ int vtkGeoAdaptiveArcs::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // if the input has changed, compute helper arrays
-  if (input != this->LastInput || 
+  if (input != this->LastInput ||
       input->GetMTime() > this->LastInputMTime)
     {
     this->InputLatitude->Initialize();
@@ -102,7 +102,7 @@ int vtkGeoAdaptiveArcs::RequestData(
     this->LastInput = input;
     this->LastInputMTime = input->GetMTime();
     }
-    
+
   // Traverse input lines, adding a circle for each line segment.
   int *renSize = this->Renderer->GetSize();
   // Maximum distance from center of renderer.
@@ -123,7 +123,7 @@ int vtkGeoAdaptiveArcs::RequestData(
     vtkIdType npts=0; // to remove warning
     vtkIdType* pts=0; // to remove warning
     lines->GetNextCell(npts, pts);
-    
+
     bool lastPointOffScreen = false;
     bool lastPointTooClose = false;
 #if VTK_AGGRESSIVE_ARCS
@@ -149,7 +149,7 @@ int vtkGeoAdaptiveArcs::RequestData(
     curVec[0] /= curVecSize;
     curVec[1] /= curVecSize;
     curVec[2] /= curVecSize;
-    
+
     for (vtkIdType p = 1; p < npts; ++p)
       {
       // Advance the point unless the last point was too close.
@@ -200,7 +200,7 @@ int vtkGeoAdaptiveArcs::RequestData(
       lastPointTooClose = false;
 
       // Don't draw lines off the current screen.
-      double distFromCenterApprox = 
+      double distFromCenterApprox =
         vtkMath::DegreesFromRadians( acos( curVec[0] * cameraDir[0] +
                                            curVec[1] * cameraDir[1] +
                                            curVec[2] * cameraDir[2] ) )
@@ -227,8 +227,8 @@ int vtkGeoAdaptiveArcs::RequestData(
 #endif
         continue;
         }
-      
-      double distApprox = 
+
+      double distApprox =
         vtkMath::DegreesFromRadians( acos( lastVec[0] * curVec[0] +
                                            lastVec[1] * curVec[1] +
                                            lastVec[2] * curVec[2] ) )
@@ -240,7 +240,7 @@ int vtkGeoAdaptiveArcs::RequestData(
         lastPointTooClose = true;
         continue;
         }
-      
+
       // Calculate the number of subdivisions.
       vtkIdType numDivisions = static_cast<vtkIdType>(distApprox / this->MaximumPixelSeparation + 0.5) + 1;
       if (numDivisions < 2)
@@ -250,7 +250,7 @@ int vtkGeoAdaptiveArcs::RequestData(
 
       // Create the new cell
       newLines->InsertNextCell(numDivisions);
-      
+
       for (vtkIdType s = 0; s < numDivisions; ++s)
         {
         // Interpolate in lat-long.
@@ -264,7 +264,7 @@ int vtkGeoAdaptiveArcs::RequestData(
         double interpPt[3];
         vtkGlobeSource::ComputeGlobePoint(interpPtLL[0], interpPtLL[1], this->GlobeRadius, interpPt);
         vtkIdType newPt = newPoints->InsertNextPoint(interpPt);
-        newLines->InsertCellPoint(newPt);        
+        newLines->InsertCellPoint(newPt);
         }
 
       }
@@ -304,7 +304,7 @@ unsigned long vtkGeoAdaptiveArcs::GetMTime()
       {
       tmpTime = cam->GetMTime();
       if ( tmpTime > retMTime )
-       retMTime = tmpTime; 
+       retMTime = tmpTime;
       }
     }
   return retMTime;

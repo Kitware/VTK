@@ -80,7 +80,7 @@ ostream& vtkPolynomialSolversUnivariate::PrintPolynomial( ostream& os, double* P
     {
     if ( P[i] > 0 )
       {
-      if ( i ) 
+      if ( i )
         {
         os << "+";
         }
@@ -90,7 +90,7 @@ ostream& vtkPolynomialSolversUnivariate::PrintPolynomial( ostream& os, double* P
         }
       os << "x**" << degP - i;
       }
-    else if ( P[i] < 0 ) 
+    else if ( P[i] < 0 )
       {
       os << P[i] << "*x**" << degP - i;
       }
@@ -98,21 +98,21 @@ ostream& vtkPolynomialSolversUnivariate::PrintPolynomial( ostream& os, double* P
 
   if ( degP > 0 )
     {
-    if ( P[degPm1] > 0 ) 
+    if ( P[degPm1] > 0 )
       {
       os << "+" << P[degPm1] << "*x";
       }
-    else if ( P[degPm1] < 0 ) 
+    else if ( P[degPm1] < 0 )
       {
       os << P[degPm1] << "*x";
       }
     }
 
-  if ( P[degP] > 0 ) 
+  if ( P[degP] > 0 )
     {
     os << "+" << P[degP];
     }
-  else if ( P[degP] < 0 ) 
+  else if ( P[degP] < 0 )
     {
     os << P[degP];
     }
@@ -140,7 +140,7 @@ inline bool AreEqual( double x, double y, double rTol )
     {
     return true;
     }
-  
+
   // Second, handle "relative" equalities.
   double absx = fabs( x );
   double absy = fabs( y );
@@ -159,7 +159,7 @@ inline bool AreEqual( double x, double y, double rTol )
 static int polynomialEucliDiv(
   double* A, int m, double* B, int n, double* Q, double* R, double rtol )
 {
-  // Note: for execution speed, no sanity checks are performed on A and B. 
+  // Note: for execution speed, no sanity checks are performed on A and B.
   // You must know what you are doing.
 
   int mMn = m - n;
@@ -168,31 +168,31 @@ static int polynomialEucliDiv(
   if ( mMn < 0 )
     {
     Q[0] = 0.;
-    for ( i = 0; i <= m; ++ i ) 
+    for ( i = 0; i <= m; ++ i )
       {
       R[i] = A[i];
       }
 
     return m;
     }
-  
+
   double iB0 = 1. / B[0];
   if ( ! n )
     {
-    for ( i = 0; i <= m; ++ i ) 
+    for ( i = 0; i <= m; ++ i )
       {
       Q[i] = A[i] * iB0;
       }
 
     return -1;
     }
-  
+
   int nj;
   for ( i = 0; i <= mMn; ++ i )
     {
     nj = i > n ? n : i;
     Q[i] = A[i];
-    for ( int j = 1; j <= nj; ++ j ) 
+    for ( int j = 1; j <= nj; ++ j )
       {
       Q[i] -= B[j] * Q[i - j];
       }
@@ -205,7 +205,7 @@ static int polynomialEucliDiv(
     {
     double sum = 0;
     nj = mMn + 1 > i ? i : mMn + 1;
-    for ( int j = 0; j < nj; ++ j ) 
+    for ( int j = 0; j < nj; ++ j )
       {
       sum += B[n - i + 1 + j] * Q[mMn - j];
       }
@@ -225,7 +225,7 @@ static int polynomialEucliDiv(
       }
     }
 
-  if ( ! r && nullCoeff ) 
+  if ( ! r && nullCoeff )
     {
     return -1;
     }
@@ -239,7 +239,7 @@ static int polynomialEucliDiv(
 static int polynomialEucliDivOppositeR(
   double* A, int m, double* B, int n, double* mR, double rtol )
 {
-  // Note: for execution speed, no sanity checks are performed on A and B. 
+  // Note: for execution speed, no sanity checks are performed on A and B.
   // You must know what you are doing.
 
   int mMn = m - n;
@@ -247,14 +247,14 @@ static int polynomialEucliDivOppositeR(
 
   if ( mMn < 0 )
     {
-    for ( i = 0; i <= m; ++ i ) 
+    for ( i = 0; i <= m; ++ i )
       {
       mR[i] = A[i];
       }
     return m;
     }
-  
-  if ( ! n ) 
+
+  if ( ! n )
     {
     return -1;
     }
@@ -280,7 +280,7 @@ static int polynomialEucliDivOppositeR(
     double sum = 0;
     nj = mMn + 1 > i ? i : mMn + 1;
     for ( int j = 0; j < nj; ++ j )
-      { 
+      {
       sum += B[n - i + 1 + j] * Q[mMn - j];
       }
 
@@ -299,12 +299,12 @@ static int polynomialEucliDivOppositeR(
       }
     }
   delete [] Q;
-  
-  if ( ! r && nullCoeff ) 
+
+  if ( ! r && nullCoeff )
     {
     r = -1;
     }
- 
+
   return r;
 }
 
@@ -355,7 +355,7 @@ static int polynomialEucliDivOppositeR(
   double mul, double* Ai, int m, double* B, int n, double div, double* mR,
   double rtol )
 {
-  // Note: for execution speed, no sanity checks are performed on A and B. 
+  // Note: for execution speed, no sanity checks are performed on A and B.
   // You must know what you are doing.
 
   int mMn = m - n;
@@ -363,7 +363,7 @@ static int polynomialEucliDivOppositeR(
 
   // To save space we will use mR *instead* of Ai. Just have to be sure that
   // when we write to mR we are writing to a spot that will not be used again.
-  for ( i = 0; i <= m; ++ i ) 
+  for ( i = 0; i <= m; ++ i )
     {
     mR[i] = mul*Ai[i];
     }
@@ -374,8 +374,8 @@ static int polynomialEucliDivOppositeR(
     {
     return m;
     }
-  
-  if ( ! n ) 
+
+  if ( ! n )
     {
     return -1;
     }
@@ -403,7 +403,7 @@ static int polynomialEucliDivOppositeR(
     double sum = 0;
     nj = mMn + 1 > i ? i : mMn + 1;
     for ( int j = 0; j < nj; ++ j )
-      { 
+      {
       sum += B[n - i + 1 + j] * Q[mMn - j];
       }
 
@@ -432,12 +432,12 @@ static int polynomialEucliDivOppositeR(
       }
     }
   delete [] Q;
-  
-  if ( ! r && nullCoeff ) 
+
+  if ( ! r && nullCoeff )
     {
     r = -1;
     }
- 
+
   return r;
 }
 
@@ -489,7 +489,7 @@ int vtkGetSignChanges(
         }
       }
 
-    if ( v == 0 ) 
+    if ( v == 0 )
       {
       continue;
       }
@@ -515,7 +515,7 @@ int vtkGetSignChanges(
 // large enough and the number of non-zero items is returned. P is expected to
 // have degree at least 1.
 //
-// This algorithm is modified from 
+// This algorithm is modified from
 // BPR, Algorithms in Real Algebraic Geometry, page 318
 int vtkGetHabichtSequence(
   double* P, int d, double * SSS, int* degrees, int* offsets, double rtol )
@@ -620,7 +620,7 @@ int vtkGetHabichtSequence(
 }
 
 // ----------------------------------------------------------
-// Gets the sturm sequence. SSS and degrees and offsets are expected to 
+// Gets the sturm sequence. SSS and degrees and offsets are expected to
 // be large enough and the number of non-zero items
 // is returned. P is expected to have degree at least 1.
 int vtkGetSturmSequence(
@@ -660,7 +660,7 @@ int vtkGetSturmSequence(
     offset = offsets[nSSS];
     degree = degrees[nSSS];
     }
-    
+
 
   // If the last element is zero then we ignore it.
   if ( degrees[nSSS] < 0 )
@@ -668,7 +668,7 @@ int vtkGetSturmSequence(
     return nSSS;
     }
 
-  // Otherwise we include it in our count, because it 
+  // Otherwise we include it in our count, because it
   // is a constant. (We are returning the number of
   // nonzero items, so 1 plus the index of the last).
   return nSSS + 1;
@@ -678,7 +678,7 @@ extern "C" {
 
 int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
 {
-  return ( *( (const double*) a ) ) < ( *( (const double*) b ) ) ? -1 : 1; 
+  return ( *( (const double*) a ) ) < ( *( (const double*) b ) ) ? -1 : 1;
 }
 
 } // extern "C"
@@ -701,7 +701,7 @@ int vtkPolynomialSolversUnivariateCompareRoots( const void* a, const void* b )
 // It probably would have been better to originally have had the tolerance be a
 // relative tolerance rather than an absolute tolerance.
 int vtkHabichtOrSturmBisectionSolve(
-  double* P, int d, double* a, double* upperBnds, double tol, 
+  double* P, int d, double* a, double* upperBnds, double tol,
   int intervalType, int divideGCD, int method )
 {
   // Pretend to be one solver or the other (for error reporting)
@@ -759,7 +759,7 @@ int vtkHabichtOrSturmBisectionSolve(
       }
     }
 
-  // Create one large array to hold all the 
+  // Create one large array to hold all the
   // polynomials.
   //
   // We need two extra spaces because the habicht division uses R to temporarily
@@ -793,7 +793,7 @@ int vtkHabichtOrSturmBisectionSolve(
     // Get the quotient and call this function again using the
     // quotient.
     int deg = polynomialEucliDiv(
-      SSS, d, SSS + offsets[nSSS - 1], degrees[nSSS - 1], Q, R, 
+      SSS, d, SSS + offsets[nSSS - 1], degrees[nSSS - 1], Q, R,
       vtkPolynomialSolversUnivariate::GetDivisionTolerance() );
     deg = d - degrees[nSSS - 1];
 
@@ -807,7 +807,7 @@ int vtkHabichtOrSturmBisectionSolve(
       delete [] SSS;
       delete [] degrees;
       delete [] offsets;
-      
+
       int rval = vtkHabichtOrSturmBisectionSolve( Q, deg, a, upperBnds, tol, intervalType, 0, method );
       delete [] Q;
       if ( zeroroot )
@@ -823,10 +823,10 @@ int vtkHabichtOrSturmBisectionSolve(
       }
     }
 
-  // Move away from zeros on the edges. We can also slightly speed up 
+  // Move away from zeros on the edges. We can also slightly speed up
   // computation by keeping the fact that these are roots and
   // continuing on.
- 
+
   // If perturbation is too small compared to the bounds then we won't move when
   // we perturb.
   double perturbation =
@@ -837,7 +837,7 @@ int vtkHabichtOrSturmBisectionSolve(
   int varSgn[] = { 0, 0 };
   varSgn[0] = vtkGetSignChanges( SSS, degrees, offsets, nSSS, bounds[0] );
   varSgn[1] = vtkGetSignChanges( SSS, degrees, offsets, nSSS, bounds[1] );
-  
+
   for ( int k = 0; k <= 1; ++ k )
     {
     if ( IsZero(evaluateHorner( SSS, d, bounds[k] ) ) )
@@ -883,7 +883,7 @@ int vtkHabichtOrSturmBisectionSolve(
 
   // If we don't have roots then leave here.
   int nRoots = varSgn[0] - varSgn[1];
-  if ( nRoots < 1 ) 
+  if ( nRoots < 1 )
     {
     upperBnds[0] = 0;
     delete [] SSS;
@@ -904,7 +904,7 @@ int vtkHabichtOrSturmBisectionSolve(
   // one will be removed.
   int i;
   double* lowerBnds = new double[nRoots];
-  
+
   for ( i = 0; i < nRoots; ++ i )
     {
     upperBnds[i] = bounds[1];
@@ -917,7 +917,7 @@ int vtkHabichtOrSturmBisectionSolve(
   int nloc = nRoots - 1;
   while ( nloc >= 1)
     {
-    // Only one root according to Sturm or the interval is 
+    // Only one root according to Sturm or the interval is
     // small enough to consider the same root.
     if (
       upperBnds[nloc] - lowerBnds[nloc] <= tol ||
@@ -932,7 +932,7 @@ int vtkHabichtOrSturmBisectionSolve(
     // We begin with leftx and rightx being equal and change them only if
     // leftx (rightx) is a root. Then we can bracket the root. We do this
     // because roots can cause problems (our sequence is inexact so
-    // even single roots can cause problems. Furthermore if we hit a 
+    // even single roots can cause problems. Furthermore if we hit a
 
     // root we may as well bracket it within tol so that we don't have to
     // worry about it later.
@@ -945,7 +945,7 @@ int vtkHabichtOrSturmBisectionSolve(
       }
     rightx = leftx;
     hitroot = false;
-    
+
     leftVarSgn = rightVarSgn = tempSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, rightx );
 
     // Move away if we have a root, just like we did with the initial endpoints.
@@ -971,7 +971,7 @@ int vtkHabichtOrSturmBisectionSolve(
     // roots. If the midpoint is a root, we could try this. Suppose a=0, b=1.
     // Then if we get 1/2 is a root, we check whether 1/4 and 3/4 work. If
     // one of them does then call that our "mid". Then in the next step we
-    // will be moved away from 1/2. If neither of them work then we could 
+    // will be moved away from 1/2. If neither of them work then we could
     // do what we are doing here, or try 1/8, 3/8, 5/8, and 7/8. In this latter
     // case we should make sure we don't come back to that messy point later.
     // This option removes the use of one of leftx or rightx.
@@ -997,15 +997,15 @@ int vtkHabichtOrSturmBisectionSolve(
       double p2 = 4.;
       double mid = upperBnds[nloc] / p2 + ( p2 - pos ) * lowerBnds[nloc] / p2;
       bool found = false;
-      leftVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, lowerBnds[nloc] ); 
+      leftVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, lowerBnds[nloc] );
       rightVarSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, upperBnds[nloc] );
       tempSgn = vtkGetSignChanges( SSS, degrees, offsets, nSSS, mid );
       while (
         // 3.
-        step < 10 && 
+        step < 10 &&
         // 2a.
         ( (tempSgn > leftVarSgn )  ||
-        // 2b. 
+        // 2b.
           ( tempSgn < rightVarSgn) ||
         // 1
           IsZero( evaluateHorner( SSS, d, mid ) ) ||
@@ -1143,7 +1143,7 @@ int vtkHabichtOrSturmBisectionSolve(
 
     // Neither of the next two conditions should ever be met, but when using
     // floats we still want to be sure.
-    if ( IsZero( zv ) ) 
+    if ( IsZero( zv ) )
       {
       lowerBnds[nloc] = upperBnds[nloc];
       continue;
@@ -1182,7 +1182,7 @@ int vtkHabichtOrSturmBisectionSolve(
           }
 
         // Decide which side it goes on.
-        if ( ( varSgn[0] - zc )  == nloc + 1 ) 
+        if ( ( varSgn[0] - zc )  == nloc + 1 )
           {
           us = zs;
           upperBnds[nloc] = z;
@@ -1215,7 +1215,7 @@ int vtkHabichtOrSturmBisectionSolve(
       {
       bisect = true;
       }
-    
+
     // If we can, use bisection.
     if ( bisect )
       {
@@ -1248,7 +1248,7 @@ int vtkHabichtOrSturmBisectionSolve(
       } // While ub[nloc] - lb[nloc] > tol
     } // If we can bisect
 
-  // Though theoretically this shouldn't happen, sometimes the roots are out of 
+  // Though theoretically this shouldn't happen, sometimes the roots are out of
   // order. Lets sort them just in case, because it does happen sometimes.
   qsort( upperBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots );
   qsort( lowerBnds, nIntervals, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots );
@@ -1298,7 +1298,7 @@ int vtkHabichtOrSturmBisectionSolve(
 }
 
 //----------------------------------------------------------------------------
-// Find all real roots in ] a[0] ; a[1] [ of a real 
+// Find all real roots in ] a[0] ; a[1] [ of a real
 // d-th degree polynomial using the Habicht sequence.
 // intervalType specifies as follows (in binary)
 // 0 = 00 = ]a,b[
@@ -1326,7 +1326,7 @@ int vtkPolynomialSolversUnivariate::HabichtBisectionSolve(
 }
 
 //----------------------------------------------------------------------------
-// Find all real roots in ] a[0] ; a[1] [ of a real 
+// Find all real roots in ] a[0] ; a[1] [ of a real
 // d-th degree polynomial using the Sturm sequence.
 // intervalType specifies as follows (in binary)
 // 0 = 00 = ]a,b[
@@ -1407,7 +1407,7 @@ int vtkGetSignChangesForDerivativeSequence( double* dP, int count, double val )
 
 int vtkPolynomialSolversUnivariate::FilterRoots(
   double* P, int d, double* upperBnds, int rootcount, double diameter )
-{ 
+{
   // Sort the roots.
   qsort( upperBnds, rootcount, sizeof(double), vtkPolynomialSolversUnivariateCompareRoots );
 
@@ -1464,7 +1464,7 @@ int vtkPolynomialSolversUnivariate::FilterRoots(
       }
 
     if (
-      vtkGetSignChangesForDerivativeSequence( dp, d, upperBnds[i] ) == 
+      vtkGetSignChangesForDerivativeSequence( dp, d, upperBnds[i] ) ==
       vtkGetSignChangesForDerivativeSequence( dp, d, upperBnds[i] - diameter ) )
       {
       // Remove the root.
@@ -1497,7 +1497,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
     {
     c[i] /= c[0];
     }
- 
+
   double* div1 = new double[dp1];
   double* div2 = new double[dp1];
   div1[0] = div2[0] = 1;
@@ -1549,7 +1549,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
       dS = detS / det;
 
       // prevent Jacobian from exploding faster than tolerance can be relaxed
-      // by the means of a crude limiter      
+      // by the means of a crude limiter
       if ( fabs( dR ) + fabs( dS ) > 10. )
         {
         dR = vtkMath::Random( -1., 1. );
@@ -1561,7 +1561,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
       ++ nIterations;
       }
 
-    for ( int j = 0; j < i - 1; ++ j ) 
+    for ( int j = 0; j < i - 1; ++ j )
       {
       c[j] = div1[j];
       }
@@ -1569,7 +1569,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
     c[i - 1] = R;
     }
 
-  int nr = 0;  
+  int nr = 0;
   for ( i = d; i >= 2; i -= 2 )
     {
     double delta = c[i - 1] * c[i - 1] - 4. * c[i];
@@ -1604,7 +1604,7 @@ int vtkPolynomialSolversUnivariate::LinBairstowSolve( double* c, int d, double* 
 }
 
 //----------------------------------------------------------------------------
-// Algebraically extracts REAL roots of the quartic polynomial with 
+// Algebraically extracts REAL roots of the quartic polynomial with
 // REAL coefficients X^4 + c[0] X^3 + c[1] X^2 + c[2] X + c[3]
 // and stores them (when they exist) and their respective multiplicities
 // in the r and m arrays.
@@ -1656,7 +1656,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
     {
     if ( fabs( c[1] ) <= tol )
       {
-      if ( c[3] < 0. ) 
+      if ( c[3] < 0. )
         {
         return 0;
         }
@@ -1679,7 +1679,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
         r[nr] = 0.;
         m[nr ++] = 2 * cm[i];
         }
-      else 
+      else
         {
         if ( cr[i] > tol )
           {
@@ -1692,7 +1692,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
       }
     return nr;
     }
-  
+
   // step 1: reduce to X^4 + aX^2 + bX + d
   double p2d8 = c[0] * c[0] * .125 ;
   double qd2 = c[1] * .5;
@@ -1718,7 +1718,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
         r[nr] = shift;
         m[nr ++] = 2 * cm[i];
         }
-      else 
+      else
         {
         if ( cr[i] > tol )
           {
@@ -1754,7 +1754,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
   cc[1] = - cc[1];
   cc[2] -= rho;
   nr = nr1 + vtkPolynomialSolversUnivariate::SolveQuadratic( cc, r + nr1, m + nr1 );
-  if ( ! nr ) 
+  if ( ! nr )
     {
     return 0;
     }
@@ -1781,7 +1781,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
     m[nr1++] = static_cast<int>(unsorted[2*i + 1]);
     }
   double shift = - c[0] * .25;
-  for ( i = 0; i < nr1; ++ i ) 
+  for ( i = 0; i < nr1; ++ i )
     {
     r[i] += shift;
     }
@@ -1790,7 +1790,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
 }
 
 //----------------------------------------------------------------------------
-// Algebraically extracts REAL roots of the cubic polynomial with 
+// Algebraically extracts REAL roots of the cubic polynomial with
 // REAL coefficients X^3 + c[0] X^2 + c[1] X + c[2]
 // and stores them (when they exist) and their respective multiplicities.
 // The main differences with SolveCubic are that (1) the polynomial must have
@@ -1798,7 +1798,7 @@ int vtkPolynomialSolversUnivariate::FerrariSolve( double* c, double* r, int* m, 
 // roots, and (3) non-simple roots are stored only once -- this is a
 // specialized solver.
 // Returns the number of roots.
-// 
+//
 int vtkPolynomialSolversUnivariate::TartagliaCardanSolve( double* c, double* r, int* m, double tol )
 {
   // step 0: eliminate trivial cases up to numerical noise
@@ -1838,7 +1838,7 @@ int vtkPolynomialSolversUnivariate::TartagliaCardanSolve( double* c, double* r, 
         }
       else
         {
-        if ( delta < - threshold ) 
+        if ( delta < - threshold )
           {
           return 1;
           }
@@ -1872,7 +1872,7 @@ int vtkPolynomialSolversUnivariate::TartagliaCardanSolve( double* c, double* r, 
     return 1;
     }
 
-  // case 2.2: q = 0: 1 ( p > 0 ) or 3 ( p < 0 ) simple real root(s) 
+  // case 2.2: q = 0: 1 ( p > 0 ) or 3 ( p < 0 ) simple real root(s)
   if ( fabs( q ) <= tol )
     {
     r[0] = + shift;
@@ -1935,7 +1935,7 @@ int vtkPolynomialSolversUnivariate::TartagliaCardanSolve( double* c, double* r, 
 // Return array contains number of (real) roots (counting multiple roots as one)
 // followed by roots themselves. The value in roots[4] is a integer giving
 // further information about the roots (see return codes for int SolveCubic()).
-double* vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2, double c3 ) 
+double* vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2, double c3 )
 {
   static double roots[5];
   roots[1] = 0.0;
@@ -1943,7 +1943,7 @@ double* vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double
   roots[3] = 0.0;
   int num_roots;
 
-  roots[4] = vtkPolynomialSolversUnivariate::SolveCubic(c0, c1, c2, c3, 
+  roots[4] = vtkPolynomialSolversUnivariate::SolveCubic(c0, c1, c2, c3,
                                                         &roots[1], &roots[2], &roots[3], &num_roots );
   roots[0] = num_roots;
   return roots;
@@ -1961,7 +1961,7 @@ double* vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double
 // with complex conjugate solution (real part of root returned in r1,
 // imaginary in r2); (-3)-one real root and a complex conjugate pair
 // (real root in r1 and real part of pair in r2 and imaginary in r3).
-int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2, double c3, 
+int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2, double c3,
                                                 double *r1, double *r2, double *r3, int *num_roots )
 {
   double        Q, R;
@@ -1970,15 +1970,15 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
   double        theta;
   double        A, B;
 
-  // Cubic equation: c0*t^3  + c1*t^2  + c2*t + c3 = 0 
-  //                                               
+  // Cubic equation: c0*t^3  + c1*t^2  + c2*t + c3 = 0
+  //
   //   r1, r2, r3 are roots and num_roots is the number
-  //   of real roots                               
+  //   of real roots
 
-  // Make Sure This Is A Bonafide Cubic Equation 
+  // Make Sure This Is A Bonafide Cubic Equation
   if( c0 != 0.0 )
     {
-    //Put Coefficients In Right Form 
+    //Put Coefficients In Right Form
     c1 = c1/c0;
     c2 = c2/c0;
     c3 = c3/c0;
@@ -1999,7 +1999,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
         *r3 = *r1;
         *num_roots = 1;
         return 1;
-        } 
+        }
       else
         {
         theta = acos( R / (sqrt(Q_cubed) ) );
@@ -2010,7 +2010,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
 
         *num_roots = 3;
 
-        // Reduce Number Of Roots To Two 
+        // Reduce Number Of Roots To Two
         if( *r1 == *r2 )
           {
           *num_roots = 2;
@@ -2026,7 +2026,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
           *num_roots = 2;
           }
 
-        // Reduce Number Of Roots To One 
+        // Reduce Number Of Roots To One
         if( *r1 == *r2 )
           {
           *num_roots = 1;
@@ -2056,7 +2056,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
       }
     } //if cubic equation
 
-  else // Quadratic Equation: c1*t  + c2*t + c3 = 0 
+  else // Quadratic Equation: c1*t  + c2*t + c3 = 0
     {
     // Okay this was not a cubic - lets try quadratic
     return vtkPolynomialSolversUnivariate::SolveQuadratic( c1, c2, c3, r1, r2, num_roots );
@@ -2067,10 +2067,10 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
 // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and
 // c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
 // Ed.  Return array contains number of (real) roots (counting
-// multiple roots as one) followed by roots themselves. Note that 
+// multiple roots as one) followed by roots themselves. Note that
 // roots[3] contains a return code further describing solution - see
 // documentation for SolveCubic() for meaining of return codes.
-double* vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double c3) 
+double* vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double c3)
 {
   static double roots[4];
   roots[0] = 0.0;
@@ -2078,25 +2078,25 @@ double* vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, do
   roots[2] = 0.0;
   int num_roots;
 
-  roots[3] = vtkPolynomialSolversUnivariate::SolveQuadratic( c1, c2, c3, &roots[1], &roots[2], 
+  roots[3] = vtkPolynomialSolversUnivariate::SolveQuadratic( c1, c2, c3, &roots[1], &roots[2],
                                       &num_roots );
   roots[0] = num_roots;
   return roots;
 }
 
 //----------------------------------------------------------------------------
-// Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
+// Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when
 // c1, c2, and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Roots and number of roots are stored in user provided variables
 // r1, r2, num_roots
-int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double c3, 
+int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double c3,
                                                     double *r1, double *r2, int *num_roots )
 {
   double        Q;
   double        determinant;
 
-  // Quadratic equation: c1*t^2 + c2*t + c3 = 0 
+  // Quadratic equation: c1*t^2 + c2*t + c3 = 0
 
   // Make sure this is a quadratic equation
   if( c1 != 0.0 )
@@ -2120,21 +2120,21 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double
 
       *num_roots = 2;
 
-      // Reduce Number Of Roots To One 
+      // Reduce Number Of Roots To One
       if( *r1 == *r2 )
         {
         *num_roots = 1;
         }
       return *num_roots;
       }
-    else        // Equation Does Not Have Real Roots 
+    else        // Equation Does Not Have Real Roots
       {
       *num_roots = 0;
       return (-2);
       }
     }
 
-  else // Linear Equation: c2*t + c3 = 0 
+  else // Linear Equation: c2*t + c3 = 0
     {
     // Okay this was not quadratic - lets try linear
     return vtkPolynomialSolversUnivariate::SolveLinear( c2, c3, r1, num_roots );
@@ -2142,7 +2142,7 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double c1, double c2, double
 }
 
 //----------------------------------------------------------------------------
-// Algebraically extracts REAL roots of the quadratic polynomial with 
+// Algebraically extracts REAL roots of the quadratic polynomial with
 // REAL coefficients c[0] X^2 + c[1] X + c[2]
 // and stores them (when they exist) and their respective multiplicities.
 // Returns either the number of roots, or -1 if ininite number of roots.
@@ -2172,17 +2172,17 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double* c, double* r, int* m
     if ( delta )
       {
       delta = sqrt( delta );
-      // insert 1st simple real root 
+      // insert 1st simple real root
       r[0] = ( - delta - c[1] ) * fac;
       m[0] = 1;
-      // insert 2nd simple real root 
+      // insert 2nd simple real root
       r[1] = ( delta - c[1] ) * fac ;
       m[1] = 1;
       return 2;
       }
     else
       {
-      // insert single double real root 
+      // insert single double real root
       r[0] = - c[1] * fac;
       m[0] = 2;
       return 1;
@@ -2198,7 +2198,7 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic( double* c, double* r, int* m
 // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Return array contains number of roots followed by roots themselves.
-double* vtkPolynomialSolversUnivariate::SolveLinear( double c2, double c3) 
+double* vtkPolynomialSolversUnivariate::SolveLinear( double c2, double c3)
 {
   static double roots[3];
   int num_roots;
@@ -2215,8 +2215,8 @@ double* vtkPolynomialSolversUnivariate::SolveLinear( double c2, double c3)
 // r2 and num_roots.
 int vtkPolynomialSolversUnivariate::SolveLinear( double c2, double c3, double *r1, int *num_roots )
 {
-  // Linear equation: c2*t + c3 = 0 
-  // Now this had better be linear 
+  // Linear equation: c2*t + c3 = 0
+  // Now this had better be linear
   if( c2 != 0.0 )
     {
     *r1 = -c3 / c2;

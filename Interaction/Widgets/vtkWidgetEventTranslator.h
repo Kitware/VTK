@@ -17,7 +17,7 @@
 // vtkWidgetEventTranslator maps VTK events (defined on vtkCommand) into
 // widget events (defined in vtkWidgetEvent.h). This class is typically used
 // in combination with vtkWidgetCallbackMapper, which is responsible for
-// translating widget events into method callbacks, and then invoking the 
+// translating widget events into method callbacks, and then invoking the
 // callbacks.
 //
 // This class can be used to define different mappings of VTK events into
@@ -63,7 +63,7 @@ public:
   void SetTranslation(unsigned long VTKEvent, int modifier, char keyCode,
                       int repeatCount, const char* keySym, unsigned long widgetEvent);
   void SetTranslation(vtkEvent *VTKevent, unsigned long widgetEvent);
-  
+
   // Description:
   // Translate a VTK event into a widget event. If no event mapping is found,
   // then the methods return vtkWidgetEvent::NoEvent or a NULL string.
@@ -74,7 +74,7 @@ public:
   unsigned long GetTranslation(vtkEvent *VTKEvent);
 
   // Description:
-  // Remove translations for a binding. 
+  // Remove translations for a binding.
   // Returns the number of translations removed.
   int RemoveTranslation( unsigned long VTKEvent,
                          int modifier,    char keyCode,
@@ -82,20 +82,20 @@ public:
   int RemoveTranslation( vtkEvent *e );
   int RemoveTranslation(unsigned long VTKEvent);
   int RemoveTranslation(const char *VTKEvent);
-  
+
   // Description:
   // Clear all events from the translator (i.e., no events will be
   // translated).
   void ClearEvents();
-  
+
 //BTX
   // Description:
   // Add the events in the current translation table to the interactor.
   void AddEventsToParent(vtkAbstractWidget*, vtkCallbackCommand*, float priority);
-  void AddEventsToInteractor(vtkRenderWindowInteractor*, vtkCallbackCommand*, 
+  void AddEventsToInteractor(vtkRenderWindowInteractor*, vtkCallbackCommand*,
                              float priority);
 //ETX
-  
+
 protected:
   // Constructors/destructors made public for widgets to use
   vtkWidgetEventTranslator();
@@ -103,10 +103,10 @@ protected:
 
   // Map VTK events to widget events
   vtkEventMap *EventMap;
-  
+
   // Used for performance reasons to avoid object construction/deletion
   vtkEvent *Event;
-  
+
 private:
   vtkWidgetEventTranslator(const vtkWidgetEventTranslator&);  //Not implemented
   void operator=(const vtkWidgetEventTranslator&);  //Not implemented
@@ -114,4 +114,4 @@ private:
 };
 
 #endif /* __vtkWidgetEventTranslator_h */
- 
+

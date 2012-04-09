@@ -64,7 +64,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // Is the attribute centered either on points, cells or boundaries?
   // \post valid_result: (result==vtkPointCentered)||(result==vtkCellCentered)
   virtual int GetCentering() = 0;
-  
+
   // Description:
   // Type of the attribute: scalar, vector, normal, texture coordinate, tensor
   // \post valid_result: (result==vtkDataSetAttributes::SCALARS)
@@ -73,7 +73,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   //                   ||(result==vtkDataSetAttributes::TCOORDS)
   //                   ||(result==vtkDataSetAttributes::TENSORS)
   virtual int GetType()=0;
-  
+
   // Description:
   // Type of the components of the attribute: int, float, double
   // \post valid_result: (result==VTK_BIT)           ||(result==VTK_CHAR)
@@ -101,7 +101,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
   // \post result_exists: result!=0
   virtual double *GetRange(int component=0) = 0;
-  
+
   // Description:
   // Range of the attribute component `component'. If `component'==-1, it
   // returns the range of the magnitude (euclidean norm).
@@ -109,12 +109,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
   virtual void GetRange(int component,
                         double range[2]) = 0;
-  
+
   // Description:
   // Return the maximum euclidean norm for the tuples.
   // \post positive_result: result>=0
   virtual double GetMaxNorm()=0;
-  
+
   // Description:
   // Attribute at all points of cell `c'.
   // \pre c_exists: c!=0
@@ -122,7 +122,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \post result_exists: result!=0
   // \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
   virtual double *GetTuple(vtkGenericAdaptorCell *c) = 0;
-  
+
   // Description:
   // Put attribute at all points of cell `c' in `tuple'.
   // \pre c_exists: c!=0
@@ -130,7 +130,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \pre tuple_exists: tuple!=0
   // \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
   virtual void GetTuple(vtkGenericAdaptorCell *c, double *tuple) = 0;
-  
+
   // Description:
   // Attribute at all points of cell `c'.
   // \pre c_exists: c!=0
@@ -154,7 +154,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \post result_exists: result!=0
   // \post valid_result_size: sizeof(result)==GetNumberOfComponents()
   virtual double *GetTuple(vtkGenericPointIterator *p) = 0;
-  
+
   // Description:
   // Put the value of the attribute at position `p' into `tuple'.
   // \pre p_exists: p!=0
@@ -162,7 +162,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \pre tuple_exists: tuple!=0
   // \pre valid_tuple_size: sizeof(tuple)>=GetNumberOfComponents()
   virtual void GetTuple(vtkGenericPointIterator *p, double *tuple) = 0;
-  
+
   // Description:
   // Put component `i' of the attribute at all points of cell `c' in `values'.
   // \pre valid_component: (i>=0) && (i<GetNumberOfComponents())
@@ -178,23 +178,23 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   // \pre p_exists: p!=0
   // \pre p_valid: !p->IsAtEnd()
   virtual double GetComponent(int i,vtkGenericPointIterator *p) = 0;
-  
+
   // Description:
   // Recursive duplication of `other' in `this'.
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   virtual void DeepCopy(vtkGenericAttribute *other) = 0;
-  
+
   // Description:
   // Update `this' using fields of `other'.
   // \pre other_exists: other!=0
   // \pre not_self: other!=this
   virtual void ShallowCopy(vtkGenericAttribute *other) = 0;
-  
+
 protected:
   vtkGenericAttribute();
   ~vtkGenericAttribute();
-  
+
 private:
   vtkGenericAttribute(const vtkGenericAttribute&);  // Not implemented.
   void operator=(const vtkGenericAttribute&);  // Not implemented.

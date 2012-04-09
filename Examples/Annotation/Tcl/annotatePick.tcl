@@ -85,10 +85,10 @@ proc annotatePick {} {
 
     } else {
 	set selPt [picker GetSelectionPoint]
-	set x [lindex $selPt 0] 
+	set x [lindex $selPt 0]
 	set y [lindex $selPt 1]
 	set pickPos [picker GetPickPosition]
-	set xp [lindex $pickPos 0] 
+	set xp [lindex $pickPos 0]
 	set yp [lindex $pickPos 1]
 	set zp [lindex $pickPos 2]
 

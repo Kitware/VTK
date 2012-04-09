@@ -48,10 +48,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the position of the point in world and display coordinates. Note 
-  // that if the position is set outside of the bounding box, it will be 
+  // Set the position of the point in world and display coordinates. Note
+  // that if the position is set outside of the bounding box, it will be
   // clamped to the boundary of the bounding box. This method overloads
-  // the superclasses' SetWorldPosition() and SetDisplayPosition() in 
+  // the superclasses' SetWorldPosition() and SetDisplayPosition() in
   // order to set the focal point of the cursor properly.
   virtual void SetWorldPosition(double p[3]);
   virtual void SetDisplayPosition(double p[3]);
@@ -113,7 +113,7 @@ public:
   void SetTranslationMode(int mode);
   vtkGetMacro(TranslationMode,int);
   vtkBooleanMacro(TranslationMode,int);
-  
+
   // Description:
   // Convenience methods to turn outline and shadows on and off.
   void AllOn()
@@ -137,15 +137,15 @@ public:
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  
+
   // Description:
   // Set the "hot spot" size; i.e., the region around the focus, in which the
   // motion vector is used to control the constrained sliding action. Note the
-  // size is specified as a fraction of the length of the diagonal of the 
+  // size is specified as a fraction of the length of the diagonal of the
   // point widget's bounding box.
   vtkSetClampMacro(HotSpotSize,double,0.0,1.0);
   vtkGetMacro(HotSpotSize,double);
-  
+
   // Description:
   // Overload the superclasses SetHandleSize() method to update internal variables.
   virtual void SetHandleSize(double size);
@@ -199,18 +199,18 @@ protected:
   vtkCellPicker *CursorPicker;
   double LastPickPosition[3];
   double LastEventPosition[2];
-  
+
   // Methods to manipulate the cursor
   int  ConstraintAxis;
   void Translate(double *p1, double *p2);
   void Scale(double *p1, double *p2, double eventPos[2]);
   void MoveFocus(double *p1, double *p2);
   void SizeBounds();
-  
-  // Given a motion vector defined by p1 --> p2 (p1 and p2 are in 
-  // world coordinates), the new display position of the handle center is 
+
+  // Given a motion vector defined by p1 --> p2 (p1 and p2 are in
+  // world coordinates), the new display position of the handle center is
   // populated into requestedDisplayPos. This is again only a request for the
-  // new display position. It is up to the point placer to deduce the 
+  // new display position. It is up to the point placer to deduce the
   // appropriate world co-ordinates that this display position will map into.
   // The placer may even disallow such a movement.
   // If "SmoothMotion" is OFF, the returned requestedDisplayPos is the same
@@ -224,13 +224,13 @@ protected:
   vtkProperty *Property;
   vtkProperty *SelectedProperty;
   void         CreateDefaultProperties();
-  
+
   // The size of the hot spot.
   double HotSpotSize;
   int    DetermineConstraintAxis(int constraint, double *x, double *startPoint);
   int    WaitingForMotion;
   int    WaitCount;
-  
+
   // Current handle sized (may reflect scaling)
   double CurrentHandleSize;
 

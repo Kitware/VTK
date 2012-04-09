@@ -4,7 +4,7 @@
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
-# Example: 
+# Example:
 #   DOXYGEN_PROG=@DOXYGEN@        (INCLUDE(FindDoxygen.cmake))
 #   GZIP_PROG=@GZIP@              (INCLUDE(FindCygwin.cmake))
 #   HHC_PROG=@HTML_HELP_COMPILER@ (INCLUDE(FindHTMLHelp.cmake))
@@ -26,19 +26,19 @@ export WGET_PROG="@WGET@"              # wget (remote file retrieval)
 
 # PROJECT_NAME:
 # Documentation/project name. Used in some of the resulting file names and
-# xrefs to uniquify two or more projects linked together through their 
+# xrefs to uniquify two or more projects linked together through their
 # Doxygen's tag files. Mandatory for each documentation set.
 # Note: might be the same as the doxyfile's PROJECT_NAME
-# Example: 
+# Example:
 #   PROJECT_NAME=VTK
 #
 export PROJECT_NAME=vtkMy
 
 # PATH_TO_VTK_DOX_SCRIPTS:
 # Path to the directory holding the Perl scripts used to produce the VTK doc
-# in Doxygen format. You need the VTK source files or a local copy of 
+# in Doxygen format. You need the VTK source files or a local copy of
 # these scripts.
-# Example: 
+# Example:
 #   PATH_TO_VTK_DOX_SCRIPTS=@VTK_SOURCE_DIR@/Utilities/Doxygen
 #
 export PATH_TO_VTK_DOX_SCRIPTS="@VTK_SOURCE_DIR@/Utilities/Doxygen"
@@ -74,10 +74,10 @@ export DOXTEMP="@VTKMY_BINARY_DIR@/Utilities/Doxygen"
 export INTERMEDIATE_DOX_DIR="$DOXTEMP/dox"
 
 # CVSWEB_CHECKOUT, CVSWEB_CHECKOUT_SUFFIX:
-# URL to the CVSWeb of the project, in checkout mode (i.e. appending a file 
+# URL to the CVSWeb of the project, in checkout mode (i.e. appending a file
 # name to this URL will retrieve the contents of the file). In the same way
 # CVSWEB_CHECKOUT_SUFFIX is appended to the result.
-# Example: 
+# Example:
 #   CVSWEB_CHECKOUT=http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK
 #   CVSWEB_CHECKOUT_SUFFIX=?cvsroot=CMake
 #
@@ -86,7 +86,7 @@ export CVSWEB_CHECKOUT_SUFFIX="?cvsroot=VTK"
 
 # DATA_ROOT:
 # Data directory. The root directory of the data files.
-# Example: 
+# Example:
 #   DATA_ROOT=@VTK_DATA_ROOT@
 #
 #export DATA_ROOT="@VTK_DATA_ROOT@"

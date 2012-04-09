@@ -31,7 +31,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int 
+int
 TestMergeTables(int argc, char* argv[])
 {
   char * filename1 = vtkTestUtilities::ExpandDataFileName(argc,argv,

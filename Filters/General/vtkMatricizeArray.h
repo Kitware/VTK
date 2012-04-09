@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkMatricizeArray.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -46,7 +46,7 @@ public:
   // Description:
   // Returns the 0-numbered dimension that will be mapped to columns in the output
   vtkGetMacro(SliceDimension, vtkIdType);
-  
+
   // Description:
   // Sets the 0-numbered dimension that will be mapped to columns in the output
   vtkSetMacro(SliceDimension, vtkIdType);
@@ -56,8 +56,8 @@ protected:
   ~vtkMatricizeArray();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

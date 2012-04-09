@@ -36,7 +36,7 @@
 #include "vtkVariantArray.h"
 
 #include <vtksys/stl/set>
-#include <vtksys/ios/sstream> 
+#include <vtksys/ios/sstream>
 #include <limits>
 
 vtkStandardNewMacro(vtkDescriptiveStatistics);
@@ -72,10 +72,10 @@ void vtkDescriptiveStatistics::PrintSelf( ostream &os, vtkIndent indent )
 void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
                                           vtkMultiBlockDataSet* outMeta )
 {
-  if ( ! outMeta ) 
-    { 
-    return; 
-    } 
+  if ( ! outMeta )
+    {
+    return;
+    }
 
   // Get hold of the first model (data object) in the collection
   vtkCollectionSimpleIterator it;
@@ -84,9 +84,9 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
   // Verify that the first input model is indeed contained in a multiblock data set
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-  if ( ! inMeta ) 
-    { 
-    return; 
+  if ( ! inMeta )
+    {
+    return;
     }
 
   // Verify that the first primary statistics are indeed contained in a table
@@ -112,11 +112,11 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     {
     // Verify that the current model is indeed contained in a multiblock data set
     inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-    if ( ! inMeta ) 
+    if ( ! inMeta )
       {
       aggregatedTab->Delete();
 
-      return; 
+      return;
       }
 
     // Verify that the current primary statistics are indeed contained in a table
@@ -156,7 +156,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double M2 = aggregatedTab->GetValueByName( r, "M2" ).ToDouble();
       double M3 = aggregatedTab->GetValueByName( r, "M3" ).ToDouble();
       double M4 = aggregatedTab->GetValueByName( r, "M4" ).ToDouble();
-      
+
       // Get current model statistics
       int n_c = primaryTab->GetValueByName( r, "Cardinality" ).ToInt();
       double min_c = primaryTab->GetValueByName( r, "Minimum" ).ToDouble();
@@ -165,7 +165,7 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       double M2_c = primaryTab->GetValueByName( r, "M2" ).ToDouble();
       double M3_c = primaryTab->GetValueByName( r, "M3" ).ToDouble();
       double M4_c = primaryTab->GetValueByName( r, "M4" ).ToDouble();
-      
+
       // Update global statics
       int N = n + n_c;
 
@@ -186,17 +186,17 @@ void vtkDescriptiveStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
       int n2 = n * n;
       int n_c2 = n_c * n_c;
       int prod_n = n * n_c;
- 
-      M4 += M4_c 
+
+      M4 += M4_c
         + prod_n * ( n2 - prod_n + n_c2 ) * delta * delta_sur_N * delta2_sur_N2
         + 6. * ( n2 * M2_c + n_c2 * M2 ) * delta2_sur_N2
         + 4. * ( n * M3_c - n_c * M3 ) * delta_sur_N;
 
-      M3 += M3_c 
+      M3 += M3_c
         + prod_n * ( n - n_c ) * delta * delta2_sur_N2
         + 3. * ( n * M2_c - n_c * M2 ) * delta_sur_N;
 
-      M2 += M2_c 
+      M2 += M2_c
         + prod_n * delta * delta_sur_N;
 
       mean += n_c * delta_sur_N;
@@ -392,7 +392,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   // Storage for standard deviation, variance, skewness,  kurtosis, sum
-  double* derivedVals = new double[numDoubles]; 
+  double* derivedVals = new double[numDoubles];
 
   for ( int i = 0; i < nRow; ++ i )
     {
@@ -537,9 +537,9 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
 
   // Downcast columns to string arrays for efficient data access
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
-  
+
   // Loop over requests
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
@@ -566,7 +566,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
 		       <<". Cannot test." );
       continue;
       }
-    
+
     // Retrieve model statistics necessary for Jarque-Bera testing
     double n = primaryTab->GetValueByName( r, "Cardinality" ).ToDouble();
     double skew = derivedTab->GetValueByName( r, "Skewness" ).ToDouble();
@@ -574,8 +574,8 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
 
     // Now calculate Jarque-Bera statistic
     double jb = n * ( skew * skew + .25 * kurt * kurt ) / 6.;
-    
-    // Insert variable name and calculated Jarque-Bera statistic 
+
+    // Insert variable name and calculated Jarque-Bera statistic
     // NB: R will be invoked only once at the end for efficiency
     nameCol->InsertNextValue( varName );
     statCol->InsertNextTuple1( jb );
@@ -616,7 +616,7 @@ public:
 class ZedDeviationDeviantFunctor : public TableColumnDeviantFunctor
 {
 public:
-  ZedDeviationDeviantFunctor( vtkDataArray* vals, 
+  ZedDeviationDeviantFunctor( vtkDataArray* vals,
                               double nominal )
   {
     this->Data = vals;
@@ -634,8 +634,8 @@ public:
 class SignedTableColumnDeviantFunctor : public TableColumnDeviantFunctor
 {
 public:
-  SignedTableColumnDeviantFunctor( vtkDataArray* vals, 
-                                   double nominal, 
+  SignedTableColumnDeviantFunctor( vtkDataArray* vals,
+                                   double nominal,
                                    double deviation )
   {
     this->Data = vals;
@@ -654,8 +654,8 @@ public:
 class UnsignedTableColumnDeviantFunctor : public TableColumnDeviantFunctor
 {
 public:
-  UnsignedTableColumnDeviantFunctor( vtkDataArray* vals, 
-                                     double nominal, 
+  UnsignedTableColumnDeviantFunctor( vtkDataArray* vals,
+                                     double nominal,
                                      double deviation )
   {
     this->Data = vals;
@@ -678,10 +678,10 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     AssessFunctor*& dfunc )
 {
   dfunc = 0;
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO ); 
+  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta )
-    { 
-    return; 
+    {
+    return;
     }
 
   vtkTable* primaryTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
@@ -722,8 +722,8 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
         {
         return;
         }
-      
-      // For descriptive statistics, type must be convertible to DataArray 
+
+      // For descriptive statistics, type must be convertible to DataArray
       // E.g., StringArrays do not fit here
       vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
       if ( ! vals )
@@ -736,7 +736,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
 
       // Fetch necessary value from derived model
       double stdv = derivedTab->GetValueByName( r, "Standard Deviation" ).ToDouble();
-      // NB: If derived values were specified (and not calculated by Derive) 
+      // NB: If derived values were specified (and not calculated by Derive)
       //     and are inconsistent, then incorrect assessments will be produced
 
       if ( stdv < VTK_DBL_MIN )

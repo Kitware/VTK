@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class is deisgned to work within vtkXMLWriter. It store a position
 // in a file (unsigned long) and associate a offset in the file. This is
-// useful when writing TimeStep XML file when you want to forward the 
+// useful when writing TimeStep XML file when you want to forward the
 // same offset from the AppendData section on every entry in let say
 // \<Points\> definition
 // Example:
@@ -27,8 +27,8 @@
 //   ...
 // </Points>
 // \endverbatim
-// Therefore data is only stored once in the XML file. At read time the 
-// offset value is stored to determine whenever we need to read data 
+// Therefore data is only stored once in the XML file. At read time the
+// offset value is stored to determine whenever we need to read data
 // (ie when offset different from previously stored offset)
 
 // .SECTION See Also
@@ -98,7 +98,7 @@ public:
     return this->LastMTime;
     }
 private:
-  unsigned long LastMTime; // Previously written dataarray mtime 
+  unsigned long LastMTime; // Previously written dataarray mtime
   // at some point these vectors could become a vector of map <string,ul>
   // where the string is the name of the offset, but that would be pretty fat
   // and slow, but if another couple offsets are added then we should

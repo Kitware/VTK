@@ -36,7 +36,7 @@ TestVariantComparison(int, char *[])
   int shiftAmountLong = 8 * sizeof(long) - 2;
 
   vtkTypeInt64 positive64 = static_cast<vtkTypeInt64>(1) << shiftAmount64;
-  vtkTypeInt64 negative64 = -positive64; 
+  vtkTypeInt64 negative64 = -positive64;
 
   // There is nothing inherently magical about these values.  I just
   // happen to like them and they're outside the range of signed
@@ -56,7 +56,7 @@ TestVariantComparison(int, char *[])
   double negativeDouble = -123456789.012345;
 
   vtkObject *fooObject = vtkObject::New();
-  
+
   vtkVariant invalidVariant;
 
   // Now we need variants for all of those
@@ -75,7 +75,7 @@ TestVariantComparison(int, char *[])
   vtkVariant positiveLongVariant(positiveLong);
   vtkVariant unsignedLongVariant(unsignedLong);
   vtkVariant negativeLongVariant(negativeLong);
-  
+
   vtkVariant positive64Variant(positive64);
   vtkVariant unsigned64Variant(unsigned64);
   vtkVariant negative64Variant(negative64);
@@ -87,12 +87,12 @@ TestVariantComparison(int, char *[])
 
   vtkVariant numberStringVariant(numberString);
   vtkVariant alphaStringVariant(alphaString);
-  
+
   vtkVariant fooObjectVariant(fooObject);
 
   int errorCount = 0;
   int overallErrorCount = 0;
-   
+
 #define CHECK_EXPRESSION_FALSE(expr) { if ((expr)) { ++errorCount; cerr << "TEST FAILED: " << #expr << " should have been false\n\n"; } }
 
 #define CHECK_EXPRESSION_TRUE(expr) { if (!(expr)) { ++errorCount; cerr << "TEST FAILED: " << #expr << " should have been true\n\n"; } }
@@ -117,7 +117,7 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(positive64Variant < negative64Variant);
   CHECK_EXPRESSION_FALSE(unsigned64Variant < positive64Variant);
   CHECK_EXPRESSION_FALSE(unsigned64Variant < negative64Variant);
-  
+
   CHECK_EXPRESSION_FALSE(positiveFloat < negativeFloat);
   CHECK_EXPRESSION_FALSE(positiveDouble < negativeDouble);
 
@@ -164,7 +164,7 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(positiveFloatVariant < positiveCharVariant);
   CHECK_EXPRESSION_FALSE(positiveFloatVariant < negativeCharVariant);
   CHECK_EXPRESSION_FALSE(positiveFloatVariant < unsignedCharVariant);
-  
+
   CHECK_EXPRESSION_FALSE(positiveDoubleVariant < positiveCharVariant);
   CHECK_EXPRESSION_FALSE(positiveDoubleVariant < negativeCharVariant);
   CHECK_EXPRESSION_FALSE(positiveDoubleVariant < unsignedCharVariant);
@@ -195,7 +195,7 @@ TestVariantComparison(int, char *[])
   float f = 100;
   double d = 100;
   vtkStdString str("100");
-  
+
   CHECK_EXPRESSION_TRUE(vtkVariant(c) == vtkVariant(s));
   CHECK_EXPRESSION_TRUE(vtkVariant(c) == vtkVariant(i));
   CHECK_EXPRESSION_TRUE(vtkVariant(c) == vtkVariant(l));
@@ -227,7 +227,7 @@ TestVariantComparison(int, char *[])
 
   CHECK_EXPRESSION_TRUE(vtkVariant(f) == vtkVariant(d));
   CHECK_EXPRESSION_TRUE(vtkVariant(f) == vtkVariant(str));
-  
+
   CHECK_EXPRESSION_TRUE(vtkVariant(d) == vtkVariant(str));
 
   if (errorCount == 0)
@@ -305,7 +305,7 @@ TestVariantComparison(int, char *[])
 
   CHECK_EXPRESSION_TRUE(TestMap2.find(vtkVariant(str)) != TestMap2.end());
   CHECK_EXPRESSION_TRUE(TestMap2[vtkVariant("100")] == "string");
-  
+
   CHECK_EXPRESSION_TRUE(TestMap2.size() == 8);
 
   if (errorCount == 0)
@@ -349,7 +349,7 @@ TestVariantComparison(int, char *[])
          << "negative " << negative64 << ", "
          << "unsigned " << unsigned64 << "\n";
     }
-  
+
   fooObject->Delete();
   return (overallErrorCount > 0);
 }

@@ -15,7 +15,7 @@
 // .NAME vtkCompositeDataIterator - superclass for composite data iterators
 // .SECTION Description
 // vtkCompositeDataIterator provides an interface for accessing datasets
-// in a collection (vtkCompositeDataIterator). 
+// in a collection (vtkCompositeDataIterator).
 #ifndef __vtkCompositeDataIterator_h
 #define __vtkCompositeDataIterator_h
 
@@ -36,7 +36,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the composite dataset this iterator is iterating over. 
+  // Set the composite dataset this iterator is iterating over.
   // Must be set before traversal begins.
   virtual void SetDataSet(vtkCompositeDataSet* ds);
   vtkGetObjectMacro(DataSet, vtkCompositeDataSet);
@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Test whether the iterator is finished with the traversal.
-  // Returns 1 for yes, and 0 for no. 
+  // Returns 1 for yes, and 0 for no.
   // It is safe to call any of the GetCurrent...() methods only when
   // IsDoneWithTraversal() returns 0.
   virtual int IsDoneWithTraversal();

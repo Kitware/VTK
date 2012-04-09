@@ -57,8 +57,8 @@ public:
   vtkSetMacro(KeepCellIds, int);
   vtkGetMacro(KeepCellIds, int);
   vtkBooleanMacro(KeepCellIds, int);
-  
-  
+
+
   // Description:
   // Turn on/off merging of coincident points. Note that is merging is
   // on, points with different point attributes (e.g., normals) are merged,
@@ -76,28 +76,28 @@ public:
   // Description:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
-  
+
   // Description:
   // Return the MTime also considering the locator.
   unsigned long GetMTime();
-  
+
 protected:
   vtkGenericDataSetTessellator();
   ~vtkGenericDataSetTessellator();
-  
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int FillInputPortInformation(int, vtkInformation*);
-  
+
   // See Set/Get KeepCellIds() for explanations.
   int KeepCellIds;
-  
+
   // Used internal by vtkGenericAdaptorCell::Tessellate()
   vtkPointData *InternalPD;
-  
+
   int Merging;
   vtkIncrementalPointLocator *Locator;
-  
+
 private:
   vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&);  // Not implemented.
   void operator=(const vtkGenericDataSetTessellator&);  // Not implemented.

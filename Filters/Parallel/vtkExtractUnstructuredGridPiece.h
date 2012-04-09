@@ -30,13 +30,13 @@ public:
   static vtkExtractUnstructuredGridPiece *New();
   vtkTypeMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Turn on/off creating ghost cells (on by default).
   vtkSetMacro(CreateGhostCells, int);
   vtkGetMacro(CreateGhostCells, int);
   vtkBooleanMacro(CreateGhostCells, int);
-  
+
 protected:
   vtkExtractUnstructuredGridPiece();
   ~vtkExtractUnstructuredGridPiece() {};
@@ -45,13 +45,13 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
- 
+
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
                        int piece, int numPieces, vtkUnstructuredGrid *input);
-  
+
   void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags, int ghostLevel);
-  
+
   int CreateGhostCells;
 private:
   vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);  // Not implemented.

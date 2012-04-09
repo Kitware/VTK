@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkCursor2D is a class that generates a 2D cursor representation.
 // The cursor consists of two intersection axes lines that meet at the
-// cursor focus. Several optional features are available as well. An 
+// cursor focus. Several optional features are available as well. An
 // optional 2D bounding box may be enabled. An inner radius, centered at
 // the focal point, can be set that erases the intersecting lines (e.g.,
 // it leaves a clear area under the focal point so you can see
@@ -55,7 +55,7 @@ public:
   // then the entire cursor (including bounding box, cursor, and shadows)
   // is translated. Otherwise, the focal point will either be clamped to the
   // bounding box, or wrapped, if Wrap is on. (Note: this behavior requires
-  // that the bounding box is set prior to the focal point.) Note that the 
+  // that the bounding box is set prior to the focal point.) Note that the
   // method takes a 3D point but ignores the z-coordinate value.
   void SetFocalPoint(double x[3]);
   void SetFocalPoint(double x, double y, double z)
@@ -125,7 +125,7 @@ protected:
   double Radius;
   int    TranslationMode;
   int    Wrap;
-  
+
 private:
   vtkCursor2D(const vtkCursor2D&);  // Not implemented.
   void operator=(const vtkCursor2D&);  // Not implemented.

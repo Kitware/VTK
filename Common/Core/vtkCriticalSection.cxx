@@ -28,9 +28,9 @@ void vtkSimpleCriticalSection::Init()
 #ifdef VTK_USE_SPROC
   init_lock( &this->CritSec );
 #endif
-  
+
 #ifdef VTK_USE_WIN32_THREADS
-  //this->MutexLock = CreateMutex( NULL, FALSE, NULL ); 
+  //this->MutexLock = CreateMutex( NULL, FALSE, NULL );
   InitializeCriticalSection(&this->CritSec);
 #endif
 

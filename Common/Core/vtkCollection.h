@@ -15,8 +15,8 @@
 // .NAME vtkCollection - create and manipulate unsorted lists of objects
 // .SECTION Description
 // vtkCollection is a general object for creating and manipulating lists
-// of objects. The lists are unsorted and allow duplicate entries. 
-// vtkCollection also serves as a base class for lists of specific types 
+// of objects. The lists are unsorted and allow duplicate entries.
+// vtkCollection also serves as a base class for lists of specific types
 // of objects.
 
 // .SECTION See Also
@@ -69,7 +69,7 @@ public:
 
   // Description:
   // Remove the i'th item in the list.
-  // Be careful if using this function during traversal of the list using 
+  // Be careful if using this function during traversal of the list using
   // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
   // be shortened if a valid index is given!  If this->Current is equal to the
   // element being removed, have it point to then next element in the list.
@@ -102,7 +102,7 @@ public:
 
   //BTX
   // Description:
-  // A reentrant safe way to iterate through a collection. 
+  // A reentrant safe way to iterate through a collection.
   // Just pass the same cookie value around each time
   void InitTraversal(vtkCollectionSimpleIterator &cookie) {
     cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);};
@@ -111,7 +111,7 @@ public:
   // Description:
   // Get the next item in the collection. NULL is returned if the collection
   // is exhausted.
-  vtkObject *GetNextItemAsObject();  
+  vtkObject *GetNextItemAsObject();
 
   // Description:
   // Get the i'th item in the collection. NULL is returned if i is out
@@ -119,12 +119,12 @@ public:
   vtkObject *GetItemAsObject(int i);
 
   //BTX
-  // Description: 
+  // Description:
   // A reentrant safe way to get the next object as a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkObject *GetNextItemAsObject(vtkCollectionSimpleIterator &cookie);
   //ETX
-  
+
   // Description:
   // Get an iterator to traverse the objects in this collection.
   vtkCollectionIterator* NewIterator();
@@ -137,7 +137,7 @@ protected:
   vtkCollection();
   ~vtkCollection();
 
-  virtual void DeleteElement(vtkCollectionElement *); 
+  virtual void DeleteElement(vtkCollectionElement *);
   int NumberOfItems;
   vtkCollectionElement *Top;
   vtkCollectionElement *Bottom;

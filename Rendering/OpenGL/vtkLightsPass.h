@@ -19,7 +19,7 @@
 // This pass expects an initialized camera.
 // It disables all the lights, apply transformations for lights following the
 // camera, and turn on the enables lights.
-// 
+//
 // .SECTION See Also
 // vtkRenderPass
 
@@ -44,7 +44,7 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
  protected:
   // Description:
   // Default constructor.
@@ -53,7 +53,7 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkLightsPass();
-  
+
  private:
   vtkLightsPass(const vtkLightsPass&);  // Not implemented.
   void operator=(const vtkLightsPass&);  // Not implemented.

@@ -27,7 +27,7 @@ vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
   this->Window = (this->TableRange[1] - this->TableRange[0]);
 
   this->InverseVideo = 0;
-  
+
   this->MinimumTableValue[0] = 0.0;
   this->MinimumTableValue[1] = 0.0;
   this->MinimumTableValue[2] = 0.0;
@@ -45,7 +45,7 @@ vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
 void vtkWindowLevelLookupTable::Build()
 {
   if (this->Table->GetNumberOfTuples() < 1 ||
-      (this->GetMTime() > this->BuildTime && 
+      (this->GetMTime() > this->BuildTime &&
        this->InsertTime < this->BuildTime))
     {
     int i, j;
@@ -55,7 +55,7 @@ void vtkWindowLevelLookupTable::Build()
     for (j = 0; j < 4; j++)
       {
       start[j] = this->MinimumTableValue[j]*255;
-      incr[j] = ((this->MaximumTableValue[j]-this->MinimumTableValue[j]) / 
+      incr[j] = ((this->MaximumTableValue[j]-this->MinimumTableValue[j]) /
                  (this->NumberOfColors - 1) * 255);
       }
 
@@ -115,8 +115,8 @@ void vtkWindowLevelLookupTable::SetInverseVideo(int iv)
     rgba = this->Table->WritePointer(4*i,4);
     rgba2 = this->Table->WritePointer(4*(n-i),4);
     tmp[0]=rgba[0]; tmp[1]=rgba[1]; tmp[2]=rgba[2]; tmp[3]=rgba[3];
-    rgba[0]=rgba2[0]; rgba[1]=rgba2[1]; rgba[2]=rgba2[2]; rgba[3]=rgba2[3]; 
-    rgba2[0]=tmp[0]; rgba2[1]=tmp[1]; rgba2[2]=tmp[2]; rgba2[3]=tmp[3]; 
+    rgba[0]=rgba2[0]; rgba[1]=rgba2[1]; rgba[2]=rgba2[2]; rgba[3]=rgba2[3];
+    rgba2[0]=tmp[0]; rgba2[1]=tmp[1]; rgba2[2]=tmp[2]; rgba2[3]=tmp[3];
     }
   this->Modified();
 }
@@ -128,16 +128,16 @@ void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Window: " << this->Window << "\n";
   os << indent << "Level: " << this->Level << "\n";
-  os << indent << "InverseVideo: " 
+  os << indent << "InverseVideo: "
      << (this->InverseVideo ? "On\n" : "Off\n");
   os << indent << "MinimumTableValue : ("
      << this->MinimumTableValue[0] << ", "
      << this->MinimumTableValue[1] << ", "
      << this->MinimumTableValue[2] << ", "
-     << this->MinimumTableValue[3] << ")\n";  
+     << this->MinimumTableValue[3] << ")\n";
   os << indent << "MaximumTableValue : ("
      << this->MaximumTableValue[0] << ", "
      << this->MaximumTableValue[1] << ", "
      << this->MaximumTableValue[2] << ", "
-     << this->MaximumTableValue[3] << ")\n";  
+     << this->MaximumTableValue[3] << ")\n";
 }

@@ -36,7 +36,7 @@ vtkAssignCoordinates::vtkAssignCoordinates()
   this->XCoordArrayName = 0;
   this->YCoordArrayName = 0;
   this->ZCoordArrayName = 0;
-  
+
   this->Jitter = false;
 }
 
@@ -68,10 +68,10 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   // get the input and output
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-    
+
   // Do a shallow copy of the input to the output
   output->ShallowCopy(input);
-  
+
   // Create new points on the output
   vtkDataSetAttributes *data = 0;
   vtkPoints* pts = vtkPoints::New();
@@ -98,51 +98,51 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     vtkErrorMacro(<<"Input must be graph or point set.");
     return 0;
     }
-    
+
   // I need at least one coordinate array
   if (!this->XCoordArrayName || strlen(XCoordArrayName) == 0)
     {
     return 0;
     }
-    
+
   // Okay now check for coordinate arrays
   vtkDataArray* XArray = data->GetArray(this->XCoordArrayName);
-  
-  // Does the array exist at all?  
+
+  // Does the array exist at all?
   if (XArray == NULL)
     {
     vtkErrorMacro("Could not find array named " << this->XCoordArrayName);
     return 0;
     }
-    
+
   // Y coordinate array
   vtkDataArray* YArray = 0;
   if (this->YCoordArrayName && strlen(YCoordArrayName) > 0)
     {
     YArray = data->GetArray(this->YCoordArrayName);
-    
-    // Does the array exist at all?  
+
+    // Does the array exist at all?
     if (YArray == NULL)
       {
       vtkErrorMacro("Could not find array named " << this->YCoordArrayName);
       return 0;
       }
     }
-    
+
   // Z coordinate array
   vtkDataArray* ZArray = 0;
   if (this->ZCoordArrayName && strlen(ZCoordArrayName) > 0)
     {
     ZArray = data->GetArray(this->ZCoordArrayName);
-    
-    // Does the array exist at all?  
+
+    // Does the array exist at all?
     if (ZArray == NULL)
       {
       vtkErrorMacro("Could not find array named " << this->ZCoordArrayName);
       return 0;
       }
     }
-          
+
   // Generate the points, either x,0,0 or x,y,0 or x,y,z
   int numPts = pts->GetNumberOfPoints();
   for (int i = 0; i < numPts; i++)
@@ -165,13 +165,13 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
       {
       if (ZArray)
         {
-        pts->SetPoint(i, XArray->GetTuple1(i)+rx, 
-                         YArray->GetTuple1(i)+ry, 
+        pts->SetPoint(i, XArray->GetTuple1(i)+rx,
+                         YArray->GetTuple1(i)+ry,
                          ZArray->GetTuple1(i)+rz);
         }
       else
         {
-        pts->SetPoint(i, XArray->GetTuple1(i)+rx, 
+        pts->SetPoint(i, XArray->GetTuple1(i)+rx,
                          YArray->GetTuple1(i)+ry, 0);
         }
       }
@@ -180,9 +180,9 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
       pts->SetPoint(i, XArray->GetTuple1(i)+rx, 0, 0);
       }
     }
-    
+
     return 1;
-} 
+}
 
 int vtkAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
@@ -190,22 +190,22 @@ int vtkAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-  return 1;  
+  return 1;
 }
 
 void vtkAssignCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "XCoordArrayName: " 
+
+  os << indent << "XCoordArrayName: "
      << (this->XCoordArrayName ? this->XCoordArrayName : "(none)") << endl;
-     
-  os << indent << "YCoordArrayName: " 
+
+  os << indent << "YCoordArrayName: "
      << (this->YCoordArrayName ? this->YCoordArrayName : "(none)") << endl;
-     
-  os << indent << "ZCoordArrayName: " 
+
+  os << indent << "ZCoordArrayName: "
      << (this->ZCoordArrayName ? this->ZCoordArrayName : "(none)") << endl;
-     
-  os << indent << "Jitter: " 
+
+  os << indent << "Jitter: "
      << (this->Jitter ? "True" : "False") << endl;
 }

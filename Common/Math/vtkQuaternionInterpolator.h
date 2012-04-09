@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkQuaternionInterpolator.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -25,7 +25,7 @@
 // AddQuaternion() method.  Next interpolate the tuples with the
 // InterpolateQuaternion(t,q[4]) method, where "t" must be in the range of
 // (t_min,t_max) parameter values specified by the AddQuaternion() method (t
-// is clamped otherwise), and q[4] is filled in by the method. 
+// is clamped otherwise), and q[4] is filled in by the method.
 //
 // There are several important background references. Ken Shoemake described
 // the practical application of quaternions for the interpolation of rotation
@@ -83,7 +83,7 @@ public:
   // Reset the class so that it contains no data; i.e., the array of (t,q[4])
   // information is discarded.
   void Initialize();
-  
+
   // Description:
   // Add another quaternion to the list of quaternions to be interpolated.
   // Note that using the same time t value more than once replaces the
@@ -99,7 +99,7 @@ public:
   // Description:
   // Interpolate the list of quaternions and determine a new quaternion
   // (i.e., fill in the quaternion provided). If t is outside the range of
-  // (min,max) values, then t is clamped to lie within the range. 
+  // (min,max) values, then t is clamped to lie within the range.
   void InterpolateQuaternion(double t, double q[4]);
 
 //BTX
@@ -133,7 +133,7 @@ protected:
 
   // Internal variables for interpolation functions
   vtkQuaternionList *QuaternionList; //used for linear quaternion interpolation
-  
+
   // Internal method for spherical, linear interpolation
   void Slerp(double t, double q0[4], double q1[4], double q[4]);
 

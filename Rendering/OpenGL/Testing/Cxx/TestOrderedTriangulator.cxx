@@ -86,7 +86,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   isotriangulator2->PreSortedOff();
 
   double *p = points;
-  
+
   vtkPoints *Points = vtkPoints::New();
   Points->SetNumberOfPoints(6);
   for(i=0;i<6;i++,p+=3)
@@ -163,11 +163,11 @@ int TestOrderedTriangulator(int argc, char *argv[])
 
   vtkDataSetMapper *aTetraMapper1 = vtkDataSetMapper::New();
   aTetraMapper1->SetInputConnection(shrink1->GetOutputPort());
-  
+
   vtkActor *aTetraActor1 = vtkActor::New();
   aTetraActor1->SetMapper (aTetraMapper1);
 
-  //Second tets:  
+  //Second tets:
   vtkShrinkFilter *shrink2 = vtkShrinkFilter::New();
   shrink2->SetInputData( aTetraGrid2 );
   shrink2->SetShrinkFactor( 0.7 );
@@ -186,11 +186,11 @@ int TestOrderedTriangulator(int argc, char *argv[])
 
   vtkDataSetMapper *isoTetraMapper1 = vtkDataSetMapper::New();
   isoTetraMapper1->SetInputConnection(isoshrink1->GetOutputPort());
-  
+
   vtkActor *isoTetraActor1 = vtkActor::New();
   isoTetraActor1->SetMapper (isoTetraMapper1);
 
-  //Second tets:  
+  //Second tets:
   vtkShrinkFilter *isoshrink2 = vtkShrinkFilter::New();
   isoshrink2->SetInputData( isoTetraGrid2 );
   isoshrink2->SetShrinkFactor( 0.7 );
@@ -205,7 +205,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   aTetraActor2->AddPosition   (1.2, 0.0, 0);
   isoTetraActor1->AddPosition (0.0, 1.2, 0);
   isoTetraActor2->AddPosition (1.2, 1.2, 0);
-  
+
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
@@ -217,7 +217,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   renderer->AddActor( isoTetraActor2 );
 
   renWin->AddRenderer( renderer );
-  renWin->SetSize( 300, 300 ); 
+  renWin->SetSize( 300, 300 );
 
   iren->SetRenderWindow( renWin );
   renWin->Render();
@@ -257,6 +257,6 @@ int TestOrderedTriangulator(int argc, char *argv[])
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
-  
+
   return 0;
 }

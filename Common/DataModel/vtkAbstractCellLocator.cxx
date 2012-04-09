@@ -49,8 +49,8 @@ bool vtkAbstractCellLocator::StoreCellBounds()
   // Allocate space for cell bounds storage, then fill
   vtkIdType numCells = this->DataSet->GetNumberOfCells();
   this->CellBounds = new double [numCells][6];
-  for (vtkIdType j=0; j<numCells; j++) 
-    { 
+  for (vtkIdType j=0; j<numCells; j++)
+    {
     this->DataSet->GetCellBounds(j, CellBounds[j]);
     }
   return true;
@@ -80,20 +80,20 @@ int vtkAbstractCellLocator::IntersectWithLine(
   int &subId, vtkIdType &cellId)
 {
   int returnVal;
-  returnVal = 
-    this->IntersectWithLine(p1, p2, tol, t, x, pcoords, 
+  returnVal =
+    this->IntersectWithLine(p1, p2, tol, t, x, pcoords,
                             subId, cellId, this->GenericCell);
   return returnVal;
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
   double [3]vtkNotUsed(p1), double [3]vtkNotUsed(p2), double vtkNotUsed(tol),
-  double& vtkNotUsed(t), double [3]vtkNotUsed(x), 
-  double [3]vtkNotUsed(pcoords), int &vtkNotUsed(subId), 
+  double& vtkNotUsed(t), double [3]vtkNotUsed(x),
+  double [3]vtkNotUsed(pcoords), int &vtkNotUsed(subId),
   vtkIdType &vtkNotUsed(cellId),
   vtkGenericCell *vtkNotUsed(cell))
 {
-  vtkErrorMacro(<<"The locator class - " << this->GetClassName() 
+  vtkErrorMacro(<<"The locator class - " << this->GetClassName()
     << " does not yet support IntersectWithLine");
   return 0;
 }
@@ -102,7 +102,7 @@ int vtkAbstractCellLocator::IntersectWithLine(
   const double [3]vtkNotUsed(p1), const double [3]vtkNotUsed(p2),
   vtkPoints *vtkNotUsed(points), vtkIdList *vtkNotUsed(cellIds))
 {
-  vtkErrorMacro(<<"The locator class - " << this->GetClassName() 
+  vtkErrorMacro(<<"The locator class - " << this->GetClassName()
     << " does not yet support this IntersectWithLine interface");
   return 0;
 }
@@ -112,16 +112,16 @@ void vtkAbstractCellLocator::FindClosestPoint(
   vtkIdType &cellId, int &subId,
   double& dist2)
 {
-  this->FindClosestPoint(x, closestPoint, this->GenericCell, 
-    cellId, subId, dist2);  
+  this->FindClosestPoint(x, closestPoint, this->GenericCell,
+    cellId, subId, dist2);
 }
 //----------------------------------------------------------------------------
 void vtkAbstractCellLocator::FindClosestPoint(
   double vtkNotUsed(x)[3], double vtkNotUsed(closestPoint)[3],
-  vtkGenericCell *vtkNotUsed(cell), vtkIdType &vtkNotUsed(cellId), 
+  vtkGenericCell *vtkNotUsed(cell), vtkIdType &vtkNotUsed(cellId),
   int &vtkNotUsed(subId),  double& vtkNotUsed(dist2))
 {
-  vtkErrorMacro(<<"The locator class - " << this->GetClassName() 
+  vtkErrorMacro(<<"The locator class - " << this->GetClassName()
     << " does not yet support FindClosestPoint");
 }
 //----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ vtkIdType vtkAbstractCellLocator::FindClosestPointWithinRadius(
 {
   int inside;
   return this->FindClosestPointWithinRadius(
-    x, radius, closestPoint, this->GenericCell, 
+    x, radius, closestPoint, this->GenericCell,
     cellId, subId, dist2, inside);
 }
 //----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ vtkIdType vtkAbstractCellLocator::FindClosestPointWithinRadius(
   vtkGenericCell *vtkNotUsed(cell), vtkIdType &vtkNotUsed(cellId),
   int &vtkNotUsed(subId), double& vtkNotUsed(dist2), int &vtkNotUsed(inside))
 {
-  vtkErrorMacro(<<"The locator class - " << this->GetClassName() 
+  vtkErrorMacro(<<"The locator class - " << this->GetClassName()
     << " does not yet support FindClosestPoint");
   return 0;
 }
@@ -163,7 +163,7 @@ vtkIdType vtkAbstractCellLocator::FindClosestPointWithinRadius(
 void vtkAbstractCellLocator::FindCellsWithinBounds(
   double *vtkNotUsed(bbox), vtkIdList *vtkNotUsed(cells))
 {
-  vtkErrorMacro(<<"The locator class - " << this->GetClassName() 
+  vtkErrorMacro(<<"The locator class - " << this->GetClassName()
     << " does not yet support FindCellsWithinBounds");
 }
 //----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void vtkAbstractCellLocator::FindCellsAlongLine(
   double vtkNotUsed(p1)[3], double vtkNotUsed(p2)[3], double vtkNotUsed(tolerance),
   vtkIdList *vtkNotUsed(cells))
 {
-  vtkErrorMacro(<<"The locator " << this->GetClassName() 
+  vtkErrorMacro(<<"The locator " << this->GetClassName()
     << " does not yet support FindCellsAlongLine");
 }
 //---------------------------------------------------------------------------
@@ -183,14 +183,14 @@ vtkIdType vtkAbstractCellLocator::FindCell(double x[3])
 }
 //----------------------------------------------------------------------------
 vtkIdType vtkAbstractCellLocator::FindCell(
-  double x[3], double tol2, vtkGenericCell *GenCell, 
+  double x[3], double tol2, vtkGenericCell *GenCell,
   double pcoords[3], double *weights)
 {
   vtkIdType returnVal=-1;
   int       subId;
   //
   static int warning_shown = 0;
-  if (!warning_shown) 
+  if (!warning_shown)
     {
     vtkWarningMacro(<<this->GetClassName() << " Does not implement FindCell"
       << " Reverting to slow DataSet implementation");
@@ -219,15 +219,15 @@ bool vtkAbstractCellLocator::InsideCellBounds(double x[3], vtkIdType cell_ID)
 void vtkAbstractCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "Cache Cell Bounds: " << 
-    this->CacheCellBounds << "\n";  
-  os << indent << "Retain Cell Lists: " << 
+  os << indent << "Cache Cell Bounds: " <<
+    this->CacheCellBounds << "\n";
+  os << indent << "Retain Cell Lists: " <<
     (this->RetainCellLists ? "On\n" : "Off\n");
-  os << indent << "Number of Cells Per Bucket: " 
+  os << indent << "Number of Cells Per Bucket: "
      << this->NumberOfCellsPerNode << "\n";
-  os << indent << "UseExistingSearchStructure: " 
+  os << indent << "UseExistingSearchStructure: "
      << this->UseExistingSearchStructure << "\n";
-  os << indent << "LazyEvaluation: " 
+  os << indent << "LazyEvaluation: "
      << this->LazyEvaluation << "\n";
 }
 //----------------------------------------------------------------------------

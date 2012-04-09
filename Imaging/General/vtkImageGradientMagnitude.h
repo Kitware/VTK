@@ -35,7 +35,7 @@ public:
   static vtkImageGradientMagnitude *New();
   vtkTypeMacro(vtkImageGradientMagnitude,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated
   // So central differences can get values.
@@ -47,7 +47,7 @@ public:
   // Determines how the input is interpreted (set of 2d slices ...)
   vtkSetClampMacro(Dimensionality,int,2,3);
   vtkGetMacro(Dimensionality,int);
-  
+
 protected:
   vtkImageGradientMagnitude();
   ~vtkImageGradientMagnitude() {};

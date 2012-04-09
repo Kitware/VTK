@@ -40,16 +40,16 @@ int TestRISReader(int argc, char* argv[])
   vtkSmartPointer<vtkRISReader> reader = vtkSmartPointer<vtkRISReader>::New();
   reader->SetFileName(file);
   delete[] file;
-  
-  reader->Update(); 
+
+  reader->Update();
   vtkTable* const table = reader->GetOutput();
 
-  int error_count = 0; 
+  int error_count = 0;
 
   // Test the size of the output table ...
   TestValue(table->GetNumberOfColumns(), vtkIdType(16), "Column count", error_count);
   TestValue(table->GetNumberOfRows(), vtkIdType(14), "Row count", error_count);
-  
+
   // Test a sampling of the table columns ...
   TestValue(vtkStdString(table->GetColumnName(0)), vtkStdString("TY"), "Column 0", error_count);
   TestValue(vtkStdString(table->GetColumnName(1)), vtkStdString("T1"), "Column 1", error_count);
@@ -66,6 +66,6 @@ int TestRISReader(int argc, char* argv[])
   TestValue(table->GetValue(13, 10).ToString(), vtkStdString("Zhou, P.;Li, X.-H.;Liang, Y.-J.;Deng, F.-G.;Zhou, H.-Y."), "value 13, 10", error_count);
   TestValue(table->GetValue(13, 11).ToString(), vtkStdString("Key Laboratory of Beam Technology and Material Modification, Ministry of Education, Beijing Normal University, Beijing, 100875, China;Institute of Low Energy Nuclear Physics, Department of Material Science and Engineering, Beijing Normal University, Beijing, 100875, China;Beijing Radiation Center, Beijing, 100875, China"), "value 13, 11", error_count);
   TestValue(table->GetValue(13, 13).ToString(), vtkStdString("Decoy photons;Pure entangled states;Quantum communication;Quantum secret sharing"), "value 13, 13", error_count);
-  
+
   return error_count;
 }

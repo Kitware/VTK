@@ -66,15 +66,15 @@ private:
 // Return the vector mode as a character string.
 inline const char *vtkHedgeHog::GetVectorModeAsString(void)
 {
-  if ( this->VectorMode == VTK_USE_VECTOR) 
+  if ( this->VectorMode == VTK_USE_VECTOR)
     {
     return "UseVector";
     }
-  else if ( this->VectorMode == VTK_USE_NORMAL) 
+  else if ( this->VectorMode == VTK_USE_NORMAL)
     {
     return "UseNormal";
     }
-  else 
+  else
     {
     return "Unknown";
     }

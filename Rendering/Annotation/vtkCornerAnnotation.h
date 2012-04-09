@@ -51,7 +51,7 @@ public:
   // Instantiate object with a rectangle in normaled view coordinates
   // of (0.2,0.85, 0.8, 0.95).
   static vtkCornerAnnotation *New();
-  
+
   // Description:
   // Draw the scalar bar and annotation text to the screen.
   int RenderOpaqueGeometry(vtkViewport* viewport);
@@ -61,14 +61,14 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
-  // Set/Get the maximum height of a line of text as a 
+  // Set/Get the maximum height of a line of text as a
   // percentage of the vertical area allocated to this
   // scaled text actor. Defaults to 1.0
   vtkSetMacro(MaximumLineHeight,double);
   vtkGetMacro(MaximumLineHeight,double);
-  
+
   // Description:
   // Set/Get the minimum/maximum size font that will be shown.
   // If the font drops below the minimum size it will not be rendered.
@@ -80,9 +80,9 @@ public:
   // Description:
   // Set/Get font scaling factors
   // The font size, f, is calculated as the largest possible value
-  // such that the annotations for the given viewport do not overlap. 
+  // such that the annotations for the given viewport do not overlap.
   // This font size is scaled non-linearly with the viewport size,
-  // to maintain an acceptable readable size at larger viewport sizes, 
+  // to maintain an acceptable readable size at larger viewport sizes,
   // without being too big.
   // f' = linearScale * pow(f,nonlinearScale)
   vtkSetMacro( LinearFontScaleFactor, double );
@@ -107,7 +107,7 @@ public:
   // Set an image actor to look at for slice information
   void SetImageActor(vtkImageActor*);
   vtkGetObjectMacro(ImageActor,vtkImageActor);
-  
+
   // Description:
   // Set an instance of vtkImageMapToWindowLevelColors to use for
   // looking at window level changes
@@ -118,12 +118,12 @@ public:
   // Set the value to shift the level by.
   vtkSetMacro(LevelShift, double);
   vtkGetMacro(LevelShift, double);
-  
+
   // Description:
   // Set the value to scale the level by.
   vtkSetMacro(LevelScale, double);
   vtkGetMacro(LevelScale, double);
-  
+
   // Description:
   // Set/Get the text property of all corners.
   virtual void SetTextProperty(vtkTextProperty *p);
@@ -134,7 +134,7 @@ public:
   vtkBooleanMacro(ShowSliceAndImage, int);
   vtkSetMacro(ShowSliceAndImage, int);
   vtkGetMacro(ShowSliceAndImage, int);
-  
+
 protected:
   vtkCornerAnnotation();
   ~vtkCornerAnnotation();
@@ -150,7 +150,7 @@ protected:
   vtkImageActor *LastImageActor;
 
   char *CornerText[4];
-  
+
   int FontSize;
   vtkActor2D    *TextActor[4];
   vtkTimeStamp   BuildTime;
@@ -162,9 +162,9 @@ protected:
 
   double LinearFontScaleFactor;
   double NonlinearFontScaleFactor;
-  
+
   int ShowSliceAndImage;
-  
+
   // Description:
   // Search for replacable tokens and replace
   virtual void TextReplace(

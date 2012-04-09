@@ -51,7 +51,7 @@
 //
 // The design of the material file closely follows that of vtk's xml
 // descriptions of it's data sets. This allows use of the very handy
-// vtkXMLDataElement which provides easy access to an xml element's 
+// vtkXMLDataElement which provides easy access to an xml element's
 // attribute values. Inlined data is currently not handled.
 //
 // Ideally this class would be a Facade to a DOM parser, but VTK only
@@ -62,7 +62,7 @@
 // This class may be extended for better data  handling or may become a
 // Facade to a DOM parser should on become part of the VTK code base.
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkXMLMaterialParser_h
@@ -85,14 +85,14 @@ public:
   // Set/Get the vtkXMLMaterial representation of the parsed material.
   vtkGetObjectMacro(Material, vtkXMLMaterial);
   void SetMaterial(vtkXMLMaterial*);
-  
+
   // Description:
   // Overridden to initialize the internal structures before
   // the parsing begins.
   virtual int Parse();
   virtual int Parse(const char* inputString);
   virtual int Parse(const char* inputString, unsigned int length);
-  
+
   // Description:
   // Overridden to clean up internal structures before the chunk-parsing
   // begins.

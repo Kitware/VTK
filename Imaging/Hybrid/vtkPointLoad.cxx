@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkPointLoad);
 vtkPointLoad::vtkPointLoad()
 {
   this->LoadValue = 1.0;
-  
+
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
   this->ModelBounds[2] = -1.0;
@@ -70,7 +70,7 @@ void vtkPointLoad::SetSampleDimensions(int dim[3])
        dim[1] != this->SampleDimensions[1] ||
        dim[2] != this->SampleDimensions[2] )
     {
-    for ( int i=0; i<3; i++) 
+    for ( int i=0; i<3; i++)
       {
       this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
       }
@@ -94,7 +94,7 @@ int vtkPointLoad::RequestInformation (
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
   // Set volume origin and data spacing
-  int i;  
+  int i;
   double spacing[3];
   for (i=0; i<3; i++)
     {
@@ -112,7 +112,7 @@ int vtkPointLoad::RequestInformation (
   wExt[1] = this->SampleDimensions[0] - 1;
   wExt[3] = this->SampleDimensions[1] - 1;
   wExt[5] = this->SampleDimensions[2] - 1;
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
   return 1;
@@ -131,16 +131,16 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
   double x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
   double sx, sy, sz, seff;
   vtkImageData *output = this->AllocateOutputData(outp, outInfo);
-  vtkFloatArray *newScalars = 
+  vtkFloatArray *newScalars =
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
   double *spacing, *origin;
-  
+
   vtkDebugMacro(<< "Computing point load stress tensors");
 
   //
   // Initialize self; create output objects
   //
-  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
+  numPts = this->SampleDimensions[0] * this->SampleDimensions[1]
            * this->SampleDimensions[2];
   spacing = output->GetSpacing();
   origin = output->GetOrigin();
@@ -201,16 +201,16 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
         zPlus2rho = (2.0*rho + z);
 
         // normal stresses
-        sx = P/(twoPi*rho2) * (3.0*z*x2/rho3 - nu*(z/rho - rho/(rho+z) + 
+        sx = P/(twoPi*rho2) * (3.0*z*x2/rho3 - nu*(z/rho - rho/(rho+z) +
                                x2*(zPlus2rho)/(rho*rhoPlusz2)));
-        sy = P/(twoPi*rho2) * (3.0*z*y2/rho3 - nu*(z/rho - rho/(rho+z) + 
+        sy = P/(twoPi*rho2) * (3.0*z*y2/rho3 - nu*(z/rho - rho/(rho+z) +
                                y2*(zPlus2rho)/(rho*rhoPlusz2)));
         sz = 3.0*P*z2*z/(twoPi*rho5);
-        
+
         //shear stresses - negative signs are coordinate transformations
         //that is, equations (in text) are in different coordinate system
         //than volume is in.
-        txy = -(P/(twoPi*rho2) * (3.0*x*y*z/rho3 - 
+        txy = -(P/(twoPi*rho2) * (3.0*x*y*z/rho3 -
                                 nu*x*y*(zPlus2rho)/(rho*rhoPlusz2)));
         txz = -(3.0*P*x*z2/(twoPi*rho5));
         tyz = 3.0*P*y*z2/(twoPi*rho5);
@@ -227,7 +227,7 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
         newTensors->InsertNextTuple(tensor);
 
         seff = 0.333333* sqrt ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
-                               (sz-sx)*(sz-sx) + 6.0*txy*txy + 6.0*tyz*tyz + 
+                               (sz-sx)*(sz-sx) + 6.0*txy*txy + 6.0*tyz*tyz +
                                6.0*txz*txz);
         newScalars->InsertTuple(pointCount,&seff);
         pointCount++;

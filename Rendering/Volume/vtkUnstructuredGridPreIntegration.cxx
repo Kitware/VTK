@@ -141,7 +141,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     {
     delete[] this->IntegrationTableScalarScale;
     }
-  
+
   this->NumComponents = scalars->GetNumberOfComponents();
 
   // Establish temporary inputs to integrator.
@@ -393,7 +393,7 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
     // Nothing changed from the last time Initialize was run.
     return;
     }
-  
+
   this->Property = property;
   this->Volume = volume;
   this->IntegrationTableBuilt.Modified();

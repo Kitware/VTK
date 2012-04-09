@@ -60,15 +60,15 @@ vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes()
 
 
 //
-// Contouring filter specialized for volumes and "short int" data values.  
+// Contouring filter specialized for volumes and "short int" data values.
 //
 template <class T>
 void vtkDiscreteMarchingCubesComputeGradient(
-  vtkDiscreteMarchingCubes *self,T *scalars, int dims[3], 
+  vtkDiscreteMarchingCubes *self,T *scalars, int dims[3],
   vtkFloatingPointType origin[3], vtkFloatingPointType Spacing[3],
-  vtkIncrementalPointLocator *locator, 
-  vtkDataArray *newCellScalars, 
-  vtkCellArray *newPolys, vtkFloatingPointType *values, 
+  vtkIncrementalPointLocator *locator,
+  vtkDataArray *newCellScalars,
+  vtkCellArray *newPolys, vtkFloatingPointType *values,
   int numValues)
 {
   vtkFloatingPointType s[8], value;
@@ -112,7 +112,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
 //
 // Traverse all voxel cells, generating triangles
 // using marching cubes algorithm.
-//  
+//
   sliceSize = dims[0] * dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
@@ -243,7 +243,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
 }
 
 //
-// Contouring filter specialized for volumes and "short int" data values.  
+// Contouring filter specialized for volumes and "short int" data values.
 //
 int vtkDiscreteMarchingCubes::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -268,7 +268,7 @@ int vtkDiscreteMarchingCubes::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int numContours=this->ContourValues->GetNumberOfContours();
   vtkFloatingPointType *values=this->ContourValues->GetValues();
-  
+
   vtkDebugMacro(<< "Executing marching cubes");
 
 //
@@ -351,7 +351,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   else //multiple components - have to convert
     {
     int dataSize = dims[0] * dims[1] * dims[2];
-    vtkDoubleArray *image=vtkDoubleArray::New(); 
+    vtkDoubleArray *image=vtkDoubleArray::New();
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     image->SetNumberOfTuples(image->GetNumberOfComponents()*dataSize);
     inScalars->GetTuples(0,dataSize,image);
@@ -369,13 +369,13 @@ int vtkDiscreteMarchingCubes::RequestData(
                                             numContours);
     image->Delete();
     }
-  
-  vtkDebugMacro(<<"Created: " 
-                << newPts->GetNumberOfPoints() << " points, " 
+
+  vtkDebugMacro(<<"Created: "
+                << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles");
   //
   // Update ourselves.  Because we don't know up front how many triangles
-  // we've created, take care to reclaim memory. 
+  // we've created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();

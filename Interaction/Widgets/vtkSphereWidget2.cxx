@@ -19,7 +19,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
@@ -63,7 +63,7 @@ vtkSphereWidget2::vtkSphereWidget2()
 
 //----------------------------------------------------------------------------
 vtkSphereWidget2::~vtkSphereWidget2()
-{  
+{
 }
 
 //----------------------------------------------------------------------
@@ -75,15 +75,15 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkSphereWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -95,7 +95,7 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkSphereWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -108,7 +108,7 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkSphereRepresentation::Translating);
     }
-  else 
+  else
     {
     reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->
       SetInteractionState(interactionState);
@@ -130,15 +130,15 @@ void vtkSphereWidget2::TranslateAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkSphereWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -150,13 +150,13 @@ void vtkSphereWidget2::TranslateAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkSphereWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
   reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkSphereRepresentation::Translating);
-  
+
   // start the interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
@@ -173,15 +173,15 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkSphereWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -193,7 +193,7 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkSphereWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -217,7 +217,7 @@ void vtkSphereWidget2::MoveAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
@@ -242,7 +242,7 @@ void vtkSphereWidget2::EndSelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Return state to not active
   self->WidgetState = vtkSphereWidget2::Start;
   reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->

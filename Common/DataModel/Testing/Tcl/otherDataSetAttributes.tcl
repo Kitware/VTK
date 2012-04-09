@@ -22,7 +22,7 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
 	for {set j 0} {$j < [a${array}Array GetNumberOfComponents]} {incr j} {
 	    a${array}Array SetComponent $i $j 1
 	    incr k
-	}     
+	}
     }
 
     dsa AddArray  a${array}Array
@@ -44,7 +44,7 @@ for {set i 0} {$i < [aFloatTensors GetNumberOfTuples]} {incr i} {
    for {set j 0} {$j < [aFloatTensors GetNumberOfComponents]} {incr j} {
       aFloatTensors SetComponent $i $j 1
       incr k
-   }     
+   }
 }
 dsa AddArray  aFloatTensors
 aFloatTensors Delete

@@ -139,7 +139,7 @@ int vtkCellDerivatives::RequestData(
       cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
       cellScalars->SetName("Scalars");
       }
-    vtkDoubleArray *cellVectors=vtkDoubleArray::New(); 
+    vtkDoubleArray *cellVectors=vtkDoubleArray::New();
     cellVectors->SetNumberOfComponents(3);
     cellVectors->Allocate(3*VTK_CELL_SIZE);
     cellVectors->SetName("Vectors");
@@ -149,7 +149,7 @@ int vtkCellDerivatives::RequestData(
     vtkIdType progressInterval = numCells/20 + 1;
     for (cellId=0; cellId < numCells; cellId++)
       {
-      if ( ! (cellId % progressInterval) ) 
+      if ( ! (cellId % progressInterval) )
         {
         vtkDebugMacro(<<"Computing cell #" << cellId);
         this->UpdateProgress (static_cast<double>(cellId)/numCells);
@@ -157,7 +157,7 @@ int vtkCellDerivatives::RequestData(
 
       input->GetCell(cellId, cell);
       subId = cell->GetParametricCenter(pcoords);
-      
+
       if ( computeScalarDerivs )
         {
         inScalars->GetTuples(cell->PointIds, cellScalars);
@@ -184,7 +184,7 @@ int vtkCellDerivatives::RequestData(
           tens->SetComponent(2,0, derivs[6]);
           tens->SetComponent(2,1, derivs[7]);
           tens->SetComponent(2,2, derivs[8]);
-          
+
           outTensors->InsertTuple(cellId, tens->T);
           }
         else if (this->TensorMode == VTK_TENSOR_MODE_COMPUTE_STRAIN)
@@ -198,7 +198,7 @@ int vtkCellDerivatives::RequestData(
           tens->SetComponent(2,0, 0.5*(derivs[2]+derivs[6]));
           tens->SetComponent(2,1, 0.5*(derivs[5]+derivs[7]));
           tens->SetComponent(2,2, derivs[8]);
-          
+
           outTensors->InsertTuple(cellId, tens->T);
           }
         else if (this->TensorMode == VTK_TENSOR_MODE_PASS_TENSORS)
@@ -280,10 +280,10 @@ void vtkCellDerivatives::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Vector Mode: " << this->GetVectorModeAsString() 
+  os << indent << "Vector Mode: " << this->GetVectorModeAsString()
      << endl;
 
-  os << indent << "Tensor Mode: " << this->GetTensorModeAsString() 
+  os << indent << "Tensor Mode: " << this->GetTensorModeAsString()
      << endl;
 }
 

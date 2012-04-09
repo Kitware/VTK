@@ -115,7 +115,7 @@ vtkParallelRenderManager::vtkParallelRenderManager()
   this->RenderRMIId = 0;
   this->BoundsRMIId = 0;
   this->Timer = vtkTimerLog::New();
-  
+
   this->UseBackBuffer = 1;
   this->SynchronizeTileProperties = 1;
 }
@@ -193,7 +193,7 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Last image processing time: "
      << this->ImageProcessingTime << endl;
   os << indent << "UseRGBA: " << this->UseRGBA << endl;
-  os << indent << "SynchronizeTileProperties: " 
+  os << indent << "SynchronizeTileProperties: "
     << this->SynchronizeTileProperties << endl;
 
   os << indent << "FullImage: ";
@@ -206,8 +206,8 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
     os << "(none)" << endl;
     }
 
-  os << indent << "ForcedRenderWindowSize: " 
-     << this->ForcedRenderWindowSize[0] << " " 
+  os << indent << "ForcedRenderWindowSize: "
+     << this->ForcedRenderWindowSize[0] << " "
      << this->ForcedRenderWindowSize[1] << endl;
 
   os << indent << "ForceRenderWindowSize: "
@@ -420,7 +420,7 @@ void vtkParallelRenderManager::StartInteractor()
 void vtkParallelRenderManager::StartServices()
 {
   vtkDebugMacro("StartServices");
-  
+
   if (!this->Controller)
     {
     vtkErrorMacro("Must set Controller before starting service");
@@ -469,7 +469,7 @@ void vtkParallelRenderManager::GenericStartRenderCallback()
     }
   else // LocalProcessId != RootProcessId
     {
-    this->SatelliteStartRender(); 
+    this->SatelliteStartRender();
     }
 }
 
@@ -487,7 +487,7 @@ void vtkParallelRenderManager::GenericEndRenderCallback()
     }
   else // LocalProcessId != RootProcessId
     {
-    this->SatelliteEndRender(); 
+    this->SatelliteEndRender();
     }
 }
 
@@ -547,7 +547,7 @@ void vtkParallelRenderManager::StartRender()
     tilesize = this->RenderWindow->GetActualSize();
     }
   int size[2];
-  size[0] = tilesize[0];  
+  size[0] = tilesize[0];
   size[1] = tilesize[1];
   if ((size[0] == 0) || (size[1] == 0))
     {
@@ -629,7 +629,7 @@ void vtkParallelRenderManager::StartRender()
     cam->GetClippingRange(renInfo.CameraClippingRange);
     renInfo.CameraViewAngle = cam->GetViewAngle();
     cam->GetWindowCenter(renInfo.WindowCenter);
-        
+
     ren->GetBackground(renInfo.Background);
     ren->GetBackground2(renInfo.Background2);
     renInfo.GradientBackground=ren->GetGradientBackground();
@@ -653,7 +653,7 @@ void vtkParallelRenderManager::StartRender()
       lightInfo.Type = (double)(light->GetLightType());
       light->GetPosition(lightInfo.Position);
       light->GetFocalPoint(lightInfo.FocalPoint);
-      lightInfo.Save(stream); 
+      lightInfo.Save(stream);
       }
     this->CollectRendererInformation(ren, stream);
     }
@@ -697,7 +697,7 @@ void vtkParallelRenderManager::EndRender()
     {
     this->Lock = 0;
     return;
-    }  
+    }
 
   this->PostRenderProcessing();
 
@@ -787,7 +787,7 @@ void vtkParallelRenderManager::ResetCamera(vtkRenderer *ren)
       }
     }
   ren->ResetCamera(bounds);
-  
+
   this->Lock = 0;
 }
 
@@ -808,7 +808,7 @@ void vtkParallelRenderManager::ResetCameraClippingRange(vtkRenderer *ren)
     }
 
   this->Lock = 1;
-  
+
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCameraClippingRange(bounds);
 
@@ -899,12 +899,12 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
     int id;
     this->Controller->TriggerRMIOnAllChildren(&renderId, sizeof(int),
       vtkParallelRenderManager::COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
-    
+
     //Now that all the RMI's have been invoked, we can safely query our
     //local bounds even if an Update requires a parallel operation.
 
     this->LocalComputeVisiblePropBounds(ren, bounds);
-  
+
     //Collect all the bounds.
     for (id = 0; id < numProcs; id++)
       {
@@ -916,7 +916,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
         }
 
       this->Controller->Receive(tmp, 6, id, vtkParallelRenderManager::BOUNDS_TAG);
-      
+
       if (tmp[0] < bounds[0])
         {
         bounds[0] = tmp[0];
@@ -1762,7 +1762,7 @@ void vtkParallelRenderManager::GetReducedPixelData(int x1, int y1,
 
 // Static function prototypes --------------------------------------------
 
-static void AbortRenderCheck(vtkObject *vtkNotUsed(caller), 
+static void AbortRenderCheck(vtkObject *vtkNotUsed(caller),
                              unsigned long vtkNotUsed(event),
                              void *clientData, void *)
 {
@@ -1770,7 +1770,7 @@ static void AbortRenderCheck(vtkObject *vtkNotUsed(caller),
   self->CheckForAbortRender();
 }
 
-static void GenericStartRender(vtkObject *vtkNotUsed(caller), 
+static void GenericStartRender(vtkObject *vtkNotUsed(caller),
                         unsigned long vtkNotUsed(event),
                         void *clientData, void *)
 {
@@ -1778,7 +1778,7 @@ static void GenericStartRender(vtkObject *vtkNotUsed(caller),
   self->GenericStartRenderCallback();
 }
 
-static void GenericEndRender(vtkObject *vtkNotUsed(caller), 
+static void GenericEndRender(vtkObject *vtkNotUsed(caller),
                       unsigned long vtkNotUsed(event),
                       void *clientData, void *)
 {
@@ -1812,8 +1812,8 @@ static void RenderRMI(void *arg, void *, int, int)
   self->RenderRMI();
 }
 
-static void ComputeVisiblePropBoundsRMI(void *arg, 
-  void *remoteArg, 
+static void ComputeVisiblePropBoundsRMI(void *arg,
+  void *remoteArg,
   int remoteArgLength, int)
 {
   assert(remoteArgLength == sizeof(int));
@@ -1827,7 +1827,7 @@ static void ComputeVisiblePropBoundsRMI(void *arg,
 
 
 //----------------------------------------------------------------------------
-// the variables such as winInfo are initialzed prior to use  
+// the variables such as winInfo are initialzed prior to use
 #if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
 #pragma warning ( disable : 4701 )
 #endif
@@ -2099,9 +2099,9 @@ bool vtkParallelRenderManager::RendererInfo::Restore(
     {
     return false;
     }
-  
+
   int value;
-  
+
   stream >> this->Draw
          >> this->NumberOfLights
          >> this->Viewport[0] >> this->Viewport[1]
@@ -2121,7 +2121,7 @@ bool vtkParallelRenderManager::RendererInfo::Restore(
          >> this->Background2[2]
          >> value
          >> this->ParallelScale;
-  
+
   this->GradientBackground=value==1;
   return true;
 }

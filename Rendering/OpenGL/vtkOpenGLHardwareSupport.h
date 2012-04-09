@@ -44,7 +44,7 @@ public:
   // Return the total number of texture image units accessible by a shader
   // program.
   int GetNumberOfTextureUnits();
-  
+
   // Description:
   // Test if MultiTexturing is supported.
   bool GetSupportsMultiTexturing();
@@ -54,11 +54,11 @@ public:
   // for most methods of this class to work.
   vtkGetObjectMacro(ExtensionManager, vtkOpenGLExtensionManager);
   void SetExtensionManager(vtkOpenGLExtensionManager* extensionManager);
-  
+
 protected:
   vtkOpenGLHardwareSupport();
   ~vtkOpenGLHardwareSupport();
-  
+
 private:
   vtkOpenGLHardwareSupport(const vtkOpenGLHardwareSupport&);  // Not implemented.
   void operator=(const vtkOpenGLHardwareSupport&);  // Not implemented.

@@ -30,7 +30,7 @@
 // rendering commands that build graphics primitives.
 //
 // To simplify coding, an implementation of vtkPolyDataPainter is allowed to support
-// only certain types of poly data or certain types of primitives. 
+// only certain types of poly data or certain types of primitives.
 //
 // .SECTION See Also
 // vtkDefaultPainter
@@ -59,7 +59,7 @@ public:
   vtkPolyData* GetInputAsPolyData();
 
   // Description:
-  // Get the output polydata from this Painter. The default 
+  // Get the output polydata from this Painter. The default
   // implementation forwards the input polydata as the output.
   vtkPolyData* GetOutputAsPolyData();
 
@@ -74,13 +74,13 @@ public:
   static vtkInformationIntegerKey* DISABLE_SCALAR_COLOR();
 
   // Set the mapping between vtkPointData (vtkCellData) arrays and
-  // generic vertex attributes. 
+  // generic vertex attributes.
   static vtkInformationObjectBaseKey* DATA_ARRAY_TO_VERTEX_ATTRIBUTE();
 
   // Description:
   // Overridden to stop the render call if input polydata is not set,
   // since PolyDataPainter cannot paint without any polydata input.
-  virtual void Render(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void Render(vtkRenderer* renderer, vtkActor* actor,
                       unsigned long typeflags, bool forceCompileOnly);
 
 protected:
@@ -89,7 +89,7 @@ protected:
 
   int BuildNormals; // ivar synchornized with this->Information before
     // RenderInternal() is called. The ivar are purposefully protected,
-    // the only way to affecting these from outside should be using 
+    // the only way to affecting these from outside should be using
     // the information object.
   vtkSetMacro(BuildNormals, int);
 

@@ -74,7 +74,7 @@ vtkStandardNewMacro(vtkPostgreSQLQuery);
 class vtkPostgreSQLQueryPrivate
 {
 public:
-  vtkPostgreSQLQueryPrivate() 
+  vtkPostgreSQLQueryPrivate()
     {
       this->QueryResults = NULL;
       this->CurrentRow = -1;
@@ -198,9 +198,9 @@ vtkVariant vtkPostgreSQLQuery::DataValue( vtkIdType column )
 
 
 // ----------------------------------------------------------------------
-vtkPostgreSQLQuery::vtkPostgreSQLQuery() 
+vtkPostgreSQLQuery::vtkPostgreSQLQuery()
 {
-  this->TransactionInProgress = false; 
+  this->TransactionInProgress = false;
   this->LastErrorText = NULL;
   this->QueryInternals = NULL;
 }
@@ -261,17 +261,17 @@ bool vtkPostgreSQLQuery::Execute()
     this->Active = false;
     return false;
     }
-    
+
   this->QueryInternals = new vtkPostgreSQLQueryPrivate;
-  this->QueryInternals->QueryResults = PQexec(db->Connection->Connection, 
+  this->QueryInternals->QueryResults = PQexec(db->Connection->Connection,
                                               this->Query);
-  
+
   bool returnStatus;
   switch (PQresultStatus(this->QueryInternals->QueryResults))
     {
     case PGRES_EMPTY_QUERY:
     {
-    returnStatus = true; 
+    returnStatus = true;
     this->Active = false;
     this->DeleteQueryResults();
     vtkWarningMacro(<<"Query string was set but empty.");
@@ -286,7 +286,7 @@ bool vtkPostgreSQLQuery::Execute()
     this->SetLastErrorText(0);
     }; break;
 
-    case PGRES_TUPLES_OK: 
+    case PGRES_TUPLES_OK:
     {
     returnStatus = true;
     this->Active = true;
@@ -370,7 +370,7 @@ int vtkPostgreSQLQuery::GetFieldType( int column )
     return -1;
     }
 
-  vtkPostgreSQLDatabase *db = 
+  vtkPostgreSQLDatabase *db =
     vtkPostgreSQLDatabase::SafeDownCast(this->Database);
   if (!db)
     {
@@ -441,7 +441,7 @@ vtkStdString vtkPostgreSQLQuery::EscapeString( vtkStdString s, bool addSurroundi
     }
   else
     {
-    retval.append( this->Superclass::EscapeString( s, false ) );    
+    retval.append( this->Superclass::EscapeString( s, false ) );
     }
 
   if ( addSurroundingQuotes )
@@ -470,7 +470,7 @@ bool vtkPostgreSQLQuery::BeginTransaction()
     vtkErrorMacro(<<"Cannot start a transaction.  One is already in progress.");
     return false;
     }
-  
+
   vtkPostgreSQLDatabase* db = vtkPostgreSQLDatabase::SafeDownCast( this->Database );
   assert( db );
   bool status;
@@ -481,14 +481,14 @@ bool vtkPostgreSQLQuery::BeginTransaction()
     {
     this->SetLastErrorText(0);
     this->TransactionInProgress = true;
-    status = true; 
+    status = true;
     }; break;
     case PGRES_FATAL_ERROR:
     {
     this->SetLastErrorText(PQresultErrorMessage(result));
     vtkErrorMacro(<< "Error in BeginTransaction: "
                   << this->GetLastErrorText());
-    status = false; 
+    status = false;
     }; break;
     default:
     {
@@ -505,7 +505,7 @@ bool vtkPostgreSQLQuery::BeginTransaction()
   PQclear(result);
   return status;
 }
- 
+
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLQuery::CommitTransaction()
 {
@@ -526,7 +526,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
     {
     this->SetLastErrorText(0);
     this->TransactionInProgress = false;
-    status = true; 
+    status = true;
     }; break;
     case PGRES_FATAL_ERROR:
     {
@@ -534,7 +534,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
     vtkErrorMacro(<< "Error in CommitTransaction: "
                   << this->GetLastErrorText());
     this->TransactionInProgress = false;
-    status = false; 
+    status = false;
     }; break;
     default:
     {
@@ -546,7 +546,7 @@ bool vtkPostgreSQLQuery::CommitTransaction()
                     << (this->LastErrorText ? this->LastErrorText
                         : "(null)"));
     this->TransactionInProgress = false;
-    status = false; 
+    status = false;
     }; break;
     }
   PQclear(result);
@@ -573,7 +573,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
     {
     this->SetLastErrorText(0);
     this->TransactionInProgress = false;
-    status = true; 
+    status = true;
     }; break;
     case PGRES_FATAL_ERROR:
     {
@@ -581,7 +581,7 @@ bool vtkPostgreSQLQuery::RollbackTransaction()
     vtkErrorMacro(<< "Error in RollbackTransaction: "
                   << this->GetLastErrorText());
     this->TransactionInProgress = false;
-    status = false; 
+    status = false;
     }; break;
     default:
     {
@@ -608,7 +608,7 @@ vtkPostgreSQLQuery::DeleteQueryResults()
   this->Active = false;
   if (this->QueryInternals)
     {
-    delete this->QueryInternals; 
+    delete this->QueryInternals;
     this->QueryInternals = NULL;
     }
 }
@@ -617,7 +617,7 @@ vtkPostgreSQLQuery::DeleteQueryResults()
 
 vtkVariant ConvertStringToBoolean(bool, const char *rawData)
 {
-  // Since there are only a few possibilities I'm going to check 
+  // Since there are only a few possibilities I'm going to check
   // them all by hand.
   switch (rawData[0])
     {
@@ -852,7 +852,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
     vtkStdString rawString(rawData);
     float finalResult;
 
-    // Catch NaN 
+    // Catch NaN
     if (rawData[0] == 'N' || rawData[0] == 'n')
       {
       if (std::numeric_limits<float>::has_quiet_NaN)
@@ -866,7 +866,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char *rawData)
         finalResult = NAN;
 #else
         float zero = 0.0;
-        finalResult = zero / zero; 
+        finalResult = zero / zero;
 #endif
         }
       }
@@ -934,7 +934,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
     // and then transmits them that way.  This... frightens me.  It assumes
     // that both sender and recipient use IEEE floats.  Still, I'm not sure
     // there's any other good way to do it.
-    
+
     // Let's hope that we always have a 64-bit type.
     vtkTypeUInt64 intResult = 0;
     ConvertFromNetworkOrder(intResult, rawData);
@@ -950,7 +950,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
     double finalResult;
     vtkStdString rawString(rawData);
 
-    // Catch NaN 
+    // Catch NaN
     if (rawData[0] == 'N' || rawData[0] == 'n')
       {
       if (std::numeric_limits<double>::has_quiet_NaN)
@@ -964,7 +964,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
         finalResult = NAN;
 #else
         double zero = 0.0;
-        finalResult = zero / zero; 
+        finalResult = zero / zero;
 #endif
         }
       }
@@ -1005,8 +1005,8 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char *rawData)
 bool
 vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
 {
-  if ((!this->Active) || 
-      (!this->Database) || 
+  if ((!this->Active) ||
+      (!this->Database) ||
       (!this->QueryInternals->QueryResults))
     {
     vtkWarningMacro(<<"No active query!");
@@ -1028,8 +1028,8 @@ vtkPostgreSQLQuery::IsColumnBinary(int whichColumn)
 const char *
 vtkPostgreSQLQuery::GetColumnRawData(int whichColumn)
 {
-  if ((!this->Active) || 
-      (!this->Database) || 
+  if ((!this->Active) ||
+      (!this->Database) ||
       (!this->QueryInternals->QueryResults))
     {
     vtkWarningMacro(<<"No active query!");

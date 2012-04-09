@@ -22,7 +22,7 @@
 // to position the points.
 //
 // To use this widget, you generally pair it with a vtkLineRepresentation
-// (or a subclass). Various options are available in the representation for 
+// (or a subclass). Various options are available in the representation for
 // controlling how the widget appears, and how the widget functions.
 //
 // .SECTION Event Bindings
@@ -34,10 +34,10 @@
 //   LeftButtonReleaseEvent - release the handle widget associated with the point
 //   MouseMoveEvent - move the point
 // If the line is selected:
-//   LeftButtonPressEvent - activate a handle widget accociated with the line 
+//   LeftButtonPressEvent - activate a handle widget accociated with the line
 //   LeftButtonReleaseEvent - release the handle widget associated with the line
 //   MouseMoveEvent - translate the line
-// In all the cases, independent of what is picked, the widget responds to the 
+// In all the cases, independent of what is picked, the widget responds to the
 // following VTK events:
 //   MiddleButtonPressEvent - translate the widget
 //   MiddleButtonReleaseEvent - release the widget
@@ -47,7 +47,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkLineWidget2's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
@@ -67,7 +67,7 @@
 // .SECTION Caveats
 // Note that the widget can be picked even when it is "behind"
 // other actors.  This is an intended feature and not a bug.
-// 
+//
 // This class, and vtkLineRepresentation, are next generation VTK widgets. An
 // earlier version of this functionality was defined in the class
 // vtkLineWidget.
@@ -109,14 +109,14 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkLineRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkLineRepresentation.
   vtkLineRepresentation *GetLineRepresentation()
     {return reinterpret_cast<vtkLineRepresentation*>(this->WidgetRep);}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
   // Description:
@@ -133,7 +133,7 @@ protected:
   enum _WidgetState {Start=0,Active};
 //ETX
   int CurrentHandle;
-    
+
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void TranslateAction(vtkAbstractWidget*);

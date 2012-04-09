@@ -39,18 +39,18 @@ public:
   // int GetNumberOfStreamDivisions();
   vtkSetMacro(NumberOfStreamDivisions,int);
   vtkGetMacro(NumberOfStreamDivisions,int);
- 
+
   virtual void Update() { this->Superclass::Update(); };
   virtual void Update(int port) { this->vtkAlgorithm::Update(port);};
-  
-  virtual void UpdateWholeExtent() { 
-    this->vtkAlgorithm::UpdateWholeExtent();};  
-  
+
+  virtual void UpdateWholeExtent() {
+    this->vtkAlgorithm::UpdateWholeExtent();};
+
   // Description:
   // Get the extent translator that will be used to split the requests
   virtual void SetExtentTranslator(vtkExtentTranslator*);
   vtkGetObjectMacro(ExtentTranslator,vtkExtentTranslator);
-  
+
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,

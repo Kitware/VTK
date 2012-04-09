@@ -54,14 +54,14 @@ vtkRenderedSurfaceRepresentation::vtkRenderedSurfaceRepresentation()
   this->Actor                   = vtkActor::New();
 
   this->CellColorArrayNameInternal = 0;
-   
+
   // Connect pipeline
   this->ApplyColors->SetInputConnection(this->TransformFilter->GetOutputPort());
   this->GeometryFilter->SetInputConnection(this->ApplyColors->GetOutputPort());
   this->Mapper->SetInputConnection(this->GeometryFilter->GetOutputPort());
   this->Actor->SetMapper(this->Mapper);
   this->Actor->GetProperty()->SetPointSize(10);
-  
+
   // Set parameters
   this->Mapper->SetScalarModeToUseCellFieldData();
   this->Mapper->SelectColorArray("vtkApplyColors color");
@@ -181,7 +181,7 @@ vtkSelection* vtkRenderedSurfaceRepresentation::ConvertSelection(
       index->Delete();
       }
     }
-  
+
   return converted;
 }
 

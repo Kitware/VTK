@@ -37,7 +37,7 @@ extern "C" {
 }
 
 //---------------------------------------------------------------------------
-class vtkFFMPEGWriterInternal 
+class vtkFFMPEGWriterInternal
 {
 public:
   vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator);
@@ -116,7 +116,7 @@ int vtkFFMPEGWriterInternal::Start()
 #else
   this->avFormatContext = av_alloc_format_context();
 #endif
-  if (!this->avFormatContext) 
+  if (!this->avFormatContext)
     {
     vtkGenericWarningMacro (<< "Coult not open the format context.");
     return 0;
@@ -124,7 +124,7 @@ int vtkFFMPEGWriterInternal::Start()
 
   //choose avi media file format
   this->avOutputFormat = guess_format("avi", NULL, NULL);
-  if (!this->avOutputFormat) 
+  if (!this->avOutputFormat)
     {
     vtkGenericWarningMacro (<< "Could not open the avi media file format.");
     return 0;
@@ -135,18 +135,18 @@ int vtkFFMPEGWriterInternal::Start()
 
   //assign the format to the context
   this->avFormatContext->oformat = this->avOutputFormat;
-  
+
   //choose a filename for the output
   strcpy(this->avFormatContext->filename, this->Writer->GetFileName());
 
   //create a stream for that file
   this->avStream = av_new_stream(this->avFormatContext, 0);
-  if (!this->avStream) 
+  if (!this->avStream)
     {
     vtkGenericWarningMacro (<< "Could not create video stream.");
     return 0;
     }
-  
+
   //Set up the codec.
   AVCodecContext *c = this->avStream->codec;
   c->codec_id = (CodecID)this->avOutputFormat->video_codec;
@@ -201,12 +201,12 @@ int vtkFFMPEGWriterInternal::Start()
 
   //manufacture a codec with the chosen parameters
   AVCodec *codec = avcodec_find_encoder(c->codec_id);
-  if (!codec) 
+  if (!codec)
     {
     vtkGenericWarningMacro (<< "Codec not found." );
     return 0;
     }
-  if (avcodec_open(c, codec) < 0) 
+  if (avcodec_open(c, codec) < 0)
     {
     vtkGenericWarningMacro (<< "Could not open codec.");
     return 0;
@@ -229,15 +229,15 @@ int vtkFFMPEGWriterInternal::Start()
     {
     vtkGenericWarningMacro (<< "Could not make rgbInput avframe." );
     return 0;
-    }    
+    }
   int RGBsize = avpicture_get_size(PIX_FMT_RGB24, c->width, c->height);
-  unsigned char *rgb = new unsigned char[RGBsize]; 
+  unsigned char *rgb = new unsigned char[RGBsize];
   if (!rgb)
     {
     vtkGenericWarningMacro (<< "Could not make rgbInput's buffer." );
     return 0;
     }
-  //The rgb buffer should get deleted when this->rgbInput is. 
+  //The rgb buffer should get deleted when this->rgbInput is.
   avpicture_fill((AVPicture *)this->rgbInput, rgb, PIX_FMT_RGB24, c->width, c->height);
 
   //and for the output to the codec's input.
@@ -246,9 +246,9 @@ int vtkFFMPEGWriterInternal::Start()
     {
     vtkGenericWarningMacro (<< "Could not make yuvOutput avframe." );
     return 0;
-    }  
+    }
   int YUVsize = avpicture_get_size(c->pix_fmt, c->width, c->height);
-  unsigned char *yuv = new unsigned char[YUVsize]; 
+  unsigned char *yuv = new unsigned char[YUVsize];
   if (!yuv)
     {
     vtkGenericWarningMacro (<< "Could not make yuvOutput's buffer." );
@@ -259,7 +259,7 @@ int vtkFFMPEGWriterInternal::Start()
 
 
   //Finally, open the file and start it off.
-  if (url_fopen(&this->avFormatContext->pb, this->avFormatContext->filename, URL_WRONLY) < 0) 
+  if (url_fopen(&this->avFormatContext->pb, this->avFormatContext->filename, URL_WRONLY) < 0)
     {
     vtkGenericWarningMacro (<< "Could not open " << this->Writer->GetFileName() << "." );
     return 0;
@@ -280,17 +280,17 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   //copy the image from the input to the RGB buffer while flipping Y
   unsigned char *rgb = (unsigned char*)id->GetScalarPointer();
   unsigned char *src;
-  for (int y = 0; y < cc->height; y++) 
+  for (int y = 0; y < cc->height; y++)
     {
     src = rgb + (cc->height-y-1) * cc->width * 3; //flip Y
-    unsigned char *dest = 
+    unsigned char *dest =
       &this->rgbInput->data[0][y*this->rgbInput->linesize[0]];
     memcpy((void*)dest, (void*)src, cc->width*3);
     }
 
   //convert that to YUV for input to the codec
 #ifdef VTK_FFMPEG_HAS_IMG_CONVERT
-  img_convert((AVPicture *)this->yuvOutput, cc->pix_fmt, 
+  img_convert((AVPicture *)this->yuvOutput, cc->pix_fmt,
               (AVPicture *)this->rgbInput, PIX_FMT_RGB24,
               cc->width, cc->height);
 #else
@@ -323,19 +323,19 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
 
 
   //run the encoder
-  int toAdd = avcodec_encode_video(cc, 
-                                   this->codecBuf, 
-                                   this->codecBufSize, 
+  int toAdd = avcodec_encode_video(cc,
+                                   this->codecBuf,
+                                   this->codecBufSize,
                                    this->yuvOutput);
 
   //dump the compressed result to file
-  if (toAdd) 
+  if (toAdd)
     {
     //create an avpacket to output the compressed result
     AVPacket pkt;
     av_init_packet(&pkt);
 
-   //to do playback at actual recorded rate, this will need more work    
+   //to do playback at actual recorded rate, this will need more work
     pkt.pts = cc->coded_frame->pts;
     //pkt.dts = ?; not dure what decompression time stamp should be
     pkt.data = this->codecBuf;
@@ -347,10 +347,10 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
       }
     pkt.duration = 0; //presentation duration in time_base units or 0 if NA
     pkt.pos = -1; //byte position in stream or -1 if NA
-    
+
     toAdd = av_write_frame(this->avFormatContext, &pkt);
-    } 
-  
+    }
+
   if (toAdd) //should not have anything left over
     {
     vtkGenericWarningMacro (<< "Problem encoding frame." );
@@ -370,13 +370,13 @@ void vtkFFMPEGWriterInternal::End()
     this->yuvOutput = NULL;
     }
 
-  if (this->rgbInput) 
+  if (this->rgbInput)
     {
     av_free(this->rgbInput->data[0]);
     av_free(this->rgbInput);
     this->rgbInput = NULL;
     }
-  
+
   if (this->codecBuf)
     {
     av_free(this->codecBuf);
@@ -384,7 +384,7 @@ void vtkFFMPEGWriterInternal::End()
     }
 
   if (this->avFormatContext)
-    {          
+    {
     if (this->openedFile)
       {
       av_write_trailer(this->avFormatContext);
@@ -409,11 +409,11 @@ void vtkFFMPEGWriterInternal::End()
   if (this->avOutputFormat)
     {
     //Next line was done inside av_free(this->avFormatContext).
-    //av_free(this->avOutputFormat); 
-    
+    //av_free(this->avOutputFormat);
+
     this->avOutputFormat = 0;
     }
-  
+
   this->closedFile = 1;
 }
 
@@ -441,7 +441,7 @@ vtkFFMPEGWriter::~vtkFFMPEGWriter()
 void vtkFFMPEGWriter::Start()
 {
   this->Error = 1;
-  
+
   if ( this->Internals )
     {
     vtkErrorMacro("Movie already started.");

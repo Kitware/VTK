@@ -531,9 +531,9 @@ int vtkArrayReader::RequestData(
       {
       if(!this->FileName)
         throw std::runtime_error("FileName not set.");
-  
+
       ifstream file(this->FileName, std::ios::binary);
-  
+
       array = this->Read(file);
       }
     if(!array)

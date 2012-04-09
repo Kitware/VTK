@@ -39,10 +39,10 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // This class was written by:
 // Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
-// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
+// Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder,
 // Karthik Krishnan, Aashish Chaudhary, Philippe Pebay, David Gobbi,
 // David Partyka, Utkarsh Ayachit David Cole, Francois Bertel, and Mark Olesen
-// 
+//
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
 
@@ -185,7 +185,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkBooleanMacro(TitleVisibility, int);
 
   // Description:
-  // Set/Get the axis title text property. 
+  // Set/Get the axis title text property.
   virtual void SetTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
 
@@ -193,7 +193,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   // Set/Get the axis labels text property.
   virtual void SetLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Get/Set axis actor property (axis and its ticks)
   void SetAxisLinesProperty(vtkProperty *);
@@ -373,17 +373,17 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   // Set/Get the 2D mode the vertical offset for X title in 2D mode
   vtkSetMacro(VerticalOffsetXTitle2D, double);
   vtkGetMacro(VerticalOffsetXTitle2D, double);
-  
+
   // Description:
   // Set/Get the 2D mode the horizontal offset for Y title in 2D mode
   vtkSetMacro(HorizontalOffsetYTitle2D, double);
   vtkGetMacro(HorizontalOffsetYTitle2D, double);
-  
+
   // Description:
   // Set/Get whether title position must be saved in 2D mode
   vtkSetMacro(SaveTitlePosition, int);
   vtkGetMacro(SaveTitlePosition, int);
-  
+
  protected:
   vtkAxisActor();
   ~vtkAxisActor();
@@ -405,10 +405,10 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   int    DrawInnerGridlines;
   int    LastDrawInnerGridlines;
-  
+
   int    DrawGridpolys;
   int    LastDrawGridpolys;
-  
+
   int    AxisVisibility;
   int    TickVisibility;
   int    LastTickVisibility;
@@ -510,7 +510,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   int                 CalculateTitleOffset;
   int                 CalculateLabelOffset;
 
-  // Description: 
+  // Description:
   // Use xy-axis only when Use2DMode=1:
   int                 Use2DMode;
 

@@ -46,7 +46,7 @@ protected:
                                 vtkInformationVector** inputVector,
                                 vtkInformationVector* outputVector);
 
-  int RequestData(vtkInformation *, vtkInformationVector **, 
+  int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
 
 private:

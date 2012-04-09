@@ -62,7 +62,7 @@ void vtkVRMLExporter::SetFilePointer(FILE *fp)
     }
 }
 
-  
+
 void vtkVRMLExporter::WriteData()
 {
   vtkRenderer *ren;
@@ -73,7 +73,7 @@ void vtkVRMLExporter::WriteData()
   vtkCamera *cam;
   double *tempd;
   FILE *fp;
-  
+
   // make sure the user specified a FileName or FilePointer
   if (!this->FilePointer && (this->FileName == NULL))
     {
@@ -91,14 +91,14 @@ void vtkVRMLExporter::WriteData()
 
   // get the renderer
   ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
-  
+
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
     {
     vtkErrorMacro(<< "no actors found for writing VRML file.");
     return;
     }
-    
+
   // try opening the files
   if (!this->FilePointer)
     {
@@ -113,7 +113,7 @@ void vtkVRMLExporter::WriteData()
     {
     fp = this->FilePointer;
     }
-  
+
   //
   //  Write header
   //
@@ -125,11 +125,11 @@ void vtkVRMLExporter::WriteData()
   double background[3];
   ren->GetBackground(background);
   fprintf(fp,"    Background {\n ");
-  fprintf(fp,"   skyColor [%f %f %f, ]\n", background[0], 
+  fprintf(fp,"   skyColor [%f %f %f, ]\n", background[0],
           background[1], background[2]);
   fprintf(fp,"    }\n ");
   // End of Background
-  
+
   // do the camera
   cam = ren->GetActiveCamera();
   fprintf(fp,"    Viewpoint\n      {\n      fieldOfView %f\n",
@@ -138,12 +138,12 @@ void vtkVRMLExporter::WriteData()
           cam->GetPosition()[1], cam->GetPosition()[2]);
   fprintf(fp,"      description \"Default View\"\n");
   tempd = cam->GetOrientationWXYZ();
-  fprintf(fp,"      orientation %g %g %g %g\n      }\n", tempd[1], tempd[2], 
+  fprintf(fp,"      orientation %g %g %g %g\n      }\n", tempd[1], tempd[2],
           tempd[3], tempd[0]*3.1415926/180.0);
 
   // do the lights first the ambient then the others
   fprintf(fp,
-    "    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n", 
+    "    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n",
           this->Speed);
   if (ren->GetLights()->GetNumberOfItems() == 0)
     {
@@ -157,7 +157,7 @@ void vtkVRMLExporter::WriteData()
     "    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
   fprintf(fp,"      color %f %f %f }\n\n", ren->GetAmbient()[0],
           ren->GetAmbient()[1], ren->GetAmbient()[2]);
-  
+
   // make sure we have a default light
   // if we dont then use a headlight
   lc = ren->GetLights();
@@ -189,7 +189,7 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 {
   double *pos, *focus, *color;
   double dir[3];
-  
+
   pos = aLight->GetPosition();
   focus = aLight->GetFocalPoint();
   color = aLight->GetDiffuseColor();
@@ -198,17 +198,17 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
   dir[1] = focus[1] - pos[1];
   dir[2] = focus[2] - pos[2];
   vtkMath::Normalize(dir);
-    
+
   if (aLight->GetPositional())
     {
     double *attn;
-    
+
     if (aLight->GetConeAngle() >= 180.0)
       {
       fprintf(fp,"    PointLight {\n");
       }
     else
-      { 
+      {
       fprintf(fp,"    SpotLight {\n");
       fprintf(fp,"      direction %f %f %f\n",dir[0], dir[1], dir[2]);
       fprintf(fp,"      cutOffAngle %f\n", aLight->GetConeAngle());
@@ -266,12 +266,12 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   // first stuff out the transform
   trans = vtkTransform::New();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
-  
+
   fprintf(fp,"    Transform {\n");
   tempd = trans->GetPosition();
   fprintf(fp,"      translation %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   tempd = trans->GetOrientationWXYZ();
-  fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2], 
+  fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2],
           tempd[3], tempd[0]*3.1415926/180.0);
   tempd = trans->GetScale();
   fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
@@ -335,7 +335,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   normals = pntData->GetNormals();
   tcoords = pntData->GetTCoords();
   colors  = pm->MapScalars(1.0);
-  
+
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
     {
@@ -364,9 +364,9 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
         fprintf(fp,"            color  USE VTKcolors\n");
         }
       }
-    
+
     fprintf(fp,"            coordIndex  [\n");
-    
+
     cells = pd->GetPolys();
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
       {
@@ -427,7 +427,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
           }
         // treating vtkIdType as int
         fprintf(fp,"              %i, %i, %i, -1,\n",
-                static_cast<int>(indx[i1]), 
+                static_cast<int>(indx[i1]),
                 static_cast<int>(indx[i2]),static_cast<int>(indx[i]));
         }
       }
@@ -435,7 +435,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     fprintf(fp,"          }\n");
     WriteShapeEnd(fp);
     }
-  
+
   // write out lines if any
   if (pd->GetNumberOfLines() > 0)
     {
@@ -454,9 +454,9 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
         fprintf(fp,"            color  USE VTKcolors\n");
         }
       }
-    
+
     fprintf(fp,"            coordIndex  [\n");
-    
+
     cells = pd->GetLines();
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
       {
@@ -502,7 +502,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
         for (i = 0; i < npts; i++)
           {
           c = colors->GetPointer(4*indx[i]);
-          fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 
+          fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0,
                      c[2]/255.0);
           }
         }
@@ -515,7 +515,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
   fprintf(fp,"      ]\n"); // close the original transforms children
   fprintf(fp,"    }\n"); // close the original transform
-  
+
   pm->Delete();
 }
 
@@ -526,7 +526,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
 {
   double *tempd;
   double tempf2;
-        
+
   fprintf(fileP,"        Shape {\n");
   vtkProperty* props = 0;
   // write out the material properties to the mat file
@@ -536,7 +536,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
   fprintf(fileP,"              ambientIntensity %g\n", props->GetAmbient());
   // if we don't have colors and we have only lines & points
   // use emissive to color them
-  if (!(pntData->GetNormals() || color || polyData->GetNumberOfPolys() || 
+  if (!(pntData->GetNormals() || color || polyData->GetNumberOfPolys() ||
                   polyData->GetNumberOfStrips()))
     {
     tempf2 = props->GetAmbient();
@@ -555,7 +555,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
   fprintf(fileP,"              shininess %g\n",props->GetSpecularPower()/128.0);
   fprintf(fileP,"              transparency %g\n",1.0-props->GetOpacity());
   fprintf(fileP,"              }\n"); // close matrial
-        
+
   // is there a texture map
   if (actor->GetTexture())
     {
@@ -564,7 +564,7 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
     vtkDataArray *scalars;
     vtkDataArray *mappedScalars;
     unsigned char *txtrData;
-                
+
     // make sure it is updated and then get some info
     if (aTexture->GetInput() == NULL)
       {
@@ -574,14 +574,14 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
     aTexture->GetInputAlgorithm()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = aTexture->GetInput()->GetPointData()->GetScalars();
-                
+
     // make sure scalars are non null
-    if (!scalars) 
+    if (!scalars)
       {
       vtkErrorMacro(<< "No scalar values found for texture input!\n");
       return;
       }
-                
+
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
         (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
@@ -592,9 +592,9 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
       {
       mappedScalars = scalars;
       }
-                
+
     // we only support 2d texture maps right now
-    // so one of the three sizes must be 1, but it 
+    // so one of the three sizes must be 1, but it
     // could be any of them, so lets find it
     if (size[0] == 1)
       {
@@ -617,28 +617,28 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
           }
         }
       }
-                
+
     fprintf(fileP,"            texture PixelTexture {\n");
     bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fileP,"              image %i %i %i\n", xsize, ysize, bpp);
-    txtrData = 
+    txtrData =
     static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
     int totalValues = xsize*ysize;
     for (int i = 0; i < totalValues; i++)
       {
       fprintf(fileP,"0x%.2x",*txtrData);
       txtrData++;
-      if (bpp > 1) 
+      if (bpp > 1)
         {
         fprintf(fileP,"%.2x",*txtrData);
         txtrData++;
         }
-      if (bpp > 2) 
+      if (bpp > 2)
         {
         fprintf(fileP,"%.2x",*txtrData);
         txtrData++;
         }
-      if (bpp > 3) 
+      if (bpp > 3)
         {
         fprintf(fileP,"%.2x",*txtrData);
         txtrData++;
@@ -668,7 +668,7 @@ void vtkVRMLExporter::WriteShapeEnd( FILE *fileP )
 }
 
 void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
-                                     vtkDataArray *tcoords, 
+                                     vtkDataArray *tcoords,
                                      vtkUnsignedCharArray *colors, FILE *fp)
 {
   double *p;
@@ -685,7 +685,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
     }
   fprintf(fp,"              ]\n");
   fprintf(fp,"            }\n");
-  
+
   // write out the point data
   if (normals)
     {
@@ -722,7 +722,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
     for (i = 0; i < colors->GetNumberOfTuples(); i++)
       {
       c = colors->GetPointer(4*i);
-      fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0, 
+      fprintf (fp,"           %g %g %g,\n", c[0]/255.0, c[1]/255.0,
                c[2]/255.0);
       }
     fprintf(fp,"            ]\n");
@@ -733,7 +733,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
 void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   if (this->FileName)
     {
     os << indent << "FileName: " << this->FileName << "\n";

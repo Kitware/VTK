@@ -323,7 +323,7 @@ void vtkBMPReader::ComputeDataIncrements()
 {
   int idx;
   vtkIdType fileDataLength;
-  
+
   // Determine the expected length of the data ...
   switch (this->DataScalarType)
     {
@@ -346,9 +346,9 @@ void vtkBMPReader::ComputeDataIncrements()
       vtkErrorMacro(<< "Unknown DataScalarType");
       return;
     }
-  
+
   fileDataLength *= (this->Depth/8);
-  
+
   // a row must end on a 4 byte boundary
   // so update the Increments[1]
   this->DataIncrements[0] = fileDataLength;
@@ -356,7 +356,7 @@ void vtkBMPReader::ComputeDataIncrements()
     (this->DataExtent[1] - this->DataExtent[0] + 1);
   // move to 4 byte boundary
   fileDataLength = fileDataLength + (4 - fileDataLength%4)%4;
-  
+
   // compute the fileDataLength (in units of bytes)
   for (idx = 1; idx < 3; ++idx)
     {
@@ -405,38 +405,38 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
     Keep8bit = 1;
     }
 
-  // compute outPtr2 
+  // compute outPtr2
   outPtr2 = outPtr;
-  if (outIncr[0] < 0) 
+  if (outIncr[0] < 0)
     {
     outPtr2 = outPtr2 - outIncr[0]*(dataExtent[1] - dataExtent[0]);
     }
-  if (outIncr[1] < 0) 
+  if (outIncr[1] < 0)
     {
     outPtr2 = outPtr2 - outIncr[1]*(dataExtent[3] - dataExtent[2]);
     }
-  if (outIncr[2] < 0) 
+  if (outIncr[2] < 0)
     {
     outPtr2 = outPtr2 - outIncr[2]*(dataExtent[5] - dataExtent[4]);
     }
 
   // length of a row, num pixels read at a time
-  pixelRead = dataExtent[1] - dataExtent[0] + 1; 
-  streamRead = (vtkIdType) (pixelRead * self->GetDataIncrements()[0]);  
+  pixelRead = dataExtent[1] - dataExtent[0] + 1;
+  streamRead = (vtkIdType) (pixelRead * self->GetDataIncrements()[0]);
   streamSkip0 = (vtkIdType) (self->GetDataIncrements()[1] - streamRead);
-  streamSkip1 = (vtkIdType) (self->GetDataIncrements()[2] - 
+  streamSkip1 = (vtkIdType) (self->GetDataIncrements()[2] -
     (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
   pixelSkip = self->GetDepth()/8;
-    
+
   // read from the bottom up
   if (!self->GetFileLowerLeft())
     {
     streamSkip0 = (vtkIdType) (-streamRead - self->GetDataIncrements()[1]);
     }
-  
+
   // create a buffer to hold a row of the data
   buf = new unsigned char[streamRead];
-  
+
   target = (unsigned long)((dataExtent[5]-dataExtent[4]+1)*
                            (dataExtent[3]-dataExtent[2]+1)/50.0);
   target++;
@@ -459,7 +459,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
         }
       }
     outPtr1 = outPtr2;
-    for (idx1 = dataExtent[2]; 
+    for (idx1 = dataExtent[2];
          !self->AbortExecute && idx1 <= dataExtent[3]; ++idx1)
       {
       if (!(count%target))
@@ -468,7 +468,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
         }
       count++;
       outPtr0 = outPtr1;
-      
+
       // read the row.
       if ( ! self->GetFile()->read((char *)buf, streamRead))
         {
@@ -483,7 +483,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
         self->GetFile()->close();
         return;
         }
-      
+
 
       // copy the bytes into the typed data
       inPtr = buf;
@@ -547,7 +547,7 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject *output,
   data->GetPointData()->GetScalars()->SetName("BMPImage");
 
   this->ComputeDataIncrements();
-  
+
   // Call the correct templated function for the output
   void *outPtr;
 
@@ -560,7 +560,7 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject *output,
       );
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
-    }  
+    }
 }
 
 //----------------------------------------------------------------------------

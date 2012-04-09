@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSpherePuzzleArrows - Visualize permutation of the sphere puzzle.
 // .SECTION Description
-// vtkSpherePuzzleArrows creates 
+// vtkSpherePuzzleArrows creates
 
 #ifndef __vtkSpherePuzzleArrows_h
 #define __vtkSpherePuzzleArrows_h
@@ -50,7 +50,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void AppendArrow(int id0, int id1, vtkPoints *pts, vtkCellArray *polys);
-  
+
   int Permutation[32];
 
   double Radius;

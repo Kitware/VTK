@@ -35,7 +35,7 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 // render time of the prop. After this, props with no allocated time are
 // removed from the list (and the list length is shortened) to make sure
 // that they are not considered again by another culler or for rendering.
-double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren, 
+double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
                                       vtkProp **propList,
                                       int& listLength,
                                       int& initialized )
@@ -67,7 +67,7 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   // Get the view frustum planes from the active camera
   ren->GetActiveCamera()->GetFrustumPlanes(
     ren->GetTiledAspectRatio(), planes );
-  
+
   // Keep a list of allocated times to help with sorting / removing
   // props later
   allocatedTimeList = new double[listLength];
@@ -188,7 +188,7 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
               (part_w*part_h/(full_w*full_h) <= 0.0)) && this->MinimumCoverage == 0.0 )
           {
           coverage = 0.0001;
-          }        
+          }
         // Compute the fraction of coverage
         else if ((full_w * full_h)!=0.0)
           {
@@ -232,7 +232,7 @@ double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     // Multiply the new allocated time by the previous allocated time
     coverage *= previous_time;
     prop->SetRenderTimeMultiplier( coverage );
-    
+
     // Save this in our array of allocated times which matches the
     // prop array. Also save the center distance
     allocatedTimeList[propLoop] = coverage;
@@ -351,10 +351,10 @@ void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Minimum Coverage: " 
+  os << indent << "Minimum Coverage: "
      << this->MinimumCoverage << endl;
 
-  os << indent << "Maximum Coverage: " 
+  os << indent << "Maximum Coverage: "
      << this->MaximumCoverage << endl;
 
   os << indent << "Sorting Style: "

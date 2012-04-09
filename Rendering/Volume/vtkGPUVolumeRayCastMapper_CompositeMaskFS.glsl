@@ -52,26 +52,26 @@ void trace(void)
   float remainOpacity=1.0-destColor.a;
 
   bool inside=true;
-  
+
   vec4 maskValue;
   vec4 color;
   vec4 opacity;
 
   initShade();
-  
+
   float t=0.0;
-  
+
   // We NEED two nested while loops. It is trick to work around hardware
   // limitation about the maximum number of loops.
 
   while(inside)
-    {  
+    {
     while(inside)
       {
       vec4 value=texture3D(dataSetTexture,pos);
       float scalar=scalarFromValue(value);
       opacity=texture1D(opacityTexture,scalar);
-      
+
       if(maskBlendFactor==0.0)
         {
         color=shade(value);
@@ -106,11 +106,11 @@ void trace(void)
 //        color.a = 1;
           }
         }
-      
+
       color=color*opacity.a;
       destColor=destColor+color*remainOpacity;
       remainOpacity=remainOpacity*(1.0-opacity.a);
-      
+
       pos=pos+rayDir;
       t+=1.0;
       inside=t<tMax && all(greaterThanEqual(pos,lowBounds))

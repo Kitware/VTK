@@ -51,7 +51,7 @@ public:
   vtkSetMacro(SendToStdErr, bool);
   vtkBooleanMacro(SendToStdErr, bool);
 
-protected: 
+protected:
   vtkWin32OutputWindow();
   virtual ~vtkWin32OutputWindow();
 

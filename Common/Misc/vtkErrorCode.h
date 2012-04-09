@@ -32,7 +32,7 @@ public:
 //BTX
   // all the currently defined error codes
   // developers can use -- vtkErrorCode::UserError + int to
-  // specify their own errors. 
+  // specify their own errors.
   // if this list is adjusted, be sure to adjust vtkErrorCodeErrorStrings
   // in vtkErrorCode.cxx to match.
   enum ErrorIds {
@@ -52,4 +52,4 @@ public:
 };
 
 #endif /* __vtkErrorCode_h */
- 
+

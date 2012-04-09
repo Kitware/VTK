@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindow.h"
@@ -100,7 +100,7 @@ vtkImplicitPlaneWidget2::vtkImplicitPlaneWidget2()
 
 //----------------------------------------------------------------------------
 vtkImplicitPlaneWidget2::~vtkImplicitPlaneWidget2()
-{  
+{
   this->InteractionCallback->Delete();
 }
 
@@ -112,18 +112,18 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // We want to compute an orthogonal vector to the plane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
   int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
   self->UpdateCursorShape(interactionState);
-  
+
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
     {
     return;
     }
-  
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   double eventPos[2];
@@ -146,18 +146,18 @@ void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // We want to compute an orthogonal vector to the pane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Moving);
   int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
   self->UpdateCursorShape(interactionState);
-  
+
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
     {
     return;
     }
-  
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   double eventPos[2];
@@ -180,18 +180,18 @@ void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // We want to compute an orthogonal vector to the pane that has been selected
   reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitPlaneRepresentation::Scaling);
   int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
   self->UpdateCursorShape(interactionState);
-  
+
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
     {
     return;
     }
-  
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   double eventPos[2];
@@ -242,7 +242,7 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
       }
     return;
     }
-  
+
   // Okay, adjust the representation
   double e[2];
   e[0] = static_cast<double>(X);
@@ -265,7 +265,7 @@ void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // Return state to not selected
   double e[2];
   self->WidgetRep->EndWidgetInteraction(e);
@@ -362,7 +362,7 @@ int vtkImplicitPlaneWidget2::UpdateCursorShape( int state )
     else
       {
       return this->RequestCursorShape(VTK_CURSOR_HAND);
-      }  
+      }
     }
 
   return 0;

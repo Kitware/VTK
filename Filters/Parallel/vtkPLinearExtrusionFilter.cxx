@@ -25,8 +25,8 @@ vtkStandardNewMacro(vtkPLinearExtrusionFilter);
 //----------------------------------------------------------------------------
 vtkPLinearExtrusionFilter::vtkPLinearExtrusionFilter()
 {
-  // Since I do not thing the visual impact of invariance is significant, 
-  // we will default to not spend the extra effort to get the 
+  // Since I do not thing the visual impact of invariance is significant,
+  // we will default to not spend the extra effort to get the
   // extra layer of ghost cells.
   this->PieceInvariant = 0;
 }

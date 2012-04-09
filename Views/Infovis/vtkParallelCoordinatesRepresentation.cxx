@@ -85,18 +85,18 @@ vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 
 //------------------------------------------------------------------------------
 // Esoteric template function that figures out the point positions for a single
-// array in the plot.  It would be easier (for me) to loop through row at-a-time 
+// array in the plot.  It would be easier (for me) to loop through row at-a-time
 // instead of array at-a-time, but this is more efficient.
 template <typename iterT>
-void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it, 
+void vtkParallelCoordinatesRepresentationBuildLinePoints(iterT* it,
                                                          vtkIdTypeArray* idsToPlot,
                                                          int positionIdx,
                                                          double xPosition,
                                                          int numPositions,
-                                                         double ymin, 
-                                                         double ymax, 
-                                                         double amin, 
-                                                         double amax, 
+                                                         double ymin,
+                                                         double ymax,
+                                                         double amin,
+                                                         double amax,
                                                          vtkPoints* points)
 {
   vtkIdType numTuples = it->GetNumberOfTuples();
@@ -172,7 +172,7 @@ public:
   std::vector< vtkSmartPointer<vtkActor2D> > SelectionActors;
   static const double Colors[10][3];
   static const unsigned int NumberOfColors = 10;
-  double *GetColor(unsigned int idx) 
+  double *GetColor(unsigned int idx)
     {
       idx = (idx >= NumberOfColors) ? NumberOfColors-1 : idx;
       return const_cast<double*>(Colors[idx]);
@@ -259,7 +259,7 @@ vtkParallelCoordinatesRepresentation::vtkParallelCoordinatesRepresentation()
   this->AngleBrushThreshold = .03;
   this->FunctionBrushThreshold = .1;
   this->SwapThreshold = 0.0;
-  
+
   this->FontSize = 1.0;
 
   // Apply default theme
@@ -286,13 +286,13 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
 
   if (this->Maxs)
     delete [] this->Maxs;
-  
+
   if (this->Mins)
     delete [] this->Mins;
-  
+
   if (this->MaxOffsets)
     delete [] this->MaxOffsets;
-  
+
   if (this->MinOffsets)
     delete [] this->MinOffsets;
 
@@ -307,8 +307,8 @@ vtkParallelCoordinatesRepresentation::~vtkParallelCoordinatesRepresentation()
 
 //------------------------------------------------------------------------------
 // I should fill this out.
-const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view, 
-                                                               int x, 
+const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view,
+                                                               int x,
                                                                int y)
 {
   vtkRenderView* rv = vtkRenderView::SafeDownCast(view);
@@ -319,9 +319,9 @@ const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view,
     double p[2] = {0.0,0.0};
     p[0] = static_cast<double>(x) / s[0];
     p[1] = static_cast<double>(y) / s[1];
-    
+
     int position = this->GetPositionNearXCoordinate(p[0]);
-    
+
     if (fabs(p[0] - this->Xs[position]) < .05 &&
         p[1] <= this->YMax &&
         p[1] >= this->YMin)
@@ -351,8 +351,8 @@ const char* vtkParallelCoordinatesRepresentation::GetHoverText(vtkView* view,
 
 //------------------------------------------------------------------------------
 // Not sure what this function is for
-void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view, 
-                                                                int x, 
+void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
+                                                                int x,
                                                                 int y)
 {
   // Make sure we have a context.
@@ -466,9 +466,9 @@ int vtkParallelCoordinatesRepresentation::RequestData(
       }
     else
       {
-      vtkInformationVector *inArrayVec = 
+      vtkInformationVector *inArrayVec =
         this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
- 
+
       if (!inArrayVec)
         {
         vtkErrorMacro(<<"No input arrays specified.  Use SetInputArrayToProcess(i,...).");
@@ -502,10 +502,10 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     return 0;
     }
 
-  vtkDebugMacro(<<"begin compute data properties.\n");  
+  vtkDebugMacro(<<"begin compute data properties.\n");
   if (!this->ComputeDataProperties())
     return 0;
-  
+
   vtkDebugMacro(<<"begin axis placement.\n");
   if (!this->PlaceAxes())
     return 0;
@@ -523,7 +523,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     if (!this->PlaceCurves(this->PlotData,this->InputArrayTable,unselectedRows))
       return 0;
     }
-  else 
+  else
     {
     if (!this->PlaceLines(this->PlotData,this->InputArrayTable,unselectedRows))
       return 0;
@@ -614,11 +614,11 @@ void vtkParallelCoordinatesRepresentation::PrepareForRendering(vtkRenderView* vi
 {
   this->Superclass::PrepareForRendering(view);
 
-  
+
   // Make hover highlight up to date
 
   // Add/remove graph actors as necessary as input connections are added/removed
-  
+
 }
 
 //------------------------------------------------------------------------------
@@ -635,7 +635,7 @@ void vtkParallelCoordinatesRepresentation::ApplyViewTheme(vtkViewTheme* theme)
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::FillInputPortInformation(int port, 
+int vtkParallelCoordinatesRepresentation::FillInputPortInformation(int port,
                                                                    vtkInformation* info)
 {
   if (port == vtkParallelCoordinatesRepresentation::INPUT_DATA)
@@ -665,7 +665,7 @@ void vtkParallelCoordinatesRepresentation::SetAxisTitles(vtkStringArray* sa)
   this->SetInputData(1,t);
 }
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesRepresentation::PrintSelf(ostream& os, 
+void vtkParallelCoordinatesRepresentation::PrintSelf(ostream& os,
                                                      vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -681,13 +681,13 @@ void vtkParallelCoordinatesRepresentation::PrintSelf(ostream& os,
   os << "SwapThreshold: " << this->SwapThreshold << endl;
   os << "LineOpacity: " << this->LineOpacity << endl;
   os << "FontSize: " << this->FontSize << endl;
-  os << "LineColor: " << 
+  os << "LineColor: " <<
     this->LineColor[0] << this->LineColor[1] << this->LineColor[2] << endl;
-  os << "AxisColor: " << 
+  os << "AxisColor: " <<
     this->AxisColor[0] << this->AxisColor[1] << this->AxisColor[2] << endl;
-  os << "AxisLabelColor: " << 
-    this->AxisLabelColor[0] << 
-    this->AxisLabelColor[1] << 
+  os << "AxisLabelColor: " <<
+    this->AxisLabelColor[0] <<
+    this->AxisLabelColor[1] <<
     this->AxisLabelColor[2] << endl;
 
   os << "Xs: ";
@@ -719,7 +719,7 @@ void vtkParallelCoordinatesRepresentation::PrintSelf(ostream& os,
 //------------------------------------------------------------------------------
 int vtkParallelCoordinatesRepresentation::ComputeDataProperties()
 {
-  // if the data hasn't changed, there's no reason to recompute 
+  // if the data hasn't changed, there's no reason to recompute
   if (this->BuildTime > this->GetInput()->GetMTime())
     {
     return 1;
@@ -752,17 +752,17 @@ int vtkParallelCoordinatesRepresentation::ComputeDataProperties()
     if (array->GetName())
       {
       newtitles->InsertNextValue(array->GetName());
-      }  
+      }
     }
 
-  if (newNumberOfAxes <= 0 || 
-      newNumberOfSamples <= 0) 
+  if (newNumberOfAxes <= 0 ||
+      newNumberOfSamples <= 0)
     {
     return 0;
     }
 
   // did the number of axes change? reinitialize EVERYTHING.
-  if (newNumberOfAxes != this->NumberOfAxes || 
+  if (newNumberOfAxes != this->NumberOfAxes ||
       newNumberOfSamples != this->NumberOfSamples)
     {
     // make sure that the old ones get removed
@@ -805,7 +805,7 @@ int vtkParallelCoordinatesRepresentation::UpdatePlotProperties(vtkStringArray* i
   this->PlotActor->GetProperty()->SetColor(this->LineColor);
   this->PlotActor->GetProperty()->SetOpacity(this->LineOpacity);
   this->PlotTitleActor->GetProperty()->SetColor(this->AxisLabelColor);
-  
+
   if (inputTitles)
     {
     this->AxisTitles->DeepCopy(inputTitles);
@@ -852,7 +852,7 @@ int vtkParallelCoordinatesRepresentation::UpdatePlotProperties(vtkStringArray* i
     this->I->SelectionActors[i]->GetProperty()->SetOpacity(this->LineOpacity);
     this->I->SelectionActors[i]->GetProperty()->SetColor(this->I->GetColor(i));
     }
-  
+
   return 1;
 }
 
@@ -930,12 +930,12 @@ int vtkParallelCoordinatesRepresentation::PlaceAxes()
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData, 
-                                                           int numLines, 
-                                                           int numPointsPerLine, 
-                                                           int numStrips, 
-                                                           int numPointsPerStrip, 
-                                                           int numQuads, 
+int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData,
+                                                           int numLines,
+                                                           int numPointsPerLine,
+                                                           int numStrips,
+                                                           int numPointsPerStrip,
+                                                           int numQuads,
                                                            int numPoints,
                                                            int numCellScalars,
                                                            int numPointScalars)
@@ -944,7 +944,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   if (numLines)
     {
     vtkCellArray* lines = polyData->GetLines();
-    if (!lines || 
+    if (!lines ||
         lines->GetSize() != lines->EstimateSize( numLines,numPointsPerLine ) ||
         lines->GetNumberOfCells() != numLines)
       {
@@ -978,7 +978,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   if (numStrips)
     {
     vtkCellArray* strips = polyData->GetStrips();
-    if (!strips || 
+    if (!strips ||
         strips->GetSize() != strips->EstimateSize( numStrips,numPointsPerStrip ) ||
         strips->GetNumberOfCells() != numStrips)
       {
@@ -1012,7 +1012,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   if (numQuads)
     {
     vtkCellArray* quads = polyData->GetPolys();
-    if (!quads || 
+    if (!quads ||
         quads->GetSize() != quads->EstimateSize( numQuads,4 ) ||
         quads->GetNumberOfCells() != numQuads)
       {
@@ -1060,8 +1060,8 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
     {
     polyData->SetPoints(NULL);
     }
-  
-  // if there are scalars requested, make room. defaults everything to 0.  
+
+  // if there are scalars requested, make room. defaults everything to 0.
   // scalars are all vtkDoubleArrays.
   if (numCellScalars)
     {
@@ -1085,8 +1085,8 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
     {
     polyData->GetCellData()->SetScalars(NULL);
     }
-  
-  // if there are scalars requested, make room. defaults everything to 0.  
+
+  // if there are scalars requested, make room. defaults everything to 0.
   // scalars are all vtkDoubleArrays.
   if (numPointScalars)
     {
@@ -1116,7 +1116,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::PlaceLines(vtkPolyData* polyData, 
+int vtkParallelCoordinatesRepresentation::PlaceLines(vtkPolyData* polyData,
                                                      vtkTable* data,
                                                      vtkIdTypeArray* idsToPlot)
 {
@@ -1147,7 +1147,7 @@ int vtkParallelCoordinatesRepresentation::PlaceLines(vtkPolyData* polyData,
     {
     // figure out which axis is at this position
     //axisI = this->AxisOrder[position];
-      
+
     // get the relevant array information
 //    vtkDataArray* array = this->GetInputArrayAtPosition(position);
     vtkDataArray* array = vtkDataArray::SafeDownCast(data->GetColumn(position));
@@ -1178,7 +1178,7 @@ int vtkParallelCoordinatesRepresentation::PlaceLines(vtkPolyData* polyData,
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::PlaceCurves(vtkPolyData* polyData, 
+int vtkParallelCoordinatesRepresentation::PlaceCurves(vtkPolyData* polyData,
                                                       vtkTable* data,
                                                       vtkIdTypeArray* idsToPlot)
 {
@@ -1211,7 +1211,7 @@ int vtkParallelCoordinatesRepresentation::PlaceCurves(vtkPolyData* polyData,
     {
     // figure out which axis is at this position
     //axisI = this->AxisOrder[position];
-      
+
     // get the relevant array information
 //    vtkDataArray* array = this->GetInputArrayAtPosition(position);
     vtkDataArray* array = vtkDataArray::SafeDownCast(data->GetColumn(position));
@@ -1276,13 +1276,13 @@ int vtkParallelCoordinatesRepresentation::PlaceCurves(vtkPolyData* polyData,
 }
 
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesRepresentation::BuildDefaultSCurve(vtkDoubleArray* defArray, 
+void vtkParallelCoordinatesRepresentation::BuildDefaultSCurve(vtkDoubleArray* defArray,
                                                               int numValues)
 {
   if (!defArray)
     return;
 
-  // build a default spline, going from (0,0) to (1,1), 
+  // build a default spline, going from (0,0) to (1,1),
   vtkSmartPointer<vtkSCurveSpline> defSpline = vtkSmartPointer<vtkSCurveSpline>::New();
   defSpline->SetParametricRange(0,1);
   defSpline->AddPoint(0,0);
@@ -1298,7 +1298,7 @@ void vtkParallelCoordinatesRepresentation::BuildDefaultSCurve(vtkDoubleArray* de
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::PlaceSelection(vtkPolyData* polyData, 
+int vtkParallelCoordinatesRepresentation::PlaceSelection(vtkPolyData* polyData,
                                                          vtkTable* data,
                                                          vtkSelectionNode* selectionNode)
 {
@@ -1344,7 +1344,7 @@ void vtkParallelCoordinatesRepresentation::SetNumberOfAxisLabels(int num)
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::SwapAxisPositions(int position1, 
+int vtkParallelCoordinatesRepresentation::SwapAxisPositions(int position1,
                                                             int position2)
 {
   if (position1 < 0 ||
@@ -1419,10 +1419,10 @@ int vtkParallelCoordinatesRepresentation::SwapAxisPositions(int position1,
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::SetXCoordinateOfPosition(int position, 
+int vtkParallelCoordinatesRepresentation::SetXCoordinateOfPosition(int position,
                                                                    double xcoord)
 {
-  if (position < 0 || 
+  if (position < 0 ||
       position >= this->NumberOfAxes)
     {
     return -1;
@@ -1431,8 +1431,8 @@ int vtkParallelCoordinatesRepresentation::SetXCoordinateOfPosition(int position,
   this->Xs[position] = xcoord;
   this->Modified();
 
-  
-  if (position > 0 && 
+
+  if (position > 0 &&
       (this->Xs[position] - this->Xs[position-1]) < this->SwapThreshold)
     {
     this->SwapAxisPositions(position,position-1);
@@ -1490,8 +1490,8 @@ int vtkParallelCoordinatesRepresentation::GetPositionNearXCoordinate(double xcoo
 }
 
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesRepresentation::LassoSelect(int brushClass, 
-                                                       int brushOperator, 
+void vtkParallelCoordinatesRepresentation::LassoSelect(int brushClass,
+                                                       int brushOperator,
                                                        vtkPoints* brushPoints)
 {
   if (brushPoints->GetNumberOfPoints() < 2)
@@ -1573,8 +1573,8 @@ void vtkParallelCoordinatesRepresentation::LassoSelectInternal(vtkPoints* brushP
     // normalize p into [0,1]x[0,1]
     double pn[2] = {(p[0]-this->Xs[position]) / (this->Xs[position+1]-this->Xs[position]),
                     (p[1]-this->YMin) / dy};
-      
-    // now compute actual data values for two PC lines passing through pn, 
+
+    // now compute actual data values for two PC lines passing through pn,
     // starting from the endpoints of the left axis
     double q[2] = { leftAxisRange[0],
                     rightAxisRange[0] + pn[1]/pn[0]*dRight };
@@ -1593,12 +1593,12 @@ void vtkParallelCoordinatesRepresentation::LassoSelectInternal(vtkPoints* brushP
     }
 }
 //------------------------------------------------------------------------------
-// All lines that have the same slope in PC space represent a set of points 
+// All lines that have the same slope in PC space represent a set of points
 // that define a line in XY space.  PC lines that have similar slope are all
-// near the same XY line.  
-void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass, 
-                                                       int brushOperator, 
-                                                       double* p1, 
+// near the same XY line.
+void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
+                                                       int brushOperator,
+                                                       double* p1,
                                                        double* p2)
 {
   int position = this->ComputeLinePosition(p1,p2);
@@ -1642,7 +1642,7 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
             this->AxisTitles->GetValue(position).c_str(),
             (b < 0) ? "-" : "+",
             fabs(b));
-            
+
     this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();
 
@@ -1654,11 +1654,11 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(int brushClass,
 // Line that match a linear function can be found by defining that linear
 // function and selecting all points that are near the line.  the linear
 // function can be specified by two XY points, equivalent to two PC lines.
-void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass, 
-                                                          int brushOperator, 
-                                                          double* p1, 
-                                                          double* p2, 
-                                                          double* q1, 
+void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
+                                                          int brushOperator,
+                                                          double* p1,
+                                                          double* p2,
+                                                          double* q1,
                                                           double* q2)
 {
   int position = this->ComputeLinePosition(p1,p2);
@@ -1706,7 +1706,7 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
             this->AxisTitles->GetValue(position).c_str(),
             (b < 0) ? "-" : "+",
             fabs(b));
-            
+
     this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();
 
@@ -1716,9 +1716,9 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(int brushClass,
 }
 
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesRepresentation::RangeSelect(int vtkNotUsed(brushClass), 
-                                                       int vtkNotUsed(brushOperator), 
-                                                       double* vtkNotUsed(p1), 
+void vtkParallelCoordinatesRepresentation::RangeSelect(int vtkNotUsed(brushClass),
+                                                       int vtkNotUsed(brushOperator),
+                                                       double* vtkNotUsed(p1),
                                                        double* vtkNotUsed(p2))
 {
   // stubbed out for now
@@ -1775,7 +1775,7 @@ int vtkParallelCoordinatesRepresentation::ComputePointPosition(double *p)
 }
 
 //------------------------------------------------------------------------------
-int vtkParallelCoordinatesRepresentation::ComputeLinePosition(double* p1, 
+int vtkParallelCoordinatesRepresentation::ComputeLinePosition(double* p1,
                                                               double* p2)
 {
   double eps = .0001;
@@ -1791,7 +1791,7 @@ int vtkParallelCoordinatesRepresentation::ComputeLinePosition(double* p1,
 }
 
 //------------------------------------------------------------------------------
-vtkSelection* vtkParallelCoordinatesRepresentation::ConvertSelection(vtkView* vtkNotUsed(view), 
+vtkSelection* vtkParallelCoordinatesRepresentation::ConvertSelection(vtkView* vtkNotUsed(view),
                                                                      vtkSelection* selection)
 {
   return selection;
@@ -1800,8 +1800,8 @@ vtkSelection* vtkParallelCoordinatesRepresentation::ConvertSelection(vtkView* vt
 //------------------------------------------------------------------------------
 // does the actual selection, including joining the new selection with the
 // old selection of the same class with various set operations.
-void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass, 
-                                                      vtkIdType brushOperator, 
+void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
+                                                      vtkIdType brushOperator,
                                                       vtkIdTypeArray* newSelectedIds)
 {
   // keep making new selection nodes (and initializing them) until a node for
@@ -1837,7 +1837,7 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
     }
 
   vtkIdTypeArray* oldSelectedIds = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-  
+
   // no selection list yet? that shouldn't be possible...it was allocated above
   if (!oldSelectedIds)
     {
@@ -1891,7 +1891,7 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
       break;
 
     case vtkParallelCoordinatesView::VTK_BRUSHOPERATOR_REPLACE:
-      // add all of the new ones, 
+      // add all of the new ones,
       for (int i=0; i<numNewIds; i++)
         {
         outSelectedIds->InsertNextValue(newSelectedIds->GetValue(i));
@@ -1925,7 +1925,7 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
 
   vtkSmartPointer<vtkIdTypeArray> unselected = vtkSmartPointer<vtkIdTypeArray>::New();
   std::vector<int> idxs(numNodes,0);
- 
+
   for (int i=0; i<this->NumberOfSamples; i++)
     {
     bool found = false;
@@ -1945,20 +1945,20 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
         idxs[j]++;
         }
 
-      if (idxs[j] < numRows && 
+      if (idxs[j] < numRows &&
           a->GetValue(idxs[j]) == i)
         {
         found=true;
         break;
         }
       }
-    
+
     if (!found)
       {
       unselected->InsertNextValue(i);
       }
     }
- 
+
 
   vtkSmartPointer<vtkSelectionNode> totalSelection = vtkSmartPointer<vtkSelectionNode>::New();
   totalSelection->SetSelectionList(unselected);
@@ -1969,7 +1969,7 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
 
 //------------------------------------------------------------------------------
 // get the value range of an axis
-int vtkParallelCoordinatesRepresentation::GetRangeAtPosition(int position, 
+int vtkParallelCoordinatesRepresentation::GetRangeAtPosition(int position,
                                                              double range[2])
 {
   if (position < 0 || position >= this->NumberOfAxes)
@@ -1980,13 +1980,13 @@ int vtkParallelCoordinatesRepresentation::GetRangeAtPosition(int position,
 //  int axis = this->AxisOrder[position];
   range[0] = this->Mins[position]+this->MinOffsets[position];
   range[1] = this->Maxs[position]+this->MaxOffsets[position];
-  
+
   return 1;
 }
 
 //------------------------------------------------------------------------------
 // set the value range of an axis
-int vtkParallelCoordinatesRepresentation::SetRangeAtPosition(int position, 
+int vtkParallelCoordinatesRepresentation::SetRangeAtPosition(int position,
                                                              double range[2])
 {
   if (position < 0 || position >= this->NumberOfAxes)
@@ -2020,7 +2020,7 @@ void vtkParallelCoordinatesRepresentation::ResetAxes()
 
 //------------------------------------------------------------------------------
 // get position and size of the entire plot
-int vtkParallelCoordinatesRepresentation::GetPositionAndSize(double* position, 
+int vtkParallelCoordinatesRepresentation::GetPositionAndSize(double* position,
                                                              double* size)
 {
   if (!this->Xs)
@@ -2036,7 +2036,7 @@ int vtkParallelCoordinatesRepresentation::GetPositionAndSize(double* position,
 
 //------------------------------------------------------------------------------
 // set position and size of the entire plot
-int vtkParallelCoordinatesRepresentation::SetPositionAndSize(double* position, 
+int vtkParallelCoordinatesRepresentation::SetPositionAndSize(double* position,
                                                              double* size)
 {
   // rescale the Xs so that they fit into the range prescribed by position and size
@@ -2068,8 +2068,8 @@ vtkPolyDataMapper2D* vtkParallelCoordinatesRepresentation::InitializePlotMapper(
   mapper->SetInputData(input);
   mapper->SetTransformCoordinate(dummyCoord);
   mapper->ScalarVisibilityOff();
-  actor->SetMapper(mapper);  
-  
+  actor->SetMapper(mapper);
+
   return mapper;
 }
 //------------------------------------------------------------------------------

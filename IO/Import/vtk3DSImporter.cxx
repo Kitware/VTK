@@ -166,7 +166,7 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
   vtkActor *actor;
 
   // walk the list of meshes, creating actors
-  for (mesh = this->MeshList; mesh != (vtk3DSMesh *) NULL; 
+  for (mesh = this->MeshList; mesh != (vtk3DSMesh *) NULL;
        mesh = (vtk3DSMesh *) mesh->next)
     {
     if (mesh->faces == 0)
@@ -190,7 +190,7 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
       {
       polyStripper->SetInputData(polyData);
       }
-    
+
     polyMapper->SetInputConnection(polyStripper->GetOutputPort());
     vtkDebugMacro (<< "Importing Actor: " << mesh->name);
     mesh->anActor = actor = vtkActor::New ();
@@ -241,7 +241,7 @@ void vtk3DSImporter::ImportCameras (vtkRenderer *renderer)
   // walk the list of cameras and create vtk cameras
   for (camera = this->CameraList; camera != (vtk3DSCamera *) NULL; camera = (vtk3DSCamera *) camera->next)
     {
-    camera->aCamera = aCamera = vtkCamera::New ();      
+    camera->aCamera = aCamera = vtkCamera::New ();
     aCamera->SetPosition (camera->pos[0], camera->pos[1], camera->pos[2]);
     aCamera->SetFocalPoint (camera->target[0], camera->target[1], camera->target[2]);
     aCamera->SetViewUp (0, 0, 1);
@@ -259,7 +259,7 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
   vtkLight *aLight;
 
   // just walk the list of omni lights, creating vtk lights
-  for (omniLight = this->OmniList; omniLight != (vtk3DSOmniLight *) NULL; 
+  for (omniLight = this->OmniList; omniLight != (vtk3DSOmniLight *) NULL;
        omniLight = (vtk3DSOmniLight *) omniLight->next)
   {
   omniLight->aLight = aLight = vtkLight::New ();
@@ -272,10 +272,10 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
                     omniLight->col.blue);
   renderer->AddLight (aLight);
   vtkDebugMacro (<< "Importing Omni Light: " << omniLight->name);
-  }                       
+  }
 
   // now walk the list of spot lights, creating vtk lights
-  for (spotLight = this->SpotLightList; spotLight != (vtk3DSSpotLight *) NULL; 
+  for (spotLight = this->SpotLightList; spotLight != (vtk3DSSpotLight *) NULL;
        spotLight = (vtk3DSSpotLight *) spotLight->next)
   {
   spotLight->aLight = aLight = vtkLight::New ();
@@ -292,7 +292,7 @@ void vtk3DSImporter::ImportLights (vtkRenderer *renderer)
   aLight->SetConeAngle (spotLight->falloff);
   renderer->AddLight (aLight);
   vtkDebugMacro (<< "Importing Spot Light: " << spotLight->name);
-  }                       
+  }
 }
 
 void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
@@ -347,7 +347,7 @@ void vtk3DSImporter::ImportProperties (vtkRenderer *vtkNotUsed(renderer))
   property->SetSpecularPower(phong_size);
   property->SetOpacity(1.0 - m->transparency);
   vtkDebugMacro(<< "Importing Property: " << m->name);
-  
+
   m->aProperty = property;
   }
 }
@@ -379,7 +379,7 @@ static void list_kill (vtk3DSList **root)
 {
   vtk3DSList *temp;
 
-  while (*root != (vtk3DSList *) NULL) 
+  while (*root != (vtk3DSList *) NULL)
     {
     temp = *root;
     *root = (vtk3DSList *) (*root)->next;
@@ -500,7 +500,7 @@ static void parse_3ds (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
 {
   vtk3DSChunk chunk;
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
 
@@ -522,13 +522,13 @@ static void parse_mdata (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
   vtk3DSChunk chunk;
   vtk3DSColour bgnd_colour;
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
-    
-    if (chunk.end <= mainchunk->end) 
+
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0x2100: parse_colour (importer, &global_amb);
           break;
@@ -561,13 +561,13 @@ static void parse_fog (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
 
   parse_colour (importer, &fog_colour);
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
 
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0x2210: parse_fog_bgnd(importer);
           break;
@@ -591,12 +591,12 @@ static void parse_mat_entry (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
 
   mprop = create_mprop();
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0xA000: strcpy (mprop->name, read_string(importer));
           cleanup_name (mprop->name);
@@ -652,13 +652,13 @@ static char *parse_mapname (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
   static char name[80] = "";
   vtk3DSChunk chunk;
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
 
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0xA300: strcpy (name, read_string(importer));
           break;
@@ -682,12 +682,12 @@ static void parse_named_object (vtk3DSImporter *importer, vtk3DSChunk *mainchunk
 
   mesh = NULL;
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0x4100: parse_n_tri_object (importer, &chunk);
           break;
@@ -720,13 +720,13 @@ static void parse_n_tri_object (vtk3DSImporter *importer, vtk3DSChunk *mainchunk
 
   mesh = create_mesh (obj_name, 0, 0);
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
 
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0x4110: parse_point_array(importer, mesh);
           break;
@@ -765,22 +765,22 @@ static void parse_face_array (vtk3DSImporter *importer, vtk3DSMesh *mesh, vtk3DS
   mesh->face = (vtk3DSFace *) malloc (mesh->faces * sizeof(*(mesh->face)));
   mesh->mtl = (vtk3DSMaterial **) malloc (mesh->faces * sizeof(*(mesh->mtl)));
 
-  for (i = 0; i < mesh->faces; i++) 
+  for (i = 0; i < mesh->faces; i++)
     {
     mesh->face[i].a = read_word(importer);
     mesh->face[i].b = read_word(importer);
     mesh->face[i].c = read_word(importer);
     (void)read_word(importer);
-    
+
     mesh->mtl[i] = NULL;
     }
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0x4130: parse_msh_mat_group(importer, mesh);
           break;
@@ -816,7 +816,7 @@ static void parse_msh_mat_group(vtk3DSImporter *importer, vtk3DSMesh *mesh)
 
   mtlcnt = read_word(importer);
 
-  for (i = 0; i < mtlcnt; i++) 
+  for (i = 0; i < mtlcnt; i++)
     {
     face = read_word(importer);
     mesh->mtl[face] = new_mtl;
@@ -843,13 +843,13 @@ static void parse_n_direct_light (vtk3DSImporter *importer, vtk3DSChunk *mainchu
   read_point (importer, pos);
   parse_colour (importer, &col);
 
-  do  
+  do
     {
     start_chunk (importer, &chunk);
 
-    if (chunk.end <= mainchunk->end) 
+    if (chunk.end <= mainchunk->end)
       {
-      switch (chunk.tag) 
+      switch (chunk.tag)
         {
         case 0x4620: break;
         case 0x4610: parse_dl_spotlight(importer);
@@ -966,7 +966,7 @@ static void parse_colour (vtk3DSImporter *importer, vtk3DSColour *colour)
 
   start_chunk (importer, &chunk);
 
-  switch (chunk.tag) 
+  switch (chunk.tag)
     {
     case 0x0010: parse_colour_f (importer, colour);
       break;
@@ -1007,7 +1007,7 @@ static float parse_percentage(vtk3DSImporter *importer)
 
   start_chunk (importer, &chunk);
 
-  switch (chunk.tag) 
+  switch (chunk.tag)
     {
     case 0x0030: percent = parse_int_percentage(importer)/100.0;
       break;
@@ -1176,7 +1176,7 @@ static void cleanup_name (char *name)
       {
       strcpy (tmp, name);
       }
-    else 
+    else
       {
       tmp[0] = 'N';
       strcpy (&tmp[1], name);
@@ -1209,7 +1209,7 @@ vtk3DSImporter::~vtk3DSImporter()
   VTK_LIST_KILL (this->OmniList);
 
   // walk the spot light list and delete vtk objects
-  for (spotLight = this->SpotLightList; spotLight != (vtk3DSSpotLight *) NULL; 
+  for (spotLight = this->SpotLightList; spotLight != (vtk3DSSpotLight *) NULL;
        spotLight = (vtk3DSSpotLight *) spotLight->next)
     {
     spotLight->aLight->Delete();
@@ -1218,7 +1218,7 @@ vtk3DSImporter::~vtk3DSImporter()
 
   vtk3DSCamera *camera;
   // walk the camera list and delete vtk objects
-  for (camera = this->CameraList; camera != (vtk3DSCamera *) NULL; 
+  for (camera = this->CameraList; camera != (vtk3DSCamera *) NULL;
        camera = (vtk3DSCamera *) camera->next)
     {
     camera->aCamera->Delete ();
@@ -1227,7 +1227,7 @@ vtk3DSImporter::~vtk3DSImporter()
 
   // walk the mesh list and delete malloced datra and vtk objects
   vtk3DSMesh *mesh;
-  for (mesh = this->MeshList; mesh != (vtk3DSMesh *) NULL; 
+  for (mesh = this->MeshList; mesh != (vtk3DSMesh *) NULL;
        mesh = (vtk3DSMesh *) mesh->next)
     {
     if (mesh->anActor != NULL)
@@ -1268,7 +1268,7 @@ vtk3DSImporter::~vtk3DSImporter()
       }
     if (mesh->mtl)
       {
-      free (mesh->mtl);  
+      free (mesh->mtl);
       }
     }
 
@@ -1297,10 +1297,10 @@ vtk3DSImporter::~vtk3DSImporter()
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
-  os << indent << "Compute Normals: " 
+  os << indent << "Compute Normals: "
      << (this->ComputeNormals ? "On\n" : "Off\n");
 }
 

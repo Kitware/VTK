@@ -13,8 +13,8 @@
 
 =========================================================================*/
 // This example demonstrates how hierarchical box (uniform rectilinear)
-// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class. 
-// 
+// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class.
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -57,17 +57,17 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  char* cfname = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, 
+  char* cfname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv,
                                          "Data/chombo3d/chombo3d.vtm");
 
-  vtkXMLHierarchicalBoxDataReader* reader = 
+  vtkXMLHierarchicalBoxDataReader* reader =
     vtkXMLHierarchicalBoxDataReader::New();
   reader->SetFileName(cfname);
   delete[] cfname;
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom = 
+  vtkHierarchicalDataSetGeometryFilter* geom =
     vtkHierarchicalDataSetGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
@@ -118,7 +118,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   contActor->SetMapper(contMapper);
   contActor->GetProperty()->SetColor(1, 0, 0);
   ren->AddActor(contActor);
-  
+
   // Standard testing code.
   ocf->Delete();
   ocMapper->Delete();
@@ -135,7 +135,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
     {
     iren->Start();
     }
-  
+
   // Cleanup
   el->Delete();
   geom->Delete();
@@ -146,7 +146,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   iren->Delete();
   reader->Delete();
   shrink->Delete();
- 
+
   vtkAlgorithm::SetDefaultExecutivePrototype(0);
   return !retVal;
 }

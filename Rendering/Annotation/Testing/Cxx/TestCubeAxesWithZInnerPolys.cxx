@@ -104,7 +104,7 @@ int TestCubeAxesWithZInnerPolys( int argc, char * argv [] )
   axes2->SetDrawZGridpolys(1);
   axes2->GetZAxesGridpolysProperty()->SetColor(.2, .2, .2);
   axes2->GetZAxesGridpolysProperty()->SetOpacity(.3);
-  
+
   ren2->AddViewProp(axes2.GetPointer());
   renWin->Render();
 

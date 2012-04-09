@@ -77,7 +77,7 @@ int vtkEdgeCenters::RequestData(
   while (edges->HasNext() && !abort)
     {
     vtkEdgeType e = edges->Next();
-    if ( ! (processed % progressInterval) ) 
+    if ( ! (processed % progressInterval) )
       {
       vtkDebugMacro(<<"Processing #" << processed);
       this->UpdateProgress (0.5*processed/numEdges);
@@ -153,7 +153,7 @@ int vtkEdgeCenters::RequestData(
     while (edges->HasNext() && !abort)
       {
       vtkEdgeType e = edges->Next();
-      if ( ! (processed % progressInterval) ) 
+      if ( ! (processed % progressInterval) )
         {
         vtkDebugMacro(<<"Processing #" << processed);
         this->UpdateProgress (0.5+0.5*processed/numEdges);

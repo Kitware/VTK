@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkPBivariateLinearTableThreshold.cxx
 
@@ -90,7 +90,7 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
 
     // gathers all of the array lengths together
     comm->AllGather(&myLength, &recvLengths[0], 1);
-    
+
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
     for (int j=0; j<numProcesses; j++)
@@ -99,14 +99,14 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
       totalLength += recvLengths[j];
       recvLengths[j] *= typeSize;
       }
-    
+
     // communicating this as a byte array :/
     vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
     received->SetNumberOfTuples(totalLength);
-    
+
     char* sendBuf = (char*) col->GetVoidPointer(0);
     char* recvBuf = (char*) received->GetVoidPointer(0);
-    
+
     comm->AllGatherV(sendBuf, recvBuf, myLength*typeSize, &recvLengths[0], &recvOffsets[0]);
 
     gatheredTable->AddColumn(received);

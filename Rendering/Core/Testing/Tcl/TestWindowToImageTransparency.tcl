@@ -54,7 +54,7 @@ vtkActor2D ia2
 
 # now, change the image (background is now green)
 sphactor SetScale 2 2 2
-ren1 SetBackground 0 1 0 
+ren1 SetBackground 0 1 0
 
 # add the image of the sphere (keeping the original sphere too)
 ren1 AddActor ia2

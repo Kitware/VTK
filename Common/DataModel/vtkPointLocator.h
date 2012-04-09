@@ -16,18 +16,18 @@
 // .SECTION Description
 // vtkPointLocator is a spatial search object to quickly locate points in 3D.
 // vtkPointLocator works by dividing a specified region of space into a regular
-// array of "rectangular" buckets, and then keeping a list of points that 
-// lie in each bucket. Typical operation involves giving a position in 3D 
+// array of "rectangular" buckets, and then keeping a list of points that
+// lie in each bucket. Typical operation involves giving a position in 3D
 // and finding the closest point.
 //
 // vtkPointLocator has two distinct methods of interaction. In the first
-// method, you supply it with a dataset, and it operates on the points in 
+// method, you supply it with a dataset, and it operates on the points in
 // the dataset. In the second method, you supply it with an array of points,
 // and the object operates on the array.
 
 // .SECTION Caveats
-// Many other types of spatial locators have been developed such as 
-// octrees and kd-trees. These are often more efficient for the 
+// Many other types of spatial locators have been developed such as
+// octrees and kd-trees. These are often more efficient for the
 // operations described here.
 
 // .SECTION See Also
@@ -73,14 +73,14 @@ public:
   virtual vtkIdType FindClosestPoint(const double x[3]);
 
   // Description:
-  // Given a position x and a radius r, return the id of the point 
+  // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first. dist2 returns the squared
   // distance to the point.
   virtual vtkIdType FindClosestPointWithinRadius(
     double radius, const double x[3], double& dist2);
-  virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], 
+  virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
                                          double inputDataLength, double& dist2);
 
   // Description:
@@ -95,26 +95,26 @@ public:
   // representing point coordinates into which incremental insertion methods
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
-  virtual int InitPointInsertion(vtkPoints *newPts, const double bounds[6], 
+  virtual int InitPointInsertion(vtkPoints *newPts, const double bounds[6],
                                  vtkIdType estSize);
 
   // Description:
   // Incrementally insert a point into search structure with a particular
-  // index value. You should use the method IsInsertedPoint() to see whether 
+  // index value. You should use the method IsInsertedPoint() to see whether
   // this point has already been inserted (that is, if you desire to prevent
-  // duplicate points). Before using this method you must make sure that 
-  // newPts have been supplied, the bounds has been set properly, and that 
+  // duplicate points). Before using this method you must make sure that
+  // newPts have been supplied, the bounds has been set properly, and that
   // divs are properly set. (See InitPointInsertion().)
   // Not thread safe.
   virtual void InsertPoint(vtkIdType ptId, const double x[3]);
 
   // Description:
   // Incrementally insert a point into search structure. The method returns
-  // the insertion location (i.e., point id). You should use the method 
+  // the insertion location (i.e., point id). You should use the method
   // IsInsertedPoint() to see whether this point has already been
   // inserted (that is, if you desire to prevent duplicate points).
   // Before using this method you must make sure that newPts have been
-  // supplied, the bounds has been set properly, and that divs are 
+  // supplied, the bounds has been set properly, and that divs are
   // properly set. (See InitPointInsertion().)
   // Not thread safe.
   virtual vtkIdType InsertNextPoint(const double x[3]);
@@ -143,7 +143,7 @@ public:
 
   // Description:
   // Given a position x, return the id of the point closest to it. This method
-  // is used when performing incremental point insertion. Note that -1 
+  // is used when performing incremental point insertion. Note that -1
   // indicates that no point was found.
   // This method is thread safe if  BuildLocator() is directly or
   // indirectly called from a single thread first.
@@ -160,13 +160,13 @@ public:
 
   // Description:
   // Find the closest points to a position such that each octant of
-  // space around the position contains at least N points. Loosely 
-  // limit the search to a maximum number of points evaluated, M. 
+  // space around the position contains at least N points. Loosely
+  // limit the search to a maximum number of points evaluated, M.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindDistributedPoints(int N, const double x[3], 
+  virtual void FindDistributedPoints(int N, const double x[3],
                                      vtkIdList *result, int M);
-  virtual void FindDistributedPoints(int N, double x, double y, 
+  virtual void FindDistributedPoints(int N, double x, double y,
                                      double z, vtkIdList *result, int M);
 
   // Description:
@@ -176,7 +176,7 @@ public:
   // indirectly called from a single thread first.
   virtual void FindPointsWithinRadius(double R, const double x[3],
                                       vtkIdList *result);
-  
+
   // Description:
   // Given a position x, return the list of points in the bucket that
   // contains the point. It is possible that NULL is returned. The user
@@ -203,14 +203,14 @@ protected:
   // place points in appropriate buckets
   void GetBucketNeighbors(vtkNeighborPoints* buckets,
                           const int ijk[3], const int ndivs[3], int level);
-  void GetOverlappingBuckets(vtkNeighborPoints* buckets, 
+  void GetOverlappingBuckets(vtkNeighborPoints* buckets,
                              const double x[3], const int ijk[3], double dist,
                              int level);
   void GetOverlappingBuckets(vtkNeighborPoints* buckets,
                              const double x[3], double dist,
                              int prevMinLevel[3],
                              int prevMaxLevel[3]);
-  void GenerateFace(int face, int i, int j, int k, 
+  void GenerateFace(int face, int i, int j, int k,
                     vtkPoints *pts, vtkCellArray *polys);
   double Distance2ToBucket(const double x[3], const int nei[3]);
   double Distance2ToBounds(const double x[3], const double bounds[6]);
@@ -225,7 +225,7 @@ protected:
   double InsertionTol2;
   vtkIdType InsertionPointId;
 
-  double InsertionLevel; 
+  double InsertionLevel;
 private:
   vtkPointLocator(const vtkPointLocator&);  // Not implemented.
   void operator=(const vtkPointLocator&);  // Not implemented.

@@ -49,7 +49,7 @@ proc ExitMaster { code } {
     vtkCommand DeleteAllObjects
     catch {destroy .top}
     catch {destroy .geo}
-    
+
     exit $code
 }
 
@@ -59,7 +59,7 @@ set file [lindex $argv 0]
 if { $myProcId != 0 } {
     #puts "Start reading script on satellite node"
     source $file
-    
+
     compManager InitializeRMIs
     #puts "Process RMIs"
     [ compManager GetController ] ProcessRMIs

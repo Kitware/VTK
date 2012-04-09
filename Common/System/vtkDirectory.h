@@ -45,8 +45,8 @@ public:
 
   // Description:
   // Open the specified directory and load the names of the files
-  // in that directory. 0 is returned if the directory can not be 
-  // opened, 1 if it is opened.   
+  // in that directory. 0 is returned if the directory can not be
+  // opened, 1 if it is opened.
   int Open(const char* dir);
 
   // Description:
@@ -79,7 +79,7 @@ public:
   // Description:
   // Remove a directory.
   static int DeleteDirectory(const char* dir);
-  
+
   // Description:
   // Rename a file or directory.
   static int Rename(const char* oldname, const char* newname);

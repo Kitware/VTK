@@ -83,7 +83,7 @@ void vtkGeoSource::Initialize(int numThreads)
     {
     return;
     }
-  
+
   int maxThreads = this->Threader->GetGlobalDefaultNumberOfThreads();
   maxThreads = numThreads < maxThreads ? numThreads : maxThreads;
 

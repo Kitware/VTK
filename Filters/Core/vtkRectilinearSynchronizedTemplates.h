@@ -43,7 +43,7 @@ public:
 
   vtkTypeMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
@@ -75,7 +75,7 @@ public:
   vtkBooleanMacro(ComputeScalars,int);
 
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
 
@@ -133,7 +133,7 @@ public:
   // needs to be public so it can be accessed from a templated function.
   void ComputeSpacing(vtkRectilinearGrid *data, int i, int j, int k,
                       int extent[6], double spacing[6]);
-  
+
 protected:
   vtkRectilinearSynchronizedTemplates();
   ~vtkRectilinearSynchronizedTemplates();

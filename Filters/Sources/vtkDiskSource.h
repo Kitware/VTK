@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkDiskSource - create a disk with hole in center
 // .SECTION Description
-// vtkDiskSource creates a polygonal disk with a hole in the center. The 
+// vtkDiskSource creates a polygonal disk with a hole in the center. The
 // disk has zero height. The user can specify the inner and outer radius
-// of the disk, and the radial and circumferential resolution of the 
-// polygonal representation. 
+// of the disk, and the radial and circumferential resolution of the
+// polygonal representation.
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 

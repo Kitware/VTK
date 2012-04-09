@@ -73,16 +73,16 @@ public:
 
   // Description:
   // Compute the area of a polygon. This is a convenience function
-  // which simply calls static double ComputeArea(vtkPoints *p, 
+  // which simply calls static double ComputeArea(vtkPoints *p,
   // vtkIdType numPts, vtkIdType *pts, double normal[3]);
   // with the appropriate parameters from the instantiated vtkPolygon.
   double ComputeArea();
 
   // Description:
-  // Compute the interpolation functions/derivatives. 
+  // Compute the interpolation functions/derivatives.
   // (aka shape functions/derivatives)
-  // Two interpolation algorithms are available: 1/r^2 and Mean Value 
-  // Coordinate. The former is used by default. To use the second algorithm, 
+  // Two interpolation algorithms are available: 1/r^2 and Mean Value
+  // Coordinate. The former is used by default. To use the second algorithm,
   // set UseMVCInterpolation to be true.
   // The function assumes the input point lies on the polygon plane without
   // checking that.
@@ -103,7 +103,7 @@ public:
 
   // Description:
   // Compute the centroid of a set of points.
-  static void ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts, 
+  static void ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts,
                               double centroid[3]);
 
   // Description:
@@ -146,7 +146,7 @@ public:
 
   // Description:
   // Compute the distance of a point to a polygon. The closest point on
-  // the polygon is also returned. The bounds should be provided to 
+  // the polygon is also returned. The bounds should be provided to
   // accelerate the computation.
   static double DistanceToPolygon(double x[3], int numPts, double *pts,
                                   double bounds[6], double closest[3]);
@@ -170,9 +170,9 @@ public:
   // points of intersection, returns 2). The points of intersection are
   // returned in the arrays p0 and p1.  If less than two points of
   // intersection are generated then p1 and/or p0 may be
-  // indeterminiate. Finally, if the two convex polygons are parallel, then 
+  // indeterminiate. Finally, if the two convex polygons are parallel, then
   // "0" is returned (i.e., no intersection) even if the triangles lie on one
-  // another.  
+  // another.
   static int IntersectConvex2DCells(vtkCell *cell1, vtkCell *cell2,
                                     double tol, double p0[3], double p1[3]);
 
@@ -183,7 +183,7 @@ public:
   // is used. The UseMVCInterpolation parameter is set to false by default.
   vtkGetMacro(UseMVCInterpolation, bool);
   vtkSetMacro(UseMVCInterpolation, bool);
-  
+
 protected:
   vtkPolygon();
   ~vtkPolygon();
@@ -201,10 +201,10 @@ protected:
   vtkDoubleArray *TriScalars;
   vtkLine *Line;
 
-  // Parameter indicating whether to use Mean Value Coordinate algorithm 
+  // Parameter indicating whether to use Mean Value Coordinate algorithm
   // for interpolation. The parameter is false by default.
   bool     UseMVCInterpolation;
-  
+
   // Helper methods for triangulation------------------------------
   // Description:
   // A fast triangulation method. Uses recursive divide and

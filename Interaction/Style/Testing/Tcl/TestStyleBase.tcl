@@ -23,7 +23,7 @@ proc test_style {style} {
     set ctrls {
         0 1
     }
-    
+
     set shifts {
         0 1
     }
@@ -54,7 +54,7 @@ proc test_style {style} {
 
     foreach ctrl $ctrls {
         foreach shift $shifts {
-            puts -nonewline " - ctrl: $ctrl shift: $shift button:" 
+            puts -nonewline " - ctrl: $ctrl shift: $shift button:"
             foreach button $buttons {
                 puts -nonewline " $button"
                 flush stdout
@@ -73,7 +73,7 @@ proc test_style {style} {
                     if {[pick PickProp $start_x $start_y ren1]} {
                         break
                     } else {
-                        if {$search > $win_center_x || 
+                        if {$search > $win_center_x ||
                         $search > $win_center_y} {
                             puts "   (resetting camera)"
                             ren1 ResetCamera
@@ -107,7 +107,7 @@ proc test_style {style} {
                     $iren InvokeEvent "MouseMoveEvent"
 
                     # If this style use timers, run OnTimer multiple times
-                    
+
                     if {$use_timers} {
                         for {set j 0} {$j < 10} {incr j} {
                             $iren InvokeEvent "TimerEvent"

@@ -58,16 +58,16 @@ void vtkBox::SetBounds(double xMin, double xMax,
 //----------------------------------------------------------------------------
 void vtkBox::SetBounds(double bounds[6])
 {
-  this->SetBounds(bounds[0],bounds[1], bounds[2],bounds[3], 
+  this->SetBounds(bounds[0],bounds[1], bounds[2],bounds[3],
                   bounds[4],bounds[5]);
 }
 
 //----------------------------------------------------------------------------
 void vtkBox::SetXMin(double x, double y, double z)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this 
-                << "): setting XMin to (" 
-                << x  << "," << y << "," << z << ")"); 
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting XMin to ("
+                << x  << "," << y << "," << z << ")");
   const double *p = this->BBox->GetMinPoint();
   if ((p[0] == x) && (p[1] == y) && (p[2] == z))
     {
@@ -80,9 +80,9 @@ void vtkBox::SetXMin(double x, double y, double z)
 //----------------------------------------------------------------------------
 void vtkBox::SetXMax(double x, double y, double z)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this 
-                << "): setting XMax to (" 
-                << x  << "," << y << "," << z << ")"); 
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting XMax to ("
+                << x  << "," << y << "," << z << ")");
   const double *p = this->BBox->GetMaxPoint();
   if ((p[0] == x) && (p[1] == y) && (p[2] == z))
     {
@@ -202,7 +202,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
   double inDir[3], outDir[3];
   const double *minP = this->BBox->GetMinPoint();
   const double *maxP = this->BBox->GetMaxPoint();
- 
+
   // Compute the location of the point with respect to the box.
   // Ultimately the point will lie in one of 27 separate regions around
   // or within the box. The gradient vector is computed differently in
@@ -242,7 +242,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
         }
       }//if inside
     }//for all coordinate directions
-  
+
   int indx = loc[0] + 3*loc[1] + 9*loc[2];
 
   switch (indx)
@@ -251,20 +251,20 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
     case 0: case 2: case 6: case 8: case 18: case 20: case 24: case 26:
       for (i=0; i<3; i++)
         {
-        n[i] = x[i] - center[i]; 
+        n[i] = x[i] - center[i];
         }
       vtkMath::Normalize(n);
       break;
-      
+
     // edges - gradient points out from axis of cube
-    case 1: case 3: case 5: case 7: 
+    case 1: case 3: case 5: case 7:
     case 9: case 11: case 15: case 17:
     case 19: case 21: case 23: case 25:
       for (i=0; i<3; i++)
         {
         if ( outDir[i] != 0.0 )
           {
-          n[i] = x[i] - center[i]; 
+          n[i] = x[i] - center[i];
           }
         else
           {
@@ -273,7 +273,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
         }
       vtkMath::Normalize(n);
       break;
-    
+
     // faces - gradient points perpendicular to face
     case 4: case 10: case 12: case 14: case 16: case 22:
       for (i=0; i<3; i++)
@@ -281,7 +281,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
         n[i] = outDir[i];
         }
       break;
-    
+
     // interior - gradient is perpendicular to closest face
     case 13:
       n[0] = n[1] = n[2] = 0.0;
@@ -304,7 +304,7 @@ void vtkBox::EvaluateGradient(double x[3], double n[3])
 // directions, coord[3] is the location of hit, and t is the parametric
 // coordinate along line. (Notes: the intersection ray dir[3] is NOT
 // normalized.  Valid intersections will only occur between 0<=t<=1.)
-char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3], 
+char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
                            double coord[3], double& t)
 {
   char    inside=1;
@@ -314,21 +314,21 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
 
   //  First find closest planes
   //
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
-    if ( origin[i] < bounds[2*i] ) 
+    if ( origin[i] < bounds[2*i] )
       {
       quadrant[i] = VTK_LEFT;
       candidatePlane[i] = bounds[2*i];
       inside = 0;
       }
-    else if ( origin[i] > bounds[2*i+1] ) 
+    else if ( origin[i] > bounds[2*i+1] )
       {
       quadrant[i] = VTK_RIGHT;
       candidatePlane[i] = bounds[2*i+1];
       inside = 0;
       }
-    else 
+    else
       {
       quadrant[i] = VTK_MIDDLE;
       }
@@ -336,7 +336,7 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
 
   //  Check whether origin of ray is inside bbox
   //
-  if (inside) 
+  if (inside)
     {
     coord[0] = origin[0];
     coord[1] = origin[1];
@@ -344,7 +344,7 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
     t = 0;
     return 1;
     }
-  
+
   //  Calculate parametric distances to plane
   //
   for (i=0; i<3; i++)
@@ -382,17 +382,17 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
 
   //  Intersection point along line is okay.  Check bbox.
   //
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
-    if (whichPlane != i) 
+    if (whichPlane != i)
       {
       coord[i] = origin[i] + maxT[whichPlane]*dir[i];
       if ( coord[i] < bounds[2*i] || coord[i] > bounds[2*i+1] )
         {
         return 0;
         }
-      } 
-    else 
+      }
+    else
       {
       coord[i] = candidatePlane[i];
       }
@@ -400,7 +400,7 @@ char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3],
 
     return 1;
 }
-#undef VTK_RIGHT 
+#undef VTK_RIGHT
 #undef VTK_LEFT
 #undef VTK_MIDDLE
 
@@ -459,7 +459,7 @@ int vtkBox::IntersectWithLine(const double bounds[6],
             {
             t2 = t;
             plane2 = i;
-            } 
+            }
           }
 
         // If this happens, there's no line left
@@ -467,11 +467,11 @@ int vtkBox::IntersectWithLine(const double bounds[6],
           {
           // Allow for planes that are coincident or slightly inverted
           if (plane1 < 0 || plane2 < 0 || (plane1 >> 1) != (plane2 >> 1))
-            { 
+            {
             return 0;
             }
           }
-        }      
+        }
       }
     }
 
@@ -490,7 +490,7 @@ int vtkBox::IntersectWithLine(const double bounds[6],
           x[i] = bounds[plane];
           }
         else
-          { 
+          {
           x[i] = p1[i]*(1.0 - t) + p2[i]*t;
           if (x[i] < bounds[2*i]) { x[i] = bounds[2*i]; }
           if (x[i] > bounds[2*i+1]) { x[i] = bounds[2*i+1]; }
@@ -513,13 +513,13 @@ void vtkBox::PrintSelf(ostream& os, vtkIndent indent)
   const double *minP = this->BBox->GetMinPoint();
   const double *maxP = this->BBox->GetMaxPoint();
 
-  os << indent << "XMin: (" << minP[0] << ", " 
+  os << indent << "XMin: (" << minP[0] << ", "
                << minP[1] << ", " << minP[2] << ")\n";
-  os << indent << "XMax: (" << maxP[0] << ", " 
+  os << indent << "XMax: (" << maxP[0] << ", "
                << maxP[1] << ", " << maxP[2] << ")\n";
 }
 //----------------------------------------------------------------------------
-void vtkBox::GetXMin(double p[3]) 
+void vtkBox::GetXMin(double p[3])
 {
   this->BBox->GetMinPoint(p[0], p[1], p[2]);
 }
@@ -531,7 +531,7 @@ void vtkBox::GetXMin(double &x , double &y, double &z)
 }
 
 //----------------------------------------------------------------------------
-void vtkBox::GetXMax(double p[3]) 
+void vtkBox::GetXMax(double p[3])
 {
   this->BBox->GetMaxPoint(p[0], p[1], p[2]);
 }

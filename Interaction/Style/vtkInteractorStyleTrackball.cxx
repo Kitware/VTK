@@ -24,13 +24,13 @@ vtkStandardNewMacro(vtkInteractorStyleTrackball);
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
 {
-  vtkWarningMacro("vtkInteractorStyleTrackball will be deprecated in" << endl 
+  vtkWarningMacro("vtkInteractorStyleTrackball will be deprecated in" << endl
                   << "the next release after VTK 4.0. Please use" << endl
                   << "vtkInteractorStyleSwitch instead." );
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyleTrackball::~vtkInteractorStyleTrackball() 
+vtkInteractorStyleTrackball::~vtkInteractorStyleTrackball()
 {
 }
 

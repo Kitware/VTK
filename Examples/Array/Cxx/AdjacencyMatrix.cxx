@@ -54,7 +54,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   view->GetRenderWindow()->SetSize(600, 600);
   view->ResetCamera();
   view->GetInteractor()->Start();
- 
+
   return 0;
 }
 

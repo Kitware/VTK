@@ -41,10 +41,10 @@ int vtkExtractSelectionBase::FillInputPortInformation(
   if (port==0)
     {
     // Cannot work with composite datasets.
-    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()); 
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet"); 
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph"); 
-    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable"); 
+    info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
+    info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     }
   else
     {
@@ -84,7 +84,7 @@ int vtkExtractSelectionBase::RequestDataObject(
       vtkDataSet* newOutput = NULL;
       if (!passThrough)
         {
-        // The mesh will be modified. 
+        // The mesh will be modified.
         newOutput = vtkUnstructuredGrid::New();
         }
       else

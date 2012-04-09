@@ -16,7 +16,7 @@ vtkPLYWriter w
    w SetFileTypeToBinary
    w SetDataByteOrderToLittleEndian
    w SetColorModeToUniformCellColor
-   w SetColor 255 0 0 
+   w SetColor 255 0 0
    w Write
 vtkPLYReader r
    r SetFileName "plyWriter.ply"
@@ -87,7 +87,7 @@ ren1 AddActor plyActor
 ren1 AddActor plyActor2
 ren1 AddActor plyActor3
 
-renWin SetSize 325 125 
+renWin SetSize 325 125
 iren Initialize
 renWin Render
 [ren1 GetActiveCamera] Zoom 3.0

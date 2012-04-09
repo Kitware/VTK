@@ -48,7 +48,7 @@ protected:
 
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData, 
+  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
     vtkXMLDataElement* parent, int &writerIdx);
 
   int *AMRBoxes;

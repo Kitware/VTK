@@ -133,7 +133,7 @@ void vtkTextActor3D::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->ImageActor)
     {
-    this->ImageActor->ReleaseGraphicsResources(win); 
+    this->ImageActor->ReleaseGraphicsResources(win);
     }
 
   this->Superclass::ReleaseGraphicsResources(win);
@@ -159,7 +159,7 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 
   if (this->UpdateImageActor() && this->ImageActor)
     {
-    rendered_something += 
+    rendered_something +=
       this->ImageActor->RenderTranslucentPolygonalGeometry(viewport);
     }
 
@@ -188,7 +188,7 @@ int vtkTextActor3D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   if (this->UpdateImageActor() && this->ImageActor)
     {
-    rendered_something += 
+    rendered_something +=
       this->ImageActor->RenderOpaqueGeometry(viewport);
     }
 
@@ -240,7 +240,7 @@ int vtkTextActor3D::UpdateImageActor()
       vtkErrorMacro(<<"Failed getting the FreeType utilities instance");
       return 0;
       }
-  
+
     if (!fu->RenderString(
           this->TextProperty, this->Input, this->ImageData))
       {

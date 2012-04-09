@@ -87,7 +87,7 @@ int TestTulipReaderClusters(int argc, char* argv[])
     {
     iren->Initialize();
     iren->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

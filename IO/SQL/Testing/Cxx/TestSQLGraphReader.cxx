@@ -65,8 +65,8 @@ int TestSQLGraphReader(int argc, char* argv[])
   for (int i = 0; i < vertices; i++)
     {
     oss.str("");
-    oss << "INSERT INTO vertices VALUES(" << i << ", " 
-      << 0.5*cos(i*2.0*vtkMath::Pi()/vertices) << ", " 
+    oss << "INSERT INTO vertices VALUES(" << i << ", "
+      << 0.5*cos(i*2.0*vtkMath::Pi()/vertices) << ", "
       << 0.5*sin(i*2.0*vtkMath::Pi()/vertices) << ")" << endl;
     q->SetQuery(oss.str().c_str());
     q->Execute();
@@ -130,7 +130,7 @@ int TestSQLGraphReader(int argc, char* argv[])
     {
     iren->Initialize();
     iren->Start();
-    
+
     retVal = vtkRegressionTester::PASSED;
     }
 

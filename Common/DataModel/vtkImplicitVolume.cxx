@@ -34,7 +34,7 @@ vtkImplicitVolume::vtkImplicitVolume()
   this->OutGradient[0] = 0.0;
   this->OutGradient[1] = 0.0;
   this->OutGradient[2] = 1.0;
-  
+
   this->PointIds = vtkIdList::New();
   this->PointIds->Allocate(8);
 }
@@ -110,8 +110,8 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   vtkDataArray *scalars;
   int i, ijk[3];
   double pcoords[3], weights[8], *v;
-  vtkDoubleArray *gradient; 
-  
+  vtkDoubleArray *gradient;
+
   gradient = vtkDoubleArray::New();
   gradient->SetNumberOfComponents(3);
   gradient->SetNumberOfTuples(8);
@@ -156,7 +156,7 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Out Value: " << this->OutValue << "\n";
-  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", " 
+  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", "
      << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
 
   if ( this->Volume )

@@ -62,7 +62,7 @@ rotated RotateX $rotatedAngle
 weightedTrans SetNumberOfTransforms 2
 weightedTrans SetTransform identity  0
 weightedTrans SetTransform rotated   1
-# which data array should the filter use ? 
+# which data array should the filter use ?
 weightedTrans SetWeightArray "weights"
 
 weightedTrans SetInputConnection [stretchFilter GetOutputPort]

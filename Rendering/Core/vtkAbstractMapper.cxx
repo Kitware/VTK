@@ -116,7 +116,7 @@ void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
 vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
                                             int scalarMode,
                                             int arrayAccessMode,
-                                            int arrayId, 
+                                            int arrayId,
                                             const char *arrayName,
                                             int& cellFlag)
 {
@@ -124,13 +124,13 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
   vtkPointData *pd;
   vtkCellData *cd;
   vtkFieldData *fd;
-  
+
   // make sure we have an input
   if ( !input )
     {
     return NULL;
     }
-    
+
   // get and scalar data according to scalar mode
   if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
     {
@@ -191,7 +191,7 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
       }
     cellFlag = 2;
     }
-  
+
   return scalars;
 }
 

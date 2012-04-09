@@ -34,15 +34,15 @@
 // 1) for every cell in the output that is not a triangle strip,
 //    the cell data is inserted once per cell in the output field data.
 // 2) for every triangle strip cell in the output:
-//    ii) 1 tuple is inserted for every point(j|j>=2) in the strip. 
-//    This is the cell data for the cell formed by (j-2, j-1, j) in 
+//    ii) 1 tuple is inserted for every point(j|j>=2) in the strip.
+//    This is the cell data for the cell formed by (j-2, j-1, j) in
 //    the input.
 // The field data order is same as cell data i.e. (verts,line,polys,tsrips).
 
 // .SECTION Caveats
 // If triangle strips or poly-lines exist in the input data they will
 // be passed through to the output data. This filter will only construct
-// triangle strips if triangle polygons are available; and will only 
+// triangle strips if triangle polygons are available; and will only
 // construct poly-lines if lines are available.
 
 // .SECTION See Also
@@ -59,7 +59,7 @@ class VTKFILTERSCORE_EXPORT vtkStripper : public vtkPolyDataAlgorithm
 public:
   vtkTypeMacro(vtkStripper,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Construct object with MaximumLength set to 1000.
   static vtkStripper *New();
@@ -78,18 +78,18 @@ public:
   vtkGetMacro(PassCellDataAsFieldData, int);
 
   // Description:
-  // If on, the output polygonal dataset will have a celldata array that 
+  // If on, the output polygonal dataset will have a celldata array that
   // holds the cell index of the original 3D cell that produced each output
-  // cell. This is useful for picking. The default is off to conserve 
+  // cell. This is useful for picking. The default is off to conserve
   // memory.
   vtkSetMacro(PassThroughCellIds,int);
   vtkGetMacro(PassThroughCellIds,int);
   vtkBooleanMacro(PassThroughCellIds,int);
 
   // Description:
-  // If on, the output polygonal dataset will have a pointdata array that 
+  // If on, the output polygonal dataset will have a pointdata array that
   // holds the point index of the original vertex that produced each output
-  // vertex. This is useful for picking. The default is off to conserve 
+  // vertex. This is useful for picking. The default is off to conserve
   // memory.
   vtkSetMacro(PassThroughPointIds,int);
   vtkGetMacro(PassThroughPointIds,int);

@@ -123,7 +123,7 @@ vtkCellArray faces
   faces InsertCellPoint 14
   faces InsertCellPoint 18
   faces InsertCellPoint 15
-  
+
 vtkPolyData model
   model SetPolys faces
   model SetPoints points

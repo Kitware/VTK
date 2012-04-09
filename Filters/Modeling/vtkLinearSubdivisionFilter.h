@@ -48,9 +48,9 @@ protected:
   vtkLinearSubdivisionFilter () {};
   ~vtkLinearSubdivisionFilter () {};
 
-  void GenerateSubdivisionPoints (vtkPolyData *inputDS, 
-                                  vtkIntArray *edgeData, 
-                                  vtkPoints *outputPts, 
+  void GenerateSubdivisionPoints (vtkPolyData *inputDS,
+                                  vtkIntArray *edgeData,
+                                  vtkPoints *outputPts,
                                   vtkPointData *outputPD);
 
 private:

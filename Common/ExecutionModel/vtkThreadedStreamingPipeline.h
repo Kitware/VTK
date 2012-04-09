@@ -14,7 +14,7 @@
   =========================================================================*/
 /*-------------------------------------------------------------------------
   Copyright (c) 2008, 2009 by SCI Institute, University of Utah.
-  
+
   This is part of the Parallel Dataflow System originally developed by
   Huy T. Vo and Claudio T. Silva. For more information, see:
 
@@ -90,17 +90,17 @@ public:
   // Trigger the updates on certain execs and asking all of its
   // upstream modules to be updated as well (propagate up)
   static void Pull(vtkExecutiveCollection *execs, vtkInformation *info);
-  
+
   // Description:
   // Trigger the updates on certain execs and asking all of its
-  // downstream modules to be updated as well (propagate down)  
+  // downstream modules to be updated as well (propagate down)
   static void Push(vtkExecutiveCollection *execs);
 
   // Description:
   // Trigger the updates on certain execs and asking all of its
-  // downstream modules to be updated as well (propagate down)  
+  // downstream modules to be updated as well (propagate down)
   static void Push(vtkExecutiveCollection *execs, vtkInformation *info);
-  
+
   // Description:
   // A simplified version of Pull() which only acts upon a single executive
   static void Pull(vtkExecutive *exec);
@@ -117,24 +117,24 @@ public:
   // A simplified version of Push() which only acts upon a single executive
   static void Push(vtkExecutive *exec, vtkInformation *info);
 
-  // Description:  
+  // Description:
   // Triggers upstream modules to update but not including itself
   void Pull();
 
-  // Description:  
+  // Description:
   // Triggers upstream modules to update but not including itself
   void Pull(vtkInformation *info);
 
-  // Description:  
-  // Triggers downstream modules to update but not including itself 
+  // Description:
+  // Triggers downstream modules to update but not including itself
   void Push();
 
-  // Description:  
+  // Description:
   // Triggers downstream modules to update but not including itself
   void Push(vtkInformation *info);
-  
+
   // Description:
-  // Release all the locks for input ports living upstream 
+  // Release all the locks for input ports living upstream
   void ReleaseInputs();
 
   // Description:
@@ -161,14 +161,14 @@ public:
   vtkInformation        *ForceDataRequest;
   vtkComputingResources *Resources;
   vtkExecutionScheduler *Scheduler;
-  
+
 protected:
   vtkThreadedStreamingPipeline();
   ~vtkThreadedStreamingPipeline();
 
   virtual int ForwardUpstream(vtkInformation* request);
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
-  
+
 private:
   vtkThreadedStreamingPipeline(const vtkThreadedStreamingPipeline&);  // Not implemented.
   void operator=(const vtkThreadedStreamingPipeline&);  // Not implemented.

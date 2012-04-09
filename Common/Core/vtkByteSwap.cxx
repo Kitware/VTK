@@ -307,11 +307,11 @@ void vtkByteSwap::SwapVoidRange(void *buffer, int numWords, int wordSize)
 {
   unsigned char temp, *out, *buf;
   int idx1, idx2, inc, half;
-  
+
   half = wordSize / 2;
   inc = wordSize - 1;
   buf = static_cast<unsigned char *>(buffer);
-  
+
   for (idx1 = 0; idx1 < numWords; ++idx1)
     {
       out = buf + inc;

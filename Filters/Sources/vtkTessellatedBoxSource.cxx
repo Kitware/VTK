@@ -32,11 +32,11 @@ vtkTessellatedBoxSource::vtkTessellatedBoxSource()
   this->Bounds[3]=0.5;
   this->Bounds[4]=-0.5;
   this->Bounds[5]=0.5;
-  
+
   this->Level=0;
   this->DuplicateSharedPoints=0;
   this->Quads=0;
-  
+
   this->SetNumberOfInputPorts(0); // this is a source.
 }
 
@@ -46,7 +46,7 @@ vtkTessellatedBoxSource::~vtkTessellatedBoxSource()
 }
 
 //----------------------------------------------------------------------------
-// 
+//
 int vtkTessellatedBoxSource::RequestInformation(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
@@ -83,7 +83,7 @@ static int edges[12][2]={{0,1}, // 0
                          {0,4}, // 2
                          {1,3}, // 3
                          {1,5}, // 4
-                         {2,3}, // 5 
+                         {2,3}, // 5
                          {2,6}, // 6
                          {3,7}, // 7
                          {4,5}, // 8
@@ -116,11 +116,11 @@ int vtkTessellatedBoxSource::RequestData(
   // get the output
   vtkPolyData *output =
     vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // get the bounds
   double bounds[6];
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),bounds);
-  
+
   vtkPoints *points=output->GetPoints();
   if(points==0)
     {
@@ -128,13 +128,13 @@ int vtkTessellatedBoxSource::RequestData(
     output->SetPoints(points);
     points->Delete();
     }
-  
+
   // Always create a new vtkCellArray, otherwise it uses the this->Dummy of
   // vtkPolyData...
   vtkCellArray *polys = vtkCellArray::New();
   output->SetPolys(polys);
   polys->Delete();
-  
+
   if(this->DuplicateSharedPoints)
     {
     this->DuplicateSharedPointsMethod(bounds,points,polys);
@@ -153,17 +153,17 @@ void vtkTessellatedBoxSource::DuplicateSharedPointsMethod(
 {
   int numberOfPoints=(this->Level+2)*(this->Level+2)*6;
   int changed=points->GetNumberOfPoints()!=numberOfPoints;
-  
+
   if(changed)
     {
     // Topology changed.
     points->SetNumberOfPoints(numberOfPoints);
     polys->Initialize();
     }
-  
+
   // Iterate over the 6 faces.
   double facePoints[3][3]; // 3 points of 3 coordinates
-  
+
   int face=0;
   vtkIdType firstPointId=0;
   while(face<6)
@@ -192,7 +192,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
   int numberOfInternalPointsPerFace=this->Level*this->Level;
   int numberOfPoints=8+12*numberOfInternalPointsPerEdge
     +6*numberOfInternalPointsPerFace;
-  
+
   int changed=points->GetNumberOfPoints()!=numberOfPoints;
   if(changed)
     {
@@ -200,13 +200,13 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
     points->SetNumberOfPoints(numberOfPoints);
     polys->Initialize();
     }
-  
+
   // Compute point coordinates.
-  
+
   // First the 8 vertices
   // Then the 12 * (level) internal edge points (static list)
   // Then the 6 * (level*level) internal face points (static list)
-  
+
   // The 8 vertices, voxel numbering: id=4*k+2*j+i
   int i=0;
   double p[3];
@@ -218,7 +218,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
     points->SetPoint(i,p);
     ++i;
     }
-  
+
   // The 12*(level) internal edge points
   // edges are describe by there lowest vertex Id and highest vertex Id.
   // Numbering start from edges with vertex 0 for lowest Id, in increasing
@@ -234,7 +234,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
              (currentPointId==(8+e*this->Level)));
       double firstPoint[3];
       double lastPoint[3];
-      
+
       points->GetPoint(edges[e][0],firstPoint);
       points->GetPoint(edges[e][1],lastPoint);
       i=0;
@@ -244,7 +244,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
         p[i]=firstPoint[i];
         ++i;
         }
-      
+
       int j=1;
       while(j<=this->Level)
         {
@@ -260,10 +260,10 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
         }
       ++e;
       }
-    
+
     assert("check: valid_currentPointId" &&
            (currentPointId==(8+12*this->Level)));
-    
+
     int f=0;
     while(f<6)
       {
@@ -294,9 +294,9 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
         {
         facePointId[2]=edges[e-1][0];
         }
-      
+
       double facePoints[3][3];
-      
+
       i=0;
       while(i<3)
         {
@@ -306,7 +306,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
         facePoints[i][2]=bounds[4+((pointId>>2)&1)];
         ++i;
         }
-      
+
       int j=0;
       while(j<2)
         {
@@ -319,7 +319,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
           }
         ++j;
         }
-      
+
       // internal face points
       j=1;
       while(j<(this->Level+1))
@@ -340,13 +340,13 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
           }
         ++j;
         }
-      
+
       ++f;
       }
     }
   assert("check: valid_currentPointId" &&
          (currentPointId==(8+12*this->Level+6*this->Level*this->Level)));
-  
+
   // Faces
   vtkIdType poly[4]; // fit a triangle or a quad depending on the Quads flag.
   int f=0;
@@ -381,7 +381,7 @@ void vtkTessellatedBoxSource::MinimalPointsMethod(double *bounds,
           // (i+1,j+1)
           poly[2]=this->LocalFacePointCoordinatesToPointId(f,i+1,j+1);
           polys->InsertNextCell(3,poly);
-          
+
           // Second triangle
           // poly[0]=(i,j), same than for the first triangle
           // (i+1,j+1)
@@ -412,11 +412,11 @@ vtkIdType vtkTessellatedBoxSource::LocalFacePointCoordinatesToPointId(int f,
   assert("pre: valid_face" && f>=0 && f<6);
   assert("pre: valid_i" && i>=0 && i<=(this->Level+1));
   assert("pre: valid_j" && j>=0 && j<=(this->Level+1));
-  
+
   vtkIdType result;
-  
+
   int e;
-  
+
   // vertex point?
   if(i==0 && j==0)
     {
@@ -573,9 +573,9 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints *points,
   assert("pre: positive_id" && firstPointId>=0);
   assert("pre: points_exists" && points!=0);
   assert("pre: polys_exists" && polys!=0);
-  
+
   double direction[2][3];
-  
+
   int j=0;
   while(j<2)
     {
@@ -587,11 +587,11 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints *points,
       }
     ++j;
     }
-  
+
   // Create the point positions.
-  
+
   double p[3];
-  
+
   j=0;
   while(j<=(this->Level+1))
     {
@@ -606,16 +606,16 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints *points,
         ++comp;
         }
       points->SetPoint(firstPointId+ j*(this->Level+2) + i,p);
-      
+
       ++i;
       }
     ++j;
     }
-  
+
   if(changed)
     {
     vtkIdType poly[4]; // fit a triangle or a quad depending on the Quads flag.
-    
+
     // Create the cells. Two triangle per subquad.
     j=0;
     while(j<(this->Level+1))
@@ -645,7 +645,7 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints *points,
           // (i+1,j+1)
           poly[2]=firstPointId+(j+1)*(this->Level+2)+i+1;
           polys->InsertNextCell(3,poly);
-          
+
           // Second triangle
           // (i,j)
           poly[0]=firstPointId+j*(this->Level+2)+i;
@@ -666,7 +666,7 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints *points,
 void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Bounds: (" << this->Bounds[0];
   int i=1;
   while(i<6)
@@ -676,7 +676,7 @@ void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")" << endl;
   os << indent << "Level: " << this->Level << endl;
-  
+
   os << indent << "DuplicateSharedPoints: ";
   if(this->DuplicateSharedPoints)
     {
@@ -686,7 +686,7 @@ void vtkTessellatedBoxSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "false";
     }
-  
+
   os << indent << "Quads: ";
   if(this->Quads)
     {

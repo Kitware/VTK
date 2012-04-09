@@ -116,7 +116,7 @@ void vtkDataSet::ComputeScalarRange()
     vtkDataArray *ptScalars, *cellScalars;
     ptScalars = this->PointData->GetScalars();
     cellScalars = this->CellData->GetScalars();
-    
+
     if ( ptScalars && cellScalars)
       {
       double r1[2], r2[2];
@@ -165,7 +165,7 @@ double *vtkDataSet::GetBounds()
   this->ComputeBounds();
   return this->Bounds;
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkDataSet::GetBounds(double bounds[6])
 {
@@ -175,7 +175,7 @@ void vtkDataSet::GetBounds(double bounds[6])
     bounds[i] = this->Bounds[i];
     }
 }
-  
+
 //----------------------------------------------------------------------------
 // Get the center of the bounding box.
 double *vtkDataSet::GetCenter()
@@ -197,7 +197,7 @@ void vtkDataSet::GetCenter(double center[3])
     center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
     }
 }
-  
+
 //----------------------------------------------------------------------------
 // Return the length of the diagonal of the bounding box.
 double vtkDataSet::GetLength()
@@ -213,7 +213,7 @@ double vtkDataSet::GetLength()
   this->ComputeBounds();
   for (i=0; i<3; i++)
     {
-    diff = static_cast<double>(this->Bounds[2*i+1]) - 
+    diff = static_cast<double>(this->Bounds[2*i+1]) -
       static_cast<double>(this->Bounds[2*i]);
     l += diff * diff;
     }
@@ -225,9 +225,9 @@ double vtkDataSet::GetLength()
 unsigned long int vtkDataSet::GetMTime()
 {
   unsigned long mtime, result;
-  
+
   result = vtkDataObject::GetMTime();
-  
+
   mtime = this->PointData->GetMTime();
   result = ( mtime > result ? mtime : result );
 
@@ -273,7 +273,7 @@ void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       cellIds->IntersectWith(*otherCells);
       }
     }
-  
+
   otherCells->Delete();
 }
 
@@ -342,7 +342,7 @@ void vtkDataSet::ShallowCopy(vtkDataObject *dataObject)
 void vtkDataSet::DeepCopy(vtkDataObject *dataObject)
 {
   vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dataObject);
- 
+
   if ( dataSet != NULL )
     {
     this->InternalDataSetCopy(dataSet);
@@ -363,7 +363,7 @@ void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
   this->ScalarRangeComputeTime = src->ScalarRangeComputeTime;
   this->ScalarRange[0] = src->ScalarRange[0];
   this->ScalarRange[1] = src->ScalarRange[1];
-  
+
   this->ComputeTime = src->ComputeTime;
   for (idx = 0; idx < 3; ++idx)
     {
@@ -398,28 +398,28 @@ int vtkDataSet::CheckAttributes()
         }
       if (numTuples < numPts)
         {
-        vtkErrorMacro("Point array " << name << " with " 
+        vtkErrorMacro("Point array " << name << " with "
                       << array->GetNumberOfComponents()
-                      << " components, only has " << numTuples << " tuples but there are " 
+                      << " components, only has " << numTuples << " tuples but there are "
                       << numPts << " points");
         return 1;
         }
       if (numTuples > numPts)
         {
-        vtkWarningMacro("Point array " << name << " with " 
+        vtkWarningMacro("Point array " << name << " with "
                         << array->GetNumberOfComponents()
-                        << " components, has " << numTuples << " tuples but there are only " 
+                        << " components, has " << numTuples << " tuples but there are only "
                         << numPts << " points");
         }
       }
     }
-  
+
   numArrays = this->GetCellData()->GetNumberOfArrays();
   if (numArrays > 0)
     {
-    // This call can be expensive.  
+    // This call can be expensive.
     numCells = this->GetNumberOfCells();
-    
+
     for (idx = 0; idx < numArrays; ++idx)
       {
       array = this->GetCellData()->GetAbstractArray(idx);
@@ -431,7 +431,7 @@ int vtkDataSet::CheckAttributes()
         }
       if (numTuples < numCells)
         {
-        vtkErrorMacro("Cell array " << name << " with " 
+        vtkErrorMacro("Cell array " << name << " with "
                       << array->GetNumberOfComponents()
                       << " components, has only " << numTuples << " tuples but there are "
                       << numCells << " cells");
@@ -439,14 +439,14 @@ int vtkDataSet::CheckAttributes()
         }
       if (numTuples > numCells)
         {
-        vtkWarningMacro("Cell array " << name << " with " 
-                        << array->GetNumberOfComponents() 
-                        << " components, has " << numTuples << " tuples but there are only " 
+        vtkWarningMacro("Cell array " << name << " with "
+                        << array->GetNumberOfComponents()
+                        << " components, has " << numTuples << " tuples but there are only "
                         << numCells << " cells");
         }
       }
     }
-  
+
   return 0;
 }
 
@@ -485,10 +485,10 @@ void vtkDataSet::GenerateGhostLevelArray(int update_piece,
     levels->Allocate((extent[1]-extent[0] + 1) *
                      (extent[3]-extent[2] + 1) *
                      (extent[5]-extent[4] + 1));
-    
+
     // Loop through the points in this image.
     for (k = extent[4]; k <= extent[5]; ++k)
-      { 
+      {
       dk = 0;
       if (k < zeroExt[4])
         {
@@ -499,7 +499,7 @@ void vtkDataSet::GenerateGhostLevelArray(int update_piece,
         dk = k - zeroExt[5] + 1;
         }
       for (j = extent[2]; j <= extent[3]; ++j)
-        { 
+        {
         dj = 0;
         if (j < zeroExt[2])
           {
@@ -510,7 +510,7 @@ void vtkDataSet::GenerateGhostLevelArray(int update_piece,
           dj = j - zeroExt[3] + 1;
           }
         for (i = extent[0]; i <= extent[1]; ++i)
-          { 
+          {
           di = 0;
           if (i < zeroExt[0])
             {
@@ -534,7 +534,7 @@ void vtkDataSet::GenerateGhostLevelArray(int update_piece,
           //cerr << "   " << i << ", " << j << ", " << k << endl;
           //cerr << "   " << di << ", " << dj << ", " << dk << endl;
           //cerr << dist << endl;
-          
+
           levels->InsertNextValue(static_cast<unsigned char>(dist));
           }
         }
@@ -542,14 +542,14 @@ void vtkDataSet::GenerateGhostLevelArray(int update_piece,
     levels->SetName("vtkGhostLevels");
     this->PointData->AddArray(levels);
     levels->Delete();
-  
+
     // ---- CELLS ----
     // Allocate the appropriate number levels (number of cells).
     levels = vtkUnsignedCharArray::New();
     levels->Allocate((extent[1]-extent[0]) *
                      (extent[3]-extent[2]) *
                      (extent[5]-extent[4]));
-    
+
     // Loop through the cells in this image.
     // Cells may be 2d or 1d ... Treat all as 3D
     if (extent[0] == extent[1])
@@ -567,7 +567,7 @@ void vtkDataSet::GenerateGhostLevelArray(int update_piece,
       ++extent[5];
       ++zeroExt[5];
       }
-    
+
     // Loop
     for (k = extent[4]; k < extent[5]; ++k)
       { // Determine the Manhatten distances to zero extent.

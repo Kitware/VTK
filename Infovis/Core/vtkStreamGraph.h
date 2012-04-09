@@ -75,8 +75,8 @@ protected:
   ~vtkStreamGraph();
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   vtkMutableGraphHelper* CurrentGraph;

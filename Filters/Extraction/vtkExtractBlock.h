@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkExtractBlock is a filter that extracts blocks from a multiblock dataset.
 // Each node in the multi-block tree is identified by an \c index. The index can
-// be obtained by performing a preorder traversal of the tree (including empty 
-// nodes). eg. A(B (D, E), C(F, G)). 
+// be obtained by performing a preorder traversal of the tree (including empty
+// nodes). eg. A(B (D, E), C(F, G)).
 // Inorder traversal yields: A, B, D, E, C, F, G
 // Index of A is 0, while index of C is 4.
 
@@ -38,10 +38,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Select the block indices to extract. 
+  // Select the block indices to extract.
   // Each node in the multi-block tree is identified by an \c index. The index can
-  // be obtained by performing a preorder traversal of the tree (including empty 
-  // nodes). eg. A(B (D, E), C(F, G)). 
+  // be obtained by performing a preorder traversal of the tree (including empty
+  // nodes). eg. A(B (D, E), C(F, G)).
   // Inorder traversal yields: A, B, D, E, C, F, G
   // Index of A is 0, while index of C is 4.
   void AddIndex(unsigned int index);
@@ -74,13 +74,13 @@ protected:
   static vtkInformationIntegerKey* DONT_PRUNE();
 
   /// Implementation of the algorithm.
-  virtual int RequestData(vtkInformation *, 
-                          vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
                           vtkInformationVector *);
 
 
   /// Extract subtree
-  void CopySubTree(vtkCompositeDataIterator* loc, 
+  void CopySubTree(vtkCompositeDataIterator* loc,
     vtkMultiBlockDataSet* output, vtkMultiBlockDataSet* input);
   bool Prune(vtkMultiBlockDataSet* mblock);
   bool Prune(vtkMultiPieceDataSet* mblock);

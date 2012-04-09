@@ -39,7 +39,7 @@ int vtkHyperOctreePointsGrabber::GetDimension()
   assert("post: valid_dim" && (this->Dimension==3 || this->Dimension==2));
   return this->Dimension;
 }
- 
+
 //-----------------------------------------------------------------------------
 void vtkHyperOctreePointsGrabber::PrintSelf(ostream& os, vtkIndent indent)
 {

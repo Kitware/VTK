@@ -54,7 +54,7 @@ void lightSeparateSpecularColor(gl_LightSourceParameters lightSource,
   float spot;
   float shininessFactor;
   vec3 wReverseRayDir=surfacePosEyeCoords;
-  
+
   if(lightSource.position.w!=0.0)
     {
     // ldir=light direction
@@ -73,7 +73,7 @@ void lightSeparateSpecularColor(gl_LightSourceParameters lightSource,
     ldir=normalize(ldir);
     h=normalize(ldir+wReverseRayDir);
     }
-  
+
   if(att>0.0)
     {
     // USED
@@ -85,7 +85,7 @@ void lightSeparateSpecularColor(gl_LightSourceParameters lightSource,
     else
       {
       // USED
-      
+
       float coef=-dot(ldir,normalize(lightSource.spotDirection));
       if(coef>=lightSource.spotCosCutoff)
         {
@@ -101,49 +101,49 @@ void lightSeparateSpecularColor(gl_LightSourceParameters lightSource,
     if(spot>0.0)
       {
       // USED
-     
+
       // LIT operation...
       float nDotL=dot(n,ldir);
       float nDotH=dot(n,h);
-      
+
       // separate nDotL and nDotH for two-sided shading, otherwise we
       // get black spots.
-      
+
       if(nDotL<0.0) // two-sided shading
         {
 //        nDotL=-nDotL; // mostly NOT USED
         nDotL=0.0;
         }
-      
+
       if(nDotH<0.0) // two-sided shading
         {
 //        nDotH=-nDotH; // mostly USED, except on the back face of the plane.
         nDotH=0.0;
         }
-     
+
       // ambient term for this light
       vec4 cpril=m.ambient*lightSource.ambient;// acm*adi
-      
+
 //      cpri=cpril;
 //      return;
-      
+
       // diffuse term for this light
       if(nDotL>0.0)
         {
         // USED
         cpril+=m.diffuse*lightSource.diffuse*nDotL; // dcm*dcli
         }
-      
-      
+
+
       // specular term for this light
       shininessFactor=pow(nDotH,m.shininess); // srm
-      
+
       cpri+=att*spot*cpril;
-      
+
       // scm*scli
       csec+=att*spot*
         m.specular*lightSource.specular*shininessFactor;
-      
+
       }
     }
 }
@@ -198,10 +198,10 @@ void separateSpecularColor(gl_MaterialParameters m,
                            out vec4 csec)
 {
   initColorsWithAmbient(m,cpri,csec);
-  
+
   // For each light,
   int i=0;
-  while(i<VTK_LIGHTING_NUMBER_OF_LIGHTS)  
+  while(i<VTK_LIGHTING_NUMBER_OF_LIGHTS)
     {
     lightSeparateSpecularColor(gl_LightSource[i],m,surfacePosEyeCoords,n,
                                twoSided,cpri,csec);

@@ -6,7 +6,7 @@
 // type we're actually dealing with.  With any luck the compiler will
 // inline these so they have very little overhead.
 
-inline bool 
+inline bool
 IsSigned64Bit(int VariantType)
 {
 #if defined(VTK_TYPE_USE_LONG_LONG) && defined(VTK_TYPE_USE___INT64)
@@ -23,8 +23,8 @@ IsSigned64Bit(int VariantType)
   return (VariantType == VTK_TYPE_INT64);
 #endif
 }
-    
-inline bool 
+
+inline bool
 IsSigned(int VariantType)
 {
 #if (CHAR_MIN == SCHAR_MIN && CHAR_MAX == SCHAR_MAX)
@@ -36,7 +36,7 @@ IsSigned(int VariantType)
           (VariantType == VTK_LONG) ||
           (VariantType == VTK_ID_TYPE) ||
           IsSigned64Bit(VariantType));
-#else 
+#else
   // char is unsigned
   return ((VariantType == VTK_SIGNED_CHAR) ||
           (VariantType == VTK_SHORT) ||
@@ -46,7 +46,7 @@ IsSigned(int VariantType)
           IsSigned64Bit(VariantType));
 #endif
 }
-  
+
 // ----------------------------------------------------------------------
 
 inline bool
@@ -75,7 +75,7 @@ CompareSignedUnsignedLessThan(const vtkVariant &SignedVariant,
                               const vtkVariant &UnsignedVariant)
 {
   vtkTypeInt64 A = SignedVariant.ToTypeInt64();
-  return ((A < 0) || 
+  return ((A < 0) ||
           (static_cast<vtkTypeUInt64>(A) < UnsignedVariant.ToTypeUInt64()));
 }
 
@@ -86,7 +86,7 @@ CompareUnsignedSignedLessThan(const vtkVariant &UnsignedVariant,
                               const vtkVariant &SignedVariant)
 {
   vtkTypeInt64 B = SignedVariant.ToTypeInt64();
-  return ((B > 0) && 
+  return ((B > 0) &&
           (UnsignedVariant.ToTypeUInt64() < static_cast<vtkTypeUInt64>(B)));
 }
 
@@ -119,7 +119,7 @@ vtkVariant::operator==(const vtkVariant &other) const
     {
     return (!(this->Valid || other.Valid));
     }
-  
+
   // Second test: VTK objects can only be compared with other VTK
   // objects.
   if ((this->Type == VTK_OBJECT) || (other.Type == VTK_OBJECT))
@@ -152,7 +152,7 @@ vtkVariant::operator==(const vtkVariant &other) const
     return (this->ToDouble() == other.ToDouble());
     }
 
-  // Sixth: we must be comparing integers.  
+  // Sixth: we must be comparing integers.
 
   // 6A: catch signed/unsigned comparison.  If the signed object is
   // less than zero then they cannot be equal.
@@ -177,7 +177,7 @@ vtkVariant::operator==(const vtkVariant &other) const
     return (this->ToTypeInt64() == other.ToTypeInt64());
     }
 }
-    
+
 // ----------------------------------------------------------------------
 
 inline bool
@@ -189,7 +189,7 @@ vtkVariant::operator<(const vtkVariant &other) const
     {
     return ((!this->Valid) && (other.Valid));
     }
-  
+
   // Second test: VTK objects can only be compared with other VTK
   // objects.
   if ((this->Type == VTK_OBJECT) || (other.Type == VTK_OBJECT))
@@ -221,7 +221,7 @@ vtkVariant::operator<(const vtkVariant &other) const
     return (this->ToDouble() < other.ToDouble());
     }
 
-  // Fifth: we must be comparing integers.  
+  // Fifth: we must be comparing integers.
 
   // 5A: catch signed/unsigned comparison.  If the signed object is
   // less than zero then they cannot be equal.
@@ -248,7 +248,7 @@ vtkVariant::operator<(const vtkVariant &other) const
     return CompareUnsignedLessThan(*this, other);
     }
 }
- 
+
 // ----------------------------------------------------------------------
 
 // Below this point are operators defined in terms of other operators.

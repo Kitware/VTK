@@ -26,16 +26,16 @@ public:
   vtkTypeMacro(vtkLSDynaSummaryParser,vtkXMLParser);
   static vtkLSDynaSummaryParser* New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-  
-  
-    
+
+
+
   /// Must be set before calling Parse();
   LSDynaMetaData* MetaData;
 
 protected:
   vtkLSDynaSummaryParser();
   virtual ~vtkLSDynaSummaryParser() { };
-  
+
   virtual void StartElement(const char* name, const char** atts);
   virtual void EndElement(const char* name);
   virtual void CharacterDataHandler(const char* data, int length);

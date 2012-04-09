@@ -188,7 +188,7 @@ public:
   virtual void GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
   virtual void GetIncrements(vtkIdType inc[3]);
   virtual vtkIdType *GetIncrements(vtkDataArray *scalars);
-  virtual void GetIncrements(vtkDataArray *scalars, 
+  virtual void GetIncrements(vtkDataArray *scalars,
                              vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
   virtual void GetIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
 

@@ -15,17 +15,17 @@ class SimpleGlyph:
         sg = self.src_glyph = vtk.vtkSphereSource()
         sg.SetRadius(0.5)
         sg.SetCenter(0.5, 0.0, 0.0)
-        g = self.glyph = vtk.vtkTensorGlyph()        
+        g = self.glyph = vtk.vtkTensorGlyph()
         g.SetInputConnection(self.reader.GetOutputPort())
         g.SetSourceConnection(self.src_glyph.GetOutputPort())
         g.SetScaleFactor(0.25)
 
         # The normals are needed to generate the right colors and if
-        # not used some of the glyphs are black.        
+        # not used some of the glyphs are black.
         self.normals = vtk.vtkPolyDataNormals()
         self.normals.SetInputConnection(g.GetOutputPort())
         self.map = vtk.vtkPolyDataMapper()
-        self.map.SetInputConnection(self.normals.GetOutputPort())        
+        self.map.SetInputConnection(self.normals.GetOutputPort())
         self.act = vtk.vtkActor()
         self.act.SetMapper(self.map)
 
@@ -35,7 +35,7 @@ class SimpleGlyph:
         self.out_map = vtk.vtkPolyDataMapper()
         self.out_map.SetInputConnection(self.of.GetOutputPort())
         self.out_act = vtk.vtkActor()
-        self.out_act.SetMapper(self.out_map)        
+        self.out_act.SetMapper(self.out_map)
 
     def GetActors(self):
         return self.act, self.out_act
@@ -45,7 +45,7 @@ class SimpleGlyph:
         s = self.glyph.GetOutput().GetPointData().GetScalars()
         if s:
             self.map.SetScalarRange(s.GetRange())
-            
+
     def SetPosition(self, pos):
         self.act.SetPosition(pos)
         self.out_act.SetPosition(pos)
@@ -96,7 +96,7 @@ class TestTensorGlyph(Testing.vtkTest):
         renWin = vtk.vtkRenderWindow()
         renWin.AddRenderer(ren)
         renWin.Render()
-        
+
         img_file = "TestTensorGlyph.png"
         Testing.compareImage(renWin, Testing.getAbsImagePath(img_file))
         Testing.interact()

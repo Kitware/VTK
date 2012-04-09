@@ -17,7 +17,7 @@
 
 // .SECTION Description
 // This is a concrete sub-class of vtkInitialValueProblemSolver.
-// It uses a 5th order Runge-Kutta method with stepsize control to obtain 
+// It uses a 5th order Runge-Kutta method with stepsize control to obtain
 // the values of a set of functions at the next time step. The stepsize
 // is adjusted by calculating an estimated error using an embedded 4th
 // order Runge-Kutta formula:
@@ -46,10 +46,10 @@ public:
   static vtkRungeKutta45 *New();
 
   // Description:
-  // Given initial values, xprev , initial time, t and a requested time 
+  // Given initial values, xprev , initial time, t and a requested time
   // interval, delT calculate values of x at t+delTActual (xnext).
   // Possibly delTActual != delT. This may occur
-  // because this solver supports adaptive stepsize control. It tries 
+  // because this solver supports adaptive stepsize control. It tries
   // to change to stepsize such that
   // the (estimated) error of the integration is less than maxError.
   // The solver will not set the stepsize smaller than minStep or
@@ -67,7 +67,7 @@ public:
   // NotInitialized = 2,
   // UnexpectedValue = 3
   virtual int ComputeNextStep(double* xprev, double* xnext, double t,
-                              double& delT, double maxError, double& error) 
+                              double& delT, double maxError, double& error)
     {
       double minStep = delT;
       double maxStep = delT;
@@ -75,8 +75,8 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
-                              double t, double& delT, 
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
+                              double t, double& delT,
                               double maxError, double& error)
     {
       double minStep = delT;
@@ -85,7 +85,7 @@ public:
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* xnext, 
+  virtual int ComputeNextStep(double* xprev, double* xnext,
                               double t, double& delT, double& delTActual,
                               double minStep, double maxStep,
                               double maxError, double& error)
@@ -93,9 +93,9 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                               double t, double& delT, double& delTActual,
-                              double minStep, double maxStep, 
+                              double minStep, double maxStep,
                               double maxError, double& error);
 
 protected:
@@ -112,7 +112,7 @@ protected:
 
   double* NextDerivs[6];
 
-  int ComputeAStep(double* xprev, double* dxprev, double* xnext, double t, 
+  int ComputeAStep(double* xprev, double* dxprev, double* xnext, double t,
                    double& delT,  double& error);
 
 private:

@@ -16,12 +16,12 @@
 // .NAME vtkIterativeClosestPointTransform - Implementation of the ICP algorithm.
 // .SECTION Description
 // Match two surfaces using the iterative closest point (ICP) algorithm.
-// The core of the algorithm is to match each vertex in one surface with 
+// The core of the algorithm is to match each vertex in one surface with
 // the closest surface point on the other, then apply the transformation
 // that modify one surface to best match the other (in a least square sense).
 // This has to be iterated to get proper convergence of the surfaces.
 // .SECTION Note
-// Use vtkTransformPolyDataFilter to apply the resulting ICP transform to 
+// Use vtkTransformPolyDataFilter to apply the resulting ICP transform to
 // your data. You might also set it to your actor's user transform.
 // .SECTION Note
 // This class makes use of vtkLandmarkTransform internally to compute the
@@ -62,21 +62,21 @@ public:
   vtkGetObjectMacro(Target, vtkDataSet);
 
   // Description:
-  // Set/Get a spatial locator for speeding up the search process. 
+  // Set/Get a spatial locator for speeding up the search process.
   // An instance of vtkCellLocator is used by default.
   void SetLocator(vtkCellLocator *locator);
   vtkGetObjectMacro(Locator,vtkCellLocator);
 
-  // Description: 
+  // Description:
   // Set/Get the  maximum number of iterations. Default is 50.
   vtkSetMacro(MaximumNumberOfIterations, int);
   vtkGetMacro(MaximumNumberOfIterations, int);
 
-  // Description: 
+  // Description:
   // Get the number of iterations since the last update
   vtkGetMacro(NumberOfIterations, int);
 
-  // Description: 
+  // Description:
   // Force the algorithm to check the mean distance between two iterations.
   // Default is Off.
   vtkSetMacro(CheckMeanDistance, int);
@@ -84,7 +84,7 @@ public:
   vtkBooleanMacro(CheckMeanDistance, int);
 
   // Description:
-  // Specify the mean distance mode. This mode expresses how the mean 
+  // Specify the mean distance mode. This mode expresses how the mean
   // distance is computed. The RMS mode is the square root of the average
   // of the sum of squares of the closest point distances. The Absolute
   // Value mode is the mean of the sum of absolute values of the closest
@@ -98,36 +98,36 @@ public:
     {this->SetMeanDistanceMode(VTK_ICP_MODE_AV);}
   const char *GetMeanDistanceModeAsString();
 
-  // Description: 
+  // Description:
   // Set/Get the maximum mean distance between two iteration. If the mean
-  // distance is lower than this, the convergence stops. The default 
+  // distance is lower than this, the convergence stops. The default
   // is 0.01.
   vtkSetMacro(MaximumMeanDistance, double);
   vtkGetMacro(MaximumMeanDistance, double);
-  
-  // Description: 
+
+  // Description:
   // Get the mean distance between the last two iterations.
   vtkGetMacro(MeanDistance, double);
-  
-  // Description: 
+
+  // Description:
   // Set/Get the maximum number of landmarks sampled in your dataset.
-  // If your dataset is dense, then you will typically not need all the 
+  // If your dataset is dense, then you will typically not need all the
   // points to compute the ICP transform. The default is 200.
   vtkSetMacro(MaximumNumberOfLandmarks, int);
   vtkGetMacro(MaximumNumberOfLandmarks, int);
 
-  // Description: 
+  // Description:
   // Starts the process by translating source centroid to target centroid.
   // The default is Off.
   vtkSetMacro(StartByMatchingCentroids, int);
   vtkGetMacro(StartByMatchingCentroids, int);
   vtkBooleanMacro(StartByMatchingCentroids, int);
 
-  // Description: 
+  // Description:
   // Get the internal landmark transform. Use it to constrain the number of
   // degrees of freedom of the solution (i.e. rigid body, similarity, etc.).
   vtkGetObjectMacro(LandmarkTransform,vtkLandmarkTransform);
-  
+
   // Description:
   // Invert the transformation.  This is done by switching the
   // source and target.

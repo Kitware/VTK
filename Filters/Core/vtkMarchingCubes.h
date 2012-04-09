@@ -21,7 +21,7 @@
 // contours to generate a series of evenly spaced contour values.
 
 // .SECTION Caveats
-// This filter is specialized to volumes. If you are interested in 
+// This filter is specialized to volumes. If you are interested in
 // contouring other types of data, use the general vtkContourFilter. If you
 // want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
 // .SECTION See Also
@@ -112,7 +112,7 @@ private:
 };
 
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
+// Set a particular contour value at contour number i. The index i ranges
 // between 0<=i<NumberOfContours.
 inline void vtkMarchingCubes::SetValue(int i, double value)
 {this->ContourValues->SetValue(i,value);}

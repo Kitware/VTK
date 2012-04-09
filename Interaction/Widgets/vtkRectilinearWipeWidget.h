@@ -23,7 +23,7 @@
 // center point, moving the horizontal separator, or moving the vertical
 // separator. These capabilities are particularly useful for comparing two
 // images.
-// 
+//
 // To use this widget, specify its representation (by default the
 // representation is an instance of vtkRectilinearWipeProp). The
 // representation generally requires that you specify an instance of
@@ -35,7 +35,7 @@
 // <pre>
 // Selecting the center point, horizontal separator, and verticel separator:
 //   LeftButtonPressEvent - move the separators
-//   LeftButtonReleaseEvent - release the separators 
+//   LeftButtonReleaseEvent - release the separators
 //   MouseMoveEvent - move the separators
 // </pre>
 // Selecting the center point allows you to move the horizontal and vertical
@@ -68,7 +68,7 @@
 // create new looks for the widget.
 
 // .SECTION See Also
-// vtkRectilinearWipeProp vtkImageRectilinearWipe vtkImageActor 
+// vtkRectilinearWipeProp vtkImageRectilinearWipe vtkImageActor
 // vtkCheckerboardWidget
 
 
@@ -99,20 +99,20 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkRectilinearWipeRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkRectilinearWipeRepresentation.
   vtkRectilinearWipeRepresentation *GetRectilinearWipeRepresentation()
     {return reinterpret_cast<vtkRectilinearWipeRepresentation*>(this->WidgetRep);}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   virtual void CreateDefaultRepresentation();
 
 protected:
   vtkRectilinearWipeWidget();
   ~vtkRectilinearWipeWidget();
-  
+
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);

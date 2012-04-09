@@ -41,7 +41,7 @@ bool vtkGPUInfoList::IsProbed()
 {
   return this->Probed;
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Return the number of GPUs.
@@ -53,10 +53,10 @@ int vtkGPUInfoList::GetNumberOfGPUs()
     vtkErrorMacro("You must first call the Probe method");
     return 0;
     }
-  
+
   return static_cast<int>(this->Array->v.size());
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Return information about GPU i.
@@ -67,7 +67,7 @@ vtkGPUInfo *vtkGPUInfoList::GetGPUInfo(int i)
 {
   assert("pre: probed" && this->IsProbed());
   assert("pre: valid_index" && i>=0 && i<this->GetNumberOfGPUs());
-  
+
   vtkGPUInfo *result=this->Array->v[static_cast<size_t>(i)];
   assert("post: result_exists" && result!=0);
   return result;
@@ -81,7 +81,7 @@ vtkGPUInfoList::vtkGPUInfoList()
   this->Probed=false;
   this->Array=0;
 }
-    
+
 // ----------------------------------------------------------------------------
 vtkGPUInfoList::~vtkGPUInfoList()
 {

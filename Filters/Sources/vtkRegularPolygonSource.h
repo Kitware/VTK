@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkRegularPolygonSource - create a regular, n-sided polygon and/or polyline
 // .SECTION Description
-// vtkRegularPolygonSource is a source object that creates a single n-sided polygon and/or 
+// vtkRegularPolygonSource is a source object that creates a single n-sided polygon and/or
 // polyline. The polygon is centered at a specified point, orthogonal to
 // a specified normal, and with a circumscribing radius set by the user. The user can
 // also specify the number of sides of the polygon ranging from [3,N].
@@ -65,13 +65,13 @@ public:
   vtkSetMacro(GeneratePolygon,int);
   vtkGetMacro(GeneratePolygon,int);
   vtkBooleanMacro(GeneratePolygon,int);
-  
+
   // Description:
   // Control whether a polyline is produced. By default, GeneratePolyline is enabled.
   vtkSetMacro(GeneratePolyline,int);
   vtkGetMacro(GeneratePolyline,int);
   vtkBooleanMacro(GeneratePolyline,int);
-  
+
 protected:
   vtkRegularPolygonSource();
   ~vtkRegularPolygonSource() {}

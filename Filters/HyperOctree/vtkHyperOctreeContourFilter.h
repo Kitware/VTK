@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkHyperOctreeContourFilter - generate isosurfaces/isolines from scalar values
 // .SECTION Description
-// vtkContourFilter is a filter that takes as input any dataset and 
-// generates on output isosurfaces and/or isolines. The exact form 
-// of the output depends upon the dimensionality of the input data. 
-// Data consisting of 3D cells will generate isosurfaces, data 
-// consisting of 2D cells will generate isolines, and data with 1D 
-// or 0D cells will generate isopoints. Combinations of output type 
+// vtkContourFilter is a filter that takes as input any dataset and
+// generates on output isosurfaces and/or isolines. The exact form
+// of the output depends upon the dimensionality of the input data.
+// Data consisting of 3D cells will generate isosurfaces, data
+// consisting of 2D cells will generate isolines, and data with 1D
+// or 0D cells will generate isopoints. Combinations of output type
 // are possible if the input dimension is mixed.
 //
 // To use this filter you must specify one or more contour values.
@@ -76,9 +76,9 @@ public:
 
   // Description:
   // Methods to set / get contour values.
-  
+
   // Description:
-  // Set a particular contour value at contour number i. The index i ranges 
+  // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value)
     {
@@ -124,7 +124,7 @@ public:
     {
       return this->ContourValues->GetNumberOfContours();
     }
-  
+
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
@@ -132,7 +132,7 @@ public:
     {
       this->ContourValues->GenerateValues(numContours, range);
     }
-  
+
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
@@ -147,7 +147,7 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Set / get a spatial locator for merging points. By default, 
+  // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -160,7 +160,7 @@ public:
 protected:
   vtkHyperOctreeContourFilter();
   ~vtkHyperOctreeContourFilter();
-  
+
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
@@ -172,51 +172,51 @@ protected:
   // Description:
   // Do the recursive contour of the node pointed by Cursor.
   void ContourNode();
-  
+
   // Description:
   // (i,j,k) are point coordinates at last level
   double ComputePointValue(int ptIndices[3]);
-  
+
   void ContourNode1D();
-  
+
   vtkContourValues *ContourValues;
   vtkIncrementalPointLocator *Locator;
- 
+
   vtkIdList *CellPts; // for 2D case
-  
+
   vtkHyperOctree *Input;
   vtkPolyData *Output;
 
   vtkCellArray *NewVerts;
   vtkCellArray *NewLines;
   vtkCellArray *NewPolys;
-  
+
   vtkCellData *InCD;
   vtkPointData *InPD;
   vtkCellData *OutCD;
   vtkPointData *OutPD;
   vtkOrderedTriangulator *Triangulator;
-  
+
   vtkHyperOctreeCursor *Sibling; // to avoid allocation in the loop
-  
-  
+
+
   vtkDoubleArray *CellScalars;
   vtkTetra *Tetra;
   vtkDoubleArray *TetScalars;
-  
+
   vtkPolygon *Polygon;
-  
+
   vtkHyperOctreeCursor *Cursor;
   vtkHyperOctreeCursor *NeighborCursor;
-  
+
   vtkIdType CellTypeCounter[65536]; // up-to-65536 points per octant
   vtkIdType TotalCounter;
   vtkIdType TemplateCounter; // record the number of octants that succceed
   // to use the template triangulator
-  
+
   vtkDataArray *InScalars;
   vtkHyperOctreeContourPointsGrabber *Grabber;
-  
+
   vtkDoubleArray *PointScalars;
   int SortBy;
   int Iter; // iterate over contour values in case of VTK_SORT_BY_CELL
@@ -224,7 +224,7 @@ protected:
   vtkLine *Line;
   double LeftValue;
   double LeftCoord;
-  
+
   //BTX
   friend class vtkHyperOctreeContourPointsGrabber;
   //ETX

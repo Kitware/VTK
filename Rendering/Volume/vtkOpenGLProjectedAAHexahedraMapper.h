@@ -69,7 +69,7 @@ protected:
   float* ConvertPoints(vtkPoints* inPoints);
 
   // Description:
-  // Iterate over all the hexahedal input cells, 
+  // Iterate over all the hexahedal input cells,
   // sort and render them.
   virtual void ProjectHexahedra(vtkRenderer *renderer, vtkVolume *volume);
 
@@ -83,7 +83,7 @@ protected:
   void UpdatePreintegrationTexture(vtkVolume *vome, vtkDataArray *scalars);
 
   // Description:
-  // Create the OpenGL geometry/vertex/fragment programs for 
+  // Create the OpenGL geometry/vertex/fragment programs for
   // hexahedral cell rendering.
   void CreateProgram(vtkRenderWindow *w);
 

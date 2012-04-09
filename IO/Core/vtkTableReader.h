@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkTableReader - read vtkTable data file
 // .SECTION Description
-// vtkTableReader is a source object that reads ASCII or binary 
+// vtkTableReader is a source object that reads ASCII or binary
 // vtkTable data files in vtk format. (see text for format details).
 // The output of this reader is a single vtkTable data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -45,7 +45,7 @@ public:
   vtkTable *GetOutput();
   vtkTable *GetOutput(int idx);
   void SetOutput(vtkTable *output);
-  
+
 protected:
   vtkTableReader();
   ~vtkTableReader();
@@ -58,7 +58,7 @@ protected:
   // as a default behavior.
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkTableReader(const vtkTableReader&);  // Not implemented.

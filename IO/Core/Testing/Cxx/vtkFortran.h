@@ -17,7 +17,7 @@
  * The whole pupose of this header file is to allow us to 'wrap' a c library
  * into Fortran. Here are the basic goals we should reach:
  *
- * 1. The symbol mangling in fortan is different than is C. For example if 
+ * 1. The symbol mangling in fortan is different than is C. For example if
  * you do this fortan:
  *     CALL Foo()
  * you either need to define a symbol:
@@ -25,7 +25,7 @@
  *    - void foo()
  *    - void FOO_()
  *    - void foo_()
- *  
+ *
  *  2. Passing array, Fortran start at 1 instead of 0.
  *
  *  3. Passing STRING array from fortran to C is a bit more tricky.
@@ -33,7 +33,7 @@
  *  For more information refer to:
  *  [ FORTRAN/C INTEROPERABILITY  ]
  *  http://www.ibiblio.org/pub/languages/fortran/ch1-11.html
- *  
+ *
  *  [ Data Type Compatibility ]
  *  http://www.ictp.trieste.it/~manuals/programming/sun/fortran/prog_guide/11_cfort.doc.html
  */
@@ -54,10 +54,10 @@
 
 #define VTK_FORTRAN_ARG_INTEGER4(data) \
   int *data
-  
+
 #define VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array) \
   float *array
-  
+
 #define VTK_FORTRAN_ARG_INTEGER8(size) \
   vtkIdType *size
 

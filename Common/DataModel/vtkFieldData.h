@@ -107,19 +107,19 @@ public:
 
   // Description:
   // Return the ith array in the field. A NULL is returned if the
-  // index i is out of range. A NULL is returned if the array at the given 
+  // index i is out of range. A NULL is returned if the array at the given
   // index is not a vtkDataArray.
   vtkDataArray *GetArray(int i);
 
   // Description:
   // Return the array with the name given. Returns NULL is array not found.
-  // A NULL is also returned if the array with the given name is not a 
+  // A NULL is also returned if the array with the given name is not a
   // vtkDataArray. Also returns index of array if found, -1 otherwise.
   vtkDataArray *GetArray(const char *arrayName, int &index);
 
   // Description:
   // Return the array with the name given. Returns NULL is array not found.
-  // A NULL is also returned if the array with the given name is not a 
+  // A NULL is also returned if the array with the given name is not a
   // vtkDataArray.
   vtkDataArray *GetArray(const char *arrayName)
     {
@@ -129,7 +129,7 @@ public:
 
   // Description:
   // Returns the ith array in the field. Unlike GetArray(), this method returns
-  // a vtkAbstractArray. A NULL is returned only if the index i is 
+  // a vtkAbstractArray. A NULL is returned only if the index i is
   // out of range.
   vtkAbstractArray* GetAbstractArray(int i);
 
@@ -147,7 +147,7 @@ public:
     int i;
     return this->GetAbstractArray(arrayName, i);
     }
-  
+
   // Description:
   // Return 1 if an array with the given name could be found. 0 otherwise.
   int HasArray(const char *name)
@@ -231,7 +231,7 @@ public:
   // Description:
   // Check object's components for modified times.
   unsigned long int GetMTime();
-  
+
   // Description:
   // Get a field from a list of ids. Supplied field f should have same
   // types and number of data arrays as this one (i.e., like
@@ -255,7 +255,7 @@ public:
   // up the components in each non-NULL array.
   // This method should not be used if the instance is from a
   // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
+  // This is because in those cases, the attribute data is
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
   int GetNumberOfComponents();
@@ -266,7 +266,7 @@ public:
   // the first array. Mixed-length arrays may have to be treated specially.
   // This method should not be used if the instance is from a
   // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
+  // This is because in those cases, the attribute data is
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
   vtkIdType GetNumberOfTuples();
@@ -275,25 +275,25 @@ public:
   // Set the number of tuples for each data array in the field.
   // This method should not be used if the instance is from a
   // subclass of vtkFieldData (vtkPointData or vtkCellData).
-  // This is because in those cases, the attribute data is 
+  // This is because in those cases, the attribute data is
   // stored with the other fields and will cause the method
   // to behave in an unexpected way.
   void SetNumberOfTuples(const vtkIdType number);
 
   // Description:
-  // Set the jth tuple in source field data at the ith location. 
-  // Set operations mean that no range checking is performed, so 
+  // Set the jth tuple in source field data at the ith location.
+  // Set operations mean that no range checking is performed, so
   // they're faster.
   void SetTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
 
   // Description:
-  // Insert the jth tuple in source field data at the ith location. 
+  // Insert the jth tuple in source field data at the ith location.
   // Range checking is performed and memory allocates as necessary.
   void InsertTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
 
   // Description:
-  // Insert the jth tuple in source field data  at the end of the 
-  // tuple matrix. Range checking is performed and memory is allocated 
+  // Insert the jth tuple in source field data  at the end of the
+  // tuple matrix. Range checking is performed and memory is allocated
   // as necessary.
   vtkIdType InsertNextTuple(const vtkIdType j, vtkFieldData* source);
 
@@ -373,7 +373,7 @@ public:
         this->Position++;
         return (this->End() ? -1 : this->List[this->Position]);
       }
-    
+
   protected:
 
     int* List;
@@ -388,7 +388,7 @@ public:
     Iterator(const Iterator& source);
     Iterator& operator=(const Iterator& source);
     virtual ~Iterator();
-    Iterator(vtkFieldData* dsa, const int* list=0, 
+    Iterator(vtkFieldData* dsa, const int* list=0,
              unsigned int listSize=0);
 
     vtkDataArray* Begin()
@@ -404,7 +404,7 @@ public:
           {
           return 0;
           }
-      
+
         // vtkFieldData::GetArray() can return null, which implies that
         // a the array at the given index in not a vtkDataArray subclass.
         // This iterator skips such arrays.

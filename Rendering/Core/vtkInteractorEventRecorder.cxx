@@ -51,7 +51,7 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 {
   this->SetInteractor(0);
-  
+
   if ( this->FileName )
     {
     delete [] this->FileName;
@@ -69,7 +69,7 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
     delete this->OutputStream;
     this->OutputStream = NULL;
     }
-  
+
   if ( this->InputString )
     {
     delete [] this->InputString;
@@ -94,12 +94,12 @@ void vtkInteractorEventRecorder::SetEnabled(int enabling)
       {
       return;
       }
-    
+
     this->Enabled = 1;
 
     // listen to any event
     vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::AnyEvent, this->EventCallbackCommand, 
+    i->AddObserver(vtkCommand::AnyEvent, this->EventCallbackCommand,
                    this->Priority);
 
     // Make sure that the interactor does not exit in response
@@ -143,15 +143,15 @@ void vtkInteractorEventRecorder::Record()
         delete this->OutputStream;
         return;
         }
-      
+
       // Use C locale. We don't want the user-defined locale when we write
       // float values.
       (*this->OutputStream).imbue(std::locale::classic());
-      
-      *this->OutputStream << "# StreamVersion " 
+
+      *this->OutputStream << "# StreamVersion "
                           << vtkInteractorEventRecorder::StreamVersion << "\n";
       }
-    
+
     vtkDebugMacro(<<"Recording");
     this->State = vtkInteractorEventRecorder::Recording;
     }
@@ -210,15 +210,15 @@ void vtkInteractorEventRecorder::Play()
     int pos[2], ctrlKey, shiftKey, keyCode, repeatCount;
     float stream_version = 0.0f, tempf;
     vtksys_stl::string line;
-    
+
     while ( vtksys::SystemTools::GetLineFromStream(*this->InputStream, line) )
       {
       vtksys_ios::istringstream iss(line);
-      
+
       // Use classic locale, we don't want to parse float values with
       // user-defined locale.
       iss.imbue(std::locale::classic());
-      
+
       iss.width(256);
       iss >> event;
 
@@ -309,24 +309,24 @@ void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
   // add observers for each of the events handled in ProcessEvents
   if (i)
     {
-    i->AddObserver(vtkCommand::CharEvent, 
+    i->AddObserver(vtkCommand::CharEvent,
                    this->KeyPressCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::DeleteEvent, 
+    i->AddObserver(vtkCommand::DeleteEvent,
                    this->KeyPressCallbackCommand, this->Priority);
     }
-  
+
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object, 
+void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
                                                   unsigned long event,
-                                                  void* clientData, 
+                                                  void* clientData,
                                                   void* vtkNotUsed(callData))
 {
-  vtkInteractorEventRecorder* self = 
+  vtkInteractorEventRecorder* self =
     reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
-  vtkRenderWindowInteractor* rwi = 
+  vtkRenderWindowInteractor* rwi =
     static_cast<vtkRenderWindowInteractor *>( object );
 
   switch(event)
@@ -355,14 +355,14 @@ void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object, 
+void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
                                                unsigned long event,
-                                               void* clientData, 
+                                               void* clientData,
                                                void* vtkNotUsed(callData))
 {
-  vtkInteractorEventRecorder* self = 
+  vtkInteractorEventRecorder* self =
     reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
-  vtkRenderWindowInteractor* rwi = 
+  vtkRenderWindowInteractor* rwi =
     static_cast<vtkRenderWindowInteractor *>( object );
 
   // all events are processed
@@ -375,7 +375,7 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
 
       default:
         self->WriteEvent(vtkCommand::GetStringFromEventId(event),
-                         rwi->GetEventPosition(), rwi->GetControlKey(), 
+                         rwi->GetEventPosition(), rwi->GetControlKey(),
                          rwi->GetShiftKey(), rwi->GetKeyCode(),
                          rwi->GetRepeatCount(), rwi->GetKeySym());
       }
@@ -384,8 +384,8 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], 
-                                            int ctrlKey, int shiftKey, 
+void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2],
+                                            int ctrlKey, int shiftKey,
                                             int keyCode, int repeatCount,
                                             char* keySym)
 {
@@ -401,7 +401,7 @@ void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2],
     *this->OutputStream << "0\n";
     }
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::ReadEvent()
 {
@@ -417,7 +417,7 @@ void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "File Name: " << this->FileName << "\n";
     }
 
-  os << indent << "ReadFromInputString: " 
+  os << indent << "ReadFromInputString: "
      << (this->ReadFromInputString ? "On\n" : "Off\n");
 
   if ( this->InputString )
@@ -431,7 +431,7 @@ void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-  
+
 
 
 

@@ -26,17 +26,17 @@ uniform float     uLICIntensity;
 vec3    texMasker = vec3( -1.0, -1.0, -1.0 ); // for zero-vector fragments
 
 void main()
-{      
+{
   float fragDepth = texture2D( texDepth,    gl_TexCoord[1].st ).b;
-  
+
   if ( fragDepth == 0.0 )
     {
     discard;
     }
-    
+
   vec3  licTexVal = texture2D( texLIC,      gl_TexCoord[0].st ).rgb;
   vec4  geomColor = texture2D( texGeometry, gl_TexCoord[1].st );
-  
+
   // In pass #1 LIC (providing a low-quality image during user interaction)
   // or pass #2 LIC (providing an improved image when no user interaction),
   // both in vtkLineIntegralConvolution2D_fs1, any fragment where the surface
@@ -45,14 +45,14 @@ void main()
   // underlying geoemtry surface.
   bvec3 isMaskVal = equal( licTexVal, texMasker );
   int   rejectLIC = int(  all( isMaskVal )  );
-  
-  vec4  tempColor = vec4(   (  licTexVal     *         uLICIntensity + 
+
+  vec4  tempColor = vec4(   (  licTexVal     *         uLICIntensity +
                                geomColor.xyz * ( 1.0 - uLICIntensity )
                             ), geomColor.a
                         );
-  tempColor = float( 1 - rejectLIC ) * tempColor + 
+  tempColor = float( 1 - rejectLIC ) * tempColor +
               float(     rejectLIC ) * geomColor;
-              
-  gl_FragColor = tempColor;  
+
+  gl_FragColor = tempColor;
   gl_FragDepth = fragDepth;
 }

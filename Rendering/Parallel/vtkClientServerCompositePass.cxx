@@ -109,7 +109,7 @@ void vtkClientServerCompositePass::Render(const vtkRenderState *s)
       rawImage.PushToViewport(s->GetRenderer());
       }
     }
- 
+
   if (this->PostProcessingRenderPass)
     {
     this->PostProcessingRenderPass->Render(s);

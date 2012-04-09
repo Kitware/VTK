@@ -33,10 +33,10 @@ vtkImageGradient::vtkImageGradient()
 {
   this->HandleBoundaries = 1;
   this->Dimensionality = 2;
-  
+
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                               vtkDataSetAttributes::SCALARS);  
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------

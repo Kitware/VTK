@@ -53,7 +53,7 @@ public:
   vtkTypeMacro(vtkObject,vtkObjectBase);
 
   // Description:
-  // Create an object with Debug turned off, modified time initialized 
+  // Create an object with Debug turned off, modified time initialized
   // to zero, and reference counting on.
   static vtkObject *New();
 
@@ -61,8 +61,8 @@ public:
   // avoid dll boundary problems
   void* operator new( size_t tSize );
   void operator delete( void* p );
-#endif 
-  
+#endif
+
   // Description:
   // Turn debugging output on.
   virtual void DebugOn();
@@ -70,28 +70,28 @@ public:
   // Description:
   // Turn debugging output off.
   virtual void DebugOff();
-  
+
   // Description:
   // Get the value of the debug flag.
   unsigned char GetDebug();
-  
+
   // Description:
   // Set the value of the debug flag. A non-zero value turns debugging on.
   void SetDebug(unsigned char debugFlag);
-  
+
   // Description:
-  // This method is called when vtkErrorMacro executes. It allows 
+  // This method is called when vtkErrorMacro executes. It allows
   // the debugger to break on error.
   static void BreakOnError();
-  
+
   // Description:
   // Update the modification time for this object. Many filters rely on
   // the modification time to determine if they need to recompute their
   // data. The modification time is a unique monotonically increasing
   // unsigned long integer.
   virtual void Modified();
-  
-  // Description: 
+
+  // Description:
   // Return this object's modified time.
   virtual unsigned long GetMTime();
 
@@ -107,7 +107,7 @@ public:
   // or error messages are displayed.
   static void SetGlobalWarningDisplay(int val);
   static void GlobalWarningDisplayOn(){vtkObject::SetGlobalWarningDisplay(1);};
-  static void GlobalWarningDisplayOff() 
+  static void GlobalWarningDisplayOff()
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
 
@@ -119,13 +119,13 @@ public:
   // and a vtkCommand to execute. It returns an unsigned long tag which
   // can be used later to remove the event or retrieve the command.
   // When events are invoked, the observers are called in the order they
-  // were added. If a priority value is specified, then the higher 
+  // were added. If a priority value is specified, then the higher
   // priority commands are called first. A command may set an abort
   // flag to stop processing of the event. (See vtkCommand.h for more
   // information.)
-  unsigned long AddObserver(unsigned long event, vtkCommand *, 
+  unsigned long AddObserver(unsigned long event, vtkCommand *,
                             float priority=0.0f);
-  unsigned long AddObserver(const char *event, vtkCommand *, 
+  unsigned long AddObserver(const char *event, vtkCommand *,
                             float priority=0.0f);
   vtkCommand *GetCommand(unsigned long tag);
   void RemoveObserver(vtkCommand*);
@@ -208,16 +208,16 @@ public:
   // Description:
   // This method invokes an event and return whether the event was
   // aborted or not. If the event was aborted, the return value is 1,
-  // otherwise it is 0.  
+  // otherwise it is 0.
   int InvokeEvent(unsigned long event, void *callData);
   int InvokeEvent(const char *event, void *callData);
 //ETX
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
-  
+
 protected:
-  vtkObject(); 
-  virtual ~vtkObject(); 
+  vtkObject();
+  virtual ~vtkObject();
 
   // See vtkObjectBase.h.
   virtual void RegisterInternal(vtkObjectBase*, int check);

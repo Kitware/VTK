@@ -44,9 +44,9 @@ public:
   // generic new method
   static vtkLODProp3DCallback *New()
     { return new vtkLODProp3DCallback; }
-  
+
   // the execute
-  virtual void Execute(vtkObject *caller, 
+  virtual void Execute(vtkObject *caller,
                        unsigned long event, void* vtkNotUsed(v))
     {
       vtkProp *po = vtkProp::SafeDownCast(caller);
@@ -55,7 +55,7 @@ public:
         this->Self->InvokeEvent(vtkCommand::PickEvent,NULL);
         }
     }
-  
+
   // some ivars that should be set
   vtkLODProp3D *Self;
 };
@@ -100,7 +100,7 @@ vtkLODProp3D::~vtkLODProp3D()
     {
     delete [] this->LODs;
     }
-  
+
   this->PickCallback->Delete();
 }
 
@@ -132,7 +132,7 @@ int vtkLODProp3D::GetNextEntryIndex()
 
   // Search for an available index
   index = 0;
-  while ( index < this->NumberOfEntries && this->LODs[index].ID != 
+  while ( index < this->NumberOfEntries && this->LODs[index].ID !=
           VTK_INDEX_NOT_IN_USE )
     {
     index++;
@@ -144,7 +144,7 @@ int vtkLODProp3D::GetNextEntryIndex()
     // If we have no entries, create 10. If we already have some, create
     // twice as many as we already have.
     amount = (this->NumberOfEntries)?(this->NumberOfEntries*2):(10);
-    
+
     // Make the new array
     newLODs = new vtkLODProp3DEntry[amount];
 
@@ -210,17 +210,17 @@ double *vtkLODProp3D::GetBounds()
       // current bounds expanding the current ones as necessary
       else
         {
-        this->Bounds[0] = 
+        this->Bounds[0] =
           (newBounds[0] < this->Bounds[0])?(newBounds[0]):(this->Bounds[0]);
-        this->Bounds[1] = 
+        this->Bounds[1] =
           (newBounds[1] > this->Bounds[1])?(newBounds[1]):(this->Bounds[1]);
-        this->Bounds[2] = 
+        this->Bounds[2] =
           (newBounds[2] < this->Bounds[2])?(newBounds[2]):(this->Bounds[2]);
-        this->Bounds[3] = 
+        this->Bounds[3] =
           (newBounds[3] > this->Bounds[3])?(newBounds[3]):(this->Bounds[3]);
-        this->Bounds[4] = 
+        this->Bounds[4] =
           (newBounds[4] < this->Bounds[4])?(newBounds[4]):(this->Bounds[4]);
-        this->Bounds[5] = 
+        this->Bounds[5] =
           (newBounds[5] > this->Bounds[5])?(newBounds[5]):(this->Bounds[5]);
         }
       }
@@ -288,13 +288,13 @@ double vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
   if ( index < 0 || index >= this->NumberOfEntries )
     {
     return 0;
-    }  
+    }
 
   return this->LODs[index].EstimatedTime;
 }
 
-// Convenience method to set an actor LOD without a texture, or a 
-// backface property.  Needed from tcl (for example) where null pointers 
+// Convenience method to set an actor LOD without a texture, or a
+// backface property.  Needed from tcl (for example) where null pointers
 // are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, double time )
 {
@@ -303,7 +303,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, double time )
 
 // Convenience method to set an actor LOD without a texture.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
                          vtkProperty *back, double time )
 {
   return this->AddLOD( m, p, back, NULL, time );
@@ -311,7 +311,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 
 // Convenience method to set an actor LOD without a backface property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
                          vtkTexture *t, double time )
 {
   return this->AddLOD( m, p, NULL, t, time );
@@ -329,10 +329,10 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *t, double time )
 int vtkLODProp3D::AddLOD( vtkMapper *m, double time )
 {
   return this->AddLOD( m, NULL, NULL, NULL, time );
-} 
+}
 
 // The real method for adding an actor LOD.
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
                           vtkProperty *back, vtkTexture *t, double time )
 {
   int          index;
@@ -347,7 +347,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   actor->SetUserMatrix( matrix );
   matrix->Delete();
   actor->SetMapper( m );
-  if ( p ) 
+  if ( p )
     {
     actor->SetProperty( p );
     }
@@ -375,7 +375,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
   this->NumberOfLODs++;
 
   actor->SetEstimatedRenderTime(time);
-  
+
   return this->LODs[index].ID;
 }
 
@@ -387,7 +387,7 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, double time )
 }
 
 // The real method for adding a volume LOD.
-int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, 
+int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
                           double time )
 {
   int           index;
@@ -402,7 +402,7 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
   volume->SetUserMatrix( matrix );
   matrix->Delete();
   volume->SetMapper( m );
-  if ( p ) 
+  if ( p )
     {
     volume->SetProperty( p );
     }
@@ -420,7 +420,7 @@ int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
   this->NumberOfLODs++;
 
   volume->SetEstimatedRenderTime(time);
-  
+
   return this->LODs[index].ID;
 }
 
@@ -493,7 +493,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkMapper *m )
 void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
 {
   *m = NULL;
-        
+
   int index = this->ConvertIDToIndex( id );
 
   if ( index == VTK_INVALID_LOD_INDEX )
@@ -534,7 +534,7 @@ void vtkLODProp3D::SetLODMapper( int id, vtkAbstractVolumeMapper *m )
 void vtkLODProp3D::GetLODMapper( int id, vtkAbstractVolumeMapper **m )
 {
   *m = NULL;
-  
+
   int index = this->ConvertIDToIndex( id );
 
   if ( index == VTK_INVALID_LOD_INDEX )
@@ -595,7 +595,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkImageMapper3D **m )
 vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
 {
   vtkAbstractMapper3D *m = NULL;
-  
+
   int index = this->ConvertIDToIndex( id );
 
   if ( index == VTK_INVALID_LOD_INDEX )
@@ -817,7 +817,7 @@ void vtkLODProp3D::EnableLOD( int id )
     {
     return;
     }
-  
+
   this->LODs[index].State = 1;
 }
 
@@ -829,7 +829,7 @@ void vtkLODProp3D::DisableLOD( int id )
     {
     return;
     }
-  
+
   this->LODs[index].State = 0;
 }
 
@@ -841,7 +841,7 @@ int vtkLODProp3D::IsLODEnabled( int id )
     {
     return 0;
     }
-  
+
   return this->LODs[index].State;
 }
 
@@ -853,7 +853,7 @@ void vtkLODProp3D::SetLODLevel( int id, double level )
     {
     return;
     }
-  
+
   this->LODs[index].Level = level;
 }
 
@@ -865,7 +865,7 @@ double vtkLODProp3D::GetLODLevel( int id )
     {
     return -1;
     }
-  
+
   return this->LODs[index].Level;
 }
 
@@ -876,12 +876,12 @@ double vtkLODProp3D::GetLODIndexLevel( int index )
     {
     return -1;
     }
-  
+
   return this->LODs[index].Level;
 }
 
 // Release any graphics resources that any of the LODs might be using
-// for a particular window (such as display lists). 
+// for a particular window (such as display lists).
 void vtkLODProp3D::ReleaseGraphicsResources(vtkWindow *w)
 {
   int i;
@@ -917,10 +917,10 @@ int vtkLODProp3D::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Actually do the rendering
-  retval = 
+  retval =
     this->LODs[this->SelectedLODIndex].Prop3D->RenderOpaqueGeometry(viewport);
 
-  this->EstimatedRenderTime += 
+  this->EstimatedRenderTime +=
     this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
 
   return retval;
@@ -950,9 +950,9 @@ int vtkLODProp3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   retval = this->LODs[this->SelectedLODIndex].Prop3D->
     RenderTranslucentPolygonalGeometry(viewport);
 
-  this->EstimatedRenderTime += 
+  this->EstimatedRenderTime +=
     this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
-  
+
   return retval;
 }
 
@@ -976,9 +976,9 @@ int vtkLODProp3D::HasTranslucentPolygonalGeometry()
     vtkErrorMacro( << "Index not valid!" );
     return 0;
     }
-  
+
   result = this->LODs[this->SelectedLODIndex].Prop3D->HasTranslucentPolygonalGeometry();
-  
+
   return result;
 }
 
@@ -1006,11 +1006,11 @@ int vtkLODProp3D::RenderVolumetricGeometry(vtkViewport *viewport)
   retval = this->LODs[this->SelectedLODIndex].Prop3D->
     RenderVolumetricGeometry(viewport);
 
-  this->EstimatedRenderTime += 
+  this->EstimatedRenderTime +=
     this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime();
-  
+
   return retval;
-} 
+}
 
 // Override the method from vtkProp - add to both this prop and the prop of
 // the selected LOD
@@ -1033,7 +1033,7 @@ void vtkLODProp3D::AddEstimatedRenderTime( double t, vtkViewport *vp )
     vtkErrorMacro( << "Index not valid!" );
     return;
     }
-  
+
   // Now that error checking is done, add to the estimated render time
   // of the selected LOD
   this->LODs[this->SelectedLODIndex].Prop3D->AddEstimatedRenderTime(t, vp);
@@ -1067,15 +1067,15 @@ void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
        this->LODs[this->SelectedLODIndex].ID != VTK_INDEX_NOT_IN_USE )
     {
     // For stability, blend in the new time - 25% old + 75% new
-    newTime = 
+    newTime =
       this->LODs[this->SelectedLODIndex].Prop3D->GetEstimatedRenderTime(vp);
-    this->LODs[this->SelectedLODIndex].EstimatedTime = 
+    this->LODs[this->SelectedLODIndex].EstimatedTime =
       0.25 * this->LODs[this->SelectedLODIndex].EstimatedTime +
       0.75 * newTime;
     }
-  
+
   this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
-  
+
   if ( this->AutomaticLODSelection )
     {
     bestTime = -1.0;
@@ -1089,7 +1089,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
         {
         // Gather some information
         estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
-        
+
         // If we've never rendered this LOD and we have no info on it,
         // then try it out
         if ( estimatedTime == 0.0 )
@@ -1099,21 +1099,21 @@ void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
           bestLevel = this->GetLODIndexLevel(i);
           break;
           }
-        
+
         // If we do have at least a guess as to the render time, and
         // this seems like the best we have so far, pick it.
-        // It is the best we have if 
+        // It is the best we have if
         //
-        // 1) our estimated time is less than what we are looking for, 
-        //    but greater than any we have selected so far. 
+        // 1) our estimated time is less than what we are looking for,
+        //    but greater than any we have selected so far.
         //
-        // 2) we have not selected anything else yet 
+        // 2) we have not selected anything else yet
         //    (regardless of what the estimated time is)
         //
-        // 3) it is less than the time of the currently selected LOD 
+        // 3) it is less than the time of the currently selected LOD
         //    if that LOD's time is greater than the time we are targeting.
         //
-        if ( estimatedTime > 0.0 && 
+        if ( estimatedTime > 0.0 &&
              ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
                ( bestTime == -1.0 ) ||
                ( estimatedTime < bestTime && bestTime > targetTime ) ) )
@@ -1126,8 +1126,8 @@ void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
       }
 
     // If we aren't trying some level for the first time with 0.0 bestTime,
-    // make sure there isn't a LOD that can be rendered faster and has a 
-    // higher level 
+    // make sure there isn't a LOD that can be rendered faster and has a
+    // higher level
     double level;
     if ( bestTime != 0.0 )
       {
@@ -1155,23 +1155,23 @@ void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
   else
     {
     index = 0;
-    while ( index < this->NumberOfEntries && this->LODs[index].ID != 
+    while ( index < this->NumberOfEntries && this->LODs[index].ID !=
             this->SelectedLODID )
       {
       index++;
       }
     if ( index == this->NumberOfEntries )
       {
-      vtkErrorMacro( << "Could not render selected LOD ID: " << 
+      vtkErrorMacro( << "Could not render selected LOD ID: " <<
                      this->SelectedLODID );
       index = 0;
-      while ( index < this->NumberOfEntries && this->LODs[index].ID != 
+      while ( index < this->NumberOfEntries && this->LODs[index].ID !=
               VTK_INDEX_NOT_IN_USE )
         {
         index++;
         }
       }
-    
+
     }
 
   this->EstimatedRenderTime = 0.0;
@@ -1205,14 +1205,14 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Selected LOD ID: " << this->SelectedLODID << endl;
 
-  os << indent << "AutomaticLODSelection: " 
+  os << indent << "AutomaticLODSelection: "
      << (this->AutomaticLODSelection ? "On\n" : "Off\n");
 
-  os << indent << "AutomaticPickLODSelection: " 
+  os << indent << "AutomaticPickLODSelection: "
      << (this->AutomaticPickLODSelection ? "On\n" : "Off\n");
 
   os << indent << "SelectedPickLODID: " << this->SelectedPickLODID << endl;
-  
+
   os << indent << "CurrentIndex: " << this->CurrentIndex << endl;
 }
 
@@ -1229,7 +1229,7 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
   lodID = this->GetPickLODID();
   index = this->ConvertIDToIndex(lodID);
 
-  if (index == VTK_INVALID_LOD_INDEX) 
+  if (index == VTK_INVALID_LOD_INDEX)
     {
     return;
     }
@@ -1277,7 +1277,7 @@ int vtkLODProp3D::GetAutomaticPickPropIndex()
         {
         // Gather some information
         estimatedTime = this->GetLODIndexEstimatedRenderTime(i);
-        
+
         // If we've never rendered this LOD and we have no info on it,
         // then try it out
         if ( estimatedTime == 0.0 )
@@ -1285,21 +1285,21 @@ int vtkLODProp3D::GetAutomaticPickPropIndex()
           index = i;
           break;
           }
-        
+
         // If we do have at least a guess as to the render time, and
         // this seems like the best we have so far, pick it.
-        // It is the best we have if 
+        // It is the best we have if
         //
-        // 1) our estimated time is less than what we are looking for, 
-        //    but greater than any we have selected so far. 
+        // 1) our estimated time is less than what we are looking for,
+        //    but greater than any we have selected so far.
         //
-        // 2) we have not selected anything else yet 
+        // 2) we have not selected anything else yet
         //    (regardless of what the estimated time is)
         //
-        // 3) it is less than the time of the currently selected LOD 
+        // 3) it is less than the time of the currently selected LOD
         //    if that LOD's time is greater than the time we are targeting.
         //
-        if ( estimatedTime > 0.0 && 
+        if ( estimatedTime > 0.0 &&
              ( ( estimatedTime > bestTime && estimatedTime < targetTime ) ||
                ( bestTime == -1.0 ) ||
                ( estimatedTime < bestTime && bestTime > targetTime ) ) )
@@ -1336,7 +1336,7 @@ int vtkLODProp3D::GetPickLODID(void)
     {
     lodID = this->SelectedPickLODID;
     }
-  
+
     return lodID;
 }
 

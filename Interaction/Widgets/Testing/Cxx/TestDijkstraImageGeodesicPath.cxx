@@ -117,11 +117,11 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   for (int i = 0; i < argc; i++)
     {
     followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
-    }  
+    }
 
-  char* fname = 
+  char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/fullhead15.png");
-  
+
   vtkSmartPointer<vtkPNGReader> reader =
     vtkSmartPointer<vtkPNGReader>::New();
   reader->SetFileName( fname );
@@ -134,7 +134,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   diffusion->SetDiffusionFactor( 1.0 );
   diffusion->SetDiffusionThreshold( 200.0 );
   diffusion->SetNumberOfIterations( 5 );
-  
+
   // Gradient magnitude for edges
   vtkSmartPointer<vtkImageGradientMagnitude> grad =
     vtkSmartPointer<vtkImageGradientMagnitude>::New();
@@ -142,9 +142,9 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   grad->HandleBoundariesOn();
   grad->SetInputConnection( diffusion->GetOutputPort() );
   grad->Update();
-  
+
   double* range = grad->GetOutput()->GetScalarRange();
-  
+
   // Invert the gradient magnitude so that low costs are
   // associated with strong edges and scale from 0 to 1
   vtkSmartPointer<vtkImageShiftScale> gradInvert =
@@ -154,7 +154,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   gradInvert->SetOutputScalarTypeToFloat();
   gradInvert->SetInputConnection( grad->GetOutputPort() );
   gradInvert->Update();
-  
+
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
@@ -166,7 +166,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   vtkSmartPointer<vtkInteractorStyleImage> style =
     vtkSmartPointer<vtkInteractorStyleImage>::New();
   iren->SetInteractorStyle( style );
-  
+
   // The color map will accept any scalar image type and convert to
   // unsigned char for the image actor
   vtkSmartPointer<vtkImageMapToWindowLevelColors> colorMap =
@@ -183,7 +183,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   actor->SetDisplayExtent( 0, 255, 0, 255, 0, 0 );
 
   renderer->AddActor( actor );
-  
+
   renderer->SetBackground(0.2,0.2,1);
   renWin->SetSize(400,400);
 
@@ -208,7 +208,7 @@ int TestDijkstraImageGeodesicPath(int argc, char*argv[])
   rep->SetPointPlacer( placer );
 
   // The line interpolator defines how intermediate points are
-  // generated between the representations nodes.  This 
+  // generated between the representations nodes.  This
   // interpolator uses Dijkstra's shortest path algorithm.
   vtkSmartPointer< vtkDijkstraImageContourLineInterpolator > interpolator =
     vtkSmartPointer< vtkDijkstraImageContourLineInterpolator >::New();

@@ -77,7 +77,7 @@ int vtkSplineFilter::RequestData(
   vtkCellData *cd=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkCellArray *inLines;
-  
+
   vtkPoints *inPts;
   vtkIdType numLines;
   vtkCellArray *newLines;
@@ -95,7 +95,7 @@ int vtkSplineFilter::RequestData(
   vtkDebugMacro(<<"Splining polylines");
 
   if ( !(inPts=input->GetPoints()) || inPts->GetNumberOfPoints() < 1 ||
-      !(inLines = input->GetLines()) || 
+      !(inLines = input->GetLines()) ||
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
     return 1;
@@ -145,7 +145,7 @@ int vtkSplineFilter::RequestData(
 
   //  Create points along each polyline.
   //
-  for (inCellId=0, inLines->InitTraversal(); 
+  for (inCellId=0, inLines->InitTraversal();
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
       this->UpdateProgress(static_cast<double>(inCellId)/numLines);
@@ -166,9 +166,9 @@ int vtkSplineFilter::RequestData(
     if ( ! numGenPts )
       {
       //vtkWarningMacro(<< "Could not generate points!");
-      continue; //skip splining 
+      continue; //skip splining
       }
-      
+
     // Generate the polyline
     //
     this->GenerateLine(offset,numGenPts,inCellId,cd,outCD,newLines);
@@ -203,9 +203,9 @@ int vtkSplineFilter::RequestData(
   return 1;
 }
 
-int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, 
-                                    vtkIdType *pts, vtkPoints *inPts, 
-                                    vtkPoints *newPts, vtkPointData *pd, 
+int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
+                                    vtkIdType *pts, vtkPoints *inPts,
+                                    vtkPoints *newPts, vtkPointData *pd,
                                     vtkPointData *outPD, int genTCoords,
                                     vtkFloatArray *newTCoords)
 {
@@ -215,7 +215,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   this->XSpline->RemoveAllPoints();
   this->YSpline->RemoveAllPoints();
   this->ZSpline->RemoveAllPoints();
-    
+
   // Compute the length of the resulting spline
   double xPrev[3], x[3], length=0.0, len, t, tc, dist;
   inPts->GetPoint(pts[0],xPrev);
@@ -250,10 +250,10 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
     this->XSpline->AddPoint(t,x[0]);
     this->YSpline->AddPoint(t,x[1]);
     this->ZSpline->AddPoint(t,x[2]);
-    
+
     xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
     }
-  
+
   // Compute the number of subdivisions
   vtkIdType numDivs, numNewPts;
   if ( this->Subdivide == VTK_SUBDIVIDE_SPECIFIED )
@@ -264,7 +264,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
     {
     numDivs = static_cast<int>(length / this->Length);
     }
-  numDivs = ( numDivs < 1 ? 1 : (numDivs > this->MaximumNumberOfSubdivisions ? 
+  numDivs = ( numDivs < 1 ? 1 : (numDivs > this->MaximumNumberOfSubdivisions ?
                                  this->MaximumNumberOfSubdivisions : numDivs));
 
   // Now compute the new points
@@ -318,7 +318,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   return numNewPts;
 }
 
-void vtkSplineFilter::GenerateLine(vtkIdType offset, vtkIdType npts, 
+void vtkSplineFilter::GenerateLine(vtkIdType offset, vtkIdType npts,
                                    vtkIdType inCellId,
                                    vtkCellData *cd, vtkCellData *outCD,
                                    vtkCellArray *newLines)
@@ -327,7 +327,7 @@ void vtkSplineFilter::GenerateLine(vtkIdType offset, vtkIdType npts,
 
   outCellId = newLines->InsertNextCell(npts);
   outCD->CopyData(cd,inCellId,outCellId);
-  for (i=0; i < npts; i++) 
+  for (i=0; i < npts; i++)
     {
     newLines->InsertCellPoint(offset+i);
     }
@@ -353,15 +353,15 @@ const char *vtkSplineFilter::GetGenerateTCoordsAsString(void)
     {
     return "GenerateTCoordsOff";
     }
-  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS ) 
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
     {
     return "GenerateTCoordsFromScalar";
     }
-  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ) 
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH )
     {
     return "GenerateTCoordsFromLength";
     }
-  else 
+  else
     {
     return "GenerateTCoordsFromNormalizedLength";
     }
@@ -374,11 +374,11 @@ void vtkSplineFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Subdivide: :" << this->GetSubdivideAsString() << "\n";
   os << indent << "Maximum Number of Subdivisions: "
      << this->MaximumNumberOfSubdivisions << "\n";
-  os << indent << "Number of Subdivisions: " 
+  os << indent << "Number of Subdivisions: "
      << this->NumberOfSubdivisions << "\n";
   os << indent << "Length: " << this->Length << "\n";
   os << indent << "Spline: " << this->Spline << "\n";
-  os << indent << "Generate TCoords: " 
+  os << indent << "Generate TCoords: "
      << this->GetGenerateTCoordsAsString() << endl;
   os << indent << "Texture Length: " << this->TextureLength << endl;
 }

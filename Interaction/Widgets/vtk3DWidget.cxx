@@ -49,7 +49,7 @@ vtk3DWidget::vtk3DWidget()
   this->PlaceFactor = 0.5;
 
   this->Priority = 0.5;
-  
+
   this->HandleSize = 0.01;
   this->ValidPick = 0;
 }
@@ -101,13 +101,13 @@ void vtk3DWidget::PlaceWidget()
     bounds[4] = -1.0;
     bounds[5] = 1.0;
     }
-  
+
   this->PlaceWidget(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
 //----------------------------------------------------------------------------
-void vtk3DWidget::PlaceWidget(double xmin, double xmax, 
-                              double ymin, double ymax, 
+void vtk3DWidget::PlaceWidget(double xmin, double xmax,
+                              double ymin, double ymax,
                               double zmin, double zmax)
 {
   double bounds[6];
@@ -118,20 +118,20 @@ void vtk3DWidget::PlaceWidget(double xmin, double xmax,
   bounds[3] = ymax;
   bounds[4] = zmin;
   bounds[5] = zmax;
-  
+
   this->PlaceWidget(bounds);
-  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,NULL);  
+  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,NULL);
   this->Placed = 1;
 }
 
 //----------------------------------------------------------------------------
-void vtk3DWidget::AdjustBounds(double bounds[6], 
+void vtk3DWidget::AdjustBounds(double bounds[6],
                                double newBounds[6], double center[3])
 {
   center[0] = (bounds[0] + bounds[1])/2.0;
   center[1] = (bounds[2] + bounds[3])/2.0;
   center[2] = (bounds[4] + bounds[5])/2.0;
-  
+
   newBounds[0] = center[0] + this->PlaceFactor*(bounds[0]-center[0]);
   newBounds[1] = center[0] + this->PlaceFactor*(bounds[1]-center[0]);
   newBounds[2] = center[1] + this->PlaceFactor*(bounds[2]-center[1]);
@@ -146,7 +146,7 @@ double vtk3DWidget::SizeHandles(double factor)
   int i;
   vtkRenderer *renderer;
 
-  if ( !this->ValidPick || !(renderer=this->CurrentRenderer) || 
+  if ( !this->ValidPick || !(renderer=this->CurrentRenderer) ||
        !renderer->GetActiveCamera() )
     {
     return (this->HandleSize * factor * this->InitialLength);
@@ -159,7 +159,7 @@ double vtk3DWidget::SizeHandles(double factor)
     int *winSize = renderer->GetRenderWindow()->GetSize();
     double focalPoint[4];
 
-    this->ComputeWorldToDisplay(this->LastPickPosition[0], 
+    this->ComputeWorldToDisplay(this->LastPickPosition[0],
                                 this->LastPickPosition[1],
                                 this->LastPickPosition[2], focalPoint);
     z = focalPoint[2];
@@ -172,7 +172,7 @@ double vtk3DWidget::SizeHandles(double factor)
     y = winSize[1] * viewport[3];
     this->ComputeDisplayToWorld(x,y,z,windowUpperRight);
 
-    for (radius=0.0, i=0; i<3; i++) 
+    for (radius=0.0, i=0; i<3; i++)
       {
       radius += (windowUpperRight[i] - windowLowerLeft[i]) *
         (windowUpperRight[i] - windowLowerLeft[i]);
@@ -187,7 +187,7 @@ double vtk3DWidget::SizeHandles(double factor)
 void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Prop3D: " << this->Prop3D << "\n";
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Handle Size: " << this->HandleSize << "\n";

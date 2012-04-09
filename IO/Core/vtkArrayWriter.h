@@ -79,7 +79,7 @@ public:
   // The output string. This is only set when WriteToOutputString is set.
   virtual vtkStdString GetOutputString()
     { return this->OutputString; }
-  
+
   // Description:
   // Whether to output to a string instead of to a file, which is the default.
   vtkSetMacro(WriteToOutputString, bool);
@@ -107,12 +107,12 @@ public:
   // be opened in binary mode, to prevent problems reading files on Windows.
   static bool Write(vtkArray* array, ostream& stream, bool WriteBinary = false);
 //ETX
-  
+
   // Description:
   // Write input port 0 data to a string. Note that the WriteBinary argument is not
   // optional in order to not clash with the inherited Write() method.
   vtkStdString Write(bool WriteBinary);
-  
+
   // Description:
   // Write arbitrary data to a string without using the pipeline.
   static vtkStdString Write(vtkArray* array, bool WriteBinary = false);

@@ -16,7 +16,7 @@ reader SetDataMask 0x7fff
 vtkImageReslice reslice
 reslice SetInputConnection [reader GetOutputPort]
 # specify the new axes in terms of the original axes
-reslice SetResliceAxesDirectionCosines  0 +1 0   0 0 -1   -1 0 0    
+reslice SetResliceAxesDirectionCosines  0 +1 0   0 0 -1   -1 0 0
 # resample the image to enlarge & to get the aspect right
 reslice SetOutputSpacing 1.0 1.0 1.0
 

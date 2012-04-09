@@ -110,7 +110,7 @@ int vtkExtractSelectedThresholds::RequestData(
       {
       if (node->GetProperties()->Has(vtkSelectionNode::CONTAINING_CELLS()))
         {
-        thresholdByPointVals = 
+        thresholdByPointVals =
           node->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS());
         }
       }
@@ -130,8 +130,8 @@ int vtkExtractSelectedThresholds::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::ExtractCells(
-  vtkSelectionNode *sel, 
-  vtkDataSet *input, 
+  vtkSelectionNode *sel,
+  vtkDataSet *input,
   vtkDataSet *output,
   int usePointScalars)
 {
@@ -197,7 +197,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
     vtkErrorMacro("Could not figure out what array to threshold in.");
     return 1;
     }
-  
+
   int inverse = 0;
   if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
     {
@@ -288,7 +288,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
       pointMap->SetId(i,-1);
       }
 
-    newCellPts = vtkIdList::New();     
+    newCellPts = vtkIdList::New();
 
     originalCellIds = vtkIdTypeArray::New();
     originalCellIds->SetName("vtkOriginalCellIds");
@@ -314,17 +314,17 @@ int vtkExtractSelectedThresholds::ExtractCells(
     // BUG: This code misses the case where the threshold is contained
     // completely within the cell but none of its points are inside
     // the range.  Consider as an example the threshold range [1, 2]
-    // with a cell [0, 3].  
+    // with a cell [0, 3].
     if ( usePointScalars )
       {
       keepCell = 0;
       int totalAbove = 0;
       int totalBelow = 0;
-      for ( i=0; 
-            (i < numCellPts) && (passThrough || !keepCell); 
+      for ( i=0;
+            (i < numCellPts) && (passThrough || !keepCell);
             i++)
         {
-        int above = 0; 
+        int above = 0;
         int below = 0;
         ptId = cellPts->GetId(i);
         int inside = this->EvaluateValue(
@@ -352,9 +352,9 @@ int vtkExtractSelectedThresholds::ExtractCells(
         cellInArray->SetValue(cellId, flag);
         }
       }
-    
+
     if (  !passThrough &&
-          (numCellPts > 0) && 
+          (numCellPts > 0) &&
           (keepCell + inverse == 1) ) // Poor man's XOR
       {
       // satisfied thresholding (also non-empty cell, i.e. not VTK_EMPTY_CELL)
@@ -378,7 +378,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
       newCellPts->Reset();
       } // satisfied thresholding
     } // for all cells
-  
+
   // now clean up / update ourselves
   if (passThrough)
     {
@@ -401,8 +401,8 @@ int vtkExtractSelectedThresholds::ExtractCells(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::ExtractPoints(
-  vtkSelectionNode *sel, 
-  vtkDataSet *input, 
+  vtkSelectionNode *sel,
+  vtkDataSet *input,
   vtkDataSet *output)
 {
   //find the values to threshold within
@@ -441,7 +441,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     vtkErrorMacro("Could not figure out what array to threshold in.");
     return 1;
     }
-  
+
   int inverse = 0;
   if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
     {
@@ -473,7 +473,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkIdTypeArray* originalPointIds = 0;
 
   signed char flag = inverse ? 1 : -1;
-  
+
   if (passThrough)
     {
     outputDS->ShallowCopy(input);
@@ -493,7 +493,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
     {
     outputUG = vtkUnstructuredGrid::SafeDownCast(output);
     outputUG->Allocate(numPts);
-    
+
     newPts->Allocate(numPts);
     outputUG->SetPoints(newPts);
 

@@ -172,7 +172,7 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
       coord[0] = lp.lam; coord[1] = lp.phi;
       }
     }
-  else // ! src 
+  else // ! src
     {
     // src coords are in degrees, convert to radians
     double* coord = x;

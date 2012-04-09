@@ -43,7 +43,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkMinimalStandardRandomSequence* New();
-  
+
   // Description:
   // Set the seed of the random sequence.
   // The following pre-condition is stated page 1197, second column:
@@ -58,7 +58,7 @@ public:
   // bad property that the first random number is proportional to the seed
   // value.
   void SetSeed(int value);
-  
+
   // Description:
   // Set the seed of the random sequence. There is no extra internal
   // ajustment. Only useful for writing correctness test.
@@ -70,21 +70,21 @@ public:
   // 2147483646 is added to a null or negative value.
   // 2147483647 is changed to be 1 (ie 2147483646 is subtracted).
   void SetSeedOnly(int value);
-  
+
   // Description:
   // Get the seed of the random sequence.
   // Only useful for writing correctness test.
   int GetSeed();
-  
+
   // Description:
   // Current value
   // \post unit_range: result>=0.0 && result<=1.0
   virtual double GetValue();
-  
+
   // Description:
   // Move to the next number in the random sequence.
   virtual void Next();
-  
+
   // Description:
   // Convenient method to return a value in a specific range from the
   // range [0,1. There is an initial implementation that can be overridden
@@ -98,7 +98,7 @@ public:
   // || (rangeMax<=rangeMin && result>=rangeMax && result<=rangeMin)
   virtual double GetRangeValue(double rangeMin,
                                double rangeMax);
-  
+
 protected:
   vtkMinimalStandardRandomSequence();
   virtual ~vtkMinimalStandardRandomSequence();

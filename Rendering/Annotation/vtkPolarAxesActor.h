@@ -16,10 +16,10 @@ All rights reserve
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 // .NAME vtkPolarAxesActor - create an actor of a polar axes -
-// 
+//
 // .SECTION Description
-// vtkPolarAxesActor is a composite actor that draws polar axes in a 
-// specified plane for a give pole. 
+// vtkPolarAxesActor is a composite actor that draws polar axes in a
+// specified plane for a give pole.
 // Currently the plane has to be the xy plane.
 //
 // .SECTION Thanks
@@ -114,15 +114,15 @@ public:
   vtkSetClampMacro( SmallestVisiblePolarAngle, double, 0., 5. );
   vtkGetMacro( SmallestVisiblePolarAngle, double );
 
-  // Description: Set/Get whether angle units (degrees) are used to label radial axes 
+  // Description: Set/Get whether angle units (degrees) are used to label radial axes
   // Default: true
-  vtkSetMacro( RadialUnits, bool ); 
+  vtkSetMacro( RadialUnits, bool );
   vtkGetMacro( RadialUnits, bool );
 
   // Description:
   // Explicitly specify the screen size of title and label text.
   // ScreenSize detemines the size of the text in terms of screen
-  // pixels. 
+  // pixels.
   // Default: 10.0.
   void SetScreenSize( double screenSize );
   vtkGetMacro( ScreenSize, double );
@@ -151,20 +151,20 @@ public:
   void ReleaseGraphicsResources( vtkWindow* );
 
   // Description:
-  // Enable and disable the use of distance based LOD for titles and labels. 
+  // Enable and disable the use of distance based LOD for titles and labels.
   vtkSetMacro( EnableDistanceLOD, int );
   vtkGetMacro( EnableDistanceLOD, int );
-  
+
   // Description:a
-  // Set distance LOD threshold [0.0 - 1.0] for titles and labels. 
+  // Set distance LOD threshold [0.0 - 1.0] for titles and labels.
   vtkSetClampMacro( DistanceLODThreshold, double, 0.0, 1.0 );
   vtkGetMacro( DistanceLODThreshold, double);
 
   // Description:
-  // Enable and disable the use of view angle based LOD for titles and labels. 
+  // Enable and disable the use of view angle based LOD for titles and labels.
   vtkSetMacro( EnableViewAngleLOD, int );
   vtkGetMacro( EnableViewAngleLOD, int );
-  
+
   // Description:
   // Set view angle LOD threshold [0.0 - 1.0] for titles and labels.
   vtkSetClampMacro( ViewAngleLODThreshold, double, 0., 1. );
@@ -213,7 +213,7 @@ public:
   vtkBooleanMacro( PolarArcsVisibility, int );
 
   // Description:
-  // Set/Get the polar axis title text property. 
+  // Set/Get the polar axis title text property.
   virtual void SetPolarAxisTitleTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(PolarAxisTitleTextProperty,vtkTextProperty);
 
@@ -221,7 +221,7 @@ public:
   // Set/Get the polar axis labels text property.
   virtual void SetPolarAxisLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(PolarAxisLabelTextProperty,vtkTextProperty);
-  
+
   // Description:
   // Get/Set polar axis actor properties.
   virtual void SetPolarAxisProperty(vtkProperty *);
@@ -253,7 +253,7 @@ protected:
   ~vtkPolarAxesActor();
 
   // Description:
-  // Build the axes. 
+  // Build the axes.
   // Determine coordinates, position, etc.
   void BuildAxes( vtkViewport * );
 
@@ -287,14 +287,14 @@ protected:
   double FSign(double, double );
 
   // Description:
-  // Automatically rescale titles and labels 
+  // Automatically rescale titles and labels
   // NB: Current implementation only for perspective projections.
   void AutoScale( vtkViewport* viewport );
 
   // Description:
   // Coordinates of the pole
   // Default: (0,0,0).
-  double Pole[3]; 
+  double Pole[3];
 
   // Description:
   // Number of radial axes

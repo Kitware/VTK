@@ -81,7 +81,7 @@ void vtkRIBExporter::WriteData()
   vtkCollection *textures = vtkCollection::New();
   vtkLight *aLight;
   vtkTexture *aTexture;
-  
+
   // make sure the user specified a FilePrefix
   if ( this->FilePrefix == NULL)
     {
@@ -100,14 +100,14 @@ void vtkRIBExporter::WriteData()
   vtkCollectionSimpleIterator sit;
   this->RenderWindow->GetRenderers()->InitTraversal(sit);
   ren = this->RenderWindow->GetRenderers()->GetNextRenderer(sit);
-  
+
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
     {
     vtkErrorMacro(<< "no actors found for writing .RIB file.");
     return;
     }
-    
+
   char *ribFileName = new char [strlen (this->FilePrefix) + strlen (".rib") + 1];
   sprintf (ribFileName, "%s%s", this->FilePrefix, ".rib");
 
@@ -120,12 +120,12 @@ void vtkRIBExporter::WriteData()
     }
 
   delete [] ribFileName;
-        
+
   //
   //  Write Header
   //
   this->WriteHeader (ren);
-  
+
   //
   //  All textures must be made first
   //
@@ -216,7 +216,7 @@ void vtkRIBExporter::WriteData()
   // Write trailer
   //
   this->WriteTrailer ();
-  
+
   //  RiEnd ();
   fclose (this->FilePtr);
 
@@ -242,7 +242,7 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
   fprintf (this->FilePtr, "PixelSamples %d %d\n",
                 this->PixelSamples[0],
                 this->PixelSamples[1]);
-        
+
   delete [] imageFileName;
 
 }
@@ -252,7 +252,7 @@ void vtkRIBExporter::WriteTrailer ()
   fprintf (this->FilePtr, "FrameEnd\n");
 }
 
-void vtkRIBExporter::WriteProperty (vtkProperty *aProperty, 
+void vtkRIBExporter::WriteProperty (vtkProperty *aProperty,
                                     vtkTexture *aTexture)
 {
   char *mapName;
@@ -318,11 +318,11 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty,
        {
        fprintf (this->FilePtr, " \"mapname\" [\"%s\"]", mapName);
        }
-      }      
+      }
     if (aRIBProperty->GetParameters ())
       {
       fprintf (this->FilePtr, "%s", aRIBProperty->GetParameters ());
-      }      
+      }
       fprintf (this->FilePtr, "\n");
     if (aRIBProperty->GetDisplacementShader ())
       {
@@ -340,9 +340,9 @@ void vtkRIBExporter::WriteProperty (vtkProperty *aProperty,
       if (aRIBProperty->GetParameters ())
         {
         fprintf (this->FilePtr, "%s", aRIBProperty->GetParameters ());
-        }      
+        }
       fprintf (this->FilePtr, "\n");
-      }      
+      }
     }
 // Normal Property
   else
@@ -439,7 +439,7 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
   double aspect[2];
   double *vport;
   int left,right,bottom,top;
-  
+
   if (size[0] != -1 || size[1] != -1)
     {
     vport = ren->GetViewport();
@@ -449,12 +449,12 @@ void vtkRIBExporter::WriteViewport (vtkRenderer *ren, int size[2])
 
     bottom = (int)(vport[1]*(size[1] -1));
     top = (int)(vport[3]*(size[1] - 1));
-  
+
     fprintf (this->FilePtr, "Format %d %d 1\n", size[0], size[1]);
 
     fprintf (this->FilePtr, "CropWindow %f %f %f %f\n",
-        vport[0], vport[2], vport[1], vport[3]);        
-    
+        vport[0], vport[2], vport[1], vport[3]);
+
     aspect[0] = (double)(right-left+1)/(double)(top-bottom+1);
     aspect[1] = 1.0;
     fprintf (this->FilePtr, "ScreenWindow %f %f %f %f\n",
@@ -485,12 +485,12 @@ void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
   fprintf (this->FilePtr, "Orientation \"rh\"\n");
 }
 
-/* 
+/*
  * PlaceCamera(): establish a viewpoint, viewing direction and orientation
- *    for a scene. This routine must be called before RiWorldBegin(). 
+ *    for a scene. This routine must be called before RiWorldBegin().
  *    position: a point giving the camera position
  *    direction: a point giving the camera direction relative to position
- *    roll: an optional rotation of the camera about its direction axis 
+ *    roll: an optional rotation of the camera about its direction axis
  */
 
 static double cameraMatrix[4][4] = {
@@ -502,7 +502,7 @@ static double cameraMatrix[4][4] = {
 
 void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, double roll)
 {
-  fprintf (filePtr, "Identity\n");    
+  fprintf (filePtr, "Identity\n");
   fprintf (filePtr, "Transform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
         cameraMatrix[0][0], cameraMatrix[0][1], cameraMatrix[0][2], cameraMatrix[0][3],
         cameraMatrix[1][0], cameraMatrix[1][1], cameraMatrix[1][2], cameraMatrix[1][3],
@@ -512,18 +512,18 @@ void PlaceCamera(FILE *filePtr, RtPoint position, RtPoint direction, double roll
   fprintf (filePtr, "Rotate %f %f %f %f\n", -roll, 0.0, 0.0, 1.0);
     AimZ(filePtr, direction);
   fprintf (filePtr, "Translate %f %f %f\n",
-        -position[0], -position[1], -position[2]);      
+        -position[0], -position[1], -position[2]);
 }
 
-/* 
- * AimZ(): rotate the world so the directionvector points in 
- *    positive z by rotating about the y axis, then x. The cosine 
- *    of each rotation is given by components of the normalized 
- *    direction vector. Before the y rotation the direction vector 
+/*
+ * AimZ(): rotate the world so the directionvector points in
+ *    positive z by rotating about the y axis, then x. The cosine
+ *    of each rotation is given by components of the normalized
+ *    direction vector. Before the y rotation the direction vector
  *    might be in negative z, but not afterward.
  */
 
-static void 
+static void
 AimZ(FILE *filePtr, RtPoint direction)
 {
     double xzlen, yzlen, yrot, xrot;
@@ -535,7 +535,7 @@ AimZ(FILE *filePtr, RtPoint direction)
     /*
      * The initial rotation about the y axis is given by the projection of
      * the direction vector onto the x,z plane: the x and z components
-     * of the direction. 
+     * of the direction.
      */
     xzlen = sqrt(direction[0]*direction[0]+direction[2]*direction[2]);
     if (xzlen == 0)
@@ -549,7 +549,7 @@ AimZ(FILE *filePtr, RtPoint direction)
     /*
      * The second rotation, about the x axis, is given by the projection on
      * the y,z plane of the y-rotated direction vector: the original y
-     * component, and the rotated x,z vector from above. 
+     * component, and the rotated x,z vector from above.
     */
     yzlen = sqrt(direction[1]*direction[1]+xzlen*xzlen);
     xrot = 180*acos(xzlen/yzlen)/vtkMath::Pi();       /* yzlen should never be 0 */
@@ -579,7 +579,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   vtkPolyData *polyData;
   vtkGeometryFilter *geometryFilter = NULL;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  
+
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
     {
@@ -592,21 +592,21 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
   // write out the property
   this->WriteProperty (anActor->GetProperty (), anActor->GetTexture ());
-  
+
   // get the mappers input and matrix
   aDataSet = anActor->GetMapper()->GetInput();
   anActor->GetMatrix (matrix);
   matrix->Transpose();
 
-  // insert model transformation 
+  // insert model transformation
   fprintf (this->FilePtr, "ConcatTransform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
-           matrix->Element[0][0], matrix->Element[0][1], 
+           matrix->Element[0][0], matrix->Element[0][1],
            matrix->Element[0][2], matrix->Element[0][3],
-           matrix->Element[1][0], matrix->Element[1][1], 
+           matrix->Element[1][0], matrix->Element[1][1],
            matrix->Element[1][2], matrix->Element[1][3],
-           matrix->Element[2][0], matrix->Element[2][1], 
+           matrix->Element[2][0], matrix->Element[2][1],
            matrix->Element[2][2], matrix->Element[2][3],
-           matrix->Element[3][0], matrix->Element[3][1], 
+           matrix->Element[3][0], matrix->Element[3][1],
            matrix->Element[3][2], matrix->Element[3][3]);
 
   // we really want polydata
@@ -669,12 +669,12 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 
   if (polyData->GetNumberOfPolys ())
     {
-    this->WritePolygons (polyData, anActor->GetMapper()->MapScalars(1.0), 
+    this->WritePolygons (polyData, anActor->GetMapper()->MapScalars(1.0),
                          anActor->GetProperty ());
     }
   if (polyData->GetNumberOfStrips ())
     {
-    this->WriteStrips (polyData, anActor->GetMapper()->MapScalars(1.0), 
+    this->WriteStrips (polyData, anActor->GetMapper()->MapScalars(1.0),
                        anActor->GetProperty ());
     }
   fprintf (this->FilePtr, "TransformEnd\n");
@@ -686,8 +686,8 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   matrix->Delete();
 }
 
-void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, 
-                                    vtkUnsignedCharArray *c, 
+void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
+                                    vtkUnsignedCharArray *c,
                                     vtkProperty *aProperty)
 {
   double vertexColors[512][3];
@@ -710,19 +710,19 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   vtkPolygon *polygon;
   vtkDataArray *t;
 
-  // get the representation 
+  // get the representation
   rep = aProperty->GetRepresentation();
 
-  switch (rep) 
+  switch (rep)
     {
     case VTK_SURFACE:
       break;
-    default: 
+    default:
       vtkErrorMacro(<< "Bad representation sent\n");
       break;
     }
 
-  // get the shading interpolation 
+  // get the shading interpolation
   interpolation = aProperty->GetInterpolation();
 
   // and draw the display list
@@ -731,7 +731,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   polys = polyData->GetPolys();
 
   t = polyData->GetPointData()->GetTCoords();
-  if ( t ) 
+  if ( t )
     {
     tDim = t->GetNumberOfComponents();
     if (tDim != 2)
@@ -746,23 +746,23 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   vtkCellData  *cellData  = polyData->GetCellData();
   vtkFieldData *fieldData = polyData->GetFieldData();
 
-  if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) || 
+  if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) ||
        !(n=polyData->GetPointData()->GetNormals()) )
     {
     n = 0;
     }
 
   for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
-    { 
+    {
     if (!n)
       {
       polygon->ComputeNormal(p,npts,pts,poly_norm);
       }
-    
-    for (j = 0; j < npts; j++) 
+
+    for (j = 0; j < npts; j++)
       {
       k = j;
-      if (c) 
+      if (c)
         {
         colors = c->GetPointer(4*pts[k]);
         vertexColors[k][0] = colors[0] / 255.0;
@@ -776,23 +776,23 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
         // Renderman Textures have origin at upper left
         vertexTCoords[k][1] = 1.0 - TCoords[1];
         }
-      if (n) 
+      if (n)
         {
         normals = n->GetTuple (pts[k]);
         vertexNormals[k][0] = normals[0];
         vertexNormals[k][1] = normals[1];
         vertexNormals[k][2] = normals[2];
         }
-      else 
+      else
         {
         vertexNormals[k][0] = poly_norm[0];
         vertexNormals[k][1] = poly_norm[1];
         vertexNormals[k][2] = poly_norm[2];
         }
-      
+
       p->GetPoint(pts[k], points);
       vertexPoints[k][0] = points[0];
-      vertexPoints[k][1] = points[1]; 
+      vertexPoints[k][1] = points[1];
       vertexPoints[k][2] = points[2];
       }
     fprintf (this->FilePtr, "Polygon ");
@@ -838,7 +838,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
       {
       if ( pointData )
         {
-        int cc, aa;      
+        int cc, aa;
         vtksys_ios::ostringstream str_with_warning_C4701;
         for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
           {
@@ -857,7 +857,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
             }
           str_with_warning_C4701 << "] ";
           }
-        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );     
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );
         }
 
       if ( cellData )
@@ -881,7 +881,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
             }
           str_with_warning_C4701 << "] ";
           }
-        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );      
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );
         }
 
       if ( fieldData )
@@ -906,7 +906,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
             }
           str_with_warning_C4701 << "] ";
           }
-        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );      
+        fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );
         }
       }
 
@@ -915,8 +915,8 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   polygon->Delete();
 }
 
-void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, 
-                                  vtkUnsignedCharArray *c, 
+void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
+                                  vtkUnsignedCharArray *c,
                                   vtkProperty *aProperty)
 {
   double vertexColors[512][3];
@@ -941,28 +941,28 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
   vtkPolygon *polygon;
   vtkIdType idx[3];
 
-  // get the representation 
+  // get the representation
   rep = aProperty->GetRepresentation();
 
-  switch (rep) 
+  switch (rep)
     {
     case VTK_SURFACE:
       break;
-    default: 
+    default:
       vtkErrorMacro(<< "Bad representation sent\n");
       break;
     }
 
-  // get the shading interpolation 
+  // get the shading interpolation
   interpolation = aProperty->GetInterpolation();
 
   // and draw the display list
   p = polyData->GetPoints();
   strips = polyData->GetStrips();
   polygon = vtkPolygon::New();
-  
+
   t = polyData->GetPointData()->GetTCoords();
-  if ( t ) 
+  if ( t )
     {
     tDim = t->GetNumberOfComponents();
     if (tDim != 2)
@@ -972,7 +972,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
       }
     }
 
-  if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) || 
+  if ( interpolation == VTK_FLAT || !(polyData->GetPointData()) ||
        !(n=polyData->GetPointData()->GetNormals()) )
     {
     n = 0;
@@ -986,12 +986,12 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
 
   // each iteration returns a triangle strip
   for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
-    { 
+    {
     // each triangle strip is converted into a bunch of triangles
     p1 = pts[0];
     p2 = pts[1];
     p3 = pts[2];
-    for (j = 0; j < (npts-2); j++) 
+    for (j = 0; j < (npts-2); j++)
       {
       if (j%2)
         {
@@ -1006,7 +1006,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         idx[2] = p3;
         }
 
-      if (!n) 
+      if (!n)
         {
         polygon->ComputeNormal (p, 3, idx, poly_norm);
         }
@@ -1014,7 +1014,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
       // build colors, texture coordinates and normals for the triangle
       for (k = 0; k < 3; k++)
         {
-        if (c) 
+        if (c)
           {
           colors = c->GetPointer(4*idx[k]);
           vertexColors[k][0] = colors[0] / 255.0;
@@ -1028,14 +1028,14 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
           // Renderman Textures have origin at upper left
           vertexTCoords[k][1] = 1.0 - TCoords[1];
           }
-        if (n) 
+        if (n)
           {
           normals = n->GetTuple (idx[k]);
           vertexNormals[k][0] = normals[0];
           vertexNormals[k][1] = normals[1];
           vertexNormals[k][2] = normals[2];
           }
-        else 
+        else
           {
           vertexNormals[k][0] = poly_norm[0];
           vertexNormals[k][1] = poly_norm[1];
@@ -1043,7 +1043,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
           }
         p->GetPoint(idx[k], points);
         vertexPoints[k][0] = points[0];
-        vertexPoints[k][1] = points[1]; 
+        vertexPoints[k][1] = points[1];
         vertexPoints[k][2] = points[2];
         }
       fprintf (this->FilePtr, "Polygon ");
@@ -1107,7 +1107,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
               }
             str_with_warning_C4701 << "] ";
             }
-          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );    
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );
           }
 
         if ( cellData )
@@ -1131,7 +1131,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
               }
             str_with_warning_C4701 << "] ";
             }
-          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );    
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );
           }
 
         if ( fieldData )
@@ -1155,7 +1155,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
               }
             str_with_warning_C4701 << "] ";
             }
-          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );     
+          fprintf ( this->FilePtr, "%s", str_with_warning_C4701.str().c_str() );
           }
         }
       fprintf (this->FilePtr, "\n");
@@ -1174,7 +1174,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
 void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   if (this->FilePrefix)
     {
     os << indent << "FilePrefix: " << this->FilePrefix << "\n";
@@ -1193,7 +1193,7 @@ void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
   os << indent << "Size: " << this->Size[0] << " " << this->Size[1] << "\n";
-  os << indent << "PixelSamples: " << this->PixelSamples[0] << " " 
+  os << indent << "PixelSamples: " << this->PixelSamples[0] << " "
      << this->PixelSamples[1] << "\n";
   os << indent << "Export Arrays: " << (this->ExportArrays ? "On" : "Off")
      << "\n";
@@ -1231,7 +1231,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
   scalars = aTexture->GetInput()->GetPointData()->GetScalars();
 
   // make sure scalars are non null
-  if (!scalars) 
+  if (!scalars)
     {
     vtkErrorMacro(<< "No scalar values found for texture input!\n");
     return;
@@ -1249,7 +1249,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     }
 
   // we only support 2d texture maps right now
-  // so one of the three sizes must be 1, but it 
+  // so one of the three sizes must be 1, but it
   // could be any of them, so lets find it
   if (size[0] == 1)
     {

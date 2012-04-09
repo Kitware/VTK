@@ -12,7 +12,7 @@ vtkPointSource sphere
 vtkDelaunay3D del1
   del1 SetInputConnection [sphere GetOutputPort]
   del1 SetTolerance 0.01
-    
+
 # texture map the sphere (using cylindrical coordinate system)
 #
 vtkTextureMapToCylinder tmapper

@@ -42,7 +42,7 @@ public:
   vtkGetVector6Macro(WholeExtent, int);
 
   // Description:
-  // Set the name of the column to use as the X coordinate for the points. 
+  // Set the name of the column to use as the X coordinate for the points.
   vtkSetStringMacro(XColumn);
   vtkGetStringMacro(XColumn);
 
@@ -54,7 +54,7 @@ public:
   vtkGetMacro(XComponent, int);
 
   // Description:
-  // Set the name of the column to use as the Y coordinate for the points. 
+  // Set the name of the column to use as the Y coordinate for the points.
   // Default is 0.
   vtkSetStringMacro(YColumn);
   vtkGetStringMacro(YColumn);

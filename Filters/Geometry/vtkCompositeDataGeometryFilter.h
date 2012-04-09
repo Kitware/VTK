@@ -36,8 +36,8 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request, 
-                             vtkInformationVector** inputVector, 
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
 protected:
@@ -49,8 +49,8 @@ protected:
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
 
-  virtual int RequestCompositeData(vtkInformation*, 
-                                   vtkInformationVector**, 
+  virtual int RequestCompositeData(vtkInformation*,
+                                   vtkInformationVector**,
                                    vtkInformationVector*);
 
 private:

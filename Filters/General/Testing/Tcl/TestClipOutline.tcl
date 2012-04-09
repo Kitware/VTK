@@ -67,8 +67,8 @@ vtkClipClosedSurface outlineClip
   outlineClip GenerateOutlineOn
   outlineClip SetScalarModeToColors
   outlineClip SetClipColor 0 1 0
-  
-vtkDataSetMapper outlineMapper  
+
+vtkDataSetMapper outlineMapper
   outlineMapper SetInputConnection [outlineClip GetOutputPort]
 
 vtkActor outlineActor

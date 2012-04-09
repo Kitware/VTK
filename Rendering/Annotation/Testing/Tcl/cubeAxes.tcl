@@ -71,7 +71,7 @@ vtkCubeAxesActor2D axes
     axes SetFontFactor 0.8
     axes SetAxisTitleTextProperty tprop
     axes SetAxisLabelTextProperty tprop
-ren1 AddViewProp axes 
+ren1 AddViewProp axes
 
 vtkCubeAxesActor2D axes2
     axes2 SetViewProp foheActor
@@ -82,7 +82,7 @@ vtkCubeAxesActor2D axes2
     axes2 ScalingOff
     axes2 SetAxisTitleTextProperty tprop
     axes2 SetAxisLabelTextProperty tprop
-ren2 AddViewProp axes2 
+ren2 AddViewProp axes2
 
 renWin Render
 

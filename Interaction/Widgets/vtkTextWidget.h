@@ -54,7 +54,7 @@ public:
   void SetRepresentation(vtkTextRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(
       reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Specify a vtkTextActor to manage. This is a convenient, alternative
   // method to specify the representation for the widget (i.e., used instead
@@ -64,7 +64,7 @@ public:
   vtkTextActor *GetTextActor();
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   virtual void CreateDefaultRepresentation();
 
 protected:

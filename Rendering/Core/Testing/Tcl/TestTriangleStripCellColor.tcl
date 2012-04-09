@@ -1,7 +1,7 @@
 package require vtk
 package require vtkinteraction
 
-vtkSphereSource sphere 
+vtkSphereSource sphere
 
 vtkElevationFilter elevation
 elevation SetInputConnection [sphere GetOutputPort]
@@ -20,7 +20,7 @@ sphereMapper SetInputConnection [stripper GetOutputPort]
 sphereMapper SelectColorArray "Elevation"
 sphereMapper SetColorModeToMapScalars
 sphereMapper SetScalarModeToUseFieldData
-sphereMapper SetScalarRange 0.28 0.72 
+sphereMapper SetScalarRange 0.28 0.72
 
 vtkActor sphereActor
 sphereActor SetMapper sphereMapper

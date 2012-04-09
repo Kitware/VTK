@@ -49,6 +49,6 @@ void vtkAbstractParticleWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimeStep: " << this->TimeStep << endl;
   os << indent << "TimeValue: " << this->TimeValue << endl;
   os << indent << "CollectiveIO: " << this->CollectiveIO << endl;
-  os << indent << "FileName: " << 
+  os << indent << "FileName: " <<
     (this->FileName ? this->FileName : "NONE") << endl;
 }

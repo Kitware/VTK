@@ -63,8 +63,8 @@ public:
   vtkGetMacro(Angle, double);
 
   // Description:
-  // If set, the tree is laid out with levels on concentric circles 
-  // around the root. If unset (default), the tree is laid out with 
+  // If set, the tree is laid out with levels on concentric circles
+  // around the root. If unset (default), the tree is laid out with
   // levels on horizontal lines.
   vtkSetMacro(Radial, bool);
   vtkGetMacro(Radial, bool);

@@ -76,9 +76,9 @@ int TestVariant(int, char*[])
           int conv = v.ToInt();
           if (conv != static_cast<int>(value))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<int>(value) << ")" << endl;
             errors++;
@@ -90,9 +90,9 @@ int TestVariant(int, char*[])
           unsigned int conv = v.ToUnsignedInt();
           if (conv != static_cast<unsigned int>(value))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<unsigned int>(value) << ")" << endl;
             errors++;
@@ -104,9 +104,9 @@ int TestVariant(int, char*[])
           vtkTypeInt64 conv = v.ToTypeInt64();
           if (conv != static_cast<vtkTypeInt64>(value))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<vtkTypeInt64>(value) << ")" << endl;
             errors++;
@@ -118,9 +118,9 @@ int TestVariant(int, char*[])
           vtkTypeUInt64 conv = v.ToTypeUInt64();
           if (conv != static_cast<vtkTypeUInt64>(value))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<vtkTypeUInt64>(value) << ")" << endl;
             errors++;
@@ -132,9 +132,9 @@ int TestVariant(int, char*[])
           float conv = v.ToFloat();
           if (conv != static_cast<float>(value))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<float>(value) << ")" << endl;
             errors++;
@@ -146,9 +146,9 @@ int TestVariant(int, char*[])
           double conv = v.ToDouble();
           if (conv != static_cast<double>(value))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << static_cast<double>(value) << ")" << endl;
             errors++;
@@ -160,9 +160,9 @@ int TestVariant(int, char*[])
           vtkStdString conv = v.ToString();
           if (conv != vtkStdString(strValue))
             {
-            cerr << "conversion invalid (" 
+            cerr << "conversion invalid ("
               << vtkImageScalarTypeNameMacro(type[i])
-              << " " << conv << " != " 
+              << " " << conv << " != "
               << vtkImageScalarTypeNameMacro(type[j])
               << " " << strValue << ")" << endl;
             errors++;

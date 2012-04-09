@@ -38,14 +38,14 @@ public:
 
   vtkTypeMacro(vtkArrowSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-    
+
   // Description:
   // Set the length, and radius of the tip.  They default to 0.35 and 0.1
   vtkSetClampMacro(TipLength,double,0.0,1.0);
   vtkGetMacro(TipLength,double);
   vtkSetClampMacro(TipRadius,double,0.0,10.0);
   vtkGetMacro(TipRadius,double);
-  
+
   // Description:
   // Set the resolution of the tip.  The tip behaves the same as a cone.
   // Resoultion 1 gives a single triangle, 2 gives two crossed triangles.

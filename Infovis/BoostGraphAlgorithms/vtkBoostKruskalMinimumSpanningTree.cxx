@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkBoostKruskalMinimumSpanningTree.cxx
 
@@ -68,7 +68,7 @@ void vtkBoostKruskalMinimumSpanningTree::SetNegateEdgeWeights(bool value)
     this->EdgeWeightMultiplier = -1.0;
   else
     this->EdgeWeightMultiplier = 1.0;
-  
+
   this->Modified();
 }
 
@@ -80,13 +80,13 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  
+
   // get the input and output
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkSelection *output = vtkSelection::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // Retrieve the edge-weight array.
   if (!this->EdgeWeightArrayName)
     {
@@ -94,21 +94,21 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
     return 0;
     }
   vtkDataArray* edgeWeightArray = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
-  
-  // Does the edge-weight array exist at all?  
+
+  // Does the edge-weight array exist at all?
   if (edgeWeightArray == NULL)
     {
-    vtkErrorMacro("Could not find edge-weight array named " 
+    vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);
     return 0;
     }
-  
+
   // Send the property map through both the multiplier and the
   // helper (for edge_descriptor indexing)
   typedef vtkGraphPropertyMapMultiplier<vtkDataArray*> mapMulti;
   mapMulti multi(edgeWeightArray,this->EdgeWeightMultiplier);
   vtkGraphEdgePropertyMapHelper<mapMulti> weight_helper(multi);
-  
+
   // Run the algorithm
   std::vector<vtkEdgeType> mstEdges;
   if (vtkDirectedGraph::SafeDownCast(input))
@@ -121,19 +121,19 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(input);
     kruskal_minimum_spanning_tree(g, std::back_inserter(mstEdges), weight_map(weight_helper));
     }
-  
+
   // Select the minimum spanning tree edges.
   if (!strcmp(OutputSelectionType,"MINIMUM_SPANNING_TREE_EDGES"))
     {
     vtkIdTypeArray* ids = vtkIdTypeArray::New();
-    
+
     // Add the ids of each MST edge.
     for (std::vector<vtkEdgeType>::iterator i = mstEdges.begin();
          i != mstEdges.end(); ++i)
       {
       ids->InsertNextValue(i->Id);
       }
-    
+
     vtkSmartPointer<vtkSelectionNode> node =
       vtkSmartPointer<vtkSelectionNode>::New();
     output->AddNode(node);
@@ -142,7 +142,7 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
     node->SetFieldType(vtkSelectionNode::EDGE);
     ids->Delete();
     }
-  
+
   return 1;
 }
 
@@ -174,18 +174,18 @@ int vtkBoostKruskalMinimumSpanningTree::FillOutputPortInformation(
 void vtkBoostKruskalMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "EdgeWeightArrayName: " 
-     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)") 
+
+  os << indent << "EdgeWeightArrayName: "
+     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)")
      << endl;
-  
+
   os << indent << "OutputSelectionType: "
      << (this->OutputSelectionType ? this->OutputSelectionType : "(none)") << endl;
-  
-  
-  os << indent << "NegateEdgeWeights: " 
-     << (this->NegateEdgeWeights ? "true" : "false") << endl;   
-  
+
+
+  os << indent << "NegateEdgeWeights: "
+     << (this->NegateEdgeWeights ? "true" : "false") << endl;
+
   os << indent << "EdgeWeightMultiplier: " << this->EdgeWeightMultiplier << endl;
 }
 

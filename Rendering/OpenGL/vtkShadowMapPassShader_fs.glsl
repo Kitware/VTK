@@ -49,13 +49,13 @@ void main(void)
 //    gl_FragColor+=frontColors[i]*factor;
     ++i;
     }
-  
+
   gl_FragColor=clamp(gl_FragColor,0.0,1.0);
-  
+
   // we don't let the prop to execute its fragment shader because it
   // already executed in the previous pass with none shadowing lights.
   //  propFuncFS();
-  
+
   // gl_FragColor will be blending with framebuffer value containing other
   // lights contributions.
   // use alpha_testing for black/dark color?

@@ -1,5 +1,5 @@
-find_package(Boost REQUIRED 
-  COMPONENTS serialization 
+find_package(Boost REQUIRED
+  COMPONENTS serialization
   )
 include_directories(${Boost_INCLUDE_DIRS})
 

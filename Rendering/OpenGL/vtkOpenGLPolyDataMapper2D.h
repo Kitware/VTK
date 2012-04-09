@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkOpenGLPolyDataMapper2D - 2D PolyData support for OpenGL
 // .SECTION Description
-// vtkOpenGLPolyDataMapper2D provides 2D PolyData annotation support for 
-// vtk under OpenGL.  Normally the user should use vtkPolyDataMapper2D 
+// vtkOpenGLPolyDataMapper2D provides 2D PolyData annotation support for
+// vtk under OpenGL.  Normally the user should use vtkPolyDataMapper2D
 // which in turn will use this class.
 
 // .SECTION See Also
@@ -41,7 +41,7 @@ public:
 protected:
   vtkOpenGLPolyDataMapper2D() {};
   ~vtkOpenGLPolyDataMapper2D() {};
-  
+
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.

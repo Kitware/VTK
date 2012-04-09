@@ -36,39 +36,39 @@ public:
   static vtkGPUInfoList *New();
   vtkTypeMacro(vtkGPUInfoList, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Build the list of vtkInfoGPU if not done yet.
   // Default implementation created an empty list. Useful if there is no
   // implementation available for a given architecture yet.
   // \post probed: IsProbed()
   virtual void Probe()=0;
-  
+
   // Description:
   // Tells if the operating system has been probed. Initial value is false.
   virtual bool IsProbed();
-  
+
   // Description:
   // Return the number of GPUs.
   // \pre probed: IsProbed()
   virtual int GetNumberOfGPUs();
-  
+
   // Description:
   // Return information about GPU i.
   // \pre probed: IsProbed()
   // \pre valid_index: i>=0 && i<GetNumberOfGPUs()
   // \post result_exists: result!=0
   virtual vtkGPUInfo *GetGPUInfo(int i);
-  
+
 protected:
   // Description:
   // Default constructor. Set Probed to false. Set Array to NULL.
   vtkGPUInfoList();
   virtual ~vtkGPUInfoList();
-  
+
   bool Probed;
   vtkGPUInfoListArray *Array;
-  
+
 private:
   vtkGPUInfoList(const vtkGPUInfoList&); // Not implemented.
   void operator=(const vtkGPUInfoList&); // Not implemented.

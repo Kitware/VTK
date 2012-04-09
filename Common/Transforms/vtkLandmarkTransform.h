@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkLandmarkTransform - a linear transform specified by two corresponding point sets
 // .SECTION Description
-// A vtkLandmarkTransform is defined by two sets of landmarks, the 
-// transform computed gives the best fit mapping one onto the other, in a 
-// least squares sense. The indices are taken to correspond, so point 1 
-// in the first set will get mapped close to point 1 in the second set, 
+// A vtkLandmarkTransform is defined by two sets of landmarks, the
+// transform computed gives the best fit mapping one onto the other, in a
+// least squares sense. The indices are taken to correspond, so point 1
+// in the first set will get mapped close to point 1 in the second set,
 // etc. Call SetSourceLandmarks and SetTargetLandmarks to specify the two
 // sets of landmarks, ensure they have the same number of points.
 // .SECTION Caveats
@@ -45,7 +45,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the source and target landmark sets. The two sets must have 
+  // Specify the source and target landmark sets. The two sets must have
   // the same number of points.  If you add or change points in these objects,
   // you must call Modified() on them or the transformation might not update.
   void SetSourceLandmarks(vtkPoints *points);
@@ -55,10 +55,10 @@ public:
 
   // Description:
   // Set the number of degrees of freedom to constrain the solution to.
-  // Rigidbody (VTK_LANDMARK_RIGIDBODY): rotation and translation only.  
-  // Similarity (VTK_LANDMARK_SIMILARITY): rotation, translation and 
+  // Rigidbody (VTK_LANDMARK_RIGIDBODY): rotation and translation only.
+  // Similarity (VTK_LANDMARK_SIMILARITY): rotation, translation and
   //            isotropic scaling.
-  // Affine (VTK_LANDMARK_AFFINE): collinearity is preserved. 
+  // Affine (VTK_LANDMARK_AFFINE): collinearity is preserved.
   //        Ratios of distances along a line are preserved.
   // The default is similarity.
   vtkSetMacro(Mode,int);
@@ -103,7 +103,7 @@ private:
   vtkLandmarkTransform(const vtkLandmarkTransform&);  // Not implemented.
   void operator=(const vtkLandmarkTransform&);  // Not implemented.
 };
- 
+
 //BTX
 inline const char *vtkLandmarkTransform::GetModeAsString()
 {

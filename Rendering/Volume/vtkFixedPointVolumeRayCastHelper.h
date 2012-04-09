@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkFixedPointVolumeRayCastHelper - An abstract helper that generates images for the volume ray cast mapper
 // .SECTION Description
-// This is the abstract superclass of all helper classes for the 
+// This is the abstract superclass of all helper classes for the
 // vtkFixedPointVolumeRayCastMapper. This class should not be used directly.
 //
 // .SECTION see also
@@ -163,7 +163,7 @@
                (mH*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;
 //ETX
 
-//BTX  
+//BTX
 #define VTKKWRCHelper_InterpolateScalarComponent( VAL, CIDX, COMPONENTS )               \
   for ( CIDX = 0; CIDX < COMPONENTS; CIDX++ )                                           \
     {                                                                                   \
@@ -177,9 +177,9 @@
                (G[CIDX]*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                      \
                (H[CIDX]*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;   \
     }                                                                                   \
-//ETX 
-      
-//BTX 
+//ETX
+
+//BTX
 #define VTKKWRCHelper_InterpolateMagnitudeComponent( VAL, CIDX, COMPONENTS )            \
   for ( CIDX = 0; CIDX < COMPONENTS; CIDX++ )                                           \
     {                                                                                   \
@@ -364,7 +364,7 @@
   COLOR[1] = static_cast<unsigned short>                                              \
     ((COLORTABLE[3*IDX+1]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                      \
   COLOR[2] = static_cast<unsigned short>                                              \
-    ((COLORTABLE[3*IDX+2]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                     
+    ((COLORTABLE[3*IDX+2]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));
 //ETX
 
 //BTX
@@ -1252,7 +1252,7 @@
 //ETX
 
 
-//BTX 
+//BTX
 #define VTKKWRCHelper_SpaceLeapCheck()                          \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                \
@@ -1270,7 +1270,7 @@
     }
 //ETX
 
-//BTX 
+//BTX
 #define VTKKWRCHelper_MIPSpaceLeapCheck( MAXIDX, MAXIDXDEF, FLIP )      \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                        \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                        \
@@ -1290,7 +1290,7 @@
 //ETX
 
 
-//BTX 
+//BTX
 #define VTKKWRCHelper_MIPSpaceLeapPopulateMulti( MAXIDX, FLIP )                   \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                                  \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                                  \
@@ -1306,7 +1306,7 @@
     }
 //ETX
 
-//BTX 
+//BTX
 #define VTKKWRCHelper_MIPSpaceLeapCheckMulti( COMP, FLIP )  mmvalid[COMP]
 //ETX
 
@@ -1323,11 +1323,11 @@ public:
   vtkTypeMacro(vtkFixedPointVolumeRayCastHelper,vtkObject);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-  virtual void   GenerateImage( int, 
+  virtual void   GenerateImage( int,
                                 int,
                                 vtkVolume *,
                                 vtkFixedPointVolumeRayCastMapper *) {}
-  
+
 protected:
   vtkFixedPointVolumeRayCastHelper();
   ~vtkFixedPointVolumeRayCastHelper();

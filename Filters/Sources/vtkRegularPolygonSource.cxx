@@ -71,10 +71,10 @@ int vtkRegularPolygonSource::RequestData(
 
   double x[3], r[3];
   int i, j, numPts=this->NumberOfSides;
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkCellArray *newPoly;
   vtkCellArray *newLine;
-  
+
   // Prepare to produce the output; create the connectivity array(s)
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
@@ -92,7 +92,7 @@ int vtkRegularPolygonSource::RequestData(
     output->SetLines(newLine);
     newLine->Delete();
     }
-  
+
   if ( this->GeneratePolygon )
     {
     newPoly = vtkCellArray::New();
@@ -105,7 +105,7 @@ int vtkRegularPolygonSource::RequestData(
     output->SetPolys(newPoly);
     newPoly->Delete();
     }
-  
+
   // Produce a unit vector in the plane of the polygon (i.e., perpendicular
   // to the normal)
   double n[3], axis[3], px[3], py[3];

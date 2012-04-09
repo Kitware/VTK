@@ -51,7 +51,7 @@ public:
   // The query to execute.
   void SetQuery(vtkRowQuery* query);
   vtkGetObjectMacro(Query, vtkRowQuery);
-  
+
   // Description:
   // Update the modified time based on the query.
   unsigned long GetMTime();
@@ -63,10 +63,10 @@ protected:
   vtkRowQuery* Query;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
 private:
   vtkRowQueryToTable(const vtkRowQueryToTable&); // Not implemented
   void operator=(const vtkRowQueryToTable&);   // Not implemented

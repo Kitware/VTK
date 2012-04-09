@@ -43,40 +43,40 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextBufferId : public vtkObject
 public:
   vtkTypeMacro(vtkAbstractContextBufferId, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
-  
+
   // Description:
   // Number of columns. Initial value is 0.
   vtkGetMacro(Width,int);
-  
+
   // Description:
   // Set the number of columns. Initial value is 0.
   vtkSetMacro(Width,int);
-  
+
   // Description:
   // Number of rows. Initial value is 0.
   vtkGetMacro(Height,int);
-  
+
   // Description:
   // Set the number of rows. Initial value is 0.
   vtkSetMacro(Height,int);
-  
+
   // Description:
   // Allocate the memory for at least Width*Height elements.
   // \pre positive_width: GetWidth()>0
   // \pre positive_height: GetHeight()>0
   virtual void Allocate()=0;
-  
+
   // Description:
   // Tell if the buffer has been allocated.
   virtual bool IsAllocated() const=0;
-  
+
   // Description:
   // Copy the contents of the current read buffer to the internal structure
   // starting at lower left corner of the framebuffer (srcXmin,srcYmin).
   // \pre is_allocated: this->IsAllocated()
   virtual void SetValues(int srcXmin,
                          int srcYmin)=0;
-  
+
   // Description:
   // Return item under abscissa x and ordinate y.
   // Abscissa go from left to right.
@@ -85,19 +85,19 @@ public:
   // \pre is_allocated: IsAllocated()
   // \post valid_result: result>=-1
   virtual vtkIdType GetPickedItem(int x, int y)=0;
-  
+
   // Description:
   // Release any graphics resources that are being consumed by this object.
   // Default implementation is empty.
   virtual void ReleaseGraphicsResources();
-  
+
 protected:
   vtkAbstractContextBufferId();
   virtual ~vtkAbstractContextBufferId();
-  
+
   int Width;
   int Height;
-  
+
 private:
   vtkAbstractContextBufferId(const vtkAbstractContextBufferId &); // Not implemented.
   void operator=(const vtkAbstractContextBufferId &);   // Not implemented.

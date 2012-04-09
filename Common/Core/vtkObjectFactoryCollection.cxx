@@ -21,11 +21,11 @@
 // Needed when we don't use the vtkStandardNewMacro.
 vtkInstantiatorNewMacro(vtkObjectFactoryCollection);
 
-vtkObjectFactoryCollection* vtkObjectFactoryCollection::New() 
+vtkObjectFactoryCollection* vtkObjectFactoryCollection::New()
 {
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass("vtkObjectFactoryCollection");
-#endif    
+#endif
   return new vtkObjectFactoryCollection;
 }
 

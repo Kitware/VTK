@@ -30,9 +30,9 @@
 // the loop boundary is computed (negative values are inside the
 // loop).
 //
-// One example application of this implicit function class is to draw a 
-// loop on the surface of a mesh, and use the loop to clip or extract 
-// cells from within the loop. Remember, the selection loop is "infinite" 
+// One example application of this implicit function class is to draw a
+// loop on the surface of a mesh, and use the loop to clip or extract
+// cells from within the loop. Remember, the selection loop is "infinite"
 // in length, you can use a plane (in boolean combination) to cap the extent
 // of the selection loop. Another trick is to use a connectivity filter to
 // extract the closest region to a given point (i.e., one of the points used

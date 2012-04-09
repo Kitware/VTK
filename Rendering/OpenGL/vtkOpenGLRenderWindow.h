@@ -201,7 +201,7 @@ public:
   // Block the thread until the actual rendering is finished().
   // Useful for measurement only.
   virtual void WaitForCompletion();
-  
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();

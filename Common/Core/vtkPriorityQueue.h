@@ -23,11 +23,11 @@
 // and retrieve (or pop) values from the queue. It is also possible to
 // pop any item in the queue given its id number. This allows you to delete
 // entries in the queue which can useful for reinserting an item into the
-// queue. 
+// queue.
 //
 // .SECTION Caveats
 // This implementation is a variation of the priority queue described in
-// "Data Structures & Algorithms" by Aho, Hopcroft, Ullman. It creates 
+// "Data Structures & Algorithms" by Aho, Hopcroft, Ullman. It creates
 // a balanced, partially ordered binary tree implemented as an ordered
 // array. This avoids the overhead associated with parent/child pointers,
 // and frequent memory allocation and deallocation.
@@ -75,7 +75,7 @@ public:
   // is exhausted, then a value < 0 is returned. (Note: the location
   // is not the same as deleting an id; id is mapped to location.)
   vtkIdType Pop(vtkIdType location, double &priority);
-//ETX    
+//ETX
 
   // Description:
   // Same as above but simplified for easier wrapping into interpreted
@@ -87,8 +87,8 @@ public:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
   vtkIdType Peek(vtkIdType location, double &priority);
-//ETX    
-  
+//ETX
+
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id.
@@ -116,7 +116,7 @@ public:
 protected:
   vtkPriorityQueue();
   ~vtkPriorityQueue();
-  
+
   Item *Resize(const vtkIdType sz);
 
   vtkIdTypeArray *ItemLocation;
@@ -134,7 +134,7 @@ inline double vtkPriorityQueue::DeleteId(vtkIdType id)
   double priority=VTK_DOUBLE_MAX;
   int loc;
 
-  if ( id <= this->ItemLocation->GetMaxId() &&  
+  if ( id <= this->ItemLocation->GetMaxId() &&
   (loc=this->ItemLocation->GetValue(id)) != -1 )
     {
     this->Pop(loc,priority);
@@ -146,7 +146,7 @@ inline double vtkPriorityQueue::GetPriority(vtkIdType id)
 {
   int loc;
 
-  if ( id <= this->ItemLocation->GetMaxId() &&  
+  if ( id <= this->ItemLocation->GetMaxId() &&
   (loc=this->ItemLocation->GetValue(id)) != -1 )
     {
     return this->Array[loc].priority;

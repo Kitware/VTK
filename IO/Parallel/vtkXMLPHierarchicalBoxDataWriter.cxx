@@ -21,7 +21,7 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPHierarchicalBoxDataWriter);
 
-vtkCxxSetObjectMacro(vtkXMLPHierarchicalBoxDataWriter, 
+vtkCxxSetObjectMacro(vtkXMLPHierarchicalBoxDataWriter,
                      Controller,
                      vtkMultiProcessController);
 

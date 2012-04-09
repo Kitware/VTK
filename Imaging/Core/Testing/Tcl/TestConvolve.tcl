@@ -12,7 +12,7 @@ s1 FillBox 75 175 75 175
 
 vtkImageConvolve convolve
 convolve SetInputConnection [s1 GetOutputPort]
-convolve SetKernel5x5 1 1 1 1 1  5 4 3 2 1  5 4 3 2 1  5 4 3 2 1  1 1 1 1 1 
+convolve SetKernel5x5 1 1 1 1 1  5 4 3 2 1  5 4 3 2 1  5 4 3 2 1  1 1 1 1 1
 
 vtkImageViewer viewer
 viewer SetInputConnection [convolve GetOutputPort]

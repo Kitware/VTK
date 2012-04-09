@@ -16,7 +16,7 @@
 // It renders an actor with a translucent LUT and depth
 // peeling using the multi renderpass classes. The mapper uses color
 // interpolation (poor quality).
-// 
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -61,10 +61,10 @@ int TestGaussianBlurPass(int argc, char* argv[])
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
-  
+
   renWin->SetAlphaBitPlanes(1);
   iren->SetRenderWindow(renWin);
-  
+
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
@@ -74,7 +74,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
 
   vtkSmartPointer<vtkCameraPass> cameraP=
     vtkSmartPointer<vtkCameraPass>::New();
-  
+
   vtkSmartPointer<vtkSequencePass> seq=
     vtkSmartPointer<vtkSequencePass>::New();
   vtkSmartPointer<vtkOpaquePass> opaque=
@@ -83,59 +83,59 @@ int TestGaussianBlurPass(int argc, char* argv[])
     vtkSmartPointer<vtkDepthPeelingPass>::New();
   peeling->SetMaximumNumberOfPeels(200);
   peeling->SetOcclusionRatio(0.1);
-  
+
   vtkSmartPointer<vtkTranslucentPass> translucent=
     vtkSmartPointer<vtkTranslucentPass>::New();
   peeling->SetTranslucentPass(translucent);
-  
+
   vtkSmartPointer<vtkVolumetricPass> volume=
     vtkSmartPointer<vtkVolumetricPass>::New();
   vtkSmartPointer<vtkOverlayPass> overlay=
     vtkSmartPointer<vtkOverlayPass>::New();
-  
+
   vtkSmartPointer<vtkLightsPass> lights=
     vtkSmartPointer<vtkLightsPass>::New();
-  
+
   vtkSmartPointer<vtkRenderPassCollection> passes=
     vtkSmartPointer<vtkRenderPassCollection>::New();
   passes->AddItem(lights);
   passes->AddItem(opaque);
-  
+
   passes->AddItem(peeling);
 //  passes->AddItem(translucent);
-  
+
   passes->AddItem(volume);
   passes->AddItem(overlay);
   seq->SetPasses(passes);
   cameraP->SetDelegatePass(seq);
-  
+
   vtkSmartPointer<vtkGaussianBlurPass> blurP=
     vtkSmartPointer<vtkGaussianBlurPass>::New();
   blurP->SetDelegatePass(cameraP);
-  
+
   glrenderer->SetPass(blurP);
-  
+
 //  renderer->SetPass(cameraP);
-  
+
   vtkSmartPointer<vtkImageSinusoidSource> imageSource=
     vtkSmartPointer<vtkImageSinusoidSource>::New();
   imageSource->SetWholeExtent(0,9,0,9,0,9);
   imageSource->SetPeriod(5);
   imageSource->Update();
-  
+
   vtkImageData *image=imageSource->GetOutput();
   double range[2];
   image->GetScalarRange(range);
-  
+
   vtkSmartPointer<vtkDataSetSurfaceFilter> surface=
     vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
-  
+
   surface->SetInputConnection(imageSource->GetOutputPort());
-  
+
   vtkSmartPointer<vtkPolyDataMapper> mapper=
     vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(surface->GetOutputPort());
-  
+
   vtkSmartPointer<vtkLookupTable> lut=
     vtkSmartPointer<vtkLookupTable>::New();
   lut->SetTableRange(range);
@@ -143,16 +143,16 @@ int TestGaussianBlurPass(int argc, char* argv[])
   lut->SetHueRange(0.2,0.7);
   lut->SetNumberOfTableValues(256);
   lut->Build();
-  
+
   mapper->SetScalarVisibility(1);
   mapper->SetLookupTable(lut);
-  
+
   vtkSmartPointer<vtkActor> actor=
     vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
   actor->SetVisibility(1);
-  
+
   vtkSmartPointer<vtkConeSource> cone=
     vtkSmartPointer<vtkConeSource>::New();
   vtkSmartPointer<vtkPolyDataMapper> coneMapper=
@@ -166,15 +166,15 @@ int TestGaussianBlurPass(int argc, char* argv[])
   coneActor->SetVisibility(1);
 
   renderer->AddActor(coneActor);
-  
+
   renderer->SetBackground(0.1,0.3,0.0);
   renWin->SetSize(400,400);
-  
+
   // empty scene during OpenGL detection.
   actor->SetVisibility(0);
   coneActor->SetVisibility(0);
   renWin->Render();
-  
+
   int retVal;
   if(MesaHasVTKBug8135())
     {
@@ -191,7 +191,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
     camera->Azimuth(-40.0);
     camera->Elevation(20.0);
     renWin->Render();
-  
+
     if(peeling->GetLastRenderingUsedDepthPeeling())
       {
       cout<<"depth peeling was used"<<endl;
@@ -200,7 +200,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
       {
       cout<<"depth peeling was not used (alpha blending instead)"<<endl;
       }
-  
+
     retVal = vtkRegressionTestImage( renWin );
     if ( retVal == vtkRegressionTester::DO_INTERACTOR)
       {

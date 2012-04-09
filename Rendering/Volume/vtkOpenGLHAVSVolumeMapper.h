@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 // excels at rendering large datasets quickly.  The trade-off is that the
 // algorithm may produce some rendering artifacts due to an insufficient k
 // size (currently 2 or 6 is supported) or read/write race conditions.
-// 
+//
 // A built in level-of-detail (LOD) approach samples the geometry using one of
 // two heuristics (field or area).  If LOD is enabled, the amount of geometry
 // that is sampled and rendered changes dynamically to stay within the target
@@ -53,15 +53,15 @@ PURPOSE.  See the above copyright notice for more information.
 // Therefore, before rendering, the cells are decomposed into unique triangles
 // and stored on the GPU for efficient rendering.  The use of GPU data
 // structures is only recommended if the entire geometry can fit in graphics
-// memory.  Otherwise this feature should be disabled. 
+// memory.  Otherwise this feature should be disabled.
 //
 // Another new feature is the handling of mixed data types (eg., polygonal
 // data with volume data).  This is handled by reading the z-buffer from the
 // current window and copying it into the framebuffer object for off-screen
 // rendering.  The depth test is then enabled so that the volume only appears
 // over the opaque geometry.  Finally, the results of the off-screen rendering
-// are blended into the framebuffer as a transparent, view-aligned texture. 
-// 
+// are blended into the framebuffer as a transparent, view-aligned texture.
+//
 // Instead of using a preintegrated 3D lookup table for storing the ray
 // integral, this implementation uses partial pre-integration.  This improves
 // the performance of dynamic transfer function updates by avoiding a costly
@@ -74,11 +74,11 @@ PURPOSE.  See the above copyright notice for more information.
 // fragment shader determines if a ray-gap is larger than the max cell size
 // and kill the fragment if so.  This approximation performs rather well in
 // practice but may miss small non-convexities.
-// 
+//
 // For more information on the HAVS algorithm see:
 //
 //  "Hardware-Assisted Visibility Sorting for Unstructured Volume
-// Rendering" by S. P. Callahan, M. Ikits, J. L. D. Comba, and C. T. Silva, 
+// Rendering" by S. P. Callahan, M. Ikits, J. L. D. Comba, and C. T. Silva,
 // IEEE Transactions of Visualization and Computer Graphics; May/June 2005.
 //
 // For more information on the Level-of-Detail algorithm, see:
@@ -91,8 +91,8 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // This code was developed by Steven P. Callahan under the supervision
 // of Prof. Claudio T. Silva. The code also contains contributions
-// from Milan Ikits, Linh Ha, Huy T. Vo, Carlos E. Scheidegger, and 
-// Joao L. D. Comba.  
+// from Milan Ikits, Linh Ha, Huy T. Vo, Carlos E. Scheidegger, and
+// Joao L. D. Comba.
 //
 // The work was supported by grants, contracts, and gifts from the
 // National Science Foundation, the Department of Energy, the Army
@@ -120,7 +120,7 @@ public:
   vtkTypeMacro(vtkOpenGLHAVSVolumeMapper,
                        vtkHAVSVolumeMapper);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Render the volume
   virtual void Render(vtkRenderer *ren, vtkVolume *vol);
@@ -131,7 +131,7 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Set/get whether or not the data structures should be stored on the GPU 
+  // Set/get whether or not the data structures should be stored on the GPU
   // for better peformance.
   virtual void SetGPUDataStructures(bool);
 
@@ -156,7 +156,7 @@ protected:
   void InitializeFramebufferObject();
 
   void RenderHAVS(vtkRenderer *ren);
-  void SetupFBOZBuffer(int screenWidth, int screenHeight, float depthNear, float depthFar, 
+  void SetupFBOZBuffer(int screenWidth, int screenHeight, float depthNear, float depthFar,
                        float *zbuffer);
   void SetupFBOMRT();
   void DrawFBOInit(int screenWidth, int screenHeight, float depthNear, float depthFar);

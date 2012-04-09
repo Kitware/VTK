@@ -87,7 +87,7 @@ void vtkImageReader2Factory::RegisterReader(vtkImageReader2* r)
 
 
 vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
-{ 
+{
   vtkImageReader2Factory::InitializeReaders();
   vtkImageReader2* ret;
   vtkCollection* collection = vtkCollection::New();
@@ -95,7 +95,7 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
                                       collection);
   vtkObject* o;
   // first try the current registered object factories to see
-  // if one of them can 
+  // if one of them can
   for(collection->InitTraversal(); (o = collection->GetNextItemAsObject()); )
     {
     if(o)

@@ -151,7 +151,7 @@ static IVarEnum XMLMemberToIvar( const char* name )
     {
     return IVarRepresentation;
     }
-  else if (strcmp(name,"EdgeVisibility") == 0) 
+  else if (strcmp(name,"EdgeVisibility") == 0)
     {
     return IVarEdgeVisibility;
     }
@@ -172,7 +172,7 @@ static IVarEnum XMLMemberToIvar( const char* name )
 };
 
 
-// specular color, and edge color white; ambient coefficient=0; diffuse 
+// specular color, and edge color white; ambient coefficient=0; diffuse
 // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
 // and surface representation. Backface and frontface culling are off.
 vtkProperty::vtkProperty()
@@ -228,14 +228,14 @@ vtkProperty::~vtkProperty()
     {
     this->Material->UnRegister(this);
     }
-  this->SetShaderProgram(0); 
+  this->SetShaderProgram(0);
   this->SetMaterialName(0);
   delete this->Internals;
 }
 
 
 //----------------------------------------------------------------------------
-// Assign one property to another. 
+// Assign one property to another.
 void vtkProperty::DeepCopy(vtkProperty *p)
 {
   if ( p != NULL )
@@ -261,7 +261,7 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetShading(p->GetShading());
     this->LoadMaterial(p->GetMaterial());
-   
+
     this->RemoveAllTextures();
     vtkPropertyInternals::MapOfTextures::iterator iter =
       p->Internals->Textures.begin();
@@ -275,9 +275,9 @@ void vtkProperty::DeepCopy(vtkProperty *p)
 }
 
 //----------------------------------------------------------------------------
-// return the correct type of Property 
+// return the correct type of Property
 vtkProperty *vtkProperty::New()
-{ 
+{
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkProperty");
   return static_cast<vtkProperty *>(ret);
@@ -304,7 +304,7 @@ double *vtkProperty::GetColor()
 {
   double norm;
   int i;
-  
+
   if ((this->Ambient + this->Diffuse + this->Specular)>0)
     {
     norm = 1.0 / (this->Ambient + this->Diffuse + this->Specular);
@@ -313,19 +313,19 @@ double *vtkProperty::GetColor()
     {
     norm = 0.0;
     }
-  
+
   for (i = 0; i < 3; i ++)
     {
     this->Color[i] = this->AmbientColor[i]*this->Ambient*norm;
     this->Color[i] = this->Color[i] + this->DiffuseColor[i]*this->Diffuse*norm;
     this->Color[i] = this->Color[i] + this->SpecularColor[i]*this->Specular*norm;
     }
-  
-  return this->Color;  
+
+  return this->Color;
 }
 
 //----------------------------------------------------------------------------
-// Copy composite color of object (ambient + diffuse + specular) into array 
+// Copy composite color of object (ambient + diffuse + specular) into array
 // provided.
 void vtkProperty::GetColor(double rgb[3])
 {
@@ -347,11 +347,11 @@ void vtkProperty::GetColor(double &r, double &g, double &b)
 //----------------------------------------------------------------------------
 void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
-  vtkPropertyInternals::MapOfTextureNames::iterator iter = 
+  vtkPropertyInternals::MapOfTextureNames::iterator iter =
     this->Internals->TextureNames.find(vtkStdString(name));
   if (iter != this->Internals->TextureNames.end())
     {
-    vtkWarningMacro("Texture with name " << name 
+    vtkWarningMacro("Texture with name " << name
       << " exists. It will be replaced.");
     }
 
@@ -373,7 +373,7 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 //----------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTexture(const char* name)
 {
-  vtkPropertyInternals::MapOfTextureNames::iterator iter = 
+  vtkPropertyInternals::MapOfTextureNames::iterator iter =
     this->Internals->TextureNames.find(vtkStdString(name));
   if (iter == this->Internals->TextureNames.end())
     {
@@ -387,7 +387,7 @@ vtkTexture* vtkProperty::GetTexture(const char* name)
 //----------------------------------------------------------------------------
 void vtkProperty::SetTexture(int unit, vtkTexture* tex)
 {
-  vtkPropertyInternals::MapOfTextures::iterator iter = 
+  vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.find(unit);
   if (iter != this->Internals->Textures.end())
     {
@@ -399,7 +399,7 @@ void vtkProperty::SetTexture(int unit, vtkTexture* tex)
 //----------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTexture(int unit)
 {
-  vtkPropertyInternals::MapOfTextures::iterator iter = 
+  vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.find(unit);
   if (iter != this->Internals->Textures.end())
     {
@@ -418,7 +418,7 @@ int vtkProperty::GetNumberOfTextures()
 //----------------------------------------------------------------------------
 void vtkProperty::RemoveTexture(const char* name)
 {
-  vtkPropertyInternals::MapOfTextureNames::iterator iter = 
+  vtkPropertyInternals::MapOfTextureNames::iterator iter =
     this->Internals->TextureNames.find(vtkStdString(name));
   if (iter != this->Internals->TextureNames.end())
     {
@@ -448,7 +448,7 @@ void vtkProperty::RemoveAllTextures()
 //----------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTextureAtIndex(int index)
 {
-  vtkPropertyInternals::MapOfTextures::iterator iter = 
+  vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.begin();
   for (int id=0; iter != this->Internals->Textures.end(); ++iter, ++id)
     {
@@ -465,7 +465,7 @@ vtkTexture* vtkProperty::GetTextureAtIndex(int index)
 //----------------------------------------------------------------------------
 int vtkProperty::GetTextureUnitAtIndex(int index)
 {
-  vtkPropertyInternals::MapOfTextures::iterator iter = 
+  vtkPropertyInternals::MapOfTextures::iterator iter =
     this->Internals->Textures.begin();
   for (int id=0; iter != this->Internals->Textures.end(); ++iter, ++id)
     {
@@ -557,7 +557,7 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
     this->LoadTextures();
     int lang = this->Material->GetShaderLanguage();
     int style=this->Material->GetShaderStyle();
-    
+
     if(style==2)
       {
       if(lang==vtkXMLShader::LANGUAGE_GLSL)
@@ -610,7 +610,7 @@ void vtkProperty::LoadProperty()
 
   int iElem = 0;
   int numNested = elem->GetNumberOfNestedElements();
-  
+
   // Each element is a child node of <Property />
   for( iElem=0; iElem<numNested; iElem++ )
     {
@@ -684,7 +684,7 @@ void vtkProperty::LoadMember(vtkXMLDataElement* elem)
             member == IVarLineStippleRepeatFactor ||
             member == IVarInterpolation ||
             member == IVarRepresentation ||
-            member == IVarEdgeVisibility || 
+            member == IVarEdgeVisibility ||
             member == IVarBackfaceCulling ||
             member == IVarFrontfaceCulling )
     {
@@ -852,7 +852,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
       "for element with name=" << name);
     return;
     }
-  
+
   const char* location = elem->GetAttribute("location");
   if (!location)
     {
@@ -870,7 +870,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     string_format = vtksys::SystemTools::GetFilenameLastExtension(location);
     format = string_format.c_str();
     }
-  
+
   vtkImageReader2* reader;
   if (strcmp(format, "bmp") == 0)
     {
@@ -898,7 +898,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
       << name);
     return;
     }
- 
+
   char* filename = vtkXMLShader::LocateFile(location);
   if (filename)
     {
@@ -913,7 +913,7 @@ void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
     {
     vtkErrorMacro("Failed to locate texture file " << location);
     }
- 
+
   reader->Delete();
   delete []filename;
 }
@@ -929,7 +929,7 @@ void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
 {
   // subclass would have renderer the property already.
   // this class, just handles the shading.
- 
+
   if (renderer->GetSelector())
     {
     // nothing to do when rendering for hardware selection.
@@ -998,7 +998,7 @@ void vtkProperty::ReleaseGraphicsResources(vtkWindow *win)
     }
 
   // vtkOpenGLRenderer releases texture resources, so we don't need to release
-  // them here. 
+  // them here.
 }
 
 
@@ -1008,17 +1008,17 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Ambient: " << this->Ambient << "\n";
-  os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 
+  os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", "
     << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
   os << indent << "Diffuse: " << this->Diffuse << "\n";
-  os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", " 
+  os << indent << "Diffuse Color: (" << this->DiffuseColor[0] << ", "
     << this->DiffuseColor[1] << ", " << this->DiffuseColor[2] << ")\n";
-  os << indent << "Edge Color: (" << this->EdgeColor[0] << ", " 
+  os << indent << "Edge Color: (" << this->EdgeColor[0] << ", "
     << this->EdgeColor[1] << ", " << this->EdgeColor[2] << ")\n";
-  os << indent << "Edge Visibility: " 
+  os << indent << "Edge Visibility: "
     << (this->EdgeVisibility ? "On\n" : "Off\n");
   os << indent << "Interpolation: ";
-  switch (this->Interpolation) 
+  switch (this->Interpolation)
     {
   case VTK_FLAT: os << "VTK_FLAT\n"; break;
   case VTK_GOURAUD: os << "VTK_GOURAUD\n"; break;
@@ -1027,7 +1027,7 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "Opacity: " << this->Opacity << "\n";
   os << indent << "Representation: ";
-  switch (this->Representation) 
+  switch (this->Representation)
     {
   case VTK_POINTS: os << "VTK_POINTS\n"; break;
   case VTK_WIREFRAME: os << "VTK_WIREFRAME\n"; break;
@@ -1035,12 +1035,12 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   default: os << "unknown\n";
     }
   os << indent << "Specular: " << this->Specular << "\n";
-  os << indent << "Specular Color: (" << this->SpecularColor[0] << ", " 
+  os << indent << "Specular Color: (" << this->SpecularColor[0] << ", "
     << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
   os << indent << "Specular Power: " << this->SpecularPower << "\n";
-  os << indent << "Backface Culling: " 
+  os << indent << "Backface Culling: "
     << (this->BackfaceCulling ? "On\n" : "Off\n");
-  os << indent << "Frontface Culling: " 
+  os << indent << "Frontface Culling: "
     << (this->FrontfaceCulling ? "On\n" : "Off\n");
   os << indent << "Point size: " << this->PointSize << "\n";
   os << indent << "Line width: " << this->LineWidth << "\n";
@@ -1056,9 +1056,9 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
     os << "Off" << endl;
     }
 
-  os << indent << "Shading: " 
+  os << indent << "Shading: "
     << (this->Shading? "On" : "Off") << endl;
-  
+
   os << indent << "Material: " ;
   if (this->Material)
     {
@@ -1069,7 +1069,7 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" << endl;
     }
- os << indent << "MaterialName: " << 
+ os << indent << "MaterialName: " <<
    (this->MaterialName? this->MaterialName:"(none)") << endl;
 
   os << indent << "ShaderProgram: ";

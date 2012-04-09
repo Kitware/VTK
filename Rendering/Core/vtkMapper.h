@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkMapper - abstract class specifies interface to map data to graphics primitives
 // .SECTION Description
-// vtkMapper is an abstract class to specify interface between data and 
-// graphics primitives. Subclasses of vtkMapper map data through a 
+// vtkMapper is an abstract class to specify interface between data and
+// graphics primitives. Subclasses of vtkMapper map data through a
 // lookuptable and control the creation of rendering primitives that
-// interface to the graphics library. The mapping can be controlled by 
+// interface to the graphics library. The mapping can be controlled by
 // supplying a lookup table and specifying a scalar range to map data
 // through.
 //
@@ -91,7 +91,7 @@ public:
   unsigned long GetMTime();
 
   // Description:
-  // Method initiates the mapping process. Generally sent by the actor 
+  // Method initiates the mapping process. Generally sent by the actor
   // as each frame is rendered.
   virtual void Render(vtkRenderer *ren, vtkActor *a) = 0;
 
@@ -136,9 +136,9 @@ public:
   // SelectColorArray() method.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault() 
+  void SetColorModeToDefault()
     {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
-  void SetColorModeToMapScalars() 
+  void SetColorModeToMapScalars()
     {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
 
   // Description:
@@ -187,13 +187,13 @@ public:
   // Turn on/off flag to control whether data is rendered using
   // immediate mode or note. Immediate mode rendering
   // tends to be slower but it can handle larger datasets.
-  // The default value is immediate mode off. If you are 
+  // The default value is immediate mode off. If you are
   // having problems rendering a large dataset you might
   // want to consider using immediate more rendering.
   static void SetGlobalImmediateModeRendering(int val);
-  static void GlobalImmediateModeRenderingOn() 
+  static void GlobalImmediateModeRenderingOn()
     {vtkMapper::SetGlobalImmediateModeRendering(1);};
-  static void GlobalImmediateModeRenderingOff() 
+  static void GlobalImmediateModeRenderingOff()
     {vtkMapper::SetGlobalImmediateModeRendering(0);};
   static int  GetGlobalImmediateModeRendering();
 
@@ -221,9 +221,9 @@ public:
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
   // data array, you must call SelectColorArray before you call
   // GetColors.
-  // When ScalarMode is set to use Field Data (ScalarModeToFieldData), you 
+  // When ScalarMode is set to use Field Data (ScalarModeToFieldData), you
   // must call SelectColorArray to choose the field data array to be used to
-  // color cells. In this mode, if the poly data has triangle strips, 
+  // color cells. In this mode, if the poly data has triangle strips,
   // the field data is treated as the celldata for each mini-cell formed by
   // a triangle in the strip rather than the entire strip.
   vtkSetMacro(ScalarMode,int);
@@ -240,13 +240,13 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
   void SetScalarModeToUseFieldData() {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_FIELD_DATA); }
-  
+
   // Description:
   // When ScalarMode is set to UsePointFieldData or UseCellFieldData,
   // you can specify which array to use for coloring using these methods.
   // The lookup table will decide how to convert vectors to colors.
-  void SelectColorArray(int arrayNum); 
-  void SelectColorArray(const char* arrayName); 
+  void SelectColorArray(int arrayNum);
+  void SelectColorArray(const char* arrayName);
 
   // Description:
   // Legacy:
@@ -254,7 +254,7 @@ public:
   // It is better to do this in the lookup table.
   void ColorByArrayComponent(int arrayNum, int component);
   void ColorByArrayComponent(const char* arrayName, int component);
-  
+
   // Description:
   // Get the array name or number and component to color by.
   char* GetArrayName() { return this->ArrayName; }
@@ -275,21 +275,21 @@ public:
   // remaps the z-buffer to distinguish vertices, lines, and polygons, but
   // does not always produce acceptable results. If you use the ShiftZBuffer
   // approach, you may also want to set the ResolveCoincidentTopologyZShift
-  // value. (Note: not all mappers/graphics systems implement this 
+  // value. (Note: not all mappers/graphics systems implement this
   // functionality.)
   static void SetResolveCoincidentTopology(int val);
   static int  GetResolveCoincidentTopology();
   static void SetResolveCoincidentTopologyToDefault();
-  static void SetResolveCoincidentTopologyToOff() 
+  static void SetResolveCoincidentTopologyToOff()
     {SetResolveCoincidentTopology(VTK_RESOLVE_OFF);}
-  static void SetResolveCoincidentTopologyToPolygonOffset() 
+  static void SetResolveCoincidentTopologyToPolygonOffset()
     {SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);}
-  static void SetResolveCoincidentTopologyToShiftZBuffer() 
+  static void SetResolveCoincidentTopologyToShiftZBuffer()
     {SetResolveCoincidentTopology(VTK_RESOLVE_SHIFT_ZBUFFER);}
 
   // Description:
   // Used to set the polygon offset scale factor and units.
-  // Used when ResolveCoincidentTopology is set to PolygonOffset. 
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
   // These are global variables.
   static void SetResolveCoincidentTopologyPolygonOffsetParameters(
     double factor, double units);
@@ -299,7 +299,7 @@ public:
   // Description:
   // Used when ResolveCoincidentTopology is set to PolygonOffset. The polygon
   // offset can be applied either to the solid polygonal faces or the
-  // lines/vertices. When set (default), the offset is applied to the faces 
+  // lines/vertices. When set (default), the offset is applied to the faces
   // otherwise it is applied to lines and vertices.
   // This is a global variable.
   static void SetResolveCoincidentTopologyPolygonOffsetFaces(int faces);
@@ -315,7 +315,7 @@ public:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual double *GetBounds();
-  virtual void GetBounds(double bounds[6]) 
+  virtual void GetBounds(double bounds[6])
     {this->vtkAbstractMapper3D::GetBounds(bounds);};
 
   // Description:
@@ -333,32 +333,32 @@ public:
   //ETX
 
   // Description:
-  // Get the input to this mapper as a vtkDataSet, instead of as a 
+  // Get the input to this mapper as a vtkDataSet, instead of as a
   // more specialized data type that the subclass may return from
   // GetInput().  This method is provided for use in the wrapper languages,
   // C++ programmers should use GetInput() instead.
-  vtkDataSet *GetInputAsDataSet() 
+  vtkDataSet *GetInputAsDataSet()
     {return this->GetInput();}
 
   // Description:
   // Map the scalars (if there are any scalars and ScalarVisibility is on)
   // through the lookup table, returning an unsigned char RGBA array. This is
-  // typically done as part of the rendering process. The alpha parameter 
+  // typically done as part of the rendering process. The alpha parameter
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
   vtkUnsignedCharArray *MapScalars(double alpha);
-  
+
   // Description:
-  // Set/Get the light-model color mode. 
+  // Set/Get the light-model color mode.
   vtkSetMacro(ScalarMaterialMode,int);
   vtkGetMacro(ScalarMaterialMode,int);
-  void SetScalarMaterialModeToDefault() 
+  void SetScalarMaterialModeToDefault()
     {this->SetScalarMaterialMode(VTK_MATERIALMODE_DEFAULT);};
-  void SetScalarMaterialModeToAmbient() 
+  void SetScalarMaterialModeToAmbient()
     {this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT);};
-  void SetScalarMaterialModeToDiffuse() 
+  void SetScalarMaterialModeToDiffuse()
     {this->SetScalarMaterialMode(VTK_MATERIALMODE_DIFFUSE);};
-  void SetScalarMaterialModeToAmbientAndDiffuse() 
+  void SetScalarMaterialModeToAmbientAndDiffuse()
     {this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE);};
 
   // Description:
@@ -416,7 +416,7 @@ protected:
   int Static;
 
   int ForceCompileOnly;
-  
+
 private:
   vtkMapper(const vtkMapper&);  // Not implemented.
   void operator=(const vtkMapper&);  // Not implemented.

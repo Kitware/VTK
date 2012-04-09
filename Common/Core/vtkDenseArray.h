@@ -126,7 +126,7 @@ public:
   // Description:
   // Initializes the array to use an externally-allocated memory block.  The supplied
   // MemoryBlock must be large enough to store extents.GetSize() values.  The contents of
-  // the memory must be stored contiguously with fortran ordering, 
+  // the memory must be stored contiguously with fortran ordering,
   //
   // Dimension-labels are undefined after calling ExternalStorage() - you should
   // initialize them accordingly.

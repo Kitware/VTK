@@ -15,7 +15,7 @@
 // Filename: vtkSurfaceLICPainter_vs1.glsl
 // Filename is useful when using gldb-gui
 
-#version 120 
+#version 120
 varying vec4 vColor;
 varying vec2 vProjectedVF;
 

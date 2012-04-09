@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkBSPCuts);
 
 //----------------------------------------------------------------------------
 vtkBSPCuts::vtkBSPCuts()
-{  
+{
   this->Top = NULL;
   this->NumberOfCuts = 0;
   this->Dim = NULL;
@@ -122,7 +122,7 @@ void vtkBSPCuts::AllocateArrays(int nNodes)
 }
 //----------------------------------------------------------------------------
 void vtkBSPCuts::DeleteAllDescendants(vtkKdNode *nd)
-{    
+{
   vtkKdNode *left = nd->GetLeft();
   vtkKdNode *right = nd->GetRight();
 
@@ -241,7 +241,7 @@ int vtkBSPCuts::WriteArray(vtkKdNode *kd, int loc)
   int nextloc = loc + 1;
 
   int dim = kd->GetDim();   // 0 (X), 1 (Y), 2 (Z)
- 
+
   this->Npoints[loc] = kd->GetNumberOfPoints();
 
   if (kd->GetLeft())
@@ -271,7 +271,7 @@ int vtkBSPCuts::WriteArray(vtkKdNode *kd, int loc)
     this->LowerDataCoord[loc] = 0.0;
     this->UpperDataCoord[loc] = 0.0;
     this->Lower[loc] = kd->GetID() * -1;  // partition ID
-    this->Upper[loc] = kd->GetID() * -1; 
+    this->Upper[loc] = kd->GetID() * -1;
     }
 
   return nextloc;   // next available array location
@@ -435,7 +435,7 @@ void vtkBSPCuts::SetMinMaxId(vtkKdNode *kd)
 }
 
 //----------------------------------------------------------------------------
-int vtkBSPCuts::GetArrays(int len, 
+int vtkBSPCuts::GetArrays(int len,
                 int *dim, double *coord, int *lower, int *upper,
                 double *lowerDataCoord, double *upperDataCoord, int *npoints)
 {
@@ -459,19 +459,19 @@ int vtkBSPCuts::GetArrays(int len,
     {
     memcpy(upper, this->Upper, l * sizeof(int));
     }
- 
+
   if (lowerDataCoord && this->LowerDataCoord)
     {
     memcpy(lowerDataCoord, this->LowerDataCoord, l * sizeof(double));
-    } 
+    }
   if (upperDataCoord && this->UpperDataCoord)
     {
     memcpy(upperDataCoord, this->UpperDataCoord, l * sizeof(double));
-    } 
+    }
   if (npoints && this->Npoints)
     {
     memcpy(npoints, this->Npoints, l * sizeof(int));
-    } 
+    }
 
   return 0;
 }
@@ -571,7 +571,7 @@ void vtkBSPCuts::PrintTree()
     {
     return;
     }
- 
+
   vtkBSPCuts::_PrintTree(this->Top, 0);
 }
 //----------------------------------------------------------------------------
@@ -599,7 +599,7 @@ vtkBSPCuts* vtkBSPCuts::GetData(vtkInformationVector* v, int i)
 
 //----------------------------------------------------------------------------
 void vtkBSPCuts::PrintSelf(ostream& os, vtkIndent indent)
-{ 
+{
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Top: " << this->Top << endl;

@@ -98,7 +98,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
   vtkIdType tenth = (numCells >= 10? numCells/10 : 1);
   double numCellsInv = 1.0/numCells;
   int abort = 0;
-  
+
   // Point Id map.
   vtkIdType* pointMap = new vtkIdType[input->GetNumberOfPoints()];
 
@@ -109,7 +109,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
     // Get the list of points for this cell.
     input->GetCellPoints(cellId, ptIds);
     vtkIdType numIds = ptIds->GetNumberOfIds();
-    
+
     // Periodically update progress and check for an abort request.
     if(cellId % tenth == 0)
       {
@@ -172,7 +172,7 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
         newPtIds->InsertId(i, pointMap[ptIds->GetId(i)]);
         }
       }
-    
+
     // Store the new cell in the output.
     output->InsertNextCell(input->GetCellType(cellId), newPtIds);
     }
@@ -188,6 +188,6 @@ int vtkShrinkFilter::RequestData(vtkInformation*,
   output->Squeeze();
 
   delete [] pointMap;
-  
+
   return 1;
 }

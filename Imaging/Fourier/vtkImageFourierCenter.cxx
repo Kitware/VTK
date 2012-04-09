@@ -42,7 +42,7 @@ int vtkImageFourierCenter::IterativeRequestUpdateExtent(
   int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[this->Iteration*2] = wExt[this->Iteration*2];
-  inExt[this->Iteration*2 + 1] = wExt[this->Iteration*2 + 1];  
+  inExt[this->Iteration*2 + 1] = wExt[this->Iteration*2 + 1];
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 
   return 1;
@@ -77,7 +77,7 @@ void vtkImageFourierCenter::ThreadedRequestData(
 
   startProgress = this->GetIteration()/
     static_cast<double>(this->GetNumberOfIterations());
-  
+
   // this filter expects that the input be doubles.
   if (inData->GetScalarType() != VTK_DOUBLE)
     {
@@ -91,7 +91,7 @@ void vtkImageFourierCenter::ThreadedRequestData(
     return;
     }
   // this filter expects input to have 1 or two components
-  if (outData->GetNumberOfScalarComponents() != 1 && 
+  if (outData->GetNumberOfScalarComponents() != 1 &&
       outData->GetNumberOfScalarComponents() != 2)
     {
     vtkErrorMacro(<< "Execute: Cannot handle more than 2 components");
@@ -107,17 +107,17 @@ void vtkImageFourierCenter::ThreadedRequestData(
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
   this->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   this->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
-  
+
   // Determine the mid for the filtered axis
   wholeMin0 = wholeExtent[this->Iteration * 2];
-  wholeMax0 = wholeExtent[this->Iteration * 2 + 1];  
+  wholeMax0 = wholeExtent[this->Iteration * 2 + 1];
   mid0 = (wholeMin0 + wholeMax0) / 2;
 
   // initialize input coordinates
   inCoords[0] = outExt[0];
   inCoords[1] = outExt[2];
   inCoords[2] = outExt[4];
-  
+
   target = static_cast<unsigned long>((max2-min2+1)*(max0-min0+1)
                                       * this->GetNumberOfIterations() / 50.0);
   target++;
@@ -133,13 +133,13 @@ void vtkImageFourierCenter::ThreadedRequestData(
       }
     inCoords[this->Iteration] = inIdx0;
     inPtr0 = static_cast<double *>(inData->GetScalarPointer(inCoords));
-    
+
     // loop over other axes
     inPtr2 = inPtr0;
     outPtr2 = outPtr0;
     for (idx2 = min2; !this->AbortExecute && idx2 <= max2; ++idx2)
       {
-      if (!threadId) 
+      if (!threadId)
         {
         if (!(count%target))
           {

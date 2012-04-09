@@ -44,7 +44,7 @@ vtkSeedRepresentation::vtkSeedRepresentation()
   // The representation for the seed handles
   this->Handles = new vtkHandleList;
   this->ActiveHandle = -1;
-  
+
   this->Tolerance = 5;
 }
 
@@ -203,7 +203,7 @@ void vtkSeedRepresentation::RemoveLastHandle()
 void vtkSeedRepresentation::RemoveHandle( int n )
 {
   // Remove nth handle
-  
+
   if (n == this->ActiveHandle)
     {
     this->RemoveActiveHandle();

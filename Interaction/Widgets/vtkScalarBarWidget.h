@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class provides support for interactively manipulating the position,
 // size, and orientation of a scalar bar. It listens to Left mouse events and
-// mouse movement. It also listens to Right mouse events and notifies any 
+// mouse movement. It also listens to Right mouse events and notifies any
 // observers of Right mouse events on this object when they occur.
 // It will change the cursor shape based on its location. If
 // the cursor is over an edge of the scalar bar it will change the cursor
@@ -72,7 +72,7 @@ public:
   vtkBooleanMacro(Repositionable, int);
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   virtual void CreateDefaultRepresentation();
 
 protected:

@@ -21,10 +21,10 @@
 // .SECTION Thanks
 // John Bidiscombe of CSCS - Swiss National Supercomputing Centre
 // for creating and contributing this class.
-// For related material, please refer to : 
+// For related material, please refer to :
 // John Biddiscombe, Berk Geveci, Ken Martin, Kenneth Moreland, David Thompson,
-// "Time Dependent Processing in a Parallel Pipeline Architecture", 
-// IEEE Visualization 2007. 
+// "Time Dependent Processing in a Parallel Pipeline Architecture",
+// IEEE Visualization 2007.
 
 #ifndef __vtkTemporalSnapToTimeStep_h
 #define __vtkTemporalSnapToTimeStep_h
@@ -66,7 +66,7 @@ protected:
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  
+
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);

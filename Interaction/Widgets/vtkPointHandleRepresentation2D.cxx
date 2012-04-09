@@ -43,12 +43,12 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
 {
   // Initialize state
   this->InteractionState = vtkHandleRepresentation::Outside;
-  
+
   // Represent the position of the cursor
   this->FocalPoint = vtkPoints::New();
   this->FocalPoint->SetNumberOfPoints(1);
   this->FocalPoint->SetPoint(0, 0.0,0.0,0.0);
-  
+
   this->FocalData = vtkPolyData::New();
   this->FocalData->SetPoints(this->FocalPoint);
 
@@ -92,7 +92,7 @@ vtkPointHandleRepresentation2D::~vtkPointHandleRepresentation2D()
 {
   this->FocalPoint->Delete();
   this->FocalData->Delete();
-  
+
   this->CursorShape->Delete();
   this->Glypher->Delete();
   this->Mapper->Delete();
@@ -183,7 +183,7 @@ int vtkPointHandleRepresentation2D::ComputeInteractionState(int X, int Y, int vt
 }
 
 //-------------------------------------------------------------------------
-int vtkPointHandleRepresentation2D::DetermineConstraintAxis(int constraint, 
+int vtkPointHandleRepresentation2D::DetermineConstraintAxis(int constraint,
                                                             double eventPos[2])
 {
   // Look for trivial cases: either not constrained or already constrained
@@ -195,7 +195,7 @@ int vtkPointHandleRepresentation2D::DetermineConstraintAxis(int constraint,
     {
     return constraint;
     }
-  
+
   // Okay, figure out constraint based on mouse motion
   double dpos[2];
   dpos[0] = fabs(eventPos[0] - this->StartEventPosition[0]);
@@ -214,7 +214,7 @@ void vtkPointHandleRepresentation2D::StartWidgetInteraction(double startEventPos
 
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
-  
+
   this->ConstraintAxis = -1;
   this->WaitCount = 0;
   if ( this->Constrained )
@@ -242,8 +242,8 @@ void vtkPointHandleRepresentation2D::WidgetInteraction(double eventPos[2])
     {
     if ( !this->WaitingForMotion || this->WaitCount++ > 1 )
       {
-      
-      this->ConstraintAxis = 
+
+      this->ConstraintAxis =
         this->DetermineConstraintAxis(this->ConstraintAxis,eventPos);
       this->Translate(eventPos);
       }
@@ -257,7 +257,7 @@ void vtkPointHandleRepresentation2D::WidgetInteraction(double eventPos[2])
   // Book keeping
   this->LastEventPosition[0] = eventPos[0];
   this->LastEventPosition[1] = eventPos[1];
-  
+
   this->Modified();
 }
 
@@ -269,7 +269,7 @@ void vtkPointHandleRepresentation2D::Translate(double eventPos[2])
   this->FocalPoint->GetPoint(0,pos);
   dpos[0] = eventPos[0] - pos[0];
   dpos[1] = eventPos[1] - pos[1];
-  
+
   if ( this->ConstraintAxis >= 0 )
     {
     pos[this->ConstraintAxis] += dpos[this->ConstraintAxis];
@@ -292,7 +292,7 @@ void vtkPointHandleRepresentation2D::Scale(double eventPos[2])
   int *size = this->Renderer->GetSize();
   double dPos = static_cast<double>(eventPos[1]-this->LastEventPosition[1]);
   sf *= (1.0 + 2.0*(dPos / size[1])); //scale factor of 2.0 is arbitrary
-  
+
   // Scale the handle
   this->Glypher->SetScaleFactor(sf);
 }
@@ -325,7 +325,7 @@ void vtkPointHandleRepresentation2D::CreateDefaultProperties()
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetActiveCamera() &&
         this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime) ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
@@ -342,7 +342,7 @@ void vtkPointHandleRepresentation2D::BuildRepresentation()
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::ShallowCopy(vtkProp *prop)
 {
-  vtkPointHandleRepresentation2D *rep = 
+  vtkPointHandleRepresentation2D *rep =
     vtkPointHandleRepresentation2D::SafeDownCast(prop);
   if ( rep )
     {
@@ -357,7 +357,7 @@ void vtkPointHandleRepresentation2D::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------
 void vtkPointHandleRepresentation2D::DeepCopy(vtkProp *prop)
 {
-  vtkPointHandleRepresentation2D *rep = 
+  vtkPointHandleRepresentation2D *rep =
     vtkPointHandleRepresentation2D::SafeDownCast(prop);
   if ( rep )
     {
@@ -393,7 +393,7 @@ void vtkPointHandleRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Property )
     {
     os << indent << "Property: " << this->Property << "\n";

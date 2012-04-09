@@ -41,19 +41,19 @@ protected:
   vtkDistributedStreamTracer();
   ~vtkDistributedStreamTracer();
 
-  void ForwardTask(double seed[3], 
-                   int direction, 
-                   int isNewSeed, 
-                   int lastid, 
+  void ForwardTask(double seed[3],
+                   int direction,
+                   int isNewSeed,
+                   int lastid,
                    int lastCellId,
                    int currentLine,
                    double* firstNormal,
                    double propagation,
                    vtkIdType numSteps);
-  int ProcessTask(double seed[3], 
-                  int direction, 
-                  int isNewSeed, 
-                  int lastid, 
+  int ProcessTask(double seed[3],
+                  int direction,
+                  int isNewSeed,
+                  int lastid,
                   int lastCellId,
                   int currentLine,
                   double* firstNormal,

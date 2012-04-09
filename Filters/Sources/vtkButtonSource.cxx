@@ -15,7 +15,7 @@
 #include "vtkButtonSource.h"
 
 
-// Construct 
+// Construct
 vtkButtonSource::vtkButtonSource()
 {
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
@@ -37,7 +37,7 @@ void vtkButtonSource::PrintSelf(ostream& os, vtkIndent indent)
                               << this->Center[1] << ", "
                               << this->Center[2] << ")\n";
 
-  os << indent << "Shoulder Texture Coordinate: (" 
+  os << indent << "Shoulder Texture Coordinate: ("
      << this->ShoulderTextureCoordinate[0] << ", "
      << this->ShoulderTextureCoordinate[1] << ")\n";
 
@@ -50,11 +50,11 @@ void vtkButtonSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Proportional\n";
     }
-  
-  os << indent << "Texture Dimensions: (" 
-     << this->TextureDimensions[0] << ", " 
+
+  os << indent << "Texture Dimensions: ("
+     << this->TextureDimensions[0] << ", "
      << this->TextureDimensions[1] << ")\n";
 
-  os << indent << "Two Sided: " 
+  os << indent << "Two Sided: "
      << (this->TwoSided ? "On\n" : "Off\n");
 }

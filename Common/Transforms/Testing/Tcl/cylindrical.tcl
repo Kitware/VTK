@@ -52,7 +52,7 @@ ren1 AddActor world
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
 [ren1 GetActiveCamera] SetPosition 8 -10 6
-[ren1 GetActiveCamera] SetFocalPoint 0 0 0 
+[ren1 GetActiveCamera] SetFocalPoint 0 0 0
 [ren1 GetActiveCamera] SetViewAngle 15
 [ren1 GetActiveCamera] SetViewUp 0.0 0.0 1.0
 

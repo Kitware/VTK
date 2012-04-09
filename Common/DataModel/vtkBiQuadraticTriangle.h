@@ -18,19 +18,19 @@
 // represent a two-dimensional, 7-node, isoparametric parabolic triangle. The
 // interpolation is the standard finite element, bi-quadratic isoparametric
 // shape function. The cell includes three mid-edge nodes besides the three
-// triangle vertices and a center node. The ordering of the three points defining the cell is 
+// triangle vertices and a center node. The ordering of the three points defining the cell is
 // point ids (0-2,3-6) where id #3 is the midedge node between points
-// (0,1); id #4 is the midedge node between points (1,2); and id #5 is the 
+// (0,1); id #4 is the midedge node between points (1,2); and id #5 is the
 // midedge node between points (2,0). id #6 is the center node of the cell.
 
 // .SECTION See Also
 // vtkTriangle vtkQuadraticTriangle
 // vtkBiQuadraticQuad vtkBiQuadraticQuadraticWedge vtkBiQuadraticQuadraticHexahedron
-// .SECTION Thanks 
-// <verbatim> 
-// This file has been developed by Oxalya - www.oxalya.com 
-// Copyright (c) EDF - www.edf.fr 
-// </verbatim> 
+// .SECTION Thanks
+// <verbatim>
+// This file has been developed by Oxalya - www.oxalya.com
+// Copyright (c) EDF - www.edf.fr
+// </verbatim>
 
 #ifndef __vtkBiQuadraticTriangle_h
 #define __vtkBiQuadraticTriangle_h

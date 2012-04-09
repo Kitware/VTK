@@ -48,7 +48,7 @@ struct PStreamArgs_tmp
 void MyMain( vtkMultiProcessController *controller, void *arg )
 {
 
-  PStreamArgs_tmp* args = 
+  PStreamArgs_tmp* args =
     reinterpret_cast<PStreamArgs_tmp*>(arg);
 
   int myId = controller->GetLocalProcessId();
@@ -70,12 +70,12 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   camera->SetViewAngle(30);
   camera->SetClippingRange(10.0, 80.6592);
   camera->Dolly(1.5);
-  
+
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
-  char* fname1 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, 
+  char* fname1 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
                                                      "Data/combxyz.bin");
-  char* fname2 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, 
+  char* fname2 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
                                                      "Data/combq.bin");
   vtkMultiBlockPLOT3DReader* Plot3D0 = vtkMultiBlockPLOT3DReader::New();
   Plot3D0->SetFileName(fname1);
@@ -97,10 +97,10 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   vtkTrivialProducer* tv = vtkTrivialProducer::New();
   tv->SetOutput(sg);
 
-  vtkStructuredGridOutlineFilter* Geometry5 = 
+  vtkStructuredGridOutlineFilter* Geometry5 =
     vtkStructuredGridOutlineFilter::New();
   Geometry5->SetInputConnection(tv->GetOutputPort());
-  
+
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
   Mapper5->SetInputConnection(Geometry5->GetOutputPort());
   Mapper5->SetImmediateModeRendering(1);
@@ -127,7 +127,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
   LineSourceWidget0->SetResolution(20);
 
-  vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();; 
+  vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();;
   Stream0->SetInputConnection(tv->GetOutputPort());
   Stream0->SetSourceConnection(LineSourceWidget0->GetOutputPort());
   Stream0->SetIntegrationStepUnit(2);
@@ -179,7 +179,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   compManager->SetRenderWindow(renWin);
   compManager->SetController(controller);
   compManager->InitializePieces();
- 
+
   if (myId)
     {
     compManager->InitializeRMIs();
@@ -189,7 +189,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   else
     {
     renWin->Render();
-    *(args->retVal) = 
+    *(args->retVal) =
       vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     for (int i = 1; i < numProcs; i++)
       {
@@ -236,7 +236,7 @@ int main( int argc, char* argv[] )
     {
     // Set the number of processes to 2 for this example.
     contr->SetNumberOfProcesses(2);
-    } 
+    }
 
   // Added for regression test.
   // ----------------------------------------------

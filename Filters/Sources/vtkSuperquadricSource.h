@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSuperquadricSource - create a polygonal superquadric centered 
+// .NAME vtkSuperquadricSource - create a polygonal superquadric centered
 // at the origin
 // .SECTION Description
-// vtkSuperquadricSource creates a superquadric (represented by polygons) 
+// vtkSuperquadricSource creates a superquadric (represented by polygons)
 // of specified
 // size centered at the origin. The resolution (polygonal discretization)
 // in both the latitude (phi) and longitude (theta) directions can be
@@ -23,21 +23,21 @@
 // the shape of the superquadric.  The Toroidal boolean controls whether
 // a toroidal superquadric is produced.  If so, the Thickness parameter
 // controls the thickness of the toroid:  0 is the thinnest allowable
-// toroid, and 1 has a minimum sized hole.  The Scale parameters allow 
+// toroid, and 1 has a minimum sized hole.  The Scale parameters allow
 // the superquadric to be scaled in x, y, and z (normal vectors are correctly
-// generated in any case).  The Size parameter controls size of the 
+// generated in any case).  The Size parameter controls size of the
 // superquadric.
 //
 // This code is based on "Rigid physically based superquadrics", A. H. Barr,
 // in "Graphics Gems III", David Kirk, ed., Academic Press, 1992.
 //
 // .SECTION Caveats
-// Resolution means the number of latitude or longitude lines for a complete 
+// Resolution means the number of latitude or longitude lines for a complete
 // superquadric. The resolution parameters are rounded to the nearest 4
-// in phi and 8 in theta.  
+// in phi and 8 in theta.
 //
 // Texture coordinates are not equally distributed around all superquadrics.
-// 
+//
 // The Size and Thickness parameters control coefficients of superquadric
 // generation, and may do not exactly describe the size of the superquadric.
 //
@@ -92,11 +92,11 @@ public:
   vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0);
 
   // Description:
-  // Set/Get Superquadric north/south roundness. 
+  // Set/Get Superquadric north/south roundness.
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
   // Initial value is 1.0.
   vtkGetMacro(PhiRoundness,double);
-  void SetPhiRoundness(double e); 
+  void SetPhiRoundness(double e);
 
   // Description:
   // Set/Get Superquadric east/west roundness.

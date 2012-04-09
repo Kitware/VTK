@@ -76,10 +76,10 @@ ren1 AddActor isoYZActor
 ren1 AddActor isoXZActor
 ren1 SetBackground 0.9 .9 .9
 renWin SetSize 200 200
-[ren1 GetActiveCamera] SetPosition 324.368 284.266 -19.3293 
-[ren1 GetActiveCamera] SetFocalPoint 73.5683 120.903 70.7309 
+[ren1 GetActiveCamera] SetPosition 324.368 284.266 -19.3293
+[ren1 GetActiveCamera] SetFocalPoint 73.5683 120.903 70.7309
 [ren1 GetActiveCamera] SetViewAngle 30
-[ren1 GetActiveCamera] SetViewUp -0.304692 -0.0563843 -0.950781 
+[ren1 GetActiveCamera] SetViewUp -0.304692 -0.0563843 -0.950781
 iren Initialize
 
 # render the image

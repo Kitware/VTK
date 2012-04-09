@@ -14,22 +14,22 @@
 =========================================================================*/
 // .NAME vtkDijkstraGraphGeodesicPath - Dijkstra algorithm to compute the graph geodesic.
 // .SECTION Description
-// Takes as input a polygonal mesh and performs a single source shortest 
-// path calculation. Dijkstra's algorithm is used. The implementation is 
+// Takes as input a polygonal mesh and performs a single source shortest
+// path calculation. Dijkstra's algorithm is used. The implementation is
 // similar to the one described in Introduction to Algorithms (Second Edition)
-// by Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and 
-// Cliff Stein, published by MIT Press and McGraw-Hill. Some minor 
+// by Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and
+// Cliff Stein, published by MIT Press and McGraw-Hill. Some minor
 // enhancement are added though. All vertices are not pushed on the heap
-// at start, instead a front set is maintained. The heap is implemented as 
-// a binary heap. The output of the filter is a set of lines describing 
+// at start, instead a front set is maintained. The heap is implemented as
+// a binary heap. The output of the filter is a set of lines describing
 // the shortest path from StartVertex to EndVertex.
 //
 // .SECTION Caveats
-// The input polydata must have only triangle cells. 
+// The input polydata must have only triangle cells.
 //
 // .SECTION Thanks
-// The class was contributed by Rasmus Paulsen. 
-// www.imm.dtu.dk/~rrp/VTK . Also thanks to Alexandre Gouaillard and Shoaib 
+// The class was contributed by Rasmus Paulsen.
+// www.imm.dtu.dk/~rrp/VTK . Also thanks to Alexandre Gouaillard and Shoaib
 // Ghias for bug fixes and enhancements.
 
 #ifndef __vtkDijkstraGraphGeodesicPath_h
@@ -45,7 +45,7 @@ class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath :
                            public vtkGraphGeodesicPath
 {
 public:
-  
+
   // Description:
   // Instantiate the class
   static vtkDijkstraGraphGeodesicPath *New();
@@ -58,15 +58,15 @@ public:
   // Description:
   // The vertex ids (of the input polydata) on the shortest path
   vtkGetObjectMacro(IdList, vtkIdList);
-  
-  // Description: 
-  // Stop when the end vertex is reached 
+
+  // Description:
+  // Stop when the end vertex is reached
   // or calculate shortest path to all vertices
   vtkSetMacro(StopWhenEndReached, int);
   vtkGetMacro(StopWhenEndReached, int);
   vtkBooleanMacro(StopWhenEndReached, int);
-  
-  // Description: 
+
+  // Description:
   // Use scalar values in the edge weight (experimental)
   vtkSetMacro(UseScalarWeights, int);
   vtkGetMacro(UseScalarWeights, int);
@@ -90,19 +90,19 @@ public:
   //Description:
   //Fill the array with the cumulative weights.
   virtual void GetCumulativeWeights(vtkDoubleArray *weights);
-  
+
 protected:
   vtkDijkstraGraphGeodesicPath();
   ~vtkDijkstraGraphGeodesicPath();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
   // Build a graph description of the input.
   virtual void BuildAdjacency( vtkDataSet *inData );
 
   vtkTimeStamp AdjacencyBuildTime;
-  
+
   // The fixed cost going from vertex u to v.
   virtual double CalculateStaticEdgeCost( vtkDataSet *inData, vtkIdType u, vtkIdType v);
 
@@ -117,23 +117,23 @@ protected:
 
   // Calculate shortest path from vertex startv to vertex endv.
   virtual void ShortestPath( vtkDataSet *inData, int startv, int endv );
-  
+
   // Relax edge u,v with weight w.
   void Relax(const int& u, const int& v, const double& w);
 
   // Backtrace the shortest path
   void TraceShortestPath( vtkDataSet* inData, vtkPolyData* outPoly,
                vtkIdType startv, vtkIdType endv);
-  
+
   // The number of vertices.
   int NumberOfVertices;
-  
+
   // The vertex ids on the shortest path.
   vtkIdList *IdList;
-  
+
   //Internalized STL containers.
   vtkDijkstraGraphInternals *Internals;
-  
+
   int StopWhenEndReached;
   int UseScalarWeights;
   int RepelPathFromVertices;

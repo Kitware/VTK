@@ -30,7 +30,7 @@ END_MESSAGE_MAP()
 CChildFrame::CChildFrame()
 {
 	// TODO: add member initialization code here
-	
+
 }
 
 CChildFrame::~CChildFrame()

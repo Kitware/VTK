@@ -16,7 +16,7 @@
 // composite datasets in the input.
 // .SECTION Description
 // vtkCompositeDataProbeFilter supports probing into multi-group datasets.
-// It sequentially probes through each concrete dataset within the composite 
+// It sequentially probes through each concrete dataset within the composite
 // probing at only those locations at which there were no hits when probing
 // earlier datasets. For Hierarchical datasets, this traversal through leaf
 // datasets is done in reverse order of levels i.e. highest level first.
@@ -81,7 +81,7 @@ protected:
 
   // Description:
   // Handle composite input.
-  virtual int RequestData(vtkInformation *, 
+  virtual int RequestData(vtkInformation *,
     vtkInformationVector **, vtkInformationVector *);
 
   // Description:

@@ -40,10 +40,10 @@ typedef void (*taskFunction)(double data);
 void task3(double data);
 void task4(double data);
 
-  
+
 static const double EXTENT = 20;
 
-static const int WINDOW_WIDTH = 400; 
-static const int WINDOW_HEIGHT = 300; 
+static const int WINDOW_WIDTH = 400;
+static const int WINDOW_HEIGHT = 300;
 
 #endif

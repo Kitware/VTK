@@ -133,13 +133,13 @@ void vtkMultiThreshold::Set::PrintNodeName( ostream& os )
 }
 
 #define VTK_MULTITHRESH_ABOVE_BOTTOM( val ) \
-  (this->EndpointClosures[0] == CLOSED ? (val) >= this->EndpointValues[0] : (val) > this->EndpointValues[0]) 
+  (this->EndpointClosures[0] == CLOSED ? (val) >= this->EndpointValues[0] : (val) > this->EndpointValues[0])
 
 #define VTK_MULTITHRESH_BELOW_TOP( val ) \
   (this->EndpointClosures[1] == CLOSED ? (val) <= this->EndpointValues[1] : (val) < this->EndpointValues[1])
 
 #define VTK_MULTITHRESH_ABOVE_TOP( val ) \
-  (this->EndpointClosures[1] == CLOSED ? (val) > this->EndpointValues[1] : (val) >= this->EndpointValues[1]) 
+  (this->EndpointClosures[1] == CLOSED ? (val) > this->EndpointValues[1] : (val) >= this->EndpointValues[1])
 
 #define VTK_MULTITHRESH_BELOW_BOTTOM( val ) \
   (this->EndpointClosures[0] == CLOSED ? (val) < this->EndpointValues[0] : (val) <= this->EndpointValues[0])
@@ -461,9 +461,9 @@ int vtkMultiThreshold::RequestData(
   int updatePiece =
     oinfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
-  vtkPointSet* in = 
+  vtkPointSet* in =
     vtkPointSet::SafeDownCast( iinfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  vtkMultiBlockDataSet* omesh = 
+  vtkMultiBlockDataSet* omesh =
     vtkMultiBlockDataSet::SafeDownCast(
       oinfo->Get( vtkDataObject::DATA_OBJECT() ) );
   if ( ! omesh )

@@ -20,11 +20,11 @@
 // texture map is symmetric about the center of the triangle. Thus the order
 // Of the texture coordinates is not important. The procedural texture
 // in vtkTriangularTexture is designed with this symmetry. For more information
-// see the paper "Opacity-modulating Triangular Textures for Irregular 
+// see the paper "Opacity-modulating Triangular Textures for Irregular
 // Surfaces,"  by Penny Rheingans, IEEE Visualization '96, pp. 219-225.
 // .SECTION See Also
-// vtkTriangularTexture vtkThresholdPoints vtkTextureMapToPlane 
-// vtkTextureMapToSphere vtkTextureMapToCylinder 
+// vtkTriangularTexture vtkThresholdPoints vtkTextureMapToPlane
+// vtkTextureMapToSphere vtkTextureMapToCylinder
 
 #ifndef __vtkTriangularTCoords_h
 #define __vtkTriangularTCoords_h

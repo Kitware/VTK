@@ -14,27 +14,27 @@
 =========================================================================*/
 // .NAME vtkProcrustesAlignmentFilter - aligns a set of pointsets together
 // .SECTION Description
-// 
+//
 // vtkProcrustesAlignmentFilter is a filter that takes a set of pointsets
-// (any object derived from vtkPointSet) and aligns them in a least-squares 
-// sense to their mutual mean. The algorithm is iterated until convergence, 
-// as the mean must be recomputed after each alignment. 
+// (any object derived from vtkPointSet) and aligns them in a least-squares
+// sense to their mutual mean. The algorithm is iterated until convergence,
+// as the mean must be recomputed after each alignment.
 //
 // vtkProcrustesAlignmentFilter requires a vtkMultiBlock input consisting
 // of vtkPointSets as first level children.
 //
 // The default (in vtkLandmarkTransform) is for a similarity alignment.
-// For a rigid-body alignment (to build a 'size-and-shape' model) use: 
+// For a rigid-body alignment (to build a 'size-and-shape' model) use:
 //
-//    GetLandmarkTransform()->SetModeToRigidBody(). 
+//    GetLandmarkTransform()->SetModeToRigidBody().
 //
 // Affine alignments are not normally used but are left in for completeness:
 //
-//    GetLandmarkTransform()->SetModeToAffine(). 
+//    GetLandmarkTransform()->SetModeToAffine().
 //
 // vtkProcrustesAlignmentFilter is an implementation of:
 //
-//    J.C. Gower (1975) 
+//    J.C. Gower (1975)
 //    Generalized Procrustes Analysis. Psychometrika, 40:33-51.
 //
 // .SECTION Caveats
@@ -69,19 +69,19 @@ public:
   // Creates with similarity transform.
   static vtkProcrustesAlignmentFilter *New();
 
-  // Description: 
+  // Description:
   // Get the internal landmark transform. Use it to constrain the number of
   // degrees of freedom of the alignment (i.e. rigid body, similarity, etc.).
   // The default is a similarity alignment.
   vtkGetObjectMacro(LandmarkTransform,vtkLandmarkTransform);
-  
-  // Description: 
+
+  // Description:
   // Get the estimated mean point cloud
   vtkGetObjectMacro(MeanPoints,vtkPoints);
-  
+
   // Description:
-  // When on, the initial alignment is to the centroid 
-  // of the cohort curves.  When off, the alignment is to the 
+  // When on, the initial alignment is to the centroid
+  // of the cohort curves.  When off, the alignment is to the
   // centroid of the first input.  Default is off for
   // backward compatibility.
   vtkSetMacro(StartFromCentroid, bool);

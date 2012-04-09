@@ -36,22 +36,22 @@ class VTKIOXML_EXPORT vtkXMLCompositeDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLCompositeDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);  
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Get the default file extension for files written by this writer.
   virtual const char* GetDefaultFileExtension();
-  
+
   // Description:
   // Get/Set the number of pieces into which the inputs are split.
-  
+
   // Description:
   // Get/Set the number of ghost levels to be written.
   vtkGetMacro(GhostLevel, int);
   vtkSetMacro(GhostLevel, int);
-  
+
   // Description:
-  // Get/Set whether this instance will write the meta-file. 
+  // Get/Set whether this instance will write the meta-file.
   vtkGetMacro(WriteMetaFile, int);
   virtual void SetWriteMetaFile(int flag);
 
@@ -67,7 +67,7 @@ protected:
 
   // Description:
   // Methods to define the file's major and minor version numbers.
-  // Major version incremented since v0.1 composite data readers cannot read 
+  // Major version incremented since v0.1 composite data readers cannot read
   // the files written by this new reader.
   virtual int GetDataSetMajorVersion() { return 1; }
   virtual int GetDataSetMinorVersion() { return 0; }
@@ -75,7 +75,7 @@ protected:
   // Description:
   // Create a filename for the given index.
   vtkStdString CreatePieceFileName(int Piece);
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -107,7 +107,7 @@ protected:
   // Methods to create the set of writers matching the set of inputs.
   void CreateWriters(vtkCompositeDataSet*);
   vtkXMLWriter* GetWriter(int index);
-  
+
   // Methods to help construct internal file names.
   void SplitFileName();
   const char* GetFilePrefix();
@@ -118,46 +118,46 @@ protected:
   // This is overridden in parallel writers to communicate the hierarchy to the
   // root which then write the meta file.
   int WriteMetaFileIfRequested();
-  
+
   // Make a directory.
   void MakeDirectory(const char* name);
-  
+
   // Remove a directory.
   void RemoveADirectory(const char* name);
-  
+
   // Internal implementation details.
-  vtkXMLCompositeDataWriterInternals* Internal;  
-  
+  vtkXMLCompositeDataWriterInternals* Internal;
+
   // The number of ghost levels to write for unstructured data.
   int GhostLevel;
-  
+
   // Description:
   // Whether to write the collection file on this node. This could
-  // potentially be set to 0 (i.e. do not write) for optimization 
+  // potentially be set to 0 (i.e. do not write) for optimization
   // if the file structured does not change but the data does.
   int WriteMetaFile;
-  
+
   // Callback registered with the ProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
-  
+
   // The observer to report progress from the internal writer.
-  vtkCallbackCommand* ProgressObserver;  
-  
+  vtkCallbackCommand* ProgressObserver;
+
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 
   // Description:
-  // Internal method called recursively to create the xml tree for 
-  // the children of compositeData as well as write the actual data 
+  // Internal method called recursively to create the xml tree for
+  // the children of compositeData as well as write the actual data
   // set files.  element will only have added nested information.
   // writerIdx is the global piece index used to create unique
   // filenames for each file written.
   // This function returns 0 if no files were written from
   // compositeData.
-  virtual int WriteComposite(vtkCompositeDataSet* compositeData, 
+  virtual int WriteComposite(vtkCompositeDataSet* compositeData,
     vtkXMLDataElement* element, int &writerIdx)=0;
 
   // Description:
@@ -170,7 +170,7 @@ protected:
   // This function returns 0 if no file was written (not necessarily an error).
   // this->ErrorCode is set on error.
   virtual int WriteNonCompositeData(
-    vtkDataObject* dObj, vtkXMLDataElement* element, 
+    vtkDataObject* dObj, vtkXMLDataElement* element,
     int& writerIdx, const char* FileName);
 
   // Description:

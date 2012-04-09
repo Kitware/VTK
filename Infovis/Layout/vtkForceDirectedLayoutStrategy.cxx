@@ -62,15 +62,15 @@ vtkForceDirectedLayoutStrategy::~vtkForceDirectedLayoutStrategy()
 
 
 // Cool-down function.
-static inline double CoolDown(double t, double r) 
-{ 
+static inline double CoolDown(double t, double r)
+{
   if (t<.01) return .01;
-  return t-(t/r); 
+  return t-(t/r);
 }
 
-static inline double forceAttract(double x, double k) 
-{ 
-  return (x * x) / k; 
+static inline double forceAttract(double x, double k)
+{
+  return (x * x) / k;
 }
 
 static inline double forceRepulse(double x, double k)
@@ -89,7 +89,7 @@ static inline double forceRepulse(double x, double k)
 // In the future this method should setup data
 // structures, etc... so that Layout doesn't have to
 // do that every time it's called
-void vtkForceDirectedLayoutStrategy::Initialize() 
+void vtkForceDirectedLayoutStrategy::Initialize()
 {
   vtkPoints* pts = this->Graph->GetPoints();
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
@@ -104,24 +104,24 @@ void vtkForceDirectedLayoutStrategy::Initialize()
 
   for (int i = 0; i < 3; i++)
     {
-    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] ) 
+    if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] )
       {
       this->GraphBounds[2*i+1] = this->GraphBounds[2*i] + 1;
       }
     }
- 
+
   if (this->v) delete[] this->v;
   if (this->e) delete[] this->e;
   this->v = new vtkLayoutVertex[numVertices];
   this->e = new vtkLayoutEdge[numEdges];
 
   int maxCoord = this->ThreeDimensionalLayout ? 3 : 2;
-        
+
   // Get the points, either x,y,0 or x,y,z or random
   if (this->RandomInitialPoints)
     {
     vtkMath::RandomSeed(this->RandomSeed);
-    
+
     for (vtkIdType i = 0; i < numVertices; i++)
       {
       for (int j = 0; j < maxCoord; j++)
@@ -205,7 +205,7 @@ void vtkForceDirectedLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
-  
+
   // Begin iterations.
   double norm, fr, fa, minimum;
   double diff[3];
@@ -312,8 +312,8 @@ void vtkForceDirectedLayoutStrategy::Layout()
 
   // Clean up.
   newPts->Delete();
-  
-  
+
+
   // Check for completion of layout
   this->TotalIterations += this->IterationsPerLayout;
   if (this->TotalIterations >= this->MaxNumberOfIterations)
@@ -327,21 +327,21 @@ void vtkForceDirectedLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "RandomSeed: " << this->RandomSeed << endl;
-  os << indent << "AutomaticBoundsComputation: " 
+  os << indent << "AutomaticBoundsComputation: "
      << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "GraphBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", " 
+  os << indent << "  Xmin,Xmax: (" << this->GraphBounds[0] << ", "
      << this->GraphBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", " 
+  os << indent << "  Ymin,Ymax: (" << this->GraphBounds[2] << ", "
      << this->GraphBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", " 
+  os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", "
      << this->GraphBounds[5] << ")\n";
   os << indent << "InitialTemperature: " << this->InitialTemperature << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "RandomInitialPoints: "
      << (this->RandomInitialPoints ? "On\n" : "Off\n");
-  os << indent << "Three Dimensional Layout: " 
+  os << indent << "Three Dimensional Layout: "
      << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
 }

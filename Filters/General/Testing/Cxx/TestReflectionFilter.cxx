@@ -24,10 +24,10 @@
 #include <assert.h>
 
 #define AssertMacro(b) if(!(b)){std::cerr <<"Failed to reflect pyramid"<<std::endl;return EXIT_FAILURE;}
- 
+
 int TestReflectionFilter(int, char *[])
-{ 
-  
+{
+
   vtkSmartPointer<vtkUnstructuredGrid> pyramid = vtkSmartPointer<vtkUnstructuredGrid>::New();
     {
     vtkSmartPointer<vtkPoints> points =  vtkSmartPointer<vtkPoints>::New();
@@ -53,7 +53,7 @@ int TestReflectionFilter(int, char *[])
     {
     vtkSmartPointer<vtkReflectionFilter> reflectionFilter =  vtkSmartPointer<vtkReflectionFilter>::New();
     reflectionFilter->SetInputData(pyramid.GetPointer());
-    i==0? reflectionFilter->CopyInputOff() : reflectionFilter->CopyInputOn(); 
+    i==0? reflectionFilter->CopyInputOff() : reflectionFilter->CopyInputOn();
     reflectionFilter->SetPlaneToZMin();
     reflectionFilter->Update();
     vtkUnstructuredGrid* pyramid1 = vtkUnstructuredGrid::SafeDownCast(reflectionFilter->GetOutput());
@@ -66,10 +66,10 @@ int TestReflectionFilter(int, char *[])
       {
       AssertMacro(pyramid1->GetNumberOfCells()==2);
       }
-    pyramid1->GetCellPoints(i, cellIds.GetPointer()); 
+    pyramid1->GetCellPoints(i, cellIds.GetPointer());
     int apex = cellIds->GetId(4);
     int offset = i==0? 0 : 5;
-    AssertMacro(apex==4+offset);  
+    AssertMacro(apex==4+offset);
     for(int j=0; j<4; j++)
       {
       int next = cellIds->GetId((j+1)%4);
@@ -78,6 +78,6 @@ int TestReflectionFilter(int, char *[])
       }
     }
 
- 
+
   return EXIT_SUCCESS;
 }

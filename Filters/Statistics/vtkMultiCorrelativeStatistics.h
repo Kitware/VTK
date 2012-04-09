@@ -52,7 +52,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   of the tables on input port INPUT_MODEL, the assess mode computes the relative
 //   deviation of each observation in port INPUT_DATA's table according to the linear
 //   correlations implied by each table in port INPUT_MODEL.
-//  
+//
 // .SECTION Thanks
 // Thanks to Philippe Pebay, Jackson Mayo, and David Thompson of
 // Sandia National Laboratories for implementing this class.
@@ -95,8 +95,8 @@ protected:
 
   // Description:
   // Execute the calculations required by the Assess option.
-  virtual void Assess( vtkTable*, 
-                       vtkMultiBlockDataSet*, 
+  virtual void Assess( vtkTable*,
+                       vtkMultiBlockDataSet*,
                        vtkTable* );
 
   // Description:
@@ -105,10 +105,10 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; };
 
-  //BTX  
+  //BTX
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* inData, 
+  virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );

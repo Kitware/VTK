@@ -20,7 +20,7 @@ vtkDelaunay3D del1
     del1 SetTolerance 0.01
     del1 SetAlpha 0.2
     del1 BoundingTriangulationOff
-    
+
 vtkShrinkFilter shrink
     shrink SetInputConnection [del1 GetOutputPort]
     shrink SetShrinkFactor 0.9

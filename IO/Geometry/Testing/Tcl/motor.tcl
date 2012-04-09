@@ -17,9 +17,9 @@ vtkFloatArray norms
 norms SetNumberOfComponents 3
 
 points InsertPoint 0 0.0 0.0 0.0
-norms InsertTuple3 0 0.0 0.0 1.0;    
+norms InsertTuple3 0 0.0 0.0 1.0;
 points InsertPoint 1 0.0 0.0 0.0
-norms InsertTuple3 1 -1.0 0.0 0.0;    
+norms InsertTuple3 1 -1.0 0.0 0.0;
 
 planes SetPoints points
 planes SetNormals norms

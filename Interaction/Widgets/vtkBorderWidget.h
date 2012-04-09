@@ -20,7 +20,7 @@
 // provides methods and internal data members so that subclasses can take
 // advantage of this widgets capabilities, requiring only that the subclass
 // defines a "representation", i.e., some combination of props or actors
-// that can be managed in the 2D rectangular region. 
+// that can be managed in the 2D rectangular region.
 //
 // The class defines basic positioning functionality, including the ability
 // to size the widget with locked x/y proportions. The area within the border
@@ -45,7 +45,7 @@
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkBorderWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
@@ -112,14 +112,14 @@ public:
   // so it can be added to the renderer independent of the widget.
   void SetRepresentation(vtkBorderRepresentation *r)
     {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
   // Return the representation as a vtkBorderRepresentation.
   vtkBorderRepresentation *GetBorderRepresentation()
     {return reinterpret_cast<vtkBorderRepresentation*>(this->WidgetRep);}
 
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   virtual void CreateDefaultRepresentation();
 
 protected:
@@ -148,7 +148,7 @@ protected:
   virtual int SubclassTranslateAction() {return 0;}
   virtual int SubclassEndSelectAction() {return 0;}
   virtual int SubclassMoveAction() {return 0;}
-  
+
   // helper methods for cursoe management
   virtual void SetCursor(int State);
 

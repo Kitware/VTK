@@ -293,7 +293,7 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
     else
       {
       this->Glyph3D->SetScaleFactor(this->Distance/40);
-      }    
+      }
     double distance;
     if ( this->RulerMode ) // specified tick separation
       {
@@ -380,18 +380,18 @@ void vtkDistanceRepresentation3D::SetGlyphScale( double scale )
   this->GlyphScale = scale;
   this->GlyphScaleSpecified = true;
 }
- 
+
 //----------------------------------------------------------------------------
 vtkProperty * vtkDistanceRepresentation3D::GetLineProperty()
 {
   return this->LineActor->GetProperty();
 }
- 
+
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LabelPosition to " << labelPosition);
- 
+
   if (this->LabelPosition == labelPosition)
     {
     ;
@@ -402,7 +402,7 @@ void vtkDistanceRepresentation3D::SetLabelPosition(double labelPosition)
     }
   this->UpdateLabelPosition();
  }
- 
+
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation3D::UpdateLabelPosition()
 {
@@ -411,17 +411,17 @@ void vtkDistanceRepresentation3D::UpdateLabelPosition()
     {
     return;
     }
- 
+
   // get the end points
   double p1[3], p2[3];
   this->Point1Representation->GetWorldPosition(p1);
   this->Point2Representation->GetWorldPosition(p2);
   double pos[3];
- 
+
   pos[0] = p1[0] + (p2[0] - p1[0]) * this->LabelPosition;
   pos[1] = p1[1] + (p2[1] - p1[1]) * this->LabelPosition;
   pos[2] = p1[2] + (p2[2] - p1[2]) * this->LabelPosition;
- 
+
   // and set it on the actor
   double * actorPos = this->LabelActor->GetPosition();
   double diff = sqrt(vtkMath::Distance2BetweenPoints(pos, actorPos));

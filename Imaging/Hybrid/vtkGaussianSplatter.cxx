@@ -26,8 +26,8 @@
 
 vtkStandardNewMacro(vtkGaussianSplatter);
 
-// Construct object with dimensions=(50,50,50); automatic computation of 
-// bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
+// Construct object with dimensions=(50,50,50); automatic computation of
+// bounds; a splat radius of 0.1; an exponent factor of -5; and normal and
 // scalar warping turned on.
 vtkGaussianSplatter::vtkGaussianSplatter()
 {
@@ -82,7 +82,7 @@ int vtkGaussianSplatter::RequestInformation (
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
 
-  int i;  
+  int i;
   for (i=0; i<3; i++)
     {
     this->Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
@@ -93,10 +93,10 @@ int vtkGaussianSplatter::RequestInformation (
       }
     }
   outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               0, this->SampleDimensions[0] - 1, 
-               0, this->SampleDimensions[1] - 1, 
+               0, this->SampleDimensions[0] - 1,
+               0, this->SampleDimensions[1] - 1,
                0, this->SampleDimensions[2] - 1);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, 1);
   return 1;
@@ -112,26 +112,26 @@ int vtkGaussianSplatter::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   output->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars(outInfo);
-  
+
   vtkIdType numPts, numNewPts, ptId, idx, i;
   int j, k;
   int min[3], max[3];
   vtkPointData *pd;
   vtkDataArray *inNormals=NULL;
   double loc[3], dist2, cx[3];
-  vtkDoubleArray *newScalars = 
-    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());  
+  vtkDoubleArray *newScalars =
+    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());
   newScalars->SetName("SplatterValues");
-  
+
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
-  
+
   vtkDebugMacro(<< "Splatting data");
 
   //  Make sure points are available
@@ -221,7 +221,7 @@ int vtkGaussianSplatter::RequestData(
       }
 
     // Determine the voxel that the point is in
-    for (i=0; i<3; i++)  
+    for (i=0; i<3; i++)
       {
       loc[i] = (this->P[i] - this->Origin[i]) / this->Spacing[i];
       }
@@ -240,7 +240,7 @@ int vtkGaussianSplatter::RequestData(
         max[i] = this->SampleDimensions[i] - 1;
         }
       }
-    
+
     // Loop over all sample points in volume within footprint and
     // evaluate the splat
     for (k=min[2]; k<=max[2]; k++)
@@ -252,7 +252,7 @@ int vtkGaussianSplatter::RequestData(
         for (i=min[0]; i<=max[0]; i++)
           {
           cx[0] = this->Origin[0] + this->Spacing[0]*i;
-          if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 ) 
+          if ( (dist2=(this->*Sample)(cx)) <= this->Radius2 )
             {
             idx = i + j*this->SampleDimensions[0] + k*sliceSize;
             this->SetScalar(idx,dist2, newScalars);
@@ -282,13 +282,13 @@ int vtkGaussianSplatter::RequestData(
 //----------------------------------------------------------------------------
 // Compute the size of the sample bounding box automatically from the
 // input data.
-void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input, 
+void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input,
                                              vtkImageData *output,
                                              vtkInformation *outInfo)
 {
   double *bounds, maxDist;
   int i, adjustBounds=0;
-  
+
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
        this->ModelBounds[2] >= this->ModelBounds[3] ||
@@ -328,7 +328,7 @@ void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input,
                this->ModelBounds[4]);
   memcpy(this->Origin,outInfo->Get(vtkDataObject::ORIGIN()), sizeof(double)*3);
   output->SetOrigin(this->Origin);
-  
+
   for (i=0; i<3; i++)
     {
     this->Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
@@ -340,7 +340,7 @@ void vtkGaussianSplatter::ComputeModelBounds(vtkDataSet *input,
     }
   outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
   output->SetSpacing(this->Spacing);
-  
+
   // Determine the splat propagation distance...used later
   for (i=0; i<3; i++)
     {
@@ -365,7 +365,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;
 
-  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," 
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << ","
                 << dim[1] << "," << dim[2] << ")");
 
   if (dim[0] != this->SampleDimensions[0] ||
@@ -377,7 +377,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
       }
-    
+
     for (dataDim=0, i=0; i<3 ; i++)
       {
       if (dim[i] > 1)
@@ -396,7 +396,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
       {
       this->SampleDimensions[i] = dim[i];
       }
-    
+
     this->Modified();
     }
 }
@@ -472,7 +472,7 @@ double vtkGaussianSplatter::Gaussian (double cx[3])
   return ((cx[0]-P[0])*(cx[0]-P[0]) + (cx[1]-P[1])*(cx[1]-P[1]) +
           (cx[2]-P[2])*(cx[2]-P[2]) );
 }
-    
+
 //----------------------------------------------------------------------------
 //
 //  Ellipsoidal Gaussian sampling
@@ -489,7 +489,7 @@ double vtkGaussianSplatter::EccentricGaussian (double cx[3])
 
   if ( (mag=this->N[0]*this->N[0]+
             this->N[1]*this->N[1]+
-            this->N[2]*this->N[2]) != 1.0  ) 
+            this->N[2]*this->N[2]) != 1.0  )
     {
     if ( mag == 0.0 )
       {
@@ -508,9 +508,9 @@ double vtkGaussianSplatter::EccentricGaussian (double cx[3])
 
   return (rxy2/this->Eccentricity2 + z2);
 }
-    
+
 //----------------------------------------------------------------------------
-void vtkGaussianSplatter::SetScalar(int idx, double dist2, 
+void vtkGaussianSplatter::SetScalar(int idx, double dist2,
                                     vtkDoubleArray *newScalars)
 {
   double v = (this->*SampleFactor)(this->S) * exp(
@@ -563,7 +563,7 @@ void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Sample Dimensions: (" 
+  os << indent << "Sample Dimensions: ("
                << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "
                << this->SampleDimensions[2] << ")\n";
@@ -572,25 +572,25 @@ void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Exponent Factor: " << this->ExponentFactor << "\n";
 
   os << indent << "ModelBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] 
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0]
      << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] 
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2]
      << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] 
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4]
      << ", " << this->ModelBounds[5] << ")\n";
 
-  os << indent << "Normal Warping: " 
+  os << indent << "Normal Warping: "
      << (this->NormalWarping ? "On\n" : "Off\n");
   os << indent << "Eccentricity: " << this->Eccentricity << "\n";
 
-  os << indent << "Scalar Warping: " 
+  os << indent << "Scalar Warping: "
      << (this->ScalarWarping ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
 
-  os << indent << "Accumulation Mode: " 
+  os << indent << "Accumulation Mode: "
      << this->GetAccumulationModeAsString() << "\n";
 
   os << indent << "Null Value: " << this->NullValue << "\n";

@@ -558,9 +558,9 @@ int vtkXMLDataParser::ReadBlock(unsigned int block, unsigned char* buffer)
     {
     return 0;
     }
-  
+
   unsigned char* readBuffer = new unsigned char[compressedSize];
-  
+
   if(this->DataStream->Read(readBuffer, compressedSize) < compressedSize)
     {
     delete [] readBuffer;

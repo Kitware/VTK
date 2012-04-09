@@ -32,22 +32,22 @@ class VTKCOMMONCORE_EXPORT vtkDataArrayCollectionIterator : public vtkCollection
 public:
   vtkTypeMacro(vtkDataArrayCollectionIterator,vtkCollectionIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkDataArrayCollectionIterator* New();  
-  
+  static vtkDataArrayCollectionIterator* New();
+
   // Description:
   // Set the collection over which to iterate.
   virtual void SetCollection(vtkCollection*);
   void SetCollection(vtkDataArrayCollection*);
-  
+
   // Description:
   // Get the item at the current iterator position.  Valid only when
   // IsDoneWithTraversal() returns 1.
   vtkDataArray* GetDataArray();
-  
+
 protected:
   vtkDataArrayCollectionIterator();
-  ~vtkDataArrayCollectionIterator();  
-  
+  ~vtkDataArrayCollectionIterator();
+
 private:
   vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&); // Not implemented
   void operator=(const vtkDataArrayCollectionIterator&); // Not implemented

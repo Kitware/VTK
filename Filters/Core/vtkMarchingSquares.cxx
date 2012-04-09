@@ -63,7 +63,7 @@ vtkMarchingSquares::~vtkMarchingSquares()
     }
 }
 
-void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax, 
+void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
                                        int kmin, int kmax)
 {
   int dim[6];
@@ -101,8 +101,8 @@ unsigned long vtkMarchingSquares::GetMTime()
 //
 template <class T>
 void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3],
-                     int start[2], int end[2], int offset[3], double ar[3], 
-                     double origin[3], double *values, int numValues, 
+                     int start[2], int end[2], int offset[3], double ar[3],
+                     double origin[3], double *values, int numValues,
                      vtkIncrementalPointLocator *p, vtkCellArray *lines)
 {
   int i, j;
@@ -110,7 +110,7 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
   double t, *x1, *x2, x[3], xp, yp;
   double pts[4][3], min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;
-  static int CASE_MASK[4] = {1,2,8,4};  
+  static int CASE_MASK[4] = {1,2,8,4};
   vtkMarchingSquaresLineCases *lineCase, *lineCases;
   static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
   EDGE_LIST  *edge;
@@ -213,7 +213,7 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
               newScalars->InsertComponent(ptIds[ii],0,value);
               }
             }
-          
+
           if ( ptIds[0] != ptIds[1] ) //check for degenerate line
             {
             lines->InsertNextCell(2,ptIds);
@@ -411,12 +411,12 @@ int vtkMarchingSquares::RequestData(
     image->Delete();
     }
 
-  vtkDebugMacro(<<"Created: " 
-               << newPts->GetNumberOfPoints() << " points, " 
+  vtkDebugMacro(<<"Created: "
+               << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
   //
   // Update ourselves.  Because we don't know up front how many lines
-  // we've created, take care to reclaim memory. 
+  // we've created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();
@@ -435,7 +435,7 @@ int vtkMarchingSquares::RequestData(
 }
 
 // Description:
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkMarchingSquares::SetLocator(vtkIncrementalPointLocator *locator)
 {
@@ -449,12 +449,12 @@ void vtkMarchingSquares::SetLocator(vtkIncrementalPointLocator *locator)
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
-  
+
   if ( locator )
     {
     locator->Register(this);
     }
-  
+
   this->Locator = locator;
   this->Modified();
 }
@@ -479,7 +479,7 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
-  os << indent << "Image Range: ( " 
+  os << indent << "Image Range: ( "
      << this->ImageRange[0] << ", "
      << this->ImageRange[1] << ", "
      << this->ImageRange[2] << ", "

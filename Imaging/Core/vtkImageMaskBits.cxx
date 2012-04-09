@@ -33,11 +33,11 @@ vtkImageMaskBits::vtkImageMaskBits()
   this->Masks[3] = 0xffffffff;
 }
 
-    
+
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
@@ -50,12 +50,12 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
   int idxC, maxC;
   unsigned int *masks;
   int operation;
-  
+
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
   masks = self->GetMasks();
   operation = self->GetOperation();
-  
+
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
@@ -114,7 +114,7 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
             }
           }
         break;
-      }    
+      }
     inIt.NextSpan();
     outIt.NextSpan();
     }
@@ -125,52 +125,52 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData, 
+void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData,
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " 
+    vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData->GetScalarType()
-                  << ", must match out ScalarType " 
+                  << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
     }
-  
+
   switch (inData->GetScalarType())
     {
     case VTK_INT:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<int *>(0));
       break;
     case VTK_UNSIGNED_INT:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<unsigned int *>(0));
       break;
     case VTK_LONG:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<long *>(0));
       break;
     case VTK_UNSIGNED_LONG:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<unsigned long *>(0));
       break;
     case VTK_SHORT:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<short *>(0));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<unsigned short *>(0));
       break;
     case VTK_CHAR:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<char *>(0));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMaskBitsExecute(this, inData, outData, outExt, id, 
+      vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<unsigned char *>(0));
       break;
     default:
@@ -186,7 +186,7 @@ void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
-  os << indent << "Masks: (" 
+  os << indent << "Masks: ("
      << this->Masks[0] << ", " << this->Masks[1] << ", "
      << this->Masks[2] << ", " << this->Masks[3] << ")" << endl;
 }

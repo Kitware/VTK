@@ -63,7 +63,7 @@ void TestStrategy(vtkTreeMapLayoutStrategy* strategy, vtkTreeAlgorithm* input, d
 int TestTreeMapLayoutStrategy(int argc, char* argv[])
 {
   VTK_CREATE(vtkRenderer, ren);
-  
+
   // Create input
   VTK_CREATE(vtkMutableDirectedGraph, builder);
   VTK_CREATE(vtkIntArray, sizeArr);
@@ -95,7 +95,7 @@ int TestTreeMapLayoutStrategy(int argc, char* argv[])
     {
     cerr << "Invalid tree structure." << endl;
     }
-  
+
   VTK_CREATE(vtkTreeFieldAggregator, agg);
   agg->SetInputData(tree);
   agg->SetField("size");
@@ -104,15 +104,15 @@ int TestTreeMapLayoutStrategy(int argc, char* argv[])
   // Test box layout
   VTK_CREATE(vtkBoxLayoutStrategy, box);
   TestStrategy(box, agg, 0, 0, ren);
-  
+
   // Test slice and dice layout
   VTK_CREATE(vtkSliceAndDiceLayoutStrategy, sd);
   TestStrategy(sd, agg, 0, 1.1, ren);
-  
+
   // Test squarify layout
   VTK_CREATE(vtkSquarifyLayoutStrategy, sq);
   TestStrategy(sq, agg, 1.1, 0, ren);
-  
+
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);
   win->AddRenderer(ren);

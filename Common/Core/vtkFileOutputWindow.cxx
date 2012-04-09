@@ -27,7 +27,7 @@ vtkFileOutputWindow::vtkFileOutputWindow()
 
 vtkFileOutputWindow::~vtkFileOutputWindow()
 {
-  if (this->FileName) 
+  if (this->FileName)
     {
     delete[] this->FileName;
     }
@@ -37,7 +37,7 @@ vtkFileOutputWindow::~vtkFileOutputWindow()
     }
 }
 
-void vtkFileOutputWindow::Initialize() 
+void vtkFileOutputWindow::Initialize()
 {
   if (!this->OStream)
     {
@@ -70,7 +70,7 @@ void vtkFileOutputWindow::DisplayText(const char* text)
     this->Initialize();
     }
   *this->OStream << text << endl;
-  
+
   if (this->Flush)
     {
     this->OStream->flush();
@@ -81,7 +81,7 @@ void vtkFileOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "OStream: " << this->OStream << endl;
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "Append: " << (this->Append ? "On" : "Off") << endl;
   os << indent << "Flush: " << (this->Flush ? "On" : "Off") << endl;

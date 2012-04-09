@@ -7,7 +7,7 @@
  * statement of authorship are reproduced on all copies.
  */
 // .SECTION Thanks
-// Thanks to Janine Bennett, Philippe Pebay, and David Thompson from Sandia National Laboratories 
+// Thanks to Janine Bennett, Philippe Pebay, and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
 #include "vtkDoubleArray.h"
@@ -74,10 +74,10 @@ int main( int, char *[] )
       {
       paramCluster->InsertNextValue( numClustersInRun[curRun] );
       }
-    } 
+    }
   paramData->AddColumn( paramCluster );
   paramCluster->Delete();
-  
+
   for ( int c = 0; c < 5; ++ c )
     {
     vtksys_ios::ostringstream colName;
@@ -95,7 +95,7 @@ int main( int, char *[] )
         x = vtkMath::Random();
         paramArray->InsertNextValue( x );
         }
-      } 
+      }
     paramData->AddColumn( paramArray );
     paramArray->Delete();
     }
@@ -125,7 +125,7 @@ int main( int, char *[] )
   haruspex->SetAssessOption( false );
 
   haruspex->Update();
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(  
+  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
                         haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
@@ -134,7 +134,7 @@ int main( int, char *[] )
       {
 
       vtkIdType testIntValue = 0;
-      for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ ) 
+      for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ )
         {
         testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
         }
@@ -145,9 +145,9 @@ int main( int, char *[] )
 
       if ( testIntValue != nVals )
         {
-        vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: " 
-                               << testIntValue 
-                               << " != " 
+        vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
+                               << testIntValue
+                               << " != "
                                << nVals
                                << ".");
         testStatus = 1;
@@ -155,7 +155,7 @@ int main( int, char *[] )
       }
     else
       {
-      cout << "## Ranked cluster: " 
+      cout << "## Ranked cluster: "
            << "\n";
       }
 
@@ -167,10 +167,10 @@ int main( int, char *[] )
   haruspex->SetInput( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
   cout << "## Testing with input table:"
            << "\n";
-  
+
   paramData->Dump();
   cout << "\n";
-  
+
   // Test Assess option only
   haruspex->SetLearnOption( true );
   haruspex->SetDeriveOption( true );
@@ -178,7 +178,7 @@ int main( int, char *[] )
   haruspex->SetAssessOption( false );
 
   haruspex->Update();
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast( 
+  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
                  haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
@@ -205,7 +205,7 @@ int main( int, char *[] )
                                << outputMeta->GetNumberOfRows()
                                << ".");
         testStatus = 1;
-        } 
+        }
 
       cout << "## Computed clusters (cardinality: "
            << testIntValue
@@ -223,7 +223,7 @@ int main( int, char *[] )
       }
     else
       {
-      cout << "## Ranked cluster: " 
+      cout << "## Ranked cluster: "
            << "\n";
       }
 

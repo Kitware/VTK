@@ -71,7 +71,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->TubeMapper = vtkPolyDataMapper::New();
   this->TubeMapper->SetInputConnection(
     this->CylinderSource->GetOutputPort());
-  
+
   this->TubeProperty = vtkProperty::New();
   this->TubeProperty->SetColor(1,1,1);
 
@@ -79,17 +79,17 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->TubeActor->SetMapper(this->TubeMapper);
   this->TubeActor->SetProperty(this->TubeProperty);
   this->TubeActor->RotateZ(90.0);
-  
+
   // The slider (either sphere or cylinder)
   this->SliderSource = vtkSphereSource::New();
   this->SliderSource->SetPhiResolution(8);
   this->SliderSource->SetThetaResolution(16);
   this->SliderSource->SetRadius(0.5);
-  
+
   this->SliderMapper = vtkPolyDataMapper::New();
   this->SliderMapper->SetInputConnection(
     this->SliderSource->GetOutputPort());
-  
+
   this->SliderProperty = vtkProperty::New();
   this->SliderProperty->SetColor(0.2000, 0.6300, 0.7900); //peacock
   this->SliderProperty->SetSpecularColor(1, 1, 1);
@@ -109,7 +109,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->SP2[0] = -0.5 + (1.0-this->EndCapLength) - this->SliderLength/2.0;
   this->SP2[1] = 0.0;
   this->SP2[2] = 0.0;
-  
+
   this->SelectedProperty = vtkProperty::New();
   this->SelectedProperty->SetColor(1.0000, 0.4118, 0.7059); //hot pink
   this->SelectedProperty->SetSpecularColor(1, 1, 1);
@@ -122,7 +122,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->LeftCapMapper = vtkPolyDataMapper::New();
   this->LeftCapMapper->SetInputConnection(
     this->Cylinder->GetOutputPort());
-  
+
   this->CapProperty = vtkProperty::New();
   this->CapProperty->SetColor(1,1,1);
   this->CapProperty->SetSpecularColor(1, 1, 1);
@@ -134,12 +134,12 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->LeftCapActor = vtkActor::New();
   this->LeftCapActor->SetMapper(this->LeftCapMapper);
   this->LeftCapActor->SetProperty(this->CapProperty);
-  
+
   // The right cap
   this->RightCapMapper = vtkPolyDataMapper::New();
   this->RightCapMapper->SetInputConnection(
     this->Cylinder->GetOutputPort());
-  
+
   this->RightCapActor = vtkActor::New();
   this->RightCapActor->SetMapper(this->RightCapMapper);
   this->RightCapActor->SetProperty(this->CapProperty);
@@ -163,7 +163,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->LabelActor = vtkActor::New();
   this->LabelActor->SetMapper(this->LabelMapper);
   this->LabelActor->PickableOff();
-  
+
   this->TitleText = vtkVectorText::New();
   this->TitleText->SetText("");
   this->TitleHeight = 0.15;
@@ -182,7 +182,7 @@ vtkSliderRepresentation3D::vtkSliderRepresentation3D()
   this->WidgetAssembly->AddPart(this->RightCapActor);
   this->WidgetAssembly->AddPart(this->LabelActor);
   this->WidgetAssembly->AddPart(this->TitleActor);
-  
+
   //Manage the picking stuff
   this->Picker = vtkCellPicker::New();
   this->Picker->SetTolerance(0.001);
@@ -204,33 +204,33 @@ vtkSliderRepresentation3D::~vtkSliderRepresentation3D()
   this->TubeMapper->Delete();
   this->TubeActor->Delete();
   this->TubeProperty->Delete();
-  
+
   this->SliderSource->Delete();
   this->SliderMapper->Delete();
   this->SliderActor->Delete();
 
   this->SliderProperty->Delete();
   this->SelectedProperty->Delete();
-    
+
   this->LeftCapMapper->Delete();
   this->LeftCapActor->Delete();
   this->CapProperty->Delete();
-  
+
   this->RightCapMapper->Delete();
   this->RightCapActor->Delete();
-  
+
   this->Point1Coordinate->Delete();
   this->Point2Coordinate->Delete();
-  
+
   this->Picker->Delete();
-  
+
   this->LabelText->Delete();
   this->LabelMapper->Delete();
   this->LabelActor->Delete();
   this->TitleText->Delete();
   this->TitleMapper->Delete();
   this->TitleActor->Delete();
-  
+
   this->Matrix->Delete();
   this->Transform->Delete();
 }
@@ -271,7 +271,7 @@ void vtkSliderRepresentation3D::StartWidgetInteraction(double eventPos[2])
       this->InteractionState = vtkSliderRepresentation::Slider;
       this->PickedT = this->CurrentT;
       }
-    else 
+    else
       {
       if ( prop == this->TubeActor )
         {
@@ -320,7 +320,7 @@ void vtkSliderRepresentation3D::PlaceWidget(double bds[6])
   this->PlaceFactor = 1.0;
   this->AdjustBounds(bds, bounds, center);
   this->PlaceFactor = placeFactor;
-  
+
   for (i=0; i<6; i++)
     {
     this->InitialBounds[i] = bounds[i];
@@ -389,12 +389,12 @@ double vtkSliderRepresentation3D::ComputePickPosition(double eventPos[2])
   // pick position in the renderer. The depth of the (X,Y) pick is
   // the back clipping plane.
   double cameraWorldPosition[4], cameraPosition[4];
-  camera->GetPosition(cameraWorldPosition); 
+  camera->GetPosition(cameraWorldPosition);
   cameraWorldPosition[3] = 1.0;
   this->Transform->TransformPoint(cameraWorldPosition,cameraPosition);
 
   double rayEndPoint[4], rayPosition[4];
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, eventPos[0], eventPos[1], 
+  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, eventPos[0], eventPos[1],
                                                1.0, rayEndPoint);
   this->Transform->TransformPoint(rayEndPoint,rayPosition);
 
@@ -439,7 +439,7 @@ unsigned long vtkSliderRepresentation3D::GetMTime()
 //----------------------------------------------------------------------
 void vtkSliderRepresentation3D::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime || 
+  if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
     {
@@ -474,9 +474,9 @@ void vtkSliderRepresentation3D::BuildRepresentation()
       }
 
     this->TubeActor->SetScale(this->TubeWidth, 1.0-(2.0*this->EndCapLength), this->TubeWidth);
-    this->LeftCapActor->SetPosition(-0.5+(this->EndCapLength/2.0),0,0); 
+    this->LeftCapActor->SetPosition(-0.5+(this->EndCapLength/2.0),0,0);
     this->LeftCapActor->SetScale(this->EndCapWidth, this->EndCapLength, this->EndCapWidth);
-    this->RightCapActor->SetPosition(0.5-(this->EndCapLength/2.0),0,0); 
+    this->RightCapActor->SetPosition(0.5-(this->EndCapLength/2.0),0,0);
     this->RightCapActor->SetScale(this->EndCapWidth, this->EndCapLength, this->EndCapWidth);
     if ( this->EndCapLength <= 0.0 )
       {
@@ -498,7 +498,7 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     this->SliderActor->SetPosition(p);
     this->SliderActor->SetScale(this->SliderLength,this->SliderWidth,this->SliderWidth);
 
-    // Here we position the title and the slider label. Of course this is a 
+    // Here we position the title and the slider label. Of course this is a
     // function of the text strings that ave been supplied.
     // Place the title
     if ( this->TitleText->GetText() == NULL ||
@@ -571,14 +571,14 @@ void vtkSliderRepresentation3D::BuildRepresentation()
       this->LabelActor->SetPosition(c2[0]-c1[0], c2[1]-c1[1], c2[2]-c1[2]);
       }
 
-    // Compute the rotation of the widget. Note that the widget as constructed 
+    // Compute the rotation of the widget. Note that the widget as constructed
     // is oriented in the x-direction. Here we rotate the whole assembly.
     double x[3], v[3], axis[3];
-    x[0] = 1.0; 
-    x[1] = 0.0; 
-    x[2] = 0.0; 
-    v[0] = p2[0] - p1[0]; 
-    v[1] = p2[1] - p1[1]; 
+    x[0] = 1.0;
+    x[1] = 0.0;
+    x[2] = 0.0;
+    v[0] = p2[0] - p1[0];
+    v[1] = p2[1] - p1[1];
     v[2] = p2[2] - p1[2];
     vtkMath::Normalize(v);
     vtkMath::Cross(v,x,axis);
@@ -676,11 +676,11 @@ void vtkSliderRepresentation3D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Rotation: " << this->Rotation << "\n";
-  os << indent << "Label Text: " << (this->LabelText->GetText() ? 
-                                     this->LabelText->GetText() : 
+  os << indent << "Label Text: " << (this->LabelText->GetText() ?
+                                     this->LabelText->GetText() :
                                      "(none)") << "\n";
-  os << indent << "Title Text: " << (this->TitleText->GetText() ? 
-                                     this->TitleText->GetText() : 
+  os << indent << "Title Text: " << (this->TitleText->GetText() ?
+                                     this->TitleText->GetText() :
                                      "(none)") << "\n";
 
   os << indent << "Point1 Coordinate: " << this->Point1Coordinate << "\n";

@@ -17,7 +17,7 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -117,13 +117,13 @@ int vtkPBGLMinimumSpanningTree::RequestData(
     vtkErrorMacro("Edge-weight array name is required");
     return 1;
     }
-  vtkAbstractArray* abstractEdgeWeightArray 
+  vtkAbstractArray* abstractEdgeWeightArray
     = input->GetEdgeData()->GetAbstractArray(this->EdgeWeightArrayName);
-    
-  // Does the edge-weight array exist at all?  
+
+  // Does the edge-weight array exist at all?
   if (abstractEdgeWeightArray == NULL)
     {
-    vtkErrorMacro("Could not find edge-weight array named " 
+    vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);
     return 1;
     }
@@ -137,7 +137,7 @@ int vtkPBGLMinimumSpanningTree::RequestData(
     }
 
   bool edgeWeightArrayIsTemporary = false;
-  vtkDoubleArray *edgeWeightArray 
+  vtkDoubleArray *edgeWeightArray
     = vtkDoubleArray::SafeDownCast(abstractEdgeWeightArray);
   if (edgeWeightArray == 0)
     {
@@ -183,11 +183,11 @@ int vtkPBGLMinimumSpanningTree::RequestData(
                                               vtkVertexGlobalMap>
       GlobalIndexMap;
 
-    GlobalIndexMap globalIndexMap(pbglHelper->GetProcessGroup(), 
+    GlobalIndexMap globalIndexMap(pbglHelper->GetProcessGroup(),
                                   g->GetNumberOfVertices(),
                                   MakeDistributedVertexIndexMap(g),
                                   get(boost::vertex_global, g));
-                  
+
     // Run the minimum spanning tree algorithm
     std::vector<vtkEdgeType> mstEdges;
     boost::graph::distributed::boruvka_mixed_merge
@@ -204,18 +204,18 @@ int vtkPBGLMinimumSpanningTree::RequestData(
         vtkSmartPointer<vtkIdTypeArray>::New();
       vtkSmartPointer<vtkSelectionNode> node =
         vtkSmartPointer<vtkSelectionNode>::New();
-    
+
       // Add the ids of each MST edge.
       for (std::vector<vtkEdgeType>::iterator i = mstEdges.begin();
            i != mstEdges.end(); ++i)
         {
         ids->InsertNextValue(i->Id);
         }
-    
+
       node->SetSelectionList(ids);
-      node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), 
+      node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(),
                                  vtkSelectionNode::INDICES);
-      node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), 
+      node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(),
                                  vtkSelectionNode::EDGE);
       sel->AddNode(node);
       }
@@ -232,9 +232,9 @@ int vtkPBGLMinimumSpanningTree::RequestData(
 void vtkPBGLMinimumSpanningTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "EdgeWeightArrayName: " 
-     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)") 
+
+  os << indent << "EdgeWeightArrayName: "
+     << (this->EdgeWeightArrayName ? this->EdgeWeightArrayName : "(none)")
      << endl;
 
   os << indent << "OutputSelectionType: "

@@ -72,7 +72,7 @@ public:
   // The default is '50' for no particular reason
   vtkSetClampMacro(MaxNumberOfIterations, int, 0, VTK_LARGE_INTEGER);
   vtkGetMacro(MaxNumberOfIterations, int);
-  
+
   // Description:
   // Set/Get the number of iterations per layout.
   // The only use for this ivar is for the application
@@ -112,7 +112,7 @@ public:
   // This strategy sets up some data structures
   // for faster processing of each Layout() call
   virtual void Initialize();
-  
+
   // Description:
   // This is the layout method where the graph that was
   // set in SetGraph() is laid out. The method can either
@@ -120,7 +120,7 @@ public:
   // graph. If you have an iterative layout please implement
   // the IsLayoutComplete() method.
   virtual void Layout();
-  
+
   // Description:
   // I'm an iterative layout so this method lets the caller
   // know if I'm done laying out the graph
@@ -141,7 +141,7 @@ private:
 
   //BTX
   // A vertex contains a position and a displacement.
-  typedef struct 
+  typedef struct
   {
     double x[3];
     double d[3];
@@ -149,7 +149,7 @@ private:
 
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
-  typedef struct 
+  typedef struct
   {
     int t;
     int u;
@@ -164,7 +164,7 @@ private:
   double optDist;
   vtkLayoutVertex *v;
   vtkLayoutEdge *e;
-  
+
   vtkForceDirectedLayoutStrategy(const vtkForceDirectedLayoutStrategy&);  // Not implemented.
   void operator=(const vtkForceDirectedLayoutStrategy&);  // Not implemented.
 };

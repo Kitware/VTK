@@ -89,7 +89,7 @@ void vtkExtentSplitter::PrintSelf(ostream& os, vtkIndent indent)
          << extent[4] << " " << extent[5] << "\n";
       }
     }
-  os << indent << "Number of Extents in Queue: " << 
+  os << indent << "Number of Extents in Queue: " <<
     static_cast<int>(this->Internal->Queue.size()) << "\n";
   if(this->Internal->SubExtents.empty())
     {
@@ -106,7 +106,7 @@ void vtkExtentSplitter::PrintSelf(ostream& os, vtkIndent indent)
       os << nextIndent << i->source << ": "
          << extent[0] << " " << extent[1] << "  "
          << extent[2] << " " << extent[3] << "  "
-         << extent[4] << " " << extent[5] << "\n";        
+         << extent[4] << " " << extent[5] << "\n";
       }
     }
 }
@@ -124,7 +124,7 @@ void vtkExtentSplitter::AddExtentSource(int id, int priority, int x0, int x1,
   source.extent[4] = z0;
   source.extent[5] = z1;
   source.priority = priority;
-  
+
   // Previously calculated sub-extents are now invalid.
   this->Internal->SubExtents.clear();
 }
@@ -151,7 +151,7 @@ void vtkExtentSplitter::RemoveAllExtentSources()
 {
   // Clear the set of sources.
   this->Internal->Sources.clear();
-  
+
   // Previously calculated sub-extents are now invalid.
   this->Internal->SubExtents.clear();
 }
@@ -169,7 +169,7 @@ void vtkExtentSplitter::AddExtent(int x0, int x1, int y0, int y1,
   e.extent[4] = z0;
   e.extent[5] = z1;
   this->Internal->Queue.push(e);
-  
+
   // Previously calculated sub-extents are now invalid.
   this->Internal->SubExtents.clear();
 }
@@ -234,7 +234,7 @@ int vtkExtentSplitter::GetSubExtentSource(int index)
                   << this->GetNumberOfSubExtents()-1 << "]");
     return -1;
     }
-  return this->Internal->SubExtents[index].source;  
+  return this->Internal->SubExtents[index].source;
 }
 
 //----------------------------------------------------------------------------
@@ -242,17 +242,17 @@ int vtkExtentSplitter::ComputeSubExtents()
 {
   // Assume success.
   int result = 1;
-  
+
   vtkExtentSplitterInternals::SubExtentsType subExtents;
   int bestPriority;
   int dimensionality = 0;
-  
+
   while(!this->Internal->Queue.empty())
     {
     // Pop the next extent off the queue.
     vtkExtentSplitterExtent e = this->Internal->Queue.front();
     this->Internal->Queue.pop();
-    
+
     // In non-PointMode, intersections must have the same topological
     // dimension as the original extent.  This will prevent
     // high-priority source extents from repeatedly producing
@@ -263,7 +263,7 @@ int vtkExtentSplitter::ComputeSubExtents()
                         ((e.extent[3]-e.extent[2] > 0)?1:0)+
                         ((e.extent[5]-e.extent[4] > 0)?1:0));
       }
-    
+
     // Intersect the extent with each extent source.
     subExtents.clear();
     bestPriority = -1;
@@ -296,7 +296,7 @@ int vtkExtentSplitter::ComputeSubExtents()
           }
         }
       }
-    
+
     // Check whether any extent sources intersected the extent.
     if(subExtents.empty())
       {
@@ -329,7 +329,7 @@ int vtkExtentSplitter::ComputeSubExtents()
           bestIndex = i;
           }
         }
-      
+
       // Add this extent source with its sub-extent.
       se.source = subExtents[bestIndex].source;
       for(i=0; i < 6; ++i)
@@ -337,13 +337,13 @@ int vtkExtentSplitter::ComputeSubExtents()
         se.extent[i] = subExtents[bestIndex].extent[i];
         }
       this->Internal->SubExtents.push_back(se);
-      
+
       // Subtract the sub-extent from the extent and split the rest of
       // the volume into more sub-extents.
       this->SplitExtent(e.extent, se.extent);
       }
     }
-  
+
   return result;
 }
 
@@ -355,10 +355,10 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
   // queue them as additional extents.  We may assume that subextent
   // is completely contained by extent.
   vtkExtentSplitterExtent e;
-  
+
   // In PointMode, there are no cell data, so we can skip over cells.
   int pointMode = this->PointMode?1:0;
-  
+
   // Split with xy-planes.
   if(extent[4] < subextent[4])
     {
@@ -369,7 +369,7 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
     e.extent[4] = extent[4];
     e.extent[5] = subextent[4]-pointMode;
     this->Internal->Queue.push(e);
-    
+
     extent[4] = subextent[4];
     }
   if(extent[5] > subextent[5])
@@ -381,10 +381,10 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
     e.extent[4] = subextent[5]+pointMode;
     e.extent[5] = extent[5];
     this->Internal->Queue.push(e);
-    
+
     extent[5] = subextent[5];
     }
-  
+
   // Split with xz-planes.
   if(extent[2] < subextent[2])
     {
@@ -395,7 +395,7 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
     e.extent[4] = extent[4];
     e.extent[5] = extent[5];
     this->Internal->Queue.push(e);
-    
+
     extent[2] = subextent[2];
     }
   if(extent[3] > subextent[3])
@@ -407,10 +407,10 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
     e.extent[4] = extent[4];
     e.extent[5] = extent[5];
     this->Internal->Queue.push(e);
-    
+
     extent[3] = subextent[3];
     }
-  
+
   // Split with yz-planes.
   if(extent[0] < subextent[0])
     {
@@ -421,7 +421,7 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
     e.extent[4] = extent[4];
     e.extent[5] = extent[5];
     this->Internal->Queue.push(e);
-    
+
     extent[0] = subextent[0];
     }
   if(extent[1] > subextent[1])
@@ -433,11 +433,11 @@ void vtkExtentSplitter::SplitExtent(int* extent, int* subextent)
     e.extent[4] = extent[4];
     e.extent[5] = extent[5];
     this->Internal->Queue.push(e);
-    
+
     // Leave this line out because the value will not be used:
     //extent[1] = subextent[1];
     }
-  
+
   // At this point, we should have extent[i] == subextent[i] for 0 <= i < 6.
   // No more volume remains.
 }
@@ -453,7 +453,7 @@ int vtkExtentSplitter::IntersectExtents(const int* extent1, const int* extent2,
     // No intersection of extents.
     return 0;
     }
-  
+
   // Get the intersection of the extents.
   result[0] = this->Max(extent1[0], extent2[0]);
   result[1] = this->Min(extent1[1], extent2[1]);
@@ -461,7 +461,7 @@ int vtkExtentSplitter::IntersectExtents(const int* extent1, const int* extent2,
   result[3] = this->Min(extent1[3], extent2[3]);
   result[4] = this->Max(extent1[4], extent2[4]);
   result[5] = this->Min(extent1[5], extent2[5]);
-  
+
   return 1;
 }
 

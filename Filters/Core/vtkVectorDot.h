@@ -15,9 +15,9 @@
 // .NAME vtkVectorDot - generate scalars from dot product of vectors and normals (e.g., show displacement plot)
 // .SECTION Description
 // vtkVectorDot is a filter to generate scalar values from a dataset.
-// The scalar value at a point is created by computing the dot product 
+// The scalar value at a point is created by computing the dot product
 // between the normal and vector at that point. Combined with the appropriate
-// color map, this can show nodal lines/mode shapes of vibration, or a 
+// color map, this can show nodal lines/mode shapes of vibration, or a
 // displacement plot.
 
 #ifndef __vtkVectorDot_h

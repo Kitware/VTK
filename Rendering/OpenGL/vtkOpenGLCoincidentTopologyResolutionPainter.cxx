@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkOpenGLCoincidentTopologyResolutionPainter);
 vtkOpenGLCoincidentTopologyResolutionPainter::
 vtkOpenGLCoincidentTopologyResolutionPainter()
 {
-  
+
 }
 
 //-----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderPolygonOffset(
     glEnable(GL_POLYGON_OFFSET_POINT);
     }
   glPolygonOffset(this->PolygonOffsetFactor, this->PolygonOffsetUnits);
-#endif      
+#endif
 
   this->Superclass::RenderInternal(renderer, actor, typeflags,
                                    forceCompileOnly);
@@ -161,12 +161,12 @@ void vtkOpenGLCoincidentTopologyResolutionPainter::RenderShiftZBuffer(
                                        forceCompileOnly);
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();
-      }      
+      }
     if (polyFlags)
       {
       this->Superclass::RenderInternal(renderer, actor, polyFlags,
                                        forceCompileOnly);
-      }      
+      }
     }
   else
     {

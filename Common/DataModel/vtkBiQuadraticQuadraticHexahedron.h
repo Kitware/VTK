@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBiQuadraticQuadraticHexahedron - cell represents a biquadratic, 
+// .NAME vtkBiQuadraticQuadraticHexahedron - cell represents a biquadratic,
 // 24-node isoparametric hexahedron
 // .SECTION Description
 // vtkBiQuadraticQuadraticHexahedron is a concrete implementation of vtkNonLinearCell to
@@ -30,7 +30,7 @@
 //
 // \verbatim
 //
-// top 
+// top
 //  7--14--6
 //  |      |
 // 15      13
@@ -47,10 +47,10 @@
 // bottom
 //  3--10--2
 //  |      |
-// 11      9 
+// 11      9
 //  |      |
 //  0-- 8--1
-//  
+//
 // \endverbatim
 //
 //

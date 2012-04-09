@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkTreeOrbitLayoutStrategy.h
-  
+
 =========================================================================*/
 /*----------------------------------------------------------------------------
  Copyright (c) Sandia Corporation
@@ -53,7 +53,7 @@ public:
   // large gaps between subtrees.
   vtkSetClampMacro(LeafSpacing, double, 0.0, 1.0);
   vtkGetMacro(LeafSpacing, double);
-  
+
   // Description:
   // This is a magic number right now. Controls the radius
   // of the child layout, all of this should be fixed at
@@ -64,7 +64,7 @@ public:
 protected:
   vtkTreeOrbitLayoutStrategy();
   ~vtkTreeOrbitLayoutStrategy();
-  
+
   void OrbitChildren(vtkTree *t, vtkPoints *p, vtkIdType parent, double radius);
 
   double LogSpacingValue;

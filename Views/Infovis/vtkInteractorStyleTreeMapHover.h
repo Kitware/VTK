@@ -65,13 +65,13 @@ public:
   // The name of the field to use when displaying text in the hover balloon.
   vtkSetStringMacro(LabelField);
   vtkGetStringMacro(LabelField);
-  
+
   // Description:
   // Overridden from vtkInteractorStyleImage to provide the desired
   // interaction behavior.
   void OnMouseMove();
   void OnLeftButtonUp();
-  
+
   // Description:
   // Highlights a specific vertex.
   void HighLightItem(vtkIdType id);
@@ -108,7 +108,7 @@ private:
   // These methods are used internally
   vtkIdType GetTreeMapIdAtPos(int x, int y);
   void GetBoundingBoxForTreeMapItem(vtkIdType id, float *binfo);
-  
+
   vtkWorldPointPicker* Picker;
   vtkBalloonRepresentation* Balloon;
   vtkActor *HighlightActor;

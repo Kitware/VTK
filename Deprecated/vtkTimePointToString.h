@@ -24,9 +24,9 @@
 // vtkTimePointToString is a filter for converting a timestamp array
 // into string array using one of the formats defined in vtkTimePointUtility.h.
 //
-// Use SetInputArrayToProcess to indicate the array to process.  
-// This array must be an unsigned 64-bit integer array for 
-// DATETIME formats, and may be either an unsigned 32-bit or 
+// Use SetInputArrayToProcess to indicate the array to process.
+// This array must be an unsigned 64-bit integer array for
+// DATETIME formats, and may be either an unsigned 32-bit or
 // unsigned 64-bit array for DATE and TIME formats.
 //
 // If the new array name is not specified, the array name will be
@@ -58,7 +58,7 @@ public:
 
   // Description:
   // This is required to capture REQUEST_DATA_OBJECT requests.
-  virtual int ProcessRequest(vtkInformation* request, 
+  virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
@@ -76,10 +76,10 @@ protected:
   char* OutputArrayName;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
-    
+
 private:
   vtkTimePointToString(const vtkTimePointToString&); // Not implemented
   void operator=(const vtkTimePointToString&);   // Not implemented

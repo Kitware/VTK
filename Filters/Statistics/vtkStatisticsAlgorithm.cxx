@@ -200,7 +200,7 @@ void vtkStatisticsAlgorithm::AddColumnPair( const char* namColX, const char* nam
 bool vtkStatisticsAlgorithm::SetParameter( const char* vtkNotUsed(parameter),
                                            int vtkNotUsed(index),
                                            vtkVariant vtkNotUsed(value) )
-{ 
+{
   return false;
 }
 
@@ -300,7 +300,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     }
 
   // Loop over requests
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin(); 
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Storage for variable names of the request (smart pointer because of several exit points)
@@ -322,7 +322,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
         vtkWarningMacro( "InData table does not have a column "
                          << varName.c_str()
                          << ". Ignoring request containing it." );
-        
+
         invalidRequest = true;
         break;
         }
@@ -334,16 +334,16 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
       {
       continue;
       }
-    
+
     // If request is too short, it must also be ignored
     if ( v < numVariables )
       {
       vtkWarningMacro( "Only "
-                       << v 
+                       << v
                        << " variables in the request while "
-                       << numVariables 
+                       << numVariables
                        << "are needed. Ignoring request." );
-      
+
       continue;
       }
 
@@ -368,14 +368,14 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
         }
       assessColName << ")";
 
-      names[a] = assessColName.str().c_str(); 
+      names[a] = assessColName.str().c_str();
 
       // Create assessment columns with names <AssessmentName>(var1,...,varN)
-      vtkDoubleArray* assessColumn = vtkDoubleArray::New(); 
-      assessColumn->SetName( names[a] ); 
-      assessColumn->SetNumberOfTuples( nRowData  ); 
-      outData->AddColumn( assessColumn ); 
-      assessColumn->Delete(); 
+      vtkDoubleArray* assessColumn = vtkDoubleArray::New();
+      assessColumn->SetName( names[a] );
+      assessColumn->SetNumberOfTuples( nRowData  );
+      outData->AddColumn( assessColumn );
+      assessColumn->Delete();
       }
 
     // Select assess functor
@@ -401,8 +401,8 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
         for ( int a = 0; a < nAssessments; ++ a )
           {
           // Store each assessment value in corresponding assessment column
-          outData->SetValueByName( r, 
-                                   names[a], 
+          outData->SetValueByName( r,
+                                   names[a],
                                    assessResult->GetValue( a ) );
           }
         }

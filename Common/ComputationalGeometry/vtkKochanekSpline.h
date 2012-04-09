@@ -20,18 +20,18 @@
 // These splines give the user more control over the shape of the curve than
 // the cardinal splines implemented in vtkCardinalSpline. Three parameters
 // can be specified. All have a range from -1 to 1.
-// 
+//
 // Tension controls how sharply the curve bends at an input point. A
 // value of -1 produces more slack in the curve. A value of 1 tightens
 // the curve.
-// 
+//
 // Continuity controls the continuity of the first derivative at input
-// points. 
-// 
+// points.
+//
 // Bias controls the direction of the curve at it passes through an input
 // point. A value of -1 undershoots the point while a value of 1
 // overshoots the point.
-// 
+//
 // These three parameters give the user broad control over the shape of
 // the interpolating spline. The original Kochanek paper describes the
 // effects nicely and is recommended reading.
@@ -60,7 +60,7 @@ public:
   // Description:
   // Compute Kochanek Spline coefficients.
   void Compute ();
-  
+
   // Description:
   // Evaluate a 1D Kochanek spline.
   double Evaluate (double t);
@@ -88,8 +88,8 @@ protected:
   vtkKochanekSpline();
   ~vtkKochanekSpline() {}
 
-  void Fit1D (int n, double *x, double *y, double tension, double bias, 
-              double continuity, double coefficients[][4], int leftConstraint, 
+  void Fit1D (int n, double *x, double *y, double tension, double bias,
+              double continuity, double coefficients[][4], int leftConstraint,
               double leftValue, int rightConstraint, double rightValue);
 
   double DefaultBias;

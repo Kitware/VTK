@@ -29,7 +29,7 @@
 // mouse button or scroll wheel.
 //
 // Each terrain or image representation contains a vtkGeoSource subclass which
-// generates geometry or imagery at multiple resolutions. As the camera 
+// generates geometry or imagery at multiple resolutions. As the camera
 // position changes, the terrain and/or image representations may ask its
 // vtkGeoSource to refine the geometry. This refinement is performed on a
 // separate thread, and the data is added to the view when it becomes available.

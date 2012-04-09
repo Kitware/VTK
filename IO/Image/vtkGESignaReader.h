@@ -50,7 +50,7 @@ public:
       return ".MR .CT";
     }
 
-  // Description: 
+  // Description:
   // A descriptive name for this format
   virtual const char* GetDescriptiveName()
     {

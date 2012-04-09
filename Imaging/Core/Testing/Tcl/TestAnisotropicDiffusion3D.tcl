@@ -10,7 +10,7 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 63 0 63 1 93
 reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
-reader SetDataSpacing 1 1 2 
+reader SetDataSpacing 1 1 2
 
 vtkImageAnisotropicDiffusion3D diffusion
 diffusion SetInputConnection [reader GetOutputPort]

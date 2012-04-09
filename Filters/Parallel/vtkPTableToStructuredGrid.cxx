@@ -61,7 +61,7 @@ static void CopyStructuredData(vtkDataSetAttributes* out, int outExtent[6],
         }
       }
     }
-  
+
 }
 
 
@@ -120,7 +120,7 @@ int vtkPTableToStructuredGrid::RequestData(vtkInformation* request,
     return 0;
     }
 
-  vtkStreamingDemandDrivenPipeline *sddp = 
+  vtkStreamingDemandDrivenPipeline *sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   int extent[6];
   sddp->GetOutputInformation(0)->Get(
@@ -139,9 +139,9 @@ int vtkPTableToStructuredGrid::RequestData(vtkInformation* request,
       {
       int curExtent[6];
       memcpy(curExtent, &allextents[6*cc], 6*sizeof(int));
-      vtkIdType numTuples = (curExtent[1]-curExtent[0] + 1) * 
-        (curExtent[3]-curExtent[2] + 1) * 
-        (curExtent[5]-curExtent[4] + 1); 
+      vtkIdType numTuples = (curExtent[1]-curExtent[0] + 1) *
+        (curExtent[3]-curExtent[2] + 1) *
+        (curExtent[5]-curExtent[4] + 1);
 
       vtkTable* curTable = vtkTable::New();
       curTable->GetRowData()->CopyAllocate(input->GetRowData(), numTuples);

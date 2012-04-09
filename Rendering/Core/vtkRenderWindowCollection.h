@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkRenderWindowCollection - a list of RenderWindows
 // .SECTION Description
-// vtkRenderWindowCollection represents and provides methods to manipulate a 
-// list of RenderWindows. The list is unsorted and duplicate entries are 
+// vtkRenderWindowCollection represents and provides methods to manipulate a
+// list of RenderWindows. The list is unsorted and duplicate entries are
 // not prevented.
 
 // .SECTION see also
@@ -41,19 +41,19 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
     {
       this->vtkCollection::AddItem(a);
     }
-  
+
   // Description:
-  // Get the next RenderWindow in the list. Return NULL when at the end of the 
+  // Get the next RenderWindow in the list. Return NULL when at the end of the
   // list.
   vtkRenderWindow *GetNextItem()
     {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());
     }
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie)
     {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));

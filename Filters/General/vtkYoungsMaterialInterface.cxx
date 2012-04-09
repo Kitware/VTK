@@ -326,7 +326,7 @@ void vtkYoungsMaterialInterface::SetMaterialOrderingArray( int M,  const char* o
   this->Internals->Materials[M].setOrdering(ordering);
   this->Modified();
 }
-  
+
 void vtkYoungsMaterialInterface::SetMaterialArrays( int M, const char* volume, const char* normal, const char* ordering )
 {
   this->NumberOfDomains = -1;
@@ -623,14 +623,14 @@ int vtkYoungsMaterialInterface::RequestData(
 
   // first compute number of domains
   int* inputsPerMaterial = new int[nmat];
-  for ( int i = 0; i < nmat; ++ i ) 
+  for ( int i = 0; i < nmat; ++ i )
     {
     inputsPerMaterial[i] = 0;
     }
 
   while ( ! inputIterator->IsDoneWithTraversal() )
     {
-    vtkDataSet * input 
+    vtkDataSet * input
       = vtkDataSet::SafeDownCast( inputIterator->GetCurrentDataObject() );
     // Composite indices begin at 1 (0 is the root)
     int composite_index = inputIterator->GetCurrentFlatIndex();
@@ -645,7 +645,7 @@ int vtkYoungsMaterialInterface::RequestData(
         {
         vtkDataArray* fraction = input->GetCellData()->GetArray((*it).volume().c_str());
         bool materialHasBlock = ( (*it).blocks.find(composite_index)!= (*it).blocks.end() );
-        if ( fraction && 
+        if ( fraction &&
              ( this->UseAllBlocks || materialHasBlock ) )
           {
           double range[2];
@@ -713,17 +713,17 @@ int vtkYoungsMaterialInterface::RequestData(
              it = this->Internals->Materials.begin(); it
              != this->Internals->Materials.end(); ++it, ++m)
         {
-        Mats[m].fractionArray 
+        Mats[m].fractionArray
           = input->GetCellData()->GetArray( (*it).volume().c_str() );
-        Mats[m].normalArray 
+        Mats[m].normalArray
           = input->GetCellData()->GetArray( (*it).normal(*this->Internals).c_str() );
-        Mats[m].normalXArray 
+        Mats[m].normalXArray
           = input->GetCellData()->GetArray( (*it).normalX().c_str() );
-        Mats[m].normalYArray 
+        Mats[m].normalYArray
           = input->GetCellData()->GetArray( (*it).normalY().c_str() );
-        Mats[m].normalZArray 
+        Mats[m].normalZArray
           = input->GetCellData()->GetArray( (*it).normalZ().c_str() );
-        Mats[m].orderingArray 
+        Mats[m].orderingArray
           = input->GetCellData()->GetArray( (*it).ordering(*this->Internals).c_str() );
 
         if ( ! Mats[m].fractionArray )
@@ -736,9 +736,9 @@ int vtkYoungsMaterialInterface::RequestData(
           vtkDebugMacro(<<"Material "<<m<<" material ordering array '"<<
             (*it).ordering(*this->Internals)<<"' not found\n");
           }
-        if( ! Mats[m].normalArray 
-            && ! Mats[m].normalXArray 
-            && ! Mats[m].normalYArray 
+        if( ! Mats[m].normalArray
+            && ! Mats[m].normalXArray
+            && ! Mats[m].normalYArray
             && ! Mats[m].normalZArray )
           {
           vtkDebugMacro(<<"Material "<<m<<" normal  array '"<<
@@ -778,7 +778,7 @@ int vtkYoungsMaterialInterface::RequestData(
         Mats[m].outPointArrays[nPointData-1]->SetNumberOfComponents(3);
         }
       }
-      
+
       // --------------- per material number of interfaces estimation ------------
       for(vtkIdType c=0;c<nCells;c++)
         {
@@ -1286,7 +1286,7 @@ int vtkYoungsMaterialInterface::RequestData(
                   }
                 }
 
-              // Populate connectivity array and add extra points from previous 
+              // Populate connectivity array and add extra points from previous
               // edge intersections that are used but not inserted yet
               int prevMatInterfAdded = 0;
               Mats[m].cells.push_back( nOutCellPoints ); Mats[m].cellArrayCount++;
@@ -1565,7 +1565,7 @@ int vtkYoungsMaterialInterface::RequestData(
     }
 
   int blockIndex=0;
-  for( std::map<int,vtkSmartPointer<vtkUnstructuredGrid> >::iterator it=outputBlocks.begin(); 
+  for( std::map<int,vtkSmartPointer<vtkUnstructuredGrid> >::iterator it=outputBlocks.begin();
        it!=outputBlocks.end(); ++ it, ++ blockIndex )
     {
     if( it->second->GetNumberOfCells() > 0 )

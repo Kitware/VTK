@@ -5,7 +5,7 @@ package require vtktesting
 # This example demonstrates how to use the vtkSphereWidget to control the
 # position of a light.
 
-# There are the pre-recorded events 
+# There are the pre-recorded events
 set Recording {
     "# StreamVersion 1
     CharEvent 23 266 0 0 105 1 i

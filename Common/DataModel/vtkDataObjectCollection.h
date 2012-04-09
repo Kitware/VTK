@@ -37,7 +37,7 @@ public:
     {
       this->vtkCollection::AddItem(ds);
     }
-  
+
   // Description:
   // Get the next data object in the list.
   vtkDataObject *GetNextItem()
@@ -48,14 +48,14 @@ public:
   // Description:
   // Get the ith data object in the list.
   vtkDataObject *GetItem(int i)
-    { 
+    {
       return static_cast<vtkDataObject *>(this->GetItemAsObject(i));
     }
-  
+
   //BTX
-  // Description: 
+  // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
-  // same cookie back and forth. 
+  // same cookie back and forth.
   vtkDataObject *GetNextDataObject(vtkCollectionSimpleIterator &cookie)
     {
       return static_cast<vtkDataObject *>(this->GetNextItemAsObject(cookie));

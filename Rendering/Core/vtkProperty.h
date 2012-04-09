@@ -15,10 +15,10 @@
 // .NAME vtkProperty - represent surface properties of a geometric object
 // .SECTION Description
 // vtkProperty is an object that represents lighting and other surface
-// properties of a geometric object. The primary properties that can be 
+// properties of a geometric object. The primary properties that can be
 // set are colors (overall, ambient, diffuse, specular, and edge color);
 // specular power; opacity of the object; the representation of the
-// object (points, wireframe, or surface); and the shading method to be 
+// object (points, wireframe, or surface); and the shading method to be
 // used (flat, Gouraud, and Phong). Also, some special graphics features
 // like backface properties can be set and manipulated with this object.
 
@@ -60,13 +60,13 @@ public:
 
   // Description:
   // Construct object with object color, ambient color, diffuse color,
-  // specular color, and edge color white; ambient coefficient=0; diffuse 
+  // specular color, and edge color white; ambient coefficient=0; diffuse
   // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
   // and surface representation. Backface and frontface culling are off.
   static vtkProperty *New();
 
   // Description:
-  // Assign one property to another. 
+  // Assign one property to another.
   void DeepCopy(vtkProperty *p);
 
   // Description:
@@ -97,7 +97,7 @@ public:
   vtkGetMacro(Lighting,bool);
   vtkSetMacro(Lighting,bool);
   vtkBooleanMacro(Lighting,bool);
-  
+
   // Description:
   // Set the shading interpolation method for an object.
   vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
@@ -191,7 +191,7 @@ public:
   vtkGetMacro(LineWidth,float);
 
   // Description:
-  // Set/Get the stippling pattern of a Line, as a 16-bit binary pattern 
+  // Set/Get the stippling pattern of a Line, as a 16-bit binary pattern
   // (1 = pixel on, 0 = pixel off).
   // This is only implemented for OpenGL. The default is 0xFFFF.
   vtkSetMacro(LineStipplePattern,int);
@@ -436,7 +436,7 @@ protected:
   // Read this->Material from new style shaders.
   // Default implementation is empty.
   virtual void ReadFrameworkMaterial();
-  
+
 //BTX
   // These friends are provided only for the time being
   // till we device a graceful way of loading texturing for GLSL.

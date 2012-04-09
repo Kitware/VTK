@@ -14,35 +14,35 @@ vtkPoints pts
   pts InsertNextPoint  1  1  1
   pts InsertNextPoint -1  1  1
 vtkCellArray faces
-  faces InsertNextCell 4 
-  faces InsertCellPoint 0 
-  faces InsertCellPoint 3 
-  faces InsertCellPoint 2 
+  faces InsertNextCell 4
+  faces InsertCellPoint 0
+  faces InsertCellPoint 3
+  faces InsertCellPoint 2
   faces InsertCellPoint 1
-  faces InsertNextCell 4 
-  faces InsertCellPoint 4 
-  faces InsertCellPoint 5 
-  faces InsertCellPoint 6 
-  faces InsertCellPoint 7
-  faces InsertNextCell 4 
-  faces InsertCellPoint 0 
-  faces InsertCellPoint 1 
-  faces InsertCellPoint 5 
+  faces InsertNextCell 4
   faces InsertCellPoint 4
-  faces InsertNextCell 4 
-  faces InsertCellPoint 1 
-  faces InsertCellPoint 2 
-  faces InsertCellPoint 6 
   faces InsertCellPoint 5
-  faces InsertNextCell 4 
-  faces InsertCellPoint 2 
-  faces InsertCellPoint 3 
-  faces InsertCellPoint 7 
   faces InsertCellPoint 6
-  faces InsertNextCell 4 
-  faces InsertCellPoint 3 
-  faces InsertCellPoint 0 
-  faces InsertCellPoint 4 
+  faces InsertCellPoint 7
+  faces InsertNextCell 4
+  faces InsertCellPoint 0
+  faces InsertCellPoint 1
+  faces InsertCellPoint 5
+  faces InsertCellPoint 4
+  faces InsertNextCell 4
+  faces InsertCellPoint 1
+  faces InsertCellPoint 2
+  faces InsertCellPoint 6
+  faces InsertCellPoint 5
+  faces InsertNextCell 4
+  faces InsertCellPoint 2
+  faces InsertCellPoint 3
+  faces InsertCellPoint 7
+  faces InsertCellPoint 6
+  faces InsertNextCell 4
+  faces InsertCellPoint 3
+  faces InsertCellPoint 0
+  faces InsertCellPoint 4
   faces InsertCellPoint 7
 vtkUnsignedCharArray faceColors
   faceColors SetNumberOfComponents 3
@@ -201,4 +201,4 @@ cubeActor SetUserMatrix [xform GetMatrix]
 renWin Render
 #animate
 
-    
+

@@ -85,7 +85,7 @@ public:
 
   // Description:
   // Set whether to generate an outline wherever an input face was
-  // cut by a plane.  This is off by default. 
+  // cut by a plane.  This is off by default.
   vtkSetMacro(GenerateOutline, int);
   vtkBooleanMacro(GenerateOutline, int);
   vtkGetMacro(GenerateOutline, int);

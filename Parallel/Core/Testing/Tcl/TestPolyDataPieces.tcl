@@ -40,7 +40,7 @@ mapper2 SetNumberOfPieces 2
 mapper2 SetPiece 1
 mapper2 SetScalarRange 0 4
 mapper2 SetScalarModeToUseCellFieldData
-mapper2 SetColorModeToMapScalars 
+mapper2 SetColorModeToMapScalars
 mapper2 ColorByArrayComponent "vtkGhostLevels" 0
 mapper2 SetGhostLevel 4
 
@@ -86,7 +86,7 @@ extract4 SetInputConnection [sphere4 GetOutputPort]
 
 vtkPieceScalars ps4
 ps4 RandomModeOn
-ps4 SetScalarModeToCellData 
+ps4 SetScalarModeToCellData
 ps4 SetInputConnection [extract4 GetOutputPort]
 
 vtkPolyDataMapper mapper4

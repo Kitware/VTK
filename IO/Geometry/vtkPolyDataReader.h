@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkPolyDataReader - read vtk polygonal data file
 // .SECTION Description
-// vtkPolyDataReader is a source object that reads ASCII or binary 
+// vtkPolyDataReader is a source object that reads ASCII or binary
 // polygonal data files in vtk format (see text for format details).
 // The output of this reader is a single vtkPolyData data object.
 // The superclass of this class, vtkDataReader, provides many methods for
@@ -53,12 +53,12 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *);
 
-  // Update extent of PolyData is specified in pieces.  
+  // Update extent of PolyData is specified in pieces.
   // Since all DataObjects should be able to set UpdateExent as pieces,
   // just copy output->UpdateExtent  all Inputs.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
-  
+
   int FillOutputPortInformation(int, vtkInformation*);
 
 private:

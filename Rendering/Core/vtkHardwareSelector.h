@@ -15,7 +15,7 @@
 // .NAME vtkHardwareSelector - manager for OpenGL-based selection.
 // .SECTION Description
 // vtkHardwareSelector is a helper that orchestrates color buffer based
-// selection. This relies on OpenGL. 
+// selection. This relies on OpenGL.
 // vtkHardwareSelector can be used to select visible cells or points within a
 // given rectangle of the RenderWindow.
 // To use it, call in order:
@@ -24,10 +24,10 @@
 // \li SetArea() - to set the rectangular region in the render window to select
 // in.
 // \li SetFieldAssociation() -  to select the attribute to select i.e.
-// cells/points etc. 
+// cells/points etc.
 // \li Finally, call Select().
 // Select will cause the attached vtkRenderer to render in a special color mode,
-// where each cell/point is given it own color so that later inspection of the 
+// where each cell/point is given it own color so that later inspection of the
 // Rendered Pixels can determine what cells are visible. Select() returns a new
 // vtkSelection instance with the cells/points selected.
 //
@@ -35,18 +35,18 @@
 // Antialiasing will break this class. If your graphics card settings force
 // their use this class will return invalid results.
 //
-// Currently only cells from PolyDataMappers can be selected from. When 
+// Currently only cells from PolyDataMappers can be selected from. When
 // vtkRenderer::Selector is non-null vtkPainterPolyDataMapper uses the
 // vtkHardwareSelectionPolyDataPainter which make appropriate calls to
 // BeginRenderProp(), EndRenderProp(), RenderAttributeId() to render colors
 // correctly. Until alternatives to vtkHardwareSelectionPolyDataPainter
 // exist that can do a similar coloration of other vtkDataSet types, only
 // polygonal data can be selected. If you need to select other data types,
-// consider using vtkDataSetMapper and turning on it's PassThroughCellIds 
+// consider using vtkDataSetMapper and turning on it's PassThroughCellIds
 // feature, or using vtkFrustumExtractor.
 //
-// Only Opaque geometry in Actors is selected from. Assemblies and LODMappers 
-// are not currently supported. 
+// Only Opaque geometry in Actors is selected from. Assemblies and LODMappers
+// are not currently supported.
 //
 // During selection, visible datasets that can not be selected from are
 // temporarily hidden so as not to produce invalid indices from their colors.
@@ -102,7 +102,7 @@ public:
   vtkGetVector4Macro(Area, unsigned int);
 
   // Description:
-  // Set the field type to select. Valid values are 
+  // Set the field type to select. Valid values are
   // \li vtkDataObject::FIELD_ASSOCIATION_POINTS
   // \li vtkDataObject::FIELD_ASSOCIATION_CELLS
   // \li vtkDataObject::FIELD_ASSOCIATION_VERTICES

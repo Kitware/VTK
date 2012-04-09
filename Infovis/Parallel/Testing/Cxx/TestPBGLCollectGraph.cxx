@@ -121,9 +121,9 @@ void PrintGraph(vtkGraph *graph)
 
     vtkSmartPointer<vtkOutEdgeIterator> outEdges
       = vtkSmartPointer<vtkOutEdgeIterator>::New();
-      
+
     graph->GetOutEdges(u, outEdges);
-    while (outEdges->HasNext()) 
+    while (outEdges->HasNext())
       {
       // Print edge
       vtkOutEdgeType e = outEdges->Next();
@@ -150,10 +150,10 @@ void PrintGraph(vtkGraph *graph)
 }
 
 int main(int argc, char* argv[])
-{           
+{
   boost::mpi::environment env(argc, argv);
   boost::mpi::communicator world;
-                            
+
   vtkIdType wantVertices = 128;
   vtkIdType wantEdges = 512;
   double A = 0.45;
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 
   int errors = 0;
 
-  if (argc > 6) 
+  if (argc > 6)
     {
     wantVertices = boost::lexical_cast<vtkIdType>(argv[1]);
     wantEdges = boost::lexical_cast<vtkIdType>(argv[2]);
@@ -172,8 +172,8 @@ int main(int argc, char* argv[])
     C = boost::lexical_cast<double>(argv[5]);
     D = boost::lexical_cast<double>(argv[6]);
     }
-                 
-  // Set up a random graph source  
+
+  // Set up a random graph source
   VTK_CREATE(vtkPBGLRMATGraphSource, source);
   source->SetNumberOfVertices(wantVertices);
   wantVertices = source->GetNumberOfVertices();
@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
   // Build a distributed graph and collect the results.
   collect->Update();
 
-  vtkGraph* output = vtkGraph::SafeDownCast(collect->GetOutput()); 
+  vtkGraph* output = vtkGraph::SafeDownCast(collect->GetOutput());
   if (world.rank() == 0)
     {
     if (output->GetNumberOfVertices() != source->GetNumberOfVertices())

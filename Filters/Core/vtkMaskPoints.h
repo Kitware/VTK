@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkMaskPoints - selectively filter points
 // .SECTION Description
-// vtkMaskPoints is a filter that passes through points and point attributes 
-// from input dataset. (Other geometry is not passed through.) It is 
+// vtkMaskPoints is a filter that passes through points and point attributes
+// from input dataset. (Other geometry is not passed through.) It is
 // possible to mask every nth point, and to specify an initial offset
-// to begin masking from.  
+// to begin masking from.
 // It is possible to also generate different random selections
 // (jittered strides, real random samples, and spatially stratified
 // random samples) from the input data.
@@ -63,22 +63,22 @@ public:
   // Description:
   // Special mode selector that switches between random mode types.
   // 0 - randomized strides: randomly strides through the data (default);
-  //     fairly certain that this is not a statistically random sample 
-  //     because the output depends on the order of the input and 
-  //     the input points do not have an equal chance to appear in the output 
+  //     fairly certain that this is not a statistically random sample
+  //     because the output depends on the order of the input and
+  //     the input points do not have an equal chance to appear in the output
   //     (plus Vitter's incremental random algorithms are more complex
   //      than this, while not a proof it is good indication this isn't
   //      a statistically random sample - the closest would be algorithm S)
   // 1 - random sample: create a statistically random sample using Vitter's
-  //     incremental algorithm D without A described in Vitter 
-  //     "Faster Mthods for Random Sampling", Communications of the ACM 
+  //     incremental algorithm D without A described in Vitter
+  //     "Faster Mthods for Random Sampling", Communications of the ACM
   //     Volume 27, Issue 7, 1984
   //     (OnRatio and Offset are ignored) O(sample size)
   // 2 - spatially stratified random sample: create a spatially
-  //     stratified random sample using the first method described in 
-  //     Woodring et al. "In-situ Sampling of a Large-Scale Particle 
-  //     Simulation for Interactive Visualization and Analysis", 
-  //     Computer Graphics Forum, 2011 (EuroVis 2011). 
+  //     stratified random sample using the first method described in
+  //     Woodring et al. "In-situ Sampling of a Large-Scale Particle
+  //     Simulation for Interactive Visualization and Analysis",
+  //     Computer Graphics Forum, 2011 (EuroVis 2011).
   //     (OnRatio and Offset are ignored) O(N log N)
   vtkSetClampMacro(RandomModeType, int, 0, 2);
   vtkGetMacro(RandomModeType, int);
@@ -94,7 +94,7 @@ public:
   // total points across all processors).  In the first case,
   // the total number of points = maximum number of points *
   // number of processors.  In the second case, the total number of
-  // points = maximum number of points.  
+  // points = maximum number of points.
   vtkSetMacro(ProportionalMaximumNumberOfPoints, int);
   vtkGetMacro(ProportionalMaximumNumberOfPoints, int);
   vtkBooleanMacro(ProportionalMaximumNumberOfPoints, int);
@@ -109,7 +109,7 @@ public:
 
   // Description:
   // When vertex generation is enabled, by default vertices are produced
-  // as multi-vertex cells (more than one per cell), if you wish to have 
+  // as multi-vertex cells (more than one per cell), if you wish to have
   // a single vertex per cell, enable this flag.
   vtkSetMacro(SingleVertexPerCell,int);
   vtkGetMacro(SingleVertexPerCell,int);
@@ -119,7 +119,7 @@ protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
@@ -130,7 +130,7 @@ protected:
   int GenerateVertices; //generate polydata verts
   int SingleVertexPerCell;
   int RandomModeType; // choose the random sampling mode
-  int ProportionalMaximumNumberOfPoints;  
+  int ProportionalMaximumNumberOfPoints;
 
   virtual void InternalScatter(unsigned long*, unsigned long *, int, int) {};
   virtual void InternalGather(unsigned long*, unsigned long*, int, int) {};

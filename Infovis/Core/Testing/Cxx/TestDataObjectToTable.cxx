@@ -63,7 +63,7 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   fieldData->AddArray(col1);
   fieldData->AddArray(col2);
   cerr << "... done" << endl;
-  
+
   int errors = 0;
   toTable->SetInputData(pd);
   for (int type = 0; type < 3; type++)
@@ -86,7 +86,7 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     toTable->Update();
     vtkTable* table = toTable->GetOutput();
     cerr << "... done" << endl;
-    
+
     cerr << "Checking table ..." << endl;
     // Check the table
     vtkIntArray* out1 = vtkIntArray::SafeDownCast(table->GetColumnByName("column1"));
@@ -106,23 +106,23 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       if (out1->GetValue(j) != col1->GetValue(j))
         {
         errors++;
-        cerr << "ERROR: column1 output does not match input " 
-             << out1->GetValue(j) << "!=" << col1->GetValue(j) 
+        cerr << "ERROR: column1 output does not match input "
+             << out1->GetValue(j) << "!=" << col1->GetValue(j)
              << " for field type " << type << endl;
         break;
         }
       if (out2->GetValue(j) != col2->GetValue(j))
         {
         errors++;
-        cerr << "ERROR: column2 output does not match input " 
-             << out2->GetValue(j) << "!=" << col2->GetValue(j) 
+        cerr << "ERROR: column2 output does not match input "
+             << out2->GetValue(j) << "!=" << col2->GetValue(j)
              << " for field type " << type << endl;
         break;
         }
       }
     cerr << "... done" << endl;
     }
-  
+
   return errors;
 }
 

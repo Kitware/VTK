@@ -54,10 +54,10 @@ protected:
   ~vtkCardinalSpline() {}
 
   void Fit1D (int n, double *x, double *y, double *w, double coefficients[][4],
-              int leftConstraint, double leftValue, int rightConstraint, 
+              int leftConstraint, double leftValue, int rightConstraint,
               double rightValue);
 
-  void FitClosed1D (int n, double *x, double *y, double *w, 
+  void FitClosed1D (int n, double *x, double *y, double *w,
                     double coefficients[][4]);
 
 private:

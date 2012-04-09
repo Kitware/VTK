@@ -56,13 +56,13 @@ vtkAbstractArray* vtkBitArrayIterator::GetArray()
 }
 
 //-----------------------------------------------------------------------------
-int* vtkBitArrayIterator::GetTuple(vtkIdType id) 
+int* vtkBitArrayIterator::GetTuple(vtkIdType id)
 {
   if (!this->Array)
     {
     return 0;
     }
-  
+
   vtkIdType numComps = this->Array->GetNumberOfComponents();
   if (this->TupleSize < numComps)
     {
@@ -88,7 +88,7 @@ int vtkBitArrayIterator::GetValue(vtkIdType id)
   vtkErrorMacro("Array Iterator not initialized.");
   return 0;
 }
-  
+
 //-----------------------------------------------------------------------------
 void vtkBitArrayIterator::SetValue(vtkIdType id, int value)
 {

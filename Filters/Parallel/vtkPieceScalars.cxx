@@ -55,10 +55,10 @@ int vtkPieceScalars::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkDataArray *pieceColors;
   vtkIdType num;
-  
+
   if (this->CellScalarsFlag)
     {
     num = input->GetNumberOfCells();
@@ -67,7 +67,7 @@ int vtkPieceScalars::RequestData(
     {
     num = input->GetNumberOfPoints();
     }
-  
+
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
   if (this->RandomMode)
@@ -78,9 +78,9 @@ int vtkPieceScalars::RequestData(
     {
     pieceColors = this->MakePieceScalars(piece, num);
     }
-    
+
   output->ShallowCopy(input);
-  pieceColors->SetName("Piece");  
+  pieceColors->SetName("Piece");
   if (this->CellScalarsFlag)
     {
     output->GetCellData()->AddArray(pieceColors);
@@ -91,7 +91,7 @@ int vtkPieceScalars::RequestData(
     output->GetPointData()->AddArray(pieceColors);
     output->GetPointData()->SetActiveScalars(pieceColors->GetName());
     }
-    
+
   pieceColors->Delete();
 
   return 1;
@@ -105,7 +105,7 @@ vtkIntArray *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 
   pieceColors = vtkIntArray::New();
   pieceColors->SetNumberOfTuples(num);
-  
+
   for (i = 0; i < num; ++i)
     {
     pieceColors->SetValue(i, piece);
@@ -120,13 +120,13 @@ vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
   vtkIdType i;
   vtkFloatArray *pieceColors = NULL;
   float randomValue;
-  
+
   vtkMath::RandomSeed(piece);
   randomValue = static_cast<float>(vtkMath::Random());
-  
+
   pieceColors = vtkFloatArray::New();
   pieceColors->SetNumberOfTuples(num);
-  
+
   for (i = 0; i < num; ++i)
     {
     pieceColors->SetValue(i, randomValue);
@@ -139,7 +139,7 @@ vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
 void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "RandomMode: " << this->RandomMode << endl;
   if (this->CellScalarsFlag)
     {
@@ -148,5 +148,5 @@ void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "ScalarMode: PointData\n";
-    }  
+    }
 }

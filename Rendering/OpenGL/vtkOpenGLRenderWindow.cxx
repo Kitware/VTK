@@ -55,23 +55,23 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->ExtensionManager = NULL;
   this->HardwareSupport = NULL;
   this->TextureUnitManager=0;
-  
+
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->TextureResourceIds = vtkIdList::New();
-  if ( this->WindowName ) 
+  if ( this->WindowName )
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
-  
+
   this->OffScreenUseFrameBuffer=0;
-  
+
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
   this->FrontLeftBuffer=static_cast<unsigned int>(GL_FRONT_LEFT);
   this->FrontRightBuffer=static_cast<unsigned int>(GL_FRONT_RIGHT);
   this->BackBuffer=static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
-  
+
   this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
 }
 
@@ -83,7 +83,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     {
     this->TextureUnitManager->SetContext(0);
     }
-  
+
   if (this->ExtensionManager)
     {
     this->ExtensionManager->SetRenderWindow(0);
@@ -182,7 +182,7 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
   // if stereo is on and it wasn't before
   if (this->StereoRender && (!this->StereoStatus))
     {
-    switch (this->StereoType) 
+    switch (this->StereoType)
       {
       case VTK_STEREO_CRYSTAL_EYES:
         // not clear this is supposed to be empty,
@@ -196,7 +196,7 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
         break;
       case VTK_STEREO_DRESDEN:
         this->StereoStatus = 1;
-        break;      
+        break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
         break;
@@ -207,7 +207,7 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     }
   else if ((!this->StereoRender) && this->StereoStatus)
     {
-    switch (this->StereoType) 
+    switch (this->StereoType)
       {
       case VTK_STEREO_CRYSTAL_EYES:
         this->StereoStatus = 0;
@@ -287,7 +287,7 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   glEnable(GL_NORMALIZE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
   glAlphaFunc(GL_GREATER,0);
-  
+
   // Default OpenGL is 4 bytes but it is only safe with RGBA format.
   // If format is RGB, row alignment is 4 bytes only if the width is divisible
   // by 4. Let's do it the safe way: 1-byte alignment.
@@ -388,7 +388,7 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
     }
 }
 
-unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
                                                    int x2, int y2,
                                                    int front)
 {
@@ -397,27 +397,27 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
-  unsigned char *data = 
+  unsigned char *data =
     new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
   this->GetPixelData(x1, y1, x2, y2, front, data);
   return data;
@@ -433,23 +433,23 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -464,7 +464,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     data->SetNumberOfValues(size);
     }
   return this->GetPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
-  
+
 }
 
 int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
@@ -474,28 +474,28 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   int     y_low, y_hi;
   int     x_low, x_hi;
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -522,7 +522,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   long    xloop, yloop;
   unsigned char *buffer;
   unsigned char *p_data = NULL;
-  
+
   buffer = new unsigned char [4*(x_hi - x_low + 1)];
   p_data = data;
   for (yloop = y_low; yloop <= y_hi; yloop++)
@@ -537,12 +537,12 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
       *p_data = buffer[xloop*4+2]; p_data++;
       }
     }
-  
-  delete [] buffer;  
+
+  delete [] buffer;
 #else
   // If the Sun bug is ever fixed, then we could use the following
   // technique which provides a vast speed improvement on the SGI
-  
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -561,7 +561,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     {
     return VTK_OK;
     }
-  
+
 }
 
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
@@ -573,23 +573,23 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   if (y1 < y2)
     {
 
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
-  
+
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -612,7 +612,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     y_low, y_hi;
   int     x_low, x_hi;
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 
   // Error checking
@@ -637,23 +637,23 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   if (y1 < y2)
     {
 
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
-  
+
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -666,7 +666,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   long    xloop, yloop;
   unsigned char *buffer;
   unsigned char *p_data = NULL;
-  
+
   buffer = new unsigned char [4*(x_hi - x_low + 1)];
 
   // now write the binary info one row at a time
@@ -698,15 +698,15 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
     glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
-  
+
   // This seems to be necessary for the image to show up
-  glFlush();  
-  
+  glFlush();
+
   glEnable(GL_BLEND);
 #else
   // If the Sun bug is ever fixed, then we could use the following
   // technique which provides a vast speed improvement on the SGI
-  
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -718,7 +718,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1), 
+  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
                  (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
                  -1.0 );
   glMatrixMode( GL_PROJECTION );
@@ -731,13 +731,13 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
                GL_RGB, GL_UNSIGNED_BYTE, data);
   glEnable(GL_BLEND);
-  
+
   // This seems to be necessary for the image to show up
-  glFlush();  
+  glFlush();
 #endif
 
   glDrawBuffer(buffer);
-  
+
   if (glGetError() != GL_NO_ERROR)
     {
     return VTK_ERROR;
@@ -758,23 +758,23 @@ float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -797,23 +797,23 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -821,7 +821,7 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
   height = abs(y_hi - y_low) + 1;
 
   int size = 4*width*height;
-  
+
   if ( data->GetMaxId()+1 != size)
     {
     vtkDebugMacro("Resizing array.");
@@ -839,28 +839,28 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
   int     x_low, x_hi;
   int     width, height;
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -901,7 +901,7 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data) 
+void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
 {
   delete[] data;
 }
@@ -916,26 +916,26 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
-  
+
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
-  
+
   width  = abs(x_hi-x_low) + 1;
   height = abs(y_hi-y_low) + 1;
 
@@ -957,7 +957,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   int     x_low, x_hi;
   int     width, height;
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 
   // Error checking
@@ -965,7 +965,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   while(glGetError() != GL_NO_ERROR)
     {
     ;
-    }  
+    }
 
   GLint buffer;
   glGetIntegerv(GL_DRAW_BUFFER, &buffer);
@@ -981,26 +981,26 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
-  
+
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
-  
+
   width  = abs(x_hi-x_low) + 1;
   height = abs(y_hi-y_low) + 1;
 
@@ -1013,7 +1013,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1), 
+  glRasterPos3f( (2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1),
                  (2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1),
                  -1.0 );
   glMatrixMode( GL_PROJECTION );
@@ -1033,9 +1033,9 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
     }
-  
+
   // This seems to be necessary for the image to show up
-  glFlush();  
+  glFlush();
 
   glDrawBuffer(buffer);
 
@@ -1049,8 +1049,8 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
-                                                           int x2, int y2, 
+unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
+                                                           int x2, int y2,
                                                            int front)
 {
   int     y_low, y_hi;
@@ -1099,23 +1099,23 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
 
@@ -1190,7 +1190,7 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   height = abs(y_hi - y_low) + 1;
 
   glDisable( GL_SCISSOR_TEST );
-  
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -1220,26 +1220,26 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     y_hi  = y2;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     y_hi  = y1;
     }
-  
+
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     x_hi  = x2;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     x_hi  = x1;
     }
-  
+
   width  = abs(x_hi-x_low) + 1;
   height = abs(y_hi-y_low) + 1;
 
@@ -1253,7 +1253,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
 
   return this->SetRGBACharPixelData(x1, y1, x2, y2, data->GetPointer(0),
                                     front, blend);
-  
+
 }
 
 int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
@@ -1338,7 +1338,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glDisable(GL_DEPTH_TEST);
 
   glDisable( GL_SCISSOR_TEST );
-  
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -1346,13 +1346,13 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   if (!blend)
     {
     glDisable(GL_BLEND);
-    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
+    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                   data);
     glEnable(GL_BLEND);
     }
   else
     {
-    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
+    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                   data);
     }
 
@@ -1361,7 +1361,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   glEnable(GL_DEPTH_TEST);
 
   // This seems to be necessary for the image to show up
-  glFlush();  
+  glFlush();
 
   glDrawBuffer(buffer);
 
@@ -1383,25 +1383,25 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   int             x_low;
   int             width, height;
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     }
 
   width =  abs(x2 - x1)+1;
@@ -1420,7 +1420,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
   glDisable( GL_SCISSOR_TEST );
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
-  glReadPixels( x_low, y_low, 
+  glReadPixels( x_low, y_low,
                 width, height,
                 GL_DEPTH_COMPONENT, GL_FLOAT,
                 z_data );
@@ -1487,25 +1487,25 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   int             x_low;
   int             width, height;
 
-  // set the current window 
+  // set the current window
   this->MakeCurrent();
 
   if (y1 < y2)
     {
-    y_low = y1; 
+    y_low = y1;
     }
   else
     {
-    y_low = y2; 
+    y_low = y2;
     }
 
   if (x1 < x2)
     {
-    x_low = x1; 
+    x_low = x1;
     }
   else
     {
-    x_low = x2; 
+    x_low = x2;
     }
 
   width =  abs(x2 - x1)+1;
@@ -1525,7 +1525,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos2f( 2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1, 
+  glRasterPos2f( 2.0 * static_cast<GLfloat>(x_low) / this->Size[0] - 1,
                  2.0 * static_cast<GLfloat>(y_low) / this->Size[1] - 1);
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
@@ -1541,7 +1541,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
   // This seems to be necessary for the image to show up
-  glFlush();  
+  glFlush();
 
   if (glGetError() != GL_NO_ERROR)
     {
@@ -1573,18 +1573,18 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   assert("pre: positive_width" && width>0);
   assert("pre: positive_height" && height>0);
   assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
-  
+
   // 1. create a regular OpenGLcontext (ie create a window)
   this->CreateAWindow();
   this->MakeCurrent();
-  
+
   // 2. check for OpenGL extensions GL_EXT_framebuffer_object and
   // GL_ARB_texture_non_power_of_two (core-promoted feature in OpenGL 2.0)
   vtkOpenGLExtensionManager *extensions = this->GetExtensionManager();
-  
+
   int supports_GL_EXT_framebuffer_object=
     extensions->ExtensionSupported("GL_EXT_framebuffer_object");
-  
+
   // We skip it if you use Mesa. Even if the VTK offscreen test passes (OSCone)
   // with Mesa, all the Paraview batch test are failing (Mesa 6.5.1 or CVS)
   // After too much time spent to investigate this case, we just skip it.
@@ -1597,14 +1597,14 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
   int supports_texture_rectangle=
     extensions->ExtensionSupported("GL_ARB_texture_rectangle");
-  
+
   // The following extension does not exist on ATI. There will be no HW
   // Offscreen on ATI if a stencil buffer is required.
   int supports_packed_depth_stencil=
     extensions->ExtensionSupported("GL_EXT_packed_depth_stencil");
-    
+
   int result=0;
-  
+
   if(!(supports_GL_EXT_framebuffer_object &&
        (supports_texture_non_power_of_two || supports_texture_rectangle) &&
        !isMesa && (!this->StencilCapable || supports_packed_depth_stencil)))
@@ -1639,7 +1639,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   else
     {
     extensions->LoadExtension("GL_EXT_framebuffer_object");
-    
+
     // 3. regular framebuffer code
     this->NumberOfFrameBuffers=1;
     GLboolean flag;
@@ -1648,10 +1648,10 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       {
       this->NumberOfFrameBuffers<<=1;
       }
-    
+
     // Up to 2: stereo
     GLuint textureObjects[2];
-    
+
     GLuint frameBufferObject;
     GLuint depthRenderBufferObject;
     vtkgl::GenFramebuffersEXT(1, &frameBufferObject); // color
@@ -1665,7 +1665,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
     glGenTextures(this->NumberOfFrameBuffers,textureObjects);
     // Color buffers
     vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
-    
+
     GLenum target;
     if(supports_texture_non_power_of_two)
       {
@@ -1675,7 +1675,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
       {
       target=vtkgl::TEXTURE_RECTANGLE_ARB;
       }
-    
+
     i=0;
     while(i<this->NumberOfFrameBuffers)
       {
@@ -1755,12 +1755,12 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
                                         depthRenderBufferObject);
       if(this->StencilCapable)
         {
-        vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT, 
+        vtkgl::FramebufferRenderbufferEXT(vtkgl::FRAMEBUFFER_EXT,
                                           vtkgl::STENCIL_ATTACHMENT_EXT,
                                           vtkgl::RENDERBUFFER_EXT,
                                           depthRenderBufferObject);
         }
-      
+
       // Last check to see if the FBO is supported or not.
       status=vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
       if(status!=vtkgl::FRAMEBUFFER_COMPLETE_EXT)
@@ -1780,12 +1780,12 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
           static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
         this->FrontLeftBuffer=
           static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-        
+
         this->BackBuffer=static_cast<unsigned int>(
           vtkgl::COLOR_ATTACHMENT0_EXT);
         this->FrontBuffer=
           static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT0_EXT);
-        
+
         if(this->NumberOfFrameBuffers==2)
           {
           this->BackRightBuffer=
@@ -1793,7 +1793,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
           this->FrontRightBuffer=
             static_cast<unsigned int>(vtkgl::COLOR_ATTACHMENT1_EXT);
           }
-        
+
         // Save GL objects by static casting to standard C types. GL* types
         // are not allowed in VTK header files.
         this->FrameBufferObject=static_cast<unsigned int>(frameBufferObject);
@@ -1809,7 +1809,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
         }
       }
     }
-  
+
   // A=>B = !A || B
   assert("post: valid_result" && (result==0 || result==1)
          && (!result || OffScreenUseFrameBuffer));
@@ -1824,10 +1824,10 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
 void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
 {
   assert("pre: initialized" && this->OffScreenUseFrameBuffer);
-  
+
   this->MakeCurrent();
   vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT, 0 );
-  
+
   // Restore framebuffer names.
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
@@ -1835,13 +1835,13 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
   this->FrontRightBuffer=static_cast<unsigned int>(GL_FRONT_RIGHT);
   this->BackBuffer=static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
-  
+
   GLuint frameBufferObject=static_cast<GLuint>(this->FrameBufferObject);
   vtkgl::DeleteFramebuffersEXT(1,&frameBufferObject);
-  
+
   GLuint depthRenderBufferObject=static_cast<GLuint>(this->DepthRenderBufferObject);
   vtkgl::DeleteRenderbuffersEXT(1,&depthRenderBufferObject);
-  
+
   GLuint textureObjects[4];
   int i=0;
   while(i<this->NumberOfFrameBuffers)
@@ -1849,12 +1849,12 @@ void vtkOpenGLRenderWindow::DestroyHardwareOffScreenWindow()
     textureObjects[i]=static_cast<GLuint>(this->TextureObjects[i]);
     ++i;
     }
-  
+
   glDeleteTextures(this->NumberOfFrameBuffers,textureObjects);
   this->DestroyWindow();
-  
+
   this->OffScreenUseFrameBuffer=0;
-  
+
   assert("post: destroyed" && !this->OffScreenUseFrameBuffer);
 }
 
@@ -1867,7 +1867,7 @@ void vtkOpenGLRenderWindow::CheckGraphicError()
 {
   this->LastGraphicError=static_cast<unsigned int>(glGetError());
 }
-  
+
 // ----------------------------------------------------------------------------
 // Description:
 // Return the last graphic error status. Initial value is false.
@@ -1952,7 +1952,7 @@ vtkOpenGLHardwareSupport* vtkOpenGLRenderWindow::GetHardwareSupport()
   if (!this->HardwareSupport)
     {
     vtkOpenGLHardwareSupport* hardware = vtkOpenGLHardwareSupport::New();
-    
+
     // This does not form a reference loop since vtkOpenGLHardwareSupport does
     // not keep a reference to the render window.
     hardware->SetExtensionManager(this->GetExtensionManager());
@@ -1971,7 +1971,7 @@ vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
   if(this->TextureUnitManager==0)
     {
     vtkTextureUnitManager *manager=vtkTextureUnitManager::New();
-    
+
     // This does not form a reference loop since vtkOpenGLHardwareSupport does
     // not keep a reference to the render window.
     manager->SetContext(this);

@@ -86,11 +86,11 @@ int vtkInterpolateDataSetAttributes::RequestData(
     {
     vtkErrorMacro(<< "Need at least two inputs to interpolate!");
     return 1;
-    }  
-  
+    }
+
   vtkDebugMacro(<<"Interpolating data...");
 
-  // Check input and determine between which data sets the interpolation 
+  // Check input and determine between which data sets the interpolation
   // is to occur.
   if ( this->T > static_cast<double>(numInputs) )
     {
@@ -110,7 +110,7 @@ int vtkInterpolateDataSetAttributes::RequestData(
     {
     t =1.0;
     }
-  
+
   vtkInformation *dsInfo = inputVector[0]->GetInformationObject(lowDS);
   vtkInformation *ds2Info = inputVector[0]->GetInformationObject(highDS);
   ds = vtkDataSet::SafeDownCast(dsInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -118,20 +118,20 @@ int vtkInterpolateDataSetAttributes::RequestData(
 
   numPts = ds->GetNumberOfPoints();
   numCells = ds->GetNumberOfCells();
-  
+
   if ( numPts != ds2->GetNumberOfPoints() ||
        numCells != ds2->GetNumberOfCells() )
     {
     vtkErrorMacro(<<"Data sets not consistent!");
     return 1;
     }
-  
+
   output->CopyStructure(ds);
   inputPD = ds->GetPointData();
   inputCD = ds->GetCellData();
   input2PD = ds2->GetPointData();
   input2CD = ds2->GetCellData();
-    
+
   // Allocate the data set attributes
   outputPD->CopyAllOff();
   if ( inputPD->GetScalars() && input2PD->GetScalars() )
@@ -189,11 +189,11 @@ int vtkInterpolateDataSetAttributes::RequestData(
   //  }
   outputCD->InterpolateAllocate(inputCD);
 
- 
+
   // Interpolate point data. We'll assume that it takes 50% of the time
   for ( i=0; i < numPts; i++ )
     {
-    if ( ! (i % 10000) ) 
+    if ( ! (i % 10000) )
       {
       this->UpdateProgress(static_cast<double>(i)/numPts * 0.50);
       if (this->GetAbortExecute())
@@ -204,11 +204,11 @@ int vtkInterpolateDataSetAttributes::RequestData(
 
     outputPD->InterpolateTime(inputPD, input2PD, i, t);
     }
-  
+
   // Interpolate cell data. We'll assume that it takes 50% of the time
   for ( i=0; i < numCells; i++ )
     {
-    if ( ! (i % 10000) ) 
+    if ( ! (i % 10000) )
       {
       this->UpdateProgress (0.5 + static_cast<double>(i)/numCells * 0.50);
       if (this->GetAbortExecute())

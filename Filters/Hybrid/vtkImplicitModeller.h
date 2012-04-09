@@ -42,15 +42,15 @@
 // useful when you have multiple datasets and want to create a
 // conglomeration of all the data.  However, the user must be careful to
 // either specify the ModelBounds or specify the first item such that its
-// bounds completely contain all other items.  This is because the 
+// bounds completely contain all other items.  This is because the
 // rectangular region of the output can not be changed after the 1st Append.
 //<P>
 // The ProcessMode ivar controls the method used within the Append function
 // (where the actual work is done regardless if the Append function is
 // explicitly called) to compute the implicit model.  If set to work in voxel
 // mode, each voxel is visited once.  If set to cell mode, each cell is visited
-// once.  Tests have shown once per voxel to be faster when there are a 
-// lot of cells (at least a thousand?); relative performance improvement 
+// once.  Tests have shown once per voxel to be faster when there are a
+// lot of cells (at least a thousand?); relative performance improvement
 // increases with addition cells. Primitives should not be stripped for best
 // performance of the voxel mode.  Also, if explicitly using the Append feature
 // many times, the cell mode will probably be better because each voxel will be
@@ -60,17 +60,17 @@
 //<P>
 // Further performance improvement is now possible using the PerVoxel process
 // mode on multi-processor machines (the mode is now multithreaded).  Each
-// thread processes a different "slab" of the output.  Also, if the input is 
-// vtkPolyData, it is appropriately clipped for each thread; that is, each 
+// thread processes a different "slab" of the output.  Also, if the input is
+// vtkPolyData, it is appropriately clipped for each thread; that is, each
 // thread only considers the input which could affect its slab of the output.
 //<P>
-// This filter can now produce output of any type supported by vtkImageData.  
+// This filter can now produce output of any type supported by vtkImageData.
 // However to support this change, additional sqrts must be executed during the
-// Append step.  Previously, the output was initialized to the squared CapValue 
-// in StartAppend, the output was updated with squared distance values during 
-// the Append, and then the sqrt of the distances was computed in EndAppend.  
-// To support different scalar types in the output (largely to reduce memory 
-// requirements as an vtkImageShiftScale and/or vtkImageCast could have 
+// Append step.  Previously, the output was initialized to the squared CapValue
+// in StartAppend, the output was updated with squared distance values during
+// the Append, and then the sqrt of the distances was computed in EndAppend.
+// To support different scalar types in the output (largely to reduce memory
+// requirements as an vtkImageShiftScale and/or vtkImageCast could have
 // achieved the same result), we can't "afford" to save squared value in the
 // output, because then we could only represent up to the sqrt of the scalar
 // max for an integer type in the output; 1 (instead of 255) for an unsigned
@@ -137,7 +137,7 @@ public:
   vtkSetMacro(AdjustBounds,int);
   vtkGetMacro(AdjustBounds,int);
   vtkBooleanMacro(AdjustBounds,int);
-  
+
   // Description:
   // Specify the amount to grow the model bounds (if the ivar AdjustBounds
   // is set). The value is a fraction of the maximum length of the sides
@@ -146,12 +146,12 @@ public:
   vtkGetMacro(AdjustDistance,double);
 
   // Description:
-  // The outer boundary of the structured point set can be assigned a 
+  // The outer boundary of the structured point set can be assigned a
   // particular value. This can be used to close or "cap" all surfaces.
   vtkSetMacro(Capping,int);
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
-  
+
   // Description:
   // Specify the capping value to use. The CapValue is also used as an
   // initial distance value at each point in the dataset.
@@ -160,12 +160,12 @@ public:
 
   // Description:
   // If a non-floating output type is specified, the output distances can be
-  // scaled to use the entire positive scalar range of the output type 
-  // specified (up to the CapValue which is equal to the max for the type 
+  // scaled to use the entire positive scalar range of the output type
+  // specified (up to the CapValue which is equal to the max for the type
   // unless modified by the user).  For example, if ScaleToMaximumDistance
   // is On and the OutputScalarType is UnsignedChar the distances saved in the
   // output would be linearly scaled between 0 (for distances "very close" to
-  // the surface) and 255 (at the specifed maximum distance)... assuming the 
+  // the surface) and 255 (at the specifed maximum distance)... assuming the
   // CapValue is not changed from 255.
   vtkSetMacro(ScaleToMaximumDistance, int);
   vtkGetMacro(ScaleToMaximumDistance, int);
@@ -176,7 +176,7 @@ public:
   // per append.  Some tests have shown once per voxel to be faster
   // when there are a lot of cells (at least a thousand?); relative
   // performance improvement increases with addition cells.  Primitives
-  // should not be stripped for best performance of the voxel mode.  
+  // should not be stripped for best performance of the voxel mode.
   vtkSetClampMacro(ProcessMode, int, 0, 1);
   vtkGetMacro(ProcessMode, int);
   void SetProcessModeToPerVoxel() {this->SetProcessMode(VTK_VOXEL_MODE);}
@@ -207,7 +207,7 @@ public:
   void SetOutputScalarTypeToUnsignedLong()
     {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
   void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);};
-  void SetOutputScalarTypeToUnsignedShort()   
+  void SetOutputScalarTypeToUnsignedShort()
     {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
@@ -244,12 +244,12 @@ protected:
 
   double GetScalarTypeMax(int type);
 
-  virtual int RequestInformation (vtkInformation *, 
+  virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
-  virtual int RequestData (vtkInformation *, 
+  virtual int RequestData (vtkInformation *,
                            vtkInformationVector **, vtkInformationVector *);
-  
+
   void StartAppend(int internal);
   void Cap(vtkDataArray *s);
 
@@ -270,10 +270,10 @@ protected:
   int ScaleToMaximumDistance;
 
   // flag to limit to one ComputeModelBounds per StartAppend
-  int BoundsComputed; 
-  
+  int BoundsComputed;
+
   // the max distance computed during that one call
-  double InternalMaxDistance; 
+  double InternalMaxDistance;
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 

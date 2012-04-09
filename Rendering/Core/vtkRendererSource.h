@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkRendererSource - take a renderer into the pipeline
 // .SECTION Description
-// vtkRendererSource is a source object that gets its input from a 
-// renderer and converts it to structured points. This can then be 
-// used in a visualization pipeline. You must explicitly send a 
+// vtkRendererSource is a source object that gets its input from a
+// renderer and converts it to structured points. This can then be
+// used in a visualization pipeline. You must explicitly send a
 // Modify() to this object to get it to reload its data from the
 // renderer. Consider using vtkWindowToImageFilter instead of this
 // class.
@@ -62,7 +62,7 @@ public:
   vtkSetMacro(WholeWindow,int);
   vtkGetMacro(WholeWindow,int);
   vtkBooleanMacro(WholeWindow,int);
-  
+
   // Description:
   // If this flag is on, the Executing causes a render first.
   vtkSetMacro(RenderFlag, int);
@@ -70,7 +70,7 @@ public:
   vtkBooleanMacro(RenderFlag, int);
 
   // Description:
-  // A boolean value to control whether to grab z-buffer 
+  // A boolean value to control whether to grab z-buffer
   // (i.e., depth values) along with the image data. The z-buffer data
   // is placed into a field data attributes named "ZBuffer" .
   vtkSetMacro(DepthValues,int);
@@ -78,14 +78,14 @@ public:
   vtkBooleanMacro(DepthValues,int);
 
   // Description:
-  // A boolean value to control whether to grab z-buffer 
+  // A boolean value to control whether to grab z-buffer
   // (i.e., depth values) along with the image data. The z-buffer data
   // is placed in the scalars as a fourth Z component (shift and scaled
   // to map the full 0..255 range).
   vtkSetMacro(DepthValuesInScalars,int);
   vtkGetMacro(DepthValuesInScalars,int);
   vtkBooleanMacro(DepthValuesInScalars,int);
-  
+
   // Description:
   // Get the output data object for a port on this algorithm.
   vtkImageData* GetOutput();

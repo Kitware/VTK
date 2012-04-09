@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkOutlineCornerFilter - create wireframe outline corners for arbitrary data set
 // .SECTION Description
-// vtkOutlineCornerFilter is a filter that generates wireframe outline corners of any 
-// data set. The outline consists of the eight corners of the dataset 
+// vtkOutlineCornerFilter is a filter that generates wireframe outline corners of any
+// data set. The outline consists of the eight corners of the dataset
 // bounding box.
 
 #ifndef __vtkOutlineCornerFilter_h

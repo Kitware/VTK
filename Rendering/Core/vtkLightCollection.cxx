@@ -22,20 +22,20 @@
 vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the list.
-void vtkLightCollection::AddItem(vtkLight *a) 
+void vtkLightCollection::AddItem(vtkLight *a)
 {
   this->vtkCollection::AddItem(a);
 }
 
-// Get the next light in the list. NULL is returned when the collection is 
+// Get the next light in the list. NULL is returned when the collection is
 // exhausted.
-vtkLight *vtkLightCollection::GetNextItem() 
-{ 
+vtkLight *vtkLightCollection::GetNextItem()
+{
   return static_cast<vtkLight *>(this->GetNextItemAsObject());
 }
 
 vtkLight *vtkLightCollection::GetNextLight(
-  vtkCollectionSimpleIterator &cookie) 
+  vtkCollectionSimpleIterator &cookie)
 {
   return static_cast<vtkLight *>(this->GetNextItemAsObject(cookie));
 }

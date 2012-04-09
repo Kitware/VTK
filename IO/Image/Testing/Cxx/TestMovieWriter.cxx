@@ -67,7 +67,7 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     table->SetTableValue(cc-1, 0, 0, 0);
     w->Write();
     }
-  w->End();  
+  w->End();
   cout << endl;
   cout << "Done writing file TestMovieWriter.mpg..." << endl;
   w->Delete();

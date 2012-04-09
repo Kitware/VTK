@@ -33,7 +33,7 @@ public:
   vtkTypeMacro(vtkBridgeCellIteratorOnDataSet,
                        vtkBridgeCellIteratorStrategy);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Move iterator to first position if any (loop initialization).
   void Begin();
@@ -41,26 +41,26 @@ public:
   // Description:
   // Is there no cell at iterator position? (exit condition).
   int IsAtEnd();
-  
+
   // Description:
   // Cell at current position
   // \pre not_at_end: !IsAtEnd()
   // \pre c_exists: c!=0
   // THREAD SAFE
   void GetCell(vtkGenericAdaptorCell *c);
-  
+
   // Description:
   // Cell at current position.
   // NOT THREAD SAFE
   // \pre not_at_end: !IsAtEnd()
   // \post result_exits: result!=0
   vtkGenericAdaptorCell *GetCell();
-  
+
   // Description:
   // Move iterator to next position. (loop progression).
   // \pre not_at_end: !IsAtEnd()
   void Next();
-  
+
   // Description:
   // Used internally by vtkBridgeDataSet.
   // Iterate over cells of `ds' of some dimension `dim'.
@@ -68,18 +68,18 @@ public:
   // \pre valid_dim_range: (dim>=-1) && (dim<=3)
   void InitWithDataSet(vtkBridgeDataSet *ds,
                        int dim);
-  
+
 protected:
   vtkBridgeCellIteratorOnDataSet();
   virtual ~vtkBridgeCellIteratorOnDataSet();
-  
+
   int Dim; // Dimension of cells over which to iterate (-1 to 3)
 
   vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Id; // the id at current position.
   vtkIdType Size; // size of the structure.
   vtkBridgeCell *Cell; // cell at current position.
-  
+
 private:
   vtkBridgeCellIteratorOnDataSet(const vtkBridgeCellIteratorOnDataSet&); // Not implemented
   void operator=(const vtkBridgeCellIteratorOnDataSet&); // Not implemented

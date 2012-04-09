@@ -128,11 +128,11 @@ vtkPieChartActor::vtkPieChartActor()
   this->WebActor = vtkActor2D::New();
   this->WebActor->SetMapper(this->WebMapper);
 
-  this->LastPosition[0] = 
-    this->LastPosition[1] = 
-    this->LastPosition2[0] = 
+  this->LastPosition[0] =
+    this->LastPosition[1] =
+    this->LastPosition2[0] =
     this->LastPosition2[1] = 0;
-  
+
   this->P1[0] = this->P1[1] = this->P2[0] = this->P2[1] = 0.0;
 }
 
@@ -147,21 +147,21 @@ vtkPieChartActor::~vtkPieChartActor()
     delete [] this->Title;
     this->Title = NULL;
     }
-  
+
   delete this->Labels;
   this->SetLabelTextProperty(NULL);
   this->SetTitleTextProperty(NULL);
 
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
-  
+
   this->Initialize();
-  
+
   this->TitleMapper->Delete();
   this->TitleMapper = NULL;
   this->TitleActor->Delete();
   this->TitleActor = NULL;
-  
+
   this->WebData->Delete();
   this->WebMapper->Delete();
   this->WebActor->Delete();
@@ -251,7 +251,7 @@ int vtkPieChartActor::RenderOverlay(vtkViewport *viewport)
       renderedSomething += this->PieceActors[i]->RenderOverlay(viewport);
       }
     }
-  
+
   if ( this->LegendVisibility )
     {
     renderedSomething += this->LegendActor->RenderOverlay(viewport);
@@ -294,7 +294,7 @@ int vtkPieChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
       renderedSomething += this->PieceActors[i]->RenderOpaqueGeometry(viewport);
       }
     }
-  
+
   if ( this->LegendVisibility )
     {
     renderedSomething += this->LegendActor->RenderOpaqueGeometry(viewport);
@@ -312,12 +312,12 @@ int vtkPieChartActor::HasTranslucentPolygonalGeometry()
 }
 
 
-//-----------------------------------------------------------------------------  
+//-----------------------------------------------------------------------------
 int vtkPieChartActor::BuildPlot(vtkViewport *viewport)
 {
   // Initialize
   vtkDebugMacro(<<"Building pie chart plot");
-  
+
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
   if (!this->GetInput())
@@ -339,11 +339,11 @@ int vtkPieChartActor::BuildPlot(vtkViewport *viewport)
 
   // Viewport change may not require rebuild
   int positionsHaveChanged = 0;
-  if (viewport->GetMTime() > this->BuildTime || 
-      (viewport->GetVTKWindow() && 
+  if (viewport->GetMTime() > this->BuildTime ||
+      (viewport->GetVTKWindow() &&
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
-    int *lastPosition = 
+    int *lastPosition =
       this->PositionCoordinate->GetComputedViewportValue(viewport);
     int *lastPosition2 =
       this->Position2Coordinate->GetComputedViewportValue(viewport);
@@ -359,7 +359,7 @@ int vtkPieChartActor::BuildPlot(vtkViewport *viewport)
       positionsHaveChanged = 1;
       }
     }
-  
+
   // Check modified time to see whether we have to rebuild.
   this->ConnectionHolder->GetInputAlgorithm()->Update();
 
@@ -380,7 +380,7 @@ int vtkPieChartActor::BuildPlot(vtkViewport *viewport)
 
     this->BuildTime.Modified();
     } // If need to rebuild the plot
-  
+
   return 1;
 }
 
@@ -398,7 +398,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     {
     return 0;
     }
-  
+
   // Retrieve the appropriate data array
   vtkDataArray *da = field->GetArray(this->ArrayNumber);
   if ( ! da )
@@ -414,7 +414,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     vtkErrorMacro(<<"No field data to plot");
     return 0;
     }
-  
+
   // We need to loop over the field to determine the total
   this->Total = 0.0;
   this->Fractions = new double[this->N];
@@ -433,7 +433,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       this->Fractions[i] = total/this->Total;
       }
     }
-  
+
   // Get the location of the corners of the box
   double *p1 = this->PositionCoordinate->GetComputedDoubleViewportValue(viewport);
   double *p2 = this->Position2Coordinate->GetComputedDoubleViewportValue(viewport);
@@ -455,7 +455,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     {
     legendSpace = 0.15;
     }
-  
+
   double d1 = p2[0] - legendSpace*(p2[0]-p1[0]) - p1[0];
   double d2 = p2[1] - titleSpace*(p2[1]-p1[1]) - p1[1];
 
@@ -588,7 +588,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     numDivs = static_cast<vtkIdType>(32 * (theta-thetaM) / vtkMath::Pi());
     numDivs = (numDivs < 2 ? 2 : numDivs);
     delTheta = (theta - thetaM) / numDivs;
-    
+
     polys->InsertNextCell(numDivs+2);
     polys->InsertCellPoint(pIds[0]);
     color = this->LegendActor->GetEntryColor(i);
@@ -613,7 +613,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       polys->InsertCellPoint(ptId);
       }
     }
-  
+
   //Display the legend
   if ( this->LegendVisibility )
     {
@@ -677,7 +677,7 @@ void vtkPieChartActor::SetPieceLabel(const int i, const char *label)
     {
     return;
     }
-  
+
   if ( static_cast<unsigned int>(i) >= this->Labels->size() )
     {
     this->Labels->resize(i+1);
@@ -693,7 +693,7 @@ const char* vtkPieChartActor::GetPieceLabel(int i)
     {
     return NULL;
     }
-  
+
   return this->Labels->at(i).c_str();
 }
 
@@ -716,9 +716,9 @@ void vtkPieChartActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input: " << this->GetInput() << "\n";
 
-  os << indent << "Title Visibility: " 
+  os << indent << "Title Visibility: "
      << (this->TitleVisibility ? "On\n" : "Off\n");
-  
+
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
 
   if (this->TitleTextProperty)
@@ -731,9 +731,9 @@ void vtkPieChartActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Title Text Property: (none)\n";
     }
 
-  os << indent << "Label Visibility: " 
+  os << indent << "Label Visibility: "
      << (this->LabelVisibility ? "On\n" : "Off\n");
-  
+
   if (this->LabelTextProperty)
     {
     os << indent << "Label Text Property:\n";
@@ -744,11 +744,11 @@ void vtkPieChartActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Label Text Property: (none)\n";
     }
 
-  os << indent << "Legend Visibility: " 
+  os << indent << "Legend Visibility: "
      << (this->LegendVisibility ? "On\n" : "Off\n");
-  
-  os << indent << "Legend Actor: " 
+
+  os << indent << "Legend Actor: "
      << this->LegendActor << "\n";
   this->LegendActor->PrintSelf(os, indent.GetNextIndent());
-  
+
 }

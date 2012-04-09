@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Send input vtkArray vda to the Matlab Engine as Matlab variable named name
-  // Returns 0 if variable was not created. 
+  // Returns 0 if variable was not created.
   int PutVtkArray(const char* name, vtkArray* vda);
 
   // Description:

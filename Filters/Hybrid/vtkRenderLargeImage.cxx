@@ -47,13 +47,13 @@ public:
   std::vector< std::pair<int, int> > Coords1;
   std::vector< std::pair<int, int> > Coords2;
   //
-  vtkRenderLargeImage2DHelperClass() 
+  vtkRenderLargeImage2DHelperClass()
   {
     this->StoredActors = vtkActor2DCollection::New();
     this->Coord1s = vtkCollection::New();
     this->Coord2s = vtkCollection::New();
   }
-  ~vtkRenderLargeImage2DHelperClass() 
+  ~vtkRenderLargeImage2DHelperClass()
   {
     this->Coord1s->RemoveAllItems();
     this->Coord2s->RemoveAllItems();
@@ -87,7 +87,7 @@ vtkRenderLargeImage::~vtkRenderLargeImage()
 void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   if ( this->Input )
     {
     os << indent << "Input:\n";
@@ -154,7 +154,7 @@ void vtkRenderLargeImage::RequestInformation (
     this->Input->GetRenderWindow()->GetSize()[0] - 1;
   wExt[3] = this->Magnification*
     this->Input->GetRenderWindow()->GetSize()[1] - 1;
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
 
   // set the spacing
@@ -162,7 +162,7 @@ void vtkRenderLargeImage::RequestInformation (
 
   // set the origin.
   outInfo->Set(vtkDataObject::ORIGIN(),0.0, 0.0, 0.0);
-  
+
   // set the scalar components
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 3);
 }
@@ -177,7 +177,7 @@ void vtkRenderLargeImage::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *data = 
+  vtkImageData *data =
     vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   data->SetExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
@@ -193,20 +193,20 @@ void vtkRenderLargeImage::RequestData(
   int rowSize, rowStart, rowEnd, colStart, colEnd;
   int doublebuffer;
   int swapbuffers = 0;
-  
+
   if (this->GetOutput()->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("mismatch in scalar types!");
     return;
     }
-  
+
   // Get the requested extents.
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                inExtent);
 
   // get and transform the increments
   data->GetIncrements(inIncr);
-  
+
   // get the size of the render window
   size = this->Input->GetRenderWindow()->GetSize();
 
@@ -225,12 +225,12 @@ void vtkRenderLargeImage::RequestData(
   parallelScale = cam->GetParallelScale();
 
   cam->SetViewAngle(atan(tan(viewAngle*3.1415926/360.0)/this->Magnification)
-                    * 360.0 / 3.1415926); 
+                    * 360.0 / 3.1415926);
   cam->SetParallelScale(parallelScale/this->Magnification);
-  
+
   // are we double buffering?  If so, read from back buffer ....
   doublebuffer = this->Input->GetRenderWindow()->GetDoubleBuffer();
-  if (doublebuffer) 
+  if (doublebuffer)
     {
     // save swap buffer state to restore later
     swapbuffers = this->Input->GetRenderWindow()->GetSwapBuffers();
@@ -242,7 +242,7 @@ void vtkRenderLargeImage::RequestData(
     {
     for (x = inWindowExtent[0]; x <= inWindowExtent[1]; x++)
       {
-      cam->SetWindowCenter(x*2 - this->Magnification*(1-windowCenter[0]) + 1, 
+      cam->SetWindowCenter(x*2 - this->Magnification*(1-windowCenter[0]) + 1,
                            y*2 - this->Magnification*(1-windowCenter[1]) + 1);
       // shift 2D actors to correct origin for this tile
       this->Shift2DActors(size[0]*x, size[1]*y);
@@ -264,11 +264,11 @@ void vtkRenderLargeImage::RequestData(
         colEnd = inExtent[1] - x*size[0];
         }
       rowSize = colEnd - colStart + 1;
-          
+
       // get the output pointer and do arith on it if necc
-      outPtr = 
+      outPtr =
         (unsigned char *)data->GetScalarPointer(inExtent[0],inExtent[2],0);
-      outPtr = outPtr + (x*size[0] - inExtent[0])*inIncr[0] + 
+      outPtr = outPtr + (x*size[0] - inExtent[0])*inIncr[0] +
         (y*size[1] - inExtent[2])*inIncr[1];
 
       rowStart = inExtent[2] - y*size[1];
@@ -283,7 +283,7 @@ void vtkRenderLargeImage::RequestData(
         }
       for (row = rowStart; row <= rowEnd; row++)
         {
-        memcpy(outPtr + row*inIncr[1] + colStart*inIncr[0], 
+        memcpy(outPtr + row*inIncr[1] + colStart*inIncr[0],
                pixels + row*size[0]*3 + colStart*3, rowSize*3);
         }
       // free the memory
@@ -311,7 +311,7 @@ int vtkRenderLargeImage::FillOutputPortInformation(
   return 1;
 }
 //----------------------------------------------------------------------------
-// This code is designed to handle multiple renders even though 
+// This code is designed to handle multiple renders even though
 // RenderLargeImage currently only handles one explicitly.
 //----------------------------------------------------------------------------
 void vtkRenderLargeImage::Rescale2DActors()
@@ -327,12 +327,12 @@ void vtkRenderLargeImage::Rescale2DActors()
   double                d1[3], d2[3];
   //
   rc = this->Input->GetRenderWindow()->GetRenderers();
-  for (rc->InitTraversal(); (aren = rc->GetNextItem()); ) 
+  for (rc->InitTraversal(); (aren = rc->GetNextItem()); )
     {
     pc = aren->GetViewProps();
-    if (pc) 
+    if (pc)
       {
-      for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); ) 
+      for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); )
         {
         actor = vtkActor2D::SafeDownCast((aProp));
         if (actor)
@@ -364,9 +364,9 @@ void vtkRenderLargeImage::Rescale2DActors()
           d2[0] = p2[0]*this->Magnification;
           d2[1] = p2[1]*this->Magnification;
           d2[2] = 0.0;
-          this->StoredData->Coords1.push_back( 
+          this->StoredData->Coords1.push_back(
             std::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])) );
-          this->StoredData->Coords2.push_back( 
+          this->StoredData->Coords2.push_back(
             std::pair<int, int>(static_cast<int>(d2[0]), static_cast<int>(d2[1])) );
           // Make sure they have no dodgy offsets
           n1->SetCoordinateSystemToDisplay();
@@ -391,8 +391,8 @@ void vtkRenderLargeImage::Shift2DActors(int x, int y)
   double        d1[3], d2[3];
   int           i;
   //
-  for (this->StoredData->StoredActors->InitTraversal(), i=0; 
-    (actor = this->StoredData->StoredActors->GetNextItem()); i++) 
+  for (this->StoredData->StoredActors->InitTraversal(), i=0;
+    (actor = this->StoredData->StoredActors->GetNextItem()); i++)
     {
     c1 = actor->GetPositionCoordinate();
     c2 = actor->GetPosition2Coordinate();
@@ -417,7 +417,7 @@ void vtkRenderLargeImage::Restore2DActors()
   int i;
   //
   for (this->StoredData->StoredActors->InitTraversal(), i=0;
-    (actor = this->StoredData->StoredActors->GetNextItem()); i++) 
+    (actor = this->StoredData->StoredActors->GetNextItem()); i++)
     {
     c1 = actor->GetPositionCoordinate();
     c2 = actor->GetPosition2Coordinate();

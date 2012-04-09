@@ -63,9 +63,9 @@ public:
   //    are identified by a contiguous set of rank IDs.)
   //    The third argument is the callers rank, which must
   //    in the range from p0 through p1.
-  
+
   int Initialize(int p0, int p1, int me, int tag, vtkCommunicator *c);
-  
+
   int Gather(int *data, int *to, int length, int root);
   int Gather(char *data, char *to, int length, int root);
   int Gather(float *data, float *to, int length, int root);
@@ -86,19 +86,19 @@ public:
   int ReduceMin(float *data, float *to, int length, int root);
   int ReduceMin(double *data, double *to, int length, int root);
   int ReduceMin(int *data, int *to, int length, int root);
-  
+
   int AllReduceUniqueList(int *list, int len, int **newList);
   int MergeSortedUnique(int *list1, int len1, int *list2, int len2, int **newList);
-  
+
   void setGatherPattern(int root, int length);
   int getLocalRank(int processID);
-  
+
   int Barrier();
-  
+
   void PrintSubGroup() const;
 
   static int MakeSortedUnique(int *list, int len, int **newList);
-  
+
   int tag;
 
 protected:
@@ -112,8 +112,8 @@ private:
   void setUpRoot(int root);
 
   int nFrom;
-  int nTo; 
-  
+  int nTo;
+
   int sendId;                // gather
   int sendOffset;
   int sendLength;
@@ -128,11 +128,11 @@ private:
   int nRecv;
   int gatherRoot;
   int gatherLength;
-  
+
   int *members;
   int nmembers;
   int myLocalRank;
-  
+
   vtkCommunicator *comm;
 
   vtkSubGroup(const vtkSubGroup&); // Not implemented

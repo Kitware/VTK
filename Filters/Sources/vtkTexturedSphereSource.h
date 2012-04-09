@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkTexturedSphereSource - create a sphere centered at the origin
 // .SECTION Description
-// vtkTexturedSphereSource creates a polygonal sphere of specified radius 
-// centered at the origin. The resolution (polygonal discretization) in both 
-// the latitude (phi) and longitude (theta) directions can be specified. 
-// It also is possible to create partial sphere by specifying maximum phi and 
+// vtkTexturedSphereSource creates a polygonal sphere of specified radius
+// centered at the origin. The resolution (polygonal discretization) in both
+// the latitude (phi) and longitude (theta) directions can be specified.
+// It also is possible to create partial sphere by specifying maximum phi and
 // theta angles.
 
 #ifndef __vtkTexturedSphereSource_h

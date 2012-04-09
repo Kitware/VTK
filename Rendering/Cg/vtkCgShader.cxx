@@ -123,13 +123,13 @@ public:
   CGprogram Program;
   CGerror LastError;
   CgStateMatrixMap StateMatrixMap;
-  
+
   vtkCgShaderInternals()
     {
     this->LastError = CG_NO_ERROR;
     this->Context = 0;
     }
-  
+
   CGparameter GetUniformParameter(const char* name)
     {
     if(!name)
@@ -248,7 +248,7 @@ int vtkCgShader::Compile()
   // So we always provide the contents of the file .
 
   if( cgIsContext(this->Internals->Context) == CG_TRUE
-    && cgGLIsProfileSupported( this->Internals->Profile ) == CG_TRUE 
+    && cgGLIsProfileSupported( this->Internals->Profile ) == CG_TRUE
     && source_string)
     {
     this->Internals->Program = cgCreateProgram( this->Internals->Context,
@@ -319,7 +319,7 @@ void vtkCgShader::SetUniformParameter(const char* name, int numValues,
     {
     dvalues[i] = static_cast<double>(values[i]);
     }
-  
+
   this->SetUniformParameter(name, numValues, dvalues);
   delete[] dvalues;
 }
@@ -379,7 +379,7 @@ void vtkCgShader::SetUniformParameter(const char* name, int numValues, const dou
 }
 
 //-----------------------------------------------------------------------------
-void vtkCgShader::SetMatrixParameter(const char* name, int , int order, 
+void vtkCgShader::SetMatrixParameter(const char* name, int , int order,
   const float* value)
 {
   CGparameter param = this->Internals->GetUniformParameter(name);
@@ -398,7 +398,7 @@ void vtkCgShader::SetMatrixParameter(const char* name, int , int order,
 }
 
 //-----------------------------------------------------------------------------
-void vtkCgShader::SetMatrixParameter(const char* name, int , int order, 
+void vtkCgShader::SetMatrixParameter(const char* name, int , int order,
   const double* value)
 {
   CGparameter param = this->Internals->GetUniformParameter(name);
@@ -491,7 +491,7 @@ void vtkCgShader::PassShaderVariables(vtkActor* actor, vtkRenderer* renderer)
     mat2[14] = mat[11];
     mat2[15] = mat[15];
 
-    // insert model transformation 
+    // insert model transformation
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
     glMultMatrixd(mat2);

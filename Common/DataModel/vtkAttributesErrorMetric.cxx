@@ -82,18 +82,18 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   assert("pre: midPoint_exists" && midPoint!=0);
   assert("pre: rightPoint_exists" && rightPoint!=0);
   assert("pre: clamped_alpha" && alpha>0 && alpha<1);
-  
+
   int result;
   double ae;
   vtkGenericAttributeCollection *ac;
-  
+
   this->ComputeSquareAbsoluteAttributeTolerance();
-  
+
   const int ATTRIBUTE_OFFSET=6;
-  
+
   ac=this->DataSet->GetAttributes();
   vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
-  
+
   if(this->GenericCell->IsAttributeLinear(a))
     {
     //don't need to do anything:
@@ -143,7 +143,7 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
       }
     assert("check: positive_ae" && ae>=0);
     }
-  
+
   if(this->SquareAbsoluteAttributeTolerance==0)
     {
     result=fabs(ae)>0.0001;
@@ -171,18 +171,18 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
   assert("pre: midPoint_exists" && midPoint!=0);
   assert("pre: rightPoint_exists" && rightPoint!=0);
   assert("pre: clamped_alpha" && alpha>0 && alpha<1);
-  
+
   double ae;
   vtkGenericAttributeCollection *ac;
-  
+
   this->ComputeSquareAbsoluteAttributeTolerance();
-  
+
   const int ATTRIBUTE_OFFSET=6;
-  
+
   ac=this->DataSet->GetAttributes();
   vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
-  
- 
+
+
   if(this->GenericCell->IsAttributeLinear(a))
     {
     //don't need to do anything:
@@ -206,7 +206,7 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
       int j=0;
       int c=ac->GetNumberOfComponents();
       double tmp;
-      
+
       ae=0;
       while(j<c)
         {
@@ -216,9 +216,9 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
         }
       }
     }
-  
+
   double result;
-  
+
   if(this->Range!=0)
     {
     result=sqrt(ae)/this->Range;
@@ -227,9 +227,9 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
     {
     result=0;
     }
-  
+
   assert("post: positive_result" && result>=0);
-  
+
   return result;
 }
 
@@ -253,17 +253,17 @@ void vtkAttributesErrorMetric::ComputeSquareAbsoluteAttributeTolerance()
       {
       vtkGenericAttributeCollection *ac=this->DataSet->GetAttributes();
       vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
-      
+
       int i=ac->GetActiveComponent();
-      
+
       double r[2];
-      
+
       a->GetRange(i,r);
-      
+
       double tmp=(r[1]-r[0])*this->AttributeTolerance;
-      
+
       this->Range=r[1]-r[0];
-      
+
       this->SquareAbsoluteAttributeTolerance=tmp*tmp;
       this->SquareAbsoluteAttributeToleranceComputeTime.Modified();
       this->AbsoluteAttributeTolerance=sqrt(this->SquareAbsoluteAttributeTolerance);

@@ -100,7 +100,7 @@ void vtkMetaImageReader::ExecuteInformation()
   switch(this->MetaImagePtr->ElementType())
     {
     default:
-      vtkErrorMacro(<< "Unknown data type: " 
+      vtkErrorMacro(<< "Unknown data type: "
                     << this->MetaImagePtr->ElementType());
       return;
     case vtkmetaio::MET_CHAR:
@@ -183,7 +183,7 @@ void vtkMetaImageReader::ExecuteInformation()
 
   strcpy(AnatomicalOrientation,
          this->MetaImagePtr->AnatomicalOrientationAcronym());
-    
+
   vtkmetaio::MET_SizeOfType(this->MetaImagePtr->ElementType(), &BitsAllocated);
 
   RescaleSlope = this->MetaImagePtr->ElementToIntensityFunctionSlope();
@@ -238,7 +238,7 @@ int vtkMetaImageReader::RequestInformation(vtkInformation *,
   this->ExecuteInformation();
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
- 
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
@@ -304,47 +304,47 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
     return false;
     }
 
-  if( strcmp(key,"NDims")==0 ) 
+  if( strcmp(key,"NDims")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"ObjectType")==0 ) 
+  if( strcmp(key,"ObjectType")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"TransformType")==0 ) 
+  if( strcmp(key,"TransformType")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"ID")==0 ) 
+  if( strcmp(key,"ID")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"ParentID")==0 ) 
+  if( strcmp(key,"ParentID")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"BinaryData")==0 ) 
+  if( strcmp(key,"BinaryData")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"Comment")==0 ) 
+  if( strcmp(key,"Comment")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"AcquisitionDate")==0 ) 
+  if( strcmp(key,"AcquisitionDate")==0 )
     {
     inputStream.close();
     return 3;
     }
-  if( strcmp(key,"Modality")==0 ) 
+  if( strcmp(key,"Modality")==0 )
     {
     inputStream.close();
     return 3;

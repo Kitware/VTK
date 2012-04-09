@@ -20,11 +20,11 @@
 // .NAME vtkPPCAStatistics - A class for parallel principal component analysis
 // .SECTION Description
 // vtkPPCAStatistics is vtkPCAStatistics subclass for parallel datasets.
-// It learns and derives the global statistical model on each node, but assesses each 
+// It learns and derives the global statistical model on each node, but assesses each
 // individual data points on the node that owns it.
 
 // .SECTION Thanks
-// Thanks to Philippe Pebay, David Thompson and Janine Bennett from 
+// Thanks to Philippe Pebay, David Thompson and Janine Bennett from
 // Sandia National Laboratories for implementing this class.
 
 #ifndef __vtkPPCAStatistics_h

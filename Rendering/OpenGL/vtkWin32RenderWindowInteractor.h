@@ -86,7 +86,7 @@ public:
   friend VTKRENDERINGOPENGL_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
 
   // Description:
-  // Various methods that a Win32 window can redirect to this class to be 
+  // Various methods that a Win32 window can redirect to this class to be
   // handled.
   virtual void OnMouseMove  (HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnNCMouseMove(HWND wnd, UINT nFlags, int X, int Y);
@@ -140,7 +140,7 @@ protected:
   static void *ClassExitMethodArg;
   //ETX
 
-  // Description: 
+  // Description:
   // Win32-specific internal timer methods. See the superclass for detailed
   // documentation.
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
@@ -149,7 +149,7 @@ protected:
 #ifdef VTK_USE_TDX
   vtkTDxWinDevice *Device;
 #endif
-  
+
 private:
   vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
   void operator=(const vtkWin32RenderWindowInteractor&);  // Not implemented.

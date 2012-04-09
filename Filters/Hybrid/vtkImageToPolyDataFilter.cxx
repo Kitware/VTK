@@ -90,7 +90,7 @@ int vtkImageToPolyDataFilter::RequestData(
 
   // Check input and initialize
   vtkDebugMacro(<<"Vectorizing image...");
-  
+
   if ( inScalars == NULL || numPixels < 1 )
     {
     vtkDebugMacro(<<"Not enough input to create output");
@@ -99,7 +99,7 @@ int vtkImageToPolyDataFilter::RequestData(
 
   append = vtkAppendPolyData::New();
   tmpOutput=vtkPolyData::New();
-  tmpInput=vtkPolyData::New();    
+  tmpInput=vtkPolyData::New();
   numComp=inScalars->GetNumberOfComponents();
   type=inScalars->GetDataType();
 
@@ -108,7 +108,7 @@ int vtkImageToPolyDataFilter::RequestData(
   input->GetDimensions(dims);
   input->GetOrigin(origin);
   input->GetSpacing(spacing);
-  
+
   // Figure out how many pieces to break the image into (the image
   // might be too big to process). The filter does a series of appends
   // to join the pieces together.
@@ -129,7 +129,7 @@ int vtkImageToPolyDataFilter::RequestData(
       {
       extent[3] = dims[1] - 1;
       }
-    
+
     for (i=0; i < numPieces[0] && !abortExecute; i++)
       {
       extent[0] = i*this->SubImageSize; //the x range
@@ -158,7 +158,7 @@ int vtkImageToPolyDataFilter::RequestData(
       // Create a quantized copy of the image based on the color table
       //
       pixels = this->QuantizeImage(inScalars, numComp, type, dims, extent);
-      vtkDebugMacro(<<"Quantizing color...image size (" <<newDims[0] 
+      vtkDebugMacro(<<"Quantizing color...image size (" <<newDims[0]
                     <<", " <<newDims[1] << ")");
 
       // Generate polygons according to mode setting
@@ -190,7 +190,7 @@ int vtkImageToPolyDataFilter::RequestData(
       tmpOutput->Initialize();
       } // for i pieces
     } // for j pieces
-  
+
   // Create the final output contained in the append filter
   output->CopyStructure(appendOutput);
   output->GetPointData()->PassData(appendOutput->GetPointData());
@@ -203,9 +203,9 @@ int vtkImageToPolyDataFilter::RequestData(
   return 1;
 }
 
-void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels, 
-                                             int dims[3], double origin[3], 
-                                             double spacing[3], 
+void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
+                                             int dims[3], double origin[3],
+                                             double spacing[3],
                                              vtkPolyData *output)
 {
   int numPts, numCells, i, j, id;
@@ -215,12 +215,12 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
   double x[3];
   vtkUnsignedCharArray *polyColors;
   unsigned char *ptr, *colors=pixels->GetPointer(0);
-  
+
   // create the points - see whether to create or append
   numPts = (dims[0]+1) * (dims[1]+1);
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
-  
+
   x[2] = 0.0;
   for (id=0, j=0; j<=dims[1]; j++)
     {
@@ -271,9 +271,9 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
   polyColors->Delete();
 }
 
-void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels, 
-                                             int dims[3], double origin[3], 
-                                             double spacing[3], 
+void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
+                                             int dims[3], double origin[3],
+                                             double spacing[3],
                                              vtkPolyData *output)
 {
   int i, j;
@@ -283,7 +283,7 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
   double x[3], minX, maxX, minY, maxY;
   vtkUnsignedCharArray *polyColors;
   unsigned char *ptr, *colors=pixels->GetPointer(0), *color;
-  
+
   // Setup data
   newPts = vtkPoints::New();
   newPolys = vtkCellArray::New();
@@ -312,7 +312,7 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
       minY = origin[1] + j*spacing[1] - 0.5*spacing[1];
       maxY = origin[1] + j*spacing[1] + 0.5*spacing[1];
       }
-    
+
     for ( i=0; i < dims[0]; )
       {
       if ( i == 0 )
@@ -363,7 +363,7 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
       polyColors->InsertValue(3*id+2, color[2]);
       }
     }
-  
+
   output->SetPoints(newPts);
   newPts->Delete();
   output->SetPolys(newPolys);
@@ -374,8 +374,8 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
 }
 
 
-void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels, 
-                               int dims[3], double origin[3], double spacing[3], 
+void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
+                               int dims[3], double origin[3], double spacing[3],
                                vtkPolyData *output)
 {
   int numPolys;
@@ -393,7 +393,7 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
 
   // Build edges around the boundary of the polygons. Also identify
   // junction points where 3 or 4 polygons meet.
-  // 
+  //
   vtkPoints *points =  vtkPoints::New();
   points->Allocate(numPixels/2, numPixels/2);
 
@@ -423,9 +423,9 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
   delete [] this->Visited;
   vtkDebugMacro(<<"Constructed polygons...");
 
-  // Smooth edge network. Some points are identified as fixed, others 
+  // Smooth edge network. Some points are identified as fixed, others
   // move using Laplacian smoothing.
-  // 
+  //
   if ( this->Smoothing )
     {
     this->SmoothEdges(pointDescr, edges);
@@ -445,7 +445,7 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
   this->GeneratePolygons(edges, numPolys, output, polyColors, pointDescr);
   vtkDebugMacro(<<"Output generated...");
 
-  // clean up and get out 
+  // clean up and get out
   edges->Delete();
   polyColors->Delete();
   pointDescr->Delete();
@@ -461,13 +461,13 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
   vtkUnsignedCharArray *pixels;
   unsigned char *ptr, *ptr2, *color, *outPixels;
   unsigned char *inPixels;
-  
+
   // doing a portion of the image
   numPixels = (extent[1]-extent[0]+1) * (extent[3]-extent[2]+1);
   pixels = vtkUnsignedCharArray::New();
   pixels->SetNumberOfValues(3*numPixels);
   outPixels = pixels->GetPointer(0);
-  
+
   // Figure out how to quantize
   //
   if ( this->ColorMode == VTK_COLOR_MODE_LINEAR_256 )
@@ -505,7 +505,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
         }
       }
     }//using build in table
-  
+
   else //using provided lookup table
     {
     if ( numComp != 1 || this->LookupTable == NULL )
@@ -536,7 +536,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
 
 void vtkImageToPolyDataFilter::BuildTable(unsigned char *vtkNotUsed(inPixels))
 {
-  int red, green, blue, idx=0; 
+  int red, green, blue, idx=0;
 
   this->Table->SetNumberOfValues(256*3);
 
@@ -564,7 +564,7 @@ int vtkImageToPolyDataFilter::FillInputPortInformation(int, vtkInformation *info
 void vtkImageToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   os << indent << "Output Style: ";
   if ( this->OutputStyle == VTK_STYLE_PIXELIZE )
     {
@@ -590,11 +590,11 @@ void vtkImageToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Smoothing: " << (this->Smoothing ? "On\n" : "Off\n");
-  os << indent << "Number of Smoothing Iterations: " 
+  os << indent << "Number of Smoothing Iterations: "
      << this->NumberOfSmoothingIterations << "\n";
 
   os << indent << "Decimation: " << (this->Decimation ? "On\n" : "Off\n");
-  os << indent << "Decimation Error: " 
+  os << indent << "Decimation Error: "
      << (this->DecimationError ? "On\n" : "Off\n");
 
   os << indent << "Error: " << this->Error << "\n";
@@ -617,9 +617,9 @@ void vtkImageToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 // Determines whether two pixels are the same color
 int vtkImageToPolyDataFilter::IsSameColor(unsigned char *p1, unsigned char *p2)
 {
-  int d2 = (p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1]) + 
+  int d2 = (p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1]) +
            (p1[2]-p2[2])*(p1[2]-p2[2]);
-  
+
   return (d2 > this->Error ? 0 : 1);
 }
 
@@ -645,7 +645,7 @@ void vtkImageToPolyDataFilter::GetIJ(int id, int &i, int &j, int dims[3])
 // Get the left-right-top-bottom neighboring pixels of a given pixel
 // The method has been modified to return right neighbor (mode==0);
 // or top neighbor (mode==1) or all neighbors (mode==2).
-int vtkImageToPolyDataFilter::GetNeighbors(unsigned char *ptr, int &i, int &j, 
+int vtkImageToPolyDataFilter::GetNeighbors(unsigned char *ptr, int &i, int &j,
                        int dims[2],unsigned char *neighbors[4], int mode)
 {
   int numNeis=0;
@@ -661,7 +661,7 @@ int vtkImageToPolyDataFilter::GetNeighbors(unsigned char *ptr, int &i, int &j,
       neighbors[numNeis++] = ptr - 3; //jump over rgb
       }
     }
-  
+
   else if ( mode == 1 )
     {
     if ( (j+1) < dims[1] )
@@ -669,7 +669,7 @@ int vtkImageToPolyDataFilter::GetNeighbors(unsigned char *ptr, int &i, int &j,
       neighbors[numNeis++] = ptr + 3*dims[0];
       }
     }
-  
+
   else
     {
     if ( (i+1) < dims[0] )
@@ -692,12 +692,12 @@ int vtkImageToPolyDataFilter::GetNeighbors(unsigned char *ptr, int &i, int &j,
     }
 
   return numNeis;
-  
+
 }
 
 
 // Marks connected regions with different colors.
-int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars, 
+int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
                                            int dims[2])
 {
   int numPixels = dims[0]*dims[1];
@@ -713,13 +713,13 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
   regionNumber = -1;
   this->Visited = new int [numPixels];
   memset (this->Visited, (int)-1, numPixels*sizeof(int));
-  
+
   // set up the connected traversal
   wave = vtkIdList::New();
-  wave->Allocate(static_cast<int>(numPixels/4.0), 
+  wave->Allocate(static_cast<int>(numPixels/4.0),
                  static_cast<int>(numPixels/4.0));
   wave2 = vtkIdList::New();
-  wave2->Allocate(static_cast<int>(numPixels/4.0), 
+  wave2->Allocate(static_cast<int>(numPixels/4.0),
                   static_cast<int>(numPixels/4.0));
 
   // visit connected pixels. Pixels are connected if they are topologically
@@ -784,7 +784,7 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
         }//while still propogating
       }//if not, start wave
     }//for all pixels
-  
+
   wave->Delete();
   wave2->Delete();
 
@@ -792,8 +792,8 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
 }
 
 // Create polygons and place into output
-void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges, 
-                               int vtkNotUsed(numPolys), vtkPolyData *output, 
+void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
+                               int vtkNotUsed(numPolys), vtkPolyData *output,
                                vtkUnsignedCharArray *polyColors,
                                vtkUnsignedCharArray *pointDescr)
 {
@@ -801,7 +801,7 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
   int i, numPts;
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
-  
+
   // Copy the points via reference counting
   //
   output->SetPoints(edges->GetPoints());
@@ -830,15 +830,15 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
 
   output->SetPolys(newPolys);
   newPolys->Delete();
-  
+
   output->GetCellData()->SetScalars(polyColors);
 }
 
 // Uses clipping approach to build the polygon edges
-int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels), 
+int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels),
                                          int dims[3], double origin[3],
                                          double spacing[3],
-                                         vtkUnsignedCharArray *pointDescr, 
+                                         vtkUnsignedCharArray *pointDescr,
                                          vtkPolyData *edges)
 {
   double x[3];
@@ -848,7 +848,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
   vtkPoints *points = edges->GetPoints();
 
   // Build edges around perimeter of image. Note that the point ids
-  // The first four points are the image corners and are inserted and 
+  // The first four points are the image corners and are inserted and
   // marked so that they can't be moved during smoothing.
   points->InsertPoint(0, origin);
   pointDescr->InsertValue(0, 1);
@@ -883,7 +883,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
   x[2] = 0.0;
   points->InsertPoint(3, x);
   pointDescr->InsertValue(3, 1);
-  
+
   // Let's create perimeter edges - bottom x edge
   startId = 0;
   x[1] = origin[1];
@@ -897,7 +897,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
       ptId = points->InsertNextPoint(x);
       this->EdgeTable->InsertEdge(p0,p1,ptId);
       pointDescr->InsertValue(ptId, 1); //can't be smoothed
-      
+
       edgeConn->InsertNextCell(2);
       edgeConn->InsertCellPoint(startId);
       edgeConn->InsertCellPoint(ptId);
@@ -927,7 +927,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
       ptId = points->InsertNextPoint(x);
       this->EdgeTable->InsertEdge(p0,p1,ptId);
       pointDescr->InsertValue(ptId, 1); //can't be smoothed
-      
+
       edgeConn->InsertNextCell(2);
       edgeConn->InsertCellPoint(startId);
       edgeConn->InsertCellPoint(ptId);
@@ -957,7 +957,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
       ptId = points->InsertNextPoint(x);
       this->EdgeTable->InsertEdge(p0,p1,ptId);
       pointDescr->InsertValue(ptId, 1); //can't be smoothed
-      
+
       edgeConn->InsertNextCell(2);
       edgeConn->InsertCellPoint(startId);
       edgeConn->InsertCellPoint(ptId);
@@ -987,7 +987,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
       ptId = points->InsertNextPoint(x);
       this->EdgeTable->InsertEdge(p0,p1,ptId);
       pointDescr->InsertValue(ptId, 1); //can't be smoothed
-      
+
       edgeConn->InsertNextCell(2);
       edgeConn->InsertCellPoint(startId);
       edgeConn->InsertCellPoint(ptId);
@@ -1023,7 +1023,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
         }
       }
     }
-  
+
   for (i=1; i<(dims[0]-1); i++) //loop over all y edges (except boundary)
     {
     x[0] = origin[0] + i*spacing[0];
@@ -1053,7 +1053,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
       p1 = p0 + 1;
       p2 = i+1 + (j+1)*dims[0];
       p3 = p2 - 1;
- 
+
       if ( (ptId=this->EdgeTable->IsEdge(p0,p1)) != -1 )
         {
         id[2*edgeCount] = p0; id[2*edgeCount+1] = p1;
@@ -1088,7 +1088,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
         attrId = this->EdgeUseTable->InsertEdge(ptId,pts[0]);
         this->EdgeUses->InsertValue(2*attrId, this->Visited[id[0]]);
         this->EdgeUses->InsertValue(2*attrId+1, this->Visited[id[1]]);
-        
+
         edgeConn->InsertNextCell(2);
         edgeConn->InsertCellPoint(ptId);
         edgeConn->InsertCellPoint(pts[1]);
@@ -1157,7 +1157,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
         }
       }
     }
-  
+
   // Cleanup
   this->EdgeUseTable->Delete();
   this->EdgeTable->Delete();
@@ -1165,7 +1165,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
   return 0;
 }
 
-void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(pointDescr), 
+void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(pointDescr),
                                              vtkPolyData *edges, int numPolys,
                                              vtkUnsignedCharArray *polyColors)
 {
@@ -1177,7 +1177,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
   unsigned short ncells, ncells2;
   unsigned char *polyVisited, *ptr;
   vtkCellArray *newPolys;
-  
+
   // Make sure we can topological info
   edges->BuildLinks();
 
@@ -1226,11 +1226,11 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
             {
             edges->GetCellPoints(edgeId, npts, pts);
             p2 = (pts[0] != p1 ? pts[0] : pts[1]);
-            if (p2 == ptId) 
+            if (p2 == ptId)
               {
               break;
               }
-            
+
             newPolys->InsertCellPoint(p2);
             numPolyPts++;
             edges->GetPointCells(p2, ncells2, cells2);
@@ -1242,7 +1242,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
             for (k=0; k<ncells2; k++)
               {
               polyId2 = this->EdgeUses->GetPointer(2*cells2[k]);
-              if ( cells2[k] != edgeId && 
+              if ( cells2[k] != edgeId &&
                    (polyId2[0] == polyId[j] || polyId2[1] == polyId[j]) )
                 {
                 p1 = p2;
@@ -1252,7 +1252,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
               }
             }//while not completed loop
           newPolys->UpdateCellCount(numPolyPts);
-          
+
           }//if polygon not yet visited
         }//for each use of edge by polygon (at most 2 polygons)
       }//for each edge connected to this point
@@ -1264,10 +1264,10 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
   delete [] polyVisited;
 }
 
-void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr, 
+void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
                                            vtkPolyData *edges)
 {
-  
+
   vtkPoints *points=edges->GetPoints();
   vtkIdType numPts=points->GetNumberOfPoints(), ptId;
   int i, iterNum;
@@ -1277,7 +1277,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
   vtkIdType *cells, *pts, npts;
 
 
-  // For each smoothing operation, loop over points. Points that can be 
+  // For each smoothing operation, loop over points. Points that can be
   // smoothed are moved in the direction of the average of their neighbor
   // points.
   for ( iterNum=0; iterNum<this->NumberOfSmoothingIterations; iterNum++ )
@@ -1290,7 +1290,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
       {
       factor = 0.330;
       }
-    
+
     for (ptId=0; ptId<numPts; ptId++)
       {
       if ( pointDescr->GetValue(ptId) == 0 ) //can smooth
@@ -1325,7 +1325,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
           x[2] = x[2] + factor * (xave[2] - x[2]);
           points->SetPoint(ptId, x);
           }
-        
+
         }//if smoothable point
       }//for all points
     }//for all smoothing operations
@@ -1334,7 +1334,7 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
 
 // Remove points that are nearly co-linear to reduce the total point count
 //
-void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges, 
+void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
                                              vtkUnsignedCharArray *pointDescr,
                                              double tol2)
 {

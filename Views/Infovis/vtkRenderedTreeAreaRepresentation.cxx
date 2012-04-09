@@ -169,7 +169,7 @@ vtkRenderedTreeAreaRepresentation::vtkRenderedTreeAreaRepresentation()
   }
   </graphviz>
   */
-  
+
   this->VertexDegree->SetInputConnection(this->TreeLevels->GetOutputPort());
   this->TreeAggregation->SetInputConnection(this->VertexDegree->GetOutputPort());
   this->AreaLayout->SetInputConnection(this->TreeAggregation->GetOutputPort());
@@ -466,7 +466,7 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
       vtkSmartPointer<vtkPoints> highlightPoints =
         vtkSmartPointer<vtkPoints>::New();
       highlightPoints->SetNumberOfPoints(5);
-      
+
       vtkSmartPointer<vtkCellArray> highA =
         vtkSmartPointer<vtkCellArray>::New();
       highA->InsertNextCell(5);
@@ -493,22 +493,22 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
         sector->SetZCoord(z);
         sector->SetStartAngle(sinfo[0]);
         sector->SetEndAngle(sinfo[1]);
-        
+
         int resolution = (int)((sinfo[1]-sinfo[0])/1);
         if( resolution < 1 )
           resolution = 1;
         sector->SetCircumferentialResolution(resolution);
         sector->Update();
-        
+
         vtkSmartPointer<vtkExtractEdges> extract =
           vtkSmartPointer<vtkExtractEdges>::New();
         extract->SetInputConnection(sector->GetOutputPort());
-        
+
         vtkSmartPointer<vtkAppendPolyData> append =
           vtkSmartPointer<vtkAppendPolyData>::New();
         append->AddInputConnection(extract->GetOutputPort());
         append->Update();
-        
+
         this->HighlightData->ShallowCopy(append->GetOutput());
         }
       else
@@ -516,10 +516,10 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
         vtkSmartPointer<vtkPoints> highlightPoints =
           vtkSmartPointer<vtkPoints>::New();
         highlightPoints->SetNumberOfPoints(240);
-        
+
         double conversion = vtkMath::Pi()/180.;
         double current_angle = 0.;
-        
+
         vtkSmartPointer<vtkCellArray> highA =
           vtkSmartPointer<vtkCellArray>::New();
         for( int i = 0; i < 120; ++i)
@@ -528,13 +528,13 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
           double current_x = sinfo[2]*cos(conversion*current_angle);
           double current_y = sinfo[2]*sin(conversion*current_angle);
           highlightPoints->SetPoint( i, current_x, current_y, z );
-          
+
           current_angle += 3.;
-          
+
           highA->InsertCellPoint(i);
           highA->InsertCellPoint((i+1)%120);
           }
-        
+
         current_angle = 0.;
         for( int i = 0; i < 120; ++i)
           {
@@ -542,15 +542,15 @@ void vtkRenderedTreeAreaRepresentation::UpdateHoverHighlight(vtkView* view, int 
           double current_x = sinfo[3]*cos(conversion*current_angle);
           double current_y = sinfo[3]*sin(conversion*current_angle);
           highlightPoints->SetPoint( 120+i, current_x, current_y, z );
-          
+
           current_angle += 3.;
-          
+
           highA->InsertCellPoint(120+i);
           highA->InsertCellPoint(120+((i+1)%120));
           }
         this->HighlightData->SetPoints(highlightPoints);
         this->HighlightData->SetLines(highA);
-        }  
+        }
       }
     this->HighlightActor->VisibilityOn();
     }
@@ -685,8 +685,8 @@ void vtkRenderedTreeAreaRepresentation::SetLabelRenderMode(int mode)
       {
       this->AreaLabelActor = vtkSmartPointer<vtkActor2D>::New();
       this->AreaLabelActor->PickableOff();
-      
-      vtkSmartPointer<vtkDynamic2DLabelMapper> mapper = 
+
+      vtkSmartPointer<vtkDynamic2DLabelMapper> mapper =
         vtkSmartPointer<vtkDynamic2DLabelMapper>::New();
       this->SetAreaLabelMapper(mapper);
       }
@@ -695,8 +695,8 @@ void vtkRenderedTreeAreaRepresentation::SetLabelRenderMode(int mode)
 #ifdef VTK_USE_QT
       this->AreaLabelActor = vtkSmartPointer<vtkTexturedActor2D>::New();
       this->AreaLabelActor->PickableOff();
-      
-      vtkSmartPointer<vtkQtTreeRingLabelMapper> mapper = 
+
+      vtkSmartPointer<vtkQtTreeRingLabelMapper> mapper =
         vtkSmartPointer<vtkQtTreeRingLabelMapper>::New();
       this->SetAreaLabelMapper(mapper);
 #else

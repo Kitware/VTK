@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkParallelCoordinatesHistogramRepresentation.cxx
 
@@ -74,7 +74,7 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
   this->HistogramLookupTable->ForceBuild();
 
   this->PlotMapper->SetScalarModeToUseCellData();
-  this->PlotMapper->UseLookupTableScalarRangeOn();  
+  this->PlotMapper->UseLookupTableScalarRangeOn();
   this->PlotMapper->SetLookupTable(this->HistogramLookupTable);
   this->PlotMapper->ScalarVisibilityOff();
 
@@ -99,7 +99,7 @@ vtkParallelCoordinatesHistogramRepresentation::vtkParallelCoordinatesHistogramRe
 
   // Apply default theme
   // you would think that calling this in the superclass would take care of it,
-  // but it turns out that the superclass constructor will only call its own 
+  // but it turns out that the superclass constructor will only call its own
   // version there.  So I have to call it again to make sure that the local
   // version gets called.
   vtkViewTheme* theme = vtkViewTheme::New();
@@ -165,7 +165,7 @@ int vtkParallelCoordinatesHistogramRepresentation::UpdatePlotProperties(vtkStrin
 {
   if (!this->Superclass::UpdatePlotProperties(inputTitles))
     return 0;
-  
+
   this->OutlierActor->GetProperty()->SetOpacity(this->LineOpacity);
   this->OutlierActor->GetProperty()->SetColor(this->LineColor);
 
@@ -236,7 +236,7 @@ bool vtkParallelCoordinatesHistogramRepresentation::RemoveFromView(vtkView* view
 //------------------------------------------------------------------------------
 // redirect the line plotting function to the histogram plotting function,
 // if histograms are enabled
-int vtkParallelCoordinatesHistogramRepresentation::PlaceLines(vtkPolyData* polyData, 
+int vtkParallelCoordinatesHistogramRepresentation::PlaceLines(vtkPolyData* polyData,
                                                               vtkTable* data,
                                                               vtkIdTypeArray* idsToPlot)
 {
@@ -252,8 +252,8 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceLines(vtkPolyData* polyD
 //------------------------------------------------------------------------------
 // redirect the line plotting function to the histogram plotting function,
 // if histograms are enabled
-int vtkParallelCoordinatesHistogramRepresentation::PlaceCurves(vtkPolyData* polyData, 
-                                                               vtkTable* data, 
+int vtkParallelCoordinatesHistogramRepresentation::PlaceCurves(vtkPolyData* polyData,
+                                                               vtkTable* data,
                                                                vtkIdTypeArray* idsToPlot)
 {
   if (this->UseHistograms)
@@ -268,9 +268,9 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceCurves(vtkPolyData* poly
 //------------------------------------------------------------------------------
 // this is a bit tricky.  This class plots selections as lines, regardless
 // of whether or not histograms are enabled.  That means it needs to explicitly
-// call the superclass plotting functions on the selection so that the 
+// call the superclass plotting functions on the selection so that the
 // histogram plotting functions don't get used.
-int vtkParallelCoordinatesHistogramRepresentation::PlaceSelection(vtkPolyData* polyData, 
+int vtkParallelCoordinatesHistogramRepresentation::PlaceSelection(vtkPolyData* polyData,
                                                                   vtkTable* data,
                                                                   vtkSelectionNode* selectionNode)
 {
@@ -292,7 +292,7 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceSelection(vtkPolyData* p
 //------------------------------------------------------------------------------
 int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPolyData* polyData)
 {
-  // figure out how many samples there are by looking at each of the 
+  // figure out how many samples there are by looking at each of the
   // histograms and counting the bins.
   int numberOfQuads = 0;
   for (int i=0; i<this->NumberOfAxes-1; i++)
@@ -372,7 +372,7 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
 //------------------------------------------------------------------------------
 int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkPolyData* polyData)
 {
-  // figure out how many samples there are by looking at each of the 
+  // figure out how many samples there are by looking at each of the
   // histograms and counting the bins.
   int numberOfStrips = 0;
   for (int i=0; i<this->NumberOfAxes-1; i++)
@@ -394,7 +394,7 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
 
   vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
   double* scalarsp = scalars->GetPointer(0);
-  
+
   // build the default spline
   vtkSmartPointer<vtkDoubleArray> defSplineValues = vtkSmartPointer<vtkDoubleArray>::New();
   this->BuildDefaultSCurve(defSplineValues,this->CurveResolution);
@@ -422,7 +422,7 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
 
     x1[0] = this->Xs[pos];
     x2[0] = this->Xs[pos+1];
-    
+
     double dx = (x2[0]-x1[0]) / static_cast<double>(this->CurveResolution-1);
     double dw = binWidth[1] - binWidth[0];
 
@@ -480,7 +480,7 @@ int vtkParallelCoordinatesHistogramRepresentation::SwapAxisPositions(int positio
 
     return 1;
     }
-  
+
   return 0;
 }
 //------------------------------------------------------------------------------
@@ -541,7 +541,7 @@ void vtkParallelCoordinatesHistogramRepresentation::SetNumberOfHistogramBins(int
     {
     this->NumberOfHistogramBins[0] = nx;
     this->NumberOfHistogramBins[1] = ny;
-    
+
     this->HistogramFilter->SetNumberOfBins(nx,ny);
 
     this->Modified();

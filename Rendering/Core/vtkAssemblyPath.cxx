@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkAssemblyPath);
 vtkAssemblyPath::vtkAssemblyPath()
 {
   this->Transform = vtkTransform::New();
-  this->Transform->PreMultiply();  
+  this->Transform->PreMultiply();
   this->TransformedProp = NULL;
 }
 
@@ -46,11 +46,11 @@ void vtkAssemblyPath::AddNode(vtkProp *p, vtkMatrix4x4 *m)
   n->Delete(); //ok reference counted
 }
 
-void vtkAssemblyPath::AddNode(vtkAssemblyNode *n) 
+void vtkAssemblyPath::AddNode(vtkAssemblyNode *n)
 {
   // First add the node to the list
   this->vtkCollection::AddItem(n);
-  
+
   // Grab the matrix, if any, and concatenate it
   this->Transform->Push(); //keep in synch with list of nodes
   vtkMatrix4x4 *matrix;
@@ -61,13 +61,13 @@ void vtkAssemblyPath::AddNode(vtkAssemblyNode *n)
     }
 }
 
-vtkAssemblyNode *vtkAssemblyPath::GetNextNode() 
-{ 
+vtkAssemblyNode *vtkAssemblyPath::GetNextNode()
+{
   return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject());
 }
 
-vtkAssemblyNode *vtkAssemblyPath::GetFirstNode() 
-{ 
+vtkAssemblyNode *vtkAssemblyPath::GetFirstNode()
+{
   if ( this->Top == NULL )
     {
     return NULL;
@@ -78,8 +78,8 @@ vtkAssemblyNode *vtkAssemblyPath::GetFirstNode()
     }
 }
 
-vtkAssemblyNode *vtkAssemblyPath::GetLastNode() 
-{ 
+vtkAssemblyNode *vtkAssemblyPath::GetLastNode()
+{
   if ( this->Bottom == NULL )
     {
     return NULL;
@@ -94,7 +94,7 @@ void vtkAssemblyPath::DeleteLastNode()
 {
   vtkAssemblyNode *node = this->GetLastNode();
   this->vtkCollection::RemoveItem(node);
-  
+
   this->Transform->Pop();
 }
 
@@ -114,7 +114,7 @@ unsigned long vtkAssemblyPath::GetMTime()
   unsigned long mtime=this->vtkCollection::GetMTime();
   unsigned long nodeMTime;
   vtkAssemblyNode *node;
-  
+
   for ( this->InitTraversal(); (node = this->GetNextNode()); )
     {
     nodeMTime = node->GetMTime();

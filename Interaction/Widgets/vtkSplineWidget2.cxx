@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSplineRepresentation.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
@@ -59,7 +59,7 @@ vtkSplineWidget2::vtkSplineWidget2()
 
 //----------------------------------------------------------------------------
 vtkSplineWidget2::~vtkSplineWidget2()
-{  
+{
 }
 
 //----------------------------------------------------------------------
@@ -71,15 +71,15 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkSplineWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -91,7 +91,7 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkSplineWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -110,7 +110,7 @@ void vtkSplineWidget2::SelectAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkSplineRepresentation::Erasing);
     }
-  else 
+  else
     {
     reinterpret_cast<vtkSplineRepresentation*>(self->WidgetRep)->
       SetInteractionState(vtkSplineRepresentation::Moving);
@@ -139,15 +139,15 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget *w)
   // Get the event position
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if ( !self->CurrentRenderer || 
+  if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
     {
     self->WidgetState = vtkSplineWidget2::Start;
     return;
     }
-  
+
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
   double e[2];
@@ -159,7 +159,7 @@ void vtkSplineWidget2::ScaleAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->WidgetState = vtkSplineWidget2::Active;
   self->GrabFocus(self->EventCallbackCommand);
@@ -184,7 +184,7 @@ void vtkSplineWidget2::MoveAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
@@ -218,7 +218,7 @@ void vtkSplineWidget2::EndSelectAction(vtkAbstractWidget *w)
   double e[2];
   e[0] = static_cast<double>(X);
   e[1] = static_cast<double>(Y);
-  
+
   self->WidgetRep->EndWidgetInteraction(e);
 
   // Return state to not active

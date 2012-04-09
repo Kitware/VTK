@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkPointSource - create a random cloud of points
 // .SECTION Description
-// vtkPointSource is a source object that creates a user-specified number 
-// of points within a specified radius about a specified center point. 
+// vtkPointSource is a source object that creates a user-specified number
+// of points within a specified radius about a specified center point.
 // By default location of the points is random within the sphere. It is
 // also possible to generate random points only on the surface of the
 // sphere. The output PolyData has the specified number of points and
@@ -36,7 +36,7 @@ public:
   static vtkPointSource *New();
   vtkTypeMacro(vtkPointSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set the number of points to generate.
   vtkSetClampMacro(NumberOfPoints,vtkIdType,1,VTK_LARGE_ID);

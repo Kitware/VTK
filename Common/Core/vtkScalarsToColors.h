@@ -46,19 +46,19 @@ public:
   // Return true if all of the values defining the mapping have an opacity
   // equal to 1. Default implementation return true.
   virtual int IsOpaque();
-  
+
   // Description:
-  // Perform any processing required (if any) before processing 
+  // Perform any processing required (if any) before processing
   // scalars.
   virtual void Build() {};
-  
+
   // Description:
   // Sets/Gets the range of scalars which will be mapped.
   virtual double *GetRange();
   virtual void SetRange(double min, double max);
   void SetRange(double rng[2])
     {this->SetRange(rng[0],rng[1]);}
-  
+
   // Description:
   // Map one value through the lookup table and return a color defined
   // as a RGBA unsigned char tuple (4 bytes).
@@ -74,7 +74,7 @@ public:
   // an RGB array of doubles between 0 and 1.
   double *GetColor(double v)
     {this->GetColor(v,this->RGB); return this->RGB;}
- 
+
   // Description:
   // Map one value through the lookup table and return the alpha value
   // (the opacity) as a double between 0 and 1.
@@ -84,7 +84,7 @@ public:
   // Map one value through the lookup table and return the luminance
   // 0.3*red + 0.59*green + 0.11*blue as a double between 0 and 1.
   // Returns the luminance value for the specified scalar value.
-  double GetLuminance(double x) 
+  double GetLuminance(double x)
     {double rgb[3]; this->GetColor(x,rgb);
     return static_cast<double>(rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11);}
 
@@ -98,11 +98,11 @@ public:
 
   // Description:
   // An internal method maps a data array into a 4-component, unsigned char
-  // RGBA array. The color mode determines the behavior of mapping. If 
+  // RGBA array. The color mode determines the behavior of mapping. If
   // VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
-  // treated as colors (and converted to RGBA if necessary); otherwise, 
+  // treated as colors (and converted to RGBA if necessary); otherwise,
   // the data is mapped through this instance of ScalarsToColors. The offset
-  // is used for data arrays with more than one component; it indicates 
+  // is used for data arrays with more than one component; it indicates
   // which component to use to do the blending.
   // When the component argument is -1, then the this object uses its
   // own selected technique to change a vector into a scalar to map.
@@ -160,17 +160,17 @@ public:
                                    inputIncrement, outputFormat, -1, -1); }
 
   // Description:
-  // Map a set of scalars through the lookup table in a single operation. 
+  // Map a set of scalars through the lookup table in a single operation.
   // This method ignores the VectorMode and the VectorComponent.
-  // The output format can be set to VTK_RGBA (4 components), 
+  // The output format can be set to VTK_RGBA (4 components),
   // VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
   // or VTK_LUMINANCE_ALPHA (2 components)
   // If not supplied, the output format defaults to RGBA.
-  void MapScalarsThroughTable(vtkDataArray *scalars, 
+  void MapScalarsThroughTable(vtkDataArray *scalars,
                               unsigned char *output,
                               int outputFormat);
-  void MapScalarsThroughTable(vtkDataArray *scalars, 
-                              unsigned char *output) 
+  void MapScalarsThroughTable(vtkDataArray *scalars,
+                              unsigned char *output)
     {this->MapScalarsThroughTable(scalars,output,VTK_RGBA);}
   void MapScalarsThroughTable(void *input, unsigned char *output,
                               int inputDataType, int numberOfValues,
@@ -185,7 +185,7 @@ public:
   // compatibility.  Never call this method directly.
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
-                                       int inputIncrement, 
+                                       int inputIncrement,
                                        int outputFormat);
 
   // Description:

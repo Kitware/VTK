@@ -63,7 +63,7 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   fieldData->AddArray(col1);
   fieldData->AddArray(col2);
   cerr << "... done" << endl;
-  
+
   int errors = 0;
   pass->SetInputData(pd);
 
@@ -90,7 +90,7 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         pass->Update();
         vtkPolyData* out = vtkPolyData::SafeDownCast(pass->GetOutput());
         cerr << "... done" << endl;
-        
+
         cerr << "Checking output ..." << endl;
         vtkFieldData* outAttrib = out->GetAttributesAsFieldData(type);
         vtkIntArray* out1 = vtkIntArray::SafeDownCast(outAttrib->GetAbstractArray("column1"));
@@ -141,16 +141,16 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
           if (out1 && out1->GetValue(j) != col1->GetValue(j))
             {
             errors++;
-            cerr << "ERROR: column1 output does not match input " 
-                 << out1->GetValue(j) << "!=" << col1->GetValue(j) 
+            cerr << "ERROR: column1 output does not match input "
+                 << out1->GetValue(j) << "!=" << col1->GetValue(j)
                  << " for field type " << type << endl;
             break;
             }
           if (out2 && out2->GetValue(j) != col2->GetValue(j))
             {
             errors++;
-            cerr << "ERROR: column2 output does not match input " 
-                 << out2->GetValue(j) << "!=" << col2->GetValue(j) 
+            cerr << "ERROR: column2 output does not match input "
+                 << out2->GetValue(j) << "!=" << col2->GetValue(j)
                  << " for field type " << type << endl;
             break;
             }
@@ -159,7 +159,7 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         }
       }
     }
-  
+
   cerr << errors << " errors" << endl;
   return errors;
 }

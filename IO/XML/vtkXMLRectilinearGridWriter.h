@@ -37,21 +37,21 @@ public:
   static vtkXMLRectilinearGridWriter* New();
   vtkTypeMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
   vtkRectilinearGrid* GetInput();
   //ETX
-  
+
   // Description:
   // Get the default file extension for files written by this writer.
   const char* GetDefaultFileExtension();
-  
+
 protected:
   vtkXMLRectilinearGridWriter();
-  ~vtkXMLRectilinearGridWriter();  
-  
+  ~vtkXMLRectilinearGridWriter();
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -63,13 +63,13 @@ protected:
   const char* GetDataSetName();
   vtkDataArray* CreateExactCoordinates(vtkDataArray* a, int xyz);
   void CalculateSuperclassFraction(float* fractions);
-  
+
   // Coordinate array appended data positions.
   OffsetsManagerArray *CoordinateOM;
 
   virtual void AllocatePositionArrays();
   virtual void DeletePositionArrays();
-  
+
 private:
   vtkXMLRectilinearGridWriter(const vtkXMLRectilinearGridWriter&);  // Not implemented.
   void operator=(const vtkXMLRectilinearGridWriter&);  // Not implemented.

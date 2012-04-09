@@ -24,7 +24,7 @@
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageLogic.h"  //For VTK_AND, VTK_OR ...
-#include "vtkThreadedImageAlgorithm.h"    
+#include "vtkThreadedImageAlgorithm.h"
 
 class VTKIMAGINGCORE_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 {
@@ -32,7 +32,7 @@ public:
   static vtkImageMaskBits *New();
   vtkTypeMacro(vtkImageMaskBits,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set/Get the bit-masks. Default is 0xffffffff.
   vtkSetVector4Macro(Masks, unsigned int);
@@ -53,16 +53,16 @@ public:
   void SetOperationToXor() {this->SetOperation(VTK_XOR);};
   void SetOperationToNand() {this->SetOperation(VTK_NAND);};
   void SetOperationToNor() {this->SetOperation(VTK_NOR);};
-  
+
 protected:
   vtkImageMaskBits();
   ~vtkImageMaskBits() {};
 
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
+  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 
   unsigned int Masks[4];
-  int Operation;      
+  int Operation;
 private:
   vtkImageMaskBits(const vtkImageMaskBits&);  // Not implemented.
   void operator=(const vtkImageMaskBits&);  // Not implemented.

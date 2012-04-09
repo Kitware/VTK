@@ -81,22 +81,22 @@ public:
   // written.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault() 
+  void SetColorModeToDefault()
     {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);}
-  void SetColorModeToUniformCellColor() 
+  void SetColorModeToUniformCellColor()
     {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_CELL_COLOR);}
-  void SetColorModeToUniformPointColor() 
+  void SetColorModeToUniformPointColor()
     {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_POINT_COLOR);}
   void SetColorModeToUniformColor() //both cells and points are colored
     {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_COLOR);}
   void SetColorModeToOff() //No color information is written
     {this->SetColorMode(VTK_COLOR_MODE_OFF);}
-  
+
   // Description:
   // Specify the array name to use to color the data.
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
-  
+
   // Description:
   // Specify the array component to use to color the data.
   vtkSetClampMacro(Component,int,0,VTK_LARGE_INTEGER);
@@ -107,7 +107,7 @@ public:
   // RGBA colors.
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
-  
+
   // Description:
   // Set the color to use when using a uniform color (either point or cells,
   // or both). The color is specified as a triplet of three unsigned chars
@@ -122,7 +122,7 @@ protected:
 
   void WriteData();
   unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
-  
+
   int DataByteOrder;
   char *ArrayName;
   int Component;

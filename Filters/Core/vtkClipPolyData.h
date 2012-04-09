@@ -47,7 +47,7 @@
 // .SECTION Caveats
 // In order to cut all types of cells in polygonal data, vtkClipPolyData
 // triangulates some cells, and then cuts the resulting simplices
-// (i.e., points, lines, and triangles). This means that the resulting 
+// (i.e., points, lines, and triangles). This means that the resulting
 // output may consist of different cell types than the input data.
 
 // .SECTION See Also
@@ -76,10 +76,10 @@ public:
   // Description:
   // Set the clipping value of the implicit function (if clipping with
   // implicit function) or scalar value (if clipping with
-  // scalars). The default value is 0.0. 
+  // scalars). The default value is 0.0.
   vtkSetMacro(Value,double);
   vtkGetMacro(Value,double);
-  
+
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered
   // inside the implicit function if its value is greater than the
@@ -99,8 +99,8 @@ public:
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:
-  // If this flag is enabled, then the output scalar values will be 
-  // interpolated from the implicit function values, and not the 
+  // If this flag is enabled, then the output scalar values will be
+  // interpolated from the implicit function values, and not the
   // input scalar data. If you enable this flag but do not provide an
   // implicit function an error will be reported.
   vtkSetMacro(GenerateClipScalars,int);
@@ -120,7 +120,7 @@ public:
 
   // Description:
   // Return the output port (a vtkAlgorithmOutput) of the clipped output.
-  vtkAlgorithmOutput* GetClippedOutputPort() 
+  vtkAlgorithmOutput* GetClippedOutputPort()
     {
       return this->GetOutputPort(1);
     }
@@ -132,7 +132,7 @@ public:
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The 
+  // Create default locator. Used to create one when none is specified. The
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
 
@@ -146,7 +146,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkImplicitFunction *ClipFunction;
-  
+
   vtkIncrementalPointLocator *Locator;
   int InsideOut;
   double Value;

@@ -55,7 +55,7 @@ def annotatePick(object, event):
         textMapper.SetInput("(%.6f, %.6f, %.6f)"%pickPos)
         textActor.SetPosition(selPt[:2])
         textActor.VisibilityOn()
-     
+
 # Now at the end of the pick event call the above function.
 picker.AddObserver("EndPickEvent", annotatePick)
 

@@ -96,7 +96,7 @@ public:
   // Get the input as a concrete type.
   vtkGraph *GetGraphInput();
 
-  
+
   // Description:
   // Get the input as a concrete type.
   vtkTable *GetTableInput();
@@ -107,7 +107,7 @@ public:
   vtkSetMacro(CopyArrays, bool);
   vtkGetMacro(CopyArrays, bool);
   vtkBooleanMacro(CopyArrays, bool);
-  
+
 protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
@@ -118,9 +118,9 @@ protected:
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
-  
+
   bool CopyArrays;
-  
+
 private:
   vtkProgrammableFilter(const vtkProgrammableFilter&);  // Not implemented.
   void operator=(const vtkProgrammableFilter&);  // Not implemented.

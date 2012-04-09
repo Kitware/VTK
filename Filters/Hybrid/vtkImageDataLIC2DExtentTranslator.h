@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageDataLIC2DExtentTranslator 
+// .NAME vtkImageDataLIC2DExtentTranslator
 // .SECTION Description
 
 #ifndef __vtkImageDataLIC2DExtentTranslator_h
@@ -43,9 +43,9 @@ public:
   vtkSetVector6Macro(InputWholeExtent, int);
   vtkGetVector6Macro(InputWholeExtent, int);
 
-  virtual int PieceToExtentThreadSafe(int piece, int numPieces, 
-                                     int ghostLevel, int *wholeExtent, 
-                                     int *resultExtent, int splitMode, 
+  virtual int PieceToExtentThreadSafe(int piece, int numPieces,
+                                     int ghostLevel, int *wholeExtent,
+                                     int *resultExtent, int splitMode,
                                      int byPoints);
 
 //BTX

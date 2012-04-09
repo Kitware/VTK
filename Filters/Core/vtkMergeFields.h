@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Helper method used by the other language bindings. Allows the caller to
-  // specify arguments as strings instead of enums.Returns an operation id 
+  // specify arguments as strings instead of enums.Returns an operation id
   // which can later be used to remove the operation.
   void SetOutputField(const char* name, const char* fieldLoc);
 
@@ -93,7 +93,7 @@ public:
   {
     int Index;
     int SourceIndex;
-    char* FieldName;   
+    char* FieldName;
     Component* Next;   // linked list
     void SetName(const char* name)
       {

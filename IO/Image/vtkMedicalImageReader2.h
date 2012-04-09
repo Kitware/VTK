@@ -33,12 +33,12 @@ class VTKIOIMAGE_EXPORT vtkMedicalImageReader2 : public vtkImageReader2
 public:
   static vtkMedicalImageReader2 *New();
   vtkTypeMacro(vtkMedicalImageReader2,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the medical image properties object
   vtkGetObjectMacro(MedicalImageProperties, vtkMedicalImageProperties);
-  
+
   // Description:
   // For backward compatibility, propagate calls to the MedicalImageProperties
   // object.
@@ -56,7 +56,7 @@ public:
   virtual const char* GetImageNumber();
   virtual void SetModality(const char*);
   virtual const char* GetModality();
-  
+
 protected:
   vtkMedicalImageReader2();
   ~vtkMedicalImageReader2();

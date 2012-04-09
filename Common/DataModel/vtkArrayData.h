@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkArrayData.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -56,19 +56,19 @@ public:
   // Description:
   // Adds a vtkArray to the collection
   void AddArray(vtkArray*);
-  
+
   // Description:
   // Clears the contents of the collection
   void ClearArrays();
-  
+
   // Description:
   // Returns the number of vtkArray instances in the collection
   vtkIdType GetNumberOfArrays();
-  
+
   // Description:
   // Returns the n-th vtkArray in the collection
   vtkArray* GetArray(vtkIdType index);
-  
+
   // Description:
   // Returns the array having called name from the collection
   vtkArray* GetArrayByName(const char *name);

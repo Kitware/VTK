@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProbePolyhedron - probe/interpolate data values in the interior, 
+// .NAME vtkProbePolyhedron - probe/interpolate data values in the interior,
 // exterior or of the surface of a closed, manifold polyhedron
 // .SECTION Description
 // vtkProbePolyhedron is a filter that computes point attributes (e.g.,
@@ -22,7 +22,7 @@
 // positions by interpolating into the source data. In this filter, the
 // Source is always a closed, non-self-intersecting, polyhedral mesh. For
 // example, we can compute data values on a plane (plane specified as Input)
-// from a triangle mesh (e.g., output of marching cubes).  
+// from a triangle mesh (e.g., output of marching cubes).
 //
 // This filter can be used to resample data from a mesh onto a different
 // dataset type. For example, a polyhedral mesh (vtkPolyData) can be probed
@@ -88,7 +88,7 @@ public:
   // Description:
   // Specify whether to probe (and hence produce) cell data. The
   // interpolated point data of the source will produce the output
-  // cell data (output cells are passed from the input cells). Note 
+  // cell data (output cells are passed from the input cells). Note
   // that the probing of the input uses the centers of the cells as
   // the probe position.
   vtkSetMacro(ProbeCellData, int);
@@ -102,11 +102,11 @@ protected:
   int ProbePointData;
   int ProbeCellData;
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, 
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
 
 private:

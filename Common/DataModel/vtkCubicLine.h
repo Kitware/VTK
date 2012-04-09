@@ -19,13 +19,13 @@
 // interpolation is the standard finite element, cubic isoparametric
 // shape function. The cell includes two mid-edge nodes. The ordering of the
 // four points defining the cell is point ids (0,1,2,3) where id #2 and #3 are the
-// mid-edge nodes. Please note that the parametric coordinates lie between -1 and 1 
+// mid-edge nodes. Please note that the parametric coordinates lie between -1 and 1
 // in accordance with most standard documentations.
-// .SECTION Thanks 
-// <verbatim> 
-// This file has been developed by Oxalya - www.oxalya.com 
-// Copyright (c) EDF - www.edf.fr 
-// </verbatim> 
+// .SECTION Thanks
+// <verbatim>
+// This file has been developed by Oxalya - www.oxalya.com
+// Copyright (c) EDF - www.edf.fr
+// </verbatim>
 
 
 #ifndef __vtkCubicLine_h
@@ -67,7 +67,7 @@ public:
   void Derivatives(int subId, double pcoords[3], double *values,
                    int dim, double *derivs);
   virtual double *GetParametricCoords();
-  
+
   // Description:
   // Return the distance of the parametric coordinate provided to the
   // cell. If inside the cell, a distance of zero is returned.
@@ -93,7 +93,7 @@ public:
                         double x[3], double pcoords[3], int& subId);
 
 
-  
+
   // Description:
   // @deprecated Replaced by vtkCubicLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[4]);
@@ -115,7 +115,7 @@ public:
 protected:
   vtkCubicLine();
   ~vtkCubicLine();
-  
+
   vtkLine *Line;
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 

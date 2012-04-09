@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkGraphWriter - write vtkGraph data to a file
 // .SECTION Description
-// vtkGraphWriter is a sink object that writes ASCII or binary 
+// vtkGraphWriter is a sink object that writes ASCII or binary
 // vtkGraph data files in vtk format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.

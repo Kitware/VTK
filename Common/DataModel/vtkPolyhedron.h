@@ -77,14 +77,14 @@ public:
 
   // Description:
   // A polyhedron is represented internally by a set of polygonal faces.
-  // These faces can be processed to explicitly determine edges. 
+  // These faces can be processed to explicitly determine edges.
   virtual int GetNumberOfEdges();
   virtual vtkCell *GetEdge(int);
   virtual int GetNumberOfFaces();
   virtual vtkCell *GetFace(int faceId);
 
   // Description:
-  // Satisfy the vtkCell API. This method contours the input polyhedron and outputs 
+  // Satisfy the vtkCell API. This method contours the input polyhedron and outputs
   // a polygon. When the result polygon is not planar, it will be triangulated.
   // The current implementation assumes water-tight polyhedron cells.
   virtual void Contour(double value, vtkDataArray *scalars,
@@ -98,7 +98,7 @@ public:
   // a new polyhedron. The face information of the output polyhedron is encoded
   // in the output vtkCellArray using a special format:
   // CellLength [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...].
-  // Use the static method vtkUnstructuredGrid::DecomposePolyhedronCellArray 
+  // Use the static method vtkUnstructuredGrid::DecomposePolyhedronCellArray
   // to convert it into a standard format. Note: the algorithm assumes water-tight
   // polyhedron cells.
   virtual void Clip(double value, vtkDataArray *scalars,
@@ -132,27 +132,27 @@ public:
                                 double x[3], double pcoords[3], int& subId);
 
   // Description:
-  // Use vtkOrderedTriangulator to tetrahedralize the polyhedron mesh. This 
+  // Use vtkOrderedTriangulator to tetrahedralize the polyhedron mesh. This
   // method works well for a convex polyhedron but may return wrong result
   // in a concave case.
   // Once triangulation has been performed, the results are saved in ptIds and
-  // pts. The ptIds is a vtkIdList with 4xn number of ids (n is the number of 
-  // result tetrahedrons). The first 4 represent the point ids of the first 
+  // pts. The ptIds is a vtkIdList with 4xn number of ids (n is the number of
+  // result tetrahedrons). The first 4 represent the point ids of the first
   // tetrahedron, the second 4 represents the point ids of the second tetrahedron
-  // and so on. The point ids represent global dataset ids. 
+  // and so on. The point ids represent global dataset ids.
   // The points of result tetrahedons are stored in pts. Note that there are
-  // 4xm output points (m is the number of points in the original polyhedron). 
-  // A point may be stored multiple times when it is shared by more than one 
-  // tetrahedrons. The points stored in pts are ordered the same as they are 
-  // listed in ptIds.  
+  // 4xm output points (m is the number of points in the original polyhedron).
+  // A point may be stored multiple times when it is shared by more than one
+  // tetrahedrons. The points stored in pts are ordered the same as they are
+  // listed in ptIds.
   virtual int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
 
   // Description:
   // Computes derivatives at the point specified by the parameter coordinate.
   // Current implementation uses all vertices and subId is not used.
-  // To accelerate the speed, the future implementation can triangulate and 
-  // extract the local tetrahedron from subId and pcoords, then evaluate 
-  // derivatives on the local tetrahedron. 
+  // To accelerate the speed, the future implementation can triangulate and
+  // extract the local tetrahedron from subId and pcoords, then evaluate
+  // derivatives on the local tetrahedron.
   virtual void Derivatives(int subId, double pcoords[3], double *values,
                            int dim, double *derivs);
 
@@ -182,7 +182,7 @@ public:
   // returns a list of faces in vtkCellArray form; use the method
   // GetNumberOfFaces() to determine the number of faces in the list.
   // The SetFaces() method is also in vtkCellArray form, except that it
-  // begins with a leading count indicating the total number of faces in 
+  // begins with a leading count indicating the total number of faces in
   // the list.
   virtual int RequiresExplicitFaceRepresentation() {return 1;}
   virtual void SetFaces(vtkIdType *faces);
@@ -198,7 +198,7 @@ public:
   // Description:
   // Construct polydata if no one exist, then return this->PolyData
   vtkPolyData* GetPolyData();
-  
+
 protected:
   vtkPolyhedron();
   ~vtkPolyhedron();
@@ -215,7 +215,7 @@ protected:
   // vtkCell has the data members Points (x,y,z coordinates) and PointIds
   // (global cell ids corresponding to cell canonical numbering (0,1,2,....)).
   // These data members are implicitly organized in canonical space, i.e., where
-  // the cell point ids are (0,1,...,npts-1). The PointIdMap maps global point id 
+  // the cell point ids are (0,1,...,npts-1). The PointIdMap maps global point id
   // back to these canonoical point ids.
   vtkPointIdMap  *PointIdMap;
 
@@ -256,9 +256,9 @@ protected:
   int InternalContour(double value,
                       int insideOut,
                       vtkIncrementalPointLocator *locator,
-                      vtkDataArray *inScalars, 
+                      vtkDataArray *inScalars,
                       vtkDataArray *outScalars,
-                      vtkPointData *inPd, 
+                      vtkPointData *inPd,
                       vtkPointData *outPd,
                       vtkCellArray *contourPolys,
                       vtkIdToIdVectorMapType & faceToPointsMap,
@@ -269,8 +269,8 @@ protected:
   // Check if the polyhedron cell intersect with the contour/clip function.
   // If intersect, return 0. Otherwise return 1 or -1 when the polyhedron cell
   // is on the positive or negative side of contour/clip function respectively.
-  int IntersectWithContour(double value, 
-                           int insideOut, 
+  int IntersectWithContour(double value,
+                           int insideOut,
                            vtkDataArray *inScalars);
 
 private:

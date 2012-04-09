@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkImageInPlaceFilter - Filter that operates in place.
 // .SECTION Description
-// vtkImageInPlaceFilter is a filter super class that 
+// vtkImageInPlaceFilter is a filter super class that
 // operates directly on the input region.  The data is copied
 // if the requested region has different extent than the input region
-// or some other object is referencing the input region.  
+// or some other object is referencing the input region.
 
 
 #ifndef __vtkImageInPlaceFilter_h
@@ -41,7 +41,7 @@ protected:
                           vtkInformationVector* outputVector);
 
   void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
-  
+
 private:
   vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.
   void operator=(const vtkImageInPlaceFilter&);  // Not implemented.

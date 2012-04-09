@@ -102,31 +102,31 @@ public:
   static double DistanceToLine(double x[3], double p1[3], double p2[3]);
 
   // Description:
-  // Computes the shortest distance squared between two infinite lines, each 
+  // Computes the shortest distance squared between two infinite lines, each
   // defined by a pair of points (l0,l1) and (m0,m1).
   // Upon return, the closest points on the two line segments will be stored
-  // in closestPt1 and closestPt2. Their parametric coords 
-  // (-inf <= t0, t1 <= inf) will be stored in t0 and t1. The return value is 
+  // in closestPt1 and closestPt2. Their parametric coords
+  // (-inf <= t0, t1 <= inf) will be stored in t0 and t1. The return value is
   // the shortest distance squared between the two line-segments.
   static double DistanceBetweenLines(
-                double l0[3], double l1[3], 
+                double l0[3], double l1[3],
                 double m0[3], double m1[3],
                 double closestPt1[3], double closestPt2[3],
                 double &t1, double &t2 );
 
   // Description:
-  // Computes the shortest distance squared between two finite line segments 
+  // Computes the shortest distance squared between two finite line segments
   // defined by their end points (l0,l1) and (m0,m1).
   // Upon return, the closest points on the two line segments will be stored
   // in closestPt1 and closestPt2. Their parametric coords (0 <= t0, t1 <= 1)
-  // will be stored in t0 and t1. The return value is the shortest distance 
+  // will be stored in t0 and t1. The return value is the shortest distance
   // squared between the two line-segments.
   static double DistanceBetweenLineSegments(
-                double l0[3], double l1[3], 
+                double l0[3], double l1[3],
                 double m0[3], double m1[3],
                 double closestPt1[3], double closestPt2[3],
                 double &t1, double &t2 );
-  
+
   // Description:
   // @deprecated Replaced by vtkLine::InterpolateFunctions as of VTK 5.2
   static void InterpolationFunctions(double pcoords[3], double weights[2]);

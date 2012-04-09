@@ -13,8 +13,8 @@
 
 =========================================================================*/
 // The test creates a Kline, replaces the default strategy from vtkMaskPoints
-// to vtkQuadricClustering ; so instead of seeing a point cloud during 
-// interaction, (when run with -I) you will see a low res kline. 
+// to vtkQuadricClustering ; so instead of seeing a point cloud during
+// interaction, (when run with -I) you will see a low res kline.
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
@@ -29,7 +29,7 @@
 #include "vtkLODActor.h"
 #include "vtkLoopSubdivisionFilter.h"
 #include "vtkDataSetMapper.h"
-#include "vtkProperty.h" 
+#include "vtkProperty.h"
 #include "vtkQuadricClustering.h"
 #include "vtkMaskPoints.h"
 

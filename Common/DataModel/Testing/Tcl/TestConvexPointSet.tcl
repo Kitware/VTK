@@ -40,7 +40,7 @@ vtkElevationFilter ele
   ele SetLowPoint -1 -1 -1
   ele SetHighPoint 1 1 1
   ele SetScalarRange -1 1
-    
+
 # Clip
 #
 vtkClipDataSet clip

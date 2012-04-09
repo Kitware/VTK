@@ -29,7 +29,7 @@ static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* 
     {
     return 0;
     }
-  return !strncmp(str1, str2, strlen(str2));  
+  return !strncmp(str1, str2, strlen(str2));
 }
 
 //----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ int vtkEnSightMasterServerReader::RequestData(
     return 0;
     }
 
-  if ( this->CurrentPiece < 0 || 
+  if ( this->CurrentPiece < 0 ||
        this->CurrentPiece >= this->MaxNumberOfPieces )
     {
     vtkErrorMacro("Current piece has to be set before reading the file");
@@ -86,7 +86,7 @@ int vtkEnSightMasterServerReader::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *vtkNotUsed(outputVector))
-{  
+{
   if ( this->DetermineFileName(-1) != VTK_OK )
     {
     vtkErrorMacro("Problem parsing the case file");
@@ -118,7 +118,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     {
     sfilename = this->CaseFileName;
     }
-  
+
   this->IS = new ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
     {
@@ -144,7 +144,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
       {
       servers = 1;
       }
-    else if ( servers && 
+    else if ( servers &&
               vtkEnSightMasterServerReaderStartsWith(result, "number of servers:") )
       {
       sscanf(result, "number of servers: %i", &numberservers);
@@ -154,7 +154,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
         break;
         }
       }
-    else if ( servers && 
+    else if ( servers &&
               vtkEnSightMasterServerReaderStartsWith(result, "casefile:") )
       {
       if ( currentserver == piece )
@@ -174,8 +174,8 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     }
   if ( piece == -1 && currentserver != numberservers )
     {
-    //cout << "Number of servers (" << numberservers 
-    //<< ") is not equal to the actual number of servers (" 
+    //cout << "Number of servers (" << numberservers
+    //<< ") is not equal to the actual number of servers ("
     //<< currentserver << ")" << endl;
     return VTK_ERROR;
     }
@@ -208,8 +208,8 @@ void vtkEnSightMasterServerReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Current piece: " << this->CurrentPiece << endl;
-  os << indent << "Piece Case File name: " 
+  os << indent << "Piece Case File name: "
      << (this->PieceCaseFileName?this->PieceCaseFileName:"<none>") << endl;
-  os << indent << "Maximum numbe of pieces: " << this->MaxNumberOfPieces 
+  os << indent << "Maximum numbe of pieces: " << this->MaxNumberOfPieces
      << endl;
 }

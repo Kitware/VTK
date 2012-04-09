@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    BoostArrayLogWeighting.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -70,11 +70,11 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(0, 0)), 1.38629436111989057));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(1, 0)), 2.07944154167983575));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 0)), 0.0));
-    
+
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(0, 1)), 0.69314718055994529));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(1, 1)), 1.38629436111989057));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 1)), 2.07944154167983575));
-    
+
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(0, 2)), 0.0));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(1, 2)), 0.69314718055994529));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 2)), 1.38629436111989057));
@@ -95,11 +95,11 @@ int BoostArrayLogWeighting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(0, 0)), 1.38629436111989057));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(1, 0)), 2.07944154167983575));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 0)), 0.0));
-    
+
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(0, 1)), 0.69314718055994529));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(1, 1)), 1.38629436111989057));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 1)), 2.07944154167983575));
-    
+
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(0, 2)), 0.0));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(1, 2)), 0.69314718055994529));
     test_expression(close_enough(weighted->GetValue(vtkArrayCoordinates(2, 2)), 1.38629436111989057));

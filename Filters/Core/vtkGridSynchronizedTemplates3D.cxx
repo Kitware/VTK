@@ -53,8 +53,8 @@ vtkGridSynchronizedTemplates3D::vtkGridSynchronizedTemplates3D()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->ExecuteExtent[0] = this->ExecuteExtent[1] 
-    = this->ExecuteExtent[2] = this->ExecuteExtent[3] 
+  this->ExecuteExtent[0] = this->ExecuteExtent[1]
+    = this->ExecuteExtent[2] = this->ExecuteExtent[3]
     = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
   this->MinimumPieceSize[0] = 10;
@@ -106,7 +106,7 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   long estimatedSize;
-  
+
   estimatedSize = static_cast<int>(pow(static_cast<double>(
                  (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75));
   if (estimatedSize < 1024)
@@ -122,10 +122,10 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
   newPts->Delete();
   o->SetPolys(newPolys);
   newPolys->Delete();
-  
+
   o->GetPointData()->CopyAllOn();
 
-  // It is more efficient to just create the scalar array 
+  // It is more efficient to just create the scalar array
   // rather than redundantly interpolate the scalars.
   if (input->GetPointData()->GetScalars() == inScalars)
     {
@@ -155,9 +155,9 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
     }
 
 
-  // It is more efficient to just create the scalar array 
+  // It is more efficient to just create the scalar array
   o->GetPointData()->InterpolateAllocate(input->GetPointData(),
-                                         estimatedSize,estimatedSize/2);  
+                                         estimatedSize,estimatedSize/2);
   o->GetCellData()->CopyAllocate(input->GetCellData(),
                                  estimatedSize,estimatedSize/2);
 }
@@ -167,7 +167,7 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(int *ext,
 // Given a linear gradient assumption find gradient that minimizes
 // error squared for + and - (*3) neighbors).
 template <class T, class PointsType>
-void ComputeGridPointGradient(int i, int j, int k, int inExt[6], 
+void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
                               int incY, int incZ, T *sc, PointsType* pt,
                               double g[3])
 {
@@ -268,7 +268,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
       }
     }
   // compute the inverse of NtN
-  // We have to setup a double** for the invert matrix call (@#$%!&%$!) 
+  // We have to setup a double** for the invert matrix call (@#$%!&%$!)
   NtN2[0] = &(NtN[0][0]);
   NtN2[1] = &(NtN[1][0]);
   NtN2[2] = &(NtN[2][0]);
@@ -291,7 +291,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
       }
     Nts[i] = sum;
     }
-    
+
   // now compute gradient
   for (i = 0; i < 3; ++i)
     {
@@ -332,7 +332,7 @@ if (NeedGradients) \
 if (ComputeScalars) \
 { \
   newScalars->InsertNextTuple(&value); \
-} 
+}
 
 //----------------------------------------------------------------------------
 // Contouring filter specialized for structured grids
@@ -374,8 +374,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   vtkIdType edgePtId, inCellId, outCellId;
   vtkPointData *inPD = input->GetPointData();
   vtkCellData *inCD = input->GetCellData();
-  vtkPointData *outPD = output->GetPointData();  
-  vtkCellData *outCD = output->GetCellData();  
+  vtkPointData *outPD = output->GetPointData();
+  vtkCellData *outCD = output->GetCellData();
   // Temporary point data.
   double x[3];
   double grad[3];
@@ -399,7 +399,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkGridSynchronizedTemplates3DInitializeOutput(exExt, input, output, 
+  vtkGridSynchronizedTemplates3DInitializeOutput(exExt, input, output,
                                                  newScalars, newNormals, newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
@@ -432,7 +432,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   offsets[9] = (zstep - xdim)*3 + 1;
   offsets[10] = (zstep - xdim)*3 + 4;
   offsets[11] = zstep*3;
-    
+
   // allocate storage array
   int *isect1 = new int [xdim*ydim*3*2];
   // set impossible edges to -1
@@ -446,8 +446,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
     isect1[((ydim-1)*xdim + i)*3 + 1] = -1;
     isect1[((ydim-1)*xdim + i)*3*2 + 1] = -1;
     }
-  
-  
+
+
   //fprintf(stderr, "%d: -------- Extent %d, %d, %d, %d, %d, %d\n", threadId,
   //      exExt[0], exExt[1], exExt[2], exExt[3], exExt[4], exExt[5]);
 
@@ -479,7 +479,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
         isect2Ptr = isect1 + xdim*ydim*3;
         }
       else
-        { 
+        {
         offsets[8] = (-zstep - xdim)*3;
         offsets[9] = (-zstep - xdim)*3 + 1;
         offsets[10] = (-zstep - xdim)*3 + 4;
@@ -498,7 +498,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
         // Since the cells are not contoured until the second row of templates,
         // subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
         inCellId = (XMin-inExt[0]) + (inExt[1]-inExt[0])*( (j-inExt[2]-1) + (k-inExt[4]-1)*(inExt[3]-inExt[2]) );
-        
+
         p1 = inPtPtrY;
         s1 = inPtrY;
         v1 = (*s1 < value ? 0 : 1);
@@ -602,8 +602,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                 x[2] = p0[2] + t*(p2[2] - p0[2]);
                 *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
                 VTK_CSP3PA(i,j+1,k,s2,p2,grad,norm);
-                outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, 
-                                       edgePtId+incY, t);     
+                outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId,
+                                       edgePtId+incY, t);
                 }
               }
             }
@@ -646,17 +646,17 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                 x[2] = p0[2] + t*(p3[2] - p0[2]);
                 *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
                 VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
-                outPD->InterpolateEdge(inPD, *(isect2Ptr+2), 
-                                       edgePtId, edgePtId+incZ, t);     
+                outPD->InterpolateEdge(inPD, *(isect2Ptr+2),
+                                       edgePtId, edgePtId+incZ, t);
                 }
               }
             }
-          
+
           // To keep track of ids for interpolating attributes.
           ++edgePtId;
-          
+
           // now add any polys that need to be added
-          // basically look at the isect values, 
+          // basically look at the isect values,
           // form an index and lookup the polys
           if (j > YMin && i < XMax && k > ZMin)
             {
@@ -673,8 +673,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             idx = idx + (*(isect2Ptr -yisectstep +1) > -1 ? 4 : 0);
             idx = idx + (*(isect2Ptr -yisectstep +4) > -1 ? 2 : 0);
             idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
-            
-            tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2 
+
+            tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2
               + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
             // to protect data against multiple threads
             if (  input->IsCellVisible(inCellId) )
@@ -757,9 +757,9 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   long dataSize;
-  
+
   vtkDebugMacro(<< "Executing 3D structured contour");
-  
+
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
@@ -851,11 +851,11 @@ int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(
       }
     }
   else
-    {    
-    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext, 
+    {
+    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext,
                                         translator->GetSplitMode(),0);
     }
-  
+
   // As a side product of this call, ExecuteExtent is set.
   // This is the region that we are really updating, although
   // we may require a larger input region in order to generate

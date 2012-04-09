@@ -88,7 +88,7 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
     NULL,       // no security
     0,          // initially 0
     0x7fffffff, // max count
-    NULL );     // unnamed 
+    NULL );     // unnamed
   InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
   cv->DoneWaiting = CreateEvent(
     NULL,   // no security
@@ -127,13 +127,13 @@ int pthread_cond_wait( pthread_cond_t* cv, vtkMutexType* externalMutex )
   if ( last_waiter )
     {
     // This call atomically signals the <DoneWaiting> event and waits until
-    // it can acquire the <externalMutex>.  This is required to ensure fairness. 
+    // it can acquire the <externalMutex>.  This is required to ensure fairness.
     SignalObjectAndWait( cv->DoneWaiting, *externalMutex, INFINITE, FALSE );
     }
   else
     {
     // Always regain the external mutex since that's the guarantee we
-    // give to our callers. 
+    // give to our callers.
     WaitForSingleObject( *externalMutex, INFINITE );
     }
   return 0;
@@ -145,7 +145,7 @@ int pthread_cond_signal( pthread_cond_t* cv )
   int have_waiters = cv->WaitingThreadCount > 0;
   LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
-  // If there aren't any waiters, then this is a no-op.  
+  // If there aren't any waiters, then this is a no-op.
   if ( have_waiters )
     {
     ReleaseSemaphore( cv->Semaphore, 1, 0 );
@@ -175,9 +175,9 @@ int pthread_cond_broadcast( pthread_cond_t* cv )
     ReleaseSemaphore( cv->Semaphore, cv->WaitingThreadCount, 0 );
     LeaveCriticalSection( &cv->WaitingThreadCountCritSec );
 
-    // Wait for all the awakened threads to acquire the counting semaphore. 
+    // Wait for all the awakened threads to acquire the counting semaphore.
     WaitForSingleObject( cv->DoneWaiting, INFINITE );
-    // This assignment is okay, even without the <WaitingThreadCountCritSec> held 
+    // This assignment is okay, even without the <WaitingThreadCountCritSec> held
     // because no other waiter threads can wake up to access it.
     cv->WasBroadcast = 0;
     }

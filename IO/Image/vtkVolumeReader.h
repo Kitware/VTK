@@ -16,16 +16,16 @@
 // .SECTION Description
 // vtkVolumeReader is a source object that reads image files.
 //
-// VolumeReader creates structured point datasets. The dimension of the 
-// dataset depends upon the number of files read. Reading a single file 
-// results in a 2D image, while reading more than one file results in a 
+// VolumeReader creates structured point datasets. The dimension of the
+// dataset depends upon the number of files read. Reading a single file
+// results in a 2D image, while reading more than one file results in a
 // 3D volume.
 //
 // File names are created using FilePattern and FilePrefix as follows:
 // sprintf (filename, FilePattern, FilePrefix, number);
 // where number is in the range ImageRange[0] to ImageRange[1]. If
 // ImageRange[1] <= ImageRange[0], then slice number ImageRange[0] is
-// read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice 
+// read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice
 // number. The default behavior is to read a single file (i.e., image slice 1).
 //
 // The DataMask instance variable is used to read data files with imbedded

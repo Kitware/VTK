@@ -2,7 +2,7 @@
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
@@ -23,7 +23,7 @@ vtkImageMandelbrotSource mandelbrot1
                              [expr -$YRAD] [expr $YRAD-1] \
                              0 0
   set sample [expr 1.3 / $XRAD]
-  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot1 SetSampleCX $sample $sample $sample $sample
   mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
   mandelbrot1 SetProjectionAxes 0 1 2
 
@@ -53,7 +53,7 @@ vtkImageMandelbrotSource mandelbrot2
                              [expr -$YRAD] [expr $YRAD-1] \
                              0 0
   set sample [expr 1.3 / $XRAD]
-  mandelbrot2 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot2 SetSampleCX $sample $sample $sample $sample
   mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
   mandelbrot2 SetProjectionAxes 2 3 1
 
@@ -78,11 +78,11 @@ vtkImageViewer viewer2
 # Create the GUI: two vtkTkImageViewer widgets and a quit/reset buttons
 #
 wm withdraw .
-set top [toplevel .top] 
+set top [toplevel .top]
 wm protocol .top WM_DELETE_WINDOW ::vtk::cb_exit
 wm title .top "Mandelbrot Viewer"
 
-set f1 [frame $top.f1] 
+set f1 [frame $top.f1]
 
 pack $f1 \
         -side bottom \
@@ -176,9 +176,9 @@ foreach {widget master slave} [list $manView 1 2 $julView 2 1] {
             [list ZoomOut $iren $master $slave]
 
     $istyle RemoveObservers RightButtonReleaseEvent
-    
+
     # Pan
-    
+
     $istyle RemoveObservers MiddleButtonPressEvent
     $istyle AddObserver MiddleButtonPressEvent \
             [list Pan $iren $master $slave]
@@ -195,7 +195,7 @@ proc MandelbrotUpdate {} {
 
   mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
   mandelbrot2 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
-  
+
   set tmp [mandelbrot1 GetOriginCX]
   set cr [lindex $tmp 0]
   set ci [lindex $tmp 1]
@@ -232,11 +232,11 @@ proc Reset {} {
   set MAX_ITERATIONS_1 $RANGE
 
   set sample [expr 1.3 / $XRAD]
-  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot1 SetSampleCX $sample $sample $sample $sample
   mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
 
   set sample [expr 1.3 / $XRAD]
-  mandelbrot2 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot2 SetSampleCX $sample $sample $sample $sample
   mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
 
   MandelbrotUpdate
@@ -255,8 +255,8 @@ proc StartZoom {iren} {
 
 proc EndZoom {iren master slave} {
   global X Y XRAD YRAD
-  
-  # Put origin in middle. 
+
+  # Put origin in middle.
 
   set pos [$iren GetEventPosition]
   set x [expr [lindex $pos 0] - $XRAD]
@@ -313,8 +313,8 @@ proc EndZoom {iren master slave} {
 #
 proc ZoomOut {iren master slave} {
   global XRAD YRAD
-  
-  # Put origin in middle. 
+
+  # Put origin in middle.
 
   set pos [$iren GetEventPosition]
   set x [expr [lindex $pos 0] - $XRAD]
@@ -336,8 +336,8 @@ proc ZoomOut {iren master slave} {
 #
 proc Pan {iren master slave} {
   global XRAD YRAD
-    
-  # Put origin in middle. 
+
+  # Put origin in middle.
 
   set pos [$iren GetEventPosition]
   set x [expr [lindex $pos 0] - $XRAD]
@@ -355,4 +355,4 @@ proc Pan {iren master slave} {
 
 MandelbrotUpdate
 
- 
+

@@ -40,7 +40,7 @@ vtkTextMapper singleLineTextB
     $tprop SetVerticalJustificationToBottom
     $tprop SetColor 1 0 0
 vtkActor2D singleLineTextActorB
-    singleLineTextActorB SetMapper singleLineTextB    
+    singleLineTextActorB SetMapper singleLineTextB
     [singleLineTextActorB GetPositionCoordinate] \
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorB GetPositionCoordinate] SetValue 0.05 0.85
@@ -53,7 +53,7 @@ vtkTextMapper singleLineTextC
     $tprop SetVerticalJustificationToCentered
     $tprop SetColor 0 1 0
 vtkActor2D singleLineTextActorC
-    singleLineTextActorC SetMapper singleLineTextC    
+    singleLineTextActorC SetMapper singleLineTextC
     [singleLineTextActorC GetPositionCoordinate] \
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorC GetPositionCoordinate] SetValue 0.05 0.75
@@ -66,7 +66,7 @@ vtkTextMapper singleLineTextT
     $tprop SetVerticalJustificationToTop
     $tprop SetColor 0 0 1
 vtkActor2D singleLineTextActorT
-    singleLineTextActorT SetMapper singleLineTextT    
+    singleLineTextActorT SetMapper singleLineTextT
     [singleLineTextActorT GetPositionCoordinate] \
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorT GetPositionCoordinate] SetValue 0.05 0.65
@@ -80,7 +80,7 @@ vtkTextMapper textMapperL
     $tprop SetVerticalJustificationToTop
     $tprop SetColor 1 0 0
 vtkActor2D textActorL
-    textActorL SetMapper textMapperL    
+    textActorL SetMapper textMapperL
     [textActorL GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorL GetPositionCoordinate] SetValue 0.05 0.5
 
@@ -94,7 +94,7 @@ vtkTextMapper textMapperC
     $tprop SetVerticalJustificationToCentered
     $tprop SetColor 0 1 0
 vtkActor2D textActorC
-    textActorC SetMapper textMapperC    
+    textActorC SetMapper textMapperC
     [textActorC GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorC GetPositionCoordinate] SetValue 0.5 0.5
 
@@ -107,7 +107,7 @@ vtkTextMapper textMapperR
     $tprop SetVerticalJustificationToBottom
     $tprop SetColor 0 0 1
 vtkActor2D textActorR
-    textActorR SetMapper textMapperR    
+    textActorR SetMapper textMapperR
     [textActorR GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorR GetPositionCoordinate] SetValue 0.95 0.5
 

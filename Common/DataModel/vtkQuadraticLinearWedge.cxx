@@ -639,9 +639,9 @@ void vtkQuadraticLinearWedge::InterpolationDerivs (double pcoords[3],
   derivs[34] =  (x + 1.0) * (y + 1.0) *  0.5;
   derivs[35] = -(y + 1.0) * (x + y)   *  0.5;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
   for(int i = 0; i < 36; i++)
-    derivs[i] *= 2;  
+    derivs[i] *= 2;
 }
 
 //----------------------------------------------------------------------------

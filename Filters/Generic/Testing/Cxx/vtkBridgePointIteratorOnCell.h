@@ -34,7 +34,7 @@ public:
   static vtkBridgePointIteratorOnCell *New();
   vtkTypeMacro(vtkBridgePointIteratorOnCell,vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Move iterator to first position if any (loop initialization).
   void Begin();
@@ -47,7 +47,7 @@ public:
   // Move iterator to next position. (loop progression).
   // \pre not_off: !IsAtEnd()
   void Next();
- 
+
   // Description:
   // Point at iterator position.
   // \pre not_off: !IsAtEnd()
@@ -59,31 +59,31 @@ public:
   // \pre not_off: !IsAtEnd()
   // \pre x_exists: x!=0
   void GetPosition(double x[3]);
-  
+
   // Description:
   // Unique identifier for the point, could be non-contiguous
   // \pre not_off: !IsAtEnd()
   vtkIdType GetId();
-  
+
   // Description:
   // The iterator will iterate over the point of a cell
   // \pre cell_exists: cell!=0
   void InitWithCell(vtkBridgeCell *cell);
-  
+
 protected:
   // Description:
   // Default constructor.
   vtkBridgePointIteratorOnCell();
-  
+
   // Description:
   // Destructor.
   virtual ~vtkBridgePointIteratorOnCell();
-  
+
   vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Cursor; // current position
- 
+
   vtkIdList *PtIds; // list of points of the cell
-  
+
 private:
   vtkBridgePointIteratorOnCell(const vtkBridgePointIteratorOnCell&); // Not implemented
   void operator=(const vtkBridgePointIteratorOnCell&); // Not implemented

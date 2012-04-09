@@ -163,7 +163,7 @@ void vtkDiscretizableColorTransferFunction::GetColor(double v, double rgb[3])
 }
 
 //-----------------------------------------------------------------------------
-vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataArray *scalars, 
+vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataArray *scalars,
   int colorMode, int component)
 {
   this->Build();

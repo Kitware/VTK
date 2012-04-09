@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPMaskPoints - parallel Mask Points 
+// .NAME vtkPMaskPoints - parallel Mask Points
 // .SECTION Description
 // The difference between this implementation and vtkMaskPoints is
-// the use of the vtkMultiProcessController and that 
+// the use of the vtkMultiProcessController and that
 // ProportionalMaximumNumberOfPoints is obeyed.
 
 #ifndef __vtkPMaskPoints_h

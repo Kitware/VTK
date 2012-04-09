@@ -52,15 +52,15 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
 {
   this->PositionCoordinate->SetCoordinateSystemToNormalizedViewport();
   this->PositionCoordinate->SetValue(0.1,0.1);
-  
+
   this->Position2Coordinate->SetValue(0.9, 0.8);
-  
+
   this->IndependentVariables = VTK_IV_COLUMN;
   this->N = 0;
 
   this->ConnectionHolder = vtkParallelCoordinatesActorConnection::New();
 
-  this->Axes = NULL; 
+  this->Axes = NULL;
   this->Mins = NULL;
   this->Maxs = NULL;
   this->Xs = NULL;
@@ -92,12 +92,12 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
-  this->LabelFormat = new char[8]; 
+  this->LabelFormat = new char[8];
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 
-  this->LastPosition[0] = 
-    this->LastPosition[1] = 
-    this->LastPosition2[0] = 
+  this->LastPosition[0] =
+    this->LastPosition[1] =
+    this->LastPosition2[0] =
     this->LastPosition2[1] = 0;
 }
 
@@ -108,12 +108,12 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
   this->TitleMapper = NULL;
   this->TitleActor->Delete();
   this->TitleActor = NULL;
-  
+
   this->ConnectionHolder->Delete();
   this->ConnectionHolder = 0;
 
   this->Initialize();
-  
+
   this->PlotData->Delete();
   this->PlotMapper->Delete();
   this->PlotActor->Delete();
@@ -123,8 +123,8 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
     delete [] this->Title;
     this->Title = NULL;
     }
-  
-  if (this->LabelFormat) 
+
+  if (this->LabelFormat)
     {
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
@@ -202,7 +202,7 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
     {
     renderedSomething += this->Axes[i]->RenderOverlay(viewport);
     }
-  
+
   return renderedSomething;
 }
 
@@ -214,7 +214,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Initialize
 
   vtkDebugMacro(<<"Plotting parallel coordinates");
-  
+
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
 
@@ -239,11 +239,11 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Viewport change may not require rebuild
 
   int positionsHaveChanged = 0;
-  if (viewport->GetMTime() > this->BuildTime || 
-      (viewport->GetVTKWindow() && 
+  if (viewport->GetMTime() > this->BuildTime ||
+      (viewport->GetVTKWindow() &&
        viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
-    int *lastPosition = 
+    int *lastPosition =
       this->PositionCoordinate->GetComputedViewportValue(viewport);
     int *lastPosition2 =
       this->Position2Coordinate->GetComputedViewportValue(viewport);
@@ -259,7 +259,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
       positionsHaveChanged = 1;
       }
     }
-  
+
   // Check modified time to see whether we have to rebuild.
 
   this->ConnectionHolder->GetInputAlgorithm()->Update();
@@ -365,7 +365,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     {
     return 0;
     }
-  
+
   // Determine the shape of the field
   int numComponents = field->GetNumberOfComponents(); //number of components
     // Note: numComponents also includes the non-numeric arrays.
@@ -406,7 +406,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     vtkErrorMacro(<<"No field data to plot");
     return 0;
     }
-  
+
   // We need to loop over the field to determine the range of
   // each independent variable.
   this->Mins = new double [this->N];
@@ -474,10 +474,10 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
 
   // TODO: this should be optimized, maybe by keeping a list of allocated
   // objects, in order to avoid creation/destruction of axis actors
-  // and their underlying text properties (i.e. each time an axis is 
+  // and their underlying text properties (i.e. each time an axis is
   // created, text properties are created and shallow-assigned a
   // font size which value might be "far" from the target font size).
-  
+
   this->Axes = new vtkAxisActor2D* [this->N];
   for (i=0; i<this->N; i++)
     {
@@ -508,9 +508,9 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     {
     this->Xs[i] = static_cast<int>(
       p1[0] + i/static_cast<double>(this->N) * (p2[0]-p1[0]));
-    this->Axes[i]->GetPositionCoordinate()->SetValue(this->Xs[i], 
+    this->Axes[i]->GetPositionCoordinate()->SetValue(this->Xs[i],
                                                      this->YMin);
-    this->Axes[i]->GetPosition2Coordinate()->SetValue(this->Xs[i], 
+    this->Axes[i]->GetPosition2Coordinate()->SetValue(this->Xs[i],
                                                       this->YMax);
     }
 
@@ -521,7 +521,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   vtkCellArray *lines = vtkCellArray::New();
   this->PlotData->SetPoints(pts);
   this->PlotData->SetLines(lines);
-  
+
   double x[3]; x[2] = 0.0;
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
@@ -544,7 +544,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
           }
         else
           {
-          x[1] = this->YMin + 
+          x[1] = this->YMin +
             ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
             (this->YMax - this->YMin);
           }
@@ -578,7 +578,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
           }
         else
           {
-          x[1] = this->YMin + 
+          x[1] = this->YMin +
             ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
             (this->YMax - this->YMin);
           }
@@ -632,10 +632,10 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Label Text Property: (none)\n";
     }
 
-  os << indent << "Position2 Coordinate: " 
+  os << indent << "Position2 Coordinate: "
      << this->Position2Coordinate << "\n";
   this->Position2Coordinate->PrintSelf(os, indent.GetNextIndent());
-  
+
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Independent Variables: " << this->N << "\n";
   os << indent << "Independent Variables: ";

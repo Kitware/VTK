@@ -43,7 +43,7 @@ struct vtkStreamerThreadStruct
 
 vtkStreamer::StreamArray::StreamArray()
 {
-  this->MaxId = -1; 
+  this->MaxId = -1;
   this->Array = new vtkStreamer::StreamPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
@@ -57,7 +57,7 @@ vtkStreamer::StreamPoint *vtkStreamer::StreamArray::Resize(vtkIdType sz)
 
   if (sz >= this->Size)
     {
-    newSize = this->Size + 
+    newSize = this->Size +
       this->Extend*(((sz-this->Size)/this->Extend)+1);
     }
   else
@@ -99,7 +99,7 @@ vtkStreamer::vtkStreamer()
   this->OrientationScalars = 0;
   this->NumberOfStreamers = 0;
   this->Epsilon=VTK_EPSILON;
-  
+
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
   this->Integrator = vtkRungeKutta2::New();
@@ -148,8 +148,8 @@ void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId,
                                    double pcoords[3])
 {
   if ( cellId != this->StartCell || subId != this->StartSubId ||
-       pcoords[0] !=  this->StartPCoords[0] || 
-       pcoords[1] !=  this->StartPCoords[1] || 
+       pcoords[0] !=  this->StartPCoords[0] ||
+       pcoords[1] !=  this->StartPCoords[1] ||
        pcoords[2] !=  this->StartPCoords[2] )
     {
     this->Modified();
@@ -190,7 +190,7 @@ vtkIdType vtkStreamer::GetStartLocation(int& subId, double pcoords[3])
 // must be performed to find initial cell to start integration from.
 void vtkStreamer::SetStartPosition(double x[3])
 {
-  if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
+  if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] ||
        x[2] != this->StartPosition[2] )
     {
     this->Modified();
@@ -250,7 +250,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   vtkMultiThreader::ThreadInfo *info=
     static_cast<vtkMultiThreader::ThreadInfo *>(arg);
-  
+
   thread_id = info->ThreadID;
   thread_count = info->NumberOfThreads;
   str = static_cast<vtkStreamerThreadStruct *>(info->UserData);
@@ -285,7 +285,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
     }
 
   // Create a new integrator, the type is the same as Integrator
-  vtkInitialValueProblemSolver* integrator = 
+  vtkInitialValueProblemSolver* integrator =
     self->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
@@ -341,7 +341,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
         // Set the integration step to be characteristic cell length
         // time IntegrationStepLength
         input->GetCell(pt1.cellId, cell);
-        step = dir*self->GetIntegrationStepLength() 
+        step = dir*self->GetIntegrationStepLength()
           * sqrt(static_cast<double>(cell->GetLength2()))/pt1.speed;
 
         // Calculate the next step using the integrator provided
@@ -371,12 +371,12 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           {
           pt2.x[i] = xNext[i];
           }
-        
+
         pt2.cellId = func->GetLastCellId();
         func->GetLastWeights(w);
         func->GetLastLocalCoordinates(pcoords);
         input->GetCell(pt2.cellId, cell);
-        
+
         if ( inScalars )
           {
           // Interpolate scalars
@@ -414,8 +414,8 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           pt2.omega /= pt2.speed;
           pt2.theta += (pt1.omega+pt2.omega)/2 * (pt2.t - pt1.t);
           }
-        
-        
+
+
         // Store only points which have a point to be displayed
         // between them
         if (tOffset >= pt1.t && tOffset <= pt2.t)
@@ -441,7 +441,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           }
         pt1 = pt2;
 
-        } 
+        }
       // Store the last point anyway.
       if ( !sNext || sNext->x[0] != pt2.x[0] || sNext->x[1] != pt2.x[1]
            || sNext->x[2] != pt2.x[2] )
@@ -515,8 +515,8 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
     cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     }
-  
-  tol2 = input->GetLength()/1000; 
+
+  tol2 = input->GetLength()/1000;
   tol2 = tol2*tol2;
 
   //
@@ -527,7 +527,7 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
     {
     this->NumberOfStreamers = numSourcePts = source->GetNumberOfPoints();
     }
- 
+
   if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
     {
     offset = 2;
@@ -545,7 +545,7 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
       {
       sPtr->x[i] = this->StartPosition[i];
       }
-    sPtr->cellId = input->FindCell(this->StartPosition, NULL, -1, 0.0, 
+    sPtr->cellId = input->FindCell(this->StartPosition, NULL, -1, 0.0,
                                    sPtr->subId, sPtr->p, w);
     }
 
@@ -582,7 +582,7 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
     sPtr->s = 0.0;
     sPtr->theta = 0.0;
     sPtr->omega = 0.0;
-    
+
     if ( sPtr->cellId >= 0 ) //starting point in dataset
       {
       cell = input->GetCell(sPtr->cellId);
@@ -616,7 +616,7 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
         sPtr->theta = 0;
         }
 
-      if ( inScalars ) 
+      if ( inScalars )
         {
         inScalars->GetTuples(cell->PointIds, cellScalars);
         for (sPtr->s=0, i=0; i < cell->GetNumberOfPoints(); i++)
@@ -656,7 +656,7 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
   vtkGenericCell *gcell = vtkGenericCell::New();
   input->GetCell(0,gcell);
   gcell->Delete();
-  
+
   // Set up and execute the thread
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
   vtkStreamerThreadStruct str;
@@ -673,8 +673,8 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
     {
     for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
       {
-      for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
-            i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+      for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0;
+            i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
             i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
         {
         sPtr->s = sPtr->theta;
@@ -686,8 +686,8 @@ void vtkStreamer::Integrate(vtkDataSet *input, vtkDataSet *source)
     {
     for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
       {
-      for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
-            i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+      for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0;
+            i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
             i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
         {
         sPtr->s = sPtr->speed;
@@ -724,10 +724,10 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
     }
   else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->GetSource())
     {
-    os << indent << "Starting Location:\n\tCell: " << this->StartCell 
+    os << indent << "Starting Location:\n\tCell: " << this->StartCell
        << "\n\tSubId: " << this->StartSubId << "\n\tP.Coordinates: ("
-       << this->StartPCoords[0] << ", " 
-       << this->StartPCoords[1] << ", " 
+       << this->StartPCoords[0] << ", "
+       << this->StartPCoords[1] << ", "
        << this->StartPCoords[2] << ")\n";
     }
   else
@@ -736,7 +736,7 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
        << static_cast<void *>(this->GetSource()) << "\n";
     }
 
-  os << indent << "Maximum Propagation Time: " 
+  os << indent << "Maximum Propagation Time: "
      << this->MaximumPropagationTime << "\n";
 
   if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD )
@@ -762,7 +762,7 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Orientation Scalars: " << (this->OrientationScalars ? "On\n" : "Off\n");
 
-  os << indent << "Interval with which points are stored:" 
+  os << indent << "Interval with which points are stored:"
      << this->SavePointInterval << endl;
 
   os << indent << "Integrator: " << this->Integrator << endl;

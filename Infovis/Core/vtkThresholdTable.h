@@ -114,14 +114,14 @@ protected:
   ~vtkThresholdTable();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   vtkVariant MinValue;
   vtkVariant MaxValue;
   int Mode;
-    
+
 private:
   vtkThresholdTable(const vtkThresholdTable&); // Not implemented
   void operator=(const vtkThresholdTable&);   // Not implemented

@@ -96,7 +96,7 @@ vtkEnSightWriter::vtkEnSightWriter()
 {
 
   this->BaseName = NULL;
-  this->FileName = NULL;  
+  this->FileName = NULL;
   this->TimeStep = 0;
   this->ModelMetadata = NULL;
   this->Path=NULL;
@@ -112,7 +112,7 @@ vtkEnSightWriter::vtkEnSightWriter()
 
 //----------------------------------------------------------------------------
 vtkEnSightWriter::~vtkEnSightWriter()
-{ 
+{
   if (this->ModelMetadata)
     {
     this->ModelMetadata->Delete();
@@ -129,11 +129,11 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "FileName: " 
+  os << indent << "FileName: "
     << (this->FileName ? this->FileName : "(none)") << "\n";
-  os << indent << "Path: " 
+  os << indent << "Path: "
     << (this->Path ? this->Path : "(none)") << "\n";
-  os << indent << "BaseName: " 
+  os << indent << "BaseName: "
     << (this->BaseName ? this->BaseName : "(none)") << "\n";
 
   if (this->ModelMetadata !=NULL)
@@ -202,7 +202,7 @@ void vtkEnSightWriter::WriteData()
 
   //figure out process ID
 
-  this->ProcessNumber = 0; 
+  this->ProcessNumber = 0;
   this->NumberOfProcesses = 1;
 
 #ifdef VTK_USE_PARALLEL
@@ -379,7 +379,7 @@ void vtkEnSightWriter::WriteData()
   //just a list of part numbers
   std::list<int> partNumbers;
 
-  //get all the part numbers in the unstructured grid and sort the cells 
+  //get all the part numbers in the unstructured grid and sort the cells
   //by part number
   for (i=0;i<input->GetNumberOfCells();i++)
     {
@@ -474,7 +474,7 @@ void vtkEnSightWriter::WriteData()
     NodesPerPart.sort();
     NodesPerPart.unique();
 
-    //write the number of nodes 
+    //write the number of nodes
     if (this->ShouldWriteGeometry())
       {
       this->WriteIntToFile(static_cast<int>(NodesPerPart.size()),fd);
@@ -654,7 +654,7 @@ void vtkEnSightWriter::WriteData()
                      CurrentDimension ++ )
               {
               this->WriteFloatToFile
-                (  (float) 
+                (  (float)
                    (   DataArray
                        ->GetTuple(  CellsByElement[ elementTypes[k] ][m]  )
                          [CurrentDimension]
@@ -702,7 +702,7 @@ void vtkEnSightWriter::WriteData()
           this->WriteStringToFile("part",fd);
           this->WriteIntToFile(part,fd);
 
-          int exodusIndex = 
+          int exodusIndex =
             this->GetExodusModelIndex(elementIDs,this->NumberOfBlocks,part);
 
           if (exodusIndex!=-1 && blockNames)
@@ -808,20 +808,20 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   for (i=0;i<input->GetPointData()->GetNumberOfArrays();i++)
     {
 
-    strcpy(fileBuffer,input->GetPointData()->GetArray(i)->GetName()); 
+    strcpy(fileBuffer,input->GetPointData()->GetArray(i)->GetName());
     // skip arrays that were not written
     if (strcmp(fileBuffer,"GlobalElementId")==0)
       {
       continue;
-      } 
+      }
     if (strcmp(fileBuffer,"GlobalNodeId")==0)
       {
       continue;
-      } 
+      }
     if (strcmp(fileBuffer,"BlockId")==0)
       {
       continue;
-      } 
+      }
     this->SanitizeFileName(fileBuffer);
     //figure out what kind of data it is
     char SmallBuffer[16];
@@ -856,7 +856,7 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
         fileBuffer,
         this->BaseName,
         this->ProcessNumber,
-        fileBuffer); 
+        fileBuffer);
 
 
       }
@@ -874,15 +874,15 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     if (strcmp(fileBuffer,"GlobalElementId")==0)
       {
       continue;
-      } 
+      }
     if (strcmp(fileBuffer,"GlobalNodeId")==0)
       {
       continue;
-      } 
+      }
     if (strcmp(fileBuffer,"BlockId")==0)
       {
       continue;
-      } 
+      }
     this->SanitizeFileName(fileBuffer);
     switch(input->GetCellData()->GetArray(i)->GetNumberOfComponents())
       {
@@ -1147,7 +1147,7 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
     case(VTK_QUADRATIC_PYRAMID):
       this->WriteStringToFile("g_pyramid13",fd);
       break;
-      } 
+      }
     }
 }
 

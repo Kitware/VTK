@@ -48,22 +48,22 @@ vtkShader2::vtkShader2()
   // user API
   this->SourceCode=0;
   this->Type=VTK_SHADER_TYPE_VERTEX;
-  
+
   // OpenGL part
   this->Context=0;
   this->Id=0;
   this->ExtensionsLoaded=false;
   this->SupportGeometryShader=false;
-  
+
   this->LastCompileStatus=false;
-  
+
   // 8 as an initial capcity is nice because the allocation is aligned on
   // 32-bit or 64-bit architecture.
-  
+
   this->LastCompileLogCapacity=8;
   this->LastCompileLog=new char[this->LastCompileLogCapacity];
   this->LastCompileLog[0]='\0'; // empty string
-  
+
   this->UniformVariables=vtkUniformVariables::New();
 }
 
@@ -114,7 +114,7 @@ vtkShader2::~vtkShader2()
 bool vtkShader2::IsSupported(vtkOpenGLRenderWindow *context)
 {
   assert("pre: context_exists" && context!=0);
-  
+
   vtkOpenGLExtensionManager *e=context->GetExtensionManager();
   return e->ExtensionSupported("GL_VERSION_2_0") ||
     (e->ExtensionSupported("GL_ARB_shading_language_100") &&
@@ -127,9 +127,9 @@ bool vtkShader2::IsSupported(vtkOpenGLRenderWindow *context)
 bool vtkShader2::LoadExtensions(vtkOpenGLRenderWindow *context)
 {
   assert("pre: context_exists" && context!=0);
-  
+
   vtkOpenGLExtensionManager *e=context->GetExtensionManager();
-  
+
   bool result=false;
   if(e->ExtensionSupported("GL_VERSION_2_0"))
     {
@@ -195,7 +195,7 @@ void vtkShader2::SetContext(vtkOpenGLRenderWindow *context)
 void vtkShader2::Compile()
 {
   assert("pre: SourceCode_exists" && this->SourceCode!=0);
-  
+
   if(this->Id==0 || this->LastCompileTime<this->MTime)
     {
     if(this->Type==VTK_SHADER_TYPE_TESSELLATION_CONTROL)
@@ -232,7 +232,7 @@ void vtkShader2::Compile()
         }
       this->Id=static_cast<unsigned int>(shaderId);
       }
-    
+
     vtkgl::ShaderSource(shaderId,1,const_cast<const vtkgl::GLchar**>(&this->SourceCode),0);
     vtkgl::CompileShader(shaderId);
     GLint value;
@@ -304,7 +304,7 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
     default:
       assert("check: impossible_case" && 0); // impossible case
     }
-  
+
   os << indent << "OpenGL Id: " << this->Id << endl;
   os << indent << "Last Compile Status: ";
   if(this->LastCompileStatus)
@@ -314,10 +314,10 @@ void vtkShader2::PrintSelf(ostream& os, vtkIndent indent)
   else
     {os << "false" << endl;
     }
-  
+
   os << indent << "Last Compile Log Capacity: " <<
     this->LastCompileLogCapacity<< endl;
-  
+
   os << indent << "Last Compile Log: ";
   if(this->LastCompileLog==0)
     {

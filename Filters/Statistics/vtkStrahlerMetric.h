@@ -20,13 +20,13 @@
 //
 // .NAME vtkStrahlerMetric - compute Strahler metric for a tree
 // .SECTION Description
-// The Strahler metric is a value assigned to each vertex of a 
-// tree that characterizes the structural complexity of the 
+// The Strahler metric is a value assigned to each vertex of a
+// tree that characterizes the structural complexity of the
 // sub-tree rooted at that node.  The metric originated in the
 // study of river systems, but has been applied to other tree-
-// structured systes,  Details of the metric and the rationale 
+// structured systes,  Details of the metric and the rationale
 // for using it in infovis can be found in:
-// 
+//
 // Tree Visualization and Navigation Clues for Information
 // Visualization, I. Herman, M. Delest, and G. Melancon,
 // Computer Graphics Forum, Vol 17(2), Blackwell, 1998.
@@ -35,7 +35,7 @@
 // added to the output vertex data.
 //
 // .SECTION Thanks
-// Thanks to David Duke from the University of Leeds for providing this 
+// Thanks to David Duke from the University of Leeds for providing this
 // implementation.
 
 #ifndef __vtkStrahlerMetric_h
@@ -58,7 +58,7 @@ public:
   // be stored within the output vertex data.
   // Default is "Strahler"
   vtkSetStringMacro(MetricArrayName);
-  
+
   // Description:
   // Set/get setting of normalize flag.  If this is set, the
   // Strahler values are scaled into the range [0..1].
@@ -74,15 +74,15 @@ public:
 protected:
   vtkStrahlerMetric();
   ~vtkStrahlerMetric();
-   
+
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int Normalize;
   float MaxStrahler;
   char *MetricArrayName;
 
   float CalculateStrahler(vtkIdType root, vtkFloatArray *metric, vtkTree *graph);
-  
+
 private:
   vtkStrahlerMetric(const vtkStrahlerMetric&);  // Not implemented.
   void operator=(const vtkStrahlerMetric&);  // Not implemented.

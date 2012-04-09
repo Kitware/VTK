@@ -44,7 +44,7 @@ public:
   // Description:
   // Does `this' a cell of a dataset? (otherwise, it is a boundary cell)
   virtual int IsInDataSet();
-  
+
   // Description:
   // Type of the current cell.
   // \post (result==VTK_HIGHER_ORDER_EDGE)||
@@ -61,24 +61,24 @@ public:
   // Interpolation order of the geometry.
   // \post positive_result: result>=0
   virtual int GetGeometryOrder();
-  
+
   // Description:
   // Does the cell have no higher-order interpolation for geometry?
   // \post definition: result==(GetGeometryOrder()==1)
   int IsGeometryLinear();
-  
+
   // Description:
   // Interpolation order of attribute `a' on the cell (may differ by cell).
   // \pre a_exists: a!=0
   // \post positive_result: result>=0
   virtual int GetAttributeOrder(vtkGenericAttribute *a);
-  
+
   // Description:
   // Does the attribute `a' have no higher-order interpolation for the cell?
   // \pre a_exists: a!=0
   // \post definition: result==(GetAttributeOrder()==1)
   int IsAttributeLinear(vtkGenericAttribute *a);
-  
+
   // Description:
   // Is the cell primary (i.e. not composite) ?
   virtual int IsPrimary();
@@ -111,17 +111,17 @@ public:
   // an arbitrary number of field values associated with them.
   // \post valid_result: result==GetNumberOfBoundaries(-1)+1
   virtual int GetNumberOfDOFNodes();
-  
+
   // Description:
   // Return the points of cell into `it'.
   // \pre it_exists: it!=0
   virtual void GetPointIterator(vtkGenericPointIterator *it);
-  
+
   // Description:
   // Create an empty cell iterator.
   // \post result_exists: result!=0
   virtual vtkGenericCellIterator *NewCellIterator();
- 
+
   // Description:
   // Return in `boundaries' the cells of dimension `dim' (or all dimensions
   // less than GetDimension() if -1) that are part of the boundary of the cell.
@@ -129,7 +129,7 @@ public:
   // \pre boundaries_exist: boundaries!=0
   virtual void GetBoundaryIterator(vtkGenericCellIterator *boundaries,
                                    int dim=-1);
-  
+
   // Description:
   // Number of cells (dimension>boundary->GetDimension()) of the dataset
   // that share the boundary `boundary' of `this'.
@@ -175,11 +175,11 @@ public:
   // \post positive_distance: result!=-1 implies (closestPoint!=0 implies
   //                                               dist2>=0)
   virtual int EvaluatePosition(double x[3],
-                               double *closestPoint, 
+                               double *closestPoint,
                                int &subId,
-                               double pcoords[3], 
+                               double pcoords[3],
                                double &dist2);
-  
+
 // Description:
   // Determine global coordinates `x' from sub-cell `subId' and parametric
   // coordinates `pcoords' in the cell.
@@ -189,7 +189,7 @@ public:
   virtual void EvaluateLocation(int subId,
                                 double pcoords[3],
                                 double x[3]);
-  
+
   // Description:
   // Interpolate the attribute `a' at local position `pcoords' of the cell into
   // `val'.
@@ -232,7 +232,7 @@ public:
   // - `polys' is an array of generated polygons
   // - `outPd' is an array of interpolated point data along the edge (if
   // not-NULL)
-  // - `outCd' is an array of copied cell data of the current cell (if 
+  // - `outCd' is an array of copied cell data of the current cell (if
   // not-NULL)
   // Note: the CopyAllocate() method must be invoked on both the output cell
   // and point data.
@@ -262,7 +262,7 @@ public:
   // `value' or the implicit function `f' of the scalar attribute
   // (`attributes->GetActiveAttribute()',`attributes->GetActiveComponent()').
   // If `f' exists, `value' is not used. The output is the part
-  // of the current cell which is inside the contour. 
+  // of the current cell which is inside the contour.
   // The output is a set of zero, one or more cells of the same topological
   // dimension as the current cell. Normally, cell points whose scalar value
   // is greater than "value" are considered inside. If `insideOut' is on, this
@@ -312,10 +312,10 @@ public:
   // the intersection occurs.
   // \pre positive_tolerance: tol>0
   virtual int IntersectWithLine(double p1[3],
-                                double p2[3], 
+                                double p2[3],
                                 double tol,
                                 double &t,
-                                double x[3], 
+                                double x[3],
                                 double pcoords[3],
                                 int &subId);
 
@@ -393,8 +393,8 @@ public:
   // \pre cellArray_exists: cellArray!=0
   // \pre pd_exist: pd!=0
   // \pre cd_exists: cd!=0
-  virtual void Tessellate(vtkGenericAttributeCollection *attributes, 
-                          vtkPoints *points, vtkCellArray* cellArray,  
+  virtual void Tessellate(vtkGenericAttributeCollection *attributes,
+                          vtkPoints *points, vtkCellArray* cellArray,
                           vtkPointData *pd, vtkCellData* cd);
 #endif
   // For the internals of the tesselation algorithm (the hash table in particular)
@@ -409,12 +409,12 @@ public:
 #if 0
   virtual void TriangulateFace(vtkGenericAttributeCollection *attributes,
                                vtkGenericCellTessellator *tess,
-                               int index, 
-                               vtkPoints *pts, vtkCellArray *cellArray, 
+                               int index,
+                               vtkPoints *pts, vtkCellArray *cellArray,
                                vtkPointData *pd,
                                vtkCellData *cd );
 #endif
-  
+
   // Description:
   // Return the ids of the vertices defining face `faceId'.
   // \pre is_3d: this->GetDimension()==3
@@ -422,14 +422,14 @@ public:
   // \post result_exists: result!=0
   // \post valid_size: sizeof(result)>=GetNumberOfVerticesOnFace(faceId)
   int *GetFaceArray(int faceId);
-  
+
   // Description:
   // Return the number of vertices defining face `faceId'
   // \pre is_3d: this->GetDimension()==3
   // \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
   // \post positive_result: && result>0
   int GetNumberOfVerticesOnFace(int faceId);
-  
+
   // Description:
   // Return the ids of the vertices defining edge `edgeId'.
   // \pre valid_dimension: this->GetDimension()>=2

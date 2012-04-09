@@ -21,11 +21,11 @@
 // .NAME vtkXGMLReader - Reads XGML graph files.
 // This reader is developed for a simple graph file format based
 // loosely on the "GML" notation.  This implementation is based
-// heavily on the vtkTulipReader class that forms part of the 
+// heavily on the vtkTulipReader class that forms part of the
 // Titan toolkit.
 
 // .SECTION Thanks
-// Thanks to David Duke from the University of Leeds for providing this 
+// Thanks to David Duke from the University of Leeds for providing this
 // implementation.
 
 #ifndef _vtkXGMLReader_h
@@ -51,8 +51,8 @@ protected:
   ~vtkXGMLReader();
 
   virtual int RequestData(
-    vtkInformation *, 
-    vtkInformationVector **, 
+    vtkInformation *,
+    vtkInformationVector **,
     vtkInformationVector *);
 
 private:

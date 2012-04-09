@@ -35,7 +35,7 @@ vtkPolyDataMapper demMapper
 
 vtkLODActor demActor
   demActor SetMapper demMapper
-  
+
 # Create some paths
 vtkPoints pts
   pts InsertNextPoint 562669 5.1198e+006 1992.77

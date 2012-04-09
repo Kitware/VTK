@@ -143,7 +143,7 @@ int vtkExtractSelectedBlock::RequestData(
     }
 
   vtkCompositeDataIterator* citer = cd->NewIterator();
-  for (citer->InitTraversal(); !citer->IsDoneWithTraversal(); 
+  for (citer->InitTraversal(); !citer->IsDoneWithTraversal();
     citer->GoToNextItem())
     {
     std::set<unsigned int>::iterator fiter =

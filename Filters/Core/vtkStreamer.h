@@ -15,33 +15,33 @@
 // .NAME vtkStreamer - abstract object implements integration of massless particle through vector field
 // .SECTION Description
 // vtkStreamer is a filter that integrates a massless particle through a vector
-// field. The integration is performed using second order Runge-Kutta method. 
-// vtkStreamer often serves as a base class for other classes that perform 
+// field. The integration is performed using second order Runge-Kutta method.
+// vtkStreamer often serves as a base class for other classes that perform
 // numerical integration through a vector field (e.g., vtkStreamLine).
 //
 // Note that vtkStreamer can integrate both forward and backward in time,
-// or in both directions. The length of the streamer is controlled by 
-// specifying an elapsed time. (The elapsed time is the time each particle 
+// or in both directions. The length of the streamer is controlled by
+// specifying an elapsed time. (The elapsed time is the time each particle
 // travels.) Otherwise, the integration terminates after exiting the dataset or
 // if the particle speed is reduced to a value less than the terminal speed.
 //
-// vtkStreamer integrates through any type of dataset. As a result, if the 
+// vtkStreamer integrates through any type of dataset. As a result, if the
 // dataset contains 2D cells such as polygons or triangles, the integration is
 // constrained to lie on the surface defined by the 2D cells.
 //
 // The starting point of streamers may be defined in three different ways.
 // Starting from global x-y-z "position" allows you to start a single streamer
-// at a specified x-y-z coordinate. Starting from "location" allows you to 
-// start at a specified cell, subId, and parametric coordinate. Finally, you 
-// may specify a source object to start multiple streamers. If you start 
-// streamers using a source object, for each point in the source that is 
+// at a specified x-y-z coordinate. Starting from "location" allows you to
+// start at a specified cell, subId, and parametric coordinate. Finally, you
+// may specify a source object to start multiple streamers. If you start
+// streamers using a source object, for each point in the source that is
 // inside the dataset a streamer is created.
 //
 // vtkStreamer implements the integration process in the Integrate() method.
-// Because vtkStreamer does not implement the Execute() method that its 
+// Because vtkStreamer does not implement the Execute() method that its
 // superclass (i.e., Filter) requires, it is an abstract class. Its subclasses
 // implement the execute method and use the Integrate() method, and then build
-// their own representation of the integration path (i.e., lines, dashed 
+// their own representation of the integration path (i.e., lines, dashed
 // lines, points, etc.).
 
 // .SECTION See Also
@@ -103,7 +103,7 @@ public:
   vtkDataSet *GetSource();
 
   //Description:
-  // Specify the source object used to generate starting points 
+  // Specify the source object used to generate starting points
   // by making a pipeline connection
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
@@ -139,7 +139,7 @@ public:
   vtkBooleanMacro(SpeedScalars,int);
 
   // Description:
-  // Turn on/off the creation of scalar data from vorticity information. 
+  // Turn on/off the creation of scalar data from vorticity information.
   // The scalar information is currently the orientation value "theta"
   // used in rotating stream tubes. If off, and input dataset has scalars,
   // then input dataset scalars are used, unless SpeedScalars is also on.
@@ -149,16 +149,16 @@ public:
   vtkBooleanMacro(OrientationScalars, int);
 
   // Description:
-  // Set/get terminal speed (i.e., speed is velocity magnitude).  Terminal 
+  // Set/get terminal speed (i.e., speed is velocity magnitude).  Terminal
   // speed is speed at which streamer will terminate propagation.
   vtkSetClampMacro(TerminalSpeed,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(TerminalSpeed,double);
 
   // Description:
   // Turn on/off the computation of vorticity. Vorticity is an indication of
-  // the rotation of the flow. In combination with vtkStreamLine and 
-  // vtkTubeFilter can be used to create rotated tubes. 
-  // If vorticity is turned on, in the output, the velocity vectors 
+  // the rotation of the flow. In combination with vtkStreamLine and
+  // vtkTubeFilter can be used to create rotated tubes.
+  // If vorticity is turned on, in the output, the velocity vectors
   // are replaced by vorticity vectors.
   vtkSetMacro(Vorticity,int);
   vtkGetMacro(Vorticity,int);
@@ -174,7 +174,7 @@ public:
   // Set/get the integrator type to be used in the stream line
   // calculation. The object passed is not actually used but
   // is cloned with NewInstance by each thread/process in the
-  // process of integration (prototype pattern). The default is 
+  // process of integration (prototype pattern). The default is
   // 2nd order Runge Kutta.
   void SetIntegrator(vtkInitialValueProblemSolver *);
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
@@ -184,7 +184,7 @@ public:
   // The initial value is 1E-12.
   vtkSetMacro(Epsilon,double);
   vtkGetMacro(Epsilon,double);
-  
+
 protected:
   // Description:
   // Construct object to start from position (0,0,0); integrate forward;
@@ -214,15 +214,15 @@ protected:
   //
   class StreamPoint {
   public:
-    double    x[3];    // position 
+    double    x[3];    // position
     vtkIdType cellId;  // cell
     int       subId;   // cell sub id
-    double    p[3];    // parametric coords in cell 
-    double    v[3];    // velocity 
-    double    speed;   // velocity norm 
-    double    s;       // scalar value 
-    double    t;       // time travelled so far 
-    double    d;       // distance travelled so far 
+    double    p[3];    // parametric coords in cell
+    double    v[3];    // velocity
+    double    speed;   // velocity norm
+    double    s;       // scalar value
+    double    t;       // time travelled so far
+    double    d;       // distance travelled so far
     double    omega;   // stream vorticity, if computed
     double    theta;   // rotation angle, if vorticity is computed
   };
@@ -241,7 +241,7 @@ protected:
       };
     vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
     StreamPoint *GetStreamPoint(vtkIdType i) {return this->Array + i;};
-    vtkIdType InsertNextStreamPoint() 
+    vtkIdType InsertNextStreamPoint()
       {
         if ( ++this->MaxId >= this->Size )
           {
@@ -292,7 +292,7 @@ protected:
   // A positive value, as small as possible for numerical comparison.
   // The initial value is 1E-12.
   double Epsilon;
-  
+
   // Interval with which the stream points will be stored.
   // Useful in reducing the memory footprint. Since the initial
   // value is small, by default, it will store all/most points.
@@ -302,7 +302,7 @@ protected:
 
   // Description:
   // These methods were added to allow access to these variables from the
-  // threads. 
+  // threads.
   vtkGetMacro( NumberOfStreamers, vtkIdType );
   StreamArray *GetStreamers() { return this->Streamers; };
 
@@ -321,15 +321,15 @@ private:
 // Return the integration direction as a character string.
 inline const char *vtkStreamer::GetIntegrationDirectionAsString()
 {
-  if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD ) 
+  if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD )
     {
     return "IntegrateForward";
     }
-  else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD ) 
+  else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
     {
     return "IntegrateBackward";
     }
-  else 
+  else
     {
     return "IntegrateBothDirections";
     }

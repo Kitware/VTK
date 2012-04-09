@@ -34,11 +34,11 @@
 
 
 //----------------------------------------------------------------------------
-static vtkSmartPointer< vtkImageStencilData > 
+static vtkSmartPointer< vtkImageStencilData >
 CreateBoxStencilData(double d1, double d2 )
 {
   // Create two stencil data from polydata's
-  
+
   vtkPolyData * pd = vtkPolyData::New();
   pd->Allocate(1, 1);
   vtkPoints * points = vtkPoints::New();
@@ -60,9 +60,9 @@ CreateBoxStencilData(double d1, double d2 )
   extrudeFilter->SetVector( 0, 0, 1);
   extrudeFilter->Update();
 
-  // Apply a transformation to the output polydata that subtracts 0.5 from 
+  // Apply a transformation to the output polydata that subtracts 0.5 from
   // the z co-ordinate.
-  
+
   const double m[16] = {1,0,0,0,0,1,0,0,0,0,1,-0.5,0,0,0,1};
   vtkMatrixToLinearTransform *linearTransform = vtkMatrixToLinearTransform::New();
   linearTransform->GetMatrix()->DeepCopy( m );
@@ -72,9 +72,9 @@ CreateBoxStencilData(double d1, double d2 )
   transformPolyData->Update();
   linearTransform->Delete();
 
-  // Rasterize the polydata (sweep it along the plane the contour lies on, 
+  // Rasterize the polydata (sweep it along the plane the contour lies on,
   // bounded by the extrusion) and get extents into a stencil
-  vtkPolyDataToImageStencil *contourStencilFilter 
+  vtkPolyDataToImageStencil *contourStencilFilter
                             = vtkPolyDataToImageStencil::New();
   contourStencilFilter->SetInputConnection( transformPolyData->GetOutputPort() );
 
@@ -90,7 +90,7 @@ CreateBoxStencilData(double d1, double d2 )
   stencil->SetStencilConnection( contourStencilFilter->GetOutputPort() );
   stencil->SetBackgroundValue(0);
   stencil->Update();
-  vtkSmartPointer< vtkImageStencilData > 
+  vtkSmartPointer< vtkImageStencilData >
     stencilData = contourStencilFilter->GetOutput();
 
   extrudeFilter->Delete();
@@ -99,7 +99,7 @@ CreateBoxStencilData(double d1, double d2 )
   stencil->Delete();
   image->Delete();
   pd->Delete();
-  
+
   return stencilData;
 }
 
@@ -162,9 +162,9 @@ static void GetStencilDataAsImageData(
 //----------------------------------------------------------------------------
 int TestImageStencilData( int argc, char * argv [] )
 {
-  vtkSmartPointer< vtkImageStencilData > stencil1 = 
+  vtkSmartPointer< vtkImageStencilData > stencil1 =
     CreateBoxStencilData(10.0, 30.0);
-  vtkSmartPointer< vtkImageStencilData > stencil2 = 
+  vtkSmartPointer< vtkImageStencilData > stencil2 =
     CreateBoxStencilData(20.0, 40.0);
 
   vtkImageData *image = vtkImageData::New();

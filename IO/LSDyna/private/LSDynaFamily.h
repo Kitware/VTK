@@ -21,7 +21,7 @@
 // .SECTION Description
 //    A class to abstract away I/O from families of output files.
 //    This performs the actual reads and writes plus any required byte swapping.
-//    Also contains a subclass, LSDynaFamilyAdaptLevel, used to store 
+//    Also contains a subclass, LSDynaFamilyAdaptLevel, used to store
 //    file+offset
 //    information for each mesh adaptation's state info.
 
@@ -72,7 +72,7 @@ class LSDynaFamily
 public:
   LSDynaFamily();
   ~LSDynaFamily();
-  
+
   struct LSDynaFamilySectionMark
     {
     vtkIdType FileNumber;
@@ -183,7 +183,7 @@ public:
 
   int GetCurrentAdaptLevel() const { return this->FAdapt; }
   int TimeAdaptLevel( int i ) const { return this->TimeAdaptLevels[i]; }
- 
+
   vtkIdType GetCurrentFWord() const { return this->FWord; }
 
   int GetWordSize() const;
@@ -257,7 +257,7 @@ protected:
 
   bool FileHandlesClosed;
   struct BufferingInfo;
-  BufferingInfo* BufferInfo;  
+  BufferingInfo* BufferInfo;
 };
 
 //-----------------------------------------------------------------------------

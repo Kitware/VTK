@@ -14,17 +14,17 @@
 =========================================================================*/
 // .NAME vtkExtractTemporalFieldData - Extract temporal arrays from input field data
 // .SECTION Description
-// vtkExtractTemporalFieldData extracts arrays from the input vtkFieldData. 
-// These arrays are assumed to contain temporal data, where the nth tuple 
-// contains the value for the nth timestep. 
-// The output is a 1D rectilinear grid where the 
+// vtkExtractTemporalFieldData extracts arrays from the input vtkFieldData.
+// These arrays are assumed to contain temporal data, where the nth tuple
+// contains the value for the nth timestep.
+// The output is a 1D rectilinear grid where the
 // XCoordinates correspond to time (the same array is also copied to
 // a point array named Time or TimeData (if Time exists in the input).
 // This algorithm does not produce a TIME_STEPS or TIME_RANGE information
-// because it works across time. 
+// because it works across time.
 // .Section Caveat
 // vtkExtractTemporalFieldData puts a vtkOnePieceExtentTranslator in the
-// output during RequestInformation(). As a result, the same whole 
+// output during RequestInformation(). As a result, the same whole
 // extented is produced independent of the piece request.
 // This algorithm works only with source that produce TIME_STEPS().
 // Continuous time range is not yet supported.
@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Get the number of time steps
-  vtkGetMacro(NumberOfTimeSteps,int);    
+  vtkGetMacro(NumberOfTimeSteps,int);
 
 protected:
   vtkExtractTemporalFieldData();
@@ -59,7 +59,7 @@ protected:
                              vtkInformationVector*);
 
   virtual int RequestInformation(vtkInformation* request,
-                                 vtkInformationVector** inputVector, 
+                                 vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
@@ -69,7 +69,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Description:
-  // This looks at the arrays in the vtkFieldData of input and copies them 
+  // This looks at the arrays in the vtkFieldData of input and copies them
   // to the output point data.
   void CopyDataToOutput(vtkInformation* inInfo,
     vtkDataSet *input, vtkTable *output);

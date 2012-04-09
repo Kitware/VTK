@@ -40,7 +40,7 @@ vtkVertex::vtkVertex()
 //----------------------------------------------------------------------------
 // Make a new vtkVertex object with the same information as this object.
 int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
-                                int& subId, double pcoords[3], 
+                                int& subId, double pcoords[3],
                                 double& dist2, double *weights)
 {
   double X[3];
@@ -70,7 +70,7 @@ int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
 }
 
 //----------------------------------------------------------------------------
-void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId), 
+void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
                                  double vtkNotUsed(pcoords)[3], double x[3],
                                  double *weights)
 {
@@ -81,17 +81,17 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
 
 //----------------------------------------------------------------------------
 // Given parametric coordinates of a point, return the closest cell boundary,
-// and whether the point is inside or outside of the cell. The cell boundary 
-// is defined by a list of points (pts) that specify a vertex (1D cell). 
+// and whether the point is inside or outside of the cell. The cell boundary
+// is defined by a list of points (pts) that specify a vertex (1D cell).
 // If the return value of the method is != 0, then the point is inside the cell.
-int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
+int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                             vtkIdList *pts)
 {
 
   pts->SetNumberOfIds(1);
   pts->SetId(0,this->PointIds->GetId(0));
 
-  if ( pcoords[0] != 0.0 )  
+  if ( pcoords[0] != 0.0 )
     {
     return 0;
     }
@@ -104,14 +104,14 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 
 //----------------------------------------------------------------------------
 // Generate contouring primitives. The scalar list cellScalars are
-// scalar values at each cell point. The point locator is essentially a 
-// points list that merges points as they are inserted (i.e., prevents 
-// duplicates). 
-void vtkVertex::Contour(double value, vtkDataArray *cellScalars, 
+// scalar values at each cell point. The point locator is essentially a
+// points list that merges points as they are inserted (i.e., prevents
+// duplicates).
+void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
                         vtkIncrementalPointLocator *locator,
-                        vtkCellArray *verts, 
-                        vtkCellArray *vtkNotUsed(lines), 
-                        vtkCellArray *vtkNotUsed(polys), 
+                        vtkCellArray *verts,
+                        vtkCellArray *vtkNotUsed(lines),
+                        vtkCellArray *vtkNotUsed(polys),
                         vtkPointData *inPd, vtkPointData *outPd,
                         vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
@@ -121,7 +121,7 @@ void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
     vtkIdType pts[1];
     pts[0] = locator->InsertNextPoint(this->Points->GetPoint(0));
     if ( outPd )
-      {   
+      {
       outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);
       }
     newCellId = verts->InsertNextCell(1,pts);
@@ -131,7 +131,7 @@ void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
 
 //----------------------------------------------------------------------------
 // Intersect with a ray. Return parametric coordinates (both line and cell)
-// and global intersection coordinates, given ray definition and tolerance. 
+// and global intersection coordinates, given ray definition and tolerance.
 // The method returns non-zero value if intersection occurs.
 int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                                 double x[3], double pcoords[3], int& subId)
@@ -160,7 +160,7 @@ int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double&
 
   if ( t >= 0.0 && t <= 1.0 )
     {
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       projXYZ[i] = p1[i] + t*ray[i];
       if ( fabs(X[i]-projXYZ[i]) > tol )
@@ -169,10 +169,10 @@ int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double&
         }
       }
 
-    if ( i > 2 ) // within tolerance 
+    if ( i > 2 ) // within tolerance
       {
       pcoords[0] = 0.0;
-      x[0] = X[0]; x[1] = X[1]; x[2] = X[2]; 
+      x[0] = X[0]; x[1] = X[1]; x[2] = X[2];
       return 1;
       }
     }
@@ -196,11 +196,11 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-// Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
+// Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all
 // dimensions.
-void vtkVertex::Derivatives(int vtkNotUsed(subId), 
-                            double vtkNotUsed(pcoords)[3], 
-                            double *vtkNotUsed(values), 
+void vtkVertex::Derivatives(int vtkNotUsed(subId),
+                            double vtkNotUsed(pcoords)[3],
+                            double *vtkNotUsed(values),
                             int dim, double *derivs)
 {
   int i, idx;
@@ -215,7 +215,7 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
 }
 
 //----------------------------------------------------------------------------
-void vtkVertex::Clip(double value, vtkDataArray *cellScalars, 
+void vtkVertex::Clip(double value, vtkDataArray *cellScalars,
                      vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                      vtkPointData *inPd, vtkPointData *outPd,
                      vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -224,7 +224,7 @@ void vtkVertex::Clip(double value, vtkDataArray *cellScalars,
   double s, x[3];
   int newCellId;
   vtkIdType pts[1];
-  
+
   s = cellScalars->GetComponent(0,0);
 
   if ( ( !insideOut && s > value) || (insideOut && s <= value) )

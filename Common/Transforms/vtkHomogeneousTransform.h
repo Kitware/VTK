@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkHomogeneousTransform - superclass for homogeneous transformations
 // .SECTION Description
-// vtkHomogeneousTransform provides a generic interface for homogeneous 
-// transformations, i.e. transformations which can be represented by 
-// multiplying a 4x4 matrix with a homogeneous coordinate. 
+// vtkHomogeneousTransform provides a generic interface for homogeneous
+// transformations, i.e. transformations which can be represented by
+// multiplying a 4x4 matrix with a homogeneous coordinate.
 // .SECTION see also
 // vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
 
@@ -38,17 +38,17 @@ public:
 
   // Description:
   // Apply the transformation to a series of points, and append the
-  // results to outPts.  
+  // results to outPts.
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
 
   // Description:
   // Apply the transformation to a combination of points, normals
-  // and vectors.  
-  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
-                                             vtkPoints *outPts, 
-                                             vtkDataArray *inNms, 
+  // and vectors.
+  virtual void TransformPointsNormalsVectors(vtkPoints *inPts,
+                                             vtkPoints *outPts,
+                                             vtkDataArray *inNms,
                                              vtkDataArray *outNms,
-                                             vtkDataArray *inVrs, 
+                                             vtkDataArray *inVrs,
                                              vtkDataArray *outVrs);
 
   // Description:

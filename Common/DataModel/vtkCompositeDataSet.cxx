@@ -158,14 +158,14 @@ void vtkCompositeDataSet::CopyStructure(vtkCompositeDataSet* source)
     }
 
   this->Internals->Children.resize(source->Internals->Children.size());
-  
+
   vtkCompositeDataSetInternals::Iterator srcIter =
     source->Internals->Children.begin();
   vtkCompositeDataSetInternals::Iterator myIter =
     this->Internals->Children.begin();
   for (; srcIter != source->Internals->Children.end(); ++srcIter, myIter++)
     {
-    vtkCompositeDataSet* compositeSrc = 
+    vtkCompositeDataSet* compositeSrc =
       vtkCompositeDataSet::SafeDownCast(srcIter->DataObject);
     if (compositeSrc)
       {
@@ -195,7 +195,7 @@ vtkCompositeDataIterator* vtkCompositeDataSet::NewIterator()
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataSet::SetDataSet(vtkCompositeDataIterator* iter, 
+void vtkCompositeDataSet::SetDataSet(vtkCompositeDataIterator* iter,
   vtkDataObject* dataObj)
 {
   if (!iter || iter->IsDoneWithTraversal())

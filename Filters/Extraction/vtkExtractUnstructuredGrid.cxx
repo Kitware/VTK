@@ -123,7 +123,7 @@ int vtkExtractUnstructuredGrid::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType *pointMap = NULL;
-  
+
   vtkDebugMacro(<<"Executing extraction filter");
 
   if ( numPts < 1 || numCells < 1 || !inPts )
@@ -133,7 +133,7 @@ int vtkExtractUnstructuredGrid::RequestData(
     }
   cellIds=vtkIdList::New();
 
-  if ( (!this->CellClipping) && (!this->PointClipping) && 
+  if ( (!this->CellClipping) && (!this->PointClipping) &&
        (!this->ExtentClipping) )
     {
     allVisible = 1;
@@ -160,14 +160,14 @@ int vtkExtractUnstructuredGrid::RequestData(
         cell = input->GetCell(cellId);
         ptIds = cell->GetPointIds();
         numIds = ptIds->GetNumberOfIds();
-        for (i=0; i < numIds; i++) 
+        for (i=0; i < numIds; i++)
           {
           ptId = ptIds->GetId(i);
           input->GetPoint(ptId, x);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
           ptId > this->PointMaximum) ) ||
-          (this->ExtentClipping && 
+          (this->ExtentClipping &&
           (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
           x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
           x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
@@ -236,7 +236,7 @@ int vtkExtractUnstructuredGrid::RequestData(
           ptId = cell->PointIds->GetId(i);
           if ( pointMap[ptId] < 0 )
             {
-            pointMap[ptId] = newPtId 
+            pointMap[ptId] = newPtId
               = newPts->InsertNextPoint(inPts->GetPoint(ptId));
             outputPD->CopyData(pd, ptId, newPtId);
             }
@@ -246,7 +246,7 @@ int vtkExtractUnstructuredGrid::RequestData(
 
       newCellId = output->InsertNextCell(input->GetCellType(cellId), cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
-        
+
       } //if cell is visible
     } //for all cells
 
@@ -259,14 +259,14 @@ int vtkExtractUnstructuredGrid::RequestData(
 
   if ( this->Merging && this->Locator )
     {
-    this->Locator->Initialize(); 
+    this->Locator->Initialize();
     }
   else
     {
     delete [] pointMap;
     }
   output->Squeeze();
-  
+
   if ( cellVis )
     {
     delete [] cellVis;
@@ -301,7 +301,7 @@ void vtkExtractUnstructuredGrid::CreateDefaultLocator()
 // default an instance of vtkMergePoints is used.
 void vtkExtractUnstructuredGrid::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
@@ -309,7 +309,7 @@ void vtkExtractUnstructuredGrid::SetLocator(vtkIncrementalPointLocator *locator)
     {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }    
+    }
   if ( locator )
     {
     locator->Register(this);

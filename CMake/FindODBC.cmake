@@ -1,13 +1,13 @@
-# 
+#
 # Find the ODBC driver manager includes and library.
-# 
+#
 # ODBC is an open standard for connecting to different databases in a
 # semi-vendor-independent fashion.  First you install the ODBC driver
 # manager.  Then you need a driver for each separate database you want
 # to connect to (unless a generic one works).  VTK includes neither
 # the driver manager nor the vendor-specific drivers: you have to find
 # those yourself.
-#  
+#
 # This module defines
 # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
 # ODBC_LIBRARIES, the libraries to link against to use ODBC
@@ -29,7 +29,7 @@ FIND_PATH(ODBC_INCLUDE_DIRECTORIES sql.h
   DOC "Specify the directory containing sql.h."
 )
 
-FIND_LIBRARY( ODBC_LIBRARY 
+FIND_LIBRARY( ODBC_LIBRARY
   NAMES odbc iodbc unixodbc
   PATHS
   /usr/lib

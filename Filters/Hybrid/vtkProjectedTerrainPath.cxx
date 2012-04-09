@@ -32,7 +32,7 @@
 struct vtkEdge
 {
   vtkEdge(vtkIdType v1, vtkIdType v2) : V1(v1), V2(v2), tPos(-1.0), tNeg(-1.0) {}
-  
+
   vtkIdType V1;
   vtkIdType V2;
   double    tPos; //parametric coordinates where positive maximum error occurs
@@ -89,7 +89,7 @@ vtkImageData *vtkProjectedTerrainPath::GetSource()
 }
 
 //-----------------------------------------------------------------------------
-int vtkProjectedTerrainPath::FillInputPortInformation(int port, 
+int vtkProjectedTerrainPath::FillInputPortInformation(int port,
                                                       vtkInformation *info)
 {
   if (port == 0)
@@ -108,7 +108,7 @@ int vtkProjectedTerrainPath::FillInputPortInformation(int port,
 //-----------------------------------------------------------------------------
 // Warning: this method may return negative indices. This is expected behavior
 //
-inline void vtkProjectedTerrainPath::GetImageIndex(double x[3], 
+inline void vtkProjectedTerrainPath::GetImageIndex(double x[3],
                                                    double loc[2], int ij[2])
 {
   loc[0] = (x[0] - this->Origin[0]) / this->Spacing[0];
@@ -133,7 +133,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
     imageInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   vtkPoints *inPoints = lines->GetPoints();
   vtkIdType numPts = inPoints->GetNumberOfPoints();
   vtkCellArray *inLines = lines->GetLines();
@@ -143,7 +143,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
     vtkErrorMacro("This filter requires lines as input");
     return 1;
     }
-  
+
   if ( ! image )
     {
     vtkErrorMacro("This filter requires an image as input");
@@ -154,13 +154,13 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   image->GetSpacing(this->Spacing);
   image->GetExtent(this->Extent);
   this->Heights = image->GetPointData()->GetScalars();
-  
+
   this->Points = vtkPoints::New();
   this->Points->SetDataTypeToDouble();
   this->Points->Allocate(numPts);
   output->SetPoints(this->Points);
   this->Points->Delete(); //ok reference counting
-  
+
   vtkPointData *inPD = lines->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   outPD->CopyAllocate(inPD);
@@ -208,7 +208,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
       this->NumLines++;
       }
     }
-  
+
   if ( this->ProjectionMode == NONOCCLUDED_PROJECTION )
     {
     this->RemoveOcclusions();
@@ -238,7 +238,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   delete this->EdgeList;
   this->PositiveLineError->Delete();
   this->NegativeLineError->Delete();
-  
+
   return 1;
 }
 
@@ -270,7 +270,7 @@ void vtkProjectedTerrainPath::RemoveOcclusions()
 // Adjust the lines so that they hug the terrain within the tolerance specified
 void vtkProjectedTerrainPath::HugTerrain()
 {
-  // Loop until error meets threshold. 
+  // Loop until error meets threshold.
   // Remember that the errors in the priority queues are negative.
   // Also, splitting an edge can cause the polyline to reintersect the terrain.
   // This is the reason for the outer while{} loop.
@@ -328,7 +328,7 @@ void vtkProjectedTerrainPath::SplitEdge(vtkIdType eId, double t)
   double p1[3], p2[3];
   this->Points->GetPoint(e.V1,p1);
   this->Points->GetPoint(e.V2,p2);
-  
+
   // Now generate the split point and add it to the list of points
   double x[3], loc[2];
   int ij[2];
@@ -337,7 +337,7 @@ void vtkProjectedTerrainPath::SplitEdge(vtkIdType eId, double t)
   this->GetImageIndex(x,loc,ij);
   x[2] = this->GetHeight(loc,ij);
   vtkIdType pId = this->Points->InsertNextPoint(x);
-  
+
   // We will create a new edge and update the old one.
   vtkIdType v2 = e.V2;
   e.V2 = pId;
@@ -351,22 +351,22 @@ void vtkProjectedTerrainPath::SplitEdge(vtkIdType eId, double t)
 
 // if the line lies outside of the image.
 double vtkProjectedTerrainPath::GetHeight(double loc[2], int ij[2])
-{  
+{
   //  Compute the ij location (assuming 2D image plane)
   //
   int i;
   double pcoords[2];
-  for (i=0; i<2; i++) 
+  for (i=0; i<2; i++)
     {
     if ( ij[i] >= this->Extent[i*2] && ij[i] < this->Extent[i*2 + 1] )
       {
       pcoords[i] = loc[i] - (double)ij[i];
       }
 
-    else if ( ij[i] < this->Extent[i*2] || ij[i] > this->Extent[i*2+1] ) 
+    else if ( ij[i] < this->Extent[i*2] || ij[i] > this->Extent[i*2+1] )
       {
       return this->HeightOffset;
-      } 
+      }
 
     else //if ( ij[i] == this->Extent[i*2+1] )
       {
@@ -381,7 +381,7 @@ double vtkProjectedTerrainPath::GetHeight(double loc[2], int ij[2])
         }
       }
     }
-  
+
   // Interpolate the height
   double weights[4], s0, s1, s2, s3;
   vtkPixel::InterpolationFunctions(pcoords,weights);
@@ -389,8 +389,8 @@ double vtkProjectedTerrainPath::GetHeight(double loc[2], int ij[2])
   s1 = this->Heights->GetTuple1(ij[0]+1+ ij[1]*this->Dimensions[0]);
   s2 = this->Heights->GetTuple1(ij[0]+  (ij[1]+1)*this->Dimensions[0]);
   s3 = this->Heights->GetTuple1(ij[0]+1+(ij[1]+1)*this->Dimensions[0]);
-    
-  return (this->Origin[2] + this->HeightOffset + s0*weights[0] + s1*weights[1] + 
+
+  return (this->Origin[2] + this->HeightOffset + s0*weights[0] + s1*weights[1] +
     s2*weights[2] + s3*weights[3]);
 }
 
@@ -411,7 +411,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
   double posError = -VTK_LARGE_FLOAT;
   double x[3], loc[2], t, zMap, loc1[2], loc2[2], *x1, *x2, error;
   int ij[2], ij1[2], ij2[2], numInt, i, flip;
-  
+
   // Process the x intersections
   if ( p2[0] >= p1[0] ) //sort along x-axis
     {
@@ -526,7 +526,7 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
 void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   os << indent << "Projection Mode: ";
   if ( this->ProjectionMode == SIMPLE_PROJECTION )
     {
@@ -540,10 +540,10 @@ void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Hug Projection\n";
     }
-  
+
   os << indent << "Height Offset: " << this->HeightOffset << "\n";
   os << indent << "Height Tolerance: " << this->HeightTolerance << "\n";
-  os << indent << "Maximum Number Of Lines: " 
+  os << indent << "Maximum Number Of Lines: "
      << this->MaximumNumberOfLines << "\n";
-  
+
 }

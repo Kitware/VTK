@@ -58,7 +58,7 @@ static const int VTK_MAX_ITERATION=10;
 static const double VTK_CONVERGED=1.e-03;
 //----------------------------------------------------------------------------
 int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
-                                 int& subId, double pcoords[3], 
+                                 int& subId, double pcoords[3],
                                  double& dist2, double *weights)
 {
   int i, j;
@@ -112,14 +112,14 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
 
   //  enter iteration loop
   for (iteration=converged=0; !converged && (iteration < VTK_MAX_ITERATION);
-  iteration++) 
+  iteration++)
     {
     //  calculate element interpolation functions and derivatives
     this->InterpolationFunctions(pcoords, weights);
     this->InterpolationDerivs(pcoords, derivs);
 
     //  calculate newton functions
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
@@ -135,14 +135,14 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
         }
       }
 
-    for (i=0; i<3; i++) 
+    for (i=0; i<3; i++)
       {
       fcol[i] -= x[i];
       }
 
     //  compute determinants and generate improvements
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
-    if ( fabs(d) < 1.e-20) 
+    if ( fabs(d) < 1.e-20)
       {
       return -1;
       }
@@ -159,14 +159,14 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
       converged = 1;
       }
     // Test for bad divergence (S.Hirschberg 11.12.2001)
-    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) ||
+             (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
     //  if not converged, repeat
-    else 
+    else
       {
       params[0] = pcoords[0];
       params[1] = pcoords[1];
@@ -176,7 +176,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
 
   //  if not converged, set the parametric coordinates to arbitrary values
   //  outside of element
-  if ( !converged ) 
+  if ( !converged )
     {
     return -1;
     }
@@ -201,15 +201,15 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
         {
-        if (pcoords[i] < 0.0) 
+        if (pcoords[i] < 0.0)
           {
           pc[i] = 0.0;
           }
-        else if (pcoords[i] > 1.0) 
+        else if (pcoords[i] > 1.0)
           {
           pc[i] = 1.0;
           }
-        else 
+        else
           {
           pc[i] = pcoords[i];
           }
@@ -223,7 +223,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkPyramid::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+void vtkPyramid::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
                                 double x[3], double *weights)
 {
   int i, j;
@@ -245,13 +245,13 @@ void vtkPyramid::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
+int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                            vtkIdList *pts)
 {
   int i;
 
   // define 6 planes that separate regions
-  static double normals[6][3] = { 
+  static double normals[6][3] = {
     {0.0,-0.5547002,0.8320503}, {0.5547002,0.0,0.8320503}, {0.0,0.5547002,0.8320503},
     {-0.5547002,0.0,0.8320503}, {0.70710670,-0.70710670,0.0}, {0.70710670,0.70710670,0.0} };
   static double point[3] = {0.5,0.5,0.3333333};
@@ -260,7 +260,7 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   // evaluate 6 plane equations
   for (i=0; i<6; i++)
     {
-    vals[i] = normals[i][0]*(pcoords[0]-point[0]) + 
+    vals[i] = normals[i][0]*(pcoords[0]-point[0]) +
       normals[i][1]*(pcoords[1]-point[1]) + normals[i][2]*(pcoords[2]-point[2]);
     }
 
@@ -298,7 +298,7 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     pts->SetId(2,this->PointIds->GetId(4));
     }
 
-  else 
+  else
     {
     pts->SetNumberOfIds(4); //quad face
     pts->SetId(0,this->PointIds->GetId(0));
@@ -308,7 +308,7 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-       pcoords[1] < 0.0 || pcoords[1] > 1.0 || 
+       pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
        pcoords[2] < 0.0 || pcoords[2] > 1.0 )
     {
     return 0;
@@ -322,10 +322,10 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 // Marching pyramids (contouring)
 //
-static int edges[8][2] = { {0,1}, {1,2}, {2,3}, 
+static int edges[8][2] = { {0,1}, {1,2}, {2,3},
                            {3,0}, {0,4}, {1,4},
                            {2,4}, {3,4} };
-static int faces[5][4] = { {0,3,2,1}, {0,1,4,-1}, 
+static int faces[5][4] = { {0,3,2,1}, {0,1,4,-1},
                            {1,2,4,-1}, {2,3,4,-1}, {3,0,4,-1} };
 
 typedef int EDGE_LIST;
@@ -333,7 +333,7 @@ typedef struct {
        EDGE_LIST edges[13];
 } TRIANGLE_CASES;
 
-static TRIANGLE_CASES triCases[] = { 
+static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //0
   {{ 3,  4,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //1
   {{ 5,  1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, //2
@@ -369,10 +369,10 @@ static TRIANGLE_CASES triCases[] = {
 };
 
 //----------------------------------------------------------------------------
-void vtkPyramid::Contour(double value, vtkDataArray *cellScalars, 
+void vtkPyramid::Contour(double value, vtkDataArray *cellScalars,
                          vtkIncrementalPointLocator *locator,
-                         vtkCellArray *verts, 
-                         vtkCellArray *lines, 
+                         vtkCellArray *verts,
+                         vtkCellArray *lines,
                          vtkCellArray *polys,
                          vtkPointData *inPd, vtkPointData *outPd,
                          vtkCellData *inCd, vtkIdType cellId,
@@ -405,7 +405,7 @@ void vtkPyramid::Contour(double value, vtkDataArray *cellScalars,
       vert = edges[edge[i]];
 
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+      deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
@@ -430,7 +430,7 @@ void vtkPyramid::Contour(double value, vtkDataArray *cellScalars,
         }
       if ( locator->InsertUniquePoint(x, pts[i]) )
         {
-        if ( outPd ) 
+        if ( outPd )
           {
           vtkIdType p1 = this->PointIds->GetId(v1);
           vtkIdType p2 = this->PointIds->GetId(v2);
@@ -549,7 +549,7 @@ int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double
       if ( tTemp < t )
         {
         t = tTemp;
-        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
         this->EvaluatePosition(x, xTemp, subId, pcoords, dist2, weights);
         }
       }
@@ -572,7 +572,7 @@ int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double
     if ( tTemp < t )
       {
       t = tTemp;
-      x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+      x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2];
       pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 0.0;
       }
     }
@@ -705,7 +705,7 @@ void vtkPyramid::InterpolationFunctions(double pcoords[3], double sf[5])
 
 //----------------------------------------------------------------------------
 void vtkPyramid::InterpolationDerivs(double pcoords[3], double derivs[15])
-{ 
+{
   double rm, sm, tm;
 
   rm = 1. - pcoords[0];
@@ -769,13 +769,13 @@ int vtkPyramid::JacobianInverse(double pcoords[3], double **inverse, double deri
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
-#define VTK_MAX_WARNS 3    
+#define VTK_MAX_WARNS 3
     static int numWarns=0;
     if ( numWarns++ < VTK_MAX_WARNS )
       {
       vtkErrorMacro(<<"Jacobian inverse not found");
       vtkErrorMacro(<<"Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2]
-      << m[1][0] << " " << m[1][1] << " " << m[1][2] 
+      << m[1][0] << " " << m[1][1] << " " << m[1][2]
       << m[2][0] << " " << m[2][1] << " " << m[2][2] );
       return 0;
       }
@@ -797,7 +797,7 @@ void vtkPyramid::GetFacePoints(int faceId, int* &pts)
 }
 
 static double vtkPyramidCellPCoords[15] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                           1.0,1.0,0.0, 0.0,1.0,0.0, 
+                                           1.0,1.0,0.0, 0.0,1.0,0.0,
                                            0.0,0.0,1.0};
 
 //----------------------------------------------------------------------------
@@ -810,7 +810,7 @@ double *vtkPyramid::GetParametricCoords()
 void vtkPyramid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Line:\n";
   this->Line->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Triangle:\n";

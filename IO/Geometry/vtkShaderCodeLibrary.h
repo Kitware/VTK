@@ -16,7 +16,7 @@
 // .SECTION Description
 // This class provides the hardware shader code.
 // .SECTION Thanks
-// Shader support in VTK includes key contributions by Gary Templet at 
+// Shader support in VTK includes key contributions by Gary Templet at
 // Sandia National Labs.
 
 #ifndef __vtkShaderCodeLibrary_h

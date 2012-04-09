@@ -21,7 +21,7 @@ QualityThang = 0
 #   (no output)
 # - the declaration of decompositions and permutations
 #   (outputs static arrays)
-# - the logic that produces test 
+# - the logic that produces test
 #   (outputs C++ code that references the static arrays)
 
 # ============================================================================
@@ -75,7 +75,7 @@ vtkTessCase holds the tetrahedral decomposition of a simplex.
     vtkTessCase.CurrentOffset += len(indices)
     if len(indices) % 4:
       raise 'Bad number of indices!'
-  
+
   def Print( self, fout ):
     """Write the decomposition out to the given file."""
     print >> fout, '// case %s' % self.Label
@@ -1160,13 +1160,13 @@ __PrmCase( '0>3>2<0', '0>2>3<0', ( 0, 1, 3, 2 ), -1 )
 # 3a-alpha
 __SubCase( '0=2>3<0', [  4, 6, 7, 3,  10, 1, 2, 3, \
                       10, 2, 6, 3,  10, 6, 4, 3, \
-                      10, 4, 1, 3 ], +1 ) 
+                      10, 4, 1, 3 ], +1 )
 __PrmCase( '2=3>0<2', '0=2>3<0', ( 0, 2, 3, 1 ), +1 )
 __PrmCase( '0=3>2<0', '0=2>3<0', ( 0, 3, 1, 2 ), +1 )
 # 3a-beta
 __SubCase( '3>0=2<3', [  1, 3, 2, 7,  10, 1, 2, 7, \
                       10, 2, 6, 7,  10, 6, 4, 7, \
-                      10, 4, 1, 7 ], +1 ) 
+                      10, 4, 1, 7 ], +1 )
 __PrmCase( '0>2=3<0', '3>0=2<3', ( 0, 2, 3, 1 ), +1 )
 __PrmCase( '2>0=3<2', '3>0=2<3', ( 0, 3, 1, 2 ), +1 )
 # 3a-gamma
@@ -1175,7 +1175,7 @@ __SubCase( '0=2=3=0', [  2, 6,10,13,   3, 7,13,11, \
                         11, 6,13,10,  11, 6, 7,13, \
                         11, 6, 4, 7,   2,10,11,13, \
                          1,10,11, 2,   2,11, 3,13,  \
-                         3, 2, 1,11  ], +1 ) 
+                         3, 2, 1,11  ], +1 )
 __EndSubcase()
 EndCase()
 
@@ -1201,24 +1201,24 @@ __SubCase( '1>0,0>3', [ 0, 5, 2, 7,   0, 5, 7, 4, \
 __SubCase( '0=1,0>3', [ 4, 1, 5, 3,  10, 0 ,4, 7, \
                      10, 2, 0, 7,  10, 7, 4, 3, \
                      10, 2, 7, 3,  10, 5, 2, 3, \
-                     10, 4, 5, 3 ], +1 ) 
+                     10, 4, 5, 3 ], +1 )
 __PrmCase( '0=3,0>1', '0=1,0>3', ( 1, 0, 3, 2 ), +1 )
 # 3c-beta
 __SubCase( '3>0,0=1', [ 7, 1, 5, 3,   7, 5 ,2, 3, \
                      10, 0, 4, 7,  10, 2, 0, 7, \
                      10, 5, 2, 7,  10, 4, 5, 7, \
-                      1, 5, 4, 7 ], +1 ) 
+                      1, 5, 4, 7 ], +1 )
 __PrmCase( '1>0,0=3', '3>0,0=1', ( 1, 0, 3, 2 ), +1 )
 # 3c-gamma
 __SubCase( '0=1,0=3', [ 4, 1, 5,11,  11, 1 ,5, 3, \
                      10, 0, 4, 7,  10, 2, 0, 7, \
                      10, 5, 2, 3,  10, 2, 7, 3, \
                      10, 7, 4,11,  10, 7,11, 3, \
-                     10, 4, 5,11,  10,11, 5, 3 ], +1 ) 
+                     10, 4, 5,11,  10,11, 5, 3 ], +1 )
 __EndSubcase()
 EndCase()
 
-BeginCase( '3d' ) 
+BeginCase( '3d' )
 __BeginSubcase()
 __SubCase( '0>4,0>2', [ 4, 3, 6, 0,   4, 3, 8, 6, \
                         4, 2, 8, 1,   4, 2, 6, 8, \
@@ -1236,20 +1236,20 @@ __SubCase( '4>0,0>2', [ 8, 0, 6, 4,   8, 0, 3, 6, \
 __SubCase( '0=4,0>2', [ 4, 1, 2, 8,  11, 4 ,0, 6, \
                      11, 0, 3, 6,  11, 2, 4, 6, \
                      11, 3, 2, 6,  11, 3, 8, 2, \
-                     11, 8, 4, 2 ], +1 ) 
+                     11, 8, 4, 2 ], +1 )
 __PrmCase( '0=2,0>4', '0=4,0>2', ( 1, 0, 3, 2 ), +1 )
 # 3d-beta
 __SubCase( '2>0,0=4', [ 6, 2, 8, 1,   6, 8 ,2, 3, \
                      11, 4, 0, 6,  11, 0, 3, 6, \
                       8,11, 3, 6,   8, 4,11, 6, \
-                      1, 6, 4, 8 ], +1 ) 
+                      1, 6, 4, 8 ], +1 )
 __PrmCase( '4>0,0=2', '2>0,0=4', ( 1, 0, 3, 2 ), +1 )
 # 3d-gamma
 __SubCase( '0=4,0=2', [ 4, 1,10, 8,  10, 2 ,8, 1, \
                      11, 4, 0, 6,  11, 0, 3, 6, \
                      11, 3, 8, 2,  11, 3, 2, 6, \
                      11,10, 4, 6,  11,10, 6, 2, \
-                      8, 4,11,10,  11,10, 2, 8 ], +1 ) 
+                      8, 4,11,10,  11,10, 2, 8 ], +1 )
 __EndSubcase()
 EndCase()
 
@@ -1257,27 +1257,27 @@ BeginCase( '4a' )
 __Unconditional( [ 7, 8, 9, 3,   7, 9, 8, 6 ], (), +1 )
 __BeginSubcase()
 __SubCase( '5>4>3', [ 8, 0, 6, 1,   8, 0, 7, 6, \
-                      9, 1, 6, 2,   9, 1, 8, 6 ], +1 ) 
+                      9, 1, 6, 2,   9, 1, 8, 6 ], +1 )
 __PrmCase( '3>4>5', '5>4>3', ( 2, 1, 0, 3 ), -1 )
 __SubCase( '3<4>5', [ 8, 0, 6, 1,   8, 0, 7, 6, \
-                      8, 2, 6, 9,   8, 2, 1, 6 ], +1 ) 
+                      8, 2, 6, 9,   8, 2, 1, 6 ], +1 )
 __SubCase( '3>4<5', [ 6, 9, 8, 1,   6, 9, 1, 2, \
                       6, 7, 0, 1,   6, 7, 1, 8 ], +1 )
 # 4a-alpha
 __SubCase( '3=4>5', [ 6, 7, 0,11,   6, 0 ,1,11, \
                       6, 7,11, 8,   6,11, 1, 8, \
-                      1, 2, 6, 8,   2, 6, 8, 9 ], +1 ) 
+                      1, 2, 6, 8,   2, 6, 8, 9 ], +1 )
 __PrmCase( '4=5,4>3', '3=4>5', ( 2, 1, 0, 3 ), -1 )
 # 4a-beta
 __SubCase( '5>4,3=4', [ 6, 7, 0,11,   6, 0 ,1,11, \
                       6, 7,11, 8,   6,11, 1, 8, \
-                      1, 2, 6, 9,   1, 6, 8, 9 ], +1 ) 
+                      1, 2, 6, 9,   1, 6, 8, 9 ], +1 )
 __PrmCase( '3>4=5', '5>4,3=4', ( 2, 1, 0, 3 ), -1 )
 # 4a-gamma
 __SubCase( '3=4=5', [ 6, 7, 0,11,   6, 0 ,1,11, \
                       6, 7,11, 8,   6,11, 1, 8, \
                       6, 1, 2,12,   6, 2, 9,12, \
-                      6, 9, 8,12,   6, 8, 1,12 ], +1 ) 
+                      6, 9, 8,12,   6, 8, 1,12 ], +1 )
 __EndSubcase()
 EndCase()
 
@@ -1401,7 +1401,7 @@ __SubCase( '1=2=3=4=1', [ 10, 6, 0, 7,   10, 1, 5, 8, \
                           13, 2, 3,12,   13, 2,12, 5, \
                           13,12, 3, 8,   13,12, 5, 8, \
                            6, 7,10, 8,    6,10, 5, 8, \
-                           6, 5,13, 8,    6,13, 7, 8 ], +1 ) 
+                           6, 5,13, 8,    6,13, 7, 8 ], +1 )
 __EndSubcase()
 EndCase()
 
@@ -1433,7 +1433,7 @@ __SubCase( '1=2,3>4', [ 10, 6, 0, 7,  10, 1, 5, 8, \
                         10, 0, 1, 7,  10, 7, 1, 8, \
                          6, 8, 5, 9,  10, 6, 7, 8, \
                         10, 6, 8, 5,   8, 9, 6, 7 ], ) \
-                        ) 
+                        )
 __PrmCase( '1=2,4>3', '1=2,3>4', ( 1, 0, 2, 3 ), -1 )
 __PrmCase( '3=4,1>2', '1=2,3>4', ( 1, 0, 3, 2 ), +1 )
 __PrmCase( '3=4,2>1', '1=2,3>4', ( 0, 1, 3, 2 ), -1 )
@@ -1442,7 +1442,7 @@ __SubCase( '1=2,3=4', [ 10, 6, 0, 7,  10, 1, 5, 8, \
                         10, 0, 1,11,  10,11, 1, 8, \
                         10, 0,11, 7,  10, 7,11, 8, \
                         10, 8, 5, 9,  10, 6, 7, 9, \
-                        10, 7, 8, 9,  10, 5, 6, 9 ], +1 ) 
+                        10, 7, 8, 9,  10, 5, 6, 9 ], +1 )
 __EndSubcase()
 EndCase()
 
@@ -1519,7 +1519,7 @@ print >> genCode, \
 /*
  * The array below is indexed by the edge code for a tetrahedron.
  * Looking up a row with a tet's edge code will return C and P.
- * C is a configuration number and P is a permutation index. 
+ * C is a configuration number and P is a permutation index.
  *
  * C is based on the case number from Ruprecht and
  * Müller's (1998) paper on adaptive tetrahedra. (The case
@@ -1622,7 +1622,7 @@ int vtkStreamingTessellator::EdgeCodesToCaseCodesPlusPermutation[64][2] =
 };
 
 
-/* Does this mean anything? If so, then you are either 
+/* Does this mean anything? If so, then you are either
  * superstitious or much more clever than I (or both?).
  */
 /* permutation index, P:  0  1  2  3  4  5  6  7  8  9 10 11 */

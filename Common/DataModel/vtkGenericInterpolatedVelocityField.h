@@ -17,12 +17,12 @@
 // .SECTION Description
 // vtkGenericInterpolatedVelocityField acts as a continuous velocity field
 // by performing cell interpolation on the underlying vtkDataSet.
-// This is a concrete sub-class of vtkFunctionSet with 
-// NumberOfIndependentVariables = 4 (x,y,z,t) and 
+// This is a concrete sub-class of vtkFunctionSet with
+// NumberOfIndependentVariables = 4 (x,y,z,t) and
 // NumberOfFunctions = 3 (u,v,w). Normally, every time an evaluation
 // is performed, the cell which contains the point (x,y,z) has to
-// be found by calling FindCell. This is a computationally expansive 
-// operation. In certain cases, the cell search can be avoided or shortened 
+// be found by calling FindCell. This is a computationally expansive
+// operation. In certain cases, the cell search can be avoided or shortened
 // by providing a guess for the cell iterator. For example, in streamline
 // integration, the next evaluation is usually in the same or a neighbour
 // cell. For this reason, vtkGenericInterpolatedVelocityField stores the last
@@ -80,8 +80,8 @@ public:
   // Description:
   // Return the cell cached from last evaluation.
   vtkGenericAdaptorCell *GetLastCell();
-  
-  // Description: 
+
+  // Description:
   // Returns the interpolation weights cached from last evaluation
   // if the cached cell is valid (returns 1). Otherwise, it does not
   // change w and returns 0.
@@ -99,13 +99,13 @@ public:
   vtkGetMacro(CacheMiss, int);
 
   // Description:
-  // If you want to work with an arbitrary vector array, then set its name 
-  // here. By default this in NULL and the filter will use the active vector 
+  // If you want to work with an arbitrary vector array, then set its name
+  // here. By default this in NULL and the filter will use the active vector
   // array.
   vtkGetStringMacro(VectorsSelection);
-  void SelectVectors(const char *fieldName) 
+  void SelectVectors(const char *fieldName)
     {this->SetVectorsSelection(fieldName);}
-  
+
   // Description:
   // Returns the last dataset that was visited. Can be used
   // as a first guess as to where the next point will be as

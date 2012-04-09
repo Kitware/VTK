@@ -41,7 +41,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
-  
+
   this->TransformCoordinate = NULL;
   this->TransformCoordinateUseDouble = false;
 
@@ -73,7 +73,7 @@ void vtkPolyDataMapper2D::ShallowCopy(vtkAbstractMapper *mapper)
 }
 
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
-{  
+{
   if (this->TransformCoordinate)
     {
     this->TransformCoordinate->UnRegister(this);
@@ -137,14 +137,14 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
   // Since we are not supporting the texture color option in this mapper,
   // the cell flag does nothing.
   int cellFlag = 0;
-  
+
   // Get rid of old colors
   if ( this->Colors )
     {
     this->Colors->UnRegister(this);
     this->Colors = NULL;
     }
-  
+
   // map scalars if necessary
   if ( this->ScalarVisibility )
     {
@@ -199,7 +199,7 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
     return;
     }
   this->Modified();
-  
+
   this->ArrayId = arrayNum;
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
@@ -214,7 +214,7 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(char* arrayName, int component)
     return;
     }
   this->Modified();
-  
+
   strcpy(this->ArrayName, arrayName);
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
@@ -223,13 +223,13 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(char* arrayName, int component)
 // Specify a lookup table for the mapper to use.
 void vtkPolyDataMapper2D::SetLookupTable(vtkScalarsToColors *lut)
 {
-  if ( this->LookupTable != lut ) 
+  if ( this->LookupTable != lut )
     {
     if (lut)
       {
       lut->Register(this);
       }
-    if ( this->LookupTable ) 
+    if ( this->LookupTable )
       {
       this->LookupTable->UnRegister(this);
       }
@@ -249,7 +249,7 @@ vtkScalarsToColors *vtkPolyDataMapper2D::GetLookupTable()
 
 void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 {
-  if ( this->LookupTable ) 
+  if ( this->LookupTable )
     {
     this->LookupTable->UnRegister(this);
     }
@@ -261,11 +261,11 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 // Return the method of coloring scalar data.
 const char *vtkPolyDataMapper2D::GetColorModeAsString(void)
 {
-  if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ) 
+  if ( this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS )
     {
     return "MapScalars";
     }
-  else 
+  else
     {
     return "Default";
     }
@@ -285,7 +285,7 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Lookup Table: (none)\n";
     }
 
-  os << indent << "Scalar Visibility: " 
+  os << indent << "Scalar Visibility: "
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 
   os << indent << "Scalar Mode: ";
@@ -307,16 +307,16 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
       os << "Use cell field data" << endl;
       break;
     }
-  
+
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   os << indent << "UseLookupTableScalarRange: " << this->UseLookupTableScalarRange << "\n";
-  
+
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   if ( this->TransformCoordinate )
     {
-    os << indent << "Transform Coordinate: " 
+    os << indent << "Transform Coordinate: "
        << this->TransformCoordinate << "\n";
     this->TransformCoordinate->PrintSelf(os, indent.GetNextIndent());
     }
@@ -324,14 +324,14 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No Transform Coordinate\n";
     }
-  os << indent << "Transform Coordinate use double: " 
+  os << indent << "Transform Coordinate use double: "
      << (this->TransformCoordinateUseDouble  ? "True\n" : "False\n") << "\n";
 }
 
-void vtkPolyDataMapper2D::SetColorModeToDefault() 
+void vtkPolyDataMapper2D::SetColorModeToDefault()
 {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
 
-void vtkPolyDataMapper2D::SetColorModeToMapScalars() 
+void vtkPolyDataMapper2D::SetColorModeToMapScalars()
 {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
 
 //----------------------------------------------------------------------------

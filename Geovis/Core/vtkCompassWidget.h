@@ -21,12 +21,12 @@
 
 // .NAME vtkCompassWidget - set a value by manipulating something
 // .SECTION Description
-// The vtkCompassWidget is used to adjust a scalar value in an 
+// The vtkCompassWidget is used to adjust a scalar value in an
 // application. Note that the actual appearance of the widget depends on
 // the specific representation for the widget.
-// 
+//
 // To use this widget, set the widget representation. (the details may
-// vary depending on the particulars of the representation). 
+// vary depending on the particulars of the representation).
 //
 //
 // .SECTION Event Bindings
@@ -34,13 +34,13 @@
 // watches the vtkRenderWindowInteractor for these events):
 // <pre>
 // If the slider bead is selected:
-//   LeftButtonPressEvent - select slider 
-//   LeftButtonReleaseEvent - release slider 
+//   LeftButtonPressEvent - select slider
+//   LeftButtonReleaseEvent - release slider
 //   MouseMoveEvent - move slider
 // </pre>
 //
 // Note that the event bindings described above can be changed using this
-// class's vtkWidgetEventTranslator. This class translates VTK events 
+// class's vtkWidgetEventTranslator. This class translates VTK events
 // into the vtkCompassWidget's widget events:
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
@@ -85,13 +85,13 @@ public:
   void SetRepresentation(vtkCompassRepresentation *r)
   {this->Superclass::SetWidgetRepresentation
      (reinterpret_cast<vtkWidgetRepresentation*>(r));}
-  
+
   // Description:
-  // Create the default widget representation if one is not set. 
+  // Create the default widget representation if one is not set.
   void CreateDefaultRepresentation();
 
   // Description:
-  // Get the value for this widget. 
+  // Get the value for this widget.
   double GetHeading();
   void SetHeading(double v);
   double GetTilt();
@@ -102,7 +102,7 @@ public:
 protected:
   vtkCompassWidget();
   ~vtkCompassWidget() {}
-  
+
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);

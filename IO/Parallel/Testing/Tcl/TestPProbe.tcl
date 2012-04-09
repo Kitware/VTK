@@ -81,7 +81,7 @@ vtkActor Actor6
 Ren1 AddActor Actor6
 
 if { $numProcs > 1 } {
-    compManager SetRenderWindow renWin 
+    compManager SetRenderWindow renWin
         compManager InitializePieces
 }
 

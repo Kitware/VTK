@@ -47,19 +47,19 @@ void trace(void)
   float remainOpacity=1.0-destColor.a;
 
   bool inside=true;
-  
+
   vec4 color;
   vec4 opacity;
 
   initShade();
-  
+
   float t=0.0;
-  
+
   // We NEED two nested while loops. It is trick to work around hardware
   // limitation about the maximum number of loops.
 
   while(inside)
-    {  
+    {
     while(inside)
       {
       vec4 value=texture3D(dataSetTexture,pos);

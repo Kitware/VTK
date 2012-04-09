@@ -36,7 +36,7 @@ public:
 protected:
   vtkHierarchicalPolyDataMapper();
   ~vtkHierarchicalPolyDataMapper();
-  
+
 private:
   vtkHierarchicalPolyDataMapper(const vtkHierarchicalPolyDataMapper&);  // Not implemented.
   void operator=(const vtkHierarchicalPolyDataMapper&);    // Not implemented.

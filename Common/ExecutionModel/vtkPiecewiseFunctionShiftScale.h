@@ -14,7 +14,7 @@
 =========================================================================*/
 
 // .NAME vtkPiecewiseFunctionShiftScale -
-// 
+//
 // .SECTION Description
 
 #ifndef __vtkPiecewiseFunctionShiftScale_h
@@ -31,29 +31,29 @@ public:
   static vtkPiecewiseFunctionShiftScale *New();
   vtkTypeMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   vtkSetMacro(PositionShift, double);
   vtkSetMacro(PositionScale, double);
   vtkSetMacro(ValueShift, double);
   vtkSetMacro(ValueScale, double);
-  
+
   vtkGetMacro(PositionShift, double);
   vtkGetMacro(PositionScale, double);
   vtkGetMacro(ValueShift, double);
   vtkGetMacro(ValueScale, double);
-  
+
 protected:
   vtkPiecewiseFunctionShiftScale();
   ~vtkPiecewiseFunctionShiftScale();
-  
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
-  
+
   double PositionShift;
   double PositionScale;
   double ValueShift;
   double ValueScale;
-  
+
 private:
   vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&);  // Not implemented
   void operator=(const vtkPiecewiseFunctionShiftScale&);  // Not implemented

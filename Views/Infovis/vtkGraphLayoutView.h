@@ -27,7 +27,7 @@
 // is Fast2D which is fast but not that good, for better layout set the
 // layout to Simple2D or ForceDirected. There are also tree and circle
 // layout strategies. :)
-// 
+//
 // .SEE ALSO
 // vtkFast2DLayoutStrategy
 // vtkSimple2DLayoutStrategy
@@ -58,12 +58,12 @@ public:
   // The array to use for vertex labeling.  Default is "VertexDegree".
   void SetVertexLabelArrayName(const char* name);
   const char* GetVertexLabelArrayName();
-  
+
   // Description:
   // The array to use for edge labeling.  Default is "LabelText".
   void SetEdgeLabelArrayName(const char* name);
   const char* GetEdgeLabelArrayName();
-  
+
   // Description:
   // Whether to show vertex labels.  Default is off.
   void SetVertexLabelVisibility(bool vis);
@@ -81,13 +81,13 @@ public:
   void SetEdgeVisibility(bool vis);
   bool GetEdgeVisibility();
   vtkBooleanMacro(EdgeVisibility, bool);
-  
+
   // Description:
   // Whether to show edge labels.  Default is off.
   void SetEdgeLabelVisibility(bool vis);
   bool GetEdgeLabelVisibility();
   vtkBooleanMacro(EdgeLabelVisibility, bool);
-  
+
   // Description:
   // Whether to hide edge labels during mouse interactions.  Default is off.
   void SetHideEdgeLabelsOnInteraction(bool vis);
@@ -99,18 +99,18 @@ public:
   // is to color by vertex degree.
   void SetVertexColorArrayName(const char* name);
   const char* GetVertexColorArrayName();
-  
+
   // Description:
   // Whether to color vertices.  Default is off.
   void SetColorVertices(bool vis);
   bool GetColorVertices();
   vtkBooleanMacro(ColorVertices, bool);
-  
+
   // Description:
   // The array to use for coloring edges.  Default is "color".
   void SetEdgeColorArrayName(const char* name);
   const char* GetEdgeColorArrayName();
-  
+
   // Description:
   // Whether to color edges.  Default is off.
   void SetColorEdges(bool vis);
@@ -127,17 +127,17 @@ public:
   // The array to use for coloring edges.
   void SetEnabledEdgesArrayName(const char* name);
   const char* GetEnabledEdgesArrayName();
-  
+
   // Description:
   // Whether to color edges.  Default is off.
   void SetEnableEdgesByArray(bool vis);
   int GetEnableEdgesByArray();
 
   // Description:
-  // The array to use for coloring vertices. 
+  // The array to use for coloring vertices.
   void SetEnabledVerticesArrayName(const char* name);
   const char* GetEnabledVerticesArrayName();
-  
+
   // Description:
   // Whether to color vertices.  Default is off.
   void SetEnableVerticesByArray(bool vis);
@@ -147,13 +147,13 @@ public:
   // The array used for scaling (if ScaledGlyphs is ON)
   void SetScalingArrayName(const char* name);
   const char* GetScalingArrayName();
-  
+
   // Description:
   // Whether to use scaled glyphs or not.  Default is off.
   void SetScaledGlyphs(bool arg);
   bool GetScaledGlyphs();
   vtkBooleanMacro(ScaledGlyphs, bool);
-  
+
   // Description:
   // The layout strategy to use when performing the graph layout.
   // The possible strings are:
@@ -163,7 +163,7 @@ public:
   //  - "Clustering 2D"  A 2D force directed layout that's just like
   //                     simple 2D but uses some techniques to cluster better.
   //  - "Community 2D"   A linear-time 2D layout that's just like
-  //                    Fast 2D but looks for and uses a community 
+  //                    Fast 2D but looks for and uses a community
   //                    array to 'accentuate' clusters.
   //  - "Fast 2D"       A linear-time 2D layout.
   //  - "Pass Through"  Use locations assigned to the input.
@@ -224,8 +224,8 @@ public:
   // object directly and simply set the pointer through this method.
   vtkEdgeLayoutStrategy* GetEdgeLayoutStrategy();
   void SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy *s);
-  
-  // Description: 
+
+  // Description:
   // Associate the icon at index "index" in the vtkTexture to all vertices
   // containing "type" as a value in the vertex attribute array specified by
   // IconArrayName.
@@ -255,12 +255,12 @@ public:
   // The type of glyph to use for the vertices
   void SetGlyphType(int type);
   int GetGlyphType();
-  
+
   // Description:
   // The size of the font used for vertex labeling
   virtual void SetVertexLabelFontSize(const int size);
   virtual int GetVertexLabelFontSize();
-  
+
   // Description:
   // The size of the font used for edge labeling
   virtual void SetEdgeLabelFontSize(const int size);
@@ -286,10 +286,10 @@ public:
   // wants to show the iterative progress of the graph layout
   // See Also: UpdateLayout();
   virtual int IsLayoutComplete();
-  
+
   // Description:
-  // This method is useful for when the strategy is iterative 
-  // and the application wants to show the iterative progress 
+  // This method is useful for when the strategy is iterative
+  // and the application wants to show the iterative progress
   // of the graph layout. The application would have something like
   // while(!IsLayoutComplete())
   //   {

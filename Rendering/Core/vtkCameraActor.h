@@ -43,13 +43,13 @@ public:
   // The camera to represent. Initial value is NULL.
   void SetCamera(vtkCamera *camera);
   vtkGetObjectMacro(Camera,vtkCamera);
-  
+
   // Description:
   // Ratio between the width and the height of the frustum. Initial value is
   // 1.0 (square)
   vtkSetMacro(WidthByHeightRatio,double);
   vtkGetMacro(WidthByHeightRatio,double);
-  
+
   // Description:
   // Support the standard render methods.
   virtual int RenderOpaqueGeometry(vtkViewport *viewport);
@@ -71,7 +71,7 @@ public:
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
   unsigned long int GetMTime();
-  
+
   // Description:
   // Get property of the internal actor.
   vtkProperty *GetProperty();
@@ -79,16 +79,16 @@ public:
   // Description:
   // Set property of the internal actor.
   void SetProperty(vtkProperty *p);
-  
+
 protected:
   vtkCameraActor();
   ~vtkCameraActor();
 
   void UpdateViewProps();
-  
+
   vtkCamera *Camera;
   double WidthByHeightRatio;
-  
+
   vtkFrustumSource *FrustumSource;
   vtkPolyDataMapper *FrustumMapper;
   vtkActor *FrustumActor;

@@ -327,7 +327,7 @@ void vtkBiQuadraticQuadraticWedge::Contour (double value,
 }
 
 //----------------------------------------------------------------------------
-// Clip this biquadratic wedge using scalar value provided. Like contouring, 
+// Clip this biquadratic wedge using scalar value provided. Like contouring,
 // except that it cuts the wedge to produce tetrahedra.
 void
 vtkBiQuadraticQuadraticWedge::Clip (double value, vtkDataArray *cellScalars,
@@ -363,7 +363,7 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
   double pc[3], xTemp[3];
   int faceNum;
   int inter;
-  
+
   t = VTK_DOUBLE_MAX;
   for (faceNum = 0; faceNum < 5; faceNum++)
     {
@@ -404,31 +404,31 @@ int vtkBiQuadraticQuadraticWedge::IntersectWithLine (double *p1, double *p2,
             pcoords[1] = pc[1];
             pcoords[2] = pc[0];
             break;
-            
+
           case 1:
             pcoords[0] = 1.0;
             pcoords[1] = pc[0];
             pcoords[2] = pc[1];
             break;
-            
+
           case 2:
             pcoords[0] = pc[0];
             pcoords[1] = 0.0;
             pcoords[2] = pc[1];
             break;
-            
+
           case 3:
             pcoords[0] = pc[1];
             pcoords[1] = 1.0;
             pcoords[2] = pc[0];
             break;
-            
+
           case 4:
             pcoords[0] = pc[1];
             pcoords[1] = pc[0];
             pcoords[2] = 0.0;
             break;
-            
+
           case 5:
             pcoords[0] = pc[0];
             pcoords[1] = pc[1];
@@ -659,7 +659,7 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs (double pcoords[3], doubl
   derivs[52] =  (x + 1)*(y + 1) * (-2 * z);
   derivs[53] = -(y + 1)*(x + y) * (-2 * z);
 
-  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]  
+  // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for(int i = 0; i < 54; i++)
     derivs[i] *= 2;
 }

@@ -44,12 +44,12 @@ int TestTM3DLightComponents(int argc,
                             char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
- 
+
   // Create a spherical implicit function.
   vtkSphere *shape=vtkSphere::New();
   shape->SetRadius(0.1);
   shape->SetCenter(0.0,0.0,0.0);
-  
+
   vtkSampleFunction *source=vtkSampleFunction::New();
   source->SetImplicitFunction(shape);
   shape->Delete();
@@ -59,13 +59,13 @@ int TestTM3DLightComponents(int argc,
   source->SetCapping(false);
   source->SetComputeNormals(false);
   source->SetScalarArrayName("values");
-  
+
   source->Update();
-  
+
   vtkDataArray *a=source->GetOutput()->GetPointData()->GetScalars("values");
   double range[2];
   a->GetRange(range);
-  
+
   vtkImageShiftScale *t=vtkImageShiftScale::New();
   t->SetInputConnection(source->GetOutputPort());
   source->Delete();
@@ -77,21 +77,21 @@ int TestTM3DLightComponents(int argc,
     }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
-  
+
   t->Update();
-  
+
   vtkRenderWindow *renWin=vtkRenderWindow::New();
   vtkRenderer *ren1=vtkRenderer::New();
   ren1->SetBackground(0.1,0.4,0.2);
-  
+
   renWin->AddRenderer(ren1);
   ren1->Delete();
   renWin->SetSize(301,300); // intentional odd and NPOT  width/height
-  
+
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
-  
+
   vtkLightCollection *lights=ren1->GetLights();
   assert("check: lights_empty" && lights->GetNumberOfItems()==0);
   vtkLight *light=vtkLight::New();
@@ -103,43 +103,43 @@ int TestTM3DLightComponents(int argc,
   light->SetLightTypeToHeadlight();
   lights->AddItem(light);
   light->Delete();
-  
+
   renWin->Render(); // make sure we have an OpenGL context.
 
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
-  
+
   vtkVolumeTextureMapper3D *volumeMapper=vtkVolumeTextureMapper3D::New();
   volumeMapper->SetSampleDistance(1.0);
-  
+
   volumeMapper->SetInputConnection(
     t->GetOutputPort());
-  
+
   volumeProperty=vtkVolumeProperty::New();
   volumeMapper->SetBlendModeToComposite();
   volumeProperty->ShadeOn();
   volumeProperty->SetSpecularPower(128.0);
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  
+
   vtkPiecewiseFunction *compositeOpacity = vtkPiecewiseFunction::New();
   compositeOpacity->AddPoint(0.0,1.0); // 1.0
   compositeOpacity->AddPoint(80.0,1.0); // 1.0
   compositeOpacity->AddPoint(80.1,0.0); // 0.0
   compositeOpacity->AddPoint(255.0,0.0); // 0.0
   volumeProperty->SetScalarOpacity(compositeOpacity);
-  
+
   vtkColorTransferFunction *color=vtkColorTransferFunction::New();
   color->AddRGBPoint(0.0  ,1.0,1.0,1.0); // blue
   color->AddRGBPoint(40.0  ,1.0,1.0,1.0); // red
   color->AddRGBPoint(255.0,1.0,1.0,1.0); // white
   volumeProperty->SetColor(color);
   color->Delete();
-  
+
   volume=vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
-  
+
   int valid=volumeMapper->IsRenderSupported(volumeProperty,ren1);
 
   int retVal;
@@ -159,13 +159,13 @@ int TestTM3DLightComponents(int argc,
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
-  
+
   volumeMapper->Delete();
   volumeProperty->Delete();
   volume->Delete();
   iren->Delete();
   t->Delete();
   compositeOpacity->Delete();
-  
+
   return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

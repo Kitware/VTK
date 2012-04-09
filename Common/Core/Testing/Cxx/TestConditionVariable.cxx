@@ -68,7 +68,7 @@ VTK_THREAD_RETURN_TYPE vtkTestCondVarThread( void* arg )
       // Wait for the condition and then note we were signaled.
       // This part looks like a Hansen Monitor:
       // ref: http://www.cs.utexas.edu/users/lorenzo/corsi/cs372h/07S/notes/Lecture12.pdf (page 2/5), code on Tradeoff slide.
-      
+
       td->Lock->Lock();
       while ( td->Done <= 0 )
         {

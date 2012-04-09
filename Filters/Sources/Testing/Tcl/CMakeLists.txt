@@ -3,11 +3,11 @@ if (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # Add tests, with the data
   #
   if(VTK_DATA_ROOT)
-    foreach( tfile 
+    foreach( tfile
       squadViewer
       )
       add_test(${tfile}-image ${VTK_EXECUTABLE}
-        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
         ${vtkFiltersSources_SOURCE_DIR}/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
         -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -16,7 +16,7 @@ if (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     endforeach()
     if(VTK_USE_TK)
       add_test(squadViewer-image ${VTK_EXECUTABLE}
-        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
         ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/squadViewer.tcl
         -D ${VTK_DATA_ROOT}
         -T ${VTK_BINARY_DIR}/Testing/Temporary

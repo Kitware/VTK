@@ -118,7 +118,7 @@ vtkDataRepresentation::vtkDataRepresentation()
   // We may need to clear the data object cache after execution.
   this->Observer = Command::New();
   this->AddObserver(vtkCommand::EndEvent, this->Observer);
-  
+
   this->Selectable = true;
   this->SelectionArrayNames = vtkStringArray::New();
   this->SelectionType = vtkSelectionNode::INDICES;
@@ -367,7 +367,7 @@ void vtkDataRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   if (this->AnnotationLinkInternal)
     {
     this->AnnotationLinkInternal->PrintSelf(os, indent.GetNextIndent());
-    }  
+    }
   os << indent << "Selectable: " << this->Selectable << endl;
   os << indent << "SelectionType: " << this->SelectionType << endl;
   os << indent << "SelectionArrayNames: " << (this->SelectionArrayNames ? "" : "(null)") << endl;

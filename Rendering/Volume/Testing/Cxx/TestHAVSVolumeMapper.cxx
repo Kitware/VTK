@@ -162,8 +162,8 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
   textActor->SetDisplayPosition( 150, 150 );
   textActor->GetTextProperty()->SetJustificationToCentered();
   textActor->GetTextProperty()->SetFontSize(30);
-  
-  
+
+
   if ( !supported )
     {
     ren1->AddViewProp(textActor);
@@ -173,7 +173,7 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
     ren1->AddViewProp(actor);
     ren1->AddViewProp(volume);
     }
-  
+
 
   ren1->ResetCamera();
   ren1->GetActiveCamera()->Azimuth(20.0);
@@ -228,7 +228,7 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
   mapper->Delete();
   actor->Delete();
   textActor->Delete();
-  
+
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
     {

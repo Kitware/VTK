@@ -398,7 +398,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
 
   // no activity on any of the sockets
   vtkGenericWarningMacro("Socket error in select. No descriptor selected.");
-  return -1; 
+  return -1;
 #else
   static_cast<void>(sockets_to_select);
   static_cast<void>(size);

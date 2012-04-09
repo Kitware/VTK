@@ -15,7 +15,7 @@
 // .NAME vtkSphereHandleRepresentation - A spherical rendition of point in 3D space
 //
 // .SECTION Description
-// This class is a concrete implementation of vtkHandleRepresentation. It 
+// This class is a concrete implementation of vtkHandleRepresentation. It
 // renders handles as spherical blobs in 3D space.
 //
 // .SECTION See Also
@@ -49,10 +49,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the position of the point in world and display coordinates. Note 
-  // that if the position is set outside of the bounding box, it will be 
+  // Set the position of the point in world and display coordinates. Note
+  // that if the position is set outside of the bounding box, it will be
   // clamped to the boundary of the bounding box. This method overloads
-  // the superclasses' SetWorldPosition() and SetDisplayPosition() in 
+  // the superclasses' SetWorldPosition() and SetDisplayPosition() in
   // order to set the focal point of the cursor properly.
   virtual void SetWorldPosition(double p[3]);
   virtual void SetDisplayPosition(double p[3]);
@@ -77,17 +77,17 @@ public:
   void SetSelectedProperty(vtkProperty*);
   vtkGetObjectMacro(Property,vtkProperty);
   vtkGetObjectMacro(SelectedProperty,vtkProperty);
-  
+
   // Description:
   // Set the "hot spot" size; i.e., the region around the focus, in which the
   // motion vector is used to control the constrained sliding action. Note the
-  // size is specified as a fraction of the length of the diagonal of the 
+  // size is specified as a fraction of the length of the diagonal of the
   // point widget's bounding box.
   vtkSetClampMacro(HotSpotSize,double,0.0,1.0);
   vtkGetMacro(HotSpotSize,double);
-  
+
   // Description:
-  // Overload the superclasses SetHandleSize() method to update internal 
+  // Overload the superclasses SetHandleSize() method to update internal
   // variables.
   virtual void SetHandleSize(double size);
 
@@ -125,7 +125,7 @@ protected:
   vtkCellPicker *CursorPicker;
   double LastPickPosition[3];
   double LastEventPosition[2];
-  
+
   // Methods to manipulate the cursor
   int  ConstraintAxis;
   void Translate(double *p1, double *p2);
@@ -138,13 +138,13 @@ protected:
   vtkProperty *Property;
   vtkProperty *SelectedProperty;
   void         CreateDefaultProperties();
-  
+
   // The size of the hot spot.
   double HotSpotSize;
   int    DetermineConstraintAxis(int constraint, double *x);
   int    WaitingForMotion;
   int    WaitCount;
-  
+
   // Current handle sized (may reflect scaling)
   double CurrentHandleSize;
 

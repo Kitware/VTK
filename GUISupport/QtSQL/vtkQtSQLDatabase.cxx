@@ -98,12 +98,12 @@ bool vtkQtSQLDatabase::Open(const char* password)
     vtkErrorMacro("Qt database type must be non-null.");
     return false;
     }
-  
+
   // We have to assign a unique ID to each database connection, so
   // Qt doesn't blow-away existing connections
   const QString connection_name = QString::number(this->id++);
   this->QtDatabase = QSqlDatabase::addDatabase(this->DatabaseType, connection_name);
-  
+
   if (this->HostName != NULL)
     {
     this->QtDatabase.setHostName(this->HostName);
@@ -159,7 +159,7 @@ vtkStringArray* vtkQtSQLDatabase::GetTables()
 {
   // Clear out any exiting stuff
   this->myTables->Initialize();
-  
+
   // Yea... do different things depending on database type
   // Get tables on oracle is different
   if (this->QtDatabase.driverName() == "QOCI")
@@ -169,21 +169,21 @@ vtkStringArray* vtkQtSQLDatabase::GetTables()
     query->Execute();
     while(query->NextRow())
       this->myTables->InsertNextValue(query->DataValue(0).ToString());
-      
+
     // Okay done with query so delete
     query->Delete();
     }
   else
     {
-    // Copy the table list from Qt database  
+    // Copy the table list from Qt database
     QStringList tables = this->QtDatabase.tables(QSql::Tables);
     for (int i = 0; i < tables.size(); ++i)
       {
       this->myTables->InsertNextValue(tables.at(i).toAscii());
       }
-    
+
     }
-    
+
   return this->myTables;
 }
 
@@ -191,15 +191,15 @@ vtkStringArray* vtkQtSQLDatabase::GetRecord(const char *table)
 {
   // Clear any existing records
   currentRecord->Resize(0);
-  
+
   QSqlRecord columns = this->QtDatabase.record(table);
   for (int i = 0; i < columns.count(); i++)
     {
     this->currentRecord->InsertNextValue(columns.fieldName(i).toAscii());
     }
-    
+
   return currentRecord;
-} 
+}
 
 vtkStringArray* vtkQtSQLDatabase::GetColumns()
 {
@@ -238,7 +238,7 @@ bool vtkQtSQLDatabase::IsSupported(int feature)
 
     case VTK_SQL_FEATURE_LAST_INSERT_ID:
       return this->QtDatabase.driver()->hasFeature(QSqlDriver::LastInsertId);
-      
+
     case VTK_SQL_FEATURE_BATCH_OPERATIONS:
       return this->QtDatabase.driver()->hasFeature(QSqlDriver::BatchOperations);
 
@@ -266,27 +266,27 @@ void vtkQtSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 bool vtkQtSQLDatabase::ParseURL(const char* URL)
 {
   std::string protocol;
-  std::string username; 
+  std::string username;
   std::string unused;
-  std::string hostname; 
-  std::string dataport; 
+  std::string hostname;
+  std::string dataport;
   std::string database;
   std::string dataglom;
-  
+
   // SQLite is a bit special so lets get that out of the way :)
   if ( ! vtksys::SystemTools::ParseURLProtocol( URL, protocol, dataglom))
     {
     vtkGenericWarningMacro( "Invalid URL: " << URL );
     return false;
     }
-  
+
   if ( protocol == "sqlite" )
     {
     this->SetDatabaseType("QSQLITE");
     this->SetDatabaseName(dataglom.c_str());
     return true;
     }
-    
+
   // Okay now for all the other database types get more detailed info
   if ( ! vtksys::SystemTools::ParseURL( URL, protocol, username,
                                         unused, hostname, dataport, database) )
@@ -294,12 +294,12 @@ bool vtkQtSQLDatabase::ParseURL(const char* URL)
     vtkGenericWarningMacro( "Invalid URL: " << URL );
     return false;
     }
-    
+
   // Create Qt 'version' of database prototcol type
   QString qtType;
   qtType = protocol.c_str();
   qtType = "Q" + qtType.toUpper();
-  
+
   this->SetDatabaseType(qtType.toAscii());
   this->SetUserName(username.c_str());
   this->SetHostName(hostname.c_str());

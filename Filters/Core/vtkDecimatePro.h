@@ -14,12 +14,12 @@
 =========================================================================*/
 // .NAME vtkDecimatePro - reduce the number of triangles in a mesh
 // .SECTION Description
-// vtkDecimatePro is a filter to reduce the number of triangles in a triangle 
-// mesh, forming a good approximation to the original geometry. The input to 
-// vtkDecimatePro is a vtkPolyData object, and only triangles are treated. If 
+// vtkDecimatePro is a filter to reduce the number of triangles in a triangle
+// mesh, forming a good approximation to the original geometry. The input to
+// vtkDecimatePro is a vtkPolyData object, and only triangles are treated. If
 // you desire to decimate polygonal meshes, first triangulate the polygons
 // with vtkTriangleFilter object.
-// 
+//
 // The implementation of vtkDecimatePro is similar to the algorithm
 // originally described in "Decimation of Triangle Meshes", Proc Siggraph
 // `92, with three major differences. First, this algorithm does not
@@ -29,7 +29,7 @@
 // progressive meshes, that is a stream of operations that can be easily
 // transmitted and incrementally updated (see Hugues Hoppe's Siggraph '96
 // paper on progressive meshes).
-// 
+//
 // The algorithm proceeds as follows. Each vertex in the mesh is classified
 // and inserted into a priority queue. The priority is based on the error to
 // delete the vertex and retriangulate the hole. Vertices that cannot be
@@ -43,7 +43,7 @@
 // the desired reduction is still not achieved, the remaining vertices are
 // split as necessary (in a recursive fashion) so that it is possible to
 // eliminate every triangle as necessary.
-// 
+//
 // To use this object, at a minimum you need to specify the ivar
 // TargetReduction. The algorithm is guaranteed to generate a reduced mesh
 // at this level as long as the following four conditions are met: 1)
@@ -127,7 +127,7 @@ public:
 
   // Description:
   // Turn on/off the splitting of the mesh at corners, along edges, at
-  // non-manifold points, or anywhere else a split is required. Turning 
+  // non-manifold points, or anywhere else a split is required. Turning
   // splitting off will better preserve the original topology of the
   // mesh, but you may not obtain the requested reduction.
   vtkSetMacro(Splitting,int);
@@ -197,7 +197,7 @@ public:
   // the performance of the algorithm.)
   vtkSetClampMacro(Degree,int,25,VTK_CELL_SIZE);
   vtkGetMacro(Degree,int);
-  
+
   // Description:
   // Specify the inflection point ratio. An inflection point occurs
   // when the ratio of reduction error between two iterations is greater
@@ -215,14 +215,14 @@ public:
   vtkIdType GetNumberOfInflectionPoints();
 
   // Description:
-  // Get a list of inflection points. These are double values 0 < r <= 1.0 
+  // Get a list of inflection points. These are double values 0 < r <= 1.0
   // corresponding to reduction level, and there are a total of
   // NumberOfInflectionPoints() values. You must provide an array (of
   // the correct size) into which the inflection points are written.
   void GetInflectionPoints(double *inflectionPoints);
 
   // Description:
-  // Get a list of inflection points. These are double values 0 < r <= 1.0 
+  // Get a list of inflection points. These are double values 0 < r <= 1.0
   // corresponding to reduction level, and there are a total of
   // NumberOfInflectionPoints() values. You must provide an array (of
   // the correct size) into which the inflection points are written.
@@ -282,7 +282,7 @@ protected:
     double   FAngle;
   };
   typedef LocalVertex *LocalVertexPtr;
-    
+
   class LocalTri
   {
   public:
@@ -297,7 +297,7 @@ protected:
   friend class VertexArray;
   class VertexArray { //;prevent man page generation
   public:
-    VertexArray(const vtkIdType sz) 
+    VertexArray(const vtkIdType sz)
       {this->MaxId = -1; this->Array = new LocalVertex[sz];};
     ~VertexArray()
       {
@@ -307,7 +307,7 @@ protected:
           }
       };
     vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
-    void InsertNextVertex(LocalVertex& v) 
+    void InsertNextVertex(LocalVertex& v)
       {this->MaxId++; this->Array[this->MaxId] = v;};
     LocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
     void Reset() {this->MaxId = -1;};
@@ -320,7 +320,7 @@ protected:
   friend class TriArray;
   class TriArray { //;prevent man page generation
   public:
-    TriArray(const vtkIdType sz) 
+    TriArray(const vtkIdType sz)
       {this->MaxId = -1; this->Array = new LocalTri[sz];};
     ~TriArray()
       {
@@ -330,7 +330,7 @@ protected:
           }
       };
     vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
-    void InsertNextTriangle(LocalTri& t) 
+    void InsertNextTriangle(LocalTri& t)
       {this->MaxId++; this->Array[this->MaxId] = t;};
     LocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
     void Reset() {this->MaxId = -1;};

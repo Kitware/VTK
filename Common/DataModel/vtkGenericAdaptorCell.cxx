@@ -48,12 +48,12 @@ vtkGenericAdaptorCell::vtkGenericAdaptorCell()
   this->Quad=vtkQuad::New();
   this->Wedge=vtkWedge::New();
   this->Pyramid=vtkPyramid::New();
-  
+
   this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(8); // up to 8 points with a linear hexa
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
-  
+
 
   // Internal array to avoid New/ Delete
   this->InternalPoints = vtkDoubleArray::New();
@@ -65,7 +65,7 @@ vtkGenericAdaptorCell::vtkGenericAdaptorCell()
   this->PointDataScalars = vtkDoubleArray::New();
   this->PointData->SetScalars( this->PointDataScalars );
   this->PointDataScalars->Delete();
-  
+
   this->Tuples=0;
   this->TuplesCapacity=0;
 }
@@ -81,16 +81,16 @@ vtkGenericAdaptorCell::~vtkGenericAdaptorCell()
   this->Quad->Delete();
   this->Wedge->Delete();
   this->Pyramid->Delete();
-   
+
   this->Scalars->Delete();
   this->PointData->Delete();
   this->CellData->Delete();
-  
+
   this->InternalPoints->Delete();
   this->InternalScalars->Delete();
   this->InternalCellArray->Delete();
   this->InternalIds->Delete();
-  
+
   if(this->Tuples!=0)
     {
     delete[] this->Tuples;
@@ -191,7 +191,7 @@ void vtkGenericAdaptorCell::GetBounds(double bounds[6])
 double *vtkGenericAdaptorCell::GetBounds()
 {
   this->GetBounds(this->Bounds);
-  
+
   return this->Bounds;
 }
 
@@ -223,11 +223,11 @@ void vtkGenericAdaptorCell::Reset()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues, 
+void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
                                     vtkImplicitFunction *f,
                                     vtkGenericAttributeCollection *attributes,
                                     vtkGenericCellTessellator *tess,
-                                    vtkIncrementalPointLocator *locator, 
+                                    vtkIncrementalPointLocator *locator,
                                     vtkCellArray *verts,
                                     vtkCellArray *lines,
                                     vtkCellArray *polys,
@@ -247,22 +247,22 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
   assert("pre: internalPd_exists" && internalPd!=0);
   assert("pre: secondaryPd_exists" && secondaryPd!=0);
   assert("pre: secondaryCd_exists" && secondaryCd!=0);
-  
+
   int i;
   int j;
   int c;
   double range[2];
   double contVal=-1000;
   double *values;
-  
+
   vtkCell *linearCell;
   vtkIdType ptsCount;
- 
+
   range[0]=0; // to fix warning
   range[1]=0; // on some compilers
-  
+
   this->Reset();
-  
+
   // for each cell-centered attribute: copy the value in the secondary
   // cell data.
   secondaryCd->Reset();
@@ -277,7 +277,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       }
     attrib++;
     }
-  
+
   int attribute = this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
     {
@@ -315,21 +315,21 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         break;
       }
     int currComp=attributes->GetActiveComponent();
-    
+
     double *locals=this->GetParametricCoords();
     double point[3];
-    
+
     vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
-    
+
     values = contourValues->GetValues();
     int numContours = contourValues->GetNumberOfContours();
-    
+
     this->AllocateTuples(attributes->GetMaxNumberOfComponents());
-    
+
     int activeAttributeIdx = attributes->GetActiveAttribute();
-    
+
     // build the cell
     i=0;
     while(i<ptsCount)
@@ -337,7 +337,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       this->EvaluateLocation(0,locals,point);
       linearCell->PointIds->SetId(i, i);
       linearCell->Points->SetPoint(i, point );
-      
+
       // for each point-centered attribute
       secondaryPd->Reset();
       attribute_idx=0;
@@ -360,7 +360,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
           }
         ++attribute_idx;
         }
-      
+
       if(f)
         {
         contVal = f->FunctionValue( point );
@@ -376,11 +376,11 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         range[0] = range[0] < contVal ? range[0] : contVal;
         range[1] = range[1] > contVal ? range[1] : contVal;
         }
-      
+
       ++i;
       locals=locals+3;
       }
-     
+
     // call contour on each value
     for( int vv = 0; vv < numContours; vv++ )
       {
@@ -391,12 +391,12 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
                             0, outCd);
         }
       }
-    
+
     return;
     }
   // not linear case
   internalPd->Reset();
-  
+
   switch(this->GetDimension())
     {
     case 3:
@@ -416,22 +416,22 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       ptsCount=0;
       assert("TODO: dimension 1 and 0" && 0);
     }
-    
+
   vtkIdType npts, *pts = 0;
   double *point = this->InternalPoints->GetPointer(0);
 
   vtkDataArray *scalars = internalPd->GetArray(attributes->GetActiveAttribute());
   int currComp = attributes->GetActiveComponent();
- 
+
   values = contourValues->GetValues();
   int numContours = contourValues->GetNumberOfContours();
- 
+
   c = internalPd->GetNumberOfArrays();
   int dataIndex=0;
-  
+
   // for each linear sub-tetra, Build it and its pointdata
   // then contour it.
-  for(this->InternalCellArray->InitTraversal(); 
+  for(this->InternalCellArray->InitTraversal();
       this->InternalCellArray->GetNextCell(npts, pts);)
     {
     assert("check: valid number of points" && npts == ptsCount);
@@ -450,9 +450,9 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear simplex.
-      
+
       range[0] = range[0] < contVal ? range[0] : contVal;
-      range[1] = range[1] > contVal ? range[1] : contVal;   
+      range[1] = range[1] > contVal ? range[1] : contVal;
       // for each point-centered attribute
       secondaryPd->Reset();
       j=0;
@@ -463,7 +463,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
         ++j;
         }
       ++dataIndex;
-      
+
       }
     for( int vv = 0; vv < numContours; vv++ )
       {
@@ -478,12 +478,12 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericAdaptorCell::Clip(double value, 
+void vtkGenericAdaptorCell::Clip(double value,
                                  vtkImplicitFunction *f,
                                  vtkGenericAttributeCollection *attributes,
                                  vtkGenericCellTessellator *tess,
                                  int insideOut,
-                                 vtkIncrementalPointLocator *locator, 
+                                 vtkIncrementalPointLocator *locator,
                                  vtkCellArray *connectivity,
                                  vtkPointData *outPd,
                                  vtkCellData *outCd,
@@ -498,18 +498,18 @@ void vtkGenericAdaptorCell::Clip(double value,
   assert("pre: internalPd_exists" && internalPd!=0);
   assert("pre: secondaryPd_exists" && secondaryPd!=0);
   assert("pre: secondaryCd_exists" && secondaryCd!=0);
-  
+
   int i;
   int j;
   int c;
   double contVal=-1000;
   double *values;
-  
+
   vtkCell *linearCell;
   vtkIdType ptsCount;
- 
+
   this->Reset();
-  
+
   // for each cell-centered attribute: copy the value in the secondary
   // cell data.
   secondaryCd->Reset();
@@ -524,7 +524,7 @@ void vtkGenericAdaptorCell::Clip(double value,
       }
     attrib++;
     }
-  
+
    int attribute=this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
     {
@@ -562,18 +562,18 @@ void vtkGenericAdaptorCell::Clip(double value,
         break;
       }
     int currComp=attributes->GetActiveComponent();
-    
+
     double *locals=this->GetParametricCoords();
     double point[3];
-    
+
     vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
-    
+
     this->AllocateTuples(attributes->GetMaxNumberOfComponents());
-    
+
     int activeAttributeIdx=attributes->GetActiveAttribute();
-    
+
     // build the cell
     i=0;
     while(i<ptsCount)
@@ -581,7 +581,7 @@ void vtkGenericAdaptorCell::Clip(double value,
       this->EvaluateLocation(0,locals,point);
       linearCell->PointIds->SetId(i, i);
       linearCell->Points->SetPoint(i, point );
-      
+
       // for each point-centered attribute
       secondaryPd->Reset();
       attribute_idx=0;
@@ -604,27 +604,27 @@ void vtkGenericAdaptorCell::Clip(double value,
           }
         ++attribute_idx;
         }
-      
+
       if(f)
         {
         contVal = f->FunctionValue( point );
         }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear cell.
-      
+
       ++i;
       locals=locals+3;
       }
-     
-    linearCell->Clip(value,this->Scalars,locator,connectivity, 
-                     secondaryPd, outPd, secondaryCd, 0, outCd, 
+
+    linearCell->Clip(value,this->Scalars,locator,connectivity,
+                     secondaryPd, outPd, secondaryCd, 0, outCd,
                      insideOut);
     return;
     }
-  
+
   // Not linear case
   internalPd->Reset();
-  
+
   switch(this->GetDimension())
     {
     case 3:
@@ -644,19 +644,19 @@ void vtkGenericAdaptorCell::Clip(double value,
       ptsCount=0;
       assert("TODO: dimension 1 and 0" && 0);
     }
-    
+
   vtkIdType npts, *pts = 0;
   double *point  = this->InternalPoints->GetPointer(0);
-  
+
   vtkDataArray *scalars=internalPd->GetArray(attributes->GetActiveAttribute());
   int currComp=attributes->GetActiveComponent();
-  
+
   c=internalPd->GetNumberOfArrays();
   int dataIndex=0;
-  
+
   // for each linear sub-tetra, Build it and its pointdata
   // then contour it.
-  for(this->InternalCellArray->InitTraversal(); 
+  for(this->InternalCellArray->InitTraversal();
       this->InternalCellArray->GetNextCell(npts, pts);)
     {
     assert("check: valid number of points" && npts == ptsCount);
@@ -674,7 +674,7 @@ void vtkGenericAdaptorCell::Clip(double value,
         }
       this->Scalars->SetTuple1( i, contVal ); // value at point i of the
       // current linear simplex.
-      
+
       // for each point-centered attribute
       secondaryPd->Reset();
       j=0;
@@ -685,10 +685,10 @@ void vtkGenericAdaptorCell::Clip(double value,
         ++j;
         }
       ++dataIndex;
-      
+
       }
-    linearCell->Clip(value,this->Scalars,locator,connectivity, 
-                     secondaryPd, outPd, secondaryCd, 0, outCd, 
+    linearCell->Clip(value,this->Scalars,locator,connectivity,
+                     secondaryPd, outPd, secondaryCd, 0, outCd,
                      insideOut);
     }
 }
@@ -710,7 +710,7 @@ void vtkGenericAdaptorCell::Clip(double value,
 // // \pre scalars_exists: scalars!=0
 // \pre pd_exist: pd!=0
 // \pre cd_exists: cd!=0
-void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes, 
+void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes,
                                        vtkGenericCellTessellator *tess,
                                        vtkPoints *points,
                                        vtkIncrementalPointLocator *locator,
@@ -727,7 +727,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   assert("pre: internalPd_exists" && internalPd!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exist" && cd!=0);
-  
+
   int i;
   int j;
 #ifndef NDEBUG
@@ -737,13 +737,13 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   this->Reset();
 
   assert("check: TODO: Tessellate only works with 2D and 3D cells" && (this->GetDimension() == 3 ||  this->GetDimension() == 2));
-  
+
   int attribute=this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
     {
     // linear case
     this->AllocateTuples(attributes->GetMaxNumberOfComponents());
-    
+
     // for each cell-centered attribute: copy the value
     int attrib=0;
     while(attrib<attributes->GetNumberOfAttributes())
@@ -752,12 +752,12 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         {
         vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
         double *values=attributes->GetAttribute(attrib)->GetTuple(this);
-        array->InsertNextTuple(values);  
+        array->InsertNextTuple(values);
         }
       attrib++;
       }
     int numVerts;
-    
+
     switch(this->GetType())
       {
       case VTK_HIGHER_ORDER_TRIANGLE:
@@ -795,12 +795,12 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     double point[3];
     vtkIdType ptId;
     i=0;
-    
+
     vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
     int newpoint=1;
-    
+
     while(i<numVerts)
       {
       this->EvaluateLocation(0,locals,point);
@@ -833,7 +833,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
       ++i;
       locals=locals+3;
       }
-    
+
     cellArray->InsertNextCell(this->InternalIds );
     if(types!=0)
       {
@@ -867,12 +867,12 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         linearCellType=0; // for compiler warning
         }
       }
-    
+
     vtkIdType npts = 0;
     vtkIdType *pts = 0;
     double *point  = this->InternalPoints->GetPointer(0);
-    
-    
+
+
     // for each cell-centered attribute: copy the value
     int c=this->InternalCellArray->GetNumberOfCells();
     int attrib=0;
@@ -891,18 +891,18 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
         }
       attrib++;
       }
-    
+
     c=internalPd->GetNumberOfArrays(); // same as pd->GetNumberOfArrays();
-    
+
     int dataIndex=0;
     int newpoint=1;
-    
-    for(this->InternalCellArray->InitTraversal(); 
+
+    for(this->InternalCellArray->InitTraversal();
         this->InternalCellArray->GetNextCell(npts, pts);)
       {
       assert("check: is_a_simplex" && npts == valid_npts);
       this->InternalIds->Reset();
-    
+
       for(i=0;i<npts;i++, point+=3)
         {
         vtkIdType ptId;
@@ -957,18 +957,18 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
   assert("pre: internalPd_exists" && internalPd!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exists" && cd!=0);
-  
+
   int i;
   int j;
   int c;
-  
+
   this->Reset();
 
   internalPd->Reset();
-  
+
   // if simplex (tetra) just one sub-tetra [0,1,2,3]
   // otherwise build sub-tetra: HOW?
-  
+
   int attribute=this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
     {
@@ -978,7 +978,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     // the relevant face: basically, do what the Graphics/vtkGeometryFilter
     // do with the linear cells
     this->AllocateTuples(attributes->GetMaxNumberOfComponents());
-    
+
     // for each cell-centered attribute: copy the value
     int attrib=0;
     while(attrib<attributes->GetNumberOfAttributes())
@@ -993,9 +993,9 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
       }
     vtkGenericAttribute *a;
     int count = attributes->GetNumberOfAttributes();
-    
+
     int attribute_idx;
-    
+
     this->InternalIds->Reset();
     int *faceVerts=this->GetFaceArray(index);
     int numVerts=this->GetNumberOfVerticesOnFace(index);
@@ -1003,8 +1003,8 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     double *local;
     double point[3];
     vtkIdType ptId;
-    
-    
+
+
     i=0;
     int newpoint=1;
     while(i<numVerts)
@@ -1042,7 +1042,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
     cellArray->InsertNextCell(this->InternalIds );
     return;
     }
-  
+
   // NOT LINEAR
   tess->TessellateFace(this, attributes,index,
                        this->InternalPoints,
@@ -1051,7 +1051,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
   vtkIdType npts=0;
   vtkIdType *pts = 0;
   double *point = this->InternalPoints->GetPointer(0);
-  
+
   // for each cell-centered attribute: copy the value
   c=this->InternalCellArray->GetNumberOfCells();
   int attrib=0;
@@ -1070,18 +1070,18 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
       }
     attrib++;
     }
-  
+
   c=internalPd->GetNumberOfArrays();
   int dataIndex=0;
-  
+
   int newpoint=1;
-  
-  for(this->InternalCellArray->InitTraversal(); 
+
+  for(this->InternalCellArray->InitTraversal();
       this->InternalCellArray->GetNextCell(npts, pts);)
     {
     assert("check: is_a_triangle" && npts == 3);
     this->InternalIds->Reset();
-    
+
     for(i=0;i<npts;i++, point+=3)
       {
       vtkIdType ptId;
@@ -1118,7 +1118,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
 void vtkGenericAdaptorCell::AllocateTuples(int size)
 {
   assert("pre: positive_size" && size>0);
-  
+
   if(this->TuplesCapacity<size)
     {
     if(this->Tuples!=0)

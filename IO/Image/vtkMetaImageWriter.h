@@ -43,7 +43,7 @@
 //      endian order. You might want to play with this value when moving data
 //      between different computer platforms.
 //    * ElementDataFile is the name of the file containing the raw binary data
-//      of the image. This file must be in the same directory as the header. 
+//      of the image. This file must be in the same directory as the header.
 //
 // MetaImage headers are expected to have extension: ".mha" or ".mhd"
 //
@@ -52,7 +52,7 @@
 // class.
 
 // .SECTION Caveats
-// 
+//
 
 // .SECTION See Also
 // vtkImageWriter vtkMetaImageReader

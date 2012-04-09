@@ -46,7 +46,7 @@ void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  // int idx;  
+  // int idx;
 
   //os << indent << "BoundaryRescale: " << this->BoundaryRescale << "\n";
 
@@ -69,19 +69,19 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
 {
   int x;
   double sum;
-  
+
   // handle special case
   if (std == 0.0)
     {
     kernel[0] = 1.0;
     return;
     }
-  
+
   // fill in kernel
   sum = 0.0;
   for (x = min; x <= max; ++x)
     {
-    sum += kernel[x-min] = 
+    sum += kernel[x-min] =
       exp(- (static_cast<double>(x*x)) / (std * std * 2.0));
     }
 
@@ -142,16 +142,16 @@ void vtkImageGaussianSmooth::InternalRequestUpdateExtent(int *inExt,
 }
 
 //----------------------------------------------------------------------------
-// For a given position along the convolution axis, this method loops over 
+// For a given position along the convolution axis, this method loops over
 // all other axes, and performs the convolution. Boundary conditions handled
 // previously.
 template <class T>
-void 
+void
 vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
                               double *kernel, int kernelSize,
                               vtkImageData *inData, T *inPtrC,
-                              vtkImageData *outData, int outExt[6], 
-                              T *outPtrC, int *pcycle, int target, 
+                              vtkImageData *outData, int outExt[6],
+                              T *outPtrC, int *pcycle, int target,
                               int *pcount, int total)
 {
   int maxC, max0 = 0, max1 = 0;
@@ -188,15 +188,15 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
       max0 = outExt[1] - outExt[0] + 1;   max1 = outExt[3] - outExt[2] + 1;
       break;
     }
-  
+
   for (idxC = 0; idxC < maxC; ++idxC)
     {
     inPtr1 = inPtrC;
-    outPtr1 = outPtrC;    
+    outPtr1 = outPtrC;
     for (idx1 = 0; !self->AbortExecute && idx1 < max1; ++idx1)
       {
       inPtr0 = inPtr1;
-      outPtr0 = outPtr1;    
+      outPtr0 = outPtr1;
       for (idx0 = 0; idx0 < max0; ++idx0)
         {
         inPtrK = inPtr0;
@@ -230,7 +230,7 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
           }
         }
       }
-    
+
     ++inPtrC;
     ++outPtrC;
     }
@@ -246,10 +246,10 @@ size_t vtkImageGaussianSmoothGetTypeSize(T*)
 //----------------------------------------------------------------------------
 // This method convolves over one axis. It loops over the convolved axis,
 // and handles boundary conditions.
-void vtkImageGaussianSmooth::ExecuteAxis(int axis, 
+void vtkImageGaussianSmooth::ExecuteAxis(int axis,
                                          vtkImageData *inData, int inExt[6],
                                          vtkImageData *outData, int outExt[6],
-                                         int *pcycle, int target, 
+                                         int *pcycle, int target,
                                          int *pcount, int total,
                                          vtkInformation *inInfo)
 {
@@ -266,12 +266,12 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   void *outPtr;
   int coords[3];
   vtkIdType *outIncs, outIncA;
-  
+
   // Get the correct starting pointer of the output
   outPtr = outData->GetScalarPointerForExtent(outExt);
   outIncs = outData->GetIncrements();
   outIncA = outIncs[axis];
-  
+
   // trick to account for the scalar type of the output(used to be only float)
   switch (outData->GetScalarType())
     {
@@ -287,18 +287,18 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   coords[0] = inExt[0];
   coords[1] = inExt[2];
   coords[2] = inExt[4];
-  
+
   // get whole extent for boundary checking ...
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   wholeMin = wholeExtent[axis*2];
-  wholeMax = wholeExtent[axis*2+1];  
+  wholeMax = wholeExtent[axis*2+1];
 
   // allocate memory for the kernel
   radius = static_cast<int>(this->StandardDeviations[axis]
                             * this->RadiusFactors[axis]);
   size = 2*radius + 1;
   kernel = new double[size];
-  
+
   // loop over the convolution axis
   previousClipped = currentClipped = 1;
   max = outExt[axis*2+1];
@@ -321,19 +321,19 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       {
       kernelRightClip = 0;
       }
-    
+
     // We can only use previous kernel if it is not clipped and new
     // kernel is also not clipped.
     currentClipped = kernelLeftClip + kernelRightClip;
     if (currentClipped || previousClipped)
       {
-      this->ComputeKernel(kernel, -radius+kernelLeftClip, 
+      this->ComputeKernel(kernel, -radius+kernelLeftClip,
                           radius-kernelRightClip,
                           static_cast<double>(this->StandardDeviations[axis]));
       kernelSize = size - kernelLeftClip - kernelRightClip;
       }
     previousClipped = currentClipped;
-    
+
     /* now do the convolution on the rest of the axes */
     inPtr = inData->GetScalarPointer(coords);
     switch (inData->GetScalarType())
@@ -352,11 +352,11 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
     outPtr = static_cast<void *>(
       static_cast<unsigned char *>(outPtr) + outIncA);
     }
-  
+
   // get rid of temporary kernel
   delete [] kernel;
 }
-  
+
 //----------------------------------------------------------------------------
 // This method decomposes the gaussian and smooths along each axis.
 void vtkImageGaussianSmooth::ThreadedRequestData(
@@ -369,7 +369,7 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
 {
   int inExt[6];
   int target, count, total, cycle;
-  
+
   // for feed back, determine line target to get 50 progress update
   // update is called every target lines. Progress is computed from
   // the number of pixels processed so far.
@@ -377,13 +377,13 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
   if (id == 0)
     {
     // determine the number of pixels.
-    total = this->Dimensionality * (outExt[1] - outExt[0] + 1) 
+    total = this->Dimensionality * (outExt[1] - outExt[0] + 1)
       * (outExt[3] - outExt[2] + 1) * (outExt[5] - outExt[4] + 1)
       * inData[0][0]->GetNumberOfScalarComponents();
     // pixels per update (50 updates)
     target = total / 50;
     }
-  
+
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
@@ -405,7 +405,7 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
   switch (this->Dimensionality)
     {
     case 1:
-      this->ExecuteAxis(0, inData[0][0], inExt, outData[0], outExt, 
+      this->ExecuteAxis(0, inData[0][0], inExt, outData[0], outExt,
                         &cycle, target, &count, total, inInfo);
       break;
     case 2:
@@ -420,9 +420,9 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
       tempData->SetExtent(tempExt);
       tempData->AllocateScalars(inData[0][0]->GetScalarType(),
                                 inData[0][0]->GetNumberOfScalarComponents());
-      this->ExecuteAxis(1, inData[0][0], inExt, tempData, tempExt, 
+      this->ExecuteAxis(1, inData[0][0], inExt, tempData, tempExt,
                         &cycle, target, &count, total, inInfo);
-      this->ExecuteAxis(0, tempData, tempExt, outData[0], outExt, 
+      this->ExecuteAxis(0, tempData, tempExt, outData[0], outExt,
                         &cycle, target, &count, total, inInfo);
       // release temporary data
       tempData->Delete();
@@ -439,7 +439,7 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
       temp1Ext[0] = inExt[0];  temp1Ext[1] = inExt[1];
       temp1Ext[2] = outExt[2];  temp1Ext[3] = outExt[3];
       temp1Ext[4] = outExt[4];  temp1Ext[5] = outExt[5];
-      
+
       // create a temp data for intermediate results
       temp0Data = vtkImageData::New();
       temp0Data->SetExtent(temp0Ext);
@@ -459,5 +459,5 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
                         &cycle, target, &count, total, inInfo);
       temp1Data->Delete();
       break;
-    }  
+    }
 }

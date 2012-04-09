@@ -86,7 +86,7 @@ vtkIdType vtkIdList::InsertUniqueId(const vtkIdType vtkid)
       return i;
       }
     }
-  
+
   return this->InsertNextId(vtkid);
 }
 
@@ -145,7 +145,7 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
   vtkIdType *newIds;
   vtkIdType newSize;
 
-  if ( sz > this->Size ) 
+  if ( sz > this->Size )
     {
     newSize = this->Size + sz;
     }
@@ -153,7 +153,7 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
     {
     return this->Ids;
     }
-  else 
+  else
     {
     newSize = sz;
     }
@@ -165,7 +165,7 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
     }
 
   if ( (newIds = new vtkIdType[newSize]) == NULL )
-    { 
+    {
     vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
     }
@@ -187,20 +187,20 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
 // to result of intersection operation.
 void vtkIdList::IntersectWith(vtkIdList* otherIds)
 {
-  // Fast method due to Dr. Andreas Mueller of ISE Integrated Systems 
+  // Fast method due to Dr. Andreas Mueller of ISE Integrated Systems
   // Engineering (CH).
   vtkIdType thisNumIds = this->GetNumberOfIds();
 
-  if (thisNumIds <= VTK_TMP_ARRAY_SIZE) 
+  if (thisNumIds <= VTK_TMP_ARRAY_SIZE)
     {//Use fast method if we can fit in temporary storage
     vtkIdType  thisIds[VTK_TMP_ARRAY_SIZE];
     vtkIdType i, vtkid;
-    
+
     for (i=0; i < thisNumIds; i++)
       {
       thisIds[i] = this->GetId(i);
       }
-    for (this->Reset(), i=0; i < thisNumIds; i++) 
+    for (this->Reset(), i=0; i < thisNumIds; i++)
       {
       vtkid = thisIds[i];
       if ( otherIds->IsId(vtkid) != (-1) )
@@ -208,17 +208,17 @@ void vtkIdList::IntersectWith(vtkIdList* otherIds)
         this->InsertNextId(vtkid);
         }
       }
-    } 
-  else 
+    }
+  else
     {//use slower method for extreme cases
     vtkIdType *thisIds = new vtkIdType [thisNumIds];
     vtkIdType  i, vtkid;
-    
+
     for (i=0; i < thisNumIds; i++)
       {
       *(thisIds + i) = this->GetId(i);
       }
-    for (this->Reset(), i=0; i < thisNumIds; i++) 
+    for (this->Reset(), i=0; i < thisNumIds; i++)
       {
       vtkid = *(thisIds + i);
       if ( otherIds->IsId(vtkid) != (-1) )

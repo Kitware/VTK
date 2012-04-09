@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkFixedPointVolumeRayCastMapper - A fixed point mapper for volumes
 // .SECTION Description
-// This is a software ray caster for rendering volumes in vtkImageData. 
+// This is a software ray caster for rendering volumes in vtkImageData.
 // It works with all input data types and up to four components. It performs
 // composite or MIP rendering, and can be intermixed with geometric data.
 // Space leaping is used to speed up the rendering process. In addition,
@@ -34,14 +34,14 @@
 // This mapper handles all data type from unsigned char through double.
 // However, some of the internal calcultions are performed in float and
 // therefore even the full float range may cause problems for this mapper
-// (both in scalar data values and in spacing between samples). 
+// (both in scalar data values and in spacing between samples).
 //
-// Space leaping is performed by creating a sub-sampled volume. 4x4x4 
-// cells in the original volume are represented by a min, max, and 
-// combined gradient and flag value. The min max volume has three 
+// Space leaping is performed by creating a sub-sampled volume. 4x4x4
+// cells in the original volume are represented by a min, max, and
+// combined gradient and flag value. The min max volume has three
 // unsigned shorts per 4x4x4 group of cells from the original volume -
 // one reprenting the minimum scalar index (the scalar value adjusted
-// to fit in the 15 bit range), the maximum scalar index, and a 
+// to fit in the 15 bit range), the maximum scalar index, and a
 // third unsigned short which is both the maximum gradient opacity in
 // the neighborhood (an unsigned char) and the flag that is filled
 // in for the current lookup tables to indicate whether this region
@@ -98,7 +98,7 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Set/Get the distance between samples used for rendering 
+  // Set/Get the distance between samples used for rendering
   // when AutoAdjustSampleDistances is off, or when this mapper
   // has more than 1 second allocated to it for rendering.
   vtkSetMacro( SampleDistance, float );
@@ -112,7 +112,7 @@ public:
   // will be used instead of the SampleDistance above.
   vtkSetMacro( InteractiveSampleDistance, float );
   vtkGetMacro( InteractiveSampleDistance, float );
-  
+
   // Description:
   // Sampling distance in the XY image dimensions. Default value of 1 meaning
   // 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
@@ -136,16 +136,16 @@ public:
 
   // Description:
   // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
-  // and the SampleDistance will be varied to achieve the allocated 
-  // render time of this prop (controlled by the desired update rate 
-  // and any culling in use). If this is an interactive render (more 
-  // than 1 frame per second) the SampleDistance will be increased, 
+  // and the SampleDistance will be varied to achieve the allocated
+  // render time of this prop (controlled by the desired update rate
+  // and any culling in use). If this is an interactive render (more
+  // than 1 frame per second) the SampleDistance will be increased,
   // otherwise it will not be altered (a binary decision, as opposed
   // to the ImageSampleDistance which will vary continuously).
   vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
   vtkGetMacro( AutoAdjustSampleDistances, int );
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
-  
+
   // Description:
   // Automatically compute the sample distance from the data spacing.  When
   // the number of voxels is 8, the sample distance will be roughly 1/200
@@ -156,7 +156,7 @@ public:
   vtkSetClampMacro( LockSampleDistanceToInputSpacing, int, 0, 1 );
   vtkGetMacro( LockSampleDistanceToInputSpacing, int );
   vtkBooleanMacro( LockSampleDistanceToInputSpacing, int );
-  
+
   // Description:
   // Set/Get the number of threads to use. This by default is equal to
   // the number of available processors detected.
@@ -181,7 +181,7 @@ public:
   float ComputeRequiredImageSampleDistance( float desiredTime,
                                             vtkRenderer *ren,
                                             vtkVolume *vol );
-  
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -198,7 +198,7 @@ public:
   void ShiftVectorDown( unsigned int in[3], unsigned int out[3] );
   int CheckMinMaxVolumeFlag( unsigned int pos[3], int c );
   int CheckMIPMinMaxVolumeFlag( unsigned int pos[3], int c, unsigned short maxIdx, int flip );
-  
+
   void LookupColorUC( unsigned short *colorTable,
                       unsigned short *scalarOpacityTable,
                       unsigned short index,
@@ -207,16 +207,16 @@ public:
                                unsigned short *scalarOpacityTable,
                                unsigned short index[4],
                                int            components,
-                               unsigned char  color[4] );  
-  void LookupAndCombineIndependentColorsUC( 
+                               unsigned char  color[4] );
+  void LookupAndCombineIndependentColorsUC(
     unsigned short *colorTable[4],
     unsigned short *scalarOpacityTable[4],
     unsigned short index[4],
     float          weights[4],
     int            components,
-    unsigned char  color[4] );  
+    unsigned char  color[4] );
   int CheckIfCropped( unsigned int pos[3] );
-  
+
 //ETX
 
   vtkGetObjectMacro( RenderWindow, vtkRenderWindow );
@@ -229,11 +229,11 @@ public:
   vtkGetVectorMacro( TableScale, float, 4 );
   vtkGetMacro( ShadingRequired, int );
   vtkGetMacro( GradientOpacityRequired, int );
-  
+
   vtkGetObjectMacro( CurrentScalars, vtkDataArray );
   vtkGetObjectMacro( PreviousScalars, vtkDataArray );
-  
-  
+
+
   int             *GetRowBounds()                 {return this->RowBounds;}
   unsigned short  *GetColorTable(int c)           {return this->ColorTable[c];}
   unsigned short  *GetScalarOpacityTable(int c)   {return this->ScalarOpacityTable[c];}
@@ -243,16 +243,16 @@ public:
   unsigned char  **GetGradientMagnitude()         {return this->GradientMagnitude;}
   unsigned short  *GetDiffuseShadingTable(int c)  {return this->DiffuseShadingTable[c];}
   unsigned short  *GetSpecularShadingTable(int c) {return this->SpecularShadingTable[c];}
-  
+
   void ComputeRayInfo( int x, int y,
                        unsigned int pos[3],
                        unsigned int dir[3],
                        unsigned int *numSteps );
 
   void InitializeRayInfo( vtkVolume *vol );
-  
+
   int ShouldUseNearestNeighborInterpolation( vtkVolume *vol );
-  
+
   // Description:
   // Set / Get the underlying image object. One will be automatically
   // created - only need to set it when using from an AMR mapper which
@@ -273,7 +273,7 @@ public:
                             int blend_mode,
                             double viewDirection[3],
                             double viewUp[3] );
-  
+
   // Description:
   // Get an estimate of the rendering time for a given volume / renderer.
   // Only valid if this mapper has been used to render that volume for
@@ -284,7 +284,7 @@ public:
     { return this->RetrieveRenderTime( ren, vol ); }
   float GetEstimatedRenderTime( vtkRenderer *ren )
     { return this->RetrieveRenderTime( ren ); }
-  
+
 
   // Description:
   // Set/Get the window / level applied to the final color.
@@ -303,12 +303,12 @@ public:
   vtkSetMacro( FinalColorLevel,  float );
   vtkGetMacro( FinalColorLevel,  float );
 
-  
+
   // Here to be used by the mapper to tell the helper
   // to flip the MIP comparison in order to support
   // minimum intensity blending
   vtkGetMacro( FlipMIPComparison, int );
-  
+
 protected:
   vtkFixedPointVolumeRayCastMapper();
   ~vtkFixedPointVolumeRayCastMapper();
@@ -319,35 +319,35 @@ protected:
   // The distance between sample points along the ray
   float                        SampleDistance;
   float                        InteractiveSampleDistance;
-  
+
   // The distance between rays in the image
   float                        ImageSampleDistance;
   float                        MinimumImageSampleDistance;
   float                        MaximumImageSampleDistance;
   int                          AutoAdjustSampleDistances;
   int                          LockSampleDistanceToInputSpacing;
-  
-  // Saved values used to restore 
+
+  // Saved values used to restore
   float                        OldSampleDistance;
   float                        OldImageSampleDistance;
-  
+
   // Internal method for computing matrices needed during
   // ray casting
   void ComputeMatrices( double volumeOrigin[3],
                         double volumeSpacing[3],
-                        int volumeExtent[6], 
+                        int volumeExtent[6],
                         vtkRenderer  *ren,
                         vtkVolume    *vol );
-  
+
   int ComputeRowBounds( vtkRenderer *ren,
                         int imageFlag, int rowBoundsFlag,
                         int volumeExtent[6]);
 
   void CaptureZBuffer( vtkRenderer *ren );
-  
+
   friend VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
   friend VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg );
-  
+
   vtkMultiThreader  *Threader;
 
   vtkMatrix4x4   *PerspectiveMatrix;
@@ -358,14 +358,14 @@ protected:
   vtkMatrix4x4   *VoxelsToWorldMatrix;
 
   vtkMatrix4x4   *VolumeMatrix;
-  
+
   vtkTransform   *PerspectiveTransform;
   vtkTransform   *VoxelsTransform;
   vtkTransform   *VoxelsToViewTransform;
 
   // This object encapsulated the image and all related information
   vtkFixedPointRayCastImage *RayCastImage;
-  
+
   int             *RowBounds;
   int             *OldRowBounds;
 
@@ -392,69 +392,69 @@ protected:
   int                       SavedBlendMode;
   vtkImageData             *SavedParametersInput;
   vtkTimeStamp              SavedParametersMTime;
-  
+
   vtkImageData             *SavedGradientsInput;
   vtkTimeStamp              SavedGradientsMTime;
- 
+
   float                     SavedSampleDistance;
-  
-  
+
+
   unsigned short            ColorTable[4][32768*3];
   unsigned short            ScalarOpacityTable[4][32768];
   unsigned short            GradientOpacityTable[4][256];
   int                       TableSize[4];
   float                     TableScale[4];
-  float                     TableShift[4]; 
+  float                     TableShift[4];
 
   float                     GradientMagnitudeScale[4];
   float                     GradientMagnitudeShift[4];
-  
+
   unsigned short           **GradientNormal;
   unsigned char            **GradientMagnitude;
   unsigned short            *ContiguousGradientNormal;
   unsigned char             *ContiguousGradientMagnitude;
-  
+
   int                        NumberOfGradientSlices;
-  
+
   vtkDirectionEncoder       *DirectionEncoder;
 
   vtkEncodedGradientShader  *GradientShader;
-  
+
   vtkFiniteDifferenceGradientEstimator *GradientEstimator;
-  
+
   unsigned short             DiffuseShadingTable [4][65536*3];
   unsigned short             SpecularShadingTable[4][65536*3];
-  
+
   int                        ShadingRequired;
   int                        GradientOpacityRequired;
 
   vtkDataArray              *CurrentScalars;
   vtkDataArray              *PreviousScalars;
-  
+
   vtkRenderWindow           *RenderWindow;
-  vtkVolume                 *Volume; 
-  
+  vtkVolume                 *Volume;
+
   int           ClipRayAgainstVolume( float rayStart[3],
                                       float rayEnd[3],
                                       float rayDirection[3],
                                       double bounds[6] );
-  
+
   int           UpdateColorTable( vtkVolume *vol );
   int           UpdateGradients( vtkVolume *vol );
   int           UpdateShadingTable( vtkRenderer *ren,
                                     vtkVolume *vol );
   void          UpdateCroppingRegions();
-  
+
   void          ComputeGradients( vtkVolume *vol );
-  
+
   int           ClipRayAgainstClippingPlanes( float  rayStart[3],
                                               float  rayEnd[3],
                                               int    numClippingPlanes,
                                               float *clippingPlanes );
-  
+
   unsigned int  FixedPointCroppingRegionPlanes[6];
   unsigned int  CroppingRegionMask[27];
-  
+
   // Get the ZBuffer value corresponding to location (x,y) where (x,y)
   // are indexing into the ImageInUse image. This must be converted to
   // the zbuffer image coordinates. Nearest neighbor value is returned.
@@ -465,20 +465,20 @@ protected:
   vtkFixedPointVolumeRayCastCompositeGOHelper      *CompositeGOHelper;
   vtkFixedPointVolumeRayCastCompositeShadeHelper   *CompositeShadeHelper;
   vtkFixedPointVolumeRayCastCompositeGOShadeHelper *CompositeGOShadeHelper;
-  
+
   // Some variables used for ray computation
   float ViewToVoxelsArray[16];
   float WorldToVoxelsArray[16];
   float VoxelsToWorldArray[16];
-  
+
   double CroppingBounds[6];
-  
+
   int NumTransformedClippingPlanes;
   float *TransformedClippingPlanes;
-  
+
   double SavedSpacing[3];
-  
-  
+
+
   // Min Max structure used to do space leaping
   unsigned short *MinMaxVolume;
   int             MinMaxVolumeSize[4];
@@ -489,12 +489,12 @@ protected:
   void            UpdateMinMaxVolume( vtkVolume *vol );
   void            FillInMaxGradientMagnitudes( int fullDim[3],
                                                int smallDim[3] );
-   
+
   float FinalColorWindow;
   float FinalColorLevel;
 
   int FlipMIPComparison;
-  
+
   void ApplyFinalColorWindowLevel();
 
 private:
@@ -681,7 +681,7 @@ inline void vtkFixedPointVolumeRayCastMapper::LookupAndCombineIndependentColorsU
                                                                            unsigned char   color[4] )
 {
   unsigned int tmp[4] = {0,0,0,0};
-  
+
   for ( int i = 0; i < components; i++ )
     {
     unsigned short alpha = static_cast<unsigned short>(static_cast<float>(scalarOpacityTable[i][index[i]])*weights[i]);
@@ -695,13 +695,13 @@ inline void vtkFixedPointVolumeRayCastMapper::LookupAndCombineIndependentColorsU
   color[1] = static_cast<unsigned char>((tmp[1]>255)?(255):(tmp[1]));
   color[2] = static_cast<unsigned char>((tmp[2]>255)?(255):(tmp[2]));
   color[3] = static_cast<unsigned char>((tmp[3]>255)?(255):(tmp[3]));
-  
+
 }
 
 inline int vtkFixedPointVolumeRayCastMapper::CheckIfCropped( unsigned int pos[3] )
 {
   int idx;
-  
+
   if ( pos[2] < this->FixedPointCroppingRegionPlanes[4] )
     {
     idx = 0;
@@ -738,7 +738,7 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckIfCropped( unsigned int pos[3]
       idx += 1;
       }
     }
-  
+
   return !(static_cast<unsigned int>(this->CroppingRegionFlags)
            &this->CroppingRegionMask[idx]);
 }

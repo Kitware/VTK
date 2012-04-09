@@ -41,15 +41,15 @@ public:
 
   // CumulativeWeights(v) current summed weight for path to vertex v.
   std::vector<double> CumulativeWeights;
-  
+
   // Predecessors(v) predecessor of v.
   std::vector<int> Predecessors;
-  
+
   // OpenVertices is the set of vertices which has not a shortest path yet but has a path.
   // OpenVertices(v) == 1 means that vertex v is in OpenVertices.
   // OpenVertices is a boolean (1/0) array.
   std::vector<unsigned char> OpenVertices;
-  
+
   // ClosedVertices is the set of vertices with already determined shortest path
   // ClosedVertices(v) == 1 means that vertex v is in ClosedVertices.
   // ClosedVertices is a boolean (1/0) array.
@@ -69,11 +69,11 @@ public:
     // right node
     unsigned int r = i * 2 + 1;
     int smallest = -1;
-  
+
     // The value of element v is CumulativeWeights(v)
     // the heap stores the vertex numbers
-    if ( l <= this->HeapSize && 
-        ( this->CumulativeWeights[ this->Heap[l] ] < 
+    if ( l <= this->HeapSize &&
+        ( this->CumulativeWeights[ this->Heap[l] ] <
           this->CumulativeWeights[ this->Heap[i] ] ) )
       {
       smallest = l;
@@ -82,27 +82,27 @@ public:
       {
       smallest = i;
       }
-  
-    if ( r <= this->HeapSize && 
-        ( this->CumulativeWeights[ this->Heap[ r ] ] < 
+
+    if ( r <= this->HeapSize &&
+        ( this->CumulativeWeights[ this->Heap[ r ] ] <
           this->CumulativeWeights[ this->Heap[ smallest ] ] ) )
       {
       smallest = r;
       }
-  
+
     if ( smallest != i )
       {
       int t = this->Heap[i];
-    
+
       this->Heap[ i ] = this->Heap[ smallest ];
-    
+
       // where is Heap(i)
       this->HeapIndices[ this->Heap[i] ] = i;
-    
+
       // Heap and HeapIndices are kinda inverses
       this->Heap[ smallest ] = t;
       this->HeapIndices[ t ] = smallest;
-    
+
       this->Heapify( smallest );
       }
   }
@@ -113,12 +113,12 @@ public:
       {
       return;
       }
-  
+
     this->HeapSize++;
     int i = this->HeapSize;
-  
-    while ( i > 1 && 
-            this->CumulativeWeights[ this->Heap[i/2] ] > 
+
+    while ( i > 1 &&
+            this->CumulativeWeights[ this->Heap[i/2] ] >
             this->CumulativeWeights[v] )
       {
       this->Heap[ i ] = this->Heap[i/2];
@@ -136,16 +136,16 @@ public:
       {
       return -1;
       }
-  
+
     int minv = this->Heap[ 1 ];
     this->HeapIndices[ minv ] = -1;
-  
+
     this->Heap[ 1 ] = this->Heap[ this->HeapSize ];
     this->HeapIndices[ this->Heap[1] ]= 1;
-  
+
     this->HeapSize--;
     this->Heapify( 1 );
-  
+
     return minv;
   }
 
@@ -157,7 +157,7 @@ public:
       {
       return;
       }
-  
+
     while ( i > 1 &&
             this->CumulativeWeights[ this->Heap[ i/2 ] ] >
             this->CumulativeWeights[ v ] )
@@ -166,7 +166,7 @@ public:
       this->HeapIndices[ this->Heap[i] ] = i;
       i /= 2;
       }
-  
+
     // Heap and HeapIndices are kinda inverses
     this->Heap[ i ] = v;
     this->HeapIndices[ v ] = i;
@@ -188,7 +188,7 @@ private:
 
   // The priority que (a binary heap) with vertex indices.
   std::vector<int> Heap;
-  
+
   // HeapIndices(v) the position of v in Heap (HeapIndices and Heap are kind of inverses).
   std::vector<int> HeapIndices;
 

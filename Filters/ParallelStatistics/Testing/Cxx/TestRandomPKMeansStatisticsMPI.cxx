@@ -357,7 +357,7 @@ int main( int argc, char** argv )
     {
     if ( com->GetLocalProcessId() == ioRank )
       {
-      cerr << "Usage: " 
+      cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
       }

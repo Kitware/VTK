@@ -20,16 +20,16 @@
 // .NAME vtkExodusIIReader - Read exodus 2 files .ex2
 // .SECTION Description
 // vtkExodusIIReader is a unstructured grid source object that reads ExodusII
-// files.  Most of the meta data associated with the file is loaded when 
+// files.  Most of the meta data associated with the file is loaded when
 // UpdateInformation is called.  This includes information like Title, number
-// of blocks, number and names of arrays. This data can be retrieved from 
-// methods in this reader. Separate arrays that are meant to be a single 
-// vector, are combined internally for convenience.  To be combined, the array 
-// names have to be identical except for a trailing X,Y and Z (or x,y,z).  By 
-// default cell and point arrays are not loaded.  However, the user can flag 
+// of blocks, number and names of arrays. This data can be retrieved from
+// methods in this reader. Separate arrays that are meant to be a single
+// vector, are combined internally for convenience.  To be combined, the array
+// names have to be identical except for a trailing X,Y and Z (or x,y,z).  By
+// default cell and point arrays are not loaded.  However, the user can flag
 // arrays to load with the methods "SetPointArrayStatus" and
 // "SetCellArrayStatus".  The reader DOES NOT respond to piece requests
-// 
+//
 
 
 #ifndef __vtkExodusIIReader_h
@@ -65,7 +65,7 @@ public:
   // Description:
   // Return the object's MTime. This is overridden to include the timestamp of its internal class.
   virtual unsigned long GetMTime();
-  
+
   // Description:
   // Return the MTime of the internal data structure.
   // This is really only intended for use by vtkPExodusIIReader in order
@@ -83,7 +83,7 @@ public:
   vtkGetStringMacro(XMLFileName);
 
   // Description:
-  // Which TimeStep to read.    
+  // Which TimeStep to read.
   vtkSetMacro(TimeStep, int);
   vtkGetMacro(TimeStep, int);
 
@@ -103,7 +103,7 @@ public:
   // Description:
   // Extra cell data array that can be generated.  By default, this array
   // is ON.  The value of the array is the integer id found
-  // in the exodus file. The name of the array is returned by 
+  // in the exodus file. The name of the array is returned by
   // GetBlockIdArrayName(). For cells representing elements from
   // an Exodus element block, this is set to the element block ID. For
   // cells representing edges from an Exodus edge block, this is the
@@ -113,7 +113,7 @@ public:
   virtual void SetGenerateObjectIdCellArray( int g );
   int GetGenerateObjectIdCellArray();
   vtkBooleanMacro(GenerateObjectIdCellArray, int);
-  static const char *GetObjectIdArrayName() { return "ObjectId"; }  
+  static const char *GetObjectIdArrayName() { return "ObjectId"; }
 
   virtual void SetGenerateGlobalElementIdArray( int g );
   int GetGenerateGlobalElementIdArray();
@@ -209,21 +209,21 @@ public:
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
   static const char* GetPedigreeElementIdArrayName() { return "PedigreeElementId"; }
   static int GetGlobalElementID( vtkDataSet *data, int localID );
-  static int GetGlobalElementID ( vtkDataSet *data, int localID, 
+  static int GetGlobalElementID ( vtkDataSet *data, int localID,
       int searchType );
   static const char* GetImplicitElementIdArrayName() { return "ImplicitElementId"; }
 
   static const char* GetGlobalFaceIdArrayName() { return "GlobalFaceId"; }
   static const char* GetPedigreeFaceIdArrayName() { return "PedigreeFaceId"; }
   static int GetGlobalFaceID( vtkDataSet *data, int localID );
-  static int GetGlobalFaceID ( vtkDataSet *data, int localID, 
+  static int GetGlobalFaceID ( vtkDataSet *data, int localID,
       int searchType );
   static const char* GetImplicitFaceIdArrayName() { return "ImplicitFaceId"; }
 
   static const char* GetGlobalEdgeIdArrayName() { return "GlobalEdgeId"; }
   static const char* GetPedigreeEdgeIdArrayName() { return "PedigreeEdgeId"; }
   static int GetGlobalEdgeID( vtkDataSet *data, int localID );
-  static int GetGlobalEdgeID ( vtkDataSet *data, int localID, 
+  static int GetGlobalEdgeID ( vtkDataSet *data, int localID,
       int searchType );
   static const char* GetImplicitEdgeIdArrayName() { return "ImplicitEdgeId"; }
 
@@ -232,15 +232,15 @@ public:
   // is ON.  The value of the array is the integer id of the node.
   // The id is relative to the entire data set.
   // The name of the array is returned by GlobalNodeIdArrayName().
-  static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }  
-  static const char* GetPedigreeNodeIdArrayName() { return "PedigreeNodeId"; }  
+  static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
+  static const char* GetPedigreeNodeIdArrayName() { return "PedigreeNodeId"; }
   static int GetGlobalNodeID( vtkDataSet *data, int localID );
-  static int GetGlobalNodeID( vtkDataSet *data, int localID, 
+  static int GetGlobalNodeID( vtkDataSet *data, int localID,
       int searchType );
-  static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }  
+  static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }
 
   // Description:
-  // Geometric locations can include displacements.  By default, 
+  // Geometric locations can include displacements.  By default,
   // this is ON.  The nodal positions are 'displaced' by the
   // standard exodus displacment vector. If displacements
   // are turned 'off', the user can explicitly add them by
@@ -318,7 +318,7 @@ public:
   int GetObjectArrayStatus( int objectType, const char* arrayName )
     { return this->GetObjectArrayStatus( objectType, this->GetObjectArrayIndex( objectType, arrayName ) ); }
   void SetObjectArrayStatus( int objectType, int arrayIndex, int status );
-  void SetObjectArrayStatus( int objectType, const char* arrayName, int status ); 
+  void SetObjectArrayStatus( int objectType, const char* arrayName, int status );
 
   // Descriptions:
   // By default attributes are not loaded.  These methods allow the user to select
@@ -345,7 +345,7 @@ public:
   // Descriptions:
   // By default all parts are loaded. These methods allow the user to select
   // which parts they want to load.  You can get information about the parts
-  // by first caling UpdateInformation, and using GetPartArrayName ... 
+  // by first caling UpdateInformation, and using GetPartArrayName ...
   int GetNumberOfPartArrays();
   const char* GetPartArrayName(int arrayIdx);
   int GetPartArrayID( const char *name );
@@ -354,13 +354,13 @@ public:
   void SetPartArrayStatus(const char*, int flag);
   int GetPartArrayStatus(int index);
   int GetPartArrayStatus(const char*);
-  
+
 
   // Descriptions:
-  // By default all materials are loaded. These methods allow the user to 
-  // select which materials they want to load.  You can get information 
-  // about the materials by first caling UpdateInformation, and using 
-  // GetMaterialArrayName ... 
+  // By default all materials are loaded. These methods allow the user to
+  // select which materials they want to load.  You can get information
+  // about the materials by first caling UpdateInformation, and using
+  // GetMaterialArrayName ...
   int GetNumberOfMaterialArrays();
   const char* GetMaterialArrayName(int arrayIdx);
   int GetMaterialArrayID( const char *name );
@@ -370,10 +370,10 @@ public:
   int GetMaterialArrayStatus(const char*);
 
   // Descriptions:
-  // By default all assemblies are loaded. These methods allow the user to 
-  // select which assemblies they want to load.  You can get information 
-  // about the assemblies by first caling UpdateInformation, and using 
-  // GetAssemblyArrayName ... 
+  // By default all assemblies are loaded. These methods allow the user to
+  // select which assemblies they want to load.  You can get information
+  // about the assemblies by first caling UpdateInformation, and using
+  // GetAssemblyArrayName ...
   int GetNumberOfAssemblyArrays();
   const char* GetAssemblyArrayName(int arrayIdx);
   int GetAssemblyArrayID( const char *name );
@@ -383,11 +383,11 @@ public:
   int GetAssemblyArrayStatus(const char*);
 
   // Descriptions:
-  // By default all hierarchy entries are loaded. These methods allow 
-  //the user to 
-  // select which hierarchy entries they want to load.  You can get information 
-  // about the hierarchy entries by first caling UpdateInformation, and using 
-  // GetHierarchyArrayName ... 
+  // By default all hierarchy entries are loaded. These methods allow
+  //the user to
+  // select which hierarchy entries they want to load.  You can get information
+  // about the hierarchy entries by first caling UpdateInformation, and using
+  // GetHierarchyArrayName ...
   //these methods do not call functions in metaData. They call functions on
   //the ExodusXMLParser since it seemed silly to duplicate all the information
   int GetNumberOfHierarchyArrays();
@@ -402,7 +402,7 @@ public:
 
   // Description:
   //   There is a great deal of model information lost when an Exodus II
-  //   file is read in to a vtkMultiBlockDataSet.  Turn this option ON 
+  //   file is read in to a vtkMultiBlockDataSet.  Turn this option ON
   //   if you want this metadata to be read in to a vtkExodusModel object.
   //   The default is OFF.
 
@@ -416,7 +416,7 @@ public:
 
   // Description:
   //  By default, the ExodusModel metadata (if requested with
-  //  ExodusModelMetadataOn()) is also encoded into field arrays 
+  //  ExodusModelMetadataOn()) is also encoded into field arrays
   //  and attached to the output unstructured grid.  Set this OFF
   //  if you don't want this to happen.  (The vtkExodusIIWriter and
   //  the vtkEnSightWriter can unpack this metadata from the field
@@ -427,7 +427,7 @@ public:
   vtkBooleanMacro(PackExodusModelOntoOutput, int);
 
   // Descriptions:
-  // return boolean indicating whether the type,name is a valid variable 
+  // return boolean indicating whether the type,name is a valid variable
   int IsValidVariable( const char *type, const char *name );
 
   // Descriptions:
@@ -441,7 +441,7 @@ public:
   //static char *StrDupWithNew(const char *s);
 
   // time series query functions
-  int GetTimeSeriesData( int ID, const char *vName, const char *vType, 
+  int GetTimeSeriesData( int ID, const char *vName, const char *vType,
                          vtkFloatArray *result );
 
 
@@ -454,7 +454,7 @@ public:
     { return this->GetObjectStatus(EDGE_BLOCK, name); }
   void SetEdgeBlockArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(EDGE_BLOCK, name, flag); }
-  
+
   int GetNumberOfFaceBlockArrays()
     { return this->GetNumberOfObjects(FACE_BLOCK); }
   const char* GetFaceBlockArrayName(int index)
@@ -463,7 +463,7 @@ public:
     { return this->GetObjectStatus(FACE_BLOCK, name); }
   void SetFaceBlockArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(FACE_BLOCK, name, flag); }
- 
+
   int GetNumberOfElementBlockArrays()
     { return this->GetNumberOfObjects(ELEM_BLOCK); }
   const char* GetElementBlockArrayName(int index)
@@ -481,7 +481,7 @@ public:
     { return this->GetObjectArrayStatus(GLOBAL, name); }
   void SetGlobalResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(GLOBAL, name, flag); }
-  
+
   int GetNumberOfPointResultArrays()
     { return this->GetNumberOfObjectArrays(NODAL); }
   const char* GetPointResultArrayName(int index)
@@ -490,7 +490,7 @@ public:
     { return this->GetObjectArrayStatus(NODAL, name); }
   void SetPointResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(NODAL, name, flag); }
-  
+
   int GetNumberOfEdgeResultArrays()
     { return this->GetNumberOfObjectArrays(EDGE_BLOCK); }
   const char* GetEdgeResultArrayName(int index)
@@ -517,8 +517,8 @@ public:
     { return this->GetObjectArrayStatus(ELEM_BLOCK, name); }
   void SetElementResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(ELEM_BLOCK, name, flag); }
-  
-  
+
+
   int GetNumberOfNodeMapArrays()
     { return this->GetNumberOfObjects(NODE_MAP); }
   const char* GetNodeMapArrayName(int index)
@@ -527,7 +527,7 @@ public:
     { return this->GetObjectStatus(NODE_MAP, name); }
   void SetNodeMapArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(NODE_MAP, name, flag); }
-  
+
   int GetNumberOfEdgeMapArrays()
     { return this->GetNumberOfObjects(EDGE_MAP); }
   const char* GetEdgeMapArrayName(int index)
@@ -554,7 +554,7 @@ public:
     { return this->GetObjectStatus(ELEM_MAP, name); }
   void SetElementMapArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(ELEM_MAP, name, flag); }
-  
+
   int GetNumberOfNodeSetArrays()
     { return this->GetNumberOfObjects(NODE_SET); }
   const char* GetNodeSetArrayName(int index)
@@ -563,7 +563,7 @@ public:
     { return this->GetObjectStatus(NODE_SET, name); }
   void SetNodeSetArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(NODE_SET, name, flag); }
-  
+
   int GetNumberOfSideSetArrays()
     { return this->GetNumberOfObjects(SIDE_SET); }
   const char* GetSideSetArrayName(int index)
@@ -572,7 +572,7 @@ public:
     { return this->GetObjectStatus(SIDE_SET, name); }
   void SetSideSetArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(SIDE_SET, name, flag); }
-  
+
   int GetNumberOfEdgeSetArrays()
     { return this->GetNumberOfObjects(EDGE_SET); }
   const char* GetEdgeSetArrayName(int index)
@@ -590,7 +590,7 @@ public:
     { return this->GetObjectStatus(FACE_SET, name); }
   void SetFaceSetArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(FACE_SET, name, flag); }
-  
+
   int GetNumberOfElementSetArrays()
     { return this->GetNumberOfObjects(ELEM_SET); }
   const char* GetElementSetArrayName(int index)
@@ -599,8 +599,8 @@ public:
     { return this->GetObjectStatus(ELEM_SET, name); }
   void SetElementSetArrayStatus(const char* name, int flag)
     { this->SetObjectStatus(ELEM_SET, name, flag); }
-  
-  
+
+
   int GetNumberOfNodeSetResultArrays()
     { return this->GetNumberOfObjectArrays(NODE_SET); }
   const char* GetNodeSetResultArrayName(int index)
@@ -609,7 +609,7 @@ public:
     { return this->GetObjectArrayStatus(NODE_SET, name); }
   void SetNodeSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(NODE_SET, name, flag); }
-  
+
   int GetNumberOfSideSetResultArrays()
     { return this->GetNumberOfObjectArrays(SIDE_SET); }
   const char* GetSideSetResultArrayName(int index)
@@ -618,7 +618,7 @@ public:
     { return this->GetObjectArrayStatus(SIDE_SET, name); }
   void SetSideSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(SIDE_SET, name, flag); }
-  
+
   int GetNumberOfEdgeSetResultArrays()
     { return this->GetNumberOfObjectArrays(EDGE_SET); }
   const char* GetEdgeSetResultArrayName(int index)
@@ -636,7 +636,7 @@ public:
     { return this->GetObjectArrayStatus(FACE_SET, name); }
   void SetFaceSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(FACE_SET, name, flag); }
-  
+
   int GetNumberOfElementSetResultArrays()
     { return this->GetNumberOfObjectArrays(ELEM_SET); }
   const char* GetElementSetResultArrayName(int index)
@@ -646,16 +646,16 @@ public:
   void SetElementSetResultArrayStatus(const char* name, int flag)
     { this->SetObjectArrayStatus(ELEM_SET, name, flag); }
 
-  /**!\brief Fast path 
+  /**!\brief Fast path
     *
-    * The following are set using the fast-path keys found in 
-    * vtkPExodusIIReader's input information. 
-    * Fast-path keys are meant to be used by an filter that 
+    * The following are set using the fast-path keys found in
+    * vtkPExodusIIReader's input information.
+    * Fast-path keys are meant to be used by an filter that
     * works with temporal data. Rather than re-executing the pipeline
     * for each timestep, since the exodus reader, as part of its API, contains
     * a faster way to read temporal data, algorithms may use these
     * keys to request temporal data.
-    * See also: vtkExtractArraysOverTime. 
+    * See also: vtkExtractArraysOverTime.
     */
   //@{
   // Description:
@@ -709,7 +709,7 @@ public:
   virtual void Dump();
 
   // Description:
-  // SIL describes organization of/relationships between classifications 
+  // SIL describes organization of/relationships between classifications
   // eg. blocks/materials/hierarchies.
   vtkGraph* GetSIL();
 
@@ -737,7 +737,7 @@ protected:
   virtual void SetMetadata( vtkExodusIIReaderPrivate* );
   vtkGetObjectMacro(Metadata,vtkExodusIIReaderPrivate);
 
-  // Description: 
+  // Description:
   // Returns true if XMLFileName has already been set. Otherwise, look for the XML
   // metadata file in the same directory as the data file(s) using the following
   // possible file names:
@@ -749,7 +749,7 @@ protected:
 
   // Time query function. Called by ExecuteInformation().
   // Fills the TimestepValues array.
-  void GetAllTimes(vtkInformationVector*); 
+  void GetAllTimes(vtkInformationVector*);
 
   // Description:
   // Populates the TIME_STEPS and TIME_RANGE keys based on file metadata.
@@ -769,14 +769,14 @@ protected:
   int TimeStepRange[2];
   vtkTimeStamp FileNameMTime;
   vtkTimeStamp XMLFileNameMTime;
-  
+
   // Information specific for exodus files.
 
   //1=display Block names
   //2=display Part names
   //3=display Material names
   int DisplayType;
- 
+
   // Metadata containing a description of the currently open file.
   vtkExodusIIReaderPrivate* Metadata;
 

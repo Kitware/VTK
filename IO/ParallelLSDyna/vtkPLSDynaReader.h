@@ -36,7 +36,7 @@
 // information that varies with each time step.  Unless a mesh adaptation
 // occurs, there will be a single control and data section, and they will
 // be located at the start of the database (the first file).
-// 
+//
 // In their infinite wisdom, LSDyna developers decided to split simulation
 // data into multiple files, each no larger than some predetermined limit.
 // Each file can contain one section, a partial section (if it would not
@@ -53,12 +53,12 @@
 // interpretation.  In addition to the "documentation vs. files in the
 // wild" issues there are also implementation problems.
 //
-// - Where exactly may breaks to a new file occur in the pre-state 
+// - Where exactly may breaks to a new file occur in the pre-state
 // information? At each section?
-// - Will state data sections (node/cell data, element deletion, sph data, 
-// rigid body motion) be moved to  the beginning of a new file if their data 
+// - Will state data sections (node/cell data, element deletion, sph data,
+// rigid body motion) be moved to  the beginning of a new file if their data
 // will be too large for a given file, or are all the sections
-// counted together as a single state (makes more sense for keeping time 
+// counted together as a single state (makes more sense for keeping time
 // word at start of every file).
 //  The questions above arise because the docs (p. 3) state "There are 3
 // sections in this database." but then call many smaller pieces of data
@@ -66,24 +66,24 @@
 // the second section (of 3) is ever split across multiple files and, if
 // so, whether it is done at (sub)section boundaries when possible or just
 // wherever it needs to occur.
-// - How many components does Eddy Viscosity have? It's shown as 7 bits in 
+// - How many components does Eddy Viscosity have? It's shown as 7 bits in
 // NCFDV1 which makes no sense at all.
-// - Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT (which is the 
+// - Why is NARBS larger than 10+NUMNP+NEL8+NEL2+NEL4+NELT (which is the
 // value specified by the documentation)?
 // Obviously, NARBS is definitive, but what are the extra numbers at the end?
-// - Is there a difference between rigid body elements NUMRBE and rigid road 
-// surfaces? It appears that the nodes and connectivity of the road surface 
+// - Is there a difference between rigid body elements NUMRBE and rigid road
+// surfaces? It appears that the nodes and connectivity of the road surface
 // are given separately (p.13) while on p.7 the Material
-//   Type Data subsection says that shells in a rigid body will just have a 
+//   Type Data subsection says that shells in a rigid body will just have a
 // certain material ID but be  interspersed among deformable shell elements.
-// - Word 37 of the control section serves two possible purposes... it can 
+// - Word 37 of the control section serves two possible purposes... it can
 // mean NMSPH or EDLOPT.
-//   I assume that different versions of the code use that word differently. 
+//   I assume that different versions of the code use that word differently.
 // How do we know the difference?
-// - It's unclear how much state isn't stored when a shell element is marked 
-// as rigid. Specifically, is element deletion data stored for rigid shells? 
+// - It's unclear how much state isn't stored when a shell element is marked
+// as rigid. Specifically, is element deletion data stored for rigid shells?
 // Page 21 of the spec is mute on this.
-// - The loop to read cell User IDs won't work if Rigid Body and Shell 
+// - The loop to read cell User IDs won't work if Rigid Body and Shell
 // elements are interleaved (which I now believe they are).
 //
 // On the VTK side of things:
@@ -100,17 +100,17 @@
 // - The reader doesn't handle packed connectivity.
 // - The reader doesn't handle adapted element parent lists (but the 2002 specification says LSDyna doesn't implement it).
 // - All the sample datasets have MATTYP = 0. Need something to test MATTYP = 1.
-// - I have no test datasets with rigid body and/or road surfaces, so the 
+// - I have no test datasets with rigid body and/or road surfaces, so the
 // implementation is half-baked.
-// - It's unclear how some of the data should be presented. Although blindly 
+// - It's unclear how some of the data should be presented. Although blindly
 // tacking the numbers into a large chuck of cell data is better than nothing,
 // some attributes (e.g., forces & moments) lend themselves to more elaborate
-// presentation. Also, shell and thick shell elements have stresses that 
-// belong to a particular side of an element or have a finite thickness that 
+// presentation. Also, shell and thick shell elements have stresses that
+// belong to a particular side of an element or have a finite thickness that
 // could be rendered.
-//   Finally, beam elements have cross sections that could be rendered. 
-// Some of these operations require numerical processing of the results and 
-// so we shouldn't eliminate the ability to get at the raw simulation data. 
+//   Finally, beam elements have cross sections that could be rendered.
+// Some of these operations require numerical processing of the results and
+// so we shouldn't eliminate the ability to get at the raw simulation data.
 // Perhaps a filter could be applied to "fancify" the geometry.
 //
 
@@ -127,17 +127,17 @@ public:
   vtkTypeMacro(vtkPLSDynaReader,vtkLSDynaReader);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkPLSDynaReader *New();
-  
+
   // Description:
   // Determine if the file can be readed with this reader.
   virtual int CanReadFile( const char* fname );
-  
+
   // Description:
   //Set/Get the communicator object. By default we use the world controller
   void SetController(vtkMultiProcessController *c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-    
-protected:  
+
+protected:
   vtkPLSDynaReader();
   virtual ~vtkPLSDynaReader();
 

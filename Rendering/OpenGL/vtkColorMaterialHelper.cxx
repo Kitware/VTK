@@ -101,7 +101,7 @@ void vtkColorMaterialHelper::Render()
     vtkErrorMacro("Please Initialize() before calling Render().");
     return;
     }
-  
+
   int value=this->Mode;
   this->Shader->GetUniformVariables()->SetUniformi("vtkColorMaterialHelper_Mode",1,&value);
 }

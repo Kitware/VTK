@@ -82,7 +82,7 @@ vtkAxisActor::vtkAxisActor()
   this->LabelVectors = NULL;
   this->LabelMappers = NULL;
   this->LabelActors = NULL;
-  this->LabelActors2D = NULL; 
+  this->LabelActors2D = NULL;
 
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetColor(0.,0.,0.);
@@ -137,8 +137,8 @@ vtkAxisActor::vtkAxisActor()
   this->LastTickLocation = -1;
   this->LastTickVisibility = -1;
   this->LastDrawGridlines = -1;
-  this->LastDrawInnerGridlines = -1; 
-  this->LastDrawGridpolys = -1; 
+  this->LastDrawInnerGridlines = -1;
+  this->LastDrawGridpolys = -1;
   this->LastMinorTicksVisible = -1;
   this->LastRange[0] = -1.0;
   this->LastRange[1] = -1.0;
@@ -355,12 +355,12 @@ vtkAxisActor::~vtkAxisActor()
   if (this->InnerGridlinePts)
     {
     this->InnerGridlinePts->Delete();
-    this->InnerGridlinePts = NULL; 
+    this->InnerGridlinePts = NULL;
     }
   if (this->GridpolyPts)
     {
     this->GridpolyPts->Delete();
-    this->GridpolyPts = NULL; 
+    this->GridpolyPts = NULL;
     }
 }
 
@@ -425,7 +425,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
           }
         else
           {
-          renderedSomething += 
+          renderedSomething +=
             this->LabelActors2D[i]->RenderOpaqueGeometry(viewport);
           }
         }
@@ -444,9 +444,9 @@ int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
   int renderedSomething=0;
 
   this->BuildAxis(viewport, false);
-  
+
   // Everything is built, just have to render
-  
+
   if (!this->AxisHasZeroLength)
     {
     if(this->DrawGridpolys)
@@ -454,7 +454,7 @@ int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
       renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
       }
     }
-  
+
   return renderedSomething;
 }
 
@@ -467,9 +467,9 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   int renderedSomething=0;
 
   this->BuildAxis(viewport, false);
-  
+
   // Everything is built, just have to render
-  
+
   if (!this->AxisHasZeroLength)
     {
     if(this->DrawGridpolys)
@@ -477,7 +477,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
       renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
       }
     }
-  
+
   return renderedSomething;
 }
 
@@ -487,7 +487,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
 {
   int i, renderedSomething=0;
-  
+
   // Everything is built, just have to render
   if (!this->AxisHasZeroLength)
     {
@@ -506,7 +506,7 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
         }
       }
     }
-     
+
   return renderedSomething;
 }
 
@@ -592,7 +592,7 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
     this->BuildTitle(force);
     if( this->Use2DMode == 1 )
       {
-      this->BuildTitle2D(viewport, force);   
+      this->BuildTitle2D(viewport, force);
       }
     }
 
@@ -614,18 +614,18 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     {
     return;
     }
-  
+
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
     this->LabelActors[i]->GetProperty()->SetColor(this->LabelTextProperty->GetColor());
-    
+
     if(!this->GetCalculateLabelOffset())
       {
       this->LabelActors[i]->SetAutoCenter(1);
       }
     }
-  
+
   if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() ||
       this->AxisPosition != this->LastAxisPosition ||
       this->LastRange[0] != this->Range[0] ||
@@ -718,12 +718,12 @@ void vtkAxisActor::SetLabelPositions(vtkViewport *viewport, bool force)
 }
 
 // *******************************************************************
-//  Set 2D label values and properties. 
+//  Set 2D label values and properties.
 // *******************************************************************
-void 
-vtkAxisActor::BuildLabels2D(vtkViewport *viewport, bool force) 
+void
+vtkAxisActor::BuildLabels2D(vtkViewport *viewport, bool force)
 {
-  if (!force && (!this->LabelVisibility || this->NumberOfLabelsBuilt == 0)) 
+  if (!force && (!this->LabelVisibility || this->NumberOfLabelsBuilt == 0))
     return;
 
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
@@ -734,7 +734,7 @@ vtkAxisActor::BuildLabels2D(vtkViewport *viewport, bool force)
     this->LabelActors2D[i]->GetTextProperty()->SetVerticalJustificationToBottom();
     this->LabelActors2D[i]->GetTextProperty()->SetJustificationToLeft();
     }
-   
+
   this->NeedBuild2D = this->BoundsDisplayCoordinateChanged(viewport);
   if (force || this->NeedBuild2D)
     {
@@ -746,8 +746,8 @@ vtkAxisActor::BuildLabels2D(vtkViewport *viewport, bool force)
 // *******************************************************************
 // Determine and set scale factor and position for 2D labels.
 // *******************************************************************
-void 
-vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force) 
+void
+vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 {
   if (!force && (!this->LabelVisibility || this->NumberOfLabelsBuilt == 0) )
     return;
@@ -756,30 +756,30 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
   int ymult = 0;
   double xcoeff = 0.;
   double ycoeff = 0.;
-   
+
   // we are in 2D mode, so no Z axis
   switch (this->AxisType)
     {
-    case VTK_AXIS_TYPE_X : 
-      xmult = 0; 
-      ymult = vtkAxisActorMultiplierTable1[this->AxisPosition]; 
+    case VTK_AXIS_TYPE_X :
+      xmult = 0;
+      ymult = vtkAxisActorMultiplierTable1[this->AxisPosition];
       xcoeff = 0.5;
       ycoeff = 1.0;
       break;
-    case VTK_AXIS_TYPE_Y : 
+    case VTK_AXIS_TYPE_Y :
       xmult = vtkAxisActorMultiplierTable1[this->AxisPosition];
-      ymult = 0; 
+      ymult = 0;
       xcoeff = 1.0;
       ycoeff = 0.5;
       break;
     }
 
-   
+
   int ptIdx;
   //
   // xadjust & yadjust are used for positioning the label correctly
   // depending upon the 'orientation' of the axis as determined
-  // by its position in view space (via transformed bounds). 
+  // by its position in view space (via transformed bounds).
   //
   double displayBounds[6] = { 0., 0., 0., 0., 0., 0.};
   this->TransformBounds(viewport, displayBounds);
@@ -787,7 +787,7 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
   double yadjust = (displayBounds[2] > displayBounds[3] ? -1 : 1);
   double transpos[3] = {0., 0., 0.};
   double center[3], tick[3], pos[2];
-      
+
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     ptIdx = 4*i + 1;
@@ -797,17 +797,17 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
     center[0] = tick[0] + xmult * this->MinorTickSize;
     center[1] = tick[1] + ymult * this->MinorTickSize;
     center[2] = tick[2];
-         
+
     viewport->SetWorldPoint(center[0], center[1], center[2], 1.0);
     viewport->WorldToDisplay();
     viewport->GetDisplayPoint(transpos);
-        
+
     int bbox[4];
     this->FreeTypeUtilities->GetBoundingBox(this->LabelActors2D[i]->GetTextProperty(), this->LabelActors2D[i]->GetInput(), bbox);
 
     double width  = (bbox[1]-bbox[0]);
     double height = (bbox[3]-bbox[2]);
-         
+
     pos[0] = (transpos[0] - xadjust*width*xcoeff);
     pos[1] = (transpos[1] - yadjust*height*ycoeff);
     this->LabelActors2D[i]->SetPosition( pos[0], pos[1] );
@@ -923,22 +923,22 @@ vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
   this->TitleActor2D->GetTextProperty()->SetFontSize(18);
   this->TitleActor2D->GetTextProperty()->SetVerticalJustificationToCentered();
   this->TitleActor2D->GetTextProperty()->SetJustificationToCentered();
-  
+
   if (this->AxisType == VTK_AXIS_TYPE_Y)
     {
     if (strlen(this->TitleActor2D->GetInput()) > 2)
       {
       // warning : orientation have to be set on vtkTextActor and not on the vtkTextActor's vtkTextProperty
       // otherwise there is a strange effect (first letter is not align with the others)
-      this->TitleActor2D->SetOrientation(90); 
+      this->TitleActor2D->SetOrientation(90);
       }
     else
       {
       // if in the previous rendering, the orientation was set.
-      this->TitleActor2D->SetOrientation(0); 
+      this->TitleActor2D->SetOrientation(0);
       }
     }
-   
+
   // stuff for 2D axis with TextActor
   double transpos[3];
   double* pos = this->TitleActor->GetPosition();
@@ -959,7 +959,7 @@ vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
     {
     this->TitleActor2D->SetPosition(transpos[0], transpos[1]);
     }
-  else 
+  else
     {
     if (this->SaveTitlePosition == 1)
       {
@@ -967,7 +967,7 @@ vtkAxisActor::BuildTitle2D(vtkViewport *viewport, bool force)
       TitleConstantPosition[1] = transpos[1];
       this->SaveTitlePosition = 2;
       }
-    this->TitleActor2D->SetPosition(TitleConstantPosition[0], TitleConstantPosition[1]);         
+    this->TitleActor2D->SetPosition(TitleConstantPosition[0], TitleConstantPosition[1]);
     }
 }
 
@@ -1024,8 +1024,8 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Labels Built: "
      << this->NumberOfLabelsBuilt << "\n";
-  os << indent << "Range: (" 
-     << this->Range[0] << ", " 
+  os << indent << "Range: ("
+     << this->Range[0] << ", "
      << this->Range[1] << ")\n";
 
   os << indent << "Label Format: " << this->LabelFormat << "\n";
@@ -1321,7 +1321,7 @@ bool vtkAxisActor::BuildTickPointsForXType(double p1[3], double p2[3],
     }
 
   //
-  // Gridpoly points 
+  // Gridpoly points
   //
   gp1[1]=p1[1];gp1[2]=p1[2];
   gp2[1]=p1[1]- yMult * this->GridlineYLength;gp2[2]=p1[2];
@@ -1464,7 +1464,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
     }
 
   //
-  // Gridline and inner gridline points 
+  // Gridline and inner gridline points
   //
   yPoint1[0] = p1[0] - xMult * this->GridlineXLength;
   yPoint2[2] = p1[2] - zMult * this->GridlineZLength;
@@ -1519,7 +1519,7 @@ bool vtkAxisActor::BuildTickPointsForYType(double p1[3], double p2[3],
 
   //
   // Gridpoly points
-  // 
+  //
   gp1[0]=p1[0];gp1[2]=p1[2];
   gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[2]=p1[2];
   gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[2]=p1[2]- zMult * this->GridlineZLength;
@@ -1712,7 +1712,7 @@ bool vtkAxisActor::BuildTickPointsForZType(double p1[3], double p2[3],
 
   //
   // Gridpoly points
-  // 
+  //
   gp1[0]=p1[0];gp1[1]=p1[1];
   gp2[0]=p1[0]- xMult * this->GridlineXLength;gp2[1]=p1[1];
   gp3[0]=p1[0]- xMult * this->GridlineXLength;gp3[1]=p1[1]- yMult * this->GridlineYLength;
@@ -1796,7 +1796,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
   gridlines->Delete();
   innerGridlines->Delete();
   polys->Delete();
-  int i, numMinorTickPts, numGridlines, numInnerGridlines, numMajorTickPts, numGridpolys, numLines; 
+  int i, numMinorTickPts, numGridlines, numInnerGridlines, numMajorTickPts, numGridpolys, numLines;
   vtkIdType ptIds[2];
   vtkIdType polyPtIds[4];
 
@@ -2177,7 +2177,7 @@ bool vtkAxisActor::BoundsDisplayCoordinateChanged(vtkViewport *viewport)
   viewport->WorldToDisplay();
   viewport->GetDisplayPoint(transMaxPt);
 
-  if( this->LastMinDisplayCoordinate[0] != transMinPt[0] 
+  if( this->LastMinDisplayCoordinate[0] != transMinPt[0]
       || this->LastMinDisplayCoordinate[1] != transMinPt[1]
       || this->LastMinDisplayCoordinate[2] != transMinPt[2]
       || this->LastMaxDisplayCoordinate[0] != transMaxPt[0]

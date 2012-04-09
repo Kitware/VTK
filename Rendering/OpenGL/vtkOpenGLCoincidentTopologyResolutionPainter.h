@@ -38,10 +38,10 @@ protected:
   // Description:
   // Performs the actual rendering. Subclasses may override this method.
   // default implementation merely call a Render on the DelegatePainter,
-  // if any. When RenderInternal() is called, it is assured that the 
+  // if any. When RenderInternal() is called, it is assured that the
   // DelegatePainter is in sync with this painter i.e. UpdatePainter()
   // has been called.
-  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor, 
+  virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 
   void RenderPolygonOffset(vtkRenderer *renderer, vtkActor *actor,

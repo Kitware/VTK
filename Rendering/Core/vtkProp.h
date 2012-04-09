@@ -17,7 +17,7 @@
 // vtkProp is an abstract superclass for any objects that can exist in a
 // rendered scene (either 2D or 3D). Instances of vtkProp may respond to
 // various render methods (e.g., RenderOpaqueGeometry()). vtkProp also
-// defines the API for picking, LOD manipulation, and common instance 
+// defines the API for picking, LOD manipulation, and common instance
 // variables that control visibility, picking, and dragging.
 // .SECTION See Also
 // vtkActor2D vtkActor vtkVolume vtkProp3D
@@ -42,7 +42,7 @@ public:
   vtkTypeMacro(vtkProp,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description: 
+  // Description:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
@@ -69,7 +69,7 @@ public:
   virtual void Pick();
 
   // Description:
-  // Set/Get the value of the dragable instance variable. This determines if 
+  // Set/Get the value of the dragable instance variable. This determines if
   // an Prop, once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
   // This does not affect methods such as SetPosition, which will continue
@@ -81,12 +81,12 @@ public:
   vtkBooleanMacro(Dragable,int);
 
   // Description:
-  // Return the mtime of anything that would cause the rendered image to 
-  // appear differently. Usually this involves checking the mtime of the 
+  // Return the mtime of anything that would cause the rendered image to
+  // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, textures
   // etc.
   virtual unsigned long GetRedrawMTime() {return this->GetMTime();}
-  
+
   // Description:
   // In case the Visibility flag is true, tell if the bounds of this prop
   // should be taken into account or ignored during the computation of other
@@ -100,7 +100,7 @@ public:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
   virtual double *GetBounds() {return NULL;}
-  
+
   // Description:
   // Shallow copy of this vtkProp.
   virtual void ShallowCopy(vtkProp *prop);
@@ -135,20 +135,20 @@ public:
   // Initial value is NULL.
   vtkGetObjectMacro(PropertyKeys,vtkInformation);
   virtual void SetPropertyKeys(vtkInformation *keys);
-  
+
   // Description:
   // Tells if the prop has all the required keys.
   // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
   virtual bool HasKeys(vtkInformation *requiredKeys);
-  
-//BTX  
+
+//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
   // All concrete subclasses must be able to render themselves.
   // There are four key render methods in vtk and they correspond
   // to four different points in the rendering cycle. Any given
-  // prop may implement one or more of these methods. 
+  // prop may implement one or more of these methods.
   // The first method is intended for rendering all opaque geometry. The
   // second method is intended for rendering all translucent polygonal
   // geometry. The third one is intended for rendering all translucent
@@ -156,7 +156,7 @@ public:
   // results during this third method.
   // The last method is to render any 2D annotation or overlays.
   // Each of these methods return an integer value indicating
-  // whether or not this render method was applied to this data. 
+  // whether or not this render method was applied to this data.
   virtual int RenderOpaqueGeometry(      vtkViewport *) { return 0; }
   virtual int RenderTranslucentPolygonalGeometry( vtkViewport *) { return 0; }
   virtual int RenderVolumetricGeometry( vtkViewport *) { return 0; }
@@ -172,7 +172,7 @@ public:
   // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
   virtual bool RenderFilteredOpaqueGeometry(vtkViewport *v,
                                             vtkInformation *requiredKeys);
-  
+
   // Description:
   // Render the translucent polygonal geometry only if the prop has all the
   // requiredKeys.
@@ -185,7 +185,7 @@ public:
   virtual bool RenderFilteredTranslucentPolygonalGeometry(
     vtkViewport *v,
     vtkInformation *requiredKeys);
-  
+
   // Description:
   // Render the volumetric geometry only if the prop has all the
   // requiredKeys.
@@ -197,7 +197,7 @@ public:
   // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
   virtual bool RenderFilteredVolumetricGeometry(vtkViewport *v,
                                                 vtkInformation *requiredKeys);
-  
+
   // Description:
   // Render in the overlay of the viewport only if the prop has all the
   // requiredKeys.
@@ -209,7 +209,7 @@ public:
   // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
   virtual bool RenderFilteredOverlay(vtkViewport *v,
                                      vtkInformation *requiredKeys);
-  
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
@@ -221,7 +221,7 @@ public:
   // polygonal geometry will return true.
   // Default implementation return false.
   virtual int HasTranslucentPolygonalGeometry() { return 0; }
-  
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Release any graphics resources that are being consumed by this actor.
@@ -243,16 +243,16 @@ public:
   virtual double GetEstimatedRenderTime( vtkViewport * )
     { return this->EstimatedRenderTime; }
   virtual double GetEstimatedRenderTime(){ return this->EstimatedRenderTime; }
-  
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
   // This method is used by, for example, the vtkLODProp3D in order to
   // initialize the estimated render time at start-up to some user defined
   // value.
-  virtual void SetEstimatedRenderTime(double t) 
+  virtual void SetEstimatedRenderTime(double t)
     {this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t;}
-    
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
@@ -262,8 +262,8 @@ public:
   // aborted.
   virtual void RestoreEstimatedRenderTime()
     { this->EstimatedRenderTime = this->SavedEstimatedRenderTime; }
-  
-  
+
+
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -288,7 +288,7 @@ public:
   // A side effect of this method is to reset the EstimatedRenderTime to
   // 0.0. This way, each of the ways that this prop may be rendered can
   // be timed and added together into this value.
-  virtual void SetAllocatedRenderTime(double t, vtkViewport *vtkNotUsed(v)) 
+  virtual void SetAllocatedRenderTime(double t, vtkViewport *vtkNotUsed(v))
     {
     this->AllocatedRenderTime = t;
     this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
@@ -326,9 +326,9 @@ public:
   // Description:
   // Get the number of consumers
   vtkGetMacro(NumberOfConsumers,int);
-  
+
   // Description:
-  // Add or remove or get or check a consumer, 
+  // Add or remove or get or check a consumer,
   void AddConsumer(vtkObject *c);
   void RemoveConsumer(vtkObject *c);
   vtkObject *GetConsumer(int i);
@@ -344,7 +344,7 @@ protected:
   int Pickable;
   int Dragable;
   bool UseBounds;
-  
+
   double AllocatedRenderTime;
   double EstimatedRenderTime;
   double SavedEstimatedRenderTime;
@@ -357,9 +357,9 @@ protected:
   // support multi-part props and access to paths of prop
   // stuff that follows is used to build the assembly hierarchy
   vtkAssemblyPaths *Paths;
-  
+
   vtkInformation *PropertyKeys;
-  
+
 private:
   vtkProp(const vtkProp&);  // Not implemented.
   void operator=(const vtkProp&);  // Not implemented.

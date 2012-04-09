@@ -30,12 +30,12 @@ vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
 
-// Used by AddOperation() and RemoveOperation() designed to be used 
+// Used by AddOperation() and RemoveOperation() designed to be used
 // from other language bindings.
-char vtkRearrangeFields::OperationTypeNames[2][5] 
+char vtkRearrangeFields::OperationTypeNames[2][5]
 = { "COPY",
     "MOVE" };
-char vtkRearrangeFields::FieldLocationNames[3][12] 
+char vtkRearrangeFields::FieldLocationNames[3][12]
 = { "DATA_OBJECT",
     "POINT_DATA",
     "CELL_DATA" };
@@ -52,7 +52,7 @@ vtkRearrangeFields::vtkRearrangeFields()
   this->Tail = 0;
   this->LastId = 0;
   //convert the attribute names to uppercase for local use
-  if (vtkRearrangeFields::AttributeNames[0][0] == 0) 
+  if (vtkRearrangeFields::AttributeNames[0][0] == 0)
     {
     for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
       {
@@ -60,7 +60,7 @@ vtkRearrangeFields::vtkRearrangeFields()
         strlen(vtkDataSetAttributes::GetAttributeTypeAsString(i)));
       for (int c = 0; c < l && c < 10; c++)
         {
-        vtkRearrangeFields::AttributeNames[i][c] = 
+        vtkRearrangeFields::AttributeNames[i][c] =
           toupper(vtkDataSetAttributes::GetAttributeTypeAsString(i)[c]);
         }
       }
@@ -89,18 +89,18 @@ int vtkRearrangeFields::RequestData(
 
   // This has to be here because it initialized all field datas.
   output->CopyStructure( input );
-  
+
   // Apply all operations.
   Operation* cur = this->GetFirst();
-  if (cur) 
-    { 
+  if (cur)
+    {
     Operation* before;
     do
       {
       before = cur;
       cur = cur->Next;
       this->ApplyOperation(before, input, output);
-      } 
+      }
     while (cur);
     }
 
@@ -117,7 +117,7 @@ int vtkRearrangeFields::RequestData(
 
 // Given location (DATA_OBJECT, CELL_DATA, POINT_DATA) return the
 // pointer to the corresponding field data.
-vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds, 
+vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds,
                                                            int fieldLoc)
 {
   vtkFieldData* fd=0;
@@ -137,7 +137,7 @@ vtkFieldData* vtkRearrangeFields::GetFieldDataFromLocation(vtkDataSet* ds,
   return fd;
 }
 
-void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input, 
+void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
                                         vtkDataSet* output)
 {
   vtkDebugMacro("Applying operation: " << op->Id);
@@ -155,7 +155,7 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
                     << " specified for the operation.");
     return;
     }
-  
+
   // If the source is specified by name
   if ( op->FieldType == vtkRearrangeFields::NAME )
     {
@@ -224,11 +224,11 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
 }
 
 // Helper method used by the Tcl bindings. Allows the caller to
-// specify arguments as strings instead of enums.Returns an operation id 
+// specify arguments as strings instead of enums.Returns an operation id
 // which can later be used to remove the operation.
-int vtkRearrangeFields::AddOperation(const char* operationType, 
+int vtkRearrangeFields::AddOperation(const char* operationType,
                                      const char* name,
-                                     const char* fromFieldLoc,  
+                                     const char* fromFieldLoc,
                                      const char* toFieldLoc)
 {
   int numAttr = vtkDataSetAttributes::NUM_ATTRIBUTES;
@@ -292,21 +292,21 @@ int vtkRearrangeFields::AddOperation(const char* operationType,
   if ( attributeType == -1 )
     {
     vtkDebugMacro("Adding operation with parameters: "
-                  << opType << " " << name << " " 
+                  << opType << " " << name << " "
                   << fromLoc << " " << toLoc);
     return this->AddOperation(opType, name, fromLoc, toLoc);
     }
   else
     {
     vtkDebugMacro("Adding operation with parameters: "
-                  << opType << " " << attributeType << " " 
+                  << opType << " " << attributeType << " "
                   << fromLoc << " " << toLoc);
     return this->AddOperation(opType, attributeType, fromLoc, toLoc);
     }
 }
 
 
-int vtkRearrangeFields::AddOperation(int operationType, const char* name, 
+int vtkRearrangeFields::AddOperation(int operationType, const char* name,
                                      int fromFieldLoc, int toFieldLoc)
 {
   if (!name)
@@ -348,11 +348,11 @@ int vtkRearrangeFields::AddOperation(int operationType, const char* name,
 
   this->AddOperation(op);
   this->Modified();
-  
+
   return op->Id;
 }
 
-int vtkRearrangeFields::AddOperation(int operationType, int attributeType, 
+int vtkRearrangeFields::AddOperation(int operationType, int attributeType,
                                      int fromFieldLoc, int toFieldLoc)
 {
 
@@ -370,7 +370,7 @@ int vtkRearrangeFields::AddOperation(int operationType, int attributeType,
     vtkErrorMacro("The source for the field is wrong.");
     return -1;
     }
-  if ( (attributeType < 0) || 
+  if ( (attributeType < 0) ||
        (attributeType > vtkDataSetAttributes::NUM_ATTRIBUTES) )
     {
     vtkErrorMacro("Wrong attribute type.");
@@ -400,11 +400,11 @@ int vtkRearrangeFields::AddOperation(int operationType, int attributeType,
 }
 
 // Helper method used by the Tcl bindings. Allows the caller to
-// specify arguments as strings instead of enums.Returns an operation id 
+// specify arguments as strings instead of enums.Returns an operation id
 // which can later be used to remove the operation.
-int vtkRearrangeFields::RemoveOperation(const char* operationType, 
+int vtkRearrangeFields::RemoveOperation(const char* operationType,
                                         const char* name,
-                                        const char* fromFieldLoc,  
+                                        const char* fromFieldLoc,
                                         const char* toFieldLoc)
 {
   if (!operationType || !name || !fromFieldLoc || !toFieldLoc)
@@ -469,14 +469,14 @@ int vtkRearrangeFields::RemoveOperation(const char* operationType,
   if ( attributeType == -1 )
     {
     vtkDebugMacro("Removing operation with parameters: "
-                  << opType << " " << name << " " 
+                  << opType << " " << name << " "
                   << fromLoc << " " << toLoc);
     return this->RemoveOperation(opType, name, fromLoc, toLoc);
     }
   else
     {
     vtkDebugMacro("Removing operation with parameters: "
-                  << opType << " " << attributeType << " " 
+                  << opType << " " << attributeType << " "
                   << fromLoc << " " << toLoc);
     return this->RemoveOperation(opType, attributeType, fromLoc, toLoc);
     }
@@ -493,7 +493,7 @@ int vtkRearrangeFields::RemoveOperation(int operationId)
   return 1;
 }
 
-int vtkRearrangeFields::RemoveOperation(int operationType, const char* name, 
+int vtkRearrangeFields::RemoveOperation(int operationType, const char* name,
                                         int fromFieldLoc, int toFieldLoc)
 {
   Operation* before;
@@ -506,12 +506,12 @@ int vtkRearrangeFields::RemoveOperation(int operationType, const char* name,
   return 1;
 }
 
-int vtkRearrangeFields::RemoveOperation(int operationType, int attributeType, 
+int vtkRearrangeFields::RemoveOperation(int operationType, int attributeType,
                                         int fromFieldLoc, int toFieldLoc)
 {
   Operation* before;
   Operation* op;
-  op = this->FindOperation(operationType, attributeType, fromFieldLoc, 
+  op = this->FindOperation(operationType, attributeType, fromFieldLoc,
                            toFieldLoc,  before);
   if (!op) { return 0;}
   this->Modified();
@@ -537,7 +537,7 @@ void vtkRearrangeFields::DeleteOperation(Operation* op, Operation* before)
 {
   if (!op) { return; }
   if (!before)
-    { 
+    {
     this->Head = op->Next;
     }
   else
@@ -570,9 +570,9 @@ Operation* vtkRearrangeFields::FindOperation(int id, Operation*& before)
   return 0;
 }
 
-Operation* vtkRearrangeFields::FindOperation(int operationType, 
-                                             const char* name, 
-                                             int fromFieldLoc, 
+Operation* vtkRearrangeFields::FindOperation(int operationType,
+                                             const char* name,
+                                             int fromFieldLoc,
                                              int toFieldLoc,
                                              Operation*& before)
 {
@@ -587,7 +587,7 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
 
   Operation* cur = this->GetFirst();
   before = 0;
-  if ( (cur->FieldType == vtkRearrangeFields::NAME) && 
+  if ( (cur->FieldType == vtkRearrangeFields::NAME) &&
        this->CompareOperationsByName(cur, &op)) { return cur; }
   while (cur->Next)
     {
@@ -602,9 +602,9 @@ Operation* vtkRearrangeFields::FindOperation(int operationType,
   return 0;
 }
 
-Operation* vtkRearrangeFields::FindOperation(int operationType, 
-                                             int attributeType, 
-                                             int fromFieldLoc, 
+Operation* vtkRearrangeFields::FindOperation(int operationType,
+                                             int attributeType,
+                                             int fromFieldLoc,
                                              int toFieldLoc,
                                              Operation*& before)
 {
@@ -636,18 +636,18 @@ void vtkRearrangeFields::DeleteAllOperations()
   Operation* cur = this->GetFirst();
   if (!cur) {return;}
   Operation* before;
-  do 
+  do
     {
     before = cur;
     cur = cur->Next;
     delete before;
-    } 
+    }
   while (cur);
   this->Head = 0;
   this->Tail = 0;
 }
 
-int vtkRearrangeFields::CompareOperationsByName(const Operation* op1, 
+int vtkRearrangeFields::CompareOperationsByName(const Operation* op1,
                                                 const Operation* op2)
 {
   if ( op1->OperationType != op2->OperationType )
@@ -662,7 +662,7 @@ int vtkRearrangeFields::CompareOperationsByName(const Operation* op1,
   return 1;
 }
 
-int vtkRearrangeFields::CompareOperationsByType(const Operation* op1, 
+int vtkRearrangeFields::CompareOperationsByType(const Operation* op1,
                                                 const Operation* op2)
 {
   if ( op1->OperationType != op2->OperationType )
@@ -698,7 +698,7 @@ void vtkRearrangeFields::PrintAllOperations(ostream& os, vtkIndent indent)
     cur = cur->Next;
     os << endl;
     this->PrintOperation(before, os, indent);
-    } 
+    }
   while (cur);
 }
 

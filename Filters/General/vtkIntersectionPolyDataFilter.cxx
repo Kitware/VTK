@@ -697,7 +697,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
   vtkSmartPointer< vtkDelaunay2D > del2D =
     vtkSmartPointer< vtkDelaunay2D >::New();
   del2D->SetInputData(pd);
-  del2D->SetSourceData(pd); 
+  del2D->SetSourceData(pd);
   del2D->SetTolerance(0.0);
   del2D->SetAlpha(0.0);
   del2D->SetOffset(10);

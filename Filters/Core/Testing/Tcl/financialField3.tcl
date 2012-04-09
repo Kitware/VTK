@@ -1,8 +1,8 @@
 package require vtk
 package require vtkinteraction
 
-# demonstrate the use and manipulation of fields and use of 
-# vtkProgrammableDataObjectSource. This creates fields the hard way 
+# demonstrate the use and manipulation of fields and use of
+# vtkProgrammableDataObjectSource. This creates fields the hard way
 # (as compared to reading a vtk field file), but shows you how to
 # interfaceto your own raw data.
 
@@ -13,7 +13,7 @@ set yAxis MONTHLY_PAYMENT
 set zAxis MONTHLY_INCOME
 set scalar TIME_LATE
 
-# Parse an ascii file and manually create a field. Then construct a 
+# Parse an ascii file and manually create a field. Then construct a
 # dataset from the field.
 vtkProgrammableDataObjectSource dos
     dos SetExecuteMethod parseFile
@@ -38,7 +38,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {timeLate InsertNextValue $v($j)}
    }
-   field AddArray timeLate 
+   field AddArray timeLate
 
    # MONTHLY_PAYMENT - independent variable
    while { [gets $file arrayName] == 0 } {}
@@ -50,7 +50,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyPayment InsertNextValue $v($j)}
    }
-   field AddArray monthlyPayment 
+   field AddArray monthlyPayment
 
    # UNPAID_PRINCIPLE - skip
    while { [gets $file arrayName] == 0 } {}
@@ -74,7 +74,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {interestRate InsertNextValue $v($j)}
    }
-   field AddArray interestRate 
+   field AddArray interestRate
 
    # MONTHLY_INCOME - independent variable
    while { [gets $file arrayName] == 0 } {}
@@ -86,7 +86,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyIncome InsertNextValue $v($j)}
    }
-   field AddArray  monthlyIncome 
+   field AddArray  monthlyIncome
 
    [dos GetOutput] SetFieldData field
 }
@@ -98,9 +98,9 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetDataSetTypeToPolyData
     #format: component#, arrayname, arraycomp, minArrayId, maxArrayId, normalize
     do2ds DefaultNormalizeOn
-    do2ds SetPointComponent 0 $xAxis 0 
+    do2ds SetPointComponent 0 $xAxis 0
     do2ds SetPointComponent 1 $yAxis 0
-    do2ds SetPointComponent 2 $zAxis 0 
+    do2ds SetPointComponent 2 $zAxis 0
     do2ds Update
 
 vtkRearrangeFields rf

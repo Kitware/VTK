@@ -71,7 +71,7 @@ int vtkPOutlineFilter::RequestData(
     }
 
   int doCommunicate = 1;
-  
+
   // If there is a composite dataset in the input, the request is
   // coming from a vtkCompositeDataPipeline and interprocess communication
   // is not necessary (simple datasets are not broken into pieces)
@@ -132,7 +132,7 @@ int vtkPOutlineFilter::RequestData(
     if (vtkMath::AreBoundsInitialized(bds))
       {
       // only output in process 0.
-      this->OutlineSource->SetBounds(bds);          
+      this->OutlineSource->SetBounds(bds);
       this->OutlineSource->Update();
       output->CopyStructure(this->OutlineSource->GetOutput());
       }

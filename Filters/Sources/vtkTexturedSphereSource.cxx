@@ -55,14 +55,14 @@ int vtkTexturedSphereSource::RequestData(
   int i, j;
   int numPts;
   int numPolys;
-  vtkPoints *newPoints; 
+  vtkPoints *newPoints;
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
   double x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   vtkIdType pts[3];
   double tc[2];
-  
+
   //
   // Set things up; allocate memory
   //
@@ -104,7 +104,7 @@ int vtkTexturedSphereSource::RequestData(
         {
         norm = 1.0;
         }
-      x[0] /= norm; x[1] /= norm; x[2] /= norm; 
+      x[0] /= norm; x[1] /= norm; x[2] /= norm;
       newNormals->InsertNextTuple(x);
 
       tc[1] = 1.0 - phi/3.1415926;

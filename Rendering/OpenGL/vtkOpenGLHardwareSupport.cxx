@@ -54,9 +54,9 @@ int vtkOpenGLHardwareSupport::GetNumberOfFixedTextureUnits()
     // multitexture is an ARB extension of OpenGL 1.2.1
     int supports_GL_1_3 = this->ExtensionManager->ExtensionSupported( "GL_VERSION_1_3" );
     int supports_GL_1_2_1 = this->ExtensionManager->ExtensionSupported("GL_VERSION_1_2");
-    int supports_ARB_mutlitexture = 
+    int supports_ARB_mutlitexture =
       this->ExtensionManager->ExtensionSupported("GL_ARB_multitexture");
-    
+
     if(supports_GL_1_3)
       {
       this->ExtensionManager->LoadExtension("GL_VERSION_1_3");
@@ -88,11 +88,11 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
   // vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB is defined in
   // GL_ARB_vertex_shader
   // vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS is defined in OpenGL 2.0
-  
+
   // test for a function defined both by GL_ARB_vertex_shader and OpenGL 2.0
-  
+
   bool supports_shaders=vtkgl::GetActiveAttrib!=0;
-  
+
   if(!supports_shaders)
     {
     if(!this->ExtensionManagerSet())
@@ -118,7 +118,7 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
         }
       }
     }
-  
+
   if(supports_shaders)
     {
     GLint value;
@@ -143,7 +143,7 @@ bool vtkOpenGLHardwareSupport::GetSupportsMultiTexturing()
     // multitexture is an ARB extension of OpenGL 1.2.1
     int supports_GL_1_3 = this->ExtensionManager->ExtensionSupported( "GL_VERSION_1_3" );
     int supports_GL_1_2_1 = this->ExtensionManager->ExtensionSupported("GL_VERSION_1_2");
-    int supports_ARB_mutlitexture = 
+    int supports_ARB_mutlitexture =
       this->ExtensionManager->ExtensionSupported("GL_ARB_multitexture");
 
     if(supports_GL_1_3 || supports_GL_1_2_1 || supports_ARB_mutlitexture)

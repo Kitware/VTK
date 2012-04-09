@@ -14,10 +14,10 @@
 =========================================================================*/
 // .NAME vtkPolyDataMapper2D - draw vtkPolyData onto the image plane
 // .SECTION Description
-// vtkPolyDataMapper2D is a mapper that renders 3D polygonal data 
+// vtkPolyDataMapper2D is a mapper that renders 3D polygonal data
 // (vtkPolyData) onto the 2D image plane (i.e., the renderer's viewport).
-// By default, the 3D data is transformed into 2D data by ignoring the 
-// z-coordinate of the 3D points in vtkPolyData, and taking the x-y values 
+// By default, the 3D data is transformed into 2D data by ignoring the
+// z-coordinate of the 3D points in vtkPolyData, and taking the x-y values
 // as local display values (i.e., pixel coordinates). Alternatively, you
 // can provide a vtkCoordinate object that will transform the data into
 // local display coordinates (use the vtkCoordinate::SetCoordinateSystem()
@@ -45,9 +45,9 @@ public:
   vtkTypeMacro(vtkPolyDataMapper2D,vtkMapper2D);
   static vtkPolyDataMapper2D *New();
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
-  // Set the input to the mapper.  
+  // Set the input to the mapper.
   void SetInputData(vtkPolyData *in);
   vtkPolyData *GetInput();
 
@@ -125,12 +125,12 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
   void SetScalarModeToUseCellFieldData() {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
-  
+
   // Description:
   // Choose which component of which field data array to color by.
   void ColorByArrayComponent(int arrayNum, int component);
   void ColorByArrayComponent(char* arrayName, int component);
-  
+
   // Description:
   // Get the array name or number and component to color by.
   char* GetArrayName() { return this->ArrayName; }
@@ -145,7 +145,7 @@ public:
 
   // Description:
   // Specify a vtkCoordinate object to be used to transform the vtkPolyData
-  // point coordinates. By default (no vtkCoordinate specified), the point 
+  // point coordinates. By default (no vtkCoordinate specified), the point
   // coordinates are taken as local display coordinates.
   virtual void SetTransformCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
@@ -160,11 +160,11 @@ public:
   // Description:
   // Map the scalars (if there are any scalars and ScalarVisibility is on)
   // through the lookup table, returning an unsigned char RGBA array. This is
-  // typically done as part of the rendering process. The alpha parameter 
+  // typically done as part of the rendering process. The alpha parameter
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
   vtkUnsignedCharArray *MapScalars(double alpha);
-  
+
   // Description:
   // Make a shallow copy of this mapper.
   void ShallowCopy(vtkAbstractMapper *m);
@@ -182,7 +182,7 @@ protected:
   int UseLookupTableScalarRange;
   int ColorMode;
   int ScalarMode;
-  
+
   vtkCoordinate *TransformCoordinate;
   bool TransformCoordinateUseDouble;
 

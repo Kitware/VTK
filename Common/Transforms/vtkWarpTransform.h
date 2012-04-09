@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkWarpTransform - superclass for nonlinear geometric transformations
 // .SECTION Description
-// vtkWarpTransform provides a generic interface for nonlinear 
+// vtkWarpTransform provides a generic interface for nonlinear
 // warp transformations.
 // .SECTION see also
 // vtkThinPlateSplineTransform vtkGridTransform vtkGeneralTransform
@@ -54,7 +54,7 @@ public:
 
   // Description:
   // Set the maximum number of iterations for the inverse
-  // transformation.  The default is 500, but usually only 
+  // transformation.  The default is 500, but usually only
   // 2 to 5 iterations are used.  The inversion method
   // is fairly robust, and it should converge for nearly all smooth
   // transformations that do not fold back on themselves.
@@ -82,25 +82,25 @@ public:
   // Forward/Inverse methods public, is there a decent work around
   // for this sort of thing?)
   void TemplateTransformPoint(const float in[3], float out[3]) {
-    this->ForwardTransformPoint(in,out); }; 
+    this->ForwardTransformPoint(in,out); };
   void TemplateTransformPoint(const double in[3], double out[3]) {
-    this->ForwardTransformPoint(in,out); }; 
+    this->ForwardTransformPoint(in,out); };
   void TemplateTransformPoint(const float in[3], float out[3],
                               float derivative[3][3]) {
-    this->ForwardTransformDerivative(in,out,derivative); }; 
+    this->ForwardTransformDerivative(in,out,derivative); };
   void TemplateTransformPoint(const double in[3], double out[3],
                               double derivative[3][3]) {
-    this->ForwardTransformDerivative(in,out,derivative); }; 
+    this->ForwardTransformDerivative(in,out,derivative); };
   void TemplateTransformInverse(const float in[3], float out[3]) {
-    this->InverseTransformPoint(in,out); }; 
+    this->InverseTransformPoint(in,out); };
   void TemplateTransformInverse(const double in[3], double out[3]) {
-    this->InverseTransformPoint(in,out); }; 
+    this->InverseTransformPoint(in,out); };
   void TemplateTransformInverse(const float in[3], float out[3],
                                 float derivative[3][3]) {
-    this->InverseTransformDerivative(in,out,derivative); }; 
+    this->InverseTransformDerivative(in,out,derivative); };
   void TemplateTransformInverse(const double in[3], double out[3],
                                 double derivative[3][3]) {
-    this->InverseTransformDerivative(in,out,derivative); }; 
+    this->InverseTransformDerivative(in,out,derivative); };
 
 protected:
   vtkWarpTransform();
@@ -108,12 +108,12 @@ protected:
 
   // Description:
   // If the InverseFlag is set to 0, then a call to InternalTransformPoint
-  // results in a call to ForwardTransformPoint. 
+  // results in a call to ForwardTransformPoint.
   virtual void ForwardTransformPoint(const float in[3], float out[3]) = 0;
   virtual void ForwardTransformPoint(const double in[3], double out[3]) = 0;
 
   // Description:
-  // Calculate the forward transform as well as the derivative. 
+  // Calculate the forward transform as well as the derivative.
   virtual void ForwardTransformDerivative(const float in[3], float out[3],
                                           float derivative[3][3]) = 0;
   virtual void ForwardTransformDerivative(const double in[3], double out[3],

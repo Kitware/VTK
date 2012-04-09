@@ -143,7 +143,7 @@ void vtkWin32OutputWindow::AddText(const char* someText)
   wchar_t *wmsg = new wchar_t [mbstowcs(NULL, someText, 32000)+1];
   mbstowcs(wmsg, someText, 32000);
   // Append the text to the control
-  SendMessageW( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 
+  SendMessageW( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL,
                 0, (LPARAM)wmsg );
   delete [] wmsg;
 #else
@@ -151,7 +151,7 @@ void vtkWin32OutputWindow::AddText(const char* someText)
   SendMessageA( vtkWin32OutputWindowOutputWindow, EM_SETSEL,
                (WPARAM)-1, (LPARAM)-1 );
   // Append the text to the control
-  SendMessageA( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 
+  SendMessageA( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL,
                 0, (LPARAM)someText );
 #endif
 }
@@ -170,7 +170,7 @@ int vtkWin32OutputWindow::Initialize()
 
   // Initialize the output window
 
-  WNDCLASS wndClass;   
+  WNDCLASS wndClass;
   // has the class been registered ?
 #ifdef UNICODE
   if (!GetClassInfo(GetModuleHandle(NULL),L"vtkOutputWindow",&wndClass))
@@ -237,17 +237,17 @@ int vtkWin32OutputWindow::Initialize()
 #else
   lpParam.lpszName = "Output Control";
   lpParam.lpszClass = "EDIT"; // use the RICHEDIT control widget
-#endif  
+#endif
 
 #ifdef _WIN32_WCE
-  lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD 
+  lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD
     | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE
     | WS_VSCROLL | WS_HSCROLL;
 #else
-  lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD 
+  lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD
     | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE | WS_MAXIMIZE
     | WS_VSCROLL | WS_HSCROLL;
-#endif  
+#endif
 
   lpParam.dwExStyle = 0;
   // Create the EDIT window as a child of win
@@ -307,16 +307,16 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   wchar_t *wmsg = new wchar_t [mbstowcs(NULL, vtkmsg, 32000)+1];
   mbstowcs(wmsg, vtkmsg, 32000);
   if (MessageBox(NULL, wmsg, L"Error",
-                 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
-    { 
-    vtkObject::GlobalWarningDisplayOff(); 
+                 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
+    {
+    vtkObject::GlobalWarningDisplayOff();
     }
   delete [] wmsg;
 #else
   if (MessageBox(NULL, vtkmsg, "Error",
-                 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
-    { 
-    vtkObject::GlobalWarningDisplayOff(); 
+                 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
+    {
+    vtkObject::GlobalWarningDisplayOff();
     }
 #endif
   delete [] vtkmsg;
@@ -334,8 +334,8 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "OutputWindow: (null)\n";      
+    os << indent << "OutputWindow: (null)\n";
     }
 
-  os << indent << "SendToStdErr: " << this->SendToStdErr << "\n";      
+  os << indent << "SendToStdErr: " << this->SendToStdErr << "\n";
 }

@@ -17,20 +17,20 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-// .NAME vtkParallelCoordinatesRepresentation - Data representation that 
+// .NAME vtkParallelCoordinatesRepresentation - Data representation that
 //  takes generic multivariate data and produces a parallel coordinates plot.
 //
 // .SECTION Description
 //  A parallel coordinates plot represents each variable in a multivariate
 //  data set as a separate axis.  Individual samples of that data set are
-//  represented as a polyline that pass through each variable axis at 
+//  represented as a polyline that pass through each variable axis at
 //  positions that correspond to data values.  vtkParallelCoordinatesRepresentation
-//  generates this plot when added to a vtkParallelCoordinatesView, which handles 
+//  generates this plot when added to a vtkParallelCoordinatesView, which handles
 //  interaction and highlighting.  Sample polylines can alternatively
-//  be represented as s-curves by enabling the UseCurves flag.  
+//  be represented as s-curves by enabling the UseCurves flag.
 //
 //  There are three selection modes: lasso, angle, and function. Lasso selection
-//  picks sample lines that pass through a polyline.  Angle selection picks sample 
+//  picks sample lines that pass through a polyline.  Angle selection picks sample
 //  lines that have similar slope to a line segment.  Function selection picks
 //  sample lines that are near a linear function defined on two variables.  This
 //  function specified by passing two (x,y) variable value pairs.
@@ -40,7 +40,7 @@
 // .SECTION See Also
 //  vtkParallelCoordinatesView vtkParallelCoordinatesHistogramRepresentation
 //  vtkSCurveSpline
-// 
+//
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 
@@ -88,7 +88,7 @@ public:
 
   // Description:
   // Apply the theme to this view.  CellColor is used for line coloring
-  // and titles.  EdgeLabelColor is used for axis color. CellOpacity is 
+  // and titles.  EdgeLabelColor is used for axis color. CellOpacity is
   // used for line opacity.
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
@@ -176,7 +176,7 @@ public:
   void ResetAxes();
 
   // Description:
-  // Do a selection of the lines.  See the main description for how to use these functions.  
+  // Do a selection of the lines.  See the main description for how to use these functions.
   // RangeSelect is currently stubbed out.
   virtual void LassoSelect(int brushClass, int brushOperator, vtkPoints* brushPoints);
   virtual void AngleSelect(int brushClass, int brushOperator, double *p1, double *p2);
@@ -216,12 +216,12 @@ protected:
 
   // Description:
   // Allocate the cells/points/scalars for a vtkPolyData
-  virtual int AllocatePolyData(vtkPolyData* polyData, 
-                               int numLines, 
-                               int numPointsPerLine, 
-                               int numStrips, 
-                               int numPointsPerStrip, 
-                               int numQuads, 
+  virtual int AllocatePolyData(vtkPolyData* polyData,
+                               int numLines,
+                               int numPointsPerLine,
+                               int numStrips,
+                               int numPointsPerStrip,
+                               int numQuads,
                                int numPoints,
                                int numCellScalars,
                                int numPointScalars);
@@ -241,7 +241,7 @@ protected:
   // Takes the selection list (assumed to be a vtkIdTypeArray) from a vtkSelectionNode
   // and plots lines/curves into polyData for just those row/sample ids.
   virtual int PlaceSelection(vtkPolyData* polyData, vtkTable* data, vtkSelectionNode* selectionNode);
-  
+
   // Description:
   // Compute the number of axes and their individual ranges
   virtual int ComputeDataProperties();
@@ -336,7 +336,7 @@ protected:
   vtkGetStringMacro(InternalHoverText);
   vtkSetStringMacro(InternalHoverText);
   char* InternalHoverText;
-  
+
 private:
   vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&); // Not implemented
   void operator=(const vtkParallelCoordinatesRepresentation&);   // Not implemented

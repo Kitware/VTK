@@ -10,11 +10,11 @@ vtkDataSetReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
     reader Update
 vtkCastToConcrete toRectilinearGrid
-    toRectilinearGrid SetInputConnection [reader GetOutputPort] 
+    toRectilinearGrid SetInputConnection [reader GetOutputPort]
     toRectilinearGrid Update
 vtkRectilinearGridGeometryFilter plane
     plane SetInputData [toRectilinearGrid GetRectilinearGridOutput]
-    plane SetExtent 0 100 0 100 15 15 
+    plane SetExtent 0 100 0 100 15 15
 vtkWarpVector warper
     warper SetInputConnection [plane GetOutputPort]
     warper SetScaleFactor 0.05

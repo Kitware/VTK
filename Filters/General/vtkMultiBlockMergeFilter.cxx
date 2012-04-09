@@ -51,7 +51,7 @@ int vtkMultiBlockMergeFilter::RequestData(
     return 0;
     }
   unsigned int usNInputs = static_cast<unsigned int>(numInputs);
-  
+
   int first = 1;
   for (int idx = 0; idx < numInputs; ++idx)
     {
@@ -66,7 +66,7 @@ int vtkMultiBlockMergeFilter::RequestData(
       {
       if (first)
         {
-        //shallow copy first input to output to start off with      
+        //shallow copy first input to output to start off with
         //cerr << "Copy first input" << endl;
         output->ShallowCopy(vtkMultiBlockDataSet::SafeDownCast(input));
         first = 0;
@@ -123,8 +123,8 @@ int vtkMultiBlockMergeFilter::IsMultiPiece(vtkMultiBlockDataSet* mb)
 }
 
 //-----------------------------------------------------------------------------
-int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo, 
-  vtkMultiBlockDataSet* output, 
+int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo,
+  vtkMultiBlockDataSet* output,
   vtkMultiBlockDataSet* input)
 {
   if (!input && !output)
@@ -152,8 +152,8 @@ int vtkMultiBlockMergeFilter::Merge(unsigned int numPieces, unsigned int pieceNo
     {
     for (unsigned int cc=0; cc < numInBlocks; cc++)
       {
-      if (!this->Merge(numPieces, pieceNo, 
-          vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(cc)), 
+      if (!this->Merge(numPieces, pieceNo,
+          vtkMultiBlockDataSet::SafeDownCast(output->GetBlock(cc)),
           vtkMultiBlockDataSet::SafeDownCast(input->GetBlock(cc))))
         {
         return 0;

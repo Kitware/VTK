@@ -18,9 +18,9 @@
 // represent a two-dimensional, 6-node, isoparametric parabolic triangle. The
 // interpolation is the standard finite element, quadratic isoparametric
 // shape function. The cell includes three mid-edge nodes besides the three
-// triangle vertices. The ordering of the three points defining the cell is 
+// triangle vertices. The ordering of the three points defining the cell is
 // point ids (0-2,3-5) where id #3 is the midedge node between points
-// (0,1); id #4 is the midedge node between points (1,2); and id #5 is the 
+// (0,1); id #4 is the midedge node between points (1,2); and id #5 is the
 // midedge node between points (2,0).
 
 // .SECTION See Also

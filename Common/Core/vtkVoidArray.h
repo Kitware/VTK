@@ -15,7 +15,7 @@
 // .NAME vtkVoidArray - dynamic, self-adjusting array of void* pointers
 // .SECTION Description
 // vtkVoidArray is an array of pointers to void. It provides methods
-// for insertion and retrieval of these pointers values, and will 
+// for insertion and retrieval of these pointers values, and will
 // automatically resize itself to hold new data.
 
 #ifndef __vtkVoidArray_h
@@ -46,11 +46,11 @@ public:
   // Description:
   // Return the type of data.
   int GetDataType() {return VTK_VOID;}
-  
+
   // Description:
   // Return the size of the data contained in the array.
   int GetDataTypeSize() { return sizeof(void*); }
-  
+
   // Description:
   // Set the number of void* pointers held in the array.
   void SetNumberOfPointers(vtkIdType number)
@@ -77,7 +77,7 @@ public:
   void InsertVoidPointer(vtkIdType i, void* ptr);
 
   // Description:
-  // Insert (memory allocation performed) the void* pointer at the 
+  // Insert (memory allocation performed) the void* pointer at the
   // end of the array.
   vtkIdType InsertNextVoidPointer(void* tuple);
 
@@ -89,7 +89,7 @@ public:
 
   // Description:
   // Resize the array to just fit the inserted memory. Reclaims extra memory.
-  void Squeeze() 
+  void Squeeze()
     {this->ResizeAndExtend (this->NumberOfPointers);}
 
   // Description:
@@ -99,20 +99,20 @@ public:
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
-  // for the number of items requested. Set NumberOfPointers according to 
+  // for the number of items requested. Set NumberOfPointers according to
   // the number of data values requested.
   void** WritePointer(vtkIdType id, vtkIdType number);
-  
+
   // Description:
   // Deep copy of another void array.
   void DeepCopy(vtkVoidArray *va);
-  
+
 protected:
   vtkVoidArray();
   ~vtkVoidArray();
 
   vtkIdType NumberOfPointers;
-  vtkIdType Size; 
+  vtkIdType Size;
   void**    Array;  // pointer to data
 
   void** ResizeAndExtend(vtkIdType sz);  // function to resize data

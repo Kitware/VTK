@@ -16,9 +16,9 @@
 // .SECTION Description
 //
 // Given an unstructured grid on its input this filter generates
-// for each data array in point data dictionary (ie an instance of 
-// vtkInformationQuadratureSchemeDefinitionVectorKey). This filter 
-// has been introduced to facilitate testing of the vtkQuadrature* 
+// for each data array in point data dictionary (ie an instance of
+// vtkInformationQuadratureSchemeDefinitionVectorKey). This filter
+// has been introduced to facilitate testing of the vtkQuadrature*
 // classes as these cannot operate with the dictionary. This class
 // is for testing and should not be used for application development.
 //
@@ -56,7 +56,7 @@ private:
 
   // Description:
   // Generate definitions for each cell type found on the
-  // input data set. The same definition will be used 
+  // input data set. The same definition will be used
   // for all point data arrays.
   int Generate(vtkUnstructuredGrid *usgOut);
 };

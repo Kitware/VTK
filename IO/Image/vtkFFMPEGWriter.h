@@ -41,7 +41,7 @@ public:
   static vtkFFMPEGWriter *New();
   vtkTypeMacro(vtkFFMPEGWriter,vtkGenericMovieWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // These methods start writing an Movie file, write a frame to the file
   // and then end the writing process.
@@ -55,7 +55,7 @@ public:
   // 2 means best quality and largest file size
   vtkSetClampMacro(Quality, int, 0, 2);
   vtkGetMacro(Quality, int);
- 
+
   // Description:
   // Set/Get the frame rate, in frame/s.
   vtkSetClampMacro(Rate, int , 1, 5000);

@@ -51,7 +51,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader2 : public vtkImageAlgorithm
 public:
   static vtkImageReader2 *New();
   vtkTypeMacro(vtkImageReader2,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);   
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify file name for the image file. If the data is stored in
@@ -84,7 +84,7 @@ public:
   vtkGetStringMacro(FilePattern);
 
   // Description:
-  // Set the data type of pixels in the file.  
+  // Set the data type of pixels in the file.
   // If you want the output scalar type to have a different value, set it
   // after this method is called.
   virtual void SetDataScalarType(int type);
@@ -110,22 +110,22 @@ public:
   // Set/Get the number of scalar components
   vtkSetMacro(NumberOfScalarComponents,int);
   vtkGetMacro(NumberOfScalarComponents,int);
-  
+
   // Description:
-  // Get/Set the extent of the data on disk.  
+  // Get/Set the extent of the data on disk.
   vtkSetVector6Macro(DataExtent,int);
   vtkGetVector6Macro(DataExtent,int);
-  
+
   // Description:
   // The number of dimensions stored in a file. This defaults to two.
   vtkSetMacro(FileDimensionality, int);
   int GetFileDimensionality() {return this->FileDimensionality;}
-  
+
   // Description:
   // Set/Get the spacing of the data in the file.
   vtkSetVector3Macro(DataSpacing,double);
   vtkGetVector3Macro(DataSpacing,double);
-  
+
   // Description:
   // Set/Get the origin of the data (location of first pixel in the file).
   vtkSetVector3Macro(DataOrigin,double);
@@ -140,7 +140,7 @@ public:
   // If there is a tail on the file, you want to explicitly set the
   // header size.
   virtual void SetHeaderSize(unsigned long size);
-  
+
   // Description:
   // These methods should be used instead of the SwapBytes methods.
   // They indicate the byte ordering of the file you are trying
@@ -151,8 +151,8 @@ public:
   // the same file on a LittleEndian machine will result in swapping.
   // As a quick note most UNIX machines are BigEndian while PC's
   // and VAX tend to be LittleEndian. So if the file you are reading
-  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian 
-  // otherwise SetDataByteOrderToBigEndian. 
+  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian
+  // otherwise SetDataByteOrderToBigEndian.
   virtual void SetDataByteOrderToBigEndian();
   virtual void SetDataByteOrderToLittleEndian();
   virtual int GetDataByteOrder();
@@ -198,14 +198,14 @@ public:
   // Set/Get the internal file name
   virtual void ComputeInternalFileName(int slice);
   vtkGetStringMacro(InternalFileName);
-  
+
   // Description:
   // Return non zero if the reader can read the given file name.
   // Should be implemented by all sub-classes of vtkImageReader2.
   // For non zero return values the following values are to be used
   //   1 - I think I can read the file but I cannot prove it
   //   2 - I definitely can read the file
-  //   3 - I can read the file and I have validated that I am the 
+  //   3 - I can read the file and I have validated that I am the
   //       correct reader for this file
   virtual int CanReadFile(const char* vtkNotUsed(fname))
     {
@@ -214,14 +214,14 @@ public:
 
   // Description:
   // Get the file extensions for this format.
-  // Returns a string with a space separated list of extensions in 
+  // Returns a string with a space separated list of extensions in
   // the format .extension
   virtual const char* GetFileExtensions()
     {
       return 0;
     }
 
-  // Description: 
+  // Description:
   // Return a descriptive name for the file format that might be useful in a GUI.
   virtual const char* GetDescriptiveName()
     {
@@ -255,7 +255,7 @@ protected:
 
   int FileNameSliceOffset;
   int FileNameSliceSpacing;
-  
+
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);

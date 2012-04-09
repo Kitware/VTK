@@ -28,7 +28,7 @@
 // .SECTION Caveats
 // Because a vtkProp can be placed into different assemblies, or even in
 // different leaf positions of the same assembly, the vtkAssemblyPath is
-// used to fully qualify exactly which use of the vtkProp was picked, 
+// used to fully qualify exactly which use of the vtkProp was picked,
 // including its position (since vtkAssemblyPath includes a transformation
 // matrix per node).
 //
@@ -51,8 +51,8 @@
 // assembly paths create many self-referencing loops that destroy reference
 // counting.)
 
-// .SECTION See Also 
-// vtkPropPicker vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker 
+// .SECTION See Also
+// vtkPropPicker vtkPicker vtkWorldPointPicker vtkCellPicker vtkPointPicker
 // vtkAssemblyPath vtkAssemblyNode vtkAssemblyPaths vtkAbstractPicker
 // vtkRenderer
 
@@ -100,27 +100,27 @@ public:
   // Description:
   // Return the vtkProp that has been picked. If NULL, no vtkProp3D was picked.
   virtual vtkProp3D *GetProp3D();
-  
+
   // Description:
   // Return the vtkActor that has been picked. If NULL, no actor was picked.
   virtual vtkActor *GetActor();
-  
+
   // Description:
-  // Return the vtkActor2D that has been picked. If NULL, no actor2D was 
+  // Return the vtkActor2D that has been picked. If NULL, no actor2D was
   // picked.
   virtual vtkActor2D *GetActor2D();
-  
+
   // Description:
   // Return the vtkVolume that has been picked. If NULL, no volume was picked.
   virtual vtkVolume *GetVolume();
-  
+
   // Description:
-  // Return the vtkAssembly that has been picked. If NULL, no assembly 
+  // Return the vtkAssembly that has been picked. If NULL, no assembly
   // was picked. (Note: the returned assembly is the first node in the
   // assembly path. If the path is one node long, then the assembly and
   // the prop are the same, assuming that the first node is a vtkAssembly.)
   virtual vtkAssembly *GetAssembly();
-  
+
   // Description:
   // Return the vtkPropAssembly that has been picked. If NULL, no prop
   // assembly was picked. (Note: the returned prop assembly is the first node
@@ -151,7 +151,7 @@ protected:
   ~vtkAbstractPropPicker();
 
   void Initialize();
-  
+
   vtkAssemblyPath *Path; //this is what is picked, and includes the prop
 private:
   vtkAbstractPropPicker(const vtkAbstractPropPicker&);  // Not implemented.

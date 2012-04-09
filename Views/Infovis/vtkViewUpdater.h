@@ -21,9 +21,9 @@
 //
 // .SECTION Description
 // vtkViewUpdater registers with annotation change events for a set of
-// annotation links, and updates all views when an annotation link fires an 
-// annotation changed event. This is often needed when multiple views share 
-// a selection with vtkAnnotationLink. 
+// annotation links, and updates all views when an annotation link fires an
+// annotation changed event. This is often needed when multiple views share
+// a selection with vtkAnnotationLink.
 
 #ifndef __vtkViewUpdater_h
 #define __vtkViewUpdater_h

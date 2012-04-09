@@ -44,9 +44,9 @@ protected:
   vtkOutlineSource *OutlineSource;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+
   int FillInputPortInformation(int, vtkInformation*);
-  
+
 private:
   vtkGenericOutlineFilter(const vtkGenericOutlineFilter&);  // Not implemented.
   void operator=(const vtkGenericOutlineFilter&);  // Not implemented.

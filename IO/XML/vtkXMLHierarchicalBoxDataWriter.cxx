@@ -58,14 +58,14 @@ void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput
   this->Superclass::FillDataTypes(cdInput);
   // Build information about the boxes. This is a bit irrelevant in serial, but
   // makes it easier when processing in parallel.
-  
+
   vtkHierarchicalBoxDataSet* hdInput =
     vtkHierarchicalBoxDataSet::SafeDownCast(cdInput);
   assert("dataset must be vtkHierarchicalBoxDataSet" && hdInput != NULL);
 
   delete [] this->AMRBoxes;
   delete [] this->AMRBoxDims;
-  
+
   unsigned int numLeafNodes = this->GetNumberOfDataTypes();
   this->AMRBoxes = new int[numLeafNodes * 6];
   memset(this->AMRBoxes, 0, numLeafNodes*6*sizeof(int));
@@ -90,7 +90,7 @@ void vtkXMLHierarchicalBoxDataWriter::FillDataTypes(vtkCompositeDataSet* cdInput
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* compositeData, 
+int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* compositeData,
     vtkXMLDataElement* parent, int &writerIdx)
 {
   vtkHierarchicalBoxDataSet* hboxData = vtkHierarchicalBoxDataSet::SafeDownCast(compositeData);
@@ -108,7 +108,7 @@ int vtkXMLHierarchicalBoxDataWriter::WriteComposite(vtkCompositeDataSet* composi
       {
       vtkAMRBox box;
       vtkUniformGrid* ug = hboxData->GetDataSet(level, cc, box);
-      vtkSmartPointer<vtkXMLDataElement> datasetXML = 
+      vtkSmartPointer<vtkXMLDataElement> datasetXML =
         vtkSmartPointer<vtkXMLDataElement>::New();
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", cc);

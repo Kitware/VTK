@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 // .SECTION Warning
 // This header must be in C++ only because it is included by .cxx files.
-// That means no Objective-C may be used. That's why some instance variables 
+// That means no Objective-C may be used. That's why some instance variables
 // are void* instead of what they really should be.
 
 #ifndef __vtkCocoaRenderWindow_h
@@ -98,7 +98,7 @@ public:
   // Set the position of the window.
   virtual void SetPosition(int a[2]);
   virtual void SetPosition(int,int);
-  
+
   // Description:
   // Get the current size of the screen in pixels.
   virtual int *GetScreenSize();
@@ -111,7 +111,7 @@ public:
   // Set the name of the window. This appears at the top of the window
   // normally.
   virtual void SetWindowName(const char *);
-  
+
   void SetNextWindowInfo(char *)
     {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
@@ -152,7 +152,7 @@ public:
   // Description:
   // Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
-  
+
   // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
@@ -163,11 +163,11 @@ public:
   // Description:
   // Make this windows OpenGL context the current context.
   virtual void MakeCurrent();
-  
+
   // Description:
   // Tells if this window is the current OpenGL context for the calling thread.
   virtual bool IsCurrent();
-  
+
   // Description:
   // Update this window's OpenGL context, e.g. when the window is resized.
   void UpdateContext();
@@ -180,8 +180,8 @@ public:
   // Does this render window support OpenGL? 0-false, 1-true
   int SupportsOpenGL();
 
-  // Description:      
-  // Is this render window using hardware acceleration? 0-false, 1-true   
+  // Description:
+  // Is this render window using hardware acceleration? 0-false, 1-true
   int IsDirect();
 
   // Description:
@@ -198,9 +198,9 @@ public:
   // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(void *hDC);
-  virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
+  virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug,
                                 int bpp=16, int zbpp=16);
-  
+
   // Description:
   // Clean up device contexts, rendering contexts, etc.
   void Finalize();
@@ -212,7 +212,7 @@ public:
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  // Set cursor position in window (note that (0,0) is the lower left 
+  // Set cursor position in window (note that (0,0) is the lower left
   // corner).
   virtual void HideCursor();
   virtual void ShowCursor();
@@ -221,12 +221,12 @@ public:
   // Description:
   // Change the shape of the cursor.
   virtual void SetCurrentCursor(int);
-  
+
   // Description:
   // Get the WindowCreated flag. It is 1 if this object created an instance
   // of NSWindow, 0 otherwise.
   virtual int GetWindowCreated();
-  
+
   // Description:
   // Accessors for the OpenGL context (Really an NSOpenGLContext*).
   void SetContextId(void *);
@@ -243,7 +243,7 @@ public:
   // and SetWindowId(), respectively, early on (before WindowInitialize()
   // is executed). In the case of Java, you should call only SetWindowId().
   virtual void SetRootWindow(void *);
-  
+
   // Description:
   // Returns the NSWindow* associated with this vtkRenderWindow.
   virtual void *GetRootWindow();
@@ -263,7 +263,7 @@ public:
   // Returns the NSView* associated with this vtkRenderWindow.
   virtual void *GetWindowId();
   virtual void *GetGenericWindowId() {return this->GetWindowId();}
-  
+
   // Description:
   // Set the NSView* for the vtkRenderWindow to be parented within.  The
   // Position and Size of the RenderWindow will set the rectangle of the
@@ -273,7 +273,7 @@ public:
 
   // Description:
   // Get the parent NSView* for this vtkRenderWindow.  This method will
-  // return "NULL" if the parent was not set with SetParentId() or 
+  // return "NULL" if the parent was not set with SetParentId() or
   // SetParentInfo().
   virtual void *GetParentId();
   virtual void *GetGenericParentId() { return this->GetParentId(); }
@@ -282,7 +282,7 @@ public:
   // Returns the scaling factor for 'resolution independence', to convert
   // between points and pixels.
   vtkGetMacro(ScaleFactor, double);
-  
+
   // Description:
   // Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
   void SetPixelFormat(void *pixelFormat);
@@ -300,7 +300,7 @@ protected:
 
   int OffScreenInitialized;
   int OnScreenInitialized;
-  
+
   // Using CGFloat would be better, but doing it this way avoids pulling in
   // Apple headers, which cause problems with the 10.3 SDK and python wrappings.
 #if defined(__LP64__) && __LP64__

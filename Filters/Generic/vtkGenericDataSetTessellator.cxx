@@ -43,7 +43,7 @@ vtkGenericDataSetTessellator::vtkGenericDataSetTessellator()
 {
   this->InternalPD = vtkPointData::New();
   this->KeepCellIds = 1;
-  
+
   this->Merging = 1;
   this->Locator = NULL;
 }
@@ -101,17 +101,17 @@ int vtkGenericDataSetTessellator::RequestData(
   vtkCellArray *conn = vtkCellArray::New();
   conn->Allocate(numCells);
 
-  
+
   // prepare the output attributes
   vtkGenericAttributeCollection *attributes=input->GetAttributes();
   vtkGenericAttribute *attribute;
   vtkDataArray *attributeArray;
-  
+
   int c=attributes->GetNumberOfAttributes();
   vtkDataSetAttributes *dsAttributes;
 
   int attributeType;
-  
+
   i=0;
   while(i<c)
     {
@@ -120,7 +120,7 @@ int vtkGenericDataSetTessellator::RequestData(
     if(attribute->GetCentering()==vtkPointCentered)
       {
       dsAttributes=outputPD;
-      
+
       attributeArray=vtkDataArray::CreateDataArray(attribute->GetComponentType());
       attributeArray->SetNumberOfComponents(attribute->GetNumberOfComponents());
       attributeArray->SetName(attribute->GetName());
@@ -140,28 +140,28 @@ int vtkGenericDataSetTessellator::RequestData(
     attributeArray->SetName(attribute->GetName());
     dsAttributes->AddArray(attributeArray);
     attributeArray->Delete();
-    
+
     if(dsAttributes->GetAttribute(attributeType)==0)
       {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
       }
     ++i;
     }
-  
+
   vtkIdTypeArray *cellIdArray=0;
-  
+
   if(this->KeepCellIds)
     {
     cellIdArray=vtkIdTypeArray::New();
     cellIdArray->SetName("OriginalIds");
     }
-  
+
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
   vtkIdType updateCount = numCells/20 + 1;  // update roughly every 5%
   vtkIdType count = 0;
-  
+
   input->GetTessellator()->InitErrorMetrics(input);
-  
+
   vtkIncrementalPointLocator *locator=0;
   if ( this->Merging )
     {
@@ -172,7 +172,7 @@ int vtkGenericDataSetTessellator::RequestData(
     this->Locator->InitPointInsertion (newPts, input->GetBounds());
     locator=this->Locator;
     }
-  
+
   for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next(), count++)
     {
     if ( !(count % updateCount) )
@@ -180,16 +180,16 @@ int vtkGenericDataSetTessellator::RequestData(
       this->UpdateProgress(static_cast<double>(count) / numCells);
       abortExecute = this->GetAbortExecute();
       }
-      
+
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
                      newPts, locator, conn, this->InternalPD,outputPD,
-                     outputCD,types);    
+                     outputCD,types);
     numNew = conn->GetNumberOfCells() - numInserted;
     numInserted = conn->GetNumberOfCells();
-    
+
     vtkIdType cellId=cell->GetId();
-    
+
     if(this->KeepCellIds)
       {
       for(i=0;i<numNew;i++)
@@ -197,30 +197,30 @@ int vtkGenericDataSetTessellator::RequestData(
         cellIdArray->InsertNextValue(cellId);
         }
       }
-    
-    for (i=0; i < numNew; i++) 
+
+    for (i=0; i < numNew; i++)
       {
       locs->InsertNextValue(conn->GetTraversalLocation());
       conn->GetNextCell(npts,pts); //side effect updates traversal location
       } //insert each new cell
     } //for all cells
   cellIt->Delete();
-  
+
   // Send to the output
   if(this->KeepCellIds)
     {
     outputCD->AddArray(cellIdArray);
     cellIdArray->Delete();
     }
-  
+
   output->SetPoints(newPts);
   output->SetCells(types, locs, conn);
-  
+
   if (!this->Merging && this->Locator)
     {
-    this->Locator->Initialize(); 
+    this->Locator->Initialize();
     }
-  
+
   vtkDebugMacro(<<"Subdivided " << numCells << " cells to produce "
                 << conn->GetNumberOfCells() << "new cells");
 
@@ -270,7 +270,7 @@ void vtkGenericDataSetTessellator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "false" << endl;
     }
-  
+
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )
     {

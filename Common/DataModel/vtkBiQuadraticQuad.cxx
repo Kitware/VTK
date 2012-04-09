@@ -205,7 +205,7 @@ vtkBiQuadraticQuad::Contour (double value,
 }
 
 //----------------------------------------------------------------------------
-// Clip this quadratic quad using scalar value provided. Like contouring, 
+// Clip this quadratic quad using scalar value provided. Like contouring,
 // except that it cuts the quad to produce other quads and triangles.
 void
 vtkBiQuadraticQuad::Clip (double value, vtkDataArray * cellScalars,

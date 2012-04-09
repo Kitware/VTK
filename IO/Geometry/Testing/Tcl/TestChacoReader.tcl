@@ -16,7 +16,7 @@ vtkPolyDataMapper mapper
   mapper SetInputConnection [geom GetOutputPort]
   mapper SetColorModeToMapScalars
   mapper SetScalarModeToUsePointFieldData
-  mapper SelectColorArray "VertexWeight1" 
+  mapper SelectColorArray "VertexWeight1"
   mapper SetScalarRange 1 5
 
 vtkActor actor0

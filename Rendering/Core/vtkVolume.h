@@ -19,7 +19,7 @@
 // It inherits functions related to the volume's position, orientation and
 // origin from vtkProp3D. The volume maintains a reference to the
 // volumetric data (i.e., the volume mapper). The volume also contains a
-// reference to a volume property which contains all common volume rendering 
+// reference to a volume property which contains all common volume rendering
 // parameters.
 
 // .SECTION see also
@@ -45,7 +45,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Creates a Volume with the following defaults: origin(0,0,0) 
+  // Creates a Volume with the following defaults: origin(0,0,0)
   // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0).
   static vtkVolume *New();
@@ -60,7 +60,7 @@ public:
   void SetProperty(vtkVolumeProperty *property);
   vtkVolumeProperty *GetProperty();
 
-  // Description: 
+  // Description:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. This method
   // is used in that process.
@@ -71,7 +71,7 @@ public:
   void Update();
 
   // Description:
-  // Get the bounds - either all six at once 
+  // Get the bounds - either all six at once
   // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
   double *GetBounds();
   void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
@@ -87,8 +87,8 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Return the mtime of anything that would cause the rendered image to 
-  // appear differently. Usually this involves checking the mtime of the 
+  // Return the mtime of anything that would cause the rendered image to
+  // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, mappers,
   // etc.
   unsigned long GetRedrawMTime();
@@ -165,7 +165,7 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, 
+  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren,
                                          float sample_distance );
 
 //ETX
@@ -206,7 +206,7 @@ protected:
   vtkTimeStamp          CorrectedScalarOpacityArrayMTime[VTK_MAX_VRCOMP];
 
   // CorrectedStepSize is the step size currently modelled by
-  // CorrectedArray.  It is used to determine when the 
+  // CorrectedArray.  It is used to determine when the
   // CorrectedArray needs to be updated to match SampleDistance
   // in the volume mapper.
   float                CorrectedStepSize;
@@ -221,7 +221,7 @@ protected:
 
   // Function to compute screen coverage of this volume
   double ComputeScreenCoverage( vtkViewport *vp );
-  
+
 private:
   vtkVolume(const vtkVolume&);  // Not implemented.
   void operator=(const vtkVolume&);  // Not implemented.

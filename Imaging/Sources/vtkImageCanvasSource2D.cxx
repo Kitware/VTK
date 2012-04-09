@@ -1567,7 +1567,7 @@ void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
 }
 
 //----------------------------------------------------------------------------
-int  vtkImageCanvasSource2D::GetNumberOfScalarComponents() const 
+int  vtkImageCanvasSource2D::GetNumberOfScalarComponents() const
 {
   return this->ImageData->GetNumberOfScalarComponents();
 }

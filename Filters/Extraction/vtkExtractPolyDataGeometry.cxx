@@ -36,7 +36,7 @@ vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)
     {
     this->ImplicitFunction->Register(this);
     }
-    
+
   this->ExtractInside = 1;
   this->ExtractBoundaryCells = 0;
 }
@@ -101,7 +101,7 @@ int vtkExtractPolyDataGeometry::RequestData(
     {
     multiplier = 1.0;
     }
-  else 
+  else
     {
     multiplier = -1.0;
     }
@@ -153,7 +153,7 @@ int vtkExtractPolyDataGeometry::RequestData(
     newStrips = vtkCellArray::New();
     newStrips->Allocate(inStrips->GetSize());
     }
-  
+
   // verts
   if ( newVerts && !this->GetAbortExecute() )
     {
@@ -197,7 +197,7 @@ int vtkExtractPolyDataGeometry::RequestData(
       }
     }
   this->UpdateProgress (0.75);
-  
+
   // polys
   if ( newPolys && !this->GetAbortExecute() )
     {
@@ -219,7 +219,7 @@ int vtkExtractPolyDataGeometry::RequestData(
       }
     }
   this->UpdateProgress (0.90);
-  
+
   // strips
   if ( newStrips && !this->GetAbortExecute() )
     {
@@ -241,7 +241,7 @@ int vtkExtractPolyDataGeometry::RequestData(
       }
     }
   this->UpdateProgress (1.0);
-  
+
   // Update ourselves and release memory
   //
   newScalars->Delete();
@@ -276,15 +276,15 @@ void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->ImplicitFunction)
     {
-    os << indent << "Implicit Function: " 
+    os << indent << "Implicit Function: "
        << static_cast<void *>(this->ImplicitFunction) << "\n";
     }
   else
     {
-    os << indent << "Implicit Function: (null)\n";      
+    os << indent << "Implicit Function: (null)\n";
     }
-  os << indent << "Extract Inside: " 
+  os << indent << "Extract Inside: "
      << (this->ExtractInside ? "On\n" : "Off\n");
-  os << indent << "Extract Boundary Cells: " 
+  os << indent << "Extract Boundary Cells: "
      << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
 }

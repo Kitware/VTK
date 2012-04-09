@@ -103,11 +103,11 @@ int vtkExtractEdges::RequestData(
   cd = input->GetCellData();
   outCD = output->GetCellData();
   outCD->CopyAllocate(cd,numCells);
-  
+
   cell = vtkGenericCell::New();
   vtkIdList *edgeIds, *HEedgeIds=vtkIdList::New();
   vtkPoints *edgePts, *HEedgePts=vtkPoints::New();
-  
+
   // Get our locator for merging points
   //
   if ( this->Locator == NULL )
@@ -116,7 +116,7 @@ int vtkExtractEdges::RequestData(
     }
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
-  // Loop over all cells, extracting non-visited edges. 
+  // Loop over all cells, extracting non-visited edges.
   //
   int tenth = numCells/10 + 1;
   for (cellNum=0; cellNum < numCells && !abort; cellNum++ )
@@ -133,7 +133,7 @@ int vtkExtractEdges::RequestData(
       {
       edge = cell->GetEdge(edgeNum);
       numEdgePts = edge->GetNumberOfPoints();
-      
+
       // Tessellate higher-order edges
       if ( ! edge->IsLinear() )
         {
@@ -168,7 +168,7 @@ int vtkExtractEdges::RequestData(
         {
         edgeIds = edge->PointIds;
         edgePts = edge->Points;
-        
+
         for ( i=0; i < numEdgePts; i++, pt1=pt2, pts[0]=pts[1] )
           {
           pt2 = edgeIds->GetId(i);
@@ -213,7 +213,7 @@ int vtkExtractEdges::RequestData(
 // default an instance of vtkMergePoints is used.
 void vtkExtractEdges::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }

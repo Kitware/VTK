@@ -37,7 +37,7 @@ struct vertout
     float4 Color0    : COLOR0;
 };
 
-vertout main(appin IN, 
+vertout main(appin IN,
              uniform float4x4 ModelViewProj,
              uniform float4x4 ModelViewIT,
              uniform float4x4 ModelView

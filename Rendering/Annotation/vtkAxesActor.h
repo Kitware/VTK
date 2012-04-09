@@ -66,7 +66,7 @@ public:
   vtkTypeMacro(vtkAxesActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description: 
+  // Description:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
@@ -81,7 +81,7 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  
+
   // Description:
   // Shallow copy of an axes actor. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
@@ -101,17 +101,17 @@ public:
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
   unsigned long int GetMTime();
-  
+
   // Description:
-  // Return the mtime of anything that would cause the rendered image to 
-  // appear differently. Usually this involves checking the mtime of the 
+  // Return the mtime of anything that would cause the rendered image to
+  // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, textures
   // etc.
   virtual unsigned long GetRedrawMTime();
 
   // Description:
   // Set the total length of the axes in 3 dimensions.
-  void SetTotalLength( double v[3] ) 
+  void SetTotalLength( double v[3] )
     { this->SetTotalLength( v[0], v[1], v[2] ); }
   void SetTotalLength( double x, double y, double z );
   vtkGetVectorMacro( TotalLength, double, 3 );
@@ -137,7 +137,7 @@ public:
   void SetNormalizedLabelPosition( double v[3] )
     { this->SetNormalizedLabelPosition( v[0], v[1], v[2] ); }
   void SetNormalizedLabelPosition( double x, double y, double z );
-  vtkGetVectorMacro( NormalizedLabelPosition, double, 3 );   
+  vtkGetVectorMacro( NormalizedLabelPosition, double, 3 );
 
   // Description:
   // Set/get the resolution of the pieces of the axes actor.
@@ -147,7 +147,7 @@ public:
   vtkGetMacro(SphereResolution, int);
   vtkSetClampMacro(CylinderResolution, int, 3, 128);
   vtkGetMacro(CylinderResolution, int);
-  
+
   // Description:
   // Set/get the radius of the pieces of the axes actor.
   vtkSetClampMacro(ConeRadius, double, 0, VTK_LARGE_FLOAT);
@@ -239,7 +239,7 @@ public:
     CONE_TIP,
     SPHERE_TIP,
     USER_DEFINED_TIP
-  };  
+  };
 //ETX
 
 protected:

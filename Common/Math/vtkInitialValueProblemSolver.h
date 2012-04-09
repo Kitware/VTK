@@ -41,7 +41,7 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Given initial values, xprev , initial time, t and a requested time 
+  // Given initial values, xprev , initial time, t and a requested time
   // interval, delT calculate values of x at t+delTActual (xnext).
   // For certain concrete sub-classes delTActual != delT. This occurs
   // when the solver supports adaptive stepsize control. If this
@@ -61,8 +61,8 @@ public:
   // NotInitialized = 2,
   // UnexpectedValue = 3
   virtual int ComputeNextStep(double* xprev, double* xnext, double t,
-                              double& delT, double maxError, 
-                              double& error) 
+                              double& delT, double maxError,
+                              double& error)
     {
       double minStep = delT;
       double maxStep = delT;
@@ -70,8 +70,8 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
-                              double t, double& delT, double maxError, 
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
+                              double t, double& delT, double maxError,
                               double& error)
     {
       double minStep = delT;
@@ -80,7 +80,7 @@ public:
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* xnext, 
+  virtual int ComputeNextStep(double* xprev, double* xnext,
                               double t, double& delT, double& delTActual,
                               double minStep, double maxStep,
                               double maxError, double& error)
@@ -88,9 +88,9 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
-                              double t, double& delT, double& delTActual, 
-                              double minStep, double maxStep, 
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
+                              double t, double& delT, double& delTActual,
+                              double minStep, double maxStep,
                               double maxError, double& error) = 0;
 
   // Description:
@@ -102,7 +102,7 @@ public:
   // Returns 1 if the solver uses adaptive stepsize control,
   // 0 otherwise
   virtual int IsAdaptive() { return this->Adaptive; }
-  
+
 //BTX
   enum ErrorCodes
   {

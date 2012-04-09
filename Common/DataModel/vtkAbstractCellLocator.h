@@ -19,8 +19,8 @@
 // should implement.
 //
 // .SECTION Warning
-// When deriving a class from vtkAbstractCellLocator, one should include the 
-// 'hidden' member functions by the following construct in the derived class 
+// When deriving a class from vtkAbstractCellLocator, one should include the
+// 'hidden' member functions by the following construct in the derived class
 // \verbatim
 // //BTX
 //  using vtkAbstractCellLocator::IntersectWithLine;
@@ -51,16 +51,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the preferred/maximum number of cells in each node/bucket. 
-  // Default 32. Locators generally operate by subdividing space into 
-  // smaller regions until the number of cells in each region (or node) 
+  // Specify the preferred/maximum number of cells in each node/bucket.
+  // Default 32. Locators generally operate by subdividing space into
+  // smaller regions until the number of cells in each region (or node)
   // reaches the desired level.
   vtkSetClampMacro(NumberOfCellsPerNode,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfCellsPerNode,int);
 
   // Description:
   // Boolean controls whether the bounds of each cell are computed only
-  // once and then saved.  Should be 10 to 20% faster if repeatedly 
+  // once and then saved.  Should be 10 to 20% faster if repeatedly
   // calling any of the Intersect/Find routines and the extra memory
   // won't cause disk caching (24 extra bytes per cell are required to
   // save the bounds).
@@ -89,7 +89,7 @@ public:
   // Some locators support querying a new dataset without rebuilding
   // the search structure (typically this may occur when a dataset
   // changes due to a time update, but is actually the same topology)
-  // Turning on this flag enables some locators to skip the rebuilding 
+  // Turning on this flag enables some locators to skip the rebuilding
   // phase
   vtkSetMacro(UseExistingSearchStructure,int);
   vtkGetMacro(UseExistingSearchStructure,int);
@@ -113,7 +113,7 @@ public:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
   virtual int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double& t, double x[3], 
+    double p1[3], double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell);
 
   // Description:
@@ -138,7 +138,7 @@ public:
   virtual void FindClosestPoint(
     double x[3], double closestPoint[3],
     vtkIdType &cellId, int &subId, double& dist2);
-  
+
   // Description:
   // Return the closest point and the cell which is closest to the point x.
   // The closest point is somewhere on a cell, it need not be one of the
@@ -151,9 +151,9 @@ public:
   // exit.
   virtual void FindClosestPoint(
     double x[3], double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId, 
+    vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2);
-  
+
   // Description:
   // Return the closest point within a specified radius and the cell which is
   // closest to the point x. The closest point is somewhere on a cell, it
@@ -165,7 +165,7 @@ public:
     double x[3], double radius,
     double closestPoint[3], vtkIdType &cellId,
     int &subId, double& dist2);
- 
+
   // Description:
   // Return the closest point within a specified radius and the cell which is
   // closest to the point x. The closest point is somewhere on a cell, it
@@ -205,7 +205,7 @@ public:
     double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2, int &inside);
-  
+
   // Description:
   // Return a list of unique cell ids inside of a given bounding box. The
   // user must provide the vtkIdList to populate. This method returns data
@@ -220,9 +220,9 @@ public:
   // built.
   virtual void FindCellsAlongLine(
     double p1[3], double p2[3], double tolerance, vtkIdList *cells);
-  
+
   // Description:
-  // Returns the Id of the cell containing the point, 
+  // Returns the Id of the cell containing the point,
   // returns -1 if no cell found. This interface uses a tolerance of zero
   virtual vtkIdType FindCell(double x[3]);
 
@@ -231,7 +231,7 @@ public:
   // the cell parameters are copied into the supplied variables, a cell must
   // be provided to store the information.
   virtual vtkIdType FindCell(
-    double x[3], double tol2, vtkGenericCell *GenCell, 
+    double x[3], double tol2, vtkGenericCell *GenCell,
     double pcoords[3], double *weights);
 
   // Description:
@@ -239,7 +239,7 @@ public:
   // Some locators cache cell bounds and this function can make use
   // of fast access to the data.
   virtual bool InsideCellBounds(double x[3], vtkIdType cell_ID);
- 
+
 protected:
    vtkAbstractCellLocator();
   ~vtkAbstractCellLocator();

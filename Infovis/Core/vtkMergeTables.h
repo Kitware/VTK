@@ -45,19 +45,19 @@ public:
   static vtkMergeTables* New();
   vtkTypeMacro(vtkMergeTables,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // The prefix to give to same-named fields from the first table.
   // Default is "Table1.".
   vtkSetStringMacro(FirstTablePrefix);
   vtkGetStringMacro(FirstTablePrefix);
-  
+
   // Description:
   // The prefix to give to same-named fields from the second table.
   // Default is "Table2.".
   vtkSetStringMacro(SecondTablePrefix);
   vtkGetStringMacro(SecondTablePrefix);
-  
+
   // Description:
   // If on, merges columns with the same name.
   // If off, keeps both columns, but calls one
@@ -78,15 +78,15 @@ public:
 protected:
   vtkMergeTables();
   ~vtkMergeTables();
-  
+
   bool MergeColumnsByName;
   bool PrefixAllButMerged;
   char* FirstTablePrefix;
   char* SecondTablePrefix;
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

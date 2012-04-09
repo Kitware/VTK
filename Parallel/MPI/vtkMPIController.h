@@ -16,16 +16,16 @@
 // .SECTION Description
 // vtkMPIController is a concrete class which implements the
 // abstract multi-process control methods defined in vtkMultiProcessController
-// using MPI (Message Passing Interface) 
+// using MPI (Message Passing Interface)
 // cf. Using MPI / Portable Parallel Programming with the Message-Passing
 // Interface, Gropp et al, MIT Press.
-// It also provide functionality specific to MPI and not present in 
+// It also provide functionality specific to MPI and not present in
 // vtkMultiProcessController.
 // Before any MPI communication can occur Initialize() must be called
 // by all processes. It is required to be called once, controllers
 // created after this need not call Initialize().
 // At the end of the program Finalize() must be called by all
-// processes. 
+// processes.
 //
 // The use of user-defined communicators are supported with the
 // CreateSubController method.  Note that a duplicate of the user defined
@@ -60,7 +60,7 @@ public:
 
   // Description:
   // This method is for setting up the processes.
-  // It needs to be called only once during program execution. 
+  // It needs to be called only once during program execution.
   // Calling it more than once will have no effect. Controllers
   // created after this call will be initialized automatically
   // (i.e. they will have the proper LocalProcessId and NumberOfProcesses).
@@ -68,7 +68,7 @@ public:
   // otherwise command line arguments will not be correct (because
   // usually MPI implementations add their own arguments during
   // startup).
-  virtual void Initialize(int* argc, char*** argv) 
+  virtual void Initialize(int* argc, char*** argv)
     { this->Initialize(argc, argv, 0); }
 
   virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv),
@@ -88,9 +88,9 @@ public:
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
-  // this->NumberOfProcesses processes.  
+  // this->NumberOfProcesses processes.
   virtual void SingleMethodExecute();
-  
+
   // Description:
   // Execute the MultipleMethods (as define by calling SetMultipleMethod
   // for each of the required this->NumberOfProcesses methods) using
@@ -126,8 +126,8 @@ public:
 //BTX
 
   // Description:
-  // This method sends data to another process (non-blocking).  
-  // Tag eliminates ambiguity when multiple sends or receives 
+  // This method sends data to another process (non-blocking).
+  // Tag eliminates ambiguity when multiple sends or receives
   // exist in the same process. The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message. Return values
@@ -141,7 +141,7 @@ public:
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockSend(const char* data, int length, int remoteProcessId, 
+  int NoBlockSend(const char* data, int length, int remoteProcessId,
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
@@ -149,32 +149,32 @@ public:
                    int tag, vtkMPICommunicator::Request& req )
   { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
       (data, length, remoteProcessId, tag, req);}
-  int NoBlockSend(const float* data, int length, int remoteProcessId, 
+  int NoBlockSend(const float* data, int length, int remoteProcessId,
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockSend(const double* data, int length, int remoteProcessId, 
+  int NoBlockSend(const double* data, int length, int remoteProcessId,
                   int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
         (data, length, remoteProcessId, tag, req); }
 
   // Description:
-  // This method receives data from a corresponding send (non-blocking). 
+  // This method receives data from a corresponding send (non-blocking).
   // The last argument,
   // vtkMPICommunicator::Request& req can later be used (with
   // req.Test() ) to test the success of the message. Return values are
   // 1 for success and 0 otherwise.
   // Note: These methods delegate to the communicator
-  int NoBlockReceive(int* data, int length, int remoteProcessId, 
+  int NoBlockReceive(int* data, int length, int remoteProcessId,
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockReceive(unsigned long* data, int length, 
-                     int remoteProcessId, int tag, 
+  int NoBlockReceive(unsigned long* data, int length,
+                     int remoteProcessId, int tag,
                      vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockReceive(char* data, int length, int remoteProcessId, 
+  int NoBlockReceive(char* data, int length, int remoteProcessId,
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
@@ -182,16 +182,16 @@ public:
                        int tag, vtkMPICommunicator::Request& req)
       { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
           (data, length, remoteProcessId, tag, req); }
-  int NoBlockReceive(float* data, int length, int remoteProcessId, 
+  int NoBlockReceive(float* data, int length, int remoteProcessId,
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
-  int NoBlockReceive(double* data, int length, int remoteProcessId, 
+  int NoBlockReceive(double* data, int length, int remoteProcessId,
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
 #ifdef VTK_USE_64BIT_IDS
-  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId, 
+  int NoBlockReceive(vtkIdType* data, int length, int remoteProcessId,
                      int tag, vtkMPICommunicator::Request& req)
     { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
         (data, length, remoteProcessId, tag, req); }
@@ -294,7 +294,7 @@ protected:
   // Implementation for TriggerRMI() provides subclasses an opportunity to
   // modify the behaviour eg. MPIController provides ability to use Ssend
   // instead of Send.
-  virtual void TriggerRMIInternal(int remoteProcessId, 
+  virtual void TriggerRMIInternal(int remoteProcessId,
     void* arg, int argLength, int rmiTag, bool propagate);
 
   // MPI communicator created when Initialize() called.

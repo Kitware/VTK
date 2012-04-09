@@ -60,7 +60,7 @@ public:
   vtkBooleanMacro(TargetFlag, int);
   vtkSetMacro(TargetValue, double);
   vtkGetMacro(TargetValue, double);
-  
+
 protected:
   vtkSubPixelPositionEdgels();
   ~vtkSubPixelPositionEdgels();
@@ -70,10 +70,10 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   void Move(int xdim, int ydim, int zdim, int x, int y,
-            float *img, vtkDataArray *inVecs, 
+            float *img, vtkDataArray *inVecs,
             double *result, int z, double *aspect, double *resultNormal);
   void Move(int xdim, int ydim, int zdim, int x, int y,
-            double *img, vtkDataArray *inVecs, 
+            double *img, vtkDataArray *inVecs,
             double *result, int z, double *aspect, double *resultNormal);
   // extension for target instead of maximum
   int TargetFlag;

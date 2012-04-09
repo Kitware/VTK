@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-// .NAME 
+// .NAME
 // .SECTION Description
 // this program tests the TimerLog
 
@@ -70,8 +70,8 @@ void otherTimerLogTest(ostream& strm)
 
 int otherTimerLog(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
   otherTimerLogTest(vtkmsg_with_warning_C4701);
 
   return 0;
-} 
+}

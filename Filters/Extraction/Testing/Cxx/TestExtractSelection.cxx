@@ -36,7 +36,7 @@ int TestExtractSelection( int argc, char* argv[] )
     vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
   node->GetProperties()->Set(
     vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
-  
+
   // list of cells to be selected
   vtkIdTypeArray* arr = vtkIdTypeArray::New();
   arr->SetNumberOfTuples(4);
@@ -50,7 +50,7 @@ int TestExtractSelection( int argc, char* argv[] )
 
   vtkSphereSource* sphere = vtkSphereSource::New();
 
-  vtkExtractSelectedPolyDataIds* selFilter = 
+  vtkExtractSelectedPolyDataIds* selFilter =
     vtkExtractSelectedPolyDataIds::New();
   selFilter->SetInputData(1, sel);
   selFilter->SetInputConnection(0,sphere->GetOutputPort());

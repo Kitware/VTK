@@ -82,7 +82,7 @@ unsigned long vtkMarchingCubes::GetMTime()
 // Calculate the gradient using central difference.
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
-void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3], 
+void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3],
                                           vtkIdType sliceSize, double spacing[3], double n[3])
 {
   double sp, sm;
@@ -149,16 +149,16 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
 }
 
 //
-// Contouring filter specialized for volumes and "short int" data values.  
+// Contouring filter specialized for volumes and "short int" data values.
 //
 template <class T>
-void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3], 
+void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3],
                                      double origin[3], double spacing[3],
-                                     vtkIncrementalPointLocator *locator, 
-                                     vtkDataArray *newScalars, 
-                                     vtkDataArray *newGradients, 
-                                     vtkDataArray *newNormals, 
-                                     vtkCellArray *newPolys, double *values, 
+                                     vtkIncrementalPointLocator *locator,
+                                     vtkDataArray *newScalars,
+                                     vtkDataArray *newGradients,
+                                     vtkDataArray *newNormals,
+                                     vtkCellArray *newPolys, double *values,
                                      int numValues)
 {
   double s[8], value;
@@ -207,7 +207,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
 //
 // Traverse all voxel cells, generating triangles and point gradients
 // using marching cubes algorithm.
-//  
+//
   sliceSize = dims[0] * dims[1];
   for ( k=0; k < (dims[2]-1); k++)
     {
@@ -345,7 +345,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
                     {
                     vtkMath::Normalize(n);
                     newNormals->InsertTuple(ptIds[ii],n);
-                    }   
+                    }
                   }
               }
             // check for degenerate triangle
@@ -363,7 +363,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
 }
 
 //
-// Contouring filter specialized for volumes and "short int" data values.  
+// Contouring filter specialized for volumes and "short int" data values.
 //
 int vtkMarchingCubes::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -393,7 +393,7 @@ int vtkMarchingCubes::RequestData(
   double bounds[6];
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
-  
+
   vtkDebugMacro(<< "Executing marching cubes");
 
 //
@@ -498,7 +498,7 @@ int vtkMarchingCubes::RequestData(
   else //multiple components - have to convert
     {
     vtkIdType dataSize = static_cast<vtkIdType>(dims[0]) * dims[1] * dims[2];
-    vtkDoubleArray *image=vtkDoubleArray::New(); 
+    vtkDoubleArray *image=vtkDoubleArray::New();
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     image->SetNumberOfTuples(image->GetNumberOfComponents()*dataSize);
     inScalars->GetTuples(0,dataSize,image);
@@ -509,13 +509,13 @@ int vtkMarchingCubes::RequestData(
                   newNormals,newPolys,values,numContours);
     image->Delete();
     }
-  
-  vtkDebugMacro(<<"Created: " 
-               << newPts->GetNumberOfPoints() << " points, " 
+
+  vtkDebugMacro(<<"Created: "
+               << newPts->GetNumberOfPoints() << " points, "
                << newPolys->GetNumberOfCells() << " triangles");
   //
   // Update ourselves.  Because we don't know up front how many triangles
-  // we've created, take care to reclaim memory. 
+  // we've created, take care to reclaim memory.
   //
   output->SetPoints(newPts);
   newPts->Delete();
@@ -549,26 +549,26 @@ int vtkMarchingCubes::RequestData(
 }
 
 // Description:
-// Specify a spatial locator for merging points. By default, 
+// Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator *locator)
 {
-  if ( this->Locator == locator ) 
+  if ( this->Locator == locator )
     {
     return;
     }
-  
+
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
-  
+
   if (locator)
     {
     locator->Register(this);
     }
-  
+
   this->Locator = locator;
   this->Modified();
 }

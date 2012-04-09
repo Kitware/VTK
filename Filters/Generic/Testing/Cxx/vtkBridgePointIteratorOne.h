@@ -30,7 +30,7 @@ public:
   static vtkBridgePointIteratorOne *New();
   vtkTypeMacro(vtkBridgePointIteratorOne,vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Move iterator to first position if any (loop initialization).
   void Begin();
@@ -43,7 +43,7 @@ public:
   // Move iterator to next position. (loop progression).
   // \pre not_off: !IsAtEnd()
   void Next();
- 
+
   // Description:
   // Point at iterator position.
   // \pre not_off: !IsAtEnd()
@@ -55,12 +55,12 @@ public:
   // \pre not_off: !IsAtEnd()
   // \pre x_exists: x!=0
   void GetPosition(double x[3]);
-  
+
   // Description:
   // Unique identifier for the point, could be non-contiguous
   // \pre not_off: !IsAtEnd()
   vtkIdType GetId();
-  
+
   // Description:
   // Used internally by vtkBridgeDataSet.
   // Iterate over one point of identifier `id' on dataset `ds'.
@@ -68,20 +68,20 @@ public:
   // \pre valid_id: vtkImplies(ds!=0,(id>=0)&&(id<=ds->GetNumberOfCells()))
   void InitWithOnePoint(vtkBridgeDataSet *ds,
                         vtkIdType id);
-  
+
 protected:
   // Description:
   // Default constructor.
   vtkBridgePointIteratorOne();
-  
+
   // Description:
   // Destructor.
   virtual ~vtkBridgePointIteratorOne();
-  
+
   vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
   vtkIdType Id; // the id at current position.
   int cIsAtEnd;
-  
+
 private:
   vtkBridgePointIteratorOne(const vtkBridgePointIteratorOne&); // Not implemented
   void operator=(const vtkBridgePointIteratorOne&); // Not implemented

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/* 
+/*
  * Copyright (C) 2008 The Trustees of Indiana University.
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
@@ -69,11 +69,11 @@ struct AddedEdge
 {
   AddedEdge() : Source(0), Target(0) { }
 
-  AddedEdge(vtkIdType source, vtkIdType target) 
+  AddedEdge(vtkIdType source, vtkIdType target)
     : Source(source), Target(target) { }
 
   template<typename Archiver>
-  void serialize(Archiver& ar, const unsigned int) 
+  void serialize(Archiver& ar, const unsigned int)
   {
     ar & Source & Target;
   }
@@ -125,11 +125,11 @@ struct IsSelfLoop : std::unary_function<AddedEdge, bool>
 // by the source or target of the edge, depending on whether source is
 // true), determine the incoming edges and put them into inEdges.
 void ExchangeEdges(vtkGraph* graph,
-                   vector<AddedEdge> const& outEdges, 
+                   vector<AddedEdge> const& outEdges,
                    vector<AddedEdge>& inEdges,
                    bool source)
 {
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -152,7 +152,7 @@ void ExchangeEdges(vtkGraph* graph,
 
   // Swap counts with the other processors
   vector<int> recvCounts(numProcs);
-  MPI_Alltoall(&sendCounts.front(), 1, MPI_INT, 
+  MPI_Alltoall(&sendCounts.front(), 1, MPI_INT,
                &recvCounts.front(), 1, MPI_INT,
                MPI_COMM_WORLD);
 
@@ -167,7 +167,7 @@ void ExchangeEdges(vtkGraph* graph,
 
   // Swap incoming edges with the other processors.
   inEdges.resize(count);
-  MPI_Alltoallv(const_cast<AddedEdge*>(&outEdges[0]), &sendCounts[0], 
+  MPI_Alltoallv(const_cast<AddedEdge*>(&outEdges[0]), &sendCounts[0],
                 &offsetsSend[0], boost::mpi::get_mpi_datatype<AddedEdge>(),
                 &inEdges[0], &recvCounts[0], &offsetsRecv[0],
                 boost::mpi::get_mpi_datatype<AddedEdge>(),
@@ -178,7 +178,7 @@ void ExchangeEdges(vtkGraph* graph,
 void TestDirectedGraph()
 {
   // Create a new graph
-  vtkSmartPointer<vtkMutableDirectedGraph> graph 
+  vtkSmartPointer<vtkMutableDirectedGraph> graph
     = vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Create a Parallel BGL distributed graph helper
@@ -188,7 +188,7 @@ void TestDirectedGraph()
   // Hook the distributed graph helper into the graph. graph will then
   // be a distributed graph.
   graph->SetDistributedGraphHelper(helper);
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -204,7 +204,7 @@ void TestDirectedGraph()
 
   if (myRank == 0)
     {
-    (cout << "Build distributed directed graph (V=" << V*numProcs 
+    (cout << "Build distributed directed graph (V=" << V*numProcs
           << ", E=" << E*numProcs << ")...").flush();
     }
 
@@ -296,14 +296,14 @@ void TestDirectedGraph()
                                        OrderEdgesBySource());
     myEdgesEnd = std::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
-                                       (u+1, 
+                                       (u+1,
                                         helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
     startPositions[helper->GetVertexIndex(u)].first = myEdgesStart;
     startPositions[helper->GetVertexIndex(u)].second = myEdgesEnd;
 
     graph->GetOutEdges(u, outEdges);
-    while (outEdges->HasNext()) 
+    while (outEdges->HasNext())
       {
       vtkOutEdgeType e = outEdges->Next();
 
@@ -311,7 +311,7 @@ void TestDirectedGraph()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
@@ -345,15 +345,15 @@ void TestDirectedGraph()
   while (edges->HasNext())
     {
       vtkEdgeType e = edges->Next();
-      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
+      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
-      
+
       // Make sure we're expecting to find more edges in this source's
       // bracket
       myassert(bracket.first != bracket.second);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
@@ -394,7 +394,7 @@ void TestDirectedGraph()
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
     myEdgesStart = std::lower_bound(inEdges.begin(), inEdges.end(),
                                        AddedEdge
-                                         (helper->MakeDistributedId(0, 0), 
+                                         (helper->MakeDistributedId(0, 0),
                                           u),
                                        OrderEdgesByTarget());
     myEdgesEnd = std::lower_bound(myEdgesStart, inEdges.end(),
@@ -406,7 +406,7 @@ void TestDirectedGraph()
     vtkSmartPointer<vtkInEdgeIterator> inEdges
       = vtkSmartPointer<vtkInEdgeIterator>::New();
     graph->GetInEdges(u, inEdges);
-    while (inEdges->HasNext()) 
+    while (inEdges->HasNext())
       {
       vtkInEdgeType e = inEdges->Next();
 
@@ -414,7 +414,7 @@ void TestDirectedGraph()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(e.Source, u));
       myassert(found != myEdgesEnd);
@@ -430,7 +430,7 @@ void TestDirectedGraph()
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }  
+    }
   helper->Synchronize();
   if (myRank == 0)
     {
@@ -442,7 +442,7 @@ void TestDirectedGraph()
 void TestDirectedGraphProperties()
 {
   // Create a new graph
-  vtkSmartPointer<vtkMutableDirectedGraph> graph 
+  vtkSmartPointer<vtkMutableDirectedGraph> graph
     = vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
   // Create a Parallel BGL distributed graph helper
@@ -452,7 +452,7 @@ void TestDirectedGraphProperties()
   // Hook the distributed graph helper into the graph. graph will then
   // be a distributed graph.
   graph->SetDistributedGraphHelper(helper);
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -470,39 +470,39 @@ void TestDirectedGraphProperties()
 
   if (myRank == 0)
     {
-    (cout << "Build distributed directed graph w/ properties (V=" << V*numProcs 
+    (cout << "Build distributed directed graph w/ properties (V=" << V*numProcs
           << ", E=" << E*numProcs << ")...").flush();
     }
-  
+
   //  Create some vertex property arrays
   vtkVariantArray* vertexPropertyArr = vtkVariantArray::New();
   int numVertexProperties = 2;
   vertexPropertyArr->SetNumberOfValues(numVertexProperties);
-  
+
   vtkStringArray* vertexProp0Array = vtkStringArray::New();
   vertexProp0Array->SetName("labels");
   graph->GetVertexData()->AddArray(vertexProp0Array);
-  
+
   vtkIntArray* vertexProp1Array = vtkIntArray::New();
   vertexProp1Array->SetName("veight");
   graph->GetVertexData()->AddArray(vertexProp1Array);
-  
+
   const char *vertexLabel[] = {"Dick","Jane","Sally","Spot","Puff"};
-  
-  
+
+
   //  Create some edge property arrays
   vtkVariantArray* edgePropertyArr = vtkVariantArray::New();
   int numEdgeProperties = 2;
   edgePropertyArr->SetNumberOfValues(numEdgeProperties);
-  
+
   vtkIntArray* edgeProp0Array = vtkIntArray::New();
   edgeProp0Array->SetName("happiness");
   graph->GetEdgeData()->AddArray(edgeProp0Array);
-  
+
   vtkDoubleArray* edgeProp1Array = vtkDoubleArray::New();
   edgeProp1Array->SetName("weight");
   graph->GetEdgeData()->AddArray(edgeProp1Array);
-  
+
 
   const char *stringProp = vertexLabel[0];
   int veight;
@@ -545,13 +545,13 @@ void TestDirectedGraphProperties()
     (cout << " done.\n").flush();
     }
 
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
     {
     (cout << "done.\n").flush();
     }
-  
+
 
 
   // We know which edges we generated, but some of those edges were
@@ -612,14 +612,14 @@ void TestDirectedGraphProperties()
                                        OrderEdgesBySource());
     myEdgesEnd = std::lower_bound(myEdgesStart, addedEdges.end(),
                                      AddedEdge
-                                       (u+1, 
+                                       (u+1,
                                         helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
     startPositions[helper->GetVertexIndex(u)].first = myEdgesStart;
     startPositions[helper->GetVertexIndex(u)].second = myEdgesEnd;
 
     graph->GetOutEdges(u, outEdges);
-    while (outEdges->HasNext()) 
+    while (outEdges->HasNext())
       {
       vtkOutEdgeType e = outEdges->Next();
 
@@ -627,7 +627,7 @@ void TestDirectedGraphProperties()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
@@ -657,15 +657,15 @@ void TestDirectedGraphProperties()
   while (edges->HasNext())
     {
       vtkEdgeType e = edges->Next();
-      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
+      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
-      
+
       // Make sure we're expecting to find more edges in this source's
       // bracket
       myassert(bracket.first != bracket.second);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
@@ -706,7 +706,7 @@ void TestDirectedGraphProperties()
     vector<AddedEdge>::iterator myEdgesStart, myEdgesEnd;
     myEdgesStart = std::lower_bound(inEdges.begin(), inEdges.end(),
                                        AddedEdge
-                                         (helper->MakeDistributedId(0, 0), 
+                                         (helper->MakeDistributedId(0, 0),
                                           u),
                                        OrderEdgesByTarget());
     myEdgesEnd = std::lower_bound(myEdgesStart, inEdges.end(),
@@ -718,7 +718,7 @@ void TestDirectedGraphProperties()
     vtkSmartPointer<vtkInEdgeIterator> inEdges
       = vtkSmartPointer<vtkInEdgeIterator>::New();
     graph->GetInEdges(u, inEdges);
-    while (inEdges->HasNext()) 
+    while (inEdges->HasNext())
       {
       vtkInEdgeType e = inEdges->Next();
 
@@ -726,7 +726,7 @@ void TestDirectedGraphProperties()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(e.Source, u));
       myassert(found != myEdgesEnd);
@@ -738,7 +738,7 @@ void TestDirectedGraphProperties()
 
     // Make sure that the constructed graph isn't missing any edges
     assert(myEdgesStart == myEdgesEnd);
-    }  
+    }
   MPI_Barrier(MPI_COMM_WORLD);
   if (myRank == 0)
     {
@@ -749,7 +749,7 @@ void TestDirectedGraphProperties()
 void TestUndirectedGraph()
 {
   // Create a new graph
-  vtkSmartPointer<vtkMutableUndirectedGraph> graph 
+  vtkSmartPointer<vtkMutableUndirectedGraph> graph
     = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
   // Create a Parallel BGL distributed graph helper
@@ -759,7 +759,7 @@ void TestUndirectedGraph()
   // Hook the distributed graph helper into the graph. graph will then
   // be a distributed graph.
   graph->SetDistributedGraphHelper(helper);
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -774,7 +774,7 @@ void TestUndirectedGraph()
   vector<AddedEdge> generatedEdges;
   if (myRank == 0)
     {
-    (cout << "Build distributed undirected graph with V=" << V*numProcs 
+    (cout << "Build distributed undirected graph with V=" << V*numProcs
           << ", E=" << E*numProcs << "...").flush();
     }
 
@@ -853,11 +853,11 @@ void TestUndirectedGraph()
   ExchangeEdges(graph, addedEdges, inEdges, false);
 
   // Remove self-loops from the list of in-edges. We don't want them
-  // to appear twice. 
+  // to appear twice.
   inEdges.erase(std::remove_if(inEdges.begin(), inEdges.end(), IsSelfLoop()),
                 inEdges.end());
 
-  // Build a list of all of the in/out edges we'll see. 
+  // Build a list of all of the in/out edges we'll see.
   vector<AddedEdge> allEdges;
   allEdges.reserve(addedEdges.size() + inEdges.size());
   allEdges.insert(allEdges.end(), addedEdges.begin(), addedEdges.end());
@@ -892,12 +892,12 @@ void TestUndirectedGraph()
                                        OrderEdgesBySource());
     myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
-                                       (u+1, 
+                                       (u+1,
                                         helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetOutEdges(u, outEdges);
-    while (outEdges->HasNext()) 
+    while (outEdges->HasNext())
       {
       vtkOutEdgeType e = outEdges->Next();
 
@@ -905,7 +905,7 @@ void TestUndirectedGraph()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
@@ -939,7 +939,7 @@ void TestUndirectedGraph()
     {
       vtkIdType vId = helper->MakeDistributedId(myRank, v);
       startPositions[v].first = position;
-      while (position != addedEdges.end() && position->Source == vId) 
+      while (position != addedEdges.end() && position->Source == vId)
         {
         ++position;
         }
@@ -952,7 +952,7 @@ void TestUndirectedGraph()
   while (edges->HasNext())
     {
       vtkEdgeType e = edges->Next();
-      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
+      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
 
       // Make sure we're expecting to find more edges in this source's
@@ -960,7 +960,7 @@ void TestUndirectedGraph()
       myassert(bracket.first != bracket.second);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
@@ -974,7 +974,7 @@ void TestUndirectedGraph()
     {
       if (startPositions[v].first != startPositions[v].second)
         {
-          cerr << "Edges rank " << myRank 
+          cerr << "Edges rank " << myRank
                << " expected to find with vtkEdgeListIterator:\n";
           for (AddedEdgeIterator i = startPositions[v].first;
                i != startPositions[v].second; ++i)
@@ -1013,12 +1013,12 @@ void TestUndirectedGraph()
                                        OrderEdgesBySource());
     myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
-                                       (v+1, 
+                                       (v+1,
                                         helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetInEdges(v, inEdges);
-    while (inEdges->HasNext()) 
+    while (inEdges->HasNext())
       {
       vtkInEdgeType e = inEdges->Next();
 
@@ -1026,7 +1026,7 @@ void TestUndirectedGraph()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(v, e.Source));
       myassert(found != myEdgesEnd);
@@ -1050,7 +1050,7 @@ void TestUndirectedGraph()
 void TestUndirectedGraphProperties()
 {
   // Create a new graph
-  vtkSmartPointer<vtkMutableUndirectedGraph> graph 
+  vtkSmartPointer<vtkMutableUndirectedGraph> graph
     = vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
   // Create a Parallel BGL distributed graph helper
@@ -1060,7 +1060,7 @@ void TestUndirectedGraphProperties()
   // Hook the distributed graph helper into the graph. graph will then
   // be a distributed graph.
   graph->SetDistributedGraphHelper(helper);
-  int numProcs 
+  int numProcs
     = graph->GetInformation()->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
   int myRank
     = graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
@@ -1075,7 +1075,7 @@ void TestUndirectedGraphProperties()
   vector<AddedEdge> generatedEdges;
   if (myRank == 0)
     {
-    (cout << "Build distributed undirected graph, with properties, with V=" << V*numProcs 
+    (cout << "Build distributed undirected graph, with properties, with V=" << V*numProcs
           << ", E=" << E*numProcs << "...").flush();
     }
 
@@ -1083,31 +1083,31 @@ void TestUndirectedGraphProperties()
   vtkVariantArray* vertexPropertyArr = vtkVariantArray::New();
   int numVertexProperties = 2;
   vertexPropertyArr->SetNumberOfValues(numVertexProperties);
-  
+
   vtkStringArray* vertexProp0Array = vtkStringArray::New();
   vertexProp0Array->SetName("labels");
   graph->GetVertexData()->AddArray(vertexProp0Array);
-  
+
   vtkIntArray* vertexProp1Array = vtkIntArray::New();
   vertexProp1Array->SetName("veight");
   graph->GetVertexData()->AddArray(vertexProp1Array);
-  
+
   const char *vertexLabel[] = {"Dick","Jane","Sally","Spot","Puff"};
-  
-  
+
+
   //  Create some edge property arrays
   vtkVariantArray* edgePropertyArr = vtkVariantArray::New();
   int numEdgeProperties = 2;
   edgePropertyArr->SetNumberOfValues(numEdgeProperties);
-  
+
   vtkIntArray* edgeProp0Array = vtkIntArray::New();
   edgeProp0Array->SetName("happiness");
   graph->GetEdgeData()->AddArray(edgeProp0Array);
-  
+
   vtkDoubleArray* edgeProp1Array = vtkDoubleArray::New();
   edgeProp1Array->SetName("weight");
   graph->GetEdgeData()->AddArray(edgeProp1Array);
-  
+
 
   const char *stringProp = vertexLabel[0];
   int veight;
@@ -1118,7 +1118,7 @@ void TestUndirectedGraphProperties()
 //    cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<veight<< endl;
     vertexPropertyArr->SetValue(0,stringProp);
     vertexPropertyArr->SetValue(1,veight);
-    
+
     graph->AddVertex(vertexPropertyArr);
     }
 
@@ -1192,11 +1192,11 @@ void TestUndirectedGraphProperties()
   ExchangeEdges(graph, addedEdges, inEdges, false);
 
   // Remove self-loops from the list of in-edges. We don't want them
-  // to appear twice. 
+  // to appear twice.
   inEdges.erase(std::remove_if(inEdges.begin(), inEdges.end(), IsSelfLoop()),
                 inEdges.end());
 
-  // Build a list of all of the in/out edges we'll see. 
+  // Build a list of all of the in/out edges we'll see.
   vector<AddedEdge> allEdges;
   allEdges.reserve(addedEdges.size() + inEdges.size());
   allEdges.insert(allEdges.end(), addedEdges.begin(), addedEdges.end());
@@ -1231,12 +1231,12 @@ void TestUndirectedGraphProperties()
                                        OrderEdgesBySource());
     myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
-                                       (u+1, 
+                                       (u+1,
                                         helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetOutEdges(u, outEdges);
-    while (outEdges->HasNext()) 
+    while (outEdges->HasNext())
       {
       vtkOutEdgeType e = outEdges->Next();
 
@@ -1244,7 +1244,7 @@ void TestUndirectedGraphProperties()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(u, e.Target));
       myassert(found != myEdgesEnd);
@@ -1278,7 +1278,7 @@ void TestUndirectedGraphProperties()
     {
       vtkIdType vId = helper->MakeDistributedId(myRank, v);
       startPositions[v].first = position;
-      while (position != addedEdges.end() && position->Source == vId) 
+      while (position != addedEdges.end() && position->Source == vId)
         {
         ++position;
         }
@@ -1291,7 +1291,7 @@ void TestUndirectedGraphProperties()
   while (edges->HasNext())
     {
       vtkEdgeType e = edges->Next();
-      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket 
+      pair<AddedEdgeIterator, AddedEdgeIterator>& bracket
         = startPositions[helper->GetVertexIndex(e.Source)];
 
       // Make sure we're expecting to find more edges in this source's
@@ -1299,7 +1299,7 @@ void TestUndirectedGraphProperties()
       myassert(bracket.first != bracket.second);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(bracket.first, bracket.second,
                        AddedEdge(e.Source, e.Target));
       myassert(found != bracket.second);
@@ -1313,7 +1313,7 @@ void TestUndirectedGraphProperties()
     {
       if (startPositions[v].first != startPositions[v].second)
         {
-          cerr << "Edges rank " << myRank 
+          cerr << "Edges rank " << myRank
                << " expected to find with vtkEdgeListIterator:\n";
           for (AddedEdgeIterator i = startPositions[v].first;
                i != startPositions[v].second; ++i)
@@ -1352,12 +1352,12 @@ void TestUndirectedGraphProperties()
                                        OrderEdgesBySource());
     myEdgesEnd = std::lower_bound(myEdgesStart, allEdges.end(),
                                      AddedEdge
-                                       (v+1, 
+                                       (v+1,
                                         helper->MakeDistributedId(0, 0)),
                                      OrderEdgesBySource());
 
     graph->GetInEdges(v, inEdges);
-    while (inEdges->HasNext()) 
+    while (inEdges->HasNext())
       {
       vtkInEdgeType e = inEdges->Next();
 
@@ -1365,7 +1365,7 @@ void TestUndirectedGraphProperties()
       myassert(myEdgesStart != myEdgesEnd);
 
       // Make sure that we added an edge with the same source/target
-      vector<AddedEdge>::iterator found 
+      vector<AddedEdge>::iterator found
         = std::find(myEdgesStart, myEdgesEnd,
                        AddedEdge(v, e.Source));
       myassert(found != myEdgesEnd);

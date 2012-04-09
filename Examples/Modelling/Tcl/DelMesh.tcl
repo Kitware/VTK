@@ -1,5 +1,5 @@
 # This example demonstrates how to use 2D Delaunay triangulation.
-# We create a fancy image of a 2D Delaunay triangulation. Points are 
+# We create a fancy image of a 2D Delaunay triangulation. Points are
 # randomly generated.
 
 

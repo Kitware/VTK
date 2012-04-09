@@ -47,10 +47,10 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int main(int argc, char* argv[])
-{           
+{
   boost::mpi::environment env(argc, argv);
   boost::mpi::communicator world;
-                            
+
   vtkIdType wantVertices = 100;
   vtkIdType wantEdges = 200;
 
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   bool doConnectedComponents = true;
   bool doMST = true;
 
-  if (argc > 2) 
+  if (argc > 2)
     {
     wantVertices = boost::lexical_cast<vtkIdType>(argv[1]);
     wantEdges = boost::lexical_cast<vtkIdType>(argv[2]);
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
   source->SetNumberOfVertices(wantVertices);
   source->SetNumberOfEdges(wantEdges);
-  
+
   if (!onlyConnected)
     {
     if (world.rank() == 0)
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
                                std::plus<vtkIdType>());
     if (totalNumberOfVertices != wantVertices)
       {
-      cerr << "ERROR: Wrong number of vertices (" 
+      cerr << "ERROR: Wrong number of vertices ("
            << totalNumberOfVertices << " != " << wantVertices << ")" << endl;
       errors++;
       }
@@ -170,18 +170,18 @@ int main(int argc, char* argv[])
                              std::plus<vtkIdType>());
   if (totalNumberOfVertices != wantVertices)
     {
-    cerr << "ERROR: Wrong number of vertices (" 
+    cerr << "ERROR: Wrong number of vertices ("
          << totalNumberOfVertices << " != " << wantVertices << ")" << endl;
     errors++;
     }
 
-  totalNumberOfEdges 
+  totalNumberOfEdges
     = boost::mpi::all_reduce(world, g->GetNumberOfEdges(),
                              std::plus<vtkIdType>());
   if (totalNumberOfEdges != wantEdges + wantVertices - 1)
     {
     cerr << "ERROR: Wrong number of edges ("
-         << totalNumberOfEdges << " != " << (wantEdges + wantVertices - 1) 
+         << totalNumberOfEdges << " != " << (wantEdges + wantVertices - 1)
          << ")" << endl;
     errors++;
     }
@@ -199,12 +199,12 @@ int main(int argc, char* argv[])
     while (vertices->HasNext())
       {
       vtkIdType u = vertices->Next();
-      
+
       vtkSmartPointer<vtkOutEdgeIterator> outEdges
         = vtkSmartPointer<vtkOutEdgeIterator>::New();
-        
+
       g->GetOutEdges(u, outEdges);
-      while (outEdges->HasNext()) 
+      while (outEdges->HasNext())
         {
         vtkOutEdgeType e = outEdges->Next();
         cerr << "  " << u << " -- " << e.Target << endl;
@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
       vtkIdTypeArray* colorArray
         = vtkIdTypeArray::SafeDownCast
             (output->GetVertexData()->GetAbstractArray("Color"));
-      vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type colorMap 
+      vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type colorMap
         = MakeDistributedVertexPropertyMap(output, colorArray);
 
       // Restart the timer
@@ -289,21 +289,21 @@ int main(int argc, char* argv[])
         vtkIdType u = vertices->Next();
         vtkSmartPointer<vtkOutEdgeIterator> outEdges
           = vtkSmartPointer<vtkOutEdgeIterator>::New();
-        
+
         output->GetOutEdges(u, outEdges);
-        while (outEdges->HasNext()) 
+        while (outEdges->HasNext())
           {
           vtkOutEdgeType e = outEdges->Next();
           if (get(colorMap, u) == get(colorMap, e.Target))
             {
-            cerr << "ERROR: Found adjacent vertices " << u << " and " 
-                 << e.Target << " with the same color value (" 
+            cerr << "ERROR: Found adjacent vertices " << u << " and "
+                 << e.Target << " with the same color value ("
                  << get(colorMap, u) << ")" << endl;
             ++errors;
             }
           }
         }
-      
+
       output->GetDistributedGraphHelper()->Synchronize();
 
       if (world.rank() == 0)
@@ -349,7 +349,7 @@ int main(int argc, char* argv[])
       vtkIdTypeArray* componentArray
         = vtkIdTypeArray::SafeDownCast
             (output->GetVertexData()->GetAbstractArray("Component"));
-      vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type componentMap 
+      vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type componentMap
         = MakeDistributedVertexPropertyMap(output, componentArray);
 
       // Restart the timer
@@ -363,22 +363,22 @@ int main(int argc, char* argv[])
         vtkIdType u = vertices->Next();
         vtkSmartPointer<vtkOutEdgeIterator> outEdges
           = vtkSmartPointer<vtkOutEdgeIterator>::New();
-        
+
         output->GetOutEdges(u, outEdges);
-        while (outEdges->HasNext()) 
+        while (outEdges->HasNext())
           {
           vtkOutEdgeType e = outEdges->Next();
           if (get(componentMap, u) != get(componentMap, e.Target))
             {
-            cerr << "ERROR: Found adjacent vertices " << u << " and " 
-                 << e.Target << " with different component values (" 
-                 << get(componentMap, u) << " and " 
+            cerr << "ERROR: Found adjacent vertices " << u << " and "
+                 << e.Target << " with different component values ("
+                 << get(componentMap, u) << " and "
                  << get(componentMap, e.Target) << ")" << endl;
             ++errors;
             }
           }
         }
-      
+
       output->GetDistributedGraphHelper()->Synchronize();
 
       if (world.rank() == 0)

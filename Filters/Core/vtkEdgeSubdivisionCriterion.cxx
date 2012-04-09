@@ -88,10 +88,10 @@ int vtkEdgeSubdivisionCriterion::GetOutputField( int sourceId ) const
   return -1;
 }
 
-bool vtkEdgeSubdivisionCriterion::ViewDependentEval( 
-  const double* p0, double* p1, double* real_p1, 
-  const double* p2, int , 
-  vtkMatrix4x4* Transform, const double* PixelSize, 
+bool vtkEdgeSubdivisionCriterion::ViewDependentEval(
+  const double* p0, double* p1, double* real_p1,
+  const double* p2, int ,
+  vtkMatrix4x4* Transform, const double* PixelSize,
   double AllowableChordError ) const
 {
   double real_p1t[4];
@@ -105,7 +105,7 @@ bool vtkEdgeSubdivisionCriterion::ViewDependentEval(
      fabs(real_p1t[0]*intr_p1t[3]-intr_p1t[0]*real_p1t[3])/PixelSize[0],
      fabs(real_p1t[1]*intr_p1t[3]-intr_p1t[1]*real_p1t[3])/PixelSize[1] );
    */
-  if ( (real_p1t[0] > real_p1t[3]) || (real_p1t[0] < -real_p1t[3]) || 
+  if ( (real_p1t[0] > real_p1t[3]) || (real_p1t[0] < -real_p1t[3]) ||
       (real_p1t[1] > real_p1t[3]) || (real_p1t[1] < -real_p1t[3]) ) {
     double p0t[4];
     double p2t[4];

@@ -27,7 +27,7 @@
 // vtkDataSet::GetCellTypes(). If you use the class in this way, you can use
 // a location value of -1.
 //
-// .SECTION See Also 
+// .SECTION See Also
 // vtkCellArray vtkCellLinks
 
 #ifndef __vtkCellTypes_h
@@ -54,7 +54,7 @@ public:
   // Description:
   // Add a cell at specified id.
   void InsertCell(int id, unsigned char type, int loc);
-  
+
   // Description:
   // Add a cell to the object in the next available slot.
   int InsertNextCell(unsigned char type, int loc);
@@ -82,7 +82,7 @@ public:
   // Description:
   // Add the type specified to the end of the list. Range checking is performed.
   int InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
-  
+
   // Description:
   // Return the type of cell.
   unsigned char GetCellType(int cellId) { return this->TypeArray->GetValue(cellId);};
@@ -96,11 +96,11 @@ public:
   void Reset();
 
   // Description:
-  // Return the memory in kilobytes consumed by this cell type array. 
-  // Used to support streaming and reading/writing data. The value 
-  // returned is guaranteed to be greater than or equal to the memory 
-  // required to actually represent the data represented by this object. 
-  // The information returned is valid only after the pipeline has 
+  // Return the memory in kilobytes consumed by this cell type array.
+  // Used to support streaming and reading/writing data. The value
+  // returned is guaranteed to be greater than or equal to the memory
+  // required to actually represent the data represented by this object.
+  // The information returned is valid only after the pipeline has
   // been updated.
   unsigned long GetActualMemorySize();
 

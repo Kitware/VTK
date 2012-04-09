@@ -99,8 +99,8 @@ void vtkExtractSelectedRows::SetAnnotationLayersConnection(vtkAlgorithmOutput* i
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedRows::RequestData(
-  vtkInformation* vtkNotUsed(request), 
-  vtkInformationVector** inputVector, 
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkTable* input = vtkTable::GetData(inputVector[0]);
@@ -130,11 +130,11 @@ int vtkExtractSelectedRows::RequestData(
     for(unsigned int i=0; i<inputAnnotations->GetNumberOfAnnotations(); ++i)
       {
       vtkAnnotation* a = inputAnnotations->GetAnnotation(i);
-      if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
+      if ((a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           a->GetInformation()->Get(vtkAnnotation::ENABLE())==0) ||
-          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) && 
-          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 && 
-          a->GetInformation()->Has(vtkAnnotation::HIDE()) && 
+          (a->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
+          a->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
+          a->GetInformation()->Has(vtkAnnotation::HIDE()) &&
           a->GetInformation()->Get(vtkAnnotation::HIDE())==1))
         {
         continue;

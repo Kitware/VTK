@@ -48,7 +48,7 @@ void vtkRectilinearGridClip::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   int idx;
-  
+
   os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0]
      << "," << this->OutputWholeExtent[1];
   for (idx = 1; idx < 3; ++idx)
@@ -66,13 +66,13 @@ void vtkRectilinearGridClip::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ClipDataOff\n";
     }
 }
-  
+
 //----------------------------------------------------------------------------
 void vtkRectilinearGridClip::SetOutputWholeExtent(int extent[6], vtkInformation *outInfo)
 {
   int idx;
   int modified = 0;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     if (this->OutputWholeExtent[idx] != extent[idx])
@@ -94,12 +94,12 @@ void vtkRectilinearGridClip::SetOutputWholeExtent(int extent[6], vtkInformation 
 }
 
 //----------------------------------------------------------------------------
-void vtkRectilinearGridClip::SetOutputWholeExtent(int minX, int maxX, 
+void vtkRectilinearGridClip::SetOutputWholeExtent(int minX, int maxX,
                                              int minY, int maxY,
                                              int minZ, int maxZ)
 {
   int extent[6];
-  
+
   extent[0] = minX;  extent[1] = maxX;
   extent[2] = minY;  extent[3] = maxY;
   extent[4] = minZ;  extent[5] = maxZ;
@@ -110,7 +110,7 @@ void vtkRectilinearGridClip::SetOutputWholeExtent(int minX, int maxX,
 void vtkRectilinearGridClip::GetOutputWholeExtent(int extent[6])
 {
   int idx;
-  
+
   for (idx = 0; idx < 6; ++idx)
     {
     extent[idx] = this->OutputWholeExtent[idx];
@@ -129,7 +129,7 @@ int vtkRectilinearGridClip::RequestInformation (
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   int idx, extent[6];
-  
+
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   if ( ! this->Initialized)
     {
@@ -139,12 +139,12 @@ int vtkRectilinearGridClip::RequestInformation (
   // Clip the OutputWholeExtent with the input WholeExtent
   for (idx = 0; idx < 3; ++idx)
     {
-    if (this->OutputWholeExtent[idx*2] >= extent[idx*2] && 
+    if (this->OutputWholeExtent[idx*2] >= extent[idx*2] &&
         this->OutputWholeExtent[idx*2] <= extent[idx*2+1])
       {
       extent[idx*2] = this->OutputWholeExtent[idx*2];
       }
-    if (this->OutputWholeExtent[idx*2+1] >= extent[idx*2] && 
+    if (this->OutputWholeExtent[idx*2+1] >= extent[idx*2] &&
         this->OutputWholeExtent[idx*2+1] <= extent[idx*2+1])
       {
       extent[idx*2+1] = this->OutputWholeExtent[idx*2+1];
@@ -191,7 +191,7 @@ int vtkRectilinearGridClip::RequestData(vtkInformation *vtkNotUsed(request),
   vtkRectilinearGrid *inData = vtkRectilinearGrid::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  inExt  = inData->GetExtent(); 
+  inExt  = inData->GetExtent();
 
   outData->SetExtent(inExt);
   outData->GetPointData()->PassData(inData->GetPointData());
@@ -204,7 +204,7 @@ int vtkRectilinearGridClip::RequestData(vtkInformation *vtkNotUsed(request),
     {
     outData->Crop(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
-    } 
+    }
 
   return 1;
 }

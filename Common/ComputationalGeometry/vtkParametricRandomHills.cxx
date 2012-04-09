@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricRandomHills.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -101,8 +101,8 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricRandomHills::EvaluateScalar(double* vtkNotUsed(uv[3]), 
-                                                double* vtkNotUsed(Pt[3]), 
+double vtkParametricRandomHills::EvaluateScalar(double* vtkNotUsed(uv[3]),
+                                                double* vtkNotUsed(Pt[3]),
                                                 double* vtkNotUsed(Duv[9]))
 {
   return 0;
@@ -156,7 +156,7 @@ void vtkParametricRandomHills::GenerateTheHills( void )
         ++counter;
        }
       }
-    // If the number of hills is not a perfect square, set the amplitude contribution 
+    // If the number of hills is not a perfect square, set the amplitude contribution
     // from the rest of the hills to zero.
     hillTuple[4] = 0;
     for ( int k = counter; k < this->NumberOfHills; ++ k )

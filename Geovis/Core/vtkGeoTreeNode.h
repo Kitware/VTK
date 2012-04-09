@@ -30,7 +30,7 @@
 
 // .SECTION See Also
 // vtkGeoView vtkGeoView2D vtkGeoTerrain vtkGeoAlignedImageRepresentation
-   
+
 #ifndef __vtkGeoTreeNode_h
 #define __vtkGeoTreeNode_h
 
@@ -46,26 +46,26 @@ public:
   static vtkGeoTreeNode *New();
   vtkTypeMacro(vtkGeoTreeNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // The id uniquely specified this node.
   // For this implementation I am going to store the branch path
   // in the bits.
   vtkSetMacro(Id,unsigned long);
   vtkGetMacro(Id,unsigned long);
-  
+
   // Description;
   // Knowing the level simplifies encoding the branch trace in the Id.
   vtkSetMacro(Level, int);
   vtkGetMacro(Level, int);
-  
+
   // Description:
   // Longitude and latitude range of the terrain model.
   vtkSetVector2Macro(LongitudeRange,double);
   vtkGetVector2Macro(LongitudeRange,double);
   vtkSetVector2Macro(LatitudeRange,double);
   vtkGetVector2Macro(LatitudeRange,double);
-  
+
   // Description:
   // Get a child of this node. If one is set, then they all should
   // set.  No not mix subclasses.
@@ -147,7 +147,7 @@ public:
   // Description:
   // Shallow and Deep copy. Deep copy performs a shallow copy
   // of the Child nodes.
-  virtual void ShallowCopy(vtkGeoTreeNode *src);  
+  virtual void ShallowCopy(vtkGeoTreeNode *src);
   virtual void DeepCopy(vtkGeoTreeNode *src);
 
 protected:

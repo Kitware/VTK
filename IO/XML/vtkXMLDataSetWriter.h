@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkXMLDataSetWriter,vtkXMLWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataSetWriter* New();
-  
+
   //BTX
   // Description:
   // Get/Set the writer's input.
@@ -47,26 +47,26 @@ public:
 protected:
   vtkXMLDataSetWriter();
   ~vtkXMLDataSetWriter();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Override writing method from superclass.
   virtual int WriteInternal();
-  
+
   // Dummies to satisfy pure virtuals from superclass.
   const char* GetDataSetName();
   const char* GetDefaultFileExtension();
-  
+
   // Callback registered with the ProgressObserver.
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
   virtual void ProgressCallback(vtkAlgorithm* w);
-  
+
   // The observer to report progress from the internal writer.
-  vtkCallbackCommand* ProgressObserver;  
-  
+  vtkCallbackCommand* ProgressObserver;
+
 private:
   vtkXMLDataSetWriter(const vtkXMLDataSetWriter&);  // Not implemented.
   void operator=(const vtkXMLDataSetWriter&);  // Not implemented.

@@ -275,7 +275,7 @@ vtkRRandomTableSource::vtkRRandomTableSource()
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  
+
 }
 
 //----------------------------------------------------------------------------
@@ -388,8 +388,8 @@ void vtkRRandomTableSource::SetStatisticalDistributionForColumn(vtkRRandomTableS
 
 //----------------------------------------------------------------------------
 int vtkRRandomTableSource::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** vtkNotUsed(inputVector), 
+  vtkInformation*,
+  vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
 

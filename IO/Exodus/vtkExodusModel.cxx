@@ -36,13 +36,13 @@
 vtkStandardNewMacro(vtkExodusModel);
 
 vtkExodusModel::vtkExodusModel()
-{ 
+{
   this->ModelMetadata = NULL;
   this->GeometryCount = -1;
 }
 
 vtkExodusModel::~vtkExodusModel()
-{ 
+{
   this->SetModelMetadata(NULL);
 }
 
@@ -169,13 +169,13 @@ int vtkExodusModel::SetGlobalInformation(int fid, int compute_word_size)
       qarecs[i][2] = new char [MAX_STR_LENGTH + 1];
       qarecs[i][3] = new char [MAX_STR_LENGTH + 1];
       }
- 
+
     ex_get_qa(fid, qarecs);
     emd->SetQARecords(nqaRecs, qarecs);
     }
 
-  // Information lines 
-  
+  // Information lines
+
   int ninfoLines;
   ex_inquire(fid, EX_INQ_INFO, &ninfoLines, &floatVal, &charVal);
 
@@ -202,7 +202,7 @@ int vtkExodusModel::SetGlobalInformation(int fid, int compute_word_size)
   ex_get_coord_names(fid, coordNames);
   emd->SetCoordinateNames(dim, coordNames);
 
-  // Time steps  
+  // Time steps
   //   TODO - We convert time steps to float.  We should fix this
   //   to respect the precision of the time values in the input
   //   file.
@@ -252,7 +252,7 @@ int vtkExodusModel::SetGlobalInformation(int fid, int compute_word_size)
       {
       types[i] = new char [MAX_STR_LENGTH + 1];
 
-      ex_get_elem_block(fid, bids[i], types[i], 
+      ex_get_elem_block(fid, bids[i], types[i],
              &intVal, &nodesPerElement[i], &numAtt[i]);
       }
 
@@ -306,7 +306,7 @@ int vtkExodusModel::SetGlobalInformation(int fid, int compute_word_size)
       names[i] = new char [MAX_STR_LENGTH + 1];
       }
 
-    ex_get_prop_names(fid, EX_ELEM_BLOCK, names); 
+    ex_get_prop_names(fid, EX_ELEM_BLOCK, names);
 
     int *val = new int [nBlockProperties * nblocks];
     int *v = val;
@@ -341,7 +341,7 @@ int vtkExodusModel::SetGlobalInformation(int fid, int compute_word_size)
       names[i] = new char [MAX_STR_LENGTH + 1];
       }
 
-    ex_get_prop_names(fid, EX_NODE_SET, names); 
+    ex_get_prop_names(fid, EX_NODE_SET, names);
 
     int *val = new int [nNodeSetProperties * nnsets];
     int *v = val;
@@ -376,7 +376,7 @@ int vtkExodusModel::SetGlobalInformation(int fid, int compute_word_size)
       names[i] = new char [MAX_STR_LENGTH + 1];
       }
 
-    ex_get_prop_names(fid, EX_SIDE_SET, names); 
+    ex_get_prop_names(fid, EX_SIDE_SET, names);
 
     int *val = new int [nSideSetProperties * nssets];
     int *v = val;
@@ -483,7 +483,7 @@ void vtkExodusModel::CopyDoubleToFloat(float *f, double *d, int len)
 // TODO - We should probably have an option to omit ghost cells
 //   from the metadata.
 
-int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid, 
+int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid,
                      int fid, int timeStep, int geoCount, int compute_word_size)
 {
   vtkModelMetadata *emd = this->GetModelMetadata();
@@ -499,7 +499,7 @@ int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid,
     return 0;
     }
 
-  ex_opts(0);    // turn off all error messages 
+  ex_opts(0);    // turn off all error messages
 
   int use_floats = (compute_word_size == sizeof(float));
 
@@ -508,16 +508,16 @@ int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid,
     emd->SetGlobalVariableValue(NULL);
 
     // GLOBAL VARIABLE VALUES AT THIS TIMESTEP
-  
+
     int numGlobalVars = emd->GetNumberOfGlobalVariables();
     int ts = timeStep + 1;
-  
+
     emd->SetTimeStepIndex(timeStep);
-  
+
     if (numGlobalVars > 0)
       {
       float *varf = new float [numGlobalVars];
-  
+
       if (use_floats)
         {
         ex_get_glob_vars(fid, ts, numGlobalVars, varf);
@@ -526,29 +526,29 @@ int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid,
         {
         double *vard = new double [numGlobalVars];
         ex_get_glob_vars(fid, ts, numGlobalVars, vard);
-  
+
         for (i=0; i<numGlobalVars; i++)
           {
           varf[i] = (float)vard[i];
           }
         delete [] vard;
         }
-  
+
       emd->SetGlobalVariableValue(varf);
       }
-    } 
+    }
 
   if (ugrid->GetNumberOfCells() < 1)
     {
     return 0;
-    } 
+    }
 
   // Big assumptions - this vtkUnstructuredGrid was created with the
   //  vtkExodusReader.  If it contains any elements of a block, it
-  //  contains all the elements, and they appear together and in the 
+  //  contains all the elements, and they appear together and in the
   //  same order in the vtkUnstructuredGrid as they do in the Exodus file.
   //  The order of the blocks may be different in the vtkUnstructuredGrid
-  //  than it is in the Exodus file.  The vtkUnstructuredGrid 
+  //  than it is in the Exodus file.  The vtkUnstructuredGrid
   //  contains cell arrays called BlockId and
   //  GlobalElementId and a point array called GlobalNodeId.
   //
@@ -561,7 +561,7 @@ int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid,
   // TODO - fix behavior on error
 
   // Check input
- 
+
   int *blockIds = NULL;
   int *cellIds = NULL;
   int *pointIds = NULL;
@@ -612,14 +612,14 @@ int vtkExodusModel::SetLocalInformation(vtkUnstructuredGrid *ugrid,
 
     emd->FreeBlockDependentData();
 
-    this->SetLocalBlockInformation(fid, use_floats, blockIds, 
+    this->SetLocalBlockInformation(fid, use_floats, blockIds,
                                    cellIds, ncells);
-  
+
     if (emd->GetNumberOfNodeSets() > 0)
       {
       this->SetLocalNodeSetInformation(fid, use_floats, pointIds, npoints);
       }
-  
+
     if (emd->GetNumberOfSideSets() > 0)
       {
       this->SetLocalSideSetInformation(fid, use_floats, cellIds, ncells);
@@ -652,20 +652,20 @@ int vtkExodusModel::SetLocalBlockInformation(
   std::map<int,int> blockIdStart;
   std::map<int,int>::iterator it;
 
-  for (i=0; i<ncells; i++) 
+  for (i=0; i<ncells; i++)
     {
     int id = blockIds[i];
 
     if (id != lastId)
       {
       idx = emd->GetBlockLocalIndex(id);
-  
+
       if ((idx < 0) || (count[idx] > 0))
         {
         // Bad block ID or elements are not in order by block
 
         delete [] count;
-        return 1; 
+        return 1;
         }
 
       blockIdStart.insert(std::map<int,int>::value_type(idx, i));
@@ -684,7 +684,7 @@ int vtkExodusModel::SetLocalBlockInformation(
     char type[MAX_STR_LENGTH+1];
     int numElem, numNodes, numAttr;
 
-    ex_get_elem_block(fid, GlobalBlockIds[idx], type, 
+    ex_get_elem_block(fid, GlobalBlockIds[idx], type,
                       &numElem, &numNodes, &numAttr);
 
     if (numElem != count[idx])
@@ -720,9 +720,9 @@ int vtkExodusModel::SetLocalBlockInformation(
   for (idx=0; idx<nblocks; idx++)
     {
     if (count[idx] == 0) continue;
-    
+
     int to = eltIdIdx[idx];
-    
+
     it = blockIdStart.find(idx);
     int from = it->second;
 
@@ -771,8 +771,8 @@ int vtkExodusModel::SetLocalNodeSetInformation(
 
   // external node IDs in file
 
-  int numNodesInFile = 0;  
-  ex_inquire(fid, EX_INQ_NODES, &numNodesInFile, &dummyFloat, &dummyChar); 
+  int numNodesInFile = 0;
+  ex_inquire(fid, EX_INQ_NODES, &numNodesInFile, &dummyFloat, &dummyChar);
   int *nodeMap = new int [numNodesInFile];
 
   ex_get_node_num_map(fid, nodeMap);
@@ -831,7 +831,7 @@ cerr << endl;
         {
         ex_get_node_set_dist_fact(fid, nodeSetIds[i], dfF);
         }
-      else         
+      else
         {
         dfD = new double [nnodes];
         ex_get_node_set_dist_fact(fid, nodeSetIds[i], dfD);
@@ -842,7 +842,7 @@ cerr << endl;
 
     // find which of my points are in this node set
 
-    for (j=0; j<nnodes; j++)  
+    for (j=0; j<nnodes; j++)
       {
       int lid = nodes[j] - 1;
       int gid = nodeMap[lid];
@@ -852,7 +852,7 @@ cerr << endl;
       if (it == localNodeIdMap.end()) continue;  // I don't have that one
 
       nsNodeIds->InsertNextValue(gid);
- 
+
       if (dfF)
         {
         nsDF->InsertNextValue(dfF[j]);
@@ -875,7 +875,7 @@ cerr << endl;
   if (total > 0)
     {
     int *nsndf = new int [nns];
-  
+
     for (i=0; i<nns; i++)
       {
       if (numDF[i] > 0)
@@ -887,18 +887,18 @@ cerr << endl;
         nsndf[i] = 0;
         }
       }
-  
+
     delete [] numDF;
-  
+
     emd->SetNodeSetNumberOfDistributionFactors(nsndf);
 
     int *ids = new int [total];
     memcpy(ids, nsNodeIds->GetPointer(0), sizeof(int) * total);
-  
+
     nsNodeIds->Delete();
-  
+
     emd->SetNodeSetNodeIdList(ids);
-  
+
     int sizeDF = nsDF->GetNumberOfTuples();
 
     if (sizeDF > 0)
@@ -931,8 +931,8 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
   // external cell IDs in file
 
-  int numCellsInFile = 0;  
-  ex_inquire(fid, EX_INQ_ELEM, &numCellsInFile, &dummyFloat, &dummyChar); 
+  int numCellsInFile = 0;
+  ex_inquire(fid, EX_INQ_ELEM, &numCellsInFile, &dummyFloat, &dummyChar);
   int *cellMap = new int [numCellsInFile];
 
   ex_get_elem_num_map(fid, cellMap);
@@ -983,7 +983,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
     // find which of my cells have sides in this side set
 
-    for (j=0; j<nsides; j++)  
+    for (j=0; j<nsides; j++)
       {
       int lid = elts[j] - 1;
       int gid = cellMap[lid];
@@ -1012,7 +1012,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
         {
         int *nodeCount = new int [nsides];
         int *nodeList = new int [numDF[i]];
-  
+
         ex_get_side_set_node_list(fid, sideSetIds[i], nodeCount, nodeList);
 
         delete [] nodeList;
@@ -1034,7 +1034,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
           this->CopyDoubleToFloat(dfF, dfD, numDF[i]);
           delete [] dfD;
           }
-  
+
         for (j=0; j<nsides; j++)
           {
           if (elts[j] >= 0)
@@ -1043,7 +1043,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
             for (k=0; k < nodeCount[j]; k++)
               {
-              ssDF->InsertNextValue(dfF[nextdf++]);        
+              ssDF->InsertNextValue(dfF[nextdf++]);
               }
             }
           else
@@ -1072,7 +1072,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
   if (total == 0)
     {
-    delete [] numDF; 
+    delete [] numDF;
     delete [] sssize;
     ssCellIds->Delete();
     ssSideIds->Delete();
@@ -1181,7 +1181,7 @@ vtkExodusModel *vtkExodusModel::ExtractExodusModel(vtkIdTypeArray *globalCellIdL
 //-------------------------------------------------
 int vtkExodusModel::AddUGridElementVariable(char *ugridVarName,
                                     char *origName, int numComponents)
-{ 
+{
   vtkModelMetadata *emd = this->GetModelMetadata();
 
   int rc = emd->AddUGridElementVariable(ugridVarName,
@@ -1194,12 +1194,12 @@ int vtkExodusModel::RemoveUGridElementVariable(char *ugridVarName)
   vtkModelMetadata *emd = this->GetModelMetadata();
 
   int rc = emd->RemoveUGridElementVariable(ugridVarName);
- 
+
   return rc;
 }
 void vtkExodusModel::SetElementVariableInfo(int numOrigNames, char **origNames,
             int numNames, char **names,  int *numComp, int *map)
-{ 
+{
   vtkModelMetadata *emd = this->GetModelMetadata();
 
   emd->SetElementVariableInfo(numOrigNames, origNames,
@@ -1211,7 +1211,7 @@ void vtkExodusModel::SetElementVariableInfo(int numOrigNames, char **origNames,
 //-------------------------------------------------
 int vtkExodusModel::AddUGridNodeVariable(char *ugridVarName,
                                     char *origName, int numComponents)
-{ 
+{
   vtkModelMetadata *emd = this->GetModelMetadata();
 
   int rc = emd->AddUGridNodeVariable(ugridVarName,
@@ -1224,17 +1224,17 @@ int vtkExodusModel::RemoveUGridNodeVariable(char *ugridVarName)
   vtkModelMetadata *emd = this->GetModelMetadata();
 
   int rc = emd->RemoveUGridNodeVariable(ugridVarName);
- 
+
   return rc;
 }
 void vtkExodusModel::SetNodeVariableInfo(int numOrigNames, char **origNames,
             int numNames, char **names,  int *numComp, int *map)
-{ 
+{
   vtkModelMetadata *emd = this->GetModelMetadata();
 
   emd->SetNodeVariableInfo(numOrigNames, origNames,
                      numNames, names, numComp, map);
-}     
+}
 void vtkExodusModel::RemoveBeginningAndTrailingSpaces(char **names, int len)
 {
   size_t i, j;
@@ -1277,7 +1277,7 @@ void vtkExodusModel::RemoveBeginningAndTrailingSpaces(char **names, int len)
         }
       *c = '\0';
       }
-    }  
+    }
 }
 
 //-------------------------------------------------

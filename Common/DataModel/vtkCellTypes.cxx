@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkCellTypes.h"
-#include "vtkObjectFactory.h"  
- 
+#include "vtkObjectFactory.h"
+
 vtkStandardNewMacro(vtkCellTypes);
 
 // This list should contain the cell class names in
@@ -96,7 +96,7 @@ static const char* vtkCellTypesStrings[] = {
 const char* vtkCellTypes::GetClassNameFromTypeId(int type)
 {
   static int numClasses = 0;
-  
+
   // find length of table
   if (numClasses == 0)
     {
@@ -114,7 +114,7 @@ const char* vtkCellTypes::GetClassNameFromTypeId(int type)
     {
     return "UnknownClass";
     }
-  
+
 }
 
 //----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
       return idx;
       }
     }
-  
+
   return -1;
 }
 
@@ -232,7 +232,7 @@ void vtkCellTypes::SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtk
     {
     this->TypeArray->Delete();
     }
-  
+
   this->TypeArray = cellTypes;
   cellTypes->Register(this);
 
@@ -318,7 +318,7 @@ void vtkCellTypes::DeepCopy(vtkCellTypes *src)
 void vtkCellTypes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "TypeArray:\n";
   this->TypeArray->PrintSelf(os,indent.GetNextIndent());
   os << indent << "LocationArray:\n";

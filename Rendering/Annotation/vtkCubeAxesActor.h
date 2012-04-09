@@ -43,8 +43,8 @@ All rights reserve
 //
 // .SECTION Thanks
 // This class was written by:
-// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock, Will Schroeder, 
-// Eric Brugger, Daniel Aguilera, Claire Guilbaud, Nicolas Dolegieviez, 
+// Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock, Will Schroeder,
+// Eric Brugger, Daniel Aguilera, Claire Guilbaud, Nicolas Dolegieviez,
 // Aashish Chaudhary, Philippe Pebay, David Gobbi, David Partyka, Utkarsh Ayachit
 // David Cole, Francois Bertel, and Mark Olesen
 //
@@ -199,20 +199,20 @@ public:
   void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Enable and disable the use of distance based LOD for titles and labels. 
+  // Enable and disable the use of distance based LOD for titles and labels.
   vtkSetMacro( EnableDistanceLOD, int );
   vtkGetMacro( EnableDistanceLOD, int );
-  
+
   // Description:a
-  // Set distance LOD threshold [0.0 - 1.0] for titles and labels. 
+  // Set distance LOD threshold [0.0 - 1.0] for titles and labels.
   vtkSetClampMacro( DistanceLODThreshold, double, 0.0, 1.0 );
   vtkGetMacro( DistanceLODThreshold, double);
 
   // Description:
-  // Enable and disable the use of view angle based LOD for titles and labels. 
+  // Enable and disable the use of view angle based LOD for titles and labels.
   vtkSetMacro( EnableViewAngleLOD, int );
   vtkGetMacro( EnableViewAngleLOD, int );
-  
+
   // Description:
   // Set view angle LOD threshold [0.0 - 1.0] for titles and labels.
   vtkSetClampMacro( ViewAngleLODThreshold, double, 0., 1. );
@@ -333,7 +333,7 @@ public:
   vtkProperty* GetYAxesGridlinesProperty();
   void SetZAxesGridlinesProperty(vtkProperty *);
   vtkProperty* GetZAxesGridlinesProperty();
- 
+
   // Description:
   // Get/Set axes inner gridlines actors properties.
   void SetXAxesInnerGridlinesProperty(vtkProperty *);
@@ -375,7 +375,7 @@ public:
   // Description:
   // For 2D mode only: save axis title positions for later use
   void SetSaveTitlePosition( int val );
-      
+
 protected:
   vtkCubeAxesActor();
   ~vtkCubeAxesActor();

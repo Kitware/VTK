@@ -156,23 +156,23 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
         {
         //vtkWarningMacro(<<"Tetra detected\n");
         size = fabs( vtkTetra::ComputeVolume(cellPoints[0], cellPoints[1], cellPoints[2], cellPoints[3]) ) *1.5 ;
-        
-        TETRA_CQS_VECTOR( cellPoints[0], cellPoints[1], cellPoints[2], cellPoints[3] , tmp );    
+
+        TETRA_CQS_VECTOR( cellPoints[0], cellPoints[1], cellPoints[2], cellPoints[3] , tmp );
         ADD_VEC(cellVectors[3],tmp);
-        
-        TETRA_CQS_VECTOR( cellPoints[1], cellPoints[2], cellPoints[3], cellPoints[0] , tmp );    
+
+        TETRA_CQS_VECTOR( cellPoints[1], cellPoints[2], cellPoints[3], cellPoints[0] , tmp );
         ADD_VEC(cellVectors[0],tmp);
-        
-        TETRA_CQS_VECTOR( cellPoints[2], cellPoints[3], cellPoints[0], cellPoints[1] , tmp );    
+
+        TETRA_CQS_VECTOR( cellPoints[2], cellPoints[3], cellPoints[0], cellPoints[1] , tmp );
         ADD_VEC(cellVectors[1],tmp);
-        
-        TETRA_CQS_VECTOR( cellPoints[3], cellPoints[0], cellPoints[1], cellPoints[2] , tmp );    
+
+        TETRA_CQS_VECTOR( cellPoints[3], cellPoints[0], cellPoints[1], cellPoints[2] , tmp );
         ADD_VEC(cellVectors[2],tmp);
         }
       else if( np > 4 )
 #endif
         {
-        vtkCell3D* cell3d = static_cast<vtkCell3D*>( cell ); 
+        vtkCell3D* cell3d = static_cast<vtkCell3D*>( cell );
         int nf = cell->GetNumberOfFaces();
         for(int f=0;f<nf;f++)
           {
@@ -184,14 +184,14 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
             {
             //vtkWarningMacro(<<"triangular face detected\n");
             size+=fabs(vtkTetra::ComputeVolume(cellCenter,cellPoints[faceIds[0]],cellPoints[faceIds[1]],cellPoints[faceIds[2]]))*1.5;
- 
-            TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[0]], cellPoints[faceIds[1]], cellPoints[faceIds[2]] , tmp );    
+
+            TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[0]], cellPoints[faceIds[1]], cellPoints[faceIds[2]] , tmp );
             ADD_VEC(cellVectors[faceIds[2]],tmp);
-            
-            TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[1]], cellPoints[faceIds[2]], cellPoints[faceIds[0]] , tmp );    
+
+            TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[1]], cellPoints[faceIds[2]], cellPoints[faceIds[0]] , tmp );
             ADD_VEC(cellVectors[faceIds[0]],tmp);
-            
-            TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[2]], cellPoints[faceIds[0]], cellPoints[faceIds[1]] , tmp );    
+
+            TETRA_CQS_VECTOR( cellCenter, cellPoints[faceIds[2]], cellPoints[faceIds[0]], cellPoints[faceIds[1]] , tmp );
             ADD_VEC(cellVectors[faceIds[1]],tmp);
             }
           else if( nfp > 3 ) // generic case
@@ -208,10 +208,10 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
               int p2 = (p+1) % nfp ;
               size += fabs( vtkTetra::ComputeVolume(cellCenter, faceCenter, cellPoints[faceIds[p]] , cellPoints[faceIds[p2]]) ) ;
 
-              TETRA_CQS_VECTOR( cellCenter, faceCenter, cellPoints[faceIds[p]] , cellPoints[faceIds[p2]] , tmp );    
+              TETRA_CQS_VECTOR( cellCenter, faceCenter, cellPoints[faceIds[p]] , cellPoints[faceIds[p2]] , tmp );
               ADD_VEC( cellVectors[faceIds[p2]] , tmp );
-              
-              TETRA_CQS_VECTOR( cellCenter, faceCenter, cellPoints[faceIds[p2]] , cellPoints[faceIds[p]] , tmp );    
+
+              TETRA_CQS_VECTOR( cellCenter, faceCenter, cellPoints[faceIds[p2]] , cellPoints[faceIds[p]] , tmp );
               ADD_VEC( cellVectors[faceIds[p]] , tmp );
               }
             }
@@ -244,7 +244,7 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds)
           size += fabs(vtkTriangle::TriangleArea(cellCenter, cellPoints[e0], cellPoints[e1]));
           TRIANGLE_CQS_VECTOR( cellCenter , cellPoints[e0] , cellPoints[e1] , tmp );
           ADD_VEC( cellVectors[e1] , tmp );
-        
+
           TRIANGLE_CQS_VECTOR( cellCenter , cellPoints[e1] , cellPoints[e0] , tmp );
           ADD_VEC( cellVectors[e0] , tmp );
           }
@@ -344,7 +344,7 @@ int vtkDataSetGradientPrecompute::RequestData(vtkInformation *vtkNotUsed(request
     vtkErrorMacro(<<"missing input/output connection\n");
     return 0;
     }
-      
+
   _output->ShallowCopy(_input);
   return vtkDataSetGradientPrecompute::GradientPrecompute(_output);
 }

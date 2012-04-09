@@ -38,12 +38,12 @@ vtkStandardNewMacro(vtkParticleReader);
 namespace {
   // .NAME ParseLine - Read a line of four values of type T filtering out comments.
   // .SECTION Description
-  // The ParseLine operator scans a string and returns 0 if it finds a 
-  // comment symbol. Otherwise it returns 1 and four values corresponding 
-  // to the position of the particle (x,y,z) and a scalar s associated with 
-  // the particle. It is a good idea to set the values of val to some 
+  // The ParseLine operator scans a string and returns 0 if it finds a
+  // comment symbol. Otherwise it returns 1 and four values corresponding
+  // to the position of the particle (x,y,z) and a scalar s associated with
+  // the particle. It is a good idea to set the values of val to some
   // predefined value before calling the operator.
-  template < typename T > 
+  template < typename T >
     class ParseLine
   {
   public:
@@ -102,9 +102,9 @@ namespace {
 
   private:
     bool LookForEndString;
-    
+
   };
-  
+
  // The number of times we output a progress message.
  int const quantum = 20;
  // The ratio of high ASCII characters to low ASCII characeters.
@@ -128,14 +128,14 @@ vtkParticleReader::vtkParticleReader() :
 
 //----------------------------------------------------------------------------
 vtkParticleReader::~vtkParticleReader()
-{ 
+{
   if (this->File)
     {
     this->File->close();
     delete this->File;
     this->File = NULL;
     }
-  
+
   if (this->FileName)
     {
     delete [] this->FileName;
@@ -159,7 +159,7 @@ void vtkParticleReader::OpenFile()
     delete this->File;
     this->File = NULL;
     }
-  
+
   // Open the new file.
   vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
 #ifdef _WIN32
@@ -169,7 +169,7 @@ void vtkParticleReader::OpenFile()
 #endif
   if (! this->File || this->File->fail())
     {
-    vtkErrorMacro(<< "Initialize: Could not open file " << 
+    vtkErrorMacro(<< "Initialize: Could not open file " <<
     this->FileName);
     return;
     }
@@ -201,7 +201,7 @@ int vtkParticleReader::RequestData(
     vtkErrorMacro(<<"FileName must be specified.");
     return 0;
     }
-  
+
   this->OpenFile();
   int ft = this->FileType;
   if ( ft == FILE_TYPE_IS_UNKNOWN )
@@ -271,7 +271,7 @@ int vtkParticleReader::DetermineFileType()
     vtkErrorMacro("File is empty.");
     return FILE_TYPE_IS_UNKNOWN;
     }
-  
+
   this->File->seekg(0,ios::beg);
   if (this->File->fail())
     {
@@ -358,7 +358,7 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   size_t bytesRead = 0;
 
   std::string s;
-  
+
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
   points->Reset();
@@ -368,7 +368,7 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   scalars->SetName("Scalar");
 
   this->File->seekg(0,ios::beg);
-  
+
   this->Alliquot = fileLength / quantum;
   this->Count = 1;
   ParseLine<double> pl;
@@ -409,7 +409,7 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   output->SetPoints(points);
   output->SetVerts(vertices);
   if ( this->HasScalar )
@@ -435,7 +435,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   size_t bytesRead = 0;
 
   std::string s;
-  
+
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToFloat();
   points->Reset();
@@ -445,7 +445,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   scalars->SetName("Scalar");
 
   this->File->seekg(0,ios::beg);
-  
+
   this->Alliquot = fileLength / quantum;
   this->Count = 1;
   ParseLine<float> pl;
@@ -457,7 +457,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
       {
       bytesRead += s.size();
       this->DoProgressUpdate( bytesRead, fileLength );
-      
+
       float val[4];
       val[0]=val[1]=val[2]=val[3]=0;
       if ( pl(s,val) )
@@ -473,7 +473,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
 
   vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
   vertices->Reset();
-  
+
   this->NumberOfPoints = points->GetNumberOfPoints();
   for( vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j )
     {
@@ -487,7 +487,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   // get the ouptut
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   output->SetPoints(points);
   output->SetVerts(vertices);
   if ( this->HasScalar )
@@ -516,9 +516,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
     vtkErrorMacro(<<"FileName must be specified.");
     return 0;
     }
-  
+
   this->OpenFile();
-    
+
   // Get the size of the header from the size of the image
   this->File->seekg(0,ios::end);
   if (this->File->fail())
@@ -588,15 +588,15 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   if ( this->HasScalar )
     {
     this->File->read((char *)data, length*4*sizeof(double));
-    if ( static_cast<unsigned long>(this->File->gcount()) != 
+    if ( static_cast<unsigned long>(this->File->gcount()) !=
          static_cast<unsigned long>(length*4*sizeof(double))
        // On apple read to eof returns fail
-#ifndef __APPLE_CC__     
+#ifndef __APPLE_CC__
        || this->File->fail()
-#endif // __APPLE_CC__     
+#endif // __APPLE_CC__
        )
       {
-      vtkErrorMacro("Could not read points: " << start 
+      vtkErrorMacro("Could not read points: " << start
              << " to " << next-1);
       delete [] data;
       return 0;
@@ -605,21 +605,21 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   else
     {
     this->File->read((char *)data, length*3*sizeof(double));
-    if ( static_cast<unsigned long>(this->File->gcount()) != 
+    if ( static_cast<unsigned long>(this->File->gcount()) !=
          static_cast<unsigned long>(length*3*sizeof(double))
        // On apple read to eof returns fail
-#ifndef __APPLE_CC__     
+#ifndef __APPLE_CC__
        || this->File->fail()
-#endif // __APPLE_CC__     
+#endif // __APPLE_CC__
        )
       {
-      vtkErrorMacro("Could not read points: " << start 
+      vtkErrorMacro("Could not read points: " << start
              << " to " << next-1);
       delete [] data;
       return 0;
       }
     }
-  
+
   // Swap bytes if necessary.
   if (this->GetSwapBytes())
     {
@@ -634,16 +634,16 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
     }
 
   this->UpdateProgress(0.5);
-  
+
   ptr = data;
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();  
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(length);
   vtkSmartPointer<vtkDoubleArray> array = vtkSmartPointer<vtkDoubleArray>::New();
   array->SetName("Scalar");
-  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();  
-  
+  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
+
   // Each cell will have 1000 points.  Leave a little extra space just in case.
   // We break up the cell this way so that the render will check for aborts
   // at a reasonable rate.
@@ -667,7 +667,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
     length = length - cellLength;
     verts->InsertNextCell((int)cellLength);
     for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)
-      {    
+      {
       points->SetPoint(ptIdx, ptr[0], ptr[1], ptr[2]);
       if ( this->HasScalar )
         {
@@ -712,9 +712,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     vtkErrorMacro(<<"FileName must be specified.");
     return 0;
     }
-  
+
   this->OpenFile();
-    
+
   // Get the size of the header from the size of the image
   this->File->seekg(0,ios::end);
   if (this->File->fail())
@@ -764,7 +764,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     {
     data = new float[length * 3];
     }
-  
+
 
   // Seek to the first point in the file.
   if ( this->HasScalar )
@@ -786,15 +786,15 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   if ( this->HasScalar )
     {
     this->File->read((char *)data, length*4*sizeof(float));
-    if ( static_cast<unsigned long>(this->File->gcount()) != 
+    if ( static_cast<unsigned long>(this->File->gcount()) !=
          static_cast<unsigned long>(length*4*sizeof(float))
        // On apple read to eof returns fail
-#ifndef __APPLE_CC__     
+#ifndef __APPLE_CC__
        || this->File->fail()
-#endif // __APPLE_CC__     
+#endif // __APPLE_CC__
        )
       {
-      vtkErrorMacro("Could not read points: " << start 
+      vtkErrorMacro("Could not read points: " << start
              << " to " << next-1);
       delete [] data;
       return 0;
@@ -803,21 +803,21 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   else
     {
     this->File->read((char *)data, length*3*sizeof(float));
-    if ( static_cast<unsigned long>(this->File->gcount()) != 
+    if ( static_cast<unsigned long>(this->File->gcount()) !=
          static_cast<unsigned long>(length*3*sizeof(float))
        // On apple read to eof returns fail
-#ifndef __APPLE_CC__     
+#ifndef __APPLE_CC__
        || this->File->fail()
-#endif // __APPLE_CC__     
+#endif // __APPLE_CC__
        )
       {
-      vtkErrorMacro("Could not read points: " << start 
+      vtkErrorMacro("Could not read points: " << start
              << " to " << next-1);
       delete [] data;
       return 0;
       }
     }
-  
+
   // Swap bytes if necessary.
   if (this->GetSwapBytes())
     {
@@ -832,15 +832,15 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     }
 
   this->UpdateProgress(0.5);
-  
+
   ptr = data;
 
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();  
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetNumberOfPoints(length);
-  vtkSmartPointer<vtkFloatArray> array = vtkSmartPointer<vtkFloatArray>::New();  
+  vtkSmartPointer<vtkFloatArray> array = vtkSmartPointer<vtkFloatArray>::New();
   array->SetName("Scalar");
-  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();  
-  
+  vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
+
   // Each cell will have 1000 points.  Leave a little extra space just in case.
   // We break up the cell this way so that the render will check for aborts
   // at a reasonable rate.
@@ -864,7 +864,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
     length = length - cellLength;
     verts->InsertNextCell((int)cellLength);
     for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)
-      {    
+      {
       points->SetPoint(ptIdx, ptr[0], ptr[1], ptr[2]);
       if ( this->HasScalar )
         {

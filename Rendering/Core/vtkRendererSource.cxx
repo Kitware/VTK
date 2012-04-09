@@ -61,16 +61,16 @@ void vtkRendererSource::RequestData(vtkInformation*,
   float x1,y1,x2,y2;
   unsigned char *pixels, *ptr;
   int dims[3];
-  
+
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkImageData *output = 
+  vtkImageData *output =
     vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
   int uExtent[6];
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExtent);
-  output->SetExtent(uExtent);  
+  output->SetExtent(uExtent);
 
   output->AllocateScalars(info);
-  vtkUnsignedCharArray *outScalars = 
+  vtkUnsignedCharArray *outScalars =
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
 
   if (this->Input == NULL)
@@ -87,7 +87,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
     outScalars->SetName("RGBZValues");
     }
   vtkRenderWindow *renWin;
-  
+
   vtkDebugMacro(<<"Converting points");
 
   if (this->Input == NULL )
@@ -101,12 +101,12 @@ void vtkRendererSource::RequestData(vtkInformation*,
     {
     return;
     }
-  
+
   if (this->RenderFlag)
     {
     renWin->Render();
     }
-  
+
   // calc the pixel range for the renderer
   x1 = this->Input->GetViewport()[0]*
     ((this->Input->GetRenderWindow())->GetSize()[0] - 1);
@@ -124,7 +124,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
     x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
     y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
     }
-  
+
   // Get origin, aspect ratio and dimensions from this->Input
   dims[0] = static_cast<int>(x2 - x1 + 1);
   dims[1] = static_cast<int>(y2 -y1 + 1);
@@ -149,7 +149,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
     {
     memcpy(ptr, pixels, numOutPts * nb_comp);
     }
-  
+
   // Lets get the ZBuffer also, if requested.
   if (this->DepthValues || this->DepthValuesInScalars)
     {
@@ -277,7 +277,7 @@ unsigned long vtkRendererSource::GetMTime()
         {
         t1 = t2;
         }
-      }  
+      }
     }
 
   return t1;
@@ -309,17 +309,17 @@ void vtkRendererSource::RequestInformation (
       y1 = 0;
       x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
       y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
-      }    
-    int extent[6] = {0, static_cast<int>(x2-x1), 
-                     0, static_cast<int>(y2-y1), 
+      }
+    int extent[6] = {0, static_cast<int>(x2-x1),
+                     0, static_cast<int>(y2-y1),
                      0, 0};
 
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
-    
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 
+
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR,
     3 + (this->DepthValuesInScalars ? 1:0));
 }
 

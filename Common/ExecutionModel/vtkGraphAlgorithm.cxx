@@ -150,8 +150,8 @@ int vtkGraphAlgorithm::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkGraphAlgorithm::RequestDataObject(
-  vtkInformation*, 
-  vtkInformationVector** inputVector , 
+  vtkInformation*,
+  vtkInformationVector** inputVector ,
   vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -161,7 +161,7 @@ int vtkGraphAlgorithm::RequestDataObject(
     }
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if (input)
     {
     // for each output
@@ -170,8 +170,8 @@ int vtkGraphAlgorithm::RequestDataObject(
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkGraph *output = vtkGraph::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
-      
-      if (!output || !output->IsA(input->GetClassName())) 
+
+      if (!output || !output->IsA(input->GetClassName()))
         {
         output = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), output);

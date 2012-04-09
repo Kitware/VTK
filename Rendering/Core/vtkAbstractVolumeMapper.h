@@ -15,7 +15,7 @@
 // .NAME vtkAbstractVolumeMapper - Abstract class for a volume mapper
 
 // .SECTION Description
-// vtkAbstractVolumeMapper is the abstract definition of a volume mapper.  
+// vtkAbstractVolumeMapper is the abstract definition of a volume mapper.
 // Specific subclasses deal with different specific types of data input
 
 // .SECTION see also
@@ -42,14 +42,14 @@ public:
   // Set/Get the input data
   vtkDataSet *GetDataSetInput();
   vtkDataObject *GetDataObjectInput();
-  
+
   // Description:
   // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual double *GetBounds();
   virtual void GetBounds(double bounds[6])
     { this->vtkAbstractMapper3D::GetBounds(bounds); };
-  
+
   // Description:
   // Control how the mapper works with scalar point data and cell attribute
   // data.  By default (ScalarModeToDefault), the mapper will use point data,
@@ -72,15 +72,15 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
   void SetScalarModeToUseCellFieldData() {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
-  
+
   // Description:
   // When ScalarMode is set to UsePointFieldData or UseCellFieldData,
   // you can specify which scalar array to use during rendering.
   // The transfer function in the vtkVolumeProperty (attached to the calling
   // vtkVolume) will decide how to convert vectors to colors.
-  virtual void SelectScalarArray(int arrayNum); 
-  virtual void SelectScalarArray(const char* arrayName); 
-  
+  virtual void SelectScalarArray(int arrayNum);
+  virtual void SelectScalarArray(const char* arrayName);
+
   // Description:
   // Get the array name or number and component to use for rendering.
   virtual char* GetArrayName() { return this->ArrayName; }
@@ -89,8 +89,8 @@ public:
 
   // Description:
   // Return the method for obtaining scalar data.
-  const char *GetScalarModeAsString(); 
-  
+  const char *GetScalarModeAsString();
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -98,7 +98,7 @@ public:
   virtual float GetGradientMagnitudeBias()  {return 0.0f;};
   virtual float GetGradientMagnitudeScale(int) {return 1.0f;};
   virtual float GetGradientMagnitudeBias(int)  {return 0.0f;};
-  
+
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -112,13 +112,13 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
-  
+
 //ETX
 
 protected:
   vtkAbstractVolumeMapper();
   ~vtkAbstractVolumeMapper();
-  
+
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
@@ -126,7 +126,7 @@ protected:
   char       *ArrayName;
   int         ArrayId;
   int         ArrayAccessMode;
-  
+
 private:
   vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&);  // Not implemented.
   void operator=(const vtkAbstractVolumeMapper&);  // Not implemented.

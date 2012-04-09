@@ -49,7 +49,7 @@ public:
   // Description:
   // Duplicate (new instance created) the entry associated with this key from
   // one information object to another (new instances of any contained
-  // vtkInformation and vtkInformationVector objects are created).  
+  // vtkInformation and vtkInformationVector objects are created).
   virtual void DeepCopy(vtkInformation* from, vtkInformation* to);
 
 private:

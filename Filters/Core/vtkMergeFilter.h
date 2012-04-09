@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkMergeFilter is a filter that extracts separate components of data from
 // different datasets and merges them into a single dataset. The output from
-// this filter is of the same type as the input (i.e., vtkDataSet.) It treats 
+// this filter is of the same type as the input (i.e., vtkDataSet.) It treats
 // both cell and point data set attributes.
 
 #ifndef __vtkMergeFilter_h
@@ -43,7 +43,7 @@ public:
   // Description:
   // Specify object from which to extract geometry information.
   // Equivalent to SetInputConnection(0, algOutput)
-  void SetGeometryConnection(vtkAlgorithmOutput* algOutput) 
+  void SetGeometryConnection(vtkAlgorithmOutput* algOutput)
     {
       this->SetInputConnection(algOutput);
     }

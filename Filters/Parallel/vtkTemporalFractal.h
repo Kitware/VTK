@@ -19,7 +19,7 @@
 // mandelbrot to create cell data. I scale the fractal array to look like a
 // volme fraction.
 // I may also add block id and level as extra cell arrays.
-// This source produces a vtkHierarchicalBoxDataSet when 
+// This source produces a vtkHierarchicalBoxDataSet when
 // GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
 
 #ifndef __vtkTemporalFractal_h
@@ -47,7 +47,7 @@ public:
   // The fractal array is scaled to map this value to 0.5 for use as a volume
   // fraction.
   vtkSetMacro(FractalValue, float);
-  vtkGetMacro(FractalValue, float);  
+  vtkGetMacro(FractalValue, float);
 
   // Description:
   // Any blocks touching a predefined line will be subdivided to this level.
@@ -66,7 +66,7 @@ public:
   vtkSetMacro(GhostLevels, int);
   vtkGetMacro(GhostLevels, int);
   vtkBooleanMacro(GhostLevels, int);
-  
+
   // Description:
   // Generate either rectilinear grids either uniform grids.
   // Default is false.
@@ -107,35 +107,35 @@ protected:
   int StartBlock;
   int EndBlock;
   int BlockCount;
-  
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestInformation(vtkInformation *request, 
-                                 vtkInformationVector **inputVector, 
+  virtual int RequestInformation(vtkInformation *request,
+                                 vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
 
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation *request, 
-                          vtkInformationVector **inputVector, 
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
   virtual int RequestOneTimeStep(vtkCompositeDataSet *output,
-                                 vtkInformation *request, 
-                                 vtkInformationVector **inputVector, 
+                                 vtkInformation *request,
+                                 vtkInformationVector **inputVector,
                                  vtkInformationVector *outputVector);
-  
-  void Traverse(int &blockId, int level, vtkDataObject* output, 
+
+  void Traverse(int &blockId, int level, vtkDataObject* output,
                 int x0,int x1, int y0,int y1, int z0,int z1,
                 int onFace[6]);
 
-  int LineTest2(float x0, float y0, float z0, 
+  int LineTest2(float x0, float y0, float z0,
                 float x1, float y1, float z1,
-                double bds[6]); 
-  int LineTest(float x0, float y0, float z0, 
+                double bds[6]);
+  int LineTest(float x0, float y0, float z0,
                float x1, float y1, float z1,
-               double bds[6], int level, int target); 
+               double bds[6], int level, int target);
 
   void SetBlockInfo(vtkUniformGrid *grid, int level, int* ext,int onFace[6]);
   void SetRBlockInfo(vtkRectilinearGrid *grid, int level, int* ext,
@@ -144,13 +144,13 @@ protected:
 
   void AddDataSet(vtkDataObject* output, unsigned int level, int extents[6],
     vtkDataSet* dataSet);
-  
+
   void AddVectorArray(vtkHierarchicalBoxDataSet *output);
   void AddTestArray(vtkHierarchicalBoxDataSet *output);
   void AddFractalArray(vtkCompositeDataSet* output);
   void AddBlockIdArray(vtkHierarchicalBoxDataSet *output);
   void AddDepthArray(vtkHierarchicalBoxDataSet *output);
-  
+
   void AddGhostLevelArray(vtkDataSet *grid,
                           int dim[3],
                           int onFace[6]);
@@ -161,7 +161,7 @@ protected:
   void CellExtentToBounds(int level,
                           int ext[6],
                           double bds[6]);
-  
+
   void ExecuteRectilinearMandelbrot(vtkRectilinearGrid *grid,
                                     double *ptr);
   double EvaluateSet(double p[4]);
@@ -169,7 +169,7 @@ protected:
                                vtkIdType &incX,
                                vtkIdType &incY,
                                vtkIdType &incZ);
-  
+
   // Dimensions:
   // Specify blocks relative to this top level block.
   // For now this has to be set before the blocks are defined.
@@ -177,7 +177,7 @@ protected:
   vtkGetVector3Macro(TopLevelSpacing, double);
   vtkSetVector3Macro(TopLevelOrigin, double);
   vtkGetVector3Macro(TopLevelOrigin, double);
-  
+
   void InternalImageDataCopy(vtkTemporalFractal *src);
 
   int Asymetric;
@@ -192,11 +192,11 @@ protected:
   // New method of specifing blocks.
   double TopLevelSpacing[3];
   double TopLevelOrigin[3];
-  
+
   int GenerateRectilinearGrids;
 
   double CurrentTime;
-  
+
   int AdaptiveSubdivision;
 
 private:

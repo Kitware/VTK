@@ -24,7 +24,7 @@
 // .SECTION Description
 // Converts a vtkTable into a sparse array.  Use AddCoordinateColumn() to
 // designate one-to-many table columns that contain coordinates for each
-// array value, and SetValueColumn() to designate the table column that 
+// array value, and SetValueColumn() to designate the table column that
 // contains array values.
 //
 // Thus, the number of dimensions in the output array will equal the number

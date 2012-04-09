@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataSetInternals 
+// .NAME vtkCompositeDataSetInternals
 // .SECTION Description
 
 #ifndef __vtkCompositeDataSetInternals_h

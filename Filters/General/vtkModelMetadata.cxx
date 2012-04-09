@@ -54,7 +54,7 @@ public:
     {           \
     delete [] x;\
     x = NULL;   \
-    }        
+    }
 
 #define FREELIST(x, len)       \
   if (x && len)                \
@@ -93,7 +93,7 @@ void vtkModelMetadata::InitializeAllMetadata()
   this->BlockNumberOfAttributesPerElement = NULL;
   this->BlockAttributes = NULL;
   this->BlockElementIdList = NULL;
- 
+
   this->NumberOfNodeSets = 0;
 
   this->NodeSetIds = NULL;
@@ -106,7 +106,7 @@ void vtkModelMetadata::InitializeAllMetadata()
   this->NodeSetDistributionFactorIndex = NULL;
 
   this->NumberOfSideSets = 0;
-  
+
   this->SideSetIds = NULL;
   this->SideSetSize = NULL;
   this->SideSetNumberOfDistributionFactors = NULL;
@@ -116,7 +116,7 @@ void vtkModelMetadata::InitializeAllMetadata()
   this->SideSetDistributionFactors = NULL;
 
   this->SideSetListIndex = NULL;
-  this->SideSetDistributionFactorIndex = NULL; 
+  this->SideSetDistributionFactorIndex = NULL;
 
   this->NumberOfBlockProperties = 0;
   this->BlockPropertyNames = NULL;
@@ -141,7 +141,7 @@ void vtkModelMetadata::InitializeAllMetadata()
   this->ElementVariableNames = NULL;
   this->ElementVariableNumberOfComponents = NULL;
   this->MapToOriginalElementVariableNames = NULL;
-  
+
   this->ElementVariableTruthTable = NULL;
 
   this->OriginalNumberOfNodeVariables = 0;
@@ -255,20 +255,20 @@ void vtkModelMetadata::FreeBlockDependentData()
 void vtkModelMetadata::FreeOriginalElementVariableNames()
 {
   int i;
-  FREELIST(this->OriginalElementVariableNames, 
+  FREELIST(this->OriginalElementVariableNames,
            this->OriginalNumberOfElementVariables);
 }
 void vtkModelMetadata::FreeOriginalNodeVariableNames()
 {
   int i;
-  FREELIST(this->OriginalNodeVariableNames, 
+  FREELIST(this->OriginalNodeVariableNames,
            this->OriginalNumberOfNodeVariables);
 }
 void vtkModelMetadata::FreeUsedElementVariableNames()
 {
   int i;
   FREELIST(this->ElementVariableNames,
-           this->MaxNumberOfElementVariables); 
+           this->MaxNumberOfElementVariables);
 }
 
 void vtkModelMetadata::FreeUsedNodeVariableNames()
@@ -409,7 +409,7 @@ void vtkModelMetadata::AddQARecord(char *name, char *ver, char *recDate, char *r
     time_t currentTime = time(NULL);
     struct tm *timeDate = localtime(&currentTime);
 
-    if (timeDate->tm_year >= 100) timeDate->tm_year -= 100;  // Y2K 
+    if (timeDate->tm_year >= 100) timeDate->tm_year -= 100;  // Y2K
 
     if (recDate == NULL)
       {
@@ -438,7 +438,7 @@ void vtkModelMetadata::AddQARecord(char *name, char *ver, char *recDate, char *r
 
   this->NumberOfQARecords = newNum;
 }
-void vtkModelMetadata::GetQARecord(int which, 
+void vtkModelMetadata::GetQARecord(int which,
                char **name, char **ver, char **date, char **time) const
 {
   if ( which >= this->NumberOfQARecords)
@@ -515,7 +515,7 @@ void vtkModelMetadata::SetBlockIds(int *b)
 void vtkModelMetadata::SetBlockElementType(char **t)
 {
   int i;
-    
+
   FREELIST(this->BlockElementType, this->NumberOfBlocks);
 
   this->BlockElementType = t;
@@ -588,7 +588,7 @@ int vtkModelMetadata::BuildBlockElementIdListIndex()
   for (int i=0; i<nblocks; i++)
     {
     this->BlockElementIdListIndex[i] = idx;
-    idx += size[i];      
+    idx += size[i];
     }
 
   this->SumElementsPerBlock = idx;
@@ -664,7 +664,7 @@ int vtkModelMetadata::BuildNodeSetNodeIdListIndex()
   for (int i=0; i<nsets; i++)
     {
     this->NodeSetNodeIdListIndex[i] = idx;
-    idx += size[i];      
+    idx += size[i];
     }
 
   this->SumNodesPerNodeSet = idx;
@@ -807,7 +807,7 @@ int vtkModelMetadata::BuildSideSetListIndex()
   for (int i=0; i<nsets; i++)
     {
     this->SideSetListIndex[i] = idx;
-    idx += size[i];      
+    idx += size[i];
     }
 
   this->SumSidesPerSideSet = idx;
@@ -853,7 +853,7 @@ void vtkModelMetadata::SetBlockPropertyNames(int nprop, char **nms)
   FREELIST(this->BlockPropertyNames, this->NumberOfBlockProperties);
 
   this->NumberOfBlockProperties = nprop;
-  this->BlockPropertyNames = nms; 
+  this->BlockPropertyNames = nms;
 }
 void vtkModelMetadata::SetBlockPropertyValue(int *v)
 {
@@ -868,7 +868,7 @@ void vtkModelMetadata::SetNodeSetPropertyNames(int nprops, char **nms)
   FREELIST(this->NodeSetPropertyNames, this->NumberOfNodeSetProperties);
 
   this->NumberOfNodeSetProperties = nprops;
-  this->NodeSetPropertyNames = nms; 
+  this->NodeSetPropertyNames = nms;
 }
 void vtkModelMetadata::SetNodeSetPropertyValue(int *v)
 {
@@ -883,7 +883,7 @@ void vtkModelMetadata::SetSideSetPropertyNames(int nprops, char **nms)
   FREELIST(this->SideSetPropertyNames, this->NumberOfSideSetProperties);
 
   this->NumberOfSideSetProperties = nprops;
-  this->SideSetPropertyNames = nms; 
+  this->SideSetPropertyNames = nms;
 }
 void vtkModelMetadata::SetSideSetPropertyValue(int *v)
 {
@@ -901,7 +901,7 @@ void vtkModelMetadata::SetGlobalVariableNames(int num, char **n)
 
   FREELIST(this->GlobalVariableNames, this->NumberOfGlobalVariables);
 
-  this->GlobalVariableNames = n; 
+  this->GlobalVariableNames = n;
   this->NumberOfGlobalVariables = num;
 }
 void vtkModelMetadata::SetGlobalVariableValue(float *f)
@@ -956,7 +956,7 @@ void vtkModelMetadata::SetMapToOriginalElementVariableNames(int *map)
   this->MapToOriginalElementVariableNames = map;
 }
 
-int vtkModelMetadata::AddUGridElementVariable(char *ugridVarName, 
+int vtkModelMetadata::AddUGridElementVariable(char *ugridVarName,
                                     char *origName, int numComponents)
 {
   int i;
@@ -983,7 +983,7 @@ int vtkModelMetadata::AddUGridElementVariable(char *ugridVarName,
     this->MapToOriginalElementVariableNames = new int [maxVarNames];
     this->ElementVariableNumberOfComponents = new int [maxVarNames];
     }
-  else if (vtkModelMetadata::FindNameOnList(ugridVarName, 
+  else if (vtkModelMetadata::FindNameOnList(ugridVarName,
        this->ElementVariableNames, this->NumberOfElementVariables) >= 0)
     {
     return 0;   // already got it
@@ -1052,9 +1052,9 @@ int vtkModelMetadata::RemoveUGridElementVariable(char *ugridVarName)
     int prev = i-1;
 
     this->ElementVariableNames[prev] = this->ElementVariableNames[i];
-    this->ElementVariableNumberOfComponents[prev] = 
+    this->ElementVariableNumberOfComponents[prev] =
          this->ElementVariableNumberOfComponents[i];
-    this->MapToOriginalElementVariableNames[prev] = 
+    this->MapToOriginalElementVariableNames[prev] =
          this->MapToOriginalElementVariableNames[i];
     }
 
@@ -1084,9 +1084,9 @@ void vtkModelMetadata::SetElementVariableTruthTable(int *n)
   if (n)
     {
     this->ElementVariableTruthTable= n;
-  
+
     int numEntries = this->NumberOfBlocks * this->OriginalNumberOfElementVariables;
-  
+
     for (int i=0; i<numEntries; i++)
       {
       if (n[i] == 0)
@@ -1128,7 +1128,7 @@ void vtkModelMetadata::SetMapToOriginalNodeVariableNames(int *map)
   this->MapToOriginalNodeVariableNames = map;
 }
 
-int vtkModelMetadata::AddUGridNodeVariable(char *ugridVarName, 
+int vtkModelMetadata::AddUGridNodeVariable(char *ugridVarName,
                                     char *origName, int numComponents)
 {
   int i;
@@ -1155,7 +1155,7 @@ int vtkModelMetadata::AddUGridNodeVariable(char *ugridVarName,
     this->MapToOriginalNodeVariableNames = new int [maxVarNames];
     this->NodeVariableNumberOfComponents = new int [maxVarNames];
     }
-  else if (vtkModelMetadata::FindNameOnList(ugridVarName, 
+  else if (vtkModelMetadata::FindNameOnList(ugridVarName,
        this->NodeVariableNames, this->NumberOfNodeVariables) >= 0)
     {
     return 0;   // already got it
@@ -1224,9 +1224,9 @@ int vtkModelMetadata::RemoveUGridNodeVariable(char *ugridVarName)
     int prev = i-1;
 
     this->NodeVariableNames[prev] = this->NodeVariableNames[i];
-    this->NodeVariableNumberOfComponents[prev] = 
+    this->NodeVariableNumberOfComponents[prev] =
          this->NodeVariableNumberOfComponents[i];
-    this->MapToOriginalNodeVariableNames[prev] = 
+    this->MapToOriginalNodeVariableNames[prev] =
          this->MapToOriginalNodeVariableNames[i];
     }
 
@@ -1330,7 +1330,7 @@ int vtkModelMetadata::Unpack(vtkDataSet *grid, int deleteIt)
 
   if (!fa)
     {
-    return 1; 
+    return 1;
     }
 
   vtkDataArray *da = fa->GetArray(SIZE_ARRAY);
@@ -1338,7 +1338,7 @@ int vtkModelMetadata::Unpack(vtkDataSet *grid, int deleteIt)
 
   if (!sizes)
     {
-    return 1; 
+    return 1;
     }
 
   this->Reset();
@@ -1506,7 +1506,7 @@ vtkIntArray *vtkModelMetadata::PackIntArray()
 //    int *BlockNumberOfElements;  // NumberOfBlocks
 //    int *BlockNodesPerElement;   // NumberOfBlocks
 //    int *BlockNumberOfAttributesPerElement;// NumberOfBlocks
-//    int *BlockElementIdList;     // SumElementsPerBlock 
+//    int *BlockElementIdList;     // SumElementsPerBlock
 //    int *NodeSetIds;             // NumberOfNodeSets
 //    int *NodeSetSize;            // NumberOfNodeSets
 //    int *NodeSetNumberOfDistributionFactors;  // NumberOfNodeSets
@@ -1621,39 +1621,39 @@ vtkIntArray *vtkModelMetadata::PackIntArray()
 
   if (nblockProp > 0)
     {
-    __CHECK_COPY(p, this->BlockPropertyValue, 
+    __CHECK_COPY(p, this->BlockPropertyValue,
               sizeof(int) * nblockProp * nblocks);
     p += (nblockProp * nblocks);
     }
 
   if (nnsetProp > 0)
     {
-    __CHECK_COPY(p, this->NodeSetPropertyValue, 
+    __CHECK_COPY(p, this->NodeSetPropertyValue,
               sizeof(int) * nnsetProp * nnsets);
     p += (nnsetProp * nnsets);
     }
 
   if (nssetProp > 0)
     {
-    __CHECK_COPY(p, this->SideSetPropertyValue, 
+    __CHECK_COPY(p, this->SideSetPropertyValue,
               sizeof(int) * nssetProp * nssets);
     p += (nssetProp * nssets);
     }
 
   if ((nblocks > 0) && (nOrigEltVars > 0))
     {
-    __CHECK_COPY(p, this->ElementVariableTruthTable, 
+    __CHECK_COPY(p, this->ElementVariableTruthTable,
               sizeof(int) * nblocks * nOrigEltVars);
     p += (nblocks * nOrigEltVars);
     }
 
   if (nEltVars > 0)
     {
-    __CHECK_COPY(p, this->ElementVariableNumberOfComponents, 
+    __CHECK_COPY(p, this->ElementVariableNumberOfComponents,
               sizeof(int) * nEltVars);
     p += nEltVars;
 
-    __CHECK_COPY(p, this->MapToOriginalElementVariableNames, 
+    __CHECK_COPY(p, this->MapToOriginalElementVariableNames,
               sizeof(int) * nEltVars);
     p += nEltVars;
     }
@@ -1664,7 +1664,7 @@ vtkIntArray *vtkModelMetadata::PackIntArray()
               sizeof(int) * nNodeVars);
     p += nNodeVars;
 
-    __CHECK_COPY(p, this->MapToOriginalNodeVariableNames, 
+    __CHECK_COPY(p, this->MapToOriginalNodeVariableNames,
               sizeof(int) * nNodeVars);
     p += nNodeVars;
     }
@@ -1909,10 +1909,10 @@ vtkCharArray *vtkModelMetadata::PackCharArray(int maxS, int maxL)
 
   len += (this->NumberOfQARecords * 4 * maxS);
 
-  len += (this->NumberOfInformationLines * maxL); 
+  len += (this->NumberOfInformationLines * maxL);
 
   len += (this->Dimension * maxS);
- 
+
   len += (this->NumberOfBlocks * maxS);
 
   len += (this->NumberOfBlockProperties * maxS);
@@ -1930,7 +1930,7 @@ vtkCharArray *vtkModelMetadata::PackCharArray(int maxS, int maxL)
   len += (this->OriginalNumberOfNodeVariables * maxS);
 
   len += (this->NumberOfNodeVariables * maxS);
- 
+
   char *uc = new char [len];
 
   memset(uc, 0, len);
@@ -2031,7 +2031,7 @@ int vtkModelMetadata::InitializeFromCharArray(vtkModelMetadata *sizes,
   this->Title = new char [maxL + 1];
   memcpy(this->Title, uc, maxL);
   this->Title[maxL] = '\0';
- 
+
   uc += maxL;
 
   int num = sizes->GetNumberOfQARecords();
@@ -2056,7 +2056,7 @@ int vtkModelMetadata::InitializeFromCharArray(vtkModelMetadata *sizes,
     this->SetQARecords(num, qaRec);
     }
 
-  num = sizes->GetNumberOfInformationLines(); 
+  num = sizes->GetNumberOfInformationLines();
 
   if (num > 0)
     {
@@ -2074,7 +2074,7 @@ int vtkModelMetadata::InitializeFromCharArray(vtkModelMetadata *sizes,
 
   if (this->NumberOfBlocks)    // set in InitializeFromIntArray
     {
-    uc = vtkModelMetadata::ReadLines(&this->BlockElementType, 
+    uc = vtkModelMetadata::ReadLines(&this->BlockElementType,
                             this->NumberOfBlocks, maxS, uc);
     }
 
@@ -2174,35 +2174,35 @@ vtkFloatArray *vtkModelMetadata::PackFloatArray()
 
   if (this->SizeBlockAttributeArray)
     {
-    memcpy(nextf, this->BlockAttributes,  
+    memcpy(nextf, this->BlockAttributes,
               this->SizeBlockAttributeArray * sizeof(float));
     nextf += this->SizeBlockAttributeArray;
     }
 
   if (this->SumDistFactPerNodeSet)
     {
-    memcpy(nextf, this->NodeSetDistributionFactors, 
+    memcpy(nextf, this->NodeSetDistributionFactors,
               this->SumDistFactPerNodeSet * sizeof(float));
     nextf += this->SumDistFactPerNodeSet;
     }
 
   if (this->SumDistFactPerSideSet)
     {
-    memcpy(nextf, this->SideSetDistributionFactors, 
+    memcpy(nextf, this->SideSetDistributionFactors,
               this->SumDistFactPerSideSet * sizeof(float));
     nextf += this->SumDistFactPerSideSet;
     }
 
   if (this->NumberOfGlobalVariables)
     {
-    memcpy(nextf, this->GlobalVariableValue, 
+    memcpy(nextf, this->GlobalVariableValue,
               this->NumberOfGlobalVariables * sizeof(float));
     nextf += this->NumberOfGlobalVariables;
     }
 
   if (this->NumberOfTimeSteps)
     {
-    memcpy(nextf, this->TimeStepValues, 
+    memcpy(nextf, this->TimeStepValues,
               this->NumberOfTimeSteps* sizeof(float));
     nextf += this->NumberOfTimeSteps;
     }
@@ -2238,7 +2238,7 @@ int vtkModelMetadata::InitializeFromFloatArray(vtkFloatArray *fa)
     this->SetBlockAttributes(buf);
 
     f += this->SizeBlockAttributeArray;
-    }  
+    }
 
   if (this->SumDistFactPerNodeSet)
     {
@@ -2247,7 +2247,7 @@ int vtkModelMetadata::InitializeFromFloatArray(vtkFloatArray *fa)
     this->SetNodeSetDistributionFactors(buf);
 
     f += this->SumDistFactPerNodeSet;
-    }  
+    }
 
   if (this->SumDistFactPerSideSet)
     {
@@ -2256,7 +2256,7 @@ int vtkModelMetadata::InitializeFromFloatArray(vtkFloatArray *fa)
     this->SetSideSetDistributionFactors(buf);
 
     f += this->SumDistFactPerSideSet;
-    }  
+    }
 
   if (this->NumberOfGlobalVariables)
     {
@@ -2265,7 +2265,7 @@ int vtkModelMetadata::InitializeFromFloatArray(vtkFloatArray *fa)
     this->SetGlobalVariableValue(buf);
 
     f += this->NumberOfGlobalVariables;
-    }  
+    }
 
   if (numTimeSteps)
     {
@@ -2274,7 +2274,7 @@ int vtkModelMetadata::InitializeFromFloatArray(vtkFloatArray *fa)
     this->SetTimeSteps(numTimeSteps, buf);
 
     f += numTimeSteps;
-    }  
+    }
 
   return 0;
 }
@@ -2286,8 +2286,8 @@ int vtkModelMetadata::InitializeFromFloatArray(vtkFloatArray *fa)
 
 int vtkModelMetadata::AppendFloatLists(
     int numSubLists,
-    float *id1, int *id1Idx, int id1Len,  
-    float *id2, int *id2Idx, int id2Len, 
+    float *id1, int *id1Idx, int id1Len,
+    float *id2, int *id2Idx, int id2Len,
     float **idNew, int **idNewIdx, int *idNewLen)
 {
   if ((id1Len == 0) && (id2Len == 0))
@@ -2327,13 +2327,13 @@ int vtkModelMetadata::AppendFloatLists(
   else
     {
     newIdListIndex[0] = 0;
-  
+
     int nextid = 0;
-  
+
     for (i=0; i<numSubLists; i++)
       {
       int lastList = (i == numSubLists-1);
-  
+
       float *ids = id1 + id1Idx[i];
       int numids = (lastList ? id1Len : id1Idx[i+1]) - id1Idx[i];
       if (numids > 0)
@@ -2341,16 +2341,16 @@ int vtkModelMetadata::AppendFloatLists(
         memcpy(newIdList + nextid, ids, numids * sizeof(float));
         nextid += numids;
         }
-  
+
       ids = id2 + id2Idx[i];
       numids = (lastList ? id2Len : id2Idx[i+1]) - id2Idx[i];
-    
+
       if (numids > 0)
         {
         memcpy(newIdList + nextid, ids, numids * sizeof(float));
         nextid += numids;
         }
-  
+
       if (!lastList)
         {
         newIdListIndex[i+1] = nextid;
@@ -2382,13 +2382,13 @@ int vtkModelMetadata::AppendFloatLists(
     {
     *idNewLen = newIdListLength;
     }
-  
+
   return 0;
 }
 int vtkModelMetadata::AppendIntegerLists(
     int numSubLists,
-    int *id1, int *id1Idx, int id1Len,  
-    int *id2, int *id2Idx, int id2Len, 
+    int *id1, int *id1Idx, int id1Len,
+    int *id2, int *id2Idx, int id2Len,
     int **idNew, int **idNewIdx, int *idNewLen)
 {
   if ((id1Len == 0) && (id2Len == 0))
@@ -2416,13 +2416,13 @@ int vtkModelMetadata::AppendIntegerLists(
   else
     {
     newIdListIndex[0] = 0;
-  
+
     int nextid = 0;
-  
+
     for (i=0; i<numSubLists; i++)
       {
       int lastList = (i == numSubLists-1);
-  
+
       int *ids = id1 + id1Idx[i];
       int numids = (lastList ? id1Len : id1Idx[i+1]) - id1Idx[i];
       if (numids > 0)
@@ -2430,16 +2430,16 @@ int vtkModelMetadata::AppendIntegerLists(
         memcpy(newIdList + nextid, ids, numids * sizeof(int));
         nextid += numids;
         }
-  
+
       ids = id2 + id2Idx[i];
       numids = (lastList ? id2Len : id2Idx[i+1]) - id2Idx[i];
-    
+
       if (numids > 0)
         {
         memcpy(newIdList + nextid, ids, numids * sizeof(int));
         nextid += numids;
         }
-  
+
       if (!lastList)
         {
         newIdListIndex[i+1] = nextid;
@@ -2471,16 +2471,16 @@ int vtkModelMetadata::AppendIntegerLists(
     {
     *idNewLen = newIdListLength;
     }
-  
+
   return 0;
 }
 
-int vtkModelMetadata::MergeIdLists(int numSubLists, 
-    int *id1, int *id1Idx, int id1Len,  
+int vtkModelMetadata::MergeIdLists(int numSubLists,
+    int *id1, int *id1Idx, int id1Len,
       float *dist1, int *dist1Idx, int dist1Len,
-    int *id2, int *id2Idx, int id2Len, 
+    int *id2, int *id2Idx, int id2Len,
       float *dist2, int *dist2Idx, int dist2Len,
-    int **idNew, int **idNewIdx, int *idNewLen, 
+    int **idNew, int **idNewIdx, int *idNewLen,
       float **distNew, int **distNewIdx, int *distNewLen)
 {
   if ((id1Len == 0) && (id2Len == 0))
@@ -2551,23 +2551,23 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
     {
     int nextid = 0;
     int nextdf = 0;
-  
+
     float *dist = NULL;
     int numdf = 0;
-  
+
     for (i=0; i<numSubLists; i++)
       {
       int lastList = (i == numSubLists-1);
-  
+
       int *ids = id1 + id1Idx[i];
       int numids = (lastList ? id1Len : id1Idx[i+1]) - id1Idx[i];
       if (numids > 0)
         {
         memcpy(newIdList + nextid, ids, numids * sizeof(int));
         }
-  
+
       nextid += numids;
-  
+
       if (distFact)
         {
         dist = dist1 + dist1Idx[i];
@@ -2578,20 +2578,20 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
           nextdf += numdf;
           }
         }
-  
+
       // Make a set of the ids we've just written.  We only want to add
       // ids from list 2 if they did not exist in list 1.
-  
+
       std::set<int> idSet;
-  
+
       for (id=0; id < numids; id++)
         {
-        idSet.insert(ids[id]); 
+        idSet.insert(ids[id]);
         }
-  
+
       ids = id2 + id2Idx[i];
       numids = (lastList ? id2Len : id2Idx[i+1]) - id2Idx[i];
-  
+
       if (distFact)
         {
         dist = dist2 + dist2Idx[i];
@@ -2601,13 +2601,13 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
         {
         numdf = 0;
         }
-  
+
       for (id=0; id < numids; id++)
         {
         std::pair<std::set<int>::iterator, bool> inserted =
-  
+
           idSet.insert(ids[id]);
-  
+
         if (inserted.second)    // here's a new ID
           {
           newIdList[nextid++] = ids[id];
@@ -2620,7 +2620,7 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
             }
           }
         }
-  
+
       if (!lastList)
         {
         newIdListIndex[i+1] = nextid;
@@ -2678,7 +2678,7 @@ int vtkModelMetadata::MergeIdLists(int numSubLists,
     {
     *distNewLen = newDistFactLength;
     }
-  
+
   return 0;
 }
 
@@ -2763,7 +2763,7 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
     }
 
   // Assumption - Either we have no block information and are copying
-  //   it from the supplied model, or the block IDs are the same and in the 
+  //   it from the supplied model, or the block IDs are the same and in the
   //   same order in both models, but we may be missing some information.
 
   num = em->GetNumberOfBlocks();
@@ -2844,7 +2844,7 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
       {
       this->SetBlockPropertyNames(num,
         vtkModelMetadata::CopyLines(em->GetBlockPropertyNames(), num));
-  
+
       this->SetBlockPropertyValue(
         vtkModelMetadata::CopyInts(em->GetBlockPropertyValue(), nvals));
       }
@@ -2852,12 +2852,12 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
       {
       int *myVal = this->BlockPropertyValue;
       int *newVal = em->GetBlockPropertyValue();
-    
+
       for (i=0; i<nvals; i++)
         {
         if ((myVal[i] == 0) && (newVal[i] != 0)) myVal[i] = newVal[i];
         }
-      } 
+      }
     else
       {
       vtkErrorMacro(<< "Merging metadata from different files");
@@ -2875,7 +2875,7 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
       {
       this->SetNodeSetPropertyNames(num,
         vtkModelMetadata::CopyLines(em->GetNodeSetPropertyNames(), num));
-  
+
       this->SetNodeSetPropertyValue(
         vtkModelMetadata::CopyInts(em->GetNodeSetPropertyValue(), nvals));
       }
@@ -2883,12 +2883,12 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
       {
       int *myVal = this->NodeSetPropertyValue;
       int *newVal = em->GetNodeSetPropertyValue();
-    
+
       for (i=0; i<nvals; i++)
         {
         if ((myVal[i] == 0) && (newVal[i] != 0)) myVal[i] = newVal[i];
         }
-      } 
+      }
     else
       {
       vtkErrorMacro(<< "Merging metadata from different files");
@@ -2906,7 +2906,7 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
       {
       this->SetSideSetPropertyNames(num,
         vtkModelMetadata::CopyLines(em->GetSideSetPropertyNames(), num));
-  
+
       this->SetSideSetPropertyValue(
         vtkModelMetadata::CopyInts(em->GetSideSetPropertyValue(), nvals));
       }
@@ -2914,12 +2914,12 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
       {
       int *myVal = this->SideSetPropertyValue;
       int *newVal = em->GetSideSetPropertyValue();
-    
+
       for (i=0; i<nvals; i++)
         {
         if ((myVal[i] == 0) && (newVal[i] != 0)) myVal[i] = newVal[i];
         }
-      } 
+      }
     else
       {
       vtkErrorMacro(<< "Merging metadata from different files");
@@ -2944,17 +2944,17 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
 
   if (num > this->OriginalNumberOfElementVariables)
     {
-    char **orig = 
+    char **orig =
       vtkModelMetadata::CopyLines(em->GetOriginalElementVariableNames(), num);
 
     int numvar = em->GetNumberOfElementVariables();
-    char **varname = 
+    char **varname =
       vtkModelMetadata::CopyLines(em->GetElementVariableNames(), numvar);
 
-    int *comp = 
+    int *comp =
       vtkModelMetadata::CopyInts(em->GetElementVariableNumberOfComponents(),
                                  numvar);
-    int *map =  
+    int *map =
       vtkModelMetadata::CopyInts(em->GetMapToOriginalElementVariableNames(),
                                  numvar);
 
@@ -2965,16 +2965,16 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
 
   if (num > this->OriginalNumberOfNodeVariables)
     {
-    char **orig = 
+    char **orig =
       vtkModelMetadata::CopyLines(em->GetOriginalNodeVariableNames(), num);
 
     int numvar = em->GetNumberOfNodeVariables();
-    char **varname = 
+    char **varname =
       vtkModelMetadata::CopyLines(em->GetNodeVariableNames(), numvar);
 
-    int *comp = 
+    int *comp =
       vtkModelMetadata::CopyInts(em->GetNodeVariableNumberOfComponents(), numvar);
-    int *map =  
+    int *map =
       vtkModelMetadata::CopyInts(em->GetMapToOriginalNodeVariableNames(), numvar);
 
     this->SetNodeVariableInfo(num, orig, numvar, varname, comp, map);
@@ -3010,13 +3010,13 @@ int vtkModelMetadata::MergeGlobalInformation(const vtkModelMetadata *em)
 // object is empty, initialize it from the metadata passed in.
 //
 // ASSUMPTION:
-//   The vtkModelMetadata object passed in comes from the same 
-//   distributed file that this object was initialized from.  
+//   The vtkModelMetadata object passed in comes from the same
+//   distributed file that this object was initialized from.
 //   It has the same variables and is for the same time step.  What
 //   will be different is the cells that are represented in the
 //   two models.
 //
-//   We assume that a given cell ID does not appear in more than one 
+//   We assume that a given cell ID does not appear in more than one
 //   file in a distributed data set.  So when merging two ModelMetadata objects
 //   we just append element lists.  However, we assume that node IDs may
 //   appear in more than one file, and we filter out duplicate IDs when
@@ -3062,7 +3062,7 @@ int vtkModelMetadata::MergeModelMetadata(const vtkModelMetadata *em)
   int newSize = 0;
   int nblocks = this->NumberOfBlocks;
 
-  this->AppendFloatLists(nblocks, 
+  this->AppendFloatLists(nblocks,
      this->BlockAttributes, this->BlockAttributesIndex, this->SizeBlockAttributeArray,
      em->BlockAttributes, em->BlockAttributesIndex, em->SizeBlockAttributeArray,
      &farray, &index, &newSize);
@@ -3111,23 +3111,23 @@ int vtkModelMetadata::MergeModelMetadata(const vtkModelMetadata *em)
       &iarray, &index, &newSize,
       &farray, &index2, &newSize2);
 
-    FREE(this->NodeSetNodeIdList); 
+    FREE(this->NodeSetNodeIdList);
     FREE(this->NodeSetNodeIdListIndex);
     FREE(this->NodeSetDistributionFactors);
     FREE(this->NodeSetDistributionFactorIndex);
-  
-    this->NodeSetNodeIdList = iarray; 
+
+    this->NodeSetNodeIdList = iarray;
     this->NodeSetNodeIdListIndex = index;
     this->NodeSetDistributionFactors = farray;
     this->NodeSetDistributionFactorIndex = index2;
-  
+
     this->SumNodesPerNodeSet = newSize;
     this->SumDistFactPerNodeSet = newSize2;
 
     int lastset = nnsets-1;
     int *setSize = new int [nnsets];
     int *setDF = new int [nnsets];
-  
+
     for (i=0; i<lastset; i++)
       {
       setSize[i] = index[i+1] - index[i];
@@ -3164,58 +3164,58 @@ int vtkModelMetadata::MergeModelMetadata(const vtkModelMetadata *em)
   if (em->SumSidesPerSideSet > 0)
     {
     int nssets = this->NumberOfSideSets;
-  
+
     this->AppendIntegerLists(nssets,
        this->SideSetElementList, this->SideSetListIndex, this->SumSidesPerSideSet,
        em->SideSetElementList, em->SideSetListIndex, em->SumSidesPerSideSet,
        &iarray, &index, &newSize);
-  
+
     FREE(this->SideSetElementList);
     this->SideSetElementList = iarray;
-  
+
     FREE(index);
-  
+
     this->AppendIntegerLists(nssets,
        this->SideSetSideList, this->SideSetListIndex, this->SumSidesPerSideSet,
        em->SideSetSideList, em->SideSetListIndex, em->SumSidesPerSideSet,
        &iarray, &index, &newSize);
-  
+
     FREE(this->SideSetSideList);
     this->SideSetSideList = iarray;
-  
+
     FREE(index);
-  
+
     this->AppendIntegerLists(nssets,
        this->SideSetNumDFPerSide, this->SideSetListIndex, this->SumSidesPerSideSet,
        em->SideSetNumDFPerSide, em->SideSetListIndex, em->SumSidesPerSideSet,
        &iarray, &index, &newSize);
-  
+
     FREE(this->SideSetNumDFPerSide);
     this->SideSetNumDFPerSide= iarray;
-  
+
     FREE(this->SideSetListIndex);
     this->SideSetListIndex = index;
-  
+
     this->SumSidesPerSideSet = newSize;
-  
+
     this->AppendFloatLists(nssets,
-       this->SideSetDistributionFactors, this->SideSetDistributionFactorIndex, 
+       this->SideSetDistributionFactors, this->SideSetDistributionFactorIndex,
          this->SumDistFactPerSideSet,
-       em->SideSetDistributionFactors, em->SideSetDistributionFactorIndex, 
+       em->SideSetDistributionFactors, em->SideSetDistributionFactorIndex,
          em->SumDistFactPerSideSet,
        &farray, &index, &newSize);
-  
+
     FREE(this->SideSetDistributionFactors);
     FREE(this->SideSetDistributionFactorIndex);
-  
+
     this->SideSetDistributionFactors = farray;
     this->SideSetDistributionFactorIndex = index;
     this->SumDistFactPerSideSet = newSize;
-    
+
     int lastset = nssets - 1;
     int *setSize = new int [nssets];
     int *setDF = new int [nssets];
-  
+
     for (i=0; i<lastset; i++)
       {
       setSize[i] = this->SideSetListIndex[i+1] - this->SideSetListIndex[i];
@@ -3372,7 +3372,7 @@ void vtkModelMetadata::ExtractCellsFromBlockData(vtkModelMetadataSTLCloak *idset
     }
 
   delete [] extractElt;
-  
+
   return;
 }
 void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkModelMetadataSTLCloak *idset,
@@ -3478,7 +3478,7 @@ void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkModelMetadataSTLCloak *ids
     }
 
   delete [] extractNodes;
-  
+
   return;
 }
 void vtkModelMetadata::ExtractSidesFromSideSetData(vtkModelMetadataSTLCloak *idset,
@@ -3589,7 +3589,7 @@ void vtkModelMetadata::ExtractSidesFromSideSetData(vtkModelMetadataSTLCloak *ids
       mmd->SetSideSetDistributionFactors(newssDF);
       }
     }
-  
+
   return;
 }
 
@@ -3617,9 +3617,9 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
     return em;
     }
 
-  vtkModelMetadataSTLCloak *cellIds = 
+  vtkModelMetadataSTLCloak *cellIds =
     new vtkModelMetadataSTLCloak;     // the cells we want to extract
-  vtkModelMetadataSTLCloak *nodeIds = 
+  vtkModelMetadataSTLCloak *nodeIds =
     new vtkModelMetadataSTLCloak;     // the nodes they include
 
   vtkIdType *ids = globalCellIdList->GetPointer(0);
@@ -3735,16 +3735,16 @@ char *vtkModelMetadata::FindOriginalNodeVariableName(const char *name, int compo
       idx = i;
       break;
       }
-    }  
+    }
 
   if (idx < 0)
     {
-    return NULL;  
+    return NULL;
     }
 
   int origIdx = this->MapToOriginalNodeVariableNames[idx];
 
-  if ( (component<0) || 
+  if ( (component<0) ||
        (component >= this->NodeVariableNumberOfComponents[idx]))
     {
     return NULL;
@@ -3794,16 +3794,16 @@ char *vtkModelMetadata::FindOriginalElementVariableName(const char *name, int co
       idx = i;
       break;
       }
-    }  
+    }
 
   if (idx < 0)
     {
-    return NULL;  
+    return NULL;
     }
 
   int origIdx = this->MapToOriginalElementVariableNames[idx];
 
-  if ( (component<0) || 
+  if ( (component<0) ||
        (component >= this->ElementVariableNumberOfComponents[idx]))
     {
     return NULL;
@@ -3866,7 +3866,7 @@ void vtkModelMetadata::ShowInts(const char *what, int num, int *id)
     }
   cout << endl;
 }
-void vtkModelMetadata::ShowListsOfInts(const char *what, int *list, 
+void vtkModelMetadata::ShowListsOfInts(const char *what, int *list,
                        int nlists, int *idx, int len, int verbose)
 {
   int i, j, ii;
@@ -3887,19 +3887,19 @@ void vtkModelMetadata::ShowListsOfInts(const char *what, int *list,
         if (verbose)
           {
           cout << endl;
-          } 
+          }
         else
           {
           cout << "..." ;
           break;
-          } 
+          }
         }
-      cout << list[j] << " "; 
+      cout << list[j] << " ";
       }
     cout << endl;
     }
 }
-void vtkModelMetadata::ShowListsOfFloats(const char *what, float *list, 
+void vtkModelMetadata::ShowListsOfFloats(const char *what, float *list,
                               int nlists, int *idx, int len, int verbose)
 {
   int i, j, ii;
@@ -3920,14 +3920,14 @@ void vtkModelMetadata::ShowListsOfFloats(const char *what, float *list,
         if (verbose)
           {
           cout << endl;
-          } 
+          }
         else
           {
           cout << "...";
           break;
-          } 
+          }
         }
-      cout << list[j] << " "; 
+      cout << list[j] << " ";
       }
     cout << endl;
     }
@@ -3951,58 +3951,58 @@ void vtkModelMetadata::PrintLocalInformation()
 
   cout << "Time step (starting with 0): " << this->TimeStepIndex << endl;
 
-  this->ShowInts("BlockNumberOfElements", this->NumberOfBlocks, 
+  this->ShowInts("BlockNumberOfElements", this->NumberOfBlocks,
                  this->BlockNumberOfElements);
 
   if (verbose)
     {
     // Only show these for really small data sets.
 
-    this->ShowListsOfInts("BlockElementIdList", this->BlockElementIdList, 
-                         this->NumberOfBlocks, this->BlockElementIdListIndex, 
+    this->ShowListsOfInts("BlockElementIdList", this->BlockElementIdList,
+                         this->NumberOfBlocks, this->BlockElementIdListIndex,
                          this->SumElementsPerBlock, (verbose>1));
-    this->ShowListsOfFloats("BlockAttributes", this->BlockAttributes, 
-                        this->NumberOfBlocks, this->BlockAttributesIndex, 
+    this->ShowListsOfFloats("BlockAttributes", this->BlockAttributes,
+                        this->NumberOfBlocks, this->BlockAttributesIndex,
                         this->SizeBlockAttributeArray, (verbose>1));
     }
 
   this->ShowInts("NodeSetSize", this->NumberOfNodeSets, this->NodeSetSize);
-  this->ShowInts("NodeSetNumberOfDistributionFactors", this->NumberOfNodeSets, 
+  this->ShowInts("NodeSetNumberOfDistributionFactors", this->NumberOfNodeSets,
                   this->NodeSetNumberOfDistributionFactors);
 
   if (verbose)
     {
-  this->ShowListsOfInts("NodeSetNodeIdList", this->NodeSetNodeIdList, 
-                         this->NumberOfNodeSets, this->NodeSetNodeIdListIndex, 
+  this->ShowListsOfInts("NodeSetNodeIdList", this->NodeSetNodeIdList,
+                         this->NumberOfNodeSets, this->NodeSetNodeIdListIndex,
                          this->SumNodesPerNodeSet, (verbose>1));
-  this->ShowListsOfFloats("NodeSetDistributionFactors", 
-                        this->NodeSetDistributionFactors, 
-                        this->NumberOfNodeSets, 
+  this->ShowListsOfFloats("NodeSetDistributionFactors",
+                        this->NodeSetDistributionFactors,
+                        this->NumberOfNodeSets,
                         this->NodeSetDistributionFactorIndex,
                         this->SumDistFactPerNodeSet, (verbose>1));
     }
 
   this->ShowInts("SideSetSize", this->NumberOfSideSets, this->SideSetSize);
-  this->ShowInts("SideSetNumberOfDistributionFactors", this->NumberOfSideSets, 
+  this->ShowInts("SideSetNumberOfDistributionFactors", this->NumberOfSideSets,
                   this->SideSetNumberOfDistributionFactors);
 
   if (verbose)
     {
-    this->ShowListsOfInts("SideSetElementList", this->SideSetElementList, 
-                         this->NumberOfSideSets, this->SideSetListIndex, 
+    this->ShowListsOfInts("SideSetElementList", this->SideSetElementList,
+                         this->NumberOfSideSets, this->SideSetListIndex,
                          this->SumSidesPerSideSet, (verbose>1));
-    this->ShowListsOfInts("SideSetSideList", this->SideSetSideList, 
-                         this->NumberOfSideSets, this->SideSetListIndex, 
+    this->ShowListsOfInts("SideSetSideList", this->SideSetSideList,
+                         this->NumberOfSideSets, this->SideSetListIndex,
                          this->SumSidesPerSideSet, (verbose>1));
-    this->ShowListsOfInts("SideSetNumDFPerSide", this->SideSetNumDFPerSide, 
-                         this->NumberOfSideSets, this->SideSetListIndex, 
+    this->ShowListsOfInts("SideSetNumDFPerSide", this->SideSetNumDFPerSide,
+                         this->NumberOfSideSets, this->SideSetListIndex,
                          this->SumSidesPerSideSet, (verbose>1));
-    this->ShowListsOfFloats("SideSetDistributionFactors", 
-                        this->SideSetDistributionFactors, 
-                        this->NumberOfSideSets, 
+    this->ShowListsOfFloats("SideSetDistributionFactors",
+                        this->SideSetDistributionFactors,
+                        this->NumberOfSideSets,
                         this->SideSetDistributionFactorIndex,
                         this->SumDistFactPerSideSet, (verbose>1));
-    } 
+    }
 
   this->ShowFloats("GlobalVariables", this->NumberOfGlobalVariables, this->GlobalVariableValue);
 
@@ -4038,11 +4038,11 @@ void vtkModelMetadata::PrintGlobalInformation()
     for (i=0; i<this->NumberOfQARecords; i++)
       {
       this->GetQARecord(i, &name, &ver, &date, &time);
-      cout << "  " << name << " " << ver << " " << date << " " << time << endl; 
+      cout << "  " << name << " " << ver << " " << date << " " << time << endl;
       }
     }
 
-  this->ShowLines("InformationLines", 
+  this->ShowLines("InformationLines",
          this->NumberOfInformationLines, this->InformationLine);
 
   this->ShowLines("CoordinateNames", this->Dimension, this->CoordinateNames);
@@ -4105,7 +4105,7 @@ void vtkModelMetadata::PrintGlobalInformation()
   cout << "========================================" << endl;
 }
 
-int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine) 
+int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
 {
   int i;
   maxLine = 0;
@@ -4125,68 +4125,68 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
 
   for (i=0; i<this->NumberOfInformationLines; i++)
     {
-    sizeLine = (this->InformationLine[i] ? 
+    sizeLine = (this->InformationLine[i] ?
                 static_cast<int>(strlen(this->InformationLine[i])) : 0);
     maxLine = ((sizeLine > maxLine) ? sizeLine : maxLine);
     }
 
   for (i=0; i<this->NumberOfQARecords; i++)
     {
-    sizeLine = (this->QARecord[i][0] ? 
+    sizeLine = (this->QARecord[i][0] ?
                 static_cast<int>(strlen(this->QARecord[i][0])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
 
-    sizeLine = (this->QARecord[i][1] ? 
+    sizeLine = (this->QARecord[i][1] ?
                 static_cast<int>(strlen(this->QARecord[i][1])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
 
-    sizeLine = (this->QARecord[i][2] ? 
+    sizeLine = (this->QARecord[i][2] ?
                 static_cast<int>(strlen(this->QARecord[i][2])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
 
-    sizeLine = (this->QARecord[i][3] ? 
+    sizeLine = (this->QARecord[i][3] ?
                 static_cast<int>(strlen(this->QARecord[i][3])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->Dimension; i++)
     {
-    sizeLine = (this->CoordinateNames[i] ? 
+    sizeLine = (this->CoordinateNames[i] ?
                 static_cast<int>(strlen(this->CoordinateNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfBlocks; i++)
     {
-    sizeLine = (this->BlockElementType[i] ? 
+    sizeLine = (this->BlockElementType[i] ?
                 static_cast<int>(strlen(this->BlockElementType[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfBlockProperties; i++)
     {
-    sizeLine = (this->BlockPropertyNames[i] ? 
+    sizeLine = (this->BlockPropertyNames[i] ?
                 static_cast<int>(strlen(this->BlockPropertyNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfNodeSetProperties; i++)
     {
-    sizeLine = (this->NodeSetPropertyNames[i] ? 
+    sizeLine = (this->NodeSetPropertyNames[i] ?
                 static_cast<int>(strlen(this->NodeSetPropertyNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfSideSetProperties; i++)
     {
-    sizeLine = (this->SideSetPropertyNames[i] ? 
+    sizeLine = (this->SideSetPropertyNames[i] ?
                 static_cast<int>(strlen(this->SideSetPropertyNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
   for (i=0; i<this->NumberOfGlobalVariables; i++)
     {
-    sizeLine = (this->GlobalVariableNames[i] ? 
+    sizeLine = (this->GlobalVariableNames[i] ?
                 static_cast<int>(strlen(this->GlobalVariableNames[i])) : 0);
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
@@ -4196,7 +4196,7 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
 
   for (i=0; i<this->NumberOfNodeVariables; i++)
     {
-    sizeLine = (this->NodeVariableNames[i] ? 
+    sizeLine = (this->NodeVariableNames[i] ?
                 static_cast<int>(strlen(this->NodeVariableNames[i])) : 0);
     sizeLine++;
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
@@ -4204,7 +4204,7 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
 
   for (i=0; i<this->NumberOfElementVariables; i++)
     {
-    sizeLine = (this->ElementVariableNames[i] ? 
+    sizeLine = (this->ElementVariableNames[i] ?
                 static_cast<int>(strlen(this->ElementVariableNames[i])) : 0);
     sizeLine++;
     maxString = (sizeLine > maxString) ? sizeLine : maxString;

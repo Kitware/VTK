@@ -40,13 +40,13 @@ class VTKRENDERINGOPENGL_EXPORT vtkImageProcessingPass : public vtkRenderPass
 public:
   vtkTypeMacro(vtkImageProcessingPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources.
   // \pre w_exists: w!=0
   void ReleaseGraphicsResources(vtkWindow *w);
-  
+
   // Description:
   // Delegate for rendering the image to be processed.
   // If it is NULL, nothing will be rendered and a warning will be emitted.
@@ -54,7 +54,7 @@ public:
   // Initial value is a NULL pointer.
   vtkGetObjectMacro(DelegatePass,vtkRenderPass);
   virtual void SetDelegatePass(vtkRenderPass *delegatePass);
-  
+
  protected:
   // Description:
   // Default constructor. DelegatePass is set to NULL.
@@ -63,7 +63,7 @@ public:
   // Description:
   // Destructor.
   virtual ~vtkImageProcessingPass();
-  
+
   // Description:
   // Render delegate with a image of different dimensions than the
   // original one.
@@ -79,10 +79,10 @@ public:
                       int newHeight,
                       vtkFrameBufferObject *fbo,
                       vtkTextureObject *target);
-  
-  
+
+
   vtkRenderPass *DelegatePass;
-  
+
  private:
   vtkImageProcessingPass(const vtkImageProcessingPass&);  // Not implemented.
   void operator=(const vtkImageProcessingPass&);  // Not implemented.

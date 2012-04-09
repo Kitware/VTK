@@ -32,7 +32,7 @@ list(REMOVE_ITEM TestsToRun CxxTests.cxx)
 # Add all the executables
 foreach (test ${TestsToRun})
   get_filename_component(TName ${test} NAME_WE)
-  
+
   if(VTK_DATA_ROOT)
   add_test(NAME ${vtk-module}Cxx-${TName}
     COMMAND ${vtk-module}CxxTests ${TName}

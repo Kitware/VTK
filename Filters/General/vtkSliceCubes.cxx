@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkSliceCubes);
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
 
 // Description:
-// Construct with NULL reader, output FileName specification, and limits 
+// Construct with NULL reader, output FileName specification, and limits
 // FileName.
 vtkSliceCubes::vtkSliceCubes()
 {
@@ -70,7 +70,7 @@ void vtkSliceCubes::Update()
 // Calculate the gradient using central difference.
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
-void ComputePointGradient(int i, int j, int k, int dims[3], 
+void ComputePointGradient(int i, int j, int k, int dims[3],
                           double Spacing[3], double n[3], T *s0, T *s1, T *s2)
 {
   double sp, sm;
@@ -139,9 +139,9 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
 }
 
 template <class T, class S>
-int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3], 
-                         double origin[3], double Spacing[3], double value, 
-                         double xmin[3], double xmax[3], FILE *outFP, 
+int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
+                         double origin[3], double Spacing[3], double value,
+                         double xmin[3], double xmax[3], FILE *outFP,
                          vtkVolumeReader *reader, unsigned char debug)
 {
   S *slice0scalars=NULL, *slice1scalars;
@@ -192,7 +192,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
     slice2scalars->GetData(0,sliceSize-1,0,numComp-1,doubleScalars);
     slice1 = slice2 = (T *) doubleScalars->GetPointer(0);
     }
-    
+
   sp = reader->GetImage(imageRange[0]+1);
   slice3scalars = (S *) sp->GetPointData()->GetScalars();
   slice3scalars->Register(NULL);
@@ -399,7 +399,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   return numTriangles;
 }
 
-void vtkSliceCubes::Execute() 
+void vtkSliceCubes::Execute()
 {
   FILE *outFP;
   vtkImageData *tempStructPts;
@@ -434,7 +434,7 @@ void vtkSliceCubes::Execute()
   tempStructPts->GetDimensions(dims);
   tempStructPts->GetOrigin(origin);
   tempStructPts->GetSpacing(Spacing);
-  
+
   dims[2] = (imageRange[1] - imageRange[0] + 1);
 
   if ( (dims[0]*dims[1]*dims[2]) <= 1 || dims[2] < 2 )
@@ -636,8 +636,8 @@ void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Reader: (none)\n";
     }
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (this->FileName ? this->FileName : "(none)") << "\n";
-  os << indent << "Limits File Name: " 
+  os << indent << "Limits File Name: "
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
 }

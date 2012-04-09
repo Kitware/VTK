@@ -57,14 +57,14 @@ public:
   // The order determines sharpness of the cutoff curve.
   vtkSetMacro(Order, int);
   vtkGetMacro(Order, int);
-  
+
 protected:
   vtkImageButterworthHighPass();
   ~vtkImageButterworthHighPass() {};
 
   int Order;
   double CutOff[3];
-  
+
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

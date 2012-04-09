@@ -247,7 +247,7 @@ int vtkImageSlice::HasTranslucentPolygonalGeometry()
   // predictable and because depth-peeling kills alpha-blending.
   // In the future, the Renderer should render images in layers,
   // i.e. where each image will have a layer number assigned to it,
-  // and the Renderer will do the images in their own pass. 
+  // and the Renderer will do the images in their own pass.
   return 0;
 }
 

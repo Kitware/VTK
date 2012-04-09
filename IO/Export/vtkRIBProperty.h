@@ -41,30 +41,30 @@ public:
   // Specify the name of a surface shader.
   vtkSetStringMacro(SurfaceShader);
   vtkGetStringMacro(SurfaceShader);
-  
+
   // Description:
   // Specify the name of a displacement shader.
   vtkSetStringMacro(DisplacementShader);
   vtkGetStringMacro(DisplacementShader);
-  
+
   // Description:
   // Specify declarations for variables..
   void SetVariable (char *variable, char *declaration);
   void AddVariable (char *variable, char *declaration);
-  
+
   // Description:
   // Get variable declarations
   char *GetDeclarations ();
-  
+
   // Description:
   // Specify parameter values for variables.
   void SetParameter (char *parameter, char *value);
   void AddParameter (char *parameter, char *value);
-  
+
   // Description:
   // Get parameters.
   char *GetParameters ();
-  
+
 protected:
   vtkRIBProperty();
   ~vtkRIBProperty();

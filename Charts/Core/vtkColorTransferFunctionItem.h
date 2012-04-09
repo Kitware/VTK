@@ -42,7 +42,7 @@ protected:
   // Description:
   // Reimplemented to return the range of the lookup table
   virtual void ComputeBounds(double bounds[4]);
-  
+
   virtual void ComputeTexture();
   vtkColorTransferFunction* ColorTransferFunction;
 private:

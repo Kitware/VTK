@@ -56,7 +56,7 @@ int vtkImageTranslateExtent::RequestInformation (
 
   int idx, extent[6];
   double spacing[3], origin[3];
-  
+
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   inInfo->Get(vtkDataObject::ORIGIN(), origin);
   inInfo->Get(vtkDataObject::SPACING(), spacing);
@@ -70,7 +70,7 @@ int vtkImageTranslateExtent::RequestInformation (
     // change origin so the data does not shift
     origin[idx] -= static_cast<double>(this->Translation[idx]) * spacing[idx];
     }
-  
+
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
 

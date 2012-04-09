@@ -10,9 +10,9 @@ vtkRenderWindow imgWin
 vtkTIFFReader image1
   image1 SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 
-# "beach.tif" image contains ORIENTATION tag which is 
-# ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF 
-# reader parses this tag and sets the internal TIFF image 
+# "beach.tif" image contains ORIENTATION tag which is
+# ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
+# reader parses this tag and sets the internal TIFF image
 # orientation accordingly.  To overwrite this orientation with a vtk
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.
@@ -25,15 +25,15 @@ shrink SetShrinkFactors 2 2 1
 set operators "ByPass And Nand Xor Or Nor"
 
 foreach operator $operators {
-    if { $operator != "ByPass" } {    
+    if { $operator != "ByPass" } {
 	vtkImageMaskBits operator${operator}
 	operator${operator} SetInputConnection [shrink GetOutputPort]
         operator${operator} SetOperationTo${operator}
 	operator${operator} SetMasks 255 255 0
-    } 
-    
+    }
+
     vtkImageMapper mapper${operator}
-    if { $operator != "ByPass" } {    	
+    if { $operator != "ByPass" } {
 	mapper${operator} SetInputConnection [operator${operator} GetOutputPort]
     } else {
 	mapper${operator} SetInputConnection [shrink GetOutputPort]

@@ -61,7 +61,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   vtkPoints *pts;
   vtkDataArray *da;
   int i;
-  
+
   vtkDebugMacro(<<"Generating field data from data set");
 
   if ( this->Geometry)
@@ -103,7 +103,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       fd->AddArray(spacing);
       spacing->Delete();
       }
-    
+
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
       pts = static_cast<vtkStructuredGrid *>(input)->GetPoints();
@@ -114,7 +114,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
         fd->AddArray( da );
         }
       }
-    
+
     else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
       {
       vtkRectilinearGrid *rgrid=static_cast<vtkRectilinearGrid *>(input);
@@ -137,7 +137,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
         fd->AddArray( da );
         }
       }
-    
+
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
       pts = static_cast<vtkUnstructuredGrid *>(input)->GetPoints();
@@ -156,7 +156,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       return 1;
       }
     }
-  
+
   if (this->Topology)
     {
     if ( input->GetDataObjectType() == VTK_POLY_DATA )
@@ -202,7 +202,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       fd->AddArray( dimensions );
       dimensions->Delete();
       }
-    
+
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
       vtkIntArray *dimensions=vtkIntArray::New();
@@ -216,7 +216,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       fd->AddArray( dimensions );
       dimensions->Delete();
       }
-    
+
     else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
       {
       vtkIntArray *dimensions=vtkIntArray::New();
@@ -230,7 +230,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       fd->AddArray( dimensions );
       dimensions->Delete();
       }
-    
+
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
       vtkCellArray *ca=static_cast<vtkUnstructuredGrid *>(input)->GetCells();
@@ -247,7 +247,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
           types->SetValue(i, input->GetCellType(i));
           }
         types->SetName("CellTypes");
-        fd->AddArray( types ); 
+        fd->AddArray( types );
         types->Delete();
         }
       }
@@ -259,13 +259,13 @@ int vtkDataSetToDataObjectFilter::RequestData(
       return 1;
       }
     }
-  
+
   vtkFieldData* fieldData;
 
   if (this->FieldData)
     {
     fieldData = input->GetFieldData();
-    
+
     for (i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
       fd->AddArray(fieldData->GetArray(i));
@@ -275,7 +275,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   if (this->PointData)
     {
     fieldData = input->GetPointData();
-    
+
     for (i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
       fd->AddArray(fieldData->GetArray(i));
@@ -285,7 +285,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   if (this->CellData)
     {
     fieldData = input->GetCellData();
-    
+
     for (i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
       fd->AddArray(fieldData->GetArray(i));

@@ -3,12 +3,12 @@
   Program:   Visualization Toolkit
   Module:    vtkParametricTorus.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -69,8 +69,8 @@ void vtkParametricTorus::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 }
 
 //----------------------------------------------------------------------------
-double vtkParametricTorus::EvaluateScalar(double* vtkNotUsed(uv[3]), 
-                                          double* vtkNotUsed(Pt[3]), 
+double vtkParametricTorus::EvaluateScalar(double* vtkNotUsed(uv[3]),
+                                          double* vtkNotUsed(Pt[3]),
                                           double* vtkNotUsed(Duv[9]))
 {
   return 0;
@@ -80,7 +80,7 @@ double vtkParametricTorus::EvaluateScalar(double* vtkNotUsed(uv[3]),
 void vtkParametricTorus::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Ring Radius: " << this->RingRadius << "\n";
   os << indent << "Cross-Sectional Radius: " << this->CrossSectionRadius << "\n";
 }

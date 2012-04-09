@@ -1,5 +1,5 @@
 /*=========================================================================
-  
+
 Program:   Visualization Toolkit
 Module:    vtkExtractHistogram2D.cxx
 
@@ -39,12 +39,12 @@ vtkStandardNewMacro(vtkExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkExtractHistogram2D,RowMask,vtkDataArray);
 //------------------------------------------------------------------------------
 // Figure out which histogram bin a pair of values fit into
-static inline int vtkExtractHistogram2DComputeBin(vtkIdType& bin1, 
-                                                  vtkIdType& bin2, 
-                                                  double v1, 
-                                                  double v2, 
-                                                  double *exts, 
-                                                  int* nbins, 
+static inline int vtkExtractHistogram2DComputeBin(vtkIdType& bin1,
+                                                  vtkIdType& bin2,
+                                                  double v1,
+                                                  double v2,
+                                                  double *exts,
+                                                  int* nbins,
                                                   double* bwi)
 {
   // Make they fit within the extents
@@ -52,12 +52,12 @@ static inline int vtkExtractHistogram2DComputeBin(vtkIdType& bin1,
     return 0;
 
   // as usual, boundary cases are annoying
-  bin1 = (v1 == exts[1]) ? 
+  bin1 = (v1 == exts[1]) ?
     nbins[0]-1 :
     static_cast<vtkIdType>(floor((v1-exts[0])*bwi[0]));
 
   bin2 = (v2 == exts[3]) ?
-    nbins[1]-1 : 
+    nbins[1]-1 :
     static_cast<vtkIdType>(floor((v2-exts[2])*bwi[1]));
   return 1;
 }
@@ -81,13 +81,13 @@ vtkExtractHistogram2D::vtkExtractHistogram2D()
 
   this->ComponentsToProcess[0] = 0;
   this->ComponentsToProcess[1] = 0;
-  
+
   this->UseCustomHistogramExtents = 0;
   this->MaximumBinCount = 0;
   this->ScalarType = VTK_UNSIGNED_INT;
-  
+
   this->SwapColumns = 0;
-  
+
   this->RowMask = 0;
 }
 //------------------------------------------------------------------------------
@@ -110,14 +110,14 @@ void vtkExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RowMask: " << this->RowMask << endl;
 }
 //------------------------------------------------------------------------------
-void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData), 
-                                  vtkTable* vtkNotUsed(inParameters), 
+void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
+                                  vtkTable* vtkNotUsed(inParameters),
                                   vtkMultiBlockDataSet *outMeta)
 {
-  if ( !outMeta ) 
-    { 
-    return; 
-    } 
+  if ( !outMeta )
+    {
+    return;
+    }
 
   if (this->NumberOfBins[0] == 0 || this->NumberOfBins[1] == 0)
     {
@@ -128,14 +128,14 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
   vtkImageData* outImage = vtkImageData::SafeDownCast(
     this->GetOutputDataObject(vtkExtractHistogram2D::HISTOGRAM_IMAGE));
 
-  vtkDataArray* col1=NULL, *col2=NULL; 
+  vtkDataArray* col1=NULL, *col2=NULL;
   if (! this->GetInputArrays(col1,col2))
     {
     return;
     }
 
   this->ComputeBinExtents(col1,col2);
-  
+
   // The primary statistics table
   vtkTable* primaryTab = vtkTable::New();
 
@@ -173,10 +173,10 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
   double v1,v2,ct;
   double bwi[2] = {1.0/binWidth[0],1.0/binWidth[1]};
 
-  bool useRowMask = this->RowMask && 
+  bool useRowMask = this->RowMask &&
     this->RowMask->GetNumberOfTuples() == col1->GetNumberOfTuples();
 
-  // compute the histogram.  
+  // compute the histogram.
   this->MaximumBinCount = 0;
   for (int i=0; i<numValues; i++)
     {
@@ -188,7 +188,7 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
 
     if (!::vtkExtractHistogram2DComputeBin(bin1,bin2,v1,v2,this->GetHistogramExtents(),this->NumberOfBins,bwi))
       continue;
-   
+
 
     idx = (bin1 + this->NumberOfBins[0]*bin2);
 
@@ -249,7 +249,7 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
     vtkErrorMacro(<<"Error: Empty input.");
     return 0;
     }
-  
+
   if (this->Internals->Requests.size() > 0)
     {
     vtkStdString colName;
@@ -326,14 +326,14 @@ int vtkExtractHistogram2D::FillOutputPortInformation( int port, vtkInformation* 
 
 //------------------------------------------------------------------------------
 // cribbed from vtkImageReader2
-int vtkExtractHistogram2D::RequestInformation(vtkInformation *vtkNotUsed(request), 
-                                              vtkInformationVector **vtkNotUsed(inputVector), 
+int vtkExtractHistogram2D::RequestInformation(vtkInformation *vtkNotUsed(request),
+                                              vtkInformationVector **vtkNotUsed(inputVector),
                                               vtkInformationVector *outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(vtkExtractHistogram2D::HISTOGRAM_IMAGE);
 
-  vtkDataArray* col1=NULL, *col2=NULL; 
+  vtkDataArray* col1=NULL, *col2=NULL;
   if (! this->GetInputArrays(col1,col2))
     {
     return 0;

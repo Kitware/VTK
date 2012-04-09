@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkClientServerCompositePass 
+// .NAME vtkClientServerCompositePass
 // .SECTION Description
 // vtkClientServerCompositePass is a render-pass that can handle client-server
 // image delivery. This is designed to be used in configurations in
@@ -39,7 +39,7 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
   //ETX
-  
+
   // Description:
   // Release graphics resources and ask components to release their own
   // resources.
@@ -58,7 +58,7 @@ public:
   // Description:
   // Get/Set the render pass used to do the actual rendering.
   // When ServerSideRendering is true, the rendering-pass is called only on the
-  // server side.  
+  // server side.
   void SetRenderPass(vtkRenderPass*);
   vtkGetObjectMacro(RenderPass, vtkRenderPass);
 
@@ -75,7 +75,7 @@ public:
   // Description:
   // Set the current process type. This is needed since when using the socket
   // communicator there's no easy way of determining which process is the server
-  // and which one is the client. 
+  // and which one is the client.
   vtkSetMacro(ProcessIsServer,bool);
   vtkBooleanMacro(ProcessIsServer, bool);
   vtkGetMacro(ProcessIsServer, bool);

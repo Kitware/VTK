@@ -18,12 +18,12 @@
 // objects. vtkDataSet also provides methods to provide informations about
 // the data, such as center, bounding box, and representative length.
 //
-// In vtk a dataset consists of a structure (geometry and topology) and 
+// In vtk a dataset consists of a structure (geometry and topology) and
 // attribute data. The structure is defined implicitly or explicitly as
 // a collection of cells. The geometry of the structure is contained in
 // point coordinates plus the cell interpolation functions. The topology
 // of the dataset structure is defined by cell types and how the cells
-// share their defining points. 
+// share their defining points.
 //
 // Attribute data in vtk is either point data (data at points) or cell data
 // (data at cells). Typically filters operate on point data, but some may
@@ -95,7 +95,7 @@ public:
   virtual vtkCell *GetCell(vtkIdType cellId) = 0;
 
   // Description:
-  // Get cell with cellId such that: 0 <= cellId < NumberOfCells. 
+  // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // This is a thread-safe alternative to the previous GetCell()
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -113,7 +113,7 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   virtual void GetCellBounds(vtkIdType cellId, double bounds[6]);
-  
+
   // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -148,7 +148,7 @@ public:
   // cells that use ALL the points provided.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds, 
+  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                 vtkIdList *cellIds);
 
   // Description:
@@ -180,7 +180,7 @@ public:
                              double *weights) = 0;
 
   // Description:
-  // This is a version of the above method that can be used with 
+  // This is a version of the above method that can be used with
   // multithreaded applications. A vtkGenericCell must be passed in
   // to be used in internal calls that might be made to GetCell()
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -189,16 +189,16 @@ public:
                              vtkGenericCell *gencell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
                              double *weights) = 0;
-  
+
   // Description:
   // Locate the cell that contains a point and return the cell. Also returns
   // the subcell id, parametric coordinates and weights for subsequent
   // interpolation. This method combines the derived class methods
-  // int FindCell and vtkCell *GetCell. Derived classes may provide a more 
+  // int FindCell and vtkCell *GetCell. Derived classes may provide a more
   // efficient implementation. See for example vtkStructuredPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId, 
-                                  double tol2, int& subId, double pcoords[3], 
+  virtual vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
+                                  double tol2, int& subId, double pcoords[3],
                                   double *weights);
 
   // Description:
@@ -249,7 +249,7 @@ public:
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
   void GetCenter(double center[3]);
-  
+
   // Description:
   // Return the length of the diagonal of the bounding box.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
@@ -281,7 +281,7 @@ public:
   // Update to create or refresh the scalars before calling this method.
   // THIS METHOD IS NOT THREAD SAFE.
   double *GetScalarRange();
-  
+
   // Description:
   // Convenience method returns largest cell size in dataset. This is generally
   // used to allocate memory for supporting data structures.
@@ -361,19 +361,19 @@ protected:
   // Compute the range of the scalars and cache it into ScalarRange
   // only if the cache became invalid (ScalarRangeComputeTime).
   virtual void ComputeScalarRange();
-  
+
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   double Center[3];
-  
+
   // Cached scalar range
   double ScalarRange[2];
-  
+
   // Time at which scalar range is computed
   vtkTimeStamp ScalarRangeComputeTime;
-  
+
 private:
   void InternalDataSetCopy(vtkDataSet *src);
   //BTX

@@ -45,7 +45,7 @@ void _SavePropVisibility(vtkRendererCollection *renCol,
   volVis->SetNumberOfComponents(nRen);
   actVis->SetNumberOfComponents(nRen);
   act2dVis->SetNumberOfComponents(nRen);
-  
+
   renCol->InitTraversal();
   for (int i=0; i<nRen; ++i)
     {
@@ -53,13 +53,13 @@ void _SavePropVisibility(vtkRendererCollection *renCol,
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
     a2Col = ren->GetActors2D();
-      
+
     volVis->SetNumberOfTuples(vCol->GetNumberOfItems());
-    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j) 
+    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j)
       {
       volVis->SetComponent(i, j, vol->GetVisibility());
       }
-    
+
     actVis->SetNumberOfTuples(aCol->GetNumberOfItems());
     for (aCol->InitTraversal(), j=0; (act = aCol->GetNextActor()); ++j)
       {
@@ -67,7 +67,7 @@ void _SavePropVisibility(vtkRendererCollection *renCol,
       }
 
     act2dVis->SetNumberOfTuples(a2Col->GetNumberOfItems());
-    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D()); 
+    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D());
          ++j)
       {
       act2dVis->SetComponent(i, j, act2d->GetVisibility());
@@ -82,12 +82,12 @@ void _Turn3DPropsOff(vtkRendererCollection *renCol)
   vtkActorCollection *aCol;
   vtkVolume *vol;
   vtkActor *act;
-  
+
   for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
-    for (vCol->InitTraversal(); (vol = vCol->GetNextVolume());) 
+    for (vCol->InitTraversal(); (vol = vCol->GetNextVolume());)
       {
       vol->SetVisibility(0);
       }
@@ -99,7 +99,7 @@ void _Turn3DPropsOff(vtkRendererCollection *renCol)
     }
 }
 
-void _Turn3DPropsOn(vtkRendererCollection *renCol, vtkIntArray *volVis, 
+void _Turn3DPropsOn(vtkRendererCollection *renCol, vtkIntArray *volVis,
                     vtkIntArray *actVis)
 {
   int nRen = renCol->GetNumberOfItems();
@@ -109,15 +109,15 @@ void _Turn3DPropsOn(vtkRendererCollection *renCol, vtkIntArray *volVis,
   vtkVolume *vol;
   vtkActor *act;
   int j;
-  
+
   renCol->InitTraversal();
   for (int i=0; i<nRen; ++i)
     {
     ren = renCol->GetNextItem();
     vCol = ren->GetVolumes();
     aCol = ren->GetActors();
-      
-    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j) 
+
+    for (vCol->InitTraversal(), j=0; (vol = vCol->GetNextVolume()); ++j)
       {
       vol->SetVisibility(static_cast<int>(volVis->GetComponent(i, j)));
       }
@@ -126,7 +126,7 @@ void _Turn3DPropsOn(vtkRendererCollection *renCol, vtkIntArray *volVis,
       {
       act->SetVisibility(static_cast<int>(actVis->GetComponent(i, j)));
       }
-    }  
+    }
 }
 
 void _Turn2DPropsOff(vtkRendererCollection *renCol)
@@ -134,11 +134,11 @@ void _Turn2DPropsOff(vtkRendererCollection *renCol)
   vtkRenderer *ren;
   vtkActor2DCollection *a2Col;
   vtkActor2D *act2d;
-  
+
   for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     a2Col = ren->GetActors2D();
-    for (a2Col->InitTraversal(); (act2d = a2Col->GetNextActor2D());) 
+    for (a2Col->InitTraversal(); (act2d = a2Col->GetNextActor2D());)
       {
       act2d->SetVisibility(0);
       }
@@ -152,14 +152,14 @@ void _Turn2DPropsOn(vtkRendererCollection *renCol, vtkIntArray *act2dVis)
   vtkActor2DCollection *a2Col;
   vtkActor2D *act2d;
   int j;
-  
+
   renCol->InitTraversal();
   for (int i=0; i<nRen; ++i)
     {
     ren = renCol->GetNextItem();
     a2Col = ren->GetActors2D();
 
-    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D()); 
+    for (a2Col->InitTraversal(), j=0; (act2d = a2Col->GetNextActor2D());
          ++j)
       {
       act2d->SetVisibility(static_cast<int>(act2dVis->GetComponent(i, j)));
@@ -266,7 +266,7 @@ void vtkGL2PSExporter::WriteData()
   if (this->Compress == 1)
     {
     options = options | GL2PS_COMPRESS;
-    }  
+    }
   if (this->DrawBackground == 1)
     {
     options = options | GL2PS_DRAW_BACKGROUND;
@@ -298,7 +298,7 @@ void vtkGL2PSExporter::WriteData()
   if (this->OcclusionCull == 1)
     {
     options = options | GL2PS_OCCLUSION_CULL;
-    }  
+    }
 
   // Setup the file.
   fName = new char [strlen(this->FilePrefix) + 5] ;
@@ -327,7 +327,7 @@ void vtkGL2PSExporter::WriteData()
     sprintf(fName, "%s.svg", this->FilePrefix);
     format = GL2PS_SVG;
     }
-  
+
   fpObj = fopen(fName, "wb");
   if (!fpObj)
     {
@@ -339,7 +339,7 @@ void vtkGL2PSExporter::WriteData()
 
   // Need to render once before rendering into the feedback buffer to
   // prevent problems.
-  this->RenderWindow->Render();  
+  this->RenderWindow->Render();
 
   // Write out a raster image without the 2d actors
   if (this->Write3DPropsAsRasterImage)
@@ -356,7 +356,7 @@ void vtkGL2PSExporter::WriteData()
     this->RenderWindow->Render();
     charpixels = this->RenderWindow->GetPixelData(0, 0, winsize[0] - 1,
                                                   winsize[1] - 1, 1);
-    
+
     for (int i=0; i<numpix; i++)
       {
       floatpixels[i] = (float)(charpixels[i]/255.0);
@@ -364,7 +364,7 @@ void vtkGL2PSExporter::WriteData()
     this->RenderWindow->SetOffScreenRendering(offscreen);
     delete [] charpixels;
     }
-  
+
   // Writing the file using GL2PS.
   vtkDebugMacro(<<"Writing file using GL2PS");
 
@@ -373,7 +373,7 @@ void vtkGL2PSExporter::WriteData()
     {
     buffsize += 2048*2048;
     gl2psBeginPage(this->RenderWindow->GetWindowName(), "VTK", viewport,
-                   format, sort, options, GL_RGBA, 0, 
+                   format, sort, options, GL_RGBA, 0,
                    NULL, 0, 0, 0, buffsize, fpObj, fName);
 
     if (this->Write3DPropsAsRasterImage)
@@ -383,9 +383,9 @@ void vtkGL2PSExporter::WriteData()
       glLoadIdentity();
       glPushMatrix();
       glRasterPos3f(-1.0, -1.0, -1.0);
-      gl2psDrawPixels(winsize[0], winsize[1], 0, 0, GL_RGB, 
+      gl2psDrawPixels(winsize[0], winsize[1], 0, 0, GL_RGB,
                       GL_FLOAT, floatpixels);
-      glPopMatrix();  
+      glPopMatrix();
 
       // Render the 2d actors alone in a vector graphic format.
       _Turn3DPropsOff(renCol);
@@ -422,17 +422,17 @@ void vtkGL2PSExporter::WriteData()
 void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
- 
+
   if (this->FilePrefix)
     {
     os << indent << "FilePrefix: " << this->FilePrefix << "\n";
     }
   else
     {
-    os << indent << "FilePrefix: (null)\n";      
+    os << indent << "FilePrefix: (null)\n";
     }
 
-  os << indent << "FileFormat: " 
+  os << indent << "FileFormat: "
      << this->GetFileFormatAsString() << "\n";
   os << indent << "Sort: "
      << this->GetSortAsString() << "\n";
@@ -456,8 +456,8 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->OcclusionCull ? "On\n" : "Off\n");
   os << indent << "Write3DPropsAsRasterImage: "
      << (this->Write3DPropsAsRasterImage ? "On\n" : "Off\n");
-  os << indent << "GlobalPointSizeFactor:" 
+  os << indent << "GlobalPointSizeFactor:"
      << vtkGL2PSExporterGlobalPointSizeFactor << endl;
-  os << indent << "GlobalLineWidthFactor:" 
+  os << indent << "GlobalLineWidthFactor:"
      << vtkGL2PSExporterGlobalLineWidthFactor << endl;
 }

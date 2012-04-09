@@ -28,11 +28,11 @@
 //
 // The second (optional) query has one row for each node in the graph.
 // The table must have a field whose values match those in the arc table.
-// If the node table is not given, 
-// a node will be created for each unique source or target identifier 
+// If the node table is not given,
+// a node will be created for each unique source or target identifier
 // in the arc table.
 //
-// The source, target, and node ID fields must be of the same type, 
+// The source, target, and node ID fields must be of the same type,
 // and must be either vtkStringArray or a subclass of vtkDataArray.
 //
 // All columns in the queries, including the source, target, and node index
@@ -40,9 +40,9 @@
 // vtkGraph.  If the node query is not given, the node data will contain
 // a single "id" column with the same type as the source/target id arrays.
 //
-// If parallel arcs are collected, not all the arc data is not copied into 
+// If parallel arcs are collected, not all the arc data is not copied into
 // the output.  Only the source and target id arrays will be transferred.
-// An additional vtkIdTypeArray column called "weight" is created which 
+// An additional vtkIdTypeArray column called "weight" is created which
 // contains the number of times each arc appeared in the input.
 //
 // If the node query contains positional data, the user may specify the
@@ -115,7 +115,7 @@ public:
   // When set, creates a graph with no parallel arcs.
   // Parallel arcs are combined into one arc.
   // No cell fields are passed to the output, except the vtkGhostLevels array if
-  // it exists, but a new field "weight" is created that holds the number of 
+  // it exists, but a new field "weight" is created that holds the number of
   // duplicates of that arc in the input.
   vtkSetMacro(CollapseEdges, bool);
   vtkGetMacro(CollapseEdges, bool);
@@ -137,13 +137,13 @@ protected:
   char* ZField;
 
   virtual int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   virtual int RequestDataObject(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
 private:

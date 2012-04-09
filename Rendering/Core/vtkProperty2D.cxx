@@ -28,7 +28,7 @@ vtkProperty2D::vtkProperty2D()
   this->LineStippleRepeatFactor = 1;
   this->Color[0] = 1.0;
   this->Color[1] = 1.0;
-  this->Color[2] = 1.0;  
+  this->Color[2] = 1.0;
   this->DisplayLocation = VTK_FOREGROUND_LOCATION;
 }
 
@@ -36,7 +36,7 @@ vtkProperty2D::~vtkProperty2D()
 {
 }
 
-// Assign one property to another. 
+// Assign one property to another.
 void vtkProperty2D::DeepCopy(vtkProperty2D *p)
 {
   if ( p != NULL )
@@ -73,9 +73,9 @@ void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
       break;
     default:
       os << indent << "Display location: invalid\n";
-      break;      
+      break;
     }
-    
+
 }
 
 

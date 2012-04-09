@@ -76,10 +76,10 @@ void vtkPrimitivePainter::ProcessInformation(vtkInformation *info)
   this->GenericVertexAttributes = false;
   if (info->Has(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()))
     {
-    vtkGenericVertexAttributeMapping *mappings = 
+    vtkGenericVertexAttributeMapping *mappings =
       vtkGenericVertexAttributeMapping::SafeDownCast(
       info->Get(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
-    this->GenericVertexAttributes = mappings && 
+    this->GenericVertexAttributes = mappings &&
       (mappings->GetNumberOfMappings() > 0);
     this->MultiTextureAttributes = false;
     if (mappings)
@@ -195,7 +195,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
         GetArray("Color"));
       fieldScalars = 1; // note when fieldScalars == 1, also cellScalars == 1.
       // this ensures that primitive painters that do not distinguish between
-      // fieldScalars and cellScalars (eg. Verts/Lines/Polys painters) can ignore 
+      // fieldScalars and cellScalars (eg. Verts/Lines/Polys painters) can ignore
       // fieldScalars flag.
       }
     }
@@ -311,7 +311,7 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
     {
     idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
     }
-  
+
   if (shaderDevice2 && this->GenericVertexAttributes)
     {
     idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;

@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkImageIslandRemoval2D - Removes small clusters in masks.
 // .SECTION Description
-// vtkImageIslandRemoval2D computes the area of separate islands in 
+// vtkImageIslandRemoval2D computes the area of separate islands in
 // a mask image.  It removes any island that has less than AreaThreshold
 // pixels.  Output has the same ScalarType as input.  It generates
 // the whole 2D output image for any output request.
@@ -44,7 +44,7 @@ public:
   static vtkImageIslandRemoval2D *New();
   vtkTypeMacro(vtkImageIslandRemoval2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Set/Get the cutoff area for removal
   vtkSetMacro(AreaThreshold, int);
@@ -65,7 +65,7 @@ public:
   // Set/Get the value to put in the place of removed pixels.
   vtkSetMacro(ReplaceValue, double);
   vtkGetMacro(ReplaceValue, double);
-  
+
 protected:
   vtkImageIslandRemoval2D();
   ~vtkImageIslandRemoval2D() {};

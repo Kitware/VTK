@@ -196,7 +196,7 @@ int vtkSTLReader::RequestData(
 
     newPts->Delete();
     newPolys->Delete();
-    if (newScalars) 
+    if (newScalars)
       {
       newScalars->Delete();
       }
@@ -220,7 +220,7 @@ int vtkSTLReader::RequestData(
   output->SetPolys(mergedPolys);
   mergedPolys->Delete();
 
-  if (mergedScalars) 
+  if (mergedScalars)
     {
     mergedScalars->SetName("STLSolidLabeling");
     output->GetCellData()->SetScalars(mergedScalars);
@@ -268,12 +268,12 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
     }
   vtkByteSwap::Swap4LE(&ulint);
 
-  // Many .stl files contain bogus count.  Hence we will ignore and read 
+  // Many .stl files contain bogus count.  Hence we will ignore and read
   //   until end of file.
   //
   if ( (numTris = (int) ulint) <= 0 )
     {
-    vtkDebugMacro(<< "Bad binary count: attempting to correct (" 
+    vtkDebugMacro(<< "Bad binary count: attempting to correct ("
     << numTris << ")");
     }
 
@@ -415,7 +415,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       }
 
     newPolys->InsertNextCell(3,pts);
-    if (scalars) 
+    if (scalars)
       {
       scalars->InsertNextValue(currentSolid);
       }
@@ -426,7 +426,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       this->UpdateProgress((newPolys->GetNumberOfCells()%50000)/50000.0);
       }
     done = (fscanf(fp,"%s", line)==EOF);
-    if ((strcmp(line, "ENDSOLID") == 0) || (strcmp(line, "endsolid") == 0)) 
+    if ((strcmp(line, "ENDSOLID") == 0) || (strcmp(line, "endsolid") == 0))
       {
       currentSolid++;
       if (!fgets(line, 255, fp))
@@ -438,7 +438,7 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
         }
 
       done = feof(fp);
-      while ((strstr(line, "SOLID") == 0) && (strstr(line, "solid") == 0) && !done) 
+      while ((strstr(line, "SOLID") == 0) && (strstr(line, "solid") == 0) && !done)
         {
         if (!fgets(line, 255, fp))
           {

@@ -28,7 +28,7 @@ struct vtkICamera
   double Time;  //Parameter t
   double P[3];  //Position
   double FP[3]; //Focal point
-  double VUP[3];//ViewUp 
+  double VUP[3];//ViewUp
   double CR[2]; //Clipping range
   double VA[1]; //View angle
   double PS[1]; //Parallel scale
@@ -109,7 +109,7 @@ unsigned long vtkCameraInterpolator::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
   unsigned long posMTime, fpMTime, vupMTime, vaMTime, psMTime, crMTime;
-  
+
   if ( this->PositionInterpolator )
     {
     posMTime = this->PositionInterpolator->GetMTime();
@@ -223,7 +223,7 @@ void vtkCameraInterpolator::AddCamera(double t, vtkCamera *camera)
       this->CameraList->insert(nextIter, vtkICamera(t,camera));
       }
     }
-  
+
   this->Modified();
 }
 
@@ -235,7 +235,7 @@ void vtkCameraInterpolator::RemoveCamera(double t)
     {
     return;
     }
-  
+
   CameraListIterator iter = this->CameraList->begin();
   for ( ; iter->Time != t && iter != this->CameraList->end(); ++iter )
     {
@@ -389,7 +389,7 @@ void vtkCameraInterpolator::InitializeInterpolation()
       {
       this->ViewAngleInterpolator = vtkTupleInterpolator::New();
       }
-    
+
     this->PositionInterpolator->Initialize();
     this->FocalPointInterpolator->Initialize();
     this->ViewUpInterpolator->Initialize();
@@ -426,7 +426,7 @@ void vtkCameraInterpolator::InitializeInterpolation()
       {
       ; //manual override, user manipulates interpolators directly
       }
-    
+
     // Okay, now we can load the interpolators with data
     CameraListIterator iter = this->CameraList->begin();
     for ( ; iter != this->CameraList->end(); ++iter)
@@ -438,7 +438,7 @@ void vtkCameraInterpolator::InitializeInterpolation()
       this->ViewAngleInterpolator->AddTuple(iter->Time,iter->VA);
       this->ParallelScaleInterpolator->AddTuple(iter->Time,iter->PS);
       }
-    
+
     this->Initialized = 1;
     this->InitializeTime.Modified();
     }
@@ -454,8 +454,8 @@ void vtkCameraInterpolator::InterpolateCamera(double t, vtkCamera *camera)
 
   // Make sure the camera and this class are initialized properly
   this->InitializeInterpolation();
-  
-  // Evaluate the interpolators 
+
+  // Evaluate the interpolators
   if ( t < this->CameraList->front().Time )
     {
     t = this->CameraList->front().Time;
@@ -473,7 +473,7 @@ void vtkCameraInterpolator::InterpolateCamera(double t, vtkCamera *camera)
   this->ClippingRangeInterpolator->InterpolateTuple(t,CR);
   this->ViewAngleInterpolator->InterpolateTuple(t,VA);
   this->ParallelScaleInterpolator->InterpolateTuple(t,PS);
-  
+
   camera->SetPosition(P);
   camera->SetFocalPoint(FP);
   camera->SetViewUp(VUP);
@@ -503,7 +503,7 @@ void vtkCameraInterpolator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Manual\n";
     }
-  
+
   os << indent << "Position Interpolator: ";
   if ( this->PositionInterpolator )
     {

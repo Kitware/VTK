@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkRepresentationPainter - painter that handles representation.
 // .SECTION Description
-// This painter merely defines the interface. 
-// Subclasses will change the polygon rendering mode dependent on 
+// This painter merely defines the interface.
+// Subclasses will change the polygon rendering mode dependent on
 // the graphics library.
 
 #ifndef __vtkRepresentationPainter_h

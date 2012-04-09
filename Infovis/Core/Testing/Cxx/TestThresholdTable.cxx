@@ -30,7 +30,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
-{                                                        
+{
   // Create the test input
   VTK_CREATE(vtkTable, table);
   VTK_CREATE(vtkIntArray, intArr);
@@ -57,11 +57,11 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   stringArr->InsertNextValue("13");
   stringArr->InsertNextValue("14");
   table->AddColumn(stringArr);
-  
+
   // Use the ThresholdTable
   VTK_CREATE(vtkThresholdTable, threshold);
   threshold->SetInputData(table);
-  
+
   int errors = 0;
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "intArr");
   threshold->SetMinValue(vtkVariant(3));
@@ -70,7 +70,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   threshold->Update();
   vtkTable* output = threshold->GetOutput();
   vtkIntArray* intArrOut = vtkIntArray::SafeDownCast(output->GetColumnByName("intArr"));
-  
+
   // Perform error checking
   if (!intArrOut)
     {
@@ -95,14 +95,14 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       errors++;
       }
     }
-  
+
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "doubleArr");
   threshold->SetMaxValue(vtkVariant(1.2));
   threshold->SetMode(vtkThresholdTable::ACCEPT_LESS_THAN);
   threshold->Update();
   output = threshold->GetOutput();
   vtkDoubleArray* doubleArrOut = vtkDoubleArray::SafeDownCast(output->GetColumnByName("doubleArr"));
-  
+
   // Perform error checking
   if (!doubleArrOut)
     {
@@ -132,7 +132,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       errors++;
       }
     }
-  
+
   threshold->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_ROWS, "stringArr");
   threshold->SetMinValue(vtkVariant("10"));
   threshold->SetMaxValue(vtkVariant("13"));
@@ -140,7 +140,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   threshold->Update();
   output = threshold->GetOutput();
   vtkStringArray* stringArrOut = vtkStringArray::SafeDownCast(output->GetColumnByName("stringArr"));
-  
+
   // Perform error checking
   if (!stringArrOut)
     {
@@ -170,6 +170,6 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       errors++;
       }
     }
-  
+
   return errors;
 }

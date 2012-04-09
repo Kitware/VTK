@@ -48,14 +48,14 @@ vtkIdType vtkKdTreePointLocator::FindClosestPointWithinRadius(
   return this->KdTree->FindClosestPointWithinRadius(radius, x, dist2);
 }
 
-void vtkKdTreePointLocator::FindClosestNPoints(int N, const double x[3], 
+void vtkKdTreePointLocator::FindClosestNPoints(int N, const double x[3],
                                                vtkIdList* result)
 {
   this->BuildLocator();
   this->KdTree->FindClosestNPoints(N, x, result);
 }
 
-void vtkKdTreePointLocator::FindPointsWithinRadius(double R, const double x[3], 
+void vtkKdTreePointLocator::FindPointsWithinRadius(double R, const double x[3],
                                                    vtkIdList * result)
 {
   this->BuildLocator();

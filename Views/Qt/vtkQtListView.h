@@ -20,7 +20,7 @@
 // .NAME vtkQtListView - A VTK view based on a Qt List view.
 //
 // .SECTION Description
-// vtkQtListView is a VTK view using an underlying QListView. 
+// vtkQtListView is a VTK view using an underlying QListView.
 //
 // .SECTION Thanks
 // Thanks to Brian Wylie from Sandia National Laboratories for implementing
@@ -53,7 +53,7 @@ public:
   static vtkQtListView *New();
   vtkTypeMacro(vtkQtListView, vtkQtView);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Get the main container of this view (a  QWidget).
   // The application typically places the view with a call
@@ -70,7 +70,7 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5,
     };
-  
+
   // Description:
   // The field type to copy into the output table.
   // Should be one of FIELD_DATA, POINT_DATA, CELL_DATA, VERTEX_DATA, EDGE_DATA.
@@ -87,8 +87,8 @@ public:
 
   // Description:
   // The strategy for how to decorate rows.
-  // Should be one of vtkQtTableModelAdapter::COLORS, 
-  // vtkQtTableModelAdapter::ICONS, or 
+  // Should be one of vtkQtTableModelAdapter::COLORS,
+  // vtkQtTableModelAdapter::ICONS, or
   // vtkQtTableModelAdapter::NONE. Default is NONE.
   void SetDecorationStrategy(int);
 
@@ -96,7 +96,7 @@ public:
   // The array to use for coloring items in view.  Default is "color".
   void SetColorArrayName(const char* name);
   const char* GetColorArrayName();
-  
+
   // Description:
   // Whether to color vertices.  Default is off.
   void SetColorByArray(bool vis);
@@ -156,13 +156,13 @@ private:
   bool ApplyRowColors;
   int FieldType;
   int VisibleColumn;
-  
+
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
   vtkQtListView(const vtkQtListView&);  // Not implemented.
   void operator=(const vtkQtListView&);  // Not implemented.
-  
+
 };
 
 #endif

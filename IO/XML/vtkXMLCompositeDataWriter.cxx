@@ -70,7 +70,7 @@ vtkXMLCompositeDataWriter::vtkXMLCompositeDataWriter()
   this->Internal = new vtkXMLCompositeDataWriterInternals;
   this->GhostLevel = 0;
   this->WriteMetaFile = 1;
-  
+
   // Setup a callback for the internal writers to report progress.
   this->ProgressObserver = vtkCallbackCommand::New();
   this->ProgressObserver->SetCallback(&vtkXMLCompositeDataWriter::ProgressCallbackFunction);
@@ -142,7 +142,7 @@ int vtkXMLCompositeDataWriter::RequestUpdateExtent(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
     this->GhostLevel);
   return 1;
 }
@@ -158,7 +158,7 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
 
   vtkCompositeDataSet *compositeData = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!compositeData) 
+  if (!compositeData)
     {
     vtkErrorMacro("No hierarchical input has been provided. Cannot write");
     this->InputInformation = 0;
@@ -190,15 +190,15 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
 
   // Prepare file prefix for creation of internal file names.
   this->SplitFileName();
-  
+
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  
+
   // Create the subdirectory for the internal files.
   std::string subdir = this->Internal->FilePath;
   subdir += this->Internal->FilePrefix;
   this->MakeDirectory(subdir.c_str());
- 
+
   this->Internal->Root = vtkSmartPointer<vtkXMLDataElement>::New();
   this->Internal->Root->SetName(compositeData->GetClassName());
 
@@ -228,7 +228,7 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
 
 //----------------------------------------------------------------------------
 int vtkXMLCompositeDataWriter::WriteNonCompositeData(
-  vtkDataObject* dObj, vtkXMLDataElement* datasetXML, int &writerIdx, 
+  vtkDataObject* dObj, vtkXMLDataElement* datasetXML, int &writerIdx,
   const char* fileName)
 {
   // Write a leaf dataset.
@@ -270,7 +270,7 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   writer->SetFileName(full.c_str());
 
   // Write the data.
-  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);      
+  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
   writer->Write();
   writer->RemoveObserver(this->ProgressObserver);
 
@@ -289,7 +289,7 @@ int vtkXMLCompositeDataWriter::WriteData()
   // Write the collection file.
   this->StartFile();
   vtkIndent indent = vtkIndent().GetNextIndent();
- 
+
 
   // Open the primary element.
   ostream& os = *(this->Stream);
@@ -307,9 +307,9 @@ int vtkXMLCompositeDataWriter::WriteMetaFileIfRequested()
 {
   if(this->WriteMetaFile)
     {
-    if (!this->Superclass::WriteInternal()) 
-      { 
-      return 0; 
+    if (!this->Superclass::WriteInternal())
+      {
+      return 0;
       }
     }
   return 1;
@@ -320,8 +320,8 @@ void vtkXMLCompositeDataWriter::MakeDirectory(const char* name)
 {
   if( !vtksys::SystemTools::MakeDirectory(name) )
     {
-    vtkErrorMacro( << "Sorry unable to create directory: " << name 
-                   << endl << "Last systen error was: " 
+    vtkErrorMacro( << "Sorry unable to create directory: " << name
+                   << endl << "Last systen error was: "
                    << vtksys::SystemTools::GetLastSystemError().c_str() );
     }
 }
@@ -331,8 +331,8 @@ void vtkXMLCompositeDataWriter::RemoveADirectory(const char* name)
 {
   if( !vtksys::SystemTools::RemoveADirectory(name) )
     {
-    vtkErrorMacro( << "Sorry unable to remove a directory: " << name 
-                   << endl << "Last system error was: " 
+    vtkErrorMacro( << "Sorry unable to remove a directory: " << name
+                   << endl << "Last system error was: "
                    << vtksys::SystemTools::GetLastSystemError().c_str() );
     }
 }
@@ -352,7 +352,7 @@ const char* vtkXMLCompositeDataWriter::GetDataSetName()
     }
   vtkDataObject *hdInput = vtkDataObject::SafeDownCast(
     this->InputInformation->Get(vtkDataObject::DATA_OBJECT()));
-  if (!hdInput) 
+  if (!hdInput)
     {
     return 0;
     }
@@ -410,7 +410,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
       // Create a writer based on the type of this input.
       switch (this->Internal->DataTypes[i])
         {
-        case VTK_POLY_DATA:    
+        case VTK_POLY_DATA:
           if(!this->Internal->Writers[i].GetPointer() ||
              (strcmp(this->Internal->Writers[i]->GetClassName(),
                      "vtkXMLPolyDataWriter") != 0))
@@ -475,7 +475,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
         default:
           this->Internal->Writers[i] = 0;
         }
-      
+
       // Copy settings to the writer.
       if(vtkXMLWriter* w = this->Internal->Writers[i].GetPointer())
         {
@@ -486,7 +486,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
         w->SetDataMode(this->GetDataMode());
         w->SetEncodeAppendedData(this->GetEncodeAppendedData());
         }
-      
+
       // If this is a parallel writer, set the piece information.
       if(vtkXMLPDataWriter::SafeDownCast(this->Internal->Writers[i].GetPointer()))
         {
@@ -513,7 +513,7 @@ void vtkXMLCompositeDataWriter::SplitFileName()
 {
   std::string fileName = this->FileName;
   std::string name;
-  
+
   // Split the file name and extension from the path.
   std::string::size_type pos = fileName.find_last_of("/\\");
   if(pos != fileName.npos)
@@ -527,7 +527,7 @@ void vtkXMLCompositeDataWriter::SplitFileName()
     this->Internal->FilePath = "./";
     name = fileName;
     }
-  
+
   // Split the extension from the file name.
   pos = name.find_last_of(".");
   if(pos != name.npos)
@@ -537,7 +537,7 @@ void vtkXMLCompositeDataWriter::SplitFileName()
   else
     {
     this->Internal->FilePrefix = name;
-    
+
     // Since a subdirectory is used to store the files, we need to
     // change its name if there is no file extension.
     this->Internal->FilePrefix += "_data";
@@ -598,16 +598,16 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
          << "_" << piece << ".";
   switch (this->Internal->DataTypes[piece])
     {
-  case VTK_POLY_DATA:    
+  case VTK_POLY_DATA:
     stream << "vtp";
     break;
-  
+
   case VTK_STRUCTURED_POINTS:
   case VTK_IMAGE_DATA:
   case VTK_UNIFORM_GRID:
     stream << "vti";
     break;
-  
+
   case VTK_UNSTRUCTURED_GRID:
     stream << "vtu";
     break;

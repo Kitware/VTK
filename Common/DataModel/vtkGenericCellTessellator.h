@@ -24,7 +24,7 @@
 // This algorithm is based on edge subdivision. An error metric along each
 // edge is evaluated, and if the error is greater than some tolerance, the
 // edge is subdivided (as well as all connected 2D and 3D cells). The process
-// repeats until the error metric is satisfied. 
+// repeats until the error metric is satisfied.
 //
 // A significant issue addressed by this algorithm is to insure face
 // compatibility across neigboring cells. That is, diagonals due to face
@@ -58,7 +58,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericCellTessellator : public vtkObject
 public:
   vtkTypeMacro(vtkGenericCellTessellator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Tessellate a face of a 3D `cell'. The face is specified by the
   // index value.
@@ -89,7 +89,7 @@ public:
   // \pre internalPd_exists: internalPd!=0
   virtual void Tessellate(vtkGenericAdaptorCell *cell,
                           vtkGenericAttributeCollection *att,
-                          vtkDoubleArray *points, 
+                          vtkDoubleArray *points,
                           vtkCellArray *cellArray,
                           vtkPointData *internalPd )=0;
 
@@ -113,31 +113,31 @@ public:
   // splitted or not. It is a collection of vtkGenericSubdivisionErrorMetric-s.
   virtual void SetErrorMetrics(vtkCollection *someErrorMetrics);
   vtkGetObjectMacro(ErrorMetrics,vtkCollection);
-  
+
   // Description:
   // Initialize the tessellator with a data set `ds'.
   virtual void Initialize(vtkGenericDataSet *ds)=0;
-  
+
   // Description:
   // Init the error metric with the dataset. Should be called in each filter
   // before any tessellation of any cell.
   void InitErrorMetrics(vtkGenericDataSet *ds);
-  
+
   // Description:
   // If true, measure the quality of the fixed subdivision.
   vtkGetMacro(Measurement,int);
   vtkSetMacro(Measurement,int);
-  
+
   // Description:
   // Get the maximum error measured after the fixed subdivision.
   // \pre errors_exists: errors!=0
   // \pre valid_size: sizeof(errors)==GetErrorMetrics()->GetNumberOfItems()
   void GetMaxErrors(double *errors);
-  
+
 protected:
   vtkGenericCellTessellator();
   ~vtkGenericCellTessellator();
-  
+
   // Description:
   // Does the edge need to be subdivided according to at least one error
   // metric? The edge is defined by its `leftPoint' and its `rightPoint'.
@@ -156,8 +156,8 @@ protected:
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   int RequiresEdgeSubdivision(double *left, double *mid, double *right,
                               double alpha);
-  
-  
+
+
   // Description:
   // Update the max error of each error metric according to the error at the
   // mid-point. The type of error depends on the state
@@ -172,30 +172,30 @@ protected:
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   virtual void UpdateMaxError(double *leftPoint, double *midPoint,
                               double *rightPoint, double alpha);
-  
+
   // Description:
   // Reset the maximal error of each error metric. The purpose of the maximal
   // error is to measure the quality of a fixed subdivision.
   void ResetMaxErrors();
-  
+
   // Description:
   // List of error metrics. Collection of vtkGenericSubdivisionErrorMetric
   vtkCollection *ErrorMetrics;
-  
+
   // Description:
   // Send the current cell to error metrics. Should be called at the beginning
   // of the implementation of Tessellate(), Triangulate()
   // or TessellateFace()
   // \pre cell_exists: cell!=0
   void SetGenericCell(vtkGenericAdaptorCell *cell);
-  
+
   vtkGenericDataSet *DataSet;
-  
+
   int Measurement; // if true, measure the quality of the fixed subdivision.
   double *MaxErrors; // max error for each error metric, for measuring the
   // quality of a fixed subdivision.
   int MaxErrorsCapacity;
-  
+
 private:
   vtkGenericCellTessellator(const vtkGenericCellTessellator&);  // Not implemented.
   void operator=(const vtkGenericCellTessellator&);  // Not implemented.

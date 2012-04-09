@@ -38,10 +38,10 @@ vtkStandardNewMacro(vtkGraphicsFactory);
 const char *vtkGraphicsFactory::GetRenderLibrary()
 {
   const char *temp;
-  
+
   // first check the environment variable
   temp = getenv("VTK_RENDERER");
-  
+
   // Backward compatibility
   if ( temp )
     {
@@ -53,7 +53,7 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
       {
       temp = "Win32OpenGL";
       }
-    else if (strcmp("OpenGL",temp) && 
+    else if (strcmp("OpenGL",temp) &&
              strcmp("Win32OpenGL",temp))
       {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
@@ -77,7 +77,7 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
     temp = "CocoaOpenGL";
 #endif
     }
-  
+
   return temp;
 }
 

@@ -49,12 +49,12 @@ class vtkProcess;
 
 //BTX
 // The type of function that gets called when new processes are initiated.
-typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller, 
+typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller,
                                        void *userData);
 
 // The type of function that gets called when an RMI is triggered.
-typedef void (*vtkRMIFunctionType)(void *localArg, 
-                                   void *remoteArg, int remoteArgLength, 
+typedef void (*vtkRMIFunctionType)(void *localArg,
+                                   void *remoteArg, int remoteArgLength,
                                    int remoteProcessId);
 //ETX
 
@@ -104,7 +104,7 @@ public:
   // when SingleMethodExecute is called.  All the processes will
   // start by calling this function.
   void SetSingleMethod(vtkProcessFunctionType, void *data);
-  
+
   // Description:
   // Object-oriented flavor of SetSingleMethod(). Instead of passing
   // some function pointer and user data, a vtkProcess object is passed
@@ -117,14 +117,14 @@ public:
   // this->NumberOfProcesses processes.  This will only return when
   // all the processes finish executing their methods.
   virtual void SingleMethodExecute() = 0;
-  
+
   //BTX
   // Description:
   // Set the MultipleMethod to f() and the UserData of the
   // for the method to be executed by the process index
-  // when MultipleMethodExecute is called.  This is for having each 
+  // when MultipleMethodExecute is called.  This is for having each
   // process start with a different function and data argument.
-  void SetMultipleMethod(int index, vtkProcessFunctionType, void *data); 
+  void SetMultipleMethod(int index, vtkProcessFunctionType, void *data);
   //ETX
 
   // Description:
@@ -138,7 +138,7 @@ public:
   int GetLocalProcessId();
 
   // Description:
-  // This convenience method returns the controller associated with the 
+  // This convenience method returns the controller associated with the
   // local process.  It returns NULL until the processes are spawned.
   // It is better if you hang on to the controller passed as an argument to the
   // SingleMethod or MultipleMethod functions.
@@ -174,7 +174,7 @@ public:
   // same operation as MPI_Comm_split.
   virtual vtkMultiProcessController *PartitionController(int localColor,
                                                          int localKey);
-  
+
   //------------------ RMIs --------------------
   //BTX
   // Description:
@@ -189,7 +189,7 @@ public:
   // unregister the callback. RemoveRMI() should be preferred over
   // RemoveFirstRMI() since it avoid accidental removal of callbacks.
   virtual unsigned long AddRMI(vtkRMIFunctionType, void *localArg, int tag);
-  
+
   // Description:
   // Remove the first RMI matching the tag.
   virtual int RemoveFirstRMI(int tag);
@@ -221,7 +221,7 @@ public:
   virtual bool RemoveRMICallback(unsigned long id);
 
   //ETX
-  
+
   // Description:
   // A method to trigger a method invocation in another process.
   void TriggerRMI(int remoteProcessId, void *arg, int argLength, int tag);
@@ -232,9 +232,9 @@ public:
   void TriggerBreakRMIs();
 
   // Description:
-  // Convenience method when the arg is a string. 
-  void TriggerRMI(int remoteProcessId, const char *arg, int tag) 
-    { this->TriggerRMI(remoteProcessId, (void*)arg, 
+  // Convenience method when the arg is a string.
+  void TriggerRMI(int remoteProcessId, const char *arg, int tag)
+    { this->TriggerRMI(remoteProcessId, (void*)arg,
                        static_cast<int>(strlen(arg))+1, tag); }
 
   // Description:
@@ -250,13 +250,13 @@ public:
   // designed to be used when trigger an RMI call on all satellites from the
   // root node.
   void TriggerRMIOnAllChildren(void *arg, int argLength, int tag);
-  void TriggerRMIOnAllChildren(const char *arg, int tag) 
-    { 
+  void TriggerRMIOnAllChildren(const char *arg, int tag)
+    {
     this->TriggerRMIOnAllChildren(
       (void*)arg, static_cast<int>(strlen(arg))+1, tag);
     }
   void TriggerRMIOnAllChildren(int tag)
-    { 
+    {
     this->TriggerRMIOnAllChildren(NULL, 0, tag);
     }
 
@@ -272,7 +272,7 @@ public:
   // and exits.
   int ProcessRMIs(int reportErrors, int dont_loop = 0);
   int ProcessRMIs();
- 
+
   // Description:
   // Setting this flag to 1 will cause the ProcessRMIs loop to return.
   // This also causes vtkUpStreamPorts to return from
@@ -289,24 +289,24 @@ public:
   // Accessor to some default tags.
   static int GetBreakRMITag() { return BREAK_RMI_TAG; }
   static int GetRMITag() { return RMI_TAG; }
-  static int GetRMIArgTag() { return RMI_ARG_TAG; }  
-  
+  static int GetRMIArgTag() { return RMI_ARG_TAG; }
+
 //BTX
 
-  enum Errors 
+  enum Errors
   {
     RMI_NO_ERROR,
     RMI_TAG_ERROR,
     RMI_ARG_ERROR
   };
 
-  enum Consts 
+  enum Consts
   {
     ANY_SOURCE     = -1,
     INVALID_SOURCE = -2
   };
 
-  enum Tags 
+  enum Tags
   {
     RMI_TAG        = 1,
     RMI_ARG_TAG    = 2,
@@ -323,7 +323,7 @@ public:
   static void SetGlobalController(vtkMultiProcessController *controller);
 
   //------------------ Communication --------------------
-  
+
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends or receives exist in the same process.
@@ -332,7 +332,7 @@ public:
   // vtkCommunicator has reserved tags between 10 and 16.
   int Send(const int* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned int* data, vtkIdType length, int remoteProcessId, int tag);
-  int Send(const unsigned long* data, vtkIdType length, int remoteProcessId, 
+  int Send(const unsigned long* data, vtkIdType length, int remoteProcessId,
            int tag);
   int Send(const char* data, vtkIdType length, int remoteProcessId, int tag);
   int Send(const unsigned char* data, vtkIdType length, int remoteProcessId, int tag);
@@ -347,7 +347,7 @@ public:
 //BTX
   // Description:
   // Send a stream to another process. vtkMultiProcessStream makes it possible
-  // to send data with arbitrary length and different base types to the other 
+  // to send data with arbitrary length and different base types to the other
   // process(es). Instead of making several Send() requests for each type of
   // arguments, it's generally more efficient to push the arguments into the
   // stream and the send the stream over.
@@ -364,7 +364,7 @@ public:
   // GetCount() method to determine the actual size of the data received.
   int Receive(int* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(unsigned int* data, vtkIdType maxlength, int remoteProcessId, int tag);
-  int Receive(unsigned long* data, vtkIdType maxlength, int remoteProcessId, 
+  int Receive(unsigned long* data, vtkIdType maxlength, int remoteProcessId,
               int tag);
   int Receive(char* data, vtkIdType maxlength, int remoteProcessId, int tag);
   int Receive(unsigned char* data, vtkIdType maxlength, int remoteProcessId, int tag);
@@ -496,42 +496,42 @@ public:
   // defines how much the local process sends to \c destProcessId and
   // \c recvLengths is an array containing the amount \c destProcessId
   // receives from each process, in rank order.
-  int GatherV(const int* sendBuffer, int* recvBuffer, 
+  int GatherV(const int* sendBuffer, int* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, 
+  int GatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, 
+  int GatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-  int GatherV(const char* sendBuffer, char* recvBuffer, 
+  int GatherV(const char* sendBuffer, char* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-  int GatherV(const float* sendBuffer, float* recvBuffer, 
+  int GatherV(const float* sendBuffer, float* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-  int GatherV(const double* sendBuffer, double* recvBuffer, 
+  int GatherV(const double* sendBuffer, double* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
@@ -539,7 +539,7 @@ public:
                                        offsets, destProcessId);
   }
 #ifdef VTK_USE_64BIT_IDS
-  int GatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer, 
+  int GatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
@@ -705,42 +705,42 @@ public:
 
   // Description:
   // Same as GatherV except that the result is placed in all processes.
-  int AllGatherV(const int* sendBuffer, int* recvBuffer, 
+  int AllGatherV(const int* sendBuffer, int* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
                                           sendLength, recvLengths,
                                           offsets);
   }
-  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer, 
+  int AllGatherV(const unsigned long* sendBuffer, unsigned long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
                                           sendLength, recvLengths,
                                           offsets);
   }
-  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer, 
+  int AllGatherV(const unsigned char* sendBuffer, unsigned char* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
                                           sendLength, recvLengths,
                                           offsets);
   }
-  int AllGatherV(const char* sendBuffer, char* recvBuffer, 
+  int AllGatherV(const char* sendBuffer, char* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
                                           sendLength, recvLengths,
                                           offsets);
   }
-  int AllGatherV(const float* sendBuffer, float* recvBuffer, 
+  int AllGatherV(const float* sendBuffer, float* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
                                           sendLength, recvLengths,
                                           offsets);
   }
-  int AllGatherV(const double* sendBuffer, double* recvBuffer, 
+  int AllGatherV(const double* sendBuffer, double* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
@@ -748,7 +748,7 @@ public:
                                           offsets);
   }
 #ifdef VTK_USE_64BIT_IDS
-  int AllGatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer, 
+  int AllGatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
@@ -975,25 +975,25 @@ protected:
   // Implementation for TriggerRMI() provides subclasses an opportunity to
   // modify the behaviour eg. MPIController provides ability to use SSend
   // instead of Send.
-  virtual void TriggerRMIInternal(int remoteProcessId, 
+  virtual void TriggerRMIInternal(int remoteProcessId,
     void* arg, int argLength, int rmiTag, bool propagate);
 
   vtkProcessFunctionType      SingleMethod;
   void                       *SingleData;
 
   void GetMultipleMethod(int index, vtkProcessFunctionType &func, void *&data);
-  
+
   // This is a flag that can be used by the ports to break
   // their update loop. (same as ProcessRMIs)
   int BreakFlag;
 
   void ProcessRMI(int remoteProcessId, void *arg, int argLength, int rmiTag);
 
-  // This method implements "GetGlobalController".  
+  // This method implements "GetGlobalController".
   // It needs to be virtual and static.
   virtual vtkMultiProcessController *GetLocalController();
 
-  
+
   // This flag can force deep copies during send.
   int ForceDeepCopy;
 
@@ -1005,9 +1005,9 @@ protected:
   vtkCommunicator* Communicator;
 
   // Communicator which is a copy of the current user
-  // level communicator except the context; i.e. even if the tags 
-  // are the same, the RMI messages will not interfere with user 
-  // level messages. 
+  // level communicator except the context; i.e. even if the tags
+  // are the same, the RMI messages will not interfere with user
+  // level messages.
   // Note that since the communicators can be created differently
   // depending on the type of controller, the subclasses are
   // responsible of deleting them.
@@ -1026,7 +1026,7 @@ private:
 };
 
 
-inline int vtkMultiProcessController::Send(vtkDataObject *data, 
+inline int vtkMultiProcessController::Send(vtkDataObject *data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1039,7 +1039,7 @@ inline int vtkMultiProcessController::Send(vtkDataObject *data,
     }
 }
 
-inline int vtkMultiProcessController::Send(vtkDataArray *data, 
+inline int vtkMultiProcessController::Send(vtkDataArray *data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1052,7 +1052,7 @@ inline int vtkMultiProcessController::Send(vtkDataArray *data,
     }
 }
 
-inline int vtkMultiProcessController::Send(const int* data, vtkIdType length, 
+inline int vtkMultiProcessController::Send(const int* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1065,7 +1065,7 @@ inline int vtkMultiProcessController::Send(const int* data, vtkIdType length,
     }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType length, 
+inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1078,7 +1078,7 @@ inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType l
     }
 }
 
-inline int vtkMultiProcessController::Send(const unsigned long* data, 
+inline int vtkMultiProcessController::Send(const unsigned long* data,
                                            vtkIdType length,
                                            int remoteProcessId,
                                            int tag)
@@ -1093,7 +1093,7 @@ inline int vtkMultiProcessController::Send(const unsigned long* data,
     }
 }
 
-inline int vtkMultiProcessController::Send(const char* data, vtkIdType length, 
+inline int vtkMultiProcessController::Send(const char* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1107,7 +1107,7 @@ inline int vtkMultiProcessController::Send(const char* data, vtkIdType length,
 }
 
 inline int vtkMultiProcessController::Send(const unsigned char* data,
-                                           vtkIdType length, 
+                                           vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1120,7 +1120,7 @@ inline int vtkMultiProcessController::Send(const unsigned char* data,
     }
 }
 
-inline int vtkMultiProcessController::Send(const float* data, vtkIdType length, 
+inline int vtkMultiProcessController::Send(const float* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1148,7 +1148,7 @@ inline int vtkMultiProcessController::Send(const double* data, vtkIdType length,
 
 #ifdef VTK_USE_64BIT_IDS
 inline int vtkMultiProcessController::Send(const vtkIdType* data,
-                                           vtkIdType length, 
+                                           vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1172,7 +1172,7 @@ inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
   return 0;
 }
 
-inline int vtkMultiProcessController::Receive(vtkDataObject* data, 
+inline int vtkMultiProcessController::Receive(vtkDataObject* data,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1198,7 +1198,7 @@ inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(
     }
 }
 
-inline int vtkMultiProcessController::Receive(vtkDataArray* data, 
+inline int vtkMultiProcessController::Receive(vtkDataArray* data,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1211,7 +1211,7 @@ inline int vtkMultiProcessController::Receive(vtkDataArray* data,
     }
 }
 
-inline int vtkMultiProcessController::Receive(int* data, vtkIdType length, 
+inline int vtkMultiProcessController::Receive(int* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1224,7 +1224,7 @@ inline int vtkMultiProcessController::Receive(int* data, vtkIdType length,
     }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType length, 
+inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1237,9 +1237,9 @@ inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType leng
     }
 }
 
-inline int vtkMultiProcessController::Receive(unsigned long* data, 
+inline int vtkMultiProcessController::Receive(unsigned long* data,
                                               vtkIdType length,
-                                              int remoteProcessId, 
+                                              int remoteProcessId,
                                               int tag)
 {
   if (this->Communicator)
@@ -1252,7 +1252,7 @@ inline int vtkMultiProcessController::Receive(unsigned long* data,
     }
 }
 
-inline int vtkMultiProcessController::Receive(char* data, vtkIdType length, 
+inline int vtkMultiProcessController::Receive(char* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1266,7 +1266,7 @@ inline int vtkMultiProcessController::Receive(char* data, vtkIdType length,
 }
 
 inline int vtkMultiProcessController::Receive(unsigned char* data,
-                                              vtkIdType length, 
+                                              vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1279,7 +1279,7 @@ inline int vtkMultiProcessController::Receive(unsigned char* data,
     }
 }
 
-inline int vtkMultiProcessController::Receive(float* data, vtkIdType length, 
+inline int vtkMultiProcessController::Receive(float* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1292,7 +1292,7 @@ inline int vtkMultiProcessController::Receive(float* data, vtkIdType length,
     }
 }
 
-inline int vtkMultiProcessController::Receive(double* data, vtkIdType length, 
+inline int vtkMultiProcessController::Receive(double* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
@@ -1307,7 +1307,7 @@ inline int vtkMultiProcessController::Receive(double* data, vtkIdType length,
 
 #ifdef VTK_USE_64BIT_IDS
 inline int vtkMultiProcessController::Receive(vtkIdType* data,
-                                              vtkIdType length, 
+                                              vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)

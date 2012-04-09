@@ -607,13 +607,13 @@ int TestInteractorStyleTreeMapHover(int argc, char* argv[])
   sizeArr->InsertNextValue(6);
   builder->AddChild(3);
   sizeArr->InsertNextValue(4);
-  
+
   VTK_CREATE(vtkTree, tree);
   if (!tree->CheckedShallowCopy(builder))
     {
     cerr << "Invalid tree structure." << endl;
     }
-  
+
   VTK_CREATE(vtkTreeFieldAggregator, agg);
   agg->SetInputData(tree);
   agg->SetField("size");

@@ -115,8 +115,8 @@ void vtkMergeGraphsAddRow(vtkDataSetAttributes* data1, vtkIdType index2, std::ma
 
 //---------------------------------------------------------------------------
 int vtkMergeGraphs::RequestData(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
+  vtkInformation*,
+  vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
   vtkInformation* graph1_info = inputVector[0]->GetInformationObject(0);

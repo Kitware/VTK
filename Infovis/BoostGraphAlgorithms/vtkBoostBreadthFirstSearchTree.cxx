@@ -70,10 +70,10 @@ template <typename IdMap>
 class bfs_tree_builder : public default_bfs_visitor
 {
 public:
-  bfs_tree_builder() 
+  bfs_tree_builder()
   { }
 
-  bfs_tree_builder(IdMap& g2t, IdMap& t2g, vtkGraph* g, vtkMutableDirectedGraph* t, vtkIdType root) 
+  bfs_tree_builder(IdMap& g2t, IdMap& t2g, vtkGraph* g, vtkMutableDirectedGraph* t, vtkIdType root)
     : graph_to_tree(g2t), tree_to_graph(t2g), tree(t), graph(g)
   {
     double x[3];
@@ -146,7 +146,7 @@ vtkBoostBreadthFirstSearchTree::~vtkBoostBreadthFirstSearchTree()
 }
 
 // Description:
-// Set the index (into the vertex array) of the 
+// Set the index (into the vertex array) of the
 // breadth first search 'origin' vertex.
 void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkIdType index)
 {
@@ -154,11 +154,11 @@ void vtkBoostBreadthFirstSearchTree::SetOriginVertex(vtkIdType index)
   this->ArrayNameSet = false;
   this->Modified();
 }
-  
+
 // Description:
 // Set the breadth first search 'origin' vertex.
 // This method is basically the same as above
-// but allows the application to simply specify 
+// but allows the application to simply specify
 // an array name and value, instead of having to
 // know the specific index of the vertex.
 void vtkBoostBreadthFirstSearchTree::SetOriginVertex(
@@ -198,12 +198,12 @@ vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
         return i;
         }
       }
-    } 
-    
+    }
+
   // Failed
   vtkErrorMacro("Did not find a valid vertex index...");
   return 0;
-} 
+}
 
 int vtkBoostBreadthFirstSearchTree::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
@@ -225,42 +225,42 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
   vtkGraph *input = vtkGraph::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Now figure out the origin vertex of the 
+  // Now figure out the origin vertex of the
   // breadth first search
   if (this->ArrayNameSet)
     {
     vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->ArrayName);
-  
-    // Does the array exist at all?  
+
+    // Does the array exist at all?
     if (abstract == NULL)
       {
       vtkErrorMacro("Could not find array named " << this->ArrayName);
       return 0;
       }
-      
-    this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue); 
+
+    this->OriginVertexIndex = this->GetVertexIndex(abstract,this->OriginValue);
    }
 
   // Create tree to graph id map array
   vtkIdTypeArray* treeToGraphIdMap = vtkIdTypeArray::New();
-  
+
   // Create graph to tree id map array
   vtkIdTypeArray* graphToTreeIdMap = vtkIdTypeArray::New();
 
   // Create a color map (used for marking visited nodes)
   vector_property_map<default_color_type> color;
- 
+
   // Create a queue to hand off to the BFS
   queue<int> q;
 
   // Create the mutable graph to build the tree
-  vtkSmartPointer<vtkMutableDirectedGraph> temp = 
+  vtkSmartPointer<vtkMutableDirectedGraph> temp =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   // Initialize copying data into tree
   temp->GetFieldData()->PassData(input->GetFieldData());
   temp->GetVertexData()->CopyAllocate(input->GetVertexData());
   temp->GetEdgeData()->CopyAllocate(input->GetEdgeData());
-    
+
   // Create the visitor which will build the tree
   bfs_tree_builder<vtkIdTypeArray*> builder(
       graphToTreeIdMap, treeToGraphIdMap, input, temp, this->OriginVertexIndex);
@@ -317,19 +317,19 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
 void vtkBoostBreadthFirstSearchTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  
-  os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
-  
-  os << indent << "ArrayName: " 
-     << (this->ArrayName ? this->ArrayName : "(none)") << endl;
-     
-  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
-  
-  os << indent << "ArrayNameSet: " 
-     << (this->ArrayNameSet ? "true" : "false") << endl;   
 
-  os << indent << "CreateGraphVertexIdArray: " 
-     << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;   
+  os << indent << "OriginVertexIndex: " << this->OriginVertexIndex << endl;
+
+  os << indent << "ArrayName: "
+     << (this->ArrayName ? this->ArrayName : "(none)") << endl;
+
+  os << indent << "OriginValue: " << this->OriginValue.ToString() << endl;
+
+  os << indent << "ArrayNameSet: "
+     << (this->ArrayNameSet ? "true" : "false") << endl;
+
+  os << indent << "CreateGraphVertexIdArray: "
+     << (this->CreateGraphVertexIdArray ? "on" : "off") << endl;
 
   os << indent << "ReverseEdges: "
      << (this->ReverseEdges ? "on" : "off") << endl;

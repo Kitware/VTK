@@ -33,23 +33,23 @@ int doStringArrayTest(ostream& strm, int size)
     {
     char buf[1024];
     sprintf(buf, "string entry %d", i);
-    strings[i] = vtkStdString(buf); 
+    strings[i] = vtkStdString(buf);
     }
 
   strm << "\tResize(0)...";
-  ptr->Resize(0); 
+  ptr->Resize(0);
   strm << "OK" << endl;
 
   strm << "\tResize(10)...";
-  ptr->Resize(10); 
+  ptr->Resize(10);
   strm << "OK" << endl;
 
   strm << "\tResize(5)...";
-  ptr->Resize(5); 
+  ptr->Resize(5);
   strm << "OK" << endl;
 
   strm << "\tResize(size)...";
-  ptr->Resize(size); 
+  ptr->Resize(size);
   strm << "OK" << endl;
 
   strm << "\tSetNumberOfValues...";
@@ -64,17 +64,17 @@ int doStringArrayTest(ostream& strm, int size)
   strm << "\tSetVoidArray...";
   ptr->SetVoidArray(strings, size, 1);
   strm << "OK" << endl;
-  
+
   strm << "\tGetValue...";
   vtkStdString value = ptr->GetValue(123);
-  if (value == "string entry 123") 
+  if (value == "string entry 123")
     {
     strm << "OK" << endl;
     }
   else
     {
     ++errors;
-    strm << "FAILED.  Expected 'string entry 123', got '" 
+    strm << "FAILED.  Expected 'string entry 123', got '"
          << value << "'" << endl;
 #ifdef DUMP_VALUES
     for (int i = 0; i < ptr->GetNumberOfValues(); ++i)
@@ -129,7 +129,7 @@ int doStringArrayTest(ostream& strm, int size)
   vtkStringArray *newValues = vtkStringArray::New();
   newValues->SetNumberOfValues(3);
   ptr->GetTuples(indices, newValues);
-  
+
   if (newValues->GetValue(0) == "string entry 10" &&
       newValues->GetValue(1) == "string entry 20" &&
       newValues->GetValue(2) == "string entry 314")
@@ -140,11 +140,11 @@ int doStringArrayTest(ostream& strm, int size)
     {
     ++errors;
     strm << "FAILED.  Results:" << endl;
-    strm << "\tExpected: 'string entry 10'\tActual: '" 
+    strm << "\tExpected: 'string entry 10'\tActual: '"
          << newValues->GetValue(0) << "'" << endl;
-    strm << "\tExpected: 'string entry 20'\tActual: '" 
+    strm << "\tExpected: 'string entry 20'\tActual: '"
          << newValues->GetValue(1) << "'" << endl;
-    strm << "\tExpected: 'string entry 314'\tActual: '" 
+    strm << "\tExpected: 'string entry 314'\tActual: '"
          << newValues->GetValue(2) << "'" << endl;
     }
 
@@ -201,8 +201,8 @@ int otherStringArrayTest(ostream& strm)
 
 int otherStringArray(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701; 
+  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
 //  return otherArraysTest(vtkmsg_with_warning_C4701);
   return otherStringArrayTest(cerr);
 
-} 
+}

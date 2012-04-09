@@ -48,7 +48,7 @@ vtkCompositePolyDataMapper::~vtkCompositePolyDataMapper()
     this->Internal->Mappers[i]->UnRegister(this);
     }
   this->Internal->Mappers.clear();
-  
+
   delete this->Internal;
 }
 
@@ -63,28 +63,28 @@ int vtkCompositePolyDataMapper::FillInputPortInformation(
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
-}    
+}
 
 // When the structure is out-of-date, recreate it by
 // creating a mapper for each input data.
 void vtkCompositePolyDataMapper::BuildPolyDataMapper()
 {
   int warnOnce = 0;
-  
+
   //Delete pdmappers if they already exist.
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
     this->Internal->Mappers[i]->UnRegister(this);
     }
   this->Internal->Mappers.clear();
-  
+
   //Get the composite dataset from the input
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   // If it isn't hierarchical, maybe it is just a plain vtkPolyData
-  if(!input) 
+  if(!input)
     {
     vtkPolyData *pd = vtkPolyData::SafeDownCast(
       this->GetExecutive()->GetInputData(0, 0));
@@ -111,11 +111,11 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
     {
     //for each data set build a vtkPolyDataMapper
     vtkCompositeDataIterator* iter = input->NewIterator();
-    iter->GoToFirstItem();  
+    iter->GoToFirstItem();
     while (!iter->IsDoneWithTraversal())
       {
-      vtkPolyData* pd = 
-        vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());      
+      vtkPolyData* pd =
+        vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
       if (pd)
         {
         // Make a copy of the data to break the pipeline here
@@ -142,32 +142,32 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
       }
     iter->Delete();
     }
-  
+
   this->InternalMappersBuildTime.Modified();
-  
+
 }
 
 void vtkCompositePolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
 {
   //If the PolyDataMappers are not up-to-date then rebuild them
-  vtkCompositeDataPipeline * executive = 
+  vtkCompositeDataPipeline * executive =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
-  
+
   if(executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
     {
-    this->BuildPolyDataMapper();    
+    this->BuildPolyDataMapper();
     }
-  
+
   this->TimeToDraw = 0;
   //Call Render() on each of the PolyDataMappers
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    if ( this->ClippingPlanes != 
+    if ( this->ClippingPlanes !=
          this->Internal->Mappers[i]->GetClippingPlanes() )
       {
       this->Internal->Mappers[i]->SetClippingPlanes( this->ClippingPlanes );
       }
-    
+
     this->Internal->Mappers[i]->SetLookupTable(
       this->GetLookupTable());
     this->Internal->Mappers[i]->SetScalarVisibility(
@@ -197,8 +197,8 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
           this->ArrayName,ArrayComponent);
         }
       }
-  
-    this->Internal->Mappers[i]->Render(ren,a);    
+
+    this->Internal->Mappers[i]->Render(ren,a);
     this->TimeToDraw += this->Internal->Mappers[i]->GetTimeToDraw();
     }
 }
@@ -211,7 +211,7 @@ vtkExecutive* vtkCompositePolyDataMapper::CreateDefaultExecutive()
 void vtkCompositePolyDataMapper::ComputeBounds()
 {
   vtkMath::UninitializeBounds(this->Bounds);
-  
+
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -219,7 +219,7 @@ void vtkCompositePolyDataMapper::ComputeBounds()
   // If we don't have hierarchical data, test to see if we have
   // plain old polydata. In this case, the bounds are simply
   // the bounds of the input polydata.
-  if(!input) 
+  if(!input)
     {
     vtkPolyData *pd = vtkPolyData::SafeDownCast(
       this->GetExecutive()->GetInputData(0, 0));
@@ -229,17 +229,17 @@ void vtkCompositePolyDataMapper::ComputeBounds()
       }
     return;
     }
-  
+
   // We do have hierarchical data - so we need to loop over
   // it and get the total bounds.
   vtkCompositeDataIterator* iter = input->NewIterator();
-  iter->GoToFirstItem();  
+  iter->GoToFirstItem();
   double bounds[6];
   int i;
-  
+
   while (!iter->IsDoneWithTraversal())
     {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());    
+    vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
     if (pd)
       {
       // If this isn't the first time through, expand bounds
@@ -250,10 +250,10 @@ void vtkCompositePolyDataMapper::ComputeBounds()
         pd->GetBounds(bounds);
         for(i=0; i<3; i++)
           {
-          this->Bounds[i*2] = 
+          this->Bounds[i*2] =
             (bounds[i*2]<this->Bounds[i*2])?
             (bounds[i*2]):(this->Bounds[i*2]);
-          this->Bounds[i*2+1] = 
+          this->Bounds[i*2+1] =
             (bounds[i*2+1]>this->Bounds[i*2+1])?
             (bounds[i*2+1]):(this->Bounds[i*2+1]);
           }
@@ -272,8 +272,8 @@ void vtkCompositePolyDataMapper::ComputeBounds()
 }
 
 double *vtkCompositePolyDataMapper::GetBounds()
-{ 
-  if ( ! this->GetExecutive()->GetInputData(0, 0) ) 
+{
+  if ( ! this->GetExecutive()->GetInputData(0, 0) )
     {
     vtkMath::UninitializeBounds(this->Bounds);
     return this->Bounds;
@@ -281,14 +281,14 @@ double *vtkCompositePolyDataMapper::GetBounds()
   else
     {
     this->Update();
-    
+
     //only compute bounds when the input data has changed
     vtkCompositeDataPipeline * executive = vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
     if( executive->GetPipelineMTime() > this->BoundsMTime.GetMTime() )
       {
       this->ComputeBounds();
       }
-    
+
     return this->Bounds;
     }
 }

@@ -155,7 +155,7 @@ vtkCell *vtkBiQuadraticQuadraticHexahedron::GetFace(int faceId)
 }
 
 //----------------------------------------------------------------------------
-void vtkBiQuadraticQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
+void vtkBiQuadraticQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
                                        vtkIdType cellId, vtkDataArray *cellScalars)
 {
   int numMidPts, i, j;
@@ -166,7 +166,7 @@ void vtkBiQuadraticQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellDat
   //Copy point and cell attribute data, first make sure it's empty:
   this->PointData->Initialize();
   this->CellData->Initialize();
-  // Make sure to copy ALL arrays. These field data have to be 
+  // Make sure to copy ALL arrays. These field data have to be
   // identical to the input field data. Otherwise, CopyData
   // that occurs later may not work because the output field
   // data was initialized (CopyAllocate) with the input field
@@ -743,7 +743,7 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationDerivs(double pcoords[3],
   derivs[70]  =((1-x*x)*y+x*x-1)*z;
   derivs[71]  =((x*x-1)*y+x*x-1)*z;
 
-  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]  
+  // we compute derivatives in in [-1; 1] but we need them in [ 0; 1]
   for(int i = 0; i < 72; i++)
     derivs[i] *= 2;
 

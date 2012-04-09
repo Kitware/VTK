@@ -36,13 +36,13 @@ class VTKGUISUPPORTQT_EXPORT vtkTDxQtUnixDevices : public QObject
 public:
   vtkTDxQtUnixDevices();
   ~vtkTDxQtUnixDevices();
- 
+
   // Description;
   // Process X11 event `e'. Create a device and emit signal CreateDevice if it
   // does not exist yet.
   //  \pre e_exists: e!=0
   void ProcessEvent(vtkTDxUnixDeviceXEvent *e);
-  
+
 signals:
 // Description:
 // This signal should be connected to a slot in the QApplication.
@@ -51,9 +51,9 @@ signals:
    void CreateDevice(vtkTDxDevice *device);
 
 protected:
-  
+
   vtkTDxQtUnixDevicesPrivate *Private;
-  
+
 private:
   vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&);  // Not implemented.
   void operator=(const vtkTDxQtUnixDevices&);  // Not implemented.

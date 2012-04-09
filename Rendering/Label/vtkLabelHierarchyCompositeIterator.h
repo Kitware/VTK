@@ -23,7 +23,7 @@
 // Iterates over child iterators in a round-robin order. Each iterator may
 // have its own count, which is the number of times it is repeated until
 // moving to the next iterator.
-// 
+//
 // For example, if you initialize the iterator with
 // <pre>
 // it->AddIterator(A, 1);

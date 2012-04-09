@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    TestArrayNorm.cxx
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -44,7 +44,7 @@ static bool close_enough(const double lhs, const double rhs)
 int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   cout << setprecision(17);
-  
+
   try
     {
     vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
@@ -67,7 +67,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkDenseArray<double>* const l2_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    
+
     cout << "L2-norm:\n";
     vtkPrintVectorFormat(cout, l2_norm);
 
@@ -81,7 +81,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkDenseArray<double>* const l1_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    
+
     cout << "L1-norm:\n";
     vtkPrintVectorFormat(cout, l1_norm);
 
@@ -95,7 +95,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkDenseArray<double>* const inverse_l1_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    
+
     cout << "Inverse L1-norm:\n";
     vtkPrintVectorFormat(cout, inverse_l1_norm);
 
@@ -110,7 +110,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     vtkDenseArray<double>* const window_l1_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    
+
     cout << "Windowed L1-norm:\n";
     vtkPrintVectorFormat(cout, window_l1_norm);
 

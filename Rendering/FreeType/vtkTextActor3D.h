@@ -17,7 +17,7 @@
 // The input text is rendered into a buffer, which in turn is used as a
 // texture applied onto a quad (a vtkImageActor is used under the hood).
 // .SECTION Warning
-// This class is experimental at the moment. 
+// This class is experimental at the moment.
 // - The orientation is not optimized, the quad should be oriented, not
 //   the text itself when it is rendered in the buffer (we end up with
 //   excessively big textures for 45 degrees angles).
@@ -56,14 +56,14 @@ public:
   // Set/Get the text property.
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
-  
+
   // Description:
   // Shallow copy of this text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).  
+  // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // These are the padded-to-power-of-two texture bounds.
   virtual double *GetBounds();
 
@@ -89,7 +89,7 @@ public:
   int RenderOpaqueGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
   int RenderOverlay(vtkViewport* viewport);
-  
+
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();

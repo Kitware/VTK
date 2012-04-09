@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkWidgetCallbackMapper.h" 
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
 
@@ -58,7 +58,7 @@ vtkContinuousValueWidget::vtkContinuousValueWidget()
 //-----------------------------------------------------------------
 double vtkContinuousValueWidget::GetValue()
 {
-  vtkContinuousValueWidgetRepresentation *slider = 
+  vtkContinuousValueWidgetRepresentation *slider =
     vtkContinuousValueWidgetRepresentation::SafeDownCast(this->WidgetRep);
   return slider->GetValue();
 }
@@ -66,7 +66,7 @@ double vtkContinuousValueWidget::GetValue()
 //-----------------------------------------------------------------
 void vtkContinuousValueWidget::SetValue(double value)
 {
-  vtkContinuousValueWidgetRepresentation *slider = 
+  vtkContinuousValueWidgetRepresentation *slider =
     vtkContinuousValueWidgetRepresentation::SafeDownCast(this->WidgetRep);
   slider->SetValue(value);
 }
@@ -75,21 +75,21 @@ void vtkContinuousValueWidget::SetValue(double value)
 //-------------------------------------------------------------
 void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
 {
-  vtkContinuousValueWidget *self = 
+  vtkContinuousValueWidget *self =
     reinterpret_cast<vtkContinuousValueWidget*>(w);
-  
+
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
   eventPos[1] = self->Interactor->GetEventPosition()[1];
-  
+
   // Okay, make sure that the pick is in the current renderer
-  if (!self->CurrentRenderer || 
-      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), 
+  if (!self->CurrentRenderer ||
+      !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]),
                                            static_cast<int>(eventPos[1])))
     {
     return;
     }
-  
+
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
   self->WidgetRep->StartWidgetInteraction(eventPos);
@@ -98,7 +98,7 @@ void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
     {
     return;
     }
-  
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -119,7 +119,7 @@ void vtkContinuousValueWidget::SelectAction(vtkAbstractWidget *w)
 //---------------------------------------------------------------
 void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
 {
-  vtkContinuousValueWidget *self = 
+  vtkContinuousValueWidget *self =
     reinterpret_cast<vtkContinuousValueWidget*>(w);
 
   // do we need to change highlight state?
@@ -160,7 +160,7 @@ void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
     self->Render();
     return;
     }
-  
+
   // Definitely moving the slider, get the updated position
   double eventPos[2];
   eventPos[0] = self->Interactor->GetEventPosition()[0];
@@ -168,7 +168,7 @@ void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
   self->WidgetRep->WidgetInteraction(eventPos);
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   self->Render();
-    
+
   // Interact, if desired
   self->EventCallbackCommand->SetAbortFlag(1);
 }
@@ -177,7 +177,7 @@ void vtkContinuousValueWidget::MoveAction(vtkAbstractWidget *w)
 //-----------------------------------------------------------------
 void vtkContinuousValueWidget::EndSelectAction(vtkAbstractWidget *w)
 {
-  vtkContinuousValueWidget *self = 
+  vtkContinuousValueWidget *self =
     reinterpret_cast<vtkContinuousValueWidget*>(w);
 
   if ( self->WidgetState != vtkContinuousValueWidget::Adjusting )

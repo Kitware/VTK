@@ -143,7 +143,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts,
   int polyId, pt;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   pts = vtkIdList::New();
   pts->Allocate(VTK_CELL_SIZE);
 
@@ -286,7 +286,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation *outInfo)
   vtkFloatArray *newVectors;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if ( this->ReadDisplacement && this->DisplacementFileName )
     {
     if ( !(dispFp = fopen(this->DisplacementFileName, "r")) )
@@ -334,7 +334,7 @@ void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation *outInfo)
   vtkFloatArray *newScalars;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  
+
   if ( this->ReadScalar && this->ScalarFileName )
     {
     if ( !(scalarFp = fopen(this->ScalarFileName, "r")) )
@@ -443,16 +443,16 @@ void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Geometry File Name: " 
+  os << indent << "Geometry File Name: "
      << (this->GeometryFileName ? this->GeometryFileName : "(none)") << "\n";
   os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");
-  os << indent << "Displacement File Name: " 
+  os << indent << "Displacement File Name: "
      << (this->DisplacementFileName ? this->DisplacementFileName : "(none)") << "\n";
   os << indent << "Part Number: " << this->PartNumber << "\n";
   os << indent << "Read Scalar: " << (this->ReadScalar ? "On\n" : "Off\n");
-  os << indent << "Scalar File Name: " 
+  os << indent << "Scalar File Name: "
      << (this->ScalarFileName ? this->ScalarFileName : "(none)") << "\n";
   os << indent << "Read Texture: " << (this->ReadTexture ? "On\n" : "Off\n");
-  os << indent << "Texture File Name: " 
+  os << indent << "Texture File Name: "
      << (this->TextureFileName ? this->TextureFileName : "(none)") << "\n";
 }

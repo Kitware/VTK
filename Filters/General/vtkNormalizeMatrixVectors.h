@@ -2,7 +2,7 @@
 
   Program:   Visualization Toolkit
   Module:    vtkNormalizeMatrixVectors.h
-  
+
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
@@ -20,7 +20,7 @@
 =========================================================================*/
 
 // .NAME vtkNormalizeMatrixVectors - given a sparse input matrix, produces
-// a sparse output matrix with each vector normalized to unit length with respect 
+// a sparse output matrix with each vector normalized to unit length with respect
 // to a p-norm (default p=2).
 //
 // .SECTION Thanks
@@ -54,8 +54,8 @@ protected:
   ~vtkNormalizeMatrixVectors();
 
   int RequestData(
-    vtkInformation*, 
-    vtkInformationVector**, 
+    vtkInformation*,
+    vtkInformationVector**,
     vtkInformationVector*);
 
   int VectorDimension;

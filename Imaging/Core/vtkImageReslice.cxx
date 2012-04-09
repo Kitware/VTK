@@ -382,7 +382,7 @@ const char *vtkImageReslice::GetSlabModeAsString()
 //----------------------------------------------------------------------------
 void vtkImageReslice::SetStencilData(vtkImageStencilData *stencil)
 {
-  this->SetInputData(1, stencil); 
+  this->SetInputData(1, stencil);
 }
 
 //----------------------------------------------------------------------------

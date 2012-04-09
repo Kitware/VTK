@@ -29,10 +29,10 @@ static int vtkGetLongAlignment()
   struct vtkTestAlignLong    s1;
   char *               p1;
   char *               p2;
-  
+
   p1 = reinterpret_cast<char *>(&s1);   // Get address of struct
   p2 = reinterpret_cast<char *>(&s1.x); // Get address of long within struct
-  
+
   return (p2 - p1);    // Get member offset/alignment
 }
 
@@ -41,7 +41,7 @@ class VTKCOMMONMISC_EXPORT vtkHeapBlock
 public:
   char*         Data;
   vtkHeapBlock* Next;
-  size_t        Size; //Variable size guards against block size changing from SetBlockSize() 
+  size_t        Size; //Variable size guards against block size changing from SetBlockSize()
                       //or large requests greater than the standard block size.
 
   vtkHeapBlock(size_t size):Next(0),Size(size)
@@ -70,13 +70,13 @@ vtkHeap::~vtkHeap()
 void vtkHeap::SetBlockSize(size_t _arg)
 {
   vtkDebugMacro(
-    << this->GetClassName() << " (" << this << "): setting BlockSize to " 
-    << static_cast<int>(_arg)); 
-  if (this->BlockSize != _arg) 
-    { 
-    this->BlockSize = _arg; 
-    this->Modified(); 
-    } 
+    << this->GetClassName() << " (" << this << "): setting BlockSize to "
+    << static_cast<int>(_arg));
+  if (this->BlockSize != _arg)
+    {
+    this->BlockSize = _arg;
+    this->Modified();
+    }
 }
 
 void* vtkHeap::AllocateMemory(size_t n)
@@ -88,13 +88,13 @@ void* vtkHeap::AllocateMemory(size_t n)
 
   size_t blockSize = (n > this->BlockSize ? n : this->BlockSize );
   this->NumberOfAllocations++;
-  
-  if ( ! this->Current || 
+
+  if ( ! this->Current ||
        (this->Position + n) >= this->Current->Size )
     {
     this->Add(blockSize);
     }
-  
+
   char *ptr = this->Current->Data + this->Position;
   this->Position += n;
 
@@ -108,7 +108,7 @@ void vtkHeap::Add(size_t blockSize)
 {
   this->Position = 0; //reset to the beginning of the block
 
-  if ( this->Current && this->Current != this->Last && 
+  if ( this->Current && this->Current != this->Last &&
        this->Current->Next->Size >= blockSize ) //reuse
     {
     this->Current = this->Current->Next;
@@ -180,8 +180,8 @@ void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Block Size: " << static_cast<int>(this->BlockSize) << "\n";
   os << indent << "Number of Blocks: " << this->NumberOfBlocks << "\n";
   os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
-  os << indent << "Current bytes allocated: " 
-     << ((this->NumberOfBlocks-1)*static_cast<int>(this->BlockSize) + 
+  os << indent << "Current bytes allocated: "
+     << ((this->NumberOfBlocks-1)*static_cast<int>(this->BlockSize) +
          static_cast<int>(this->Position)) << "\n";
 }
 

@@ -49,7 +49,7 @@ public:
 
 protected:
   vtkXMLCompositeDataReader();
-  ~vtkXMLCompositeDataReader();  
+  ~vtkXMLCompositeDataReader();
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName();
@@ -70,21 +70,21 @@ protected:
 
   vtkXMLReader* GetReaderOfType(const char* type);
 
-  virtual int RequestInformation(vtkInformation*, 
-                                 vtkInformationVector**, 
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
                                  vtkInformationVector*);
 
 
 
   // Adds a child data object to the composite parent. childXML is the XML for
   // the child data object need to obtain certain meta-data about the child.
-  void AddChild(vtkCompositeDataSet* parent, 
+  void AddChild(vtkCompositeDataSet* parent,
     vtkDataObject* child, vtkXMLDataElement* childXML);
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  virtual void ReadComposite(vtkXMLDataElement* element, 
-    vtkCompositeDataSet* composite, const char* filePath, 
+  virtual void ReadComposite(vtkXMLDataElement* element,
+    vtkCompositeDataSet* composite, const char* filePath,
     unsigned int &dataSetIndex)=0;
 
   // Read the vtkDataSet (a leaf) in the composite dataset.

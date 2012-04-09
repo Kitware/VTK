@@ -37,7 +37,7 @@ vtkPolyDataMapper demMapper
 
 vtkLODActor demActor
   demActor SetMapper demMapper
-  
+
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1

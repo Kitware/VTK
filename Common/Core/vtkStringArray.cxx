@@ -103,7 +103,7 @@ vtkStringArray::~vtkStringArray()
 //-----------------------------------------------------------------------------
 vtkArrayIterator* vtkStringArray::NewIterator()
 {
-  vtkArrayIteratorTemplate<vtkStdString>* iter = 
+  vtkArrayIteratorTemplate<vtkStdString>* iter =
     vtkArrayIteratorTemplate<vtkStdString>::New();
   iter->Initialize(this);
   return iter;
@@ -198,7 +198,7 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
     return;
     }
 
-  // If data type does not match, we can't copy. 
+  // If data type does not match, we can't copy.
   if(aa->GetDataType() != this->GetDataType())
     {
     vtkErrorMacro(<< "Incompatible types: tried to copy an array of type "
@@ -242,7 +242,7 @@ void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
 {
   if (this->GetDataType() != source->GetDataType())
     {
-    vtkErrorMacro("Cannot CopyValue from array of type " 
+    vtkErrorMacro("Cannot CopyValue from array of type "
       << source->GetDataTypeAsString());
     return;
     }
@@ -271,16 +271,16 @@ void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
 }
 
 //-----------------------------------------------------------------------------
-// Interpolate value from the two values, p1 and p2, and an 
-// interpolation factor, t. The interpolation factor ranges from (0,1), 
-// with t=0 located at p1. This method assumes that the three arrays are of 
+// Interpolate value from the two values, p1 and p2, and an
+// interpolation factor, t. The interpolation factor ranges from (0,1),
+// with t=0 located at p1. This method assumes that the three arrays are of
 // the same type. p1 is value at index id1 in fromArray1, while, p2 is
 // value at index id2 in fromArray2.
-void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdType id1, 
-  vtkAbstractArray* source1, vtkIdType id2, vtkAbstractArray* source2, 
+void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdType id1,
+  vtkAbstractArray* source1, vtkIdType id2, vtkAbstractArray* source2,
   double t)
 {
-  if (source1->GetDataType() != VTK_STRING || 
+  if (source1->GetDataType() != VTK_STRING ||
     source2->GetDataType() != VTK_STRING)
     {
     vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
@@ -295,7 +295,7 @@ void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdType id1,
   else
     {
     // Use p1.
-    this->InsertTuple(i, id1, source1); 
+    this->InsertTuple(i, id1, source1);
     }
 }
 
@@ -411,7 +411,7 @@ int vtkStringArray::Resize(vtkIdType sz)
       {
       newArray[i] = this->Array[i];
       }
-    
+
     if(!this->SaveUserArray)
       {
       delete[] this->Array;
@@ -516,9 +516,9 @@ vtkIdType vtkStringArray::GetDataSize()
 // ----------------------------------------------------------------------------
 // Set the tuple at the ith location using the jth tuple in the source array.
 // This method assumes that the two arrays have the same type
-// and structure. Note that range checking and memory allocation is not 
+// and structure. Note that range checking and memory allocation is not
 // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j, 
+void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j,
   vtkAbstractArray* source)
 {
   vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
@@ -538,9 +538,9 @@ void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j,
 }
 
 // ----------------------------------------------------------------------------
-// Insert the jth tuple in the source array, at ith location in this array. 
+// Insert the jth tuple in the source array, at ith location in this array.
 // Note that memory allocation is performed as necessary to hold the data.
-void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j, 
+void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j,
   vtkAbstractArray* source)
 {
   vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
@@ -560,7 +560,7 @@ void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j,
 }
 
 // ----------------------------------------------------------------------------
-// Insert the jth tuple in the source array, at the end in this array. 
+// Insert the jth tuple in the source array, at the end in this array.
 // Note that memory allocation is performed as necessary to hold the data.
 // Returns the location at which the data was inserted.
 vtkIdType vtkStringArray::InsertNextTuple(vtkIdType j,
@@ -615,7 +615,7 @@ void vtkStringArray::GetTuples(vtkIdList *indices, vtkAbstractArray *aa)
 
 // ----------------------------------------------------------------------------
 void vtkStringArray::GetTuples(vtkIdType startIndex,
-                          vtkIdType endIndex, 
+                          vtkIdType endIndex,
                           vtkAbstractArray *aa)
 {
   if (aa == NULL)
@@ -748,7 +748,7 @@ vtkIdType vtkStringArray::LookupValue(vtkStdString value)
       break;
       }
 
-    ++found; 
+    ++found;
     ++offset;
     }
 
@@ -769,7 +769,7 @@ void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
   typedef vtkStringCachedUpdates::iterator CacheIterator;
   std::pair<CacheIterator, CacheIterator> cached
     = this->Lookup->CachedUpdates.equal_range(value);
-  while (cached.first != cached.second) 
+  while (cached.first != cached.second)
     {
     // Check that the value in the original array hasn't changed.
     vtkStdString currentValue = this->GetValue(cached.first->second);
@@ -793,7 +793,7 @@ void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
   while (found.first != found.second)
     {
     // Check that the value in the original array hasn't changed.
-    vtkIdType index = this->Lookup->IndexArray->GetId(offset); 
+    vtkIdType index = this->Lookup->IndexArray->GetId(offset);
     vtkStdString currentValue = this->GetValue(index);
     if (*found.first == currentValue)
       {
@@ -854,7 +854,7 @@ void vtkStringArray::ClearLookup()
 
 // ----------------------------------------------------------------------------
 
-// 
+//
 //
 // Below here are interface methods to allow values to be inserted as
 // const char * instead of vtkStdString.  Yes, they're trivial.  The

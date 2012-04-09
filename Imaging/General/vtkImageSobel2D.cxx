@@ -57,12 +57,12 @@ int vtkImageSobel2D::RequestInformation (vtkInformation *request,
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
+// it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
 void vtkImageSobel2DExecute(vtkImageSobel2D *self,
-                            vtkImageData *inData, T *inPtr, 
-                            vtkImageData *outData, int *outExt, 
+                            vtkImageData *inData, T *inPtr,
+                            vtkImageData *outData, int *outExt,
                             double *outPtr, int id,
                             vtkInformation *inInfo)
 {
@@ -93,8 +93,8 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   inWholeMax1 = inWholeExt[3];
 
   // Get information to march through data
-  inData->GetIncrements(inInc0, inInc1, inInc2); 
-  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  outData->GetIncrements(outInc0, outInc1, outInc2);
   min0 = outExt[0];   max0 = outExt[1];
   min1 = outExt[2];   max1 = outExt[3];
   min2 = outExt[4];   max2 = outExt[5];
@@ -121,7 +121,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
     inPtr1 = inPtr2;
     for (outIdx1 = min1; !self->AbortExecute && outIdx1 <= max1; ++outIdx1)
       {
-      if (!id) 
+      if (!id)
         {
         if (!(count%target))
           {
@@ -210,8 +210,8 @@ void vtkImageSobel2D::ThreadedRequestData(
   switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro(
-      vtkImageSobel2DExecute(this, inData[0][0], 
-                             static_cast<VTK_TT *>(inPtr), outData[0], outExt, 
+      vtkImageSobel2DExecute(this, inData[0][0],
+                             static_cast<VTK_TT *>(inPtr), outData[0], outExt,
                              static_cast<double *>(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

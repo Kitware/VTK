@@ -9,11 +9,11 @@ vtkPNMReader reader2
 reader2 SetFileName "$VTK_DATA_ROOT/Data/B.pgm"
 
 vtkLookupTable table
-table SetTableRange 0 127 
-table SetValueRange 0.0 1.0 
-table SetSaturationRange 0.0 0.0 
-table SetHueRange 0.0 0.0 
-table SetAlphaRange 0.9 0.0 
+table SetTableRange 0 127
+table SetValueRange 0.0 1.0
+table SetSaturationRange 0.0 0.0
+table SetHueRange 0.0 0.0
+table SetAlphaRange 0.9 0.0
 table Build
 
 vtkImageTranslateExtent translate

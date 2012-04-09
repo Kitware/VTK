@@ -42,11 +42,11 @@ if {[info commands "rtTester"] == "rtTester"}  {
 if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    close $channel
    file delete -force "$dir/test.tmp"
-   
+
    vtkRectilinearGridWriter rectWriter
    rectWriter SetInputConnection [extract1 GetOutputPort]
    rectWriter SetFileName "$dir/rect.tmp"
-   rectWriter Write   
+   rectWriter Write
    # delete the file
    file delete -force "$dir/rect.tmp"
 }

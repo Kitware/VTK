@@ -30,16 +30,16 @@
 //     It can sort the regions with respect to a viewing direction,
 //     and it can decompose a list of regions into subsets, each
 //     of which represent a convex spatial region (since many algorithms
-//     require a convex region).  
+//     require a convex region).
 //
 //     If the points were derived from cells, vtkKdTree
-//     can create a list of cell Ids for each region for each data set.  
-//     Two lists are available - all cells with centroid in the region, 
-//     and all cells that intersect the region but whose centroid lies 
+//     can create a list of cell Ids for each region for each data set.
+//     Two lists are available - all cells with centroid in the region,
+//     and all cells that intersect the region but whose centroid lies
 //     in another region.
 //
 //     For the purpose of removing duplicate points quickly from large
-//     data sets, or for finding nearby points, we added another mode for 
+//     data sets, or for finding nearby points, we added another mode for
 //     building the locator.  BuildLocatorFromPoints will build a k-d tree
 //     from one or more vtkPoints objects.  This can be followed by
 //     BuildMapForDuplicatePoints which returns a mapping from the original
@@ -105,7 +105,7 @@ public:
 
   vtkGetMacro(NumberOfRegionsOrMore, int);
   vtkSetMacro(NumberOfRegionsOrMore, int);
-  
+
   // Description:
   //  Some algorithms on k-d trees require a value that is a very
   //  small distance relative to the diameter of the entire space
@@ -128,10 +128,10 @@ public:
 
   void SetCuts(vtkBSPCuts *cuts);
 
-  // Description:   
+  // Description:
   //    Omit partitions along the X axis, yielding shafts in the X direction
   void OmitXPartitioning();
-  
+
   // Description:
   //    Omit partitions along the Y axis, yielding shafts in the Y direction
   void OmitYPartitioning();
@@ -147,7 +147,7 @@ public:
   // Description:
   //    Omit partitions along the Y and Z axes, yielding slabs along X
   void OmitYZPartitioning();
-  
+
   // Description:
   //    Omit partitions along the Z and X axes, yielding slabs along Y
   void OmitZXPartitioning();
@@ -216,7 +216,7 @@ public:
   // Description:
   //   There are certain applications where you want the bounds of
   //   the k-d tree space to be at least as large as a specified
-  //   box.  If the k-d tree has been built, you can expand it's 
+  //   box.  If the k-d tree has been built, you can expand it's
   //   bounds with this method.  If the bounds supplied are smaller
   //   than those computed, they will be ignored.
 
@@ -238,34 +238,34 @@ public:
   //    Print out nodes of kd tree
   void PrintTree();
   void PrintVerboseTree();
-  
+
   // Description:
   //    Print out leaf node data for given id
   void PrintRegion(int id);
-  
+
   // Description:
   //   Create a list for each of the requested regions, listing
   //   the IDs of all cells whose centroid falls in the region.
   //   These lists are obtained with GetCellList().
   //   If no DataSet is specified, the cell list is created
   //   for DataSet 0.  If no list of requested regions is provided,
-  //   the cell lists for all regions are created.  
+  //   the cell lists for all regions are created.
   //
   //   When CreateCellLists is called again, the lists created
   //   on the previous call  are deleted.
-  
-  void CreateCellLists(int dataSetIndex, int *regionReqList, 
+
+  void CreateCellLists(int dataSetIndex, int *regionReqList,
                        int reqListSize);
   void CreateCellLists(vtkDataSet *set, int *regionReqList,
                        int reqListSize);
   void CreateCellLists(int *regionReqList, int listSize);
-  void CreateCellLists(); 
-  
+  void CreateCellLists();
+
   // Description:
   //   If IncludeRegionBoundaryCells is ON,
   //   CreateCellLists() will also create a list of cells which
   //   intersect a given region, but are not assigned
-  //   to the region.  These lists are obtained with 
+  //   to the region.  These lists are obtained with
   //   GetBoundaryCellList().  Default is OFF.
   vtkSetMacro(IncludeRegionBoundaryCells, int);
   vtkGetMacro(IncludeRegionBoundaryCells, int);
@@ -292,7 +292,7 @@ public:
   vtkIdList *GetBoundaryCellList(int regionID);
 
   // Description:
-  //   
+  //
   //   For a list of regions, get two cell lists.  The first lists
   //   the IDs  all cells whose centroids lie in one of the regions.
   //   The second lists the IDs of all cells that intersect the regions,
@@ -307,16 +307,16 @@ public:
   //   uses the cell lists created in CreateCellLists().
   //   If the cell list for any of the requested regions does not
   //   exist, then this method will call CreateCellLists() to create
-  //   cell lists for *every* region of the k-d tree.  You must remember 
-  //   to DeleteCellLists() when done with all calls to this method, as 
+  //   cell lists for *every* region of the k-d tree.  You must remember
+  //   to DeleteCellLists() when done with all calls to this method, as
   //   cell lists can require a great deal of memory.
-  vtkIdType GetCellLists(vtkIntArray *regions, int set, 
+  vtkIdType GetCellLists(vtkIntArray *regions, int set,
                    vtkIdList *inRegionCells, vtkIdList *onBoundaryCells);
   vtkIdType GetCellLists(vtkIntArray *regions, vtkDataSet *set,
             vtkIdList *inRegionCells, vtkIdList *onBoundaryCells);
   vtkIdType GetCellLists(vtkIntArray *regions, vtkIdList *inRegionCells,
                                     vtkIdList *onBoundaryCells);
-  
+
   // Description:
   //    Get the id of the region containing the cell centroid.  If
   //    no DataSet is specified, assume DataSet 0.  If you need the
@@ -338,7 +338,7 @@ public:
   // Description:
   //    Get the id of the region containing the specified location.
   int GetRegionContainingPoint(double x, double y, double z);
-  
+
   // Description:
   // Create the k-d tree decomposition of the cells of the data set
   // or data sets.  Cells are assigned to k-d tree spatial regions
@@ -400,8 +400,8 @@ public:
                                    vtkIntArray *orderedList);
 
   // Description:
-  // This is a special purpose locator that builds a k-d tree to 
-  // find duplicate and near-by points.  It builds the tree from 
+  // This is a special purpose locator that builds a k-d tree to
+  // find duplicate and near-by points.  It builds the tree from
   // one or more vtkPoints objects instead of from the cells of
   // a vtkDataSet.  This build would normally be followed by
   // BuildMapForDuplicatePoints, FindPoint, or FindClosestPoint.
@@ -414,12 +414,12 @@ public:
   void BuildLocatorFromPoints(vtkPointSet *pointset);
   void BuildLocatorFromPoints(vtkPoints *ptArray);
   void BuildLocatorFromPoints(vtkPoints **ptArray, int numPtArrays);
-  
+
   // Description:
   // This call returns a mapping from the original point IDs supplied
-  // to BuildLocatorFromPoints to a subset of those IDs that is unique 
-  // within the specified tolerance.  
-  // If points 2, 5, and 12 are the same, then 
+  // to BuildLocatorFromPoints to a subset of those IDs that is unique
+  // within the specified tolerance.
+  // If points 2, 5, and 12 are the same, then
   // IdMap[2] = IdMap[5] = IdMap[12] = 2 (or 5 or 12).
   //
   // "original point IDs" - For point IDs we start at 0 for the first
@@ -445,7 +445,7 @@ public:
   vtkIdType FindClosestPoint(double x, double y, double z, double &dist2);
 
   // Description:
-  // Given a position x and a radius r, return the id of the point 
+  // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // dist2 returns the squared distance to the point.
   vtkIdType FindClosestPointWithinRadius(
@@ -456,7 +456,7 @@ public:
   // closest to the given point.  Return the ID of the point,
   // and set the square of the distance of between the points.
   vtkIdType FindClosestPointInRegion(int regionId, double *x, double &dist2);
-  vtkIdType FindClosestPointInRegion(int regionId, double x, double y, double z, 
+  vtkIdType FindClosestPointInRegion(int regionId, double x, double y, double z,
                                      double &dist2);
 
   // Description:
@@ -484,13 +484,13 @@ public:
   // Delete the k-d tree data structure. Also delete any
   // cell lists that were computed with CreateCellLists().
   void FreeSearchStructure();
-  
+
   // Description:
   // Create a polydata representation of the boundaries of
   // the k-d tree regions.  If level equals GetLevel(), the
   // leaf nodes are represented.
   void GenerateRepresentation(int level, vtkPolyData *pd);
-  
+
   // Description:
   //    Generate a polygonal representation of a list of regions.
   //    Only leaf nodes have region IDs, so these will be leaf nodes.
@@ -528,7 +528,7 @@ public:
 
   // Description:
   //    Create a copy of the binary tree representation of the
-  //    k-d tree spatial partitioning provided.  
+  //    k-d tree spatial partitioning provided.
 
   static vtkKdNode *CopyTree(vtkKdNode *kd);
 
@@ -637,7 +637,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
 
   // Description:
-  // Modelled on vtkAlgorithm::UpdateProgress(). 
+  // Modelled on vtkAlgorithm::UpdateProgress().
   // Update the progress when building the locator.
   // Fires vtkCommand::ProgressEvent.
   void UpdateProgress(double amount);
@@ -649,14 +649,14 @@ protected:
 
 protected:
   // So that each suboperation can report progress
-  // in [0,1], yet we will be able to report a global 
+  // in [0,1], yet we will be able to report a global
   // progress. Sub-operations must use UpdateSubOperationProgress()
   // for this to work.
   double ProgressScale;
   double ProgressOffset;
-  
+
   // Update progress for a sub-operation. \c amount goes from 0.0 to 1.0.
-  // Actual progress is given by 
+  // Actual progress is given by
   // (this->ProgressOffset + this->ProgressScale* amount).
   void UpdateSubOperationProgress(double amount);
 
@@ -668,8 +668,8 @@ protected:
 
 //BTX
   // Recursive helper for public FindPointsWithinRadius
-  void FindPointsWithinRadius(vtkKdNode* node, double R2, 
-                              const double x[3], vtkIdList* ids);  
+  void FindPointsWithinRadius(vtkKdNode* node, double R2,
+                              const double x[3], vtkIdList* ids);
 
   // Recursive helper for public FindPointsWithinRadius
   void AddAllPointsInRegion(vtkKdNode* node, vtkIdList* ids);
@@ -714,13 +714,13 @@ protected:
   void _printTree(int verbose);
 
   int SearchNeighborsForDuplicate(int regionId, float *point,
-                                  int **pointsSoFar, int *len, 
+                                  int **pointsSoFar, int *len,
                                   float tolerance, float tolerance2);
 
-  int SearchRegionForDuplicate(float *point, int *pointsSoFar, 
+  int SearchRegionForDuplicate(float *point, int *pointsSoFar,
                                int len, float tolerance2);
 
-  int _FindClosestPointInRegion(int regionId, 
+  int _FindClosestPointInRegion(int regionId,
                           double x, double y, double z, double &dist2);
 
   int FindClosestPointInSphere(double x, double y, double z, double radius,
@@ -730,7 +730,7 @@ protected:
                                    const double dop[3],
                                    vtkIntArray *orderedList);
 
-  static int __ViewOrderRegionsInDirection(vtkKdNode *node, vtkIntArray *list, 
+  static int __ViewOrderRegionsInDirection(vtkKdNode *node, vtkIntArray *list,
                                            vtkIntArray *IdsOfInterest,
                                            const double dir[3], int nextId);
 
@@ -738,7 +738,7 @@ protected:
                                     const double pos[3],
                                     vtkIntArray *orderedList);
 
-  static int __ViewOrderRegionsFromPosition(vtkKdNode *node, vtkIntArray *list, 
+  static int __ViewOrderRegionsFromPosition(vtkKdNode *node, vtkIntArray *list,
                                             vtkIntArray *IdsOfInterest,
                                             const double pos[3], int nextId);
 
@@ -746,9 +746,9 @@ protected:
   static int FoundId(vtkIntArray *idArray, int id);
 
   void NewParitioningRequest(int req);
-  void SetInputDataInfo(int i, 
+  void SetInputDataInfo(int i,
        int dims[3], double origin[3], double spacing[3]);
-  int CheckInputDataInfo(int i, 
+  int CheckInputDataInfo(int i,
        int dims[3], double origin[3], double spacing[3]);
   void ClearLastBuildCache();
 
@@ -769,10 +769,10 @@ protected:
   static int findRegion(vtkKdNode *node, double x, double y, double z);
 //ETX
 
-  static vtkKdNode **_GetRegionsAtLevel(int level, vtkKdNode **nodes, 
+  static vtkKdNode **_GetRegionsAtLevel(int level, vtkKdNode **nodes,
                                         vtkKdNode *kd);
 
-  static void AddNewRegions(vtkKdNode *kd, float *c1, 
+  static void AddNewRegions(vtkKdNode *kd, float *c1,
                             int midpt, int dim, double coord);
 
   void NewPartitioningRequest(int req);

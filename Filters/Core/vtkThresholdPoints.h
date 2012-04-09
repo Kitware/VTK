@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkThresholdPoints - extracts points whose scalar value satisfies threshold criterion
 // .SECTION Description
-// vtkThresholdPoints is a filter that extracts points from a dataset that 
+// vtkThresholdPoints is a filter that extracts points from a dataset that
 // satisfy a threshold criterion. The criterion can take three forms:
 // 1) greater than a particular value; 2) less than a particular value; or
 // 3) between a particular value. The output of the filter is polygonal data.
@@ -33,7 +33,7 @@ public:
   static vtkThresholdPoints *New();
   vtkTypeMacro(vtkThresholdPoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
   // Description:
   // Criterion is cells whose scalars are less or equal to lower threshold.
   void ThresholdByLower(double lower);
@@ -75,7 +75,7 @@ protected:
 
   int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(double s) {return ( s >= this->LowerThreshold ? 
+  int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
   vtkThresholdPoints(const vtkThresholdPoints&);  // Not implemented.

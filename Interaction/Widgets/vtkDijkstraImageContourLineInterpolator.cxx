@@ -61,7 +61,7 @@ void vtkDijkstraImageContourLineInterpolator::SetCostImage( vtkImageData *arg )
 }
 
 //----------------------------------------------------------------------
-int vtkDijkstraImageContourLineInterpolator::InterpolateLine( 
+int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   vtkRenderer* vtkNotUsed(ren), vtkContourRepresentation *rep,
   int idx1, int idx2 )
 {
@@ -72,11 +72,11 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
     vtkImageActorPointPlacer *placer =
       vtkImageActorPointPlacer::SafeDownCast(rep->GetPointPlacer());
 
-    if ( !placer ) 
+    if ( !placer )
       {
       return 1;
       }
-      
+
     vtkImageActor* actor = placer->GetImageActor();
     if ( !actor || !(this->CostImage = actor->GetInput()) )
       {
@@ -93,7 +93,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   vtkIdType endVertId = this->CostImage->FindPoint( p2 );
 
   // Could not find the starting and ending cells. We can't interpolate.
-  if ( beginVertId == -1 || endVertId == -1 ) 
+  if ( beginVertId == -1 || endVertId == -1 )
     {
     return 0;
     }
@@ -127,7 +127,7 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
   this->DijkstraImageGeodesicPath->Update();
 
   vtkPolyData *pd = this->DijkstraImageGeodesicPath->GetOutput();
-  
+
   vtkIdType npts = 0, *pts = NULL;
   pd->GetLines()->InitTraversal();
   pd->GetLines()->GetNextCell( npts, pts );

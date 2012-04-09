@@ -15,7 +15,7 @@
 
 // .NAME vtkVolumeRayCastMapper - A slow but accurate mapper for rendering volumes
 // .SECTION Description
-// This is a software ray caster for rendering volumes in vtkImageData. 
+// This is a software ray caster for rendering volumes in vtkImageData.
 
 // .SECTION see also
 // vtkVolumeMapper
@@ -25,7 +25,7 @@
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
-#include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo 
+#include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo
                                       // and vtkVolumeRayCastDynamicInfo
 #include "vtkFastNumericConversion.h" // for fast rounding and floor
 
@@ -84,7 +84,7 @@ public:
   // Set/Get the distance between samples.  This variable is only
   // used for sampling ray casting methods.  Methods that compute
   // a ray value by stepping cell-by-cell are not affected by this
-  // value. 
+  // value.
   vtkSetMacro( SampleDistance, double );
   vtkGetMacro( SampleDistance, double );
 
@@ -124,13 +124,13 @@ public:
 
   // Description:
   // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
-  // will be varied to achieve the allocated render time of this 
+  // will be varied to achieve the allocated render time of this
   // prop (controlled by the desired update rate and any culling in
-  // use). 
+  // use).
   vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
   vtkGetMacro( AutoAdjustSampleDistances, int );
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
-  
+
   // Description:
   // Set/Get the number of threads to use. This by default is equal to
   // the number of available processors detected.
@@ -143,7 +143,7 @@ public:
   vtkSetClampMacro( IntermixIntersectingGeometry, int, 0, 1 );
   vtkGetMacro( IntermixIntersectingGeometry, int );
   vtkBooleanMacro( IntermixIntersectingGeometry, int );
-  
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -171,7 +171,7 @@ public:
     {return this->GetGradientMagnitudeScale();};
   virtual float GetGradientMagnitudeBias(int)
     {return this->GetGradientMagnitudeBias();};
-  
+
 //ETX
 
 protected:
@@ -182,7 +182,7 @@ protected:
   vtkEncodedGradientEstimator  *GradientEstimator;
   vtkEncodedGradientShader     *GradientShader;
   vtkRayCastImageDisplayHelper *ImageDisplayHelper;
-  
+
   virtual void ReportReferences(vtkGarbageCollector*);
 
   // The distance between sample points along the ray
@@ -191,17 +191,17 @@ protected:
   double                       MinimumImageSampleDistance;
   double                       MaximumImageSampleDistance;
   int                          AutoAdjustSampleDistances;
-  
+
   double                       WorldSampleDistance;
   int                          ScalarDataType;
   void                         *ScalarDataPointer;
 
-  void                         UpdateShadingTables( vtkRenderer *ren, 
+  void                         UpdateShadingTables( vtkRenderer *ren,
                                                     vtkVolume *vol );
 
   void ComputeMatrices( vtkImageData *data, vtkVolume *vol );
   int ComputeRowBounds( vtkVolume *vol, vtkRenderer *ren );
-  
+
   friend VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg );
 
   vtkMultiThreader  *Threader;
@@ -214,33 +214,33 @@ protected:
   vtkMatrix4x4 *VoxelsToWorldMatrix;
 
   vtkMatrix4x4 *VolumeMatrix;
-  
+
   vtkTransform *PerspectiveTransform;
   vtkTransform *VoxelsTransform;
   vtkTransform *VoxelsToViewTransform;
-  
+
   // This is how big the image would be if it covered the entire viewport
   int            ImageViewportSize[2];
-  
+
   // This is how big the allocated memory for image is. This may be bigger
-  // or smaller than ImageFullSize - it will be bigger if necessary to 
+  // or smaller than ImageFullSize - it will be bigger if necessary to
   // ensure a power of 2, it will be smaller if the volume only covers a
   // small region of the viewport
   int            ImageMemorySize[2];
-  
+
   // This is the size of subregion in ImageSize image that we are using for
   // the current image. Since ImageSize is a power of 2, there is likely
   // wasted space in it. This number will be used for things such as clearing
   // the image if necessary.
   int            ImageInUseSize[2];
-  
+
   // This is the location in ImageFullSize image where our ImageSize image
   // is located.
   int            ImageOrigin[2];
-  
+
   // This is the allocated image
   unsigned char *Image;
-  
+
   int  *RowBounds;
   int  *OldRowBounds;
 
@@ -260,7 +260,7 @@ protected:
   int           ZBufferOrigin[2];
 
   float         MinimumViewDistance;
-  
+
   int           ClipRayAgainstVolume( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                       float bounds[6] );
 
@@ -269,7 +269,7 @@ protected:
 
   int           ClipRayAgainstClippingPlanes( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                               vtkVolumeRayCastStaticInfo *staticInfo);
-  
+
   // Get the ZBuffer value corresponding to location (x,y) where (x,y)
   // are indexing into the ImageInUse image. This must be converted to
   // the zbuffer image coordinates. Nearest neighbor value is returned.

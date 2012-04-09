@@ -50,15 +50,15 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
     vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
     return;
     }
-  
-  if ( enabling ) 
+
+  if ( enabling )
     {
     vtkDebugMacro(<<"Enabling line widget");
     if ( this->Enabled ) //already enabled, just return
       {
       return;
       }
-    
+
     if ( ! this->CurrentRenderer )
       {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
@@ -71,14 +71,14 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
       }
 
     this->Enabled = 1;
-    
+
     // listen for the following events
     vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::MouseMoveEvent, 
+    i->AddObserver(vtkCommand::MouseMoveEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, 
+    i->AddObserver(vtkCommand::LeftButtonPressEvent,
                    this->EventCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
 
     // Add the xy plot
@@ -107,13 +107,13 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
 }
 
 //-------------------------------------------------------------------------
-void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
                                        unsigned long event,
-                                       void* clientdata, 
+                                       void* clientdata,
                                        void* vtkNotUsed(calldata))
 {
   vtkXYPlotWidget* self = reinterpret_cast<vtkXYPlotWidget *>( clientdata );
-  
+
   //okay, let's do the right thing
   switch(event)
     {
@@ -130,11 +130,11 @@ void vtkXYPlotWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
 }
 
 //-------------------------------------------------------------------------
-int vtkXYPlotWidget::ComputeStateBasedOnPosition(int X, int Y, 
+int vtkXYPlotWidget::ComputeStateBasedOnPosition(int X, int Y,
                                                     int *pos1, int *pos2)
 {
   int Result;
-  
+
   // what are we modifying? The position, or size?
   // if size what piece?
   // if we are within 7 pixels of an edge...
@@ -225,7 +225,7 @@ void vtkXYPlotWidget::SetCursor(int cState)
       break;
     case vtkXYPlotWidget::Moving:
       this->RequestCursorShape(VTK_CURSOR_SIZEALL);
-      break;        
+      break;
     }
 }
 
@@ -248,7 +248,7 @@ void vtkXYPlotWidget::OnLeftButtonDown()
     {
     return;
     }
-  
+
   // start a drag, store the normalized view coords
   double X2 = X;
   double Y2 = Y;
@@ -261,7 +261,7 @@ void vtkXYPlotWidget::OnLeftButtonDown()
 
   this->State = this->ComputeStateBasedOnPosition(X, Y, pos1, pos2);
   this->SetCursor(this->State);
-  
+
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -274,7 +274,7 @@ void vtkXYPlotWidget::OnMouseMove()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
-  
+
   // compute the display bounds of the xy plot if we are inside or outside
   int *pos1, *pos2;
   if (this->State == vtkXYPlotWidget::Outside ||
@@ -284,7 +284,7 @@ void vtkXYPlotWidget::OnMouseMove()
       ->GetComputedDisplayValue(this->CurrentRenderer);
     pos2 = this->XYPlotActor->GetPosition2Coordinate()
       ->GetComputedDisplayValue(this->CurrentRenderer);
-  
+
     if (this->State == vtkXYPlotWidget::Outside)
       {
       // if we are not over the xy plot, ignore
@@ -296,7 +296,7 @@ void vtkXYPlotWidget::OnMouseMove()
       // otherwise change our state to inside
       this->State = vtkXYPlotWidget::Inside;
       }
-  
+
     // if inside, set the cursor to the correct shape
     if (this->State == vtkXYPlotWidget::Inside)
       {
@@ -313,14 +313,14 @@ void vtkXYPlotWidget::OnMouseMove()
       return;
       }
     }
-  
+
   double XF = X;
   double YF = Y;
   // convert to normalized viewport coordinates
   this->CurrentRenderer->DisplayToNormalizedDisplay(XF,YF);
   this->CurrentRenderer->NormalizedDisplayToViewport(XF,YF);
   this->CurrentRenderer->ViewportToNormalizedViewport(XF,YF);
-  
+
   // there are four parameters that can be adjusted
   double *fpos1 = this->XYPlotActor->GetPositionCoordinate()->GetValue();
   double *fpos2 = this->XYPlotActor->GetPosition2Coordinate()->GetValue();
@@ -328,9 +328,9 @@ void vtkXYPlotWidget::OnMouseMove()
   float par2[2];
   par1[0] = fpos1[0];
   par1[1] = fpos1[1];
-  par2[0] = fpos1[0] + fpos2[0];  
-  par2[1] = fpos1[1] + fpos2[1];  
-    
+  par2[0] = fpos1[0] + fpos2[0];
+  par2[1] = fpos1[1] + fpos2[1];
+
   // based on the state, adjust the xy plot parameters
   switch (this->State)
     {
@@ -410,8 +410,8 @@ void vtkXYPlotWidget::OnMouseMove()
         }
       break;
     }
-  
-  // push the change out to the xy plot 
+
+  // push the change out to the xy plot
   // make sure the xy plot doesn't shrink to nothing
   if (par2[0] > par1[0] && par2[1] > par1[1])
     {
@@ -419,9 +419,9 @@ void vtkXYPlotWidget::OnMouseMove()
     this->XYPlotActor->GetPosition2Coordinate()->
       SetValue(par2[0] - par1[0], par2[1] - par1[1]);
     this->StartPosition[0] = XF;
-    this->StartPosition[1] = YF;      
+    this->StartPosition[1] = YF;
     }
-  
+
   // start a drag
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
@@ -449,6 +449,6 @@ void vtkXYPlotWidget::OnLeftButtonUp()
 void vtkXYPlotWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "XYPlotActor: " << this->XYPlotActor << "\n";
 }

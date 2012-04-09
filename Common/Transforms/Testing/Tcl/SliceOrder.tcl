@@ -2,7 +2,7 @@
 # these transformations permute medical image data to maintain proper orientation
 # regardless of the acqusition order. After applying these transforms with
 # vtkTransformFilter, a view up of 0,-1,0 will result in the body part
-# facing the viewer. 
+# facing the viewer.
 # NOTE: some transformations have a -1 scale factor for one of the components.
 #       To ensure proper polygon orientation and normal direction, you must
 #       apply the vtkPolyDataNormals filter.

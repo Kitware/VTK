@@ -13,7 +13,7 @@
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New ();
-  
+
 
 
 int TestExodusImplicitArrays(int argc, char *argv[])
@@ -35,7 +35,7 @@ int TestExodusImplicitArrays(int argc, char *argv[])
     }
   vtkMultiBlockDataSet *elems = vtkMultiBlockDataSet::SafeDownCast (mb->GetBlock (0));
 
-  if (!elems) 
+  if (!elems)
     {
     return 1;
     }

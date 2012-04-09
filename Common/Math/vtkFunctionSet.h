@@ -20,7 +20,7 @@
 // The only supported operation is the  function evaluation at x_j.
 
 // .SECTION See Also
-// vtkImplicitDataSet vtkInterpolatedVelocityField 
+// vtkImplicitDataSet vtkInterpolatedVelocityField
 // vtkInitialValueProblemSolver
 
 #ifndef __vtkFunctionSet_h
@@ -37,21 +37,21 @@ public:
 
   // Description:
   // Evaluate functions at x_j.
-  // x and f have to point to valid double arrays of appropriate 
+  // x and f have to point to valid double arrays of appropriate
   // sizes obtained with GetNumberOfFunctions() and
   // GetNumberOfIndependentVariables.
   virtual int FunctionValues(double* x, double* f) = 0;
 
   // Description:
-  // Return the number of functions. Note that this is constant for 
-  // a given type of set of functions and can not be changed at 
+  // Return the number of functions. Note that this is constant for
+  // a given type of set of functions and can not be changed at
   // run time.
-  virtual int GetNumberOfFunctions() { 
+  virtual int GetNumberOfFunctions() {
     return this->NumFuncs; }
 
   // Description:
-  // Return the number of independent variables. Note that this is 
-  // constant for a given type of set of functions and can not be changed  
+  // Return the number of independent variables. Note that this is
+  // constant for a given type of set of functions and can not be changed
   // at run time.
   virtual int GetNumberOfIndependentVariables() {
     return this->NumIndepVars; }

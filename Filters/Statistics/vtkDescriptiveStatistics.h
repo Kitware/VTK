@@ -20,7 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .NAME vtkDescriptiveStatistics - A class for univariate descriptive statistics
 //
 // .SECTION Description
-// Given a selection of columns of interest in an input data table, this 
+// Given a selection of columns of interest in an input data table, this
 // class provides the following functionalities, depending on the chosen
 // execution options:
 // * Learn: calculate extremal values, sample mean, and M2, M3, and M4 aggregates
@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 //   retrieve corresponding p-value for normality testing.
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories 
+// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
@@ -118,13 +118,13 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ); 
+                     vtkTable* );
 
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkMultiBlockDataSet* inMeta,
-                       vtkTable* outData ) 
+                       vtkTable* outData )
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
 //BTX
@@ -135,7 +135,7 @@ protected:
 
   // Description:
   // Provide the appropriate assessment functor.
-  virtual void SelectAssessFunctor( vtkTable* outData, 
+  virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );

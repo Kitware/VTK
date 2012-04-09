@@ -40,7 +40,7 @@ vtkSequencePass::~vtkSequencePass()
 void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  
+
   os << indent << "Passes:";
   if(this->Passes!=0)
     {
@@ -82,7 +82,7 @@ void vtkSequencePass::Render(const vtkRenderState *s)
 void vtkSequencePass::ReleaseGraphicsResources(vtkWindow *w)
 {
   assert("pre: w_exists" && w!=0);
-  
+
   if(this->Passes!=0)
     {
     this->Passes->InitTraversal();
