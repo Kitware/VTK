@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkCellLinks.cxx
   vtkCellLocator.cxx
   vtkCellTypes.cxx
+  vtkCellType.h
   vtkCompositeDataIterator.cxx
   vtkCompositeDataSet.cxx
   vtkCone.cxx
@@ -226,6 +227,7 @@ set_source_files_properties(
   vtkStructuredData
   vtkTreeIterator
   vtkUniformGridAMR
+  vtkCellType
   ABSTRACT
   )
 
@@ -251,6 +253,11 @@ set_source_files_properties(
   vtkVector.h
   vtkTuple.h
   PROPERTIES WRAP_SPECIAL 1
+  )
+
+set_source_files_properties(
+  vtkCellType.h
+  PROPERTIES WRAP_HEADER 1
   )
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})
