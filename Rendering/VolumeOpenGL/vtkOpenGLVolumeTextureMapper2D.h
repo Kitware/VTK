@@ -57,7 +57,4 @@ private:
   void operator=(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
 };
 
-
 #endif
-
-
