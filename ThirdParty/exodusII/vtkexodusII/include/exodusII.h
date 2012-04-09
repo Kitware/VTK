@@ -45,7 +45,7 @@
 
 #include "vtk_netcdf.h"
 #include "vtk_exodus2_mangle.h"
-#include "vtkexodus2/include/exodusII_cfg.h"
+#include "vtkexodusII/include/exodusII_cfg.h"
 
 /* EXODUS II version number */
 #define EX_API_VERS 5.10f

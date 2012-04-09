@@ -18,8 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include <vtkTextCodec.h>
-
+#include "vtkTextCodec.h"
 
 const char* vtkTextCodec::Name()
 {

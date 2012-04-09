@@ -24,8 +24,6 @@ except ImportError:
 except SystemError:
     dl = None
 
-import __helper
-
 # set the dlopen flags so that VTK does not run into problems with
 # shared symbols.
 try:
@@ -37,91 +35,8 @@ except AttributeError:
 if dl and (os.name == 'posix'):
     sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
 
-# Load all required kits.
-from vtkCommonPython import *
-from vtkFilteringPython import *
-from vtkIOPython import *
-from vtkImagingPython import *
-from vtkGraphicsPython import *
-
-# the vtk.kits variable tells us which kits we actually have
-kits = ['common', 'filtering', 'io', 'imaging', 'graphics']
-
-# Try to load optional kits.  The helper function checks if the
-# ImportError is actually a link error.
-
-try:
-    from vtkGenericFilteringPython import *
-    kits.append('genericfiltering')
-except ImportError, exc:
-    __helper.refine_import_err('genericfiltering', 'vtkGenericFilteringPython',
-                               exc)
-try:
-    from vtkRenderingPython import *
-    kits.append('rendering')
-except ImportError, exc:
-    __helper.refine_import_err('rendering', 'vtkRenderingPython', exc)
-
-try:
-    from vtkVolumeRenderingPython import *
-    kits.append('volumerendering')
-except ImportError, exc:
-    __helper.refine_import_err('volumerendering',
-                               'vtkVolumeRenderingPython', exc)
-
-try:
-    from vtkHybridPython import *
-    kits.append('hybrid')
-except ImportError, exc:
-    __helper.refine_import_err('hybrid', 'vtkHybridPython', exc)
-
-try:
-    from vtkWidgetsPython import *
-    kits.append('widgets')
-except ImportError, exc:
-    __helper.refine_import_err('widgets', 'vtkWidgetsPython', exc)
-
-try:
-    from vtkChartsPython import *
-    kits.append('charts')
-except ImportError, exc:
-    __helper.refine_import_err('charts', 'vtkChartsPython', exc)
-
-try:
-    from vtkChemistryPython import *
-    kits.append('chemistry')
-except ImportError, exc:
-    __helper.refine_import_err('chemistry', 'vtkChemistryPython', exc)
-
-try:
-    from vtkGeovisPython import *
-    kits.append('geovis')
-except ImportError, exc:
-    __helper.refine_import_err('geovis', 'vtkGeovisPython', exc)
-
-try:
-    from vtkInfovisPython import *
-    kits.append('infovis')
-except ImportError, exc:
-    __helper.refine_import_err('infovis', 'vtkInfovisPython', exc)
-
-try:
-    from vtkViewsPython import *
-    kits.append('views')
-except ImportError, exc:
-    __helper.refine_import_err('views', 'vtkViewsPython', exc)
-
-try:
-    from vtkParallelPython import *
-    kits.append('parallel')
-except ImportError, exc:
-    __helper.refine_import_err('parallel', 'vtkParallelPython', exc)
-
-try:
-    from qvtk import *
-    kits.append('qvtk')
-except ImportError, exc:
-    __helper.refine_import_err('qvtk', 'vtkQtPython', exc)
+# --------------------------------------
+@VTK_PYTHON_IMPORT_ALL@# --------------------------------------
 
 # useful macro for getting type names
 __vtkTypeNameDict = {VTK_VOID:"void",
@@ -154,5 +69,5 @@ if dl and (os.name == 'posix') and orig_dlopen_flags:
     sys.setdlopenflags(orig_dlopen_flags)
 
 # removing things the user shouldn't have to see.
-del __helper, orig_dlopen_flags
+del orig_dlopen_flags
 del sys, dl, os

@@ -18,14 +18,14 @@ class vtkMultiProcessController;
 #include <vector>
 
 #include "vtk_exodusII.h"
-
+#include "vtkIOExodusModule.h" // For export macro
 class vtkExodusIIReaderParser;
 class vtkMutableDirectedGraph;
 
 /** This class holds metadata for an Exodus file.
   *
   */
-class vtkExodusIIReaderPrivate : public vtkObject
+class VTKIOEXODUS_EXPORT vtkExodusIIReaderPrivate : public vtkObject
 {
 public:
   static vtkExodusIIReaderPrivate* New();

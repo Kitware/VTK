@@ -49,6 +49,15 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
     vtkSmartPointer<vtkTestingObjectFactory> factory = vtkSmartPointer<vtkTestingObjectFactory>::New();
     if (!interactive)
       {
+      // Disable any other overrides before registering our factory.
+      vtkObjectFactoryCollection *collection = vtkObjectFactory::GetRegisteredFactories();
+      collection->InitTraversal();
+      vtkObjectFactory *f = collection->GetNextItem();
+      while (f)
+        {
+        f->Disable(\"vtkRenderWindowInteractor\");
+        f = collection->GetNextItem();
+        }
       vtkObjectFactory::RegisterFactory(factory);
       }
 "
@@ -74,5 +83,5 @@ SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 "
 )
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                       EXTRA_INCLUDE ${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.h)
+                       EXTRA_INCLUDE ${VTK_SOURCE_DIR}/Testing/Rendering/vtkTestingObjectFactory.h)
 

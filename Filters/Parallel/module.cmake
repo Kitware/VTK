@@ -1,0 +1,12 @@
+vtk_module(vtkFiltersParallel
+  GROUPS
+    MPI
+  DEPENDS
+    vtkParallelMPI
+    vtkCosmo
+    vtkFiltersGeneral
+    vtkFiltersExtraction
+    vtkFiltersModeling
+    vtkFiltersSources
+    vtkRenderingCore
+  )

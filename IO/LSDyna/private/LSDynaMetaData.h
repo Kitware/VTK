@@ -35,7 +35,7 @@
 #include <set>
 #include <vector>
 
-class LSDyna_EXPORT LSDynaMetaData
+class LSDynaMetaData
 {
 public:
   LSDynaMetaData();

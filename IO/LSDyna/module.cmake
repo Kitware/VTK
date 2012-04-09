@@ -1,0 +1,10 @@
+vtk_module(vtkIOLSDyna
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkIOXML
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkTestingRendering
+  )

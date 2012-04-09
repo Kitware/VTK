@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this test.
 
 #include "vtkSQLDatabaseSchema.h"
-
+#include "DatabaseSchemaWith2Tables.h"
 #include "vtkStdString.h"
 
 #include <set>
@@ -32,7 +32,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   bool status = true;
 
   // 1. Create the schema
-#include "DatabaseSchemaWith2Tables.cxx"
+  DatabaseSchemaWith2Tables schema;
 
   // 2. Check the schema
 
@@ -100,7 +100,7 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
   colTypes.insert( static_cast<int>( vtkSQLDatabaseSchema::VARCHAR ) );
 
   // Loop over all columns of the first table
-  tblHandle = 0;
+  int tblHandle = 0;
   int numCol = schema->GetNumberOfColumnsInTable( tblHandle );
   if ( numCol != 3 )
     {
@@ -289,8 +289,6 @@ int TestSQLDatabaseSchema( int /*argc*/, char* /*argv*/[] )
       status = false;
       }
     }
-
-  schema->Delete();
 
   return status ? 0 : 1;
 }

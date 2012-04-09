@@ -1,39 +1,98 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
-FOREACH(policy CMP0012 CMP0013 CMP0014)
-  IF(POLICY ${policy})
-    CMAKE_POLICY(SET ${policy} NEW)
-  ENDIF()
-ENDFOREACH()
+project(VTK)
 
-FOREACH(policy CMP0017)
-  IF(POLICY ${policy})
-    CMAKE_POLICY(SET ${policy} OLD)
-  ENDIF()
-ENDFOREACH()
+set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
+SET(VTK_ENCODESTRING_EXE vtkEncodeString)
 
-PROJECT(VTK)
+include(vtkModuleMacros)
 
-# Objective C compile flags, future CMake versions might make this obsolete
-IF(APPLE)
-  STRING(REGEX REPLACE "^.*MacOSX([0-9]*\\.[0-9]*)\\.sdk$" "\\1"
-         OSX_SDK_VERSION "${CMAKE_OSX_SYSROOT}")
-  SET(VTK_OBJCXX_FLAGS_DEFAULT)
-  IF(OSX_SDK_VERSION)
-    IF(${OSX_SDK_VERSION} VERSION_GREATER "10.4")
-      SET(VTK_OBJCXX_FLAGS_DEFAULT "-fobjc-gc")
-    ENDIF(${OSX_SDK_VERSION} VERSION_GREATER "10.4")
-  ENDIF(OSX_SDK_VERSION)
-  SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective C compilation")
-  MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
-ENDIF(APPLE)
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Debug' as none was specified.")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
 
-# The Cygwin maintainers have requested that we not define WIN32. Thus developers
-# must use the X11 packages to build cygwin vtk.
-IF(CYGWIN)
-  unset(WIN32)
-ENDIF()
+# Set up our directory structure for output libraries and binaries
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin"
+    CACHE PATH "Runtime output directory")
+endif()
+if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  if(UNIX)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib"
+      CACHE PATH "Library output directory")
+  else()
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin"
+      CACHE PATH "Library output directory")
+  endif()
+endif()
+if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib"
+    CACHE PATH "Archive output directory")
+endif()
+mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+  CMAKE_LIBRARY_OUTPUT_DIRECTORY
+  CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+  )
 
+# FIXME: LIBRARY_OUTPUT_PATH and EXECUTABLE_OUTPUT_PATH useage is scattered about VTK.
+# when we can patch everything they should simply be replaced with CMAKE_<blah>_OUTPUT_DIRECTORY variables.
+IF(NOT LIBRARY_OUTPUT_PATH)
+  SET(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} CACHE INTERNAL "Single output directory for building all libraries.")
+ENDIF(NOT LIBRARY_OUTPUT_PATH)
+IF(NOT EXECUTABLE_OUTPUT_PATH)
+  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CACHE INTERNAL "Single output directory for building all executables.")
+ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
+
+# Choose static or shared libraries.
+option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
+set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+
+#-----------------------------------------------------------------------------
+# VTK version number.  An even minor number corresponds to releases.
+set(VTK_MAJOR_VERSION 6)
+set(VTK_MINOR_VERSION 0)
+set(VTK_BUILD_VERSION 0)
+set(VTK_VERSION
+    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
+
+# VTK installation structure
+if(NOT VTK_INSTALL_RUNTIME_DIR)
+  set(VTK_INSTALL_RUNTIME_DIR bin)
+endif()
+if(NOT VTK_INSTALL_LIBRARY_DIR)
+  set(VTK_INSTALL_LIBRARY_DIR lib)
+endif()
+if(NOT VTK_INSTALL_ARCHIVE_DIR)
+  set(VTK_INSTALL_ARCHIVE_DIR lib)
+endif()
+if(NOT VTK_INSTALL_INCLUDE_DIR)
+  set(VTK_INSTALL_INCLUDE_DIR include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+endif()
+if(NOT VTK_INSTALL_DATA_DIR)
+  set(VTK_INSTALL_DATA_DIR share/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+endif()
+if(NOT VTK_INSTALL_DOC_DIR)
+  set(VTK_INSTALL_DOC_DIR share/doc/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+endif()
+if(NOT VTK_INSTALL_PACKAGE_DIR)
+  set(VTK_INSTALL_PACKAGE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+endif()
+if(NOT VTK_INSTALL_TCL_DIR)
+  # tclsh searches <prefix>/lib/tcltk and its subdirectories for pkgIndex.tcl files
+  set(VTK_INSTALL_TCL_DIR lib/tcltk/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+endif()
+if(NOT VTK_INSTALL_EXPORT_NAME)
+  set(VTK_INSTALL_EXPORT_NAME VTKTargets)
+endif()
+set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
+
+# FIXME: Used by HashSource
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
 IF(NOT EXPORT_EXECUTABLES_FILE)
@@ -48,100 +107,23 @@ IF(NOT EXPORT_EXECUTABLES_FILE)
   FILE(WRITE "${EXPORT_EXECUTABLES_FILE}" "#generated by VTK, do not edit\n")
 ENDIF(NOT EXPORT_EXECUTABLES_FILE)
 
-GET_PROPERTY(VTK_TARGET_SUPPORTS_SHARED_LIBS
-  GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
-
-# Warn when using "old style" CMake install commands... But only when
-# building VTK itself.
-#
-IF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-  MACRO(INSTALL_TARGETS)
-    MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_TARGETS command with arguments: ${ARGV}")
-  ENDMACRO(INSTALL_TARGETS)
-  MACRO(INSTALL_PROGRAMS)
-    MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_PROGRAMS command with arguments: ${ARGV}")
-  ENDMACRO(INSTALL_PROGRAMS)
-  MACRO(INSTALL_FILES)
-    MESSAGE(FATAL_ERROR "Somebody is calling old INSTALL_FILES command with arguments: ${ARGV}")
-  ENDMACRO(INSTALL_FILES)
-ENDIF("${VTK_BINARY_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-
-SET(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
-SET(CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
-
-# Add supplemental compiler warnings, and GCC visibility support.
-INCLUDE(vtkCompilerExtras)
-
-# Check the source tree - right now just for local Git hooks.
-INCLUDE(vtkCheckSourceTree)
-
-# Set a default build type if none was specified
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  message(STATUS "Setting build type to 'Debug' as none was specified.")
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
-    "MinSizeRel" "RelWithDebInfo")
-endif()
+# FIXME: These will be removed, used by vtkzlib etc
+set(VTK_INSTALL_BIN_DIR_CM24 ${VTK_INSTALL_RUNTIME_DIR})
+set(VTK_INSTALL_LIB_DIR_CM24 ${VTK_INSTALL_LIBRARY_DIR})
+set(VTK_INSTALL_PACKAGE_DIR_CM24 ${VTK_INSTALL_PACKAGE_DIR})
+set(VTK_INSTALL_INCLUDE_DIR_CM24 ${VTK_INSTALL_INCLUDE_DIR})
+set(VTK_INSTALL_DOXYGEN_DIR_CM24 ${VTK_INSTALL_DATA_DIR}/doxygen)
 
 #-----------------------------------------------------------------------------
-# VTK version number.  An even minor number corresponds to releases.
-SET(VTK_MAJOR_VERSION 6)
-SET(VTK_MINOR_VERSION 0)
-SET(VTK_BUILD_VERSION 0)
-SET(VTK_VERSION
-    "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
-
-# Append the library version information to the library target
-# properties.  A parent project may set its own properties and/or may
-# block this.
-IF(NOT VTK_NO_LIBRARY_VERSION)
-  SET(VTK_LIBRARY_PROPERTIES ${VTK_LIBRARY_PROPERTIES}
-    VERSION "${VTK_VERSION}"
-    SOVERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
-    )
-ENDIF(NOT VTK_NO_LIBRARY_VERSION)
-
-INCLUDE(vtkTargetExportMacros)
+# The third party macros are still used in one or two third party builds.
+include(vtkThirdParty)
 
 #-----------------------------------------------------------------------------
-# Determine whether we are being built by CTest and if so the version.
-# For CTest 2.2 and higher this will contain the version number.  For
-# earlier CTest versions this will contain just "1".  If not
-# configuring from CTest this should be empty, so set the result to a
-# literal "0" (helps with numerical comparisons).
-SET(VTK_TEST_FROM_CTEST "$ENV{DASHBOARD_TEST_FROM_CTEST}")
-IF(NOT VTK_TEST_FROM_CTEST)
-  SET(VTK_TEST_FROM_CTEST 0)
-ENDIF(NOT VTK_TEST_FROM_CTEST)
-
-# Determine whether tests requiring the configuration type to be known
-# can be run.  Start by assuming the configuration type is known.
-# This is the case when using a generator supporting only one
-# configuration type.
-SET(VTK_TEST_CONFIG_TYPE_KNOWN 1)
-IF(CMAKE_CONFIGURATION_TYPES)
-  # When there are multiple configuration types we must be running
-  # tests with a CTest that knows how to give the configuration type
-  # to the test when it runs.  This requires CTest 2.2 or higher.
-  IF(VTK_TEST_FROM_CTEST LESS "2.2")
-    # This is either a CTest older than 2.2 or not a CTest.
-    # The configuration type will not be known when running the tests.
-    SET(VTK_TEST_CONFIG_TYPE_KNOWN 0)
-  ENDIF(VTK_TEST_FROM_CTEST LESS "2.2")
-ENDIF(CMAKE_CONFIGURATION_TYPES)
+include(vtkCompilerExtras)
+include(vtkBuildPath)
 
 #-----------------------------------------------------------------------------
-# Load some macros.
-INCLUDE(vtkDependentOption)
-INCLUDE(vtkThirdParty)
-INCLUDE(vtkExportKit)
-INCLUDE(vtkMakeInstantiator)
-INCLUDE(CMakeExportBuildSettings)
-
-#-----------------------------------------------------------------------------
-# Choose static or shared libraries.
-INCLUDE(vtkSelectSharedLibraries)
+include(CTest)
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
@@ -155,8 +137,8 @@ SET(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 #-----------------------------------------------------------------------------
 # Does the const_reverse_iterator have the comparison operators? Before GCC
 # 4.1 they were not present.
-INCLUDE(CheckCXXSourceCompiles)
-SET(VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE
+include(CheckCXXSourceCompiles)
+set(VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE
 "#include <vector>
 int main()
 {
@@ -165,353 +147,57 @@ int main()
   it != test.rend();
   return 0;
 }")
-CHECK_CXX_SOURCE_COMPILES("${VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE}"
+check_cxx_source_compiles("${VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE}"
   VTK_CONST_REVERSE_ITERATOR_COMPARISON)
 
 #-----------------------------------------------------------------------------
-# Discover the name of the runtime library path environment variable
-# and put the result in SHARED_LIBRARY_PATH_VAR_NAME.
-# The result depends on the platform and on some platforms it depends on
-# the compiler options (32-bit vs. 64-bit).
-
-INCLUDE(SharedLibraryPathVarName)
-
-#-----------------------------------------------------------------------------
-# Output directories.
-IF(NOT LIBRARY_OUTPUT_PATH)
-  SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
-ENDIF(NOT LIBRARY_OUTPUT_PATH)
-IF(NOT EXECUTABLE_OUTPUT_PATH)
-  SET(EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
-ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
-
-#-----------------------------------------------------------------------------
-# Directories with the configuration subdir, for advanced use only.
-# These are only used when passing arguments to custom commands,
-# or when writing config files for use by external projects.
-# In other circumstances, the build system will handle the config
-# subdirectory automatically.
-
-IF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
-  SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH})
-  SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH})
-ELSE("${CMAKE_CFG_INTDIR}" STREQUAL ".")
-  SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
-  SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
-ENDIF("${CMAKE_CFG_INTDIR}" STREQUAL ".")
-
-#-----------------------------------------------------------------------------
-# Where the cxx tests are, for use in ADD_TEST
-SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
-IF(CMAKE_CONFIGURATION_TYPES)
-  SET(CXX_TEST_CONFIG /\${CTEST_CONFIGURATION_TYPE})
-ELSE()
-  SET(CXX_TEST_CONFIG "")
-ENDIF()
-
-#-----------------------------------------------------------------------------
-# Configure install locations.  This allows parent projects to modify
-# the install location.  Optionally allow the project to specify a
-# single VTK_INSTALL_ROOT which basically adds to its install prefix
-# for VTK only.
-
-# The location in which to install VTK executables.
-IF(NOT VTK_INSTALL_BIN_DIR)
-  SET(VTK_INSTALL_BIN_DIR ${VTK_INSTALL_ROOT}/bin)
-ENDIF(NOT VTK_INSTALL_BIN_DIR)
-
-# The location in which to install VTK header files.
-IF(NOT VTK_INSTALL_INCLUDE_DIR)
-  SET(VTK_INSTALL_INCLUDE_DIR
-    ${VTK_INSTALL_ROOT}/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
-    )
-ENDIF(NOT VTK_INSTALL_INCLUDE_DIR)
-
-# The location in which to install VTK libraries.
-IF(NOT VTK_INSTALL_LIB_DIR)
-  SET(VTK_INSTALL_LIB_DIR
-    ${VTK_INSTALL_ROOT}/lib/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
-    )
-ENDIF(NOT VTK_INSTALL_LIB_DIR)
-
-# The location in which to install misc VTK files
-IF(NOT VTK_INSTALL_SHARE_DIR)
-  SET(VTK_INSTALL_SHARE_DIR
-    ${VTK_INSTALL_ROOT}/share/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
-    )
-ENDIF(NOT VTK_INSTALL_SHARE_DIR)
-
-# The location in which to install CMake scripts for packaging VTK.
-IF(NOT VTK_INSTALL_PACKAGE_DIR)
-  SET(VTK_INSTALL_PACKAGE_DIR ${VTK_INSTALL_LIB_DIR})
-ENDIF(NOT VTK_INSTALL_PACKAGE_DIR)
-
-# The location in which to install VTK doxygen documentation helper
-# files.
-IF(NOT VTK_INSTALL_DOXYGEN_DIR)
-  SET(VTK_INSTALL_DOXYGEN_DIR ${VTK_INSTALL_PACKAGE_DIR}/doxygen)
-ENDIF(NOT VTK_INSTALL_DOXYGEN_DIR)
-
-# The location in which to install VTK documentation files that
-# are not automatically generated.
-IF(NOT VTK_INSTALL_DOC_DIR)
-  SET(VTK_INSTALL_DOC_DIR ${VTK_INSTALL_PACKAGE_DIR}/doc)
-ENDIF(NOT VTK_INSTALL_DOC_DIR)
-
-# Compute the proper location for installing the Tcl package.  This
-# must be a fixed relative path below the library install location and
-# is therefore not settable by parent projects.
-SET(VTK_INSTALL_TCL_DIR ${VTK_INSTALL_LIB_DIR})
-
-IF(NOT VTK_INSTALL_JAVA_DIR)
-  SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
-ENDIF(NOT VTK_INSTALL_JAVA_DIR)
-
-OPTION(VTK_INSTALL_THIRD_PARTY_LIBRARIES "Use fixup bundle to install vtk and vtkpython dependencies." OFF)
-MARK_AS_ADVANCED(VTK_INSTALL_THIRD_PARTY_LIBRARIES)
-
-# There are three basic components to the VTK installation: runtime,
-# development, and documentation.  Install rules for each component
-# are surrounded by blockers.  Parent projects or users can specify
-# VTK_INSTALL_NO_RUNTIME, VTK_INSTALL_NO_DEVELOPMENT, or
-# VTK_INSTALL_NO_DOCUMENTATION to avoid installation of the
-# corresponding component.
-
-# Shared libraries are considered both runtime and development and
-# static libraries are considered development only.  In order to
-# switch library installation on and off correctly we make the
-# decision here.
-SET(VTK_INSTALL_NO_LIBRARIES)
-
-IF(BUILD_SHARED_LIBS)
-  IF(VTK_INSTALL_NO_RUNTIME AND VTK_INSTALL_NO_DEVELOPMENT)
-    SET(VTK_INSTALL_NO_LIBRARIES ON)
-  ENDIF(VTK_INSTALL_NO_RUNTIME AND VTK_INSTALL_NO_DEVELOPMENT)
-ELSE(BUILD_SHARED_LIBS)
-  IF(VTK_INSTALL_NO_DEVELOPMENT)
-    SET(VTK_INSTALL_NO_LIBRARIES ON)
-  ENDIF(VTK_INSTALL_NO_DEVELOPMENT)
-ENDIF(BUILD_SHARED_LIBS)
-
-# Because INSTALL_* commands require a leading / and because INSTALL (cmake 2.4
-# and newer) requires no leading / to install under INSTALL_PREFIX, we
-# are stripping the leading /. In the future, there should be no leading
-# / in any install directory variables
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_LIB_DIR_CM24 "${VTK_INSTALL_LIB_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_BIN_DIR_CM24 "${VTK_INSTALL_BIN_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_SHARE_DIR_CM24 "${VTK_INSTALL_SHARE_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_INCLUDE_DIR_CM24 "${VTK_INSTALL_INCLUDE_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_PACKAGE_DIR_CM24 "${VTK_INSTALL_PACKAGE_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_DOXYGEN_DIR_CM24 "${VTK_INSTALL_DOXYGEN_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_DOC_DIR_CM24 "${VTK_INSTALL_DOC_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_TCL_DIR_CM24 "${VTK_INSTALL_TCL_DIR}")
-STRING(REGEX REPLACE "^/" "" VTK_INSTALL_JAVA_DIR_CM24 "${VTK_INSTALL_JAVA_DIR}")
-
-#-----------------------------------------------------------------------------
-# Provide option to build executables as forwarding executables where by a launcher that
-# sets the appropriate environment is installed in /bin/ which then 'launches' the 'real'
-# executable under lib.
-if(UNIX)
-  OPTION(VTK_BUILD_FORWARDING_EXECUTABLES "Build forwarding executables for vtk, vtkpython, etc." OFF)
-  INCLUDE(vtkForwardingExecutable)
-  MARK_AS_ADVANCED(VTK_BUILD_FORWARDING_EXECUTABLES)
-endif()
-
-#-----------------------------------------------------------------------------
-# Save the compiler settings so another project can import them.
-CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES "${VTK_BINARY_DIR}/VTKBuildSettings.cmake"
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
-    COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-#-----------------------------------------------------------------------------
 # Provide compatibility options.
-OPTION(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
-OPTION(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
-MARK_AS_ADVANCED(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
-
-#-----------------------------------------------------------------------------
-OPTION(VTK_USE_METAIO "Build metaio" ON)
-MARK_AS_ADVANCED(VTK_USE_METAIO)
-
-# Determine the set of VTK kits that should be built.
-OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data or using widgets." ON)
-OPTION(VTK_USE_INFOVIS "Build the vtkInfovis kit.  Needed for performing information visualization." ON)
-
-VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF "" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_VIEWS "Build the vtkViews kit.  Needed for creating packaged and linked views." ON
-  "VTK_USE_RENDERING;VTK_USE_INFOVIS" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_GEOVIS "Build the vtkGeovis kit.  Needed for performing geographic visualization." ON
-  "VTK_USE_VIEWS" OFF)
-
-OPTION(VTK_USE_N_WAY_ARRAYS "Add support for arbitrary-dimension sparse and dense arrays." ON)
-
-# Determine Shading Support
-VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support for Cg." OFF
-  "VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." ON
-  "VTK_USE_RENDERING" OFF)
-
-VTK_DEPENDENT_OPTION(VTK_USE_CHARTS "Build VTK chart support (OpenGL based)" ON
-  "VTK_USE_RENDERING;VTK_USE_VIEWS" OFF)
-
-VTK_DEPENDENT_OPTION(VTK_USE_CHEMISTRY "Build VTK chemistry support" OFF
-  "VTK_USE_RENDERING" OFF)
-
-SET(VTK_DEFAULT_SHADERS_DIR
-   "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
-   CACHE INTERNAL
-   "The directory in which code for Shaders is provided.")
-
-SET(VTK_MATERIALS_DIRS
-  ${VTK_DEFAULT_SHADERS_DIR}
-  CACHE STRING
-  "; separated directories to search for materials/shaders")
-
-MARK_AS_ADVANCED(VTK_USE_CG_SHADERS VTK_USE_GLSL_SHADERS VTK_MATERIALS_DIRS)
-
-# Add Option to enable Qt Support.
-OPTION(VTK_USE_QT "Build Qt support" OFF)
-
-IF(VTK_USE_QT)
-# Now require Qt 4.5.0 or later
-  SET(QT_MIN_VERSION "4.5.0")
-  SET(QT_OFFICIAL_VERSION "4.5")
-  SET(QT_REQUIRED TRUE)
-  SET(QT_USE_QTSQL 1)
-  FIND_PACKAGE(Qt4)
-  IF(NOT QT4_FOUND)
-    MESSAGE(SEND_ERROR "Qt ${QT_MIN_VERSION} or greater not found.  Please check the QT_QMAKE_EXECUTABLE variable.")
-  ELSE(NOT QT4 FOUND)
-    # enforce Carbon or Cocoa in VTK for Qt/Mac if we are not building with X11 explicitly turned on
-    IF(Q_WS_MAC AND NOT VTK_USE_X)
-      IF(QT_MAC_USE_COCOA)
-        SET(VTK_USE_CARBON OFF CACHE BOOL "Build VTK with Carbon" FORCE)
-        SET(VTK_USE_COCOA ON CACHE BOOL "Build VTK with Cocoa" FORCE)
-      ELSE(QT_MAC_USE_COCOA)
-        SET(VTK_USE_CARBON ON CACHE BOOL "Build VTK with Carbon" FORCE)
-        SET(VTK_USE_COCOA OFF CACHE BOOL "Build VTK with Cocoa" FORCE)
-      ENDIF(QT_MAC_USE_COCOA)
-    ENDIF(Q_WS_MAC AND NOT VTK_USE_X)
-  ENDIF(NOT QT4_FOUND)
-ENDIF(VTK_USE_QT)
-
-# Determine GUI Support.
-VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
-                     "VTK_USE_RENDERING" OFF)
-MARK_AS_ADVANCED(VTK_USE_GUISUPPORT)
-IF(VTK_USE_QT AND VTK_USE_RENDERING)
-  SET(VTK_USE_GUISUPPORT 1 CACHE BOOL "Build VTK with GUI Support" FORCE)
-ENDIF()
-
-# Determing Qt GUI. This is no longer a user settable option. It's value depends
-# on whether VTK_USE_GUISUPPORT and VTK_USE_RENDERING and VTK_USE_QT are all
-# set to ON.
-IF (VTK_USE_QT AND VTK_USE_GUISUPPORT AND VTK_USE_RENDERING)
-  SET (VTK_USE_QVTK ON CACHE INTERNAL "Build QVTK widget and plugin for Qt" FORCE)
-ELSE (VTK_USE_QT AND VTK_USE_GUISUPPORT AND VTK_USE_RENDERING)
-  SET (VTK_USE_QVTK OFF CACHE INTERNAL "Build QVTK widget and plugin for Qt" FORCE)
-ENDIF (VTK_USE_QT AND VTK_USE_GUISUPPORT AND VTK_USE_RENDERING)
-
-# Remove old options from an existing cache.
-IF(NOT "VTK_USE_HYBRID" MATCHES "^VTK_USE_HYBRID$")
-  SET(VTK_USE_HYBRID "" CACHE INTERNAL "Hiding old option")
-ENDIF(NOT "VTK_USE_HYBRID" MATCHES "^VTK_USE_HYBRID$")
-IF(NOT "VTK_USE_PATENTED" MATCHES "^VTK_USE_PATENTED$")
-  SET(VTK_USE_PATENTED "" CACHE INTERNAL "Hiding old option")
-ENDIF(NOT "VTK_USE_PATENTED" MATCHES "^VTK_USE_PATENTED$")
-IF(NOT "VTK_USE_VOLUMERENDERING" MATCHES "^VTK_USE_VOLUMERENDERING$")
-  SET(VTK_USE_VOLUMERENDERING "" CACHE INTERNAL "Hiding old option")
-ENDIF(NOT "VTK_USE_VOLUMERENDERING" MATCHES "^VTK_USE_VOLUMERENDERING$")
-
-SET(VTK_KITS COMMON FILTERING IO GRAPHICS GENERIC_FILTERING IMAGING)
-
-# Include Rendering in module path to find vtkTestingObjectFactory
-IF(VTK_USE_RENDERING)
-  SET(CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/Rendering/" ${CMAKE_MODULE_PATH})
-ENDIF()
-
-IF(VTK_USE_RENDERING)
-  SET(VTK_KITS ${VTK_KITS} RENDERING)
-  SET(VTK_KITS ${VTK_KITS} VOLUMERENDERING)
-  SET(VTK_KITS ${VTK_KITS} HYBRID)
-  SET(VTK_KITS ${VTK_KITS} WIDGETS)
-ENDIF(VTK_USE_RENDERING)
-
-IF(VTK_USE_PARALLEL)
-  SET(VTK_KITS ${VTK_KITS} PARALLEL)
-  SET(VTK_KITS ${VTK_KITS} AMR)
-ENDIF(VTK_USE_PARALLEL)
-
-IF(VTK_USE_INFOVIS)
-  SET(VTK_KITS ${VTK_KITS} INFOVIS)
-ENDIF(VTK_USE_INFOVIS)
-
-IF(VTK_USE_GEOVIS)
-  SET(VTK_KITS ${VTK_KITS} GEOVIS)
-ENDIF(VTK_USE_GEOVIS)
-
-IF(VTK_USE_VIEWS)
-  SET(VTK_KITS ${VTK_KITS} VIEWS)
-ENDIF(VTK_USE_VIEWS)
-
-# from GUISupport
-IF(VTK_USE_QVTK)
-  SET(VTK_KITS ${VTK_KITS} QVTK)
-ENDIF(VTK_USE_QVTK)
-
-IF(VTK_USE_MFC)
-  SET(VTK_KITS ${VTK_KITS} MFC)
-ENDIF(VTK_USE_MFC)
-
-IF(VTK_USE_CHARTS)
-  SET(VTK_KITS ${VTK_KITS} CHARTS)
-ENDIF(VTK_USE_CHARTS)
-
-IF(VTK_USE_CHEMISTRY)
-  SET(VTK_KITS ${VTK_KITS} CHEMISTRY)
-ENDIF(VTK_USE_CHEMISTRY)
-
-#-----------------------------------------------------------------------------
-# Determine GUI.
-
-IF (NOT VTK_DONT_INCLUDE_USE_X)
-  # We moved VTK_USE_X option code into a separate file so that
-  # projects including VTK can include this cmake script and use
-  # the option themselves, in which case, they set the VTK_DONT_INCLUDE_USE_X
-  # variable to ensure that VTK doesn't set up the option again.
-  INCLUDE(vtkUseX)
-ENDIF (NOT VTK_DONT_INCLUDE_USE_X)
-
-VTK_DEPENDENT_OPTION(VTK_USE_CARBON "Build classes using Carbon API." OFF
-                     "APPLE;VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_COCOA "Build classes using Cocoa API." ON
-                     "APPLE;VTK_USE_RENDERING" OFF)
-
-IF(VTK_USE_CARBON AND VTK_USE_COCOA)
-  MESSAGE(SEND_ERROR "Only one of VTK_USE_CARBON and VTK_USE_COCOA may be ON.")
-  # Since Cocoa is the default, assume user wants to switch to Carbon
-  SET(VTK_USE_COCOA OFF)
-ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
-
-#-----------------------------------------------------------------------------
-# Determine whether to use the experimental Ogg/Theora writer.
-OPTION(VTK_USE_OGGTHEORA_ENCODER "Build experimental Ogg/Theora support" OFF)
-MARK_AS_ADVANCED(VTK_USE_OGGTHEORA_ENCODER)
+option(VTK_LEGACY_REMOVE "Remove all legacy code completely." ON)
+option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
+mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
 #-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
-INCLUDE(vtkDetermineCompilerFlags)
+include(vtkDetermineCompilerFlags)
 
 # Tell VTK source files they are being built inside VTK.
-ADD_DEFINITIONS(-DVTK_IN_VTK)
+add_definitions(-DVTK_IN_VTK)
+
+#-----------------------------------------------------------------------------
+# Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
+# the VTKData repository from git, issue the following command:
+#
+# git clone git://vtk.org/VTKData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKData.git
+FIND_PATH(VTK_DATA_ROOT VTKData.readme
+  ${VTK_SOURCE_DIR}/VTKData
+  ${VTK_SOURCE_DIR}/../VTKData
+  ${VTK_SOURCE_DIR}/../../VTKData
+  $ENV{VTK_DATA_ROOT}
+  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
+  )
+mark_as_advanced(VTK_DATA_ROOT)
+
+#-----------------------------------------------------------------------------
+# Configure the default VTK_LARGE_DATA_ROOT for the location of VTKLargeData.
+# To get the VTKLargeData repository from git, issue the following command:
+#
+# git clone git://vtk.org/VTKLargeData.git
+#
+# To see the web hosted repository, visit http://vtk.org/VTKLargeData.git
+FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
+  ${VTK_SOURCE_DIR}/VTKLargeData
+  ${VTK_SOURCE_DIR}/../VTKLargeData
+  ${VTK_SOURCE_DIR}/../../VTKLargeData
+  $ENV{VTK_LARGE_DATA_ROOT}
+  DOC "The repository for large data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKLargeData.git\""
+  )
+mark_as_advanced(VTK_LARGE_DATA_ROOT)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
-
-INCLUDE (TestBigEndian)
+include(TestBigEndian)
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
 
 include(FindThreads)
@@ -536,142 +222,28 @@ set(VTK_MAX_THREADS "64" CACHE STRING
   "Max number of threads vktMultiThreader will allocate.")
 mark_as_advanced(VTK_MAX_THREADS)
 
-INCLUDE(TestForANSIStreamHeaders)
+include(TestForANSIStreamHeaders)
+include(TestForSTDNamespace)
+include(TestForANSIForScope)
+include(CheckTypeSize)
 
 # Simulate old CMakeBackwardCompatibilityCXX test.
-INCLUDE(TestForSSTREAM)
+include(TestForSSTREAM)
 
 # Tests for various integer, bool and float types
-INCLUDE(vtkTestTypes)
+include(vtkTestTypes)
 
 # Socket tests etc.
-INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
+#INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
 # Check for full template specialization support by compiler.
-INCLUDE(vtkTestFullSpecialization)
+include(vtkTestFullSpecialization)
 
 # Check for explicit template instantiation support by compiler.
-INCLUDE(vtkTestExplicitInstantiation)
+include(vtkTestExplicitInstantiation)
 
 # Test for atomics and other compiler intrinsics
-INCLUDE(vtkTestBuiltins)
-
-# Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
-MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
-  IF(${not} ${invar})
-    SET(${outvar} 1)
-  ELSE(${not} ${invar})
-    SET(${outvar})
-  ENDIF(${not} ${invar})
-ENDMACRO(VTK_PREPARE_CMAKEDEFINE)
-
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
-VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
-VTK_PREPARE_CMAKEDEFINE(NOT VTK_EXPLICIT_TEMPLATES
-                  VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-VTK_PREPARE_CMAKEDEFINE(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
-                        VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
-
-#-----------------------------------------------------------------------------
-# Include file dependency tracking regular expression.
-SET(VTK_REGEX "vtk[^.]*\\.([^t]|t[^x]|tx[^x]|cxx|hxx)")
-IF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-  # Track all .txx file dependencies.
-  SET(VTK_REGEX_TXX "vtk[^.]*\\.txx")
-ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-  # Track all .txx file dependencies except *Implicit.txx files.
-  SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
-ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-INCLUDE_REGULAR_EXPRESSION("(^|/)((lex|png|j|z|t|Test|D|Q|verdict).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
-
-#-----------------------------------------------------------------------------
-# Determine the set of language wrappers that should be built.
-OPTION(VTK_WRAP_TCL "Wrap VTK classes into the TCL language." OFF)
-OPTION(VTK_WRAP_PYTHON "Wrap VTK classes into the Python language." OFF)
-OPTION(VTK_WRAP_JAVA "Wrap VTK classes into the Java language." OFF)
-OPTION(VTK_WRAP_PYTHON_SIP "Make python wrapped classes available to SIP/PyQt." OFF)
-IF(VTK_WRAP_PYTHON_SIP)
-  FIND_PROGRAM(SIP_EXECUTABLE NAMES sip DOC "Path to sip executable")
-  FIND_PATH(SIP_INCLUDE_DIR NAMES sip.h
-    PATHS "${PYTHON_INCLUDE_PATH}" "${PYTHON_INCLUDE_PATH}/../Lib/site-packages/PyQt4/include")
-ENDIF(VTK_WRAP_PYTHON_SIP)
-
-# Python requires shared libraries.
-IF(VTK_WRAP_PYTHON AND VTK_TARGET_SUPPORTS_SHARED_LIBS AND NOT BUILD_SHARED_LIBS )
-  MESSAGE(SEND_ERROR "VTK_WRAP_PYTHON requires BUILD_SHARED_LIBS to be ON.")
-  SET(VTK_WRAP_PYTHON 0)
-ENDIF(VTK_WRAP_PYTHON AND VTK_TARGET_SUPPORTS_SHARED_LIBS AND NOT BUILD_SHARED_LIBS )
-
-# Java requires shared libraries on Windows.
-IF(VTK_WRAP_JAVA AND WIN32 AND NOT BUILD_SHARED_LIBS)
-  MESSAGE(SEND_ERROR "VTK_WRAP_JAVA requires BUILD_SHARED_LIBS to be ON.")
-  SET(VTK_WRAP_JAVA 0)
-ENDIF(VTK_WRAP_JAVA AND WIN32 AND NOT BUILD_SHARED_LIBS)
-
-SET(VTK_LANGUAGES "")
-IF(VTK_WRAP_TCL)
-  SET(VTK_LANGUAGES ${VTK_LANGUAGES} TCL)
-ENDIF(VTK_WRAP_TCL)
-IF(VTK_WRAP_PYTHON)
-  SET(VTK_LANGUAGES ${VTK_LANGUAGES} PYTHON)
-ENDIF(VTK_WRAP_PYTHON)
-IF(VTK_WRAP_JAVA)
-  SET(VTK_LANGUAGES ${VTK_LANGUAGES} JAVA)
-ENDIF(VTK_WRAP_JAVA)
-
-#-----------------------------------------------------------------------------
-# Configure testing support.
-INCLUDE(CTest)
-MARK_AS_ADVANCED(DART_ROOT TCL_TCLSH CVSCOMMAND CVS_UPDATE_OPTIONS DART_TESTING_TIMEOUT)
-IF(BUILD_TESTING)
-  ENABLE_TESTING()
-ENDIF(BUILD_TESTING)
-CONFIGURE_FILE(${VTK_CMAKE_DIR}/CTestCustom.ctest.in
-  ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
-FILE(WRITE ${VTK_BINARY_DIR}/CTestCustom.cmake
-  "INCLUDE(\"${VTK_BINARY_DIR}/CMake/CTestCustom.ctest\")\n")
-
-OPTION(VTK_USE_DISPLAY "Turn this option off and tests and warning/error macros will not popup windows" ON)
-MARK_AS_ADVANCED(VTK_USE_DISPLAY)
-
-#------------------------------------------------------------------------------
-# Options for C++ test driver
-
-# locale
-OPTION(VTK_TESTING_USE_LOCALE "VTK c++ tests will start with specified locale." OFF)
-MARK_AS_ADVANCED(VTK_TESTING_USE_LOCALE)
-SET(VTK_TESTING_LOCALE "" CACHE STRING "Locale for VTK C++ tests. Example fr_FR.utf8, empty string for env variable.")
-MARK_AS_ADVANCED(VTK_TESTING_LOCALE)
-
-# Leave this option ON by default. It helps to catch floating point math
-# exceptions early on nightly dashboard runs.
-#
-OPTION(VTK_TESTING_USE_FPE "VTK tests call vtkFloatingPointExceptions::Enable()" ON)
-MARK_AS_ADVANCED(VTK_TESTING_USE_FPE)
-
-
-SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN)
-
-IF(VTK_TESTING_USE_LOCALE)
- SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "${CMAKE_TESTDRIVER_BEFORE_TESTMAIN}
-    setlocale(LC_ALL,\"${VTK_TESTING_LOCALE}\");
-    std::locale::global(std::locale(\"${VTK_TESTING_LOCALE}\"));")
-ENDIF(VTK_TESTING_USE_LOCALE)
-
-IF(VTK_TESTING_USE_FPE)
- SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "${CMAKE_TESTDRIVER_BEFORE_TESTMAIN}
-    vtkFloatingPointExceptions::Enable();\n")
-ENDIF(VTK_TESTING_USE_FPE)
-
-SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "${CMAKE_TESTDRIVER_BEFORE_TESTMAIN}
-    try {")
-
-SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
-    catch(std::exception& e)
-      {
-      fprintf(stderr, \"Test driver caught exception: [%s]\\n\", e.what());
-      result = -1;
-      }")
+include(vtkTestBuiltins)
 
 #-----------------------------------------------------------------------------
 # Select a streams library.
@@ -688,220 +260,15 @@ IF(VTK_USE_RENDERING AND WIN32)
 ENDIF(VTK_USE_RENDERING AND WIN32)
 
 #-----------------------------------------------------------------------------
-# Configure KWSys to be named "vtksys".
-SET(KWSYS_NAMESPACE vtksys)
-SET(KWSYS_USE_Base64 1)
-SET(KWSYS_USE_CommandLineArguments 1)
-SET(KWSYS_USE_DynamicLoader 1)
-SET(KWSYS_USE_Process 1)
-SET(KWSYS_USE_RegularExpression 1)
-SET(KWSYS_USE_SystemTools 1)
-SET(KWSYS_USE_SystemInformation 1)
-SET(KWSYS_USE_FundamentalType 1)
-SET(KWSYS_USE_MD5 1)
-SET(KWSYS_USE_Glob 1)
-SET(KWSYS_USE_DateStamp 1)
-SET(KWSYS_HEADER_ROOT ${VTK_BINARY_DIR}/Utilities)
-SET(KWSYS_PROPERTIES_CXX ${VTK_LIBRARY_PROPERTIES})
-SET(KWSYS_INSTALL_EXPORT_NAME ${VTK_INSTALL_EXPORT_NAME})
-
-IF(NOT VTK_USE_ANSI_STDLIB)
-  SET(KWSYS_IOS_FORCE_OLD 1)
-ENDIF(NOT VTK_USE_ANSI_STDLIB)
-
-IF(NOT VTK_INSTALL_NO_LIBRARIES)
-  SET(KWSYS_LIBRARY_INSTALL_DIR ${VTK_INSTALL_LIB_DIR})
-  SET(KWSYS_INSTALL_BIN_DIR ${VTK_INSTALL_BIN_DIR_CM24})
-  SET(KWSYS_INSTALL_LIB_DIR ${VTK_INSTALL_LIB_DIR_CM24})
-  SET(KWSYS_INSTALL_COMPONENT_NAME_RUNTIME RuntimeLibraries)
-ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  SET(KWSYS_INSTALL_INCLUDE_DIR ${VTK_INSTALL_INCLUDE_DIR_CM24})
-  SET(KWSYS_INSTALL_COMPONENT_NAME_DEVELOPMENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-#-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
-
-
 SET(VTK_HAS_EXODUS 1)
 
 #-----------------------------------------------------------------------------
 # Provide a few configuration options.
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
-IF("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
- SET(VTK_USE_64BIT_IDS_DEFAULT ON)
-ELSE("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
- SET(VTK_USE_64BIT_IDS_DEFAULT OFF)
-ENDIF("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
-OPTION(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
-      ${VTK_USE_64BIT_IDS_DEFAULT})
-
-OPTION(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
-MARK_AS_ADVANCED(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
-
-VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
-                     "The opengl library being used supports off screen Mesa calls." OFF
-                     "VTK_USE_RENDERING;UNIX" OFF)
-
-
-SET(VTK_CAN_DO_OFF_SCREEN)
-IF(VTK_OPENGL_HAS_OSMESA OR WIN32)
-  SET(VTK_CAN_DO_OFF_SCREEN 1)
-ENDIF(VTK_OPENGL_HAS_OSMESA OR WIN32)
-
-VTK_DEPENDENT_OPTION(VTK_USE_OFFSCREEN
-                     "Use off screen calls by default." OFF
-                     "VTK_CAN_DO_OFF_SCREEN" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_MPI
-                     "Use Message Passing Interface (MPI) library for parallel support." OFF
-                     "VTK_USE_PARALLEL" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_MATROX_IMAGING
-                     "Use Matrox Imaging Library for video input." OFF
-                     "VTK_USE_RENDERING;WIN32" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
-                     "VTK_USE_RENDERING" ON)
-VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL_BGL
-                     "Use the Parallel Boost Graph Library"
-                     OFF
-                     "VTK_USE_BOOST;VTK_USE_MPI;VTK_USE_PARALLEL;VTK_USE_64BIT_IDS"
-                     OFF)
-
-SET(VTK_CAN_USE_TK OFF)
-SET(VTK_USE_TK_DEFAULT ON)
-IF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
-  IF(NOT VTK_DISABLE_TK_INIT)
-    SET(VTK_CAN_USE_TK ON)
-    IF(APPLE)
-      IF (OSX_SDK_VERSION)
-        IF (${OSX_SDK_VERSION} VERSION_LESS "10.6")
-          # Until OS X 10.6, building Tk with Cocoa was not possible
-          IF (VTK_USE_COCOA)
-            SET(VTK_CAN_USE_TK OFF)
-          ENDIF (VTK_USE_COCOA)
-        ELSE (${OSX_SDK_VERSION} VERSION_LESS "10.6")
-          # For OS X 10.6, the default system Tk is Cocoa, not Carbon
-          IF (VTK_USE_CARBON)
-            SET(VTK_USE_TK_DEFAULT OFF)
-          ENDIF (VTK_USE_CARBON)
-        ENDIF (${OSX_SDK_VERSION} VERSION_LESS "10.6")
-      ENDIF (OSX_SDK_VERSION)
-    ENDIF(APPLE)
-  ENDIF(NOT VTK_DISABLE_TK_INIT)
-ENDIF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
-VTK_DEPENDENT_OPTION(VTK_USE_TK "Build VTK with Tk support"
-                     ${VTK_USE_TK_DEFAULT} "VTK_CAN_USE_TK" OFF)
-
-MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
-                 VTK_USE_OFFSCREEN
-                 VTK_USE_TK
-                 VTK_USE_GL2PS
-                 VTK_USE_MATROX_IMAGING
-                 VTK_USE_MPI
-                 VTK_USE_PARALLEL_BGL)
-
-#-----------------------------------------------------------------------------
-# Provide options to use system versions of third-party libraries.
-VTK_THIRD_PARTY_OPTION(ZLIB zlib)
-
-set(HDF5_FIND_COMPONENTS "HL;C")
-VTK_THIRD_PARTY_OPTION(HDF5 hdf5)
-INCLUDE(vtkHDF5Library)
-
-IF(VTK_USE_GL2PS)
-VTK_THIRD_PARTY_OPTION(GL2PS gl2ps)
-ENDIF(VTK_USE_GL2PS)
-VTK_THIRD_PARTY_OPTION(JPEG jpeg)
-VTK_THIRD_PARTY_OPTION(PNG  png)
-VTK_THIRD_PARTY_OPTION(TIFF tiff)
-VTK_THIRD_PARTY_OPTION(EXPAT expat)
-VTK_THIRD_PARTY_OPTION(FREETYPE freetype)
-VTK_THIRD_PARTY_OPTION(LIBXML2 libxml2)
-VTK_THIRD_PARTY_OPTION(LIBPROJ4 proj4)
-if(VTK_USE_OGGTHEORA_ENCODER)
-  VTK_THIRD_PARTY_OPTION(OGGTHEORA oggtheora)
-endif(VTK_USE_OGGTHEORA_ENCODER)
-
-#-----------------------------------------------------------------------------
-# Configure OpenGL support.
-IF(VTK_USE_RENDERING)
-  # At the moment CMake's FindOpenGL considers OpenGL should be found
-  # in the framework version on OSX. This is a reasonable assumption for
-  # few people are going to use X. The module warns that if X is to be
-  # used, one has to set the libs and include dir manually, which is
-  # exactly what we are going to do below.
-  IF(APPLE AND VTK_USE_X)
-    FIND_PATH(OPENGL_INCLUDE_DIR GL/gl.h
-      /usr/X11R6/include)
-    FIND_PATH(OPENGL_xmesa_INCLUDE_DIR GL/xmesa.h
-      /usr/X11R6/include)
-    FIND_LIBRARY(OPENGL_gl_LIBRARY NAMES GL MesaGL
-      PATHS /usr/lib /usr/local/lib /usr/X11R6/lib)
-    FIND_LIBRARY(OPENGL_glu_LIBRARY NAMES GLU MesaGLU
-      PATHS ${OPENGL_gl_LIBRARY} /usr/lib /usr/local/lib /usr/X11R6/lib)
-  ENDIF(APPLE AND VTK_USE_X)
-  FIND_PACKAGE(OpenGL)
-
-  FIND_PACKAGE(DirectX QUIET)
-    if(DirectX_FOUND)
-      set(VTK_USE_DIRECTX 1)
-  endif(DirectX_FOUND)
-
-  find_package(ApplicationServices)
-  find_package(IOKit)
-  if(ApplicationServices_FOUND AND IOKit_FOUND)
-    set(VTK_USE_CORE_GRAPHICS 1)
-  endif(ApplicationServices_FOUND AND IOKit_FOUND)
-
-  if(VTK_USE_X)
-    option(VTK_USE_NVCONTROL "Use NVIDIAs X server extension NVCONTROL." OFF)
-     if(VTK_USE_NVCONTROL)
-       find_package(NVCtrlLib REQUIRED)
-     endif(VTK_USE_NVCONTROL)
-     mark_as_advanced(VTK_USE_NVCONTROL)
-  endif(VTK_USE_X)
-
-ENDIF(VTK_USE_RENDERING)
-
-VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
-
-#-----------------------------------------------------------------------------
-# Configure Off-Screen MESA support.
-# If rendering is enabled, but there is no graphics system enabled, enforce osmesa
-IF(VTK_USE_RENDERING AND NOT WIN32 AND NOT APPLE AND NOT VTK_USE_X)
-  SET(VTK_OPENGL_HAS_OSMESA ON CACHE BOOL "Forced to ON since neither OPEN_gl_LIBRARY nor MangledMesa were found" FORCE)
-ENDIF(VTK_USE_RENDERING AND NOT WIN32 AND NOT APPLE AND NOT VTK_USE_X)
-
-IF(VTK_OPENGL_HAS_OSMESA)
-  FIND_PACKAGE(OSMesa)
-ENDIF(VTK_OPENGL_HAS_OSMESA)
-
-#-----------------------------------------------------------------------------
-# Configure CG-Shading support.
-IF(VTK_USE_CG_SHADERS)
-  FIND_PACKAGE(Cg)
-  MARK_AS_ADVANCED(CG_COMPILER CG_INCLUDE_PATH CG_LIBRARY CG_GL_LIBRARY)
-ENDIF(VTK_USE_CG_SHADERS)
-
-#-----------------------------------------------------------------------------
-# Configure GLSL-Shading support.
-# TODO: Should verify that GL2.0 is supported.
-
-#-----------------------------------------------------------------------------
-# Configure Matrox Imaging support.
-IF(VTK_USE_MATROX_IMAGING)
-  FIND_LIBRARY(MIL_LIBRARY MIL
-    "C:/Program Files/Matrox Imaging/mil/library/winnt/msc/dll"
-    "C:/Program Files/Matrox Imaging/mil/library/windows/msc/dll"
-    )
-  FIND_PATH(MIL_INCLUDE_PATH mil.h
-    "C:/Program Files/Matrox Imaging/mil/include"
-    )
-ENDIF(VTK_USE_MATROX_IMAGING)
-
 IF(VTK_USE_MPI)
-  FIND_PACKAGE(MPI REQUIRED)
+  FIND_PACKAGE(MPI)
 ENDIF(VTK_USE_MPI)
 
 #-----------------------------------------------------------------------------
@@ -915,12 +282,11 @@ ENDIF(VTK_USE_MPI)
 # So, tests will be run something like this:
 # ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} executable ${VTK_MPI_POSTFLAGS}
 #
-
 IF(VTK_USE_MPI)
 
   # Use MPI variables defined in the CMake (2.8) FindMPI module.
   IF(${MPIEXEC})
-    SET(VTK_MPIRUN_EXE ${MPIEXEC} CACHE FILEPATH "" FORCE)
+    SET(VTK_MPIRUN_EXE CACHE FILEPATH ${MPIEXEC} FORCE)
     SET(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
     IF(NOT ${MPI_NUMPROC_FLAG})
       SET(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
@@ -948,586 +314,88 @@ IF(VTK_USE_MPI)
 ENDIF(VTK_USE_MPI)
 
 #-----------------------------------------------------------------------------
-# Create STL header wrappers to block warnings in the STL headers.
-# This is now deprecated, and should not be used. Kept for backwards compat.
-# Should be completely removed before VTK 6.0 is tagged.
-IF(NOT VTK_LEGACY_REMOVE)
-  FOREACH(header
-    algorithm
-    deque
-    exception
-    functional
-    iterator
-    limits
-    list
-    map
-    memory
-    new
-    numeric
-    queue
-    set
-    stack
-    stdexcept
-    string
-    utility
-    vector
-    )
-    SET(VTK_STL_HEADER "${header}")
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Utilities/vtkstd.h.in
-                   ${VTK_BINARY_DIR}/vtkstd/${header} @ONLY IMMEDIATE)
-    IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-      INSTALL(FILES ${VTK_BINARY_DIR}/vtkstd/${header}
-        DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkstd
-        COMPONENT Development)
-    ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  ENDFOREACH(header)
-ENDIF()
-
-#-----------------------------------------------------------------------------
-# VTK utility script locations.
-SET(VTK_DOXYGEN_HOME ${VTK_SOURCE_DIR}/Utilities/Doxygen)
-SET(VTK_HEADER_TESTING_PY ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py)
-SET(VTK_FIND_STRING_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl)
-SET(VTK_PRINT_SELF_CHECK_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl)
-SET(VTK_RT_IMAGE_TEST_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
-IF(VTK_USE_PARALLEL)
-  SET(VTK_PRT_IMAGE_TEST_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
-ENDIF(VTK_USE_PARALLEL)
-
-
-
-#-----------------------------------------------------------------------------
-# Configure the python executable for use by testing.
-# Python executable is used by some tests whether VTK_WRAP_PYTHON is
-# on or not.
-# If VTK_WRAP_PYTHON is on, then we need python executable to compile
-# scripts.
-IF(BUILD_TESTING OR VTK_WRAP_PYTHON)
-  FIND_PACKAGE(PythonInterp QUIET)
-  MARK_AS_ADVANCED(PYTHON_EXECUTABLE)
-ENDIF(BUILD_TESTING OR VTK_WRAP_PYTHON)
-
-#-----------------------------------------------------------------------------
-# Configure the default VTK_DATA_ROOT for the location of VTKData.  To get
-# the VTKData repository from git, issue the following command:
-#
-# git clone git://vtk.org/VTKData.git
-#
-# To see the web hosted repository, visit http://vtk.org/VTKData.git
-FIND_PATH(VTK_DATA_ROOT VTKData.readme
-  ${VTK_SOURCE_DIR}/VTKData
-  ${VTK_SOURCE_DIR}/../VTKData
-  ${VTK_SOURCE_DIR}/../../VTKData
-  $ENV{VTK_DATA_ROOT}
-  DOC "The repository for data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKData.git\""
-  )
-
-#-----------------------------------------------------------------------------
-# Configure the default VTK_LARGE_DATA_ROOT for the location of VTKLargeData.
-# To get the VTKLargeData repository from git, issue the following command:
-#
-# git clone git://vtk.org/VTKLargeData.git
-#
-# To see the web hosted repository, visit http://vtk.org/VTKLargeData.git
-FIND_PATH(VTK_LARGE_DATA_ROOT VTKLargeData.readme
-  ${VTK_SOURCE_DIR}/VTKLargeData
-  ${VTK_SOURCE_DIR}/../VTKLargeData
-  ${VTK_SOURCE_DIR}/../../VTKLargeData
-  $ENV{VTK_LARGE_DATA_ROOT}
-  DOC "The repository for large data used for testing.  To obtain from git: \"git clone git://vtk.org/VTKLargeData.git\""
-  )
-
-#-----------------------------------------------------------------------------
-# FFMPEG
-# If the ffmpeg library is available, use it.
-OPTION (VTK_USE_FFMPEG_ENCODER "If the FFMPEG library is available, should VTK use it for saving .avi animation files?" FALSE)
-MARK_AS_ADVANCED(VTK_USE_FFMPEG_ENCODER)
-IF (VTK_USE_FFMPEG_ENCODER)
-  FIND_PACKAGE(FFMPEG)
-  MARK_AS_ADVANCED(CLEAR
-    FFMPEG_INCLUDE_DIR
-    FFMPEG_avformat_LIBRARY
-    FFMPEG_avcodec_LIBRARY
-    FFMPEG_avutil_LIBRARY
-    )
-ENDIF (VTK_USE_FFMPEG_ENCODER)
-
-#-----------------------------------------------------------------------------
-# MPEG2
-#
-# Portions of the mpeg2 library are patented. VTK does not enable linking to
-# this library by default so VTK can remain "patent free". Users who wish to
-# link in mpeg2 functionality must build that library separately and then
-# turn on VTK_USE_MPEG2_ENCODER when configuring VTK. After turning on
-# VTK_USE_MPEG2_ENCODER, you must also set the CMake variables
-# vtkMPEG2Encode_INCLUDE_PATH and vtkMPEG2Encode_LIBRARIES.
-#
-# To use the patented mpeg2 library, first build it, then set the following
-# CMake variables during the VTK configure step:
-#   VTK_USE_MPEG2_ENCODER = ON
-#   vtkMPEG2Encode_INCLUDE_PATH = /path/to/vtkmpeg2encode;/path/to/vtkmpeg2encode-bin
-#   vtkMPEG2Encode_LIBRARIES = /path/to/vtkmpeg2encode-bin/vtkMPEG2Encode.lib
-#
-# Or using -D args on the cmake/ccmake command line:
-#   -DVTK_USE_MPEG2_ENCODER:BOOL=ON
-#   "-DvtkMPEG2Encode_INCLUDE_PATH:PATH=/path/to/vtkmpeg2encode;/path/to/vtkmpeg2encode-bin"
-#   "-DvtkMPEG2Encode_LIBRARIES:STRING=/path/to/vtkmpeg2encode-bin/vtkMPEG2Encode.lib"
-#
-# You are solely responsible for any legal issues associated with using
-# patented code in your software.
-# Ref: http://www.vtk.org/get-software.php#addons
-#
-OPTION (VTK_USE_MPEG2_ENCODER
-  "Enable use of the patented mpeg2 library. You are solely responsible for any legal issues associated with using patented code in your software."
-  OFF)
-MARK_AS_ADVANCED(VTK_USE_MPEG2_ENCODER)
-IF (VTK_USE_MPEG2_ENCODER)
-  FIND_PACKAGE(MPEG2)
-ENDIF (VTK_USE_MPEG2_ENCODER)
-
-#-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in
-               ${VTK_BINARY_DIR}/vtkConfigure.h @ONLY IMMEDIATE)
 
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/UseVTK.cmake.in
-               ${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY IMMEDIATE)
+# Include the sockets test.
+# FIXME: The test should be moved and rewritten.
+include(VTKParallelCMakeTests)
 
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkToolkits.h.in
-               ${VTK_BINARY_DIR}/vtkToolkits.h @ONLY)
+# Add the option for build the Python wrapping to VTK.
+option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
 
+# Add the option for build the Python wrapping to VTK.
+option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
 
-#-----------------------------------------------------------------------------
+# FIXME: This variable should not be necessary once we are done
+set(VTK_IGNORE_BTX ON CACHE INTERNAL "VTK modular always ignores BTX")
 
-IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
-  IF(VTK_WRAP_TCL)
-    SET(VTK_INCLUDE_NEED_TCL 1)
-  ENDIF(VTK_WRAP_TCL)
-  IF(VTK_USE_RENDERING AND VTK_USE_TK)
-    SET(VTK_INCLUDE_NEED_TK 1)
-    SET(VTK_INCLUDE_NEED_TCL 1)
-  ENDIF(VTK_USE_RENDERING AND VTK_USE_TK)
-ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
+find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping
+  NO_CMAKE_FIND_ROOT_PATH)
+mark_as_advanced(VTK_WRAP_HINTS)
 
-#-----------------------------------------------------------------------------
-# search Python, Tcl and Java
+if(VTK_WRAP_PYTHON)
+  find_package(PythonInterp QUIET)
+  mark_as_advanced(PYTHON_EXECUTABLE)
+  set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
+  set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
+  set(VTK_PYTHON_EXE vtkpython)
+  # Force the PythonCore module to on if wrapping is on
+  set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
+    FORCE)
+else()
+  # if wrapping is not on then force PythonCore module to be off
+  set(Module_vtkWrappingPythonCore OFF CACHE BOOL "Core Python wrapping library"
+    FORCE)
+endif()
 
-IF(VTK_WRAP_PYTHON)
-  # Tell vtkWrapPython.cmake to set VTK_PYTHON_LIBRARIES for us.
-  SET(VTK_WRAP_PYTHON_FIND_LIBS 1)
-  INCLUDE(vtkWrapPython)
-ENDIF(VTK_WRAP_PYTHON)
-
-IF(VTK_WRAP_TCL OR VTK_INCLUDE_NEED_TK)
-  # Tell vtkWrapTcl.cmake to set VTK_TCL_LIBRARIES for us.
-  SET(VTK_WRAP_TCL_FIND_LIBS 1)
-  INCLUDE(vtkWrapTcl)
-ENDIF(VTK_WRAP_TCL OR VTK_INCLUDE_NEED_TK)
-
-IF(VTK_WRAP_JAVA)
-  SET(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
-  INCLUDE(vtkWrapJava)
-  FIND_PACKAGE(Java)
-  FIND_PACKAGE(JNI)
-  # Some platforms have libjvm in a subdirectory from
-  # the rest of the java libraries and are missing the symlink.
-  IF(JAVA_AWT_LIBRARY)
-    FOREACH(__java_library ${JAVA_AWT_LIBRARY})
-      GET_FILENAME_COMPONENT(JAVA_LIB_DIR ${__java_library} PATH)
-      IF(EXISTS ${JAVA_LIB_DIR}/xawt)
-        LINK_DIRECTORIES(${JAVA_LIB_DIR}/xawt)
-      ENDIF(EXISTS ${JAVA_LIB_DIR}/xawt)
-      IF(EXISTS ${JAVA_LIB_DIR}/client)
-        LINK_DIRECTORIES(${JAVA_LIB_DIR}/client)
-      ENDIF(EXISTS ${JAVA_LIB_DIR}/client)
-      IF(EXISTS ${JAVA_LIB_DIR}/server)
-        LINK_DIRECTORIES(${JAVA_LIB_DIR}/server)
-      ENDIF(EXISTS ${JAVA_LIB_DIR}/server)
-    ENDFOREACH(__java_library)
-  ENDIF(JAVA_AWT_LIBRARY)
-ENDIF(VTK_WRAP_JAVA)
-
-
-
-#-----------------------------------------------------------------------------
-# The entire VTK tree should use the same include path.
-
-# Create the list of include directories needed for VTK header files.
-INCLUDE(${VTK_SOURCE_DIR}/vtkIncludeDirectories.cmake)
-
-# This should be the only INCLUDE_DIRECTORIES command in the entire
-# tree, except for the CMake, Utilities, and Examples directories.  We
-# need to do this in one place to make sure the order is correct.
-# (isn't the order now handled automatically by cmake, i.e. build dir before source dir ?, Alex)
-INCLUDE_DIRECTORIES(
-  ${VTK_INCLUDE_DIRS_BUILD_TREE}
-  ${VTK_INCLUDE_DIRS_SOURCE_TREE}
-  ${VTK_INCLUDE_DIRS_BUILD_TREE_CXX}
-  ${VTK_INCLUDE_DIRS_SYSTEM}
-)
-
-#-----------------------------------------------------------------------------
-# Allow local additions to this file without CVS conflicts.
-INCLUDE(${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
-INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
-
-
-# Utility libraries and executables.
-ADD_SUBDIRECTORY(Wrapping)
-
-#-----------------------------------------------------------------------------
-# Wrapping hints used by all Tcl, Python and Java wrapping.
-# It can also be used by external wrapping tools.
-FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping  NO_CMAKE_FIND_ROOT_PATH)
-MARK_AS_ADVANCED(VTK_WRAP_HINTS)
-
-#-----------------------------------------------------------------------------
-SET(VTK_IGNORE_BTX ON)
-SET(VTK_IGNORE_BTX ${VTK_IGNORE_BTX} CACHE BOOL "Ignore BTX and ETX in header files." FORCE)
-#OPTION(VTK_IGNORE_BTX "Ignore BTX and ETX in header files." ON)
-MARK_AS_ADVANCED(VTK_IGNORE_BTX)
-
-#-----------------------------------------------------------------------------
-# Hierarchy wrapping for type checking in the wrapper generators
-IF(VTK_IGNORE_BTX)
-IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-  # CMake macro
-  INCLUDE(vtkWrapHierarchy)
-  SET(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
-ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-ENDIF(VTK_IGNORE_BTX)
-
-#-----------------------------------------------------------------------------
-# Configure Tcl wrapping support, setup executables
-IF(VTK_WRAP_TCL)
+if(VTK_WRAP_JAVA)
+  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
   # Wrapping executables.
-  SET(VTK_WRAP_TCL_EXE      vtkWrapTcl)
-  SET(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-
-  # VTK tcl executables.
-  SET(VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)
-  IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-    SET(PVTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/pvtk)
-  ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-
-  # Tcl package location.
-  SET(VTK_TCL_HOME ${VTK_BINARY_DIR}/Wrapping/Tcl)
-
-  OPTION(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
-  MARK_AS_ADVANCED(VTK_TCL_TK_STATIC)
-ENDIF(VTK_WRAP_TCL)
-
-#-----------------------------------------------------------------------------
-# Configure Python wrapping support, setup the wrapper executables
-IF(VTK_WRAP_PYTHON)
-  SET(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-  SET(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-
-  # VTK python executables.
-  SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
-  IF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-    SET(PVTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/pvtkpython)
-  ENDIF(VTK_USE_PARALLEL AND VTK_USE_MPI)
-
-ENDIF(VTK_WRAP_PYTHON)
-
-#-----------------------------------------------------------------------------
-# Configure Java wrapping support, setup executables
-IF(VTK_WRAP_JAVA)
-  # Wrapping executables.
-  SET(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-  SET(VTK_PARSE_JAVA_EXE vtkParseJava)
+  set(VTK_WRAP_JAVA_EXE  vtkWrapJava)
+  set(VTK_PARSE_JAVA_EXE vtkParseJava)
+  set(Module_vtkWrappingJavaCore ON CACHE BOOL "Core Java wrapping library"
+    FORCE)
 
   # Java package location.
-  SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
-  SET(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
-  MAKE_DIRECTORY(${VTK_JAVA_HOME})
-ENDIF(VTK_WRAP_JAVA)
+  set(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+  set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
+  file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
+else()
+  set(Module_vtkWrappingJavaCore OFF CACHE BOOL "Core Java wrapping library"
+    FORCE)
+endif()
 
-VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
+# Now for Tcl wrapping.
+option(VTK_WRAP_TCL "Should VTK Tcl wrapping be built?" OFF)
+if(VTK_WRAP_TCL)
+  set(VTK_WRAP_TCL_EXE vtkWrapTcl)
+  set(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
+  set(VTK_TCL_EXE vtk)
+  # Tcl package location.
+  set(VTK_TCL_HOME ${VTK_BINARY_DIR}/Wrapping/Tcl)
+endif()
 
-#-----------------------------------------------------------------------------
-# Set the encoder for shader programs
-SET(VTK_ENCODESTRING_EXE vtkEncodeString)
+if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+  set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
+endif()
 
-#-----------------------------------------------------------------------------
-# Add the option to use Boost
-OPTION(VTK_USE_BOOST "Use Boost libraries for graph algorithms - www.boost.org." OFF)
-MARK_AS_ADVANCED(VTK_USE_BOOST)
+#----------------------------------------------------------------------
+# Load the module DAG.
+include(vtkModuleTop)
 
-# Look for Boost only if using Boost
-IF(VTK_USE_BOOST)
-  if (VTK_USE_PARALLEL_BGL)
-    CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
-    if (MSVC)
-      set(Boost_USE_STATIC_LIBS ON)
-    endif (MSVC)
-    SET(Boost_ADDITIONAL_VERSIONS "1.40" "1.40.0" "1.39" "1.39.0")
-    # TODO: Change to Boost 1.40.0 when that version is released.
-    #       PBGL is in Boost SVN Head, but will first appear in 1.40 release.
-    FIND_PACKAGE(Boost 1.39.0 REQUIRED
-      COMPONENTS mpi serialization filesystem system graph_parallel)
+# The wrapping must come after all other modules are processed.
+if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+  add_subdirectory(Wrapping)
+endif()
 
-    # A note to user, until Boost 1.40 is released to use SVN Head if using PBGL
-    if (NOT Boost_GRAPH_PARALLEL_FOUND)
-      message("Could not find Parallel Boost Graph Library components, please
-          use Boost 1.40 or the latest development snapshop from the Boost
-          SVN.")
-    endif (NOT Boost_GRAPH_PARALLEL_FOUND)
-
-  else (VTK_USE_PARALLEL_BGL)
-    FIND_PACKAGE(Boost REQUIRED)
-  endif (VTK_USE_PARALLEL_BGL)
-
-  INCLUDE(ExtractBoostVersion)
-
-# We need Boost 1.32 or later
-  if (BOOST_VERSION LESS 103200)
-    MESSAGE(SEND_ERROR "Incompatible Boost version.  Boost 1.32.0 or later is required.")
-  endif (BOOST_VERSION LESS 103200)
-
-ENDIF(VTK_USE_BOOST)
-
-#-----------------------------------------------------------------------------
-# Add the option to use Matlab Mex and Matlab Engine
-OPTION(VTK_USE_MATLAB_MEX "Use Matlab Engine and Matlab Mex files.  Requires valid Matlab installation." OFF)
-MARK_AS_ADVANCED(VTK_USE_MATLAB_MEX)
-IF(VTK_USE_MATLAB_MEX)
-  IF(NOT VTK_USE_N_WAY_ARRAYS)
-    MESSAGE(SEND_ERROR "VTK_USE_N_WAY_ARRAYS must be enabled to build Matlab Engine and Matlab Mex interface.")
-  ENDIF(NOT VTK_USE_N_WAY_ARRAYS)
-  IF(NOT VTK_USE_INFOVIS)
-    MESSAGE(SEND_ERROR "VTK_USE_INFOVIS must be enabled to build Matlab Engine and Matlab Mex interface.")
-  ENDIF(NOT VTK_USE_INFOVIS)
-  FIND_PACKAGE(MatlabMex)
-ENDIF(VTK_USE_MATLAB_MEX)
-
-#-----------------------------------------------------------------------------
-# Add the option to use Gnu R interface for VTK
-OPTION(VTK_USE_GNU_R "Use Gnu R interface for VTK.  Requires Gnu R installation." OFF)
-MARK_AS_ADVANCED(VTK_USE_GNU_R)
-IF(VTK_USE_GNU_R)
-  SET(VTK_TESTING_USE_FPE OFF CACHE BOOL "Disable FPE as it breaks GNU R Testing" FORCE)
-  IF(NOT VTK_USE_N_WAY_ARRAYS)
-    MESSAGE(SEND_ERROR "VTK_USE_N_WAY_ARRAYS must be enabled to build Gnu R interface.")
-  ENDIF(NOT VTK_USE_N_WAY_ARRAYS)
-  IF(NOT VTK_USE_INFOVIS)
-    MESSAGE(SEND_ERROR "VTK_USE_INFOVIS must be enabled to build Gnu R interface.")
-  ENDIF(NOT VTK_USE_INFOVIS)
-  FIND_PACKAGE(R)
-ENDIF(VTK_USE_GNU_R)
-
-#-----------------------------------------------------------------------------
-# Some classes require vtkTypeUInt64Array to be defined.
-# Make a flag for it here.
-SET(VTK_HAS_UINT64_ARRAY 0)
-IF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-  SET(VTK_HAS_UINT64_ARRAY 1)
-ELSE(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-  IF(VTK_SIZEOF_LONG MATCHES "^8$")
-    SET(VTK_HAS_UINT64_ARRAY 1)
-  ELSE(VTK_SIZEOF_LONG MATCHES "^8$")
-    IF(VTK_SIZEOF___INT64 MATCHES "^8$")
-      IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-        SET(VTK_HAS_UINT64_ARRAY 1)
-      ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-    ENDIF(VTK_SIZEOF___INT64 MATCHES "^8$")
-  ENDIF(VTK_SIZEOF_LONG MATCHES "^8$")
-ENDIF(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-
-###################################
-
-ADD_SUBDIRECTORY(Utilities)
-
-# Build the subdirector for each kit.
-ADD_SUBDIRECTORY(Common)
-ADD_SUBDIRECTORY(Filtering)
-ADD_SUBDIRECTORY(Imaging)
-ADD_SUBDIRECTORY(Graphics)
-ADD_SUBDIRECTORY(GenericFiltering)
-ADD_SUBDIRECTORY(IO)
-
-IF(VTK_USE_RENDERING)
-  ADD_SUBDIRECTORY(Rendering)
-  ADD_SUBDIRECTORY(VolumeRendering)
-  ADD_SUBDIRECTORY(Hybrid)
-  ADD_SUBDIRECTORY(Widgets)
-ENDIF(VTK_USE_RENDERING)
-IF(VTK_USE_PARALLEL)
-  ADD_SUBDIRECTORY(Parallel)
-  ADD_SUBDIRECTORY(AMR)
-ENDIF(VTK_USE_PARALLEL)
-IF(VTK_USE_INFOVIS)
-  ADD_SUBDIRECTORY(Infovis)
-ENDIF(VTK_USE_INFOVIS)
-IF(VTK_USE_GEOVIS)
-  ADD_SUBDIRECTORY(Geovis)
-ENDIF(VTK_USE_GEOVIS)
-IF(VTK_USE_VIEWS)
-  ADD_SUBDIRECTORY(Views)
-ENDIF(VTK_USE_VIEWS)
-IF(VTK_USE_GUISUPPORT)
-  ADD_SUBDIRECTORY(GUISupport)
-ENDIF(VTK_USE_GUISUPPORT)
-IF(VTK_USE_CHARTS)
-  ADD_SUBDIRECTORY(Charts)
-ENDIF(VTK_USE_CHARTS)
-IF(VTK_USE_CHEMISTRY)
-  ADD_SUBDIRECTORY(Chemistry)
-ENDIF(VTK_USE_CHEMISTRY)
-
-# Wrapping.
-IF(VTK_WRAP_TCL)
-  ADD_SUBDIRECTORY(Wrapping/Tcl)
-ENDIF(VTK_WRAP_TCL)
-IF(VTK_WRAP_PYTHON)
-  ADD_SUBDIRECTORY(Wrapping/Python)
-ENDIF(VTK_WRAP_PYTHON)
-IF(VTK_WRAP_JAVA)
-  ADD_SUBDIRECTORY(Wrapping/Java)
-ENDIF(VTK_WRAP_JAVA)
-
-# Testing.
-IF(BUILD_TESTING)
-  MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
-  # Build scripts to convert tcl tests to python
-  ADD_SUBDIRECTORY(Utilities/vtkTclTest2Py)
-  ADD_SUBDIRECTORY(Common/Testing)
-  ADD_SUBDIRECTORY(Filtering/Testing)
-  ADD_SUBDIRECTORY(Graphics/Testing)
-  ADD_SUBDIRECTORY(GenericFiltering/Testing)
-  ADD_SUBDIRECTORY(Imaging/Testing)
-  ADD_SUBDIRECTORY(IO/Testing)
-  IF(VTK_USE_RENDERING)
-    ADD_SUBDIRECTORY(Rendering/Testing)
-    ADD_SUBDIRECTORY(VolumeRendering/Testing)
-    ADD_SUBDIRECTORY(Hybrid/Testing)
-    ADD_SUBDIRECTORY(Widgets/Testing)
-  ENDIF(VTK_USE_RENDERING)
-  IF(VTK_USE_PARALLEL)
-    ADD_SUBDIRECTORY(Parallel/Testing)
-    ADD_SUBDIRECTORY(AMR/Testing)
-  ENDIF(VTK_USE_PARALLEL)
-  IF(VTK_USE_INFOVIS)
-    ADD_SUBDIRECTORY(Infovis/Testing)
-  ENDIF(VTK_USE_INFOVIS)
-  IF(VTK_USE_GEOVIS)
-    ADD_SUBDIRECTORY(Geovis/Testing)
-  ENDIF(VTK_USE_GEOVIS)
-  IF(VTK_USE_VIEWS)
-    ADD_SUBDIRECTORY(Views/Testing)
-  ENDIF(VTK_USE_VIEWS)
-  IF(VTK_USE_CHARTS)
-    ADD_SUBDIRECTORY(Charts/Testing)
-  ENDIF(VTK_USE_CHARTS)
-  IF(VTK_USE_CHEMISTRY)
-    ADD_SUBDIRECTORY(Chemistry/Testing)
-  ENDIF(VTK_USE_CHEMISTRY)
-ENDIF(BUILD_TESTING)
-
-# Include the examples if they are enabled.  Note that the in-tree
-# build adds tests and a custom target to build the examples project
-# in a separate build tree.  The examples are not directly included in
-# the VTK build.  Doing so will not work because they are designed to
-# be built out-of-tree.
-IF(BUILD_EXAMPLES)
-  ADD_SUBDIRECTORY(Examples)
-ENDIF(BUILD_EXAMPLES)
-
-#-----------------------------------------------------------------------------
-# Help other projects use VTK.
-
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  # Install the instantiator headers.
-  SET(__inst_files
-    ${VTK_BINARY_DIR}/vtkCommonInstantiator.h
-    ${VTK_BINARY_DIR}/vtkFilteringInstantiator.h
-    ${VTK_BINARY_DIR}/vtkIOInstantiator.h
-    ${VTK_BINARY_DIR}/vtkImagingInstantiator.h
-    ${VTK_BINARY_DIR}/vtkGraphicsInstantiator.h
-    ${VTK_BINARY_DIR}/vtkGenericFilteringInstantiator.h)
-  IF(VTK_USE_RENDERING)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkRenderingInstantiator.h)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkVolumeRenderingInstantiator.h)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkHybridInstantiator.h)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkWidgetsInstantiator.h)
-  ENDIF(VTK_USE_RENDERING)
-  IF(VTK_USE_PARALLEL)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkParallelInstantiator.h)
-  ENDIF(VTK_USE_PARALLEL)
-  IF(VTK_USE_INFOVIS)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkInfovisInstantiator.h)
-  ENDIF(VTK_USE_INFOVIS)
-  IF(VTK_USE_GEOVIS)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkGeovisInstantiator.h)
-  ENDIF(VTK_USE_GEOVIS)
-  IF(VTK_USE_VIEWS)
-    SET(__inst_files ${__inst_files} ${VTK_BINARY_DIR}/vtkViewsInstantiator.h)
-  ENDIF(VTK_USE_VIEWS)
-
-  # Install cmake extensions so user projects can load them.
-  INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
-    COMPONENT Development)
-
-  # Install the instantiator headers.
-  SET(__inst_files
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cmake
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in)
-  INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake
-    COMPONENT Development)
-
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-
-# Install some files.
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-  INSTALL(FILES
-    ${VTK_CMAKE_DIR}/FindMySQL.cmake
-    ${VTK_CMAKE_DIR}/FindTCL.cmake
-    ${VTK_CMAKE_DIR}/FindPythonLibs.cmake
-    ${VTK_CMAKE_DIR}/vtkTclTkMacros.cmake
-    ${VTK_CMAKE_DIR}/vtkExportKit.cmake
-    ${VTK_CMAKE_DIR}/vtkKit.cmake.in
-    ${VTK_CMAKE_DIR}/vtkWrapTcl.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapJava.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapPython.cmake
-    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
-    ${VTK_CMAKE_DIR}/VTKVersionMacros.cmake
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}/CMake
-    COMPONENT Development
-    )
-
-  SET(__inst_files
-    ${VTK_BINARY_DIR}/vtkConfigure.h
-    ${VTK_BINARY_DIR}/vtkToolkits.h)
-  INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
-    COMPONENT Development)
-
-  SET(__inst_files
-    ${VTK_BINARY_DIR}/UseVTK.cmake)
-  IF(VTK_WRAP_HINTS)
-    SET(__inst_files ${__inst_files} ${VTK_WRAP_HINTS})
-  ENDIF(VTK_WRAP_HINTS)
-  INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR_CM24}
-    COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-# Use fixup_bundle to pull in vtk and vtkpython dependencies
-IF(VTK_INSTALL_THIRD_PARTY_LIBRARIES AND NOT APPLE)
-  ADD_SUBDIRECTORY(Utilities/Release)
-ENDIF()
-
-# Setup CPack
-INCLUDE(VTKCPack.cmake)
+if(VTK_WRAP_JAVA)
+  add_subdirectory(Wrapping/Java)
+endif()
 
 #-----------------------------------------------------------------------------
 # The commands in this directory are intended to be executed as
 # the end of the whole configuration process, as a "last step".
-# This directory is typically the last add_subdirectory in the main CMakeLists.txt.
-ADD_SUBDIRECTORY(Utilities/LastConfigureStep)
+# This directory is typically the last add_subdirectory in the main CMakeLists.
+# It must be an add_subdirectory rather than include to assure that the install
+# command is processed after all of the other install commands.
+add_subdirectory(Utilities/LastConfigureStep)

@@ -1,0 +1,9 @@
+vtk_module(vtkFiltersParallelImaging
+  GROUPS
+    Imaging
+    StandAlone
+  DEPENDS
+    vtkImagingCore
+    vtkFiltersImaging
+    vtkParallelCore
+  )

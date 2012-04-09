@@ -17,24 +17,24 @@
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 
-template class VTK_FILTERING_EXPORT vtkImageIterator<signed char>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<char>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<int>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<long>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<short>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<float>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<double>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned long>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned short>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned char>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned int>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<signed char>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<char>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<int>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<long>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<short>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<float>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<double>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned long>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned short>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned char>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned int>;
 #if defined(VTK_TYPE_USE_LONG_LONG)
-template class VTK_FILTERING_EXPORT vtkImageIterator<long long>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned long long>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<long long>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned long long>;
 #endif
 #if defined(VTK_TYPE_USE___INT64)
-template class VTK_FILTERING_EXPORT vtkImageIterator<__int64>;
-template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned __int64>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<__int64>;
+template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned __int64>;
 #endif
 
 #endif

@@ -20,16 +20,38 @@
 // Thanks to Philippe Pebay from Sandia National Laboratories for implementing
 // this example of a database schema.
 
+#include "DatabaseSchemaWith2Tables.h"
+
+#include <stdexcept>
+
+#include "vtkSQLDatabaseSchema.h"
+
+DatabaseSchemaWith2Tables::DatabaseSchemaWith2Tables()
+{
+  this->Create();
+}
+
+DatabaseSchemaWith2Tables::~DatabaseSchemaWith2Tables()
+{
+
+  if(this->Schema)
+    {
+    this->Schema->Delete();
+    }
+}
+
+void DatabaseSchemaWith2Tables::Create()
+{
   cerr << "@@ Creating a schema...";
 
-  vtkSQLDatabaseSchema* schema = vtkSQLDatabaseSchema::New();
-  schema->SetName( "TestSchema" );
+  this->Schema = vtkSQLDatabaseSchema::New();
+  this->Schema->SetName( "TestSchema" );
 
   // Create PostgreSQL-specific preambles to load the PL/PGSQL language and create a function
   // with this language. These will be ignored by other backends.
-  schema->AddPreamble( "dropplpgsql", "DROP LANGUAGE IF EXISTS PLPGSQL CASCADE", VTK_SQL_POSTGRESQL );
-  schema->AddPreamble( "loadplpgsql", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
-  schema->AddPreamble( "createsomefunction", 
+  this->Schema->AddPreamble( "dropplpgsql", "DROP EXTENSION IF EXISTS PLPGSQL", VTK_SQL_POSTGRESQL );
+  this->Schema->AddPreamble( "loadplpgsql", "CREATE LANGUAGE PLPGSQL", VTK_SQL_POSTGRESQL );
+  this->Schema->AddPreamble( "createsomefunction",
     "CREATE OR REPLACE FUNCTION somefunction() RETURNS TRIGGER AS $btable$ "
     "BEGIN "
     "INSERT INTO btable (somevalue) VALUES (NEW.somenmbr); "
@@ -38,7 +60,7 @@
      VTK_SQL_POSTGRESQL );
 
   // Insert in alphabetical order so that SHOW TABLES does not mix handles
-  int tblHandle = schema->AddTableMultipleArguments( "atable",
+  this->TableAHandle = this->Schema->AddTableMultipleArguments( "atable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 64, "NOT NULL",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
@@ -61,7 +83,12 @@
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
-  tblHandle = schema->AddTableMultipleArguments( "btable",
+  if(this->TableAHandle < 0 )
+   {
+   throw std::runtime_error("Could not create test schema: Failed to create atable");
+   }
+
+  this->TableBHandle = this->Schema->AddTableMultipleArguments( "btable",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::SERIAL,  "tablekey",  0, "",
     vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somevalue", 12, "DEFAULT 0",
     vtkSQLDatabaseSchema::INDEX_TOKEN,  vtkSQLDatabaseSchema::PRIMARY_KEY, "",
@@ -70,10 +97,10 @@
     vtkSQLDatabaseSchema::END_TABLE_TOKEN
   );
 
-  if ( tblHandle < 0 )
+  if ( this->TableBHandle < 0 )
     {
-    cerr << "Could not create test schema.\n";
-    schema->Delete();
-    return 1;
+    throw std::runtime_error("Could not create test schema: Failed to create btable");
     }
   cerr << " done." << endl;
+
+}

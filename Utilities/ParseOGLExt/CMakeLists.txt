@@ -21,6 +21,11 @@
 # or without modification, are permitted provided that this Notice and any
 # statement of authorship are reproduced on all copies.
 
+vtk_module_impl()
+
+include_directories(${VTK_SOURCE_DIR}/Common/Core
+  ${VTK_BINARY_DIR}/Common/Core)
+
 IF(NOT CMAKE_CROSSCOMPILING)
   ADD_EXECUTABLE(vtkParseOGLExt Tokenizer.cxx ParseOGLExt.cxx)
   EXPORT(TARGETS vtkParseOGLExt FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND) 

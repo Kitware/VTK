@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
@@ -35,7 +36,7 @@ static int vtkGetLongAlignment()
   return (p2 - p1);    // Get member offset/alignment
 }
 
-class VTK_COMMON_EXPORT vtkHeapBlock
+class VTKCOMMONMISC_EXPORT vtkHeapBlock
 {
 public:
   char*         Data;

@@ -1,16 +1,7 @@
-SET(KIT Geovis)
-SET(UKIT GEOVIS)
-SET(KIT_TCL_LIBS vtkWidgetsTCL vtkViewsTCL)
-SET(KIT_PYTHON_LIBS vtkWidgetsPythonD vtkViewsPythonD)
-SET(KIT_JAVA_LIBS vtkWidgetsJava vtkViewsJava)
-SET(KIT_INTERFACE_LIBRARIES vtkWidgets vtkViews)
-SET(KIT_LIBS ${VTK_LIBPROJ4_LIBRARIES})
-
-SET( Kit_SRCS
+set(Module_SRCS
   vtkCompassRepresentation.cxx
   vtkCompassWidget.cxx
   vtkGeoAdaptiveArcs.cxx
-  vtkGeoAlignedImageRepresentation.cxx
   vtkGeoAlignedImageSource.cxx
   vtkGeoArcs.cxx
   vtkGeoAssignCoordinates.cxx
@@ -21,8 +12,8 @@ SET( Kit_SRCS
   vtkGeoGraticule.cxx
   vtkGeoImageNode.cxx
   vtkGeoInteractorStyle.cxx
-  vtkGeoProjectionSource.cxx
-  vtkGeoProjection.cxx
+  # vtkGeoProjection.cxx #needs vtklibproj4 which isnt working well
+  # vtkGeoProjectionSource.cxx # needs vtkGeoProjection
   vtkGeoRandomGraphSource.cxx
   vtkGeoSampleArcs.cxx
   vtkGeoSource.cxx
@@ -30,33 +21,16 @@ SET( Kit_SRCS
   vtkGeoTerrain.cxx
   vtkGeoTerrain2D.cxx
   vtkGeoTerrainNode.cxx
-  vtkGeoTransform.cxx
+  # vtkGeoTransform.cxx #needs vtklibproj4 which isnt working well
   vtkGeoTreeNode.cxx
   vtkGeoTreeNodeCache.cxx
-  vtkGeoView.cxx
-  vtkGeoView2D.cxx
   vtkGlobeSource.cxx
-)
+  vtkGeoAlignedImageRepresentation.cxx
+  )
 
-SET_SOURCE_FILES_PROPERTIES(
-  vtkGeoSource.cxx
+set_source_files_properties(
+  vtkGeoSource
   ABSTRACT
-)
+  )
 
-#SET_SOURCE_FILES_PROPERTIES(
-#  WRAP_EXCLUDE
-#)
-
-SET(Kit_EXTRA_SRCS)
-SET(Kit_EXTRA_CMDS)
-SET(Kit_TCL_EXTRA_SRCS)
-SET(Kit_PYTHON_EXTRA_SRCS)
-SET(Kit_JAVA_EXTRA_SRCS)
-SET(KIT_TCL_DEPS)
-SET(KIT_PYTHON_DEPS)
-SET(KIT_JAVA_DEPS)
-
-#-----------------------------------------------------------------------------
-# Include CMake code common to all kits.
-INCLUDE(${VTK_CMAKE_DIR}/KitCommonBlock.cmake)
-#-----------------------------------------------------------------------------
+vtk_module_library(vtkGeovisCore ${Module_SRCS})

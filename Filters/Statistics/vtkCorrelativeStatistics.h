@@ -47,6 +47,7 @@ class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
+class vtkDoubleArray;
 
 class VTK_INFOVIS_EXPORT vtkCorrelativeStatistics : public vtkStatisticsAlgorithm
 {
@@ -87,7 +88,12 @@ protected:
                        vtkTable* outData ) 
   { this->Superclass::Assess( inData, inMeta, outData, 2 ); }
 
-//BTX  
+//BTX
+  // Description:
+  // Calculate p-value. This will overridden using the object factory with an
+  // R implementation if R is present.
+  virtual vtkDoubleArray* CalculatePValues(vtkDoubleArray*);
+
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* outData, 

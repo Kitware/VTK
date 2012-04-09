@@ -44,7 +44,7 @@ namespace eval ::vtk {
         }
 
         foreach dir $dirs {
-            set libname [file join $dir ${prefix}${name}${ext}]
+            set libname [file join $dir ${prefix}${name}-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@${ext}]
             if {[file exists $libname]} {
                 if {![catch {load $libname} errormsg]} {
                     # WARNING: it HAS to be "" so that pkg_mkIndex work (since

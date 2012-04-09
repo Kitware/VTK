@@ -50,8 +50,8 @@
 #ifndef __vtkArrayWriter_h
 #define __vtkArrayWriter_h
 
-#include <vtkWriter.h>
-#include <vtkStdString.h> // For string API
+#include "vtkWriter.h"
+#include "vtkStdString.h" // For string API
 
 class vtkArray;
 

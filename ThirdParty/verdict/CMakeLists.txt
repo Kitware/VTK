@@ -57,6 +57,10 @@ else ( VERDICT_MANGLE )
   set( verdict_LIBRARY "verdict" )
 endif ( VERDICT_MANGLE )
 
+set(vtkverdict_THIRD_PARTY 1)
+set(vtkverdict_LIBRARIES ${verdict_LIBRARY})
+vtk_module_impl()
+
 # Setting the VERSION and SOVERSION of a library will include
 # version information either in the library, or in the library
 # name (depending on the platform). You may choose to exclude
@@ -153,13 +157,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   endif ( VERDICT_MANGLE )
 
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-install(TARGETS ${verdict_LIBRARY}
-      EXPORT ${VTK_INSTALL_EXPORT_NAME}
-      RUNTIME DESTINATION ${verdict_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries # .exe, .dll
-      LIBRARY DESTINATION ${verdict_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
-      ARCHIVE DESTINATION ${verdict_INSTALL_LIB_DIR} COMPONENT Development      # .a, .lib
-)
 
 #
 # Packing stuff

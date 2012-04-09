@@ -1,0 +1,13 @@
+vtk_module(vtkRenderingAnnotation
+  GROUPS
+    Rendering
+    StandAlone
+  DEPENDS
+    vtkRenderingFreeType
+    vtkImagingColor
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRenderingLOD
+  )

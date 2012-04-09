@@ -24,6 +24,8 @@
 #ifndef __vtkOStreamWrapper_h
 #define __vtkOStreamWrapper_h
 
+#include "vtkCommonCoreModule.h"
+
 #ifndef __VTK_SYSTEM_INCLUDES__INSIDE
 Do_not_include_vtkOStreamWrapper_directly__vtkSystemIncludes_includes_it;
 #endif
@@ -34,7 +36,7 @@ class vtkLargeInteger;
 class vtkSmartPointerBase;
 class vtkStdString;
 
-class VTK_COMMON_EXPORT vtkOStreamWrapper
+class VTKCOMMONCORE_EXPORT vtkOStreamWrapper
 {
 public:
   // Description:

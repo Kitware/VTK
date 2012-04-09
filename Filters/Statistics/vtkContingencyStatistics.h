@@ -46,6 +46,8 @@ class vtkMultiBlockDataSet;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
+class vtkIdTypeArray;
+class vtkDoubleArray;
 
 class VTK_INFOVIS_EXPORT vtkContingencyStatistics : public vtkStatisticsAlgorithm
 {
@@ -85,6 +87,11 @@ protected:
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
                        vtkTable* );
+//BTX
+  // Description:
+  // Calculate p-value. This will overridden using the object factory with an
+  // R implementation if R is present.
+  virtual void CalculatePValues(vtkTable*);
 
 //BTX  
   // Description:

@@ -15,24 +15,10 @@
 #ifndef __vtkPython_h
 #define __vtkPython_h
 
+#include "vtkWrappingPythonCoreModule.h" // For export macro
+#include "vtkCommonCorePythonModule.h"
 #include "vtkPythonConfigure.h"
 #include "vtkABI.h"
-
-#if defined(WIN32)
-# if defined(vtkPythonCore_EXPORTS)
-#  define VTK_PYTHON_EXPORT VTK_ABI_EXPORT
-# else
-#  define VTK_PYTHON_EXPORT VTK_ABI_IMPORT
-# endif
-# if defined(vtkCommonPythonD_EXPORTS)
-#  define VTK_COMMON_PYTHON_EXPORT VTK_ABI_EXPORT
-# else
-#  define VTK_COMMON_PYTHON_EXPORT VTK_ABI_IMPORT
-# endif
-#else
-# define VTK_PYTHON_EXPORT
-# define VTK_COMMON_PYTHON_EXPORT
-#endif
 
 /*
    Use the real python debugging library if it is provided.

@@ -23,16 +23,6 @@ class vtkRenderWindowInteractor;
 
 #include "vtkMFCConfigure.h"
 
-#if !defined(VTK_MFC_STATIC)
-#  if defined(vtkMFC_EXPORTS)
-#    define VTK_MFC_EXPORT __declspec( dllexport )
-#  else
-#    define VTK_MFC_EXPORT __declspec( dllimport )
-#  endif
-#else
-#  define VTK_MFC_EXPORT
-#endif
-
 //! class to display a VTK window in an MFC window
 class VTK_MFC_EXPORT vtkMFCWindow : public CWnd
 {

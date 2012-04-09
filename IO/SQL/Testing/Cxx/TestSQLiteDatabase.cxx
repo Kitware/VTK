@@ -29,6 +29,7 @@
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
+#include "DatabaseSchemaWith2Tables.h"
 
 #include <vector>
 
@@ -260,7 +261,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 // Testing transformation of a schema into a SQLite database
 
   // 1. Create the schema
-#include "DatabaseSchemaWith2Tables.cxx"
+  DatabaseSchemaWith2Tables schema;
 
   // 2. Convert the schema into a SQLite database
   cerr << "@@ Converting the schema into a SQLite database...";
@@ -274,7 +275,7 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     return 1;
     }
 
-  status = dbSch->EffectSchema( schema ); 
+  status = dbSch->EffectSchema( schema.GetSchema() );
   if ( ! status )
     {
     cerr << "Could not effect test schema.\n";
@@ -295,7 +296,8 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     }
 
   std::vector<vtkStdString> tables;
-  for ( tblHandle = 0; query->NextRow(); ++ tblHandle )
+  int tblHandle = 0;
+  for ( ; query->NextRow(); ++ tblHandle )
     {
     vtkStdString tblNameSch( schema->GetTableNameFromHandle( tblHandle ) );
     vtkStdString tblNameDB( query->DataValue( 0 ).ToString() );
@@ -341,7 +343,6 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -357,7 +358,6 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -366,7 +366,6 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   if ( ! query->NextRow() )
     {
     cerr << "Query returned no results" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -396,7 +395,6 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 
   // Clean up
   dbSch->Delete();
-  schema->Delete();
   query->Delete();
 
   return 0;

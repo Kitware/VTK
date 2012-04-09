@@ -91,7 +91,7 @@ public:
 // represent the CVS revision number of this file, so the value must
 // be larger than the last revision which used that strategy.
 #define vtkSocketCommunicatorHashId 100 /* MD5 */
-#include "Parallel/vtkSocketCommunicatorHash.h"
+#include "vtkSocketCommunicatorHash.h"
 
 vtkStandardNewMacro(vtkSocketCommunicator);
 vtkCxxSetObjectMacro(vtkSocketCommunicator, Socket, vtkClientSocket);

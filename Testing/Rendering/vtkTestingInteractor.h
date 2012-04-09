@@ -24,13 +24,15 @@
 #ifndef __vtkTestingInteractor_h
 #define __vtkTestingInteractor_h
 
+#include "vtkTestingRenderingModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
+#include "vtkObjectFactoryCollection.h"
 
 //BTX
 #include <string> // STL Header; Required for string
 //ETX
 
-class VTK_RENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
+class VTKTESTINGRENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
 {
 public:
   // Description:

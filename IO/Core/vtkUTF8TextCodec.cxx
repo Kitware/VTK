@@ -18,10 +18,10 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include <vtkUTF8TextCodec.h>
+#include "vtkUTF8TextCodec.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkTextCodecFactory.h>
+#include "vtkObjectFactory.h"
+#include "vtkTextCodecFactory.h"
 
 #include <utf8.h>
 

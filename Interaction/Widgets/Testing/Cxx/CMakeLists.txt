@@ -1,214 +1,116 @@
-SET(KIT Widgets)
-
-
-# Most (all?) Widgets tests require access to the display:
-#
-IF(VTK_USE_DISPLAY)
-
-# add tests that do not require data
-SET(MyTests
-#  ScaledBoxWidget2.cxx
+set(MyTests
+  BoxWidget.cxx
+  BoxWidget2.cxx
+  # ImagePlaneWidget.cxx # todo (unsatisfied deps)
+  TerrainPolylineEditor.cxx
   TestAffineWidget.cxx
-#  TestAxesTransformWidget.cxx
-  TestButtonWidget.cxx
-#  TestCaptionWidget.cxx
+  TestAngleWidget2D.cxx
+  TestAngleWidget3D.cxx
+  TestBalloonWidget.cxx
+  TestBiDimensionalWidget.cxx
+  TestBorderWidget.cxx
+  # TestBrokenLineWidget.cxx # todo (unsatisfied deps)
+  # TestButtonWidget.cxx # todo (unsatistfied deps)
+  TestCameraWidget.cxx
+  TestCellCentersPointPlacer.cxx
+  TestCenteredSliderWidget2D.cxx
+  TestCheckerboardWidget.cxx
+  TestConstrainedHandleWidget.cxx
+  TestContourWidget2.cxx
+  TestDijkstraGraphGeodesicPath.cxx
+  TestDijkstraImageGeodesicPath.cxx
+  TestDistanceWidget.cxx
   TestDistanceWidget3D.cxx
+  TestFixedSizeHandleRepresentation3D.cxx
+  TestFocalPlaneContour.cxx
   TestHandleWidget.cxx
+  TestHandleWidget2D.cxx
+  # TestImageActorContourWidget.cxx # todo(unsatistfied deps)
+  TestImageTracerWidget.cxx
+  TestImplicitPlaneWidget.cxx
+  TestImplicitPlaneWidget2.cxx
+  TestImplicitPlaneWidget2LockNormalToCamera.cxx
+  TestImplicitPlaneWidget2b.cxx
+  TestLineWidget.cxx
+  TestLineWidget2.cxx
   TestLogoWidget.cxx
+  TestLogoWidgetAlphaBlending.cxx
+  TestLogoWidgetDepthPeeling.cxx
+  TestOrientationMarkerWidget.cxx
+  # TestOrthoPlanes.cxx # todo (unsatistfied deps)
+  TestParallelopipedWidget.cxx
+  TestPlaneWidget.cxx
+  TestPlaybackWidget.cxx
+  TestPointHandleRepresentation3D.cxx
+  TestPointWidget.cxx
+  TestPolyPlane.cxx
+  TestPolygonalHandleRepresentations.cxx
+  TestPolygonalRepresentationHandleWidget.cxx
+  TestPolygonalSurfaceConstrainedDistanceWidget.cxx
   TestProgrammaticPlacement.cxx
   TestRectilinearWipeWidget.cxx
-  TerrainPolylineEditor.cxx
-  TestDijkstraGraphGeodesicPath.cxx
-  TestPolyPlane.cxx
-  vtkAngleWidgetTest1.cxx
-  vtkBiDimensionalWidgetTest1.cxx
-  vtkImplicitPlaneWidget2Test1.cxx
-  vtkLineWidget2Test1.cxx
-  vtkSeedWidgetTest1.cxx
-  vtkSplineWidget2Test1.cxx
-  vtkBorderWidgetTest1.cxx
-  vtkCaptionWidgetTest1.cxx
-  vtkTextWidgetTest1.cxx
-  vtkHoverWidgetTest1.cxx
-  vtkBalloonWidgetTest1.cxx
+  # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
+  # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
+  TestScalarBarWidget.cxx
+  TestSeedWidget.cxx
+  TestSeedWidget2.cxx
+  TestSeedWidgetNonUniformRepresentations.cxx
+  TestSliderWidget.cxx
+  TestSliderWidget2D.cxx
+  TestSphereHandleWidget.cxx
+  # TestSplineWidget.cxx # todo (unsatistfied deps)
+  TestSurfaceConstrainedHandleWidget.cxx
+  TestTensorProbeWidget.cxx
+  TestTextWidget.cxx
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
+  vtkAngleWidgetTest1.cxx
   vtkBalloonRepresentationTest1.cxx
+  vtkBalloonWidgetTest1.cxx
   vtkBiDimensionalRepresentation2DTest1.cxx
+  vtkBiDimensionalWidgetTest1.cxx
+  vtkBorderWidgetTest1.cxx
   vtkCaptionRepresentationTest1.cxx
-  vtkTextRepresentationTest1.cxx
-#  vtkImplicitPlaneRepresentationTest1.cxx
+  vtkCaptionWidgetTest1.cxx
+  vtkHoverWidgetTest1.cxx
   vtkLineRepresentationTest1.cxx
-#  vtkSplineRepresentationTest1.cxx
+  vtkLineWidget2Test1.cxx
   vtkSeedRepresentationTest1.cxx
-#  vtkPointHandleRepresentation2DTest1.cxx
-#  vtkPointHandleRepresentation3DTest1.cxx
-#  vtkConstrainedPointHandleRepresentationTest1
-#  vtkSphereHandleRepresentationTest1.cxx
-#  vtkPolygonalHandleRepresentation3DTest1.cxx
-#  vtkOrientedPolygonalHandleRepresentation3DTest1.cxx
-  )
+  vtkSeedWidgetTest1.cxx
+  vtkSplineWidget2Test1.cxx
+  vtkTextRepresentationTest1.cxx
+  vtkTextWidgetTest1.cxx
+)
 
-IF (VTK_DATA_ROOT)
-  # add tests that require data
-  SET(MyTests ${MyTests}
-    BoxWidget.cxx
-    BoxWidget2.cxx
-    ImagePlaneWidget.cxx
-    TestAngleWidget2D.cxx
-    TestAngleWidget3D.cxx
-    TestBalloonWidget.cxx
-    TestBiDimensionalWidget.cxx
-    TestBorderWidget.cxx
-    TestBrokenLineWidget.cxx
-    TestCameraWidget.cxx
-    TestCellCentersPointPlacer.cxx
-    TestCenteredSliderWidget2D.cxx
-    TestCheckerboardWidget.cxx
-    TestConstrainedHandleWidget.cxx
-    TestContourWidget2.cxx
-    TestDistanceWidget.cxx
-    TestDijkstraImageGeodesicPath.cxx
-    TestFixedSizeHandleRepresentation3D.cxx
-    TestFocalPlaneContour.cxx
-    TestHandleWidget2D.cxx
-    TestImageActorContourWidget.cxx
-    TestImageTracerWidget.cxx
-    TestImplicitPlaneWidget.cxx
-    TestImplicitPlaneWidget2.cxx
-    TestImplicitPlaneWidget2b.cxx
-    TestImplicitPlaneWidget2LockNormalToCamera.cxx
-    TestLineWidget.cxx
-    TestLineWidget2.cxx
-    TestLogoWidgetAlphaBlending.cxx
-    TestLogoWidgetDepthPeeling.cxx
-    TestOrientationMarkerWidget.cxx
-    TestOrthoPlanes.cxx
-    TestPlaneWidget.cxx
-    TestPlaybackWidget.cxx
-    TestPointHandleRepresentation3D.cxx
-    TestPointWidget.cxx
-    TestParallelopipedWidget.cxx
-    TestPolygonalRepresentationHandleWidget.cxx
-    TestPolygonalHandleRepresentations.cxx
-    TestPolygonalSurfaceConstrainedDistanceWidget.cxx
-    TestSeedWidget.cxx
-    TestSeedWidgetNonUniformRepresentations.cxx
-    TestSphereHandleWidget.cxx
-    #TestOrientedGlyphContour.cxx
-    TestResliceCursorWidget2.cxx
-    TestResliceCursorWidget3.cxx
-    TestScalarBarWidget.cxx
-    TestSeedWidget2.cxx
-    TestSliderWidget.cxx
-    TestSliderWidget2D.cxx
-    TestSplineWidget.cxx
-    TestSurfaceConstrainedHandleWidget.cxx
-    TestTensorProbeWidget.cxx
-    TestTextWidget.cxx
-    )
-ENDIF (VTK_DATA_ROOT)
+# Use the testing object factory, to reduce boilerplate code in tests.
+include("${VTK_SOURCE_DIR}/Testing/Rendering/vtkTestingObjectFactory.cmake")
 
+vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
-INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
+set(TestsToRun ${Tests})
+list(REMOVE_ITEM TestsToRun CxxTests.cxx)
+list(REMOVE_ITEM TestsToRun TerrainPolylineEditor.cxx)
 
-ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkWidgets)
-SET (TestsToRun ${Tests})
-REMOVE( TestsToRun
-   ${KIT}CxxTests.cxx
-   TestHandleWidget.cxx
-   TerrainPolylineEditor.cxx
-   TestDijkstraGraphGeodesicPath.cxx
-   TestRectilinearWipeWidget.cxx
-   )
+if(VTK_DATA_ROOT)
+  add_test(NAME ${vtk-module}Cxx-TerrainPolylineEditor
+    COMMAND ${vtk-module}CxxTests TerrainPolylineEditor
+      -ProjectionMode 2
+      -HeightOffset 100
+      -D ${VTK_DATA_ROOT}
+      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -V Baseline/Widgets/TerrainPolylineEditor.png)
+endif()
 
-# Add all the tests
-#
-FOREACH (test ${TestsToRun})
-  GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
-  IF (VTK_DATA_ROOT)
-    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+# Add all the executables
+foreach(test ${TestsToRun})
+  get_filename_component(TName ${test} NAME_WE)
+  if(VTK_DATA_ROOT)
+    add_test(NAME ${vtk-module}Cxx-${TName}
+      COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
-        -V Baseline/${KIT}/${TName}.png)
-  ELSE (VTK_DATA_ROOT)
-    ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
-  ENDIF (VTK_DATA_ROOT)
-ENDFOREACH (test)
-
-# Add any tests with special arguments here..
-#
-IF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
-  ADD_TEST( TerrainPolylineEditor ${CXX_TEST_PATH}/${KIT}CxxTests
-         TerrainPolylineEditor
-         -ProjectionMode 2
-         -HeightOffset 100
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TerrainPolylineEditor.png)
-  ADD_TEST( TestHandleWidget ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestHandleWidget
-         -ConstrainHandlesToPlane
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestHandleWidget.png)
-  ADD_TEST( TestDijkstraGraphGeodesicPath ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestDijkstraGraphGeodesicPath
-         -DistanceOffset 20.0
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestDijkstraGraphGeodesicPath.png)
-
-  ADD_TEST( TestRectilinearWipeWidget0 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         0
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget0.png)
-  ADD_TEST( TestRectilinearWipeWidget1 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         1
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget1.png)
-  ADD_TEST( TestRectilinearWipeWidget2 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         2
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget2.png)
-  ADD_TEST( TestRectilinearWipeWidget3 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         3
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget3.png)
-  ADD_TEST( TestRectilinearWipeWidget4 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         4
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget4.png)
-  ADD_TEST( TestRectilinearWipeWidget5 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         5
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget5.png)
-  ADD_TEST( TestRectilinearWipeWidget6 ${CXX_TEST_PATH}/${KIT}CxxTests
-         TestRectilinearWipeWidget
-         6
-         -E 40
-         -T ${VTK_BINARY_DIR}/Testing/Temporary
-         -D ${VTK_DATA_ROOT}
-         -V Baseline/${KIT}/TestRectilinearWipeWidget6.png)
-ENDIF(VTK_DATA_ROOT AND VTK_USE_DISPLAY)
-
-
-ENDIF(VTK_USE_DISPLAY)
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -V Baseline/Widgets/${TName}.png)
+  else()
+    add_test(NAME ${vtk-module}Cxx-${TName} COMMAND ${vtk-module}CxxTests ${TName})
+  endif()
+endforeach()

@@ -29,14 +29,14 @@
 #include <qglobal.h>
 #if (QT_EDITION & QT_MODULE_SQL)
 
-#include "QVTKWin32Header.h"
+#include "vtkGUISupportQtSQLModule.h"
 #include "vtkSQLQuery.h"
 #include "vtkType.h"
 
 class vtkVariant;
 class vtkQtSQLQueryInternals;
 
-class QVTK_EXPORT vtkQtSQLQuery : public vtkSQLQuery
+class VTKGUISUPPORTQTSQL_EXPORT vtkQtSQLQuery : public vtkSQLQuery
 {
 public:
   static vtkQtSQLQuery* New();

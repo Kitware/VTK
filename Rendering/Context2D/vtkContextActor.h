@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Get the vtkContext2D for the actor.
-  vtkGetNewMacro(Context, vtkContext2D)
+  vtkGetNewMacro(Context, vtkContext2D);
 
   // Description:
   // Get the chart object for the actor.

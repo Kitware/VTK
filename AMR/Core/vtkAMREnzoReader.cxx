@@ -37,7 +37,7 @@
 #include "vtkUnsignedShortArray.h"
 
 #define H5_USE_16_API
-#include <hdf5.h>
+#include "vtk_hdf5.h"
 
 #include <sstream>
 #include <vector>

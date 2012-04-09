@@ -15,7 +15,7 @@
 #include "vtkAMREnzoReaderInternal.h"
 
 #define H5_USE_16_API
-#include <hdf5.h>        // for the HDF5 library
+#include "vtk_hdf5.h"        // for the HDF5 library
 
 #include "vtksys/SystemTools.hxx"
 #include "vtkCellData.h"

@@ -25,7 +25,7 @@
 #include "vtkAMRFlashReaderInternal.h"
 
 #define H5_USE_16_API
-#include <hdf5.h>      // for the HDF data loading engine
+#include "vtk_hdf5.h"      // for the HDF data loading engine
 
 #include <vector>
 #include <cassert>

@@ -1,43 +1,30 @@
-# if we have rendering add the following tests
-SET(KIT QVTK)
-# add tests that do not require data
-SET(MyTests
-  TestQtDebugLeaksView.cxx
-  TestQtInitialization.cxx
-  TestQtSQLDatabase.cxx
+set(MyTests
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx
   )
-IF(VTK_USE_VIEWS)
-  SET(MyTests
-    ${MyTests}
-    TestVtkQtTableView.cxx
-    )
-ENDIF(VTK_USE_VIEWS)
 
-IF (VTK_DATA_ROOT)
-  # add tests that require data
-  SET(MyTests ${MyTests}
+create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx ${MyTests}
+  EXTRA_INCLUDE vtkTestDriver.h)
 
-    )
-ENDIF (VTK_DATA_ROOT)
-CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                       EXTRA_INCLUDE vtkTestDriver.h)
-ADD_EXECUTABLE(${KIT}CxxTests ${Tests} QTestApp.cxx)
-TARGET_LINK_LIBRARIES(${KIT}CxxTests QVTK)
-SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+find_package(Qt4 REQUIRED)
+include(${QT_USE_FILE})
 
-#
+vtk_module_test_executable(${vtk-module}CxxTests ${Tests} QTestApp.cxx)
+
+set(TestsToRun ${Tests})
+remove(TestsToRun ${vtk-module}CxxTests.cxx)
+
 # Add all the executables
-FOREACH (test ${TestsToRun})
-  GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
-  IF (VTK_DATA_ROOT)
-    ADD_TEST(QVTK-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
+foreach(test ${TestsToRun})
+  get_filename_component(TName ${test} NAME_WE)
+  if(VTK_DATA_ROOT)
+    add_test(NAME ${vtk-module}Cxx-${TName}
+      COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_BINARY_DIR}/Testing/Temporary
-        -V Baseline/${KIT}/${TName}.png)
-  ELSE (VTK_DATA_ROOT)
-    ADD_TEST(QVTK-${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName})
-  ENDIF (VTK_DATA_ROOT)
-ENDFOREACH (test)
+        -V Baseline/QVTK/${TName}.png)
+  else()
+    add_test(NAME ${vtk-module}Cxx-${TName}
+      COMMAND ${vtk-module}CxxTests ${TName})
+  endif()
+endforeach()

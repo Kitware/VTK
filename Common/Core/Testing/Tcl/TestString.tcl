@@ -5,8 +5,8 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
 }
 
 package require vtk
-package require vtkcommon
-package require vtkio
+package require vtkcommoncore
+package require vtkiocore
 
 # Pass and return a string by value.
 vtkDelimitedTextWriter r1

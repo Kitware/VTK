@@ -24,54 +24,7 @@
 #include "vtkVersion.h"
 #include "Wrapping/Python/vtkPythonAppInitConfigure.h"
 
-#if defined(CMAKE_INTDIR)
-# define VTK_PYTHON_LIBRARY_DIR VTK_PYTHON_LIBRARY_DIR_BUILD "/" CMAKE_INTDIR
-#else
-# define VTK_PYTHON_LIBRARY_DIR VTK_PYTHON_LIBRARY_DIR_BUILD
-#endif
-
 #include <sys/stat.h>
-
-/*
- * Make sure all the kits register their classes with vtkInstantiator.
- */
-#include "vtkCommonInstantiator.h"
-#include "vtkFilteringInstantiator.h"
-#include "vtkIOInstantiator.h"
-#include "vtkImagingInstantiator.h"
-#include "vtkGraphicsInstantiator.h"
-
-#include "vtkpythonmodules.h"
-
-#ifdef VTK_USE_RENDERING
-#include "vtkRenderingInstantiator.h"
-#include "vtkVolumeRenderingInstantiator.h"
-#include "vtkHybridInstantiator.h"
-#endif
-
-#ifdef VTK_USE_PARALLEL
-#include "vtkParallelInstantiator.h"
-#endif
-
-#ifdef VTK_USE_CHARTS
-#include "vtkChartsInstantiator.h"
-#endif
-
-#ifdef VTK_USE_CHEMISTRY
-#include "vtkChemistryInstantiator.h"
-#endif
-
-#ifdef VTK_USE_GEOVIS
-#include "vtkGeovisInstantiator.h"
-#endif
-
-#ifdef VTK_USE_INFOVIS
-#include "vtkInfovisInstantiator.h"
-#endif
-
-#ifdef VTK_USE_VIEWS
-#include "vtkViewsInstantiator.h"
-#endif
 
 #include <string>
 #include <vtksys/SystemTools.hxx>
@@ -169,8 +122,6 @@ int main(int argc, char **argv)
   std::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
   strcpy(argv0, av0.c_str());
   Py_SetProgramName(argv0);
-
-  CMakeLoadAllPythonModules();
 
   // Initialize interpreter.
   Py_Initialize();

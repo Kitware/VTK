@@ -1,0 +1,15 @@
+vtk_module(vtkRenderingCore
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkCommonTransforms
+    vtkFiltersSources
+    vtkFiltersGeneral
+    vtkFiltersGeometry
+    vtkFiltersExtraction
+    vtkIOImage
+    vtkIOXML
+  TEST_DEPENDS
+    vtkTestingCore
+  )

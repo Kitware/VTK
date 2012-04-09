@@ -1,0 +1,14 @@
+The modular VTK build system is not yet mature.  The monolithic build
+files had a lot of infrastructure.  The modular build files reproduce
+much of the functionality but some features will need to be restored
+later.  Remaining tasks include:
+
+- Restore rest of Python and Tcl add_test calls
+
+- Restore Examples directory build
+
+- Restore HeaderTesting
+
+- Restore Python SIP wrapping
+
+- Restore Install test

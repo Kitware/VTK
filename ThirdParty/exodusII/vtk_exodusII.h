@@ -16,6 +16,6 @@
 #define __vtk_exodusII_h
 
 /* Use the exodusII library configured for VTK.  */
-#include <vtkexodus2/include/exodusII.h>
+#include <vtkexodusII/include/exodusII.h>
 
 #endif

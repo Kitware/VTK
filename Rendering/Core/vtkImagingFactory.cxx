@@ -18,37 +18,6 @@
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
 
-#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA)
-#include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLPolyDataMapper2D.h"
-#include "vtkOpenGLFreeTypeTextMapper.h"
-#endif
-
-#ifdef _WIN32
-#include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLPolyDataMapper2D.h"
-#include "vtkOpenGLFreeTypeTextMapper.h"
-#else
-#ifdef VTK_USE_QUARTZ
-#include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLPolyDataMapper2D.h"
-#include "vtkQuartzImageMapper.h"
-#include "vtkOpenGLFreeTypeTextMapper.h"
-#endif
-#endif
-
-#ifdef VTK_USE_CARBON
-#include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLPolyDataMapper2D.h"
-#include "vtkOpenGLFreeTypeTextMapper.h"
-#endif
-
-#ifdef VTK_USE_COCOA
-#include "vtkOpenGLImageMapper.h"
-#include "vtkOpenGLPolyDataMapper2D.h"
-#include "vtkOpenGLFreeTypeTextMapper.h"
-#endif
-
 #include "vtkCriticalSection.h"
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkImagingFactory::UseMesaClasses = 0;
@@ -82,21 +51,6 @@ const char *vtkImagingFactoryGetRenderLibrary()
     }
   
   // if nothing is set then work down the list of possible renderers
-  if ( !temp )
-    {
-#if defined(VTK_USE_OGLR)  || defined(VTK_USE_OSMESA)
-    temp = "OpenGL";
-#endif
-#ifdef _WIN32
-    temp = "Win32OpenGL";
-#endif
-#ifdef VTK_USE_CARBON
-    temp = "CarbonOpenGL";
-#endif
-#ifdef VTK_USE_COCOA
-    temp = "CocoaOpenGL";
-#endif
-    }
   
   return temp;
 }
@@ -114,79 +68,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
   // with vtkclassname, and not the real name of the class
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::DestructClass(vtkclassname);
-#endif
-
-  const char *rl = vtkImagingFactoryGetRenderLibrary();
-
-#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA)
-  if (!strcmp("OpenGL",rl))
-    {
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkOpenGLFreeTypeTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkOpenGLImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkOpenGLPolyDataMapper2D::New();
-      }
-    }
-#endif
-
-#ifdef _WIN32
-  if (!strcmp("Win32OpenGL",rl))
-    {
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkOpenGLFreeTypeTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkOpenGLImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkOpenGLPolyDataMapper2D::New();
-      }
-    }
-#endif
-
-#ifdef VTK_USE_CARBON
-  if (!strcmp("CarbonOpenGL",rl))
-    {
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkOpenGLFreeTypeTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkOpenGLImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkOpenGLPolyDataMapper2D::New();
-      }
-    }
-#endif
-#ifdef VTK_USE_COCOA
-  if (!strcmp("CocoaOpenGL",rl))
-    {
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkOpenGLFreeTypeTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkOpenGLImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkOpenGLPolyDataMapper2D::New();
-      }
-    }
 #endif
 
   return 0;

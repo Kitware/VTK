@@ -47,6 +47,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiCorrelativeStatistics.h"
 
 class vtkDoubleArray;
+class vtkIdTypeArray;
 
 class VTK_INFOVIS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
 {
@@ -232,6 +233,11 @@ protected:
   virtual void Assess( vtkTable*, 
                        vtkMultiBlockDataSet*, 
                        vtkTable* );
+  //BTX
+  // Description:
+  // Calculate p-value. This will overridden using the object factory with an
+  // R implementation if R is present.
+  virtual vtkDoubleArray* CalculatePValues(vtkIdTypeArray*, vtkDoubleArray*);
 
   //BTX  
   // Description:

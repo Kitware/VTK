@@ -48,13 +48,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkUniformGrid.h"
 #include  "vtkUnstructuredGrid.h"
 
-#ifdef VTK_USE_N_WAY_ARRAYS
 #include  "vtkArrayData.h"
-#endif
-
-#ifdef VTK_USE_CHEMISTRY
 #include  "vtkMolecule.h"
-#endif
 
 vtkStandardNewMacro(vtkDataObjectTypes);
 
@@ -94,9 +89,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkUniformGridAMR",
   "vtkNonOverlappingAMR",
   "vtkOverlappingAMR",
-#ifdef VTK_USE_CHEMISTRY
   "vtkMolecule",
-#endif
   NULL
 };
 
@@ -264,18 +257,14 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkReebGraph::New();
     }
-#ifdef VTK_USE_CHEMISTRY
   else if(strcmp(type, "vtkMolecule") == 0)
     {
     return vtkMolecule::New();
     }
-#endif
-#ifdef VTK_USE_N_WAY_ARRAYS
   else if(strcmp(type, "vtkArrayData") == 0)
     {
     return vtkArrayData::New();
     }
-#endif
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
     vtkDataObject* data = vtkDataObject::SafeDownCast(obj);

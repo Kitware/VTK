@@ -1,0 +1,10 @@
+vtk_module(vtkGeovisCore
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkInteractionWidgets
+    vtkInteractionStyle
+    vtkCommonExecutionModel
+    vtkInfovisLayout
+    vtkViewsCore
+  )

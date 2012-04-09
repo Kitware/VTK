@@ -1,0 +1,42 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    @vtk-module@ObjectFactory.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef __@vtk-module@ObjectFactory_h
+#define __@vtk-module@ObjectFactory_h
+
+#include "@vtk-module@Module.h" // For export macro
+#include "vtkObjectFactory.h"
+
+class @VTK-MODULE@_EXPORT @vtk-module@ObjectFactory : public vtkObjectFactory
+{
+public:
+  static @vtk-module@ObjectFactory * New();
+  vtkTypeMacro(@vtk-module@ObjectFactory, vtkObjectFactory)
+
+  const char * GetDescription() { return "@vtk-module@ factory overrides."; }
+
+  const char * GetVTKSourceVersion();
+
+  void PrintSelf(ostream &os, vtkIndent indent);
+
+protected:
+  @vtk-module@ObjectFactory();
+
+private:
+  @vtk-module@ObjectFactory(const @vtk-module@ObjectFactory&); // Not implemented
+  void operator=(const @vtk-module@ObjectFactory&);      // Not implemented
+};
+
+#endif // __@vtk-module@ObjectFactory_h

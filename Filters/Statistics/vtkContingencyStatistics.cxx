@@ -29,9 +29,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#ifdef VTK_USE_GNU_R
-#include <vtkRInterface.h>
-#endif // VTK_USE_GNU_R
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -651,6 +648,37 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
+void vtkContingencyStatistics::CalculatePValues( vtkTable* testTab )
+{
+  vtkIdTypeArray* dimCol = vtkIdTypeArray::SafeDownCast(testTab->GetColumn(0));
+
+  // Test columns must be created first
+  vtkDoubleArray* testChi2Col = vtkDoubleArray::New(); // Chi square p-value
+  vtkDoubleArray* testChi2yCol = vtkDoubleArray::New(); // Chi square with Yates correction p-value
+
+  // Fill this column
+  vtkIdType n = dimCol->GetNumberOfTuples();
+  testChi2Col->SetNumberOfTuples( n );
+  testChi2yCol->SetNumberOfTuples( n );
+  for ( vtkIdType r = 0; r < n; ++ r )
+    {
+    testChi2Col->SetTuple1( r, -1 );
+    testChi2yCol->SetTuple1( r, -1 );
+    }
+
+  // Now add the column of invalid values to the output table
+  testTab->AddColumn( testChi2Col );
+  testTab->AddColumn( testChi2yCol );
+
+  testChi2Col->SetName( "P" );
+  testChi2yCol->SetName( "P Yates" );
+
+  // Clean up
+  testChi2Col->Delete();
+  testChi2yCol->Delete();
+}
+
+// ----------------------------------------------------------------------
 void vtkContingencyStatistics::Test( vtkTable* inData,
                                      vtkMultiBlockDataSet* inMeta,
                                      vtkTable* outMeta )
@@ -899,82 +927,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   testTab->AddColumn( chi2yCol );
 
   // Last phase: compute the p-values or assign invalid value if they cannot be computed
-  vtkDoubleArray* testChi2Col = 0;
-  vtkDoubleArray* testChi2yCol = 0;
-  bool calculatedP = false;
-
-  // If available, use R to obtain the p-values for the Chi square distribution with required DOFs
-#ifdef VTK_USE_GNU_R
-  // Prepare VTK - R interface
-  vtkRInterface* ri = vtkRInterface::New();
-
-  // Use the calculated DOFs and Chi square statistics as inputs to the Chi square function
-  ri->AssignVTKDataArrayToRVariable( dimCol, "d" );
-  ri->AssignVTKDataArrayToRVariable( chi2Col, "chi2" );
-  ri->AssignVTKDataArrayToRVariable( chi2yCol, "chi2y" );
-
-  // Now prepare R script and calculate the p-values (in a single R script evaluation for efficiency)
-  vtksys_ios::ostringstream rs;
-  rs << "p<-c();"
-     << "py<-c();"
-     << "for(i in 1:"
-     << dimCol->GetNumberOfTuples()
-     << "){"
-     << "p<-c(p,1-pchisq(chi2[i],d[i]));"
-     << "py<-c(py,1-pchisq(chi2y[i],d[i]))"
-     << "}";
-  ri->EvalRscript( rs.str().c_str() );
-
-  // Retrieve the p-values
-  testChi2Col = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
-  testChi2yCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "py" ) );
-  if ( ! testChi2Col || ! testChi2yCol
-       || testChi2Col->GetNumberOfTuples() != dimCol->GetNumberOfTuples()
-       || testChi2yCol->GetNumberOfTuples() != dimCol->GetNumberOfTuples() )
-    {
-    vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
-    }
-  else
-    {
-    // Test values have been calculated by R: the test column can be added to the output table
-    testTab->AddColumn( testChi2Col );
-    testTab->AddColumn( testChi2yCol );
-    calculatedP = true;
-    }
-
-  // Clean up
-  ri->Delete();
-#endif // VTK_USE_GNU_R
-
-  // Use the invalid value of -1 for p-values if R is absent or there was an R error
-  if ( ! calculatedP )
-    {
-    // Test columns must be created first
-    testChi2Col = vtkDoubleArray::New(); // Chi square p-value
-    testChi2yCol = vtkDoubleArray::New(); // Chi square with Yates correction p-value
-
-    // Fill this column
-    vtkIdType n = dimCol->GetNumberOfTuples();
-    testChi2Col->SetNumberOfTuples( n );
-    testChi2yCol->SetNumberOfTuples( n );
-    for ( vtkIdType r = 0; r < n; ++ r )
-      {
-      testChi2Col->SetTuple1( r, -1 );
-      testChi2yCol->SetTuple1( r, -1 );
-      }
-
-    // Now add the column of invalid values to the output table
-    testTab->AddColumn( testChi2Col );
-    testTab->AddColumn( testChi2yCol );
-
-    // Clean up
-    testChi2Col->Delete();
-    testChi2yCol->Delete();
-    }
-
-  // The test column name can only be set after the column has been obtained from R
-  testChi2Col->SetName( "P" );
-  testChi2yCol->SetName( "P Yates" );
+  this->CalculatePValues(testTab);
 
   // Finally set output table to test table
   outMeta->ShallowCopy( testTab );

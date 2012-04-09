@@ -43,12 +43,17 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkToolkits.h"
+#include "DatabaseSchemaWith2Tables.h"
 
 #include <vector>
 
 int TestMySQLDatabase( int, char ** const )
 {
   vtkMySQLDatabase* db = vtkMySQLDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( VTK_MYSQL_TEST_URL ) );
+
+  // Temp code to for linkage ...
+  vtkMySQLDatabase* tmp = vtkMySQLDatabase::New();
+
   bool status = db->Open("vtktest");
 
   if ( ! status )
@@ -179,7 +184,7 @@ int TestMySQLDatabase( int, char ** const )
 // Testing transformation of a schema into a MySQL database
 
   // 1. Create the schema
-#include "DatabaseSchemaWith2Tables.cxx"
+  DatabaseSchemaWith2Tables schema;
 
   // 2. Convert the schema into a MySQL database
   cerr << "@@ Converting the schema into a MySQL database...";
@@ -193,7 +198,7 @@ int TestMySQLDatabase( int, char ** const )
     return 1;
     }
 
-  status = db->EffectSchema( schema ); 
+  status = db->EffectSchema( schema.GetSchema() );
   if ( ! status )
     {
     cerr << "Could not effect test schema.\n";
@@ -236,7 +241,10 @@ int TestMySQLDatabase( int, char ** const )
   // 4. Inspect these tables
   cerr << "@@ Inspecting these tables..." << "\n";
 
+
   vtkStdString queryStr;
+  int tblHandle = schema.GetTableBHandle();
+
   for ( tblHandle = 0; tblHandle < numTbl; ++ tblHandle )
     {
     vtkStdString tblName( schema->GetTableNameFromHandle( tblHandle ) );
@@ -368,7 +376,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -379,7 +386,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -390,7 +396,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -406,7 +411,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -424,7 +428,6 @@ int TestMySQLDatabase( int, char ** const )
            << " != " 
            << dpts[numDpt]
            << endl;
-      schema->Delete();
       query->Delete();
       db->Delete();
       return 1;
@@ -441,7 +444,6 @@ int TestMySQLDatabase( int, char ** const )
          << " != " 
          << 3
          << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -460,7 +462,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -476,7 +477,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->Execute() )
     {
     cerr << "Query failed" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -485,7 +485,6 @@ int TestMySQLDatabase( int, char ** const )
   if ( ! query->NextRow() )
     {
     cerr << "Query returned no results" << endl;
-    schema->Delete();
     query->Delete();
     db->Delete();
     return 1;
@@ -583,7 +582,6 @@ int TestMySQLDatabase( int, char ** const )
   
   // Clean up
   db->Delete();
-  schema->Delete();
   query->Delete();
   
   return 0;

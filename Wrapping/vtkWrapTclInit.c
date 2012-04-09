@@ -63,7 +63,7 @@ static void CreateInitFile(const char *libName,
     fprintf(fout,"ClientData %sNewCommand();\n",concrete[i]);
     }
 
-  if (!strcmp(kitName,"Vtkcommontcl"))
+  if (!strcmp(kitName,"Vtkcommoncoretcl"))
     {
     fprintf(fout,"int vtkCreateCommand(ClientData cd, Tcl_Interp *interp,\n"
       "               int argc, char *argv[]);\n");
@@ -97,7 +97,7 @@ static void CreateInitFile(const char *libName,
   /* create an extern ref to the generic delete function */
   fprintf(fout,"\nextern void vtkTclGenericDeleteObject(ClientData cd);\n");
 
-  if (!strcmp(kitName,"Vtkcommontcl"))
+  if (!strcmp(kitName,"Vtkcommoncoretcl"))
     {
     fprintf(fout,
       "extern \"C\"\n{\nvoid vtkCommonDeleteAssocData(ClientData cd)\n");
@@ -113,7 +113,7 @@ static void CreateInitFile(const char *libName,
 
   fprintf(fout,"\n\nint VTK_EXPORT %s_Init(Tcl_Interp *interp)\n{\n",
     kitName);
-  if (!strcmp(kitName,"Vtkcommontcl"))
+  if (!strcmp(kitName,"Vtkcommoncoretcl"))
     {
     fprintf(fout,
       "  vtkTclInterpStruct *info = new vtkTclInterpStruct;\n");

@@ -25,11 +25,11 @@
 #ifndef __vtkQtTimePointUtility_h
 #define __vtkQtTimePointUtility_h
 
-#include "QVTKWin32Header.h"
+#include "vtkGUISupportQtSQLModule.h"
 #include "vtkObject.h"
 #include <QDateTime>
 
-class QVTK_EXPORT vtkQtTimePointUtility : public vtkObject
+class VTKGUISUPPORTQTSQL_EXPORT vtkQtTimePointUtility : public vtkObject
 {
 public:
   vtkTypeMacro(vtkQtTimePointUtility,vtkObject);

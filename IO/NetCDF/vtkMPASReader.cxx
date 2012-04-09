@@ -70,7 +70,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataObject.h"
-#include "vtkErrorCode.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"

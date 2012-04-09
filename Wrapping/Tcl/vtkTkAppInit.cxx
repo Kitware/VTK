@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
-#include "Wrapping/Tcl/vtkTkAppInitConfigure.h"
+#include "vtkTkAppInitConfigure.h"
 
 #ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
 #include <sys/stat.h>
@@ -43,38 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkTk.h"
 #else
 # include "vtkTcl.h"
-#endif
-
-/*
- * Make sure all the kits register their classes with vtkInstantiator.
- */
-#include "vtkCommonInstantiator.h"
-#include "vtkFilteringInstantiator.h"
-#include "vtkIOInstantiator.h"
-#include "vtkImagingInstantiator.h"
-#include "vtkGraphicsInstantiator.h"
-
-#ifdef VTK_USE_RENDERING
-#include "vtkRenderingInstantiator.h"
-#include "vtkVolumeRenderingInstantiator.h"
-#include "vtkHybridInstantiator.h"
-#include "vtkWidgetsInstantiator.h"
-#endif
-
-#ifdef VTK_USE_PARALLEL
-#include "vtkParallelInstantiator.h"
-#endif
-
-#ifdef VTK_USE_GEOVIS
-#include "vtkGeovisInstantiator.h"
-#endif
-
-#ifdef VTK_USE_INFOVIS
-#include "vtkInfovisInstantiator.h"
-#endif
-
-#ifdef VTK_USE_VIEWS
-#include "vtkViewsInstantiator.h"
 #endif
 
 #include "vtkTclUtil.h"
@@ -246,89 +214,6 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-  /* init the core vtk stuff */
-  if (Vtkcommontcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkfilteringtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkimagingtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkiotcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-#ifdef VTK_USE_RENDERING
-  if (Vtkrenderingtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-#if defined(VTK_USE_TK)
-  if (Vtktkrenderwidget_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-  if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-  if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-  if (Vtkwidgetstcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_PARALLEL
-  if (Vtkparalleltcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
- 
-#ifdef VTK_USE_GEOVIS
-  if (Vtkgeovistcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_INFOVIS
-  if (Vtkinfovistcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
- 
-#ifdef VTK_USE_VIEWS
-  if (Vtkviewstcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
- 
 #ifdef VTK_EXTRA_TCL_INIT
   VTK_EXTRA_TCL_INIT;
 #endif

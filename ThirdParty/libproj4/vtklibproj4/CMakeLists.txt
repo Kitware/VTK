@@ -218,28 +218,16 @@ endif ( GSL_FOUND )
 
 configure_file(
   ${libproj4_SOURCE_DIR}/proj_config.h.cmake
-  ${VTK_BINARY_DIR}/proj_config.h
+  ${libproj4_BINARY_DIR}/proj_config.h
 )
-
-# Apply user-defined properties to the library target.
-if(VTK_LIBRARY_PROPERTIES)
-  set_target_properties(vtkproj4 PROPERTIES ${VTK_LIBRARY_PROPERTIES})
-endif(VTK_LIBRARY_PROPERTIES)
 
 #------------------------------------------------------------------------------
 # Install targets
 
-IF(NOT VTK_INSTALL_NO_LIBRARIES)
-  INSTALL(TARGETS vtkproj4
-    EXPORT ${VTK_INSTALL_EXPORT_NAME}
-    RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
-    LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
-    ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${libproj4_SOURCE_DIR}/lib_proj.h
-    ${VTK_BINARY_DIR}/proj_config.h
+    ${libproj4_BINARY_DIR}/proj_config.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtklibproj4
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

@@ -4,10 +4,10 @@
 
 MACRO(VTK_WRAP_JAVA2 TARGET SOURCE_LIST_NAME)
   # convert to the WRAP3 signature
-  VTK_WRAP_JAVA3(${TARGET} ${SOURCE_LIST_NAME} "${ARGN}")
+  vtk_wrap_java3(${TARGET} ${SOURCE_LIST_NAME} "${ARGN}")
 ENDMACRO(VTK_WRAP_JAVA2)
 
-MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
+macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
   IF(NOT VTK_PARSE_JAVA_EXE)
     MESSAGE(SEND_ERROR "VTK_PARSE_JAVA_EXE not specified when calling VTK_WRAP_JAVA3")
   ENDIF(NOT VTK_PARSE_JAVA_EXE)
@@ -51,7 +51,7 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
   ELSE (VTK_WRAP_HINTS)
     SET(TMP_HINTS)
   ENDIF (VTK_WRAP_HINTS)
-
+ 
   IF (KIT_HIERARCHY_FILE)
     SET(TMP_HIERARCHY "--types" "${quote}${KIT_HIERARCHY_FILE}${quote}")
   ELSE (KIT_HIERARCHY_FILE)
@@ -63,10 +63,13 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
-    GET_SOURCE_FILE_PROPERTY(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
+    get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
+    
+    # we don't wrap the headers in Java
+    get_source_file_property(TMP_WRAP_HEADER ${FILE} WRAP_HEADER)
 
     # if we should wrap it
-    IF (NOT TMP_WRAP_EXCLUDE)
+    IF (NOT TMP_WRAP_EXCLUDE AND NOT TMP_WRAP_HEADER)
 
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
@@ -145,7 +148,7 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
           SET(VTK_WRAP_JAVA_CUSTOM_COUNT)
         ENDIF(VTK_WRAP_JAVA_CUSTOM_COUNT MATCHES "^${VTK_WRAP_JAVA_CUSTOM_LIMIT}$")
       ENDIF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
-    ENDIF (NOT TMP_WRAP_EXCLUDE)
+    ENDIF ()
   ENDFOREACH(FILE)
 
   ADD_CUSTOM_TARGET("${TARGET}JavaClasses" ALL DEPENDS ${VTK_JAVA_DEPENDENCIES})
@@ -155,7 +158,7 @@ MACRO(VTK_WRAP_JAVA3 TARGET SRC_LIST_NAME SOURCES)
   ENDIF(VTK_WRAP_JAVA3_INIT_DIR)
   CONFIGURE_FILE("${dir}/JavaDependencies.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/JavaDependencies.cmake" IMMEDIATE @ONLY)
-ENDMACRO(VTK_WRAP_JAVA3)
+endmacro()
 
 # VS 6 does not like needing to run a huge number of custom commands
 # when building a single target.  Generate some extra custom targets
@@ -188,7 +191,7 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
 
   # get the classes for this lib
   FOREACH(srcName ${ARGN})
-
+    
     # what is the filename without the extension
     GET_FILENAME_COMPONENT(srcNameWe ${srcName} NAME_WE)
 
@@ -217,4 +220,4 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
     IMMEDIATE
     )
 
-ENDMACRO(VTK_GENERATE_JAVA_DEPENDENCIES)
+ENDMACRO()

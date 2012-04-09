@@ -20,7 +20,7 @@
 #include <jni.h>
 #include "vtkCommand.h"
 #include "vtkStdString.h"
-
+#include "vtkWrappingJavaCoreModule.h"
 
 extern JNIEXPORT jlong vtkJavaGetId(JNIEnv *env,jobject obj);
 
@@ -66,7 +66,7 @@ struct vtkJavaVoidFuncArg
 extern JNIEXPORT void vtkJavaVoidFunc(void *);
 extern JNIEXPORT void vtkJavaVoidFuncArgDelete(void *);
 
-class vtkJavaCommand : public vtkCommand
+class VTKWRAPPINGJAVACORE_EXPORT vtkJavaCommand : public vtkCommand
 {
 public:
   static vtkJavaCommand *New() { return new vtkJavaCommand; };

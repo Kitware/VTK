@@ -17,38 +17,10 @@
 
 /* This header is configured by VTK's build process.  */
 
-/*--------------------------------------------------------------------------*/
-/* Selected VTK Toolkits                                                    */
-
-#cmakedefine VTK_USE_VIEWS
-#cmakedefine VTK_USE_GEOVIS
-#cmakedefine VTK_USE_INFOVIS
-#cmakedefine VTK_USE_N_WAY_ARRAYS
-#cmakedefine VTK_USE_PARALLEL
-#cmakedefine VTK_USE_RENDERING
-#cmakedefine VTK_USE_GL2PS
-
 /* The Hybrid and VolumeRendering kits are now switched with Rendering.  */
 #ifdef VTK_USE_RENDERING
 # define VTK_USE_HYBRID
 # define VTK_USE_VOLUMERENDERING
-#endif
-
-/*--------------------------------------------------------------------------*/
-/* Rendering Configuration                                                  */
-
-#cmakedefine VTK_USE_X
-#cmakedefine VTK_USE_OPENGL_LIBRARY
-#cmakedefine VTK_OPENGL_HAS_OSMESA
-#cmakedefine VTK_USE_OFFSCREEN
-
-#cmakedefine VTK_USE_CG_SHADERS
-#cmakedefine VTK_USE_GLSL_SHADERS
-
-#cmakedefine VTK_MATERIALS_DIRS
-#ifdef VTK_MATERIALS_DIRS
-#  undef VTK_MATERIALS_DIRS
-#  define VTK_MATERIALS_DIRS "@VTK_MATERIALS_DIRS@"
 #endif
 
 #cmakedefine VTK_USE_VOLUMEPRO_1000
@@ -66,16 +38,6 @@
 
 /* Whether we are building MPI support.  */
 #cmakedefine VTK_USE_MPI
-
-/* Should VTK use the display?  */
-#cmakedefine VTK_USE_DISPLAY
-
-/* Is VTK_DATA_ROOT defined? */
-#cmakedefine VTK_DATA_ROOT
-#ifdef VTK_DATA_ROOT
-#  undef VTK_DATA_ROOT
-#  define VTK_DATA_ROOT "@VTK_DATA_ROOT@"
-#endif
 
 /* Should VTK use PostgreSQL?  */
 #cmakedefine VTK_USE_POSTGRES
@@ -123,27 +85,5 @@
 
 /* Whether the user has built the MetaIO library or not  */
 #cmakedefine VTK_USE_METAIO
-
-/* Options for GPUInfo */
-#cmakedefine VTK_USE_DIRECTX
-#cmakedefine VTK_USE_CORE_GRAPHICS
-#cmakedefine VTK_USE_NVCONTROL
-
-/*--------------------------------------------------------------------------*/
-/* Setup VTK based on platform features and configuration.                  */
-
-/* OGLR */
-/* OGLR is for GLX. It can be on Unix, Mac or Windows */
-#if ((defined(VTK_USE_OPENGL_LIBRARY) && defined(VTK_USE_X) && \
-      !defined(_WIN32)) ||                                     \
-     (defined(VTK_USE_X) && defined(_WIN32))) && \
-     !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-# define VTK_USE_OGLR
-#endif
-
-#if (defined(VTK_OPENGL_HAS_OSMESA) && !defined(VTK_USE_OGLR) &&  \
-    !defined(_WIN32) && !defined(VTK_USE_CARBON) && !defined(VTK_USE_COCOA))
-# define VTK_USE_OSMESA
-#endif
 
 #endif

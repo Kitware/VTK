@@ -1,51 +1,36 @@
-CONFIGURE_FILE(
+configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/VTKMFCSettings.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/VTKMFCSettings.cmake"
   COPYONLY
   )
 
-INCLUDE("${CMAKE_CURRENT_BINARY_DIR}/VTKMFCSettings.cmake")
+include("${CMAKE_CURRENT_BINARY_DIR}/VTKMFCSettings.cmake")
 
-CONFIGURE_FILE(
+configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkMFCConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h"
   )
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-SET(MFC_SRCS
+set(MFC_SRCS
   vtkMFCWindow.cpp
-  ) 
+  )
 
-VTK_ADD_LIBRARY(vtkMFC ${VTK_MFC_LIB_TYPE} ${MFC_SRCS})
+vtk_module_library(${vtk-module} ${VTK_MFC_LIB_TYPE} ${MFC_SRCS})
 
-# Apply user-defined properties to the library target.
-IF(VTK_LIBRARY_PROPERTIES)
-  SET_TARGET_PROPERTIES(vtkMFC PROPERTIES ${VTK_LIBRARY_PROPERTIES})
-ENDIF(VTK_LIBRARY_PROPERTIES)
+if(VTK_MFC_EXTRA_LIBS)
+  target_link_libraries(${vtk-module} ${VTK_MFC_EXTRA_LIBS})
+endif(VTK_MFC_EXTRA_LIBS)
 
-IF(VTK_MFC_EXTRA_LIBS)
-  TARGET_LINK_LIBRARIES(vtkMFC ${VTK_MFC_EXTRA_LIBS})
-ENDIF(VTK_MFC_EXTRA_LIBS)
-
-TARGET_LINK_LIBRARIES(vtkMFC vtkRendering)
-
-IF ( WIN32 )
-  IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    FILE(GLOB vtkMFCHeaderFiles "*.h")
-    SET(vtkMFCHeaderFiles ${vtkMFCHeaderFiles}
+if ( WIN32 )
+  if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    file(GLOB vtkMFCHeaderFiles "*.h")
+    set(vtkMFCHeaderFiles ${vtkMFCHeaderFiles}
       "${CMAKE_CURRENT_BINARY_DIR}/vtkMFCConfigure.h")
-    INSTALL(FILES ${vtkMFCHeaderFiles}
+    install(FILES ${vtkMFCHeaderFiles}
       DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
       COMPONENT Development
       )
-  ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  IF(NOT VTK_INSTALL_NO_LIBRARIES)
-    INSTALL(TARGETS vtkMFC
-      EXPORT ${VTK_INSTALL_EXPORT_NAME}
-      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries # .exe, .dll
-      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
-      )
-  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-ENDIF ( WIN32 )
+  endif(NOT VTK_INSTALL_NO_DEVELOPMENT)
+endif ( WIN32 )

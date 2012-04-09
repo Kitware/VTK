@@ -1,5 +1,20 @@
 PROJECT(MaterialLibrary)
 
+vtk_module_impl()
+
+# FIXME: Provide a reasonable default for this value in MaterialLibrary?
+set(VTK_DEFAULT_SHADERS_DIR
+  "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
+  CACHE INTERNAL
+  "The directory that code for shaders is stored in.")
+set(VTK_MATERIALS_DIRS
+  ${VTK_DEFAULT_SHADERS_DIR}
+  CACHE STRING
+  "A ; separated list of directories to search for materials/shaders.")
+
+include_directories("${VTK_SOURCE_DIR}/Common/Core"
+  "${VTK_BINARY_DIR}/Common/Core")
+
 # Enable shared link forwarding support it needed.
 SET (ML_EXE_SUFFIX)
 SET (ML_EXE_INSTALL ${VTK_INSTALL_BIN_DIR})

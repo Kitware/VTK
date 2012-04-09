@@ -15,6 +15,7 @@
 #ifndef __vtkOpenGL_h
 #define __vtkOpenGL_h
 
+#include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkConfigure.h"
 
 // To prevent gl.h to include glext.h provided by the system

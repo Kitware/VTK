@@ -1,0 +1,20 @@
+vtk_module(vtkIOImage
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkCommonMath
+    vtkCommonMisc
+    vtkCommonTransforms
+    vtkIOGeometry
+    vtkjpeg
+    vtkpng
+    vtktiff
+    vtkMetaIO
+    vtkoggtheora
+    vtkDICOMParser
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkImagingSources
+  )

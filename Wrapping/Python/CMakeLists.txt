@@ -1,265 +1,81 @@
 # this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
+include_directories(${VTK_BINARY_DIR} ${VTK_BINARY_DIR}/Utilities)
 
-#-----------------------
-# for libvtkPythonCore.so, the core classes and utilities for VTK-Python
-SET(VTK_PYTHON_CORE_SRCS
-  vtkPythonArgs.cxx
-  vtkPythonOverload.cxx
-  vtkPythonUtil.cxx
-  PyVTKClass.cxx
-  PyVTKMutableObject.cxx
-  PyVTKObject.cxx
-  PyVTKSpecialObject.cxx
-  PyVTKTemplate.cxx
-)
-
-# SIP directory will be searched before other python dirs
-IF(VTK_WRAP_PYTHON_SIP)
-  INCLUDE_DIRECTORIES(${SIP_INCLUDE_DIR})
-ENDIF(VTK_WRAP_PYTHON_SIP)
-
-INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
-
-VTK_ADD_LIBRARY(vtkPythonCore ${VTK_PYTHON_CORE_SRCS})
-TARGET_LINK_LIBRARIES(vtkPythonCore vtkCommon)
-IF(NOT VTK_INSTALL_NO_LIBRARIES)
-  INSTALL(TARGETS vtkPythonCore
-    EXPORT ${VTK_INSTALL_EXPORT_NAME}
-    RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
-    LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
-    ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  SET(__inst_files
-    vtkPython.h
-    vtkPythonUtil.h
-    vtkPythonArgs.h
-    vtkPythonOverload.h
-    PyVTKClass.h
-    PyVTKObject.h
-    PyVTKSpecialObject.h
-    PyVTKTemplate.h
-    PyVTKMutableObject.h
-  )
-  INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
-    COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-# Underlinking on purpose. The following library will not compile
-# with LDFLAGS=-Wl,--no-undefined by design:
-# On some UNIX platforms the python library is static and therefore
-# should not be linked into the shared library.  Instead the symbols
-# are exported from the python executable so that they can be used by
-# shared libraries that are linked or loaded.  On Windows and OSX we
-# want to link to the python libray to resolve its symbols
-# immediately.
-IF(WIN32 OR APPLE)
-  TARGET_LINK_LIBRARIES (vtkPythonCore ${VTK_PYTHON_LIBRARIES})
-  TARGET_LINK_LIBRARIES (vtkPythonCore LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
-ENDIF(WIN32 OR APPLE)
-
-# Apply user-defined properties to the library targets.
-IF(VTK_LIBRARY_PROPERTIES)
-  SET_TARGET_PROPERTIES(vtkPythonCore PROPERTIES
-    ${VTK_LIBRARY_PROPERTIES}
-    )
-ENDIF(VTK_LIBRARY_PROPERTIES)
+get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
 #-----------------------
 # for the vtkpython executable
-IF(VTK_USE_CARBON)
-  FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
-ENDIF(VTK_USE_CARBON)
+if(VTK_USE_CARBON)
+  find_program(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+endif()
 
-IF(UNIX)
-  FIND_LIBRARY(PYTHON_UTIL_LIBRARY
+if(UNIX)
+  find_library(PYTHON_UTIL_LIBRARY
     NAMES util
     DOC "Utility library needed for vtkpython"
     )
-  MARK_AS_ADVANCED(PYTHON_UTIL_LIBRARY)
-ENDIF(UNIX)
+  mark_as_advanced(PYTHON_UTIL_LIBRARY)
+endif()
 
-# Python multithreading support
-SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 0)
-IF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
-  SET(_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT 1)
-ENDIF(CMAKE_SYSTEM MATCHES BlueGene  OR  CMAKE_SYSTEM MATCHES Catamount)
-OPTION(VTK_NO_PYTHON_THREADS "Disable multithreading support in the Python bindings" ${_DEFAULT_SKIP_PYTHON_MULTITHREADING_SUPPORT})
-MARK_AS_ADVANCED(VTK_NO_PYTHON_THREADS)
-
-# create vtkPythonConfigure.h
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonConfigure.h.in
-               ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonConfigure.h)
-
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  SET(__inst_files
-    ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonConfigure.h
-  )
-  INSTALL(FILES ${__inst_files}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
-    COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-PYTHON_WRITE_MODULES_HEADER("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
+python_write_modules_header("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # create the VTK/Python  executable
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
+configure_file(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
 
-VTK_ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx vtkpython.rc)
+add_executable(vtkpython vtkPythonAppInit.cxx vtkpython.rc)
 
-SET(VTKPYTHON_LINK_FLAGS)
-SET(VTKPYTHON_LINK_LIBS)
+set(VTKPYTHON_LINK_FLAGS)
+set(VTKPYTHON_LINK_LIBS)
 
-IF(CMAKE_SYSTEM_NAME MATCHES "AIX")
-  GET_FILENAME_COMPONENT(CMAKE_PYTHON_LIB_PREFIX "${PYTHON_LIBRARY}" PATH)
-  FIND_FILE(CMAKE_PYTHON_LIBRARY_EXPORT python.exp "${CMAKE_PYTHON_LIB_PREFIX}")
-  IF(CMAKE_PYTHON_LIBRARY_EXPORT)
-    SET(VTKPYTHON_LINK_FLAGS "-Wl,-bE:${CMAKE_PYTHON_LIBRARY_EXPORT}")
-  ENDIF(CMAKE_PYTHON_LIBRARY_EXPORT)
-ENDIF(CMAKE_SYSTEM_NAME MATCHES "AIX")
+if(CMAKE_SYSTEM_NAME MATCHES "AIX")
+  get_filename_component(CMAKE_PYTHON_LIB_PREFIX "${PYTHON_LIBRARY}" PATH)
+  find_file(CMAKE_PYTHON_LIBRARY_EXPORT python.exp "${CMAKE_PYTHON_LIB_PREFIX}")
+  if(CMAKE_PYTHON_LIBRARY_EXPORT)
+    set(VTKPYTHON_LINK_FLAGS "-Wl,-bE:${CMAKE_PYTHON_LIBRARY_EXPORT}")
+  endif()
+endif()
 
-IF (APPLE)
-  IF(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
-    ADD_CUSTOM_COMMAND(
+if(APPLE)
+  if(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
+    add_custom_command(
       TARGET vtkpython POST_BUILD
       COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTK_EXECUTABLE_DIR}/vtkpython
       )
-  ENDIF(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
+  endif()
 
-  IF(VTK_USE_MATLAB_MEX)
-   SET(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
-  ELSE(VTK_USE_MATLAB_MEX)
-   SET(VTKPYTHON_LINK_FLAGS "-flat_namespace -undefined suppress -u _PyMac_Error")
-  ENDIF(VTK_USE_MATLAB_MEX)
-ENDIF (APPLE)
+  if(VTK_USE_MATLAB_MEX)
+    set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
+  else()
+   set(VTKPYTHON_LINK_FLAGS "-flat_namespace -undefined suppress -u _PyMac_Error")
+  endif()
+endif()
 
 # Link against all the kit wrappers.
-SET(VTKPYTHON_LINK_LIBS
+set(VTKPYTHON_LINK_LIBS
   ${VTK_PYTHON_LIBRARIES}
   vtksys
-  vtkCommon
-  vtkFiltering
-  vtkIO
-  vtkGraphics
-  vtkImaging)
+  vtkCommonCore
+  )
 
-SET (vtkpython_pyc_depends
-    vtkCommonPython
-    vtkFilteringPython
-    vtkIOPython
-    vtkGraphicsPython
-    vtkImagingPython)
+set(vtkpython_pyc_depends
+  vtkCommonPython
+  vtkFilteringPython
+  vtkIOPython
+  vtkGraphicsPython
+  vtkImagingPython
+  )
 
-IF(BORLAND)
-  SET(KITS Common Filtering Graphics IO Imaging)
-  IF (VTK_USE_PARALLEL)
-    SET(KITS ${KITS} Parallel)
-    SET(KITS ${KITS} AMR)
-  ENDIF(VTK_USE_PARALLEL)
-  IF(VTK_USE_CHARTS)
-    SET(KITS ${KITS} Charts)
-  ENDIF(VTK_USE_CHARTS)
-  IF(VTK_USE_CHEMISTRY)
-    SET(KITS ${KITS} Chemistry)
-  ENDIF(VTK_USE_CHEMISTRY)
-  IF (VTK_USE_GEOVIS)
-    SET(KITS ${KITS} Geovis)
-  ENDIF(VTK_USE_GEOVIS)
-  IF (VTK_USE_INFOVIS)
-    SET(KITS ${KITS} Infovis)
-  ENDIF(VTK_USE_INFOVIS)
-  IF (VTK_USE_VIEWS)
-    SET(KITS ${KITS} Views)
-  ENDIF(VTK_USE_VIEWS)
-  IF (VTK_USE_RENDERING)
-    SET(KITS ${KITS} Widgets)
-    SET(KITS ${KITS} Hybrid)
-    SET(KITS ${KITS} VolumeRendering)
-    SET(KITS ${KITS} Rendering)
-  ENDIF(VTK_USE_RENDERING)
-  FOREACH(KIT ${KITS})
-    WRITE_FILE(${LIBRARY_OUTPUT_PATH}/vtk${KIT}Python.def
-               "EXPORTS\ninitvtk${KIT}Python=_initvtk${KIT}Python\n")
-  ENDFOREACH(KIT)
-ENDIF(BORLAND)
-
-IF(PYTHON_UTIL_LIBRARY)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS}  ${PYTHON_UTIL_LIBRARY})
-ENDIF(PYTHON_UTIL_LIBRARY)
-
-IF (VTK_USE_RENDERING)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS}
-                          vtkRendering
-                          vtkVolumeRendering
-                          vtkHybrid
-                          vtkWidgets )
-  SET (vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkRenderingPython
-      vtkVolumeRenderingPython
-      vtkHybridPython
-      vtkWidgetsPython
-      )
-ENDIF (VTK_USE_RENDERING)
-
-IF (VTK_USE_PARALLEL)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkParallel vtkAMR)
-  SET(vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkParallelPython
-      vtkAMRPython
-      )
-ENDIF (VTK_USE_PARALLEL)
-
-IF(VTK_USE_CHARTS)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkCharts)
-  SET(vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkChartsPython
-      )
-ENDIF(VTK_USE_CHARTS)
-
-IF(VTK_USE_CHEMISTRY)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkChemistry)
-  SET(vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkChemistryPython
-      )
-ENDIF(VTK_USE_CHEMISTRY)
-
-IF (VTK_USE_GEOVIS)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkGeovis)
-  SET(vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkGeovisPython
-      )
-ENDIF (VTK_USE_GEOVIS)
-
-IF (VTK_USE_INFOVIS)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkInfovis)
-  SET(vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkInfovisPython
-      )
-ENDIF (VTK_USE_INFOVIS)
-
-IF (VTK_USE_VIEWS)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} vtkViews)
-  SET(vtkpython_pyc_depends
-      ${vtkpython_pyc_depends}
-      vtkViewsPython
-      )
-ENDIF (VTK_USE_VIEWS)
+if(PYTHON_UTIL_LIBRARY)
+  set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PYTHON_UTIL_LIBRARY})
+endif()
 
 # The PYTHON_ADD_MODULE macro stores the list of static modules in a global property
-GET_PROPERTY(PY_STATIC_MODULES_LIST GLOBAL PROPERTY PY_STATIC_MODULES_LIST)
-IF(PY_STATIC_MODULES_LIST)
-  SET(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PY_STATIC_MODULES_LIST})
-ENDIF(PY_STATIC_MODULES_LIST)
+get_property(PY_STATIC_MODULES_LIST GLOBAL PROPERTY PY_STATIC_MODULES_LIST)
+if(PY_STATIC_MODULES_LIST)
+  set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PY_STATIC_MODULES_LIST})
+endif(PY_STATIC_MODULES_LIST)
 
 # Link to rt to prevent undefined symbol 'fdatasync'
 IF(CMAKE_SYSTEM MATCHES "SunOS.*" AND NOT CMAKE_COMPILER_IS_GNUCXX)
@@ -273,17 +89,13 @@ IF(VTK_WRAP_TCL)
   TARGET_LINK_LIBRARIES(vtkpython ${VTK_TK_LIBRARIES})
 ENDIF(VTK_WRAP_TCL)
 
-IF(HAVE_PTHREAD_H AND VTK_USE_PTHREADS)
-  TARGET_LINK_LIBRARIES(vtkpython ${CMAKE_THREAD_LIBS})
+IF(HAVE_PTHREAD_H AND CMAKE_USE_PTHREADS)
+  TARGET_LINK_LIBRARIES(vtkpython ${CMAKE_THREAD_LIBS_INIT})
 ENDIF()
 
 IF(VTK_USE_FFMPEG_ENCODER)
   LIST(APPEND VTKPYTHON_LINK_LIBS ${FFMPEG_BASIC_LIBRARIES})
 ENDIF(VTK_USE_FFMPEG_ENCODER)
-
-IF(VTK_USE_SYSTEM_PNG)
-  LIST(APPEND VTKPYTHON_LINK_LIBS ${PNG_LIBRARY})
-ENDIF(VTK_USE_SYSTEM_PNG)
 
 TARGET_LINK_LIBRARIES(vtkpython ${VTKPYTHON_LINK_LIBS})
 TARGET_LINK_LIBRARIES(vtkpython LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
@@ -300,7 +112,7 @@ ENDIF(VTK_USE_MATLAB_MEX)
 SET(PVTKPYTHON_EXECUTABLE)
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL AND VTK_USE_MPI)
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+  INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
   IF (MPI_LIBRARY)
     SET(MPI_LIBRARIES ${MPI_LIBRARY})
   ENDIF (MPI_LIBRARY)
@@ -333,28 +145,6 @@ IF (VTK_USE_PARALLEL AND VTK_USE_MPI)
   ENDIF(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
 ENDIF (VTK_USE_PARALLEL AND VTK_USE_MPI)
 
-IF(NOT VTK_INSTALL_NO_RUNTIME AND NOT VTK_INSTALL_NO_VTKPYTHON)
-  IF(VTK_BUILD_FORWARDING_EXECUTABLES)
-    INSTALL(TARGETS vtkpython ${PVTKPYTHON_EXECUTABLE}
-      RUNTIME DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
-      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
-      )
-
-    INSTALL(TARGETS vtkpython${VTK_EXE_SUFFIX} ${PVTKPYTHON_EXECUTABLE}
-      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
-      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
-      )
-  ELSE(VTK_BUILD_FORWARDING_EXECUTABLES)
-    INSTALL(TARGETS vtkpython ${PVTKPYTHON_EXECUTABLE}
-      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
-      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
-      )
-  ENDIF(VTK_BUILD_FORWARDING_EXECUTABLES)
-ENDIF(NOT VTK_INSTALL_NO_RUNTIME AND NOT VTK_INSTALL_NO_VTKPYTHON)
-
 # Handle out-of-source builds correctly.
 #
 #  1. Create a list of Python files to be installed/copied.
@@ -377,27 +167,13 @@ IF(PYTHON_EXECUTABLE)
 
 # Wrapping/Python/vtk/*.py
   SET(VTK_PYTHON_FILES
-    vtk/__helper
-    vtk/__init__
-    vtk/common
-    vtk/charts
-    vtk/chemistry
-    vtk/filtering
-    vtk/genericfiltering
-    vtk/geovis
-    vtk/graphics
-    vtk/hybrid
-    vtk/imaging
-    vtk/io
-    vtk/infovis
-    vtk/parallel
-    vtk/rendering
-    vtk/required
-    vtk/views
-    vtk/volumerendering
-    vtk/widgets
-    vtk/qvtk
     )
+  SET(VTK_PYTHON_IMPORT_ALL "")
+  FOREACH(module ${VTK_PYTHON_MODULES})
+    SET(VTK_PYTHON_IMPORT_ALL "${VTK_PYTHON_IMPORT_ALL}from ${module} import *\n")
+    CONFIGURE_FILE(vtk/module.py.in vtk/${module}.py @ONLY IMMEDIATE)
+  ENDFOREACH()
+  CONFIGURE_FILE(vtk/__init__.py.in vtk/__init__.py @ONLY IMMEDIATE)
 
 # vtk.util package
   SET(VTK_PYTHON_FILES
@@ -486,22 +262,6 @@ IF(PYTHON_EXECUTABLE)
     ENDFOREACH(file)
   ENDIF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
-  # handle the different configuration types (each will have identical files)
-  SET(VTK_PYTHON_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES})
-  IF(VTK_PYTHON_CONFIGURATION_TYPES)
-    FOREACH(config ${VTK_PYTHON_CONFIGURATION_TYPES})
-      FOREACH(file ${VTK_PYTHON_FILES})
-        SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
-        SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${config}/${file}.py")
-        ADD_CUSTOM_COMMAND(DEPENDS ${src}
-                           COMMAND ${CMAKE_COMMAND}
-                           ARGS -E copy ${src} ${tgt}
-                           OUTPUT ${tgt}
-                           COMMENT "source copy")
-      ENDFOREACH(file)
-    ENDFOREACH(config)
-  ENDIF(VTK_PYTHON_CONFIGURATION_TYPES)
-
   # Byte compile the Python files.
   CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
                  ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
@@ -536,9 +296,9 @@ IF(PYTHON_EXECUTABLE)
 
   IF(VTK_INSTALL_PYTHON_USING_CMAKE)
     # Install python module directory (*.py and *.pyd)
-    INSTALL(DIRECTORY "${VTK_BINARY_DIR}/Wrapping/Python/vtk"
-      DESTINATION "${VTK_INSTALL_BIN_DIR_CM24}/Python" COMPONENT RuntimeLibraries
-      USE_SOURCE_PERMISSIONS)
+    #INSTALL(DIRECTORY "${VTK_BINARY_DIR}/Wrapping/Python/vtk"
+    #  DESTINATION "${VTK_INSTALL_BIN_DIR_CM24}/Python" COMPONENT RuntimeLibraries
+    #  USE_SOURCE_PERMISSIONS)
   ENDIF(VTK_INSTALL_PYTHON_USING_CMAKE)
 
   # Add a rule to use python distutils to install the python wrappers.
@@ -624,56 +384,6 @@ ELSE(CMAKE_CONFIGURATION_TYPES)
   SET(VTK_PYTHON_HAS_CONFIG_TYPES 0)
   SET(VTK_PYTHON_BUILD_TYPE "[]")
 ENDIF(CMAKE_CONFIGURATION_TYPES)
-IF(VTK_USE_RENDERING)
-  SET(VTK_PYTHON_USE_RENDERING 1)
-ELSE(VTK_USE_RENDERING)
-  SET(VTK_PYTHON_USE_RENDERING 0)
-ENDIF(VTK_USE_RENDERING)
-IF(VTK_USE_PARALLEL)
-  SET(VTK_PYTHON_USE_PARALLEL 1)
-ELSE(VTK_USE_PARALLEL)
-  SET(VTK_PYTHON_USE_PARALLEL 0)
-ENDIF(VTK_USE_PARALLEL)
-IF(VTK_USE_CHARTS)
-  SET(VTK_PYTHON_USE_CHARTS 1)
-ELSE(VTK_USE_CHARTS)
-  SET(VTK_PYTHON_USE_CHARTS 0)
-ENDIF(VTK_USE_CHARTS)
-IF(VTK_USE_CHEMISTRY)
-  SET(VTK_PYTHON_USE_CHEMISTRY 1)
-ELSE()
-  SET(VTK_PYTHON_USE_CHEMISTRY 0)
-ENDIF()
-IF(VTK_USE_GEOVIS)
-  SET(VTK_PYTHON_USE_GEOVIS 1)
-ELSE(VTK_USE_GEOVIS)
-  SET(VTK_PYTHON_USE_GEOVIS 0)
-ENDIF(VTK_USE_GEOVIS)
-IF(VTK_USE_INFOVIS)
-  SET(VTK_PYTHON_USE_INFOVIS 1)
-ELSE(VTK_USE_INFOVIS)
-  SET(VTK_PYTHON_USE_INFOVIS 0)
-ENDIF(VTK_USE_INFOVIS)
-IF(VTK_USE_VIEWS)
-  SET(VTK_PYTHON_USE_VIEWS 1)
-ELSE(VTK_USE_VIEWS)
-  SET(VTK_PYTHON_USE_VIEWS 0)
-ENDIF(VTK_USE_VIEWS)
-IF(VTK_USE_MPI)
-  SET(VTK_PYTHON_USE_MPI 1)
-ELSE(VTK_USE_MPI)
-  SET(VTK_PYTHON_USE_MPI 0)
-ENDIF(VTK_USE_MPI)
-IF(VTK_USE_QT AND VTK_WRAP_PYTHON_SIP)
-  SET(VTK_PYTHON_USE_QT 1)
-ELSE(VTK_USE_QT AND VTK_WRAP_PYTHON_SIP)
-  SET(VTK_PYTHON_USE_QT 0)
-ENDIF(VTK_USE_QT AND VTK_WRAP_PYTHON_SIP)
-IF(VTK_WRAP_PYTHON_SIP)
-  SET(VTK_PYTHON_USE_SIP 1)
-ELSE(VTK_WRAP_PYTHON_SIP)
-  SET(VTK_PYTHON_USE_SIP 0)
-ENDIF(VTK_WRAP_PYTHON_SIP)
 
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in
                ${VTK_BINARY_DIR}/Wrapping/Python/setup.py @ONLY IMMEDIATE)

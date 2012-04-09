@@ -29,7 +29,7 @@
 #include <qglobal.h>
 #if (QT_EDITION & QT_MODULE_SQL)
 
-#include "QVTKWin32Header.h"
+#include "vtkGUISupportQtSQLModule.h"
 #include "vtkSQLDatabase.h"
 
 #include <QtSql/QSqlDatabase>
@@ -37,7 +37,7 @@
 class vtkSQLQuery;
 class vtkStringArray;
 
-class QVTK_EXPORT vtkQtSQLDatabase : public vtkSQLDatabase
+class VTKGUISUPPORTQTSQL_EXPORT vtkQtSQLDatabase : public vtkSQLDatabase
 {
 public:
   static vtkQtSQLDatabase* New();

@@ -67,7 +67,7 @@ typedef FILE* vtkLSDynaFile_t;
 #  include <errno.h>
 #endif
 
-class LSDyna_EXPORT LSDynaFamily
+class LSDynaFamily
 {
 public:
   LSDynaFamily();

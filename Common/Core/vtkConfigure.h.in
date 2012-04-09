@@ -124,10 +124,6 @@
 /* Whether we are using ANSI C++ streams (or old-style streams).  */
 #cmakedefine VTK_USE_ANSI_STDLIB
 
-/* Whether VTK was built to support Carbon or Cocoa on the Mac.  */
-#cmakedefine VTK_USE_CARBON
-#cmakedefine VTK_USE_COCOA
-
 /* Whether we are linking to Tcl/Tk statically.  */
 #cmakedefine VTK_TCL_TK_STATIC
 

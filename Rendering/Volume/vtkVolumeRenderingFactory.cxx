@@ -20,7 +20,6 @@
 #include "vtkGraphicsFactory.h"
 
 // if using some sort of opengl, then include these files
-#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkOpenGLHAVSVolumeMapper.h"
 #include "vtkOpenGLProjectedAAHexahedraMapper.h"
@@ -28,7 +27,6 @@
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLVolumeTextureMapper3D.h"
-#endif
 
 #include "vtkCriticalSection.h"
 
@@ -53,9 +51,7 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #endif
   const char *rl = vtkGraphicsFactory::GetRenderLibrary();
   
-
-#if defined(VTK_USE_OGLR) || defined(VTK_USE_OSMESA) ||defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
-  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
+//  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
     // GPU Ray Cast Mapper
     if(strcmp(vtkclassname, "vtkGPUVolumeRayCastMapper") == 0)
@@ -99,7 +95,6 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
       return vtkOpenGLRayCastImageDisplayHelper::New();
       }
     }
-#endif
         
   return 0;
 }

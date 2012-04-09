@@ -25,7 +25,7 @@
 #ifndef __vtkBlockDistribution_h
 #define __vtkBlockDistribution_h
 
-class VTK_PARALLEL_EXPORT vtkBlockDistribution
+class vtkBlockDistribution
 {
 public:
   // Description:
