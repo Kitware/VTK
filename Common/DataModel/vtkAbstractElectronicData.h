@@ -101,9 +101,8 @@ protected:
   double Padding;
 
 private:
-  // Not implemented:
-  vtkAbstractElectronicData(const vtkAbstractElectronicData&);
-  void operator=(const vtkAbstractElectronicData&);
+  vtkAbstractElectronicData(const vtkAbstractElectronicData&); // Not implemented
+  void operator=(const vtkAbstractElectronicData&); // Not implemented
 };
 
 #endif

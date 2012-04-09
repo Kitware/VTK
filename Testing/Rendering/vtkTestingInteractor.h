@@ -26,7 +26,7 @@
 
 #include "vtkTestingRenderingModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactoryCollection.h"
+#include "vtkObjectFactoryCollection.h" // Generated object overrides
 
 //BTX
 #include <string> // STL Header; Required for string
