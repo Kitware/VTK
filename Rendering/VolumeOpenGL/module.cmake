@@ -1,17 +1,16 @@
-vtk_module(vtkRenderingVolume
+vtk_module(vtkRenderingVolumeOpenGL
   GROUPS
     Rendering
     StandAlone
+  IMPLEMENTS
+    vtkRenderingVolume
   DEPENDS
-    vtkImagingCore
-    vtkRenderingCore
+    vtkRenderingOpenGL
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
-    vtkRenderingVolumeOpenGL
     vtkRenderingFreeType
     vtkImagingSources
     vtkImagingGeneral
-    vtkImagingHybrid
     vtkInteractionStyle
   )

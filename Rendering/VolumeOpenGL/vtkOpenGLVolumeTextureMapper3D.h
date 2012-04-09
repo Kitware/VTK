@@ -24,14 +24,15 @@
 #ifndef __vtkOpenGLVolumeTextureMapper3D_h
 #define __vtkOpenGLVolumeTextureMapper3D_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkVolumeTextureMapper3D.h"
 #include "vtkOpenGL.h" // GLfloat type is used in some method signatures.
 
 class vtkRenderWindow;
 class vtkVolumeProperty;
 
-class VTKRENDERINGVOLUME_EXPORT vtkOpenGLVolumeTextureMapper3D : public vtkVolumeTextureMapper3D
+class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLVolumeTextureMapper3D
+  : public vtkVolumeTextureMapper3D
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTextureMapper3D,vtkVolumeTextureMapper3D);
@@ -155,6 +156,5 @@ private:
   vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
   void operator=(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
 };
-
 
 #endif

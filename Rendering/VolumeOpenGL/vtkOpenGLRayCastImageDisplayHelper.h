@@ -24,14 +24,15 @@
 #ifndef __vtkOpenGLRayCastImageDisplayHelper_h
 #define __vtkOpenGLRayCastImageDisplayHelper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkRayCastImageDisplayHelper.h"
 
 class vtkVolume;
 class vtkRenderer;
 class vtkFixedPointRayCastImage;
 
-class VTKRENDERINGVOLUME_EXPORT vtkOpenGLRayCastImageDisplayHelper : public vtkRayCastImageDisplayHelper
+class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLRayCastImageDisplayHelper
+  : public vtkRayCastImageDisplayHelper
 {
 public:
   static vtkOpenGLRayCastImageDisplayHelper *New();
