@@ -8,7 +8,7 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
       std::string(cmakeGeneratedFunctionMapEntries[testToRun].name) +
       std::string(\".png\");
     vtkTestingInteractor::TempDirectory =
-      std::string(\"${VTK_BINARY_DIR}/Testing/Temporary\");
+      std::string(\"${VTK_TEST_OUTPUT_DIR}\");
     vtkTestingInteractor::DataDirectory =
       std::string(\"${VTK_DATA_ROOT}\");
 
@@ -83,5 +83,5 @@ SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 "
 )
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                       EXTRA_INCLUDE ${VTK_SOURCE_DIR}/Testing/Rendering/vtkTestingObjectFactory.h)
+                       EXTRA_INCLUDE ${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.h)
 

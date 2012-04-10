@@ -27,17 +27,17 @@ if(VTK_DATA_ROOT)
   add_test(NAME ${vtk-module}Cxx-AddStencilData
     COMMAND ${vtk-module}CxxTests TestImageStencilData 1
       -D ${VTK_DATA_ROOT}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -T ${VTK_TEST_OUTPUT_DIR}
       -V Baseline/Hybrid/TestAddStencilData.png)
   add_test(NAME ${vtk-module}Cxx-SubtractStencilData
     COMMAND ${vtk-module}CxxTests TestImageStencilData 2
       -D ${VTK_DATA_ROOT}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -T ${VTK_TEST_OUTPUT_DIR}
       -V Baseline/Hybrid/TestSubtractStencilData.png)
   add_test(NAME ${vtk-module}Cxx-ClipStencilData
     COMMAND ${vtk-module}CxxTests TestImageStencilData 3
       -D ${VTK_DATA_ROOT}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -T ${VTK_TEST_OUTPUT_DIR}
       -V Baseline/Hybrid/TestClipStencilData.png)
 endif()
 
@@ -48,7 +48,7 @@ foreach(test ${TestsToRun})
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Imaging/${TName}.png)
   else()
     add_test(NAME ${vtk-module}Cxx-${TName}

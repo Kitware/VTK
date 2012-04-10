@@ -12,7 +12,7 @@ if (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
         ${vtkCommonComputationalGeometry_SOURCE_DIR}/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Filtering/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     endforeach()
@@ -21,7 +21,7 @@ if (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
         ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/squadViewer.tcl
         -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Filtering/squadViewer.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     endif()

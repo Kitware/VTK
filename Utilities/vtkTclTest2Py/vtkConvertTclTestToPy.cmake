@@ -26,7 +26,7 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
           ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
           ${output}
           -D ${VTK_DATA_ROOT}
-          -T ${VTK_BINARY_DIR}/Testing/Temporary
+          -T ${VTK_TEST_OUTPUT_DIR}
           -V Baseline/${kit_name}/${test}.png
           -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
           -A "${VTK_LIBRARY_DIR}"
@@ -35,7 +35,7 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
         ADD_TEST(${test}Python ${VTK_PYTHON_EXE}
           ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
           ${output}
-          -T ${VTK_BINARY_DIR}/Testing/Temporary
+          -T ${VTK_TEST_OUTPUT_DIR}
           -V Baseline/${kit_name}/${test}.png
           -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py"
           -A "${VTK_LIBRARY_DIR}"

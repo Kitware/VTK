@@ -252,28 +252,28 @@ IF(BUILD_TESTING)
          -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
          vtk.test.Regression -D ${VTK_DATA_ROOT}
          -V Baseline/Graphics/Cone.png
-         -T ${VTK_BINARY_DIR}/Testing/Temporary)
+         -T ${VTK_TEST_OUTPUT_DIR})
     endif()
 
     ADD_TEST(JavaGCRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
       -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
       vtk.test.ConcurrencyGC
-      -T ${VTK_BINARY_DIR}/Testing/Temporary)
+      -T ${VTK_TEST_OUTPUT_DIR})
 
     ADD_TEST(JavaDeleteRegression ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
       -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
       vtk.test.JavaDelete
-     -T ${VTK_BINARY_DIR}/Testing/Temporary)
+     -T ${VTK_TEST_OUTPUT_DIR})
 
     ADD_TEST(JavaManualGC ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
       -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
       vtk.test.ManualGC
-      -T ${VTK_BINARY_DIR}/Testing/Temporary)
+      -T ${VTK_TEST_OUTPUT_DIR})
 
     ADD_TEST(JavaDeleteAndGC ${JAVA_RUNTIME} ${VTK_TEST_JAVA_DATAMODEL_FLAG}
       -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
       vtk.test.JavaGCAndDelete
-     -T ${VTK_BINARY_DIR}/Testing/Temporary)
+     -T ${VTK_TEST_OUTPUT_DIR})
   endif()
 ENDIF(BUILD_TESTING)
 
