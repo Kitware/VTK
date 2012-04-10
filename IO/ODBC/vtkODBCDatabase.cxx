@@ -51,41 +51,6 @@
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkODBCDatabase);
 
-// Registration of ODBC dynamically with the vtkSQLDatabase factory method.
-vtkSQLDatabase * ODBCCreateFunction(const char* URL)
-{
-  std::string urlstr(URL ? URL : "");
-  std::string protocol, unused;
-  vtkODBCDatabase *db = 0;
-
-  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
-      protocol == "odbc")
-    {
-    db = vtkODBCDatabase::New();
-    db->ParseURL(URL);
-    }
-
-  return db;
-}
-
-class vtkODBCDatabaseRegister
-{
-public:
-  vtkODBCDatabaseRegister()
-    {
-    vtkSQLDatabase::RegisterCreateFromURLCallback(ODBCCreateFunction);
-    }
-  ~vtkODBCDatabaseRegister()
-    {
-    vtkSQLDatabase::UnRegisterCreateFromURLCallback(ODBCCreateFunction);
-    }
-};
-
-// Remove ifndef in VTK 6.0: only register callback in old layout.
-#ifndef VTK_USE_ODBC
-static vtkODBCDatabaseRegister ODBCDataBaseRegister;
-#endif
-
 // ----------------------------------------------------------------------------
 static vtkStdString GetErrorMessage(SQLSMALLINT handleType,
                                     SQLHANDLE handle,
