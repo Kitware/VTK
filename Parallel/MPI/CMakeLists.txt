@@ -22,6 +22,9 @@ set_source_files_properties(
 # Needed for mpich 2
 add_definitions("-DMPICH_IGNORE_CXX_SEEK")
 
+# FIXME: The ifdefs need to be removed, for now defining it to on
+set(${vtk-module}_EXPORT_CODE "#define VTK_USE_MPI")
+
 vtk_module_library(vtkParallelMPI ${Module_SRCS})
 target_link_libraries(vtkParallelMPI ${MPI_LIBRARY})
 if(MPI_EXTRA_LIBRARY)
