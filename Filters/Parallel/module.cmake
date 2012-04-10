@@ -1,12 +1,14 @@
 vtk_module(vtkFiltersParallel
   GROUPS
     MPI
+  IMPLEMENTS
+    vtkFiltersCore
+    vtkFiltersSources
+    vtkFiltersModeling
+    vtkFiltersGeneral
   DEPENDS
     vtkParallelMPI
     vtkCosmo
-    vtkFiltersGeneral
     vtkFiltersExtraction
-    vtkFiltersModeling
-    vtkFiltersSources
     vtkRenderingCore
   )

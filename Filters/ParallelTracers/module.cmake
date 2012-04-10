@@ -1,6 +1,7 @@
 vtk_module(vtkFiltersParallelTracers
-  DEPENDS
+  IMPLEMENTS
     vtkFiltersTracers
+  DEPENDS
     vtkParallelCore
     vtkFiltersParallel
   TEST_DEPENDS
