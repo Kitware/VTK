@@ -176,7 +176,6 @@ macro(_test_compiler_hidden_visibility)
 
     if(${_gcc_version} VERSION_LESS "4.2")
       set(GCC_TOO_OLD TRUE)
-      message(WARNING "GCC version older than 4.2")
     endif()
   endif()
 
@@ -188,7 +187,6 @@ macro(_test_compiler_hidden_visibility)
 
     if(${_intel_version} VERSION_LESS "12.0")
       set(_INTEL_TOO_OLD TRUE)
-      message(WARNING "Intel compiler older than 12.0")
     endif()
   endif()
 
