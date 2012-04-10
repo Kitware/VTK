@@ -32,6 +32,7 @@
 #include "vtkStringArray.h"
 #include "vtkToolkits.h"
 #include "DatabaseSchemaWith2Tables.h"
+#include "vtkIOPostgresSQLTestingCxxConfigure.h"
 #include <vector>
 
 int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )

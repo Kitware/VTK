@@ -27,6 +27,7 @@
 
 #include "vtkTableToPostgreSQLWriter.h"
 #include "vtkPostgreSQLToTableReader.h"
+#include "vtkIOPostgresSQLTestingCxxConfigure.h"
 
 int TestPostgreSQLTableReadWrite(int argc, char *argv[])
 {
