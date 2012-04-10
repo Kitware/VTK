@@ -95,7 +95,9 @@ void vtkAVIWriter::Start()
   int wExtent[6];
   this->GetInputInformation(0,0)->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent);
-  this->GetInputAlgorithm(0, 0)->SetUpdateExtentToWholeExtent();
+  int inputAlgPort;
+  vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
+  inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
 
   LONG hr;
   AVISTREAMINFO strhdr;

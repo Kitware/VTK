@@ -878,10 +878,6 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
   filter->SetInputData(0, inputClone);
   filter->SetInputData(1, selInputClone);
 
-  vtkStreamingDemandDrivenPipeline* sddp =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      filter->GetExecutive());
-
   vtkDebugMacro(<< "Preparing subfilter to extract from dataset");
   //pass all required information to the helper filter
   int piece = -1;
@@ -894,10 +890,7 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     npieces = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    if (sddp)
-      {
-      sddp->SetUpdateExtent(0, piece, npieces, 0);
-      }
+    filter->SetUpdateExtent(0, piece, npieces, 0);
     }
 
   if (outInfo->Has(
@@ -905,10 +898,7 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
     {
     uExtent = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    if (sddp)
-      {
-      sddp->SetUpdateExtent(0, uExtent);
-      }
+    filter->SetUpdateExtent(0, uExtent);
     }
 
   filter->Update();

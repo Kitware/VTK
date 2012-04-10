@@ -93,9 +93,11 @@ void vtkVolumeTextureMapper::Update(int port)
 {
   if ( this->GetInput() )
     {
-    this->GetInputAlgorithm()->UpdateInformation();
-    this->SetUpdateExtentToWholeExtent();
-    this->GetInputAlgorithm()->Update(port);
+    int inputAlgPort;
+    vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
+    inputAlg->UpdateInformation();
+    inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
+    inputAlg->Update(port);
     }
 }
 

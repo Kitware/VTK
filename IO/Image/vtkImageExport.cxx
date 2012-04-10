@@ -465,10 +465,9 @@ void vtkImageExport::PropagateUpdateExtentCallback(int* extent)
 {
   if (this->GetInputAlgorithm())
     {
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      this->GetInputAlgorithm()->GetExecutive())->SetUpdateExtent(
-        this->GetInputConnection(0, 0)->GetIndex(),
-        extent);
+    this->GetInputAlgorithm()->SetUpdateExtent(
+      this->GetInputConnection(0, 0)->GetIndex(),
+      extent);
     }
 }
 
