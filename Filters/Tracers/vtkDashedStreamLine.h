@@ -32,10 +32,10 @@
 #ifndef __vtkDashedStreamLine_h
 #define __vtkDashedStreamLine_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersTracersModule.h" // For export macro
 #include "vtkStreamLine.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkDashedStreamLine : public vtkStreamLine
+class VTKFILTERSTRACERS_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
   static vtkDashedStreamLine *New();
@@ -65,5 +65,3 @@ private:
 };
 
 #endif
-
-
