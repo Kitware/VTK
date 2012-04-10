@@ -2250,15 +2250,15 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 
   // 3x3x3 has nothing to do with octree or 27tree
   int midCursorId = 0;
-  if (dim == 1)
+  if ( dim == 1 )
     {
     midCursorId = 1;
     }
-  if (dim == 2)
+  if ( dim == 2 )
     {
     midCursorId = 4;
     }
-  if (dim == 3 )
+  if ( dim == 3 )
     {
     midCursorId = 13;
     }
@@ -2272,7 +2272,15 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         {
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
         vtkHyperTreeLightWeightCursor superCursor[27];
+
+        // Initialize center cursor
         superCursor[midCursorId].Initialize( this->CellTree[index] );
+
+        // Initialize x-connectivity cursors
+        if ( i > 0 )
+          superCursor[midCursorId - 1].Initialize( this->CellTree[i - 1] );
+        else if ( i + 1 < this->GridSize[0] )
+          superCursor[midCursorId + 1].Initialize( this->CellTree[i + 1] );
 
         // Location and size of the middle cursor/node
         double origin[3];
@@ -2344,13 +2352,20 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
     pt[1] = origin[1];
     pt[2] = origin[2];
 
+    bool xplus = false;
+    bool xminus = false;
     // Adjust point so the boundary of the dataset does not shrink.
-    if ( superCursor[midCursorId-1].GetTree() && superCursor[midCursorId+1].GetTree() )
+    if ( superCursor[midCursorId - 1].GetTree() && superCursor[midCursorId + 1].GetTree() )
       {
       // Middle of cell
       pt[0] += size[0] * 0.5;
+      if ( superCursor[midCursorId - 1].GetTree() != superCursor[midCursorId + 1].GetTree() )
+        {
+        xplus = ( superCursor[midCursorId - 1].GetTree() == superCursor[midCursorId].GetTree() );
+        xminus = ! xplus;
+        }
       }
-    else if ( superCursor[midCursorId+1].GetTree() == 0)
+    else if ( superCursor[midCursorId + 1].GetTree() == 0)
       {
       // Move to maximum boundary of cell
       pt[0] += size[0];
@@ -2404,7 +2419,12 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
             cursorIdx += (cornerIdx&1) + (leafIdx&1);
           }
         // Collect the leaf indexes for the dual cell.
-        leaves[leafIdx] = ptOffset + superCursor[cursorIdx].GetLeafIndex();
+        if ( xminus && ! ( leafIdx % 2 ) )
+          {
+          leaves[leafIdx] = superCursor[cursorIdx].GetLeafIndex();
+          }
+        else
+          leaves[leafIdx] = ptOffset + superCursor[cursorIdx].GetLeafIndex();
 
         // Compute if the mid leaf owns the corner.
         if ( cursorIdx != midCursorId )
@@ -2635,15 +2655,15 @@ void vtkHyperTreeGrid::UpdateGridArrays()
 
   // 3x3x3 has nothing to do with octree or 27tree
   int midCursorId = 0;
-  if (dim == 1)
+  if ( dim == 1 )
     {
     midCursorId = 1;
     }
-  if (dim == 2)
+  if ( dim == 2 )
     {
     midCursorId = 4;
     }
-  if (dim == 3 )
+  if ( dim == 3 )
     {
     midCursorId = 13;
     }
