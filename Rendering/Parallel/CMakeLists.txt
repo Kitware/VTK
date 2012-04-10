@@ -16,6 +16,7 @@ set(Module_SRCS
   vtkSynchronizedRenderers.cxx
   vtkSynchronizedRenderWindows.cxx
   vtkTreeCompositer.cxx
+  vtkImageRenderManager.cxx
   )
 
 set_source_files_properties(

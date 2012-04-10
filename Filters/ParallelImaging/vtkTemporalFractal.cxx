@@ -1521,4 +1521,3 @@ void vtkTemporalFractal::PrintSelf(ostream& os, vtkIndent indent)
     }
   os<< endl;
 }
-

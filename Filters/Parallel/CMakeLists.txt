@@ -13,8 +13,6 @@ set(Module_SRCS
   vtkExtractPolyDataPiece.cxx
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
-  # vtkImageRenderManager.cxx # needs to move
-  # vtkMemoryLimitImageDataStreamer.cxx # nees vtkImageDataStreamer
   vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
   vtkPCosmoHaloFinder.cxx
@@ -33,9 +31,7 @@ set(Module_SRCS
   vtkPSphereSource.cxx
   vtkPTableToStructuredGrid.cxx
   vtkRectilinearGridOutlineFilter.cxx
-  # vtkTemporalFractal.cxx # needs vtkImageMandelbrotSource
   vtkTemporalInterpolatedVelocityField.cxx
-  # vtkTransmitImageDataPiece.cxx # needs vtkImageClip
   vtkTransmitPolyDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx
   vtkTransmitStructuredGridPiece.cxx
