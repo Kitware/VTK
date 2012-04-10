@@ -314,7 +314,7 @@ protected:
 
   void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
                            vtkDoubleArray* cellVectors, double vorticity[3] );
-  void Integrate(vtkDataSet *input,
+  void Integrate(vtkPointData *inputData,
                  vtkPolyData* output,
                  vtkDataArray* seedSource,
                  vtkIdList* seedIds,
@@ -322,6 +322,7 @@ protected:
                  double lastPoint[3],
                  vtkAbstractInterpolatedVelocityField* func,
                  int maxCellSize,
+                 int vecType,
                  const char *vecFieldName,
                  double& propagation,
                  vtkIdType& numSteps);
@@ -384,6 +385,8 @@ protected:
   vtkAbstractInterpolatedVelocityField * InterpolatorPrototype;
 
   vtkCompositeDataSet* InputData;
+
+  friend class PStreamTracerUtils;
 
 private:
   vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.

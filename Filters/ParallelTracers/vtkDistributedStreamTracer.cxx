@@ -274,9 +274,11 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
     {
     input0 = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
     }
-  vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0);
+  int vecType(0);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0,vecType);
   const char *vecName = vectors->GetName();
-  this->Integrate(input0,
+
+  this->Integrate(input0->GetPointData(),
                   tmpOutput,
                   seeds,
                   seedIds,
@@ -284,6 +286,7 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
                   lastPoint,
                   func,
                   maxCellSize,
+                  vecType,
                   vecName,
                   propagation,
                   numSteps);

@@ -14,6 +14,7 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkStreamTracer.h"
 
+#include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
@@ -34,7 +35,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellLocatorInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
@@ -43,6 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
+
 
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
@@ -444,6 +448,13 @@ int vtkStreamTracer::RequestData(
       return 1;
       }
 
+    if(vtkOverlappingAMR::SafeDownCast(this->InputData))
+      {
+      vtkOverlappingAMR* amr =vtkOverlappingAMR::SafeDownCast(this->InputData);
+      amr->GenerateParentChildInformation();
+      amr->GenerateVisibilityArrays();
+      }
+
     vtkCompositeDataIterator* iter = this->InputData->NewIterator();
     vtkSmartPointer<vtkCompositeDataIterator> iterP(iter);
     iter->Delete();
@@ -454,17 +465,18 @@ int vtkStreamTracer::RequestData(
       {
       input0 = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
       }
-    vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0);
+    int vecType(0);
+    vtkDataArray *vectors = this->GetInputArrayToProcess(0,input0,vecType);
     if (vectors)
       {
       const char *vecName = vectors->GetName();
       double propagation = 0;
       vtkIdType numSteps = 0;
-      this->Integrate(input0, output,
+      this->Integrate(input0->GetPointData(), output,
                       seeds, seedIds,
                       integrationDirections,
                       lastPoint, func,
-                      maxCellSize, vecName,
+                      maxCellSize, vecType,vecName,
                       propagation, numSteps);
       }
     func->Delete();
@@ -486,6 +498,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     return VTK_ERROR;
     }
 
+  vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(this->InputData);
   vtkCompositeDataIterator* iter = this->InputData->NewIterator();
   vtkSmartPointer<vtkCompositeDataIterator> iterP(iter);
   iter->Delete();
@@ -496,11 +509,25 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     return VTK_ERROR;
     }
 
+  int vecType(0);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(
+    0,iterP->GetCurrentDataObject(),vecType);
+  if (!vectors)
+    {
+    return VTK_ERROR;
+    }
+
   // Set the function set to be integrated
   if ( !this->InterpolatorPrototype )
     {
-    func = vtkInterpolatedVelocityField::New();
-
+    if(amrData)
+      {
+      func = vtkAMRInterpolatedVelocityField::New();
+      }
+    else
+      {
+      func = vtkInterpolatedVelocityField::New();
+      }
     // turn on the following segment, in place of the above line, if an
     // interpolator equipped with a cell locator is dedired as the default
     //
@@ -512,54 +539,52 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
     }
   else
     {
+    if(amrData && vtkAMRInterpolatedVelocityField::SafeDownCast(this->InterpolatorPrototype)==NULL)
+      {
+      this->InterpolatorPrototype = vtkAMRInterpolatedVelocityField::New();
+      }
     func = this->InterpolatorPrototype->NewInstance();
     func->CopyParameters(this->InterpolatorPrototype);
     }
-  vtkDataArray *vectors = this->GetInputArrayToProcess(
-    0,iterP->GetCurrentDataObject());
-  if (!vectors)
-    {
-    return VTK_ERROR;
-    }
-  const char *vecName = vectors->GetName();
-  func->SelectVectors(vecName);
 
-  // Add all the inputs ( except source, of course ) which
-  // have the appropriate vectors and compute the maximum
-  // cell size.
-  int numInputs = 0;
-  iterP->GoToFirstItem();
-  while (!iterP->IsDoneWithTraversal())
+  if(vtkAMRInterpolatedVelocityField::SafeDownCast(func))
     {
-    vtkDataSet* inp = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
-    if (inp)
+    assert(amrData);
+    vtkAMRInterpolatedVelocityField::SafeDownCast(func)->SetAMRData(amrData);
+    if(maxCellSize)
       {
-      if (!inp->GetPointData()->GetVectors(vecName))
-        {
-        vtkDebugMacro("One of the input blocks does not contain a "
-                      "velocity vector.");
-        iterP->GoToNextItem();
-        continue;
-        }
-      int cellSize = inp->GetMaxCellSize();
-      if ( cellSize > *maxCellSize )
-        {
-        *maxCellSize = cellSize;
-        }
-      func->AddDataSet(inp);
-      numInputs++;
+      *maxCellSize = 8;
       }
-    iterP->GoToNextItem();
     }
-  if ( numInputs == 0 )
+  else if(vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
     {
-    vtkDebugMacro("No appropriate inputs have been found. Can not execute.");
-    return VTK_ERROR;
+    iterP->GoToFirstItem();
+    while (!iterP->IsDoneWithTraversal())
+      {
+      vtkDataSet* inp = vtkDataSet::SafeDownCast(iterP->GetCurrentDataObject());
+      if (inp)
+        {
+        int cellSize = inp->GetMaxCellSize();
+        if ( cellSize > *maxCellSize )
+          {
+          *maxCellSize = cellSize;
+          }
+        vtkCompositeInterpolatedVelocityField::SafeDownCast(func)->AddDataSet(inp);
+        }
+      iterP->GoToNextItem();
+      }
     }
+  else
+    {
+    assert(false);
+    }
+
+  const char *vecName = vectors->GetName();
+  func->SelectVectors(vecType,vecName);
   return VTK_OK;
 }
 
-void vtkStreamTracer::Integrate(vtkDataSet *input0,
+void vtkStreamTracer::Integrate(vtkPointData *input0Data,
                                 vtkPolyData* output,
                                 vtkDataArray* seedSource,
                                 vtkIdList* seedIds,
@@ -567,6 +592,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
                                 double lastPoint[3],
                                 vtkAbstractInterpolatedVelocityField* func,
                                 int maxCellSize,
+                                int vecType,
                                 const char *vecName,
                                 double& inPropagation,
                                 vtkIdType& inNumSteps)
@@ -622,6 +648,13 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
   vtkIntArray* retVals = vtkIntArray::New();
   retVals->SetName("ReasonForTermination");
 
+  vtkSmartPointer<vtkDoubleArray> velocityVectors;
+  if(vecType != vtkDataObject::POINT)
+    {
+    velocityVectors = vtkSmartPointer<vtkDoubleArray>::New();
+    velocityVectors->SetName(vecName);
+    velocityVectors->SetNumberOfComponents(3);
+    }
   vtkDoubleArray* cellVectors = 0;
   vtkDoubleArray* vorticity = 0;
   vtkDoubleArray* rotation = 0;
@@ -658,7 +691,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
   //       as a consequence a large number of such small vtkPolyData objects
   //       are needed to represent a streamline, consuming up the memory before
   //       the intermediate memory is timely released.
-  outputPD->InterpolateAllocate( input0->GetPointData(),
+  outputPD->InterpolateAllocate( input0Data,
                                  this->MaximumNumberOfSteps );
 
   vtkIdType numPtsTotal=0;
@@ -726,8 +759,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
     input = func->GetLastDataSet();
     inputPD = input->GetPointData();
-    inVectors = inputPD->GetVectors(vecName);
-
+    inVectors = input->GetAttributesAsFieldData(vecType)->GetArray(vecName);
     // Convert intervals to arc-length unit
     input->GetCell(func->GetLastCellId(), cell);
     cellLength = sqrt(static_cast<double>(cell->GetLength2()));
@@ -742,14 +774,27 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // Interpolate all point attributes on first point
     func->GetLastWeights(weights);
     outputPD->InterpolatePoint(inputPD, nextPoint, cell->PointIds, weights);
+    if(vecType != vtkDataObject::POINT)
+      {
+      velocityVectors->InsertNextTuple(velocity);
+      }
 
     // Compute vorticity if required
     // This can be used later for streamribbon generation.
     if (this->ComputeVorticity)
       {
-      inVectors->GetTuples(cell->PointIds, cellVectors);
-      func->GetLastLocalCoordinates(pcoords);
-      vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vort);
+      if(vecType == vtkDataObject::POINT)
+        {
+        inVectors->GetTuples(cell->PointIds, cellVectors);
+        func->GetLastLocalCoordinates(pcoords);
+        vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vort);
+        }
+      else
+        {
+        vort[0] = 0;
+        vort[1] = 0;
+        vort[2] = 0;
+        }
       vorticity->InsertNextTuple(vort);
       // rotation
       // local rotation = vorticity . unit tangent ( i.e. velocity/speed )
@@ -868,7 +913,8 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
       input = func->GetLastDataSet();
       inputPD = input->GetPointData();
-      inVectors = inputPD->GetVectors(vecName);
+      inVectors = input->GetAttributesAsFieldData(vecType)->GetArray(vecName);
+
 
       // Point is valid. Insert it.
       numPts++;
@@ -883,14 +929,26 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       // Interpolate all point attributes on current point
       func->GetLastWeights(weights);
       outputPD->InterpolatePoint(inputPD, nextPoint, cell->PointIds, weights);
-
+      if(vecType != vtkDataObject::POINT)
+        {
+        velocityVectors->InsertNextTuple(velocity);
+        }
       // Compute vorticity if required
       // This can be used later for streamribbon generation.
       if (this->ComputeVorticity)
         {
-        inVectors->GetTuples(cell->PointIds, cellVectors);
-        func->GetLastLocalCoordinates(pcoords);
-        vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vort);
+        if(vecType == vtkDataObject::POINT)
+          {
+          inVectors->GetTuples(cell->PointIds, cellVectors);
+          func->GetLastLocalCoordinates(pcoords);
+          vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vort);
+          }
+        else
+          {
+          vort[0] = 0;
+          vort[1] = 0;
+          vort[2] = 0;
+          }
         vorticity->InsertNextTuple(vort);
         // rotation
         // angular velocity = vorticity . unit tangent ( i.e. velocity/speed )
@@ -971,6 +1029,10 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // Create the output polyline
     output->SetPoints(outputPoints);
     outputPD->AddArray(time);
+    if(vecType != vtkDataObject::POINT)
+      {
+      outputPD->AddArray(velocityVectors);
+      }
     if (vorticity)
       {
       outputPD->AddArray(vorticity);
@@ -1064,9 +1126,9 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
       for(i=0; i<numPts; i++)
         {
         normals->GetTuple(i, normal);
-        if (newVectors == NULL)
+        if (newVectors == NULL || newVectors->GetNumberOfTuples()!=numPts)
           { // This should never happen.
-          vtkErrorMacro("Could not find output array.");
+          vtkErrorMacro("Bad velocity array.");
           return;
           }
         newVectors->GetTuple(i, velocity);

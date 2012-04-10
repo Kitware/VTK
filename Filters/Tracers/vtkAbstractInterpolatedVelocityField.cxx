@@ -40,17 +40,16 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
 
   this->LastCellId = -1;
   this->LastDataSet= 0;
-  this->LastDataSetIndex = 0;
   this->LastPCoords[0] = 0.0;
   this->LastPCoords[1] = 0.0;
   this->LastPCoords[2] = 0.0;
 
+  this->VectorsType = 0;
   this->VectorsSelection = 0;
   this->NormalizeVector  = false;
 
   this->Cell     = vtkGenericCell::New();
   this->GenCell  = vtkGenericCell::New();
-  this->DataSets = new vtkAbstractInterpolatedVelocityFieldDataSetsType;
 }
 
 //---------------------------------------------------------------------------
@@ -60,7 +59,7 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
   this->NumIndepVars = 0;
 
   this->LastDataSet  = 0;
-  this->SetVectorsSelection( 0 );
+  this->SetVectorsSelection(0);
 
   if ( this->Weights )
     {
@@ -79,12 +78,6 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
     this->GenCell->Delete();
     this->GenCell = NULL;
     }
-
-  if ( this->DataSets )
-    {
-    delete this->DataSets;
-    this->DataSets = NULL;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -101,18 +94,18 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
 
   // See if a dataset has been specified and if there are input vectors
   if ( !dataset ||
-       !(  vectors =
-           dataset->GetPointData()->GetVectors( this->VectorsSelection )
+       !(vectors = dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection))
         )
-     )
     {
     vtkErrorMacro( << "Can't evaluate dataset!" );
     vectors = NULL;
+
     return 0;
     }
 
   double tol2 = dataset->GetLength() *
                 vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
+
 
   int found = 0;
 
@@ -176,14 +169,21 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     numPts = this->GenCell->GetNumberOfPoints();
 
     // interpolate the vectors
-    for ( j = 0; j < numPts; j ++ )
+    if(this->VectorsType==vtkDataObject::POINT)
       {
-      id = this->GenCell->PointIds->GetId( j );
-      vectors->GetTuple( id, vec );
-      for ( i = 0; i < 3; i ++ )
+      for ( j = 0; j < numPts; j ++ )
         {
-        f[i] +=  vec[i] * this->Weights[j];
+        id = this->GenCell->PointIds->GetId( j );
+        vectors->GetTuple( id, vec );
+        for ( i = 0; i < 3; i ++ )
+          {
+          f[i] +=  vec[i] * this->Weights[j];
+          }
         }
+      }
+    else
+      {
+      vectors->GetTuple(this->LastCellId, f);
       }
 
     if ( this->NormalizeVector == true )
@@ -283,10 +283,7 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent in
   os << indent << "Cache Miss: "         << this->CacheMiss        << endl;
   os << indent << "Weights Size: "       << this->WeightsSize      << endl;
 
-  os << indent << "DataSets: "           << this->DataSets         << endl;
-  os << indent << "Last Dataset Index: " << this->LastDataSetIndex << endl;
   os << indent << "Last Dataset: "       << this->LastDataSet      << endl;
-
   os << indent << "Last Cell Id: "       << this->LastCellId       << endl;
   os << indent << "Last Cell: "          << this->Cell             << endl;
   os << indent << "Current Cell: "       << this->GenCell          << endl;
@@ -294,4 +291,10 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent in
                << ", "                   << this->LastPCoords[1]
                << ", "                   << this->LastPCoords[2]   << endl;
   os << indent << "Last Weights: "       << this->Weights          << endl;
+}
+
+void vtkAbstractInterpolatedVelocityField::SelectVectors(int associationType, const char * fieldName )
+{
+  this->VectorsType = associationType;
+  this->SetVectorsSelection(fieldName);
 }
