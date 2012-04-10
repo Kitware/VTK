@@ -1236,4 +1236,3 @@ vtkExecutive* vtkStreamTracer::CreateDefaultExecutive()
 {
   return vtkCompositeDataPipeline::New();
 }
-

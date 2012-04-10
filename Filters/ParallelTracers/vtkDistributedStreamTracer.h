@@ -25,10 +25,10 @@
 #ifndef __vtkDistributedStreamTracer_h
 #define __vtkDistributedStreamTracer_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
+#include "vtkFiltersParallelTracersModule.h" // For export macro
 #include "vtkPStreamTracer.h"
 
-class VTKFILTERSPARALLEL_EXPORT vtkDistributedStreamTracer : public vtkPStreamTracer
+class VTKFILTERSPARALLELTRACERS_EXPORT vtkDistributedStreamTracer : public vtkPStreamTracer
 {
 public:
   vtkTypeMacro(vtkDistributedStreamTracer,vtkPStreamTracer);
@@ -71,5 +71,3 @@ private:
 
 
 #endif
-
-
