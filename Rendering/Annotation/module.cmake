@@ -5,7 +5,7 @@ vtk_module(vtkRenderingAnnotation
     vtkRenderingFreeType
     vtkImagingColor
   TEST_DEPENDS
-    vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingLOD
