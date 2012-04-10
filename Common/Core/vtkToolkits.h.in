@@ -36,9 +36,6 @@
 /*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
 
-/* Whether we are building MPI support.  */
-#cmakedefine VTK_USE_MPI
-
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
