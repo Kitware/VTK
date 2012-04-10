@@ -96,7 +96,6 @@ set classExceptions {
    vtkFileOutputWindow
    vtkIndent
    vtkOutputWindow
-   vtkParallelFactory
    vtkPlanes
    vtkProjectedPolyDataRayBounder
    vtkRayCaster

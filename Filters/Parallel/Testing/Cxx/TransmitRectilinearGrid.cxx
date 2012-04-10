@@ -24,7 +24,6 @@
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkParallelFactory.h"
 #include "vtkMPIController.h"
 
 #include "vtkRectilinearGrid.h"

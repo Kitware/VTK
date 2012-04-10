@@ -25,7 +25,6 @@
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkParallelFactory.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetReader.h"
 #include "vtkUnstructuredGrid.h"

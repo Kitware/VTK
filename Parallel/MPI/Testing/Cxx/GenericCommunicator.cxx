@@ -24,7 +24,6 @@
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMPIController.h"
-#include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRTAnalyticSource.h"
@@ -306,10 +305,6 @@ int main(int argc, char** argv)
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv,1);
   contr->CreateOutputWindow();
-
-  vtkParallelFactory* pf = vtkParallelFactory::New();
-  vtkObjectFactory::RegisterFactory(pf);
-  pf->Delete();
 
   // Added for regression test.
   // ----------------------------------------------

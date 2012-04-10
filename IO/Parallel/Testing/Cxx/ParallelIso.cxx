@@ -29,7 +29,6 @@
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
-#include "vtkParallelFactory.h"
 #include "vtkPNrrdReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -247,10 +246,6 @@ int main( int argc, char* argv[] )
   vtkMPIController* controller = vtkMPIController::New();
 
   controller->Initialize(&argc, &argv, 1);
-
-  vtkParallelFactory* pf = vtkParallelFactory::New();
-  vtkObjectFactory::RegisterFactory(pf);
-  pf->Delete();
 
   // Added for regression test.
   // ----------------------------------------------
