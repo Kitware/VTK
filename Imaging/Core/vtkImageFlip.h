@@ -21,10 +21,10 @@
 #define __vtkImageFlip_h
 
 
-#include "vtkImagingFourierModule.h" // For export macro
+#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageReslice.h"
 
-class VTKIMAGINGFOURIER_EXPORT vtkImageFlip : public vtkImageReslice
+class VTKIMAGINGCORE_EXPORT vtkImageFlip : public vtkImageReslice
 {
 public:
   static vtkImageFlip *New();

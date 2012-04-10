@@ -1,8 +1,11 @@
 set(Module_SRCS
-  vtkImageFlip.cxx
+  vtkImageButterworthHighPass.cxx
+  vtkImageButterworthLowPass.cxx
   vtkImageFFT.cxx
   vtkImageFourierCenter.cxx
   vtkImageFourierFilter.cxx
+  vtkImageIdealHighPass.cxx
+  vtkImageIdealLowPass.cxx
   vtkImageRFFT.cxx
   )
 
