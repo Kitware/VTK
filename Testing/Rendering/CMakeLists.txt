@@ -1,4 +1,5 @@
 set(module_SRCS
+  vtkRegressionTestImage.h
   vtkTesting.cxx
   vtkTestingInteractor.cxx
   vtkTestingObjectFactory.cxx

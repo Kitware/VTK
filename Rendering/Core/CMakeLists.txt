@@ -135,6 +135,12 @@ set(Module_SRCS
   vtkTDxInteractorStyleSettings.cxx
 
   vtkStringToImage.cxx
+
+  vtkGPUInfoListArray.h
+  vtkNoise200x200.h
+  vtkPythagoreanQuadruples.h
+  vtkRayCastStructures.h
+  vtkTDxMotionEventInfo.h
   )
 
 set_source_files_properties(

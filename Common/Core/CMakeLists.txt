@@ -130,14 +130,49 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
+  )
+
+set(Module_HDRS
+  vtkABI.h
+  vtkArrayInterpolate.h
+  vtkArrayInterpolate.txx
+  vtkArrayIteratorIncludes.h
+  vtkArrayIteratorTemplate.h
+  vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateImplicit.txx
+  vtkArrayPrint.h
+  vtkArrayPrint.txx
+  vtkAutoInit.h
+  vtkDataArrayTemplate.h
+  vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.h
+  vtkDenseArray.txx
+  vtkIOStreamFwd.h
+  vtkInformationInternals.h
+  vtkMathUtilities.h
+  vtkNew.h
+  vtkSetGet.h
+  vtkSmartPointer.h
   vtkSparseArray.h
-  vtkTypedArray.h
-  vtkTypeTemplate.h
+  vtkSparseArray.txx
   vtkSystemIncludes.h
+  vtkTemplateAliasMacro.h
   vtkType.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  vtkTypeTemplate.h
+  vtkTypeTraits.h
+  vtkTypedArray.h
+  vtkTypedArray.txx
+  vtkVariantCast.h
+  vtkVariantCreate.h
+  vtkVariantExtract.h
+  vtkVariantInlineOperators.h
+  vtkWeakPointer.h
+  vtkWin32Header.h
+  vtkWindows.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
   )
 
 if(vtkCommonDataModel_ENABLED)
@@ -432,7 +467,7 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
   set(KIT_LIBS ${KIT_LIBS} socket nsl)
 endif()
 
-vtk_module_library(vtkCommonCore ${Module_SRCS})
+vtk_module_library(vtkCommonCore ${Module_SRCS} ${Module_HDRS})
 
 target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")

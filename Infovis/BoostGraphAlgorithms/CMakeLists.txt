@@ -14,6 +14,8 @@ set(Module_SRCS
   vtkBoostPrimMinimumSpanningTree.cxx
   vtkBoostRandomSparseArraySource.cxx
   vtkBoostSplitTableField.cxx
+
+  vtkBoostGraphAdapter.h
   )
 
 vtk_module_library(vtkInfovisBoostGraphAlgorithms ${Module_SRCS})
