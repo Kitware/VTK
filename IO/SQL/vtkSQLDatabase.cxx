@@ -27,18 +27,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkSQLiteDatabase.h"
 
-#ifdef VTK_USE_POSTGRES
-#include "vtkPostgreSQLDatabase.h"
-#endif // VTK_USE_POSTGRES
-
-#ifdef VTK_USE_MYSQL
-#include "vtkMySQLDatabase.h"
-#endif // VTK_USE_MYSQL
-
-#ifdef VTK_USE_ODBC
-#include "vtkODBCDatabase.h"
-#endif // VTK_USE_ODBC
-
 #include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
@@ -422,30 +410,6 @@ vtkSQLDatabase* vtkSQLDatabase::CreateFromURL( const char* URL )
     dbURLCritSec.Unlock();
     return 0;
     }
-
-#ifdef VTK_USE_POSTGRES
-  if ( protocol == "psql" )
-    {
-    db = vtkPostgreSQLDatabase::New();
-    db->ParseURL( URL );
-    }
-#endif // VTK_USE_POSTGRES
-
-#ifdef VTK_USE_MYSQL
-  if ( protocol == "mysql" )
-    {
-    db = vtkMySQLDatabase::New();
-    db->ParseURL( URL );
-    }
-#endif // VTK_USE_MYSQL
-
-#ifdef VTK_USE_ODBC
-  if ( protocol == "odbc" )
-    {
-    db = vtkODBCDatabase::New();
-    db->ParseURL( URL );
-    }
-#endif // VTK_USE_ODBC
 
   // Now try to look at registered callback to try and find someone who can
   // provide us with the required implementation.
