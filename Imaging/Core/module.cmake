@@ -14,7 +14,7 @@ vtk_module(vtkImagingCore
     vtkFiltersHybrid
     vtkRenderingCore
     vtkTestingRendering
-    vtkInteractionStyle
+    vtkInteractionImage
     vtkImagingStencil # Move tests
     vtkImagingGeneral # Move tests
     vtkImagingStatistics # Move tests

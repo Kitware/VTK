@@ -2,9 +2,6 @@ vtk_module(vtkRenderingImage
   GROUPS
     Imaging
   DEPENDS
+    vtkImagingCore
     vtkRenderingCore
-    vtkRenderingFreeType
-    vtkImagingColor
-    vtkInteractionStyle
-    vtkInteractionWidgets
   )
