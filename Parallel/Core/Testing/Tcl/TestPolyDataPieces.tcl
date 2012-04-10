@@ -4,9 +4,6 @@ package require vtkinteraction
 vtkMath math
 math RandomSeed 22
 
-vtkParallelFactory pf
-pf RegisterFactory pf
-
 vtkSphereSource sphere
 sphere SetPhiResolution 32
 sphere SetThetaResolution 32

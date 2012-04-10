@@ -4,7 +4,6 @@ set(Module_SRCS
   vtkDummyController.cxx
   vtkMultiProcessController.cxx
   vtkMultiProcessStream.cxx
-#  vtkParallelFactory.cxx
   vtkProcess.cxx
   vtkProcessGroup.cxx
   vtkSocketCommunicator.cxx

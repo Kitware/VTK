@@ -29,7 +29,6 @@
 #include "vtkOpaquePass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOverlayPass.h"
-#include "vtkParallelFactory.h"
 #include "vtkPieceScalars.h"
 #include "vtkPKdTree.h"
 #include "vtkPolyDataMapper.h"

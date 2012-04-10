@@ -4,9 +4,6 @@ package require vtkinteraction
 vtkMath math
 math RandomSeed 22
 
-vtkParallelFactory pf
-pf RegisterFactory pf
-
 vtkMultiBlockPLOT3DReader pl3d
 pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"

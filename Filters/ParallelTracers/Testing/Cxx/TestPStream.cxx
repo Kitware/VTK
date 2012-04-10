@@ -24,7 +24,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkGeometryFilter.h"
-#include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -224,10 +223,6 @@ int main( int argc, char* argv[] )
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);
   contr->CreateOutputWindow();
-
-  vtkParallelFactory* pf = vtkParallelFactory::New();
-  vtkObjectFactory::RegisterFactory(pf);
-  pf->Delete();
 
   // When using MPI, the number of processes is determined
   // by the external program which launches this application.

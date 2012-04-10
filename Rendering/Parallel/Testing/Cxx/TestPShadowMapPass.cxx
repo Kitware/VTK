@@ -26,7 +26,6 @@
 
 #include <mpi.h>
 #include "vtkMPICommunicator.h"
-#include "vtkParallelFactory.h"
 #include "vtkMPIController.h"
 #include "vtkCompositeRenderManager.h"
 
