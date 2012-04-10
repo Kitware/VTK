@@ -2237,8 +2237,9 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
       // points from trailing edge
       this->BPoints->GetPoint(numBPnts-1, pntD);
       this->BPoints->GetPoint(numBPnts-2, pntC);
-      float vec1[3] = { pntD[0] - pntC[0], pntD[1] - pntC[1],
-                        pntD[2] - pntC[2] };
+      float vec1[3] = { static_cast<float>(pntD[0] - pntC[0]),
+                        static_cast<float>(pntD[1] - pntC[1]),
+                        static_cast<float>(pntD[2] - pntC[2]) };
       float vec2[3] = { 1.0, 0.0, 0.0};
       vtkMath::Cross(vec2, vec1, bladeAzimUVWVec);
       vtkMath::Normalize(bladeAzimUVWVec);
