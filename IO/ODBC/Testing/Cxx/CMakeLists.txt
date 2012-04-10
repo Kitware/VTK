@@ -1,4 +1,9 @@
 if(VTK_ODBC_TEST_DSN)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkIOODBCTestingCxxConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkIOODBCTestingCxxConfigure.h)
+
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
   create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
     TestODBCDatabase.cxx
     EXTRA_INCLUDE vtkTestDriver.h

@@ -1,4 +1,9 @@
 if(VTK_MYSQL_TEST_URL)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkIOMySQLTestingCxxConfigure.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vtkIOMySQLTestingCxxConfigure.h)
+
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
   create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
     TestMySQLDatabase.cxx
     TestMySQLTableReadWrite.cxx

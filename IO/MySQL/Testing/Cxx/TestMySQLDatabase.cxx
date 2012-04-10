@@ -44,6 +44,7 @@
 #include "vtkVariantArray.h"
 #include "vtkToolkits.h"
 #include "DatabaseSchemaWith2Tables.h"
+#include "vtkIOMySQLTestingCxxConfigure.h"
 
 #include <vector>
 

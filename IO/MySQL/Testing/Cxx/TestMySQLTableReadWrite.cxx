@@ -27,6 +27,7 @@
 
 #include "vtkTableToMySQLWriter.h"
 #include "vtkMySQLToTableReader.h"
+#include "vtkIOMySQLTestingCxxConfigure.h"
 
 int TestMySQLTableReadWrite(int argc, char *argv[])
 {

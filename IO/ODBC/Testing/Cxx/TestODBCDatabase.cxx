@@ -29,6 +29,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 #include "vtkToolkits.h"
+#include "vtkIOODBCTestingCxxConfigure.h"
 
 #include <vtksys/ios/sstream>
 
