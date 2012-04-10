@@ -218,9 +218,6 @@ set(shader_files
   vtkSobelGradientMagnitudePassShader2_fs.glsl
   vtkShadowMapPassShader_fs.glsl
   vtkShadowMapPassShader_vs.glsl
-  vtkSurfaceLICPainter_fs1.glsl
-  vtkSurfaceLICPainter_fs2.glsl
-  vtkSurfaceLICPainter_vs1.glsl
   )
 
 unset(shader_h_files)

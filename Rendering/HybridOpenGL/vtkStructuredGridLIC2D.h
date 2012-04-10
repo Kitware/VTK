@@ -39,14 +39,15 @@
 #ifndef __vtkStructuredGridLIC2D_h
 #define __vtkStructuredGridLIC2D_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
+#include "vtkRenderingHybridOpenGLModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 class vtkImageNoiseSource;
 
-class VTKFILTERSHYBRID_EXPORT vtkStructuredGridLIC2D : public vtkStructuredGridAlgorithm
+class VTKRENDERINGHYBRIDOPENGL_EXPORT vtkStructuredGridLIC2D
+  : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkStructuredGridLIC2D* New();

@@ -120,15 +120,6 @@ if(VTK_USE_GLSL_SHADERS)
     TestGenericVertexAttributesGLSLAlphaBlending.cxx
     TestGenericVertexAttributesGLSLDepthPeelingPass.cxx
     )
-  # Temporarily disable LIC tests on Mac
-  if(NOT APPLE)
-    if(VTK_DATA_ROOT)
-      set(RenderingTestsWithArguments
-        ${RenderingTestsWithArguments}
-        TestSurfaceLIC.cxx
-        )
-    endif()
-  endif()
 endif()
 
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx

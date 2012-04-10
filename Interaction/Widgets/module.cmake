@@ -1,7 +1,6 @@
 vtk_module(vtkInteractionWidgets
   GROUPS
     Rendering
-    StandAlone
   DEPENDS
     vtkRenderingAnnotation
     vtkRenderingFreeType
@@ -9,8 +8,11 @@ vtk_module(vtkInteractionWidgets
     vtkFiltersModeling
     vtkFiltersHybrid
     vtkImagingGeneral
+    vtkImagingHybrid
     vtkInteractionStyle
   TEST_DEPENDS
+    vtkRenderingVolumeOpenGL
+    vtkRenderingFreeTypeOpenGL
     vtkTestingRendering
     vtkInteractionStyle
     vtkFiltersModeling

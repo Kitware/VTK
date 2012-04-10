@@ -1,10 +1,8 @@
 vtk_module(vtkGeovisCore
-  GROUPS
-    StandAlone
   DEPENDS
     vtkInteractionWidgets
     vtkInteractionStyle
-    vtkCommonExecutionModel
     vtkInfovisLayout
     vtkViewsCore
+    vtkRenderingOpenGL # For vtkOpenGLHardwareSupport in vtkGeoTerrain
   )

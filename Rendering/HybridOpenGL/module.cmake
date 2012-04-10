@@ -1,0 +1,11 @@
+vtk_module(vtkRenderingHybridOpenGL
+  GROUPS
+    Rendering
+  DEPENDS
+    vtkImagingSources
+    vtkImagingHybrid
+    vtkRenderingOpenGL
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+  )

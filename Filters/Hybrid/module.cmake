@@ -3,11 +3,10 @@ vtk_module(vtkFiltersHybrid
     StandAlone
   DEPENDS
     vtkImagingSources
-    vtkRenderingOpenGL # This should not be allowed - FIXME - move classes.
     vtkFiltersGeneral
-  COMPILE_DEPENDS
-    vtkUtilitiesEncodeString # This is only here as GL is in this module. FIXME.
+    vtkRenderingCore # For vtkCamera in vtkDepthSortPolyData
   TEST_DEPENDS
+    vtkRenderingOpenGL
     vtkImagingCore
     vtkTestingRendering
   )
