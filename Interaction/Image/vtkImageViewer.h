@@ -26,7 +26,7 @@
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
 
-#include "vtkRenderingImageModule.h" // For export macro
+#include "vtkInteractionImageModule.h" // For export macro
 #include "vtkObject.h"
 
 #include "vtkImageMapper.h" // For all the inline methods
@@ -34,7 +34,7 @@
 
 class vtkInteractorStyleImage;
 
-class VTKRENDERINGIMAGE_EXPORT vtkImageViewer : public vtkObject
+class VTKINTERACTIONIMAGE_EXPORT vtkImageViewer : public vtkObject
 {
 public:
   static vtkImageViewer *New();
@@ -133,5 +133,3 @@ private:
 };
 
 #endif
-
-
