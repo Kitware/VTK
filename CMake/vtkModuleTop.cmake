@@ -1,44 +1,24 @@
+# Figure out which languages are being wrapped, and add them to the list.
+if(BUILD_TESTING)
+  set(_test_languages "Cxx")
+  if(VTK_WRAP_PYTHON)
+    list(APPEND _test_languages "Python")
+  endif()
+  if(VTK_WRAP_TCL)
+    list(APPEND _test_languages "Tcl")
+  endif()
+  if(VTK_WRAP_JAVA)
+    list(APPEND _test_languages "Java")
+  endif()
+else()
+  set(_test_languages "")
+endif()
+
 #----------------------------------------------------------------------
 # Load the module DAG.
-set(VTK_MODULES_ALL)
-file(GLOB meta RELATIVE "${VTK_SOURCE_DIR}"
-   "${VTK_SOURCE_DIR}/*/*/module.cmake" # grouped modules
-  )
-
-# Figure out which languages are being wrapped, and add them to the list.
-set(_test_languages "Cxx")
-if(VTK_WRAP_PYTHON)
-  list(APPEND _test_languages "Python")
-endif()
-if(VTK_WRAP_TCL)
-  list(APPEND _test_languages "Tcl")
-endif()
-if(VTK_WRAP_JAVA)
-  list(APPEND _test_languages "Java")
-endif()
 
 # Assess modules, and tests in the repository.
-foreach(f ${meta})
-  unset(vtk-module)
-  include(${VTK_SOURCE_DIR}/${f})
-  if(DEFINED vtk-module)
-    list(APPEND VTK_MODULES_ALL ${vtk-module})
-    get_filename_component(${vtk-module}_BASE ${f} PATH)
-    set(${vtk-module}_SOURCE_DIR ${VTK_SOURCE_DIR}/${${vtk-module}_BASE})
-    set(${vtk-module}_BINARY_DIR ${VTK_BINARY_DIR}/${${vtk-module}_BASE})
-    if(BUILD_TESTING)
-      # Only add tests for languages that are wrapped.
-      foreach(_lang ${_test_languages})
-        if(EXISTS ${${vtk-module}_SOURCE_DIR}/Testing/${_lang}/CMakeLists.txt)
-          vtk_add_test_module(${_lang})
-        endif()
-      endforeach()
-    endif()
-  endif()
-endforeach()
-# Clear variables set later in each module.
-unset(vtk-module)
-unset(vtk-module-test)
+vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}" ${_test_languages})
 
 # Now include the module group logic.
 include(vtkGroups)
