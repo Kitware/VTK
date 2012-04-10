@@ -4,6 +4,7 @@ vtk_module(vtkFiltersHybrid
   DEPENDS
     vtkImagingSources
     vtkFiltersGeneral
+    vtkRenderingCore # For vtkCamera in vtkDepthSortPolyData
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkImagingCore
