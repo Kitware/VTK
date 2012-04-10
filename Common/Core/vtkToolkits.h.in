@@ -39,34 +39,6 @@
 /* Whether we are building MPI support.  */
 #cmakedefine VTK_USE_MPI
 
-/* Should VTK use PostgreSQL?  */
-#cmakedefine VTK_USE_POSTGRES
-
-/* Should VTK use MySQL?  */
-#cmakedefine VTK_USE_MYSQL
-
-/* Should VTK use ODBC?  */
-#cmakedefine VTK_USE_ODBC
-#cmakedefine VTK_ODBC_TEST_DSN
-#ifdef VTK_ODBC_TEST_DSN
-#  undef VTK_ODBC_TEST_DSN
-#  define VTK_ODBC_TEST_DSN "@VTK_ODBC_TEST_DSN@"
-#endif
-
-/* Is a test PostgreSQL database URL defined? */
-#cmakedefine VTK_PSQL_TEST_URL
-#ifdef VTK_PSQL_TEST_URL
-#  undef VTK_PSQL_TEST_URL
-#  define VTK_PSQL_TEST_URL "@VTK_PSQL_TEST_URL@"
-#endif
-
-/* Is a test MySQL database URL defined? */
-#cmakedefine VTK_MYSQL_TEST_URL
-#ifdef VTK_MYSQL_TEST_URL
-#  undef VTK_MYSQL_TEST_URL
-#  define VTK_MYSQL_TEST_URL "@VTK_MYSQL_TEST_URL@"
-#endif
-
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
