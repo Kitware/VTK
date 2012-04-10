@@ -159,7 +159,7 @@ foreach(test ${RenderingTests})
   get_filename_component(TName ${test} NAME_WE)
   add_test(NAME ${vtk-module}Cxx-${TName}
     COMMAND ${vtk-module}CxxTests ${TName}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -T ${VTK_TEST_OUTPUT_DIR}
     )
 endforeach()
 
@@ -169,12 +169,12 @@ foreach(test ${RenderingTestsWithArguments})
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Rendering/${TName}.png)
   else()
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
       )
   endif()
 endforeach()

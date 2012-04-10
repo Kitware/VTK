@@ -13,6 +13,6 @@ if(VTK_DATA_ROOT)
     COMMAND ${vtk-module}CxxTests TestPolyDataSilhouette
       ${VTK_DATA_ROOT}/Data/cow.vtp
       -D ${VTK_DATA_ROOT}
-      -T ${VTK_BINARY_DIR}/Testing/Temporary
+      -T ${VTK_TEST_OUTPUT_DIR}
       -V Baseline/Hybrid/TestPolyDataSilhouette.png)
 endif()

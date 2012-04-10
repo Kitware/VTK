@@ -42,7 +42,7 @@ foreach(test ${TestsToRun})
     add_test(NAME Chemistry-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Chemistry/${TName}.png
         -E ${_error_threshold})
   else()

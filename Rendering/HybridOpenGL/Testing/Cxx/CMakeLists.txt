@@ -23,7 +23,7 @@ list(REMOVE_ITEM TestsToRun TestSurfaceLIC.cxx)
 add_test(NAME ${vtk-module}Cxx-SurfaceLIC
   COMMAND ${vtk-module}CxxTests TestSurfaceLIC
     -D ${VTK_DATA_ROOT}
-    -T ${VTK_BINARY_DIR}/Testing/Temporary
+    -T ${VTK_TEST_OUTPUT_DIR}
     -V Baseline/Rendering/TestSurfaceLIC.png)
 
 # Add all the executables
@@ -33,7 +33,7 @@ foreach(test ${TestsToRun})
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
-        -T ${VTK_BINARY_DIR}/Testing/Temporary
+        -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Hybrid/${TName}.png)
   else()
     add_test(NAME ${vtk-module}Cxx-${TName}
