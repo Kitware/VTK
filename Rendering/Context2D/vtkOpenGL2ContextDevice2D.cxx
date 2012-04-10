@@ -15,10 +15,6 @@
 
 #include "vtkOpenGL2ContextDevice2D.h"
 
-#ifdef VTK_USE_QT
-# include <QApplication>
-# include "vtkQtStringToImage.h"
-#endif
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkVector.h"

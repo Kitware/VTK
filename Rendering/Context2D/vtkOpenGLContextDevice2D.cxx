@@ -15,10 +15,6 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
-#ifdef VTK_USE_QT
-# include <QApplication>
-# include "vtkQtStringToImage.h"
-#endif
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkVector.h"
@@ -1110,14 +1106,6 @@ void vtkOpenGLContextDevice2D::EnableClipping(bool enable)
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::SetStringRendererToFreeType()
 {
-#ifdef VTK_USE_QT
-  // We will likely be using the Qt rendering strategy
-  if (this->TextRenderer->IsA("vtkQtStringToImage"))
-    {
-    this->TextRenderer->Delete();
-    this->TextRenderer = vtkFreeTypeStringToImage::New();
-    }
-#endif
   // FreeType is the only choice - nothing to do here
   return true;
 }
@@ -1125,18 +1113,6 @@ bool vtkOpenGLContextDevice2D::SetStringRendererToFreeType()
 //-----------------------------------------------------------------------------
 bool vtkOpenGLContextDevice2D::SetStringRendererToQt()
 {
-#ifdef VTK_USE_QT
-  // We will likely be using the Qt rendering strategy
-  if (this->TextRenderer->IsA("vtkQtStringToImage"))
-    {
-    return true;
-    }
-  else
-    {
-    this->TextRenderer->Delete();
-    this->TextRenderer = vtkQtStringToImage::New();
-    }
-#endif
   // The Qt based strategy is not available
   return false;
 }
