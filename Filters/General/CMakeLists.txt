@@ -20,7 +20,6 @@ set(Module_SRCS
   vtkCursor2D.cxx
   vtkCursor3D.cxx
   vtkCurvatures.cxx
-  vtkDashedStreamLine.cxx
   vtkDataSetGradient.cxx
   vtkDataSetGradientPrecompute.cxx
   vtkDataSetTriangleFilter.cxx

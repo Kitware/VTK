@@ -47,9 +47,6 @@ set(Module_SRCS
   vtkReverseSense.cxx
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
-  vtkStreamer.cxx
-  vtkStreamLine.cxx
-  vtkStreamPoints.cxx
   vtkStripper.cxx
   vtkStructuredGridOutlineFilter.cxx
   vtkSynchronizedTemplates2D.cxx
@@ -78,7 +75,6 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkEdgeSubdivisionCriterion
-  vtkStreamer
   vtkStreamerBase
   ABSTRACT
   )

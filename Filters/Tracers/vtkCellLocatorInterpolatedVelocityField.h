@@ -46,13 +46,13 @@
 #ifndef __vtkCellLocatorInterpolatedVelocityField_h
 #define __vtkCellLocatorInterpolatedVelocityField_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersTracersModule.h" // For export macro
 #include "vtkAbstractInterpolatedVelocityField.h"
 
 class vtkAbstractCellLocator;
 class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType;
 
-class VTKFILTERSGENERAL_EXPORT vtkCellLocatorInterpolatedVelocityField : public vtkAbstractInterpolatedVelocityField
+class VTKFILTERSTRACERS_EXPORT vtkCellLocatorInterpolatedVelocityField : public vtkAbstractInterpolatedVelocityField
 {
 public:
   vtkTypeMacro( vtkCellLocatorInterpolatedVelocityField,

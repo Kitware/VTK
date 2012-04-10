@@ -1,6 +1,5 @@
 set(Module_SRCS
   vtkAbstractCellLocator.cxx
-  vtkAbstractInterpolatedVelocityField.cxx
   vtkAbstractPointLocator.cxx
   vtkAdjacentVertexIterator.cxx
   vtkAMRBox.cxx
@@ -82,7 +81,6 @@ set(Module_SRCS
   vtkIncrementalPointLocator.cxx
   vtkInEdgeIterator.cxx
   vtkInformationQuadratureSchemeDefinitionVectorKey.cxx
-  vtkInterpolatedVelocityField.cxx
   vtkIterativeClosestPointTransform.cxx
   vtkKdNode.cxx
   vtkKdTree.cxx
@@ -196,7 +194,6 @@ include_directories(
 
 set_source_files_properties(
   vtkAbstractCellLocator
-  vtkAbstractInterpolatedVelocityField
   vtkAbstractPointLocator
   vtkCell
   vtkCell3D
