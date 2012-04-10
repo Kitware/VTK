@@ -93,7 +93,7 @@ if(BUILD_SHARED_LIBS)
 
   # add QVTK plugin from sources
   # stand-alone as it doesn't depend on QVTK library
-  vtk_add_library(QVTKWidgetPlugin
+  add_library(QVTKWidgetPlugin
     SHARED
     ${PluginLibSrcs}
     ${PluginMocSrcs}
