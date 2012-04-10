@@ -157,54 +157,10 @@ int vtkMoleculeAlgorithm::RequestUpdateExtent(
 int vtkMoleculeAlgorithm::RequestData(
   vtkInformation* request,
   vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* outputVector)
+  vtkInformationVector* vtkNotUsed(outputVector) )
 {
-  // the default implimentation is to do what the old pipeline did find what
-  // output is requesting the data, and pass that into ExecuteDataWithInformation
-
-  // which output port did the request come from
-  int outputPort =
-    request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-  // if output port is negative then that means this filter is calling the
-  // update directly, in that case just assume port 0
-  if (outputPort == -1)
-      {
-      outputPort = 0;
-      }
-
-  // get the data object
-  vtkInformation *outInfo =
-    outputVector->GetInformationObject(outputPort);
-  // call ExecuteData
-  this->ExecuteDataWithInformation( outInfo->Get(vtkDataObject::DATA_OBJECT()), outInfo );
-
   return 1;
 }
-
-//----------------------------------------------------------------------------
-// Assume that any source that implements ExecuteDataWithInformation
-// can handle an empty extent.
-void vtkMoleculeAlgorithm::ExecuteDataWithInformation(
-  vtkDataObject *output,
-  vtkInformation *outInfo)
-{
-  // I want to find out if the requested extent is empty.
-  if (output && this->UpdateExtentIsEmpty(outInfo, output))
-    {
-    output->Initialize();
-    return;
-    }
-
-  this->Execute();
-}
-
-//----------------------------------------------------------------------------
-void vtkMoleculeAlgorithm::Execute()
-{
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
-}
-
 
 //----------------------------------------------------------------------------
 void vtkMoleculeAlgorithm::SetInputData(vtkDataObject* input)
