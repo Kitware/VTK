@@ -24,6 +24,8 @@
 #include "vtkVersion.h"
 #include "Wrapping/Python/vtkPythonAppInitConfigure.h"
 
+#include "vtkpythonmodules.h"
+
 #include <sys/stat.h>
 
 #include <string>
@@ -122,6 +124,9 @@ int main(int argc, char **argv)
   std::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
   strcpy(argv0, av0.c_str());
   Py_SetProgramName(argv0);
+
+  // This function is generated, and will load any static Python modules for VTK
+  CMakeLoadAllPythonModules();
 
   // Initialize interpreter.
   Py_Initialize();
