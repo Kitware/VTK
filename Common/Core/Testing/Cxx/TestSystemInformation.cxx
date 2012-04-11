@@ -18,7 +18,6 @@
 // CMakeCache.txt file.  This test will display the file.
 
 #include "vtkDebugLeaks.h"
-#include <Common/Testing/Cxx/SystemInformation.h>
 #include <sys/stat.h>
 
 void vtkSystemInformationPrintFile(const char* name, ostream& os)
@@ -64,27 +63,32 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
     }
 }
 
-int TestSystemInformation(int,char *[])
+int TestSystemInformation(int argc, char* argv[])
 {
+  if(argc != 2)
+    {
+    cerr << "Usage: TestSystemInformation <top-of-build-tree>\n";
+    return 1;
+    }
+  std::string build_dir = argv[1];
+  build_dir += "/";
+
   const char* files[] =
     {
-      CMAKE_BINARY_DIR "/CMakeCache.txt",
-      VTK_BINARY_DIR "/vtkConfigure.h",
-      VTK_BINARY_DIR "/vtkToolkits.h",
-      CMAKE_BINARY_DIR "/CMakeFiles/CMakeError.log",
-      VTK_BINARY_DIR "/CMake/CMakeCache.txt",
-      VTK_BINARY_DIR "/VTKBuildSettings.cmake",
-      VTK_BINARY_DIR "/VTKLibraryDepends.cmake",
-      VTK_BINARY_DIR "/VTKConfig.cmake",
-      0
+    "CMakeCache.txt",
+    "CMakeFiles/CMakeError.log",
+    "Common/Core/vtkConfigure.h",
+    "Common/Core/vtkToolkits.h",
+    "VTKConfig.cmake",
+    0
     };
 
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  const char** f;
-  for(f = files; *f; ++f)
+  for(const char** f = files; *f; ++f)
     {
-    vtkSystemInformationPrintFile(*f, cout);
+    std::string fname = build_dir + *f;
+    vtkSystemInformationPrintFile(fname.c_str(), cout);
     }
 
 #if defined(__sgi) && !defined(__GNUC__) && defined(_COMPILER_VERSION)
