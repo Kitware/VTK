@@ -68,6 +68,9 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
     # we don't wrap the headers in Java
     get_source_file_property(TMP_WRAP_HEADER ${FILE} WRAP_HEADER)
 
+    # some wrapped files need to be compiled as objective C++
+    get_source_file_property(TMP_WRAP_OBJC ${FILE} WRAP_JAVA_OBJC)
+
     # if we should wrap it
     IF (NOT TMP_WRAP_EXCLUDE AND NOT TMP_WRAP_HEADER)
 
@@ -92,9 +95,16 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         SET(TMP_CONCRETE "--concrete")
       ENDIF (TMP_ABSTRACT)
 
+      # use ".mm" suffix if file must be compiled with objective C++
+      IF(TMP_WRAP_OBJC)
+        SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.mm)
+      ELSE(TMP_WRAP_OBJC)
+        SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.cxx)
+      ENDIF(TMP_WRAP_OBJC)
+
       # new source file is nameJava.cxx, add to resulting list
       SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
-        ${TMP_FILENAME}Java.cxx)
+        ${TMP_WRAPPED_FILENAME})
 
       # add custom command to output
       ADD_CUSTOM_COMMAND(
@@ -115,7 +125,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
 
       # add custom command to output
       ADD_CUSTOM_COMMAND(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Java.cxx
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
         DEPENDS ${VTK_WRAP_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT}
         ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_JAVA_EXE}
@@ -126,8 +136,8 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         ${TMP_DEFINITIONS}
         ${TMP_INCLUDE}
         "${quote}${TMP_INPUT}${quote}"
-        "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Java.cxx${quote}"
-        COMMENT "Java Wrappings - generating ${TMP_FILENAME}Java.cxx"
+        "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
+        COMMENT "Java Wrappings - generating ${TMP_WRAPPED_FILENAME}"
         )
 
       SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} "${VTK_JAVA_HOME}/${TMP_FILENAME}.java")
@@ -137,7 +147,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
       # Add this output to a custom target if needed.
       IF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
         SET(VTK_WRAP_JAVA_CUSTOM_LIST ${VTK_WRAP_JAVA_CUSTOM_LIST}
-          ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Java.cxx
+          ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
           )
         SET(VTK_WRAP_JAVA_CUSTOM_COUNT ${VTK_WRAP_JAVA_CUSTOM_COUNT}x)
         IF(VTK_WRAP_JAVA_CUSTOM_COUNT MATCHES "^${VTK_WRAP_JAVA_CUSTOM_LIMIT}$")

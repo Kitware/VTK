@@ -174,4 +174,12 @@ set_source_files_properties(
   ABSTRACT
   )
 
+# On OS X, vtkRenderWindowJava must be compiled with Objective C++
+if(APPLE)
+  set_source_files_properties(
+    vtkRenderWindow.cxx
+    PROPERTIES WRAP_JAVA_OBJC 1
+  )
+endif()
+
 vtk_module_library(vtkRenderingCore ${Module_SRCS})
