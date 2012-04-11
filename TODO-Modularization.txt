@@ -8,5 +8,3 @@ later.  Remaining tasks include:
 - Restore Examples directory build
 
 - Restore Python SIP wrapping
-
-- Restore Install test

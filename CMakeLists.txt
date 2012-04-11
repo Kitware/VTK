@@ -408,6 +408,10 @@ if(VTK_WRAP_JAVA)
   add_subdirectory(Wrapping/Java)
 endif()
 
+if(BUILD_TESTING)
+  add_subdirectory(Testing/Install)
+endif()
+
 #-----------------------------------------------------------------------------
 # The commands in this directory are intended to be executed as
 # the end of the whole configuration process, as a "last step".

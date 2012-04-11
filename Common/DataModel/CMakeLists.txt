@@ -177,6 +177,7 @@ set(Module_SRCS
   # Header only classes
   vtkTuple.h
   vtkVector.h
+  vtkVectorOperators.h
   vtkColor.h
   vtkRect.h
 
