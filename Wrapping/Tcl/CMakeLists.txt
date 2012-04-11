@@ -188,16 +188,40 @@ else()
 endif()
 
 # A few hand coded bits of Tcl to glue things together.
-configure_file(vtkbase/vtkbase.tcl.in
-  "${VTK_TCL_HOME}/vtkbase/vtkbase.tcl" @ONLY IMMEDIATE)
-configure_file(vtk/vtk.tcl.in
-  "${VTK_TCL_HOME}/vtk/vtk.tcl" @ONLY IMMEDIATE)
+macro(configure_tcl_files)
+  foreach(file ${ARGN})
+    configure_file(${file}.tcl.in "${VTK_TCL_HOME}/${file}.tcl" @ONLY IMMEDIATE)
+  endforeach()
+endmacro()
+
+macro(copy_tcl_files)
+  foreach(file ${ARGN})
+    configure_file(${file}.tcl "${VTK_TCL_HOME}/${file}.tcl" COPYONLY)
+  endforeach()
+endmacro()
+
+configure_tcl_files(
+  vtkbase/vtkbase
+  vtk/vtk
+  vtktesting/vtktesting
+  vtktesting/grab
+  vtkinteraction/vtkinteraction
+  )
+copy_tcl_files(
+  vtktesting/backdrop
+  vtktesting/colors
+  vtktesting/mccases
+  vtkinteraction/bindings
+  vtkinteraction/bindings-iw
+  vtkinteraction/bindings-rw
+  vtkinteraction/Interactor
+  vtkinteraction/setget
+  )
+
 if(NOT VTK_INSTALL_NO_RUNTIME)
-  install(FILES ${VTK_TCL_HOME}/vtk/vtk.tcl
-    DESTINATION ${VTK_INSTALL_TCL_DIR}/vtk
-    COMPONENT RuntimeLibraries)
-  install(FILES ${VTK_TCL_HOME}/vtkbase/vtkbase.tcl
-    DESTINATION ${VTK_INSTALL_TCL_DIR}/vtkbase
+  install(DIRECTORY ${VTK_TCL_HOME}/vtk ${VTK_TCL_HOME}/vtkbase
+    ${VTK_TCL_HOME}/vtktesting ${VTK_TCL_HOME}/vtkinteraction
+    DESTINATION ${VTK_INSTALL_TCL_DIR}
     COMPONENT RuntimeLibraries)
 endif()
 
