@@ -3,5 +3,6 @@ vtk_module(vtkImagingStencil
     Imaging
     StandAlone
   DEPENDS
+    vtkCommonComputationalGeometry
     vtkImagingCore
   )
