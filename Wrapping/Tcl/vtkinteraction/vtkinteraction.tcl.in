@@ -1,4 +1,5 @@
-package require -exact vtkrendering @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+package require -exact vtkrenderingcore @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+package require -exact vtkrenderingopengl @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
 
 # We need Tk to implement the interactive features.
 package require Tk
