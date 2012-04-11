@@ -85,7 +85,9 @@ set(Module_SRCS
   vtkGLSLShader.cxx
   vtkGLSLShaderProgram.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLObjectFactory.cxx
+  )
 
+set(${vtk-module}_HDRS
   vtkgluPickMatrix.h
   vtkOpenGL.h
   vtkOpenGLProjectedPolyDataRayBounder.h
@@ -310,6 +312,8 @@ elseif(VTK_USE_COCOA)
     vtkCocoaRenderWindowInteractor.mm
     vtkCocoaRenderWindow.mm
     vtkCocoaGLView.mm
+    )
+  list(APPEND ${vtk-module}_HDRS
     vtkCocoaMacOSXSDKCompatibility.h
     )
   set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)

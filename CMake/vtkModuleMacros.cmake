@@ -267,7 +267,7 @@ function(vtk_module_library name)
   vtk_module_impl()
 
   # Collect header files matching sources.
-  set(_hdrs "")
+  set(_hdrs ${${vtk-module}_HDRS})
   foreach(arg ${ARGN})
     get_filename_component(src "${arg}" ABSOLUTE)
     string(REGEX REPLACE "\\.(cxx|mm)$" ".h" hdr "${src}")

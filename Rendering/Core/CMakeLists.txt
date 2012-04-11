@@ -135,7 +135,9 @@ set(Module_SRCS
   vtkTDxInteractorStyleSettings.cxx
 
   vtkStringToImage.cxx
+  )
 
+set(${vtk-module}_HDRS
   vtkGPUInfoListArray.h
   vtkNoise200x200.h
   vtkPythagoreanQuadruples.h

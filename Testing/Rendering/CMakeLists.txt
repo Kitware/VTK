@@ -5,4 +5,6 @@ set(module_SRCS
   vtkTestingObjectFactory.cxx
   )
 
+set_source_files_properties(vtkRegressionTestImage WRAP_EXCLUDE)
+
 vtk_module_library(vtkTestingRendering ${module_SRCS})

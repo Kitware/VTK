@@ -132,7 +132,7 @@ SET(Module_SRCS
   vtkXMLFileOutputWindow.cxx
   )
 
-set(Module_HDRS
+set(${vtk-module}_HDRS
   vtkABI.h
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
@@ -467,7 +467,7 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
   set(KIT_LIBS ${KIT_LIBS} socket nsl)
 endif()
 
-vtk_module_library(vtkCommonCore ${Module_SRCS} ${Module_HDRS})
+vtk_module_library(vtkCommonCore ${Module_SRCS})
 
 target_link_libraries(vtkCommonCore ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(vtkCommonCore PROPERTIES LINK_INTERFACE_LIBRARIES "")
