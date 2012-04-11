@@ -334,13 +334,15 @@ IF(PYTHON_EXECUTABLE)
       PYTHON_SETUP_ARGS "${VTK_PYTHON_SETUP_ARGS}")
 
     # Get the install path for python modules
-    EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_SOURCE_DIR}/Wrapping/Python"
-      ARGS "setup_install_paths.py" "purelib" ${PYTHON_SETUP_ARGS}
+    execute_process(COMMAND "${PYTHON_EXECUTABLE}"
+        "setup_install_paths.py" "purelib" ${PYTHON_SETUP_ARGS}
+      WORKING_DIRECTORY "${VTK_SOURCE_DIR}/Wrapping/Python"
       OUTPUT_VARIABLE PYTHON_MODULE_INSTALL_DIR)
 
     # Get the install path for binary python modules
-    EXEC_PROGRAM("${PYTHON_EXECUTABLE}" "${VTK_SOURCE_DIR}/Wrapping/Python"
-      ARGS "setup_install_paths.py" "platlib" ${PYTHON_SETUP_ARGS}
+    execute_process(COMMAND "${PYTHON_EXECUTABLE}"
+        "setup_install_paths.py" "platlib" ${PYTHON_SETUP_ARGS}
+      WORKING_DIRECTORY "${VTK_SOURCE_DIR}/Wrapping/Python"
       OUTPUT_VARIABLE PYTHON_MODULE_PLATFORM_INSTALL_DIR)
 
     # Change DOLLARSIGN to dollar sign
