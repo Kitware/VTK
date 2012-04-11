@@ -3,6 +3,23 @@ include_directories(${VTK_BINARY_DIR} ${VTK_BINARY_DIR}/Utilities)
 
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
+# If we are using instantiators then configure them all into a header.
+unset(vtk_instantiators)
+unset(vtk_link_modules)
+if(VTK_MAKE_INSTANTIATORS)
+  foreach(module ${VTK_PYTHON_MODULES})
+    set(vtk_instantiators
+      "${vtk_instantiators}#include \"${module}Instantiator.h\"\n")
+    list(APPEND vtk_link_modules ${module})
+    include_directories("${${module}_BINARY_DIR}")
+  endforeach()
+endif()
+# Make a nice empty file if not using instantiators.
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/vtkInstantiators.h.in"
+  "@vtk_instantiators@\n")
+configure_file("${CMAKE_CURRENT_BINARY_DIR}/vtkInstantiators.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkInstantiators.h" @ONLY)
+
 #-----------------------
 # for the vtkpython executable
 if(VTK_USE_CARBON)
@@ -27,7 +44,7 @@ configure_file(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
 add_executable(vtkpython vtkPythonAppInit.cxx vtkpython.rc)
 
 set(VTKPYTHON_LINK_FLAGS)
-set(VTKPYTHON_LINK_LIBS)
+set(VTKPYTHON_LINK_LIBS  ${vtk_link_modules})
 
 if(CMAKE_SYSTEM_NAME MATCHES "AIX")
   get_filename_component(CMAKE_PYTHON_LIB_PREFIX "${PYTHON_LIBRARY}" PATH)
@@ -53,7 +70,7 @@ if(APPLE)
 endif()
 
 # Link against all the kit wrappers.
-set(VTKPYTHON_LINK_LIBS
+list(APPEND VTKPYTHON_LINK_LIBS
   ${VTK_PYTHON_LIBRARIES}
   vtksys
   vtkCommonCore
