@@ -1,6 +1,4 @@
 vtk_module(vtkFiltersParallelImaging
-  GROUPS
-    Imaging
   DEPENDS
     vtkImagingCore
     vtkFiltersImaging
