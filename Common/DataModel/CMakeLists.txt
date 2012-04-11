@@ -242,6 +242,7 @@ set_source_files_properties(
   vtkVector
   vtkColor
   vtkRect
+  vtkVectorOperators
   WRAP_EXCLUDE
   )
 
