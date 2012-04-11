@@ -123,7 +123,7 @@ ENDIF(CMAKE_COMPILER_IS_GNU_C)
 # set up linker flags
 IF(APPLE)
   SET( VTKOGGTHEORA_SHARED_LINKER_FLAGS
-    "-read_only_relocs suppress -Wl,-exported_symbols_list,${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.exp"
+    "-read_only_relocs suppress -Wl,-exported_symbols_list,\"${VTKOGGTHEORA_SOURCE_DIR}/vtkoggtheora.exp\""
     )
 ENDIF(APPLE)
 # assume that -Wl,--version-script works on UNIX systems (excluding Mac, Cygwin and Solaris SPARC).
