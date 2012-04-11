@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageIdealHighPass.h
+  Module:    vtkImageIdealLowPass.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,32 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageIdealHighPass - Simple frequency domain band pass.
+// .NAME vtkImageIdealLowPass - Simple frequency domain band pass.
 // .SECTION Description
 // This filter only works on an image after it has been converted to
 // frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
 // can be used to convert the output back into the spatial domain.
-// vtkImageIdealHighPass just sets a portion of the image to zero.  The sharp
-// cutoff in the frequence domain produces ringing in the spatial domain.
-// Input and Output must be doubles.  Dimensionality is set when the axes are
-// set.  Defaults to 2D on X and Y axes.
+// vtkImageIdealLowPass just sets a portion of the image to zero.  The result
+// is an image with a lot of ringing.  Input and Output must be doubles.
+// Dimensionality is set when the axes are set.  Defaults to 2D on X and Y
+// axes.
 
 // .SECTION See Also
-// vtkImageButterworthHighPass vtkImageIdealLowPass vtkImageFFT vtkImageRFFT
+// vtkImageButterworthLowPass vtkImageIdealHighPass vtkImageFFT vtkImageRFFT
 
 
-#ifndef __vtkImageIdealHighPass_h
-#define __vtkImageIdealHighPass_h
+
+#ifndef __vtkImageIdealLowPass_h
+#define __vtkImageIdealLowPass_h
 
 
-#include "vtkImagingGeneralModule.h" // For export macro
+#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTKIMAGINGGENERAL_EXPORT vtkImageIdealHighPass : public vtkThreadedImageAlgorithm
+class VTKIMAGINGFOURIER_EXPORT vtkImageIdealLowPass : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageIdealHighPass *New();
-  vtkTypeMacro(vtkImageIdealHighPass,vtkThreadedImageAlgorithm);
+  static vtkImageIdealLowPass *New();
+  vtkTypeMacro(vtkImageIdealLowPass,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,8 +56,8 @@ public:
   double GetZCutOff() {return this->CutOff[2];}
 
 protected:
-  vtkImageIdealHighPass();
-  ~vtkImageIdealHighPass() {};
+  vtkImageIdealLowPass();
+  ~vtkImageIdealLowPass() {};
 
   double CutOff[3];
 
@@ -66,11 +67,8 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
 private:
-  vtkImageIdealHighPass(const vtkImageIdealHighPass&);  // Not implemented.
-  void operator=(const vtkImageIdealHighPass&);  // Not implemented.
+  vtkImageIdealLowPass(const vtkImageIdealLowPass&);  // Not implemented.
+  void operator=(const vtkImageIdealLowPass&);  // Not implemented.
 };
 
 #endif
-
-
-

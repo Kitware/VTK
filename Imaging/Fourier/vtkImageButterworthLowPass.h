@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageButterworthHighPass.h
+  Module:    vtkImageButterworthLowPass.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,31 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageButterworthHighPass - Frequency domain high pass.
+// .NAME vtkImageButterworthLowPass - Frequency domain Low pass.
 // .SECTION Description
 // This filter only works on an image after it has been converted to
 // frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
 // can be used to convert the output back into the spatial domain.
-// vtkImageButterworthHighPass  the frequency components around 0 are
+// vtkImageButterworthLowPass  the high frequency components are
 // attenuated.  Input and output are in doubles, with two components
 // (complex numbers).
-// out(i, j) = 1 / (1 + pow(CutOff/Freq(i,j), 2*Order));
+// out(i, j) = (1 + pow(CutOff/Freq(i,j), 2*Order));
 
 // .SECTION See Also
-// vtkImageButterworthLowPass
+// vtkImageButterworthHighPass vtkImageFFT vtkImageRFFT
 
-#ifndef __vtkImageButterworthHighPass_h
-#define __vtkImageButterworthHighPass_h
+#ifndef __vtkImageButterworthLowPass_h
+#define __vtkImageButterworthLowPass_h
 
 
-#include "vtkImagingGeneralModule.h" // For export macro
+#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTKIMAGINGGENERAL_EXPORT vtkImageButterworthHighPass : public vtkThreadedImageAlgorithm
+class VTKIMAGINGFOURIER_EXPORT vtkImageButterworthLowPass : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageButterworthHighPass *New();
-  vtkTypeMacro(vtkImageButterworthHighPass,vtkThreadedImageAlgorithm);
+  static vtkImageButterworthLowPass *New();
+  vtkTypeMacro(vtkImageButterworthLowPass,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,24 +58,22 @@ public:
   vtkSetMacro(Order, int);
   vtkGetMacro(Order, int);
 
+
 protected:
-  vtkImageButterworthHighPass();
-  ~vtkImageButterworthHighPass() {};
+  vtkImageButterworthLowPass();
+  ~vtkImageButterworthLowPass() {};
 
   int Order;
   double CutOff[3];
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id);
+  void ThreadedRequestData( vtkInformation *request,
+                            vtkInformationVector **inputVector,
+                            vtkInformationVector *outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
+                            int outExt[6], int id);
 private:
-  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&);  // Not implemented.
-  void operator=(const vtkImageButterworthHighPass&);  // Not implemented.
+  vtkImageButterworthLowPass(const vtkImageButterworthLowPass&);  // Not implemented.
+  void operator=(const vtkImageButterworthLowPass&);  // Not implemented.
 };
 
 #endif
-
-
-

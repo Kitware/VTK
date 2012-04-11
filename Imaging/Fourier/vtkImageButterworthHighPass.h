@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageIdealLowPass.h
+  Module:    vtkImageButterworthHighPass.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,33 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageIdealLowPass - Simple frequency domain band pass.
+// .NAME vtkImageButterworthHighPass - Frequency domain high pass.
 // .SECTION Description
 // This filter only works on an image after it has been converted to
 // frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
 // can be used to convert the output back into the spatial domain.
-// vtkImageIdealLowPass just sets a portion of the image to zero.  The result
-// is an image with a lot of ringing.  Input and Output must be doubles.
-// Dimensionality is set when the axes are set.  Defaults to 2D on X and Y
-// axes.
+// vtkImageButterworthHighPass  the frequency components around 0 are
+// attenuated.  Input and output are in doubles, with two components
+// (complex numbers).
+// out(i, j) = 1 / (1 + pow(CutOff/Freq(i,j), 2*Order));
 
 // .SECTION See Also
-// vtkImageButterworthLowPass vtkImageIdealHighPass vtkImageFFT vtkImageRFFT
+// vtkImageButterworthLowPass
+
+#ifndef __vtkImageButterworthHighPass_h
+#define __vtkImageButterworthHighPass_h
 
 
-
-#ifndef __vtkImageIdealLowPass_h
-#define __vtkImageIdealLowPass_h
-
-
-#include "vtkImagingGeneralModule.h" // For export macro
+#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTKIMAGINGGENERAL_EXPORT vtkImageIdealLowPass : public vtkThreadedImageAlgorithm
+class VTKIMAGINGFOURIER_EXPORT vtkImageButterworthHighPass : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageIdealLowPass *New();
-  vtkTypeMacro(vtkImageIdealLowPass,vtkThreadedImageAlgorithm);
+  static vtkImageButterworthHighPass *New();
+  vtkTypeMacro(vtkImageButterworthHighPass,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,10 +53,16 @@ public:
   double GetYCutOff() {return this->CutOff[1];}
   double GetZCutOff() {return this->CutOff[2];}
 
-protected:
-  vtkImageIdealLowPass();
-  ~vtkImageIdealLowPass() {};
+  // Description:
+  // The order determines sharpness of the cutoff curve.
+  vtkSetMacro(Order, int);
+  vtkGetMacro(Order, int);
 
+protected:
+  vtkImageButterworthHighPass();
+  ~vtkImageButterworthHighPass() {};
+
+  int Order;
   double CutOff[3];
 
   void ThreadedRequestData(vtkInformation *request,
@@ -67,11 +71,8 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
 private:
-  vtkImageIdealLowPass(const vtkImageIdealLowPass&);  // Not implemented.
-  void operator=(const vtkImageIdealLowPass&);  // Not implemented.
+  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&);  // Not implemented.
+  void operator=(const vtkImageButterworthHighPass&);  // Not implemented.
 };
 
 #endif
-
-
-

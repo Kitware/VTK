@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageButterworthHighPass.cxx
+  Module:    vtkImageButterworthLowPass.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkImageButterworthHighPass.h"
+#include "vtkImageButterworthLowPass.h"
 
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -22,10 +22,10 @@
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkImageButterworthHighPass);
+vtkStandardNewMacro(vtkImageButterworthLowPass);
 
 //----------------------------------------------------------------------------
-vtkImageButterworthHighPass::vtkImageButterworthHighPass()
+vtkImageButterworthLowPass::vtkImageButterworthLowPass()
 {
   this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
   this->Order = 1;
@@ -33,7 +33,7 @@ vtkImageButterworthHighPass::vtkImageButterworthHighPass()
 
 
 //----------------------------------------------------------------------------
-void vtkImageButterworthHighPass::SetXCutOff(double cutOff)
+void vtkImageButterworthLowPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
     {
@@ -43,7 +43,7 @@ void vtkImageButterworthHighPass::SetXCutOff(double cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageButterworthHighPass::SetYCutOff(double cutOff)
+void vtkImageButterworthLowPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
     {
@@ -53,7 +53,7 @@ void vtkImageButterworthHighPass::SetYCutOff(double cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageButterworthHighPass::SetZCutOff(double cutOff)
+void vtkImageButterworthLowPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
     {
@@ -64,7 +64,7 @@ void vtkImageButterworthHighPass::SetZCutOff(double cutOff)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageButterworthHighPass::ThreadedRequestData(
+void vtkImageButterworthLowPass::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
@@ -194,14 +194,6 @@ void vtkImageButterworthHighPass::ThreadedRequestData(
         sum0 = sum1 + temp0 * temp0;
 
         // compute Butterworth1D function from sum = d^2
-        if (sum0 == 0.0)
-          {
-          sum0 = VTK_DOUBLE_MAX;
-          }
-        else
-          {
-          sum0 = 1.0 / sum0;
-          }
         if (this->Order == 1)
           {
           sum0 = 1.0 / (1.0 + sum0);
@@ -225,7 +217,7 @@ void vtkImageButterworthHighPass::ThreadedRequestData(
     }
 }
 
-void vtkImageButterworthHighPass::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageButterworthLowPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -235,6 +227,4 @@ void vtkImageButterworthHighPass::PrintSelf(ostream& os, vtkIndent indent)
      << this->CutOff[0] << ", "
      << this->CutOff[1] << ", "
      << this->CutOff[2] << " )\n";
-
 }
-

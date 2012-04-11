@@ -13,6 +13,7 @@ set(Module_SRCS
   vtkImageDecomposeFilter.cxx
   vtkImageDifference.cxx
   vtkImageExtractComponents.cxx
+  vtkImageFlip.cxx
   vtkImageIterateFilter.cxx
   vtkImageMagnify.cxx
   vtkImageMapToColors.cxx

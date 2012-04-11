@@ -1,8 +1,6 @@
 set(Module_SRCS
   vtkImageAnisotropicDiffusion2D.cxx
   vtkImageAnisotropicDiffusion3D.cxx
-  vtkImageButterworthHighPass.cxx
-  vtkImageButterworthLowPass.cxx
   vtkImageCheckerboard.cxx
   vtkImageCityBlockDistance.cxx
   vtkImageConvolve.cxx
@@ -13,8 +11,6 @@ set(Module_SRCS
   vtkImageGradient.cxx
   vtkImageGradientMagnitude.cxx
   vtkImageHybridMedian2D.cxx
-  vtkImageIdealHighPass.cxx
-  vtkImageIdealLowPass.cxx
   vtkImageLaplacian.cxx
   vtkImageMedian3D.cxx
   vtkImageNormalize.cxx

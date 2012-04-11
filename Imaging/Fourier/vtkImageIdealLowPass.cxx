@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageIdealHighPass.cxx
+  Module:    vtkImageIdealLowPass.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkImageIdealHighPass.h"
+#include "vtkImageIdealLowPass.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -21,16 +21,17 @@
 
 #include <math.h>
 
-vtkStandardNewMacro(vtkImageIdealHighPass);
+vtkStandardNewMacro(vtkImageIdealLowPass);
 
 //----------------------------------------------------------------------------
-vtkImageIdealHighPass::vtkImageIdealHighPass()
+vtkImageIdealLowPass::vtkImageIdealLowPass()
 {
   this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
 }
 
+
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::SetXCutOff(double cutOff)
+void vtkImageIdealLowPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
     {
@@ -39,9 +40,8 @@ void vtkImageIdealHighPass::SetXCutOff(double cutOff)
   this->CutOff[0] = cutOff;
   this->Modified();
 }
-
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::SetYCutOff(double cutOff)
+void vtkImageIdealLowPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
     {
@@ -50,9 +50,8 @@ void vtkImageIdealHighPass::SetYCutOff(double cutOff)
   this->CutOff[1] = cutOff;
   this->Modified();
 }
-
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::SetZCutOff(double cutOff)
+void vtkImageIdealLowPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
     {
@@ -62,8 +61,9 @@ void vtkImageIdealHighPass::SetZCutOff(double cutOff)
   this->Modified();
 }
 
+
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::ThreadedRequestData(
+void vtkImageIdealLowPass::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
@@ -195,18 +195,18 @@ void vtkImageIdealHighPass::ThreadedRequestData(
         if (sum0 > 1.0)
           {
           // real component
-          *outPtr++ = *inPtr++;
+          *outPtr++ = 0.0;
+          ++inPtr;
           // imaginary component
-          *outPtr++ = *inPtr++;
+          *outPtr++ = 0.0;
+          ++inPtr;
           }
         else
           {
           // real component
-          *outPtr++ = 0.0;
-          ++inPtr;
+          *outPtr++ = *inPtr++;
           // imaginary component
-          *outPtr++ = 0.0;
-          ++inPtr;
+          *outPtr++ = *inPtr++;
           }
         }
       inPtr += inInc1;
@@ -217,7 +217,7 @@ void vtkImageIdealHighPass::ThreadedRequestData(
     }
 }
 
-void vtkImageIdealHighPass::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageIdealLowPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
@@ -226,4 +226,3 @@ void vtkImageIdealHighPass::PrintSelf(ostream& os, vtkIndent indent)
      << this->CutOff[1] << ", "
      << this->CutOff[2] << " )\n";
 }
-
