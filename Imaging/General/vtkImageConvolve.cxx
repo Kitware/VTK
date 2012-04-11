@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkImageConvolve.h"
 #include "vtkImageData.h"
-#include "vtkImageEllipsoidSource.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
