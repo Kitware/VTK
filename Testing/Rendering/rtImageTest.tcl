@@ -1,3 +1,4 @@
+package require vtk
 
 # setup some common things for testing
 vtkObject rtTempObject
