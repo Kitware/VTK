@@ -17,4 +17,5 @@ vtk_module(vtkIOImage
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingSources
+    vtkImagingMath
   )

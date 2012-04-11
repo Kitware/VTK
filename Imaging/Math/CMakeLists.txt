@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkImageLogarithmicScale.cxx
   vtkImageLogic.cxx
   vtkImageMagnitude.cxx
+  vtkImageMaskBits.cxx
   vtkImageMathematics.cxx
   vtkImageWeightedSum.cxx
   )

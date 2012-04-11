@@ -190,11 +190,3 @@ void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
      << this->Masks[0] << ", " << this->Masks[1] << ", "
      << this->Masks[2] << ", " << this->Masks[3] << ")" << endl;
 }
-
-
-
-
-
-
-
-
