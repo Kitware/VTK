@@ -24,12 +24,13 @@
 #define __vtkImageStencilIterator_h
 
 #include "vtkSystemIncludes.h"
+#include "vtkImagingCoreModule.h"
 class vtkImageData;
 class vtkImageStencilData;
 class vtkAlgorithm;
 
 template<class DType>
-class vtkImageStencilIterator
+class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator
 {
 public:
   // Description:
