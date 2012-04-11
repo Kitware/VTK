@@ -5,6 +5,9 @@ set(_VTKModuleMacros_DEFAULT_LABEL "VTKModular")
 include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
 include(GenerateExportHeader)
 include(vtkWrapping)
+if(VTK_MAKE_INSTANTIATORS)
+  include(vtkMakeInstantiator)
+endif()
 
 macro(vtk_module _name)
   vtk_module_check_name(${_name})
@@ -279,7 +282,16 @@ function(vtk_module_library name)
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
 
-  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs})
+  # The instantiators are off by default, and only work on wrapped modules.
+  if(VTK_MAKE_INSTANTIATORS AND NOT VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING)
+    string(TOUPPER "${vtk-module}_EXPORT" _export_macro)
+    vtk_make_instantiator3(${vtk-module}Instantiator _instantiator_SRCS
+      "${ARGN}" ${_export_macro} ${CMAKE_CURRENT_BINARY_DIR}
+      ${vtk-module}Module.h)
+    list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
+  endif()
+
+  vtk_add_library(${vtk-module} ${ARGN} ${_hdrs} ${_instantiator_SRCS})
   foreach(dep IN LISTS VTK_MODULE_${vtk-module}_LINK_DEPENDS)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
   endforeach()
