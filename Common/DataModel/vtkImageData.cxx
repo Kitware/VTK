@@ -50,6 +50,7 @@ vtkImageData::vtkImageData()
     this->Increments[idx] = 0;
     this->Origin[idx] = 0.0;
     this->Spacing[idx] = 1.0;
+    this->Point[idx] = 0.0;
     }
 
   int extent[6] = {0, -1, 0, -1, 0, -1};
@@ -497,9 +498,8 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 }
 
 //----------------------------------------------------------------------------
-double *vtkImageData::GetPoint(vtkIdType ptId)
+void vtkImageData::GetPoint(vtkIdType ptId, double x[3])
 {
-  static double x[3];
   int i, loc[3];
   const double *origin = this->Origin;
   const double *spacing = this->Spacing;
@@ -514,7 +514,7 @@ double *vtkImageData::GetPoint(vtkIdType ptId)
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
     {
     vtkErrorMacro("Requesting a point from an empty image.");
-    return x;
+    return;
     }
 
   // "loc" holds the point x,y,z indices
@@ -523,7 +523,7 @@ double *vtkImageData::GetPoint(vtkIdType ptId)
   switch (this->DataDescription)
     {
     case VTK_EMPTY:
-      return x;
+      return;
 
     case VTK_SINGLE_POINT:
       break;
@@ -567,7 +567,7 @@ double *vtkImageData::GetPoint(vtkIdType ptId)
     x[i] = origin[i] + (loc[i]+extent[i*2]) * spacing[i];
     }
 
-  return x;
+  return;
 }
 
 //----------------------------------------------------------------------------

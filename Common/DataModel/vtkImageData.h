@@ -398,6 +398,9 @@ private:
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
 
+  // for the GetPoint method
+  double Point[3];
+
   int DataDescription;
 
   vtkImageData(const vtkImageData&);  // Not implemented.
@@ -424,10 +427,10 @@ inline void vtkImageData::ComputeIncrements(vtkDataArray *scalars)
 }
 
 //----------------------------------------------------------------------------
-inline void vtkImageData::GetPoint(vtkIdType id, double x[3])
+inline double * vtkImageData::GetPoint(vtkIdType id)
 {
-  const double *p = this->GetPoint(id);
-  x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
+  this->GetPoint(id, this->Point);
+  return this->Point;
 }
 
 //----------------------------------------------------------------------------
