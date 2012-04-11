@@ -7,7 +7,6 @@ vtk_module(vtkImagingCore
     vtkCommonMath
     vtkCommonComputationalGeometry
     vtkCommonExecutionModel
-    vtkImagingMath
   TEST_DEPENDS
     vtkFiltersModeling
     vtkFiltersGeneral
@@ -15,6 +14,7 @@ vtk_module(vtkImagingCore
     vtkRenderingCore
     vtkTestingRendering
     vtkInteractionImage
+    vtkImagingMath # Move tests
     vtkImagingStencil # Move tests
     vtkImagingGeneral # Move tests
     vtkImagingStatistics # Move tests

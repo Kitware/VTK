@@ -17,7 +17,6 @@ set(Module_SRCS
   vtkImageIterateFilter.cxx
   vtkImageMagnify.cxx
   vtkImageMapToColors.cxx
-  vtkImageMaskBits.cxx
   vtkImageMask.cxx
   vtkImageMirrorPad.cxx
   vtkImagePadFilter.cxx

@@ -22,11 +22,11 @@
 #ifndef __vtkImageMaskBits_h
 #define __vtkImageMaskBits_h
 
-#include "vtkImagingCoreModule.h" // For export macro
+#include "vtkImagingMathModule.h" // For export macro
 #include "vtkImageLogic.h"  //For VTK_AND, VTK_OR ...
 #include "vtkThreadedImageAlgorithm.h"
 
-class VTKIMAGINGCORE_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
+class VTKIMAGINGMATH_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMaskBits *New();
@@ -69,13 +69,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
