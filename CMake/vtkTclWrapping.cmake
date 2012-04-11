@@ -61,6 +61,10 @@ function(vtk_add_tcl_wrapping module_name module_srcs)
   endif()
   vtk_wrap_tcl3(${tcl_module}TCL Tcl_SRCS "${module_srcs}" "")
   vtk_add_library(${tcl_module}TCL ${Tcl_SRCS} ${extra_srcs})
+  if(VTK_MODULE_${module_name}_IMPLEMENTS)
+    set_property(TARGET ${module_name}TCL PROPERTY COMPILE_DEFINITIONS
+      "${module_name}_AUTOINIT=1(${module_name})")
+  endif()
   target_link_libraries(${tcl_module}TCL ${module_name}
     ${extra_links} ${VTK_TCL_LIBRARIES})
 endfunction()
