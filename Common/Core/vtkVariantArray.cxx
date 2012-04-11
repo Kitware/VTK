@@ -24,6 +24,12 @@
 # pragma warning (disable: 4661)
 #endif
 
+#ifdef __APPLE__
+#include "vtkCommonCoreModule.h"
+// Make visibility known prior to any symbols referencing this.
+class VTKCOMMONCORE_EXPORT vtkVariant;
+#endif
+
 #include "vtkVariantArray.h"
 
 #include "vtkDataArray.h"
