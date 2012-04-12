@@ -1931,8 +1931,6 @@ void vtkHyperTreeGrid::GetCellNeighbors( vtkIdType cellId,
 // of a point locator.
 vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 {
-  assert( "Not tested for 27 trees, or normal grid" && 0);
-
   // Find cell to which this point belongs, or at least closest one
   vtkIdType ix = 0;
   vtkIdType nx = this->XCoordinates->GetNumberOfTuples();
