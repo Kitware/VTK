@@ -34,8 +34,6 @@
 #include "vtkVariantArray.h"
 #include "vtkView.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include <vtksys/stl/map>
 #include <vtksys/stl/stack>
 #include <vtksys/ios/sstream>
@@ -244,6 +242,20 @@ void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output, 
   PipelineToDot(sinks, output, graph_name);
 }
 
+namespace {
+
+void replace_all(std::string& str, std::string oldStr, std::string newStr)
+{
+  size_t pos = 0;
+  while((pos = str.find(oldStr, pos)) != std::string::npos)
+    {
+    str.replace(pos, oldStr.length(), newStr);
+    pos += newStr.length();
+    }
+}
+
+}
+
 void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output, const vtkStdString& graph_name)
 {
   // Create a graph representation of the pipeline ...
@@ -279,9 +291,9 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
     std::string object_state;
     for(std::getline(buffer, line); buffer; std::getline(buffer, line))
       {
-      boost::algorithm::replace_all(line, "\"", "'");
-      boost::algorithm::replace_all(line, "\r", "");
-      boost::algorithm::replace_all(line, "\n", "");
+      replace_all(line, "\"", "'");
+      replace_all(line, "\r", "");
+      replace_all(line, "\n", "");
 
       if(0 == line.find("Debug:"))
         continue;
