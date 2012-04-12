@@ -65,6 +65,11 @@ vtkDoubleArray* vtkCorrelativeStatisticsGnuR::CalculatePValues(vtkDoubleArray* s
     vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
     testCol = this->Superclass::CalculatePValues( statCol );
     }
+  else
+    {
+    // increment ref count on testCol so its not cleaned up when the R interface goes away
+    testCol->Register(NULL);
+    }
 
   // Clean up
   ri->Delete();
