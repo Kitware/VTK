@@ -465,7 +465,7 @@ public:
   vtkHyperTreeLightWeightCursor();
   ~vtkHyperTreeLightWeightCursor();
 
-  void Initialize( vtkHyperTreeInternal* );
+  void Initialize( vtkHyperTreeInternal**, int );
   void ToRoot();
   void ToChild( int );
   unsigned short GetIsLeaf();
