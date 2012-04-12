@@ -2998,19 +2998,17 @@ void vtkHyperTreeGrid::DeleteInternalArrays()
 // Constructor.
 vtkHyperTreeLightWeightCursor::vtkHyperTreeLightWeightCursor()
 {
-  this->Level = 0;
-  this->IsLeaf = 0;
-  this->Index = 0;
   this->Tree = 0;
+  this->Index = 0;
+  this->Offset = 0;
+  this->IsLeaf = 0;
+  this->Level = 0;
 }
 
 //-----------------------------------------------------------------------------
 // Destructor.
 vtkHyperTreeLightWeightCursor::~vtkHyperTreeLightWeightCursor()
 {
-  this->Level = 0;
-  this->IsLeaf = 1;
-  this->Index = 0;
   this->Tree = 0;
 }
 
@@ -3021,7 +3019,7 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
 { 
   this->Offset = grid->LeafCenters->GetNumberOfPoints();
   this->Tree = grid->CellTree[index];
-  if ( grid->CellTree[index] == 0 )
+  if ( ! grid->CellTree[index] )
     {
     return;
     }
