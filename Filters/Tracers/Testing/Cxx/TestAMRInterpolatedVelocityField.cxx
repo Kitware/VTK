@@ -57,15 +57,15 @@ int TestAMRInterpolatedVelocityField(int, char*[])
 
   double v[3];
   bool res;
-  res = func->FunctionValues(Points[0],v);
+  res = func->FunctionValues(Points[0],v)!=0;
   RETURNONFALSE(!res);
-  res = func->FunctionValues(Points[1],v);
+  res = func->FunctionValues(Points[1],v)!=0;
   RETURNONFALSE(res);
   RETURNONFALSE(func->GetLastAMRBox().GetLevel()==1)
-  res = func->FunctionValues(Points[2],v);
+  res = func->FunctionValues(Points[2],v)!=0;
   RETURNONFALSE(res);
   RETURNONFALSE(func->GetLastAMRBox().GetLevel()==0)
-  res = func->FunctionValues(Points[3],v);
+  res = func->FunctionValues(Points[3],v)!=0;
   RETURNONFALSE(res);
   RETURNONFALSE(func->GetLastAMRBox().GetLevel()==1)
 

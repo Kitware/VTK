@@ -14,6 +14,7 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkAbstractInterpolatedVelocityField
+  vtkCompositeInterpolatedVelocityField.cxx
   vtkStreamer
   ABSTRACT
   )
