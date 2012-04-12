@@ -465,16 +465,18 @@ public:
   vtkHyperTreeLightWeightCursor();
   ~vtkHyperTreeLightWeightCursor();
 
-  void Initialize(vtkHyperTreeInternal* tree);
+  void Initialize( vtkHyperTreeInternal* );
   void ToRoot();
-  void ToChild(int child);
+  void ToChild( int );
   unsigned short GetIsLeaf();
-  int GetLeafIndex() {return this->Index;} // Only valid for leaves.
   vtkHyperTreeInternal* GetTree() { return this->Tree; }
-  unsigned short GetLevel() {return this->Level;}
+  int GetLeafIndex() { return this->Index; } // Only valid for leaves.
+  int GetOffset() { return this->Offset; }
+  unsigned short GetLevel() { return this->Level; }
 private:
   vtkHyperTreeInternal* Tree;
   int Index;
+  int Offset;
   unsigned short IsLeaf;
   unsigned short Level;
 };
