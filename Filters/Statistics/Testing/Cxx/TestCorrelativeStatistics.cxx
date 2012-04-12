@@ -671,14 +671,14 @@ int TestCorrelativeStatistics( int, char *[] )
   cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random variables (n="
        << nVals;
 
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
   int nNonGaussian = 3;
   int nRejected = 0;
   double alpha = .01;
 
   cout << ", null hypothesis: binormality, significance level="
        << alpha;
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
 
   cout << "):\n";
 
@@ -694,7 +694,7 @@ int TestCorrelativeStatistics( int, char *[] )
            << "  ";
       }
 
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest4->GetValueByName( r, "P" ).ToDouble();
     // Must verify that p value is valid (it is set to -1 if R has failed)
@@ -704,12 +704,12 @@ int TestCorrelativeStatistics( int, char *[] )
 
       ++ nRejected;
       }
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
 
     cout << "\n";
     }
 
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
   if ( nRejected < nNonGaussian )
     {
     vtkGenericWarningMacro("Rejected only "
@@ -719,7 +719,7 @@ int TestCorrelativeStatistics( int, char *[] )
                            << " variable pairs are not Gaussian");
     testStatus = 1;
     }
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
 
   // Clean up
   cs4->Delete();
