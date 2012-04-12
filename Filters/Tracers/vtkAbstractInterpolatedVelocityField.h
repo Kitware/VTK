@@ -64,7 +64,6 @@
 #ifndef __vtkAbstractInterpolatedVelocityField_h
 #define __vtkAbstractInterpolatedVelocityField_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
 #include "vtkFunctionSet.h"
 //BTX
 #include <vector> // STL Header; Required for vector
@@ -77,6 +76,8 @@ class vtkDataArray;
 class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractInterpolatedVelocityFieldDataSetsType;
+
+#include "vtkFiltersTracersModule.h" // For export macro
 
 class VTKFILTERSTRACERS_EXPORT vtkAbstractInterpolatedVelocityField : public vtkFunctionSet
 {
@@ -99,13 +100,6 @@ public:
   vtkGetMacro( CacheHit, int );
   vtkGetMacro( CacheMiss, int );
 
-  // Description:
-  // Get the most recently visited dataset and it id. The dataset is used
-  // for a guess regarding where the next point will be, without searching
-  // through all datasets. When setting the last dataset, care is needed as
-  // no reference counting or checks are performed. This feature is intended
-  // for custom interpolators only that cache datasets independently.
-  vtkGetMacro( LastDataSetIndex, int );
   vtkGetObjectMacro( LastDataSet, vtkDataSet );
 
   // Description:
@@ -121,8 +115,13 @@ public:
   // Get/Set the name of a spcified vector array. By default it is NULL, with
   // the active vector array for use.
   vtkGetStringMacro( VectorsSelection );
-  void SelectVectors( const char * fieldName )
-    { this->SetVectorsSelection( fieldName ); }
+  vtkGetMacro(VectorsType,int);
+
+ // Description:
+  // the association type (see vtkDataObject::FieldAssociations)
+  // and the name of the velocity data field
+  void SelectVectors(int fieldAssociation, const char * fieldName );
+
 
   // Description:
   // Set/Get the flag indicating vector post-normalization (following vector
@@ -148,12 +147,6 @@ public:
   virtual void CopyParameters( vtkAbstractInterpolatedVelocityField * from )
     { this->Caching = from->Caching; }
 
-  // Description:
-  // Add a dataset for implicit velocity function evaluation. If more than
-  // one dataset is added, the evaluation point is searched in all until a
-  // match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
-  // dataset FOR THREAD SAFETY REASONS.
-  virtual void AddDataSet( vtkDataSet * dataset ) = 0;
 
   // Description:
   // Evaluate the velocity field f at point (x, y, z).
@@ -178,9 +171,9 @@ protected:
   int       CacheHit;
   int       CacheMiss;
   int       WeightsSize;
-  int       LastDataSetIndex;
   bool      Caching;
   bool      NormalizeVector;
+  int       VectorsType;
   char *    VectorsSelection;
   double *  Weights;
   double    LastPCoords[3];
@@ -188,7 +181,7 @@ protected:
   vtkDataSet *     LastDataSet;
   vtkGenericCell * Cell;
   vtkGenericCell * GenCell; // the current cell
-  vtkAbstractInterpolatedVelocityFieldDataSetsType * DataSets;
+
 
   // Description:
   // Set the name of a specific vector to be interpolated.
@@ -223,9 +216,6 @@ private:
   void operator = ( const vtkAbstractInterpolatedVelocityField & );  // Not implemented.
 };
 
-//BTX
-typedef std::vector< vtkDataSet * > DataSetsTypeBase;
-class   vtkAbstractInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase { };
-//ETX
+
 
 #endif

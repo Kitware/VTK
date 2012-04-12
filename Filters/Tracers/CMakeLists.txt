@@ -1,5 +1,7 @@
 set(Module_SRCS
   vtkAbstractInterpolatedVelocityField.cxx
+  vtkAMRInterpolatedVelocityField.cxx
+  vtkCompositeInterpolatedVelocityField.cxx
   vtkDashedStreamLine.cxx
   vtkInterpolatedVelocityField.cxx
   vtkStreamer.cxx

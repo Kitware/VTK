@@ -19,7 +19,7 @@
 //  vtkInterpolatedVelocityField acts as a continuous velocity field via
 //  cell interpolation on a vtkDataSet, NumberOfIndependentVariables = 4
 //  (x,y,z,t) and NumberOfFunctions = 3 (u,v,w). As a concrete sub-class
-//  of vtkAbstractInterpolatedVelocityField, this class adopts two levels
+//  of vtkCompositeInterpolatedVelocityField, this class adopts two levels
 //  of cell caching for faster though less robust cell location than its
 //  sibling class vtkCellLocatorInterpolatedVelocityField. Level #0 begins
 //  with intra-cell caching. Specifically, if the previous cell is valid
@@ -44,7 +44,7 @@
 //  created by each thread.
 
 // .SECTION See Also
-//  vtkAbstractInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
+//  vtkCompositeInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
 //  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
 
@@ -52,14 +52,14 @@
 #define __vtkInterpolatedVelocityField_h
 
 #include "vtkFiltersTracersModule.h" // For export macro
-#include "vtkAbstractInterpolatedVelocityField.h"
+#include "vtkCompositeInterpolatedVelocityField.h"
 
 class VTKFILTERSTRACERS_EXPORT vtkInterpolatedVelocityField
-  : public vtkAbstractInterpolatedVelocityField
+  : public vtkCompositeInterpolatedVelocityField
 {
 public:
   vtkTypeMacro( vtkInterpolatedVelocityField,
-                        vtkAbstractInterpolatedVelocityField );
+                        vtkCompositeInterpolatedVelocityField );
   void PrintSelf( ostream & os, vtkIndent indent );
 
   // Description:

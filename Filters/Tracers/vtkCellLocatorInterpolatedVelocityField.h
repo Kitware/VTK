@@ -19,7 +19,7 @@
 //  vtkCellLocatorInterpolatedVelocityField acts as a continuous velocity
 //  field via cell interpolation on a vtkDataSet, NumberOfIndependentVariables
 //  = 4 (x,y,z,t) and NumberOfFunctions = 3 (u,v,w). As a concrete sub-class
-//  of vtkAbstractInterpolatedVelocityField, it adopts vtkAbstractCellLocator's
+//  of vtkCompositeInterpolatedVelocityField, it adopts vtkAbstractCellLocator's
 //  sub-classes, e.g., vtkCellLocator and vtkModifiedBSPTree, without the use
 //  of vtkPointLocator ( employed by vtkDataSet/vtkPointSet::FindCell() in
 //  vtkInterpolatedVelocityField ). vtkCellLocatorInterpolatedVelocityField
@@ -39,7 +39,7 @@
 //  should be created by each thread.
 
 // .SECTION See Also
-//  vtkAbstractInterpolatedVelocityField vtkInterpolatedVelocityField
+//  vtkCompositeInterpolatedVelocityField vtkInterpolatedVelocityField
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
 //  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
 
@@ -47,16 +47,16 @@
 #define __vtkCellLocatorInterpolatedVelocityField_h
 
 #include "vtkFiltersTracersModule.h" // For export macro
-#include "vtkAbstractInterpolatedVelocityField.h"
+#include "vtkCompositeInterpolatedVelocityField.h"
 
 class vtkAbstractCellLocator;
 class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType;
 
-class VTKFILTERSTRACERS_EXPORT vtkCellLocatorInterpolatedVelocityField : public vtkAbstractInterpolatedVelocityField
+class VTKFILTERSTRACERS_EXPORT vtkCellLocatorInterpolatedVelocityField : public vtkCompositeInterpolatedVelocityField
 {
 public:
   vtkTypeMacro( vtkCellLocatorInterpolatedVelocityField,
-                        vtkAbstractInterpolatedVelocityField );
+                        vtkCompositeInterpolatedVelocityField );
   void PrintSelf( ostream & os, vtkIndent indent );
 
   // Description:
@@ -81,7 +81,6 @@ public:
   // Description:
   // Import parameters. Sub-classes can add more after chaining.
   virtual void CopyParameters( vtkAbstractInterpolatedVelocityField * from );
-
   // Description:
   // Add a dataset coupled with a cell locator (of type vtkAbstractCellLocator)
   // for vector function evaluation. Note the use of a vtkAbstractCellLocator
