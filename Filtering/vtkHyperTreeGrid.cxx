@@ -2035,8 +2035,6 @@ vtkIdType vtkHyperTreeGrid::FindCell(double x[3], vtkCell* cell,
   double          dist2;
   vtkIdList       *cellIds;
 
-  assert( "Not tested for 27 trees" && 0);
-
   ptId = this->FindPoint(x);
   if ( ptId < 0 )
     {
