@@ -1945,7 +1945,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 
   vtkIdType iy = 0;
   vtkIdType ny = this->YCoordinates->GetNumberOfTuples();
-  while ( iy < ny && x[0] > this->YCoordinates->GetTuple1( iy ) )
+  while ( iy < ny && x[1] > this->YCoordinates->GetTuple1( iy ) )
     {
     ++ iy;
     }
@@ -1956,7 +1956,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 
   vtkIdType iz = 0;
   vtkIdType nz = this->ZCoordinates->GetNumberOfTuples();
-  while ( iz < nz && x[0] > this->ZCoordinates->GetTuple1( iz ) )
+  while ( iz < nz && x[2] > this->ZCoordinates->GetTuple1( iz ) )
     {
     ++ iz;
     }
