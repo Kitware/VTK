@@ -34,7 +34,12 @@ class vtkIndent;
 class vtkObjectBase;
 class vtkLargeInteger;
 class vtkSmartPointerBase;
+// workaround clang bug, needs export on forward declaration
+#ifdef __clang__
+class VTKCOMMONCORE_EXPORT vtkStdString;
+#else
 class vtkStdString;
+#endif
 
 class VTKCOMMONCORE_EXPORT vtkOStreamWrapper
 {
