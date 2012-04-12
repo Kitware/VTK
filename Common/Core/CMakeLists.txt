@@ -130,6 +130,14 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
+  vtkType.h
+  vtkDenseArray.h
+  vtkSparseArray.h
+  vtkSystemIncludes.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  vtkTypedArray.h
+  vtkTypeTemplate.h
   )
 
 set(${vtk-module}_HDRS
@@ -146,7 +154,6 @@ set(${vtk-module}_HDRS
   vtkDataArrayTemplate.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
-  vtkDenseArray.h
   vtkDenseArray.txx
   vtkIOStreamFwd.h
   vtkInformationInternals.h
@@ -154,14 +161,9 @@ set(${vtk-module}_HDRS
   vtkNew.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSparseArray.h
   vtkSparseArray.txx
-  vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
-  vtkType.h
-  vtkTypeTemplate.h
   vtkTypeTraits.h
-  vtkTypedArray.h
   vtkTypedArray.txx
   vtkVariantCast.h
   vtkVariantCreate.h
@@ -170,8 +172,6 @@ set(${vtk-module}_HDRS
   vtkWeakPointer.h
   vtkWin32Header.h
   vtkWindows.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
   )
 
