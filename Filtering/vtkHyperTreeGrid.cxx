@@ -2278,9 +2278,27 @@ void vtkHyperTreeGrid::UpdateDualArrays()
 
         // Initialize x-connectivity cursors
         if ( i > 0 )
+          {
+          // Backward cursor
           superCursor[midCursorId - 1].Initialize( this->CellTree[i - 1] );
-        else if ( i + 1 < this->GridSize[0] )
+          }
+        if ( i + 1 < this->GridSize[0] )
+          {
+          // Forward cursor
           superCursor[midCursorId + 1].Initialize( this->CellTree[i + 1] );
+          }
+
+        // Initialize y-connectivity cursors
+        if ( j > 0 )
+          {
+          // Backward cursor
+          superCursor[midCursorId - 3].Initialize( this->CellTree[j - this->GridSize[0]] );
+          }
+        if ( j + 1 < this->GridSize[1] )
+          {
+          // Forward cursor
+          superCursor[midCursorId + 3].Initialize( this->CellTree[j + this->GridSize[0]] );
+          }
 
         // Location and size of the middle cursor/node
         double origin[3];
@@ -2352,18 +2370,11 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
     pt[1] = origin[1];
     pt[2] = origin[2];
 
-    bool xplus = false;
-    bool xminus = false;
     // Adjust point so the boundary of the dataset does not shrink.
     if ( superCursor[midCursorId - 1].GetTree() && superCursor[midCursorId + 1].GetTree() )
       {
       // Middle of cell
       pt[0] += size[0] * 0.5;
-      if ( superCursor[midCursorId - 1].GetTree() != superCursor[midCursorId + 1].GetTree() )
-        {
-        xplus = ( superCursor[midCursorId - 1].GetTree() == superCursor[midCursorId].GetTree() );
-        xminus = ! xplus;
-        }
       }
     else if ( superCursor[midCursorId + 1].GetTree() == 0)
       {
@@ -2419,12 +2430,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
             cursorIdx += (cornerIdx&1) + (leafIdx&1);
           }
         // Collect the leaf indexes for the dual cell.
-        if ( xminus && ! ( leafIdx % 2 ) )
-          {
-          leaves[leafIdx] = superCursor[cursorIdx].GetLeafIndex();
-          }
-        else
-          leaves[leafIdx] = ptOffset + superCursor[cursorIdx].GetLeafIndex();
+        leaves[leafIdx] = ptOffset + superCursor[cursorIdx].GetLeafIndex();
 
         // Compute if the mid leaf owns the corner.
         if ( cursorIdx != midCursorId )
