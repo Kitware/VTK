@@ -2211,8 +2211,11 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetCornerLeafIds()
 // post: Generate LeafCenters and CornerLeafIds.
 void vtkHyperTreeGrid::UpdateDualArrays()
 {
+  // Store x-y grid offset
+  int nxy = this->GridSize[0] * this->GridSize[1];
+
   int numLeaves = 0;
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  int nCells =  nxy * this->GridSize[2];
   for ( int i = 0; i < nCells; ++ i )
     {
     numLeaves += this->CellTree[i]->GetNumberOfLeaves();
@@ -2280,24 +2283,36 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         if ( i > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 1].Initialize( this->CellTree[i - 1] );
+          superCursor[midCursorId - 1].Initialize( this->CellTree[index - 1] );
           }
         if ( i + 1 < this->GridSize[0] )
           {
           // Forward cursor
-          superCursor[midCursorId + 1].Initialize( this->CellTree[i + 1] );
+          superCursor[midCursorId + 1].Initialize( this->CellTree[index + 1] );
           }
 
         // Initialize y-connectivity cursors
         if ( j > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 3].Initialize( this->CellTree[j - this->GridSize[0]] );
+          superCursor[midCursorId - 3].Initialize( this->CellTree[index - this->GridSize[0]] );
           }
         if ( j + 1 < this->GridSize[1] )
           {
           // Forward cursor
-          superCursor[midCursorId + 3].Initialize( this->CellTree[j + this->GridSize[0]] );
+          superCursor[midCursorId + 3].Initialize( this->CellTree[index + this->GridSize[0]] );
+          }
+
+        // Initialize z-connectivity cursors
+        if ( k > 0 )
+          {
+          // Backward cursor
+          superCursor[midCursorId - 9].Initialize( this->CellTree[index - nxy] );
+          }
+        if ( k + 1 < this->GridSize[2] )
+          {
+          // Forward cursor
+          superCursor[midCursorId + 9].Initialize( this->CellTree[index + nxy] );
           }
 
         // Location and size of the middle cursor/node
