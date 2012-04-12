@@ -1977,13 +1977,13 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
   // Geometry of the cell
   double origin[3];
   this->XCoordinates->GetTuple( ix, origin );
-  this->YCoordinates->GetTuple( iy, origin + 1);
-  this->ZCoordinates->GetTuple( iz, origin + 2);
+  this->YCoordinates->GetTuple( iy, origin + 1 );
+  this->ZCoordinates->GetTuple( iz, origin + 2 );
 
   double extreme[3];
   this->XCoordinates->GetTuple( ix + 1, extreme );
   this->YCoordinates->GetTuple( iy + 1, extreme + 1);
-  this->ZCoordinates->GetTuple( iz + 1, extreme + 2);
+  this->ZCoordinates->GetTuple( iz + 1, extreme + 2 );
 
   double size[3];
   size[0] = extreme[0] - origin[0];
@@ -2319,12 +2319,12 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
         this->YCoordinates->GetTuple( j, origin + 1);
-        this->ZCoordinates->GetTuple( k, origin + 2);
+        this->ZCoordinates->GetTuple( k, origin + 2 );
 
         double extreme[3];
         this->XCoordinates->GetTuple( i + 1, extreme );
         this->YCoordinates->GetTuple( j + 1, extreme + 1);
-        this->ZCoordinates->GetTuple( k + 1, extreme + 2);
+        this->ZCoordinates->GetTuple( k + 1, extreme + 2 );
 
         double size[3];
         size[0] = extreme[0] - origin[0];
@@ -2703,13 +2703,13 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         // Location and size for primal dataset API.
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
-        this->YCoordinates->GetTuple( j, origin + 1);
-        this->ZCoordinates->GetTuple( k, origin + 2);
+        this->YCoordinates->GetTuple( j, origin + 1 );
+        this->ZCoordinates->GetTuple( k, origin + 2 );
         
         double extreme[3];
         this->XCoordinates->GetTuple( i + 1, extreme );
-        this->YCoordinates->GetTuple( j + 1, extreme + 1);
-        this->ZCoordinates->GetTuple( k + 1, extreme + 2);
+        this->YCoordinates->GetTuple( j + 1, extreme + 1 );
+        this->ZCoordinates->GetTuple( k + 1, extreme + 2 );
         
         double size[3];
         size[0] = extreme[0] - origin[0];
