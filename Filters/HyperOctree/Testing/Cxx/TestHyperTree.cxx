@@ -9,7 +9,7 @@
 #include "vtksys/SystemTools.hxx"
 #include "vtksys/Glob.hxx"
 #include <vtksys/Process.h>
-#include <vtkstd/string>
+#include <string>
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeFractalSource.h"
 

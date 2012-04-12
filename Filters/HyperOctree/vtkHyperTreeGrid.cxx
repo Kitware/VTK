@@ -35,8 +35,8 @@
 #include "vtkTimerLog.h"
 #include "vtkVoxel.h"
 
-#include <vtkstd/deque>
-#include <vtkstd/vector>
+#include <deque>
+#include <vector>
 
 #include <assert.h>
 
@@ -523,7 +523,7 @@ protected:
   int IsFound;
   int IsLeaf;
 
-  vtkstd::deque<int> ChildHistory; // a stack, but stack does not have clear()
+  std::deque<int> ChildHistory; // a stack, but stack does not have clear()
   // I have to default to three dimensions and not use the third for quad/9 trees
   int Index[3]; // index in each dimension of the current node, as if the
   // tree at the current level was a uniform grid.
@@ -989,14 +989,14 @@ protected:
       this->NumberOfLeavesPerLevel[0]=1;
     }
 
-  vtkstd::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
+  std::vector<int> NumberOfLeavesPerLevel; // number of leaves in each level
   // its size is NumberOfLevels;
 
   vtkIdType NumberOfLevels;
   int BranchFactor;
   int Dimension;
-  vtkstd::vector<vtkCompactHyperTreeNode<N> > Nodes;
-  vtkstd::vector<int> LeafParent; // record the parent of each leaf
+  std::vector<vtkCompactHyperTreeNode<N> > Nodes;
+  std::vector<int> LeafParent; // record the parent of each leaf
 private:
   vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.
   void operator=(const vtkCompactHyperTree<N> &);    // Not implemented.
