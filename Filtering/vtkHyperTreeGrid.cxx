@@ -2205,16 +2205,32 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetCornerLeafIds()
 // post: Generate LeafCenters and CornerLeafIds.
 void vtkHyperTreeGrid::UpdateDualArrays()
 {
-  // Store x-y grid offset
+  // Calculate cardinalities on grid
   int nxy = this->GridSize[0] * this->GridSize[1];
-
-  int numLeaves = 0;
   int nCells =  nxy * this->GridSize[2];
-  for ( int i = 0; i < nCells; ++ i )
-    {
-    numLeaves += this->CellTree[i]->GetNumberOfLeaves();
-    }
 
+  // Calculate point offsets into individual trees
+  int* offsets = new int[nCells];
+  int numLeaves = 0;
+  for ( int i = 0; i < this->GridSize[0]; ++ i )
+    {
+    for ( int j = 0; j < this->GridSize[1]; ++ j )
+      {
+      for ( int k = 0; k < this->GridSize[2]; ++ k )
+        {
+        // Calculate global index of hyper tree
+        int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+
+        // Partial sum is current offset
+        offsets[index] = numLeaves;
+
+        // Update partial sum 
+        numLeaves += this->CellTree[index]->GetNumberOfLeaves();
+        } // k
+      } // j
+    } // i
+
+  // Check if we can break out early
   if ( this->LeafCenters )
     {
     if ( this->LeafCenters->GetNumberOfPoints() == numLeaves )
@@ -2274,42 +2290,42 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         vtkHyperTreeLightWeightCursor superCursor[27];
 
         // Initialize center cursor
-        superCursor[midCursorId].Initialize( this, index );
+        superCursor[midCursorId].Initialize( this, offsets, index );
 
         // Initialize x-connectivity cursors
         if ( i > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 1].Initialize( this, index - 1 );
+          superCursor[midCursorId - 1].Initialize( this, offsets, index - 1 );
           }
         if ( i + 1 < this->GridSize[0] )
           {
           // Forward cursor
-          superCursor[midCursorId + 1].Initialize( this, index + 1 );
+          superCursor[midCursorId + 1].Initialize( this, offsets, index + 1 );
           }
 
         // Initialize y-connectivity cursors
         if ( j > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 3].Initialize( this, index - this->GridSize[0] );
+          superCursor[midCursorId - 3].Initialize( this, offsets, index - this->GridSize[0] );
           }
         if ( j + 1 < this->GridSize[1] )
           {
           // Forward cursor
-          superCursor[midCursorId + 3].Initialize( this, index + this->GridSize[0] );
+          superCursor[midCursorId + 3].Initialize( this, offsets, index + this->GridSize[0] );
           }
 
         // Initialize z-connectivity cursors
         if ( k > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 9].Initialize( this, index - nxy );
+          superCursor[midCursorId - 9].Initialize( this, offsets, index - nxy );
           }
         if ( k + 1 < this->GridSize[2] )
           {
           // Forward cursor
-          superCursor[midCursorId + 9].Initialize( this, index + nxy );
+          superCursor[midCursorId + 9].Initialize( this, offsets, index + nxy );
           }
 
         // Location and size of the middle cursor/node
@@ -2629,9 +2645,11 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::UpdateGridArrays()
 {
-  int numLeaves = 0;
+  // Calculate cardinalities on grid
   int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
-  
+
+  // Check if we can break out early
+  int numLeaves = 0;
   for ( int i = 0; i < nCells; ++ i )
     {
     numLeaves += this->CellTree[i]->GetNumberOfLeaves();
@@ -3014,10 +3032,24 @@ vtkHyperTreeLightWeightCursor::~vtkHyperTreeLightWeightCursor()
 
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid, 
+void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
+                                                int* offsets,
                                                 int index )
 { 
-  this->Offset = grid->LeafCenters->GetNumberOfPoints();
+  this->Offset = offsets[index];
+  this->Tree = grid->CellTree[index];
+  if ( ! grid->CellTree[index] )
+    {
+    return;
+    }
+
+  this->ToRoot();
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
+                                                int index )
+{ 
   this->Tree = grid->CellTree[index];
   if ( ! grid->CellTree[index] )
     {
