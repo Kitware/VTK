@@ -92,10 +92,8 @@ set(${vtk-module}_HDRS
   vtkOpenGL.h
   vtkOpenGLProjectedPolyDataRayBounder.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
   )
-
-set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx
-  GENERATED)
 
 set_source_files_properties(
   vtkImageProcessingPass
@@ -196,14 +194,11 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLExtensionManagerConfigure.h)
 
 add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.h
   COMMAND vtkParseOGLExt
   ARGS ${CMAKE_CURRENT_BINARY_DIR} ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE}
   DEPENDS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE}
   )
-
-set_source_files_properties(vtkOpenGLExtensionManager.cxx
-  PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkgl.cxx)
 
 include_directories(${OPENGL_INCLUDE_DIR})
 
