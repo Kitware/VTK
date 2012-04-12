@@ -1970,7 +1970,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 
   int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
   vtkHyperTreeLightWeightCursor cursor;
-  cursor.Initialize( this->CellTree, index );
+  cursor.Initialize( this, index );
 
   // Geometry of the cell
   double origin[3];
@@ -2277,42 +2277,42 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         vtkHyperTreeLightWeightCursor superCursor[27];
 
         // Initialize center cursor
-        superCursor[midCursorId].Initialize( this->CellTree, index );
+        superCursor[midCursorId].Initialize( this, index );
 
         // Initialize x-connectivity cursors
         if ( i > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 1].Initialize( this->CellTree, index - 1 );
+          superCursor[midCursorId - 1].Initialize( this, index - 1 );
           }
         if ( i + 1 < this->GridSize[0] )
           {
           // Forward cursor
-          superCursor[midCursorId + 1].Initialize( this->CellTree, index + 1 );
+          superCursor[midCursorId + 1].Initialize( this, index + 1 );
           }
 
         // Initialize y-connectivity cursors
         if ( j > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 3].Initialize( this->CellTree, index - this->GridSize[0] );
+          superCursor[midCursorId - 3].Initialize( this, index - this->GridSize[0] );
           }
         if ( j + 1 < this->GridSize[1] )
           {
           // Forward cursor
-          superCursor[midCursorId + 3].Initialize( this->CellTree, index + this->GridSize[0] );
+          superCursor[midCursorId + 3].Initialize( this, index + this->GridSize[0] );
           }
 
         // Initialize z-connectivity cursors
         if ( k > 0 )
           {
           // Backward cursor
-          superCursor[midCursorId - 9].Initialize( this->CellTree, index - nxy );
+          superCursor[midCursorId - 9].Initialize( this, index - nxy );
           }
         if ( k + 1 < this->GridSize[2] )
           {
           // Forward cursor
-          superCursor[midCursorId + 9].Initialize( this->CellTree, index + nxy );
+          superCursor[midCursorId + 9].Initialize( this, index + nxy );
           }
 
         // Location and size of the middle cursor/node
@@ -2695,7 +2695,7 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         {
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
         vtkHyperTreeLightWeightCursor superCursor[27];
-        superCursor[midCursorId].Initialize( this->CellTree, index );
+        superCursor[midCursorId].Initialize( this, index );
 
         // Location and size for primal dataset API.
         double origin[3];
@@ -3015,29 +3015,19 @@ vtkHyperTreeLightWeightCursor::~vtkHyperTreeLightWeightCursor()
   this->Level = 0;
   this->IsLeaf = 1;
   this->Index = 0;
-  // I can't reference count because of the default copy constructor.
-  //if ( this->Tree)
-  //  {
-  //  this->Tree->UnRegister( 0 );
-  //  }
   this->Tree = 0;
 }
 
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeInternal** trees, 
+void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid, 
                                                 int index )
 {
-  //if ( this->Tree)
-  //  {
-  //  this->Tree->UnRegister( 0 );
-  //  }
-  this->Tree = trees[index];
-  if ( trees[index] == 0 )
+  this->Tree = grid->CellTree[index];
+  if ( grid->CellTree[index] == 0 )
     {
     return;
     }
-  //this->Tree->Register( 0 );
 
   this->ToRoot();
 }
@@ -3061,13 +3051,15 @@ void vtkHyperTreeLightWeightCursor::ToRoot()
     return;
     }
   this->Level = 0;
-  if ( this->Tree->GetNumberOfLeaves() == 1)
-    { // Root is a leaf.
+  if ( this->Tree->GetNumberOfLeaves() == 1 )
+    {
+    // Root is a leaf.
     this->Index = 0;
     this->IsLeaf = 1;
     }
   else
-    { // Root is a node.
+    {
+    // Root is a node.
     this->Index = 1; // First node ( 0 ) is a special empty node.
     this->IsLeaf = 0;
     }
