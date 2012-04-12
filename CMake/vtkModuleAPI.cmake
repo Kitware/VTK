@@ -67,6 +67,7 @@ macro(vtk_module_config ns)
   list(SORT _${ns}_AUTOINIT) # Deterministic order.
   foreach(mod ${_${ns}_AUTOINIT})
     list(SORT _${ns}_AUTOINIT_${mod}) # Deterministic order.
+    list(REMOVE_DUPLICATES _${ns}_AUTOINIT_${mod})
     list(LENGTH _${ns}_AUTOINIT_${mod} _ai_len)
     string(REPLACE ";" "," _ai "${_ai_len}(${_${ns}_AUTOINIT_${mod}})")
     if(${_ai_len} GREATER 1 AND "${CMAKE_GENERATOR}" MATCHES "Visual Studio")
