@@ -19,6 +19,7 @@
 
 #include "vtkDebugLeaks.h"
 #include <sys/stat.h>
+#include <string>
 
 void vtkSystemInformationPrintFile(const char* name, ostream& os)
 {
