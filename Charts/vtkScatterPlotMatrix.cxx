@@ -1150,7 +1150,6 @@ void vtkScatterPlotMatrix::UpdateAxes()
 {
   if (!this->Input)
     {
-    vtkWarningMacro(<< "No valid input found.");
     return;
     }
   // We need to iterate through all visible columns and set up the axis ranges.
