@@ -2376,6 +2376,40 @@ void vtkHyperTreeGrid::UpdateDualArrays()
           superCursor[midCursorId + 6].Initialize( this, offsets, index + nxy - this->GridSize[0] );
           }
 
+        // Initialize xyz-connectivity cursors
+        if ( i > 0 && j > 0 && k > 0 )
+          {
+          superCursor[midCursorId - 13].Initialize( this, offsets, index - nxy - this->GridSize[0] - 1 );
+          }
+        if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
+          {
+          superCursor[midCursorId + 13].Initialize( this, offsets, index + nxy + this->GridSize[0] + 1 );
+          }
+        if ( i + 1 < this->GridSize[0] && j > 0 && k > 0 )
+          {
+          superCursor[midCursorId - 11].Initialize( this, offsets, index - nxy - this->GridSize[0] + 1 );
+          }
+        if ( i > 0 && j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
+          {
+          superCursor[midCursorId + 11].Initialize( this, offsets, index + nxy + this->GridSize[0] - 1 );
+          }
+        if ( i > 0 && j < this->GridSize[1]  && k > 0 )
+          {
+          superCursor[midCursorId - 7].Initialize( this, offsets, index - nxy + this->GridSize[0] - 1 );
+          }
+        if ( i + 1 < this->GridSize[0] && j > 0 && k + 1 < this->GridSize[2] )
+          {
+          superCursor[midCursorId + 7].Initialize( this, offsets, index + nxy - this->GridSize[0] + 1 );
+          }
+        if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] && k > 0 )
+          {
+          superCursor[midCursorId - 5].Initialize( this, offsets, index - nxy + this->GridSize[0] + 1 );
+          }
+        if ( i > 0 && j > 0 && k + 1 < this->GridSize[2] )
+          {
+          superCursor[midCursorId + 5].Initialize( this, offsets, index + nxy - this->GridSize[0] - 1 );
+          }
+
         // Location and size of the middle cursor/node
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
