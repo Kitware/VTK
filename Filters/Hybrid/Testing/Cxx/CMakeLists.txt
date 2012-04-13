@@ -1,18 +1,29 @@
-set(MyTests
+Set(MyTests
   # TestBSplineWarp.cxx           # Fixme after vtkImageViewer deps
   TestPolyDataSilhouette.cxx
+  TestTemporalCacheSimple.cxx
 )
 
-# Use the testing object factory, to reduce boilerplate code in tests.
 include("${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake")
 
 vtk_module_test_executable(${vtk-module}CxxTests ${Tests})
 
-if(VTK_DATA_ROOT)
-  add_test(NAME ${vtk-module}Cxx-PolyDataSilhouette
-    COMMAND ${vtk-module}CxxTests TestPolyDataSilhouette
-      ${VTK_DATA_ROOT}/Data/cow.vtp
-      -D ${VTK_DATA_ROOT}
-      -T ${VTK_TEST_OUTPUT_DIR}
-      -V Baseline/Hybrid/TestPolyDataSilhouette.png)
-endif()
+set(TestsToRun ${Tests})
+
+list(REMOVE_ITEM TestsToRun CxxTests.cxx)
+
+# Add all the executables
+message("${TestsToRun}")
+foreach(test ${TestsToRun})
+  get_filename_component(TName ${test} NAME_WE)
+  if(VTK_DATA_ROOT)
+    add_test(NAME ${vtk-module}Cxx-${TName}
+      COMMAND ${vtk-module}CxxTests ${TName}
+        -D ${VTK_DATA_ROOT}
+        -T ${VTK_TEST_OUTPUT_DIR}
+        -V Baseline/Hybrid/${TName}.png)
+  else()
+    add_test(NAME ${vtk-module}Cxx-${TName}
+      COMMAND ${vtk-module}CxxTests ${TName})
+  endif()
+endforeach()
