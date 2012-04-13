@@ -45,7 +45,7 @@
 // vtkInteractorStyleImage with a pointer to the vtkInteractorStyleImage object
 // itself.
 //
-// Here is the list of events that may be invoked with a none NULL callData.
+// Here is the list of events that may be invoked with a non-NULL callData.
 // - vtkCommand::ProgressEvent
 //  - most of the objects return a pointer to a double value ranged between
 // 0.0 and 1.0
