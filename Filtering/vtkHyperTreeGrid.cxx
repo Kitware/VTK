@@ -832,15 +832,15 @@ public:
       size_t nodeIndex=this->Nodes.size();
       // Law: I believe that the node array does not include leaves (which are implicit).
       // Bad interface "SetCursor"  I would rather SetIndex.
-      cursor->SetCursor(static_cast<int>(nodeIndex ) );
+      cursor->SetCursor(static_cast<int>( nodeIndex ) );
       // Law: Add a node
       // Nodes get constructed with leaf flags set to 1.
-      this->Nodes.resize(nodeIndex+1);
+      this->Nodes.resize( nodeIndex + 1 );
       int parentNodeIdx = this->LeafParent[leafIndex];
-      this->Nodes[nodeIndex].SetParent(parentNodeIdx );
+      this->Nodes[nodeIndex].SetParent( parentNodeIdx );
 
       // Change the parent: it has one less child as a leaf
-      vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx]);
+      vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
       // Law: New nodes index in parents children array.
       int i = cursor->GetChildIndex();
       assert( "check matching_child" && parent->GetChild( i ) == leafIndex );
@@ -871,16 +871,16 @@ public:
       int level=cursor->GetChildHistorySize();
 
       // remove the subdivided leaf from the number of leaves at its level.
-      --this->NumberOfLeavesPerLevel[level];
+      -- this->NumberOfLeavesPerLevel[level];
 
       // add the new leaves to the number of leaves at the next level.
-      if(level+1==this->NumberOfLevels) // >=
+      if( level + 1 == this->NumberOfLevels ) // >=
         {
         // we have a new level.
         ++this->NumberOfLevels;
-        this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels);
+        this->NumberOfLeavesPerLevel.resize( this->NumberOfLevels );
         }
-      this->NumberOfLeavesPerLevel[level+1]+=N;
+      this->NumberOfLeavesPerLevel[level + 1] += N;
     }
 
   //---------------------------------------------------------------------------
@@ -2290,124 +2290,124 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         vtkHyperTreeLightWeightCursor superCursor[27];
 
         // Initialize center cursor
-        superCursor[midCursorId].Initialize( this, offsets, index );
+        superCursor[midCursorId].Initialize( this, offsets, index, 0, 0, 0 );
 
         // Initialize x-connectivity cursors
         if ( i > 0 )
           {
-          superCursor[midCursorId - 1].Initialize( this, offsets, index - 1 );
+          superCursor[midCursorId - 1].Initialize( this, offsets, index, -1, 0, 0 );
           }
         if ( i + 1 < this->GridSize[0] )
           {
-          superCursor[midCursorId + 1].Initialize( this, offsets, index + 1 );
+          superCursor[midCursorId + 1].Initialize( this, offsets, index, +1, 0, 0 );
           }
 
         // Initialize y-connectivity cursors
         if ( j > 0 )
           {
-          superCursor[midCursorId - 3].Initialize( this, offsets, index - this->GridSize[0] );
+          superCursor[midCursorId - 3].Initialize( this, offsets, index, 0, -1, 0 );
           }
         if ( j + 1 < this->GridSize[1] )
           {
-          superCursor[midCursorId + 3].Initialize( this, offsets, index + this->GridSize[0] );
+          superCursor[midCursorId + 3].Initialize( this, offsets, index, 0, +1, 0 );
           }
 
         // Initialize z-connectivity cursors
         if ( k > 0 )
           {
-          superCursor[midCursorId - 9].Initialize( this, offsets, index - nxy );
+          superCursor[midCursorId - 9].Initialize( this, offsets, index, 0, 0, -1 );
           }
         if ( k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 9].Initialize( this, offsets, index + nxy );
+          superCursor[midCursorId + 9].Initialize( this, offsets, index, 0, 0, +1 );
           }
 
         // Initialize xy-connectivity cursors
         if ( i > 0 && j > 0 )
           {
-          superCursor[midCursorId - 4].Initialize( this, offsets, index - this->GridSize[0] - 1 );
+          superCursor[midCursorId - 4].Initialize( this, offsets, index, -1, -1, 0 );
           }
         if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] )
           {
-          superCursor[midCursorId + 4].Initialize( this, offsets, index + this->GridSize[0] + 1 );
+          superCursor[midCursorId + 4].Initialize( this, offsets, index, +1, +1, 0 );
           }
         if ( i + 1 < this->GridSize[0] && j > 0 )
           {
-          superCursor[midCursorId - 2].Initialize( this, offsets, index - this->GridSize[0] + 1 );
+          superCursor[midCursorId - 2].Initialize( this, offsets, index, +1, -1, 0 );
           }
         if ( i > 0 && j + 1 < this->GridSize[1] )
           {
-          superCursor[midCursorId + 2].Initialize( this, offsets, index + this->GridSize[0] - 1 );
+          superCursor[midCursorId + 2].Initialize( this, offsets, index, -1, +1, 0 );
           }
 
         // Initialize xz-connectivity cursors
         if ( i > 0 && k > 0 )
           {
-          superCursor[midCursorId - 10].Initialize( this, offsets, index - nxy - 1 );
+          superCursor[midCursorId - 10].Initialize( this, offsets, index, -1, 0, -1 );
           }
         if ( i + 1 < this->GridSize[0] && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 10].Initialize( this, offsets, index + nxy + 1 );
+          superCursor[midCursorId + 10].Initialize( this, offsets, index, +1, 0, +1 );
           }
         if ( i + 1 < this->GridSize[0] && k > 0 )
           {
-          superCursor[midCursorId - 8].Initialize( this, offsets, index - nxy + 1 );
+          superCursor[midCursorId - 8].Initialize( this, offsets, index, +1, 0, -1 );
           }
         if ( i > 0 && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 8].Initialize( this, offsets, index + nxy - 1 );
+          superCursor[midCursorId + 8].Initialize( this, offsets, index, -1, 0, +1 );
           }
 
         // Initialize yz-connectivity cursors
         if ( j > 0 && k > 0 )
           {
-          superCursor[midCursorId - 12].Initialize( this, offsets, index - nxy - this->GridSize[0] );
+          superCursor[midCursorId - 12].Initialize( this, offsets, index, 0, -1, -1 );
           }
         if ( j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 12].Initialize( this, offsets, index + nxy + this->GridSize[0] );
+          superCursor[midCursorId + 12].Initialize( this, offsets, index, 0, +1, +1 );
           }
         if ( j + 1 < this->GridSize[1] && k > 0 )
           {
-          superCursor[midCursorId - 6].Initialize( this, offsets, index - nxy + this->GridSize[0] );
+          superCursor[midCursorId - 6].Initialize( this, offsets, index, 0, +1, -1 );
           }
         if ( j > 0 && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 6].Initialize( this, offsets, index + nxy - this->GridSize[0] );
+          superCursor[midCursorId + 6].Initialize( this, offsets, index, 0, -1, +1 );
           }
 
         // Initialize xyz-connectivity cursors
         if ( i > 0 && j > 0 && k > 0 )
           {
-          superCursor[midCursorId - 13].Initialize( this, offsets, index - nxy - this->GridSize[0] - 1 );
+          superCursor[midCursorId - 13].Initialize( this, offsets, index, -1, -1, -1 );
           }
         if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 13].Initialize( this, offsets, index + nxy + this->GridSize[0] + 1 );
+          superCursor[midCursorId + 13].Initialize( this, offsets, index, +1, +1, +1 );
           }
         if ( i + 1 < this->GridSize[0] && j > 0 && k > 0 )
           {
-          superCursor[midCursorId - 11].Initialize( this, offsets, index - nxy - this->GridSize[0] + 1 );
+          superCursor[midCursorId - 11].Initialize( this, offsets, index, +1, -1, -1 );
           }
         if ( i > 0 && j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 11].Initialize( this, offsets, index + nxy + this->GridSize[0] - 1 );
+          superCursor[midCursorId + 11].Initialize( this, offsets, index, -1, +1, +1 );
           }
         if ( i > 0 && j < this->GridSize[1]  && k > 0 )
           {
-          superCursor[midCursorId - 7].Initialize( this, offsets, index - nxy + this->GridSize[0] - 1 );
+          superCursor[midCursorId - 7].Initialize( this, offsets, index, -1, +1, -1 );
           }
         if ( i + 1 < this->GridSize[0] && j > 0 && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 7].Initialize( this, offsets, index + nxy - this->GridSize[0] + 1 );
+          superCursor[midCursorId + 7].Initialize( this, offsets, index, +1, -1, +1 );
           }
         if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] && k > 0 )
           {
-          superCursor[midCursorId - 5].Initialize( this, offsets, index - nxy + this->GridSize[0] + 1 );
+          superCursor[midCursorId - 5].Initialize( this, offsets, index, +1, +1, -1 );
           }
         if ( i > 0 && j > 0 && k + 1 < this->GridSize[2] )
           {
-          superCursor[midCursorId + 5].Initialize( this, offsets, index + nxy - this->GridSize[0] - 1 );
+          superCursor[midCursorId + 5].Initialize( this, offsets, index, -1, -1, +1 );
           }
 
         // Location and size of the middle cursor/node
@@ -3135,6 +3135,29 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
   this->Offset = offsets[index];
   this->Tree = grid->CellTree[index];
   if ( ! grid->CellTree[index] )
+    {
+    return;
+    }
+
+  this->ToRoot();
+}
+
+//-----------------------------------------------------------------------------
+void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
+                                                int* offsets,
+                                                int index,
+                                                int a,
+                                                int b,
+                                                int c )
+{ 
+  // Convert local index into global one
+  int n[3];
+  grid->GetGridSize( n );
+  int globalIndex = index + a + b * n[0] + c * n[0] * n[1];
+
+  this->Offset = offsets[globalIndex];
+  this->Tree = grid->CellTree[globalIndex];
+  if ( ! grid->CellTree[globalIndex] )
     {
     return;
     }
