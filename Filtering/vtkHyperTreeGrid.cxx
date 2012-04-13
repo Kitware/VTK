@@ -2630,7 +2630,6 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
 // Returns id if a new corner was created, -1 otherwise.
 vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
                                                 vtkHyperTreeLightWeightCursor* superCursor,
-                                                int lfOffset,
                                                 unsigned char* visited,
                                                 int* cornerCursorIds )
 {
@@ -2698,9 +2697,9 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
           }
         }
       // Center point is opposite to the leaf position in supercursor.
-      leafId += lfOffset;
+      leafId += superCursor[cornerCursorIds[leaf]].GetOffset();
       this->LeafCornerIds->InsertComponent( leafId, 
-                                            numLeaves-leaf-1,
+                                            numLeaves - leaf - 1,
                                             static_cast<double>( cornerId ) );
       }
     }
@@ -2904,7 +2903,6 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeLightWeightCursor* s
       cornerIds[7] = cornerIds[3] + 9;
       cornerId = this->EvaluateGridCorner( level,
                                            superCursor,
-                                           superCursor[midCursorId].GetOffset(),
                                            visited,
                                            cornerIds );
       if ( cornerId >= 0 )

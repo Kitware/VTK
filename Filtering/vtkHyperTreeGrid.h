@@ -419,7 +419,6 @@ protected:
   void EvaluateDualCorner( vtkHyperTreeLightWeightCursor* );
   vtkIdType EvaluateGridCorner( int,
                                 vtkHyperTreeLightWeightCursor*,
-                                int,
                                 unsigned char*, 
                                 int* );
 
