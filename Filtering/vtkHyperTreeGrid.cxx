@@ -2207,8 +2207,7 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetCornerLeafIds()
 void vtkHyperTreeGrid::UpdateDualArrays()
 {
   // Calculate cardinalities on grid
-  int nxy = this->GridSize[0] * this->GridSize[1];
-  int nCells =  nxy * this->GridSize[2];
+  int nCells =  this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
   // Calculate point offsets into individual trees
   int* offsets = new int[nCells];
@@ -2655,8 +2654,7 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
 void vtkHyperTreeGrid::UpdateGridArrays()
 {
   // Calculate cardinalities on grid
-  int nxy = this->GridSize[0] * this->GridSize[1];
-  int nCells =  nxy * this->GridSize[2];
+  int nCells =  this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
 
   // Calculate point offsets into individual trees
   int* offsets = new int[nCells];
