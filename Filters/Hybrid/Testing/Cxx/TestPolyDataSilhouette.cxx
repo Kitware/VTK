@@ -10,10 +10,12 @@
 #include <vtkSphereSource.h>
 #include <vtkXMLPolyDataReader.h>
 #include <vtkCleanPolyData.h>
+#include <vtkTestUtilities.h>
 
 int TestPolyDataSilhouette(int argc, char *argv[])
 {
   vtkSmartPointer<vtkPolyData> polyData;
+  char* fname(NULL);
   if (argc < 2)
     {
     vtkSmartPointer<vtkSphereSource> sphereSource =
@@ -24,9 +26,10 @@ int TestPolyDataSilhouette(int argc, char *argv[])
     }
   else
     {
+    fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
     vtkSmartPointer<vtkXMLPolyDataReader> reader =
       vtkSmartPointer<vtkXMLPolyDataReader>::New();
-    reader->SetFileName(argv[1]);
+    reader->SetFileName(fname);
 
     vtkSmartPointer<vtkCleanPolyData> clean =
       vtkSmartPointer<vtkCleanPolyData>::New();
@@ -86,5 +89,6 @@ int TestPolyDataSilhouette(int argc, char *argv[])
   renderWindow->Render();
   iren->Start();
 
+  delete[] fname;
   return EXIT_SUCCESS;
 }
