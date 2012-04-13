@@ -288,6 +288,12 @@ public:
   // The id (either index or global id) being requested
   static vtkInformationIdTypeKey* FAST_PATH_OBJECT_ID();
 
+
+  // Description:
+  // key to record the bounds of a dataset.
+  static vtkInformationDoubleVectorKey *BOUNDS();
+
+
   // Description:
   // Issues pipeline request to determine and return the priority of the
   // piece described by the current update extent. The priority is a

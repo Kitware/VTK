@@ -55,10 +55,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // key to record the bounds of the hierarchical dataset.
-  static vtkInformationDoubleVectorKey *BOUNDS();
-
-  // Description:
   // Construct object with initial range (0,1) and single contour value
   // of 0.0.
   static vtkExtractCTHPart *New();
