@@ -2728,15 +2728,31 @@ vtkIdTypeArray* vtkHyperTreeGrid::GetLeafCornerIds()
 void vtkHyperTreeGrid::UpdateGridArrays()
 {
   // Calculate cardinalities on grid
-  int nCells = this->GridSize[0] * this->GridSize[1] * this->GridSize[2];
+  int nxy = this->GridSize[0] * this->GridSize[1];
+  int nCells =  nxy * this->GridSize[2];
+
+  // Calculate point offsets into individual trees
+  int* offsets = new int[nCells];
+  int numLeaves = 0;
+  for ( int i = 0; i < this->GridSize[0]; ++ i )
+    {
+    for ( int j = 0; j < this->GridSize[1]; ++ j )
+      {
+      for ( int k = 0; k < this->GridSize[2]; ++ k )
+        {
+        // Calculate global index of hyper tree
+        int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+
+        // Partial sum is current offset
+        offsets[index] = numLeaves;
+
+        // Update partial sum 
+        numLeaves += this->CellTree[index]->GetNumberOfLeaves();
+        } // k
+      } // j
+    } // i
 
   // Check if we can break out early
-  int numLeaves = 0;
-  for ( int i = 0; i < nCells; ++ i )
-    {
-    numLeaves += this->CellTree[i]->GetNumberOfLeaves();
-    }
-
   if ( this->LeafCornerIds )
     {
     if ( this->LeafCornerIds->GetNumberOfTuples() == numLeaves )
@@ -2789,9 +2805,14 @@ void vtkHyperTreeGrid::UpdateGridArrays()
       {
       for ( int k = 0; k < this->GridSize[2]; ++ k )
         {
+        // Calculate global index of hyper tree
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
+
+        // Storage for super cursors
         vtkHyperTreeLightWeightCursor superCursor[27];
-        superCursor[midCursorId].Initialize( this, index );
+
+        // Initialize center cursor
+        superCursor[midCursorId].Initialize( this, offsets, index );
 
         // Location and size for primal dataset API.
         double origin[3];
@@ -2816,11 +2837,8 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         // Initialize to 0
         memset(leafMask, 0, numLeaves);
         
-        // Figure out necessary leaf corner insertion offset
-        int lfOffset =  this->LeafCornerIds->GetNumberOfTuples();
-        
         // Traverse and populate dual recursively
-        this->TraverseGridRecursively( superCursor, lfOffset, leafMask, origin, size );
+        this->TraverseGridRecursively( superCursor, leafMask, origin, size );
 
         delete [] leafMask;
         } // k
@@ -2839,7 +2857,6 @@ void vtkHyperTreeGrid::UpdateGridArrays()
 // The purpose of traversing the supercursor / cells is to visit
 // every corner and have the leaves connected to that corner.
 void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeLightWeightCursor* superCursor,
-                                                int lfOffset,
                                                 unsigned char* visited,
                                                 double* origin,
                                                 double* size )
@@ -2887,7 +2904,7 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeLightWeightCursor* s
       cornerIds[7] = cornerIds[3] + 9;
       cornerId = this->EvaluateGridCorner( level,
                                            superCursor,
-                                           lfOffset,
+                                           superCursor[midCursorId].GetOffset(),
                                            visited,
                                            cornerIds );
       if ( cornerId >= 0 )
@@ -2980,7 +2997,6 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeLightWeightCursor* s
         }
       }
     this->TraverseGridRecursively( newSuperCursor, 
-                                   lfOffset,
                                    visited,
                                    childOrigin, 
                                    childSize);

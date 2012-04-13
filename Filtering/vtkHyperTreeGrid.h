@@ -413,7 +413,6 @@ protected:
                                 double*, 
                                 int );
   void TraverseGridRecursively( vtkHyperTreeLightWeightCursor*,
-                                int,
                                 unsigned char*,
                                 double*,
                                 double* );
@@ -423,7 +422,6 @@ protected:
                                 int,
                                 unsigned char*, 
                                 int* );
-
 
   // Generalizing for 27 tree.  I cannot use 3 bits to encode the child to move to.
   // Input: root in supercursor(3x3x3=27), child(3x3x3=27)
@@ -472,6 +470,7 @@ public:
   vtkHyperTreeInternal* GetTree() { return this->Tree; }
   int GetLeafIndex() { return this->Index; } // Only valid for leaves.
   int GetGlobalLeafIndex() { return this->Offset + this->Index; }
+  int GetOffset() { return this->Offset; }
   unsigned short GetLevel() { return this->Level; }
 private:
   vtkHyperTreeInternal* Tree;
