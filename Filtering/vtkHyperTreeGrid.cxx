@@ -2287,129 +2287,56 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         // Calculate global index of hyper tree
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
 
-        // Storage for super cursors
+        // Initialize super cursors
         vtkHyperTreeLightWeightCursor superCursor[27];
+        for ( int a = -1; a < 2; ++ a )
+          {
+          bool ti = true;
+          switch ( a )
+            {
+            case -1:
+              ti = ( i > 0 );
+              break;
+            case 1:
+              ti = ( i + 1 < this->GridSize[0] );
+              break;
+            } // switch( a )
 
-        // Initialize center cursor
-        superCursor[midCursorId].Initialize( this, offsets, index, 0, 0, 0 );
+          for ( int b = -1; b < 2; ++ b )
+            {
+            bool tj = true;
+            switch ( b )
+              {
+              case -1:
+                tj = ( j > 0 );
+                break;
+              case 1:
+                tj = ( j + 1 < this->GridSize[1] );
+                break;
+              } // switch( b )
 
-        // Initialize x-connectivity cursors
-        if ( i > 0 )
-          {
-          superCursor[midCursorId - 1].Initialize( this, offsets, index, -1, 0, 0 );
-          }
-        if ( i + 1 < this->GridSize[0] )
-          {
-          superCursor[midCursorId + 1].Initialize( this, offsets, index, +1, 0, 0 );
-          }
+            for ( int c = -1; c < 2; ++ c )
+              {
+              bool tk = true;
+              switch ( c )
+                {
+                case -1:
+                  tk = ( k > 0 );
+                  break;
+                case 1:
+                  tk = ( k + 1 < this->GridSize[2] );
+                  break;
+                } // switch( c )
 
-        // Initialize y-connectivity cursors
-        if ( j > 0 )
-          {
-          superCursor[midCursorId - 3].Initialize( this, offsets, index, 0, -1, 0 );
-          }
-        if ( j + 1 < this->GridSize[1] )
-          {
-          superCursor[midCursorId + 3].Initialize( this, offsets, index, 0, +1, 0 );
-          }
-
-        // Initialize z-connectivity cursors
-        if ( k > 0 )
-          {
-          superCursor[midCursorId - 9].Initialize( this, offsets, index, 0, 0, -1 );
-          }
-        if ( k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 9].Initialize( this, offsets, index, 0, 0, +1 );
-          }
-
-        // Initialize xy-connectivity cursors
-        if ( i > 0 && j > 0 )
-          {
-          superCursor[midCursorId - 4].Initialize( this, offsets, index, -1, -1, 0 );
-          }
-        if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] )
-          {
-          superCursor[midCursorId + 4].Initialize( this, offsets, index, +1, +1, 0 );
-          }
-        if ( i + 1 < this->GridSize[0] && j > 0 )
-          {
-          superCursor[midCursorId - 2].Initialize( this, offsets, index, +1, -1, 0 );
-          }
-        if ( i > 0 && j + 1 < this->GridSize[1] )
-          {
-          superCursor[midCursorId + 2].Initialize( this, offsets, index, -1, +1, 0 );
-          }
-
-        // Initialize xz-connectivity cursors
-        if ( i > 0 && k > 0 )
-          {
-          superCursor[midCursorId - 10].Initialize( this, offsets, index, -1, 0, -1 );
-          }
-        if ( i + 1 < this->GridSize[0] && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 10].Initialize( this, offsets, index, +1, 0, +1 );
-          }
-        if ( i + 1 < this->GridSize[0] && k > 0 )
-          {
-          superCursor[midCursorId - 8].Initialize( this, offsets, index, +1, 0, -1 );
-          }
-        if ( i > 0 && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 8].Initialize( this, offsets, index, -1, 0, +1 );
-          }
-
-        // Initialize yz-connectivity cursors
-        if ( j > 0 && k > 0 )
-          {
-          superCursor[midCursorId - 12].Initialize( this, offsets, index, 0, -1, -1 );
-          }
-        if ( j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 12].Initialize( this, offsets, index, 0, +1, +1 );
-          }
-        if ( j + 1 < this->GridSize[1] && k > 0 )
-          {
-          superCursor[midCursorId - 6].Initialize( this, offsets, index, 0, +1, -1 );
-          }
-        if ( j > 0 && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 6].Initialize( this, offsets, index, 0, -1, +1 );
-          }
-
-        // Initialize xyz-connectivity cursors
-        if ( i > 0 && j > 0 && k > 0 )
-          {
-          superCursor[midCursorId - 13].Initialize( this, offsets, index, -1, -1, -1 );
-          }
-        if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 13].Initialize( this, offsets, index, +1, +1, +1 );
-          }
-        if ( i + 1 < this->GridSize[0] && j > 0 && k > 0 )
-          {
-          superCursor[midCursorId - 11].Initialize( this, offsets, index, +1, -1, -1 );
-          }
-        if ( i > 0 && j + 1 < this->GridSize[1] && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 11].Initialize( this, offsets, index, -1, +1, +1 );
-          }
-        if ( i > 0 && j < this->GridSize[1]  && k > 0 )
-          {
-          superCursor[midCursorId - 7].Initialize( this, offsets, index, -1, +1, -1 );
-          }
-        if ( i + 1 < this->GridSize[0] && j > 0 && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 7].Initialize( this, offsets, index, +1, -1, +1 );
-          }
-        if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] && k > 0 )
-          {
-          superCursor[midCursorId - 5].Initialize( this, offsets, index, +1, +1, -1 );
-          }
-        if ( i > 0 && j > 0 && k + 1 < this->GridSize[2] )
-          {
-          superCursor[midCursorId + 5].Initialize( this, offsets, index, -1, -1, +1 );
-          }
+              // Initialize cursor if connectivity conditions are satisfied
+              if ( ti && tj && tk )
+                {
+                int d = a + 3 * b + 9 * c;
+                superCursor[midCursorId + d].Initialize( this, offsets, index, a, b, c );
+                } // if ( ti && tj && tk )
+              } // c        
+            } // b        
+          } // a        
 
         // Location and size of the middle cursor/node
         double origin[3];
