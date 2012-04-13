@@ -462,8 +462,6 @@ public:
   ~vtkHyperTreeLightWeightCursor();
 
   void Initialize( vtkHyperTreeGrid*, int*, int, int, int, int );
-  void Initialize( vtkHyperTreeGrid*, int*, int );
-  void Initialize( vtkHyperTreeGrid*, int );
   void ToRoot();
   void ToChild( int );
   unsigned short GetIsLeaf();

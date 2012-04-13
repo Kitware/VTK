@@ -1970,7 +1970,8 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
 
   int index = ( iz * this->GridSize[1] + iy ) * this->GridSize[0] + ix;
   vtkHyperTreeLightWeightCursor cursor;
-  cursor.Initialize( this, index );
+  int offsets[3];
+  cursor.Initialize( this, offsets, index, 0, 0, 0 );
 
   // Geometry of the cell
   double origin[3];
@@ -1988,7 +1989,7 @@ vtkIdType vtkHyperTreeGrid::FindPoint( double x[3] )
   size[1] = extreme[1] - origin[1];
   size[2] = extreme[2] - origin[2];
         
-  return this->RecursiveFindPoint(x, &cursor, origin, size );
+  return this->RecursiveFindPoint( x, &cursor, origin, size );
 }
 
 //----------------------------------------------------------------------------
@@ -2811,7 +2812,7 @@ void vtkHyperTreeGrid::UpdateGridArrays()
         vtkHyperTreeLightWeightCursor superCursor[27];
 
         // Initialize center cursor
-        superCursor[midCursorId].Initialize( this, offsets, index );
+        superCursor[midCursorId].Initialize( this, offsets, index, 0, 0, 0 );
 
         // Location and size for primal dataset API.
         double origin[3];
@@ -3130,21 +3131,6 @@ vtkHyperTreeLightWeightCursor::~vtkHyperTreeLightWeightCursor()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
                                                 int* offsets,
-                                                int index )
-{ 
-  this->Offset = offsets[index];
-  this->Tree = grid->CellTree[index];
-  if ( ! grid->CellTree[index] )
-    {
-    return;
-    }
-
-  this->ToRoot();
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
-                                                int* offsets,
                                                 int index,
                                                 int a,
                                                 int b,
@@ -3158,19 +3144,6 @@ void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
   this->Offset = offsets[globalIndex];
   this->Tree = grid->CellTree[globalIndex];
   if ( ! grid->CellTree[globalIndex] )
-    {
-    return;
-    }
-
-  this->ToRoot();
-}
-
-//-----------------------------------------------------------------------------
-void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
-                                                int index )
-{ 
-  this->Tree = grid->CellTree[index];
-  if ( ! grid->CellTree[index] )
     {
     return;
     }
