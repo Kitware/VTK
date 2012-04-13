@@ -2295,36 +2295,30 @@ void vtkHyperTreeGrid::UpdateDualArrays()
         // Initialize x-connectivity cursors
         if ( i > 0 )
           {
-          // Backward cursor
           superCursor[midCursorId - 1].Initialize( this, offsets, index - 1 );
           }
         if ( i + 1 < this->GridSize[0] )
           {
-          // Forward cursor
           superCursor[midCursorId + 1].Initialize( this, offsets, index + 1 );
           }
 
         // Initialize y-connectivity cursors
         if ( j > 0 )
           {
-          // Backward cursor
           superCursor[midCursorId - 3].Initialize( this, offsets, index - this->GridSize[0] );
           }
         if ( j + 1 < this->GridSize[1] )
           {
-          // Forward cursor
           superCursor[midCursorId + 3].Initialize( this, offsets, index + this->GridSize[0] );
           }
 
         // Initialize z-connectivity cursors
         if ( k > 0 )
           {
-          // Backward cursor
           superCursor[midCursorId - 9].Initialize( this, offsets, index - nxy );
           }
         if ( k + 1 < this->GridSize[2] )
           {
-          // Forward cursor
           superCursor[midCursorId + 9].Initialize( this, offsets, index + nxy );
           }
 
@@ -2427,7 +2421,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
       }
 
     // Insert point with given offset into leaf centers array
-    int index = superCursor[midCursorId].GetOffset() + superCursor[midCursorId].GetLeafIndex();
+    int index = superCursor[midCursorId].GetGlobalLeafIndex();
     this->LeafCenters->InsertPoint( index, pt );
 
     // Now see if the center leaf owns any of the corners.
@@ -2454,7 +2448,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeLightWeightCursor* s
             cursorIdx += ( cornerIdx& 1) + ( leafIdx& 1);
           }
         // Collect the leaf indexes for the dual cell.
-        leaves[leafIdx] = superCursor[cursorIdx].GetOffset() + superCursor[cursorIdx].GetLeafIndex();
+        leaves[leafIdx] = superCursor[cursorIdx].GetGlobalLeafIndex();
 
         // Compute if the mid leaf owns the corner.
         if ( cursorIdx != midCursorId )

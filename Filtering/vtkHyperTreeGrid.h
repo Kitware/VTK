@@ -471,7 +471,7 @@ public:
   unsigned short GetIsLeaf();
   vtkHyperTreeInternal* GetTree() { return this->Tree; }
   int GetLeafIndex() { return this->Index; } // Only valid for leaves.
-  int GetOffset() { return this->Offset; }
+  int GetGlobalLeafIndex() { return this->Offset + this->Index; }
   unsigned short GetLevel() { return this->Level; }
 private:
   vtkHyperTreeInternal* Tree;
