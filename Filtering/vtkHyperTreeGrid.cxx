@@ -2322,6 +2322,24 @@ void vtkHyperTreeGrid::UpdateDualArrays()
           superCursor[midCursorId + 9].Initialize( this, offsets, index + nxy );
           }
 
+        // Initialize xy-connectivity cursors
+        if ( i > 0 && j > 0 )
+          {
+          superCursor[midCursorId - 4].Initialize( this, offsets, index - this->GridSize[0] - 1 );
+          }
+        if ( i + 1 < this->GridSize[0] && j + 1 < this->GridSize[1] )
+          {
+          superCursor[midCursorId + 4].Initialize( this, offsets, index + this->GridSize[0] + 1 );
+          }
+        if ( i + 1 < this->GridSize[0] && j > 0 )
+          {
+          superCursor[midCursorId - 2].Initialize( this, offsets, index - this->GridSize[0] + 1 );
+          }
+        if ( i > 0 && j + 1 < this->GridSize[1] )
+          {
+          superCursor[midCursorId + 2].Initialize( this, offsets, index + this->GridSize[0] - 1 );
+          }
+
         // Location and size of the middle cursor/node
         double origin[3];
         this->XCoordinates->GetTuple( i, origin );
