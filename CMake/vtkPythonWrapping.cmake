@@ -6,14 +6,17 @@ function(vtk_add_python_wrapping module_name module_srcs)
     message(FATAL_ERROR "VTK must be built with Python wrapping turned on.")
   endif()
   # Need to add the Wrapping/Python to the include directory
-  include_directories(
+  set(_python_include_dirs
     ${VTK_SOURCE_DIR}/Wrapping/PythonCore
     ${VTK_BINARY_DIR}/Wrapping/PythonCore
     ${VTK_SOURCE_DIR}/Wrapping
     ${VTK_BINARY_DIR}/Wrapping
     ${PYTHON_INCLUDE_DIRS})
 
-  # FIXME: These must be here for now, should be fixed in the wrap hierarchy stuff
+  if(NOT CMAKE_HAS_TARGET_INCLUDES)
+    include_directories(${_python_include_dirs})
+  endif()
+
   set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
   set(KIT ${kit_name})
@@ -40,6 +43,10 @@ function(vtk_add_python_wrapping module_name module_srcs)
 
   vtk_wrap_python3(${module_name}Python Python_SRCS "${module_srcs}")
   vtk_add_library(${module_name}PythonD ${Python_SRCS} ${extra_srcs})
+  if(CMAKE_HAS_TARGET_INCLUDES)
+    set_property(TARGET ${module_name}PythonD APPEND
+      PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
+  endif()
   if(VTK_MODULE_${module_name}_IMPLEMENTS)
     set_property(TARGET ${module_name}PythonD PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
@@ -49,5 +56,9 @@ function(vtk_add_python_wrapping module_name module_srcs)
   python_add_module(${module_name}Python ${module_name}PythonInit.cxx)
   if(PYTHON_ENABLE_MODULE_${module_name}Python)
     target_link_libraries(${module_name}Python ${module_name}PythonD)
+    if(CMAKE_HAS_TARGET_INCLUDES)
+      set_property(TARGET ${module_name}Python APPEND
+        PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
+    endif()
   endif()
 endfunction()
