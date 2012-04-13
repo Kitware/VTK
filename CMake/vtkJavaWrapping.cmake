@@ -19,50 +19,55 @@ if(VTK_WRAP_JAVA)
   ENDFOREACH(__java_library)
   ENDIF(JAVA_AWT_LIBRARY)
 
-  include_directories(
-    ${JAVA_INCLUDE_PATH}
-    ${JAVA_INCLUDE_PATH2}
-    )
 endif()
 
 function(vtk_add_java_wrapping module_name module_srcs)
 
-  string(REGEX REPLACE "^vtk" "" wrap_name "${module_name}")
-  # FIXME: These must be here for now, should be fixed in the wrap hierarchy stuff
+  set(_java_include_dirs
+    ${JAVA_INCLUDE_PATH}
+    ${JAVA_INCLUDE_PATH2}
+    ${vtkWrappingJavaCore_SOURCE_DIR}
+    ${vtkWrappingJavaCore_BINARY_DIR})
+
+  if(NOT CMAKE_HAS_TARGET_INCLUDES)
+    include_directories(${_java_include_dirs})
+  endif()
+
   set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
 
-  vtk_wrap_java3(vtk${wrap_name}Java ModuleJava_SRCS "${module_srcs};${Kit_JAVA_EXTRA_WRAP_SRCS}")
+  vtk_wrap_java3(${module_name}Java ModuleJava_SRCS
+    "${module_srcs};${Kit_JAVA_EXTRA_WRAP_SRCS}")
 
-  add_library(vtk${wrap_name}Java SHARED ${ModuleJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+  add_library(${module_name}Java SHARED ${ModuleJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
+  if(CMAKE_HAS_TARGET_INCLUDES)
+    set_property(TARGET ${module_name}Java APPEND
+      PROPERTY INCLUDE_DIRECTORIES ${_java_include_dirs})
+  endif()
   # Force JavaClasses to build in the right order by adding a depenency.
-  add_dependencies(vtk${wrap_name}JavaJavaClasses vtk${wrap_name}Java)
+  add_dependencies(${module_name}JavaJavaClasses ${module_name}Java)
   if(VTK_MODULE_${module_name}_IMPLEMENTS)
     set_property(TARGET ${module_name}Java PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
 
-  target_link_libraries(vtk${wrap_name}Java ${module_name} vtkWrappingJavaCore)
-  include_directories(${vtkWrappingJavaCore_SOURCE_DIR}
-    ${vtkWrappingJavaCore_BINARY_DIR}
-    )
+  target_link_libraries(${module_name}Java ${module_name} vtkWrappingJavaCore)
 
   # Do we need to link to AWT?
   if(${module_name} STREQUAL "vtkRenderingCore")
-    target_link_libraries(vtk${wrap_name}Java ${JAVA_AWT_LIBRARY})
+    target_link_libraries(${module_name}Java ${JAVA_AWT_LIBRARY})
   endif()
 
   foreach(dep ${VTK_MODULE_${module_name}_DEPENDS})
     if(NOT VTK_MODULE_${dep}_EXCLUDE_FROM_WRAPPING)
-      target_link_libraries(vtk${wrap_name}Java ${dep}Java)
+      target_link_libraries(${module_name}Java ${dep}Java)
     endif()
   endforeach()
 
-  IF(NOT VTK_INSTALL_NO_LIBRARIES)
-    INSTALL(TARGETS vtk${wrap_name}Java
-     EXPORT ${VTK_INSTALL_EXPORT_NAME}
-     RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeLibraries
-     LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries
-     ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development)
-  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-  add_dependencies(vtk${wrap_name}Java vtk${wrap_name})
+  if(NOT VTK_INSTALL_NO_LIBRARIES)
+    install(TARGETS ${module_name}Java
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
+      RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development)
+  endif()
 endfunction()

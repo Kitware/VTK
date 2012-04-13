@@ -26,14 +26,6 @@
 #cmakedefine VTK_USE_VOLUMEPRO_1000
 
 /*--------------------------------------------------------------------------*/
-/* Wrapping Configuration                                                   */
-
-#cmakedefine VTK_WRAP_TCL
-#cmakedefine VTK_WRAP_PYTHON
-#cmakedefine VTK_WRAP_JAVA
-#cmakedefine VTK_WRAP_PYTHON_SIP
-
-/*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
 
 /* Debug leaks support.  */

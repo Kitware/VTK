@@ -1,8 +1,7 @@
+find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
 
-# what does this do!
-SET(__inst_files ${__inst_files}
-  vtkJavaUtil.h
-  )
+include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
 set(JavaCore_SRCS
   vtkJavaUtil.cxx
