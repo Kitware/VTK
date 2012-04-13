@@ -2674,7 +2674,7 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
         // We are not inserting face or edge points.
         continue;
         }
-      if ( this->Dimension > 1)
+      if ( this->Dimension > 1 )
         {
         sideLeaf = leaf^2;
         if ( superCursor[cornerCursorIds[sideLeaf]].GetTree() &&
@@ -2685,7 +2685,7 @@ vtkIdType vtkHyperTreeGrid::EvaluateGridCorner( int level,
           continue;
           }
         }
-      if ( this->Dimension > 2)
+      if ( this->Dimension > 2 )
         {
         sideLeaf = leaf^4;
         if ( superCursor[cornerCursorIds[sideLeaf]].GetTree() &&
