@@ -20,9 +20,8 @@
 -------------------------------------------------------------------------*/
 
 #include "vtkParseHierarchy.h"
-#include "vtkParseInternal.h"
 #include "vtkParseExtras.h"
-#include "vtkType.h"
+#include "vtkParseString.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,6 +32,58 @@ static size_t skip_space(const char *text)
 {
   size_t i = 0;
   while (isspace(text[i]) && text[i] != '\n') { i++; }
+  return i;
+}
+
+static size_t skip_expression(const char *text, const char *delims)
+{
+  char newdelims[2];
+  size_t i = 0;
+  size_t j;
+  int use_angle = 0;
+  char c;
+
+  for (j = 0; delims[j] != '\0'; j++)
+    {
+    if (delims[j] == '>')
+      {
+      use_angle = 1;
+      }
+    }
+
+  while (text[i] != '\0')
+    {
+    c = text[i];
+    j = 0;
+    while (c != delims[j] && delims[j] != '\0') { j++; }
+    if (delims[j] != '\0' || c == '\0') { break; }
+    if (c == '\"' || c == '\'')
+      {
+      char d = c;
+      i++;
+      while (text[i] != d && text[i] != '\0')
+        {
+        if (text[i] == '\\' && text[i+1] != '\0') { i++; }
+        i++;
+        }
+      c = text[i];
+      if (c == '\0') { break; }
+      }
+    i++;
+    if (c == '(' || c == '[' || c == '{' || (use_angle && c == '<'))
+      {
+      if (c == '(') { newdelims[0] = ')'; }
+      if (c == '[') { newdelims[0] = ']'; }
+      if (c == '{') { newdelims[0] = '}'; }
+      if (c == '<') { newdelims[0] = '>'; }
+      newdelims[1] = '\0';
+
+      i += skip_expression(&text[i], newdelims);
+
+      if (text[i] == newdelims[0]) { i++; } else { break; }
+      }
+    }
+
   return i;
 }
 
@@ -117,6 +168,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
   size_t maxlen = 15;
   size_t i, j, n, m;
   unsigned int bits, pointers;
+  static const char *delims = ">,=";
 
   line = (char *)malloc(maxlen);
 
@@ -213,7 +265,11 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
         entry->NumberOfTemplateArgs++;
         entry->TemplateArgDefaults[j] = NULL;
 
-        m = vtkParse_NameLength(&line[i]);
+        m = skip_expression(&line[i], delims);
+        while (m > 0 && (line[i+m-1] == ' ' || line[i+m-1] == '\t'))
+          {
+          --m;
+          }
 
         cp = (char *)malloc(m+1);
         strncpy(cp, &line[i], m);
@@ -226,8 +282,11 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
           {
           i++;
           i += skip_space(&line[i]);
-          m = vtkParse_NameLength(&line[i]);
-
+          m = skip_expression(&line[i], delims);
+          while (m > 0 && (line[i+m-1] == ' ' || line[i+m-1] == '\t'))
+            {
+            --m;
+            }
           cp = (char *)malloc(m+1);
           strncpy(cp, &line[i], m);
           cp[m] = '\0';
@@ -347,7 +406,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
           {
           n++;
           }
-        ccp = vtkParse_DuplicateString(&line[i], n);
+        ccp = vtkParse_CopyString(&line[i], n);
         vtkParse_AddStringToArray(&entry->Typedef->Dimensions,
                                   &entry->Typedef->NumberOfDimensions, ccp);
         if (ccp[0] >= '0' && ccp[0] <= '9')
@@ -410,7 +469,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
       /* read the base type (and const) */
       bits = 0;
       i += vtkParse_BasicTypeFromString(&line[i], &bits, &ccp, &n);
-      entry->Typedef->Class = vtkParse_DuplicateString(ccp, n);
+      entry->Typedef->Class = vtkParse_CopyString(ccp, n);
       entry->Typedef->Type |= bits;
       }
 
@@ -904,7 +963,7 @@ int vtkParseHierarchy_ExpandTypedefsInValue(
          info, val->Class, scope);
       if (newclass != val->Class)
         {
-        val->Class = vtkParse_DuplicateString(newclass, strlen(newclass));
+        val->Class = vtkParse_CopyString(newclass, strlen(newclass));
         free((char *)newclass);
         }
       result = 1;

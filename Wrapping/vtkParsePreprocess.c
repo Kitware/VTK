@@ -39,21 +39,37 @@
 /** Preprocessor tokens. */
 enum _preproc_token_t
 {
-  TOK_ID = 258,
-  TOK_CHAR,
-  TOK_STRING,
-  TOK_NUMBER,
-  TOK_AND,
-  TOK_OR,
-  TOK_NE,
-  TOK_EQ,
-  TOK_GE,
-  TOK_LE,
-  TOK_LSHIFT,
-  TOK_RSHIFT,
-  TOK_DBLHASH,
-  TOK_ELLIPSIS,
-  TOK_OTHER
+  TOK_OTHER = 257,
+  TOK_ID,        /* any id */
+  TOK_CHAR,      /* char literal */
+  TOK_STRING,    /* string literal */
+  TOK_NUMBER,    /* any numeric literal */
+  TOK_DBLHASH,   /* ## */
+  TOK_SCOPE,     /* :: */
+  TOK_INCR,      /* ++ */
+  TOK_DECR,      /* -- */
+  TOK_RSHIFT,    /* >> */
+  TOK_LSHIFT,    /* << */
+  TOK_AND,       /* && */
+  TOK_OR,        /* || */
+  TOK_EQ,        /* == */
+  TOK_NE,        /* != */
+  TOK_GE,        /* >= */
+  TOK_LE,        /* <= */
+  TOK_ADD_EQ,    /* += */
+  TOK_SUB_EQ,    /* -= */
+  TOK_MUL_EQ,    /* *= */
+  TOK_DIV_EQ,    /* /= */
+  TOK_MOD_EQ,    /* %= */
+  TOK_AND_EQ,    /* &= */
+  TOK_OR_EQ,     /* |= */
+  TOK_XOR_EQ,    /* ^= */
+  TOK_ARROW,     /* -> */
+  TOK_DOT_STAR,  /* .* */
+  TOK_ARROW_STAR,/* ->* */
+  TOK_RSHIFT_EQ, /* >>= */
+  TOK_LSHIFT_EQ, /* <<= */
+  TOK_ELLIPSIS,  /* ... */
 };
 
 /** A struct for going through the input one token at a time. */
@@ -105,6 +121,67 @@ static preproc_uint_t string_to_preproc_uint(const char *cp, int base)
 #endif
 }
 
+/** Various possible char types */
+#define CPRE_WHITE   0x01  /* space, tab, carriage return */
+#define CPRE_ID      0x02  /* A-Z a-z and _ */
+#define CPRE_DIGIT   0x04  /* 0-9 */
+#define CPRE_IDGIT   0x06  /* 0-9 A-Z a-z and _ */
+#define CPRE_EXP     0x08  /* EPep (exponents for floats) */
+#define CPRE_SIGN    0x10  /* +- (sign for floats) */
+#define CPRE_QUOTE   0x20  /* " and ' */
+#define CPRE_HEX     0x40  /* 0-9A-Fa-f */
+#define CPRE_OCT     0x80  /* 0-7 */
+
+/** Array for quick lookup of char types */
+static unsigned char preproc_charbits[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0,
+  CPRE_WHITE, /* tab */
+  0, /* newline ( marks end of line, so not technically whitespace ) */
+  0, 0,
+  CPRE_WHITE, /* carriage return */
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  CPRE_WHITE, /* ' ' */
+  0, CPRE_QUOTE, 0, 0, 0, 0, CPRE_QUOTE, 0, 0, /* !"#$%&'() */
+  0, CPRE_SIGN, 0, CPRE_SIGN, 0, 0, /* *+,-./ */
+  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, /* 0 */
+  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_OCT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_OCT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_OCT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_HEX, /* 9 */
+  0, 0, 0, 0, 0, 0, 0, /* :;<=>?@ */
+  CPRE_ID|CPRE_HEX, /* A */
+  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* BCD */
+  CPRE_ID|CPRE_HEX|CPRE_EXP, /* E */
+  CPRE_ID|CPRE_HEX, CPRE_ID, CPRE_ID, CPRE_ID, /* FGHI */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* JKLM */
+  CPRE_ID, CPRE_ID, CPRE_ID|CPRE_EXP, CPRE_ID, /* NOPQ */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* RSTU */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* VWXY */
+  CPRE_ID, /* Z */
+  0, 0, 0, 0, /* [\\]^ */
+  CPRE_ID, /* _ */
+  0, /* ` */
+  CPRE_ID|CPRE_HEX, /* a */
+  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* bcd */
+  CPRE_ID|CPRE_HEX|CPRE_EXP, /* e */
+  CPRE_ID|CPRE_HEX, CPRE_ID, CPRE_ID, CPRE_ID, /* fghi */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* jklm */
+  CPRE_ID, CPRE_ID, CPRE_ID|CPRE_EXP, CPRE_ID, /* nopq */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* rstu */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* vwxy */
+  CPRE_ID, /* z */
+  0, 0, 0, 0, /* {|}~ */
+  0, /* '\x7f' */
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
+
+/** Macro to get char type */
+#define preproc_chartype(c, bits) \
+  ((preproc_charbits[(unsigned char)(c)] & bits) != 0)
 
 /** Skip over a comment. */
 static void preproc_skip_comment(const char **cpp)
@@ -147,19 +224,39 @@ static void preproc_skip_whitespace(const char **cpp)
 
   for (;;)
     {
-    while (*cp == ' ' || *cp == '\t' || *cp == '\r') { cp++; }
-
-    if (cp[0] == '\\' && cp[1] == '\n')
+    if (preproc_chartype(*cp, CPRE_WHITE))
       {
-      cp += 2;
+      do
+        {
+        cp++;
+        }
+      while (preproc_chartype(*cp, CPRE_WHITE));
       }
-    else if (cp[0] == '\\' && cp[1] == '\r' && cp[2] == '\n')
+    if (cp[0] == '\\')
       {
-      cp += 3;
+      if (cp[1] == '\n')
+        {
+        cp += 2;
+        }
+      else if (cp[1] == '\r' && cp[2] == '\n')
+        {
+        cp += 3;
+        }
+      else
+        {
+        break;
+        }
       }
-    else if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*'))
+    else if (cp[0] == '/')
       {
-      preproc_skip_comment(&cp);
+      if (cp[1] == '/' || cp[1] == '*')
+        {
+        preproc_skip_comment(&cp);
+        }
+      else
+        {
+        break;
+        }
       }
     else
       {
@@ -176,13 +273,16 @@ static void preproc_skip_quotes(const char **cpp)
   const char *cp = *cpp;
   const char qc = *cp;
 
-  if (*cp == '\'' || *cp == '\"')
+  if (preproc_chartype(*cp, CPRE_QUOTE))
     {
     cp++;
     while (*cp != qc && *cp != '\n' && *cp != '\0')
       {
-      if (cp[0] == '\\' && cp[1] == qc) { cp++; }
-      cp++;
+      if (*cp++ == '\\')
+        {
+        if (cp[0] == '\r' && cp[1] == '\n') { cp += 2; }
+        else if (*cp != '\0') { cp++; }
+        }
       }
     }
   if (*cp == qc)
@@ -198,18 +298,13 @@ static void preproc_skip_name(const char **cpp)
 {
   const char *cp = *cpp;
 
-  if ((*cp >= 'a' && *cp <= 'z') ||
-      (*cp >= 'A' && *cp <= 'Z') ||
-      (*cp == '_'))
+  if (preproc_chartype(*cp, CPRE_ID))
     {
-    cp++;
-    while ((*cp >= '0' && *cp <= '9') ||
-           (*cp >= 'a' && *cp <= 'z') ||
-           (*cp >= 'A' && *cp <= 'Z') ||
-           (*cp == '_'))
+    do
       {
       cp++;
       }
+    while (preproc_chartype(*cp, CPRE_IDGIT));
     }
 
   *cpp = cp;
@@ -220,22 +315,19 @@ static void preproc_skip_number(const char **cpp)
 {
   const char *cp = *cpp;
 
-  if ((cp[0] >= '0' && cp[0] <= '9') ||
-      (cp[0] == '.' && (cp[1] >= '0' && cp[1] <= '9')))
+  if (preproc_chartype(cp[0], CPRE_DIGIT) ||
+      (cp[0] == '.' && preproc_chartype(cp[1], CPRE_DIGIT)))
     {
-    cp++;
-    while ((*cp >= '0' && *cp <= '9') ||
-           (*cp >= 'a' && *cp <= 'z') ||
-           (*cp >= 'A' && *cp <= 'Z') ||
-           *cp == '_' || *cp == '.')
+    do
       {
       char c = *cp++;
-      if (c == 'e' || c == 'E' ||
-          c == 'p' || c == 'P')
+      if (preproc_chartype(c, CPRE_EXP) &&
+          preproc_chartype(*cp, CPRE_SIGN))
         {
-        if (*cp == '-' || *cp == '+') { cp++; }
+        cp++;
         }
       }
+    while (preproc_chartype(*cp, CPRE_IDGIT) || *cp == '.');
     }
 
   *cpp = cp;
@@ -248,116 +340,99 @@ static int preproc_next(preproc_tokenizer *tokens)
   preproc_skip_whitespace(&cp);
   tokens->text = cp;
 
-  if (cp[0] == '_' ||
-      (cp[0] >= 'a' && cp[0] <= 'z') ||
-      (cp[0] >= 'A' && cp[0] <= 'Z'))
+  if (preproc_chartype(*cp, CPRE_ID))
     {
     const char *ep = cp;
     preproc_skip_name(&ep);
     tokens->len = ep - cp;
     tokens->tok = TOK_ID;
     }
-  else if ((cp[0] >= '0' && cp[0] <= '9') ||
-           (cp[0] == '.' && (cp[1] >= '0' && cp[1] <= '9')))
+  else if (preproc_chartype(*cp, CPRE_QUOTE))
+    {
+    const char *ep = cp;
+    preproc_skip_quotes(&ep);
+    tokens->len = ep - cp;
+    tokens->tok = (*cp == '\"' ? TOK_STRING : TOK_CHAR);
+    }
+  else if (preproc_chartype(*cp, CPRE_DIGIT) ||
+           (cp[0] == '.' && preproc_chartype(cp[1], CPRE_DIGIT)))
     {
     const char *ep = cp;
     preproc_skip_number(&ep);
     tokens->len = ep - cp;
     tokens->tok = TOK_NUMBER;
     }
-  else if (cp[0] == '\'')
-    {
-    const char *ep = cp;
-    preproc_skip_quotes(&ep);
-    tokens->len = ep - cp;
-    tokens->tok = TOK_CHAR;
-    }
-  else if (cp[0] == '\"')
-    {
-    const char *ep = cp;
-    preproc_skip_quotes(&ep);
-    tokens->len = ep - cp;
-    tokens->tok = TOK_STRING;
-    }
   else
     {
+    int t = cp[0];
+    size_t l = 1;
+
     switch (cp[0])
       {
       case ':':
-        if (cp[1] == ':') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == ':') { l = 2; t = TOK_SCOPE; }
         break;
       case '.':
-        if (cp[1] == '.' && cp[2] == '.')
-          { tokens->len = 3; tokens->tok = TOK_ELLIPSIS; }
-        else if (cp[1] == '*') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '.' && cp[2] == '.') { l = 3; t = TOK_ELLIPSIS; }
+        else if (cp[1] == '*') { l = 2; t = TOK_DOT_STAR; }
         break;
       case '=':
-        if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_EQ; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '=') { l = 2; t = TOK_EQ; }
         break;
       case '!':
-        if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_NE; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '=') { l = 2; t = TOK_NE; }
         break;
       case '<':
-        if (cp[1] == '<' && cp[2] == '=')
-          { tokens->len = 3; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '<') { tokens->len = 2; tokens->tok = TOK_RSHIFT; }
-        else if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_LE; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '<' && cp[2] == '=') { l = 3; t = TOK_LSHIFT_EQ; }
+        else if (cp[1] == '<') { l = 2; t = TOK_LSHIFT; }
+        else if (cp[1] == '=') { l = 2; t = TOK_LE; }
         break;
       case '>':
-        if (cp[1] == '>' && cp[2] == '=')
-          { tokens->len = 3; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '>') { tokens->len = 2; tokens->tok = TOK_LSHIFT; }
-        else if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_GE; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '>' && cp[2] == '=') { l = 3; t = TOK_RSHIFT_EQ; }
+        else if (cp[1] == '>') { l = 2; t = TOK_RSHIFT; }
+        else if (cp[1] == '=') { l = 2; t = TOK_GE; }
         break;
       case '&':
-        if (cp[1] == '&' && cp[2] == '=')
-          { tokens->len = 3; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '&') { tokens->len = 2; tokens->tok = TOK_AND; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '=') { l = 2; t = TOK_AND_EQ; }
+        else if (cp[1] == '&') { l = 2; t = TOK_AND; }
         break;
       case '|':
-        if (cp[1] == '|' && cp[2] == '=')
-          { tokens->len = 3; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '|') { tokens->len = 2; tokens->tok = TOK_OR; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '=') { l = 2; t = TOK_OR_EQ; }
+        else if (cp[1] == '|') { l = 2; t = TOK_OR; }
         break;
-      case '^': case '*': case '/': case '%':
-        if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+      case '^':
+        if (cp[1] == '=') { l = 2; t = TOK_XOR_EQ; }
+        break;
+      case '*':
+        if (cp[1] == '=') { l = 2; t = TOK_MUL_EQ; }
+        break;
+      case '/':
+        if (cp[1] == '=') { l = 2; t = TOK_DIV_EQ; }
+        break;
+      case '%':
+        if (cp[1] == '=') { l = 2; t = TOK_MOD_EQ; }
         break;
       case '+':
-        if (cp[1] == '+') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '+') { l = 2; t = TOK_INCR; }
+        else if (cp[1] == '=') { l = 2; t = TOK_ADD_EQ; }
         break;
       case '-':
-        if (cp[1] == '>' && cp[2] == '*')
-          { tokens->len = 3; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '>') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '-') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else if (cp[1] == '=') { tokens->len = 2; tokens->tok = TOK_OTHER; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '>' && cp[2] == '*') { l = 3; t = TOK_ARROW_STAR; }
+        else if (cp[1] == '>') { l = 2; t = TOK_ARROW; }
+        else if (cp[1] == '-') { l = 2; t = TOK_DECR; }
+        else if (cp[1] == '=') { l = 2; t = TOK_SUB_EQ; }
         break;
       case '#':
-        if (cp[1] == '#') { tokens->len = 2; tokens->tok = TOK_DBLHASH; }
-        else { tokens->len = 1; tokens->tok = cp[0]; }
+        if (cp[1] == '#') { l = 2; t = TOK_DBLHASH; }
         break;
       case '\n':
       case '\0':
-        { tokens->len = 0; tokens->tok = 0; }
-        break;
-      default:
-        { tokens->len = 1; tokens->tok = cp[0]; }
+        { l = 0; t = 0; }
         break;
       }
+
+    tokens->len = l;
+    tokens->tok = t;
     }
 
   return tokens->tok;
@@ -546,15 +621,12 @@ static int preproc_evaluate_char(
       else if (*cp == '0')
         {
         *val = string_to_preproc_int(cp, 8);
-        while (*cp >= '0' && *cp <= '7') { cp++; }
+        do { cp++; } while (preproc_chartype(*cp, CPRE_OCT));
         }
       else if (*cp == 'x')
         {
-        cp++;
-        *val = string_to_preproc_int(cp, 16);
-        while ((*cp >= '0' && *cp <= '9') ||
-               (*cp >= 'a' && *cp <= 'z') ||
-               (*cp >= 'A' && *cp <= 'Z')) { cp++; }
+        *val = string_to_preproc_int(cp+1, 16);
+        do { cp++; } while (preproc_chartype(*cp, CPRE_HEX));
         }
       }
     if (*cp != '\'')
@@ -589,20 +661,18 @@ static int preproc_evaluate_integer(
     base = 16;
     *is_unsigned = 1;
     ep = cp;
-    while ((*ep >= '0' && *ep <= '9') ||
-           (*ep >= 'a' && *ep <= 'f') ||
-           (*ep >= 'A' && *ep <= 'F'))
+    while (preproc_chartype(*ep, CPRE_HEX))
       {
       ep++;
       }
     }
-  else if (cp[0] == '0' && (cp[1] >= '0' && cp[1] <= '9'))
+  else if (cp[0] == '0' && preproc_chartype(cp[1], CPRE_DIGIT))
     {
     cp += 1;
     base = 8;
     *is_unsigned = 1;
     ep = cp;
-    while (*ep >= '0' && *ep <= '7')
+    while (preproc_chartype(*ep, CPRE_OCT))
       {
       ep++;
       }
@@ -611,7 +681,7 @@ static int preproc_evaluate_integer(
     {
     base = 10;
     *is_unsigned = 0;
-    while (*ep >= '0' && *ep <= '9')
+    while (preproc_chartype(*ep, CPRE_DIGIT))
       {
       ep++;
       }
@@ -654,28 +724,12 @@ static int preproc_evaluate_single(
 {
   int result = VTK_PARSE_OK;
 
-  if (tokens->tok == '(')
+  while (tokens->tok == TOK_ID)
     {
-    preproc_next(tokens);
-    result = preproc_evaluate_expression(info, tokens, val, is_unsigned);
-    if ((result & VTK_PARSE_FATAL_ERROR) == 0)
-      {
-      if (tokens->tok == ')')
-        {
-        preproc_next(tokens);
-        return result;
-        }
-#if PREPROC_DEBUG
-      fprintf(stderr, "syntax error %d\n", __LINE__);
-#endif
-      return VTK_PARSE_SYNTAX_ERROR;
-      }
-    return result;
-    }
-  else if (tokens->tok == TOK_ID)
-    {
+    /* handle the "defined" keyword */
     if (strncmp("defined", tokens->text, tokens->len) == 0)
       {
+      int i;
       const char *name;
       int paren = 0;
       preproc_next(tokens);
@@ -708,7 +762,7 @@ static int preproc_evaluate_single(
 
       /* do the name lookup */
       *is_unsigned = 0;
-      *val = (vtkParsePreprocess_GetMacro(info, name) != NULL);
+      *val = (preproc_find_macro(info, name, &i) != 0);
 
       return result;
       }
@@ -716,44 +770,24 @@ static int preproc_evaluate_single(
       {
       /* look up and evaluate the macro */
       const char *name = tokens->text;
+      const char *args = NULL;
+      const char *expansion = NULL;
+      const char *cp;
       MacroInfo *macro = vtkParsePreprocess_GetMacro(info, name);
       preproc_next(tokens);
+      *val = 0;
+      *is_unsigned = 0;
 
       if (macro == NULL)
         {
-        *val = 0;
-        *is_unsigned = 0;
         return VTK_PARSE_MACRO_UNDEFINED;
         }
       else if (macro->IsFunction)
         {
         /* expand function macros using the arguments */
-        if (tokens->tok == '(')
-          {
-          const char *args = tokens->text;
-          *val = 0;
-          *is_unsigned = 0;
-          if (preproc_skip_parentheses(tokens) == VTK_PARSE_OK)
-            {
-            const char *expansion;
-            expansion = vtkParsePreprocess_ExpandMacro(macro, args);
-            if (expansion)
-              {
-              result = vtkParsePreprocess_EvaluateExpression(
-                info, expansion, val, is_unsigned);
-              vtkParsePreprocess_FreeExpandedMacro(expansion);
-              return result;
-              }
-#if PREPROC_DEBUG
-            fprintf(stderr, "wrong number of macro args %d\n", __LINE__);
-#endif
-            }
-#if PREPROC_DEBUG
-          fprintf(stderr, "syntax error %d\n", __LINE__);
-#endif
-          return VTK_PARSE_SYNTAX_ERROR;
-          }
-        else
+        args = tokens->text;
+        if (tokens->tok != '(' ||
+            preproc_skip_parentheses(tokens) != VTK_PARSE_OK)
           {
 #if PREPROC_DEBUG
           fprintf(stderr, "syntax error %d\n", __LINE__);
@@ -761,10 +795,49 @@ static int preproc_evaluate_single(
           return VTK_PARSE_SYNTAX_ERROR;
           }
         }
-
-      return vtkParsePreprocess_EvaluateExpression(
-        info, macro->Definition, val, is_unsigned);
+      expansion = vtkParsePreprocess_ExpandMacro(info, macro, args);
+      if (expansion == NULL)
+        {
+        free((char *)args);
+#if PREPROC_DEBUG
+        fprintf(stderr, "syntax error %d\n", __LINE__);
+#endif
+        return (args ? VTK_PARSE_MACRO_NUMARGS : VTK_PARSE_SYNTAX_ERROR);
+        }
+      cp = expansion;
+      preproc_skip_whitespace(&cp);
+      if (*cp != '\0')
+        {
+        macro->IsExcluded = 1;
+        result = vtkParsePreprocess_EvaluateExpression(
+          info, expansion, val, is_unsigned);
+        macro->IsExcluded = 0;
+        vtkParsePreprocess_FreeMacroExpansion(
+          info, macro, expansion);
+        return result;
+        }
+      vtkParsePreprocess_FreeMacroExpansion(info, macro, expansion);
       }
+    /* if macro expansion was empty, continue */
+    }
+
+  if (tokens->tok == '(')
+    {
+    preproc_next(tokens);
+    result = preproc_evaluate_expression(info, tokens, val, is_unsigned);
+    if ((result & VTK_PARSE_FATAL_ERROR) == 0)
+      {
+      if (tokens->tok == ')')
+        {
+        preproc_next(tokens);
+        return result;
+        }
+#if PREPROC_DEBUG
+      fprintf(stderr, "syntax error %d\n", __LINE__);
+#endif
+      return VTK_PARSE_SYNTAX_ERROR;
+      }
+    return result;
     }
   else if (tokens->tok == TOK_NUMBER)
     {
@@ -788,6 +861,10 @@ static int preproc_evaluate_single(
     *val = 0;
     *is_unsigned = 0;
     preproc_next(tokens);
+    while (tokens->tok == TOK_STRING)
+      {
+      preproc_next(tokens);
+      }
     return VTK_PARSE_PREPROC_STRING;
     }
 
@@ -973,7 +1050,7 @@ static int preproc_evaluate_bitshift(
     {
     op = tokens->tok;
 
-    if (op != TOK_RSHIFT && op != TOK_LSHIFT)
+    if (op != TOK_LSHIFT && op != TOK_RSHIFT)
       {
       return result;
       }
@@ -984,22 +1061,22 @@ static int preproc_evaluate_bitshift(
 
     if (*is_unsigned)
       {
-      if (op == TOK_RSHIFT)
+      if (op == TOK_LSHIFT)
         {
         *val = (preproc_int_t)((preproc_uint_t)*val << rval);
         }
-      else if (op == TOK_LSHIFT)
+      else if (op == TOK_RSHIFT)
         {
         *val = (preproc_int_t)((preproc_uint_t)*val >> rval);
         }
       }
     else
       {
-      if (op == TOK_RSHIFT)
+      if (op == TOK_LSHIFT)
         {
         *val = *val << rval;
         }
-      else if (op == TOK_LSHIFT)
+      else if (op == TOK_RSHIFT)
         {
         *val = *val >> rval;
         }
@@ -1217,7 +1294,7 @@ static int preproc_evaluate_logic_and(
       /* short circuit */
       while (tokens->tok != 0 && tokens->tok != ')' &&
              tokens->tok != ':' && tokens->tok != '?' &&
-             tokens->tok != TOK_OR && tokens->tok != TOK_OTHER)
+             tokens->tok != ',' && tokens->tok != TOK_OR)
         {
         if (tokens->tok == '(')
           {
@@ -1272,7 +1349,7 @@ static int preproc_evaluate_logic_or(
       /* short circuit */
       while (tokens->tok != 0 && tokens->tok != ')' &&
              tokens->tok != ':' && tokens->tok != '?' &&
-             tokens->tok != TOK_OTHER)
+             tokens->tok != ',')
         {
         if (tokens->tok == '(')
           {
@@ -1498,7 +1575,7 @@ static int preproc_evaluate_define(
   int is_function;
   const char *name;
   size_t namelen;
-  const char *definition = "";
+  const char *definition = 0;
   int i;
   int n = 0;
   const char **args = NULL;
@@ -1562,6 +1639,12 @@ static int preproc_evaluate_define(
       }
     if (preproc_find_macro(info, name, &i))
       {
+      if (info->Macros[i]->Definition == definition ||
+          (definition && info->Macros[i]->Definition &&
+           strcmp(info->Macros[i]->Definition, definition) == 0))
+        {
+        return VTK_PARSE_OK;
+        }
       if (args) { free((char **)args); }
 #if PREPROC_DEBUG
       fprintf(stderr, "macro redefined %d\n", __LINE__);
@@ -1573,6 +1656,7 @@ static int preproc_evaluate_define(
     macro->IsFunction = is_function;
     macro->NumberOfArguments = n;
     macro->Arguments = args;
+
     return VTK_PARSE_OK;
     }
   else if (strncmp("undef", tokens->text, tokens->len) == 0)
@@ -1652,10 +1736,7 @@ const char *preproc_find_include_file(
 
   /* check for absolute path of form DRIVE: or /path/to/file */
   j = 0;
-  while (filename[j] == '_' ||
-         (filename[j] >= '0' && filename[j] <= '9') ||
-         (filename[j] >= 'a' && filename[j] <= 'z') ||
-         (filename[j] >= 'Z' && filename[j] <= 'Z')) { j++; }
+  while (preproc_chartype(filename[j], CPRE_IDGIT)) { j++; }
 
   if (filename[j] == ':' || filename[0] == '/' || filename[0] == '\\')
     {
@@ -2292,7 +2373,10 @@ MacroInfo *vtkParsePreprocess_GetMacro(
 
   if (preproc_find_macro(info, name, &i))
     {
-    return info->Macros[i];
+    if (!info->Macros[i]->IsExcluded)
+      {
+      return info->Macros[i];
+      }
     }
 
   return NULL;
@@ -2313,184 +2397,188 @@ int vtkParsePreprocess_RemoveMacro(
 }
 
 /**
- * Expand a function macro
+ * Expand a macro, argstring is ignored if not a function macro
  */
 const char *vtkParsePreprocess_ExpandMacro(
-  MacroInfo *macro, const char *argstring)
+  PreprocessInfo *info, MacroInfo *macro, const char *argstring)
 {
   const char *cp = argstring;
   int n = 0;
   int j = 0;
+  const char *stack_values[8];
   const char **values = NULL;
   const char *pp = NULL;
   const char *dp = NULL;
+  const char *wp = NULL;
+  char stack_rp[128];
   char *rp = NULL;
   size_t rs = 0;
   size_t i = 0;
   size_t l = 0;
   size_t k = 0;
   int stringify = 0;
+  int noexpand = 0;
   int depth = 1;
   int c;
 
-  if (argstring == NULL || *cp != '(')
+  if (macro->IsFunction)
     {
-    return NULL;
-    }
-
-  /* break the string into individual argument values */
-  values = (const char **)malloc(4*sizeof(const char **));
-
-  cp++;
-  values[n++] = cp;
-  while (depth > 0 && *cp != '\0')
-    {
-    while (*cp != '\0')
+    if (argstring == NULL || *cp != '(')
       {
-      if (*cp == '\"' || *cp == '\'')
-        {
-        preproc_skip_quotes(&cp);
-        }
-      else if (cp[0] == '/' && (cp[1] == '*' || cp[1] == '/'))
-        {
-        preproc_skip_comment(&cp);
-        }
-      else if (*cp == '(')
-        {
-        cp++;
-        depth++;
-        }
-      else if (*cp == ')')
-        {
-        cp++;
-        if (--depth == 0)
-          {
-          break;
-          }
-        }
-      else if (*cp == ',')
-        {
-        cp++;
-        if (depth == 1)
-          {
-          break;
-          }
-        }
-      else if (*cp != '\0')
-        {
-        cp++;
-        }
-      }
-    if (n >= 4 && (n & (n-1)) == 0)
-      {
-      values = (const char **)realloc(
-        (char **)values, 2*n*sizeof(const char **));
+      return NULL;
       }
 
+    /* break the string into individual argument values */
+    values = stack_values;
+
+    cp++;
     values[n++] = cp;
-    }
-  --n;
+    while (depth > 0 && *cp != '\0')
+      {
+      while (*cp != '\0')
+        {
+        if (*cp == '\"' || *cp == '\'')
+          {
+          preproc_skip_quotes(&cp);
+          }
+        else if (cp[0] == '/' && (cp[1] == '*' || cp[1] == '/'))
+          {
+          preproc_skip_comment(&cp);
+          }
+        else if (*cp == '(')
+          {
+          cp++;
+          depth++;
+          }
+        else if (*cp == ')')
+          {
+          cp++;
+          if (--depth == 0)
+            {
+            break;
+            }
+          }
+        else if (*cp == ',')
+          {
+          cp++;
+          if (depth == 1)
+            {
+            break;
+            }
+          }
+        else if (*cp != '\0')
+          {
+          cp++;
+          }
+        }
+      if (n >= 8 && (n & (n-1)) == 0)
+        {
+        if (values != stack_values)
+          {
+          values = (const char **)realloc(
+            (char **)values, 2*n*sizeof(const char **));
+          }
+        else
+          {
+          values = (const char **)malloc(2*n*sizeof(const char **));
+          memcpy((char **)values, stack_values, 8*sizeof(const char **));
+          }
+        }
 
-  /* diagnostic: print out the values */
+      values[n++] = cp;
+      }
+    --n;
+
+    /* diagnostic: print out the values */
 #if PREPROC_DEBUG
-  for (j = 0; j < n; j++)
-    {
-    size_t m = values[j+1] - values[j] - 1;
-    fprintf(stderr, "arg %i: %*.*s\n", (int)j, (int)m, (int)m, values[j]);
-    }
+    for (j = 0; j < n; j++)
+      {
+      size_t m = values[j+1] - values[j] - 1;
+      fprintf(stderr, "arg %i: %*.*s\n",
+              (int)j, (int)m, (int)m, values[j]);
+      }
 #endif
 
-  /* allow whitespace as "no argument" */
-  if (macro->NumberOfArguments == 0 && n == 1)
-    {
-    cp = values[0];
-    c = *cp;
-    while (c == ' ' || c == '\n' || c == '\t' || c == '\r')
+    if (macro->NumberOfArguments == 0 && n == 1)
       {
-      c = *(++cp);
+      const char *tp = values[0];
+      preproc_skip_whitespace(&tp);
+      if (tp + 1 >= values[1])
+        {
+        n = 0;
+        }
       }
-    if (cp + 1 == values[1])
-      {
-      n = 0;
-      }
-    }
 
-  if (n != macro->NumberOfArguments)
-    {
-    free((char **)values);
+    if (n != macro->NumberOfArguments)
+      {
+      if (values != stack_values) { free((char **)values); }
 #if PREPROC_DEBUG
-    fprintf(stderr, "wrong number of macro args to %s, %d != %d\n",
-            macro->Name, n, macro->NumberOfArguments);
+      fprintf(stderr, "wrong number of macro args to %s, %lu != %lu\n",
+              macro->Name, n, macro->NumberOfArguments);
 #endif
-    return NULL;
+      return NULL;
+      }
     }
 
   cp = macro->Definition;
+  cp = (cp ? cp : "");
   dp = cp;
-  if (cp == NULL)
-    {
-    free((char **)values);
-    return NULL;
-    }
-
-  rp = (char *)malloc(128);
+  rp = stack_rp;
   rp[0] = '\0';
   rs = 128;
 
   while (*cp != '\0')
     {
     pp = cp;
+    wp = cp;
     stringify = 0;
+    noexpand = 0;
     /* skip all chars that aren't part of a name */
-    while ((*cp < 'a' || *cp > 'z') &&
-           (*cp < 'A' || *cp > 'Z') &&
-           *cp != '_' && *cp != '\0')
+    while (!preproc_chartype(*cp, CPRE_ID) && *cp != '\0')
       {
-      if (*cp == '\'' || *cp == '\"')
+      dp = cp;
+      preproc_skip_whitespace(&cp);
+      if (cp > dp)
+        {
+        dp = cp;
+        }
+      else if (preproc_chartype(*cp, CPRE_QUOTE))
         {
         preproc_skip_quotes(&cp);
         dp = cp;
+        wp = cp;
+        noexpand = 0;
         }
-      else if (*cp >= '0' && *cp <= '9')
+      else if (preproc_chartype(*cp, CPRE_DIGIT))
         {
         preproc_skip_number(&cp);
         dp = cp;
-        }
-      else if (*cp == '/' && (cp[1] == '/' || cp[1] == '*'))
-        {
-        preproc_skip_comment(&cp);
-        dp = cp;
+        wp = cp;
+        noexpand = 0;
         }
       else if (cp[0] == '#' && cp[1] == '#')
         {
-        dp = cp;
-        while (dp > pp && (dp[-1] == ' ' || dp[-1] == '\t' ||
-                           dp[-1] == '\r' || dp[-1] == '\n'))
-          {
-          --dp;
-          }
+        noexpand = 1;
+        dp = wp;
         cp += 2;
-        while (*cp == ' ' || *cp == '\t' || *cp == '\r' || *cp == '\n')
-          {
-          cp++;
-          }
+        wp = cp;
+        preproc_skip_whitespace(&cp);
         break;
         }
       else if (*cp == '#')
         {
         stringify = 1;
         dp = cp;
+        wp = cp;
         cp++;
-        while (*cp == ' ' || *cp == '\t' || *cp == '\r' || *cp == '\n')
-          {
-          cp++;
-          }
+        preproc_skip_whitespace(&cp);
         break;
         }
       else
         {
         cp++;
         dp = cp;
+        wp = cp;
         }
       }
     l = dp - pp;
@@ -2499,7 +2587,15 @@ const char *vtkParsePreprocess_ExpandMacro(
       if (i + l + 1 >= rs)
         {
         rs += rs + i + l + 1;
-        rp = (char *)realloc(rp, rs);
+        if (rp != stack_rp)
+          {
+          rp = (char *)realloc(rp, rs);
+          }
+        else
+          {
+          rp = (char *)malloc(rs);
+          memcpy(rp, stack_rp, i);
+          }
         }
       strncpy(&rp[i], pp, l);
       i += l;
@@ -2523,7 +2619,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           pp = values[j];
           /* remove leading whitespace from argument */
           c = *pp;
-          while (c == ' ' || c == '\n' || c == '\t' || c == '\r')
+          while (preproc_chartype(c, CPRE_WHITE) || c == '\n')
             {
             c = *(++pp);
             l--;
@@ -2532,7 +2628,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           if (l > 0)
             {
             c = pp[l - 1];
-            while (c == ' ' || c == '\n' || c == '\t' || c == '\r')
+            while (preproc_chartype(c, CPRE_WHITE) || c == '\n')
               {
               if (--l == 0)
                 {
@@ -2540,6 +2636,13 @@ const char *vtkParsePreprocess_ExpandMacro(
                 }
               c = pp[l-1];
               }
+            }
+          /* check if followed by "##" */
+          wp = cp;
+          preproc_skip_whitespace(&wp);
+          if (wp[0] == '#' && wp[1] == '#')
+            {
+            noexpand = 1;
             }
           break;
           }
@@ -2560,7 +2663,15 @@ const char *vtkParsePreprocess_ExpandMacro(
       if (i + l + stringify + 1 >= rs)
         {
         rs += rs + i + l + 1;
-        rp = (char *)realloc(rp, rs);
+        if (rp != stack_rp)
+          {
+          rp = (char *)realloc(rp, rs);
+          }
+        else
+          {
+          rp = (char *)malloc(rs);
+          memcpy(rp, stack_rp, i);
+          }
         }
       if (stringify)
         {
@@ -2576,26 +2687,277 @@ const char *vtkParsePreprocess_ExpandMacro(
           }
         rp[i++] = '\"';
         }
-      else
+      else if (noexpand)
         {
         strncpy(&rp[i], pp, l);
+        i += l;
+        }
+      else
+        {
+        /* process the arguments before substituting them */
+        const char *text;
+        int is_excluded = macro->IsExcluded;
+        macro->IsExcluded = 1;
+        strncpy(&rp[i], pp, l);
+        rp[i + l] = '\0';
+        text = vtkParsePreprocess_ProcessString(info, &rp[i]);
+        if (text)
+          {
+          l = strlen(text);
+          if (text != &rp[i])
+            {
+            char *tp = NULL;
+            if (i + l + 1 >= rs)
+              {
+              rs += rs + i + l + 1;
+              tp = rp;
+              rp = (char *)malloc(rs);
+              memcpy(rp, tp, i);
+              }
+            strncpy(&rp[i], text, l);
+            vtkParsePreprocess_FreeProcessedString(info, text);
+            if (tp && tp != stack_rp)
+              {
+              free(tp);
+              }
+            }
+          }
+        macro->IsExcluded = is_excluded;
         i += l;
         }
       rp[i] = '\0';
       }
     }
 
-  free((char **)values);
+  if (values != stack_values) { free((char **)values); }
+
+  if (!macro->IsFunction && macro->Definition &&
+      strcmp(rp, macro->Definition) == 0)
+    {
+    if (rp != stack_rp) { free(rp); }
+    return macro->Definition;
+    }
+
+  if (rp == stack_rp)
+    {
+    rp = (char *)malloc(strlen(stack_rp) + 1);
+    strcpy(rp, stack_rp);
+    }
 
   return rp;
 }
 
 /**
- * Free an expanded function macro
+ * Process a string
  */
-void vtkParsePreprocess_FreeExpandedMacro(const char *emacro)
+const char *vtkParsePreprocess_ProcessString(
+  PreprocessInfo *info, const char *text)
 {
-  free((char *)emacro);
+  char stack_rp[128];
+  char *rp;
+  char *ep;
+  size_t i = 0;
+  size_t rs = 128;
+  int last_tok = 0;
+  preproc_tokenizer tokens;
+  preproc_init(&tokens, text);
+
+  rp = stack_rp;
+  rp[0] = '\0';
+
+  while (tokens.tok)
+    {
+    size_t l = tokens.len;
+    size_t j;
+    const char *cp = tokens.text;
+    const char *dp;
+
+    if (tokens.tok == TOK_STRING && last_tok == TOK_STRING)
+      {
+      while (i > 0 && rp[i] != '\"') { --i; }
+      cp++;
+      }
+
+    if (i + l + 2 >= rs)
+      {
+      rs += rs + i + l + 2;
+      if (rp == stack_rp)
+        {
+        rp = (char *)malloc(rs);
+        memcpy(rp, stack_rp, i);
+        }
+      else
+        {
+        rp = (char *)realloc(rp, rs);
+        }
+      }
+
+    /* copy the token, removing backslash-newline */
+    dp = cp;
+    ep = &rp[i];
+    for (j = 0; j < l; j++)
+      {
+      if (*dp == '\\')
+        {
+        if (dp[1] == '\n') { dp += 2; }
+        else if (dp[1] == '\r' && dp[2] == '\n') { dp += 3; }
+        else { *ep++ = *dp++; }
+        }
+      else
+        {
+        *ep++ = *dp++;
+        }
+      }
+    l = ep - &rp[i];
+
+    if (tokens.tok == TOK_ID)
+      {
+      rp[i+l] = '\0';
+      MacroInfo *macro = vtkParsePreprocess_GetMacro(info, rp);
+      if (macro)
+        {
+        const char *args = NULL;
+        int expand = 1;
+
+        if (macro->IsFunction)
+          {
+          /* expand function macros using the arguments */
+          preproc_next(&tokens);
+          if (tokens.tok == '(')
+            {
+            int depth = 1;
+            args = tokens.text;
+            while (depth > 0 && preproc_next(&tokens))
+              {
+              if (tokens.tok == '(')
+                {
+                depth++;
+                }
+              else if (tokens.tok == ')')
+                {
+                depth--;
+                }
+              }
+            if (tokens.tok != ')')
+              {
+              if (rp != stack_rp) { free(rp); }
+              return NULL;
+              }
+            }
+          else
+            {
+            /* unput the last token if it isn't "(" */
+            tokens.len = l;
+            tokens.text = cp;
+            expand = 0;
+            }
+          }
+        if (expand)
+          {
+          const char *expansion;
+          const char *processed;
+          expansion = vtkParsePreprocess_ExpandMacro(info, macro, args);
+          if (expansion == NULL)
+            {
+            if (rp != stack_rp) { free(rp); }
+            return NULL;
+            }
+          macro->IsExcluded = 1;
+          processed = vtkParsePreprocess_ProcessString(info, expansion);
+          macro->IsExcluded = 0;
+          if (processed == NULL)
+            {
+            vtkParsePreprocess_FreeMacroExpansion(info, macro, expansion);
+            if (rp != stack_rp) { free(rp); }
+            return NULL;
+            }
+          l = strlen(processed);
+          if (l > 0)
+            {
+            if (i + l + 2 >= rs)
+              {
+              rs += rs + i + l + 2;
+              if (rp == stack_rp)
+                {
+                rp = (char *)malloc(rs);
+                memcpy(rp, stack_rp, i);
+                }
+              else
+                {
+                rp = (char *)realloc(rp, rs);
+                }
+              }
+            strncpy(&rp[i], processed, l);
+            }
+          if (processed != expansion)
+            {
+            vtkParsePreprocess_FreeProcessedString(info, processed);
+            }
+          vtkParsePreprocess_FreeMacroExpansion(info, macro, expansion);
+          }
+        }
+      }
+
+    i += l;
+
+    last_tok = tokens.tok;
+    l = tokens.len;
+    cp = tokens.text;
+    if (preproc_next(&tokens) && tokens.text > cp + l)
+      {
+      rp[i++] = ' ';
+      }
+    }
+  rp[i] = '\0';
+
+  if (strcmp(rp, text) == 0)
+    {
+    /* no change, return */
+    if (rp != stack_rp) { free(rp); }
+    return text;
+    }
+  else
+    {
+    /* string changed, recursively reprocess */
+    const char *tp = vtkParsePreprocess_ProcessString(info, rp);
+    if (rp != tp)
+      {
+      if (rp != stack_rp) { free(rp); }
+      return tp;
+      }
+    if (rp == stack_rp)
+      {
+      rp = (char *)malloc(strlen(stack_rp) + 1);
+      strcpy(rp, stack_rp);
+      }
+    }
+
+  return rp;
+}
+
+/**
+ * Free a string returned by ExpandMacro
+ */
+void vtkParsePreprocess_FreeMacroExpansion(
+  PreprocessInfo *info, MacroInfo *macro, const char *text)
+{
+  /* only free expansion if it is different from definition */
+  if (info && text != macro->Definition)
+    {
+    free((char *)text);
+    }
+}
+
+/**
+ * Free a string returned by ProcessString
+ */
+void vtkParsePreprocess_FreeProcessedString(
+  PreprocessInfo *info, const char *text)
+{
+  if (info)
+    {
+    free((char *)text);
+    }
 }
 
 /**
@@ -2635,6 +2997,7 @@ const char *vtkParsePreprocess_FindIncludeFile(
   if (cp)
     {
     *already_loaded = 1;
+    return cp;
     }
 
   *already_loaded = 0;
@@ -2653,6 +3016,7 @@ void vtkParsePreprocess_InitMacro(MacroInfo *macro)
   macro->Arguments = NULL;
   macro->IsFunction = 0;
   macro->IsExternal = 0;
+  macro->IsExcluded = 0;
 }
 
 /**

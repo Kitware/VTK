@@ -21,9 +21,11 @@
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 #include "vtkParse.h"
+#include "vtkParseData.h"
 #include "vtkParseMain.h"
 #include "vtkParseExtras.h"
-#include "vtkParseInternal.h"
+#include "vtkParseMangle.h"
+#include "vtkParseString.h"
 #include "vtkParseHierarchy.h"
 #include "vtkConfigure.h"
 
@@ -218,7 +220,7 @@ const char *vtkWrapPython_GetSuperClass(
     if (strncmp(supername, "vtkTypeTemplate<", 16) == 0)
       {
       vtkParse_DecomposeTemplatedType(supername, &name, 2, &args, defaults);
-      supername = vtkParse_DuplicateString(args[1], strlen(args[1]));
+      supername = vtkParse_CopyString(args[1], strlen(args[1]));
       vtkParse_FreeTemplateDecomposition(name, 2, args);
       }
 

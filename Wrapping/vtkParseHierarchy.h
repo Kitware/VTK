@@ -40,7 +40,7 @@
 #define VTK_PARSE_HIERARCHY_H
 
 /* Need the ValueInfo struct for typedefs */
-#include "vtkParse.h"
+#include "vtkParseData.h"
 
 /**
  * One entry from the hierarchy file.

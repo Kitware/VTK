@@ -26,7 +26,8 @@
 #ifndef VTK_PARSE_EXTRAS_H
 #define VTK_PARSE_EXTRAS_H
 
-#include "vtkParse.h"
+#include "vtkParseData.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,20 +141,6 @@ void vtkParse_InstantiateClassTemplate(
  */
 void vtkParse_IntantiateFunctionTemplate(
   FunctionInfo *data, int n, const char *args);
-
-/**
- * Generate a mangled name for a type, use gcc ia64 ABI.
- * The result is placed in new_name, which must be large enough
- * to accept the result.
- */
-size_t vtkParse_MangledTypeName(const char *name, char *new_name);
-
-/**
- * Generate a mangled name for a literal.  Only handles decimal
- * integer literals.  It guesses type from suffix "u", "ul",
- * "ull", "l", "ll" so only certain types are supported.
- */
-size_t vtkParse_MangledLiteral(const char *name, char *new_name);
 
 /**
  * Get a zero-terminated array of the types in vtkTemplateMacro.

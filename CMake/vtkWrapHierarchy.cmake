@@ -71,20 +71,8 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       endif()
     endif()
 
-    # Exclude huge generated headers that aren't relevant to wrappers.
-    if("${TMP_FILENAME}" STREQUAL "vtkgl" OR
-       "${TMP_FILENAME}" STREQUAL "vtkOpenGLState")
-      set(TMP_EXCLUDE_FROM_HIERARCHY ON)
-    endif()
-
-    # Temporarily exclude files that cause vtkWrapHierarchy syntax errors.
-    # LSDynaFamily.h has a templated inline function.
-    # gl2ps.h uses an unrecognized export macro.
-    # vtkBoostGraphAdapter has a helper struct with a virtual base class.
-    # These issues will be resolved soon by an update to the wrapper parser.
-    if("${TMP_FILENAME}" STREQUAL "LSDynaFamily" OR
-       "${TMP_FILENAME}" STREQUAL "gl2ps" OR
-       "${TMP_FILENAME}" STREQUAL "vtkBoostGraphAdapter")
+    # Exclude this huge generated header file
+    if("${TMP_FILENAME}" STREQUAL "vtkgl")
       set(TMP_EXCLUDE_FROM_HIERARCHY ON)
     endif()
 

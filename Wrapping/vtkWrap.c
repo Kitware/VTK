@@ -14,8 +14,9 @@
 =========================================================================*/
 
 #include "vtkWrap.h"
-#include "vtkParseInternal.h"
+#include "vtkParseData.h"
 #include "vtkParseExtras.h"
+#include "vtkParseString.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -684,7 +685,7 @@ void vtkWrap_FindCountHints(
         vtkParse_AddStringToArray(
           &theFunc->Arguments[0]->Dimensions,
           &theFunc->Arguments[0]->NumberOfDimensions,
-          vtkParse_DuplicateString(counttext, strlen(counttext)));
+          vtkParse_CopyString(counttext, strlen(counttext)));
         }
       }
 
@@ -766,7 +767,7 @@ void vtkWrap_ExpandTypedefs(ClassInfo *data, HierarchyInfo *hinfo)
     if (newclass != data->SuperClasses[i])
       {
       data->SuperClasses[i] =
-        vtkParse_DuplicateString(newclass, strlen(newclass));
+        vtkParse_CopyString(newclass, strlen(newclass));
       free((char *)newclass);
       }
     }
