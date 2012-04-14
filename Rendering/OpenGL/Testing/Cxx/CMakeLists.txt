@@ -15,7 +15,7 @@ SET(RenderingTestsWithArguments
   TestAnimationScene.cxx
   TestBackfaceCulling.cxx
   TestBlurAndSobelPasses.cxx
-  #TestDynamic2DLabelMapper.cxx
+  TestDynamic2DLabelMapper.cxx
   TestFBO.cxx
   TestFollowerPicking.cxx
   TestGaussianBlurPass.cxx
@@ -41,11 +41,11 @@ SET(RenderingTestsWithArguments
   TestImageSliceMapperInterpolation.cxx
   #TestImageStack.cxx
   TestInteractorTimers.cxx
-  #TestLabelPlacer.cxx
-  #TestLabelPlacer2D.cxx
-  #TestLabelPlacerCoincidentPoints.cxx
-  #TestLabelPlacementMapper2D.cxx
-  #TestLabelPlacementMapperCoincidentPoints.cxx
+  TestLabelPlacer.cxx
+  TestLabelPlacer2D.cxx
+  TestLabelPlacerCoincidentPoints.cxx
+  TestLabelPlacementMapper2D.cxx
+  TestLabelPlacementMapperCoincidentPoints.cxx
   TestLightActor.cxx
   TestLODActor.cxx
   TestManyActors.cxx
