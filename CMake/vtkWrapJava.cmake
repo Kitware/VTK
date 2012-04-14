@@ -197,37 +197,42 @@ MACRO(VTK_GENERATE_JAVA_DEPENDENCIES TARGET)
 
   SET (OUT_TEXT)
   SET (sources)
-  SET (driver)
 
   # get the classes for this lib
   FOREACH(srcName ${ARGN})
 
     # what is the filename without the extension
-    GET_FILENAME_COMPONENT(srcNameWe ${srcName} NAME_WE)
+    GET_FILENAME_COMPONENT(srcNameWe "${srcName}" NAME_WE)
 
     # the input file might be full path so handle that
-    GET_FILENAME_COMPONENT(srcPath ${srcName} PATH)
+    GET_FILENAME_COMPONENT(srcPath "${srcName}" PATH)
 
-    SET (className "${srcPath}/${srcNameWe}.class")
     SET (OUT_TEXT ${OUT_TEXT} "\n    dummy = new ${srcNameWe}()")
-    SET (driver "${srcPath}/vtk${TARGET}Driver.class")
-    SET (sources ${sources} ${srcName})
+    SET (sources ${sources} "${srcName}")
   ENDFOREACH(srcName)
 
-  ADD_CUSTOM_COMMAND(
-    OUTPUT ${driver}
-    COMMAND "${JAVA_COMPILE}"
-      -source 5 -classpath "${javaPath}" "${srcPath}/vtk${TARGET}Driver.java"
-    DEPENDS ${sources}
-    )
-  ADD_CUSTOM_COMMAND(TARGET ${TARGET} SOURCE ${TARGET} DEPENDS ${driver})
+  # each lib will have an associated driver class
+  SET (driverSrc "${javaPath}/vtk/vtk${TARGET}Driver.java")
+  SET (driverClass "${javaPath}/vtk/vtk${TARGET}Driver.class")
 
+  # generate vtk${TARGET}Driver.java using TARGET_NAME and OUT_TEXT
   SET (TARGET_NAME ${TARGET})
   CONFIGURE_FILE(
-    ${VTK_CMAKE_DIR}/vtkJavaDriver.java.in
-    "${VTK_BINARY_DIR}/java/vtk/vtk${TARGET}Driver.java"
+    "${VTK_CMAKE_DIR}/vtkJavaDriver.java.in"
+    "${driverSrc}"
     COPY_ONLY
     IMMEDIATE
     )
+
+  # add a custom command to compile the generated file
+  ADD_CUSTOM_COMMAND(
+    OUTPUT "${driverClass}"
+    COMMAND "${JAVA_COMPILE}"
+      -source 5 -classpath "${javaPath}" "${driverSrc}"
+    DEPENDS ${sources}
+    )
+
+  # make the library target depend on vtk${TARGET}Driver.class
+  ADD_CUSTOM_COMMAND(TARGET ${TARGET} SOURCE ${TARGET} DEPENDS "${driverClass}")
 
 ENDMACRO()
