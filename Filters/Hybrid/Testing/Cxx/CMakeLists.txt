@@ -13,7 +13,6 @@ set(TestsToRun ${Tests})
 list(REMOVE_ITEM TestsToRun CxxTests.cxx)
 
 # Add all the executables
-message("${TestsToRun}")
 foreach(test ${TestsToRun})
   get_filename_component(TName ${test} NAME_WE)
   if(VTK_DATA_ROOT)
