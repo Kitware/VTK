@@ -112,6 +112,7 @@ if(VTK_USE_DISPLAY AND VTK_DATA_ROOT)
     )
 endif()
 
+set(VTK_USE_GLSL_SHADERS TRUE)
 if(VTK_USE_GLSL_SHADERS)
   # Tests testing GLSL Shaders.
   set(RenderingTestsWithArguments
@@ -201,6 +202,8 @@ foreach(exe
   endif()
 endforeach()
 
-IF(VTK_USE_GLSL_SHADERS AND VTK_USE_DISPLAY)
-  set_tests_properties(TestGenericVertexAttributesGLSLDepthPeelingPass PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:.*vtkOpenGLProperty.*Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.")
-ENDIF(VTK_USE_GLSL_SHADERS AND VTK_USE_DISPLAY)
+if(VTK_USE_GLSL_SHADERS)
+  set_tests_properties(
+    ${vtk-module}Cxx-TestGenericVertexAttributesGLSLDepthPeelingPass
+    PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:.*vtkOpenGLProperty.*Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.")
+endif()
