@@ -11,7 +11,7 @@ set(Module_SRCS
   vtkImageImportExecutive.cxx
   vtkImageReader2Collection.cxx
   vtkImageReader2.cxx
-  #vtkImageReader2Factory.cxx
+  vtkImageReader2Factory.cxx
   vtkImageReader.cxx
   vtkImageWriter.cxx
   vtkJPEGReader.cxx
