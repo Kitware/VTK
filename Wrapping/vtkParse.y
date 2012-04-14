@@ -82,7 +82,6 @@ function pointer types, or "method" for method pointer types.
 
 #include "vtkParse.h"
 #include "vtkParsePreprocess.h"
-#include "vtkParseString.h"
 #include "vtkParseData.h"
 #include "vtkType.h"
 
@@ -132,26 +131,37 @@ static unsigned int vtkParseTypeMap[] =
 /* the tokenizer */
 int yylex(void);
 
-/* the "preprocessor" */
-PreprocessInfo preprocessor = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
 /* global variables */
-FileInfo      *data;
+FileInfo      *data = NULL;
+int            parseDebug;
 
+/* the "preprocessor" */
+PreprocessInfo *preprocessor = NULL;
+
+/* include dirs specified on the command line */
+int            NumberOfIncludeDirectories= 0;
+const char   **IncludeDirectories;
+
+/* macros specified on the command line */
+int            NumberOfDefinitions = 0;
+const char   **Definitions;
+
+/* names of classes marked as "concrete" */
 int            NumberOfConcreteClasses = 0;
 const char   **ConcreteClasses;
 
+/* options that can be set by the programs that use the parser */
+int            IgnoreBTX = 0;
+int            Recursive = 0;
+
+/* various state variables */
 NamespaceInfo *currentNamespace = NULL;
 ClassInfo     *currentClass = NULL;
 FunctionInfo  *currentFunction = NULL;
-TemplateArgs  *currentTemplate = NULL;
-
-const char    *currentEnumName = 0;
-const char    *currentEnumValue = 0;
-
-int            parseDebug;
+TemplateInfo  *currentTemplate = NULL;
+const char    *currentEnumName = NULL;
+const char    *currentEnumValue = NULL;
 parse_access_t access_level = VTK_ACCESS_PUBLIC;
-int            IgnoreBTX = 0;
 
 /* functions from vtkParse.l */
 void print_parser_error(const char *text, const char *cp, size_t n);
@@ -167,10 +177,10 @@ void output_function(void);
 void reject_function(void);
 void set_return(FunctionInfo *func, unsigned int type,
                 const char *typeclass, int count);
-void add_argument(FunctionInfo *func, unsigned int type,
-                  const char *classname, int count);
-void add_template_arg(unsigned int datatype,
-                      unsigned int extra, const char *funcSig);
+void add_parameter(FunctionInfo *func, unsigned int type,
+                   const char *classname, int count);
+void add_template_parameter(unsigned int datatype,
+                            unsigned int extra, const char *funcSig);
 void add_using(const char *name, int is_namespace);
 void start_enum(const char *enumname);
 void add_enum(const char *name, const char *value);
@@ -184,11 +194,13 @@ unsigned int add_indirection(unsigned int tval, unsigned int ptr);
 unsigned int add_indirection_to_array(unsigned int ptr);
 void handle_complex_type(ValueInfo *val, unsigned int datatype,
                          unsigned int extra, const char *funcSig);
-void handle_function_type(ValueInfo *arg, const char *name,
+void handle_function_type(ValueInfo *param, const char *name,
                           const char *funcSig);
-void outputSetVectorMacro(const char *var, unsigned int argType,
+void add_legacy_parameter(ValueInfo *param);
+
+void outputSetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n);
-void outputGetVectorMacro(const char *var, unsigned int argType,
+void outputGetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n);
 
 /*----------------------------------------------------------------
@@ -196,19 +208,13 @@ void outputGetVectorMacro(const char *var, unsigned int argType,
  *
  * Strings are centrally allocated and are const, and they are not
  * freed until the program exits.  If they need to be freed before
- * then, vtkParse_FreeStrings() can be called.
+ * then, vtkParse_FreeStringCache() can be called.
  */
 
 /* duplicate the first n bytes of a string and terminate */
 static const char *vtkstrndup(const char *in, size_t n)
 {
-  char *res = NULL;
-
-  res = vtkParse_NewString(n);
-  strncpy(res, in, n);
-  res[n] = '\0';
-
-  return res;
+  return vtkParse_CacheString(data->Strings, in, n);
 }
 
 /* duplicate a string */
@@ -216,7 +222,7 @@ static const char *vtkstrdup(const char *in)
 {
   if (in)
     {
-    return vtkstrndup(in, strlen(in));
+    in = vtkParse_CacheString(data->Strings, in, strlen(in));
     }
 
   return in;
@@ -239,7 +245,7 @@ static const char *vtkstrncat(size_t n, const char **str)
       m += j[i];
       }
     }
-  cp = vtkParse_NewString(m);
+  cp = vtkParse_NewString(data->Strings, m);
   m = 0;
   for (i = 0; i < n; i++)
     {
@@ -316,6 +322,28 @@ static const char *vtkstrcat7(const char *str1, const char *str2,
   cp[5] = str6;
   cp[6] = str7;
   return vtkstrncat(7, cp);
+}
+
+static size_t vtkidlen(const char *text)
+{
+  size_t i = 0;
+  char c = text[0];
+
+  if ((c >= 'a' && c <= 'z') ||
+      (c >= 'A' && c <= 'Z') ||
+       c == '_')
+    {
+    do
+      {
+      c = text[++i];
+      }
+    while ((c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c >= '0' && c <= '9') ||
+           c == '_');
+    }
+
+  return i;
 }
 
 /*----------------------------------------------------------------
@@ -526,14 +554,14 @@ void popClass()
  */
 
 /* "private" variables */
-TemplateArgs *templateStack[10];
+TemplateInfo *templateStack[10];
 int templateDepth = 0;
 
 /* begin a template */
 void startTemplate()
 {
-  currentTemplate = (TemplateArgs *)malloc(sizeof(TemplateArgs));
-  vtkParse_InitTemplateArgs(currentTemplate);
+  currentTemplate = (TemplateInfo *)malloc(sizeof(TemplateInfo));
+  vtkParse_InitTemplate(currentTemplate);
 }
 
 /* clear a template, if set */
@@ -614,14 +642,14 @@ void checkSigSize(size_t n)
     {
     sigLength = 0;
     sigAllocatedLength = 80 + n;
-    signature = vtkParse_NewString(sigAllocatedLength);
+    signature = vtkParse_NewString(data->Strings, sigAllocatedLength);
     signature[0] = '\0';
     }
   else if (sigLength + n > sigAllocatedLength)
     {
     sigAllocatedLength += sigLength + n;
     ccp = signature;
-    signature = vtkParse_NewString(sigAllocatedLength);
+    signature = vtkParse_NewString(data->Strings, sigAllocatedLength);
     strncpy(signature, ccp, sigLength);
     signature[sigLength] = '\0';
     }
@@ -832,7 +860,7 @@ const char **getArray()
 }
 
 /*----------------------------------------------------------------
- * Variables and Arguments
+ * Variables and Parameters
  */
 
 /* "private" variables */
@@ -1571,21 +1599,21 @@ template_parameters:
 template_parameter:
     { markSig(); }
     type_simple param_decl
-    { add_template_arg($<integer>2, $<integer>3, copySig()); }
+    { add_template_parameter($<integer>2, $<integer>3, copySig()); }
     maybe_template_default
   | { markSig(); }
     class_or_typename param_decl
-    { add_template_arg(0, $<integer>3, copySig()); }
+    { add_template_parameter(0, $<integer>3, copySig()); }
     maybe_template_default
   | { pushTemplate(); markSig(); }
     template param_decl
     {
       int i;
-      TemplateArgs *newTemplate = currentTemplate;
+      TemplateInfo *newTemplate = currentTemplate;
       popTemplate();
-      add_template_arg(0, $<integer>3, copySig());
-      i = currentTemplate->NumberOfArguments-1;
-      currentTemplate->Arguments[i]->Template = newTemplate;
+      add_template_parameter(0, $<integer>3, copySig());
+      i = currentTemplate->NumberOfParameters-1;
+      currentTemplate->Parameters[i]->Template = newTemplate;
     }
     maybe_template_default;
 
@@ -1600,10 +1628,10 @@ template_default:
     '=' { postSig("="); markSig(); }
     template_parameter_value
     {
-      int i = currentTemplate->NumberOfArguments-1;
-      TemplateArg *arg = currentTemplate->Arguments[i];
+      int i = currentTemplate->NumberOfParameters-1;
+      ValueInfo *param = currentTemplate->Parameters[i];
       chopSig();
-      arg->Value = vtkstrdup(copySig());
+      param->Value = vtkstrdup(copySig());
     };
 
 template_parameter_value:
@@ -1751,7 +1779,7 @@ initializer:
     any_id parens;
 
 /*
- * Arguments
+ * Parameters
  */
 
 parameter_list:
@@ -1766,56 +1794,42 @@ parameter:
     { markSig(); }
     type param_decl
     {
-      int i = currentFunction->NumberOfArguments;
-      ValueInfo *arg = (ValueInfo *)malloc(sizeof(ValueInfo));
-      vtkParse_InitValue(arg);
+      ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
+      vtkParse_InitValue(param);
 
-      handle_complex_type(arg, $<integer>2, $<integer>3, copySig());
-
-      if (i < MAX_ARGS)
-        {
-        currentFunction->ArgTypes[i] = arg->Type;
-        currentFunction->ArgClasses[i] = arg->Class;
-        currentFunction->ArgCounts[i] = arg->Count;
-        }
+      handle_complex_type(param, $<integer>2, $<integer>3, copySig());
+      add_legacy_parameter(param);
 
       if (getVarName())
         {
-        arg->Name = vtkstrdup(getVarName());
+        param->Name = vtkstrdup(getVarName());
         }
 
-      vtkParse_AddArgumentToFunction(currentFunction, arg);
+      vtkParse_AddParameterToFunction(currentFunction, param);
     }
     maybe_assign_value
     {
-      int i = currentFunction->NumberOfArguments-1;
+      int i = currentFunction->NumberOfParameters-1;
       if (getVarValue())
         {
-        currentFunction->Arguments[i]->Value = vtkstrdup(getVarValue());
+        currentFunction->Parameters[i]->Value = vtkstrdup(getVarValue());
         }
     }
   | VAR_FUNCTION
     {
-      int i = currentFunction->NumberOfArguments;
-      ValueInfo *arg = (ValueInfo *)malloc(sizeof(ValueInfo));
+      ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
 
-      vtkParse_InitValue(arg);
+      vtkParse_InitValue(param);
 
       markSig();
       postSig("void (*");
       postSig($<str>1);
       postSig(")(void *) ");
 
-      handle_function_type(arg, $<str>1, copySig());
+      handle_function_type(param, $<str>1, copySig());
+      add_legacy_parameter(param);
 
-      if (i < MAX_ARGS)
-        {
-        currentFunction->ArgTypes[i] = arg->Type;
-        currentFunction->ArgClasses[i] = arg->Class;
-        currentFunction->ArgCounts[i] = arg->Count;
-        }
-
-      vtkParse_AddArgumentToFunction(currentFunction, arg);
+      vtkParse_AddParameterToFunction(currentFunction, param);
     };
 
 maybe_indirect_id:
@@ -2254,7 +2268,7 @@ macro:
    currentFunction->Macro = "vtkSetMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Comment = vtkstrdup(getComment());
-   add_argument(currentFunction, $<integer>6, getTypeId(), 0);
+   add_parameter(currentFunction, $<integer>6, getTypeId(), 0);
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
@@ -2274,7 +2288,7 @@ macro:
    currentFunction->Macro = "vtkSetStringMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>4);
    currentFunction->Comment = vtkstrdup(getComment());
-   add_argument(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
+   add_parameter(currentFunction, VTK_PARSE_CHAR_PTR, "char", 0);
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
@@ -2299,7 +2313,7 @@ macro:
    currentFunction->Signature =
      vtkstrcat5("void ", currentFunction->Name, "(", typeText, ");");
    currentFunction->Comment = vtkstrdup(getComment());
-   add_argument(currentFunction, $<integer>6, getTypeId(), 0);
+   add_parameter(currentFunction, $<integer>6, getTypeId(), 0);
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
 
@@ -2326,7 +2340,7 @@ macro:
    currentFunction->Macro = "vtkSetObjectMacro";
    currentFunction->Name = vtkstrcat("Set", $<str>3);
    currentFunction->Comment = vtkstrdup(getComment());
-   add_argument(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
+   add_parameter(currentFunction, VTK_PARSE_OBJECT_PTR, getTypeId(), 0);
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
@@ -2410,8 +2424,8 @@ macro:
      vtkstrcat7("void ", currentFunction->Name, "(", typeText,
                 " a[", $<str>8, "]);");
    currentFunction->Comment = vtkstrdup(getComment());
-   add_argument(currentFunction, (VTK_PARSE_POINTER | $<integer>6),
-                getTypeId(), (int)strtol($<str>8, NULL, 0));
+   add_parameter(currentFunction, (VTK_PARSE_POINTER | $<integer>6),
+                 getTypeId(), (int)strtol($<str>8, NULL, 0));
    set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
    output_function();
    }
@@ -2444,8 +2458,8 @@ macro:
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double, double);");
      currentFunction->Comment = vtkstrdup(getComment());
-     add_argument(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     add_argument(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
@@ -2454,7 +2468,7 @@ macro:
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double a[2]);");
      currentFunction->Comment = vtkstrdup(getComment());
-     add_argument(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 2);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 2);
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
@@ -2481,9 +2495,9 @@ macro:
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double, double, double);");
      currentFunction->Comment = vtkstrdup(getComment());
-     add_argument(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     add_argument(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
-     add_argument(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE, "double", 0);
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
@@ -2492,7 +2506,7 @@ macro:
      currentFunction->Signature =
        vtkstrcat3("void ", currentFunction->Name, "(double a[3]);");
      currentFunction->Comment = vtkstrdup(getComment());
-     add_argument(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
+     add_parameter(currentFunction, VTK_PARSE_DOUBLE_PTR, "double", 3);
      set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
      output_function();
 
@@ -2521,7 +2535,7 @@ macro:
    currentFunction->Name = vtkstrdup("IsA");
    currentFunction->Signature = vtkstrdup("int IsA(const char *name);");
    currentFunction->Comment = vtkstrdup(getComment());
-   add_argument(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
+   add_parameter(currentFunction, (VTK_PARSE_CONST | VTK_PARSE_CHAR_PTR),
                 "char", 0);
    set_return(currentFunction, VTK_PARSE_INT, "int", 0);
    output_function();
@@ -2549,7 +2563,7 @@ macro:
      currentFunction->Signature =
        vtkstrcat($<str>3, " *SafeDownCast(vtkObject* o);");
      currentFunction->Comment = vtkstrdup(getComment());
-     add_argument(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkObject", 0);
+     add_parameter(currentFunction, VTK_PARSE_OBJECT_PTR, "vtkObject", 0);
      set_return(currentFunction, (VTK_PARSE_STATIC | VTK_PARSE_OBJECT_PTR),
                 $<str>3, 0);
      output_function();
@@ -2883,7 +2897,7 @@ void reject_class(const char *classname, int is_struct_or_union)
 void end_class()
 {
   /* add default constructors */
-  vtkParse_AddDefaultConstructors(currentClass);
+  vtkParse_AddDefaultConstructors(currentClass, data->Strings);
 
   popClass();
 }
@@ -3135,7 +3149,7 @@ unsigned int guess_constant_type(const char *valstring)
   if (is_name)
     {
     MacroInfo *macro = vtkParsePreprocess_GetMacro(
-      &preprocessor, valstring);
+      preprocessor, valstring);
 
     if (macro && !macro->IsFunction)
       {
@@ -3148,7 +3162,7 @@ unsigned int guess_constant_type(const char *valstring)
     preproc_int_t val;
     int is_unsigned;
     int result = vtkParsePreprocess_EvaluateExpression(
-      &preprocessor, valstring, &val, &is_unsigned);
+      preprocessor, valstring, &val, &is_unsigned);
 
     if (result == VTK_PARSE_PREPROC_DOUBLE)
       {
@@ -3316,55 +3330,42 @@ const char *add_const_scope(const char *name)
   return text;
 }
 
-/* add a template argument to the current template */
-void add_template_arg(
+/* add a template parameter to the current template */
+void add_template_parameter(
   unsigned int datatype, unsigned int extra, const char *funcSig)
 {
-  ValueInfo val;
-  TemplateArg *arg = (TemplateArg *)malloc(sizeof(TemplateArg));
-  vtkParse_InitTemplateArg(arg);
-  vtkParse_InitValue(&val);
-  handle_complex_type(&val, datatype, extra, funcSig);
-  arg->Type = val.Type;
-  arg->Class = val.Class;
-  arg->Function = val.Function;
-  arg->NumberOfDimensions = val.NumberOfDimensions;
-  arg->Dimensions = val.Dimensions;
-  if (getVarName())
-    {
-    arg->Name = vtkstrdup(getVarName());
-    }
-  vtkParse_AddArgumentToTemplate(currentTemplate, arg);
+  ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
+  vtkParse_InitValue(param);
+  handle_complex_type(param, datatype, extra, funcSig);
+  param->Name = vtkstrdup(getVarName());
+  vtkParse_AddParameterToTemplate(currentTemplate, param);
 }
 
-/* add an arg to a function */
-void add_argument(FunctionInfo *func, unsigned int type,
-                  const char *typeclass, int count)
+/* add a parameter to a function */
+void add_parameter(FunctionInfo *func, unsigned int type,
+                   const char *typeclass, int count)
 {
-  int i = func->NumberOfArguments;
   char text[64];
-  ValueInfo *arg = (ValueInfo *)malloc(sizeof(ValueInfo));
-  vtkParse_InitValue(arg);
+  ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
+  vtkParse_InitValue(param);
 
-  arg->Type = type;
+  param->Type = type;
   if (typeclass)
     {
-    arg->Class = vtkstrdup(typeclass);
+    param->Class = vtkstrdup(typeclass);
     }
 
   if (count)
     {
-    arg->Count = count;
+    param->Count = count;
     sprintf(text, "%i", count);
-    vtkParse_AddStringToArray(&arg->Dimensions, &arg->NumberOfDimensions,
+    vtkParse_AddStringToArray(&param->Dimensions, &param->NumberOfDimensions,
                               vtkstrdup(text));
     }
 
-  func->ArgTypes[i] = arg->Type;
-  func->ArgClasses[i] = arg->Class;
-  func->ArgCounts[i] = count;
+  add_legacy_parameter(param);
 
-  vtkParse_AddArgumentToFunction(func, arg);
+  vtkParse_AddParameterToFunction(func, param);
 }
 
 /* set the return type for the current function */
@@ -3387,13 +3388,16 @@ void set_return(FunctionInfo *func, unsigned int type,
     sprintf(text, "%i", count);
     vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions,
                               vtkstrdup(text));
-    func->HaveHint = 1;
     }
 
   func->ReturnValue = val;
+
+#ifndef VTK_PARSE_LEGACY_REMOVE
   func->ReturnType = val->Type;
   func->ReturnClass = val->Class;
+  func->HaveHint = (count > 0);
   func->HintSize = count;
+#endif
 }
 
 int count_from_dimensions(ValueInfo *val)
@@ -3443,10 +3447,13 @@ void handle_complex_type(
     vtkParse_InitValue(func->ReturnValue);
     func->ReturnValue->Type = datatype;
     func->ReturnValue->Class = vtkstrdup(getTypeId());
-    func->ReturnType = func->ReturnValue->Type;
-    func->ReturnClass = func->ReturnValue->Class;
     if (funcSig) { func->Signature = vtkstrdup(funcSig); }
     val->Function = func;
+
+#ifndef VTK_PARSE_LEGACY_REMOVE
+    func->ReturnType = func->ReturnValue->Type;
+    func->ReturnClass = func->ReturnValue->Class;
+#endif
 
     /* the val type is whatever was inside the parentheses */
     clearTypeId();
@@ -3515,24 +3522,24 @@ void handle_complex_type(
   val->Count = count_from_dimensions(val);
 }
 
-/* specifically handle a VAR_FUNCTION argument */
+/* specifically handle a VAR_FUNCTION parameter */
 void handle_function_type(
-  ValueInfo *arg, const char *name, const char *funcSig)
+  ValueInfo *param, const char *name, const char *funcSig)
 {
   FunctionInfo *func;
   size_t j;
 
-  arg->Type = VTK_PARSE_FUNCTION;
-  arg->Class = vtkstrdup("function");
+  param->Type = VTK_PARSE_FUNCTION;
+  param->Class = vtkstrdup("function");
 
   if (name && name[0] != '\0')
     {
-    arg->Name = vtkstrdup(name);
+    param->Name = vtkstrdup(name);
     }
 
   func = (FunctionInfo *)malloc(sizeof(FunctionInfo));
   vtkParse_InitFunction(func);
-  add_argument(func, VTK_PARSE_VOID_PTR, "void", 0);
+  add_parameter(func, VTK_PARSE_VOID_PTR, "void", 0);
   set_return(func, VTK_PARSE_VOID, "void", 0);
   j = strlen(funcSig);
   while (j > 0 && funcSig[j-1] == ' ')
@@ -3541,7 +3548,27 @@ void handle_function_type(
     }
 
   func->Signature = vtkstrndup(funcSig, j);
-  arg->Function = func;
+  param->Function = func;
+}
+
+/* add a parameter to the legacy part of the FunctionInfo struct */
+void add_legacy_parameter(ValueInfo *param)
+{
+#ifndef VTK_PARSE_LEGACY_REMOVE
+  int i = currentFunction->NumberOfArguments;
+
+  if (i < MAX_ARGS)
+    {
+    currentFunction->NumberOfArguments = i + 1;
+    currentFunction->ArgTypes[i] = param->Type;
+    currentFunction->ArgClasses[i] = param->Class;
+    currentFunction->ArgCounts[i] = param->Count;
+    }
+  else
+    {
+    currentFunction->ArrayFailure = 1;
+    }
+#endif
 }
 
 
@@ -3550,6 +3577,7 @@ void reject_function()
 {
   vtkParse_InitFunction(currentFunction);
   startSig();
+  getMacro();
 }
 
 /* a simple routine that updates a few variables */
@@ -3574,21 +3602,17 @@ void output_function()
     }
 
   /* static */
-  if (currentFunction->ReturnType & VTK_PARSE_STATIC)
+  if (currentFunction->ReturnValue &&
+      currentFunction->ReturnValue->Type & VTK_PARSE_STATIC)
     {
     currentFunction->IsStatic = 1;
     }
 
   /* virtual */
-  if (currentFunction->ReturnType & VTK_PARSE_VIRTUAL)
+  if (currentFunction->ReturnValue &&
+      currentFunction->ReturnValue->Type & VTK_PARSE_VIRTUAL)
     {
     currentFunction->IsVirtual = 1;
-    }
-
-  /* explicit */
-  if (currentFunction->ReturnType & VTK_PARSE_EXPLICIT)
-    {
-    currentFunction->IsExplicit = 1;
     }
 
   /* the signature */
@@ -3604,9 +3628,34 @@ void output_function()
     currentTemplate = NULL;
     }
 
-  /* a void argument is the same as no arguments */
+  /* a void argument is the same as no parameters */
+  if (currentFunction->NumberOfParameters == 1 &&
+      (currentFunction->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
+      VTK_PARSE_VOID)
+    {
+    currentFunction->NumberOfParameters = 0;
+    }
+
+  /* is it defined in a legacy macro? */
+  if (macro && strcmp(macro, "VTK_LEGACY") == 0)
+    {
+    currentFunction->IsLegacy = 1;
+    }
+
+  /* set public, protected */
+  if (currentClass)
+    {
+    currentFunction->Access = access_level;
+    }
+  else
+    {
+    currentFunction->Access = VTK_ACCESS_PUBLIC;
+    }
+
+#ifndef VTK_PARSE_LEGACY_REMOVE
+  /* a void argument is the same as no parameters */
   if (currentFunction->NumberOfArguments == 1 &&
-      (currentFunction->Arguments[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
+      (currentFunction->ArgTypes[0] & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
     {
     currentFunction->NumberOfArguments = 0;
@@ -3620,59 +3669,50 @@ void output_function()
     currentFunction->ReturnClass = vtkstrdup("void");
     }
 
-  /* is it defined in a legacy macro? */
-  if (macro && strcmp(macro, "VTK_LEGACY") == 0)
-    {
-    currentFunction->IsLegacy = 1;
-    }
-
-  /* set public, protected */
+  /* set legacy flags */
   if (currentClass)
     {
-    currentFunction->Access = access_level;
-    /* set legacy flags */
     currentFunction->IsPublic = (access_level == VTK_ACCESS_PUBLIC);
     currentFunction->IsProtected = (access_level == VTK_ACCESS_PROTECTED);
     }
   else
     {
-    currentFunction->Access = VTK_ACCESS_PUBLIC;
-    /* set legacy flags */
     currentFunction->IsPublic = 1;
     currentFunction->IsProtected = 0;
     }
 
   /* look for legacy VAR FUNCTIONS */
-  if (currentFunction->NumberOfArguments
-      && (currentFunction->Arguments[0]->Type == VTK_PARSE_FUNCTION))
+  if (currentFunction->NumberOfParameters
+      && (currentFunction->Parameters[0]->Type == VTK_PARSE_FUNCTION))
     {
-    if (currentFunction->NumberOfArguments != 2 ||
-        currentFunction->Arguments[1]->Type != VTK_PARSE_VOID_PTR)
+    if (currentFunction->NumberOfParameters != 2 ||
+        currentFunction->Parameters[1]->Type != VTK_PARSE_VOID_PTR)
       {
       currentFunction->ArrayFailure = 1;
       }
     }
 
-  /* check for too many arguments */
-  if (currentFunction->NumberOfArguments > MAX_ARGS)
+  /* check for too many parameters */
+  if (currentFunction->NumberOfParameters > MAX_ARGS)
     {
     currentFunction->ArrayFailure = 1;
     }
 
   /* also legacy: tell old wrappers that multi-dimensional arrays are bad */
-  for (i = 0; i < currentFunction->NumberOfArguments; i++)
+  for (i = 0; i < currentFunction->NumberOfParameters; i++)
     {
-    ValueInfo *arg = currentFunction->Arguments[i];
-    if ((arg->Type & VTK_PARSE_POINTER_MASK) != 0)
+    ValueInfo *param = currentFunction->Parameters[i];
+    if ((param->Type & VTK_PARSE_POINTER_MASK) != 0)
       {
-      if (((arg->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION) ||
-          ((arg->Type & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT) ||
-          ((arg->Type & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_POINTER))
+      if (((param->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_FUNCTION) ||
+          ((param->Type & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT) ||
+          ((param->Type & VTK_PARSE_POINTER_LOWMASK) != VTK_PARSE_POINTER))
        {
        currentFunction->ArrayFailure = 1;
        }
       }
     }
+#endif /* VTK_PARSE_LEGACY_REMOVE */
 
   if (currentClass)
     {
@@ -3697,23 +3737,23 @@ void output_function()
           strcmp(currentNamespace->Functions[i]->Name,
                  currentFunction->Name) == 0)
         {
-        if (currentNamespace->Functions[i]->NumberOfArguments ==
-            currentFunction->NumberOfArguments)
+        if (currentNamespace->Functions[i]->NumberOfParameters ==
+            currentFunction->NumberOfParameters)
           {
-          for (j = 0; j < currentFunction->NumberOfArguments; j++)
+          for (j = 0; j < currentFunction->NumberOfParameters; j++)
             {
-            if (currentNamespace->Functions[i]->Arguments[j]->Type ==
-                currentFunction->Arguments[j]->Type)
+            if (currentNamespace->Functions[i]->Parameters[j]->Type ==
+                currentFunction->Parameters[j]->Type)
               {
-              if (currentFunction->Arguments[j]->Type == VTK_PARSE_OBJECT &&
-                  strcmp(currentNamespace->Functions[i]->Arguments[j]->Class,
-                         currentFunction->Arguments[j]->Class) == 0)
+              if (currentFunction->Parameters[j]->Type == VTK_PARSE_OBJECT &&
+                  strcmp(currentNamespace->Functions[i]->Parameters[j]->Class,
+                         currentFunction->Parameters[j]->Class) == 0)
                 {
                 break;
                 }
               }
             }
-          if (j == currentFunction->NumberOfArguments)
+          if (j == currentFunction->NumberOfParameters)
             {
             match = 1;
             break;
@@ -3743,7 +3783,7 @@ void output_friend_function()
   currentClass = tmpc;
 }
 
-void outputSetVectorMacro(const char *var, unsigned int argType,
+void outputSetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n)
 {
   static const char *mnames[] = {
@@ -3773,7 +3813,7 @@ void outputSetVectorMacro(const char *var, unsigned int argType,
   postSig(");");
   for (i = 0; i < n; i++)
     {
-    add_argument(currentFunction, argType, getTypeId(), 0);
+    add_parameter(currentFunction, paramType, getTypeId(), 0);
     }
   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
   output_function();
@@ -3783,13 +3823,13 @@ void outputSetVectorMacro(const char *var, unsigned int argType,
   currentFunction->Signature =
     vtkstrcat7("void ", currentFunction->Name, "(", getTypeId(),
                " a[", ntext, "]);");
-  add_argument(currentFunction, (VTK_PARSE_POINTER | argType),
-               getTypeId(), n);
+  add_parameter(currentFunction, (VTK_PARSE_POINTER | paramType),
+                getTypeId(), n);
   set_return(currentFunction, VTK_PARSE_VOID, "void", 0);
   output_function();
 }
 
-void outputGetVectorMacro(const char *var, unsigned int argType,
+void outputGetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n)
 {
   static const char *mnames[] = {
@@ -3805,7 +3845,7 @@ void outputGetVectorMacro(const char *var, unsigned int argType,
   currentFunction->Name = vtkstrcat("Get", var);
   currentFunction->Signature =
     vtkstrcat4(typeText, " *", currentFunction->Name, "();");
-  set_return(currentFunction, (VTK_PARSE_POINTER | argType), getTypeId(), n);
+  set_return(currentFunction, (VTK_PARSE_POINTER | paramType), getTypeId(), n);
   output_function();
 }
 
@@ -3822,6 +3862,19 @@ void vtkParse_SetIgnoreBTX(int option)
     }
 }
 
+/* Set a flag to recurse into included files */
+void vtkParse_SetRecursive(int option)
+{
+  if (option)
+    {
+    Recursive = 1;
+    }
+  else
+    {
+    Recursive = 0;
+    }
+}
+
 /* Parse a header file and return a FileInfo struct */
 FileInfo *vtkParse_ParseFile(
   const char *filename, FILE *ifile, FILE *errfile)
@@ -3830,25 +3883,55 @@ FileInfo *vtkParse_ParseFile(
   int ret;
   FileInfo *file_info;
   char *main_class;
-  const char **include_dirs;
 
   /* "data" is a global variable used by the parser */
   data = (FileInfo *)malloc(sizeof(FileInfo));
   vtkParse_InitFile(data);
+  data->Strings = (StringCache *)malloc(sizeof(StringCache));
+  vtkParse_InitStringCache(data->Strings);
 
   /* "preprocessor" is a global struct used by the parser */
-  i = preprocessor.NumberOfIncludeDirectories;
-  include_dirs = preprocessor.IncludeDirectories;
-  preprocessor.NumberOfIncludeDirectories = 0;
-  preprocessor.IncludeDirectories = NULL;
-  vtkParsePreprocess_InitPreprocess(&preprocessor);
-  vtkParsePreprocess_AddStandardMacros(&preprocessor, VTK_PARSE_NATIVE);
-  preprocessor.FileName = vtkstrdup(filename);
-  preprocessor.NumberOfIncludeDirectories = i;
-  preprocessor.IncludeDirectories = include_dirs;
+  preprocessor = (PreprocessInfo *)malloc(sizeof(PreprocessInfo));
+  vtkParsePreprocess_Init(preprocessor, filename);
+  vtkParsePreprocess_AddStandardMacros(preprocessor, VTK_PARSE_NATIVE);
+
+  /* add include files specified on the command line */
+  for (i = 0; i < NumberOfIncludeDirectories; i++)
+    {
+    vtkParsePreprocess_IncludeDirectory(preprocessor, IncludeDirectories[i]);
+    }
+
+  /* add macros specified on the command line */
+  for (i = 0; i < NumberOfDefinitions; i++)
+    {
+    const char *cp = Definitions[i];
+
+    if (*cp == 'U')
+      {
+      vtkParsePreprocess_RemoveMacro(preprocessor, &cp[1]);
+      }
+    else if (*cp == 'D')
+      {
+      const char *definition = &cp[1];
+      while (*definition != '=' && *definition != '\0')
+        {
+        definition++;
+        }
+      if (*definition == '=')
+        {
+        definition++;
+        }
+      else
+        {
+        definition = NULL;
+        }
+      vtkParsePreprocess_AddMacro(preprocessor, &cp[1], definition);
+      }
+    }
+
   /* should explicitly check for vtkConfigure.h, or even explicitly load it */
 #ifdef VTK_USE_64BIT_IDS
-  vtkParsePreprocess_AddMacro(&preprocessor, "VTK_USE_64BIT_IDS", NULL);
+  vtkParsePreprocess_AddMacro(preprocessor, "VTK_USE_64BIT_IDS", NULL);
 #endif
 
   data->FileName = vtkstrdup(filename);
@@ -3915,8 +3998,11 @@ FileInfo *vtkParse_ParseFile(
       break;
       }
     }
-
   free(main_class);
+
+  vtkParsePreprocess_Free(preprocessor);
+  preprocessor = NULL;
+  macroName = NULL;
 
   file_info = data;
   data = NULL;
@@ -3967,13 +4053,13 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
           {
           func_info = class_info->Functions[j];
 
-          if (func_info->HaveHint == 0 && func_info->Name &&
-              (strcmp(h_func, func_info->Name) == 0) &&
-              (type == ((func_info->ReturnType & ~VTK_PARSE_REF) &
+          if ((strcmp(h_func, func_info->Name) == 0) &&
+              func_info->ReturnValue &&
+              (type == ((func_info->ReturnValue->Type & ~VTK_PARSE_REF) &
                         VTK_PARSE_UNQUALIFIED_TYPE)))
             {
             /* types that hints are accepted for */
-            switch (func_info->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
+            switch (func_info->ReturnValue->Type & VTK_PARSE_UNQUALIFIED_TYPE)
               {
               case VTK_PARSE_FLOAT_PTR:
               case VTK_PARSE_VOID_PTR:
@@ -3993,18 +4079,20 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
               case VTK_PARSE_UNSIGNED_CHAR_PTR:
               case VTK_PARSE_CHAR_PTR:
                 {
-                if (func_info->ReturnValue &&
-                    func_info->ReturnValue->NumberOfDimensions == 0)
+                if (func_info->ReturnValue->NumberOfDimensions == 0)
                   {
                   char text[64];
-                  func_info->HaveHint = 1;
-                  func_info->HintSize = h_value;
-                  func_info->ReturnValue->Count = h_value;
                   sprintf(text, "%i", h_value);
+                  func_info->ReturnValue->Count = h_value;
                   vtkParse_AddStringToArray(
                     &func_info->ReturnValue->Dimensions,
                     &func_info->ReturnValue->NumberOfDimensions,
-                    vtkstrdup(text));
+                    vtkParse_CacheString(
+                      file_info->Strings, text, strlen(text)));
+#ifndef VTK_PARSE_LEGACY_REMOVE
+                  func_info->HaveHint = 1;
+                  func_info->HintSize = h_value;
+#endif
                   }
                 break;
                 }
@@ -4027,7 +4115,9 @@ int vtkParse_ReadHints(FileInfo *file_info, FILE *hfile, FILE *errfile)
 void vtkParse_Free(FileInfo *file_info)
 {
   vtkParse_FreeFile(file_info);
-  vtkParse_FreeStrings();
+  vtkParse_FreeStringCache(file_info->Strings);
+  free(file_info->Strings);
+  free(file_info);
 }
 
 /* Set a property before parsing */
@@ -4039,33 +4129,91 @@ void vtkParse_SetClassProperty(
        strcmp(property, "CONCRETE") == 0 ||
        strcmp(property, "Concrete") == 0)
      {
+     char *cp = (char *)malloc(strlen(classname) + 1);
+     strcpy(cp, classname);
+
      vtkParse_AddStringToArray(&ConcreteClasses,
                                &NumberOfConcreteClasses,
-                               vtkstrdup(classname));
+                               cp);
      }
 }
 
 /** Define a preprocessor macro. Function macros are not supported.  */
 void vtkParse_DefineMacro(const char *name, const char *definition)
 {
-  vtkParsePreprocess_AddMacro(&preprocessor, name, definition);
+  size_t n = vtkidlen(name);
+  size_t l;
+  char *cp;
+
+  if (definition == NULL)
+    {
+    definition = "";
+    }
+
+  l = n + strlen(definition) + 3;
+  cp = (char *)malloc(l);
+  cp[0] = 'D';
+  strncpy(&cp[1], name, n);
+  cp[n+1] = '\0';
+  if (definition[0] != '\0')
+    {
+    cp[n+1] = '=';
+    strcpy(&cp[n+2], definition);
+    }
+  cp[l] = '\0';
+
+  vtkParse_AddStringToArray(&Definitions, &NumberOfDefinitions, cp);
 }
 
 /** Undefine a preprocessor macro.  */
 void vtkParse_UndefineMacro(const char *name)
 {
-  vtkParsePreprocess_RemoveMacro(&preprocessor, name);
+  size_t n = vtkidlen(name);
+  char *cp;
+
+  cp = (char *)malloc(n+2);
+  cp[0] = 'U';
+  strncpy(&cp[1], name, n);
+  cp[n+1] = '\0';
+
+  vtkParse_AddStringToArray(&Definitions, &NumberOfDefinitions, cp);
 }
 
 /** Add an include directory, for use with the "-I" option.  */
 void vtkParse_IncludeDirectory(const char *dirname)
 {
-  vtkParsePreprocess_IncludeDirectory(&preprocessor, dirname);
+  size_t n = strlen(dirname);
+  char *cp;
+  int i;
+
+  for (i = 0; i < NumberOfIncludeDirectories; i++)
+    {
+    if (strncmp(IncludeDirectories[i], dirname, n) == 0 &&
+        IncludeDirectories[i][n] == '\0')
+      {
+      return;
+      }
+    }
+
+  cp = (char *)malloc(n+1);
+  strcpy(cp, dirname);
+
+  vtkParse_AddStringToArray(
+    &IncludeDirectories, &NumberOfIncludeDirectories, cp);
 }
 
 /** Return the full path to a header file.  */
 const char *vtkParse_FindIncludeFile(const char *filename)
 {
+  static PreprocessInfo info = {0, 0, 0, 0, 0, 0, 0, 0, 0};
   int val;
-  return vtkParsePreprocess_FindIncludeFile(&preprocessor, filename, 0, &val);
+  int i;
+
+  /* add include files specified on the command line */
+  for (i = 0; i < NumberOfIncludeDirectories; i++)
+    {
+    vtkParsePreprocess_IncludeDirectory(&info, IncludeDirectories[i]);
+    }
+
+  return vtkParsePreprocess_FindIncludeFile(&info, filename, 0, &val);
 }

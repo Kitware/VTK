@@ -62,9 +62,9 @@ typedef struct _MacroInfo
   const char    *Name;
   const char    *Definition;
   const char    *Comment; /* unused */
-  int            NumberOfArguments; /* only if IsFunction == 1 */
-  const char   **Arguments;  /* symbols for arguments */
-  int            IsFunction; /* this macro takes arguments */
+  int            NumberOfParameters; /* only if IsFunction == 1 */
+  const char   **Parameters; /* symbols for parameters */
+  int            IsFunction; /* this macro requires arguments */
   int            IsExternal; /* this macro is from an included file */
   int            IsExcluded; /* do not expand this macro */
 } MacroInfo;
@@ -76,8 +76,7 @@ typedef struct _MacroInfo
 typedef struct _PreprocessInfo
 {
   const char    *FileName;         /* the file that is being parsed */
-  int            NumberOfMacros;
-  MacroInfo    **Macros;
+  MacroInfo   ***MacroHashTable;   /* hash table for macro lookup */
   int            NumberOfIncludeDirectories;
   const char   **IncludeDirectories;
   int            NumberOfIncludeFiles; /* all included files */
@@ -229,9 +228,20 @@ const char *vtkParsePreprocess_FindIncludeFile(
 void vtkParsePreprocess_InitMacro(MacroInfo *symbol);
 
 /**
+ * Free a preprocessor macro struct
+ */
+void vtkParsePreprocess_FreeMacro(MacroInfo *macro);
+
+/**
  * Initialize a preprocessor struct.
  */
-void vtkParsePreprocess_InitPreprocess(PreprocessInfo *info);
+void vtkParsePreprocess_Init(
+  PreprocessInfo *info, const char *filename);
+
+/**
+ * Free a preprocessor struct and its contents;
+ */
+void vtkParsePreprocess_Free(PreprocessInfo *info);
 
 #ifdef __cplusplus
 } /* extern "C" */

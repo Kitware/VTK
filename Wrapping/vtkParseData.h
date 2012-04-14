@@ -27,9 +27,12 @@
 #define VTK_PARSE_DATA_H
 
 #include "vtkParseType.h"
+#include "vtkParseString.h"
 
 /* legacy */
+#ifndef VTK_PARSE_LEGACY_REMOVE
 #define MAX_ARGS 20
+#endif
 
 /**
  * Access flags
@@ -68,63 +71,53 @@ typedef struct _ItemInfo
 } ItemInfo;
 
 /* forward declarations */
-struct _TemplateArgs;
+struct _ValueInfo;
 struct _FunctionInfo;
+struct _FileInfo;
+typedef struct _ValueInfo ValueInfo;
+typedef struct _FunctionInfo FunctionInfo;
+typedef struct _FileInfo FileInfo;
 
 /**
- * TemplateArg holds one template arg
+ * TemplateInfo holds template definitions
  */
-typedef struct _TemplateArg
+typedef struct _TemplateInfo
 {
-  unsigned int  Type;  /* is zero for "typename", "class", "template" */
-  const char   *Class; /* class name for type */
-  const char   *Name;  /* name of template arg */
-  const char   *Value; /* default value */
-  int           NumberOfDimensions; /* dimensionality for arrays */
-  const char  **Dimensions; /* dimensions for arrays */
-  struct _FunctionInfo *Function;  /* for function pointer values */
-  struct _TemplateArgs *Template; /* for templated template args */
-} TemplateArg;
-
-/**
- * TemplateArgs holds template definitions
- */
-typedef struct _TemplateArgs
-{
-  int           NumberOfArguments;
-  TemplateArg **Arguments;
-} TemplateArgs;
+  int            NumberOfParameters;
+  ValueInfo    **Parameters;
+} TemplateInfo;
 
 /**
  * ValueInfo is for typedefs, constants, variables,
- * function arguments, and return values
+ * function parameters, and return values
  *
  * Note that Dimensions is an array of char pointers, in
  * order to support dimensions that are sized according to
- * template arg values or according to named constants.
+ * template parameter values or according to named constants.
  */
-typedef struct _ValueInfo
+struct _ValueInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
   const char    *Name;
   const char    *Comment;
-  const char    *Value;      /* for vars or default arg values */
+  const char    *Value;      /* for vars or default paramter values */
   unsigned int   Type;       /* as defined in vtkParseType.h   */
   const char    *Class;      /* classname for type */
   int            Count;      /* total number of values, if known */
   const char    *CountHint;  /* hint about how to get the count */
   int            NumberOfDimensions; /* dimensionality for arrays */
   const char   **Dimensions; /* dimensions for arrays */
-  struct _FunctionInfo *Function;  /* for function pointer values */
+  FunctionInfo  *Function;  /* for function pointer values */
+  TemplateInfo  *Template;   /* template parameters, or NULL */
   int            IsStatic;   /* for class variables only */
   int            IsEnum;     /* for constants only */
-} ValueInfo;
+};
 
 /**
  * FunctionInfo is for functions and methods
  */
-typedef struct _FunctionInfo
+struct _FunctionInfo
 {
   parse_item_t   ItemType;
   parse_access_t Access;
@@ -132,9 +125,9 @@ typedef struct _FunctionInfo
   const char    *Comment;
   const char    *Class;       /* class name for methods */
   const char    *Signature;   /* function signature as text */
-  TemplateArgs  *Template;    /* template args, or NULL */
-  int            NumberOfArguments;
-  ValueInfo    **Arguments;
+  TemplateInfo  *Template;    /* template parameters, or NULL */
+  int            NumberOfParameters;
+  ValueInfo    **Parameters;
   ValueInfo     *ReturnValue; /* NULL for constructors and destructors */
   const char    *Macro;       /* the macro that defined this function */
   const char    *SizeHint;    /* hint the size e.g. for operator[] */
@@ -146,6 +139,8 @@ typedef struct _FunctionInfo
   int            IsPureVirtual; /* methods only */
   int            IsConst;     /* methods only */
   int            IsExplicit;  /* constructors only */
+#ifndef VTK_PARSE_LEGACY_REMOVE
+  int            NumberOfArguments;   /* legacy */
   unsigned int   ArgTypes[MAX_ARGS];  /* legacy */
   const char    *ArgClasses[MAX_ARGS];/* legacy */
   int            ArgCounts[MAX_ARGS]; /* legacy */
@@ -156,7 +151,8 @@ typedef struct _FunctionInfo
   int            ArrayFailure;/* legacy */
   int            IsPublic;    /* legacy */
   int            IsProtected; /* legacy */
-} FunctionInfo;
+#endif
+};
 
 /**
  * EnumInfo is for enums
@@ -183,7 +179,7 @@ typedef struct _UsingInfo
 } UsingInfo;
 
 /**
- * ClassInfo is for classes, structs, and unions
+ * ClassInfo is for classes, structs, unions, and namespaces
  */
 typedef struct _ClassInfo
 {
@@ -191,7 +187,7 @@ typedef struct _ClassInfo
   parse_access_t Access;
   const char    *Name;
   const char    *Comment;
-  TemplateArgs  *Template;
+  TemplateInfo  *Template;
   int            NumberOfSuperClasses;
   const char   **SuperClasses;
   int            NumberOfItems;
@@ -210,6 +206,8 @@ typedef struct _ClassInfo
   ValueInfo    **Typedefs;
   int            NumberOfUsings;
   UsingInfo    **Usings;
+  int            NumberOfNamespaces;
+  struct _ClassInfo **Namespaces;
   int            IsAbstract;
   int            HasDelete;
 } ClassInfo;
@@ -217,36 +215,12 @@ typedef struct _ClassInfo
 /**
  * Namespace is for namespaces
  */
-typedef struct _NamespaceInfo
-{
-  parse_item_t   ItemType;
-  parse_access_t Access;
-  const char    *Name;  /* NULL for global namespace */
-  const char    *Comment;
-  int            NumberOfItems;
-  ItemInfo      *Items;
-  int            NumberOfClasses;
-  ClassInfo    **Classes;
-  int            NumberOfFunctions;
-  FunctionInfo **Functions;
-  int            NumberOfConstants;
-  ValueInfo    **Constants;
-  int            NumberOfVariables;
-  ValueInfo    **Variables;
-  int            NumberOfEnums;
-  EnumInfo     **Enums;
-  int            NumberOfTypedefs;
-  ValueInfo    **Typedefs;
-  int            NumberOfUsings;
-  UsingInfo    **Usings;
-  int            NumberOfNamespaces;
-  struct _NamespaceInfo **Namespaces;
-} NamespaceInfo;
+typedef struct _ClassInfo NamespaceInfo;
 
 /**
  * FileInfo is for header files
  */
-typedef struct _FileInfo
+struct _FileInfo
 {
   const char *FileName;
   const char *NameComment;
@@ -254,11 +228,12 @@ typedef struct _FileInfo
   const char *Caveats;
   const char *SeeAlso;
 
-  int           NumberOfIncludes;
+  int NumberOfIncludes;
   struct _FileInfo **Includes;
   ClassInfo *MainClass;
   NamespaceInfo *Contents;
-} FileInfo;
+  StringCache *Strings;
+};
 
 
 #ifdef __cplusplus
@@ -276,8 +251,7 @@ void vtkParse_InitFunction(FunctionInfo *func);
 void vtkParse_InitValue(ValueInfo *val);
 void vtkParse_InitEnum(EnumInfo *item);
 void vtkParse_InitUsing(UsingInfo *item);
-void vtkParse_InitTemplateArgs(TemplateArgs *arg);
-void vtkParse_InitTemplateArg(TemplateArg *arg);
+void vtkParse_InitTemplate(TemplateInfo *arg);
 /*@}*/
 
 /**
@@ -292,8 +266,7 @@ void vtkParse_CopyFunction(FunctionInfo *data, const FunctionInfo *orig);
 void vtkParse_CopyValue(ValueInfo *data, const ValueInfo *orig);
 void vtkParse_CopyEnum(EnumInfo *data, const EnumInfo *orig);
 void vtkParse_CopyUsing(UsingInfo *data, const UsingInfo *orig);
-void vtkParse_CopyTemplateArgs(TemplateArgs *data, const TemplateArgs *orig);
-void vtkParse_CopyTemplateArg(TemplateArg *data, const TemplateArg *orig);
+void vtkParse_CopyTemplate(TemplateInfo *data, const TemplateInfo *orig);
 /*@}*/
 
 /**
@@ -309,8 +282,7 @@ void vtkParse_FreeFunction(FunctionInfo *func);
 void vtkParse_FreeValue(ValueInfo *val);
 void vtkParse_FreeEnum(EnumInfo *item);
 void vtkParse_FreeUsing(UsingInfo *item);
-void vtkParse_FreeTemplateArgs(TemplateArgs *arg);
-void vtkParse_FreeTemplateArg(TemplateArg *arg);
+void vtkParse_FreeTemplate(TemplateInfo *arg);
 /*@}*/
 
 
@@ -324,8 +296,7 @@ void vtkParse_AddStringToArray(
  * Expand the Item array for classes and namespaces.
  */
 void vtkParse_AddItemToArray(
-  ItemInfo **valueArray, int *count,
-  parse_item_t type, int idx);
+  ItemInfo **valueArray, int *count, parse_item_t type, int idx);
 
 
 /**
@@ -348,14 +319,14 @@ void vtkParse_AddConstantToNamespace(NamespaceInfo *info, ValueInfo *item);
 void vtkParse_AddVariableToNamespace(NamespaceInfo *info, ValueInfo *item);
 void vtkParse_AddTypedefToNamespace(NamespaceInfo *info, ValueInfo *item);
 void vtkParse_AddUsingToNamespace(NamespaceInfo *info, UsingInfo *item);
-void vtkParse_AddArgumentToFunction(FunctionInfo *info, ValueInfo *item);
-void vtkParse_AddArgumentToTemplate(TemplateArgs *info, TemplateArg *item);
+void vtkParse_AddParameterToFunction(FunctionInfo *info, ValueInfo *item);
+void vtkParse_AddParameterToTemplate(TemplateInfo *info, ValueInfo *item);
 /*@}*/
 
 /**
  * Add default constructors to a class if they do not already exist
  */
-void vtkParse_AddDefaultConstructors(ClassInfo *data);
+void vtkParse_AddDefaultConstructors(ClassInfo *data, StringCache *cache);
 
 #ifdef __cplusplus
 } /* extern "C" */
