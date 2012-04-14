@@ -10,7 +10,7 @@ vtk_module(vtkImagingCore
     vtkFiltersModeling
     vtkFiltersGeneral
     vtkFiltersHybrid
-    vtkRenderingCore
+    vtkRenderingOpenGL
     vtkTestingRendering
     vtkInteractionImage
     vtkImagingMath # Move tests
