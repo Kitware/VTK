@@ -141,8 +141,8 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
           ${TMP_HIERARCHY}
           ${TMP_DEFINITIONS}
           ${_target_includes}
+          "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
           "${quote}${TMP_INPUT}${quote}"
-          "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
         COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"
           ${verbatim}
         )

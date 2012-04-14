@@ -4821,13 +4821,15 @@ void vtkWrapPython_AddConstant(
 
 #define MAX_WRAPPED_CLASSES 256
 
-void vtkParseOutput(FILE *fp, FileInfo *file_info)
+int main(int argc, char *argv[])
 {
   ClassInfo *wrappedClasses[MAX_WRAPPED_CLASSES];
   ClassInfo *data = NULL;
   NamespaceInfo *contents;
   OptionInfo *options;
   HierarchyInfo *hinfo = NULL;
+  FileInfo *file_info;
+  FILE *fp;
   const char *name;
   char *name_from_file = NULL;
   int numberOfWrappedClasses = 0;
@@ -4835,6 +4837,27 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   int i, j;
   size_t k, m;
   int is_vtkobject;
+
+  /* get command-line args and parse the header file */
+  file_info = vtkParse_Main(argc, argv);
+
+  /* get the command-line options */
+  options = vtkParse_GetCommandLineOptions();
+
+  /* get the output file */
+  fp = fopen(options->OutputFileName, "w");
+
+  if (!fp)
+    {
+    fprintf(stderr, "Error opening output file %s\n", options->OutputFileName);
+    exit(1);
+    }
+
+  /* get the hierarchy info for accurate typing */
+  if (options->HierarchyFileName)
+    {
+    hinfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    }
 
   /* get the filename without the extension */
   name = file_info->FileName;
@@ -4858,15 +4881,6 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
   /* get the global namespace */
   contents = file_info->Contents;
-
-  /* get the command-line options */
-  options = vtkParse_GetCommandLineOptions();
-
-  /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileName)
-    {
-    hinfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
-    }
 
   /* use the hierarchy file to expand typedefs */
   if (hinfo)
@@ -5046,4 +5060,8 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
           "}\n\n");
 
   free(name_from_file);
+
+  vtkParse_Free(file_info);
+
+  return 0;
 }

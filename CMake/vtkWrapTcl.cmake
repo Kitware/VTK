@@ -165,8 +165,8 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
         ${TMP_HIERARCHY}
         ${TMP_DEFINITIONS}
         ${_target_includes}
+        "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"
         "${quote}${TMP_INPUT}${quote}"
-        "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"
         COMMENT "Tcl Wrapping - generating ${TMP_FILENAME}Tcl.cxx"
         ${verbatim}
         )

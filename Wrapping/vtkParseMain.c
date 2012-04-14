@@ -22,8 +22,8 @@ the code that parses the header file.
 */
 
 #include "vtkParse.h"
-#include "vtkParseMain.h"
 #include "vtkParseData.h"
+#include "vtkParseMain.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,9 +35,6 @@ OptionInfo options;
 /* Flags for --help and --version */
 int vtk_parse_help = 0;
 int vtk_parse_version = 0;
-
-/* This method provides the back-end for the generators */
-extern void vtkParseOutput(FILE *, FileInfo *);
 
 /* Check the options */
 static int check_options(int argc, char *argv[])
@@ -90,6 +87,15 @@ static int check_options(int argc, char *argv[])
         return -1;
         }
       options.HierarchyFileName = argv[i];
+      }
+    else if (strcmp(argv[i], "-o") == 0)
+      {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+        {
+        return -1;
+        }
+      options.OutputFileName = argv[i];
       }
     else if (strcmp(argv[i], "-I") == 0)
       {
@@ -176,18 +182,18 @@ static void vtk_parse_print_help(FILE *stream, const char *cmd)
     "  --hints <file>    the hints file to use\n"
     "  --types <file>    the type hierarchy file to use\n"
     "  --includes <file> a file listing include directories one per line\n"
+    "  -o <file>         the output file\n"
     "  -I <dir>          add an include directory\n"
     "  -D <macro>        define a preprocessor macro\n"
     "  -U <macro>        undefine a preprocessor macro\n",
     cmd);
 }
 
-int main(int argc, char *argv[])
+FileInfo *vtkParse_Main(int argc, char *argv[])
 {
   int argi;
   int has_options = 0;
   FILE *ifile;
-  FILE *ofile;
   FILE *hfile = 0;
   FILE *incfile =0;
   const char *cp;
@@ -196,17 +202,6 @@ int main(int argc, char *argv[])
   FileInfo *data;
 
   argi = check_options(argc, argv);
-  if (argi > 1 && argc - argi == 2)
-    {
-    has_options = 1;
-    }
-  else if (argi < 0 || argc > 5 ||
-           (argc < 3 && !vtk_parse_help && !vtk_parse_version))
-    {
-    vtk_parse_print_help(stderr, argv[0]);
-    exit(1);
-    }
-
   if (vtk_parse_version)
     {
     const char *ver = VTK_PARSE_VERSION;
@@ -223,10 +218,19 @@ int main(int argc, char *argv[])
     fprintf(stdout, "%s %s\n", exename, ver);
     exit(0);
     }
-  if (vtk_parse_help)
+  else if (vtk_parse_help)
     {
     vtk_parse_print_help(stdout, argv[0]);
     exit(0);
+    }
+  else if (argi > 1 && argc - argi == 1)
+    {
+    has_options = 1;
+    }
+  else if (argi < 0 || argc < 3 || argc > 5)
+    {
+    vtk_parse_print_help(stderr, argv[0]);
+    exit(1);
     }
 
   if(options.IncludesFileName)
@@ -243,8 +247,7 @@ int main(int argc, char *argv[])
 
   options.InputFileName = argv[argi++];
 
-  ifile = fopen(options.InputFileName, "r");
-  if (!ifile)
+  if (!(ifile = fopen(options.InputFileName, "r")))
     {
     fprintf(stderr,"Error opening input file %s\n", options.InputFileName);
     exit(1);
@@ -261,12 +264,12 @@ int main(int argc, char *argv[])
       options.IsConcrete = atoi(argv[argi++]);
       options.IsAbstract = !options.IsConcrete;
       }
+    options.OutputFileName = argv[argi++];
     }
 
   if (options.HintFileName && options.HintFileName[0] != '\0')
     {
-    hfile = fopen(options.HintFileName, "r");
-    if (!hfile)
+    if (!(hfile = fopen(options.HintFileName, "r")))
       {
       fprintf(stderr, "Error opening hint file %s\n", options.HintFileName);
       fclose(ifile);
@@ -274,12 +277,9 @@ int main(int argc, char *argv[])
       }
     }
 
-  options.OutputFileName = argv[argi++];
-  ofile = fopen(options.OutputFileName, "w");
-
-  if (!ofile)
+  if (options.OutputFileName == NULL)
     {
-    fprintf(stderr, "Error opening output file %s\n", options.OutputFileName);
+    fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
     if (hfile)
       {
@@ -311,20 +311,14 @@ int main(int argc, char *argv[])
 
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
 
-  if (!data)
-    {
-    fclose(ifile);
-    fclose(ofile);
-    if (hfile)
-      {
-      fclose(hfile);
-      }
-    exit(1);
-    }
-
-  if (hfile)
+  if (data && hfile)
     {
     vtkParse_ReadHints(data, hfile, stderr);
+    }
+
+  if (!data)
+    {
+    exit(1);
     }
 
   if (options.IsConcrete && data->MainClass)
@@ -336,11 +330,5 @@ int main(int argc, char *argv[])
     data->MainClass->IsAbstract = 1;
     }
 
-  vtkParseOutput(ofile, data);
-
-  fclose(ofile);
-
-  vtkParse_Free(data);
-
-  return 0;
+  return data;
 }

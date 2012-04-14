@@ -24,7 +24,6 @@
  * "  --hints <file>  hints file"
  * "  --types <file>  type hierarchy file"
  * "  -I <dir>        add an include directory"
- * "  -D <macro>      define a preprocessor macro"
  *
  * After parsing the options, main() will call
  * extern void vtkParseOutput(FILE *ofile, FileInfo *data)
@@ -35,6 +34,9 @@
 
 #ifndef VTK_PARSE_MAIN_H
 #define VTK_PARSE_MAIN_H
+
+#include "vtkParseData.h"
+#include <stdio.h>
 
 /**
  * Options for the wrappers
@@ -60,6 +62,11 @@ extern "C" {
  * Return the options provided on the command line
  */
 OptionInfo *vtkParse_GetCommandLineOptions();
+
+/**
+ * The main function, returns the result of the parse and the output file
+ */
+FileInfo *vtkParse_Main(int argc, char *argv[]);
 
 #ifdef __cplusplus
 } /* extern "C" */

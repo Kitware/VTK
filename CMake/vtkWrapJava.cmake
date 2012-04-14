@@ -137,8 +137,8 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         ${TMP_HIERARCHY}
         ${TMP_DEFINITIONS}
         ${_target_includes}
+        "-o" "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
         "${quote}${TMP_INPUT}${quote}"
-        "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
         COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
         )
 
@@ -154,8 +154,8 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         ${TMP_HIERARCHY}
         ${TMP_DEFINITIONS}
         ${TMP_INCLUDE}
+        "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
         "${quote}${TMP_INPUT}${quote}"
-        "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
         COMMENT "Java Wrappings - generating ${TMP_WRAPPED_FILENAME}"
         )
 
