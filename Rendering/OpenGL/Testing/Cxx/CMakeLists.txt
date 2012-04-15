@@ -67,7 +67,7 @@ SET(RenderingTestsWithArguments
   TestTexturedBackground.cxx
   TestTextureSize.cxx
   TestTDx.cxx
-  #TestTilingCxx.cxx
+  TestTilingCxx.cxx
   TestTransformCoordinateUseDouble.cxx
   TestTranslucentLUTAlphaBlending.cxx
   TestTranslucentLUTDepthPeeling.cxx

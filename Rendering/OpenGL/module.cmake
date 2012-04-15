@@ -19,4 +19,6 @@ vtk_module(vtkRenderingOpenGL
     vtkRenderingLabel
     vtkImagingGeneral
     vtkImagingSources
+    vtkFiltersProgrammable
+    vtkRenderingAnnotation
   )
