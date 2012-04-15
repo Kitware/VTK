@@ -17,8 +17,38 @@
 #   and
 #
 #   SET(VTK_EXTRA_TCL_LIBRARIES ${VTK_EXTRA_TCL_LIBRARIES} vtkMySpecialTCL)
-INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
-INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
+
+# Set if the tcl/tk libs are static
+option(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl85sx.lib, tk85sx.lib)." OFF)
+mark_as_advanced(VTK_TCL_TK_STATIC)
+
+# Use Tk Toolkit with Tcl
+INCLUDE(vtkDependentOption)
+
+set(VTK_CAN_USE_TK OFF)
+set(VTK_USE_TK_DEFAULT ON)
+if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
+  if(NOT VTK_DISABLE_TK_INIT)
+    set(VTK_CAN_USE_TK ON)
+    if(APPLE)
+      if(OSX_SDK_VERSION)
+        if(${OSX_SDK_VERSION} VERSION_LESS "10.6")
+          # Until OS X 10.6, building Tk with Cocoa was not possible
+          if(VTK_USE_COCOA)
+            set(VTK_CAN_USE_TK OFF)
+          endif()
+        else()
+          # For OS X 10.6, the default system Tk is Cocoa, not Carbon
+          if(VTK_USE_CARBON)
+            set(VTK_USE_TK_DEFAULT OFF)
+          endif()
+        endif()
+      endif()
+    endif()
+  endif()
+endif()
+vtk_dependent_option(VTK_USE_TK "Build VTK with Tk support"
+                     ${VTK_USE_TK_DEFAULT} "VTK_CAN_USE_TK" OFF)
 
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkTkAppInitConfigure.h.in
@@ -42,6 +72,8 @@ endforeach()
 IF (NOT TCL_LIBRARY)
   MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
 ENDIF (NOT TCL_LIBRARY)
+
+include(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
 
 IF (WIN32)
   IF (NOT BORLAND)
@@ -70,9 +102,16 @@ include_directories(
   ${TCL_INCLUDE_PATH}
   )
 
+if(VTK_USE_TK)
+  include_directories(
+    ${TK_INCLUDE_PATH}
+    ${TK_XLIB_PATH}
+  )
+endif(VTK_USE_TK)
+
 # Create the vtk Tcl wrapper executable.
 VTK_ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
-target_link_libraries(vtk vtkCommonCoreTCL)
+
 
 IF(VTK_USE_CARBON)
   FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
@@ -86,10 +125,21 @@ IF(VTK_USE_CARBON)
   ENDIF(VTK_APPLE_RESOURCE)
 ENDIF(VTK_USE_CARBON)
 
-# Link to extra TCL libraries
-foreach(lib ${_tcl_modules})
-  target_link_libraries(vtk ${lib})
-endforeach(lib)
+# Link to TCL static libraries
+if(BUILD_SHARED_LIBS)
+  # vtkCommonCoreTCL is required even for shared builds
+  # to link the vtkTclUtil object - FIXME ??
+  target_link_libraries(vtk vtkCommonCoreTCL)
+else()
+  foreach(module ${VTK_TCL_WRAPPED})
+    if("${module}" STREQUAL "vtkRenderingContext2D")
+      set(module "vtkRenderingContextIID")
+    elseif("${module}" STREQUAL "vtkViewsContext2D")
+      set(module "vtkViewsContextIID")
+    endif()
+    target_link_libraries(vtk ${module}TCL)
+  endforeach()
+endif()
 
 if(VTK_USE_TK)
   target_link_libraries(vtk ${VTK_TK_LIBRARIES})
@@ -144,6 +194,22 @@ IF (VTK_USE_PARALLEL)
     TARGET_LINK_LIBRARIES (pvtk
       ${MPI_LIBRARIES}
     )
+
+    # Link to TCL static libraries
+    if(BUILD_SHARED_LIBS)
+      # vtkCommonCoreTCL is required even for shared builds
+      # to link the vtkTclUtil object - FIXME ??
+      target_link_libraries(vtk vtkCommonCoreTCL)
+    else()
+      foreach(module ${VTK_TCL_WRAPPED})
+        if("${module}" STREQUAL "vtkRenderingContext2D")
+          set(module "vtkRenderingContextIID")
+        elseif("${module}" STREQUAL "vtkViewsContext2D")
+          set(module "vtkViewsContextIID")
+        endif()
+        target_link_libraries(pvtk ${module}TCL)
+      endforeach()
+    endif()
 
     IF(VTK_INSTALL_RUNTIME)
       INSTALL(TARGETS pvtk
@@ -262,6 +328,22 @@ IF(NOT VTK_INSTALL_NO_RUNTIME)
     DESTINATION ${VTK_INSTALL_TCL_DIR}
     COMPONENT RuntimeLibraries)
 ENDIF()
+
+# If the wrapped tcl libs are static we have to initialized them.
+if(NOT BUILD_SHARED_LIBS)
+  file(REMOVE ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h)
+  foreach(module ${VTK_TCL_WRAPPED})
+    if("${module}" STREQUAL "vtkRenderingContext2D")
+      set(module "vtkRenderingContextIID")
+    elseif("${module}" STREQUAL "vtkViewsContext2D")
+      set(module "vtkViewsContextIID")
+    endif()
+    string(TOLOWER ${module} module_lc)
+    string(REGEX REPLACE "^vtk" "Vtk" module_lc ${module_lc})
+    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_prototypes.h "extern \"C\" int ${module_lc}tcl_Init(Tcl_Interp *interp);\n")
+    file(APPEND ${VTK_BINARY_DIR}/Wrapping/Tcl/vtktcl_static_packages.h "Tcl_StaticPackage(0, \"${module}Tcl\", ${module_lc}tcl_Init, NULL);\n")
+  endforeach()
+endif()
 
 # Allow the user to customize their build with some local options
 #

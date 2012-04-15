@@ -3,13 +3,16 @@
 package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
   namespace eval ::vtk::init {
     proc load_library_package {libName libPath {libPrefix {@VTK_TCL_LIBNAME_PREFIX@}}} {
-      set libExt [info sharedlibextension]
-      set currentDirectory [pwd]
-      set libFile [file join $libPath "$libPrefix$libName-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@$libExt"]
-      if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
-        puts $errorMessage
+      #first try to load a static package, then try the shared package.
+      if {[catch "load {} $libName"]} {
+        set libExt [info sharedlibextension]
+        set currentDirectory [pwd]
+        set libFile [file join $libPath "$libPrefix$libName-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@$libExt"]
+        if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
+          puts $errorMessage
+        }
+        cd $currentDirectory
       }
-      cd $currentDirectory
     }
     proc require_package {name {version {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}}} {
       if {[catch "package require -exact $name $version" errorMessage]} {
