@@ -84,6 +84,8 @@ macro(vtk_module_impl)
   vtk_module_config(_dep ${VTK_MODULE_${vtk-module}_DEPENDS})
   if(_dep_INCLUDE_DIRS)
     include_directories(${_dep_INCLUDE_DIRS})
+    # This variable is used in vtkWrapping.cmake
+    set(${vtk-module}_DEPENDS_INCLUDE_DIRS ${_dep_INCLUDE_DIRS})
   endif()
   if(_dep_LIBRARY_DIRS)
     link_directories(${_dep_LIBRARY_DIRS})

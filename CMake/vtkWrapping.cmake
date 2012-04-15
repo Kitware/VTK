@@ -37,16 +37,19 @@ function(vtk_add_wrapping module_name module_srcs)
       set_property(GLOBAL APPEND PROPERTY VTK_JAVA_WRAPPED ${module_name})
     endif()
     if(_wrap_module)
-      # The module is wrapped by at least one language - invoke wrap hierarchy.
-      # Set up the include directories for the wrapping
-      set(VTK_WRAP_INCLUDE_DIRS
-        ${vtkCommonCore_SOURCE_DIR}
-        ${vtkCommonCore_BINARY_DIR}
-        ${VTK_SOURCE_DIR}/Utilities
-        ${VTK_BINARY_DIR}/Utilities
-        ${${vtk-module}_SOURCE_DIR}
-        )
+      # The list of include dirs to pass to wrapper tool command lines
+      set(VTK_WRAP_INCLUDE_DIRS)
+      if(${vtk-module}_DEPENDS_INCLUDE_DIRS)
+        list(APPEND VTK_WRAP_INCLUDE_DIRS ${${vtk-module}_DEPENDS_INCLUDE_DIRS})
+      endif()
+      if(${vtk-module}_INCLUDE_DIRS)
+        list(APPEND VTK_WRAP_INCLUDE_DIRS ${${vtk-module}_INCLUDE_DIRS})
+      endif()
+      if(${vtk-module}_SYSTEM_INCLUDE_DIRS)
+        list(APPEND VTK_WRAP_INCLUDE_DIRS ${${vtk-module}_SYSTEM_INCLUDE_DIRS})
+      endif()
 
+      # The module is wrapped by at least one language - invoke wrap hierarchy.
       vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
         "${module_srcs}")
 

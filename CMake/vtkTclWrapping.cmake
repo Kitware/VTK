@@ -24,15 +24,6 @@ function(vtk_add_tcl_wrapping module_name module_srcs)
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
   set(KIT ${kit_name})
 
-  # Set up the include directories for the wrapping
-  set(VTK_WRAP_INCLUDE_DIRS
-    ${vtkCommonCore_SOURCE_DIR}
-    ${vtkCommonCore_BINARY_DIR}
-    ${VTK_SOURCE_DIR}/Utilities
-    ${VTK_BINARY_DIR}/Utilities
-    ${${vtk-module}_SOURCE_DIR}
-    )
-
 # FIXME: Terrible temporary hack - add in the extra source file for CommonCore
   if(${module_name} STREQUAL "vtkCommonCore")
      set(extra_srcs ${VTK_SOURCE_DIR}/Wrapping/vtkTclUtil.cxx)
@@ -51,7 +42,6 @@ function(vtk_add_tcl_wrapping module_name module_srcs)
           set(dep "vtkRenderingContextIID")
         endif()
         list(APPEND extra_links ${dep}TCL)
-        list(APPEND VTK_WRAP_INCLUDE_DIRS ${${dep}_SOURCE_DIR})
       endif()
     endif()
   endforeach()
