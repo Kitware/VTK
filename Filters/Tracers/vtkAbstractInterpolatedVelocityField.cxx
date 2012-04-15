@@ -93,13 +93,25 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   f[0] = f[1] = f[2] = 0.0;
 
   // See if a dataset has been specified and if there are input vectors
-  if ( !dataset ||
-       !(vectors = dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection))
-        )
+  if ( !dataset)
     {
     vtkErrorMacro( << "Can't evaluate dataset!" );
     vectors = NULL;
+    return 0;
+    }
+  if(!this->VectorsSelection) //if a selection is not speicifed,
+                              //use the first one in the point set (this is a behavior for backward compatability)
+    {
+    vectors =  dataset->GetPointData()->GetVectors(0);
+    }
+  else
+    {
+    vectors = dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection);
+    }
 
+  if(!vectors)
+    {
+    vtkErrorMacro( << "Can't evaluate dataset!" );
     return 0;
     }
 
