@@ -26,20 +26,20 @@ SET(RenderingTestsWithArguments
   TestGPUInfo.cxx
   TestGradientBackground.cxx
   TestHomogeneousTransformOfActor.cxx
-  #TestImageResliceMapperAlpha.cxx
-  #TestImageResliceMapperBackground.cxx
-  #TestImageResliceMapperBorder.cxx
-  #TestImageResliceMapperInterpolation.cxx
-  #TestImageResliceMapperOffAxis.cxx
-  #TestImageResliceMapperOrient3D.cxx
-  #TestImageResliceMapperSlab.cxx
+  TestImageResliceMapperAlpha.cxx
+  TestImageResliceMapperBackground.cxx
+  TestImageResliceMapperBorder.cxx
+  TestImageResliceMapperInterpolation.cxx
+  TestImageResliceMapperOffAxis.cxx
+  TestImageResliceMapperOrient3D.cxx
+  TestImageResliceMapperSlab.cxx
   TestImageSliceMapperAlpha.cxx
   TestImageSliceMapperBackground.cxx
   TestImageSliceMapperBorder.cxx
   TestImageSliceMapperOrient2D.cxx
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperInterpolation.cxx
-  #TestImageStack.cxx
+  TestImageStack.cxx
   TestInteractorTimers.cxx
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx
@@ -57,7 +57,7 @@ SET(RenderingTestsWithArguments
   TestPOVExporter.cxx
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
-  #TestSetImageOrientation.cxx
+  TestSetImageOrientation.cxx
   TestSobelGradientMagnitudePass.cxx
   TestShadowMapPass.cxx
   TestTextActorAlphaBlending.cxx

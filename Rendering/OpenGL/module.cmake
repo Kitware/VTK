@@ -14,6 +14,7 @@ vtk_module(vtkRenderingOpenGL
     vtkTestingRendering
     vtkIOExport
     vtkRenderingFreeTypeOpenGL
+    vtkRenderingImage
     vtkRenderingLOD
     vtkRenderingLabel
     vtkImagingGeneral
