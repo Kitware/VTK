@@ -4,6 +4,9 @@
   All rights reserved.
 
 =========================================================================*/
+// .SECTION Thanks
+// This test was written by Charles Law and Philippe Pebay, Kitware 2012
+
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeFractalSource.h"
 
