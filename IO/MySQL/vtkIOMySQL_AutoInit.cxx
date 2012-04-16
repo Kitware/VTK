@@ -38,13 +38,7 @@ vtkSQLDatabase * MySQLCreateFunction(const char* URL)
 
 static unsigned int vtkIOMySQLCount;
 
-struct VTKIOMYSQL_EXPORT vtkIOMySQL_AutoInit
-{
-  vtkIOMySQL_AutoInit();
-  ~vtkIOMySQL_AutoInit();
-};
-
-vtkIOMySQL_AutoInit::vtkIOMySQL_AutoInit()
+VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Construct()
 {
   if (++vtkIOMySQLCount == 1)
     {
@@ -52,7 +46,7 @@ vtkIOMySQL_AutoInit::vtkIOMySQL_AutoInit()
     }
 }
 
-vtkIOMySQL_AutoInit::~vtkIOMySQL_AutoInit()
+VTKIOMYSQL_EXPORT void vtkIOMySQL_AutoInit_Destruct()
 {
   if (--vtkIOMySQLCount == 0)
     {

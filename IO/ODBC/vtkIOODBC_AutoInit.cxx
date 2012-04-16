@@ -38,13 +38,7 @@ vtkSQLDatabase * ODBCCreateFunction(const char* URL)
 
 static unsigned int vtkIOODBCCount;
 
-struct VTKIOODBC_EXPORT vtkIOODBC_AutoInit
-{
-  vtkIOODBC_AutoInit();
-  ~vtkIOODBC_AutoInit();
-};
-
-vtkIOODBC_AutoInit::vtkIOODBC_AutoInit()
+VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Construct()
 {
   if (++vtkIOODBCCount == 1)
     {
@@ -52,7 +46,7 @@ vtkIOODBC_AutoInit::vtkIOODBC_AutoInit()
     }
 }
 
-vtkIOODBC_AutoInit::~vtkIOODBC_AutoInit()
+VTKIOODBC_EXPORT void vtkIOODBC_AutoInit_Destruct()
 {
   if (--vtkIOODBCCount == 0)
     {
