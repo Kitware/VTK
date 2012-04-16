@@ -4,12 +4,6 @@
   All rights reserved.
 
 =========================================================================*/
-#include "vtksys/CommandLineArguments.hxx"
-#include "vtksys/Directory.hxx"
-#include "vtksys/SystemTools.hxx"
-#include "vtksys/Glob.hxx"
-#include <vtksys/Process.h>
-#include <string>
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeFractalSource.h"
 
