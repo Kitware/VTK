@@ -2,8 +2,10 @@ vtk_module(vtkFiltersParallelTracers
   IMPLEMENTS
     vtkFiltersTracers
   DEPENDS
+    vtkParallelMPI
     vtkParallelCore
   TEST_DEPENDS
+    vtkAMRCore
     vtkTestingRendering
     vtkRenderingParallel
   )

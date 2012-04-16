@@ -12,28 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPStreamTracer - Abstract superclass for parallel streamline generators
+// .NAME vtkPStreamTracer -  parallel streamline generators
 // .SECTION Description
-// This class implements some necessary functionality used by distributed
-// and parallel streamline generators. Note that all processes must have
+// This class implements parallel streamline generators.
+// Note that all processes must have
 // access to the WHOLE seed source, i.e. the source must be identical
 // on all processes.
 // .SECTION See Also
-// vtkStreamTracer vtkDistributedStreamTracer vtkMPIStreamTracer
+// vtkStreamTracer
 
 #ifndef __vtkPStreamTracer_h
 #define __vtkPStreamTracer_h
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
 #include "vtkStreamTracer.h"
-
 #include "vtkSmartPointer.h" // This is a leaf node. No need to use PIMPL to avoid compile time penalty.
-#include <vector> // STL Header; Required for vector
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELTRACERS_EXPORT vtkPStreamTracer : public vtkStreamTracer
+class PStreamTracerPoint;
+class vtkOverlappingAMR;
+class AbstractPStreamTracerUtils;
+
+#include "vtkFiltersParallelTracersModule.h" // For export macro
+
+class  VTKFILTERSPARALLELTRACERS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
@@ -46,6 +49,8 @@ public:
   // other methods.
   virtual void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+
+  static vtkPStreamTracer * New();
 
 protected:
 
@@ -61,34 +66,26 @@ protected:
   vtkAbstractInterpolatedVelocityField* Interpolator;
   void SetInterpolator(vtkAbstractInterpolatedVelocityField*);
 
-  // See the implementation for comments
-  void SendCellPoint(vtkPolyData* data,
-                     vtkIdType streamId,
-                     vtkIdType idx,
-                     int sendToId);
-  void ReceiveCellPoint(vtkPolyData* tomod, int streamId, vtkIdType idx);
-  void SendFirstPoints(vtkPolyData *output);
-  void ReceiveLastPoints(vtkPolyData *output);
-  void MoveToNextSend(vtkPolyData *output);
-
-  virtual void ParallelIntegrate() = 0;
-
-  vtkDataArray* Seeds;
-  vtkIdList* SeedIds;
-  vtkIntArray* IntegrationDirections;
-
   int EmptyData;
-
-//BTX
-  typedef std::vector< vtkSmartPointer<vtkPolyData> > TmpOutputsType;
-//ETX
-
-  TmpOutputsType TmpOutputs;
-
 private:
   vtkPStreamTracer(const vtkPStreamTracer&);  // Not implemented.
   void operator=(const vtkPStreamTracer&);  // Not implemented.
+
+  void Trace( vtkDataSet *input,
+              int vecType,
+              const char* vecName,
+              PStreamTracerPoint* pt,
+              vtkSmartPointer<vtkPolyData>& output,
+              vtkAbstractInterpolatedVelocityField* func,
+              int maxCellSize);
+
+  bool TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpolatedVelocityField*, PStreamTracerPoint* pt);
+
+  void Prepend(vtkPolyData* path, vtkPolyData* headh);
+  int Rank;
+  int NumProcs;
+
+  friend class AbstractPStreamTracerUtils;
+  vtkSmartPointer<AbstractPStreamTracerUtils> Utils;
 };
-
-
 #endif
