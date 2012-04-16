@@ -35,7 +35,7 @@ int TestHyperTree( int argc, char** argv )
   vtkNew<vtkHyperTreeFractalSource> fractal;
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
-  fractal->SetGridSize( 2, 1, 1 );
+  fractal->SetGridSize( 3, 2, 2 );
   fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );
   vtkHyperTreeGrid* tree = fractal->NewHyperTreeGrid();
@@ -66,7 +66,7 @@ int TestHyperTree( int argc, char** argv )
 
   vtkNew<vtkShrinkFilter> shrink;
   shrink->SetInputData(tree);
-  shrink->SetShrinkFactor( 1 );
+  shrink->SetShrinkFactor( 1. );
   vtkNew<vtkUnstructuredGridWriter> writer3;
   writer3->SetFileName( "./hyperTreeShrink.vtk" );
   writer3->SetInputConnection(shrink->GetOutputPort());

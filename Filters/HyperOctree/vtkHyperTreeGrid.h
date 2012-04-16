@@ -409,23 +409,19 @@ protected:
 
   void DeleteInternalArrays();
 
-  void TraverseDualRecursively( vtkHyperTreeLightWeightCursor* neighborhood,
-                                int ptOffset,
-                                double origin[3], 
-                                double size[3], 
-                                int level );
-  void TraverseGridRecursively( vtkHyperTreeLightWeightCursor* neighborhood, 
-                                int lfOffset,
-                                unsigned char* visited,
-                                double* origin,
-                                double* size );
-  void EvaluateDualCorner( vtkHyperTreeLightWeightCursor* neighborhood );
-  vtkIdType EvaluateGridCorner( int level,
-                                vtkHyperTreeLightWeightCursor* neighborhood,
-                                int lfOffset,
-                                unsigned char* visited, 
-                                int* cornerNeighborIds );
-
+  void TraverseDualRecursively( vtkHyperTreeLightWeightCursor*,
+                                double*, 
+                                double*, 
+                                int );
+  void TraverseGridRecursively( vtkHyperTreeLightWeightCursor*,
+                                unsigned char*,
+                                double*,
+                                double* );
+  void EvaluateDualCorner( vtkHyperTreeLightWeightCursor* );
+  vtkIdType EvaluateGridCorner( int,
+                                vtkHyperTreeLightWeightCursor*,
+                                unsigned char*, 
+                                int* );
 
   // Generalizing for 27 tree.  I cannot use 3 bits to encode the child to move to.
   // Input: root in supercursor(3x3x3=27), child(3x3x3=27)
@@ -466,16 +462,19 @@ public:
   vtkHyperTreeLightWeightCursor();
   ~vtkHyperTreeLightWeightCursor();
 
-  void Initialize(vtkHyperTreeInternal* tree);
+  void Initialize( vtkHyperTreeGrid*, int*, int, int, int, int );
   void ToRoot();
-  void ToChild(int child);
+  void ToChild( int );
   unsigned short GetIsLeaf();
-  int GetLeafIndex() {return this->Index;} // Only valid for leaves.
   vtkHyperTreeInternal* GetTree() { return this->Tree; }
-  unsigned short GetLevel() {return this->Level;}
+  int GetLeafIndex() { return this->Index; } // Only valid for leaves.
+  int GetGlobalLeafIndex() { return this->Offset + this->Index; }
+  int GetOffset() { return this->Offset; }
+  unsigned short GetLevel() { return this->Level; }
 private:
   vtkHyperTreeInternal* Tree;
   int Index;
+  int Offset;
   unsigned short IsLeaf;
   unsigned short Level;
 };

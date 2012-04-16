@@ -149,7 +149,7 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     {
     subdivide = 0;
     }
-  if ( index && ! idx[1] && ! idx[2] )
+  if ( ! index && idx[1] == 1 && ! idx[2] )
     {
     subdivide = 1;
     }
