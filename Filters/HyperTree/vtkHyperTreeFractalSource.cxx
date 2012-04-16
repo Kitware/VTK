@@ -49,7 +49,7 @@ vtkHyperTreeFractalSource::~vtkHyperTreeFractalSource()
 //----------------------------------------------------------------------------
 vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 {
-  // Instantiate hyper tree grid 
+  // Instantiate hyper tree grid
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
 
   output->SetGridSize( this->GridSize );
@@ -68,7 +68,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
     vtkDoubleArray *coords = vtkDoubleArray::New();
     int n = this->GridSize[i] + 1;
     coords->SetNumberOfValues( n );
-    for ( int j = 0; j < n; ++ j ) 
+    for ( int j = 0; j < n; ++ j )
       {
       coords->SetValue( j, scale[i] * static_cast<double>( j ) );
       }
@@ -127,7 +127,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
     } // i
 
   output->SetDualGridFlag( this->Dual );
-  
+
   scalars->Squeeze();
   assert("post: dataset_and_data_size_match" && output->CheckAttributes()==0);
 
@@ -136,7 +136,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
-                                           int level, 
+                                           int level,
                                            vtkHyperTreeGrid* output,
                                            int index,
                                            int idx[3],
