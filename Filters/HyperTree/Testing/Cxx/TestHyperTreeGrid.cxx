@@ -38,11 +38,11 @@ int TestHyperTreeGrid( int argc, char** argv )
   vtkNew<vtkPlane> plane;
   plane->SetOrigin( .5, .5, .15 );
   plane->SetNormal( 0, 0, 1 );
-  cut->SetInputData(tree);
-  cut->SetCutFunction(plane.GetPointer());
+  cut->SetInputData( tree);
+  cut->SetCutFunction( plane.GetPointer() );
   vtkNew<vtkPolyDataWriter> writer;
   writer->SetFileName( "./hyperTreeCut.vtk" );
-  writer->SetInputConnection(cut->GetOutputPort());
+  writer->SetInputConnection( cut->GetOutputPort() );
   writer->Write();
 
   vtkNew<vtkContourFilter> contour;
@@ -88,7 +88,7 @@ int TestHyperTreeGrid( int argc, char** argv )
 
   // Render and test
   renWin->Render();
-
+  
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
