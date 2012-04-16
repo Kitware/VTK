@@ -22,14 +22,14 @@
 #ifndef __vtkHyperTreeFractalSource_h
 #define __vtkHyperTreeFractalSource_h
 
-#include "vtkFiltersHyperOctreeModule.h" // For export macro
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImplicitFunction;
 class vtkHyperTreeGrid;
 class vtkHyperTreeCursor;
 
-class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperTreeFractalSource : public vtkObject
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeFractalSource : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTreeFractalSource,vtkObject);

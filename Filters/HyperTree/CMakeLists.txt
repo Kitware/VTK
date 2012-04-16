@@ -13,4 +13,4 @@ set(Module_SRCS
   vtkHyperTreeGrid.cxx
   )
 
-vtk_module_library(vtkFiltersHyperOctree ${Module_SRCS})
+vtk_module_library(vtkFiltersHyperTree ${Module_SRCS})

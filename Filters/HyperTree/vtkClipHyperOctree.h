@@ -57,7 +57,7 @@
 #ifndef __vtkClipHyperOctree_h
 #define __vtkClipHyperOctree_h
 
-#include "vtkFiltersHyperOctreeModule.h" // For export macro
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkImplicitFunction;
@@ -76,7 +76,7 @@ class vtkPoints;
 class vtkPolygon;
 class vtkHyperOctreeClipCutPointsGrabber;
 
-class VTKFILTERSHYPEROCTREE_EXPORT vtkClipHyperOctree : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkClipHyperOctree : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkClipHyperOctree,vtkUnstructuredGridAlgorithm);
