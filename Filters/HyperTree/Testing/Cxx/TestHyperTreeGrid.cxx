@@ -55,7 +55,7 @@ int TestHyperTreeGrid( int argc, char** argv )
                                    "Test" );
   vtkNew<vtkPolyDataWriter> writer2;
   writer2->SetFileName( "./hyperTreeContour.vtk" );
-  writer2->SetInputConnection(contour->GetOutputPort());
+  writer2->SetInputConnection( contour->GetOutputPort() );
   writer2->Write();
 
   vtkNew<vtkShrinkFilter> shrink;
@@ -63,7 +63,7 @@ int TestHyperTreeGrid( int argc, char** argv )
   shrink->SetShrinkFactor( 1. );
   vtkNew<vtkUnstructuredGridWriter> writer3;
   writer3->SetFileName( "./hyperTreeShrink.vtk" );
-  writer3->SetInputConnection(shrink->GetOutputPort());
+  writer3->SetInputConnection( shrink->GetOutputPort() );
   writer3->Write();
 
   vtkNew<vtkDataSetMapper> treeMapper;
@@ -90,7 +90,7 @@ int TestHyperTreeGrid( int argc, char** argv )
   renWin->Render();
   
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();
     }
