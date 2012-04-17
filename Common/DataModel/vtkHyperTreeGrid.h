@@ -117,7 +117,7 @@
 #ifndef __vtkHyperTreeGrid_h
 #define __vtkHyperTreeGrid_h
 
-#include "vtkFiltersHyperTreeModule.h" // For export macro
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
 
 class vtkHyperTreeLightWeightCursor;
@@ -145,7 +145,7 @@ public:
   unsigned char Child;
 };
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGrid : public vtkDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataSet
 {
 public:
   static vtkInformationIntegerKey* LEVELS();

@@ -22,6 +22,7 @@ SET(Module_SRCS
   vtkGraphAlgorithm.cxx
   vtkHierarchicalBoxDataSetAlgorithm.cxx
   vtkHyperOctreeAlgorithm.cxx
+#  vtkHyperTreeGridAlgorithm.cxx
   vtkImageAlgorithm.cxx
   vtkImageInPlaceFilter.cxx
   vtkImageProgressIterator.cxx
