@@ -64,7 +64,7 @@ class vtkInformationVector;
 #if defined(_WIN32)
 # define VTK_INFORMATION_EXPORT
 #else
-# define VTK_INFORMATION_EXPORT VTK_COMMON_EXPORT
+# define VTK_INFORMATION_EXPORT VTKCOMMONCORE_EXPORT
 #endif
 
 
