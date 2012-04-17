@@ -2359,6 +2359,9 @@ void vtkHyperTreeGrid::UpdateDualArrays()
       } // j
     } // i
 
+  // Clean up
+  delete [] offsets;
+
   timer->StopTimer();
   cerr << "Internal dual update : " << timer->GetElapsedTime() << endl;
   timer->Delete();
