@@ -148,39 +148,8 @@ main(int argc, char **argv)
  *----------------------------------------------------------------------
  */
 
-extern "C" int Vtkcommontcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkfilteringtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkimagingtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkgraphicstcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkiotcl_Init(Tcl_Interp *interp);
-
-#ifdef VTK_USE_RENDERING
-extern "C" int Vtkrenderingtcl_Init(Tcl_Interp *interp);
-
-#if defined(VTK_USE_TK)
-extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
-extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
-#endif
-
-extern "C" int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkhybridtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkwidgetstcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_PARALLEL
-extern "C" int Vtkparalleltcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_GEOVIS
-extern "C" int Vtkgeovistcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_INFOVIS
-extern "C" int Vtkinfovistcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_VIEWS
-extern "C" int Vtkviewstcl_Init(Tcl_Interp *interp);
+#ifndef VTK_BUILD_SHARED_LIBS
+# include "vtktcl_static_prototypes.h"
 #endif
 
 void help()
@@ -212,6 +181,10 @@ int Tcl_AppInit(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
+#endif
+
+#ifndef VTK_BUILD_SHARED_LIBS
+# include "vtktcl_static_packages.h"
 #endif
 
 #ifdef VTK_EXTRA_TCL_INIT
@@ -262,6 +235,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
     "  error $catch_res $errorInfo\n"
     "  }\n"
     "  return $package_res\n"
+    "}\n"
+    "if {\"-A\" ni $argv} {\n"
+    "puts {Enter: \"package require vtk\" to load VTK commands}\n"
     "}\n";
   Tcl_Eval(interp, script);
 
