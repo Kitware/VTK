@@ -27,7 +27,13 @@
 
 vtkStandardNewMacro(vtkPyramid);
 
-static const double VTK_DIVERGED = 1.e6;
+namespace
+{
+  static const double VTK_DIVERGED = 1.e6;
+  static const int VTK_MAX_ITERATION=10;
+  static const double VTK_CONVERGED=1.e-03;
+}
+
 //----------------------------------------------------------------------------
 //
 // Construct the pyramid with five points.
@@ -54,8 +60,6 @@ vtkPyramid::~vtkPyramid()
   this->Quad->Delete();
 }
 
-static const int VTK_MAX_ITERATION=10;
-static const double VTK_CONVERGED=1.e-03;
 //----------------------------------------------------------------------------
 int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
                                  int& subId, double pcoords[3],
@@ -88,7 +92,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   double length2 = vtkMath::Distance2BetweenPoints(apexPoint, baseMidpoint);
   // we use .001 as the relative tolerance here since that is the same
   // that is used for the interior cell check below.
-  if(dist2 == 0. || ( length2 != 0. && dist2/length2 > .001) )
+  if(dist2 == 0. || ( length2 != 0. && dist2/length2 < .001) )
     {
     pcoords[0] = pcoords[1] = .5;
     pcoords[2] = 1;
@@ -96,6 +100,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
     if(closestPoint)
       {
       memcpy(closestPoint, x, 3*sizeof(double));
+      dist2 = 0.;
       }
     return 1;
     }
