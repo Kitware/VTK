@@ -27,7 +27,7 @@ class  kMeansDistanceCalculator( Testing.vtkTest ):
     df = vtk.vtkKMeansDistanceFunctorCalculator()
     km.SetDistanceFunctor( df )
     df.SetDistanceExpression( 'sqrt( (x0-y0)*(x0-y0) + (x1-y1)*(x1-y1) )' )
-    km.SetInput( tab )
+    km.SetInputData( tab )
     km.SetColumnStatus( 'x', 1 )
     km.SetColumnStatus( 'y', 1 )
     km.RequestSelectedColumns()

@@ -337,26 +337,26 @@ int TestContingencyStatistics( int, char *[] )
     10.,       // number of degrees of freedom
     36.896,    // Chi square statistic
     22.35,     // Chi square statistic with Yates correction
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
     .00005899, // p-valued of Chi square statistic
     .01341754, // p-value of Chi square statistic with Yates correction
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
     // (Port,Source)
     10.,       // number of degrees of freedom
     17.353,    // Chi square statistic
     7.279,     // Chi square statistic with Yates correction
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
     .06690889, // p-valued of Chi square statistic
     .69886917  // p-value of Chi square statistic with Yates correction
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
   };
 
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
   double alpha = .05;
   vtkIdType nv = 5;
-#else // VTK_USE_GNU_R
+#else // USE_GNU_R
   vtkIdType nv = 3;
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
@@ -388,7 +388,7 @@ int TestContingencyStatistics( int, char *[] )
         }
       }
 
-#ifdef VTK_USE_GNU_R
+#ifdef USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest->GetValueByName( r, "P Yates" ).ToDouble();
     // Must verify that p value is valid (it is set to -1 if R has failed)
@@ -398,7 +398,7 @@ int TestContingencyStatistics( int, char *[] )
            << alpha
            << " significance level";
       }
-#endif // VTK_USE_GNU_R
+#endif // USE_GNU_R
 
     cout << "\n";
     }
