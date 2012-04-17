@@ -13,7 +13,12 @@ vtk_module(vtkRenderingOpenGL
     vtkInteractionStyle
     vtkTestingRendering
     vtkIOExport
+    vtkRenderingFreeTypeOpenGL
+    vtkRenderingImage
     vtkRenderingLOD
+    vtkRenderingLabel
     vtkImagingGeneral
     vtkImagingSources
+    vtkFiltersProgrammable
+    vtkRenderingAnnotation
   )
