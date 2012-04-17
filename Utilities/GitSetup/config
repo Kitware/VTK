@@ -1,0 +1,10 @@
+[hooks]
+	url = http://vtk.org/VTK.git
+[ssh]
+	host = vtk.org
+	key = id_git_vtk
+	request-url = https://www.kitware.com/Admin/SendPassword.cgi
+[gerrit]
+	project = VTK
+	site = http://review.source.kitware.com
+	pushurl = $username@review.source.kitware.com:VTK
