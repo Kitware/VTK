@@ -14,18 +14,19 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkHyperTreeFractalSource.h"
 
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeCursor.h"
 #include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
-#include <assert.h>
+#include "vtkInformationVector.h"
+#include "vtkHyperTreeCursor.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
-#include "vtkDataArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkGarbageCollector.h"
+
+#include <assert.h>
 
 vtkStandardNewMacro(vtkHyperTreeFractalSource);
 
@@ -52,6 +53,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
   // Instantiate hyper tree grid
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
 
+  // Set grid parameters
   output->SetGridSize( this->GridSize );
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
