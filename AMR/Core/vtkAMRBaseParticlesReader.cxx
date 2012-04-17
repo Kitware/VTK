@@ -83,11 +83,11 @@ void vtkAMRBaseParticlesReader::SetParticleArrayStatus(
 
   if( status )
     {
-      this->ParticleDataArraySelection->EnableArray( name );
+    this->ParticleDataArraySelection->EnableArray( name );
     }
   else
     {
-      this->ParticleDataArraySelection->DisableArray( name );
+    this->ParticleDataArraySelection->DisableArray( name );
     }
 
 }
@@ -113,7 +113,7 @@ void vtkAMRBaseParticlesReader::Initialize( )
 
   for( int i=0; i < 3; ++i )
     {
-      this->MinLocation[ i ] = this->MaxLocation[ i ] = 0.0;
+    this->MinLocation[ i ] = this->MaxLocation[ i ] = 0.0;
     }
 
   this->ParticleDataArraySelection = vtkDataArraySelection::New();
@@ -129,7 +129,9 @@ void vtkAMRBaseParticlesReader::Initialize( )
 void vtkAMRBaseParticlesReader::InitializeParticleDataSelections()
 {
   if( !this->InitialRequest )
+    {
     return;
+    }
 
   this->ParticleDataArraySelection->DisableAllArrays();
   this->InitialRequest = false;
@@ -141,17 +143,16 @@ void vtkAMRBaseParticlesReader::SetFileName( const char *fileName )
 
   if( this->FileName != NULL )
     {
-
-      if( strcmp(this->FileName,fileName) != 0 )
-        {
-          this->Initialized = false;
-          delete [] this->FileName;
-          this->FileName = NULL;
-        }
-      else
-        {
-          return;
-        }
+    if( strcmp(this->FileName,fileName) != 0 )
+      {
+      this->Initialized = false;
+      delete [] this->FileName;
+      this->FileName = NULL;
+      }
+    else
+      {
+      return;
+      }
     }
 
   this->FileName = new char[ strlen(fileName)+1 ];
@@ -164,7 +165,9 @@ void vtkAMRBaseParticlesReader::SetFileName( const char *fileName )
 bool vtkAMRBaseParticlesReader::IsParallel()
 {
   if( this->Controller != NULL && this->Controller->GetNumberOfProcesses() > 1 )
+    {
     return true;
+    }
   return false;
 }
 
@@ -172,11 +175,15 @@ bool vtkAMRBaseParticlesReader::IsParallel()
 bool vtkAMRBaseParticlesReader::IsBlockMine( const int blkIdx )
 {
   if( !this->IsParallel() )
+    {
     return true;
+    }
 
   int myRank = this->Controller->GetLocalProcessId();
   if( myRank == this->GetBlockProcessId( blkIdx ) )
+    {
     return true;
+    }
   return false;
 }
 
@@ -184,7 +191,9 @@ bool vtkAMRBaseParticlesReader::IsBlockMine( const int blkIdx )
 int vtkAMRBaseParticlesReader::GetBlockProcessId( const int blkIdx )
 {
   if( !this->IsParallel() )
+    {
     return 0;
+    }
 
   int N = this->Controller->GetNumberOfProcesses();
   return( blkIdx%N );
@@ -195,7 +204,9 @@ bool vtkAMRBaseParticlesReader::CheckLocation(
     const double x, const double y, const double z )
 {
   if( !this->FilterLocation )
+    {
     return true;
+    }
 
   double coords[3];
   coords[0] = x;
@@ -204,8 +215,10 @@ bool vtkAMRBaseParticlesReader::CheckLocation(
 
   for( int i=0; i < 3; ++i )
     {
-      if( this->MinLocation[i] > coords[i] || coords[i] > this->MaxLocation[i] )
-        return false;
+    if( this->MinLocation[i] > coords[i] || coords[i] > this->MaxLocation[i] )
+      {
+      return false;
+      }
     } // END for all dimensions
 
   return true;

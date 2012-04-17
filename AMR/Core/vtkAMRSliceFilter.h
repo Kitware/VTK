@@ -39,61 +39,61 @@ class VTKAMRCORE_EXPORT vtkAMRSliceFilter :
   public vtkOverlappingAMRAlgorithm
 {
   public:
-      static vtkAMRSliceFilter* New();
-      vtkTypeMacro( vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm );
-      void PrintSelf(ostream &os, vtkIndent indent );
+    static vtkAMRSliceFilter* New();
+    vtkTypeMacro( vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm );
+    void PrintSelf(ostream &os, vtkIndent indent );
 
-      // Inline Gettters & Setters
-      vtkSetMacro(OffSetFromOrigin,double);
-      vtkGetMacro(OffSetFromOrigin,double);
+    // Inline Gettters & Setters
+    vtkSetMacro(OffSetFromOrigin,double);
+    vtkGetMacro(OffSetFromOrigin,double);
 
-      // Description:
-      // Set/Get ForwardUpstream property
-      vtkSetMacro( ForwardUpstream, int );
-      vtkGetMacro( ForwardUpstream, int );
-      vtkBooleanMacro( ForwardUpstream, int );
+    // Description:
+    // Set/Get ForwardUpstream property
+    vtkSetMacro( ForwardUpstream, int );
+    vtkGetMacro( ForwardUpstream, int );
+    vtkBooleanMacro( ForwardUpstream, int );
 
-      // Description:
-      // Set/Get EnablePrefetching property
-      vtkSetMacro( EnablePrefetching, int );
-      vtkGetMacro( EnablePrefetching, int );
-      vtkBooleanMacro( EnablePrefetching, int );
+    // Description:
+    // Set/Get EnablePrefetching property
+    vtkSetMacro( EnablePrefetching, int );
+    vtkGetMacro( EnablePrefetching, int );
+    vtkBooleanMacro( EnablePrefetching, int );
 
-      // Description:
-      // Set/Get the maximum resolution used in this instance.
-      vtkSetMacro(MaxResolution,int);
-      vtkGetMacro(MaxResolution,int);
+    // Description:
+    // Set/Get the maximum resolution used in this instance.
+    vtkSetMacro(MaxResolution,int);
+    vtkGetMacro(MaxResolution,int);
 
-      // Description:
-      // Set/Get the Axis normal. There are only 3 acceptable values
-      // 1-(X-Normal); 2-(Y-Normal); 3-(Z-Normal)
-      vtkSetMacro(Normal,int);
-      vtkGetMacro(Normal,int);
+    // Description:
+    // Set/Get the Axis normal. There are only 3 acceptable values
+    // 1-(X-Normal); 2-(Y-Normal); 3-(Z-Normal)
+    vtkSetMacro(Normal,int);
+    vtkGetMacro(Normal,int);
 
-      // Description:
-      // Set/Get a multiprocess controller for paralle processing.
-      // By default this parameter is set to NULL by the constructor.
-      vtkSetMacro( Controller, vtkMultiProcessController* );
-      vtkGetMacro( Controller, vtkMultiProcessController* );
+    // Description:
+    // Set/Get a multiprocess controller for paralle processing.
+    // By default this parameter is set to NULL by the constructor.
+    vtkSetMacro( Controller, vtkMultiProcessController* );
+    vtkGetMacro( Controller, vtkMultiProcessController* );
 
-      // Standard Pipeline methods
-      virtual int RequestData(
-         vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-      virtual int FillInputPortInformation(int port, vtkInformation *info);
-      virtual int FillOutputPortInformation(int port, vtkInformation *info);
+    // Standard Pipeline methods
+    virtual int RequestData(
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+    virtual int FillInputPortInformation(int port, vtkInformation *info);
+    virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
-      // Description:
-      // Makes upstream request to a source, typically, a concrete instance of
-      // vtkAMRBaseReader, for which blocks to load.
-      virtual int RequestInformation(
-          vtkInformation *rqst,
-          vtkInformationVector **inputVector,
-          vtkInformationVector *outputVector );
+    // Description:
+    // Makes upstream request to a source, typically, a concrete instance of
+    // vtkAMRBaseReader, for which blocks to load.
+    virtual int RequestInformation(
+        vtkInformation *rqst,
+        vtkInformationVector **inputVector,
+        vtkInformationVector *outputVector );
 
-      // Description:
-      // Performs upstream requests to the reader
-      virtual int RequestUpdateExtent(
-          vtkInformation*, vtkInformationVector**,vtkInformationVector* );
+    // Description:
+    // Performs upstream requests to the reader
+    virtual int RequestUpdateExtent(
+        vtkInformation*, vtkInformationVector**,vtkInformationVector* );
 
   protected:
     vtkAMRSliceFilter();

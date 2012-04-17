@@ -427,8 +427,8 @@ void vtkEnzoReaderInternal::ReleaseDataArray()
 {
   if( this->DataArray )
     {
-      this->DataArray->Delete();
-      this->DataArray = NULL;
+    this->DataArray->Delete();
+    this->DataArray = NULL;
     }
 }
 
@@ -443,7 +443,7 @@ int vtkEnzoReaderInternal::GetBlockAttribute(
   if ( atribute == NULL || blockIdx < 0  ||
        pDataSet == NULL || blockIdx >= this->NumberOfBlocks )
     {
-      return 0;
+    return 0;
     }
 
   // try obtaining the attribute and attaching it to the grid as a cell data
@@ -460,9 +460,9 @@ int vtkEnzoReaderInternal::GetBlockAttribute(
           this->DataArray->GetNumberOfTuples() )
      )
     {
-      succeded = 1;
-      pDataSet->GetCellData()->AddArray( this->DataArray );
-      this->ReleaseDataArray();
+    succeded = 1;
+    pDataSet->GetCellData()->AddArray( this->DataArray );
+    this->ReleaseDataArray();
     }
 
   return succeded;
@@ -478,7 +478,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   if ( atribute == NULL || blockIdx < 0  ||
        blockIdx >= this->NumberOfBlocks )
     {
-      return 0;
+    return 0;
     }
 
   // this->Internal->Blocks includes a pseudo block --- the root as block #0
@@ -489,7 +489,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   hid_t  fileIndx = H5Fopen( blckFile.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT );
   if( fileIndx < 0 )
     {
-      return 0;
+    return 0;
     }
 
   // retrieve the contents of the root directory to look for a group
@@ -503,19 +503,18 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   H5Gget_num_objs( rootIndx, &numbObjs );
   for ( objIndex=0; objIndex < static_cast < int >( numbObjs ); objIndex ++  )
     {
-        int type = H5Gget_objtype_by_idx( rootIndx, objIndex );
-        if ( type == H5G_GROUP )
-          {
-            H5Gget_objname_by_idx( rootIndx, objIndex, blckName, 64 );
-            if ( (  sscanf( blckName, "Grid%d", &blckIndx )  ==  1  )  &&
-                 (  (blckIndx  ==  blockIdx) || (blckIndx == blockIdx+1) ) )
-              {
-                // located the target block
-                rootIndx = H5Gopen( rootIndx, blckName );
-                break;
-              }
-          }
-
+    int type = H5Gget_objtype_by_idx( rootIndx, objIndex );
+    if ( type == H5G_GROUP )
+      {
+      H5Gget_objname_by_idx( rootIndx, objIndex, blckName, 64 );
+      if ( (  sscanf( blckName, "Grid%d", &blckIndx )  ==  1  )  &&
+           (  (blckIndx  ==  blockIdx) || (blckIndx == blockIdx+1) ) )
+        {
+        // located the target block
+        rootIndx = H5Gopen( rootIndx, blckName );
+        break;
+        }
+      }
     } // END for all objects
 
   // disable error messages while looking for the attribute (if any) name
@@ -533,12 +532,12 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   // check if the data attribute exists
   if ( attrIndx < 0 )
     {
-      vtkGenericWarningMacro(
-       "Attribute (" << atribute << ") data does not exist in file "
-       << blckFile.c_str() );
-      H5Gclose( rootIndx );
-      H5Fclose( fileIndx );
-      return 0;
+    vtkGenericWarningMacro(
+     "Attribute (" << atribute << ") data does not exist in file "
+     << blckFile.c_str() );
+    H5Gclose( rootIndx );
+    H5Fclose( fileIndx );
+    return 0;
     }
 
   // get cell dimensions and the valid number
@@ -579,73 +578,60 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   hid_t dataType = H5Tget_native_type( tRawType, H5T_DIR_ASCEND );
   if (  H5Tequal( dataType, H5T_NATIVE_FLOAT )  )
     {
-
     this->DataArray = vtkFloatArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     float  * arrayPtr = static_cast < float * >
-    (  vtkFloatArray::SafeDownCast( this->DataArray )
-    ->GetPointer( 0 )  );
+     (vtkFloatArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
-
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_DOUBLE )  )
     {
-
     this->DataArray = vtkDoubleArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     double  * arrayPtr = static_cast < double * >
-    (  vtkDoubleArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkDoubleArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_INT )  )
     {
-
     this->DataArray = vtkIntArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     int  * arrayPtr = static_cast < int * >
-    (  vtkIntArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkIntArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_UINT )  )
     {
-
     this->DataArray = vtkUnsignedIntArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     unsigned int  * arrayPtr = static_cast < unsigned int * >
-    (  vtkUnsignedIntArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkUnsignedIntArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_SHORT )  )
     {
-
     this->DataArray = vtkShortArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     short  * arrayPtr = static_cast < short * >
-    (  vtkShortArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkShortArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_USHORT )  )
     {
-
     this->DataArray = vtkUnsignedShortArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     unsigned short  * arrayPtr = static_cast < unsigned short * >
-    (  vtkUnsignedShortArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkUnsignedShortArray::SafeDownCast( this->DataArray )->GetPointer( 0 ));
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -656,32 +642,27 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkUnsignedCharArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     unsigned char  * arrayPtr = static_cast < unsigned char * >
-    (  vtkUnsignedCharArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkUnsignedCharArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_LONG )  )
     {
-
     this->DataArray = vtkLongArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     long  * arrayPtr = static_cast < long * >
-    (  vtkLongArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     (vtkLongArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
   else
   if (  H5Tequal( dataType, H5T_NATIVE_LLONG )  )
     {
-
     this->DataArray = vtkLongLongArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     long long  * arrayPtr = static_cast < long long * >
-    (  vtkLongLongArray::SafeDownCast( this->DataArray )
-       ->GetPointer( 0 )  );
+     ( vtkLongLongArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -690,14 +671,13 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
 //        vtkErrorMacro( "Unknown HDF5 data type --- it is not FLOAT, "       <<
 //                       "DOUBLE, INT, UNSIGNED INT, SHORT, UNSIGNED SHORT, " <<
 //                       "UNSIGNED CHAR, LONG, or LONG LONG." << endl );
-
-        H5Tclose( dataType );
-        H5Tclose( tRawType );
-        H5Tclose( spaceIdx );
-        H5Dclose( attrIndx );
-        H5Gclose( rootIndx );
-        H5Fclose( fileIndx );
-        return 0;
+    H5Tclose( dataType );
+    H5Tclose( tRawType );
+    H5Tclose( spaceIdx );
+    H5Dclose( attrIndx );
+    H5Gclose( rootIndx );
+    H5Fclose( fileIndx );
+    return 0;
     }
 
 
@@ -1056,9 +1036,9 @@ void vtkEnzoReaderInternal::GetAttributeNames()
 
   if ( fileIndx < 0 )
     {
-        vtkGenericWarningMacro(
-                "Failed to open HDF5 grid file " << blckFile.c_str() );
-        return;
+    vtkGenericWarningMacro(
+       "Failed to open HDF5 grid file " << blckFile.c_str() );
+    return;
     }
 
   // retrieve the contents of the root directory to look for a group
@@ -1162,7 +1142,6 @@ void vtkEnzoReaderInternal::CheckAttributeNames()
 //  std::cout << "BlockIdx: " << this->ReferenceBlock - 1 << std::endl;
 //  std::cout.flush();
 
-//  TODO: Add particle support here (gzagaris)
   vtkPolyData * polyData = vtkPolyData::New();
 //  this->TheReader->GetParticles( this->ReferenceBlock - 1, polyData, 0, 0 );
 
@@ -1184,25 +1163,15 @@ void vtkEnzoReaderInternal::CheckAttributeNames()
     // the actual number of tuples of a block attribute loaded from the
     // file for the reference block
     int   numTupls = 0;
-//    if( this->TheReader->GetCellArrayStatus(
-//          this->BlockAttributeNames[i].c_str() ) )
-//    if(this->TheReader->GetCellArrayStatus(
-//            this->BlockAttributeNames[i].c_str() ) &&
-//       this->TheReader->LoadAttribute(
-//            this->BlockAttributeNames[i].c_str(),this->ReferenceBlock - 1)  )
-//      {
-
-        if( this->DataArray != NULL )
-          {
-            numTupls = this->DataArray->GetNumberOfTuples();
-            this->ReleaseDataArray();
-          }
-        else
-          {
-            numTupls = 0;
-          }
-
-//      }
+    if( this->DataArray != NULL )
+      {
+      numTupls = this->DataArray->GetNumberOfTuples();
+      this->ReleaseDataArray();
+      }
+    else
+      {
+      numTupls = 0;
+      }
 
     // compare the three numbers
     if ( numTupls != numCells )
@@ -1216,7 +1185,6 @@ void vtkEnzoReaderInternal::CheckAttributeNames()
         toRemove.push_back( this->BlockAttributeNames[i] );
         }
       }
-
     }
 
   int  nRemoves = static_cast < int > ( toRemove.size() );

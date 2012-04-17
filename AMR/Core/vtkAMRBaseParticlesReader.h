@@ -36,72 +36,72 @@ class VTKAMRCORE_EXPORT vtkAMRBaseParticlesReader :
   public vtkMultiBlockDataSetAlgorithm
 {
   public:
-      vtkTypeMacro( vtkAMRBaseParticlesReader, vtkMultiBlockDataSetAlgorithm );
-      void PrintSelf(ostream &os, vtkIndent indent );
+    vtkTypeMacro( vtkAMRBaseParticlesReader, vtkMultiBlockDataSetAlgorithm );
+    void PrintSelf(ostream &os, vtkIndent indent );
 
-      // Description:
-      // Set & Get the frequency.
-      vtkGetMacro(Frequency,int);
-      vtkSetMacro(Frequency,int);
+    // Description:
+    // Set & Get the frequency.
+    vtkGetMacro(Frequency,int);
+    vtkSetMacro(Frequency,int);
 
-      // Description:
-      // Set & Get the multi-process controller.
-      vtkGetMacro(Controller, vtkMultiProcessController* );
-      vtkSetMacro(Controller, vtkMultiProcessController* );
+    // Description:
+    // Set & Get the multi-process controller.
+    vtkGetMacro(Controller, vtkMultiProcessController* );
+    vtkSetMacro(Controller, vtkMultiProcessController* );
 
-      // Description:
-      // Set & Get for filter location and boolean macro
-      vtkSetMacro(FilterLocation,int);
-      vtkGetMacro(FilterLocation,int);
-      vtkBooleanMacro(FilterLocation,int);
-
-
-      // Description:
-      // Get the data array selection tables used to configure which data
-      // arrays are loaded by the reader.
-      vtkGetObjectMacro(ParticleDataArraySelection,vtkDataArraySelection);
-
-      // Description:
-      // Get the number of particles arrays available in the input.
-      int GetNumberOfParticleArrays();
-
-      // Description:
-      // Get the particle array name of the array associated with the given
-      // index.
-      const char* GetParticleArrayName( int index );
-
-      // Description:
-      // Get/Set whether the particle array status.
-      int GetParticleArrayStatus( const char* name );
-      void SetParticleArrayStatus( const char* name, int status );
+    // Description:
+    // Set & Get for filter location and boolean macro
+    vtkSetMacro(FilterLocation,int);
+    vtkGetMacro(FilterLocation,int);
+    vtkBooleanMacro(FilterLocation,int);
 
 
-      virtual void SetFileName( const char *fileName );
-      vtkGetStringMacro(FileName);
+    // Description:
+    // Get the data array selection tables used to configure which data
+    // arrays are loaded by the reader.
+    vtkGetObjectMacro(ParticleDataArraySelection,vtkDataArraySelection);
 
-      // Description:
-      // Sets the min location
-      inline void SetMinLocation(
-          const double minx, const double miny, const double minz )
-        {
-          this->MinLocation[ 0 ] = minx;
-          this->MinLocation[ 1 ] = miny;
-          this->MinLocation[ 2 ] = minz;
-        }
+    // Description:
+    // Get the number of particles arrays available in the input.
+    int GetNumberOfParticleArrays();
 
-      // Description:
-      // Sets the max location
-      inline void SetMaxLocation(
-          const double maxx, const double maxy, const double maxz )
-        {
-          this->MaxLocation[ 0 ] = maxx;
-          this->MaxLocation[ 1 ] = maxy;
-          this->MaxLocation[ 2 ] = maxz;
-        }
+    // Description:
+    // Get the particle array name of the array associated with the given
+    // index.
+    const char* GetParticleArrayName( int index );
 
-      // Description:
-      // Returns the total number of particles
-      virtual int GetTotalNumberOfParticles() = 0;
+    // Description:
+    // Get/Set whether the particle array status.
+    int GetParticleArrayStatus( const char* name );
+    void SetParticleArrayStatus( const char* name, int status );
+
+
+    virtual void SetFileName( const char *fileName );
+    vtkGetStringMacro(FileName);
+
+    // Description:
+    // Sets the min location
+    inline void SetMinLocation(
+        const double minx, const double miny, const double minz )
+      {
+      this->MinLocation[ 0 ] = minx;
+      this->MinLocation[ 1 ] = miny;
+      this->MinLocation[ 2 ] = minz;
+      }
+
+    // Description:
+    // Sets the max location
+    inline void SetMaxLocation(
+        const double maxx, const double maxy, const double maxz )
+      {
+      this->MaxLocation[ 0 ] = maxx;
+      this->MaxLocation[ 1 ] = maxy;
+      this->MaxLocation[ 2 ] = maxz;
+      }
+
+    // Description:
+    // Returns the total number of particles
+    virtual int GetTotalNumberOfParticles() = 0;
 
   protected:
     vtkAMRBaseParticlesReader();

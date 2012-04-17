@@ -40,20 +40,20 @@ class VTKAMRCORE_EXPORT vtkAMRBaseReader :
   public vtkOverlappingAMRAlgorithm
 {
   public:
-     vtkTypeMacro( vtkAMRBaseReader, vtkOverlappingAMRAlgorithm );
-     void PrintSelf(ostream &os, vtkIndent indent);
+    vtkTypeMacro( vtkAMRBaseReader, vtkOverlappingAMRAlgorithm );
+    void PrintSelf(ostream &os, vtkIndent indent);
 
-     // Description:
-     // Initializes the AMR reader.
-     // All concrete instances must call this method in their constructor.
-     void Initialize();
+    // Description:
+    // Initializes the AMR reader.
+    // All concrete instances must call this method in their constructor.
+    void Initialize();
 
-     // Description:
-     // Set/Get Reader caching property
-     vtkSetMacro( EnableCaching, int );
-     vtkGetMacro( EnableCaching, int );
-     vtkBooleanMacro( EnableCaching, int );
-     bool IsCachingEnabled() const
+    // Description:
+    // Set/Get Reader caching property
+    vtkSetMacro( EnableCaching, int );
+    vtkGetMacro( EnableCaching, int );
+    vtkBooleanMacro( EnableCaching, int );
+    bool IsCachingEnabled() const
        {
        return( (this->EnableCaching)?true:false);
        };
@@ -85,13 +85,13 @@ class VTKAMRCORE_EXPORT vtkAMRBaseReader :
     const char* GetPointArrayName(int index);
     const char* GetCellArrayName(int index);
 
-   // Description:
-   // Get/Set whether the point or cell array with the given name is to
-   // be read.
-   int GetPointArrayStatus(const char* name);
-   int GetCellArrayStatus(const char* name);
-   void SetPointArrayStatus(const char* name, int status);
-   void SetCellArrayStatus(const char* name, int status);
+    // Description:
+    // Get/Set whether the point or cell array with the given name is to
+    // be read.
+    int GetPointArrayStatus(const char* name);
+    int GetCellArrayStatus(const char* name);
+    void SetPointArrayStatus(const char* name, int status);
+    void SetCellArrayStatus(const char* name, int status);
 
     // Description:
     // Set/Get the filename. Concrete instances of this class must implement
