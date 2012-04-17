@@ -29,14 +29,14 @@ vtkUnstructuredGrid aConvexGrid
 
 # Display the cell
 vtkDataSetMapper dsm
-  dsm SetInput aConvexGrid
+  dsm SetInputData aConvexGrid
 vtkActor a
   a SetMapper dsm
   eval [a GetProperty] SetColor 0 1 0
 
 # Contour and clip the cell with elevation scalars
 vtkElevationFilter ele
-  ele SetInput aConvexGrid
+  ele SetInputData aConvexGrid
   ele SetLowPoint -1 -1 -1
   ele SetHighPoint 1 1 1
   ele SetScalarRange -1 1
