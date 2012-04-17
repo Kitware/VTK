@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPStreamTracer.h"
 
+#include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
@@ -21,8 +22,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkMultiProcessController.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -165,10 +166,10 @@ void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
                                         int streamId,
                                         vtkIdType idx)
 {
-  vtkPolyData* input = vtkPolyData::New();
+  vtkNew<vtkPolyData> input;
 
   // Receive a polydata which contains one point.
-  this->Controller->Receive(input, vtkMultiProcessController::ANY_SOURCE, 765);
+  this->Controller->Receive(input.GetPointer(), vtkMultiProcessController::ANY_SOURCE, 765);
 
   int numCells = tomod->GetNumberOfCells();
   // Use the "Streamline Ids" array to locate the right cell.
@@ -176,7 +177,6 @@ void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
     tomod->GetCellData()->GetArray("Streamline Ids"));
   if (!streamIds)
     {
-    input->Delete();
     return;
     }
   vtkIdType cellId=-1;
@@ -222,8 +222,6 @@ void vtkPStreamTracer::ReceiveCellPoint(vtkPolyData* tomod,
       outputDA->SetTuple(ptId, da->GetTuple(0));
       }
     }
-
-  input->Delete();
 }
 
 // Send one point and all of it's attributes to another process
