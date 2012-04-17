@@ -10,6 +10,7 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeFractalSource.h"
 
+#include "vtkCamera.h"
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
 #include "vtkDataSetMapper.h"
@@ -35,21 +36,21 @@ int TestHyperTreeGrid( int argc, char** argv )
   fractal->SetGridSize( 3, 2, 2 );
   fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );
-  vtkHyperTreeGrid* tree = fractal->NewHyperTreeGrid();
+  vtkHyperTreeGrid* htGrid = fractal->NewHyperTreeGrid();
 
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
   plane->SetOrigin( .5, .5, .15 );
   plane->SetNormal( 0, 0, 1 );
-  cut->SetInputData( tree);
+  cut->SetInputData( htGrid );
   cut->SetCutFunction( plane.GetPointer() );
   vtkNew<vtkPolyDataWriter> writer;
-  writer->SetFileName( "./hyperTreeCut.vtk" );
+  writer->SetFileName( "./hyperHtGridCut.vtk" );
   writer->SetInputConnection( cut->GetOutputPort() );
   writer->Write();
 
   vtkNew<vtkContourFilter> contour;
-  contour->SetInputData( tree );
+  contour->SetInputData( htGrid );
   contour->SetNumberOfContours( 2 );
   contour->SetValue( 0, 2. );
   contour->SetValue( 1, 3. );
@@ -57,27 +58,36 @@ int TestHyperTreeGrid( int argc, char** argv )
                                    vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                    "Test" );
   vtkNew<vtkPolyDataWriter> writer2;
-  writer2->SetFileName( "./hyperTreeContour.vtk" );
+  writer2->SetFileName( "./hyperHtGridContour.vtk" );
   writer2->SetInputConnection( contour->GetOutputPort() );
   writer2->Write();
 
   vtkNew<vtkShrinkFilter> shrink;
-  shrink->SetInputData(tree);
+  shrink->SetInputData( htGrid );
   shrink->SetShrinkFactor( 1. );
   vtkNew<vtkUnstructuredGridWriter> writer3;
-  writer3->SetFileName( "./hyperTreeShrink.vtk" );
+  writer3->SetFileName( "./hyperHtGridShrink.vtk" );
   writer3->SetInputConnection( shrink->GetOutputPort() );
   writer3->Write();
 
-  vtkNew<vtkDataSetMapper> treeMapper;
-  treeMapper->SetInputConnection( shrink->GetOutputPort() );
-  vtkNew<vtkActor> treeActor;
-  treeActor->SetMapper( treeMapper.GetPointer() );
+  vtkNew<vtkDataSetMapper> htGridMapper;
+  htGridMapper->SetInputConnection( shrink->GetOutputPort() );
+  vtkNew<vtkActor> htGridActor;
+  htGridActor->SetMapper( htGridMapper.GetPointer() );
+
+  // Create camera
+  double bd[3];
+  htGrid->GetBounds( bd );
+  vtkNew<vtkCamera> camera;
+  camera->SetClippingRange( 1., 100. );
+  camera->SetFocalPoint( htGrid->GetCenter() );
+  camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Create a renderer, add actors to it
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor( treeActor.GetPointer() );
+  renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
+  renderer->AddActor( htGridActor.GetPointer() );
 
   // Create a renderWindow
   vtkNew<vtkRenderWindow> renWin;
@@ -98,6 +108,8 @@ int TestHyperTreeGrid( int argc, char** argv )
     iren->Start();
     }
 
-  tree->Delete();
+  // Clean up
+  htGrid->Delete();
+
   return 0;
 }
