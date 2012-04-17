@@ -16,14 +16,13 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkHyperTreeCursor.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkMath.h"
-#include "vtkPointData.h"
-#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <assert.h>
