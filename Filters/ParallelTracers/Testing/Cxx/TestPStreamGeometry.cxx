@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "TestVectorFieldSource.h"
-#include <vtkDistributedStreamTracer.h>
+#include <vtkPStreamTracer.h>
 #include <vtkMPIController.h>
 #include <vtkIdList.h>
 #include <vtkPoints.h>
@@ -76,7 +76,7 @@ int main( int argc, char* argv[] )
   double angle = 3.14/20;
   int numTraces=1;
 
-  vtkNew<vtkDistributedStreamTracer> tracer;
+  vtkNew<vtkPStreamTracer> tracer;
   tracer->SetInputConnection(0,imageSource->GetOutputPort());
   tracer->SetIntegrationDirectionToForward();
   tracer->SetIntegratorTypeToRungeKutta4();

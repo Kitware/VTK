@@ -43,7 +43,7 @@
 #ifndef __vtkTemporalInterpolatedVelocityField_h
 #define __vtkTemporalInterpolatedVelocityField_h
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
+#include "vtkFiltersTracersModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // because it is good
 //BTX
@@ -62,7 +62,7 @@ class vtkGenericCell;
 class vtkDoubleArray;
 class vtkCachingInterpolatedVelocityField;
 
-class VTKFILTERSPARALLELTRACERS_EXPORT vtkTemporalInterpolatedVelocityField : public vtkFunctionSet
+class VTKFILTERSTRACERS_EXPORT vtkTemporalInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
   vtkTypeMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);

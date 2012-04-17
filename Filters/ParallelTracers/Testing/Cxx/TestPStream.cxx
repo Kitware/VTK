@@ -16,11 +16,11 @@
 #include "vtkCamera.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDebugLeaks.h"
-#include "vtkDistributedStreamTracer.h"
 #include "vtkLineSource.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPStreamTracer.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkGeometryFilter.h"
@@ -126,7 +126,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetPoint2(6.3766, -0.5886, 26.6274);
   LineSourceWidget0->SetResolution(20);
 
-  vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();;
+  vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();;
   Stream0->SetInputConnection(tv->GetOutputPort());
   Stream0->SetSourceConnection(LineSourceWidget0->GetOutputPort());
   Stream0->SetIntegrationStepUnit(2);
