@@ -89,8 +89,6 @@ set(Module_SRCS
 
   vtkMarchingContourFilter.cxx
 
-  #vtkOutlineCornerFilter.cxx # Needs vtkOutlineCornerSource
-
   # Depend upon IO/Image
   #vtkSliceCubes.cxx # Needs vtkVolumeReader
 
