@@ -25,7 +25,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkTemporalDataSetCache.h"
 #include "vtkTemporalInterpolator.h"
 #include "vtkThreshold.h"
@@ -142,28 +141,22 @@ int vtkTemporalSphereSource::RequestData(
 
   this->ActualTimeStep = this->TimeStep;
 
-  if (this->TimeStep==0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (this->TimeStep==0 && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
-    double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS())[0];
+    double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     this->ActualTimeStep = std::find_if(
       this->TimeStepValues.begin(),
       this->TimeStepValues.end(),
       std::bind2nd( vtkTestTemporalCacheSimpleWithinTolerance( ), requestedTimeValue ))
       - this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
-#ifndef NDEBUG
-    int N = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &requestedTimeValue, 1);
-#endif
-    vtkDebugMacro(<<"Got a timestep request from downstream t= " << requestedTimeValue
-      << " Step : " << this->ActualTimeStep << "(Number of steps requested " << N << ")");
     }
   else
     {
-    double timevalue[1];
-    timevalue[0] = this->TimeStepValues[this->ActualTimeStep-this->TimeStepRange[0]];
-    vtkDebugMacro(<<"Using manually set t= " << timevalue[0] << " Step : " << this->ActualTimeStep);
-    doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &timevalue[0], 1);
+    double timevalue;
+    timevalue = this->TimeStepValues[this->ActualTimeStep-this->TimeStepRange[0]];
+    vtkDebugMacro(<<"Using manually set t= " << timevalue << " Step : " << this->ActualTimeStep);
+    doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timevalue);
     }
 
   cout << "this->ActualTimeStep : " << this->ActualTimeStep << endl;
@@ -185,18 +178,11 @@ public:
     // count the number of timesteps requested
     vtkTemporalSphereSource *sph = vtkTemporalSphereSource::SafeDownCast(caller);
     vtkInformation *info = sph->GetExecutive()->GetOutputInformation(0);
-    int Length = info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    int Length = info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())? 1 : 0;
     this->Count += Length;
     if (Length>0)
       {
-      std::vector<double> steps;
-      steps.resize(Length);
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &steps[0]);
-      for (int i=0; i<Length; ++i)
-        {
-        cout << steps[i] << " ";
-        }
-      cout << endl;
+      double step = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
       }
   }
 
@@ -205,11 +191,6 @@ public:
 //-------------------------------------------------------------------------
 int TestTemporalCacheSimple(int , char *[])
 {
-  // we have to use a compsite pipeline
-  vtkCompositeDataPipeline* prototype = vtkCompositeDataPipeline::New();
-  vtkAlgorithm::SetDefaultExecutivePrototype(prototype);
-  prototype->Delete();
-
   // create temporal fractals
   vtkSmartPointer<vtkTemporalSphereSource> sphere =
     vtkSmartPointer<vtkTemporalSphereSource>::New();
@@ -253,22 +234,20 @@ int TestTemporalCacheSimple(int , char *[])
   renWin->AddRenderer( renderer );
   renWin->SetSize( 300, 300 );
   iren->SetRenderWindow( renWin );
-  renWin->Render();
 
   // ask for some specific data points
   vtkStreamingDemandDrivenPipeline *sdd =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(interp->GetExecutive());
-  double times[1];
-  times[0] = 0;
+  sdd->UpdateInformation();
+  double time = 0;
   int i;
   int j;
   for (j = 0; j < 5; ++j)
     {
     for (i = 0; i < 9; ++i)
       {
-      times[0] = i+0.5;
-//      vtkDebugMacro(<<"SetUpdateTimeSteps t= " << times[0]);
-      sdd->SetUpdateTimeSteps(0, times, 1);
+      time = i+0.5;
+      sdd->SetUpdateTimeStep(0, time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();
@@ -277,11 +256,7 @@ int TestTemporalCacheSimple(int , char *[])
 
   vtkAlgorithm::SetDefaultExecutivePrototype(0);
 
-  // there is a bug and ExecuteDataStart gets called twice when inside the
-  // Execute Block(Time), so this number is much too high, it should be
-  // be 11 at most and prefereble only 10 (but the first time always
-  // gets called twice).
-  if (executecb->Count == 22)
+  if (executecb->Count == 11)
     {
     return 0;
     }

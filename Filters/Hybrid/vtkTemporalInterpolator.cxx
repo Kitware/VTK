@@ -26,7 +26,8 @@
 #include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTemporalDataSet.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkMultiBlockDataSet.h"
 
 #include <algorithm>
 #include <vector>
@@ -41,6 +42,10 @@ vtkTemporalInterpolator::vtkTemporalInterpolator()
   this->Ratio  = 0.0;
   this->DeltaT = 0.0;
   this->Tfrac  = 0.0;
+
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
+
 }
 
 //----------------------------------------------------------------------------
@@ -58,50 +63,60 @@ void vtkTemporalInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DiscreteTimeStepInterval: "
      << this->DiscreteTimeStepInterval << "\n";
 }
-/*
+
 //----------------------------------------------------------------------------
 int vtkTemporalInterpolator::FillInputPortInformation(
   int port,
   vtkInformation* info)
 {
   if (port == 0) {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTemporalDataSet");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   }
   return 1;
 }
-//----------------------------------------------------------------------------
-int vtkTemporalInterpolator::RequestDataObject(
-  vtkInformation* vtkNotUsed(reqInfo),
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+
+int vtkTemporalInterpolator::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  return 1;
+}
+
+int vtkTemporalInterpolator::RequestDataObject( vtkInformation*,
+                                             vtkInformationVector** inputVector ,
+                                             vtkInformationVector* outputVector)
+{
+  if (this->GetNumberOfInputPorts() == 0 || this->GetNumberOfOutputPorts() == 0)
+    {
+    return 1;
+    }
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
     {
     return 0;
     }
-
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+
   if (input)
     {
     // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
       {
-      vtkInformation* outInfo = outputVector->GetInformationObject(i);
-      vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
-{
+        {
         vtkDataObject* newOutput = input->NewInstance();
-        newOutput->SetPipelineInformation(outInfo);
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
         }
       }
-  return 1;
-}
+    return 1;
+    }
   return 0;
 }
-*/
+
 //----------------------------------------------------------------------------
 // Change the information
 int vtkTemporalInterpolator::RequestInformation (
@@ -192,135 +207,69 @@ int vtkTemporalInterpolator::RequestInformation (
   return 1;
 }
 
-
-//----------------------------------------------------------------------------
 int vtkTemporalInterpolator::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkTemporalDataSet *inData = vtkTemporalDataSet::SafeDownCast
-    (inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast
-    (outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (!inData || !outData)
-    {
-    return 1;
-    }
-
-  // get the input times
-  double *inTimes = inData->GetInformation()
-    ->Get(vtkDataObject::DATA_TIME_STEPS());
-  int numInTimes = inData->GetInformation()
-    ->Length(vtkDataObject::DATA_TIME_STEPS());
+  vtkDataObject *outData = NULL;
 
   // get the requested update times
-  double *upTimes =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-  int numUpTimes =
-    outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+  double upTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
-  // for each targeted output time
-  int upIdx;
-  for (upIdx = 0; upIdx < numUpTimes; ++upIdx)
+  vtkMultiBlockDataSet *inData = vtkMultiBlockDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int numTimeSteps  = inData->GetNumberOfBlocks();
+
+  // below the range
+  if (numTimeSteps==1)
     {
-    // below the range
-    vtkDataObject *out1;
-    if (upTimes[upIdx] <= inTimes[0])
+    // pass the lowest data
+    outData = inData->GetBlock(0);
+    if (outData->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
       {
-      // pass the lowest data
-      vtkDebugMacro(<<"Interpolation time below/== range : " << inTimes[0]);
-      vtkDataObject *in1 = inData->GetTimeStep(0);
-      out1 = in1->NewInstance();
-      out1->ShallowCopy(in1);
-      outData->SetTimeStep(upIdx, out1);
-      if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-        {
-        out1->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-        }
-      out1->Delete();
+      outData->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
       }
-    // above the range?
-    else if (upTimes[upIdx] >= inTimes[numInTimes-1])
+    outInfo->Set(vtkDataObject::DATA_OBJECT(),outData);
+    }
+  else
+    {
+    vtkDataObject* data0 = inData->GetBlock(0);
+    vtkDataObject* data1 = inData->GetBlock(1);
+    if (data0==NULL && data1==NULL)
       {
-      // pass the highest data
-      vtkDebugMacro(<<"Interpolation time above/== range : " << inTimes[numInTimes-1] << " of " << numInTimes);
-      vtkDataObject *in1 = inData->GetTimeStep(numInTimes-1);
-      out1 = in1->NewInstance();
-      out1->ShallowCopy(in1);
-      outData->SetTimeStep(upIdx, out1);
-        if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-          {
-          out1->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-          }
-      out1->Delete();
+      vtkErrorMacro("Null data set");
+      return 0;
       }
-    // in the middle, interpolate
-    else
-      {
-      int i = 0;
-      while (upTimes[upIdx] > inTimes[i])
-        {
-        ++i;
-        }
-      // was there an exact time match? If so shallow copy
-      if (upTimes[upIdx] == inTimes[i])
-        {
-        // pass the match
-        vtkDebugMacro(<<"Interpolation time " << inTimes[i]);
-        vtkDataObject *in1 = inData->GetTimeStep(i);
-        out1 = in1->NewInstance();
-        out1->ShallowCopy(in1);
-        outData->SetTimeStep(upIdx, out1);
-        if (in1->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-          {
-          out1->GetInformation()->Set(vtkDataObject::DATA_GEOMETRY_UNMODIFIED(),1);
-          }
-        out1->Delete();
-        }
-      else
-        {
-        // interpolate i-1 and i
-        vtkDataObject *in1 = inData->GetTimeStep(i-1);
-        vtkDataObject *in2 = inData->GetTimeStep(i);
-        this->Ratio  = (upTimes[upIdx]-inTimes[i-1])/(inTimes[i] - inTimes[i-1]);
-        this->Tfrac  = (upTimes[upIdx]-inTimes[i-1]);
-        this->DeltaT = (inTimes[i] - inTimes[i-1]);
-        vtkDebugMacro(<<"Interpolation times " << inTimes[i-1] << "->" << inTimes[i]
-          << " : " << upTimes[upIdx] << " Interpolation ratio " << this->Ratio );
-        out1 = this->InterpolateDataObject(in1,in2,this->Ratio);
-        // stamp this new dataset with a time key
-        out1->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                 upTimes, numUpTimes);
-        outData->SetTimeStep(upIdx, out1);
-        out1->Delete();
-        }
-      outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                 &upTimes[upIdx], 1);
-      }
+    // interpolate i-1 and i
+    double t0 = data0->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    double t1 = data1->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    this->Ratio  = (upTime-t0)/(t1 - t0);
+    outData = this->InterpolateDataObject(data0,data1,this->Ratio);
+    // stamp this new dataset with a time key
+    outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),upTime);
+    outInfo->Set(vtkDataObject::DATA_OBJECT(),outData);
+    outData->Delete();
     }
 
   // @TODO remove this when we move to new time framework
   // stamp the new temporal dataset with a time key (old style of management)
-  outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                 upTimes, numUpTimes);
+  outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),  upTime);
 
   vtkSmartPointer<vtkDoubleArray> originalTimes = vtkSmartPointer<vtkDoubleArray>::New();
   originalTimes->SetName("OriginalTimeSteps");
-  originalTimes->SetNumberOfTuples(numInTimes);
-  for (int i=0; i<numInTimes; i++) {
-    originalTimes->SetValue(i, inTimes[i]);
-  }
+  originalTimes->SetNumberOfTuples(numTimeSteps);
+  for(int i=0; i<numTimeSteps; i++)
+    {
+    originalTimes->SetValue(i, inData->GetBlock(i)->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
+    }
   outData->GetFieldData()->AddArray(originalTimes);
 
   return 1;
 }
 
-//----------------------------------------------------------------------------
 int vtkTemporalInterpolator::RequestUpdateExtent (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -330,14 +279,12 @@ int vtkTemporalInterpolator::RequestUpdateExtent (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
+
   // find the required input time steps and request them
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
     // get the update times
-    double *upTimes =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    int numUpTimes =
-      outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    double upTime =  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     // get the available input times
     double *inTimes =
@@ -348,72 +295,41 @@ int vtkTemporalInterpolator::RequestUpdateExtent (
     // only if the input is not continuous should we do anything
     if (inTimes)
       {
-      bool *inTimesToUse;
-      inTimesToUse = new bool [numInTimes];
-      int i;
-      for (i = 0; i < numInTimes; ++i)
-        {
-        inTimesToUse[i] = false;
-        }
+      //compute request times f
+      double inUpTimes[2];
+      int numInUpTimes(0);
 
       // for each requested time mark the required input times
-      int u;
-      i = 0;
-      for (u = 0; u < numUpTimes; ++u)
+      numInUpTimes= 0;
+      // below the range
+      if (upTime <= inTimes[0])
         {
-        // below the range
-        if (upTimes[u] <= inTimes[0])
+        inUpTimes[numInUpTimes++] = inTimes[0];
+        }
+      // above the range?
+      else if (upTime >= inTimes[numInTimes-1])
+        {
+        inUpTimes[numInUpTimes++] = inTimes[numInTimes-1];
+        }
+      // in the middle
+      else
+        {
+        int i = 0;
+        while (upTime > inTimes[i])
           {
-          inTimesToUse[0] = true;
+          ++i;
           }
-        // above the range?
-        else if (upTimes[u] >= inTimes[numInTimes-1])
-          {
-          inTimesToUse[numInTimes-1] = true;
-          }
-        // in the middle
-        else
-          {
-          while (upTimes[u] > inTimes[i])
-            {
-            ++i;
-            }
-          inTimesToUse[i] = true;
-          inTimesToUse[i-1] = true;
-          }
+        inUpTimes[numInUpTimes++] = inTimes[i-1];
+        inUpTimes[numInUpTimes++] = inTimes[i];
         }
 
-      // how many input times do we need?
-      int numInUpTimes = 0;
-      for (i = 0; i < numInTimes; ++i)
-        {
-        if (inTimesToUse[i])
-          {
-          numInUpTimes++;
-          }
-        }
-
-      double *inUpTimes = new double [numInUpTimes];
-      u = 0;
-      for (i = 0; i < numInTimes; ++i)
-        {
-        if (inTimesToUse[i])
-          {
-          inUpTimes[u] = inTimes[i];
-          u++;
-          }
-        }
-
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                  inUpTimes,numInUpTimes);
-      vtkDebugMacro(<<"Requesting " << numInUpTimes << " times ");
-
-      delete [] inUpTimes;
-      delete [] inTimesToUse;
+      inInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inUpTimes,numInUpTimes);
       }
     }
   return 1;
 }
+
+
 
 //----------------------------------------------------------------------------
 bool vtkTemporalInterpolator
@@ -726,4 +642,3 @@ vtkDataArray *vtkTemporalInterpolator
 
   return output;
 }
-

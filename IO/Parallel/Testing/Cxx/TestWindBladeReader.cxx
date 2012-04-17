@@ -75,13 +75,13 @@ int TestWindBladeReader( int argc, char *argv[] )
     executive->GetInputInformation(0);
   double timeReq = 10;
   inputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &timeReq, 1);
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
 
   bladeGeometryFilter->UpdateInformation();
   executive = bladeGeometryFilter->GetExecutive();
   inputVector = executive->GetInputInformation(0);
   inputVector->GetInformationObject(0)->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &timeReq, 1);
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
 
   reader->Update();
   bladeGeometryFilter->Update();

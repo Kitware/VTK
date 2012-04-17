@@ -151,7 +151,6 @@ set(Module_SRCS
   vtkStructuredVisibilityConstraint.cxx
   vtkSuperquadric.cxx
   vtkTable.cxx
-  vtkTemporalDataSet.cxx
   vtkTensor.cxx
   vtkTetra.cxx
   vtkTreeBFSIterator.cxx

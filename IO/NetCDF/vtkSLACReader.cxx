@@ -764,10 +764,10 @@ int vtkSLACReader::RequestData(vtkInformation *request,
   bool timeValid = false;
   int fromPort = request->Get(vtkExecutive::FROM_OUTPUT_PORT());
   if (outInfo[fromPort]->Has(
-                         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+                         vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
     time = outInfo[fromPort]->Get(
-                       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),0);
+                       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     timeValid = true;
     }
 
@@ -876,10 +876,8 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
     if (timeValid)
       {
-      surfaceOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                           &time, 1);
-      volumeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                          &time, 1);
+      surfaceOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
+      volumeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
       }
     }
 

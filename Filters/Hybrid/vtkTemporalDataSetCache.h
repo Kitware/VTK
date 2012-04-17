@@ -29,15 +29,15 @@
 #define __vtkTemporalDataSetCache_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkTemporalDataSetAlgorithm.h"
 
+#include "vtkAlgorithm.h"
 #include <map> // used for the cache
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalDataSetCache : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalDataSetCache : public vtkAlgorithm
 {
 public:
   static vtkTemporalDataSetCache *New();
-  vtkTypeMacro(vtkTemporalDataSetCache, vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalDataSetCache, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,7 +58,18 @@ protected:
   CacheType Cache;
 //ETX
 
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+
   virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+  virtual int RequestDataObject( vtkInformation*,
+                                 vtkInformationVector** inputVector ,
+                                 vtkInformationVector* outputVector);
 
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,

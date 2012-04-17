@@ -188,17 +188,17 @@ int vtkEnSightReader::RequestData(
 
   // Check if a particular time was requested by the pipeline.
   // This overrides the ivar.
-  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()) && tsLength>0)
+  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()) && tsLength>0)
     {
     // Get the requested time step. We only supprt requests of a single time
     // step in this reader right now
-    double *requestedTimeSteps =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    double requestedTimeStep =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     // find the first time value larger than requested time value
     // this logic could be improved
     int cnt = 0;
-    while (cnt < tsLength-1 && steps[cnt] < requestedTimeSteps[0])
+    while (cnt < tsLength-1 && steps[cnt] < requestedTimeStep)
       {
       cnt++;
       }
