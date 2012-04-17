@@ -45,7 +45,7 @@ int TestHyperTreeGrid( int argc, char** argv )
   cut->SetInputData( htGrid );
   cut->SetCutFunction( plane.GetPointer() );
   vtkNew<vtkPolyDataWriter> writer;
-  writer->SetFileName( "./hyperHtGridCut.vtk" );
+  writer->SetFileName( "./hyperTreeGridCut.vtk" );
   writer->SetInputConnection( cut->GetOutputPort() );
   writer->Write();
 
@@ -58,7 +58,7 @@ int TestHyperTreeGrid( int argc, char** argv )
                                    vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                    "Test" );
   vtkNew<vtkPolyDataWriter> writer2;
-  writer2->SetFileName( "./hyperHtGridContour.vtk" );
+  writer2->SetFileName( "./hyperTreeGridContour.vtk" );
   writer2->SetInputConnection( contour->GetOutputPort() );
   writer2->Write();
 
@@ -66,7 +66,7 @@ int TestHyperTreeGrid( int argc, char** argv )
   shrink->SetInputData( htGrid );
   shrink->SetShrinkFactor( 1. );
   vtkNew<vtkUnstructuredGridWriter> writer3;
-  writer3->SetFileName( "./hyperHtGridShrink.vtk" );
+  writer3->SetFileName( "./hyperTreeGridShrink.vtk" );
   writer3->SetInputConnection( shrink->GetOutputPort() );
   writer3->Write();
 
