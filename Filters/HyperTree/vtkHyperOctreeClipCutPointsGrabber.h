@@ -22,7 +22,7 @@
 #ifndef __vtkHyperOctreeClipCutPointsGrabber_h
 #define __vtkHyperOctreeClipCutPointsGrabber_h
 
-#include "vtkFiltersHyperOctreeModule.h" // For export macro
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperOctreePointsGrabber.h"
 
 class vtkHyperOctreeIdSet; // Pimpl idiom
@@ -30,7 +30,7 @@ class vtkPolygon;
 class vtkOrderedTriangulator;
 
 
-class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeClipCutPointsGrabber : public vtkHyperOctreePointsGrabber
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeClipCutPointsGrabber : public vtkHyperOctreePointsGrabber
 {
 public:
   static vtkHyperOctreeClipCutPointsGrabber *New();

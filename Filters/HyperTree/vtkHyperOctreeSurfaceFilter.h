@@ -22,7 +22,7 @@
 #ifndef __vtkHyperOctreeSurfaceFilter_h
 #define __vtkHyperOctreeSurfaceFilter_h
 
-#include "vtkFiltersHyperOctreeModule.h" // For export macro
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkHyperOctreeCursor;
@@ -30,7 +30,7 @@ class vtkDataSetAttributes;
 class vtkIdTypeArray;
 class vtkIncrementalPointLocator;
 
-class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHyperOctreeSurfaceFilter *New();

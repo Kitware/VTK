@@ -1,4 +1,4 @@
-vtk_module(vtkFiltersHyperOctree
+vtk_module(vtkFiltersHyperTree
   GROUPS
     StandAlone
   DEPENDS

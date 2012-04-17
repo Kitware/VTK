@@ -658,6 +658,3 @@ int vtkHyperOctreeDualGridContourFilter::FillInputPortInformation(int,
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperOctree");
   return 1;
 }
-
-
-

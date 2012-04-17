@@ -26,14 +26,14 @@
 #ifndef __vtkHyperOctreeToUniformGridFilter_h
 #define __vtkHyperOctreeToUniformGridFilter_h
 
-#include "vtkFiltersHyperOctreeModule.h" // For export macro
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 class vtkHyperOctreeCursor;
 class vtkCellData;
 class vtkDataSetAttributes;
 
-class VTKFILTERSHYPEROCTREE_EXPORT vtkHyperOctreeToUniformGridFilter : public vtkImageAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeToUniformGridFilter : public vtkImageAlgorithm
 {
 public:
   static vtkHyperOctreeToUniformGridFilter *New();
