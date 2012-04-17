@@ -44,13 +44,7 @@ void @vtk-module@ObjectFactory::PrintSelf(ostream &os, vtkIndent indent)
 static unsigned int @vtk-module@Count;
 static @vtk-module@ObjectFactory* Factory;
 
-struct @VTK-MODULE@_EXPORT @vtk-module@_AutoInit
-{
-  @vtk-module@_AutoInit();
-  ~@vtk-module@_AutoInit();
-};
-
-@vtk-module@_AutoInit::@vtk-module@_AutoInit()
+@VTK-MODULE@_EXPORT void @vtk-module@_AutoInit_Construct()
 {
   if(++@vtk-module@Count == 1)
     {
@@ -59,7 +53,7 @@ struct @VTK-MODULE@_EXPORT @vtk-module@_AutoInit
     }
 }
 
-@vtk-module@_AutoInit::~@vtk-module@_AutoInit()
+@VTK-MODULE@_EXPORT void @vtk-module@_AutoInit_Destruct()
 {
   if(--@vtk-module@Count == 0)
     {

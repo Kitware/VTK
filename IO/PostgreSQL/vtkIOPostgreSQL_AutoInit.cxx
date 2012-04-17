@@ -44,7 +44,7 @@ struct VTKIOPOSTGRESQL_EXPORT vtkIOPostgreSQL_AutoInit
   ~vtkIOPostgreSQL_AutoInit();
 };
 
-vtkIOPostgreSQL_AutoInit::vtkIOPostgreSQL_AutoInit()
+VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Construct()
 {
   if (++vtkIOPostgreSQLCount == 1)
     {
@@ -52,7 +52,7 @@ vtkIOPostgreSQL_AutoInit::vtkIOPostgreSQL_AutoInit()
     }
 }
 
-vtkIOPostgreSQL_AutoInit::~vtkIOPostgreSQL_AutoInit()
+VTKIOPOSTGRESQL_EXPORT void vtkIOPostgreSQL_AutoInit_Destruct()
 {
   if (--vtkIOPostgreSQLCount == 0)
     {
