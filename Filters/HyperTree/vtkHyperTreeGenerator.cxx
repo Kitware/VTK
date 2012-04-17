@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkHyperTreeFractalSource.cxx
+Module:    vtkHyperTreeGenerator.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,7 +12,7 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeFractalSource.h"
+#include "vtkHyperTreeGenerator.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
@@ -27,10 +27,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <assert.h>
 
-vtkStandardNewMacro(vtkHyperTreeFractalSource);
+vtkStandardNewMacro(vtkHyperTreeGenerator);
 
 //----------------------------------------------------------------------------
-vtkHyperTreeFractalSource::vtkHyperTreeFractalSource()
+vtkHyperTreeGenerator::vtkHyperTreeGenerator()
 {
   this->GridSize[0] = 1;
   this->GridSize[1] = 1;
@@ -42,12 +42,12 @@ vtkHyperTreeFractalSource::vtkHyperTreeFractalSource()
 }
 
 //----------------------------------------------------------------------------
-vtkHyperTreeFractalSource::~vtkHyperTreeFractalSource()
+vtkHyperTreeGenerator::~vtkHyperTreeGenerator()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
+vtkHyperTreeGrid* vtkHyperTreeGenerator::NewHyperTreeGrid()
 {
   // Instantiate hyper tree grid
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::New();
@@ -136,7 +136,7 @@ vtkHyperTreeGrid* vtkHyperTreeFractalSource::NewHyperTreeGrid()
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
+void vtkHyperTreeGenerator::Subdivide( vtkHyperTreeCursor* cursor,
                                            int level,
                                            vtkHyperTreeGrid* output,
                                            int index,
@@ -216,7 +216,7 @@ void vtkHyperTreeFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeFractalSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

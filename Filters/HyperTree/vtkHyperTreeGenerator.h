@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeFractalSource.h
+  Module:    vtkHyperTreeGenerator.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeFractalSource - Create a hyper tree grid from a fractal.
+// .NAME vtkHyperTreeGenerator - Create a hyper tree grid from a fractal.
 // hyperTree
 // .SECTION Description
 //
 // .SECTION See Also
 // vtkHyperTreeSampleFunction
 
-#ifndef __vtkHyperTreeFractalSource_h
-#define __vtkHyperTreeFractalSource_h
+#ifndef __vtkHyperTreeGenerator_h
+#define __vtkHyperTreeGenerator_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkObject.h"
@@ -29,13 +29,13 @@ class vtkImplicitFunction;
 class vtkHyperTreeGrid;
 class vtkHyperTreeCursor;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeFractalSource : public vtkObject
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGenerator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkHyperTreeFractalSource,vtkObject);
+  vtkTypeMacro(vtkHyperTreeGenerator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  static vtkHyperTreeFractalSource *New();
+  static vtkHyperTreeGenerator *New();
 
   vtkSetVector3Macro(GridSize, int);
   vtkGetVector3Macro(GridSize, int);
@@ -57,8 +57,8 @@ public:
   vtkHyperTreeGrid* NewHyperTreeGrid();
 
 protected:
-  vtkHyperTreeFractalSource();
-  ~vtkHyperTreeFractalSource();
+  vtkHyperTreeGenerator();
+  ~vtkHyperTreeGenerator();
 
   void Subdivide( vtkHyperTreeCursor* cursor,
                   int level,
@@ -75,8 +75,8 @@ protected:
   int Dual;
 
 private:
-  vtkHyperTreeFractalSource(const vtkHyperTreeFractalSource&);  // Not implemented.
-  void operator=(const vtkHyperTreeFractalSource&);  // Not implemented.
+  vtkHyperTreeGenerator(const vtkHyperTreeGenerator&);  // Not implemented.
+  void operator=(const vtkHyperTreeGenerator&);  // Not implemented.
 };
 
 #endif

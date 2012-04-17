@@ -9,7 +9,7 @@ set(Module_SRCS
   vtkHyperOctreeSampleFunction.cxx
   vtkHyperOctreeSurfaceFilter.cxx
   vtkHyperOctreeToUniformGridFilter.cxx
-  vtkHyperTreeFractalSource.cxx
+  vtkHyperTreeGenerator.cxx
   vtkHyperTreeGrid.cxx
   )
 

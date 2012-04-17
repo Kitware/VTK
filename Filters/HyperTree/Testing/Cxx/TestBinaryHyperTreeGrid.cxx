@@ -22,7 +22,7 @@
 #include <vtksys/Process.h>
 #include <string>
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeFractalSource.h"
+#include "vtkHyperTreeGenerator.h"
 
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
@@ -43,7 +43,7 @@
 
 int TestBinaryHyperTreeGrid(int argc, char** argv)
 {
-  vtkNew<vtkHyperTreeFractalSource> fractal;
+  vtkNew<vtkHyperTreeGenerator> fractal;
   fractal->SetMaximumLevel( 4 );
   fractal->DualOn();
   fractal->SetDimension( 3 );
