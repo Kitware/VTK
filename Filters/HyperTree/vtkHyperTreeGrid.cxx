@@ -2235,6 +2235,8 @@ void vtkHyperTreeGrid::UpdateDualArrays()
     {
     if ( this->LeafCenters->GetNumberOfPoints() == numLeaves )
       {
+      // Clean up and exit
+      delete [] offsets;
       return;
       }
     this->LeafCenters->Delete();
@@ -2685,6 +2687,8 @@ void vtkHyperTreeGrid::UpdateGridArrays()
     {
     if ( this->LeafCornerIds->GetNumberOfTuples() == numLeaves )
       {
+      // Clean up and exit
+      delete [] offsets;
       return;
       }
     this->LeafCornerIds->Delete();
