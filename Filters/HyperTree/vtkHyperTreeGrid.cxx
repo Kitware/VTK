@@ -2773,6 +2773,9 @@ void vtkHyperTreeGrid::UpdateGridArrays()
       } // j
     } // i
 
+  // Clean up
+  delete [] offsets;
+
   timer->StopTimer();
   cerr << "Internal grid update : " << timer->GetElapsedTime() << endl;
   timer->Delete();
