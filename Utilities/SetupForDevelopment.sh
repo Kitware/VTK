@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 cd "${BASH_SOURCE%/*}/.." &&
-Utilities/Scripts/SetupUser.sh && echo &&
-Utilities/Scripts/SetupHooks.sh && echo &&
+Utilities/GitSetup/setup-user && echo &&
+Utilities/GitSetup/setup-hooks && echo &&
 Utilities/Scripts/SetupGitAliases.sh && echo &&
-(Utilities/Scripts/SetupGerrit.sh ||
+(Utilities/GitSetup/setup-gerrit ||
  echo 'Failed to setup Gerrit.  Run this again to retry.') && echo &&
-Utilities/Scripts/GitTips.sh
+Utilities/GitSetup/tips
 
 # Rebase master by default
 git config rebase.stat true
