@@ -4,4 +4,5 @@ vtk_module(vtkImagingHybrid
     StandAlone
   DEPENDS
     vtkImagingCore
+    vtkIOImage
   )

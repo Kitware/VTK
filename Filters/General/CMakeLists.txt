@@ -89,9 +89,6 @@ set(Module_SRCS
 
   vtkMarchingContourFilter.cxx
 
-  # Depend upon IO/Image
-  #vtkSliceCubes.cxx # Needs vtkVolumeReader
-
   # Move to FiltersGeometry
   #vtkDataSetSurfaceFilter.cxx # Needs vtkStructuredGridGeometryFilter - Geometry
 
