@@ -1,4 +1,6 @@
 set(Module_SRCS
+  vtkCachingInterpolatedVelocityField.cxx
+  vtkTemporalInterpolatedVelocityField.cxx
   vtkTemporalStreamTracer.cxx
   vtkPStreamTracer.cxx
   vtkDistributedStreamTracer.cxx

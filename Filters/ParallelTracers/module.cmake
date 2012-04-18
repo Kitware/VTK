@@ -3,7 +3,7 @@ vtk_module(vtkFiltersParallelTracers
     vtkFiltersTracers
   DEPENDS
     vtkParallelCore
-    vtkFiltersParallel
   TEST_DEPENDS
+    vtkTestingRendering
     vtkRenderingParallel
   )

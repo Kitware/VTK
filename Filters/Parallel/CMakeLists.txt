@@ -5,7 +5,6 @@ set(Module_SRCS
   vtkCollectGraph.cxx
   vtkCollectPolyData.cxx
   vtkCollectTable.cxx
-  vtkCachingInterpolatedVelocityField.cxx
   vtkCutMaterial.cxx
   vtkDistributedDataFilter.cxx
   vtkDuplicatePolyData.cxx
@@ -31,7 +30,6 @@ set(Module_SRCS
   vtkPSphereSource.cxx
   vtkPTableToStructuredGrid.cxx
   vtkRectilinearGridOutlineFilter.cxx
-  vtkTemporalInterpolatedVelocityField.cxx
   vtkTransmitPolyDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx
   vtkTransmitStructuredGridPiece.cxx
