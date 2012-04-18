@@ -54,8 +54,6 @@ vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
 
-vtkInformationKeyMacro(vtkExtractCTHPart,BOUNDS, DoubleVector);
-
 const double CTH_AMR_SURFACE_VALUE=0.499;
 const double CTH_AMR_SURFACE_VALUE_FLOAT=1;
 const double CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR=255;
@@ -360,10 +358,10 @@ int vtkExtractCTHPart::RequestData(
       // empty input, do nothing.
       return 1;
       }
-    if(inInfo->Has(vtkExtractCTHPart::BOUNDS()))
+    if(inInfo->Has(vtkStreamingDemandDrivenPipeline::BOUNDS()))
       {
       double b[6];
-      inInfo->Get(vtkExtractCTHPart::BOUNDS(), b);
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::BOUNDS(), b);
       this->Bounds->SetBounds(b);
       }
     else

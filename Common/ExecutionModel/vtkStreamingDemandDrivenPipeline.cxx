@@ -80,6 +80,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_OBJE
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_TYPE, String);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_AMR_LEVEL, Integer );
 
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {

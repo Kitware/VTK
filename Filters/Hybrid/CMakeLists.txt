@@ -16,6 +16,7 @@ set(Module_SRCS
   vtkProjectedTerrainPath.cxx
   vtkRenderLargeImage.cxx
   vtkTemporalDataSetCache.cxx
+  vtkTemporalFractal.cxx
   vtkTemporalInterpolator.cxx
   vtkTemporalShiftScale.cxx
   vtkTemporalSnapToTimeStep.cxx

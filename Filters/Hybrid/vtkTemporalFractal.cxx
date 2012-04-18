@@ -33,8 +33,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtkExtractCTHPart.h" // for the BOUNDS key
-
 #include <assert.h>
 
 vtkStandardNewMacro(vtkTemporalFractal);
@@ -539,7 +537,7 @@ int vtkTemporalFractal
     bounds[5]=oz+zSize;
     }
 
-  info->Set(vtkExtractCTHPart::BOUNDS(),bounds,6);
+  info->Set(vtkStreamingDemandDrivenPipeline::BOUNDS(),bounds,6);
 
   if(!this->GenerateRectilinearGrids)
     {

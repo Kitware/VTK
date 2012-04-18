@@ -4,7 +4,6 @@ set(Module_SRCS
   vtkPPairwiseExtractHistogram2D.cxx
   vtkExtractPiece.cxx
   vtkMemoryLimitImageDataStreamer.cxx
-  vtkTemporalFractal.cxx
   vtkTransmitImageDataPiece.cxx
   )
 

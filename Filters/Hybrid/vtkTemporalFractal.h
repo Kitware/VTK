@@ -25,7 +25,7 @@
 #ifndef __vtkTemporalFractal_h
 #define __vtkTemporalFractal_h
 
-#include "vtkFiltersParallelImagingModule.h" // For export macro
+#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkTemporalDataSetAlgorithm.h"
 
 class vtkCompositeDataSet;
@@ -35,7 +35,7 @@ class vtkIntArray;
 class vtkRectilinearGrid;
 class vtkUniformGrid;
 
-class VTKFILTERSPARALLELIMAGING_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
 {
 public:
   static vtkTemporalFractal *New();
