@@ -40,8 +40,8 @@
 #define VTK_AUTOINIT_DECLARE_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DECLARE_7(t1,t2,t3,t4,t5,t6,t7) VTK_AUTOINIT_DECLARE(t8)
 #define VTK_AUTOINIT_DECLARE_9(t1,t2,t3,t4,t5,t6,t7,t8,t9) VTK_AUTOINIT_DECLARE_8(t1,t2,t3,t4,t5,t6,t7,t8) VTK_AUTOINIT_DECLARE(t9)
 #define VTK_AUTOINIT_DECLARE(M) \
-  VTK_ABI_IMPORT void M##_AutoInit_Construct(); \
-  VTK_ABI_IMPORT void M##_AutoInit_Destruct();
+  void M##_AutoInit_Construct(); \
+  void M##_AutoInit_Destruct();
 
 #define VTK_AUTOINIT_CONSTRUCT_0()
 #define VTK_AUTOINIT_CONSTRUCT_1(t1) VTK_AUTOINIT_CONSTRUCT_0() VTK_AUTOINIT_CONSTRUCT(t1)
