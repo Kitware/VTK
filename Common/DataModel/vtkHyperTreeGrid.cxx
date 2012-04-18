@@ -1128,7 +1128,7 @@ void vtkHyperTreeGrid::PrintSelf( ostream& os, vtkIndent indent )
 // Return what type of dataset this is.
 int vtkHyperTreeGrid::GetDataObjectType()
 {
-  return VTK_DATA_SET;
+  return VTK_HYPER_TREE_GRID;
 }
 
 //-----------------------------------------------------------------------------
