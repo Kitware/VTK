@@ -28,7 +28,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSetWriter.h"
 
-int TestHyperTreeGrid( int argc, char** argv )
+int TestHyperTreeGrid( int argc, char* argv[] )
 {
   vtkNew<vtkHyperTreeGenerator> fractal;
   fractal->SetMaximumLevel( 3 );
