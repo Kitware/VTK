@@ -44,15 +44,15 @@ vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
   this->Dual = false;
 
   // Grid geometry
-  this->XCoordinates=vtkDoubleArray::New();
+  this->XCoordinates = vtkDoubleArray::New();
   this->XCoordinates->SetNumberOfTuples( 2 );
   this->XCoordinates->SetComponent( 0, 0, 0. );
   this->XCoordinates->SetComponent( 1, 0, 1. );
-  this->YCoordinates=vtkDoubleArray::New();
+  this->YCoordinates = vtkDoubleArray::New();
   this->YCoordinates->SetNumberOfTuples( 2 );
   this->YCoordinates->SetComponent( 0, 0, 0. );
   this->YCoordinates->SetComponent( 1, 0, 1. );
-  this->ZCoordinates=vtkDoubleArray::New();
+  this->ZCoordinates = vtkDoubleArray::New();
   this->ZCoordinates->SetNumberOfTuples( 2 );
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, 1. );
