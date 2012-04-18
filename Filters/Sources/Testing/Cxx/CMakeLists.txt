@@ -1,5 +1,4 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  TestHyperTreeGridSource3d3.cxx
   TestLineSource.cxx
   TestTessellatedBoxSource.cxx
 
