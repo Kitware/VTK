@@ -78,10 +78,6 @@ include(${VTK_SOURCE_DIR}/Wrapping/Tcl/vtkDetermineTkResources.cmake)
 IF (WIN32)
   IF (NOT BORLAND)
     IF(NOT CYGWIN)
-      IF(VTK_USE_TK)
-        INCLUDE_DIRECTORIES("${VTK_TK_RESOURCES_DIR}")
-      ENDIF(VTK_USE_TK)
-
       CONFIGURE_FILE(
         ${CMAKE_CURRENT_SOURCE_DIR}/resources/vtk.rc.in
         ${CMAKE_CURRENT_BINARY_DIR}/resources/vtk.rc)
