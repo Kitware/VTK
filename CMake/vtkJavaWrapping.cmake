@@ -55,6 +55,9 @@ function(vtk_add_java_wrapping module_name module_srcs)
   # Do we need to link to AWT?
   if(${module_name} STREQUAL "vtkRenderingCore")
     target_link_libraries(${module_name}Java ${JAVA_AWT_LIBRARY})
+    if(APPLE)
+      target_link_libraries(${module_name}Java "-framework Cocoa")
+    endif()
   endif()
 
   foreach(dep ${VTK_MODULE_${module_name}_DEPENDS})
