@@ -28,6 +28,7 @@
 #include "vtkChart.h"
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkVector.h" // For vtkVector2f in struct
+#include "vtkContextPolygon.h"
 
 class vtkPlot;
 class vtkAxis;
@@ -246,6 +247,15 @@ protected:
   // Description:
   // Should the box be drawn (could be selection, zoom etc).
   bool DrawBox;
+
+  // Description:
+  // The polygon created as the mouse is dragged around the screen when in
+  // polygonal selection mode.
+  vtkContextPolygon SelectionPolygon;
+
+  // Description:
+  // Should the selection polygon be drawn.
+  bool DrawSelectionPolygon;
 
   // Description:
   // Should we draw the location of the nearest point on the plot?

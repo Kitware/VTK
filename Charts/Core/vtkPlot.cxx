@@ -168,6 +168,12 @@ bool vtkPlot::SelectPoints(const vtkVector2f&, const vtkVector2f&)
 }
 
 //-----------------------------------------------------------------------------
+bool vtkPlot::SelectPointsInPolygon(const vtkContextPolygon &)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b,
                        unsigned char a)
 {
