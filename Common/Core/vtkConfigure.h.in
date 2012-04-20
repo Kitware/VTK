@@ -139,14 +139,7 @@
 # define MAC_OSX_TK
 #endif
 
-/*--------------------------------------------------------------------------*/
-/* VTK Versioning                                                           */
-
-/* Version number.  */
-#define VTK_MAJOR_VERSION @VTK_MAJOR_VERSION@
-#define VTK_MINOR_VERSION @VTK_MINOR_VERSION@
-#define VTK_BUILD_VERSION @VTK_BUILD_VERSION@
-#define VTK_VERSION "@VTK_VERSION@"
+@VTK_CONFIG_LEGACY_VERSION@
 
 /* C++ compiler used.  */
 #define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"

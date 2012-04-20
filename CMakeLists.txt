@@ -57,10 +57,7 @@ option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
-# VTK version number.  An even minor number corresponds to releases.
-set(VTK_MAJOR_VERSION 6)
-set(VTK_MINOR_VERSION 0)
-set(VTK_BUILD_VERSION 0)
+include(vtkVersion)
 set(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 

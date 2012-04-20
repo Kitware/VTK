@@ -314,8 +314,7 @@ execute_process(COMMAND ${PERL}
 step(4 "extract VTK version")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_version.pl"
-  --version_file "${SOURCE_DIR}/${REL_PATH_TO_TOP}/CMakeLists.txt"
-  --revision_file "@VTK_BINARY_DIR@/Utilities/vtksys/DateStamp.h"
+  --version_file "${SOURCE_DIR}/${REL_PATH_TO_TOP}/CMake/vtkVersion.cmake"
   --logo "${PATH_TO_VTK_DOX_SCRIPTS}/vtk-logo.gif"
   --store "doc_${PROJECT_NAME}_version.dox"
   --to "${INTERMEDIATE_DOX_DIR}"

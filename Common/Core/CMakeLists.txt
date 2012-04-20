@@ -136,6 +136,7 @@ SET(Module_SRCS
   vtkSystemIncludes.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   vtkTypedArray.h
   vtkTypeTemplate.h
   )
@@ -226,6 +227,14 @@ vtk_prepare_cmakedefine(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
                         VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
 vtk_prepare_cmakedefine("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
 
+# Provide version macros through vtkConfigure.h for compatibility.
+if(VTK_LEGACY_REMOVE)
+  set(VTK_CONFIG_LEGACY_VERSION "")
+else()
+  set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
+endif()
+
+configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
 configure_file(vtkToolkits.h.in vtkToolkits.h @ONLY)
 
@@ -347,6 +356,7 @@ set_source_files_properties(
   vtkType.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   PROPERTIES WRAP_HEADER 1
   )
 
@@ -394,6 +404,7 @@ set_source_files_properties(
   vtkSystemIncludes
   vtkMathConfigure
   vtkType
+  vtkVersionMacros
   vtkConfigure
   ABSTRACT
   )
