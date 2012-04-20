@@ -1,5 +1,7 @@
 set(Module_SRCS
   vtkClipHyperOctree.cxx
+  vtkHyperTreeGridGeometry.cxx
+  vtkHyperTreeGridAxisCut.cxx
   vtkHyperOctreeClipCutPointsGrabber.cxx
   vtkHyperOctreeContourFilter.cxx
   vtkHyperOctreeCutter.cxx

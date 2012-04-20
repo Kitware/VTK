@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridGeometry.cxx
+  Module:    vtkHyperTreeGridAxisCut.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridAxisCut.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -23,20 +23,23 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkPolyData.h"
 
-vtkStandardNewMacro(vtkHyperTreeGridGeometry);
+vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 
-vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
+vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
   this->Points = 0;
   this->Cells = 0;
   this->Input = 0;
   this->Output = 0;
+
+  this->PlanePosition = 0.0;
+  this->PlaneNormalAxis = 0;
 }
 
 
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::ProcessTrees()
+void vtkHyperTreeGridAxisCut::ProcessTrees()
 {
   // TODO: MTime on generation of this table.
   this->Input->GenerateSuperCursorTraversalTable();
@@ -81,18 +84,16 @@ void vtkHyperTreeGridGeometry::ProcessTrees()
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::AddFace(vtkIdType inId, double* origin, double* size,
-                                       int offset0, int axis0, int axis1, int axis2)
+void vtkHyperTreeGridAxisCut::AddFace(vtkIdType inId, double* origin, double* size,
+                                      double offset0, int axis0, int axis1, int axis2)
 {
   vtkIdType ids[4];
   double pt[3];
   pt[0] = origin[0];
   pt[1] = origin[1];
   pt[2] = origin[2];
-  if (offset0)
-    {
-    pt[axis0] += size[axis0];
-    }
+  pt[axis0] += size[axis0] * offset0;
+
   ids[0] = this->Points->InsertNextPoint(pt);
   pt[axis1] += size[axis1];
   ids[1] = this->Points->InsertNextPoint(pt);
@@ -106,18 +107,12 @@ void vtkHyperTreeGridGeometry::AddFace(vtkIdType inId, double* origin, double* s
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* superCursor)
+void vtkHyperTreeGridAxisCut::RecursiveProcessTree(vtkHyperTreeSuperCursor* superCursor)
 {
-  // Terminate if the middle cells is not on the boundary.
-  // Only 3d cells have internal faces to skip.
-  int dim = this->Input->GetDimension();
-  if (dim == 3 &&
-      superCursor->GetCursor(-1)->GetTree() &&
-      superCursor->GetCursor(1)->GetTree() &&
-      superCursor->GetCursor(-3)->GetTree() &&
-      superCursor->GetCursor(3)->GetTree() &&
-      superCursor->GetCursor(-9)->GetTree() &&
-      superCursor->GetCursor(9)->GetTree() )
+  // Terminate if the node does not touch the plane.
+  if (superCursor->Origin[this->PlaneNormalAxis] > this->PlanePosition ||
+      superCursor->Origin[this->PlaneNormalAxis]+superCursor->Size[this->PlaneNormalAxis]
+        < this->PlanePosition)
     {
     return;
     }
@@ -126,48 +121,26 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* su
   if ( superCursor->GetCursor(0)->GetIsLeaf() )
     {
     vtkIdType inId = superCursor->GetCursor(0)->GetGlobalLeafIndex();
-    if (dim == 1)
-      { // 1 dimensional trees are a special case (probably never used).
-      vtkIdType ids[2];
-      ids[0] = this->Points->InsertNextPoint(superCursor->Origin);
-      double pt[3];
-      pt[0] = superCursor->Origin[0] + superCursor->Size[0];
-      pt[1] = superCursor->Origin[1];
-      pt[2] = superCursor->Origin[2];
-      ids[1] = this->Points->InsertNextPoint(pt);
-      this->Cells->InsertNextCell(2, ids);
-      }
-    else if (dim == 2)
+    double k = this->PlanePosition-superCursor->Origin[this->PlaneNormalAxis];
+    k = k / superCursor->Size[this->PlaneNormalAxis];
+    int axis1, axis2;
+    switch (this->PlaneNormalAxis)
       {
-      this->AddFace(inId, superCursor->Origin, superCursor->Size, 0, 2,0,1);
+      case 0:
+        axis1 = 1; axis2 = 2;
+        break;
+      case 1:
+        axis1 = 0; axis2 = 2;
+        break;
+      case 2:
+        axis1 = 0; axis2 = 1;
+        break;
+      default:
+        vtkErrorMacro("Bad Axis.");
+        return;
       }
-    else if (dim == 3)
-      { // check the 6 faces of the leaf (for boundaries)
-      if (superCursor->GetCursor(-1)->GetTree() == 0)
-        {
-        this->AddFace(inId, superCursor->Origin, superCursor->Size, 0, 0,1,2);
-        }
-      if (superCursor->GetCursor(1)->GetTree() == 0)
-        {
-        this->AddFace(inId, superCursor->Origin, superCursor->Size, 1, 0,1,2);
-        }
-      if (superCursor->GetCursor(-3)->GetTree() == 0)
-        {
-        this->AddFace(inId, superCursor->Origin, superCursor->Size, 0, 1,0,2);
-        }
-      if (superCursor->GetCursor(3)->GetTree() == 0)
-        {
-        this->AddFace(inId, superCursor->Origin, superCursor->Size, 1, 1,0,2);
-        }
-      if (superCursor->GetCursor(-9)->GetTree() == 0)
-        {
-        this->AddFace(inId, superCursor->Origin, superCursor->Size, 0, 2,0,1);
-        }
-      if (superCursor->GetCursor(9)->GetTree() == 0)
-        {
-        this->AddFace(inId, superCursor->Origin, superCursor->Size, 1, 2,0,1);
-        }
-      }
+    this->AddFace(inId, superCursor->Origin, superCursor->Size,
+                  k, this->PlaneNormalAxis, axis1, axis2);
     return;
     }
 
@@ -184,7 +157,7 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* su
 }
 
 //-----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::FillInputPortInformation(int, vtkInformation *info)
+int vtkHyperTreeGridAxisCut::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
   return 1;
@@ -192,7 +165,7 @@ int vtkHyperTreeGridGeometry::FillInputPortInformation(int, vtkInformation *info
 
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::RequestData(
+int vtkHyperTreeGridAxisCut::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -209,6 +182,12 @@ int vtkHyperTreeGridGeometry::RequestData(
   vtkCellData *outCD = this->Output->GetCellData();
   vtkCellData *inCD = this->Input->GetCellData();
 
+  if (this->Input->GetDimension() != 3)
+    {
+    vtkErrorMacro("Axis cut only works with 3D trees.");
+    return 0;
+    }
+
   outCD->CopyAllocate(inCD);
 
   this->ProcessTrees();
@@ -221,7 +200,10 @@ int vtkHyperTreeGridGeometry::RequestData(
 }
 
 
-void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridAxisCut::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
+  os << indent << "Plane Position : " << this->PlanePosition << endl;
+
 }
