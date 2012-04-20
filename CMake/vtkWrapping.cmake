@@ -21,7 +21,7 @@ endif()
 
 # This is the main function, always called from the vtk_module_library function
 # when a new module library is added.
-function(vtk_add_wrapping module_name module_srcs)
+function(vtk_add_wrapping module_name module_srcs module_hdrs)
   if(NOT VTK_MODULE_${module_name}_EXCLUDE_FROM_WRAPPING)
     set(_wrap_module FALSE)
     if(VTK_WRAP_PYTHON)
@@ -50,18 +50,19 @@ function(vtk_add_wrapping module_name module_srcs)
       endif()
 
       # The module is wrapped by at least one language - invoke wrap hierarchy.
+      set(_all_files ${module_srcs} ${modules_hdrs})
       vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
-        "${module_srcs}")
+        "${_all_files}")
 
       # Now to wrap the languages that are on.
       if(VTK_WRAP_PYTHON)
-        vtk_add_python_wrapping(${module_name} "${module_srcs}")
+        vtk_add_python_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
       endif()
       if(VTK_WRAP_TCL)
-        vtk_add_tcl_wrapping(${module_name} "${module_srcs}")
+        vtk_add_tcl_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
       endif()
       if(VTK_WRAP_JAVA)
-        vtk_add_java_wrapping(${module_name} "${module_srcs}")
+        vtk_add_java_wrapping(${module_name} "${module_srcs}" "${module_hdrs}")
       endif()
     endif()
   endif()

@@ -130,13 +130,9 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  vtkType.h
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
-  vtkSystemIncludes.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   vtkTypedArray.h
   vtkTypeTemplate.h
   )
@@ -152,7 +148,6 @@ set(${vtk-module}_HDRS
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAutoInit.h
-  vtkDataArrayTemplate.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
@@ -163,7 +158,9 @@ set(${vtk-module}_HDRS
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSparseArray.txx
+  vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
+  vtkType.h
   vtkTypeTraits.h
   vtkTypedArray.txx
   vtkVariantCast.h
@@ -173,7 +170,10 @@ set(${vtk-module}_HDRS
   vtkWeakPointer.h
   vtkWin32Header.h
   vtkWindows.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
 if(vtkCommonDataModel_ENABLED)
@@ -400,12 +400,6 @@ set_source_files_properties(
   vtkRandomSequence
   vtkScalarsToColors
   vtkWindow
-  # Not sure if this is the correct place for them - Tcl wrapping
-  vtkSystemIncludes
-  vtkMathConfigure
-  vtkType
-  vtkVersionMacros
-  vtkConfigure
   ABSTRACT
   )
 
@@ -437,6 +431,7 @@ set_source_files_properties(
   vtkVariant.cxx
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
@@ -445,6 +440,7 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
@@ -459,12 +455,12 @@ set_source_files_properties(
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
+  vtkTimeStamp.cxx
+  vtkVariant.cxx
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
   vtkTypeTemplate.h
-  vtkTimeStamp.cxx
-  vtkVariant.cxx
   PROPERTIES WRAP_SPECIAL 1
 )
 

@@ -65,14 +65,11 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
     # should we wrap the file?
     get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
 
-    # we don't wrap the headers in Java
-    get_source_file_property(TMP_WRAP_HEADER ${FILE} WRAP_HEADER)
-
     # some wrapped files need to be compiled as objective C++
     get_source_file_property(TMP_WRAP_OBJC ${FILE} WRAP_JAVA_OBJC)
 
     # if we should wrap it
-    IF (NOT TMP_WRAP_EXCLUDE AND NOT TMP_WRAP_HEADER)
+    IF (NOT TMP_WRAP_EXCLUDE)
 
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)

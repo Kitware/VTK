@@ -22,7 +22,6 @@ set(Module_SRCS
   vtkCellLinks.cxx
   vtkCellLocator.cxx
   vtkCellTypes.cxx
-  vtkCellType.h
   vtkCompositeDataIterator.cxx
   vtkCompositeDataSet.cxx
   vtkCone.cxx
@@ -190,6 +189,10 @@ set(Module_SRCS
   vtkUniformGridAMRDataIterator.cxx
   )
 
+set(${vtk-module}_HDRS
+  vtkCellType.h
+  )
+
 include_directories(
   ${vtkCommonExecutionModel_SOURCE_DIR}
   ${vtkCommonExecutionModel_BINARY_DIR}
@@ -228,7 +231,6 @@ set_source_files_properties(
   vtkStructuredData
   vtkTreeIterator
   vtkUniformGridAMR
-  vtkCellType
   ABSTRACT
   )
 
