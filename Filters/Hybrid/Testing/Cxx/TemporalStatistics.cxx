@@ -122,4 +122,3 @@ static void ShowResult(vtkRenderer *renderer, vtkAlgorithmOutput *input,
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Zoom(1.5);
 }
-
