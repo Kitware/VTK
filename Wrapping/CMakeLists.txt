@@ -18,6 +18,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
 get_property(_python_modules GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 get_property(_java_modules GLOBAL PROPERTY VTK_JAVA_WRAPPED)
 
+set_property(SOURCE vtkParseMain.c PROPERTY COMPILE_DEFINITIONS
+  VTK_PARSE_VERSION="${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+
 if(NOT CMAKE_CROSSCOMPILING)
   if(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
     add_executable(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c

@@ -207,14 +207,6 @@ endforeach()
 SET(_VTK_VERSION_MAJOR ${VTK_MAJOR_VERSION})
 SET(_VTK_VERSION_MINOR ${VTK_MINOR_VERSION})
 SET(_VTK_VERSION_PATCH ${VTK_BUILD_VERSION})
-# We use odd minor numbers for development versions.
-# Use a date for the development patch level.
-if("${_VTK_VERSION_MINOR}" MATCHES "[13579]$")
-  include(${VTK_SOURCE_DIR}/Utilities/KWSys/vtksys/kwsysDateStamp.cmake)
-  set(_VTK_VERSION_PATCH
-    "${KWSYS_DATE_STAMP_YEAR}${KWSYS_DATE_STAMP_MONTH}${KWSYS_DATE_STAMP_DAY}"
-    )
-endif()
 
 # Create list of available modules and libraries.
 set(VTK_CONFIG_MODULES_ENABLED "")

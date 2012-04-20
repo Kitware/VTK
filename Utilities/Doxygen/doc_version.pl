@@ -69,8 +69,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 my %default =
   (
-   version_file => "../../CMakeLists.txt",
-   revison_file => "../../Common/vtkVersion.h",
+   version_file => "../../CMake/vtkVersion.cmake",
    store => "doc_VTK_version.dox",
    to => "../../../VTK-doxygen"
   );
@@ -80,14 +79,13 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "revision_file=s", "version_file=s", "logo=s", "store=s", "to=s");
+GetOptions (\%args, "help", "version_file=s", "logo=s", "store=s", "to=s");
 
 if (exists $args{"help"}) {
     print <<"EOT";
 by $AUTHOR
-Usage : $PROGNAME [--help] [--revision_file file] [--store file] [--to path]
+Usage : $PROGNAME [--help] [--version_file file] [--store file] [--to path]
   --help        : this message
-  --revision_file file : use 'file' to find revision (default: $default{revision_file})
   --version_file file : use 'file' to find version info (default: $default{version_file})
   --logo file   : use 'file' as logo (default: $default{logo})
   --store file  : use 'file' to store version (default: $default{store})
@@ -99,7 +97,6 @@ EOT
     exit;
 }
 
-$args{"revision_file"} = $default{"revision_file"} if ! exists $args{"revision_file"};
 $args{"version_file"} = $default{"version_file"} if ! exists $args{"version_file"};
 $args{"logo"} = $default{"logo"} if ! exists $args{"logo"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
@@ -111,9 +108,9 @@ my $open_file_as_text = $os_is_win ? O_TEXT : 0;
 my $start_time = time();
 
 # -------------------------------------------------------------------------
-# Try to get VTK version and revision
+# Try to get VTK version
 
-my ($major_version, $minor_version, $build_version, $date) = (undef, undef, undef, undef);
+my ($major_version, $minor_version, $build_version) = (undef, undef, undef);
 
 sysopen(FILE, $args{"version_file"}, O_RDONLY|$open_file_as_text)
   or croak "$PROGNAME: unable to open $args{version_file}\n";
@@ -136,22 +133,6 @@ close(FILE);
 croak "$PROGNAME: unable to find version in " . $args{"version_file"} . "\n"
   if (!defined $major_version || !defined $minor_version || !defined $build_version);
 
-sysopen(FILE, $args{"revision_file"}, O_RDONLY|$open_file_as_text)
-  or croak "$PROGNAME: unable to open $args{revision_file}\n";
-
-while (<FILE>) {
-    if ($_ =~ /define\s+vtksys_DATE_STAMP_STRING\s+\"([^\"]+)\"/) {
-        $date = $1;
-        print " date => $date\n";
-        last;
-    }
-}
-
-close(FILE);
-
-carp "$PROGNAME: unable to find revision/date in " . $args{"revision_file"} . "\n"
-  if (!defined $date);
-
 # -------------------------------------------------------------------------
 # Build documentation
 
@@ -169,10 +150,6 @@ print DEST_FILE
 print DEST_FILE
   "  \@image html " . basename($args{"logo"}) . "\n"
   if exists $args{"logo"} && -f $args{"logo"};
-
-if (defined $date) {
-    print DEST_FILE "  \@date $date\n";
-}
 
 print DEST_FILE
   "  \@par Useful links:\n",

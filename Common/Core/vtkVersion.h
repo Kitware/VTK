@@ -28,14 +28,9 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkVersionMacros.h" // For version macros
 
-#if VTK_MINOR_VERSION & 1
-# include <vtksys/DateStamp.h> // For date stamp
-# define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", Date: " vtksys_DATE_STAMP_STRING
-#else
-# define VTK_SOURCE_VERSION "vtk version " VTK_VERSION
-#endif
-
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION
 
 class VTKCOMMONCORE_EXPORT vtkVersion : public vtkObject
 {
