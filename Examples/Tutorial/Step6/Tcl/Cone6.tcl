@@ -12,12 +12,12 @@
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the VTK commands to Tcl.
 #
 package require vtk
 
-# 
+#
 # Next we create an instance of vtkConeSource and set some of its
 # properties. The instance of vtkConeSource "cone" is part of a visualization
 # pipeline (it is a source process object); it produces data (output type is
@@ -28,7 +28,7 @@ cone SetHeight 3.0
 cone SetRadius 1.0
 cone SetResolution 10
 
-# 
+#
 # In this example we terminate the pipeline with a mapper process object.
 # (Intermediate filters such as vtkShrinkPolyData could be inserted in
 # between the source and the mapper.)  We create an instance of
@@ -38,7 +38,7 @@ cone SetResolution 10
 vtkPolyDataMapper coneMapper
 coneMapper SetInputConnection [cone GetOutputPort]
 
-# 
+#
 # Create an actor to represent the cone. The actor orchestrates rendering of
 # the mapper's graphics primitives. An actor also refers to properties via a
 # vtkProperty instance, and includes an internal transformation matrix. We
@@ -52,7 +52,7 @@ coneActor SetMapper coneMapper
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here.
 #
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 
@@ -65,7 +65,7 @@ vtkRenderWindow renWin
 renWin AddRenderer ren1
 renWin SetSize 300 300
 
-# 
+#
 # The vtkRenderWindowInteractor class watches for events (e.g., keypress,
 # mouse) in the vtkRenderWindow. These events are translated into
 # event invocations that VTK understands (see VTK/Common/vtkCommand.h
@@ -78,7 +78,7 @@ iren SetRenderWindow renWin
 # By default the vtkRenderWindowInteractor instantiates an instance
 # of vtkInteractorStyle. vtkInteractorStyle translates a set of events
 # it observes into operations on the camera, actors, and/or properties
-# in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
+# in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
 # Here we specify a particular interactor style.
 vtkInteractorStyleTrackballCamera style
 iren SetInteractorStyle style
@@ -90,7 +90,7 @@ iren SetInteractorStyle style
 #
 # The SetInteractor method is how 3D widgets are associated with the render
 # window interactor. Internally, SetInteractor sets up a bunch of callbacks
-# using the Command/Observer mechanism (AddObserver()). The place factor 
+# using the Command/Observer mechanism (AddObserver()). The place factor
 # controls the initial size of the widget with respect to the bounding box
 # of the input to the widget.
 vtkBoxWidget boxWidget
@@ -98,7 +98,7 @@ boxWidget SetInteractor iren
 boxWidget SetPlaceFactor 1.25
 
 #
-# Place the interactor initially. The input to a 3D widget is used to 
+# Place the interactor initially. The input to a 3D widget is used to
 # initially position and scale the widget. The EndInteractionEvent is
 # observed which invokes the SelectPolygons callback.
 #
@@ -108,7 +108,7 @@ boxWidget AddObserver InteractionEvent TransformActor
 
 #
 # Normally the user presses the "i" key to bring a 3D widget to life. Here
-# we will manually enable it so it appears with the cone. 
+# we will manually enable it so it appears with the cone.
 #
 boxWidget On
 
@@ -137,7 +137,7 @@ iren Initialize
 #
 wm withdraw .
 
-# As the box widget is interacted with, it produces a transformation 
+# As the box widget is interacted with, it produces a transformation
 # matrix that is set on the actor.
 vtkTransform t
 proc TransformActor {} {

@@ -23,25 +23,26 @@
 #ifndef __vtkTDxQtUnixDevices_h
 #define __vtkTDxQtUnixDevices_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include <QObject>
-#include "QVTKWin32Header.h" // for QVTK_EXPORT
+#include "QVTKWin32Header.h" // for VTKGUISUPPORTQT_EXPORT
 #include "vtkTDxUnixDevice.h" // required for vtkTDxUnixDeviceXEvent
 
 class vtkTDxQtUnixDevicesPrivate;
 
-class QVTK_EXPORT vtkTDxQtUnixDevices : public QObject
+class VTKGUISUPPORTQT_EXPORT vtkTDxQtUnixDevices : public QObject
 {
   Q_OBJECT
 public:
   vtkTDxQtUnixDevices();
   ~vtkTDxQtUnixDevices();
- 
+
   // Description;
   // Process X11 event `e'. Create a device and emit signal CreateDevice if it
   // does not exist yet.
   //  \pre e_exists: e!=0
   void ProcessEvent(vtkTDxUnixDeviceXEvent *e);
-  
+
 signals:
 // Description:
 // This signal should be connected to a slot in the QApplication.
@@ -50,9 +51,9 @@ signals:
    void CreateDevice(vtkTDxDevice *device);
 
 protected:
-  
+
   vtkTDxQtUnixDevicesPrivate *Private;
-  
+
 private:
   vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&);  // Not implemented.
   void operator=(const vtkTDxQtUnixDevices&);  // Not implemented.

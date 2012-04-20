@@ -2,12 +2,12 @@
 # Try to find nVidia's Cg compiler, runtime libraries, and include path.
 # Once done this will define
 #
-# CG_FOUND        - system has NVidia Cg and it can be used. 
+# CG_FOUND        - system has NVidia Cg and it can be used.
 # CG_INCLUDE_PATH = directory where cg.h resides
 # CG_LIBRARY = full path to libCg.so (Cg.DLL on win32)
 # CG_GL_LIBRARY = full path to libCgGL.so (CgGL.dll on win32)
 # CG_COMPILER = full path to cgc (cgc.exe on win32)
-# 
+#
 
 # On OSX default to using the framework version of Cg.
 

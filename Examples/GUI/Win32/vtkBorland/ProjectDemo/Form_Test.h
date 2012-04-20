@@ -60,4 +60,4 @@ class TVTK_Form : public TForm {
 extern TVTK_Form *VTK_Form;
 //---------------------------------------------------------------------------
 #endif
- 
+

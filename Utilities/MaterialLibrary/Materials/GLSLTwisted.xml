@@ -4,7 +4,7 @@
     <Member name="DiffuseColor" number_of_elements="3" type="Double" value="1.0 0.5 0.5" />
   </Property>
 
-  <Shader scope="Vertex" name="GLSLTwisted" location="Library" 
+  <Shader scope="Vertex" name="GLSLTwisted" location="Library"
     language="GLSL" entry="main">
     <ApplicationUniform name="Rate" value="Rate"> </ApplicationUniform>
   </Shader>

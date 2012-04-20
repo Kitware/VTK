@@ -40,13 +40,13 @@ vtkImplicitBoolean theCream
     theCream AddFunction iceCream
     theCream AddFunction bite
 
-# The sample function generates a distance function from the 
-# implicit function (which in this case is the cone). This is 
+# The sample function generates a distance function from the
+# implicit function (which in this case is the cone). This is
 # then contoured to get a polygonal surface.
 #
 vtkSampleFunction theConeSample
     theConeSample SetImplicitFunction theCone
-    theConeSample SetModelBounds -1 1.5 -1.25 1.25 -1.25 1.25 
+    theConeSample SetModelBounds -1 1.5 -1.25 1.25 -1.25 1.25
     theConeSample SetSampleDimensions 60 60 60
     theConeSample ComputeNormalsOff
 vtkContourFilter theConeSurface
@@ -63,7 +63,7 @@ vtkActor coneActor
 #
 vtkSampleFunction theCreamSample
     theCreamSample SetImplicitFunction theCream
-    theCreamSample SetModelBounds  0 2.5 -1.25 1.25 -1.25 1.25 
+    theCreamSample SetModelBounds  0 2.5 -1.25 1.25 -1.25 1.25
     theCreamSample SetSampleDimensions 60 60 60
     theCreamSample ComputeNormalsOff
 vtkContourFilter theCreamSurface

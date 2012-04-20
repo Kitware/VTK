@@ -1,6 +1,6 @@
 #ifndef __vtkPythonAppInitConfigure_h
 #define __vtkPythonAppInitConfigure_h
 
-#define VTK_PYTHON_LIBRARY_DIR_BUILD "@LIBRARY_OUTPUT_PATH@"
+#define VTK_PYTHON_LIBRARY_DIR "@LIBRARY_OUTPUT_PATH@"
 
 #endif

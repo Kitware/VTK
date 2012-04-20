@@ -26,7 +26,7 @@ if __name__ == "__main__":
         vertID1.InsertNextValue(i)
     for i in range(10):
         G1.AddGraphEdge(i, (i+1)%10)
-        
+
     #----------------------------------------------------------
     # Create a second graph
     # - This one is a triangle, with one node's pedigree id field
@@ -60,13 +60,13 @@ if __name__ == "__main__":
         output.ShallowCopy(input)
         varray = vtkIntArray()
         varray.SetName("color")
-        
+
         varray.SetNumberOfTuples( output.GetNumberOfVertices() )
         for i in range( output.GetNumberOfVertices() ):
             varray.SetValue(i, 1)
-            
+
         output.GetVertexData().AddArray(varray)
-        
+
     G1_labeled.SetExecuteMethod( vertex_labeler_g1 )
 
 
@@ -83,13 +83,13 @@ if __name__ == "__main__":
         output.ShallowCopy(input)
         varray = vtkIntArray()
         varray.SetName("color")
-        
+
         varray.SetNumberOfTuples( output.GetNumberOfVertices() )
         for i in range( output.GetNumberOfVertices() ):
             varray.SetValue(i, 2)
-            
+
         output.GetVertexData().AddArray(varray)
-        
+
     G2_labeled.SetExecuteMethod( vertex_labeler_g2 )
 
 
@@ -110,13 +110,13 @@ if __name__ == "__main__":
     theme.SetPointSize(15)
     theme.SetCellOpacity(1)
     theme.FastDelete()
-    
+
     # Rendered graph representation to make vertices circles
     rep = vtkRenderedGraphRepresentation(  )
     rep.SetInputConnection(0, merge.GetOutputPort())
-    
+
     # vtkGraphToGlyph::CIRCLE == 7
-    rep.SetGlyphType(7)    
+    rep.SetGlyphType(7)
 
     # View containing the merged graph
     view = vtkGraphLayoutView()
@@ -129,11 +129,11 @@ if __name__ == "__main__":
     view.SetVertexLabelFontSize(20)
     view.ApplyViewTheme(theme)
 
-    
-    
+
+
     view.GetRenderWindow().SetSize(xdim, ydim)
     view.ResetCamera()
     view.Render()
-    
-    
+
+
     view.GetInteractor().Start()

@@ -8,7 +8,7 @@ if len(sys.argv) < 2:
 for i in range(2, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
-        
+
 import vtk
 import math
 
@@ -19,7 +19,7 @@ from mccases import *
 import expr
 import catch
 import info
-import file 
+import file
 from vtk.util.colors import *
 
 #implementation for lindex.
@@ -55,7 +55,7 @@ def get_variable_name(*args):
         if arg == "":
             continue
         # it is essential to qualify the scope of type since
-        # some test define type variable which messes up the 
+        # some test define type variable which messes up the
         # bultin call.
         if __builtins__.type(arg) == __builtins__.type("string"):
             var_name += arg
@@ -92,12 +92,12 @@ test_script = sys.argv[1]
 threshold = -1
 
 
-# we pass the locals over so that the test script has access to 
+# we pass the locals over so that the test script has access to
 # all the locals we have defined here.
 execfile(test_script, globals(), locals())
 
 local_variables_dict = locals()
-    
+
 
 if "iren" in local_variables_dict.keys():
     renWin.Render()
@@ -118,7 +118,7 @@ if rtTester.IsValidImageSpecified() != 0:
     else:
         if threshold == -1:
             threshold = 5
-        
+
         if "viewer" in local_variables_dict.keys():
             rtTester.SetRenderWindow(viewer.GetRenderWindow())
             viewer.Render()

@@ -40,13 +40,13 @@ def bessel():
         deriv = -exp(-r)*(cos(10.0*r)+10.0*sin(10.0*r))
 
         newPts.InsertPoint(i, x0, x1, x2)
-        derivs.InsertValue(i, deriv) 
+        derivs.InsertValue(i, deriv)
 
     besselF.GetPolyDataOutput().CopyStructure(input)
     besselF.GetPolyDataOutput().SetPoints(newPts)
     besselF.GetPolyDataOutput().GetPointData().SetScalars(derivs)
 
-besselF.SetExecuteMethod(bessel) 
+besselF.SetExecuteMethod(bessel)
 
 # We warp the plane based on the scalar values calculated above
 warp = vtk.vtkWarpScalar()

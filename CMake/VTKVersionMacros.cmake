@@ -24,9 +24,9 @@ MACRO(VTK_GET_SOURCE_REVISION_AND_DATE
       SET(file "${dir}/vtkVersion.h")
       IF(EXISTS ${file})
         FILE(READ ${file} file_contents)
-        STRING(REGEX REPLACE "(.*Revision: )([0-9]+\\.[0-9]+)( .*)" "\\2" 
+        STRING(REGEX REPLACE "(.*Revision: )([0-9]+\\.[0-9]+)( .*)" "\\2"
           ${revision_varname} "${file_contents}")
-        STRING(REGEX REPLACE "(.*Date: )(.+)( \\$.*)" "\\2" 
+        STRING(REGEX REPLACE "(.*Date: )(.+)( \\$.*)" "\\2"
           ${date_varname} "${file_contents}")
         SET(___vtk_version_found 1)
       ENDIF(EXISTS ${file})

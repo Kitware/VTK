@@ -40,11 +40,11 @@
 
 //
 // Similar to Cone2.cxx, we define a callback for interaction.
-// 
+//
 class vtkMyCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New() 
+  static vtkMyCallback *New()
     { return new vtkMyCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
@@ -58,7 +58,7 @@ public:
 
 int main()
 {
-  // 
+  //
   // Next we create an instance of vtkConeSource and set some of its
   // properties. The instance of vtkConeSource "cone" is part of a
   // visualization pipeline (it is a source process object); it produces data
@@ -68,8 +68,8 @@ int main()
   cone->SetHeight( 3.0 );
   cone->SetRadius( 1.0 );
   cone->SetResolution( 10 );
-  
-  // 
+
+  //
   // In this example we terminate the pipeline with a mapper process object.
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
   // between the source and the mapper.)  We create an instance of
@@ -79,7 +79,7 @@ int main()
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection( cone->GetOutputPort() );
 
-  // 
+  //
   // Create an actor to represent the cone. The actor orchestrates rendering
   // of the mapper's graphics primitives. An actor also refers to properties
   // via a vtkProperty instance, and includes an internal transformation
@@ -108,7 +108,7 @@ int main()
   renWin->AddRenderer( ren1 );
   renWin->SetSize( 300, 300 );
 
-  // 
+  //
   // The vtkRenderWindowInteractor class watches for events (e.g., keypress,
   // mouse) in the vtkRenderWindow. These events are translated into
   // event invocations that VTK understands (see VTK/Common/vtkCommand.h
@@ -121,9 +121,9 @@ int main()
   // By default the vtkRenderWindowInteractor instantiates an instance
   // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
   // it observes into operations on the camera, actors, and/or properties
-  // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
+  // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
   // Here we specify a particular interactor style.
-  vtkInteractorStyleTrackballCamera *style = 
+  vtkInteractorStyleTrackballCamera *style =
     vtkInteractorStyleTrackballCamera::New();
   iren->SetInteractorStyle(style);
 
@@ -134,7 +134,7 @@ int main()
   //
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
-  // using the Command/Observer mechanism (AddObserver()). The place factor 
+  // using the Command/Observer mechanism (AddObserver()). The place factor
   // controls the initial size of the widget with respect to the bounding box
   // of the input to the widget.
   vtkBoxWidget *boxWidget = vtkBoxWidget::New();
@@ -142,7 +142,7 @@ int main()
   boxWidget->SetPlaceFactor(1.25);
 
   //
-  // Place the interactor initially. The input to a 3D widget is used to 
+  // Place the interactor initially. The input to a 3D widget is used to
   // initially position and scale the widget. The EndInteractionEvent is
   // observed which invokes the SelectPolygons callback.
   //
@@ -153,7 +153,7 @@ int main()
 
   //
   // Normally the user presses the "i" key to bring a 3D widget to life. Here
-  // we will manually enable it so it appears with the cone. 
+  // we will manually enable it so it appears with the cone.
   //
   boxWidget->On();
 
@@ -162,7 +162,7 @@ int main()
   //
   iren->Initialize();
   iren->Start();
-  
+
   //
   // Free up any objects we created. All instances in VTK are deleted by
   // using the Delete() method.

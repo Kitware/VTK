@@ -14,7 +14,7 @@ public class vtkSettings
     int size = st.countTokens();
     String[] res = new String[size];
     int cnt = 0;
-    while (st.hasMoreTokens()) 
+    while (st.hasMoreTokens())
       {
       res[cnt] = st.nextToken();
       cnt ++;

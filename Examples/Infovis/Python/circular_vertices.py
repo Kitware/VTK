@@ -21,11 +21,11 @@ if __name__ == "__main__":
     theme.SetPointSize(15)
     theme.SetCellOpacity(1)
     theme.FastDelete()
-    
+
     # Rendered graph representation to make vertices circles
     rep = vtkRenderedGraphRepresentation()
     rep.SetInputConnection(0, source.GetOutputPort())
-    
+
     # vtkGraphToGlyph::CIRCLE == 7
     rep.SetGlyphType(7)
 
@@ -40,5 +40,5 @@ if __name__ == "__main__":
     view.GetRenderWindow().SetSize(600, 600)
     view.ResetCamera()
     view.Render()
-    
+
     view.GetInteractor().Start()

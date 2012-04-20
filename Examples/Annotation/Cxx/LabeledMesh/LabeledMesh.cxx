@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-// This example was translated into C++ from its TCL counterpart 
-// (VTK/Examples/Annotation/Tcl/labeledMesh.tcl) by Jake Nickel from 
+// This example was translated into C++ from its TCL counterpart
+// (VTK/Examples/Annotation/Tcl/labeledMesh.tcl) by Jake Nickel from
 // the University of Iowa.  It demonstrates the use of vtkLabeledDataMapper.
-// This class is used for displaying numerical data from an underlying data 
-// set.  In the case of this example, the underlying data are the point and 
+// This class is used for displaying numerical data from an underlying data
+// set.  In the case of this example, the underlying data are the point and
 // cell ids.
 
-// First we include the necessary header files. 
+// First we include the necessary header files.
 #include "vtkSmartPointer.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
@@ -61,7 +61,7 @@ void PlaceWindow( int xmin, int ymin )
   pts->InsertPoint( 1, xmin, ymin, 0 );
   pts->InsertPoint( 2, xmin, ymin, 0 );
   pts->InsertPoint( 3, xmin, ymin, 0 );
-  
+
   // Call Modified because InsertPoints does not modify vtkPoints
   // (for performance reasons).
   pts->Modified();
@@ -115,7 +115,7 @@ int main( int , char *[] )
   vtkSmartPointer<vtkPolyDataMapper2D> rectMapper =
     vtkSmartPointer<vtkPolyDataMapper2D>::New();
   rectMapper->SetInputData(selectRect);
-    
+
   vtkSmartPointer<vtkActor2D> rectActor =
     vtkSmartPointer<vtkActor2D>::New();
   rectActor->SetMapper( rectMapper );

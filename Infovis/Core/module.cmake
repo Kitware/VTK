@@ -1,0 +1,13 @@
+vtk_module(vtkInfovisCore
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkFiltersExtraction
+  TEST_DEPENDS
+    vtkInfovisLayout
+    vtkRenderingOpenGL
+    vtkTestingRendering
+    vtkIOInfovis
+  )

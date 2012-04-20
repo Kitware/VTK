@@ -1,7 +1,7 @@
 # This example shows how to use the InteractorStyleImage and add your own
 # event handling.  The InteractorStyleImage is a special interactor designed
 # to be used with vtkImageActor in a rendering window context. It forces the
-# camera to stay perpendicular to the x-y plane. 
+# camera to stay perpendicular to the x-y plane.
 
 package require vtk
 package require vtkinteraction
@@ -28,7 +28,7 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-# Create an image interactor style and associate it with the 
+# Create an image interactor style and associate it with the
 # interactive renderer. Then assign some callbacks with the
 # appropriate events. THe callbacks are implemented as Tcl procs.
 vtkInteractorStyleImage interactor
@@ -146,7 +146,7 @@ proc EndZoom {} {
   set positionX [lindex $position 0]
   set positionY [lindex $position 1]
   set positionZ [lindex $position 2]
-  
+
   set deltaX [expr $focalX - ($p1X + $p2X)/2.0]
   set deltaY [expr $focalY - ($p1Y + $p2Y)/2.0]
 

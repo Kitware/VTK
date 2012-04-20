@@ -8,7 +8,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 1 - 00000001"
     } else {
@@ -24,7 +24,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 2 - 00000011"
     } else {
@@ -40,7 +40,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 3 - 00000101"
     } else {
@@ -56,7 +56,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $IN
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 4 - 01000001"
     } else {
@@ -72,7 +72,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $IN
 $scalars InsertValue 5 $IN
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 5 - 00110010"
     } else {
@@ -104,7 +104,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $IN
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 7 - 01000011"
     } else {
@@ -120,7 +120,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $IN
 $scalars InsertValue 5 $IN
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 8 - 00110011"
     } else {
@@ -136,7 +136,7 @@ $scalars InsertValue 3 $IN
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $IN
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 9 - 01001110"
     } else {
@@ -152,7 +152,7 @@ $scalars InsertValue 3 $IN
 $scalars InsertValue 4 $IN
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 9 - 00011011"
     } else {
@@ -168,7 +168,7 @@ $scalars InsertValue 3 $IN
 $scalars InsertValue 4 $OUT
 $scalars InsertValue 5 $IN
 $scalars InsertValue 6 $IN
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 10 - 01101001"
     } else {
@@ -184,7 +184,7 @@ $scalars InsertValue 3 $OUT
 $scalars InsertValue 4 $IN
 $scalars InsertValue 5 $IN
 $scalars InsertValue 6 $IN
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 11 - 01110001"
     } else {
@@ -200,7 +200,7 @@ $scalars InsertValue 3 $IN
 $scalars InsertValue 4 $IN
 $scalars InsertValue 5 $IN
 $scalars InsertValue 6 $OUT
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 12 - 00111010"
     } else {
@@ -216,7 +216,7 @@ $scalars InsertValue 3 $IN
 $scalars InsertValue 4 $IN
 $scalars InsertValue 5 $OUT
 $scalars InsertValue 6 $IN
-$scalars InsertValue 7 $OUT	
+$scalars InsertValue 7 $OUT
     if {$IN == 1} {
 	caseLabel SetText "Case 13 - 01011010"
     } else {

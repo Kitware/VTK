@@ -79,7 +79,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   this->IconIndexColumn = -1;
   this->IconSheetSize[0] = this->IconSheetSize[1] = 0;
   this->IconSize[0] = this->IconSize[1] = 0;
-} 
+}
 
 //----------------------------------------------------------------------------
 vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
@@ -238,7 +238,7 @@ void vtkQtTableModelAdapter::SetVTKDataObject(vtkDataObject *obj)
     qWarning("vtkQtTableModelAdapter needs a vtkTable for SetVTKDataObject");
     return;
     }
-    
+
   // Okay it's a table so set it :)
   this->setTable(t);
 }
@@ -250,7 +250,7 @@ vtkDataObject* vtkQtTableModelAdapter::GetVTKDataObject() const
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableModelAdapter::updateModelColumnHashTables() 
+void vtkQtTableModelAdapter::updateModelColumnHashTables()
 {
   // Clear the hash tables
   this->Internal->ModelColumnToTableColumn.clear();
@@ -309,7 +309,7 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
       const vtkIdType nTuples = dataArray->GetNumberOfTuples();
       for (vtkIdType i = 0; i < nTuples; ++i)
         {
-        double mag = 0; 
+        double mag = 0;
         for (int j = 0; j < nComponents; ++j)
           {
           double tmp = dataArray->GetComponent(i,j);
@@ -336,7 +336,7 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
 }
 
 //----------------------------------------------------------------------------
-void vtkQtTableModelAdapter::setTable(vtkTable* t) 
+void vtkQtTableModelAdapter::setTable(vtkTable* t)
 {
   if (this->Table != NULL)
     {
@@ -390,18 +390,18 @@ vtkSelection* vtkQtTableModelAdapter::QModelIndexListToVTKIndexSelection(
     vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(index_arr);
   IndexSelection->AddNode(node);
-  
+
   // Run through the QModelIndexList pulling out vtk indexes
   std::set<int> unique_ids;
   for (int i = 0; i < qmil.size(); i++)
     {
     unique_ids.insert(qmil.at(i).internalId());
-    }  
+    }
   std::set<int>::iterator iter;
   for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
     {
     index_arr->InsertNextValue(*iter);
-    }  
+    }
 
   return IndexSelection;
 }
@@ -479,9 +479,9 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Map the qt model column to a column in the vtk table and
   // get the value from the table as a vtkVariant
   vtkVariant v;
-  this->getValue(idx.row(), idx.column(), v); 
-  
-  // Return a string if they ask for a display role 
+  this->getValue(idx.row(), idx.column(), v);
+
+  // Return a string if they ask for a display role
   if (role == Qt::DisplayRole)
     {
     bool ok;
@@ -496,7 +496,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
       }
     }
 
-  // Return a byte array if they ask for a decorate role 
+  // Return a byte array if they ask for a decorate role
   if (role == Qt::DecorationRole)
     {
     if(this->DecorationStrategy == vtkQtTableModelAdapter::COLORS &&
@@ -511,7 +511,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
       }
     return this->Internal->IndexToDecoration[idx];
     }
-  
+
   // Return a raw value if they ask for a user role
   if (role == Qt::UserRole)
     {
@@ -525,7 +525,7 @@ QVariant vtkQtTableModelAdapter::data(const QModelIndex &idx, int role) const
   // Hmmm... if the role isn't decorate, user or display
   // then just punt and return a empty qvariant
   return QVariant();
-   
+
 }
 
 //----------------------------------------------------------------------------
@@ -566,7 +566,7 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
       (role == Qt::DisplayRole || role == Qt::UserRole))
     {
 
-    QString columnName; 
+    QString columnName;
     if (this->GetSplitMultiComponentColumns())
       {
       columnName = this->Internal->ModelColumnNames[section];
@@ -604,7 +604,7 @@ QVariant vtkQtTableModelAdapter::headerData(int section, Qt::Orientation orienta
         return QVariant(v.ToString().c_str());
         }
       }
-    else if(role == Qt::DecorationRole && 
+    else if(role == Qt::DecorationRole &&
       this->DecorationStrategy == vtkQtTableModelAdapter::ICONS &&
       this->DecorationLocation == vtkQtTableModelAdapter::ITEM && this->IconIndexColumn >= 0)
       {
@@ -637,7 +637,7 @@ void vtkQtTableModelAdapter::getValue(int row, int in_column, vtkVariant& v) con
     {
     return;
     }
-  
+
   const int nComponents = array->GetNumberOfComponents();
 
   // Special case- if the variant is an array it means the column data

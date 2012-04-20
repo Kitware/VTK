@@ -20,7 +20,7 @@
 // .NAME vtkQtAnnotationLayersModelAdapter - Adapts annotations to a Qt item model.
 //
 // .SECTION Description
-// vtkQtAnnotationLayersModelAdapter is a QAbstractItemModel with a 
+// vtkQtAnnotationLayersModelAdapter is a QAbstractItemModel with a
 //    vtkAnnotationLayers as its underlying data model.
 //
 // .SECTION See also
@@ -29,13 +29,14 @@
 #ifndef __vtkQtAnnotationLayersModelAdapter_h
 #define __vtkQtAnnotationLayersModelAdapter_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include "vtkQtAbstractModelAdapter.h"
 
 class vtkAnnotationLayers;
 class vtkSelection;
 
-class QVTK_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbstractModelAdapter
+class VTKGUISUPPORTQT_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbstractModelAdapter
 {
   Q_OBJECT
 
@@ -43,12 +44,12 @@ public:
   vtkQtAnnotationLayersModelAdapter(QObject *parent = 0);
   vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = 0);
   ~vtkQtAnnotationLayersModelAdapter();
-  
+
   // Description:
   // Set/Get the VTK data object as input to this adapter
   virtual void SetVTKDataObject(vtkDataObject *data);
   virtual vtkDataObject* GetVTKDataObject() const;
-  
+
   // Description:
   // Selection conversion from VTK land to Qt land
   virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(
@@ -59,7 +60,7 @@ public:
     const QModelIndexList qmil) const;
   virtual QItemSelection VTKIndexSelectionToQItemSelection(
     vtkSelection *vtksel) const;
-  
+
   virtual void SetKeyColumnName(const char* name);
   virtual void SetColorColumnName(const char* name);
 

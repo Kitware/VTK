@@ -31,19 +31,10 @@ else:
 
 # VTK build configuration settings.
 vtk_version = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
-vtk_lib_dir = "@LIBRARY_OUTPUT_PATH@"
-vtk_bin_dir = "@EXECUTABLE_OUTPUT_PATH@"
-vtk_use_rendering = @VTK_PYTHON_USE_RENDERING@
-vtk_use_parallel = @VTK_PYTHON_USE_PARALLEL@
-vtk_use_charts = @VTK_PYTHON_USE_CHARTS@
-vtk_use_chemistry = @VTK_PYTHON_USE_CHEMISTRY@
-vtk_use_geovis = @VTK_PYTHON_USE_GEOVIS@
-vtk_use_infovis = @VTK_PYTHON_USE_INFOVIS@
-vtk_use_views = @VTK_PYTHON_USE_VIEWS@
-vtk_use_mpi = @VTK_PYTHON_USE_MPI@
+vtk_lib_dir = "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@"
+vtk_bin_dir = "@CMAKE_RUNTIME_OUTPUT_DIRECTORY@"
 vtk_has_configuration_types = @VTK_PYTHON_HAS_CONFIG_TYPES@
-vtk_use_sip = @VTK_PYTHON_USE_SIP@
-vtk_use_qt = @VTK_PYTHON_USE_QT@
+vtk_modules = """@VTK_PYTHON_MODULES@""".split(';')
 
 # The build type ('Release', 'Debug' etc.).  If vtk_has_configuration_types
 # is true this must be set.  It may be set on the command line by something
@@ -51,33 +42,8 @@ vtk_use_qt = @VTK_PYTHON_USE_QT@
 #   python setup.py install --prefix=D:\\Python23 BUILD_TYPE=Release
 vtk_build_type = @VTK_PYTHON_BUILD_TYPE@
 
-# Construct the list of kit names to be installed.
-vtk_kit_names = ['Common', 'Filtering', 'IO', 'Graphics',
-                 'GenericFiltering', 'Imaging']
-vtk_kit_names2 = []
-vtk_kit_names3 = []
-if vtk_use_rendering:
-    vtk_kit_names.extend(['Rendering', 'VolumeRendering', 'Hybrid', 'Widgets'])
-if vtk_use_parallel:
-    vtk_kit_names.extend(['Parallel'])
-if vtk_use_charts:
-    vtk_kit_names.extend(['Charts'])
-if vtk_use_chemistry:
-    vtk_kit_names.extend(['Chemistry'])
-if vtk_use_geovis:
-    vtk_kit_names.extend(['Geovis'])
-if vtk_use_infovis:
-    vtk_kit_names.extend(['Infovis'])
-if vtk_use_views:
-    vtk_kit_names.extend(['Views'])
-if vtk_use_qt:
-    vtk_kit_names2.extend(['Qt'])
-    vtk_kit_names3.extend(['QVTK'])
-
 # Construct the list of executable names to be installed.
 vtk_exe_names = ['vtkpython']
-if vtk_use_parallel and vtk_use_mpi:
-    vtk_exe_names.extend(['pvtkpython'])
 
 def get_libs():
     """Returns a list of libraries to be installed.  """
@@ -86,11 +52,9 @@ def get_libs():
     # Select platform-specific components of the module file names.
     if os.name == 'posix':
         dir = vtk_lib_dir
-        prefix = 'vtk'
         suffix = get_config_var('SO')
     else:
         dir = vtk_bin_dir.replace('/', '\\')
-        prefix = 'vtk'
         suffix = '.pyd'
 
     # If this build has configuration types append the selected configuration.
@@ -98,16 +62,8 @@ def get_libs():
         dir = os.path.join(dir, vtk_build_type)
 
     # Enumerate the list of module files.
-    for kit in vtk_kit_names:
-        libs.append(os.path.abspath(os.path.join(dir, prefix+kit+'Python'+suffix)))
-        if vtk_use_sip:
-          libs.append(os.path.abspath(os.path.join(dir, 'vtk'+kit+'PythonSIP'+suffix)))
-
-    for kit in vtk_kit_names2:
-        libs.append(os.path.abspath(os.path.join(dir, prefix+kit+'Python'+suffix)))
-
-    for kit in vtk_kit_names3:
-        libs.append(os.path.abspath(os.path.join(dir, kit+'Python'+suffix)))
+    for mod in vtk_modules:
+        libs.append(os.path.abspath(os.path.join(dir, mod+'Python'+suffix)))
 
     return libs
 

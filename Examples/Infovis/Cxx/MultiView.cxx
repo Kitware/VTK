@@ -36,13 +36,13 @@ class ViewUpdater : public vtkCommand
 public:
   static ViewUpdater* New()
   { return new ViewUpdater; }
-  
+
   void AddView(vtkView* view)
   {
     this->Views.push_back(view);
     view->AddObserver(vtkCommand::SelectionChangedEvent, this);
   }
-  
+
   virtual void Execute(vtkObject*, unsigned long, void*)
   {
     for (unsigned int i = 0; i < this->Views.size(); i++)
@@ -51,7 +51,7 @@ public:
       }
   }
 private:
-  ViewUpdater() { }  
+  ViewUpdater() { }
   ~ViewUpdater() { }
   vtksys_stl::vector<vtkView*> Views;
 };
@@ -65,7 +65,7 @@ int main(int, char*[])
   vtkIdType d = graph->AddChild(b);
   vtkIdType e = graph->AddChild(c);
   vtkIdType f = graph->AddChild(c);
-  
+
   vtkStringArray* labels = vtkStringArray::New();
   labels->SetName("Label");
   labels->InsertValue(a, "a");
@@ -75,13 +75,13 @@ int main(int, char*[])
   labels->InsertValue(e, "e");
   labels->InsertValue(f, "f");
   graph->GetVertexData()->AddArray(labels);
-  
+
   vtkTree* tree = vtkTree::New();
   tree->CheckedShallowCopy(graph);
-  
+
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   vtkDataRepresentation* rep =
-    view->SetRepresentationFromInput(tree);  
+    view->SetRepresentationFromInput(tree);
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);
   view->SetVertexColorArrayName("VertexDegree");
@@ -94,21 +94,21 @@ int main(int, char*[])
     view2->SetRepresentationFromInput(tree);
   view2->SetVertexLabelArrayName("Label");
   view2->SetVertexLabelVisibility(true);
-  
+
   vtkAnnotationLink* link = vtkAnnotationLink::New();
   rep->SetAnnotationLink(link);
   rep2->SetAnnotationLink(link);
-  
+
   ViewUpdater* update = ViewUpdater::New();
   update->AddView(view);
   update->AddView(view2);
-  
+
   view->ResetCamera();
   view2->ResetCamera();
   view->Render();
   view2->Render();
   view->GetInteractor()->Start();
-  
+
   graph->Delete();
   labels->Delete();
   tree->Delete();
@@ -117,7 +117,7 @@ int main(int, char*[])
   view2->Delete();
   link->Delete();
   update->Delete();
-  
+
   return 0;
 }
 

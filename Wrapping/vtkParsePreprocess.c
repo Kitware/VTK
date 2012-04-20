@@ -1790,7 +1790,7 @@ static int preproc_include_file(
   size_t tbuflen = 8192;
   char *line;
   size_t linelen = 80;
-  size_t i, j, n;
+  size_t i, j, n, r;
   int in_comment = 0;
   int in_quote = 0;
   int result = VTK_PARSE_OK;
@@ -1856,22 +1856,32 @@ static int preproc_include_file(
   j = 0;
   i = 0;
   n = 0;
+  r = 0;
 
   do
     {
     if (i == n)
       {
+      /* recycle two lookahead chars to the front of the buffer */
+      if (r)
+        {
+        tbuf[0] = tbuf[tbuflen-2];
+        tbuf[1] = tbuf[tbuflen-1];
+        }
+
       /* read the next chunk of the file */
       i = 0;
       if (feof(fp))
         {
-        n = 0;
+        /* still have the lookahead chars left */
+        n = r;
+        r = 0;
         }
       else
         {
+        /* fill the remainder of the buffer */
         errno = 0;
-        i = 0;
-        while ((n = fread(tbuf, 1, tbuflen, fp)) == 0 && ferror(fp))
+        while ((n = fread(&tbuf[r], 1, tbuflen-r, fp)) == 0 && ferror(fp))
           {
           if (errno != EINTR)
             {
@@ -1883,6 +1893,22 @@ static int preproc_include_file(
             }
           errno = 0;
           clearerr(fp);
+          }
+
+        /* check whether to add a lookahead reserve of two chars */
+        if (n == tbuflen)
+          {
+          /* this only occurs if the very first fread fills the buffer */
+          r = 2;
+          n -= r;
+          }
+        else if (n + r < tbuflen)
+          {
+          /* this only occurs if the final fread does not fill the buffer */
+          n += r;
+          r = 0;
+          /* guard against lookahead past last char in file */
+          tbuf[n] = '\0';
           }
         }
       }
@@ -1927,7 +1953,7 @@ static int preproc_include_file(
           line[j++] = tbuf[i++];
           }
         }
-      else if (tbuf[i] == '/' && tbuf[i] == '*')
+      else if (tbuf[i] == '/' && tbuf[i+1] == '*')
         {
         line[j++] = tbuf[i++];
         line[j++] = tbuf[i++];

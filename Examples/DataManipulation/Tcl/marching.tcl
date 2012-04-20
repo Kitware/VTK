@@ -145,14 +145,14 @@ vtkTransform aLabelTransform
 vtkTransformPolyDataFilter labelTransform
   labelTransform SetTransform aLabelTransform
   labelTransform SetInputConnection [caseLabel GetOutputPort]
-  
+
 # Create a mapper and actor to display the text.
 vtkPolyDataMapper labelMapper
   labelMapper SetInputConnection [labelTransform GetOutputPort];
- 
+
 vtkActor labelActor
   labelActor SetMapper labelMapper
- 
+
 # Define the base that the cube sits on.  Create its associated mapper
 # and actor.  Set the position of the actor.
 vtkCubeSource baseModel

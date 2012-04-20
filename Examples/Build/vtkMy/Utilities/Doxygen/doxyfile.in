@@ -36,14 +36,14 @@ IMAGE_PATH           = "@VTKMY_SOURCE_DIR@/Utilities/Doxygen"
 
 OUTPUT_DIRECTORY     = "@VTKMY_BINARY_DIR@/Utilities/Doxygen/doc"
 
-INPUT                = \ 
+INPUT                = \
  "@VTKMY_BINARY_DIR@/Utilities/Doxygen/dox/Common" \
  "@VTKMY_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
  "@VTKMY_BINARY_DIR@/Utilities/Doxygen/dox/Unsorted" \
  "@VTKMY_BINARY_DIR@/Utilities/Doxygen/dox/doc_vtkMy_index.dox"
 
 EXCLUDE_PATTERNS     =
-EXCLUDE              = 
+EXCLUDE              =
 
 TAGFILES             = "@VTKMY_BINARY_DIR@/Utilities/Doxygen/vtkNightlyDoc.tag=http://www.vtk.org/doc/nightly/html"
 

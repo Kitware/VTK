@@ -29,7 +29,7 @@ void Set##name (type* _arg) \
     this->name = _arg; \
     if (this->name != NULL) { this->name->Register(NULL); } \
     } \
-  } 
+  }
 
 /////////////////////////////////////////////////////////////////////////////
 // vtkMFCView view
@@ -42,7 +42,7 @@ protected:
   vtkMFCView();           // protected constructor used by dynamic creation
   DECLARE_DYNCREATE(vtkMFCView)
     int PrintDPI;
-  
+
 // Attributes
 public:
 
@@ -55,7 +55,7 @@ public:
   virtual void SetupMemoryRendering(int x, int y, HDC prn) {};
   virtual void ResumeScreenRendering() {};
   virtual unsigned char *GetMemoryData() {return NULL;};
-  
+
 // Overrides
   // ClassWizard generated virtual function overrides
   //{{AFX_VIRTUAL(vtkMFCView)
@@ -64,7 +64,7 @@ protected:
   virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
   virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
   //}}AFX_VIRTUAL
-  
+
 // Implementation
 protected:
   virtual ~vtkMFCView();
@@ -72,7 +72,7 @@ protected:
   virtual void AssertValid() const;
   virtual void Dump(CDumpContext& dc) const;
 #endif
-  
+
   // Generated message map functions
 protected:
   //{{AFX_MSG(vtkMFCView)

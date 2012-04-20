@@ -19,7 +19,7 @@
 // 1. Consumer asks the producer to start producing data,
 // 2. Consumer receives data and starts processing it,
 // 3. Producer starts producing new data,
-// 4. Goto 2 unless done. 
+// 4. Goto 2 unless done.
 // The pipeline used in this example is as follows:
 // rtSource -> OutputPort --- InputPort -> contour -> Render
 //        process 0                 process 1
@@ -29,7 +29,7 @@
 
 int main( int argc, char* argv[] )
 {
-  
+
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
   vtkMultiProcessController* controller = vtkMultiProcessController::New();
@@ -42,7 +42,7 @@ int main( int argc, char* argv[] )
     {
     // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
-    } 
+    }
   int numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs != 2)
@@ -57,11 +57,11 @@ int main( int argc, char* argv[] )
   controller->SetMultipleMethod(0, pipe1, 0);
   controller->SetMultipleMethod(1, pipe2, 0);
   controller->MultipleMethodExecute();
-  
+
   // Clean-up and exit
   controller->Finalize();
   controller->Delete();
-  
+
   return 0;
 }
 

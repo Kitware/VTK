@@ -7,7 +7,7 @@
 #
 # 0.81 (barre) :
 #   - add --baselinedir d : use 'd' as baseline directory
-#   - add --baselineicon f: use 'f' as icon file to report that file has 
+#   - add --baselineicon f: use 'f' as icon file to report that file has
 #     baseline picture
 #   - add --baselinelink l: use 'l' as baseline link to picture
 #   - add --baselinelinksuffix s : suffix string to append
@@ -18,7 +18,7 @@
 #   - more robust code: comments are removed from files before parsing
 #     and several identifier per lines are now supported (at last).
 #   - add --datamatch s : use string s to match any usage of data files
-#   - add --dataicon f : use f as icon file to report that file makes use 
+#   - add --dataicon f : use f as icon file to report that file makes use
 #     of data files
 #
 # 0.74 (barre) :
@@ -104,7 +104,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 # -------------------------------------------------------------------------
 # Defaults (add options as you want : "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    baselineicon => "pic.gif",
    baselinelinksuffix => "",
@@ -126,7 +126,7 @@ my %default =
 # -------------------------------------------------------------------------
 # Matchers and parsers :
 #
-# $eliminate_matcher : regexp matching the names of the 'fake' classes 
+# $eliminate_matcher : regexp matching the names of the 'fake' classes
 #                      that shall be eliminated/ignored,
 # %parsers           : hash defining each parser by associating
 #                      parser_name => [filename_matcher, func1, func2].
@@ -139,7 +139,7 @@ my %default =
 # @$func2            : function called when a filename is matched,
 #                      - receives the contents of the file as a reference to a
 #                        string (or the result of func1 if exists),
-#                      - returns an array of unique class names that have been 
+#                      - returns an array of unique class names that have been
 #                        recognized/matched in the file contents.
 
 my $eliminate_matcher = '^vtkCommand$';
@@ -225,12 +225,12 @@ EOT
 
 $args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"baselinedir"} =~ s/[\\\/]*$// if exists $args{"baselinedir"};
-$args{"baselineicon"} = $default{"baselineicon"} 
+$args{"baselineicon"} = $default{"baselineicon"}
   if ! exists $args{"baselineicon"};
-$args{"baselinelink"} = $default{"baselinelink"} 
+$args{"baselinelink"} = $default{"baselinelink"}
   if ! exists $args{"baselinelink"} && exists $default{"baselinelink"};
 $args{"baselinelink"} =~ s/[\\\/]*$// if exists $args{"baselinelink"};
-$args{"baselinelinksuffix"} = $default{"baselinelinksuffix"} 
+$args{"baselinelinksuffix"} = $default{"baselinelinksuffix"}
   if ! exists $args{"baselinelinksuffix"};
 $args{"dataicon"} = $default{"dataicon"} if ! exists $args{"dataicon"};
 $args{"dirmatch"} = $default{"dirmatch"} if ! exists $args{"dirmatch"};
@@ -262,7 +262,7 @@ if (exists $args{"parser"}) {
 } else {
     @parsers = keys %parsers;
 }
-    
+
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
 my $start_time = time();
@@ -279,9 +279,9 @@ my (%seen, @dirs);
 my $cwd = Cwd::cwd();
 
 foreach my $file (@ARGV) {
-    find sub { 
-        if (-d $_ && 
-            $_ ne "CVS" && 
+    find sub {
+        if (-d $_ &&
+            $_ ne "CVS" &&
             basename($File::Find::name) =~ m/$args{"dirmatch"}/i) {
             # my ($dev, $ino) = stat $_;
             push @dirs, $File::Find::name;
@@ -332,7 +332,7 @@ print " => ", scalar @parsable, " file(s) collected in ", time() - $start_time, 
 
 my %xref;
 
-# %shorter_filename is a hash associating a filename to its shorter 
+# %shorter_filename is a hash associating a filename to its shorter
 # counterpart where any leading component matching the name of a directory
 # being browsed have been removed.
 
@@ -340,12 +340,12 @@ my %shorter_filename;
 
 # %use_data is a hash associating a filename to a flag (1) when the
 # file makes use of data files (i.e. the contents of the file matches
-# $args{"datamatch"}). 
+# $args{"datamatch"}).
 
 my %use_data;
 
 # %baseline_picture is a hash associating a filename to the relative path
-# to its baseline picture (relative to --baselinedir). 
+# to its baseline picture (relative to --baselinedir).
 
 my %baseline_picture;
 
@@ -397,19 +397,19 @@ foreach my $filename (@parsable) {
         # Check for baseline picture
 
         if (exists $args{"baselinedir"}) {
-            my ($name, $dir, $ext) = 
+            my ($name, $dir, $ext) =
               fileparse($shorter_filename{$filename}, '\..*');
             my @dirs = split('/', $dir);
             my $pic = $dirs[1] . "/$name.png";
-            $baseline_picture{$filename} = $pic 
+            $baseline_picture{$filename} = $pic
               if -e $args{"baselinedir"} . "/$pic";
         }
     }
     $shorter_filename{$filename} =~ s/^\/// if exists $args{"remove_leading_slash"};
-    
+
     # Check for data
-    
-    $use_data{$filename} = 1 
+
+    $use_data{$filename} = 1
       if exists $args{"datamatch"} && $file =~ m/$args{"datamatch"}/ms;
 }
 
@@ -459,7 +459,7 @@ my $headers_not_found_nb = scalar keys %headers_not_found;
 
 $cwd = Cwd::cwd();
 
-find sub { 
+find sub {
     if ($headers_not_found_nb == 0) {
         # All headers have been found, let's stop descending the tree
         $File::Find::prune = 1;
@@ -507,17 +507,17 @@ my @words = sort keys %xref;
 my $header;
 my (@summary, @credits, @legend);
 
-push @summary, 
-  "  - " . scalar @words . " class(es) in " . 
+push @summary,
+  "  - " . scalar @words . " class(es) in " .
   scalar @parsable . " file(s) from directories matching \@c " . $args{"dirmatch"} . " on " . localtime();
 
 push @summary,
   "  - " . scalar @parsers . " parser(s) : [" . join(", ", @parsers) . "]";
 
-push @summary, 
+push @summary,
   "  - at most " . $args{"limit"} . " file(s) per parser";
 
-push @credits, 
+push @credits,
   "\@version $VERSION",
   "\@author \@c $PROGNAME, by $AUTHOR";
 
@@ -566,7 +566,7 @@ sub word_section_name {
     my ($word) = @_;
     return "\@anchor ${prefix}_$word\n$indent$word";
 }
-    
+
 # word_section_doc returns the doxygen doc for a word
 
 sub word_section_doc {
@@ -584,10 +584,10 @@ sub word_section_doc {
             $has_baseline_picture = ' @htmlonly <a href="' . $args{"baselinelink"} . '/' . $baseline_picture{$file} . $args{"baselinelinksuffix"} . '"><img src="' . $args{"baselineicon"} . '" align="top" border="0"></a> @endhtmlonly' if exists $baseline_picture{$file};
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
-                push @temp, 
-                '    - @htmlonly <TT><A href="' . $args{"link"} .  
+                push @temp,
+                '    - @htmlonly <TT><A href="' . $args{"link"} .
                   $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} .
-                    '@htmlonly</A></TT> @endhtmlonly ' . 
+                    '@htmlonly</A></TT> @endhtmlonly ' .
                       $has_data . $has_baseline_picture;
             } else {
                 push @temp, "    - \@c $shorter_filename{$file} $has_data $has_baseline_picture";
@@ -608,9 +608,9 @@ sub word_section_alpha {
 
 my $page_doc = build_page_doc($indent,
                               $args{"title"},
-                              \@words, 
-                              $prefix, 
-                              \&word_section_name, 
+                              \@words,
+                              $prefix,
+                              \&word_section_name,
                               \&word_section_doc,
                               \&word_section_alpha,
                               $header,
@@ -634,7 +634,7 @@ foreach my $class (@words) {
 
     sysopen(HEADER, $headers{$class}, O_RDONLY|$open_file_as_text)
       or croak "$PROGNAME: unable to open " . $headers{$class} . "\n";
-    
+
     # Search for the documentation block (@class ...)
 
     my @dest = ();
@@ -665,12 +665,12 @@ foreach my $class (@words) {
                 push @dest, $line;
             }
             close(HEADER);
-            sysopen(HEADER, $headers{$class}, 
+            sysopen(HEADER, $headers{$class},
                     O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
               or croak "$PROGNAME: unable to open " . $headers{$class} . "\n";
             print HEADER @dest;
             $updated_nb++;
-        } 
+        }
     }
     close(HEADER);
 }
@@ -691,7 +691,7 @@ sub build_page_doc {
     # word_section_doc returns the doxygen doc for a word
     # word_section_alpha returns the single alpha char corresponding to that
     # word's section.
-    # $header is the Doxygen string summarizing what has been documented as 
+    # $header is the Doxygen string summarizing what has been documented as
     # well as the credits.
     # $footer is a Doxygen string appended to each the resulting page
     # $destination_file is the name of the file where this page should be
@@ -706,18 +706,18 @@ sub build_page_doc {
     # %sections_words is a hash associating a section (alphabetical letter) to
     # an array of words belonging to that section.
     #   Ex: $sections_words{"C"} => ("contour", "cut")
-    # %sections_weight is a hash associating a section to its weight (the sum 
+    # %sections_weight is a hash associating a section to its weight (the sum
     # of the weights of each word belonging to that section).
     # @sections is the array holding the name of all sections
 
     my (%sections_words, %sections_weight, @sections);
 
     # $navbar is the Doxygen string describing the sections' navigation bar
-    
+
     my $navbar;
-    
+
     my $intermediate_time = time();
-    
+
     # Browse each word
 
     foreach my $word (@$rwords) {
@@ -731,21 +731,21 @@ sub build_page_doc {
         my $section = &$rword_section_alpha($word);
         push @{$sections_words{$section}}, $word;
         $sections_weight{$section} += length($words_doc{$word});
-        
+
         print " => ", $word, "\n" if exists $args{"verbose"};
     }
 
     print " => ", scalar @$rwords, " words(s) documented in ", time() - $intermediate_time, " s.\n";
-    
+
     @sections = sort keys %sections_words;
 
     # Build the navbar
-    
+
     my @temp;
     foreach my $section (@sections) {
         push @temp, "\@ref ${prefix}_section_$section \"$section\"";
     }
-    $navbar = "$indent\@par Navigation: \n$indent\[" . 
+    $navbar = "$indent\@par Navigation: \n$indent\[" .
       join(" | ", @temp) . "]\n";
 
     # Add the (approximate) weight of the (header + navbar) to each section
@@ -773,7 +773,7 @@ sub build_page_doc {
 
     print "Computing alphabetical group(s)/page(s)...\n";
 
-    # %groups is a hash associating a group id (int) to an array of sections 
+    # %groups is a hash associating a group id (int) to an array of sections
     # namesbelonging to that group.
     #   Ex: $groups{"0"} => ("A", "B", "C")
     # %groups_weight is a hash associating a group id to its weight (the sum
@@ -783,15 +783,15 @@ sub build_page_doc {
 
     my $groupid = 0;
 
-    # Remove a section one by one, and put it in a group until the group if 
+    # Remove a section one by one, and put it in a group until the group if
     # full,then create a next group, etc., until the sections are exhausted.
 
     my @sections_temp = @sections;
     while (@sections_temp) {
         $groups_weight{$groupid} = $sections_weight{$sections_temp[0]};
         push @{$groups{$groupid}}, shift @sections_temp;
-        while (@sections_temp && 
-               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]}) 
+        while (@sections_temp &&
+               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]})
                <= $args{"weight"}) {
             $groups_weight{$groupid} += $sections_weight{$sections_temp[0]};
             push @{$groups{$groupid}}, shift @sections_temp;
@@ -801,7 +801,7 @@ sub build_page_doc {
 
     if (exists $args{"verbose"}) {
         foreach my $groupid (sort {$a <=> $b} keys %groups) {
-            printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
+            printf("\t- %02d (weight: %7d) : %s\n", $groupid,
                    $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
         }
     }
@@ -820,8 +820,8 @@ sub build_page_doc {
         $fromto .= ".." . $groups{$groupid}[scalar @{$groups{$groupid}} - 1]
           if scalar @{$groups{$groupid}} > 1;
 
-        $page_doc .= 
-          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header"; 
+        $page_doc .=
+          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header";
 
         foreach my $section (@{$groups{$groupid}}) {
             $page_doc .=
@@ -838,8 +838,8 @@ sub build_page_doc {
 
     $intermediate_time = time();
 
-    sysopen(DEST_FILE, 
-            $destination_file, 
+    sysopen(DEST_FILE,
+            $destination_file,
             O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
      or croak "$PROGNAME: unable to open destination file $destination_file\n";
     print DEST_FILE $page_doc;

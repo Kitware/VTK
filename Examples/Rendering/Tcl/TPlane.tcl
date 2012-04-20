@@ -17,7 +17,7 @@ vtkTexture atext
   atext SetInputConnection [bmpReader GetOutputPort]
   atext InterpolateOn
 
-# Create a plane source and actor. The vtkPlanesSource generates 
+# Create a plane source and actor. The vtkPlanesSource generates
 # texture coordinates.
 #
 vtkPlaneSource plane

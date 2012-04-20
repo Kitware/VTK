@@ -24,7 +24,7 @@ INCLUDE_DIRECTORIES(
 )
 
 
-# Set your files and resources here  
+# Set your files and resources here
 SET(StatsViewSrcs main.cxx StatsView.cxx)
 SET(StatsViewUI StatsView.ui)
 SET(StatsViewHeaders StatsView.h)

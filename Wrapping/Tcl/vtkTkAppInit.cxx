@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
-#include "Wrapping/Tcl/vtkTkAppInitConfigure.h"
+#include "vtkTkAppInitConfigure.h"
 
 #ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
 #include <sys/stat.h>
@@ -43,38 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkTk.h"
 #else
 # include "vtkTcl.h"
-#endif
-
-/*
- * Make sure all the kits register their classes with vtkInstantiator.
- */
-#include "vtkCommonInstantiator.h"
-#include "vtkFilteringInstantiator.h"
-#include "vtkIOInstantiator.h"
-#include "vtkImagingInstantiator.h"
-#include "vtkGraphicsInstantiator.h"
-
-#ifdef VTK_USE_RENDERING
-#include "vtkRenderingInstantiator.h"
-#include "vtkVolumeRenderingInstantiator.h"
-#include "vtkHybridInstantiator.h"
-#include "vtkWidgetsInstantiator.h"
-#endif
-
-#ifdef VTK_USE_PARALLEL
-#include "vtkParallelInstantiator.h"
-#endif
-
-#ifdef VTK_USE_GEOVIS
-#include "vtkGeovisInstantiator.h"
-#endif
-
-#ifdef VTK_USE_INFOVIS
-#include "vtkInfovisInstantiator.h"
-#endif
-
-#ifdef VTK_USE_VIEWS
-#include "vtkViewsInstantiator.h"
 #endif
 
 #include "vtkTclUtil.h"
@@ -180,39 +148,8 @@ main(int argc, char **argv)
  *----------------------------------------------------------------------
  */
 
-extern "C" int Vtkcommontcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkfilteringtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkimagingtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkgraphicstcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkiotcl_Init(Tcl_Interp *interp);
-
-#ifdef VTK_USE_RENDERING
-extern "C" int Vtkrenderingtcl_Init(Tcl_Interp *interp);
-
-#if defined(VTK_USE_TK)
-extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
-extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
-#endif
-
-extern "C" int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkhybridtcl_Init(Tcl_Interp *interp);
-extern "C" int Vtkwidgetstcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_PARALLEL
-extern "C" int Vtkparalleltcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_GEOVIS
-extern "C" int Vtkgeovistcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_INFOVIS
-extern "C" int Vtkinfovistcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_VIEWS
-extern "C" int Vtkviewstcl_Init(Tcl_Interp *interp);
+#ifndef VTK_BUILD_SHARED_LIBS
+# include "vtktcl_static_prototypes.h"
 #endif
 
 void help()
@@ -246,89 +183,10 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-  /* init the core vtk stuff */
-  if (Vtkcommontcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkfilteringtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkimagingtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtkiotcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-#ifdef VTK_USE_RENDERING
-  if (Vtkrenderingtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-#if defined(VTK_USE_TK)
-  if (Vtktkrenderwidget_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-  if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
+#ifndef VTK_BUILD_SHARED_LIBS
+# include "vtktcl_static_packages.h"
 #endif
 
-  if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-  if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-
-  if (Vtkwidgetstcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_PARALLEL
-  if (Vtkparalleltcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
- 
-#ifdef VTK_USE_GEOVIS
-  if (Vtkgeovistcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_INFOVIS
-  if (Vtkinfovistcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
- 
-#ifdef VTK_USE_VIEWS
-  if (Vtkviewstcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
- 
 #ifdef VTK_EXTRA_TCL_INIT
   VTK_EXTRA_TCL_INIT;
 #endif
@@ -377,6 +235,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
     "  error $catch_res $errorInfo\n"
     "  }\n"
     "  return $package_res\n"
+    "}\n"
+    "if {\"-A\" ni $argv} {\n"
+    "puts {Enter: \"package require vtk\" to load VTK commands}\n"
     "}\n";
   Tcl_Eval(interp, script);
 

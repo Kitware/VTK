@@ -26,7 +26,7 @@ vtkDelaunay3D del
     del SetTolerance 0.01
     del SetAlpha 0.2
     del BoundingTriangulationOff
-    
+
 # Shrink the result to help see it better.
 vtkShrinkFilter shrink
     shrink SetInputConnection [del GetOutputPort]

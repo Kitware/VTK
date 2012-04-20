@@ -7,9 +7,9 @@
 
 
 IF (NOT OSMESA_INCLUDE_DIR)
-  FIND_PATH(OSMESA_INCLUDE_DIR GL/osmesa.h 
-    /usr/openwin/share/include 
-    /opt/graphics/OpenGL/include 
+  FIND_PATH(OSMESA_INCLUDE_DIR GL/osmesa.h
+    /usr/openwin/share/include
+    /opt/graphics/OpenGL/include
   )
 ENDIF (NOT OSMESA_INCLUDE_DIR)
 
@@ -17,8 +17,8 @@ ENDIF (NOT OSMESA_INCLUDE_DIR)
 # in the main Mesa library
 IF (NOT OSMESA_LIBRARY)
   FIND_LIBRARY(OSMESA_LIBRARY OSMesa
-    /opt/graphics/OpenGL/lib 
-    /usr/openwin/lib 
+    /opt/graphics/OpenGL/lib
+    /usr/openwin/lib
   )
 ENDIF (NOT OSMESA_LIBRARY)
 

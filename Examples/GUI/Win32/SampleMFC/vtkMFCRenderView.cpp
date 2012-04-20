@@ -28,19 +28,19 @@ vtkMFCRenderView::vtkMFCRenderView()
 
 vtkMFCRenderView::~vtkMFCRenderView()
 {
-  if (this->Interactor) 
+  if (this->Interactor)
     {
     this->Interactor->Delete();
     }
-  if (this->Renderer) 
+  if (this->Renderer)
     {
     this->Renderer->SetRenderWindow(NULL);
     }
-  if (this->RenderWindow) 
+  if (this->RenderWindow)
     {
     this->RenderWindow->Delete();
     }
-  if (this->Renderer) 
+  if (this->Renderer)
     {
     this->Renderer->Delete();
     }
@@ -78,14 +78,14 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
     {
     int size[2];
     float scale;
-    
+
     BeginWaitCursor();
     memcpy(size,this->RenderWindow->GetSize(),sizeof(int)*2);
-    
+
     int cxDIB = size[0];         // Size of DIB - x
     int cyDIB = size[1];         // Size of DIB - y
     CRect rcDest;
-    
+
     // get size of printer page (in pixels)
     int cxPage = pDC->GetDeviceCaps(HORZRES);
     int cyPage = pDC->GetDeviceCaps(VERTRES);
@@ -104,7 +104,7 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
     // a printed pixel (cyInch / cxInch).
     //
     rcDest.bottom = rcDest.left = 0;
-    if (((float)cyDIB*(float)cxPage/(float)cxInch) > 
+    if (((float)cyDIB*(float)cxPage/(float)cxInch) >
         ((float)cxDIB*(float)cyPage/(float)cyInch))
       {
       rcDest.top = cyPage;
@@ -116,27 +116,27 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
       rcDest.right = cxPage;
       rcDest.top = ((float)(cxPage*cyInch*cyDIB)) /
         ((float)(cxInch*cxDIB));
-      } 
-    
+      }
+
     CRect rcDestLP(rcDest);
     pDC->DPtoLP(rcDestLP);
     int DPI = this->RenderWindow->GetDPI();
-    
+
     this->RenderWindow->SetupMemoryRendering(rcDest.right/scale,
                                              rcDest.top/scale,
                                              pDC->m_hAttribDC);
-    
+
     this->RenderWindow->Render();
-    
+
     pDC->SetStretchBltMode(HALFTONE);
-    
+
     StretchBlt(pDC->GetSafeHdc(),0,0,
-               rcDest.right, rcDest.top, 
+               rcDest.right, rcDest.top,
                this->RenderWindow->GetMemoryDC(),
                0, 0, rcDest.right/scale, rcDest.top/scale, SRCCOPY);
-    
+
     this->RenderWindow->ResumeScreenRendering();
-    
+
     EndWaitCursor();
     }
   else
@@ -165,11 +165,11 @@ void vtkMFCRenderView::Dump(CDumpContext& dc) const
 // vtkMFCRenderView message handlers
 
 
-int vtkMFCRenderView::OnCreate(LPCREATESTRUCT lpCreateStruct) 
+int vtkMFCRenderView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
   if (vtkMFCView::OnCreate(lpCreateStruct) == -1)
     return -1;
-  
+
   // TODO: Add your specialized creation code here
   this->RenderWindow->SetParentId(lpCreateStruct->hwndParent);
 
@@ -181,7 +181,7 @@ void vtkMFCRenderView::OnInitialUpdate()
   vtkMFCView::OnInitialUpdate();
 
   // TODO: Add your specialized creation code here
-  
+
   this->RenderWindow->SetWindowId(this->m_hWnd);
   this->RenderWindow->WindowInitialize();
 }
@@ -191,20 +191,20 @@ LRESULT vtkMFCRenderView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch (message)
     {
-    //case WM_PAINT: 
-    case WM_LBUTTONDOWN: 
-    case WM_LBUTTONUP: 
-    case WM_MBUTTONDOWN: 
-    case WM_MBUTTONUP: 
-    case WM_RBUTTONDOWN: 
-    case WM_RBUTTONUP: 
+    //case WM_PAINT:
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
     case WM_MOUSEMOVE:
     case WM_MOUSEWHEEL:
     case WM_CHAR:
     case WM_TIMER:
       if (this->Interactor->GetInitialized())
         {
-        return vtkHandleMessage2(this->m_hWnd, message, wParam, lParam, 
+        return vtkHandleMessage2(this->m_hWnd, message, wParam, lParam,
                                  this->Interactor);
         }
       break;
@@ -212,10 +212,10 @@ LRESULT vtkMFCRenderView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
   return vtkMFCView::WindowProc(message, wParam, lParam);
 }
 
-void vtkMFCRenderView::OnSize(UINT nType, int cx, int cy) 
+void vtkMFCRenderView::OnSize(UINT nType, int cx, int cy)
 {
   vtkMFCView::OnSize(nType, cx, cy);
-  
+
   // TODO: Add your message handler code here
   if (this->Interactor->GetInitialized())
     {
@@ -223,7 +223,7 @@ void vtkMFCRenderView::OnSize(UINT nType, int cx, int cy)
     }
 }
 
-BOOL vtkMFCRenderView::OnPreparePrinting(CPrintInfo* pInfo) 
+BOOL vtkMFCRenderView::OnPreparePrinting(CPrintInfo* pInfo)
 {
   // TODO: call DoPreparePrinting to invoke the Print dialog box
   // default preparation

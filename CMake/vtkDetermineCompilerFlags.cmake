@@ -87,9 +87,9 @@ IF(APPLE)
   # suggested the workaround was to stop using -flat_namespace.
   # see https://sourceforge.net/tracker/?func=detail&atid=110894&aid=1961211&group_id=10894
   IF("${DARWIN_MAJOR_VERSION}" LESS 8)
-    SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS 
+    SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS
       "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
-    SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS 
+    SET(CMAKE_SHARED_MODULE_CREATE_C_FLAGS
       "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -Wl,-flat_namespace,-U,_environ")
   ENDIF("${DARWIN_MAJOR_VERSION}" LESS 8)
   IF(CMAKE_COMPILER_IS_GNUCXX)
