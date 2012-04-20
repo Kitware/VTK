@@ -20,9 +20,7 @@
 #ifndef vtkgluPickMatrix_h
 #define vtkgluPickMatrix_h
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h" // Needed for GLfloat and GLdouble.
-#endif
+#include "vtkOpenGL.h" // Needed for GLfloat and GLdouble.
 
 // This function was copied from Mesa and sets up the pick matrix
 inline void vtkgluPickMatrix( GLdouble x, GLdouble y,

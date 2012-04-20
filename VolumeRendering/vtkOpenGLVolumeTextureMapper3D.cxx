@@ -39,9 +39,7 @@
 #include "vtkVolumeTextureMapper3D_FourDependentNoShadeFP.h"
 #include "vtkVolumeTextureMapper3D_FourDependentShadeFP.h"
 
-//#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
-//#endif
 
 vtkOpenGLVolumeTextureMapper3D::vtkOpenGLVolumeTextureMapper3D()
 {

@@ -10,7 +10,7 @@ To use this class, you must have numpy installed (http://numpy.scipy.org)
 Methods
 
   SetInputConnection(vtkAlgorithmOutput) -- connect to VTK image pipeline
-  SetInput(vtkImageData) -- set an vtkImageData to export
+  SetInputData(vtkImageData) -- set an vtkImageData to export
   GetArray() -- execute pipeline and return a numpy array
 
 Methods from vtkImageExport
@@ -24,6 +24,7 @@ import umath
 import numpy
 
 from vtk import vtkImageExport
+from vtk import vtkStreamingDemandDrivenPipeline
 from vtk import VTK_SIGNED_CHAR
 from vtk import VTK_UNSIGNED_CHAR
 from vtk import VTK_SHORT
@@ -78,17 +79,17 @@ class vtkImageExportToArray:
     def SetInputConnection(self,input):
         return self.__export.SetInputConnection(input)
 
-    def SetInput(self,input):
-        return self.__export.SetInput(input)
+    def SetInputData(self,input):
+        return self.__export.SetInputData(input)
 
     def GetInput(self):
         return self.__export.GetInput()
 
     def GetArray(self):
+        self.__export.Update()
         input = self.__export.GetInput()
-        input.UpdateInformation()
+        extent = input.GetExtent()
         type = input.GetScalarType()
-        extent = input.GetWholeExtent()
         numComponents = input.GetNumberOfScalarComponents()
         dim = (extent[5]-extent[4]+1,
                extent[3]-extent[2]+1,

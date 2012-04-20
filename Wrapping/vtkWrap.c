@@ -577,6 +577,32 @@ void vtkWrap_FindCountHints(
   const char *countMethod;
   FunctionInfo *theFunc;
 
+  /* add hints for vtkInformation get methods */
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkInformation"))
+    {
+    countMethod = "Length(temp0)";
+
+    for (i = 0; i < data->NumberOfFunctions; i++)
+      {
+      theFunc = data->Functions[i];
+
+      if (strcmp(theFunc->Name, "Get") == 0 &&
+          theFunc->NumberOfArguments >= 1 &&
+          theFunc->Arguments[0]->Type == VTK_PARSE_OBJECT_PTR &&
+          (strcmp(theFunc->Arguments[0]->Class,
+                  "vtkInformationIntegerVectorKey") == 0 ||
+           strcmp(theFunc->Arguments[0]->Class,
+                  "vtkInformationDoubleVectorKey") == 0))
+        {
+        if (theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
+            theFunc->NumberOfArguments == 1)
+          {
+          theFunc->ReturnValue->CountHint = countMethod;
+          }
+        }
+      }
+    }
+
   /* add hints for array GetTuple methods */
   if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
     {

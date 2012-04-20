@@ -43,9 +43,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkActor.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
@@ -53,9 +51,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #include "vtkTDxWinDevice.h"
 #endif
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
-#endif
 
 void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
 void *vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void *)NULL;

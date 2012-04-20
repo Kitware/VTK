@@ -174,14 +174,12 @@ int vtkFastSplatter::RequestInformation(
 
   // Setup ExtentTranslator so that all downstream piece requests are
   // converted to whole extent update requests, as need by this filter.
-  vtkStreamingDemandDrivenPipeline* sddp = 
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
   if (strcmp(
-      sddp->GetExtentTranslator(outInfo)->GetClassName(), 
-      "vtkOnePieceExtentTranslator") != 0)
+      vtkStreamingDemandDrivenPipeline::GetExtentTranslator(outInfo)
+        ->GetClassName(), "vtkOnePieceExtentTranslator") != 0)
     {
     vtkExtentTranslator* et = vtkOnePieceExtentTranslator::New();
-    sddp->SetExtentTranslator(outInfo, et);
+    vtkStreamingDemandDrivenPipeline::SetExtentTranslator(outInfo, et);
     et->Delete();
     }
 

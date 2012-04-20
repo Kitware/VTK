@@ -30,9 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include "vtkShaderProgram2.h"
 
@@ -48,9 +46,7 @@ public:
   GLuint NumPicked;
 };
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRenderer);
-#endif
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderer,ShaderProgram,vtkShaderProgram2);
 vtkCxxSetObjectMacro(vtkOpenGLRenderer, Pass, vtkRenderPass);

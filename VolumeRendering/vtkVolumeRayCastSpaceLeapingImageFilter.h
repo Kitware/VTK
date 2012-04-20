@@ -122,7 +122,7 @@ public:
   // generate an output min-max structure given by outExt.
   // INTERNAL - Do not use
   static void ComputeInputExtentsForOutput( int inExt[6],
-      unsigned int inDim[3], int outExt[6], vtkImageData *inData );
+      int inDim[3], int outExt[6], vtkImageData *inData );
 
   // Description:
   // Get the first non-zero scalar opacity and gradient opacity indices for
@@ -150,7 +150,8 @@ public:
   // INTERNAL - Do not use
   // Compute the offset within an image of whole extents wholeExt, to access
   // the data starting at extents ext.
-  unsigned long ComputeOffset(int ext[6], int wholeExt[6], int nComponents);
+  vtkIdType ComputeOffset(const int ext[6], const int wholeExt[6],
+      int nComponents);
 
   //BTX
   // This method helps debug. It writes out a specific component of the

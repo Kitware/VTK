@@ -21,7 +21,6 @@
 #include "vtkFloatArray.h"
 #include "vtkPlot.h"
 #include "vtkRenderer.h"
-#include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"

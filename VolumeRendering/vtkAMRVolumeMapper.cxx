@@ -565,7 +565,7 @@ void vtkAMRVolumeMapper::UpdateGrid()
 #endif
 }
 //----------------------------------------------------------------------------
-void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *ren,
+void vtkAMRVolumeMapper::ProcessUpdateExtentRequest(vtkRenderer *vtkNotUsed(ren),
                                                     vtkInformation*info, 
                                                     vtkInformationVector **inputVector,
                                                     vtkInformationVector *outputVector)

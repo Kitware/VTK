@@ -3,6 +3,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   # add tests that do not require data
   SET(MyTests
     DummyController.cxx
+    TestFieldDataSerialization.cxx
     TestTemporalCacheTemporal.cxx
     TestTemporalCacheSimple.cxx
     )

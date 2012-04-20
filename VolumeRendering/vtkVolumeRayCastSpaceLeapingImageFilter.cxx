@@ -50,7 +50,7 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
   this->MinNonZeroScalarIndex = NULL;
   this->MinNonZeroGradientMagnitudeIndex = NULL;
   this->GradientMagnitude = NULL;
-  for (unsigned int i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
     {
     this->TableSize[i] = 0;
     this->TableShift[i] = 0;
@@ -146,7 +146,7 @@ void
 vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
                                                    vtkImageData *outData,
                                                    int outExt[6],
-                                                   unsigned int nComponents )
+                                                   int nComponents )
 {
   unsigned short *tmpPtr = static_cast< unsigned short * >(
                 outData->GetScalarPointerForExtent(outExt));
@@ -160,7 +160,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
   // A. Initialize the arrays with a blank flag.
 
   int i,j,k;
-  unsigned int c;
+  int c;
   for (k = outExt[4]; k <= outExt[5]; ++k, tmpPtr += outInc2)
     {
     for (j = outExt[2]; j <= outExt[3]; ++j, tmpPtr += outInc1)
@@ -180,13 +180,13 @@ vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
 
 //----------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter
-::ComputeInputExtentsForOutput( int inExt[6], unsigned int inDim[3],
+::ComputeInputExtentsForOutput( int inExt[6], int inDim[3],
                                 int outExt[6], vtkImageData *inData )
 {
   int inWholeExt[6];
   inData->GetExtent(inWholeExt);
 
-  for ( unsigned int i = 0; i < 3; i++ )
+  for ( int i = 0; i < 3; i++ )
     {
     inExt[2*i] = outExt[2*i] * VTK_SL_BLK + inWholeExt[2*i];
 
@@ -224,14 +224,14 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
   vtkDataArray * scalars = self->GetCurrentScalars();
   const int components = scalars->GetNumberOfComponents();
   const int independent = self->GetIndependentComponents();
-  const unsigned int nComponents = (independent) ? components : 1;
+  const int nComponents = (independent) ? components : 1;
 
   // B. Now fill in the max-min-gradient volume structure
 
   // B.1 First compute the extents of the input that contribute to this structure
 
   int inExt[6], inWholeExt[6];
-  unsigned int inDim[3];
+  int inDim[3];
   int outWholeDim[3];
   vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
     inExt, inDim, outExt, inData );
@@ -251,16 +251,16 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
 
   // Get increments to march through the output extents
 
-  const unsigned long outInc0 = 3*nComponents;
-  const unsigned long outInc1 = 3*outWholeDim[0]*nComponents;
-  const unsigned long outInc2 = 3*outWholeDim[0]*outWholeDim[1]*nComponents;
+  const vtkIdType outInc0 = 3*nComponents;
+  const vtkIdType outInc1 = outInc0*outWholeDim[0];
+  const vtkIdType outInc2 = outInc1*outWholeDim[1];
 
   // B.3 Now fill in the min-max volume.
 
-  unsigned int i, j, k;
-  unsigned int c;
-  unsigned int sx1, sx2, sy1, sy2, sz1, sz2;
-  unsigned int x, y, z;
+  int i, j, k;
+  int c;
+  int sx1, sx2, sy1, sy2, sz1, sz2;
+  int x, y, z;
 
   T *dptr = static_cast< T * >(scalars->GetVoidPointer(0));
   unsigned short val;
@@ -275,53 +275,53 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
 
   for ( k = 0; k < inDim[2]; k++, dptr += inInc2 )
     {
-    sz1 = (k < 1)?(0):(static_cast<unsigned int>((k-1)/4));
-    sz2 =              static_cast<unsigned int>((k  )/4);
+    sz1 = (k < 1)?(0):((k-1)/4);
+    sz2 =             ((k  )/4);
     sz2 = ( k == inDim[2]-1 )?(sz1):(sz2);
 
     sz1 += outExt[4];
     sz2 += outExt[4];
 
     // Bounds check
-    if ((int)sz2 > outExt[5])
+    if (sz2 > outExt[5])
       {
       sz2 = outExt[5];
       }
-    
+
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     for ( j = 0; j < inDim[1]; j++, dptr+= inInc1 )
       {
-      sy1 = (j < 1)?(0):(static_cast<unsigned int>((j-1)/4));
-      sy2 =              static_cast<unsigned int>((j  )/4);
+      sy1 = (j < 1)?(0):((j-1)/4);
+      sy2 =             ((j  )/4);
       sy2 = ( j == inDim[1]-1 )?(sy1):(sy2);
 
       sy1 += outExt[2];
       sy2 += outExt[2];
 
       // Bounds check
-      if ((int)sy2 > outExt[3])
+      if (sy2 > outExt[3])
         {
         sy2 = outExt[3];
         }
-      
+
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
         {
-        sx1 = (i < 1)?(0):(static_cast<unsigned int>((i-1)/4));
-        sx2 =              static_cast<unsigned int>((i  )/4);
+        sx1 = (i < 1)?(0):((i-1)/4);
+        sx2 =             ((i  )/4);
         sx2 = ( i == inDim[0]-1 )?(sx1):(sx2);
 
         sx1 += outExt[0];
         sx2 += outExt[0];
 
         // Bounds check
-        if ((int)sx2 > outExt[1])
+        if (sx2 > outExt[1])
           {
           sx2 = outExt[1];
           }
-        
+
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
@@ -374,8 +374,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 {
   // the number of independent components for which we need to keep track of
   // min/max
-  const unsigned int nComponents = static_cast< unsigned int >(
-                      self->GetNumberOfIndependentComponents());
+  const int nComponents = self->GetNumberOfIndependentComponents();
 
 
   // B. Now fill in the max-min-gradient volume structure
@@ -383,7 +382,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
   // B.1 First compute the extents of the input that contribute to this structure
 
   int inExt[6], inWholeExt[6];
-  unsigned int inDim[3];
+  int inDim[3];
   int outWholeDim[3];
   vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
     inExt, inDim, outExt, inData );
@@ -403,16 +402,16 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
   // Get increments to march through the output extents
 
-  const unsigned long outInc0 = 3*nComponents;
-  const unsigned long outInc1 = 3*outWholeDim[0]*nComponents;
-  const unsigned long outInc2 = 3*outWholeDim[0]*outWholeDim[1]*nComponents;
+  const vtkIdType outInc0 = 3*nComponents;
+  const vtkIdType outInc1 = outInc0*outWholeDim[0];
+  const vtkIdType outInc2 = outInc1*outWholeDim[1];
 
   // B.3 Now fill in the min-max volume.
 
-  unsigned int i, j, k;
-  unsigned int c;
-  unsigned int sx1, sx2, sy1, sy2, sz1, sz2;
-  unsigned int x, y, z;
+  int i, j, k;
+  int c;
+  int sx1, sx2, sy1, sy2, sz1, sz2;
+  int x, y, z;
 
   unsigned char val;
   unsigned short *outBasePtr = static_cast< unsigned short * >(
@@ -429,54 +428,54 @@ vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 
   for ( k = 0; k < inDim[2]; k++, ++gsptr )
     {
-    sz1 = (k < 1)?(0):(static_cast<unsigned int>((k-1)/4));
-    sz2 =              static_cast<unsigned int>((k  )/4);
+    sz1 = (k < 1)?(0):((k-1)/4);
+    sz2 =             ((k  )/4);
     sz2 = ( k == inDim[2]-1 )?(sz1):(sz2);
 
     sz1 += outExt[4];
     sz2 += outExt[4];
 
     // Bounds check
-    if ((int)sz2 > outExt[5])
+    if (sz2 > outExt[5])
       {
       sz2 = outExt[5];
       }
-    
+
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
 
     for ( j = 0; j < inDim[1]; j++, gptr+= inInc1 )
       {
-      sy1 = (j < 1)?(0):(static_cast<unsigned int>((j-1)/4));
-      sy2 =              static_cast<unsigned int>((j  )/4);
+      sy1 = (j < 1)?(0):((j-1)/4);
+      sy2 =             ((j  )/4);
       sy2 = ( j == inDim[1]-1 )?(sy1):(sy2);
 
       sy1 += outExt[2];
       sy2 += outExt[2];
 
       // Bounds check
-      if ((int)sy2 > outExt[3])
+      if (sy2 > outExt[3])
         {
         sy2 = outExt[3];
         }
-      
+
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
         {
-        sx1 = (i < 1)?(0):(static_cast<unsigned int>((i-1)/4));
-        sx2 =              static_cast<unsigned int>((i  )/4);
+        sx1 = (i < 1)?(0):((i-1)/4);
+        sx2 =             ((i  )/4);
         sx2 = ( i == inDim[0]-1 )?(sx1):(sx2);
 
         sx1 += outExt[0];
         sx2 += outExt[0];
 
         // Bounds check
-        if ((int)sx2 > outExt[1])
+        if (sx2 > outExt[1])
           {
           sx2 = outExt[1];
-          }        
+          }
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
@@ -527,13 +526,13 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
   vtkDataArray * scalars = self->GetCurrentScalars();
   const int components = scalars->GetNumberOfComponents();
   const int independent = self->GetIndependentComponents();
-  const unsigned int nComponents = (independent) ? components : 1;
+  const int nComponents = (independent) ? components : 1;
 
 
   // B.1 First compute the extents of the input that contribute to this structure
 
   int inExt[6], inWholeExt[6];
-  unsigned int inDim[3];
+  int inDim[3];
   int outWholeDim[3];
   vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
     inExt, inDim, outExt, inData );
@@ -553,16 +552,16 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
 
   // Get increments to march through the output extents
 
-  const unsigned long outInc0 = 3*nComponents;
-  const unsigned long outInc1 = 3*outWholeDim[0]*nComponents;
-  const unsigned long outInc2 = 3*outWholeDim[0]*outWholeDim[1]*nComponents;
+  const vtkIdType outInc0 = 3*nComponents;
+  const vtkIdType outInc1 = outInc0*outWholeDim[0];
+  const vtkIdType outInc2 = outInc1*outWholeDim[1];
 
   // B.3 Now fill in the min-max and gradient max structure
 
-  unsigned int i, j, k;
-  unsigned int c;
-  unsigned int sx1, sx2, sy1, sy2, sz1, sz2;
-  unsigned int x, y, z;
+  int i, j, k;
+  int c;
+  int sx1, sx2, sy1, sy2, sz1, sz2;
+  int x, y, z;
 
 
   T *dptr = static_cast< T * >(scalars->GetVoidPointer(0));
@@ -583,55 +582,55 @@ vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
 
   for ( k = 0; k < inDim[2]; k++, dptr += inInc2, ++gsptr )
     {
-    sz1 = (k < 1)?(0):(static_cast<unsigned int>((k-1)/4));
-    sz2 =              static_cast<unsigned int>((k  )/4);
+    sz1 = (k < 1)?(0):((k-1)/4);
+    sz2 =             ((k  )/4);
     sz2 = ( k == inDim[2]-1 )?(sz1):(sz2);
 
     sz1 += outExt[4];
     sz2 += outExt[4];
 
     // Bounds check
-    if ((int)sz2 > outExt[5])
+    if (sz2 > outExt[5])
       {
       sz2 = outExt[5];
       }
-    
+
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
     unsigned char *gptr = *gsptr;
 
     for ( j = 0; j < inDim[1]; j++, dptr+= inInc1, gptr+= inInc1 )
       {
-      sy1 = (j < 1)?(0):(static_cast<unsigned int>((j-1)/4));
-      sy2 =              static_cast<unsigned int>((j  )/4);
+      sy1 = (j < 1)?(0):((j-1)/4);
+      sy2 =             ((j  )/4);
       sy2 = ( j == inDim[1]-1 )?(sy1):(sy2);
 
       sy1 += outExt[2];
       sy2 += outExt[2];
 
       // Bounds check
-      if ((int)sy2 > outExt[3])
+      if (sy2 > outExt[3])
         {
         sy2 = outExt[3];
         }
-      
+
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
       for ( i = 0; i < inDim[0]; i++ )
         {
-        sx1 = (i < 1)?(0):(static_cast<unsigned int>((i-1)/4));
-        sx2 =              static_cast<unsigned int>((i  )/4);
+        sx1 = (i < 1)?(0):((i-1)/4);
+        sx2 =             ((i  )/4);
         sx2 = ( i == inDim[0]-1 )?(sx1):(sx2);
 
         sx1 += outExt[0];
         sx2 += outExt[0];
 
         // Bounds check
-        if ((int)sx2 > outExt[1])
+        if (sx2 > outExt[1])
           {
           sx2 = outExt[1];
           }
-        
+
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
         for ( c = 0; c < nComponents; c++, tmpPtrI += 3 )
@@ -871,7 +870,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
     }
 
   const int components = this->GetCurrentScalars()->GetNumberOfComponents();
-  const unsigned int nComponents = (this->GetIndependentComponents()) ? components : 1;
+  const int nComponents = (this->GetIndependentComponents()) ? components : 1;
 
   // Clear the output if we are computing the min-max. In other cases, we
   // will be re-using the cache. (See the method AllocateOutputData)
@@ -1145,15 +1144,15 @@ unsigned short * vtkVolumeRayCastSpaceLeapingImageFilter
 
 //----------------------------------------------------------------------------
 // Fill in the min-max space leaping information.
-unsigned long vtkVolumeRayCastSpaceLeapingImageFilter
-::ComputeOffset( int ext[6], int wholeExt[6], int nComponents )
+vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter
+::ComputeOffset( const int ext[6], const int wholeExt[6], int nComponents )
 {
   int wDim[3] = { wholeExt[1]-wholeExt[0]+1,
                   wholeExt[3]-wholeExt[2]+1,
                   wholeExt[5]-wholeExt[4]+1 };
 
-  // computation is done in parts to ensure promotion to "unsigned long"
-  unsigned long offset = ext[4]-wholeExt[4];
+  // computation is done in parts to avoid int overflow
+  vtkIdType offset = ext[4]-wholeExt[4];
   offset *= wDim[1];
   offset += ext[2]-wholeExt[2];
   offset *= wDim[0];
@@ -1164,7 +1163,7 @@ unsigned long vtkVolumeRayCastSpaceLeapingImageFilter
 }
 
 //----------------------------------------------------------------------------
-// Allocate the output data, caching if necessary. Caching may result in 
+// Allocate the output data, caching if necessary. Caching may result in
 // invalid outputs and should be turned on, only when this filter is used
 // as an internal ivar of the vtkFixedPointVolumeRayCastMapper.
 void vtkVolumeRayCastSpaceLeapingImageFilter
@@ -1177,7 +1176,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 
   if (this->Cache)
     {
-    
+
     int extent[6];
     this->Cache->GetExtent(extent);
     if (extent[0] == uExtent[0] && extent[1] == uExtent[1] &&
@@ -1208,7 +1207,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 //----------------------------------------------------------------------------
 vtkImageData *vtkVolumeRayCastSpaceLeapingImageFilter
 ::AllocateOutputData(vtkDataObject *output, vtkInformation *outInfo)
-{ 
+{
   // Call the superclass method
   return vtkImageAlgorithm::AllocateOutputData(output, outInfo);
 }
@@ -1216,7 +1215,7 @@ vtkImageData *vtkVolumeRayCastSpaceLeapingImageFilter
 //----------------------------------------------------------------------------
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
 void vtkVolumeRayCastSpaceLeapingImageFilter
-::WriteMinMaxVolume( 
+::WriteMinMaxVolume(
   int component, unsigned short *minMaxVolume,
   int minMaxVolumeSize[4],
   const char *filename )
@@ -1227,16 +1226,18 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
                    0, minMaxVolumeSize[2]-1);
   image->SetScalarTypeToUnsignedShort();
   image->AllocateScalars();
-  
-  const unsigned int nComponents = static_cast< unsigned int >(
-      minMaxVolumeSize[3]);
-  const unsigned long nVoxels =
-    minMaxVolumeSize[0]*minMaxVolumeSize[1]*minMaxVolumeSize[2];
-  const unsigned int inc = nComponents * 3;
+
+  const int nComponents = minMaxVolumeSize[3];
+  const int inc = nComponents * 3;
   unsigned short *pSrc = minMaxVolume + component;
   unsigned short *pDst = static_cast< unsigned short * >(
                                 image->GetScalarPointer());
-  for (unsigned long i = 0; i < nVoxels; ++i, pSrc += inc, ++pDst)
+  // Do computation in parts to avoid int overfloat
+  vtkIdType nVoxels = minMaxVolumeSize[0];
+  nVoxels *= minMaxVolumeSize[1]
+  nVoxels *= minMaxVolumeSize[2];
+
+  for (vtkIdType i = 0; i < nVoxels; ++i, pSrc += inc, ++pDst)
     {
     *pDst = *pSrc;
     }
@@ -1249,4 +1250,5 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   writer->Delete();
   image->Delete();
 }
+
 #endif

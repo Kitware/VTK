@@ -45,6 +45,7 @@ vtkExtractPiece.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
+vtkFieldDataSerializer.cxx
 vtkMPIImageReader.cxx
 vtkMultiProcessController.cxx
 vtkMultiProcessStream.cxx

@@ -12,7 +12,6 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef VTK_IMPLEMENT_MESA_CXX
 #include "vtkOSOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
@@ -24,15 +23,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 // #include "GL/glx.h"
 #include "vtkgl.h"
-#else
-#include "MangleMesaInclude/osmesa.h"
-#endif
 
 #include "vtkToolkits.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef VTK_OPENGL_HAS_OSMESA
-#include <GL/osmesa.h>
-#endif
+# include <GL/osmesa.h>
 #endif
 
 #include "vtkCommand.h"
@@ -75,11 +69,7 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
 }
 
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
-#endif
-
-
 
 #define MAX_LIGHTS 8
 

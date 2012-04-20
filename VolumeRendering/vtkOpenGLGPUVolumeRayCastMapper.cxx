@@ -31,9 +31,7 @@
 #include "vtkOpenGLExtensionManager.h"
 #include "vtkgl.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include <math.h>
 
@@ -241,9 +239,7 @@ const int vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects=vtkOpenGLGPUVolu
 
 const int vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize=1024; //power of two
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
-#endif
 
 //-----------------------------------------------------------------------------
 //

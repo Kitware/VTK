@@ -24,7 +24,7 @@ All rights reserve
 //
 // .SECTION Thanks
 // This class was written by:
-// Philippe Pébay, Kitware SAS 2011.
+// Philippe Pebay, Kitware SAS 2011.
 //
 // .section See Also
 // vtkActor vtkAxisActor vtkPolarAxesActor

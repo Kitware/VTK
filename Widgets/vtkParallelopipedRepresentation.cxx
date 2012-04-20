@@ -845,8 +845,10 @@ int vtkParallelopipedRepresentation
       pc->Delete();
 
       // Use any random handle as a reference for the point placer.
-      double eventDisplayPos[3] = {X, Y,0.0}, dummy[4], 
-             worldOrient[9], handleWorldPos[4];
+      double eventDisplayPos[3] = {static_cast<double>(X),
+                                   static_cast<double>(Y),
+                                   0.0};
+      double dummy[4], worldOrient[9], handleWorldPos[4];
       this->HandleRepresentations[0]->GetWorldPosition(handleWorldPos);
 
       this->InteractionState = (this->ChairPointPlacer->ComputeWorldPosition( 
@@ -1154,7 +1156,10 @@ int vtkParallelopipedRepresentation
       // and supply it with the offset of the handle's distance from the
       // focal plane.
       
-      double eventDisplayPos[3] = {X, Y,0.0}, newHandlePos[4], worldOrient[9];
+      double eventDisplayPos[3] = {static_cast<double>(X),
+                                   static_cast<double>(Y),
+                                   0.0};
+      double newHandlePos[4], worldOrient[9];
       
       if (this->ChairPointPlacer->ComputeWorldPosition( 
             this->Renderer, eventDisplayPos, handleWorldPos, 
@@ -1446,7 +1451,8 @@ void vtkParallelopipedRepresentation::UnHighlightAllFaces()
 // supplied event position
 void vtkParallelopipedRepresentation::Translate( int X, int Y )
 {
-  double eventPos[2] = { X, Y };
+  double eventPos[2] = { static_cast<double>(X),
+                         static_cast<double>(Y)};
   double lastEventPos[2] = 
     { this->LastEventPosition[0], this->LastEventPosition[1] };
 

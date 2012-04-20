@@ -86,5 +86,14 @@ class TestArrayArguments(Testing.vtkTest):
         vtk.vtkMath.Multiply3x3(a, x, y)
         self.assertEqual(x, y)
 
+    def testInformationVectorKeys(self):
+        a = vtk.vtkImageGridSource()
+        spacing = (3.0, 2.0, 1.0)
+        a.SetDataSpacing(spacing)
+        a.UpdateInformation()
+        info = a.GetOutputInformation(0)
+        t = info.Get(vtk.vtkDataObject.SPACING())
+        self.assertEqual(t, spacing)
+
 if __name__ == "__main__":
     Testing.main([(TestArrayArguments, 'test')])

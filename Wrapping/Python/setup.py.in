@@ -39,7 +39,6 @@ vtk_use_charts = @VTK_PYTHON_USE_CHARTS@
 vtk_use_chemistry = @VTK_PYTHON_USE_CHEMISTRY@
 vtk_use_geovis = @VTK_PYTHON_USE_GEOVIS@
 vtk_use_infovis = @VTK_PYTHON_USE_INFOVIS@
-vtk_use_text_analysis = @VTK_PYTHON_USE_TEXT_ANALYSIS@
 vtk_use_views = @VTK_PYTHON_USE_VIEWS@
 vtk_use_mpi = @VTK_PYTHON_USE_MPI@
 vtk_has_configuration_types = @VTK_PYTHON_HAS_CONFIG_TYPES@
@@ -69,8 +68,6 @@ if vtk_use_geovis:
     vtk_kit_names.extend(['Geovis'])
 if vtk_use_infovis:
     vtk_kit_names.extend(['Infovis'])
-if vtk_use_text_analysis:
-    vtk_kit_names.extend(['TextAnalysis'])
 if vtk_use_views:
     vtk_kit_names.extend(['Views'])
 if vtk_use_qt:

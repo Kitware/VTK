@@ -22,15 +22,11 @@
 #include "vtkCamera.h"
 #include "vtkFixedPointRayCastImage.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include <math.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
-#endif
 
 // Construct a new vtkOpenGLRayCastImageDisplayHelper with default values
 vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()

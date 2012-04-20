@@ -40,8 +40,8 @@ PURPOSE.  See the above copyright notice for more information.
 // This class was written by:
 // Hank Childs, Kathleen Bonnell, Amy Squillacote, Brad Whitlock,
 // Eric Brugger, Claire Guilbaud, Nicolas Dolegieviez, Will Schroeder, 
-// Karthik Krishnan, Aashish Chaudhary, Philippe Pébay, David Gobbi, 
-// David Partyka, Utkarsh Ayachit David Cole, François Bertel, and Mark Olesen
+// Karthik Krishnan, Aashish Chaudhary, Philippe Pebay, David Gobbi,
+// David Partyka, Utkarsh Ayachit David Cole, Francois Bertel, and Mark Olesen
 // 
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate

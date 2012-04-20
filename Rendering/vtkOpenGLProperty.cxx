@@ -14,9 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+
+#include "vtkOpenGL.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
@@ -43,9 +42,7 @@
 
 #include <assert.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLProperty);
-#endif
 
 extern const char *vtkOpenGLPropertyDefaultMain_vs;
 extern const char *vtkOpenGLPropertyDefaultMain_fs;

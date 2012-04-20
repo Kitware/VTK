@@ -430,7 +430,10 @@ void vtkRenderView::GenerateSelection(void* callData, vtkSelection* sel)
   if (this->SelectionMode == FRUSTUM)
     {
     // Do a frustum selection.
-    double displayRectangle[4] = {screenMinX, screenMinY, screenMaxX, screenMaxY};
+    double displayRectangle[4] = {static_cast<double>(screenMinX),
+                                  static_cast<double>(screenMinY),
+                                  static_cast<double>(screenMaxX),
+                                  static_cast<double>(screenMaxY)};
     vtkSmartPointer<vtkDoubleArray> frustcorners =
       vtkSmartPointer<vtkDoubleArray>::New();
     frustcorners->SetNumberOfComponents(4);

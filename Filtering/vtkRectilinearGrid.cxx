@@ -427,18 +427,17 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 }
 
 //----------------------------------------------------------------------------
-vtkPoints* vtkRectilinearGrid::GetPoints()
+void vtkRectilinearGrid::GetPoints(vtkPoints *pnts)
 {
-  vtkPoints *pnts = vtkPoints::New();
+  assert("pre: points object should not be NULL" && (pnts !=NULL) );
+
   pnts->Initialize();
   pnts->SetNumberOfPoints( this->GetNumberOfPoints() );
-
   vtkIdType pntIdx = 0;
   for( ; pntIdx < this->GetNumberOfPoints(); ++pntIdx )
     {
     pnts->SetPoint( pntIdx, this->GetPoint(pntIdx) );
     }// END for all points
-  return( pnts );
 }
 
 //----------------------------------------------------------------------------

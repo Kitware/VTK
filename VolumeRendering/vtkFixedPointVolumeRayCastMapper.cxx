@@ -2849,11 +2849,13 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
 
   // first, attempt contiguous memory. If this fails, then go
   // for non-contiguous
+  // NOTE: Standard behavior is to catch std::bad_alloc, but it's
+  // CMemoryException if hosted by MFC.
   try
     {
     this->ContiguousGradientNormal = new unsigned short [numSlices * sliceSize];
     }
-  catch(std::bad_alloc &)
+  catch(...)
     {
     this->ContiguousGradientNormal = NULL;
     }
@@ -2861,7 +2863,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
     {
     this->ContiguousGradientMagnitude = new unsigned char [numSlices * sliceSize];
     }
-  catch(std::bad_alloc &)
+  catch(...)
     {
     this->ContiguousGradientMagnitude = NULL;
     }

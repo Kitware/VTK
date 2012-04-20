@@ -51,7 +51,6 @@
 #include <vtksys/ios/sstream>
 #include "vtkStdString.h"
 
-#include "vtkImageGaussianSource.h"
 #include "vtkImageShiftScale.h"
 #include "vtkImageExport.h"
 #include "vtkImageData.h"

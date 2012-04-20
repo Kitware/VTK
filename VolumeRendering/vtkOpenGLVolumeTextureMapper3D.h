@@ -25,11 +25,7 @@
 #define __vtkOpenGLVolumeTextureMapper3D_h
 
 #include "vtkVolumeTextureMapper3D.h"
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h" // GLfloat type is used in some method signatures.
-#endif
- 
+#include "vtkOpenGL.h" // GLfloat type is used in some method signatures.
 
 class vtkRenderWindow;
 class vtkVolumeProperty;

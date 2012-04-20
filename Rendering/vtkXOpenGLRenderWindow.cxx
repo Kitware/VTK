@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef VTK_IMPLEMENT_MESA_CXX
+
 #include "vtkXOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
@@ -31,15 +31,11 @@
 #include "GL/glx.h"
 
 #include "vtkgl.h"
-#else
-#include "MangleMesaInclude/osmesa.h"
-#endif
 
 #include "vtkToolkits.h"
-#ifndef VTK_IMPLEMENT_MESA_CXX
+
 #ifdef VTK_OPENGL_HAS_OSMESA
 #include <GL/osmesa.h>
-#endif
 #endif
 
 #include "vtkCommand.h"
@@ -77,9 +73,7 @@ private:
 
   // support for Pbuffer based offscreen rendering
   GLXContext PbufferContextId;
-#ifndef VTK_IMPLEMENT_MESA_CXX
   vtkglX::GLXPbuffer Pbuffer;
-#endif
 
   // store previous settings of on screen window
   int ScreenDoubleBuffer;
@@ -101,9 +95,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
   this->PixmapWindowId = 0;
 
   this->PbufferContextId = NULL;
-#ifndef VTK_IMPLEMENT_MESA_CXX
   this->Pbuffer = 0;
-#endif
   
   this->ScreenMapped = rw->GetMapped();
   this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
@@ -115,12 +107,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 #endif
 }
 
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
-#endif
-
-
 
 #define MAX_LIGHTS 8
 
@@ -136,9 +123,6 @@ void *vtkOSMesaCreateWindow(int width, int height)
   return malloc(width*height*4);
 }
 #endif
-
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
 
 vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
                                                           int drawable_type,
@@ -202,9 +186,6 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   return fb;
 }
 
-#endif
-
-
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 int doublebuff, int stereo,
                                                 int multisamples,
@@ -259,7 +240,6 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
   return glXChooseVisual(DisplayId, XDefaultScreen(DisplayId), attributes );
 }
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
   Display *DisplayId,
   int &win_stereo,
@@ -322,7 +302,6 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
     }
   return ( fbc );
 }
-#endif
 
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
@@ -492,7 +471,6 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
     }
 }
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 static int PbufferAllocFail = 0;
 extern "C"
 {
@@ -502,8 +480,6 @@ extern "C"
     return 1;
   }
 }
-#endif
-
 
 void vtkXOpenGLRenderWindow::CreateAWindow()
 {
@@ -845,7 +821,6 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         this->OwnDisplay = 1;
         }
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
       int v1, v2;
       glXQueryVersion(this->DisplayId, &v1, &v2);
 
@@ -902,8 +877,6 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
             }
           }
         }
-
-#endif
     
       // GLX 1.3 doesn't exist or failed to allocate Pbuffer
       // fallback on GLX 1.0 GLXPixmap offscreen support
@@ -982,12 +955,10 @@ void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
       {
       if(this->Internal->PbufferContextId)
         {
-#ifndef VTK_IMPLEMENT_MESA_CXX
         vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
         this->Internal->Pbuffer = 0;
         glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
         this->Internal->PbufferContextId = NULL;
-#endif
         }
       else if(this->Internal->PixmapContextId)
         {
@@ -1336,7 +1307,6 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
     }
   else
 #endif
-#ifndef VTK_IMPLEMENT_MESA_CXX
     if(this->OffScreenRendering && this->Internal->PbufferContextId)
       {
       if (((this->Internal->PbufferContextId != glXGetCurrentContext())
@@ -1349,7 +1319,6 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
         }
       }
     else 
-#endif
       if(this->OffScreenRendering && this->Internal->PixmapContextId)
         {
         if (((this->Internal->PixmapContextId != glXGetCurrentContext())
@@ -1387,14 +1356,6 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
   else
     {
 #endif
-#ifdef VTK_IMPLEMENT_MESA_CXX
-    if(this->OffScreenRendering && this->Internal->PbufferContextId)
-      {
-      result=this->Internal->PbufferContextId==glXGetCurrentContext();
-      }
-    else
-      {
-#endif
       if(this->OffScreenRendering && this->Internal->PixmapContextId)
         {
         result=this->Internal->PixmapContextId==glXGetCurrentContext();
@@ -1406,9 +1367,6 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
           result=this->Internal->ContextId==glXGetCurrentContext();
           }
         }
-#ifdef VTK_IMPLEMENT_MESA_CXX
-      }
-#endif
 #ifdef VTK_OPENGL_HAS_OSMESA
     }
 #endif

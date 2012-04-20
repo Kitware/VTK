@@ -48,7 +48,6 @@ class vtkFrameBufferObject;
 class vtkShadowMapPassTextures; // internal
 class vtkShadowMapPassLightCameras; // internal
 class vtkShaderProgram2;
-class vtkImageGaussianSource;
 class vtkImageExport;
 class vtkTextureObject;
 class vtkImplicitHalo;
@@ -127,7 +126,6 @@ public:
 
   vtkTextureObject *IntensityMap;
 
-//  vtkImageGaussianSource *IntensitySource;
   vtkSampleFunction *IntensitySource;
   vtkImageExport *IntensityExporter;
   vtkImplicitHalo *Halo;

@@ -713,7 +713,7 @@ vtkDataObject * vtkDataObjectGenerator::FillOutputDataObjects(
       hbo->SetRefinementRatio(gcnt,refinement);       
 
       std::vector<vtkInternalStructureCache *>::iterator dit;
-      vtkIdType dcnt = 0; //TODO: read in a location to create sparse trees
+      int dcnt = 0; //TODO: read in a location to create sparse trees
 
       int maxchildren = static_cast<int>(pow(8.0,static_cast<double>(gcnt)));
       //making octrees, this is total number of possible children in this level

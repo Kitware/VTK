@@ -30,10 +30,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkTextureUnitManager.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-
-#endif
-
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, ExtensionManager, vtkOpenGLExtensionManager);
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, HardwareSupport, vtkOpenGLHardwareSupport);
 vtkCxxSetObjectMacro(vtkOpenGLRenderWindow, TextureUnitManager, vtkTextureUnitManager);

@@ -18,15 +18,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkMatrix4x4.h"
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include <math.h>
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLLight);
-#endif
 
 // Implement base class method.
 void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)

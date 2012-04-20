@@ -49,8 +49,9 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() : VisibleColumnsModified(true), BigChart(NULL), TimerId(0),
-    AnimationCallbackInitialized(false), TimerCallbackInitialized(false)
+  PIMPL() : VisibleColumnsModified(true), BigChart(NULL),
+    AnimationCallbackInitialized(false), TimerId(0),
+    TimerCallbackInitialized(false)
   {
     pimplChartSetting* scatterplotSettings = new pimplChartSetting();
     scatterplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
@@ -387,6 +388,9 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
     {
     // The supplied index is valid (in the lower quadrant).
     this->ActivePlot = pos;
+
+    // Invoke an interaction event, to let observers know something changed.
+    this->InvokeEvent(vtkCommand::AnnotationChangedEvent);
 
     // set background colors for plots
     if (this->GetChart(this->ActivePlot)->GetPlot(0))
@@ -1150,7 +1154,6 @@ void vtkScatterPlotMatrix::UpdateAxes()
 {
   if (!this->Input)
     {
-    vtkWarningMacro(<< "No valid input found.");
     return;
     }
   // We need to iterate through all visible columns and set up the axis ranges.
@@ -1180,7 +1183,7 @@ void vtkScatterPlotMatrix::UpdateAxes()
       }
     else
       {
-      vtkWarningMacro(<< "No valid data array available. " << name);
+      vtkDebugMacro(<< "No valid data array available. " << name);
       }
     }
 }

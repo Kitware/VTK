@@ -28,16 +28,12 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-
-#ifndef VTK_IMPLEMENT_MESA_CXX
-#  include "vtkOpenGL.h"
-#endif
+#include "vtkOpenGL.h"
 
 #include "vtkgl.h" // vtkgl namespace
 
-#ifndef VTK_IMPLEMENT_MESA_CXX
 vtkStandardNewMacro(vtkOpenGLScalarsToColorsPainter);
-#endif
+
 //-----------------------------------------------------------------------------
 vtkOpenGLScalarsToColorsPainter::vtkOpenGLScalarsToColorsPainter()
 {

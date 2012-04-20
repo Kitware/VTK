@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGraph.cxx
+  Module:    TestGraph2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -33,7 +33,7 @@ int TestGetEdgeId();
 int TestToDirectedGraph();
 int TestToUndirectedGraph();
 
-int TestGraph(int,char *[])
+int TestGraph2(int,char *[])
 {
   std::vector<int> results;
 

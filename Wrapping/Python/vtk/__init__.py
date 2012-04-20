@@ -106,12 +106,6 @@ except ImportError, exc:
     __helper.refine_import_err('infovis', 'vtkInfovisPython', exc)
 
 try:
-    from vtkTextAnalysisPython import *
-    kits.append('textanalysis')
-except ImportError, exc:
-    __helper.refine_import_err('textanalysis', 'vtkTextAnalysisPython', exc)
-
-try:
     from vtkViewsPython import *
     kits.append('views')
 except ImportError, exc:

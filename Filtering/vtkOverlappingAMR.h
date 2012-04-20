@@ -88,7 +88,7 @@ public:
 
   // Description:
   // Set the dataset pointer for a given node. This will resize the number of
-  // levels and the number of datasets in the level to fit level, id requested. 
+  // levels and the number of datasets in the level to fit level, id requested.
   virtual void SetDataSet(
                   unsigned int level,
                   unsigned int id,
@@ -173,6 +173,10 @@ public:
   void GenerateVisibilityArrays();
 
   //Description:
+  //Return whether parent child information has been generated
+  bool HasChildrenInformation();
+
+  //Description:
   // Generate the parent/child relationships - needed to be called
   // before GetParents or GetChildren can be used!
   void GenerateParentChildInformation();
@@ -221,7 +225,7 @@ public:
   // Unhiding superclass method.
   virtual int HasMetaData(unsigned int level, unsigned int index)
     {return this->Superclass::HasMetaData(level,index); }
- 
+
   // Desription:
   // Unhiding superclass method.
   virtual vtkInformation* GetMetaData(unsigned int level, unsigned int index)
@@ -311,7 +315,7 @@ protected:
   // the number of parents for each block and the parent block ids w/r
   // to the courser level.  The second array indicates where the parent
   // information of each block begins in the Parentinformation array
-  // NOTE: That all the blocks in level 0 point to the first entry in 
+  // NOTE: That all the blocks in level 0 point to the first entry in
   // the parent information array (whose value is 0)
   vtkUnsignedIntArray *ParentInformation;
   vtkUnsignedIntArray *ParentInformationMap;
