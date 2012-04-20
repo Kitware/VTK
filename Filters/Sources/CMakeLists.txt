@@ -9,9 +9,10 @@ set(Module_SRCS
   vtkEllipticalButtonSource.cxx
   vtkFrustumSource.cxx
   vtkGlyphSource2D.cxx
+  vtkHyperTreeFractalSource.cxx
   vtkHyperOctreeFractalSource.cxx
   vtkLineSource.cxx
-  vtkOutlineCornerFilter.cxx
+  #vtkOutlineCornerFilter.cxx
   vtkOutlineCornerSource.cxx
   vtkOutlineSource.cxx
   vtkParametricFunctionSource.cxx

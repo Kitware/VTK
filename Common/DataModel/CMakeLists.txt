@@ -66,6 +66,7 @@ set(Module_SRCS
   vtkHyperOctree.cxx
   vtkHyperOctreePointsGrabber.cxx
   vtkHyperTreeCursor.cxx
+  vtkHyperTreeGrid.cxx
   vtkImageData.cxx
   vtkImageIterator.cxx
   vtkImplicitBoolean.cxx

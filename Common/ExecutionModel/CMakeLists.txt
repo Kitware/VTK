@@ -22,6 +22,7 @@ SET(Module_SRCS
   vtkGraphAlgorithm.cxx
   vtkHierarchicalBoxDataSetAlgorithm.cxx
   vtkHyperOctreeAlgorithm.cxx
+  vtkHyperTreeGridAlgorithm.cxx
   vtkImageAlgorithm.cxx
   vtkImageInPlaceFilter.cxx
   vtkImageProgressIterator.cxx
@@ -60,6 +61,7 @@ SET(Module_SRCS
 set_source_files_properties(
   vtkExecutive
   vtkHyperOctreeAlgorithm
+  vtkHyperTreeGridAlgorithm
   vtkImageAlgorithm
   vtkImageInPlaceFilter
   vtkInformationExecutivePortKey

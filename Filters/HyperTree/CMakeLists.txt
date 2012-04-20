@@ -1,5 +1,7 @@
 set(Module_SRCS
   vtkClipHyperOctree.cxx
+  vtkHyperTreeGridGeometry.cxx
+  vtkHyperTreeGridAxisCut.cxx
   vtkHyperOctreeClipCutPointsGrabber.cxx
   vtkHyperOctreeContourFilter.cxx
   vtkHyperOctreeCutter.cxx
@@ -10,7 +12,6 @@ set(Module_SRCS
   vtkHyperOctreeSurfaceFilter.cxx
   vtkHyperOctreeToUniformGridFilter.cxx
   vtkHyperTreeGenerator.cxx
-  vtkHyperTreeGrid.cxx
   )
 
 vtk_module_library(vtkFiltersHyperTree ${Module_SRCS})

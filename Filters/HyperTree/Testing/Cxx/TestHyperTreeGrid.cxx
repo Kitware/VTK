@@ -8,6 +8,7 @@
 // This test was written by Charles Law and Philippe Pebay, Kitware 2012
 
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridFractalSource.h"
 #include "vtkHyperTreeGenerator.h"
 
 #include "vtkCamera.h"
@@ -30,13 +31,16 @@
 
 int TestHyperTreeGrid( int argc, char* argv[] )
 {
-  vtkNew<vtkHyperTreeGenerator> fractal;
+  //vtkNew<vtkHyperTreeGenerator> fractal;
+  vtkNew<vtkHyperTreeGridFractalSource> fractal;
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
   fractal->SetGridSize( 3, 2, 2 );
   fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );
-  vtkHyperTreeGrid* htGrid = fractal->NewHyperTreeGrid();
+  //vtkHyperTreeGrid* htGrid = fractal->NewHyperTreeGrid();
+  fractal->Update();
+  vtkHyperTreeGrid* htGrid = fractal->GetOutput();
 
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
@@ -109,7 +113,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     }
 
   // Clean up
-  htGrid->Delete();
+  //htGrid->Delete();
 
   return 0;
 }
