@@ -20,6 +20,7 @@
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
 
+#include "vtkMath.h"
 #include "vtkTransform2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
@@ -146,6 +147,7 @@ vtkChartXY::vtkChartXY()
   this->PlotTransformValid = false;
 
   this->DrawBox = false;
+  this->DrawSelectionPolygon = false;
   this->DrawNearestPoint = false;
   this->DrawAxesAtOrigin = false;
   this->BarWidthFraction = 0.8f;
@@ -331,6 +333,34 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     painter->GetPen()->SetWidth(1.0);
     painter->DrawRect(this->MouseBox.X(), this->MouseBox.Y(),
                       this->MouseBox.Width(), this->MouseBox.Height());
+    }
+
+  // Draw the selection polygon if necessary
+  if (this->DrawSelectionPolygon)
+    {
+    painter->GetBrush()->SetColor(255, 0, 0, 0);
+    painter->GetPen()->SetColor(0, 255, 0, 255);
+    painter->GetPen()->SetWidth(2.0);
+
+    const vtkContextPolygon &polygon = this->SelectionPolygon;
+
+    // draw each line segment
+    for(vtkIdType i = 0; i < polygon.GetNumberOfPoints() - 1; i++)
+      {
+      const vtkVector2f &a = polygon.GetPoint(i);
+      const vtkVector2f &b = polygon.GetPoint(i+1);
+
+      painter->DrawLine(a.X(), a.Y(), b.X(), b.Y());
+      }
+
+    // draw a line from the end to the start
+    if(polygon.GetNumberOfPoints() >= 3)
+      {
+      const vtkVector2f &start = polygon.GetPoint(0);
+      const vtkVector2f &end = polygon.GetPoint(polygon.GetNumberOfPoints() - 1);
+
+      painter->DrawLine(start.X(), start.Y(), end.X(), end.Y());
+      }
     }
 
   if (this->Title)
@@ -1251,6 +1281,23 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
     }
+  else if (mouse.GetButton() == this->Actions.SelectPolygon())
+    {
+    if(this->SelectionPolygon.GetNumberOfPoints() > 0)
+      {
+      vtkVector2f lastPoint =
+        this->SelectionPolygon.GetPoint(
+          this->SelectionPolygon.GetNumberOfPoints() - 1);
+
+      if((lastPoint - mouse.GetPos()).SquaredNorm() > 100)
+        {
+        this->SelectionPolygon.AddPoint(mouse.GetPos());
+        }
+
+      // Mark the scene as dirty
+      this->Scene->SetDirty(true);
+      }
+    }
   else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
     {
     this->Scene->SetDirty(true);
@@ -1417,6 +1464,13 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
     // Selection, for now at least...
     this->MouseBox.Set(mouse.GetPos().X(), mouse.GetPos().Y(), 0.0, 0.0);
     this->DrawBox = true;
+    return true;
+    }
+  else if (mouse.GetButton() == this->Actions.SelectPolygon())
+    {
+    this->SelectionPolygon.Clear();
+    this->SelectionPolygon.AddPoint(mouse.GetPos());
+    this->DrawSelectionPolygon = true;
     return true;
     }
   else if (mouse.GetButton() == this->ActionsClick.Select() ||
@@ -1687,6 +1741,91 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
     this->DrawBox = false;
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
+    return true;
+    }
+  else if (mouse.GetButton() == this->Actions.SelectPolygon())
+    {
+    this->SelectionPolygon.AddPoint(mouse.GetPos());
+    this->DrawSelectionPolygon = false;
+    this->Scene->SetDirty(true);
+
+    // Add to the selection if the shift key was pressed.
+    bool addToSelection =
+      (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER) != 0;
+    if (this->SelectionMode == vtkContextScene::SELECTION_ADDITION)
+      {
+      addToSelection = true;
+      }
+    bool toggleSelection =
+      (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER) != 0;
+    if (this->SelectionMode == vtkContextScene::SELECTION_TOGGLE)
+      {
+      toggleSelection = true;
+      }
+
+    if(this->SelectionPolygon.GetNumberOfPoints() < 3)
+      {
+      // no polygon to select in
+      return true;
+      }
+
+    // make selection
+    vtkNew<vtkIdTypeArray> oldSelection;
+    for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+      {
+      size_t items = this->ChartPrivate->PlotCorners[i]->GetNumberOfItems();
+      if (items)
+        {
+        vtkTransform2D *transform =
+          this->ChartPrivate->PlotCorners[i]->GetTransform();
+        vtkNew<vtkTransform2D> inverseTransform;
+        inverseTransform->SetMatrix(transform->GetMatrix());
+        inverseTransform->Inverse();
+        vtkContextPolygon polygon =
+          this->SelectionPolygon.Transformed(inverseTransform.GetPointer());
+
+        for (size_t j = 0; j < items; ++j)
+          {
+          vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
+                                                PlotCorners[i]->GetItem(j));
+          if (plot && plot->GetVisible())
+            {
+            oldSelection->DeepCopy(plot->GetSelection());
+            /*
+             * Populate the internal selection.  This will be referenced later
+             * to subsequently populate the selection inside the annotation link.
+             */
+            plot->SelectPointsInPolygon(polygon);
+
+            if (this->AnnotationLink)
+              {
+              // FIXME: Build up a selection from each plot?
+              vtkSelection* selection = vtkSelection::New();
+              vtkSelectionNode* node = vtkSelectionNode::New();
+              selection->AddNode(node);
+              node->SetContentType(vtkSelectionNode::INDICES);
+              node->SetFieldType(vtkSelectionNode::POINT);
+              if (addToSelection || toggleSelection)
+                {
+                BuildSelection(plot->GetSelection(), oldSelection.GetPointer(),
+                               addToSelection, toggleSelection);
+                }
+              else if (this->SelectionMode == vtkContextScene::SELECTION_SUBTRACTION)
+                {
+                MinusSelection(plot->GetSelection(), oldSelection.GetPointer());
+                }
+              node->SetSelectionList(plot->GetSelection());
+              this->AnnotationLink->SetCurrentSelection(selection);
+              node->Delete();
+              selection->Delete();
+              }
+            }
+          }
+        }
+      }
+
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+
     return true;
     }
   else if (mouse.GetButton() == this->Actions.Zoom())

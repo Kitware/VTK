@@ -28,6 +28,7 @@
 #include "vtkContextItem.h"
 #include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
 #include "vtkSmartPointer.h"  // Needed to hold SP ivars
+#include "vtkContextPolygon.h"
 
 class vtkVariant;
 class vtkTable;
@@ -98,6 +99,10 @@ public:
   // Description:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+
+  // Description:
+  // Select all points in the specified polygon.
+  virtual bool SelectPointsInPolygon(const vtkContextPolygon &polygon);
 //ETX
 
   // Description:

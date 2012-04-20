@@ -59,6 +59,8 @@ public:
     PAN = 0,
     ZOOM,
     SELECT,
+    SELECT_RECTANGLE = SELECT,
+    SELECT_POLYGON,
     NOTIFY
     };
 
@@ -323,11 +325,13 @@ protected:
     {
   public:
     MouseActions();
+    enum { MaxAction = 4 };
     short& Pan() { return Data[0]; }
     short& Zoom() { return Data[1]; }
     short& Select() { return Data[2]; }
+    short& SelectPolygon() { return Data[3]; }
     short& operator[](int index) { return Data[index]; }
-    short Data[3];
+    short Data[MaxAction];
     };
   class MouseClickActions
     {

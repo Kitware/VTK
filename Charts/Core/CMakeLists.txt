@@ -15,6 +15,7 @@ set(Module_SRCS
   vtkColorTransferFunctionItem.cxx
   vtkCompositeControlPointsItem.cxx
   vtkCompositeTransferFunctionItem.cxx
+  vtkContextPolygon.cxx
   vtkControlPointsItem.cxx
   vtkLookupTableItem.cxx
   vtkPiecewiseControlPointsItem.cxx
@@ -35,6 +36,7 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkChart
+  vtkContextPolygon
   vtkControlPointsItem
   vtkPlot
   vtkScalarsToColorsItem

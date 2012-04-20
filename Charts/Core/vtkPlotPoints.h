@@ -31,6 +31,7 @@
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
+#include "vtkContextPolygon.h"
 
 class vtkContext2D;
 class vtkTable;
@@ -111,6 +112,10 @@ public:
   // Description:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
+
+  // Description:
+  // Select all points in the specified polygon.
+  virtual bool SelectPointsInPolygon(const vtkContextPolygon &polygon);
 
   // Description:
   // Enum containing various marker styles that can be used in a plot.
