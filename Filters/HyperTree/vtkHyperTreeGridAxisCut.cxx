@@ -25,6 +25,7 @@
 
 vtkStandardNewMacro(vtkHyperTreeGridAxisCut);
 
+//-----------------------------------------------------------------------------
 vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
 {
   this->Points = 0;
@@ -35,8 +36,6 @@ vtkHyperTreeGridAxisCut::vtkHyperTreeGridAxisCut()
   this->PlanePosition = 0.0;
   this->PlaneNormalAxis = 0;
 }
-
-
 
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridAxisCut::ProcessTrees()
@@ -145,10 +144,8 @@ void vtkHyperTreeGridAxisCut::RecursiveProcessTree(vtkHyperTreeSuperCursor* supe
     }
 
   // Not a leaf.  Recurse children to leaves.
-  vtkHyperTreeSuperCursor newSuperCursor;
   int numChildren = this->Input->GetNumberOfChildren();
-  int child;
-  for ( child = 0; child < numChildren; ++ child)
+  for ( int child = 0; child < numChildren; ++ child )
     {
     vtkHyperTreeSuperCursor newSuperCursor;
     this->Input->InitializeSuperCursorChild(superCursor,&newSuperCursor, child);
@@ -163,47 +160,51 @@ int vtkHyperTreeGridAxisCut::FillInputPortInformation(int, vtkInformation *info)
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAxisCut::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
+                                          vtkInformationVector** inputVector,
+                                          vtkInformationVector* outputVector )
 {
-  // get the info objects
+  // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // Initialize
-  this->Input = vtkHyperTreeGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  this->Output= vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
   vtkCellData *outCD = this->Output->GetCellData();
   vtkCellData *inCD = this->Input->GetCellData();
 
-  if (this->Input->GetDimension() != 3)
+  if ( this->Input->GetDimension() != 3 )
     {
     vtkErrorMacro("Axis cut only works with 3D trees.");
     return 0;
     }
 
-  outCD->CopyAllocate(inCD);
+  // Ensure that primal grid API is used for hyper trees
+  this->Input->SetDualGridFlag( false );
+
+  outCD->CopyAllocate( inCD );
 
   this->ProcessTrees();
   this->Input = 0;
   this->Output = 0;
 
-  this->UpdateProgress (1.0);
+  this->UpdateProgress ( 1. );
 
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkHyperTreeGridAxisCut::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf( os, indent );
+
+  this->Input->PrintSelf( os, indent.GetNextIndent() );
+  this->Output->PrintSelf( os, indent.GetNextIndent() );
+  this->Points->PrintSelf( os, indent.GetNextIndent() );
+  this->Cells->PrintSelf( os, indent.GetNextIndent() );
+
   os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
   os << indent << "Plane Position : " << this->PlanePosition << endl;
-
 }
