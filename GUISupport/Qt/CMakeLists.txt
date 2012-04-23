@@ -227,12 +227,6 @@ if(VTK_WRAP_PYTHON_SIP)
     )
   ENDIF(VTK_USE_VIEWS AND VTK_QT_USE_WEBKIT)
 
-  # GUISupport/Qt doesn't have a hierarchy file, use Rendering
-  IF(VTK_IGNORE_BTX)
-  SET(KIT_HIERARCHY_FILE
-      ${VTK_BINARY_DIR}/Rendering/vtkRenderingHierarchy.txt)
-  ENDIF(VTK_IGNORE_BTX)
-
   VTK_WRAP_PYTHON3(vtkQtPython QVTK_PythonSrcs "${QVTK_PythonHeaders}")
   VTK_ADD_LIBRARY(vtkQtPythonD ${QVTK_PythonSrcs})
   TARGET_LINK_LIBRARIES(vtkQtPythonD QVTK)

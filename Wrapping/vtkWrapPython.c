@@ -222,7 +222,11 @@ const char *vtkWrapPython_GetSuperClass(
       vtkParse_FreeTemplateDecomposition(name, 2, args);
       }
 
-    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
+    // Add QVTKInteractor as the sole exception: It is derived
+    // from vtkObject but does not start with "vtk".  Given its
+    // name, it would be expected to be derived from QObject.
+    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name) ||
+        strcmp(data->Name, "QVTKInteractor") == 0)
       {
       if (vtkWrap_IsClassWrapped(hinfo, supername) &&
           vtkWrap_IsVTKObjectBaseType(hinfo, supername))
