@@ -23,7 +23,6 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkUnsignedCharArray.h"
 
 #include <assert.h>
 
@@ -35,13 +34,16 @@ vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
   // This a source: no input ports
   this->SetNumberOfInputPorts( 0 );
 
+  // Grid parameters
+  this->AxisBranchFactor = 2;
+  this->MinimumLevel = 1;
+  this->MaximumLevel = 1;
+
+  // Grid topology
+  this->Dimension = 3;
   this->GridSize[0] = 1;
   this->GridSize[1] = 1;
   this->GridSize[2] = 1;
-  this->AxisBranchFactor = 2;
-  this->MaximumLevel = 1;
-  this->Dimension = 3;
-  this->Dual = false;
 
   // Grid geometry
   this->XCoordinates = vtkDoubleArray::New();
@@ -56,6 +58,9 @@ vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
   this->ZCoordinates->SetNumberOfTuples( 2 );
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, 1. );
+
+  // By default expose the primal grid API
+  this->Dual = false;
 }
 
 //----------------------------------------------------------------------------
@@ -92,7 +97,7 @@ int vtkHyperTreeGridFractalSource::GetMaximumLevel()
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the maximum number of levels of the hyperoctree. If
+// Set the maximum number of levels of the hypertrees. If
 // GetMinLevels()>=levels, GetMinLevels() is changed to levels-1.
 // \pre positive_levels: levels>=1
 // \post is_set: this->GetLevels()==levels
@@ -109,12 +114,14 @@ void vtkHyperTreeGridFractalSource::SetMaximumLevel( int levels )
     return;
     }
 
-  this->Modified();
   this->MaximumLevel = levels;
-  if(this->MinimumLevel > levels )
+
+  // Update minimum level as well if needed
+  if( this->MinimumLevel > levels )
     {
     this->MinimumLevel = levels;
     }
+  this->Modified();
 
   assert("post: is_set" && this->GetMaximumLevel()==levels);
   assert("post: min_is_valid" && this->GetMinimumLevel()<=this->GetMaximumLevel());
@@ -154,10 +161,9 @@ void vtkHyperTreeGridFractalSource::SetMinimumLevel( int minLevels )
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridFractalSource::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector *outputVector)
+int vtkHyperTreeGridFractalSource::RequestInformation( vtkInformation*,
+                                                       vtkInformationVector**,
+                                                       vtkInformationVector *outputVector )
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -190,21 +196,20 @@ int vtkHyperTreeGridFractalSource::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridFractalSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkHyperTreeGridFractalSource::RequestData( vtkInformation*,
+                                                vtkInformationVector**,
+                                                vtkInformationVector *outputVector )
 {
-  // get the info objects
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  vtkHyperTreeGrid *output = vtkHyperTreeGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // Get the info objects
+  vtkInformation *outInfo = outputVector->GetInformationObject( 0 );
+  vtkHyperTreeGrid *output 
+    = vtkHyperTreeGrid::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
 
   // Set grid parameters
   output->SetGridSize( this->GridSize );
   output->SetDimension( this->Dimension );
   output->SetAxisBranchFactor( this->AxisBranchFactor );
+  output->SetDualGridFlag( this->Dual );
 
   // Per-axis scaling
   double scale[3];
@@ -240,20 +245,22 @@ int vtkHyperTreeGridFractalSource::RequestData(
     coords->Delete();
     }
 
-  vtkDoubleArray *scalars = vtkDoubleArray::New();
+  // Prepare array of doubles for cell values
+  vtkDoubleArray* scalars = vtkDoubleArray::New();
+  scalars->SetName( "Cell Value" );
   scalars->SetNumberOfComponents( 1 );
-
   vtkIdType fact = 1;
   for ( int i = 1; i < this->MaximumLevel; ++ i )
     {
     fact *= this->AxisBranchFactor;
     }
-
   scalars->Allocate( fact * fact );
-  scalars->SetName( "Test" );
+
+  // Set leaf (cell) data and clean up
   output->GetLeafData()->SetScalars( scalars );
   scalars->UnRegister( this );
 
+  // Iterate over grid of trees
   int n[3];
   output->GetGridSize( n );
   for ( int i = 0; i < n[0]; ++ i )
@@ -262,21 +269,29 @@ int vtkHyperTreeGridFractalSource::RequestData(
       {
       for ( int k = 0; k < n[2]; ++ k )
         {
+        // Calculate global index
         int index = ( k * this->GridSize[1] + j ) * this->GridSize[0] + i;
 
+        // Initialize cursor
         vtkHyperTreeCursor* cursor = output->NewCellCursor( i, j, k );
         cursor->ToRoot();
 
+        // Initialize local cell index
         int idx[3];
         idx[0] = idx[1] = idx[2] = 0;
+
+        // Retrieve offset into array of scalars
         int offset = output->GetLeafData()->GetScalars()->GetNumberOfTuples();
+
+        // Recurse
         this->Subdivide( cursor, 1, output, index, idx, offset );
+
+        // Clean up
         cursor->UnRegister( this );
         } // k
       } // j
     } // i
 
-  output->SetDualGridFlag( this->Dual );
   assert("post: dataset_and_data_size_match" && output->CheckAttributes()==0);
 
   return 1;
@@ -354,8 +369,30 @@ void vtkHyperTreeGridFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
     }
   else
     {
-    // Cell value
-    double val = idx[0] + idx[1] + idx[2];
+    // Retrieve cartesian coordinates w.r.t. global grid
+    int gs[3];
+    output->GetGridSize( gs );
+    div_t q1 = div( index, gs[0] );
+    double x[3];
+    x[0] = q1.rem;
+    x[1] = 0.;
+    x[2] = 0.;
+    if ( gs[1] )
+      {
+      div_t q2 = div( q1.quot, gs[1] );
+      x[1] = q2.rem;
+      x[2] = q2.quot;
+      }
+    
+    // Center coordinates w.r.t. global grid center
+    for ( int i = 0; i < 3; ++ i )
+      {
+      x[i] -= .5 * gs[i];
+      }
+
+    // Cell value: distance to center plus local index-based noise
+    double val = x[0] * x[0] + x[1] * x[1] + x[2] * x[2]
+      + idx[0] + idx[1] + idx[2];
 
     // Offset cell index as needed
     vtkIdType id = offset + cursor->GetLeafId();
