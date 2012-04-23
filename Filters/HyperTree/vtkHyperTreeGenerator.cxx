@@ -22,7 +22,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkHyperTreeCursor.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <assert.h>
@@ -137,11 +136,11 @@ vtkHyperTreeGrid* vtkHyperTreeGenerator::NewHyperTreeGrid()
 
 //----------------------------------------------------------------------------
 void vtkHyperTreeGenerator::Subdivide( vtkHyperTreeCursor* cursor,
-                                           int level,
-                                           vtkHyperTreeGrid* output,
-                                           int index,
-                                           int idx[3],
-                                           int offset )
+                                       int level,
+                                       vtkHyperTreeGrid* output,
+                                       int index,
+                                       int idx[3],
+                                       int offset )
 {
   // Determine whether to subdivide.
   int subdivide = 1;
