@@ -8,14 +8,16 @@
 // This test was written by Charles Law and Philippe Pebay, Kitware 2012
 
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridAxisCut.h"
 #include "vtkHyperTreeGridFractalSource.h"
+#include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGenerator.h"
 
 #include "vtkCamera.h"
+#include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
-#include "vtkDataSetMapper.h"
-#include "vtkGeometryFilter.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkShrinkFilter.h"
@@ -32,66 +34,87 @@
 int TestHyperTreeGrid( int argc, char* argv[] )
 {
   //vtkNew<vtkHyperTreeGenerator> fractal;
-  vtkNew<vtkHyperTreeGridFractalSource> fractal;
+  //vtkNew<vtkHyperTreeGridFractalSource> fractal;
+  vtkHyperTreeGridFractalSource* fractal = vtkHyperTreeGridFractalSource::New();
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
-  fractal->SetGridSize( 3, 2, 2 );
+  fractal->SetGridSize( 3, 4, 2 );
   fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );
   //vtkHyperTreeGrid* htGrid = fractal->NewHyperTreeGrid();
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
 
+  cerr << "# Contour" << endl;
+  vtkNew<vtkContourFilter> contour;
+  contour->SetInputData( htGrid );
+  contour->SetNumberOfContours( 2 );
+  contour->SetValue( 0, 4. );
+  contour->SetValue( 1, 18. );
+  contour->SetInputArrayToProcess( 0, 0, 0,
+                                   vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                                   "Cell Value" );
+  vtkNew<vtkPolyDataWriter> writer0;
+  writer0->SetFileName( "./hyperTreeGridContour.vtk" );
+  writer0->SetInputConnection( contour->GetOutputPort() );
+  writer0->Write();
+
+  cerr << "# Shrink" << endl;
+  vtkNew<vtkShrinkFilter> shrink;
+  shrink->SetInputData( htGrid );
+  shrink->SetShrinkFactor( 1. );
+  vtkNew<vtkUnstructuredGridWriter> writer1;
+  writer1->SetFileName( "./hyperTreeGridShrink.vtk" );
+  writer1->SetInputConnection( shrink->GetOutputPort() );
+  writer1->Write();
+
+  cerr << "# Cut" << endl;
   vtkNew<vtkCutter> cut;
   vtkNew<vtkPlane> plane;
   plane->SetOrigin( .5, .5, .15 );
   plane->SetNormal( 0, 0, 1 );
   cut->SetInputData( htGrid );
   cut->SetCutFunction( plane.GetPointer() );
-  vtkNew<vtkPolyDataWriter> writer;
-  writer->SetFileName( "./hyperTreeGridCut.vtk" );
-  writer->SetInputConnection( cut->GetOutputPort() );
-  writer->Write();
-
-  vtkNew<vtkContourFilter> contour;
-  contour->SetInputData( htGrid );
-  contour->SetNumberOfContours( 2 );
-  contour->SetValue( 0, 2. );
-  contour->SetValue( 1, 3. );
-  contour->SetInputArrayToProcess( 0, 0, 0,
-                                   vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                   "Test" );
   vtkNew<vtkPolyDataWriter> writer2;
-  writer2->SetFileName( "./hyperTreeGridContour.vtk" );
-  writer2->SetInputConnection( contour->GetOutputPort() );
+  writer2->SetFileName( "./hyperTreeGridCut.vtk" );
+  writer2->SetInputConnection( cut->GetOutputPort() );
   writer2->Write();
 
-  vtkNew<vtkShrinkFilter> shrink;
-  shrink->SetInputData( htGrid );
-  shrink->SetShrinkFactor( 1. );
-  vtkNew<vtkUnstructuredGridWriter> writer3;
-  writer3->SetFileName( "./hyperTreeGridShrink.vtk" );
-  writer3->SetInputConnection( shrink->GetOutputPort() );
+  cerr << "# HyperTreeGridAxisCut" << endl;
+  vtkNew<vtkHyperTreeGridAxisCut> axisCut;
+  axisCut->SetInputConnection( fractal->GetOutputPort() );
+  axisCut->SetPlaneNormalAxis( 2 );
+  axisCut->SetPlanePosition( .1 );
+  vtkNew<vtkPolyDataWriter> writer3;
+  writer3->SetFileName( "./hyperTreeGridAxisCut.vtk" );
+  writer3->SetInputConnection( axisCut->GetOutputPort() );
   writer3->Write();
 
-  vtkNew<vtkDataSetMapper> htGridMapper;
-  htGridMapper->SetInputConnection( shrink->GetOutputPort() );
-  vtkNew<vtkActor> htGridActor;
-  htGridActor->SetMapper( htGridMapper.GetPointer() );
+  vtkNew<vtkHyperTreeGridGeometry> geometry;
+  geometry->SetInputConnection( fractal->GetOutputPort() );
+  geometry->Update();
+  vtkPolyData* pd = geometry->GetOutput();
+
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection( geometry->GetOutputPort() );
+  mapper->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+ 
+  vtkNew<vtkActor> actor;
+  actor->SetMapper( mapper.GetPointer() );
 
   // Create camera
   double bd[3];
-  htGrid->GetBounds( bd );
+  pd->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
-  camera->SetFocalPoint( htGrid->GetCenter() );
+  camera->SetFocalPoint( pd->GetCenter() );
   camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Create a renderer, add actors to it
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera( camera.GetPointer() );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( htGridActor.GetPointer() );
+  renderer->AddActor( actor.GetPointer() );
 
   // Create a renderWindow
   vtkNew<vtkRenderWindow> renWin;
@@ -114,6 +137,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
 
   // Clean up
   //htGrid->Delete();
+  fractal->Delete();
 
   return 0;
 }
