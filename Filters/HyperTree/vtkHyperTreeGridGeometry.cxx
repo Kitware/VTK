@@ -36,9 +36,6 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::ProcessTrees()
 {
-  // Ensure that primal grid API is used for hyper trees
-  this->Input->SetDualGridFlag( false );
-
   // TODO: MTime on generation of this table.
   this->Input->GenerateSuperCursorTraversalTable();
 
@@ -205,6 +202,9 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   vtkCellData* outCD = this->Output->GetCellData();
 
   outCD->CopyAllocate( inCD );
+
+  // Ensure that primal grid API is used for hyper trees
+  this->Input->SetDualGridFlag( false );
 
   this->ProcessTrees();
   this->Input = 0;
