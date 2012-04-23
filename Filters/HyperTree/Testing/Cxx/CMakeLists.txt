@@ -6,7 +6,6 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperOctreeDual.cxx
   TestHyperOctreeSurfaceFilter.cxx
   TestHyperOctreeToUniformGrid.cxx
-  TestHyperTreeGrid.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
