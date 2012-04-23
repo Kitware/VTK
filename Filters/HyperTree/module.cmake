@@ -6,4 +6,5 @@ vtk_module(vtkFiltersHyperTree
   TEST_DEPENDS
     vtkRenderingOpenGL
     vtkTestingRendering
+    vtkInteractionStyle
   )
