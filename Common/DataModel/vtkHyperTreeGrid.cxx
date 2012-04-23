@@ -1092,13 +1092,23 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     this->ZCoordinates = NULL;
     }
 
+  if ( this->Voxel )
+    {
+    this->Voxel->Delete();
+    this->Voxel = 0;
+    }
+  if ( this->Pixel )
+    {
+    this->Pixel->Delete();
+    this->Pixel = 0;
+    }
+  if ( this->Line )
+    {
+    this->Line->Delete();
+    this->Line = 0;
+    }
+
   this->DeleteInternalArrays();
-  this->Voxel->Delete();
-  this->Voxel = 0;
-  this->Pixel->Delete();
-  this->Pixel = 0;
-  this->Line->Delete();
-  this->Line = 0;
 }
 
 //-----------------------------------------------------------------------------
