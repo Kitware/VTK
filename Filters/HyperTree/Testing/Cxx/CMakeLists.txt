@@ -9,7 +9,6 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestHyperTreeGrid.cxx
   TestHyperTreeGridAxisCut.cxx
   TestHyperTreeGridGeometry.cxx
- 
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

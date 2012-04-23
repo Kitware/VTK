@@ -12,7 +12,7 @@ set(Module_SRCS
   vtkHyperOctreeFractalSource.cxx
   vtkHyperTreeGridFractalSource.cxx
   vtkLineSource.cxx
-  #vtkOutlineCornerFilter.cxx
+  vtkOutlineCornerFilter.cxx
   vtkOutlineCornerSource.cxx
   vtkOutlineSource.cxx
   vtkParametricFunctionSource.cxx
