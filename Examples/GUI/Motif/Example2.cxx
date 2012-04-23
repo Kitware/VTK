@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
   Visual *vis;
   Display *display;
   Colormap col;
-  
+
   // VTK stuff
   vtkXOpenGLRenderWindow *renWin;
   vtkRenderer *ren1;
@@ -49,11 +49,11 @@ int main (int argc, char *argv[])
   vtkGlyph3D *glyph;
   vtkPolyDataMapper *sphereMapper, *spikeMapper;
   vtkXRenderWindowInteractor *iren;
-  
+
   renWin = vtkXOpenGLRenderWindow::New();
   ren1 = vtkRenderer::New();
   renWin->AddRenderer(ren1);
-  
+
   sphere = vtkSphereSource::New();
   sphereMapper = vtkPolyDataMapper::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
@@ -85,7 +85,7 @@ int main (int argc, char *argv[])
   depth = renWin->GetDesiredDepth();
   vis = renWin->GetDesiredVisual();
   col = renWin->GetDesiredColormap();
-  
+
   toplevel2 = XtVaCreateWidget("top2",
                                topLevelShellWidgetClass, toplevel,
                                XmNdepth, depth,
@@ -96,7 +96,7 @@ int main (int argc, char *argv[])
   form = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2,
                           static_cast<void *>(NULL));
   vtkpw = XtVaCreateManagedWidget("vtkpw",
-                                  xmPrimitiveWidgetClass, form, 
+                                  xmPrimitiveWidgetClass, form,
                                   XmNwidth, 300, XmNheight, 300,
                                   XmNleftAttachment, XmATTACH_FORM,
                                   XmNrightAttachment, XmATTACH_FORM,
@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
   XtManageChild(form);
   XtRealizeWidget(toplevel2);
   XtMapWidget(toplevel2);
-  
+
   // We use an X specific interactor
   // since we have decided to make this an X program
   iren = vtkXRenderWindowInteractor::New();

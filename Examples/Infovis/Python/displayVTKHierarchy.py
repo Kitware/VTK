@@ -14,7 +14,7 @@ def addToTree(cls, class_to_vertex_map, tree, names):
         vertexid = tree.AddVertex()
         class_to_vertex_map[cls] = vertexid
         names.InsertValue(vertexid, cls)
-    
+
     return vertexid
 
 

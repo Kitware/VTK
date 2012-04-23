@@ -6,8 +6,8 @@
 
 import vtk
 
-# VTK supports implicit functions of the form f(x,y,z)=constant. These 
-# functions can represent things spheres, cones, etc. Here we use a 
+# VTK supports implicit functions of the form f(x,y,z)=constant. These
+# functions can represent things spheres, cones, etc. Here we use a
 # general form for a quadric to create an elliptical data field.
 quadric = vtk.vtkQuadric()
 quadric.SetCoefficients(.5, 1, .2, 0, .1, 0, 0, .2, 0, 0)

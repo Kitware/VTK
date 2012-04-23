@@ -102,17 +102,17 @@ void CSampleDoc::Dump(CDumpContext& dc) const
 /////////////////////////////////////////////////////////////////////////////
 // CSampleDoc commands
 
-BOOL CSampleDoc::OnOpenDocument(LPCTSTR lpszPathName) 
+BOOL CSampleDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
   if (!vtkMFCDocument::OnOpenDocument(lpszPathName))
     {
     return FALSE;
     }
-  
+
   // TODO: Add your specialized creation code here
   this->Reader->SetFileName(lpszPathName);
-  this->Mapper->SetInput(this->Reader->GetOutput());
+  this->Mapper->SetInputConnection(this->Reader->GetOutputPort());
   this->Actor->VisibilityOn();
-	
+
   return TRUE;
 }

@@ -26,7 +26,7 @@
    obj:/lib/libc-2.3.3.so
    fun:__sysconf
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Cond
    fun:__stpcpy
@@ -34,14 +34,14 @@
    fun:setlocale
    fun:TclpSetInitialEncodings
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Cond
    fun:__stpcpy
    fun:setlocale
    fun:TclpSetInitialEncodings
-}  
-{  
+}
+{
    <insert a suppression name here>
    Memcheck:Cond
    fun:__stpcpy
@@ -62,7 +62,7 @@
    fun:XOpenDisplay
    fun:TkpOpenDisplay
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -70,7 +70,7 @@
    fun:XSetLocaleModifiers
    obj:/usr/lib/libtk8.4.so
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -92,7 +92,7 @@
    fun:XOpenIM
    obj:/usr/lib/libtk8.4.so
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -106,7 +106,7 @@
    fun:_XlcCurrentLC
    fun:XSetLocaleModifiers
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -131,7 +131,7 @@
    fun:_XlcCurrentLC
    fun:XSetLocaleModifiers
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -146,7 +146,7 @@
    fun:_XlcCurrentLC
    fun:XSetLocaleModifiers
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -160,7 +160,7 @@
    fun:_XlcCurrentLC
    fun:XSetLocaleModifiers
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -171,7 +171,7 @@
    fun:XOpenDisplay
    fun:TkpOpenDisplay
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -204,7 +204,7 @@
    fun:_XlcCurrentLC
    fun:XSetLocaleModifiers
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -213,7 +213,7 @@
    fun:XSetLocaleModifiers
    obj:/usr/lib/libtk8.4.so
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -237,7 +237,7 @@
    fun:exit
    fun:Tcl_Exit
 }
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -250,7 +250,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:calloc
@@ -263,7 +263,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -276,7 +276,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -295,7 +295,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -308,7 +308,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -329,7 +329,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
@@ -348,7 +348,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:calloc
@@ -367,7 +367,7 @@
    fun:XSetLocaleModifiers
 }
 
-{  
+{
    <insert a suppression name here>
    Memcheck:Leak
    fun:calloc

@@ -27,12 +27,12 @@
 void task3(double data)
 {
   double extent = data;
-  int iextent = static_cast<int>(data);  
+  int iextent = static_cast<int>(data);
   // The pipeline
 
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
-  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent, 
+  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent,
                            -1*iextent, iextent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );
@@ -71,7 +71,7 @@ void task3(double data)
   vtkAppendPolyData* append = vtkAppendPolyData::New();
   append->AddInput(ip->GetPolyDataOutput());
   append->AddInput(probe->GetPolyDataOutput());
-  
+
 
   // Rendering objects.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
@@ -98,8 +98,8 @@ void task3(double data)
   iren->Start();
 
   // Tell the other process we are done
-  ip->GetController()->TriggerRMI(1, 
-                                  vtkMultiProcessController::BREAK_RMI_TAG); 
+  ip->GetController()->TriggerRMI(1,
+                                  vtkMultiProcessController::BREAK_RMI_TAG);
 
   // Cleanup
   iren->Delete();

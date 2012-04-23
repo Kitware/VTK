@@ -15,7 +15,7 @@ class MyOpenGLScene(QtGui.QGraphicsScene):
     self.mQVTKItem.GetRenderWindow().AddRenderer(self.mRen)
     cone = vtk.vtkConeSource()
     mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInput(cone.GetOutput())
+    mapper.SetInputConnection(cone.GetOutputPort())
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
     self.mRen.AddViewProp(actor)

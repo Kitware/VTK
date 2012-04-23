@@ -48,7 +48,7 @@ int main (int argc, char *argv[])
   renWin = vtkRenderWindow::New();
   ren1 = vtkRenderer::New();
   renWin->AddRenderer(ren1);
-  
+
   sphere = vtkSphereSource::New();
   sphereMapper = vtkPolyDataMapper::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());

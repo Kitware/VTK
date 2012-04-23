@@ -48,7 +48,7 @@ set elements { 1  0  0  $xCenter
                0  0  1  $zCenter
                0  0  0  1}
 for {set i 0} {$i < 16} {incr i} {
-  axial SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]] 
+  axial SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]]
 }
 
 vtkMatrix4x4 coronal
@@ -57,7 +57,7 @@ set elements { 1  0  0  $xCenter
                0 -1  0  $zCenter
                0  0  0  1}
 for {set i 0} {$i < 16} {incr i} {
-  coronal SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]] 
+  coronal SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]]
 }
 
 vtkMatrix4x4 sagittal
@@ -66,7 +66,7 @@ set elements { 0  0 -1  $xCenter
                0 -1  0  $zCenter
                0  0  0  1}
 for {set i 0} {$i < 16} {incr i} {
-  sagittal SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]] 
+  sagittal SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]]
 }
 
 
@@ -76,19 +76,19 @@ set elements { 1  0  0  $xCenter
                0  0.5  0.866025  $zCenter
                0  0  0  1 }
 for {set i 0} {$i < 16} {incr i} {
-  oblique SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]] 
+  oblique SetElement [expr $i / 4] [expr $i % 4] [expr [lindex $elements $i]]
 }
 
 # Extract a slice in the desired orientation
 vtkImageReslice reslice
   reslice SetInputConnection [reader GetOutputPort]
-  reslice SetOutputDimensionality 2 
-  reslice SetResliceAxes sagittal 
+  reslice SetOutputDimensionality 2
+  reslice SetResliceAxes sagittal
   reslice SetInterpolationModeToLinear
 
 # Create a greyscale lookup table
 vtkLookupTable table
-  table SetTableRange 0 2000 
+  table SetTableRange 0 2000
   table SetValueRange 0.0 1.0
   table SetSaturationRange 0.0 0.0
   table SetRampToLinear
@@ -114,7 +114,7 @@ vtkInteractorStyleImage imageStyle
 
 vtkRenderWindowInteractor interactor
   interactor SetInteractorStyle imageStyle
-  window SetInteractor interactor 
+  window SetInteractor interactor
   window Render
 
 # Create callbacks for slicing the image

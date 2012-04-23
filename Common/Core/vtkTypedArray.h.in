@@ -1,0 +1,44 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkTypedArray.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkType@VTK_TYPE_NAME@Array - dynamic, self-adjusting array of vtkType@VTK_TYPE_NAME@
+// .SECTION Description
+// vtkType@VTK_TYPE_NAME@Array is an array of values of type vtkType@VTK_TYPE_NAME@.  It
+// provides methods for insertion and retrieval of values and will
+// automatically resize itself to hold new data.
+
+#ifndef __vtkType@VTK_TYPE_NAME@Array_h
+#define __vtkType@VTK_TYPE_NAME@Array_h
+
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtk@VTK_TYPE_NATIVE@Array.h"
+
+class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtk@VTK_TYPE_NATIVE@Array
+{
+public:
+  static vtkType@VTK_TYPE_NAME@Array* New();
+  vtkTypeMacro(vtkType@VTK_TYPE_NAME@Array,vtk@VTK_TYPE_NATIVE@Array);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+protected:
+  vtkType@VTK_TYPE_NAME@Array(vtkIdType numComp=1);
+  ~vtkType@VTK_TYPE_NAME@Array();
+
+private:
+  vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&);  // Not implemented.
+  void operator=(const vtkType@VTK_TYPE_NAME@Array&);  // Not implemented.
+};
+
+#endif
+// VTK-HeaderTest-Exclude: vtkTypedArray.h.in

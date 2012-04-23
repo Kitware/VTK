@@ -1,0 +1,23 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkFiltersStatisticsGnuRConfigure.h.in
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+
+#ifndef __vtkFiltersStatisticsGnuRConfigure_h
+#define __vtkFiltersStatisticsGnuRConfigure_h
+
+/* Set the whether we have UINTPTR_T defined in support of the GNU R interface */
+#cmakedefine HAVE_VTK_UINTPTR_T
+#define VTK_R_HOME "@VTK_R_HOME@"
+
+#endif

@@ -16,11 +16,11 @@ vtkPolyDataMapper sphereMapper
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
-# Create a scaled text actor. 
+# Create a scaled text actor.
 # Set the text, font, justification, and properties (bold, italics, etc.).
 vtkTextActor textActor
     textActor SetTextScaleModeToProp
-    textActor SetDisplayPosition 90 50 
+    textActor SetDisplayPosition 90 50
     textActor SetInput "This is a sphere"
 
     # Set coordinates to match the old vtkScaledTextActor default value

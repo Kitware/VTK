@@ -38,7 +38,7 @@ class QVTKWidgetPlugin : public QDesignerCustomWidgetInterface
   public:
     QVTKWidgetPlugin();
     ~QVTKWidgetPlugin();
-    
+
     QString name() const;
     QString domXml() const;
     QWidget* createWidget(QWidget* parent = 0);

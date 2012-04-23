@@ -107,10 +107,10 @@ ren2.AddViewProp(axes2)
 # Set up a check for aborting rendering.
 def CheckAbort(obj, event):
     # obj will be the object generating the event.  In this case it
-    # is renWin.    
+    # is renWin.
     if obj.GetEventPending() != 0:
         obj.SetAbortRender(1)
- 
+
 renWin.AddObserver("AbortCheckEvent", CheckAbort)
 
 iren.Initialize()

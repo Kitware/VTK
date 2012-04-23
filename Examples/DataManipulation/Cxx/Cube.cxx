@@ -33,7 +33,7 @@ int main()
                         {0,0,1}, {1,0,1}, {1,1,1}, {0,1,1}};
   static vtkIdType pts[6][4]={{0,1,2,3}, {4,5,6,7}, {0,1,5,4},
                         {1,2,6,5}, {2,3,7,6}, {3,0,4,7}};
-  
+
   // We'll create the building blocks of polydata including data attributes.
   vtkPolyData *cube = vtkPolyData::New();
   vtkPoints *points = vtkPoints::New();
@@ -76,7 +76,7 @@ int main()
       renderer->SetActiveCamera(camera);
       renderer->ResetCamera();
       renderer->SetBackground(1,1,1);
-  
+
   renWin->SetSize(300,300);
 
   // interact with data

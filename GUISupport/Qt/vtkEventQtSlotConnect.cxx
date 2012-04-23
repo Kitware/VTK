@@ -59,7 +59,7 @@ vtkEventQtSlotConnect::~vtkEventQtSlotConnect()
 
 void vtkEventQtSlotConnect::Connect(
   vtkObject* vtk_obj, unsigned long event,
-  const QObject* qt_obj, const char* slot, 
+  const QObject* qt_obj, const char* slot,
   void* client_data, float priority
   , Qt::ConnectionType type)
 {

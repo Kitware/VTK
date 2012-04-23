@@ -21,7 +21,7 @@ if(WIN32) # The only platform it makes sense to check for DirectX SDK
     )
   mark_as_advanced(DirectX_INCLUDE_DIR)
   if(DirectX_INCLUDE_DIR)
-    set(DirectX_ROOT_DIR "${DirectX_INCLUDE_DIR}/..") 
+    set(DirectX_ROOT_DIR "${DirectX_INCLUDE_DIR}/..")
   endif(DirectX_INCLUDE_DIR)
 
   # dlls are in DirectX_ROOT_DIR/Developer Runtime/x64|x86
@@ -29,10 +29,10 @@ if(WIN32) # The only platform it makes sense to check for DirectX SDK
 
   set(DirectX_LIBRARY_PATHS)
   if(CMAKE_CL_64)
-    set(DirectX_LIBRARY_PATHS 
+    set(DirectX_LIBRARY_PATHS
       "${DirectX_ROOT_DIR}/Lib/x64")
   else(CMAKE_CL_64)
-    set(DirectX_LIBRARY_PATHS 
+    set(DirectX_LIBRARY_PATHS
       "${DirectX_ROOT_DIR}/Lib/x86" "${DirectX_ROOT_DIR}/Lib")
   endif(CMAKE_CL_64)
 

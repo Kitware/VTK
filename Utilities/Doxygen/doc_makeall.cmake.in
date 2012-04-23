@@ -29,26 +29,26 @@ endif()
 
 # PROJECT_NAME:
 # Documentation/project name. Used in some of the resulting file names and
-# xrefs to uniquify two or more projects linked together through their 
+# xrefs to uniquify two or more projects linked together through their
 # Doxygen's tag files. Mandatory for each documentation set.
 # Note: might be the same as the doxyfile's PROJECT_NAME
-# Example: 
+# Example:
 #   PROJECT_NAME=VTK
 #
 set(PROJECT_NAME VTK)
 
 # PATH_TO_VTK_DOX_SCRIPTS:
 # Path to the directory holding the Perl scripts used to produce the VTK doc
-# in Doxygen format. You need the VTK source files or a local copy of 
+# in Doxygen format. You need the VTK source files or a local copy of
 # these scripts.
-# Example: 
+# Example:
 #   PATH_TO_VTK_DOX_SCRIPTS=@VTK_SOURCE_DIR@/Utilities/Doxygen
 #
 set(PATH_TO_VTK_DOX_SCRIPTS "@VTK_SOURCE_DIR@/Utilities/Doxygen")
 
 # SOURCE_DIR:
 # Source directory. The top directory of the source files.
-# Example: 
+# Example:
 #   SOURCE_DIR=@VTK_SOURCE_DIR@
 #
 set(SOURCE_DIR "@VTK_SOURCE_DIR@")
@@ -57,7 +57,7 @@ set(SOURCE_DIR "@VTK_SOURCE_DIR@")
 # Relative path from the top directory of the source files to the directory
 # (or top directory) holding the files to document. Useful if several parts
 # of the same source directory should be documented separately.
-# Example: 
+# Example:
 #   REL_PATH_TO_TOP=.
 #   REL_PATH_TO_TOP=framework/src
 set(REL_PATH_TO_TOP .)
@@ -68,7 +68,7 @@ set(REL_PATH_TO_TOP .)
 # This directory is erased at the end of this script, unless you comment
 # the corresponding line.
 # DOXTEMP might be used to simplify the syntax.
-# Example: 
+# Example:
 #   DOXTEMP=DOXTEMP=@VTK_BINARY_DIR@/Utilities/Doxygen
 #   INTERMEDIATE_DOX_DIR=$DOXTEMP/dox
 #
@@ -77,7 +77,7 @@ set(INTERMEDIATE_DOX_DIR "${DOXTEMP}/dox")
 
 # DATA_ROOT:
 # Data directory. The root directory of the data files.
-# Example: 
+# Example:
 #   DATA_ROOT=@VTK_DATA_ROOT@
 #
 set(DATA_ROOT "@VTK_DATA_ROOT@")
@@ -89,7 +89,7 @@ set(DATA_ROOT "@VTK_DATA_ROOT@")
 # GITWEB_SUFFIX will be appended to the result.
 # Same applies to GITWEB_DATA, which is the URL to the GITWeb
 # of the Data's project.
-# Example: 
+# Example:
 #   GITWEB=http://public.kitware.com/cgi-bin/viewcvs.cgi
 #   GITWEB_SUFFIX=?root=VTK
 #   GITWEB_CHECKOUT=http://public.kitware.com/cgi-bin/viewcvs.cgi/*checkout*
@@ -106,7 +106,7 @@ set(GITWEB_DATA_CHECKOUT http://vtk.org/gitweb?p=VTKData.git;a=blob;f=)
 
 # DOXYFILE:
 # Path to the Doxygen configuration file (i.e. doxyfile).
-# Example: 
+# Example:
 #   DOXYFILE $DOXTEMP/doxyfile
 #
 set(DOXYFILE "${DOXTEMP}/doxyfile")
@@ -116,7 +116,7 @@ set(DOXYFILE "${DOXTEMP}/doxyfile")
 # Note: should be the same as your doxyfile's OUTPUT_DIRECTORY
 # If ON, allows the output directory to be erased when some advanced output
 # file have been produced (HTML Help, or TAR archive for example).
-# Example: 
+# Example:
 #   OUTPUT_DIRECTORY $DOXTEMP/doc
 #   ALLOW_ERASE_OUTPUT_DIRECTORY ON
 #
@@ -124,16 +124,16 @@ set(OUTPUT_DIRECTORY "${DOXTEMP}/doc")
 set(ALLOW_ERASE_OUTPUT_DIRECTORY ON)
 
 # COMPILE_HTML_HELP RESULTING_HTML_HELP_FILE:
-# Compile the CHM (Compressed HTML) HTML Help file, name of the resulting 
-# file. If set to ON and name is non-empty these options will actually 
+# Compile the CHM (Compressed HTML) HTML Help file, name of the resulting
+# file. If set to ON and name is non-empty these options will actually
 # trigger the HTML-Help compiler to create the CHM. The resulting
 # file (usually index.chm) will be renamed to this name.
 # Note: if ON, the whole $OUTPUT_DIRECTORY will be erased at the end of
-#       this script, since this file is considered to be one of the 
+#       this script, since this file is considered to be one of the
 #       advanced final output, unless ALLOW_ERASE_OUTPUT_DIRECTORY is OFF
-# Note: your doxyfile should be configured to enable HTML Help creation 
+# Note: your doxyfile should be configured to enable HTML Help creation
 #       (using GENERATE_HTML   YES, GENERATE_HTMLHELP   YES)
-# Example: 
+# Example:
 #   COMPILE_HTML_HELP ON
 #   COMPILE_HTML_HELP @DOCUMENTATION_HTML_HELP@
 #   RESULTING_HTML_HELP_FILE $DOXTEMP/vtk@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.chm
@@ -143,10 +143,10 @@ set(RESULTING_HTML_HELP_FILE "${DOXTEMP}/vtk@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSI
 
 # CREATE_HTML_TARZ_ARCHIVE RESULTING_HTML_TARZ_ARCHIVE_FILE:
 # Create a compressed (gzip) tar archive of the html directory (located
-# under the OUTPUT_DIRECTORY), and name of the resulting archive file. 
-# Note: your doxyfile should be configured to enable HTML creation 
+# under the OUTPUT_DIRECTORY), and name of the resulting archive file.
+# Note: your doxyfile should be configured to enable HTML creation
 #       (using GENERATE_HTML   YES)
-# Example: 
+# Example:
 #   CREATE_HTML_TARZ_ARCHIVE ON
 #   CREATE_HTML_TARZ_ARCHIVE @DOCUMENTATION_HTML_TARZ@
 #   RESULTING_HTML_TARZ_ARCHIVE_FILE $DOXTEMP/vtk@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@-html.tar.gz
@@ -157,12 +157,12 @@ set(RESULTING_HTML_TARZ_ARCHIVE_FILE "${DOXTEMP}/vtk@VTK_MAJOR_VERSION@.@VTK_MIN
 # DOWNLOAD_VTK_TAGFILE VTK_TAGFILE VTK_TAGFILE_REMOTE_DIR VTK_TAGFILE_DEST_DIR:
 # Download the VTK tag file, name, remote location and destination dir of this
 # tag file. If set to ON, the tag file is retrieved from its remote location
-# using wget and stored in the destination dir. It will be automatically 
+# using wget and stored in the destination dir. It will be automatically
 # deleted at the end of this script.
 # Note: your doxyfile must be tailored to make use-of or create this tag file.
 #    (using TAGFILES = vtk@VTK_MAJOR_VERSION@-nightly.tag=http://www.vtk.org/doc/nightly/html
 #        or GENERATE_TAGFILE = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.tag")
-# Example: 
+# Example:
 #   DOWNLOAD_VTK_TAGFILE=OFF
 #   VTK_TAGFILE=vtk@VTK_MAJOR_VERSION@-nightly.tag
 #   VTK_TAGFILE_REMOTE_DIR=http://www.vtk.org/doc/nightly/html
@@ -197,7 +197,6 @@ set(SOURCE_DIRECTORIES
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/IO"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Parallel"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Rendering"
-  "${SOURCE_DIR}/${REL_PATH_TO_TOP}/TextAnalysis"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Views"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/VolumeRendering"
   "${SOURCE_DIR}/${REL_PATH_TO_TOP}/Widgets"
@@ -315,8 +314,7 @@ execute_process(COMMAND ${PERL}
 step(4 "extract VTK version")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_version.pl"
-  --version_file "${SOURCE_DIR}/${REL_PATH_TO_TOP}/CMakeLists.txt"
-  --revision_file "@VTK_BINARY_DIR@/Utilities/vtksys/DateStamp.h"
+  --version_file "${SOURCE_DIR}/${REL_PATH_TO_TOP}/CMake/vtkVersion.cmake"
   --logo "${PATH_TO_VTK_DOX_SCRIPTS}/vtk-logo.gif"
   --store "doc_${PROJECT_NAME}_version.dox"
   --to "${INTERMEDIATE_DOX_DIR}"

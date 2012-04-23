@@ -15,7 +15,7 @@
 //
 // This example creates a polygonal model of a cone, and then rendered it to
 // the screen. It willrotate the cone 360 degrees and then exit. The basic
-// setup of source -> mapper -> actor -> renderer -> renderwindow is 
+// setup of source -> mapper -> actor -> renderer -> renderwindow is
 // typical of most VTK programs.
 //
 
@@ -32,18 +32,18 @@
 int main()
 {
   //
-  // Next we create an instance of vtkConeSource and set some of its 
+  // Next we create an instance of vtkConeSource and set some of its
   // properties
   //
   vtkConeSource *cone = vtkConeSource::New();
   cone->SetHeight(3.0);
   cone->SetRadius(1.0);
   cone->SetResolution(10);
-  
+
   //
-  // We create an instance of vtkPolyDataMapper to map the polygonal data 
-  // into graphics primitives. We connect the output of the cone souece 
-  // to the input of this mapper 
+  // We create an instance of vtkPolyDataMapper to map the polygonal data
+  // into graphics primitives. We connect the output of the cone souece
+  // to the input of this mapper
   //
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
@@ -85,7 +85,7 @@ int main()
     renWin->Render();
     ren1->GetActiveCamera()->Azimuth(1);
     }
-  
+
   //
   // Free up any objects we created
   //

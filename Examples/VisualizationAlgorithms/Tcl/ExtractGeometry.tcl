@@ -1,5 +1,5 @@
-# This example shows how to extract a piece of a dataset using an implicit 
-# function. In this case the implicit function is formed by the boolean 
+# This example shows how to extract a piece of a dataset using an implicit
+# function. In this case the implicit function is formed by the boolean
 # combination of two ellipsoids.
 #
 
@@ -31,7 +31,7 @@ vtkImplicitBoolean union
 
 
 # Here is where it gets interesting. The implicit function is used to
-# extract those cells completely inside the function. They are then 
+# extract those cells completely inside the function. They are then
 # shrunk to help show what was extracted.
 vtkExtractGeometry extract
     extract SetInputConnection [sample GetOutputPort]

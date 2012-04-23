@@ -4,7 +4,7 @@
 //
 // Authors: John Kessenich, Randi Rost
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
@@ -15,7 +15,7 @@ varying float LightIntensity;
 
 uniform vec3  LightPos;
 
-void main(void) 
+void main(void)
 {
     gl_Position    = ftransform();
     Normal         = normalize(gl_NormalMatrix * gl_Normal);

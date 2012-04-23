@@ -1,0 +1,15 @@
+vtk_module(vtkRenderingVolumeOpenGL
+  GROUPS
+    Rendering
+  IMPLEMENTS
+    vtkRenderingVolume
+  DEPENDS
+    vtkRenderingOpenGL
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkRenderingFreeType
+    vtkImagingSources
+    vtkImagingGeneral
+    vtkInteractionStyle
+  )

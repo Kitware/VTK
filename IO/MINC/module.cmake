@@ -1,0 +1,10 @@
+vtk_module(vtkIOMINC
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkIOImage
+    vtkCommonExecutionModel
+    vtkRenderingCore
+    vtkFiltersHybrid
+    vtknetcdf
+  )

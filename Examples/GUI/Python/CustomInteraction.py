@@ -103,7 +103,7 @@ def MouseMove(obj, event):
     elif Zooming:
         Dolly(ren, ren.GetActiveCamera(), x, y, lastX, lastY,
               centerX, centerY)
-  
+
 
 def Keypress(obj, event):
     key = obj.GetKeySym()
@@ -113,14 +113,14 @@ def Keypress(obj, event):
     elif key == "w":
         Wireframe()
     elif key =="s":
-        Surface() 
- 
+        Surface()
+
 
 # Routines that translate the events into camera motions.
 
 # This one is associated with the left mouse button. It translates x
 # and y relative motions into camera azimuth and elevation commands.
-def Rotate(renderer, camera, x, y, lastX, lastY, centerX, centerY):    
+def Rotate(renderer, camera, x, y, lastX, lastY, centerX, centerY):
     camera.Azimuth(lastX-x)
     camera.Elevation(lastY-y)
     camera.OrthogonalizeViewUp()
@@ -147,7 +147,7 @@ def Pan(renderer, camera, x, y, lastX, lastY, centerX, centerY):
 
     APoint0 = centerX+(x-lastX)
     APoint1 = centerY+(y-lastY)
-    
+
     renderer.SetDisplayPoint(APoint0, APoint1, focalDepth)
     renderer.DisplayToWorld()
     RPoint = renderer.GetWorldPoint()
@@ -155,7 +155,7 @@ def Pan(renderer, camera, x, y, lastX, lastY, centerX, centerY):
     RPoint1 = RPoint[1]
     RPoint2 = RPoint[2]
     RPoint3 = RPoint[3]
-    
+
     if RPoint3 != 0.0:
         RPoint0 = RPoint0/RPoint3
         RPoint1 = RPoint1/RPoint3
@@ -168,7 +168,7 @@ def Pan(renderer, camera, x, y, lastX, lastY, centerX, centerY):
                         (FPoint1-RPoint1)/2.0 + PPoint1,
                         (FPoint2-RPoint2)/2.0 + PPoint2)
     renWin.Render()
- 
+
 
 # Dolly converts y-motion into a camera dolly commands.
 def Dolly(renderer, camera, x, y, lastX, lastY, centerX, centerY):
@@ -180,7 +180,7 @@ def Dolly(renderer, camera, x, y, lastX, lastY, centerX, centerY):
         camera.Dolly(dollyFactor)
         renderer.ResetCameraClippingRange()
 
-    renWin.Render() 
+    renWin.Render()
 
 # Wireframe sets the representation of all actors to wireframe.
 def Wireframe():
@@ -191,7 +191,7 @@ def Wireframe():
         actor.GetProperty().SetRepresentationToWireframe()
         actor = actors.GetNextItem()
 
-    renWin.Render() 
+    renWin.Render()
 
 # Surface sets the representation of all actors to surface.
 def Surface():

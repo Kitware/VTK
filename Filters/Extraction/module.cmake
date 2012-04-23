@@ -1,0 +1,11 @@
+vtk_module(vtkFiltersExtraction
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkFiltersCore
+    vtkFiltersGeneral
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkTestingRendering
+    vtkInteractionStyle
+  )

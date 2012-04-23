@@ -3,7 +3,7 @@
 # This file depends on the value of OPENGL_INCLUDE_DIR (/usr/include on Linux,
 # /usr/X11R6/include on Mac, ) defined by module FindOpenGL.cmake
 # (FIND_PACKAGE(OpenGL))
-# 
+#
 #
 # 1. GLX_DEFINES_MACRO_GLX_VERSION_1_1: is macro GLX_VERSION_1_1 defined?
 # 2. GLX_DEFINES_MACRO_GLX_VERSION_1_2: is macro GLX_VERSION_1_2 defined?

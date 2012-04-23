@@ -8,7 +8,7 @@ ENDIF(NOT VTK_DIR)
 INCLUDE(${VTK_USE_FILE})
 ENDIF(NOT VTK_BINARY_DIR)
 
-LINK_LIBRARIES( 
+LINK_LIBRARIES(
   vtkRendering
   vtkGraphics
   vtkImaging

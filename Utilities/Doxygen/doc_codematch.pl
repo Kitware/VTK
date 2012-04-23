@@ -29,7 +29,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 # -------------------------------------------------------------------------
 # Defaults (add options as you want : "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    codematch => "\w(?:->|\.)InvokeEvent\s*\(\s*(vtkCommand::\w+)[\s,]",
    dirs => ["../../Charts",
@@ -48,7 +48,6 @@ my %default =
             "../../IO",
             "../../Parallel",
             "../../Rendering",
-            "../../TextAnalysis",
             "../../Views",
             "../../VolumeRendering",
             "../../Widgets"],
@@ -109,7 +108,7 @@ $args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"codematch"} = $default{"codematch"} if ! exists $args{"codematch"};
 $args{"headerext"} = $default{"headerext"} if ! exists $args{"headerext"};
 $args{"headernewext"} = $default{"headernewext"} if ! exists $args{"headernewext"};
-$args{"headernewsuffix"} = $default{"headernewsuffix"} 
+$args{"headernewsuffix"} = $default{"headernewsuffix"}
 if ! exists $args{"headernewsuffix"};
 $args{"project"} = $default{"project"} if ! exists $args{"project"};
 $args{"label"} = $default{"label"} if ! exists $args{"label"};
@@ -154,7 +153,7 @@ my $intermediate_time = time();
 
 # %allclasses reports all class that have been parsed.
 # %allmatches reports all matches that have been found.
-# %match2classes associates a match to a class name and reports how many 
+# %match2classes associates a match to a class name and reports how many
 # times that association was found.
 # Example: $match2classes{"vtkCommand::Event"}{"vtkMarchingCubes"} = 2
 # %class2matches associates a class name to a match
@@ -184,9 +183,9 @@ foreach my $source (@files) {
       or croak "$PROGNAME: unable to open $implem\n";
     my $implemfile = <IMPLEMFILE>;
     close(IMPLEMFILE);
-    
+
     # Remove all comments
-   
+
     $implemfile =~ s/\/\*.*?\*\/|\/\/.*?$//gms;
 
     # Grab matches, skip to next file if none found
@@ -216,7 +215,7 @@ foreach my $source (@files) {
 
     if ($source =~ m/^(\/|[a-zA-W]\:[\/\\])/) {
         if ($args{"relativeto"}) {
-            my ($dir, $absrel) = (abs_path(dirname($source)), 
+            my ($dir, $absrel) = (abs_path(dirname($source)),
                                   abs_path($args{"relativeto"}));
             $dir =~ s/$absrel//;
             $header = $args{"to"} . $dir . '/' . basename($source);
@@ -237,7 +236,7 @@ foreach my $source (@files) {
       or croak "$PROGNAME: unable to open $header\n";
     my $headerfile = <HEADERFILE>;
     close(HEADERFILE);
-    
+
     # Search for the documentation block (@class ...)
 
     if ($headerfile !~ /(.*\/\*\!\s+)(\@class\s.+?)(\*\/.*)/gms) {
@@ -247,9 +246,9 @@ foreach my $source (@files) {
     my ($pre, $block, $post) = ($1, $2, $3);
 
     # Create new doc section, insert it into block
-    
+
     my $preamble = "    \@par      " . $args{"label"} . ":\n";
-    my $doc = $preamble . 
+    my $doc = $preamble .
       "              " . join(" ", keys %{$class2matches{$class}}) . "\n";
 
     if ($block !~ s/($preamble.+?)(\s*\@par|\z)/$doc$2/gms) {
@@ -258,7 +257,7 @@ foreach my $source (@files) {
 
     # Write new header
 
-    sysopen(HEADERFILE, $header, 
+    sysopen(HEADERFILE, $header,
             O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
       or croak "$PROGNAME: unable to open $header\n";
     print HEADERFILE $pre . $block . $post;
@@ -282,15 +281,15 @@ my $indent = "    ";
 my $header;
 my (@summary, @credits);
 
-push @summary, 
+push @summary,
   "  - $nb_files implementation file(s) returning " . scalar (keys %allmatches) . " word(s) for " . scalar (keys %allclasses) . " classe(es) on " . localtime(),
   "  - $nb_replaced_files file(s) updated";
 
-push @credits, 
+push @credits,
   "\@version $VERSION",
   "\@author \@c $PROGNAME, by $AUTHOR";
 
-$header = $indent . join("\n$indent", @summary) . 
+$header = $indent . join("\n$indent", @summary) .
   "\n\n$indent" . join("\n$indent", @credits) . "\n\n";
 
 # -------------------------------------------------------------------------
@@ -320,7 +319,7 @@ if ($args{"store"}) {
         my ($word) = @_;
         return $word;
     }
-    
+
     # word_section_doc returns the doxygen doc for a word
 
     sub word_section_doc {
@@ -339,9 +338,9 @@ if ($args{"store"}) {
 
     my $page_doc = build_page_doc($indent,
                                   $args{"title"},
-                                  \@words, 
-                                  $prefix, 
-                                  \&word_section_name, 
+                                  \@words,
+                                  $prefix,
+                                  \&word_section_name,
                                   \&word_section_doc,
                                   \&word_section_alpha,
                                   $header,
@@ -377,7 +376,7 @@ if ($args{"store2"}) {
         my ($word) = @_;
         return $word;
     }
-    
+
     # word_section_doc returns the doxygen doc for a word
 
     sub word_section_doc2 {
@@ -396,9 +395,9 @@ if ($args{"store2"}) {
 
     my $page_doc = build_page_doc($indent,
                                   $args{"title2"},
-                                  \@words, 
-                                  $prefix, 
-                                  \&word_section_name2, 
+                                  \@words,
+                                  $prefix,
+                                  \&word_section_name2,
                                   \&word_section_doc2,
                                   \&word_section_alpha2,
                                   $header,
@@ -420,7 +419,7 @@ sub build_page_doc {
     # word_section_doc returns the doxygen doc for a word
     # word_section_alpha returns the single alpha char corresponding to that
     # word's section.
-    # $header is the Doxygen string summarizing what has been documented as 
+    # $header is the Doxygen string summarizing what has been documented as
     # well as the credits.
     # $footer is a Doxygen string appended to each the resulting page
     # $destination_file is the name of the file where this page should be
@@ -435,18 +434,18 @@ sub build_page_doc {
     # %sections_words is a hash associating a section (alphabetical letter) to
     # an array of words belonging to that section.
     #   Ex: $sections_words{"C"} => ("contour", "cut")
-    # %sections_weight is a hash associating a section to its weight (the sum 
+    # %sections_weight is a hash associating a section to its weight (the sum
     # of the weights of each word belonging to that section).
     # @sections is the array holding the name of all sections
 
     my (%sections_words, %sections_weight, @sections);
 
     # $navbar is the Doxygen string describing the sections' navigation bar
-    
+
     my $navbar;
-    
+
     my $intermediate_time = time();
-    
+
     # Browse each word
 
     foreach my $word (@$rwords) {
@@ -460,21 +459,21 @@ sub build_page_doc {
         my $section = &$rword_section_alpha($word);
         push @{$sections_words{$section}}, $word;
         $sections_weight{$section} += length($words_doc{$word});
-        
+
         print " => ", $word, "\n" if exists $args{"verbose"};
     }
 
     print " => ", scalar @$rwords, " words(s) documented in ", time() - $intermediate_time, " s.\n";
-    
+
     @sections = sort keys %sections_words;
 
     # Build the navbar
-    
+
     my @temp;
     foreach my $section (@sections) {
         push @temp, "\@ref ${prefix}_section_$section \"$section\"";
     }
-    $navbar = "$indent\@par Navigation: \n$indent\[" . 
+    $navbar = "$indent\@par Navigation: \n$indent\[" .
       join(" | ", @temp) . "]\n";
 
     # Add the (approximate) weight of the (header + navbar) to each section
@@ -499,7 +498,7 @@ sub build_page_doc {
 
     print "Computing alphabetical group(s)/page(s)...\n";
 
-    # %groups is a hash associating a group id (int) to an array of sections 
+    # %groups is a hash associating a group id (int) to an array of sections
     # namesbelonging to that group.
     #   Ex: $groups{"0"} => ("A", "B", "C")
     # %groups_weight is a hash associating a group id to its weight (the sum
@@ -509,15 +508,15 @@ sub build_page_doc {
 
     my $groupid = 0;
 
-    # Remove a section one by one, and put it in a group until the group if 
+    # Remove a section one by one, and put it in a group until the group if
     # full,then create a next group, etc., until the sections are exhausted.
 
     my @sections_temp = @sections;
     while (@sections_temp) {
         $groups_weight{$groupid} = $sections_weight{$sections_temp[0]};
         push @{$groups{$groupid}}, shift @sections_temp;
-        while (@sections_temp && 
-               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]}) 
+        while (@sections_temp &&
+               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]})
                <= $args{"weight"}) {
             $groups_weight{$groupid} += $sections_weight{$sections_temp[0]};
             push @{$groups{$groupid}}, shift @sections_temp;
@@ -527,7 +526,7 @@ sub build_page_doc {
 
     if (exists $args{"verbose"}) {
         foreach my $groupid (sort {$a <=> $b} keys %groups) {
-            printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
+            printf("\t- %02d (weight: %7d) : %s\n", $groupid,
                    $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
         }
     }
@@ -546,8 +545,8 @@ sub build_page_doc {
         $fromto .= ".." . $groups{$groupid}[scalar @{$groups{$groupid}} - 1]
           if scalar @{$groups{$groupid}} > 1;
 
-        $page_doc .= 
-          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header"; 
+        $page_doc .=
+          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header";
 
         foreach my $section (@{$groups{$groupid}}) {
             $page_doc .=
@@ -564,8 +563,8 @@ sub build_page_doc {
 
     $intermediate_time = time();
 
-    sysopen(DEST_FILE, 
-            $destination_file, 
+    sysopen(DEST_FILE,
+            $destination_file,
             O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
      or croak "$PROGNAME: unable to open destination file $destination_file\n";
     print DEST_FILE $page_doc;

@@ -24,7 +24,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
-SimpleView::SimpleView() 
+SimpleView::SimpleView()
 {
   this->ui = new Ui_SimpleView;
   this->ui->setupUi(this);
@@ -82,7 +82,7 @@ SimpleView::~SimpleView()
 
 }
 
-// Action to be taken upon file open 
+// Action to be taken upon file open
 void SimpleView::slotOpenFile()
 {
 

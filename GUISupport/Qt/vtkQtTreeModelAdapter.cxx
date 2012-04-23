@@ -114,7 +114,7 @@ void vtkQtTreeModelAdapter::SetVTKDataObject(vtkDataObject *obj)
     cerr << "vtkQtTreeModelAdapter needs a vtkTree for SetVTKDataObject" << endl;
     return;
     }
-    
+
   // Okay it's a tree so set it :)
   this->setTree(t);
 }
@@ -135,7 +135,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
     {
     vtkTree* tempSGMacroVar = this->Tree;
     this->Tree = t;
-    if (this->Tree != NULL) 
+    if (this->Tree != NULL)
       {
       this->Tree->Register(0);
       vtkIdType root = this->Tree->GetRoot();
@@ -143,7 +143,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
       this->VTKIndexToQtModelIndex.resize(this->Tree->GetNumberOfVertices());
       if (root >= 0)
         {
-        this->GenerateVTKIndexToQtModelIndex(root, 
+        this->GenerateVTKIndexToQtModelIndex(root,
           this->createIndex(0, 0, static_cast<int>(root)));
         }
       this->TreeMTime = this->Tree->GetMTime();
@@ -154,7 +154,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
       }
     emit reset();
     }
-    
+
   // Okay it's the same pointer but the contents
   // of the tree might have been modified so
   // check for that condition
@@ -172,7 +172,7 @@ void vtkQtTreeModelAdapter::treeModified()
     {
     vtkIdType root = this->Tree->GetRoot();
     this->VTKIndexToQtModelIndex.resize(this->Tree->GetNumberOfVertices());
-    this->GenerateVTKIndexToQtModelIndex(root, 
+    this->GenerateVTKIndexToQtModelIndex(root,
       this->createIndex(0, 0, static_cast<int>(root)));
     }
   this->TreeMTime = this->Tree->GetMTime();
@@ -194,19 +194,19 @@ vtkSelection* vtkQtTreeModelAdapter::QModelIndexListToVTKIndexSelection(
     vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(index_arr);
   IndexSelection->AddNode(node);
-  
+
   // Run through the QModelIndexList pulling out vtk indexes
   std::set<int> unique_ids;
   for (int i = 0; i < qmil.size(); i++)
     {
     unique_ids.insert(qmil.at(i).internalId());
-    }  
+    }
 
   std::set<int>::iterator iter;
   for (iter = unique_ids.begin(); iter != unique_ids.end(); ++iter)
     {
     index_arr->InsertNextValue(*iter);
-    }  
+    }
 
   return IndexSelection;
 }
@@ -240,7 +240,7 @@ void vtkQtTreeModelAdapter::GenerateVTKIndexToQtModelIndex(vtkIdType vtk_index, 
 
   // Store the QModelIndex for selection conversions later
   this->VTKIndexToQtModelIndex.replace(vtk_index, qmodel_index);
-  
+
   // Iterate through the children of this tree nodes
   vtkAdjacentVertexIterator* it = vtkAdjacentVertexIterator::New();
   this->Tree->GetChildren(vtk_index, it);
@@ -273,12 +273,12 @@ QVariant vtkQtTreeModelAdapterArrayValue(vtkAbstractArray* arr, vtkIdType i, vtk
     {
     return QVariant(QString::fromUtf8(data->GetValue(i*comps + j).utf8_str()));
     }
-    
+
   if(vtkVariantArray* const data = vtkVariantArray::SafeDownCast(arr))
     {
     return QVariant(QString(data->GetValue(i*comps + j).ToString().c_str()));
     }
-  
+
   vtkGenericWarningMacro("Unknown array type in vtkQtTreeModelAdapterArrayValue.");
   return QVariant();
 }
@@ -289,7 +289,7 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
     {
     return QVariant();
     }
-  
+
   if (!idx.isValid())
     {
     return QVariant();
@@ -427,7 +427,7 @@ QModelIndex vtkQtTreeModelAdapter::index(int row, int column,
     {
     return QModelIndex();
     }
-  
+
   vtkIdType parentItem;
 
   if (!parentIdx.isValid())
@@ -468,7 +468,7 @@ QModelIndex vtkQtTreeModelAdapter::parent(const QModelIndex &idx) const
     {
     return QModelIndex();
     }
-  
+
   if (!idx.isValid())
     {
     return QModelIndex();
@@ -512,7 +512,7 @@ int vtkQtTreeModelAdapter::rowCount(const QModelIndex &idx) const
     {
     return 1;
     }
-  
+
   if (!idx.isValid())
     {
     return 1;

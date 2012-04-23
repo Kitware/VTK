@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -22,7 +22,7 @@
 #ifdef _MSC_VER
 #pragma warning ( disable : 4514 )
 #pragma warning ( push, 3 )
-#endif 
+#endif
 
 #ifdef __BORLANDC__
 #pragma warn -8027 /* functions containing while are not expanded inline */
@@ -40,87 +40,87 @@
 // This should probably be cleaned up so that it
 // can be used to abstract a stream.
 //
-class DICOM_EXPORT DICOMFile 
+class DICOM_EXPORT DICOMFile
 {
  public:
   DICOMFile();
   virtual ~DICOMFile();
-  
+
   //
   // Open a file with filename.  Returns a bool
   // that is true if the file is successfully
   // opened.
   //
   bool Open(const dicom_stl::string& filename);
-  
+
   //
   // Close a file.
   //
   void Close();
-  
+
   //
   // Return the position in the file.
   //
   long Tell();
-  
-  // 
+
+  //
   // Move to a particular position in the file.
   //
   void SkipToPos(long);
-  
+
   //
   // Return the size of the file.
   //
   long GetSize();
-  
+
   //
   // Skip a number of bytes.
-  // 
+  //
   void Skip(long);
-  
+
   //
   // Skip to the beginning of the file.
   //
   void SkipToStart();
-  
+
   //
   // Read data of length len.
   //
   void Read(void* data, long len);
-  
+
   //
   // Read a double byte of data.
   //
   doublebyte ReadDoubleByte();
 
-  
+
   doublebyte ReadDoubleByteAsLittleEndian();
 
   //
   // Read a quadbyte of data.
   //
   quadbyte   ReadQuadByte();
-  
+
   //
   // Read nbytes of data up to 4 bytes.
   //
   quadbyte   ReadNBytes(int len);
-  
-  // 
+
+  //
   // Read a float an ascii.
   //
   float      ReadAsciiFloat(int len);
-  
+
   //
   // Read an int as ascii.
   //
   int        ReadAsciiInt(int len);
-  
+
   //
   // Read an array of ascii characters.
   //
   char*      ReadAsciiCharArray(int len);
-  
+
   //
   // Convert the data to signed long.
   //
@@ -128,8 +128,8 @@ class DICOM_EXPORT DICOMFile
     {
       return *reinterpret_cast<quadbyte*>(data);
     }
-  
-  
+
+
   //
   // Convert the data to unsigned long.
   //
@@ -145,10 +145,10 @@ class DICOM_EXPORT DICOMFile
   {
     return *reinterpret_cast<doublebyte*>(data);
   }
-  
+
   //
   // Convert data to signed short.
-  // 
+  //
   static short int ReturnAsSignedShort(unsigned char* data, bool)
   {
     return *reinterpret_cast<short int*>(data);
@@ -161,7 +161,7 @@ class DICOM_EXPORT DICOMFile
   {
     return atoi(reinterpret_cast<const char*>(data));
   }
-  
+
   static float ReturnAsFloat(unsigned char* data, bool)
     {
     return static_cast<float>(atof(reinterpret_cast<const char*>(data)));
@@ -188,7 +188,7 @@ class DICOM_EXPORT DICOMFile
       count--;
       }
   }
-  
+
   //
   // Swap the bytes in an array of unsigned longs.
   //
@@ -200,8 +200,8 @@ class DICOM_EXPORT DICOMFile
       count--;
       }
   }
-  
-  
+
+
   //
   // Swap the bytes in an unsigned short.
   //
@@ -210,13 +210,13 @@ class DICOM_EXPORT DICOMFile
     return ushort((v << 8)
       | (v >> 8));
   }
-  
-  // 
+
+  //
   // Swap the bytes in an unsigned long.
   //
   static uint swap4(uint v)
     {
-    return uint((v << 24) 
+    return uint((v << 24)
                 | ((v << 8) & 0x00ff0000)
                 | ((v >> 8) & 0x0000ff00)
                 | ((v >> 24)));
@@ -229,14 +229,14 @@ class DICOM_EXPORT DICOMFile
   // Internal storage for the filename.
   //
   // char* Filename;
-  
+
   //
   // Internal storage for the file pointer.
   //
   // FILE* Fptr;
-  
+
   dicom_stream::ifstream InputStream;
-  
+
   //
   // Flag for swaping bytes.
   //
@@ -249,7 +249,7 @@ class DICOM_EXPORT DICOMFile
 
  private:
   DICOMFile(const DICOMFile&);
-  void operator=(const DICOMFile&);  
+  void operator=(const DICOMFile&);
 
 };
 

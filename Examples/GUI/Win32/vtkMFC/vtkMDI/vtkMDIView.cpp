@@ -112,7 +112,7 @@ void CvtkMDIView::ExecutePipeline()
 
   if (pDoc->pvtkDataSetReader)  // have file
   {
-    this->pvtkDataSetMapper->SetInput(this->GetDocument()->pvtkDataSetReader->GetOutput());
+    this->pvtkDataSetMapper->SetInputConnection(this->GetDocument()->pvtkDataSetReader->GetOutputPort());
     this->pvtkActor->SetMapper(this->pvtkDataSetMapper);
 
     this->pvtkTextMapper->SetInput(this->GetDocument()->pvtkDataSetReader->GetFileName());
@@ -185,12 +185,12 @@ int CvtkMDIView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   return 0;
 }
 
-BOOL CvtkMDIView::OnEraseBkgnd(CDC*) 
+BOOL CvtkMDIView::OnEraseBkgnd(CDC*)
 {
   return TRUE;
 }
 
-void CvtkMDIView::OnSize(UINT nType, int cx, int cy) 
+void CvtkMDIView::OnSize(UINT nType, int cx, int cy)
 {
   CView::OnSize(nType, cx, cy);
 

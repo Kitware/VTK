@@ -157,7 +157,7 @@ void CvtkSDIDoc::ExecutePipeline()
 
   if (pvtkDataSetReader)  // have file
   {
-    this->pvtkDataSetMapper->SetInput(this->pvtkDataSetReader->GetOutput());
+    this->pvtkDataSetMapper->SetInputConnection(this->pvtkDataSetReader->GetOutputPort());
     this->pvtkActor->SetMapper(this->pvtkDataSetMapper);
 
     this->pvtkTextMapper->SetInput(this->pvtkDataSetReader->GetFileName());

@@ -34,7 +34,7 @@
 #   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile
 #
 # 0.74 (barre) :
-#   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them 
+#   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them
 #
 # 0.73 (barre) :
 #   - change doxygen command style from \ to @ to match javadoc, autodoc, etc.
@@ -54,7 +54,7 @@
 #   - change (warning) default --to to '../vtk2' because I ruined my own
 #     VTK distrib too many times :(
 #   - add automatic creation of missing directory trees
-#   - add check for current OS (if Windows, do not perform tests based 
+#   - add check for current OS (if Windows, do not perform tests based
 #     on stat()/idev/ino features)
 #
 # 0.5 (barre) :
@@ -125,7 +125,6 @@ my %default =
             "../../IO",
             "../../Parallel",
             "../../Rendering",
-            "../../TextAnalysis",
             "../../Views",
             "../../VolumeRendering",
             "../../Widgets"],
@@ -173,13 +172,13 @@ $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
 $args{"relativeto"} = $default{"relativeto"} if ! exists $args{"relativeto"};
 $args{"relativeto"} =~ s/[\\\/]*$// if exists $args{"relativeto"};
 
-croak "$PROGNAME: --update requires --to\n" 
+croak "$PROGNAME: --update requires --to\n"
   if exists $args{"update"} && ! exists $args{"to"};
 
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
 my $start_time = time();
-    
+
 # -------------------------------------------------------------------------
 # Collect all files and directories
 
@@ -203,7 +202,7 @@ my $intermediate_time = time();
 my $nb_file = 0;
 
 foreach my $source (@files) {
-    
+
     next if $source !~ /vtk[^\\\/]*\.h\Z/;
 
     # Figure out destination file now
@@ -216,7 +215,7 @@ foreach my $source (@files) {
         # relativeto path has been set
         if ($source =~ m/^(\/|[a-zA-W]\:[\/\\])/) {
             if ($args{"relativeto"}) {
-                my ($dir, $absrel) = (abs_path(dirname($source)), 
+                my ($dir, $absrel) = (abs_path(dirname($source)),
                                       abs_path($args{"relativeto"}));
                 $dir =~ s/$absrel//;
                 $dest = $args{"to"} . $dir . '/' . basename($source);
@@ -225,7 +224,7 @@ foreach my $source (@files) {
             }
         } else {
             my $source2 = $source;
-            # let's remove the ../ component before the source filename, so 
+            # let's remove the ../ component before the source filename, so
             # that it might be appended to the "to" directory
             $source2 =~ s/^(\.\.[\/\\])*//;
             $dest = $args{"to"} . '/' . $source2;
@@ -239,13 +238,13 @@ foreach my $source (@files) {
         }
     }
 
-    # Update mode : skip the file if it is not newer than the 
+    # Update mode : skip the file if it is not newer than the
     # previously converted target
-    
+
     if (exists $args{"update"} && ! exists $args{"force"}) {
         next if -e $dest && (stat $source)[9] < (stat $dest)[9];
     }
-    
+
     ++$nb_file;
     print "  $source\n" if exists $args{"verbose"};
 
@@ -255,19 +254,19 @@ foreach my $source (@files) {
       or croak "$PROGNAME: unable to open $source\n";
     my @headerfile = <HEADERFILE>;
     close(HEADERFILE);
-    
+
     my ($date, $revision) = ("", "");
     my @converted = ();
     my @thanks = ();
-    
+
     # Parse the file until the beginning of the documentation block
-    # is found. The copyright and disclaimer sections are parsed to 
+    # is found. The copyright and disclaimer sections are parsed to
     # extract the 'Date', 'Version' and 'Thanks' values.
-    
+
     my $line;
     while ($line = shift @headerfile) {
 
-        # Quit if the beginning of the documentation block has been reached. 
+        # Quit if the beginning of the documentation block has been reached.
         # It is supposed to start with:
         # // .NAME vtkFooBar - foo bar class
 
@@ -287,7 +286,7 @@ foreach my $source (@files) {
 
         # Thanks (maybe multi-lines). Example:
         # Thanks:    Thanks to Sebastien Barre who developed this class.
-         
+
         } elsif ($line =~ /^\s*Thanks:\s*(.*)$/) {
             push @thanks, "             ", $1, "\n";
             # Handle multi-line thanks
@@ -304,18 +303,18 @@ foreach my $source (@files) {
             push @converted, $line;
         }
     }
-    
+
     # Process the documentation block
     # Extract the name of the class and its short description
     # // .NAME vtkFooBar - foo bar class
-    
+
     if (defined($line) && $line =~ /\/\/ \.NAME (\w*)( \- (.*))?/) {
-        
+
         my ($class_name, $class_short_description) = ($1, $3);
         $class_name =~ s/\.h//;
-        
+
         # Insert class description, date, revision, thanks
-        
+
         push @converted, "/*! \@class   $class_name\n";
         push @converted, "    \@brief   $class_short_description\n"
           if $class_short_description;
@@ -333,7 +332,7 @@ foreach my $source (@files) {
 
         # Do not add thanks anymore. Will be done externally.
         # push @converted, "    \@par     Thanks:\n", @thanks if @thanks;
-        
+
         # Read until the end of the documentation block is reached
         # Translate 'See Also', 'Caveats' and whatever .SECTION
         # As of 24 sep 2001, there are:
@@ -354,26 +353,26 @@ foreach my $source (@files) {
 
         my ($tag, $inblock) = ("", 0);
         while ($line = shift @headerfile) {
-            
-            # Quit if the end of the documentation block has been reached. 
+
+            # Quit if the end of the documentation block has been reached.
             # Let'say that it is supposed to end as soon as the usual
             # inclusion directives are found, for example:
             # #ifndef __vtkAbstractTransform_h
             # #define __vtkAbstractTransform_h
-            
+
             last if $line =~ /^\#/;
-            
+
             # Process and recognize a .SECTION command and convert it to
             # the corresponding doxygen tag ($tag)
 
             if ($line =~ /^\/\/\s+\.SECTION\s+(.+)\s*$/i) {
-                
+
                 my $type = $1;
 
                 # Bugs (@bugs). Starts with:
                 # // .SECTION Bug
                 # // .SECTION Bugs
-            
+
                 if ($type =~ /Bugs?/i) {
                     $tag = "\@bug";
                 }
@@ -382,14 +381,14 @@ foreach my $source (@files) {
                 # // .SECTION Caveats
                 # // .SECTION Warning
                 # // .SECTION Warnings
-            
+
                 elsif ($type =~ /(Caveats|Warnings?)/i) {
                     $tag = "\@warning";
                 }
 
                 # Description. Starts with:
                 # // .SECTION Description
-            
+
                 elsif ($type =~ /Description/i) {
                     $tag = "";
                     push @converted, "\n";
@@ -404,7 +403,7 @@ foreach my $source (@files) {
 
                 # See also (@sa). Starts with:
                 # // .SECTION See Also
-                
+
                 elsif ($type =~ /See Also/i) {
                     $tag = "\@sa";
                 }
@@ -418,17 +417,17 @@ foreach my $source (@files) {
 
                 # Any other .SECTION (@par). Starts with:
                 # // .SECTION whatever
-                
+
                 else {
                     $tag =  "\@par " . $type . ":";
                 }
 
                 $inblock = 0;
             }
-            
+
             # If the line starts with '//', we are still within the tag block.
-            # Remove '//' for non empty lines, eventually put or duplicate 
-            # the tag name if an empty comment is found (meaning that a new 
+            # Remove '//' for non empty lines, eventually put or duplicate
+            # the tag name if an empty comment is found (meaning that a new
             # 'paragraph' is requested but with the same tag type)
             # Example:
             #  // .SECTION Caveats
@@ -443,36 +442,36 @@ foreach my $source (@files) {
             #
             #      @warning
             #   blabla2
-            
+
             elsif ($line =~ /^\/\/(.*)/) {
                 my $remaining = $1;
                 if ($remaining =~ /\S/) {
-                    push @converted, "    $tag\n" 
+                    push @converted, "    $tag\n"
                       if $tag ne "" && ! $inblock;
                     push @converted, $remaining, "\n";
                     $inblock = 1;
                 } else {
                     push @converted, "\n";
                     $inblock = 0;
-                }    
+                }
             } else {
                 # Does not starts with // but still within block or just
                 # before the end (#). Probably an empty line.
                 # Hack : let's have a look at the next line... if it begins
                 # with // then the current line is included (was a space).
-                
+
                 if (my $next_line = shift @headerfile) {
                     push @converted, $line if $next_line =~ /^\/\//;
                     unshift @headerfile, $next_line;
                 }
             }
         }
-        
+
         # Close the doxygen documentation block describing the class
-        
+
         push @converted, "*/\n\n", $line;
     }
-    
+
     # Read until the end of the header and translate the description of
     # each function provided that it is located in a C++ comment
     # containing the 'Description:' keyword.
@@ -485,7 +484,7 @@ foreach my $source (@files) {
     my $in_section = "";
 
     while ($line = shift @headerfile) {
-        
+
         # Track the public:, protected: and private: sections and put them
         # between \cond... \endcond so that they can be removed from the
         # documentation conditionally. Add them to ENABLED_SECTION
@@ -507,13 +506,13 @@ foreach my $source (@files) {
         }
 
         if ($line =~ /^(\s*)\/\/\s*De(s|c)(s|c)?ription/) {
-            
+
             my $indent = $1;
             $Text::Wrap::columns = 76;
-            
+
             # While there are still lines beginning with '//' append them to
             # the function's description and trim spaces.
-            
+
             my @description = ();
             while ($line = shift @headerfile) {
                 last if $line !~ /^\s*\/\//;
@@ -545,18 +544,18 @@ foreach my $source (@files) {
 
             my $enclose =
               (scalar @declarations > 1 || $declarations[0] =~ /vtk.+Macro/);
-            
+
             push @converted, "$indent//@\{\n" if $enclose;
-            push @converted, 
+            push @converted,
             wrap("$indent/*! ", "$indent    ", @description), " */\n"
               if @description;
             push @converted, @declarations;
             push @converted, "$indent//@\}\n" if $enclose;
         }
-        
+
         push @converted, $line;
     }
-    
+
     if (exists $args{"conds"}) {
         if ($in_section ne "") {
             push @converted, "// \@endcond";
@@ -574,19 +573,19 @@ foreach my $source (@files) {
 
         # Open the target and create the missing directory if any
 
-        if (!sysopen(DEST_FILE, 
-                     $dest, 
+        if (!sysopen(DEST_FILE,
+                     $dest,
                      O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
             my $dir = dirname($dest);
             mkpath($dir);
-            sysopen(DEST_FILE, 
-                    $dest, 
+            sysopen(DEST_FILE,
+                    $dest,
                     O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
               or croak "$PROGNAME: unable to open destination file $dest\n";
         }
         print DEST_FILE @converted;
         close(DEST_FILE);
-        
+
         # If in-place conversion was requested, remove source and rename target
         # (or temp file) to source
 

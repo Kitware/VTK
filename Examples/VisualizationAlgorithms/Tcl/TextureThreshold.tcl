@@ -34,7 +34,7 @@ vtkActor wallActor
     eval [wallActor GetProperty] SetColor 0.8 0.8 0.8
 
 # Now the fin.
-# 
+#
 vtkStructuredGridGeometryFilter fin
     fin SetInputData $pl3dOutput
     fin SetExtent 0 100 0 100 0 0

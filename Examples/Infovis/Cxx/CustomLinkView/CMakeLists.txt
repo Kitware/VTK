@@ -24,7 +24,7 @@ INCLUDE_DIRECTORIES(
 )
 
 
-# Set your files and resources here  
+# Set your files and resources here
 SET(CustomLinkViewSrcs main.cxx CustomLinkView.cxx)
 SET(CustomLinkViewUI CustomLinkView.ui)
 SET(CustomLinkViewHeaders CustomLinkView.h)

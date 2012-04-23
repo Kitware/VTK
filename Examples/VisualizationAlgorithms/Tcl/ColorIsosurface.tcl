@@ -8,7 +8,7 @@ package require vtkinteraction
 # Read some data. The important thing here is to read a function as a data
 # array as well as the scalar and vector.  (here function 153 is named
 # "Velocity Magnitude").Later this data array will be used to color the
-# isosurface.  
+# isosurface.
 #
 vtkMultiBlockPLOT3DReader pl3d
     pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
@@ -20,7 +20,7 @@ vtkMultiBlockPLOT3DReader pl3d
     pl3d DebugOn
 
 set pl3dOutput [[pl3d GetOutput] GetBlock 0 ]
-    
+
 # The contoru filter uses the labeled scalar (function number 100
 # above to generate the contour surface; all other data is interpolated
 # during the contouring process.
@@ -33,7 +33,7 @@ vtkPolyDataNormals normals
     normals SetInputConnection [iso GetOutputPort]
     normals SetFeatureAngle 45
 
-# We indicate to the mapper to use the velcoity magnitude, which is a 
+# We indicate to the mapper to use the velcoity magnitude, which is a
 # vtkDataArray that makes up part of the point attribute data.
 #
 vtkPolyDataMapper isoMapper

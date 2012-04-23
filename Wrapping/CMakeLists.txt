@@ -1,82 +1,94 @@
 # Allow the user to customize their build with some local options
 #
-INCLUDE (${VTK_SOURCE_DIR}/Wrapping/LocalUserOptions.cmake OPTIONAL)
+include(${VTK_SOURCE_DIR}/Wrapping/LocalUserOptions.cmake OPTIONAL)
 
 # vtkParse.tab.c has #line markers that break #include with double quotes.
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Python
+  ${VTK_SOURCE_DIR}/Common/Core
+  ${VTK_BINARY_DIR}/Common/Core
+  ${VTK_BINARY_DIR}/Wrapping
+  ${VTK_BINARY_DIR}/Utilities/KWSys)
 
-IF(NOT CMAKE_CROSSCOMPILING)
-  IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    INSTALL(FILES vtkParse.h vtkParseType.h vtkParsePreprocess.h vtkParseMain.h
-      DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}
-      COMPONENT Development
-      )
-  ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
 
-  IF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
-    VTK_ADD_EXECUTABLE(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c
-                   vtkParseExtras.c vtkWrapHierarchy.c)
-    EXPORT(TARGETS vtkWrapHierarchy FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-    IF(COMPILE_TOOLS_TARGET)
-      ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkWrapHierarchy)
-    ENDIF(COMPILE_TOOLS_TARGET)
-    IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-      INSTALL(TARGETS vtkWrapHierarchy
-        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development)
-    ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  ENDIF (VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+# Get our lists of modules to be wrapped, create a list of uniques that need to
+# have wrap hierarchy run on them too.
+get_property(_python_modules GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
+get_property(_java_modules GLOBAL PROPERTY VTK_JAVA_WRAPPED)
 
-  IF (VTK_WRAP_TCL)
-    VTK_ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
-                   vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
-    VTK_ADD_EXECUTABLE(vtkWrapTclInit vtkWrapTclInit.c)
-    EXPORT(TARGETS vtkWrapTcl vtkWrapTclInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-    IF(COMPILE_TOOLS_TARGET)
-      ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkWrapTcl vtkWrapTclInit)
-   ENDIF(COMPILE_TOOLS_TARGET)
-    IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-      INSTALL(TARGETS vtkWrapTcl vtkWrapTclInit
-        EXPORT ${VTK_INSTALL_EXPORT_NAME}
-        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development # .exe, .dll
-        )
-    ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  ENDIF (VTK_WRAP_TCL)
+set_property(SOURCE vtkParseMain.c PROPERTY COMPILE_DEFINITIONS
+  VTK_PARSE_VERSION="${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 
-  IF (VTK_WRAP_PYTHON)
-    INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
+if(NOT CMAKE_CROSSCOMPILING)
+  if(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+    add_executable(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c
+                       vtkParseExtras.c vtkWrapHierarchy.c)
+    export(TARGETS vtkWrapHierarchy
+      FILE ${EXPORT_EXECUTABLES_FILE}
+      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    if(COMPILE_TOOLS_TARGET)
+      add_dependencies(${COMPILE_TOOLS_TARGET} vtkWrapHierarchy)
+    endif()
 
-    VTK_ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
+    if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    #  INSTALL(TARGETS vtkWrapHierarchy
+    #    RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development)
+    endif()
+  endif()
+
+  if(VTK_WRAP_TCL)
+    add_executable(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
+                       vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
+    add_executable(vtkWrapTclInit vtkWrapTclInit.c)
+    export(TARGETS vtkWrapTcl vtkWrapTclInit
+      FILE ${EXPORT_EXECUTABLES_FILE}
+      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    if(COMPILE_TOOLS_TARGET)
+      add_dependencies(${COMPILE_TOOLS_TARGET} vtkWrapTcl vtkWrapTclInit)
+    endif()
+  endif()
+
+  if(VTK_WRAP_PYTHON)
+    set(VTK_WRAP_PYTHON_FIND_LIBS ON)
+    include(vtkWrapPython)
+    include_directories("${PYTHON_INCLUDE_PATH}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/PythonCore"
+      "${CMAKE_CURRENT_BINARY_DIR}/PythonCore")
+
+    add_executable(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
                    vtkParseMain.c vtkParse.tab.c vtkParsePreprocess.c
                    vtkParseExtras.c vtkParseHierarchy.c)
-    VTK_ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
-    TARGET_LINK_LIBRARIES(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
-    EXPORT(TARGETS vtkWrapPython vtkWrapPythonInit FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-    IF(COMPILE_TOOLS_TARGET)
-      ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkWrapPython vtkWrapPythonInit)
-    ENDIF(COMPILE_TOOLS_TARGET)
-    IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-      INSTALL(TARGETS vtkWrapPython vtkWrapPythonInit
-        EXPORT ${VTK_INSTALL_EXPORT_NAME}
-        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development # .exe, .dll
-        )
-    ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  ENDIF (VTK_WRAP_PYTHON)
+    add_executable(vtkWrapPythonInit vtkWrapPythonInit.c)
+    target_link_libraries(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
+    export(TARGETS vtkWrapPython vtkWrapPythonInit
+      FILE ${EXPORT_EXECUTABLES_FILE}
+      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    if(COMPILE_TOOLS_TARGET)
+      add_dependencies(${COMPILE_TOOLS_TARGET} vtkWrapPython vtkWrapPythonInit)
+    endif()
+  endif()
 
-  IF (VTK_WRAP_JAVA)
-    VTK_ADD_EXECUTABLE(vtkParseJava vtkParseJava.c vtkParseMain.c vtkParse.tab.c
+  if(VTK_WRAP_JAVA)
+    add_executable(vtkParseJava vtkParseJava.c vtkParseMain.c vtkParse.tab.c
                    vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
-    VTK_ADD_EXECUTABLE(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
+    add_executable(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
                    vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
-    EXPORT(TARGETS vtkParseJava vtkWrapJava FILE ${EXPORT_EXECUTABLES_FILE} NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
-    IF(COMPILE_TOOLS_TARGET)
-      ADD_DEPENDENCIES(${COMPILE_TOOLS_TARGET} vtkParseJava vtkWrapJava)
-    ENDIF(COMPILE_TOOLS_TARGET)
-    IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-      INSTALL(TARGETS vtkParseJava vtkWrapJava
-        EXPORT ${VTK_INSTALL_EXPORT_NAME}
-        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development # .exe, .dll
-        )
-    ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  ENDIF (VTK_WRAP_JAVA)
+    export(TARGETS vtkParseJava vtkWrapJava
+      FILE ${EXPORT_EXECUTABLES_FILE}
+      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    if(COMPILE_TOOLS_TARGET)
+      add_dependencies(${COMPILE_TOOLS_TARGET} vtkParseJava vtkWrapJava)
+    endif()
+  endif()
 
-ENDIF(NOT CMAKE_CROSSCOMPILING)
+endif()
+
+if(VTK_WRAP_PYTHON)
+  add_subdirectory(Python)
+endif()
+
+if(VTK_WRAP_TCL)
+  add_subdirectory(Tcl)
+endif()

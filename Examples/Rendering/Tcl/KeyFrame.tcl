@@ -1,5 +1,5 @@
 # KeyFrame.tcl - Keyframes for vtk
-# 
+#
 # These procs provide a simple (yet powerful) keyframing capability
 # for vtk tcl applications
 # A keyframe contains a time sorted ordering of methods
@@ -92,7 +92,7 @@ proc KeyGoto {keyFrame t} {
   set keyCommand "$object $method "
   for {set j 0} {$j < $depends} {incr j} {
     lappend keyCommand "[$object${method}Spline$j Evaluate $t]"
-  } 
+  }
     if {$a(debug) == 1} {puts "$keyCommand"}
   eval $keyCommand
   KeyRender

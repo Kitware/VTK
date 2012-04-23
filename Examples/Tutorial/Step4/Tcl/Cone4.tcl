@@ -5,12 +5,12 @@
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the VTK commands to Tcl.
 #
 package require vtk
 
-# 
+#
 # Next we create an instance of vtkConeSource and set some of its
 # properties. The instance of vtkConeSource "cone" is part of a visualization
 # pipeline (it is a source process object); it produces data (output type is
@@ -21,7 +21,7 @@ cone SetHeight 3.0
 cone SetRadius 1.0
 cone SetResolution 10
 
-# 
+#
 # In this example we terminate the pipeline with a mapper process object.
 # (Intermediate filters such as vtkShrinkPolyData could be inserted in
 # between the source and the mapper.)  We create an instance of
@@ -31,7 +31,7 @@ cone SetResolution 10
 vtkPolyDataMapper coneMapper
 coneMapper SetInputConnection [cone GetOutputPort]
 
-# 
+#
 # Create an actor to represent the first cone. The actor's properties are
 # modified to give it different surface properties. By default, an actor
 # is create with a property so the GetProperty() method can be used.
@@ -70,7 +70,7 @@ coneActor2 SetPosition 0 2 0
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here.
 #
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 AddActor coneActor2
 ren1 SetBackground 0.1 0.2 0.4

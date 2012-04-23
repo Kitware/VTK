@@ -26,7 +26,7 @@ IF (VTK_DATA_ROOT)
 ADD_TEST(${KIT}-ParticleReader ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
          TestParticleReader
            ${VTK_DATA_ROOT}/Data/golf.csv
-           ${VTK_BINARY_DIR}/Testing/Temporary/TestParticleReader.vtp)
+           ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
 ADD_TEST(${KIT}-DumpXMLFile ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
          TestDumpXMLFile
            ${VTK_DATA_ROOT}/Data/cow.vtp)

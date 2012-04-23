@@ -33,9 +33,9 @@ ADD_TEST(${KIT}-Finance ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
 ADD_TEST(${KIT}-Delaunay3D ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
          TestDelaunay3D
            ${VTK_DATA_ROOT}/Data/cow.vtp
-           ${VTK_BINARY_DIR}/Testing/Temporary/Delaunay3D.vtu)
+           ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu)
 ADD_TEST(${KIT}-Delaunay3DAlpa ${EXECUTABLE_OUTPUT_PATH}/${KIT}CxxTests
          TestDelaunay3DAlpha
            .5 ${VTK_DATA_ROOT}/Data/cow.vtp
-           ${VTK_BINARY_DIR}/Testing/Temporary/Delaunay3DAlpha.vtu)
+           ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu)
 ENDIF (VTK_DATA_ROOT)

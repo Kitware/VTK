@@ -4,7 +4,7 @@
 #include <vtkXMLDataSetWriter.h>
 #include <vtkXMLPolyDataReader.h>
 
- 
+
 int main ( int argc, char *argv[] )
 {
   if (argc != 4)

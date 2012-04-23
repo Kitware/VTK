@@ -12,7 +12,7 @@ IF(VTK_MFC_DELAYLOAD_VTK_DLLS)
     )
 ENDIF(VTK_MFC_DELAYLOAD_VTK_DLLS)
 
-SET( vtkSDI_SRCS 
+SET( vtkSDI_SRCS
  MainFrm
  StdAfx
  vtkSDI
@@ -20,7 +20,7 @@ SET( vtkSDI_SRCS
  vtkSDIDoc
  vtkSDIView
  res/vtkSDI.rc2
-) 
+)
 
 ADD_EXECUTABLE(vtkSDI WIN32 ${vtkSDI_SRCS})
 

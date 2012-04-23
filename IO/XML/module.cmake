@@ -1,0 +1,17 @@
+vtk_module(vtkIOXML
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkCommonMisc
+    vtkIOCore
+    vtkIOGeometry
+    vtkexpat
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkImagingSources
+    vtkFiltersSources
+    vtkInfovisCore
+    vtkFiltersCore
+  )

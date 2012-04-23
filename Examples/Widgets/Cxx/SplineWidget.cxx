@@ -51,7 +51,7 @@ int main( int, char *[] )
     planeSourceMapper->SetInput(planeSource->GetOutput());
   vtkActor* planeSourceActor = vtkActor::New();
     planeSourceActor->SetMapper(planeSourceMapper);
-    
+
   vtkSplineWidget* spline = vtkSplineWidget::New();
     spline->SetInteractor( iren);
     spline->SetInput(planeSource->GetOutput());

@@ -16,7 +16,7 @@ vtkGlyph3D glyph
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 
-# The sphere and spikes are appended into a single polydata. 
+# The sphere and spikes are appended into a single polydata.
 # This just makes things simpler to manage.
 vtkAppendPolyData apd
     apd AddInputConnection [glyph GetOutputPort]
@@ -29,7 +29,7 @@ vtkLODActor maceActor
     maceActor SetMapper maceMapper
     maceActor VisibilityOn
 
-# This portion of the code clips the mace with the vtkPlanes 
+# This portion of the code clips the mace with the vtkPlanes
 # implicit function. The clipped region is colored green.
 vtkPlane plane
 vtkClipPolyData clipper

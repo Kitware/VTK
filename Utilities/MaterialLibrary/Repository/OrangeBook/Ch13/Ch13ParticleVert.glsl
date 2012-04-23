@@ -11,12 +11,12 @@
 
 uniform float Time;            // updated each frame by the application
 uniform vec4  Background;      // constant color equal to background
- 
+
 attribute vec3  Velocity;      // initial velocity
 attribute float StartTime;     // time at which particle is activated
 
 varying vec4 Color;
- 
+
 void main(void)
 {
     vec4  vert;
@@ -33,6 +33,6 @@ void main(void)
         vert  = gl_Vertex;      // Initial position
         Color = Background;     // "pre-birth" color
     }
- 
+
     gl_Position  = gl_ModelViewProjectionMatrix * vert;
 }

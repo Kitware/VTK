@@ -2,7 +2,7 @@
 # a cmake implementation of the Wrap Tcl command
 #
 
-# VTK_MAKE_INSTANTIATOR(className 
+# VTK_MAKE_INSTANTIATOR(className
 #                       outSourceList
 #                       src-list1
 #                       EXPORT_MACRO
@@ -83,7 +83,7 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
   # For each include
   FOREACH(FILE ${INCLUDES})
     # generate the header
-    SET (HEADER_CONTENTS 
+    SET (HEADER_CONTENTS
       "${HEADER_CONTENTS}#include \"${FILE}\"\n")
   ENDFOREACH(FILE)
 
@@ -99,7 +99,7 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
     IF (TMP_WRAP_EXCLUDE OR TMP_ABSTRACT)
       SET (WRAP_THIS_CLASS 0)
     ENDIF (TMP_WRAP_EXCLUDE OR TMP_ABSTRACT)
-    
+
     # don't wrap vtkIndent or vtkTimeStamp
     IF (${FILE} MATCHES "vtkIndent")
       SET (WRAP_THIS_CLASS 0)
@@ -118,38 +118,38 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
 
       # generate the implementation
-      SET (CXX_CONTENTS 
+      SET (CXX_CONTENTS
         "${CXX_CONTENTS}extern vtkObject* vtkInstantiator${TMP_FILENAME}New();\n")
 
-      SET (CXX_CONTENTS2 
+      SET (CXX_CONTENTS2
         "${CXX_CONTENTS2}  vtkInstantiator::RegisterInstantiator(\"${TMP_FILENAME}\", vtkInstantiator${TMP_FILENAME}New);\n")
 
-      SET (CXX_CONTENTS3 
+      SET (CXX_CONTENTS3
         "${CXX_CONTENTS3}  vtkInstantiator::UnRegisterInstantiator(\"${TMP_FILENAME}\", vtkInstantiator${TMP_FILENAME}New);\n")
 
     ENDIF (WRAP_THIS_CLASS)
   ENDFOREACH(FILE)
 
   # add the source file to the source list
-  SET(${outSourceList} ${${outSourceList}} 
+  SET(${outSourceList} ${${outSourceList}}
     ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx)
 
   SET_SOURCE_FILES_PROPERTIES(
-    ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx 
+    ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx
     PROPERTIES GENERATED 1 WRAP_EXCLUDE 1 ABSTRACT 0
     )
 
   CONFIGURE_FILE(
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in  
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.h.in
     ${HEADER_LOCATION}/${className}.h
     COPY_ONLY
     IMMEDIATE
     )
   CONFIGURE_FILE(
-    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in  
+    ${VTK_CMAKE_DIR}/vtkMakeInstantiator.cxx.in
     ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx
     COPY_ONLY
     IMMEDIATE
     )
-  
+
 ENDMACRO(VTK_MAKE_INSTANTIATOR3)

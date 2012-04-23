@@ -1,0 +1,16 @@
+vtk_module(vtkFiltersCore
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkCommonSystem
+    vtkCommonMisc
+    vtkCommonTransforms
+    vtkCommonMath
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkIOXML
+    vtkImagingCore
+    vtkFiltersGeneral
+    vtkRenderingOpenGL
+  )

@@ -1,26 +1,26 @@
 #
 # This example creates a polygonal model of a cone, and then rendered it to
 # the screen. It willrotate the cone 360 degrees and then exit. The basic
-# setup of source -> mapper -> actor -> renderer -> renderwindow is 
+# setup of source -> mapper -> actor -> renderer -> renderwindow is
 # typical of most VTK programs.
 #
 
 #
-# Do not forget to add the path to the Wrapping/Tcl directory to your 
-# TCLLIBPATH environment variable. Use forward slash / instead of \ 
-# and quote (") path containing spaces. 
+# Do not forget to add the path to the Wrapping/Tcl directory to your
+# TCLLIBPATH environment variable. Use forward slash / instead of \
+# and quote (") path containing spaces.
 # Also check that the path to your DLL (i.e. your build dir) is also
 # in your PATH environment variable.
-# 
+#
 
 #
-# First we include the Tcl packages which will make available 
+# First we include the Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtkmy
 
 #
-# Next we create an instance of vtkConeSource and set some of its 
+# Next we create an instance of vtkConeSource and set some of its
 # properties
 #
 vtkConeSource cone
@@ -29,9 +29,9 @@ cone SetRadius 1.0
 cone SetResolution 10
 
 #
-# We create an instance of vtkPolyDataMapper to map the polygonal data 
-# into graphics primitives. We connect the output of the cone souece 
-# to the input of this mapper 
+# We create an instance of vtkPolyDataMapper to map the polygonal data
+# into graphics primitives. We connect the output of the cone souece
+# to the input of this mapper
 #
 vtkPolyDataMapper coneMapper
 coneMapper SetInputConnection [cone GetOutputPort]
@@ -49,7 +49,7 @@ coneActor SetMapper coneMapper
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here
 #
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 

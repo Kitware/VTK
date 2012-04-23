@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -20,7 +20,7 @@
 #pragma warning ( disable : 4514 )
 #pragma warning ( disable : 4710 )
 #pragma warning ( push, 3 )
-#endif 
+#endif
 
 #include "DICOMConfig.h"
 #include "DICOMFile.h"
@@ -90,7 +90,7 @@ bool DICOMFile::Open(const dicom_stl::string& filename)
 {
 #ifdef _WIN32
   InputStream.open(filename.c_str(), dicom_stream::ios::binary | dicom_stream::ios::in);
-#else  
+#else
   InputStream.open(filename.c_str(), dicom_stream::ios::in);
 #endif
 
@@ -110,19 +110,19 @@ void DICOMFile::Close()
   InputStream.close();
 }
 
-long DICOMFile::Tell() 
+long DICOMFile::Tell()
 {
   long loc = static_cast<long>(InputStream.tellg());
   // dicom_stream::cout << "Tell: " << loc << dicom_stream::endl;
   return loc;
 }
 
-void DICOMFile::SkipToPos(long increment) 
+void DICOMFile::SkipToPos(long increment)
 {
   InputStream.seekg(increment, dicom_stream::ios::beg);
 }
 
-long DICOMFile::GetSize() 
+long DICOMFile::GetSize()
 {
   long curpos = this->Tell();
 
@@ -135,39 +135,27 @@ long DICOMFile::GetSize()
   return size;
 }
 
-void DICOMFile::Skip(long increment) 
+void DICOMFile::Skip(long increment)
 {
   InputStream.seekg(increment, dicom_stream::ios::cur);
 }
 
-void DICOMFile::SkipToStart() 
+void DICOMFile::SkipToStart()
 {
   InputStream.seekg(0, dicom_stream::ios::beg);
 }
 
-void DICOMFile::Read(void* ptr, long nbytes) 
+void DICOMFile::Read(void* ptr, long nbytes)
 {
   InputStream.read(static_cast<char*>(ptr), nbytes);
   // dicom_stream::cout << (char*) ptr << dicom_stream::endl;
 }
 
-doublebyte DICOMFile::ReadDoubleByte() 
+doublebyte DICOMFile::ReadDoubleByte()
 {
   doublebyte sh = 0;
   int sz = sizeof(doublebyte);
-  this->Read(reinterpret_cast<char*>(&sh),sz); 
-  if (PlatformIsBigEndian) 
-    {
-    sh = swap2(sh);
-    }
-  return(sh);
-}
-
-doublebyte DICOMFile::ReadDoubleByteAsLittleEndian() 
-{
-  doublebyte sh = 0;
-  int sz = sizeof(doublebyte);
-  this->Read(reinterpret_cast<char*>(&sh),sz); 
+  this->Read(reinterpret_cast<char*>(&sh),sz);
   if (PlatformIsBigEndian)
     {
     sh = swap2(sh);
@@ -175,22 +163,34 @@ doublebyte DICOMFile::ReadDoubleByteAsLittleEndian()
   return(sh);
 }
 
-quadbyte DICOMFile::ReadQuadByte() 
+doublebyte DICOMFile::ReadDoubleByteAsLittleEndian()
+{
+  doublebyte sh = 0;
+  int sz = sizeof(doublebyte);
+  this->Read(reinterpret_cast<char*>(&sh),sz);
+  if (PlatformIsBigEndian)
+    {
+    sh = swap2(sh);
+    }
+  return(sh);
+}
+
+quadbyte DICOMFile::ReadQuadByte()
 {
   quadbyte sh;
   int sz = sizeof(quadbyte);
   this->Read(reinterpret_cast<char*>(&sh),sz);
-  if (PlatformIsBigEndian) 
+  if (PlatformIsBigEndian)
     {
     sh = static_cast<quadbyte>(swap4(static_cast<uint>(sh)));
     }
   return(sh);
 }
 
-quadbyte DICOMFile::ReadNBytes(int len) 
+quadbyte DICOMFile::ReadNBytes(int len)
 {
   quadbyte ret = -1;
-  switch (len) 
+  switch (len)
     {
     case 1:
       char ch;
@@ -210,7 +210,7 @@ quadbyte DICOMFile::ReadNBytes(int len)
   return (ret);
 }
 
-float DICOMFile::ReadAsciiFloat(int len) 
+float DICOMFile::ReadAsciiFloat(int len)
 {
   float ret=0.0;
 
@@ -240,7 +240,7 @@ float DICOMFile::ReadAsciiFloat(int len)
   return (ret);
 }
 
-int DICOMFile::ReadAsciiInt(int len) 
+int DICOMFile::ReadAsciiInt(int len)
 {
   int ret=0;
 
@@ -269,7 +269,7 @@ int DICOMFile::ReadAsciiInt(int len)
   return (ret);
 }
 
-char* DICOMFile::ReadAsciiCharArray(int len) 
+char* DICOMFile::ReadAsciiCharArray(int len)
 {
   if (len <= 0)
     {
