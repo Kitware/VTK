@@ -21,7 +21,7 @@ namespace eval ::vtk {
     proc cb_vtkw_motion_binding {vtkw renwin x y} {
         set iren [$renwin GetInteractor]
         $iren SetEventPositionFlipY $x $y
-        $iren MouseMoveEvent 
+        $iren MouseMoveEvent
     }
 
     # Called when a Tk button mouse event is triggered.
@@ -74,14 +74,14 @@ namespace eval ::vtk {
     proc cb_vtkw_configure_binding {vtkw renwin w h} {
         set iren [$renwin GetInteractor]
         $iren UpdateSize $w $h
-        $iren ConfigureEvent 
+        $iren ConfigureEvent
     }
-        
+
     proc cb_vtkw_expose_binding {vtkw renwin x y w h} {
         set iren [$renwin GetInteractor]
         $iren SetEventPositionFlipY $x $y
         $iren SetEventSize $w $h
-        $iren ExposeEvent 
+        $iren ExposeEvent
     }
 
     # Called when a Tk Enter/Leave event is triggered.
@@ -93,7 +93,7 @@ namespace eval ::vtk {
         focus $vtkw
         set iren [$renwin GetInteractor]
         $iren SetEventPositionFlipY $x $y
-        $iren EnterEvent 
+        $iren EnterEvent
     }
 
     proc cb_vtkw_leave_binding {vtkw renwin x y} {
@@ -105,19 +105,19 @@ namespace eval ::vtk {
     # Set the above bindings for a vtkTkRenderWidget widget.
 
     proc create_vtkw_bindings {vtkw renwin} {
-    
+
         global tcl_platform
 
         # Find the render window (which creates it if it was not set).
         # Find the interactor, create a generic one if needed.
 
         if {[$renwin GetInteractor] == ""} {
-            # the duh is critical in the follwing line, it causes 
+            # the duh is critical in the follwing line, it causes
             # vtkTclUtil.cxx to know that the object was created in
             # a Tcl script, otherwise if ${renwin} was a return value
             # from a C++ function it would be called vtkTemp### and
             # the interactor instance would have the same name causeing Tcl
-            # to think it also was a C++ return value. 
+            # to think it also was a C++ return value.
             set iren [vtkGenericRenderWindowInteractor duh_${renwin}_iren]
             $iren SetRenderWindow $renwin
             $iren Initialize
@@ -137,7 +137,7 @@ namespace eval ::vtk {
             "Double-" 0 0 1
             "Double-Control-" 1 0 1
             "Double-Shift-" 0 1 1
-            "Double-Control-Shift-" 1 1 1 
+            "Double-Control-Shift-" 1 1 1
         } {
             foreach event {
                 Press
@@ -156,13 +156,13 @@ namespace eval ::vtk {
                   "::vtk::cb_vtkw_key_binding $vtkw $renwin %x %y $ctrl $shift $event %k %K"
             }
         }
-        
+
         # Wheel motion
         # Only x11 does not understand a mousewheel event
         # [tk windowingsystem] can be x11, win32, classic, aqua
         # Unfortunately this call only appear recently
         # so for now remove it
-        # if {[tk windowingsystem] == "x11"} 
+        # if {[tk windowingsystem] == "x11"}
         if {$tcl_platform(platform) == "unix"} {
             bind $vtkw <Button-4> \
                     "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin 1"
@@ -198,15 +198,15 @@ namespace eval ::vtk {
     # Check if some events are pending, and abort render in that case
 
     proc cb_renwin_abort_check_event {renwin} {
-        if {[$renwin GetEventPending] != 0} {    
-            $renwin SetAbortRender 1        
-        }                                   
+        if {[$renwin GetEventPending] != 0} {
+            $renwin SetAbortRender 1
+        }
     }
 
     # Add the above observers to a vtkRenderWindow
 
     proc add_renwin_observers {renwin} {
-        
+
         # Check for aborting rendering
 
         ::vtk::set_widget_variable_value $renwin AbortCheckEventTag \
@@ -220,7 +220,7 @@ namespace eval ::vtk {
 
     # CreateTimerEvent/DestroyTimerEvent obversers.
     # Handle the creation of a timer event (10 ms)
-    
+
     proc cb_iren_create_timer_event {iren} {
         set timer [after 10 "$iren TimerEvent"]
         ::vtk::set_widget_variable_value $iren CreateTimerEventTimer $timer
@@ -236,7 +236,7 @@ namespace eval ::vtk {
 
     # UserEvent obverser.
     # Popup the vtkInteract widget (simple wish-like console)
-    
+
     proc cb_iren_user_event {} {
         wm deiconify .vtkInteract
     }
@@ -251,9 +251,9 @@ namespace eval ::vtk {
     # each time the ConfigureEvent is triggered. This timer lasts 300 ms. When
     # the ExposeEvent observer is called, it checks if this timer still exists.
     # If it is the case, it implies that the user is configuring/resizing the
-    # window and that an interactive frame rate may be used. If it is not, 
-    # it uses the still update rate to render the scene with full details. 
-    # The timer itself is a call to the ExposeEvent observer, which will 
+    # window and that an interactive frame rate may be used. If it is not,
+    # it uses the still update rate to render the scene with full details.
+    # The timer itself is a call to the ExposeEvent observer, which will
     # finaly render the window using a still update rate.
 
     proc cb_iren_configure_event {iren} {

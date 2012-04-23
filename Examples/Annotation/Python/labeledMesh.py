@@ -109,7 +109,7 @@ renWin.SetSize(500, 500)
 def MoveWindow():
     for y in range(100, 300, 25):
         for x in range(100, 300, 25):
-            PlaceWindow(x, y) 
+            PlaceWindow(x, y)
 
 
 # Create a function to draw the selection window at each location it
@@ -131,7 +131,7 @@ def PlaceWindow(xmin, ymin):
     # (for performance reasons)
     pts.Modified()
     renWin.Render()
- 
+
 
 # Initialize the interactor.
 iren.Initialize()

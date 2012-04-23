@@ -77,7 +77,7 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
     Graphics
     GenericFiltering
     IO)
-  
+
   IF(VTK_USE_RENDERING)
     SET(kits ${kits}
       Rendering
@@ -91,14 +91,14 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
   ENDIF(VTK_USE_PARALLEL)
 
   SET(VTK_CLASSES "\"___list_begins___\"")
-  
+
   MACRO(APPEND_CLASSES varname)
     #SET(VTK_CLASSES ${VTK_CLASSES} ${${varname}})
     FOREACH (class ${${varname}})
       SET(VTK_CLASSES "${VTK_CLASSES},\n\"${class}\"")
     ENDFOREACH (class)
   ENDMACRO(APPEND_CLASSES)
-    
+
   FOREACH(kit ${kits})
     STRING(TOUPPER ${kit} ukit)
     INCLUDE(${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake)
@@ -111,11 +111,11 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
     @ONLY)
 
   ADD_CUSTOM_TARGET(vtktcltest2py_pyc ALL echo "..."
-    DEPENDS 
+    DEPENDS
     ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete
     ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkClassList.py
     )
-    
+
 ENDIF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
 
 

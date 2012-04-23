@@ -4,7 +4,7 @@
 # Typically, one just uses ADD_EXECUTABLE to add an executable target. However
 # on linuxes when rpath is off, and shared libararies are on, to over come the
 # need for setting the LD_LIBRARY_PATH, we use shared-forwarding. This macro
-# makes it easier to employ shared forwarding if needed. 
+# makes it easier to employ shared forwarding if needed.
 # ARGUMENTS:
 # out_real_exe_suffix -- (out) suffix to be added to the exe-target to locate the
 #                     real executable target when shared forwarding is employed.
@@ -34,7 +34,7 @@ FUNCTION (vtk_add_executable_with_forwarding
     )
   endif (NOT DEFINED VTK_INSTALL_LIB_DIR_CM24)
 
-  vtk_add_executable_with_forwarding2(out_var "" "" 
+  vtk_add_executable_with_forwarding2(out_var "" ""
     ${VTK_INSTALL_LIB_DIR_CM24}
     ${exe_name} ${ARGN})
   set (${out_real_exe_suffix} "${out_var}" PARENT_SCOPE)

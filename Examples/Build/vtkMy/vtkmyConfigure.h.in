@@ -1,4 +1,4 @@
-/* 
+/*
  * Here is where system computed values get stored.
  * These values should only change when the target compile platform changes.
  */

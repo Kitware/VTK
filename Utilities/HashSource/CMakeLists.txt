@@ -7,6 +7,8 @@
 #    PURPOSE.  See the above copyright notice for more information.
 #
 
+vtk_module_impl()
+
 # This executable is only run from the build tree so we do not need a
 # launcher for it and should always use the RPATH to find shared libs.
 SET(CMAKE_SKIP_RPATH 0)

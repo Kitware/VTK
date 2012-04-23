@@ -24,28 +24,28 @@
     [super dealloc];
 }
 
-// We are going to over ride the super class here to do some last minute 
+// We are going to over ride the super class here to do some last minute
 // setups. We need to do this because if we initialize in the constructor or
 // even later, in say an NSDocument's windowControllerDidLoadNib, then
 // we will get a warning about "Invalid Drawable" because the OpenGL Context
-// is trying to be set and rendered into an NSView that most likely is not 
+// is trying to be set and rendered into an NSView that most likely is not
 // on screen yet. This is a way to defer that initialization until the NSWindow
 // that contains our NSView subclass is actually on screen and ready to be drawn.
 - (void)drawRect:(NSRect)theRect
 {
     // Check for a valid vtkWindowInteractor and then initialize it. Technically we
-    // do not need to do this, but what happens is that the window that contains 
+    // do not need to do this, but what happens is that the window that contains
     // this object will not immediately render it so you end up with a big empty
-    // space in your gui where this NSView subclass should be. This may or may 
+    // space in your gui where this NSView subclass should be. This may or may
     // not be what is wanted. If you allow this code then what you end up with is the
-    // typical empty black OpenGL view which seems more 'correct' or at least is 
+    // typical empty black OpenGL view which seems more 'correct' or at least is
     // more soothing to the eye.
     vtkRenderWindowInteractor*  theRenWinInt = [self getInteractor];
     if (theRenWinInt && (theRenWinInt->GetInitialized() == NO))
     {
         theRenWinInt->Initialize();
     }
-    
+
     // Let the vtkCocoaGLView do its regular drawing
     [super drawRect:theRect];
 }
@@ -56,21 +56,21 @@
     vtkRenderer*                ren = vtkRenderer::New();
     vtkRenderWindow*            renWin = vtkRenderWindow::New();
     vtkRenderWindowInteractor*  renWinInt = vtkRenderWindowInteractor::New();
-    
+
     // The cast should never fail, but we do it anyway, as
     // it's more correct to do so.
     vtkCocoaRenderWindow*   cocoaRenWin = vtkCocoaRenderWindow::SafeDownCast(renWin);
 
 	if (ren && cocoaRenWin && renWinInt)
 	{
-      // This is special to our usage of vtk.  To prevent vtk 
+      // This is special to our usage of vtk.  To prevent vtk
       // from creating an NSWindow and NSView automatically (its
       // default behaviour) we tell vtk that they exist already.
       // The APIs names are a bit misleading, due to the cross
       // platform nature of vtk, but this usage is correct.
       cocoaRenWin->SetRootWindow([self window]);
       cocoaRenWin->SetWindowId(self);
-    
+
       // The usual vtk connections
       cocoaRenWin->AddRenderer(ren);
       renWinInt->SetRenderWindow(cocoaRenWin);
@@ -79,7 +79,7 @@
       // keeps track of the renderWindow, and has a get
       // accessor if you ever need it.
       [self setVTKRenderWindow:cocoaRenWin];
-    
+
       // Likewise, BasicVTKView keeps track of the renderer
       [self setRenderer:ren];
     }
@@ -102,7 +102,7 @@
     }
     [self setRenderer:NULL];
     [self setVTKRenderWindow:NULL];
-    
+
     // There is no setter accessor for the render window
     // interactor, that's ok.
 }

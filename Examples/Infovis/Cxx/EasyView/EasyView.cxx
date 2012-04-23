@@ -35,7 +35,7 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
-EasyView::EasyView() 
+EasyView::EasyView()
 {
   this->ui = new Ui_EasyView;
   this->ui->setupUi(this);
@@ -46,25 +46,25 @@ EasyView::EasyView()
   this->TableView    = vtkSmartPointer<vtkQtTableView>::New();
   this->ColumnView   = vtkSmartPointer<vtkQtTreeView>::New();
   this->ColumnView->SetUseColumnView(1);
- 
+
   // Tell the table view to sort selections that it receives (but does
   // not initiate) to the top
   this->TableView->SetSortSelectionToTop(true);
 
-  // Set widgets for the tree and table views  
+  // Set widgets for the tree and table views
   this->ui->treeFrame->layout()->addWidget(this->TreeView->GetWidget());
   this->ui->tableFrame->layout()->addWidget(this->TableView->GetWidget());
   this->ui->columnFrame->layout()->addWidget(this->ColumnView->GetWidget());
- 
+
   // Graph View needs to get my render window
   this->GraphView->SetInteractor(this->ui->vtkGraphViewWidget->GetInteractor());
   this->ui->vtkGraphViewWidget->SetRenderWindow(this->GraphView->GetRenderWindow());
-  
+
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();
   this->GraphView->ApplyViewTheme(theme);
   theme->Delete();
-  
+
   // Set up action signals and slots
   connect(this->ui->actionOpenXMLFile, SIGNAL(triggered()), this, SLOT(slotOpenXMLFile()));
   connect(this->ui->actionExit, SIGNAL(triggered()), this, SLOT(slotExit()));
@@ -111,7 +111,7 @@ EasyView::~EasyView()
 
 }
 
-// Action to be taken upon graph file open 
+// Action to be taken upon graph file open
 void EasyView::slotOpenXMLFile()
 {
   // Browse for and open the file
@@ -119,50 +119,50 @@ void EasyView::slotOpenXMLFile()
 
   // Open the text data file
   QString fileName = QFileDialog::getOpenFileName(
-    this, 
-    "Select the text data file", 
+    this,
+    "Select the text data file",
     QDir::homePath(),
     "XML Files (*.xml);;All Files (*.*)");
-    
+
   if (fileName.isNull())
     {
     cerr << "Could not open file" << endl;
     return;
     }
-    
+
   // Create XML reader
   this->XMLReader->SetFileName( fileName.toAscii() );
   this->XMLReader->ReadTagNameOff();
   this->XMLReader->Update();
-    
+
   // Set up some hard coded parameters for the graph view
   this->GraphView->SetVertexLabelArrayName("id");
   this->GraphView->VertexLabelVisibilityOn();
-  this->GraphView->SetVertexColorArrayName("VertexDegree"); 
+  this->GraphView->SetVertexColorArrayName("VertexDegree");
   this->GraphView->ColorVerticesOn();
-  this->GraphView->SetEdgeColorArrayName("edge id"); 
+  this->GraphView->SetEdgeColorArrayName("edge id");
   this->GraphView->ColorEdgesOn();
-   
+
   // Create a tree layout strategy
-  VTK_CREATE(vtkTreeLayoutStrategy, treeStrat); 
+  VTK_CREATE(vtkTreeLayoutStrategy, treeStrat);
   treeStrat->RadialOn();
   treeStrat->SetAngle(360);
   treeStrat->SetLogSpacingValue(1);
   this->GraphView->SetLayoutStrategy(treeStrat);
 
-  
+
   // Set the input to the graph view
   this->GraphView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-  
+
   // Okay now do an explicit reset camera so that
-  // the user doesn't have to move the mouse 
+  // the user doesn't have to move the mouse
   // in the window to see the resulting graph
   this->GraphView->ResetCamera();
-   
+
   // Now hand off tree to the tree view
   this->TreeView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
   this->ColumnView->SetRepresentationFromInputConnection(this->XMLReader->GetOutputPort());
-   
+
   // Extract a table and give to table view
   VTK_CREATE(vtkDataObjectToTable, toTable);
   toTable->SetInputConnection(this->XMLReader->GetOutputPort());

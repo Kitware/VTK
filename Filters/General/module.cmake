@@ -1,0 +1,12 @@
+vtk_module(vtkFiltersGeneral
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonComputationalGeometry
+    vtkFiltersCore
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
+    vtkRenderingAnnotation
+    vtkTestingRendering
+  )

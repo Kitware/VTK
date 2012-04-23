@@ -4,7 +4,7 @@
 // Author: Randi Rost
 //         based on a shader by Bert Freudenberg
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //

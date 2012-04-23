@@ -40,7 +40,7 @@ static int ParseFile(FILE *file, const char *tag, float *data);
 int main( int argc, char *argv[] )
 {
   double bounds[6];
- 
+
   if (argc < 2)
     {
     cout << "Usage: " << argv[0] << " financial_file" << endl;
@@ -154,20 +154,20 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   FILE *file;
   int i, npts;
   char tag[80];
- 
+
   if ( (file = fopen(filename,"r")) == 0 )
     {
     cerr << "ERROR: Can't open file: " << filename << "\n";
     return NULL;
     }
-  
+
   int n = fscanf (file, "%s %d", tag, &npts); // read number of points
   if (n != 2)
     {
     cerr << "ERROR: Can't read file: " << filename << "\n";
     return NULL;
     }
-  
+
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
   float *xV = new float[npts];
@@ -194,7 +194,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
 
   for (i=0; i<npts; i++)
     {
-    xyz[0] = xV[i]; xyz[1] = yV[i]; xyz[2] = zV[i]; 
+    xyz[0] = xV[i]; xyz[1] = yV[i]; xyz[2] = zV[i];
     newPts->InsertPoint(i, xyz);
     newScalars->InsertValue(i, sV[i]);
     }
@@ -222,19 +222,19 @@ static int ParseFile(FILE *file, const char *label, float *data)
   if ( file == NULL || label == NULL ) return 0;
 
   rewind(file);
-  
+
   if (fscanf(file, "%s %d", tag, &npts) != 2)
     {
     cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
     return 0;
     }
-  
+
   while ( !readData && fscanf(file, "%s", tag) == 1 )
     {
     if ( ! strcmp(tag,label) )
       {
       readData = 1;
-      for (i=0; i<npts; i++) 
+      for (i=0; i<npts; i++)
         {
         if (fscanf(file, "%f", data+i) != 1)
           {

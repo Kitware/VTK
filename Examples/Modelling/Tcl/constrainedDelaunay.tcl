@@ -1,4 +1,4 @@
-# This example demonstrates how to use a constraint polygon in Delaunay 
+# This example demonstrates how to use a constraint polygon in Delaunay
 # triangulation.
 #
 package require vtk

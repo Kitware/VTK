@@ -25,8 +25,8 @@ QFilterTreeProxyModel::QFilterTreeProxyModel(QObject* p)
   : QSortFilterProxyModel(p)
 {
   this->TreeLevel = 0;
-} 
-  
+}
+
 QFilterTreeProxyModel::~QFilterTreeProxyModel()
 {
 }
@@ -45,7 +45,7 @@ bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     pidx = pidx.parent();
     level++;
     }
-  
+
   if(level < this->TreeLevel)
     {
     return true;

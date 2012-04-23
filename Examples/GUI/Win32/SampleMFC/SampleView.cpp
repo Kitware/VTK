@@ -65,7 +65,7 @@ CSampleDoc* CSampleView::GetDocument() // non-debug version is inline
 /////////////////////////////////////////////////////////////////////////////
 // CSampleView message handlers
 
-void CSampleView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint) 
+void CSampleView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
   // TODO: Add your specialized code here and/or call the base class
   vtkPropCollection *propc;
@@ -80,6 +80,6 @@ void CSampleView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
     this->Renderer->AddViewProp(prop);
     this->Renderer->ResetCamera();
     }
-  
-  this->vtkMFCRenderView::OnUpdate(pSender, lHint, pHint);      
+
+  this->vtkMFCRenderView::OnUpdate(pSender, lHint, pHint);
 }

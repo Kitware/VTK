@@ -33,7 +33,6 @@
 #include <list>
 #include <set>
 #include <map>
-#include <string>
 
 #include <string.h>
 #include <ctype.h>
@@ -154,7 +153,7 @@ bool Extension::isExtension(char *line)
     }
 
   return false;
-} 
+}
 
 static Extension currentExtension;
 
@@ -366,7 +365,7 @@ Function::Function(char *line) : extensionType(currentExtension.type)
 
   this->arguments = t.GetRemainingString();
 
-#ifdef DEBUG_PARSE  
+#ifdef DEBUG_PARSE
   cerr << "Function arguments: " << this->arguments << endl;
 #endif
 }
@@ -569,8 +568,8 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
             // BCC/VS6/VS70 cannot digest this C99 macro
             hfile << "#if !defined(__BORLANDC__) && (!defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER>=1310))" << endl;
             }
-          
-          
+
+
           hfile << "  const GLenum " << iconst->GetName().c_str()
                 << " = static_cast<GLenum>(" << iconst->GetValue().c_str() << ");" << endl;
 
@@ -606,7 +605,7 @@ static void WriteClassDeclarationGuts(ostream &hfile, int type)
       for (std::list<Function>::iterator ifunc = fExts->second.begin();
            ifunc != fExts->second.end(); ifunc++)
         {
-        hfile << "  extern VTK_RENDERING_EXPORT " << ifunc->GetProcType()
+        hfile << "  extern VTKRENDERINGOPENGL_EXPORT " << ifunc->GetProcType()
               << " " << ifunc->GetName().c_str() << ";" << endl;
         }
       }
@@ -640,7 +639,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   // Write data for header file ---------------------------------
   hfile << "#ifndef __vtkgl_h" << endl
         << "#define __vtkgl_h" << endl << endl;
-  hfile << "#include \"vtkToolkits.h\"" << endl;
+  hfile << "#include \"vtkRenderingOpenGLConfigure.h\"" << endl;
   hfile << "#include \"vtkSystemIncludes.h\"" << endl;
   hfile << "#include \"vtkWindows.h\"" << endl;
   hfile << "#include \"vtkOpenGL.h\"" << endl;
@@ -687,7 +686,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << "  typedef int64_t GLint64;" << endl;
   hfile << "  typedef uint64_t GLuint64;" << endl;
   hfile << "  typedef struct __GLsync *GLsync;" << endl;
-  
+
   ConstantsAlreadyWritten.clear();
   WriteClassDeclarationGuts(hfile, Extension::GL);
   hfile << endl << "  // Method to load functions for a particular extension.";

@@ -91,7 +91,7 @@ public:
   const_iterator begin( bool only_leaves = true ) const { return const_iterator( _M_root, _M_root, only_leaves ); }
   const_iterator end( bool only_leaves = true ) const { return const_iterator( _M_root, 0, only_leaves ); }
   //@}
-  
+
   octree_node_pointer root() { return this->_M_root; }
 
   size_t size( bool only_leaves = false );

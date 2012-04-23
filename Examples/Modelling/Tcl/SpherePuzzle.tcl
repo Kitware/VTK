@@ -1,5 +1,5 @@
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
@@ -20,7 +20,7 @@ wm protocol .top WM_DELETE_WINDOW ::vtk::cb_exit
 #
 # Create some frames
 #
-frame .top.f1 
+frame .top.f1
 frame .top.f2
 
 pack .top.f1 \

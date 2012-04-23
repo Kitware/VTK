@@ -15,7 +15,7 @@
 //
 // This example shows how to add an observer to a C++ program. It extends
 // the Step1/Cxx/Cone.cxx C++ example (see that example for information on
-// the basic setup). 
+// the basic setup).
 //
 // VTK uses a command/observer design pattern. That is, observers watch for
 // particular events that any vtkObject (or subclass) may invoke on
@@ -37,7 +37,7 @@
 class vtkMyCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New() 
+  static vtkMyCallback *New()
     { return new vtkMyCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
@@ -77,7 +77,7 @@ int main()
   vtkMyCallback *mo1 = vtkMyCallback::New();
   ren1->AddObserver(vtkCommand::StartEvent,mo1);
   mo1->Delete();
-  
+
   //
   // now we loop over 360 degrees and render the cone each time
   //
@@ -89,7 +89,7 @@ int main()
     // rotate the active camera by one degree
     ren1->GetActiveCamera()->Azimuth( 1 );
     }
-  
+
   //
   // Free up any objects we created
   //

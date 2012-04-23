@@ -1,7 +1,7 @@
 //
 // This example introduces the concepts of user interaction with VTK.
 // First, a different interaction style (than the default) is defined.
-// Second, the interaction is started. 
+// Second, the interaction is started.
 //
 //
 
@@ -12,18 +12,18 @@ import vtk.*;
 public class Cone5 {
   // in the static contructor we load in the native code
   // The libraries must be in your path to work
-  static { 
-    System.loadLibrary("vtkCommonJava"); 
-    System.loadLibrary("vtkFilteringJava"); 
-    System.loadLibrary("vtkIOJava"); 
-    System.loadLibrary("vtkImagingJava"); 
-    System.loadLibrary("vtkGraphicsJava"); 
-    System.loadLibrary("vtkRenderingJava"); 
+  static {
+    System.loadLibrary("vtkCommonJava");
+    System.loadLibrary("vtkFilteringJava");
+    System.loadLibrary("vtkIOJava");
+    System.loadLibrary("vtkImagingJava");
+    System.loadLibrary("vtkGraphicsJava");
+    System.loadLibrary("vtkRenderingJava");
   }
 
   // now the main program
   public static void main (String []args) throws Exception {
-    // 
+    //
     // Next we create an instance of vtkConeSource and set some of its
     // properties. The instance of vtkConeSource "cone" is part of a
     // visualization pipeline (it is a source process object); it produces
@@ -33,8 +33,8 @@ public class Cone5 {
     cone.SetHeight( 3.0 );
     cone.SetRadius( 1.0 );
     cone.SetResolution( 10 );
-    
-    // 
+
+    //
     // In this example we terminate the pipeline with a mapper process object.
     // (Intermediate filters such as vtkShrinkPolyData could be inserted in
     // between the source and the mapper.)  We create an instance of
@@ -43,8 +43,8 @@ public class Cone5 {
     //
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
     coneMapper.SetInputConnection(cone.GetOutputPort());
-    
-    // 
+
+    //
     // Create an actor to represent the cone. The actor orchestrates rendering of
     // the mapper's graphics primitives. An actor also refers to properties via a
     // vtkProperty instance, and includes an internal transformation matrix. We
@@ -62,7 +62,7 @@ public class Cone5 {
     vtkRenderer ren1 = new vtkRenderer();
     ren1.AddActor(coneActor);
     ren1.SetBackground(0.1, 0.2, 0.4);
-    
+
     //
     // Finally we create the render window which will show up on the screen.
     // We add our two renderers into the render window using AddRenderer. We also
@@ -71,14 +71,14 @@ public class Cone5 {
     vtkRenderWindow renWin = new vtkRenderWindow();
     renWin.AddRenderer( ren1 );
     renWin.SetSize(300, 300);
-    
+
     //
     // Make one camera view 90 degrees from other.
     //
     ren1.ResetCamera();
     ren1.GetActiveCamera().Azimuth(90);
-    
-    // 
+
+    //
     // The vtkRenderWindowInteractor class watches for events (e.g., keypress,
     // mouse) in the vtkRenderWindow. These events are translated into event
     // invocations that VTK understands (see VTK/Common/vtkCommand.h for all
@@ -91,9 +91,9 @@ public class Cone5 {
     // By default the vtkRenderWindowInteractor instantiates an instance
     // of vtkInteractorStyle. vtkInteractorStyle translates a set of events
     // it observes into operations on the camera, actors, and/or properties
-    // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
+    // in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
     // Here we specify a particular interactor style.
-    vtkInteractorStyleTrackballCamera style = 
+    vtkInteractorStyleTrackballCamera style =
         new vtkInteractorStyleTrackballCamera();
     iren.SetInteractorStyle(style);
 
@@ -103,7 +103,7 @@ public class Cone5 {
     // and keyboard to perform the operations on the scene according to the
     // current interaction style.
     //
-    
+
     //
     // Initialize and start the event loop. Once the render window appears,
     // mouse in the window to move the camera. The Start() method executes

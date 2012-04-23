@@ -40,6 +40,7 @@
 #ifndef VTK_EVENT_QT_SLOT_CONNECT
 #define VTK_EVENT_QT_SLOT_CONNECT
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines
 #include "QVTKWin32Header.h"  // for export define
@@ -50,33 +51,33 @@ class vtkQtConnections;
 class vtkQtConnection;
 
 // manage connections between VTK object events and Qt slots
-class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
+class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
 {
   public:
     static vtkEventQtSlotConnect* New();
     vtkTypeMacro(vtkEventQtSlotConnect, vtkObject)
-    
+
     // Description:
     // Print the current connections between VTK and Qt
     void PrintSelf(ostream& os, vtkIndent indent);
-    
+
     // Description:
     // Connect a vtk object's event with a Qt object's slot.  Multiple
     // connections which are identical are treated as separate connections.
-    virtual void Connect(vtkObject* vtk_obj, unsigned long event, 
-                         const QObject* qt_obj, const char* slot, 
+    virtual void Connect(vtkObject* vtk_obj, unsigned long event,
+                         const QObject* qt_obj, const char* slot,
                          void* client_data=NULL, float priority=0.0
                          ,Qt::ConnectionType type = Qt::AutoConnection);
-    
+
     // Description:
     // Disconnect a vtk object from a qt object.
     // Passing no arguments will disconnect all slots maintained by this object.
     // Passing in only a vtk object will disconnect all slots from it.
-    // Passing only a vtk object and event, will disconnect all slots matching 
+    // Passing only a vtk object and event, will disconnect all slots matching
     // the vtk object and event.
     // Passing all information in will match all information.
     virtual void Disconnect(
-      vtkObject* vtk_obj=NULL, unsigned long event=vtkCommand::NoEvent, 
+      vtkObject* vtk_obj=NULL, unsigned long event=vtkCommand::NoEvent,
       const QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
 
     // Description:
@@ -88,7 +89,7 @@ class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
     vtkQtConnections* Connections;
     friend class vtkQtConnection;
     void RemoveConnection(vtkQtConnection*);
-  
+
     vtkEventQtSlotConnect();
     ~vtkEventQtSlotConnect();
 

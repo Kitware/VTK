@@ -7,7 +7,7 @@ namespace eval ::vtk {
 
     # Create a 2d text actor that can be used to display infos
     # like window/level, pixel picking, etc
-    
+
     proc cb_vtkiw_create_text1 {vtkiw} {
         set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]
         if {$mapper == ""} {
@@ -35,7 +35,7 @@ namespace eval ::vtk {
 
     # Show/Hide the 2d text actor
     # Ensure that it stays in the upper left corner of the window
-    
+
     proc cb_vtkiw_show_text1 {vtkiw} {
         set actor [::vtk::get_widget_variable_value $vtkiw text1_actor]
         if {![$actor GetVisibility]} {
@@ -88,7 +88,7 @@ namespace eval ::vtk {
 
     # RightButtonPressEvent observer.
     # Invert the 'shift' key. The usual vtkInteractorStyleImage
-    # behaviour is to enable picking mode with "Shift+Right button", 
+    # behaviour is to enable picking mode with "Shift+Right button",
     # whereas we want picking mode to be "Right button" (for backward
     # compatibility).
 
@@ -208,7 +208,7 @@ namespace eval ::vtk {
         ::vtk::set_widget_variable_value $istyle EndPickEventTag \
                 [$istyle AddObserver EndPickEvent \
                 "::vtk::cb_istyleimg_end_pick_event $istyle $vtkiw"]
-        
+
         ::vtk::set_widget_variable_value $istyle PickEventTag \
                 [$istyle AddObserver PickEvent \
                 "::vtk::cb_istyleimg_pick_event $istyle $vtkiw"]

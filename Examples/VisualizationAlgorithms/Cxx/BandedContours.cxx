@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
     }
 
   // Read the file
-  vtkSmartPointer<vtkXMLPolyDataReader> reader = 
+  vtkSmartPointer<vtkXMLPolyDataReader> reader =
     vtkSmartPointer<vtkXMLPolyDataReader>::New();
 
   reader->SetFileName( argv[1] );
@@ -56,7 +56,7 @@ int main (int argc, char *argv[])
   contourMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourMapper->SetScalarModeToUseCellData();
   contourMapper->SetLookupTable(lut);
- 
+
   vtkSmartPointer<vtkActor> contourActor =
     vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
@@ -64,7 +64,7 @@ int main (int argc, char *argv[])
 
   vtkSmartPointer<vtkPolyDataMapper> contourLineMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
- 
+
   contourLineMapper->SetInputData(bandedContours->GetContourEdgesOutput());
   contourLineMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourLineMapper->ScalarVisibilityOff();

@@ -30,8 +30,8 @@ set maxTime [expr 35.0 * $length / $maxVelocity]
 # the streamer. The start position is the position in world space where
 # we want to begin streamline integration; and we integrate in both
 # directions. The step length is the length of the line segments that
-# make up the streamline (i.e., related to display). The 
-# IntegrationStepLength specifies the integration step length as a 
+# make up the streamline (i.e., related to display). The
+# IntegrationStepLength specifies the integration step length as a
 # fraction of the cell size that the streamline is in.
 vtkRungeKutta4 integ
 vtkStreamTracer streamer
@@ -296,7 +296,7 @@ vtkCamera aCamera
     aCamera SetFocalPoint 2.43584 2.15046 1.11104
     aCamera SetPosition -4.76183 -10.4426 3.17203
     aCamera SetViewUp 0.0511273 0.132773 0.989827
-    aCamera SetViewAngle 18.604; 
+    aCamera SetViewAngle 18.604;
     aCamera Zoom 1.2
 
 ren1 SetActiveCamera aCamera

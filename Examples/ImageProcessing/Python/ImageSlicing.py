@@ -117,7 +117,7 @@ def MouseMoveCallback(obj, event):
         window.Render()
     else:
         interactorStyle.OnMouseMove()
-        
+
 
 interactorStyle.AddObserver("MouseMoveEvent", MouseMoveCallback)
 interactorStyle.AddObserver("LeftButtonPressEvent", ButtonCallback)

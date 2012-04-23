@@ -9,30 +9,30 @@ from vtk import *
 import math
 
 if __name__ == "__main__":
-      
+
   # Create an instance of the Matlab Engine.  Note, menginterface is not a VTK pipeline object.
   menginterface = vtkMatlabEngineInterface()
-  
+
   # Create two arrays of doubles in VTK.  y contains sin(x)^2
   x = vtkDoubleArray()
   y = vtkDoubleArray()
   for d in range(0, 100):
     x.InsertNextValue(d);
     y.InsertNextValue(math.sin(d)**2)
-  
+
   # Copy the x and y to Matlab with the same variable names
   menginterface.PutVtkDataArray("x", x)
   menginterface.PutVtkDataArray("y", y)
-    
+
   # Calculate cos(x)^2 + sin(x)^2 = 1 in Matlab.
   menginterface.EvalString("y = y + cos(x).^2")
-  
+
   # Copy y back to VTK as variable result
   result = menginterface.GetVtkDataArray("y")
-    
+
   # Display contents of result, should be all ones.
   print "\n\nContents of result array copied to VTK from Matlab\n\n"
   for i in range(result.GetNumberOfTuples()):
     t = result.GetTuple1(i)
     print'result[%d] = %6.4f' % (i,t)
-  
+

@@ -1,6 +1,6 @@
 /*
    This program accepts one argument which must be one of the following:
-   
+
    PATH_SEP    return the path separator for the platform
    PATH_SLASH  return the directory separator
    LDD         return the name of the "ldd" equivalent for the platform
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
           argv[0]);
   fprintf(stdout, "  LDPATH      \"%s\"\n", CMAKE_SHARED_LDPATH);
   fprintf(stdout, "  PATH_SEP    \"%s\"\n", CMAKE_SHARED_PATH_SEP);
-  fprintf(stdout, "  PATH_SLASH  \"%s\"\n", CMAKE_SHARED_PATH_SLASH); 
+  fprintf(stdout, "  PATH_SLASH  \"%s\"\n", CMAKE_SHARED_PATH_SLASH);
   fprintf(stdout, "  LDD         \"%s\"\n", CMAKE_SHARED_LDD);
   fprintf(stdout, "  LDD_FLAGS   \"%s\"\n", CMAKE_SHARED_LDD_FLAGS);
   fprintf(stdout, "\n");
@@ -160,4 +160,4 @@ int main(int argc, char *argv[])
   return 1;
 }
 
-                       
+

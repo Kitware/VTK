@@ -5,12 +5,12 @@
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the VTK commands to Tcl.
 #
 package require vtk
 
-# 
+#
 # Next we create an instance of vtkConeSource and set some of its
 # properties. The instance of vtkConeSource "cone" is part of a visualization
 # pipeline (it is a source process object); it produces data (output type is
@@ -21,7 +21,7 @@ cone SetHeight 3.0
 cone SetRadius 1.0
 cone SetResolution 10
 
-# 
+#
 # In this example we terminate the pipeline with a mapper process object.
 # (Intermediate filters such as vtkShrinkPolyData could be inserted in
 # between the source and the mapper.)  We create an instance of
@@ -31,7 +31,7 @@ cone SetResolution 10
 vtkPolyDataMapper coneMapper
 coneMapper SetInputConnection [cone GetOutputPort]
 
-# 
+#
 # Create an actor to represent the cone. The actor orchestrates rendering of
 # the mapper's graphics primitives. An actor also refers to properties via a
 # vtkProperty instance, and includes an internal transformation matrix. We
@@ -40,7 +40,7 @@ coneMapper SetInputConnection [cone GetOutputPort]
 vtkActor coneActor
 coneActor SetMapper coneMapper
 
-# 
+#
 # Create two renderers and assign actors to them. A renderer renders into a
 # viewport within the vtkRenderWindow. It is part or all of a window on the
 # screen and it is responsible for drawing the actors it has.  We also set
@@ -48,12 +48,12 @@ coneActor SetMapper coneMapper
 # to two different renderers; it is okay to add different actors to
 # different renderers as well.
 #
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 ren1 SetViewport 0.0 0.0 0.5 1.0
 
-vtkRenderer ren2 
+vtkRenderer ren2
 ren2 AddActor coneActor
 ren2 SetBackground 0.1 0.2 0.4
 ren2 SetViewport 0.5 0.0 1.0 1.0

@@ -13,7 +13,7 @@ struct vertout
   float4 Color    : COLOR0;
 };
 
-vertout main(vertin IN, 
+vertout main(vertin IN,
   uniform float4x4 ModelViewProj,
   uniform float4x4 ModelViewIT,
   uniform float Rate,
@@ -55,7 +55,7 @@ vertout main(vertin IN,
 
     usedPosition = twistedPosition;
 
-    float3 twistedNormal; 
+    float3 twistedNormal;
     twistedNormal[0] = cos(angle*rate) * inNormal[0] + sin(angle*rate) * inNormal[1];
     twistedNormal[1] = -sin(angle*rate) * inNormal[0] + cos(angle*rate)* inNormal[1];
     twistedNormal[2] = inNormal[2];

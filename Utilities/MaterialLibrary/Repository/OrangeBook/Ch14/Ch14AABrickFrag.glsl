@@ -4,7 +4,7 @@
 // Authors: Dave Baldwin, Randi Rost
 //          based on a shader by Darwyn Peachey
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
@@ -23,7 +23,7 @@ void main(void)
 {
     vec2 position, fw, useBrick;
     vec3 color;
- 
+
     // Determine position within the brick pattern
     position = MCposition / BrickSize;
 
@@ -33,10 +33,10 @@ void main(void)
 
     // Calculate filter size
     fw = fwidth(position);
-  
+
     // Perform filtering by integrating the 2D pulse made by the
     // brick pattern over the filter width and height
-    useBrick = (Integral(position + fw, BrickPct, MortarPct) - 
+    useBrick = (Integral(position + fw, BrickPct, MortarPct) -
                 Integral(position, BrickPct, MortarPct)) / fw;
 
     // Determine final color

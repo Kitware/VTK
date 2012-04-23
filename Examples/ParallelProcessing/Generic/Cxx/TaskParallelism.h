@@ -42,10 +42,10 @@ typedef vtkPolyDataMapper* (*taskFunction)(vtkRenderWindow* renWin,
 vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,vtkCamera* cam);
 vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,vtkCamera* cam);
 
-  
+
 static const double EXTENT = 20;
 
-static const int WINDOW_WIDTH = 400; 
-static const int WINDOW_HEIGHT = 300; 
+static const int WINDOW_WIDTH = 400;
+static const int WINDOW_HEIGHT = 300;
 
 #endif

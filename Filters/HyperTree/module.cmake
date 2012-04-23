@@ -1,0 +1,9 @@
+vtk_module(vtkFiltersHyperTree
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkFiltersGeneral
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkTestingRendering
+  )

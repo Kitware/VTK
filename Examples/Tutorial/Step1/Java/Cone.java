@@ -1,7 +1,7 @@
 //
 // This example creates a polygonal model of a cone, and then renders it to
 // the screen. It will rotate the cone 360 degrees and then exit. The basic
-// setup of source -> mapper -> actor -> renderer -> renderwindow is 
+// setup of source -> mapper -> actor -> renderer -> renderwindow is
 // typical of most VTK programs.
 //
 
@@ -13,18 +13,18 @@ public class Cone {
 
   // In the static contructor we load in the native code.
   // The libraries must be in your path to work.
-  static { 
-    System.loadLibrary("vtkCommonJava"); 
-    System.loadLibrary("vtkFilteringJava"); 
-    System.loadLibrary("vtkIOJava"); 
-    System.loadLibrary("vtkImagingJava"); 
-    System.loadLibrary("vtkGraphicsJava"); 
-    System.loadLibrary("vtkRenderingJava"); 
+  static {
+    System.loadLibrary("vtkCommonJava");
+    System.loadLibrary("vtkFilteringJava");
+    System.loadLibrary("vtkIOJava");
+    System.loadLibrary("vtkImagingJava");
+    System.loadLibrary("vtkGraphicsJava");
+    System.loadLibrary("vtkRenderingJava");
   }
 
   // now the main program
   public static void main (String []args) {
-    // 
+    //
     // Next we create an instance of vtkConeSource and set some of its
     // properties. The instance of vtkConeSource "cone" is part of a
     // visualization pipeline (it is a source process object); it produces data
@@ -34,8 +34,8 @@ public class Cone {
     cone.SetHeight( 3.0 );
     cone.SetRadius( 1.0 );
     cone.SetResolution( 10 );
-  
-    // 
+
+    //
     // In this example we terminate the pipeline with a mapper process object.
     // (Intermediate filters such as vtkShrinkPolyData could be inserted in
     // between the source and the mapper.)  We create an instance of
@@ -45,7 +45,7 @@ public class Cone {
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
     coneMapper.SetInputConnection( cone.GetOutputPort() );
 
-    // 
+    //
     // Create an actor to represent the cone. The actor orchestrates rendering
     // of the mapper's graphics primitives. An actor also refers to properties
     // via a vtkProperty instance, and includes an internal transformation
@@ -73,7 +73,7 @@ public class Cone {
     vtkRenderWindow renWin = new vtkRenderWindow();
     renWin.AddRenderer( ren1 );
     renWin.SetSize( 300, 300 );
-    
+
     //
     // now we loop over 360 degreeees and render the cone each time
     //
@@ -85,7 +85,7 @@ public class Cone {
       // rotate the active camera by one degree
       ren1.GetActiveCamera().Azimuth( 1 );
       }
-  
-    } 
+
+    }
 }
 

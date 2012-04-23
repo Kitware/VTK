@@ -12,22 +12,22 @@ AttributeChanges.pdf:
  It focuses on the removal of vtkAttributeData and it's subclasses
  (vtkScalars, vtkVectors, vtkNormals, vtkTCoords, vtkTensors).
 
-DiagAttribute.pl : 
- This script tries to find deprecated attribute data classes and 
+DiagAttribute.pl :
+ This script tries to find deprecated attribute data classes and
  methods and warns the user whenever it finds them. It also suggests
  possible modification to bring code up to date.
 
 UpgradeFrom32.pl:
- This script tries to find deprecated classes and methods and replace 
- them with new classes/methods. Please note that it can not fix all 
- possible problems. However, it should be relatively easy to trace 
+ This script tries to find deprecated classes and methods and replace
+ them with new classes/methods. Please note that it can not fix all
+ possible problems. However, it should be relatively easy to trace
  those problems from compilation errors.
 
 
-Here is the related entry from VTK FAQ at 
+Here is the related entry from VTK FAQ at
 http://public.kitware.com/cgi-bin/vtkfaq :
 
-6.7. Changes in VTK since 3.2 
+6.7. Changes in VTK since 3.2
 
 * Changes to vtkDataSetAttributes, vtkFieldData and vtkDataArray: All attributes (scalars, vectors...) are now stored in the field data as vtkDataArray's. vtkDataSetAttributes became a sub-class of vtkFieldData. For backwards compatibility, the interface which allows setting/getting the attributes the old way (by passing in a sub-class of vtkAttributeData such as vtkScalars) is still supported but it will be removed in the future. Therefore, the developers should use the new interface which requires passing in a vtkDataArray to set an attribute. vtkAttributeData and it's sub-classes (vtkScalars, vtkVectors...) will be deprectated in the near future; developers should use vtkDataArray and it's sub-classes instead. We are in the process of removing the use of these classes from vtk filters.
 

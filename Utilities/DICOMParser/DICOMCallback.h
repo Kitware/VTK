@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -26,18 +26,18 @@
 #pragma warning ( disable : 4710 )
 #pragma warning ( disable : 4702 )
 #pragma warning ( push, 3 )
-#endif 
+#endif
 
 #include "DICOMConfig.h"
 #include "DICOMParser.h"
 
 //
 // Pure virtual class that specifies the interface
-// for a DICOMCallback.  
+// for a DICOMCallback.
 //
-// The DICOMParser allows a vector of callbacks to 
-// be specified for each group element tag.  When 
-// a group, element with a registered callback is 
+// The DICOMParser allows a vector of callbacks to
+// be specified for each group element tag.  When
+// a group, element with a registered callback is
 // encountered, the callback is called and passed
 // the group, element, type, data, and data length.
 //
@@ -69,18 +69,18 @@ class DICOMMemberCallback : public DICOMCallback
                                              unsigned char* val,
                                              quadbyte len);
 
-        
+
   //
   // Method to set the object and member function pointers
   // that will be called in the callback.
   //
-  void SetCallbackFunction(T* object,  
+  void SetCallbackFunction(T* object,
                            TMemberFunctionPointer memberFunction)
   {
     ObjectThis = object;
     MemberFunction = memberFunction;
   }
- 
+
   //
   // Execute method implementation from DICOMCallback.
   //

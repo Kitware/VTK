@@ -1,5 +1,5 @@
 package require vtk
-package require vtkinteraction 
+package require vtkinteraction
 
 # Demonstrate how to use vtkAngleWidget to measure angles and distances between
 # points.
@@ -10,9 +10,9 @@ package require vtkinteraction
 vtkTIFFReader reader
   reader SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 
-# "beach.tif" image contains ORIENTATION tag which is 
-# ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF 
-# reader parses this tag and sets the internal TIFF image 
+# "beach.tif" image contains ORIENTATION tag which is
+# ORIENTATION_TOPLEFT (row 0 top, col 0 lhs) type. The TIFF
+# reader parses this tag and sets the internal TIFF image
 # orientation accordingly.  To overwrite this orientation with a vtk
 # convention of ORIENTATION_BOTLEFT (row 0 bottom, col 0 lhs ), invoke
 # SetOrientationType method with parameter value of 4.

@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
     }
 
   // Create the renderer, the render window, and the interactor. The renderer
-  // draws into the render window, the interactor enables mouse- and 
+  // draws into the render window, the interactor enables mouse- and
   // keyboard-based interaction with the data within the render window.
   //
   vtkSmartPointer<vtkRenderer> aRenderer =
@@ -132,7 +132,7 @@ int main (int argc, char *argv[])
 
   // Note that when camera movement occurs (as it does in the Dolly()
   // method), the clipping planes often need adjusting. Clipping planes
-  // consist of two planes: near and far along the view direction. The 
+  // consist of two planes: near and far along the view direction. The
   // near plane clips out objects in front of the plane; the far plane
   // clips out objects behind the plane. This way only what is drawn
   // between the planes is actually rendered.

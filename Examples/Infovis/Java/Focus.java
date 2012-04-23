@@ -29,7 +29,7 @@ public class Focus extends JFrame {
   private vtkRenderWindowPanel focusPanel = new vtkRenderWindowPanel();
   private vtkRenderedGraphRepresentation mainRep = new vtkRenderedGraphRepresentation();
   private vtkRenderedGraphRepresentation focusRep = new vtkRenderedGraphRepresentation();
-  
+
   private vtkDelimitedTextReader reader = new vtkDelimitedTextReader();
   private vtkTableToGraph tableToGraph = new vtkTableToGraph();
   private vtkBoostBreadthFirstSearch mainBFS = new vtkBoostBreadthFirstSearch();

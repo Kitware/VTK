@@ -185,12 +185,12 @@ int CvtkMDIView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   return 0;
 }
 
-BOOL CvtkMDIView::OnEraseBkgnd(CDC*) 
+BOOL CvtkMDIView::OnEraseBkgnd(CDC*)
 {
   return TRUE;
 }
 
-void CvtkMDIView::OnSize(UINT nType, int cx, int cy) 
+void CvtkMDIView::OnSize(UINT nType, int cx, int cy)
 {
   CView::OnSize(nType, cx, cy);
 

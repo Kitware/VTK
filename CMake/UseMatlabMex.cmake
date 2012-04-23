@@ -1,6 +1,6 @@
 
 # This module is used for compiling with the Matlab mex interface to external C and C++
-# code into Matlab as a Matlab function. 
+# code into Matlab as a Matlab function.
 # Defines the following:
 #  ADD_MATLAB_MEX_FILE(mexfilename <source files>)
 #  Creates a Matlab mex file named <mexfilename> from the given source files
@@ -54,21 +54,21 @@ ELSE(UNIX)
    SET(MEX_DEFINES "MATLAB_MEX_FILE")
    SET(MEX_RPATH "")
    SET(MEX_LDFLAGS "/MAP /export:mexFunction")
-   SET(MEX_FILE_SUFFIX ".mexw32")  
+   SET(MEX_FILE_SUFFIX ".mexw32")
   ELSE(CMAKE_SIZEOF_VOID_P EQUAL 4) # 64 bit
    SET(MEX_CXX_FLAGS "")
    SET(MEX_DEFINES "MATLAB_MEX_FILE")
    SET(MEX_RPATH "")
    SET(MEX_LDFLAGS "/MAP /export:mexFunction")
-   SET(MEX_FILE_SUFFIX ".mexw64")  
+   SET(MEX_FILE_SUFFIX ".mexw64")
   ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 4)
 ENDIF(UNIX)
 
 MACRO(ADD_MATLAB_MEX_FILE mexfilename)
   ADD_LIBRARY(${mexfilename} SHARED ${ARGN} ${MEX_VER_FILE})
   TARGET_LINK_LIBRARIES(${mexfilename} ${MEX_LIBRARIES} vtksnlInfovisMatlabEngine)
-  SET_TARGET_PROPERTIES(${mexfilename} PROPERTIES 
-                        PREFIX "" 
+  SET_TARGET_PROPERTIES(${mexfilename} PROPERTIES
+                        PREFIX ""
                         SUFFIX "${MEX_FILE_SUFFIX}"
                         COMPILE_FLAGS "${MEX_CXX_FLAGS}"
                         DEFINE_SYMBOL "${MEX_DEFINES} ${DEFINE_SYMBOL}"
