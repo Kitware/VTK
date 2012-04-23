@@ -46,7 +46,7 @@ ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display of if they need args
 IF(NOT VTK_USE_DISPLAY)
-  REMOVE(MyTests
+  list(REMOVE_ITEM MyTests
     TestAxisActor3D.cxx
     TestBarChartActor.cxx
     TestLegendScaleActor.cxx
@@ -68,7 +68,7 @@ INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid vtkRendering vtkImaging vtkIO )
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx TestPolyDataSilhouette.cxx TestImageStencilData.cxx)
+LIST( REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx TestPolyDataSilhouette.cxx TestImageStencilData.cxx)
 
 #
 # Add all the executables

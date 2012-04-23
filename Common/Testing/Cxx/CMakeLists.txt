@@ -40,7 +40,7 @@ ADD_EXECUTABLE(${KIT}CxxTests ${Tests} vtkTestNewVar.cxx)
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCommon)
 
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+LIST (REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx)
 
 # Configure a header needed by SystemInformation.
 CONFIGURE_FILE("${VTK_SOURCE_DIR}/Common/Testing/Cxx/SystemInformation.h.in"
@@ -107,7 +107,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
   TARGET_LINK_LIBRARIES(ArrayCxxTests vtkCommon)
 
   SET(ArrayTestsToRun ${ArrayTests})
-  REMOVE(ArrayTestsToRun ArrayCxxTests.cxx)
+  LIST(REMOVE_ITEM ArrayTestsToRun ArrayCxxTests.cxx)
 
   FOREACH(test ${ArrayTestsToRun})
     GET_FILENAME_COMPONENT(TName ${test} NAME_WE)

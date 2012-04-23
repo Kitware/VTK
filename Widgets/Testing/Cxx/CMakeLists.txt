@@ -115,7 +115,7 @@ INCLUDE(${VTK_SOURCE_DIR}/Rendering/vtkTestingObjectFactory.cmake)
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkWidgets)
 SET (TestsToRun ${Tests})
-REMOVE( TestsToRun
+LIST(REMOVE_ITEM TestsToRun
    ${KIT}CxxTests.cxx
    TestHandleWidget.cxx
    TerrainPolylineEditor.cxx

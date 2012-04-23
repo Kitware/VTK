@@ -26,7 +26,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests} QTestApp.cxx)
 TARGET_LINK_LIBRARIES(${KIT}CxxTests QVTK)
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+LIST (REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx)
 
 #
 # Add all the executables

@@ -170,7 +170,7 @@ IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
 ENDIF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
 
 SET (TestsToRun ${Tests})
-REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+LIST (REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx)
 
 #
 # Add all the executables

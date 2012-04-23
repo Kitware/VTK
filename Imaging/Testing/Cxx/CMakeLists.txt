@@ -18,7 +18,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
   SET (TestsToRun ${Tests})
-  REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+  LIST (REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx)
 
   #
   # Add all the executables

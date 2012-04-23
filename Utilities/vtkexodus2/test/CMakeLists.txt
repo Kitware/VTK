@@ -24,7 +24,7 @@ ADD_EXECUTABLE( ExoIICTests ${ExoIICTests} )
 TARGET_LINK_LIBRARIES( ExoIICTests vtkCommon vtkexoIIc vtkNetCDF )
 
 SET( TestsToRun ${ExoIICTests} )
-REMOVE( TestsToRun ExoIICTests.cxx )
+LIST( REMOVE_ITEM TestsToRun ExoIICTests.cxx )
 
 FOREACH( test ${TestsToRun} )
   GET_FILENAME_COMPONENT(TName ${test} NAME_WE)

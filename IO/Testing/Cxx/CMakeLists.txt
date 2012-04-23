@@ -258,7 +258,7 @@ IF(VTK_USE_N_WAY_ARRAYS)
   TARGET_LINK_LIBRARIES(ArrayIOCxxTests vtkIO vtkGraphics)
 
   SET(ArrayTestsToRun ${ArrayIOTests})
-  REMOVE(ArrayTestsToRun ArrayIOCxxTests.cxx)
+  LIST(REMOVE_ITEM ArrayTestsToRun ArrayIOCxxTests.cxx)
 
   FOREACH(test ${ArrayTestsToRun})
     GET_FILENAME_COMPONENT(TName ${test} NAME_WE)

@@ -34,7 +34,7 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ExerciseMultiProcessController.cxx)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO vtkParallel vtkHybrid)
   SET (TestsToRun ${Tests})
-  REMOVE (TestsToRun ${KIT}CxxTests.cxx TestWindBladeReader.cxx)
+  LIST (REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx TestWindBladeReader.cxx)
 
   # Add all the standard tests
   FOREACH (test ${TestsToRun})
