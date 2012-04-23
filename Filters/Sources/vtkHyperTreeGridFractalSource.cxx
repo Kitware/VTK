@@ -38,6 +38,7 @@ vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
   this->AxisBranchFactor = 2;
   this->MinimumLevel = 1;
   this->MaximumLevel = 1;
+  this->Dual = false;
 
   // Grid topology
   this->Dimension = 3;
@@ -58,9 +59,6 @@ vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
   this->ZCoordinates->SetNumberOfTuples( 2 );
   this->ZCoordinates->SetComponent( 0, 0, 0. );
   this->ZCoordinates->SetComponent( 1, 0, 1. );
-
-  // By default expose the primal grid API
-  this->Dual = false;
 }
 
 //----------------------------------------------------------------------------
