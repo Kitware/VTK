@@ -126,7 +126,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkInfovis)
   ENDIF (VTK_USE_GNU_R OR VTK_USE_MATLAB_MEX)
   SET (TestsToRun ${Tests})
-  REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+  LIST (REMOVE_ITEM TestsToRun ${KIT}CxxTests.cxx)
 
   #
   # Add all the executables
