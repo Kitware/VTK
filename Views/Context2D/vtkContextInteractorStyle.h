@@ -25,6 +25,7 @@
 #include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 #include "vtkNew.h" // For ivars
+#include "vtkWeakPointer.h" // For ivars
 
 class vtkContextMouseEvent;
 class vtkContextScene;
@@ -46,7 +47,7 @@ public:
 
   // Description:
   // Return the observed scene.
-  vtkGetObjectMacro(Scene, vtkContextScene);
+  vtkContextScene* GetScene();
 
   // Description:
   // Called when the scene is modified. Refresh the scene if needed.
@@ -138,7 +139,7 @@ protected:
   // rendered (scene is dirty)
   void EndProcessingEvent();
 
-  vtkContextScene*    Scene;
+  vtkWeakPointer<vtkContextScene> Scene;
   vtkNew<vtkCallbackCommand> SceneCallbackCommand;
   vtkNew<vtkCallbackCommand> InteractorCallbackCommand;
   int                 ProcessingEvents;
