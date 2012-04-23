@@ -80,3 +80,4 @@ EXPORTS
   vtk_TIFFWriteRawTile
   vtk_TIFFWriteScanline
   vtk_TIFFWriteTile
+  vtk_TIFFSetTagExtender
