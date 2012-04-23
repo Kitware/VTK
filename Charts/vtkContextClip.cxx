@@ -43,12 +43,6 @@ bool vtkContextClip::Paint(vtkContext2D *painter)
   // Clip rendering for all child items.
   // Check whether the scene has a transform - use it if so
   float *clipBy = this->Dims;
-  float clip[4];
-  if (this->Scene->HasTransform())
-    {
-    this->Scene->GetTransform()->InverseTransformPoints(this->Dims, clip, 2);
-    clipBy = clip;
-    }
 
   int clipi[] = { vtkContext2D::FloatToInt(clipBy[0]),
                   vtkContext2D::FloatToInt(clipBy[1]),

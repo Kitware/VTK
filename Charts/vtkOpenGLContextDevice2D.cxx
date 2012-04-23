@@ -23,6 +23,7 @@
 
 #include "vtkVector.h"
 #include "vtkRect.h"
+#include "vtkVectorOperators.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkTextProperty.h"
@@ -1068,11 +1069,25 @@ void vtkOpenGLContextDevice2D::PopMatrix()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::SetClipping(int *dim)
+void vtkOpenGLContextDevice2D::SetClipping(int *d)
 {
   // Check the bounds, and clamp if necessary
   GLint vp[4] = { this->Storage->Offset.GetX(), this->Storage->Offset.GetY(),
-    this->Storage->Dim.GetX(),this->Storage->Dim.GetY()};
+                  this->Storage->Dim.GetX(),this->Storage->Dim.GetY() };
+
+  // Adjust the clipping rectangle for the tiled viewport.
+  int dim[] = { d[0] - this->ViewportRect.X(),
+                d[1] - this->ViewportRect.Y(),
+                d[2] - this->ViewportRect.X(),
+                d[3] - this->ViewportRect.Y() };
+  if (this->ViewportRect.X() > 0)
+    {
+    dim[2] += d[0];
+    }
+  if (this->ViewportRect.Y() > 0)
+    {
+    dim[3] += d[1];
+    }
 
   if (dim[0] > 0 && dim[0] < vp[2] )
     {
