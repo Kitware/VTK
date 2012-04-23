@@ -2820,10 +2820,8 @@ void vtkHyperTreeGrid::TraverseGridRecursively( vtkHyperTreeSuperCursor* superCu
     }
 
   // Now recurse.
-  vtkHyperTreeSuperCursor newSuperCursor;
-  int child;
   vtkSuperCursorEntry* cursorPtr = this->SuperCursorTraversalTable;
-  for ( child = 0; child < this->NumberOfChildren; ++ child, cursorPtr += 27 )
+  for ( int child = 0; child < this->NumberOfChildren; ++ child, cursorPtr += 27 )
     {
     vtkHyperTreeSuperCursor newSuperCursor;
     this->InitializeSuperCursorChild(superCursor,&newSuperCursor, child);
