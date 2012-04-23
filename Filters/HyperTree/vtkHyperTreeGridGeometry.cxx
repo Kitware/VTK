@@ -16,15 +16,15 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkCellData.h"
-#include "vtkHyperTreeGrid.h"
 #include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
 
+//-----------------------------------------------------------------------------
 vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
 {
   this->Points = 0;
@@ -33,11 +33,12 @@ vtkHyperTreeGridGeometry::vtkHyperTreeGridGeometry()
   this->Output = 0;
 }
 
-
-
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::ProcessTrees()
 {
+  // Ensure that primal grid API is used for hyper trees
+  this->Input->SetDualGridFlag( false );
+
   // TODO: MTime on generation of this table.
   this->Input->GenerateSuperCursorTraversalTable();
 
@@ -172,10 +173,8 @@ void vtkHyperTreeGridGeometry::RecursiveProcessTree( vtkHyperTreeSuperCursor* su
     }
 
   // Not a leaf.  Recurse children to leaves.
-  vtkHyperTreeSuperCursor newSuperCursor;
   int numChildren = this->Input->GetNumberOfChildren();
-  int child;
-  for ( child = 0; child < numChildren; ++ child)
+  for ( int child = 0; child < numChildren; ++ child )
     {
     vtkHyperTreeSuperCursor newSuperCursor;
     this->Input->InitializeSuperCursorChild(superCursor,&newSuperCursor, child);
@@ -190,38 +189,39 @@ int vtkHyperTreeGridGeometry::FillInputPortInformation(int, vtkInformation *info
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridGeometry::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
+                                           vtkInformationVector** inputVector,
+                                           vtkInformationVector* outputVector )
 {
-  // get the info objects
+  // Get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // Initialize
-  this->Input = vtkHyperTreeGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  this->Output= vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkCellData *outCD = this->Output->GetCellData();
-  vtkCellData *inCD = this->Input->GetCellData();
+  this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  this->Output= vtkPolyData::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  vtkCellData* inCD = this->Input->GetCellData();
+  vtkCellData* outCD = this->Output->GetCellData();
 
-  outCD->CopyAllocate(inCD);
+  outCD->CopyAllocate( inCD );
 
   this->ProcessTrees();
   this->Input = 0;
   this->Output = 0;
 
-  this->UpdateProgress (1.0);
+  this->UpdateProgress ( 1. );
 
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf( os, indent );
+
+  this->Input->PrintSelf( os, indent.GetNextIndent() );
+  this->Output->PrintSelf( os, indent.GetNextIndent() );
+  this->Points->PrintSelf( os, indent.GetNextIndent() );
+  this->Cells->PrintSelf( os, indent.GetNextIndent() );
 }
