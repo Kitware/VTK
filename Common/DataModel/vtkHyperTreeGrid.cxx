@@ -60,23 +60,23 @@ class vtkHyperTreeInternal
 public:
   vtkTypeMacro(vtkHyperTreeInternal,vtkObject);
   virtual void Initialize()=0;
-  virtual vtkHyperTreeCursor *NewCursor()=0;
-  virtual vtkIdType GetNumberOfLeaves()=0;
-  virtual int GetNumberOfNodes()=0;
-  virtual int GetBranchFactor()=0;
-  virtual int GetDimension()=0;
+  virtual vtkHyperTreeCursor *NewCursor() = 0;
+  virtual vtkIdType GetNumberOfLeaves() = 0;
+  virtual int GetNumberOfNodes() = 0;
+  virtual int GetBranchFactor() = 0;
+  virtual int GetDimension() = 0;
 
   // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
-  virtual vtkIdType GetNumberOfLevels()=0;
+  virtual vtkIdType GetNumberOfLevels() = 0;
 
   // Description:
   // Subdivide node pointed by cursor, only if its a leaf.
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  virtual void SubdivideLeaf(vtkHyperTreeCursor *leaf)=0;
+  virtual void SubdivideLeaf( vtkHyperTreeCursor* leaf ) = 0;
 
   // Description:
   // Returns the actual memory size in kilobytes.
