@@ -11,7 +11,7 @@ set(Module_SRCS
   vtkGlyphSource2D.cxx
   vtkHyperOctreeFractalSource.cxx
   vtkLineSource.cxx
-  #vtkOutlineCornerFilter.cxx
+  vtkOutlineCornerFilter.cxx
   vtkOutlineCornerSource.cxx
   vtkOutlineSource.cxx
   vtkParametricFunctionSource.cxx

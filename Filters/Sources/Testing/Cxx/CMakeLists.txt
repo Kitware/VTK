@@ -1,6 +1,7 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestLineSource.cxx
   TestTessellatedBoxSource.cxx
+  TestMultiBlock.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )
