@@ -606,6 +606,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
   // 5: Make the new dimensionality active, update BigChart.
   // 5: Make BigChart3D invisible and BigChart visible.
   // 6: Stop the timer.
+  this->InvokeEvent(vtkCommand::AnimationCueTickEvent);
   switch (this->Private->AnimationPhase)
     {
   case 0: // Remove decoration from the big chart, load up the 3D chart
@@ -1125,6 +1126,7 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
       }
     if (this->Private->AnimationPath.size() > 0)
       {
+      this->InvokeEvent(vtkCommand::CreateTimerEvent);
       this->StartAnimation(mouse.GetInteractor());
       }
     }
@@ -1133,6 +1135,7 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
     this->UpdateAnimationPath(pos);
     if (this->Private->AnimationPath.size() > 0)
       {
+      this->InvokeEvent(vtkCommand::CreateTimerEvent);
       this->StartAnimation(mouse.GetInteractor());
       }
     else
@@ -1142,6 +1145,53 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
     }
 
   return true;
+}
+
+void vtkScatterPlotMatrix::ClearAnimationPath()
+{
+  this->Private->AnimationPath.clear();
+}
+
+vtkIdType vtkScatterPlotMatrix::GetNumberOfAnimationPathElements()
+{
+  return static_cast<vtkIdType>(this->Private->AnimationPath.size());
+}
+
+vtkVector2i vtkScatterPlotMatrix::GetAnimationPathElement(vtkIdType i)
+{
+  return this->Private->AnimationPath.at(i);
+}
+
+bool vtkScatterPlotMatrix::AddAnimationPath(const vtkVector2i &move)
+{
+  vtkVector2i pos = this->ActivePlot;
+  if (this->Private->AnimationPath.size())
+    {
+    pos = this->Private->AnimationPath.back();
+    }
+  if (move.X() != pos.X() && move.Y() != pos.Y())
+    {
+    // Can only move in x or y, not both. Do not append the element.
+    return false;
+    }
+  else
+    {
+    this->Private->AnimationPath.push_back(move);
+    return true;
+    }
+}
+
+bool vtkScatterPlotMatrix::BeginAnimationPath(vtkRenderWindowInteractor* interactor)
+{
+  if (interactor && this->Private->AnimationPath.size())
+    {
+    this->StartAnimation(interactor);
+    return true;
+    }
+  else
+    {
+    return false;
+    }
 }
 
 int vtkScatterPlotMatrix::GetPlotType(const vtkVector2i &pos)
