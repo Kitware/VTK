@@ -1098,28 +1098,50 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
 {
   // Work out which scatter plot was clicked - make that one the active plot.
   int n = this->GetSize().X();
+  vtkVector2i pos(0, 0);
   for (int i = 0; i < n; ++i)
     {
     for (int j = 0; j < n; ++j)
       {
       if (i + j + 1 < n && this->GetChart(vtkVector2i(i, j))->Hit(mouse))
         {
-        vtkVector2i pos(i, j);
-        this->UpdateAnimationPath(pos);
-        if(this->Private->AnimationPath.size()>0)
-          {
-          this->StartAnimation(mouse.GetInteractor());
-          }
-        else
-          {
-          this->SetActivePlot(pos);
-          }
-
-        return true;
+        pos = vtkVector2i(i, j);
         }
       }
     }
-  return false;
+
+  // If the left button was used, hyperjump, if the right was used full path.
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    this->Private->AnimationPath.clear();
+    if (pos[0] != this->ActivePlot[0])
+      {
+      this->Private->AnimationPath.push_back(vtkVector2i(pos[0],
+                                                         this->ActivePlot[1]));
+      }
+    if (pos[1] != this->ActivePlot[1])
+      {
+      this->Private->AnimationPath.push_back(pos);
+      }
+    if (this->Private->AnimationPath.size() > 0)
+      {
+      this->StartAnimation(mouse.GetInteractor());
+      }
+    }
+  else if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
+    {
+    this->UpdateAnimationPath(pos);
+    if (this->Private->AnimationPath.size() > 0)
+      {
+      this->StartAnimation(mouse.GetInteractor());
+      }
+    else
+      {
+      this->SetActivePlot(pos);
+      }
+    }
+
+  return true;
 }
 
 int vtkScatterPlotMatrix::GetPlotType(const vtkVector2i &pos)
