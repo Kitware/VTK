@@ -33,13 +33,35 @@
 
 int TestHyperTreeGrid( int argc, char* argv[] )
 {
+  // Initialize return value of test
+  int testIntValue = 0;
+
+  // Dimension of hyper trees
+  int dim = 2;
+
   //vtkNew<vtkHyperTreeGenerator> fractal;
   //vtkNew<vtkHyperTreeGridFractalSource> fractal;
   vtkHyperTreeGridFractalSource* fractal = vtkHyperTreeGridFractalSource::New();
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
-  fractal->SetGridSize( 3, 4, 2 );
-  fractal->SetDimension( 3 );
+  if ( dim == 3 )
+    {
+    fractal->SetGridSize( 3, 4, 2 );
+    }
+  else if ( dim == 2 )
+    {
+    fractal->SetGridSize( 3, 4, 1 );
+    }
+  else if ( dim == 1 )
+    {
+    fractal->SetGridSize( 3, 1, 1 );
+    }
+  else
+    {
+    return 1;
+    }
+
+  fractal->SetDimension( dim );
   fractal->SetAxisBranchFactor( 3 );
   //vtkHyperTreeGrid* htGrid = fractal->NewHyperTreeGrid();
   fractal->Update();
@@ -80,15 +102,19 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   writer2->SetInputConnection( cut->GetOutputPort() );
   writer2->Write();
 
-  cerr << "# HyperTreeGridAxisCut" << endl;
-  vtkNew<vtkHyperTreeGridAxisCut> axisCut;
-  axisCut->SetInputConnection( fractal->GetOutputPort() );
-  axisCut->SetPlaneNormalAxis( 2 );
-  axisCut->SetPlanePosition( .1 );
-  vtkNew<vtkPolyDataWriter> writer3;
-  writer3->SetFileName( "./hyperTreeGridAxisCut.vtk" );
-  writer3->SetInputConnection( axisCut->GetOutputPort() );
-  writer3->Write();
+  // Axis-aligned cut works only in 3D for now
+  if ( dim == 3 )
+    {
+    cerr << "# HyperTreeGridAxisCut" << endl;
+    vtkNew<vtkHyperTreeGridAxisCut> axisCut;
+    axisCut->SetInputConnection( fractal->GetOutputPort() );
+    axisCut->SetPlaneNormalAxis( 2 );
+    axisCut->SetPlanePosition( .1 );
+    vtkNew<vtkPolyDataWriter> writer3;
+    writer3->SetFileName( "./hyperTreeGridAxisCut.vtk" );
+    writer3->SetInputConnection( axisCut->GetOutputPort() );
+    writer3->Write();
+    }
 
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( fractal->GetOutputPort() );
@@ -139,5 +165,5 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   //htGrid->Delete();
   fractal->Delete();
 
-  return 0;
+  return testIntValue;
 }

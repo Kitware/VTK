@@ -23,9 +23,8 @@ int TestHyperTreeGridGeometry( int argc, char* argv[] )
 {
   vtkNew<vtkHyperTreeGridFractalSource> fractal;
   fractal->SetMaximumLevel( 3 );
- // fractal->SetGridSize( 3, 4, 2 );
-  fractal->SetGridSize( 3, 2, 1 );
-  fractal->SetDimension( 2 );
+  fractal->SetGridSize( 3, 4, 2 );
+  fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );
 
   vtkNew<vtkHyperTreeGridGeometry> geometry;
