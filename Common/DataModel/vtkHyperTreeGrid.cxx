@@ -2982,7 +2982,7 @@ void vtkHyperTreeLightWeightCursor::Clear()
   this->Level = 0;
 }
 
-//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------²
 void vtkHyperTreeLightWeightCursor::Initialize( vtkHyperTreeGrid* grid,
                                                 vtkIdType* offsets,
                                                 int index,
@@ -3029,6 +3029,7 @@ void vtkHyperTreeLightWeightCursor::ToRoot()
     // Root is a leaf.
     this->Index = 0;
     this->IsLeaf = 1;
+    cerr << "************** LEAF\n";
     }
   else
     {

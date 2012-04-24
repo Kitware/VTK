@@ -516,7 +516,7 @@ class vtkHyperTreeSuperCursor
   int MiddleCursorId;
   double Origin[3];
   double Size[3];
-  vtkHyperTreeLightWeightCursor* GetCursor(int idx) { return this->Cursors + this->MiddleCursorId + idx; }
+  vtkHyperTreeLightWeightCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
 };
 
 
