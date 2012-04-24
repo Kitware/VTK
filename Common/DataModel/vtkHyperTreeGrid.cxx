@@ -2307,12 +2307,13 @@ void vtkHyperTreeGrid::InitializeSuperCursor(vtkHyperTreeSuperCursor* superCurso
         int d = a + 3 * b + 9 * c;
         if ( ti && tj && tk )
           {
-          superCursor->GetCursor(d)->Initialize(this, this->CellTreeLeafIdOffsets, 
-                                                (int)(index), a, b, c );
+          superCursor->GetCursor(d)->Initialize( this,
+                                                 this->CellTreeLeafIdOffsets,
+                                                 index, a, b, c );
           } // if ( ti && tj && tk )
         else
           {
-          superCursor->GetCursor(d)->Clear();
+          superCursor->GetCursor( d )->Clear();
           }
         } // c
       } // b
