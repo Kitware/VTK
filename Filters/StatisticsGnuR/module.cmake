@@ -1,0 +1,12 @@
+vtk_module(vtkFiltersStatisticsGnuR
+  IMPLEMENTS
+    vtkFiltersStatistics
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkFiltersStatistics
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkFiltersSources
+    vtkInfovisCore
+  EXCLUDE_FROM_ALL)

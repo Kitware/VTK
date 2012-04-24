@@ -1,4 +1,4 @@
-"""selective implementation of tcl file command. 
+"""selective implementation of tcl file command.
 This script is used while running python tests translated from Tcl."""
 
 import os
@@ -30,4 +30,4 @@ def delete( *arguments ):
                 os.remove(filename)
         except:
             pass
-        
+

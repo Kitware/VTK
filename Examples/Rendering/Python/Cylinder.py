@@ -43,7 +43,7 @@ ren.SetBackground(0.1, 0.2, 0.4)
 renWin.SetSize(200, 200)
 
 # This allows the interactor to initalize itself. It has to be
-# called before an event loop. 
+# called before an event loop.
 iren.Initialize()
 
 # We'll zoom in a little by accessing the camera and invoking a "Zoom"

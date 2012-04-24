@@ -5,7 +5,7 @@
 package require vtk
 package require vtkinteraction
 
-# Quadric definition. This is a type of implicit function. Here the 
+# Quadric definition. This is a type of implicit function. Here the
 # coefficients to the equations are set.
 vtkQuadric quadric
   quadric SetCoefficients .5 1 .2 0 .1 0 0 .2 0 0

@@ -24,7 +24,7 @@ INCLUDE_DIRECTORIES(
 )
 
 
-# Set your files and resources here  
+# Set your files and resources here
 SET(SimpleViewSrcs main.cxx SimpleView.cxx)
 SET(SimpleViewUI SimpleView.ui)
 SET(SimpleViewHeaders SimpleView.h)

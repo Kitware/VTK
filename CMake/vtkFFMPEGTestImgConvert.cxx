@@ -8,7 +8,7 @@ extern "C" {
 
 int main()
 {
-  img_convert(0, PIX_FMT_RGB24, 
+  img_convert(0, PIX_FMT_RGB24,
               0, PIX_FMT_RGB24,
               0, 0);
   return 0;

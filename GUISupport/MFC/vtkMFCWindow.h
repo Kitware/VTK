@@ -16,6 +16,7 @@
 #ifndef C_VTK_MFC_WINDOW
 #define C_VTK_MFC_WINDOW
 
+#include "vtkGUISupportMFCModule.h" // For export macro
 #include "afxwin.h"
 
 class vtkWin32OpenGLRenderWindow;
@@ -23,18 +24,8 @@ class vtkRenderWindowInteractor;
 
 #include "vtkMFCConfigure.h"
 
-#if !defined(VTK_MFC_STATIC)
-#  if defined(vtkMFC_EXPORTS)
-#    define VTK_MFC_EXPORT __declspec( dllexport )
-#  else
-#    define VTK_MFC_EXPORT __declspec( dllimport )
-#  endif
-#else
-#  define VTK_MFC_EXPORT
-#endif
-
 //! class to display a VTK window in an MFC window
-class VTK_MFC_EXPORT vtkMFCWindow : public CWnd
+class VTKGUISUPPORTMFC_EXPORT vtkMFCWindow : public CWnd
 {
 public:
   //! constructor requires a parent

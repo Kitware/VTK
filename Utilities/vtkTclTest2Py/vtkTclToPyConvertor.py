@@ -1,5 +1,5 @@
 # This is the translator that converts Tcl test to python.
-# Not all Tcl test are translatable. 
+# Not all Tcl test are translatable.
 # To ensure that a test can be translated :
 # 1) do not use Tcl arrays
 # 2) do not use string substitution except in variable names
@@ -41,11 +41,11 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
         self.handle_command("""#!/usr/bin/env python
 %s""" % (prefix_content))
         pass
-    
+
     def print_footer(self):
         self.handle_command("# --- end of script --")
         pass
-        
+
     def reset(self):
         self.output = ""
         self.indent = ""
@@ -102,11 +102,11 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
             match =    reCompoundVariable.search(token)
         result += token +"\")]"
         return result
-        
+
     def translate_command(self, command, arguments):
         #self._error("to translate_command %s %s" % (command, `arguments`))
         translated_cmd = None
-     
+
         if len(command) > 0 and command[0] == "#":
             translated_cmd = command
         elif len(command) > 0 and command[0] == "\"":
@@ -131,7 +131,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
                 i = True
             translated_cmd += "])"
         elif command == "lindex" and len(arguments) == 2:
-            translated_cmd = "lindex(%s,%s)" % (arguments[0], arguments[1]) 
+            translated_cmd = "lindex(%s,%s)" % (arguments[0], arguments[1])
         elif command == "append" and len(arguments) >= 2:
             translated_cmd = "%s += %s" % (arguments[0], arguments[1])
             for arg in arguments[2:]:
@@ -141,7 +141,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
             proc_args = arguments[1].split()
             # We add 2 default arguments to any procedure. This is necessary
             # since Tcl event handlers don't take any arguments while python
-            # event handlers need 2 arguments. 
+            # event handlers need 2 arguments.
             # Added 2 default arguments to ensure that such handler don't raise
             # errors. For all other procedures, adding two unused default arguments
             # makes no harm.
@@ -171,7 +171,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
             self._procedure_list.append(arguments[0])
         elif command == "set" and len(arguments) == 2:
             #translate a set command.
-            translated_cmd = "%s = %s" % (arguments[0], arguments[1]) 
+            translated_cmd = "%s = %s" % (arguments[0], arguments[1])
         elif command == "foreach" and len(arguments) == 3:
             p = self._get_block_parser()
             p.feed(arguments[0])
@@ -233,7 +233,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
             p.feed(arguments[0])
             translated_cmd += p.output
         elif command == "return" and len(arguments) == 0:
-            translated_cmd = "return" 
+            translated_cmd = "return"
         elif command == "return" and len(arguments) == 1:
             translated_cmd = "return %s" % arguments[0]
         elif command == "open" and len(arguments) >= 1:
@@ -251,7 +251,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
                 translated_cmd += "\"%s\"" % arguments[1]
             else:
                 translated_cmd += "%s" % arguments[1]
-            translated_cmd +=", globals())" 
+            translated_cmd +=", globals())"
         elif command == "incr" and len(arguments) == 1:
             translated_cmd = "%s = %s + 1" % (arguments[0], arguments[0])
         elif command == "incr" and len(arguments) == 2:
@@ -281,12 +281,12 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
             for arg in arguments[1:]:
                 translated_cmd += ", %s" % arg
             translated_cmd += ")"
-        elif command in ["case1", "case2", "case3", "case4", "case5", "case6", "case7", 
+        elif command in ["case1", "case2", "case3", "case4", "case5", "case6", "case7",
             "case8", "case9", "case10", "case11", "case12", "case13", "case14"] and \
                 len(arguments) == 3:
             translated_cmd = "%s(%s, %s, %s, caseLabel)" % (command, arguments[0], arguments[1], arguments[2])
         elif len(arguments) >= 2 and arguments[0][0] in ["<",">","=","!"]:
-            translated_cmd = command 
+            translated_cmd = command
             for arg in arguments:
                 translated_cmd+=    " " + arg
         elif command == "file" and len(arguments) > 0:
@@ -378,8 +378,8 @@ if __name__ == "__main__":
             touch_file = sys.argv[i+1]
         if sys.argv[i] == "-k" and i < len(sys.argv)-1:
             kit_files_dir = sys.argv[i+1]
-     
-            
+
+
     if (not input_file or not output_file) and not convert_file_list_file:
         print "Usage: %s  [-o <output tcl test> -i <input tcl test>]"\
                 "[-f <class name list>] [-n <namespace>] [-p <prefix file>]"\
@@ -407,11 +407,11 @@ if __name__ == "__main__":
         except:
             print "ERROR: Failed to load module vtkClassList."
             sys.exit(1)
-     
+
     if not class_list:
         print "Cannot find list of classes. Please provide -f <file> option"
         sys.exit(1)
-  
+
     prefix_content = ""
     try:
         fp = file(prefix_file, "r")
@@ -433,13 +433,13 @@ if __name__ == "__main__":
             print "Failed to read list of file to translate %s" % convert_file_list_file
             print "%s" % sys.exc_info()[1]
             sys.exit(1)
-        
-       
+
+
     if input_file:
         convert_file_list.append(input_file)
     if output_file:
         output_file_list.append(output_file)
-   
+
     for i in range(0,len(convert_file_list)):
         data = ""
         ip_filename = convert_file_list[i].strip()
@@ -450,7 +450,7 @@ if __name__ == "__main__":
             data = fp.read()
             fp.close()
         except:
-            print "Failed to read input file %s" % ip_filename 
+            print "Failed to read input file %s" % ip_filename
             sys.exit(1)
 
         p = vtkTclToPyConvertor()
@@ -479,4 +479,4 @@ if __name__ == "__main__":
             print "Failed to touch file %s" % touch_file
             sys.exit(1)
 
-    sys.exit(0) 
+    sys.exit(0)

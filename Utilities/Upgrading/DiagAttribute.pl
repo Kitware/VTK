@@ -1,12 +1,12 @@
 #!/usr/bin/env perl
 
-# This script tries to find deprecated attribute data classes and 
+# This script tries to find deprecated attribute data classes and
 # methods and warns the user whenever it finds them. It also suggests
 # possible modification to bring code up to date.
 
 use Getopt::Long;
 
-if (!GetOptions("language:s" => \$language, 
+if (!GetOptions("language:s" => \$language,
 		"verbose" => \$verbose,
 		"help" => \$help,
 		"print-messages" => \$print))
@@ -227,19 +227,19 @@ if ( !$print && ($#ARGV < 0 || $help) )
 if ($language eq "c++")
 {
     %messageids = %cxxmessageids;
-} 
+}
 elsif($language eq "tcl")
 {
     %messageids = %tclmessageids;
-} 
+}
 elsif($language eq "python")
 {
     %messageids = %pythonmessageids;
-} 
+}
 elsif($language eq "java")
 {
     %messageids = %javamessageids;
-} 
+}
 else
 {
     die "Unsupported language: $language.\n";
@@ -247,46 +247,46 @@ else
 @messages = (
 	     "> Encountered vtkScalars* : vtkScalars has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
-	     "> of it's subclasses.\n", 
+	     "> of it's subclasses.\n",
 	     "> Encountered vtkVectors* : vtkVectors has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
-	     "> of it's subclasses.\n", 
+	     "> of it's subclasses.\n",
 	     "> Encountered vtkNormals* : vtkNormals has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
-	     "> of it's subclasses.\n", 
+	     "> of it's subclasses.\n",
 	     "> Encountered vtkTCoords* : vtkTCoords has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
-	     "> of it's subclasses.\n", 
+	     "> of it's subclasses.\n",
 	     "> Encountered vtkTensors* : vtkTensors has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
-	     "> of it's subclasses.\n", 
+	     "> of it's subclasses.\n",
 	     "> Encountered vtkScalars constructor: vtkScalars has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
-	     "> of it's subclasses.\n", 
+	     "> of it's subclasses.\n",
 	     "> Encountered vtkVectors constructor: vtkVectors has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
 	     "> of it's subclasses. Note that you have to explicitly set the\n".
 	     "> number of components. For example (in Tcl):\n".
 	     "> vtkFloatArray vectors\n".
-	     "> vectors SetNumberOfComponents 3\n", 
+	     "> vectors SetNumberOfComponents 3\n",
 	     "> Encountered vtkNormals constructor: vtkNormals has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
 	     "> of it's subclasses.Note that you have to explicitly set the\n".
 	     "> number of components. For example (in Tcl):\n".
 	     "> vtkFloatArray normals\n".
-	     "> normals SetNumberOfComponents 3\n", 
+	     "> normals SetNumberOfComponents 3\n",
 	     "> Encountered vtkTCoords constructor: vtkTCoords has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
 	     "> of it's subclasses.Note that you have to explicitly set the\n".
 	     "> number of components. For example (in Tcl):\n".
 	     "> vtkFloatArray tc\n".
-	     "> tc SetNumberOfComponents 2\n", 
+	     "> tc SetNumberOfComponents 2\n",
 	     "> Encountered vtkTensors constructor: vtkTensors has been\n".
 	     "> deprecated. You should use vtkDataArray or one\n".
 	     "> of it's subclasses.Note that you have to explicitly set the\n".
 	     "> number of components. For example (in Tcl):\n".
 	     "> vtkFloatArray tensors\n".
-	     "> tensors SetNumberOfComponents 9\n", 
+	     "> tensors SetNumberOfComponents 9\n",
 	     "> Encountered vtkScalars::GetScalar() : vtkScalars has been\n".
 	     "> deprecated. You should replace this object with a\n".
 	     "> vtkDataArray or one of it's subclasses and use GetComponent(id, component)\n".

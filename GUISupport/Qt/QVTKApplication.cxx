@@ -42,7 +42,7 @@ QVTKApplication::~QVTKApplication()
 // ----------------------------------------------------------------------------
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
 bool QVTKApplication::x11EventFilter(XEvent *event)
-{ 
+{
   // the only lines required in this method
   this->Devices->ProcessEvent(
     static_cast<vtkTDxUnixDeviceXEvent *>(event));

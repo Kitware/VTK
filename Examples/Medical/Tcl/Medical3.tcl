@@ -8,7 +8,7 @@ package require vtkinteraction
 #
 
 # Create the renderer, the render window, and the interactor. The renderer
-# draws into the render window, the interactor enables mouse- and 
+# draws into the render window, the interactor enables mouse- and
 # keyboard-based interaction with the scene.
 #
 vtkRenderer aRenderer
@@ -25,7 +25,7 @@ vtkRenderWindowInteractor iren
 # is the root name of the file: quarter.)
 vtkVolume16Reader v16
   v16 SetDataDimensions 64 64
-  v16 SetDataByteOrderToLittleEndian 
+  v16 SetDataByteOrderToLittleEndian
   v16 SetFilePrefix  "$VTK_DATA_ROOT/Data/headsq/quarter"
   v16 SetImageRange 1 93
   v16 SetDataSpacing  3.2 3.2 1.5
@@ -123,7 +123,7 @@ vtkImageActor sagittal
   [sagittal GetMapper] SetInputConnection [sagittalColors GetOutputPort]
   sagittal SetDisplayExtent 32 32  0 63  0 92
 
-# Create the second (axial) plane of the three planes. We use the same 
+# Create the second (axial) plane of the three planes. We use the same
 # approach as before except that the extent differs.
 vtkImageMapToColors axialColors
   axialColors SetInputConnection [v16 GetOutputPort]
@@ -132,7 +132,7 @@ vtkImageActor axial
   [axial GetMapper] SetInputConnection [axialColors GetOutputPort]
   axial SetDisplayExtent 0 63  0 63  46 46
 
-# Create the third (coronal) plane of the three planes. We use the same 
+# Create the third (coronal) plane of the three planes. We use the same
 # approach as before except that the extent differs.
 vtkImageMapToColors coronalColors
   coronalColors SetInputConnection [v16 GetOutputPort]
@@ -151,7 +151,7 @@ vtkCamera aCamera
   aCamera SetFocalPoint  0 0 0
   aCamera ComputeViewPlaneNormal
 
-# Actors are added to the renderer. 
+# Actors are added to the renderer.
 aRenderer AddActor outline
 aRenderer AddActor sagittal
 aRenderer AddActor axial
@@ -162,15 +162,15 @@ aRenderer AddActor skin
 aRenderer AddActor bone
 
 # Turn off bone for this example.
-bone VisibilityOff 
+bone VisibilityOff
 
 # Set skin to semi-transparent.
 [skin GetProperty] SetOpacity 0.5
 
-# An initial camera view is created.  The Dolly() method moves 
+# An initial camera view is created.  The Dolly() method moves
 # the camera towards the FocalPoint, thereby enlarging the image.
 aRenderer SetActiveCamera aCamera
-aRenderer ResetCamera 
+aRenderer ResetCamera
 aCamera Dolly 1.5
 
 # Set a background color for the renderer and set the size of the
@@ -180,13 +180,13 @@ renWin SetSize 640 480
 
 # Note that when camera movement occurs (as it does in the Dolly()
 # method), the clipping planes often need adjusting. Clipping planes
-# consist of two planes: near and far along the view direction. The 
+# consist of two planes: near and far along the view direction. The
 # near plane clips out objects in front of the plane the far plane
 # clips out objects behind the plane. This way only what is drawn
 # between the planes is actually rendered.
 aRenderer ResetCameraClippingRange
 
-# Set up a callback (using command/observer) to bring up the Tcl 
+# Set up a callback (using command/observer) to bring up the Tcl
 # command GUI when the keypress-u (UserEvent) key is pressed.
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 

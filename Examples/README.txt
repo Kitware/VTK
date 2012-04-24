@@ -19,7 +19,7 @@ Annotation - Classes for 2D and 3D annotation such as text, scalar bar,
 DataManipulation - Examples show how to rearrange and manipulate data
                    in the visualization pipeline.
 
-GUI - Examples of interfacing to various GUI's including Motif, Windows, 
+GUI - Examples of interfacing to various GUI's including Motif, Windows,
       and Tcl.
 
 IO - Examples how how to read and write data; and how to import and export
@@ -53,7 +53,7 @@ VolumeRendering - Learn how to perform volume rendering from the examples
 
 Additional Resources
 --------------------
-* The VTK Testing directories (e.g., VTK/Graphics/Testing) contain other 
+* The VTK Testing directories (e.g., VTK/Graphics/Testing) contain other
   examples. These are not commented, and designed for testing.
 
 * The VTK Mailing List http://public.kitware.com/mailman/listinfo/vtkusers

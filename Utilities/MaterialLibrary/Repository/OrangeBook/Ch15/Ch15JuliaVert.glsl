@@ -26,7 +26,7 @@ void main(void)
     vec3 viewVec    = normalize(-ecPosition);
     float spec      = max(dot(reflectVec, viewVec), 0.0);
     spec            = pow(spec, Shininess);
-    LightIntensity  = DiffuseContribution * 
+    LightIntensity  = DiffuseContribution *
                           max(dot(lightVec, tnorm), 0.0) +
                           SpecularContribution * spec;
     Position        = vec3(gl_MultiTexCoord0 - 0.5) * 5.0;

@@ -25,7 +25,7 @@
 
 // Pipe 2 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
-void pipe2(vtkMultiProcessController* vtkNotUsed(controller), 
+void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
            void* vtkNotUsed(arg))
 {
   // Input port
@@ -54,7 +54,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
 
   // Normally, the Render() call on a RenderWindow() calls
   // update on it's actors two times. This is not appropriate
-  // for this example because with each Update(), the data 
+  // for this example because with each Update(), the data
   // changes. For this reason, we will use a separate PolyData
   // object and (shallow) copy the data to it.
   vtkPolyData* pd = vtkPolyData::New();
@@ -89,7 +89,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   actor->Delete();
   ren->Delete();
   renWin->Delete();
-  
+
 }
 
 

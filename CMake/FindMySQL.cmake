@@ -1,6 +1,6 @@
 #
 # Find the MySQL client includes and library
-# 
+#
 
 # This module defines
 # MYSQL_INCLUDE_DIRECTORIES, where to find mysql.h
@@ -10,7 +10,7 @@
 # also defined, but not for general use are
 # MYSQL_LIBRARY, where to find the MySQL library.
 
-# 
+#
 # XXX NOTE: This is not yet for general use.  I'm pretty sure there
 # are other libraries I have to link against at the same time.
 #
@@ -31,7 +31,7 @@ FIND_PATH(MYSQL_INCLUDE_DIRECTORIES mysql.h
   DOC "Specify the directory containing mysql.h."
 )
 
-FIND_LIBRARY( MYSQL_LIBRARY 
+FIND_LIBRARY( MYSQL_LIBRARY
   NAMES mysql libmysql mysqlclient
   PATHS
   /usr/lib
@@ -53,7 +53,7 @@ FIND_LIBRARY( MYSQL_LIBRARY
 IF (NOT WIN32)
   FIND_LIBRARY( MYSQL_EXTRA_LIBRARIES
                 NAMES z zlib
-                PATHS /usr/lib /usr/local/lib 
+                PATHS /usr/lib /usr/local/lib
                 DOC "If more libraries are necessary to link in a MySQL client (typically zlib), specify them here.")
 ELSE (NOT WIN32)
   SET( MYSQL_EXTRA_LIBRARIES "" )

@@ -1,0 +1,10 @@
+vtk_module(vtkInfovisParallel
+  DEPENDS
+    vtkInfovisBoost
+    vtkInfovisBoostGraphAlgorithms
+    vtkCommonExecutionModel
+    vtkParallelMPI
+    vtkFiltersParallel
+    vtkIOSQL
+  EXCLUDE_FROM_ALL
+  )

@@ -47,7 +47,7 @@ void process(vtkMultiProcessController* controller, void* vtkNotUsed(arg))
 
 int main( int argc, char* argv[] )
 {
-  
+
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
   vtkMultiProcessController* controller = vtkMultiProcessController::New();
@@ -60,7 +60,7 @@ int main( int argc, char* argv[] )
     {
     // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
-    } 
+    }
   int numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs != 2)
@@ -75,11 +75,11 @@ int main( int argc, char* argv[] )
   // Execute the function named "process" on both processes
   controller->SetSingleMethod(process, 0);
   controller->SingleMethodExecute();
-  
+
   // Clean-up and exit
   controller->Finalize();
   controller->Delete();
-  
+
   return 0;
 }
 

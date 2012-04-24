@@ -20,8 +20,8 @@ modification, are permitted provided that the following conditions are met:
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
- * The name of Matt Turek nor the names of any contributors may be used to 
-   endorse or promote products derived from this software without specific 
+ * The name of Matt Turek nor the names of any contributors may be used to
+   endorse or promote products derived from this software without specific
    prior written permission.
 
  * Modified source versions must be plainly marked as such, and must not be

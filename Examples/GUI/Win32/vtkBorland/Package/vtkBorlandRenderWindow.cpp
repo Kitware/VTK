@@ -9,7 +9,7 @@
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkInteractorStyleFlight.h"
 #include "vtkInteractorStyleImage.h"
-#include "vtkInteractorStyleUser.h"  
+#include "vtkInteractorStyleUser.h"
 
 #pragma package(smart_init)
 
@@ -40,7 +40,7 @@ __fastcall TvtkBorlandRenderWindow::TvtkBorlandRenderWindow(TComponent* Owner)
   ControlStyle << csCaptureMouse << csClickEvents << csOpaque << csDoubleClicks;
   // Don't want these
   ControlStyle >> csAcceptsControls >> csSetCaption;
-  
+
   FUsevtkInteractor   = true;
   FInteractorMode     = IM_TrackballCamera;
   FInteractor         = 0;
@@ -113,11 +113,11 @@ vtkWin32RenderWindowInteractor * __fastcall TvtkBorlandRenderWindow::GetInteract
     if (!FInteractor)
       {
       throw Exception("Window exists but no Interactor, this shouldn't happen");
-      }  
+      }
     }
   else
     {
-    this->GetRenderWindow();  
+    this->GetRenderWindow();
     }
   return FInteractor;
 }
@@ -234,7 +234,7 @@ void __fastcall TvtkBorlandRenderWindow::WMEraseBkgnd(TWMEraseBkgnd &Message)
   else
     {
     Message.Result = 1; // No, but thanks for asking.
-    } 
+    }
 }
 
 //---------------------------------------------------------------------------

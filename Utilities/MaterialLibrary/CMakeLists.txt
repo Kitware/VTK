@@ -1,5 +1,21 @@
 PROJECT(MaterialLibrary)
 
+vtk_module_impl()
+
+# FIXME: Provide a reasonable default for this value in MaterialLibrary?
+set(VTK_DEFAULT_SHADERS_DIR
+  "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
+  CACHE INTERNAL
+  "The directory that code for shaders is stored in.")
+set(VTK_MATERIALS_DIRS
+  ${VTK_DEFAULT_SHADERS_DIR}
+  CACHE STRING
+  "A ; separated list of directories to search for materials/shaders.")
+mark_as_advanced(VTK_MATERIALS_DIRS)
+
+include_directories("${VTK_SOURCE_DIR}/Common/Core"
+  "${VTK_BINARY_DIR}/Common/Core")
+
 # Enable shared link forwarding support it needed.
 SET (ML_EXE_SUFFIX)
 SET (ML_EXE_INSTALL ${VTK_INSTALL_BIN_DIR})
@@ -144,7 +160,7 @@ IF (VTK_USE_CG_SHADERS)
     ARGS ${MaterialLibrary_BINARY_DIR}/vtkCgShaderLibrary.h
     vtkShaderCG Code GetCode
     ${CgCodes})
-  
+
   SET (ShaderLibraryHeaders ${ShaderLibraryHeaders}
     vtkCgShaderLibrary.h)
   SET (ShaderLibraryDependencies ${ShaderLibraryDependencies}
@@ -175,7 +191,7 @@ ENDIF (VTK_USE_GLSL_SHADERS)
 SET (VTK_SHADER_CODE_LIBRARY_MACRO)
 SET (VTK_SHADER_CODE_LIBRARY_LIST)
 FOREACH(file ${ShaderLibraryHeaders})
-  SET (VTK_SHADER_CODE_LIBRARY_MACRO 
+  SET (VTK_SHADER_CODE_LIBRARY_MACRO
     "${VTK_SHADER_CODE_LIBRARY_MACRO}#include \"${file}\"\n")
 ENDFOREACH(file)
 
@@ -183,7 +199,7 @@ SET (VTK_SHADER_CODE_LIBRARY_MACRO "${VTK_SHADER_CODE_LIBRARY_MACRO}
 #define vtkShaderCodeLibraryMacro(name) \\\n")
 FOREACH (module ${ShaderLibraryModules})
   # get the module name.
-  SET(VTK_SHADER_CODE_LIBRARY_MACRO 
+  SET(VTK_SHADER_CODE_LIBRARY_MACRO
     "${VTK_SHADER_CODE_LIBRARY_MACRO} if (strcmp(name, \"${module}\") == 0)\\
         {\\
         return vtkShader${module}GetCode();\\
@@ -224,7 +240,7 @@ CONFIGURE_FILE(
   ${MaterialLibrary_SOURCE_DIR}/vtkMaterialXMLLibrary.h.forcebuild.in
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
   @ONLY)
-  
+
 SET (VTK_MATERIAL_LIBRARY_MACRO "")
 # materials_exist is variable to indicate if there are any materials.
 # if not we can reduce our work by not trying to build the headers at
@@ -233,7 +249,7 @@ SET (materials_exist 0)
 FOREACH(material ${Materials})
   SET (materials_exist 1)
 ENDFOREACH(material ${Materials})
- 
+
 SET(vtkMaterialLibraryConfiguredFilesDependencies
   ${ShaderLibraryDependencies}
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
@@ -242,7 +258,7 @@ SET(vtkMaterialLibraryConfiguredFilesDependencies
 IF (${materials_exist})
   ADD_CUSTOM_COMMAND(
     OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
-    DEPENDS ${MaterialXMLs} 
+    DEPENDS ${MaterialXMLs}
       ${CMD_DEP}
       ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h.forcebuild
     COMMAND ${CMD}
@@ -255,7 +271,7 @@ IF (${materials_exist})
 
   # Add a dependency on the vtkMaterialXMLLibrary.h file for the target that generates all
   # the configured files.
-  SET(vtkMaterialLibraryConfiguredFilesDependencies 
+  SET(vtkMaterialLibraryConfiguredFilesDependencies
     ${vtkMaterialLibraryConfiguredFilesDependencies}
     ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h)
 ENDIF (${materials_exist})
@@ -274,8 +290,8 @@ FOREACH(module ${MaterialModules})
       {\\
       return vtkMaterial${module}GetXML();\\
       }\\\n")
-  SET (VTK_MATERIAL_LIBRARY_LIST 
-    "${VTK_MATERIAL_LIBRARY_LIST} 
+  SET (VTK_MATERIAL_LIBRARY_LIST
+    "${VTK_MATERIAL_LIBRARY_LIST}
     \"${module}\",")
 ENDFOREACH(module)
 
@@ -287,7 +303,7 @@ ADD_CUSTOM_TARGET(vtkMaterialLibraryConfiguredFiles ALL DEPENDS
   ${vtkMaterialLibraryConfiguredFilesDependencies}
   )
 
- 
+
 SET(MATERIAL_LIBRARY_SHADER_MACRO_HEADER
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
   CACHE INTERNAL "Path to vtkShaderCodeLibraryMacro.h")
@@ -295,5 +311,5 @@ SET(MATERIAL_LIBRARY_SHADER_MACRO_HEADER
 SET(MATERIAL_LIBRARY_MATERIAL_MACRO_HEADER
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h
   CACHE INTERNAL "Path to vtkMaterialLibraryMacro.h")
-  
+
 

@@ -45,7 +45,7 @@ interaction support.
 
         package require vtkinteraction
 
-i) Tcl interactor: 
+i) Tcl interactor:
 
 The vtkinteraction package creates a generic Tcl interactor inside a
 console widget, allowing you to issue any Tcl commands while running
@@ -157,4 +157,4 @@ root [1012] ~/tmp# wish
 /home/myuser/VTK-gcc/Wrapping/Tcl /usr/lib/tcl8.3 /usr/lib /usr/lib/tk8.3
 
 This shall do the trick :))
-Sebastien BARRE (sebastien.barre@kitware.com) 
+Sebastien BARRE (sebastien.barre@kitware.com)

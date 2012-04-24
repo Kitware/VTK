@@ -25,7 +25,7 @@ public class TreeViews extends JFrame {
   private vtkRenderWindowPanel panel2;
   private vtkRenderWindowPanel panel3;
   private vtkRenderWindowPanel panel4;
-  
+
   private vtkXMLTreeReader reader = new vtkXMLTreeReader();
   private vtkTreeLevelsFilter levels = new vtkTreeLevelsFilter();
 
@@ -51,7 +51,7 @@ public class TreeViews extends JFrame {
       nameArr.InsertNextValue("" + i);
     }
     g.GetVertexData().AddArray(nameArr);
-    
+
     vtkTree tree = new vtkTree();
     tree.ShallowCopy(g);
     levels.SetInputData(tree);

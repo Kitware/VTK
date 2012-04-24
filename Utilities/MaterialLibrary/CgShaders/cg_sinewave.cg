@@ -19,7 +19,7 @@ Comments:
 ******************************************************************************/
 
 struct appin
-{   
+{
     float4 Position     : POSITION;
 };
 
@@ -30,7 +30,7 @@ struct vertout
     float4 Texture0     : TEXCOORD0;
 };
 
-vertout main(appin IN, 
+vertout main(appin IN,
              uniform float4x4 ModelViewProj,    // Modelview-projection matrix
              uniform float4x4 ModelView,        // Modelview matrix
              uniform float4x4 ModelViewIT,      // Inverse transpose modelview matrix
@@ -46,7 +46,7 @@ vertout main(appin IN,
     float sinVal;
     sincos(distance * SinTime, sinVal, cosVal);
 
-    OUT.HPosition = mul(ModelViewProj, float4(IN.Position.x, 
+    OUT.HPosition = mul(ModelViewProj, float4(IN.Position.x,
                                               IN.Position.y,
                                               (sinVal * 0.06),
                                               IN.Position.w));
@@ -67,7 +67,7 @@ vertout main(appin IN,
         OUT.Color0 = float4(1.0, 1.0, 1.0, 1.0);
 
     float4 eye = normalize(mul(ModelView, IN.Position));
-    
+
     // Compute reflection vector for look up into cube map
     float4 texCoord = eye - 2 * dot(eye, normal) * normal;
     OUT.Texture0 = texCoord;

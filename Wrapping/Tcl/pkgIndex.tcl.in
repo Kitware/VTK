@@ -3,13 +3,16 @@
 package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
   namespace eval ::vtk::init {
     proc load_library_package {libName libPath {libPrefix {@VTK_TCL_LIBNAME_PREFIX@}}} {
-      set libExt [info sharedlibextension]
-      set currentDirectory [pwd]
-      set libFile [file join $libPath "$libPrefix$libName$libExt"]
-      if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
-        puts $errorMessage
+      #first try to load a static package, then try the shared package.
+      if {[catch "load {} $libName"]} {
+        set libExt [info sharedlibextension]
+        set currentDirectory [pwd]
+        set libFile [file join $libPath "$libPrefix$libName-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@$libExt"]
+        if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
+          puts $errorMessage
+        }
+        cd $currentDirectory
       }
-      cd $currentDirectory
     }
     proc require_package {name {version {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}}} {
       if {[catch "package require -exact $name $version" errorMessage]} {
@@ -21,22 +24,14 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
     }
     set version {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
     set kits {}
-    foreach kit { base Common Filtering IO Imaging Graphics
-                  @VTK_TCL_RENDERING_CONFIG@ @VTK_TCL_VOLUMERENDERING_CONFIG@
-                  @VTK_TCL_HYBRID_CONFIG@ @VTK_TCL_WIDGETS_CONFIG@
-                  @VTK_TCL_PARALLEL_CONFIG@ @VTK_TCL_GEOVIS_CONFIG@ 
-                  @VTK_TCL_INFOVIS_CONFIG@ @VTK_TCL_VIEWS_CONFIG@} {
+    foreach kit { base @VTK_TCL_WRAPPED_MODULES@ } {
       lappend kits [string tolower "${kit}"]
     }
   }
   package provide vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
 }
 
-foreach kit { Common Filtering IO Imaging Graphics
-              @VTK_TCL_RENDERING_CONFIG@ @VTK_TCL_VOLUMERENDERING_CONFIG@
-              @VTK_TCL_HYBRID_CONFIG@ @VTK_TCL_WIDGETS_CONFIG@
-              @VTK_TCL_PARALLEL_CONFIG@ @VTK_TCL_GEOVIS_CONFIG@ 
-              @VTK_TCL_INFOVIS_CONFIG@ @VTK_TCL_VIEWS_CONFIG@} {
+foreach kit { @VTK_TCL_WRAPPED_MODULES@ } {
   package ifneeded "vtk${kit}TCL" {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} "
     package require -exact vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
     ::vtk::init::load_library_package {vtk${kit}TCL} {@VTK_TCL_LIBRARY_DIR@}

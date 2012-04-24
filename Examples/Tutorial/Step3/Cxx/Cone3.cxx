@@ -28,7 +28,7 @@
 
 int main()
 {
-  // 
+  //
   // Next we create an instance of vtkConeSource and set some of its
   // properties. The instance of vtkConeSource "cone" is part of a
   // visualization pipeline (it is a source process object); it produces data
@@ -38,8 +38,8 @@ int main()
   cone->SetHeight( 3.0 );
   cone->SetRadius( 1.0 );
   cone->SetResolution( 10 );
-  
-  // 
+
+  //
   // In this example we terminate the pipeline with a mapper process object.
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
   // between the source and the mapper.)  We create an instance of
@@ -49,7 +49,7 @@ int main()
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection( cone->GetOutputPort() );
 
-  // 
+  //
   // Create an actor to represent the cone. The actor orchestrates rendering
   // of the mapper's graphics primitives. An actor also refers to properties
   // via a vtkProperty instance, and includes an internal transformation
@@ -59,7 +59,7 @@ int main()
   vtkActor *coneActor = vtkActor::New();
   coneActor->SetMapper( coneMapper );
 
-  // 
+  //
   // Create two renderers and assign actors to them. A renderer renders into
   // a viewport within the vtkRenderWindow. It is part or all of a window on
   // the screen and it is responsible for drawing the actors it has.  We also
@@ -89,7 +89,7 @@ int main()
 
   //
   // Make one view 90 degrees from other.
-  // 
+  //
   ren1->ResetCamera();
   ren1->GetActiveCamera()->Azimuth(90);
 
@@ -105,7 +105,7 @@ int main()
     ren1->GetActiveCamera()->Azimuth( 1 );
     ren2->GetActiveCamera()->Azimuth( 1 );
     }
-  
+
   //
   // Free up any objects we created. All instances in VTK are deleted by
   // using the Delete() method.

@@ -41,7 +41,7 @@ def getReaderWriter(file_name, out_dir=None):
             break
     if not reader:
         return None, None
-    
+
     reader.SetFileName(file_name)
     reader.Update()
 
@@ -56,7 +56,7 @@ def getReaderWriter(file_name, out_dir=None):
 def _getAttr(reader, lst, attr='Scalars'):
     p_a = []
     c_a = []
-    
+
     for i in lst:
         eval('reader.Set%sName(i)'%attr)
         reader.Update()
@@ -70,7 +70,7 @@ def _getAttr(reader, lst, attr='Scalars'):
         if s and (s not in c_a):
             c_a.append(s)
     return p_a, c_a
-    
+
 
 def setAllAttributes(reader):
     s_name = []
@@ -82,7 +82,7 @@ def setAllAttributes(reader):
         v_name.append(reader.GetVectorsNameInFile(i))
     for i in range(reader.GetNumberOfTensorsInFile()):
         t_name.append(reader.GetTensorsNameInFile(i))
-    
+
     p_s, c_s = _getAttr(reader, s_name, 'Scalars')
     p_v, c_v = _getAttr(reader, v_name, 'Vectors')
     p_t, c_t = _getAttr(reader, t_name, 'Tensors')
@@ -125,7 +125,7 @@ options:
     return msg
 
 
-def main():    
+def main():
     options = "bahnd:"
     long_opts = ['binary', 'ascii', 'help', 'no-encode', 'output-dir=']
 
@@ -137,7 +137,7 @@ def main():
         print '-'*70
         print msg
         sys.exit(1)
-   
+
     mode = 'p'
     encode = 1
     out_dir = None
@@ -161,8 +161,8 @@ def main():
         print "\nError: Incorrect number of arguments\n"
         print usage()
         sys.exit(1)
-    
-    for i in args:        
+
+    for i in args:
         r, w = getReaderWriter(i, out_dir)
         if not r:
             print "\nError: Could not convert file: %s"%i

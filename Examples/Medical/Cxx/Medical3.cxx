@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-// 
+//
 // This example reads a volume dataset, extracts two isosurfaces that
-// represent the skin and bone, creates three orthogonal planes 
+// represent the skin and bone, creates three orthogonal planes
 // (sagittal, axial, coronal), and displays them.
 //
 #include <vtkRenderer.h>
@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
   // render window (expressed in pixels).
   aRenderer->SetBackground(.2, .3, .4);
   renWin->SetSize(640, 480);
-  
+
   // The following reader is used to read a series of 2D slices (images)
   // that compose the volume. The slice dimensions are set, and the
   // pixel spacing. The data Endianness must also be specified. The
@@ -225,7 +225,7 @@ int main (int argc, char *argv[])
   axial->GetMapper()->SetInputConnection(axialColors->GetOutputPort());
   axial->SetDisplayExtent(0,63, 0,63, 46,46);
 
-  // Create the third (coronal) plane of the three planes. We use 
+  // Create the third (coronal) plane of the three planes. We use
   // the same approach as before except that the extent differs.
   vtkSmartPointer<vtkImageMapToColors> coronalColors =
     vtkSmartPointer<vtkImageMapToColors>::New();
@@ -251,7 +251,7 @@ int main (int argc, char *argv[])
   aCamera->Azimuth(30.0);
   aCamera->Elevation(30.0);
 
-  // Actors are added to the renderer. 
+  // Actors are added to the renderer.
   aRenderer->AddActor(outline);
   aRenderer->AddActor(sagittal);
   aRenderer->AddActor(axial);
@@ -265,20 +265,20 @@ int main (int argc, char *argv[])
   // Set skin to semi-transparent.
   skin->GetProperty()->SetOpacity(0.5);
 
-  // An initial camera view is created.  The Dolly() method moves 
+  // An initial camera view is created.  The Dolly() method moves
   // the camera towards the FocalPoint, thereby enlarging the image.
   aRenderer->SetActiveCamera(aCamera);
-  
+
   // Calling Render() directly on a vtkRenderer is strictly forbidden.
   // Only calling Render() on the vtkRenderWindow is a valid call.
   renWin->Render();
-  
+
   aRenderer->ResetCamera ();
   aCamera->Dolly(1.5);
-  
+
   // Note that when camera movement occurs (as it does in the Dolly()
   // method), the clipping planes often need adjusting. Clipping planes
-  // consist of two planes: near and far along the view direction. The 
+  // consist of two planes: near and far along the view direction. The
   // near plane clips out objects in front of the plane; the far plane
   // clips out objects behind the plane. This way only what is drawn
   // between the planes is actually rendered.
@@ -286,7 +286,7 @@ int main (int argc, char *argv[])
 
   // interact with data
   iren->Initialize();
-  iren->Start(); 
+  iren->Start();
 
   return EXIT_SUCCESS;
 }

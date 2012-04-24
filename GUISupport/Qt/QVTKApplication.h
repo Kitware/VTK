@@ -31,7 +31,8 @@
 #define __QVTKApplication_h
 
 
-#include "QVTKWin32Header.h" // for QVTK_EXPORT
+#include "vtkGUISupportQtModule.h" // For export macro
+#include "QVTKWin32Header.h" // for VTKGUISUPPORTQT_EXPORT
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 
 #include <QApplication>
@@ -43,7 +44,7 @@ class vtkTDxQtUnixDevices;
  #endif
 #endif
 
-class QVTK_EXPORT QVTKApplication : public QApplication
+class VTKGUISUPPORTQT_EXPORT QVTKApplication : public QApplication
 {
    Q_OBJECT
 public:
@@ -54,7 +55,7 @@ public:
   // Description:
   // Destructor.
   ~QVTKApplication();
-  
+
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   // Description:
   // Intercept X11 events.
@@ -69,7 +70,7 @@ public Q_SLOTS:
 // It re-emit signal CreateDevice (to QVTKWidget slots)
 // No-op if not X11 (ie Q_WS_X11 is not defined).
 void setDevice(vtkTDxDevice *device);
-  
+
 Q_SIGNALS:
 // Description:
 // Signal for VTKWidget slots.

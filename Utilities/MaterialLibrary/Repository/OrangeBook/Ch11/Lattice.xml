@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Material>
-  
+
   <Property name="Property1">
     <!--
     <Member name="Color" number_of_elements="3" type="Double" value="1.0 1.0 1.0">

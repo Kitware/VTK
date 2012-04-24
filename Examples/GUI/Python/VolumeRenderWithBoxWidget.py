@@ -98,7 +98,7 @@ def ClipVolumeRender(obj, event):
     global planes, volumeMapper
     obj.GetPlanes(planes)
     volumeMapper.SetClippingPlanes(planes)
- 
+
 
 # Place the interactor initially. The output of the reader is used to
 # place the box widget.

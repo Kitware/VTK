@@ -34,7 +34,7 @@ class SimpleView : public QMainWindow
 public:
 
   // Constructor/Destructor
-  SimpleView(); 
+  SimpleView();
   ~SimpleView();
 
 public slots:
@@ -43,13 +43,13 @@ public slots:
   virtual void slotExit();
 
 protected:
-   
+
 protected slots:
 
 private:
 
   vtkSmartPointer<vtkQtTableView>         TableView;
-    
+
   // Designer form
   Ui_SimpleView *ui;
 };

@@ -147,7 +147,7 @@ squad ToroidalOn
 
 vtkAppendPolyData appendSquads
     appendSquads AddInput [squad GetOutput]
-   
+
 vtkPolyDataMapper mapper
     mapper SetInputConnection [squad GetOutputPort]
     mapper ScalarVisibilityOff
@@ -287,7 +287,7 @@ expressed in degrees. Both angles are specified with respect to the camera.\
 (elevation=0, azimuth=0) is located at the camera (a headlight).\
 (elevation=90, azimuth=0) is directly over the object\
 shining down. Negative azimuth angles position a light to the left of the\
-camera, positive values right.  
+camera, positive values right.
 
 The back light is actually two lights, one on the left and one on the\
 right.  The two lights have the same elevation, but opposite azimuth.\

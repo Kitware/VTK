@@ -87,7 +87,7 @@ sphereWidget.HandleVisibilityOn()
 def MoveLight(obj, event):
     global light
     light.SetPosition(obj.GetHandlePosition())
- 
+
 sphereWidget.AddObserver("InteractionEvent", MoveLight)
 
 # Add the actors to the renderer, set the background and size

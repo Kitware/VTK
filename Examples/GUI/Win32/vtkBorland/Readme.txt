@@ -48,7 +48,7 @@ In the Borland C++ Builder IDE:
    Conditionals:
    Add
      'STRICT'
-   *optionally, if you compile VTK with VTK_DEBUG_LEAKS:BOOL=ON, 
+   *optionally, if you compile VTK with VTK_DEBUG_LEAKS:BOOL=ON,
     you can also add VTK_DEBUG_LEAKS as a conditional.  If so,
     then you must add the following additional include directories:
     /VTK/Graphics
@@ -56,7 +56,7 @@ In the Borland C++ Builder IDE:
     /VTK/IO
     /VTK/Utilities/vtkjpeg
     /VTK/Utilities/vtkpng
-    /VTK/Utilities/vtkzlib 
+    /VTK/Utilities/vtkzlib
     /VTK/Utilities/vtkfreetype
     /VTK/Utilities/vtkftgl
     and add the corresponding libs as in step 4
@@ -112,15 +112,15 @@ Building the example in the IDE:
      path to /VTK/Graphics
      path to /VTK/Rendering
      path to vtkConfigure.h (in-source or out-of-source VTK build directory)
-     path to vtkBorlandRenderwindow.h 
+     path to vtkBorlandRenderwindow.h
    Library path:
      path to Borland compiled VTK libs
    Conditionals:
    Add
      'STRICT'
-   Intermediate output: 
+   Intermediate output:
       your choice
-   Final output: 
+   Final output:
       your choice
 7. Project->Add to Project
      browse and add the VTK libs: vtkCommon, vtkFiltering, vtkGraphics, vtkRendering

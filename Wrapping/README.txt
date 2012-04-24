@@ -4,7 +4,7 @@ Notes on usage of LEX and YACC to generate VTK parse files
 LEX:
 ----
 1. vtkParse.l is edited as necessary
-2. LEX is run (should be flex. Last tested on flex version 2.5.4 on Cygwin, 
+2. LEX is run (should be flex. Last tested on flex version 2.5.4 on Cygwin,
                but it should work on Linux or on anything that uses flex)
 3. LEX spits out lex.yy.c
 4. Remove line:
@@ -21,7 +21,7 @@ YACC:
 1. vtkParse.y is edited as necessary
 2. yacc is run: "yacc -b vtkParse vtkParse.y" and spits out vtkParse.tab.c
    (Note: yacc was run RedHat Linux 5.2 1/14/00 by W. Schroeder)
-3. Build vtkHTML.exe, vtkWrapTcl.exe, vtkParseJava.exe,vtkWrapJava.exe, 
+3. Build vtkHTML.exe, vtkWrapTcl.exe, vtkParseJava.exe,vtkWrapJava.exe,
    vtkWrapPython.exe on the PC and check them in.
 4. Check in vtkParse.l, lex.yy.c, vtkParse.y, vtkParse.tab.c
 

@@ -2,7 +2,7 @@
 
 ##
 # This is an example of how to use the vtkVolumePicker.
-## 
+##
 
 import math
 import vtk

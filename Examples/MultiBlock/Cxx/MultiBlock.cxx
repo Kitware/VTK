@@ -14,7 +14,7 @@
 =========================================================================*/
 // This example demonstrates how multi-block datasets can be processed
 // using the new vtkMultiBlockDataSet class.
-// 
+//
 // The command line arguments are:
 // -D <path> => path to the data (VTKData); the data should be in <path>/Data/
 
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     // a structured grid dataset)
     vtksys_ios::ostringstream fname;
     fname << "Data/multicomb_" << i << ".vts" << ends;
-    char* cfname = 
+    char* cfname =
       vtkTestUtilities::ExpandDataFileName(argc, argv, fname.str().c_str());
     reader->SetFileName(cfname);
     // We have to update since we are working without a VTK pipeline.
@@ -90,11 +90,11 @@ int main(int argc, char* argv[])
   reader->Delete();
 
   // Multi-block can be processed with regular VTK filters in two ways:
-  // 1. Pass through a multi-block aware consumer. Since a multi-block 
+  // 1. Pass through a multi-block aware consumer. Since a multi-block
   //    aware mapper is not yet available, vtkCompositeDataGeometryFilter
   //    can be used
   // 2. Assign the composite executive (vtkCompositeDataPipeline) to
-  //    all "simple" (that work only on simple, non-composite datasets) filters  
+  //    all "simple" (that work only on simple, non-composite datasets) filters
 
   // outline
   vtkStructuredGridOutlineFilter* of = vtkStructuredGridOutlineFilter::New();
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   // This filter is multi-block aware and will request blocks from the
   // input. These blocks will be processed by simple processes as if they
   // are the whole dataset
-  vtkCompositeDataGeometryFilter* geom1 = 
+  vtkCompositeDataGeometryFilter* geom1 =
     vtkCompositeDataGeometryFilter::New();
   geom1->SetInputConnection(0, of->GetOutputPort(0));
 
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
   contour->SetValue(0, 0.45);
 
   // geometry filter
-  vtkCompositeDataGeometryFilter* geom2 = 
+  vtkCompositeDataGeometryFilter* geom2 =
     vtkCompositeDataGeometryFilter::New();
   geom2->SetInputConnection(0, contour->GetOutputPort(0));
 

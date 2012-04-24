@@ -59,7 +59,7 @@ int main(int argc, char** argv)
   widget.show();
 
   app.exec();
-  
+
 
   image_view->Delete();
   reader->Delete();

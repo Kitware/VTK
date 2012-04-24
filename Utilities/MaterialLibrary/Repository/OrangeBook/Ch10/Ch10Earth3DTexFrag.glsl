@@ -3,7 +3,7 @@
 //
 // Author: Randi Rost
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
@@ -23,10 +23,10 @@ void main (void)
     // clouds.b will be unused
 
     vec3 clouds    = texture2D(EarthCloudGloss, TexCoord).stp;
-    vec3 daytime   = (texture2D(EarthDay, TexCoord).stp * Diffuse + 
+    vec3 daytime   = (texture2D(EarthDay, TexCoord).stp * Diffuse +
                           Specular * clouds.g) * (1.0 - clouds.r) +
                           clouds.r * Diffuse;
-    vec3 nighttime = texture2D(EarthNight, TexCoord).stp * 
+    vec3 nighttime = texture2D(EarthNight, TexCoord).stp *
                          (1.0 - clouds.r);
 
     vec3 color = daytime;

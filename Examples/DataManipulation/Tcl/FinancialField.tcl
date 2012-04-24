@@ -1,5 +1,5 @@
-# This example demonstrates the use of fields and use of 
-# vtkProgrammableDataObjectSource. It creates fields the hard way 
+# This example demonstrates the use of fields and use of
+# vtkProgrammableDataObjectSource. It creates fields the hard way
 # (as compared to reading a vtk field file), but shows you how to
 # interface to your own raw data.
 
@@ -11,7 +11,7 @@ set yAxis MONTHLY_PAYMENT
 set zAxis MONTHLY_INCOME
 set scalar TIME_LATE
 
-# Parse an ascii file and manually create a field. Then construct a 
+# Parse an ascii file and manually create a field. Then construct a
 # dataset from the field.
 vtkProgrammableDataObjectSource dos
 dos SetExecuteMethod parseFile
@@ -44,7 +44,7 @@ proc parseFile {} {
       for {set j 0} {$j < $m} {incr j} {timeLate InsertNextValue $v($j)}
    }
    # Add the array
-   $fieldData AddArray timeLate 
+   $fieldData AddArray timeLate
 
    # MONTHLY_PAYMENT - independent variable
    while { [gets $file arrayName] == 0 } {}
@@ -56,7 +56,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyPayment InsertNextValue $v($j)}
    }
-   $fieldData AddArray monthlyPayment 
+   $fieldData AddArray monthlyPayment
 
    # UNPAID_PRINCIPLE - skip
    while { [gets $file arrayName] == 0 } {}
@@ -80,7 +80,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {interestRate InsertNextValue $v($j)}
    }
-   $fieldData AddArray interestRate 
+   $fieldData AddArray interestRate
 
    # MONTHLY_INCOME - independent variable
    while { [gets $file arrayName] == 0 } {}
@@ -92,7 +92,7 @@ proc parseFile {} {
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyIncome InsertNextValue $v($j)}
    }
-   $fieldData AddArray  monthlyIncome 
+   $fieldData AddArray  monthlyIncome
 
 }
 
@@ -105,9 +105,9 @@ do2ds SetInputConnection [dos GetOutputPort]
 do2ds SetDataSetTypeToPolyData
 do2ds DefaultNormalizeOn
 # All we need is points. Assign them.
-do2ds SetPointComponent 0 $xAxis 0 
+do2ds SetPointComponent 0 $xAxis 0
 do2ds SetPointComponent 1 $yAxis 0
-do2ds SetPointComponent 2 $zAxis 0 
+do2ds SetPointComponent 2 $zAxis 0
 
 # RearrangeFields is used to move fields between DataObject's
 # FieldData, PointData and CellData.
@@ -119,7 +119,7 @@ rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
 # Force the filter to execute. This is need to force the pipeline
 # to execute so that we can find the range of the array TIME_LATE
 rf Update
-# Set max to the second (GetRange return [min,max]) of the "range of the 
+# Set max to the second (GetRange return [min,max]) of the "range of the
 # array called $scalar in the PointData of the output of rf"
 set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
 
@@ -129,7 +129,7 @@ calc SetInputConnection [rf GetOutputPort]
 # Working on point data
 calc SetAttributeModeToUsePointData
 # Map $scalar to s. When setting function, we can use s to
-# represent the array $scalar (TIME_LATE) 
+# represent the array $scalar (TIME_LATE)
 calc AddScalarVariable s $scalar 0
 # Divide $scalar by $max (applies division to all components of the array)
 calc SetFunction "s / $max"
@@ -172,12 +172,12 @@ proc CreateAxes {} {
     vtkAxes axes
     axes SetOrigin [lindex $bounds 0]  [lindex $bounds 2]  [lindex $bounds 4]
     axes SetScaleFactor [expr [[popSplatter GetOutput] GetLength]/5.0]
-    
+
     vtkTubeFilter axesTubes
     axesTubes SetInputConnection [axes GetOutputPort]
     axesTubes SetRadius [expr [axes GetScaleFactor]/25.0]
     axesTubes SetNumberOfSides 6
-    
+
     vtkPolyDataMapper axesMapper
     axesMapper SetInputConnection [axesTubes GetOutputPort]
 
@@ -208,13 +208,13 @@ proc CreateAxes {} {
     YActor SetScale 0.02 .02 .02
     YActor SetPosition -0.05 0.35 -0.05
     [YActor GetProperty] SetColor 0 0 0
-    
+
     vtkVectorText ZText
     ZText SetText $zAxis
 
     vtkPolyDataMapper ZTextMapper
     ZTextMapper SetInputConnection [ZText GetOutputPort]
-    
+
     vtkFollower ZActor
     ZActor SetMapper ZTextMapper
     ZActor SetScale 0.02 .02 .02

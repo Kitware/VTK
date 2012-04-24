@@ -74,7 +74,7 @@ vtkContourFilter contour
     contour SetInputConnection [reader2 GetOutputPort]
 
 # create a mapper for the polygonal data
-vtkPolyDataMapper mapper 
+vtkPolyDataMapper mapper
     mapper SetInputConnection [contour GetOutputPort]
     mapper ScalarVisibilityOff
 

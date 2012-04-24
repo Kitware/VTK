@@ -53,7 +53,7 @@ class EasyView : public QMainWindow
 public:
 
   // Constructor/Destructor
-  EasyView(); 
+  EasyView();
   ~EasyView();
 
 public slots:
@@ -62,22 +62,22 @@ public slots:
   virtual void slotExit();
 
 protected:
-   
+
 protected slots:
 
 private:
 
   // Methods
   void SetupAnnotationLink();
-  
-   
+
+
   // Members
   vtkSmartPointer<vtkXMLTreeReader>       XMLReader;
   vtkSmartPointer<vtkGraphLayoutView>     GraphView;
   vtkSmartPointer<vtkQtTreeView>          TreeView;
   vtkSmartPointer<vtkQtTableView>         TableView;
   vtkSmartPointer<vtkQtTreeView>          ColumnView;
-    
+
   // Designer form
   Ui_EasyView *ui;
 };

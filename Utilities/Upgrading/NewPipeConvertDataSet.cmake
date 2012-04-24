@@ -17,14 +17,14 @@ FILE (READ ${CXX_FILE} CXX_CONTENTS)
 # First do the H file
 #================================================================
 
-STRING (REGEX REPLACE 
-  "vtkDataSetToDataSetFilter" 
-  "vtkDataSetAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkDataSetToDataSetFilter"
+  "vtkDataSetAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkSource" 
-  "vtkDataSetAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkSource"
+  "vtkDataSetAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE
@@ -67,7 +67,7 @@ STRING (REGEX REPLACE
 IF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
   # do not do these replacements multiple times
   IF (NOT "${CXX_CONTENTS}" MATCHES ".*vtkInformation.h.*")
-    STRING (REGEX REPLACE  
+    STRING (REGEX REPLACE
       "vtkObjectFactory.h"
       "vtkInformation.h\"\n#include \"vtkInformationVector.h\"\n#include \"vtkObjectFactory.h"
       CXX_CONTENTS "${CXX_CONTENTS}")

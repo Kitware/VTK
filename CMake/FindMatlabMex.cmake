@@ -58,10 +58,10 @@ ELSE(NOT WIN32)
   SET(MATLAB_LIB_DIR ${MATLAB_ROOT_DIR}/extern/lib/${MATLAB_DIR_PREFIX}/microsoft CACHE FILEPATH DOCSTRING)
 ENDIF(NOT WIN32)
 
-# Find mex executable 
+# Find mex executable
 
 IF(NOT WIN32)
-  FIND_PROGRAM(MATLAB_MEX_EXECUTABLE mex ${MATLAB_ROOT_DIR} DOC "Path to Matlab mex compiler")  
+  FIND_PROGRAM(MATLAB_MEX_EXECUTABLE mex ${MATLAB_ROOT_DIR} DOC "Path to Matlab mex compiler")
 ELSE(NOT WIN32)
   FIND_FILE(MATLAB_MEX_EXECUTABLE mex.bat ${MATLAB_ROOT_DIR} DOC "Path to Matlab mex compiler")
 ENDIF(NOT WIN32)

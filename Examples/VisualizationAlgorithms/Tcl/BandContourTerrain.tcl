@@ -10,7 +10,7 @@ package require vtktesting
 # The lookup table is similar to that used by maps. Two hues are used: a
 # brown for land, and a blue for water. The value of the hue is changed to
 # give the effect of elevation.
-set Scale 5 
+set Scale 5
 vtkLookupTable lutWater
   lutWater SetNumberOfColors 10
   lutWater SetHueRange 0.58 0.58
@@ -30,7 +30,7 @@ vtkDEMReader demModel
   demModel SetFileName $VTK_DATA_ROOT/Data/SainteHelens.dem
   demModel Update
 
-# We shrink the terrain data down a bit to yield better performance for 
+# We shrink the terrain data down a bit to yield better performance for
 # this example.
 set shrinkFactor 4
 vtkImageShrink3D shrink
@@ -75,7 +75,7 @@ vtkLODActor demActor
 ## Create contour edges
 vtkPolyDataMapper edgeMapper
   edgeMapper SetInputConnection [bcf GetOutputPort]
-  edgeMapper SetResolveCoincidentTopologyToPolygonOffset 
+  edgeMapper SetResolveCoincidentTopologyToPolygonOffset
 vtkActor edgeActor
   edgeActor SetMapper edgeMapper
   [edgeActor GetProperty] SetColor 0 0 0
@@ -131,7 +131,7 @@ vtkCamera cam
 ren1 SetActiveCamera cam
 ren1 ResetCamera
 cam Zoom 2
- 
+
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren SetDesiredUpdateRate 1
 

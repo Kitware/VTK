@@ -21,7 +21,7 @@ pl3d.AddFunction(153)
 pl3d.Update()
 pl3d.DebugOn()
 pl3d_output = pl3d.GetOutput().GetBlock(0)
-    
+
 # The contour filter uses the labeled scalar (function number 100
 # above to generate the contour surface; all other data is
 # interpolated during the contouring process.

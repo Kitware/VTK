@@ -51,7 +51,7 @@ ren1 AddActor meshActor
 ren1 SetBackground 1 1 1
 renWin SetSize 350 250
 
-vtkCamera cam1 
+vtkCamera cam1
     cam1 SetClippingRange 2580 129041
     cam1 SetFocalPoint 461550 6.58e+006 2132
     cam1 SetPosition 463960 6.559e+06 16982

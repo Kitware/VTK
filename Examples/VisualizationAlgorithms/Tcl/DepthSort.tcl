@@ -1,4 +1,4 @@
-# This example demonstrates the use of vtkDepthSortPolyData. This is a 
+# This example demonstrates the use of vtkDepthSortPolyData. This is a
 # poor man's algorithm to sort polygons for proper transparent blending.
 # It sorts polygons based on a single point (i.e., centroid) so the sorting
 # may not work for overlapping or intersection polygons.
@@ -8,7 +8,7 @@ package require vtkinteraction
 
 # Create a bunch of spheres that overlap and cannot be easily arranged
 # so that the blending works without sorting. They are appended into a
-# single vtkPolyData because the filter only sorts within a single 
+# single vtkPolyData because the filter only sorts within a single
 # vtkPolyData input.
 #
 vtkSphereSource sphere

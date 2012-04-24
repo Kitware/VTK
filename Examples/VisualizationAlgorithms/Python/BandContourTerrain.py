@@ -34,7 +34,7 @@ demModel = vtk.vtkDEMReader()
 demModel.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demModel.Update()
 
-# We shrink the terrain data down a bit to yield better performance for 
+# We shrink the terrain data down a bit to yield better performance for
 # this example.
 shrinkFactor = 4
 shrink = vtk.vtkImageShrink3D()

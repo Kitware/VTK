@@ -23,11 +23,11 @@ void main()
   vec4 col = vec4(0,0.5,0.5,1);
   vec4 diffuse = col * gl_LightSource[0].diffuse * NdotL;
   vec4 specular;
-  
-  if (NdotL > 0.0) 
+
+  if (NdotL > 0.0)
     {
     float NdotHV = max(dot(normal, gl_LightSource[0].halfVector.xyz), 0.0);
-    specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * 
+    specular = gl_FrontMaterial.specular * gl_LightSource[0].specular *
       pow(NdotHV, gl_FrontMaterial.shininess);
     }
   gl_FrontColor = diffuse + ambient + specular;

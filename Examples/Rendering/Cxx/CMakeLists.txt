@@ -9,7 +9,7 @@ INCLUDE(${VTK_USE_FILE})
 ENDIF(NOT VTK_BINARY_DIR)
 
 INCLUDE_DIRECTORIES(
-  # in support of SurfaceLICDemo that includes 
+  # in support of SurfaceLICDemo that includes
   # TestSurfaceLIC.h from the dir below
   ${VTK_SOURCE_DIR}/Rendering/Testing/Cxx
 )

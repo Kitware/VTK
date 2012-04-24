@@ -73,7 +73,7 @@ varying vec3  ViewVec;
 void main (void)
 {
     vec3 kcool    = min(CoolColor + DiffuseCool * SurfaceColor, 1.0);
-    vec3 kwarm    = min(WarmColor + DiffuseWarm * SurfaceColor, 1.0); 
+    vec3 kwarm    = min(WarmColor + DiffuseWarm * SurfaceColor, 1.0);
     vec3 kfinal   = mix(kcool, kwarm, NdotL);
 
     vec3 nreflect = normalize(ReflectVec);

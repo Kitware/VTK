@@ -22,12 +22,13 @@
 #ifndef __vtkQtDebugLeaksModel_h
 #define __vtkQtDebugLeaksModel_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include <QStandardItemModel>
 
 class vtkObjectBase;
 
-class QVTK_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
+class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
 {
   Q_OBJECT
 
