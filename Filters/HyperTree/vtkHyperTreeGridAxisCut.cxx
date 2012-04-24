@@ -169,12 +169,11 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // Initialize
+  // Retrieve input and output
   this->Input = vtkHyperTreeGrid::SafeDownCast( inInfo->Get(vtkDataObject::DATA_OBJECT()) );
   this->Output= vtkPolyData::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
-  vtkCellData *outCD = this->Output->GetCellData();
-  vtkCellData *inCD = this->Input->GetCellData();
 
+  // This filter is only for 2D slices of 3D grids
   if ( this->Input->GetDimension() != 3 )
     {
     vtkErrorMacro("Axis cut only works with 3D trees.");
@@ -184,6 +183,9 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   // Ensure that primal grid API is used for hyper trees
   this->Input->SetDualGridFlag( false );
 
+  // Initialize output cell data
+  vtkCellData *outCD = this->Output->GetCellData();
+  vtkCellData *inCD = this->Input->GetCellData();
   outCD->CopyAllocate( inCD );
 
   this->ProcessTrees();
