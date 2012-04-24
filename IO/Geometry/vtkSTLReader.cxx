@@ -442,12 +442,17 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
         {
         if (!fgets(line, 255, fp))
           {
-          vtkErrorMacro ("STLReader error reading file: " << this->FileName
-                         << " Premature EOF while reading end solid.");
-          fclose(fp);
-          return 0;
+          // if fgets() returns an error, it may be due to the fact that the EOF
+          // is reached (BUG #13101) hence we test again.
+          done = feof(fp);
+          if (!done)
+            {
+            vtkErrorMacro ("STLReader error reading file: " << this->FileName
+              << " Premature EOF while reading end solid.");
+            fclose(fp);
+            return 0;
+            }
           }
-
         done = feof(fp);
         }
 
