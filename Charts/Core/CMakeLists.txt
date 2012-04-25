@@ -36,11 +36,20 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkChart
-  vtkContextPolygon
   vtkControlPointsItem
   vtkPlot
   vtkScalarsToColorsItem
   ABSTRACT
   )
+
+set_source_files_properties(
+  vtkContextPolygon
+  WRAP_EXCLUDE
+)
+
+set_source_files_properties(
+  vtkContextPolygon
+  PROPERTIES WRAP_SPECIAL 1
+)
 
 vtk_module_library(vtkChartsCore ${Module_SRCS})
