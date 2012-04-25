@@ -37,7 +37,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   int testIntValue = 0;
 
   // Dimension of hyper trees
-  int dim = 2;
+  int dim = 3;
 
   //vtkNew<vtkHyperTreeGenerator> fractal;
   //vtkNew<vtkHyperTreeGridFractalSource> fractal;
@@ -90,18 +90,6 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   writer1->SetInputConnection( shrink->GetOutputPort() );
   writer1->Write();
 
-  cerr << "# Cut" << endl;
-  vtkNew<vtkCutter> cut;
-  vtkNew<vtkPlane> plane;
-  plane->SetOrigin( .5, .5, .15 );
-  plane->SetNormal( 0, 0, 1 );
-  cut->SetInputData( htGrid );
-  cut->SetCutFunction( plane.GetPointer() );
-  vtkNew<vtkPolyDataWriter> writer2;
-  writer2->SetFileName( "./hyperTreeGridCut.vtk" );
-  writer2->SetInputConnection( cut->GetOutputPort() );
-  writer2->Write();
-
   // Axis-aligned cut works only in 3D for now
   if ( dim == 3 )
     {
@@ -115,6 +103,18 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     writer3->SetInputConnection( axisCut->GetOutputPort() );
     writer3->Write();
     }
+
+  cerr << "# Cut" << endl;
+  vtkNew<vtkCutter> cut;
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin( .5, .5, .15 );
+  plane->SetNormal( 0, 0, 1 );
+  cut->SetInputData( htGrid );
+  cut->SetCutFunction( plane.GetPointer() );
+  vtkNew<vtkPolyDataWriter> writer2;
+  writer2->SetFileName( "./hyperTreeGridCut.vtk" );
+  writer2->SetInputConnection( cut->GetOutputPort() );
+  writer2->Write();
 
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( fractal->GetOutputPort() );
