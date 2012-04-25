@@ -14,21 +14,18 @@
 =========================================================================*/
 // .NAME vtkDistributedStreamTracer - Distributed streamline generator
 // .SECTION Description
-// This filter integrates streamlines on a distributed dataset. It is
-// essentially a serial algorithm: only one process is active at one
-// time and it is not more efficient than a single process integration.
-// It is useful when the data is too large to be on one process and
-// has to be kept distributed.
+// This filter is temporary to be compatabile with ParaView and will soon be removed
 // .SECTION See Also
 // vtkStreamTracer vtkPStreamTracer
 
 #ifndef __vtkDistributedStreamTracer_h
 #define __vtkDistributedStreamTracer_h
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
 #include "vtkPStreamTracer.h"
 
-class VTKFILTERSPARALLELTRACERS_EXPORT vtkDistributedStreamTracer : public vtkPStreamTracer
+#include "vtkFiltersParallelTracersModule.h" // For export macro
+
+class  VTKFILTERSPARALLELTRACERS_EXPORT vtkDistributedStreamTracer : public vtkPStreamTracer
 {
 public:
   vtkTypeMacro(vtkDistributedStreamTracer,vtkPStreamTracer);
@@ -40,34 +37,6 @@ protected:
 
   vtkDistributedStreamTracer();
   ~vtkDistributedStreamTracer();
-
-  void ForwardTask(double seed[3],
-                   int direction,
-                   int isNewSeed,
-                   int lastid,
-                   int lastCellId,
-                   int currentLine,
-                   double* firstNormal,
-                   double propagation,
-                   vtkIdType numSteps);
-  int ProcessTask(double seed[3],
-                  int direction,
-                  int isNewSeed,
-                  int lastid,
-                  int lastCellId,
-                  int currentLine,
-                  double* firstNormal,
-                  double propagation,
-                  vtkIdType numSteps);
-  int ProcessNextLine(int currentLine);
-  int ReceiveAndProcessTask();
-
-  virtual void ParallelIntegrate();
-
-private:
-  vtkDistributedStreamTracer(const vtkDistributedStreamTracer&);  // Not implemented.
-  void operator=(const vtkDistributedStreamTracer&);  // Not implemented.
 };
-
 
 #endif
