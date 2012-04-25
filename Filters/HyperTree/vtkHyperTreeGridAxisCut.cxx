@@ -192,6 +192,7 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   vtkCellData *inCD = this->Input->GetCellData();
   outCD->CopyAllocate( inCD );
 
+  // Cut through hyper tree grid
   this->ProcessTrees();
 
   // Return duality flag of input to its original state

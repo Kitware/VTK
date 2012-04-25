@@ -98,10 +98,10 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     axisCut->SetInputConnection( fractal->GetOutputPort() );
     axisCut->SetPlaneNormalAxis( 2 );
     axisCut->SetPlanePosition( .1 );
-    vtkNew<vtkPolyDataWriter> writer3;
-    writer3->SetFileName( "./hyperTreeGridAxisCut.vtk" );
-    writer3->SetInputConnection( axisCut->GetOutputPort() );
-    writer3->Write();
+    vtkNew<vtkPolyDataWriter> writer2;
+    writer2->SetFileName( "./hyperTreeGridAxisCut.vtk" );
+    writer2->SetInputConnection( axisCut->GetOutputPort() );
+    writer2->Write();
     }
 
   cerr << "# Cut" << endl;
@@ -111,10 +111,10 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   plane->SetNormal( 0, 0, 1 );
   cut->SetInputData( htGrid );
   cut->SetCutFunction( plane.GetPointer() );
-  vtkNew<vtkPolyDataWriter> writer2;
-  writer2->SetFileName( "./hyperTreeGridCut.vtk" );
-  writer2->SetInputConnection( cut->GetOutputPort() );
-  writer2->Write();
+  vtkNew<vtkPolyDataWriter> writer3;
+  writer3->SetFileName( "./hyperTreeGridCut.vtk" );
+  writer3->SetInputConnection( cut->GetOutputPort() );
+  writer3->Write();
 
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( fractal->GetOutputPort() );

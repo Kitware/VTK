@@ -202,7 +202,11 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   this->Output= vtkPolyData::SafeDownCast( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
 
   // Ensure that primal grid API is used for hyper trees
-  this->Input->SetDualGridFlag( false );
+  bool inputDualFlagIsOn = this->Input->GetDualGridFlag();
+  if ( inputDualFlagIsOn )
+    {
+    this->Input->SetDualGridFlag( false );
+    }
 
   // Initialize output cell data
   vtkCellData* inCD = this->Input->GetCellData();
@@ -212,6 +216,13 @@ int vtkHyperTreeGridGeometry::RequestData( vtkInformation*,
   // Extract geometry from hyper tree grid
   this->ProcessTrees();
 
+  // Return duality flag of input to its original state
+  if ( inputDualFlagIsOn )
+    {
+    this->Input->SetDualGridFlag( true );
+    }
+
+  // Clean up
   this->Input = 0;
   this->Output = 0;
 
