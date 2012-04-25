@@ -11,25 +11,24 @@
 #include "vtkHyperTreeGridAxisCut.h"
 #include "vtkHyperTreeGridFractalSource.h"
 #include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGenerator.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkDataSetWriter.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
-#include "vtkShrinkFilter.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkShrinkFilter.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDataSetWriter.h"
 
 int TestHyperTreeGrid( int argc, char* argv[] )
 {
@@ -39,8 +38,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   // Dimension of hyper trees
   int dim = 3;
 
-  //vtkNew<vtkHyperTreeGenerator> fractal;
-  //vtkNew<vtkHyperTreeGridFractalSource> fractal;
+  // Create hyper tree grid source
   vtkHyperTreeGridFractalSource* fractal = vtkHyperTreeGridFractalSource::New();
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
@@ -60,12 +58,18 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     {
     return 1;
     }
-
   fractal->SetDimension( dim );
   fractal->SetAxisBranchFactor( 3 );
-  //vtkHyperTreeGrid* htGrid = fractal->NewHyperTreeGrid();
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
+
+  cerr << "# Geometry" << endl;
+  vtkNew<vtkHyperTreeGridGeometry> geometry;
+  geometry->SetInputConnection( fractal->GetOutputPort() );
+  vtkNew<vtkPolyDataWriter> writer4;
+  writer4->SetFileName( "./hyperTreeGridGeometry.vtk" );
+  writer4->SetInputConnection( geometry->GetOutputPort() );
+  writer4->Write();
 
   cerr << "# Contour" << endl;
   vtkNew<vtkContourFilter> contour;
@@ -116,15 +120,13 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   writer3->SetInputConnection( cut->GetOutputPort() );
   writer3->Write();
 
-  vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( fractal->GetOutputPort() );
-  geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
-
+  // Create mapper
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection( geometry->GetOutputPort() );
+  vtkPolyData* pd = geometry->GetOutput();
   mapper->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
  
+  // Create actor
   vtkNew<vtkActor> actor;
   actor->SetMapper( mapper.GetPointer() );
 
