@@ -1099,7 +1099,7 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
 {
   // Work out which scatter plot was clicked - make that one the active plot.
   int n = this->GetSize().X();
-  vtkVector2i pos(0, 0);
+  vtkVector2i pos(-1, -1);
   for (int i = 0; i < n; ++i)
     {
     for (int j = 0; j < n; ++j)
@@ -1109,6 +1109,12 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
         pos = vtkVector2i(i, j);
         }
       }
+    }
+
+  if(pos[0] == -1)
+    {
+    // no plot was clicked, so just return
+    return true;
     }
 
   // If the left button was used, hyperjump, if the right was used full path.
