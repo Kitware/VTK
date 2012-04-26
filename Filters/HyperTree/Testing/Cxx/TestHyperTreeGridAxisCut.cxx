@@ -76,7 +76,5 @@ int TestHyperTreeGridAxisCut( int argc, char* argv[] )
     iren->Start();
     }
 
-  // Clean up
-
-  return 0;
+  return !retVal;
 }
