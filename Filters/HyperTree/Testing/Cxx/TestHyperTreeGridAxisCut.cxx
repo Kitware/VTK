@@ -9,7 +9,7 @@
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
-#include "vtkHyperTreeGridFractalSource.h"
+#include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
@@ -22,7 +22,7 @@
 
 int TestHyperTreeGridAxisCut( int argc, char* argv[] )
 {
-  vtkNew<vtkHyperTreeGridFractalSource> fractal;
+  vtkNew<vtkHyperTreeGridSource> fractal;
   fractal->SetMaximumLevel( 3 );
   fractal->SetGridSize( 3, 4, 2 );
   fractal->SetDimension( 3 );

@@ -9,7 +9,7 @@ All rights reserved.
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
-#include "vtkHyperTreeGridFractalSource.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridGeometry.h"
 
 #include "vtkCellData.h"
@@ -94,7 +94,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   int testIntValue = 0;
 
   // Create hyper tree grid source
-  vtkHyperTreeGridFractalSource* fractal = vtkHyperTreeGridFractalSource::New();
+  vtkHyperTreeGridSource* fractal = vtkHyperTreeGridSource::New();
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
   if ( dim == 3 )

@@ -8,7 +8,7 @@
 // This test was written by Philippe Pebay, Kitware SAS 2012
 
 #include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridFractalSource.h"
+#include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
@@ -21,7 +21,7 @@
 
 int TestHyperTreeGridGeometry( int argc, char* argv[] )
 {
-  vtkNew<vtkHyperTreeGridFractalSource> fractal;
+  vtkNew<vtkHyperTreeGridSource> fractal;
   fractal->SetMaximumLevel( 3 );
   fractal->SetGridSize( 3, 4, 2 );
   fractal->SetDimension( 3 );

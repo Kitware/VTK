@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridFractalSource.cxx
+  Module:    vtkHyperTreeGridSource.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkHyperTreeGridFractalSource.h"
+#include "vtkHyperTreeGridSource.h"
 
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
@@ -26,10 +26,10 @@
 
 #include <assert.h>
 
-vtkStandardNewMacro(vtkHyperTreeGridFractalSource);
+vtkStandardNewMacro(vtkHyperTreeGridSource);
 
 //----------------------------------------------------------------------------
-vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
+vtkHyperTreeGridSource::vtkHyperTreeGridSource()
 {
   // This a source: no input ports
   this->SetNumberOfInputPorts( 0 );
@@ -64,7 +64,7 @@ vtkHyperTreeGridFractalSource::vtkHyperTreeGridFractalSource()
 }
 
 //----------------------------------------------------------------------------
-vtkHyperTreeGridFractalSource::~vtkHyperTreeGridFractalSource()
+vtkHyperTreeGridSource::~vtkHyperTreeGridSource()
 {
  if ( this->XCoordinates )
     {
@@ -89,7 +89,7 @@ vtkHyperTreeGridFractalSource::~vtkHyperTreeGridFractalSource()
 // Description:
 // Return the maximum number of levels of the hyperoctree.
 // \post positive_result: result>=1
-int vtkHyperTreeGridFractalSource::GetMaximumLevel()
+int vtkHyperTreeGridSource::GetMaximumLevel()
 {
   assert("post: positive_result" && this->MaximumLevel>=1);
   return this->MaximumLevel;
@@ -102,7 +102,7 @@ int vtkHyperTreeGridFractalSource::GetMaximumLevel()
 // \pre positive_levels: levels>=1
 // \post is_set: this->GetLevels()==levels
 // \post min_is_valid: this->GetMinLevels()<this->GetLevels()
-void vtkHyperTreeGridFractalSource::SetMaximumLevel( int levels )
+void vtkHyperTreeGridSource::SetMaximumLevel( int levels )
 {
   if ( levels < 1 )
     {
@@ -132,7 +132,7 @@ void vtkHyperTreeGridFractalSource::SetMaximumLevel( int levels )
 // Description:
 // Return the minimal number of levels of systematic subdivision.
 // \post positive_result: result>=0
-int vtkHyperTreeGridFractalSource::GetMinimumLevel()
+int vtkHyperTreeGridSource::GetMinimumLevel()
 {
   assert( "post: positive_result" && this->MinimumLevel >= 0 );
   return this->MinimumLevel;
@@ -143,7 +143,7 @@ int vtkHyperTreeGridFractalSource::GetMinimumLevel()
 // Set the minimal number of levels of systematic subdivision.
 // \pre positive_minLevels: minLevels>=0 && minLevels<this->GetLevels()
 // \post is_set: this->GetMinLevels()==minLevels
-void vtkHyperTreeGridFractalSource::SetMinimumLevel( int minLevels )
+void vtkHyperTreeGridSource::SetMinimumLevel( int minLevels )
 {
   if ( minLevels < 1 )
     {
@@ -161,7 +161,7 @@ void vtkHyperTreeGridFractalSource::SetMinimumLevel( int minLevels )
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridFractalSource::RequestInformation( vtkInformation*,
+int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
                                                        vtkInformationVector**,
                                                        vtkInformationVector *outputVector )
 {
@@ -196,7 +196,7 @@ int vtkHyperTreeGridFractalSource::RequestInformation( vtkInformation*,
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridFractalSource::RequestData( vtkInformation*,
+int vtkHyperTreeGridSource::RequestData( vtkInformation*,
                                                 vtkInformationVector**,
                                                 vtkInformationVector *outputVector )
 {
@@ -299,7 +299,7 @@ int vtkHyperTreeGridFractalSource::RequestData( vtkInformation*,
 
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
+void vtkHyperTreeGridSource::Subdivide( vtkHyperTreeCursor* cursor,
                                                int level,
                                                vtkHyperTreeGrid* output,
                                                int index,
@@ -401,7 +401,7 @@ void vtkHyperTreeGridFractalSource::Subdivide( vtkHyperTreeCursor* cursor,
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGridFractalSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
