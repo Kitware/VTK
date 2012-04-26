@@ -98,6 +98,7 @@ public:
     this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); };
   virtual const char *GetInterpolationTypeAsString();
 
+  // Description:
   // Set the layer number.  This is ignored unless the image is part
   // of a vtkImageStack.  The default layer number is zero.
   vtkSetMacro(LayerNumber, int);
