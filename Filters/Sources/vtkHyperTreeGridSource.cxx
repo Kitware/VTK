@@ -168,24 +168,12 @@ int vtkHyperTreeGridSource::RequestInformation( vtkInformation*,
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // We cannot give the exact number of levels of the hyperoctree
-  // because it is not generated yet and this process is random-based.
-  // Just send an upper limit.
-  // Used by the vtkHyperTreeGridToUniformGrid to send some
-  // whole extent in RequestInformation().
+  // We cannot give the exact number of levels of the hypertrees
+  // because it is not generated yet and this process depends on the recursion formula.
+  // Just send an upper limit instead.
   outInfo->Set( vtkHyperTreeGrid::LEVELS(), this->MaximumLevel );
   outInfo->Set( vtkHyperTreeGrid::DIMENSION(), this->Dimension );
-//   int ii;
-//   for (ii = 0; ii < 3; ++ii)
-//     {
-//     this->Size[ii] = this->SizeCX[this->ProjectionAxes[ii]];
-//     this->Origin[ii] = this->OriginCX[this->ProjectionAxes[ii]];
-//     }
-//   if (this->Dimension == 2)
-//     {
-//     this->Size[2] = 0.0;
-//     }
-//   outInfo->Set(vtkHyperTreeGrid::SIZES(),this->Size,3);
+
   double origin[3];
   origin[0] = this->XCoordinates->GetTuple1( 0 );
   origin[1] = this->YCoordinates->GetTuple1( 0 );
