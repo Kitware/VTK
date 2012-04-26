@@ -7,7 +7,8 @@
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2012
 
-#include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridAxisCut.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
@@ -19,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridGeometry( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
 {
   vtkNew<vtkHyperTreeGridSource> fractal;
   fractal->SetMaximumLevel( 3 );
@@ -27,24 +28,27 @@ int TestHyperTreeGridGeometry( int argc, char* argv[] )
   fractal->SetDimension( 3 );
   fractal->SetAxisBranchFactor( 3 );
 
-  vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( fractal->GetOutputPort() );
-  geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  vtkNew<vtkHyperTreeGridAxisCut> axisCut;
+  axisCut->SetInputConnection( fractal->GetOutputPort() );
+  axisCut->SetPlaneNormalAxis( 2 );
+  axisCut->SetPlanePosition( .1 );
+  axisCut->Update();
+  vtkPolyData* pd = axisCut->GetOutput();
 
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection( geometry->GetOutputPort() );
+  mapper->SetInputConnection( axisCut->GetOutputPort() );
   mapper->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
- 
+
   vtkNew<vtkActor> actor;
   actor->SetMapper( mapper.GetPointer() );
 
   // Create camera
+  vtkHyperTreeGrid* ht = fractal->GetOutput();
   double bd[3];
-  pd->GetBounds( bd );
+  ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
-  camera->SetFocalPoint( pd->GetCenter() );
+  camera->SetFocalPoint( ht->GetCenter() );
   camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Create a renderer, add actors to it
