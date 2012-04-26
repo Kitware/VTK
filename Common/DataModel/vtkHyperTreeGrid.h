@@ -376,15 +376,15 @@ public:
 
   // Description:
   // Initialize a super cursor to point to one of the root trees
-  // in the grid.  The super cursor points to a node in a tre and
-  // also keeps pointers to the nodes 26 neighbors.
+  // in the grid.  The super cursor points to a node in a tree and
+  // also keeps pointers to the 26 neighbors of said node.
   void InitializeSuperCursor(vtkHyperTreeSuperCursor* superCursor, int i, int j, int k);
   // Description:
   // Generate the table before calling InitializeSuperCursorChild.
   void GenerateSuperCursorTraversalTable();
   // Description:
-  // Initializa a cursor to point to a child of an existing super cursor.
-  // This will not work inplace.
+  // Initialize a cursor to point to a child of an existing super cursor.
+  // This will not work in place.
   void InitializeSuperCursorChild(vtkHyperTreeSuperCursor* parent,
                                   vtkHyperTreeSuperCursor* child,
                                   int childIdx);
@@ -503,20 +503,20 @@ private:
 };
 
 
-// Public structure filters use to move around the tree.
+// Public structure filters used to move around the tree.
 // The super cursor keeps neighbor cells so filters can
-// easily access neighbor to leaves.  The super cursor
+// easily access neighbor to leaves.
 // The super cursor is static.  Methods in vtkHyperTreeGrid
-// initialize and compute children for moving  toward leaves.
+// initialize and compute children for moving toward leaves.
 class vtkHyperTreeSuperCursor
 {
-  public:
+ public:
   vtkHyperTreeLightWeightCursor Cursors[27];
   int NumberOfCursors;
   int MiddleCursorId;
   double Origin[3];
   double Size[3];
-  vtkHyperTreeLightWeightCursor* GetCursor(int idx) { return this->Cursors + this->MiddleCursorId + idx;}
+  vtkHyperTreeLightWeightCursor* GetCursor( int idx ) { return this->Cursors + this->MiddleCursorId + idx; }
 };
 
 

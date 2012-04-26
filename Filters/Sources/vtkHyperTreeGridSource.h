@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperTreeGridFractalSource.h
+  Module:    vtkHyperTreeGridSource.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHyperTreeGridFractalSource - Create a hyper octree grid from a fractal.
+// .NAME vtkHyperTreeGridSource - Create a synthetic grid of hypertrees.
 //
 // .SECTION Description
 //
@@ -22,8 +22,8 @@
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkHyperTreeGridFractalSource_h
-#define __vtkHyperTreeGridFractalSource_h
+#ifndef __vtkHyperTreeGridSource_h
+#define __vtkHyperTreeGridSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
@@ -31,13 +31,13 @@
 class vtkDataArray;
 class vtkImplicitFunction;
 
-class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridFractalSource : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridFractalSource,vtkHyperTreeGridAlgorithm);
+  vtkTypeMacro(vtkHyperTreeGridSource,vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkHyperTreeGridFractalSource *New();
+  static vtkHyperTreeGridSource *New();
 
   // Description:
   // Return the maximum number of levels of the hyperoctree.
@@ -74,8 +74,8 @@ public:
   vtkGetMacro(Dimension, int);
 
 protected:
-  vtkHyperTreeGridFractalSource();
-  ~vtkHyperTreeGridFractalSource();
+  vtkHyperTreeGridSource();
+  ~vtkHyperTreeGridSource();
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector ** vtkNotUsed( inputVector ),
@@ -104,8 +104,8 @@ protected:
   vtkDataArray *ZCoordinates;
 
 private:
-  vtkHyperTreeGridFractalSource(const vtkHyperTreeGridFractalSource&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridFractalSource&);  // Not implemented.
+  vtkHyperTreeGridSource(const vtkHyperTreeGridSource&);  // Not implemented.
+  void operator=(const vtkHyperTreeGridSource&);  // Not implemented.
 };
 
 #endif
