@@ -181,10 +181,10 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
     }
 
   // Ensure that primal grid API is used for hyper trees
-  bool inputDualFlagIsOn = this->Input->GetDualGridFlag();
+  int inputDualFlagIsOn = this->Input->GetDualGridFlag();
   if ( inputDualFlagIsOn )
     {
-    this->Input->SetDualGridFlag( false );
+    this->Input->SetDualGridFlag( 0 );
     }
 
   // Initialize output cell data
@@ -198,7 +198,7 @@ int vtkHyperTreeGridAxisCut::RequestData( vtkInformation*,
   // Return duality flag of input to its original state
   if ( inputDualFlagIsOn )
     {
-    this->Input->SetDualGridFlag( true );
+    this->Input->SetDualGridFlag( 1 );
     }
 
   // Clean up
