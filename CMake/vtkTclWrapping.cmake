@@ -5,7 +5,7 @@ if(VTK_WRAP_TCL)
   include(vtkWrapHierarchy)
 endif()
 
-function(vtk_add_tcl_wrapping module_name module_srcs)
+function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   if(NOT VTK_WRAP_TCL_INIT_EXE)
     message(FATAL_ERROR "VTK must be built with Tcl wrapping turned on.")
   endif()

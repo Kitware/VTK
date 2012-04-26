@@ -324,7 +324,7 @@ VTK_AUTOINIT(${vtk-module})
   endif()
 
   # Add the module to the list of wrapped modules if necessary
-  vtk_add_wrapping(${vtk-module} "${ARGN}")
+  vtk_add_wrapping(${vtk-module} "${ARGN}" "${${vtk-module}_HDRS}")
 
   # Figure out which headers to install.
   if(NOT VTK_INSTALL_NO_DEVELOPMENT AND _hdrs)

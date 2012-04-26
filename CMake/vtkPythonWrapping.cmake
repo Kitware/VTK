@@ -1,7 +1,7 @@
 find_package(PythonLibs REQUIRED)
 include(vtkWrapPython)
 
-function(vtk_add_python_wrapping module_name module_srcs)
+function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   if(NOT VTK_WRAP_PYTHON_INIT_EXE)
     message(FATAL_ERROR "VTK must be built with Python wrapping turned on.")
   endif()
@@ -41,7 +41,15 @@ function(vtk_add_python_wrapping module_name module_srcs)
     endif()
   endforeach()
 
-  vtk_wrap_python3(${module_name}Python Python_SRCS "${module_srcs}")
+  set(_wrap_files ${module_srcs})
+  foreach(hdr ${module_hdrs})
+    get_source_file_property(_wrap_header "${hdr}" WRAP_HEADER)
+    if(_wrap_header)
+      list(APPEND _wrap_files "${hdr}")
+    endif()
+  endforeach()
+
+  vtk_wrap_python3(${module_name}Python Python_SRCS "${_wrap_files}")
   vtk_add_library(${module_name}PythonD ${Python_SRCS} ${extra_srcs})
   if(CMAKE_HAS_TARGET_INCLUDES)
     set_property(TARGET ${module_name}PythonD APPEND

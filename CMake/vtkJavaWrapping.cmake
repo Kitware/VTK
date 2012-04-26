@@ -21,7 +21,7 @@ if(VTK_WRAP_JAVA)
 
 endif()
 
-function(vtk_add_java_wrapping module_name module_srcs)
+function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
 
   set(_java_include_dirs
     ${JAVA_INCLUDE_PATH}
