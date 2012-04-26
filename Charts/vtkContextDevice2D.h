@@ -23,7 +23,6 @@
 #ifndef __vtkContextDevice2D_h
 #define __vtkContextDevice2D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkVector.h" // For vtkVector2i ivar
 #include "vtkRect.h"   // For vtkRecti ivar
@@ -39,9 +38,8 @@ class vtkMatrix3x3;
 class vtkAbstractContextBufferId;
 class vtkPen;
 class vtkBrush;
-class vtkRectf;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice2D : public vtkObject
+class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice2D, vtkObject);
