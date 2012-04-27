@@ -128,7 +128,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   int testIntValue = 0;
 
   // Create hyper tree grid source
-  vtkHyperTreeGridSource* fractal = vtkHyperTreeGridSource::New();
+  vtkNew<vtkHyperTreeGridSource> fractal;
   fractal->SetMaximumLevel( 3 );
   fractal->DualOn();
   if ( dim == 3 )
@@ -212,9 +212,6 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     writer3->SetInputConnection( cut->GetOutputPort() );
     writer3->Write();
     }
-
-  // Clean up
-  fractal->Delete();
 
   return testIntValue;
 }
