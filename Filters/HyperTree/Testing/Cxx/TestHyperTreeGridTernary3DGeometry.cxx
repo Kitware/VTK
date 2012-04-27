@@ -41,7 +41,7 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
   actor->SetMapper( mapper.GetPointer() );
 
   // Create camera
-  double bd[3];
+  double bd[6];
   pd->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );

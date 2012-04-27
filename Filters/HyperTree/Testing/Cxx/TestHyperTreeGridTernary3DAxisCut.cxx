@@ -45,7 +45,7 @@ int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
 
   // Create camera
   vtkHyperTreeGrid* ht = fractal->GetOutput();
-  double bd[3];
+  double bd[6];
   ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
