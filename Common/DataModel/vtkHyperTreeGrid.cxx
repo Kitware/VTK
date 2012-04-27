@@ -40,12 +40,6 @@
 
 #include <assert.h>
 
-
-// Issues:
-// 1: Order of leaf id's due to refining nodes.  Reader could order leaves base on its own needs.
-// 2: Default cell interface creates connectivity arrays (effectively unstructured grid) to support random
-//    access to cells.  A serial iterator would be much more efficient.
-
 vtkInformationKeyMacro(vtkHyperTreeGrid, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperTreeGrid, DIMENSION, Integer);
 vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3 );
@@ -729,7 +723,7 @@ public:
   // Restore the initial state: only one node and one leaf: the root.
   virtual void Initialize()
     {
-      // Law: I believe that leaves are implicit (not node objects)
+      // NB: Leaves are implicit (not node objects)
       // so why initialize a root node with one leaf?
       // Does the root always have one child?
       this->Nodes.resize(1);
@@ -737,7 +731,7 @@ public:
       int i=0;
       while (i < N)
         {
-        // Law: I assume that the root is a special node with only one child.
+        // It is assumed that the root is a special node with only one child.
         // The other children flags are irrelavent, but set them as nodes for no good reason.
         this->Nodes[0].SetLeafFlag(i, i==0 ); // First child is a leaf
         this->Nodes[0].SetChild(i,0 );
@@ -790,8 +784,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Public only for the vtkCompactHyperTreeCursor.
-  // Law:
-  // cursor (index ) appears to be different between nodes and leaves.
+  // NB: Cursor (index ) appears to be different between nodes and leaves.
   // Different arrays => overlapping indexes.
   // I am changing the name for clarity.
   // This really returns the nodeIdx of the leafs parent.
@@ -830,10 +823,10 @@ public:
       // the leaf becomes a node and is not anymore a leaf.
       cursor->SetIsLeaf( 0 ); // let the cursor knows about that change.
       size_t nodeIndex=this->Nodes.size();
-      // Law: I believe that the node array does not include leaves (which are implicit).
-      // Bad interface "SetCursor"  I would rather SetIndex.
+
+      // NB: Bad interface "SetCursor"; should rather SetIndex.
       cursor->SetCursor(static_cast<int>( nodeIndex ) );
-      // Law: Add a node
+
       // Nodes get constructed with leaf flags set to 1.
       this->Nodes.resize( nodeIndex + 1 );
       int parentNodeIdx = this->LeafParent[leafIndex];
@@ -841,14 +834,15 @@ public:
 
       // Change the parent: it has one less child as a leaf
       vtkCompactHyperTreeNode<N> *parent=&( this->Nodes[parentNodeIdx] );
-      // Law: New nodes index in parents children array.
+
+      // New nodes index in parents children array.
       int i = cursor->GetChildIndex();
       assert( "check matching_child" && parent->GetChild( i ) == leafIndex );
       parent->SetLeafFlag(i, false);
       parent->SetChild(i,static_cast<int>( nodeIndex ) );
 
       // The first new child
-      // Law: Recycle the leaf index we are deleting because it became a node.
+      // Recycle the leaf index we are deleting because it became a node.
       // This avoids messy leaf parent array issues.
       this->Nodes[nodeIndex].SetChild( 0, leafIndex );
       this->LeafParent[leafIndex]=static_cast<int>( nodeIndex );
@@ -884,7 +878,7 @@ public:
     }
 
   //---------------------------------------------------------------------------
-  // Law: Bad interface: This is really GetNumberOfLeaves.
+  // NB: Bad interface: This is really GetNumberOfLeaves.
   int GetLeafParentSize()
     {
       return static_cast<int>( this->LeafParent.size() );
@@ -972,10 +966,11 @@ protected:
         this->Dimension = 3;
         }
 
-      // Law: The root.
+      // The root.
       this->Nodes.resize(1);
       this->Nodes[0].SetParent( 0 );
-      // Law: Nodes default to have all children leaf flags equal true.
+
+      // Nodes default to have all children leaf flags equal true.
       int i=0;
       while( i < N )
         {

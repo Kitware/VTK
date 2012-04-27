@@ -14,6 +14,7 @@
 =========================================================================*/
 // .NAME vtkHyperTreeGrid - A dataset structured as a tree where each node has
 // exactly either 2^n or 3^n children.
+//
 // .SECTION Description
 // An hypertree is a dataset where each node has either exactly 2^n or 3^n children
 // or no child at all if the node is a leaf. `n' is the dimension of the
@@ -109,10 +110,10 @@
 // .SECTION Caveats
 // It is not a spatial search object. If you are looking for this kind of
 // octree see vtkCellLocator instead.
-
 //
 // .SECTION Thanks
-// This class was written by Charles Law and Philippe Pebay, Kitware 2012
+// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGrid_h
 #define __vtkHyperTreeGrid_h

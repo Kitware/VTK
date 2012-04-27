@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkHyperTreeGridAlgorithm - Superclass for algorithms that produce
 // a hyper tree grid as output
+//
 // .SECTION Description
-
-// vtkTreeGridAlgorithm is a convenience class to make writing algorithms
+// vtkHyperTreeGridAlgorithm is a convenience class to make writing algorithms
 // easier. It is also designed to help transition old algorithms to the new
 // pipeline architecture. There are some assumptions and defaults made by this
 // class you should be aware of. This class defaults such that your filter
@@ -25,9 +25,10 @@
 // constructor for the default. This class also provides a FillInputPortInfo
 // method that by default says that all inputs will be HyperTreeGrid. If that
 // isn't the case then please override this method in your subclass.
-
+//
 // .SECTION Thanks
-// This class was written by Philippe Pebay, Kitware SAS 2012
+// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #ifndef __vtkHyperTreeGridAlgorithm_h
 #define __vtkHyperTreeGridAlgorithm_h
