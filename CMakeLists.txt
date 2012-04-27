@@ -93,7 +93,9 @@ endif()
 if(NOT VTK_INSTALL_EXPORT_NAME)
   set(VTK_INSTALL_EXPORT_NAME VTKTargets)
 endif()
-set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
+if(NOT VTK_MODULES_DIR)
+  set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
+endif()
 
 # FIXME: Used by HashSource
 # the following lines are for cross compiling support
