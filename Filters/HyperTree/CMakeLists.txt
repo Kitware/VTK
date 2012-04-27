@@ -11,7 +11,6 @@ set(Module_SRCS
   vtkHyperOctreeSampleFunction.cxx
   vtkHyperOctreeSurfaceFilter.cxx
   vtkHyperOctreeToUniformGridFilter.cxx
-  vtkHyperTreeGenerator.cxx
   )
 
 vtk_module_library(vtkFiltersHyperTree ${Module_SRCS})
