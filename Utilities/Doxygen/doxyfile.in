@@ -41,27 +41,7 @@ IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Ut
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
 INPUT                = \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Charts" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Chemistry" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GenericFiltering/Testing/Cxx" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Geovis" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Graphics" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/MFC" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/GUISupport/Qt" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Infovis" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Views" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/VolumeRendering" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2tests.dox" \
@@ -71,10 +51,10 @@ INPUT                = \
 
 EXCLUDE_PATTERNS     =
 EXCLUDE              = \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkSetGet.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering/vtkMarchingSquaresCases.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Filtering/vtkMarchingCubesCases.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkWindows.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkSetGet.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingCubesCases.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkWindows.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTcl.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTk.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
@@ -84,16 +64,14 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel/vtkMPI.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid/vtk3DS.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Hybrid/vtkVRML.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/vtkPLY.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkOpenGL.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkFreeTypeFontCache.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/fonts/vtkEmbeddedFonts.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/Testing/vtkRegressionTestImage.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestDriver.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestingColors.h"
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel/MPI/vtkMPI.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/PLY/vtkPLY.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/OpenGL/vtkOpenGL.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/FreeType/fonts/vtkEmbeddedFonts.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Rendering/Testing/vtkRegressionTestImage.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Testing/Core/Testing/vtkTestDriver.h" \
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk@VTK_MAJOR_VERSION@-nightly.tag"=http://www.vtk.org/doc/nightly/html
 
@@ -118,7 +96,7 @@ SHORT_NAMES          = @DOXYGEN_SHORT_NAMES@
 # PAPER_TYPE           = letter
 
 FILE_PATTERNS        = *.h
-RECURSIVE            = NO
+RECURSIVE            = YES
 
 HTML_ALIGN_MEMBERS   = YES
 
