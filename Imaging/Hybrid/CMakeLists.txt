@@ -10,6 +10,8 @@ set(Module_SRCS
   vtkImageCursor3D.cxx
   vtkImageRectilinearWipe.cxx
   vtkTriangularTexture.cxx
+  vtkSliceCubes.cxx
+
   )
 
 vtk_module_library(${vtk-module} ${Module_SRCS})

@@ -44,12 +44,12 @@
 #ifndef __vtkSliceCubes_h
 #define __vtkSliceCubes_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkVolumeReader;
 
-class VTKFILTERSGENERAL_EXPORT vtkSliceCubes : public vtkObject
+class VTKIMAGINGHYBRID_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
   static vtkSliceCubes *New();
@@ -98,4 +98,3 @@ private:
 };
 
 #endif
-
