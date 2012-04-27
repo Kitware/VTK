@@ -46,41 +46,41 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   clArgs.StoreUnusedArguments( false );
 
   // Parse command line parameters and options
-  clArgs.AddArgument("--dimension",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &dim, "Dimension of hyper tree grid");
+  clArgs.AddArgument( "--dimension",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &dim, "Dimension of hyper tree grid" );
 
-  clArgs.AddArgument("--grid-size-X",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &nX, "Size of hyper tree grid in X direction");
+  clArgs.AddArgument( "--grid-size-X",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &nX, "Size of hyper tree grid in X direction" );
 
-  clArgs.AddArgument("--grid-size-Y",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &nY, "Size of hyper tree grid in Y direction");
+  clArgs.AddArgument( "--grid-size-Y",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &nY, "Size of hyper tree grid in Y direction" );
 
-  clArgs.AddArgument("--grid-size-Z",
-                     vtksys::CommandLineArguments::SPACE_ARGUMENT,
-                     &nZ, "Size of hyper tree grid in Z direction");
+  clArgs.AddArgument( "--grid-size-Z",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &nZ, "Size of hyper tree grid in Z direction" );
 
-  clArgs.AddArgument("--skip-Axis-Cut",
-                     vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipAxisCut, "Skip axis cut filter");
+  clArgs.AddArgument( "--skip-Axis-Cut",
+                      vtksys::CommandLineArguments::NO_ARGUMENT,
+                      &skipAxisCut, "Skip axis cut filter" );
 
-  clArgs.AddArgument("--skip-Contour",
-                     vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipAxisCut, "Skip contour filter");
+  clArgs.AddArgument( "--skip-Contour",
+                      vtksys::CommandLineArguments::NO_ARGUMENT,
+                      &skipAxisCut, "Skip contour filter" );
 
-  clArgs.AddArgument("--skip-Cut",
-                     vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipCut, "Skip cut filter");
+  clArgs.AddArgument( "--skip-Cut",
+                      vtksys::CommandLineArguments::NO_ARGUMENT,
+                      &skipCut, "Skip cut filter" );
 
-  clArgs.AddArgument("--skip-Geometry",
-                     vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipGeometry, "Skip geometry filter");
+  clArgs.AddArgument( "--skip-Geometry",
+                      vtksys::CommandLineArguments::NO_ARGUMENT,
+                      &skipGeometry, "Skip geometry filter" );
 
-  clArgs.AddArgument("--skip-Shrink",
-                     vtksys::CommandLineArguments::NO_ARGUMENT,
-                     &skipShrink, "Skip shrink filter");
+  clArgs.AddArgument( "--skip-Shrink",
+                      vtksys::CommandLineArguments::NO_ARGUMENT,
+                      &skipShrink, "Skip shrink filter" );
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
@@ -90,6 +90,40 @@ int TestHyperTreeGrid( int argc, char* argv[] )
          << "\n";
     }
 
+  // Ensure that parsed dimensionality makes sense
+  if ( dim > 3 )
+    {
+    dim = 3;
+    }
+  else if ( dim < 1 )
+    {
+    dim = 1;
+    }
+    
+  // Ensure that parsed grid sizes make sense
+  if ( nX < 1 )
+    {
+    nX = 1;
+    }
+  if ( nY < 1 )
+    {
+    nY = 1;
+    }
+  if ( nZ < 1 )
+    {
+    nZ = 1;
+    }
+
+  // Ensure that parsed grid sizes are consistent with dimensionality
+  if ( dim < 3 )
+    {
+    nZ = 1;
+    if ( dim < 2 )
+      {
+      nY = 1;
+      }
+    }
+ 
   // Initialize return value of test
   int testIntValue = 0;
 
@@ -101,18 +135,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     {
     fractal->SetGridSize( nX, nY, nZ );
     }
-  else if ( dim == 2 )
-    {
-    fractal->SetGridSize( nX, nY, 1 );
-    }
-  else if ( dim == 1 )
-    {
-    fractal->SetGridSize( nX, 1, 1 );
-    }
-  else
-    {
-    return 1;
-    }
+  fractal->SetGridSize( nX, nY, nZ );
   fractal->SetDimension( dim );
   fractal->SetAxisBranchFactor( 3 );
   fractal->Update();
