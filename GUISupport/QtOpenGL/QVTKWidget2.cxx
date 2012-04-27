@@ -137,6 +137,7 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
   if(this->mRenWin)
     {
     this->mRenWin->Finalize();
+    this->mRenWin->SetMapped(0);
     mConnect->Disconnect(mRenWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
     mConnect->Disconnect(mRenWin, vtkCommand::WindowIsCurrentEvent, this, SLOT(IsCurrent(vtkObject*, unsigned long, void*, void*)));
     mConnect->Disconnect(mRenWin, vtkCommand::WindowFrameEvent, this, SLOT(Frame()));
@@ -153,6 +154,7 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
     {
     // if it is mapped somewhere else, unmap it
     this->mRenWin->Finalize();
+    this->mRenWin->SetMapped(1);
 
     // tell the vtk window what the size of this window is
     this->mRenWin->SetSize(this->width(), this->height());
