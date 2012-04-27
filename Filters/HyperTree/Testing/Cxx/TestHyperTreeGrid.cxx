@@ -31,6 +31,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
 {
   // Default parameters and options
   int dim = 3;
+  int branch = 3;
   int max = 3;
   int nX = 3;
   int nY = 4;
@@ -50,6 +51,10 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   clArgs.AddArgument( "--dimension",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &dim, "Dimension of hyper tree grid" );
+
+  clArgs.AddArgument( "--branch-factor",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &branch, "Branching factor of hyper tree grid" );
 
   clArgs.AddArgument( "--max-level",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
@@ -95,12 +100,6 @@ int TestHyperTreeGrid( int argc, char* argv[] )
          << "\n";
     }
 
-  // Ensure that parsed maximum level makes sense
-  if ( max < 1 )
-    {
-    max = 1;
-    }
-    
   // Ensure that parsed dimensionality makes sense
   if ( dim > 3 )
     {
@@ -109,6 +108,22 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   else if ( dim < 1 )
     {
     dim = 1;
+    }
+    
+  // Ensure that parsed branch factor makes sense
+  if ( branch > 3 )
+    {
+    branch = 3;
+    }
+  else if ( branch < 2 )
+    {
+    branch = 2;
+    }
+    
+  // Ensure that parsed maximum level makes sense
+  if ( max < 1 )
+    {
+    max = 1;
     }
     
   // Ensure that parsed grid sizes make sense
@@ -140,7 +155,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
 
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
-  fractal->SetMaximumLevel( 3 );
+  fractal->SetMaximumLevel( max );
   fractal->DualOn();
   if ( dim == 3 )
     {
@@ -148,7 +163,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
     }
   fractal->SetGridSize( nX, nY, nZ );
   fractal->SetDimension( dim );
-  fractal->SetAxisBranchFactor( 3 );
+  fractal->SetAxisBranchFactor( branch );
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
 
