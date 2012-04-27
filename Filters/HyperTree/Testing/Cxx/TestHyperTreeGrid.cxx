@@ -22,7 +22,8 @@ All rights reserved.
 //   --skip-Shrink        Skip shrink filter
 //
 // .SECTION Thanks
-// This example was written by Charles Law and Philippe Pebay, Kitware 2012
+// This example was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
