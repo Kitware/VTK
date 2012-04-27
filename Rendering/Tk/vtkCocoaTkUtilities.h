@@ -31,12 +31,12 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef __vtkvtkCocoaTkUtilities_h
 #define __vtkvtkCocoaTkUtilities_h
 
-#include "vtkRenderingOpenGLModule.h" // For export macro
+#include "vtkRenderingTkModule.h" // For export macro
 #include "vtkObject.h"
 
 struct Tk_Window_;
 
-class VTKRENDERINGOPENGL_EXPORT vtkCocoaTkUtilities : public vtkObject
+class VTKRENDERINGTK_EXPORT vtkCocoaTkUtilities : public vtkObject
 {
 public:
   static vtkCocoaTkUtilities *New();

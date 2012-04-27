@@ -20,6 +20,7 @@
 #include "vtkToolkits.h"
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkVersionMacros.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
