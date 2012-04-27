@@ -31,6 +31,7 @@ int TestHyperTreeGrid( int argc, char* argv[] )
 {
   // Default parameters and options
   int dim = 3;
+  int max = 3;
   int nX = 3;
   int nY = 4;
   int nZ = 2;
@@ -49,6 +50,10 @@ int TestHyperTreeGrid( int argc, char* argv[] )
   clArgs.AddArgument( "--dimension",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &dim, "Dimension of hyper tree grid" );
+
+  clArgs.AddArgument( "--max-level",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &max, "Maximum depth of hyper tree grid" );
 
   clArgs.AddArgument( "--grid-size-X",
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
@@ -90,6 +95,12 @@ int TestHyperTreeGrid( int argc, char* argv[] )
          << "\n";
     }
 
+  // Ensure that parsed maximum level makes sense
+  if ( max < 1 )
+    {
+    max = 1;
+    }
+    
   // Ensure that parsed dimensionality makes sense
   if ( dim > 3 )
     {
