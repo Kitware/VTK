@@ -83,6 +83,9 @@ endif()
 if(NOT VTK_INSTALL_PACKAGE_DIR)
   set(VTK_INSTALL_PACKAGE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 endif()
+if(NOT VTK_INSTALL_DOXYGEN_DIR)
+  set(VTK_INSTALL_DOXYGEN_DIR ${VTK_INSTALL_DOC_DIR}/doxygen)
+endif()
 if(NOT VTK_INSTALL_TCL_DIR)
   # tclsh searches <prefix>/lib/tcltk and its subdirectories for pkgIndex.tcl files
   set(VTK_INSTALL_TCL_DIR lib/tcltk/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
@@ -411,6 +414,12 @@ endif()
 
 if(BUILD_TESTING)
   add_subdirectory(Testing/Install)
+endif()
+
+# The doxygen documentation needs to be aware of all modules.
+option(BUILD_DOCUMENTATION "Build the VTK documentation" OFF)
+if(BUILD_DOCUMENTATION)
+  add_subdirectory(Utilities/Doxygen)
 endif()
 
 #-----------------------------------------------------------------------------
