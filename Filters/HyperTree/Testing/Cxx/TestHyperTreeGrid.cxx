@@ -4,8 +4,25 @@ Copyright (c) Kitware Inc.
 All rights reserved.
 
 =========================================================================*/
+// .SECTION Description
+// This program illustrates the use of various filters acting upon hyper
+// tree grid data sets. It generates output files in VTK format.
+// 
+// .SECTION Usage 
+//   --branch-factor opt  Branching factor of hyper tree grid
+//   --dimension opt      Dimension of hyper tree grid
+//   --grid-size-X opt    Size of hyper tree grid in X direction
+//   --grid-size-Y opt    Size of hyper tree grid in Y direction
+//   --grid-size-Z opt    Size of hyper tree grid in Z direction
+//   --max-level opt      Maximum depth of hyper tree grid
+//   --skip-Axis-Cut      Skip axis cut filter
+//   --skip-Contour       Skip contour filter
+//   --skip-Cut           Skip cut filter
+//   --skip-Geometry      Skip geometry filter
+//   --skip-Shrink        Skip shrink filter
+//
 // .SECTION Thanks
-// This test was written by Charles Law and Philippe Pebay, Kitware 2012
+// This example was written by Charles Law and Philippe Pebay, Kitware 2012
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
