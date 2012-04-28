@@ -31,6 +31,10 @@ public:
   vtkContextPolygon();
 
   // Description:
+  // Creates a new copy of \p polygon.
+  vtkContextPolygon(const vtkContextPolygon &polygon);
+
+  // Description:
   // Destroys the polygon.
   ~vtkContextPolygon();
 
@@ -57,6 +61,10 @@ public:
   // Description:
   // Returns a new polygon with each point transformed by \p transform.
   vtkContextPolygon Transformed(vtkTransform2D *transform) const;
+
+  // Description:
+  // Copies the values from \p other to this polygon.
+  vtkContextPolygon& operator=(const vtkContextPolygon &other);
 
 private:
   vtkContextPolygonPrivate* const d;
