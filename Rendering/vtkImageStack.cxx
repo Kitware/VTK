@@ -309,27 +309,42 @@ int vtkImageStack::RenderOpaqueGeometry(vtkViewport* viewport)
   int rendered = 0;
   vtkImageSlice *image = 0;
   vtkCollectionSimpleIterator pit;
-  vtkIdType n = this->Images->GetNumberOfItems();
+  vtkIdType n = 0;
+  this->Images->InitTraversal(pit);
+  while ( (image = this->Images->GetNextImage(pit)) != 0)
+    {
+    n += (image->GetVisibility() != 0);
+    }
   double renderTime = this->AllocatedRenderTime/(n + (n == 0));
 
   if (n == 1)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
-    image = this->Images->GetNextImage(pit);
-    image->SetAllocatedRenderTime(renderTime, viewport);
-    return image->RenderOpaqueGeometry(viewport);
-    }
-
-  for (int pass = 0; pass < 3; pass++)
-    {
-    this->Images->InitTraversal(pit);
     while ( (image = this->Images->GetNextImage(pit)) != 0)
       {
-      image->SetAllocatedRenderTime(renderTime, viewport);
-      image->SetStackedImagePass(pass);
-      rendered |= image->RenderOpaqueGeometry(viewport);
-      image->SetStackedImagePass(-1);
+      if (image->GetVisibility())
+        {
+        image->SetAllocatedRenderTime(renderTime, viewport);
+        rendered = image->RenderOpaqueGeometry(viewport);
+        }
+      }
+    }
+  else
+    {
+    for (int pass = 0; pass < 3; pass++)
+      {
+      this->Images->InitTraversal(pit);
+      while ( (image = this->Images->GetNextImage(pit)) != 0)
+        {
+        if (image->GetVisibility())
+          {
+          image->SetAllocatedRenderTime(renderTime, viewport);
+          image->SetStackedImagePass(pass);
+          rendered |= image->RenderOpaqueGeometry(viewport);
+          image->SetStackedImagePass(-1);
+          }
+        }
       }
     }
 
@@ -354,27 +369,42 @@ int vtkImageStack::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   int rendered = 0;
   vtkImageSlice *image = 0;
   vtkCollectionSimpleIterator pit;
-  vtkIdType n = this->Images->GetNumberOfItems();
+  vtkIdType n = 0;
+  this->Images->InitTraversal(pit);
+  while ( (image = this->Images->GetNextImage(pit)) != 0)
+    {
+    n += (image->GetVisibility() != 0);
+    }
   double renderTime = this->AllocatedRenderTime/(n + (n == 0));
 
   if (n == 1)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
-    image = this->Images->GetNextImage(pit);
-    image->SetAllocatedRenderTime(renderTime, viewport);
-    return image->RenderTranslucentPolygonalGeometry(viewport);
-    }
-
-  for (int pass = 1; pass < 3; pass++)
-    {
-    this->Images->InitTraversal(pit);
     while ( (image = this->Images->GetNextImage(pit)) != 0)
       {
-      image->SetAllocatedRenderTime(renderTime, viewport);
-      image->SetStackedImagePass(pass);
-      rendered |= image->RenderTranslucentPolygonalGeometry(viewport);
-      image->SetStackedImagePass(-1);
+      if (image->GetVisibility())
+        {
+        image->SetAllocatedRenderTime(renderTime, viewport);
+        rendered = image->RenderTranslucentPolygonalGeometry(viewport);
+        }
+      }
+    }
+  else
+    {
+    for (int pass = 1; pass < 3; pass++)
+      {
+      this->Images->InitTraversal(pit);
+      while ( (image = this->Images->GetNextImage(pit)) != 0)
+        {
+        if (image->GetVisibility())
+          {
+          image->SetAllocatedRenderTime(renderTime, viewport);
+          image->SetStackedImagePass(pass);
+          rendered |= image->RenderTranslucentPolygonalGeometry(viewport);
+          image->SetStackedImagePass(-1);
+          }
+        }
       }
     }
 
@@ -399,27 +429,42 @@ int vtkImageStack::RenderOverlay(vtkViewport* viewport)
   int rendered = 0;
   vtkImageSlice *image = 0;
   vtkCollectionSimpleIterator pit;
-  vtkIdType n = this->Images->GetNumberOfItems();
+  vtkIdType n = 0;
+  this->Images->InitTraversal(pit);
+  while ( (image = this->Images->GetNextImage(pit)) != 0)
+    {
+    n += (image->GetVisibility() != 0);
+    }
   double renderTime = this->AllocatedRenderTime/(n + (n == 0));
 
   if (n == 1)
     {
     // no multi-pass if only one image
     this->Images->InitTraversal(pit);
-    image = this->Images->GetNextImage(pit);
-    image->SetAllocatedRenderTime(renderTime, viewport);
-    return image->RenderOverlay(viewport);
-    }
-
-  for (int pass = 1; pass < 3; pass++)
-    {
-    this->Images->InitTraversal(pit);
     while ( (image = this->Images->GetNextImage(pit)) != 0)
       {
-      image->SetAllocatedRenderTime(renderTime, viewport);
-      image->SetStackedImagePass(pass);
-      rendered |= image->RenderOverlay(viewport);
-      image->SetStackedImagePass(-1);
+      if (image->GetVisibility())
+        {
+        image->SetAllocatedRenderTime(renderTime, viewport);
+        rendered = image->RenderOverlay(viewport);
+        }
+      }
+    }
+  else
+    {
+    for (int pass = 1; pass < 3; pass++)
+      {
+      this->Images->InitTraversal(pit);
+      while ( (image = this->Images->GetNextImage(pit)) != 0)
+        {
+        if (image->GetVisibility())
+          {
+          image->SetAllocatedRenderTime(renderTime, viewport);
+          image->SetStackedImagePass(pass);
+          rendered |= image->RenderOverlay(viewport);
+          image->SetStackedImagePass(-1);
+          }
+        }
       }
     }
 
