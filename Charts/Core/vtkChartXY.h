@@ -28,7 +28,7 @@
 #include "vtkChart.h"
 #include "vtkSmartPointer.h" // For SP ivars
 #include "vtkVector.h" // For vtkVector2f in struct
-#include "vtkContextPolygon.h"
+#include "vtkContextPolygon.h" // For vtkContextPolygon
 
 class vtkPlot;
 class vtkAxis;

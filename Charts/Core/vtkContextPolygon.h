@@ -17,8 +17,8 @@
 #define _vtkContextPolygon_h
 
 #include "vtkChartsCoreModule.h"
-#include "vtkVector.h"
-#include "vtkType.h"
+#include "vtkVector.h" // For vtkVector2f
+#include "vtkType.h" // For vtkIdType
 
 class vtkTransform2D;
 class vtkContextPolygonPrivate;
@@ -63,3 +63,4 @@ private:
 };
 
 #endif // _vtkContextPolygon_h
+// VTK-HeaderTest-Exclude: vtkContextPolygon.h
