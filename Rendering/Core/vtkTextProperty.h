@@ -24,10 +24,10 @@
 #ifndef __vtkTextProperty_h
 #define __vtkTextProperty_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-class VTKRENDERINGFREETYPE_EXPORT vtkTextProperty : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkTextProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextProperty,vtkObject);

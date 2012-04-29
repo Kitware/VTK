@@ -135,6 +135,8 @@ set(Module_SRCS
   vtkTDxInteractorStyleSettings.cxx
 
   vtkStringToImage.cxx
+  vtkTextMapper.cxx
+  vtkTextProperty.cxx
   )
 
 set(${vtk-module}_HDRS
