@@ -385,7 +385,7 @@ void handle_complex_type(ValueInfo *val, unsigned int datatype,
                          unsigned int extra, const char *funcSig);
 void handle_function_type(ValueInfo *param, const char *name,
                           const char *funcSig);
-void add_legacy_parameter(ValueInfo *param);
+void add_legacy_parameter(FunctionInfo *func, ValueInfo *param);
 
 void outputSetVectorMacro(const char *var, unsigned int paramType,
                           const char *typeText, int n);
@@ -5032,7 +5032,7 @@ yyreduce:
 #line 1675 "vtkParse.y"
     {
       (yyval.integer) = (yyvsp[(3) - (9)].integer);
-      closeSig();
+      postSig(";"); closeSig();
       currentFunction->IsOperator = 1;
       currentFunction->Name = "operator typecast";
       currentFunction->Comment = vtkstrdup(getComment());
@@ -5048,7 +5048,7 @@ yyreduce:
   case 160:
 #line 1686 "vtkParse.y"
     {
-      closeSig();
+      postSig(";"); closeSig();
       currentFunction->Name = vtkstrcat("operator", (yyvsp[(1) - (3)].str));
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed operator", currentFunction->Name);
@@ -5082,7 +5082,7 @@ yyreduce:
   case 165:
 #line 1704 "vtkParse.y"
     {
-      closeSig();
+      postSig(";"); closeSig();
       currentFunction->Name = vtkstrdup((yyvsp[(1) - (2)].str));
       currentFunction->Comment = vtkstrdup(getComment());
       vtkParseDebug("Parsed func", currentFunction->Name);
@@ -5139,7 +5139,7 @@ yyreduce:
   case 182:
 #line 1754 "vtkParse.y"
     {
-      closeSig();
+      postSig(";"); closeSig();
       if (getStorageType() & VTK_PARSE_VIRTUAL)
         {
         currentFunction->IsVirtual = 1;
@@ -5196,7 +5196,7 @@ yyreduce:
       vtkParse_InitValue(param);
 
       handle_complex_type(param, (yyvsp[(2) - (3)].integer), (yyvsp[(3) - (3)].integer), copySig());
-      add_legacy_parameter(param);
+      add_legacy_parameter(currentFunction, param);
 
       if (getVarName())
         {
@@ -5231,7 +5231,7 @@ yyreduce:
       postSig(")(void *) ");
 
       handle_function_type(param, (yyvsp[(1) - (1)].str), copySig());
-      add_legacy_parameter(param);
+      add_legacy_parameter(currentFunction, param);
 
       vtkParse_AddParameterToFunction(currentFunction, param);
     }
@@ -7800,7 +7800,7 @@ void add_parameter(FunctionInfo *func, unsigned int type,
                               vtkstrdup(text));
     }
 
-  add_legacy_parameter(param);
+  add_legacy_parameter(func, param);
 
   vtkParse_AddParameterToFunction(func, param);
 }
@@ -7989,21 +7989,21 @@ void handle_function_type(
 }
 
 /* add a parameter to the legacy part of the FunctionInfo struct */
-void add_legacy_parameter(ValueInfo *param)
+void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
 {
 #ifndef VTK_PARSE_LEGACY_REMOVE
-  int i = currentFunction->NumberOfArguments;
+  int i = func->NumberOfArguments;
 
   if (i < MAX_ARGS)
     {
-    currentFunction->NumberOfArguments = i + 1;
-    currentFunction->ArgTypes[i] = param->Type;
-    currentFunction->ArgClasses[i] = param->Class;
-    currentFunction->ArgCounts[i] = param->Count;
+    func->NumberOfArguments = i + 1;
+    func->ArgTypes[i] = param->Type;
+    func->ArgClasses[i] = param->Class;
+    func->ArgCounts[i] = param->Count;
     }
   else
     {
-    currentFunction->ArrayFailure = 1;
+    func->ArrayFailure = 1;
     }
 #endif
 }

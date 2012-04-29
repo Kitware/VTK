@@ -5606,11 +5606,11 @@ void preprocessor_directive(const char *text, size_t l)
     MacroInfo *macro;
 
     macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
-    if (macro && macro->Definition && !macro->IsFunction)
+    if (macro && !macro->IsFunction)
       {
       /* if macro evaluates to a constant, add it as a constant */
       macro->IsExcluded = 1;
-      if (guess_constant_type(macro->Definition) == 0)
+      if (macro->Definition && guess_constant_type(macro->Definition) == 0)
         {
         result = VTK_PARSE_MACRO_UNDEFINED;
         }
