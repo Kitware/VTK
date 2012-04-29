@@ -17,8 +17,8 @@
 #define _vtkContextPolygon_h
 
 #include "vtkChartsCoreModule.h"
-#include "vtkVector.h"
-#include "vtkType.h"
+#include "vtkVector.h" // For vtkVector2f
+#include "vtkType.h" // For vtkIdType
 
 class vtkTransform2D;
 class vtkContextPolygonPrivate;
@@ -29,6 +29,10 @@ public:
   // Description:
   // Creates a new, empty polygon.
   vtkContextPolygon();
+
+  // Description:
+  // Creates a new copy of \p polygon.
+  vtkContextPolygon(const vtkContextPolygon &polygon);
 
   // Description:
   // Destroys the polygon.
@@ -58,8 +62,13 @@ public:
   // Returns a new polygon with each point transformed by \p transform.
   vtkContextPolygon Transformed(vtkTransform2D *transform) const;
 
+  // Description:
+  // Copies the values from \p other to this polygon.
+  vtkContextPolygon& operator=(const vtkContextPolygon &other);
+
 private:
   vtkContextPolygonPrivate* const d;
 };
 
 #endif // _vtkContextPolygon_h
+// VTK-HeaderTest-Exclude: vtkContextPolygon.h

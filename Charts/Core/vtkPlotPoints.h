@@ -31,7 +31,6 @@
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
-#include "vtkContextPolygon.h"
 
 class vtkContext2D;
 class vtkTable;

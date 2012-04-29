@@ -33,6 +33,13 @@ vtkContextPolygon::vtkContextPolygon()
 }
 
 //-----------------------------------------------------------------------------
+vtkContextPolygon::vtkContextPolygon(const vtkContextPolygon &polygon)
+  : d(new vtkContextPolygonPrivate)
+{
+  d->points = polygon.d->points;
+}
+
+//-----------------------------------------------------------------------------
 vtkContextPolygon::~vtkContextPolygon()
 {
   delete d;
@@ -77,4 +84,15 @@ vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D *transform) cons
                              reinterpret_cast<float *>(&transformed.d->points[0]),
                              d->points.size());
   return transformed;
+}
+
+//-----------------------------------------------------------------------------
+vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon &other)
+{
+  if(this != &other)
+    {
+    d->points = other.d->points;
+    }
+
+  return *this;
 }
