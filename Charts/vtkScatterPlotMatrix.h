@@ -275,6 +275,33 @@ public:
   // Get the column name for the supplied index.
   vtkStdString GetRowName(int row);
 
+  // Description:
+  // Clear the animation path.
+  void ClearAnimationPath();
+
+  // Description:
+  // Add a move to the animation path. Note that a move can only change i or j,
+  // not both. If the proposed move does not satisfy those criteria it will
+  // be rejected and the animation path will not be extended.
+  bool AddAnimationPath(const vtkVector2i &move);
+
+  // Description:
+  // Get the number of elements (transitions) in the animation path.
+  vtkIdType GetNumberOfAnimationPathElements();
+
+  // Description:
+  // Get the element specified from the animation path.
+  vtkVector2i GetAnimationPathElement(vtkIdType i);
+
+  // Description:
+  // Trigger the animation of the scatter plot matrix to begin.
+  bool BeginAnimationPath(vtkRenderWindowInteractor* interactor);
+
+  // Description:
+  // Advance the animation in response to the timer events. This is public to
+  // allow the animation to be manually advanced when timers are not a
+  virtual void AdvanceAnimation();
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
@@ -303,10 +330,6 @@ protected:
   // Given the render window interactor, start animation of the
   // animation path calculated above.
   virtual void StartAnimation(vtkRenderWindowInteractor* interactor);
-
-  // Description:
-  // Advance the animation in response to the timer events.
-  virtual void AdvanceAnimation();
 
   // Description:
   // Process events and dispatch to the appropriate member functions.

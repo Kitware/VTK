@@ -606,6 +606,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
   // 5: Make the new dimensionality active, update BigChart.
   // 5: Make BigChart3D invisible and BigChart visible.
   // 6: Stop the timer.
+  this->InvokeEvent(vtkCommand::AnimationCueTickEvent);
   switch (this->Private->AnimationPhase)
     {
   case 0: // Remove decoration from the big chart, load up the 3D chart
@@ -1098,28 +1099,99 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
 {
   // Work out which scatter plot was clicked - make that one the active plot.
   int n = this->GetSize().X();
+  vtkVector2i pos(0, 0);
   for (int i = 0; i < n; ++i)
     {
     for (int j = 0; j < n; ++j)
       {
       if (i + j + 1 < n && this->GetChart(vtkVector2i(i, j))->Hit(mouse))
         {
-        vtkVector2i pos(i, j);
-        this->UpdateAnimationPath(pos);
-        if(this->Private->AnimationPath.size()>0)
-          {
-          this->StartAnimation(mouse.GetInteractor());
-          }
-        else
-          {
-          this->SetActivePlot(pos);
-          }
-
-        return true;
+        pos = vtkVector2i(i, j);
         }
       }
     }
-  return false;
+
+  // If the left button was used, hyperjump, if the right was used full path.
+  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    this->Private->AnimationPath.clear();
+    if (pos[0] != this->ActivePlot[0])
+      {
+      this->Private->AnimationPath.push_back(vtkVector2i(pos[0],
+                                                         this->ActivePlot[1]));
+      }
+    if (pos[1] != this->ActivePlot[1])
+      {
+      this->Private->AnimationPath.push_back(pos);
+      }
+    if (this->Private->AnimationPath.size() > 0)
+      {
+      this->InvokeEvent(vtkCommand::CreateTimerEvent);
+      this->StartAnimation(mouse.GetInteractor());
+      }
+    }
+  else if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
+    {
+    this->UpdateAnimationPath(pos);
+    if (this->Private->AnimationPath.size() > 0)
+      {
+      this->InvokeEvent(vtkCommand::CreateTimerEvent);
+      this->StartAnimation(mouse.GetInteractor());
+      }
+    else
+      {
+      this->SetActivePlot(pos);
+      }
+    }
+
+  return true;
+}
+
+void vtkScatterPlotMatrix::ClearAnimationPath()
+{
+  this->Private->AnimationPath.clear();
+}
+
+vtkIdType vtkScatterPlotMatrix::GetNumberOfAnimationPathElements()
+{
+  return static_cast<vtkIdType>(this->Private->AnimationPath.size());
+}
+
+vtkVector2i vtkScatterPlotMatrix::GetAnimationPathElement(vtkIdType i)
+{
+  return this->Private->AnimationPath.at(i);
+}
+
+bool vtkScatterPlotMatrix::AddAnimationPath(const vtkVector2i &move)
+{
+  vtkVector2i pos = this->ActivePlot;
+  if (this->Private->AnimationPath.size())
+    {
+    pos = this->Private->AnimationPath.back();
+    }
+  if (move.X() != pos.X() && move.Y() != pos.Y())
+    {
+    // Can only move in x or y, not both. Do not append the element.
+    return false;
+    }
+  else
+    {
+    this->Private->AnimationPath.push_back(move);
+    return true;
+    }
+}
+
+bool vtkScatterPlotMatrix::BeginAnimationPath(vtkRenderWindowInteractor* interactor)
+{
+  if (interactor && this->Private->AnimationPath.size())
+    {
+    this->StartAnimation(interactor);
+    return true;
+    }
+  else
+    {
+    return false;
+    }
 }
 
 int vtkScatterPlotMatrix::GetPlotType(const vtkVector2i &pos)

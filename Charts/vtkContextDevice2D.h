@@ -24,6 +24,8 @@
 #define __vtkContextDevice2D_h
 
 #include "vtkObject.h"
+#include "vtkVector.h" // For vtkVector2i ivar
+#include "vtkRect.h"   // For vtkRecti ivar
 
 class vtkWindow;
 class vtkViewport;
@@ -36,7 +38,6 @@ class vtkMatrix3x3;
 class vtkAbstractContextBufferId;
 class vtkPen;
 class vtkBrush;
-class vtkRectf;
 
 class VTK_CHARTS_EXPORT vtkContextDevice2D : public vtkObject
 {
@@ -269,6 +270,16 @@ public:
   // \post done: !GetBufferIdMode()
   virtual void BufferIdModeEnd();
 
+  virtual void SetViewportSize(const vtkVector2i &size)
+  {
+    this->ViewportSize = size;
+  }
+
+  virtual void SetViewportRect(const vtkRecti &rect)
+  {
+    this->ViewportRect = rect;
+  }
+
 //BTX
 protected:
   vtkContextDevice2D();
@@ -277,6 +288,14 @@ protected:
   // Description:
   // Store the width and height of the device in pixels.
   int Geometry[2];
+
+  // Description:
+  // Store the size of the total viewport.
+  vtkVector2i ViewportSize;
+
+  // Description:
+  // Store our origin and size in the total viewport.
+  vtkRecti ViewportRect;
 
   vtkAbstractContextBufferId *BufferId;
 
