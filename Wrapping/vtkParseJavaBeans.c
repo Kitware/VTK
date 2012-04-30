@@ -485,8 +485,11 @@ int checkFunctionSignature(ClassInfo *data)
   else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
-    if (!strcmp(currentFunction->Name,"PrintRevisions") ||
-        !strcmp(currentFunction->Name,"Print"))
+    if (!strcmp(currentFunction->Name,"Print")
+#ifndef VTK_LEGACY_REMOVE
+        || !strcmp(currentFunction->Name,"PrintRevisions")
+#endif
+        )
       {
       args_ok = 0;
       }

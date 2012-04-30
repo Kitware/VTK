@@ -905,8 +905,11 @@ int checkFunctionSignature(ClassInfo *data)
   else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
-    if (!strcmp(currentFunction->Name,"PrintRevisions") ||
-        !strcmp(currentFunction->Name,"Print"))
+    if (!strcmp(currentFunction->Name,"Print")
+#ifndef VTK_LEGACY_REMOVE
+        || !strcmp(currentFunction->Name,"PrintRevisions")
+#endif
+        )
       {
       args_ok = 0;
       }
@@ -1416,6 +1419,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     fprintf(fp,"    Tcl_SetResult(interp,const_cast<char *>(buf_with_warning_C4701.str().c_str()),\n");
     fprintf(fp,"      TCL_VOLATILE);\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");
+#ifndef VTK_LEGACY_REMOVE
     /* Add the PrintRevisions method to vtkObjectBase. */
     fprintf(fp,"  if ((!strcmp(\"PrintRevisions\",argv[1]))&&(argc == 2))\n    {\n");
     fprintf(fp,"    vtksys_ios::ostringstream buf_with_warning_C4701;\n");
@@ -1424,6 +1428,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     fprintf(fp,"    Tcl_SetResult(interp,const_cast<char *>(buf_with_warning_C4701.str().c_str()),\n");
     fprintf(fp,"      TCL_VOLATILE);\n");
     fprintf(fp,"    return TCL_OK;\n    }\n");
+#endif
     }
 
   /* Add the AddObserver method to vtkObject. */

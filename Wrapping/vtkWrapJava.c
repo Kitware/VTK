@@ -982,8 +982,11 @@ int checkFunctionSignature(ClassInfo *data)
   else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
-    if (!strcmp(currentFunction->Name,"PrintRevisions") ||
-        !strcmp(currentFunction->Name,"Print"))
+    if (!strcmp(currentFunction->Name,"Print")
+#ifndef VTK_LEGACY_REMOVE
+        || !strcmp(currentFunction->Name,"PrintRevisions")
+#endif
+        )
       {
       args_ok = 0;
       }
@@ -1336,6 +1339,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
 
+#ifndef VTK_LEGACY_REMOVE
     /* Add the PrintRevisions method to vtkObject. */
     fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_PrintRevisions(JNIEnv *env,jobject obj)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
@@ -1349,6 +1353,7 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
+#endif
 
     fprintf(fp,"\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject obj, jstring id0, jobject id1, jstring id2)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");

@@ -57,7 +57,7 @@ class MyProcess : public vtkProcess
 {
 public:
   static MyProcess *New();
-  vtkTypeRevisionMacro(MyProcess, vtkProcess);
+  vtkTypeMacro(MyProcess, vtkProcess);
 
   bool IsServer;
   vtkSetMacro(ImageReductionFactor, int);
@@ -75,7 +75,6 @@ protected:
   int ImageReductionFactor;
 };
 
-vtkCxxRevisionMacro(MyProcess, "$Revision$");
 vtkStandardNewMacro(MyProcess);
 
 //-----------------------------------------------------------------------------
