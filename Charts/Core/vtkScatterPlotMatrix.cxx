@@ -1836,6 +1836,12 @@ vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 }
 
 //----------------------------------------------------------------------------
+vtkChart * vtkScatterPlotMatrix::GetMainChart()
+{
+  return this->Private->BigChart.GetPointer();
+}
+
+//----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);

@@ -22,6 +22,7 @@
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkNew.h"
 
 //----------------------------------------------------------------------------
@@ -67,6 +68,10 @@ int TestScatterPlotMatrix(int, char * [])
   matrix->SetInput(table.GetPointer());
 
   matrix->SetNumberOfBins(7);
+
+  view->Render();
+  matrix->GetMainChart()->SetActionToButton(vtkChart::SELECT_POLYGON,
+                                            vtkContextMouseEvent::RIGHT_BUTTON);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

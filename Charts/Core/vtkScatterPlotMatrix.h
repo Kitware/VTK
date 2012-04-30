@@ -303,6 +303,10 @@ public:
   // allow the animation to be manually advanced when timers are not a
   virtual void AdvanceAnimation();
 
+  // Description:
+  // Get the main plot (the one in the top-right of the matrix.
+  virtual vtkChart * GetMainChart();
+
 protected:
   vtkScatterPlotMatrix();
   ~vtkScatterPlotMatrix();
