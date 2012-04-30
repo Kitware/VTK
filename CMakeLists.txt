@@ -22,21 +22,17 @@ set(VTK_TEST_OUTPUT_DIR "${VTK_BINARY_DIR}/Testing/Temporary")
 
 # Set up our directory structure for output libraries and binaries
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin"
-    CACHE PATH "Runtime output directory")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
 endif()
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
   if(UNIX)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib"
-      CACHE PATH "Library output directory")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
   else()
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin"
-      CACHE PATH "Library output directory")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
   endif()
 endif()
 if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib"
-    CACHE PATH "Archive output directory")
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
 endif()
 mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_LIBRARY_OUTPUT_DIRECTORY
