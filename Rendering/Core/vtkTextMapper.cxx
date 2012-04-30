@@ -14,16 +14,12 @@
 =========================================================================*/
 #include "vtkTextMapper.h"
 
-#include "vtkImagingFactory.h"
 #include "vtkTextProperty.h"
-#include "vtkToolkits.h"
-
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkTextMapper);
+vtkStandardNewMacro(vtkTextMapper);
 //----------------------------------------------------------------------------
-
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -49,14 +45,6 @@ void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
   this->SetTextProperty(tm->GetTextProperty());
 
   this->SetClippingPlanes(tm->GetClippingPlanes());
-}
-
-//----------------------------------------------------------------------------
-vtkTextMapper *vtkTextMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkTextMapper");
-  return static_cast<vtkTextMapper *>(ret);
 }
 
 //----------------------------------------------------------------------------
