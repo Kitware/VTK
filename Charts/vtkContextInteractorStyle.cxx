@@ -85,6 +85,12 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
 }
 
 //----------------------------------------------------------------------------
+vtkContextScene* vtkContextInteractorStyle::GetScene()
+{
+  return this->Scene;
+}
+
+//----------------------------------------------------------------------------
 void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject*,
                                                    unsigned long event,
                                                    void* clientdata,
