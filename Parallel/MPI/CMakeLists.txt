@@ -14,7 +14,7 @@ include_directories(${MPI_INCLUDE_PATH})
 # ${VTK_MPIRUN_EXE} ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} executable ${VTK_MPI_POSTFLAGS}
 #
 # Use MPI variables defined in the CMake (2.8) FindMPI module.
-if(${MPIEXEC})
+if(MPIEXEC)
   set(VTK_MPIRUN_EXE CACHE FILEPATH ${MPIEXEC} FORCE)
   set(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING
     "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
@@ -32,7 +32,7 @@ if(${MPIEXEC})
   set(VTK_MPI_MAX_NUMPROCS ${MPIEXEC_MAX_NUMPROCS} CACHE STRING
     "Maximum number of processors available to run parallel applications. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
 else()
-  message(WARNING "MPIEXEC was empty.")
+  message(FATAL_ERROR "MPIEXEC was empty.")
 endif()
 
 mark_as_advanced(
