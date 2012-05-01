@@ -298,18 +298,40 @@ function(vtk_module_library name)
     target_link_libraries(${vtk-module} ${${dep}_LIBRARIES})
   endforeach()
 
-  # Generate the export macro header for symbol visibility/Windows DLL declspec
+  set(sep "")
   if(${vtk-module}_EXPORT_CODE)
-    set(${vtk-module}_EXPORT_CODE "${${vtk-module}_EXPORT_CODE}\n\n")
+    set(sep "\n\n")
   endif()
-  set(${vtk-module}_EXPORT_CODE
-    "${${vtk-module}_EXPORT_CODE}#if defined(${vtk-module}_INCLUDE)
+
+  # Include module headers from dependencies that need auto-init.
+  set(mod_autoinit_deps "")
+  foreach(dep IN LISTS VTK_MODULE_${vtk-module}_LINK_DEPENDS)
+    get_property(dep_autoinit GLOBAL PROPERTY ${dep}_NEEDS_AUTOINIT)
+    if(dep_autoinit)
+      set(mod_autoinit_deps "${mod_autoinit_deps}\n#include \"${dep}Module.h\"")
+    endif()
+  endforeach()
+  if(mod_autoinit_deps)
+    set(${vtk-module}_EXPORT_CODE "${${vtk-module}_EXPORT_CODE}${sep}/* AutoInit dependencies.  */${mod_autoinit_deps}")
+    set(sep "\n\n")
+    set_property(GLOBAL PROPERTY ${vtk-module}_NEEDS_AUTOINIT 1)
+  endif()
+
+  # Perform auto-init if this module has or implements an interface.
+  if(${vtk-module}_IMPLEMENTED OR VTK_MODULE_${vtk-module}_IMPLEMENTS)
+    set_property(GLOBAL PROPERTY ${vtk-module}_NEEDS_AUTOINIT 1)
+    set(${vtk-module}_EXPORT_CODE
+      "${${vtk-module}_EXPORT_CODE}${sep}/* AutoInit implementations.  */
+#if defined(${vtk-module}_INCLUDE)
 # include ${vtk-module}_INCLUDE
 #endif
 #if defined(${vtk-module}_AUTOINIT)
 # include \"vtkAutoInit.h\"
 VTK_AUTOINIT(${vtk-module})
 #endif")
+  endif()
+
+  # Generate the export macro header for symbol visibility/Windows DLL declspec
   generate_export_header(${vtk-module} EXPORT_FILE_NAME ${vtk-module}Module.h)
   add_compiler_export_flags(my_abi_flags)
   set_property(TARGET ${vtk-module} APPEND
@@ -419,6 +441,11 @@ macro(vtk_module_glob src bld) # [test-langs]
           vtk_add_test_module(${_lang})
         endif()
       endforeach()
+      if(VTK_MODULE_${vtk-module}_IMPLEMENTS)
+        foreach(dep IN LISTS VTK_MODULE_${vtk-module}_IMPLEMENTS)
+          set(${dep}_IMPLEMENTED 1)
+        endforeach()
+      endif()
     endif()
   endforeach()
   unset(vtk-module)
