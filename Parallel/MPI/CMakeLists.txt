@@ -15,7 +15,7 @@ include_directories(${MPI_INCLUDE_PATH})
 #
 # Use MPI variables defined in the CMake (2.8) FindMPI module.
 if(MPIEXEC)
-  set(VTK_MPIRUN_EXE CACHE FILEPATH ${MPIEXEC} FORCE)
+  set(VTK_MPIRUN_EXE ${MPIEXEC} CACHE FILEPATH "The full path to mpirun command" FORCE)
   set(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING
     "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
   if(NOT ${MPI_NUMPROC_FLAG})
