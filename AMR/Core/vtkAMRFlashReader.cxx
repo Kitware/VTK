@@ -46,6 +46,7 @@ vtkStandardNewMacro(vtkAMRFlashReader);
 //------------------------------------------------------------------------------
 vtkAMRFlashReader::vtkAMRFlashReader()
 {
+  this->IsReady  = false;
   this->Internal = new vtkFlashReaderInternal;
   this->Initialize();
 }
@@ -82,12 +83,14 @@ void vtkAMRFlashReader::SetFileName( const char* fileName )
     strcpy( this->FileName, fileName );
     this->FileName[ strlen( fileName ) ] = '\0';
 
+    this->IsReady = true;
     this->Internal->SetFileName( this->FileName );
     this->LoadedMetaData = false;
+
+    this->SetUpDataArraySelections();
+    this->InitializeArraySelections();
     }
 
-  this->SetUpDataArraySelections();
-  this->InitializeArraySelections();
   this->Modified();
 }
 
@@ -119,6 +122,10 @@ void vtkAMRFlashReader::GenerateBlockMap()
 int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
 {
   assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  if( !this->IsReady )
+    {
+    return(-1);
+    }
 
   this->Internal->ReadMetaData();
   if( blockIdx < 0 || blockIdx >= this->Internal->NumberOfBlocks )
@@ -133,6 +140,10 @@ int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
 int vtkAMRFlashReader::GetNumberOfBlocks()
 {
   assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  if( !this->IsReady )
+    {
+    return 0;
+    }
 
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfBlocks );
@@ -142,6 +153,11 @@ int vtkAMRFlashReader::GetNumberOfBlocks()
 int vtkAMRFlashReader::GetNumberOfLevels()
 {
   assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
+  if( !this->IsReady )
+    {
+    return 0;
+    }
+
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfLevels );
 }
@@ -196,6 +212,11 @@ int vtkAMRFlashReader::FillMetaData( )
 //-----------------------------------------------------------------------------
 vtkUniformGrid* vtkAMRFlashReader::GetAMRGrid( const int blockIdx )
 {
+  if( !this->IsReady )
+    {
+    return NULL;
+    }
+
   double blockMin[3];
   double blockMax[3];
   double spacings[3];

@@ -116,6 +116,7 @@ class VTKAMRCORE_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
     void SetUpDataArraySelections();
 
     int ConvertToCGS;
+    bool IsReady;
 
   private:
     vtkAMREnzoReader( const vtkAMREnzoReader& ); // Not Implemented

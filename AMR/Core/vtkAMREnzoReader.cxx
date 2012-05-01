@@ -52,6 +52,7 @@ vtkStandardNewMacro(vtkAMREnzoReader);
 vtkAMREnzoReader::vtkAMREnzoReader()
 {
   this->Internal = new vtkEnzoReaderInternal();
+  this->IsReady  = false;
   this->Initialize();
 }
 
@@ -195,8 +196,6 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
 {
   assert("pre: Internal Enzo AMR Reader is NULL" && (this->Internal != NULL ));
 
-  int isValid=0;
-
   if( fileName && strcmp( fileName, "" ) &&
     ( (this->FileName==NULL) || (strcmp(fileName,this->FileName ) ) ) )
     {
@@ -225,12 +224,13 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
       vtkErrorMacro( "Enzo file has invalid extension!");
       return;
       }
-    isValid = 1;
+
+    this->IsReady = true;
     this->Internal->DirectoryName =
      GetEnzoDirectory(this->Internal->MajorFileName.c_str());
     }
 
-  if( isValid )
+  if( this->IsReady )
     {
     this->BlockMap.clear();
     this->Internal->Blocks.clear();
@@ -248,11 +248,13 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
     this->FileName[ strlen( fileName ) ] = '\0';
     this->Internal->SetFileName( this->FileName );
     this->ParseConversionFactors( );
+
+    this->Internal->ReadMetaData();
+    this->SetUpDataArraySelections();
+    this->InitializeArraySelections();
     }
 
-  this->Internal->ReadMetaData();
-  this->SetUpDataArraySelections();
-  this->InitializeArraySelections();
+
   this->Modified();
   return;
 }
@@ -286,6 +288,11 @@ int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
 
+  if( !this->IsReady )
+    {
+    return( -1 );
+    }
+
   this->Internal->ReadMetaData();
 
   if( blockIdx < 0 || blockIdx >= this->Internal->NumberOfBlocks )
@@ -300,6 +307,11 @@ int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
 int vtkAMREnzoReader::GetNumberOfBlocks()
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  if( !this->IsReady )
+    {
+    return 0;
+    }
+
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfBlocks );
 }
@@ -308,6 +320,11 @@ int vtkAMREnzoReader::GetNumberOfBlocks()
 int vtkAMREnzoReader::GetNumberOfLevels()
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  if( !this->IsReady )
+    {
+    return 0;
+    }
+
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfLevels );
 }
@@ -362,6 +379,11 @@ int vtkAMREnzoReader::FillMetaData( )
 vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+
+  if( !this->IsReady )
+    {
+    return NULL;
+    }
 
   this->Internal->ReadMetaData();
 

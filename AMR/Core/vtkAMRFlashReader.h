@@ -79,6 +79,8 @@ class VTKAMRCORE_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
     // See vtkAMRBaseReader::SetUpDataArraySelections
     void SetUpDataArraySelections();
 
+    bool IsReady;
+
   private:
     vtkAMRFlashReader( const vtkAMRFlashReader& ); // Not implemented
     void operator=(const vtkAMRFlashReader& ); // Not implemented
