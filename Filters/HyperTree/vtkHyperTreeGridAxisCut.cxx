@@ -215,10 +215,42 @@ void vtkHyperTreeGridAxisCut::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf( os, indent );
 
-  this->Input->PrintSelf( os, indent.GetNextIndent() );
-  this->Output->PrintSelf( os, indent.GetNextIndent() );
-  this->Points->PrintSelf( os, indent.GetNextIndent() );
-  this->Cells->PrintSelf( os, indent.GetNextIndent() );
+  if(this->Input)
+    {
+    os << indent << "Input:\n";
+    this->Input->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
+  if(this->Output)
+    {
+    os << indent << "Output:\n";
+    this->Output->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Output: (none)\n";
+    }
+  if(this->Points)
+    {
+    os << indent << "Points:\n";
+    this->Points->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Points: (none)\n";
+    }
+  if(this->Cells)
+    {
+    os << indent << "Cells:\n";
+    this->Cells->PrintSelf( os, indent.GetNextIndent() );
+    }
+  else
+    {
+    os << indent << "Cells: (none)\n";
+    }
 
   os << indent << "Plane Normal Axis : " << this->PlaneNormalAxis << endl;
   os << indent << "Plane Position : " << this->PlanePosition << endl;
