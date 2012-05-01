@@ -14,6 +14,7 @@ set(Module_SRCS
   vtkAMRSliceFilter.cxx
   vtkAMRToMultiBlockFilter.cxx
   vtkAMRUtilities.cxx
+  vtkAMRVolumeMapper.cxx
   )
 
 set_source_files_properties(
