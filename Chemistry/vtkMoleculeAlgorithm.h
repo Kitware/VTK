@@ -35,7 +35,7 @@
 class vtkDataSet;
 class vtkMolecule;
 
-class VTK_FILTERING_EXPORT vtkMoleculeAlgorithm : public vtkAlgorithm
+class VTK_CHEMISTRY_EXPORT vtkMoleculeAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkMoleculeAlgorithm *New();
