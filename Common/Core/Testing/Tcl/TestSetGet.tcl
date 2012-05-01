@@ -85,9 +85,6 @@ proc TestOne {cname} {
     }
   }
 
-
-  # Test the PrintRevisions method.
-  b PrintRevisions
   b Delete
 }
 

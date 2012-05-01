@@ -631,28 +631,14 @@ virtual double *Get##name() \
     return thisClass::SafeDownCast(this->NewInstanceInternal()); \
   }
 
-// Version of vtkTypeMacro that adds the CollectRevisions method.
-// This version takes a third argument that may be VTKCOMMONCORE_EXPORT,
-// VTKCOMMONCORE_EXPORT, etc. You should not use this version unless you
-// have split the implementation of a class across multiple VTK libraries.
-// When in doubt, use vtkTypeRevisionMacro instead.
-#define vtkExportedTypeRevisionMacro(thisClass,superclass,dllExport) \
-  protected: \
-  dllExport void CollectRevisions(ostream& os); \
-  public: \
+// Legacy versions of vtkTypeMacro and helpers.
+#if !defined(VTK_LEGACY_REMOVE)
+# define vtkExportedTypeRevisionMacro(thisClass,superclass,dllExport) \
   vtkTypeMacro(thisClass,superclass)
-
-// Version of vtkTypeMacro that adds the CollectRevisions method.
-#define vtkTypeRevisionMacro(thisClass,superclass) vtkExportedTypeRevisionMacro(thisClass,superclass,)
-
-// Macro to implement the standard CollectRevisions method.
-#define vtkCxxRevisionMacro(thisClass, revision) \
-  void thisClass::CollectRevisions(ostream& sos) \
-  { \
-    vtkOStreamWrapper os(sos); \
-    this->Superclass::CollectRevisions(os); \
-    os << #thisClass " " revision "\n"; \
-  }
+# define vtkTypeRevisionMacro(thisClass,superclass) \
+  vtkTypeMacro(thisClass,superclass)
+# define vtkCxxRevisionMacro(thisClass, revision)
+#endif
 
 // Macro to implement the standard form of the New() method.
 #define vtkStandardNewMacro(thisClass) \
