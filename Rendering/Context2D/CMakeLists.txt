@@ -36,7 +36,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkContextDevice2D
   vtkContextDevice3D
-  vtkContext2D
+#  vtkContext2D
   vtkContext3D
   vtkContextKeyEvent
   vtkContextMouseEvent

@@ -8,9 +8,8 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkPStreamTracer
-  vtkDistributedStreamTracer
-  WRAP_EXCLUDE
-  )
+  ABSTRACT
+)
 
 # Overrides for object factory.
 set(parallel_overrides

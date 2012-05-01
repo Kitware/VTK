@@ -24,4 +24,9 @@ set_source_files_properties(
   ABSTRACT
   )
 
+set_source_files_properties(
+  vtkCompositeRGBAPass
+  WRAP_EXCLUDE
+  )
+
 vtk_module_library(vtkRenderingParallel ${Module_SRCS})
