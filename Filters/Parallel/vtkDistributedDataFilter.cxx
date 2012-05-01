@@ -54,9 +54,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-#ifdef VTK_USE_MPI
 #include "vtkMPIController.h"
-#endif
 
 #include <vector>
 
@@ -578,12 +576,10 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
 
   int aok = 0;
 
-#ifdef VTK_USE_MPI
   if (vtkMPIController::SafeDownCast(this->Controller))
     {
     aok = 1;
     }
-#endif
 
   if (!aok)
     {
@@ -1522,7 +1518,6 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsLean(vtkIdType myCount, 
 {
   vtkIdTypeArray *countArray = NULL;
 
-#ifdef VTK_USE_MPI
   vtkIdType i;
   int nprocs = this->NumProcesses;
 
@@ -1549,12 +1544,6 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsLean(vtkIdType myCount, 
   countArray = vtkIdTypeArray::New();
   countArray->SetArray(counts, nprocs, 0);
 
-#else
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeCounts requires MPI");
-  (void)myCount;
-  (void)tag;
-#endif
-
   return countArray;
 }
 
@@ -1565,7 +1554,6 @@ vtkFloatArray **
 {
   vtkFloatArray **remoteArrays = NULL;
 
-#ifdef VTK_USE_MPI
   int i;
   int nprocs = this->NumProcesses;
   int me = this->MyId;
@@ -1675,13 +1663,6 @@ vtkFloatArray **
   delete [] recvArrays;
   delete [] recvSize;
 
-#else
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeFloatArrays requires MPI");
-  (void)myArray;
-  (void)deleteSendArrays;
-  (void)tag;
-#endif
-
   return remoteArrays;
 }
 
@@ -1692,7 +1673,6 @@ vtkIdTypeArray **
 {
   vtkIdTypeArray **remoteArrays = NULL;
 
-#ifdef VTK_USE_MPI
   int i;
   int nprocs = this->NumProcesses;
   int me = this->MyId;
@@ -1802,13 +1782,6 @@ vtkIdTypeArray **
   delete [] recvArrays;
   delete [] recvSize;
 
-#else
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeIdArrays requires MPI");
-  (void)myArray;
-  (void)deleteSendArrays;
-  (void)tag;
-#endif
-
   return remoteArrays;
 }
 
@@ -1822,7 +1795,6 @@ vtkUnstructuredGrid *
     int tag)
 {
   vtkUnstructuredGrid *mergedGrid = NULL;
-#ifdef VTK_USE_MPI
   int i;
   int packedGridSendSize=0, packedGridRecvSize=0;
   char *packedGridSend=NULL, *packedGridRecv=NULL;
@@ -1993,18 +1965,6 @@ vtkUnstructuredGrid *
 
   delete [] grids;
 
-#else
-  (void)cellIds;       // This is just here for successful compilation,
-  (void)numLists;      // it will never execute.  If !VTK_USE_MPI, we
-  (void)deleteCellIds; // never get this far.
-  (void)myGrid;
-  (void)deleteMyGrid;
-  (void)filterOutDuplicateCells;
-  (void)tag;
-  (void)ghostCellFlag;
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeMergeSubGrids requires MPI");
-#endif
-
   return mergedGrid;
 }
 
@@ -2013,7 +1973,6 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(vtkIdType myCount, 
 {
   vtkIdTypeArray *countArray = NULL;
 
-#ifdef VTK_USE_MPI
   vtkIdType i;
   int nprocs = this->NumProcesses;
   int me = this->MyId;
@@ -2058,12 +2017,6 @@ vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(vtkIdType myCount, 
 
   delete [] req;
 
-#else
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeCounts requires MPI");
-  (void)myCount;
-  (void)tag;
-#endif
-
   return countArray;
 }
 
@@ -2073,7 +2026,6 @@ vtkFloatArray **
                                               int deleteSendArrays, int tag)
 {
   vtkFloatArray **fa = NULL;
-#ifdef VTK_USE_MPI
   int proc;
   int nprocs = this->NumProcesses;
   int iam = this->MyId;
@@ -2218,14 +2170,6 @@ vtkFloatArray **
   delete [] reqBuf;
   delete [] recvBufs;
 
-#else
-  (void)myArray;
-  (void)deleteSendArrays;
-  (void)tag;
-
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeFloatArrays requires MPI");
-#endif
-
   return fa;
 }
 
@@ -2235,7 +2179,6 @@ vtkIdTypeArray **
                                               int deleteSendArrays, int tag)
 {
   vtkIdTypeArray **ia = NULL;
-#ifdef VTK_USE_MPI
   int proc;
   int nprocs = this->NumProcesses;
   int iam = this->MyId;
@@ -2380,14 +2323,6 @@ vtkIdTypeArray **
   delete [] reqBuf;
   delete [] recvBufs;
 
-#else
-  (void)myArray;
-  (void)deleteSendArrays;
-  (void)tag;
-
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeIdArrays requires MPI");
-#endif
-
   return ia;
 }
 
@@ -2401,7 +2336,6 @@ vtkUnstructuredGrid *
     int tag)
 {
   vtkUnstructuredGrid *mergedGrid = NULL;
-#ifdef VTK_USE_MPI
   int proc;
   int nprocs = this->NumProcesses;
   int iam = this->MyId;
@@ -2613,19 +2547,6 @@ vtkUnstructuredGrid *
     }
 
   delete [] ds;
-
-#else
-  (void)cellIds;       // This is just here for successful compilation,
-  (void)numLists;      // it will never execute.  If !VTK_USE_MPI, we
-  (void)deleteCellIds; // never get this far.
-  (void)myGrid;
-  (void)deleteMyGrid;
-  (void)filterOutDuplicateCells;
-  (void)tag;
-  (void)ghostCellFlag;
-
-  vtkErrorMacro(<< "vtkDistributedDataFilter::ExchangeMergeSubGrids requires MPI");
-#endif
 
   return mergedGrid;
 }
