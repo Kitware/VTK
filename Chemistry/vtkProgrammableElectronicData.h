@@ -41,8 +41,8 @@ public:
   // Description:
   // Get/Set the number of electrons in the molecule. Needed for HOMO/LUMO
   // convenience functions
-  vtkGetMacro(NumberOfElectrons, unsigned int);
-  vtkSetMacro(NumberOfElectrons, unsigned int);
+  vtkGetMacro(NumberOfElectrons, vtkIdType);
+  vtkSetMacro(NumberOfElectrons, vtkIdType);
 
   // Description:
   // Get/Set the vtkImageData for the requested molecular orbital.

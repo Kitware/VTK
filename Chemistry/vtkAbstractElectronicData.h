@@ -35,7 +35,7 @@ public:
 
   // Description:
   // Returns the number of electrons in the molecule.
-  virtual unsigned int GetNumberOfElectrons() = 0;
+  virtual vtkIdType GetNumberOfElectrons() = 0;
 
   // Description:
   // Returns the vtkImageData for the requested molecular orbital.
