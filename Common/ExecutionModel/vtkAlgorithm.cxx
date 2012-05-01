@@ -1334,11 +1334,21 @@ vtkInformation* vtkAlgorithm::GetInputInformation(int port, int index)
 //----------------------------------------------------------------------------
 vtkAlgorithm* vtkAlgorithm::GetInputAlgorithm(int port, int index)
 {
+  int dummy;
+  return this->GetInputAlgorithm(port, index, dummy);
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithm* vtkAlgorithm::GetInputAlgorithm(int port,
+                                              int index,
+                                              int& algPort)
+{
   vtkAlgorithmOutput* aoutput = this->GetInputConnection(port, index);
   if (!aoutput)
     {
     return 0;
     }
+  algPort = aoutput->GetIndex();
   return aoutput->GetProducer();
 }
 
@@ -1615,14 +1625,13 @@ double vtkAlgorithm::ComputePriority()
 }
 
 //-------------------------------------------------------------
-int vtkAlgorithm::SetUpdateExtentToWholeExtent(
-  int port, int connection)
+int vtkAlgorithm::SetUpdateExtentToWholeExtent(int port)
 {
-  if (this->GetInputInformation(port, connection))
+  if (this->GetOutputInformation(port))
     {
     return
       vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-        this->GetInputInformation(port, connection));
+        this->GetOutputInformation(port));
     }
   else
     {
@@ -1633,19 +1642,19 @@ int vtkAlgorithm::SetUpdateExtentToWholeExtent(
 //-------------------------------------------------------------
 int vtkAlgorithm::SetUpdateExtentToWholeExtent()
 {
-  return this->SetUpdateExtentToWholeExtent(0, 0);
+  return this->SetUpdateExtentToWholeExtent(0);
 }
 
 //-------------------------------------------------------------
-void vtkAlgorithm::SetUpdateExtent(int port, int connection,
+void vtkAlgorithm::SetUpdateExtent(int port,
                                    int piece,
                                    int numPieces,
                                    int ghostLevel)
 {
-  if (this->GetInputInformation(port, connection))
+  if (this->GetOutputInformation(port))
     {
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetInputInformation(port, connection),
+      this->GetOutputInformation(port),
       piece,
       numPieces,
       ghostLevel);
@@ -1654,15 +1663,87 @@ void vtkAlgorithm::SetUpdateExtent(int port, int connection,
 
 //-------------------------------------------------------------
 void vtkAlgorithm::SetUpdateExtent(int port,
-                                   int connection,
                                    int extent[6])
 {
-  if (this->GetInputInformation(port, connection))
+  if (this->GetOutputInformation(port))
     {
     vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetInputInformation(port, connection),
+      this->GetOutputInformation(port),
       extent);
     }
+}
+
+//----------------------------------------------------------------------------
+int* vtkAlgorithm::GetUpdateExtent(int port)
+{
+  if (this->GetOutputInformation(port))
+    {
+    return vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+      this->GetOutputInformation(port));
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::GetUpdateExtent(int port,
+                                   int& x0, int& x1, int& y0, int& y1,
+                                   int& z0, int& z1)
+{
+  if (this->GetOutputInformation(port))
+    {
+    int extent[6];
+    vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+      this->GetOutputInformation(port), extent);
+    x0 = extent[0];
+    x1 = extent[1];
+    y0 = extent[2];
+    y1 = extent[3];
+    z0 = extent[4];
+    z1 = extent[5];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::GetUpdateExtent(int port, int extent[6])
+{
+  if (this->GetOutputInformation(port))
+    {
+     vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+       this->GetOutputInformation(port), extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::GetUpdatePiece(int port)
+{
+  if (this->GetOutputInformation(port))
+    {
+    return vtkStreamingDemandDrivenPipeline::GetUpdatePiece(
+      this->GetOutputInformation(port));
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::GetUpdateNumberOfPieces(int port)
+{
+  if (this->GetOutputInformation(port))
+    {
+    return vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(
+      this->GetOutputInformation(port));
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::GetUpdateGhostLevel(int port)
+{
+  if (this->GetOutputInformation(port))
+    {
+    return vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(
+      this->GetOutputInformation(port));
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

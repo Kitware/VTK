@@ -382,12 +382,11 @@ int vtkContourFilter::RequestData(
       {
       cgrid->SetValue(i, values[i]);
       }
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      cgrid->GetExecutive())->SetUpdateExtent(
-        0,
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
-        info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    cgrid->SetUpdateExtent(
+      0,
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+      info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     cgrid->SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
     cgrid->Update();
     output->ShallowCopy(cgrid->GetOutput());

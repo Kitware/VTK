@@ -158,12 +158,7 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkStreamingDemandDrivenPipeline* sddp =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
-  if (sddp)
-    {
-    sddp->SetUpdateExtentToWholeExtent(inInfo);
-    }
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(inInfo);
 
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
