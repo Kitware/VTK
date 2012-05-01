@@ -125,6 +125,9 @@ macro(vtk_module_impl)
   foreach(opt ${${vtk-module}_EXPORT_OPTIONS})
     set(_code "${_code}set(${opt} \"${${opt}}\")\n")
   endforeach()
+  if(VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING)
+    set(_code "${_code}set(${vtk-module}_EXCLUDE_FROM_WRAPPING 1)\n")
+  endif()
   if(VTK_MODULE_${vtk-module}_IMPLEMENTS)
     set(_code "${_code}set(${vtk-module}_IMPLEMENTS \"${VTK_MODULE_${vtk-module}_IMPLEMENTS}\")\n")
   endif()
@@ -268,14 +271,38 @@ function(vtk_module_library name)
   set(${vtk-module}_LIBRARIES ${vtk-module})
   vtk_module_impl()
 
+  set(vtk-module-CLASSES)
+  set(vtk-module-ABSTRACT)
+  set(vtk-module-WRAP_SPECIAL)
+
   # Collect header files matching sources.
   set(_hdrs ${${vtk-module}_HDRS})
   foreach(arg ${ARGN})
     get_filename_component(src "${arg}" ABSOLUTE)
+
     string(REGEX REPLACE "\\.(cxx|mm)$" ".h" hdr "${src}")
     if("${hdr}" MATCHES "\\.h$")
       if(EXISTS "${hdr}")
         list(APPEND _hdrs "${hdr}")
+
+        get_filename_component(_filename "${hdr}" NAME)
+        string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
+
+        get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
+        get_source_file_property(_abstract ${src} ABSTRACT)
+        get_source_file_property(_wrap_special ${src} WRAP_SPECIAL)
+
+        if(NOT _wrap_exclude)
+          list(APPEND vtk-module-CLASSES ${_cls})
+        endif()
+
+        if(_abstract)
+          set(vtk-module-ABSTRACT "${vtk-module-ABSTRACT}set(${vtk-module}_CLASS_${_cls}_ABSTRACT 1)\n")
+        endif()
+
+        if(_wrap_special)
+          set(vtk-module-WRAP_SPECIAL "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_SPECIAL 1)\n")
+        endif()
       endif()
     elseif("${src}" MATCHES "\\.txx$")
       list(APPEND _hdrs "${src}")
@@ -283,6 +310,9 @@ function(vtk_module_library name)
   endforeach()
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
+
+  # Configure wrapping information for external wrappers
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleClasses.cmake.in ${VTK_MODULES_DIR}/${vtk-module}-Classes.cmake @ONLY)
 
   # The instantiators are off by default, and only work on wrapped modules.
   if(VTK_MAKE_INSTANTIATORS AND NOT VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING)

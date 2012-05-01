@@ -40,6 +40,24 @@ macro(vtk_module_load mod)
   endif()
 endmacro()
 
+# vtk_module_classes_load(<module>)
+#
+# Loads variables describing the given module:
+#  <module>_CLASSES_LOADED  = True if the module class info has been loaded
+#  <module>_CLASSES              = List of classes
+#  <module>_CLASS_<class>_EXISTS
+#  <module>_CLASS_<class>_ABSTRACT
+#  <module>_CLASS_<class>_WRAP_EXCLUDE
+#  <module>_CLASS_<class>_WRAP_SPECIAL
+macro(vtk_module_classes_load mod)
+  if(NOT ${mod}_CLASSES_LOADED)
+    include("${VTK_MODULES_DIR}/${mod}-Classes.cmake" OPTIONAL)
+    if(NOT ${mod}_CLASSES_LOADED)
+      message(FATAL_ERROR "No such module: \"${mod}\"")
+    endif()
+  endif()
+endmacro()
+
 # vtk_module_config(<namespace> [modules...])
 #
 # Configures variables describing the given modules and their dependencies:
