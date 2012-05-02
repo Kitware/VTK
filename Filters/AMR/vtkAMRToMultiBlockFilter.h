@@ -24,7 +24,7 @@
 #ifndef VTKAMRTOMULTIBLOCKFILTER_H_
 #define VTKAMRTOMULTIBLOCKFILTER_H_
 
-#include "vtkAMRCoreModule.h" // For export macro
+#include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkInformation;
@@ -34,40 +34,40 @@ class vtkMultiProcessController;
 class vtkOverlappingAMR;
 class vtkMultiBlockDataSet;
 
-class VTKAMRCORE_EXPORT vtkAMRToMultiBlockFilter :
+class VTKFILTERSAMR_EXPORT vtkAMRToMultiBlockFilter :
   public vtkMultiBlockDataSetAlgorithm
 {
-  public:
-    static vtkAMRToMultiBlockFilter* New();
-    vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm );
-    void PrintSelf(ostream &oss, vtkIndent indent );
+public:
+  static vtkAMRToMultiBlockFilter* New();
+  vtkTypeMacro(vtkAMRToMultiBlockFilter, vtkMultiBlockDataSetAlgorithm );
+  void PrintSelf(ostream &oss, vtkIndent indent );
 
-    // Description:
-    // Set/Get a multiprocess controller for paralle processing.
-    // By default this parameter is set to NULL by the constructor.
-    vtkSetMacro( Controller, vtkMultiProcessController* );
-    vtkGetMacro( Controller, vtkMultiProcessController* );
+  // Description:
+  // Set/Get a multiprocess controller for paralle processing.
+  // By default this parameter is set to NULL by the constructor.
+  vtkSetMacro( Controller, vtkMultiProcessController* );
+  vtkGetMacro( Controller, vtkMultiProcessController* );
 
-    // Standard pipeline routines
+  // Standard pipeline routines
 
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
-    virtual int RequestData(
-        vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  virtual int RequestData(
+      vtkInformation*, vtkInformationVector**, vtkInformationVector* );
 
-  protected:
-    vtkAMRToMultiBlockFilter();
-    virtual ~vtkAMRToMultiBlockFilter();
+protected:
+  vtkAMRToMultiBlockFilter();
+  virtual ~vtkAMRToMultiBlockFilter();
 
-    // Description:
-    // Copies the AMR data to the output multi-block datastructure.
-    void CopyAMRToMultiBlock(
-        vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds);
-    vtkMultiProcessController *Controller;
+  // Description:
+  // Copies the AMR data to the output multi-block datastructure.
+  void CopyAMRToMultiBlock(
+      vtkOverlappingAMR *amr, vtkMultiBlockDataSet *mbds);
+  vtkMultiProcessController *Controller;
 
-  private:
-    vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ); // Not implemented
-    void operator=(const vtkAMRToMultiBlockFilter& ); // Not implemented
+private:
+  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ); // Not implemented
+  void operator=(const vtkAMRToMultiBlockFilter& ); // Not implemented
 };
 
 #endif /* VTKAMRTOMULTIBLOCKFILTER_H_ */

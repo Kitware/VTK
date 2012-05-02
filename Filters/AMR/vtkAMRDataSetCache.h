@@ -23,81 +23,81 @@
 #ifndef VTKAMRDATASETCACHE_H_
 #define VTKAMRDATASETCACHE_H_
 
-#include "vtkAMRCoreModule.h" // For export macro
+#include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkObject.h"
 #include <map> // For STL map used as the data-structure for the cache.
 
 class vtkUniformGrid;
 class vtkDataArray;
 
-class VTKAMRCORE_EXPORT vtkAMRDataSetCache : public vtkObject
+class VTKFILTERSAMR_EXPORT vtkAMRDataSetCache : public vtkObject
 {
-  public:
-    static vtkAMRDataSetCache* New();
-    vtkTypeMacro( vtkAMRDataSetCache, vtkObject );
-    void PrintSelf(ostream &os, vtkIndent indent );
+public:
+  static vtkAMRDataSetCache* New();
+  vtkTypeMacro( vtkAMRDataSetCache, vtkObject );
+  void PrintSelf(ostream &os, vtkIndent indent );
 
-    // Description:
-    // Inserts an AMR block to the cache
-    void InsertAMRBlock(int compositeIdx,vtkUniformGrid *amrGrid);
+  // Description:
+  // Inserts an AMR block to the cache
+  void InsertAMRBlock(int compositeIdx,vtkUniformGrid *amrGrid);
 
-    // Description:
-    // Inserts a point data array to an already cached block
-    // NOTE: this->HasAMRBlock( compositeIdx ) == true
-    void InsertAMRBlockPointData(
-        int compositeIdx, vtkDataArray *dataArray );
+  // Description:
+  // Inserts a point data array to an already cached block
+  // NOTE: this->HasAMRBlock( compositeIdx ) == true
+  void InsertAMRBlockPointData(
+      int compositeIdx, vtkDataArray *dataArray );
 
-    // Description:
-    // Inserts a cell data array to an already cached block
-    // NOTE: this->HasAMRBlock( compositeIdx ) == true
-    void InsertAMRBlockCellData(
-        int compositeIdx, vtkDataArray *dataArray );
+  // Description:
+  // Inserts a cell data array to an already cached block
+  // NOTE: this->HasAMRBlock( compositeIdx ) == true
+  void InsertAMRBlockCellData(
+      int compositeIdx, vtkDataArray *dataArray );
 
-    // Description:
-    // Given the name of the cell array and AMR block composite index, this
-    // method returns a pointer to the cell data array.
-    // NOTE: Null is returned if the cell array and/or block is not cached.
-    vtkDataArray* GetAMRBlockCellData(
-        int compositeIdx, const char *dataName );
+  // Description:
+  // Given the name of the cell array and AMR block composite index, this
+  // method returns a pointer to the cell data array.
+  // NOTE: Null is returned if the cell array and/or block is not cached.
+  vtkDataArray* GetAMRBlockCellData(
+      int compositeIdx, const char *dataName );
 
-    // Description:
-    // Given the name of the point array and AMR block composite index, this
-    // method returns a pointer to the point data array.
-    // NOTE: Null is returend if the point array and /or block is not cached.
-    vtkDataArray* GetAMRBlockPointData(
-        int compositeIdx, const char *dataName );
+  // Description:
+  // Given the name of the point array and AMR block composite index, this
+  // method returns a pointer to the point data array.
+  // NOTE: Null is returend if the point array and /or block is not cached.
+  vtkDataArray* GetAMRBlockPointData(
+      int compositeIdx, const char *dataName );
 
-    // Description:
-    // Given the composite index, this method returns the AMR block.
-    // NOTE: Null is returned if the AMR block does not exist in the cache.
-    vtkUniformGrid* GetAMRBlock(int compositeIdx );
+  // Description:
+  // Given the composite index, this method returns the AMR block.
+  // NOTE: Null is returned if the AMR block does not exist in the cache.
+  vtkUniformGrid* GetAMRBlock(int compositeIdx );
 
-    // Description:
-    // Checks if the cell data array, associated with the provided name, has
-    // been cached for the AMR block with the given composite index.
-    bool HasAMRBlockCellData(int compositeIdx, const char *name);
+  // Description:
+  // Checks if the cell data array, associated with the provided name, has
+  // been cached for the AMR block with the given composite index.
+  bool HasAMRBlockCellData(int compositeIdx, const char *name);
 
-    // Description:
-    // Checks if the point data array, associated with the provided name, has
-    // been cached for the AMR block with the given composite index.
-    bool HasAMRBlockPointData(int compositeIdx, const char *name);
+  // Description:
+  // Checks if the point data array, associated with the provided name, has
+  // been cached for the AMR block with the given composite index.
+  bool HasAMRBlockPointData(int compositeIdx, const char *name);
 
-    // Description:
-    // Checks if the AMR block associated with the given composite is cached.
-    bool HasAMRBlock( const int compositeIdx );
+  // Description:
+  // Checks if the AMR block associated with the given composite is cached.
+  bool HasAMRBlock( const int compositeIdx );
 
-  protected:
-    vtkAMRDataSetCache();
-    virtual ~vtkAMRDataSetCache();
+protected:
+  vtkAMRDataSetCache();
+  virtual ~vtkAMRDataSetCache();
 
 //BTX
-    typedef std::map< int, vtkUniformGrid* > AMRCacheType;
-    AMRCacheType Cache;
+  typedef std::map< int, vtkUniformGrid* > AMRCacheType;
+  AMRCacheType Cache;
 //ETX
 
-  private:
-    vtkAMRDataSetCache( const vtkAMRDataSetCache& ); // Not implemented
-    void operator=( const vtkAMRDataSetCache& ); // Not implemented
+private:
+  vtkAMRDataSetCache( const vtkAMRDataSetCache& ); // Not implemented
+  void operator=( const vtkAMRDataSetCache& ); // Not implemented
 };
 
 #endif /* VTKAMRDATASETCACHE_H_ */

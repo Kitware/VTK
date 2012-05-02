@@ -30,4 +30,4 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-vtk_module_library(vtkAMRCore ${Module_SRCS})
+vtk_module_library(vtkFiltersAMR ${Module_SRCS})
