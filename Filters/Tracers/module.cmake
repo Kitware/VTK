@@ -1,7 +1,7 @@
 vtk_module(vtkFiltersTracers
   DEPENDS
     vtkCommonExecutionModel
-    vtkAMRCore
+    vtkFiltersAMR
     vtkFiltersGeneral
     vtkFiltersSources
   TEST_DEPENDS
