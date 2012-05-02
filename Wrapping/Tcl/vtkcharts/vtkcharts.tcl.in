@@ -1,0 +1,12 @@
+package require -exact vtkwidgets @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+
+if {[info commands ::vtk::init::require_package] != ""} {
+  if {[::vtk::init::require_package vtkChartsTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
+    package provide vtkcharts @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+} else {
+  if {[info commands vtkChartMatrix] != "" ||
+    [::vtk::load_component vtkChartsTCL] == ""} {
+    package provide vtkcharts @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+}
