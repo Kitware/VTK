@@ -5,7 +5,8 @@
 
 =========================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay, Kitware SAS 2012
+// This test was written by Philippe Pebay and Charles Law, Kitware 2012
+// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
@@ -20,7 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridAxisCut( int argc, char* argv[] )
+int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )
 {
   vtkNew<vtkHyperTreeGridSource> fractal;
   fractal->SetMaximumLevel( 3 );
@@ -44,7 +45,7 @@ int TestHyperTreeGridAxisCut( int argc, char* argv[] )
 
   // Create camera
   vtkHyperTreeGrid* ht = fractal->GetOutput();
-  double bd[3];
+  double bd[6];
   ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
@@ -76,7 +77,5 @@ int TestHyperTreeGridAxisCut( int argc, char* argv[] )
     iren->Start();
     }
 
-  // Clean up
-
-  return 0;
+  return !retVal;
 }
