@@ -37,45 +37,45 @@ class vtkRectilinearGrid;
 class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridPartitioner :
   public vtkMultiBlockDataSetAlgorithm
 {
-  public:
-    static vtkRectilinearGridPartitioner *New();
-    vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-    void PrintSelf(ostream &oss, vtkIndent indent);
+public:
+  static vtkRectilinearGridPartitioner *New();
+  vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
+  void PrintSelf(ostream &oss, vtkIndent indent);
 
-    // Description:
-    // Set/Get macro for the number of subdivisions.
-    vtkGetMacro(NumberOfPartitions,int);
-    vtkSetMacro(NumberOfPartitions,int);
+  // Description:
+  // Set/Get macro for the number of subdivisions.
+  vtkGetMacro(NumberOfPartitions,int);
+  vtkSetMacro(NumberOfPartitions,int);
 
-    // Description:
-    // Set/Get macro for the number of ghost layers.
-    vtkGetMacro(NumberOfGhostLayers,int);
-    vtkSetMacro(NumberOfGhostLayers,int);
+  // Description:
+  // Set/Get macro for the number of ghost layers.
+  vtkGetMacro(NumberOfGhostLayers,int);
+  vtkSetMacro(NumberOfGhostLayers,int);
 
-  protected:
-    vtkRectilinearGridPartitioner();
-    virtual ~vtkRectilinearGridPartitioner();
+protected:
+  vtkRectilinearGridPartitioner();
+  virtual ~vtkRectilinearGridPartitioner();
 
-    // Description:
-    // Extracts the coordinates
-    void ExtractGridCoordinates(
-        vtkRectilinearGrid *grd, int subext[6],
-        vtkDoubleArray *xcoords,
-        vtkDoubleArray *ycoords,
-        vtkDoubleArray *zcoords );
+  // Description:
+  // Extracts the coordinates
+  void ExtractGridCoordinates(
+      vtkRectilinearGrid *grd, int subext[6],
+      vtkDoubleArray *xcoords,
+      vtkDoubleArray *ycoords,
+      vtkDoubleArray *zcoords );
 
-    // Standard Pipeline methods
-    virtual int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*);
-    virtual int FillInputPortInformation(int port, vtkInformation *info);
-    virtual int FillOutputPortInformation(int port, vtkInformation *info);
+  // Standard Pipeline methods
+  virtual int RequestData(
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
-    int NumberOfPartitions;
-    int NumberOfGhostLayers;
+  int NumberOfPartitions;
+  int NumberOfGhostLayers;
 
-  private:
-    vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &); // Not implemented
-    void operator=(const vtkRectilinearGridPartitioner &); // Not implemented
+private:
+  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &); // Not implemented
+  void operator=(const vtkRectilinearGridPartitioner &); // Not implemented
 };
 
 #endif /* VTKRECTILINEARGRIDPARTITIONER_H_ */
