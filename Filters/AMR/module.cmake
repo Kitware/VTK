@@ -1,4 +1,4 @@
-vtk_module(vtkAMRCore
+vtk_module(vtkFiltersAMR
   GROUPS
     StandAlone
   DEPENDS
