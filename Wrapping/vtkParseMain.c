@@ -24,7 +24,6 @@ the code that parses the header file.
 #include "vtkParse.h"
 #include "vtkParseMain.h"
 #include "vtkParseInternal.h"
-#include "vtkConfigure.h" // VTK_VERSION
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -184,7 +183,7 @@ int main(int argc, char *argv[])
 
   if (vtk_parse_version)
     {
-    const char *ver = VTK_VERSION;
+    const char *ver = VTK_PARSE_VERSION;
     const char *exename = argv[0];
     /* remove directory part of exe name */
     for (exename += strlen(exename); exename > argv[0]; --exename)

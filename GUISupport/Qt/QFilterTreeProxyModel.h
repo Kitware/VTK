@@ -18,26 +18,27 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 // .NAME QFilterTreeProxyModel - An implementation of a QSortFilterProxyModel
-//    tailored for hierarchical models. 
+//    tailored for hierarchical models.
 //
 // .SECTION Description
-// An implementation of a QSortFilterProxyModel tailored for hierarchical 
-// models. It allows you to filter the model based on the content in a 
-// certain column of a certain level in the tree. Indices above that level 
-// in the tree are retained. Indices below the level are kept if their 
-// ancestor at the tree level is kept. 
+// An implementation of a QSortFilterProxyModel tailored for hierarchical
+// models. It allows you to filter the model based on the content in a
+// certain column of a certain level in the tree. Indices above that level
+// in the tree are retained. Indices below the level are kept if their
+// ancestor at the tree level is kept.
 //
 // .SECTION See also
 
 #ifndef __QFilterTreeProxyModel_h
 #define __QFilterTreeProxyModel_h
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include <QSortFilterProxyModel>
 
 class QModelIndex;
 
-class QVTK_EXPORT QFilterTreeProxyModel : public QSortFilterProxyModel
+class VTKGUISUPPORTQT_EXPORT QFilterTreeProxyModel : public QSortFilterProxyModel
 {
   Q_OBJECT
 

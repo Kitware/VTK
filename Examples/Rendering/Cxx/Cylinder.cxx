@@ -48,7 +48,7 @@ int main()
   cylinderActor->RotateX(30.0);
   cylinderActor->RotateY(-45.0);
 
-  // Create the graphics structure. The renderer renders into the 
+  // Create the graphics structure. The renderer renders into the
   // render window. The render window interactor captures mouse events
   // and will perform appropriate camera or actor manipulation
   // depending on the nature of the events.
@@ -70,7 +70,7 @@ int main()
   ren1->ResetCamera();
   ren1->GetActiveCamera()->Zoom(1.5);
   renWin->Render();
-  
+
   // This starts the event loop and as a side effect causes an initial render.
   iren->Start();
 

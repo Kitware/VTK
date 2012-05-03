@@ -12,12 +12,12 @@ def computeLabel():
   vertexArray = vtkStringArray()
   vertexArray.SetName("label")
   vertexArray.SetNumberOfTuples(output.GetNumberOfVertices())
-  
+
   # Loop through all the vertices setting the degree for the new attribute array
   for i in range(output.GetNumberOfVertices()):
-      label = '%02d' % (i) 
+      label = '%02d' % (i)
       vertexArray.SetValue(i, label)
-    
+
   # Add the new attribute array to the output graph
   output.GetVertexData().AddArray(vertexArray)
 
@@ -84,7 +84,7 @@ theme = vtkViewTheme.CreateOceanTheme()
 view1.ApplyViewTheme(theme)
 view2.ApplyViewTheme(theme)
 theme.FastDelete()
- 
+
 view1.GetRenderWindow().SetSize(600, 600)
 view1.ResetCamera()
 view1.Render()

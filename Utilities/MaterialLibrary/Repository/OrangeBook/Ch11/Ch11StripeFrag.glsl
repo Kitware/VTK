@@ -27,7 +27,7 @@ void main(void)
 
     frac1 = frac1 * (1.0 - frac2);
     frac1 = frac1 * frac1 * (3.0 - (2.0 * frac1));
-   
+
     vec3 finalColor = mix(BackColor, StripeColor, frac1);
     finalColor = finalColor * DiffuseColor + SpecularColor;
 

@@ -130,7 +130,7 @@ def AlignCamera():
         vy = 1
         nz = oz+zMax*sz
         cz = oz+slice_number*sz
- 
+
     px = cx+nx*2
     py = cy+ny*2
     pz = cz+nz*3
@@ -142,7 +142,7 @@ def AlignCamera():
     camera.OrthogonalizeViewUp()
     ren.ResetCameraClippingRange()
     renWin.Render()
- 
+
 # Capture the display and place in a tiff
 def CaptureImage():
     w2i = vtk.vtkWindowToImageFilter()
@@ -153,7 +153,7 @@ def CaptureImage():
     writer.SetFileName("image.tif")
     renWin.Render()
     writer.Write()
- 
+
 
 # Align the widget back into orthonormal position,
 # set the slider to reflect the widget's position,
@@ -167,13 +167,13 @@ def AlignXaxis():
         planeWidgetX.SetSliceIndex(slice_number)
     else:
         slice_number = planeWidgetX.GetSliceIndex()
- 
+
     current_widget = planeWidgetX
 
     slice.config(from_=xMin, to=xMax)
     slice.set(slice_number)
     AlignCamera()
- 
+
 
 def AlignYaxis():
     global yMin, yMax, current_widget, slice_number
@@ -184,13 +184,13 @@ def AlignYaxis():
         planeWidgetY.SetSliceIndex(slice_number)
     else:
         slice_number = planeWidgetY.GetSliceIndex()
- 
+
     current_widget = planeWidgetY
 
     slice.config(from_=yMin, to=yMax)
     slice.set(slice_number)
     AlignCamera()
- 
+
 def AlignZaxis():
     global yMin, yMax, current_widget, slice_number
     po = planeWidgetZ.GetPlaneOrientation()
@@ -200,7 +200,7 @@ def AlignZaxis():
         planeWidgetZ.SetSliceIndex(slice_number)
     else:
         slice_number = planeWidgetZ.GetSliceIndex()
- 
+
     current_widget = planeWidgetZ
 
     slice.config(from_=zMin, to=zMax)
@@ -216,7 +216,7 @@ def SetInterpolation():
         mode_widget.TextureInterpolateOff()
     else:
         mode_widget.TextureInterpolateOn()
- 
+
     mode_widget.SetResliceInterpolate(mode.get())
     renWin.Render()
 
@@ -235,7 +235,7 @@ def buttonEvent(event, arg=None):
     mode.set(mode_widget.GetResliceInterpolate())
     popm.entryconfigure(arg, variable=mode)
     popm.post(event.x + event.x_root, event.y + event.y_root)
-        
+
 def SetSlice(sl):
     global current_widget
     current_widget.SetSliceIndex(int(sl))
@@ -305,7 +305,7 @@ slice = Tkinter.Scale(top, from_=zMin, to=zMax, orient="horizontal",
                       label="Slice")
 slice.pack(fill="x", expand="false")
 
-# Done with the GUI. 
+# Done with the GUI.
 ###
 
 # Set the interactor for the widgets

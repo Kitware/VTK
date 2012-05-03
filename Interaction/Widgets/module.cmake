@@ -1,0 +1,22 @@
+vtk_module(vtkInteractionWidgets
+  GROUPS
+    Rendering
+  DEPENDS
+    vtkRenderingAnnotation
+    vtkRenderingFreeType
+    vtkRenderingVolume
+    vtkFiltersModeling
+    vtkFiltersHybrid
+    vtkImagingGeneral
+    vtkImagingHybrid
+    vtkInteractionStyle
+  TEST_DEPENDS
+    vtkRenderingVolumeOpenGL
+    vtkRenderingFreeTypeOpenGL
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkFiltersModeling
+    vtkFiltersTracers
+    vtkRenderingLOD
+    vtkImagingStencil
+  )

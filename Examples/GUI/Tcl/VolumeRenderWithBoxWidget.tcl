@@ -6,7 +6,7 @@ package require vtkinteraction
 
 # Load a volume, use the widget to control what's volume rendered. Basically
 # the idea is that the vtkBoxWidget provides a box which clips the volume
-# rendering.  
+# rendering.
 vtkVolume16Reader v16
   v16 SetDataDimensions 64 64
   [v16 GetOutput] SetOrigin 0.0 0.0 0.0

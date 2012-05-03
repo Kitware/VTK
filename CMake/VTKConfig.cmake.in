@@ -1,0 +1,84 @@
+#-----------------------------------------------------------------------------
+#
+# VTKConfig.cmake - VTK CMake configuration file for external projects.
+#
+# This file is configured by VTK and used by the UseVTK.cmake module
+# to load VTK's settings for an external project.
+@VTK_CONFIG_CODE@
+
+# The C and C++ flags added by VTK to the cmake-configured flags.
+SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
+SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")
+SET(VTK_REQUIRED_EXE_LINKER_FLAGS "@VTK_REQUIRED_EXE_LINKER_FLAGS@")
+SET(VTK_REQUIRED_SHARED_LINKER_FLAGS "@VTK_REQUIRED_SHARED_LINKER_FLAGS@")
+SET(VTK_REQUIRED_MODULE_LINKER_FLAGS "@VTK_REQUIRED_MODULE_LINKER_FLAGS@")
+
+# The VTK version number
+SET(VTK_MAJOR_VERSION "@VTK_MAJOR_VERSION@")
+SET(VTK_MINOR_VERSION "@VTK_MINOR_VERSION@")
+SET(VTK_BUILD_VERSION "@VTK_BUILD_VERSION@")
+
+# The location of the UseVTK.cmake file.
+SET(VTK_CMAKE_DIR "@VTK_CONFIG_CMAKE_DIR@")
+SET(VTK_USE_FILE "${VTK_CMAKE_DIR}/UseVTK.cmake")
+
+#-----------------------------------------------------------------------------
+# Load requested modules.
+
+# List of available VTK modules.
+set(VTK_MODULES_ENABLED "@VTK_CONFIG_MODULES_ENABLED@")
+
+# Import VTK targets.
+set(VTK_CONFIG_TARGETS_FILE "@VTK_CONFIG_TARGETS_FILE@")
+if(NOT VTK_TARGETS_IMPORTED@VTK_CONFIG_TARGETS_CONDITION@)
+  set(VTK_TARGETS_IMPORTED 1)
+  include("${VTK_CONFIG_TARGETS_FILE}")
+endif()
+
+# Load module interface macros.
+include("@VTK_CONFIG_MODULE_API_FILE@")
+
+# Compute set of requested modules.
+if(VTK_FIND_COMPONENTS)
+  # Specific modules requested by find_package(VTK).
+  set(VTK_MODULES_REQUESTED "${VTK_FIND_COMPONENTS}")
+elseif(NOT "${CMAKE_VERSION}" VERSION_GREATER 2.8.4.20110407)
+  # CMake 2.8.4 and lower do not forward the components list through
+  # their FindVTK.cmake module, so unless the application called
+  #
+  #   find_package(VTK NO_MODULE ...)
+  #
+  # then only the per-component variables VTK_FIND_REQUIRED_<mod> will
+  # have leaked through.
+  set(VTK_MODULES_REQUESTED "")
+  get_cmake_property(_vars VARIABLES)
+  foreach(v IN LISTS _vars)
+    if("x${v}" MATCHES "^xVTK_FIND_REQUIRED_" AND ${v})
+      string(REGEX REPLACE "^VTK_FIND_REQUIRED_" "" _mod "${v}")
+      list(APPEND VTK_MODULES_REQUESTED ${_mod})
+    endif()
+  endforeach()
+endif()
+if(NOT VTK_MODULES_REQUESTED)
+  # No specific modules requested.  Use all of them.
+  set(VTK_MODULES_REQUESTED "${VTK_MODULES_ENABLED}")
+endif()
+
+# Load requested modules and their dependencies into variables:
+#  VTK_DEFINITIONS     = Preprocessor definitions
+#  VTK_LIBRARIES       = Libraries to link
+#  VTK_INCLUDE_DIRS    = Header file search path
+#  VTK_LIBRARY_DIRS    = Library search path (for outside dependencies)
+vtk_module_config(VTK ${VTK_MODULES_REQUESTED})
+
+#-----------------------------------------------------------------------------
+
+# VTK global configuration options.
+SET(VTK_BUILD_SHARED_LIBS "@BUILD_SHARED_LIBS@")
+SET(VTK_LEGACY_REMOVE "@VTK_LEGACY_REMOVE@")
+SET(VTK_LEGACY_SILENT "@VTK_LEGACY_SILENT@")
+
+# Do not add options or information here that is specific to a
+# particular module.  Instead set <module>_EXPORT_OPTIONS and/or
+# <module>_EXPORT_CODE_BUILD and <module>_EXPORT_CODE_INSTALL
+# at the top of the module CMakeLists.txt file.

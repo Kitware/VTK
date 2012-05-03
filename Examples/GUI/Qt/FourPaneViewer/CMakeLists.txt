@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
- 
+
 PROJECT(QtVTKRenderWindows)
- 
+
 IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK)
 IF(NOT VTK_DIR)
@@ -16,12 +16,12 @@ SET(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
 FIND_PACKAGE(Qt4 REQUIRED)
 INCLUDE(${QT_USE_FILE})
 
- 
+
 # Set your files and resources here
 SET(QtVTKRenderWindowsSrcs QtVTKRenderWindowsApp.cxx QtVTKRenderWindows.cxx)
 SET(QtVTKRenderWindowsUI QtVTKRenderWindows.ui)
 SET(QtVTKRenderWindowsHeaders QtVTKRenderWindows.h)
- 
+
 INCLUDE_DIRECTORIES(
   ${QT_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -30,16 +30,16 @@ INCLUDE_DIRECTORIES(
 
 QT4_WRAP_UI(UISrcs ${QtVTKRenderWindowsUI})
 QT4_WRAP_CPP(MOCSrcs ${QtVTKRenderWindowsHeaders} )
- 
+
 SOURCE_GROUP("Resources" FILES
   ${QtVTKRenderWindowsUI}
 )
- 
+
 SOURCE_GROUP("Generated" FILES
   ${UISrcs}
   ${MOCSrcs}
   ${RCS_SOURCES}
 )
- 
+
 ADD_EXECUTABLE( QtVTKRenderWindows ${QtVTKRenderWindowsSrcs} ${UISrcs} ${MOCSrcs})
 TARGET_LINK_LIBRARIES( QtVTKRenderWindows QVTK )

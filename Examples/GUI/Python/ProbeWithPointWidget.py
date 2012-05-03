@@ -63,10 +63,10 @@ iren.SetRenderWindow(renWin)
 def BeginInteraction(obj, event):
     global point, glyphActor
     obj.GetPolyData(point)
-    glyphActor.VisibilityOn() 
+    glyphActor.VisibilityOn()
 
 def ProbeData(obj, event):
-    obj.GetPolyData(point) 
+    obj.GetPolyData(point)
 
 # Associate the line widget with the interactor
 pointWidget.SetInteractor(iren)

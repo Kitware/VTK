@@ -1,0 +1,11 @@
+vtk_module(vtkFiltersParallelTracers
+  IMPLEMENTS
+    vtkFiltersTracers
+  DEPENDS
+    vtkParallelMPI
+    vtkParallelCore
+  TEST_DEPENDS
+    vtkFiltersAMR
+    vtkTestingRendering
+    vtkRenderingParallel
+  )

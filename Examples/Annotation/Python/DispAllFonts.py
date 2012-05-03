@@ -23,7 +23,7 @@ text_color = [246/255.0, 255/255.0, 11/255.0]
 bg_color = [56/255.0, 56/255.0, 154/255.0]
 
 # We create the render window which will show up on the screen
-# We put our renderer into the render window using AddRenderer. 
+# We put our renderer into the render window using AddRenderer.
 # Do not set the size of the window here.
 renWin = vtk.vtkRenderWindow()
 ren = vtk.vtkRenderer()
@@ -49,8 +49,8 @@ for family in ("Arial", "Courier", "Times"):
         if len(attribs):
             face_name = face_name + "(" + \
                         string.join(attribs, ",") + ")"
-                  
-        mapper.SetInput(face_name + ": " + default_text)        
+
+        mapper.SetInput(face_name + ": " + default_text)
         tprop = mapper.GetTextProperty()
         eval("tprop.SetFontFamilyTo%s()"%family)
         tprop.SetColor(text_color)
@@ -96,7 +96,7 @@ def set_font_size(sz):
         i += 1
         actor.GetMapper().GetTextProperty().SetFontSize(size)
         actor.SetDisplayPosition(10, i*(size+5))
-     
+
     renWin.SetSize(800, 20+i*(size+5))
     renWin.Render()
 
@@ -112,7 +112,7 @@ size_slider = Tkinter.Scale(root, from_=min_font_size,
                             command=set_font_size)
 size_slider.set(current_font_size)
 
-# Finally we pack the VTK widget and the sliders on top of each other 
+# Finally we pack the VTK widget and the sliders on top of each other
 # (side='top') inside the main root widget.
 vtkw.Initialize()
 size_slider.pack(side="top", fill="both")

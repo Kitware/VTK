@@ -65,7 +65,7 @@ int TestQtTreeModelAdapter(int, char*[])
     cerr << "ERROR: Wrong number of columns." << endl;
     ++errors;
     }
-  
+
   QModelIndex ind0 = adapter.index(0, 0);
   QModelIndex ind1 = adapter.index(0, 0, ind0);
   for (int i = 0; i < numVerts; ++i)

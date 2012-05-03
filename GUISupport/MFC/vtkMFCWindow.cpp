@@ -86,7 +86,7 @@ vtkMFCWindow::vtkMFCWindow(CWnd *pcWnd)
   if(pcWnd)
     style |= WS_CHILD;
   BOOL bCreated = CWnd::Create(NULL, _T("VTK-MFC Window"),
-                               style, CRect(0, 0, 1, 1), 
+                               style, CRect(0, 0, 1, 1),
                                pcWnd, (UINT)IDC_STATIC);
 
   SUCCEEDED(bCreated);
@@ -192,14 +192,14 @@ void vtkMFCWindow::DrawDC(CDC* pDC)
   this->pvtkWin32OpenGLRW->ResumeScreenRendering();
 }
 
-void vtkMFCWindow::OnSize(UINT nType, int cx, int cy) 
+void vtkMFCWindow::OnSize(UINT nType, int cx, int cy)
 {
   CWnd::OnSize(nType, cx, cy);
   if (this->GetInteractor() && this->GetInteractor()->GetInitialized())
     this->GetInteractor()->UpdateSize(cx, cy);
 }
 
-BOOL vtkMFCWindow::OnEraseBkgnd(CDC*) 
+BOOL vtkMFCWindow::OnEraseBkgnd(CDC*)
 {
   return TRUE;
 }

@@ -87,12 +87,12 @@ void vtkImageFooExecute(vtkImageFoo* self,
   // find the region to loop over
 
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
-  maxY = outExt[3] - outExt[2]; 
+  maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;
-  
-  // Get increments to march through data 
+
+  // Get increments to march through data
 
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);

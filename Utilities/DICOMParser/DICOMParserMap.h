@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -26,7 +26,7 @@
 #pragma warning ( disable : 4710 )
 #pragma warning ( disable : 4702 )
 #pragma warning ( push, 3 )
-#endif 
+#endif
 
 #include <map>
 #include <utility>
@@ -40,13 +40,13 @@ class DICOMCallback;
 // a pair of doublebytes.  This is used when comparing
 // group, element pairs.
 //
-struct group_element_compare 
+struct group_element_compare
 {
   bool operator() (const dicom_stl::pair<doublebyte, doublebyte> p1, const dicom_stl::pair<doublebyte, doublebyte> p2) const
   {
     if (p1.first < p2.first)
       {
-      return true;  
+      return true;
       }
     else if (p1.first == p2.first)
       {
@@ -59,7 +59,7 @@ struct group_element_compare
         return false;
         }
       }
-    else 
+    else
       {
       return false;
       }
@@ -118,8 +118,8 @@ class  DICOMMapValue : public DICOMMapValueOverride
 // Subclass of the particular map we're using.  Again,
 // makes type specifiers shorter in the code.
 //
-class  DICOMParserMap : 
-  public  dicom_stl::map<DICOMMapKey, DICOMMapValue, group_element_compare> 
+class  DICOMParserMap :
+  public  dicom_stl::map<DICOMMapKey, DICOMMapValue, group_element_compare>
 {
 
 };
@@ -128,7 +128,7 @@ typedef doublebyte DICOMTypeValue;
 
 // DICOM_EXPIMP_TEMPLATE template class  dicom_stream::map<DICOMMapKey, DICOMTypeValue, group_element_compare>;
 
-class  DICOMImplicitTypeMap : 
+class  DICOMImplicitTypeMap :
   public dicom_stl::map<DICOMMapKey, DICOMTypeValue, group_element_compare>
 {
 
@@ -136,6 +136,6 @@ class  DICOMImplicitTypeMap :
 
 #ifdef _MSC_VER
 #pragma warning ( pop )
-#endif 
+#endif
 
 #endif

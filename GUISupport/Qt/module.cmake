@@ -1,0 +1,12 @@
+vtk_module(vtkGUISupportQt
+  GROUPS
+    Qt
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkRenderingOpenGL
+    vtkInteractionStyle
+    vtkImagingCore
+  TEST_DEPENDS
+    vtkTestingCore
+  EXCLUDE_FROM_WRAPPING
+  )

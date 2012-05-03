@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
     }
 
   // Read the file
-  vtkSmartPointer<vtkXMLPolyDataReader> reader = 
+  vtkSmartPointer<vtkXMLPolyDataReader> reader =
     vtkSmartPointer<vtkXMLPolyDataReader>::New();
 
   reader->SetFileName( argv[1] );
@@ -46,7 +46,7 @@ int main (int argc, char *argv[])
   double delta =
     (scalarRange[1] - scalarRange[0]) /
     static_cast<double> (numberOfContours - 1);
-  
+
   // Keep the clippers alive
   std::vector<vtkSmartPointer<vtkClipPolyData> > clippersLo;
   std::vector<vtkSmartPointer<vtkClipPolyData> > clippersHi;
@@ -78,7 +78,7 @@ int main (int argc, char *argv[])
       {
       continue;
       }
-    
+
     vtkSmartPointer<vtkFloatArray> cd =
       vtkSmartPointer<vtkFloatArray>::New();
     cd->SetNumberOfComponents(1);
@@ -103,7 +103,7 @@ int main (int argc, char *argv[])
   contourMapper->SetScalarRange(scalarRange[0], scalarRange[1]);
   contourMapper->SetScalarModeToUseCellData();
   contourMapper->SetLookupTable(lut);
- 
+
   vtkSmartPointer<vtkActor> contourActor =
     vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);

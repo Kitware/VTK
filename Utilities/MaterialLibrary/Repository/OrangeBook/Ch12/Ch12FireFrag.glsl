@@ -3,12 +3,12 @@
 //
 // Author: Randi Rost
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
 
-varying float LightIntensity; 
+varying float LightIntensity;
 varying vec3  MCposition;
 
 uniform sampler3D Noise;
@@ -28,6 +28,6 @@ void main (void)
 
     intensity    = clamp(intensity * 6.0, 0.0, 1.0);
     vec3 color   = mix(Color1, Color2, intensity) * LightIntensity;
-    
+
     gl_FragColor = vec4 (color, 1.0);
 }

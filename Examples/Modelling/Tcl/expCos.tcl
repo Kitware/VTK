@@ -6,8 +6,8 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-# 
-# We create a 100 by 100 point plane to sample 
+#
+# We create a 100 by 100 point plane to sample
 #
 vtkPlaneSource plane
     plane SetXResolution 100
@@ -70,7 +70,7 @@ vtkWarpScalar warp
     warp SetScaleFactor 0.5
 
 #
-# We create a mapper and actor as usual. In the case we adjust the 
+# We create a mapper and actor as usual. In the case we adjust the
 # scalar range of the mapper to match that of the computed scalars
 #
 vtkPolyDataMapper mapper

@@ -60,6 +60,6 @@ boxWidget.SetProp3D(maceActor)
 boxWidget.PlaceWidget()
 boxWidget.AddObserver("InteractionEvent", TransformActor)
 
-iren.Initialize() 
+iren.Initialize()
 renWin.Render()
 iren.Start()

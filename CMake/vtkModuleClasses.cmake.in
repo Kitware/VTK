@@ -1,0 +1,10 @@
+set(@vtk-module@_CLASSES_LOADED 1)
+set(@vtk-module@_CLASSES "@vtk-module-CLASSES@")
+
+foreach(class ${@vtk-module@_CLASSES})
+  set(@vtk-module@_CLASS_${class}_EXISTS 1)
+endforeach()
+
+@vtk-module-ABSTRACT@
+@vtk-module-WRAP_EXCLUDE@
+@vtk-module-WRAP_SPECIAL@

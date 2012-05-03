@@ -22,7 +22,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 # -------------------------------------------------------------------------
 # Defaults (add options as you want : "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    html => "../../../doc/html",
    to => "../../../VTK-doxygen"
@@ -64,7 +64,7 @@ my $start_time = time();
 print "Collecting HTML files in ", $args{"html"}, "\n";
 
 my @files;
-find sub { 
+find sub {
     push @files, $File::Find::name
       if -f $_ && $_ =~ /\.html$/;
 }, $args{"html"};
@@ -72,7 +72,7 @@ find sub {
 print " => ", scalar @files, " file(s) collected in ", time() - $start_time, " s.\n";
 
 # -------------------------------------------------------------------------
-# Remove path 
+# Remove path
 
 my ($nb_files, $htmlpath) = (0, abs_path($args{"to"}) . '/');
 undef $/;  # slurp mode
@@ -86,19 +86,19 @@ foreach my $filename (@files) {
 
     # Open the file, read it entirely
 
-    sysopen(HTMLFILE, 
-            $filename, 
+    sysopen(HTMLFILE,
+            $filename,
             O_RDONLY|$open_file_as_text)
       or croak "$PROGNAME: unable to open $filename\n";
     my $html = <HTMLFILE>;
     close(HTMLFILE);
-    
+
     # Remove all paths
-   
+
     if ($html =~ s/$htmlpath//gms) {
         ++$nb_files;
-        sysopen(HTMLFILE, 
-                $filename, 
+        sysopen(HTMLFILE,
+                $filename,
                 O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
           or croak "$PROGNAME: unable to open destination file $filename\n";
         print HTMLFILE $html;

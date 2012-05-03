@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # This example shows how to generate and manipulate texture coordinates.
-# A random cloud of points is generated and then triangulated with 
+# A random cloud of points is generated and then triangulated with
 # vtkDelaunay3D. Since these points do not have texture coordinates,
 # we generate them with vtkTextureMapToCylinder.
 
@@ -18,7 +18,7 @@ sphere.SetNumberOfPoints(25)
 delny = vtk.vtkDelaunay3D()
 delny.SetInputConnection(sphere.GetOutputPort())
 delny.SetTolerance(0.01)
-    
+
 # The triangulation has texture coordinates generated so we can map
 # a texture onto it.
 tmapper = vtk.vtkTextureMapToCylinder()

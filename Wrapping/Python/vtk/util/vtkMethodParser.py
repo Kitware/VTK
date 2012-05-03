@@ -36,9 +36,9 @@ class VtkDirMethodParser:
 
     def parse_methods (self, vtk_obj):
 	debug ("VtkDirMethodParser:: parse_methods()")
-        self.initialize_methods (vtk_obj)	
+        self.initialize_methods (vtk_obj)
 	debug ("VtkDirMethodParser:: parse_methods() - initialized methods")
-	
+
 	for method in self.methods[:]:
 	    # finding all the methods that set the state.
 	    if string.find (method[:3], "Set") >= 0 and \
@@ -103,7 +103,7 @@ class VtkDirMethodParser:
 	    else:
 		if val is None:
 		    self.get_set_meths.remove (method)
-	
+
     def clean_state_methods (self, vtk_obj):
 	debug ("VtkDirMethodParser:: clean_state_methods()")
 	# Getting the remaining pure GetMethods
@@ -125,7 +125,7 @@ class VtkDirMethodParser:
 		    state_group.append (tmp[i])
 		else:
 		    self.state_meths.append (state_group)
-		    state_group = [tmp[i]]	
+		    state_group = [tmp[i]]
 		    end = self.state_patn.search (tmp[i]).start ()
 		    m = tmp[i][3:end]
 		try: # remove the corresponding set method in get_set
@@ -218,7 +218,7 @@ class VtkPrintMethodParser:
 		except AttributeError:
 		    pass
 		else:
-		    self.toggle_meths.append (method[0]+"On")		
+		    self.toggle_meths.append (method[0]+"On")
 	    else: # see it it is get_set or get or a state method
 		found = 0
 		# checking if it is a state func.
@@ -244,7 +244,7 @@ class VtkPrintMethodParser:
 		    except AttributeError:
 			pass
 		    else:
-			continue	
+			continue
 		    val = 0
 		    try:
 			val = eval ("vtk_obj.Get%s ()"%method[0])

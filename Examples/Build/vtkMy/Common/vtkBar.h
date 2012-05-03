@@ -36,4 +36,4 @@ private:
   void operator=(const vtkBar&);  // Not implemented.
 };
 
-#endif 
+#endif

@@ -2,7 +2,7 @@
 # It creates random points and connects them with a spline
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
@@ -20,7 +20,7 @@ vtkCardinalSpline aSplineX
 vtkCardinalSpline aSplineY
 vtkCardinalSpline aSplineZ
 
-# Generate random (pivot) points and add the corresponding 
+# Generate random (pivot) points and add the corresponding
 # coordinates to the splines.
 # aSplineX will interpolate the x values of the points
 # aSplineY will interpolate the y values of the points

@@ -45,7 +45,7 @@ public:
     {
     this->Stream << endl
       << "// From file " << file << endl
-      << "static const char* " << this->Prefix.c_str() << title << this->Suffix.c_str() << this->Count 
+      << "static const char* " << this->Prefix.c_str() << title << this->Suffix.c_str() << this->Count
       << " =" << endl;
     this->CurrentPosition = this->Stream.tellp();
     }
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 {
   if ( argc < 4 )
     {
-    cerr << "Usage: " << argv[0] << " <output-file> <prefix> <suffix> <getmethod> <modules>..." 
+    cerr << "Usage: " << argv[0] << " <output-file> <prefix> <suffix> <getmethod> <modules>..."
       << endl;
     return 1;
     }
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
     for ( kk = 0; kk < num; kk ++ )
       {
       lenstr << endl
-        << "    + static_cast<int>(strlen(" << ot.Prefix.c_str() 
+        << "    + static_cast<int>(strlen(" << ot.Prefix.c_str()
         << moduleName.c_str() << ot.Suffix.c_str() << kk << "))";
       createstring << "  strcat(res, " << ot.Prefix.c_str() << moduleName.c_str() << ot.Suffix.c_str()
         << kk << ");" << endl;

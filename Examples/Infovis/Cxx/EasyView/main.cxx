@@ -15,16 +15,16 @@ extern int qInitResources_icons();
 
 int main( int argc, char** argv )
 {
-  
+
   // QT Stuff
   QApplication app( argc, argv );
 
   QApplication::setStyle(new QCleanlooksStyle);
-  
+
   qInitResources_icons();
-  
+
   EasyView myEasyView;
   myEasyView.show();
-  
+
   return app.exec();
 }

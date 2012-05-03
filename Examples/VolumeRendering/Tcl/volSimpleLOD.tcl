@@ -42,7 +42,7 @@ vtkVolumeProperty volumeProperty2
     volumeProperty2 SetColor colorTransferFunction
     volumeProperty2 SetScalarOpacity opacityTransferFunction
     volumeProperty2 SetInterpolationTypeToLinear
-  
+
 #
 # Create a volume ray cast mapper.  The volume is used for levels 1 and 2 of
 # LODProp3D.
@@ -77,24 +77,24 @@ set types [list hres lres]
 foreach type $types {
     for { set i 0 } { $i < 3 } { incr i } {
 	vtkPlaneSource plane${i}_${type}
-	
+
 	vtkTransform transform${i}_${type}
 	transform${i}_${type} Identity
-	
+
 	vtkTransformPolyDataFilter transpd${i}_${type}
 	transpd${i}_${type} SetInputConnection [plane${i}_${type} GetOutputPort]
 	transpd${i}_${type} SetTransform transform${i}_${type}
-	
+
 	vtkProbeFilter probe${i}_${type}
 	probe${i}_${type} SetInputConnection [transpd${i}_${type} GetOutputPort]
 	probe${i}_${type} SetSourceConnection [reader GetOutputPort]
-	
+
 	vtkCastToConcrete cast${i}_${type}
 	cast${i}_${type} SetInputConnection [probe${i}_${type} GetOutputPort]
-	
+
 	vtkTriangleFilter tf${i}_${type}
 	tf${i}_${type} SetInputConnection [cast${i}_${type} GetOutputPort]
-	
+
 	vtkStripper strip${i}_${type}
 	strip${i}_${type} SetInputConnection [tf${i}_${type} GetOutputPort]
     }
@@ -112,7 +112,7 @@ foreach type $types {
     apd_${type} AddInputConnection [tf0_${type} GetOutputPort]
     apd_${type} AddInputConnection [tf1_${type} GetOutputPort]
     apd_${type} AddInputConnection [tf2_${type} GetOutputPort]
-    
+
     vtkPolyDataMapper probeMapper_${type}
     probeMapper_${type} SetInputConnection [apd_${type} GetOutputPort]
     probeMapper_${type} SetColorModeToMapScalars

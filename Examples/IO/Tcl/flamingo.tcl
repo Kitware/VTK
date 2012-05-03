@@ -5,7 +5,7 @@
 # and/or vtkRenderer or will use the ones you specify.
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
@@ -16,12 +16,12 @@ vtk3DSImporter importer
   importer ComputeNormalsOn
   importer SetFileName "$VTK_DATA_ROOT/Data/iflamigm.3ds"
   importer Read
-# Here we let the importer create a renderer and a render window 
+# Here we let the importer create a renderer and a render window
 # for us. We could have also create and assigned those ourselves:
 # vtkRenderWindow renWin
 # importer SetRenderWindow renWin
 
-# Assign an interactor. 
+# Assign an interactor.
 # We have to ask the importer for it's render window.
 set renWin [importer GetRenderWindow]
 vtkRenderWindowInteractor iren

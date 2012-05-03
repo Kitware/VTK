@@ -1,9 +1,9 @@
 #
-# This example displays all possible combinations of font families and styles. 
+# This example displays all possible combinations of font families and styles.
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
@@ -24,7 +24,7 @@ set bg_color [list [expr 56 / 255.0] [expr 56 / 255.0] [expr 154 / 255.0]]
 
 #
 # We create the render window which will show up on the screen
-# We put our renderer into the render window using AddRenderer. 
+# We put our renderer into the render window using AddRenderer.
 # Do not set the size of the window here.
 #
 vtkRenderWindow renWin
@@ -39,8 +39,8 @@ vtkRenderer ren1
 #
 set text_actors {}
 foreach family {
-    Arial 
-    Courier 
+    Arial
+    Courier
     Times
 } {
     foreach {bold italic shadow} {
@@ -75,7 +75,7 @@ foreach family {
 
         set actor [vtkActor2D actor_${family}_${bold}_${italic}_${shadow}]
         $actor SetMapper $mapper
-        lappend text_actors $actor 
+        lappend text_actors $actor
         ren1 AddActor $actor
     }
 }
@@ -87,7 +87,7 @@ foreach family {
 # vtkRenderWindow to be used when creating the widget by using the -rw
 # option, which is what we do here by using renWin. It also takes
 # -width and -height options that can be used to specify the widget
-# size, hence the render window size. 
+# size, hence the render window size.
 #
 set vtkw [vtkTkRenderWidget .ren \
         -width 800 \
@@ -102,7 +102,7 @@ set vtkw [vtkTkRenderWidget .ren \
 # Once the VTK widget has been created it can be inserted into a whole Tk GUI
 # as well as any other standard Tk widgets.
 #
-# We create a size slider controlling the font size. 
+# We create a size slider controlling the font size.
 # The orientation of this widget is horizontal (-orient option). We label
 # it using the -label option. Finally, we bind the scale to Tcl code
 # by assigning the -command option to the name of a Tcl
@@ -140,7 +140,7 @@ proc set_font_size {size} {
 $size_slider set $current_font_size
 
 #
-# Finally we pack the VTK widget and the sliders on top of each other 
+# Finally we pack the VTK widget and the sliders on top of each other
 # (-side top) inside the main root widget.
 #
 pack $size_slider -side top -fill both
@@ -158,7 +158,7 @@ wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit
 
 #
 # You only need this line if you run this script from a Tcl shell
-# (tclsh) instead of a Tk shell (wish) 
+# (tclsh) instead of a Tk shell (wish)
 #
 tkwait window .
 

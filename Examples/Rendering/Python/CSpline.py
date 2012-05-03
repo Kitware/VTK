@@ -31,7 +31,7 @@ for i in range(0, numberOfInputPoints):
     aSplineY.AddPoint(i, y)
     aSplineZ.AddPoint(i, z)
     inputPoints.InsertPoint(i, x, y, z)
- 
+
 
 # The following section will create glyphs for the pivot points
 # in order to make the effect of the spline more clear.
@@ -72,14 +72,14 @@ for i in range(0, numberOfOutputPoints):
     t = (numberOfInputPoints-1.0)/(numberOfOutputPoints-1.0)*i
     points.InsertPoint(i, aSplineX.Evaluate(t), aSplineY.Evaluate(t),
                        aSplineZ.Evaluate(t))
- 
+
 
 # Create the polyline.
 lines = vtk.vtkCellArray()
 lines.InsertNextCell(numberOfOutputPoints)
 for i in range(0, numberOfOutputPoints):
     lines.InsertCellPoint(i)
- 
+
 profileData.SetPoints(points)
 profileData.SetLines(lines)
 

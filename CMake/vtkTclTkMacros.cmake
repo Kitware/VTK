@@ -63,8 +63,8 @@ ENDMACRO (VTK_GET_TCL_TK_VERSION)
 # Tcl/Tk support files are additional files that are mandatory for Tcl/Tk
 # to work properly. Linking against Tcl/Tk shared/static library is just
 # not enough, Tcl/Tk needs to access those files at run-time.
-# A typical Tcl/Tk installation will store support files in sub-directories 
-# inside the Tcl/Tk lib directory, organized by version number. 
+# A typical Tcl/Tk installation will store support files in sub-directories
+# inside the Tcl/Tk lib directory, organized by version number.
 # Example:
 #    c:/tcl/lib/tcl8.4
 #    c:/tcl/lib/tcl8.3
@@ -89,8 +89,8 @@ MACRO (VTK_GET_TCL_SUPPORT_FILES tcl_support_lib_dir list)
   FILE (GLOB TCL_SUPPORT_FILES_ENC  "${tcl_support_lib_dir}/encoding/*.enc")
   FILE (GLOB TCL_SUPPORT_FILES_MSGS "${tcl_support_lib_dir}/msgs/*.msg")
   SET (${list}
-    "${tcl_support_lib_dir}/tclIndex" 
-    ${TCL_SUPPORT_FILES_TCL} 
+    "${tcl_support_lib_dir}/tclIndex"
+    ${TCL_SUPPORT_FILES_TCL}
     ${TCL_SUPPORT_FILES_ENC}
     ${TCL_SUPPORT_FILES_MSGS}
     )
@@ -105,7 +105,7 @@ MACRO (VTK_GET_TK_SUPPORT_FILES tk_support_lib_dir list)
   FILE (GLOB TK_SUPPORT_FILES_MSGS "${tk_support_lib_dir}/msgs/*.msg")
   FILE (GLOB TK_SUPPORT_FILES_TTK  "${tk_support_lib_dir}/ttk/*.tcl")
   SET (${list}
-    "${tk_support_lib_dir}/tclIndex" 
+    "${tk_support_lib_dir}/tclIndex"
     ${TK_SUPPORT_FILES_TCL}
     ${TK_SUPPORT_FILES_MSGS}
     ${TK_SUPPORT_FILES_TTK}
@@ -117,10 +117,10 @@ ENDMACRO (VTK_GET_TK_SUPPORT_FILES)
 # VTK_COPY_TCL_TK_SUPPORT_FILES
 # Copy (or install) Tcl/Tk support files to a specific location.
 # See VTK_GET_TCL_SUPPORT_FILES for more info about support files.
-# Given the paths to the Tcl and Tk support lib dirs, this macro will 
-# copy (or install) the appropriate support files to destination dirs, 
+# Given the paths to the Tcl and Tk support lib dirs, this macro will
+# copy (or install) the appropriate support files to destination dirs,
 # recreating the subdirs.
-# This macro takes an optional last parameter, if set to INSTALL the 
+# This macro takes an optional last parameter, if set to INSTALL the
 # files will be scheduled for installation (using CMake's INSTALL)
 # instead of copied.
 #
@@ -182,11 +182,11 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
 
 # ----------------------------------------------------------------------------
 # VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR
-# Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES, this macro will 
+# Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES, this macro will
 # copy (or install) the appropriate Tcl/Tk support files to a directory.
 # The Tcl/Tk version is retrieved automatically and used to create
 # the subdirectories (see example below)
-# This macro takes an optional last parameter, if set to INSTALL the 
+# This macro takes an optional last parameter, if set to INSTALL the
 # files will be scheduled for installation (using CMake's INSTALL)
 # instead of copied.
 #
@@ -197,7 +197,7 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
 #
 # ex: VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
 #        "c:/tcl/lib/tcl8.4" "c:/tcl/lib/tk8.4" "d:/vtk-bin/lib")
-#     if this project is configured to use TclTk 8.4, this will copy support 
+#     if this project is configured to use TclTk 8.4, this will copy support
 #     files from:
 #       c:/tcl/lib/tcl8.4
 #       c:/tcl/lib/tk8.4
@@ -224,7 +224,7 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR)
 # VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR
 # Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR, this macro will copy the
 # appropriate Tcl/Tk support files to a project build directory.
-# The support files will be copied simultaneously to all configuration 
+# The support files will be copied simultaneously to all configuration
 # sub-directories (Release, RelInfo, Debug, etc.) if needed.
 # The Tcl/Tk version is retrieved automatically and used to create
 # the subdirectories (see example below)
@@ -237,7 +237,7 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR)
 #
 # ex: VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR (
 #        "c:/tcl/lib/tcl8.4" "c:/tcl/lib/tk8.4" "d:/vtk-bin" "TclTk/lib")
-#     if this project is configured to use TclTk 8.4, this will copy support 
+#     if this project is configured to use TclTk 8.4, this will copy support
 #     files from:
 #       c:/tcl/lib/tcl8.4
 #       c:/tcl/lib/tk8.4

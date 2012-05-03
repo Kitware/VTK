@@ -158,7 +158,7 @@ BOOL CvtkDLGDlg::OnInitDialog()
   callback->SetCallback(handle_double_click);
   this->pvtkMFCWindow->GetInteractor()->AddObserver(vtkCommand::LeftButtonPressEvent, callback, 1.0);
   callback->Delete();
-  
+
 
   CRect cRectVTK;
   this->pvtkMFCWindow->GetClientRect(&cRectVTK);
@@ -174,7 +174,7 @@ BOOL CvtkDLGDlg::OnInitDialog()
 
   // execute object pipeline
   ExecutePipeline();
-  
+
   return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -195,7 +195,7 @@ void CvtkDLGDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CvtkDLGDlg::OnPaint() 
+void CvtkDLGDlg::OnPaint()
 {
   if (IsIconic())
   {
@@ -275,12 +275,12 @@ void CvtkDLGDlg::OnBtnLoadFile()
     // remove old actors
     this->pvtkRenderer->RemoveActor(this->pvtkActor);
     this->pvtkRenderer->RemoveActor(this->pvtkActor2D);
-  
+
     // read new data
     if (!this->pvtkDataSetReader)
       this->pvtkDataSetReader = vtkDataSetReader::New();
     this->pvtkDataSetReader->SetFileName(cFileDialog.GetPathName());
-  
+
     // execute object pipeline
     ExecutePipeline();
 

@@ -1,0 +1,10 @@
+vtk_module(vtkGUISupportQtOpenGL
+  GROUPS
+    Qt
+  DEPENDS
+    vtkGUISupportQt
+    vtkRenderingOpenGL
+  TEST_DEPENDS
+    vtkTestingCore
+  EXCLUDE_FROM_WRAPPING
+  )

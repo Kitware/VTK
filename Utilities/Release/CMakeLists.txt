@@ -72,12 +72,12 @@ if(WIN32)
 endif(WIN32)
 
 
-list(APPEND lib_search_dir 
-     "\${CMAKE_INSTALL_PREFIX}/bin" 
+list(APPEND lib_search_dir
+     "\${CMAKE_INSTALL_PREFIX}/bin"
      "\${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_LIB_DIR_CM24}")
 
 if(WIN32)
-  list(APPEND lib_search_dir 
+  list(APPEND lib_search_dir
     "\${CMAKE_INSTALL_PREFIX}/bin" )
 else()
   list(APPEND lib_search_dir

@@ -1,7 +1,7 @@
 //
 // This example shows how to add an observer to a Java program. It extends
 // the Step1/Java/Cone.java Java example (see that example for information on
-// the basic setup). 
+// the basic setup).
 //
 // VTK uses a command/observer design pattern. That is, observers watch for
 // particular events that any vtkObject (or subclass) may invoke on
@@ -20,13 +20,13 @@ import vtk.*;
 public class Cone2 {
   // in the static contructor we load in the native code
   // The libraries must be in your path to work
-  static { 
-    System.loadLibrary("vtkCommonJava"); 
-    System.loadLibrary("vtkFilteringJava"); 
-    System.loadLibrary("vtkIOJava"); 
-    System.loadLibrary("vtkImagingJava"); 
-    System.loadLibrary("vtkGraphicsJava"); 
-    System.loadLibrary("vtkRenderingJava"); 
+  static {
+    System.loadLibrary("vtkCommonJava");
+    System.loadLibrary("vtkFilteringJava");
+    System.loadLibrary("vtkIOJava");
+    System.loadLibrary("vtkImagingJava");
+    System.loadLibrary("vtkGraphicsJava");
+    System.loadLibrary("vtkRenderingJava");
   }
 
   // Define the callback
@@ -44,7 +44,7 @@ public class Cone2 {
     cone.SetHeight( 3.0 );
     cone.SetRadius( 1.0 );
     cone.SetResolution( 10 );
-  
+
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
     coneMapper.SetInputConnection( cone.GetOutputPort() );
     vtkActor coneActor = new vtkActor();
@@ -64,7 +64,7 @@ public class Cone2 {
     vtkRenderWindow renWin = new vtkRenderWindow();
     renWin.AddRenderer( ren1 );
     renWin.SetSize( 300, 300 );
-    
+
     //
     // now we loop over 360 degreeees and render the cone each time
     //
@@ -76,7 +76,7 @@ public class Cone2 {
       // rotate the active camera by one degree
       ren1.GetActiveCamera().Azimuth( 1 );
       }
-  
-    } 
+
+    }
 }
 

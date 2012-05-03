@@ -22,7 +22,7 @@
   */
 /**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
   *         typedef std::bidirectional_iterator_tag octree_iterator<T_,R_,P_,O_,OP_,d_>::iterator_category;
-  * \brief A tag used by the STL to determine what algorithms may be applied to the octree container. 
+  * \brief A tag used by the STL to determine what algorithms may be applied to the octree container.
   */
 /**\typedef template<typename T_,typename R_,typename P_,typename O_,typename OP_,int d_> \
   *         typedef octree_iterator< T_, T_&, T_*, O_, O_*, d_ > octree_iterator<T_,R_,P_,O_,OP_,d_>::iterator;

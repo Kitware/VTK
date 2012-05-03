@@ -36,7 +36,7 @@
 //
 // End "3Dlabs-License.txt"
 
-uniform vec3  LightPosition;  // (0.0, 10.0, 4.0) 
+uniform vec3  LightPosition;  // (0.0, 10.0, 4.0)
 
 varying float NdotL;
 varying vec3  ReflectVec;

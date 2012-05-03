@@ -32,7 +32,7 @@ vtkLODActor partActor
     partActor RotateX  30.0
     partActor RotateY -45.0
 
-# Create the graphics structure. The renderer renders into the 
+# Create the graphics structure. The renderer renders into the
 # render window. The render window interactor captures mouse events
 # and will perform appropriate camera or actor manipulation
 # depending on the nature of the events.

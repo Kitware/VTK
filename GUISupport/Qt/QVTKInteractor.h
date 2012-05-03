@@ -36,6 +36,7 @@
 #ifndef Q_VTK_INTERACTOR_H
 #define Q_VTK_INTERACTOR_H
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCommand.h>
@@ -60,7 +61,7 @@ class QVTKInteractorInternal;
 // .SECTION Description
 // QVTKInteractor is an interactor for a QVTKWiget.
 
-class QVTK_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
+class VTKGUISUPPORTQT_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
 {
 public:
   static QVTKInteractor* New();

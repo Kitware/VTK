@@ -17,39 +17,39 @@ FILE (READ ${CXX_FILE} CXX_CONTENTS)
 # First do the H file
 #================================================================
 
-STRING (REGEX REPLACE 
-  "vtkPolyDataToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkPolyDataToPolyDataFilter"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkPolyDataSource" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkPolyDataSource"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkDataSetToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkDataSetToPolyDataFilter"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkStructuredPointsToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkStructuredPointsToPolyDataFilter"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkRectilinearGridToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkRectilinearGridToPolyDataFilter"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkStructuredGridToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkStructuredGridToPolyDataFilter"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
-STRING (REGEX REPLACE 
-  "vtkGenericDataSetToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+STRING (REGEX REPLACE
+  "vtkGenericDataSetToPolyDataFilter"
+  "vtkPolyDataAlgorithm"
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE
@@ -92,7 +92,7 @@ STRING (REGEX REPLACE
 IF ("${CXX_CONTENTS}" MATCHES ".*vtkInformation.*")
   # do not do these replacements multiple times
   IF (NOT "${CXX_CONTENTS}" MATCHES ".*vtkInformation.h.*")
-    STRING (REGEX REPLACE  
+    STRING (REGEX REPLACE
       "vtkObjectFactory.h"
       "vtkInformation.h\"\n#include \"vtkInformationVector.h\"\n#include \"vtkObjectFactory.h"
       CXX_CONTENTS "${CXX_CONTENTS}")

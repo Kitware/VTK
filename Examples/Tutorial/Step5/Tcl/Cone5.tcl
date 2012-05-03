@@ -3,10 +3,10 @@
 # Tcl environment. First, a different interaction style (than
 # the default) is defined. Second, because Tcl is an interpretive
 # language, the VTK Tcl interaction GUI is set up.
-# 
 #
 #
-# First we include the VTK Tcl packages which will make available 
+#
+# First we include the VTK Tcl packages which will make available
 # all of the VTK commands to Tcl. Note that package vtkinteraction
 # is required; thios package defines the Tcl/Tk GUI widget .vtkInteract
 # that is referred to later.
@@ -14,7 +14,7 @@
 package require vtk
 package require vtkinteraction
 
-# 
+#
 # Next we create an instance of vtkConeSource and set some of its
 # properties. The instance of vtkConeSource "cone" is part of a visualization
 # pipeline (it is a source process object); it produces data (output type is
@@ -25,7 +25,7 @@ cone SetHeight 3.0
 cone SetRadius 1.0
 cone SetResolution 10
 
-# 
+#
 # In this example we terminate the pipeline with a mapper process object.
 # (Intermediate filters such as vtkShrinkPolyData could be inserted in
 # between the source and the mapper.)  We create an instance of
@@ -35,7 +35,7 @@ cone SetResolution 10
 vtkPolyDataMapper coneMapper
 coneMapper SetInputConnection [cone GetOutputPort]
 
-# 
+#
 # Create an actor to represent the cone. The actor orchestrates rendering of
 # the mapper's graphics primitives. An actor also refers to properties via a
 # vtkProperty instance, and includes an internal transformation matrix. We
@@ -49,7 +49,7 @@ coneActor SetMapper coneMapper
 # viewport. It is part or all of a window on the screen and it is responsible
 # for drawing the actors it has.  We also set the background color here.
 #
-vtkRenderer ren1 
+vtkRenderer ren1
 ren1 AddActor coneActor
 ren1 SetBackground 0.1 0.2 0.4
 
@@ -62,7 +62,7 @@ vtkRenderWindow renWin
 renWin AddRenderer ren1
 renWin SetSize 300 300
 
-# 
+#
 # The vtkRenderWindowInteractor class watches for events (e.g., keypress,
 # mouse) in the vtkRenderWindow. These events are translated into
 # event invocations that VTK understands (see VTK/Common/vtkCommand.h
@@ -75,7 +75,7 @@ iren SetRenderWindow renWin
 # By default the vtkRenderWindowInteractor instantiates an instance
 # of vtkInteractorStyle. vtkInteractorStyle translates a set of events
 # it observes into operations on the camera, actors, and/or properties
-# in the vtkRenderWindow associated with the vtkRenderWinodwInteractor. 
+# in the vtkRenderWindow associated with the vtkRenderWinodwInteractor.
 # Here we specify a particular interactor style.
 vtkInteractorStyleTrackballCamera style
 iren SetInteractorStyle style
@@ -95,13 +95,13 @@ iren SetInteractorStyle style
 # this event and invoke a commands to deiconify the vtkInteractor. (The
 # vtkInteractor is defined in the vtkinteraction package reference at the
 # beginning of this script.)
-# 
+#
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 #
-# Initialize the event loop. The actual interaction starts after 
-# wm withdraw . with the Tk event loop. Once the render window appears, 
+# Initialize the event loop. The actual interaction starts after
+# wm withdraw . with the Tk event loop. Once the render window appears,
 # mouse in the window to move the camera. Note that keypress-e exits this
 # example. (Look in vtkInteractorStyle.h for a summary of events, or
 # the appropriate Doxygen documentation.)

@@ -7,7 +7,7 @@ package require vtkinteraction
 #
 
 # Create the renderer, the render window, and the interactor. The renderer
-# draws into the render window, the interactor enables mouse- and 
+# draws into the render window, the interactor enables mouse- and
 # keyboard-based interaction with the scene.
 #
 vtkRenderer aRenderer
@@ -24,7 +24,7 @@ vtkRenderWindowInteractor iren
 # is the root name of the file: quarter.)
 vtkVolume16Reader v16
   v16 SetDataDimensions 64 64
-  v16 SetDataByteOrderToLittleEndian 
+  v16 SetDataByteOrderToLittleEndian
   v16 SetFilePrefix  "$VTK_DATA_ROOT/Data/headsq/quarter"
   v16 SetImageRange 1 93
   v16 SetDataSpacing  3.2 3.2 1.5
@@ -98,7 +98,7 @@ aRenderer AddActor outline
 aRenderer AddActor skin
 aRenderer AddActor bone
 aRenderer SetActiveCamera aCamera
-aRenderer ResetCamera 
+aRenderer ResetCamera
 aCamera Dolly 1.5
 
 # Set a background color for the renderer and set the size of the
@@ -108,13 +108,13 @@ renWin SetSize 640 480
 
 # Note that when camera movement occurs (as it does in the Dolly()
 # method), the clipping planes often need adjusting. Clipping planes
-# consist of two planes: near and far along the view direction. The 
+# consist of two planes: near and far along the view direction. The
 # near plane clips out objects in front of the plane the far plane
 # clips out objects behind the plane. This way only what is drawn
 # between the planes is actually rendered.
 aRenderer ResetCameraClippingRange
 
-# Set up a callback (using command/observer) to bring up the Tcl 
+# Set up a callback (using command/observer) to bring up the Tcl
 # command GUI when the keypress-u (UserEvent) key is pressed.
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 

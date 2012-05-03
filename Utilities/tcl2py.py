@@ -39,7 +39,7 @@ def processLine(line, output, keepTcl=1):
         if keepTcl == 1:
             output.write('# ' + line)
     elif string.find(line, "deiconify") > -1:
-        output.write('# ' + line)        
+        output.write('# ' + line)
     else:
         if keepTcl == 1:
             output.write('#' + line)
@@ -68,7 +68,7 @@ def processLine(line, output, keepTcl=1):
             inSet = 1
 
         keysLength = len(keys)
-            
+
         inaModule = 0
         inaForLoop = 0
         if keysLength == 0:
@@ -244,4 +244,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+

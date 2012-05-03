@@ -4,7 +4,7 @@
 //
 // Authors: John Kessenich, Randi Rost
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
@@ -24,7 +24,7 @@ varying float LightIntensity;
 void main (void)
 {
     // Compute reflection vector
-    
+
     vec3 reflectDir = reflect(EyeDir, Normal);
 
     // Compute altitude and azimuth angles
@@ -44,11 +44,11 @@ void main (void)
         index.t = (index.t + 1.0) * 0.5;
         index.s = (-index.s) * 0.5 + 1.0;
     }
-    
+
     // if reflectDir.z >= 0.0, s will go from 0.25 to 0.75
     // if reflectDir.z <  0.0, s will go from 0.75 to 1.25, and
     // that's OK, because we've set the texture to wrap.
-  
+
     // Do a lookup into the environment map.
 
     vec3 envColor = vec3(texture2D(EnvMap, index));

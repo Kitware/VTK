@@ -1,4 +1,4 @@
-"""This parses the tcl script and calls virtual methods to translate the code 
+"""This parses the tcl script and calls virtual methods to translate the code
 to target language."""
 
 
@@ -13,28 +13,28 @@ word_separator = "[ \t]"
 command_separator = "[\n;]"
 word = "%s*(%s|%s|%s|%s)"% (word_separator, hexnumber, number2, number, token)
 reWord = re.compile("^%s" % word )
-reNewWord = re.compile("^(?:%s|%s)*%s" % (command_separator, word_separator, 
+reNewWord = re.compile("^(?:%s|%s)*%s" % (command_separator, word_separator,
     word))
 reCondition = re.compile("%s*([!<>=]+)" % word_separator)
 reOperation = re.compile("%s*([|&<>=!+\-/%%*()]+)" % word_separator)
 reStackBegin = re.compile("%s*(?<!\\\)\[" % word_separator)
 reStackEnd = re.compile("%s*(?<!\\\)\]" % word_separator)
-reNewStackBegin = re.compile("^(?:%s|%s)*(?<!\\\)\[" % (word_separator, 
+reNewStackBegin = re.compile("^(?:%s|%s)*(?<!\\\)\[" % (word_separator,
     command_separator))
-reNewStackEnd = re.compile("^(?:%s|%s)*(?<!\\\)\]" % (word_separator, 
+reNewStackEnd = re.compile("^(?:%s|%s)*(?<!\\\)\]" % (word_separator,
     command_separator))
 reString = re.compile("%s*(?<!\\\)\"" % word_separator)
 reComment = re.compile("%s*(#[^\n]*)" % word_separator)
-reNewComment = re.compile("(?:%s|%s)*(#[^\n]*)" % (word_separator, 
+reNewComment = re.compile("(?:%s|%s)*(#[^\n]*)" % (word_separator,
     command_separator))
 reVariable = re.compile("\$[0-9A-Za-z_]+")
 reFormattingNewLine = re.compile("[\\\][\n]")
-reIgnore1 = re.compile("%s*package%s[^\n]*" % (command_separator, 
+reIgnore1 = re.compile("%s*package%s[^\n]*" % (command_separator,
     word_separator))
 reIgnore2 = re.compile(\
     "(%s|%s)*iren AddObserver UserEvent {wm deiconify .vtkInteract}" \
     % (command_separator, word_separator))
-reIgnore3 = re.compile("(%s|%s)*wm%s[^\n]*" % (command_separator, 
+reIgnore3 = re.compile("(%s|%s)*wm%s[^\n]*" % (command_separator,
     word_separator, word_separator))
 reIgnore4 = re.compile("(%s|%s)*update" % (command_separator,word_separator))
 reBlockBegin = re.compile("(?:%s|%s)*\{" % (word_separator, command_separator))
@@ -43,7 +43,7 @@ reStringText = re.compile("(?<!\\\)[^\"\]\[\$]+")
 
 
 class vtkTclParser:
-  
+
     def __init__(self):
         self._instring = ""
         self._command_stack = []
@@ -75,7 +75,7 @@ class vtkTclParser:
         while cmd:
             self.handle_command(cmd)
             cmd = self._process_command()
-        return 
+        return
 
     def _process_command(self):
         """"Internal method: Processes a single line in tcl script"""
@@ -89,7 +89,7 @@ class vtkTclParser:
             arg = self._get_next_word_in_command()
         translated = self.translate_command(cmd, arguments)
         return translated
-    
+
     def _process_string(self):
         """Internal method: process an string enclosed in quotes"""
         if self._in_process_string:
@@ -113,7 +113,7 @@ class vtkTclParser:
         result += "\""
         self._in_process_string = False
         return result
-      
+
     def translate_command(self, command, arguments):
         """called to translate a command"""
         pass
@@ -126,7 +126,7 @@ class vtkTclParser:
     def handle_command(self, translated_cmd):
         """called to handle a translated command"""
         pass
-  
+
     def translate_token(self, token):
         """called to translate a token"""
         pass
@@ -144,7 +144,7 @@ class vtkTclParser:
           self._instring = self._instring[match.end(0):]
           return True
         return False
-          
+
     def _get_next_word_in_command(self, processing_string= False):
         """Internal method: returns next token in current command, if any"""
         if processing_string:
@@ -219,7 +219,7 @@ class vtkTclParser:
           else:
             return None
         return None
-  
+
     def _get_block(self):
         """Internal method: returns everything between { and }"""
         brace_count = 0
@@ -242,4 +242,4 @@ class vtkTclParser:
             continue
         self._error("Unterminated block!")
         return None
-  
+

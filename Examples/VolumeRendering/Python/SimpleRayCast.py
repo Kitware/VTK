@@ -58,7 +58,7 @@ renWin.Render()
 def CheckAbort(obj, event):
     if obj.GetEventPending() != 0:
         obj.SetAbortRender(1)
- 
+
 renWin.AddObserver("AbortCheckEvent", CheckAbort)
 
 iren.Initialize()

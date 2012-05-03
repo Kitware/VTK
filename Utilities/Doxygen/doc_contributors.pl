@@ -48,7 +48,7 @@ $PROGNAME =~ s/^.*[\\\/]//;
 # -------------------------------------------------------------------------
 # Defaults  (add options as you want: "verbose" => 1 for default verbose mode)
 
-my %default = 
+my %default =
   (
    dirs => ["../.."],
    cachedir => $ENV{TMP} . "/cache",
@@ -140,7 +140,7 @@ foreach my $option (
                     "relativeto",
                     "store",
                     "to") {
-    $args{$option} = $default{$option} 
+    $args{$option} = $default{$option}
       if ! exists $args{$option} && exists $default{$option};
 }
 
@@ -188,13 +188,13 @@ sub trim_spaces {
 my $authors_file_loaded = 0;
 
 if (exists $args{"authors"}) {
-    if (!sysopen(AUTHORS_FILE, 
-                 $args{"authors"}, 
+    if (!sysopen(AUTHORS_FILE,
+                 $args{"authors"},
                  O_RDONLY|$open_file_as_text)) {
         carp "$PROGNAME: unable to open authors list ". $args{"authors"}. "\n";
     } else {
         print "Reading the authors list from ". $args{"authors"} . "...\n";
-        
+
         my @authors_file = <AUTHORS_FILE>;
         close(AUTHORS_FILE);
 
@@ -209,8 +209,8 @@ if (exists $args{"authors"}) {
                 foreach my $alias (@aliases) {
                     $authors_aliases{trim_spaces($alias)} = $author;
                 }
-                print " >> $author: ", $authors{$author}{'name'}, 
-                " (", $authors{$author}{'email'}, ")\n" 
+                print " >> $author: ", $authors{$author}{'name'},
+                " (", $authors{$author}{'email'}, ")\n"
                   if  exists $args{"verbose"};
             }
         }
@@ -233,7 +233,7 @@ sub parse_revision {
     $$ref =~ /([\d\.]*)\n(.*)\n(.*)/;
 
     my ($revision, $fields_line, $message) = ($1, $2, $3);
-    my ($author, $date, $time, $lines_add, $lines_rem) = 
+    my ($author, $date, $time, $lines_add, $lines_rem) =
       (undef, undef, undef, undef, undef);
 
     my @fields = split (';', $fields_line);
@@ -271,8 +271,8 @@ foreach my $file (@ARGV) {
     if (-f $file) {
         $files{$file} = 1;
     } elsif (-d $file) {
-        find sub { 
-            if ($File::Find::dir =~ /\bCVS$/ || 
+        find sub {
+            if ($File::Find::dir =~ /\bCVS$/ ||
                 -e '.NoDartCoverage') {
                 $File::Find::prune = 1;
             } else {
@@ -290,7 +290,7 @@ print "Processing files and getting logs...\n";
 my $intermediate_time = time();
 my $nb_revisions = 0;
 
-# %log_by_file_revision is indexed by file and revision 
+# %log_by_file_revision is indexed by file and revision
 # (i.e. $log_by_file_revision{$file_name}{$revision_number})
 # {'date'}: revision's date
 # {'author'}: revision's author
@@ -328,7 +328,7 @@ foreach my $file_name (@files_submitted) {
         print " - Remaining files: $nb_file_submitted\n";
     }
     --$nb_file_submitted;
-        
+
     # Reject file if not matching pattern or already visited
 
     my $file_name_basename = basename($file_name);
@@ -340,36 +340,36 @@ foreach my $file_name (@files_submitted) {
     print "     $file_name\n" if exists $args{"verbose"};
 
     # Get the CVS log for that file or grab it from the cache
-        
-    my $cache_name = $args{"cachedir"} . 
+
+    my $cache_name = $args{"cachedir"} .
       get_short_relative_name($file_name, $args{"relativeto"}) . '.log';
     my $output;
 
     my $old_slurp = $/;
     undef $/;                           # slurp mode
-    
+
     # Use the cache if it exists, is not older than file, and not empty
 
-    if (-e $cache_name && 
+    if (-e $cache_name &&
         (stat $cache_name)[9] >= (stat $file_name)[9] &&
         (stat $cache_name)[7]) {
-        sysopen(CACHE_FILE, 
-                $cache_name, 
+        sysopen(CACHE_FILE,
+                $cache_name,
                 O_RDONLY|$open_file_as_text)
           or croak "$PROGNAME: unable to open cache file $cache_name\n";
         $output = <CACHE_FILE>;
         close(CACHE_FILE);
     } else {
         my $file_name_dir = dirname($file_name);
-        print " >>  $file_name_dir: cvs log -b $file_name_basename\n" 
+        print " >>  $file_name_dir: cvs log -b $file_name_basename\n"
           if exists $args{"verbose"};
         my $current = cwd;
         chdir($file_name_dir);
         $output = qx/cvs log -b $file_name_basename/;
         chdir($current);
         mkpath(dirname($cache_name));
-        sysopen(CACHE_FILE, 
-                $cache_name, 
+        sysopen(CACHE_FILE,
+                $cache_name,
                 O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
           or croak "$PROGNAME: unable to open cache file $cache_name\n";
         print CACHE_FILE $output;
@@ -387,7 +387,7 @@ foreach my $file_name (@files_submitted) {
 
     # Process revisions
 
-    my @file_revisions = 
+    my @file_revisions =
       split('----------------------------\nrevision ', $output);
     shift @file_revisions;
 
@@ -396,29 +396,29 @@ foreach my $file_name (@files_submitted) {
     my $lines_added = 0;
 
     foreach my $revision (@file_revisions) {
-        
-        my ($revision, $date, $time, $author, 
+
+        my ($revision, $date, $time, $author,
             $lines_add, $lines_rem, $message) = parse_revision(\$revision);
 
         # Resolve author aliases and use full name
-        
-        $author = $authors_aliases{$author} 
+
+        $author = $authors_aliases{$author}
           if exists $authors_aliases{$author};
-        
+
         $nb_revisions++;
-        
+
         # Store date/author
-        
+
         $log_by_file_revision{$file_name}{$revision}{'date'} = $date;
         $log_by_file_revision{$file_name}{$revision}{'author'} = $author;
 
         # Store lines added and removed. Load the file and count the
         # lines for rev 1.1
-        
+
         if ($revision ne '1.1') {
-            $log_by_file_revision{$file_name}{$revision}{'lines_add'} 
+            $log_by_file_revision{$file_name}{$revision}{'lines_add'}
               = $lines_add;
-            $log_by_file_revision{$file_name}{$revision}{'lines_rem'} 
+            $log_by_file_revision{$file_name}{$revision}{'lines_rem'}
               = $lines_rem;
 
             $lines_added += $lines_add - $lines_rem;
@@ -431,15 +431,15 @@ foreach my $file_name (@files_submitted) {
     # Now get the number of lines for 1.1 (not stored in the log)
     # Read the current file, add all changes
 
-    sysopen(FILE, 
-            $file_name, 
+    sysopen(FILE,
+            $file_name,
             O_RDONLY|$open_file_as_text)
       or croak "$PROGNAME: unable to open file $file_name\n";
 
     my @lines = <FILE>;
     close(FILE);
- 
-    $log_by_file_revision{$file_name}{'1.1'}{'lines_add'} 
+
+    $log_by_file_revision{$file_name}{'1.1'}{'lines_add'}
       = (scalar @lines) - $lines_added;
     if ($log_by_file_revision{$file_name}{'1.1'}{'lines_add'} < 0) {
         print " >> $file_name: ", $log_by_file_revision{$file_name}{'1.1'}{'lines_add'}, " lines !\n";
@@ -460,16 +460,16 @@ my $nb_removed = 0;
 # Remove these changes that have been commited to more than 'n' files
 # in the same day by the same author with same log message (= signature)
 
-foreach my $signature (sort { (scalar keys %{$log_revision_by_signature_file{$b}}) <=> (scalar keys %{$log_revision_by_signature_file{$a}}) } 
+foreach my $signature (sort { (scalar keys %{$log_revision_by_signature_file{$b}}) <=> (scalar keys %{$log_revision_by_signature_file{$a}}) }
                        keys %log_revision_by_signature_file) {
     my @files = keys %{$log_revision_by_signature_file{$signature}};
 
     if (scalar @files > $args{"massive"}) {
-        print " >> Removed: (" . scalar @files . ")\n     " . 
+        print " >> Removed: (" . scalar @files . ")\n     " .
           substr($signature, 0, 130) . "...\n\n" if exists $args{"verbose"};
 
         foreach my $name (@files) {
-            foreach my $revision 
+            foreach my $revision
               (keys %{$log_revision_by_signature_file{$signature}{$name}}) {
                 ++$nb_removed;
                 delete $log_by_file_revision{$name}{$revision};
@@ -520,11 +520,11 @@ my %not_class_file_by_author;
 $intermediate_time = time();
 
 # Browse each file, each revision and use contribution
- 
+
 foreach my $file_name (keys %files_visited) {
 
     # Check if file is part of a class group
-    
+
     my $class_name = undef;
     if (basename($file_name) =~ m/$args{"class_group"}/) {
         $class_name = $1;
@@ -539,16 +539,16 @@ foreach my $file_name (keys %files_visited) {
 
         # Store contribution
 
-        my $revision_contribution = 
-          $log_by_file_revision{$file_name}{$revision}{'lines_add'} * 
-            $args{"lines_add"} + 
-              $log_by_file_revision{$file_name}{$revision}{'lines_rem'} * 
+        my $revision_contribution =
+          $log_by_file_revision{$file_name}{$revision}{'lines_add'} *
+            $args{"lines_add"} +
+              $log_by_file_revision{$file_name}{$revision}{'lines_rem'} *
                 $args{"lines_rem"};
 
-        $contribution_by_author_file{$author}{$file_name} += 
+        $contribution_by_author_file{$author}{$file_name} +=
           $revision_contribution;
 
-        $contribution_by_author_date{$author}{$log_by_file_revision{$file_name}{$revision}{'date'}} += 
+        $contribution_by_author_date{$author}{$log_by_file_revision{$file_name}{$revision}{'date'}} +=
           $revision_contribution;
 
         # File is part of a class, store the whole class contributors
@@ -558,7 +558,7 @@ foreach my $file_name (keys %files_visited) {
 
             $classes{$class_name}{'contributors'}{$author} = 1;
 
-            $contribution_by_author_class{$author}{$class_name} += 
+            $contribution_by_author_class{$author}{$class_name} +=
               $revision_contribution;
         } else {
             $not_class_file_by_author{$author}{$file_name} = 1;
@@ -585,10 +585,10 @@ while (@classes_names) {
     $class_name = pop @classes_names;
 
     # Sort the contributors for that class according to their
-    # respective contributions. 
+    # respective contributions.
 
-    my @class_contributors_sorted = 
-      sort {$contribution_by_author_class{$b}{$class_name} <=> 
+    my @class_contributors_sorted =
+      sort {$contribution_by_author_class{$b}{$class_name} <=>
               $contribution_by_author_class{$a}{$class_name}}
         keys %{$classes{$class_name}{'contributors'}};
 
@@ -596,7 +596,7 @@ while (@classes_names) {
 
     my $total_class_contribution;
     foreach my $class_contributor (@class_contributors_sorted) {
-        $total_class_contribution += 
+        $total_class_contribution +=
           $contribution_by_author_class{$class_contributor}{$class_name};
     }
 
@@ -623,7 +623,7 @@ while (@classes_names) {
 
     if ($source_header_name =~ m/^(\/|[a-zA-W]\:[\/\\])/) {
         if ($args{"relativeto"}) {
-            my ($dir, $absrel) = (abs_path(dirname($source_header_name)), 
+            my ($dir, $absrel) = (abs_path(dirname($source_header_name)),
                                   abs_path($args{"relativeto"}));
             $dir =~ s/$absrel//;
             $header = $args{"to"} . $dir . '/' . basename($source_header_name);
@@ -642,8 +642,8 @@ while (@classes_names) {
     my $old_slurp = $/;
     undef $/; # slurp mode
 
-    if (!sysopen(HEADERFILE, 
-                 $header, 
+    if (!sysopen(HEADERFILE,
+                 $header,
                  O_RDONLY|$open_file_as_text)) {
         carp "$PROGNAME: unable to open $header\n";
         next;
@@ -651,7 +651,7 @@ while (@classes_names) {
 
     my $headerfile = <HEADERFILE>;
     close(HEADERFILE);
- 
+
     $/ = $old_slurp;
 
     # Search for the documentation block (@class ...)
@@ -663,18 +663,18 @@ while (@classes_names) {
     my ($pre, $block, $post) = ($1, $2, $3);
 
     # Create new doc section, insert it into block
-    
+
     my $preamble = "    \@par      Created by:\n";
 
-    my $doc = $preamble . "                - " . 
-      join("\n                - ", 
+    my $doc = $preamble . "                - " .
+      join("\n                - ",
            sort map(exists $authors{$_}{'name'} ? $authors{$_}{'name'} : $_, keys %{$classes{$class_name}{'creators'}})) . "\n";
 
     $doc .= "\n    \@par      CVS contributions (if > " . int(100.0 * $args{"min_contrib"}) . "%):\n";
 
     foreach my $class_contributor (@class_contributors_sorted) {
-        my $ratio = 
-          $contribution_by_author_class{$class_contributor}{$class_name} / 
+        my $ratio =
+          $contribution_by_author_class{$class_contributor}{$class_name} /
             $total_class_contribution;
         last if $ratio < $args{"min_contrib"};
         $doc .= "                - " . (exists $authors{$class_contributor}{'name'} ? $authors{$class_contributor}{'name'} : $class_contributor) . " (" . int($ratio * 100.0) . "%)\n";
@@ -685,10 +685,10 @@ while (@classes_names) {
         foreach my $file (keys %{$classes{$class_name}{'files'}}) {
             my $shortname = get_short_relative_name($file, $args{"relativeto"});
             my ($base, $dir, $ext) = fileparse($shortname, '\..*');
-            $doc .= '                - @htmlonly<A href="' . $args{"cvsweb"} 
+            $doc .= '                - @htmlonly<A href="' . $args{"cvsweb"}
               . $shortname;
             $doc .= $args{"cvsweb_suffix"} if exists $args{"cvsweb_suffix"};
-            $doc .= '">@endhtmlonly @c ' .  $ext 
+            $doc .= '">@endhtmlonly @c ' .  $ext
               . ' @htmlonly</A>@endhtmlonly (@c ' . $shortname . ")\n";
         }
     }
@@ -699,7 +699,7 @@ while (@classes_names) {
 
     # Write new header
 
-    if (!sysopen(HEADERFILE, $header, 
+    if (!sysopen(HEADERFILE, $header,
                  O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
         carp "$PROGNAME: unable to open $header\n";
         next;
@@ -728,25 +728,25 @@ my $indent = "    ";
 my $header;
 my (@summary, @credits);
 
-push @summary, 
+push @summary,
   "  - " . (scalar keys %contribution_by_author_file) . " authors(s) reported";
 
-push @summary, 
+push @summary,
   "  - Files matching \@c " . $args{"files_in"} . " and not matching \@c ". $args{"files_out"} . " are taken into account";
 
 push @summary,
   "  - $nb_revisions CVS revision(s) processed from " . (scalar keys %files_visited) . " matching file(s)";
 
-push @summary, 
+push @summary,
   "  - " . ($nb_revisions - $nb_removed) . " revision(s) kept ($nb_removed revision(s) removed from 'massive commits' > " . $args{"massive"} . " changes per date/author/message)";
 
-push @summary, 
+push @summary,
   "  - revision's contribution is " . $args{"lines_add"} . " * (number of lines added) + " . $args{"lines_rem"} . " * (number of lines removed)";
 
 push @summary,
   "  - " . (scalar keys %classes) . " class(es) found (matching \@c " . $args{"class_group"} . ")";
 
-push @credits, 
+push @credits,
   "\@version $VERSION",
   "\@author \@c $PROGNAME, by $AUTHOR";
 
@@ -764,24 +764,24 @@ my %contribution_by_author;
 
 # %contribution_by_date is indexed by date
 # (i.e $contribution_by_date{$date})
-# stores the total *accumulative* contribution up to that date 
+# stores the total *accumulative* contribution up to that date
 # for all files processed so far.
 
 my %contribution_by_date;
 
 foreach my $contributor (keys %contribution_by_author_file) {
-    
-    foreach my $file_name 
+
+    foreach my $file_name
       (keys %{$contribution_by_author_file{$contributor}}) {
-        $contribution_by_author{$contributor} += 
+        $contribution_by_author{$contributor} +=
           $contribution_by_author_file{$contributor}{$file_name};
     }
 
     my $accumulate = 0;
 
-    foreach my $date 
+    foreach my $date
       (sort {$a cmp $b} keys %{$contribution_by_author_date{$contributor}}) {
-          $contribution_by_date{$date} += 
+          $contribution_by_date{$date} +=
             $contribution_by_author_date{$contributor}{$date};
           $accumulate += $contribution_by_author_date{$contributor}{$date};
           $contribution_by_author_date{$contributor}{$date} = $accumulate;
@@ -790,7 +790,7 @@ foreach my $contributor (keys %contribution_by_author_file) {
 
 my $accumulate = 0;
 
-foreach my $date 
+foreach my $date
   (sort {$a cmp $b} keys %contribution_by_date) {
       $accumulate += $contribution_by_date{$date};
       $contribution_by_date{$date} = $accumulate;
@@ -808,15 +808,15 @@ my $total_contribution = $contribution_by_date{$last_contribution_date};
 my $destination_file = $args{"to"} . "/" . $args{"store"};
 print "Building documentation to ", $destination_file, "\n";
 
-sysopen(DEST_FILE, 
-        $destination_file, 
+sysopen(DEST_FILE,
+        $destination_file,
         O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
   or croak "$PROGNAME: unable to open destination file $destination_file\n";
 
-print DEST_FILE 
-  "/*! \@page contributors Contributors\n\n$header"; 
+print DEST_FILE
+  "/*! \@page contributors Contributors\n\n$header";
 
-print DEST_FILE 
+print DEST_FILE
   "\n$indent\@section contributors_alphabetical Contributors (by alphabetical order)\n\n";
 
 sub compare_by_author_name {
@@ -825,12 +825,12 @@ sub compare_by_author_name {
     return lc $a_name cmp lc $b_name;
 }
 
-foreach my $contributor (sort compare_by_author_name 
+foreach my $contributor (sort compare_by_author_name
                          keys %contribution_by_author_file) {
 
     my $c_ratio = $contribution_by_author{$contributor} / $total_contribution;
 
-    my $name = exists $authors{$contributor}{'name'} 
+    my $name = exists $authors{$contributor}{'name'}
       ? $authors{$contributor}{'name'} : $contributor;
 
     if ($c_ratio < $args{"min_gcontrib"}) {
@@ -840,14 +840,14 @@ foreach my $contributor (sort compare_by_author_name
     }
 }
 
-print DEST_FILE 
+print DEST_FILE
   "\n$indent\@section contributors_decreasing Contributors (by decreasing order of global contribution)\n";
 
-print DEST_FILE 
+print DEST_FILE
   "\n$indent\@note Contributions lower than " . int($args{"min_gcontrib"} * 10000.0) / 100.0 . "% are not listed\n\n";
 
-my @contributors_sorted = 
-  sort {$contribution_by_author{$b} <=> $contribution_by_author{$a}} 
+my @contributors_sorted =
+  sort {$contribution_by_author{$b} <=> $contribution_by_author{$a}}
   keys %contribution_by_author;
 
 foreach my $contributor (@contributors_sorted) {
@@ -855,7 +855,7 @@ foreach my $contributor (@contributors_sorted) {
     my $c_ratio = $contribution_by_author{$contributor} / $total_contribution;
     last if $c_ratio < $args{"min_gcontrib"};
 
-    my $name = exists $authors{$contributor}{'name'} 
+    my $name = exists $authors{$contributor}{'name'}
       ? $authors{$contributor}{'name'} : $contributor;
 
     print DEST_FILE "$indent -# \@ref $contributor \"$name\"\n";
@@ -863,17 +863,17 @@ foreach my $contributor (@contributors_sorted) {
 
 foreach my $history (@{$args{"history_img"}}) {
     my ($delta, $style, $filename) = split(/\|/, $history);
-    print DEST_FILE 
+    print DEST_FILE
       "\n$indent\@image html " . basename($filename) . "\n";
 }
 
-print DEST_FILE 
+print DEST_FILE
   "\n$indent\@section contributors_detailed Detailed contributions (by decreasing order)\n";
 
-print DEST_FILE 
+print DEST_FILE
   "\n$indent\@note Contributions lower than " . int($args{"min_gcontrib"} * 10000.0) / 100.0 . "% are not listed\n";
 
-print DEST_FILE 
+print DEST_FILE
   "\n$indent\@note Details are:",
   "\n$indent       - % of global contribution at $last_contribution_date, % at date of last contribution, % at date of first contribution",
   "\n$indent       - first ", $args{"max_class_nb"}, " contributed classes > ", int($args{"min_class"} * 100.0), "% of author's total contribution",
@@ -883,7 +883,7 @@ print DEST_FILE
 foreach my $contributor (@contributors_sorted) {
 
     # Yes, you can have 0 contrib:
-    # vtkPiecewiseFunction.cxx:date: 1999/11/03 18:11:39;  
+    # vtkPiecewiseFunction.cxx:date: 1999/11/03 18:11:39;
     # author: tpan;  state: Exp; lines: +0 -0
 
     next if $contribution_by_author{$contributor} == 0;
@@ -893,59 +893,59 @@ foreach my $contributor (@contributors_sorted) {
 
     # Classes
 
-    my @ok_classes; 
+    my @ok_classes;
 
-    my @classes_sorted = 
-      sort {$contribution_by_author_class{$contributor}{$b} <=> 
+    my @classes_sorted =
+      sort {$contribution_by_author_class{$contributor}{$b} <=>
               $contribution_by_author_class{$contributor}{$a}}
         keys %{$contribution_by_author_class{$contributor}};
-    
+
     foreach my $class_name (@classes_sorted) {
         last if scalar @ok_classes > $args{"max_class_nb"};
-        my $ratio = 
-          $contribution_by_author_class{$contributor}{$class_name} / 
+        my $ratio =
+          $contribution_by_author_class{$contributor}{$class_name} /
             $contribution_by_author{$contributor};
         last if $ratio < $args{"min_class"};
         push @ok_classes, "$class_name (" . int($ratio * 100.0) . "%)";
     }
- 
+
     # Files
 
-    my @ok_files; 
+    my @ok_files;
 
-    my @files_sorted = 
-      sort {$contribution_by_author_file{$contributor}{$b} <=> 
+    my @files_sorted =
+      sort {$contribution_by_author_file{$contributor}{$b} <=>
               $contribution_by_author_file{$contributor}{$a}}
         keys %{$not_class_file_by_author{$contributor}};
- 
+
     foreach my $file_name (@files_sorted) {
         next if basename($file_name) =~ m/$args{"class_group"}/;
         last if scalar @ok_files > $args{"max_file_nb"};
-        my $ratio = 
-          $contribution_by_author_file{$contributor}{$file_name} / 
+        my $ratio =
+          $contribution_by_author_file{$contributor}{$file_name} /
             $contribution_by_author{$contributor};
         last if $ratio < $args{"min_file"};
         push @ok_files, get_short_relative_name($file_name, $args{"relativeto"}) . " (" . int($ratio * 100.0) . "%)";
     }
 
-    my $name = exists $authors{$contributor}{'name'} 
+    my $name = exists $authors{$contributor}{'name'}
       ? $authors{$contributor}{'name'} . " ($contributor)" : $contributor;
 
     print DEST_FILE "$indent -# \@anchor $contributor \@b $name:\n";
 
-    my @contribution_dates = sort { $a cmp $b } 
+    my @contribution_dates = sort { $a cmp $b }
       keys %{$contribution_by_author_date{$contributor}};
 
     my $last_contrib_date = $contribution_dates[$#contribution_dates];
     my $first_contrib_date = $contribution_dates[0];
 
-    print DEST_FILE 
+    print DEST_FILE
       "$indent   - \@b ", int(10000.0 * $c_ratio) / 100, "% ($last_contribution_date), ", int(10000.0 * ($contribution_by_author_date{$contributor}{$last_contrib_date} / $contribution_by_date{$last_contrib_date})) / 100, "% ($last_contrib_date), ", int(10000.0 * ($contribution_by_author_date{$contributor}{$first_contrib_date} / $contribution_by_date{$first_contrib_date})) / 100, "% ($first_contrib_date)\n";
 
-    print DEST_FILE 
+    print DEST_FILE
       "$indent   - ", (scalar @classes_sorted), " class(es): ", join(", ", @ok_classes), "...\n" if @classes_sorted;
 
-    print DEST_FILE 
+    print DEST_FILE
       "$indent   - ", (scalar @files_sorted), " file(s): ", join(", ", @ok_files), "...\n" if @files_sorted;
 }
 
@@ -961,12 +961,12 @@ mkpath($args{"history_dir"});
 foreach my $contributor (@contributors_sorted) {
     my $history_name = $args{"history_dir"} . "/$contributor.dat";
 
-    sysopen(HISTORY_FILE, 
-            $history_name, 
+    sysopen(HISTORY_FILE,
+            $history_name,
             O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
       or croak "$PROGNAME: unable to open history file $history_name\n";
 
-    foreach my $date 
+    foreach my $date
       (sort {$a cmp $b} keys %{$contribution_by_author_date{$contributor}}) {
           print HISTORY_FILE $date . ' ' . ($contribution_by_author_date{$contributor}{$date} / $contribution_by_date{$date}) * 100.0 . "\n";
       }
@@ -981,7 +981,7 @@ print "Creating gnuplot command file\n", $args{"gnuplot_file"}, "\n";
 
 my ($year, $month, $mday) = split('-', $last_contribution_date);
 
-my $last_contribution_sec = timelocal(0, 0, 0, $mday, $month -1 , $year-1900); 
+my $last_contribution_sec = timelocal(0, 0, 0, $mday, $month -1 , $year-1900);
 
 my $history_dir_abs = abs_path($args{"history_dir"});
 
@@ -994,8 +994,8 @@ foreach my $contributor (@contributors_sorted) {
 
 my $plot = 'plot ' . join(', ', @plots);
 
-sysopen(GNUPLOT_FILE, 
-        $args{"gnuplot_file"}, 
+sysopen(GNUPLOT_FILE,
+        $args{"gnuplot_file"},
         O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
   or croak "$PROGNAME: unable to open gnuplot command file " . $args{"gnuplot_file"} . "\n";
 
@@ -1030,13 +1030,13 @@ foreach my $history (@{$args{"history_img"}}) {
         print GNUPLOT_FILE "set title \"Contributions over time (whole period: $date_from to $last_contribution_date)\"\n\n";
     } else {
         print GNUPLOT_FILE "# Back $delta days\n\n";
-        ($mday, $month, $year) = 
+        ($mday, $month, $year) =
           (localtime($last_contribution_sec - $delta * 24 * 60 * 60))[3, 4, 5];
         $date_from = sprintf("%04d/%02d/%02d", $year+1900, $month + 1, $mday);
         print GNUPLOT_FILE "set title \"Contributions over time ($delta days ago: $date_from to $last_contribution_date)\"\n\n";
     }
     print GNUPLOT_FILE "set xrange [\"$date_from\":]\n\n";
-    print GNUPLOT_FILE "set output \"" . 
+    print GNUPLOT_FILE "set output \"" .
       abs_path(dirname($filename)) . '/' . basename($filename) . "\"\n\n";
     print GNUPLOT_FILE "set data style $style\n\n";
     print GNUPLOT_FILE "$plot\n\n";

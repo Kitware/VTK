@@ -3,7 +3,7 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-# This example demonstrates how to use Tcl/Tk in a simple GUI to control 
+# This example demonstrates how to use Tcl/Tk in a simple GUI to control
 # the color of the spikes on the mace. The spikes are a separate actor so
 # the actor's property via the SetColor() method is manipulated.
 

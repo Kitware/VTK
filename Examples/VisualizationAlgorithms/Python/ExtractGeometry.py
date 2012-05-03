@@ -30,7 +30,7 @@ union.AddFunction(sphere2)
 union.SetOperationType(0) #union
 
 # Here is where it gets interesting. The implicit function is used to
-# extract those cells completely inside the function. They are then 
+# extract those cells completely inside the function. They are then
 # shrunk to help show what was extracted.
 extract = vtk.vtkExtractGeometry()
 extract.SetInputConnection(sample.GetOutputPort())
