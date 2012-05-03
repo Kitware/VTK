@@ -592,13 +592,22 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );
     dims[1] = ( text_bbox[3] - text_bbox[2] + 1 );
 
-    // compuet TCoords
+    // compute TCoords.
+    // GetBoundingBox(..) returns the box that will contains rendered text.
+    // BUG #13133: We ensure that x-min offset is also taken into consideration.
     vtkFloatArray* tc = vtkFloatArray::SafeDownCast
       ( this->Rectangle->GetPointData()->GetTCoords() );
-    tc->InsertComponent( 1,1, static_cast<double>( dims[1] ) / p2dims[1] );
-    tc->InsertComponent( 2,0, static_cast<double>( dims[0] ) / p2dims[0] );
-    tc->InsertComponent( 2,1, static_cast<double>( dims[1] ) / p2dims[1] );
-    tc->InsertComponent( 3,0, static_cast<double>( dims[0] ) / p2dims[0] );
+    tc->InsertComponent(0, 0, static_cast<double>(text_bbox[0]) / p2dims[0]);
+    tc->InsertComponent(0, 1, 0.0);
+
+    tc->InsertComponent(1, 0, static_cast<double>(text_bbox[0]) / p2dims[0]);
+    tc->InsertComponent(1, 1, static_cast<double>(dims[1]) / p2dims[1]);
+
+    tc->InsertComponent(2, 0, static_cast<double>(text_bbox[0] + dims[0]) / p2dims[0]);
+    tc->InsertComponent(2, 1, static_cast<double>(dims[1]) / p2dims[1]);
+
+    tc->InsertComponent(3, 0, static_cast<double>(text_bbox[0] + dims[0]) / p2dims[0]);
+    tc->InsertComponent(3, 1, 0.0);
     }
   else
     {
