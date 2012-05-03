@@ -57,14 +57,16 @@ public:
 
   enum
     {
-    DUPLICATE = 0,// Ghost cells that exist in another partition, i.e, are
-                  // composed of internal boundary and/or ghost nodes
-    EXTERNAL  = 1,// Cells that are created "artificially" outside the domain,
-                  // i.e., are composed from boundary nodes and nodes outside
-                  // the domain.
-    BLANK     = 2,// Cells that are ignored in computation/visualization, their
-                  // value is typically garbage
-    INTERIOR  = 3 // Cells that are internal/owned by a given partition.
+    DUPLICATE = 0, // Ghost cells that exist in another partition, i.e, are
+                   // composed of internal boundary and/or ghost nodes
+    EXTERNAL  = 1, // Cells that are created "artificially" outside the domain,
+                   // i.e., are composed from boundary nodes and nodes outside
+                   // the domain.
+    BLANK     = 2, // Cells that are ignored in computation/visualization, their
+                   // value is typically garbage, or in the case of AMR data,
+                   // they have a value that is typically the average of the
+                   // the values of each subdivision cell.
+    INTERIOR  = 3  // Cells that are internal/owned by a given partition.
     } CellProperties;
 
   static vtkGhostArray* New();
@@ -73,7 +75,8 @@ public:
 
   // Description:
   // Sets the given property in the propertyField.
-  static void SetProperty( unsigned char &propertyField,const int property )
+  static void SetProperty(
+      unsigned char &propertyField,const int property )
   {
     assert("pre:invalid property" && (property >= 0 && property < 8));
     propertyField |= (1 << property);
@@ -81,7 +84,8 @@ public:
 
   // Description:
   // Unsets the property from the given propertyField.
-  static void UnsetProperty(unsigned char &propertyField,const int property )
+  static void UnsetProperty(
+      unsigned char &propertyField,const int property )
   {
     assert("pre:invalid property" && (property >= 0 && property < 8));
     propertyField &= ~(1 << property);
@@ -89,7 +93,8 @@ public:
 
   // Description:
   // Checks if a property is set in the given property field.
-  static bool IsPropertySet( unsigned char &propertyField,const int property )
+  static bool IsPropertySet(
+      unsigned char &propertyField,const int property )
   {
     assert("pre:invalid property" && (property >= 0 && property < 8));
     bool status = false;

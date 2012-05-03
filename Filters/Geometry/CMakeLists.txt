@@ -15,6 +15,7 @@ set(Module_SRCS
   vtkDataSetGhostGenerator.cxx
   vtkRectilinearGridPartitioner.cxx
   vtkStructuredAMRNeighbor.cxx
+  vtkStructuredAMRGridConnectivity.cxx
   vtkStructuredGridConnectivity.cxx
   vtkStructuredGridGhostDataGenerator.cxx
   vtkStructuredGridPartitioner.cxx

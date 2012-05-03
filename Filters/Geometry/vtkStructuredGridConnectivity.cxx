@@ -846,7 +846,7 @@ void vtkStructuredGridConnectivity::DetectNeighbors(
 }
 
 //------------------------------------------------------------------------------
-void vtkStructuredGridConnectivity::SetBlockTopology( const int gridID )
+void vtkStructuredGridConnectivity::SetBlockTopology(const int gridID)
 {
   int gridExtent[6];
   this->GetGridExtent( gridID, gridExtent );
@@ -1073,7 +1073,7 @@ void vtkStructuredGridConnectivity::CreateGhostedExtent(
           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: ghosted-extents vector has not been allocated" &&
           (this->NumberOfGrids == this->GhostedExtents.size()/6 ) );
-  assert( "pre: Number of ghost-layers requested must be 0" &&
+  assert( "pre: Number of ghost-layers requested should not be 0" &&
           (this->NumberOfGhostLayers > 0) );
 
   int ext[6];

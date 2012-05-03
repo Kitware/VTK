@@ -29,6 +29,7 @@ endforeach()
 
 ## list of tests that are not included in the main driver
 set(MyTests
+  TestStructuredAMRGridConnectivity.cxx
   TestStructuredGridConnectivity.cxx
   TestStructuredGridGhostDataGenerator.cxx
   )

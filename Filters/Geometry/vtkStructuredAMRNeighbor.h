@@ -30,9 +30,26 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredAMRNeighbor :
   public vtkStructuredNeighbor
 {
 public:
-  int GridLevel;          // The level of the grid that has this neighbor.
-  int NeighborLevel;      // The level of the neighboring grid
-  int RefinementRatio[3]; // The refinement ratio, e.g., 2, 3, or 4.
+
+  // An enum that defines the neighbor relationship between the 2 grids.
+  enum NeighborRelationship
+    {
+    PARENT,                       // Neighbor fully contains this grid
+    PARTIALLY_OVERLAPPING_PARENT, // Neighbor partially contains this grid
+    CHILD,                        // This grid fully contains the neighbor
+    PARTIALLY_OVERLAPPING_CHILD,  // This grid partially contains the neighbor
+    SAME_LEVEL_SIBLING,           // Grids are adjacent at the same level
+    COARSE_TO_FINE_SIBLING,       // Grid is adjacent with a finer neighbor
+    FINE_TO_COARSE_SIBLING,       // Grid is adjacent with a coarser neighbor
+    UNDEFINED
+    };
+
+  // NOTE: The OverlapExtent stores the overlap w.r.t. the neighboring grid
+  // Consequently, GridOverlapExtent stores the overlap extent w.r.t. this grid.
+  int GridOverlapExtent[6]; // The overlap extent w.r.t. this grid
+  int GridLevel;      // The level of the grid that has this neighbor
+  int NeighborLevel;  // The level of the neighboring grid
+  int RelationShip;   // The relationship of the grid with this neighbor
 
   // Description:
   // Default constructor.
@@ -44,8 +61,11 @@ public:
   // neighbors overlap at the pre-computed overlap extent which is given w.r.t
   // to the current grid (i.e., not the neighboring grid).
   vtkStructuredAMRNeighbor(
-     const int GridLevel, const int NeiID, const int NeighborLevel,
-     int overlap[6], int orient[3], int r[3] );
+     const int gridLevel,
+     const int neiID, const int neighborLevel,
+     int gridOverlap[6], int neiOverlap[6],
+     int orient[3],
+     const int relationShip);
 
   // Description:
   // Destructor.
@@ -54,6 +74,15 @@ public:
   // Description:
   // Overload assignment operator.
   vtkStructuredAMRNeighbor& operator=(const vtkStructuredAMRNeighbor &N);
+
+  // Description:
+  // Returns the receive extent w.r.t. the grid's level, i.e., not the
+  // neighbor's level.
+  void GetReceiveExtentOnGrid(const int ng,int gridExtent[6],int ext[6]);
+
+  // Description:
+  // Returns the neighbor relationship as a string (usefule for debugging).
+  std::string GetRelationShipString();
 
   // Description:
   // Computes the SendExtent and RcvExtent for this neighbor. The method assumes

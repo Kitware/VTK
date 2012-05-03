@@ -203,9 +203,9 @@ vtkAbstractGridConnectivity::GetGhostedPointGhostArray( const int gridID )
 
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
-          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids) ) );
+       (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids) ) );
   assert( "pre: Ghosted point ghost array" &&
-          (this->NumberOfGrids == this->GhostedPointGhostArray.size() ) );
+       (this->NumberOfGrids == this->GhostedPointGhostArray.size() ) );
 
   return( this->GhostedPointGhostArray[ gridID ]  );
 }
@@ -220,9 +220,9 @@ vtkAbstractGridConnectivity::GetGhostedCellGhostArray( const int gridID )
     }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
-            (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+       (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: Ghosted point ghost array" &&
-          (this->NumberOfGrids == this->GhostedCellGhostArray.size() ) );
+       (this->NumberOfGrids == this->GhostedCellGhostArray.size() ) );
 
   return( this->GhostedCellGhostArray[ gridID ] );
 }
@@ -237,9 +237,9 @@ vtkAbstractGridConnectivity::GetGhostedGridPointData( const int gridID )
     }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
-            (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+       (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: Ghosted point ghost array" &&
-          (this->NumberOfGrids == this->GhostedGridPointData.size() ) );
+       (this->NumberOfGrids == this->GhostedGridPointData.size() ) );
 
   return( this->GhostedGridPointData[ gridID ] );
 }
@@ -279,7 +279,8 @@ vtkAbstractGridConnectivity::GetGhostedPoints( const int gridID )
 }
 
 //------------------------------------------------------------------------------
-inline void vtkAbstractGridConnectivity::AllocateUserRegisterDataStructures()
+inline void
+vtkAbstractGridConnectivity::AllocateUserRegisterDataStructures()
 {
   // Sanity Check
   assert( "pre: Allocating UserRegister for N > 0 grids" &&
@@ -293,7 +294,8 @@ inline void vtkAbstractGridConnectivity::AllocateUserRegisterDataStructures()
 }
 
 //------------------------------------------------------------------------------
-inline void vtkAbstractGridConnectivity::DeAllocateUserRegisterDataStructures()
+inline void
+vtkAbstractGridConnectivity::DeAllocateUserRegisterDataStructures()
 {
   assert( "pre: Data-structure has not been properly allocated" &&
              (this->GridPointGhostArrays.size() == this->NumberOfGrids  ) );
@@ -340,7 +342,8 @@ inline void vtkAbstractGridConnectivity::DeAllocateUserRegisterDataStructures()
 }
 
 //------------------------------------------------------------------------------
-inline void vtkAbstractGridConnectivity::AllocateInternalDataStructures()
+inline void
+vtkAbstractGridConnectivity::AllocateInternalDataStructures()
 {
   assert( "pre: Allocating Internal data-structured for N > 0 grids" &&
           (this->NumberOfGrids > 0) );
@@ -354,7 +357,8 @@ inline void vtkAbstractGridConnectivity::AllocateInternalDataStructures()
 }
 
 //------------------------------------------------------------------------------
-inline void vtkAbstractGridConnectivity::DeAllocateInternalDataStructures()
+inline void
+vtkAbstractGridConnectivity::DeAllocateInternalDataStructures()
 {
   if( !this->AllocatedGhostDataStructures )
     {
@@ -413,11 +417,11 @@ inline void vtkAbstractGridConnectivity::RegisterGridGhostArrays(
 {
   // Sanity check
   assert( "pre: GridID is out-of-bound GridPointData" &&
-           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+       (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: GridPointGhostArrays has not been allocated" &&
-           (this->GridPointGhostArrays.size() == this->NumberOfGrids) );
+       (this->GridPointGhostArrays.size() == this->NumberOfGrids) );
   assert( "pre: GridCellGhostArrays has not been allocated" &&
-           (this->GridCellGhostArrays.size() == this->NumberOfGrids ) );
+       (this->GridCellGhostArrays.size() == this->NumberOfGrids ) );
 
   // NOTE: We should really shallow copy the objects here
   this->GridPointGhostArrays[ gridID ] = nodesArray;
@@ -430,11 +434,11 @@ inline void vtkAbstractGridConnectivity::RegisterFieldData(
 {
   // Sanity check
   assert( "pre: GridID is out-of-bound GridPointData" &&
-           (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+       (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: GridPointData has not been allocated!" &&
-           (this->GridPointData.size() == this->NumberOfGrids ) );
+       (this->GridPointData.size() == this->NumberOfGrids ) );
   assert( "pre: GridCellData has not been allocated!" &&
-           (this->GridCellData.size() == this->NumberOfGrids ) );
+       (this->GridCellData.size() == this->NumberOfGrids ) );
 
   // Note: The size of these vectors is allocated in SetNumberOfGrids
   if( PointData != NULL )
@@ -468,9 +472,9 @@ inline void vtkAbstractGridConnectivity::RegisterGridNodes(
 {
   // Sanity check
   assert( "pre: GridID is out-of-bound GridPointData" &&
-          (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
+       (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
   assert( "pre: GridPoints has not been allocated!" &&
-          (this->GridPoints.size() == this->NumberOfGrids) );
+       (this->GridPoints.size() == this->NumberOfGrids) );
 
   if( nodes != NULL )
     {
