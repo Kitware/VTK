@@ -83,11 +83,11 @@ public:
 
   // Description:
   // Default destructor
-  ~vtkStructuredNeighbor();
+  virtual ~vtkStructuredNeighbor();
 
 
   // Description:
-  // Overload assignement operator
+  // Overload assignment operator
   vtkStructuredNeighbor& operator=(const vtkStructuredNeighbor &N );
 
   // Description:
@@ -95,7 +95,7 @@ public:
   // assumes that the overlap extent and orientation are already computed.
   // Using this information, the method grows the overlap extent to form the
   // Send and Rcv Extents for this neighbor instance.
-  void ComputeSendAndReceiveExtent(
+  virtual void ComputeSendAndReceiveExtent(
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
       int WholeExtent[6], const int N);
 };

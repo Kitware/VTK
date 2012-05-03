@@ -69,8 +69,8 @@ vtkStructuredNeighbor::~vtkStructuredNeighbor()
 
 //------------------------------------------------------------------------------
 void vtkStructuredNeighbor::ComputeSendAndReceiveExtent(
-      int gridRealExtent[6], int* vtkNotUsed(gridGhostedExtent[6]), int neiRealExtent[6],
-      int WholeExtent[6], const int N)
+      int gridRealExtent[6], int* vtkNotUsed(gridGhostedExtent[6]),
+      int neiRealExtent[6],int WholeExtent[6], const int N)
 {
 
   for( int i=0; i < 3; ++i )
