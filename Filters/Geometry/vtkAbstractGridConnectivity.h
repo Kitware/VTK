@@ -35,7 +35,7 @@
 //  </ul>
 //
 // .SECTION See Also
-//  vtkStructuredGridConnectivity
+//  vtkStructuredGridConnectivity vtkStructuredAMRGridConnectivity
 
 #ifndef VTKABSTRACTGRIDCONNECTIVITY_H_
 #define VTKABSTRACTGRIDCONNECTIVITY_H_
@@ -86,33 +86,11 @@ public:
   virtual void ComputeNeighbors( ) = 0;
 
   // Description:
-  // Fills the ghost arrays for the given grid.
-  virtual void FillGhostArrays(
-      const int gridId,
-      vtkUnsignedCharArray* nodesArray,
-      vtkUnsignedCharArray* cellsArray ) = 0;
-
-  // Description:
   // Creates N layers of ghost layers where N is the number of cells that will
   // be added to each grid. If no parameter is supplied, N has a nominal value
   // of 1, in which case 1 layer of cells would be added.
   // NOTE: This method is implemented by concrete implementations
   virtual void CreateGhostLayers( const int N=1 ) = 0;
-
-  // Description:
-  // Registers the ghostarrays for the given grid.
-  void RegisterGridGhostArrays(
-       const int gridID,vtkUnsignedCharArray *nodesArray,
-       vtkUnsignedCharArray *cellsArray );
-
-  // Description:
-  // Registers the grid's field data, i.e., the node and cell data.
-  void RegisterFieldData(
-       const int gridID, vtkPointData *PointData, vtkCellData *CellData );
-
-  // Description:
-  // Registers the grid nodes for the grid associated with the given gridID.
-  void RegisterGridNodes( const int gridID, vtkPoints *nodes );
 
   // Description:
   // Returns the ghosted points ghost array for the grid associated with the
@@ -152,6 +130,29 @@ public:
 protected:
   vtkAbstractGridConnectivity();
   virtual ~vtkAbstractGridConnectivity();
+
+  // Description:
+  // Fills the ghost arrays for the given grid.
+  virtual void FillGhostArrays(
+      const int gridId,
+      vtkUnsignedCharArray* nodesArray,
+      vtkUnsignedCharArray* cellsArray ) = 0;
+
+  // Description:
+  // Registers the ghostarrays for the given grid.
+  void RegisterGridGhostArrays(
+       const int gridID,vtkUnsignedCharArray *nodesArray,
+       vtkUnsignedCharArray *cellsArray );
+
+  // Description:
+  // Registers the grid's field data, i.e., the node and cell data.
+  void RegisterFieldData(
+       const int gridID, vtkPointData *PointData, vtkCellData *CellData );
+
+  // Description:
+  // Registers the grid nodes for the grid associated with the given gridID.
+  void RegisterGridNodes( const int gridID, vtkPoints *nodes );
+
 
   // Description:
   // Allocate/De-allocate the data-structures where the user-supplied grids
