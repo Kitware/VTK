@@ -436,8 +436,8 @@ unsigned long vtkXMLDataParser::GetWordTypeSize(int wordType)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataParser::PerformByteSwap(void* data, OffsetType numWords,
-                                       int wordSize)
+void vtkXMLDataParser::PerformByteSwap(void* data, size_t numWords,
+                                       size_t wordSize)
 {
   char* ptr = static_cast<char*>(data);
   if(this->ByteOrder == vtkXMLDataParser::BigEndian)
