@@ -374,6 +374,15 @@ if(BUILD_DOCUMENTATION)
   add_subdirectory(Utilities/Doxygen)
 endif()
 
+# Configure the CTestCustom.cmake file now that everything is done.
+set(memcheck_excluded_tests "  # These tests do not run any VTK code\n")
+foreach(vtk-module ${VTK_MODULES_ALL})
+  set(memcheck_excluded_tests
+    "${memcheck_excluded_tests}  ${vtk-module}-HeaderTest\n")
+endforeach()
+configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
+
 #-----------------------------------------------------------------------------
 # The commands in this directory are intended to be executed as
 # the end of the whole configuration process, as a "last step".
