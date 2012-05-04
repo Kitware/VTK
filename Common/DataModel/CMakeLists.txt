@@ -187,6 +187,7 @@ set(Module_SRCS
   vtkOverlappingAMR.cxx
   vtkUniformGridAMR.cxx
   vtkUniformGridAMRDataIterator.cxx
+  vtkExtentTranslator.cxx # needed by vtkDataSet
   )
 
 set(${vtk-module}_HDRS

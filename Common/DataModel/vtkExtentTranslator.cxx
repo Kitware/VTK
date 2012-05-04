@@ -377,10 +377,3 @@ void vtkExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
     os << "Unknown\n";
     }
 }
-
-
-
-
-
-
-

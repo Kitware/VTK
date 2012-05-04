@@ -17,7 +17,6 @@ SET(Module_SRCS
   vtkExecutiveCollection.cxx
   vtkExecutive.cxx
   vtkExtentSplitter.cxx
-  vtkExtentTranslator.cxx
   vtkFilteringInformationKeyManager.cxx
   vtkGraphAlgorithm.cxx
   vtkHierarchicalBoxDataSetAlgorithm.cxx
