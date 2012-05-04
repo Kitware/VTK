@@ -97,12 +97,11 @@ int vtkBase64OutputStream::EndWriting()
 }
 
 //----------------------------------------------------------------------------
-int vtkBase64OutputStream::Write(const unsigned char* data,
-                                 unsigned long length)
+int vtkBase64OutputStream::Write(void const* data, size_t length)
 {
-  unsigned long totalLength = this->BufferLength + length;
-  const unsigned char* in = data;
-  const unsigned char* end = data+length;
+  size_t totalLength = this->BufferLength + length;
+  unsigned char const* in = static_cast<unsigned char const*>(data);
+  unsigned char const* end = in+length;
 
   if(totalLength >= 3)
     {

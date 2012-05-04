@@ -64,9 +64,9 @@ void vtkBase64InputStream::EndReading()
 }
 
 //----------------------------------------------------------------------------
-int vtkBase64InputStream::Seek(unsigned long offset)
+int vtkBase64InputStream::Seek(vtkIOStreamOff offset)
 {
-  unsigned long triplet = offset/3;
+  vtkIOStreamOff triplet = offset/3;
   int skipLength = offset%3;
 
   // Seek to the beginning of the encoded triplet containing the
@@ -100,11 +100,11 @@ int vtkBase64InputStream::Seek(unsigned long offset)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkBase64InputStream::Read(unsigned char* data,
-                                         unsigned long length)
+size_t vtkBase64InputStream::Read(void* data_in, size_t length)
 {
+  unsigned char* data = static_cast<unsigned char*>(data_in);
   unsigned char* out = data;
-  unsigned char* end = data + length;
+  unsigned char* end = out + length;
 
   // If the previous read ended before filling buffer, don't read
   // more.
