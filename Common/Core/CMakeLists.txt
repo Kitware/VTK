@@ -214,18 +214,11 @@ macro(VTK_PREPARE_CMAKEDEFINE not invar outvar)
 endmacro()
 
 vtk_prepare_cmakedefine("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
-vtk_prepare_cmakedefine("" CMAKE_USE_PTHREADS VTK_USE_PTHREADS)
-vtk_prepare_cmakedefine("" CMAKE_USE_SPROC VTK_USE_SPROC)
-vtk_prepare_cmakedefine("" CMAKE_HP_PTHREADS VTK_HP_PTHREADS)
-vtk_prepare_cmakedefine("" CMAKE_USE_WIN32_THREADS VTK_USE_WIN32_THREADS)
 vtk_prepare_cmakedefine("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
-vtk_prepare_cmakedefine("" CMAKE_NO_STD_NAMESPACE VTK_NO_STD_NAMESPACE)
-vtk_prepare_cmakedefine(NOT CMAKE_ANSI_FOR_SCOPE VTK_NO_FOR_SCOPE)
 vtk_prepare_cmakedefine(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 vtk_prepare_cmakedefine(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
                         VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
-vtk_prepare_cmakedefine("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
 
 # Provide version macros through vtkConfigure.h for compatibility.
 if(VTK_LEGACY_REMOVE)
