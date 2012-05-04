@@ -152,7 +152,6 @@ protected:
   int ParsingComplete();
   int CheckPrimaryAttributes();
   void FindAppendedDataPosition();
-  OffsetType FindInlineDataPosition(OffsetType start);
   int ParseBuffer(const char* buffer, unsigned int count);
 
   void AddElement(vtkXMLDataElement* element);

@@ -285,28 +285,6 @@ void vtkXMLDataParser::FindAppendedDataPosition()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLDataParser::OffsetType
-vtkXMLDataParser::FindInlineDataPosition(OffsetType start)
-{
-  // Scan for the start of the actual inline data.
-  char c=0;
-  this->SeekG(start);
-  while(this->Stream->get(c) && (c != '>'))
-    {
-    ;
-    }
-  while(this->Stream->get(c) && this->IsSpace(c))
-    {
-    ;
-    }
-
-  // Make sure some data were found.
-  if(c == '<') { return 0; }
-  OffsetType pos = this->TellG();
-  return (pos-1);
-}
-
-//----------------------------------------------------------------------------
 void vtkXMLDataParser::PushOpenElement(vtkXMLDataElement* element)
 {
   if(this->NumberOfOpenElements == this->OpenElementsSize)
