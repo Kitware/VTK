@@ -5,14 +5,11 @@ set(Module_SRCS
   vtkEnSightWriter.cxx
   # vtkExodusIIWriter.cxx needs vtkMultiProcessController
   vtkPChacoReader.cxx
-  vtkPCosmoReader.cxx
   vtkPDataSetReader.cxx
   vtkPDataSetWriter.cxx
   vtkPImageWriter.cxx
-  vtkPNrrdReader.cxx
   vtkPOpenFOAMReader.cxx
   vtkPSLACReader.cxx
-  vtkVPICReader.cxx
   vtkWindBladeReader.cxx
   vtkXMLPHierarchicalBoxDataWriter.cxx
   vtkXMLPMultiBlockDataWriter.cxx

@@ -6,7 +6,6 @@ set(Module_SRCS
   vtkCollectPolyData.cxx
   vtkCollectTable.cxx
   vtkCutMaterial.cxx
-  vtkDistributedDataFilter.cxx
   vtkDuplicatePolyData.cxx
   vtkExtractCTHPart.cxx
   vtkExtractPolyDataPiece.cxx
@@ -14,7 +13,6 @@ set(Module_SRCS
   vtkExtractUserDefinedPiece.cxx
   vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
-  vtkPCosmoHaloFinder.cxx
   vtkPExtractArraysOverTime.cxx
   vtkPieceRequestFilter.cxx
   vtkPieceScalars.cxx

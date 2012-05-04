@@ -4712,4 +4712,3 @@ void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Timing: " << this->Timing << endl;
   os << indent << "UseMinimalMemory: " << this->UseMinimalMemory << endl;
 }
-
