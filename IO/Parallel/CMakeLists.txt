@@ -8,7 +8,6 @@ set(Module_SRCS
   vtkPDataSetReader.cxx
   vtkPDataSetWriter.cxx
   vtkPImageWriter.cxx
-  vtkPNrrdReader.cxx
   vtkPOpenFOAMReader.cxx
   vtkPSLACReader.cxx
   vtkWindBladeReader.cxx

@@ -4,7 +4,6 @@ vtk_module(vtkIOParallel
   DEPENDS
     vtkParallelCore
     vtkFiltersParallel
-    vtkIOParallelMPI
     vtkIONetCDF
     vtkexodusII
   TEST_DEPENDS
