@@ -26,7 +26,7 @@
 #ifndef __vtkVPICReader_h
 #define __vtkVPICReader_h
 
-#include "vtkIOParallelModule.h" // For export macro
+#include "vtkIOVPICModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
 
@@ -40,7 +40,7 @@ class vtkInformation;
 class VPICDataSet;
 class GridExchange;
 //ETX
-class VTKIOPARALLEL_EXPORT vtkVPICReader : public vtkImageAlgorithm
+class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 {
 public:
   static vtkVPICReader *New();
