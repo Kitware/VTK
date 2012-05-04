@@ -3,7 +3,6 @@ vtk_module(vtkFiltersParallel
     MPI
   DEPENDS
     vtkParallelMPI
-    vtkCosmo
     vtkFiltersExtraction
     vtkRenderingCore
     vtkFiltersModeling

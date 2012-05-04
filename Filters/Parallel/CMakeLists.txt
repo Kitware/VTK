@@ -14,7 +14,6 @@ set(Module_SRCS
   vtkExtractUserDefinedPiece.cxx
   vtkPassThroughFilter.cxx
   vtkPCellDataToPointData.cxx
-  vtkPCosmoHaloFinder.cxx
   vtkPExtractArraysOverTime.cxx
   vtkPieceRequestFilter.cxx
   vtkPieceScalars.cxx

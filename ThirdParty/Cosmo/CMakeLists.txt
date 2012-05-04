@@ -5,10 +5,15 @@ set(vtkCosmo_THIRD_PARTY 1)
 set(vtkCosmo_LIBRARIES Cosmo)
 vtk_module_impl()
 
-#SET(Cosmo_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+# Build with or without MPI, for now do this rather compiling a
+# parallel and non parallel version
+option(VTK_COSMO_USE_MPI "Build Cosmo with MPI" OFF)
+mark_as_advanced(VTK_COSMO_USE_MPI)
 
+#SET(Cosmo_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 SET(Cosmo_LIBS)
-IF(VTK_USE_MPI)
+if(VTK_COSMO_USE_MPI)
+  find_package(MPI REQUIRED)
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
   IF(MPI_EXTRA_LIBRARY)
     SET(Cosmo_LIBS ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARY})
@@ -16,9 +21,9 @@ IF(VTK_USE_MPI)
     SET(Cosmo_LIBS ${MPI_LIBRARY})
   ENDIF(MPI_EXTRA_LIBRARY)
   ADD_DEFINITIONS(-DMPICH_IGNORE_CXX_SEEK -DUSE_VTK_COSMO)
-ELSE(VTK_USE_MPI)
+else()
   ADD_DEFINITIONS(-DUSE_SERIAL_COSMO -DUSE_VTK_COSMO)
-ENDIF(VTK_USE_MPI)
+endif()
 # Needed for mpich 2
 
 CONFIGURE_FILE (${Cosmo_SOURCE_DIR}/CosmoDefinition.h.in

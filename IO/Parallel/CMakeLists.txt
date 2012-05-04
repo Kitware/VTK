@@ -5,7 +5,6 @@ set(Module_SRCS
   vtkEnSightWriter.cxx
   # vtkExodusIIWriter.cxx needs vtkMultiProcessController
   vtkPChacoReader.cxx
-  vtkPCosmoReader.cxx
   vtkPDataSetReader.cxx
   vtkPDataSetWriter.cxx
   vtkPImageWriter.cxx
