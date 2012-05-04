@@ -6,7 +6,6 @@ set(Module_SRCS
   vtkCollectPolyData.cxx
   vtkCollectTable.cxx
   vtkCutMaterial.cxx
-  vtkDistributedDataFilter.cxx
   vtkDuplicatePolyData.cxx
   vtkExtractCTHPart.cxx
   vtkExtractPolyDataPiece.cxx
