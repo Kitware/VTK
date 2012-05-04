@@ -83,13 +83,13 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPCosmoReader_h
 #define __vtkPCosmoReader_h
 
-#include "vtkParallelIOModule.h" // For export macro
+#include "vtkFiltersCosmoModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkMultiProcessController;
 class vtkStdString;
 
-class VTKPARALLELIO_EXPORT vtkPCosmoReader : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCOSMO_EXPORT vtkPCosmoReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkPCosmoReader *New();
