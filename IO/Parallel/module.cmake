@@ -7,7 +7,6 @@ vtk_module(vtkIOParallel
     vtkIOParallelMPI
     vtkIONetCDF
     vtkexodusII
-    vtkVPIC
   TEST_DEPENDS
     vtkTestingCore
   )

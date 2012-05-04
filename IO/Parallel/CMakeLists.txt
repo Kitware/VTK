@@ -11,7 +11,6 @@ set(Module_SRCS
   vtkPNrrdReader.cxx
   vtkPOpenFOAMReader.cxx
   vtkPSLACReader.cxx
-  vtkVPICReader.cxx
   vtkWindBladeReader.cxx
   vtkXMLPHierarchicalBoxDataWriter.cxx
   vtkXMLPMultiBlockDataWriter.cxx
