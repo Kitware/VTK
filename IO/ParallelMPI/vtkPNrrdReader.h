@@ -37,12 +37,12 @@
 #ifndef __vtkPNrrdReader_h
 #define __vtkPNrrdReader_h
 
-#include "vtkIOParallelModule.h" // For export macro
+#include "vtkIOParallelMPIModule.h" // For export macro
 #include "vtkMPIImageReader.h"
 
 class vtkCharArray;
 
-class VTKIOPARALLEL_EXPORT vtkPNrrdReader : public vtkMPIImageReader
+class VTKIOPARALLELMPI_EXPORT vtkPNrrdReader : public vtkMPIImageReader
 {
 public:
   vtkTypeMacro(vtkPNrrdReader, vtkMPIImageReader);
