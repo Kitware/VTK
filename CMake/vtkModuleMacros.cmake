@@ -369,7 +369,7 @@ VTK_AUTOINIT(${vtk-module})
 
   if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest)
     string(TOUPPER "${vtk-module}" MOD)
-    add_test(NAME ${vtk-module}.HeaderTest
+    add_test(NAME ${vtk-module}-HeaderTest
       COMMAND ${PYTHON_EXECUTABLE} ${VTK_SOURCE_DIR}/Testing/Core/HeaderTesting.py
                                    ${CMAKE_CURRENT_SOURCE_DIR} ${MOD}_EXPORT
       )

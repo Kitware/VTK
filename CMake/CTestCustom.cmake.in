@@ -3,22 +3,7 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   Example-vtkLocal
   Example-vtkMy
 
-  # These tests do not actually run any VTK code
-  HeaderTesting-Charts
-  HeaderTesting-Common
-  HeaderTesting-Filtering
-  HeaderTesting-GenericFiltering
-  HeaderTesting-Geovis
-  HeaderTesting-Graphics
-  HeaderTesting-Hybrid
-  HeaderTesting-Imaging
-  HeaderTesting-Infovis
-  HeaderTesting-IO
-  HeaderTesting-Parallel
-  HeaderTesting-Rendering
-  HeaderTesting-Views
-  HeaderTesting-VolumeRendering
-  HeaderTesting-Widgets
+@memcheck_excluded_tests@
 
   PrintSelf-Charts
   PrintSelf-Common
@@ -308,6 +293,7 @@ SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
 
   # Exclude files from the Utilities directories
   ".*/Utilities/.*"
+  ".*/ThirdParty/.*"
   )
 
 IF(@CMAKE_COMPILER_IS_GNUCXX@)
