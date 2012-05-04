@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOffsetsManagerArray.h
+  Module:    vtkXMLOffsetsManager.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -36,12 +36,12 @@
 // .SECTION Warning
 // Do not include this file in a header file, it will break PIMPL convention
 
-#ifndef vtkOffsetsManager_DoNotInclude
+#ifndef vtkXMLOffsetsManager_DoNotInclude
 #error "do not include unless you know what you are doing"
 #endif
 
-#ifndef __vtkOffsetsManagerArray_h
-#define __vtkOffsetsManagerArray_h
+#ifndef __vtkXMLOffsetsManager_h
+#define __vtkXMLOffsetsManager_h
 
 #include "vtkSystemIncludes.h"
 #include <vector>
@@ -195,4 +195,4 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkOffsetsManagerArray.h
+// VTK-HeaderTest-Exclude: vtkXMLOffsetsManager.h

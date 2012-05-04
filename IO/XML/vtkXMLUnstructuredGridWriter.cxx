@@ -22,9 +22,9 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#define vtkOffsetsManager_DoNotInclude
-#include "vtkOffsetsManagerArray.h"
-#undef vtkOffsetsManager_DoNotInclude
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef vtkXMLOffsetsManager_DoNotInclude
 
 #include <assert.h>
 

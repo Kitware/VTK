@@ -22,9 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
-#define vtkOffsetsManager_DoNotInclude
-#include "vtkOffsetsManagerArray.h"
-#undef  vtkOffsetsManager_DoNotInclude
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef  vtkXMLOffsetsManager_DoNotInclude
 
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
