@@ -98,6 +98,11 @@ void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
 //----------------------------------------------------------------------------
 vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
 {
+  if (orbitalNumber <= 0)
+    {
+    vtkWarningMacro(<< "Request for invalid orbital number "<<orbitalNumber);
+    return NULL;
+    }
   if (orbitalNumber > static_cast<vtkIdType>(this->MOs->size()))
     {
     vtkWarningMacro(<< "Request for orbital number " << orbitalNumber
@@ -117,6 +122,11 @@ vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
 void vtkProgrammableElectronicData::SetMO(vtkIdType orbitalNumber,
                                           vtkImageData *data)
 {
+  if (orbitalNumber <= 0)
+    {
+    vtkErrorMacro("Cannot set invalid orbital number "<<orbitalNumber);
+    return;
+    }
   if (orbitalNumber > static_cast<vtkIdType>(this->MOs->size()))
     {
     this->SetNumberOfMOs(orbitalNumber);
