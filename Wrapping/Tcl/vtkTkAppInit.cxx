@@ -215,6 +215,18 @@ extern "C" int Vtkinfovistcl_Init(Tcl_Interp *interp);
 extern "C" int Vtkviewstcl_Init(Tcl_Interp *interp);
 #endif
 
+#ifdef VTK_USE_CHARTS
+extern "C" int Vtkchartstcl_Init(Tcl_Interp *interp);
+#endif
+
+#ifdef VTK_USE_CHEMISTRY
+extern "C" int Vtkchemistrytcl_Init(Tcl_Interp *interp);
+#endif
+
+#ifdef VTK_USE_TEXT_ANALYSIS
+extern "C" int Vtktextanalysistcl_Init(Tcl_Interp *interp);
+#endif
+
 void help()
 {
 }
@@ -324,6 +336,27 @@ int Tcl_AppInit(Tcl_Interp *interp)
  
 #ifdef VTK_USE_VIEWS
   if (Vtkviewstcl_Init(interp) == TCL_ERROR)
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_CHARTS
+  if (Vtkchartstcl_Init(interp) == TCL_ERROR)
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_CHEMISTRY
+  if (Vtkchemistrytcl_Init(interp) == TCL_ERROR)
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_TEXT_ANALYSIS
+  if (Vtktextanalysistcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }

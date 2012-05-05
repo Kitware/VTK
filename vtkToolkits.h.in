@@ -20,6 +20,8 @@
 /*--------------------------------------------------------------------------*/
 /* Selected VTK Toolkits                                                    */
 
+#cmakedefine VTK_USE_CHARTS
+#cmakedefine VTK_USE_CHEMISTRY
 #cmakedefine VTK_USE_VIEWS
 #cmakedefine VTK_USE_GEOVIS
 #cmakedefine VTK_USE_INFOVIS

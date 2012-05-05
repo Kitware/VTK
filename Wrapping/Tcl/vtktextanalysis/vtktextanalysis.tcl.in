@@ -1,0 +1,12 @@
+package require -exact vtkrendering @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+
+if {[info commands ::vtk::init::require_package] != ""} {
+  if {[::vtk::init::require_package vtkTextAnalysisTCL @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@]} {
+    package provide vtktextanalysis @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+} else {
+  if {[info commands vtkTextExtraction] != "" ||
+    [::vtk::load_component vtkTextAnalysisTCL] == ""} {
+    package provide vtktextanalysis @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
+  }
+}
