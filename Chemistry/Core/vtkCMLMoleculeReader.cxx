@@ -71,6 +71,7 @@ vtkCMLMoleculeReader::vtkCMLMoleculeReader()
 //----------------------------------------------------------------------------
 vtkCMLMoleculeReader::~vtkCMLMoleculeReader()
 {
+  this->SetFileName(NULL);
 }
 
 //----------------------------------------------------------------------------

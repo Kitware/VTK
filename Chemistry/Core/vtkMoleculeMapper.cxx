@@ -56,7 +56,7 @@ vtkMoleculeMapper::vtkMoleculeMapper()
     BondRadius(0.075)
 {
   // Initialize ivars:
-  this->SetBondColor(50, 50, 50);
+  this->BondColor[0] = this->BondColor[1] = this->BondColor[2] = 50;
 
   // Setup glyph sources
   vtkNew<vtkSphereSource> sphere;
