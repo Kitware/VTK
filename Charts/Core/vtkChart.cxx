@@ -30,6 +30,7 @@ vtkChart::MouseActions::MouseActions()
   this->Data[0] = vtkContextMouseEvent::LEFT_BUTTON;
   this->Data[1] = vtkContextMouseEvent::MIDDLE_BUTTON;
   this->Data[2] = vtkContextMouseEvent::RIGHT_BUTTON;
+  this->Data[3] = vtkContextMouseEvent::NO_BUTTON;
 }
 
 //-----------------------------------------------------------------------------
