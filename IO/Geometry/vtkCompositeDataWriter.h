@@ -25,9 +25,11 @@
 #include "vtkDataWriter.h"
 
 class vtkCompositeDataSet;
-class vtkMultiPieceDataSet;
-class vtkMultiBlockDataSet;
 class vtkHierarchicalBoxDataSet;
+class vtkMultiBlockDataSet;
+class vtkMultiPieceDataSet;
+class vtkNonOverlappingAMR;
+class vtkOverlappingAMR;
 
 class VTKIOGEOMETRY_EXPORT vtkCompositeDataWriter : public vtkDataWriter
 {
@@ -54,6 +56,8 @@ protected:
   bool WriteCompositeData(ostream*, vtkMultiBlockDataSet*);
   bool WriteCompositeData(ostream*, vtkMultiPieceDataSet*);
   bool WriteCompositeData(ostream*, vtkHierarchicalBoxDataSet*);
+  bool WriteCompositeData(ostream*, vtkOverlappingAMR*);
+  bool WriteCompositeData(ostream*, vtkNonOverlappingAMR*);
   bool WriteBlock(ostream* fp, vtkDataObject* block);
 
 private:

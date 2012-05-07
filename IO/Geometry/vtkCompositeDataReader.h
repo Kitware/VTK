@@ -22,9 +22,11 @@
 #include "vtkDataReader.h"
 
 class vtkCompositeDataSet;
+class vtkHierarchicalBoxDataSet;
 class vtkMultiBlockDataSet;
 class vtkMultiPieceDataSet;
-class vtkHierarchicalBoxDataSet;
+class vtkNonOverlappingAMR;
+class vtkOverlappingAMR;
 
 class VTKIOGEOMETRY_EXPORT vtkCompositeDataReader : public vtkDataReader
 {
@@ -70,6 +72,8 @@ protected:
   bool ReadCompositeData(vtkMultiPieceDataSet*);
   bool ReadCompositeData(vtkMultiBlockDataSet*);
   bool ReadCompositeData(vtkHierarchicalBoxDataSet*);
+  bool ReadCompositeData(vtkOverlappingAMR*);
+  bool ReadCompositeData(vtkNonOverlappingAMR*);
   vtkDataObject* ReadChild();
 
 private:
