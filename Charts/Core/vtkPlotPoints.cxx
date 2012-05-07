@@ -30,10 +30,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
-#include "vtkDelaunay2D.h"
-#include "vtkPointSet.h"
-#include "vtkPolygon.h"
-#include "vtkTriangle.h"
 
 #include <vector>
 #include <algorithm>
@@ -599,24 +595,6 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
     this->Selection->SetNumberOfValues(0);
     }
 
-  // create delaunay triangulation of the input polygon
-  vtkNew<vtkPoints> points;
-  for(vtkIdType i = 0; i < polygon.GetNumberOfPoints(); i++)
-    {
-    const vtkVector2f point = polygon.GetPoint(i);
-    points->InsertNextPoint(point[0], point[1], 0.0);
-    }
-
-  vtkNew<vtkPolyData> inputPoints;
-  inputPoints->SetPoints(points.GetPointer());
-
-  vtkNew<vtkDelaunay2D> triangulator;
-  triangulator->SetInputData(inputPoints.GetPointer());
-  triangulator->Update();
-
-  // get triangulation
-  vtkPolyData *polyData = triangulator->GetOutput();
-
   for(vtkIdType pointId = 0;
       pointId < this->Points->GetNumberOfPoints();
       pointId++)
@@ -624,27 +602,10 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
     // get point location
     double point[3];
     this->Points->GetPoint(pointId, point);
-    point[2] = 0;
 
-    for(vtkIdType cellId = 0; cellId < polyData->GetNumberOfCells(); cellId++)
+    if (polygon.Contains(vtkVector2f(point[0], point[1])))
       {
-      vtkCell *cell = polyData->GetCell(cellId);
-      vtkTriangle *triangle = vtkTriangle::SafeDownCast(cell);
-      if(triangle)
-        {
-        // get triangle point locations
-        double p1[3], p2[3], p3[3];
-        polyData->GetPoint(triangle->GetPointId(0), p1);
-        polyData->GetPoint(triangle->GetPointId(1), p2);
-        polyData->GetPoint(triangle->GetPointId(2), p3);
-
-        // check if the triangle contains point
-        if(vtkTriangle::PointInTriangle(point, p1, p2, p3, 1e-10))
-          {
-          this->Selection->InsertNextValue(pointId);
-          break;
-          }
-        }
+      this->Selection->InsertNextValue(pointId);
       }
     }
 
