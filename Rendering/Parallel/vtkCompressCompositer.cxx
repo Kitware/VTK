@@ -39,10 +39,6 @@
 // SOFTWARE should be clearly marked, so as not to confuse it with the
 // version available from Los Alamos National Laboratory.
 
-#ifdef VTK_USE_MPI
- #include <mpi.h>
-#endif
-
 #include "vtkCompressCompositer.h"
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"

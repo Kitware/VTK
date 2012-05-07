@@ -21,10 +21,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
 
-#ifdef VTK_USE_MPI
- #include <mpi.h>
-#endif
-
 vtkStandardNewMacro(vtkCompositer);
 
 //-------------------------------------------------------------------------
