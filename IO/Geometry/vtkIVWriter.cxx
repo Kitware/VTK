@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkIVWriter.h"
 
-#include "vtkAbstractMapper.h"
 #include "vtkCellArray.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkIVWriter);
 
@@ -65,13 +65,11 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
   vtkUnsignedCharArray *colors=NULL;
-  int offset=0;
 
   points = pd->GetPoints();
 
   // create colors for vertices
-  vtkDataArray *scalars = vtkAbstractMapper::
-    GetScalars(pd, VTK_SCALAR_MODE_USE_POINT_DATA, 0, 0, NULL, offset);
+  vtkDataArray *scalars = pd->GetPointData()->GetScalars();
 
   if ( scalars )
     {

@@ -14,7 +14,7 @@ SET(Module_SRCS
   vtkGenericDataObjectReader.cxx
   vtkGenericDataObjectWriter.cxx
   vtkGenericMovieWriter.cxx
-  #vtkIVWriter.cxx # Needs vtkAbstractMapper
+  vtkIVWriter.cxx
   vtkMaterialLibrary.cxx
   vtkMCubesReader.cxx
   vtkMCubesWriter.cxx
