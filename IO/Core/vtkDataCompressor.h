@@ -38,33 +38,33 @@ public:
   // given uncompressed size after compression.  This is the minimum
   // size of the output buffer that can be passed to the four-argument
   // Compress method.
-  virtual unsigned long GetMaximumCompressionSpace(unsigned long size)=0;
+  virtual size_t GetMaximumCompressionSpace(size_t size)=0;
 
   // Description:
   // Compress the given input data buffer into the given output
   // buffer.  The size of the output buffer must be at least as large
   // as the value given by GetMaximumCompressionSpace for the given
   // input size.
-  unsigned long Compress(const unsigned char* uncompressedData,
-                         unsigned long uncompressedSize,
-                         unsigned char* compressedData,
-                         unsigned long compressionSpace);
+  size_t Compress(unsigned char const* uncompressedData,
+                  size_t uncompressedSize,
+                  unsigned char* compressedData,
+                  size_t compressionSpace);
 
   // Description:
   // Uncompress the given input data into the given output buffer.
   // The size of the uncompressed data must be known by the caller.
   // It should be transmitted from the compressor by a means outside
   // of this class.
-  unsigned long Uncompress(const unsigned char* compressedData,
-                           unsigned long compressedSize,
-                           unsigned char* uncompressedData,
-                           unsigned long uncompressedSize);
+  size_t Uncompress(unsigned char const* compressedData,
+                    size_t compressedSize,
+                    unsigned char* uncompressedData,
+                    size_t uncompressedSize);
 
   // Description:
   // Compress the given data.  A vtkUnsignedCharArray containing the
   // compressed data is returned with a reference count of 1.
-  vtkUnsignedCharArray* Compress(const unsigned char* uncompressedData,
-                                 unsigned long uncompressedSize);
+  vtkUnsignedCharArray* Compress(unsigned char const* uncompressedData,
+                                 size_t uncompressedSize);
 
   // Description:
   // Uncompress the given data.  A vtkUnsignedCharArray containing the
@@ -72,25 +72,25 @@ public:
   // size of the uncompressed data must be known by the caller.  It
   // should be transmitted from the compressor by a means outside of
   // this class.
-  vtkUnsignedCharArray* Uncompress(const unsigned char* compressedData,
-                                   unsigned long compressedSize,
-                                   unsigned long uncompressedSize);
+  vtkUnsignedCharArray* Uncompress(unsigned char const* compressedData,
+                                   size_t compressedSize,
+                                   size_t uncompressedSize);
 protected:
   vtkDataCompressor();
   ~vtkDataCompressor();
 
   // Actual compression method.  This must be provided by a subclass.
   // Must return the size of the compressed data, or zero on error.
-  virtual unsigned long CompressBuffer(const unsigned char* uncompressedData,
-                                       unsigned long uncompressedSize,
-                                       unsigned char* compressedData,
-                                       unsigned long compressionSpace)=0;
+  virtual size_t CompressBuffer(unsigned char const* uncompressedData,
+                                size_t uncompressedSize,
+                                unsigned char* compressedData,
+                                size_t compressionSpace)=0;
   // Actual decompression method.  This must be provided by a subclass.
   // Must return the size of the uncompressed data, or zero on error.
-  virtual unsigned long UncompressBuffer(const unsigned char* compressedData,
-                                         unsigned long compressedSize,
-                                         unsigned char* uncompressedData,
-                                         unsigned long uncompressedSize)=0;
+  virtual size_t UncompressBuffer(unsigned char const* compressedData,
+                                  size_t compressedSize,
+                                  unsigned char* uncompressedData,
+                                  size_t uncompressedSize)=0;
 private:
   vtkDataCompressor(const vtkDataCompressor&);  // Not implemented.
   void operator=(const vtkDataCompressor&);  // Not implemented.

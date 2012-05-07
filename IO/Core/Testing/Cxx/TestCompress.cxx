@@ -29,8 +29,8 @@ int TestCompress(int argc, char *argv[])
   unsigned char buffer[start_size];
   unsigned char* cbuffer;
   unsigned char* ucbuffer;
-  unsigned long nlen;
-  unsigned long rlen;
+  size_t nlen;
+  size_t rlen;
 
   vtkZLibDataCompressor* compressor = vtkZLibDataCompressor::New();
   for ( cc = 0; cc < start_size; cc ++ )
