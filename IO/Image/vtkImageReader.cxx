@@ -356,9 +356,9 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         filePos = self->GetFile()->tellg();
         }
 */
-#if defined(VTK_USE_ANSI_STDLIB ) && ((defined(__sgi) && !defined(__GNUC__)) \
+#if ((defined(__sgi) && !defined(__GNUC__)) \
     || (__BORLANDC__>=0x0560) || defined (__APPLE_CC__))
-      // this check is required for SGI's when vtk is build with VTK_USE_ANSI_STDLIB
+      // this check is required for SGI's
       // seems that after a read that just reaches EOF, tellg reports a -1.
       // clear() does not work, so we have to reopen the file.
       // NB: Also Borland CBuilder 6 suffers from same trouble

@@ -14,23 +14,19 @@
 =========================================================================*/
 // .NAME vtkIOStreamFwd - Forward-declare C++ iostreams as used by VTK.
 // .SECTION Description
-// VTK supports both ANSI and old-style streams.  This header
-// forward-declares the proper streams according to
-// VTK_USE_ANSI_STDLIB.
+// This header forward-declares the proper streams.
 
 #ifndef __vtkIOStreamFwd_h
 #define __vtkIOStreamFwd_h
 
 #include "vtkConfigure.h"
 
-#ifdef VTK_USE_ANSI_STDLIB
-
 #ifdef _MSC_VER
 #pragma warning (push, 3)
 #endif
 
 // Forward-declare ansi streams.
-# include <iosfwd>
+#include <iosfwd>
 using std::ios;
 using std::streambuf;
 using std::istream;
@@ -47,26 +43,6 @@ using std::fstream;
 
 typedef std::streampos vtkIOStreamPos;
 typedef std::streamoff vtkIOStreamOff;
-
-#else
-# ifdef __BORLANDC__
-#  include <iosfwd.h>
-# else
-
-// Forward-declare non-ansi streams.
-class ios;
-class streambuf;
-class istream;
-class ostream;
-class iostream;
-class filebuf;
-class ifstream;
-class ofstream;
-class fstream;
-# endif
-
-#endif
-
 
 #endif // __vtkIOStreamFwd_h
 // VTK-HeaderTest-Exclude: vtkIOStreamFwd.h
