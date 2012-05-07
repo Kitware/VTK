@@ -59,6 +59,10 @@ public:
   void Clear();
 
   // Description:
+  // Returns \c true if the polygon contains \p point.
+  bool Contains(const vtkVector2f &point) const;
+
+  // Description:
   // Returns a new polygon with each point transformed by \p transform.
   vtkContextPolygon Transformed(vtkTransform2D *transform) const;
 
