@@ -122,7 +122,9 @@
 #include "vtkDataSet.h"
 
 class vtkHyperTreeLightWeightCursor;
+//BTX
 class vtkHyperTreeSuperCursor;
+//ETX
 class vtkHyperTreeCursor;
 class vtkHyperTreeInternal;
 
@@ -374,22 +376,24 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
-
+//BTX
   // Description:
   // Initialize a super cursor to point to one of the root trees
   // in the grid.  The super cursor points to a node in a tree and
   // also keeps pointers to the 26 neighbors of said node.
   void InitializeSuperCursor(vtkHyperTreeSuperCursor* superCursor, int i, int j, int k);
+//ETX
   // Description:
   // Generate the table before calling InitializeSuperCursorChild.
   void GenerateSuperCursorTraversalTable();
+//BTX
   // Description:
   // Initialize a cursor to point to a child of an existing super cursor.
   // This will not work in place.
   void InitializeSuperCursorChild(vtkHyperTreeSuperCursor* parent,
                                   vtkHyperTreeSuperCursor* child,
                                   int childIdx);
-
+//ETX
   // Description:
   // The number of children each node can have.
   vtkGetMacro(NumberOfChildren,int);
@@ -435,7 +439,7 @@ protected:
   int UpdateCellTreeLeafIdOffsets();
 
   void DeleteInternalArrays();
-
+//BTX
   void TraverseDualRecursively( vtkHyperTreeSuperCursor*,
                                 int );
   void TraverseGridRecursively( vtkHyperTreeSuperCursor*,
@@ -445,7 +449,7 @@ protected:
                                 vtkHyperTreeSuperCursor*,
                                 unsigned char*,
                                 int* );
-
+//ETX
   // Generalizing for 27 tree.  I cannot use 3 bits to encode the child to move to.
   // Input: root in supercursor(3x3x3=27), child(3x3x3=27)
   // Output: root, child
