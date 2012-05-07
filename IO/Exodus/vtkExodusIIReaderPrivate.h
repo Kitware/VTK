@@ -270,7 +270,7 @@ public:
     { return &this->ModelParameters; }
 
   /// A struct to hold information about time-varying arrays
-  struct ArrayInfoType {
+  struct VTKIOEXODUS_EXPORT ArrayInfoType {
     /// The name of the array
     vtkStdString Name;
     /// The number of components in the array
@@ -309,7 +309,7 @@ public:
   };
 
   /// A struct to hold information about Exodus objects (blocks, sets, maps)
-  struct ObjectInfoType {
+  struct VTKIOEXODUS_EXPORT ObjectInfoType {
     /// Number of entries in this block.
     int Size;
     /// Should the reader load this block?
@@ -321,12 +321,12 @@ public:
   };
 
   /// A struct to hold information about Exodus maps
-  struct MapInfoType : public ObjectInfoType {
+  struct VTKIOEXODUS_EXPORT MapInfoType : public ObjectInfoType {
   };
 
   /// A struct to hold information about Exodus blocks or sets
   /// (they have some members in common)
-  struct BlockSetInfoType : public ObjectInfoType {
+  struct VTKIOEXODUS_EXPORT BlockSetInfoType : public ObjectInfoType {
     /// Id (1-based) of first entry in file-local list across all blocks in file
     vtkIdType FileOffset;
     /** A map from nodal IDs in an Exodus file to nodal IDs in the output mesh.
@@ -352,7 +352,7 @@ public:
   };
 
   /// A struct to hold information about Exodus blocks
-  struct BlockInfoType : public BlockSetInfoType {
+  struct VTKIOEXODUS_EXPORT BlockInfoType : public BlockSetInfoType {
     vtkStdString OriginalName; // useful to reset the name if XML metadata is invalid.
     vtkStdString TypeName;
     // number of boundaries per entry
