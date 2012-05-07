@@ -11,12 +11,15 @@ a GlobalWarningDisplayOff
 a Delete
 
 set exceptions {
+vtkColorTransferControlPointsItem-GetControlPointsIds
+vtkCompositeControlPointsItem-GetControlPointsIds
 vtkLODProp3D-GetPickLODID
 vtkObject-GetSuperClassName
 vtkPropAssembly-GetBounds
 vtkRenderWindow-GetEventPending
 vtkSQLiteDatabase-GetQueryInstance
 vtkMySQLDatabase-GetQueryInstance
+vtkPiecewiseControlPointsItem-GetControlPointsIds
 vtkPostgreSQLDatabase-GetQueryInstance
 vtkODBCDatabase-GetQueryInstance
 vtkUniformVariables-GetCurrentName
