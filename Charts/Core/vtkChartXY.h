@@ -308,6 +308,10 @@ private:
   bool LocatePointInPlots(const vtkContextMouseEvent &mouse,
                           int invokeEvent = -1);
 
+  int LocatePointInPlot(const vtkVector2f &position,
+                        const vtkVector2f &tolerance, vtkVector2f &plotPos,
+                        vtkPlot *plot, vtkIdType &segmentIndex);
+
   // Description:
   // Remove the plot from the plot corners list.
   bool RemovePlotFromCorners(vtkPlot *plot);
