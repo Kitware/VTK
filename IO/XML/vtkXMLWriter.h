@@ -415,7 +415,7 @@ protected:
   // Internal utility methods.
   int WriteBinaryDataInternal(void* data, OffsetType numWords, int wordType);
   int WriteBinaryDataBlock(unsigned char* in_data, OffsetType numWords, int wordType);
-  void PerformByteSwap(void* data, OffsetType numWords, int wordSize);
+  void PerformByteSwap(void* data, size_t numWords, size_t wordSize);
   int CreateCompressionHeader(OffsetType size);
   int WriteCompressionBlock(unsigned char* data, OffsetType size);
   int WriteCompressionHeader();

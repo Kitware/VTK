@@ -159,7 +159,7 @@ protected:
   void PushOpenElement(vtkXMLDataElement* element);
   vtkXMLDataElement* PopOpenElement();
   void FreeAllElements();
-  void PerformByteSwap(void* data, OffsetType numWords, int wordSize);
+  void PerformByteSwap(void* data, size_t numWords, size_t wordSize);
 
   // Data reading methods.
   void ReadCompressionHeader();

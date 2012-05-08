@@ -1164,8 +1164,8 @@ int vtkXMLWriter::WriteBinaryDataBlock(unsigned char* in_data,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::PerformByteSwap(void* data, OffsetType numWords,
-                                   int wordSize)
+void vtkXMLWriter::PerformByteSwap(void* data, size_t numWords,
+                                   size_t wordSize)
 {
   char* ptr = static_cast<char*>(data);
   if(this->ByteOrder == vtkXMLWriter::BigEndian)
