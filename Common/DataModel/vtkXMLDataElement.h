@@ -96,14 +96,24 @@ public:
   void SetVectorAttribute(const char* name, int length, const double* value);
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
 
-#ifdef VTK_USE_64BIT_IDS
   //BTX
-  int  GetScalarAttribute(const char* name, vtkIdType& value);
-  void SetIdTypeAttribute(const char* name, vtkIdType value);
-  int  GetVectorAttribute(const char* name, int length, vtkIdType* value);
-  void SetVectorAttribute(const char* name, int length, const vtkIdType* value);
-  //ETX
+#ifdef VTK_TYPE_USE_LONG_LONG
+  int  GetScalarAttribute(const char* name, long long& value);
+  int  GetVectorAttribute(const char* name, int length, long long* value);
+  void SetVectorAttribute(const char* name, int length, long long const* value);
+  int  GetScalarAttribute(const char* name, unsigned long long& value);
+  int  GetVectorAttribute(const char* name, int length, unsigned long long* value);
+  void SetVectorAttribute(const char* name, int length, unsigned long long const* value);
 #endif
+#ifdef VTK_TYPE_USE___INT64
+  int  GetScalarAttribute(const char* name, __int64& value);
+  int  GetVectorAttribute(const char* name, int length, __int64* value);
+  void SetVectorAttribute(const char* name, int length, __int64 const* value);
+  int  GetScalarAttribute(const char* name, unsigned __int64& value);
+  int  GetVectorAttribute(const char* name, int length, unsigned __int64* value);
+  void SetVectorAttribute(const char* name, int length, unsigned __int64 const* value);
+#endif
+  //ETX
 
   // Description:
   // Get the attribute with the given name and converted to a word type
