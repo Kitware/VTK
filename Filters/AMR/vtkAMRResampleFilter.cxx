@@ -747,7 +747,8 @@ void vtkAMRResampleFilter::TransferToGridNodes(
 
   // STEP 2: Fix the maximum level at which the search algorithm will operate
   unsigned int maxLevelToLoad = 0;
-  if( this->LevelOfResolution < static_cast<int>(amrds->GetNumberOfLevels()))
+  if( this->LevelOfResolution < static_cast<int>(amrds->GetNumberOfLevels()) &&
+    this->DemandDrivenMode == 1)
     {
     maxLevelToLoad = this->LevelOfResolution+1;
     }
