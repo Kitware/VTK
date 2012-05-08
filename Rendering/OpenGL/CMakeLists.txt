@@ -17,6 +17,21 @@ endif()
 option(VTK_USE_X "Use X for VTK render windows" ${VTK_USE_X_DEFAULT})
 mark_as_advanced(VTK_USE_X)
 
+# OSMesa logic for offscreen mesa rendering.
+option(VTK_OPENGL_HAS_OSMESA
+  "The OpenGL library being used supports off screen Mesa calls" OFF)
+option(VTK_USE_OFFSCREEN "Use off screen calls by default" OFF)
+unset(VTK_CAN_DO_OFFSCREEN)
+if(VTK_OPENGL_HAS_OSMESA OR WIN32)
+  set(VTK_CAN_DO_OFFSCREEN 1)
+endif()
+mark_as_advanced(VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
+if(VTK_USE_X OR VTK_USE_CARBON OR VTK_USE_COCOA OR WIN32)
+  set(VTK_USE_OSMESA FALSE)
+else()
+  set(VTK_USE_OSMESA TRUE)
+endif()
+
 # FIXME: The TDx support needs some refactoring before we can build it in a
 # modular fashion, for now it must remain an option on vtkRenderingOpenGL.
 option(VTK_USE_TDX "Use TDx interaction devices" OFF)
@@ -61,7 +76,6 @@ set(Module_SRCS
   vtkOpenGLScalarsToColorsPainter.cxx
   vtkOpenGLState.cxx
   vtkOpenGLTexture.cxx
-  #vtkOSOpenGLRenderWindow.cxx # OS Mesa
   vtkOverlayPass.cxx
   vtkPixelBufferObject.cxx
   vtkRenderPassCollection.cxx
@@ -116,7 +130,11 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-find_package(OpenGL REQUIRED)
+if(VTK_USE_OSMESA)
+  find_package(OpenGL)
+else()
+  find_package(OpenGL REQUIRED)
+endif()
 
 # Configuration for vtkOpenGLExtensionManager
 if(WIN32)
@@ -287,6 +305,16 @@ if(VTK_USE_X)
     vtkXRenderWindowInteractor.cxx
     vtkXOpenGLRenderWindow.cxx
     )
+elseif(VTK_USE_OSMESA)
+  message("VTK will be built with OSMesa support!")
+  find_package(OSMesa REQUIRED)
+  if(NOT OSMESA_FOUND)
+    message(FATAL_ERROR "The OSMesa library could not be found. REQUIRED for off screen rendering")
+  endif()
+  include_directories(${OSMESA_INCLUDE_DIR})
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkOSOpenGLRenderWindow")
+  list(APPEND Module_SRCS vtkOSOpenGLRenderWindow.cxx)
 elseif(WIN32)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
@@ -387,4 +415,8 @@ elseif(VTK_USE_COCOA)
   target_link_libraries(vtkRenderingOpenGL "-framework Cocoa")
 elseif(VTK_USE_CARBON)
   target_link_libraries(vtkRenderingOpenGL "-framework Carbon")
+endif()
+
+if(VTK_OPENGL_HAS_OSMESA)
+  target_link_libraries(vtkRenderingOpenGL ${OSMESA_LIBRARY})
 endif()

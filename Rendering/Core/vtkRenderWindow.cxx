@@ -74,6 +74,10 @@ vtkRenderWindow::vtkRenderWindow()
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
   this->ReportGraphicErrors=0; // false
   this->AbortCheckTime = 0.0;
+
+#ifdef VTK_USE_OFFSCREEN
+  this->OffScreenRendering = 1;
+#endif
 }
 
 //----------------------------------------------------------------------------
