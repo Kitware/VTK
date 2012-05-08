@@ -60,6 +60,9 @@ using std::fstream;
 #pragma warning(pop)
 #endif
 
+typedef std::streampos vtkIOStreamPos;
+typedef std::streamoff vtkIOStreamOff;
+
 #else
 
 // Include old-style streams.

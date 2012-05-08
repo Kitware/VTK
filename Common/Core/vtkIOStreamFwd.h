@@ -45,6 +45,9 @@ using std::fstream;
 #pragma warning(pop)
 #endif
 
+typedef std::streampos vtkIOStreamPos;
+typedef std::streamoff vtkIOStreamOff;
+
 #else
 # ifdef __BORLANDC__
 #  include <iosfwd.h>

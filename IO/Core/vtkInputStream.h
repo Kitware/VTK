@@ -50,13 +50,12 @@ public:
   // Description:
   // Seek to the given offset in the input data.  Returns 1 for
   // success, 0 for failure.
-  virtual int Seek(unsigned long offset);
+  virtual int Seek(vtkIOStreamOff offset);
 
   // Description:
   // Read input data of the given length.  Returns amount actually
   // read.
-  virtual unsigned long Read(unsigned char* data, unsigned long length);
-  unsigned long Read(char* data, unsigned long length);
+  virtual size_t Read(void* data, size_t length);
 
   // Description:
   // Called after all desired calls to Seek and Read have been made.
@@ -71,9 +70,10 @@ protected:
 
   // The real input stream.
   istream* Stream;
+  size_t ReadStream(char* data, size_t length);
 
   // The input stream's position when StartReading was called.
-  unsigned long StreamStartPosition;
+  vtkIOStreamPos StreamStartPosition;
 
 private:
   vtkInputStream(const vtkInputStream&);  // Not implemented.

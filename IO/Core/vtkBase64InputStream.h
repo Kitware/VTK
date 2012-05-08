@@ -39,12 +39,12 @@ public:
   // Description:
   // Seek to the given offset in the input data.  Returns 1 for
   // success, 0 for failure.
-  int Seek(unsigned long offset);
+  int Seek(vtkIOStreamOff offset);
 
   // Description:
   // Read input data of the given length.  Returns amount actually
   // read.
-  unsigned long Read(unsigned char* data, unsigned long length);
+  size_t Read(void* data, size_t length);
 
   // Description:
   // Called after all desired calls to Seek and Read have been made.
