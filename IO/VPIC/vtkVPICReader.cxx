@@ -345,7 +345,6 @@ int vtkVPICReader::RequestInformation(
       this->NumberOfGhostTuples *= this->GhostDimension[dim];
     }
 
-#ifdef VTK_USE_MPI
     if (this->TotalRank>1)
       {
       // Set up the GridExchange for sharing ghost cells on this view
@@ -359,7 +358,6 @@ int vtkVPICReader::RequestInformation(
         (this->Rank, this->TotalRank, decomposition,
          this->GhostDimension, this->ghostLevel0, this->ghostLevel1);
       }
-#endif
   }
   return 1;
 }
@@ -507,12 +505,10 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
                                      this->GhostDimension, timeStep, var, comp);
 
     // Exchange the single component block retrieved from files to get ghosts
-#ifdef VTK_USE_MPI
     if (this->TotalRank>1)
       {
       this->exchanger->exchangeGrid(block);
       }
-#endif
 
     // Load the ghost component block into ParaView array
     if (this->VariableStruct[var] != TENSOR) {
