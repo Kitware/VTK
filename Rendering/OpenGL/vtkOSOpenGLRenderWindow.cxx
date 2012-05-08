@@ -21,10 +21,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include <GL/gl.h>
-// #include "GL/glx.h"
 #include "vtkgl.h"
 
-#include "vtkToolkits.h"
 #ifdef VTK_OPENGL_HAS_OSMESA
 # include <GL/osmesa.h>
 #endif
