@@ -117,7 +117,7 @@ void vtkXMLUnstructuredGridWriter::AllocatePositionArrays()
 {
   this->Superclass::AllocatePositionArrays();
 
-  this->NumberOfCellsPositions = new unsigned long[this->NumberOfPieces];
+  this->NumberOfCellsPositions = new vtkTypeInt64[this->NumberOfPieces];
   this->CellsOM->Allocate(this->NumberOfPieces,5,this->NumberOfTimeSteps);
 }
 
@@ -164,8 +164,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   ostream& os = *(this->Stream);
   vtkUnstructuredGrid* input = this->GetInput();
 
-  unsigned long returnPosition = os.tellp();
-  os.seekp(this->NumberOfCellsPositions[index]);
+  std::streampos returnPosition = os.tellp();
+  os.seekp(std::streampos(this->NumberOfCellsPositions[index]));
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {

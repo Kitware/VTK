@@ -191,8 +191,8 @@ public:
 
   // Description:
   // Set/Get the offset from the beginning of the XML document to this element.
-  vtkGetMacro(XMLByteIndex, unsigned long);
-  vtkSetMacro(XMLByteIndex, unsigned long);
+  vtkGetMacro(XMLByteIndex, vtkTypeInt64);
+  vtkSetMacro(XMLByteIndex, vtkTypeInt64);
 
   // Description:
   // Check if the instance has the same name, attributes, character data
@@ -256,12 +256,12 @@ protected:
   int IgnoreCharacterData;
 
   // Get/Set the stream position of the elements inline data.
-  vtkGetMacro(InlineDataPosition,unsigned long);
-  vtkSetMacro(InlineDataPosition,unsigned long);
+  vtkGetMacro(InlineDataPosition,vtkTypeInt64);
+  vtkSetMacro(InlineDataPosition,vtkTypeInt64);
   // The offset into the XML stream where the inline data begins.
-  unsigned long InlineDataPosition;
+  vtkTypeInt64 InlineDataPosition;
   // The offset into the XML stream where the element begins.
-  unsigned long XMLByteIndex;
+  vtkTypeInt64 XMLByteIndex;
 
   // The raw property name/value pairs read from the XML attributes.
   char** AttributeNames;

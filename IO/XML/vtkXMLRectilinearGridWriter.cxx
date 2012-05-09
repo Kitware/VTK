@@ -99,7 +99,7 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
     {
     // Create a subset of the coordinates array.
     int components = a->GetNumberOfComponents();
-    int tupleSize = components*this->GetWordTypeSize(a->GetDataType());
+    size_t tupleSize = components*this->GetWordTypeSize(a->GetDataType());
     vtkDataArray* b = a->NewInstance();
     b->SetNumberOfComponents(components);
     b->SetName(a->GetName());

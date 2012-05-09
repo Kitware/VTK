@@ -240,7 +240,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::AllocatePositionArrays()
 {
-  this->NumberOfPointsPositions = new unsigned long[this->NumberOfPieces];
+  this->NumberOfPointsPositions = new vtkTypeInt64[this->NumberOfPieces];
 
   this->PointsOM->Allocate(this->NumberOfPieces, this->NumberOfTimeSteps);
   this->PointDataOM->Allocate(this->NumberOfPieces);
@@ -506,8 +506,8 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   ostream& os = *(this->Stream);
   vtkPointSet* input = this->GetInputAsPointSet();
 
-  unsigned long returnPosition = os.tellp();
-  os.seekp(this->NumberOfPointsPositions[index]);
+  std::streampos returnPosition = os.tellp();
+  os.seekp(std::streampos(this->NumberOfPointsPositions[index]));
   vtkPoints* points = input->GetPoints();
   this->WriteScalarAttribute("NumberOfPoints",
                              (points?points->GetNumberOfPoints():0));

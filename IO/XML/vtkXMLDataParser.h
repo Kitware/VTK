@@ -50,47 +50,40 @@ public:
   enum { BigEndian, LittleEndian };
 
   // Description:
-  // A type used for data sizes and offsets for stream i/o.  Using
-  // vtkIdType should satisfy most users.  This could be streamoff if
-  // it is deemed portable.  It could also be split into OffsetType
-  // (streamoff) and PositionType (streampos).
-  typedef vtkIdType OffsetType;
-
-  // Description:
   // Read inline data from inside the given element.  Returns the
   // number of words read.
-  OffsetType ReadInlineData(vtkXMLDataElement* element, int isAscii,
-                            void* buffer, OffsetType startWord,
-                            OffsetType numWords, int wordType);
-  OffsetType ReadInlineData(vtkXMLDataElement* element, int isAscii,
-                            char* buffer, OffsetType startWord,
-                            OffsetType numWords)
+  size_t ReadInlineData(vtkXMLDataElement* element, int isAscii,
+                        void* buffer, vtkTypeUInt64 startWord,
+                        size_t numWords, int wordType);
+  size_t ReadInlineData(vtkXMLDataElement* element, int isAscii,
+                        char* buffer, vtkTypeUInt64 startWord,
+                        size_t numWords)
     { return this->ReadInlineData(element, isAscii, buffer, startWord,
                                   numWords, VTK_CHAR); }
 
   // Description:
   // Read from an appended data section starting at the given appended
   // data offset.  Returns the number of words read.
-  OffsetType ReadAppendedData(OffsetType offset, void* buffer,
-                              OffsetType startWord,
-                              OffsetType numWords, int wordType);
-  OffsetType ReadAppendedData(OffsetType offset, char* buffer,
-                              OffsetType startWord,
-                              OffsetType numWords)
-    { return this->ReadAppendedData(offset, buffer, startWord, numWords,
+  size_t ReadAppendedData(vtkTypeInt64 offset, void* buffer,
+                          vtkTypeUInt64 startWord,
+                          size_t numWords, int wordType);
+  size_t ReadAppendedData(vtkTypeInt64 offset, char* buffer,
+                          vtkTypeUInt64 startWord,
+                          size_t numWords)
+  { return this->ReadAppendedData(offset, buffer, startWord, numWords,
                                     VTK_CHAR); }
 
   // Description:
   // Read from an ascii data section starting at the current position in
   // the stream.  Returns the number of words read.
-  OffsetType ReadAsciiData(void* buffer, OffsetType startWord,
-                           OffsetType numWords, int wordType);
+  size_t ReadAsciiData(void* buffer, vtkTypeUInt64 startWord,
+                       size_t numWords, int wordType);
 
   // Description:
   // Read from a data section starting at the current position in the
   // stream.  Returns the number of words read.
-  OffsetType ReadBinaryData(void* buffer, OffsetType startWord,
-                            OffsetType maxWords, int wordType);
+  size_t ReadBinaryData(void* buffer, vtkTypeUInt64 startWord,
+                        size_t maxWords, int wordType);
   //ETX
 
   // Description:
@@ -101,7 +94,7 @@ public:
 
   // Description:
   // Get the size of a word of the given type.
-  unsigned long GetWordTypeSize(int wordType);
+  size_t GetWordTypeSize(int wordType);
 
   // Description:
   // Parse the XML input and check that the file is safe to read.
@@ -162,17 +155,17 @@ protected:
 
   // Data reading methods.
   void ReadCompressionHeader();
-  unsigned int FindBlockSize(unsigned int block);
-  int ReadBlock(unsigned int block, unsigned char* buffer);
-  unsigned char* ReadBlock(unsigned int block);
-  OffsetType ReadUncompressedData(unsigned char* data,
-                                  OffsetType startWord,
-                                  OffsetType numWords,
-                                  int wordSize);
-  OffsetType ReadCompressedData(unsigned char* data,
-                                OffsetType startWord,
-                                OffsetType numWords,
-                                int wordSize);
+  size_t FindBlockSize(vtkTypeUInt64 block);
+  int ReadBlock(vtkTypeUInt64 block, unsigned char* buffer);
+  unsigned char* ReadBlock(vtkTypeUInt64 block);
+  size_t ReadUncompressedData(unsigned char* data,
+                              vtkTypeUInt64 startWord,
+                              size_t numWords,
+                              size_t wordSize);
+  size_t ReadCompressedData(unsigned char* data,
+                            vtkTypeUInt64 startWord,
+                            size_t numWords,
+                            size_t wordSize);
 
   // Go to the start of the inline data
   void SeekInlineDataPosition(vtkXMLDataElement *element);
@@ -193,7 +186,7 @@ protected:
   unsigned int OpenElementsSize;
 
   // The position of the appended data section, if found.
-  OffsetType AppendedDataPosition;
+  vtkTypeInt64 AppendedDataPosition;
 
   // How much of the string "<AppendedData" has been matched in input.
   int AppendedDataMatched;
@@ -228,17 +221,17 @@ protected:
 
   // Decompression data.
   vtkDataCompressor* Compressor;
-  unsigned int NumberOfBlocks;
-  unsigned int BlockUncompressedSize;
-  unsigned int PartialLastBlockUncompressedSize;
+  vtkTypeUInt64 NumberOfBlocks;
+  size_t BlockUncompressedSize;
+  size_t PartialLastBlockUncompressedSize;
   HeaderType* BlockCompressedSizes;
-  OffsetType* BlockStartOffsets;
+  vtkTypeInt64* BlockStartOffsets;
 
   // Ascii data parsing.
   unsigned char* AsciiDataBuffer;
-  OffsetType AsciiDataBufferLength;
+  size_t AsciiDataBufferLength;
   int AsciiDataWordType;
-  OffsetType AsciiDataPosition;
+  vtkTypeInt64 AsciiDataPosition;
 
   // Progress during reading of data.
   float Progress;

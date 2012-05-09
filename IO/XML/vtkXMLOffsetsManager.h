@@ -51,12 +51,6 @@
 class OffsetsManager
 {
 public:
-  // A type used for data sizes and offsets for stream i/o.  Using
-  // vtkIdType should satisfy most users.  This could be streamoff if
-  // it is deemed portable.  It could also be split into OffsetType
-  // (streamoff) and PositionType (streampos).
-  typedef vtkIdType OffsetType;
-
   // Construct with default (unsigned long)-1  MTime
   OffsetsManager()
     {
@@ -73,22 +67,22 @@ public:
     this->RangeMaxPositions.resize(numTimeStep);
     this->OffsetValues.resize(numTimeStep);
     }
-  OffsetType &GetPosition(unsigned int t)
+  vtkTypeInt64 &GetPosition(unsigned int t)
     {
     assert( t < this->Positions.size());
     return this->Positions[t];
     }
-  OffsetType &GetRangeMinPosition(unsigned int t)
+  vtkTypeInt64 &GetRangeMinPosition(unsigned int t)
     {
     assert( t < this->RangeMinPositions.size());
     return this->RangeMinPositions[t];
     }
-  OffsetType &GetRangeMaxPosition(unsigned int t)
+  vtkTypeInt64 &GetRangeMaxPosition(unsigned int t)
     {
     assert( t < this->RangeMaxPositions.size());
     return this->RangeMaxPositions[t];
     }
-  OffsetType &GetOffsetValue(unsigned int t)
+  vtkTypeInt64 &GetOffsetValue(unsigned int t)
     {
     assert( t < this->OffsetValues.size());
     return this->OffsetValues[t];
@@ -104,11 +98,11 @@ private:
   // and slow, but if another couple offsets are added then we should
   // consider doing it
   // Position in the stream to write the offset
-  std::vector<OffsetType> Positions;
-  std::vector<OffsetType> RangeMinPositions; // Where is this
-  std::vector<OffsetType> RangeMaxPositions; // Whee is this
+  std::vector<vtkTypeInt64> Positions;
+  std::vector<vtkTypeInt64> RangeMinPositions; // Where is this
+  std::vector<vtkTypeInt64> RangeMaxPositions; // Whee is this
 
-  std::vector<OffsetType> OffsetValues;    // Value of offset
+  std::vector<vtkTypeInt64> OffsetValues;    // Value of offset
 };
 
 //----------------------------------------------------------------------------
