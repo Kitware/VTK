@@ -95,6 +95,17 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     SET(TMP_HIERARCHY)
   ENDIF (KIT_HIERARCHY_FILE)
 
+  set(_include_dirs_file)
+  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+    set(_include_dirs_file "${_include_dirs_file}${INCLUDE_DIR}\n")
+  endforeach()
+
+  string(STRIP "${_include_dirs_file}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+  set(_target_includes_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.inc)
+  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                 ${_target_includes_file} @ONLY)
+  set(_target_includes --includes ${_target_includes_file})
+
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
@@ -134,7 +145,7 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
-        DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS}
+        DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS} ${_target_includes_file}
         ${KIT_HIERARCHY_FILE}
         MAIN_DEPENDENCY "${TMP_INPUT}"
         COMMAND ${VTK_WRAP_TCL_EXE}
@@ -143,7 +154,7 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
         ${TMP_HINTS}
         ${TMP_HIERARCHY}
         ${TMP_DEFINITIONS}
-        ${TMP_INCLUDE}
+        ${_target_includes}
         "${quote}${TMP_INPUT}${quote}"
         "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"
         COMMENT "Tcl Wrapping - generating ${TMP_FILENAME}Tcl.cxx"

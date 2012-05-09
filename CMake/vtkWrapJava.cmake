@@ -60,6 +60,18 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
 
   SET(VTK_JAVA_DEPENDENCIES)
   SET(VTK_JAVA_DEPENDENCIES_FILE)
+
+  set(_include_dirs_file)
+  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+    set(_include_dirs_file "${_include_dirs_file}${INCLUDE_DIR}\n")
+  endforeach()
+
+  string(STRIP "${_include_dirs_file}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+  set(_target_includes_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.inc)
+  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                 ${_target_includes_file} @ONLY)
+  set(_target_includes --includes ${_target_includes_file})
+
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
@@ -106,7 +118,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
-        DEPENDS ${VTK_PARSE_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT}
+        DEPENDS ${VTK_PARSE_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_target_includes_file}
         ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_PARSE_JAVA_EXE}
         ARGS
@@ -114,7 +126,7 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
         ${TMP_HINTS}
         ${TMP_HIERARCHY}
         ${TMP_DEFINITIONS}
-        ${TMP_INCLUDE}
+        ${_target_includes}
         "${quote}${TMP_INPUT}${quote}"
         "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
         COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
