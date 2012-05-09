@@ -255,6 +255,7 @@ public:
       this->Table=0;
       this->Loaded=false;
       this->LastLinearInterpolation=false;
+      this->LastRange[0] = this->LastRange[1] = 0.0;
     }
 
   ~vtkOpacityTable()
@@ -297,12 +298,20 @@ public:
         glGenTextures(1,&this->TextureId);
         needUpdate=true;
         }
+      if (this->LastRange[0] != range[0] ||
+        this->LastRange[1] != range[1])
+        {
+        needUpdate = true;
+        this->LastRange[0] = range[0];
+        this->LastRange[1] = range[1];
+        }
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
       if(needUpdate)
         {
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
                         vtkgl::CLAMP_TO_EDGE);
         }
+
       if(scalarOpacity->GetMTime() > this->BuildTime ||
          (this->LastBlendMode!=blendMode)
          || (blendMode==vtkVolumeMapper::COMPOSITE_BLEND &&
@@ -392,6 +401,7 @@ protected:
   float *Table;
   bool Loaded;
   bool LastLinearInterpolation;
+  double LastRange[2];
 };
 
 //-----------------------------------------------------------------------------
@@ -422,6 +432,7 @@ public:
       this->Table=0;
       this->Loaded=false;
       this->LastLinearInterpolation=false;
+      this->LastRange[0] = this->LastRange[1] = 0;
     }
 
   ~vtkRGBTable()
@@ -462,6 +473,10 @@ public:
         glGenTextures(1,&this->TextureId);
         needUpdate=true;
         }
+      if (range[0] != this->LastRange[0] || range[1] != this->LastRange[1])
+        {
+        needUpdate=true;
+        }
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
       if(needUpdate)
         {
@@ -488,6 +503,8 @@ public:
         vtkOpenGLGPUVolumeRayCastMapper::PrintError("1d RGB texture is too large");
         this->Loaded=true;
         this->BuildTime.Modified();
+        this->LastRange[0] = range[0];
+        this->LastRange[1] = range[1];
         }
 
       needUpdate=needUpdate ||
@@ -514,6 +531,7 @@ protected:
   float *Table;
   bool Loaded;
   bool LastLinearInterpolation;
+  double LastRange[2];
 };
 
 //-----------------------------------------------------------------------------
