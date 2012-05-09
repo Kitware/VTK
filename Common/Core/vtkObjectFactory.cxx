@@ -75,8 +75,16 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
   return 0;
 }
 
-
-
+#ifdef VTK_DEBUG_LEAKS
+void vtkObjectFactory::ConstructInstance(const char* vtkclassname)
+{
+  vtkDebugLeaks::ConstructClass(vtkclassname);
+}
+#else
+void vtkObjectFactory::ConstructInstance(const char*)
+{
+}
+#endif
 
 // A one time initialization method.
 void vtkObjectFactory::Init()
