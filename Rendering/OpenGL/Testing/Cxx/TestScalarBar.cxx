@@ -161,7 +161,7 @@ int TestScalarBar( int argc, char *argv[] )
   ren1->SetActiveCamera( camera );
 
   // render the image
-  renWin->SetWindowName("VTK - Scalar Bar options");
+  renWin->SetWindowName( "VTK - Scalar Bar options" );
   renWin->SetSize( 700, 500 );
   renWin->SetMultiSamples( 0 );
   renWin->Render();
