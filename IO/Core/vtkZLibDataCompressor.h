@@ -35,7 +35,7 @@ public:
   // given uncompressed size after compression.  This is the minimum
   // size of the output buffer that can be passed to the four-argument
   // Compress method.
-  unsigned long GetMaximumCompressionSpace(unsigned long size);
+  size_t GetMaximumCompressionSpace(size_t size);
 
   // Description:
   // Get/Set the compression level.
@@ -49,15 +49,15 @@ protected:
   int CompressionLevel;
 
   // Compression method required by vtkDataCompressor.
-  unsigned long CompressBuffer(const unsigned char* uncompressedData,
-                               unsigned long uncompressedSize,
-                               unsigned char* compressedData,
-                               unsigned long compressionSpace);
+  size_t CompressBuffer(unsigned char const* uncompressedData,
+                        size_t uncompressedSize,
+                        unsigned char* compressedData,
+                        size_t compressionSpace);
   // Decompression method required by vtkDataCompressor.
-  unsigned long UncompressBuffer(const unsigned char* compressedData,
-                                 unsigned long compressedSize,
-                                 unsigned char* uncompressedData,
-                                 unsigned long uncompressedSize);
+  size_t UncompressBuffer(unsigned char const* compressedData,
+                          size_t compressedSize,
+                          unsigned char* uncompressedData,
+                          size_t uncompressedSize);
 private:
   vtkZLibDataCompressor(const vtkZLibDataCompressor&);  // Not implemented.
   void operator=(const vtkZLibDataCompressor&);  // Not implemented.

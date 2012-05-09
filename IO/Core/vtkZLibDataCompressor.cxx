@@ -38,58 +38,60 @@ void vtkZLibDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long
-vtkZLibDataCompressor::CompressBuffer(const unsigned char* uncompressedData,
-                                      unsigned long uncompressedSize,
+size_t
+vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
+                                      size_t uncompressedSize,
                                       unsigned char* compressedData,
-                                      unsigned long compressionSpace)
+                                      size_t compressionSpace)
 {
-  unsigned long compressedSize = compressionSpace;
+  uLongf cs = static_cast<uLongf>(compressionSpace);
   Bytef* cd = reinterpret_cast<Bytef*>(compressedData);
   const Bytef* ud = reinterpret_cast<const Bytef*>(uncompressedData);
+  uLong us = static_cast<uLong>(uncompressedSize);
 
   // Call zlib's compress function.
-  if(compress2(cd, &compressedSize, ud, uncompressedSize, this->CompressionLevel) != Z_OK)
+  if(compress2(cd, &cs, ud, us, this->CompressionLevel) != Z_OK)
     {
     vtkErrorMacro("Zlib error while compressing data.");
     return 0;
     }
 
-  return compressedSize;
+  return static_cast<size_t>(cs);
 }
 
 //----------------------------------------------------------------------------
-unsigned long
-vtkZLibDataCompressor::UncompressBuffer(const unsigned char* compressedData,
-                                        unsigned long compressedSize,
+size_t
+vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
+                                        size_t compressedSize,
                                         unsigned char* uncompressedData,
-                                        unsigned long uncompressedSize)
+                                        size_t uncompressedSize)
 {
-  unsigned long decSize = uncompressedSize;
+  uLongf us = static_cast<uLongf>(uncompressedSize);
   Bytef* ud = reinterpret_cast<Bytef*>(uncompressedData);
   const Bytef* cd = reinterpret_cast<const Bytef*>(compressedData);
+  uLong cs = static_cast<uLong>(compressedSize);
 
   // Call zlib's uncompress function.
-  if(uncompress(ud, &decSize, cd, compressedSize) != Z_OK)
+  if(uncompress(ud, &us, cd, cs) != Z_OK)
     {
     vtkErrorMacro("Zlib error while uncompressing data.");
     return 0;
     }
 
   // Make sure the output size matched that expected.
-  if(decSize != uncompressedSize)
+  if(us != static_cast<uLongf>(uncompressedSize))
     {
     vtkErrorMacro("Decompression produced incorrect size.\n"
-                  "Expected " << uncompressedSize << " and got " << decSize);
+                  "Expected " << uncompressedSize << " and got " << us);
     return 0;
     }
 
-  return decSize;
+  return static_cast<size_t>(us);
 }
 
 //----------------------------------------------------------------------------
-unsigned long
-vtkZLibDataCompressor::GetMaximumCompressionSpace(unsigned long size)
+size_t
+vtkZLibDataCompressor::GetMaximumCompressionSpace(size_t size)
 {
   // ZLib specifies that destination buffer must be 0.1% larger + 12 bytes.
   return size + (size+999)/1000 + 12;

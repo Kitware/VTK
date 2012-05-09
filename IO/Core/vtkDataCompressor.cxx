@@ -33,22 +33,22 @@ void vtkDataCompressor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long
-vtkDataCompressor::Compress(const unsigned char* uncompressedData,
-                            unsigned long uncompressedSize,
+size_t
+vtkDataCompressor::Compress(unsigned char const* uncompressedData,
+                            size_t uncompressedSize,
                             unsigned char* compressedData,
-                            unsigned long compressionSpace)
+                            size_t compressionSpace)
 {
   return this->CompressBuffer(uncompressedData, uncompressedSize,
                               compressedData, compressionSpace);
 }
 
 //----------------------------------------------------------------------------
-unsigned long
-vtkDataCompressor::Uncompress(const unsigned char* compressedData,
-                              unsigned long compressedSize,
+size_t
+vtkDataCompressor::Uncompress(unsigned char const* compressedData,
+                              size_t compressedSize,
                               unsigned char* uncompressedData,
-                              unsigned long uncompressedSize)
+                              size_t uncompressedSize)
 {
   return this->UncompressBuffer(compressedData, compressedSize,
                                 uncompressedData, uncompressedSize);
@@ -56,11 +56,11 @@ vtkDataCompressor::Uncompress(const unsigned char* compressedData,
 
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray*
-vtkDataCompressor::Compress(const unsigned char* uncompressedData,
-                            unsigned long uncompressedSize)
+vtkDataCompressor::Compress(unsigned char const* uncompressedData,
+                            size_t uncompressedSize)
 {
   // Get the amount of space needed for compressed data.
-  unsigned long compressionSpace =
+  size_t compressionSpace =
     this->GetMaximumCompressionSpace(uncompressedSize);
 
   // Allocate a buffer.
@@ -70,7 +70,7 @@ vtkDataCompressor::Compress(const unsigned char* uncompressedData,
   unsigned char* compressedData = outputArray->GetPointer(0);
 
   // Compress the data.
-  unsigned long compressedSize =
+  size_t compressedSize =
     this->CompressBuffer(uncompressedData, uncompressedSize,
                          compressedData, compressionSpace);
 
@@ -89,9 +89,9 @@ vtkDataCompressor::Compress(const unsigned char* uncompressedData,
 
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray*
-vtkDataCompressor::Uncompress(const unsigned char* compressedData,
-                              unsigned long compressedSize,
-                              unsigned long uncompressedSize)
+vtkDataCompressor::Uncompress(unsigned char const* compressedData,
+                              size_t compressedSize,
+                              size_t uncompressedSize)
 {
   // Allocate a buffer.
   vtkUnsignedCharArray* outputArray = vtkUnsignedCharArray::New();
@@ -100,7 +100,7 @@ vtkDataCompressor::Uncompress(const unsigned char* compressedData,
   unsigned char* uncompressedData = outputArray->GetPointer(0);
 
   // Decompress the data.
-  unsigned long decSize =
+  size_t decSize =
     this->UncompressBuffer(compressedData, compressedSize,
                            uncompressedData, uncompressedSize);
 
