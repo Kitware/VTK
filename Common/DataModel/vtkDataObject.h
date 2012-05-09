@@ -124,11 +124,6 @@ public:
   // arrays, etc. are not included in the return value).
   virtual unsigned long GetActualMemorySize();
 
-  // Description:
-  // By default, there is no type specific information
-  virtual void CopyTypeSpecificInformation( vtkDataObject*)
-    {}
-
    // Description:
    // Copy information about this data object from the
    // pipeline information to its own Information.

@@ -76,7 +76,7 @@ public:
   // Add an input of this algorithm.  Note that these methods support
   // old-style pipeline connections.  When writing new code you should
   // use the more general vtkAlgorithm::AddInputConnection().  See
-  // SetInput() for details.
+  // SetInputData() for details.
   void AddInputData(vtkDataObject *);
   void AddInputData(int, vtkDataObject*);
 
@@ -102,12 +102,6 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
-
-  // Description:
-  // This method is the old style execute method
-  virtual void ExecuteDataWithInformation(vtkDataObject *output,
-                                          vtkInformation* outInfo);
-  virtual void Execute();
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);

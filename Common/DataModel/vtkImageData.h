@@ -295,9 +295,6 @@ public:
   static bool HasNumberOfScalarComponents(vtkInformation* meta_data);
   int GetNumberOfScalarComponents();
 
-  // Must only be called with vtkImageData (or subclass) as input
-  virtual void CopyTypeSpecificInformation( vtkDataObject *image );
-
   // Description:
   // Override these to handle origin, spacing, scalar type, and scalar
   // number of components.  See vtkDataObject for details.

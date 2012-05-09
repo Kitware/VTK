@@ -137,22 +137,6 @@ void vtkImageData::PrepareForNewData()
     }
 }
 
-
-//----------------------------------------------------------------------------
-
-// The input data object must be of type vtkImageData or a subclass!
-void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
-{
-  vtkImageData *image = static_cast<vtkImageData *>(data);
-
-  // Now do the specific stuff
-  this->SetOrigin( image->GetOrigin() );
-  this->SetSpacing( image->GetSpacing() );
-  //this->SetScalarType( image->GetScalarType() );
-  //this->SetNumberOfScalarComponents(
-  //image->GetNumberOfScalarComponents() );
-}
-
 //----------------------------------------------------------------------------
 template <class T>
 unsigned long vtkImageDataGetTypeSize(T*)
