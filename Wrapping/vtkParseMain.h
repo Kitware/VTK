@@ -45,6 +45,7 @@ typedef struct _OptionInfo
   char         *OutputFileName;
   char         *HintFileName;
   char         *HierarchyFileName;
+  char         *IncludesFileName;
   int           IsVTKObject;
   int           IsSpecialObject;
   int           IsConcrete;

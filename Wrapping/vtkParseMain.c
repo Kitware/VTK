@@ -53,6 +53,7 @@ static int check_options(int argc, char *argv[])
   options.IsSpecialObject = 0;
   options.HierarchyFileName = 0;
   options.HintFileName = 0;
+  options.IncludesFileName = 0;
 
   for (i = 1; i < argc && argv[i][0] == '-'; i++)
     {
@@ -120,6 +121,15 @@ static int check_options(int argc, char *argv[])
         }
       vtkParse_UndefineMacro(argv[i]);
       }
+    else if (strcmp(argv[i], "--includes") == 0)
+      {
+      i++;
+      if (i >= argc || argv[i][0] == '-')
+        {
+        return -1;
+        }
+      options.IncludesFileName = argv[i];
+      }
     else if (strcmp(argv[i], "--help") == 0)
       {
       vtk_parse_help = 1;
@@ -133,6 +143,20 @@ static int check_options(int argc, char *argv[])
   return i;
 }
 
+static void vtk_parse_includes_file(FILE* ifile)
+{
+  char line [4096];
+  while (fgets (line, sizeof line, ifile) != NULL)
+  {
+    size_t len = strlen(line);
+    if (line[len - 1] == '\n')
+    {
+      line[len - 1] = '\0';
+    }
+    vtkParse_IncludeDirectory(line);
+  }
+}
+
 /* Return a pointer to the static OptionInfo struct */
 OptionInfo *vtkParse_GetCommandLineOptions()
 {
@@ -143,17 +167,18 @@ static void vtk_parse_print_help(FILE *stream, const char *cmd)
 {
   fprintf(stream,
     "Usage: %s [options] input_file output_file\n"
-    "  --help          print this help message\n"
-    "  --version       print the VTK version\n"
-    "  --concrete      force concrete class\n"
-    "  --abstract      force abstract class\n"
-    "  --vtkobject     vtkObjectBase-derived class\n"
-    "  --special       non-vtkObjectBase class\n"
-    "  --hints <file>  the hints file to use\n"
-    "  --types <file>  the type hierarchy file to use\n"
-    "  -I <dir>        add an include directory\n"
-    "  -D <macro>      define a preprocessor macro\n"
-    "  -U <macro>      undefine a preprocessor macro\n",
+    "  --help            print this help message\n"
+    "  --version         print the VTK version\n"
+    "  --concrete        force concrete class\n"
+    "  --abstract        force abstract class\n"
+    "  --vtkobject       vtkObjectBase-derived class\n"
+    "  --special         non-vtkObjectBase class\n"
+    "  --hints <file>    the hints file to use\n"
+    "  --types <file>    the type hierarchy file to use\n"
+    "  --includes <file> a file listing include directories one per line\n"
+    "  -I <dir>          add an include directory\n"
+    "  -D <macro>        define a preprocessor macro\n"
+    "  -U <macro>        undefine a preprocessor macro\n",
     cmd);
 }
 
@@ -164,6 +189,7 @@ int main(int argc, char *argv[])
   FILE *ifile;
   FILE *ofile;
   FILE *hfile = 0;
+  FILE *incfile =0;
   const char *cp;
   char *classname;
   size_t i;
@@ -201,6 +227,18 @@ int main(int argc, char *argv[])
     {
     vtk_parse_print_help(stdout, argv[0]);
     exit(0);
+    }
+
+  if(options.IncludesFileName)
+    {
+    incfile = fopen(options.IncludesFileName, "r");
+    if (!incfile)
+      {
+      fprintf(stderr,"Error opening include directories file %s\n", options.IncludesFileName);
+      exit(1);
+      }
+     vtk_parse_includes_file(incfile);
+     fclose(incfile);
     }
 
   options.InputFileName = argv[argi++];
