@@ -45,7 +45,6 @@ set(Module_SRCS
   vtkImageProperty.cxx
   vtkImageSlice.cxx
   vtkImageSliceMapper.cxx
-  vtkImagingFactory.cxx
   vtkInteractorEventRecorder.cxx
   vtkInteractorObserver.cxx
   vtkLightActor.cxx

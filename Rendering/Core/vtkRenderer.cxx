@@ -22,7 +22,7 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
@@ -43,8 +43,8 @@ vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRenderer);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkRenderer)
 //----------------------------------------------------------------------------
 
 // Create a vtkRenderer with a black background, a white ambient light,
@@ -160,14 +160,6 @@ vtkRenderer::~vtkRenderer()
     {
     this->BackgroundTexture->Delete();
     }
-}
-
-// return the correct type of Renderer
-vtkRenderer *vtkRenderer::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderer");
-  return static_cast<vtkRenderer *>(ret);
 }
 
 // Concrete render method.

@@ -15,11 +15,10 @@
 
 #include "vtkLightingPainter.h"
 
-#include "vtkGraphicsFactory.h"
 #include "vtkObjectFactory.h"
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkLightingPainter);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkLightingPainter)
 //-----------------------------------------------------------------------------
 vtkLightingPainter::vtkLightingPainter()
 {
@@ -28,13 +27,6 @@ vtkLightingPainter::vtkLightingPainter()
 //-----------------------------------------------------------------------------
 vtkLightingPainter::~vtkLightingPainter()
 {
-}
-
-//-----------------------------------------------------------------------------
-vtkLightingPainter* vtkLightingPainter::New()
-{
-  vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkLightingPainter");
-  return static_cast<vtkLightingPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------

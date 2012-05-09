@@ -21,7 +21,6 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLookupTable.h"
@@ -39,7 +38,8 @@
 #include <assert.h>
 #include <vector>
 
-vtkInstantiatorNewMacro(vtkGlyph3DMapper);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper)
 
 template <class T>
 static T vtkClamp(T val, T min, T max)
@@ -47,14 +47,6 @@ static T vtkClamp(T val, T min, T max)
   val = val < min? min : val;
   val = val > max? max : val;
   return val;
-}
-//----------------------------------------------------------------------------
-// return the correct type of vtkGlyph3DMapper
-vtkGlyph3DMapper *vtkGlyph3DMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkGlyph3DMapper");
-  return static_cast<vtkGlyph3DMapper *>(ret);
 }
 
 // ---------------------------------------------------------------------------

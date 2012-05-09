@@ -16,7 +16,7 @@
 
 #include "vtkMath.h"
 #include "vtkTimeStamp.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkPerspectiveTransform.h"
 #include "vtkTransform.h"
 #include "vtkCallbackCommand.h"
@@ -25,7 +25,7 @@
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkCamera);
+vtkAbstractObjectFactoryNewMacro(vtkCamera)
 
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkCamera, ModelTransformMatrix, vtkMatrix4x4);
@@ -35,7 +35,7 @@ class vtkCameraCallbackCommand : public vtkCommand
 {
 public:
   static vtkCameraCallbackCommand *New()
-    { return new vtkCameraCallbackCommand; };
+    { return new vtkCameraCallbackCommand; }
   vtkCamera *Self;
   void Execute(vtkObject *, unsigned long, void *)
     {
@@ -48,8 +48,8 @@ public:
         }
     }
 protected:
-  vtkCameraCallbackCommand() { this->Self = NULL; };
-  ~vtkCameraCallbackCommand() {};
+  vtkCameraCallbackCommand() { this->Self = NULL; }
+  ~vtkCameraCallbackCommand() {}
 };
 
 //----------------------------------------------------------------------------
@@ -175,23 +175,11 @@ vtkCamera::~vtkCamera()
 }
 
 //----------------------------------------------------------------------------
-// return the correct type of Camera
-vtkCamera *vtkCamera::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkCamera");
-  return static_cast<vtkCamera *>(ret);
-}
-
-//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 // The first set of methods deal exclusively with the ViewTransform, which
 // is the only transform which is set up entirely in the camera.  The
 // perspective transform must be set up by the Renderer because the
 // Camera doesn't know the Renderer's aspect ratio.
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
-
 //----------------------------------------------------------------------------
 void vtkCamera::SetPosition(double x, double y, double z)
 {
