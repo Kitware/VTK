@@ -203,6 +203,7 @@ int TestMoleculeSelection(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   ren->AddActor(actor.GetPointer());
   vtkNew<vtkRenderWindow> win;
+  win->SetMultiSamples(0);
   win->AddRenderer(ren.GetPointer());
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win.GetPointer());
