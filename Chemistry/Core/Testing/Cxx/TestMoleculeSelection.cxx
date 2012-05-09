@@ -17,79 +17,68 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkExtractSelectedFrustum.h"
-#include "vtkGraphToPolyData.h"
 #include "vtkHardwareSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInteractorStyleRubberBandPick.h"
-#include "vtkInformation.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
-#include "vtkPlane.h"
-#include "vtkPlanes.h"
-#include "vtkPointData.h"
 #include "vtkProp3DCollection.h"
 #include "vtkRenderedAreaPicker.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 #include "vtkSelection.h"
-#include "vtkSmartPointer.h"
 #include "vtkTrivialProducer.h"
-#include "vtkUnstructuredGrid.h"
 
 class MoleculePickCommand : public vtkCommand
 {
 protected:
-  vtkSmartPointer<vtkIdTypeArray> AtomIds;
-  vtkSmartPointer<vtkIdTypeArray> BondIds;
-  vtkSmartPointer<vtkRenderer> Renderer;
-  vtkSmartPointer<vtkAreaPicker> Picker;
-  vtkSmartPointer<vtkAlgorithm> MoleculeSource;
-  vtkSmartPointer<vtkMoleculeMapper> MoleculeMapper;
+  vtkNew<vtkIdTypeArray> AtomIds;
+  vtkNew<vtkIdTypeArray> BondIds;
+  vtkRenderer *Renderer;
+  vtkAreaPicker *Picker;
+  vtkAlgorithm *MoleculeSource;
+  vtkMoleculeMapper *MoleculeMapper;
 
 public:
   static MoleculePickCommand * New() {return new MoleculePickCommand;}
   vtkTypeMacro(MoleculePickCommand, vtkCommand);
 
-  MoleculePickCommand() :
-    AtomIds(vtkSmartPointer<vtkIdTypeArray>::New()),
-    BondIds(vtkSmartPointer<vtkIdTypeArray>::New()),
-    Renderer(),
-    Picker(),
-    MoleculeSource(),
-    MoleculeMapper()
+  MoleculePickCommand()
   {
   }
 
   virtual ~MoleculePickCommand()
   {
-    this->SetRenderer(NULL);
-    this->SetPicker(NULL);
-    this->SetMoleculeSource(NULL);
-    this->SetMoleculeMapper(NULL);
-    this->AtomIds = NULL;
-    this->BondIds = NULL;
   }
 
   vtkIdTypeArray *GetAtomIds()
   {
     return this->AtomIds.GetPointer();
   }
+
   vtkIdTypeArray *GetBondIds()
   {
     return this->BondIds.GetPointer();
   }
-  void SetRenderer(vtkRenderer *r) {this->Renderer = r;}
-  void SetPicker(vtkAreaPicker *p) {this->Picker = p;}
+
+  void SetRenderer(vtkRenderer *r)
+  {
+    this->Renderer = r;
+  }
+
+  void SetPicker(vtkAreaPicker *p) 
+  {
+    this->Picker = p;
+  }
+
   void SetMoleculeSource(vtkAlgorithm *m)
   {
     this->MoleculeSource = m;
   }
+
   void SetMoleculeMapper(vtkMoleculeMapper *m)
   {
     this->MoleculeMapper = m;
@@ -112,8 +101,10 @@ public:
             static_cast<unsigned int>(this->Renderer->GetPickY2()));
       // Make the actual pick and pass the result to the convenience function
       // defined earlier
-      this->SetIdArrays(selector->Select());
+      vtkSelection *result = selector->Select();
+      this->SetIdArrays(result);
       this->DumpMolSelection();
+      result->Delete();
       }
   }
 
@@ -212,6 +203,7 @@ int TestMoleculeSelection(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   ren->AddActor(actor.GetPointer());
   vtkNew<vtkRenderWindow> win;
+  win->SetMultiSamples(0);
   win->AddRenderer(ren.GetPointer());
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(win.GetPointer());
@@ -249,8 +241,6 @@ int TestMoleculeSelection(int argc, char *argv[])
     {
     iren->Start();
     }
-
-  picker->RemoveObserver(com.GetPointer());
 
   // Verify pick
   if (com->GetAtomIds()->GetValue(0) != 0  ||
