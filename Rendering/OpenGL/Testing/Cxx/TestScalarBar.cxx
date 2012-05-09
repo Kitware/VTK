@@ -69,7 +69,6 @@ int TestScalarBar( int argc, char *argv[] )
   outlineActor->SetMapper( outlineMapper );
 
   // Create the RenderWindow, Renderer and all Actors
-  //
   vtkSmartPointer<vtkRenderer> ren1 =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin =
