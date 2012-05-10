@@ -51,6 +51,7 @@ vtkAutoCorrelativeStatistics::~vtkAutoCorrelativeStatistics()
 void vtkAutoCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "AutoCorrelationOffset: " << this->AutoCorrelationOffset << "\n";
 }
 
 // ----------------------------------------------------------------------
