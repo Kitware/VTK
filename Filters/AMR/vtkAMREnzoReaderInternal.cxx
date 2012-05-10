@@ -126,8 +126,8 @@ const char * GetEnzoMajorFileName( const char * path )
 
 const char * GetEnzoDirectory( const char * path )
 {
-  int start;
-  GetEnzoMajorFileName( path, start );
+//  int start;
+//  GetEnzoMajorFileName( path, start );
   std::string mydir = vtksys::SystemTools::GetFilenamePath( std::string(path) );
   return mydir.c_str( );
 }
@@ -394,6 +394,7 @@ vtkEnzoReaderInternal::~vtkEnzoReaderInternal()
 {
   this->ReleaseDataArray();
   this->Init();
+  this->FileName = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -846,7 +847,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
 //      std::cout << "szname: " << szName.c_str() << std::endl;
 //      std::cout.flush();
       tmpBlk.BlockFileName = this->DirectoryName + "/" +
-                             GetEnzoMajorFileName( szName.c_str() );
+                        std::string( GetEnzoMajorFileName( szName.c_str() ) );
 
       // obtain the particle file name (szName includes the full path)
       while ( theStr != "NumberOfParticles" )
@@ -865,7 +866,7 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
         stream >> theStr; // '='
         stream >> szName;
         tmpBlk.ParticleFileName = this->DirectoryName + "/" +
-                                  GetEnzoMajorFileName( szName.c_str() );
+                         std::string( GetEnzoMajorFileName( szName.c_str() ) );
         }
 
       tmpBlk.Level    = levlId;
