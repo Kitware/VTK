@@ -459,7 +459,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       {
       derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
       }
-    }
+    } // nRow
 
   // Finally set second block of output meta port to derived statistics table
   inMeta->SetNumberOfBlocks( 2 );
