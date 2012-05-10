@@ -104,7 +104,6 @@ public class vtkReferenceInformation {
         return builder.toString();
     }
 
-    @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder(50);
         builder.append("VTK Gabage Collection: free(");

@@ -75,7 +75,6 @@ public class Demo extends JPanel {
             this.actorToAdd = a;
         }
 
-        @Override
         public void run() {
             this.renderer.AddActor(this.actorToAdd);
             this.panel.Render();
@@ -89,7 +88,6 @@ public class Demo extends JPanel {
         private vtkShrinkFilter shrink;
         private vtkSphereSource sphere;
 
-        @Override
         public vtkActor call() throws Exception {
             // New
             actor = new vtkActor();
@@ -157,7 +155,6 @@ public class Demo extends JPanel {
         this.nbSeconds = 0;
         new Timer(1000, new ActionListener() {
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 if (nbSeconds++ < 10) {
                     panel3d.resetCamera();
@@ -190,7 +187,6 @@ public class Demo extends JPanel {
 
         // Start/Stop the GC based on the checkbox
         runGC.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent arg0) {
                 vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector().SetAutoGarbageCollection(runGC.isSelected());
             }
@@ -198,7 +194,6 @@ public class Demo extends JPanel {
 
         // Change GC mode based on the checkbox
         debugMode.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent arg0) {
                 vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector().SetDebug(debugMode.isSelected());
             }
@@ -238,7 +233,6 @@ public class Demo extends JPanel {
     // -----------------------------------------------------------------
     public static void main(String[] args) throws InterruptedException, InvocationTargetException {
         SwingUtilities.invokeLater(new Runnable() {
-            @Override
             public void run() {
                 Demo app = new Demo();
 
