@@ -90,7 +90,7 @@ if(VTK_DATA_ROOT)
     TestMultiTexturing.cxx
     TestMultiTexturingTransform.cxx
     TestGlyph3DMapperArrow.cxx
-    #TestScalarBar.cxx
+    TestScalarBar.cxx
     TestScenePicker.cxx
     TestTextureRGBA.cxx
     TestTextureRGBADepthPeeling.cxx
