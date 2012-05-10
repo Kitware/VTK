@@ -39,7 +39,7 @@ public:
   // Description:
   // Seek to the given offset in the input data.  Returns 1 for
   // success, 0 for failure.
-  int Seek(vtkIOStreamOff offset);
+  int Seek(vtkTypeInt64 offset);
 
   // Description:
   // Read input data of the given length.  Returns amount actually

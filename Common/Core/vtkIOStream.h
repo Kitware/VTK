@@ -57,9 +57,6 @@ using std::fstream;
 #pragma warning(pop)
 #endif
 
-typedef std::streampos vtkIOStreamPos;
-typedef std::streamoff vtkIOStreamOff;
-
 #if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
 
 # if !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
