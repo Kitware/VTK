@@ -159,11 +159,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as1->Update();
 
   // Get output data and meta tables
-  vtkTable* outputData1 = as1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
   vtkMultiBlockDataSet* outputMetaAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputPrimary1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 0 ) );
   vtkTable* outputDerived1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 1 ) );
-  vtkTable* outputTest1 = as1->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "\n## Calculated the following primary statistics for first data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
@@ -282,7 +280,6 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   vtkMultiBlockDataSet* outputMetaAS2 = vtkMultiBlockDataSet::SafeDownCast( as2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   vtkTable* outputPrimary4 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 0 ) );
   vtkTable* outputDerived4 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 1 ) );
-  vtkTable* outputTest4 = as2->GetOutput( vtkStatisticsAlgorithm::OUTPUT_TEST );
 
   cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="
        << nVals
