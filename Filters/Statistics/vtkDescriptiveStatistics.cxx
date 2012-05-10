@@ -39,7 +39,7 @@
 #include <vtksys/ios/sstream>
 #include <limits>
 
-vtkStandardNewMacro(vtkDescriptiveStatistics);
+vtkObjectFactoryNewMacro(vtkDescriptiveStatistics)
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()

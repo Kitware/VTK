@@ -40,7 +40,7 @@
 
 #include <vtksys/ios/sstream>
 
-vtkStandardNewMacro(vtkCorrelativeStatistics);
+vtkObjectFactoryNewMacro(vtkCorrelativeStatistics)
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()
