@@ -78,5 +78,6 @@ int TestEnzoReader( int argc, char *argv[] )
     } // END for all levels
 
   myEnzoReader->Delete();
+  delete [] fileName;
   return( rc );
 }

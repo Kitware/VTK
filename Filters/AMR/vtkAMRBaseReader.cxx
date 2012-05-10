@@ -42,6 +42,8 @@ vtkAMRBaseReader::vtkAMRBaseReader()
   this->LoadedMetaData     = false;
   this->NumBlocksFromCache = 0;
   this->NumBlocksFromFile  = 0;
+  this->EnableCaching      = 0;
+  this->Cache              = NULL;
 }
 
 //------------------------------------------------------------------------------
