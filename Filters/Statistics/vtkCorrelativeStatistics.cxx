@@ -387,8 +387,6 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   for ( int i = 0; i < nRow; ++ i )
     {
-    vtkStdString c1 = primaryTab->GetValueByName( i, "Variable X" ).ToString();
-    vtkStdString c2 = primaryTab->GetValueByName( i, "Variable Y" ).ToString();
     double m2X = primaryTab->GetValueByName( i, "M2 X" ).ToDouble();
     double m2Y = primaryTab->GetValueByName( i, "M2 Y" ).ToDouble();
     double mXY = primaryTab->GetValueByName( i, "M XY" ).ToDouble();
