@@ -50,6 +50,8 @@ vtkContourGrid::vtkContourGrid()
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
 
+  this->OutputPointsPrecision = DEFAULT_PRECISION;
+
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
@@ -132,6 +134,21 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
     }
 
   newPts = vtkPoints::New();
+
+  // set precision for the points in the output
+  if(self->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION)
+    {
+    newPts->SetDataType(grid->GetPoints()->GetDataType());
+    }
+  else if(self->GetOutputPointsPrecision() == vtkAlgorithm::SINGLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_FLOAT);
+    }
+  else if(self->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
+    {
+    newPts->SetDataType(VTK_DOUBLE);
+    }
+
   newPts->Allocate(estimatedSize,estimatedSize);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize,estimatedSize);
@@ -408,6 +425,17 @@ void vtkContourGrid::CreateDefaultLocator()
     }
 }
 
+void vtkContourGrid::SetOuputPointsPrecision(int precision)
+{
+  this->OutputPointsPrecision = precision;
+  this->Modified();
+}
+
+int vtkContourGrid::GetOutputPointsPrecision() const
+{
+  return this->OutputPointsPrecision;
+}
+
 int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
@@ -437,4 +465,7 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+
+  os << indent << "Precision of the output points: "
+     << this->OutputPointsPrecision << "\n";
 }
