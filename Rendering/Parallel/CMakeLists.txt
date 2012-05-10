@@ -42,6 +42,7 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkCompositeRGBAPass
+  vtkCompositeZPass
   WRAP_EXCLUDE
   )
 
