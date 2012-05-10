@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    vtkCorrelativeStatistics.h
+Module:    vtkAutoCorrelativeStatistics.h
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -12,34 +12,18 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2011 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
-// .NAME vtkCorrelativeStatistics - A class for bivariate linear correlation
+// .NAME vtkAutoCorrelativeStatistics - A class for univariate auto-correlative statistics
 //
 // .SECTION Description
-// Given a selection of pairs of columns of interest, this class provides the
-// following functionalities, depending on the chosen execution options:
-// * Learn: calculate extremal values, sample mean, and M2 aggregates
-//   (cf. P. Pebay, Formulas for robust, one-pass parallel computation of covariances
-//   and Arbitrary-Order Statistical Moments, Sandia Report SAND2008-6212, Sep 2008,
-//   http://infoserve.sandia.gov/sand_doc/2008/086212.pdf for details)
-// * Derive: calculate unbiased covariance matrix estimators and its determinant,
-//   linear regressions, and Pearson correlation coefficient.
-// * Assess: given an input data set, two means and a 2x2 covariance matrix,
-//   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
-//   distance).
-// * Test: Perform Jarque-Bera-Srivastava test of 2-d normality
+// Given a selection of columns of interest in an input data table, this
+// class provides the following functionalities, depending on the chosen
+// execution options:
 //
 // .SECTION Thanks
-// Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
-// for implementing this class.
-// Updated by Philippe Pebay, Kitware SAS 2012
+// This class was written by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkCorrelativeStatistics_h
-#define __vtkCorrelativeStatistics_h
+#ifndef __vtkAutoCorrelativeStatistics_h
+#define __vtkAutoCorrelativeStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"
@@ -50,12 +34,20 @@ class vtkTable;
 class vtkVariant;
 class vtkDoubleArray;
 
-class VTKFILTERSSTATISTICS_EXPORT vtkCorrelativeStatistics : public vtkStatisticsAlgorithm
+class VTKFILTERSSTATISTICS_EXPORT vtkAutoCorrelativeStatistics : public vtkStatisticsAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCorrelativeStatistics, vtkStatisticsAlgorithm);
+  vtkTypeMacro(vtkAutoCorrelativeStatistics, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkCorrelativeStatistics* New();
+  static vtkAutoCorrelativeStatistics* New();
+
+  // Description:
+  // Set/get whether the offset between input data table rows to be used 
+  // to calculate auto-correlation. This offset cannot be negative.
+  // The default is 0, meaning that by default the auto-correlation matrix is
+  // the identity matrix scaled by the value of the variance.
+  vtkSetClampMacro(AutoCorrelationOffset,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(AutoCorrelationOffset,vtkIdType);
 
   // Description:
   // Given a collection of models, calculate aggregate model
@@ -63,11 +55,12 @@ public:
                           vtkMultiBlockDataSet* );
 
 protected:
-  vtkCorrelativeStatistics();
-  ~vtkCorrelativeStatistics();
+  vtkAutoCorrelativeStatistics();
+  ~vtkAutoCorrelativeStatistics();
 
   // Description:
-  // Execute the calculations required by the Learn option.
+  // Execute the calculations required by the Learn option, given some input Data
+  // NB: input parameters are unused.
   virtual void Learn( vtkTable*,
                       vtkTable*,
                       vtkMultiBlockDataSet* );
@@ -80,14 +73,14 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* );
+                     vtkTable* ) { return; };
 
   // Description:
   // Execute the calculations required by the Assess option.
   virtual void Assess( vtkTable* inData,
                        vtkMultiBlockDataSet* inMeta,
                        vtkTable* outData )
-  { this->Superclass::Assess( inData, inMeta, outData, 2 ); }
+  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
 //BTX
   // Description:
@@ -103,9 +96,11 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
+  vtkIdType AutoCorrelationOffset;
+
 private:
-  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
-  void operator=(const vtkCorrelativeStatistics&);   // Not implemented
+  vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented
+  void operator = ( const vtkAutoCorrelativeStatistics& );   // Not implemented
 };
 
 #endif
