@@ -42,38 +42,6 @@ public:
   static vtkAutoCorrelativeStatistics* New();
 
   // Description:
-  // Set/get whether the unbiased estimator for the variance should be used, or if
-  // the population variance will be calculated.
-  // The default is that the unbiased estimator will be used.
-  vtkSetMacro(UnbiasedVariance,int);
-  vtkGetMacro(UnbiasedVariance,int);
-  vtkBooleanMacro(UnbiasedVariance,int);
-
-  // Description:
-  // Set/get whether the G1 estimator for the skewness should be used, or if
-  // the g1 skewness will be calculated.
-  // The default is that the g1 skewness estimator will be used.
-  vtkSetMacro(G1Skewness,int);
-  vtkGetMacro(G1Skewness,int);
-  vtkBooleanMacro(G1Skewness,int);
-
-  // Description:
-  // Set/get whether the G2 estimator for the kurtosis should be used, or if
-  // the g2 kurtosis will be calculated.
-  // The default is that the g2 kurtosis estimator will be used.
-  vtkSetMacro(G2Kurtosis,int);
-  vtkGetMacro(G2Kurtosis,int);
-  vtkBooleanMacro(G2Kurtosis,int);
-
-  // Description:
-  // Set/get whether the deviations returned should be signed, or should
-  // only have their magnitude reported.
-  // The default is that signed deviations will be computed.
-  vtkSetMacro(SignedDeviations,int);
-  vtkGetMacro(SignedDeviations,int);
-  vtkBooleanMacro(SignedDeviations,int);
-
-  // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* );
@@ -97,7 +65,7 @@ protected:
   // Execute the calculations required by the Test option.
   virtual void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* );
+                     vtkTable* ) { return; };
 
   // Description:
   // Execute the calculations required by the Assess option.
@@ -119,11 +87,6 @@ protected:
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
 //ETX
-
-  int UnbiasedVariance;
-  int G1Skewness;
-  int G2Kurtosis;
-  int SignedDeviations;
 
 private:
   vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented
