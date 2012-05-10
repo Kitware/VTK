@@ -43,10 +43,10 @@ public:
 
   // Description:
   // Set/get whether the offset between input data table rows to be used 
-  // to calculate auto-correlation.
-  // The default is 1, meaning that correlation between consecutive rows
-  // will be calculated.
-  vtkSetMacro(AutoCorrelationOffset,vtkIdType);
+  // to calculate auto-correlation. This offset cannot be negative.
+  // The default is 0, meaning that by default the auto-correlation matrix is
+  // the identity matrix scaled by the value of the variance.
+  vtkSetClampMacro(AutoCorrelationOffset,vtkIdType,0,VTK_LARGE_ID);
   vtkGetMacro(AutoCorrelationOffset,vtkIdType);
 
   // Description:

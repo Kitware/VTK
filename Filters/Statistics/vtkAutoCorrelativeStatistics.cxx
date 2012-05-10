@@ -40,6 +40,8 @@ vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
+
+  this->AutoCorrelationOffset = 0; // By default, autocorrelation matrix is var x Id2
 }
 
 // ----------------------------------------------------------------------
@@ -185,8 +187,15 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
+  // Verify that number of rows is sufficent for the specified offset
+  vtkIdType nRow = inData->GetNumberOfRows() - this->AutoCorrelationOffset;
+  if ( nRow < 0 )
+    {
+    // Not enough data for specified offset
+    nRow = 0;
+    }
+
   // Loop over requests
-  vtkIdType nRow = inData->GetNumberOfRows();
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -201,16 +210,42 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    // FIXME: calculate stuff here
+    double meanX = 0.;
+    double meanY = 0.;
+    double mom2X = 0.;
+    double mom2Y = 0.;
+    double momXY = 0.;
 
-    // FIXME: end calculations here
+    double inv_n, x, y, delta, deltaXn;
+    for ( vtkIdType r = 0; r < nRow; ++ r )
+      {
+      inv_n = 1. / ( r + 1. );
+
+      x = inData->GetValueByName( r, varName ).ToDouble();
+      delta = x - meanX;
+      meanX += delta * inv_n;
+      deltaXn = x - meanX;
+      mom2X += delta * deltaXn;
+
+      y = inData->GetValueByName( r + this->AutoCorrelationOffset, varName ).ToDouble();
+      delta = y - meanY;
+      meanY += delta * inv_n;
+      mom2Y += delta * ( y - meanY );
+
+      momXY += delta * deltaXn;
+      }
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( 2 );
+    row->SetNumberOfValues( 7 );
 
     row->SetValue( 0, varName );
     row->SetValue( 1, nRow );
+    row->SetValue( 2, meanX );
+    row->SetValue( 3, meanY );
+    row->SetValue( 4, mom2X );
+    row->SetValue( 5, mom2Y );
+    row->SetValue( 6, momXY );
 
     primaryTab->InsertNextRow( row );
 

@@ -316,7 +316,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( 8 );
+    row->SetNumberOfValues( 7 );
 
     row->SetValue( 0, nRow );
     row->SetValue( 1, colX );
