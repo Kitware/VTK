@@ -76,7 +76,6 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkHierarchicalBoxDataSet", // OBSOLETE
   "vtkGenericDataSet",
   "vtkHyperOctree",
-  "vtkHyperTreeGrid",
   "vtkTemporalDataSet",
   "vtkTable",
   "vtkGraph",
@@ -91,6 +90,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkUniformGridAMR",
   "vtkNonOverlappingAMR",
   "vtkOverlappingAMR",
+  "vtkHyperTreeGrid",
   "vtkMolecule",
   NULL
 };

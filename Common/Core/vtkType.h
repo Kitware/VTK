@@ -96,6 +96,7 @@
 #define VTK_NON_OVERLAPPING_AMR            30
 #define VTK_OVERLAPPING_AMR                31
 #define VTK_HYPER_TREE_GRID                32
+#define VTK_MOLECULE                       33
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
 #if defined(__cplusplus)
