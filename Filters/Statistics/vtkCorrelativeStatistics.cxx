@@ -316,7 +316,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( 7 );
+    row->SetNumberOfValues( 8 );
 
     row->SetValue( 0, nRow );
     row->SetValue( 1, colX );
@@ -330,7 +330,7 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
     primaryTab->InsertNextRow( row );
 
     row->Delete();
-    }
+    } // rit
 
   // Finally set first block of output meta port to primary statistics table
   outMeta->SetNumberOfBlocks( 1 );
