@@ -42,6 +42,14 @@ public:
   static vtkAutoCorrelativeStatistics* New();
 
   // Description:
+  // Set/get whether the offset between input data table rows to be used 
+  // to calculate auto-correlation.
+  // The default is 1, meaning that correlation between consecutive rows
+  // will be calculated.
+  vtkSetMacro(AutoCorrelationOffset,vtkIdType);
+  vtkGetMacro(AutoCorrelationOffset,vtkIdType);
+
+  // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* );
@@ -87,6 +95,8 @@ protected:
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
 //ETX
+
+  vtkIdType AutoCorrelationOffset;
 
 private:
   vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented
