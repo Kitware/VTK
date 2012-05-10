@@ -16,7 +16,7 @@
 
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
-#include "vtkVolumeRenderingFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkLargeInteger.h"
 #include "vtkMatrix4x4.h"
@@ -463,8 +463,8 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkVolumeTextureMapper2D);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkVolumeTextureMapper2D)
 //----------------------------------------------------------------------------
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
@@ -483,15 +483,6 @@ vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
     {
     delete [] this->Texture;
     }
-}
-
-
-vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret =
-    vtkVolumeRenderingFactory::CreateInstance("vtkVolumeTextureMapper2D");
-  return static_cast<vtkVolumeTextureMapper2D *>(ret);
 }
 
 void vtkVolumeTextureMapper2D::RenderSavedTexture()

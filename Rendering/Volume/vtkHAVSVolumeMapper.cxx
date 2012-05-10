@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkUnstructuredGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeRenderingFactory.h"
+#include "vtkObjectFactory.h"
 
 #include <algorithm>
 #include <set>
@@ -36,15 +36,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <math.h>
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkHAVSVolumeMapper);
-
-vtkHAVSVolumeMapper *vtkHAVSVolumeMapper::New()
-{
-  vtkObject *ret
-    = vtkVolumeRenderingFactory::CreateInstance("vtkHAVSVolumeMapper");
-  return (vtkHAVSVolumeMapper *)ret;
-}
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkHAVSVolumeMapper)
 
 //----------------------------------------------------------------------------
 // A helper class for sorting faces by their centroids
