@@ -235,29 +235,29 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    double meanX = 0.;
-    double meanY = 0.;
-    double mom2X = 0.;
-    double mom2Y = 0.;
-    double momXY = 0.;
+    double meanXs = 0.;
+    double meanXt = 0.;
+    double mom2Xs = 0.;
+    double mom2Xt = 0.;
+    double momXsXt = 0.;
 
-    double inv_n, x, y, delta, deltaXn;
+    double inv_n, xs, xt, delta, deltaXsn;
     for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       inv_n = 1. / ( r + 1. );
 
-      x = inData->GetValueByName( r, varName ).ToDouble();
-      delta = x - meanX;
-      meanX += delta * inv_n;
-      deltaXn = x - meanX;
-      mom2X += delta * deltaXn;
+      xs = inData->GetValueByName( r, varName ).ToDouble();
+      delta = xs - meanXs;
+      meanXs += delta * inv_n;
+      deltaXsn = xs - meanXs;
+      mom2Xs += delta * deltaXsn;
 
-      y = inData->GetValueByName( r + this->AutoCorrelationOffset, varName ).ToDouble();
-      delta = y - meanY;
-      meanY += delta * inv_n;
-      mom2Y += delta * ( y - meanY );
+      xt = inData->GetValueByName( r + this->AutoCorrelationOffset, varName ).ToDouble();
+      delta = xt - meanXt;
+      meanXt += delta * inv_n;
+      mom2Xt += delta * ( xt - meanXt );
 
-      momXY += delta * deltaXn;
+      momXsXt += delta * deltaXsn;
       }
 
     vtkVariantArray* row = vtkVariantArray::New();
@@ -266,11 +266,11 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
 
     row->SetValue( 0, varName );
     row->SetValue( 1, nRow );
-    row->SetValue( 2, meanX );
-    row->SetValue( 3, meanY );
-    row->SetValue( 4, mom2X );
-    row->SetValue( 5, mom2Y );
-    row->SetValue( 6, momXY );
+    row->SetValue( 2, meanXs );
+    row->SetValue( 3, meanXt );
+    row->SetValue( 4, mom2Xs );
+    row->SetValue( 5, mom2Xt );
+    row->SetValue( 6, momXsXt );
 
     primaryTab->InsertNextRow( row );
 
@@ -332,8 +332,79 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   for ( int i = 0; i < nRow; ++ i )
     {
-    // FIXME: do something here
-    }
+    double m2Xs = primaryTab->GetValueByName( i, "M2 Xs" ).ToDouble();
+    double m2Xt = primaryTab->GetValueByName( i, "M2 Xt" ).ToDouble();
+    double mXsXt = primaryTab->GetValueByName( i, "M XsXt" ).ToDouble();
+
+    double varXs, varXt, covXsXt;
+    int numSamples = primaryTab->GetValueByName(i, "Cardinality" ).ToInt();
+    if ( numSamples == 1 )
+      {
+      varXs  = 0.;
+      varXt  = 0.;
+      covXsXt = 0.;
+      }
+    else
+      {
+      double inv_nm1;
+      double n = static_cast<double>( numSamples );
+      inv_nm1 = 1. / ( n - 1. );
+      varXs  = m2Xs * inv_nm1;
+      varXt  = m2Xt * inv_nm1;
+      covXsXt = mXsXt * inv_nm1;
+      }
+
+    derivedVals[0] = varXs;
+    derivedVals[1] = varXt;
+    derivedVals[2] = covXsXt;
+    derivedVals[3] = varXs * varXt - covXsXt * covXsXt;
+
+    // There will be NaN values in linear regression if covariance matrix is not positive definite
+    double meanXs = primaryTab->GetValueByName( i, "Mean Xs" ).ToDouble();
+    double meanXt = primaryTab->GetValueByName( i, "Mean Xt" ).ToDouble();
+
+    // variable Xt on variable Xs:
+    //   slope (explicitly handle degenerate cases)
+      if ( varXs < VTK_DBL_MIN )
+        {
+        derivedVals[4] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[4] = covXsXt / varXs;
+        }
+    //   intersect
+    derivedVals[5] = meanXt - derivedVals[4] * meanXs;
+
+    //   variable Xs on variable Xt:
+    //   slope (explicitly handle degenerate cases)
+      if ( varXt < VTK_DBL_MIN )
+        {
+        derivedVals[6] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[6] = covXsXt / varXt;
+        }
+    //   intersect
+    derivedVals[7] = meanXs - derivedVals[6] * meanXt;
+
+    // correlation coefficient (be consistent with degenerate cases detected above)
+    if ( varXs < VTK_DBL_MIN
+         || varXt < VTK_DBL_MIN )
+      {
+      derivedVals[8] = vtkMath::Nan();
+      }
+    else
+      {
+      derivedVals[8] = covXsXt / sqrt( varXs * varXt );
+      }
+
+    for ( int j = 0; j < numDoubles; ++ j )
+      {
+      derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
+      }
+    } // nRow
 
   // Finally set second block of output meta port to derived statistics table
   inMeta->SetNumberOfBlocks( 2 );
