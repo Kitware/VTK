@@ -130,7 +130,7 @@ IF(JAVA_COMPILE)
       DEPENDS ${VTK_BUILD_ALL_DEPENDS}
       SOURCE ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
       COMMAND ${JAVA_COMPILE}
-      ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. 
+      ARGS -source 1.5 -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. 
       ${VTK_BINARY_DIR}/java/vtk/vtkBuildAllDriver.java
       )
 
@@ -216,7 +216,7 @@ IF(JAVA_COMPILE)
         OUTPUTS ${class}
         DEPENDS ${VTK_JAVA_HOME}/vtkPanel.java
         COMMAND ${JAVA_COMPILE}
-        ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
+        ARGS -source 1.5 -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
         )
 
       SET(CLASS_FILES ${CLASS_FILES} ${class})
@@ -235,7 +235,7 @@ IF(JAVA_COMPILE)
         OUTPUTS ${class}
         DEPENDS ${VTK_JAVA_HOME}/vtkPanel.class
         COMMAND ${JAVA_COMPILE}
-        ARGS -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
+        ARGS -source 1.5 -classpath ${VTK_JAVA_HOME}/.. -d ${VTK_JAVA_HOME}/.. ${dst}
         )
 
       SET(CLASS_FILES ${CLASS_FILES} ${class})
@@ -272,7 +272,7 @@ IF(JAVA_COMPILE)
         ADD_CUSTOM_COMMAND(
           SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
           COMMAND ${JAVA_COMPILE}
-          ARGS -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+          ARGS -source 1.5 -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
           -d ${VTK_BINARY_DIR}/Wrapping/Java
           ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
@@ -362,7 +362,7 @@ IF(JAVA_COMPILE)
           ADD_CUSTOM_COMMAND(
             SOURCE ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
             COMMAND ${JAVA_COMPILE}
-            ARGS -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+            ARGS -source 1.5 -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
             -d ${VTK_BINARY_DIR}/Wrapping/Java
             ${VTK_SOURCE_DIR}/Wrapping/Java/vtk/test/${jfile}.java
