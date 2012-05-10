@@ -194,6 +194,9 @@ protected:
   // The byte order of the binary input.
   int ByteOrder;
 
+  // The word type of binary input headers.
+  int HeaderType;
+
   // The input stream used to read data.  Set by ReadAppendedData and
   // ReadInlineData methods.
   vtkInputStream* DataStream;
@@ -205,26 +208,12 @@ protected:
   // The stream to use for appended data.
   vtkInputStream* AppendedDataStream;
 
-  //BTX
-  // We need a 32 bit unsigned integer type for platform-independent
-  // binary headers.  Note that this is duplicated in vtkXMLWriter.h.
-#if VTK_SIZEOF_SHORT == 4
-  typedef unsigned short HeaderType;
-#elif VTK_SIZEOF_INT == 4
-  typedef unsigned int HeaderType;
-#elif VTK_SIZEOF_LONG == 4
-  typedef unsigned long HeaderType;
-#else
-# error "No native data type can represent an unsigned 32-bit integer."
-#endif
-  //ETX
-
   // Decompression data.
   vtkDataCompressor* Compressor;
-  vtkTypeUInt64 NumberOfBlocks;
+  size_t NumberOfBlocks;
   size_t BlockUncompressedSize;
   size_t PartialLastBlockUncompressedSize;
-  HeaderType* BlockCompressedSizes;
+  size_t* BlockCompressedSizes;
   vtkTypeInt64* BlockStartOffsets;
 
   // Ascii data parsing.

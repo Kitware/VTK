@@ -21,7 +21,11 @@
 #include "vtkInputStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
+#define vtkXMLDataHeaderPrivate_DoNotInclude
+#include "vtkXMLDataHeaderPrivate.h"
+#undef vtkXMLDataHeaderPrivate_DoNotInclude
 
+#include <vtksys/auto_ptr.hxx>
 #include <vtksys/ios/sstream>
 
 #include "vtkXMLUtilities.h"
@@ -60,6 +64,7 @@ vtkXMLDataParser::vtkXMLDataParser()
 #else
   this->ByteOrder = vtkXMLDataParser::LittleEndian;
 #endif
+  this->HeaderType = 32;
 
   this->AttributesEncoding = VTK_ENCODING_NONE;
 
@@ -237,6 +242,22 @@ int vtkXMLDataParser::CheckPrimaryAttributes()
     else
       {
       vtkErrorMacro("Unsupported byte_order=\"" << byte_order << "\"");
+      return 0;
+      }
+    }
+  if(const char* header_type = this->RootElement->GetAttribute("header_type"))
+    {
+    if(strcmp(header_type, "UInt32") == 0)
+      {
+      this->HeaderType = 32;
+      }
+    else if(strcmp(header_type, "UInt64") == 0)
+      {
+      this->HeaderType = 64;
+      }
+    else
+      {
+      vtkErrorMacro("Unsupported header_type=\"" << header_type << "\"");
       return 0;
       }
     }
@@ -447,13 +468,14 @@ void vtkXMLDataParser::PerformByteSwap(void* data, size_t numWords,
 //----------------------------------------------------------------------------
 void vtkXMLDataParser::ReadCompressionHeader()
 {
-  HeaderType headerBuffer[3];
-  size_t const headerSize = sizeof(headerBuffer);
+  vtksys::auto_ptr<vtkXMLDataHeader>
+    ch(vtkXMLDataHeader::New(this->HeaderType, 3));
 
   this->DataStream->StartReading();
 
   // Read the standard part of the header.
-  size_t r = this->DataStream->Read(headerBuffer, headerSize);
+  size_t const headerSize = ch->DataSize();
+  size_t r = this->DataStream->Read(ch->Data(), headerSize);
   if(r < headerSize)
     {
     vtkErrorMacro("Error reading beginning of compression header.  Read "
@@ -462,14 +484,15 @@ void vtkXMLDataParser::ReadCompressionHeader()
     }
 
   // Byte swap the header to make sure the values are correct.
-  this->PerformByteSwap(headerBuffer, 3, sizeof(HeaderType));
+  this->PerformByteSwap(ch->Data(), ch->WordCount(), ch->WordSize());
 
   // Get the standard values.
-  this->NumberOfBlocks = headerBuffer[0];
-  this->BlockUncompressedSize = headerBuffer[1];
-  this->PartialLastBlockUncompressedSize = headerBuffer[2];
+  this->NumberOfBlocks = size_t(ch->Get(0));
+  this->BlockUncompressedSize = size_t(ch->Get(1));
+  this->PartialLastBlockUncompressedSize = size_t(ch->Get(2));
 
   // Allocate the size and offset parts of the header.
+  ch->Resize(this->NumberOfBlocks);
   if(this->BlockCompressedSizes)
     {
     delete [] this->BlockCompressedSizes;
@@ -482,20 +505,19 @@ void vtkXMLDataParser::ReadCompressionHeader()
     }
   if(this->NumberOfBlocks > 0)
     {
-    this->BlockCompressedSizes = new HeaderType[this->NumberOfBlocks];
+    this->BlockCompressedSizes = new size_t[this->NumberOfBlocks];
     this->BlockStartOffsets = new vtkTypeInt64[this->NumberOfBlocks];
 
     // Read the compressed block sizes.
-    size_t len = this->NumberOfBlocks*sizeof(HeaderType);
-    if(this->DataStream->Read(this->BlockCompressedSizes, len) < len)
+    size_t len = ch->DataSize();
+    if(this->DataStream->Read(ch->Data(), len) < len)
       {
       vtkErrorMacro("Error reading compression header.");
       return;
       }
 
     // Byte swap the sizes to make sure the values are correct.
-    this->PerformByteSwap(this->BlockCompressedSizes, this->NumberOfBlocks,
-                          sizeof(HeaderType));
+    this->PerformByteSwap(ch->Data(), ch->WordCount(), ch->WordSize());
     }
 
   this->DataStream->EndReading();
@@ -503,11 +525,12 @@ void vtkXMLDataParser::ReadCompressionHeader()
   // Use the compressed block sizes to calculate the starting offset
   // of each block.
   vtkTypeInt64 offset = 0;
-  unsigned int i;
-  for(i=0;i < this->NumberOfBlocks;++i)
+  for(size_t i=0;i < this->NumberOfBlocks;++i)
     {
+    size_t const sz = size_t(ch->Get(i));
+    this->BlockCompressedSizes[i] = sz;
     this->BlockStartOffsets[i] = offset;
-    offset += this->BlockCompressedSizes[i];
+    offset += sz;
     }
 }
 
@@ -571,10 +594,18 @@ size_t vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
                                               size_t wordSize)
 {
   // First read the length of the data.
-  HeaderType rsize;
-  size_t const len = sizeof(rsize);
-  if(this->DataStream->Read(&rsize, len) < len) { return 0; }
-  this->PerformByteSwap(&rsize, 1, len);
+  vtksys::auto_ptr<vtkXMLDataHeader>
+    uh(vtkXMLDataHeader::New(this->HeaderType, 1));
+  size_t const headerSize = uh->DataSize();
+  size_t r = this->DataStream->Read(uh->Data(), headerSize);
+  if(r < headerSize)
+    {
+    vtkErrorMacro("Error reading uncompressed binary data header.  "
+                  "Read " << r << " of " << headerSize << " bytes.");
+    return 0;
+    }
+  this->PerformByteSwap(uh->Data(), uh->WordCount(), uh->WordSize());
+  vtkTypeUInt64 rsize = uh->Get(0);
 
   // Adjust the size to be a multiple of the wordSize by taking
   // advantage of integer division.  This will only change the value
@@ -598,7 +629,7 @@ size_t vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
   length = end-offset;
 
   // Read the data.
-  if(!this->DataStream->Seek(offset+len))
+  if(!this->DataStream->Seek(headerSize+offset))
     {
     return 0;
     }
