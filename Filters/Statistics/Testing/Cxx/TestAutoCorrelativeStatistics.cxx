@@ -207,6 +207,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     cout << "\n";
     }
 
+  // Clean up
+  as1->Delete();
+
   // ************** Pseudo-random sample to inspect auto-correlation properties *********
   int nVals = 10000;
 
