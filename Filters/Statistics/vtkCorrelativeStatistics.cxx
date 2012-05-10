@@ -223,11 +223,6 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
   // Summary table: assigns a unique key to each (variable X,variable Y) pair
   vtkTable* primaryTab = vtkTable::New();
 
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Cardinality" );
-  primaryTab->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
   vtkStringArray* stringCol = vtkStringArray::New();
   stringCol->SetName( "Variable X" );
   primaryTab->AddColumn( stringCol );
@@ -237,6 +232,11 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
   stringCol->SetName( "Variable Y" );
   primaryTab->AddColumn( stringCol );
   stringCol->Delete();
+
+  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+  idTypeCol->SetName( "Cardinality" );
+  primaryTab->AddColumn( idTypeCol );
+  idTypeCol->Delete();
 
   vtkDoubleArray* doubleCol = vtkDoubleArray::New();
   doubleCol->SetName( "Mean X" );
@@ -318,9 +318,9 @@ void vtkCorrelativeStatistics::Learn( vtkTable* inData,
 
     row->SetNumberOfValues( 8 );
 
-    row->SetValue( 0, nRow );
-    row->SetValue( 1, colX );
-    row->SetValue( 2, colY );
+    row->SetValue( 0, colX );
+    row->SetValue( 1, colY );
+    row->SetValue( 2, nRow );
     row->SetValue( 3, meanX );
     row->SetValue( 4, meanY );
     row->SetValue( 5, mom2X );
