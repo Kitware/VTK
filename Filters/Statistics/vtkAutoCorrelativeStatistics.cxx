@@ -187,6 +187,31 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   primaryTab->AddColumn( idTypeCol );
   idTypeCol->Delete();
 
+  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Mean Xs" );
+  primaryTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "Mean Xt" );
+  primaryTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "M2 Xs" );
+  primaryTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "M2 Xt" );
+  primaryTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
+  doubleCol = vtkDoubleArray::New();
+  doubleCol->SetName( "M XsXt" );
+  primaryTab->AddColumn( doubleCol );
+  doubleCol->Delete();
+
   // Verify that number of rows is sufficent for the specified offset
   vtkIdType nRow = inData->GetNumberOfRows() - this->AutoCorrelationOffset;
   if ( nRow < 0 )
@@ -276,14 +301,14 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   int numDoubles = 9;
-  vtkStdString doubleNames[] = { "Variance t1",
-                                 "Variance t2",
+  vtkStdString doubleNames[] = { "Variance Xs",
+                                 "Variance Xt",
                                  "Covariance",
                                  "Determinant",
-                                 "Slope t2/t1",
-                                 "Intercept t2/t1",
-                                 "Slope t1/t2",
-                                 "Intercept t1/t2",
+                                 "Slope Xt/Xs",
+                                 "Intercept Xt/Xs",
+                                 "Slope Xs/Xt",
+                                 "Intercept Xs/Xt",
                                  "Pearson r" };
 
   // Create table for derived statistics
