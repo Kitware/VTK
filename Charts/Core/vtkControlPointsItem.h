@@ -142,13 +142,9 @@ public:
   // Description:
   // Utility function that returns an array of all the control points IDs
   // Typically: [0, 1, 2, ... n -1] where n is the point count
-  // You are responsible for deleting the array.
-  vtkIdTypeArray* GetControlPointsIds()const;
-
-  // Description:
-  // Similar to GetControlPointsIds() but can exclude the first and last point
-  // ids from the array.
-  vtkIdTypeArray* GetControlPointsIds(bool excludeFirstAndLast)const;
+  // Can exclude the first and last point ids from the array.
+  void GetControlPointsIds(vtkIdTypeArray* ids,
+                           bool excludeFirstAndLast = false)const;
 
   // Description:
   // Controls whether or not control points are drawn (true) or clicked and
