@@ -206,14 +206,6 @@ public class TreeViews extends JFrame {
     app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     app.pack();
     app.setVisible(true);
-
-    app.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {
-        // Calling vtkGlobalJavaHash.DeleteAll() will clean up
-        // VTK references before the Java program exits.
-        vtkGlobalJavaHash.DeleteAll();
-      }
-    });
   }
 
 }
