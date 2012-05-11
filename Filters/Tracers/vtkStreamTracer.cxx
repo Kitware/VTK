@@ -48,7 +48,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 
 
-vtkStandardNewMacro(vtkStreamTracer);
+vtkObjectFactoryNewMacro(vtkStreamTracer)
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkAbstractInterpolatedVelocityField);
 

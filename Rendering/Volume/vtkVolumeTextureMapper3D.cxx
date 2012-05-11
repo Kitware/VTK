@@ -25,12 +25,11 @@
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeRenderingFactory.h"
-
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkVolumeTextureMapper3D);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkVolumeTextureMapper3D)
 //----------------------------------------------------------------------------
 
 // This method moves the scalars from the input volume into volume1 (and
@@ -687,16 +686,6 @@ vtkVolumeTextureMapper3D::~vtkVolumeTextureMapper3D()
   delete [] this->Volume1;
   delete [] this->Volume2;
   delete [] this->Volume3;
-}
-
-
-//-----------------------------------------------------------------------------
-vtkVolumeTextureMapper3D *vtkVolumeTextureMapper3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret =
-    vtkVolumeRenderingFactory::CreateInstance("vtkVolumeTextureMapper3D");
-  return static_cast<vtkVolumeTextureMapper3D *>(ret);
 }
 
 //-----------------------------------------------------------------------------

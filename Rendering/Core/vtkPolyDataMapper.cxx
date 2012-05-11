@@ -15,26 +15,16 @@
 #include "vtkPolyDataMapper.h"
 
 #include "vtkExecutive.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkPolyDataMapper);
-
-//----------------------------------------------------------------------------
-// return the correct type of PolyDataMapper
-vtkPolyDataMapper *vtkPolyDataMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkPolyDataMapper");
-  return static_cast<vtkPolyDataMapper *>(ret);
-}
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper)
 
 //----------------------------------------------------------------------------
 vtkPolyDataMapper::vtkPolyDataMapper()

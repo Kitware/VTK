@@ -28,20 +28,10 @@
 #include "vtkCellCenterDepthSort.h"
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
-#include "vtkVolumeRenderingFactory.h"
 
 // ----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkProjectedAAHexahedraMapper);
-
-// ----------------------------------------------------------------------------
-vtkProjectedAAHexahedraMapper *vtkProjectedAAHexahedraMapper::New()
-{
-  vtkObject *ret
-    = vtkVolumeRenderingFactory::CreateInstance(
-      "vtkProjectedAAHexahedraMapper");
-  return static_cast<vtkProjectedAAHexahedraMapper *>(ret);
-}
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkProjectedAAHexahedraMapper)
 
 // ----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkProjectedAAHexahedraMapper,

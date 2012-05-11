@@ -16,7 +16,7 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkExecutive.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
@@ -26,11 +26,10 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkTexture);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkTexture)
 //----------------------------------------------------------------------------
 
 // Construct object and initialize.
@@ -78,15 +77,6 @@ vtkTexture::~vtkTexture()
     {
     this->Transform->UnRegister(this);
     }
-}
-
-//----------------------------------------------------------------------------
-// return the correct type of Texture
-vtkTexture *vtkTexture::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkTexture");
-  return static_cast<vtkTexture *>(ret);
 }
 
 //----------------------------------------------------------------------------

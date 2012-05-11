@@ -16,18 +16,18 @@
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkMath.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-
+#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkRenderWindow);
+// Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
+vtkAbstractObjectFactoryNewMacro(vtkRenderWindow)
 //----------------------------------------------------------------------------
 
 // Construct an instance of  vtkRenderWindow with its screen size
@@ -111,19 +111,6 @@ vtkRenderWindow::~vtkRenderWindow()
   this->Renderers->Delete();
 
   this->PainterDeviceAdapter->Delete();
-}
-
-//----------------------------------------------------------------------------
-// return the correct type of RenderWindow
-vtkRenderWindow *vtkRenderWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkRenderWindow");
-  vtkRenderWindow *retWin = static_cast<vtkRenderWindow *>(ret);
-#ifdef VTK_USE_OFFSCREEN
-  retWin->SetOffScreenRendering(1);
-#endif
-  return retWin;
 }
 
 //----------------------------------------------------------------------------

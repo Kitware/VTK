@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkRepresentationPainter.h"
 
-#include "vtkGraphicsFactory.h"
 #include "vtkObjectFactory.h"
 
-vtkInstantiatorNewMacro(vtkRepresentationPainter);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkRepresentationPainter)
 //-----------------------------------------------------------------------------
 vtkRepresentationPainter::vtkRepresentationPainter()
 {
@@ -26,13 +26,6 @@ vtkRepresentationPainter::vtkRepresentationPainter()
 //-----------------------------------------------------------------------------
 vtkRepresentationPainter::~vtkRepresentationPainter()
 {
-}
-
-//-----------------------------------------------------------------------------
-vtkRepresentationPainter* vtkRepresentationPainter::New()
-{
-  vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkRepresentationPainter");
-  return static_cast<vtkRepresentationPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------
