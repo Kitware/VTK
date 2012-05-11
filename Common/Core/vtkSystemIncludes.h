@@ -16,11 +16,7 @@
 // inclusion of system files
 // .SECTION Description
 // The vtkSystemIncludes centralizes the inclusion of system include
-// files. (This is particularly important as VTK moves towards ANSI
-// C++.)  For example, this include file enables user's to build VTK
-// with STL (i.e., use std: :ostream and other standard ANSI C++
-// functionality).  A configured flag in vtkConfigure.h
-// (VTK_USE_ANSI_STDLIB) must be set to enable ANSI C++ compliance.
+// files.
 
 #ifndef __vtkSystemIncludes_h
 #define __vtkSystemIncludes_h

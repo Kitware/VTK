@@ -50,7 +50,7 @@ public:
   // Description:
   // Seek to the given offset in the input data.  Returns 1 for
   // success, 0 for failure.
-  virtual int Seek(vtkIOStreamOff offset);
+  virtual int Seek(vtkTypeInt64 offset);
 
   // Description:
   // Read input data of the given length.  Returns amount actually
@@ -73,7 +73,7 @@ protected:
   size_t ReadStream(char* data, size_t length);
 
   // The input stream's position when StartReading was called.
-  vtkIOStreamPos StreamStartPosition;
+  vtkTypeInt64 StreamStartPosition;
 
 private:
   vtkInputStream(const vtkInputStream&);  // Not implemented.

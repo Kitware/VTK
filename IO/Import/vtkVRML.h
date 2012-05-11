@@ -37,11 +37,7 @@
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkHeap.h"
 
-#ifdef VTK_USE_ANSI_STDLIB
 #include <new>
-#else
-#include <new.h>
-#endif
 
 #if defined(__BORLANDC__) && (__BORLANDC__<0x0560)
 // seems to be missing from new.h and new for borland

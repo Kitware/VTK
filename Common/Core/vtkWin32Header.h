@@ -52,10 +52,8 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #define STRICT
 #endif
 
-#ifdef VTK_USE_ANSI_STDLIB
 #ifndef NOMINMAX
 #define NOMINMAX
-#endif
 #endif
 
 #endif
