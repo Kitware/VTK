@@ -31,9 +31,9 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
-#define vtkOffsetsManager_DoNotInclude
-#include "vtkOffsetsManagerArray.h"
-#undef  vtkOffsetsManager_DoNotInclude
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef  vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLDataElement.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkQuadratureSchemeDefinition.h"
@@ -67,7 +67,7 @@ public:
    writer->SetProgressPartial(progress);
    }
  static inline int WriteBinaryDataBlock(vtkXMLWriter* writer,
-   unsigned char* in_data, vtkXMLWriter::OffsetType numWords, int wordType)
+   unsigned char* in_data, size_t numWords, int wordType)
    {
    return writer->WriteBinaryDataBlock(in_data, numWords, wordType);
    }
@@ -85,16 +85,16 @@ public:
 template <class iterT>
 int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   iterT* iter,
-  int wordType, vtkXMLWriter::OffsetType memWordSize, vtkXMLWriter::OffsetType outWordSize)
+  int wordType, size_t memWordSize, size_t outWordSize)
 {
   // generic implementation for fixed component length arrays.
-  vtkXMLWriter::OffsetType numWords = iter->GetNumberOfValues();
-  vtkXMLWriter::OffsetType blockWords = writer->GetBlockSize()/outWordSize;
-  vtkXMLWriter::OffsetType memBlockSize = blockWords*memWordSize;
+  size_t numWords = iter->GetNumberOfValues();
+  size_t blockWords = writer->GetBlockSize()/outWordSize;
+  size_t memBlockSize = blockWords*memWordSize;
 
   // Prepare a pointer and counter to move through the data.
   unsigned char* ptr = reinterpret_cast<unsigned char*>(iter->GetTuple(0));
-  vtkXMLWriter::OffsetType wordsLeft = numWords;
+  size_t wordsLeft = numWords;
 
   // Do the complete blocks.
   vtkXMLWriterHelper::SetProgressPartial(writer, 0);
@@ -127,7 +127,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
 VTK_TEMPLATE_SPECIALIZE
 int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   vtkArrayIteratorTemplate<vtkStdString>* iter,
-  int wordType, vtkXMLWriter::OffsetType vtkNotUsed(memWordSize), vtkXMLWriter::OffsetType outWordSize)
+  int wordType, size_t vtkNotUsed(memWordSize), size_t outWordSize)
 {
   vtkXMLWriterHelper::SetProgressPartial(writer, 0);
   vtkStdString::value_type* allocated_buffer = 0;
@@ -151,17 +151,17 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
   // For string arrays, writing as binary requires that the strings are written
   // out into a contiguous block. This is essential since the compressor can
   // only compress complete blocks of data.
-  vtkXMLWriter::OffsetType numStrings = iter->GetNumberOfValues();
-  vtkXMLWriter::OffsetType maxCharsPerBlock = writer->GetBlockSize() / outWordSize;
+  size_t numStrings = iter->GetNumberOfValues();
+  size_t maxCharsPerBlock = writer->GetBlockSize() / outWordSize;
 
-  vtkXMLWriter::OffsetType index = 0; // index in string array.
+  size_t index = 0; // index in string array.
   int result = 1;
   vtkIdType stringOffset = 0; // num of chars of string written in pervious block.
     // this is required since a string may not fit completely in a block.
 
   while (result && index < numStrings) // write one block at a time.
     {
-    vtkXMLWriter::OffsetType cur_offset = 0; // offset into the temp_buffer.
+    size_t cur_offset = 0; // offset into the temp_buffer.
     while (index < numStrings && cur_offset < maxCharsPerBlock)
       {
       vtkStdString &str = iter->GetValue(index);
@@ -177,7 +177,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
         }
       else
         {
-        vtkXMLWriter::OffsetType new_offset = cur_offset + length + 1; // (+1) for termination char.
+        size_t new_offset = cur_offset + length + 1; // (+1) for termination char.
         if (new_offset <= maxCharsPerBlock)
           {
           memcpy(&temp_buffer[cur_offset], data, length);
@@ -186,7 +186,7 @@ int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
           }
         else
           {
-          vtkXMLWriter::OffsetType bytes_to_copy =  (maxCharsPerBlock - cur_offset);
+          size_t bytes_to_copy =  (maxCharsPerBlock - cur_offset);
           stringOffset = bytes_to_copy;
           memcpy(&temp_buffer[cur_offset], data, bytes_to_copy);
           cur_offset += bytes_to_copy;
@@ -810,12 +810,12 @@ void vtkXMLWriter::EndAppendedData()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType
-vtkXMLWriter::ReserveAttributeSpace(const char* attr, int length)
+vtkTypeInt64
+vtkXMLWriter::ReserveAttributeSpace(const char* attr, size_t length)
 {
   // Save the starting stream position.
   ostream& os = *(this->Stream);
-  OffsetType startPosition = os.tellp();
+  vtkTypeInt64 startPosition = os.tellp();
 
   // By default write an empty valid xml: attr="".  In most case it
   // will be overwritten but we guarantee that the xml produced will
@@ -823,7 +823,7 @@ vtkXMLWriter::ReserveAttributeSpace(const char* attr, int length)
   os << " " << attr << "=\"\"";
 
   // Now reserve space for the value.
-  for(int i=0; i < length; ++i)
+  for(size_t i=0; i < length; ++i)
     {
     os << " ";
     }
@@ -841,16 +841,16 @@ vtkXMLWriter::ReserveAttributeSpace(const char* attr, int length)
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType vtkXMLWriter::GetAppendedDataOffset()
+vtkTypeInt64 vtkXMLWriter::GetAppendedDataOffset()
 {
-  OffsetType pos = this->Stream->tellp();
+  vtkTypeInt64 pos = this->Stream->tellp();
   return (pos - this->AppendedDataPosition);
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType vtkXMLWriter::WriteAppendedDataOffset(OffsetType streamPos,
-                                                 OffsetType &lastoffset,
-                                                 const char* attr)
+void vtkXMLWriter::WriteAppendedDataOffset(vtkTypeInt64 streamPos,
+                                           vtkTypeInt64 &lastoffset,
+                                           const char* attr)
 {
   // Write an XML attribute with the given name.  The value is the
   // current appended data offset.  Starts writing at the given stream
@@ -858,16 +858,36 @@ vtkXMLWriter::OffsetType vtkXMLWriter::WriteAppendedDataOffset(OffsetType stream
   // only the double quotes.  In all cases, the final stream position
   // is left the same as before the call.
   ostream& os = *(this->Stream);
-  OffsetType returnPos = os.tellp();
-  OffsetType offset = returnPos - this->AppendedDataPosition;
+  vtkTypeInt64 returnPos = os.tellp();
+  vtkTypeInt64 offset = returnPos - this->AppendedDataPosition;
   lastoffset = offset; //saving result
-  os.seekp(streamPos);
+  os.seekp(std::streampos(streamPos));
   if(attr)
     {
     os << " " << attr << "=";
     }
   os << "\"" << offset << "\"";
-  OffsetType endPos = os.tellp();
+  os.seekp(std::streampos(returnPos));
+
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::ForwardAppendedDataOffset(
+  vtkTypeInt64 streamPos, vtkTypeInt64 offset, const char* attr)
+{
+  ostream& os = *(this->Stream);
+  std::streampos returnPos = os.tellp();
+  os.seekp(std::streampos(streamPos));
+  if(attr)
+    {
+    os << " " << attr << "=";
+    }
+  os << "\"" << offset << "\"";
   os.seekp(returnPos);
 
   os.flush();
@@ -875,49 +895,20 @@ vtkXMLWriter::OffsetType vtkXMLWriter::WriteAppendedDataOffset(OffsetType stream
     {
     this->SetErrorCode(vtkErrorCode::GetLastSystemError());
     }
-
-  return endPos;
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType vtkXMLWriter::ForwardAppendedDataOffset(OffsetType streamPos,
-                                                   OffsetType offset,
-                                                   const char* attr)
+void vtkXMLWriter::ForwardAppendedDataDouble(
+  vtkTypeInt64 streamPos, double value, const char* attr)
 {
   ostream& os = *(this->Stream);
-  OffsetType returnPos = os.tellp();
-  os.seekp(streamPos);
-  if(attr)
-    {
-    os << " " << attr << "=";
-    }
-  os << "\"" << offset << "\"";
-  OffsetType endPos = os.tellp();
-  os.seekp(returnPos);
-
-  os.flush();
-  if (os.fail())
-    {
-    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
-    }
-
-  return endPos;
-}
-
-//----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType vtkXMLWriter::ForwardAppendedDataDouble(OffsetType streamPos,
-                                                   double value,
-                                                   const char* attr)
-{
-  ostream& os = *(this->Stream);
-  OffsetType returnPos = os.tellp();
-  os.seekp(streamPos);
+  std::streampos returnPos = os.tellp();
+  os.seekp(std::streampos(streamPos));
   if(attr)
     {
     os << " " << attr << "=";
     }
   os << "\"" << value << "\"";
-  OffsetType endPos = os.tellp();
   os.seekp(returnPos);
 
   os.flush();
@@ -925,16 +916,14 @@ vtkXMLWriter::OffsetType vtkXMLWriter::ForwardAppendedDataDouble(OffsetType stre
     {
     this->SetErrorCode(vtkErrorCode::GetLastSystemError());
     }
-
-  return endPos;
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
 {
   int wordType = a->GetDataType();
-  OffsetType outWordSize = this->GetOutputWordTypeSize(wordType);
-  OffsetType data_size = a->GetDataSize();
+  size_t outWordSize = this->GetOutputWordTypeSize(wordType);
+  size_t data_size = a->GetDataSize();
   if(this->Compressor)
     {
     // Need to compress the data.  Create compression header.  This
@@ -947,7 +936,7 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
     int result = this->DataStream->StartWriting();
 
     // Process the actual data.
-    if (result && !this->WriteBinaryDataInternal(a, data_size))
+    if (result && !this->WriteBinaryDataInternal(a))
       {
       result = 0;
       }
@@ -976,9 +965,8 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
   else
     {
     // No data compression.  The header is just the length of the data.
-    HeaderType length = data_size*outWordSize;
-    unsigned char* p = reinterpret_cast<unsigned char*>(&length);
-    this->PerformByteSwap(p, 1, sizeof(HeaderType));
+    HeaderType length = static_cast<HeaderType>(data_size*outWordSize);
+    this->PerformByteSwap(&length, 1, sizeof(length));
 
     // Start writing the data.
     if(!this->DataStream->StartWriting())
@@ -987,7 +975,7 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
       }
 
     // Write the header consisting only of the data length.
-    int writeRes = this->DataStream->Write(p, sizeof(HeaderType));
+    int writeRes = this->DataStream->Write(&length, sizeof(length));
     this->Stream->flush();
     if (this->Stream->fail())
       {
@@ -1000,7 +988,7 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
       }
 
     // Process the actual data.
-    if(!this->WriteBinaryDataInternal(a, data_size))
+    if(!this->WriteBinaryDataInternal(a))
       {
       return 0;
       }
@@ -1016,8 +1004,7 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a,
-  OffsetType vtkNotUsed(data_size))
+int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
 {
   // Break into blocks and handle each one separately.  This allows
   // for better random access when reading compressed data and saves
@@ -1030,15 +1017,15 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a,
   // writing.
 
   int wordType = a->GetDataType();
-  OffsetType memWordSize = this->GetWordTypeSize(wordType);
-  OffsetType outWordSize = this->GetOutputWordTypeSize(wordType);
+  size_t memWordSize = this->GetWordTypeSize(wordType);
+  size_t outWordSize = this->GetOutputWordTypeSize(wordType);
 
 #ifdef VTK_USE_64BIT_IDS
   // If the type is vtkIdType, it may need to be converted to the type
   // requested for output.
   if((wordType == VTK_ID_TYPE) && (this->IdType == vtkXMLWriter::Int32))
     {
-    OffsetType blockWordsEstimate = this->BlockSize / outWordSize;
+    size_t blockWordsEstimate = this->BlockSize / outWordSize;
     this->Int32IdTypeBuffer = new Int32IdType[blockWordsEstimate];
     }
 #endif
@@ -1099,7 +1086,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a,
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::WriteBinaryDataBlock(unsigned char* in_data,
-                                       OffsetType numWords, int wordType)
+                                       size_t numWords, int wordType)
 {
   unsigned char* data = in_data;
 #ifdef VTK_USE_64BIT_IDS
@@ -1109,8 +1096,7 @@ int vtkXMLWriter::WriteBinaryDataBlock(unsigned char* in_data,
     {
     vtkIdType* idBuffer = reinterpret_cast<vtkIdType*>(in_data);
 
-    int i;
-    for(i=0;i < numWords; ++i)
+    for(size_t i=0;i < numWords; ++i)
       {
       this->Int32IdTypeBuffer[i] = static_cast<Int32IdType>(idBuffer[i]);
       }
@@ -1121,7 +1107,7 @@ int vtkXMLWriter::WriteBinaryDataBlock(unsigned char* in_data,
 
   // Get the word size of the data buffer.  This is now the size that
   // will be written.
-  OffsetType wordSize = this->GetOutputWordTypeSize(wordType);
+  size_t wordSize = this->GetOutputWordTypeSize(wordType);
 
   // If we need to byte swap, do it now.
   if(this->ByteSwapBuffer)
@@ -1213,7 +1199,7 @@ void vtkXMLWriter::SetDataStream(vtkOutputStream* arg)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::CreateCompressionHeader(OffsetType size)
+int vtkXMLWriter::CreateCompressionHeader(size_t size_in)
 {
   // Allocate and initialize the compression header.
   // The format is this:
@@ -1225,6 +1211,7 @@ int vtkXMLWriter::CreateCompressionHeader(OffsetType size)
   //  }
 
   // Find the size and number of blocks.
+  unsigned int size = static_cast<unsigned int>(size_in);
   unsigned int numFullBlocks = size / this->BlockSize;
   unsigned int lastBlockSize = size % this->BlockSize;
   unsigned int numBlocks = numFullBlocks + (lastBlockSize?1:0);
@@ -1239,12 +1226,9 @@ int vtkXMLWriter::CreateCompressionHeader(OffsetType size)
   for(i=0; i < headerLength; ++i) { this->CompressionHeader[i] = 0; }
 
   this->CompressionHeaderPosition = this->Stream->tellp();
-  unsigned char* ch =
-    reinterpret_cast<unsigned char*>(this->CompressionHeader);
-  unsigned int chSize = (this->CompressionHeaderLength*sizeof(HeaderType));
-
+  size_t chSize = this->CompressionHeaderLength*sizeof(HeaderType);
   int result = (this->DataStream->StartWriting() &&
-                this->DataStream->Write(ch, chSize) &&
+                this->DataStream->Write(this->CompressionHeader, chSize) &&
                 this->DataStream->EndWriting());
 
   this->Stream->flush();
@@ -1266,8 +1250,7 @@ int vtkXMLWriter::CreateCompressionHeader(OffsetType size)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::WriteCompressionBlock(unsigned char* data,
-                                        OffsetType size)
+int vtkXMLWriter::WriteCompressionBlock(unsigned char* data, size_t size)
 {
   // Compress the data.
   vtkUnsignedCharArray* outputArray = this->Compressor->Compress(data, size);
@@ -1296,18 +1279,17 @@ int vtkXMLWriter::WriteCompressionBlock(unsigned char* data,
 int vtkXMLWriter::WriteCompressionHeader()
 {
   // Write real compression header back into stream.
-  OffsetType returnPosition = this->Stream->tellp();
+  std::streampos returnPosition = this->Stream->tellp();
 
   // Need to byte-swap header.
   this->PerformByteSwap(this->CompressionHeader, this->CompressionHeaderLength,
                         sizeof(HeaderType));
 
-  if(!this->Stream->seekp(this->CompressionHeaderPosition)) { return 0; }
-  unsigned char* ch =
-    reinterpret_cast<unsigned char*>(this->CompressionHeader);
-  unsigned int chSize = (this->CompressionHeaderLength*sizeof(HeaderType));
+  if(!this->Stream->seekp(std::streampos(this->CompressionHeaderPosition)))
+    { return 0; }
+  size_t chSize = this->CompressionHeaderLength*sizeof(HeaderType);
   int result = (this->DataStream->StartWriting() &&
-                this->DataStream->Write(ch, chSize) &&
+                this->DataStream->Write(this->CompressionHeader, chSize) &&
                 this->DataStream->EndWriting());
   this->Stream->flush();
   if (this->Stream->fail())
@@ -1321,7 +1303,7 @@ int vtkXMLWriter::WriteCompressionHeader()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType vtkXMLWriter::GetOutputWordTypeSize(int dataType)
+size_t vtkXMLWriter::GetOutputWordTypeSize(int dataType)
 {
 #ifdef VTK_USE_64BIT_IDS
   // If the type is vtkIdType, it may need to be converted to the type
@@ -1336,15 +1318,15 @@ vtkXMLWriter::OffsetType vtkXMLWriter::GetOutputWordTypeSize(int dataType)
 
 //----------------------------------------------------------------------------
 template <class T>
-vtkXMLWriter::OffsetType vtkXMLWriterGetWordTypeSize(T*)
+size_t vtkXMLWriterGetWordTypeSize(T*)
 {
   return sizeof(T);
 }
 
 //----------------------------------------------------------------------------
-vtkXMLWriter::OffsetType vtkXMLWriter::GetWordTypeSize(int dataType)
+size_t vtkXMLWriter::GetWordTypeSize(int dataType)
 {
-  OffsetType size = 1;
+  size_t size = 1;
   switch (dataType)
     {
     vtkTemplateMacro(
@@ -1648,13 +1630,13 @@ int vtkXMLWriteAsciiData(ostream& os, iterT* iter, vtkIndent indent)
     {
     return 0;
     }
-  int columns = 6;
-  vtkXMLWriter::OffsetType length = iter->GetNumberOfTuples() *
+  size_t columns = 6;
+  size_t length = iter->GetNumberOfTuples() *
     iter->GetNumberOfComponents();
 
-  int rows = length/columns;
-  int lastRowLength = length%columns;
-  int r,c;
+  size_t rows = length/columns;
+  size_t lastRowLength = length%columns;
+  size_t r,c;
   vtkIdType index=0;
   for(r=0;r < rows;++r)
     {
@@ -1753,7 +1735,8 @@ void vtkXMLWriter::WriteArrayAppended(
 
 //----------------------------------------------------------------------------
 void vtkXMLWriter::WriteArrayAppendedData(vtkAbstractArray* a,
-  OffsetType pos, OffsetType& lastoffset)
+                                          vtkTypeInt64 pos,
+                                          vtkTypeInt64& lastoffset)
 {
   this->WriteAppendedDataOffset(pos, lastoffset, "offset");
   this->WriteBinaryData(a);
@@ -2889,7 +2872,7 @@ void vtkXMLWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
     {
     // First thing allocate NumberOfTimeValues
     assert( this->NumberOfTimeValues == NULL );
-    this->NumberOfTimeValues = new unsigned long[this->NumberOfTimeSteps];
+    this->NumberOfTimeValues = new vtkTypeInt64[this->NumberOfTimeSteps];
     os << indent << "TimeValues=\"\n";
 
     std::string blankline = std::string(40, ' '); //enough room for precision
@@ -2959,8 +2942,9 @@ void vtkXMLWriter::WriteNextTime(double time)
   if (this->NumberOfTimeValues)
     {
     // Write user specified time value in the TimeValues attribute
-    OffsetType returnPos = os.tellp();
-    os.seekp(this->NumberOfTimeValues[this->CurrentTimeIndex-1]);
+    std::streampos returnPos = os.tellp();
+    vtkTypeInt64 t = this->NumberOfTimeValues[this->CurrentTimeIndex-1];
+    os.seekp(std::streampos(t));
     os << time;
     os.seekp(returnPos);
     }

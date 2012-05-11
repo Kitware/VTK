@@ -715,8 +715,28 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_USE_64BIT_IDS
-int vtkXMLDataElement::GetScalarAttribute(const char* name, vtkIdType& value)
+#ifdef VTK_TYPE_USE_LONG_LONG
+int vtkXMLDataElement::GetScalarAttribute(const char* name,
+                                          long long& value)
+{
+  return this->GetVectorAttribute(name, 1, &value);
+}
+int vtkXMLDataElement::GetScalarAttribute(const char* name,
+                                          unsigned long long& value)
+{
+  return this->GetVectorAttribute(name, 1, &value);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_TYPE_USE___INT64
+int vtkXMLDataElement::GetScalarAttribute(const char* name,
+                                          __int64& value)
+{
+  return this->GetVectorAttribute(name, 1, &value);
+}
+int vtkXMLDataElement::GetScalarAttribute(const char* name,
+                                          unsigned __int64& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
@@ -772,9 +792,31 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_USE_64BIT_IDS
+#ifdef VTK_TYPE_USE_LONG_LONG
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
-                                          vtkIdType* data)
+                                          long long* data)
+{
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
+}
+int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
+                                          unsigned long long* data)
+{
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_TYPE_USE___INT64
+int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
+                                          __int64* data)
+{
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
+}
+int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
+                                          unsigned __int64* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
                                                length, data);
@@ -981,15 +1023,6 @@ void vtkXMLDataElement::SetUnsignedLongAttribute(const char* name,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_USE_64BIT_IDS
-void vtkXMLDataElement::SetIdTypeAttribute(const char* name,
-                                           vtkIdType value)
-{
-  this->SetVectorAttribute(name, 1, &value);
-}
-#endif
-
-//----------------------------------------------------------------------------
 template <class T>
 void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* name, int length, const T* data)
 {
@@ -1038,9 +1071,28 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_USE_64BIT_IDS
+#ifdef VTK_TYPE_USE_LONG_LONG
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
-                                           const vtkIdType* data)
+                                           long long const* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           unsigned long long const* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifdef VTK_TYPE_USE___INT64
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           __int64 const* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           unsigned __int64 const* data)
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }

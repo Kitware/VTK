@@ -73,7 +73,7 @@ protected:
   void CalculateSuperclassFraction(float* fractions);
 
   // Positions of attributes for each piece.
-  unsigned long* NumberOfCellsPositions;
+  vtkTypeInt64* NumberOfCellsPositions;
   OffsetsManagerArray *CellsOM; //one per piece
 
 private:
