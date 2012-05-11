@@ -409,19 +409,19 @@ int vtkVPICReader::RequestData(
   }
 
   // Collect the time step requested
-  double* requestedTimeSteps = NULL;
-  vtkInformationDoubleVectorKey* timeKey =
-    static_cast<vtkInformationDoubleVectorKey*>
-      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+  double requestedTimeStep(0);
+  vtkInformationDoubleKey* timeKey =
+    static_cast<vtkInformationDoubleKey*>
+      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   // Actual time for the time step
   double dTime = this->TimeSteps[0];
   if (outInfo->Has(timeKey)) {
-    requestedTimeSteps = outInfo->Get(timeKey);
-    dTime = requestedTimeSteps[0];
+    requestedTimeStep = outInfo->Get(timeKey);
+    dTime = requestedTimeStep;
   }
 
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
 
   // Index of the time step to request
   int timeStep = 0;

@@ -120,9 +120,8 @@ public:
 
   // Description:
   // Get/Set the update extent for output ports that use Temporal Extents
-  int SetUpdateTimeSteps(int port, double *times, int length);
-  static int SetUpdateTimeSteps(vtkInformation *, double *times, int length);
   int SetUpdateTimeStep(int port, double time);
+  static int SetUpdateTimeStep(vtkInformation *, double time);
   //void GetUpdateTimeSteps(vtkInformation *, int extent[6]);
 
   // Description:
@@ -247,7 +246,7 @@ public:
 
   // Description:
   // Update time steps requested by the pipeline.
-  static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
+  static vtkInformationDoubleKey* UPDATE_TIME_STEP();
 
   // Description:
   // Key that specifies from 0.0 to 1.0 the pipeline computed priority
@@ -324,7 +323,7 @@ protected:
   // be different than the request. If the same time step is
   // requested again, there is no need to re-execute the algorithm.
   // We know that it does not have this time step.
-  static vtkInformationDoubleVectorKey* PREVIOUS_UPDATE_TIME_STEPS();
+  static vtkInformationDoubleKey* PREVIOUS_UPDATE_TIME_STEP();
 
   // Keep track of the fast path keys corresponding to the
   // previous executing. If all key values are the same as their

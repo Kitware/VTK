@@ -40,9 +40,8 @@
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkToolkits.h" // for VTK_USE_PARALLEL
 
-#ifdef VTK_USE_PARALLEL
 #include "vtkMultiProcessController.h"
-#endif
+
 
 #include "vtk_exodusII.h"
 #include <time.h>
@@ -161,11 +160,9 @@ int vtkExodusIIWriter::ProcessRequest (
       {
       if(this->TimeValues->GetPointer(0))
         {
-        double timeReq[1];
-        timeReq[0] = this->TimeValues->GetValue(this->CurrentTimeIndex);
+        double timeReq= this->TimeValues->GetValue(this->CurrentTimeIndex);
         inputVector[0]->GetInformationObject(0)->Set
-          ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-            timeReq, 1);
+          ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),  timeReq);
         }
       }
     return 1;

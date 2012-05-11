@@ -2010,8 +2010,6 @@
             </class>
             <class id="vtkMultiPieceDataSet" library="Filtering">
             </class>
-            <class id="vtkTemporalDataSet" library="Filtering">
-            </class>
          </class>
          <class id="vtkDataSet" library="Filtering">
             <class id="vtkHyperOctree" library="Filtering">

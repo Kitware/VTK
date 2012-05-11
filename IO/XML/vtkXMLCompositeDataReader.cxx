@@ -28,7 +28,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLImageDataReader.h"

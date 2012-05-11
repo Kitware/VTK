@@ -48,7 +48,6 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkCharArray;
 class vtkAbstractParticleWriter;
-class vtkTemporalDataSet;
 
 //BTX
 namespace vtkTemporalStreamTracerNamespace
@@ -243,19 +242,26 @@ public:
                                     vtkInformationVector* outputVector);
 
     //
-    // Generate output
+    // what the pipeline calls for each time step
     //
     virtual int RequestData(vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector);
 
     //
+    // these routines are internally called to actually generate the output
+    //
+    virtual int ProcessInput(vtkInformationVector** inputVector);
+
+    virtual int GenerateOutput(vtkInformationVector** inputVector,
+                               vtkInformationVector* outputVector);
+
+    //
     // Initialization of input (vector-field) geometry
     //
     int InitializeInterpolator();
-    int AddTemporalInput(vtkTemporalDataSet *td);
+    int SetTemporalInput(vtkDataObject *td, int index);
 
-//
 //BTX
 //
 
@@ -333,6 +339,8 @@ public:
 //
 //ETX
 //
+    //Track internally which round of RequestData it is--between 0 and 2
+    int           RequestIndex;
 
     // Track which process we are
     int           UpdatePiece;

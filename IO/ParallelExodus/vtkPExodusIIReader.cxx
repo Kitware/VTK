@@ -541,9 +541,9 @@ int vtkPExodusIIReader::RequestData(
       return 0;
       }
 
-    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
+    if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() ) )
       { // Get the requested time step. We only support requests of a single time step in this reader right now
-      double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
+      double requestedTimeStep = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() );
 
       // Save the time value in the output data information.
       int length = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
@@ -557,8 +557,8 @@ int vtkPExodusIIReader::RequestData(
         for ( cnt = 0; cnt < length; ++ cnt )
           {
           double tdist =
-            ( steps[cnt] - requestedTimeSteps[0] > requestedTimeSteps[0] - steps[cnt] ) ?
-            steps[cnt] - requestedTimeSteps[0] : requestedTimeSteps[0] - steps[cnt];
+            ( steps[cnt] - requestedTimeStep > requestedTimeStep - steps[cnt] ) ?
+            steps[cnt] - requestedTimeStep : requestedTimeStep - steps[cnt];
           if ( minDist < 0 || tdist < minDist )
             {
             minDist = tdist;
@@ -567,7 +567,7 @@ int vtkPExodusIIReader::RequestData(
           }
         this->TimeStep = closestStep;
         this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
-        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + this->TimeStep, 1 );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEP(), steps[this->TimeStep] );
         }
       else
         {
@@ -577,14 +577,14 @@ int vtkPExodusIIReader::RequestData(
 
         // Don't use this->SetModeShapeTime because that will cause Modified
         // to be called.
-        //this->SetModeShapeTime( requestedTimeSteps[0] );
-        double phase = requestedTimeSteps[0] - floor(requestedTimeSteps[0]);
+        //this->SetModeShapeTime( requestedTimeStep );
+        double phase = requestedTimeStep - floor(requestedTimeStep);
         this->Metadata->ModeShapeTime = phase;
 
         this->ReaderList[reader_idx]->SetTimeStep( this->TimeStep );
-        this->ReaderList[reader_idx]->SetModeShapeTime( requestedTimeSteps[0] );
-        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), requestedTimeSteps, 1 );
-        //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEPS() );
+        this->ReaderList[reader_idx]->SetModeShapeTime( requestedTimeStep );
+        output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEP(), requestedTimeStep );
+        //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEP() );
         }
       }
     else

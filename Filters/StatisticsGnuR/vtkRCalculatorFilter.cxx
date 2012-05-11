@@ -386,7 +386,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
       this->ri->AssignVTKDataArrayToRVariable(this->TimeRange, "VTK_TIME_RANGE");
       }
 
-      if ( input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()) )
+      if ( input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) )
         {
         if(!this->CurrentTime)
           {
@@ -395,7 +395,7 @@ int vtkRCalculatorFilter::RequestData(vtkInformation *vtkNotUsed(request),
           this->CurrentTime->SetNumberOfTuples(1);
           }
 
-        this->CurrentTime->InsertValue(0,input->GetInformation()->Get( vtkDataObject::DATA_TIME_STEPS())[0] );
+        this->CurrentTime->InsertValue(0,input->GetInformation()->Get( vtkDataObject::DATA_TIME_STEP()) );
 
         this->ri->AssignVTKDataArrayToRVariable(this->CurrentTime, "VTK_CURRENT_TIME");
         }

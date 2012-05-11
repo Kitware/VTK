@@ -398,7 +398,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
       }
 
-    if ( input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEPS()) )
+    if ( input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) )
       {
       if(!this->CurrentTime)
         {
@@ -408,7 +408,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
         }
 
       this->CurrentTime->InsertValue(0,
-            input->GetInformation()->Get( vtkDataObject::DATA_TIME_STEPS())[0] );
+            input->GetInformation()->Get( vtkDataObject::DATA_TIME_STEP()));
 
       this->mengi->PutVtkDataArray("VTK_CURRENT_TIME", this->CurrentTime);
       }

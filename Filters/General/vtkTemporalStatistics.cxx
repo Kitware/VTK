@@ -215,26 +215,11 @@ int vtkTemporalStatistics::RequestDataObject(
 
   vtkSmartPointer<vtkDataObject> newOutput;
 
-  if (input->IsA("vtkTemporalDataSet"))
+  if (!output || !output->IsA(input->GetClassName()))
     {
-    // Special case: there are multiple problems with outputing a temporal data
-    // set.  The first is that this class removes all temporal-ness and
-    // outputing a temporal data set makes no sense.  The second is that the
-    // pipeline has a nasty habit of automatically changing the output to
-    // vtkDataObject.  The easiest thing to do is just copy the output into a
-    // multi block data set instead.
-    if (!output || !output->IsA("vtkCompositeDataSet"))
-      {
-      newOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-      }
+    newOutput.TakeReference(input->NewInstance());
     }
-  else
-    {
-    if (!output || !output->IsA(input->GetClassName()))
-      {
-      newOutput.TakeReference(input->NewInstance());
-      }
-    }
+
 
   if (newOutput)
     {
@@ -259,8 +244,7 @@ int vtkTemporalStatistics::RequestUpdateExtent(
   double *inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (inTimes)
     {
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                &inTimes[this->CurrentTimeIndex], 1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), inTimes[this->CurrentTimeIndex]);
     }
 
   return 1;

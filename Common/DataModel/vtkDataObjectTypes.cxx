@@ -43,7 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkStructuredGrid.h"
 #include  "vtkStructuredPoints.h"
 #include  "vtkTable.h"
-#include  "vtkTemporalDataSet.h"
 #include  "vtkTree.h"
 #include  "vtkUndirectedGraph.h"
 #include  "vtkUniformGrid.h"
@@ -76,7 +75,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkHierarchicalBoxDataSet", // OBSOLETE
   "vtkGenericDataSet",
   "vtkHyperOctree",
-  "vtkTemporalDataSet",
+  "vtkTemporalDataSet",//OBSOLETE
   "vtkTable",
   "vtkGraph",
   "vtkTree",
@@ -218,10 +217,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   else if(strcmp(type, "vtkHyperTreeGrid") == 0)
     {
     return vtkHyperTreeGrid::New();
-    }
-  else if(strcmp(type, "vtkTemporalDataSet") == 0)
-    {
-    return vtkTemporalDataSet::New();
     }
   else if(strcmp(type, "vtkTable") == 0)
     {

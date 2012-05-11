@@ -74,7 +74,7 @@ int TestMPASReader( int argc, char *argv[] )
       executive->GetInputInformation(0);
     double timeReq = 0;
     inputVector->GetInformationObject(0)->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(), &timeReq, 1);
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
     reader->Update();
     reader->EnableAllCellArrays();
     reader->EnableAllPointArrays();
