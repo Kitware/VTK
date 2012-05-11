@@ -62,11 +62,7 @@ if(APPLE)
       )
   endif()
 
-  if(VTK_USE_MATLAB_MEX)
-    set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
-  else()
-   set(VTKPYTHON_LINK_FLAGS "-flat_namespace -undefined suppress -u _PyMac_Error")
-  endif()
+  set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
 endif()
 
 # Link against all the kit wrappers.
