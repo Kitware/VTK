@@ -41,7 +41,7 @@ vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
 
-  this->AutoCorrelationOffset = 0; // By default, autocorrelation matrix is var x Id2
+  this->AutoCorrelationOffset = 0; // By default, autocorrelation matrix only contains var(X)
 }
 
 // ----------------------------------------------------------------------
