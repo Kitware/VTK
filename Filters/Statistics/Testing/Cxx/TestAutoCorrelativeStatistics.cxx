@@ -106,7 +106,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset3Arr->InsertNextValue( -1. );
+    dataset3Arr->InsertNextValue( i );
     }
 
   vtkTable* datasetTable1 = vtkTable::New();
@@ -117,21 +117,20 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   datasetTable1->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
 
-  // Pairs of interest
-  int nMetrics = 3;
+  // Columns of interest
+  int nMetrics = 2;
   vtkStdString columns[] =
     {
       "Metric 1",
-      "Metric 2",
       "Metric 0"
     };
 
   // Reference values
-  // Means for metrics 0, 1, and 2, respectively
-  double means1[] = { 49.21875 , 49.5, -1. };
+  // Means for metrics 0 and 1 respectively
+  double means1[] = { 49.21875 , 49.5 };
 
-  // Standard deviations for metrics 0, 1, and 2, respectively
-  double vars1[] = { 5.9828629, 7.548397, 0. };
+  // Standard deviations for metrics 0 and 1, respectively
+  double vars1[] = { 5.9828629, 7.548397 };
 
   // Set autocorrelative statistics algorithm and its input data port
   vtkAutoCorrelativeStatistics* as1 = vtkAutoCorrelativeStatistics::New();
