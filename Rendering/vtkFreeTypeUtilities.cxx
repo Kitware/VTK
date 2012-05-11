@@ -1027,19 +1027,19 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     tprop->GetShadowOffset(shadowOffset);
     if(shadowOffset[0] < 0)
       {
-      bbox[0] += shadowOffset[0] - 1;
+      bbox[0] += shadowOffset[0];
       }
     else
       {
-      bbox[1] += shadowOffset[1] + 1;
+      bbox[1] += shadowOffset[1];
       }
     if(shadowOffset[1] < 0)
       {
-      bbox[2] += shadowOffset[1] - 1;
+      bbox[2] += shadowOffset[1];
       }
     else
       {
-      bbox[3] += shadowOffset[1] + 1;
+      bbox[3] += shadowOffset[1];
       }
     }
   delete [] currentLine;
@@ -1238,7 +1238,7 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
       unsigned char *glyph_ptr_row = bitmap->buffer;
       unsigned char *glyph_ptr;
 
-      float t_alpha, data_alpha, t_1_m_alpha, t_norm_alpha, data_norm_alpha, alpha_sum, data_r, data_g, data_b;
+      float t_alpha, data_alpha, t_1_m_alpha;
 
       for (int j = 0; j < bitmap->rows; ++j)
         {
@@ -1249,29 +1249,17 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
           t_1_m_alpha = 1.0 - t_alpha;
           data_alpha = (data_ptr[3] - data_min) / data_range;
-          if (t_1_m_alpha < data_alpha)
-          {
-              data_alpha = t_1_m_alpha;
-          }
-          alpha_sum = t_alpha + data_alpha;
-          t_norm_alpha = t_alpha / alpha_sum;
-          data_norm_alpha = data_alpha / alpha_sum;
-
-          data_r = (data_ptr[0] - data_min) / data_range;
-          data_g = (data_ptr[1] - data_min) / data_range;
-          data_b = (data_ptr[2] - data_min) / data_range;
-
           *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (tprop_r * t_norm_alpha + data_r * data_norm_alpha));
+            data_min + data_range * tprop_r);
           ++data_ptr;
           *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (tprop_g * t_norm_alpha + data_g * data_norm_alpha));
+            data_min + data_range * tprop_g);
           ++data_ptr;
           *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (tprop_b * t_norm_alpha + data_b * data_norm_alpha));
+            data_min + data_range * tprop_b);
           ++data_ptr;
           *data_ptr = static_cast<unsigned char>(
-            data_min + data_range * (alpha_sum - t_alpha * data_alpha));
+            data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
           ++data_ptr;
           ++glyph_ptr;
           }
