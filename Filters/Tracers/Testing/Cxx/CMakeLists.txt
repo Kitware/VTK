@@ -1,6 +1,7 @@
 set(MyTests
   TestBSPTree.cxx
   TestAMRInterpolatedVelocityField
+  TestParticleTracers
   )
 
 include(${vtkTestingRendering_SOURCE_DIR}/vtkTestingObjectFactory.cmake)

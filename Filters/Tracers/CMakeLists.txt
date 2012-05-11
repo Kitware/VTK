@@ -11,6 +11,10 @@ set(Module_SRCS
   vtkModifiedBSPTree.cxx
   vtkCellLocatorInterpolatedVelocityField.cxx
   vtkTemporalStreamTracer.cxx
+  vtkParticleTracerBase.cxx
+  vtkParticleTracer.cxx
+  vtkStreaklineFilter.cxx
+  vtkParticlePathFilter.cxx
   vtkTemporalInterpolatedVelocityField.cxx
   vtkCachingInterpolatedVelocityField.cxx
   )
@@ -19,6 +23,7 @@ set_source_files_properties(
   vtkAbstractInterpolatedVelocityField
   vtkCompositeInterpolatedVelocityField.cxx
   vtkStreamer
+  vtkParticleTracerBase
   ABSTRACT
   )
 

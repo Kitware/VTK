@@ -1,14 +1,25 @@
 set(Module_SRCS
   vtkPTemporalStreamTracer.cxx
   vtkPStreamTracer.cxx
+  vtkPParticleTracer.cxx
+  vtkPParticlePathFilter.cxx
+  vtkPStreaklineFilter.cxx
+  vtkPParticleTracerBase.cxx
   )
 
 # Overrides for object factory.
 set(parallel_overrides
   StreamTracer
   TemporalStreamTracer
+  ParticleTracer
+  ParticlePathFilter
+  StreaklineFilter
   )
 
+set_source_files_properties(
+  vtkPParticleTracerBase
+  ABSTRACT
+  )
 
 foreach(_override ${parallel_overrides})
   vtk_add_override(vtk${_override} vtkP${_override})

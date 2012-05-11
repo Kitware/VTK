@@ -10,14 +10,18 @@ add_test(NAME ${vtk-module}Cxx-TestPStream-image
 
 vtk_module_test_executable(TestPStreamGeometry TestVectorFieldSource.cxx
   TestPStreamGeometry.cxx)
-
 add_test(NAME ${vtk-module}Cxx-TestPStreamGeometry
   COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS}
     $<TARGET_FILE:TestPStreamGeometry>
     ${VTK_MPI_POSTFLAGS})
 
-vtk_module_test_executable(TestPStreamAMR TestPStreamAMR.cxx)
+vtk_module_test_executable(TestPParticleTracers TestPParticleTracers.cxx)
+add_test(NAME ${vtk-module}Cxx-TestPParticleTracers
+  COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
+    $<TARGET_FILE:TestPParticleTracers>
+    ${VTK_MPI_POSTFLAGS})
 
+vtk_module_test_executable(TestPStreamAMR TestPStreamAMR.cxx)
 add_test(NAME ${vtk-module}Cxx-TestPStreamAMR
   COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS}
     $<TARGET_FILE:TestPStreamAMR>

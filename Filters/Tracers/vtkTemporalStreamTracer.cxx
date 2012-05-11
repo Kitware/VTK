@@ -746,7 +746,7 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   // If T=0 reset everything to allow us to setup stuff then start an animation
   // with a clean slate
   //
-  if (this->ActualTimeStep==0)
+  if (this->ActualTimeStep==0) //XXX: what if I start from some other time?
     {
     this->LocalSeeds.clear();
     this->ParticleHistories.clear();
@@ -790,25 +790,28 @@ int vtkTemporalStreamTracer::GenerateOutput(vtkInformationVector** inputVector,
   if (this->ReinjectionFlag)
     {
     int seedPointId=0;
-    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0) {
-    for (unsigned int i=0; i<SeedSources.size(); i++) {
-    this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
-    }
-    }
+    if (this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0)
+      {
+      for (unsigned int i=0; i<SeedSources.size(); i++)
+        {
+        this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+        }
+      }
     else
       {
       // wipe the list and reclassify for each injection
       this->LocalSeeds.clear();
-      for (unsigned int i=0; i<SeedSources.size(); i++) {
-      this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+      for (unsigned int i=0; i<SeedSources.size(); i++)
+        {
+        this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+        }
       }
-  }
-  this->ParticleInjectionTime.Modified();
+    this->ParticleInjectionTime.Modified();
 
-  // Now update our main list with the ones we are keeping
-  vtkDebugMacro(<< "Reinjection about to update candidates (" << this->LocalSeeds.size() << " particles)");
-  this->UpdateParticleList(this->LocalSeeds);
-  this->ReinjectionCounter += 1;
+    // Now update our main list with the ones we are keeping
+    vtkDebugMacro(<< "Reinjection about to update candidates (" << this->LocalSeeds.size() << " particles)");
+    this->UpdateParticleList(this->LocalSeeds);
+    this->ReinjectionCounter += 1;
   }
 
   //

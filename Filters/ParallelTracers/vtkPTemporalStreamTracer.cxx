@@ -244,7 +244,6 @@ int vtkPTemporalStreamTracer::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  std::cout << "Parallel";
   int rvalue = this->Superclass::RequestData(request, inputVector, outputVector);
 
   if(this->Controller)
