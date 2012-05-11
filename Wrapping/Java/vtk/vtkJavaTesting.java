@@ -104,7 +104,6 @@ public class vtkJavaTesting {
     public static void StartTimeoutExit(long time, TimeUnit unit) {
         ScheduledExecutorService killerThread = Executors.newSingleThreadScheduledExecutor();
         Runnable killer = new Runnable() {
-            @Override
             public void run() {
                 System.exit(0);
             }

@@ -18,14 +18,12 @@ public interface vtkJavaMemoryManager {
      * Create or return an existing instance of the vtkObject that corresponds
      * to the pointer id vtkId.
      *
-     * @param <T>
-     *            Type of the object that we want to return.
      * @param vtkId
      *            is used to uniquely identify a vtkObject inside the C++ layer.
      *
      * @return a java object that map its underlying C++ instance.
      */
-    <T extends vtkObjectBase> T getJavaObject(Long vtkId);
+    vtkObjectBase getJavaObject(Long vtkId);
 
     /**
      * Store the Java instance of a vtkObject inside a weak pointer map.
