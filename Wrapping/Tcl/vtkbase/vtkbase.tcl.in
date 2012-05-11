@@ -4,23 +4,23 @@ namespace eval ::vtk {
 
     namespace export *
 
-    # load_component: load a VTK component 
+    # load_component: load a VTK component
     #        Example: ::vtk::load_component vtkFilteringTCL
 
     # Windows: the 'load' command looks for DLL in the Tcl/Tk dir,
-    #          the current dir, c:\window\system[32], c:\windows and the dirs 
+    #          the current dir, c:\window\system[32], c:\windows and the dirs
     #          listed in the PATH environment var.
-    #    Unix: the 'load' command looks for shared libs in dirs listed in the 
+    #    Unix: the 'load' command looks for shared libs in dirs listed in the
     #          LD_LIBRARY_PATH environment var.
 
     variable complain_on_loading 1
 
     proc load_component {name {optional_paths {}}} {
-        
+
         global tcl_platform auto_path env
-        
+
         # First dir is empty, to let Tcl try in the current dir
-        
+
         set dirs $optional_paths
         set dirs [concat $dirs {""}]
         set ext [info sharedlibextension]
@@ -44,12 +44,12 @@ namespace eval ::vtk {
         }
 
         foreach dir $dirs {
-            set libname [file join $dir ${prefix}${name}${ext}]
+            set libname [file join $dir ${prefix}${name}-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@${ext}]
             if {[file exists $libname]} {
                 if {![catch {load $libname} errormsg]} {
                     # WARNING: it HAS to be "" so that pkg_mkIndex work (since
                     # while evaluating a package ::vtk::load_component won't
-                    # exist and will default to the unknown() proc that 
+                    # exist and will default to the unknown() proc that
                     # returns ""
                     return ""
                 } elseif {$::vtk::complain_on_loading} {
@@ -62,19 +62,19 @@ namespace eval ::vtk {
         if {$::vtk::complain_on_loading} {
             puts stderr "::vtk::load_component: $name could not be found."
         }
-        
+
         return 1
     }
 
-    # Function returning either a command line argument, an environment 
+    # Function returning either a command line argument, an environment
     # variable or a default value.
 
     proc get_arg_or_env_or_default {arg envvar def} {
-        
+
         # Look at command line args
-        
+
         global argc argv
-        if {[info exists argc]} { 
+        if {[info exists argc]} {
             set argcm1 [expr $argc - 1]
             for {set i 0} {$i < $argcm1} {incr i} {
                 if {[lindex $argv $i] == $arg && $i < $argcm1} {

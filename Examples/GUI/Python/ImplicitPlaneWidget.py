@@ -57,7 +57,7 @@ def myCallback(obj, event):
     global plane, selectActor
     obj.GetPlane(plane)
     selectActor.VisibilityOn()
- 
+
 # Associate the line widget with the interactor
 planeWidget = vtk.vtkImplicitPlaneWidget()
 planeWidget.SetInteractor(iren)

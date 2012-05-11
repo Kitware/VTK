@@ -8,7 +8,7 @@ char *Capitalized(const char *input)
   size_t i;
 
   result = strdup(input);
-  if (result[0] > 90) 
+  if (result[0] > 90)
     {
     result[0] -= 32;
     }
@@ -24,11 +24,11 @@ char *Capitalized(const char *input)
 }
 
 /* this roputine creates the init file */
-static void CreateInitFile(const char *libName, 
-                           int numConcrete, char **concrete, 
+static void CreateInitFile(const char *libName,
+                           int numConcrete, char **concrete,
                            int numCommands, char **commands,
                            const char *version,
-                           FILE *fout) 
+                           FILE *fout)
 {
   /* we have to make sure that the name is the correct case */
   char *kitName = Capitalized(libName);
@@ -63,7 +63,7 @@ static void CreateInitFile(const char *libName,
     fprintf(fout,"ClientData %sNewCommand();\n",concrete[i]);
     }
 
-  if (!strcmp(kitName,"Vtkcommontcl"))
+  if (!strcmp(kitName,"Vtkcommoncoretcl"))
     {
     fprintf(fout,"int vtkCreateCommand(ClientData cd, Tcl_Interp *interp,\n"
       "               int argc, char *argv[]);\n");
@@ -77,7 +77,7 @@ static void CreateInitFile(const char *libName,
     fprintf(fout,"extern Tcl_HashTable vtkPointerLookup;\n");
     fprintf(fout,"extern Tcl_HashTable vtkCommandLookup;\n");
     }
-  fprintf(fout,"extern void vtkTclDeleteObjectFromHash(void *);\n");  
+  fprintf(fout,"extern void vtkTclDeleteObjectFromHash(void *);\n");
   fprintf(fout,"extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);\n");
 
   for (i = 0; i < numCommands; i++)
@@ -97,7 +97,7 @@ static void CreateInitFile(const char *libName,
   /* create an extern ref to the generic delete function */
   fprintf(fout,"\nextern void vtkTclGenericDeleteObject(ClientData cd);\n");
 
-  if (!strcmp(kitName,"Vtkcommontcl"))
+  if (!strcmp(kitName,"Vtkcommoncoretcl"))
     {
     fprintf(fout,
       "extern \"C\"\n{\nvoid vtkCommonDeleteAssocData(ClientData cd)\n");
@@ -113,7 +113,7 @@ static void CreateInitFile(const char *libName,
 
   fprintf(fout,"\n\nint VTK_EXPORT %s_Init(Tcl_Interp *interp)\n{\n",
     kitName);
-  if (!strcmp(kitName,"Vtkcommontcl"))
+  if (!strcmp(kitName,"Vtkcommoncoretcl"))
     {
     fprintf(fout,
       "  vtkTclInterpStruct *info = new vtkTclInterpStruct;\n");
@@ -201,7 +201,7 @@ int main(int argc,char *argv[])
     }
 
   file = fopen(argv[1],"r");
-  if (!file) 
+  if (!file)
     {
     fprintf(stderr,"Input file %s could not be opened\n",argv[1]);
     return 1;

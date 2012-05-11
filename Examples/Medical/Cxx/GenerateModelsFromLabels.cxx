@@ -8,7 +8,7 @@
 //          EndLabel is the last label to be processed
 //          NOTE: There can be gaps in the labeling. If a label does
 //          not exist in the volume, it will be skipped.
-//      
+//
 //
 #include <vtkMetaImageReader.h>
 #include <vtkImageAccumulate.h>
@@ -19,12 +19,12 @@
 #include <vtkGeometryFilter.h>
 #include <vtkXMLPolyDataWriter.h>
 #include <vtkSmartPointer.h>
- 
+
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtksys/ios/sstream>
- 
+
 int main (int argc, char *argv[])
 {
   if (argc < 4)
@@ -32,7 +32,7 @@ int main (int argc, char *argv[])
     cout << "Usage: " << argv[0] << " InputVolume StartLabel EndLabel" << endl;
     return EXIT_FAILURE;
     }
- 
+
   // Create all of the classes we will need
   vtkSmartPointer<vtkMetaImageReader> reader =
     vtkSmartPointer<vtkMetaImageReader>::New();
@@ -50,7 +50,7 @@ int main (int argc, char *argv[])
     vtkSmartPointer<vtkGeometryFilter>::New();
   vtkSmartPointer<vtkXMLPolyDataWriter> writer =
     vtkSmartPointer<vtkXMLPolyDataWriter>::New();
- 
+
   // Define all of the variables
   unsigned int startLabel = atoi(argv[2]);
   unsigned int endLabel = atoi(argv[3]);
@@ -58,26 +58,26 @@ int main (int argc, char *argv[])
   unsigned int smoothingIterations = 15;
   double passBand = 0.001;
   double featureAngle = 120.0;
- 
+
   // Generate models from labels
   // 1) Read the meta file
   // 2) Generate a histogram of the labels
   // 3) Generate models from the labeled volume
   // 4) Smooth the models
   // 5) Output each model into a separate file
- 
+
   reader->SetFileName(argv[1]);
- 
+
   histogram->SetInputConnection(reader->GetOutputPort());
   histogram->SetComponentExtent(0, endLabel, 0, 0, 0, 0);
   histogram->SetComponentOrigin(0, 0, 0);
   histogram->SetComponentSpacing(1, 1, 1);
   histogram->Update();
- 
+
   discreteCubes->SetInputConnection(reader->GetOutputPort());
   discreteCubes->GenerateValues(
     endLabel - startLabel + 1, startLabel, endLabel);
- 
+
   smoother->SetInputConnection(discreteCubes->GetOutputPort());
   smoother->SetNumberOfIterations(smoothingIterations);
   smoother->BoundarySmoothingOff();
@@ -87,23 +87,23 @@ int main (int argc, char *argv[])
   smoother->NonManifoldSmoothingOn();
   smoother->NormalizeCoordinatesOn();
   smoother->Update();
- 
+
   selector->SetInputConnection(smoother->GetOutputPort());
   selector->SetInputArrayToProcess(0, 0, 0,
                                    vtkDataObject::FIELD_ASSOCIATION_CELLS,
                                    vtkDataSetAttributes::SCALARS);
- 
+
   // Strip the scalars from the output
   scalarsOff->SetInputConnection(selector->GetOutputPort());
   scalarsOff->CopyAttributeOff(vtkMaskFields::POINT_DATA,
                                vtkDataSetAttributes::SCALARS);
   scalarsOff->CopyAttributeOff(vtkMaskFields::CELL_DATA,
                                vtkDataSetAttributes::SCALARS);
- 
+
   geometry->SetInputConnection(scalarsOff->GetOutputPort());
- 
+
   writer->SetInputConnection(geometry->GetOutputPort());
- 
+
   for (unsigned int i = startLabel; i <= endLabel; i++)
     {
     // see if the label exists, if not skip it
@@ -113,18 +113,18 @@ int main (int argc, char *argv[])
       {
       continue;
       }
- 
+
     // select the cells for a given label
     selector->ThresholdBetween(i, i);
- 
+
     // output the polydata
     vtksys_stl::stringstream ss;
     ss << filePrefix << i << ".vtp";
     cout << argv[0] << " writing " << ss.str() << endl;
- 
+
     writer->SetFileName(ss.str().c_str());
     writer->Write();
- 
+
     }
   return EXIT_SUCCESS;
 }

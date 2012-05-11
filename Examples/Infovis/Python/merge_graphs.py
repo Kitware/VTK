@@ -14,10 +14,10 @@ ydim = 600
 if __name__ == "__main__":
 
     print "vtkGraph Example 1: Building a vtkMutableDirectedGraph from scratch."
-    
+
     #----------------------------------------------------------
     # Create a graph (see graph1.py for explanations)
-    
+
     G1 = vtkMutableDirectedGraph()
     vertID1 = vtkIntArray()
     vertID1.SetName("ID")
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         vertID1.InsertNextValue(i)
     for i in range(10):
         G1.AddGraphEdge(i, (i+1)%10)
-        
+
     #----------------------------------------------------------
     # Create a second graph
     # - This one is a triangle, with one node's pedigree id field
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     G2.AddGraphEdge(0,1)
     G2.AddGraphEdge(0,2)
     G2.AddGraphEdge(1,2)
-    
+
     #----------------------------------------------------------
     # Merge graphs takes two graphs on input ports 0 and 1.
     # and combines them according to the pedigree id field.
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     theme.SetPointSize(10)
     theme.SetCellOpacity(1)
     theme.FastDelete()
-    
+
     # View containing graph G1
     view = vtkGraphLayoutView()
     view.AddRepresentationFromInput(G1)

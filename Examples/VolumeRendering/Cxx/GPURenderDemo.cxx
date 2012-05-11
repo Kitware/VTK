@@ -52,11 +52,11 @@ public:
         planes->Delete();
         }
     }
-  void SetMapper(vtkSmartVolumeMapper* m) 
+  void SetMapper(vtkSmartVolumeMapper* m)
     { this->Mapper = m; }
 
 protected:
-  vtkBoxWidgetCallback() 
+  vtkBoxWidgetCallback()
     { this->Mapper = 0; }
 
   vtkSmartVolumeMapper *Mapper;
@@ -112,7 +112,7 @@ void PrintUsage()
 int main(int argc, char *argv[])
 {
   // Parse the parameters
-  
+
   int count = 1;
   char *dirname = NULL;
   double opacityWindow = 4096;
@@ -123,9 +123,9 @@ int main(int argc, char *argv[])
   double frameRate = 10.0;
   char *fileName=0;
   int fileType=0;
-  
+
   bool independentComponents=true;
-  
+
   while ( count < argc )
     {
     if ( !strcmp( argv[count], "?" ) )
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
       {
       blendType = 6;
       count += 1;
-      }    
+      }
     else if ( !strcmp( argv[count], "-FrameRate") )
       {
       frameRate = atof( argv[count+1] );
@@ -232,23 +232,23 @@ int main(int argc, char *argv[])
       cout << endl;
       PrintUsage();
       exit(EXIT_FAILURE);
-      }    
+      }
     }
-  
+
   if ( !dirname && !fileName)
     {
     cout << "Error: you must specify a directory of DICOM data or a .vti file or a .mha!" << endl;
     cout << endl;
     PrintUsage();
-    exit(EXIT_FAILURE);    
+    exit(EXIT_FAILURE);
     }
-  
+
   // Create the renderer, render window and interactor
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(renderer);
 
-  // Connect it all. Note that funny arithematic on the 
+  // Connect it all. Note that funny arithematic on the
   // SetDesiredUpdateRate - the vtkRenderWindow divides it
   // allocated time across all renderers, and the renderer
   // divides it time across all props. If clip is
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   iren->SetDesiredUpdateRate(frameRate / (1+clip) );
-  
+
   iren->GetInteractorStyle()->SetDefaultRenderer(renderer);
 
   // Read the data
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
     cout << "Error! Not VTI or MHA!" << endl;
     exit(EXIT_FAILURE);
     }
-  
+
   // Verify that we actually have a volume
   int dim[3];
   input->GetDimensions(dim);
@@ -300,22 +300,22 @@ int main(int argc, char *argv[])
        dim[2] < 2 )
     {
     cout << "Error loading data!" << endl;
-    exit(EXIT_FAILURE);    
+    exit(EXIT_FAILURE);
     }
-  
+
   vtkImageResample *resample = vtkImageResample::New();
   if ( reductionFactor < 1.0 )
     {
     resample->SetInputConnection( reader->GetOutputPort() );
     resample->SetAxisMagnificationFactor(0, reductionFactor);
     resample->SetAxisMagnificationFactor(1, reductionFactor);
-    resample->SetAxisMagnificationFactor(2, reductionFactor);    
+    resample->SetAxisMagnificationFactor(2, reductionFactor);
     }
-  
+
   // Create our volume and mapper
   vtkVolume *volume = vtkVolume::New();
   vtkSmartVolumeMapper *mapper = vtkSmartVolumeMapper::New();
-  
+
   // Add a box widget if the clip option was selected
   vtkBoxWidget *box = vtkBoxWidget::New();
   if (clip)
@@ -323,14 +323,14 @@ int main(int argc, char *argv[])
     box->SetInteractor(iren);
     box->SetPlaceFactor(1.01);
     if ( reductionFactor < 1.0 )
-      {      
+      {
       box->SetInputConnection(resample->GetOutputPort());
       }
     else
       {
       box->SetInputData(input);
       }
-    
+
     box->SetDefaultRenderer(renderer);
     box->InsideOutOn();
     box->PlaceWidget();
@@ -350,8 +350,8 @@ int main(int argc, char *argv[])
     {
     mapper->SetInputConnection( reader->GetOutputPort() );
     }
-    
-  
+
+
   // Set the sample distance on the ray to be 1/2 the average spacing
   double spacing[3];
   if ( reductionFactor < 1.0 )
@@ -362,15 +362,15 @@ int main(int argc, char *argv[])
     {
     input->GetSpacing(spacing);
     }
-  
+
 //  mapper->SetSampleDistance( (spacing[0]+spacing[1]+spacing[2])/6.0 );
 //  mapper->SetMaximumImageSampleDistance(10.0);
-  
+
 
   // Create our transfer function
   vtkColorTransferFunction *colorFun = vtkColorTransferFunction::New();
   vtkPiecewiseFunction *opacityFun = vtkPiecewiseFunction::New();
-  
+
   // Create the property and attach the transfer functions
   vtkVolumeProperty *property = vtkVolumeProperty::New();
   property->SetIndependentComponents(independentComponents);
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
   volume->SetProperty( property );
   volume->SetMapper( mapper );
 
-  // Depending on the blend type selected as a command line option, 
+  // Depending on the blend type selected as a command line option,
   // adjust the transfer function
   switch ( blendType )
     {
@@ -391,29 +391,29 @@ int main(int argc, char *argv[])
     // Color is white. Blending is MIP.
     case 0:
       colorFun->AddRGBSegment(0.0, 1.0, 1.0, 1.0, 255.0, 1.0, 1.0, 1.0 );
-      opacityFun->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0, 
+      opacityFun->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0,
                               opacityLevel + 0.5*opacityWindow, 1.0 );
       mapper->SetBlendModeToMaximumIntensity();
       break;
-      
+
     // CompositeRamp
     // Create a ramp from the window and level values. Use compositing
     // without shading. Color is a ramp from black to white.
     case 1:
-      colorFun->AddRGBSegment(opacityLevel - 0.5*opacityWindow, 0.0, 0.0, 0.0, 
+      colorFun->AddRGBSegment(opacityLevel - 0.5*opacityWindow, 0.0, 0.0, 0.0,
                               opacityLevel + 0.5*opacityWindow, 1.0, 1.0, 1.0 );
-      opacityFun->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0, 
+      opacityFun->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0,
                               opacityLevel + 0.5*opacityWindow, 1.0 );
       mapper->SetBlendModeToComposite();
       property->ShadeOff();
       break;
-      
+
     // CompositeShadeRamp
     // Create a ramp from the window and level values. Use compositing
     // with shading. Color is white.
     case 2:
       colorFun->AddRGBSegment(0.0, 1.0, 1.0, 1.0, 255.0, 1.0, 1.0, 1.0 );
-      opacityFun->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0, 
+      opacityFun->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0,
                               opacityLevel + 0.5*opacityWindow, 1.0 );
       mapper->SetBlendModeToComposite();
       property->ShadeOn();
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
       colorFun->AddRGBPoint( -1000, .62, .36, .18, 0.5, 0.0 );
       colorFun->AddRGBPoint( -500, .88, .60, .29, 0.33, 0.45 );
       colorFun->AddRGBPoint( 3071, .83, .66, 1, 0.5, 0.0 );
-      
+
       opacityFun->AddPoint(-3024, 0, 0.5, 0.0 );
       opacityFun->AddPoint(-1000, 0, 0.5, 0.0 );
       opacityFun->AddPoint(-500, 1.0, 0.33, 0.45 );
@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
       property->SetSpecularPower(10.0);
       property->SetScalarOpacityUnitDistance(0.8919);
       break;
-      
+
     // CT_Bone
     // Use compositing and functions set to highlight bone in CT data
     // Not for use on RGB data
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
       colorFun->AddRGBPoint( -16, 0.73, 0.25, 0.30, 0.49, .61 );
       colorFun->AddRGBPoint( 641, .90, .82, .56, .5, 0.0 );
       colorFun->AddRGBPoint( 3071, 1, 1, 1, .5, 0.0 );
-      
+
       opacityFun->AddPoint(-3024, 0, 0.5, 0.0 );
       opacityFun->AddPoint(-16, 0, .49, .61 );
       opacityFun->AddPoint(641, .72, .5, 0.0 );
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
       property->SetSpecularPower(10.0);
       property->SetScalarOpacityUnitDistance(0.8919);
       break;
-      
+
     // CT_Muscle
     // Use compositing and functions set to highlight muscle in CT data
     // Not for use on RGB data
@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
       colorFun->AddRGBPoint( 217, .88, .60, .29, 0.33, 0.45 );
       colorFun->AddRGBPoint( 420, 1, .94, .95, 0.5, 0.0 );
       colorFun->AddRGBPoint( 3071, .83, .66, 1, 0.5, 0.0 );
-      
+
       opacityFun->AddPoint(-3024, 0, 0.5, 0.0 );
       opacityFun->AddPoint(-155, 0, 0.5, 0.92 );
       opacityFun->AddPoint(217, .68, 0.33, 0.45 );
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
       property->SetSpecularPower(10.0);
       property->SetScalarOpacityUnitDistance(0.8919);
       break;
-      
+
     // RGB_Composite
     // Use compositing and functions set to highlight red/green/blue regions
     // in RGB data. Not for use on single component data
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
        vtkGenericWarningMacro("Unknown blend type.");
        break;
     }
-   
+
   // Set the default window size
   renWin->SetSize(600,600);
   renWin->Render();
@@ -529,11 +529,11 @@ int main(int argc, char *argv[])
   renWin->Render();
 
   iren->Start();
-  
+
   opacityFun->Delete();
   colorFun->Delete();
   property->Delete();
-  
+
   box->Delete();
   volume->Delete();
   mapper->Delete();

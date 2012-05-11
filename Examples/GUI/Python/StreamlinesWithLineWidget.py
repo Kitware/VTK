@@ -95,7 +95,7 @@ iren.SetRenderWindow(renWin)
 # Callback functions that actually generate streamlines.
 def BeginInteraction(obj, event):
     global streamline
-    streamline.VisibilityOn() 
+    streamline.VisibilityOn()
 
 def GenerateStreamlines(obj, event):
     global seeds, renWin

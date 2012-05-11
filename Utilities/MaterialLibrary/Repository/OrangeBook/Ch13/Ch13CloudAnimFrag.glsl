@@ -3,12 +3,12 @@
 //
 // Author: Randi Rost
 //
-// Copyright (c) 2002-2004 3Dlabs Inc. Ltd. 
+// Copyright (c) 2002-2004 3Dlabs Inc. Ltd.
 //
 // See 3Dlabs-License.txt for license information
 //
 
-varying float LightIntensity; 
+varying float LightIntensity;
 varying vec3  MCposition;
 
 uniform sampler3D Noise;
@@ -20,7 +20,7 @@ void main (void)
 {
     vec4  noisevec  = texture3D(Noise, MCposition + Offset);
 
-    float intensity = (noisevec[0] + noisevec[1] + 
+    float intensity = (noisevec[0] + noisevec[1] +
                        noisevec[2] + noisevec[3]) * 1.5;
 
     vec3 color   = mix(SkyColor, CloudColor, intensity) * LightIntensity;

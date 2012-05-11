@@ -648,8 +648,11 @@ int checkFunctionSignature(ClassInfo *data)
   else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
-    if (!strcmp(currentFunction->Name,"PrintRevisions") ||
-        !strcmp(currentFunction->Name,"Print"))
+    if (!strcmp(currentFunction->Name,"Print")
+#ifndef VTK_LEGACY_REMOVE
+        || !strcmp(currentFunction->Name,"PrintRevisions")
+#endif
+        )
       {
       args_ok = 0;
       }
@@ -889,8 +892,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
     {
     /* Add the Print method to vtkObject. */
     fprintf(fp,"  public native String Print();\n");
+#ifndef VTK_LEGACY_REMOVE
     /* Add the PrintRevisions method to vtkObject. */
     fprintf(fp,"  public native String PrintRevisions();\n");
+#endif
     /* Add the default toString from java object */
     fprintf(fp,"  public String toString() { return Print(); }\n");
     }

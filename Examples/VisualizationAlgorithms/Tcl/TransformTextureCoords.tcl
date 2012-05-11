@@ -6,7 +6,7 @@
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl.
 #
 package require vtk
@@ -14,7 +14,7 @@ package require vtkinteraction
 
 #
 # These are the different choices made available to the user.
-# They include: models, textures (relative to VTK_DATA_ROOT) 
+# They include: models, textures (relative to VTK_DATA_ROOT)
 # and mapper types.
 #
 set models { \
@@ -39,7 +39,7 @@ set texture_mapper_types { \
     }
 
 #
-# A 3D model is loaded using an BYU reader. 
+# A 3D model is loaded using an BYU reader.
 # Compute normals, in case they are not provided with the model.
 #
 vtkBYUReader model_reader
@@ -47,8 +47,8 @@ vtkBYUReader model_reader
 
 vtkPolyDataNormals model_normals
   model_normals SetInputConnection [model_reader GetOutputPort]
- 
-#   
+
+#
 # Create all texture coordinates generators/mappers and use the first one
 # for the current pipeline.
 #
@@ -59,7 +59,7 @@ foreach texture_mapper_type $texture_mapper_types {
 }
 
 #
-# Create a texture coordinate transformer, which can be used to 
+# Create a texture coordinate transformer, which can be used to
 # translate, scale or flip the texture.
 #
 set texture_mapper_type [lindex $texture_mapper_types 0]
@@ -73,7 +73,7 @@ vtkPolyDataMapper mapper
   mapper SetInputConnection [transform_texture GetOutputPort]
 
 #
-# A texture is loaded using an image reader. 
+# A texture is loaded using an image reader.
 # Textures are simply images.
 # The texture is eventually associated with an actor.
 #
@@ -92,12 +92,12 @@ vtkActor actor
 
 #
 # Create a triangle filter that will feed the model geometry to
-# the feature edge extractor. Create the corresponding mapper 
+# the feature edge extractor. Create the corresponding mapper
 # and actor.
 #
 vtkTriangleFilter triangle_filter
   triangle_filter SetInputConnection [model_normals GetOutputPort]
- 
+
 vtkFeatureEdges edges_extractor
   edges_extractor SetInputConnection [triangle_filter GetOutputPort]
   edges_extractor ColoringOff
@@ -130,7 +130,7 @@ ren1 AddActor actor
 ren1 AddActor edges_actor
 ren1 SetBackground 1 1 1
 
-# 
+#
 # Create the Tk widget, associate it with the renderwindow.
 #
 set vtkw [vtkTkRenderWidget .ren \
@@ -167,7 +167,7 @@ $menubar add cascade -label "File" -menu $file_menu
 
 #
 # Create a "Model" menu.
-# Each model is a radio menu entry, associated to 
+# Each model is a radio menu entry, associated to
 # the load_model callback.
 #
 set model_menu [menu $menubar.model]
@@ -309,7 +309,7 @@ proc create_transform_texture_coords_gui {parent obj} {
     # Loop over each "control" description
     #
     foreach {control label coords obj_method scale_from scale_to scale_res} \
-            $transform_texture_coords_gui_controls { 
+            $transform_texture_coords_gui_controls {
 
         #
         # Create a frame for the control, a label for its title, and a
@@ -317,19 +317,19 @@ proc create_transform_texture_coords_gui {parent obj} {
         #
         upvar ${control}_frame control_frame
         set control_frame [frame $main_frame.$control -relief groove -border 2]
-        
+
         upvar ${control}_label control_label
         set control_label [label $control_frame.label \
                 -text "$label:" -anchor w]
-        
+
         upvar ${control}_rst control_rst
         set control_rst [frame $control_frame.rst]
-        
+
         #
         # Add (r,s,t) texture coordinate widgets to the control.
         # Each one is made of a label for the coordinate's name, a label
         # for the coordinate's value and a Tk scale widget to control
-        # that value. 
+        # that value.
         # All scale widgets are associated to the same callback:
         # update_transform_texture_from_gui_vars
         #
@@ -376,21 +376,21 @@ proc create_transform_texture_coords_gui {parent obj} {
                         $control_rst.${coord}_scale \
                         $control_rst.${coord}_flip_label \
                         $control_rst.${coord}_flip \
-                        -sticky news 
+                        -sticky news
             } else {
                 grid $control_rst.${coord}_label \
                         $control_rst.${coord}_value \
                         $control_rst.${coord}_scale \
-                        -sticky news 
+                        -sticky news
             }
 
-            # 
+            #
             # Allow the scale widgets to grow when the GUI is expanded.
             #
             grid columnconfigure $control_rst 2 -weight 1
         }
-        
-        # 
+
+        #
         # Pack everything
         #
         pack $control_frame \
@@ -415,7 +415,7 @@ proc update_transform_texture_from_gui_vars {obj args} {
     global gui_vars transform_texture_coords_gui_controls
 
     foreach {control label coords obj_method scale_from scale_to scale_res} \
-            $transform_texture_coords_gui_controls { 
+            $transform_texture_coords_gui_controls {
         set values [$obj Get$obj_method]
         for {set i 0} {$i < [llength $coords]} {incr i} {
             set coord [lindex $coords $i]
@@ -447,6 +447,6 @@ wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit
 
 #
 # You only need this line if you run this script from a Tcl shell
-# (tclsh) instead of a Tk shell (wish) 
+# (tclsh) instead of a Tk shell (wish)
 #
 tkwait window .

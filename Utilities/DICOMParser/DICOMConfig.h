@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -26,7 +26,7 @@
 
 //
 // BEGIN Toolkit (ITK,VTK, etc) specific
-// 
+//
 #ifdef vtkDICOMParser_EXPORTS
   #define DICOM_EXPORT_SYMBOLS
 #endif
@@ -42,7 +42,7 @@
   #include <fstream>
   #include <iomanip>
 #else
-  #define dicom_stream 
+  #define dicom_stream
 
   #include <iostream.h>
   #include <fstream.h>
@@ -52,13 +52,13 @@
 #ifdef DICOM_DLL
   #ifdef DICOM_EXPORT_SYMBOLS
     #define DICOM_EXPORT __declspec(dllexport)
-    #define DICOM_EXPIMP_TEMPLATE 
+    #define DICOM_EXPIMP_TEMPLATE
   #else
     #define DICOM_EXPORT __declspec(dllimport)
     #define DICOM_EXPIMP_TEMPLATE extern
   #endif
 #else
-  #define DICOM_EXPORT 
+  #define DICOM_EXPORT
 #endif
 
 #endif // __DICOM_CONFIG_H_

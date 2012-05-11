@@ -27,13 +27,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-static HANDLE hinst; 
+static HANDLE hinst;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-// define the vtk part as a simple c++ class 
-class myVTKApp   
+// define the vtk part as a simple c++ class
+class myVTKApp
 {
-public: 
-  myVTKApp(HWND parent);     
+public:
+  myVTKApp(HWND parent);
   ~myVTKApp();
 private:
   vtkRenderWindow *renWin;
@@ -61,13 +61,13 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
     wndclass.cbWndExtra    = 0 ;
     wndclass.hInstance     = hInstance;
     wndclass.hIcon         = LoadIcon(NULL,IDI_APPLICATION);
-    wndclass.hCursor       = LoadCursor (NULL, IDC_ARROW);         
+    wndclass.hCursor       = LoadCursor (NULL, IDC_ARROW);
     wndclass.lpszMenuName  = NULL;
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndclass.lpszClassName = szAppName;
     RegisterClass (&wndclass);
     }
-  
+
   hinst = hInstance;
   hwnd = CreateWindow ( szAppName,
                         "Draw Window",
@@ -83,7 +83,7 @@ int PASCAL WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
   ShowWindow (hwnd, nCmdShow);
   UpdateWindow (hwnd);
   while (GetMessage (&msg, NULL, 0, 0))
-    {     
+    {
     TranslateMessage (&msg);
     DispatchMessage (&msg);
     }
@@ -100,15 +100,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
       {
       ewin = CreateWindow("button","Exit",
-                          WS_CHILD | WS_VISIBLE | SS_CENTER,                   
-                          0,400,400,60, 
-                          hwnd,(HMENU)2, 
+                          WS_CHILD | WS_VISIBLE | SS_CENTER,
+                          0,400,400,60,
+                          hwnd,(HMENU)2,
                           (HINSTANCE)vtkGetWindowLong(hwnd,vtkGWL_HINSTANCE),
                           NULL);
       theVTKApp = new myVTKApp(hwnd);
       return 0;
       }
-      
+
     case WM_COMMAND:
       switch (wParam)
         {
@@ -122,7 +122,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           break;
         }
       return 0;
-      
+
     case WM_DESTROY:
       PostQuitMessage (0);
       if (theVTKApp)
@@ -130,14 +130,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         delete theVTKApp;
         theVTKApp = NULL;
         }
-      return 0; 
+      return 0;
     }
   return DefWindowProc (hwnd, message, wParam, lParam);
 }
 
-myVTKApp::myVTKApp(HWND hwnd) 
+myVTKApp::myVTKApp(HWND hwnd)
 {
-  // Similar to Examples/Tutorial/Step1/Cxx/Cone.cxx 
+  // Similar to Examples/Tutorial/Step1/Cxx/Cone.cxx
   // We create the basic parts of a pipeline and connect them
   this->renderer = vtkRenderer::New();
   this->renWin = vtkRenderWindow::New();
@@ -156,7 +156,7 @@ myVTKApp::myVTKApp(HWND hwnd)
   this->coneMapper->SetInputConnection(this->cone->GetOutputPort());
   this->coneActor = vtkActor::New();
   this->coneActor->SetMapper(this->coneMapper);
-  
+
   this->renderer->AddActor(this->coneActor);
   this->renderer->SetBackground(0.2,0.4,0.3);
   this->renWin->SetSize(400,400);

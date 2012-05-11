@@ -9,7 +9,7 @@
 from vtk import *
 
 if __name__ == "__main__":
-    
+
   # Generate a random graph with 20 vertices and a random number of edges
   source = vtkRandomGraphSource()
   source.SetNumberOfVertices(20)
@@ -25,7 +25,7 @@ if __name__ == "__main__":
   degree_filter.SetInputConnection(source.GetOutputPort())
 
   # Pass the vertex degree data to R and compute the distance from the mean
-  # vertex degree for every vertex in the graph. 
+  # vertex degree for every vertex in the graph.
   rcalculator = vtkRCalculatorFilter()
   rcalculator.SetInputConnection(degree_filter.GetOutputPort())
   # Shows R output on the terminal

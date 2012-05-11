@@ -66,7 +66,7 @@ void vtkMFCView::Dump(CDumpContext& dc) const
 /////////////////////////////////////////////////////////////////////////////
 // vtkMFCView message handlers
 
-BOOL vtkMFCView::PreCreateWindow(CREATESTRUCT& cs) 
+BOOL vtkMFCView::PreCreateWindow(CREATESTRUCT& cs)
 {
   // TODO: Add your specialized code here and/or call the base class
   //  the CREATESTRUCT cs
@@ -74,7 +74,7 @@ BOOL vtkMFCView::PreCreateWindow(CREATESTRUCT& cs)
   return CView::PreCreateWindow(cs);
 }
 
-BOOL vtkMFCView::OnPreparePrinting(CPrintInfo* pInfo) 
+BOOL vtkMFCView::OnPreparePrinting(CPrintInfo* pInfo)
 {
   // TODO: call DoPreparePrinting to invoke the Print dialog box
   // default preparation
@@ -83,7 +83,7 @@ BOOL vtkMFCView::OnPreparePrinting(CPrintInfo* pInfo)
   return DoPreparePrinting(pInfo);
 }
 
-void vtkMFCView::OnEditCopy() 
+void vtkMFCView::OnEditCopy()
 {
   // TODO: Add your command handler code here
   LPBITMAPINFOHEADER  lpbi;       // pointer to BITMAPINFOHEADER
@@ -97,11 +97,11 @@ void vtkMFCView::OnEditCopy()
     {
     BeginWaitCursor();
     EmptyClipboard();
-  
+
     dwLen = sizeof(BITMAPINFOHEADER) + dataWidth*size[1];
     hDIB = ::GlobalAlloc(GHND, dwLen);
     lpbi = (LPBITMAPINFOHEADER) ::GlobalLock(hDIB);
-    
+
     lpbi->biSize = sizeof(BITMAPINFOHEADER);
     lpbi->biWidth = size[0];
     lpbi->biHeight = size[1];
@@ -111,19 +111,19 @@ void vtkMFCView::OnEditCopy()
     lpbi->biClrUsed = 0;
     lpbi->biClrImportant = 0;
     lpbi->biSizeImage = dataWidth*size[1];
-    
+
     this->SetupMemoryRendering(size[0],size[1],
                                this->GetDC()->GetSafeHdc());
     vtkWin->Render();
 
     memcpy((LPSTR)lpbi + lpbi->biSize,
            this->GetMemoryData(),dataWidth*size[1]);
-    
+
     SetClipboardData (CF_DIB, hDIB);
     ::GlobalUnlock(hDIB);
     CloseClipboard();
     this->ResumeScreenRendering();
     EndWaitCursor();
-    }		
+    }
 }
 

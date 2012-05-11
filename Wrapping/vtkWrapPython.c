@@ -222,7 +222,11 @@ const char *vtkWrapPython_GetSuperClass(
       vtkParse_FreeTemplateDecomposition(name, 2, args);
       }
 
-    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name))
+    // Add QVTKInteractor as the sole exception: It is derived
+    // from vtkObject but does not start with "vtk".  Given its
+    // name, it would be expected to be derived from QObject.
+    if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name) ||
+        strcmp(data->Name, "QVTKInteractor") == 0)
       {
       if (vtkWrap_IsClassWrapped(hinfo, supername) &&
           vtkWrap_IsVTKObjectBaseType(hinfo, supername))
@@ -2648,14 +2652,16 @@ static void vtkWrapPython_ClassMethodDef(
             classname);
     }
 
-  /* vtkObjectBase needs GetAddressAsString, PrintRevisions, UnRegister */
+  /* vtkObjectBase needs GetAddressAsString, UnRegister */
   else if (strcmp("vtkObjectBase", data->Name) == 0)
     {
     fprintf(fp,
             "  {(char*)\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
             "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n"
+#ifndef VTK_LEGACY_REMOVE
             "  {(char*)\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
             "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n"
+#endif
             "  {(char*)\"Register\", Py%s_Register, 1,\n"
             "   (char*)\"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
             "  {(char*)\"UnRegister\", Py%s_UnRegister, 1,\n"
@@ -3241,7 +3247,9 @@ static void vtkWrapPython_CustomMethods(
       theFunc = data->Functions[i];
 
       if ((strcmp(theFunc->Name, "GetAddressAsString") == 0) ||
+#ifndef VTK_LEGACY_REMOVE
           (strcmp(theFunc->Name, "PrintRevisions") == 0) ||
+#endif
           (strcmp(theFunc->Name, "Register") == 0) ||
           (strcmp(theFunc->Name, "UnRegister") == 0))
         {
@@ -3275,6 +3283,7 @@ static void vtkWrapPython_CustomMethods(
             "\n",
             classname, data->Name, data->Name);
 
+#ifndef VTK_LEGACY_REMOVE
     /* add the PrintRevisions method to vtkObjectBase. */
     fprintf(fp,
             "static PyObject *\n"
@@ -3301,6 +3310,7 @@ static void vtkWrapPython_CustomMethods(
             "}\n"
             "\n",
             classname, data->Name, data->Name);
+#endif
 
     /* Override the Register method to check whether to ignore Register */
     fprintf(fp,

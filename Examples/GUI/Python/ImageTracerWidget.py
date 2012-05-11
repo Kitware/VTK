@@ -33,11 +33,11 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 def AdjustSpline(evt, obj):
     itw.GetPath(poly)
     npts = itw.GetNumberOfHandles()
-    
+
     if npts < 2:
         imageActor2.GetMapper().SetInputConnection(extract.GetOutputPort())
         return
-    
+
     closed = itw.IsClosed()
 
     if closed:

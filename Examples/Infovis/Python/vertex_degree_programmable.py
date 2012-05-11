@@ -12,11 +12,11 @@ def computeVertexDegree():
   vertexArray = vtkIntArray()
   vertexArray.SetName("VertexDegree")
   vertexArray.SetNumberOfTuples(output.GetNumberOfVertices())
-  
+
   # Loop through all the vertices setting the degree for the new attribute array
   for i in range(output.GetNumberOfVertices()):
       vertexArray.SetValue(i, output.GetDegree(i))
-    
+
   # Add the new attribute array to the output graph
   output.GetVertexData().AddArray(vertexArray)
 

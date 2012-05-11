@@ -14,7 +14,7 @@ package require vtktesting
 vtkMultiBlockPLOT3DReader pl3d
   pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
   pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
-  pl3d SetScalarFunctionNumber 100 
+  pl3d SetScalarFunctionNumber 100
   pl3d SetVectorFunctionNumber 202
   pl3d Update
 
@@ -32,13 +32,13 @@ vtkLineSource rake
 vtkPolyDataMapper rakeMapper
   rakeMapper SetInputConnection [rake GetOutputPort]
 vtkActor rakeActor
-  rakeActor SetMapper rakeMapper 
+  rakeActor SetMapper rakeMapper
 
 vtkRungeKutta4 integ
 vtkStreamLine sl
   sl SetInputData $pl3dOutput
-  sl SetSourceConnection [rake GetOutputPort] 
-  sl SetIntegrator integ 
+  sl SetSourceConnection [rake GetOutputPort]
+  sl SetIntegrator integ
   sl SetMaximumPropagationTime 0.1
   sl SetIntegrationStepLength 0.1
   sl SetIntegrationDirectionToBackward
@@ -51,16 +51,16 @@ vtkStreamLine sl
 #
 vtkRuledSurfaceFilter scalarSurface
   scalarSurface SetInputConnection [sl GetOutputPort]
-  scalarSurface SetOffset 0 
-  scalarSurface SetOnRatio 2 
+  scalarSurface SetOffset 0
+  scalarSurface SetOnRatio 2
   scalarSurface PassLinesOn
   scalarSurface SetRuledModeToPointWalk
-  scalarSurface SetDistanceFactor 30 
+  scalarSurface SetDistanceFactor 30
 vtkPolyDataMapper mapper
   mapper SetInputConnection [scalarSurface GetOutputPort]
   eval mapper SetScalarRange [$pl3dOutput GetScalarRange]
 vtkActor actor
-  actor SetMapper mapper 
+  actor SetMapper mapper
 
 # Put an outline around for context.
 #
@@ -69,7 +69,7 @@ vtkStructuredGridOutlineFilter outline
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
-  outlineActor SetMapper outlineMapper 
+  outlineActor SetMapper outlineMapper
   [outlineActor GetProperty] SetColor 0 0 0
 
 # Now create the usual graphics stuff.
@@ -79,9 +79,9 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-ren AddActor rakeActor 
-ren AddActor actor 
-ren AddActor outlineActor 
+ren AddActor rakeActor
+ren AddActor actor
+ren AddActor outlineActor
 ren SetBackground 1 1 1
 
 renWin SetSize 300 300

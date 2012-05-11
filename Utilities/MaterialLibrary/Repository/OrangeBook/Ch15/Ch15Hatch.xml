@@ -33,5 +33,5 @@
     <Uniform type="sampler3D" name="Noise" number_of_elements="1" value="0"> </Uniform>
     <Uniform type="float" name="Swidth" number_of_elements="1" value="1.0"> </Uniform>
   </Shader>
-  
+
 </Material>

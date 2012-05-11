@@ -10,8 +10,8 @@
   All rights reserved.
   See Copyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -27,11 +27,11 @@
 #pragma warning ( disable : 4710 )
 #pragma warning ( disable : 4702 )
 #pragma warning ( push, 3 )
-#endif 
+#endif
 
 
 #include <map>
-#include <utility> 
+#include <utility>
 #include <vector>
 
 #include "DICOMConfig.h"
@@ -75,7 +75,7 @@ class DICOM_EXPORT DICOMParser
   // Return the name of the file last processed.
   //
   const dicom_stl::string& GetFileName();
-  
+
   //
   // This method kicks off the parser.
   // OpenFile needs to be called first.
@@ -83,7 +83,7 @@ class DICOM_EXPORT DICOMParser
   bool ReadHeader();
 
   //
-  // Static method that returns true if DICOMFile is opened 
+  // Static method that returns true if DICOMFile is opened
   // to a file that contains a DICOM image.
   //
   static bool IsDICOMFile(DICOMFile* file);
@@ -105,11 +105,11 @@ class DICOM_EXPORT DICOMParser
   //
   // Defined DICOM types.
   //
-  enum VRTypes 
+  enum VRTypes
     {
       VR_UNKNOWN = 0x0,
       VR_OB=0x424f, // Other byte string (string of bytes, insensitive to byte order)
-      VR_AW=0x5741, 
+      VR_AW=0x5741,
       VR_AE=0x4541, // Application Entity (char string)
       VR_AS=0x5341, // Age string (char string)
       VR_CS=0x5343, // Code string (char string, leading/trailing spaces insignificant)
@@ -168,8 +168,8 @@ class DICOM_EXPORT DICOMParser
 
  protected:
 
-  bool ParseExplicitRecord(doublebyte group, doublebyte element, 
-                           quadbyte& length, 
+  bool ParseExplicitRecord(doublebyte group, doublebyte element,
+                           quadbyte& length,
                            VRTypes& represent);
 
   bool ParseImplicitRecord(doublebyte group, doublebyte element,
@@ -181,7 +181,7 @@ class DICOM_EXPORT DICOMParser
   // void DumpTag(doublebyte group, doublebyte element, VRTypes datatype, unsigned char* data, quadbyte length);
   void DumpTag(dicom_stream::ostream& out, doublebyte group, doublebyte element, VRTypes vrtype, unsigned char* tempdata, quadbyte length);
 
-  struct DICOMRecord 
+  struct DICOMRecord
     {
     doublebyte group;
     doublebyte element;
@@ -203,11 +203,11 @@ class DICOM_EXPORT DICOMParser
   // Sets up the type map.
   //
   void InitTypeMap();
-  
+
   //
-  // Flags for byte swaping header values and 
+  // Flags for byte swaping header values and
   // image data.
-  // 
+  //
   bool ByteSwap;
   bool ByteSwapData;
 
@@ -219,8 +219,8 @@ class DICOM_EXPORT DICOMParser
 
   //
   // Stores a map from pair<group, element> keys to
-  // values of datatype.  We use this to store the 
-  // datatypes for implicit keys that we are 
+  // values of datatype.  We use this to store the
+  // datatypes for implicit keys that we are
   // interested in.
   //
   // DICOMImplicitTypeMap TypeMap;
@@ -235,7 +235,7 @@ class DICOM_EXPORT DICOMParser
   //
   DICOMFile* DataFile;
   dicom_stl::string FileName;
-  
+
   bool ToggleByteSwapImageData;
 
   //dicom_stl::vector<doublebyte> Groups;
@@ -245,7 +245,7 @@ class DICOM_EXPORT DICOMParser
   DICOMMemberCallback<DICOMParser>* TransferSyntaxCB;
 
   //
-  // Implementation contains stl templated classes that 
+  // Implementation contains stl templated classes that
   // can't be exported from a DLL in Windows. We hide
   // them in the implementation to get rid of annoying
   // compile warnings.
@@ -253,8 +253,8 @@ class DICOM_EXPORT DICOMParser
   DICOMParserImplementation* Implementation;
 
  private:
-  DICOMParser(const DICOMParser&);  
-  void operator=(const DICOMParser&); 
+  DICOMParser(const DICOMParser&);
+  void operator=(const DICOMParser&);
 };
 
 

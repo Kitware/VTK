@@ -13,8 +13,8 @@
 
 =========================================================================*/
 // This example demonstrates how hierarchical box (uniform rectilinear)
-// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class. 
-// 
+// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class.
+//
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
@@ -51,17 +51,17 @@ int main(int argc, char* argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  char* cfname = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, 
+  char* cfname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv,
                                          "Data/chombo3d/chombo3d.vtm");
 
-  vtkXMLHierarchicalBoxDataReader* reader = 
+  vtkXMLHierarchicalBoxDataReader* reader =
     vtkXMLHierarchicalBoxDataReader::New();
   reader->SetFileName(cfname);
   delete[] cfname;
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom = 
+  vtkHierarchicalDataSetGeometryFilter* geom =
     vtkHierarchicalDataSetGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
     0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"phi");
 
   // Rendering objects
-  vtkHierarchicalPolyDataMapper* contMapper = 
+  vtkHierarchicalPolyDataMapper* contMapper =
     vtkHierarchicalPolyDataMapper::New();
   contMapper->SetInputConnection(0, contour->GetOutputPort(0));
   vtkActor* contActor = vtkActor::New();
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
   renWin->SetSize(300,300);
   ren->ResetCamera();
   iren->Start();
-  
+
   ocf->Delete();
   ocMapper->Delete();
   ocActor->Delete();
@@ -144,6 +144,6 @@ int main(int argc, char* argv[])
   iren->Delete();
   reader->Delete();
   shrink->Delete();
-  
+
   return 0;
 }

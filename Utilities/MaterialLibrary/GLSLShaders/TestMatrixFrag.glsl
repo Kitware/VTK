@@ -56,7 +56,7 @@ varying vec3  ViewVec;
 void main (void)
 {
     vec3 kcool    = min(CoolColor + DiffuseCool * SurfaceColor, 1.0);
-    vec3 kwarm    = min(WarmColor + DiffuseWarm * SurfaceColor, 1.0); 
+    vec3 kwarm    = min(WarmColor + DiffuseWarm * SurfaceColor, 1.0);
     vec3 kfinal   = mix(kcool, kwarm, NdotL);
 
     vec3 nreflect = normalize(ReflectVec);
@@ -77,7 +77,7 @@ void main (void)
       || testMat3[1][0]!=37.6991 || testMat3[1][1]!=47.1239 || testMat3[1][2]!=56.5487
       || testMat3[2][0]!=65.9734 || testMat3[2][1]!=75.3982 || testMat3[2][2]!=84.8230
 
-      || testMat4[0][0]!=12.5664  || testMat4[0][1]!=25.1327  || testMat4[0][2]!=37.6991  || testMat4[0][3]!=50.2655 
+      || testMat4[0][0]!=12.5664  || testMat4[0][1]!=25.1327  || testMat4[0][2]!=37.6991  || testMat4[0][3]!=50.2655
       || testMat4[1][0]!=62.8319  || testMat4[1][1]!=75.3982  || testMat4[1][2]!=87.9646  || testMat4[1][3]!=100.5310
       || testMat4[2][0]!=113.0973 || testMat4[2][1]!=125.6637 || testMat4[2][2]!=138.2301 || testMat4[2][3]!=150.7964
       || testMat4[3][0]!=163.3628 || testMat4[3][1]!=175.9292 || testMat4[3][2]!=188.4956 || testMat4[3][3]!=201.0619

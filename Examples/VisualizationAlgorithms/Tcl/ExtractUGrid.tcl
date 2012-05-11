@@ -10,7 +10,7 @@
 
 package require vtk
 
-# Create a reader to read the unstructured grid data. We use a 
+# Create a reader to read the unstructured grid data. We use a
 # vtkDataSetReader which means the type of the output is unknown until
 # the data file is read. SO we follow the reader with a vtkCastToConcrete
 # and cast the output to vtkUnstructuredGrid.

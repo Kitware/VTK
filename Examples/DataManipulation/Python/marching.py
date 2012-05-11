@@ -142,14 +142,14 @@ aLabelTransform.Scale(.05, .05, .05)
 labelTransform = vtk.vtkTransformPolyDataFilter()
 labelTransform.SetTransform(aLabelTransform)
 labelTransform.SetInputConnection(caseLabel.GetOutputPort())
-  
+
 # Create a mapper and actor to display the text.
 labelMapper = vtk.vtkPolyDataMapper()
 labelMapper.SetInputConnection(labelTransform.GetOutputPort())
- 
+
 labelActor = vtk.vtkActor()
 labelActor.SetMapper(labelMapper)
- 
+
 # Define the base that the cube sits on.  Create its associated mapper
 # and actor.  Set the position of the actor.
 baseModel = vtk.vtkCubeSource()

@@ -74,7 +74,7 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
     n = vtkParse_UnscopedNameLength(&classname[i]);
     }
   i += vtkParse_IdentifierLength(&classname[i]);
-      
+
   /* create a new (shorter) search string if necessary */
   if (classname[i] != '\0')
     {
@@ -540,7 +540,7 @@ void vtkParseHierarchy_Free(HierarchyInfo *info)
 
 /* Check whether class is derived from baseclass.  You must supply
  * the entry for the class (returned by FindEntry) as well as the
- * classname.  If the class is templated, the classname can include 
+ * classname.  If the class is templated, the classname can include
  * template args in angle brackets.  If you provide a pointer for
  * baseclass_with_args, then it will be used to return the name of
  * name of the baseclass with template args in angle brackets. */

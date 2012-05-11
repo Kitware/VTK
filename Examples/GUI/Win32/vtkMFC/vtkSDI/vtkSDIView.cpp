@@ -148,7 +148,7 @@ void CvtkSDIView::OnInitialUpdate()
   this->pvtkMFCWindow = new vtkMFCWindow(this);
 
   this->pvtkMFCWindow->GetRenderWindow()->AddRenderer(this->pvtkRenderer);
-  
+
   // get double click events
   vtkCallbackCommand* callback = vtkCallbackCommand::New();
   callback->SetCallback(handle_double_click);

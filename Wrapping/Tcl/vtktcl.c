@@ -16,7 +16,7 @@
 
 #ifdef VTK_USE_RENDERING
 # include "vtkTk.h"
-#else 
+#else
 # include "vtkTcl.h"
 #endif
 
@@ -57,72 +57,72 @@ extern int Vtkviewstcl_Init(Tcl_Interp *interp);
 int Vtktcl_Init(Tcl_Interp *interp)
 {
   /* init the core vtk stuff */
-  if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
+  if (Vtkcommontcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkfilteringtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkfilteringtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkiotcl_Init(interp) == TCL_ERROR) 
+  if (Vtkiotcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR) 
+  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-  if (Vtkimagingtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkimagingtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 
 #ifdef VTK_USE_RENDERING
-  if (Vtkrenderingtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkrenderingtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 
-  if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 
-  if (Vtkhybridtcl_Init(interp) == TCL_ERROR) 
+  if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 
-  if (Vtkwidgetstcl_Init(interp) == TCL_ERROR) 
+  if (Vtkwidgetstcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
 #ifdef VTK_USE_PARALLEL
-  if (Vtkparalleltcl_Init(interp) == TCL_ERROR) 
+  if (Vtkparalleltcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
 #ifdef VTK_USE_GEOVIS
-  if (Vtkgeovistcl_Init(interp) == TCL_ERROR) 
+  if (Vtkgeovistcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
 #ifdef VTK_USE_INFOVIS
-  if (Vtkinfovistcl_Init(interp) == TCL_ERROR) 
+  if (Vtkinfovistcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
 #endif
 
 #ifdef VTK_USE_VIEWS
-  if (Vtkviewstcl_Init(interp) == TCL_ERROR) 
+  if (Vtkviewstcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }

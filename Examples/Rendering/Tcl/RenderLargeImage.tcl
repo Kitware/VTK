@@ -12,7 +12,7 @@ package require vtkinteraction
 package require vtktesting
 
 # We'll import some data to start. Since we are using an importer, we've
-# got to give it a render window and such. Note that the render window 
+# got to give it a render window and such. Note that the render window
 # size is set fairly small.
 vtkRenderer ren
   ren SetBackground 0.1 0.2 0.4
@@ -53,7 +53,7 @@ vtkRenderLargeImage renderLarge
   renderLarge SetMagnification 4
 
 # We write out the image which causes the rendering to occur. If you
-# watch your screen you will see the pieces being rendered right after 
+# watch your screen you will see the pieces being rendered right after
 # one another.
 #
 vtkTIFFWriter writer

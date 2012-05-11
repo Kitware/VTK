@@ -114,7 +114,7 @@ def Cut(n):
     cutter.GenerateValues(n, -5, 5)
     clut.SetAlphaRange(opacity, opacity)
     renWin.Render()
- 
+
 
 # Generate 10 cut planes
 Cut(20)

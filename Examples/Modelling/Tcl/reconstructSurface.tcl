@@ -1,6 +1,6 @@
 # This example shows how to construct a surface from a point cloud. First
 # we generate a volume using the vtkSurfaceReconstructionFilter. The volume
-# values are a distance field. Once this is generated, the volume is 
+# values are a distance field. Once this is generated, the volume is
 # countoured at a distance value of 0.0.
 #
 package require vtk
@@ -38,7 +38,7 @@ vtkContourFilter cf
     cf SetValue 0 0.0
 
 # Sometimes the contouring algorithm can create a volume whose gradient
-# vector and ordering of polygon (using the right hand rule) are 
+# vector and ordering of polygon (using the right hand rule) are
 # inconsistent. vtkReverseSense cures this problem.
 vtkReverseSense reverse
   reverse SetInputConnection [cf GetOutputPort]

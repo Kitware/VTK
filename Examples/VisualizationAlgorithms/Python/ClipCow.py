@@ -115,6 +115,6 @@ def Cut(v):
     cutPoly.SetPolys(cutStrips.GetOutput().GetLines())
     cutMapper.Update()
     renWin.Render()
- 
+
 renWin.Render()
 iren.Start()

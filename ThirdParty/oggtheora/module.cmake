@@ -1,0 +1,1 @@
+vtk_module(vtkoggtheora EXCLUDE_FROM_WRAPPING)

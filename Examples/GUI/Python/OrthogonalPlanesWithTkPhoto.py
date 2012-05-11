@@ -39,7 +39,7 @@ class SampleViewer:
         l,h = reader.GetOutput().GetScalarRange()
 
         # Create the three orthogonal views
-        
+
         tphoto = self.tphoto = self.tphoto = vtkTkPhotoImage ();
         cphoto = self.cphoto = vtkTkPhotoImage ();
         sphoto = self.sphoto = vtkTkPhotoImage ();
@@ -56,7 +56,7 @@ class SampleViewer:
         popup.add_radiobutton ( label='float', command=self.CastToFloat, variable=v, value=2 )
 
         v.set ( 0 )
-        
+
         w = self.TransverseLabelWidget = Label ( Tk, image = tphoto )
         w.grid ( row = 0, column = 0 )
         w.bind ( "<Button1-Motion>", lambda e, i=tphoto, o='transverse', s=self: s.Motion ( e, i, o ) )
@@ -80,7 +80,7 @@ class SampleViewer:
         w.grid ( row=4, columnspan=2, sticky='ew' )
         w.configure ( text = "Use the right mouse button to change data type" )
 
-        
+
     def DoPopup ( self, event ):
         self.popup.post ( event.x_root, event.y_root )
 
@@ -115,7 +115,7 @@ class SampleViewer:
 
     def SetWindowLevel ( self, event ):
         self.SetImages()
-        
+
     def SetImages ( self ):
         Window = self.WindowWidget.get()
         Level = self.LevelWidget.get()

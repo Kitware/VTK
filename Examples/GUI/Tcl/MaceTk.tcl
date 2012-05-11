@@ -1,6 +1,6 @@
 #
 # This example creates a polygonal model of a mace made of a sphere
-# and a set of cones adjusted on its surface using glyphing. 
+# and a set of cones adjusted on its surface using glyphing.
 #
 #
 # The sphere is rendered to the screen through the usual VTK render
@@ -11,14 +11,14 @@
 #
 
 #
-# First we include the VTK Tcl packages which will make available 
+# First we include the VTK Tcl packages which will make available
 # all of the vtk commands to Tcl
 #
 package require vtk
 package require vtkinteraction
 
 #
-# Next we create an instance of vtkSphereSource and set some of its 
+# Next we create an instance of vtkSphereSource and set some of its
 # properties
 #
 set sphere_max_res 60
@@ -28,9 +28,9 @@ vtkSphereSource sphere
     sphere SetPhiResolution $sphere_init_res
 
 #
-# We create an instance of vtkPolyDataMapper to map the polygonal data 
+# We create an instance of vtkPolyDataMapper to map the polygonal data
 # into graphics primitives. We connect the output of the sphere source
-# to the input of this mapper 
+# to the input of this mapper
 #
 vtkPolyDataMapper sphereMapper
     sphereMapper SetInputConnection [sphere GetOutputPort]
@@ -57,21 +57,21 @@ vtkConeSource cone
 # input dataset (the sphere's vertices).
 #
 # Create a vtkGlyph3D to dispatch the glyph/cone geometry (SetSource) on the
-# sphere dataset (SetInput). Each glyph is oriented through the dataset 
+# sphere dataset (SetInput). Each glyph is oriented through the dataset
 # normals (SetVectorModeToUseNormal). The resulting dataset is a set
 # of cones laying on a sphere surface.
 #
 vtkGlyph3D glyph
     glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSourceConnection [cone GetOutputPort]
-    glyph SetVectorModeToUseNormal 
-    glyph SetScaleModeToScaleByVector 
+    glyph SetVectorModeToUseNormal
+    glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 
 #
-# We create an instance of vtkPolyDataMapper to map the polygonal data 
+# We create an instance of vtkPolyDataMapper to map the polygonal data
 # into graphics primitives. We connect the output of the glyph3d
-# to the input of this mapper 
+# to the input of this mapper
 #
 vtkPolyDataMapper spikeMapper
     spikeMapper SetInputConnection [glyph GetOutputPort]
@@ -96,7 +96,7 @@ vtkRenderer renderer
 
 #
 # We create the render window which will show up on the screen
-# We put our renderer into the render window using AddRenderer. 
+# We put our renderer into the render window using AddRenderer.
 # Do not set the size of the window here.
 #
 vtkRenderWindow renWin
@@ -110,7 +110,7 @@ vtkRenderWindow renWin
 # option, which is what we do here by using renWin. It also takes
 # -width and -height options that can be used to specify the widget
 # size, hence the render window size: we set the size to be 300
-# pixels by 300. 
+# pixels by 300.
 #
 set vtkw [vtkTkRenderWidget .ren \
         -width 300 \
@@ -125,7 +125,7 @@ set vtkw [vtkTkRenderWidget .ren \
 #
 # Once the VTK widget has been created it can be inserted into a whole Tk GUI
 # as well as any other standard Tk widgets. The code below will create several
-# "scale" (sliders) widgets enabling us to control the mace parameters 
+# "scale" (sliders) widgets enabling us to control the mace parameters
 # interactively.
 #
 
@@ -152,7 +152,7 @@ set sth [scale .params.sth \
         -command setSphereThetaResolution]
 
 #
-# The slider widget is initialized using the value obtained from the 
+# The slider widget is initialized using the value obtained from the
 # corresponding VTK object (i.e. the sphere theta resolution).
 #
 $sth set [sphere GetThetaResolution]
@@ -172,7 +172,7 @@ proc setSphereThetaResolution {res} {
 
 #
 # In the exact same way we create a scale slider controlling the sphere Phi
-# resolution. 
+# resolution.
 #
 set sph [scale .params.sph \
         -from 3 -to $sphere_max_res -res 1 \
@@ -189,7 +189,7 @@ proc setSpherePhiResolution {res} {
 
 #
 # In the exact same way we create a scale slider controlling the cone
-# resolution. 
+# resolution.
 #
 set cone_max_res $sphere_max_res
 set cre [scale .params.cre \
@@ -207,7 +207,7 @@ proc setConeSourceResolution {res} {
 
 #
 # In the exact same way we create a scale slider controlling the glyph
-# scale factor. 
+# scale factor.
 #
 set gsc [scale .params.gsc \
         -from 0.1 -to 1.5 -res 0.05 \
@@ -246,6 +246,6 @@ wm protocol . WM_DELETE_WINDOW ::vtk::cb_exit
 
 #
 # You only need this line if you run this script from a Tcl shell
-# (tclsh) instead of a Tk shell (wish) 
+# (tclsh) instead of a Tk shell (wish)
 #
 tkwait window .

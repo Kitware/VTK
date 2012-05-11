@@ -13,7 +13,7 @@ BuildPrereq: tk, python, python-devel, tcl
 Buildroot: /usr/src/local/BUILD/vtk-root
 Prefix: /usr
 
-%description 
+%description
 	VTK - the Visualization Toolkit is an object oriented, high
 level library that allows one to easily write C++ programs, Tcl,
 Python and Java scripts that do 3D visualization.  This package
@@ -58,7 +58,7 @@ Requires: vtk
 Group: Development/Libraries
 Prefix: /usr
 
-%description devel 
+%description devel
 	This provides the VTK header files required to compile C++
 programs that use VTK to do 3D visualisation.
 
@@ -78,7 +78,7 @@ libraries that enable one to use VTK via Tcl scripts.  This version also
 provides the vtkTkRenderWindow class. The patented and contributed classes
 are also compiled. This package does not require the vtk package to be
 installed.  The library needs OpenGL to render the graphics and for Linux
-machines Mesa is necessary. 
+machines Mesa is necessary.
 
 	The terms/copyright can be read in usr/doc/vtk-tcl-%{version}-%{release}/README.html. VTK-Linux-HOWTO has information about using vtk, getting
 documentataion or help and instructions on building VTK. The patented
@@ -94,14 +94,14 @@ Requires: vtk
 Group: X11/Libraries
 Prefix: /usr
 
-%description python 
+%description python
 	This provides the shared libraries that enable one to use VTK from
 python scripts.  You will need python and vtk installed to use this.
 Remember to set your PYTHONPATH variable properly before running your
 scripts.
 
 # vtk-java
- 
+
 %package java
 Summary: Java bindings for VTK.
 Group: X11/Libraries
@@ -116,7 +116,7 @@ contributed classes are also compiled.  This package does not require the
 vtk package to be installed.  The library needs OpenGL to render the
 graphics and for Linux machines Mesa is necessary.  You will need jdk..
 jdk-1.2pre-2 was used to compile this. Remember to set your CLASSPATH to the
-directory that has the java classes.  
+directory that has the java classes.
 
 	The terms/copyright can be read in usr/doc/vtk-java-%{version}-%{release}/README and
 README.html. VTK-Linux-HOWTO has information about using vtk, getting
@@ -148,7 +148,7 @@ corresponding packages (vtk-python, vtk-tcl).
 
 export CLASSPATH=.:/usr/local/jdk1.2.2:`pwd`/java/classes:`pwd`/java:`pwd`/java/vtk
 export PATH=/usr/local/jdk1.2.2/bin:$PATH
-export LD_LIBRARY_PATH=`pwd`/common:`pwd`/graphics:`pwd`/patented:`pwd`/imaging:`pwd`/contrib:`pwd`/java 
+export LD_LIBRARY_PATH=`pwd`/common:`pwd`/graphics:`pwd`/patented:`pwd`/imaging:`pwd`/contrib:`pwd`/java
 
 # Can't build with Mesa, Threads and Java, so dropping Java
 # ./configure --with-mesa --with-shared --with-tcl --with-tkwidget --with-python --with-java --with-contrib --with-patented --prefix=/usr
@@ -261,13 +261,13 @@ fi
 
 
 %files
-%attr(755, root, root) /usr/lib/libVTKCommon.so 
+%attr(755, root, root) /usr/lib/libVTKCommon.so
 %attr(755, root, root) /usr/lib/libVTKContrib.so
-%attr(755, root, root) /usr/lib/libVTKGraphics.so 
+%attr(755, root, root) /usr/lib/libVTKGraphics.so
 %attr(755, root, root) /usr/lib/libVTKImaging.so
 %attr(755, root, root) /usr/lib/libVTKPatented.so
 
-%attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir 
+%attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir
 # %attr(644, root, root) %doc README.patented-classes README vtkLogo.jpg
 %attr(644, root, root) %doc README.patented-classes vtkLogo.jpg
 
@@ -275,22 +275,22 @@ fi
 %attr(644, root, root) /usr@VTK_INSTALL_INCLUDE_DIR@/
 
 %files tcl
-%attr(755, root, root) /usr/lib/libVTKCommonTcl.so 
+%attr(755, root, root) /usr/lib/libVTKCommonTcl.so
 %attr(755, root, root) /usr/lib/libVTKContribTcl.so
-%attr(755, root, root) /usr/lib/libVTKGraphicsTcl.so 
+%attr(755, root, root) /usr/lib/libVTKGraphicsTcl.so
 %attr(755, root, root) /usr/lib/libVTKImagingTcl.so
 %attr(755, root, root) /usr/lib/libVTKPatentedTcl.so
 %attr(755, root, root) /usr@VTK_INSTALL_BIN_DIR@/vtk
 
-%attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir 
+%attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir
 # %attr(644, root, root) %doc README.patented-classes README vtkLogo.jpg
 %attr(644, root, root) %doc README.patented-classes vtkLogo.jpg
 
 
 %files python
-%attr(755, root, root) /usr/lib/libVTKCommonPython.so 
+%attr(755, root, root) /usr/lib/libVTKCommonPython.so
 %attr(755, root, root) /usr/lib/libVTKContribPython.so
-%attr(755, root, root) /usr/lib/libVTKGraphicsPython.so 
+%attr(755, root, root) /usr/lib/libVTKGraphicsPython.so
 %attr(755, root, root) /usr/lib/libVTKImagingPython.so
 %attr(755, root, root) /usr/lib/libVTKPatentedPython.so
 %attr(755, root, root) /usr@VTK_INSTALL_LIB_DIR@TkRenderWidget
@@ -301,16 +301,16 @@ fi
 
 
 %files java
-%attr(755, root, root) /usr/lib/libVTKCommonJava.so 
+%attr(755, root, root) /usr/lib/libVTKCommonJava.so
 %attr(755, root, root) /usr/lib/libVTKContribJava.so
-%attr(755, root, root) /usr/lib/libVTKGraphicsJava.so 
+%attr(755, root, root) /usr/lib/libVTKGraphicsJava.so
 %attr(755, root, root) /usr/lib/libVTKImagingJava.so
 %attr(755, root, root) /usr/lib/libVTKPatentedJava.so
 %attr(755, root, root) /usr/lib/libvtkJava.so
 %attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@.jar
 
-# 
-# %attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir 
+#
+# %attr(-, root, root) %doc README.html VTK-Linux-HOWTO README.patented-dir
 # %attr(644, root, root) %doc README.patented-classes README vtkLogo.jpg
 
 
@@ -322,6 +322,6 @@ fi
 %attr(-, root, root) /usr@VTK_INSTALL_LIB_DIR@/patented
 
 
-%clean 
+%clean
 rm -rf $RPM_BUILD_ROOT
 

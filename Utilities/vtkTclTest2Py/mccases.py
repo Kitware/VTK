@@ -16,7 +16,7 @@ def case1 ( scalars, IN, OUT, caseLabel ):
     else :
         caseLabel.SetText("Case 1c - 11111110")
     pass
-    
+
 def case2 ( scalars, IN, OUT, caseLabel ):
     scalars.InsertValue(0,IN)
     scalars.InsertValue(1,IN)

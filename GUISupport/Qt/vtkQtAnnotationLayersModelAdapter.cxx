@@ -43,7 +43,7 @@ vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
   this->Annotations = NULL;
-} 
+}
 
 //----------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* t, QObject* p)
@@ -103,7 +103,7 @@ void vtkQtAnnotationLayersModelAdapter::SetVTKDataObject(vtkDataObject *obj)
     qWarning("vtkQtAnnotationLayersModelAdapter needs a vtkAnnotationLayers for SetVTKDataObject");
     return;
     }
-    
+
   // Okay it's a table so set it :)
   this->setAnnotationLayers(t);
 }
@@ -115,7 +115,7 @@ vtkDataObject* vtkQtAnnotationLayersModelAdapter::GetVTKDataObject() const
 }
 
 //----------------------------------------------------------------------------
-void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers* t) 
+void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers* t)
 {
   if (this->Annotations != NULL)
     {
@@ -161,14 +161,14 @@ vtkAnnotationLayers* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKAnno
 {
   // Create vtk index selection
   vtkAnnotationLayers* annotations = vtkAnnotationLayers::New(); // Caller needs to delete
-  
+
   // Run through the QModelIndexList pulling out vtk indexes
   for (int i = 0; i < qmil.size(); i++)
     {
     vtkIdType vtk_index = qmil.at(i).internalId();
     //annotations->AddLayer();
     annotations->AddAnnotation(this->Annotations->GetAnnotation(vtk_index));
-    }  
+    }
   return annotations;
 }
 
@@ -215,13 +215,13 @@ vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelect
     vtkSmartPointer<vtkIdTypeArray>::New();
   node->SetSelectionList(index_arr);
   IndexSelection->AddNode(node);
-  
+
   // Run through the QModelIndexList pulling out vtk indexes
   for (int i = 0; i < qmil.size(); i++)
     {
     vtkIdType vtk_index = qmil.at(i).internalId();
     index_arr->InsertNextValue(vtk_index);
-    }  
+    }
   return IndexSelection;
   */
   return 0;
@@ -307,20 +307,20 @@ QVariant vtkQtAnnotationLayersModelAdapter::data(const QModelIndex &idx, int rol
     switch(idx.column())
       {
       case 0:
-        return QColor(annColor[0], annColor[1], annColor[2]); 
+        return QColor(annColor[0], annColor[1], annColor[2]);
         break;
       default:
         return QVariant();
         break;
       }
     }
-  
+
   return QVariant();
 }
 
 //----------------------------------------------------------------------------
-bool vtkQtAnnotationLayersModelAdapter::setData(const QModelIndex &vtkNotUsed(idx), 
-                                                const QVariant &vtkNotUsed(value), 
+bool vtkQtAnnotationLayersModelAdapter::setData(const QModelIndex &vtkNotUsed(idx),
+                                                const QVariant &vtkNotUsed(value),
                                                 int vtkNotUsed(role))
 {
 /*

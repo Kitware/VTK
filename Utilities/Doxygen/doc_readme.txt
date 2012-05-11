@@ -5,7 +5,7 @@ Sebastien BARRE (Time-stamp: <2001-10-24 22:38:42 barre>)
 
 This file describes how to generate a Doxygen-compliant documentation
 featuring cross-references between classes and examples, a full-text index
-and an accurate VTK version. 
+and an accurate VTK version.
 
 Note that this file describes how to run the scripts manually, which
 can be tedious (to say the least). A batch file doc_makeall.sh is now
@@ -33,7 +33,7 @@ This package is made of he following Perl scripts:
 - doc_header2doxygen.pl: convert the VTK headers to the Doxygen format
 - doc_version.pl: extract the VTK version and add it to the documentation set
 - doc_class2example.pl: build cross-references between classes and examples
-- doc_index.pl: build the full-text index 
+- doc_index.pl: build the full-text index
 
 Use the --help option to display the parameters that are allowed for each
 script.
@@ -69,7 +69,7 @@ in the 'VTK/Utilities/Doxygen' directory. It is read by doxygen and
 lists option/value pairs like:
 
     PARAMETER = VALUE
- 
+
 Comment lines are allowed and start with '#'. Commenting a directive
 is a simple way to hide it to doxygen:
 
@@ -91,7 +91,7 @@ WARNING: disable the HAVE_DOT directive if you have not installed graphviz
 (http://www.research.att.com/~north/graphviz/download.html).
 
 
-B.  Download doxygen, make sure it runs 
+B.  Download doxygen, make sure it runs
     -----------------------------------
 
     http://www.doxygen.org
@@ -99,7 +99,7 @@ B.  Download doxygen, make sure it runs
 
 C0. Go to the VTK/Utilities/Doxygen directory
     -----------------------------------------
- 
+
     You are supposed to run all scripts as well as Doxygen from this
     directory.
 
@@ -112,9 +112,9 @@ For example:
 C1. Convert the VTK headers to Doxygen format
     -----------------------------------------
 
-    Use the conversion script: doc_header2doxygen.pl 
+    Use the conversion script: doc_header2doxygen.pl
 
-For example: 
+For example:
 
     D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_header2doxygen.pl --to ../../../VTK-doxygen
     doc_header2doxygen.pl 0.8, by Sebastien Barre et al.
@@ -133,7 +133,7 @@ Meaning that:
     the directories located two levels up (i.e. ../../) automatically.
 
     Use --help to display the default value associated to --to.
-     
+
     Note that you might restrict the conversion to a set of particuliar
     directories or files if you want to document a specific VTK part only:
     just add these parts as parameters. Example:
@@ -154,9 +154,9 @@ Update the Doxygen configuration file ('doxyfile'):
 C2. Extract VTK version
     -------------------
 
-    Use the extraction script: doc_version.pl 
+    Use the extraction script: doc_version.pl
 
-For example: 
+For example:
 
     D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_version.pl --logo "vtk-logo.gif" --to ../../../VTK-doxygen
     doc_version.pl 0.22, by Sebastien Barre
@@ -184,13 +184,13 @@ Update the Doxygen configuration file ('doxyfile'):
     # PROJECT_NUMBER       =
 
 
-C3. Generate the 'class to examples' pages 
+C3. Generate the 'class to examples' pages
     --------------------------------------
 
-    Use the referencing script: doc_class2example.pl 
+    Use the referencing script: doc_class2example.pl
 
-For example: 
-    
+For example:
+
     D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_class2example.pl --link http://public.kitware.com/cgi-bin/cvsweb.cgi/~checkout~/VTK/Utilities/Doxygen --to ../../../VTK-doxygen
     doc_class2example.pl 0.7, by Sebastien Barre
     Collecting files...
@@ -248,12 +248,12 @@ Update the Doxygen configuration file ('doxyfile'):
     directive, so that Doxygen might process it (see also section D).
 
 
-C4. Build full-text index 
+C4. Build full-text index
     ---------------------
 
-    Use the indexing script: doc_index.pl 
+    Use the indexing script: doc_index.pl
 
-For example: 
+For example:
 
     D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_index.pl --to ../../../VTK-doxygen
     doc_index.pl 0.2, by Sebastien Barre
@@ -299,7 +299,7 @@ Update the Doxygen configuration file ('doxyfile'):
     Doxygen might process it (see also section D)
 
 
-D.  Run doxygen 
+D.  Run doxygen
     -----------
 
     Check that your Doxygen configuration file is OK
@@ -312,7 +312,7 @@ D.  Run doxygen
 
     Then run doxygen. Be *patient* :)
 
-For example: 
+For example:
 
     D:\src\kitware\vtk\VTK\Utilities\Doxygen> doxygen
 

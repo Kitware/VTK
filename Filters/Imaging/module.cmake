@@ -1,0 +1,9 @@
+vtk_module(vtkFiltersImaging
+  GROUPS
+    Imaging
+    StandAlone
+  DEPENDS
+    vtkImagingSources
+    vtkImagingGeneral
+    vtkFiltersStatistics
+  )

@@ -1,4 +1,4 @@
-This subdirectory contains materials that apply shaders from the 
+This subdirectory contains materials that apply shaders from the
 'OrangeBook', "The OpenGL Shading Language" by Randi J. Rost.
 
 Some materials shaders work fine, some don't. The main reason is

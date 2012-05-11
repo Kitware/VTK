@@ -1,60 +1,70 @@
 #
 # Build the documentation
 #
-INCLUDE (${CMAKE_ROOT}/Modules/Documentation.cmake OPTIONAL)
+find_package(Doxygen REQUIRED)
+find_package(Perl REQUIRED)
+find_package(HTMLHelp)
 
-IF (BUILD_DOCUMENTATION)
-  OPTION(DOXYGEN_SHORT_NAMES "Build Doxygen of VTK using short file names" OFF)
-  OPTION(DOXYGEN_KEEP_TEMP "Do not delete the temporary Doxygen headers" OFF)
-  MARK_AS_ADVANCED(DOXYGEN_SHORT_NAMES)
-  IF(DOXYGEN_SHORT_NAMES)
-    SET(DOXYGEN_SHORT_NAMES YES)
-  ELSE(DOXYGEN_SHORT_NAMES)
-    SET(DOXYGEN_SHORT_NAMES NO)
-  ENDIF(DOXYGEN_SHORT_NAMES)
+option(DOXYGEN_SHORT_NAMES "Build Doxygen of VTK using short file names" OFF)
+option(DOXYGEN_KEEP_TEMP "Do not delete the temporary Doxygen headers" OFF)
+mark_as_advanced(DOXYGEN_SHORT_NAMES DOXYGEN_KEEP_TEMP)
+if(DOXYGEN_SHORT_NAMES)
+  set(DOXYGEN_SHORT_NAMES YES)
+else()
+  set(DOXYGEN_SHORT_NAMES NO)
+endif()
 
-  #
-  # Configure the script and the doxyfile, then add target
-  #
-  SET(HAVE_DOT_YESNO NO)
-  IF(DOT)
-    SET(HAVE_DOT_YESNO YES)
-    IF(NOT DOT_PATH)
-      GET_FILENAME_COMPONENT(DOT_PATH ${DOT} PATH)
-    ENDIF(NOT DOT_PATH)
-  ENDIF(DOT)
+#
+# Configure the script and the doxyfile, then add target
+#
+set(HAVE_DOT_YESNO NO)
+if(DOT)
+  set(HAVE_DOT_YESNO YES)
+  if(NOT DOT_PATH)
+    get_filename_component(DOT_PATH ${DOT} PATH)
+  endif()
+endif()
 
-  CONFIGURE_FILE(
-    ${VTK_SOURCE_DIR}/Utilities/Doxygen/doxyfile.in
-    ${VTK_BINARY_DIR}/Utilities/Doxygen/doxyfile)
+# Build up a list of all module source directories. Note that this should be
+# all source directories and so does not use the normal variables.
+unset(VTK_MODULE_DIRS_DOXYGEN)
+file(GLOB src RELATIVE "${VTK_SOURCE_DIR}" "${VTK_SOURCE_DIR}/*/*/module.cmake")
+foreach(module ${src})
+  get_filename_component(module_BASE ${module} PATH)
+  if("${module_BASE}" MATCHES "^Utilities" OR ${module_BASE} MATCHES "^Third")
+  else()
+    set(VTK_MODULE_DIRS_DOXYGEN
+      "${VTK_MODULE_DIRS_DOXYGEN}  \"${VTK_SOURCE_DIR}/${module_BASE}\"\n")
+  endif()
+endforeach()
 
-  CONFIGURE_FILE(
-    ${VTK_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.cmake.in
-    ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake
-    @ONLY)
+configure_file(
+  ${VTK_SOURCE_DIR}/Utilities/Doxygen/doxyfile.in
+  ${VTK_BINARY_DIR}/Utilities/Doxygen/doxyfile)
 
-  ADD_CUSTOM_TARGET(DoxygenDoc
-    ${CMAKE_COMMAND}
-    -P ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake
-    DEPENDS ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake)
+configure_file(
+  ${VTK_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.cmake.in
+  ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake
+  @ONLY)
 
-ENDIF (BUILD_DOCUMENTATION)
+add_custom_target(DoxygenDoc
+  ${CMAKE_COMMAND}
+  -P ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake
+  DEPENDS ${VTK_BINARY_DIR}/Utilities/Doxygen/doc_makeall.cmake)
 
-INCLUDE (${VTK_SOURCE_DIR}/Utilities/Doxygen/LocalUserOptions.cmake OPTIONAL)
-
-IF(NOT VTK_INSTALL_NO_DOCUMENTATION)
-  MACRO(__vtk_install_documentation_files glob)
-    FILE(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/${glob}")
-    INSTALL(FILES ${__files}
-      DESTINATION ${VTK_INSTALL_DOXYGEN_DIR_CM24}
+if(NOT VTK_INSTALL_NO_DOCUMENTATION)
+  macro(__vtk_install_documentation_files glob)
+    file(GLOB __files "${CMAKE_CURRENT_SOURCE_DIR}/${glob}")
+    install(FILES ${__files}
+      DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
       COMPONENT Development)
-  ENDMACRO(__vtk_install_documentation_files)
+  endmacro()
   __vtk_install_documentation_files("*.css")
   __vtk_install_documentation_files("*.gif")
   __vtk_install_documentation_files("*.html")
   __vtk_install_documentation_files("*.pl")
   __vtk_install_documentation_files("*.stop")
-  INSTALL(FILES authors.txt doc_readme.txt
-    DESTINATION ${VTK_INSTALL_DOXYGEN_DIR_CM24}
+  install(FILES doc_readme.txt
+    DESTINATION ${VTK_INSTALL_DOXYGEN_DIR}
     COMPONENT Development)
-ENDIF(NOT VTK_INSTALL_NO_DOCUMENTATION)
+endif()

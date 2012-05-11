@@ -36,6 +36,7 @@
 #ifndef Q_VTK_INTERACTOR_ADAPTER_H
 #define Q_VTK_INTERACTOR_ADAPTER_H
 
+#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
 #include <QtCore/QObject>
 
@@ -46,7 +47,7 @@ class QEvent;
 // .SECTION Description
 // QVTKInteractorAdapter translates QEvents and send them to a
 // vtkRenderWindowInteractor.
-class QVTK_EXPORT QVTKInteractorAdapter : public QObject
+class VTKGUISUPPORTQT_EXPORT QVTKInteractorAdapter : public QObject
 {
   Q_OBJECT
 public:

@@ -6,7 +6,7 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   ////////////////////////////////////////////////////////
   // Creating N-Way Arrays
-  
+
   // Creating a dense array of 10 integers:
   vtkDenseArray<vtkIdType>* array = vtkDenseArray<vtkIdType>::New();
   array->Resize(10);
@@ -27,8 +27,8 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   ////////////////////////////////////////////////////////
   // Initializing N-Way Arrays
- 
-  // Filling a dense array with ones: 
+
+  // Filling a dense array with ones:
   array->Fill(1);
 
   // Filling a dense matrix with zeros:
@@ -77,14 +77,14 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkPrintMatrixFormat(cout, matrix);
   cout << "\n";
 
-  cout << "tensor:\n"; 
+  cout << "tensor:\n";
   vtkPrintCoordinateFormat(cout, tensor);
   cout << "\n";
- 
+
   // Cleanup array instances ...
   tensor->Delete();
   matrix->Delete();
   array->Delete();
-  
+
   return 0;
 }

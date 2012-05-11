@@ -1,21 +1,21 @@
 package require vtk
 package require vtkinteraction
 
-# This example demonstrates how to use the vtkImagePlaneWidget 
-# and a vtkSplineWidger to do profile probing of a 3D image 
+# This example demonstrates how to use the vtkImagePlaneWidget
+# and a vtkSplineWidger to do profile probing of a 3D image
 # dataset.  The use of vtkAnnotatedCubeActor, vtkAxesActor and
 # vtkOrientationMarkerWidget is also demostrated.
-# 
+#
 # GUI controls are provided as follows:
-# a) x,y,z buttons set the widgets to orthonormal 
+# a) x,y,z buttons set the widgets to orthonormal
 #    positioning, set the horizontal slider to move the
 #    widgets along their common plane normal, and set the
 #    camera to face the widgets
 # b) right clicking on x,y,z buttons pops up a menu to set
-#    the widget's reslice interpolation mode 
+#    the widget's reslice interpolation mode
 # c) when in axes aligned, orthogonal orientation, the slider
 #    will move the widget by slice index within the appropriate range
-# 
+#
 
 # Start by loading some data.
 #
@@ -77,7 +77,7 @@ vtkImagePlaneWidget ipw
   ipw SetInputConnection [ v16 GetOutputPort ]
   ipw SetResliceInterpolateToNearestNeighbour
   ipw KeyPressActivationOff
-  [ ipw GetPlaneProperty ] SetColor 1 0 0  
+  [ ipw GetPlaneProperty ] SetColor 1 0 0
   set xmode [ ipw GetResliceInterpolate ]
   set ymode [ ipw GetResliceInterpolate ]
   set zmode [ ipw GetResliceInterpolate ]
@@ -200,10 +200,10 @@ vtkAxesActor axes
 
 # Add the composite marker to the widget.  The widget
 # should be kept in non-interactive mode and the aspect
-# ratio of the render window taken into account explicitly, 
-# since the widget currently does not take this into 
+# ratio of the render window taken into account explicitly,
+# since the widget currently does not take this into
 # account in a multi-renderer environment.
-# 
+#
   vtkOrientationMarkerWidget marker
   marker SetOutlineColor 0.93 0.57 0.13
   marker SetOrientationMarker assembly
@@ -315,7 +315,7 @@ scale .top.slice \
 pack .top.slice \
         -fill x -expand f
 
-proc SetSlice {slice} {  
+proc SetSlice {slice} {
   ipw SetSliceIndex $slice
   UpdateIPW
   renWin Render
@@ -409,12 +409,12 @@ proc AlignXaxis { } {
   } else {
     set slice_number [ipw GetSliceIndex]
   }
-  .top.slice config -from $xMin -to $xMax 
+  .top.slice config -from $xMin -to $xMax
   .top.slice set $slice_number
   UpdateSplinePosition
   AlignCamera
   set interpmode $xmode
-  SetInterpolation 
+  SetInterpolation
 }
 
 proc AlignYaxis { } {
@@ -434,7 +434,7 @@ proc AlignYaxis { } {
   UpdateSplinePosition
   AlignCamera
   set interpmode $ymode
-  SetInterpolation 
+  SetInterpolation
 }
 
 proc AlignZaxis { } {
@@ -447,12 +447,12 @@ proc AlignZaxis { } {
   } else {
     set slice_number [ipw GetSliceIndex]
   }
-  .top.slice config -from $zMin -to $zMax 
+  .top.slice config -from $zMin -to $zMax
   .top.slice set $slice_number
   UpdateSplinePosition
   AlignCamera
   set interpmode $zmode
-  SetInterpolation 
+  SetInterpolation
 }
 
 proc UpdateSplinePosition { } {
@@ -480,11 +480,11 @@ proc SetInterpolation { } {
   set ori [ipw GetPlaneOrientation]
   if { $ori == 0 } {
     set xmode $interpmode
-  }  elseif  { $ori == 1 } {  
-    set ymode $interpmode  
+  }  elseif  { $ori == 1 } {
+    set ymode $interpmode
   } else {
     set zmode $interpmode
-  }  
+  }
   renWin Render
 }
 

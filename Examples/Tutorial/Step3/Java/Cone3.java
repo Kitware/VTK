@@ -13,18 +13,18 @@ import vtk.*;
 public class Cone3 {
   // in the static contructor we load in the native code
   // The libraries must be in your path to work
-  static { 
-    System.loadLibrary("vtkCommonJava"); 
-    System.loadLibrary("vtkFilteringJava"); 
-    System.loadLibrary("vtkIOJava"); 
-    System.loadLibrary("vtkImagingJava"); 
-    System.loadLibrary("vtkGraphicsJava"); 
-    System.loadLibrary("vtkRenderingJava"); 
+  static {
+    System.loadLibrary("vtkCommonJava");
+    System.loadLibrary("vtkFilteringJava");
+    System.loadLibrary("vtkIOJava");
+    System.loadLibrary("vtkImagingJava");
+    System.loadLibrary("vtkGraphicsJava");
+    System.loadLibrary("vtkRenderingJava");
   }
 
   // now the main program
   public static void main (String []args) throws Exception {
-    // 
+    //
     // Next we create an instance of vtkConeSource and set some of its
     // properties. The instance of vtkConeSource "cone" is part of a
     // visualization pipeline (it is a source process object); it produces
@@ -34,8 +34,8 @@ public class Cone3 {
     cone.SetHeight( 3.0 );
     cone.SetRadius( 1.0 );
     cone.SetResolution( 10 );
-    
-    // 
+
+    //
     // In this example we terminate the pipeline with a mapper process object.
     // (Intermediate filters such as vtkShrinkPolyData could be inserted in
     // between the source and the mapper.)  We create an instance of
@@ -44,8 +44,8 @@ public class Cone3 {
     //
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
     coneMapper.SetInputConnection(cone.GetOutputPort());
-    
-    // 
+
+    //
     // Create an actor to represent the cone. The actor orchestrates rendering of
     // the mapper's graphics primitives. An actor also refers to properties via a
     // vtkProperty instance, and includes an internal transformation matrix. We
@@ -53,8 +53,8 @@ public class Cone3 {
     //
     vtkActor coneActor = new vtkActor();
     coneActor.SetMapper(coneMapper);
-    
-    // 
+
+    //
     // Create two renderers and assign actors to them. A renderer renders into a
     // viewport within the vtkRenderWindow. It is part or all of a window on the
     // screen and it is responsible for drawing the actors it has.  We also set
@@ -66,12 +66,12 @@ public class Cone3 {
     ren1.AddActor(coneActor);
     ren1.SetBackground(0.1, 0.2, 0.4);
     ren1.SetViewport(0.0, 0.0, 0.5, 1.0);
-    
+
     vtkRenderer ren2 = new vtkRenderer();
     ren2.AddActor(coneActor);
     ren2.SetBackground(0.1, 0.2, 0.4);
     ren2.SetViewport(0.5, 0.0, 1.0, 1.0);
-    
+
     //
     // Finally we create the render window which will show up on the screen.
     // We add our two renderers into the render window using AddRenderer. We also
@@ -81,13 +81,13 @@ public class Cone3 {
     renWin.AddRenderer( ren1 );
     renWin.AddRenderer( ren2 );
     renWin.SetSize(600, 300);
-    
+
     //
     // Make one camera view 90 degrees from other.
     //
     ren1.ResetCamera();
     ren1.GetActiveCamera().Azimuth(90);
-    
+
     //
     // now we loop over 360 degreeees and render the cone each time
     //
@@ -101,5 +101,5 @@ public class Cone3 {
       ren1.GetActiveCamera().Azimuth( 1 );
       ren2.GetActiveCamera().Azimuth( 1 );
       }
-    } 
+    }
 }

@@ -110,7 +110,7 @@ int main()
   sphere8->GetProperty()->SetSpecular(0.0);
   sphere8->AddPosition(3.75,1.25,0);
 
-  // Create the graphics structure. The renderer renders into the 
+  // Create the graphics structure. The renderer renders into the
   // render window. The render window interactor captures mouse events
   // and will perform appropriate camera or actor manipulation
   // depending on the nature of the events.
@@ -151,7 +151,7 @@ int main()
   ren1->GetActiveCamera()->ParallelProjectionOn();
   ren1->ResetCamera();
   ren1->GetActiveCamera()->SetParallelScale(1.5);
-  
+
   // This starts the event loop and invokes an initial render.
   //
   iren->Initialize();
