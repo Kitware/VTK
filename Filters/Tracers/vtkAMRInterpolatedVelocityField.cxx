@@ -47,7 +47,6 @@ bool vtkAMRInterpolatedVelocityField::FindGrid(double q[3],vtkOverlappingAMR *am
 {
   if (!FindInLevel(q, amrds, 0,gridId))
     {
-    level = -1;
     return false;
     }
 

@@ -1405,8 +1405,8 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
         }
       }
 
-    bool hasdsteps = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
-    bool hasusteps = dataInfo->Has(UPDATE_TIME_STEP());
+    int hasdsteps = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
+    int hasusteps = dataInfo->Has(UPDATE_TIME_STEP());
 
     double dstep = dataInfo->Get(vtkDataObject::DATA_TIME_STEP());
     if ( (hasdsteps && !hasusteps) || (!hasdsteps && hasusteps))
