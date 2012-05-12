@@ -138,7 +138,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   datasetTable1->Delete();
 
   // Select Columns of Interest
-  for ( int i = 0; i< nMetrics; ++ i )
+  for ( int i = 0; i < nMetrics; ++ i )
     {
     as1->AddColumn( columns[i] );
     }
@@ -204,10 +204,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   // Clean up
   as1->Delete();
 
-  // ************** Test with 2 columns of linear data **************
+  // ************** Test with 2 columns of synthetic data **************
 
-  // Data set size
-  int nVals2 = 100;
+  // Data set and slice size
+  vtkIdType cardTotal = 100;
+  vtkIdType cardSlice = 10;
 
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents( 1 );
@@ -215,12 +216,20 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
   dataset4Arr->SetNumberOfComponents( 1 );
-  dataset4Arr->SetName( "Opposite Linear" );
+  dataset4Arr->SetName( "V Shaped" );
 
-  for ( int i = 0; i < nVals2; ++ i )
+  vtkIdType halfCard = cardTotal >> 1;
+  for ( int i = 0; i < cardTotal; ++ i )
     {
     dataset3Arr->InsertNextValue( i );
-    dataset4Arr->InsertNextValue( -i );
+    if ( i < halfCard )
+      {
+      dataset4Arr->InsertNextValue( -i );
+      }
+    else
+      {
+      dataset4Arr->InsertNextValue( i - cardTotal );
+      }
     }
 
   vtkTable* datasetTable2 = vtkTable::New();
@@ -234,29 +243,23 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   vtkStdString columns2[] =
     {
       "Linear",
-      "Opposite Linear"
+      "V Shaped"
     };
 
-  // Set autocorrelative statistics algorithm and its input data port
+  // Prepare autocorrelative statistics algorithm and its input data port
   vtkAutoCorrelativeStatistics* as2 = vtkAutoCorrelativeStatistics::New();
-
-  // First verify that absence of input does not cause trouble
-  cout << "\n## Verifying that absence of input does not cause trouble... ";
-  as2->Update();
-  cout << "done.\n";
-
-  // Prepare first test with data
   as2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
   datasetTable2->Delete();
 
   // Select Columns of Interest
-  for ( int i = 0; i< nMetrics2; ++ i )
+  for ( int i = 0; i < nMetrics2; ++ i )
     {
     as2->AddColumn( columns2[i] );
     }
 
-  as2->SetSliceCardinality( 10 ); 
-  as2->SetTimeLag( 5 ); 
+  // Set autocorrelation parameters for first slice against slice following midpoint
+  as2->SetSliceCardinality( cardSlice ); 
+  as2->SetTimeLag( cardTotal / ( 2 * cardSlice ) ); 
 
   // Test Learn, and Derive options
   as2->SetLearnOption( true );
