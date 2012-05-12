@@ -46,8 +46,8 @@ public:
   // to calculate auto-correlation. This offset cannot be negative.
   // The default is 0, meaning that by default all coefficients in the 
   // auto-correlation matrix are equal to the variance.
-  vtkSetClampMacro(AutoCorrelationOffset,vtkIdType,0,VTK_LARGE_ID);
-  vtkGetMacro(AutoCorrelationOffset,vtkIdType);
+  vtkSetClampMacro(TimeLag,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(TimeLag,vtkIdType);
 
   // Description:
   // Given a collection of models, calculate aggregate model
@@ -96,7 +96,7 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  vtkIdType AutoCorrelationOffset;
+  vtkIdType TimeLag;
 
 private:
   vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented

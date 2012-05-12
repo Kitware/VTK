@@ -41,7 +41,7 @@ vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
   this->AssessNames->SetNumberOfValues( 1 );
   this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
 
-  this->AutoCorrelationOffset = 0; // By default, autocorrelation matrix only contains var(X)
+  this->TimeLag = 0; // By default, autocorrelation matrix only contains var(X)
 }
 
 // ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ vtkAutoCorrelativeStatistics::~vtkAutoCorrelativeStatistics()
 void vtkAutoCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
-  os << indent << "AutoCorrelationOffset: " << this->AutoCorrelationOffset << "\n";
+  os << indent << "TimeLag: " << this->TimeLag << "\n";
 }
 
 // ----------------------------------------------------------------------
@@ -213,7 +213,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   doubleCol->Delete();
 
   // Verify that number of rows is sufficent for the specified offset
-  vtkIdType nRow = inData->GetNumberOfRows() - this->AutoCorrelationOffset;
+  vtkIdType nRow = inData->GetNumberOfRows() - this->TimeLag;
   if ( nRow < 0 )
     {
     // Not enough data for specified offset
@@ -252,7 +252,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
       deltaXsn = xs - meanXs;
       mom2Xs += delta * deltaXsn;
 
-      xt = inData->GetValueByName( r + this->AutoCorrelationOffset, varName ).ToDouble();
+      xt = inData->GetValueByName( r + this->TimeLag, varName ).ToDouble();
       delta = xt - meanXt;
       meanXt += delta * inv_n;
       mom2Xt += delta * ( xt - meanXt );
