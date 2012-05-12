@@ -165,7 +165,6 @@ public class ImagePlaneWidget extends vtkCanvas {
             ImagePlaneWidget.printUsage(f.getAbsolutePath() + " does not exist or cannot be read.");
 
         SwingUtilities.invokeLater(new Runnable() {
-            @Override
             public void run() {
                 new ImagePlaneWidget(f.getAbsolutePath() + "/quarter");
             }

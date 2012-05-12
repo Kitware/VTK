@@ -150,7 +150,7 @@ public class TreeViews extends JFrame {
     menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
         ActionEvent.CTRL_MASK));
     menuItem.addActionListener(new ActionListener() {
-      @Override
+
       public void actionPerformed(ActionEvent e) {
         // Create a file chooser
         final JFileChooser fc = new JFileChooser();
@@ -208,7 +208,6 @@ public class TreeViews extends JFrame {
     app.setVisible(true);
 
     app.addWindowListener(new WindowAdapter() {
-      @Override
       public void windowClosing(WindowEvent e) {
         // Calling vtkGlobalJavaHash.DeleteAll() will clean up
         // VTK references before the Java program exits.

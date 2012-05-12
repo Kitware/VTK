@@ -138,7 +138,6 @@ public class Focus extends JFrame {
     menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
         ActionEvent.CTRL_MASK));
     menuItem.addActionListener(new ActionListener() {
-      @Override
       public void actionPerformed(ActionEvent e) {
         // Create a file chooser
         final JFileChooser fc = new JFileChooser();
@@ -158,7 +157,6 @@ public class Focus extends JFrame {
     // A JButton
     JButton increase = new JButton("Increase Focus");
     increase.addActionListener(new ActionListener() {
-      @Override
       public void actionPerformed(ActionEvent e) {
         thresh.SetValue(1, thresh.GetValue(1) + 1);
 	extract.Modified();
@@ -169,7 +167,6 @@ public class Focus extends JFrame {
     // A JButton
     JButton decrease = new JButton("Decrease Focus");
     decrease.addActionListener(new ActionListener() {
-      @Override
       public void actionPerformed(ActionEvent e) {
         if (thresh.GetValue(1) > 0) {
           thresh.SetValue(1, thresh.GetValue(1) - 1);
@@ -239,7 +236,6 @@ public class Focus extends JFrame {
         app.pack();
         app.setVisible(true);
         app.addWindowListener(new WindowAdapter() {
-          @Override
           public void windowClosing(WindowEvent e) {
             // Calling vtkGlobalJavaHash.DeleteAll() will clean up
             // VTK references before the Java program exits.
