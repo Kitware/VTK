@@ -150,6 +150,10 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     as1->AddColumn( columns[i] );
     }
 
+  // Take autocorrelation of whole data set with respect to itself
+  // NB: Not setting the time lag on purpose, as 0 should be the default
+  as1->SetSliceCardinality( 32 ); 
+
   // Test Learn, and Derive options
   as1->SetLearnOption( true );
   as1->SetDeriveOption( true );
@@ -267,12 +271,15 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as2->AddColumn( "Standard Exponential" );
   as2->AddColumn( "Standard Laplace" );
 
+  // Calculating autocorrelation of first versus last halves
+  as2->SetSliceCardinality( nVals / 2 ); 
+  as2->SetTimeLag( 1 );
+
   // Test Learn, and Derive options
   as2->SetLearnOption( true );
   as2->SetDeriveOption( true );
   as2->SetTestOption( false );
   as2->SetAssessOption( false );
-  as2->SetTimeLag( 1 );
   as2->Update();
 
   // Get output data and meta tables

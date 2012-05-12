@@ -213,11 +213,17 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
-  // Verify a cardinality was specified for the time slices and that is consistent
+  // Verify that a cardinality was specified for the time slices
+  if ( ! this->SliceCardinality )
+    {
+    vtkErrorMacro( "No time slice cardinality was set. Cannot calculate model." );
+    return;
+    }
+
+  // Verify that a slice cardinality, lag, and data size are consistent
   vtkIdType nRow = inData->GetNumberOfRows();
-  if ( ! this->SliceCardinality
-       || this->SliceCardinality * this->TimeLag > nRow
-       || div( nRow, this->SliceCardinality).rem )
+  div_t q = div( nRow, this->SliceCardinality );
+  if ( q.rem || this->TimeLag >= q.quot )
     {
     vtkErrorMacro( "Incorrect specification of time slice cardinality: "
                      << this->SliceCardinality
@@ -229,13 +235,8 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Verify that number of rows is sufficent for the specified offset
-  nRow -= this->TimeLag;
-  if ( nRow < 0 )
-    {
-    // Not enough data for specified offset
-    nRow = 0;
-    }
+  // Store offset into input data table, which will remain constant across variables
+  vtkIdType rowOffset = this->TimeLag * this->SliceCardinality;
 
   // Loop over requests
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
@@ -259,7 +260,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     double momXsXt = 0.;
 
     double inv_n, xs, xt, delta, deltaXsn;
-    for ( vtkIdType r = 0; r < nRow; ++ r )
+    for ( vtkIdType r = 0; r < this->SliceCardinality; ++ r )
       {
       inv_n = 1. / ( r + 1. );
 
@@ -269,7 +270,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
       deltaXsn = xs - meanXs;
       mom2Xs += delta * deltaXsn;
 
-      xt = inData->GetValueByName( r + this->TimeLag, varName ).ToDouble();
+      xt = inData->GetValueByName( r + rowOffset, varName ).ToDouble();
       delta = xt - meanXt;
       meanXt += delta * inv_n;
       mom2Xt += delta * ( xt - meanXt );
@@ -282,7 +283,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     row->SetNumberOfValues( 7 );
 
     row->SetValue( 0, varName );
-    row->SetValue( 1, nRow );
+    row->SetValue( 1, this->SliceCardinality );
     row->SetValue( 2, meanXs );
     row->SetValue( 3, meanXt );
     row->SetValue( 4, mom2Xs );
