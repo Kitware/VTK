@@ -272,7 +272,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as2->SetDeriveOption( true );
   as2->SetTestOption( false );
   as2->SetAssessOption( false );
-  as2->SetAutoCorrelationOffset( 1 );
+  as2->SetTimeLag( 1 );
   as2->Update();
 
   // Get output data and meta tables
