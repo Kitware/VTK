@@ -213,8 +213,24 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   primaryTab->AddColumn( doubleCol );
   doubleCol->Delete();
 
+  // Verify a cardinality was specified for the time slices and that is consistent
+  vtkIdType nRow = inData->GetNumberOfRows();
+  if ( ! this->SliceCardinality
+       || this->SliceCardinality * this->TimeLag > nRow
+       || div( nRow, this->SliceCardinality).rem )
+    {
+    vtkErrorMacro( "Incorrect specification of time slice cardinality: "
+                     << this->SliceCardinality
+                     << " with time lag "
+                     << this->TimeLag
+                     << " and data set cardinality "
+                     << nRow
+                     << ". Exiting." );
+    return;
+    }
+
   // Verify that number of rows is sufficent for the specified offset
-  vtkIdType nRow = inData->GetNumberOfRows() - this->TimeLag;
+  nRow -= this->TimeLag;
   if ( nRow < 0 )
     {
     // Not enough data for specified offset
