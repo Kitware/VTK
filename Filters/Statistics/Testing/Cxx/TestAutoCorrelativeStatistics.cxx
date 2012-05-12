@@ -204,113 +204,111 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   // Clean up
   as1->Delete();
 
-  // ************** Pseudo-random sample to inspect auto-correlation properties *********
-  int nVals = 10000;
+  // ************** Test with 2 columns of linear data **************
 
-  vtkDoubleArray* datasetNormal = vtkDoubleArray::New();
-  datasetNormal->SetNumberOfComponents( 1 );
-  datasetNormal->SetName( "Standard Normal" );
+  // Data set size
+  int nVals2 = 100;
 
-  vtkDoubleArray* datasetUniform = vtkDoubleArray::New();
-  datasetUniform->SetNumberOfComponents( 1 );
-  datasetUniform->SetName( "Standard Uniform" );
+  vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
+  dataset3Arr->SetNumberOfComponents( 1 );
+  dataset3Arr->SetName( "Linear" );
 
-  vtkDoubleArray* datasetLogNormal = vtkDoubleArray::New();
-  datasetLogNormal->SetNumberOfComponents( 1 );
-  datasetLogNormal->SetName( "Standard Log-Normal" );
+  vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
+  dataset4Arr->SetNumberOfComponents( 1 );
+  dataset4Arr->SetName( "Opposite Linear" );
 
-  vtkDoubleArray* datasetExponential = vtkDoubleArray::New();
-  datasetExponential->SetNumberOfComponents( 1 );
-  datasetExponential->SetName( "Standard Exponential" );
-
-  vtkDoubleArray* datasetLaplace = vtkDoubleArray::New();
-  datasetLaplace->SetNumberOfComponents( 1 );
-  datasetLaplace->SetName( "Standard Laplace" );
-
-  // Seed random number generator
-  vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );
-
-  for ( int i = 0; i < nVals; ++ i )
+  for ( int i = 0; i < nVals2; ++ i )
     {
-    datasetNormal->InsertNextValue( vtkMath::Gaussian() );
-    datasetUniform->InsertNextValue( vtkMath::Random() );
-    datasetLogNormal->InsertNextValue( exp( vtkMath::Gaussian() ) );
-    datasetExponential->InsertNextValue( -log ( vtkMath::Random() ) );
-    double u = vtkMath::Random() - .5;
-    datasetLaplace->InsertNextValue( ( u < 0. ? 1. : -1. ) * log ( 1. - 2. * fabs( u ) ) );
+    dataset3Arr->InsertNextValue( i );
+    dataset4Arr->InsertNextValue( -i );
     }
 
-  vtkTable* gaussianTable = vtkTable::New();
-  gaussianTable->AddColumn( datasetNormal );
-  datasetNormal->Delete();
-  gaussianTable->AddColumn( datasetUniform );
-  datasetUniform->Delete();
-  gaussianTable->AddColumn( datasetLogNormal );
-  datasetLogNormal->Delete();
-  gaussianTable->AddColumn( datasetExponential );
-  datasetExponential->Delete();
-  gaussianTable->AddColumn( datasetLaplace );
-  datasetLaplace->Delete();
+  vtkTable* datasetTable2 = vtkTable::New();
+  datasetTable2->AddColumn( dataset3Arr );
+  dataset3Arr->Delete();
+  datasetTable2->AddColumn( dataset4Arr );
+  dataset4Arr->Delete();
+
+  // Columns of interest
+  int nMetrics2 = 2;
+  vtkStdString columns2[] =
+    {
+      "Linear",
+      "Opposite Linear"
+    };
 
   // Set autocorrelative statistics algorithm and its input data port
   vtkAutoCorrelativeStatistics* as2 = vtkAutoCorrelativeStatistics::New();
-  as2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
-  gaussianTable->Delete();
 
-  // Select Column of Interest
-  as2->AddColumn( "Standard Normal" );
-  as2->AddColumn( "Standard Uniform" );
-  as2->AddColumn( "Standard Log-Normal" );
-  as2->AddColumn( "Standard Exponential" );
-  as2->AddColumn( "Standard Laplace" );
+  // First verify that absence of input does not cause trouble
+  cout << "\n## Verifying that absence of input does not cause trouble... ";
+  as2->Update();
+  cout << "done.\n";
 
-  // Calculating autocorrelation of first versus last halves
-  as2->SetSliceCardinality( nVals / 2 ); 
-  as2->SetTimeLag( 1 );
+  // Prepare first test with data
+  as2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  datasetTable2->Delete();
+
+  // Select Columns of Interest
+  for ( int i = 0; i< nMetrics2; ++ i )
+    {
+    as2->AddColumn( columns2[i] );
+    }
+
+  as2->SetSliceCardinality( 10 ); 
+  as2->SetTimeLag( 5 ); 
 
   // Test Learn, and Derive options
   as2->SetLearnOption( true );
   as2->SetDeriveOption( true );
-  as2->SetTestOption( false );
   as2->SetAssessOption( false );
+  as2->SetTestOption( false );
   as2->Update();
 
   // Get output data and meta tables
   vtkMultiBlockDataSet* outputMetaAS2 = vtkMultiBlockDataSet::SafeDownCast( as2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputPrimary4 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 0 ) );
-  vtkTable* outputDerived4 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 1 ) );
+  vtkTable* outputPrimary2 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 0 ) );
+  vtkTable* outputDerived2 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 1 ) );
 
-  cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="
-       << nVals
-       << "):\n";
-  for ( vtkIdType r = 0; r < outputPrimary4->GetNumberOfRows(); ++ r )
+  cout << "\n## Calculated the following primary statistics for second data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputPrimary4->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary4->GetColumnName( i )
+      cout << outputPrimary2->GetColumnName( i )
            << "="
-           << outputPrimary4->GetValue( r, i ).ToString()
+           << outputPrimary2->GetValue( r, i ).ToString()
            << "  ";
       }
 
+    // Verify some of the calculated primary statistics
+//     if ( fabs ( outputPrimary2->GetValueByName( r, "Mean Xs" ).ToDouble() - means1[r] ) > 1.e-6 )
+//       {
+//       vtkGenericWarningMacro("Incorrect mean");
+//       testStatus = 1;
+//       }
     cout << "\n";
     }
 
-  cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
-       << nVals
-       << "):\n";
-  for ( vtkIdType r = 0; r < outputDerived4->GetNumberOfRows(); ++ r )
+  cout << "\n## Calculated the following derived statistics for second data set:\n";
+  for ( vtkIdType r = 0; r < outputDerived2->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputDerived4->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputDerived2->GetNumberOfColumns(); ++ i )
       {
-      cout << outputDerived4->GetColumnName( i )
+      cout << outputDerived2->GetColumnName( i )
            << "="
-           << outputDerived4->GetValue( r, i ).ToString()
+           << outputDerived2->GetValue( r, i ).ToString()
            << "  ";
       }
 
+    // Verify some of the calculated derived statistics
+//     if ( fabs ( outputDerived2->GetValueByName( r, "Variance Xs" ).ToDouble() - vars1[r] ) > 1.e-5 )
+//       {
+//       vtkGenericWarningMacro("Incorrect variance");
+//       testStatus = 1;
+//       }
     cout << "\n";
     }
 
