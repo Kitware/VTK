@@ -15,7 +15,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 {
   int testStatus = 0;
 
-  // ************** Test with 3 columns of input data **************
+  // ************** Test with 2 columns of input data **************
 
   // Input data
   double mingledData[] =
@@ -97,16 +97,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset2Arr->SetNumberOfComponents( 1 );
   dataset2Arr->SetName( "Metric 1" );
 
-  vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
-  dataset3Arr->SetNumberOfComponents( 1 );
-  dataset3Arr->SetName( "Metric 2" );
-
   for ( int i = 0; i < nVals1; ++ i )
     {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    dataset3Arr->InsertNextValue( i );
     }
 
   vtkTable* datasetTable1 = vtkTable::New();
@@ -114,8 +109,6 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset1Arr->Delete();
   datasetTable1->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
-  datasetTable1->AddColumn( dataset3Arr );
-  dataset3Arr->Delete();
 
   // Columns of interest
   int nMetrics = 2;
