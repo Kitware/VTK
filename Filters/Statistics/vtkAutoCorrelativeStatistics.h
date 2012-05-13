@@ -42,12 +42,25 @@ public:
   static vtkAutoCorrelativeStatistics* New();
 
   // Description:
-  // Set/get whether the offset between input data table rows to be used 
-  // to calculate auto-correlation. This offset cannot be negative.
-  // The default is 0, meaning that by default the auto-correlation matrix is
-  // the identity matrix scaled by the value of the variance.
-  vtkSetClampMacro(AutoCorrelationOffset,vtkIdType,0,VTK_LARGE_ID);
-  vtkGetMacro(AutoCorrelationOffset,vtkIdType);
+  // Set/get the cardinality of the data set at given time, i.e., of
+  // any given time slice. It cannot be negative.
+  // The input data set is assumed to have a cardinality which
+  // is a multiple of this value.
+  // The default is 0, meaning that the user must specify a value
+  // that is consistent with the input data set.
+  vtkSetClampMacro(SliceCardinality,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(SliceCardinality,vtkIdType);
+
+  // Description:
+  // Set/get the time lag to be used to calculate the auto-correlation.
+  // It cannot be negative.
+  // Valid values are those such that their product with the specified
+  // cardinality of individual time slices does not exceed the size of the input
+  // data set.
+  // The default is 0, meaning that by default all coefficients in the 
+  // auto-covariance matrix are equal to the variance.
+  vtkSetClampMacro(TimeLag,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(TimeLag,vtkIdType);
 
   // Description:
   // Given a collection of models, calculate aggregate model
@@ -96,7 +109,8 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  vtkIdType AutoCorrelationOffset;
+  vtkIdType SliceCardinality;
+  vtkIdType TimeLag;
 
 private:
   vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented
