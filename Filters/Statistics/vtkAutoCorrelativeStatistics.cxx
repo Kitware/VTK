@@ -222,8 +222,9 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
 
   // Verify that a slice cardinality, lag, and data size are consistent
   vtkIdType nRow = inData->GetNumberOfRows();
-  div_t q = div( nRow, this->SliceCardinality );
-  if ( q.rem || this->TimeLag >= q.quot )
+  vtkIdType quo = nRow / this->SliceCardinality;
+  if ( this->TimeLag >= quo 
+       || nRow != quo * this->SliceCardinality )
     {
     vtkErrorMacro( "Incorrect specification of time slice cardinality: "
                      << this->SliceCardinality
