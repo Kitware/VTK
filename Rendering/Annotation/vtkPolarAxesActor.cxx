@@ -784,7 +784,7 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
 void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 {
   // Prepare storage for polar axis labels
-  vtkStringArray *labels = vtkStringArray::New();
+  vtkStringArray* labels = vtkStringArray::New();
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
 
   // Prepare trigonometric quantities
@@ -826,17 +826,18 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     // Build polar arcs for non-zero values
     if ( value  > 0. )
       {
-      // Compute and set polar arc parameters
+      // Compute polar vector for this tick mark
       double x1 = value * cosThetaMin;
       double y1 = value * sinThetaMin;
-      double x2 = value * cosThetaMax;
-      double y2 = value * sinThetaMax;
+
+      // Create polar arc with corresponding to this tick mark
       vtkArcSource* arc = vtkArcSource::New();
+      arc->UseNormalAndAngleOn(); // Use new arc source API
       arc->SetCenter( this->Pole );
-      arc->SetPoint1( this->Pole[0] + x1, this->Pole[1] + y1, this->Pole[2] );
-      arc->SetPoint2( this->Pole[0] + x2, this->Pole[1] + y2, this->Pole[2] );
+      arc->SetNormal( 0., 0., 1. );
+      arc->SetPolarVector( x1, y1, 0. );
+      arc->SetAngle( angularSector );
       arc->SetResolution( arcResolution );
-      arc->SetNegative( angularSector > 180. );
       arc->Update();
 
       // Append new polar arc to existing ones
