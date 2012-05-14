@@ -31,22 +31,40 @@ vtkStandardNewMacro(vtkArcSource);
 // --------------------------------------------------------------------------
 vtkArcSource::vtkArcSource(int res)
 {
+  // Default first point
   this->Point1[0] =  0.0;
   this->Point1[1] =  0.5;
   this->Point1[2] =  0.0;
 
+  // Default second point
   this->Point2[0] =  0.5;
   this->Point2[1] =  0.0;
   this->Point2[2] =  0.0;
 
+  // Default center is origin
   this->Center[0] =  0.0;
   this->Center[1] =  0.0;
   this->Center[2] =  0.0;
 
+  // Default normal vector is unit in Oz direction
+  this->Normal[0] =  1.0;
+  this->Normal[1] =  0.0;
+  this->Normal[2] =  0.0;
+
+  // Default arc is a quarter-circle 
+  this->Angle =  90.;
+
+  // Default resolution
   this->Resolution = (res < 1 ? 1 : res);
+
+  // Default resolution
   this->Negative = false;
 
-  this->SetNumberOfInputPorts(0);
+  // By default use the original API
+  this->UseNormalAndAngle = false;
+
+  // This is a source
+  this->SetNumberOfInputPorts( 0 );
 }
 
 // --------------------------------------------------------------------------
@@ -175,10 +193,10 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
                               << this->Normal[1] << ", "
                               << this->Normal[2] << ")\n";
 
-  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Angle: " << this->Angle << "\n";
 
   os << indent << "Negative: " << this->Negative << "\n";
 
-  os << indent << "UseNormalAndRadius: " << this->UseNormalAndRadius << "\n";
+  os << indent << "UseNormalAndAngle: " << this->UseNormalAndAngle << "\n";
 }
 

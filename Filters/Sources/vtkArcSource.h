@@ -55,10 +55,10 @@ public:
   vtkGetVectorMacro(Normal,double,3);
 
   // Description:
-  // Radius of the arc.
+  // Angular sector occupied by the arc, beginning at Point1.
   // Note: This is only used when UseNormalAndRadius is ON.
-  vtkSetClampMacro(Radius,double,0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Angle,double,-360.0,360.0);
+  vtkGetMacro(Angle,double);
 
   // Description:
   // Divide line into resolution number of pieces.
@@ -81,9 +81,9 @@ public:
   // (when Point1 and Point2 are not equidistant from Center) or 
   // ambiguous (when Point1, Point2, and Center are aligned).
   // Note: false by default.
-  vtkSetMacro(UseNormalAndRadius, bool);
-  vtkGetMacro(UseNormalAndRadius, bool);
-  vtkBooleanMacro(UseNormalAndRadius, bool);
+  vtkSetMacro(UseNormalAndAngle, bool);
+  vtkGetMacro(UseNormalAndAngle, bool);
+  vtkBooleanMacro(UseNormalAndAngle, bool);
 
 protected:
   vtkArcSource(int res=1);
@@ -95,10 +95,10 @@ protected:
   double Point2[3];
   double Center[3];
   double Normal[3];
-  double Radius;
+  double Angle;
   int Resolution;
   bool Negative;
-  bool UseNormalAndRadius;
+  bool UseNormalAndAngle;
 
 private:
   vtkArcSource(const vtkArcSource&);  // Not implemented.
