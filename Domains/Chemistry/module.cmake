@@ -1,4 +1,4 @@
-vtk_module(vtkChemistryCore
+vtk_module(vtkDomainsChemistry
   GROUPS
     StandAlone
   DEPENDS

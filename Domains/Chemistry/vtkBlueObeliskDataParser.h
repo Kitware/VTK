@@ -33,7 +33,7 @@
 #ifndef __vtkBlueObeliskDataParser_h
 #define __vtkBlueObeliskDataParser_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkXMLParser.h"
 
 #include <vtkSmartPointer.h> // For vtkSmartPointer
@@ -45,7 +45,7 @@ class vtkStdString;
 class vtkStringArray;
 class vtkUnsignedShortArray;
 
-class VTKCHEMISTRYCORE_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
+class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
 {
  public:
   vtkTypeMacro(vtkBlueObeliskDataParser, vtkXMLParser);

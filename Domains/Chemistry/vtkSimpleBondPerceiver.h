@@ -31,13 +31,13 @@
 #ifndef __vtkSimpleBondPerceiver_h
 #define __vtkSimpleBondPerceiver_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
 class vtkDataSet;
 class vtkMolecule;
 
-class VTKCHEMISTRYCORE_EXPORT vtkSimpleBondPerceiver :
+class VTKDOMAINSCHEMISTRY_EXPORT vtkSimpleBondPerceiver :
     public vtkMoleculeAlgorithm
 {
 public:

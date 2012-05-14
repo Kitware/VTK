@@ -39,14 +39,14 @@ foreach(test ${TestsToRun})
     else()
       set(_error_threshold 10)
     endif()
-    add_test(NAME Chemistry-${TName}
+    add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
         -V Baseline/Chemistry/${TName}.png
         -E ${_error_threshold})
   else()
-    add_test(NAME Chemistry-${TName}
+    add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName})
   endif()
 endforeach ()
