@@ -23,7 +23,7 @@
 #ifndef __vtkPeriodicTable_h
 #define __vtkPeriodicTable_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkNew.h"
 
@@ -32,7 +32,7 @@ class vtkColor3f;
 class vtkLookupTable;
 class vtkStdString;
 
-class VTKCHEMISTRYCORE_EXPORT vtkPeriodicTable : public vtkObject
+class VTKDOMAINSCHEMISTRY_EXPORT vtkPeriodicTable : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPeriodicTable, vtkObject);

@@ -20,7 +20,7 @@
 #ifndef __vtkOpenQubeMoleculeSource_h
 #define __vtkOpenQubeMoleculeSource_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkMolecule;
@@ -31,7 +31,7 @@ namespace OpenQube
   class BasisSet;
 }
 
-class VTKCHEMISTRYCORE_EXPORT vtkOpenQubeMoleculeSource : public vtkDataReader
+class VTKDOMAINSCHEMISTRY_EXPORT vtkOpenQubeMoleculeSource : public vtkDataReader
 {
 public:
   static vtkOpenQubeMoleculeSource *New();

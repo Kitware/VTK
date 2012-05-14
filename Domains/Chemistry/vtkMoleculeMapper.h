@@ -21,7 +21,7 @@
 #ifndef __vtkMoleculeMapper_h
 #define __vtkMoleculeMapper_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMapper.h"
 #include "vtkNew.h" // For vtkNew
 
@@ -36,7 +36,7 @@ class vtkSelection;
 class vtkSphereSource;
 class vtkTrivialProducer;
 
-class VTKCHEMISTRYCORE_EXPORT vtkMoleculeMapper : public vtkMapper
+class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeMapper : public vtkMapper
 {
 public:
   static vtkMoleculeMapper *New();

@@ -19,12 +19,12 @@
 #ifndef __vtkCMLMoleculeReader_h
 #define __vtkCMLMoleculeReader_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkDataReader.h"
 
 class vtkMolecule;
 
-class VTKCHEMISTRYCORE_EXPORT vtkCMLMoleculeReader : public vtkDataReader
+class VTKDOMAINSCHEMISTRY_EXPORT vtkCMLMoleculeReader : public vtkDataReader
 {
 public:
   static vtkCMLMoleculeReader *New();

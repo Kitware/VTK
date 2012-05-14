@@ -31,12 +31,12 @@
 #ifndef __vtkMoleculeToAtomBallFilter_h
 #define __vtkMoleculeToAtomBallFilter_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeToPolyDataFilter.h"
 
 class vtkMolecule;
 
-class VTKCHEMISTRYCORE_EXPORT vtkMoleculeToAtomBallFilter
+class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
   : public vtkMoleculeToPolyDataFilter
 {
  public:

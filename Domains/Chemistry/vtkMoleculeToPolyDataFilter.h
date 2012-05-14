@@ -21,12 +21,12 @@
 #ifndef __vtkMoleculeToPolyDataFilter_h
 #define __vtkMoleculeToPolyDataFilter_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkMolecule;
 
-class VTKCHEMISTRYCORE_EXPORT vtkMoleculeToPolyDataFilter
+class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToPolyDataFilter
 : public vtkPolyDataAlgorithm
 {
 public:

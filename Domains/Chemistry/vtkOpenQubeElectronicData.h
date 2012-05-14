@@ -18,7 +18,7 @@
 #ifndef __vtkOpenQubeElectronicData_h
 #define __vtkOpenQubeElectronicData_h
 
-#include "vtkChemistryCoreModule.h" // For export macro
+#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"
 #include "vtkNew.h" // for vtkNew
 
@@ -30,7 +30,7 @@ namespace OpenQube {
 class vtkImageData;
 class vtkDataSetCollection;
 
-class VTKCHEMISTRYCORE_EXPORT vtkOpenQubeElectronicData
+class VTKDOMAINSCHEMISTRY_EXPORT vtkOpenQubeElectronicData
     : public vtkAbstractElectronicData
 {
 public:
