@@ -26,6 +26,7 @@
 #include "vtkMath.h"
 
 #include <math.h>
+
 vtkStandardNewMacro(vtkArcSource);
 
 // --------------------------------------------------------------------------
@@ -74,33 +75,31 @@ int vtkArcSource::RequestInformation(
   vtkInformationVector *outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-               -1);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set( vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1 );
   return 1;
 }
 
 // --------------------------------------------------------------------------
-int vtkArcSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
+                               vtkInformationVector** vtkNotUsed(inputVector),
+                               vtkInformationVector* outputVector)
 {
   int numLines = this->Resolution;
-  int numPts = this->Resolution+1;
-  double tc[3] = {0.0, 0.0, 0.0};
+  int numPts = this->Resolution +1;
+  double tc[3] = { 0.0, 0.0, 0.0 };
 
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
 
-  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
+  if ( outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER() ) > 0 )
     {
     return 1;
     }
 
   // get the ouptut
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output
+    = vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Calculate vector from origin to first point
   
@@ -120,11 +119,11 @@ int vtkArcSource::RequestData(
       v1[i] = this->PolarVector[i];
       }
 
-    // Calculate perpendicular vector with ormal which is specified with this API
+    // Calculate perpendicular vector with normal which is specified with this API
     vtkMath::Cross( this->Normal, this->PolarVector, perpendicular );
     
     // Calculate radius
-    radius = vtkMath::Normalize( this->PolarVector );
+    radius = vtkMath::Normalize( v1 );
     }
   else // if ( this->UseNormalAndRadius )
     {
@@ -141,7 +140,6 @@ int vtkArcSource::RequestData(
     double normal[3];
     vtkMath::Cross( v1, v2, normal );
     vtkMath::Cross( normal, v1, perpendicular );
-    vtkMath::Normalize( perpendicular );
     double dotprod =
       vtkMath::Dot( v1, v2 ) / ( vtkMath::Norm( v1 ) * vtkMath::Norm( v2 ) );
     angle = acos( dotprod );
@@ -157,18 +155,22 @@ int vtkArcSource::RequestData(
   // Calcute angle increment
   double angleInc = angle / this->Resolution;
 
+  // Normalize perpendicular vector
+  vtkMath::Normalize( perpendicular );
+
+  // Now create arc points and segments
   vtkPoints *newPoints = vtkPoints::New();
-  newPoints->Allocate(numPts);
+  newPoints->Allocate( numPts );
   vtkFloatArray *newTCoords = vtkFloatArray::New();
-  newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2*numPts);
-  newTCoords->SetName("Texture Coordinates");
+  newTCoords->SetNumberOfComponents( 2 );
+  newTCoords->Allocate( 2 * numPts );
+  newTCoords->SetName( "Texture Coordinates" );
   vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(numLines,2));
+  newLines->Allocate( newLines->EstimateSize( numLines, 2 ) );
 
   double theta = 0.0;
   // Iterate over angle increments
-  for ( int i = 0; i < this->Resolution; ++ i, theta += angleInc )
+  for ( int i = 0; i <= this->Resolution; ++ i, theta += angleInc )
     {
     const double cosine = cos(theta);
     const double sine = sin(theta);
@@ -177,28 +179,24 @@ int vtkArcSource::RequestData(
         this->Center[1] + cosine*radius*v1[1] + sine*radius*perpendicular[1],
         this->Center[2] + cosine*radius*v1[2] + sine*radius*perpendicular[2] };
 
-    tc[0] = static_cast<double>(i)/this->Resolution;
-    newPoints->InsertPoint(i,p);
-    newTCoords->InsertTuple(i,tc);
+    tc[0] = static_cast<double>( i ) / this->Resolution;
+    newPoints->InsertPoint( i ,p );
+    newTCoords->InsertTuple( i, tc );
     }
 
-  tc[0] = 1.0;
-  newPoints->InsertPoint( this->Resolution, this->Point2 );
-  newTCoords->InsertTuple(this->Resolution,tc);
-
-  newLines->InsertNextCell(numPts);
-  for (int k=0; k < numPts; k++)
+  newLines->InsertNextCell( numPts );
+  for ( int k = 0; k < numPts; ++ k )
     {
-    newLines->InsertCellPoint (k);
+    newLines->InsertCellPoint( k );
     }
 
-  output->SetPoints(newPoints);
+  output->SetPoints( newPoints );
   newPoints->Delete();
 
-  output->GetPointData()->SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords( newTCoords );
   newTCoords->Delete();
 
-  output->SetLines(newLines);
+  output->SetLines( newLines );
   newLines->Delete();
 
   return 1;
