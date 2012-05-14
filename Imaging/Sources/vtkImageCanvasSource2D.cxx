@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageCanvasSource2D.h"
 
+#include "vtkMath.h"
 #include "vtkImageCast.h"
 #include "vtkImageClip.h"
 #include "vtkInformation.h"
@@ -722,7 +723,7 @@ void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
   z = (z > max2) ? max2 : z;
   maxV = image->GetNumberOfScalarComponents() - 1;
 
-  numberOfSteps = static_cast<int>(ceil(6.2831853 * radius));
+  numberOfSteps = static_cast<int>(ceil(2.0 * vtkMath::Pi() * radius));
   thetaCos = cos(1.0 / radius);
   thetaSin = sin(1.0 / radius);
   x = radius;

@@ -773,7 +773,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
 
   if (this->FrequencyModes)
     {
-    this->Phase = vtkMath::DoubleTwoPi()*(time*this->Frequency);
+    this->Phase = 2.0 * vtkMath::Pi()*(time*this->Frequency);
     }
 
   int readMesh = !this->MeshUpToDate();

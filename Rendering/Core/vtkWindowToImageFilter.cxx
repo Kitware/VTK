@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkWindowToImageFilter.h"
 
+#include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -399,9 +400,9 @@ void vtkWindowToImageFilter::RequestData(
           deltay = 2.0*deltay/(visVP[3] - visVP[1]);
           }
         cam->SetWindowCenter(windowCenters[i*2]+deltax,windowCenters[i*2+1]+deltay);
-        //cam->SetViewAngle(atan(tan(viewAngles[i]*3.1415926/360.0)*mag)  //FIXME
-        cam->SetViewAngle(asin(sin(viewAngles[i]*3.1415926/360.0)*mag)
-                          * 360.0 / 3.1415926);
+        //cam->SetViewAngle(atan(tan(viewAngles[i]*vtkMath::Pi()/360.0)*mag)  //FIXME
+        cam->SetViewAngle(asin(sin(viewAngles[i]*vtkMath::Pi()/360.0)*mag)
+                          * 360.0 / vtkMath::Pi());
         cam->SetParallelScale(parallelScale[i]*mag);
         }
 

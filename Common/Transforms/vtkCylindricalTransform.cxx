@@ -102,7 +102,7 @@ void vtkRectangularToCylindrical(const T inPoint[3], T outPoint[3])
   else
     {
     // Change range to [0, 2*Pi], otherwise the same as atan2(y, x)
-    outPoint[1] = T(vtkMath::DoublePi()) + atan2(-y, -x);
+    outPoint[1] = T(vtkMath::Pi()) + atan2(-y, -x);
     }
   outPoint[2] = z;
 }

@@ -36,19 +36,19 @@ vtkStandardNewMacro(vtkTimeSourceExample);
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::ValueFunction(double t)
 {
-  return sin(2*vtkMath::DoublePi()*t);
+  return sin(2*vtkMath::Pi()*t);
 }
 
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::XFunction(double t)
 {
-  return sin(2*vtkMath::DoublePi()*t)*this->XAmplitude;
+  return sin(2*vtkMath::Pi()*t)*this->XAmplitude;
 }
 
 //----------------------------------------------------------------------------
 double vtkTimeSourceExample::YFunction(double t)
 {
-  return sin(2*vtkMath::DoublePi()*t)*this->YAmplitude;
+  return sin(2*vtkMath::Pi()*t)*this->YAmplitude;
 }
 
 //----------------------------------------------------------------------------

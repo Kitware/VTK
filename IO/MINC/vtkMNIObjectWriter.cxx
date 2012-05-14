@@ -494,7 +494,7 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
             }
           else if (dotprod <= -1.0)
             {
-            angle = vtkMath::DoublePi();
+            angle = vtkMath::Pi();
             }
           else
             {

@@ -393,7 +393,14 @@ static double cf(double w, double m, double a = 0)
   double c;
   double sgn;
 
-  c = cos(w);
+  if (w == vtkMath::Pi() || w == -vtkMath::Pi())
+    {
+    c = -1.0;
+    }
+  else
+    {
+    c = cos(w);
+    }
   sgn = c < 0.0 ? -1.0 : 1.0;
   return a + sgn*pow(sgn*c, m);
 }
@@ -403,7 +410,14 @@ static double sf(double w, double m)
   double s;
   double sgn;
 
-  s = sin(w);
+  if (w == vtkMath::Pi() || w == -vtkMath::Pi())
+    {
+    s = 0.0;
+    }
+  else
+    {
+    s = sin(w);
+    }
   sgn = s < 0.0 ? -1.0 : 1.0;
   return sgn*pow(sgn*s, m);
 }

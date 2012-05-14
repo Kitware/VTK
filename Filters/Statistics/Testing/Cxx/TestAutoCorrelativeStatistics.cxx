@@ -377,7 +377,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Fill data columns
   vtkIdType midPoint = cardTotal >> 1;
-  double dAlpha = vtkMath::DoubleTwoPi() / cardSlice;
+  double dAlpha = (2.0 * vtkMath::Pi()) / cardSlice;
   for ( int i = 0; i < cardTotal; ++ i )
     {
     lineArr->InsertNextValue( i );

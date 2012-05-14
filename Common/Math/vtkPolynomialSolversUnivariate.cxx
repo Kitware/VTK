@@ -2005,8 +2005,8 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
         theta = acos( R / (sqrt(Q_cubed) ) );
 
         *r1 = -2.0*sqrt(Q)*cos( theta/3.0 ) - c1/3.0;
-        *r2 = -2.0*sqrt(Q)*cos( (theta + 2.0*3.141592653589)/3.0) - c1/3.0;
-        *r3 = -2.0*sqrt(Q)*cos( (theta - 2.0*3.141592653589)/3.0) - c1/3.0;
+        *r2 = -2.0*sqrt(Q)*cos( (theta + 2.0 * vtkMath::Pi())/3.0) - c1/3.0;
+        *r3 = -2.0*sqrt(Q)*cos( (theta - 2.0 * vtkMath::Pi())/3.0) - c1/3.0;
 
         *num_roots = 3;
 

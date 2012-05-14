@@ -151,8 +151,8 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
     }
 
   zpos = z*xdim*ydim;
-  linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
-  phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
+  linkThresh = cos(this->LinkThreshold*vtkMath::Pi()/180.0);
+  phiThresh = cos(this->PhiThreshold*vtkMath::Pi()/180.0);
 
   // first find all forward & backwards links
   for (y = 0; y < ydim; y++)

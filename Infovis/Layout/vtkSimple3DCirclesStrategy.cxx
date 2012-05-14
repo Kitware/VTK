@@ -289,7 +289,7 @@ vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalLayers,vtkIntArray);
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalOrder,vtkIdTypeArray);
 
 vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
-: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::DoublePi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
+: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::Pi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
   {
   this->Direction[0] = this->Direction[1] = 0.0; this->Direction[2] = 1.0;
   this->T[0][1] = this->T[0][2] = this->T[1][2] = 0.0;
@@ -406,7 +406,7 @@ void vtkSimple3DCirclesStrategy::Layout( void )
   double Rprev = 0.0;
   double localXYZ[3], globalXYZ[3], localHeight = this->Height;
   double alfa = 0.0;
-  double tangent = tan( vtkMath::DoublePi() / 2 - this->MinimumRadian );
+  double tangent = tan( vtkMath::Pi() / 2 - this->MinimumRadian );
   int ind = 0;
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -425,11 +425,11 @@ void vtkSimple3DCirclesStrategy::Layout( void )
         break;
       }
 
-    alfa = vtkMath::DoubleTwoPi() / double( index - start );
+    alfa = 2.0 * vtkMath::Pi() / double( index - start );
 
     if ( this->Method == FixedDistanceMethod )
       {
-      R = double( index - start - 1 ) * this->Radius / vtkMath::DoublePi();
+      R = double( index - start - 1 ) * this->Radius / vtkMath::Pi();
       }
     else if ( this->Method == FixedRadiusMethod )
       {

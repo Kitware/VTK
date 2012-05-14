@@ -2466,7 +2466,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           {
           double* dispVal = displ->GetTuple( idx );
           for ( c = 0; c < dim; ++c )
-            coords[c] += dispVal[c] * this->DisplacementMagnitude * cos( 2. * vtkMath::DoublePi() * this->ModeShapeTime );
+            coords[c] += dispVal[c] * this->DisplacementMagnitude * cos( 2. * vtkMath::Pi() * this->ModeShapeTime );
 
           coords += 3;
           }

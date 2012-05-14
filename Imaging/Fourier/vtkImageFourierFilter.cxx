@@ -14,9 +14,8 @@
 =========================================================================*/
 #include "vtkImageFourierFilter.h"
 
+#include "vtkMath.h"
 #include <math.h>
-
-
 
 /*=========================================================================
         Vectors of complex numbers.
@@ -61,7 +60,7 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
   fact1.Real = 1.0;
   fact1.Imag = 0.0;
   q.Real = 0.0;
-  q.Imag = -2.0 * 3.141592654 * static_cast<float>(fb)
+  q.Imag = -(2.0 * vtkMath::Pi()) * static_cast<float>(fb)
     / static_cast<float>(bsize * 2);
   vtkImageComplexExponential(q, q);
   p3 = p_out;
@@ -117,7 +116,7 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
   for(i0 = 0; i0 < n; ++i0)
     {
     q.Real = 0.0;
-    q.Imag = -2.0 * 3.141592654 * static_cast<float>(i0) *
+    q.Imag = -(2.0 * vtkMath::Pi()) * static_cast<float>(i0) *
       static_cast<float>(fb) / static_cast<float>(bsize*n);
     vtkImageComplexExponential(q, q);
     p3 = p_out;

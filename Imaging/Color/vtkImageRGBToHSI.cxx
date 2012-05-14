@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageRGBToHSI.h"
 
+#include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkObjectFactory.h"
@@ -92,11 +93,11 @@ void vtkImageRGBToHSIExecute(vtkImageRGBToHSI *self,
         }
       if (G >= B)
         {
-        H = max * (temp / 6.2831853);
+        H = max * (temp / (2.0 * vtkMath::Pi()));
         }
       else
         {
-        H = max * (1.0 - (temp / 6.2831853));
+        H = max * (1.0 - (temp / (2.0 * vtkMath::Pi())));
         }
 
       // assign output.

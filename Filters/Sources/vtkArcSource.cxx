@@ -150,7 +150,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     angle = acos( dotprod );
     if ( this->Negative )
       {
-      angle -= vtkMath::DoubleTwoPi();
+      angle -= (2.0 * vtkMath::Pi());
       }
 
     // Calcute radius

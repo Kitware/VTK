@@ -2973,7 +2973,7 @@ int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta
 //----------------------------------------------------------------------------
 double vtkMath::GaussianAmplitude(const double variance, const double distanceFromMean)
 {
-  return 1./(sqrt(2.*vtkMath::DoublePi() * variance)) * exp(-(pow(distanceFromMean,2))/(2.*variance));
+  return 1./(sqrt(2.*vtkMath::Pi() * variance)) * exp(-(pow(distanceFromMean,2))/(2.*variance));
 }
 
 //----------------------------------------------------------------------------

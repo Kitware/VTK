@@ -48,7 +48,7 @@ int vtkTexturedSphereSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -90,7 +90,7 @@ int vtkTexturedSphereSource::RequestData(
   for (i=0; i <= this->ThetaResolution; i++)
     {
     theta = i * deltaTheta;
-    tc[0] = theta/(2.0*3.1415926);
+    tc[0] = 2.0 * theta/vtkMath::Pi();
     for (j=0; j <= this->PhiResolution; j++)
       {
       phi = j * deltaPhi;
@@ -107,7 +107,7 @@ int vtkTexturedSphereSource::RequestData(
       x[0] /= norm; x[1] /= norm; x[2] /= norm;
       newNormals->InsertNextTuple(x);
 
-      tc[1] = 1.0 - phi/3.1415926;
+      tc[1] = 1.0 - phi/vtkMath::Pi();
       newTCoords->InsertNextTuple(tc);
       }
     }
