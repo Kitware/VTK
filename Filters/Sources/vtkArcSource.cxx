@@ -102,26 +102,59 @@ int vtkArcSource::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Compute the cross product of the two vectors.
-  double v1[3] = { this->Point1[0] - this->Center[0],
-                   this->Point1[1] - this->Center[1],
-                   this->Point1[2] - this->Center[2] };
-  double v2[3] = { this->Point2[0] - this->Center[0],
-                   this->Point2[1] - this->Center[1],
-                   this->Point2[2] - this->Center[2] };
-
-  double normal[3], perpendicular[3];
-  vtkMath::Cross( v1, v2, normal );
-  vtkMath::Cross( normal, v1, perpendicular );
-  vtkMath::Normalize( perpendicular );
-  double dotprod =
-    vtkMath::Dot( v1, v2 ) / (vtkMath::Norm(v1) * vtkMath::Norm(v2));
-  double angle = acos( dotprod );
-  if (this->Negative)
+  // Calculate vector from origin to first point
+  
+  // Normal and angle are either specified (consistent API) or calculated (original API)
+  double angle = 0.0;
+  double radius = 0.5;
+  double perpendicular[3];
+  double v1[3];
+  if ( this->UseNormalAndAngle )
     {
-    angle -= vtkMath::DoubleTwoPi();
+    // Retrieve angle, which is specified with this API
+    angle = vtkMath::RadiansFromDegrees( this->Angle );
+
+    // Retrieve polar vector, which is specified with this API
+    for ( int i = 0; i < 3; ++ i )
+      {
+      v1[i] = this->PolarVector[i];
+      }
+
+    // Calculate perpendicular vector with ormal which is specified with this API
+    vtkMath::Cross( this->Normal, this->PolarVector, perpendicular );
+    
+    // Calculate radius
+    radius = vtkMath::Normalize( this->PolarVector );
     }
-  double radius = vtkMath::Normalize( v1 );
+  else // if ( this->UseNormalAndRadius )
+    {
+    // Compute the cross product of the two vectors.
+    for ( int i = 0; i < 3; ++ i )
+      {
+      v1[i] = this->Point1[i] - this->Center[i];
+      }
+
+    double v2[3] = { this->Point2[0] - this->Center[0],
+                     this->Point2[1] - this->Center[1],
+                     this->Point2[2] - this->Center[2] };
+    
+    double normal[3];
+    vtkMath::Cross( v1, v2, normal );
+    vtkMath::Cross( normal, v1, perpendicular );
+    vtkMath::Normalize( perpendicular );
+    double dotprod =
+      vtkMath::Dot( v1, v2 ) / ( vtkMath::Norm( v1 ) * vtkMath::Norm( v2 ) );
+    angle = acos( dotprod );
+    if ( this->Negative )
+      {
+      angle -= vtkMath::DoubleTwoPi();
+      }
+
+    // Calcute radius
+    radius = vtkMath::Normalize( v1 );
+    } // else
+  
+  // Calcute angle increment
   double angleInc = angle / this->Resolution;
 
   vtkPoints *newPoints = vtkPoints::New();
@@ -134,7 +167,8 @@ int vtkArcSource::RequestData(
   newLines->Allocate(newLines->EstimateSize(numLines,2));
 
   double theta = 0.0;
-  for (int i = 0; i < this->Resolution; i++, theta += angleInc)
+  // Iterate over angle increments
+  for ( int i = 0; i < this->Resolution; ++ i, theta += angleInc )
     {
     const double cosine = cos(theta);
     const double sine = sin(theta);
@@ -192,6 +226,10 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Normal: (" << this->Normal[0] << ", "
                               << this->Normal[1] << ", "
                               << this->Normal[2] << ")\n";
+
+  os << indent << "PolarVector: (" << this->PolarVector[0] << ", "
+                                   << this->PolarVector[1] << ", "
+                                   << this->PolarVector[2] << ")\n";
 
   os << indent << "Angle: " << this->Angle << "\n";
 

@@ -49,10 +49,16 @@ public:
   vtkGetVectorMacro(Center,double,3);
 
   // Description:
-  // Set position of normal vector.
+  // Set normal vector.
   // Note: This is only used when UseNormalAndRadius is ON.
   vtkSetVector3Macro(Normal,double);
   vtkGetVectorMacro(Normal,double,3);
+
+  // Description:
+  // Set polar vector.
+  // Note: This is only used when UseNormalAndRadius is ON.
+  vtkSetVector3Macro(PolarVector,double);
+  vtkGetVectorMacro(PolarVector,double,3);
 
   // Description:
   // Angular sector occupied by the arc, beginning at Point1.
@@ -95,6 +101,7 @@ protected:
   double Point2[3];
   double Center[3];
   double Normal[3];
+  double PolarVector[3];
   double Angle;
   int Resolution;
   bool Negative;
