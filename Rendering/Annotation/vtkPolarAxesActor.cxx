@@ -791,9 +791,6 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   double thetaMin = vtkMath::RadiansFromDegrees( this->MinimumAngle );
   double cosThetaMin = cos( thetaMin );
   double sinThetaMin = sin( thetaMin );
-  double thetaMax = vtkMath::RadiansFromDegrees( this->MaximumAngle );
-  double cosThetaMax = cos( thetaMax );
-  double sinThetaMax = sin( thetaMax );
   double angularSector = this->MaximumAngle - this->MinimumAngle;
   vtkIdType arcResolution
     = static_cast<vtkIdType>( angularSector * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
