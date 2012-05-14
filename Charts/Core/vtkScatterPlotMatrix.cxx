@@ -1121,12 +1121,24 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
     this->Private->AnimationPath.clear();
-    if (pos[0] != this->ActivePlot[0])
+    bool horizontalFirst = pos[0] > this->ActivePlot[0] ? false : true;
+    if (horizontalFirst)
       {
-      this->Private->AnimationPath.push_back(vtkVector2i(pos[0],
-                                                         this->ActivePlot[1]));
+      if (pos[0] != this->ActivePlot[0])
+        {
+        this->Private->AnimationPath.push_back(vtkVector2i(pos[0],
+                                                           this->ActivePlot[1]));
+        }
       }
-    if (pos[1] != this->ActivePlot[1])
+    else
+      {
+      if (pos[1] != this->ActivePlot[1])
+        {
+        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0],
+                                                           pos[1]));
+        }
+      }
+    if (pos[0] != this->ActivePlot[0] || pos[1] != this->ActivePlot[1])
       {
       this->Private->AnimationPath.push_back(pos);
       }
