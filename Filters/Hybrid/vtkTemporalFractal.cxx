@@ -438,8 +438,8 @@ int vtkTemporalFractal::RequestDataObject(vtkInformation*,
 // This is called by the superclass.
 // This is the method you should override.
 int vtkTemporalFractal::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
+  vtkInformation *,
+  vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
   vtkInformation *info=outputVector->GetInformationObject(0);

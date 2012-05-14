@@ -84,7 +84,6 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     int retVal=1;
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
-    double inTime = inData-> GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
     if(this->UpdateTimeSteps.size()==0)
       {
@@ -105,7 +104,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     this->MDataSet->SetBlock( this->RequestUpdateIndex, inDataCopy);
     this->RequestUpdateIndex++;
 
-    if(this->RequestUpdateIndex==this->UpdateTimeSteps.size()) // all the time steps are here
+    if(this->RequestUpdateIndex==static_cast<int>(this->UpdateTimeSteps.size())) // all the time steps are here
       {
       //change the input to the multiblock data and let child class to do the work
       //make sure to set the input back to what it was to not break anything upstream

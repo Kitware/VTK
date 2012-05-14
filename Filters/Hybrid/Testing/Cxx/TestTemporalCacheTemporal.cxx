@@ -44,10 +44,6 @@ public:
     vtkInformation *info = f->GetExecutive()->GetOutputInformation(0);
     int Length = info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP())? 1 : 0;
     this->Count += Length;
-    if (Length>0)
-      {
-      double step= info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-      }
   }
 
   unsigned int Count;

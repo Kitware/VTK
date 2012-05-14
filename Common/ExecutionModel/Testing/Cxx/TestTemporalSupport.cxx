@@ -154,7 +154,7 @@ private:
 };
 vtkStandardNewMacro(TestTimeFilter);
 
-int TestTemporalSupport(int, char**)
+int TestTemporalSupport(int, char*[])
 {
   vtkSmartPointer<TestTimeSource> imageSource = vtkSmartPointer<TestTimeSource>::New();
   vtkSmartPointer<TestTimeFilter> filter = vtkSmartPointer<TestTimeFilter>::New();

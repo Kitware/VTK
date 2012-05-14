@@ -208,7 +208,7 @@ int vtkTemporalInterpolator::RequestInformation (
 }
 
 int vtkTemporalInterpolator::RequestData(
-  vtkInformation *request,
+  vtkInformation *,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
