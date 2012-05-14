@@ -171,6 +171,14 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
                               << this->Center[1] << ", "
                               << this->Center[2] << ")\n";
 
+  os << indent << "Normal: (" << this->Normal[0] << ", "
+                              << this->Normal[1] << ", "
+                              << this->Normal[2] << ")\n";
+
+  os << indent << "Radius: " << this->Radius << "\n";
+
   os << indent << "Negative: " << this->Negative << "\n";
+
+  os << indent << "UseNormalAndRadius: " << this->UseNormalAndRadius << "\n";
 }
 
