@@ -68,7 +68,4 @@ add_definitions("-DMPICH_IGNORE_CXX_SEEK")
 set(${vtk-module}_EXPORT_CODE "#define VTK_USE_MPI")
 
 vtk_module_library(vtkParallelMPI ${Module_SRCS})
-target_link_libraries(vtkParallelMPI ${MPI_LIBRARY})
-if(MPI_EXTRA_LIBRARY)
-  target_link_libraries(vtkParallelMPI ${MPI_EXTRA_LIBRARY})
-endif()
+target_link_libraries(vtkParallelMPI ${MPI_LIBRARIES})
