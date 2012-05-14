@@ -89,7 +89,7 @@ interactor.SetRenderWindow( window )
 # Start interaction
 window.Render()
 polaxes.SetMinimumAngle( 40. )
-polaxes.SetMaximumAngle( 219.99999 )
+polaxes.SetMaximumAngle( 220. )
 polaxes.SetNumberOfRadialAxes( 10 )
 polaxes.SetNumberOfPolarAxisTicks( 10 )
 
