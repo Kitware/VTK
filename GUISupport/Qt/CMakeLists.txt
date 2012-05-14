@@ -66,10 +66,6 @@ vtk_module_library(${vtk-module}
 
 target_link_libraries(${vtk-module} ${QT_LIBRARIES})
 
-if(VTK_USE_QVTK_QTOPENGL)
-  target_link_libraries(${vtk-module} ${OPENGL_gl_LIBRARY})
-endif()
-
 if(VTK_USE_X)
   target_link_libraries(${vtk-module} ${X11_LIBRARIES})
 endif()
