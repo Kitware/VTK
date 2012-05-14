@@ -788,9 +788,9 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   labels->SetNumberOfValues( this->NumberOfPolarAxisTicks );
 
   // Prepare trigonometric quantities
-  double thetaMin = vtkMath::RadiansFromDegrees( this->MinimumAngle );
-  double cosThetaMin = cos( thetaMin );
-  double sinThetaMin = sin( thetaMin );
+  double thetaPolar = vtkMath::RadiansFromDegrees( this->MinimumAngle );
+  double cosThetaPolar = cos( thetaPolar );
+  double sinThetaPolar = sin( thetaPolar );
   double angularSector = this->MaximumAngle - this->MinimumAngle;
   vtkIdType arcResolution
     = static_cast<vtkIdType>( angularSector * VTK_POLAR_ARC_RESOLUTION_PER_DEG );
@@ -824,15 +824,15 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     if ( value  > 0. )
       {
       // Compute polar vector for this tick mark
-      double x1 = value * cosThetaMin;
-      double y1 = value * sinThetaMin;
+      double xPolar = value * cosThetaPolar;
+      double yPolar = value * sinThetaPolar;
 
       // Create polar arc with corresponding to this tick mark
       vtkArcSource* arc = vtkArcSource::New();
       arc->UseNormalAndAngleOn(); // Use new arc source API
       arc->SetCenter( this->Pole );
       arc->SetNormal( 0., 0., 1. );
-      arc->SetPolarVector( x1, y1, 0. );
+      arc->SetPolarVector( xPolar, yPolar, 0. );
       arc->SetAngle( angularSector );
       arc->SetResolution( arcResolution );
       arc->Update();
