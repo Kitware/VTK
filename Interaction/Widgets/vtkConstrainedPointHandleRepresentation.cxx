@@ -508,7 +508,6 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
 
   if(path == 0)
    {
-   picker->Delete();
    return 0;
    }
   double pickPos[3];
@@ -522,7 +521,6 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
       double v = p->EvaluateFunction( pickPos );
       if ( v < tolerance )
         {
-        picker->Delete();
         return 0;
         }
       }
