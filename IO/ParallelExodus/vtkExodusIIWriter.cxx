@@ -3040,4 +3040,3 @@ int vtkExodusIIWriter::WriteNextTimeStep()
 
   return 1;
 }
-
