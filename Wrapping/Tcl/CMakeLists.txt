@@ -189,7 +189,7 @@ IF (VTK_USE_PARALLEL)
     if(BUILD_SHARED_LIBS)
       # vtkCommonCoreTCL is required even for shared builds
       # to link the vtkTclUtil object - FIXME ??
-      target_link_libraries(vtk vtkCommonCoreTCL)
+      target_link_libraries(pvtk vtkCommonCoreTCL)
     else()
       foreach(module ${VTK_TCL_WRAPPED})
         if("${module}" STREQUAL "vtkRenderingContext2D")
