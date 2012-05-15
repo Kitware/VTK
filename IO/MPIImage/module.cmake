@@ -1,7 +1,9 @@
-vtk_module(vtkIOParallelMPI
+vtk_module(vtkIOMPIImage
+ IMPLEMENTS
+    vtkIOImage
   GROUPS
     MPI
   DEPENDS
-    vtkParallelCore
+    vtkParallelMPI
     vtkIOImage
   )
