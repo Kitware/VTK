@@ -23,7 +23,7 @@
 #include "vtkContextMapper2D.h"
 #include "vtkPoints2D.h"
 #include "vtkTable.h"
-#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
@@ -59,7 +59,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotPoints);
+vtkStandardNewMacro(vtkPlotPoints)
 
 //-----------------------------------------------------------------------------
 vtkPlotPoints::vtkPlotPoints()
@@ -166,6 +166,10 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
       }
     }
 
+  float *f = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
+  int n = static_cast<int>(this->Points->GetData()->GetNumberOfTuples());
+
+
   // If there is a marker style, then draw the marker for each point too
   if (this->MarkerStyle)
     {
@@ -179,34 +183,34 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
       }
     else
       {
-      painter->DrawPointSprites(this->Marker, this->Points);
+      painter->DrawPointSprites(this->Marker, f, n);
       }
     }
 
   // Now add some decorations for our selected points...
   if (this->Selection)
     {
-    vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
-    for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
+    if (this->Selection->GetMTime() > this->SelectedPoints->GetMTime() ||
+        this->GetMTime() > this->SelectedPoints->GetMTime())
       {
-      this->GeneraterMarker(vtkContext2D::FloatToInt(width+2.7), true);
-
-      painter->GetPen()->SetColor(255, 50, 0, 150);
-      painter->GetPen()->SetWidth(width+2.7);
-
-      vtkIdType id = 0;
-      this->Selection->GetTupleValue(i, &id);
-      if (id < this->Points->GetNumberOfPoints())
+      int nSelected(static_cast<int>(this->Selection->GetNumberOfTuples()));
+      this->SelectedPoints->SetNumberOfComponents(2);
+      this->SelectedPoints->SetNumberOfTuples(nSelected);
+      float *selectedPtr = static_cast<float *>(this->SelectedPoints->GetVoidPointer(0));
+      for (int i = 0; i < nSelected; ++i)
         {
-        double *point = this->Points->GetPoint(id);
-        float p[] = { point[0], point[1] };
-        painter->DrawPointSprites(this->HighlightMarker, p, 1);
+        *(selectedPtr++) = f[2 * this->Selection->GetValue(i)];
+        *(selectedPtr++) = f[2 * this->Selection->GetValue(i) + 1];
         }
       }
-    }
-  else
-    {
-    vtkDebugMacro("No selection set.");
+    vtkDebugMacro(<<"Selection set " << this->Selection->GetNumberOfTuples());
+    this->GeneraterMarker(vtkContext2D::FloatToInt(width + 2.7), true);
+    painter->GetPen()->SetColor(255, 50, 0, 150);
+    painter->GetPen()->SetWidth(width + 2.7);
+
+    painter->DrawPointSprites(this->Marker,
+                              static_cast<float *>(this->SelectedPoints->GetVoidPointer(0)),
+                              this->SelectedPoints->GetNumberOfTuples());
     }
 
   return true;
@@ -228,7 +232,7 @@ bool vtkPlotPoints::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
 
-    float point[] = { rect[0]+0.5*rect[2], rect[1]+0.5*rect[3] };
+    float point[] = { rect[0]+ 0.5f * rect[2], rect[1] + 0.5f * rect[3] };
     painter->DrawPointSprites(this->Marker, point, 1);
     }
   return true;
