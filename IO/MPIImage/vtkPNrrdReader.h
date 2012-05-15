@@ -2,7 +2,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMPIImageReader.h
+  Module:    vtkPNrrdReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,45 +18,37 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkMPIImageReader Superclass of parallel binary image file readers.
+// .NAME vtkPNrrdReader - Read nrrd files efficiently from parallel file systems (and reasonably well elsewhere).
 //
 // .SECTION Description
 //
-// vtkMPIImageReader provides the mechanism to read a brick of bytes (or shorts,
-// or ints, or floats, or doubles, ...) from a file or series of files.  You can
-// use it to read raw image data from files.  You may also be able to subclass
-// this to read simple file formats.
+// vtkPNrrdReader is a subclass of vtkNrrdReader that will read Nrrd format
+// header information of the image before reading the data.  This means that the
+// reader will automatically set information like file dimensions.
 //
-// What distinguishes this class from vtkImageReader and vtkImageReader2 is that
-// it performs synchronized parallel I/O using the MPIIO layer.  This can make a
-// huge difference in file read times, especially when reading in parallel from
-// a parallel file system.
+// .SECTION Bugs
 //
-// Despite the name of this class, vtkMPIImageReader will work even if MPI is
-// not available.  If MPI is not available or MPIIO is not available or the
-// given Controller is not a vtkMPIController (or NULL), then this class will
-// silently work exactly like its superclass.  The point is that you can safely
-// use this class in applications that may or may not be compiled with MPI (or
-// may or may not actually be run with MPI).
-//
-// .SECTION See Also
-// vtkMultiProcessController, vtkImageReader, vtkImageReader2
+// There are several limitations on what type of nrrd files we can read.  This
+// reader only supports nrrd files in raw format.  Other encodings like ascii
+// and hex will result in errors.  When reading in detached headers, this only
+// supports reading one file that is detached.
 //
 
-#ifndef __vtkMPIImageReader_h
-#define __vtkMPIImageReader_h
+#ifndef __vtkPNrrdReader_h
+#define __vtkPNrrdReader_h
 
-#include "vtkIOParallelMPIModule.h" // For export macro
-#include "vtkImageReader.h"
+#include "vtkIOMPIImageModule.h" // For export macro
+#include "vtkNrrdReader.h"
 
-class vtkMPIOpaqueFileHandle;
+class vtkCharArray;
 class vtkMultiProcessController;
+class vtkMPIOpaqueFileHandle;
 
-class VTKIOPARALLELMPI_EXPORT vtkMPIImageReader : public vtkImageReader
+class VTKIOMPIIMAGE_EXPORT vtkPNrrdReader : public vtkNrrdReader
 {
 public:
-  vtkTypeMacro(vtkMPIImageReader, vtkImageReader);
-  static vtkMPIImageReader *New();
+  vtkTypeMacro(vtkPNrrdReader, vtkNrrdReader);
+  static vtkPNrrdReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -66,10 +58,10 @@ public:
   virtual void SetController(vtkMultiProcessController *);
 
 protected:
-  vtkMPIImageReader();
-  ~vtkMPIImageReader();
+  vtkPNrrdReader();
+  ~vtkPNrrdReader();
 
-  vtkMultiProcessController *Controller;
+  virtual int ReadHeader();
 
   // Description:
   // Returns the size, in bytes of the scalar data type (GetDataScalarType).
@@ -114,9 +106,11 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *data,
                                           vtkInformation *outInfo);
 
+  vtkMultiProcessController *Controller;
+
 private:
-  vtkMPIImageReader(const vtkMPIImageReader &); // Not implemented
-  void operator=(const vtkMPIImageReader &);    // Not implemented
+  vtkPNrrdReader(const vtkPNrrdReader &);       // Not implemented.
+  void operator=(const vtkPNrrdReader &);        // Not implemented.
 };
 
-#endif //__vtkMPIImageReader_h
+#endif //__vtkPNrrdReader_h

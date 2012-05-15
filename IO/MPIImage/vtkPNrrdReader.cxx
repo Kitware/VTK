@@ -2,7 +2,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMPIImageReader.cxx
+  Module:    vtkPNrrdReader.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,17 +18,30 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkMPIImageReader.h"
+#include "vtkPNrrdReader.h"
 
-#include "vtkMultiProcessController.h"
+#include "vtkCharArray.h"
+#include "vtkDummyController.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkToolkits.h"
+#include "vtkStringArray.h"
 
-#ifdef VTK_USE_MPI
+#include <string>
+#include <vector>
+#include <vtksys/SystemTools.hxx>
+#include <istream>
+#include <sstream>
 
-// Include the MPI headers and then determine if MPIIO is available.
+#include <math.h>
+#include <string.h>
+#include <ctype.h>
+#include "vtkSmartPointer.h"
 #include "vtkMPI.h"
 
+#define VTK_CREATE(type, name) \
+  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
+// Determine if MPIIO is available.
 #ifdef MPI_VERSION
 #  if (MPI_VERSION >= 2)
 #    define VTK_USE_MPI_IO 1
@@ -40,8 +53,6 @@
 #if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
 #  define VTK_USE_MPI_IO 1
 #endif
-
-#endif // VTK_USE_MPI
 
 // If VTK_USE_MPI_IO is set, that means we will read the data ourself using
 // MPIIO.  Otherwise, just delegate everything to the superclass.
@@ -73,20 +84,19 @@
                   << errormsg); \
     } \
   }
-
 #endif // VTK_USE_MPI_IO
 
-//=============================================================================
-vtkStandardNewMacro(vtkMPIImageReader);
+//-----------------------------------------------------------------------------
 
-vtkCxxSetObjectMacro(vtkMPIImageReader, Controller, vtkMultiProcessController);
-vtkCxxSetObjectMacro(vtkMPIImageReader, GroupedController,
+vtkStandardNewMacro(vtkPNrrdReader);
+vtkCxxSetObjectMacro(vtkPNrrdReader, Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkPNrrdReader, GroupedController,
                      vtkMultiProcessController);
 
 //-----------------------------------------------------------------------------
 #ifdef VTK_USE_MPI_IO
 template<class T>
-inline void vtkMPIImageReaderMaskBits(T *data, vtkIdType length,
+inline void vtkPNrrdReaderMaskBits(T *data, vtkIdType length,
                                       vtkTypeUInt64 _mask)
 {
   T mask = (T)_mask;
@@ -102,12 +112,12 @@ inline void vtkMPIImageReaderMaskBits(T *data, vtkIdType length,
 
 // Override float and double because masking bits for them makes no sense.
 VTK_TEMPLATE_SPECIALIZE
-void vtkMPIImageReaderMaskBits(float *, vtkIdType, vtkTypeUInt64)
+void vtkPNrrdReaderMaskBits(float *, vtkIdType, vtkTypeUInt64)
 {
   return;
 }
 VTK_TEMPLATE_SPECIALIZE
-void vtkMPIImageReaderMaskBits(double *, vtkIdType, vtkTypeUInt64)
+void vtkPNrrdReaderMaskBits(double *, vtkIdType, vtkTypeUInt64)
 {
   return;
 }
@@ -124,30 +134,28 @@ namespace {
 };
 #endif //VTK_USE_MPI_IO
 
-//=============================================================================
-vtkMPIImageReader::vtkMPIImageReader()
+//-----------------------------------------------------------------------------
+vtkPNrrdReader::vtkPNrrdReader()
 {
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-
   this->GroupedController = NULL;
 }
 
-vtkMPIImageReader::~vtkMPIImageReader()
+vtkPNrrdReader::~vtkPNrrdReader()
 {
   this->SetController(NULL);
   this->SetGroupedController(NULL);
 }
 
-void vtkMPIImageReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
   os << indent << "Controller: " << this->Controller << endl;
 }
 
 //-----------------------------------------------------------------------------
-int vtkMPIImageReader::GetDataScalarTypeSize()
+int vtkPNrrdReader::GetDataScalarTypeSize()
 {
   switch (this->GetDataScalarType())
     {
@@ -160,7 +168,7 @@ int vtkMPIImageReader::GetDataScalarTypeSize()
 
 //-----------------------------------------------------------------------------
 #ifdef VTK_USE_MPI_IO
-void vtkMPIImageReader::PartitionController(const int extent[6])
+void vtkPNrrdReader::PartitionController(const int extent[6])
 {
   // Number of points in the z direction of the whole data.
   int numZ = this->DataExtent[5] - this->DataExtent[4] + 1;
@@ -192,9 +200,9 @@ void vtkMPIImageReader::PartitionController(const int extent[6])
   subController->Delete();
 }
 #else // VTK_USE_MPI_IO
-void vtkMPIImageReader::PartitionController(const int *)
+void vtkPNrrdReader::PartitionController(const int *)
 {
-  vtkErrorMacro(<< "vtkMPIImageReader::PartitionController() called when MPIIO "
+  vtkErrorMacro(<< "vtkPNrrdReader::PartitionController() called when MPIIO "
                 << "not available.");
 }
 #endif // VTK_USE_MPI_IO
@@ -204,7 +212,7 @@ void vtkMPIImageReader::PartitionController(const int *)
 // will be bigger than the value stored in an unsigned int.  Thus, we just
 // follow the convention of the superclass.
 #ifdef VTK_USE_MPI_IO
-unsigned long vtkMPIImageReader::GetHeaderSize(vtkMPIOpaqueFileHandle &file)
+unsigned long vtkPNrrdReader::GetHeaderSize(vtkMPIOpaqueFileHandle &file)
 {
   if (this->ManualHeaderSize)
     {
@@ -221,9 +229,9 @@ unsigned long vtkMPIImageReader::GetHeaderSize(vtkMPIOpaqueFileHandle &file)
     }
 }
 #else // VTK_USE_MPI_IO
-unsigned long vtkMPIImageReader::GetHeaderSize(vtkMPIOpaqueFileHandle &)
+unsigned long vtkPNrrdReader::GetHeaderSize(vtkMPIOpaqueFileHandle &)
 {
-  vtkErrorMacro(<< "vtkMPIImageReader::GetHeaderSize() called when MPIIO "
+  vtkErrorMacro(<< "vtkPNrrdReader::GetHeaderSize() called when MPIIO "
                 << "not available.");
   return 0;
 }
@@ -231,7 +239,7 @@ unsigned long vtkMPIImageReader::GetHeaderSize(vtkMPIOpaqueFileHandle &)
 
 //-----------------------------------------------------------------------------
 #ifdef VTK_USE_MPI_IO
-void vtkMPIImageReader::SetupFileView(vtkMPIOpaqueFileHandle &file,
+void vtkPNrrdReader::SetupFileView(vtkMPIOpaqueFileHandle &file,
                                       const int extent[6])
 {
   int arrayOfSizes[3];
@@ -261,16 +269,17 @@ void vtkMPIImageReader::SetupFileView(vtkMPIOpaqueFileHandle &file,
   MPICall(MPI_Type_free(&view));
 }
 #else // VTK_USE_MPI_IO
-void vtkMPIImageReader::SetupFileView(vtkMPIOpaqueFileHandle &, const int[6])
+void vtkPNrrdReader::SetupFileView(vtkMPIOpaqueFileHandle &, const int[6])
 {
-  vtkErrorMacro(<< "vtkMPIImageReader::SetupFileView() called when MPIIO "
+  vtkErrorMacro(<< "vtkPNrrdReader::SetupFileView() called when MPIIO "
                 << "not available.");
 }
 #endif // VTK_USE_MPI_IO
 
+
 //-----------------------------------------------------------------------------
 #ifdef VTK_USE_MPI_IO
-void vtkMPIImageReader::ReadSlice(int slice, const int extent[6], void *buffer)
+void vtkPNrrdReader::ReadSlice(int slice, const int extent[6], void *buffer)
 {
   this->ComputeInternalFileName(slice);
 
@@ -312,9 +321,9 @@ void vtkMPIImageReader::ReadSlice(int slice, const int extent[6], void *buffer)
   MPICall(MPI_File_close(&file.Handle));
 }
 #else // VTK_USE_MPI_IO
-void vtkMPIImageReader::ReadSlice(int, const int [6], void *)
+void vtkPNrrdReader::ReadSlice(int, const int [6], void *)
 {
-  vtkErrorMacro(<< "vtkMPIImageReader::ReadSlice() called with MPIIO "
+  vtkErrorMacro(<< "vtkPNrrdReader::ReadSlice() called with MPIIO "
                 << "not available.");
 }
 #endif // VTK_USE_MPI_IO
@@ -322,7 +331,7 @@ void vtkMPIImageReader::ReadSlice(int, const int [6], void *)
 //-----------------------------------------------------------------------------
 #ifdef VTK_USE_MPI_IO
 // This method could be made a lot more efficient.
-void vtkMPIImageReader::TransformData(vtkImageData *data)
+void vtkPNrrdReader::TransformData(vtkImageData *data)
 {
   if (!this->Transform) return;
 
@@ -380,15 +389,15 @@ void vtkMPIImageReader::TransformData(vtkImageData *data)
   dataData->Delete();
 }
 #else // VTK_USE_MPI_IO
-void vtkMPIImageReader::TransformData(vtkImageData *)
+void vtkPNrrdReader::TransformData(vtkImageData *)
 {
-  vtkErrorMacro(<< "vtkMPIImageReader::TransformData() called with MPIIO "
+  vtkErrorMacro(<< "vtkPNrrdReader::TransformData() called with MPIIO "
                 << "not available.");
 }
 #endif // VTK_USE_MPI_IO
 
 //-----------------------------------------------------------------------------
-void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
+void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
                                                    vtkInformation *outInfo)
 {
 #ifdef VTK_USE_MPI_IO
@@ -501,7 +510,7 @@ void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   // Mask bits as necessary.
   switch (this->GetDataScalarType())
     {
-    vtkTemplateMacro(vtkMPIImageReaderMaskBits((VTK_TT *)dataBuffer, numValues,
+    vtkTemplateMacro(vtkPNrrdReaderMaskBits((VTK_TT *)dataBuffer, numValues,
                                                this->DataMask));
     }
 
@@ -519,4 +528,22 @@ void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 #else // VTK_USE_MPI_IO
   this->Superclass::ExecuteDataWithInformation(output, outInfo);
 #endif // VTK_USE_MPI_IO
+}
+
+//-----------------------------------------------------------------------------
+int vtkPNrrdReader::ReadHeader()
+{
+  VTK_CREATE(vtkCharArray, headerBuffer);
+  // Read the header on process 0 and broadcast to everyone else.
+  if (this->Controller->GetLocalProcessId() == 0)
+    {
+    if(!this->ReadHeaderInternal(headerBuffer))
+      {
+      return 0;
+      }
+    }
+
+  this->Controller->Broadcast(headerBuffer, 0);
+
+  return this->Superclass::ReadHeader(headerBuffer);
 }
