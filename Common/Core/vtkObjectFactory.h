@@ -32,13 +32,8 @@
 // with the vtkObjectFactory::RegisterFactory method.
 //
 
-
-
 #ifndef __vtkObjectFactory_h
 #define __vtkObjectFactory_h
-
-
-
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -58,6 +53,11 @@ public:
   // the factory was in the VTK_AUTOLOAD_PATH.  After the
   // first factory returns the object no other factories are asked.
   static vtkObject* CreateInstance(const char* vtkclassname);
+
+  // Description:
+  // Call vtkDebugLeaks::ConstructClass if necessary. Does not attempt
+  // to use the object factory to create an instance.
+  static void ConstructInstance(const char* vtkclassname);
 
   // Description:
   // Create all possible instances of the named vtk object.

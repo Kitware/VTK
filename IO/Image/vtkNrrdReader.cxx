@@ -2,7 +2,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPNrrdReader.cxx
+  Module:    vtkNrrdReader.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,10 +18,9 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkPNrrdReader.h"
+#include "vtkNrrdReader.h"
 
 #include "vtkCharArray.h"
-#include "vtkDummyController.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
@@ -37,6 +36,7 @@
 #include <ctype.h>
 
 #include "vtkSmartPointer.h"
+
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -201,28 +201,33 @@ static int NrrdType2VTKType(std::string nrrdType)
     }
 }
 
-//=============================================================================
-vtkStandardNewMacro(vtkPNrrdReader);
+//-----------------------------------------------------------------------------
+
+vtkObjectFactoryNewMacro(vtkNrrdReader);
 
 //-----------------------------------------------------------------------------
-vtkPNrrdReader::vtkPNrrdReader()
+vtkNrrdReader::vtkNrrdReader()
 {
   this->DataFiles = vtkStringArray::New();
 }
 
-vtkPNrrdReader::~vtkPNrrdReader()
+vtkNrrdReader::~vtkNrrdReader()
 {
   this->DataFiles->Delete();
   this->DataFiles = NULL;
 }
 
-void vtkPNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
+
+
+
+
 //-----------------------------------------------------------------------------
-int vtkPNrrdReader::CanReadFile(const char *filename)
+int vtkNrrdReader::CanReadFile(const char *filename)
 {
   ifstream file(filename, ios::in | ios::binary);
   std::string firstLine;
@@ -238,9 +243,9 @@ int vtkPNrrdReader::CanReadFile(const char *filename)
 }
 
 //-----------------------------------------------------------------------------
-int vtkPNrrdReader::RequestInformation(vtkInformation *request,
-                                       vtkInformationVector **inputVector,
-                                       vtkInformationVector *outputVector)
+int vtkNrrdReader::RequestInformation(vtkInformation *request,
+                                      vtkInformationVector **inputVector,
+                                      vtkInformationVector *outputVector)
 {
   if (!this->ReadHeader()) return 0;
 
@@ -249,7 +254,7 @@ int vtkPNrrdReader::RequestInformation(vtkInformation *request,
 }
 
 //-----------------------------------------------------------------------------
-int vtkPNrrdReader::ReadHeader()
+int vtkNrrdReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
 {
   if (!this->FileName)
     {
@@ -257,55 +262,58 @@ int vtkPNrrdReader::ReadHeader()
     return 0;
     }
 
-  VTK_CREATE(vtkCharArray, headerBuffer);
+  ifstream file(this->FileName, ios::in | ios::binary);
+  // Read in 4 MB.  Assuming that the header will be smaller than that.
+  headerBuffer->SetNumberOfTuples(0x400000);
+  file.read(headerBuffer->GetPointer(0), 0x400000-1);
+  vtkIdType buffersize = file.gcount();
+  headerBuffer->SetValue(buffersize, '\0');
+  headerBuffer->SetNumberOfTuples(buffersize+1);
 
-  // Having a dummy controller means less cases later.
-  if (!this->Controller) this->Controller = vtkDummyController::New();
-
-  // Read the header on process 0 and broadcast to everyone else.
-  if (this->Controller->GetLocalProcessId() == 0)
+  // Find a blank line (which signals the end of the header).  Be careful
+  // because line endings can be "\n", "\r\n", or both.  It is possible that
+  // the entire file is the header (happens with "detached headers").
+  char *bufferStart = headerBuffer->GetPointer(0);
+  char *s = bufferStart;
+  while ((s = strchr(s+1, '\n')) != NULL)
     {
-    ifstream file(this->FileName, ios::in | ios::binary);
-    // Read in 4 MB.  Assuming that the header will be smaller than that.
-    headerBuffer->SetNumberOfTuples(0x400000);
-    file.read(headerBuffer->GetPointer(0), 0x400000-1);
-    vtkIdType buffersize = file.gcount();
-    headerBuffer->SetValue(buffersize, '\0');
-    headerBuffer->SetNumberOfTuples(buffersize+1);
-
-    // Find a blank line (which signals the end of the header).  Be careful
-    // because line endings can be "\n", "\r\n", or both.  It is possible that
-    // the entire file is the header (happens with "detached headers").
-    char *bufferStart = headerBuffer->GetPointer(0);
-    char *s = bufferStart;
-    while ((s = strchr(s+1, '\n')) != NULL)
+    // If you find a double line ending, terminate the string and shorten the
+    // buffer.
+    if (s[1] == '\n')
       {
-      // If you find a double line ending, terminate the string and shorten the
-      // buffer.
-      if (s[1] == '\n')
-        {
-        s[2] = '\0';
-        headerBuffer->SetNumberOfTuples(
-                                   static_cast<vtkIdType>(s + 3 - bufferStart));
-        break;
-        }
-      if ((s[1] == '\r') && (s[2] == '\n'))
-        {
-        s[3] = '\0';
-        headerBuffer->SetNumberOfTuples(
-                                   static_cast<vtkIdType>(s + 4 - bufferStart));
-        break;
-        }
+      s[2] = '\0';
+      headerBuffer->SetNumberOfTuples(
+                                 static_cast<vtkIdType>(s + 3 - bufferStart));
+      break;
+      }
+    if ((s[1] == '\r') && (s[2] == '\n'))
+      {
+      s[3] = '\0';
+      headerBuffer->SetNumberOfTuples(
+                                 static_cast<vtkIdType>(s + 4 - bufferStart));
+      break;
       }
     }
 
-  this->Controller->Broadcast(headerBuffer, 0);
+  return 1;
+}
+
+
+//-----------------------------------------------------------------------------
+int vtkNrrdReader::ReadHeader()
+{
+  VTK_CREATE(vtkCharArray, headerBuffer);
+
+  if(!this->ReadHeaderInternal(headerBuffer))
+    {
+    return 0;
+    }
 
   return this->ReadHeader(headerBuffer);
 }
 
 //-----------------------------------------------------------------------------
-int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
+int vtkNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
 {
   this->HeaderSize = headerBuffer->GetNumberOfTuples();
 
@@ -609,9 +617,9 @@ int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
 }
 
 //=============================================================================
-int vtkPNrrdReader::RequestData(vtkInformation *request,
-                                vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector)
+int vtkNrrdReader::RequestData(vtkInformation *request,
+                               vtkInformationVector **inputVector,
+                               vtkInformationVector *outputVector)
 {
   // Get rid of superclasses FileNames.  We don't support that functionality,
   // but we exploit that of the superclass.

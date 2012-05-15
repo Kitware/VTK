@@ -32,6 +32,7 @@ set(Module_SRCS
   vtkTIFFWriter.cxx
   vtkVolume16Reader.cxx
   vtkVolumeReader.cxx
+  vtkNrrdReader.cxx
   )
 
 if(WIN32)

@@ -2,7 +2,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPNrrdReader.h
+  Module:    vtkNrrdReader.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -18,13 +18,9 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkPNrrdReader - Read nrrd files efficiently from parallel file systems (and reasonably well elsewhere).
+// .NAME vtkNrrdReader - Read nrrd files file system
 //
 // .SECTION Description
-//
-// vtkPNrrdReader is a subclass of vtkMPIImageReader that will read Nrrd format
-// header information of the image before reading the data.  This means that the
-// reader will automatically set information like file dimensions.
 //
 // .SECTION Bugs
 //
@@ -34,26 +30,26 @@
 // supports reading one file that is detached.
 //
 
-#ifndef __vtkPNrrdReader_h
-#define __vtkPNrrdReader_h
+#ifndef __vtkNrrdReader_h
+#define __vtkNrrdReader_h
 
-#include "vtkIOParallelMPIModule.h" // For export macro
-#include "vtkMPIImageReader.h"
+#include "vtkIOImageModule.h" // For export macro
+#include "vtkImageReader.h"
 
 class vtkCharArray;
 
-class VTKIOPARALLELMPI_EXPORT vtkPNrrdReader : public vtkMPIImageReader
+class VTKIOIMAGE_EXPORT vtkNrrdReader : public vtkImageReader
 {
 public:
-  vtkTypeMacro(vtkPNrrdReader, vtkMPIImageReader);
-  static vtkPNrrdReader *New();
+  vtkTypeMacro(vtkNrrdReader, vtkImageReader);
+  static vtkNrrdReader *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   virtual int CanReadFile(const char *filename);
 
 protected:
-  vtkPNrrdReader();
-  ~vtkPNrrdReader();
+  vtkNrrdReader();
+  ~vtkNrrdReader();
 
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
@@ -63,14 +59,15 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
+  int ReadHeaderInternal(vtkCharArray *headerBuffer);
   virtual int ReadHeader();
   virtual int ReadHeader(vtkCharArray *headerBuffer);
 
   vtkStringArray *DataFiles;
 
 private:
-  vtkPNrrdReader(const vtkPNrrdReader &);       // Not implemented.
-  void operator=(const vtkPNrrdReader &);        // Not implemented.
+  vtkNrrdReader(const vtkNrrdReader &);       // Not implemented.
+  void operator=(const vtkNrrdReader &);        // Not implemented.
 };
 
-#endif //__vtkPNrrdReader_h
+#endif //__vtkNrrdReader_h
