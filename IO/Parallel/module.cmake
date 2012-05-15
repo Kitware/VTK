@@ -8,4 +8,9 @@ vtk_module(vtkIOParallel
     vtkexodusII
   TEST_DEPENDS
     vtkTestingCore
+    vtkTestingRendering
+    vtkParallelMPI
+    vtkIOMPIImage
+    vtkInteractionStyle
+    vtkRenderingOpenGL
   )
