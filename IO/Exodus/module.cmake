@@ -5,4 +5,8 @@ vtk_module(vtkIOExodus
     vtkFiltersGeneral
     vtkIOXML
     vtkexodusII
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRenderingOpenGL
   )
