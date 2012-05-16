@@ -3,6 +3,7 @@ include_directories(${MPI_INCLUDE_PATH})
 
 set(Module_SRCS
   vtkPNrrdReader.cxx
+  vtkMPIImageReader.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 

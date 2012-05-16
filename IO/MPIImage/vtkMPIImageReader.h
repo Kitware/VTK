@@ -46,13 +46,13 @@
 #ifndef __vtkMPIImageReader_h
 #define __vtkMPIImageReader_h
 
-#include "vtkIOParallelMPIModule.h" // For export macro
+#include "vtkIOMPIImageModule.h" // For export macro
 #include "vtkImageReader.h"
 
 class vtkMPIOpaqueFileHandle;
 class vtkMultiProcessController;
 
-class VTKIOPARALLELMPI_EXPORT vtkMPIImageReader : public vtkImageReader
+class VTKIOMPIIMAGE_EXPORT vtkMPIImageReader : public vtkImageReader
 {
 public:
   vtkTypeMacro(vtkMPIImageReader, vtkImageReader);

@@ -24,8 +24,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
 
-#ifdef VTK_USE_MPI
-
 // Include the MPI headers and then determine if MPIIO is available.
 #include "vtkMPI.h"
 
@@ -40,8 +38,6 @@
 #if !defined(VTK_USE_MPI_IO) && defined(MPI_SEEK_SET)
 #  define VTK_USE_MPI_IO 1
 #endif
-
-#endif // VTK_USE_MPI
 
 // If VTK_USE_MPI_IO is set, that means we will read the data ourself using
 // MPIIO.  Otherwise, just delegate everything to the superclass.
