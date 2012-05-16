@@ -256,10 +256,7 @@ include(vtkTestExplicitInstantiation)
 include(vtkTestBuiltins)
 
 #-----------------------------------------------------------------------------
-# Select a streams library.
 
-INCLUDE(vtkSelectStreamsLibrary)
-VTK_SELECT_STREAMS_LIBRARY(VTK_USE_ANSI_STDLIB ${VTK_SOURCE_DIR})
 # Check the severity of EOF bugs in the streams library.
 # this must be after the test for the long types
 INCLUDE(vtkTestStreamsLibrary)

@@ -851,9 +851,9 @@
     TEST_SET_GET_BOOLEAN( object, ActiveRepresentation);                \
     TEST_SET_GET_BOOLEAN( object, Constrained);                         \
                                                                         \
-    vtkSmartPointer<vtkRenderer> ren2 = object->GetRenderer();          \
+    vtkSmartPointer<vtkRenderer> ren3 = object->GetRenderer();          \
     double posToCheck[3] = {0.0, 0.0, 0.0};                             \
-    int flag = object->CheckConstraint(ren2, posToCheck);               \
+    int flag = object->CheckConstraint(ren3, posToCheck);               \
     std::cout << "Check Constraint = " << flag << std::endl;            \
                                                                         \
     std::cout << "MTime = " << object->GetMTime() << std::endl;         \
@@ -866,7 +866,7 @@
       std::cerr << "Error in Set/Get point placer." << std::endl;       \
       return EXIT_FAILURE;                                              \
       }                                                                 \
-    flag = object->CheckConstraint(ren2, posToCheck);                   \
+    flag = object->CheckConstraint(ren3, posToCheck);                   \
     std::cout << "Check Constraint after setting point placer = " << flag << std::endl; \
   }
 

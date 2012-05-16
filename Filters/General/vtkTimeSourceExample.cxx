@@ -211,19 +211,17 @@ int vtkTimeSourceExample::RequestData(
   //determine what time is being asked for
   double reqTime = 0.0;
   //int reqNTS = 0;
-  double *reqTS = NULL;
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  double reqTS(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
     //reqNTS = outInfo->Length
-    //  (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    //  (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     reqTS = outInfo->Get
-      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    }
-  if (reqTS != NULL)
-    {
+      (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
     //TODO: produce multiblock output when multiple time steps are asked for
     //for now just answer the first one
-    reqTime = reqTS[0];
+    reqTime = reqTS;
     }
 
   //if analytic compute the value at that time
@@ -233,7 +231,7 @@ int vtkTimeSourceExample::RequestData(
   this->LookupTimeAndValue(time, value);
 
   output->Initialize();
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &time, 1);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), time);
 
   //figure out the world space position of the output
   double x = this->XFunction(time);

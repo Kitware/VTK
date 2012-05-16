@@ -72,6 +72,7 @@ set(MyTests
   vtkBorderWidgetTest1.cxx
   vtkCaptionRepresentationTest1.cxx
   vtkCaptionWidgetTest1.cxx
+  vtkConstrainedPointHandleRepresentationTest1.cxx
   vtkHoverWidgetTest1.cxx
   vtkLineRepresentationTest1.cxx
   vtkLineWidget2Test1.cxx

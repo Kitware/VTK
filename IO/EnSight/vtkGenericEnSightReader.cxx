@@ -208,11 +208,10 @@ int vtkGenericEnSightReader::RequestData(
   this->Reader->UpdateInformation();
   vtkInformation* tmpOutInfo =
     this->Reader->GetExecutive()->GetOutputInformation(0);
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
-    tmpOutInfo->CopyEntry(
-      outInfo,
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    tmpOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
     }
 
   // GHOST LEVEL

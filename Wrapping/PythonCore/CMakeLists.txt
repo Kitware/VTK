@@ -32,6 +32,8 @@ if(VTK_WRAP_PYTHON_SIP)
 endif()
 include_directories("${PYTHON_INCLUDE_PATH}")
 
+set(${vtk-module}_NO_HeaderTest 1)
+
 vtk_module_library(vtkWrappingPythonCore ${PythonCore_SRCS})
 
 target_link_libraries(vtkWrappingPythonCore

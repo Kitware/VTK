@@ -42,7 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
 typedef vtksys_stl::map<vtkStdString,double> PDF;
 
-vtkStandardNewMacro(vtkContingencyStatistics);
+vtkObjectFactoryNewMacro(vtkContingencyStatistics)
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()

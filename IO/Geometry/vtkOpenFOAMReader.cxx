@@ -8319,18 +8319,18 @@ int vtkOpenFOAMReader::RequestData(vtkInformation *vtkNotUsed(request), vtkInfor
           vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int nSteps = 0;
-  double *requestedTimeValues = NULL;
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  double requestedTimeValue(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
-    requestedTimeValues
-        = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    requestedTimeValue
+        = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     }
 
   if (nSteps > 0)
     {
-    outInfo->Set(vtkDataObject::DATA_TIME_STEPS(), requestedTimeValues, 1);
-    this->SetTimeValue(requestedTimeValues[0]);
+    outInfo->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
+    this->SetTimeValue(requestedTimeValue);
     }
 
   if (this->Parent == this)

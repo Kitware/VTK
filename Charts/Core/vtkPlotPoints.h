@@ -31,10 +31,12 @@
 #include "vtkPlot.h"
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
+#include "vtkNew.h"             // For ivars
 
 class vtkContext2D;
 class vtkTable;
 class vtkPoints2D;
+class vtkFloatArray;
 class vtkStdString;
 class vtkImageData;
 class vtkScalarsToColors;
@@ -175,6 +177,7 @@ protected:
   // Description:
   // Store a well packed set of XY coordinates for this data series.
   vtkPoints2D *Points;
+  vtkNew<vtkFloatArray> SelectedPoints;
 
   // Description:
   // Sorted points, used when searching for the nearest point.

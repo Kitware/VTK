@@ -124,6 +124,13 @@ public:
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explaination of
+  // the available precision settings.
+  void SetOuputPointsPrecision(int precision);
+  int GetOutputPointsPrecision() const;
+
 protected:
   vtkContourGrid();
   ~vtkContourGrid();
@@ -137,6 +144,7 @@ protected:
   int ComputeScalars;
   vtkIncrementalPointLocator *Locator;
   int UseScalarTree;
+  int OutputPointsPrecision;
   vtkScalarTree *ScalarTree;
   vtkEdgeTable *EdgeTable;
 

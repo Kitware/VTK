@@ -30,6 +30,7 @@ SET(Module_SRCS
   vtkInformationExecutivePortKey.cxx
   vtkInformationExecutivePortVectorKey.cxx
   vtkMultiBlockDataSetAlgorithm.cxx
+  vtkMultiTimeStepAlgorithm.cxx
   vtkOnePieceExtentTranslator.cxx
   vtkPassInputTypeAlgorithm.cxx
   vtkPiecewiseFunctionAlgorithm.cxx
@@ -44,7 +45,6 @@ SET(Module_SRCS
   vtkStructuredGridAlgorithm.cxx
   vtkTableAlgorithm.cxx
   vtkTableExtentTranslator.cxx
-  vtkTemporalDataSetAlgorithm.cxx
   vtkThreadedImageAlgorithm.cxx
   vtkThreadedStreamingPipeline.cxx
   vtkTreeAlgorithm.cxx

@@ -16,7 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkBMPReader.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkImageReader2.h"
 #include "vtkJPEGReader.h"
@@ -54,8 +54,8 @@ public:
 
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkProperty);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkProperty)
 //----------------------------------------------------------------------------
 
 // Construct object with object color, ambient color, diffuse color,
@@ -168,8 +168,7 @@ static IVarEnum XMLMemberToIvar( const char* name )
     return IVarNone;
     }
 
-
-};
+}
 
 
 // specular color, and edge color white; ambient coefficient=0; diffuse
@@ -272,15 +271,6 @@ void vtkProperty::DeepCopy(vtkProperty *p)
 
     // TODO: need to pass shader variables.
     }
-}
-
-//----------------------------------------------------------------------------
-// return the correct type of Property
-vtkProperty *vtkProperty::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkProperty");
-  return static_cast<vtkProperty *>(ret);
 }
 
 //----------------------------------------------------------------------------

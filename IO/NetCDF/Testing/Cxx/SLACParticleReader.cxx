@@ -118,7 +118,7 @@ int SLACParticleReader(int argc, char *argv[])
   renwin->Render();
 
   double time
-    = particleReader->GetOutput()->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0];
+    = particleReader->GetOutput()->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
   cout << "Time in particle reader: " << time << endl;
 
   // Change the time to test the time step field load and to have the field

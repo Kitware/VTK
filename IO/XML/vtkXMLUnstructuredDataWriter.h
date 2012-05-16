@@ -122,7 +122,7 @@ protected:
   int GhostLevel;
 
   // Positions of attributes for each piece.
-  unsigned long* NumberOfPointsPositions;
+  vtkTypeInt64* NumberOfPointsPositions;
 
   // For TimeStep support
   OffsetsManagerGroup *PointsOM;

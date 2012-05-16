@@ -84,10 +84,6 @@ public:
   static vtkInformationIntegerKey*  LOAD_REQUESTED_BLOCKS();
 
   // Description:
-  // vtkCompositeDataPipeline specific keys
-  static vtkInformationIntegerKey*       REQUIRES_TIME_DOWNSTREAM();
-
-  // Description:
   // COMPOSITE_DATA_META_DATA is a key placed in the output-port information by
   // readers/sources producing composite datasets. This meta-data provides
   // information about the structure of the composite dataset and things like
@@ -170,9 +166,6 @@ protected:
                                       vtkInformationVector** inInfoVec,
                                       vtkInformationVector* outInfoVec,
                                       int compositePort);
-  virtual void ExecuteSimpleAlgorithmTime(vtkInformation* request,
-                                          vtkInformationVector** inInfoVec,
-                                          vtkInformationVector* outInfoVec);
   vtkDataObject* ExecuteSimpleAlgorithmForBlock(
     vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec,
@@ -182,9 +175,7 @@ protected:
     vtkDataObject* dobj);
 
   bool ShouldIterateOverInput(int& compositePort);
-  bool ShouldIterateTemporalData(vtkInformation *request,
-                                 vtkInformationVector** inInfoVec,
-                                 vtkInformationVector *outInfoVec);
+
   virtual int InputTypeIsValid(int port, int index,
                                 vtkInformationVector **inInfoVec);
 
@@ -205,7 +196,7 @@ protected:
   // Description:
   // Tries to create the best possible composite data output for the given input
   // and non-composite algorithm output. Returns a new instance on success.
-  // Don't use this method for creating vtkTemporalDataSet. It's main purpose is
+  // It's main purpose is
   // to determine if vtkHierarchicalBoxDataSet can be propagated as
   // vtkHierarchicalBoxDataSet in the output (if the algorithm can produce
   // vtkUniformGrid given vtkUniformGrid inputs) or if it should be downgraded

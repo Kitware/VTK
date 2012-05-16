@@ -126,10 +126,20 @@ public:
   // Description:
   // Set the data type of the output points (See the data types defined in
   // vtkType.h). The default data type is float.
+  //
+  // These methods are deprecated. Please use the SetOuputPointsPrecision()
+  // and GetOutputPointsPrecision() methods instead.
   void SetPointsDataTypeToDouble() { this->SetPointsDataType( VTK_DOUBLE ); }
   void SetPointsDataTypeToFloat()  { this->SetPointsDataType( VTK_FLOAT  ); }
-  vtkSetMacro( PointsDataType, int );
-  vtkGetMacro( PointsDataType, int );
+  void SetPointsDataType(int type);
+  int GetPointsDataType();
+
+  // Description:
+  // Set/get the desired precision for the output types. See the documentation
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explaination of
+  // the available precision settings.
+  void SetOuputPointsPrecision(int precision);
+  int GetOutputPointsPrecision() const;
 
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
@@ -149,7 +159,7 @@ protected:
   int    AttributeMode;
   int    ComponentMode;
   int    SelectedComponent;
-  int    PointsDataType;
+  int OutputPointsPrecision;
 
   //BTX
   int (vtkThreshold::*ThresholdFunction)(double s);

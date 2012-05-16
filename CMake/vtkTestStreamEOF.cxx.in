@@ -56,21 +56,16 @@
 
 // Include the streams library.  Hack access to SGI stream
 // implementation for MIPSpro 7.3 compiler.
-#cmakedefine VTK_USE_ANSI_STDLIB
-#if defined(VTK_USE_ANSI_STDLIB)
-# if defined(VTK_SGI_730)
-#  define protected public
-#  define private public
-# endif
-# include <fstream>
-  using std::ifstream;
-  using std::ios;
-# if defined(VTK_SGI_730)
-#  undef protected
-#  undef private
-# endif
-#else
-# include <fstream.h>
+#if defined(VTK_SGI_730)
+# define protected public
+# define private public
+#endif
+#include <fstream>
+ using std::ifstream;
+ using std::ios;
+#if defined(VTK_SGI_730)
+# undef protected
+# undef private
 #endif
 
 #if defined(_MSC_VER)
@@ -126,7 +121,7 @@ int main()
 
   // Only SGI 7.30 to 7.3.1.1 is known to get this far.  Try to escape
   // the bad state.
-#if defined(VTK_USE_ANSI_STDLIB) && defined(VTK_SGI_730)
+#if defined(VTK_SGI_730)
   fin.clear(fin.rdstate() & ~ios::failbit & ~ios::eofbit);
   fin.rdbuf()->_M_seek_return(0, 0);
   if(fin.tellg() >= 0)

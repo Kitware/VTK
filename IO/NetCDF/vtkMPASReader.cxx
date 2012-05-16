@@ -573,19 +573,19 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
     }
 
   // Collect the time step requested
-  double* requestedTimeSteps = NULL;
+  double requestedTimeStep(0);
 #ifndef NDEBUG
   int numRequestedTimeSteps = 0;
 #endif
-  vtkInformationDoubleVectorKey* timeKey =
-    static_cast<vtkInformationDoubleVectorKey*>
-    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+  vtkInformationDoubleKey* timeKey =
+    static_cast<vtkInformationDoubleKey*>
+    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
   if (outInfo->Has(timeKey))
     {
 #ifndef NDEBUG
-    numRequestedTimeSteps = outInfo->Length(timeKey);
+    numRequestedTimeSteps = 1;
 #endif
-    requestedTimeSteps = outInfo->Get(timeKey);
+    requestedTimeStep = outInfo->Get(timeKey);
     }
 
   // print out how many steps are requested, just for my information
@@ -594,11 +594,11 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
 
   // At this time, it seems to only get one timestep of info, why?
 
-  this->DTime = requestedTimeSteps[0];
+  this->DTime = requestedTimeStep;
   vtkDebugMacro(<< "this->DTime: " << this->DTime << endl);
   double dTimeTemp = this->DTime;
   output->GetInformation()->Set
-    (vtkDataObject::DATA_TIME_STEPS(), &dTimeTemp, 1);
+    (vtkDataObject::DATA_TIME_STEP(), dTimeTemp);
   vtkDebugMacro(<< "dTimeTemp: " << dTimeTemp << endl);
   this->DTime = dTimeTemp;
 

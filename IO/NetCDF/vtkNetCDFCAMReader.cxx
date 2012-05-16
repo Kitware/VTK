@@ -513,19 +513,18 @@ int vtkNetCDFCAMReader::RequestData(
   this->SetProgress(.5);  // educated guess for progress
 
   // Collect the time step requested
-  vtkInformationDoubleVectorKey* timeKey =
-    static_cast<vtkInformationDoubleVectorKey*>
-    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+  vtkInformationDoubleKey* timeKey =
+    static_cast<vtkInformationDoubleKey*>
+    (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   double dTime = 0.0;
   if (outInfo->Has(timeKey))
     {
-    double* requestedTimeSteps = outInfo->Get(timeKey);
-    dTime = requestedTimeSteps[0];
+    dTime = outInfo->Get(timeKey);
     }
 
   // Actual time for the time step
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
 
   // Index of the time step to request
   int timeStep = 0;

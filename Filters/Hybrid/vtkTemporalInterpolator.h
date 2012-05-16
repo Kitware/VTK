@@ -53,15 +53,14 @@
 #define __vtkTemporalInterpolator_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkTemporalDataSetAlgorithm.h"
+#include "vtkMultiTimeStepAlgorithm.h"
 
 class vtkDataSet;
-
-class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkMultiTimeStepAlgorithm
 {
 public:
   static vtkTemporalInterpolator *New();
-  vtkTypeMacro(vtkTemporalInterpolator, vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalInterpolator, vtkMultiTimeStepAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -90,15 +89,18 @@ protected:
   vtkTemporalInterpolator();
   ~vtkTemporalInterpolator();
 
+
   double DiscreteTimeStepInterval;
   int    ResampleFactor;
-/*
+
   virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+
 
   virtual int RequestDataObject(vtkInformation *,
                                 vtkInformationVector **,
                                 vtkInformationVector *);
-*/
+
   virtual int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);

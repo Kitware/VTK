@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#ifndef __vtkChemistryConfigure_h
-#define __vtkChemistryConfigure_h
+#ifndef __vtkDomainsChemistryConfigure_h
+#define __vtkDomainsChemistryConfigure_h
 
 /* Where the Blue Obelisk Data Repository files are installed */
 #define VTK_BODR_DATA_PATH "@CMAKE_INSTALL_PREFIX@/@VTK_INSTALL_SHARE_DIR_CM24@/vtkChemistry/vtkBODRData"
-#define VTK_BODR_DATA_PATH_BUILD "@VTK_SOURCE_DIR@/Chemistry/Core"
+#define VTK_BODR_DATA_PATH_BUILD "@VTK_SOURCE_DIR@/Domains/Chemistry"
 
 #endif

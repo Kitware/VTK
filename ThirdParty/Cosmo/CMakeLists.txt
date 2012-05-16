@@ -14,20 +14,16 @@ mark_as_advanced(VTK_COSMO_USE_MPI)
 SET(Cosmo_LIBS)
 if(VTK_COSMO_USE_MPI)
   find_package(MPI REQUIRED)
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-  IF(MPI_EXTRA_LIBRARY)
-    SET(Cosmo_LIBS ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARY})
-  ELSE(MPI_EXTRA_LIBRARY)
-    SET(Cosmo_LIBS ${MPI_LIBRARY})
-  ENDIF(MPI_EXTRA_LIBRARY)
-  ADD_DEFINITIONS(-DMPICH_IGNORE_CXX_SEEK -DUSE_VTK_COSMO)
+  include_directories(${MPI_INCLUDE_PATH})
+  set(Cosmo_LIBS ${MPI_LIBRARIES})
+  add_definitions(-DMPICH_IGNORE_CXX_SEEK -DUSE_VTK_COSMO)
 else()
-  ADD_DEFINITIONS(-DUSE_SERIAL_COSMO -DUSE_VTK_COSMO)
+  add_definitions(-DUSE_SERIAL_COSMO -DUSE_VTK_COSMO)
 endif()
 # Needed for mpich 2
 
-CONFIGURE_FILE (${Cosmo_SOURCE_DIR}/CosmoDefinition.h.in
-                ${Cosmo_BINARY_DIR}/CosmoDefinition.h)
+CONFIGURE_FILE(${Cosmo_SOURCE_DIR}/CosmoDefinition.h.in
+               ${Cosmo_BINARY_DIR}/CosmoDefinition.h)
  
 SET(Cosmo_SOURCES
   Partition.cxx
@@ -42,7 +38,7 @@ SET(Cosmo_SOURCES
   SODHalo.cxx
 )
 
-INCLUDE_DIRECTORIES (${Cosmo_SOURCE_DIR} ${Cosmo_BINARY_DIR})
+INCLUDE_DIRECTORIES(${Cosmo_SOURCE_DIR} ${Cosmo_BINARY_DIR})
 
 VTK_ADD_LIBRARY(Cosmo ${Cosmo_SOURCES})
 TARGET_LINK_LIBRARIES(Cosmo ${vtkCommonCore_LIBRARIES} ${Cosmo_LIBS})

@@ -52,9 +52,11 @@ void vtkInputStream::EndReading()
 }
 
 //----------------------------------------------------------------------------
-int vtkInputStream::Seek(vtkIOStreamOff offset)
+int vtkInputStream::Seek(vtkTypeInt64 offset)
 {
-  return (this->Stream->seekg(this->StreamStartPosition+offset)? 1:0);
+  std::streamoff off =
+    static_cast<std::streamoff>(this->StreamStartPosition+offset);
+  return (this->Stream->seekg(off, std::ios::beg)? 1:0);
 }
 
 //----------------------------------------------------------------------------

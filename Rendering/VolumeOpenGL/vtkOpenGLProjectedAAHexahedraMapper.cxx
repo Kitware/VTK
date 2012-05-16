@@ -49,7 +49,6 @@
 #include "vtkVisibilitySort.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeRenderingFactory.h"
 #include "vtkgl.h"
 #include "vtkShaderProgram2.h"
 #include "vtkShader2.h"

@@ -21,7 +21,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkMergePoints.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
@@ -323,18 +322,16 @@ int vtkTemporalPathLineFilter::RequestData(
   vtkPointData  *pointPointData = output1->GetPointData();
   //
   vtkInformation *doInfo = input->GetInformation();
-  std::vector<double> timesteps;
-  if (doInfo->Has(vtkDataObject::DATA_TIME_STEPS()))
+  double timeStep(0);
+  if (doInfo->Has(vtkDataObject::DATA_TIME_STEP()))
   {
-    int NumberOfInputTimeSteps = doInfo->Length(vtkDataObject::DATA_TIME_STEPS());
-    timesteps.resize(NumberOfInputTimeSteps);
-    doInfo->Get(vtkDataObject::DATA_TIME_STEPS(), &timesteps[0]);
+    timeStep =  doInfo->Get(vtkDataObject::DATA_TIME_STEP());
   }
   else {
     vtkErrorMacro(<<"The input dataset did not have a valid DATA_TIME_STEPS information key");
     return 0;
   }
-  double CurrentTimeStep = timesteps[0];
+  double CurrentTimeStep = timeStep;
 
   //
   // Ids

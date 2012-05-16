@@ -122,12 +122,12 @@ protected:
   // Specify the last time step read, useful to know if we need to rearead data
   // //PointData
   int *PointDataTimeStep;
-  unsigned long *PointDataOffset;
+  vtkTypeInt64 *PointDataOffset;
   int PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
 
   //CellData
   int *CellDataTimeStep;
-  unsigned long *CellDataOffset;
+  vtkTypeInt64 *CellDataOffset;
   int CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
 
 private:

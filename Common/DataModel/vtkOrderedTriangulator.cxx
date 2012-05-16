@@ -44,11 +44,7 @@ vtkStandardNewMacro(vtkOrderedTriangulator);
 #  endif
 # endif
 #else
-# ifdef VTK_USE_ANSI_STDLIB
-#  include <new>
-# else
-#  include <new.h>
-# endif
+# include <new>
 #endif
 
 // Old HP compiler does not support operator delete that is called

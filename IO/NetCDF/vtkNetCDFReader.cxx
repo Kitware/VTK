@@ -329,10 +329,10 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Get requested time step.
   double time = 0.0;
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
     time
-      = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS())[0];
+      = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     }
 
   int ncFD;

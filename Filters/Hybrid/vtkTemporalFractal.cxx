@@ -29,9 +29,10 @@
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkSmartPointer.h"
 
 #include <assert.h>
 
@@ -41,6 +42,7 @@ vtkStandardNewMacro(vtkTemporalFractal);
 vtkTemporalFractal::vtkTemporalFractal()
 {
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 
   this->Dimensions = 10;
   this->FractalValue = 9.5;
@@ -71,6 +73,12 @@ vtkTemporalFractal::~vtkTemporalFractal()
 {
   this->Levels->Delete();
   this->Levels = NULL;
+}
+
+int vtkTemporalFractal::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -369,18 +377,71 @@ int vtkTemporalFractal::MandelbrotTest(double x, double y)
 
 
 //----------------------------------------------------------------------------
+int vtkTemporalFractal::ProcessRequest(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+
+  // generate the data
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
+    {
+    int retVal = this->RequestData(request, inputVector, outputVector);
+    return retVal;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
+      {
+      int outputPort = request->Get(
+        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
+      vtkInformation* info = outputVector->GetInformationObject(outputPort);
+      if (info)
+        {
+        info->Set(
+          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+        }
+      }
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+int vtkTemporalFractal::RequestDataObject(vtkInformation*,
+                                                  vtkInformationVector**,
+                                                  vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
+    static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
+    static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
+
+  info->Set(vtkDataObject::DATA_OBJECT(), dset);
+  dset->Delete();
+  return 1;
+
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This is called by the superclass.
 // This is the method you should override.
 int vtkTemporalFractal::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
+  vtkInformation *,
+  vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
-  if(!this->Superclass::RequestInformation(request,inputVector,outputVector))
-    {
-    return 0;
-    }
   vtkInformation *info=outputVector->GetInformationObject(0);
 
   if (this->DiscreteTimeSteps)
@@ -411,21 +472,12 @@ int vtkTemporalFractal::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation *info=outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
 
   // get how many time steps were requsted
-  int numTimeSteps =
-    info->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-  double *timeSteps =
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-
-  vtkDataObject *doOutput=info->Get(vtkDataObject::DATA_OBJECT());
-  vtkTemporalDataSet *output = vtkTemporalDataSet::SafeDownCast(doOutput);
-
-  if(output==0)
-    {
-    vtkErrorMacro("The output is not a TemporalDataSet");
-    return 0;
-    }
+  double timeStep =
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   if (!info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
       !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
@@ -436,20 +488,17 @@ int vtkTemporalFractal::RequestData(
     }
 
   // now create the HierarchicalDataSet for each time step
-  int ts;
-  for (ts = 0; ts < numTimeSteps; ++ts)
-    {
-    this->CurrentTime = timeSteps[ts];
-    vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
-      static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
-      static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
-    int count = output->GetNumberOfTimeSteps();
-    output->SetTimeStep(count, dset);
-    this->RequestOneTimeStep(dset,request, inputVector, outputVector);
-    dset->Delete();
-    }
-  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                timeSteps, numTimeSteps);
+
+  this->CurrentTime = timeStep;
+  vtkCompositeDataSet* dset = this->GenerateRectilinearGrids?
+    static_cast<vtkCompositeDataSet*>(vtkMultiBlockDataSet::New()):
+    static_cast<vtkCompositeDataSet*>(vtkHierarchicalBoxDataSet::New());
+
+  this->RequestOneTimeStep(dset,request, inputVector, outputVector);
+  dset->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeStep);
+
+  outInfo->Set(vtkDataObject::DATA_OBJECT(),dset);
+  dset->Delete();
 
   return 1;
 }

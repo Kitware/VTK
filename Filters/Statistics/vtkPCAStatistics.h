@@ -236,7 +236,7 @@ protected:
                        vtkTable* );
   //BTX
   // Description:
-  // Calculate p-value. This will overridden using the object factory with an
+  // Calculate p-value. This will be overridden using the object factory with an
   // R implementation if R is present.
   virtual vtkDoubleArray* CalculatePValues(vtkIdTypeArray*, vtkDoubleArray*);
 

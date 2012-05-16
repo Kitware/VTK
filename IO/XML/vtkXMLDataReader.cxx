@@ -321,8 +321,8 @@ void vtkXMLDataReader::SetupOutputData()
   vtkCellData* cellData = output->GetCellData();
 
   // Get the size of the output arrays.
-  unsigned long pointTuples = this->GetNumberOfPoints();
-  unsigned long cellTuples = this->GetNumberOfCells();
+  vtkIdType pointTuples = this->GetNumberOfPoints();
+  vtkIdType cellTuples = this->GetNumberOfCells();
 
   // Allocate the arrays in the output.  We only need the information
   // from one piece because all pieces have the same set of arrays.
@@ -398,11 +398,11 @@ void vtkXMLDataReader::SetupOutputData()
       delete [] this->PointDataOffset;
       }
     this->PointDataTimeStep = new int[this->NumberOfPointArrays];
-    this->PointDataOffset = new unsigned long[this->NumberOfPointArrays];
+    this->PointDataOffset = new vtkTypeInt64[this->NumberOfPointArrays];
     for(int i=0; i<this->NumberOfPointArrays;i++)
       {
       this->PointDataTimeStep[i] = -1;
-      this->PointDataOffset[i] = static_cast<unsigned long>(-1);
+      this->PointDataOffset[i] = -1;
       }
     }
   if( this->NumberOfCellArrays )
@@ -416,11 +416,11 @@ void vtkXMLDataReader::SetupOutputData()
       delete[] this->CellDataOffset;
       }
     this->CellDataTimeStep = new int[this->NumberOfCellArrays];
-    this->CellDataOffset = new unsigned long[this->NumberOfCellArrays];
+    this->CellDataOffset = new vtkTypeInt64[this->NumberOfCellArrays];
     for(int i=0; i<this->NumberOfCellArrays;i++)
       {
       this->CellDataTimeStep[i] = -1;
-      this->CellDataOffset[i]   = static_cast<unsigned long>(-1);
+      this->CellDataOffset[i]   = -1;
       }
     }
 }
@@ -625,12 +625,12 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
     }
   vtkAbstractArray* array = iter->GetArray();
   // For all contiguous arrays (except vtkBitArray).
-  vtkIdType num = numValues;
+  size_t num = numValues;
   int result;
   void* data = array->GetVoidPointer(arrayIndex);
   if(da->GetAttribute("offset"))
     {
-    unsigned long offset = 0;
+    vtkTypeInt64 offset = 0;
     da->GetScalarAttribute("offset", offset);
     result = (xmlparser->ReadAppendedData(offset, data, startIndex,
         numValues, array->GetDataType()) == num);
@@ -670,7 +670,7 @@ int vtkXMLDataReaderReadArrayValues(
 
   int inline_data = (da->GetAttribute("offset") == NULL);
 
-  unsigned long offset = 0;
+  vtkTypeInt64 offset = 0;
   if (inline_data == 0)
     {
     da->GetScalarAttribute("offset", offset);
@@ -691,7 +691,7 @@ int vtkXMLDataReaderReadArrayValues(
   vtkStdString prev_string;
   while (result && inIndex < actualNumValues)
     {
-    int chars_read = 0;
+    size_t chars_read = 0;
     if (inline_data)
       {
       chars_read = xmlparser->ReadInlineData(da, isAscii, buffer,
@@ -843,7 +843,7 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   // we know that time steps are specified and that CurrentTimeStep is in the array
   // we need to figure out if we need to read the array or if it was forwarded
   // Need to check the current 'offset'
-  unsigned long offset;
+  vtkTypeInt64 offset;
   if( eNested->GetScalarAttribute("offset", offset) )
     {
     if( this->PointDataOffset[idx] != offset )
@@ -913,7 +913,7 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   // we know that time steps are specified and that CurrentTimeStep is in the array
   // we need to figure out if we need to read the array or if it was forwarded
   // Need to check the current 'offset'
-  unsigned long offset;
+  vtkTypeInt64 offset;
   if( eNested->GetScalarAttribute("offset", offset) )
     {
     if( this->CellDataOffset[idx] != offset )

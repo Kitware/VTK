@@ -472,8 +472,6 @@
     </node>
     <node id="vtkTableAlgorithm">
     </node>
-    <node id="vtkTemporalDataSetAlgorithm">
-    </node>
     <node id="vtkTreeAlgorithm">
     </node>
     <node id="vtkTrivialProducer">
@@ -577,8 +575,6 @@
     <node id="vtkMultiBlockDataSet">
     </node>
     <node id="vtkMultiPieceDataSet">
-    </node>
-    <node id="vtkTemporalDataSet">
     </node>
     <node id="vtkDataSet">
     </node>

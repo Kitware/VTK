@@ -5099,9 +5099,9 @@ int vtkExodusIIReader::RequestData(
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Check if a particular time was requested.
-  if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
+  if ( outInfo->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() ) )
     { // Get the requested time step. We only support requests of a single time step in this reader right now
-    double* requestedTimeSteps = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
+    double requestedTimeStep = outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     // Save the time value in the output data information.
     int length = outInfo->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
@@ -5111,7 +5111,7 @@ int vtkExodusIIReader::RequestData(
       {
       // find the highest time step with a time value that is smaller than the requested time.
       //timeStep = 0;
-      //while (timeStep < length - 1 && steps[timeStep] < requestedTimeSteps[0])
+      //while (timeStep < length - 1 && steps[timeStep] < requestedTimeStep)
       //  {
       //  timeStep++;
       //  }
@@ -5123,9 +5123,9 @@ int vtkExodusIIReader::RequestData(
       double minDist=-1;
       for (cnt=0;cnt<length;cnt++)
         {
-        double tdist=(steps[cnt]-requestedTimeSteps[0]>requestedTimeSteps[0]-steps[cnt])?
-          steps[cnt]-requestedTimeSteps[0]:
-          requestedTimeSteps[0]-steps[cnt];
+        double tdist=(steps[cnt]-requestedTimeStep>requestedTimeStep-steps[cnt])?
+          steps[cnt]-requestedTimeStep:
+          requestedTimeStep-steps[cnt];
         if (minDist<0 || tdist<minDist)
           {
           minDist=tdist;
@@ -5133,16 +5133,16 @@ int vtkExodusIIReader::RequestData(
           }
         }
       this->TimeStep=closestStep;
-      //cout << "Requested value: " << requestedTimeSteps[0] << " Step: " << this->TimeStep << endl;
-      output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), steps + this->TimeStep, 1 );
+      //cout << "Requested value: " << requestedTimeStep << " Step: " << this->TimeStep << endl;
+      output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEP(), steps[this->TimeStep] );
       }
     else if (this->GetAnimateModeShapes())
       {
       // Let the metadata know the time value so that the Metadata->RequestData call below will generate
       // the animated mode shape properly.
-      this->Metadata->ModeShapeTime = requestedTimeSteps[0];
-      output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEPS(), &this->Metadata->ModeShapeTime, 1 );
-      //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEPS() );
+      this->Metadata->ModeShapeTime = requestedTimeStep;
+      output->GetInformation()->Set( vtkDataObject::DATA_TIME_STEP(), this->Metadata->ModeShapeTime );
+      //output->GetInformation()->Remove( vtkDataObject::DATA_TIME_STEP() );
       }
     }
 

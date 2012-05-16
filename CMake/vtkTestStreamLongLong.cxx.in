@@ -17,16 +17,11 @@
 #endif
 
 // Include the streams library.
-#cmakedefine VTK_USE_ANSI_STDLIB
-#if defined(VTK_USE_ANSI_STDLIB)
-# include <iostream>
+#include <iostream>
 using std::ostream;
 using std::istream;
 using std::cout;
 using std::cin;
-#else
-# include <iostream.h>
-#endif
 
 #if defined(_MSC_VER)
 # pragma warning (pop)

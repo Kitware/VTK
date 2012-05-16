@@ -301,7 +301,7 @@ public:
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
   static vtkInformationDoubleKey* DATA_RESOLUTION();
-  static vtkInformationDoubleVectorKey* DATA_TIME_STEPS();
+  static vtkInformationDoubleKey* DATA_TIME_STEP();
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
   static vtkInformationInformationVectorKey* VERTEX_DATA_VECTOR();

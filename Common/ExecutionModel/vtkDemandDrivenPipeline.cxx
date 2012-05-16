@@ -631,9 +631,7 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port,
   vtkInformation* portInfo = this->Algorithm->GetOutputPortInformation(port);
   if(const char* dt = portInfo->Get(vtkDataObject::DATA_TYPE_NAME()))
     {
-    int incorrectdata = data && (!data->IsA(dt) ||
-      (!strcmp(data->GetClassName(),"vtkTemporalDataSet") &&
-       strcmp(dt,"vtkTemporalDataSet")) );
+    int incorrectdata = data && (!data->IsA(dt));
     // The output port specifies a data type.  Make sure the data
     // object exists and is of the right type.
     if(!data || incorrectdata)

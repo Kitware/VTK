@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkTextMapper);
+vtkAbstractObjectFactoryNewMacro(vtkTextMapper)
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 

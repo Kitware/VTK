@@ -17,15 +17,15 @@
 
 #include "vtkInformation.h"
 #include "vtkInformationObjectBaseKey.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
 #include "vtkBoundingBox.h"
 
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkClipPlanesPainter)
+
 vtkCxxSetObjectMacro(vtkClipPlanesPainter, ClippingPlanes, vtkPlaneCollection);
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkClipPlanesPainter);
 vtkInformationKeyMacro(vtkClipPlanesPainter, CLIPPING_PLANES, ObjectBase);
 //-----------------------------------------------------------------------------
 vtkClipPlanesPainter::vtkClipPlanesPainter()
@@ -36,13 +36,6 @@ vtkClipPlanesPainter::vtkClipPlanesPainter()
 vtkClipPlanesPainter::~vtkClipPlanesPainter()
 {
   this->SetClippingPlanes(0);
-}
-
-//-----------------------------------------------------------------------------
-vtkClipPlanesPainter* vtkClipPlanesPainter::New()
-{
-  vtkObject* o = vtkGraphicsFactory::CreateInstance("vtkClipPlanesPainter");
-  return static_cast<vtkClipPlanesPainter *>(o);
 }
 
 //-----------------------------------------------------------------------------

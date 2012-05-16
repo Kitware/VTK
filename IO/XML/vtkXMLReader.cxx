@@ -454,12 +454,12 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Check if a particular time was requested.
   if(steps &&
-     outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+     outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
     // Get the requested time step. We only supprt requests of a single time
     // step in this reader right now
-    double *requestedTimeSteps =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    double requestedTimeStep =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     int length =
       outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -467,7 +467,7 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
     // find the first time value larger than requested time value
     // this logic could be improved
     int cnt = 0;
-    while (cnt < length-1 && steps[cnt] < requestedTimeSteps[0])
+    while (cnt < length-1 && steps[cnt] < requestedTimeStep)
       {
       cnt++;
       }
@@ -483,8 +483,7 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
       this->CurrentTimeStep = this->TimeStepRange[1];
       }
 
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                  steps+this->CurrentTimeStep,1);
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),steps[this->CurrentTimeStep]);
     }
 
   // Re-open the input file.  If it fails, the error was already

@@ -31,13 +31,14 @@
 #define __vtkTemporalShiftScale_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkTemporalDataSetAlgorithm.h"
+#include "vtkAlgorithm.h"
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalShiftScale : public vtkTemporalDataSetAlgorithm
+
+class VTKFILTERSHYBRID_EXPORT vtkTemporalShiftScale: public vtkAlgorithm
 {
 public:
   static vtkTemporalShiftScale *New();
-  vtkTypeMacro(vtkTemporalShiftScale, vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalShiftScale, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -109,9 +110,25 @@ protected:
   int    PeriodicN;
   double TempMultiplier;
 
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
                                    vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+
+
+  virtual int RequestDataObject(vtkInformation *,
+                                vtkInformationVector **,
+                                vtkInformationVector *);
+
+
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);

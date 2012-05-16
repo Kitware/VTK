@@ -494,19 +494,18 @@ int vtkWindBladeReader::RequestData(
       this->NumberOfTuples *= this->SubDimension[dim];
 
     // Collect the time step requested
-    vtkInformationDoubleVectorKey* timeKey =
-      static_cast<vtkInformationDoubleVectorKey*>
-        (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+    vtkInformationDoubleKey* timeKey =
+      static_cast<vtkInformationDoubleKey*>
+        (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
     double dTime = 0.0;
     if (fieldInfo->Has(timeKey))
       {
-      double* requestedTimeSteps = fieldInfo->Get(timeKey);
-      dTime = requestedTimeSteps[0];
+      dTime = fieldInfo->Get(timeKey);
       }
 
     // Actual time for the time step
-    field->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
+    field->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
 
     // Index of the time step to request
     int timeStep = 0;
@@ -606,19 +605,18 @@ int vtkWindBladeReader::RequestData(
       vtkUnstructuredGrid* blade = this->GetBladeOutput();
 
       // Collect the time step requested
-      vtkInformationDoubleVectorKey* timeKey =
-        static_cast<vtkInformationDoubleVectorKey*>
-          (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+      vtkInformationDoubleKey* timeKey =
+        static_cast<vtkInformationDoubleKey*>
+          (vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
       double dTime = 0.0;
       if (bladeInfo->Has(timeKey))
         {
-        double* requestedTimeSteps = bladeInfo->Get(timeKey);
-        dTime = requestedTimeSteps[0];
+        dTime = bladeInfo->Get(timeKey);
         }
 
       // Actual time for the time step
-      blade->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(), &dTime, 1);
+      blade->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), dTime);
 
       // Index of the time step to request
       int timeStep = 0;

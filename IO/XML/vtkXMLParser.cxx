@@ -90,7 +90,7 @@ static int vtkXMLParserFail(istream* stream)
 }
 
 //----------------------------------------------------------------------------
-long vtkXMLParser::TellG()
+vtkTypeInt64 vtkXMLParser::TellG()
 {
   // Standard tellg returns -1 if fail() is true.
   if(!this->Stream || vtkXMLParserFail(this->Stream))
@@ -101,8 +101,8 @@ long vtkXMLParser::TellG()
   // No work-around required.  Just return the position.
   return this->Stream->tellg();
 #else
-  long pos = this->Stream->tellg();
-  if(pos == -1)
+  std::streampos pos = this->Stream->tellg();
+  if(pos < 0)
     {
     // Clear the fail bit from failing tellg.
     this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
@@ -139,7 +139,7 @@ long vtkXMLParser::TellG()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLParser::SeekG(long position)
+void vtkXMLParser::SeekG(vtkTypeInt64 position)
 {
   // Standard seekg does nothing if fail() is true.
   if(!this->Stream || vtkXMLParserFail(this->Stream))
@@ -148,7 +148,7 @@ void vtkXMLParser::SeekG(long position)
     }
 #if VTK_STREAM_EOF_SEVERITY == 0
   // No work-around required.  Just seek to the position.
-  this->Stream->seekg(position);
+  this->Stream->seekg(std::streampos(position));
 #else
   // Save the eof bit.
   int eof = this->Stream->eof()?1:0;
@@ -161,7 +161,7 @@ void vtkXMLParser::SeekG(long position)
 
 # if VTK_STREAM_EOF_SEVERITY == 3
   // Check if the stream is in the buggy state.
-  if(long(this->Stream->tellg()) == -1)
+  if(this->Stream->tellg() < 0)
     {
     // Call an internal filebuf method to escape the buggy stream
     // state.  This is a very ugly hack.
@@ -172,7 +172,7 @@ void vtkXMLParser::SeekG(long position)
 # endif
 
   // Seek to the given position.
-  this->Stream->seekg(position);
+  this->Stream->seekg(std::streampos(position));
 
   // Restore the eof bit.
   if(eof)
@@ -484,7 +484,7 @@ void vtkXMLParser::ReportXmlParseError()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkXMLParser::GetXMLByteIndex()
+vtkTypeInt64 vtkXMLParser::GetXMLByteIndex()
 {
   return XML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser));
 }
