@@ -104,6 +104,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     }
 
+  // Create input data table
   vtkTable* datasetTable1 = vtkTable::New();
   datasetTable1->AddColumn( dataset1Arr );
   dataset1Arr->Delete();
@@ -111,8 +112,8 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset2Arr->Delete();
 
   // Columns of interest
-  int nMetrics = 2;
-  vtkStdString columns[] =
+  int nMetrics1 = 2;
+  vtkStdString columns1[] =
     {
       "Metric 1",
       "Metric 0"
@@ -138,9 +139,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   datasetTable1->Delete();
 
   // Select Columns of Interest
-  for ( int i = 0; i < nMetrics; ++ i )
+  for ( int i = 0; i < nMetrics1; ++ i )
     {
-    as1->AddColumn( columns[i] );
+    as1->AddColumn( columns1[i] );
     }
 
   // Take autocorrelation of whole data set with respect to itself
@@ -206,45 +207,67 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // ************** Test with 2 columns of synthetic data **************
 
-  // Data set and slice size
-  vtkIdType cardTotal = 100;
-  vtkIdType cardSlice = 10;
+  // Space and time parameters
+  vtkIdType nSteps = 2;
+  vtkIdType cardSlice = 1000;
+  vtkIdType cardTotal = nSteps * cardSlice;
 
-  vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
-  dataset3Arr->SetNumberOfComponents( 1 );
-  dataset3Arr->SetName( "Linear" );
+  vtkDoubleArray* lineArr = vtkDoubleArray::New();
+  lineArr->SetNumberOfComponents( 1 );
+  lineArr->SetName( "Line" );
 
-  vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
-  dataset4Arr->SetNumberOfComponents( 1 );
-  dataset4Arr->SetName( "V Shaped" );
+  vtkDoubleArray* vArr = vtkDoubleArray::New();
+  vArr->SetNumberOfComponents( 1 );
+  vArr->SetName( "V" );
 
-  vtkIdType halfCard = cardTotal >> 1;
+  vtkDoubleArray* circleArr = vtkDoubleArray::New();
+  circleArr->SetNumberOfComponents( 1 );
+  circleArr->SetName( "Circle" );
+
+  // Fill data columns
+  vtkIdType midPoint = cardTotal >> 1;
+  double dAlpha = vtkMath::DoubleTwoPi() / cardSlice;
   for ( int i = 0; i < cardTotal; ++ i )
     {
-    dataset3Arr->InsertNextValue( i );
-    if ( i < halfCard )
+    lineArr->InsertNextValue( i );
+    if ( i < midPoint )
       {
-      dataset4Arr->InsertNextValue( -i );
+      vArr->InsertNextValue( cardTotal - i );
+      circleArr->InsertNextValue( cos( i * dAlpha ) );
       }
     else
       {
-      dataset4Arr->InsertNextValue( i - cardTotal );
+      vArr->InsertNextValue( i );
+      circleArr->InsertNextValue( sin( i * dAlpha ) );
       }
     }
 
+
+  // Create input data table
   vtkTable* datasetTable2 = vtkTable::New();
-  datasetTable2->AddColumn( dataset3Arr );
-  dataset3Arr->Delete();
-  datasetTable2->AddColumn( dataset4Arr );
-  dataset4Arr->Delete();
+  datasetTable2->AddColumn( lineArr );
+  lineArr->Delete();
+  datasetTable2->AddColumn( vArr );
+  vArr->Delete();
+  datasetTable2->AddColumn( circleArr );
+  circleArr->Delete();
 
   // Columns of interest
-  int nMetrics2 = 2;
+  int nMetrics2 = 3;
   vtkStdString columns2[] =
     {
-      "Linear",
-      "V Shaped"
+      "Line",
+      "V",
+      "Circle"
     };
+
+  // Reference values
+  // Means of Xs for circle, line, and v-shaped variables respectively
+  double halfNm1 = .5 * ( cardSlice - 1 );
+  double means2[] = { 0., halfNm1, cardTotal - halfNm1 };
+
+  // Pearson r values for circle, line, and v-shaped variables respectively
+  double pearson2[] = { 0., 1., -1. };
 
   // Prepare autocorrelative statistics algorithm and its input data port
   vtkAutoCorrelativeStatistics* as2 = vtkAutoCorrelativeStatistics::New();
@@ -259,7 +282,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Set autocorrelation parameters for first slice against slice following midpoint
   as2->SetSliceCardinality( cardSlice ); 
-  as2->SetTimeLag( cardTotal / ( 2 * cardSlice ) ); 
+  as2->SetTimeLag( nSteps / 2 ); 
 
   // Test Learn, and Derive options
   as2->SetLearnOption( true );
@@ -286,11 +309,16 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
-//     if ( fabs ( outputPrimary2->GetValueByName( r, "Mean Xs" ).ToDouble() - means1[r] ) > 1.e-6 )
-//       {
-//       vtkGenericWarningMacro("Incorrect mean");
-//       testStatus = 1;
-//       }
+    if ( outputPrimary2->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
+      {
+      vtkGenericWarningMacro("Incorrect cardinality");
+      testStatus = 1;
+      }
+    if ( fabs ( outputPrimary2->GetValueByName( r, "Mean Xs" ).ToDouble() - means2[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect Xs mean");
+      testStatus = 1;
+      }
     cout << "\n";
     }
 
@@ -307,11 +335,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated derived statistics
-//     if ( fabs ( outputDerived2->GetValueByName( r, "Variance Xs" ).ToDouble() - vars1[r] ) > 1.e-5 )
-//       {
-//       vtkGenericWarningMacro("Incorrect variance");
-//       testStatus = 1;
-//       }
+    if ( fabs ( outputDerived2->GetValueByName( r, "Pearson r" ).ToDouble() - pearson2[r] ) > 1.e-8 )
+      {
+      vtkGenericWarningMacro("Incorrect Pearson r");
+      testStatus = 1;
+      }
     cout << "\n";
     }
 

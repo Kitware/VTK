@@ -18,6 +18,18 @@ PURPOSE.  See the above copyright notice for more information.
 // Given a selection of columns of interest in an input data table, this
 // class provides the following functionalities, depending on the chosen
 // execution options:
+// * Learn: calculate sample mean and M2 aggregates for each variable w.r.t. itself
+//   (cf. P. Pebay, Formulas for robust, one-pass parallel computation of covariances
+//   and Arbitrary-Order Statistical Moments, Sandia Report SAND2008-6212, Sep 2008,
+//   http://infoserve.sandia.gov/sand_doc/2008/086212.pdf for details)
+//   for each specified time lag.
+// * Derive: calculate unbiased autocovariance matrix estimators and its determinant,
+//   linear regressions, and Pearson correlation coefficient, for each specified
+//   time lag.
+// * Assess: given an input data set, two means and a 2x2 covariance matrix,
+//   mark each datum with corresponding relative deviation (2-dimensional Mahlanobis
+//   distance).
+// 
 //
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012
