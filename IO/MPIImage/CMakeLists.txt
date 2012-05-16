@@ -23,7 +23,7 @@ foreach(_class ${vtk_module_overrides})
   set(_vtk_override_creates "${_vtk_override_creates}
 VTK_CREATE_CREATE_FUNCTION(${_override})")
   set(_vtk_override_do "${_vtk_override_do}
-  this->RegisterOverride(\"${_class}\",
+  this->RegisterOverride(\"vtk${_class}\",
                          \"${_override}\",
                          \"Override for ${vtk-module} module\", 1,
                          vtkObjectFactoryCreate${_override});")
