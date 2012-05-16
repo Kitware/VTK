@@ -183,7 +183,7 @@ vtkDataSet* vtkXMLReader::GetOutputAsDataSet(int index)
 // functionality that can be safely ignored by older readers.
 int vtkXMLReader::CanReadFileVersion(int major, int vtkNotUsed(minor))
 {
-  if (major > 0)
+  if (major > 1)
     {
     return 0;
     }

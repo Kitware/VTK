@@ -34,10 +34,14 @@
 #define vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLOffsetsManager.h"
 #undef  vtkXMLOffsetsManager_DoNotInclude
+#define vtkXMLDataHeaderPrivate_DoNotInclude
+#include "vtkXMLDataHeaderPrivate.h"
+#undef vtkXMLDataHeaderPrivate_DoNotInclude
 #include "vtkXMLDataElement.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkQuadratureSchemeDefinition.h"
 
+#include <vtksys/auto_ptr.hxx>
 #include <vtksys/ios/sstream>
 
 #include <assert.h>
@@ -230,6 +234,7 @@ vtkXMLWriter::vtkXMLWriter()
 #else
   this->ByteOrder = vtkXMLWriter::LittleEndian;
 #endif
+  this->HeaderType = vtkXMLWriter::UInt32;
 
   // Output vtkIdType size defaults to real size.
 #ifdef VTK_USE_64BIT_IDS
@@ -399,6 +404,37 @@ void vtkXMLWriter::SetByteOrderToLittleEndian()
 }
 
 //----------------------------------------------------------------------------
+void vtkXMLWriter::SetHeaderType(int t)
+{
+  if(t != vtkXMLWriter::UInt32 &&
+     t != vtkXMLWriter::UInt64)
+    {
+    vtkErrorMacro(<< this->GetClassName() << " (" << this
+                  << "): cannot set HeaderType to " << t);
+    return;
+    }
+  vtkDebugMacro(<< this->GetClassName() << " (" << this
+                << "): setting HeaderType to " << t);
+  if(this->HeaderType != t)
+    {
+    this->HeaderType = t;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetHeaderTypeToUInt32()
+{
+  this->SetHeaderType(vtkXMLWriter::UInt32);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetHeaderTypeToUInt64()
+{
+  this->SetHeaderType(vtkXMLWriter::UInt64);
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLWriter::SetIdType(int t)
 {
 #if !defined(VTK_USE_64BIT_IDS)
@@ -448,16 +484,16 @@ void vtkXMLWriter::SetDataModeToAppended()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::SetBlockSize(unsigned int blockSize)
+void vtkXMLWriter::SetBlockSize(size_t blockSize)
 {
   // Enforce constraints on block size.
-  unsigned int nbs = blockSize;
+  size_t nbs = blockSize;
 #if VTK_SIZEOF_DOUBLE > VTK_SIZEOF_ID_TYPE
   typedef double LargestScalarType;
 #else
   typedef vtkIdType LargestScalarType;
 #endif
-  unsigned int remainder = nbs % sizeof(LargestScalarType);
+  size_t remainder = nbs % sizeof(LargestScalarType);
   if(remainder)
     {
     nbs -= remainder;
@@ -654,13 +690,27 @@ int vtkXMLWriter::WriteInternal()
 //----------------------------------------------------------------------------
 int vtkXMLWriter::GetDataSetMajorVersion()
 {
-  return 0;
+  if(this->HeaderType == vtkXMLWriter::UInt64)
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::GetDataSetMinorVersion()
 {
-  return 1;
+  if(this->HeaderType == vtkXMLWriter::UInt64)
+    {
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -723,6 +773,17 @@ void vtkXMLWriter::WriteFileAttributes()
     {
     os << " byte_order=\"LittleEndian\"";
     }
+
+  // Write the header type for binary data.
+  if(this->HeaderType == vtkXMLWriter::UInt64)
+    {
+    os << " header_type=\"UInt64\"";
+    }
+#if 0 // future: else if(this->FileMajorVersion >= 1)
+    {
+    os << " header_type=\"UInt32\"";
+    }
+#endif
 
   // Write the compressor that will be used for the file.
   if(this->Compressor)
@@ -956,7 +1017,7 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
     // Destroy the compression header if it was used.
     if(this->CompressionHeader)
       {
-      delete [] this->CompressionHeader;
+      delete this->CompressionHeader;
       this->CompressionHeader = 0;
       }
 
@@ -964,18 +1025,24 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
     }
   else
     {
-    // No data compression.  The header is just the length of the data.
-    HeaderType length = static_cast<HeaderType>(data_size*outWordSize);
-    this->PerformByteSwap(&length, 1, sizeof(length));
-
     // Start writing the data.
     if(!this->DataStream->StartWriting())
       {
       return 0;
       }
 
-    // Write the header consisting only of the data length.
-    int writeRes = this->DataStream->Write(&length, sizeof(length));
+    // No data compression.  The header is just the length of the data.
+    vtksys::auto_ptr<vtkXMLDataHeader>
+      uh(vtkXMLDataHeader::New(this->HeaderType, 1));
+    if(!uh->Set(0, data_size*outWordSize))
+      {
+      vtkErrorMacro("Array \"" << a->GetName() <<
+                    "\" is too large.  Set HeaderType to UInt64.");
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
+      return 0;
+      }
+    this->PerformByteSwap(uh->Data(), uh->WordCount(), uh->WordSize());
+    int writeRes = this->DataStream->Write(uh->Data(), uh->DataSize());
     this->Stream->flush();
     if (this->Stream->fail())
       {
@@ -1199,7 +1266,7 @@ void vtkXMLWriter::SetDataStream(vtkOutputStream* arg)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::CreateCompressionHeader(size_t size_in)
+int vtkXMLWriter::CreateCompressionHeader(size_t size)
 {
   // Allocate and initialize the compression header.
   // The format is this:
@@ -1211,24 +1278,17 @@ int vtkXMLWriter::CreateCompressionHeader(size_t size_in)
   //  }
 
   // Find the size and number of blocks.
-  unsigned int size = static_cast<unsigned int>(size_in);
-  unsigned int numFullBlocks = size / this->BlockSize;
-  unsigned int lastBlockSize = size % this->BlockSize;
-  unsigned int numBlocks = numFullBlocks + (lastBlockSize?1:0);
-
-  unsigned int headerLength = numBlocks+3;
-  this->CompressionHeaderLength = headerLength;
-
-  this->CompressionHeader = new HeaderType[headerLength];
+  size_t numFullBlocks = size / this->BlockSize;
+  size_t lastBlockSize = size % this->BlockSize;
+  size_t numBlocks = numFullBlocks + (lastBlockSize?1:0);
+  this->CompressionHeader =
+    vtkXMLDataHeader::New(this->HeaderType, 3+numBlocks);
 
   // Write out dummy header data.
-  unsigned int i;
-  for(i=0; i < headerLength; ++i) { this->CompressionHeader[i] = 0; }
-
   this->CompressionHeaderPosition = this->Stream->tellp();
-  size_t chSize = this->CompressionHeaderLength*sizeof(HeaderType);
   int result = (this->DataStream->StartWriting() &&
-                this->DataStream->Write(this->CompressionHeader, chSize) &&
+                this->DataStream->Write(this->CompressionHeader->Data(),
+                                        this->CompressionHeader->DataSize()) &&
                 this->DataStream->EndWriting());
 
   this->Stream->flush();
@@ -1239,9 +1299,9 @@ int vtkXMLWriter::CreateCompressionHeader(size_t size_in)
     }
 
   // Fill in known header data now.
-  this->CompressionHeader[0] = numBlocks;
-  this->CompressionHeader[1] = this->BlockSize;
-  this->CompressionHeader[2] = lastBlockSize;
+  this->CompressionHeader->Set(0, numBlocks);
+  this->CompressionHeader->Set(1, this->BlockSize);
+  this->CompressionHeader->Set(2, lastBlockSize);
 
   // Initialize counter for block writing.
   this->CompressionBlockNumber = 0;
@@ -1256,7 +1316,7 @@ int vtkXMLWriter::WriteCompressionBlock(unsigned char* data, size_t size)
   vtkUnsignedCharArray* outputArray = this->Compressor->Compress(data, size);
 
   // Find the compressed size.
-  HeaderType outputSize = outputArray->GetNumberOfTuples();
+  size_t outputSize = outputArray->GetNumberOfTuples();
   unsigned char* outputPointer = outputArray->GetPointer(0);
 
   // Write the compressed data.
@@ -1268,7 +1328,7 @@ int vtkXMLWriter::WriteCompressionBlock(unsigned char* data, size_t size)
     }
 
   // Store the resulting compressed size in the compression header.
-  this->CompressionHeader[3+this->CompressionBlockNumber++] = outputSize;
+  this->CompressionHeader->Set(3+this->CompressionBlockNumber++, outputSize);
 
   outputArray->Delete();
 
@@ -1282,14 +1342,15 @@ int vtkXMLWriter::WriteCompressionHeader()
   std::streampos returnPosition = this->Stream->tellp();
 
   // Need to byte-swap header.
-  this->PerformByteSwap(this->CompressionHeader, this->CompressionHeaderLength,
-                        sizeof(HeaderType));
+  this->PerformByteSwap(this->CompressionHeader->Data(),
+                        this->CompressionHeader->WordCount(),
+                        this->CompressionHeader->WordSize());
 
   if(!this->Stream->seekp(std::streampos(this->CompressionHeaderPosition)))
     { return 0; }
-  size_t chSize = this->CompressionHeaderLength*sizeof(HeaderType);
   int result = (this->DataStream->StartWriting() &&
-                this->DataStream->Write(this->CompressionHeader, chSize) &&
+                this->DataStream->Write(this->CompressionHeader->Data(),
+                                        this->CompressionHeader->DataSize()) &&
                 this->DataStream->EndWriting());
   this->Stream->flush();
   if (this->Stream->fail())

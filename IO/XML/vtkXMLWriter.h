@@ -39,6 +39,7 @@ class vtkOutputStream;
 class vtkPointData;
 class vtkPoints;
 class vtkFieldData;
+class vtkXMLDataHeader;
 //BTX
 class vtkStdString;
 class OffsetsManager;      // one per piece/per time
@@ -73,6 +74,12 @@ public:
   //   Int32 = File stores 32-bit values for vtkIdType.
   //   Int64 = File stores 64-bit values for vtkIdType.
   enum { Int32=32, Int64=64 };
+
+  // Description:
+  // Enumerate the supported binary data header bit lengths.
+  //   UInt32 = File stores 32-bit binary data header elements.
+  //   UInt64 = File stores 64-bit binary data header elements.
+  enum { UInt32=32, UInt64=64 };
   //ETX
 
   // Description:
@@ -82,6 +89,14 @@ public:
   vtkGetMacro(ByteOrder, int);
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
+
+  // Description:
+  // Get/Set the binary data header word type.  The default is UInt32.
+  // Set to UInt64 when storing arrays requiring 64-bit indexing.
+  virtual void SetHeaderType(int);
+  vtkGetMacro(HeaderType, int);
+  void SetHeaderTypeToUInt32();
+  void SetHeaderTypeToUInt64();
 
   // Description:
   // Get/Set the size of the vtkIdType values stored in the file.  The
@@ -127,8 +142,8 @@ public:
   // controls the granularity of how much extra information must be
   // read when only part of the data are requested.  The value should
   // be a multiple of the largest scalar data type.
-  virtual void SetBlockSize(unsigned int blockSize);
-  vtkGetMacro(BlockSize, unsigned int);
+  virtual void SetBlockSize(size_t blockSize);
+  vtkGetMacro(BlockSize, size_t);
 
   // Description:
   // Get/Set the data mode used for the file's data.  The options are
@@ -214,6 +229,9 @@ protected:
   // The output byte order.
   int ByteOrder;
 
+  // The output binary header word type.
+  int HeaderType;
+
   // The output vtkIdType.
   int IdType;
 
@@ -229,21 +247,6 @@ protected:
 
   // appended data offsets for field data
   OffsetsManagerGroup *FieldDataOM;  //one per array
-
-  //BTX
-  // We need a 32 bit unsigned integer type for platform-independent
-  // binary headers.  Note that this is duplicated in
-  // vtkXMLDataParser.h.
-#if VTK_SIZEOF_SHORT == 4
-  typedef unsigned short HeaderType;
-#elif VTK_SIZEOF_INT == 4
-  typedef unsigned int HeaderType;
-#elif VTK_SIZEOF_LONG == 4
-  typedef unsigned long HeaderType;
-#else
-# error "No native data type can represent an unsigned 32-bit integer."
-#endif
-  //ETX
 
   //BTX
   // We need a 32 bit signed integer type to which vtkIdType will be
@@ -268,11 +271,10 @@ protected:
 
   // Compression information.
   vtkDataCompressor* Compressor;
-  unsigned int   BlockSize;
-  unsigned int   CompressionBlockNumber;
-  HeaderType*    CompressionHeader;
-  unsigned int   CompressionHeaderLength;
-  vtkTypeInt64   CompressionHeaderPosition;
+  size_t BlockSize;
+  size_t CompressionBlockNumber;
+  vtkXMLDataHeader* CompressionHeader;
+  vtkTypeInt64 CompressionHeaderPosition;
 
   // The output stream used to write binary and appended data.  May
   // transparently encode the data.
