@@ -1543,8 +1543,7 @@ int vtkPStreamTracer::RequestData(
 {
   if (!this->Controller)
     {
-    vtkErrorMacro("No controller assigned. Can not execute.");
-    return 0;
+    return vtkStreamTracer::RequestData(request,inputVector,outputVector);
     }
   this->Rank = this->Controller->GetLocalProcessId();
   NumProcs = this->Controller->GetNumberOfProcesses();
