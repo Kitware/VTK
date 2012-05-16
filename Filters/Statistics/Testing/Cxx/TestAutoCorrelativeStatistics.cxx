@@ -305,11 +305,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
-//     if ( fabs ( outputPrimary2->GetValueByName( r, "Mean Xs" ).ToDouble() - means1[r] ) > 1.e-6 )
-//       {
-//       vtkGenericWarningMacro("Incorrect mean");
-//       testStatus = 1;
-//       }
+    if ( outputPrimary2->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
+      {
+      vtkGenericWarningMacro("Incorrect cardinality");
+      testStatus = 1;
+      }
     cout << "\n";
     }
 
