@@ -232,12 +232,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     lineArr->InsertNextValue( i );
     if ( i < midPoint )
       {
-      vArr->InsertNextValue( -i );
+      vArr->InsertNextValue( cardTotal - i );
       circleArr->InsertNextValue( cos( i * dAlpha ) );
       }
     else
       {
-      vArr->InsertNextValue( i - cardTotal );
+      vArr->InsertNextValue( i );
       circleArr->InsertNextValue( sin( i * dAlpha ) );
       }
     }
@@ -262,6 +262,10 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     };
 
   // Reference values
+  // Means of Xs for circle, line, and v-shaped variables respectively
+  double halfNm1 = .5 * ( cardSlice - 1 );
+  double means2[] = { 0., halfNm1, cardTotal - halfNm1 };
+
   // Pearson r values for circle, line, and v-shaped variables respectively
   double pearson2[] = { 0., 1., -1. };
 
@@ -308,6 +312,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     if ( outputPrimary2->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
       {
       vtkGenericWarningMacro("Incorrect cardinality");
+      testStatus = 1;
+      }
+    if ( fabs ( outputPrimary2->GetValueByName( r, "Mean Xs" ).ToDouble() - means2[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect Xs mean");
       testStatus = 1;
       }
     cout << "\n";
