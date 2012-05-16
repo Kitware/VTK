@@ -4,6 +4,7 @@ add_definitionS("-DMPICH_IGNORE_CXX_SEEK")
 
 set(Module_SRCS
   vtkPNrrdReader.cxx
+  vtkMPIImageReader.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
