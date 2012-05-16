@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Description
 // Given a selection of pairs of columns of interest, this class provides the
 // following functionalities, depending on the chosen execution options:
-// * Learn: calculate extremal values, sample mean, and M2 aggregates
+// * Learn: calculate sample mean and M2 aggregates for each pair of variables
 //   (cf. P. Pebay, Formulas for robust, one-pass parallel computation of covariances
 //   and Arbitrary-Order Statistical Moments, Sandia Report SAND2008-6212, Sep 2008,
 //   http://infoserve.sandia.gov/sand_doc/2008/086212.pdf for details)
