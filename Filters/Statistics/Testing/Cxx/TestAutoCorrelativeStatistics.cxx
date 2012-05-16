@@ -104,6 +104,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     }
 
+  // Create input data table
   vtkTable* datasetTable1 = vtkTable::New();
   datasetTable1->AddColumn( dataset1Arr );
   dataset1Arr->Delete();
@@ -111,8 +112,8 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset2Arr->Delete();
 
   // Columns of interest
-  int nMetrics = 2;
-  vtkStdString columns[] =
+  int nMetrics1 = 2;
+  vtkStdString columns1[] =
     {
       "Metric 1",
       "Metric 0"
@@ -138,9 +139,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   datasetTable1->Delete();
 
   // Select Columns of Interest
-  for ( int i = 0; i < nMetrics; ++ i )
+  for ( int i = 0; i < nMetrics1; ++ i )
     {
-    as1->AddColumn( columns[i] );
+    as1->AddColumn( columns1[i] );
     }
 
   // Take autocorrelation of whole data set with respect to itself
@@ -206,9 +207,10 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // ************** Test with 2 columns of synthetic data **************
 
-  // Data set and slice size
-  vtkIdType cardTotal = 100;
-  vtkIdType cardSlice = 10;
+  // Space and time parameters
+  vtkIdType nSteps = 10;
+  vtkIdType cardSlice = 1000;
+  vtkIdType cardTotal = nSteps * cardSlice;
 
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents( 1 );
@@ -218,32 +220,45 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset4Arr->SetNumberOfComponents( 1 );
   dataset4Arr->SetName( "V Shaped" );
 
-  vtkIdType halfCard = cardTotal >> 1;
+  vtkDoubleArray* dataset5Arr = vtkDoubleArray::New();
+  dataset5Arr->SetNumberOfComponents( 1 );
+  dataset5Arr->SetName( "Circle" );
+
+  // Fill data columns
+  vtkIdType midPoint = cardTotal >> 1;
+  double dAlpha = vtkMath::DoubleTwoPi() / cardSlice;
   for ( int i = 0; i < cardTotal; ++ i )
     {
     dataset3Arr->InsertNextValue( i );
-    if ( i < halfCard )
+    if ( i < midPoint )
       {
       dataset4Arr->InsertNextValue( -i );
+      dataset5Arr->InsertNextValue( cos( i * dAlpha ) );
       }
     else
       {
       dataset4Arr->InsertNextValue( i - cardTotal );
+      dataset5Arr->InsertNextValue( sin( i * dAlpha ) );
       }
     }
 
+
+  // Create input data table
   vtkTable* datasetTable2 = vtkTable::New();
   datasetTable2->AddColumn( dataset3Arr );
   dataset3Arr->Delete();
   datasetTable2->AddColumn( dataset4Arr );
   dataset4Arr->Delete();
+  datasetTable2->AddColumn( dataset5Arr );
+  dataset5Arr->Delete();
 
   // Columns of interest
-  int nMetrics2 = 2;
+  int nMetrics2 = 3;
   vtkStdString columns2[] =
     {
       "Linear",
-      "V Shaped"
+      "V Shaped",
+      "Circle"
     };
 
   // Prepare autocorrelative statistics algorithm and its input data port
@@ -259,7 +274,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Set autocorrelation parameters for first slice against slice following midpoint
   as2->SetSliceCardinality( cardSlice ); 
-  as2->SetTimeLag( cardTotal / ( 2 * cardSlice ) ); 
+  as2->SetTimeLag( nSteps / 2 ); 
 
   // Test Learn, and Derive options
   as2->SetLearnOption( true );
