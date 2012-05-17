@@ -40,14 +40,11 @@
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkToolkits.h" // for VTK_USE_PARALLEL
 
-#include "vtkMultiProcessController.h"
-
-
 #include "vtk_exodusII.h"
 #include <time.h>
 #include <ctype.h>
 
-vtkStandardNewMacro (vtkExodusIIWriter);
+vtkObjectFactoryNewMacro (vtkExodusIIWriter);
 vtkCxxSetObjectMacro (vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
 //----------------------------------------------------------------------------
@@ -162,7 +159,7 @@ int vtkExodusIIWriter::ProcessRequest (
         {
         double timeReq= this->TimeValues->GetValue(this->CurrentTimeIndex);
         inputVector[0]->GetInformationObject(0)->Set
-          ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),  timeReq);
+        ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),  timeReq);
         }
       }
     return 1;
@@ -651,7 +648,7 @@ void vtkExodusIIWriter::RemoveGhostCells()
 }
 
 //----------------------------------------------------------------------------
-int vtkExodusIIWriter::CheckParameters ()
+int vtkExodusIIWriter::CheckParametersInternal (int NumberOfProcesses, int MyRank)
 {
   if (!this->FileName)
     {
@@ -674,22 +671,8 @@ int vtkExodusIIWriter::CheckParameters ()
     this->StoreDoubles = this->PassDoubles;
     }
 
-  this->NumberOfProcesses = 1;
-  this->MyRank = 0;
-
-#ifdef VTK_USE_PARALLEL
-  vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
-  if (c)
-    {
-    this->NumberOfProcesses = c->GetNumberOfProcesses();
-    this->MyRank = c->GetLocalProcessId();
-    }
-
-  if (this->GhostLevel > 0)
-    {
-    vtkWarningMacro(<< "ExodusIIWriter ignores ghost level request");
-    }
-#endif
+  this->NumberOfProcesses = NumberOfProcesses;
+  this->MyRank = MyRank;
 
   if (!this->CheckInputArrays ())
     {
@@ -737,6 +720,12 @@ int vtkExodusIIWriter::CheckParameters ()
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkExodusIIWriter::CheckParameters ()
+{
+  return this->CheckParametersInternal(1, 0);
 }
 
 int vtkExodusIIWriter::CheckInputArrays ()
@@ -955,49 +944,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
       }
     }
 
-  // if we're multiprocess we need to make sure the block info map matches
-  if (this->NumberOfProcesses > 1)
-    {
-    int maxId = -1;
-    std::map<int, Block>::const_iterator iter;
-    for (iter = this->BlockInfoMap.begin (); iter != this->BlockInfoMap.end (); iter ++)
-      {
-      if (iter->first > maxId)
-        {
-        maxId = iter->first;
-        }
-      }
-    vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
-    int globalMaxId;
-    c->AllReduce (&maxId, &globalMaxId, 1, vtkCommunicator::MAX_OP);
-    maxId = globalMaxId;
-    for (int i = 1; i <= maxId; i ++)
-      {
-      Block &b = this->BlockInfoMap[i]; // ctor called (init all to 0/-1) if not preset
-      int globalType;
-      c->AllReduce (&b.Type, &globalType, 1, vtkCommunicator::MAX_OP);
-      if (b.Type != 0 && b.Type != globalType)
-        {
-        vtkWarningMacro (
-          << "The type associated with ID's across processors doesn't match");
-        }
-      else
-        {
-        b.Type = globalType;
-        }
-      int globalNodes;
-      c->AllReduce (&b.NodesPerElement, &globalNodes, 1, vtkCommunicator::MAX_OP);
-      if (b.NodesPerElement != globalNodes)
-        {
-        vtkWarningMacro (
-          << "NodesPerElement associated with ID's across processors doesn't match");
-        }
-      else
-        {
-        b.NodesPerElement = globalNodes;
-        }
-      }
-    }
+  this->CheckBlockInfoMap();
 
   // Find the ElementStartIndex and the output order
   std::map<int, Block>::iterator iter;
@@ -3041,3 +2988,7 @@ int vtkExodusIIWriter::WriteNextTimeStep()
   return 1;
 }
 
+void vtkExodusIIWriter::CheckBlockInfoMap()
+{
+  // no op for serial version
+}

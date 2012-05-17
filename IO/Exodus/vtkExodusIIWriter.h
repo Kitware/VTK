@@ -64,7 +64,7 @@
 #ifndef __vtkExodusIIWriter_h
 #define __vtkExodusIIWriter_h
 
-#include "vtkIOParallelModule.h" // For export macro
+#include "vtkIOExodusModule.h" // For export macro
 #include "vtkWriter.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -77,7 +77,7 @@ class vtkDoubleArray;
 class vtkIntArray;
 class vtkUnstructuredGrid;
 
-class VTKIOPARALLEL_EXPORT vtkExodusIIWriter : public vtkWriter
+class VTKIOEXODUS_EXPORT vtkExodusIIWriter : public vtkWriter
 {
 public:
   static vtkExodusIIWriter *New ();
@@ -285,8 +285,10 @@ protected:
 
   int IsDouble ();
   void RemoveGhostCells ();
-  int CheckParameters ();
+  int CheckParametersInternal (int NumberOfProcesses, int MyRank);
+  virtual int CheckParameters ();
   int CheckInputArrays ();
+  virtual void CheckBlockInfoMap();
   int ConstructBlockInfoMap ();
   int ConstructVariableInfoMaps ();
   int ParseMetadata ();
