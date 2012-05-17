@@ -3,7 +3,7 @@
 
 # Run this test like so:
 # vtkpython TestParametricFunctions.py  -D $VTK_DATA_ROOT \
-# -B $VTK_DATA_ROOT//Baseline/Graphics/
+# -B $VTK_DATA_ROOT/Baseline/Graphics/
 
 import vtk
 import vtk.test.Testing
