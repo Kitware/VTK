@@ -78,5 +78,6 @@ int TestFlashReader( int argc, char *argv[] )
       }
     } // END for all levels
   flashReader->Delete();
+  delete [] fileName;
   return( rc );
 }
