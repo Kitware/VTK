@@ -140,11 +140,11 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    stlBinary Write
    file delete -force "brainBinary.stl"
 
-   vtkCGMWriter cgm
-   cgm SetInputConnection [triangles GetOutputPort]
-   cgm SetFileName "brain.cgm"
-   cgm Write
-   file delete -force "brain.cgm"
+#   vtkCGMWriter cgm
+#   cgm SetInputConnection [triangles GetOutputPort]
+#   cgm SetFileName "brain.cgm"
+#   cgm Write
+#   file delete -force "brain.cgm"
 }
 
 
