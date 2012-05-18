@@ -179,6 +179,11 @@ void ToggleSelection(vtkIdTypeArray *selection, vtkIdTypeArray *oldSelection)
 void BuildSelection(vtkAnnotationLink *link, int selectionMode,
                     vtkIdTypeArray *plotSelection, vtkIdTypeArray *oldSelection)
 {
+  if (!plotSelection || !oldSelection)
+    {
+    return;
+    }
+
   // Build a selection and set it on the annotation link if not null.
   switch(selectionMode)
     {
