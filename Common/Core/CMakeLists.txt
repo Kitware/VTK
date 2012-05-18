@@ -9,11 +9,21 @@ option(VTK_USE_64BIT_IDS "Build VTK with 64 bit ids"
   ${VTK_USE_64BIT_IDS_DEFAULT})
 
 option(VTK_DEBUG_LEAKS "Build leak checking support into VTK." OFF)
-mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
+
+# This option determines the behavior of the New methods of vtkObject derived
+# classes. If this option is off then only classes specifically using the
+# vtkObjectFactoryNewMacro and vtkAbstractObjectFactoryNewMacro will allow for
+# overrides. If the method is on then vtkStandardNewMacro will use the
+# vtkObjectFactoryNewMacro's implementation body.
+option(VTK_ALL_NEW_OBJECT_FACTORY
+  "Build all vtkObject derived classes with object factory new methods." OFF)
+
+mark_as_advanced(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS VTK_ALL_NEW_OBJECT_FACTORY)
 
 set(vtkCommonCore_EXPORT_OPTIONS
   VTK_DEBUG_LEAKS
   VTK_USE_64BIT_IDS
+  VTK_ALL_NEW_OBJECT_FACTORY
   )
 
 #-----------------------------------------------------------------------------

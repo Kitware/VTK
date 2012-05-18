@@ -148,6 +148,12 @@
 #cmakedefine VTK_LEGACY_REMOVE
 #cmakedefine VTK_LEGACY_SILENT
 
+/* Debug leaks support.  */
+#cmakedefine VTK_DEBUG_LEAKS
+
+/* Should all New methods use the object factory override. */
+#cmakedefine VTK_ALL_NEW_OBJECT_FACTORY
+
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
 
