@@ -208,7 +208,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     painter->GetPen()->SetColor(255, 50, 0, 150);
     painter->GetPen()->SetWidth(width + 2.7);
 
-    painter->DrawPointSprites(this->Marker,
+    painter->DrawPointSprites(this->HighlightMarker,
                               static_cast<float *>(this->SelectedPoints->GetVoidPointer(0)),
                               this->SelectedPoints->GetNumberOfTuples());
     }
@@ -576,6 +576,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     {
     ptr[i] = selected[i];
     }
+  this->Selection->Modified();
   return this->Selection->GetNumberOfTuples() > 0;
 }
 
