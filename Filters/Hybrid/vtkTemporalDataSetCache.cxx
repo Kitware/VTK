@@ -14,21 +14,28 @@
 =========================================================================*/
 #include "vtkTemporalDataSetCache.h"
 
-#include "vtkTemporalDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkSmartPointer.h"
 
 #include <vector>
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalDataSetCache);
 
+
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 vtkTemporalDataSetCache::vtkTemporalDataSetCache()
 {
   this->CacheSize = 10;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -41,6 +48,37 @@ vtkTemporalDataSetCache::~vtkTemporalDataSetCache()
     this->Cache.erase(pos++);
     }
 }
+
+int vtkTemporalDataSetCache::ProcessRequest(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+
+  // generate the data
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
+    {
+    int retVal = this->RequestData(request, inputVector, outputVector);
+    return retVal;
+    }
+
+
+  // set update extent
+  if(request->Has(
+       vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+
 //----------------------------------------------------------------------------
 int vtkTemporalDataSetCache::FillInputPortInformation(
   int port,
@@ -48,8 +86,15 @@ int vtkTemporalDataSetCache::FillInputPortInformation(
 {
   // port 0 must be temporal data, but port 1 can be any dataset
   if (port==0) {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTemporalDataSet");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   }
+  return 1;
+}
+
+int vtkTemporalDataSetCache::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 //----------------------------------------------------------------------------
@@ -85,6 +130,43 @@ void vtkTemporalDataSetCache::SetCacheSize(int size)
     this->Cache.erase(pos++);
     }
 }
+
+int vtkTemporalDataSetCache::RequestDataObject( vtkInformation*,
+                                             vtkInformationVector** inputVector ,
+                                             vtkInformationVector* outputVector)
+{
+  if (this->GetNumberOfInputPorts() == 0 || this->GetNumberOfOutputPorts() == 0)
+    {
+    return 1;
+    }
+
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+    {
+    return 0;
+    }
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+
+  if (input)
+    {
+    // for each output
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
+
+      if (!output || !output->IsA(input->GetClassName()))
+        {
+        vtkDataObject* newOutput = input->NewInstance();
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+        newOutput->Delete();
+        }
+      }
+    return 1;
+    }
+  return 0;
+}
+
 //----------------------------------------------------------------------------
 int vtkTemporalDataSetCache
 ::RequestUpdateExtent (vtkInformation * vtkNotUsed(request),
@@ -104,6 +186,7 @@ int vtkTemporalDataSetCache
     return 1;
     }
 
+
   unsigned long pmt = ddp->GetPipelineMTime();
   for (pos = this->Cache.begin(); pos != this->Cache.end();)
     {
@@ -118,10 +201,11 @@ int vtkTemporalDataSetCache
       }
     }
 
+
   // are there any times that we are missing from the request? e.g. times
   // that are not cached?
   std::vector<double> reqTimeSteps;
-  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
       // no time steps were passed in the update request, so just request
       // something to keep the pipeline happy.
@@ -141,28 +225,22 @@ int vtkTemporalDataSetCache
       }
     else return 0;
     }
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
-    double *upTimes =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    int numTimes =
-      outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-    int i;
-    for (i = 0; i < numTimes; ++i)
+    double upTime =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+    // do we have this time step?
+    pos = this->Cache.find(upTime);
+    if (pos == this->Cache.end())
       {
-      // do we have this time step?
-      pos = this->Cache.find(upTimes[i]);
-      if (pos == this->Cache.end())
-        {
-        reqTimeSteps.push_back(upTimes[i]);
-        }
+      reqTimeSteps.push_back(upTime);
       }
 
     // if we need any data
     if (reqTimeSteps.size())
       {
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                  &reqTimeSteps[0],static_cast<int>(reqTimeSteps.size()));
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),reqTimeSteps[0]);
       }
     // otherwise leave the input with what it already has
     else
@@ -170,46 +248,19 @@ int vtkTemporalDataSetCache
       vtkDataObject *dobj = inInfo->Get(vtkDataObject::DATA_OBJECT());
       if (dobj)
         {
-        double *its = dobj->GetInformation()->Get
-          (vtkDataObject::DATA_TIME_STEPS());
-        int itsSize = dobj->GetInformation()->Length
-          (vtkDataObject::DATA_TIME_STEPS());
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                    its,itsSize);
+        double it = dobj->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+        if( dobj->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
+          {
+          inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), it);
+          }
         }
       }
     }
 
-/*
-  if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
-    {
-    // well really, the least they could do is pass something in
-    int updateExtent[6];
-    if (inInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
-      {
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
-      int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent, len);
-      }
-    else return 1;
-    }
-  else
-    {
-    // just forward the request up the pipeline
-    int updateExtent[6];
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
-    int len = outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent, len);
-    vtkDebugMacro(<<"vtkTemporalDataSetCache Extent : "
-      << updateExtent[0] << " " << updateExtent[1] << " "
-      << updateExtent[2] << " " << updateExtent[3] << " "
-      << updateExtent[4] << " " << updateExtent[5]);
-
-    }
-*/
 
   return 1;
 }
+
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
@@ -218,115 +269,75 @@ int vtkTemporalDataSetCache::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+
   vtkInformation      *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation     *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject       *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkTemporalDataSet *outData = vtkTemporalDataSet::SafeDownCast(output);
+  vtkDataObject       *output = NULL;
+
+  unsigned long outputUpdateTime = outInfo->Get(vtkDataObject::DATA_OBJECT())->GetUpdateTime();
 
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkTemporalDataSet *temporal = vtkTemporalDataSet::SafeDownCast(input);
 
-  // get some time information
-  double *upTimes =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
-  int numUpTimes =
-    outInfo->Length(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+  // get some time informationX
+  double upTime =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
-  int inLength =
-    input->GetInformation()->Length(vtkDataObject::DATA_TIME_STEPS());
-  double *inTimes =
-    input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS());
+  double inTime =  input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
-  // fill in the request by using the cached data and input data
-  outData->Initialize();
-  int i;
-  for (i = 0; i < numUpTimes; ++i)
+  // // fill in the request by using the cached data and input data
+  // outData->Initialize();
+
+  // a time should either be in the Cache or in the input
+  CacheType::iterator pos = this->Cache.find(upTime);
+  if (pos != this->Cache.end())
     {
-    // a time should either be in the Cache or in the input
-    CacheType::iterator pos = this->Cache.find(upTimes[i]);
-    if (pos != this->Cache.end())
+    vtkDataObject* cachedData = pos->second.second;
+    output = cachedData->NewInstance();
+    output->ShallowCopy(cachedData);
+//  outData->SetTimeStep(0, pos->second.second);
+    // update the m time in the cache
+    pos->second.first = outputUpdateTime;
+    }
+  // otherwise it better be in the input
+  else
+    {
+    int found = 0;
+    if(input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
       {
-      outData->SetTimeStep(i, pos->second.second);
-      // update the m time in the cache
-      pos->second.first = outData->GetUpdateTime();
+      if (inTime == upTime)
+        {
+        output = input->NewInstance();
+        output->ShallowCopy(input);
+        found = 1;
+        }
       }
-    // otherwise it better be in the input
-    else
+    if (!found)
       {
-      int j;
-      int found = 0;
-      for (j = 0; j < inLength; ++j)
-        {
-        if (inTimes[j] == upTimes[i])
-          {
-          if (temporal)
-            {
-            outData->SetTimeStep(i, temporal->GetTimeStep(j));
-            if (input->GetInformation()->Has(vtkDataObject::DATA_GEOMETRY_UNMODIFIED()))
-              {
-              vtkDebugMacro(<<"Dataset has DATA_GEOMETRY_UNMODIFIED");
-              }
-            }
-          else
-            {
-            vtkDebugMacro(<<"Cache : Should not be here 1");
-            outData->SetTimeStep(i, input);
-            }
-          found = 1;
-          break;
-          }
-        }
-      if (!found)
-        {
-/*
-        for (tt = 0; tt< inLength; ++tt)
-          {
-          temp << inTimes[tt] << " ";
-        }
-        vtkErrorMacro("Unable to find proper time step : requested "
-          << upTimes[i] << " : available " << temp.str().c_str());
-//        return 1;
-*/
-        }
       }
     }
   // set the data times
-  outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEPS(),
-                                 upTimes, numUpTimes);
+  outInfo->Set(vtkDataObject::DATA_OBJECT(),output);
+  output->Delete();
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), upTime);
 
   // now we need to update the cache, based on the new data and the cache
   // size add the requested data to the cache first
-  int j;
-  for (j = 0; j < inLength; ++j)
+  if(input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
     {
-    // is the input time not already in the cache?
-    CacheType::iterator pos = this->Cache.find(inTimes[j]);
+
+// is the input time not already in the cache?
+    CacheType::iterator pos = this->Cache.find(inTime);
     if (pos == this->Cache.end())
       {
       // if we have room in the Cache then just add the new data
       if (this->Cache.size() < static_cast<unsigned long>(this->CacheSize))
         {
-        if (temporal)
-          {
-          this->Cache[inTimes[j]] =
-            std::pair<unsigned long, vtkDataObject *>
-            (outData->GetUpdateTime(), temporal->GetTimeStep(j));
-          vtkDataObject *dobj = temporal->GetTimeStep(j);
-          if (!dobj)
-            {
-            vtkErrorMacro(<<"The dataset is invalid");
-            return 0;
-            }
-          temporal->GetTimeStep(j)->Register(this);
-          }
-        else
-          {
-          vtkDebugMacro(<<"Cache : Should not be here 2");
-          this->Cache[inTimes[j]] =
-            std::pair<unsigned long, vtkDataObject *>
-            (outData->GetUpdateTime(), input);
-          input->Register(this);
-          }
+        vtkDataObject* cachedData  = input->NewInstance();
+        cachedData->ShallowCopy(input);
+
+        this->Cache[inTime] =
+          std::pair<unsigned long, vtkDataObject *>
+          (outputUpdateTime, cachedData);
         }
       // no room in the cache, we need to get rid of something
       else
@@ -342,17 +353,12 @@ int vtkTemporalDataSetCache::RequestData(
             }
           }
         //was there old data?
-        if (oldestpos->second.first < outData->GetUpdateTime())
+        if (oldestpos->second.first < outputUpdateTime)
           {
           oldestpos->second.second->UnRegister(this);
           this->Cache.erase(oldestpos);
-          --j;
           }
         // if no old data and no room then we are done
-        else
-          {
-          break;
-          }
         }
       }
     }

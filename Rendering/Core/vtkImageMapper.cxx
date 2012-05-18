@@ -18,17 +18,15 @@
 #include "vtkActor2D.h"
 #include "vtkExecutive.h"
 #include "vtkImageData.h"
-#include "vtkImagingFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-
-
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkImageMapper);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkImageMapper)
 
 //----------------------------------------------------------------------------
 
@@ -95,13 +93,6 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
     this->CustomDisplayExtents[2] << " " <<
     this->CustomDisplayExtents[3] << "\n";
   //
-}
-
-vtkImageMapper* vtkImageMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageMapper");
-  return static_cast<vtkImageMapper *>(ret);
 }
 
 double vtkImageMapper::GetColorShift()

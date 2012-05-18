@@ -321,15 +321,15 @@ int vtkPOpenFOAMReader::RequestData(vtkInformation *request,
   if (this->Superclass::Readers->GetNumberOfItems() > 0)
     {
     int nSteps = 0;
-    double *requestedTimeValues = NULL;
-    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS()))
+    double requestedTimeValue(0);
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
       {
-      requestedTimeValues
-          = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS());
+      requestedTimeValue
+          = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
       nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
       if (nSteps > 0)
         {
-        outInfo->Set(vtkDataObject::DATA_TIME_STEPS(), requestedTimeValues, 1);
+        outInfo->Set(vtkDataObject::DATA_TIME_STEP(), requestedTimeValue);
         }
       }
 
@@ -346,7 +346,7 @@ int vtkPOpenFOAMReader::RequestData(vtkInformation *request,
       // even if the child readers themselves are not modified, mark
       // them as modified if "this" has been modified, since they
       // refer to the property of "this"
-      if ((nSteps > 0 && reader->SetTimeValue(requestedTimeValues[0]))
+      if ((nSteps > 0 && reader->SetTimeValue(requestedTimeValue))
           || this->MTimeOld != this->GetMTime())
         {
         reader->Modified();

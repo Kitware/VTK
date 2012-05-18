@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkGPUVolumeRayCastMapper.h"
 
-#include "vtkVolumeRenderingFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
@@ -33,7 +33,8 @@
 #include "vtkGPUInfoList.h"
 #include "vtkGPUInfo.h"
 
-vtkInstantiatorNewMacro(vtkGPUVolumeRayCastMapper);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper)
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
 
@@ -100,15 +101,6 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
   this->SetMaskInput(NULL);
   this->SetTransformedInput(NULL);
   this->LastInput = NULL;
-}
-
-// ----------------------------------------------------------------------------
-vtkGPUVolumeRayCastMapper *vtkGPUVolumeRayCastMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret =
-    vtkVolumeRenderingFactory::CreateInstance("vtkGPUVolumeRayCastMapper");
-  return static_cast<vtkGPUVolumeRayCastMapper*>(ret);
 }
 
 // ----------------------------------------------------------------------------

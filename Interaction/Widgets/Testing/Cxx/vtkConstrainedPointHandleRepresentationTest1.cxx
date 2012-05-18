@@ -13,13 +13,16 @@
 
 int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
 {
-  vtkSmartPointer< vtkConstrainedPointHandleRepresentation > node1 = vtkSmartPointer< vtkConstrainedPointHandleRepresentation >::New();
+  vtkSmartPointer< vtkConstrainedPointHandleRepresentation > node1 =
+    vtkSmartPointer< vtkConstrainedPointHandleRepresentation >::New();
 
   EXERCISE_BASIC_HANDLE_REPRESENTATION_METHODS(vtkConstrainedPointHandleRepresentation, node1);
 
-  vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> pd =
+    vtkSmartPointer<vtkPolyData>::New();
   node1->SetCursorShape(pd);
-  vtkSmartPointer<vtkPolyData> pd2 = node1->GetCursorShape();
+  vtkSmartPointer<vtkPolyData> pd2 =
+    node1->GetCursorShape();
   if (!pd2 ||
       pd2 != pd)
     {
@@ -27,11 +30,11 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     return EXIT_FAILURE;
     }
 
-  vtkSmartPointer<vtkPolyData> pd3 = vtkSmartPointer<vtkPolyData>::New();
-  node1->SetActiveCursorShape(pd);
+  vtkSmartPointer<vtkPolyData> pd3 =
+    vtkSmartPointer<vtkPolyData>::New();
+  node1->SetActiveCursorShape(pd3);
   vtkSmartPointer<vtkPolyData> pd4 = node1->GetActiveCursorShape();
-  if (!pd4 ||
-      pd4 != pd3)
+  if (pd4.GetPointer() != pd3.GetPointer())
     {
     std::cerr << "Error in Set/Get active cursor shape." << std::endl;
     return EXIT_FAILURE;
@@ -44,7 +47,8 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
   node1->SetProjectionNormalToZAxis();
   node1->SetProjectionNormalToOblique();
 
-  vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+  vtkSmartPointer<vtkPlane> plane =
+    vtkSmartPointer<vtkPlane>::New();
   node1->SetObliquePlane(plane);
   vtkSmartPointer<vtkPlane> plane2 = node1->GetObliquePlane();
   if (!plane2 ||
@@ -57,16 +61,20 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
   TEST_SET_GET_DOUBLE_RANGE(node1, ProjectionPosition, -10.0, 10.0);
 
 
-  vtkSmartPointer<vtkPlane> bplane = vtkSmartPointer<vtkPlane>::New();
-  vtkSmartPointer<vtkPlane> bplane2 = vtkSmartPointer<vtkPlane>::New();
+  vtkSmartPointer<vtkPlane> bplane =
+    vtkSmartPointer<vtkPlane>::New();
+  vtkSmartPointer<vtkPlane> bplane2 =
+    vtkSmartPointer<vtkPlane>::New();
   node1->AddBoundingPlane(bplane);
   node1->AddBoundingPlane(bplane2);
   node1->RemoveBoundingPlane(bplane);
   node1->RemoveAllBoundingPlanes();
 
-  vtkSmartPointer<vtkPlaneCollection> planeCol = vtkSmartPointer<vtkPlaneCollection>::New();
+  vtkSmartPointer<vtkPlaneCollection> planeCol =
+    vtkSmartPointer<vtkPlaneCollection>::New();
   node1->SetBoundingPlanes(planeCol);
-  vtkSmartPointer<vtkPlaneCollection> planeCol2 = node1->GetBoundingPlanes();
+  vtkSmartPointer<vtkPlaneCollection> planeCol2 =
+    node1->GetBoundingPlanes();
   if (!planeCol2 ||
       planeCol2 != planeCol)
     {
@@ -74,7 +82,8 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     return EXIT_FAILURE;
     }
 
-  vtkSmartPointer<vtkPlanes> bplanes = vtkSmartPointer<vtkPlanes>::New();
+  vtkSmartPointer<vtkPlanes> bplanes =
+    vtkSmartPointer<vtkPlanes>::New();
   node1->SetBoundingPlanes(bplanes);
 
   // test Set/GetPosition, in display coords, so only x,y are used
@@ -132,10 +141,11 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     }
 
    // Properties
-  vtkSmartPointer<vtkProperty> prop1 = vtkSmartPointer<vtkProperty>::New();
+  vtkSmartPointer<vtkProperty> prop1 =
+    vtkSmartPointer<vtkProperty>::New();
   double colour[3] = {0.2, 0.3, 0.4};
   prop1->SetColor(colour);
-  //node1->SetProperty(prop1);
+  node1->GetProperty()->SetColor(colour);
   vtkSmartPointer<vtkProperty> prop = node1->GetProperty();
   if (!prop)
     {
@@ -156,12 +166,13 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     return EXIT_FAILURE;
     }
 
-  vtkSmartPointer<vtkProperty> prop2 = vtkSmartPointer<vtkProperty>::New();
+  vtkSmartPointer<vtkProperty> prop2 =
+    vtkSmartPointer<vtkProperty>::New();
   colour[0] += 0.1;
   colour[2] += 0.1;
   colour[2] += 0.1;
   prop2->SetColor(colour);
-//  node1->SetSelectedProperty(prop2);
+  node1->GetSelectedProperty()->SetColor(colour);
   prop = node1->GetSelectedProperty();
   if (!prop)
     {

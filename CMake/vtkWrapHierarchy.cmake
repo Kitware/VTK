@@ -44,56 +44,72 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # For each class
   foreach(FILE ${SOURCES})
 
-    # should we wrap the file?
-    get_property(TMP_WRAP_EXCLUDE
-      SOURCE ${FILE}
-      PROPERTY WRAP_EXCLUDE)
+    # file properties to include in the hierarchy file
+    get_property(TMP_WRAP_EXCLUDE SOURCE ${FILE} PROPERTY WRAP_EXCLUDE)
     get_source_file_property(TMP_WRAP_SPECIAL ${FILE} WRAP_SPECIAL)
     get_source_file_property(TMP_ABSTRACT ${FILE} ABSTRACT)
 
-    # if we should wrap it
-    if(TMP_WRAP_SPECIAL OR NOT TMP_WRAP_EXCLUDE)
+    # what is the filename without the extension
+    get_filename_component(TMP_FILENAME ${FILE} NAME_WE)
 
-      # what is the filename without the extension
-      get_filename_component(TMP_FILENAME ${FILE} NAME_WE)
+    # get the absolute path to the file
+    get_filename_component(TMP_FULLPATH ${FILE} ABSOLUTE)
 
-      # the input file might be full path so handle that
-      get_filename_component(TMP_FILEPATH ${FILE} PATH)
+    # get the directory
+    get_filename_component(TMP_FILEPATH ${TMP_FULLPATH} PATH)
 
-      # compute the input filename
-      if(TMP_FILEPATH)
-        set(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
-      else()
-        # This should be the case, and we use the module path.
-        set(TMP_INPUT ${${vtk-module}_SOURCE_DIR}/${TMP_FILENAME}.h)
+    # assume header file is in the same directory
+    set(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
+
+    # default to including all available headers in the hierarchy files
+    set(TMP_EXCLUDE_FROM_HIERARCHY OFF)
+
+    # ensure that header exists (assume it exists if it is marked as wrapped)
+    if(TMP_WRAP_EXCLUDE AND NOT TMP_WRAP_SPECIAL)
+      if(NOT EXISTS ${TMP_INPUT})
+        set(TMP_EXCLUDE_FROM_HIERARCHY ON)
+      endif()
+    endif()
+
+    # Exclude huge generated headers that aren't relevant to wrappers.
+    if("${TMP_FILENAME}" STREQUAL "vtkgl" OR
+       "${TMP_FILENAME}" STREQUAL "vtkOpenGLState")
+      set(TMP_EXCLUDE_FROM_HIERARCHY ON)
+    endif()
+
+    # Temporarily exclude files that cause vtkWrapHierarchy syntax errors.
+    # LSDynaFamily.h has a templated inline function.
+    # gl2ps.h uses an unrecognized export macro.
+    # vtkBoostGraphAdapter has a helper struct with a virtual base class.
+    # These issues will be resolved soon by an update to the wrapper parser.
+    if("${TMP_FILENAME}" STREQUAL "LSDynaFamily" OR
+       "${TMP_FILENAME}" STREQUAL "gl2ps" OR
+       "${TMP_FILENAME}" STREQUAL "vtkBoostGraphAdapter")
+      set(TMP_EXCLUDE_FROM_HIERARCHY ON)
+    endif()
+
+    if(NOT TMP_EXCLUDE_FROM_HIERARCHY)
+      # add to the INPUT_FILES
+      list(APPEND INPUT_FILES ${TMP_INPUT})
+
+      # add the info to the init file
+      set(VTK_WRAPPER_INIT_DATA
+        "${VTK_WRAPPER_INIT_DATA}${TMP_INPUT};${vtk-module}")
+
+      if(TMP_ABSTRACT)
+        set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};ABSTRACT")
       endif()
 
-      # Exclude huge generated headers that aren't relevant to wrappers.
-      if(NOT "${TMP_FILENAME}" STREQUAL "vtkgl" AND
-         NOT "${TMP_FILENAME}" STREQUAL "vtkOpenGLState")
-
-        # add to the INPUT_FILES
-        list(APPEND INPUT_FILES ${TMP_INPUT})
-
-        # add the info to the init file
-        set(VTK_WRAPPER_INIT_DATA
-          "${VTK_WRAPPER_INIT_DATA}${TMP_INPUT};${vtk-module}")
-
-        if(TMP_ABSTRACT)
-          set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};ABSTRACT")
-        endif()
-
-        if(TMP_WRAP_EXCLUDE)
-          set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};WRAP_EXCLUDE")
-        endif()
-
-        if(TMP_WRAP_SPECIAL)
-          set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};WRAP_SPECIAL")
-        endif()
-
-        set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA}\n")
-
+      if(TMP_WRAP_EXCLUDE)
+        set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};WRAP_EXCLUDE")
       endif()
+
+      if(TMP_WRAP_SPECIAL)
+        set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};WRAP_SPECIAL")
+      endif()
+
+      set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA}\n")
+
     endif()
   endforeach()
 

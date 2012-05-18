@@ -54,6 +54,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Values used for setting the desired output precision for various
+  // algorithms. Currently, only a few algorithms (vtkContourFilter,
+  // vtkThreshold) support changing their output precision.
+  //
+  // SINGLE_PRECISION - Output single-precision floating-point (i.e. float)
+  // DOUBLE_PRECISION - Output double-precision floating-point (i.e. double)
+  // DEFAULT_PRECISION - Output precision should match the input precision.
+  enum DesiredOutputPrecision
+    {
+    SINGLE_PRECISION,
+    DOUBLE_PRECISION,
+    DEFAULT_PRECISION
+    };
+
+  // Description:
   // Check whether this algorithm has an assigned executive.  This
   // will NOT create a default executive.
   int HasExecutive();

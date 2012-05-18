@@ -19,12 +19,11 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
-#include "vtkGraphicsFactory.h"
 #include "vtkMapper.h" // for VTK_RESOLVE_*
 #include "vtkObjectFactory.h"
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkCoincidentTopologyResolutionPainter);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkCoincidentTopologyResolutionPainter)
 vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter,
   RESOLVE_COINCIDENT_TOPOLOGY, Integer);
 vtkInformationKeyMacro(vtkCoincidentTopologyResolutionPainter, Z_SHIFT, Double);
@@ -46,16 +45,6 @@ vtkCoincidentTopologyResolutionPainter::~vtkCoincidentTopologyResolutionPainter(
 {
 
 }
-
-//-----------------------------------------------------------------------------
-vtkCoincidentTopologyResolutionPainter*
-vtkCoincidentTopologyResolutionPainter::New()
-{
-  vtkObject* o = vtkGraphicsFactory::CreateInstance(
-    "vtkCoincidentTopologyResolutionPainter");
-  return static_cast<vtkCoincidentTopologyResolutionPainter *>(o);
-}
-
 
 //-----------------------------------------------------------------------------
 void vtkCoincidentTopologyResolutionPainter::ProcessInformation(

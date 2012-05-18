@@ -23,11 +23,10 @@
 
 #include "vtkPainterDeviceAdapter.h"
 
-#include "vtkGraphicsFactory.h"
 #include "vtkObjectFactory.h"
 
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkPainterDeviceAdapter);
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkPainterDeviceAdapter)
 
 //-----------------------------------------------------------------------------
 vtkPainterDeviceAdapter::vtkPainterDeviceAdapter()
@@ -37,13 +36,6 @@ vtkPainterDeviceAdapter::vtkPainterDeviceAdapter()
 //-----------------------------------------------------------------------------
 vtkPainterDeviceAdapter::~vtkPainterDeviceAdapter()
 {
-}
-
-//-----------------------------------------------------------------------------
-vtkPainterDeviceAdapter* vtkPainterDeviceAdapter::New()
-{
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkPainterDeviceAdapter");
-  return static_cast<vtkPainterDeviceAdapter *>(ret);
 }
 
 //-----------------------------------------------------------------------------

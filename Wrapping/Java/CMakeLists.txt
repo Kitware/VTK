@@ -162,7 +162,7 @@ add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
-    -source 5 -classpath ${VTK_JAVA_HOME}/.. -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
+    -source 1.5 -classpath ${VTK_JAVA_HOME}/.. -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
     ${VTK_BINARY_DIR}/java/vtk/*.java
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
@@ -200,7 +200,7 @@ if(BUILD_TESTING)
   add_custom_command(
     OUTPUT ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt
     COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS} -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-    -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
+    -source 1.5 -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
     -d ${VTK_BINARY_DIR}/Wrapping/Java
     ${VTK_JAVA_TESTS}
     COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt

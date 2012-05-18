@@ -62,11 +62,7 @@ if(APPLE)
       )
   endif()
 
-  if(VTK_USE_MATLAB_MEX)
-    set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
-  else()
-   set(VTKPYTHON_LINK_FLAGS "-flat_namespace -undefined suppress -u _PyMac_Error")
-  endif()
+  set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
 endif()
 
 # Link against all the kit wrappers.
@@ -130,16 +126,9 @@ SET(PVTKPYTHON_EXECUTABLE)
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL AND VTK_USE_MPI)
   INCLUDE_DIRECTORIES("${MPI_INCLUDE_PATH}")
-  IF (MPI_LIBRARY)
-    SET(MPI_LIBRARIES ${MPI_LIBRARY})
-  ENDIF (MPI_LIBRARY)
-  IF (MPI_EXTRA_LIBRARY)
-    SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${MPI_EXTRA_LIBRARY}")
-  ENDIF (MPI_EXTRA_LIBRARY)
   IF (VTK_USE_PARALLEL_BGL)
     SET(MPI_LIBRARIES ${MPI_LIBRARIES} "${Boost_LIBRARIES}")
   ENDIF (VTK_USE_PARALLEL_BGL)
-
 
   # Needed for mpich 2
   ADD_DEFINITIONS("-DMPICH_IGNORE_CXX_SEEK")

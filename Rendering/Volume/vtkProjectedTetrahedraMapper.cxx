@@ -41,28 +41,17 @@
 #include "vtkVisibilitySort.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeRenderingFactory.h"
 
 #include <math.h>
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
-
-
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
 
 //-----------------------------------------------------------------------------
-
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkProjectedTetrahedraMapper);
-
-vtkProjectedTetrahedraMapper *vtkProjectedTetrahedraMapper::New()
-{
-  vtkObject *ret
-    = vtkVolumeRenderingFactory::CreateInstance("vtkProjectedTetrahedraMapper");
-  return (vtkProjectedTetrahedraMapper *)ret;
-}
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkProjectedTetrahedraMapper)
 
 //-----------------------------------------------------------------------------
 

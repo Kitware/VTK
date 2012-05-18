@@ -1,20 +1,14 @@
 set(Module_SRCS
-  vtkCachingInterpolatedVelocityField.cxx
-  vtkTemporalInterpolatedVelocityField.cxx
-  vtkTemporalStreamTracer.cxx
+  vtkPTemporalStreamTracer.cxx
   vtkPStreamTracer.cxx
-  vtkDistributedStreamTracer.cxx
   )
-
-set_source_files_properties(
-  vtkPStreamTracer
-  ABSTRACT
-)
 
 # Overrides for object factory.
 set(parallel_overrides
   StreamTracer
+  TemporalStreamTracer
   )
+
 
 foreach(_override ${parallel_overrides})
   vtk_add_override(vtk${_override} vtkP${_override})

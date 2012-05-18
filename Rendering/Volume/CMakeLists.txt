@@ -39,7 +39,6 @@ set(Module_SRCS
   vtkVolumeRayCastMapper.cxx
   vtkVolumeRayCastMIPFunction.cxx
   vtkVolumeRayCastSpaceLeapingImageFilter.cxx
-  vtkVolumeRenderingFactory.cxx
   vtkVolumeTextureMapper2D.cxx
   vtkVolumeTextureMapper3D.cxx
   vtkVolumeTextureMapper.cxx

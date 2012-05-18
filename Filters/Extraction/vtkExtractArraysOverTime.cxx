@@ -674,11 +674,8 @@ int vtkExtractArraysOverTime::RequestUpdateExtent(
   double *inTimes = inInfo1->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
   if (inTimes)
     {
-    double timeReq[1];
-    timeReq[0] = inTimes[this->CurrentTimeIndex];
-    inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-                 timeReq,
-                 1);
+    double timeReq= inTimes[this->CurrentTimeIndex];
+    inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
     }
 
   if (this->UseFastPath && this->Internal->FastPathIDs.size() > 0 &&
@@ -906,8 +903,7 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
   vtkDataObject* output = filter->GetOutputDataObject(0)->NewInstance();
   output->ShallowCopy(filter->GetOutputDataObject(0));
 
-  double time_step = input->GetInformation()->Get(
-    vtkDataObject::DATA_TIME_STEPS())[0];
+  double time_step = input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
   this->Internal->AddTimeStep(time_step, output);
 
   output->Delete();

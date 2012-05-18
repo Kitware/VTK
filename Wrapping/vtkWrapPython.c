@@ -2657,16 +2657,20 @@ static void vtkWrapPython_ClassMethodDef(
     {
     fprintf(fp,
             "  {(char*)\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
-            "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n"
+            "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n",
+            classname);
 #ifndef VTK_LEGACY_REMOVE
+    fprintf(fp,
             "  {(char*)\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
-            "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n"
+            "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
+            classname);
 #endif
+    fprintf(fp,
             "  {(char*)\"Register\", Py%s_Register, 1,\n"
             "   (char*)\"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
             "  {(char*)\"UnRegister\", Py%s_UnRegister, 1,\n"
             "   (char*)\"V.UnRegister(vtkObjectBase)\\nC++: virtual void UnRegister(vtkObjectBase *o)\\n\\nDecrease the reference count (release by another object). This\\nhas the same effect as invoking Delete() (i.e., it reduces the\\nreference count by 1).\\n\"},\n",
-            classname, classname, classname, classname);
+            classname, classname);
     }
 
   /* python expects the method table to end with a "NULL" entry */

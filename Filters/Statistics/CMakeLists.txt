@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkAutoCorrelativeStatistics.cxx
   vtkBivariateLinearTableThreshold.cxx
   vtkContingencyStatistics.cxx
   vtkCorrelativeStatistics.cxx

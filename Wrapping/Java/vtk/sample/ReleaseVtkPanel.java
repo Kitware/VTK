@@ -78,7 +78,6 @@ public class ReleaseVtkPanel {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 
-			@Override
 			public void run() {
 				// Setup GC to run every 1 second in EDT
 				vtkObject.JAVA_OBJECT_MANAGER.getAutoGarbageCollector().SetScheduleTime(5, TimeUnit.SECONDS);
@@ -88,12 +87,10 @@ public class ReleaseVtkPanel {
 				JButton startVTKApp = new JButton("Start VTK application");
 				startVTKApp.addActionListener(new ActionListener() {
 
-					@Override
 					public void actionPerformed(ActionEvent e) {
 						final VtkApplication app = new VtkApplication();
 						JFrame f = buildFrame("VtkApp", app, 400, 200);
 						f.addWindowListener(new WindowAdapter() {
-							@Override
 							public void windowClosing(WindowEvent e) {
 								app.Delete();
 							}

@@ -22,9 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
-#define vtkOffsetsManager_DoNotInclude
-#include "vtkOffsetsManagerArray.h"
-#undef  vtkOffsetsManager_DoNotInclude
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef  vtkXMLOffsetsManager_DoNotInclude
 
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
@@ -99,7 +99,7 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
     {
     // Create a subset of the coordinates array.
     int components = a->GetNumberOfComponents();
-    int tupleSize = components*this->GetWordTypeSize(a->GetDataType());
+    size_t tupleSize = components*this->GetWordTypeSize(a->GetDataType());
     vtkDataArray* b = a->NewInstance();
     b->SetNumberOfComponents(components);
     b->SetName(a->GetName());

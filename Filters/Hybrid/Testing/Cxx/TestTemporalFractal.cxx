@@ -25,7 +25,6 @@
 #include "vtkActor.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkSmartPointer.h"
-#include "vtkTemporalDataSet.h"
 #include "vtkThreshold.h"
 #include "vtkTemporalInterpolator.h"
 #include "vtkPolyDataMapper.h"
@@ -88,18 +87,17 @@ int TestTemporalFractal(int argc, char *argv[])
   renWin->AddRenderer( renderer );
   renWin->SetSize( 300, 300 );
   iren->SetRenderWindow( renWin );
-  renWin->Render();
 
   // ask for some specific data points
   vtkStreamingDemandDrivenPipeline *sdd =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
-  double times[1];
-  times[0] = -0.6;
+  sdd->UpdateInformation();
+  double time = -0.6;
   int i;
   for (i = 0; i < 10; ++i)
     {
-    times[0] = i/25.0 - 0.5;
-    sdd->SetUpdateTimeSteps(0, times, 1);
+    time = i/25.0 - 0.5;
+    sdd->SetUpdateTimeStep(0, time);
     mapper->Modified();
     renderer->ResetCameraClippingRange();
     renWin->Render();

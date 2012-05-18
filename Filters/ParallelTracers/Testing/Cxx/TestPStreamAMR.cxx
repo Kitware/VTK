@@ -15,7 +15,7 @@
 #include "TestVectorFieldSource.h"
 #include "vtkCellData.h"
 #include "vtkCellArray.h"
-#include <vtkDistributedStreamTracer.h>
+#include <vtkPStreamTracer.h>
 #include <vtkMPIController.h>
 #include <vtkIdList.h>
 #include <vtkPoints.h>
@@ -193,7 +193,7 @@ int main( int argc, char* argv[] )
   vtkNew<TestAMRVectorSource> gradientSource;
   gradientSource->SetInputConnection(imageSource->GetOutputPort());
 
-  vtkNew<vtkDistributedStreamTracer> tracer;
+  vtkNew<vtkPStreamTracer> tracer;
   tracer->SetInputConnection(0,gradientSource->GetOutputPort());
   tracer->SetInputArrayToProcess(0, 0, 0,
                                  vtkDataObject::FIELD_ASSOCIATION_CELLS,

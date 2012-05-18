@@ -93,11 +93,10 @@ int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
       ->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if (inTimes)
       {
-      double timeReq[1];
-      timeReq[0] = inTimes[this->CurrentTimeIndex];
+      double timeReq = inTimes[this->CurrentTimeIndex];
       inputVector[0]->GetInformationObject(0)->Set
-        ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS(),
-          timeReq, 1);
+        ( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+          timeReq);
       }
     return 1;
     }
@@ -138,13 +137,13 @@ int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
       {
       output->GetPointData()->GetArray("TimeData")->SetTuple1
         (this->CurrentTimeIndex,
-         input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
+         input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
       }
     else
       {
       output->GetPointData()->GetArray("Time")->SetTuple1
         (this->CurrentTimeIndex,
-         input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEPS())[0]);
+         input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
       }
 
 

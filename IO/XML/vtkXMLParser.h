@@ -47,14 +47,14 @@ public:
   // Get/Set the input stream.
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
-  //ETX
 
   // Description:
   // Used by subclasses and their supporting classes.  These methods
   // wrap around the tellg and seekg methods of the input stream to
   // work-around stream bugs on various platforms.
-  long TellG();
-  void SeekG(long position);
+  vtkTypeInt64 TellG();
+  void SeekG(vtkTypeInt64 position);
+  //ETX
 
   // Description:
   // Parse the XML input.
@@ -166,7 +166,7 @@ protected:
   virtual void ReportXmlParseError();
 
   // Get the current byte index from the beginning of the XML stream.
-  unsigned long GetXMLByteIndex();
+  vtkTypeInt64 GetXMLByteIndex();
 
   // Send the given buffer to the XML parser.
   virtual int ParseBuffer(const char* buffer, unsigned int count);

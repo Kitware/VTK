@@ -67,8 +67,7 @@ vtkDataObject* vtkMultiBlockDataSet::GetBlock(unsigned int blockno)
 void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
 {
   if (block && block->IsA("vtkCompositeDataSet") &&
-    !block->IsA("vtkMultiBlockDataSet") && !block->IsA("vtkMultiPieceDataSet") &&
-    !block->IsA("vtkTemporalDataSet"))
+    !block->IsA("vtkMultiBlockDataSet") && !block->IsA("vtkMultiPieceDataSet"))
     {
     vtkErrorMacro(<< block->GetClassName() << " cannot be added as a block.");
     return;

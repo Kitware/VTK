@@ -28,9 +28,9 @@
 #include "vtkIntArray.h"
 #include "vtkErrorCode.h"
 
-#define vtkOffsetsManager_DoNotInclude
-#include "vtkOffsetsManagerArray.h"
-#undef  vtkOffsetsManager_DoNotInclude
+#define vtkXMLOffsetsManager_DoNotInclude
+#include "vtkXMLOffsetsManager.h"
+#undef  vtkXMLOffsetsManager_DoNotInclude
 
 
 vtkStandardNewMacro(vtkXMLHyperOctreeWriter);

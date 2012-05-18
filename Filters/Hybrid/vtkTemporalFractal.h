@@ -26,7 +26,7 @@
 #define __vtkTemporalFractal_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
-#include "vtkTemporalDataSetAlgorithm.h"
+#include "vtkAlgorithm.h"
 
 class vtkCompositeDataSet;
 class vtkDataSet;
@@ -35,11 +35,11 @@ class vtkIntArray;
 class vtkRectilinearGrid;
 class vtkUniformGrid;
 
-class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal : public vtkTemporalDataSetAlgorithm
+class VTKFILTERSHYBRID_EXPORT vtkTemporalFractal: public vtkAlgorithm
 {
 public:
   static vtkTemporalFractal *New();
-  vtkTypeMacro(vtkTemporalFractal,vtkTemporalDataSetAlgorithm);
+  vtkTypeMacro(vtkTemporalFractal,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -104,9 +104,24 @@ protected:
   vtkTemporalFractal();
   ~vtkTemporalFractal();
 
+  virtual int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info);
+
   int StartBlock;
   int EndBlock;
   int BlockCount;
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+
+  // Description:
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual int RequestDataObject(vtkInformation*,
+                                vtkInformationVector**,
+                                vtkInformationVector*);
 
   // Description:
   // This is called by the superclass.

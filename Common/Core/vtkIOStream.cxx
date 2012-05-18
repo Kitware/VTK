@@ -18,24 +18,10 @@
 # ifdef _MSC_VER
 #  pragma warning (push, 1)
 # endif
-# if defined(VTK_USE_ANSI_STDLIB)
-#  include <iostream>
-// trick cvs into allowing this pre-existing "std"...
-#  define stl std
-   using stl::istream;
-   using stl::ostream;
-   using stl::ios_base;
-# else
-#  include <string.h> // memchr
-#  include <stdio.h> // sscanf, sprintf
-#  if defined(__HP_aCC)
-#   define protected public
-#   include <iostream.h> // Hack access to some private stream methods.
-#   undef protected
-#  else
-#   include <iostream.h>
-#  endif
-# endif
+# include <iostream>
+   using std::istream;
+   using std::ostream;
+   using std::ios_base;
 # ifdef _MSC_VER
 #  pragma warning (pop)
 # endif
@@ -45,10 +31,6 @@
 #include "vtkIOStream.h"
 
 #if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
-
-# if !defined(VTK_USE_ANSI_STDLIB)
-#  define ios_base ios
-# endif
 
 # if defined(_MAX_INT_DIG)
 #  define VTK_TYPE_INT64_MAX_DIG _MAX_INT_DIG
@@ -145,18 +127,11 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
   int state = ios_base::goodbit;
 
   // Skip leading whitespace.
-# if defined(VTK_USE_ANSI_STDLIB)
   istream::sentry okay(is);
-# else
-  is.eatwhite();
-  istream& okay = is;
-# endif
 
   if(okay)
     {
-#   if defined(VTK_USE_ANSI_STDLIB)
     try {
-#   endif
     // Copy the string to a buffer and construct the format string.
     char buffer[VTK_TYPE_INT64_MAX_DIG];
 #   if defined(_MSC_VER)
@@ -182,16 +157,10 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
     if(is.peek() == EOF) { state |= ios_base::eofbit; }
     if(!success) { state |= ios_base::failbit; }
     else { value = result; }
-#   if defined(VTK_USE_ANSI_STDLIB)
     } catch(...) { state |= ios_base::badbit; }
-#   endif
     }
 
-# if defined(VTK_USE_ANSI_STDLIB)
   is.setstate(ios_base::iostate(state));
-# else
-  is.clear(state);
-# endif
   return is;
 }
 
@@ -199,16 +168,10 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
 template <class T>
 ostream& vtkIOStreamPrintTemplate(ostream& os, T value, char type)
 {
-# if defined(VTK_USE_ANSI_STDLIB)
   ostream::sentry okay(os);
-# else
-  ostream& okay = os;
-# endif
   if(okay)
     {
-#   if defined(VTK_USE_ANSI_STDLIB)
     try {
-#   endif
     // Construct the format string.
     char format[8];
     char* f = format;
@@ -232,9 +195,7 @@ ostream& vtkIOStreamPrintTemplate(ostream& os, T value, char type)
     char buffer[2*VTK_TYPE_INT64_MAX_DIG];
     sprintf(buffer, format, value);
     os << buffer;
-#   if defined(VTK_USE_ANSI_STDLIB)
     } catch(...) { os.clear(os.rdstate() | ios_base::badbit); }
-#   endif
     }
   return os;
 }

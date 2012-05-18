@@ -3,8 +3,8 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   SLACReaderLinear.cxx
   SLACReaderQuadratic.cxx
   TestMPASReader.cxx
-  # TestNetCDFCAMReader.cxx # todo
-  # TestNetCDFPOPReader.cxx # todo
+  TestNetCDFCAMReader.cxx
+  TestNetCDFPOPReader.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

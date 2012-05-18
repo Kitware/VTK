@@ -121,9 +121,6 @@
 /* Whether vtkIdType is a 64-bit integer type (or a 32-bit integer type).  */
 #cmakedefine VTK_USE_64BIT_IDS
 
-/* Whether we are using ANSI C++ streams (or old-style streams).  */
-#cmakedefine VTK_USE_ANSI_STDLIB
-
 /* Whether we are linking to Tcl/Tk statically.  */
 #cmakedefine VTK_TCL_TK_STATIC
 
@@ -156,6 +153,11 @@
 
 /*--------------------------------------------------------------------------*/
 /* Setup VTK based on platform features and configuration.                  */
+
+/* We now always use standard streams.  */
+#ifndef VTK_LEGACY_REMOVE
+# define VTK_USE_ANSI_STDLIB
+#endif
 
 /* Setup vtkstd, a portable namespace for std.  */
 #ifndef VTK_LEGACY_REMOVE

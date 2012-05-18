@@ -1,0 +1,13 @@
+vtk_module(vtkDomainsChemistry
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkIOXML
+    vtkRenderingCore
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRenderingOpenGL
+  )

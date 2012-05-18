@@ -23,7 +23,7 @@
 #include "vtkImageProperty.h"
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
-#include "vtkGraphicsFactory.h"
+#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -31,16 +31,8 @@
 vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
-// Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkImageSliceMapper);
-
-//----------------------------------------------------------------------------
-vtkImageSliceMapper* vtkImageSliceMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkImageSliceMapper");
-  return static_cast<vtkImageSliceMapper *>(ret);
-}
+// Return NULL if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkImageSliceMapper)
 
 //----------------------------------------------------------------------------
 vtkImageSliceMapper::vtkImageSliceMapper()

@@ -359,7 +359,7 @@ IF (HDF5_ENABLE_PARALLEL)
     # MPI checks, only do these if MPI_FOUND is true, otherwise they always fail
     # and once set, they are cached as false and not regenerated
     SET (CMAKE_REQUIRED_INCLUDES "${MPI_INCLUDE_PATH}/mpi.h" )
-    SET (CMAKE_REQUIRED_LIBRARIES "${MPI_LIBRARY}" )
+    SET (CMAKE_REQUIRED_LIBRARIES "${MPI_LIBRARIES}" )
     CHECK_FUNCTION_EXISTS (MPI_File_get_size H5_HAVE_MPI_GET_SIZE) 
     # Used by Fortran + MPI
     CHECK_SYMBOL_EXISTS (MPI_Comm_c2f "${MPI_INCLUDE_PATH}/mpi.h"  H5_HAVE_MPI_MULTI_LANG_Comm)
@@ -369,13 +369,10 @@ ENDIF (HDF5_ENABLE_PARALLEL)
 
 # Parallel IO usage requires MPI to be Linked and Included
 IF (H5_HAVE_PARALLEL)
-  SET (LINK_LIBS ${LINK_LIBS} ${MPI_LIBRARY})
+  SET (LINK_LIBS ${LINK_LIBS} ${MPI_LIBRARIES})
   IF (MPI_LINK_FLAGS)
     SET (CMAKE_EXE_LINKER_FLAGS ${MPI_LINK_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
   ENDIF (MPI_LINK_FLAGS)
-  IF (MPI_EXTRA_LIBRARY)
-    SET (LINK_LIBS ${LINK_LIBS} ${MPI_EXTRA_LIBRARY})
-  ENDIF (MPI_EXTRA_LIBRARY)
 ENDIF (H5_HAVE_PARALLEL)
 
 #-----------------------------------------------------------------------------

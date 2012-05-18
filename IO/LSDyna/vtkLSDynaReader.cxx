@@ -3425,21 +3425,21 @@ int vtkLSDynaReader::RequestData(
     return 0;
     }
 
-  if ( oi->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() ) )
+  if ( oi->Has( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP() ) )
     {
     // Only return single time steps for now.
-    double* requestedTimeSteps = oi->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEPS() );
+    double requestedTimeStep = oi->Get( vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     int timeStepLen = oi->Length( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
     double* timeSteps = oi->Get( vtkStreamingDemandDrivenPipeline::TIME_STEPS() );
 
     int cnt = 0;
-    while ( cnt < timeStepLen - 1 && timeSteps[cnt] < requestedTimeSteps[0] )
+    while ( cnt < timeStepLen - 1 && timeSteps[cnt] < requestedTimeStep )
       {
       ++cnt;
       }
     this->SetTimeStep( cnt );
 
-    oi->Set( vtkDataObject::DATA_TIME_STEPS(), &p->TimeValues[ p->CurrentState ], 1 );
+    oi->Set( vtkDataObject::DATA_TIME_STEP(), p->TimeValues[ p->CurrentState ] );
     }
 
   mbds = vtkMultiBlockDataSet::SafeDownCast( oi->Get(vtkDataObject::DATA_OBJECT()) );
