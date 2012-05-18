@@ -244,13 +244,12 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
 void vtkContextActor::Initialize(vtkViewport* viewport)
 {
   vtkContextDevice2D *device = NULL;
+  vtkNew<vtkOpenGLContextDevice3D> dev;
+  this->Context3D->Begin(dev.GetPointer());
   if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
     {
     vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
     device = vtkOpenGL2ContextDevice2D::New();
-    vtkContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
-    this->Context3D->Begin(dev);
-    dev->Delete();
     }
   else
     {
