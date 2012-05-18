@@ -40,6 +40,7 @@ SET(RenderingTestsWithArguments
   TestImageSliceMapperOrient3D.cxx
   TestImageSliceMapperInterpolation.cxx
   TestImageStack.cxx
+  TestInteractorStyleImageProperty.cxx
   TestInteractorTimers.cxx
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx
