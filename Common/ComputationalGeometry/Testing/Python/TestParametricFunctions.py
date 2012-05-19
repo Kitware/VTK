@@ -15,7 +15,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # ------------------------------------------------------------
 
 class TestParametricFunctions(vtk.test.Testing.vtkTest):
-    def TestParametricFunctions(self):
+    def testParametricFunctions(self):
         # ------------------------------------------------------------
         # Get a texture
         # ------------------------------------------------------------
