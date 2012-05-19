@@ -25,9 +25,18 @@ vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor 0.7 0.3 0.3
 
+vtkOutlineCornerFilter outline
+    outline SetInputConnection [reader GetOutputPort]
+vtkPolyDataMapper outlineMapper
+    outlineMapper SetInputConnection [outline GetOutputPort]
+vtkActor outlineActor
+    outlineActor SetMapper outlineMapper
+    [outlineActor GetProperty] SetColor 0 0 0
+
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor isoActor
+ren1 AddActor outlineActor
 ren1 SetBackground 1 1 1
 renWin SetSize 400 400
 eval ren1 SetBackground 0.5 0.5 0.6
