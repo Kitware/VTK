@@ -64,6 +64,7 @@ vtkHardwareSelector::vtkHardwareSelector()
   this->CurrentPass = -1;
   this->ProcessID = -1;
   this->InPropRender = 0;
+  this->UseProcessIdFromData = false;
 }
 
 //----------------------------------------------------------------------------
@@ -356,6 +357,25 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
         vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
       break;
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkHardwareSelector::RenderProcessId(unsigned int processid)
+{
+  if (this->CurrentPass == PROCESS_PASS && this->UseProcessIdFromData)
+    {
+    if (processid >= 0xffffff)
+      {
+      vtkErrorMacro("Invalid id: " << processid);
+      return;
+      }
+
+    float color[3];
+    vtkHardwareSelector::Convert(
+      static_cast<int>(processid + 1), color);
+    this->Renderer->GetRenderWindow()->GetPainterDeviceAdapter()->SendAttribute(
+      vtkDataSetAttributes::SCALARS, 3, VTK_FLOAT, color);
     }
 }
 
@@ -716,6 +736,7 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Area: " << this->Area[0] << ", " << this->Area[1] << ", "
     << this->Area[2] << ", " << this->Area[3] << endl;
   os << indent << "Renderer: " << this->Renderer << endl;
-
+  os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData <<
+    endl;
 }
 

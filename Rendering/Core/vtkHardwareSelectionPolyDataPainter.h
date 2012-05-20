@@ -41,6 +41,23 @@ public:
   vtkGetMacro(EnableSelection, int);
   vtkBooleanMacro(EnableSelection, int);
 
+  // Description:
+  // By default, this painters uses the dataset's point and cell ids during
+  // rendering. However, one can override those by specifying cell and point
+  // data arrays to use instead. Currently, only vtkIdType array is supported.
+  // Set to NULL string (default) to use the point ids instead.
+  vtkSetStringMacro(PointIdArrayName);
+  vtkGetStringMacro(PointIdArrayName);
+  vtkSetStringMacro(CellIdArrayName);
+  vtkGetStringMacro(CellIdArrayName);
+
+  // Description:
+  // If the painter should override the process id using a data-array,
+  // set this variable to the name of the array to use. It must be a
+  // point-array.
+  vtkSetStringMacro(ProcessIdArrayName);
+  vtkGetStringMacro(ProcessIdArrayName);
+
 //BTX
 protected:
   vtkHardwareSelectionPolyDataPainter();
@@ -57,6 +74,9 @@ protected:
 
   int EnableSelection;
   vtkIdType TotalCells;
+  char* PointIdArrayName;
+  char* CellIdArrayName;
+  char* ProcessIdArrayName;
 private:
   vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
   void operator=(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
