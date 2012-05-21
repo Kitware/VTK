@@ -14,17 +14,19 @@
 =========================================================================*/
 #include "vtkHardwareSelectionPolyDataPainter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkHardwareSelector.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPainterDeviceAdapter.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
-#include "vtkHardwareSelector.h"
-#include "vtkPointData.h"
+#include "vtkUnsignedIntArray.h"
 
 vtkStandardNewMacro(vtkHardwareSelectionPolyDataPainter);
 //-----------------------------------------------------------------------------
@@ -46,11 +48,17 @@ static inline int vtkHardwareSelectionPolyDataPainterGetTotalCells(vtkPolyData* 
 vtkHardwareSelectionPolyDataPainter::vtkHardwareSelectionPolyDataPainter()
 {
   this->EnableSelection = 1;
+  this->PointIdArrayName = NULL;
+  this->CellIdArrayName = NULL;
+  this->ProcessIdArrayName = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkHardwareSelectionPolyDataPainter::~vtkHardwareSelectionPolyDataPainter()
 {
+  this->SetPointIdArrayName(NULL);
+  this->SetCellIdArrayName(NULL);
+  this->SetProcessIdArrayName(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -155,6 +163,15 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   vtkPoints* p = pd->GetPoints();
   vtkIdType npts, *pts;
   vtkIdType cellId = startCellId;
+  vtkUnsignedIntArray* procIdsArray = this->ProcessIdArrayName?
+    vtkUnsignedIntArray::SafeDownCast(
+      pd->GetPointData()->GetArray(this->ProcessIdArrayName)) : NULL;
+
+  vtkIdTypeArray* pidArray = this->PointIdArrayName? vtkIdTypeArray::SafeDownCast(
+    pd->GetPointData()->GetArray(this->PointIdArrayName)) : NULL;
+
+  vtkIdTypeArray* cidArray = this->CellIdArrayName? vtkIdTypeArray::SafeDownCast(
+    pd->GetCellData()->GetArray(this->CellIdArrayName)) : NULL;
 
   int pointtype = p->GetDataType();
   void* voidpoints = p->GetVoidPointer(0);
@@ -167,7 +184,8 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
     if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_CELLS &&
       this->EnableSelection)
       {
-      selector->RenderAttributeId(cellId);
+      selector->RenderAttributeId(
+        cidArray? cidArray->GetValue(cellId) : cellId);
       }
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
       {
@@ -175,7 +193,13 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
       if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
         this->EnableSelection)
         {
-        selector->RenderAttributeId(pointId);
+        selector->RenderAttributeId(
+          pidArray? pidArray->GetValue(pointId) : pointId);
+        }
+      if (this->EnableSelection && procIdsArray &&
+        selector->GetUseProcessIdFromData())
+        {
+        selector->RenderProcessId(procIdsArray->GetPointer(0)[pointId]);
         }
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         pointtype, voidpoints, 3*pointId);
@@ -201,5 +225,8 @@ void vtkHardwareSelectionPolyDataPainter::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "EnableSelection: " << this->EnableSelection << endl;
+  os << indent << "CellIdArrayName: " <<
+    (this->CellIdArrayName? this->CellIdArrayName : NULL) << endl;
+  os << indent << "PointIdArrayName: " <<
+    (this->PointIdArrayName? this->PointIdArrayName: NULL) << endl;
 }
-
