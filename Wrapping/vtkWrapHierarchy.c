@@ -39,6 +39,7 @@
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
+#include "vtkParseMain.h"
 #include "vtkParsePreprocess.h"
 #include <stdio.h>
 #include <string.h>
@@ -911,79 +912,34 @@ static int string_compare(const void *vp1, const void *vp2)
 
 int main(int argc, char *argv[])
 {
-  int usage_error = 0;
-  char *output_filename = 0;
-  int i, argi;
+  OptionInfo *options;
+  int i;
   size_t j, n;
   char **lines = 0;
   char **files = 0;
   char *flags;
   char *module_name;
-  char *option;
-  char *optionarg;
-  const char *optionargval;
 
   /* parse command-line options */
-  for (argi = 1; argi < argc && argv[argi][0] == '-'; argi++)
-    {
-    if (strncmp(argv[argi], "-o", 2) == 0 ||
-        strncmp(argv[argi], "-I", 2) == 0 ||
-        strncmp(argv[argi], "-D", 2) == 0 ||
-        strncmp(argv[argi], "-U", 2) == 0)
-      {
-      option = argv[argi];
-      optionarg = &argv[argi][2];
-      if (argv[argi][2] == '\0')
-        {
-        argi++;
-        if (argi >= argc || argv[argi][0] == '-')
-          {
-          usage_error = 1;
-          break;
-          }
-        optionarg = argv[argi];
-        }
-      if (strncmp(option, "-o", 2) == 0)
-        {
-        output_filename = optionarg;
-        }
-      else if (strncmp(option, "-I", 2) == 0)
-        {
-        vtkParse_IncludeDirectory(optionarg);
-        }
-      else if (strncmp(option, "-D", 2) == 0)
-        {
-        optionargval = "1";
-        j = 0;
-        while (optionarg[j] != '\0' && optionarg[j] != '=') { j++; }
-        if (optionarg[j] == '=')
-          {
-          optionargval = &optionarg[j+1];
-          }
-        vtkParse_DefineMacro(optionarg, optionargval);
-        }
-      else if (strncmp(option, "-U", 2) == 0)
-        {
-        vtkParse_UndefineMacro(optionarg);
-        }
-      }
-    }
+  vtkParse_MainMulti(argc, argv);
+  options = vtkParse_GetCommandLineOptions();
 
-  if (usage_error || !output_filename || argc - argi < 1)
+  /* make sure than an output file was given on the command line */
+  if (options->OutputFileName == NULL)
     {
-    fprintf(stderr,
-            "Usage: %s -o output_file data_file [files_to_merge]\n",
-            argv[0]);
+    fprintf(stderr, "No output file was specified\n");
     exit(1);
     }
 
   /* read the data file */
-  files = vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], files);
+  files = vtkWrapHierarchy_TryReadHierarchyFile(
+    options->InputFileName, files);
 
   /* read in all the prior files */
-  while (argi < argc)
+  for (i = 1; i < options->NumberOfFiles; i++)
     {
-    lines = vtkWrapHierarchy_TryReadHierarchyFile(argv[argi++], lines);
+    lines = vtkWrapHierarchy_TryReadHierarchyFile(
+      options->Files[i], lines);
     }
 
   /* merge the files listed in the data file */
@@ -1008,7 +964,7 @@ int main(int argc, char *argv[])
   qsort(lines, n, sizeof(char *), &string_compare);
 
   /* write the file, if it has changed */
-  vtkWrapHierarchy_TryWriteHierarchyFile(output_filename, lines);
+  vtkWrapHierarchy_TryWriteHierarchyFile(options->OutputFileName, lines);
 
   for (j = 0; j < n; j++)
     {

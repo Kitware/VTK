@@ -44,46 +44,36 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
   # start writing the input file for the init file
   set(VTK_WRAPPER_INIT_DATA "${TARGET}")
 
-  get_directory_property(TMP_DEF_LIST DEFINITION COMPILE_DEFINITIONS)
-  set(TMP_DEFINITIONS)
-  foreach(TMP_DEF ${TMP_DEF_LIST})
-    set(TMP_DEFINITIONS ${TMP_DEFINITIONS} -D "${quote}${TMP_DEF}${quote}")
-  endforeach()
-
+  # all the include directories
   if(VTK_WRAP_INCLUDE_DIRS)
     set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
   else()
     set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
   endif()
-  set(TMP_INCLUDE)
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(TMP_INCLUDE ${TMP_INCLUDE} -I "${quote}${INCLUDE_DIR}${quote}")
-  endforeach()
 
+  # collect the common wrapper-tool arguments
+  set(_common_args)
+  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+  foreach(TMP_DEF ${_def_list})
+    set(_common_args "${_common_args}-D${TMP_DEF}\n")
+  endforeach()
+  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+  endforeach()
   if(VTK_WRAP_HINTS)
-    set(TMP_HINTS "--hints" "${quote}${VTK_WRAP_HINTS}${quote}")
-  else()
-    unset(TMP_HINTS)
+    set(_common_args "${_common_args}--hints \"${VTK_WRAP_HINTS}\"\n")
   endif()
-
   if(KIT_HIERARCHY_FILE)
-    set(TMP_HIERARCHY "--types" "${quote}${KIT_HIERARCHY_FILE}${quote}")
-  else(K)
-    unset(TMP_HIERARCHY)
+    set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
   endif()
 
-  set(_include_dirs_file)
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(_include_dirs_file "${_include_dirs_file}${INCLUDE_DIR}\n")
-  endforeach()
-
-  string(STRIP "${_include_dirs_file}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  set(_target_includes_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.inc)
+  # write wrapper-tool arguments to a file
+  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${_target_includes_file} @ONLY)
-  set(_target_includes --includes ${_target_includes_file})
+                 ${_args_file} @ONLY)
 
-  # For each class
+  # for each class
   foreach(FILE ${SOURCES})
     # should we wrap the file?
     get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
@@ -131,16 +121,13 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
       # add custom command to output
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
-        DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_target_includes_file}
+        DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
           ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
           ARGS
           ${TMP_CONCRETE}
           ${TMP_SPECIAL}
-          ${TMP_HINTS}
-          ${TMP_HIERARCHY}
-          ${TMP_DEFINITIONS}
-          ${_target_includes}
+          "${quote}@${_args_file}${quote}"
           "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
           "${quote}${TMP_INPUT}${quote}"
         COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"

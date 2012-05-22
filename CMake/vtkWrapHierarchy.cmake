@@ -16,25 +16,28 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     set(quote "")
   endif()
 
-  # all the compiler "-D" args
-  get_directory_property(TMP_DEF_LIST
-    DIRECTORY ${${vtk-module}_SOURCE_DIR}
-    DEFINITION COMPILE_DEFINITIONS)
-  set(TMP_DEFINITIONS)
-  foreach(TMP_DEF ${TMP_DEF_LIST})
-    set(TMP_DEFINITIONS ${TMP_DEFINITIONS} -D "${quote}${TMP_DEF}${quote}")
-  endforeach()
-
   # all the include directories
   if(VTK_WRAP_INCLUDE_DIRS)
     set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
   else()
     set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
   endif()
-  set(TMP_INCLUDE)
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(TMP_INCLUDE ${TMP_INCLUDE} -I "${quote}${INCLUDE_DIR}${quote}")
+
+  # collect the common wrapper-tool arguments
+  set(_common_args)
+  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+  foreach(TMP_DEF ${_def_list})
+    set(_common_args "${_common_args}-D${TMP_DEF}\n")
   endforeach()
+  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+  endforeach()
+
+  # write wrapper-tool arguments to a file
+  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
+  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                 ${_args_file} @ONLY)
 
   # list of all files to wrap
   set(VTK_WRAPPER_INIT_DATA)
@@ -130,8 +133,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     add_custom_command(
       TARGET ${vtk-module} POST_BUILD
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-        ${TMP_DEFINITIONS}
-        ${TMP_INCLUDE}
+        "${quote}@${_args_file}${quote}"
         "-o" "${quote}${OUTPUT_DIR}/${vtk-module}Hierarchy.txt${quote}"
         "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
         ${OTHER_HIERARCHY_FILES}
@@ -154,14 +156,13 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       OUTPUT ${OUTPUT_DIR}/${TARGET}.target
       ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt
       DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
-      ${OUTPUT_DIR}/${TARGET}.data ${INPUT_FILES}
+      ${_args_file} ${OUTPUT_DIR}/${TARGET}.data ${INPUT_FILES}
 
       COMMAND ${CMAKE_COMMAND}
       "-E" "touch" "${quote}${OUTPUT_DIR}/${TARGET}.target${quote}"
 
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-      ${TMP_DEFINITIONS}
-      ${TMP_INCLUDE}
+      "${quote}@${_args_file}${quote}"
       "-o" "${quote}${OUTPUT_DIR}/${vtk-module}Hierarchy.txt${quote}"
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
@@ -176,8 +177,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
       TARGET ${vtk-module} POST_BUILD
 
       COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-      ${TMP_DEFINITIONS}
-      ${TMP_INCLUDE}
+      "${quote}@${_args_file}${quote}"
       "-o" "${quote}${OUTPUT_DIR}/${vtk-module}Hierarchy.txt${quote}"
       "${quote}${OUTPUT_DIR}/${TARGET}.data${quote}"
       ${OTHER_HIERARCHY_FILES}
