@@ -399,6 +399,7 @@ int TestCorrelativeStatistics( int, char *[] )
   // Update with Learn option only
   cs2->SetLearnOption( true );
   cs2->SetDeriveOption( false );
+  cs2->SetTestOption( false );
   cs2->SetAssessOption( false );
   cs2->Update();
 
