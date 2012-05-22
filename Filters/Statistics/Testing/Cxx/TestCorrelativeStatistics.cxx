@@ -388,7 +388,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   // Select all column pairs as pairs of interest
   for ( int i = 0; i< nMetricPairs; ++ i )
-    {  // Add all valid pairs
+    {
     cs2->AddColumnPair( columnPairs[2 * i], columnPairs[ 2 * i + 1] );
     }
 
