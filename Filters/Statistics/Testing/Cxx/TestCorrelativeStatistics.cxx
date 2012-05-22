@@ -386,7 +386,7 @@ int TestCorrelativeStatistics( int, char *[] )
   vtkCorrelativeStatistics* cs2 = vtkCorrelativeStatistics::New();
   cs2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
 
-  // Select all column pairs as pairs of interest
+  // Select all valid column pairs as pairs of interest
   for ( int i = 0; i< nMetricPairs; ++ i )
     {
     cs2->AddColumnPair( columnPairs[2 * i], columnPairs[ 2 * i + 1] );
@@ -444,7 +444,7 @@ int TestCorrelativeStatistics( int, char *[] )
   double meansY0[] = { 49.5, 0. };
   double varsY0[] = { 7.548397 * 62. / 63., 64. / 63. };
 
-  // Pearson r for each of the three pairs
+  // Pearson r for each of the two pairs
   double correlations0[] = { 0.895327, 0. };
 
   // Get output meta tables
