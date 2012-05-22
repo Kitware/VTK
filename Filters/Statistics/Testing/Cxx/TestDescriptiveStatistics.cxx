@@ -442,9 +442,9 @@ int TestDescriptiveStatistics( int, char *[] )
   vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
   model->ShallowCopy( outputMetaDS1 );
   ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model );
-  model->Delete();
 
   // Clean up
+  model->Delete();
   datasetTable2->Delete();
   ds2->Delete();
 
