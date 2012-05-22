@@ -175,7 +175,7 @@ int TestCorrelativeStatistics( int, char *[] )
   cs1->SetLearnOption( true );
   cs1->SetDeriveOption( true );
   cs1->SetAssessOption( true );
-  cs1->SetTestOption( false );
+  cs1->SetTestOption( true );
   cs1->Update();
 
   // Get output data and meta tables
