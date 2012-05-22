@@ -139,15 +139,53 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
 
       // Get aggregated statistics
       int n = aggregatedTab->GetValueByName( r, "Cardinality" ).ToInt();
+      double meanXs = aggregatedTab->GetValueByName( r, "Mean Xs" ).ToDouble();
+      double meanXt = aggregatedTab->GetValueByName( r, "Mean Xt" ).ToDouble();
+      double M2Xs = aggregatedTab->GetValueByName( r, "M2 Xs" ).ToDouble();
+      double M2Xt = aggregatedTab->GetValueByName( r, "M2 Xt" ).ToDouble();
+      double MXsXt = aggregatedTab->GetValueByName( r, "M XsXt" ).ToDouble();
 
       // Get current model statistics
       int n_c = primaryTab->GetValueByName( r, "Cardinality" ).ToInt();
+      double meanXs_c = primaryTab->GetValueByName( r, "Mean Xs" ).ToDouble();
+      double meanXt_c = primaryTab->GetValueByName( r, "Mean Xt" ).ToDouble();
+      double M2Xs_c = primaryTab->GetValueByName( r, "M2 Xs" ).ToDouble();
+      double M2Xt_c = primaryTab->GetValueByName( r, "M2 Xt" ).ToDouble();
+      double MXsXt_c = primaryTab->GetValueByName( r, "M XsXt" ).ToDouble();
 
       // Update global statics
       int N = n + n_c;
 
+      double invN = 1. / static_cast<double>( N );
+
+      double deltaXs = meanXs_c - meanXs;
+      double deltaXs_sur_N = deltaXs * invN;
+
+      double deltaXt = meanXt_c - meanXt;
+      double deltaXt_sur_N = deltaXt * invN;
+
+      int prod_n = n * n_c;
+
+      M2Xs += M2Xs_c
+        + prod_n * deltaXs * deltaXs_sur_N;
+
+      M2Xt += M2Xt_c
+        + prod_n * deltaXt * deltaXt_sur_N;
+
+      MXsXt += MXsXt_c
+        + prod_n * deltaXs * deltaXt_sur_N;
+
+      meanXs += n_c * deltaXs_sur_N;
+
+      meanXt += n_c * deltaXt_sur_N;
+
       // Store updated model
       aggregatedTab->SetValueByName( r, "Cardinality", N );
+      aggregatedTab->SetValueByName( r, "Mean Xs", meanXs );
+      aggregatedTab->SetValueByName( r, "Mean Xt", meanXt );
+      aggregatedTab->SetValueByName( r, "M2 Xs", M2Xs );
+      aggregatedTab->SetValueByName( r, "M2 Xt", M2Xt );
+      aggregatedTab->SetValueByName( r, "M XsXt", MXsXt );
       }
     }
 
