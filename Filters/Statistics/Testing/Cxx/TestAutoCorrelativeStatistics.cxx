@@ -284,10 +284,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as1->Update();
 
   // Updated reference values
-  // Means, variances, and Pearson r for metrics 0 and 1, respectively
+  // Means and variances for metrics 0 and 1, respectively
   double meansXs0[] = { 49.71875 , 49.5 };
   double varsXs0[] = { 6.1418651 , 7.548397 * 62. / 63. };
-  double correlations0[] = { 0.895327, 0. };
 
   // Get output meta tables
   outputMetaAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
@@ -331,12 +330,6 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     if ( fabs ( outputDerived1->GetValueByName( r, "Variance Xs" ).ToDouble() - varsXs0[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for Xs");
-      testStatus = 1;
-      }
-
-    if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - correlations0[r] ) > 1.e-6 )
-      {
-      vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
       }
     cout << "\n";
