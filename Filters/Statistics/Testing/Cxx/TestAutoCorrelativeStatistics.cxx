@@ -121,7 +121,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Reference values
   // Means for metrics 0 and 1 respectively
-  double means1[] = { 49.21875 , 49.5 };
+  double meansXs1[] = { 49.21875 , 49.5 };
 
   // Standard deviations for metrics 0 and 1, respectively
   double vars1[] = { 5.9828629, 7.548397 };
@@ -138,7 +138,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
-  // Select Columns of Interest
+  // Select columns of interest
   for ( int i = 0; i < nMetrics1; ++ i )
     {
     as1->AddColumn( columns1[i] );
@@ -146,9 +146,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Take autocorrelation of whole data set with respect to itself
   // NB: Not setting the time lag on purpose, as 0 should be the default
-  as1->SetSliceCardinality( 32 ); 
+  as1->SetSliceCardinality( nVals1 ); 
 
-  // Test Learn, and Derive options
+  // Test Learn and Derive options
   as1->SetLearnOption( true );
   as1->SetDeriveOption( true );
   as1->SetAssessOption( false );
@@ -173,7 +173,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Xs" ).ToDouble() - means1[r] ) > 1.e-6 )
+    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs1[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
@@ -197,6 +197,151 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     if ( fabs ( outputDerived1->GetValueByName( r, "Variance Xs" ).ToDouble() - vars1[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance");
+      testStatus = 1;
+      }
+    cout << "\n";
+    }
+
+  // Test with a slight variation of initial data set (to test model aggregation)
+  int nVals2 = 32;
+
+  vtkDoubleArray* dataset4Arr = vtkDoubleArray::New();
+  dataset4Arr->SetNumberOfComponents( 1 );
+  dataset4Arr->SetName( "Metric 0" );
+
+  vtkDoubleArray* dataset5Arr = vtkDoubleArray::New();
+  dataset5Arr->SetNumberOfComponents( 1 );
+  dataset5Arr->SetName( "Metric 1" );
+
+  for ( int i = 0; i < nVals2; ++ i )
+    {
+    int ti = i << 1;
+    dataset4Arr->InsertNextValue( mingledData[ti] + 1. );
+    dataset5Arr->InsertNextValue( mingledData[ti + 1] );
+    }
+
+  vtkTable* datasetTable2 = vtkTable::New();
+  datasetTable2->AddColumn( dataset4Arr );
+  dataset4Arr->Delete();
+  datasetTable2->AddColumn( dataset5Arr );
+  dataset5Arr->Delete();
+
+  // Set auto-correlative statistics algorithm and its input data port
+  vtkAutoCorrelativeStatistics* as2 = vtkAutoCorrelativeStatistics::New();
+  as2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+
+  // Select columns of interest
+  for ( int i = 0; i < nMetrics1; ++ i )
+    {
+    as2->AddColumn( columns1[i] );
+    }
+
+  // Take autocorrelation of whole data set with respect to itself
+  // NB: Not setting the time lag on purpose, as 0 should be the default
+  as2->SetSliceCardinality( nVals2 ); 
+
+  // Update with Learn option only
+  as2->SetLearnOption( true );
+  as2->SetDeriveOption( false );
+  as2->SetTestOption( false );
+  as2->SetAssessOption( false );
+  as2->Update();
+
+  // Get output meta tables
+  vtkMultiBlockDataSet* outputMetaAS2 = vtkMultiBlockDataSet::SafeDownCast( as2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary2 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 0 ) );
+
+  cout << "\n## Calculated the following primary statistics for second data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputPrimary2->GetColumnName( i )
+           << "="
+           << outputPrimary2->GetValue( r, i ).ToString()
+           << "  ";
+      }
+    cout << "\n";
+    }
+
+  // Test model aggregation by adding new data to engine which already has a model
+  as1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
+  model->ShallowCopy( outputMetaAS1 );
+  as1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model );
+
+  // Clean up
+  model->Delete();
+  datasetTable2->Delete();
+  as2->Delete();
+
+  // Update with Learn and Derive options only
+  as1->SetLearnOption( true );
+  as1->SetDeriveOption( true );
+  as1->SetTestOption( false );
+  as1->SetAssessOption( false );
+  as1->Update();
+
+  // Updated reference values
+  // Means and variances for metrics 0 and 1, respectively
+  double meansXs0[] = { 49.71875 , 49.5 };
+  double varsXs0[] = { 6.1418651 , 7.548397 * 62. / 63. };
+
+  // Get output meta tables
+  outputMetaAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  outputPrimary1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 0 ) );
+  outputDerived1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 1 ) );
+
+  cout << "\n## Calculated the following primary statistics for aggregated (first + second) data set:\n";
+  for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputPrimary1->GetColumnName( i )
+           << "="
+           << outputPrimary1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    // Verify some of the calculated primary statistics
+    if ( outputPrimary1->GetValueByName( r, "Cardinality" ).ToInt() != nVals1 + nVals2 )
+      {
+      vtkGenericWarningMacro("Incorrect cardinality");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs0[r] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean for Xs");
+      testStatus = 1;
+      }
+    cout << "\n";
+    }
+
+  cout << "\n## Calculated the following derived statistics for aggregated (first + second) data set:\n";
+  for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
+    {
+    cout << "   ";
+    for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
+      {
+      cout << outputDerived1->GetColumnName( i )
+           << "="
+           << outputDerived1->GetValue( r, i ).ToString()
+           << "  ";
+      }
+
+    // Verify some of the calculated derived statistics
+    if ( fabs ( outputDerived1->GetValueByName( r, "Variance Xs" ).ToDouble() - varsXs0[r] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect variance for Xs");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - 1. ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect Pearson correlation coefficient");
       testStatus = 1;
       }
     cout << "\n";
@@ -244,12 +389,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
 
   // Create input data table
-  vtkTable* datasetTable2 = vtkTable::New();
-  datasetTable2->AddColumn( lineArr );
+  vtkTable* datasetTable3 = vtkTable::New();
+  datasetTable3->AddColumn( lineArr );
   lineArr->Delete();
-  datasetTable2->AddColumn( vArr );
+  datasetTable3->AddColumn( vArr );
   vArr->Delete();
-  datasetTable2->AddColumn( circleArr );
+  datasetTable3->AddColumn( circleArr );
   circleArr->Delete();
 
   // Columns of interest
@@ -264,57 +409,57 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   // Reference values
   // Means of Xs for circle, line, and v-shaped variables respectively
   double halfNm1 = .5 * ( cardSlice - 1 );
-  double means2[] = { 0., halfNm1, cardTotal - halfNm1 };
+  double meansXs2[] = { 0., halfNm1, cardTotal - halfNm1 };
 
   // Pearson r values for circle, line, and v-shaped variables respectively
   double pearson2[] = { 0., 1., -1. };
 
   // Prepare autocorrelative statistics algorithm and its input data port
-  vtkAutoCorrelativeStatistics* as2 = vtkAutoCorrelativeStatistics::New();
-  as2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
-  datasetTable2->Delete();
+  vtkAutoCorrelativeStatistics* as3 = vtkAutoCorrelativeStatistics::New();
+  as3->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable3 );
+  datasetTable3->Delete();
 
   // Select Columns of Interest
   for ( int i = 0; i < nMetrics2; ++ i )
     {
-    as2->AddColumn( columns2[i] );
+    as3->AddColumn( columns2[i] );
     }
 
   // Set autocorrelation parameters for first slice against slice following midpoint
-  as2->SetSliceCardinality( cardSlice ); 
-  as2->SetTimeLag( nSteps / 2 ); 
+  as3->SetSliceCardinality( cardSlice ); 
+  as3->SetTimeLag( nSteps / 2 ); 
 
   // Test Learn, and Derive options
-  as2->SetLearnOption( true );
-  as2->SetDeriveOption( true );
-  as2->SetAssessOption( false );
-  as2->SetTestOption( false );
-  as2->Update();
+  as3->SetLearnOption( true );
+  as3->SetDeriveOption( true );
+  as3->SetAssessOption( false );
+  as3->SetTestOption( false );
+  as3->Update();
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaAS2 = vtkMultiBlockDataSet::SafeDownCast( as2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputPrimary2 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 0 ) );
-  vtkTable* outputDerived2 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 1 ) );
+  vtkMultiBlockDataSet* outputMetaAS3 = vtkMultiBlockDataSet::SafeDownCast( as3->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary3 = vtkTable::SafeDownCast( outputMetaAS3->GetBlock( 0 ) );
+  vtkTable* outputDerived3 = vtkTable::SafeDownCast( outputMetaAS3->GetBlock( 1 ) );
 
   cout << "\n## Calculated the following primary statistics for second data set:\n";
-  for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputPrimary3->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputPrimary3->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary2->GetColumnName( i )
+      cout << outputPrimary3->GetColumnName( i )
            << "="
-           << outputPrimary2->GetValue( r, i ).ToString()
+           << outputPrimary3->GetValue( r, i ).ToString()
            << "  ";
       }
 
     // Verify some of the calculated primary statistics
-    if ( outputPrimary2->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
+    if ( outputPrimary3->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
       {
       vtkGenericWarningMacro("Incorrect cardinality");
       testStatus = 1;
       }
-    if ( fabs ( outputPrimary2->GetValueByName( r, "Mean Xs" ).ToDouble() - means2[r] ) > 1.e-6 )
+    if ( fabs ( outputPrimary3->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs2[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect Xs mean");
       testStatus = 1;
@@ -323,19 +468,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     }
 
   cout << "\n## Calculated the following derived statistics for second data set:\n";
-  for ( vtkIdType r = 0; r < outputDerived2->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < outputDerived3->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputDerived2->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < outputDerived3->GetNumberOfColumns(); ++ i )
       {
-      cout << outputDerived2->GetColumnName( i )
+      cout << outputDerived3->GetColumnName( i )
            << "="
-           << outputDerived2->GetValue( r, i ).ToString()
+           << outputDerived3->GetValue( r, i ).ToString()
            << "  ";
       }
 
     // Verify some of the calculated derived statistics
-    if ( fabs ( outputDerived2->GetValueByName( r, "Pearson r" ).ToDouble() - pearson2[r] ) > 1.e-8 )
+    if ( fabs ( outputDerived3->GetValueByName( r, "Pearson r" ).ToDouble() - pearson2[r] ) > 1.e-8 )
       {
       vtkGenericWarningMacro("Incorrect Pearson r");
       testStatus = 1;
@@ -344,7 +489,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     }
 
   // Clean up
-  as2->Delete();
+  as3->Delete();
 
   return testStatus;
 }
