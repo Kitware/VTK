@@ -306,6 +306,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
+    if ( outputPrimary1->GetValueByName( r, "Cardinality" ).ToInt() != nVals1 + nVals2 )
+      {
+      vtkGenericWarningMacro("Incorrect cardinality");
+      testStatus = 1;
+      }
+
     if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs0[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for Xs");
@@ -330,6 +336,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     if ( fabs ( outputDerived1->GetValueByName( r, "Variance Xs" ).ToDouble() - varsXs0[r] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for Xs");
+      testStatus = 1;
+      }
+
+    if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - 1. ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect Pearson correlation coefficient");
       testStatus = 1;
       }
     cout << "\n";
