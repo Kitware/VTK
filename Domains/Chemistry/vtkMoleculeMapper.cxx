@@ -308,14 +308,16 @@ void vtkMoleculeMapper::UpdateGlyphPolyData()
   vtkMolecule *molecule = this->GetInput();
 
   if (!this->GlyphDataInitialized || (
-        molecule->GetMTime() > this->AtomGlyphPolyData->GetMTime() &&
+        (molecule->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
+         this->GetMTime() > this->AtomGlyphPolyData->GetMTime()) &&
         this->RenderAtoms))
     {
     this->UpdateAtomGlyphPolyData();
     }
 
   if (!this->GlyphDataInitialized || (
-        molecule->GetMTime() > this->BondGlyphPolyData->GetMTime() &&
+        (molecule->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
+         this->GetMTime() > this->BondGlyphPolyData->GetMTime()) &&
         this->RenderBonds))
     {
     this->UpdateBondGlyphPolyData();
