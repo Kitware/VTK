@@ -465,6 +465,12 @@ int TestCorrelativeStatistics( int, char *[] )
       }
 
     // Verify some of the calculated primary statistics
+    if ( outputPrimary1->GetValueByName( r, "Cardinality" ).ToInt() != nVals1 + nVals2 )
+      {
+      vtkGenericWarningMacro("Incorrect cardinality");
+      testStatus = 1;
+      }
+
     if ( fabs ( outputPrimary1->GetValueByName( r, "Mean X" ).ToDouble() - meansX0[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean for X");
