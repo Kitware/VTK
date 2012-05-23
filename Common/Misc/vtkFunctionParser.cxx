@@ -564,6 +564,12 @@ int vtkFunctionParser::DisambiguateOperators()
 }
 
 //-----------------------------------------------------------------------------
+void vtkFunctionParser::InvalidateFunction()
+{
+  this->FunctionMTime.Modified();
+}
+
+//-----------------------------------------------------------------------------
 bool vtkFunctionParser::Evaluate()
 {
   int numBytesProcessed;
