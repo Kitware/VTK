@@ -18,7 +18,7 @@
 #ifndef __vtkPythonUtil_h
 #define __vtkPythonUtil_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
+#include "vtkPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "PyVTKClass.h"
 #include "PyVTKMutableObject.h"
@@ -35,7 +35,7 @@ class vtkUnicodeString;
 
 extern "C" void vtkPythonUtilDelete();
 
-class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonUtil
+class VTKPYTHONCORE_EXPORT vtkPythonUtil
 {
 public:
 
@@ -157,8 +157,8 @@ private:
 };
 
 // For use by SetXXMethod() , SetXXMethodArgDelete()
-extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
-extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
+extern VTKPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
+extern VTKPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 
 // The following macro is used to suppress missing initializer
 // warnings.  Python documentation says these should not be necessary.

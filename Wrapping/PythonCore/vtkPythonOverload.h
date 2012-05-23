@@ -27,10 +27,10 @@
 #ifndef __vtkPythonOverload_h
 #define __vtkPythonOverload_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
+#include "vtkPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 
-class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonOverload
+class VTKPYTHONCORE_EXPORT vtkPythonOverload
 {
 public:
 
