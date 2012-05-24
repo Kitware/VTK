@@ -164,8 +164,9 @@ elseif(VTK_INSTALL_RUNTIME)
 endif()
 
 # Create the pvtk Tcl wrapper executable with MPI support.
-IF (VTK_USE_PARALLEL)
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+if(vtkParallelMPI_ENABLED)
+  vtk_module_config(PVTK vtkParallelMPI)
+  include_directories(${PVTK_INCLUDE_DIRS})
 
   VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
   IF(VTK_USE_CARBON)
@@ -180,9 +181,10 @@ IF (VTK_USE_PARALLEL)
     ENDIF(VTK_APPLE_RESOURCE)
   ENDIF(VTK_USE_CARBON)
 
-  TARGET_LINK_LIBRARIES (pvtk
-    ${MPI_LIBRARIES}
-  )
+  target_link_libraries(pvtk ${PVTK_LIBRARIES})
+  if(VTK_USE_TK)
+    target_link_libraries(pvtk ${VTK_TK_LIBRARIES})
+  endif(VTK_USE_TK)
 
   # Link to TCL static libraries
   if(BUILD_SHARED_LIBS)
@@ -208,7 +210,7 @@ IF (VTK_USE_PARALLEL)
       ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
       )
   ENDIF()
-ENDIF (VTK_USE_PARALLEL)
+endif()
 
 if(NOT VTK_INSTALL_NO_DOCUMENTATION)
   install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README"
