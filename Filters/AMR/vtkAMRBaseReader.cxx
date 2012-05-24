@@ -266,16 +266,16 @@ int vtkAMRBaseReader::RequestInformation(
 
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::GenerateMetadata" );
 
-  std::cout << "TOTAL NUMBER OF LEVELS: " << this->Metadata->GetNumberOfLevels()
-            << "\n";
-  std::cout.flush();
-  unsigned int levelIdx = 0;
-  for( ; levelIdx < this->Metadata->GetNumberOfLevels(); ++levelIdx )
-    {
-    std::cout << " \tL(" << levelIdx << ") = "
-              << this->Metadata->GetNumberOfDataSets( levelIdx ) << "\n";
-    std::cout.flush();
-    } // END for levels
+//  std::cout << "TOTAL NUMBER OF LEVELS: " << this->Metadata->GetNumberOfLevels()
+//            << "\n";
+//  std::cout.flush();
+//  unsigned int levelIdx = 0;
+//  for( ; levelIdx < this->Metadata->GetNumberOfLevels(); ++levelIdx )
+//    {
+//    std::cout << " \tL(" << levelIdx << ") = "
+//              << this->Metadata->GetNumberOfDataSets( levelIdx ) << "\n";
+//    std::cout.flush();
+//    } // END for levels
   return 1;
 }
 
