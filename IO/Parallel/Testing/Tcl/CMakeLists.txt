@@ -5,7 +5,6 @@ if(VTK_DATA_ROOT)
   set(tests
     TestPDataSetReaderGrid
     TestPImageWriter
-    TestPProbe
   )
 endif()
 
