@@ -23,6 +23,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestNew.cxx
   TestObjectFactory.cxx
   TestObservers.cxx
+  TestObserversPerformance.cxx
   TestSmartPointer.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx
