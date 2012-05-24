@@ -1,6 +1,9 @@
 set(VTK_WRAP_PYTHON_FIND_LIBS ON)
 include(vtkWrapPython)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
+
 # Generate an extra export header for the python vtk command stuff
 include(GenerateExportHeader)
 generate_export_header(vtkCommonCorePythonD
