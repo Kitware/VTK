@@ -393,7 +393,7 @@ def usage():
           Directory containing VTK Data use for tests.  If this option
           is not set via the command line the environment variable
           VTK_DATA_ROOT is used.  If the environment variable is not
-          set the value defaults to '../../../../VTKData'.
+          set the value defaults to '../../../../../VTKData'.
 
     -B /path/to/valid/image_dir/
     --baseline-root /path/to/valid/image_dir/
@@ -411,7 +411,7 @@ def usage():
           are written.  If this option is not set via the command line
           the environment variable VTK_TEMP_DIR is used.  If the
           environment variable is not set the value defaults to
-          '../../../Testing/Temporary'.
+          '../../../../Testing/Temporary'.
 
     -v level
     --verbose level
@@ -471,7 +471,7 @@ def processCmdLine():
     try:
         VTK_DATA_ROOT = os.environ['VTK_DATA_ROOT']
     except KeyError:
-        VTK_DATA_ROOT = os.path.normpath("../../../../VTKData")
+        VTK_DATA_ROOT = os.path.normpath("../../../../../VTKData")
 
     try:
         VTK_BASELINE_ROOT = os.environ['VTK_BASELINE_ROOT']
@@ -481,7 +481,7 @@ def processCmdLine():
     try:
         VTK_TEMP_DIR = os.environ['VTK_TEMP_DIR']
     except KeyError:
-        VTK_TEMP_DIR = os.path.normpath("../../../Testing/Temporary")
+        VTK_TEMP_DIR = os.path.normpath("../../../../Testing/Temporary")
 
     for o, a in opts:
         if o in ('-D', '--data-dir'):
