@@ -533,6 +533,12 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
 //-----------------------------------------------------------------------------
 int vtkPNrrdReader::ReadHeader()
 {
+  if (!this->Controller)
+    {
+    vtkErrorMacro(<< "No MPI Controller available.");
+    return 0;
+    }
+
   VTK_CREATE(vtkCharArray, headerBuffer);
   // Read the header on process 0 and broadcast to everyone else.
   if (this->Controller->GetLocalProcessId() == 0)
