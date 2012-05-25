@@ -93,6 +93,8 @@ void vtkGenericDataObjectWriter::WriteData()
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIPIECE_DATA_SET:
+    case VTK_OVERLAPPING_AMR:
+    case VTK_NON_OVERLAPPING_AMR:
       writer = CreateWriter<vtkCompositeDataWriter>(input);
       break;
     case VTK_MULTIGROUP_DATA_SET:

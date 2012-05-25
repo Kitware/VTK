@@ -276,6 +276,7 @@ int vtkAMRBaseReader::RequestInformation(
 //              << this->Metadata->GetNumberOfDataSets( levelIdx ) << "\n";
 //    std::cout.flush();
 //    } // END for levels
+  this->LoadedMetaData = true;
   return 1;
 }
 
@@ -431,6 +432,11 @@ void vtkAMRBaseReader::LoadCellData(
 void vtkAMRBaseReader::LoadRequestedBlocks( vtkOverlappingAMR *output )
 {
   assert( "pre: AMR data-structure is NULL" && (output != NULL) );
+
+  // setup the output to have fixed number of levels and  blocks irrespective of
+  // what is requested. The structure of the data generated should not change
+  // with block-request.
+  output->CopyStructure(this->Metadata);
 
   //STEP 1: Gather all blocks loaded by each process
   int numBlocks = static_cast< int >( this->BlockMap.size() );

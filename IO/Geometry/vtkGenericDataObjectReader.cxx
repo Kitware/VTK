@@ -24,7 +24,9 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkRectilinearGrid.h"
@@ -162,6 +164,12 @@ int vtkGenericDataObjectReader::RequestDataObject(
       case VTK_HIERARCHICAL_BOX_DATA_SET:
         output = vtkHierarchicalBoxDataSet::New();
         break;
+      case VTK_OVERLAPPING_AMR:
+        output = vtkOverlappingAMR::New();
+        break;
+      case VTK_NON_OVERLAPPING_AMR:
+        output = vtkNonOverlappingAMR::New();
+        break;
       default:
         return 0;
       }
@@ -222,6 +230,8 @@ int vtkGenericDataObjectReader::RequestInformation(
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIPIECE_DATA_SET:
+    case VTK_OVERLAPPING_AMR:
+    case VTK_NON_OVERLAPPING_AMR:
       reader = vtkCompositeDataReader::New();
       break;
     default:
@@ -321,6 +331,18 @@ int vtkGenericDataObjectReader::RequestData(
         "vtkHierarchicalBoxDataSet", output);
       return 1;
       }
+    case VTK_OVERLAPPING_AMR:
+      {
+      this->ReadData<vtkCompositeDataReader, vtkOverlappingAMR>(
+        "vtkHierarchicalBoxDataSet", output);
+      return 1;
+      }
+    case VTK_NON_OVERLAPPING_AMR:
+      {
+      this->ReadData<vtkCompositeDataReader, vtkNonOverlappingAMR>(
+        "vtkHierarchicalBoxDataSet", output);
+      return 1;
+      }
     default:
         vtkErrorMacro("Could not read file " << this->FileName);
     }
@@ -407,6 +429,14 @@ int vtkGenericDataObjectReader::ReadOutputType()
         strlen("hierarchical_box")))
       {
       return VTK_HIERARCHICAL_BOX_DATA_SET;
+      }
+    if (strncmp(this->LowerCase(line), "overlapping_amr", strlen("overlapping_amr")) == 0)
+      {
+      return VTK_OVERLAPPING_AMR;
+      }
+    if (strncmp(this->LowerCase(line), "non_overlapping_amr", strlen("non_overlapping_amr")) == 0)
+      {
+      return VTK_NON_OVERLAPPING_AMR;
       }
 
     vtkDebugMacro(<< "Cannot read dataset type: " << line);
