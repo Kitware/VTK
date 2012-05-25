@@ -3,7 +3,8 @@
 include(${VTK_SOURCE_DIR}/Wrapping/LocalUserOptions.cmake OPTIONAL)
 
 # vtkParse.tab.c has #line markers that break #include with double quotes.
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Python
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Python
   ${VTK_SOURCE_DIR}/Common/Core
   ${VTK_BINARY_DIR}/Common/Core
   ${VTK_BINARY_DIR}/Wrapping
