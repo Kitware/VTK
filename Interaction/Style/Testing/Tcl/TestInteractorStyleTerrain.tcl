@@ -43,7 +43,7 @@ eval elevation16 SetScalarRange $lo $hi
   elevation16 ReleaseDataFlagOn
 
 vtkPolyDataNormals normals16
-  normals16 SetInput [elevation16 GetPolyDataOutput]
+  normals16 SetInputConnection [elevation16 GetOutputPort]
   normals16 SetFeatureAngle 60
   normals16 ConsistencyOff
   normals16 SplittingOff
