@@ -200,10 +200,15 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
 
 // ----------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
-                                          vtkTable* vtkNotUsed( inParameters ),
+                                          vtkTable* inPara,
                                           vtkMultiBlockDataSet* outMeta )
 {
   if ( ! inData )
+    {
+    return;
+    }
+
+  if ( ! inPara )
     {
     return;
     }
@@ -258,18 +263,29 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Verify that a slice cardinality, lag, and data size are consistent
-  vtkIdType nRow = inData->GetNumberOfRows();
-  vtkIdType quo = nRow / this->SliceCardinality;
-  if ( this->TimeLag >= quo 
-       || nRow != quo * this->SliceCardinality )
+  // Process list of time lags given by parameter table and determine maximum
+  vtkIdType nRowPara = inPara->GetNumberOfRows();
+  vtkIdType maxLag = 0;
+  for ( vtkIdType r = 0; r < nRowPara; ++ r )
+    {
+    vtkIdType lag = inData->GetValue( r, 0 ).ToInt();
+    if ( lag > maxLag )
+      {
+      maxLag = lag;
+      }
+    }
+
+  // Verify that a slice cardinality, maximum lag, and data size are consistent
+  vtkIdType nRowData = inData->GetNumberOfRows();
+  vtkIdType quo = nRowData / this->SliceCardinality;
+  if ( maxLag >= quo || nRowData != quo * this->SliceCardinality )
     {
     vtkErrorMacro( "Incorrect specification of time slice cardinality: "
                      << this->SliceCardinality
-                     << " with time lag "
-                     << this->TimeLag
+                     << " with maximum time lag "
+                     << maxLag
                      << " and data set cardinality "
-                     << nRow
+                     << nRowData
                      << ". Exiting." );
     return;
     }
