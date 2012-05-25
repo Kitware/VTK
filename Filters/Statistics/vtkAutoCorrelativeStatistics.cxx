@@ -65,136 +65,154 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
     return;
     }
 
-  // Get hold of the first model (data object) in the collection
-  vtkCollectionSimpleIterator it;
-  inMetaColl->InitTraversal( it );
-  vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
+  vtkDataObject *inMetaDO0 = inMetaColl->GetItem( 0 );
+  if ( ! inMetaDO0 )
+    {
+    return;
+    }
 
   // Verify that the first input model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
-  if ( ! inMeta )
+  vtkMultiBlockDataSet* inMeta0 = vtkMultiBlockDataSet::SafeDownCast( inMetaDO0 );
+  if ( ! inMeta0 )
     {
     return;
     }
 
-  // Verify that the first primary statistics are indeed contained in a table
-  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-  if ( ! primaryTab )
+  // Iterate over variable blocks
+  unsigned int nBlocks = inMeta0->GetNumberOfBlocks();
+  for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
-    return;
-    }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if ( ! nRow )
-    {
-    // No statistics were calculated.
-    return;
-    }
-
-  // Use this first model to initialize the aggregated one
-  vtkTable* aggregatedTab = vtkTable::New();
-  aggregatedTab->DeepCopy( primaryTab );
-
-  // Now, loop over all remaining models and update aggregated each time
-  while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
-    {
-    // Verify that the current model is indeed contained in a multiblock data set
-    inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+    // Get hold of the first model (data object) in the collection
+    vtkCollectionSimpleIterator it;
+    inMetaColl->InitTraversal( it );
+    vtkDataObject *inMetaDO = inMetaColl->GetNextDataObject( it );
+    
+    // Verify that the first input model is indeed contained in a multiblock data set
+    vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta )
       {
-      aggregatedTab->Delete();
-
-      return;
+      continue;
       }
 
-    // Verify that the current primary statistics are indeed contained in a table
-    primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-    if ( ! primaryTab )
+    // Verify that the first model is indeed contained in a table
+    vtkTable* currentTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
+    if ( ! currentTab )
       {
-      aggregatedTab->Delete();
-
-      return;
+      continue;
       }
-
-    if ( primaryTab->GetNumberOfRows() != nRow )
+    
+    vtkIdType nRow = currentTab->GetNumberOfRows();
+    if ( ! nRow )
       {
-      // Models do not match
-      aggregatedTab->Delete();
-
-      return;
+      // No statistics were calculated.
+      continue;
       }
+    
+    // Use this first model to initialize the aggregated one
+    vtkTable* aggregatedTab = vtkTable::New();
+    aggregatedTab->DeepCopy( currentTab );
 
-    // Iterate over all model rows
-    for ( int r = 0; r < nRow; ++ r )
+    // Now, loop over all remaining models and update aggregated each time
+    while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
       {
-      // Verify that variable names match each other
-      if ( primaryTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
+      // Verify that the current model is indeed contained in a multiblock data set
+      inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
+      if ( ! inMeta )
+        {
+        aggregatedTab->Delete();
+        
+        continue;
+        }
+
+      // Verify that the current model is indeed contained in a table
+      currentTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
+      if ( ! currentTab )
+        {
+        aggregatedTab->Delete();
+
+        continue;        
+        }
+
+      if ( currentTab->GetNumberOfRows() != nRow )
         {
         // Models do not match
         aggregatedTab->Delete();
 
-        return;
+        continue;
         }
 
-      // Get aggregated statistics
-      int n = aggregatedTab->GetValueByName( r, "Cardinality" ).ToInt();
-      double meanXs = aggregatedTab->GetValueByName( r, "Mean Xs" ).ToDouble();
-      double meanXt = aggregatedTab->GetValueByName( r, "Mean Xt" ).ToDouble();
-      double M2Xs = aggregatedTab->GetValueByName( r, "M2 Xs" ).ToDouble();
-      double M2Xt = aggregatedTab->GetValueByName( r, "M2 Xt" ).ToDouble();
-      double MXsXt = aggregatedTab->GetValueByName( r, "M XsXt" ).ToDouble();
+      // Iterate over all model rows
+      for ( int r = 0; r < nRow; ++ r )
+        {
+        // Verify that variable names match each other
+        if ( currentTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
+          {
+          // Models do not match
+          aggregatedTab->Delete();
+          
+          continue;
+          }
 
-      // Get current model statistics
-      int n_c = primaryTab->GetValueByName( r, "Cardinality" ).ToInt();
-      double meanXs_c = primaryTab->GetValueByName( r, "Mean Xs" ).ToDouble();
-      double meanXt_c = primaryTab->GetValueByName( r, "Mean Xt" ).ToDouble();
-      double M2Xs_c = primaryTab->GetValueByName( r, "M2 Xs" ).ToDouble();
-      double M2Xt_c = primaryTab->GetValueByName( r, "M2 Xt" ).ToDouble();
-      double MXsXt_c = primaryTab->GetValueByName( r, "M XsXt" ).ToDouble();
+        // Get aggregated statistics
+        int n = aggregatedTab->GetValueByName( r, "Cardinality" ).ToInt();
+        double meanXs = aggregatedTab->GetValueByName( r, "Mean Xs" ).ToDouble();
+        double meanXt = aggregatedTab->GetValueByName( r, "Mean Xt" ).ToDouble();
+        double M2Xs = aggregatedTab->GetValueByName( r, "M2 Xs" ).ToDouble();
+        double M2Xt = aggregatedTab->GetValueByName( r, "M2 Xt" ).ToDouble();
+        double MXsXt = aggregatedTab->GetValueByName( r, "M XsXt" ).ToDouble();
+        
+        // Get current model statistics
+        int n_c = currentTab->GetValueByName( r, "Cardinality" ).ToInt();
+        double meanXs_c = currentTab->GetValueByName( r, "Mean Xs" ).ToDouble();
+        double meanXt_c = currentTab->GetValueByName( r, "Mean Xt" ).ToDouble();
+        double M2Xs_c = currentTab->GetValueByName( r, "M2 Xs" ).ToDouble();
+        double M2Xt_c = currentTab->GetValueByName( r, "M2 Xt" ).ToDouble();
+        double MXsXt_c = currentTab->GetValueByName( r, "M XsXt" ).ToDouble();
+        
+        // Update global statics
+        int N = n + n_c;
+        
+        double invN = 1. / static_cast<double>( N );
+        
+        double deltaXs = meanXs_c - meanXs;
+        double deltaXs_sur_N = deltaXs * invN;
+        
+        double deltaXt = meanXt_c - meanXt;
+        double deltaXt_sur_N = deltaXt * invN;
+        
+        int prod_n = n * n_c;
+        
+        M2Xs += M2Xs_c
+          + prod_n * deltaXs * deltaXs_sur_N;
+        
+        M2Xt += M2Xt_c
+          + prod_n * deltaXt * deltaXt_sur_N;
+        
+        MXsXt += MXsXt_c
+          + prod_n * deltaXs * deltaXt_sur_N;
+        
+        meanXs += n_c * deltaXs_sur_N;
+        
+        meanXt += n_c * deltaXt_sur_N;
+        
+        // Store updated model
+        aggregatedTab->SetValueByName( r, "Cardinality", N );
+        aggregatedTab->SetValueByName( r, "Mean Xs", meanXs );
+        aggregatedTab->SetValueByName( r, "Mean Xt", meanXt );
+        aggregatedTab->SetValueByName( r, "M2 Xs", M2Xs );
+        aggregatedTab->SetValueByName( r, "M2 Xt", M2Xt );
+        aggregatedTab->SetValueByName( r, "M XsXt", MXsXt );
+        } //r
+      } // while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
 
-      // Update global statics
-      int N = n + n_c;
+    // Resize output meta and append aggregated table for current variable
+    const char* varName = inMeta->GetMetaData( static_cast<unsigned>( b ) )->Get( vtkCompositeDataSet::NAME() );
+    outMeta->GetMetaData( static_cast<unsigned>( b ) )->Set( vtkCompositeDataSet::NAME(), varName );
+    outMeta->SetBlock( b, aggregatedTab );
 
-      double invN = 1. / static_cast<double>( N );
-
-      double deltaXs = meanXs_c - meanXs;
-      double deltaXs_sur_N = deltaXs * invN;
-
-      double deltaXt = meanXt_c - meanXt;
-      double deltaXt_sur_N = deltaXt * invN;
-
-      int prod_n = n * n_c;
-
-      M2Xs += M2Xs_c
-        + prod_n * deltaXs * deltaXs_sur_N;
-
-      M2Xt += M2Xt_c
-        + prod_n * deltaXt * deltaXt_sur_N;
-
-      MXsXt += MXsXt_c
-        + prod_n * deltaXs * deltaXt_sur_N;
-
-      meanXs += n_c * deltaXs_sur_N;
-
-      meanXt += n_c * deltaXt_sur_N;
-
-      // Store updated model
-      aggregatedTab->SetValueByName( r, "Cardinality", N );
-      aggregatedTab->SetValueByName( r, "Mean Xs", meanXs );
-      aggregatedTab->SetValueByName( r, "Mean Xt", meanXt );
-      aggregatedTab->SetValueByName( r, "M2 Xs", M2Xs );
-      aggregatedTab->SetValueByName( r, "M2 Xt", M2Xt );
-      aggregatedTab->SetValueByName( r, "M XsXt", MXsXt );
-      }
-    }
-
-  // Finally set first block of aggregated model to primary statistics table
-  outMeta->SetNumberOfBlocks( 1 );
-  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
-  outMeta->SetBlock( 0, aggregatedTab );
-
-  // Clean up
-  aggregatedTab->Delete();
+    // Clean up
+    aggregatedTab->Delete();
+    } // b
 }
 
 // ----------------------------------------------------------------------
@@ -354,7 +372,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
       modelTab->InsertNextRow( row );
       } // p
 
-    // Resize output meta so primary table can be appended
+    // Resize output meta and append model table for current variable
     unsigned int nBlocks = outMeta->GetNumberOfBlocks();
     outMeta->SetNumberOfBlocks( nBlocks + 1 );
     outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), varName );
@@ -376,7 +394,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  // Iterate over primary tables
+  // Iterate over variable blocks
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
