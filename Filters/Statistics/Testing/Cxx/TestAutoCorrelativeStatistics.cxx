@@ -4,6 +4,7 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
@@ -167,50 +168,46 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as1->SetTestOption( false );
   as1->Update();
 
-  // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputPrimary1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 0 ) );
-  vtkTable* outputDerived1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 1 ) );
+  // Get output model tables
+  vtkMultiBlockDataSet* outputModelAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
-  cout << "\n## Calculated the following primary statistics for first data set:\n";
-  for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
+  cout << "\n## Calculated the following statistics for first data set:\n";
+  for ( unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++ b )
     {
+    vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+    cout << "   Variable="
+         << varName
+         << "\n";
+
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     cout << "   ";
-    for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary1->GetColumnName( i )
+      cout << modelTab->GetColumnName( i )
            << "="
-           << outputPrimary1->GetValue( r, i ).ToString()
+           << modelTab->GetValue( 0, i ).ToString()
            << "  ";
       }
 
-    // Verify some of the calculated primary statistics
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs1[r] ) > 1.e-6 )
+    // Verify some of the calculated statistics
+    if ( fabs ( modelTab->GetValueByName( 0, "Mean Xs" ).ToDouble() - meansXs1[b] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect mean");
       testStatus = 1;
       }
-    cout << "\n";
-    }
 
-  cout << "\n## Calculated the following derived statistics for first data set:\n";
-  for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputDerived1->GetColumnName( i )
-           << "="
-           << outputDerived1->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
-    // Verify some of the calculated derived statistics
-    if ( fabs ( outputDerived1->GetValueByName( r, "Variance Xs" ).ToDouble() - vars1[r] ) > 1.e-5 )
+    if ( fabs ( modelTab->GetValueByName( 0, "Variance Xs" ).ToDouble() - vars1[b] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance");
       testStatus = 1;
       }
+
+    if ( fabs ( modelTab->GetValueByName( 0, "Pearson r" ).ToDouble() - 1. ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect Pearson correlation coefficient");
+      testStatus = 1;
+      }
+
     cout << "\n";
     }
 
@@ -262,8 +259,8 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as2->Update();
 
   // Get output meta tables
-  vtkMultiBlockDataSet* outputMetaAS2 = vtkMultiBlockDataSet::SafeDownCast( as2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputPrimary2 = vtkTable::SafeDownCast( outputMetaAS2->GetBlock( 0 ) );
+  vtkMultiBlockDataSet* outputModelAS2 = vtkMultiBlockDataSet::SafeDownCast( as2->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* outputPrimary2 = vtkTable::SafeDownCast( outputModelAS2->GetBlock( 0 ) );
 
   cout << "\n## Calculated the following primary statistics for second data set:\n";
   for ( vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++ r )
@@ -282,7 +279,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   // Test model aggregation by adding new data to engine which already has a model
   as1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
   vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
-  model->ShallowCopy( outputMetaAS1 );
+  model->ShallowCopy( outputModelAS1 );
   as1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model );
 
   // Clean up
@@ -303,63 +300,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   double varsXs0[] = { 6.1418651 , 7.548397 * 62. / 63. };
 
   // Get output meta tables
-  outputMetaAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  outputPrimary1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 0 ) );
-  outputDerived1 = vtkTable::SafeDownCast( outputMetaAS1->GetBlock( 1 ) );
+  outputModelAS1 = vtkMultiBlockDataSet::SafeDownCast( as1->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
 
-  cout << "\n## Calculated the following primary statistics for aggregated (first + second) data set:\n";
-  for ( vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputPrimary1->GetColumnName( i )
-           << "="
-           << outputPrimary1->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
-    // Verify some of the calculated primary statistics
-    if ( outputPrimary1->GetValueByName( r, "Cardinality" ).ToInt() != nVals1 + nVals2 )
-      {
-      vtkGenericWarningMacro("Incorrect cardinality");
-      testStatus = 1;
-      }
-
-    if ( fabs ( outputPrimary1->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs0[r] ) > 1.e-6 )
-      {
-      vtkGenericWarningMacro("Incorrect mean for Xs");
-      testStatus = 1;
-      }
-    cout << "\n";
-    }
-
-  cout << "\n## Calculated the following derived statistics for aggregated (first + second) data set:\n";
-  for ( vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputDerived1->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputDerived1->GetColumnName( i )
-           << "="
-           << outputDerived1->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
-    // Verify some of the calculated derived statistics
-    if ( fabs ( outputDerived1->GetValueByName( r, "Variance Xs" ).ToDouble() - varsXs0[r] ) > 1.e-5 )
-      {
-      vtkGenericWarningMacro("Incorrect variance for Xs");
-      testStatus = 1;
-      }
-
-    if ( fabs ( outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble() - 1. ) > 1.e-6 )
-      {
-      vtkGenericWarningMacro("Incorrect Pearson correlation coefficient");
-      testStatus = 1;
-      }
-    cout << "\n";
-    }
+  cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
 
   // Clean up
   as1->Delete();
@@ -455,54 +398,40 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   as3->Update();
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaAS3 = vtkMultiBlockDataSet::SafeDownCast( as3->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* outputPrimary3 = vtkTable::SafeDownCast( outputMetaAS3->GetBlock( 0 ) );
-  vtkTable* outputDerived3 = vtkTable::SafeDownCast( outputMetaAS3->GetBlock( 1 ) );
+  vtkMultiBlockDataSet* outputModelAS3 = vtkMultiBlockDataSet::SafeDownCast( as3->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+  vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( 0 ) );
 
   cout << "\n## Calculated the following primary statistics for second data set:\n";
-  for ( vtkIdType r = 0; r < outputPrimary3->GetNumberOfRows(); ++ r )
+  for ( vtkIdType r = 0; r < modelTab->GetNumberOfRows(); ++ r )
     {
     cout << "   ";
-    for ( int i = 0; i < outputPrimary3->GetNumberOfColumns(); ++ i )
+    for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
-      cout << outputPrimary3->GetColumnName( i )
+      cout << modelTab->GetColumnName( i )
            << "="
-           << outputPrimary3->GetValue( r, i ).ToString()
+           << modelTab->GetValue( r, i ).ToString()
            << "  ";
       }
 
     // Verify some of the calculated primary statistics
-    if ( outputPrimary3->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
+    if ( modelTab->GetValueByName( r, "Cardinality" ).ToInt() != cardSlice )
       {
       vtkGenericWarningMacro("Incorrect cardinality");
       testStatus = 1;
       }
-    if ( fabs ( outputPrimary3->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs2[r] ) > 1.e-6 )
+
+    if ( fabs ( modelTab->GetValueByName( r, "Mean Xs" ).ToDouble() - meansXs2[r] ) > 1.e-6 )
       {
       vtkGenericWarningMacro("Incorrect Xs mean");
       testStatus = 1;
       }
-    cout << "\n";
-    }
 
-  cout << "\n## Calculated the following derived statistics for second data set:\n";
-  for ( vtkIdType r = 0; r < outputDerived3->GetNumberOfRows(); ++ r )
-    {
-    cout << "   ";
-    for ( int i = 0; i < outputDerived3->GetNumberOfColumns(); ++ i )
-      {
-      cout << outputDerived3->GetColumnName( i )
-           << "="
-           << outputDerived3->GetValue( r, i ).ToString()
-           << "  ";
-      }
-
-    // Verify some of the calculated derived statistics
-    if ( fabs ( outputDerived3->GetValueByName( r, "Pearson r" ).ToDouble() - pearson2[r] ) > 1.e-8 )
+    if ( fabs ( modelTab->GetValueByName( r, "Pearson r" ).ToDouble() - pearson2[r] ) > 1.e-8 )
       {
       vtkGenericWarningMacro("Incorrect Pearson r");
       testStatus = 1;
       }
+
     cout << "\n";
     }
 

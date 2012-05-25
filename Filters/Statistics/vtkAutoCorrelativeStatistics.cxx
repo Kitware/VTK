@@ -219,44 +219,6 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // The primary statistics table
-  vtkTable* primaryTab = vtkTable::New();
-
-  vtkStringArray* stringCol = vtkStringArray::New();
-  stringCol->SetName( "Variable" );
-  primaryTab->AddColumn( stringCol );
-  stringCol->Delete();
-
-  vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
-  idTypeCol->SetName( "Cardinality" );
-  primaryTab->AddColumn( idTypeCol );
-  idTypeCol->Delete();
-
-  vtkDoubleArray* doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Mean Xs" );
-  primaryTab->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "Mean Xt" );
-  primaryTab->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "M2 Xs" );
-  primaryTab->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "M2 Xt" );
-  primaryTab->AddColumn( doubleCol );
-  doubleCol->Delete();
-
-  doubleCol = vtkDoubleArray::New();
-  doubleCol->SetName( "M XsXt" );
-  primaryTab->AddColumn( doubleCol );
-  doubleCol->Delete();
-
   // Verify that a cardinality was specified for the time slices
   if ( ! this->SliceCardinality )
     {
@@ -282,12 +244,12 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   if ( maxLag >= quo || nRowData != quo * this->SliceCardinality )
     {
     vtkErrorMacro( "Incorrect specification of time slice cardinality: "
-                     << this->SliceCardinality
-                     << " with maximum time lag "
-                     << maxLag
-                     << " and data set cardinality "
-                     << nRowData
-                     << ". Exiting." );
+                   << this->SliceCardinality
+                   << " with maximum time lag "
+                   << maxLag
+                   << " and data set cardinality "
+                   << nRowData
+                   << ". Exiting." );
     return;
     }
 
@@ -308,6 +270,39 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
                        << ". Ignoring it." );
       continue;
       }
+
+    // Create primary statistics table for this variable
+    vtkTable* modelTab = vtkTable::New();
+
+    vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+    idTypeCol->SetName( "Cardinality" );
+    modelTab->AddColumn( idTypeCol );
+    idTypeCol->Delete();
+
+    vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Mean Xs" );
+    modelTab->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "Mean Xt" );
+    modelTab->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "M2 Xs" );
+    modelTab->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "M2 Xt" );
+    modelTab->AddColumn( doubleCol );
+    doubleCol->Delete();
+
+    doubleCol = vtkDoubleArray::New();
+    doubleCol->SetName( "M XsXt" );
+    modelTab->AddColumn( doubleCol );
+    doubleCol->Delete();
 
     double meanXs = 0.;
     double meanXt = 0.;
@@ -336,28 +331,28 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
 
     vtkVariantArray* row = vtkVariantArray::New();
 
-    row->SetNumberOfValues( 7 );
+    row->SetNumberOfValues( 6 );
 
-    row->SetValue( 0, varName );
-    row->SetValue( 1, this->SliceCardinality );
-    row->SetValue( 2, meanXs );
-    row->SetValue( 3, meanXt );
-    row->SetValue( 4, mom2Xs );
-    row->SetValue( 5, mom2Xt );
-    row->SetValue( 6, momXsXt );
+    row->SetValue( 0, this->SliceCardinality );
+    row->SetValue( 1, meanXs );
+    row->SetValue( 2, meanXt );
+    row->SetValue( 3, mom2Xs );
+    row->SetValue( 4, mom2Xt );
+    row->SetValue( 5, momXsXt );
 
-    primaryTab->InsertNextRow( row );
+    modelTab->InsertNextRow( row );
 
     row->Delete();
+
+    // Resize output meta so primary table can be appended
+    unsigned int nBlocks = outMeta->GetNumberOfBlocks();
+    outMeta->SetNumberOfBlocks( nBlocks + 1 );
+    outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), varName );
+    outMeta->SetBlock( nBlocks, modelTab );
+
+    // Clean up
+    modelTab->Delete();
     } // rit
-
-  // Finally set first block of output meta port to primary statistics table
-  outMeta->SetNumberOfBlocks( 1 );
-  outMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Primary Statistics" );
-  outMeta->SetBlock( 0, primaryTab );
-
-  // Clean up
-  primaryTab->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -368,77 +363,86 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  vtkTable* primaryTab = vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-  if ( ! primaryTab  )
+  // Iterate over primary tables
+  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+  for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
-    return;
-    }
-
-  int numDoubles = 9;
-  vtkStdString doubleNames[] = { "Variance Xs",
-                                 "Variance Xt",
-                                 "Covariance",
-                                 "Determinant",
-                                 "Slope Xt/Xs",
-                                 "Intercept Xt/Xs",
-                                 "Slope Xs/Xt",
-                                 "Intercept Xs/Xt",
-                                 "Pearson r" };
-
-  // Create table for derived statistics
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  vtkTable* derivedTab = vtkTable::New();
-  vtkDoubleArray* doubleCol;
-  for ( int j = 0; j < numDoubles; ++ j )
-    {
-    if ( ! derivedTab->GetColumnByName( doubleNames[j] ) )
+    vtkTable* modelTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
+    if ( ! modelTab  )
       {
-      doubleCol = vtkDoubleArray::New();
-      doubleCol->SetName( doubleNames[j] );
-      doubleCol->SetNumberOfTuples( nRow );
-      derivedTab->AddColumn( doubleCol );
-      doubleCol->Delete();
-      }
-    }
-
-  // Storage for derived values
-  double* derivedVals = new double[numDoubles]; //
-
-  for ( int i = 0; i < nRow; ++ i )
-    {
-    double m2Xs = primaryTab->GetValueByName( i, "M2 Xs" ).ToDouble();
-    double m2Xt = primaryTab->GetValueByName( i, "M2 Xt" ).ToDouble();
-    double mXsXt = primaryTab->GetValueByName( i, "M XsXt" ).ToDouble();
-
-    double varXs, varXt, covXsXt;
-    int numSamples = primaryTab->GetValueByName(i, "Cardinality" ).ToInt();
-    if ( numSamples == 1 )
-      {
-      varXs  = 0.;
-      varXt  = 0.;
-      covXsXt = 0.;
-      }
-    else
-      {
-      double inv_nm1;
-      double n = static_cast<double>( numSamples );
-      inv_nm1 = 1. / ( n - 1. );
-      varXs  = m2Xs * inv_nm1;
-      varXt  = m2Xt * inv_nm1;
-      covXsXt = mXsXt * inv_nm1;
+      continue;
       }
 
-    derivedVals[0] = varXs;
-    derivedVals[1] = varXt;
-    derivedVals[2] = covXsXt;
-    derivedVals[3] = varXs * varXt - covXsXt * covXsXt;
+    vtkIdType nRow = modelTab->GetNumberOfRows();
+    // FIXME: verify that all tables have same number of rows (i.e., lags)
+    if ( ! nRow  )
+      {
+      continue;
+      }
 
-    // There will be NaN values in linear regression if covariance matrix is not positive definite
-    double meanXs = primaryTab->GetValueByName( i, "Mean Xs" ).ToDouble();
-    double meanXt = primaryTab->GetValueByName( i, "Mean Xt" ).ToDouble();
+    int numDerived = 9;
+    vtkStdString derivedNames[] = { "Variance Xs",
+                                   "Variance Xt",
+                                   "Covariance",
+                                   "Determinant",
+                                   "Slope Xt/Xs",
+                                   "Intercept Xt/Xs",
+                                   "Slope Xs/Xt",
+                                   "Intercept Xs/Xt",
+                                   "Pearson r" };
 
-    // variable Xt on variable Xs:
-    //   slope (explicitly handle degenerate cases)
+    // Find or create columns for derived statistics
+    vtkDoubleArray* derivedCol;
+    for ( int j = 0; j < numDerived; ++ j )
+      {
+      if ( ! modelTab->GetColumnByName( derivedNames[j] ) )
+        {
+        derivedCol = vtkDoubleArray::New();
+        derivedCol->SetName( derivedNames[j] );
+        derivedCol->SetNumberOfTuples( nRow );
+        modelTab->AddColumn( derivedCol );
+        derivedCol->Delete();
+        }
+      }
+
+    // Storage for derived values
+    double* derivedVals = new double[numDerived];
+    
+    for ( int i = 0; i < nRow; ++ i )
+      {
+      double m2Xs = modelTab->GetValueByName( i, "M2 Xs" ).ToDouble();
+      double m2Xt = modelTab->GetValueByName( i, "M2 Xt" ).ToDouble();
+      double mXsXt = modelTab->GetValueByName( i, "M XsXt" ).ToDouble();
+
+      double varXs, varXt, covXsXt;
+      int numSamples = modelTab->GetValueByName(i, "Cardinality" ).ToInt();
+      if ( numSamples == 1 )
+        {
+        varXs  = 0.;
+        varXt  = 0.;
+        covXsXt = 0.;
+        }
+      else
+        {
+        double inv_nm1;
+        double n = static_cast<double>( numSamples );
+        inv_nm1 = 1. / ( n - 1. );
+        varXs  = m2Xs * inv_nm1;
+        varXt  = m2Xt * inv_nm1;
+        covXsXt = mXsXt * inv_nm1;
+        }
+      
+      derivedVals[0] = varXs;
+      derivedVals[1] = varXt;
+      derivedVals[2] = covXsXt;
+      derivedVals[3] = varXs * varXt - covXsXt * covXsXt;
+      
+      // There will be NaN values in linear regression if covariance matrix is not positive definite
+      double meanXs = modelTab->GetValueByName( i, "Mean Xs" ).ToDouble();
+      double meanXt = modelTab->GetValueByName( i, "Mean Xt" ).ToDouble();
+      
+      // variable Xt on variable Xs:
+      //   slope (explicitly handle degenerate cases)
       if ( varXs < VTK_DBL_MIN )
         {
         derivedVals[4] = vtkMath::Nan();
@@ -447,11 +451,11 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         derivedVals[4] = covXsXt / varXs;
         }
-    //   intersect
-    derivedVals[5] = meanXt - derivedVals[4] * meanXs;
-
-    //   variable Xs on variable Xt:
-    //   slope (explicitly handle degenerate cases)
+      //   intersect
+      derivedVals[5] = meanXt - derivedVals[4] * meanXs;
+      
+      //   variable Xs on variable Xt:
+      //   slope (explicitly handle degenerate cases)
       if ( varXt < VTK_DBL_MIN )
         {
         derivedVals[6] = vtkMath::Nan();
@@ -460,34 +464,29 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         derivedVals[6] = covXsXt / varXt;
         }
-    //   intersect
-    derivedVals[7] = meanXs - derivedVals[6] * meanXt;
+      //   intersect
+      derivedVals[7] = meanXs - derivedVals[6] * meanXt;
 
-    // correlation coefficient (be consistent with degenerate cases detected above)
-    if ( varXs < VTK_DBL_MIN
-         || varXt < VTK_DBL_MIN )
-      {
-      derivedVals[8] = vtkMath::Nan();
-      }
-    else
-      {
-      derivedVals[8] = covXsXt / sqrt( varXs * varXt );
-      }
+      // correlation coefficient (be consistent with degenerate cases detected above)
+      if ( varXs < VTK_DBL_MIN
+           || varXt < VTK_DBL_MIN )
+        {
+        derivedVals[8] = vtkMath::Nan();
+        }
+      else
+        {
+        derivedVals[8] = covXsXt / sqrt( varXs * varXt );
+        }
 
-    for ( int j = 0; j < numDoubles; ++ j )
-      {
-      derivedTab->SetValueByName( i, doubleNames[j], derivedVals[j] );
-      }
-    } // nRow
+      for ( int j = 0; j < numDerived; ++ j )
+        {
+        modelTab->SetValueByName( i, derivedNames[j], derivedVals[j] );
+        }
+      } // nRow
 
-  // Finally set second block of output meta port to derived statistics table
-  inMeta->SetNumberOfBlocks( 2 );
-  inMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Derived Statistics" );
-  inMeta->SetBlock( 1, derivedTab );
-
-  // Clean up
-  derivedTab->Delete();
-  delete [] derivedVals;
+    // Clean up
+    delete [] derivedVals;
+    } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 }
 
 // ----------------------------------------------------------------------
@@ -521,8 +520,8 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  vtkTable* primaryTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
-  if ( ! primaryTab )
+  vtkTable* modelTab= vtkTable::SafeDownCast( inMeta->GetBlock( 0 ) );
+  if ( ! modelTab )
     {
     return;
     }
@@ -533,7 +532,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  vtkIdType nRowPrim = primaryTab->GetNumberOfRows();
+  vtkIdType nRowPrim = modelTab->GetNumberOfRows();
   if ( nRowPrim != derivedTab->GetNumberOfRows() )
     {
     return;
@@ -542,7 +541,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkStringArray::SafeDownCast( modelTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     return;
