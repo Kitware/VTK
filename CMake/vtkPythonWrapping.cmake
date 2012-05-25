@@ -21,16 +21,6 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
   set(KIT ${kit_name})
 
-  # FIXME: Terrible temporary hack - add in the extra source file for CommonCore
-  if(${module_name} STREQUAL "vtkCommonCore")
-    set(extra_srcs vtkPythonCommand.cxx)
-    unset(extra_links)
-  else()
-    unset(extra_srcs)
-    # This contains the PyVTKClass....
-    set(extra_links vtkCommonCorePythonD)
-  endif()
-
   # Figure out the dependent PythonD libraries for the module
   foreach(dep ${VTK_MODULE_${vtk-module}_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
