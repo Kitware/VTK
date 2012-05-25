@@ -484,6 +484,10 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
   typedef std::vector<unsigned long> VisitedListType;
   VisitedListType visited;
   vtkObserver *elem = this->Start;
+  // If an element with a tag greater than maxTag is found, that means it has
+  // been added after InvokeEvent is called (as a side effect of calling an
+  // element command. In that case, the element is discarded and not executed.
+  const unsigned long maxTag = this->Count;
 
   // Loop two or three times, giving preference to passive observers
   // and focus holders, if any.
@@ -511,7 +515,8 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     // store the next pointer because elem could disappear due to Command
     next = elem->Next;
     if (elem->Command->GetPassiveObserver() &&
-        (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+        (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+        elem->Tag < maxTag)
       {
       VisitedListType::iterator vIter =
         std::lower_bound(visited.begin(), visited.end(), elem->Tag);
@@ -549,7 +554,8 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
       if (((this->Focus1 == elem->Command) || (this->Focus2 == elem->Command)) &&
-          (elem->Event == event || elem->Event == vtkCommand::AnyEvent))
+          (elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+          elem->Tag < maxTag)
         {
         VisitedListType::iterator vIter =
           std::lower_bound(visited.begin(), visited.end(), elem->Tag);
@@ -597,7 +603,8 @@ int vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
       {
       // store the next pointer because elem could disappear due to Command
       next = elem->Next;
-      if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+      if ((elem->Event == event || elem->Event == vtkCommand::AnyEvent) &&
+          elem->Tag < maxTag)
         {
         VisitedListType::iterator vIter =
           std::lower_bound(visited.begin(), visited.end(), elem->Tag);
