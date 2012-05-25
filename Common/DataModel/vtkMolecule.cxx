@@ -34,7 +34,9 @@ vtkStandardNewMacro(vtkMolecule);
 //----------------------------------------------------------------------------
 vtkMolecule::vtkMolecule()
 {
-  this->SetPoints(vtkPoints::New());
+  vtkPoints *points = vtkPoints::New();
+  this->SetPoints(points);
+  points->Delete();
   this->Initialize();
 }
 
@@ -78,7 +80,6 @@ void vtkMolecule::Initialize()
 vtkMolecule::~vtkMolecule()
 {
   this->SetElectronicData(NULL);
-  this->Points->Delete();
 }
 
 //----------------------------------------------------------------------------

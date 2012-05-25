@@ -116,21 +116,20 @@ int TestKMeansStatistics( int, char *[] )
   haruspex->RequestSelectedColumns();
   haruspex->SetDefaultNumberOfClusters( 3 );
 
-  cout << "## Testing with no input data:"
-           << "\n";
   // Test Learn and Derive options
   haruspex->SetLearnOption( true );
   haruspex->SetDeriveOption( true );
   haruspex->SetTestOption( false );
   haruspex->SetAssessOption( false );
-
   haruspex->Update();
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-                        haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
+
+  // Get output data and meta tables
+  vtkMultiBlockDataSet* outputMetaDS
+    = vtkMultiBlockDataSet::SafeDownCast( haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
     {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
-    if ( b == 0 )
+    if ( ! b )
       {
 
       vtkIdType testIntValue = 0;

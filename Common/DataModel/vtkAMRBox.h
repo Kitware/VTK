@@ -135,6 +135,7 @@ public:
   // Description:
   // Returns the real extent of this AMR Box instance.
   void GetRealExtent( int realExtent[6] ) const;
+  const int* GetRealExtent() const { return this->RealExtent; }
 
   // Description:
   // Sets the real extent of this AMR box instance.

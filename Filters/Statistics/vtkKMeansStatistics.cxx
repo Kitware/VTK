@@ -140,7 +140,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
       condensedTable->Delete();
       }
     }
-  if( !initialClusterCentersProvided )
+  if( ! initialClusterCentersProvided )
     {
     // otherwise create an initial set of cluster coords
     numRuns = 1;
@@ -186,7 +186,7 @@ void vtkKMeansStatistics::CreateInitialClusterCenters( vtkIdType numToAllocate,
   if( this->Internals->Requests.size() > 1 )
     {
     static int num = 0;
-    num++;
+    ++ num;
     if( num < 10 )
       {
       vtkWarningMacro( "Only the first request will be processed -- the rest will be ignored." );
@@ -312,7 +312,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  if ( !this->DistanceFunctor )
+  if ( ! this->DistanceFunctor )
     {
     vtkErrorMacro( "Distance functor is NULL" );
     return;
@@ -387,9 +387,9 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
     {
     // Initialize coordinates, cluster sizes and errors
     numMembershipChanges->FillComponent( 0, 0 );
-    for( int runID = 0; runID < numRuns; runID++)
+    for( int runID = 0; runID < numRuns; runID ++ )
       {
-      if(computeRun->GetValue( runID ))
+      if( computeRun->GetValue( runID ) )
         {
         for( vtkIdType j = startRunID->GetValue(runID); j < endRunID->GetValue(runID); j++ )
           {
@@ -426,7 +426,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
             dataElements->GetRow( observation ) );
           curDistance = minDistance;
           ++ j;
-          for( /* no init */; j < runEndIdx; j++ )
+          for( /* no init */; j < runEndIdx; j ++ )
             {
             (*this->DistanceFunctor)( curDistance,
               curClusterElements->GetRow( j ),
@@ -434,7 +434,7 @@ void vtkKMeansStatistics::Learn( vtkTable* inData,
             if( curDistance < minDistance )
               {
               minDistance = curDistance;
-              localMemberID = j-runStartIdx;
+              localMemberID = j - runStartIdx;
               offsetLocalMemberID = j;
               }
             }
@@ -770,7 +770,7 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
   this->NumRuns = 0;
 
   // cluster coordinates start in column 5 of the inModel table
-  for ( vtkIdType i=5; i < inModel->GetNumberOfColumns(); ++ i )
+  for ( vtkIdType i = 5; i < inModel->GetNumberOfColumns(); ++ i )
     {
     curClusterElements->AddColumn( inModel->GetColumn( i ) );
     dataElements->AddColumn( inData->GetColumnByName( inModel->GetColumnName( i ) ) );
@@ -831,11 +831,11 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
 void vtkKMeansAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
 {
 
-  result->SetNumberOfValues( 2*this->NumRuns );
+  result->SetNumberOfValues( 2 * this->NumRuns );
   vtkIdType resIndex = 0;
   for( int runID = 0; runID < this->NumRuns; runID++)
     {
-    result->SetValue( resIndex++, this->Distances->GetValue( row*this->NumRuns+runID ) );
-    result->SetValue( resIndex++, this->ClusterMemberIDs->GetValue( row*this->NumRuns+runID ) );
+    result->SetValue( resIndex ++, this->Distances->GetValue( row * this->NumRuns + runID ) );
+    result->SetValue( resIndex ++, this->ClusterMemberIDs->GetValue( row * this->NumRuns + runID ) );
     }
 }

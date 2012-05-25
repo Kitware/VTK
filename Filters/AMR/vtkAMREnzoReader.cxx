@@ -263,6 +263,12 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
 void vtkAMREnzoReader::ReadMetaData()
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+
+  if( !this->IsReady )
+    {
+    return;
+    }
+
   this->Internal->ReadMetaData();
 }
 
@@ -272,6 +278,12 @@ void vtkAMREnzoReader::GenerateBlockMap()
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
 
   this->BlockMap.clear();
+
+  if( !this->IsReady )
+    {
+    return;
+    }
+
   this->Internal->ReadMetaData();
 
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
@@ -334,6 +346,11 @@ int vtkAMREnzoReader::FillMetaData( )
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
   assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
+
+  if( !this->IsReady )
+    {
+    return 0;
+    }
 
   this->Internal->ReadMetaData();
   std::vector< int > b2level;

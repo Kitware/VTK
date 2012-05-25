@@ -47,6 +47,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
     virtual void CopyStructure(vtkCompositeDataSet* input)
      {this->Superclass::CopyStructure(input);}
 
+  //BTX
+  // Description:
+  // Retrieve an instance of this class from an information object.
+  static vtkNonOverlappingAMR* GetData(vtkInformation* info)
+    { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(info)); }
+  static vtkNonOverlappingAMR* GetData(vtkInformationVector* v, int i=0)
+    { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(v, i)); }
+  //ETX
+
   protected:
     vtkNonOverlappingAMR();
     virtual ~vtkNonOverlappingAMR();

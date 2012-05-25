@@ -7,6 +7,7 @@ set(MyTests
   TestLiquoriceSticks.cxx
   TestMolecule.cxx
   TestMoleculeSelection.cxx
+  TestMoleculeMapperPropertyUpdate.cxx
   TestMultiCylinderOn.cxx
   TestMultiCylinderOff.cxx
   TestPeriodicTable.cxx

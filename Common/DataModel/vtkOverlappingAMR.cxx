@@ -1026,6 +1026,8 @@ void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
       } // END for all levels
     } // END if hbds
 
+  this->CompositeIndex2LevelIdPair = hbds->CompositeIndex2LevelIdPair;
+
   this->Modified();
 }
 

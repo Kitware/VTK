@@ -437,16 +437,16 @@ int TestDescriptiveStatistics( int, char *[] )
     cout << "\n";
    }
 
-  // Clean up
-  ds2->Delete();
-
   // Test model aggregation by adding new data to engine which already has a model
   ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
-  datasetTable2->Delete();
   vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
   model->ShallowCopy( outputMetaDS1 );
   ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model );
+
+  // Clean up
   model->Delete();
+  datasetTable2->Delete();
+  ds2->Delete();
 
   // Update with Learn and Derive options only
   ds1->SetLearnOption( true );
