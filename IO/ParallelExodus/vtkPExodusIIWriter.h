@@ -65,7 +65,6 @@
 #define __vtkPExodusIIWriter_h
 
 #include "vtkIOParallelExodusModule.h" // For export macro
-#include "vtkWriter.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkExodusIIWriter.h"
 

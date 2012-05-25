@@ -164,53 +164,53 @@ elseif(VTK_INSTALL_RUNTIME)
 endif()
 
 # Create the pvtk Tcl wrapper executable with MPI support.
-IF (VTK_USE_PARALLEL)
-  IF (VTK_USE_MPI)
-    INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+if(vtkParallelMPI_ENABLED)
+  vtk_module_config(PVTK vtkParallelMPI)
+  include_directories(${PVTK_INCLUDE_DIRS})
 
-    VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
-    IF(VTK_USE_CARBON)
-      FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
-      IF(VTK_APPLE_RESOURCE)
-        ADD_CUSTOM_COMMAND(
-          SOURCE pvtk
-          COMMAND ${VTK_APPLE_RESOURCE}
-          ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtk
-          TARGET pvtk
-          )
-      ENDIF(VTK_APPLE_RESOURCE)
-    ENDIF(VTK_USE_CARBON)
-
-    TARGET_LINK_LIBRARIES (pvtk
-      ${MPI_LIBRARIES}
-    )
-
-    # Link to TCL static libraries
-    if(BUILD_SHARED_LIBS)
-      # vtkCommonCoreTCL is required even for shared builds
-      # to link the vtkTclUtil object - FIXME ??
-      target_link_libraries(pvtk vtkCommonCoreTCL)
-    else()
-      foreach(module ${VTK_TCL_WRAPPED})
-        if("${module}" STREQUAL "vtkRenderingContext2D")
-          set(module "vtkRenderingContextIID")
-        elseif("${module}" STREQUAL "vtkViewsContext2D")
-          set(module "vtkViewsContextIID")
-        endif()
-        target_link_libraries(pvtk ${module}TCL)
-      endforeach()
-    endif()
-
-    IF(VTK_INSTALL_RUNTIME)
-      INSTALL(TARGETS pvtk
-        EXPORT ${VTK_INSTALL_EXPORT_NAME}
-        RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
-        LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
-        ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
+  VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
+  IF(VTK_USE_CARBON)
+    FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+    IF(VTK_APPLE_RESOURCE)
+      ADD_CUSTOM_COMMAND(
+        SOURCE pvtk
+        COMMAND ${VTK_APPLE_RESOURCE}
+        ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtk
+        TARGET pvtk
         )
-    ENDIF()
-  ENDIF (VTK_USE_MPI)
-ENDIF (VTK_USE_PARALLEL)
+    ENDIF(VTK_APPLE_RESOURCE)
+  ENDIF(VTK_USE_CARBON)
+
+  target_link_libraries(pvtk ${PVTK_LIBRARIES})
+  if(VTK_USE_TK)
+    target_link_libraries(pvtk ${VTK_TK_LIBRARIES})
+  endif(VTK_USE_TK)
+
+  # Link to TCL static libraries
+  if(BUILD_SHARED_LIBS)
+    # vtkCommonCoreTCL is required even for shared builds
+    # to link the vtkTclUtil object - FIXME ??
+    target_link_libraries(pvtk vtkCommonCoreTCL)
+  else()
+    foreach(module ${VTK_TCL_WRAPPED})
+      if("${module}" STREQUAL "vtkRenderingContext2D")
+        set(module "vtkRenderingContextIID")
+      elseif("${module}" STREQUAL "vtkViewsContext2D")
+        set(module "vtkViewsContextIID")
+      endif()
+      target_link_libraries(pvtk ${module}TCL)
+    endforeach()
+  endif()
+
+  IF(VTK_INSTALL_RUNTIME)
+    INSTALL(TARGETS pvtk
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
+      RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT RuntimeExecutables # .exe, .dll
+      LIBRARY DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT RuntimeLibraries # .so, mod.dll
+      ARCHIVE DESTINATION ${VTK_INSTALL_LIB_DIR_CM24} COMPONENT Development      # .a, .lib
+      )
+  ENDIF()
+endif()
 
 if(NOT VTK_INSTALL_NO_DOCUMENTATION)
   install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/README"

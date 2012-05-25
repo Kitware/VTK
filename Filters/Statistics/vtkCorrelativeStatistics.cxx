@@ -134,7 +134,8 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
     for ( int r = 0; r < nRow; ++ r )
       {
       // Verify that variable names match each other
-      if ( primaryTab->GetValueByName( r, "Variable" ) != aggregatedTab->GetValueByName( r, "Variable" ) )
+      if ( primaryTab->GetValueByName( r, "Variable X" ) != aggregatedTab->GetValueByName( r, "Variable X" )
+           || primaryTab->GetValueByName( r, "Variable Y" ) != aggregatedTab->GetValueByName( r, "Variable Y" ) )
         {
         // Models do not match
         aggregatedTab->Delete();

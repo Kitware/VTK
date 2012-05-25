@@ -10,9 +10,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${VTK_BINARY_DIR}/Wrapping
   ${VTK_BINARY_DIR}/Utilities/KWSys)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
-
 # Get our lists of modules to be wrapped, create a list of uniques that need to
 # have wrap hierarchy run on them too.
 get_property(_python_modules GLOBAL PROPERTY VTK_PYTHON_WRAPPED)

@@ -122,6 +122,15 @@ int main()
 }
 #endif
 
+#ifdef TEST_KWSYS_CXX_HAS___INT64
+__int64 f(__int64 n) { return n; }
+int main()
+{
+  __int64 n = 0;
+  return static_cast<int>(f(n));
+}
+#endif
+
 #ifdef TEST_KWSYS_CXX_HAS_NULL_TEMPLATE_ARGS
 template <class T> class A;
 template <class T> int f(A<T>&);
@@ -390,6 +399,32 @@ int main(int, char **argv)
   fseek( file, offset, SEEK_CUR );
   fclose( file );
   return 0;
+}
+#endif
+
+#ifdef TEST_KWSYS_CXX_HAS_SETENV
+#include <stdlib.h>
+int main()
+{
+  return setenv("A", "B", 1);
+}
+#endif
+
+#ifdef TEST_KWSYS_CXX_HAS_UNSETENV
+#include <stdlib.h>
+int main()
+{
+  unsetenv("A");
+  return 0;
+}
+#endif
+
+#ifdef TEST_KWSYS_CXX_HAS_ENVIRON_IN_STDLIB_H
+#include <stdlib.h>
+int main()
+{
+  char* e = environ[0];
+  return e? 0:1;
 }
 #endif
 
