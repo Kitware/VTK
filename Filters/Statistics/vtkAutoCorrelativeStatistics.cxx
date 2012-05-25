@@ -268,7 +268,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
   vtkIdType maxLag = 0;
   for ( vtkIdType r = 0; r < nRowPara; ++ r )
     {
-    vtkIdType lag = inData->GetValue( r, 0 ).ToInt();
+    vtkIdType lag = inPara->GetValue( r, 0 ).ToInt();
     if ( lag > maxLag )
       {
       maxLag = lag;

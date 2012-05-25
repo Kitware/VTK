@@ -3,6 +3,7 @@
 
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
@@ -111,6 +112,15 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   datasetTable1->AddColumn( dataset2Arr );
   dataset2Arr->Delete();
 
+  // Create input parameter table for the stationary case
+  vtkIdTypeArray* timeLags = vtkIdTypeArray::New();
+  timeLags->SetName( "Time Lags" );
+  timeLags->SetNumberOfTuples( 1 );
+  timeLags->SetValue( 0, 0 );
+  vtkTable* paramTable = vtkTable::New();
+  paramTable->AddColumn( timeLags );
+  timeLags->Delete();
+
   // Columns of interest
   int nMetrics1 = 2;
   vtkStdString columns1[] =
@@ -144,9 +154,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     as1->AddColumn( columns1[i] );
     }
 
-  // Take autocorrelation of whole data set with respect to itself
-  // NB: Not setting the time lag on purpose, as 0 should be the default
+  // Set spatial cardinality
   as1->SetSliceCardinality( nVals1 ); 
+
+  // Set parameters for autocorrelation of whole data set with respect to itself
+  as1->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
 
   // Test Learn and Derive options
   as1->SetLearnOption( true );
@@ -236,9 +248,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     as2->AddColumn( columns1[i] );
     }
 
-  // Take autocorrelation of whole data set with respect to itself
-  // NB: Not setting the time lag on purpose, as 0 should be the default
+  // Set spatial cardinality
   as2->SetSliceCardinality( nVals2 ); 
+
+  // Set parameters for autocorrelation of whole data set with respect to itself
+  as2->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
 
   // Update with Learn option only
   as2->SetLearnOption( true );
@@ -425,8 +439,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     as3->AddColumn( columns2[i] );
     }
 
-  // Set autocorrelation parameters for first slice against slice following midpoint
+  // Set spatial cardinality
   as3->SetSliceCardinality( cardSlice ); 
+
+  // Set autocorrelation parameters for first slice against slice following midpoint
+  paramTable->SetValueByName( 0, "Time Lags", nSteps / 2 );
+  as3->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
   as3->SetTimeLag( nSteps / 2 ); 
 
   // Test Learn, and Derive options
@@ -490,6 +508,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Clean up
   as3->Delete();
+  paramTable->Delete();
 
   return testStatus;
 }
