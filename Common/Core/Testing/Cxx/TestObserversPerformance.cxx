@@ -52,7 +52,7 @@ public:
   static vtkSimpleCommand* New() { return new vtkSimpleCommand();}
   vtkTypeMacro(vtkSimpleCommand, vtkCommand);
 
-  virtual void Execute(vtkObject*, unsigned long event, void*)
+  virtual void Execute(vtkObject*, unsigned long, void*)
     {
       this->MTime.Modified();
     }
@@ -103,7 +103,7 @@ int TestObserversPerformance(int, char*[])
         }
       }
     }
-  return EXIT_SUCCESS;
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 //------------------------------------------------------------------------------
