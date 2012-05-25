@@ -413,7 +413,6 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   // Set autocorrelation parameters for first slice against slice following midpoint
   paramTable->SetValueByName( 0, "Time Lags", nSteps / 2 );
   as3->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
-  as3->SetTimeLag( nSteps / 2 ); 
 
   // Test Learn, and Derive options
   as3->SetLearnOption( true );

@@ -42,7 +42,6 @@ vtkAutoCorrelativeStatistics::vtkAutoCorrelativeStatistics()
   this->AssessNames->SetValue( 0, "d^2" ); // Squared Mahalanobis distance
 
   this->SliceCardinality = 0; // Invalid value by default. Correct value must be specified.
-  this->TimeLag = 0; // By default, autocorrelation matrix only contains var(X)
 }
 
 // ----------------------------------------------------------------------
@@ -55,7 +54,6 @@ void vtkAutoCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
   os << indent << "SliceCardinality: " << this->SliceCardinality << "\n";
-  os << indent << "TimeLag: " << this->TimeLag << "\n";
 }
 
 // ----------------------------------------------------------------------
