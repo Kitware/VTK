@@ -308,15 +308,15 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     modelTab->AddColumn( doubleCol );
     doubleCol->Delete();
 
-    double meanXs = 0.;
-    double meanXt = 0.;
-    double mom2Xs = 0.;
-    double mom2Xt = 0.;
-    double momXsXt = 0.;
-
     // Loop over parameter table
     for ( vtkIdType p = 0; p < nRowPara; ++ p )
       {
+      double meanXs = 0.;
+      double meanXt = 0.;
+      double mom2Xs = 0.;
+      double mom2Xt = 0.;
+      double momXsXt = 0.;
+
       // Retrieve current time lag
       vtkIdType lag = inPara->GetValue( p, 0 ).ToInt();
 
