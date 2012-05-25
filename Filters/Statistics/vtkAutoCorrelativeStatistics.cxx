@@ -54,6 +54,7 @@ vtkAutoCorrelativeStatistics::~vtkAutoCorrelativeStatistics()
 void vtkAutoCorrelativeStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
+  os << indent << "SliceCardinality: " << this->SliceCardinality << "\n";
   os << indent << "TimeLag: " << this->TimeLag << "\n";
 }
 
