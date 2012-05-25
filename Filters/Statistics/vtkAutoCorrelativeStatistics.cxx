@@ -226,17 +226,17 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Process list of time lags given by parameter table and determine maximum
+  // Process lparameter table and determine maximum time lag
   vtkIdType nRowPara = inPara->GetNumberOfRows();
   vtkIdType maxLag = 0;
-  for ( vtkIdType r = 0; r < nRowPara; ++ r )
+  for ( vtkIdType p = 0; p < nRowPara; ++ p )
     {
-    vtkIdType lag = inPara->GetValue( r, 0 ).ToInt();
+    vtkIdType lag = inPara->GetValue( p, 0 ).ToInt();
     if ( lag > maxLag )
       {
       maxLag = lag;
       }
-    }
+    } // p
 
   // Verify that a slice cardinality, maximum lag, and data size are consistent
   vtkIdType nRowData = inData->GetNumberOfRows();
@@ -253,8 +253,9 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  // Store offset into input data table, which will remain constant across variables
-  vtkIdType rowOffset = this->TimeLag * this->SliceCardinality;
+  // Rows of the model tables have 6 primary statistics
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 7 );
 
   // Loop over requests
   for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
@@ -275,6 +276,11 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     vtkTable* modelTab = vtkTable::New();
 
     vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+    idTypeCol->SetName( "Time Lag" );
+    modelTab->AddColumn( idTypeCol );
+    idTypeCol->Delete();
+
+    idTypeCol = vtkIdTypeArray::New();
     idTypeCol->SetName( "Cardinality" );
     modelTab->AddColumn( idTypeCol );
     idTypeCol->Delete();
@@ -310,49 +316,58 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     double mom2Xt = 0.;
     double momXsXt = 0.;
 
-    double inv_n, xs, xt, delta, deltaXsn;
-    for ( vtkIdType r = 0; r < this->SliceCardinality; ++ r )
+    // Loop over parameter table
+    for ( vtkIdType p = 0; p < nRowPara; ++ p )
       {
-      inv_n = 1. / ( r + 1. );
+      // Retrieve current time lag
+      vtkIdType lag = inPara->GetValue( p, 0 ).ToInt();
 
-      xs = inData->GetValueByName( r, varName ).ToDouble();
-      delta = xs - meanXs;
-      meanXs += delta * inv_n;
-      deltaXsn = xs - meanXs;
-      mom2Xs += delta * deltaXsn;
+      // Offset into input data table for current time lag
+      vtkIdType rowOffset = lag * this->SliceCardinality;
 
-      xt = inData->GetValueByName( r + rowOffset, varName ).ToDouble();
-      delta = xt - meanXt;
-      meanXt += delta * inv_n;
-      mom2Xt += delta * ( xt - meanXt );
-
-      momXsXt += delta * deltaXsn;
-      }
-
-    vtkVariantArray* row = vtkVariantArray::New();
-
-    row->SetNumberOfValues( 6 );
-
-    row->SetValue( 0, this->SliceCardinality );
-    row->SetValue( 1, meanXs );
-    row->SetValue( 2, meanXt );
-    row->SetValue( 3, mom2Xs );
-    row->SetValue( 4, mom2Xt );
-    row->SetValue( 5, momXsXt );
-
-    modelTab->InsertNextRow( row );
-
-    row->Delete();
+      // Calculate primary statistics
+      double inv_n, xs, xt, delta, deltaXsn;
+      for ( vtkIdType r = 0; r < this->SliceCardinality; ++ r )
+        {
+        inv_n = 1. / ( r + 1. );
+        
+        xs = inData->GetValueByName( r, varName ).ToDouble();
+        delta = xs - meanXs;
+        meanXs += delta * inv_n;
+        deltaXsn = xs - meanXs;
+        mom2Xs += delta * deltaXsn;
+        
+        xt = inData->GetValueByName( r + rowOffset, varName ).ToDouble();
+        delta = xt - meanXt;
+        meanXt += delta * inv_n;
+        mom2Xt += delta * ( xt - meanXt );
+        
+        momXsXt += delta * deltaXsn;
+        }
+      
+      // Store primary statistics
+      row->SetValue( 0, lag );
+      row->SetValue( 1, this->SliceCardinality );
+      row->SetValue( 2, meanXs );
+      row->SetValue( 3, meanXt );
+      row->SetValue( 4, mom2Xs );
+      row->SetValue( 5, mom2Xt );
+      row->SetValue( 6, momXsXt );
+      modelTab->InsertNextRow( row );
+      } // p
 
     // Resize output meta so primary table can be appended
     unsigned int nBlocks = outMeta->GetNumberOfBlocks();
     outMeta->SetNumberOfBlocks( nBlocks + 1 );
     outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), varName );
     outMeta->SetBlock( nBlocks, modelTab );
-
+    
     // Clean up
     modelTab->Delete();
     } // rit
+    
+    // Clean up
+    row->Delete();
 }
 
 // ----------------------------------------------------------------------
@@ -451,10 +466,10 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         derivedVals[4] = covXsXt / varXs;
         }
-      //   intersect
+      //   intercept
       derivedVals[5] = meanXt - derivedVals[4] * meanXs;
       
-      //   variable Xs on variable Xt:
+      // variable Xs on variable Xt:
       //   slope (explicitly handle degenerate cases)
       if ( varXt < VTK_DBL_MIN )
         {
@@ -464,7 +479,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         derivedVals[6] = covXsXt / varXt;
         }
-      //   intersect
+      //   intercept
       derivedVals[7] = meanXs - derivedVals[6] * meanXt;
 
       // correlation coefficient (be consistent with degenerate cases detected above)
