@@ -1,6 +1,7 @@
 // .SECTION Thanks
 // This test was implemented by Philippe Pebay, Kitware SAS 2012
 
+#include "vtkAutoCorrelativeStatistics.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -10,7 +11,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
-#include "vtkAutoCorrelativeStatistics.h"
+#include "vtkVariantArray.h"
 
 //=============================================================================
 int TestAutoCorrelativeStatistics( int, char *[] )
@@ -339,6 +340,16 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   vtkIdType cardSlice = 1000;
   vtkIdType cardTotal = nSteps * cardSlice;
 
+  // Expand parameter table to contain all steps
+  vtkVariantArray* row = vtkVariantArray::New();
+  row->SetNumberOfValues( 1 );
+  for ( vtkIdType p = 1; p < nSteps; ++ p )
+    {
+    row->SetValue( 0, p );
+    paramTable->InsertNextRow( row );
+    }
+  row->Delete();
+
   vtkDoubleArray* lineArr = vtkDoubleArray::New();
   lineArr->SetNumberOfComponents( 1 );
   lineArr->SetName( "Line" );
@@ -389,12 +400,17 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     };
 
   // Reference values
-  // Means of Xs for circle, line, and v-shaped variables respectively
   double halfNm1 = .5 * ( cardSlice - 1 );
-  double meansXs3[] = { 0., halfNm1, cardTotal - halfNm1 };
+
+  // Means of Xs for circle, line, and v-shaped variables respectively
+  double meansXt3[] = { 0., 0.,
+                        halfNm1, halfNm1 + cardSlice,
+                        cardTotal - halfNm1, cardTotal - halfNm1 - 1. };
 
   // Pearson r values for circle, line, and v-shaped variables respectively
-  double pearson3[] = { 0., 1., -1. };
+  double pearson3[] = { 1., 0.,
+                        1., 1.,
+                        1., -1. };
 
   // Prepare autocorrelative statistics algorithm and its input data port
   vtkAutoCorrelativeStatistics* as3 = vtkAutoCorrelativeStatistics::New();
@@ -408,10 +424,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     }
 
   // Set spatial cardinality
-  as3->SetSliceCardinality( cardSlice ); 
+  as3->SetSliceCardinality( cardSlice );
 
   // Set autocorrelation parameters for first slice against slice following midpoint
-  paramTable->SetValueByName( 0, "Time Lags", nSteps / 2 );
   as3->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
 
   // Test Learn, and Derive options
@@ -423,7 +438,6 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Get output data and meta tables
   vtkMultiBlockDataSet* outputModelAS3 = vtkMultiBlockDataSet::SafeDownCast( as3->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
-  vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( 0 ) );
 
   cout << "\n## Calculated the following statistics for third data set:\n";
   for ( unsigned b = 0; b < outputModelAS3->GetNumberOfBlocks(); ++ b )
@@ -435,29 +449,33 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
     vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( b ) );
     cout << "   ";
-    for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
+    for ( int r = 0; r < modelTab->GetNumberOfRows(); ++ r )
       {
-      cout << modelTab->GetColumnName( i )
-           << "="
-           << modelTab->GetValue( 0, i ).ToString()
-           << "  ";
-      }
+      for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
+        {
+        cout << modelTab->GetColumnName( i )
+             << "="
+             << modelTab->GetValue( r, i ).ToString()
+             << "  ";
+        }
 
-    // Verify some of the calculated statistics
-    if ( fabs ( modelTab->GetValueByName( 0, "Mean Xs" ).ToDouble() - meansXs3[b] ) > 1.e-6 )
-      {
-      vtkGenericWarningMacro("Incorrect mean for Xs");
-      testStatus = 1;
-      }
+      // Verify some of the calculated statistics
+      int idx = nSteps * b + r; 
+      if ( fabs ( modelTab->GetValueByName( r, "Mean Xt" ).ToDouble() - meansXt3[idx] ) > 1.e-6 )
+        {
+        vtkGenericWarningMacro("Incorrect mean for Xt");
+        testStatus = 1;
+        }
+      
+      if ( fabs ( modelTab->GetValueByName( r, "Pearson r" ).ToDouble() - pearson3[idx] ) > 1.e-6 )
+        {
+        vtkGenericWarningMacro("Incorrect Pearson correlation coefficient "<<pearson3[idx]);
+        testStatus = 1;
+        }
 
-    if ( fabs ( modelTab->GetValueByName( 0, "Pearson r" ).ToDouble() - pearson3[b] ) > 1.e-6 )
-      {
-      vtkGenericWarningMacro("Incorrect Pearson correlation coefficient");
-      testStatus = 1;
-      }
-
-    cout << "\n";
-    }
+      cout << "\n";
+      } // i
+    } // r
 
   // Clean up
   as3->Delete();
