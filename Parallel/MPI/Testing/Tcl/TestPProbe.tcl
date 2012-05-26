@@ -1,4 +1,5 @@
 package require vtk
+package require vtkinteraction
 
 if { [ info command vtkMesaRenderer ] != "" } {
     vtkGraphicsFactory _graphics_fact
