@@ -6,7 +6,7 @@ package require vtktesting
 #
 vtkSphereSource ss
 vtkPolyDataMapper mapper
-  mapper SetInput [ss GetOutput]
+  mapper SetInputConnection [ss GetOutputPort]
 vtkActor actor
   actor SetMapper mapper
 

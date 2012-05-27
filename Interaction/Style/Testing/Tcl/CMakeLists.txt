@@ -8,7 +8,6 @@ if(VTK_DATA_ROOT)
     TestStyleRubberBandZoom
     TestInteractorStyleTerrain
     TestStyleTerrain
-    TestStyleBase
     TestStyleTrackballActor
     TestStyleBaseSpike
     TestStyleTrackballCamera
