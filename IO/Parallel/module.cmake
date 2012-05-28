@@ -9,8 +9,6 @@ vtk_module(vtkIOParallel
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
-    vtkParallelMPI
-    vtkIOMPIImage
     vtkInteractionStyle
     vtkRenderingOpenGL
   )
