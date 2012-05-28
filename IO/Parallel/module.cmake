@@ -1,6 +1,4 @@
 vtk_module(vtkIOParallel
-  GROUPS
-    MPI
   DEPENDS
     vtkParallelCore
     vtkFiltersParallel
