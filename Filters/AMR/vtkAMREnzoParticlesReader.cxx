@@ -154,6 +154,12 @@ void vtkAMREnzoParticlesReader::ReadMetaData()
     return;
     }
 
+  if( !this->FileName )
+    {
+    vtkErrorMacro("No FileName set!");
+    return;
+    }
+
   this->Internal->SetFileName( this->FileName );
   std::string  tempName( this->FileName );
   std::string  bExtName( ".boundary" );
