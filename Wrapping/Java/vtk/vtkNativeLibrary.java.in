@@ -16,19 +16,7 @@ import java.io.File;
  */
 public enum vtkNativeLibrary {
 
-    COMMON("vtkCommonJava"), //
-    FILTERING("vtkFilteringJava"), //
-    GEOVIS("vtkGeovisJava"), //
-    GRAPHICS("vtkGraphicsJava"), //
-    HYBRID("vtkHybridJava"), //
-    IMAGING("vtkImagingJava"), //
-    INFOVIS("vtkInfovisJava"), //
-    IO("vtkIOJava"), //
-    RENDERING("vtkRenderingJava"), //
-    VIEWS("vtkViewsJava"), //
-    VOLUME_RENDERING("vtkVolumeRenderingJava"), //
-    WIDGETS("vtkWidgetsJava"), //
-    CHARTS("vtkChartsJava");
+@VTK_JAVA_NATIVE_LIBRARIES@
 
     /**
      * Try to load all library
@@ -39,7 +27,9 @@ public enum vtkNativeLibrary {
         boolean isEveryThingLoaded = true;
         for (vtkNativeLibrary lib : values()) {
             try {
-                lib.LoadLibrary();
+                if(lib.IsBuilt()) {
+                    lib.LoadLibrary();
+                }
             } catch (UnsatisfiedLinkError e) {
                 isEveryThingLoaded = false;
             }
@@ -76,9 +66,10 @@ public enum vtkNativeLibrary {
         outputError.SetInstance(outputError);
     }
 
-    private vtkNativeLibrary(String nativeLibraryName) {
+    private vtkNativeLibrary(String nativeLibraryName, boolean built) {
         this.nativeLibraryName = nativeLibraryName;
         this.loaded = false;
+        this.built = built;
     }
 
     /**
@@ -106,10 +97,17 @@ public enum vtkNativeLibrary {
     }
 
     /**
-     * @return true if the library has already been succefuly loaded
+     * @return true if the library has already been successfully loaded
      */
     public boolean IsLoaded() {
         return loaded;
+    }
+
+    /**
+     * @return true if the module was enabled and therefore build
+     */
+    public boolean IsBuilt() {
+        return built;
     }
 
     /**
@@ -132,4 +130,5 @@ public enum vtkNativeLibrary {
 
     private String nativeLibraryName;
     private boolean loaded;
+    private boolean built;
 }

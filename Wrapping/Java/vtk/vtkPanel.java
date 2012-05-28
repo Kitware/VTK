@@ -35,22 +35,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     protected boolean rendering = false;
 
     static {
-        vtkNativeLibrary.COMMON.LoadLibrary();
-        vtkNativeLibrary.FILTERING.LoadLibrary();
-        vtkNativeLibrary.IO.LoadLibrary();
-        vtkNativeLibrary.IMAGING.LoadLibrary();
-        vtkNativeLibrary.GRAPHICS.LoadLibrary();
-        vtkNativeLibrary.RENDERING.LoadLibrary();
-        try {
-            vtkNativeLibrary.HYBRID.LoadLibrary();
-        } catch (UnsatisfiedLinkError e) {
-            System.out.println("cannot load vtkHybrid, skipping...");
-        }
-        try {
-            vtkNativeLibrary.VOLUME_RENDERING.LoadLibrary();
-        } catch (Throwable e) {
-            System.out.println("cannot load vtkVolumeRendering, skipping...");
-        }
+        vtkNativeLibrary.LoadAllNativeLibraries();
     }
 
     // Allow access to display lock() and unlock().
