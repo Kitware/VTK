@@ -84,6 +84,26 @@ string(REGEX REPLACE "vtk" "" KITS "${_MODULES_TO_WRAP}")
 configure_file(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkSettings.java.in
                ${VTK_BINARY_DIR}/java/vtk/vtkSettings.java)
 
+# configure vtkNativeLibrary.java to enable loading of VTK module libraries
+set(VTK_JAVA_NATIVE_LIBRARIES)
+foreach(module ${VTK_MODULES_ALL})
+  if(NOT VTK_MODULE_${module}_EXCLUDE_FROM_WRAPPING)
+    string(TOUPPER ${module} _enum_name)
+    set(_enabled "false")
+    if(${${module}_ENABLED})
+      set(_enabled "true")
+    endif()
+    set(_enum_contr_call "    ${_enum_name}(\"${module}Java\", ${_enabled}),\n")
+    set(VTK_JAVA_NATIVE_LIBRARIES "${VTK_JAVA_NATIVE_LIBRARIES}${_enum_contr_call}")
+  endif()
+endforeach()
+
+# replace last , with ;
+string(REGEX REPLACE "^(.*),\n$" "\\1;\n" VTK_JAVA_NATIVE_LIBRARIES ${VTK_JAVA_NATIVE_LIBRARIES})
+
+configure_file(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkNativeLibrary.java.in
+               ${VTK_BINARY_DIR}/java/vtk/vtkNativeLibrary.java)
+
 # Add to class list so classes get cleaned up
 list(APPEND VTK_JAVA_CLASS_FILES ${VTK_BINARY_DIR}/java/vtk/vtkSettings.class)
 
@@ -151,7 +171,7 @@ foreach(jfile ${VTK_JAVA_DEPENDENCIES})
   set(class ${VTK_JAVA_HOME}/${jfile}.class)
   # Add to class list so classes get cleaned up
   list(APPEND VTK_JAVA_CLASS_FILES ${class})
-  if(jfile MATCHES "vtkSettings")
+  if(jfile MATCHES "vtkSettings" OR jfile MATCHES "vtkNativeLibrary")
   else()
     configure_file(${src} ${dst} COPYONLY)
   endif()
