@@ -1,5 +1,6 @@
 ## List all test sources
 set(MyTests
+    TestAMRGhostLayerStripping.cxx
     TestFlashReader.cxx
     TestEnzoReader.cxx
     )
