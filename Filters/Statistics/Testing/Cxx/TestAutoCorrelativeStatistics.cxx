@@ -136,7 +136,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   double meansXs1[] = { 49.21875 , 49.5 };
 
   // Standard deviations for metrics 0 and 1, respectively
-  double vars1[] = { 5.9828629, 7.548397 };
+  double varsXs1[] = { 5.9828629, 7.548397 };
 
   // Set autocorrelative statistics algorithm and its input data port
   vtkAutoCorrelativeStatistics* as1 = vtkAutoCorrelativeStatistics::New();
@@ -197,7 +197,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
-    if ( fabs ( modelTab->GetValueByName( 0, "Variance Xs" ).ToDouble() - vars1[b] ) > 1.e-5 )
+    if ( fabs ( modelTab->GetValueByName( 0, "Variance Xs" ).ToDouble() - varsXs1[b] ) > 1.e-5 )
       {
       vtkGenericWarningMacro("Incorrect variance for Xs");
       testStatus = 1;
