@@ -789,9 +789,10 @@ IF(KWSYS_C_SRCS OR KWSYS_CXX_SRCS)
       TARGET_LINK_LIBRARIES(${KWSYS_NAMESPACE} ${CMAKE_DL_LIBS})
     ENDIF(UNIX)
   ENDIF(KWSYS_USE_DynamicLoader)
-  
+
   IF(KWSYS_USE_SystemInformation AND WIN32)
     TARGET_LINK_LIBRARIES(${KWSYS_NAMESPACE} ws2_32)
+    TARGET_LINK_LIBRARIES(${KWSYS_NAMESPACE} Psapi)
   ENDIF(KWSYS_USE_SystemInformation AND WIN32)
 
   # Apply user-defined target properties to the library.
