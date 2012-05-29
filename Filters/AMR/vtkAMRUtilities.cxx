@@ -520,3 +520,82 @@ void vtkAMRUtilities::ComputeLevelRefinementRatio(
      amr->SetRefinementRatio(level,ratio);
      } // END for all hi-res levels
 }
+
+//------------------------------------------------------------------------------
+bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
+    vtkOverlappingAMR *amr)
+{
+  assert("pre: input AMR data is NULL" && (amr != NULL) );
+  unsigned int numLevels = amr->GetNumberOfLevels();
+  unsigned int levelIdx = numLevels-1;
+  for(; levelIdx > 0; --levelIdx )
+    {
+    unsigned int lowResLevel = levelIdx-1;
+    assert("pre: lowResLevel >= 0" && (static_cast<int>(lowResLevel) >= 0) );
+
+    int r = amr->GetRefinementRatio( levelIdx );
+    unsigned int numDataSets = amr->GetNumberOfDataSets( levelIdx );
+    for( unsigned int dataIdx=0; dataIdx < numDataSets; ++dataIdx )
+      {
+      assert( "pre: AMR dataset has no metadata for requested grid!" &&
+               amr->HasMetaData(levelIdx,dataIdx) );
+
+      vtkAMRBox myBox;
+      amr->GetMetaData(levelIdx,dataIdx,myBox);
+
+      vtkAMRBox coarsenedBox = myBox;
+      coarsenedBox.Coarsen( r );
+
+      // Detecting partially overlapping boxes is based on the following:
+      // Cell location k at level L-1 holds the range [k*r,k*r+(r-1)] of
+      // level L, where r is the refinement ratio. Consequently, if the
+      // min extent of the box is greater than k*r or if the max extent
+      // of the box is less than k*r+(r-1), then the grid partially overlaps.
+      for( int i=0; i < myBox.GetDimensionality(); ++i )
+        {
+        int minRange[2];
+        minRange[0] = coarsenedBox.LoCorner[i]*r;
+        minRange[1] = coarsenedBox.LoCorner[i]*r + (r-1);
+        if( myBox.LoCorner[i] > minRange[0] )
+          {
+          return true;
+          }
+
+        int maxRange[2];
+        maxRange[0] = coarsenedBox.HiCorner[i]*r;
+        maxRange[1] = coarsenedBox.HiCorner[i]*r + (r-1);
+        if( myBox.HiCorner[i] < maxRange[1] )
+          {
+          return true;
+          }
+        } // END for all dimensions
+
+      } // END for all data at the current level
+    } // END for all levels
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRUtilities::StripGhostLayers(
+        vtkOverlappingAMR *ghostedAMRData,
+        vtkOverlappingAMR *strippedAMRData)
+{
+  assert("pre: input AMR data is NULL" && (ghostedAMRData != NULL) );
+  assert("pre: outputAMR data is NULL" && (strippedAMRData != NULL) );
+
+  if( !vtkAMRUtilities::HasPartiallyOverlappingGhostCells( ghostedAMRData ) )
+    {
+    strippedAMRData->ShallowCopy(ghostedAMRData);
+    return;
+    }
+
+  unsigned int levelIdx = 0;
+  for( ;levelIdx < ghostedAMRData->GetNumberOfLevels(); ++levelIdx )
+    {
+    unsigned int dataIdx = 0;
+    for( ;dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
+      {
+      // TODO: ?
+      } // END for all data at the given level
+    } // END for all levels
+}

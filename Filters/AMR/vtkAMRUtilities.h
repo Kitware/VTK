@@ -30,8 +30,8 @@
 
 // Forward declarations
 class vtkAMRBox;
-class vtkOverlappingAMR;
 class vtkMultiProcessController;
+class vtkOverlappingAMR;
 class vtkUniformGrid;
 
 class VTKFILTERSAMR_EXPORT vtkAMRUtilities : public vtkObject
@@ -95,6 +95,25 @@ public:
   // 3) The refinement ratio is uniform along each dimension of the block.
   static void ComputeLevelRefinementRatio(
       vtkOverlappingAMR *amrData );
+
+  // Description:
+  // This method detects and strips partially overlapping cells from a
+  // given AMR dataset. If ghost layers are detected, they are removed and
+  // new grid instances are created to represent the stripped
+  // data-set otherwise, each block is shallow-copied.
+  //
+  // .SECTION Assumptions
+  // 1) The ghosted AMR data must have complete metadata information.
+  static void StripGhostLayers(
+      vtkOverlappingAMR *ghostedAMRData,
+      vtkOverlappingAMR *strippedAMRData);
+
+  // Description:
+  // A quick test of whether partially overlapping ghost cells exist. This test
+  // starts from the highest-res boxes and checks if they have partially
+  // overlapping cells. The code returns with true once partially overlapping
+  // cells are detected. Otherwise, false is returned.
+  static bool HasPartiallyOverlappingGhostCells(vtkOverlappingAMR *amr);
 
 protected:
   vtkAMRUtilities() {};
