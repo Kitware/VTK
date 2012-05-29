@@ -1,6 +1,6 @@
 find_package(MPI REQUIRED)
 mark_as_advanced(MPI_LIBRARY MPI_EXTRA_LIBRARY)
-include_directories(${MPI_INCLUDE_PATH})
+set(vtkParallelMPI_SYSTEM_INCLUDE_DIRS ${MPI_INCLUDE_PATH})
 
 #-----------------------------------------------------------------------------
 # Configure MPI testing support.

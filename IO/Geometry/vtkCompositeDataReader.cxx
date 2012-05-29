@@ -14,15 +14,21 @@
 =========================================================================*/
 #include "vtkCompositeDataReader.h"
 
+#include "vtkAMRBox.h"
 #include "vtkDataObjectTypes.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericDataObjectReader.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkGenericDataObjectReader.h"
+#include "vtkUniformGrid.h"
 
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/ios/sstream>
@@ -162,6 +168,14 @@ int vtkCompositeDataReader::ReadOutputType()
       {
       return VTK_MULTIPIECE_DATA_SET;
       }
+    if (strncmp(this->LowerCase(line), "overlapping_amr", strlen("overlapping_amr")) == 0)
+      {
+      return VTK_OVERLAPPING_AMR;
+      }
+    if (strncmp(this->LowerCase(line), "non_overlapping_amr", strlen("non_overlapping_amr")) == 0)
+      {
+      return VTK_NON_OVERLAPPING_AMR;
+      }
     if (strncmp(this->LowerCase(line), "hierarchical_box",
         strlen("hierarchical_box")) == 0)
       {
@@ -184,6 +198,8 @@ int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector *
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::GetData(outputVector, 0);
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::GetData(outputVector, 0);
   vtkHierarchicalBoxDataSet* hb = vtkHierarchicalBoxDataSet::GetData(outputVector, 0);
+  vtkOverlappingAMR* oamr = vtkOverlappingAMR::GetData(outputVector, 0);
+  vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::GetData(outputVector, 0);
 
   // Read the data-type description line which was already read in
   // RequestDataObject() so we just skip it here without any additional
@@ -207,6 +223,14 @@ int vtkCompositeDataReader::RequestData(vtkInformation *, vtkInformationVector *
   else if (hb)
     {
     this->ReadCompositeData(hb);
+    }
+  else if (oamr)
+    {
+    this->ReadCompositeData(oamr);
+    }
+  else if (noamr)
+    {
+    this->ReadCompositeData(noamr);
     }
 
   return 1;
@@ -276,6 +300,141 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
 
 //----------------------------------------------------------------------------
 bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* hb)
+{
+  (void)hb;
+  vtkErrorMacro("This isn't supported yet.");
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
+{
+  char line[256];
+  if (!this->ReadString(line))
+    {
+    vtkErrorMacro("Failed to read levels");
+    return false;
+    }
+
+  if (strncmp(this->LowerCase(line), "levels", strlen("levels")) != 0)
+    {
+    vtkErrorMacro("Failed to read LEVELS.");
+    return false;
+    }
+
+  unsigned int num_levels = 0;
+  if (!this->Read(&num_levels))
+    {
+    vtkErrorMacro("Failed to read number of levels");
+    return false;
+    }
+  oamr->SetNumberOfLevels(num_levels);
+
+  unsigned int total_datasets = 0;
+  for (unsigned int cc=0; cc < num_levels; cc++)
+    {
+    unsigned int num_datasets = 0;
+    if (!this->Read(&num_datasets))
+      {
+      vtkErrorMacro("Failed to read number of datasets for level " << cc);
+      return false;
+      }
+    oamr->SetNumberOfDataSets(cc, num_datasets);
+    total_datasets += num_datasets;
+    }
+
+  for (unsigned int cc=0; cc <= total_datasets; cc++)
+    {
+    if (!this->ReadString(line))
+      {
+      vtkErrorMacro("Failed to read 'CHILD' or 'METADATA' line");
+      return false;
+      }
+
+    if (strncmp(this->LowerCase(line), "child", strlen("child")) == 0)
+      {
+      unsigned int level=0, index=0;
+      if (!this->Read(&level) || !this->Read(&index))
+        {
+        vtkErrorMacro("Failed to read level and index information");
+        return false;
+        }
+      this->ReadLine(line);
+      vtkDataObject* child = this->ReadChild();
+      if (!child)
+        {
+        vtkErrorMacro("Failed to read dataset at " << level << ", " << index);
+        return false;
+        }
+      if (child->IsA("vtkImageData"))
+        {
+        vtkUniformGrid* grid = vtkUniformGrid::New();
+        grid->ShallowCopy(child);
+        oamr->SetDataSet(level, index, grid);
+        grid->FastDelete();
+        child->Delete();
+        }
+      else
+        {
+        vtkErrorMacro("vtkImageData expected at " << level << ", " << index);
+        child->Delete();
+        return false;
+        }
+      }
+    else if (strncmp(this->LowerCase(line), "metadata", strlen("metadata")) == 0)
+      {
+      // now read the amrbox information.
+      this->ReadLine(line); this->ReadLine(line);
+      cout << "line: " << line << endl;
+      vtkDoubleArray* ddata = vtkDoubleArray::SafeDownCast(
+        this->ReadArray("double", total_datasets, 6));
+      this->ReadLine(line); this->ReadLine(line);
+      vtkIntArray* idata = vtkIntArray::SafeDownCast(
+        this->ReadArray("int", total_datasets, 15));
+      if (!ddata || !idata)
+        {
+        vtkErrorMacro("Failed to read meta-data");
+        if (ddata) {ddata->Delete();}
+        if (idata) {idata->Delete();}
+        return false;
+        }
+
+      vtkAMRBox box;
+      unsigned int metadata_index = 0;
+      for (unsigned int level=0; level < num_levels; level++)
+        {
+        unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+        for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+          {
+          box.SetDataSetOrigin(ddata->GetPointer(6*metadata_index));
+          box.SetGridSpacing(ddata->GetPointer(6*metadata_index+3));
+
+          box.SetDimensionality(idata->GetValue(15*metadata_index + 0));
+          box.SetProcessId(idata->GetValue(15*metadata_index + 1));
+          box.SetGridDescription(idata->GetValue(15*metadata_index + 2));
+          memcpy(box.LoCorner, idata->GetPointer(15*metadata_index + 3), 3*sizeof(int));
+          memcpy(box.HiCorner, idata->GetPointer(15*metadata_index + 6), 3*sizeof(int));
+          box.SetRealExtent(idata->GetPointer(15*metadata_index + 9));
+
+          oamr->SetMetaData(level, index, box);
+          }
+        }
+      idata->Delete();
+      ddata->Delete();
+      break;
+      }
+    else
+      {
+      vtkErrorMacro("Failed to read 'CHILD' or 'METADATA' line");
+      return false;
+      }
+    }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataReader::ReadCompositeData(vtkNonOverlappingAMR* hb)
 {
   (void)hb;
   vtkErrorMacro("This isn't supported yet.");
@@ -424,8 +583,12 @@ vtkDataObject* vtkCompositeDataReader::ReadChild()
     static_cast<int>(child_data.str().size()));
   reader->ReadFromInputStringOn();
   reader->Update();
-  vtkDataObject* child = reader->GetOutput(0)->NewInstance();
-  child->ShallowCopy(reader->GetOutput(0));
+
+  vtkDataObject* child = reader->GetOutput(0);
+  if (child)
+    {
+    child->Register(this);
+    }
   reader->Delete();
   return child;
 }

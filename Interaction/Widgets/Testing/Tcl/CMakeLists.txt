@@ -1,10 +1,13 @@
-# Tests with test images in Baseline/Parallel
+# Tests with test images in Baseline/Widgets
 #
 unset(tests)
 if(VTK_DATA_ROOT)
   set(tests
-    TestPDataSetReaderGrid
-    TestPImageWriter
+    TestInteractorEventRecorder
+    TestBoxWidget
+    TestSphereWidget
+    TestCameraWidget
+    TestTextWidget
   )
 endif()
 
@@ -14,6 +17,6 @@ foreach( tfile ${tests})
     ${CMAKE_CURRENT_SOURCE_DIR}/${tfile}.tcl
     -D ${VTK_DATA_ROOT}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V Baseline/Parallel/${tfile}.png
+    -V Baseline/Widgets/${tfile}.png
    )
 endforeach()

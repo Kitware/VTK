@@ -334,7 +334,7 @@ public:
           double& xj(xi[j]);
           stream>>xj;
           }
-        pointData->GetArray(i)->InsertNextTuple(&x[0]);
+        pointData->GetArray(i)->InsertNextTuple(&xi[0]);
         }
       }
     else
@@ -368,7 +368,7 @@ public:
         {
         vtkDataArray* arr = pData->GetArray(i);
         int numComponents = arr->GetNumberOfComponents();
-        double* y = arr->GetTuple(i);
+        double* y = arr->GetTuple(0);
         for(int j=0; j<numComponents;j++)
           stream<<y[j];
         }

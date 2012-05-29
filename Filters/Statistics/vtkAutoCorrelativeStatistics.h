@@ -64,17 +64,6 @@ public:
   vtkGetMacro(SliceCardinality,vtkIdType);
 
   // Description:
-  // Set/get the time lag to be used to calculate the auto-correlation.
-  // It cannot be negative.
-  // Valid values are those such that their product with the specified
-  // cardinality of individual time slices does not exceed the size of the input
-  // data set.
-  // The default is 0, meaning that by default all coefficients in the 
-  // auto-covariance matrix are equal to the variance.
-  vtkSetClampMacro(TimeLag,vtkIdType,0,VTK_LARGE_ID);
-  vtkGetMacro(TimeLag,vtkIdType);
-
-  // Description:
   // Given a collection of models, calculate aggregate model
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* );
@@ -122,7 +111,6 @@ protected:
 //ETX
 
   vtkIdType SliceCardinality;
-  vtkIdType TimeLag;
 
 private:
   vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented

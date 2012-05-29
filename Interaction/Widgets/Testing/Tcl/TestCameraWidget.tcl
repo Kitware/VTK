@@ -8,7 +8,7 @@ vtkPNGReader reader
 reader SetFileName "$VTK_DATA_ROOT/Data/Camera.png"
 
 vtkTexture texture
-texture SetInput [reader GetOutput]
+texture SetInputConnection [reader GetOutputPort]
 
 vtkPlaneSource ps
 ps SetOrigin -0.012987 -0.009009 0.0
@@ -16,7 +16,7 @@ ps SetPoint2 -0.012987  0.009009 0.0
 ps SetPoint1  0.012987 -0.009009 0.0
 
 vtkPolyDataMapper mapper
-mapper SetInput [ps GetOutput]
+mapper SetInputConnection [ps GetOutputPort]
 
 vtkActor actor
 actor SetMapper mapper

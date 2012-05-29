@@ -14,12 +14,19 @@
 =========================================================================*/
 #include "vtkCompositeDataWriter.h"
 
+#include "vtkAMRBox.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericDataObjectWriter.h"
 #include "vtkHierarchicalBoxDataSet.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkNew.h"
+#include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
-#include "vtkGenericDataObjectWriter.h"
-#include "vtkInformation.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkUniformGrid.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -87,6 +94,8 @@ void vtkCompositeDataWriter::WriteData()
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(input);
   vtkHierarchicalBoxDataSet* hb =
     vtkHierarchicalBoxDataSet::SafeDownCast(input);
+  vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(input);
+  vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(input);
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(input);
   if (mb)
     {
@@ -102,6 +111,22 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, hb))
       {
       vtkErrorMacro("Error writing hierarchical-box dataset.");
+      }
+    }
+  else if (oamr)
+    {
+    *fp << "DATASET OVERLAPPING_AMR\n";
+    if (!this->WriteCompositeData(fp, oamr))
+      {
+      vtkErrorMacro("Error writing overlapping amr dataset.");
+      }
+    }
+  else if (noamr)
+    {
+    *fp << "DATASET NON_OVERLAPPING_AMR\n";
+    if (!this->WriteCompositeData(fp, noamr))
+      {
+      vtkErrorMacro("Error writing non-overlapping amr dataset.");
       }
     }
   else if (mp)
@@ -167,6 +192,97 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
 //----------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
   vtkHierarchicalBoxDataSet* hb)
+{
+  (void)fp;
+  (void)hb;
+  vtkErrorMacro("This isn't supported yet.");
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataWriter::WriteCompositeData(
+  ostream* fp, vtkOverlappingAMR* oamr)
+{
+  unsigned int num_levels = oamr->GetNumberOfLevels();
+  unsigned int total_datasets = 0;
+  // we'll dump out all level information and then the individual blocks.
+  *fp << "LEVELS " << num_levels;
+  for (unsigned int cc=0; cc < num_levels; cc++)
+    {
+    *fp << " " << oamr->GetNumberOfDataSets(cc);
+    total_datasets += oamr->GetNumberOfDataSets(cc);
+    }
+  *fp << "\n";
+
+  // now dump the amr boxes and real data, if any.
+
+  // Information about amrboxes can be "too much". So we compact it in
+  // vtkDataArray subclasses to ensure that it can be written as binary data
+  // with correct swapping, as needed.
+
+  vtkNew<vtkDoubleArray> ddata;
+  ddata->SetName("DoubleMetaData");
+  // box.X0[3], box.DX[3]
+  ddata->SetNumberOfComponents(6);
+  ddata->SetNumberOfTuples(total_datasets);
+
+  vtkNew<vtkIntArray> idata;
+  // box.Dimension[1], box.ProcessId[1], box.GridDiscription[1],
+  // box.LoCorner[3], box.HiCorner[3], box.RealExtent[6],
+  idata->SetName("IntMetaData");
+  idata->SetNumberOfComponents(15);
+  idata->SetNumberOfTuples(total_datasets);
+
+  unsigned int metadata_index=0;
+  for (unsigned int level=0; level < num_levels; level++)
+    {
+    unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+    for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
+      {
+      vtkAMRBox box;
+      vtkUniformGrid* dataset = oamr->GetDataSet(level, index, box);
+      if (dataset)
+        {
+        *fp << "CHILD " << level << " " << index << "\n";
+
+        // since we cannot write vtkUniformGrid's, we create a vtkImageData and
+        // write it.
+        vtkNew<vtkImageData> image;
+        image->ShallowCopy(dataset);
+        if (!this->WriteBlock(fp, image.GetPointer()))
+          {
+          return false;
+          }
+        *fp << "ENDCHILD\n"; 
+        }
+      memcpy(ddata->GetPointer(6*metadata_index), box.GetDataSetOrigin(),
+        3*sizeof(double));
+      memcpy(ddata->GetPointer(6*metadata_index+3), box.GetGridSpacing(),
+        3*sizeof(double));
+
+      idata->SetValue(15*metadata_index + 0, box.GetDimensionality());
+      idata->SetValue(15*metadata_index + 1, box.GetProcessId());
+      idata->SetValue(15*metadata_index + 2, box.GetGridDescription());
+      memcpy(idata->GetPointer(15*metadata_index + 3), box.GetLoCorner(), 3*sizeof(int));
+      memcpy(idata->GetPointer(15*metadata_index + 6), box.GetHiCorner(), 3*sizeof(int));
+      memcpy(idata->GetPointer(15*metadata_index + 9), box.GetRealExtent(), 6*sizeof(int));
+      }
+    }
+  *fp << "METADATA\n";
+
+  char format[1024];
+  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "DoubleMetaData", 6, "default");
+  this->WriteArray(fp, ddata->GetDataType(), ddata.GetPointer(), format, total_datasets, 6);
+  
+  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "IntMetaData", 6, "default");
+  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(), format,
+    total_datasets, 15);
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp,
+  vtkNonOverlappingAMR* hb)
 {
   (void)fp;
   (void)hb;
