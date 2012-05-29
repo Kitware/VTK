@@ -327,6 +327,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
            << "  ";
       }
 
+    // Verify some of the calculated statistics
+    if ( fabs ( modelTab->GetValueByName( 0, "Mean Xs" ).ToDouble() - meansXs0[b] ) > 1.e-6 )
+      {
+      vtkGenericWarningMacro("Incorrect mean for Xs");
+      testStatus = 1;
+      }
+
+    if ( fabs ( modelTab->GetValueByName( 0, "Variance Xs" ).ToDouble() - varsXs0[b] ) > 1.e-5 )
+      {
+      vtkGenericWarningMacro("Incorrect variance for Xs");
+      testStatus = 1;
+      }
+
     cout << "\n";
     }
 
