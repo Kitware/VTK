@@ -429,10 +429,10 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         derivedVals[4] = covXY / varX;
         }
-    //   intersect
+    //   intercept
     derivedVals[5] = meanY - derivedVals[4] * meanX;
 
-    //   variable X on variable Y:
+    // variable X on variable Y:
     //   slope (explicitly handle degenerate cases)
       if ( varY < VTK_DBL_MIN )
         {
@@ -442,7 +442,7 @@ void vtkCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         derivedVals[6] = covXY / varY;
         }
-    //   intersect
+    //   intercept
     derivedVals[7] = meanX - derivedVals[6] * meanY;
 
     // correlation coefficient (be consistent with degenerate cases detected above)
