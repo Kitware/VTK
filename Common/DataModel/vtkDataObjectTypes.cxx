@@ -293,3 +293,38 @@ void vtkDataObjectTypes::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
+
+int vtkDataObjectTypes::Validate()
+{
+  int rc = 0;
+
+  for(int i=0; vtkDataObjectTypesStrings[i] != NULL; i++)
+    {
+    const char* cls = vtkDataObjectTypesStrings[i];
+    vtkDataObject* obj = vtkDataObjectTypes::NewDataObject(cls);
+
+    if(obj == NULL)
+      {
+      continue;
+      }
+
+    int type = obj->GetDataObjectType();
+    obj->Delete();
+
+    if(strcmp(vtkDataObjectTypesStrings[type], cls) != 0)
+      {
+      cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << endl;
+      cerr << "Type mismatch for: " << cls << endl;
+      cerr << "The value looked up in vtkDataObjectTypesStrings using ";
+      cerr << "the index returned by GetDataObjectType() does not match the object type." << endl;
+      cerr << "Value from vtkDataObjectTypesStrings[obj->GetDataObjectType()]): ";
+      cerr << vtkDataObjectTypesStrings[type] << endl;
+      cerr << "Check that the correct value is being returned by GetDataObjectType() ";
+      cerr << "for this object type. Also check that the values in vtkDataObjectTypesStrings ";
+      cerr << "are in the same order as the #define's in vtkType.h.";
+      rc = 1;
+      break;
+      }
+    }
+  return rc;
+}
