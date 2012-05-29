@@ -27,8 +27,11 @@ renWin Render
 
 vtkTextWidget widget
 widget SetInteractor iren
-[widget GetTextActor] SetInput "This is a test"
 widget On
+[widget GetTextActor] SetInput "This is a test"
+[[widget GetTextActor] GetTextProperty] SetColor 0 1 0
+[[widget GetRepresentation]  GetPositionCoordinate] SetValue .15 .15
+[[widget GetRepresentation]  GetPosition2Coordinate] SetValue .7 .2
 
 
 # Add the actors to the renderer, set the background and size
