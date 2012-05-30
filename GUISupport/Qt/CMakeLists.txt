@@ -58,6 +58,16 @@ include(${QT_USE_FILE})
 
 qt4_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
 
+foreach(opt
+    QT_RCC_EXECUTABLE
+    QT_MOC_EXECUTABLE
+    QT_UIC_EXECUTABLE
+    QT_QMAKE_EXECUTABLE
+    )
+  set(VTK_${opt} "${${opt}}")
+  list(APPEND vtkGUISupportQt_EXPORT_OPTIONS VTK_${opt})
+endforeach()
+
 set(${vtk-module}_NO_HeaderTest 1)
 vtk_module_library(${vtk-module}
   ${QVTKLibSrcs} ${QVTKLibMocSrcs}
@@ -75,10 +85,6 @@ if(APPLE)
     target_link_libraries(${vtk-module} "-framework Carbon" )
   endif()
 endif()
-
-# Configure the VTKConfigQt.cmake support file.
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
-  ${VTK_BINARY_DIR}/VTKConfigQt.cmake @ONLY IMMEDIATE)
 
 # This build plugin logic should just get migrated into a module I think.
 if(BUILD_SHARED_LIBS)
