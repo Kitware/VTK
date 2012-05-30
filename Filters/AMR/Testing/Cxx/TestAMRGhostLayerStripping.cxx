@@ -29,16 +29,18 @@
 #include <sstream>
 
 // VTK includes
+#include "vtkAMRBox.h"
 #include "vtkAMRGaussianPulseSource.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataWriter.h"
 
-#define DEBUG_ON
+//#define DEBUG_ON
 
 //------------------------------------------------------------------------------
 void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
@@ -229,7 +231,7 @@ vtkOverlappingAMR *GetGhostedDataSet(
     std::ostringstream oss;
     oss.clear();
     oss.str("");
-    oss << "GHOSTED_GRID_1_" << i;
+    oss << dimension << "D_GHOSTED_GRID_1_" << i;
     WriteUniformGrid( ghostedGrid, oss.str() );
 #endif
 
@@ -255,63 +257,257 @@ vtkOverlappingAMR *GetAMRDataSet(
 }
 
 //------------------------------------------------------------------------------
+void WriteUnGhostedGrids(
+    const int dimension, vtkOverlappingAMR *amr)
+{
+  assert("pre: AMR dataset is NULL!" && (amr != NULL) );
+
+  std::ostringstream oss;
+  oss.clear();
+  unsigned int levelIdx = 0;
+  for(;levelIdx < amr->GetNumberOfLevels(); ++levelIdx )
+    {
+    unsigned dataIdx = 0;
+    for(;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx )
+      {
+      vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
+      if( grid != NULL )
+        {
+        oss.str("");
+        oss << dimension << "D_UNGHOSTED_GRID_" << levelIdx << "_" << dataIdx;
+        WriteUniformGrid(grid,oss.str());
+        }
+      } // END for all data-sets
+    } // END for all levels
+}
+
+//------------------------------------------------------------------------------
+bool CheckFields(vtkUniformGrid *grid)
+{
+  // Since we know exactly what the fields are, i.e., gaussian-pulse and
+  // centroid, we manually check the grid for correctness.
+  assert("pre: grid is NULL" && (grid != NULL) );
+  vtkCellData *CD = grid->GetCellData();
+  if( !CD->HasArray("Centroid") || !CD->HasArray("Gaussian-Pulse") )
+    {
+    return false;
+    }
+
+  vtkDoubleArray *centroidArray =
+      vtkDoubleArray::SafeDownCast(CD->GetArray("Centroid"));
+  assert("pre: centroid arrays is NULL!" && (centroidArray != NULL) );
+  if( centroidArray->GetNumberOfComponents() != 3 )
+    {
+    return false;
+    }
+  double *centers = static_cast<double*>(centroidArray->GetVoidPointer(0));
+
+  vtkDoubleArray *pulseArray =
+      vtkDoubleArray::SafeDownCast(CD->GetArray("Gaussian-Pulse"));
+  assert("pre: pulse array is NULL!" && (pulseArray != NULL) );
+  if( pulseArray->GetNumberOfComponents() != 1)
+    {
+    return false;
+    }
+  double *pulses = static_cast<double*>(pulseArray->GetVoidPointer(0));
+
+  // Get default pulse parameters
+  double pulseOrigin[3];
+  double pulseWidth[3];
+  double pulseAmplitude;
+
+  vtkAMRGaussianPulseSource *pulseSource = vtkAMRGaussianPulseSource::New();
+  pulseSource->GetPulseOrigin( pulseOrigin );
+  pulseSource->GetPulseWidth( pulseWidth );
+  pulseAmplitude = pulseSource->GetPulseAmplitude();
+  pulseSource->Delete();
+
+  double centroid[3];
+  int dim = grid->GetDataDimension();
+  vtkIdType cellIdx = 0;
+    for(; cellIdx < grid->GetNumberOfCells(); ++cellIdx)
+    {
+    ComputeCellCenter(grid,cellIdx,centroid);
+    double val = ComputePulse(
+        dim,centroid,pulseOrigin,pulseWidth,pulseAmplitude);
+
+    if( !vtkMathUtilities::FuzzyCompare(val,pulses[cellIdx],1e-9) )
+      {
+      std::cerr << "ERROR: pulse data mismatch!\n";
+      std::cerr << "expected=" << val << " computed=" << pulses[cellIdx];
+      std::cerr << std::endl;
+      return false;
+      }
+    if( !vtkMathUtilities::FuzzyCompare(centroid[0],centers[cellIdx*3])  ||
+        !vtkMathUtilities::FuzzyCompare(centroid[1],centers[cellIdx*3+1]) ||
+        !vtkMathUtilities::FuzzyCompare(centroid[2],centers[cellIdx*3+2])  )
+      {
+      std::cerr << "ERROR: centroid data mismatch!\n";
+      return false;
+      }
+    }// END for all cells
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool AMRDataSetsAreEqual(
+    vtkOverlappingAMR *computed, vtkOverlappingAMR *expected)
+{
+  assert("pre: computed AMR dataset is NULL" && (computed != NULL) );
+  assert("pre: expected AMR dataset is NULL" && (expected != NULL) );
+
+  if( computed == expected )
+    {
+    return true;
+    }
+
+  if( computed->GetNumberOfLevels() != expected->GetNumberOfLevels() )
+    {
+    return false;
+    }
+
+  unsigned int levelIdx = 0;
+  for(; levelIdx < computed->GetNumberOfLevels(); ++levelIdx )
+    {
+    if( computed->GetNumberOfDataSets(levelIdx) !=
+         expected->GetNumberOfDataSets(levelIdx))
+      {
+      return false;
+      }
+
+    unsigned int dataIdx = 0;
+    for(;dataIdx < computed->GetNumberOfDataSets(levelIdx); ++dataIdx)
+      {
+      vtkAMRBox computedBox;
+      computed->GetMetaData(levelIdx,dataIdx,computedBox);
+
+      vtkAMRBox expectedBox;
+      expected->GetMetaData(levelIdx,dataIdx,expectedBox);
+
+      if( !(computedBox == expectedBox) )
+        {
+        std::cerr << "ERROR: AMR data mismatch!\n";
+        return false;
+        }
+
+      vtkUniformGrid *computedGrid = computed->GetDataSet(levelIdx,dataIdx);
+      vtkUniformGrid *expectedGrid = expected->GetDataSet(levelIdx,dataIdx);
+
+      for( int i=0; i < 3; ++i )
+        {
+        if(computedGrid->GetDimensions()[i] !=
+            expectedGrid->GetDimensions()[i] )
+          {
+          std::cerr << "ERROR: grid dimensions mismatch!\n";
+          return false;
+          }
+        if( !vtkMathUtilities::FuzzyCompare(
+              computedGrid->GetOrigin()[i],
+              expectedGrid->GetOrigin()[i]) )
+          {
+          std::cerr << "ERROR: grid origin mismathc!\n";
+          return false;
+          }
+        }// END for all dimensions
+
+      if(!CheckFields(computedGrid) )
+        {
+        std::cerr << "ERROR: grid fields were not as expected!\n";
+        return false;
+        }
+      }// END for all data
+    } // END for all levels
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+int TestGhostStripping(
+    const int dimension, const int refinementRatio, const int NG)
+{
+  int rc = 0;
+  std::cout << "====\n";
+  std::cout << "Checking AMR data dim=" << dimension
+            << " r=" << refinementRatio
+            << " NG=" << NG << std::endl;
+  std::cout.flush();
+
+  // Get the non-ghosted dataset
+  vtkOverlappingAMR *amrData = GetAMRDataSet(dimension,refinementRatio);
+  assert("pre: amrData should not be NULL!" && (amrData != NULL) );
+  if(vtkAMRUtilities::HasPartiallyOverlappingGhostCells(amrData))
+   {
+   ++rc;
+   std::cerr << "ERROR: erroneously detected partially overlapping "
+             << "ghost cells on non-ghosted grid!\n";
+   }
+
+  // Get the ghosted dataset
+  vtkOverlappingAMR *ghostedAMRData=GetGhostedDataSet(dimension,NG,amrData);
+  assert("pre: ghosted AMR data is NULL!" && (ghostedAMRData != NULL) );
+
+  if( NG == refinementRatio  )
+    {
+    // There are no partially overlapping ghost cells
+    if(vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
+        ghostedAMRData))
+      {
+      ++rc;
+      std::cerr << "ERROR: detected partially overlapping "
+                << "ghost cells when there shouldn't be any!\n";
+      }
+    }
+  else
+    {
+    if(!vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
+       ghostedAMRData))
+      {
+      ++rc;
+      std::cerr << "ERROR: failed detection of partially overlapping "
+                << "ghost cells!\n";
+      }
+    }
+
+  vtkOverlappingAMR *strippedAMRData = vtkOverlappingAMR::New();
+  vtkAMRUtilities::StripGhostLayers( ghostedAMRData, strippedAMRData );
+#ifdef DEBUG_ON
+  WriteUnGhostedGrids(dimension,strippedAMRData);
+#endif
+
+  // The strippedAMRData is expected to be exactly the same as the initial
+  // unghosted AMR dataset
+  if(!AMRDataSetsAreEqual(strippedAMRData,amrData) )
+    {
+    ++rc;
+    std::cerr << "ERROR: AMR data did not match expected data!\n";
+    }
+
+  amrData->Delete();
+  ghostedAMRData->Delete();
+  strippedAMRData->Delete();
+  return( rc );
+}
+//------------------------------------------------------------------------------
 int TestAMRGhostLayerStripping(int argc, char *argv[])
 {
   // Get rid of compiler warnings on unused vars
   argc = argc; argv = argv;
 
   int rc   = 0;
+  int DIM0 = 2;
   int NDIM = 3;
 
-  int NumberOfRefinmentRatios = 1;
-  int rRatios[1] = { 2 };
+  int NumberOfRefinmentRatios = 3;
+  int rRatios[3] = { 2,3,4 };
 
-  int NumberOfGhostTests = 1;
-  int ng[ 1 ] = { 1 };
-
-  for( int dim=2; dim <= NDIM; ++dim )
+  for( int dim=DIM0; dim <= NDIM; ++dim )
     {
     for( int r=0; r < NumberOfRefinmentRatios; ++r )
       {
-      for( int g=0; g < NumberOfGhostTests; ++g )
+      for( int ng=1; ng <= rRatios[r]; ++ng )
         {
-        std::cout << "====\n";
-        std::cout << "Checking AMR data dim=" << dim << " r=" << rRatios[r];
-        std::cout << " NG=" << ng[g] << std::endl;
-        std::cout.flush();
-
-        // Get the non-ghosted dataset
-        vtkOverlappingAMR *amrData = GetAMRDataSet(dim,rRatios[r]);
-        assert("pre: amrData should not be NULL!" && (amrData != NULL) );
-        if(vtkAMRUtilities::HasPartiallyOverlappingGhostCells(amrData))
-          {
-          ++rc;
-          std::cerr << "ERROR: erroneously detected partially overlapping "
-                    << "ghost cells on non-ghosted grid!\n";
-          }
-
-        // Get the ghosted dataset
-        std::cout << "===\n";
-        std::cout << "Checking ghosted data...\n";
-        std::cout.flush();
-
-        vtkOverlappingAMR *ghostedAMRData=
-            GetGhostedDataSet(dim,ng[g],amrData);
-        assert("pre: ghosted AMR data is NULL!" && (ghostedAMRData != NULL) );
-        if(!vtkAMRUtilities::HasPartiallyOverlappingGhostCells(ghostedAMRData))
-          {
-          ++rc;
-          std::cerr << "ERROR: failed detection of partially overlapping "
-                    << "ghost cells!\n";
-          }
-
-        vtkOverlappingAMR *strippedAMRData = vtkOverlappingAMR::New();
-        vtkAMRUtilities::StripGhostLayers( ghostedAMRData, strippedAMRData );
-
-        amrData->Delete();
-        ghostedAMRData->Delete();
-        strippedAMRData->Delete();
-        } // END for all ghost tests
+        rc += TestGhostStripping(dim,rRatios[r],ng);
+        } // END for all ghost-layer tests
       } // END for all refinementRatios to test
     } // END for all dimensions to test
 
