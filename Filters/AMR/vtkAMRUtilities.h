@@ -30,6 +30,7 @@
 
 // Forward declarations
 class vtkAMRBox;
+class vtkFieldData;
 class vtkMultiProcessController;
 class vtkOverlappingAMR;
 class vtkUniformGrid;
@@ -106,7 +107,8 @@ public:
   // 1) The ghosted AMR data must have complete metadata information.
   static void StripGhostLayers(
       vtkOverlappingAMR *ghostedAMRData,
-      vtkOverlappingAMR *strippedAMRData);
+      vtkOverlappingAMR *strippedAMRData,
+      vtkMultiProcessController *myController=NULL);
 
   // Description:
   // A quick test of whether partially overlapping ghost cells exist. This test
@@ -118,6 +120,36 @@ public:
 protected:
   vtkAMRUtilities() {};
   ~vtkAMRUtilities() {};
+
+  // Description:
+  // Given the real-extent w.r.t. the ghosted grid, this method copies the
+  // field data (point/cell) data on the stripped grid.
+  static void CopyFieldsWithinRealExtent(
+      int realExtent[6],
+      vtkUniformGrid *ghostedGrid,
+      vtkUniformGrid *strippedGrid);
+
+  // Description:
+  // Copies the fields from the given source to the given target.
+  static void CopyFieldData(
+      vtkFieldData *target, vtkIdType targetIdx,
+      vtkFieldData *source, vtkIdType sourceIdx );
+
+  // Description:
+  // Strips ghost layers from the given grid according to the given ghost
+  // vector which encodes the number of cells to remote from each of the
+  // 6 sides {imin,imax,jmin,jmax,kmin,kmax}. For example, a ghost vector
+  // of {0,2,0,2,0,0} would indicate that there exist 2 ghost cells on the
+  // imax and jmax side.
+  static vtkUniformGrid* StripGhostLayersFromGrid(
+      vtkUniformGrid* grid, int ghost[6]);
+
+  // Description:
+  // Given an AMR box and the refinement ratio, r, this method computes the
+  // number of ghost layers in each of the 6 directions, i.e.,
+  // [imin,imax,jmin,jmax,kmin,kmax]
+  static void GetGhostVector(
+      vtkAMRBox &box, int r, int nghost[6] );
 
   // Descritpion:
   // This method serializes all the metadata within the given instance of

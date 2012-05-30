@@ -261,7 +261,7 @@ int TestAMRGhostLayerStripping(int argc, char *argv[])
   argc = argc; argv = argv;
 
   int rc   = 0;
-  int NDIM = 2;
+  int NDIM = 3;
 
   int NumberOfRefinmentRatios = 1;
   int rRatios[1] = { 2 };
@@ -305,8 +305,12 @@ int TestAMRGhostLayerStripping(int argc, char *argv[])
                     << "ghost cells!\n";
           }
 
+        vtkOverlappingAMR *strippedAMRData = vtkOverlappingAMR::New();
+        vtkAMRUtilities::StripGhostLayers( ghostedAMRData, strippedAMRData );
+
         amrData->Delete();
         ghostedAMRData->Delete();
+        strippedAMRData->Delete();
         } // END for all ghost tests
       } // END for all refinementRatios to test
     } // END for all dimensions to test
