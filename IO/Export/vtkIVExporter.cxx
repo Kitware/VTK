@@ -128,7 +128,7 @@ void vtkIVExporter::WriteData()
     // this assumes the aspect ratio is 1
     fprintf(fp,"%sPerspectiveCamera\n%s{\n%s    heightAngle %f\n",
             indent, indent, indent,
-            cam->GetViewAngle()*3.1415926/180.0);
+            cam->GetViewAngle()*vtkMath::Pi()/180.0);
     }
   VTK_INDENT_MORE;
   fprintf(fp,"%snearDistance %f\n",indent, cam->GetClippingRange()[0]);
@@ -138,7 +138,7 @@ void vtkIVExporter::WriteData()
           cam->GetPosition()[1], cam->GetPosition()[2]);
   tempd = cam->GetOrientationWXYZ();
   fprintf(fp,"%sorientation %g %g %g %g\n%s}\n", indent,
-          tempd[1], tempd[2], tempd[3], tempd[0]*3.1415926/180.0, indent);
+          tempd[1], tempd[2], tempd[3], tempd[0]*vtkMath::Pi()/180.0, indent);
   VTK_INDENT_LESS;
 
   // do the lights first the ambient then the others
@@ -278,7 +278,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"%stranslation %g %g %g\n", indent, tempd[0], tempd[1], tempd[2]);
   tempd = trans->GetOrientationWXYZ();
   fprintf(fp,"%srotation %g %g %g %g\n", indent, tempd[1], tempd[2],
-          tempd[3], tempd[0]*3.1415926/180.0);
+          tempd[3], tempd[0]*vtkMath::Pi()/180.0);
   tempd = trans->GetScale();
   fprintf(fp,"%sscaleFactor %g %g %g\n", indent, tempd[0], tempd[1], tempd[2]);
   fprintf(fp,"%s}\n", indent);

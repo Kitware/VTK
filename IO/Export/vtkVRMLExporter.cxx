@@ -133,13 +133,13 @@ void vtkVRMLExporter::WriteData()
   // do the camera
   cam = ren->GetActiveCamera();
   fprintf(fp,"    Viewpoint\n      {\n      fieldOfView %f\n",
-          cam->GetViewAngle()*3.1415926/180.0);
+          cam->GetViewAngle()*vtkMath::Pi()/180.0);
   fprintf(fp,"      position %f %f %f\n",cam->GetPosition()[0],
           cam->GetPosition()[1], cam->GetPosition()[2]);
   fprintf(fp,"      description \"Default View\"\n");
   tempd = cam->GetOrientationWXYZ();
   fprintf(fp,"      orientation %g %g %g %g\n      }\n", tempd[1], tempd[2],
-          tempd[3], tempd[0]*3.1415926/180.0);
+          tempd[3], tempd[0]*vtkMath::Pi()/180.0);
 
   // do the lights first the ambient then the others
   fprintf(fp,
@@ -272,7 +272,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"      translation %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   tempd = trans->GetOrientationWXYZ();
   fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2],
-          tempd[3], tempd[0]*3.1415926/180.0);
+          tempd[3], tempd[0]*vtkMath::Pi()/180.0);
   tempd = trans->GetScale();
   fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   fprintf(fp,"      children [\n");

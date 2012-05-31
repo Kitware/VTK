@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageEuclideanToPolar.h"
 
+#include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkObjectFactory.h"
@@ -65,7 +66,7 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
         }
       else
         {
-        Theta = atan2(Y, X) * thetaMax / 6.2831853;
+        Theta = atan2(Y, X) * thetaMax / (2.0 * vtkMath::Pi());
         if (Theta < 0.0)
           {
           Theta += thetaMax;

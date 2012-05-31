@@ -754,7 +754,7 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
     }
   else
     {
-    this->Normalization = sqrt( 3.141592653589793 ) / ( 1 << ( m / 2 ) );
+    this->Normalization = sqrt( vtkMath::Pi() ) / ( 1 << ( m / 2 ) );
     for ( i = m - 2; i > 1; i -= 2 )
       {
       this->Normalization *= i;

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageSinusoidSource.h"
 
+#include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -192,7 +193,7 @@ void vtkImageSinusoidSource::ExecuteDataWithInformation(vtkDataObject *output,
         sum = zContrib + yContrib + xContrib;
 
         *outPtr = this->Amplitude *
-          cos((6.2831853 * sum / this->Period) - this->Phase);
+          cos((2.0 * vtkMath::Pi() * sum / this->Period) - this->Phase);
         outPtr++;
         }
       outPtr += outIncY;

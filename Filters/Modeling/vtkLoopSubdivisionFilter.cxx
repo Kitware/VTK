@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkLoopSubdivisionFilter.h"
 
+#include "vtkMath.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
@@ -236,7 +237,7 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
     if (K > 3)
       {
       // Generate weights
-#define VTK_PI 3.14159265358979
+#define VTK_PI vtkMath::Pi()
       cosSQ = .375 + .25 * cos (2.0 * VTK_PI / (double) K);
       cosSQ = cosSQ * cosSQ;
       beta = (.625 -  cosSQ) / (double) K;

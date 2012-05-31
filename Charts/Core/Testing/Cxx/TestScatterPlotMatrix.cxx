@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkMath.h"
 #include "vtkScatterPlotMatrix.h"
 #include "vtkRenderWindow.h"
 #include "vtkChart.h"
@@ -53,7 +54,7 @@ int TestScatterPlotMatrix(int, char * [])
   table->AddColumn(tangent.GetPointer());
   // Test the chart scatter plot matrix
   int numPoints = 100;
-  float inc = 4.0 * 3.14 / (numPoints-1);
+  float inc = 4.0 * vtkMath::Pi() / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
     {

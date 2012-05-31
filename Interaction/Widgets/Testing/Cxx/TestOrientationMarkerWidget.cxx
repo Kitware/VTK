@@ -294,7 +294,7 @@ int TestOrientationMarkerWidget( int, char *[] )
   // to have the widget follow.
   // part 1 is a helical spring to test vtkAxesActor SetUserDefinedShaft
   //
-  double dt = vtkMath::DoublePi() / 20.0;
+  double dt = vtkMath::Pi() / 20.0;
   double t = 0.0;
   double x = 0.0;
   int nPoints = 120;

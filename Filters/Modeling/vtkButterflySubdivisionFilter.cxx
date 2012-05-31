@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkButterflySubdivisionFilter.h"
 
+#include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
 #include "vtkIdList.h"
@@ -215,7 +216,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
     }
 
   // Generate weights
-#define VTK_PI 3.14159265358979
+#define VTK_PI vtkMath::Pi()
   int K = stencilIds->GetNumberOfIds();
   if (K >= 5)
     {
