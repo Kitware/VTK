@@ -23,8 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories
 // for implementing this test.
-
-#include <mpi.h>
+// Updated to VTK 6 by Philippe Pebay, Kitware SAS 2012
 
 #include "vtkDescriptiveStatistics.h"
 #include "vtkPDescriptiveStatistics.h"
