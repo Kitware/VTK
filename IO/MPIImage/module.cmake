@@ -6,4 +6,9 @@ vtk_module(vtkIOMPIImage
   DEPENDS
     vtkParallelMPI
     vtkIOImage
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRenderingOpenGL
   )

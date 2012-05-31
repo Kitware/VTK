@@ -1,6 +1,3 @@
-find_package(MPI REQUIRED)
-include_directories(${MPI_INCLUDE_PATH})
-
 set(Module_SRCS
   vtkEnSightWriter.cxx
   # vtkExodusIIWriter.cxx needs vtkMultiProcessController
