@@ -23,7 +23,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay, David Thompson and Janine Bennett from Sandia National Laboratories
 // for implementing this test.
-// Updated by Philippe Pebay, Kitware SAS 2012
+
+#include <mpi.h>
 
 #include "vtkDescriptiveStatistics.h"
 #include "vtkPDescriptiveStatistics.h"
@@ -41,8 +42,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
-
-#include "mpi.h"
 
 #include "vtksys/CommandLineArguments.hxx"
 
