@@ -92,11 +92,28 @@ void ComputeCellCenter(
   vtkCell *myCell = grid->GetCell( cellIdx );
   assert( "ERROR: Cell is NULL" && (myCell != NULL) );
 
+  // Work around for blanked cells. For blanked cells GetCell returns a
+  // VTK_EMPTY_CELL! Therefore, to get the cell, we have to temporarily
+  // unblank it and then blank it again.
+  bool isCellBlanked = false;
+  if( (myCell->GetCellType() == VTK_EMPTY_CELL) &&
+      (!grid->IsCellVisible(cellIdx)) )
+    {
+    grid->UnBlankCell( cellIdx );
+    myCell = grid->GetCell(cellIdx);
+    isCellBlanked = true;
+    }
+
   double pcenter[3];
   double *weights = new double[ myCell->GetNumberOfPoints() ];
   int subId = myCell->GetParametricCenter( pcenter );
   myCell->EvaluateLocation( subId, pcenter, centroid, weights );
   delete [] weights;
+
+  if( isCellBlanked )
+    {
+    grid->BlankCell( cellIdx );
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -504,7 +521,7 @@ int TestAMRGhostLayerStripping(int argc, char *argv[])
     {
     for( int r=0; r < NumberOfRefinmentRatios; ++r )
       {
-      for( int ng=1; ng <= rRatios[r]; ++ng )
+      for( int ng=1; ng <= rRatios[r]-1; ++ng )
         {
         rc += TestGhostStripping(dim,rRatios[r],ng);
         } // END for all ghost-layer tests
