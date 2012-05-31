@@ -80,43 +80,46 @@ int vtkPExodusIIWriter::CheckParameters ()
 void vtkPExodusIIWriter::CheckBlockInfoMap ()
 {
   // if we're multiprocess we need to make sure the block info map matches
-  int maxId = -1;
-  std::map<int, Block>::const_iterator iter;
-  for (iter = this->BlockInfoMap.begin (); iter != this->BlockInfoMap.end (); iter ++)
+  if (this->NumberOfProcesses > 1)
     {
-    if (iter->first > maxId)
+    int maxId = -1;
+    std::map<int, Block>::const_iterator iter;
+    for (iter = this->BlockInfoMap.begin (); iter != this->BlockInfoMap.end (); iter ++)
       {
-      maxId = iter->first;
+      if (iter->first > maxId)
+        {
+        maxId = iter->first;
+        }
       }
-    }
-  vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
-  int globalMaxId;
-  c->AllReduce (&maxId, &globalMaxId, 1, vtkCommunicator::MAX_OP);
-  maxId = globalMaxId;
-  for (int i = 1; i <= maxId; i ++)
-    {
-    Block &b = this->BlockInfoMap[i]; // ctor called (init all to 0/-1) if not preset
-    int globalType;
-    c->AllReduce (&b.Type, &globalType, 1, vtkCommunicator::MAX_OP);
-    if (b.Type != 0 && b.Type != globalType)
+    vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
+    int globalMaxId;
+    c->AllReduce (&maxId, &globalMaxId, 1, vtkCommunicator::MAX_OP);
+    maxId = globalMaxId;
+    for (int i = 1; i <= maxId; i ++)
       {
-      vtkWarningMacro (
-        << "The type associated with ID's across processors doesn't match");
-      }
-    else
-      {
-      b.Type = globalType;
-      }
-    int globalNodes;
-    c->AllReduce (&b.NodesPerElement, &globalNodes, 1, vtkCommunicator::MAX_OP);
-    if (b.NodesPerElement != globalNodes)
-      {
-      vtkWarningMacro (
-        << "NodesPerElement associated with ID's across processors doesn't match");
-      }
-    else
-      {
-      b.NodesPerElement = globalNodes;
+      Block &b = this->BlockInfoMap[i]; // ctor called (init all to 0/-1) if not preset
+      int globalType;
+      c->AllReduce (&b.Type, &globalType, 1, vtkCommunicator::MAX_OP);
+      if (b.Type != 0 && b.Type != globalType)
+        {
+        vtkWarningMacro (
+          << "The type associated with ID's across processors doesn't match");
+        }
+      else
+        {
+        b.Type = globalType;
+        }
+      int globalNodes;
+      c->AllReduce (&b.NodesPerElement, &globalNodes, 1, vtkCommunicator::MAX_OP);
+      if (b.NodesPerElement != globalNodes)
+        {
+        vtkWarningMacro (
+          << "NodesPerElement associated with ID's across processors doesn't match");
+        }
+      else
+        {
+        b.NodesPerElement = globalNodes;
+        }
       }
     }
 }
