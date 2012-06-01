@@ -77,9 +77,9 @@ class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractInterpolatedVelocityFieldDataSetsType;
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 
-class VTKFILTERSTRACERS_EXPORT vtkAbstractInterpolatedVelocityField : public vtkFunctionSet
+class VTKFILTERSFLOWPATHS_EXPORT vtkAbstractInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
   vtkTypeMacro( vtkAbstractInterpolatedVelocityField, vtkFunctionSet );

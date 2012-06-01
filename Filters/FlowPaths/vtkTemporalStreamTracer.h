@@ -24,7 +24,7 @@
 #ifndef __vtkTemporalStreamTracer_h
 #define __vtkTemporalStreamTracer_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkStreamTracer.h"
 
@@ -82,7 +82,7 @@ namespace vtkTemporalStreamTracerNamespace
 };
 //ETX
 
-class VTKFILTERSTRACERS_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
+class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
 {
 public:
 

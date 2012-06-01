@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkParticleTracerBase.h
+  Module:    vtkTemporalStreamTracer.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,20 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParticleTracerBase - A Parallel Particle tracer for unsteady vector fields
+// .NAME vtkTemporalStreamTracer - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkParticleTracerBase is a filter that integrates a vector field to generate
+// vtkTemporalStreamTracer is a filter that integrates a vector field to generate
 //
 //
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
 
-#ifndef __vtkPParticleTracerBase_h
-#define __vtkPParticleTracerBase_h
+#ifndef __vtkPTemporalStreamTracer_h
+#define __vtkPTemporalStreamTracer_h
 
+#include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
-#include "vtkParticleTracerBase.h"
+#include "vtkTemporalStreamTracer.h"
 
 //BTX
 #include <vector> // STL Header
@@ -47,17 +48,17 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkCharArray;
 class vtkAbstractParticleWriter;
-class vtkPolyData;
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
-
-class VTKFILTERSPARALLELTRACERS_EXPORT vtkPParticleTracerBase : public vtkParticleTracerBase
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPTemporalStreamTracer : public vtkTemporalStreamTracer
 {
 public:
 
-    vtkTypeMacro(vtkPParticleTracerBase,vtkParticleTracerBase);
+    vtkTypeMacro(vtkPTemporalStreamTracer,vtkTemporalStreamTracer);
     void PrintSelf(ostream& os, vtkIndent indent);
 
+    // Description:
+    // Construct object using 2nd order Runge Kutta
+    static vtkPTemporalStreamTracer *New();
 
     // Description:
     // Set/Get the controller used when sending particles between processes
@@ -66,22 +67,9 @@ public:
     vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
   protected:
-    struct  RemoteParticleInfo
-    {
-      vtkParticleTracerBaseNamespace::ParticleInformation Current;
-      vtkParticleTracerBaseNamespace::ParticleInformation Previous;
-      vtkSmartPointer<vtkPointData> PreviousPD;
-    };
 
-    typedef std::vector<RemoteParticleInfo>  RemoteParticleVector;
-
-
-     vtkPParticleTracerBase();
-    ~vtkPParticleTracerBase();
-
-    virtual int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
+     vtkPTemporalStreamTracer();
+    ~vtkPTemporalStreamTracer();
 
     //
     // Generate output
@@ -92,11 +80,7 @@ public:
 
 //
 //BTX
-
-    virtual vtkPolyData* Execute(vtkInformationVector** inputVector);
-    virtual bool SendParticleToAnotherProcess(vtkParticleTracerBaseNamespace::ParticleInformation & info,
-                                              vtkParticleTracerBaseNamespace::ParticleInformation & previous,
-                                              vtkPointData*);
+//
 
     // Description : Before starting the particle trace, classify
     // all the injection/seed points according to which processor
@@ -105,21 +89,25 @@ public:
     // If either are non static, then this step is skipped.
     virtual void AssignSeedsToProcessors(
       vtkDataSet *source, int sourceID, int ptId,
-      vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints,
+      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints,
       int &LocalAssignedCount);
 
     // Description : once seeds have been assigned to a process, we
     // give each one a uniqu ID. We need to use MPI to find out
     // who is using which numbers.
     virtual void AssignUniqueIds(
-      vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints);
+      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints);
 
     // Description : Perform a GatherV operation on a vector of particles
     // this is used during classification of seed points and also between iterations
     // of the main loop as particles leave each processor domain
-    virtual void SendReceiveParticles(RemoteParticleVector &outofdomain, RemoteParticleVector &received);
+    virtual void TransmitReceiveParticles(
+      vtkTemporalStreamTracerNamespace::ParticleVector &outofdomain,
+      vtkTemporalStreamTracerNamespace::ParticleVector &received,
+      bool removeself);
 
-    void UpdateParticleListFromOtherProcesses();
+    void AddParticleToMPISendList(
+      vtkTemporalStreamTracerNamespace::ParticleInformation &info);
 
 //
 //ETX
@@ -128,16 +116,9 @@ public:
   // MPI controller needed when running in parallel
   vtkMultiProcessController* Controller;
 
-  // List used for transmitting between processors during parallel operation
-  RemoteParticleVector MPISendList;
-
-  int Rank;
-  int NumProcs;
-  RemoteParticleVector Tail; //this is to receive the "tails" of traces from other processes
 private:
-  vtkPParticleTracerBase(const vtkPParticleTracerBase&);  // Not implemented.
-  void operator=(const vtkPParticleTracerBase&);  // Not implemented.
-
+  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&);  // Not implemented.
+  void operator=(const vtkPTemporalStreamTracer&);  // Not implemented.
 };
 
 #endif

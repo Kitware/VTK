@@ -64,7 +64,7 @@
 #ifndef __vtkCompositeInterpolatedVelocityField_h
 #define __vtkCompositeInterpolatedVelocityField_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkAbstractInterpolatedVelocityField.h"
 
 //BTX
@@ -79,7 +79,7 @@ class vtkPointData;
 class vtkGenericCell;
 class vtkCompositeInterpolatedVelocityFieldDataSetsType;
 
-class VTKFILTERSTRACERS_EXPORT vtkCompositeInterpolatedVelocityField : public vtkAbstractInterpolatedVelocityField
+class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField : public vtkAbstractInterpolatedVelocityField
 {
 public:
   vtkTypeMacro( vtkCompositeInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);

@@ -1,4 +1,4 @@
-vtk_module(vtkFiltersTracers
+vtk_module(vtkFiltersFlowPaths
   DEPENDS
     vtkCommonExecutionModel
     vtkFiltersAMR

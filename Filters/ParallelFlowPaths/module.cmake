@@ -1,6 +1,6 @@
-vtk_module(vtkFiltersParallelTracers
+vtk_module(vtkFiltersParallelFlowPaths
   IMPLEMENTS
-    vtkFiltersTracers
+    vtkFiltersFlowPaths
   DEPENDS
     vtkParallelMPI
     vtkParallelCore

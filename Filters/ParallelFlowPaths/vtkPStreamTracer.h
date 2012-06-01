@@ -34,9 +34,9 @@ class PStreamTracerPoint;
 class vtkOverlappingAMR;
 class AbstractPStreamTracerUtils;
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
+#include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
-class  VTKFILTERSPARALLELTRACERS_EXPORT vtkPStreamTracer : public vtkStreamTracer
+class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);

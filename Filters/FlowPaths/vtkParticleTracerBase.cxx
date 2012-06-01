@@ -59,7 +59,7 @@ PURPOSE.  See the above copyright notice for more information.
 #endif
 
 #include <functional>
-#include <algorithm> 
+#include <algorithm>
 #ifdef DEBUGPARTICLETRACE
 #define Assert(x) assert(x)
 #define PRINT(x) cout<<__LINE__<<": "<<x<<endl;

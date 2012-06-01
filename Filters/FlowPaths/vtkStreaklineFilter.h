@@ -24,11 +24,11 @@
 #ifndef __vtkStreaklineFilter_h
 #define __vtkStreaklineFilter_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"
 
-class VTKFILTERSTRACERS_EXPORT StreaklineFilterInternal
+class VTKFILTERSFLOWPATHS_EXPORT StreaklineFilterInternal
 {
  public:
   StreaklineFilterInternal(vtkParticleTracerBase* filter);
@@ -42,7 +42,7 @@ class VTKFILTERSTRACERS_EXPORT StreaklineFilterInternal
 };
 
 
-class VTKFILTERSTRACERS_EXPORT vtkStreaklineFilter: public vtkParticleTracerBase
+class VTKFILTERSFLOWPATHS_EXPORT vtkStreaklineFilter: public vtkParticleTracerBase
 {
  public:
   vtkTypeMacro(vtkStreaklineFilter,vtkParticleTracerBase)

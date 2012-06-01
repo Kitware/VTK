@@ -25,10 +25,10 @@
 #ifndef __vtkStreamPoints_h
 #define __vtkStreamPoints_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamer.h"
 
-class VTKFILTERSTRACERS_EXPORT vtkStreamPoints : public vtkStreamer
+class VTKFILTERSFLOWPATHS_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
   vtkTypeMacro(vtkStreamPoints,vtkStreamer);

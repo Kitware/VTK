@@ -24,12 +24,12 @@
 #ifndef __vtkParticlePathFilter_h
 #define __vtkParticlePathFilter_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"
 #include <vector> // For protected ivars
 
-class VTKFILTERSTRACERS_EXPORT ParticlePathFilterInternal
+class VTKFILTERSFLOWPATHS_EXPORT ParticlePathFilterInternal
 {
  public:
   ParticlePathFilterInternal(vtkParticleTracerBase* filter);
@@ -43,7 +43,7 @@ class VTKFILTERSTRACERS_EXPORT ParticlePathFilterInternal
   std::vector<vtkSmartPointer<vtkIdList> > Paths;
 };
 
-class VTKFILTERSTRACERS_EXPORT vtkParticlePathFilter: public vtkParticleTracerBase
+class VTKFILTERSFLOWPATHS_EXPORT vtkParticlePathFilter: public vtkParticleTracerBase
 {
  public:
   vtkTypeMacro(vtkParticlePathFilter,vtkParticleTracerBase)

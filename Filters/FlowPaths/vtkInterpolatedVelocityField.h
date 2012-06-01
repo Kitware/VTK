@@ -51,10 +51,10 @@
 #ifndef __vtkInterpolatedVelocityField_h
 #define __vtkInterpolatedVelocityField_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkCompositeInterpolatedVelocityField.h"
 
-class VTKFILTERSTRACERS_EXPORT vtkInterpolatedVelocityField
+class VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
   : public vtkCompositeInterpolatedVelocityField
 {
 public:

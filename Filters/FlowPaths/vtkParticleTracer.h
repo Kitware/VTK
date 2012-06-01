@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPParticleTracer.h
+  Module:    vtkParticleTracer.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,37 +12,36 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPParticleTracer - A Parallel Particle tracer for unsteady vector fields
+// .NAME vtkParticleTracer - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkPParticleTracer is a filter that integrates a vector field to generate
+// vtkParticleTracer is a filter that integrates a vector field to generate
 //
 //
 // .SECTION See Also
-// vtkPParticleTracerBase has the details of the algorithms
+// vtkParticleTracerBase has the details of the algorithms
 
 
-#ifndef __vtkPParticleTracer_h
-#define __vtkPParticleTracer_h
+#ifndef __vtkParticleTracer_h
+#define __vtkParticleTracer_h
 
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
-#include "vtkPParticleTracerBase.h"
+#include "vtkParticleTracerBase.h"
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
-
-class  VTKFILTERSPARALLELTRACERS_EXPORT vtkPParticleTracer: public vtkPParticleTracerBase
+class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracer: public vtkParticleTracerBase
 {
  public:
-  vtkTypeMacro(vtkPParticleTracer,vtkPParticleTracerBase)
+  vtkTypeMacro(vtkParticleTracer,vtkParticleTracerBase)
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  static vtkPParticleTracer *New();
+  static vtkParticleTracer *New();
 
  protected:
-  vtkPParticleTracer();
-  ~vtkPParticleTracer(){}
-  vtkPParticleTracer(const vtkPParticleTracer&);  // Not implemented.
+  vtkParticleTracer();
+  virtual ~vtkParticleTracer(){}
+  vtkParticleTracer(const vtkParticleTracer&);  // Not implemented.
+  void operator=(const vtkParticleTracer&);  // Not implemented.
   virtual int OutputParticles(vtkPolyData* poly);
-
 };
 
 

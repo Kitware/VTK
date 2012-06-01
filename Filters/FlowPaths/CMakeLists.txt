@@ -27,4 +27,4 @@ set_source_files_properties(
   ABSTRACT
   )
 
-vtk_module_library(vtkFiltersTracers ${Module_SRCS})
+vtk_module_library(vtkFiltersFlowPaths ${Module_SRCS})

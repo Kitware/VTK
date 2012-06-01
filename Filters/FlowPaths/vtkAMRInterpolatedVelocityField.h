@@ -22,14 +22,14 @@
 #ifndef __vtkAMRInterpolatedVelocityField_h
 #define __vtkAMRInterpolatedVelocityField_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 
 #include <vtkAbstractInterpolatedVelocityField.h>
 #include <vtkAMRBox.h> //needed for caching the last AMRBox
 
 class vtkOverlappingAMR;
 
-class VTKFILTERSTRACERS_EXPORT vtkAMRInterpolatedVelocityField
+class VTKFILTERSFLOWPATHS_EXPORT vtkAMRInterpolatedVelocityField
   : public vtkAbstractInterpolatedVelocityField
 {
 public:

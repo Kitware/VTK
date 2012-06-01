@@ -24,7 +24,7 @@
 #ifndef __vtkParticleTracerBase_h
 #define __vtkParticleTracerBase_h
 
-#include "vtkFiltersTracersModule.h" // For export macro
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPolyDataAlgorithm.h"
 //BTX
@@ -88,7 +88,7 @@ namespace vtkParticleTracerBaseNamespace
 };
 //ETX
 
-class VTKFILTERSTRACERS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
+class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
 {
 public:
   enum Solvers

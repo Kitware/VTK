@@ -29,8 +29,8 @@
 #include "vtkPParticleTracerBase.h"
 #include "vtkParticlePathFilter.h" //for utility
 
-#include "vtkFiltersParallelTracersModule.h" // For export macro
-class  VTKFILTERSPARALLELTRACERS_EXPORT vtkPParticlePathFilter: public vtkPParticleTracerBase
+#include "vtkFiltersParallelFlowPathsModule.h" // For export macro
+class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticlePathFilter: public vtkPParticleTracerBase
 {
  public:
   vtkTypeMacro(vtkPParticlePathFilter,vtkPParticleTracerBase)
