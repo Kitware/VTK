@@ -898,7 +898,7 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
   this->Superclass::CopyDefaultInformation(request, direction,
                                            inInfoVec, outInfoVec);
 
-  if (request->Has(REQUEST_INFORMATION()))
+  if (request->Has(REQUEST_INFORMATION())||request->Has(REQUEST_TIME_DEPENDENT_INFORMATION()))
     {
     if (this->GetNumberOfInputPorts() > 0)
       {

@@ -40,6 +40,8 @@ vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, EXACT_EXTENT, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Request);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_TIME, Request);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_TIME_DEPENDENT_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_MANAGE_INFORMATION, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_RESOLUTION_PROPAGATE, Request);
@@ -80,6 +82,8 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, PREVIOUS_FAST_PATH_ID_T
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_AMR_LEVEL, Integer );
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
+
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
 {
@@ -126,6 +130,66 @@ int vtkStreamingDemandDrivenPipeline
     }
 
   // Look for specially supported requests.
+  if(request->Has(REQUEST_UPDATE_TIME()))
+    {
+    int result = 1;
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    int N2E = 1;
+    if(outputPort>=0)
+      {
+      vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+      vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
+      if (outInfo->Has(TIME_DEPENDENT_INFORMATION()))
+        {
+        N2E  = this->NeedToExecuteBasedOnTime(outInfo,dataObject);
+        }
+      else
+        {
+        N2E = 0;
+        }
+      }
+    if(N2E)
+      {
+      result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
+                                   inInfoVec, outInfoVec);
+      // Propagate the update extent to all inputs.
+      if(result)
+        {
+        result = this->ForwardUpstream(request);
+        }
+      result = 1;
+      }
+    return result;
+    }
+
+ // Look for specially supported requests.
+  if(request->Has(REQUEST_TIME_DEPENDENT_INFORMATION()))
+    {
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+    int N2E = 1;
+    if(outputPort>=0)
+      {
+      vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+      if(!outInfo->Has(TIME_DEPENDENT_INFORMATION()))
+        {
+        N2E = 0;
+        }
+      }
+    if(!N2E)
+      {
+      return 1;
+      }
+    }
+
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
     // Get the output port from which the request was made.
@@ -320,11 +384,14 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     }
   if(port >= -1 && port < this->Algorithm->GetNumberOfOutputPorts())
     {
+    vtkInformation *outInfo = this->GetOutputInformation(port);
     int retval = 1;
     // some streaming filters can request that the pipeline execute multiple
     // times for a single update
     do
       {
+      this->PropagateTime(port);
+      this->UpdateTimeDependentInformation();
       retval = retval && this->PropagateUpdateExtent(port);
       if (retval && !this->LastPropogateUpdateExtentShortCircuited)
         {
@@ -456,6 +523,7 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, TIME_RANGE());
           outInfo->CopyEntry(inInfo, vtkDataObject::ORIGIN());
           outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
+          outInfo->CopyEntry(inInfo, TIME_DEPENDENT_INFORMATION());
           if (scalarInfo)
             {
             int scalarType = VTK_DOUBLE;
@@ -518,6 +586,46 @@ vtkStreamingDemandDrivenPipeline
           vtkExtentTranslator* translator = vtkExtentTranslator::New();
           outInfo->Set(EXTENT_TRANSLATOR(), translator);
           translator->Delete();
+          }
+        }
+      }
+    }
+
+  if(request->Has(REQUEST_UPDATE_TIME()))
+    {
+    //Copy requested resolution back
+    // Get the output port from which to copy the extent.
+    int outputPort = -1;
+    if(request->Has(FROM_OUTPUT_PORT()))
+      {
+      outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    // Setup default information for the inputs.
+    if(outInfoVec->GetNumberOfInformationObjects() > 0)
+      {
+      // Copy information from the output port that made the request.
+      // Since VerifyOutputInformation has already been called we know
+      // there is output information with a data object.
+      vtkInformation* outInfo =
+        outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
+      vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+      // Loop over all input ports.
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        // Loop over all connections on this input port.
+        int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          // Get the pipeline information for this input connection.
+          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
+
+          // Copy the time request
+          if ( outInfo->Has(UPDATE_TIME_STEP()) )
+            {
+            inInfo->CopyEntry(outInfo, UPDATE_TIME_STEP());
+            }
           }
         }
       }
@@ -895,6 +1003,68 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 
   // Send the request.
   return this->ProcessRequest(this->UpdateExtentRequest,
+                              this->GetInputInformation(),
+                              this->GetOutputInformation());
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::PropagateTime(int outputPort)
+{
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("PropagateTime", 0))
+    {
+    return 0;
+    }
+
+  // Range check.
+  if(outputPort < -1 ||
+     outputPort >= this->Algorithm->GetNumberOfOutputPorts())
+    {
+    vtkErrorMacro("PropagateUpdateTime given output port index "
+                  << outputPort << " on an algorithm with "
+                  << this->Algorithm->GetNumberOfOutputPorts()
+                  << " output ports.");
+    return 0;
+    }
+
+  // Setup the request for update extent propagation.
+  vtkSmartPointer<vtkInformation> updateTimeRequest = vtkSmartPointer<vtkInformation>::New();
+
+  //if (!this->UpdateExtentRequest)
+    {
+    updateTimeRequest->Set(REQUEST_UPDATE_TIME());
+    // The request is forwarded upstream through the pipeline.
+    updateTimeRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+    // Algorithms process this request before it is forwarded.
+    updateTimeRequest->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
+    }
+
+  updateTimeRequest->Set(FROM_OUTPUT_PORT(), outputPort);
+
+  // Send the request.
+  return this->ProcessRequest(updateTimeRequest,
+                              this->GetInputInformation(),
+                              this->GetOutputInformation());
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::UpdateTimeDependentInformation()
+{
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("UpdateMetaInformation", 0))
+    {
+    return 0;
+    }
+  // Setup the request for information.
+  vtkSmartPointer<vtkInformation> timeRequest = vtkSmartPointer<vtkInformation>::New();
+  timeRequest->Set(REQUEST_TIME_DEPENDENT_INFORMATION());
+  // The request is forwarded upstream through the pipeline.
+  timeRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+  // Algorithms process this request after it is forwarded.
+  timeRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+
+  // Send the request.
+  return this->ProcessRequest(timeRequest,
                               this->GetInputInformation(),
                               this->GetOutputInformation());
 }

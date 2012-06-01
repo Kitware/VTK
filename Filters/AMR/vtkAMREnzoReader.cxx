@@ -22,6 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkAMRUtilities.h"
 #include "vtkIndent.h"
+#include "vtkInformation.h"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkDataSet.h"
@@ -389,6 +390,7 @@ int vtkAMREnzoReader::FillMetaData( )
 
   // NOTE: the controller here is null since each process loads its own metadata
   vtkAMRUtilities::GenerateMetaData( this->Metadata, NULL );
+  this->Metadata->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),this->Internal->DataTime);
   return( 1 );
 }
 
