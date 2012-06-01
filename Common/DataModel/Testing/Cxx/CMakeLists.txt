@@ -2,6 +2,8 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestVector.cxx
   TestVectorOperators.cxx
   TestAMRBox.cxx
+  TestDataArrayDispatcher.cxx
+  TestDispatchers.cxx
   TestGenericCell.cxx
   TestGraph.cxx
   TestHigherOrderCell.cxx
