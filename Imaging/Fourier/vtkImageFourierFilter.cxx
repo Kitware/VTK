@@ -60,8 +60,7 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
   fact1.Real = 1.0;
   fact1.Imag = 0.0;
   q.Real = 0.0;
-  q.Imag = -(2.0 * vtkMath::Pi()) * static_cast<float>(fb)
-    / static_cast<float>(bsize * 2);
+  q.Imag = -(2.0 * vtkMath::Pi()) * fb / (bsize * 2.0);
   vtkImageComplexExponential(q, q);
   p3 = p_out;
   for(i1 = 0; i1 < N / (bsize * 2); ++i1)
@@ -116,8 +115,7 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
   for(i0 = 0; i0 < n; ++i0)
     {
     q.Real = 0.0;
-    q.Imag = -(2.0 * vtkMath::Pi()) * static_cast<float>(i0) *
-      static_cast<float>(fb) / static_cast<float>(bsize*n);
+    q.Imag = -(2.0 * vtkMath::Pi()) * i0 * fb / (bsize*1.0*n);
     vtkImageComplexExponential(q, q);
     p3 = p_out;
     for(i1 = 0; i1 < N / (bsize * n); ++i1)
@@ -165,8 +163,8 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
     p1 = in;
     for(idx = 0; idx < N; ++idx)
       {
-      p1->Real = p1->Real / static_cast<float>(N);
-      p1->Imag = p1->Imag / static_cast<float>(N);
+      p1->Real = p1->Real / N;
+      p1->Imag = p1->Imag / N;
       ++p1;
       }
     }
