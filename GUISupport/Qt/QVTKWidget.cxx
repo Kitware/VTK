@@ -47,6 +47,10 @@
 #include "qx11info_x11.h"
 #endif
 
+#if defined(Q_WS_WIN)
+# include <windows.h>
+#endif
+
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindow.h"
 #if defined(QVTK_USE_CARBON)
@@ -820,6 +824,17 @@ void QVTKWidget::x11_setup_window()
 
 #endif
 }
+
+#if defined(Q_WS_WIN)
+bool QVTKWidget::winEvent(MSG* msg, long*)
+{
+  if(msg->message == WM_PAINT)
+    {
+    InvalidateRect(this->winId(), NULL, FALSE);
+    }
+  return false;
+}
+#endif
 
 #if defined (QVTK_USE_CARBON)
 OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, void* wid)
