@@ -538,13 +538,10 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(
     vtkOverlappingAMR *amr)
 {
   assert("pre: input AMR data is NULL" && (amr != NULL) );
-  unsigned int numLevels = amr->GetNumberOfLevels();
-  unsigned int levelIdx = numLevels-1;
+  int numLevels = static_cast<int>( amr->GetNumberOfLevels() );
+  int levelIdx  = numLevels-1;
   for(; levelIdx > 0; --levelIdx )
     {
-    unsigned int lowResLevel = levelIdx-1;
-    assert("pre: lowResLevel >= 0" && (static_cast<int>(lowResLevel) >= 0) );
-
     int r = amr->GetRefinementRatio( levelIdx );
     unsigned int numDataSets = amr->GetNumberOfDataSets( levelIdx );
     for( unsigned int dataIdx=0; dataIdx < numDataSets; ++dataIdx )
