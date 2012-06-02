@@ -845,8 +845,8 @@ void vtkAMRUtilities::StripGhostLayers(
   unsigned int levelIdx = 1;
   for( ;levelIdx < ghostedAMRData->GetNumberOfLevels(); ++levelIdx )
     {
-    unsigned int dataIdx = 0;
-    for( ;dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
+    dataIdx=0;
+    for(;dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
       {
       assert( "pre: AMR dataset has no metadata for requested grid!" &&
                ghostedAMRData->HasMetaData(levelIdx,dataIdx) );
