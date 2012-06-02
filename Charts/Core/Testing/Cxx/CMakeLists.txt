@@ -4,6 +4,7 @@
     TestContextScene.cxx
     TestControlPointsItem.cxx
     TestControlPointsItemEvents.cxx
+    TestSimpleFontRendering.cxx
     )
 
   if(VTK_DATA_ROOT)

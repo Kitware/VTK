@@ -853,8 +853,10 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     return 0;
     }
 
-  // Initialize bbox to some large values
-  bbox[0] = bbox[2] = VTK_INT_MAX;
+  // Initialize bbox minima to 0 -- this is the starting point of the pen,
+  // omitting it will not consider the first character's bearing.
+  bbox[0] = bbox[2] = 0;
+  // This will be updated as the glyphs bboxes are tested:
   bbox[1] = bbox[3] = VTK_INT_MIN;
 
   // No string to render, bail out now
