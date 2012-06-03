@@ -1,11 +1,6 @@
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
-  # TestRectilinearGridPartitioner.cxx # has main
-  # TestStructuredGridConnectivity.cxx # has main
-  # TestStructuredGridGhostDataGenerator.cxx # Has main
-  # TestStructuredGridPartitioner.cxx        # Has main
-  # TestUniformGridGhostDataGenerator.cxx # Strange error?
-
   TestExtractSurfaceNonLinearSubdivision.cxx
+  TestUniformGridGhostDataGenerator.cxx
   TestUnstructuredGridGeometryFilter.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
@@ -29,4 +24,19 @@ foreach(test ${TestsToRun})
     add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName})
   endif()
+endforeach()
+
+## list of tests that are not included in the main driver
+set(MyTests
+  #TestRectilinearGridPartitioner.cxx Not a test
+  #TestStructuredGridPartitioner.cxx Not a test
+  TestStructuredGridConnectivity.cxx
+  TestStructuredGridGhostDataGenerator.cxx
+  )
+
+foreach(test ${MyTests})
+  get_filename_component(TName ${test} NAME_WE)
+  add_executable(${TName} ${test})
+  target_link_libraries(${TName} vtkFiltersGeometry vtkIOXML)
+  add_test(NAME ${vtk-module}Cxx-${TName} COMMAND ${TName})
 endforeach()
