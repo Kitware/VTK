@@ -115,17 +115,17 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
   assert("pre: num components must be 3" &&
          (array->GetNumberOfComponents()==3));
 
+  vtkIdList *nodeIds = vtkIdList::New();
   for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
     {
-    vtkCell *c = grid->GetCell( cellIdx );
-    assert( "pre: cell is not NULL" && (c != NULL) );
-
+    nodeIds->Initialize();
+    grid->GetCellPoints(cellIdx,nodeIds);
     double xsum = 0.0;
     double ysum = 0.0;
     double zsum = 0.0;
-    for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
+    for( vtkIdType node=0; node < nodeIds->GetNumberOfIds(); ++node )
       {
-      vtkIdType meshPntIdx = c->GetPointId( node );
+      vtkIdType meshPntIdx = nodeIds->GetId( node );
       grid->GetPoint( meshPntIdx, xyz );
       xsum += xyz[0];
       ysum += xyz[1];
@@ -133,9 +133,9 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
       } // END for all nodes
 
     centroid[0] = centroid[1] = centroid[2] = 0.0;
-    centroid[0] = xsum / static_cast<double>( c->GetNumberOfPoints() );
-    centroid[1] = ysum / static_cast<double>( c->GetNumberOfPoints() );
-    centroid[2] = zsum / static_cast<double>( c->GetNumberOfPoints() );
+    centroid[0] = xsum / static_cast<double>( nodeIds->GetNumberOfIds() );
+    centroid[1] = ysum / static_cast<double>( nodeIds->GetNumberOfIds() );
+    centroid[2] = zsum / static_cast<double>( nodeIds->GetNumberOfIds() );
 
     for( int i=0; i < 3; ++i )
       {
@@ -146,10 +146,12 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
         std::cout <<  array->GetComponent(cellIdx,i);
         std::cout << std::endl;
         std::cout.flush();
+        nodeIds->Delete();
         return false;
         } // END if fuzz-compare
       } // END for all components
     } // END for all cells
+  nodeIds->Delete();
   return true;
 }
 
@@ -342,6 +344,31 @@ int Test2D(
     const bool hasNodeData, const bool hasCellData,
     const int numPartitions, const int numGhosts )
 {
+  std::cout << "===================\n";
+  std::cout << "Testing 2-D ghost generation....\n";
+  std::cout << "Number of Partitions: " << numPartitions << std::endl;
+  std::cout << "Number of ghost-layers in the input: " << numGhosts << "\n";
+  std::cout << "Number of ghost-layers to be generated: 1\n";
+  std::cout << "Node-centered data: ";
+  if( hasNodeData )
+    {
+    std::cout << "Yes\n";
+    }
+  else
+    {
+    std::cout << "No\n";
+    }
+  std::cout << "Cell-centered data: ";
+  if( hasCellData )
+    {
+    std::cout << "Yes\n";
+    }
+  else
+    {
+    std::cout << "No\n";
+    }
+  std::cout.flush();
+
   int rc = 0;
 
   int WholeExtent[6] = {0,49,0,49,0,0};
@@ -375,6 +402,31 @@ int Test3D(
     const bool hasNodeData, const bool hasCellData,
     const int numPartitions, const int numGhosts )
 {
+  std::cout << "===================\n";
+  std::cout << "Testing 3-D ghost generation....\n";
+  std::cout << "Number of Partitions: " << numPartitions << std::endl;
+  std::cout << "Number of ghost-layers in the input: " << numGhosts << "\n";
+  std::cout << "Number of ghost-layers to be generated: 1\n";
+  std::cout << "Node-centered data: ";
+  if( hasNodeData )
+    {
+    std::cout << "Yes\n";
+    }
+  else
+    {
+    std::cout << "No\n";
+    }
+  std::cout << "Cell-centered data: ";
+  if( hasCellData )
+    {
+    std::cout << "Yes\n";
+    }
+  else
+    {
+    std::cout << "No\n";
+    }
+  std::cout.flush();
+
   int rc = 0;
   int WholeExtent[6] = {0,49,0,49,0,49};
   double h[3] = {0.5,0.5,0.5};
@@ -408,7 +460,12 @@ int TestStructuredGridGhostDataGenerator(int, char *[])
   int rc = 0;
   rc += Test2D(false,false,4,0);
   rc += Test2D(true,false,4,0);
+  rc += Test2D(false,true,4,0);
+  rc += Test2D(true,true,4,0);
+
   rc += Test3D(true,false,32,0);
+  rc += Test3D(false,true,32,0);
+  rc += Test3D(true,true,32,0);
   return( rc );
 }
 
