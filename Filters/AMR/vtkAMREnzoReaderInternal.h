@@ -27,6 +27,7 @@
 #include <string> // for STL string
 #include <cassert>       // for assert()
 
+#include "vtksys/SystemTools.hxx"
 
 class vtkDataArray;
 class vtkDataSet;
@@ -45,10 +46,10 @@ class vtkDataSet;
 *
 *****************************************************************************/
 
-extern "C" {
-  const char* GetEnzoDirectory( const char* path );
+static std::string GetEnzoDirectory( const char* path )
+{
+  return( vtksys::SystemTools::GetFilenamePath( std::string(path) ) );
 }
-
 
 
 // ----------------------------------------------------------------------------
@@ -142,6 +143,9 @@ public:
   int LoadAttribute( const char *attribute, int blockIdx );
   int GetBlockAttribute(
        const char* attribute, int blockIdx, vtkDataSet* pDataSet );
+  std::string GetBaseDirectory(const char* path)
+    {return GetEnzoDirectory(path); };
+
 
 };
 
