@@ -391,6 +391,9 @@ vtkMultiBlockDataSet* GetDataSet(
       mbds->SetBlock( block, NULL );
       } // END else we don't own the block
     } // END for all blocks
+
+  wholeStructuredGrid->Delete();
+  gridPartitioner->Delete();
   return( mbds );
 }
 
