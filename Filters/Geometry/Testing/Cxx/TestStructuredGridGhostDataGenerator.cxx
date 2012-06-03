@@ -44,11 +44,14 @@
 #include "vtkImageToStructuredGrid.h"
 
 
+//#define DEBUG_ON
+
 //------------------------------------------------------------------------------
 // Description:
 // Write the uniform grid multi-block dataset into an XML file.
 void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
 {
+#ifdef DEBUG_ON
   assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
 
   vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
@@ -63,6 +66,7 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
   writer->Write();
 
   writer->Delete();
+#endif
 }
 
 //------------------------------------------------------------------------------
