@@ -224,36 +224,44 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
   assert("pre: num components must be 3" &&
          (array->GetNumberOfComponents()==3));
 
+  vtkIdList *nodeIds = vtkIdList::New();
   for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
     {
-    vtkCell *c = grid->GetCell( cellIdx );
-    assert( "pre: cell is not NULL" && (c != NULL) );
+    nodeIds->Initialize();
+    grid->GetCellPoints(cellIdx,nodeIds);
 
     double xsum = 0.0;
     double ysum = 0.0;
     double zsum = 0.0;
-    for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
+    for( vtkIdType node=0; node < nodeIds->GetNumberOfIds(); ++node )
       {
-      vtkIdType meshPntIdx = c->GetPointId( node );
+      vtkIdType meshPntIdx = nodeIds->GetId( node );
       grid->GetPoint( meshPntIdx, xyz );
       xsum += xyz[0];
       ysum += xyz[1];
       zsum += xyz[2];
       } // END for all nodes
 
-    centroid[0] = xsum / c->GetNumberOfPoints();
-    centroid[1] = ysum / c->GetNumberOfPoints();
-    centroid[2] = zsum / c->GetNumberOfPoints();
+    centroid[0] = centroid[1] = centroid[2] = 0.0;
+    centroid[0] = xsum / static_cast<double>( nodeIds->GetNumberOfIds() );
+    centroid[1] = ysum / static_cast<double>( nodeIds->GetNumberOfIds() );
+    centroid[2] = zsum / static_cast<double>( nodeIds->GetNumberOfIds() );
 
     for( int i=0; i < 3; ++i )
       {
       if( !vtkMathUtilities::FuzzyCompare(
           centroid[i],array->GetComponent(cellIdx,i)) )
         {
+        std::cout << "Cell Data mismatch: " << centroid[i] << " ";
+        std::cout <<  array->GetComponent(cellIdx,i);
+        std::cout << std::endl;
+        std::cout.flush();
+        nodeIds->Delete();
         return false;
         } // END if fuzz-compare
       } // END for all components
     } // END for all cells
+  nodeIds->Delete();
   return true;
 }
 
