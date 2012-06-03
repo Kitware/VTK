@@ -41,6 +41,8 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+//#define DEBUG_ON
+
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
 //------------------------------------------------------------------------------
@@ -361,6 +363,7 @@ vtkMultiBlockDataSet* GetDataSet(
 void WriteDistributedDataSet(
     std::string prefix, vtkMultiBlockDataSet *dataset)
 {
+#ifdef DEBUG_ON
   vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
@@ -372,6 +375,7 @@ void WriteDistributedDataSet(
     }
   writer->Update();
   writer->Delete();
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -422,7 +426,7 @@ int Test2D(
     {
     AddCellCenteredXYZField( mbds );
     }
-//  WriteDistributedDataSet( "P2DInitial", mbds );
+  WriteDistributedDataSet( "P2DInitial", mbds );
 
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
@@ -434,7 +438,7 @@ int Test2D(
   ghostGenerator->Update();
 
   vtkMultiBlockDataSet *ghostedDataSet = ghostGenerator->GetOutput();
-//  WriteDistributedDataSet( "GHOSTED2D", ghostedDataSet );
+  WriteDistributedDataSet( "GHOSTED2D", ghostedDataSet );
 
   rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
   mbds->Delete();
@@ -490,7 +494,7 @@ int Test3D(
     {
     AddCellCenteredXYZField( mbds );
     }
-//  WriteDistributedDataSet("P3DInitial", mbds );
+  WriteDistributedDataSet("P3DInitial", mbds );
 
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
@@ -502,7 +506,7 @@ int Test3D(
   ghostGenerator->Update();
 
   vtkMultiBlockDataSet *ghostedDataSet = ghostGenerator->GetOutput();
-//  WriteDistributedDataSet( "GHOSTED3D", ghostedDataSet );
+  WriteDistributedDataSet( "GHOSTED3D", ghostedDataSet );
 
   rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
   mbds->Delete();
