@@ -4,4 +4,9 @@ vtk_module(vtkFiltersParallelGeometry
   DEPENDS
     vtkFiltersGeometry
     vtkParallelMPI
+  TEST_DEPENDS
+    vtkIOXML
+    vtkIOParallel
+    vtkCommonDataModel
+    vtkParallelMPI
   )
