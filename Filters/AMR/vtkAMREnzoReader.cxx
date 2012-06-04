@@ -80,8 +80,10 @@ void vtkAMREnzoReader::PrintSelf( std::ostream &os, vtkIndent indent )
 //-----------------------------------------------------------------------------
 int vtkAMREnzoReader::GetIndexFromArrayName( std::string arrayName )
 {
-  char stringIdx = arrayName.at( arrayName.size()-2 );
-  return( atoi( &stringIdx ) );
+  char stringIdx[2];
+  stringIdx[0] = arrayName.at( arrayName.size()-2 );
+  stringIdx[1] = '\0';
+  return( atoi( stringIdx ) );
 }
 
 //-----------------------------------------------------------------------------
