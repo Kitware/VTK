@@ -21,17 +21,10 @@ set_property(SOURCE vtkParseMain.c PROPERTY COMPILE_DEFINITIONS
 if(NOT CMAKE_CROSSCOMPILING)
   if(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
     add_executable(vtkWrapHierarchy vtkParse.tab.c vtkParsePreprocess.c
-                       vtkParseExtras.c vtkWrapHierarchy.c)
-    export(TARGETS vtkWrapHierarchy
-      FILE ${EXPORT_EXECUTABLES_FILE}
-      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+      vtkParseExtras.c vtkWrapHierarchy.c)
+    vtk_target(vtkWrapHierarchy)
     if(COMPILE_TOOLS_TARGET)
       add_dependencies(${COMPILE_TOOLS_TARGET} vtkWrapHierarchy)
-    endif()
-
-    if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    #  INSTALL(TARGETS vtkWrapHierarchy
-    #    RUNTIME DESTINATION ${VTK_INSTALL_BIN_DIR_CM24} COMPONENT Development)
     endif()
   endif()
 
@@ -39,9 +32,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     add_executable(vtkWrapTcl vtkWrapTcl.c vtkParseMain.c vtkParse.tab.c
                        vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
     add_executable(vtkWrapTclInit vtkWrapTclInit.c)
-    export(TARGETS vtkWrapTcl vtkWrapTclInit
-      FILE ${EXPORT_EXECUTABLES_FILE}
-      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    vtk_target(vtkWrapTcl)
+    vtk_target(vtkWrapTclInit)
     if(COMPILE_TOOLS_TARGET)
       add_dependencies(${COMPILE_TOOLS_TARGET} vtkWrapTcl vtkWrapTclInit)
     endif()
@@ -59,9 +51,8 @@ if(NOT CMAKE_CROSSCOMPILING)
                    vtkParseExtras.c vtkParseHierarchy.c)
     add_executable(vtkWrapPythonInit vtkWrapPythonInit.c)
     target_link_libraries(vtkWrapPython ${VTK_PYTHON_LIBRARIES})
-    export(TARGETS vtkWrapPython vtkWrapPythonInit
-      FILE ${EXPORT_EXECUTABLES_FILE}
-      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    vtk_target(vtkWrapPython)
+    vtk_target(vtkWrapPythonInit)
     if(COMPILE_TOOLS_TARGET)
       add_dependencies(${COMPILE_TOOLS_TARGET} vtkWrapPython vtkWrapPythonInit)
     endif()
@@ -72,9 +63,8 @@ if(NOT CMAKE_CROSSCOMPILING)
                    vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
     add_executable(vtkWrapJava vtkWrapJava.c vtkParseMain.c vtkParse.tab.c
                    vtkParsePreprocess.c vtkParseExtras.c vtkParseHierarchy.c)
-    export(TARGETS vtkParseJava vtkWrapJava
-      FILE ${EXPORT_EXECUTABLES_FILE}
-      NAMESPACE "${EXPORT_EXECUTABLES_NAMESPACE}" APPEND)
+    vtk_target(vtkParseJava)
+    vtk_target(vtkWrapJava)
     if(COMPILE_TOOLS_TARGET)
       add_dependencies(${COMPILE_TOOLS_TARGET} vtkParseJava vtkWrapJava)
     endif()

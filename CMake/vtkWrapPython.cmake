@@ -8,12 +8,20 @@ endmacro()
 
 macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
   if(NOT VTK_WRAP_PYTHON_INIT_EXE)
-   message(SEND_ERROR
-      "VTK_WRAP_PYTHON_INIT_EXE not specified when calling VTK_WRAP_PYTHON3")
+    if(TARGET vtkWrapPythonInit)
+      set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
+    else()
+      message(SEND_ERROR
+        "VTK_WRAP_PYTHON_INIT_EXE not specified when calling VTK_WRAP_PYTHON3")
+    endif()
   endif()
   if(NOT VTK_WRAP_PYTHON_EXE)
-    message(SEND_ERROR
-      "VTK_WRAP_PYTHON_EXE not specified when calling VTK_WRAP_PYTHON3")
+    if(TARGET vtkWrapPython)
+      set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
+    else()
+      message(SEND_ERROR
+        "VTK_WRAP_PYTHON_EXE not specified when calling VTK_WRAP_PYTHON3")
+    endif()
   endif()
 
   # The shell into which nmake.exe executes the custom command has some issues
