@@ -229,7 +229,7 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
 
     this->IsReady = true;
     this->Internal->DirectoryName =
-     std::string(GetEnzoDirectory(this->Internal->MajorFileName.c_str()));
+        GetEnzoDirectory(this->Internal->MajorFileName.c_str());
     }
 
   if( this->IsReady )

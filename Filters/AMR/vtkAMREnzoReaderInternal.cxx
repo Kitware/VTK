@@ -32,104 +32,14 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 
-#define     ENZO_READER_SLASH_CHAR    '\\'
-#define     ENZO_READER_SLASH_STRING  "\\"
-const  int  ENZO_READER_BUFFER_SIZE = 4096;
-static char ENZO_READER_STRING[ ENZO_READER_BUFFER_SIZE ];
-
-
 // ----------------------------------------------------------------------------
 //                       Functions for Parsing File Names
 // ----------------------------------------------------------------------------
 
 
-static const char * GetEnzoMajorFileName( const char * path, int & start )
+std::string GetEnzoMajorFileName( const char * path )
 {
-  start = 0;
-
-  if (path == 0)
-    {
-    strcpy( ENZO_READER_STRING, "." );
-    return  ENZO_READER_STRING;
-    }
-  else
-  if ( *path == '\0' )
-    {
-    strcpy( ENZO_READER_STRING, "." );
-    return  ENZO_READER_STRING;
-    }
-  else
-    {
-    // find end of path string
-    int  n = 0;
-    while (  ( path[n] != '\0' ) && ( n < ENZO_READER_BUFFER_SIZE )  )
-      {
-      n ++;
-      }
-
-    // deal with string too large
-    if ( n == ENZO_READER_BUFFER_SIZE )
-      {
-      strcpy( ENZO_READER_STRING, "." );
-      return  ENZO_READER_STRING;
-      }
-
-    // backup, skipping over all trailing ENZO_READER_SLASH_CHAR chars
-    int  j = n-1;
-    while (  ( j >= 0 ) && ( path[j] == ENZO_READER_SLASH_CHAR )  )
-      {
-      j --;
-      }
-
-    // deal with string consisting of all ENZO_READER_SLASH_CHAR chars
-    if ( j == -1 )
-      {
-      start = -1;
-      strcpy( ENZO_READER_STRING, ENZO_READER_SLASH_STRING );
-      return  ENZO_READER_STRING;
-      }
-
-    // backup to just after next ENZO_READER_SLASH_CHAR char
-    int  i = j-1;
-    while (  ( i >= 0 ) && ( path[i] != ENZO_READER_SLASH_CHAR )  )
-      {
-      i --;
-      }
-
-    i ++;
-    start = i;
-
-    // build the return string
-    int   k;
-    for ( k = 0; k < j - i + 1; k ++ )
-      {
-      ENZO_READER_STRING[k] = path[ i + k ];
-      }
-    ENZO_READER_STRING[k] = '\0';
-
-    return ENZO_READER_STRING;
-    }
-}
-
-const char * GetEnzoMajorFileName( const char * path )
-{
-//  int     dummy1;
-//  return  GetEnzoMajorFileName( path, dummy1 );
-//  std::vector< std::string > vpath;
-  std::string fileName =
-    vtksys::SystemTools::GetFilenameName( std::string( path ) );
-  return( fileName.c_str()  );
-//  vtksys::SystemTools::SplitPath( path,vpath );
-//  assert( vpath.size() >= 1);
-//  return( vpath[ vpath.size()-1 ].c_str() );
-}
-
-const char * GetEnzoDirectory( const char * path )
-{
-//  int start;
-//  GetEnzoMajorFileName( path, start );
-  std::string mydir = vtksys::SystemTools::GetFilenamePath( std::string(path) );
-  return mydir.c_str( );
+  return(vtksys::SystemTools::GetFilenameName( std::string( path ) ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -846,8 +756,8 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
 
 //      std::cout << "szname: " << szName.c_str() << std::endl;
 //      std::cout.flush();
-      tmpBlk.BlockFileName = this->DirectoryName + "/" +
-                        std::string( GetEnzoMajorFileName( szName.c_str() ) );
+      tmpBlk.BlockFileName =
+          this->DirectoryName + "/" + GetEnzoMajorFileName(szName.c_str());
 
       // obtain the particle file name (szName includes the full path)
       while ( theStr != "NumberOfParticles" )
@@ -865,8 +775,8 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
           }
         stream >> theStr; // '='
         stream >> szName;
-        tmpBlk.ParticleFileName = this->DirectoryName + "/" +
-                         std::string( GetEnzoMajorFileName( szName.c_str() ) );
+        tmpBlk.ParticleFileName =
+            this->DirectoryName + "/" +GetEnzoMajorFileName(szName.c_str());
         }
 
       tmpBlk.Level    = levlId;
