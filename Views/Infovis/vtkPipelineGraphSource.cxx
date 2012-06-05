@@ -18,7 +18,6 @@
 #include "vtkAnnotationLink.h"
 #include "vtkArrayData.h"
 #include "vtkCollection.h"
-#include "vtkDataRepresentation.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
@@ -136,43 +135,6 @@ static void InsertObject(
         edge_class_name_array->InsertNextValue(input_data ? input_data->GetClassName() : "");
         edge_object_array->InsertNextValue(input_data);
         }
-      }
-
-    // Special-case: if this is a representation, insert its annotation link ...
-    if(vtkDataRepresentation* const data_representation = vtkDataRepresentation::SafeDownCast(algorithm))
-      {
-      if(vtkAnnotationLink* const annotation_link = data_representation->GetAnnotationLink())
-        {
-        InsertObject(annotation_link, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
-
-        builder->AddEdge(object_map[annotation_link], object_map[algorithm]);
-
-        edge_output_port_array->InsertNextValue("");
-        edge_input_port_array->InsertNextValue("");
-        edge_class_name_array->InsertNextValue("vtkAnnotationLayers");
-        edge_object_array->InsertNextValue(annotation_link->GetOutput());
-        }
-      }
-    }
-  // Insert pipeline views ...
-  else if(vtkView* const view = vtkView::SafeDownCast(object))
-    {
-    object_map[view] = builder->AddVertex();
-    vertex_class_name_array->InsertNextValue(view->GetClassName());
-    vertex_object_array->InsertNextValue(view);
-
-    // Recursively insert view inputs ...
-    for(int i = 0; i != view->GetNumberOfRepresentations(); ++i)
-      {
-      vtkDataRepresentation* const input_representation = view->GetRepresentation(i);
-      InsertObject(input_representation, object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);
-
-      builder->AddEdge(object_map[input_representation], object_map[view]);
-
-      edge_output_port_array->InsertNextValue("");
-      edge_input_port_array->InsertNextValue(vtkVariant(i).ToString());
-      edge_class_name_array->InsertNextValue("");
-      edge_object_array->InsertNextValue(0);
       }
     }
 }
