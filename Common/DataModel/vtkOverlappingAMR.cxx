@@ -532,7 +532,7 @@ GenerateParentChildLevelInformation(const unsigned int levelIdx,
   int numChildren;
   int childrenSizePos;
   parentsVec.resize(n);
-  parentsVec.assign(0, n);
+  parentsVec.assign(n, 0);
   unsigned int lbid, nlbid;
   // For each block determine which of the higher res blocks intersect it
   // (they will be considered its children)
