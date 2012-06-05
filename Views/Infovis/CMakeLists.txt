@@ -10,7 +10,6 @@ SET(Module_SRCS
   vtkParallelCoordinatesHistogramRepresentation.cxx
   vtkParallelCoordinatesRepresentation.cxx
   vtkParallelCoordinatesView.cxx
-  vtkPipelineGraphSource.cxx
   vtkRenderedGraphRepresentation.cxx
   vtkRenderedHierarchyRepresentation.cxx
   vtkRenderedRepresentation.cxx

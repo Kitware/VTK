@@ -31,7 +31,6 @@
 #include "vtkTable.h"
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
-#include "vtkView.h"
 
 #include <vtksys/stl/map>
 #include <vtksys/stl/stack>
@@ -284,11 +283,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
       }
 
     std::string fillcolor = "#ccffcc";
-    if(vtkView::SafeDownCast(object))
-      {
-      fillcolor = "#ffffcc";
-      }
-    else if(vtkAnnotationLink::SafeDownCast(object))
+    if(vtkAnnotationLink::SafeDownCast(object))
       {
       fillcolor = "#ccccff";
       }
@@ -350,4 +345,3 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
 
   output << "}\n";
 }
-
