@@ -74,9 +74,22 @@ public:
   // enumeration.
   virtual void AddArray(int fieldType, const char* name);
 
+  virtual void AddPointDataArray(const char* name);
+  virtual void AddCellDataArray(const char* name);
+  virtual void AddFieldDataArray(const char* name);
+
+  virtual void RemoveArray(int fieldType, const char* name);
+
+  virtual void RemovePointDataArray(const char* name);
+  virtual void RemoveCellDataArray(const char* name);
+  virtual void RemoveFieldDataArray(const char* name);
+
   // Description:
   // Clear all arrays to pass through.
   virtual void ClearArrays();
+  virtual void ClearPointDataArrays();
+  virtual void ClearCellDataArrays();
+  virtual void ClearFieldDataArrays();
 
   // Description:
   // Instead of passing only the specified arrays, remove the specified arrays
