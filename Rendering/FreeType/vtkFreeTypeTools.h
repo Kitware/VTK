@@ -39,6 +39,9 @@ class vtkUnicodeString;
 
 class FTFont;
 
+// PIMPL class for FTC_FaceID->vtkTextProperty lookup
+class vtkTextPropertyLookup;
+
 //----------------------------------------------------------------------------
 // Singleton cleanup
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeToolsCleanup
@@ -107,6 +110,11 @@ public:
                     vtkImageData *data);
 
   // Description:
+  // Turn a string into a hash. This is not a general purpose hash
+  // function, and is only used to generate identifiers for cached fonts.
+  static vtkTypeUInt16 HashString(const char *str);
+
+  // Description:
   // Given a text property 'tprop', get its unique ID in our cache framework.
   // In the same way, given a unique ID in our cache, retrieve the
   // corresponding text property and assign its parameters to 'tprop'.
@@ -126,6 +134,29 @@ public:
   vtkSetMacro(ScaleToPowerTwo, bool);
   vtkGetMacro(ScaleToPowerTwo, bool);
   vtkBooleanMacro(ScaleToPowerTwo, bool);
+
+  // Description:
+  // Force use of the fonts compiled into VTK, ignoring any FontConfig or
+  // embedded fonts. Useful for generating test images consistently across
+  // platforms.
+  vtkSetMacro(ForceCompiledFonts, bool);
+  vtkGetMacro(ForceCompiledFonts, bool);
+  vtkBooleanMacro(ForceCompiledFonts, bool);
+
+  // Description:
+  // Lookup and set the FreeType font face @a face best matching the text
+  // property @a tprop using FontConfig to query the installed system fonts.
+  // Returns true if the face is set, false otherwise.
+  static bool LookupFaceFontConfig(vtkTextProperty *tprop, FT_Library lib,
+                                   FT_Face *face);
+
+  // Description:
+  // Lookup and set the FreeType font face @a face best matching the text
+  // property @a tprop using the compiled Arial, Times, and Courier fonts. If
+  // an unrecognized font family is requested, Arial will be substituted.
+  // Returns true if the face is set, false otherwise.
+  static bool LookupFaceCompiledFonts(vtkTextProperty *tprop, FT_Library lib,
+                                      FT_Face *face);
 
 protected:
   // Description:
@@ -222,10 +253,16 @@ private:
                        int prop_font_size, FT_UInt &gindex,
                        FT_BitmapGlyph &bitmap_glyph);
 
+  // Description:
   // The singleton instance and the singleton cleanup instance
   static vtkFreeTypeTools* Instance;
   static vtkFreeTypeToolsCleanup Cleanup;
 
+  // Description:
+  // Lookup table that maps free type font cache face ids to vtkTextProperties
+  vtkTextPropertyLookup *TextPropertyLookup;
+
+  // Description:
   // The cache manager, image cache and charmap cache
   FTC_Manager *CacheManager;
   FTC_ImageCache *ImageCache;
@@ -240,6 +277,8 @@ private:
   unsigned int MaximumNumberOfFaces;
   unsigned int MaximumNumberOfSizes;
   unsigned long MaximumNumberOfBytes;
+
+  bool ForceCompiledFonts;
 
   void InitializeCacheManager();
   void ReleaseCacheManager();
