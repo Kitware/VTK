@@ -36,16 +36,7 @@ vtkCollection::vtkCollection()
 // objects from the collection.
 vtkCollection::~vtkCollection()
 {
-  vtkCollectionElement *elem;
-
-  while (this->NumberOfItems )
-    {
-    elem = this->Top;
-    this->Top = elem->Next;
-    this->Current = elem->Next;
-    this->NumberOfItems--;
-    this->DeleteElement(elem);
-    }
+  this->RemoveAllItems();
 }
 
 // protected function to delete an element. Internal use only.
@@ -56,6 +47,33 @@ void vtkCollection::DeleteElement(vtkCollectionElement *e)
     e->Item->UnRegister(this);
     }
   delete e;
+}
+
+// protected function to remove an element. Internal use only.
+void vtkCollection::
+RemoveElement(vtkCollectionElement *elem, vtkCollectionElement *prev)
+{
+  if (prev)
+    {
+    prev->Next = elem->Next;
+    }
+  else
+    {
+    this->Top = elem->Next;
+    }
+
+  if (!elem->Next)
+    {
+    this->Bottom = prev;
+    }
+
+  if ( this->Current == elem )
+    {
+    this->Current = elem->Next;
+    }
+
+  this->NumberOfItems--;
+  this->DeleteElement(elem);
 }
 
 // Add an object to the list. Does not prevent duplicate entries.
@@ -139,25 +157,24 @@ void vtkCollection::InsertItem(int i, vtkObject *a)
 // in description of RemoveItem(int).
 void vtkCollection::RemoveItem(vtkObject *a)
 {
-  int i;
-  vtkCollectionElement *elem;
-
   if (!this->Top)
     {
     return;
     }
 
-  elem = this->Top;
-  for (i = 0; i < this->NumberOfItems; i++)
+  vtkCollectionElement *prev = NULL;
+  vtkCollectionElement *elem = this->Top;
+  for (int i = 0; i < this->NumberOfItems; i++)
     {
     if (elem->Item == a)
       {
-      this->RemoveItem(i);
+      this->RemoveElement(elem, prev);
       this->Modified();
       return;
       }
     else
       {
+      prev = elem;
       elem = elem->Next;
       }
     }
@@ -166,21 +183,15 @@ void vtkCollection::RemoveItem(vtkObject *a)
 // Remove all objects from the list.
 void vtkCollection::RemoveAllItems()
 {
-  vtkCollectionElement *elem;
-
   // Don't modify if collection is empty
   if(this->NumberOfItems == 0)
     {
     return;
     }
 
-  while (this->NumberOfItems )
+  while (this->NumberOfItems)
     {
-    elem = this->Top;
-    this->Top = elem->Next;
-    this->Current = elem->Next;
-    this->NumberOfItems--;
-    this->DeleteElement(elem);
+    this->RemoveElement(this->Top, NULL);
     }
 
   this->Modified();
@@ -317,28 +328,7 @@ void vtkCollection::RemoveItem(int i)
     elem = elem->Next;
     }
 
-  // j == i
-  if (prev)
-    {
-    prev->Next = elem->Next;
-    }
-  else
-    {
-    this->Top = elem->Next;
-    }
-
-  if (!elem->Next)
-    {
-    this->Bottom = prev;
-    }
-
-  if ( this->Current == elem )
-    {
-    this->Current = elem->Next;
-    }
-
-  this->NumberOfItems--;
-  this->DeleteElement(elem);
+  this->RemoveElement(elem, prev);
 }
 
 vtkCollectionIterator* vtkCollection::NewIterator()
