@@ -66,15 +66,15 @@ void vtkPExodusIIWriter::PrintSelf (ostream& os, vtkIndent indent)
 int vtkPExodusIIWriter::CheckParameters ()
 {
   vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
-  int NumberOfProcesses = c->GetNumberOfProcesses();
-  int MyRank = c->GetLocalProcessId();
+  int numberOfProcesses = c->GetNumberOfProcesses();
+  int myRank = c->GetLocalProcessId();
 
   if (this->GhostLevel > 0)
     {
     vtkWarningMacro(<< "ExodusIIWriter ignores ghost level request");
     }
 
-  return this->Superclass::CheckParametersInternal(NumberOfProcesses, MyRank);
+  return this->Superclass::CheckParametersInternal(numberOfProcesses, myRank);
 }
 
 void vtkPExodusIIWriter::CheckBlockInfoMap ()
