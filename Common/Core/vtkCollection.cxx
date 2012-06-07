@@ -318,8 +318,6 @@ void vtkCollection::RemoveItem(int i)
     return;
     }
 
-  this->Modified();
-
   elem = this->Top;
   prev = NULL;
   for (int j = 0; j < i; j++)
@@ -329,6 +327,7 @@ void vtkCollection::RemoveItem(int i)
     }
 
   this->RemoveElement(elem, prev);
+  this->Modified();
 }
 
 vtkCollectionIterator* vtkCollection::NewIterator()
