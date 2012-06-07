@@ -1,6 +1,4 @@
 vtk_module(vtkFiltersParallelStatistics
-  GROUPS
-    StandAlone
   DEPENDS
     vtkCommonMath
     vtkCommonDataModel

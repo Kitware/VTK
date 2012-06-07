@@ -1,3 +1,6 @@
+find_package(MPI REQUIRED)
+include_directories(${MPI_INCLUDE_PATH})
+
 # Build TestRandomPKContingencyStatisticsMPI
 vtk_module_test_executable(TestRandomPContingencyStatisticsMPI TestRandomPContingencyStatisticsMPI.cxx)
 # Add test
