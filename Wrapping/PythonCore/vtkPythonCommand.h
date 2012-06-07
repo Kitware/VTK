@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 
 // To allow Python to use the vtkCommand features
-class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonCommand : public vtkCommand
+class VTKPYTHONCORE_EXPORT vtkPythonCommand : public vtkCommand
 {
 public:
   vtkTypeMacro(vtkPythonCommand,vtkCommand);
