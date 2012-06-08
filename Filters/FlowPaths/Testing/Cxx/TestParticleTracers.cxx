@@ -188,7 +188,7 @@ protected:
 
     int *extent = outImage->GetExtent(); //old style
 
-    int stepX,stepY,stepZ;
+    vtkIdType stepX,stepY,stepZ;
     outImage->GetContinuousIncrements(extent,stepX,stepY,stepZ);
 
     float * outPtr = static_cast<float*> (outImage->GetArrayPointerForExtent(outArray,extent));

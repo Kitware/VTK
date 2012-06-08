@@ -70,7 +70,7 @@ public:
 
   static TestAMRVectorSource *New();
 
-  virtual int FillInputPortInformation(int port, vtkInformation* info)
+  virtual int FillInputPortInformation(int, vtkInformation* info)
   {
     // now add our info
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkOverlappingAMR");
@@ -91,7 +91,7 @@ protected:
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation *request,
+  virtual int RequestData(vtkInformation *,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector)
   {
@@ -113,9 +113,9 @@ protected:
 
     output->ShallowCopy(input);
 
-    for( int level=0; level < input->GetNumberOfLevels(); ++level )
+    for(unsigned int level=0; level < input->GetNumberOfLevels(); ++level )
       {
-      for(int idx=0;idx < input->GetNumberOfDataSets(level);++idx )
+      for(unsigned int idx=0;idx < input->GetNumberOfDataSets(level);++idx )
         {
         vtkUniformGrid *grid = input->GetDataSet( level, idx );
         if(!grid)
@@ -134,7 +134,6 @@ protected:
         int numCells = grid->GetNumberOfCells();
         for (int cellId=0; cellId < numCells; cellId++)
           {
-          vtkCell *myCell = grid->GetCell( cellId);
           assert(xVelocity);
           double velocity[3] = {
             xVelocity->GetTuple(cellId)[0],

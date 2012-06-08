@@ -1147,8 +1147,10 @@ void vtkParticleTracerBase::IntegrateParticle(
     this->Interpolator->ClearCache();
     }
 
+#ifdef DEBUGPARTICLETRACE
   double eps = (this->GetCacheDataTime(1)-this->GetCacheDataTime(0))/100;
   Assert (point1[3]>=(this->GetCacheDataTime(0)-eps) && point1[3]<=(this->GetCacheDataTime(1)+eps));
+#endif
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
