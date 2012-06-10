@@ -37,16 +37,19 @@
 
 class vtkImplicitFunctionCollection;
 
-#define VTK_UNION 0
-#define VTK_INTERSECTION 1
-#define VTK_DIFFERENCE 2
-#define VTK_UNION_OF_MAGNITUDES 3
-
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  enum OperationType
+  {
+    VTK_UNION=0,
+    VTK_INTERSECTION,
+    VTK_DIFFERENCE,
+    VTK_UNION_OF_MAGNITUDES
+  };
 
   // Description:
   // Default boolean method is union.
