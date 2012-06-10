@@ -1,4 +1,6 @@
 vtk_module(vtkFiltersFlowPaths
+  GROUPS
+    StandAlone
   DEPENDS
     vtkCommonExecutionModel
     vtkFiltersAMR
