@@ -28,8 +28,6 @@ endforeach()
 
 ## list of tests that are not included in the main driver
 set(MyTests
-  #TestRectilinearGridPartitioner.cxx Not a test
-  #TestStructuredGridPartitioner.cxx Not a test
   TestStructuredGridConnectivity.cxx
   TestStructuredGridGhostDataGenerator.cxx
   )
