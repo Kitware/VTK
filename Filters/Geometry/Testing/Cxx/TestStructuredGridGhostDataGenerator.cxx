@@ -66,6 +66,9 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
   writer->Write();
 
   writer->Delete();
+#else
+  (void)(prefix);
+  (void)(mbds);
 #endif
 }
 

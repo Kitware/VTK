@@ -95,6 +95,10 @@ void WriteDistributedDataSet(
     }
   writer->Update();
   writer->Delete();
+#else
+  /* Silencing some compiler warnings */
+  (void)(prefix);
+  (void)(dataset);
 #endif
 }
 

@@ -57,6 +57,7 @@ int NumberOfProcessors;
 void WriteDistributedDataSet(
     std::string prefix, vtkMultiBlockDataSet *dataset)
 {
+#ifdef DEBUG_ON
   vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
@@ -68,6 +69,11 @@ void WriteDistributedDataSet(
     }
   writer->Update();
   writer->Delete();
+#else
+  (void)(prefix);
+  (void)(dataset);
+#endif
+
 }
 
 //------------------------------------------------------------------------------
