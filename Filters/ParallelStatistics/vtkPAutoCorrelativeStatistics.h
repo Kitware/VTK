@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPCorrelativeStatistics.h
+  Module:    vtkPAutoCorrelativeStatistics.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,34 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-/*-------------------------------------------------------------------------
-  Copyright 2011 Sandia Corporation.
-  Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-  the U.S. Government retains certain rights in this software.
-  -------------------------------------------------------------------------*/
-// .NAME vtkPCorrelativeStatistics - A class for parallel bivariate correlative statistics
+// .NAME vtkPAutoCorrelativeStatistics - A class for parallel auto-correlative statistics
 // .SECTION Description
-// vtkPCorrelativeStatistics is vtkCorrelativeStatistics subclass for parallel datasets.
+// vtkPAutoCorrelativeStatistics is vtkAutoCorrelativeStatistics subclass for parallel datasets.
 // It learns and derives the global statistical model on each node, but assesses each
 // individual data points on the node that owns it.
 
 // .SECTION Thanks
-// Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
+// This class was written by Philippe Pebay, Kitware SAS 2012.
 
-#ifndef __vtkPCorrelativeStatistics_h
-#define __vtkPCorrelativeStatistics_h
+#ifndef __vtkPAutoCorrelativeStatistics_h
+#define __vtkPAutoCorrelativeStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
-#include "vtkCorrelativeStatistics.h"
+#include "vtkAutoCorrelativeStatistics.h"
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPCorrelativeStatistics : public vtkCorrelativeStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPAutoCorrelativeStatistics : public vtkAutoCorrelativeStatistics
 {
 public:
-  static vtkPCorrelativeStatistics* New();
-  vtkTypeMacro(vtkPCorrelativeStatistics, vtkCorrelativeStatistics);
+  static vtkPAutoCorrelativeStatistics* New();
+  vtkTypeMacro(vtkPAutoCorrelativeStatistics, vtkAutoCorrelativeStatistics);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -62,13 +57,13 @@ public:
                      vtkTable* );
 
 protected:
-  vtkPCorrelativeStatistics();
-  ~vtkPCorrelativeStatistics();
+  vtkPAutoCorrelativeStatistics();
+  ~vtkPAutoCorrelativeStatistics();
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPCorrelativeStatistics(const vtkPCorrelativeStatistics&); // Not implemented.
-  void operator=(const vtkPCorrelativeStatistics&); // Not implemented.
+  vtkPAutoCorrelativeStatistics(const vtkPAutoCorrelativeStatistics&); // Not implemented.
+  void operator=(const vtkPAutoCorrelativeStatistics&); // Not implemented.
 };
 
 #endif

@@ -1,6 +1,4 @@
 vtk_module(vtkFiltersParallelStatistics
-  GROUPS
-    StandAlone
   DEPENDS
     vtkCommonMath
     vtkCommonDataModel
@@ -8,4 +6,6 @@ vtk_module(vtkFiltersParallelStatistics
     vtkalglib
     vtkFiltersStatistics
     vtkParallelCore
+  TEST_DEPENDS
+    vtkParallelMPI
   )
