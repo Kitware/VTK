@@ -133,9 +133,6 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
   // take points from the source object and create a particle list
   //
   int numSeeds = source->GetNumberOfPoints();
-#ifndef NDEBUG
-  int numTested = numSeeds;
-#endif
   candidates.resize(numSeeds);
   //
   for (int i=0; i<numSeeds; i++)
@@ -252,7 +249,7 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
     typeSize+= this->ProtoPD->GetArray(i)->GetNumberOfComponents()*sizeof(double);
     }
 
-  int messageSize = numParticles*typeSize;
+  vtkIdType messageSize = numParticles*typeSize;
   std::vector<char> sendMessage(messageSize,0);
   for(int i=0; i<numParticles; i++)
     {
@@ -273,8 +270,8 @@ void vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
       }
     }
 
-  std::vector<int> messageLength(this->NumProcs, 0);
-  std::vector<int> messageOffset(this->NumProcs, 0);
+  std::vector<vtkIdType> messageLength(this->NumProcs, 0);
+  std::vector<vtkIdType> messageOffset(this->NumProcs, 0);
   int allMessageSize(0);
   int numAllParticles(0);
   for (int i=0; i<this->NumProcs; ++i)
