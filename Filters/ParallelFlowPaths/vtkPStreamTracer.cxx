@@ -1169,15 +1169,21 @@ namespace
             }
           else
             {
-            task->NumPeeks=0;
+            task->NumPeeks=1;
             }
+          int nextProcess = -1;
           if(task->NumPeeks<this->NumProcs)
             {
-            task->IncHop();
-            //send it to the next guy
-            this->Send(NewTask,NextProcess(task),task);
+            nextProcess = NextProcess(task);
+            if(nextProcess>=0)
+              {
+              task->IncHop();
+              //send it to the next guy
+              this->Send(NewTask,NextProcess(task),task);
+              }
             }
-          else
+
+          if(nextProcess<0)
             {
             this->Send(TaskFinished,this->Leader,task); //no one can do it, norminally finished
             PRINT("Bail on "<<task->GetId());
@@ -1336,10 +1342,6 @@ namespace
         rank = this->Locator->FindNextProcess(p->GetSeed());
         }
       AssertNe(rank,Rank);
-      if(rank<0)
-        {
-        rank = NextProcess();
-        }
       return rank;
     }
     int NextProcess()
@@ -1396,7 +1398,9 @@ namespace
       int msg=-1;
       int sender(0);
 
+#ifdef DEBUGTRACE
       this->StartTimer();
+#endif
       if(ReceiveBuffer && wait)
         {
         ReceiveBuffer->GetRequest().Wait();
@@ -1428,11 +1432,14 @@ namespace
                                          ReceiveBuffer->GetRequest());
         }
 
+#ifdef DEBUGTRACE
       double time = this->StopTimer();
       if(msg>=0)
         {
         this->ReceiveTime+=time;
         }
+#endif
+
     }
 
 
@@ -1541,7 +1548,7 @@ int vtkPStreamTracer::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (!this->Controller)
+  if (!vtkMPIController::SafeDownCast(this->Controller))
     {
     return vtkStreamTracer::RequestData(request,inputVector,outputVector);
     }
@@ -1626,8 +1633,10 @@ int vtkPStreamTracer::RequestData(
 
   Task* task(0);
   std::vector<int> traceIds;
+  int iterations = 0;
   while( (task = taskManager.NextTask()))
     {
+    iterations++;
     int res = this->CheckInputs(func, &maxCellSize);
     AssertEq(res, VTK_OK);
     PStreamTracerPoint* point = task->GetPoint();
@@ -1762,6 +1771,7 @@ int vtkPStreamTracer::RequestData(
     }
 
 #endif
+  PRINT("Done in "<<iterations<<" iterations");
 
   traceOutputs.erase(traceOutputs.begin(), traceOutputs.end());
   return 1;
