@@ -231,7 +231,7 @@ protected:
     int *extent = outImage->GetExtent();
 //    cout<<"Extent: "<<extent[0]<<" "<<extent[1]<<" "<<extent[2]<<" "<<extent[3]<<" "<<extent[4]<<" "<<extent[5]<<endl;
 
-    int stepX,stepY,stepZ;
+    vtkIdType stepX,stepY,stepZ;
     outImage->GetContinuousIncrements(extent,stepX,stepY,stepZ);
 
     float * outPtr = static_cast<float*> (outImage->GetArrayPointerForExtent(outArray,extent));
