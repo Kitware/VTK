@@ -1412,11 +1412,11 @@ void vtkTecplotReader::GetDataArraysList()
           this->Variables.push_back( theTpToken );
           this->NumberOfVariables ++;
 
-          theTpToken = this->Internal->GetNextToken();
           if ( this->Internal->NextCharEOL )
             {
             break;
             }
+          theTpToken = this->Internal->GetNextToken();
           }
         }
 

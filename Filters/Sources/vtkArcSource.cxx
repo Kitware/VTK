@@ -52,6 +52,11 @@ vtkArcSource::vtkArcSource(int res)
   this->Normal[1] =  0.0;
   this->Normal[2] =  0.0;
 
+  // Default polar vector
+  this->PolarVector[0] =  0.0;
+  this->PolarVector[1] =  0.0;
+  this->PolarVector[2] =  1.0;
+
   // Default arc is a quarter-circle 
   this->Angle =  90.;
 
@@ -145,7 +150,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     angle = acos( dotprod );
     if ( this->Negative )
       {
-      angle -= vtkMath::DoubleTwoPi();
+      angle -= (2.0 * vtkMath::Pi());
       }
 
     // Calcute radius

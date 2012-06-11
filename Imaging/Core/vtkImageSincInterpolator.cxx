@@ -423,7 +423,7 @@ namespace {
 // the code that uses it never evaluates it at x=0)
 inline double vtkSincPi(double x)
 {
-  x *= vtkMath::DoublePi();
+  x *= vtkMath::Pi();
 
   return sin(x)/x;
 }
@@ -465,7 +465,7 @@ double vtkSincWindow::Lanczos(double x)
 
 double vtkSincWindow::Kaiser(double x, double a)
 {
-  double api = a*vtkMath::DoublePi();
+  double api = a*vtkMath::Pi();
   double y = 1 - x*x;
   y *= (y > 0); // if less than zero, set to zero
 
@@ -474,7 +474,7 @@ double vtkSincWindow::Kaiser(double x, double a)
 
 double vtkSincWindow::Cosine(double x)
 {
-  double halfpi = 0.5*vtkMath::DoublePi();
+  double halfpi = 0.5*vtkMath::Pi();
 
   return cos(x*halfpi);
 }
@@ -484,7 +484,7 @@ double vtkSincWindow::Hamming(double x, const double *a)
 {
   double q = 0;
   double y = a[0];
-  x *= vtkMath::DoublePi();
+  x *= vtkMath::Pi();
   for (int i = 1; i < N; i++)
     {
     q += x;

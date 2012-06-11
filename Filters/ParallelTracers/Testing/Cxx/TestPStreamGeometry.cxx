@@ -72,8 +72,8 @@ int main( int argc, char* argv[] )
   double stepSize(0.01);
   double radius = 0.8;
   double scale = 1;
-  double maximumPropagation = radius*scale*2*3.14;
-  double angle = 3.14/20;
+  double maximumPropagation = radius*scale*2*vtkMath::Pi();
+  double angle = vtkMath::Pi()/20;
   int numTraces=1;
 
   vtkNew<vtkPStreamTracer> tracer;

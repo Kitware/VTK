@@ -101,7 +101,7 @@ int vtkConeSource::RequestData(
 
   if ( this->Resolution )
     {
-    angle = 2.0*3.141592654/this->Resolution;
+    angle = 2.0 * vtkMath::Pi()/this->Resolution;
     }
   else
     {

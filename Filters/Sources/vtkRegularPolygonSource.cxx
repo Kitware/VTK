@@ -153,7 +153,7 @@ int vtkRegularPolygonSource::RequestData(
   vtkMath::Cross(px,n,py); //created two orthogonal axes in the polygon plane, px & py
 
   // Now run around normal vector to produce polygon points.
-  double theta = 2.0 * vtkMath::DoublePi() / numPts;
+  double theta = 2.0 * vtkMath::Pi() / numPts;
   for (j=0; j<numPts; j++)
     {
     for (i=0; i<3; i++)

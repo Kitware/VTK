@@ -75,18 +75,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // A mathematical constant. This version is 3.14159265358979f.
-  static float Pi() { return 3.14159265358979f; };
+  // A mathematical constant. This version is atan(1.0) * 4.0
+  static double Pi() { return 3.141592653589793; };
 
   // Description:
-  // A mathematical constant (double-precision version). This version
-  // is 6.283185307179586.
-  static double DoubleTwoPi() { return  6.283185307179586; };
+  // Deprecated.  Use vtkMath::Pi() instead.
+  VTK_LEGACY(static double DoublePi());
 
   // Description:
-  // A mathematical constant (double-precision version). This version
-  // is 3.1415926535897932384626.
-  static double DoublePi() { return 3.1415926535897932384626; };
+  // Deprecated.  Use vtkMath::TwoPi() instead.
+  VTK_LEGACY(static double DoubleTwoPi());
 
   // Description:
   // Convert degrees into radians

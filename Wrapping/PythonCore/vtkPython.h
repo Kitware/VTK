@@ -16,7 +16,6 @@
 #define __vtkPython_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
-#include "vtkCommonCorePythonModule.h"
 #include "vtkPythonConfigure.h"
 #include "vtkABI.h"
 

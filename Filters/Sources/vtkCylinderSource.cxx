@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCylinderSource.h"
 
+#include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -50,7 +51,7 @@ int vtkCylinderSource::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  double angle= 2.0*3.141592654/this->Resolution;
+  double angle= 2.0 * vtkMath::Pi()/this->Resolution;
   int numPolys, numPts;
   double xbot[3], tcbot[2], nbot[3];
   double xtop[3], tctop[2], ntop[3];

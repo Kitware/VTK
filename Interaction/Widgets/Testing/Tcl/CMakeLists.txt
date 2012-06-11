@@ -6,7 +6,6 @@ if(VTK_DATA_ROOT)
     TestInteractorEventRecorder
     TestBoxWidget
     TestSphereWidget
-    TestCameraWidget
     TestTextWidget
   )
 endif()

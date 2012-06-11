@@ -1433,7 +1433,7 @@ vtkAbstractTransform * vtkDelaunay2D::ComputeBestFittingPlane(
   vtkMath::Normalize(rotationAxis);
 
   const double rotationAngle =
-    180.0*acos(vtkMath::Dot(zaxis,normal))/3.1415926;
+    180.0*acos(vtkMath::Dot(zaxis,normal))/vtkMath::Pi();
 
   transform->PreMultiply();
   transform->Identity();
