@@ -10,6 +10,6 @@ foreach(test ${MyTests})
   add_test(
     NAME ${vtk-module}Cxx-${TName}
     COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_MAX_NUMPROCS}
-    ${MPIEXEC_PREFLAGS} ${VTK_BINARY_DIR}/bin/${TName} ${VTK_MPI_POSTFLAGS}
+    ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${TName}> ${VTK_MPI_POSTFLAGS}
     )
 endforeach()
