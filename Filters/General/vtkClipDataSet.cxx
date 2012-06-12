@@ -135,7 +135,7 @@ unsigned long vtkClipDataSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkClipDataSet::SetOuputPointsPrecision(int precision)
+void vtkClipDataSet::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
 }
