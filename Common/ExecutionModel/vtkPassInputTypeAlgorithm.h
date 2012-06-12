@@ -108,6 +108,7 @@ public:
   void AddInputData(vtkDataObject *);
   void AddInputData(int, vtkDataObject*);
 
+
   // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation* request,
@@ -127,6 +128,16 @@ protected:
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
                                  vtkInformationVector*) {return 1;};
+
+
+  virtual int RequestUpdateTime (vtkInformation*,
+                                  vtkInformationVector**,
+                                 vtkInformationVector*) { return 1;}
+
+  virtual int RequestUpdateTimeDependentInformation (vtkInformation*,
+                                                     vtkInformationVector**,
+                                                     vtkInformationVector*) { return 1;}
+
 
   // Description:
   // This is called within ProcessRequest when each filter in the pipeline

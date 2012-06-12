@@ -45,6 +45,8 @@ protected:
   vtkExtractLevel();
   ~vtkExtractLevel();
 
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,vtkInformationVector* );
+
   /// Implementation of the algorithm.
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,

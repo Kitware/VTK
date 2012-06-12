@@ -30,7 +30,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkAMRUtilities.h"
-
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 
 
@@ -251,31 +251,32 @@ int vtkAMRBaseReader::RequestInformation(
 
   vtkTimerLog::MarkStartEvent( "vtkAMRBaseReader::GenerateMetadata" );
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
-  if( this->Metadata == NULL )
+
+  this->Metadata = vtkOverlappingAMR::New();
+  this->FillMetaData( );
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  assert( "pre: output information object is NULL" && (info != NULL) );
+  info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
+             this->Metadata );
+  if(this->Metadata && this->Metadata->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
     {
-    this->Metadata = vtkOverlappingAMR::New();
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    assert( "pre: output information object is NULL" && (info != NULL) );
-    this->FillMetaData( );
-    info->Set( vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA(),
-        this->Metadata );
+    double dataTime = this->Metadata->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &dataTime, 1);
     }
+
   vtkTimerLog::MarkStartEvent("vtkAMRBaseReader::GenerateParentChildInformation");
   this->Metadata->GenerateParentChildInformation();
   vtkTimerLog::MarkEndEvent("vtkAMRBaseReader::GenerateParentChildInformation");
 
   vtkTimerLog::MarkEndEvent( "vtkAMRBaseReader::GenerateMetadata" );
 
-//  std::cout << "TOTAL NUMBER OF LEVELS: " << this->Metadata->GetNumberOfLevels()
-//            << "\n";
-//  std::cout.flush();
-//  unsigned int levelIdx = 0;
-//  for( ; levelIdx < this->Metadata->GetNumberOfLevels(); ++levelIdx )
-//    {
-//    std::cout << " \tL(" << levelIdx << ") = "
-//              << this->Metadata->GetNumberOfDataSets( levelIdx ) << "\n";
-//    std::cout.flush();
-//    } // END for levels
+  // std::cout<<"Generate Meta Data: ";
+  // for(int levelIdx=0 ; levelIdx < this->Metadata->GetNumberOfLevels(); ++levelIdx )
+  //  {
+  //  std::cout << " \tL(" << levelIdx << ") = " << this->Metadata->GetNumberOfDataSets( levelIdx ) << " ";
+  //  std::cout.flush();
+  //  } // END for levels
+  // std::cout<<endl;
   this->LoadedMetaData = true;
   return 1;
 }
@@ -589,6 +590,12 @@ int vtkAMRBaseReader::RequestData(
   if( this->IsParallel() )
     {
     this->Controller->Barrier();
+    }
+
+  if(this->Metadata && this->Metadata->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
+    {
+    double dataTime = this->Metadata->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),dataTime);
     }
 
   outInf = NULL;

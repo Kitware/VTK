@@ -65,6 +65,14 @@ public:
   // up to date.
   int PropagateUpdateExtent(int outputPort);
 
+
+  // Description:
+  // Propagate time through the pipeline. this is a special pass
+  // only necessary if there is temporal meta data that must be updated
+  int PropagateTime(int outputPort);
+  int UpdateTimeDependentInformation();
+
+
   // Description:
   // Set/Get the maximum number of pieces that can be requested from
   // the given port.  The maximum number of pieces is meta data for
@@ -162,6 +170,13 @@ public:
   // Key defining a request to propagate the update extent upstream.
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
+  // Key defining a request to propagate the update extent upstream.
+  static vtkInformationRequestKey* REQUEST_UPDATE_TIME();
+  // Description:
+  // Key defining a request to make sure the meta information is up to date.
+  static vtkInformationRequestKey* REQUEST_TIME_DEPENDENT_INFORMATION();
+
+
   // Description:
   // Key defining a request to propagate information about the update
   // extent downstream.
@@ -247,6 +262,12 @@ public:
   // Description:
   // Update time steps requested by the pipeline.
   static vtkInformationDoubleKey* UPDATE_TIME_STEP();
+
+  // Description:
+  // Whether there are time dependent meta information
+  // if there is, the pipe will perform two extra passes
+  // to gather the time dependent information
+  static vtkInformationIntegerKey* TIME_DEPENDENT_INFORMATION();
 
   // Description:
   // Key that specifies from 0.0 to 1.0 the pipeline computed priority
