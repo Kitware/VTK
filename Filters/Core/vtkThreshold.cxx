@@ -323,11 +323,11 @@ void vtkThreshold::SetPointsDataType(int type)
 {
   if(type == VTK_FLOAT)
     {
-    this->SetOuputPointsPrecision(SINGLE_PRECISION);
+    this->SetOutputPointsPrecision(SINGLE_PRECISION);
     }
   else if(type == VTK_DOUBLE)
     {
-    this->SetOuputPointsPrecision(DOUBLE_PRECISION);
+    this->SetOutputPointsPrecision(DOUBLE_PRECISION);
     }
 }
 
@@ -345,7 +345,7 @@ int vtkThreshold::GetPointsDataType()
   return 0;
 }
 
-void vtkThreshold::SetOuputPointsPrecision(int precision)
+void vtkThreshold::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();

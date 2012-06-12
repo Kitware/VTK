@@ -375,7 +375,7 @@ int vtkContourFilter::RequestData(
 
     cgrid = vtkContourGrid::New();
     cgrid->SetInputData(input);
-    cgrid->SetOuputPointsPrecision(this->OutputPointsPrecision);
+    cgrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
     if ( this->Locator )
       {
       cgrid->SetLocator( this->Locator );
@@ -642,7 +642,7 @@ int vtkContourFilter::GetArrayComponent()
   return( this->SynchronizedTemplates2D->GetArrayComponent() );
 }
 
-void vtkContourFilter::SetOuputPointsPrecision(int precision)
+void vtkContourFilter::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();

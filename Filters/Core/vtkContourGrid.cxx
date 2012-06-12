@@ -425,7 +425,7 @@ void vtkContourGrid::CreateDefaultLocator()
     }
 }
 
-void vtkContourGrid::SetOuputPointsPrecision(int precision)
+void vtkContourGrid::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();
