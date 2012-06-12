@@ -923,14 +923,15 @@ void vtkOverlappingAMR::ShallowCopy( vtkDataObject *src )
 
   this->Superclass::ShallowCopy( src );
 
-  vtkOverlappingAMR *hbds =
-      vtkOverlappingAMR::SafeDownCast(src);
+  if(vtkOverlappingAMR* hbds = vtkOverlappingAMR::SafeDownCast(src))
+    {
+    AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
+    AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
+    AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
+    AssignUnsignedIntArray(&(this->ParentInformation), hbds->ParentInformation);
+    AssignUnsignedIntArray(&(this->ParentInformationMap), hbds->ParentInformationMap);
+    }
 
-  AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
-  AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
-  AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
-  AssignUnsignedIntArray(&(this->ParentInformation), hbds->ParentInformation);
-  AssignUnsignedIntArray(&(this->ParentInformationMap), hbds->ParentInformationMap);
   this->Modified();
 }
 
@@ -944,14 +945,15 @@ void vtkOverlappingAMR::DeepCopy( vtkDataObject *src )
 
   this->Superclass::DeepCopy( src );
 
-  vtkOverlappingAMR *hbds =
-      vtkOverlappingAMR::SafeDownCast(src);
+  if(vtkOverlappingAMR* hbds = vtkOverlappingAMR::SafeDownCast(src))
+    {
+    AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
+    AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
+    AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
+    AssignUnsignedIntArray(&(this->ParentInformation), hbds->ParentInformation);
+    AssignUnsignedIntArray(&(this->ParentInformationMap), hbds->ParentInformationMap);
+    }
 
-  AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
-  AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
-  AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
-  AssignUnsignedIntArray(&(this->ParentInformation), hbds->ParentInformation);
-  AssignUnsignedIntArray(&(this->ParentInformationMap), hbds->ParentInformationMap);
   this->Modified();
 }
 
@@ -965,10 +967,10 @@ void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
 
   this->Superclass::CopyStructure( src );
 
-  vtkOverlappingAMR *hbds =
-      vtkOverlappingAMR::SafeDownCast(src);
-
-  this->CompositeIndex2LevelIdPair = hbds->CompositeIndex2LevelIdPair;
+  if(vtkOverlappingAMR* hbds = vtkOverlappingAMR::SafeDownCast(src))
+    {
+    this->CompositeIndex2LevelIdPair = hbds->CompositeIndex2LevelIdPair;
+    }
 
   this->Modified();
 }
