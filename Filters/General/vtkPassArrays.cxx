@@ -28,18 +28,38 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkPassArrays);
+
+namespace
+{
+  typedef std::vector<std::pair<int, std::string> > ArraysType;
+  void ClearArraysOfType(int type, ArraysType& arrays)
+  {
+    ArraysType::iterator iter = arrays.begin();
+    while (iter != arrays.end())
+      {
+      if (iter->first == type)
+        {
+        iter = arrays.erase(iter);
+        }
+      else
+        {
+        ++iter;
+        }
+      }
+  }
+}
 
 class vtkPassArrays::Internals
 {
 public:
-  typedef vtksys_stl::vector<vtksys_stl::pair<int, vtkStdString> > ArraysType;
   ArraysType Arrays;
-  vtksys_stl::vector<int> FieldTypes;
+  std::vector<int> FieldTypes;
 };
 
 vtkPassArrays::vtkPassArrays()
@@ -56,23 +76,98 @@ vtkPassArrays::~vtkPassArrays()
 
 void vtkPassArrays::AddArray(int fieldType, const char* name)
 {
-  vtkStdString n=name;
-  this->Implementation->Arrays.push_back(vtksys_stl::make_pair(fieldType,n));
+  if(!name)
+    {
+    vtkErrorMacro("name cannont be null.");
+    return;
+    }
+  std::string n=name;
+  this->Implementation->Arrays.push_back(std::make_pair(fieldType,n));
+  this->Modified();
+}
+
+void vtkPassArrays::AddPointDataArray(const char* name)
+{
+  this->AddArray(vtkDataObject::POINT, name);
+}
+
+void vtkPassArrays::AddCellDataArray(const char* name)
+{
+  this->AddArray(vtkDataObject::CELL, name);
+}
+
+void vtkPassArrays::AddFieldDataArray(const char* name)
+{
+  this->AddArray(vtkDataObject::FIELD, name);
+}
+
+void vtkPassArrays::RemoveArray(int fieldType, const char* name)
+{
+  if(!name)
+    {
+    vtkErrorMacro("name cannot be null.");
+    return;
+    }
+  ArraysType::iterator iter = this->Implementation->Arrays.begin();
+  while (iter != this->Implementation->Arrays.end())
+    {
+    if (iter->first == fieldType && iter->second == name)
+      {
+      iter = this->Implementation->Arrays.erase(iter);
+      }
+    else
+      {
+      ++iter;
+      }
+    }
+}
+
+void vtkPassArrays::RemovePointDataArray(const char* name)
+{
+  this->RemoveArray(vtkDataObject::POINT, name);
+}
+
+void vtkPassArrays::RemoveCellDataArray(const char* name)
+{
+  this->RemoveArray(vtkDataObject::CELL, name);
+}
+
+void vtkPassArrays::RemoveFieldDataArray(const char* name)
+{
+  this->RemoveArray(vtkDataObject::FIELD, name);
 }
 
 void vtkPassArrays::ClearArrays()
 {
   this->Implementation->Arrays.clear();
+  this->Modified();
+}
+
+void vtkPassArrays::ClearPointDataArrays()
+{
+  ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays);
+}
+
+void vtkPassArrays::ClearCellDataArrays()
+{
+  ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays);
+}
+
+void vtkPassArrays::ClearFieldDataArrays()
+{
+  ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays);
 }
 
 void vtkPassArrays::AddFieldType(int fieldType)
 {
   this->Implementation->FieldTypes.push_back(fieldType);
+  this->Modified();
 }
 
 void vtkPassArrays::ClearFieldTypes()
 {
   this->Implementation->FieldTypes.clear();
+  this->Modified();
 }
 
 int vtkPassArrays::RequestData(
@@ -94,7 +189,7 @@ int vtkPassArrays::RequestData(
     {
     if (this->UseFieldTypes)
       {
-      for (vtksys_stl::vector<int>::size_type i = 0; i < this->Implementation->FieldTypes.size(); ++i)
+      for (std::vector<int>::size_type i = 0; i < this->Implementation->FieldTypes.size(); ++i)
         {
         vtkFieldData* outData = output->GetAttributesAsFieldData(
           this->Implementation->FieldTypes[i]);
@@ -106,7 +201,7 @@ int vtkPassArrays::RequestData(
       }
     else
       {
-      for (Internals::ArraysType::size_type i = 0; i < this->Implementation->Arrays.size(); ++i)
+      for (ArraysType::size_type i = 0; i < this->Implementation->Arrays.size(); ++i)
         {
         vtkFieldData* outData = output->GetAttributesAsFieldData(
           this->Implementation->Arrays[i].first);
@@ -118,14 +213,14 @@ int vtkPassArrays::RequestData(
       }
     }
 
-  Internals::ArraysType::iterator it, itEnd;
+  ArraysType::iterator it, itEnd;
   itEnd = this->Implementation->Arrays.end();
   for (it = this->Implementation->Arrays.begin(); it != itEnd; ++it)
     {
     if (this->UseFieldTypes)
       {
       // Make sure this is a field type we are interested in
-      if (vtksys_stl::find(
+      if (std::find(
           this->Implementation->FieldTypes.begin(),
           this->Implementation->FieldTypes.end(), it->first) ==
           this->Implementation->FieldTypes.end())
@@ -140,14 +235,14 @@ int vtkPassArrays::RequestData(
       {
       continue;
       }
-    vtkAbstractArray* arr = data->GetAbstractArray(it->second);
+    vtkAbstractArray* arr = data->GetAbstractArray(it->second.c_str());
     if (!arr)
       {
       continue;
       }
     if (this->RemoveArrays)
       {
-      outData->RemoveArray(it->second);
+      outData->RemoveArray(it->second.c_str());
       }
     else
       {
@@ -162,7 +257,7 @@ int vtkPassArrays::RequestData(
           {
           if (attrib->GetAbstractAttribute(a) == arr)
             {
-            outAttrib->SetActiveAttribute(it->second, a);
+            outAttrib->SetActiveAttribute(it->second.c_str(), a);
             }
           }
         }
