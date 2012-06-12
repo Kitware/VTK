@@ -926,25 +926,6 @@ void vtkOverlappingAMR::ShallowCopy( vtkDataObject *src )
   vtkOverlappingAMR *hbds =
       vtkOverlappingAMR::SafeDownCast(src);
 
-  if( hbds != NULL )
-    {
-    // Copy all the meta-data
-    vtkAMRBox box;
-    unsigned int levelIdx = 0;
-    for( ;levelIdx < hbds->GetNumberOfLevels(); ++levelIdx )
-      {
-      unsigned int dataIdx = 0;
-      for( ;dataIdx < hbds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
-        {
-        if( hbds->HasMetaData( levelIdx, dataIdx ) )
-          {
-          hbds->GetMetaData( levelIdx, dataIdx, box );
-          this->SetMetaData( levelIdx, dataIdx, box );
-          }
-        } // END for all data
-      } // END for all levels
-    } // END if hbds
-
   AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
   AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
   AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
@@ -966,26 +947,6 @@ void vtkOverlappingAMR::DeepCopy( vtkDataObject *src )
   vtkOverlappingAMR *hbds =
       vtkOverlappingAMR::SafeDownCast(src);
 
-  if( hbds != NULL )
-    {
-    // Copy all the meta-data
-    vtkAMRBox box;
-    unsigned int levelIdx = 0;
-    for( ;levelIdx < hbds->GetNumberOfLevels(); ++levelIdx )
-      {
-      unsigned int dataIdx = 0;
-      for( ;dataIdx < hbds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
-        {
-        if( hbds->HasMetaData( levelIdx, dataIdx ) )
-          {
-          hbds->GetMetaData( levelIdx, dataIdx, box );
-          this->SetMetaData( levelIdx, dataIdx, box );
-          }
-        } // END for all data
-      } // END for all levels
-    } // END if hbds
-
-
   AssignUnsignedIntArray(&(this->LevelMap), hbds->LevelMap);
   AssignUnsignedIntArray(&(this->ChildrenInformation), hbds->ChildrenInformation);
   AssignUnsignedIntArray(&(this->ChildrenInformationMap), hbds->ChildrenInformationMap);
@@ -1006,25 +967,6 @@ void vtkOverlappingAMR::CopyStructure( vtkCompositeDataSet *src )
 
   vtkOverlappingAMR *hbds =
       vtkOverlappingAMR::SafeDownCast(src);
-
-  if( hbds != NULL )
-    {
-    // Copy all the meta-data
-    vtkAMRBox box;
-    unsigned int levelIdx = 0;
-    for( ;levelIdx < hbds->GetNumberOfLevels(); ++levelIdx )
-      {
-      unsigned int dataIdx = 0;
-      for( ;dataIdx < hbds->GetNumberOfDataSets( levelIdx ); ++dataIdx )
-        {
-        if( hbds->HasMetaData( levelIdx, dataIdx ) )
-          {
-          hbds->GetMetaData( levelIdx, dataIdx, box );
-          this->SetMetaData( levelIdx, dataIdx, box );
-          }
-        } // END for all data
-      } // END for all levels
-    } // END if hbds
 
   this->CompositeIndex2LevelIdPair = hbds->CompositeIndex2LevelIdPair;
 
