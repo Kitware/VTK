@@ -41,16 +41,16 @@ void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
 }
-
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::GenerateMetaData(
     vtkOverlappingAMR *amrData,
-    vtkMultiProcessController *controller )
+    vtkMultiProcessController *controller,
+    double* origin)
 {
   // Sanity check
   assert( "Input AMR Data is NULL" && (amrData != NULL) );
 
-  CollectAMRMetaData( amrData, controller );
+  CollectAMRMetaData( amrData, controller,origin);
   ComputeLevelRefinementRatio( amrData );
 //  amrData->GenerateParentChildInformation();
 
@@ -196,18 +196,27 @@ void vtkAMRUtilities::ComputeGlobalBounds(
   bounds[5] = max[2];
 }
 
+
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::CollectAMRMetaData(
     vtkOverlappingAMR *amrData,
-    vtkMultiProcessController *myController )
+    vtkMultiProcessController *myController, double* inputOrigin )
 {
   // Sanity check
   assert( "Input AMR Data is NULL" && (amrData != NULL));
 
-  // STEP 0: Compute the global dataset origin
   double origin[3];
-  ComputeDataSetOrigin( origin, amrData, myController );
-  amrData->SetOrigin( origin );
+
+  // STEP 0: Compute the global dataset origin
+  if(!inputOrigin)
+    {
+    ComputeDataSetOrigin( origin, amrData, myController );
+    }
+  else
+    {
+    memcpy(origin, inputOrigin, 3*sizeof(double));
+    }
+  amrData->SetOrigin(origin);
 
   // STEP 1: Compute the metadata of each process locally
   int process = (myController == NULL)? 0 : myController->GetLocalProcessId();
@@ -503,8 +512,11 @@ void vtkAMRUtilities::ComputeLevelRefinementRatio(
    for( int level=0; level < numLevels-1; ++level )
      {
      int childLevel = level+1;
-     assert("No data at parent!" && amr->GetNumberOfDataSets(childLevel)>=1);
-     assert("No data in this level" && amr->GetNumberOfDataSets(level)>=1 );
+
+     if(amr->GetNumberOfDataSets(childLevel)<1 || amr->GetNumberOfDataSets(level)<1 )
+       {
+       continue;
+       }
 
      vtkAMRBox childBox;
      amr->GetMetaData(childLevel,0,childBox);
