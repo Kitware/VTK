@@ -571,18 +571,17 @@ int vtkAMRBaseReader::RequestData(
     {
     this->AssignAndLoadBlocks( output );
 
+    double origin[3];
+    this->Metadata->GetOrigin(origin);
+
     // Generate all the AMR metadata & the visibility arrays
     vtkTimerLog::MarkStartEvent( "AMRUtilities::GenerateMetaData" );
-    vtkAMRUtilities::GenerateMetaData( output, this->Controller );
+    vtkAMRUtilities::GenerateMetaData( output, this->Controller,origin );
     vtkTimerLog::MarkEndEvent( "AMRUtilities::GenerateMetaData" );
 
-    //If there is a downstream module, do not generate visibility arrays here.
-    if(!outInf->Has( vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES() ) )
-      {
-      vtkTimerLog::MarkStartEvent( "AMR::GenerateVisibilityArrays" );
-      output->GenerateVisibilityArrays();
-      vtkTimerLog::MarkEndEvent( "AMR::GenerateVisibilityArrays" );
-      }
+    vtkTimerLog::MarkStartEvent( "AMR::GenerateVisibilityArrays" );
+    output->GenerateVisibilityArrays();
+    vtkTimerLog::MarkEndEvent( "AMR::GenerateVisibilityArrays" );
     }
 
   // If this instance of the reader is not parallel, block until all processes
