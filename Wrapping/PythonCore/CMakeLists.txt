@@ -53,20 +53,23 @@ if(VTK_WRAP_PYTHON_SIP)
 endif()
 include_directories("${PYTHON_INCLUDE_PATH}")
 
-vtk_add_library(vtkPython${XY}Core ${PythonCore_SRCS})
+vtk_add_library(vtkPythonCore ${PythonCore_SRCS})
 
-target_link_libraries(vtkPython${XY}Core
+set_target_properties(vtkPythonCore
+  PROPERTIES OUTPUT_NAME vtkPython${XY}Core)
+
+target_link_libraries(vtkPythonCore
   vtkCommonCore
   vtksys
   ${VTK_PYTHON_LIBRARIES})
 
-target_link_libraries(vtkPython${XY}Core
+target_link_libraries(vtkPythonCore
   LINK_INTERFACE_LIBRARIES
   vtkCommonCore
   vtksys
   ${VTK_PYTHON_LIBRARIES})
 
 # Generate an export header
-generate_export_header(vtkPython${XY}Core
+generate_export_header(vtkPythonCore
   BASE_NAME VTKPYTHONCORE
   EXPORT_FILE_NAME vtkPythonCoreModule.h)
