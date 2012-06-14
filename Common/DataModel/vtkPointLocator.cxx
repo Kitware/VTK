@@ -168,21 +168,8 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
   //
   //  Find bucket point is in.
   //
-  for (j=0; j<3; j++)
-    {
-    ijk[j] = static_cast<int>(
-      ((x[j] - this->Bounds[2*j]) /
-       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+  this->GetBucketIndices(x, ijk);
 
-    if (ijk[j] < 0)
-      {
-      ijk[j] = 0;
-      }
-    else if (ijk[j] >= this->Divisions[j])
-      {
-      ijk[j] = this->Divisions[j] - 1;
-      }
-    }
   //
   //  Need to search this bucket for closest point.  If there are no
   //  points in this bucket, search 1st level neighbors, and so on,
@@ -287,21 +274,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
   //
   //  Find bucket point is in.
   //
-  for (j=0; j<3; j++)
-    {
-    ijk[j] = static_cast<int>(
-      ((x[j] - this->Bounds[2*j]) /
-       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
-
-    if (ijk[j] < 0)
-      {
-      ijk[j] = 0;
-      }
-    else if (ijk[j] >= this->Divisions[j])
-      {
-      ijk[j] = this->Divisions[j] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   // Start by searching the bucket that the point is in.
   //
@@ -578,16 +551,7 @@ void vtkPointLocator::FindDistributedPoints(int N, const double x[3],
   //
   //  Find bucket point is in.
   //
-  for (j=0; j<3; j++)
-    {
-    ijk[j] = static_cast<int>(
-      ((x[j] - this->Bounds[2*j]) /
-       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
-    if (ijk[j] >= this->Divisions[j])
-      {
-      ijk[j] = this->Divisions[j] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   // there are two steps, first a simple expanding wave of buckets until
   // we have enough points. Then a refinement to make sure we have the
@@ -720,21 +684,7 @@ void vtkPointLocator::FindClosestNPoints(int N, const double x[3],
   //
   //  Find bucket point is in.
   //
-  for (j=0; j<3; j++)
-    {
-    ijk[j] = static_cast<int>(
-      ((x[j] - this->Bounds[2*j]) /
-       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
-
-    if (ijk[j] < 0)
-      {
-      ijk[j] = 0;
-      }
-    else if (ijk[j] >= this->Divisions[j])
-      {
-      ijk[j] = this->Divisions[j] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   // there are two steps, first a simple expanding wave of buckets until
   // we have enough points. Then a refinement to make sure we have the
@@ -844,21 +794,7 @@ void vtkPointLocator::FindPointsWithinRadius(double R, const double x[3],
   //
   //  Find bucket point is in.
   //
-  for (j=0; j<3; j++)
-    {
-    ijk[j] = static_cast<int>(
-      ((x[j] - this->Bounds[2*j]) /
-       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
-
-    if (ijk[j] < 0)
-      {
-      ijk[j] = 0;
-      }
-    else if (ijk[j] >= this->Divisions[j])
-      {
-      ijk[j] = this->Divisions[j] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   // get all buckets within a distance
   this->GetOverlappingBuckets (&buckets, x, ijk, R, 0);
@@ -901,8 +837,8 @@ void vtkPointLocator::BuildLocator()
   double *bounds;
   vtkIdType numBuckets;
   double level;
-  int ndivs[3], product;
-  int i, j, ijk[3];
+  int ndivs[3];
+  int i;
   vtkIdType idx;
   vtkIdList *bucket;
   vtkIdType numPts;
@@ -983,24 +919,10 @@ void vtkPointLocator::BuildLocator()
   //  Insert each point into the appropriate bucket.  Make sure point
   //  falls within bucket.
   //
-  product = ndivs[0]*ndivs[1];
   for (i=0; i<numPts; i++)
     {
     this->DataSet->GetPoint(i, x);
-    for (j=0; j<3; j++)
-      {
-      ijk[j] = static_cast<int>(
-        static_cast<double>((x[j] - this->Bounds[2*j]) /
-                            (this->Bounds[2*j+1] - this->Bounds[2*j]))
-        * ndivs[j]);
-
-      if (ijk[j] >= this->Divisions[j])
-        {
-        ijk[j] = this->Divisions[j] - 1;
-        }
-      }
-
-    idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*product;
+    idx = this->GetBucketIndex(x);
     bucket = this->HashTable[idx];
     if ( ! bucket )
       {
@@ -1331,26 +1253,10 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 // properly set. (See InitPointInsertion().)
 vtkIdType vtkPointLocator::InsertNextPoint(const double x[3])
 {
-  int i, ijk[3];
   vtkIdType idx;
   vtkIdList *bucket;
-  //
-  //  Locate bucket that point is in.
-  //
-  for (i=0; i<3; i++)
-    {
-    ijk[i] = static_cast<int>(
-      static_cast<double>((x[i] - this->Bounds[2*i]) /
-                          (this->Bounds[2*i+1] - this->Bounds[2*i]))
-      * this->Divisions[i]);
-    if (ijk[i] >= this->Divisions[i])
-      {
-      ijk[i] = this->Divisions[i] - 1;
-      }
-    }
 
-  idx = ijk[0] + ijk[1]*this->Divisions[0] +
-        ijk[2]*this->Divisions[0]*this->Divisions[1];
+  idx = this->GetBucketIndex(x);
 
   if ( ! (bucket = this->HashTable[idx]) )
     {
@@ -1373,26 +1279,10 @@ vtkIdType vtkPointLocator::InsertNextPoint(const double x[3])
 // divs are properly set. (See InitPointInsertion().)
 void vtkPointLocator::InsertPoint(vtkIdType ptId, const double x[3])
 {
-  int i, ijk[3];
   vtkIdType idx;
   vtkIdList *bucket;
-  //
-  //  Locate bucket that point is in.
-  //
-  for (i=0; i<3; i++)
-    {
-    ijk[i] = static_cast<int>(
-      static_cast<double>((x[i] - this->Bounds[2*i]) /
-                          (this->Bounds[2*i+1] - this->Bounds[2*i]))
-      * this->Divisions[i]);
-    if (ijk[i] >= this->Divisions[i])
-      {
-      ijk[i] = this->Divisions[i] - 1;
-      }
-    }
 
-  idx = ijk[0] + ijk[1]*this->Divisions[0] +
-        ijk[2]*this->Divisions[0]*this->Divisions[1];
+  idx = this->GetBucketIndex(x);
 
   if ( ! (bucket = this->HashTable[idx]) )
     {
@@ -1416,17 +1306,7 @@ vtkIdType vtkPointLocator::IsInsertedPoint(const double x[3])
 
   //  Locate bucket that point is in.
   //
-  for (i=0; i<3; i++)
-    {
-    ijk[i] = static_cast<int>(
-      static_cast<double>((x[i] - this->Bounds[2*i]) /
-                          (this->Bounds[2*i+1] - this->Bounds[2*i]))
-      * this->Divisions[i]);
-    if (ijk[i] >= this->Divisions[i])
-      {
-      ijk[i] = this->Divisions[i] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   // Check the list of points in that bucket for merging.  Also need to
   // search all neighboring buckets within the tolerance.  The number
@@ -1515,16 +1395,7 @@ vtkIdType vtkPointLocator::FindClosestInsertedPoint(const double x[3])
 
   //  Find bucket point is in.
   //
-  for (j=0; j<3; j++)
-    {
-    ijk[j] = static_cast<int>(((x[j] - this->Bounds[2*j]) /
-                               (this->Bounds[2*j+1] - this->Bounds[2*j]))
-                              * this->Divisions[j]);
-    if (ijk[j] >= this->Divisions[j])
-      {
-      ijk[j] = this->Divisions[j] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   //  Need to search this bucket for closest point.  If there are no
   //  points in this bucket, search 1st level neighbors, and so on,
@@ -1620,26 +1491,12 @@ vtkIdList *vtkPointLocator::GetPointsInBucket(const double x[3],
       }
     }
 
-  //  Find bucket point is in.
-  //
-  for (i=0; i<3; i++)
-    {
-    ijk[i] = static_cast<int>(((x[i] - this->Bounds[2*i]) /
-                               (this->Bounds[2*i+1] - this->Bounds[2*i]))
-                              * this->Divisions[i]);
-    if (ijk[i] >= this->Divisions[i])
-      {
-      ijk[i] = this->Divisions[i] - 1;
-      }
-    }
+  this->GetBucketIndices(x, ijk);
 
   // Get the id list, if any
-  //
   if ( this->HashTable )
     {
-    int idx = ijk[0] + ijk[1]*this->Divisions[0] +
-              ijk[2]*this->Divisions[0]*this->Divisions[1];
-
+    vtkIdType idx = this->GetBucketIndex(x);
     return this->HashTable[idx];
     }
 
@@ -1896,6 +1753,32 @@ double vtkPointLocator::Distance2ToBounds(const double x[3],
   return distance;
 }
 
+vtkIdType vtkPointLocator::GetBucketIndex(const double x[3])
+{
+  int ijk[3];
+  this->GetBucketIndices(x, ijk);
+  return ( ijk[0] + ijk[1]*this->Divisions[0] +
+           ijk[2]*this->Divisions[0]*this->Divisions[1] );
+}
+
+void vtkPointLocator::GetBucketIndices(const double x[3], int ijk[3])
+{
+  for (int j=0; j<3; j++)
+    {
+    ijk[j] = static_cast<int>(
+      ((x[j] - this->Bounds[2*j]) /
+       (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
+
+    if (ijk[j] < 0)
+      {
+      ijk[j] = 0;
+      }
+    else if (ijk[j] >= this->Divisions[j])
+      {
+      ijk[j] = this->Divisions[j] - 1;
+      }
+    }
+}
 
 void vtkPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -27,30 +27,12 @@ vtkStandardNewMacro(vtkMergePoints);
 // -1.
 vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
 {
-  vtkIdType i, ijk0, ijk1, ijk2;
-  vtkIdType idx;
-  vtkIdList *bucket;
   //
   //  Locate bucket that point is in.
   //
-  ijk0 = static_cast<vtkIdType>(
-    static_cast<double> ((x[0] - this->Bounds[0]) /
-                         (this->Bounds[1] - this->Bounds[0]))
-    * (this->Divisions[0] - 1));
-  ijk1 = static_cast<vtkIdType>(
-    static_cast<double> ((x[1] - this->Bounds[2]) /
-                         (this->Bounds[3] - this->Bounds[2]))
-    * (this->Divisions[1] - 1));
-  ijk2 = static_cast<vtkIdType>(
-    static_cast<double> ((x[2] - this->Bounds[4]) /
-                         (this->Bounds[5] - this->Bounds[4]))
-    * (this->Divisions[2] - 1));
+  vtkIdType idx = this->GetBucketIndex(x);
 
-
-  idx = ijk0 + ijk1*this->Divisions[0] +
-        ijk2*this->Divisions[0]*this->Divisions[1];
-
-  bucket = this->HashTable[idx];
+  vtkIdList* bucket = this->HashTable[idx];
 
   if ( ! bucket )
     {
@@ -62,7 +44,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
     // Check the list of points in that bucket.
     //
     vtkIdType ptId;
-    int nbOfIds = bucket->GetNumberOfIds ();
+    vtkIdType nbOfIds = bucket->GetNumberOfIds ();
 
     // For efficiency reasons, we break the data abstraction for points
     // and ids (we are assuming and vtkIdList
@@ -77,7 +59,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
       f[2] = static_cast<float>(x[2]);
       vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
       float *pt;
-      for (i=0; i < nbOfIds; i++)
+      for (vtkIdType i=0; i < nbOfIds; i++)
         {
         ptId = idArray[i];
         pt = floatArray->GetPointer(0) + 3*ptId;
@@ -91,7 +73,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
       {
       // Using the double interface
       double *pt;
-      for (i=0; i < nbOfIds; i++)
+      for (vtkIdType i=0; i < nbOfIds; i++)
         {
         ptId = idArray[i];
         pt = dataArray->GetTuple(ptId);
@@ -109,30 +91,11 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
 
 int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
 {
-  vtkIdType i, ijk0, ijk1, ijk2;
-  vtkIdType idx;
-  vtkIdList *bucket;
-
   //
   //  Locate bucket that point is in.
   //
-  ijk0 = static_cast<vtkIdType>(
-    static_cast<double> ((x[0] - this->Bounds[0]) /
-                         (this->Bounds[1] - this->Bounds[0]))
-    * (this->Divisions[0] - 1));
-  ijk1 = static_cast<vtkIdType>(
-    static_cast<double> ((x[1] - this->Bounds[2]) /
-                         (this->Bounds[3] - this->Bounds[2]))
-    * (this->Divisions[1] - 1));
-  ijk2 = static_cast<vtkIdType>(
-    static_cast<double> ((x[2] - this->Bounds[4]) /
-                         (this->Bounds[5] - this->Bounds[4]))
-    * (this->Divisions[2] - 1));
-
-  idx = ijk0 + ijk1*this->Divisions[0] +
-        ijk2*this->Divisions[0]*this->Divisions[1];
-
-  bucket = this->HashTable[idx];
+  vtkIdType idx = this->GetBucketIndex(x);
+  vtkIdList* bucket = this->HashTable[idx];
 
   if (bucket) // see whether we've got duplicate point
     {
@@ -140,7 +103,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
     // Check the list of points in that bucket.
     //
     vtkIdType ptId;
-    int nbOfIds = bucket->GetNumberOfIds ();
+    vtkIdType nbOfIds = bucket->GetNumberOfIds ();
 
     // For efficiency reasons, we break the data abstraction for points
     // and ids (we are assuming vtkPoints stores a vtkIdList
@@ -156,7 +119,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
       f[2] = static_cast<float>(x[2]);
       vtkFloatArray *floatArray = static_cast<vtkFloatArray *>(dataArray);
       float *pt;
-      for (i=0; i < nbOfIds; i++)
+      for (vtkIdType i=0; i < nbOfIds; i++)
         {
         ptId = idArray[i];
         pt = floatArray->GetPointer(0) + 3*ptId;
@@ -172,7 +135,7 @@ int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
       {
       // Using the double interface
       double *pt;
-      for (i=0; i < nbOfIds; i++)
+      for (vtkIdType i=0; i < nbOfIds; i++)
         {
         ptId = idArray[i];
         pt = dataArray->GetTuple(ptId);
