@@ -19,7 +19,7 @@
 #ifndef __PyVTKClass_h
 #define __PyVTKClass_h
 
-#include "vtkPythonCoreModule.h" // For export macro
+#include "vtkWrappingPythonModule.h" // For export macro
 #include "vtkPython.h"
 
 // Prototype for static constructor
@@ -47,16 +47,16 @@ struct PyVTKClass {
   const char *vtk_mangle;
 };
 
-extern VTKPYTHONCORE_EXPORT PyTypeObject PyVTKClass_Type;
+extern VTKWRAPPINGPYTHON_EXPORT PyTypeObject PyVTKClass_Type;
 
 #define PyVTKClass_Check(obj) ((obj)->ob_type == &PyVTKClass_Type)
 
 extern "C"
 {
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKClass_GetDict(PyObject *obj);
 
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
                          const char *classname, const char *modulename,
                          const char *pythonname, const char *manglename,

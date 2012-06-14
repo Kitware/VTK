@@ -22,7 +22,7 @@
 #ifndef __PyVTKMutableObject_h
 #define __PyVTKMutableObject_h
 
-#include "vtkPythonCoreModule.h" // For export macro
+#include "vtkWrappingPythonModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 
@@ -33,7 +33,7 @@ struct PyVTKMutableObject {
   PyObject *value;
 };
 
-extern VTKPYTHONCORE_EXPORT PyTypeObject PyVTKMutableObject_Type;
+extern VTKWRAPPINGPYTHON_EXPORT PyTypeObject PyVTKMutableObject_Type;
 
 #define PyVTKMutableObject_Check(obj) ((obj)->ob_type == &PyVTKMutableObject_Type)
 
@@ -42,12 +42,12 @@ extern "C"
 // Set the value held by a mutable object.  It steals the reference
 // of the provided value.  Only float, long, and int are allowed.
 // A return value of -1 indicates than an error occurred.
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val);
 
 // Get the value held by a mutable object.  A borrowed reference
 // is returned.
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKMutableObject_GetValue(PyObject *self);
 }
 
