@@ -30,12 +30,12 @@ All rights reserved.
 #include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridGeometry.h"
 
-#include "vtkCellData.h"
 #include "vtkContourFilter.h"
 #include "vtkCutter.h"
 #include "vtkDataSetWriter.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
@@ -202,14 +202,33 @@ int main( int argc, char* argv[] )
     cerr << "# Contour" << endl;
     vtkNew<vtkContourFilter> contour;
     contour->SetInputData( htGrid );
-    contour->SetNumberOfContours( 2 );
-    contour->SetValue( 0, 4. );
-    contour->SetValue( 1, 18. );
+    int nContours = 2;
+    double* range = htGrid->GetPointData()->GetScalars()->GetRange();
+    cerr << "  Calculating "
+         << nContours
+         << " iso-contours across ["
+         << range[0]
+         << ", "
+         << range[1]
+         << "] range:"
+         << endl;
+    contour->SetNumberOfContours( nContours );
+    double resolution = ( range[1] - range[0] ) / ( nContours + 1. );
+    double isovalue = resolution;
+    for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
+      {
+      cerr << "    Contour "
+           << i
+           << " at iso-value: "
+           << isovalue
+           << endl;
+      contour->SetValue( i, isovalue );
+      }
     vtkNew<vtkPolyDataWriter> writer0;
     writer0->SetFileName( "./hyperTreeGridContour.vtk" );
     writer0->SetInputConnection( contour->GetOutputPort() );
     writer0->Write();
-    cerr << "  Number of cells in iso-contour: " 
+    cerr << "  Number of cells in iso-contours: " 
          << contour->GetOutput()->GetNumberOfCells() 
          << endl;
     }
