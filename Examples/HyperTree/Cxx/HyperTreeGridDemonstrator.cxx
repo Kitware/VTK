@@ -15,6 +15,7 @@ All rights reserved.
 //   --grid-size-Y opt    Size of hyper tree grid in Y direction
 //   --grid-size-Z opt    Size of hyper tree grid in Z direction
 //   --max-level opt      Maximum depth of hyper tree grid
+//   --contours           Number of iso-contours to be calculated
 //   --skip-Axis-Cut      Skip axis cut filter
 //   --skip-Contour       Skip contour filter
 //   --skip-Cut           Skip cut filter
@@ -52,6 +53,7 @@ int main( int argc, char* argv[] )
   int nX = 3;
   int nY = 4;
   int nZ = 2;
+  int nContours = 2;
   bool skipAxisCut = false;
   bool skipContour = false;
   bool skipCut = false;
@@ -88,13 +90,17 @@ int main( int argc, char* argv[] )
                       vtksys::CommandLineArguments::SPACE_ARGUMENT,
                       &nZ, "Size of hyper tree grid in Z direction" );
 
+  clArgs.AddArgument( "--contours",
+                      vtksys::CommandLineArguments::SPACE_ARGUMENT,
+                      &nContours, "Number of iso-contours to be calculated" );
+
   clArgs.AddArgument( "--skip-Axis-Cut",
                       vtksys::CommandLineArguments::NO_ARGUMENT,
                       &skipAxisCut, "Skip axis cut filter" );
 
   clArgs.AddArgument( "--skip-Contour",
                       vtksys::CommandLineArguments::NO_ARGUMENT,
-                      &skipAxisCut, "Skip contour filter" );
+                      &skipContour, "Skip contour filter" );
 
   clArgs.AddArgument( "--skip-Cut",
                       vtksys::CommandLineArguments::NO_ARGUMENT,
@@ -202,7 +208,6 @@ int main( int argc, char* argv[] )
     cerr << "# Contour" << endl;
     vtkNew<vtkContourFilter> contour;
     contour->SetInputData( htGrid );
-    int nContours = 2;
     double* range = htGrid->GetPointData()->GetScalars()->GetRange();
     cerr << "  Calculating "
          << nContours
