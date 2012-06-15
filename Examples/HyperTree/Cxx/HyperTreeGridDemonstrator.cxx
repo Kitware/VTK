@@ -205,9 +205,6 @@ int main( int argc, char* argv[] )
     contour->SetNumberOfContours( 2 );
     contour->SetValue( 0, 4. );
     contour->SetValue( 1, 18. );
-    contour->SetInputArrayToProcess( 0, 0, 0,
-                                     vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                                     "Cell Value" );
     vtkNew<vtkPolyDataWriter> writer0;
     writer0->SetFileName( "./hyperTreeGridContour.vtk" );
     writer0->SetInputConnection( contour->GetOutputPort() );
