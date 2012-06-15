@@ -7,8 +7,8 @@ All rights reserved.
 // .SECTION Description
 // This program illustrates the use of various filters acting upon hyper
 // tree grid data sets. It generates output files in VTK format.
-// 
-// .SECTION Usage 
+//
+// .SECTION Usage
 //   --branch-factor opt  Branching factor of hyper tree grid
 //   --dimension opt      Dimension of hyper tree grid
 //   --grid-size-X opt    Size of hyper tree grid in X direction
@@ -131,7 +131,7 @@ int main( int argc, char* argv[] )
     {
     dim = 1;
     }
-    
+
   // Ensure that parsed branch factor makes sense
   if ( branch > 3 )
     {
@@ -141,13 +141,13 @@ int main( int argc, char* argv[] )
     {
     branch = 2;
     }
-    
+
   // Ensure that parsed maximum level makes sense
   if ( max < 1 )
     {
     max = 1;
     }
-    
+
   // Ensure that parsed grid sizes make sense
   if ( nX < 1 )
     {
@@ -171,7 +171,7 @@ int main( int argc, char* argv[] )
       nY = 1;
       }
     }
- 
+
   // Create hyper tree grid source
   vtkNew<vtkHyperTreeGridSource> fractal;
   fractal->SetMaximumLevel( max );
@@ -185,8 +185,8 @@ int main( int argc, char* argv[] )
   fractal->SetAxisBranchFactor( branch );
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
-  cerr << "  Number of hyper tree dual grid cells: " 
-       << htGrid->GetNumberOfCells() 
+  cerr << "  Number of hyper tree dual grid cells: "
+       << htGrid->GetNumberOfCells()
        << endl;
 
   if ( ! skipGeometry )
@@ -198,8 +198,8 @@ int main( int argc, char* argv[] )
     writer4->SetFileName( "./hyperTreeGridGeometry.vtk" );
     writer4->SetInputConnection( geometry->GetOutputPort() );
     writer4->Write();
-    cerr << "  Number of surface cells: " 
-         << geometry->GetOutput()->GetNumberOfCells() 
+    cerr << "  Number of surface cells: "
+         << geometry->GetOutput()->GetNumberOfCells()
          << endl;
     }
 
@@ -233,8 +233,8 @@ int main( int argc, char* argv[] )
     writer0->SetFileName( "./hyperTreeGridContour.vtk" );
     writer0->SetInputConnection( contour->GetOutputPort() );
     writer0->Write();
-    cerr << "  Number of cells in iso-contours: " 
-         << contour->GetOutput()->GetNumberOfCells() 
+    cerr << "  Number of cells in iso-contours: "
+         << contour->GetOutput()->GetNumberOfCells()
          << endl;
     }
 
@@ -248,8 +248,8 @@ int main( int argc, char* argv[] )
     writer1->SetFileName( "./hyperTreeGridShrink.vtk" );
     writer1->SetInputConnection( shrink->GetOutputPort() );
     writer1->Write();
-    cerr << "  Number of shrunk cells: " 
-         << shrink->GetOutput()->GetNumberOfCells() 
+    cerr << "  Number of shrunk cells: "
+         << shrink->GetOutput()->GetNumberOfCells()
          << endl;
     }
 
@@ -267,8 +267,8 @@ int main( int argc, char* argv[] )
       writer2->SetFileName( "./hyperTreeGridAxisCut.vtk" );
       writer2->SetInputConnection( axisCut->GetOutputPort() );
       writer2->Write();
-      cerr << "  Number of cells in axis cut: " 
-           << axisCut->GetOutput()->GetNumberOfCells() 
+      cerr << "  Number of cells in axis cut: "
+           << axisCut->GetOutput()->GetNumberOfCells()
            << endl;
       }
     }
@@ -286,8 +286,8 @@ int main( int argc, char* argv[] )
     writer3->SetFileName( "./hyperTreeGridCut.vtk" );
     writer3->SetInputConnection( cut->GetOutputPort() );
     writer3->Write();
-    cerr << "  Number of cells in generic cut: " 
-         << cut->GetOutput()->GetNumberOfCells() 
+    cerr << "  Number of cells in generic cut: "
+         << cut->GetOutput()->GetNumberOfCells()
          << endl;
     }
 
