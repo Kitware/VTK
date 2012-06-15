@@ -37,7 +37,6 @@ All rights reserved.
 #include "vtkNew.h"
 #include "vtkPlane.h"
 #include "vtkPolyDataWriter.h"
-#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
