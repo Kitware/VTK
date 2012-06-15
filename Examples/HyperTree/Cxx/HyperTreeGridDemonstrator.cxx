@@ -179,6 +179,9 @@ int main( int argc, char* argv[] )
   fractal->SetAxisBranchFactor( branch );
   fractal->Update();
   vtkHyperTreeGrid* htGrid = fractal->GetOutput();
+  cerr << "  Number of hyper tree dual grid cells: " 
+       << htGrid->GetNumberOfCells() 
+       << endl;
 
   if ( ! skipGeometry )
     {
@@ -189,6 +192,9 @@ int main( int argc, char* argv[] )
     writer4->SetFileName( "./hyperTreeGridGeometry.vtk" );
     writer4->SetInputConnection( geometry->GetOutputPort() );
     writer4->Write();
+    cerr << "  Number of surface cells: " 
+         << geometry->GetOutput()->GetNumberOfCells() 
+         << endl;
     }
 
   if ( ! skipContour )
@@ -206,6 +212,9 @@ int main( int argc, char* argv[] )
     writer0->SetFileName( "./hyperTreeGridContour.vtk" );
     writer0->SetInputConnection( contour->GetOutputPort() );
     writer0->Write();
+    cerr << "  Number of cells in iso-contour: " 
+         << contour->GetOutput()->GetNumberOfCells() 
+         << endl;
     }
 
   if ( ! skipShrink )
@@ -218,6 +227,9 @@ int main( int argc, char* argv[] )
     writer1->SetFileName( "./hyperTreeGridShrink.vtk" );
     writer1->SetInputConnection( shrink->GetOutputPort() );
     writer1->Write();
+    cerr << "  Number of shrunk cells: " 
+         << shrink->GetOutput()->GetNumberOfCells() 
+         << endl;
     }
 
   if ( ! skipAxisCut )
@@ -234,6 +246,9 @@ int main( int argc, char* argv[] )
       writer2->SetFileName( "./hyperTreeGridAxisCut.vtk" );
       writer2->SetInputConnection( axisCut->GetOutputPort() );
       writer2->Write();
+      cerr << "  Number of cells in axis cut: " 
+           << axisCut->GetOutput()->GetNumberOfCells() 
+           << endl;
       }
     }
 
@@ -250,6 +265,9 @@ int main( int argc, char* argv[] )
     writer3->SetFileName( "./hyperTreeGridCut.vtk" );
     writer3->SetInputConnection( cut->GetOutputPort() );
     writer3->Write();
+    cerr << "  Number of cells in generic cut: " 
+         << cut->GetOutput()->GetNumberOfCells() 
+         << endl;
     }
 
   return 0;
