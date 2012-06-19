@@ -901,6 +901,11 @@ void StacktraceSignalHandler(
 #endif
 
   abort();
+
+#else
+  // avoid warning C4100
+  (void)sigNo;
+  (void)sigInfo;
 #endif
 }
 
@@ -1133,9 +1138,9 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
       }
     }
   freeifaddrs(ifas);
-#endif
 
   return ierr;
+#endif
 }
 
 /** Get the OS release */
@@ -3043,6 +3048,9 @@ void SystemInformationImplementation::SetStackTraceOnError(int enable)
     // enable write, disable read
     saOrigValid=0;
     }
+#else
+  // avoid warning C4100
+  (void)enable;
 #endif
 }
 
@@ -3614,8 +3622,7 @@ bool SystemInformationImplementation::ParseSysCtl()
   if (err != 0) // Go back to names we know but are less descriptive
     {
     this->ChipID.Family = 0;
-    char retBuf[32];
-    ::memset(retBuf, 0, 32);
+    ::memset(retBuf, 0, 128);
     len = 32;
     err = sysctlbyname("hw.machine", &retBuf, &len, NULL, 0);
     kwsys_stl::string machineBuf(retBuf);
@@ -4310,6 +4317,10 @@ int SystemInformationImplementation::CallSwVers(
   pclose(f);
   kwsys_stl::istringstream iss(oss.str());
   iss >> ver;
+#else
+  // avoid C4100
+  (void)arg;
+  (void)ver;
 #endif
   return 0;
 }
