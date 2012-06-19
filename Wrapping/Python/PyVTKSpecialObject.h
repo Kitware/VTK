@@ -20,7 +20,7 @@
 #ifndef __PyVTKSpecialObject_h
 #define __PyVTKSpecialObject_h
 
-#include "vtkPythonCoreModule.h" // For export macro
+#include "vtkWrappingPythonModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 
@@ -36,7 +36,7 @@ typedef void *(*PyVTKSpecialCopyFunc)(const void *);
 // manner more in line with most python extension packages.  However,
 // since PyTypeObject can't hold all the typing information that we
 // need, we use this PyVTKSpecialType class to hold a bit of extra info.
-class VTKPYTHONCORE_EXPORT PyVTKSpecialType
+class VTKWRAPPINGPYTHON_EXPORT PyVTKSpecialType
 {
 public:
   PyVTKSpecialType() :
@@ -67,25 +67,25 @@ struct PyVTKSpecialObject {
 
 extern "C"
 {
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
   PyMethodDef *methods, PyMethodDef *constructors, PyMethodDef *newmethod,
   const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
 
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr);
 
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr);
 
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKSpecialObject_Repr(PyObject *self);
 
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKSpecialObject_SequenceString(PyObject *self);
 
 #if PY_VERSION_HEX < 0x02020000
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr);
 #endif
 }

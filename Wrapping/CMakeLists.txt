@@ -43,8 +43,8 @@ if(NOT CMAKE_CROSSCOMPILING)
     set(VTK_WRAP_PYTHON_FIND_LIBS ON)
     include(vtkWrapPython)
     include_directories("${PYTHON_INCLUDE_PATH}"
-      "${CMAKE_CURRENT_SOURCE_DIR}/PythonCore"
-      "${CMAKE_CURRENT_BINARY_DIR}/PythonCore")
+      "${CMAKE_CURRENT_SOURCE_DIR}/Python"
+      "${CMAKE_CURRENT_BINARY_DIR}/Python")
 
     add_executable(vtkWrapPython vtkWrapPython.c vtkWrap.c vtkWrapText.c
                    vtkParseMain.c vtkParse.tab.c vtkParsePreprocess.c
@@ -70,10 +70,6 @@ if(NOT CMAKE_CROSSCOMPILING)
     endif()
   endif()
 
-endif()
-
-if(VTK_WRAP_PYTHON)
-  add_subdirectory(Python)
 endif()
 
 if(VTK_WRAP_TCL)

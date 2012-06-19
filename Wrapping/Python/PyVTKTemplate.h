@@ -23,7 +23,7 @@
 #ifndef __PyVTKTemplate_h
 #define __PyVTKTemplate_h
 
-#include "vtkPythonCoreModule.h" // For export macro
+#include "vtkWrappingPythonModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 
@@ -36,17 +36,17 @@ struct PyVTKTemplate {
   const char *module;
 };
 
-extern VTKPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
+extern VTKWRAPPINGPYTHON_EXPORT PyTypeObject PyVTKTemplate_Type;
 
 #define PyVTKTemplate_Check(obj) ((obj)->ob_type == &PyVTKTemplate_Type)
 
 extern "C"
 {
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
                             const char *docstring[]);
 
-VTKPYTHONCORE_EXPORT
+VTKWRAPPINGPYTHON_EXPORT
 int PyVTKTemplate_AddItem(PyObject *self, PyObject *val);
 }
 
