@@ -25,3 +25,11 @@ GL2PS_HAVE_LIBPNG flag.
 
 In order to avoid linking errors we also have modified gl2ps to
 include vtk_zlib.h and vtk_png.h instead of the {zlib,png}.h headers.
+
+Modifications to the GL2PS library
+----------------------------------
+
+The gl2psTextOpt function has been modified to accept a color argument. The
+default mechanism for coloring text in GL2PS querys the GL current raster color,
+which is not required to be valid during feedback rendering. By passing the
+color directly to GL2PS, this ambiguity is avoided.

@@ -1,7 +1,6 @@
-/* Id */
 /*
  * GL2PS, an OpenGL to PostScript Printing Library
- * Copyright (C) 1999-2006 Christophe Geuzaine <geuz@geuz.org>
+ * Copyright (C) 1999-2011 C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of either:
@@ -28,7 +27,9 @@
  * library in the file named "COPYING.GL2PS"; if not, I will be glad
  * to provide one.
  *
- * For the latest info about gl2ps, see http://www.geuz.org/gl2ps/.
+ * For the latest info about gl2ps and a full list of contributors,
+ * see http://www.geuz.org/gl2ps/.
+ *
  * Please report all bugs and problems to <gl2ps@geuz.org>.
  */
 
@@ -43,6 +44,7 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #  if defined(_MSC_VER)
 #    pragma warning(disable:4115)
+#    pragma warning(disable:4996)
 #  endif
 #  include <windows.h>
 #  if defined(GL2PSDLL)
@@ -78,14 +80,14 @@
 
 #define GL2PS_MAJOR_VERSION 1
 #define GL2PS_MINOR_VERSION 3
-#define GL2PS_PATCH_VERSION 2
+#define GL2PS_PATCH_VERSION 6
 #define GL2PS_EXTRA_VERSION ""
 
 #define GL2PS_VERSION (GL2PS_MAJOR_VERSION + \
                        0.01 * GL2PS_MINOR_VERSION + \
                        0.0001 * GL2PS_PATCH_VERSION)
 
-#define GL2PS_COPYRIGHT "(C) 1999-2006 Christophe Geuzaine (geuz@geuz.org)"
+#define GL2PS_COPYRIGHT "(C) 1999-2011 C. Geuzaine"
 
 /* Output file formats (the values and the ordering are important!) */
 
@@ -137,9 +139,9 @@
 #define GL2PS_BLEND               4
 
 /* Text alignment (o=raster position; default mode is BL):
-   +---+ +---+ +---+ +---+ +---+ +---+ +-o-+ o---+ +---o 
-   | o | o   | |   o |   | |   | |   | |   | |   | |   | 
-   +---+ +---+ +---+ +-o-+ o---+ +---o +---+ +---+ +---+ 
+   +---+ +---+ +---+ +---+ +---+ +---+ +-o-+ o---+ +---o
+   | o | o   | |   o |   | |   | |   | |   | |   | |   |
+   +---+ +---+ +---+ +-o-+ o---+ +---o +---+ +---+ +---+
     C     CL    CR    B     BL    BR    T     TL    TR */
 
 #define GL2PS_TEXT_C  1
@@ -158,20 +160,22 @@ typedef GLfloat GL2PSrgba[4];
 extern "C" {
 #endif
 
-GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer, 
+GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
                                   GLint viewport[4], GLint format, GLint sort,
                                   GLint options, GLint colormode,
-                                  GLint colorsize, GL2PSrgba *colormap, 
+                                  GLint colorsize, GL2PSrgba *colormap,
                                   GLint nr, GLint ng, GLint nb, GLint buffersize,
                                   FILE *stream, const char *filename);
 GL2PSDLL_API GLint gl2psEndPage(void);
 GL2PSDLL_API GLint gl2psSetOptions(GLint options);
+GL2PSDLL_API GLint gl2psGetOptions(GLint *options);
 GL2PSDLL_API GLint gl2psBeginViewport(GLint viewport[4]);
 GL2PSDLL_API GLint gl2psEndViewport(void);
-GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, 
+GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname,
                              GLshort fontsize);
-GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname, 
-                                GLshort fontsize, GLint align, GLfloat angle);
+GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname,
+                                GLshort fontsize, GLint align, GLfloat angle,
+                                GL2PSrgba color_rgba);
 GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str);
 GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
                                    GLint xorig, GLint yorig,
