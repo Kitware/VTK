@@ -132,7 +132,8 @@ void vtkBalloonWidget::SetEnabled(int enabling)
 {
   this->Superclass::SetEnabled(enabling);
 
-  if ( this->Interactor)
+  if ( this->Interactor &&
+       this->Interactor->GetRenderWindow())
     {
     this->SetCurrentRenderer(this->Interactor->GetRenderWindow()->
                              GetRenderers()->GetFirstRenderer());
