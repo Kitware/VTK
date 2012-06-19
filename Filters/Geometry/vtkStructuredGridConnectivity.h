@@ -102,6 +102,11 @@ public:
     { return( static_cast<int>(this->Neighbors[ gridID ].size() )); };
 
   // Description:
+  // Returns the neighbor corresponding to the index nei for the grid with the
+  // given (global) grid ID.
+  vtkStructuredNeighbor GetGridNeighbor(const int gridID, const int nei);
+
+  // Description:
   // Returns the list of neighboring blocks for the given grid and the
   // corresponding overlapping extents are filled in the 1-D flat array
   // strided by 6.
@@ -503,7 +508,8 @@ inline int vtkStructuredGridConnectivity::GetNeighborIndex(
     const int gridIdx, const int NeighborGridIdx )
 {
   assert("pre: Grid index is out-of-bounds!" &&
-         (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
+         (gridIdx >= 0) &&
+         (gridIdx < static_cast<int>(this->NumberOfGrids)));
   assert("pre: Neighbor grid index is out-of-bounds!" &&
          (NeighborGridIdx >= 0) &&
          (NeighborGridIdx < static_cast<int>(this->NumberOfGrids) ) );

@@ -221,6 +221,18 @@ void vtkStructuredGridConnectivity::AcquireDataDescription()
 }
 
 //------------------------------------------------------------------------------
+vtkStructuredNeighbor vtkStructuredGridConnectivity::GetGridNeighbor(
+    const int gridID, const int nei)
+{
+  assert("pre: gridID out-of-bounds!" &&
+         (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
+  assert("pre: nei index is out-of-bounds!" &&
+         (nei >= 0) && (nei < this->GetNumberOfNeighbors(gridID)) );
+
+  return(this->Neighbors[gridID][nei]);
+}
+
+//------------------------------------------------------------------------------
 vtkIdList* vtkStructuredGridConnectivity::GetNeighbors(
     const int gridID,int *extents )
 {
@@ -481,8 +493,10 @@ void vtkStructuredGridConnectivity::FillGhostArrays(
     vtkUnsignedCharArray *nodesArray,
     vtkUnsignedCharArray *cellsArray )
 {
-  assert( "pre: Nodes array is not NULL" && (nodesArray != NULL) );
-  assert( "pre: Cell array is not NULL" && (cellsArray != NULL) );
+  if( nodesArray == NULL )
+    {
+    return;
+    }
 
   // STEP 0: Get the grid information
   int GridExtent[6];
