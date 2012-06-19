@@ -1,5 +1,5 @@
 if(VTK_WRAP_JAVA)
-  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping/Java")
   find_package(Java)
   find_package(JNI)
   include(vtkWrapJava)
@@ -24,10 +24,10 @@ endif()
 function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
 
   set(_java_include_dirs
+    ${vtkWrappingJava_BINARY_DIR}
+    ${vtkWrappingJava_SOURCE_DIR}
     ${JAVA_INCLUDE_PATH}
-    ${JAVA_INCLUDE_PATH2}
-    ${vtkWrappingJavaCore_SOURCE_DIR}
-    ${vtkWrappingJavaCore_BINARY_DIR})
+    ${JAVA_INCLUDE_PATH2})
 
   if(NOT CMAKE_HAS_TARGET_INCLUDES)
     include_directories(${_java_include_dirs})
@@ -50,7 +50,7 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
 
-  target_link_libraries(${module_name}Java ${module_name} vtkWrappingJavaCore)
+  target_link_libraries(${module_name}Java ${module_name} vtkWrappingJava)
 
   # Do we need to link to AWT?
   if(${module_name} STREQUAL "vtkRenderingCore")

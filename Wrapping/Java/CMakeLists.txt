@@ -1,3 +1,14 @@
+find_package(Java REQUIRED)
+find_package(JNI REQUIRED)
+
+include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
+
+set(WrappingJava_SRCS
+  vtkJavaUtil.cxx
+  )
+
+vtk_module_library(vtkWrappingJava ${WrappingJava_SRCS})
+
 # javac runs out memory on Mac so increase heapsize
 if(APPLE)
   set(JAVAC_OPTIONS -J-Xmx256m)

@@ -1,4 +1,4 @@
-vtk_module(vtkWrappingJavaCore
+vtk_module(vtkWrappingJava
   DEPENDS
    vtkCommonCore
   EXCLUDE_FROM_ALL

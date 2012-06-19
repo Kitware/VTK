@@ -633,4 +633,3 @@ void vtkJavaCommand::Execute(vtkObject *, unsigned long, void *)
     e->CallVoidMethod(this->uobj,this->mid,NULL);
     }
 }
-
