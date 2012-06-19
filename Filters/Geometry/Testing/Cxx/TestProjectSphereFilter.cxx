@@ -61,7 +61,7 @@ namespace
   }
 }
 
-int TestProjectSphereFilter(int, char**)
+int TestProjectSphereFilter(int vtkNotUsed(argc), char* [])
 {
   int numberOfErrors = 0;
 
