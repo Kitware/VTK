@@ -48,6 +48,7 @@ set(MyTests
   TestPolygonalRepresentationHandleWidget.cxx
   TestPolygonalSurfaceConstrainedDistanceWidget.cxx
   TestProgrammaticPlacement.cxx
+  TestProp3DButtonRepresentation.cxx
   TestRectilinearWipeWidget.cxx
   # TestResliceCursorWidget2.cxx # todo (unsatistfied deps)
   # TestResliceCursorWidget3.cxx # todo (unsatistfied deps)
