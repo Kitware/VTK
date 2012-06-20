@@ -172,6 +172,17 @@ int vtkPassInputTypeAlgorithm::ProcessRequest(
     {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
+
+ if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
+   {
+   this->RequestUpdateTime(request, inputVector, outputVector);
+   }
+
+ if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_TIME_DEPENDENT_INFORMATION()))
+   {
+   this->RequestUpdateTimeDependentInformation(request, inputVector, outputVector);
+   }
+
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 

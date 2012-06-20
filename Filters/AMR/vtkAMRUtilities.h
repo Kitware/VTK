@@ -48,7 +48,7 @@ public:
   // metadata and computes the level refinement ratio.
   static void GenerateMetaData(
       vtkOverlappingAMR *amrData,
-      vtkMultiProcessController *myController=NULL );
+      vtkMultiProcessController *myController=NULL, double* origin=NULL);
 
   // Description:
   // Computes the global bounds, i.e., the min (x,y,z) and max (x,y,z)
@@ -80,8 +80,7 @@ public:
   // If the data is distributed, the AMR meta-data is communicated s.t. each
   // process has a complete hierarchical box data-set with meta-data.
   static void CollectAMRMetaData(
-      vtkOverlappingAMR *amrData,
-      vtkMultiProcessController *myController=NULL );
+    vtkOverlappingAMR *amrData, vtkMultiProcessController *myController=NULL, double* origin=NULL );
 
   // Description:
   // This method computes the refinement ratio at each level.

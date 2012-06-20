@@ -127,7 +127,7 @@ public:
   // Set the data type of the output points (See the data types defined in
   // vtkType.h). The default data type is float.
   //
-  // These methods are deprecated. Please use the SetOuputPointsPrecision()
+  // These methods are deprecated. Please use the SetOutputPointsPrecision()
   // and GetOutputPointsPrecision() methods instead.
   void SetPointsDataTypeToDouble() { this->SetPointsDataType( VTK_DOUBLE ); }
   void SetPointsDataTypeToFloat()  { this->SetPointsDataType( VTK_FLOAT  ); }
@@ -136,9 +136,9 @@ public:
 
   // Description:
   // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explaination of
+  // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
   // the available precision settings.
-  void SetOuputPointsPrecision(int precision);
+  void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
 
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

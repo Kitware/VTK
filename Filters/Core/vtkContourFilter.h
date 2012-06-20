@@ -144,9 +144,9 @@ public:
 
   // Description:
   // Set/get the desired precision for the output types. See the documentation
-  // for the vtkAlgorithm::Precision enum for an explaination of the available
+  // for the vtkAlgorithm::Precision enum for an explanation of the available
   // precision settings.
-  void SetOuputPointsPrecision(int precision);
+  void SetOutputPointsPrecision(int precision);
   int GetOutputPointsPrecision() const;
 
 protected:

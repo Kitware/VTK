@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkExtractLevel.h"
 
+#include "vtkCompositeDataPipeline.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -21,6 +22,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkAMRBox.h"
 #include "vtkUniformGridAMR.h"
+#include "vtkOverlappingAMR.h"
 
 #include <set>
 
@@ -79,6 +81,49 @@ int vtkExtractLevel::FillOutputPortInformation(
   return 1;
 }
 
+int vtkExtractLevel::RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,vtkInformationVector* )
+{
+  vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
+
+  // Check if metadata are passed downstream
+  if( inInfo->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
+    {
+    vtkOverlappingAMR *metadata = vtkOverlappingAMR::SafeDownCast(
+      inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
+
+    if(metadata)
+      {
+      // cout<<"Time dependent? "<<inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())<<endl;
+      // std::cout<<"Receive Meta Data: ";
+      // for(int levelIdx=0 ; levelIdx < metadata->GetNumberOfLevels(); ++levelIdx )
+      //   {
+      //   std::cout << " \tL(" << levelIdx << ") = "
+      //             << metadata->GetNumberOfDataSets( levelIdx ) << " ";
+      //   std::cout.flush();
+      //   } // END for levels
+      // std::cout<<endl;
+
+      // Tell reader to load all requested blocks.
+      inInfo->Set( vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1 );
+
+      // request the blocks
+      std::vector<int> blocksToLoad;
+      for(vtkExtractLevel::vtkSet::iterator iter =this->Levels->begin(); iter!= this->Levels->end(); ++iter )
+        {
+        unsigned int level = (*iter);
+        for(int dataIdx=0;dataIdx < metadata->GetNumberOfDataSets(level);++dataIdx )
+          {
+          blocksToLoad.push_back(metadata->GetCompositeIndex(level,dataIdx));
+          }
+        }
+
+      inInfo->Set( vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES(),&blocksToLoad[0], static_cast<int>(blocksToLoad.size()));
+      }
+    }
+
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 int vtkExtractLevel::RequestData(
     vtkInformation *vtkNotUsed(request),
@@ -86,6 +131,7 @@ int vtkExtractLevel::RequestData(
     vtkInformationVector *outputVector )
 {
   // STEP 0: Get input object
+
   vtkInformation* inInfo   = inputVector[0]->GetInformationObject(0);
   vtkUniformGridAMR *input =
    vtkUniformGridAMR::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));

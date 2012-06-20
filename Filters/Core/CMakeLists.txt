@@ -62,6 +62,7 @@ set(Module_SRCS
   vtkWindowedSincPolyDataFilter.cxx
 
   vtkCutter.cxx
+  vtkCompositeCutter.cxx
   vtkGridSynchronizedTemplates3D.cxx
   vtkRectilinearSynchronizedTemplates.cxx
   vtkEdgeSubdivisionCriterion.cxx

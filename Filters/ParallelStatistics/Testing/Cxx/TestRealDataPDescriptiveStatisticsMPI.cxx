@@ -407,7 +407,7 @@ int main( int argc, char** argv )
   int ioRank;
   int flag;
 
-  MPI_Attr_get( MPI_COMM_WORLD,
+  MPI_Comm_get_attr( MPI_COMM_WORLD,
                 MPI_IO,
                 &ioPtr,
                 &flag );

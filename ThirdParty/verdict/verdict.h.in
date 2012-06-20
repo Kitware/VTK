@@ -334,6 +334,11 @@ struct TetMetricVals
   double shape_and_size ; 
   /** \sa v_tet_distortion */
   double distortion; 
+  /** \sa v_tet_equivolume_skew */
+  double equivolume_skew;
+  /** \sa v_tet_squish_index */
+  double squish_index;
+
 };
 
 /**\brief A <em>struct</em> to hold values computed by \ref v_tri_quality.
@@ -503,11 +508,16 @@ struct TriMetricVals
 #define V_TET_MINIMUM_ANGLE          16384
 /*!\hideinitializer \brief Request that the collapse ratio be computed. \sa v_tet_collapse_ratio */
 #define V_TET_COLLAPSE_RATIO         32768
+/*!\hideinitializer \brief Request that the equivolume skew as defined by Fluent be computed. \sa v_tet_equivolume_skew */
+#define V_TET_EQUIVOLUME_SKEW        65536
+/*!\hideinitializer \brief Request that the squish index as defined by Fluent be computed. \sa v_tet_squish_index */
+#define V_TET_SQUISH_INDEX           131072
+
 //! Composite tetrahedral quality flags
 //! These flags are bitwise combinations of the atomic flags above.
 //@{
 /*!\hideinitializer \brief Request that the all tetrahedral qualities be computed. */
-#define V_TET_ALL                    65535
+#define V_TET_ALL                    262143
 /*!\hideinitializer \brief Request that the tradtional tetrahedral qualities be computed.
  *
  * This includes

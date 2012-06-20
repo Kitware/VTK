@@ -16,7 +16,7 @@ vtk_module(vtkInteractionWidgets
     vtkTestingRendering
     vtkInteractionStyle
     vtkFiltersModeling
-    vtkFiltersTracers
+    vtkFiltersFlowPaths
     vtkRenderingLOD
     vtkImagingStencil
   )

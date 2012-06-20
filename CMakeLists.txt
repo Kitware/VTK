@@ -304,13 +304,6 @@ if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
   set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
   set(VTK_PYTHON_EXE vtkpython)
-  # Force the PythonCore module to on if wrapping is on
-  set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
-    FORCE)
-else()
-  # if wrapping is not on then force PythonCore module to be off
-  set(Module_vtkWrappingPythonCore OFF CACHE BOOL "Core Python wrapping library"
-    FORCE)
 endif()
 
 if(VTK_WRAP_JAVA)
@@ -355,6 +348,10 @@ include(vtkModuleTop)
 # The wrapping must come after all other modules are processed.
 if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
   add_subdirectory(Wrapping)
+endif()
+
+if(VTK_WRAP_PYTHON)
+  add_subdirectory(Wrapping/PythonCore)
 endif()
 
 if(VTK_WRAP_JAVA)

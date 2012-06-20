@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkPAutoCorrelativeStatistics.cxx
   vtkPContingencyStatistics.cxx
   vtkPCorrelativeStatistics.cxx
   vtkPDescriptiveStatistics.cxx

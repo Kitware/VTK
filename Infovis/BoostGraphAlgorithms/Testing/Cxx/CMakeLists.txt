@@ -1,3 +1,6 @@
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   # BoostArrayLogWeighting.cxx    # todo (unsatisfied deps)
   BoostArrayRandomSparseArraySource.cxx
