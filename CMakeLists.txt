@@ -314,11 +314,11 @@ else()
 endif()
 
 if(VTK_WRAP_JAVA)
-  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping/Java")
   # Wrapping executables.
   set(VTK_WRAP_JAVA_EXE  vtkWrapJava)
   set(VTK_PARSE_JAVA_EXE vtkParseJava)
-  set(Module_vtkWrappingJavaCore ON CACHE BOOL "Core Java wrapping library"
+  set(Module_vtkWrappingJava ON CACHE BOOL "Core Java wrapping library"
     FORCE)
 
   # Java package location.
@@ -326,7 +326,7 @@ if(VTK_WRAP_JAVA)
   set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
   file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
 else()
-  set(Module_vtkWrappingJavaCore OFF CACHE BOOL "Core Java wrapping library"
+  set(Module_vtkWrappingJava OFF CACHE BOOL "Core Java wrapping library"
     FORCE)
 endif()
 
@@ -355,10 +355,6 @@ include(vtkModuleTop)
 # The wrapping must come after all other modules are processed.
 if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
   add_subdirectory(Wrapping)
-endif()
-
-if(VTK_WRAP_JAVA)
-  add_subdirectory(Wrapping/Java)
 endif()
 
 if(BUILD_TESTING)
