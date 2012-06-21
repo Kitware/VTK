@@ -96,8 +96,11 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
   if (this->EnableSelection)
     {
     selector->BeginRenderProp();
-    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+    // While looking at point selection we always no matter which pass
+    // we are in, render only vertex so each pass should fill the same pixels
+    // without risking of detecting vertex belonging to other cells or block.
+    // BUT we want to make sure we increase the size of those vertex
+    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
       {
       device->MakeVertexEmphasis(true);
       }
@@ -138,6 +141,7 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
       }
     }
 
+
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
 }
@@ -153,8 +157,11 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
 
   vtkHardwareSelector* selector = renderer->GetSelector();
   int attributeMode = selector->GetFieldAssociation();
+
+  // While looking at point selection we always no matter which pass
+  // we are in, render only vertex so each pass should fill the same pixels
+  // without risking of detecting vertex belonging to other cells or block.
   if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-    selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24 &&
     this->EnableSelection)
     {
     mode = VTK_POLY_VERTEX;
