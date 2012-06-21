@@ -1026,9 +1026,9 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data,
       {
       data->SetDimensions(new_img_dims);
       data->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-      data->SetOrigin(text_size[0] + 1, text_size[1] + 1, 0.0);
-      data->SetSpacing(text_size[0] / double(new_img_dims[0] - 1),
-                       text_size[1] / double(new_img_dims[1] - 1),
+      data->SetOrigin(text_size[0], text_size[1], 0.0);
+      data->SetSpacing((text_size[0]) / static_cast<double>(new_img_dims[0]),
+                       (text_size[1]) / static_cast<double>(new_img_dims[1]),
                        0.0);
       }
     }
