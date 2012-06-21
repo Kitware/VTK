@@ -23,7 +23,7 @@ vtkPistonScalarsColors::vtkPistonScalarsColors() : vtkObject(),
 //-----------------------------------------------------------------------------
 vtkPistonScalarsColors::~vtkPistonScalarsColors()
 {
-  this->SetLookupTable(0);  
+  this->SetLookupTable(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ std::vector<unsigned char>* vtkPistonScalarsColors::ComputeScalarsColors(
     {
     vtkErrorMacro(<< "Cannot have more than four (RGBA) chanels");
     return NULL;
-    }  
+    }
 
   if(!(this->LookupTable->GetMTime() > this->GetMTime() ||
       this->ComputeColorsTime.GetMTime() < this->GetMTime()))
@@ -114,7 +114,7 @@ std::vector<unsigned char>* vtkPistonScalarsColors::ComputeScalarsColors(
   this->LookupTable->SetRange(this->TableRange);
   this->LookupTable->Build();
   this->LookupTable->MapScalarsThroughTable(valueptr, colorptr,
-    VTK_FLOAT, this->NumberOfValues, 1, numberOfChanels);  
+    VTK_FLOAT, this->NumberOfValues, 1, numberOfChanels);
 
   this->Modified();
 
@@ -169,7 +169,7 @@ std::vector<float>* vtkPistonScalarsColors::ComputeScalarsColorsf(
   this->LookupTable->SetRange(this->TableRange);
   this->LookupTable->Build();
   this->LookupTable->MapScalarsThroughTable(valueptr, colorptr,
-    VTK_FLOAT, this->NumberOfValues, 1, numberOfChanels);  
+    VTK_FLOAT, this->NumberOfValues, 1, numberOfChanels);
 
   // Convert unsigned char color to float color
   this->ScalarsColorsf.resize(this->NumberOfValues * 3);
@@ -181,7 +181,7 @@ std::vector<float>* vtkPistonScalarsColors::ComputeScalarsColorsf(
 
       this->ScalarsColorsf[j] = r;
       this->ScalarsColorsf[j+1] = g;
-      this->ScalarsColorsf[j+2] = b;      
+      this->ScalarsColorsf[j+2] = b;
     }
 
   delete [] scalarColors;
@@ -206,7 +206,7 @@ void vtkPistonScalarsColors::ComputeValues(float *values)
     {
     *values = this->TableRange[0] +
       i * ((this->TableRange[1] - this->TableRange[0]) /
-           (float) this->NumberOfValues);    
+           (float) this->NumberOfValues);
     values++;
     }
 }

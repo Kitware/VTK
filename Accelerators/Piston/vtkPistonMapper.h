@@ -121,7 +121,7 @@ private:
   // Allocates buffers that are shared between CUDA and GL
   void PrepareDirectRenderBuffers(int nPoints);
 
-  static bool CudaGLInitted;  
+  static bool CudaGLInitted;
 
   class InternalInfo;
   InternalInfo *Internal;

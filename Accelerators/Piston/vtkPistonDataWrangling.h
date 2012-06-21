@@ -38,7 +38,7 @@ typedef struct
   thrust::device_vector<float> *normals;
 } vtk_polydata;
 
-struct tuple2float3 : 
+struct tuple2float3 :
   thrust::unary_function<thrust::tuple<float, float, float>, float3>
 {
     __host__ __device__
