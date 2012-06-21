@@ -88,7 +88,7 @@ vtkStandardNewMacro(vtkPistonMapper);
 bool vtkPistonMapper::CudaGLInitted = false;
 
 //-----------------------------------------------------------------------------
-void vtkPistonMapper::InitCUDAGL(vtkRenderWindow *rw)
+void vtkPistonMapper::InitCudaGL(vtkRenderWindow *rw)
 {
   if (!vtkPistonMapper::CudaGLInitted)
     {
