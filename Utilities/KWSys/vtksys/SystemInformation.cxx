@@ -68,6 +68,7 @@ typedef int siginfo_t;
 #include <mach/host_info.h>
 #include <mach/mach.h>
 #include <mach/mach_types.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <fenv.h>
