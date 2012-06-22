@@ -5,7 +5,7 @@ set(VTK_USE_X_DEFAULT OFF)
 
 if(APPLE)
   option(VTK_USE_COCOA "Use Cocoa for VTK render windows" ON)
-  option(VTK_USE_CARBON "Use Carbon for VTK render windows" OFF)
+  option(VTK_USE_CARBON "Use Carbon for VTK render windows (deprecated)" OFF)
   mark_as_advanced(VTK_USE_COCOA VTK_USE_CARBON)
   if(VTK_USE_COCOA AND VTK_USE_CARBON)
     message(FATAL_ERROR "You can't enable Carbon and Cocoa - you must choose one.")
@@ -347,8 +347,8 @@ elseif(VTK_USE_CARBON)
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkCarbonRenderWindow")
   list(APPEND Module_SRCS
-    vtkCarbonRenderWindowInteractor.mm
-    vtkCarbonRenderWindow.mm
+    vtkCarbonRenderWindowInteractor.cxx
+    vtkCarbonRenderWindow.cxx
     )
 endif()
 
