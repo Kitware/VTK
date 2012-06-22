@@ -96,15 +96,6 @@ IF (UNIX)
 ENDIF (UNIX)
 
 #
-# Apple flags
-#
-IF (APPLE)
-  IF(CMAKE_COMPILER_IS_GNUCXX)
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
-  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
-ENDIF (APPLE)
-
-#
 # We need OpenGL
 #
 # Use GL library provided by parent VTK if possible.

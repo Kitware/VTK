@@ -25,7 +25,6 @@
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkTDxDevice.h"
 
-//class vtkRenderWindowInteractor;
 #include <3dConnexionClient/ConnexionClientAPI.h> // 3DxMacWare SDK
 
 class VTKRENDERINGOPENGL_EXPORT vtkTDxMacDevice : public vtkTDxDevice
@@ -37,7 +36,7 @@ public:
 
   // Description:
   // Name of the client application to pass for registration with the
-  // driver. Initial value is "\p3DxClientTest".
+  // driver. Initial value is "3DxClientTest".
   vtkGetStringMacro(ClientApplicationName);
   vtkSetStringMacro(ClientApplicationName);
 
