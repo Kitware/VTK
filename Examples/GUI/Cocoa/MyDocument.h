@@ -4,8 +4,8 @@
 
 @interface MyDocument : NSDocument
 {
-    IBOutlet        BasicVTKView*           leftVTKView;
-    IBOutlet        BasicVTKView*           rightVTKView;
+  IBOutlet BasicVTKView* leftVTKView;
+  IBOutlet BasicVTKView* rightVTKView;
 }
 
 @end
