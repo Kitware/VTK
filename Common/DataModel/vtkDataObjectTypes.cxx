@@ -91,6 +91,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkOverlappingAMR",
   "vtkHyperTreeGrid",
   "vtkMolecule",
+  "vtkPistonDataObject",
   NULL
 };
 
@@ -266,6 +267,16 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
     {
     return vtkArrayData::New();
     }
+/*
+  //I am not doing this as it would force either making Common/DataModel dependent on
+  //Accelerators/Piston (impossible), or moving vtkPistonDataObject and
+  //vtkPistonReference to Common/DataModel (wrong).
+  //So instead I'm leaving it up to the instantiator clause.
+  else if(strcmp(type, "vtkPistonDataObject") == 0)
+    {
+    return vtkPistonDataObject::New();
+    }
+  */
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
     {
     vtkDataObject* data = vtkDataObject::SafeDownCast(obj);
