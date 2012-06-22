@@ -165,9 +165,15 @@ void vtkXMLShader::ReadCodeFromFile(const char* filepath)
   // Allocate for the file and the null terminator.
   this->Code = new char[length+1];
   ifp.read(this->Code, length);
+
+  // See how many characters were actually read. On Windows, CRLF line endings
+  // are read as a single char, so the number of read bytes will be fewer than
+  // the number of bytes reported in the file size query above.
+  long charsRead = ifp.gcount();
   ifp.close();
-  // Null terminate the string so GL doesn't get confused.
-  this->Code[length] = '\0';
+
+   // Null terminate the string so GL doesn't get confused.
+  this->Code[charsRead] = '\0';
 }
 //-----------------------------------------------------------------------------
 int vtkXMLShader::GetLanguage()
