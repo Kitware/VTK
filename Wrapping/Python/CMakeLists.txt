@@ -111,9 +111,11 @@ endif()
 
 if(APPLE)
   if(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
+    get_target_property(
+      VTKPYTHON_RUNTIME_DIR vtkpython RUNTIME_OUTPUT_DIRECTORY)
     add_custom_command(
       TARGET vtkpython POST_BUILD
-      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTK_EXECUTABLE_DIR}/vtkpython
+      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTKPYTHON_RUNTIME_DIR}/vtkpython
       )
   endif()
 
