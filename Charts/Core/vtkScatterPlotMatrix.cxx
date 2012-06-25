@@ -1328,6 +1328,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
   // big chart.
   int n = this->Size.X();
   this->UpdateAxes();
+  this->Private->BigChart3D->SetAnnotationLink(this->Private->Link.GetPointer());
   for (int i = 0; i < n; ++i)
     {
     vtkStdString column = this->GetColumnName(i);
