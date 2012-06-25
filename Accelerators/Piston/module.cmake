@@ -14,4 +14,5 @@ vtk_module(vtkAcceleratorsPiston
     vtkParallelCore
     vtkParallelMPI
     vtkRenderingParallel
+  EXCLUDE_FROM_ALL
   )
