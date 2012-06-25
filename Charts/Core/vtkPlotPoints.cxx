@@ -188,7 +188,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     }
 
   // Now add some decorations for our selected points...
-  if (this->Selection)
+  if (this->Selection && this->Selection->GetNumberOfTuples())
     {
     if (this->Selection->GetMTime() > this->SelectedPoints->GetMTime() ||
         this->GetMTime() > this->SelectedPoints->GetMTime())
