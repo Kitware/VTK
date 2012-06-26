@@ -1,3 +1,9 @@
+find_package(FontConfig QUIET)
+
+if(FONTCONFIG_FOUND)
+  include_directories(${FONTCONFIG_INCLUDE_DIR})
+endif()
+
 set(Module_SRCS
   vtkFreeTypeStringToImage.cxx
   vtkFreeTypeUtilities.cxx
@@ -39,4 +45,13 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
+if(FONTCONFIG_FOUND)
+  set_property(SOURCE vtkFreeTypeTools.cxx
+               PROPERTY COMPILE_DEFINITIONS FONTCONFIG_FOUND)
+endif()
+
 vtk_module_library(${vtk-module} ${Module_SRCS})
+
+if(FONTCONFIG_FOUND)
+  target_link_libraries(${vtk-module} ${FONTCONFIG_LIBRARIES})
+endif()

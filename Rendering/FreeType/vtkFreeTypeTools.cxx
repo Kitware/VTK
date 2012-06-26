@@ -31,9 +31,16 @@
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
+// Font config
+#ifdef FONTCONFIG_FOUND
+#include <fontconfig/fontconfig.h>
+#endif
+
 #ifndef _MSC_VER
 # include <stdint.h>
 #endif
+
+#include <map>
 
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
@@ -42,6 +49,13 @@ using namespace ftgl;
 // Print debug info
 #define VTK_FTFC_DEBUG 0
 #define VTK_FTFC_DEBUG_CD 0
+
+class vtkTextPropertyLookup
+    : public std::map<unsigned long, vtkSmartPointer<vtkTextProperty> >
+{
+public:
+  bool contains(const unsigned long id) {return this->find(id) != this->end();}
+};
 
 //----------------------------------------------------------------------------
 vtkInstantiatorNewMacro(vtkFreeTypeTools);
@@ -143,9 +157,12 @@ vtkFreeTypeTools::vtkFreeTypeTools()
   printf("vtkFreeTypeTools::vtkFreeTypeTools\n");
 #endif
 
+  // Skip FontConfig lookup by default.
+  this->ForceCompiledFonts = true;
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
+  this->TextPropertyLookup = new vtkTextPropertyLookup ();
   this->CacheManager = NULL;
   this->ImageCache   = NULL;
   this->CMapCache    = NULL;
@@ -159,6 +176,7 @@ vtkFreeTypeTools::~vtkFreeTypeTools()
   printf("vtkFreeTypeTools::~vtkFreeTypeTools\n");
 #endif
   this->ReleaseCacheManager();
+  delete TextPropertyLookup;
 }
 
 //----------------------------------------------------------------------------
@@ -221,8 +239,6 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
   printf("vtkFreeTypeToolsFaceRequester()\n");
 #endif
 
-  FT_UNUSED(request_data);
-
   // Get a pointer to the current vtkFreeTypeTools object
   vtkFreeTypeTools *self =
     reinterpret_cast<vtkFreeTypeTools*>(request_data);
@@ -232,118 +248,34 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
       vtkSmartPointer<vtkTextProperty>::New();
   self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
-  // Fonts, organized by [Family][Bold][Italic]
-  static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
+  bool faceIsSet = false;
+#ifdef FONTCONFIG_FOUND
+  if (!self->GetForceCompiledFonts())
     {
-      {
-        {
-          { // VTK_ARIAL: Bold [ ] Italic [ ]
-            face_arial_buffer_length, face_arial_buffer
-          },
-          { // VTK_ARIAL: Bold [ ] Italic [x]
-            face_arial_italic_buffer_length, face_arial_italic_buffer
-          }
-        },
-        {
-          { // VTK_ARIAL: Bold [x] Italic [ ]
-            face_arial_bold_buffer_length, face_arial_bold_buffer
-          },
-          { // VTK_ARIAL: Bold [x] Italic [x]
-            face_arial_bold_italic_buffer_length, face_arial_bold_italic_buffer
-          }
-        }
-      },
-      {
-        {
-          { // VTK_COURIER: Bold [ ] Italic [ ]
-            face_courier_buffer_length, face_courier_buffer
-          },
-          { // VTK_COURIER: Bold [ ] Italic [x]
-            face_courier_italic_buffer_length, face_courier_italic_buffer
-          }
-        },
-        {
-          { // VTK_COURIER: Bold [x] Italic [ ]
-            face_courier_bold_buffer_length, face_courier_bold_buffer
-          },
-          { // VTK_COURIER: Bold [x] Italic [x]
-            face_courier_bold_italic_buffer_length,
-            face_courier_bold_italic_buffer
-          }
-        }
-      },
-      {
-        {
-          { // VTK_TIMES: Bold [ ] Italic [ ]
-            face_times_buffer_length, face_times_buffer
-          },
-          { // VTK_TIMES: Bold [ ] Italic [x]
-            face_times_italic_buffer_length, face_times_italic_buffer
-          }
-        },
-        {
-          { // VTK_TIMES: Bold [x] Italic [ ]
-            face_times_bold_buffer_length, face_times_bold_buffer
-          },
-          { // VTK_TIMES: Bold [x] Italic [x]
-            face_times_bold_italic_buffer_length, face_times_bold_italic_buffer
-          }
-        }
-      }
-    };
-
-  FT_Long length = EmbeddedFonts
-    [tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length;
-  FT_Byte *ptr = EmbeddedFonts
-    [tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr;
-
-  // Create a new face from the embedded fonts if possible
-  FT_Error error = 1;
-
-  // If the font face is of type unknown, attempt to load it from disk
-  if (tprop->GetFontFamily() != VTK_UNKNOWN_FONT)
-    {
-    error = FT_New_Memory_Face(lib, ptr, length, 0, face);
+  faceIsSet = self->LookupFaceFontConfig(tprop, lib, face);
     }
-  else
-    {
-    vtkStdString filePath = "/usr/share/fonts/TTF/DejaVuSans.ttf";
-    cout << "Loading a font from disk!!! " << filePath << endl;
-    error = FT_New_Face(lib, filePath.c_str(), 0, face);
-    }
-  if (error)
-    {
-    vtkErrorWithObjectMacro(
-      tprop.GetPointer(),
-      << "Unable to create font !" << " (family: " << tprop->GetFontFamily()
-      << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic()
-      << ", length: " << length << ")");
-    }
-  else
-    {
-#if VTK_FTFC_DEBUG
-    cout << "Requested: " << *face
-         << " (F: " << tprop->GetFontFamily()
-         << ", B: " << tprop->GetBold()
-         << ", I: " << tprop->GetItalic()
-         << ", O: " << tprop->GetOrientation() << ")" << endl;
 #endif
-    if ( tprop->GetOrientation() != 0.0 )
-      {
-      // FreeType documentation says that the transform should not be set
-      // but we cache faces also by transform, so that there is a unique
-      // (face, orientation) cache entry
-      FT_Matrix matrix;
-      float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() );
-      matrix.xx = (FT_Fixed)( cos(angle) * 0x10000L);
-      matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
-      matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
-      matrix.yy = (FT_Fixed)( cos(angle) * 0x10000L);
-      FT_Set_Transform(*face, &matrix, NULL);
-      }
+  if (!faceIsSet)
+    faceIsSet = self->LookupFaceCompiledFonts(tprop, lib, face);
+
+  if (!faceIsSet)
+    return static_cast<FT_Error>(1);
+
+  if ( tprop->GetOrientation() != 0.0 )
+    {
+    // FreeType documentation says that the transform should not be set
+    // but we cache faces also by transform, so that there is a unique
+    // (face, orientation) cache entry
+    FT_Matrix matrix;
+    float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() );
+    matrix.xx = (FT_Fixed)( cos(angle) * 0x10000L);
+    matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
+    matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
+    matrix.yy = (FT_Fixed)( cos(angle) * 0x10000L);
+    FT_Set_Transform(*face, &matrix, NULL);
     }
 
-  return error;
+  return static_cast<FT_Error>(0);
 }
 
 //----------------------------------------------------------------------------
@@ -535,6 +467,24 @@ bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
+vtkTypeUInt16 vtkFreeTypeTools::HashString(const char *str)
+{
+  if (str == NULL)
+    return 0;
+
+  vtkTypeUInt16 hash = 0;
+  while (*str != 0)
+    {
+    vtkTypeUInt8 high = ((hash<<8)^hash) >> 8;
+    vtkTypeUInt8 low = tolower(*str)^(hash<<2);
+    hash = (high<<8) ^ low;
+    ++str;
+    }
+
+  return hash;
+}
+
+//----------------------------------------------------------------------------
 void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
                                            unsigned long *id)
 {
@@ -549,30 +499,32 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   *id = 1;
   int bits = 1;
 
-  // The font family is in 4 bits (= 5 bits so far)
+  // The font family is hashed into 16 bits (= 17 bits so far)
   // (2 would be enough right now, but who knows, it might grow)
   // Avoid unknown as this can cause segfaluts - this should be fixed...
-  int family = tprop->GetFontFamily() == VTK_UNKNOWN_FONT ? VTK_ARIAL :
-                                                            tprop->GetFontFamily();
-  int fam = (family - tprop->GetFontFamilyMinValue()) << bits;
-  bits += 4;
+  *id |= vtkFreeTypeTools::HashString(tprop->GetFontFamilyAsString()) << bits;
+  bits += 16;
 
-  // Bold is in 1 bit (= 6 bits so far)
+  // Bold is in 1 bit (= 18 bits so far)
   int bold = (tprop->GetBold() ? 1 : 0) << bits;
   ++bits;
 
-  // Italic is in 1 bit (= 7 bits so far)
+  // Italic is in 1 bit (= 19 bits so far)
   int italic = (tprop->GetItalic() ? 1 : 0) << bits;
   ++bits;
 
   // Orientation (in degrees)
   // We need 9 bits for 0 to 360. What do we need for more precisions:
-  // - 1/10th degree: 12 bits (11.8)
+  // - 1/10th degree: 12 bits (11.8) (31 bits)
   int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
 
   // We really should not use more than 32 bits
   // Now final id
-  *id |= fam | bold | italic | angle;
+  *id |= bold | italic | angle;
+
+  // Insert the TextProperty into the lookup table
+  if (!this->TextPropertyLookup->contains(*id))
+    (*this->TextPropertyLookup)[*id] = tprop;
 }
 
 //----------------------------------------------------------------------------
@@ -585,32 +537,16 @@ void vtkFreeTypeTools::MapIdToTextProperty(unsigned long id,
     return;
     }
 
-  // The first was set to avoid id = 0
-  int bits = 1;
+  vtkTextPropertyLookup::const_iterator tpropIt =
+      this->TextPropertyLookup->find(id);
 
-  // The font family is in 4 bits
-  // (2 would be enough right now, but who knows, it might grow)
-  int fam = id >> bits;
-  bits += 4;
-  tprop->SetFontFamily((fam & ((1 << 4) - 1))+ tprop->GetFontFamilyMinValue());
+  if (tpropIt == this->TextPropertyLookup->end())
+    {
+    vtkErrorMacro(<<"Unknown id; call MapTextPropertyToId first!");
+    return;
+    }
 
-  // Bold is in 1 bit
-  int bold = id >> bits;
-  bits++;
-  tprop->SetBold(bold & 0x1);
-
-  // Italic is in 1 bit
-  int italic = id >> bits;
-  bits++;
-  tprop->SetItalic(italic & 0x1);
-
-  // Orientation (in degrees)
-  // We need 9 bits for 0 to 360. What do we need for more precisions:
-  // - 1/10th degree: 12 bits (11.8)
-  int angle = id >> bits;
-  tprop->SetOrientation((angle & ((1 << 12) - 1)) / 10.0);
-
-  // We really should not use more than 32 bits
+  tprop->ShallowCopy(tpropIt->second);
 }
 
 //----------------------------------------------------------------------------
@@ -816,6 +752,201 @@ bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
     *image_cache, &image_type_rec, gindex, glyph, NULL);
 
   return error ? false : true;
+}
+
+bool vtkFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
+                                            FT_Library lib, FT_Face *face)
+{
+#ifdef FONTCONFIG_FOUND
+  if (!FcInit())
+    {
+    return false;
+    }
+
+  // Query tprop
+  const FcChar8 *family = reinterpret_cast<const FcChar8*>(
+        tprop->GetFontFamilyAsString());
+  const double pointSize = static_cast<double>(tprop->GetFontSize());
+  const int weight = tprop->GetBold() ? FC_WEIGHT_BOLD : FC_WEIGHT_MEDIUM;
+  const int slant = tprop->GetItalic() ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+
+  // Build pattern
+  FcPattern *pattern = FcPatternCreate();
+  FcPatternAddString(pattern, FC_FAMILY, family);
+  FcPatternAddDouble(pattern, FC_SIZE, pointSize);
+  FcPatternAddInteger(pattern, FC_WEIGHT, weight);
+  FcPatternAddInteger(pattern, FC_SLANT, slant);
+  FcPatternAddBool(pattern, FC_SCALABLE, true);
+
+  // Replace common font names, e.g. arial, times, etc -> sans, serif, etc
+  FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+
+  // Fill in any missing defaults:
+  FcDefaultSubstitute(pattern);
+
+  // Match pattern
+  FcResult result;
+  FcFontSet *fontMatches = FcFontSort(NULL, pattern, false, NULL, &result);
+  FcPatternDestroy(pattern);
+  pattern = NULL;
+  if (!fontMatches || fontMatches->nfont == 0)
+    {
+    if (fontMatches)
+      FcFontSetDestroy(fontMatches);
+    return false;
+    }
+
+  // Grab the first match that is scalable -- even though we've requested
+  // scalable fonts in the match, FC seems to not weigh that option very heavily
+  FcPattern *match = NULL;
+  for (int i = 0; i < fontMatches->nfont; ++i)
+    {
+    match = fontMatches->fonts[i];
+
+    FcBool isScalable;
+    FcPatternGetBool(match, FC_SCALABLE, 0, &isScalable);
+    if (!isScalable)
+      continue;
+    else
+      break;
+    }
+
+  if (!match)
+    {
+    FcFontSetDestroy(fontMatches);
+    return false;
+    }
+
+  // Get filename. Do not free the filename string -- it is owned by FcPattern
+  // "match". Likewise, do not use the filename after match is freed.
+  FcChar8 *filename;
+  result = FcPatternGetString(match, FC_FILE, 0, &filename);
+
+  cout << "Loading a font from disk: " << filename << endl;
+  FT_Error error = FT_New_Face(lib, reinterpret_cast<const char*>(filename), 0,
+                               face);
+
+  if (error)
+    {
+    FcFontSetDestroy(fontMatches);
+    return false;
+    }
+
+  FcFontSetDestroy(fontMatches);
+  fontMatches = NULL;
+
+  return true;
+
+#else // FONTCONFIG_FOUND
+  return false;
+#endif
+}
+
+bool vtkFreeTypeTools::LookupFaceCompiledFonts(vtkTextProperty *tprop,
+                                               FT_Library lib, FT_Face *face)
+{
+  // Fonts, organized by [Family][Bold][Italic]
+  static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
+    {
+      {
+        {
+          { // VTK_ARIAL: Bold [ ] Italic [ ]
+            face_arial_buffer_length, face_arial_buffer
+          },
+          { // VTK_ARIAL: Bold [ ] Italic [x]
+            face_arial_italic_buffer_length, face_arial_italic_buffer
+          }
+        },
+        {
+          { // VTK_ARIAL: Bold [x] Italic [ ]
+            face_arial_bold_buffer_length, face_arial_bold_buffer
+          },
+          { // VTK_ARIAL: Bold [x] Italic [x]
+            face_arial_bold_italic_buffer_length, face_arial_bold_italic_buffer
+          }
+        }
+      },
+      {
+        {
+          { // VTK_COURIER: Bold [ ] Italic [ ]
+            face_courier_buffer_length, face_courier_buffer
+          },
+          { // VTK_COURIER: Bold [ ] Italic [x]
+            face_courier_italic_buffer_length, face_courier_italic_buffer
+          }
+        },
+        {
+          { // VTK_COURIER: Bold [x] Italic [ ]
+            face_courier_bold_buffer_length, face_courier_bold_buffer
+          },
+          { // VTK_COURIER: Bold [x] Italic [x]
+            face_courier_bold_italic_buffer_length,
+            face_courier_bold_italic_buffer
+          }
+        }
+      },
+      {
+        {
+          { // VTK_TIMES: Bold [ ] Italic [ ]
+            face_times_buffer_length, face_times_buffer
+          },
+          { // VTK_TIMES: Bold [ ] Italic [x]
+            face_times_italic_buffer_length, face_times_italic_buffer
+          }
+        },
+        {
+          { // VTK_TIMES: Bold [x] Italic [ ]
+            face_times_bold_buffer_length, face_times_bold_buffer
+          },
+          { // VTK_TIMES: Bold [x] Italic [x]
+            face_times_bold_italic_buffer_length, face_times_bold_italic_buffer
+          }
+        }
+      }
+    };
+
+  int family = tprop->GetFontFamily();
+  // If font family is unknown, fall back to Arial.
+  if (family == VTK_UNKNOWN_FONT)
+    {
+    vtkDebugWithObjectMacro(
+          tprop,
+          << "Requested font '" << tprop->GetFontFamilyAsString() << "'"
+          " unavailable. Substituting Arial.");
+    family = VTK_ARIAL;
+    }
+
+  FT_Long length = EmbeddedFonts
+    [family][tprop->GetBold()][tprop->GetItalic()].length;
+  FT_Byte *ptr = EmbeddedFonts
+    [family][tprop->GetBold()][tprop->GetItalic()].ptr;
+
+  // Create a new face from the embedded fonts if possible
+
+  // If the font face is of type unknown, attempt to load it from disk
+  FT_Error error = FT_New_Memory_Face(lib, ptr, length, 0, face);
+
+  if (error)
+    {
+    vtkErrorWithObjectMacro(
+          tprop,
+          << "Unable to create font !" << " (family: " << family
+          << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic()
+          << ", length: " << length << ")");
+    return false;
+    }
+  else
+    {
+#if VTK_FTFC_DEBUG
+    cout << "Requested: " << *face
+         << " (F: " << tprop->GetFontFamily()
+         << ", B: " << tprop->GetBold()
+         << ", I: " << tprop->GetItalic()
+         << ", O: " << tprop->GetOrientation() << ")" << endl;
+#endif
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
