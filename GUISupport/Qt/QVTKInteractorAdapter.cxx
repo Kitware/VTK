@@ -46,7 +46,7 @@
 // function to get VTK keysyms from ascii characters
 static const char* ascii_to_key_sym(int);
 // function to get VTK keysyms from Qt keys
-static const char* qt_key_to_key_sym(Qt::Key);
+static const char* qt_key_to_key_sym(Qt::Key, Qt::KeyboardModifiers modifiers);
 
 QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
   : QObject(parentObject)
@@ -178,10 +178,12 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     // get key and keysym information
     int ascii_key = e2->text().length() ? e2->text().unicode()->toLatin1() : 0;
     const char* keysym = ascii_to_key_sym(ascii_key);
-    if(!keysym)
+    if(!keysym ||
+       e2->modifiers() == Qt::KeypadModifier)
       {
       // get virtual keys
-      keysym = qt_key_to_key_sym(static_cast<Qt::Key>(e2->key()));
+      keysym = qt_key_to_key_sym(static_cast<Qt::Key>(e2->key()),
+                                 e2->modifiers());
       }
 
     if(!keysym)
@@ -339,7 +341,12 @@ const char* ascii_to_key_sym(int i)
     ret = y; \
     break;
 
-const char* qt_key_to_key_sym(Qt::Key i)
+#define QVTK_HANDLE_KEYPAD(x, y, z) \
+  case x : \
+    ret = (modifiers & Qt::KeypadModifier) ? (y) : (z); \
+    break;
+
+const char* qt_key_to_key_sym(Qt::Key i, Qt::KeyboardModifiers modifiers)
 {
   const char* ret = 0;
   switch(i)
@@ -348,7 +355,7 @@ const char* qt_key_to_key_sym(Qt::Key i)
     QVTK_HANDLE(Qt::Key_Backspace, "BackSpace")
       QVTK_HANDLE(Qt::Key_Tab, "Tab")
       QVTK_HANDLE(Qt::Key_Backtab, "Tab")
-      //QVTK_HANDLE(Qt::Key_Clear, "Clear")
+      QVTK_HANDLE(Qt::Key_Clear, "Clear")
       QVTK_HANDLE(Qt::Key_Return, "Return")
       QVTK_HANDLE(Qt::Key_Enter, "Return")
       QVTK_HANDLE(Qt::Key_Shift, "Shift_L")
@@ -358,31 +365,30 @@ const char* qt_key_to_key_sym(Qt::Key i)
       QVTK_HANDLE(Qt::Key_CapsLock, "Caps_Lock")
       QVTK_HANDLE(Qt::Key_Escape, "Escape")
       QVTK_HANDLE(Qt::Key_Space, "space")
-      //QVTK_HANDLE(Qt::Key_Prior, "Prior")
-      //QVTK_HANDLE(Qt::Key_Next, "Next")
+      QVTK_HANDLE(Qt::Key_PageUp, "Prior")
+      QVTK_HANDLE(Qt::Key_PageDown, "Next")
       QVTK_HANDLE(Qt::Key_End, "End")
       QVTK_HANDLE(Qt::Key_Home, "Home")
       QVTK_HANDLE(Qt::Key_Left, "Left")
       QVTK_HANDLE(Qt::Key_Up, "Up")
       QVTK_HANDLE(Qt::Key_Right, "Right")
       QVTK_HANDLE(Qt::Key_Down, "Down")
-
-      // Select
-      // Execute
+      QVTK_HANDLE(Qt::Key_Select, "Select")
+      QVTK_HANDLE(Qt::Key_Execute, "Execute")
       QVTK_HANDLE(Qt::Key_SysReq, "Snapshot")
       QVTK_HANDLE(Qt::Key_Insert, "Insert")
       QVTK_HANDLE(Qt::Key_Delete, "Delete")
       QVTK_HANDLE(Qt::Key_Help, "Help")
-      QVTK_HANDLE(Qt::Key_0, "0")
-      QVTK_HANDLE(Qt::Key_1, "1")
-      QVTK_HANDLE(Qt::Key_2, "2")
-      QVTK_HANDLE(Qt::Key_3, "3")
-      QVTK_HANDLE(Qt::Key_4, "4")
-      QVTK_HANDLE(Qt::Key_5, "5")
-      QVTK_HANDLE(Qt::Key_6, "6")
-      QVTK_HANDLE(Qt::Key_7, "7")
-      QVTK_HANDLE(Qt::Key_8, "8")
-      QVTK_HANDLE(Qt::Key_9, "9")
+      QVTK_HANDLE_KEYPAD(Qt::Key_0, "KP_0", "0")
+      QVTK_HANDLE_KEYPAD(Qt::Key_1, "KP_1", "1")
+      QVTK_HANDLE_KEYPAD(Qt::Key_2, "KP_2", "2")
+      QVTK_HANDLE_KEYPAD(Qt::Key_3, "KP_3", "3")
+      QVTK_HANDLE_KEYPAD(Qt::Key_4, "KP_4", "4")
+      QVTK_HANDLE_KEYPAD(Qt::Key_5, "KP_5", "5")
+      QVTK_HANDLE_KEYPAD(Qt::Key_6, "KP_6", "6")
+      QVTK_HANDLE_KEYPAD(Qt::Key_7, "KP_7", "7")
+      QVTK_HANDLE_KEYPAD(Qt::Key_8, "KP_8", "8")
+      QVTK_HANDLE_KEYPAD(Qt::Key_9, "KP_9", "9")
       QVTK_HANDLE(Qt::Key_A, "a")
       QVTK_HANDLE(Qt::Key_B, "b")
       QVTK_HANDLE(Qt::Key_C, "c")
@@ -409,10 +415,9 @@ const char* qt_key_to_key_sym(Qt::Key i)
       QVTK_HANDLE(Qt::Key_X, "x")
       QVTK_HANDLE(Qt::Key_Y, "y")
       QVTK_HANDLE(Qt::Key_Z, "z")
-      // KP_0 - KP_9
       QVTK_HANDLE(Qt::Key_Asterisk, "asterisk")
       QVTK_HANDLE(Qt::Key_Plus, "plus")
-      // bar
+      QVTK_HANDLE(Qt::Key_Bar, "bar")
       QVTK_HANDLE(Qt::Key_Minus, "minus")
       QVTK_HANDLE(Qt::Key_Period, "period")
       QVTK_HANDLE(Qt::Key_Slash, "slash")

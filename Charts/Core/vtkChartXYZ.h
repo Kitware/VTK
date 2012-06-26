@@ -22,8 +22,9 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkRect.h"        // For vtkRectf ivars
-#include "vtkNew.h"         // For ivars
+#include "vtkRect.h"         // For vtkRectf ivars
+#include "vtkNew.h"          // For ivars
+#include "vtkSmartPointer.h" // For ivars
 
 class vtkAnnotationLink;
 class vtkAxis;
@@ -41,8 +42,12 @@ public:
   static vtkChartXYZ * New();
 
   // Description:
+  // Update any data as necessary before drawing the chart.
+  void Update();
+
+  // Description:
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter);
 
   // Description:
   // Add a plot to the chart, defaults to using the name of the y column
@@ -88,7 +93,9 @@ protected:
   vtkRectf Geometry;
 
   vtkNew<vtkPen> Pen;
+  vtkNew<vtkPen> SelectedPen;
   vtkNew<vtkPen> AxisPen;
+  vtkSmartPointer<vtkAnnotationLink> Link;
 
   class Private;
   Private *d;

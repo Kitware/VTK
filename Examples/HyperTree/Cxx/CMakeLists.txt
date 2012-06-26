@@ -11,4 +11,4 @@ link_directories(${VTK_LIBRARY_DIRS})
 
 # Add example showing use use of vtkHyperTreeGrid along with various filters
 add_executable(HyperTreeGridDemonstrator HyperTreeGridDemonstrator.cxx)
-target_link_libraries(HyperTreeGridDemonstrator vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkRenderingOpenGL vtkInteractionStyle vtkIOGeometry vtkFiltersCore vtkFiltersParallel vtkFiltersSources vtkFiltersHyperTree)
+target_link_libraries(HyperTreeGridDemonstrator vtkCommonCore vtkCommonSystem vtkCommonDataModel vtkCommonExecutionModel vtkIOGeometry vtkFiltersCore vtkFiltersSources vtkFiltersHyperTree)

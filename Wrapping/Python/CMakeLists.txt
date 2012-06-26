@@ -1,5 +1,60 @@
-# this file is used directly from VTK/CMakeLists.txt, not from VTK/Wrapping/CMakeLists.txt
-include_directories(${VTK_BINARY_DIR} ${VTK_BINARY_DIR}/Utilities)
+set(VTK_WRAP_PYTHON_FIND_LIBS ON)
+include(vtkWrapPython)
+include(GenerateExportHeader)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
+
+set(WrappingPython_SRCS
+  vtkPythonArgs.cxx
+  vtkPythonCommand.cxx
+  vtkPythonOverload.cxx
+  vtkPythonUtil.cxx
+  PyVTKClass.cxx
+  PyVTKMutableObject.cxx
+  PyVTKObject.cxx
+  PyVTKSpecialObject.cxx
+  PyVTKTemplate.cxx
+  )
+
+set(WrappingPython_HDRS
+  vtkPython.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkWrappingPythonModule.h
+  )
+
+list(APPEND WrappingPython_SRCS ${WrappingPython_HDRS})
+
+set_source_files_properties(
+  ${WrappingPython_HDRS}
+  HEADER_FILE_ONLY
+  )
+
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${VTK_SOURCE_DIR}/Common/Core
+  ${VTK_BINARY_DIR}/Common/Core
+  ${VTK_SOURCE_DIR}/Utilities
+  )
+
+# SIP directory will be searched before other python dirs
+SET(PYTHON_WRAPPING_INCLUDE_DIRS)
+if(VTK_WRAP_PYTHON_SIP)
+  list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${SIP_INCLUDE_DIR}")
+endif()
+list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${PYTHON_INCLUDE_PATH}")
+set(vtkWrappingPython_SYSTEM_INCLUDE_DIRS ${PYTHON_WRAPPING_INCLUDE_DIRS})
+
+set(${vtk-module}_NO_HeaderTest 1)
+
+set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
+vtk_module_library(vtkWrappingPython ${WrappingPython_SRCS})
+set_target_properties(vtkWrappingPython
+  PROPERTIES OUTPUT_NAME vtkWrappingPython${XY})
+target_link_libraries(vtkWrappingPython
+  ${VTK_PYTHON_LIBRARIES})
+target_link_libraries(vtkWrappingPython
+  LINK_INTERFACE_LIBRARIES ${VTK_PYTHON_LIBRARIES})
 
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
@@ -56,9 +111,11 @@ endif()
 
 if(APPLE)
   if(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
+    get_target_property(
+      VTKPYTHON_RUNTIME_DIR vtkpython RUNTIME_OUTPUT_DIRECTORY)
     add_custom_command(
       TARGET vtkpython POST_BUILD
-      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTK_EXECUTABLE_DIR}/vtkpython
+      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTKPYTHON_RUNTIME_DIR}/vtkpython
       )
   endif()
 

@@ -553,3 +553,9 @@ int vtkPNrrdReader::ReadHeader()
 
   return this->Superclass::ReadHeader(headerBuffer);
 }
+
+//-----------------------------------------------------------------------------
+int vtkPNrrdReader::ReadHeader(vtkCharArray *headerBuffer)
+{
+  return this->Superclass::ReadHeader(headerBuffer);
+}

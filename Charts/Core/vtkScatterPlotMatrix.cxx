@@ -1138,7 +1138,9 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
                                                            pos[1]));
         }
       }
-    if (pos[0] != this->ActivePlot[0] || pos[1] != this->ActivePlot[1])
+    if ((this->Private->AnimationPath.size() == 1 &&
+         this->Private->AnimationPath.back() != pos) ||
+        (this->Private->AnimationPath.size() == 0 && this->ActivePlot != pos))
       {
       this->Private->AnimationPath.push_back(pos);
       }
@@ -1326,6 +1328,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
   // big chart.
   int n = this->Size.X();
   this->UpdateAxes();
+  this->Private->BigChart3D->SetAnnotationLink(this->Private->Link.GetPointer());
   for (int i = 0; i < n; ++i)
     {
     vtkStdString column = this->GetColumnName(i);

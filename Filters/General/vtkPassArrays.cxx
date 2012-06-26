@@ -37,21 +37,25 @@ vtkStandardNewMacro(vtkPassArrays);
 
 namespace
 {
+  // returns true if modified
   typedef std::vector<std::pair<int, std::string> > ArraysType;
-  void ClearArraysOfType(int type, ArraysType& arrays)
+  bool ClearArraysOfType(int type, ArraysType& arrays)
   {
+    bool retVal = false;
     ArraysType::iterator iter = arrays.begin();
     while (iter != arrays.end())
       {
       if (iter->first == type)
         {
         iter = arrays.erase(iter);
+        retVal = true;
         }
       else
         {
         ++iter;
         }
       }
+    return retVal;
   }
 }
 
@@ -114,6 +118,7 @@ void vtkPassArrays::RemoveArray(int fieldType, const char* name)
     if (iter->first == fieldType && iter->second == name)
       {
       iter = this->Implementation->Arrays.erase(iter);
+      this->Modified();
       }
     else
       {
@@ -139,23 +144,35 @@ void vtkPassArrays::RemoveFieldDataArray(const char* name)
 
 void vtkPassArrays::ClearArrays()
 {
+  if(this->Implementation->Arrays.empty() == false)
+    {
+    this->Modified();
+    }
   this->Implementation->Arrays.clear();
-  this->Modified();
 }
 
 void vtkPassArrays::ClearPointDataArrays()
 {
-  ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays);
+  if(ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays) == true)
+    {
+    this->Modified();
+    }
 }
 
 void vtkPassArrays::ClearCellDataArrays()
 {
-  ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays);
+  if(ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays) == true)
+    {
+    this->Modified();
+    }
 }
 
 void vtkPassArrays::ClearFieldDataArrays()
 {
-  ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays);
+  if(ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays) == true)
+    {
+    this->Modified();
+    }
 }
 
 void vtkPassArrays::AddFieldType(int fieldType)

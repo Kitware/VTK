@@ -20,6 +20,7 @@
 #include "vtkContextItem.h"
 #include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkFreeTypeTools.h"
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
@@ -43,13 +44,16 @@ int TestSimpleFontRendering( int, char * [] )
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(150, 30);
+  view->GetRenderWindow()->SetSize(520, 360);
   vtkNew<SimpleFontRenderTest> test;
   view->GetScene()->AddItem(test.GetPointer());
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
       ->SetStringRendererToFreeType();
+
+  // Use the new FontConfig font lookup
+  vtkFreeTypeTools::GetInstance()->ForceCompiledFontsOff();
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
@@ -62,10 +66,75 @@ vtkStandardNewMacro(SimpleFontRenderTest);
 bool SimpleFontRenderTest::Paint(vtkContext2D *painter)
 {
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
-  painter->GetTextProp()->SetFontFamilyToArial();
   painter->GetTextProp()->SetFontSize(24);
-  painter->DrawString(5,  5, "1");
-  painter->DrawString(50, 5, "1.5");
-  painter->DrawString(100, 5, "10");
+
+  int y = 360;
+
+  painter->GetTextProp()->SetFontFamilyToArial();
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(false);
+  painter->GetTextProp()->SetItalic(false);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(false);
+  painter->GetTextProp()->SetItalic(true);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetItalic(false);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetItalic(true);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  painter->GetTextProp()->SetFontFamilyToTimes();
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(false);
+  painter->GetTextProp()->SetItalic(false);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(false);
+  painter->GetTextProp()->SetItalic(true);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetItalic(false);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetItalic(true);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  painter->GetTextProp()->SetFontFamilyToCourier();
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(false);
+  painter->GetTextProp()->SetItalic(false);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(false);
+  painter->GetTextProp()->SetItalic(true);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetItalic(false);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+  y -= 30;
+  painter->GetTextProp()->SetBold(true);
+  painter->GetTextProp()->SetItalic(true);
+  painter->DrawString(5, y, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
   return true;
 }

@@ -7,8 +7,8 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   endif()
   # Need to add the Wrapping/Python to the include directory
   set(_python_include_dirs
-    ${VTK_SOURCE_DIR}/Wrapping/PythonCore
-    ${VTK_BINARY_DIR}/Wrapping/PythonCore
+    ${VTK_SOURCE_DIR}/Wrapping/Python
+    ${VTK_BINARY_DIR}/Wrapping/Python
     ${PYTHON_INCLUDE_DIRS})
 
   if(NOT CMAKE_HAS_TARGET_INCLUDES)
@@ -51,7 +51,7 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
   target_link_libraries(${module_name}PythonD ${module_name}
-    vtkPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
+    vtkWrappingPython ${extra_links} ${VTK_PYTHON_LIBRARIES})
   python_add_module(${module_name}Python ${module_name}PythonInit.cxx)
   if(PYTHON_ENABLE_MODULE_${module_name}Python)
     target_link_libraries(${module_name}Python ${module_name}PythonD)
