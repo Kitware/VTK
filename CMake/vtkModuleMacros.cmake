@@ -492,21 +492,16 @@ endmacro()
 macro(vtk_module_search) # [test-langs]
   set(VTK_MODULES_ALL)
 
-  #go through all the glob dirs, and make modules of any ./*/*/module.cmakes found under them
-  foreach(pair ${vtk_module_src_glob_path})
-    string(REGEX MATCH "^([^,]*),([^,]*)$" m "${pair}")
-    set(src "${CMAKE_MATCH_1}")
-    set(bld "${CMAKE_MATCH_2}")
-    vtk_module_glob("${src}" "${bld}")
-  endforeach()
+  vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}")
 
-  #go through all the direct dirs, and make modules of any ./module.cmakes found under them
-  foreach(pair ${vtk_module_src_path})
+  #go through any additional dirs, and make modules of any ./module.cmakes found under them
+  foreach(pair ${vtk_module_search_path})
     string(REGEX MATCH "^([^,]*),([^,]*)$" m "${pair}")
     set(src "${CMAKE_MATCH_1}")
     set(bld "${CMAKE_MATCH_2}")
     vtk_add_module("${src}" module.cmake "${bld}")
   endforeach()
+
 endmacro()
 
 macro(vtk_add_test_module _lang)

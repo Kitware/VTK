@@ -120,12 +120,7 @@ macro(vtk_module_config ns)
   unset(_${ns}_AUTOINIT)
 endmacro()
 
-# Call to add two level directory tree to search for modules under
-macro(vtk_module_src_glob_path_add src bld)
-  list(APPEND vtk_module_src_glob_path "${src},${bld}")
-endmacro()
-
 # Call to add a single directory to the module search path
-macro(vtk_module_src_path_add src bld)
-  list(APPEND vtk_module_src_path "${src},${bld}")
+macro(vtk_add_to_module_search_path src bld)
+  list(APPEND vtk_module_search_path "${src},${bld}")
 endmacro()

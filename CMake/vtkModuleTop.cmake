@@ -18,8 +18,6 @@ endif()
 # Load the module DAG.
 
 # Assess modules, and tests in the repository.
-#vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}" ${_test_languages})
-vtk_module_src_glob_path_add("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}")
 vtk_module_search(${_test_languages})
 
 # Now include the module group logic.
