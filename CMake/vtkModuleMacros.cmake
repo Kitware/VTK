@@ -456,7 +456,7 @@ macro(vtk_module_third_party _pkg)
 endmacro()
 
 # called internally to add one module to the list of available modules
-macro(vtk_add_module src f bld)
+macro(vtk_add_module src f bld ) # [test-langs]
   unset(vtk-module)
   include(${src}/${f} OPTIONAL)
   if(DEFINED vtk-module)
@@ -483,7 +483,7 @@ endmacro()
 macro(vtk_module_glob src bld) # [test-langs]
   file(GLOB meta RELATIVE "${src}" "${src}/*/*/module.cmake")
   foreach(f ${meta})
-    vtk_add_module(${src} ${f} ${bld})
+    vtk_add_module(${src} ${f} ${bld} ${ARGN})
   endforeach()
 endmacro()
 
@@ -492,14 +492,14 @@ endmacro()
 macro(vtk_module_search) # [test-langs]
   set(VTK_MODULES_ALL)
 
-  vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}")
+  vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}" ${ARGN})
 
   #go through any additional dirs, and make modules of any ./module.cmakes found under them
   foreach(pair ${vtk_module_search_path})
     string(REGEX MATCH "^([^,]*),([^,]*)$" m "${pair}")
     set(src "${CMAKE_MATCH_1}")
     set(bld "${CMAKE_MATCH_2}")
-    vtk_add_module("${src}" module.cmake "${bld}")
+    vtk_add_module("${src}" module.cmake "${bld}" ${ARGN})
   endforeach()
 
 endmacro()
