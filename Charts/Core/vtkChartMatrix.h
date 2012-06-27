@@ -58,10 +58,6 @@ public:
   virtual vtkVector2i GetSize() const { return this->Size; }
 
   // Description:
-  // Set the gutter that should be left between the charts in the matrix.
-  virtual void SetGutter(const vtkVector2f& gutter);
-
-  // Description:
   // Set/get the borders of the chart matrix (space in pixels around each chart).
   virtual void SetBorders(int left, int bottom, int right, int top);
   virtual void GetBorders(int borders[4])
@@ -71,6 +67,10 @@ public:
       borders[i]=this->Borders[i];
       }
   }
+
+  // Description:
+  // Set the gutter that should be left between the charts in the matrix.
+  virtual void SetGutter(const vtkVector2f& gutter);
 
   // Description:
   // Get the gutter that should be left between the charts in the matrix.
@@ -103,6 +103,11 @@ public:
   // Description:
   // Get the span of the specified chart.
   virtual vtkVector2i GetChartSpan(const vtkVector2i& position);
+
+  // Description:
+  // Get the position of the chart in the matrix at the specified location.
+  // The position should be specified in scene coordinates.
+  virtual vtkVector2i GetChartIndex(const vtkVector2f& position);
 
 protected:
   vtkChartMatrix();
