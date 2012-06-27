@@ -1176,6 +1176,10 @@ void vtkChartXY::RecalculateBounds()
 //-----------------------------------------------------------------------------
 bool vtkChartXY::Hit(const vtkContextMouseEvent &mouse)
 {
+  if (!this->Interactive)
+    {
+    return false;
+    }
   vtkVector2i pos(mouse.GetScreenPos());
   if (pos[0] > this->Point1[0] &&
       pos[0] < this->Point2[0] &&
