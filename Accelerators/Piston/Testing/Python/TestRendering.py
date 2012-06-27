@@ -23,7 +23,7 @@ class TestRendering(Testing.vtkTest):
 
     if "GPURender" in args:
         print "Testing GPU direct render path"
-        vtk.vtkPistonMapper.InitCUDAGL(renwin)
+        vtk.vtkPistonMapper.InitCudaGL(renwin)
     else:
         print "Testing CPU indirect render path"
 

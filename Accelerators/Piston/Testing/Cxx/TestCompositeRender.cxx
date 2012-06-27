@@ -177,7 +177,7 @@ void MyProcess::Execute()
   renWin->Render();
 
   // TODO: Add an argument to decide if use interop or not
-  vtkPistonMapper::InitCUDAGL(renWin);
+  vtkPistonMapper::InitCudaGL(renWin);
 
   this->CreatePipeline(renderer);
   prm->SetRenderWindow(renWin);
