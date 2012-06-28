@@ -2,7 +2,7 @@ project( alglib )
 
 set(vtkalglib_THIRD_PARTY 1)
 set(vtkalglib_LIBRARIES vtkalglib)
-vtk_module_impl()
+vtk_module_export_info()
 
 if ( NOT LIBRARY_OUTPUT_PATH )
   set( LIBRARY_OUTPUT_PATH ${alglib_BINARY_DIR}/bin CACHE INTERNAL "" FORCE )

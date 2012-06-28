@@ -6,8 +6,7 @@
 #    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #    PURPOSE.  See the above copyright notice for more information.
 #
-
-vtk_module_impl()
+vtk_module_export_info()
 
 # This executable is only run from the build tree so we do not need a
 # launcher for it and should always use the RPATH to find shared libs.

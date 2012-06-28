@@ -78,6 +78,8 @@ macro(vtk_module_check_name _name)
   endif()
 endmacro()
 
+# This macro provides module implementation, setting up important variables
+# necessary to build a module. It assumes we are in the directory of the module.
 macro(vtk_module_impl)
   include(module.cmake) # Load module meta-data
 
@@ -120,7 +122,12 @@ macro(vtk_module_impl)
   if(${vtk-module}_THIRD_PARTY)
     vtk_module_warnings_disable(C CXX)
   endif()
+endmacro()
 
+# Export just the essential data from a module such as name, include directory.
+macro(vtk_module_export_info)
+  vtk_module_impl()
+  # First gather and configure the high level module information.
   set(_code "")
   foreach(opt ${${vtk-module}_EXPORT_OPTIONS})
     set(_code "${_code}set(${opt} \"${${opt}}\")\n")
@@ -145,15 +152,54 @@ macro(vtk_module_impl)
   set(vtk-module-LIBRARY_DIRS "${${vtk-module}_SYSTEM_LIBRARY_DIRS}")
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-build}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-build}")
-  configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in ${VTK_MODULES_DIR}/${vtk-module}.cmake @ONLY)
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
+    ${VTK_MODULES_DIR}/${vtk-module}.cmake @ONLY)
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-install}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-install}")
-  configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in CMakeFiles/${vtk-module}.cmake @ONLY)
-  install(FILES
-    ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
-    )
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
+    CMakeFiles/${vtk-module}.cmake @ONLY)
+  install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules)
 endmacro()
+
+# Export data from a module such as name, include directory and class level
+# information useful for wrapping.
+function(vtk_module_export sources)
+  vtk_module_export_info()
+  # Now iterate through the classes in the module to get class level information.
+  foreach(arg ${sources})
+    get_filename_component(src "${arg}" ABSOLUTE)
+
+    string(REGEX REPLACE "\\.(cxx|mm)$" ".h" hdr "${src}")
+    if("${hdr}" MATCHES "\\.h$")
+      if(EXISTS "${hdr}")
+        get_filename_component(_filename "${hdr}" NAME)
+        string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
+
+        get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
+        get_source_file_property(_abstract ${src} ABSTRACT)
+        get_source_file_property(_wrap_special ${src} WRAP_SPECIAL)
+
+        if(NOT _wrap_exclude)
+          list(APPEND vtk-module-CLASSES ${_cls})
+        endif()
+
+        if(_abstract)
+          set(vtk-module-ABSTRACT
+            "${vtk-module-ABSTRACT}set(${vtk-module}_CLASS_${_cls}_ABSTRACT 1)\n")
+        endif()
+
+        if(_wrap_special)
+          set(vtk-module-WRAP_SPECIAL
+            "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_SPECIAL 1)\n")
+        endif()
+      endif()
+    endif()
+  endforeach()
+  # Configure wrapping information for external wrapping of classes.
+  configure_file(${_VTKModuleMacros_DIR}/vtkModuleClasses.cmake.in
+    ${VTK_MODULES_DIR}/${vtk-module}-Classes.cmake @ONLY)
+endfunction()
 
 macro(vtk_module_test)
   if(NOT vtk_module_test_called)
@@ -281,38 +327,17 @@ function(vtk_module_library name)
     get_filename_component(src "${arg}" ABSOLUTE)
 
     string(REGEX REPLACE "\\.(cxx|mm)$" ".h" hdr "${src}")
-    if("${hdr}" MATCHES "\\.h$")
-      if(EXISTS "${hdr}")
-        list(APPEND _hdrs "${hdr}")
-
-        get_filename_component(_filename "${hdr}" NAME)
-        string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
-
-        get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
-        get_source_file_property(_abstract ${src} ABSTRACT)
-        get_source_file_property(_wrap_special ${src} WRAP_SPECIAL)
-
-        if(NOT _wrap_exclude)
-          list(APPEND vtk-module-CLASSES ${_cls})
-        endif()
-
-        if(_abstract)
-          set(vtk-module-ABSTRACT "${vtk-module-ABSTRACT}set(${vtk-module}_CLASS_${_cls}_ABSTRACT 1)\n")
-        endif()
-
-        if(_wrap_special)
-          set(vtk-module-WRAP_SPECIAL "${vtk-module-WRAP_SPECIAL}set(${vtk-module}_CLASS_${_cls}_WRAP_SPECIAL 1)\n")
-        endif()
-      endif()
-    elseif("${src}" MATCHES "\\.txx$")
+    if("${hdr}" MATCHES "\\.h$" AND EXISTS "${hdr}")
+      list(APPEND _hdrs "${hdr}")
+    elseif("${src}" MATCHES "\\.txx$" AND EXISTS "${src}")
       list(APPEND _hdrs "${src}")
     endif()
   endforeach()
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
 
-  # Configure wrapping information for external wrappers
-  configure_file(${_VTKModuleMacros_DIR}/vtkModuleClasses.cmake.in ${VTK_MODULES_DIR}/${vtk-module}-Classes.cmake @ONLY)
+  # Export the module information.
+  vtk_module_export("${ARGN}")
 
   # The instantiators are off by default, and only work on wrapped modules.
   if(VTK_MAKE_INSTANTIATORS AND NOT VTK_MODULE_${vtk-module}_EXCLUDE_FROM_WRAPPING)
@@ -446,6 +471,10 @@ macro(vtk_module_third_party _pkg)
 
   set(vtk${_lower}_THIRD_PARTY 1)
   vtk_module_impl()
+
+  # Export the core module information.
+  vtk_module_export_info()
+
   configure_file(vtk_${_lower}.h.in vtk_${_lower}.h)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vtk_${_lower}.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR})

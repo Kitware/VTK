@@ -2,7 +2,7 @@ project(VPIC)
 
 set(vtkVPIC_THIRD_PARTY 1)
 set(vtkVPIC_LIBRARIES VPIC)
-vtk_module_impl()
+vtk_module_export_info()
 
 SET(VPIC_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 

@@ -3,7 +3,7 @@ project(Cosmo)
 
 set(vtkCosmo_THIRD_PARTY 1)
 set(vtkCosmo_LIBRARIES Cosmo)
-vtk_module_impl()
+vtk_module_export_info()
 
 # Build with or without MPI, for now do this rather compiling a
 # parallel and non parallel version

@@ -1,7 +1,7 @@
 PROJECT(DICOMParser)
 
 set(vtkDICOMParser_LIBRARIES vtkDICOMParser)
-vtk_module_impl()
+vtk_module_export_info()
 
 INCLUDE_DIRECTORIES(${DICOMParser_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${DICOMParser_BINARY_DIR})
