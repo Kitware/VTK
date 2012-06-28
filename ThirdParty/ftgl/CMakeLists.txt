@@ -3,7 +3,7 @@ PROJECT (VTKFTGL)
 set(vtkftgl_THIRD_PARTY 1)
 set(vtkftgl_LIBRARIES vtkftgl)
 set(vtkftgl_INCLUDE_DIRS ${VTKFTGL_SOURCE_DIR}/src)
-vtk_module_impl()
+vtk_module_export_info()
 set(VTK_FREETYPE_LIBRARIES ${vtkfreetype_LIBRARIES})
 
 #

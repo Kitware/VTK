@@ -58,7 +58,7 @@ endif ( VERDICT_MANGLE )
 
 set(vtkverdict_THIRD_PARTY 1)
 set(vtkverdict_LIBRARIES ${verdict_LIBRARY})
-vtk_module_impl()
+vtk_module_export_info()
 
 # Setting the VERSION and SOVERSION of a library will include
 # version information either in the library, or in the library

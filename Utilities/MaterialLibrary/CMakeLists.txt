@@ -1,6 +1,6 @@
 PROJECT(MaterialLibrary)
 
-vtk_module_impl()
+vtk_module_export_info()
 
 # FIXME: Provide a reasonable default for this value in MaterialLibrary?
 set(VTK_DEFAULT_SHADERS_DIR
