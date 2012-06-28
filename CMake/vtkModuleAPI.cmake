@@ -40,6 +40,17 @@ macro(vtk_module_load mod)
   endif()
 endmacro()
 
+# vtk_module_dep_includes(<module>)
+#
+# Loads the <module>_DEPENDS_INCLUDE_DIRS variable.
+macro(vtk_module_dep_includes mod)
+  vtk_module_load("${mod}")
+  vtk_module_config(_dep ${VTK_MODULE_${mod}_DEPENDS})
+  if(_dep_INCLUDE_DIRS)
+    set(${mod}_DEPENDS_INCLUDE_DIRS ${_dep_INCLUDE_DIRS})
+  endif()
+endmacro()
+
 # vtk_module_classes_load(<module>)
 #
 # Loads variables describing the given module:
