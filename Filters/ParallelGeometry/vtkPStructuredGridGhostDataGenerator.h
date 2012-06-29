@@ -28,7 +28,6 @@
 //      <li> Each block must be an instance of vtkStructuredGrid </li>
 //      <li> Each block must have its corresponding global extent set in the
 //           meta-data using the PIECE_EXTENT() key </li>
-//      <li> The spacing of each block is the same </li>
 //      <li> All blocks must have the same fields loaded </li>
 //      <li> The multi-block structure is consistent on all processes </li>
 //    </ul>
