@@ -119,3 +119,8 @@ macro(vtk_module_config ns)
   endforeach()
   unset(_${ns}_AUTOINIT)
 endmacro()
+
+# Call to add a single directory to the module search path
+macro(vtk_add_to_module_search_path src bld)
+  list(APPEND vtk_module_search_path "${src},${bld}")
+endmacro()

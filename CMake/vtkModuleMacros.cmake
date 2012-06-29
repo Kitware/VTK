@@ -455,31 +455,53 @@ macro(vtk_module_third_party _pkg)
   endif()
 endmacro()
 
-macro(vtk_module_glob src bld) # [test-langs]
-  set(VTK_MODULES_ALL)
-  file(GLOB meta RELATIVE "${src}" "${src}/*/*/module.cmake")
-  foreach(f ${meta})
-    unset(vtk-module)
-    include(${src}/${f})
-    if(DEFINED vtk-module)
-      list(APPEND VTK_MODULES_ALL ${vtk-module})
-      get_filename_component(${vtk-module}_BASE ${f} PATH)
-      set(${vtk-module}_SOURCE_DIR ${src}/${${vtk-module}_BASE})
-      set(${vtk-module}_BINARY_DIR ${bld}/${${vtk-module}_BASE})
-      foreach(_lang ${ARGN})
-        if(EXISTS ${${vtk-module}_SOURCE_DIR}/Testing/${_lang}/CMakeLists.txt)
-          vtk_add_test_module(${_lang})
-        endif()
-      endforeach()
-      if(VTK_MODULE_${vtk-module}_IMPLEMENTS)
-        foreach(dep IN LISTS VTK_MODULE_${vtk-module}_IMPLEMENTS)
-          set(${dep}_IMPLEMENTED 1)
-        endforeach()
+# called internally to add one module to the list of available modules
+macro(vtk_add_module src f bld ) # [test-langs]
+  unset(vtk-module)
+  include(${src}/${f} OPTIONAL)
+  if(DEFINED vtk-module)
+    list(APPEND VTK_MODULES_ALL ${vtk-module})
+    get_filename_component(${vtk-module}_BASE ${f} PATH)
+    set(${vtk-module}_SOURCE_DIR ${src}/${${vtk-module}_BASE})
+    set(${vtk-module}_BINARY_DIR ${bld}/${${vtk-module}_BASE})
+    foreach(_lang ${ARGN})
+      if(EXISTS ${${vtk-module}_SOURCE_DIR}/Testing/${_lang}/CMakeLists.txt)
+        vtk_add_test_module(${_lang})
       endif()
+    endforeach()
+    if(VTK_MODULE_${vtk-module}_IMPLEMENTS)
+      foreach(dep IN LISTS VTK_MODULE_${vtk-module}_IMPLEMENTS)
+        set(${dep}_IMPLEMENTED 1)
+      endforeach()
     endif()
-  endforeach()
+  endif()
   unset(vtk-module)
   unset(vtk-module-test)
+endmacro()
+
+# called internally to add all the modules undeneath a particular directory to the list of modules
+macro(vtk_module_glob src bld) # [test-langs]
+  file(GLOB meta RELATIVE "${src}" "${src}/*/*/module.cmake")
+  foreach(f ${meta})
+    vtk_add_module(${src} ${f} ${bld} ${ARGN})
+  endforeach()
+endmacro()
+
+# called to search for all modules under the
+# vtk_module_src_glob_path and vtk_module_src_path paths to the list
+macro(vtk_module_search) # [test-langs]
+  set(VTK_MODULES_ALL)
+
+  vtk_module_glob("${VTK_SOURCE_DIR}" "${VTK_BINARY_DIR}" ${ARGN})
+
+  #go through any additional dirs, and make modules of any ./module.cmakes found under them
+  foreach(pair ${vtk_module_search_path})
+    string(REGEX MATCH "^([^,]*),([^,]*)$" m "${pair}")
+    set(src "${CMAKE_MATCH_1}")
+    set(bld "${CMAKE_MATCH_2}")
+    vtk_add_module("${src}" module.cmake "${bld}" ${ARGN})
+  endforeach()
+
 endmacro()
 
 macro(vtk_add_test_module _lang)

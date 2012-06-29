@@ -227,6 +227,58 @@ vtkVector2i vtkChartMatrix::GetChartSpan(const vtkVector2i& position)
     }
 }
 
+vtkVector2i vtkChartMatrix::GetChartIndex(const vtkVector2f &position)
+{
+  if (this->Size.X() > 0 && this->Size.Y() > 0)
+    {
+    // Calculate the increments without the gutters/borders that must be left.
+    vtkVector2f increments;
+    increments.SetX((this->Private->Geometry.X() - (this->Size.X() - 1) *
+                     this->Gutter.X() - this->Borders[vtkAxis::LEFT] -
+                     this->Borders[vtkAxis::RIGHT]) /
+                     this->Size.X());
+    increments.SetY((this->Private->Geometry.Y() - (this->Size.Y() - 1) *
+                     this->Gutter.Y() - this->Borders[vtkAxis::TOP] -
+                     this->Borders[vtkAxis::BOTTOM]) /
+                     this->Size.Y());
+
+    float x = this->Borders[vtkAxis::LEFT];
+    float y = this->Borders[vtkAxis::BOTTOM];
+    for (int i = 0; i < this->Size.X(); ++i)
+      {
+      if (i > 0)
+        {
+        x += increments.X() + this->Gutter.X();
+        }
+      for (int j = 0; j < this->Size.Y(); ++j)
+        {
+        if (j > 0)
+          {
+          y += increments.Y() + this->Gutter.Y();
+          }
+        else
+          {
+          y = this->Borders[vtkAxis::BOTTOM];
+          }
+        size_t index = j * this->Size.X() + i;
+        if (this->Private->Charts[index])
+          {
+          vtkVector2i &span = this->Private->Spans[index];
+          // Check if the supplied location is within this charts area.
+          if (position.X() > x &&
+              position.X() < (x + increments.X() * span.X()
+                              + (span.X() - 1) * this->Gutter.X()) &&
+              position.Y() > y &&
+              position.Y() < (y + increments.Y() * span.Y()
+                              + (span.Y() - 1) * this->Gutter.Y()))
+            return vtkVector2i(i, j);
+          }
+        }
+      }
+    }
+  return vtkVector2i(-1, -1);
+}
+
 void vtkChartMatrix::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

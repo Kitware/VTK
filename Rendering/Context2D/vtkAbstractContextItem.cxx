@@ -25,6 +25,7 @@ vtkAbstractContextItem::vtkAbstractContextItem()
   this->Parent = NULL;
   this->Children = new vtkContextScenePrivate(this);
   this->Visible = true;
+  this->Interactive = true;
 }
 
 //-----------------------------------------------------------------------------

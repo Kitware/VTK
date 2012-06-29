@@ -62,6 +62,7 @@ protected:
   ~vtkPNrrdReader();
 
   virtual int ReadHeader();
+  virtual int ReadHeader(vtkCharArray *headerBuffer);
 
   // Description:
   // Returns the size, in bytes of the scalar data type (GetDataScalarType).

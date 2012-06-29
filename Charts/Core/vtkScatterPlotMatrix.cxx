@@ -1098,22 +1098,11 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
     const vtkContextMouseEvent &mouse)
 {
   // Work out which scatter plot was clicked - make that one the active plot.
-  int n = this->GetSize().X();
-  vtkVector2i pos(-1, -1);
-  for (int i = 0; i < n; ++i)
-    {
-    for (int j = 0; j < n; ++j)
-      {
-      if (i + j + 1 < n && this->GetChart(vtkVector2i(i, j))->Hit(mouse))
-        {
-        pos = vtkVector2i(i, j);
-        }
-      }
-    }
+  vtkVector2i pos = this->GetChartIndex(mouse.GetPos());
 
-  if(pos[0] == -1)
+  if(pos.X() == -1 || pos.X() + pos.Y() + 1 >= this->Size.X())
     {
-    // no plot was clicked, so just return
+    // We didn't click a chart in the bottom-left triangle of the matrix.
     return true;
     }
 
@@ -1138,7 +1127,9 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
                                                            pos[1]));
         }
       }
-    if (pos[0] != this->ActivePlot[0] || pos[1] != this->ActivePlot[1])
+    if ((this->Private->AnimationPath.size() == 1 &&
+         this->Private->AnimationPath.back() != pos) ||
+        (this->Private->AnimationPath.size() == 0 && this->ActivePlot != pos))
       {
       this->Private->AnimationPath.push_back(pos);
       }
@@ -1326,6 +1317,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
   // big chart.
   int n = this->Size.X();
   this->UpdateAxes();
+  this->Private->BigChart3D->SetAnnotationLink(this->Private->Link.GetPointer());
   for (int i = 0; i < n; ++i)
     {
     vtkStdString column = this->GetColumnName(i);
@@ -1338,6 +1330,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkChart* chart = this->GetChart(pos);
         this->ApplyAxisSetting(chart, column, row);
         chart->ClearPlots();
+        chart->SetInteractive(false);
         chart->SetAnnotationLink(this->Private->Link.GetPointer());
         // Lower-left triangle - scatter plots.
         chart->SetActionToButton(vtkChart::PAN, -1);
@@ -1358,6 +1351,7 @@ void vtkScatterPlotMatrix::UpdateLayout()
         {
         // We are on the diagonal - need a histogram plot.
         vtkChart* chart = this->GetChart(pos);
+        chart->SetInteractive(false);
         this->ApplyAxisSetting(chart, column, row);
         chart->ClearPlots();
         vtkPlot *plot = chart->AddPlot(vtkChart::BAR);

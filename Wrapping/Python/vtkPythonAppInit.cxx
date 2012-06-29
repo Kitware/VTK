@@ -22,7 +22,7 @@
 
 #include "vtkPython.h"
 #include "vtkVersion.h"
-#include "Wrapping/Python/vtkPythonAppInitConfigure.h"
+#include "vtkPythonAppInitConfigure.h"
 
 #include "vtkpythonmodules.h"
 

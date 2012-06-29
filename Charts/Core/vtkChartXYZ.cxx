@@ -25,6 +25,10 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 #include "vtkPen.h"
+#include "vtkAnnotationLink.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"
 
@@ -42,6 +46,10 @@ public:
   void CalculateTransforms();
 
   vector<vtkVector3f> points;
+  vtkTimeStamp pointsBuidTime;
+  vector<vtkVector3f> selectedPoints;
+  vtkTimeStamp selectedPointsBuidTime;
+
   vector< vtkSmartPointer<vtkAxis> > axes;
   vtkNew<vtkTransform> Transform;
   vtkNew<vtkTransform> Rotation;
@@ -122,6 +130,35 @@ void vtkChartXYZ::PrintSelf(ostream &os, vtkIndent indent)
   Superclass::PrintSelf(os, indent);
 }
 
+void vtkChartXYZ::Update()
+{
+  if (this->Link)
+    {
+    // Copy the row numbers so that we can do the highlight...
+    if (!d->points.empty())
+      {
+      vtkSelection *selection =
+          vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
+      if (selection->GetNumberOfNodes())
+        {
+        vtkSelectionNode *node = selection->GetNode(0);
+        vtkIdTypeArray *idArray =
+            vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+        if (d->selectedPointsBuidTime > idArray->GetMTime() ||
+            this->GetMTime() > d->selectedPointsBuidTime)
+          {
+          d->selectedPoints.resize(idArray->GetNumberOfTuples());
+          for (vtkIdType i = 0; i < idArray->GetNumberOfTuples(); ++i)
+            {
+            d->selectedPoints[i] = d->points[idArray->GetValue(i)];
+            }
+          d->selectedPointsBuidTime.Modified();
+          }
+        }
+      }
+    }
+}
+
 bool vtkChartXYZ::Paint(vtkContext2D *painter)
 {
   if (!this->Visible || d->points.size() == 0)
@@ -133,6 +170,8 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   if (!context)
     return false;
 
+  this->Update();
+
   // Calculate the transforms required for the current rotation.
   d->CalculateTransforms();
 
@@ -142,6 +181,14 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
   // First lets draw the points in 3d.
   context->ApplyPen(this->Pen.GetPointer());
   context->DrawPoints(d->points[0].GetData(), d->points.size());
+
+  // Now to render the selected points.
+  if (!d->selectedPoints.empty())
+    {
+    context->ApplyPen(this->SelectedPen.GetPointer());
+    context->DrawPoints(d->selectedPoints[0].GetData(), d->selectedPoints.size());
+    }
+
   context->PopMatrix();
 
   // Now to draw the axes - pretty basic for now but could be extended.
@@ -247,6 +294,7 @@ void vtkChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                                   static_cast<VTK_TT*>(zArr->GetVoidPointer(0)),
                                   2, n));
     }
+  d->pointsBuidTime.Modified();
 
   // Now set up the axes, and ranges...
   d->axes.resize(3);
@@ -313,9 +361,13 @@ void vtkChartXYZ::RecalculateBounds()
     }
 }
 
-void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *)
+void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
 {
-  // Copy the row numbers so that we can do the highlight...
+  if (this->Link != link)
+    {
+    this->Link = link;
+    this->Modified();
+    }
 }
 
 vtkAxis * vtkChartXYZ::GetAxis(int axis)
@@ -329,11 +381,13 @@ void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
   this->Geometry = bounds;
 }
 
-vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10)
+vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL)
 {
   d = new Private;
   this->Pen->SetWidth(5);
   this->Pen->SetColor(0, 0, 0, 255);
+  this->SelectedPen->SetWidth(6);
+  this->SelectedPen->SetColor(255, 0, 0, 255);
   this->AxisPen->SetWidth(1);
   this->AxisPen->SetColor(0, 0, 0, 255);
 }

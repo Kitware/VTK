@@ -29,6 +29,7 @@ SET (FREETYPE_SRCS
   src/cache/ftcache.c
   src/cff/cff.c
   src/cid/type1cid.c
+  src/gzip/ftgzip.c
   src/lzw/ftlzw.c
   src/pcf/pcf.c
   src/pfr/pfr.c
@@ -100,6 +101,11 @@ ENDIF (APPLE AND NOT VTK_USE_X)
 # Define the library (and install it)
 #
 VTK_ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
+
+#
+# Link to vtkzlib
+#
+TARGET_LINK_LIBRARIES(vtkfreetype ${vtkzlib_LIBRARIES})
 
 #
 # If we want freetype's Mac font support we need to link against

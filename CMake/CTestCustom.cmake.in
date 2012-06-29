@@ -274,11 +274,10 @@ IF(APPLE)
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "warning -.: directory name .* does not exist"
-  "OpenTransport.*warning.*is deprecated"
 
-  # Somebody will have to get rid of these calls eventually (bug 4001) to
-  # eliminate these warnings. For now, mask them out of dashboard results:
-  "vtkCarbonRenderWindow.cxx.*warning: .(New|Diff|Equal|Dispose)Rgn. is deprecated"
+  # Almost all of Carbon is deprecated, so mask deprecation warnings out
+  # of dashboard results for Carbon-specific files.
+  "vtkCarbonRenderWindow.*warning.*is deprecated"
   )
 ENDIF(APPLE)
 
