@@ -754,10 +754,10 @@ bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
   return error ? false : true;
 }
 
+#ifdef FONTCONFIG_FOUND
 bool vtkFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
                                             FT_Library lib, FT_Face *face)
 {
-#ifdef FONTCONFIG_FOUND
   if (!FcInit())
     {
     return false;
@@ -836,11 +836,14 @@ bool vtkFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
   fontMatches = NULL;
 
   return true;
-
-#else // FONTCONFIG_FOUND
-  return false;
-#endif
 }
+#else // FONTCONFIG_FOUND
+bool vtkFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *vtkNotUsed(tprop),
+                                            FT_Library vtkNotUsed(lib), FT_Face *vtkNotUsed(face))
+{
+  return false;
+}
+#endif
 
 bool vtkFreeTypeTools::LookupFaceCompiledFonts(vtkTextProperty *tprop,
                                                FT_Library lib, FT_Face *face)
