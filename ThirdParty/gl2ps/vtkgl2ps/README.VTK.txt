@@ -9,23 +9,6 @@ distributing this library under a license compatible with VTK.
 Please read the COPYING.GL2PS license before you make any
 modifications to this copy of the GL2PS sources.
 
-
-Notes on how GL2PS is built in VTK
-----------------------------------
-
-CMakeLists.txt is conspicuous by its absence in this directory.
-Currently, the GL2PS sources are in two files, one header and the
-other the library.  The GL2PS code is only used in Rendering so we
-simply compile gl2ps.c in the Rendering directory and build the
-Rendering library along with the resulting gl2ps object file.  Since
-VTK ships with its own ZLIB library, GL2PS compressed output is
-enabled and GL2PS_HAVE_ZLIB is defined inside
-Rendering/CMakeLists.txt.  Similar is the case with the
-GL2PS_HAVE_LIBPNG flag.  
-
-In order to avoid linking errors we also have modified gl2ps to
-include vtk_zlib.h and vtk_png.h instead of the {zlib,png}.h headers.
-
 Modifications to the GL2PS library
 ----------------------------------
 
@@ -36,3 +19,14 @@ color directly to GL2PS, this ambiguity is avoided.
 
 The glSpecial mechanism for inserting PDF drawing instructions has been
 fixed/implemented.
+
+In order to avoid linking errors we have modified gl2ps to include vtk_zlib.h
+and vtk_png.h instead of the {zlib,png}.h headers.
+
+To aid with regression testing, which is currently performed using MD5 hashes,
+an additional option for gl2psEnable/Disable is added, GL2PS_TIMESTAMP, which,
+if enabled, replaces the output file's timestamp with a static string.
+
+An additional function, gl2psGetFileFormat(), has been added to the GL2PS API
+to allow VTK utilities to query the type of file being produced during GL2PS
+export.

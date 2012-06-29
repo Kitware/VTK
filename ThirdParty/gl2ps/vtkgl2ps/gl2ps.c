@@ -225,6 +225,7 @@ typedef struct {
   FILE *stream;
   GL2PScompress *compress;
   GLboolean header;
+  GLboolean writeTimestamp;
 
   /* BSP-specific */
   GLint maxbestroot;
@@ -2671,7 +2672,8 @@ static void gl2psPrintPostScriptHeader(void)
               "%%%%Pages: 1\n",
               gl2ps->title, GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION,
               GL2PS_PATCH_VERSION, GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT,
-              gl2ps->producer, ctime(&now));
+              gl2ps->producer,
+              gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
 
   if(gl2ps->format == GL2PS_PS){
     gl2psPrintf("%%%%Orientation: %s\n"
@@ -3235,7 +3237,7 @@ static void gl2psPrintTeXHeader(void)
           "%% CreationDate: %s",
           gl2ps->title, GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION,
           GL2PS_PATCH_VERSION, GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT,
-          gl2ps->producer, ctime(&now));
+          gl2ps->producer, gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
 
   fprintf(gl2ps->stream,
           "\\setlength{\\unitlength}{1pt}\n"
@@ -4915,7 +4917,8 @@ static void gl2psPrintSVGHeader(void)
               "For: %s\n"
               "CreationDate: %s",
               GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION, GL2PS_PATCH_VERSION,
-              GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT, gl2ps->producer, ctime(&now));
+              GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT, gl2ps->producer,
+              gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
   gl2psPrintf("</desc>\n");
   gl2psPrintf("<defs>\n");
   gl2psPrintf("</defs>\n");
@@ -5314,7 +5317,7 @@ static void gl2psPrintPGFHeader(void)
           "%% CreationDate: %s",
           gl2ps->title, GL2PS_MAJOR_VERSION, GL2PS_MINOR_VERSION,
           GL2PS_PATCH_VERSION, GL2PS_EXTRA_VERSION, GL2PS_COPYRIGHT,
-          gl2ps->producer, ctime(&now));
+          gl2ps->producer, gl2ps->writeTimestamp ? ctime(&now) : "(ignored)\n");
 
   fprintf(gl2ps->stream, "\\begin{pgfpicture}\n");
   if(gl2ps->options & GL2PS_DRAW_BACKGROUND){
@@ -5684,6 +5687,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   gl2ps->compress = NULL;
   gl2ps->imagemap_head = NULL;
   gl2ps->imagemap_tail = NULL;
+  gl2ps->writeTimestamp = GL_TRUE;
 
   if(gl2ps->options & GL2PS_USE_CURRENT_VIEWPORT){
     glGetIntegerv(GL_VIEWPORT, gl2ps->viewport);
@@ -6000,6 +6004,9 @@ GL2PSDLL_API GLint gl2psEnable(GLint mode)
   case GL2PS_BLEND :
     glPassThrough(GL2PS_BEGIN_BLEND_TOKEN);
     break;
+  case GL2PS_TIMESTAMP :
+    gl2ps->writeTimestamp = GL_TRUE;
+    break;
   default :
     gl2psMsg(GL2PS_WARNING, "Unknown mode in gl2psEnable: %d", mode);
     return GL2PS_WARNING;
@@ -6024,6 +6031,9 @@ GL2PSDLL_API GLint gl2psDisable(GLint mode)
     break;
   case GL2PS_BLEND :
     glPassThrough(GL2PS_END_BLEND_TOKEN);
+    break;
+  case GL2PS_TIMESTAMP :
+    gl2ps->writeTimestamp = GL_FALSE;
     break;
   default :
     gl2psMsg(GL2PS_WARNING, "Unknown mode in gl2psDisable: %d", mode);
@@ -6103,4 +6113,9 @@ GL2PSDLL_API const char *gl2psGetFormatDescription(GLint format)
     return gl2psbackends[format]->description;
   else
     return "Unknown format";
+}
+
+GL2PSDLL_API GLint gl2psGetFileFormat()
+{
+  return gl2ps->format;
 }

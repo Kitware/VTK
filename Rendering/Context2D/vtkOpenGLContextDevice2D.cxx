@@ -228,7 +228,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   assert("n must be greater than 0" && n > 0);
 
   this->SetLineType(this->Pen->GetLineType());
-  glLineWidth(this->Pen->GetWidth());
+  this->SetLineWidth(this->Pen->GetWidth());
 
   if (colors)
     {
@@ -255,7 +255,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
 {
   if (f && n > 0)
     {
-    glPointSize(this->Pen->GetWidth());
+    this->SetPointSize(this->Pen->GetWidth());
     glEnableClientState(GL_VERTEX_ARRAY);
     if (c && nc)
       {

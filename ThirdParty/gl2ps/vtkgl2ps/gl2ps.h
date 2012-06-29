@@ -137,6 +137,8 @@
 #define GL2PS_POLYGON_BOUNDARY    2
 #define GL2PS_LINE_STIPPLE        3
 #define GL2PS_BLEND               4
+// Custom VTK options:
+#define GL2PS_TIMESTAMP           10
 
 /* Text alignment (o=raster position; default mode is BL):
    +---+ +---+ +---+ +---+ +---+ +---+ +-o-+ o---+ +---o
@@ -192,6 +194,7 @@ GL2PSDLL_API GLint gl2psDrawImageMap(GLsizei width, GLsizei height,
                                      const unsigned char *imagemap);
 GL2PSDLL_API const char *gl2psGetFileExtension(GLint format);
 GL2PSDLL_API const char *gl2psGetFormatDescription(GLint format);
+GL2PSDLL_API GLint gl2psGetFileFormat();
 
 #if defined(__cplusplus)
 }
