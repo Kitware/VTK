@@ -801,13 +801,17 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
         return;
         }
       }
-    // Add the column to the end of the list
-    this->VisibleColumns->InsertNextValue(name);
-    this->Private->VisibleColumnsModified = true;
-    this->SetSize(vtkVector2i(0, 0));
-    this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
-                              this->VisibleColumns->GetNumberOfTuples()));
-    this->Modified();
+    // Add the column to the end of the list if it is a numeric column
+    if (this->Input && this->Input->GetColumnByName(name.c_str()) &&
+        vtkDataArray::SafeDownCast(this->Input->GetColumnByName(name.c_str())))
+      {
+      this->VisibleColumns->InsertNextValue(name);
+      this->Private->VisibleColumnsModified = true;
+      this->SetSize(vtkVector2i(0, 0));
+      this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
+                                this->VisibleColumns->GetNumberOfTuples()));
+      this->Modified();
+      }
     }
   else
     {
@@ -817,14 +821,14 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
       if (this->VisibleColumns->GetValue(i) == name)
         {
         // Move all the later elements down by one, and reduce the size
-        while (i < this->VisibleColumns->GetNumberOfTuples()-1)
+        while (i < this->VisibleColumns->GetNumberOfTuples() - 1)
           {
           this->VisibleColumns->SetValue(i,
-                                         this->VisibleColumns->GetValue(i+1));
+                                         this->VisibleColumns->GetValue(i + 1));
           ++i;
           }
         this->VisibleColumns->SetNumberOfTuples(
-            this->VisibleColumns->GetNumberOfTuples()-1);
+            this->VisibleColumns->GetNumberOfTuples() - 1);
         this->SetSize(vtkVector2i(0, 0));
         this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
                                   this->VisibleColumns->GetNumberOfTuples()));
@@ -834,9 +838,7 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
           this->ActivePlot.Set(0, this->VisibleColumns->GetNumberOfTuples() - 1);
           }
         this->Private->VisibleColumnsModified = true;
-
         this->Modified();
-        return;
         }
       }
     }
