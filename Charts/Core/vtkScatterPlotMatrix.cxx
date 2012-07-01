@@ -475,6 +475,11 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
         {
         this->Private->BigChart->ClearPlots();
         plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
+        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
+        if (xy)
+          {
+          xy->SetPlotCorner(plot, 2);
+          }
         }
       plot->SetInputData(this->Input.GetPointer(), column, row);
       plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]
