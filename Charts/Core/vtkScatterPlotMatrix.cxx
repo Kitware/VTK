@@ -704,15 +704,15 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
     ++this->Private->AnimationPhase;
     break;
   case 4:
-    this->Private->BigChart->SetVisible(true);
-    this->RemoveItem(this->Private->BigChart3D.GetPointer());
-    //this->Private->BigChart3D->SetVisible(false);
     this->GetScene()->SetDirty(true);
     ++this->Private->AnimationIter;
     // Clean up - we are done.
     this->Private->AnimationPhase = 0;
     if (this->Private->AnimationIter == this->Private->AnimationPath.end())
       {
+      this->Private->BigChart->SetVisible(true);
+      this->RemoveItem(this->Private->BigChart3D.GetPointer());
+      this->Private->BigChart3D->SetVisible(false);
       this->Private->Interactor->DestroyTimer(this->Private->TimerId);
       this->Private->TimerId = 0;
       this->Private->TimerCallbackInitialized = false;
