@@ -1,6 +1,7 @@
 SET(Module_SRCS
   vtkApplyColors.cxx
   vtkApplyIcons.cxx
+  vtkGraphItem.cxx
   vtkGraphLayoutView.cxx
   vtkHierarchicalGraphPipeline.cxx
   vtkHierarchicalGraphView.cxx
