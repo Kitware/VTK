@@ -44,6 +44,10 @@
 // There are several methods particular to quaternions (norms, products,
 // etc.) implemented interior to this class. These may be moved to a separate
 // quaternion class at some point.
+//
+// .SECTION see also
+// vtkMath::QuaternionToMatrix3x3() vtkMath::Matrix3x3ToQuaternion()
+// vtkMath::MultiplyQuaternion()
 
 
 #ifndef __vtkQuaternionInterpolator_h
