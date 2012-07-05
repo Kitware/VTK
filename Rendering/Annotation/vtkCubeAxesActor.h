@@ -376,6 +376,19 @@ public:
   // For 2D mode only: save axis title positions for later use
   void SetSaveTitlePosition( int val );
 
+  vtkSetVector6Macro(OrientedBounds,double);
+  vtkGetVectorMacro(OrientedBounds, double, 6);
+
+  vtkSetMacro(UseOrientedBounds, int);
+  vtkGetMacro(UseOrientedBounds, int);
+
+  vtkSetVector3Macro(AxisBaseForX,double);
+  vtkGetVectorMacro(AxisBaseForX, double, 3);
+  vtkSetVector3Macro(AxisBaseForY,double);
+  vtkGetVectorMacro(AxisBaseForY, double, 3);
+  vtkSetVector3Macro(AxisBaseForZ,double);
+  vtkGetVectorMacro(AxisBaseForZ, double, 3);
+
 protected:
   vtkCubeAxesActor();
   ~vtkCubeAxesActor();
@@ -501,6 +514,12 @@ protected:
   vtkProperty  *YAxesGridpolysProperty;
   vtkProperty  *ZAxesGridpolysProperty;
 
+  double OrientedBounds[6];
+  int UseOrientedBounds;
+
+  double AxisBaseForX[3];
+  double AxisBaseForY[3];
+  double AxisBaseForZ[3];
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
   void operator=(const vtkCubeAxesActor&); // Not implemented

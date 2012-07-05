@@ -39,6 +39,12 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
+  this->UseOrientedBounds = 0;
+  // Init default axis base
+  this->AxisBaseForX[0] = this->AxisBaseForX[1] = this->AxisBaseForX[2] = 0;
+  this->AxisBaseForY[0] = this->AxisBaseForY[1] = this->AxisBaseForY[2] = 0;
+  this->AxisBaseForZ[0] = this->AxisBaseForZ[1] = this->AxisBaseForZ[2] = 0;
+  this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
 
   this->RebuildAxes = false;
 
@@ -1500,7 +1506,17 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 
   // determine the bounds to use (input, prop, or user-defined)
   double bounds[6];
-  this->GetBounds(bounds);
+  if(this->UseOrientedBounds != 0)
+    {
+    this->GetOrientedBounds(bounds);
+    this->XAxisRange[0] = this->XAxisRange[1] = VTK_DOUBLE_MAX;
+    this->YAxisRange[0] = this->YAxisRange[1] = VTK_DOUBLE_MAX;
+    this->ZAxisRange[0] = this->ZAxisRange[1] = VTK_DOUBLE_MAX;
+    }
+  else
+    {
+    this->GetBounds(bounds);
+    }
 
   // Build the axes (almost always needed so we don't check mtime)
   // Transform all points into display coordinates (to determine which closest
@@ -1516,25 +1532,45 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
   int mm1[4] = { 0, 0, 1, 1 };
   int mm2[4] = { 0, 1, 1, 0 };
 
+  // Make sure our Axis Base is normalized
+  vtkMath::Normalize(this->AxisBaseForX);
+  vtkMath::Normalize(this->AxisBaseForY);
+  vtkMath::Normalize(this->AxisBaseForZ);
+
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
     this->XAxes[i]->SetAxisPosition(i);
-    xCoords[i][0] = bounds[0];
-    xCoords[i][3] = bounds[1];
-    xCoords[i][1] = xCoords[i][4] = bounds[2+mm1[i]];
-    xCoords[i][2] = xCoords[i][5] = bounds[4+mm2[i]];
+    this->XAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
+    this->XAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
+    this->XAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
+    xCoords[i][0] = bounds[0]*this->AxisBaseForX[0] + bounds[2+mm1[i]]*this->AxisBaseForY[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+    xCoords[i][1] = bounds[0]*this->AxisBaseForX[1] + bounds[2+mm1[i]]*this->AxisBaseForY[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+    xCoords[i][2] = bounds[0]*this->AxisBaseForX[2] + bounds[2+mm1[i]]*this->AxisBaseForY[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+    xCoords[i][3] = bounds[1]*this->AxisBaseForX[0] + bounds[2+mm1[i]]*this->AxisBaseForY[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+    xCoords[i][4] = bounds[1]*this->AxisBaseForX[1] + bounds[2+mm1[i]]*this->AxisBaseForY[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+    xCoords[i][5] = bounds[1]*this->AxisBaseForX[2] + bounds[2+mm1[i]]*this->AxisBaseForY[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
 
     this->YAxes[i]->SetAxisPosition(i);
-    yCoords[i][0] = yCoords[i][3] = bounds[0+mm1[i]];
-    yCoords[i][1] = bounds[2];
-    yCoords[i][4] = bounds[3];
-    yCoords[i][2] = yCoords[i][5] = bounds[4+mm2[i]];
+    this->YAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
+    this->YAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
+    this->YAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
+    yCoords[i][0] = bounds[2]*this->AxisBaseForY[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+    yCoords[i][1] = bounds[2]*this->AxisBaseForY[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+    yCoords[i][2] = bounds[2]*this->AxisBaseForY[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+    yCoords[i][3] = bounds[3]*this->AxisBaseForY[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+    yCoords[i][4] = bounds[3]*this->AxisBaseForY[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+    yCoords[i][5] = bounds[3]*this->AxisBaseForY[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
 
     this->ZAxes[i]->SetAxisPosition(i);
-    zCoords[i][0] = zCoords[i][3] = bounds[0+mm1[i]];
-    zCoords[i][1] = zCoords[i][4] = bounds[2+mm2[i]];
-    zCoords[i][2] = bounds[4];
-    zCoords[i][5] = bounds[5];
+    this->ZAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
+    this->ZAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
+    this->ZAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
+    zCoords[i][0] = bounds[4]*this->AxisBaseForZ[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[2+mm2[i]]*this->AxisBaseForY[0];
+    zCoords[i][1] = bounds[4]*this->AxisBaseForZ[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[2+mm2[i]]*this->AxisBaseForY[1];
+    zCoords[i][2] = bounds[4]*this->AxisBaseForZ[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[2+mm2[i]]*this->AxisBaseForY[2];
+    zCoords[i][3] = bounds[5]*this->AxisBaseForZ[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[2+mm2[i]]*this->AxisBaseForY[0];
+    zCoords[i][4] = bounds[5]*this->AxisBaseForZ[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[2+mm2[i]]*this->AxisBaseForY[1];
+    zCoords[i][5] = bounds[5]*this->AxisBaseForZ[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[2+mm2[i]]*this->AxisBaseForY[2];
     }
 
   double xRange[2], yRange[2], zRange[2];
@@ -1546,7 +1582,7 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
   // May set a flag for each axis specifying that label values should
   // be scaled, may change title of each axis, may change label format.
   this->AdjustValues(xRange, yRange, zRange);
-  this->AdjustRange(this->Bounds);
+  this->AdjustRange(bounds);
 
   // Prepare axes for rendering with user-definable options
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
@@ -2280,9 +2316,8 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   char label[64];
   int i, labelCount = 0;
   double deltaMajor = axes[0]->GetDeltaMajor(axes[0]->GetAxisType());
-  const double *p2  = axes[0]->GetPoint2Coordinate()->GetValue();
+  double val = axes[0]->GetMajorRangeStart();
   double *range     = axes[0]->GetRange();
-  double lastVal = 0, val = axes[0]->GetMajorStart(axes[0]->GetAxisType());
   double extents = range[1] - range[0];
   bool mustAdjustValue = 0;
   int lastPow = 0;
@@ -2292,19 +2327,16 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   switch (axes[0]->GetAxisType())
     {
     case VTK_AXIS_TYPE_X:
-      lastVal = p2[0];
       format = this->XLabelFormat;
       mustAdjustValue = this->MustAdjustXValue;
       lastPow = this->LastXPow;
       break;
     case VTK_AXIS_TYPE_Y:
-      lastVal = p2[1];
       format = this->YLabelFormat;
       mustAdjustValue = this->MustAdjustYValue;
       lastPow = this->LastYPow;
       break;
     case VTK_AXIS_TYPE_Z:
-      lastVal = p2[2];
       format = this->ZLabelFormat;
       mustAdjustValue = this->MustAdjustZValue;
       lastPow = this->LastZPow;
@@ -2312,16 +2344,16 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
     }
 
   // figure out how many labels we need:
-  while (val <= lastVal && labelCount < VTK_MAX_LABELS)
+  if(range[1] == range[0])
     {
-    labelCount++;
-    val += deltaMajor;
+    labelCount = 0;
     }
-
+  else
+    {
+    labelCount = vtkMath::Floor((range[1] - range[0])/deltaMajor);
+    labelCount += ((val - range[0]) == 0 ) ? 1 : 0;
+    }
   labels->SetNumberOfValues(labelCount);
-
-  val = axes[0]->GetMajorRangeStart();
-  deltaMajor = axes[0]->GetDeltaRangeMajor();
 
   double scaleFactor = 1.;
   if (lastPow != 0)
