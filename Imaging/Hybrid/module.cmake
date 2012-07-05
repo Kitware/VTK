@@ -5,4 +5,8 @@ vtk_module(vtkImagingHybrid
   DEPENDS
     vtkImagingCore
     vtkIOImage
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkCommonCore
+    vtkCommonDataModel
   )
