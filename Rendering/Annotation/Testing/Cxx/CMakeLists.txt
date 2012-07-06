@@ -18,6 +18,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
   TestSpiderPlotActor.cxx
+  TestCubeAxesOrientedBoundingBox.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
 )

@@ -1671,9 +1671,15 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
   // Local tmp vars
   double uPointInside[3], vPointInside[3], uPointOutside[3], vPointOutside[3];
   double gridPointClosest[3], gridPointFarest[3], gridPointU[3], gridPointV[3];
+  double innerGridPointClosestU[3], innerGridPointClosestV[3];
+  double innerGridPointFarestU[3], innerGridPointFarestV[3];
   double deltaVector[3];
-  double axisLength, axisShift, rangeScale;
-  int nbTicks, i, nbIteration;
+  double axisLength, axisShift, rangeScale, nbIterationAsDouble;
+  int nbTicks, i, nbIteration, uIndex, vIndex;
+  bool hasOrthogonalVectorBase =
+      (this->AxisBaseForX[0] == 1 && this->AxisBaseForX[1] == 0 && this->AxisBaseForX[2] == 0
+       && this->AxisBaseForY[0] == 0 && this->AxisBaseForY[1] == 1 && this->AxisBaseForY[2] == 0
+       && this->AxisBaseForZ[0] == 0 && this->AxisBaseForZ[1] == 0 && this->AxisBaseForZ[2] == 1);
 
   // Reset previous objects
   this->MinorTickPts->Reset();
@@ -1698,6 +1704,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     axisVector = this->AxisBaseForX;
     uVector = this->AxisBaseForY;
     vVector = this->AxisBaseForZ;
+    uIndex = 1; vIndex = 2;
     break;
   case VTK_AXIS_TYPE_Y:
     uGridLength = this->GridlineXLength;
@@ -1705,6 +1712,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     uVector = this->AxisBaseForX;
     axisVector = this->AxisBaseForY;
     vVector = this->AxisBaseForZ;
+    uIndex = 0; vIndex = 2;
     break;
   case VTK_AXIS_TYPE_Z:
     uGridLength = this->GridlineXLength;
@@ -1712,6 +1720,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     uVector = this->AxisBaseForX;
     vVector = this->AxisBaseForY;
     axisVector = this->AxisBaseForZ;
+    uIndex = 0; vIndex = 1;
     break;
     }
 
@@ -1726,13 +1735,13 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     deltaVector[i] = (p2[i] - p1[i]);
     }
   axisLength = vtkMath::Norm(deltaVector);
-  rangeScale = (this->Range[1] - this->Range[0]) / axisLength;
+  rangeScale = axisLength/(this->Range[1] - this->Range[0]);
 
   // - Reduce the deltaVector to correspond to a tick step
   vtkMath::Normalize(deltaVector);
   for(i=0;i<3;i++)
     {
-    deltaVector[i] *= this->DeltaMinor*rangeScale;
+    deltaVector[i] *= this->DeltaMinor;
     }
 
   // - Move outside points if needed (Axis -> Outside)
@@ -1756,7 +1765,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
 
   // - Add the initial shift if any
-  axisShift = (this->MinorStart - this->Range[0])*rangeScale;
+  axisShift = (this->MinorRangeStart - this->Range[0])*rangeScale;
   for(i=0;i<3;i++)
     {
     uPointInside[i] += axisVector[i] * axisShift;
@@ -1766,27 +1775,28 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
 
   // - Insert tick points along the axis using the deltaVector
-  nbIteration = vtkMath::Floor(axisLength / vtkMath::Norm(deltaVector));
+  nbIterationAsDouble = axisLength / vtkMath::Norm(deltaVector);
+  nbIteration = vtkMath::Floor(nbIterationAsDouble+2*DBL_EPSILON);
   nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
   for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
     {
     // axis/u side
-    vtkMath::Add(deltaVector, uPointInside, uPointInside);
-    vtkMath::Add(deltaVector, uPointOutside, uPointOutside);
     this->MinorTickPts->InsertNextPoint(uPointInside);
     this->MinorTickPts->InsertNextPoint(uPointOutside);
+    vtkMath::Add(deltaVector, uPointInside, uPointInside);
+    vtkMath::Add(deltaVector, uPointOutside, uPointOutside);
     if( this->Use2DMode == 0 )
       {
       // axis/v side
-      vtkMath::Add(deltaVector, vPointInside, vPointInside);
-      vtkMath::Add(deltaVector, vPointOutside, vPointOutside);
       this->MinorTickPts->InsertNextPoint(vPointInside);
       this->MinorTickPts->InsertNextPoint(vPointOutside);
+      vtkMath::Add(deltaVector, vPointInside, vPointInside);
+      vtkMath::Add(deltaVector, vPointOutside, vPointOutside);
       }
     }
   }
   // **************************************************************************
-  // Build Gridline + GridPoly points
+  // Build Gridline + GridPoly points + InnerGrid (Only for Orthonormal base)
   // **************************************************************************
   {
   // - Initialize all points to be on the axis
@@ -1800,7 +1810,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
   vtkMath::Normalize(deltaVector);
   for(i=0;i<3;i++)
     {
-    deltaVector[i] *= this->DeltaMajor[this->AxisType]*rangeScale;
+    deltaVector[i] *= this->DeltaMajor[this->AxisType];
     }
 
   // - Move base points
@@ -1812,7 +1822,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
 
   // - Add the initial shift if any
-  axisShift = (this->MajorStart[this->AxisType] - this->Range[0])*rangeScale;;
+  axisShift = (this->MajorRangeStart - this->Range[0])*rangeScale;
   for(i=0;i<3;i++)
     {
     gridPointU[i] += axisVector[i] * axisShift;
@@ -1822,8 +1832,8 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
 
   // - Insert Gridlines points along the axis using the DeltaMajor vector
-  nbIteration = vtkMath::Floor((this->GetRange()[1] - this->GetRange()[0])/this->DeltaMajor[this->AxisType]);
-  nbIteration += (axisShift == 0) ? 1 : 0;
+  nbIterationAsDouble = (axisLength - axisShift) / vtkMath::Norm(deltaVector);
+  nbIteration = vtkMath::Floor(nbIterationAsDouble+2*DBL_EPSILON) + 1;
   nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
   for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
     {
@@ -1836,12 +1846,12 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     this->GridlinePts->InsertNextPoint(gridPointV);
 
     // Farest U
-    this->InnerGridlinePts->InsertNextPoint(gridPointFarest);
-    this->InnerGridlinePts->InsertNextPoint(gridPointU);
+    this->GridlinePts->InsertNextPoint(gridPointFarest);
+    this->GridlinePts->InsertNextPoint(gridPointU);
 
     // Farest V
-    this->InnerGridlinePts->InsertNextPoint(gridPointFarest);
-    this->InnerGridlinePts->InsertNextPoint(gridPointV);
+    this->GridlinePts->InsertNextPoint(gridPointFarest);
+    this->GridlinePts->InsertNextPoint(gridPointV);
 
     // PolyPoints
     this->GridpolyPts->InsertNextPoint(gridPointClosest);
@@ -1857,6 +1867,55 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
       gridPointFarest[i] += deltaVector[i];
       gridPointV[i] += deltaVector[i];
       }
+    }
+
+  // - Insert InnerGridLines points
+
+  // We can only handle inner grid line with orthonormal base, otherwise
+  // we would need to change the API of AxisActor which we don't want for
+  // backward compatibility.
+  if(hasOrthogonalVectorBase)
+    {
+    double axis, u, v;
+    axis = this->MajorStart[this->AxisType];
+    innerGridPointClosestU[vIndex] = this->GetBounds()[vIndex*2];
+    innerGridPointFarestU[vIndex] = this->GetBounds()[vIndex*2+1];
+    innerGridPointClosestV[uIndex] = this->GetBounds()[uIndex*2];
+    innerGridPointFarestV[uIndex] = this->GetBounds()[uIndex*2+1];
+    while (axis <= p2[this->AxisType])
+        {
+        innerGridPointClosestU[this->AxisType]
+            = innerGridPointClosestV[this->AxisType]
+            = innerGridPointFarestU[this->AxisType]
+            = innerGridPointFarestV[this->AxisType]
+            = axis;
+
+        // u lines
+        u = this->MajorStart[uIndex];
+        while (u <= p2[uIndex])
+          {
+          innerGridPointClosestU[uIndex]
+              = innerGridPointFarestU[uIndex]
+              = u;
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointClosestU);
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointFarestU);
+          u += this->DeltaMajor[uIndex];
+          }
+
+        // v lines
+        v = this->MajorStart[vIndex];
+        while (v <= p2[vIndex])
+          {
+          innerGridPointClosestV[vIndex]
+              = innerGridPointFarestV[vIndex]
+              = v;
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointClosestV);
+          this->InnerGridlinePts->InsertNextPoint(innerGridPointFarestV);
+          v += this->DeltaMajor[vIndex];
+          }
+
+        axis += this->DeltaMajor[this->AxisType];
+        }
     }
   }
   // **************************************************************************
@@ -1891,7 +1950,6 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
 
   // - Add the initial shift if any
-  axisShift = (this->MajorStart[this->AxisType] - this->Range[0])*rangeScale;;
   for(i=0;i<3;i++)
     {
     uPointInside[i] += axisVector[i] * axisShift;
@@ -1901,9 +1959,6 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
 
   // - Insert tick points along the axis using the deltaVector
-  nbIteration = vtkMath::Floor((this->Range[1] - this->Range[0])/this->DeltaMajor[this->AxisType]);
-  nbIteration += (axisShift == 0) ? 1 : 0;
-  nbIteration = (nbIteration < VTK_MAX_TICKS) ? nbIteration : VTK_MAX_TICKS;
   for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
     {
     // axis/u side

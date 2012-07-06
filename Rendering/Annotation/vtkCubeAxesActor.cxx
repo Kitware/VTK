@@ -2317,8 +2317,15 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   int i, labelCount = 0;
   double deltaMajor = axes[0]->GetDeltaMajor(axes[0]->GetAxisType());
   double val = axes[0]->GetMajorRangeStart();
-  double *range     = axes[0]->GetRange();
+  double p2[3], p1[3];
+  axes[0]->GetPoint1Coordinate()->GetValue(p1);
+  axes[0]->GetPoint2Coordinate()->GetValue(p2);
+  double *range = axes[0]->GetRange();
+  double axis[3] = { p2[0]-p1[0], p2[1]-p1[1], p2[2]-p1[2] };
+  double axisLength = vtkMath::Norm(axis);
   double extents = range[1] - range[0];
+  double rangeScale = axisLength / extents;
+  double labelCountAsDouble = (axisLength - (val-range[0])*rangeScale) / deltaMajor;
   bool mustAdjustValue = 0;
   int lastPow = 0;
 
@@ -2350,10 +2357,12 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
     }
   else
     {
-    labelCount = vtkMath::Floor((range[1] - range[0])/deltaMajor);
-    labelCount += ((val - range[0]) == 0 ) ? 1 : 0;
+    labelCount = vtkMath::Floor(labelCountAsDouble+2*DBL_EPSILON) + 1;
     }
   labels->SetNumberOfValues(labelCount);
+
+  // Convert deltaMajor from world coord to range scale
+  deltaMajor = (range[1]-range[0]) * deltaMajor/axisLength;
 
   double scaleFactor = 1.;
   if (lastPow != 0)
