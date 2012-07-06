@@ -1,5 +1,5 @@
 set(vtksys_LIBRARIES vtksys)
-vtk_module_impl()
+vtk_module_export_info()
 
 #-----------------------------------------------------------------------------
 # Configure KWSys to be named "vtksys".

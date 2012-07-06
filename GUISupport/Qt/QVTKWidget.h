@@ -248,6 +248,10 @@ protected:
   // that VTK chooses
   void x11_setup_window();
 
+#if defined(Q_WS_WIN)
+  bool winEvent(MSG* msg, long* result);
+#endif
+
 #if defined(QVTK_USE_CARBON)
   EventHandlerUPP DirtyRegionHandlerUPP;
   EventHandlerRef DirtyRegionHandler;

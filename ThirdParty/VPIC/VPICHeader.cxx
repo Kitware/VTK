@@ -110,7 +110,7 @@ int VPICHeader::parseBoilerPlate(FILE* fp)
    }
 
    fread(&cafe, sizeof(short int), 1, fp);
-   if (cafe != (short int) 0xca) {
+   if (cafe != (short int) 0xcafe) {
       cerr << "Endianness does not match" << endl;
       return 0;
    }

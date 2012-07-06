@@ -21,7 +21,7 @@
 # or without modification, are permitted provided that this Notice and any
 # statement of authorship are reproduced on all copies.
 
-vtk_module_impl()
+vtk_module_export_info()
 
 include_directories(${VTK_SOURCE_DIR}/Common/Core
   ${VTK_BINARY_DIR}/Common/Core)

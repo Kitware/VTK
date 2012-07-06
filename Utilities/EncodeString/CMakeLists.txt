@@ -6,8 +6,7 @@
 #    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #    PURPOSE.  See the above copyright notice for more information.
 #
-
-vtk_module_impl()
+vtk_module_export_info()
 
 IF(NOT CMAKE_CROSSCOMPILING)
   INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Common/Core ${VTK_BINARY_DIR}/Common/Core)
