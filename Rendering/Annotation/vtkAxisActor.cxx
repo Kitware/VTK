@@ -1962,14 +1962,14 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
   for (nbTicks = 0; nbTicks < nbIteration; nbTicks++)
     {
     // axis/u side
-    this->MajorTickPts->InsertNextPoint(uPointOutside);
     this->MajorTickPts->InsertNextPoint(uPointInside);
+    this->MajorTickPts->InsertNextPoint(uPointOutside);
     vtkMath::Add(deltaVector, uPointInside, uPointInside);
     vtkMath::Add(deltaVector, uPointOutside, uPointOutside);
 
     // axis/v side
-    this->MajorTickPts->InsertNextPoint(vPointOutside);
     this->MajorTickPts->InsertNextPoint(vPointInside);
+    this->MajorTickPts->InsertNextPoint(vPointOutside);
     vtkMath::Add(deltaVector, vPointInside, vPointInside);
     vtkMath::Add(deltaVector, vPointOutside, vPointOutside);
     }
