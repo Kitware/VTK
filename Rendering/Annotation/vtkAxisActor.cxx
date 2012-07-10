@@ -450,22 +450,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // ****************************************************************
 int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
-
-  int renderedSomething=0;
-
-  this->BuildAxis(viewport, false);
-
-  // Everything is built, just have to render
-
-  if (!this->AxisHasZeroLength)
-    {
-    if(this->DrawGridpolys)
-      {
-      renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
-
-  return renderedSomething;
+  return this->RenderTranslucentPolygonalGeometry(viewport);
 }
 
 // ****************************************************************

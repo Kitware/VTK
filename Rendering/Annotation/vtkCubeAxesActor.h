@@ -619,7 +619,7 @@ private:
   double MajorStart[3];
   double DeltaMajor[3];
 
-  int RenderGeometry(vtkViewport *viewport, bool checkAxisVisibility,int (*renderMethod)(vtkAxisActor*, vtkViewport*));
+  int RenderGeometry(bool &initialRender, vtkViewport *viewport, bool checkAxisVisibility,int (vtkAxisActor::*renderMethod)(vtkViewport*));
 
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
                         double pts[8][3]);

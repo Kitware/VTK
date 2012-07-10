@@ -30,32 +30,6 @@
 
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
-// -------------------------------------------------------------------------
-namespace internal_render_methods {
-
-int RenderOpaqueGeometry(vtkAxisActor* axis, vtkViewport* viewport)
-{
-  return axis->RenderOpaqueGeometry(viewport);
-}
-
-int RenderTranslucentGeometry(vtkAxisActor* axis, vtkViewport* viewport)
-{
-  return axis->RenderTranslucentGeometry(viewport);
-}
-
-int RenderTranslucentPolygonalGeometry(vtkAxisActor* axis, vtkViewport* viewport)
-{
-  return axis->RenderTranslucentPolygonalGeometry(viewport);
-}
-
-int RenderOverlay(vtkAxisActor* axis, vtkViewport* viewport)
-{
-  return axis->RenderOverlay(viewport);
-}
-
-}
-// -------------------------------------------------------------------------
-
 // *************************************************************************
 // Instantiate this object.
 // *************************************************************************
@@ -269,7 +243,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
 
   this->RenderSomething = 0;
 
-  this->LastUseOrientedBounds = -1;
+  this->LastUseOrientedBounds = 0;
 
   this->LastXPow = 0;
   this->LastYPow = 0;
@@ -520,7 +494,10 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
 // *************************************************************************
 int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  return this->RenderGeometry(viewport, true, &internal_render_methods::RenderOpaqueGeometry);
+  static bool initialRender = true;
+  return this->RenderGeometry(
+        initialRender, viewport, true,
+        &vtkAxisActor::RenderOpaqueGeometry);
 }
 
 // *************************************************************************
@@ -530,9 +507,10 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // *************************************************************************
 int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
+  static bool initialRender = true;
   return this->RenderGeometry(
-        viewport, true,
-        &internal_render_methods::RenderTranslucentGeometry);
+        initialRender, viewport, true,
+        &vtkAxisActor::RenderTranslucentGeometry);
 }
 
 // *************************************************************************
@@ -542,9 +520,10 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 // *************************************************************************
 int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
+  static bool initialRender = true;
   return this->RenderGeometry(
-        viewport, true,
-        &internal_render_methods::RenderTranslucentPolygonalGeometry);
+        initialRender, viewport, true,
+        &vtkAxisActor::RenderTranslucentPolygonalGeometry);
 }
 
 // *************************************************************************
@@ -552,9 +531,10 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 // *************************************************************************
 int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
 {
+  static bool initialRender = true;
   return this->RenderGeometry(
-        viewport, false,
-        &internal_render_methods::RenderTranslucentPolygonalGeometry);
+        initialRender, viewport, false,
+        &vtkAxisActor::RenderOverlay);
 }
 
 // --------------------------------------------------------------------------
@@ -2487,10 +2467,11 @@ vtkProperty* vtkCubeAxesActor::GetZAxesGridpolysProperty()
   return this->ZAxesGridpolysProperty;
 }
 // --------------------------------------------------------------------------
-int vtkCubeAxesActor::RenderGeometry(vtkViewport *viewport, bool checkAxisVisibility, int (*renderMethod)(vtkAxisActor*, vtkViewport*))
+int vtkCubeAxesActor::RenderGeometry(
+    bool &initialRender, vtkViewport *viewport, bool checkAxisVisibility,
+    int (vtkAxisActor::*renderMethod)(vtkViewport*))
 {
   int i, renderedSomething = 0;
-  static bool initialRender = true;
 
   // Make sure axes are initialized and visibility is properly set
   if(checkAxisVisibility)
@@ -2525,7 +2506,7 @@ int vtkCubeAxesActor::RenderGeometry(vtkViewport *viewport, bool checkAxisVisibi
     for (i = 0; i < this->NumberOfAxesX; i++)
       {
       renderedSomething +=
-          (*renderMethod)(this->XAxes[this->RenderAxesX[i]], viewport);
+          (this->XAxes[this->RenderAxesX[i]]->*renderMethod)(viewport);
       }
     }
 
@@ -2534,7 +2515,7 @@ int vtkCubeAxesActor::RenderGeometry(vtkViewport *viewport, bool checkAxisVisibi
     for (i = 0; i < this->NumberOfAxesY; i++)
       {
       renderedSomething +=
-          (*renderMethod)(this->YAxes[this->RenderAxesY[i]], viewport);
+          (this->YAxes[this->RenderAxesY[i]]->*renderMethod)(viewport);
       }
     }
 
@@ -2543,7 +2524,7 @@ int vtkCubeAxesActor::RenderGeometry(vtkViewport *viewport, bool checkAxisVisibi
     for (i = 0; i < this->NumberOfAxesZ; i++)
       {
       renderedSomething +=
-          (*renderMethod)(this->ZAxes[this->RenderAxesZ[i]], viewport);
+          (this->ZAxes[this->RenderAxesZ[i]]->*renderMethod)(viewport);
       }
     }
   return renderedSomething;
