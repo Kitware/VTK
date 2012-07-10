@@ -206,8 +206,8 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
       } // while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
 
     // Resize output meta and append aggregated table for current variable
-    const char* varName = inMeta->GetMetaData( static_cast<unsigned>( b ) )->Get( vtkCompositeDataSet::NAME() );
-    outMeta->GetMetaData( static_cast<unsigned>( b ) )->Set( vtkCompositeDataSet::NAME(), varName );
+    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+    outMeta->GetMetaData( b )->Set( vtkCompositeDataSet::NAME(), varName );
     outMeta->SetBlock( b, aggregatedTab );
 
     // Clean up
@@ -411,7 +411,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       if ( nRow != nLag )
         {
         vtkErrorMacro( "Variable "
-                       << inMeta->GetMetaData( static_cast<unsigned>( b ) )->Get( vtkCompositeDataSet::NAME() )
+                       << inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() )
                        << " has "
                        << nRow
                        << " time lags but should have "
