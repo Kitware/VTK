@@ -20,10 +20,12 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -394,8 +396,12 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
+  // Prepare storage for FFT of auto-covariance
+  vtkDoubleArray* timeArray = vtkDoubleArray::New();
+  timeArray->SetNumberOfComponents( 1 );
+
   // Iterate over variable blocks
-  vtkIdType nLag = 0;
+  vtkIdType nLags = 0;
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
@@ -405,24 +411,25 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       continue;
       }
 
+    // Verify that number of time lags is consistent
     vtkIdType nRow = modelTab->GetNumberOfRows();
     if ( b )
       {
-      if ( nRow != nLag )
+      if ( nRow != nLags )
         {
         vtkErrorMacro( "Variable "
                        << inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() )
                        << " has "
                        << nRow
                        << " time lags but should have "
-                       << nLag
+                       << nLags
                        << ". Exiting." );
         return;
         }
       }
     else // if ( b )
       {
-      nLag = nRow;
+      nLags = nRow;
       }
     if ( ! nRow  )
       {
@@ -481,10 +488,14 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         covXsXt = mXsXt * inv_nm1;
         }
 
+      // Store derived values
       derivedVals[0] = varXs;
       derivedVals[1] = varXt;
       derivedVals[2] = covXsXt;
       derivedVals[3] = varXs * varXt - covXsXt * covXsXt;
+      
+      // Update time series array
+      timeArray->InsertNextValue ( covXsXt );
 
       // There will be NaN values in linear regression if covariance matrix is not positive definite
       double meanXs = modelTab->GetValueByName( i, "Mean Xs" ).ToDouble();
@@ -536,6 +547,18 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     // Clean up
     delete [] derivedVals;
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
+
+  // Create image data for FFT calculation
+  vtkImageData* timeData = vtkImageData::New();
+  timeData->SetDimensions( nLags, 1, 1 );  
+  timeData->SetOrigin( 0., 0., 0. );
+  timeData->SetSpacing( 1., 1., 1. );
+  timeData->AllocateScalars(VTK_DOUBLE, 1 );
+  timeData->GetPointData()->SetScalars( timeArray );
+  timeArray->Delete();
+
+  // Clean up
+  timeData->Delete();
 }
 
 // ----------------------------------------------------------------------
