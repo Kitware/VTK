@@ -395,6 +395,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   // Iterate over variable blocks
+  vtkIdType nLag = 0;
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
@@ -405,7 +406,24 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
 
     vtkIdType nRow = modelTab->GetNumberOfRows();
-    // FIXME: verify that all tables have same number of rows (i.e., lags)
+    if ( b )
+      {
+      if ( nRow != nLag )
+        {
+        vtkErrorMacro( "Variable "
+                       << inMeta->GetMetaData( static_cast<unsigned>( b ) )->Get( vtkCompositeDataSet::NAME() )
+                       << " has "
+                       << nRow
+                       << " time lags but should have "
+                       << nLag
+                       << ". Exiting." );
+        return;
+        }
+      }
+    else // if ( b )
+      {
+      nLag = nRow;
+      }
     if ( ! nRow  )
       {
       continue;
