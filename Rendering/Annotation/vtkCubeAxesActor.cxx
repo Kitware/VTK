@@ -30,6 +30,31 @@
 
 vtkStandardNewMacro(vtkCubeAxesActor);
 vtkCxxSetObjectMacro(vtkCubeAxesActor, Camera,vtkCamera);
+// -------------------------------------------------------------------------
+namespace internal_render_methods {
+
+int RenderOpaqueGeometry(vtkAxisActor* axis, vtkViewport* viewport)
+{
+  return axis->RenderOpaqueGeometry(viewport);
+}
+
+int RenderTranslucentGeometry(vtkAxisActor* axis, vtkViewport* viewport)
+{
+  return axis->RenderTranslucentGeometry(viewport);
+}
+
+int RenderTranslucentPolygonalGeometry(vtkAxisActor* axis, vtkViewport* viewport)
+{
+  return axis->RenderTranslucentPolygonalGeometry(viewport);
+}
+
+int RenderOverlay(vtkAxisActor* axis, vtkViewport* viewport)
+{
+  return axis->RenderOverlay(viewport);
+}
+
+}
+// -------------------------------------------------------------------------
 
 // *************************************************************************
 // Instantiate this object.
@@ -39,7 +64,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
-  this->UseOrientedBounds = 0;
+
+  // Disable oriented bounds and Axis origin
+  this->UseOrientedBounds = this->UseAxisOrigin = 0;
+
+  // Init default axis origin
+  this->AxisOrigin[0] = this->AxisOrigin[1] = this->AxisOrigin[2] = 0.0;
+
   // Init default axis base
   this->AxisBaseForX[0] = this->AxisBaseForX[1] = this->AxisBaseForX[2] = 0;
   this->AxisBaseForY[0] = this->AxisBaseForY[1] = this->AxisBaseForY[2] = 0;
@@ -51,6 +82,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Camera = NULL;
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
+  this->GridLineLocation = VTK_ALL_GRID_LINES;
 
   // By default enable distance based LOD
   this->EnableDistanceLOD = 1;
@@ -236,6 +268,8 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->InertiaLocs[0] = this->InertiaLocs[1] = this->InertiaLocs[2] = -1;
 
   this->RenderSomething = 0;
+
+  this->LastUseOrientedBounds = -1;
 
   this->LastXPow = 0;
   this->LastYPow = 0;
@@ -486,60 +520,7 @@ vtkCubeAxesActor::~vtkCubeAxesActor()
 // *************************************************************************
 int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  int i, renderedSomething=0;
-  static bool initialRender = true;
-  // Initialization
-  if (!this->Camera)
-    {
-    vtkErrorMacro(<<"No camera!");
-    this->RenderSomething = 0;
-    return 0;
-    }
-
-  this->BuildAxes(viewport);
-
-  if (initialRender || this->RebuildAxes)
-    {
-    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-      {
-      this->XAxes[i]->BuildAxis(viewport, true);
-      this->YAxes[i]->BuildAxis(viewport, true);
-      this->ZAxes[i]->BuildAxis(viewport, true);
-      }
-    }
-  initialRender = false;
-  this->RebuildAxes = false;
-
-  this->DetermineRenderAxes(viewport);
-
-  //Render the axes
-  if (this->XAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesX; i++)
-      {
-      renderedSomething +=
-        this->XAxes[this->RenderAxesX[i]]->RenderOpaqueGeometry(viewport);
-      }
-    }
-
-  if (this->YAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesY; i++)
-      {
-      renderedSomething +=
-        this->YAxes[this->RenderAxesY[i]]->RenderOpaqueGeometry(viewport);
-      }
-    }
-
-  if (this->ZAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesZ; i++)
-      {
-      renderedSomething +=
-        this->ZAxes[this->RenderAxesZ[i]]->RenderOpaqueGeometry(viewport);
-      }
-    }
-  return renderedSomething;
+  return this->RenderGeometry(viewport, true, &internal_render_methods::RenderOpaqueGeometry);
 }
 
 // *************************************************************************
@@ -549,59 +530,9 @@ int vtkCubeAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // *************************************************************************
 int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
-   int i, renderedSomething=0;
-  static bool initialRender = true;
-  // Initialization
-  if (!this->Camera)
-    {
-    vtkErrorMacro(<<"No camera!");
-    this->RenderSomething = 0;
-    return 0;
-    }
-
-  this->BuildAxes(viewport);
-
-  if (initialRender)
-    {
-    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-      {
-      this->XAxes[i]->BuildAxis(viewport, true);
-      this->YAxes[i]->BuildAxis(viewport, true);
-      this->ZAxes[i]->BuildAxis(viewport, true);
-      }
-    }
-  initialRender = false;
-
-  this->DetermineRenderAxes(viewport);
-
-  //Render the axes
-  if (this->XAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesX; i++)
-      {
-      renderedSomething +=
-        this->XAxes[this->RenderAxesX[i]]->RenderTranslucentGeometry(viewport);
-      }
-    }
-
-  if (this->YAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesY; i++)
-      {
-      renderedSomething +=
-        this->YAxes[this->RenderAxesY[i]]->RenderTranslucentGeometry(viewport);
-      }
-    }
-
-  if (this->ZAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesZ; i++)
-      {
-      renderedSomething +=
-        this->ZAxes[this->RenderAxesZ[i]]->RenderTranslucentGeometry(viewport);
-      }
-    }
-  return renderedSomething;
+  return this->RenderGeometry(
+        viewport, true,
+        &internal_render_methods::RenderTranslucentGeometry);
 }
 
 // *************************************************************************
@@ -611,59 +542,9 @@ int vtkCubeAxesActor::RenderTranslucentGeometry(vtkViewport *viewport)
 // *************************************************************************
 int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
-  int i, renderedSomething=0;
-  static bool initialRender = true;
-  // Initialization
-  if (!this->Camera)
-    {
-    vtkErrorMacro(<<"No camera!");
-    this->RenderSomething = 0;
-    return 0;
-    }
-
-  this->BuildAxes(viewport);
-
-  if (initialRender)
-    {
-    for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-      {
-      this->XAxes[i]->BuildAxis(viewport, true);
-      this->YAxes[i]->BuildAxis(viewport, true);
-      this->ZAxes[i]->BuildAxis(viewport, true);
-      }
-    }
-  initialRender = false;
-
-  this->DetermineRenderAxes(viewport);
-
-  //Render the axes
-  if (this->XAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesX; i++)
-      {
-      renderedSomething +=
-        this->XAxes[this->RenderAxesX[i]]->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
-
-  if (this->YAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesY; i++)
-      {
-      renderedSomething +=
-        this->YAxes[this->RenderAxesY[i]]->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
-
-  if (this->ZAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesZ; i++)
-      {
-      renderedSomething +=
-        this->ZAxes[this->RenderAxesZ[i]]->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
-  return renderedSomething;
+  return this->RenderGeometry(
+        viewport, true,
+        &internal_render_methods::RenderTranslucentPolygonalGeometry);
 }
 
 // *************************************************************************
@@ -671,47 +552,13 @@ int vtkCubeAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 // *************************************************************************
 int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
 {
-  int i, renderedSomething=0;
-
-  //Render the axes
-  if (this->XAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesX; i++)
-      {
-
-      renderedSomething +=
-        this->XAxes[this->RenderAxesX[i]]->RenderOverlay(viewport);
-      }
-    }
-
-  if (this->YAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesY; i++)
-      {
-      renderedSomething +=
-        this->YAxes[this->RenderAxesY[i]]->RenderOverlay(viewport);
-      }
-    }
-
-  if (this->ZAxisVisibility)
-    {
-    for (i = 0; i < this->NumberOfAxesZ; i++)
-      {
-      renderedSomething +=
-        this->ZAxes[this->RenderAxesZ[i]]->RenderOverlay(viewport);
-      }
-    }
-  return renderedSomething;
+  return this->RenderGeometry(
+        viewport, false,
+        &internal_render_methods::RenderTranslucentPolygonalGeometry);
 }
 
-
-
-int vtkCubeAxesActor::HasTranslucentPolygonalGeometry()
-{
-  return 1;
-}
-
-  // Do final adjustment of axes to control offset, etc.
+// --------------------------------------------------------------------------
+// Do final adjustment of axes to control offset, etc.
 void vtkCubeAxesActor::AdjustAxes(double bounds[6],
                                   double xCoords[NUMBER_OF_ALIGNED_AXIS][6],
                                   double yCoords[NUMBER_OF_ALIGNED_AXIS][6],
@@ -854,36 +701,6 @@ void vtkCubeAxesActor::ReleaseGraphicsResources(vtkWindow *win)
     }
 }
 
-// *************************************************************************
-// Compute the bounds
-// *************************************************************************
-void vtkCubeAxesActor::GetBounds(double bounds[6])
-{
-  for (int i=0; i< 6; i++)
-    {
-    bounds[i] = this->Bounds[i];
-    }
-}
-
-// Compute the bounds
-void vtkCubeAxesActor::GetBounds(double& xmin, double& xmax,
-                                 double& ymin, double& ymax,
-                                 double& zmin, double& zmax)
-{
-  xmin = this->Bounds[0];
-  xmax = this->Bounds[1];
-  ymin = this->Bounds[2];
-  ymax = this->Bounds[3];
-  zmin = this->Bounds[4];
-  zmax = this->Bounds[5];
-}
-
-// Compute the bounds
-double *vtkCubeAxesActor::GetBounds()
-{
-  return this->Bounds;
-}
-
 // ******************************************************************
 void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -999,6 +816,19 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DrawYGridlines: " << this->DrawYGridlines << endl;
   os << indent << "DrawZGridlines: " << this->DrawZGridlines << endl;
 
+  switch(this->GridLineLocation)
+    {
+  case VTK_ALL_GRID_LINES:
+    os << indent << "GridLineLocation: VTK_ALL_GRID_LINES (0)" << endl;
+    break;
+  case VTK_CLOSEST_GRID_LINES:
+    os << indent << "GridLineLocation: VTK_CLOSEST_GRID_LINES (1)" << endl;
+    break;
+  case VTK_FURTHEST_GRID_LINES:
+    os << indent << "GridLineLocation: VTK_FURTHEST_GRID_LINES (2)" << endl;
+    break;
+    }
+
   os << indent << "DrawXInnerGridlines: " << this->DrawXInnerGridlines << endl;
   os << indent << "DrawYInnerGridlines: " << this->DrawYInnerGridlines << endl;
   os << indent << "DrawZInnerGridlines: " << this->DrawZInnerGridlines << endl;
@@ -1006,8 +836,37 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DrawXGridpolys: " << this->DrawXGridpolys << endl;
   os << indent << "DrawYGridpolys: " << this->DrawYGridpolys << endl;
   os << indent << "DrawZGridpolys: " << this->DrawZGridpolys << endl;
+
+
+  os << indent << "UseOrientedBounds: " << this->UseOrientedBounds << endl;
+  if(this->UseOrientedBounds)
+    {
+    os << indent << "OrientedBounds: \n";
+    os << indent << "  Xmin,Xmax: (" << this->OrientedBounds[0] << ", "
+       << this->OrientedBounds[1] << ")\n";
+    os << indent << "  Ymin,Ymax: (" << this->OrientedBounds[2] << ", "
+       << this->OrientedBounds[3] << ")\n";
+    os << indent << "  Zmin,Zmax: (" << this->OrientedBounds[4] << ", "
+       << this->OrientedBounds[5] << ")\n";
+    }
+
+  os << indent << "Base: \n";
+  os << indent << "  For X: (" << this->AxisBaseForX[0] << ", "
+     << this->AxisBaseForX[1] << ", " << this->AxisBaseForX[2] << ") \n";
+  os << indent << "  For Y: (" << this->AxisBaseForY[0] << ", "
+     << this->AxisBaseForY[1] << ", " << this->AxisBaseForY[2] << ") \n";
+  os << indent << "  For Z: (" << this->AxisBaseForZ[0] << ", "
+     << this->AxisBaseForZ[1] << ", " << this->AxisBaseForZ[2] << ") \n";
+
+  os << indent << "UseAxisOrigin: " << this->UseAxisOrigin << endl;
+  if(this->UseAxisOrigin)
+    {
+    os << indent << "AxisOrigin: (" << this->AxisOrigin[0] << ", "
+       << this->AxisOrigin[1] << ", " << this->AxisOrigin[2] << ")" << endl;
+    }
 }
 
+// --------------------------------------------------------------------------
 void vtkCubeAxesActor::TransformBounds(vtkViewport *viewport,
                                        const double bounds[6],
                                        double pts[8][3])
@@ -1494,8 +1353,6 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
 // *************************************************************************
 void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 {
-  int i;
-
   if ((this->GetMTime() < this->BuildTime.GetMTime()))
     {
     this->AutoScale(viewport);
@@ -1504,73 +1361,95 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
 
   this->SetNonDependentAttributes();
 
+  // Reset range in case of bounds type changed
+  if(this->LastUseOrientedBounds != this->UseOrientedBounds)
+    {
+    this->XAxisRange[0] = this->XAxisRange[1] = VTK_DOUBLE_MAX;
+    this->YAxisRange[0] = this->YAxisRange[1] = VTK_DOUBLE_MAX;
+    this->ZAxisRange[0] = this->ZAxisRange[1] = VTK_DOUBLE_MAX;
+    this->LastUseOrientedBounds = this->UseOrientedBounds;
+    }
+
   // determine the bounds to use (input, prop, or user-defined)
   double bounds[6];
   if(this->UseOrientedBounds != 0)
     {
     this->GetOrientedBounds(bounds);
-    this->XAxisRange[0] = this->XAxisRange[1] = VTK_DOUBLE_MAX;
-    this->YAxisRange[0] = this->YAxisRange[1] = VTK_DOUBLE_MAX;
-    this->ZAxisRange[0] = this->ZAxisRange[1] = VTK_DOUBLE_MAX;
     }
   else
     {
     this->GetBounds(bounds);
     }
 
-  // Build the axes (almost always needed so we don't check mtime)
-  // Transform all points into display coordinates (to determine which closest
-  // to camera).
-  double pts[8][3];
-  this->TransformBounds(viewport, bounds, pts);
-
   // Setup the axes for plotting
-  double xCoords[NUMBER_OF_ALIGNED_AXIS][6], yCoords[NUMBER_OF_ALIGNED_AXIS][6],
-    zCoords[NUMBER_OF_ALIGNED_AXIS][6];
+  double xCoords[NUMBER_OF_ALIGNED_AXIS][6];
+  double yCoords[NUMBER_OF_ALIGNED_AXIS][6];
+  double zCoords[NUMBER_OF_ALIGNED_AXIS][6];
 
   // these arrays are accessed by 'location':  mm, mX, XX, or Xm.
   int mm1[4] = { 0, 0, 1, 1 };
   int mm2[4] = { 0, 1, 1, 0 };
 
-  // Make sure our Axis Base is normalized
-  vtkMath::Normalize(this->AxisBaseForX);
-  vtkMath::Normalize(this->AxisBaseForY);
-  vtkMath::Normalize(this->AxisBaseForZ);
-
+  // Compute axes end-points
+  int i;
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
-    this->XAxes[i]->SetAxisPosition(i);
-    this->XAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
-    this->XAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
-    this->XAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
-    xCoords[i][0] = bounds[0]*this->AxisBaseForX[0] + bounds[2+mm1[i]]*this->AxisBaseForY[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
-    xCoords[i][1] = bounds[0]*this->AxisBaseForX[1] + bounds[2+mm1[i]]*this->AxisBaseForY[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
-    xCoords[i][2] = bounds[0]*this->AxisBaseForX[2] + bounds[2+mm1[i]]*this->AxisBaseForY[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
-    xCoords[i][3] = bounds[1]*this->AxisBaseForX[0] + bounds[2+mm1[i]]*this->AxisBaseForY[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
-    xCoords[i][4] = bounds[1]*this->AxisBaseForX[1] + bounds[2+mm1[i]]*this->AxisBaseForY[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
-    xCoords[i][5] = bounds[1]*this->AxisBaseForX[2] + bounds[2+mm1[i]]*this->AxisBaseForY[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+    if(this->UseAxisOrigin == 0)
+      {
+      xCoords[i][0] = bounds[0]*this->AxisBaseForX[0] + bounds[2+mm1[i]]*this->AxisBaseForY[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+      xCoords[i][1] = bounds[0]*this->AxisBaseForX[1] + bounds[2+mm1[i]]*this->AxisBaseForY[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+      xCoords[i][2] = bounds[0]*this->AxisBaseForX[2] + bounds[2+mm1[i]]*this->AxisBaseForY[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+      xCoords[i][3] = bounds[1]*this->AxisBaseForX[0] + bounds[2+mm1[i]]*this->AxisBaseForY[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+      xCoords[i][4] = bounds[1]*this->AxisBaseForX[1] + bounds[2+mm1[i]]*this->AxisBaseForY[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+      xCoords[i][5] = bounds[1]*this->AxisBaseForX[2] + bounds[2+mm1[i]]*this->AxisBaseForY[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+      }
+    else
+      {
+      xCoords[i][0] = bounds[0]*this->AxisBaseForX[0] + this->AxisOrigin[1]*this->AxisBaseForY[0] + this->AxisOrigin[2]*this->AxisBaseForZ[0];
+      xCoords[i][1] = bounds[0]*this->AxisBaseForX[1] + this->AxisOrigin[1]*this->AxisBaseForY[1] + this->AxisOrigin[2]*this->AxisBaseForZ[1];
+      xCoords[i][2] = bounds[0]*this->AxisBaseForX[2] + this->AxisOrigin[1]*this->AxisBaseForY[2] + this->AxisOrigin[2]*this->AxisBaseForZ[2];
+      xCoords[i][3] = bounds[1]*this->AxisBaseForX[0] + this->AxisOrigin[1]*this->AxisBaseForY[0] + this->AxisOrigin[2]*this->AxisBaseForZ[0];
+      xCoords[i][4] = bounds[1]*this->AxisBaseForX[1] + this->AxisOrigin[1]*this->AxisBaseForY[1] + this->AxisOrigin[2]*this->AxisBaseForZ[1];
+      xCoords[i][5] = bounds[1]*this->AxisBaseForX[2] + this->AxisOrigin[1]*this->AxisBaseForY[2] + this->AxisOrigin[2]*this->AxisBaseForZ[2];
+      }
 
-    this->YAxes[i]->SetAxisPosition(i);
-    this->YAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
-    this->YAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
-    this->YAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
-    yCoords[i][0] = bounds[2]*this->AxisBaseForY[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
-    yCoords[i][1] = bounds[2]*this->AxisBaseForY[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
-    yCoords[i][2] = bounds[2]*this->AxisBaseForY[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
-    yCoords[i][3] = bounds[3]*this->AxisBaseForY[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
-    yCoords[i][4] = bounds[3]*this->AxisBaseForY[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
-    yCoords[i][5] = bounds[3]*this->AxisBaseForY[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+    if(this->UseAxisOrigin == 0)
+      {
+      yCoords[i][0] = bounds[2]*this->AxisBaseForY[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+      yCoords[i][1] = bounds[2]*this->AxisBaseForY[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+      yCoords[i][2] = bounds[2]*this->AxisBaseForY[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+      yCoords[i][3] = bounds[3]*this->AxisBaseForY[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[4+mm2[i]]*this->AxisBaseForZ[0];
+      yCoords[i][4] = bounds[3]*this->AxisBaseForY[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[4+mm2[i]]*this->AxisBaseForZ[1];
+      yCoords[i][5] = bounds[3]*this->AxisBaseForY[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[4+mm2[i]]*this->AxisBaseForZ[2];
+      }
+    else
+      {
+      yCoords[i][0] = bounds[2]*this->AxisBaseForY[0] + this->AxisOrigin[0]*this->AxisBaseForX[0] + this->AxisOrigin[2]*this->AxisBaseForZ[0];
+      yCoords[i][1] = bounds[2]*this->AxisBaseForY[1] + this->AxisOrigin[0]*this->AxisBaseForX[1] + this->AxisOrigin[2]*this->AxisBaseForZ[1];
+      yCoords[i][2] = bounds[2]*this->AxisBaseForY[2] + this->AxisOrigin[0]*this->AxisBaseForX[2] + this->AxisOrigin[2]*this->AxisBaseForZ[2];
+      yCoords[i][3] = bounds[3]*this->AxisBaseForY[0] + this->AxisOrigin[0]*this->AxisBaseForX[0] + this->AxisOrigin[2]*this->AxisBaseForZ[0];
+      yCoords[i][4] = bounds[3]*this->AxisBaseForY[1] + this->AxisOrigin[0]*this->AxisBaseForX[1] + this->AxisOrigin[2]*this->AxisBaseForZ[1];
+      yCoords[i][5] = bounds[3]*this->AxisBaseForY[2] + this->AxisOrigin[0]*this->AxisBaseForX[2] + this->AxisOrigin[2]*this->AxisBaseForZ[2];
+      }
 
-    this->ZAxes[i]->SetAxisPosition(i);
-    this->ZAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
-    this->ZAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
-    this->ZAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
-    zCoords[i][0] = bounds[4]*this->AxisBaseForZ[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[2+mm2[i]]*this->AxisBaseForY[0];
-    zCoords[i][1] = bounds[4]*this->AxisBaseForZ[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[2+mm2[i]]*this->AxisBaseForY[1];
-    zCoords[i][2] = bounds[4]*this->AxisBaseForZ[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[2+mm2[i]]*this->AxisBaseForY[2];
-    zCoords[i][3] = bounds[5]*this->AxisBaseForZ[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[2+mm2[i]]*this->AxisBaseForY[0];
-    zCoords[i][4] = bounds[5]*this->AxisBaseForZ[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[2+mm2[i]]*this->AxisBaseForY[1];
-    zCoords[i][5] = bounds[5]*this->AxisBaseForZ[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[2+mm2[i]]*this->AxisBaseForY[2];
+    if(this->UseAxisOrigin == 0)
+      {
+      zCoords[i][0] = bounds[4]*this->AxisBaseForZ[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[2+mm2[i]]*this->AxisBaseForY[0];
+      zCoords[i][1] = bounds[4]*this->AxisBaseForZ[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[2+mm2[i]]*this->AxisBaseForY[1];
+      zCoords[i][2] = bounds[4]*this->AxisBaseForZ[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[2+mm2[i]]*this->AxisBaseForY[2];
+      zCoords[i][3] = bounds[5]*this->AxisBaseForZ[0] + bounds[0+mm1[i]]*this->AxisBaseForX[0] + bounds[2+mm2[i]]*this->AxisBaseForY[0];
+      zCoords[i][4] = bounds[5]*this->AxisBaseForZ[1] + bounds[0+mm1[i]]*this->AxisBaseForX[1] + bounds[2+mm2[i]]*this->AxisBaseForY[1];
+      zCoords[i][5] = bounds[5]*this->AxisBaseForZ[2] + bounds[0+mm1[i]]*this->AxisBaseForX[2] + bounds[2+mm2[i]]*this->AxisBaseForY[2];
+      }
+    else
+      {
+      zCoords[i][0] = bounds[4]*this->AxisBaseForZ[0] + this->AxisOrigin[0]*this->AxisBaseForX[0] + this->AxisOrigin[1]*this->AxisBaseForY[0];
+      zCoords[i][1] = bounds[4]*this->AxisBaseForZ[1] + this->AxisOrigin[0]*this->AxisBaseForX[1] + this->AxisOrigin[1]*this->AxisBaseForY[1];
+      zCoords[i][2] = bounds[4]*this->AxisBaseForZ[2] + this->AxisOrigin[0]*this->AxisBaseForX[2] + this->AxisOrigin[1]*this->AxisBaseForY[2];
+      zCoords[i][3] = bounds[5]*this->AxisBaseForZ[0] + this->AxisOrigin[0]*this->AxisBaseForX[0] + this->AxisOrigin[1]*this->AxisBaseForY[0];
+      zCoords[i][4] = bounds[5]*this->AxisBaseForZ[1] + this->AxisOrigin[0]*this->AxisBaseForX[1] + this->AxisOrigin[1]*this->AxisBaseForY[1];
+      zCoords[i][5] = bounds[5]*this->AxisBaseForZ[2] + this->AxisOrigin[0]*this->AxisBaseForX[2] + this->AxisOrigin[1]*this->AxisBaseForY[2];
+      }
     }
 
   double xRange[2], yRange[2], zRange[2];
@@ -1715,8 +1594,18 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
   vtkProperty *prop = this->GetProperty();
   prop->SetAmbient(1.0);
   prop->SetDiffuse(0.0);
+
+  // Make sure our Axis Base is normalized
+  vtkMath::Normalize(this->AxisBaseForX);
+  vtkMath::Normalize(this->AxisBaseForY);
+  vtkMath::Normalize(this->AxisBaseForZ);
+
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
+    this->XAxes[i]->SetAxisPosition(i);
+    this->XAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
+    this->XAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
+    this->XAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
     this->XAxes[i]->SetCamera(this->Camera);
     this->XAxes[i]->SetProperty(prop);
     this->XAxes[i]->SetTitleTextProperty(this->TitleTextProperty[0]);
@@ -1726,6 +1615,7 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->XAxes[i]->SetGridpolysProperty(this->XAxesGridpolysProperty);
     this->XAxes[i]->SetTickLocation(this->TickLocation);
     this->XAxes[i]->SetDrawGridlines(this->DrawXGridlines);
+    this->XAxes[i]->SetDrawGridlinesLocation(this->GridLineLocation);
     this->XAxes[i]->SetDrawInnerGridlines(this->DrawXInnerGridlines);
     this->XAxes[i]->SetDrawGridpolys(this->DrawXGridpolys);
     this->XAxes[i]->SetBounds(this->Bounds);
@@ -1735,6 +1625,10 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->XAxes[i]->SetTickVisibility(this->XAxisTickVisibility);
     this->XAxes[i]->SetMinorTicksVisible(this->XAxisMinorTickVisibility);
 
+    this->YAxes[i]->SetAxisPosition(i);
+    this->YAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
+    this->YAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
+    this->YAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
     this->YAxes[i]->SetCamera(this->Camera);
     this->YAxes[i]->SetProperty(prop);
     this->YAxes[i]->SetTitleTextProperty(this->TitleTextProperty[1]);
@@ -1744,6 +1638,7 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->YAxes[i]->SetGridpolysProperty(this->YAxesGridpolysProperty);
     this->YAxes[i]->SetTickLocation(this->TickLocation);
     this->YAxes[i]->SetDrawGridlines(this->DrawYGridlines);
+    this->YAxes[i]->SetDrawGridlinesLocation(this->GridLineLocation);
     this->YAxes[i]->SetDrawInnerGridlines(this->DrawYInnerGridlines);
     this->YAxes[i]->SetDrawGridpolys(this->DrawYGridpolys);
     this->YAxes[i]->SetBounds(this->Bounds);
@@ -1753,6 +1648,10 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->YAxes[i]->SetTickVisibility(this->YAxisTickVisibility);
     this->YAxes[i]->SetMinorTicksVisible(this->YAxisMinorTickVisibility);
 
+    this->ZAxes[i]->SetAxisPosition(i);
+    this->ZAxes[i]->SetAxisBaseForX(this->AxisBaseForX);
+    this->ZAxes[i]->SetAxisBaseForY(this->AxisBaseForY);
+    this->ZAxes[i]->SetAxisBaseForZ(this->AxisBaseForZ);
     this->ZAxes[i]->SetCamera(this->Camera);
     this->ZAxes[i]->SetProperty(prop);
     this->ZAxes[i]->SetTitleTextProperty(this->TitleTextProperty[2]);
@@ -1762,6 +1661,7 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
     this->ZAxes[i]->SetGridpolysProperty(this->ZAxesGridpolysProperty);
     this->ZAxes[i]->SetTickLocation(this->TickLocation);
     this->ZAxes[i]->SetDrawGridlines(this->DrawZGridlines);
+    this->ZAxes[i]->SetDrawGridlinesLocation(this->GridLineLocation);
     this->ZAxes[i]->SetDrawInnerGridlines(this->DrawZInnerGridlines);
     this->ZAxes[i]->SetDrawGridpolys(this->DrawZGridpolys);
     this->ZAxes[i]->SetBounds(this->Bounds);
@@ -2033,52 +1933,13 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
 
   // Set axes to be rendered
   this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;
-  if ( this->DrawXGridlines )
-    {
-    this->RenderAxesX[1] = (xloc + 2) % NUMBER_OF_ALIGNED_AXIS;
-    this->NumberOfAxesX = 2;
-    this->XAxes[RenderAxesX[1]]->SetAxisVisibility(0);
-    this->XAxes[RenderAxesX[1]]->SetTickVisibility(0);
-    this->XAxes[RenderAxesX[1]]->SetLabelVisibility(0);
-    this->XAxes[RenderAxesX[1]]->SetTitleVisibility(0);
-    this->XAxes[RenderAxesX[1]]->SetMinorTicksVisible(0);
-    }
-  else
-    {
-    this->NumberOfAxesX = 1;
-    }
+  this->NumberOfAxesX = 1;
 
   this->RenderAxesY[0] = yloc % NUMBER_OF_ALIGNED_AXIS;
-  if ( this->DrawYGridlines )
-    {
-    this->RenderAxesY[1] = (yloc + 2) % NUMBER_OF_ALIGNED_AXIS;
-    this->NumberOfAxesY = 2;
-    this->YAxes[RenderAxesY[1]]->SetAxisVisibility(0);
-    this->YAxes[RenderAxesY[1]]->SetTickVisibility(0);
-    this->YAxes[RenderAxesY[1]]->SetLabelVisibility(0);
-    this->YAxes[RenderAxesY[1]]->SetTitleVisibility(0);
-    this->YAxes[RenderAxesY[1]]->SetMinorTicksVisible(0);
-    }
-  else
-    {
-    this->NumberOfAxesY = 1;
-    }
+  this->NumberOfAxesY = 1;
 
   this->RenderAxesZ[0] = zloc % NUMBER_OF_ALIGNED_AXIS;
-  if ( this->DrawZGridlines )
-    {
-    this->RenderAxesZ[1] = (zloc + 2) % NUMBER_OF_ALIGNED_AXIS;
-    this->NumberOfAxesZ = 2;
-    this->ZAxes[RenderAxesZ[1]]->SetAxisVisibility(0);
-    this->ZAxes[RenderAxesZ[1]]->SetTickVisibility(0);
-    this->ZAxes[RenderAxesZ[1]]->SetLabelVisibility(0);
-    this->ZAxes[RenderAxesZ[1]]->SetTitleVisibility(0);
-    this->ZAxes[RenderAxesZ[1]]->SetMinorTicksVisible(0);
-    }
-  else
-    {
-    this->NumberOfAxesZ = 1;
-    }
+  this->NumberOfAxesZ = 1;
 
   //  Make sure that the primary axis visibility flags are set correctly.
   this->XAxes[RenderAxesX[0]]->SetLabelVisibility(this->XAxisLabelVisibility);
@@ -2100,22 +1961,26 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport *viewport)
     this->ZAxisMinorTickVisibility);
 }
 
+// --------------------------------------------------------------------------
 double vtkCubeAxesActor::MaxOf(double a, double b)
 {
   return (a > b ? a : b);
 }
 
+// --------------------------------------------------------------------------
 double vtkCubeAxesActor::MaxOf(double a, double b, double c, double d)
 {
   return this->MaxOf(this->MaxOf(a, b), this->MaxOf(c, d));
 }
 
+// --------------------------------------------------------------------------
 inline double vtkCubeAxesActor::FFix(double value)
 {
   int ivalue = static_cast<int>(value);
   return ivalue;
 }
 
+// --------------------------------------------------------------------------
 inline double vtkCubeAxesActor::FSign(double value, double sign)
 {
   value = fabs(value);
@@ -2620,4 +2485,66 @@ vtkProperty* vtkCubeAxesActor::GetYAxesGridpolysProperty()
 vtkProperty* vtkCubeAxesActor::GetZAxesGridpolysProperty()
 {
   return this->ZAxesGridpolysProperty;
+}
+// --------------------------------------------------------------------------
+int vtkCubeAxesActor::RenderGeometry(vtkViewport *viewport, bool checkAxisVisibility, int (*renderMethod)(vtkAxisActor*, vtkViewport*))
+{
+  int i, renderedSomething = 0;
+  static bool initialRender = true;
+
+  // Make sure axes are initialized and visibility is properly set
+  if(checkAxisVisibility)
+    {
+    // Initialization
+    if (!this->Camera)
+      {
+      vtkErrorMacro(<<"No camera!");
+      this->RenderSomething = 0;
+      return 0;
+      }
+
+    this->BuildAxes(viewport);
+
+    if (initialRender)
+      {
+      for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
+        {
+        this->XAxes[i]->BuildAxis(viewport, true);
+        this->YAxes[i]->BuildAxis(viewport, true);
+        this->ZAxes[i]->BuildAxis(viewport, true);
+        }
+      }
+    initialRender = false;
+
+    this->DetermineRenderAxes(viewport);
+    }
+
+  // Render the axes
+  if (this->XAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesX; i++)
+      {
+      renderedSomething +=
+          (*renderMethod)(this->XAxes[this->RenderAxesX[i]], viewport);
+      }
+    }
+
+  if (this->YAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesY; i++)
+      {
+      renderedSomething +=
+          (*renderMethod)(this->YAxes[this->RenderAxesY[i]], viewport);
+      }
+    }
+
+  if (this->ZAxisVisibility)
+    {
+    for (i = 0; i < this->NumberOfAxesZ; i++)
+      {
+      renderedSomething +=
+          (*renderMethod)(this->ZAxes[this->RenderAxesZ[i]], viewport);
+      }
+    }
+  return renderedSomething;
 }
