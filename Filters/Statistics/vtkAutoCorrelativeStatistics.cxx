@@ -413,14 +413,14 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     int numDerived = 9;
     vtkStdString derivedNames[] = { "Variance Xs",
-                                   "Variance Xt",
-                                   "Covariance",
-                                   "Determinant",
-                                   "Slope Xt/Xs",
-                                   "Intercept Xt/Xs",
-                                   "Slope Xs/Xt",
-                                   "Intercept Xs/Xt",
-                                   "Pearson r" };
+                                    "Variance Xt",
+                                    "Covariance",
+                                    "Determinant",
+                                    "Slope Xt/Xs",
+                                    "Intercept Xt/Xs",
+                                    "Slope Xs/Xt",
+                                    "Intercept Xs/Xt",
+                                    "Pearson r" };
 
     // Find or create columns for derived statistics
     vtkDoubleArray* derivedCol;
