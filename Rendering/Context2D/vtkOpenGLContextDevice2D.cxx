@@ -15,6 +15,7 @@
 
 #include "vtkOpenGLContextDevice2D.h"
 
+#include "vtkMathTextUtilities.h"
 #include "vtkFreeTypeStringToImage.h"
 
 #include "vtkVector.h"
@@ -813,6 +814,67 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
+                                                  const vtkStdString &string)
+{
+  vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
+  if (!mathText)
+    {
+    vtkWarningMacro(<<"MathText is not available to parse string "
+                    << string.c_str() << ". Install matplotlib and enable "
+                    "python to use MathText.");
+    return;
+    }
+
+  float p[] = { std::floor(point[0]), std::floor(point[1]) };
+
+  // Cache rendered text strings
+  vtkTextureImageCache<TextPropertyKey>::CacheData cache =
+    this->Storage->MathTextTextureCache.GetCacheData(
+      TextPropertyKey(this->TextProp, string));
+  vtkImageData* image = cache.ImageData;
+  if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
+    {
+    if (!mathText->RenderString(string.c_str(), image, this->TextProp,
+                                this->RenderWindow->GetDPI()))
+      {
+      return;
+      }
+    }
+
+  vtkTexture* texture = cache.Texture;
+  texture->Render(this->Renderer);
+
+  int *dims = image->GetDimensions();
+  float width = static_cast<float>(dims[0]);
+  float height = static_cast<float>(dims[1]);
+
+  this->AlignText(this->TextProp->GetOrientation(), width, height, p);
+
+  float points[] = { p[0]        , p[1],
+                     p[0] + width, p[1],
+                     p[0] + width, p[1] + height,
+                     p[0]        , p[1] + height };
+
+  float texCoord[] = { 0.0f, 0.0f,
+                       1.0f, 0.0f,
+                       1.0f, 1.0f,
+                       0.0f, 1.0f };
+
+  glColor4ub(255, 255, 255, 255);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, points);
+  glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
+  glDrawArrays(GL_QUADS, 0, 4);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+
+  texture->PostRender(this->Renderer);
+  glDisable(GL_TEXTURE_2D);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
@@ -1129,6 +1191,7 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
     this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
     }
   this->Storage->TextTextureCache.ReleaseGraphicsResources(window);
+  this->Storage->MathTextTextureCache.ReleaseGraphicsResources(window);
 }
 
 //----------------------------------------------------------------------------

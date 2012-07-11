@@ -290,6 +290,33 @@ public:
   void ComputeStringBounds(const char* string, float bounds[4]);
 
   // Description:
+  // Draw a MathText formatted equation to the screen. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  // MathText requires matplotlib and python, and the vtkMatplotlib module must
+  // be enabled manually during build configuration. This method will do nothing
+  // but print a warning if vtkMathTextUtilities::GetInstance() returns NULL.
+  void DrawMathTextString(vtkPoints2D *point, const vtkStdString &string);
+  void DrawMathTextString(float x, float y, const vtkStdString &string);
+  void DrawMathTextString(vtkPoints2D *point, const char *string);
+  void DrawMathTextString(float x, float y, const char *string);
+
+  // Description:
+  // Draw a MathText formatted equation to the screen. See
+  // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
+  // MathText requires matplotlib and python, and the vtkMatplotlib module must
+  // be enabled manually during build configuration.
+  // If MathText is not available on the target device the non-MathText string
+  // in "fallback" is rendered using DrawString.
+  void DrawMathTextString(vtkPoints2D *point, const vtkStdString &string,
+                          const vtkStdString &fallback);
+  void DrawMathTextString(float x, float y, const vtkStdString &string,
+                          const vtkStdString &fallback);
+  void DrawMathTextString(vtkPoints2D *point, const char *string,
+                          const char *fallback);
+  void DrawMathTextString(float x, float y, const char *string,
+                          const char *fallback);
+
+  // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkPen
   // object in the vtkContext2D, it does not hold a pointer to the supplied object.

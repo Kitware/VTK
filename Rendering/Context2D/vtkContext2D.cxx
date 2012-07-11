@@ -611,6 +611,102 @@ void vtkContext2D::ComputeStringBounds(const char* string,
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(vtkPoints2D *point,
+                                      const vtkStdString &string)
+{
+  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  this->DrawMathTextString(f[0], f[1], string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(float x, float y,
+                                      const vtkStdString &string)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  if (string.empty())
+    {
+    return;
+    }
+  float f[] = { x, y };
+  this->Device->DrawMathTextString(f, string);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(vtkPoints2D *point, const char* string)
+{
+  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  this->DrawMathTextString(f[0], f[1], vtkStdString(string));
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(float x, float y, const char* string)
+{
+  this->DrawMathTextString(x, y, vtkStdString(string));
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(vtkPoints2D *point,
+                                      const vtkStdString &string,
+                                      const vtkStdString &fallback)
+{
+  if (this->Device->MathTextIsAvailable())
+    {
+    this->DrawMathTextString(point, string);
+    }
+  else
+    {
+    this->DrawString(point, fallback);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(float x, float y,
+                                      const vtkStdString &string,
+                                      const vtkStdString &fallback)
+{
+  if (this->Device->MathTextIsAvailable())
+    {
+    this->DrawMathTextString(x, y, string);
+    }
+  else
+    {
+    this->DrawString(x, y, fallback);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(vtkPoints2D *point, const char *string,
+                                      const char *fallback)
+{
+  if (this->Device->MathTextIsAvailable())
+    {
+    this->DrawMathTextString(point, string);
+    }
+  else
+    {
+    this->DrawString(point, fallback);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawMathTextString(float x, float y, const char *string,
+                                      const char *fallback)
+{
+  if (this->Device->MathTextIsAvailable())
+    {
+    this->DrawMathTextString(x, y, string);
+    }
+  else
+    {
+    this->DrawString(x, y, fallback);
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawImage(float x, float y, vtkImageData *image)
 {
   float p[] = { x, y };

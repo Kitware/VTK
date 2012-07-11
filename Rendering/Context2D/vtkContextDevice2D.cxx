@@ -16,8 +16,11 @@
 #include "vtkContextDevice2D.h"
 #include "vtkPen.h"
 #include "vtkBrush.h"
+#include "vtkMathTextUtilities.h"
 #include "vtkTextProperty.h"
 #include "vtkRect.h"
+#include "vtkStdString.h"
+
 
 #include "vtkObjectFactory.h"
 #include <assert.h>
@@ -38,6 +41,12 @@ vtkContextDevice2D::~vtkContextDevice2D()
   this->Pen->Delete();
   this->Brush->Delete();
   this->TextProp->Delete();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkContextDevice2D::MathTextIsAvailable()
+{
+  return vtkMathTextUtilities::GetInstance() != NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -97,5 +106,4 @@ void vtkContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   this->Brush->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Text Property: ";
   this->TextProp->PrintSelf(os, indent.GetNextIndent());
-
 }
