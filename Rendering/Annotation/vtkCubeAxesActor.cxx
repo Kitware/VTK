@@ -266,6 +266,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->LastZRange[0] = VTK_FLOAT_MAX;
   this->LastZRange[1] = VTK_FLOAT_MAX;
 
+  this->LastBounds[0] = VTK_DOUBLE_MAX;
+  this->LastBounds[1] = VTK_DOUBLE_MAX;
+  this->LastBounds[2] = VTK_DOUBLE_MAX;
+  this->LastBounds[3] = VTK_DOUBLE_MAX;
+  this->LastBounds[4] = VTK_DOUBLE_MAX;
+  this->LastBounds[5] = VTK_DOUBLE_MAX;
+
   this->LastFlyMode = -1;
 
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
@@ -894,8 +901,15 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
   bool zRangeChanged = this->LastZRange[0] != bounds[4] ||
                        this->LastZRange[1] != bounds[5];
 
+  bool boundsChanged = this->LastBounds[0] != bounds[0] ||
+                       this->LastBounds[1] != bounds[1] ||
+                       this->LastBounds[2] != bounds[2] ||
+                       this->LastBounds[3] != bounds[3] ||
+                       this->LastBounds[4] != bounds[4] ||
+                       this->LastBounds[5] != bounds[5];
+
   if (!(xRangeChanged || yRangeChanged || zRangeChanged) &&
-      !(xPropsChanged || yPropsChanged || zPropsChanged))
+      !(xPropsChanged || yPropsChanged || zPropsChanged || boundsChanged))
     {
     // no need to re-compute ticksize.
     return false;
@@ -950,6 +964,10 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
                                   bounds[4] : this->ZAxisRange[0]);
   this->LastZRange[1] = (this->ZAxisRange[1] == VTK_DOUBLE_MAX ?
                                   bounds[5] : this->ZAxisRange[1]);
+  for(int i=0; i < 6; i++)
+    {
+    this->LastBounds[i] = bounds[i];
+    }
 
   double major = 0.02 * (xExt + yExt + zExt) / 3.;
   double minor = 0.5 * major;
