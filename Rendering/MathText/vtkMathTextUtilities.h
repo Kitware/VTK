@@ -12,13 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMathTextUtilities - Access to MatPlotLib MathText rendering
+// .NAME vtkMathTextUtilities - Abstract interface to equation rendering.
 // .SECTION Description
-// vtkMathTextUtilities provides access to the MatPlotLib MathText
-// implementation.
-// .CAVEATS
-// Internal use only.
-// EXPERIMENTAL for the moment.
+// vtkMathTextUtilities defines an interface for equation rendering. Intended
+// for use with the python matplotlib.mathtext module (implemented in the
+// vtkMatplotlib module).
 
 #ifndef __vtkMathTextUtilities_h
 #define __vtkMathTypeUtilities_h
@@ -26,9 +24,8 @@
 #include "vtkMathTextModule.h" // For export macro
 #include "vtkObject.h"
 
-struct _object;
-typedef struct _object PyObject;
 class vtkImageData;
+class vtkPath;
 class vtkTextProperty;
 
 //----------------------------------------------------------------------------
@@ -68,22 +65,18 @@ public:
   // Description:
   // Render the given string @a str into the vtkImageData @a data with a
   // resolution of @a dpi.
-  bool RenderString(const char *str,
-                    vtkImageData *data,
-                    unsigned int dpi);
+ virtual bool RenderString(const char *str, vtkImageData *data,
+                           vtkTextProperty *tprop, unsigned int dpi) = 0;
+
+  // Description:
+  // Parse the MathText expression in str and fill path with a contour of the
+  // glyphs.
+  virtual bool StringToPath(const char *str, vtkPath *path,
+                            vtkTextProperty *tprop) = 0;
 
 protected:
   vtkMathTextUtilities();
   virtual ~vtkMathTextUtilities();
-
-  bool InitializePython();
-  bool InitializeMaskParser();
-
-  bool CheckForError();
-  bool CheckForError(PyObject *object);
-
-  bool PythonIsInitialized;
-  PyObject *MaskParser;
 
 private:
   vtkMathTextUtilities(const vtkMathTextUtilities&);  // Not implemented.
