@@ -76,10 +76,14 @@ protected:
   vtkMathTextUtilities();
   virtual ~vtkMathTextUtilities();
 
+  bool InitializePython();
+  bool InitializeMaskParser();
+
   bool CheckForError();
   bool CheckForError(PyObject *object);
 
-  PyObject *Parser;
+  bool PythonIsInitialized;
+  PyObject *MaskParser;
 
 private:
   vtkMathTextUtilities(const vtkMathTextUtilities&);  // Not implemented.
