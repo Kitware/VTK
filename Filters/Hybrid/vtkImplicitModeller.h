@@ -119,7 +119,9 @@ public:
 
   // Description:
   // Set / get the distance away from surface of input geometry to
-  // sample. Smaller values make large increases in performance.
+  // sample. This value is specified as a percentage of the length of
+  // the diagonal of the input data bounding box.
+  // Smaller values make large increases in performance.
   vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
   vtkGetMacro(MaximumDistance,double);
 
