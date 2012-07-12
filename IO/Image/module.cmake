@@ -1,3 +1,6 @@
+if(NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
+  set(vtkIOImage_vtkoggtheora vtkoggtheora)
+endif()
 vtk_module(vtkIOImage
   GROUPS
     StandAlone
@@ -12,7 +15,7 @@ vtk_module(vtkIOImage
     vtkpng
     vtktiff
     vtkMetaIO
-    vtkoggtheora
+    ${vtkIOImage_vtkoggtheora}
     vtkDICOMParser
   TEST_DEPENDS
     vtkTestingCore

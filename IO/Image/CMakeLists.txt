@@ -21,7 +21,6 @@ set(Module_SRCS
   vtkMetaImageReader.cxx
   vtkMetaImageWriter.cxx
   #vtkMPEG2Writer.cxx # Do we want to continue supporting?
-  #vtkOggTheoraWriter.cxx
   vtkPNGReader.cxx
   vtkPNGWriter.cxx
   vtkPNMReader.cxx
@@ -34,6 +33,10 @@ set(Module_SRCS
   vtkVolumeReader.cxx
   vtkNrrdReader.cxx
   )
+
+if(vtkIOImage_vtkoggtheora)
+  list(APPEND Module_SRCS vtkOggTheoraWriter.cxx)
+endif()
 
 if(WIN32)
   # Should we force this on Windows?
