@@ -1078,6 +1078,8 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   // TODO - an implementation for cygwin and mingw
   return -1;
 
+#elif defined(_AIX)
+  return -1;
 #else
   // gethostname typical returns an alias for loopback interface
   // we want the fully qualified domain name. Because there are
