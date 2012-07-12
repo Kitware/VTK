@@ -250,7 +250,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkCollection* sinks, ostream& output
 
     std::string line;
     std::string object_state;
-    for(std::getline(buffer, line); buffer; std::getline(buffer, line))
+    while(std::getline(buffer, line))
       {
       replace_all(line, "\"", "'");
       replace_all(line, "\r", "");
