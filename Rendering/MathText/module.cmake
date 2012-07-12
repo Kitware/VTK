@@ -6,4 +6,5 @@ vtk_module(vtkMathText
     vtkTestingRendering
     vtkInteractionImage
     vtkRenderingOpenGL
+  EXCLUDE_FROM_WRAPPING
   )
