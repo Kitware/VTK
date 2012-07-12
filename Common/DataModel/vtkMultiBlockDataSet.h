@@ -37,13 +37,13 @@
 #define __vtkMultiBlockDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTree.h"
 
-class VTKCOMMONDATAMODEL_EXPORT vtkMultiBlockDataSet : public vtkCompositeDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkMultiBlockDataSet : public vtkDataObjectTree
 {
 public:
   static vtkMultiBlockDataSet* New();
-  vtkTypeMacro(vtkMultiBlockDataSet, vtkCompositeDataSet);
+  vtkTypeMacro(vtkMultiBlockDataSet, vtkDataObjectTree);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

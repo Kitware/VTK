@@ -12,4 +12,6 @@ vtk_module(vtkRenderingCore
     vtkIOXML
   TEST_DEPENDS
     vtkTestingCore
+    vtkTestingRendering
+    vtkRenderingContext2D
   )

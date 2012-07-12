@@ -274,7 +274,6 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
             extent, 6);
           }
         }
-      piece_metadata->Set(vtkCompositeDataSet::COMPOSITE_INDEX(), dataSetIndex);
       dataSetIndex++;
       }
     // Child is a multiblock dataset itself. Create it.

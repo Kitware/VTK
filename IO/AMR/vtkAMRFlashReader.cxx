@@ -15,7 +15,6 @@
 #include "vtkAMRFlashReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkAMRUtilities.h"
 #include "vtkByteSwap.h"
 #include "vtkUniformGrid.h"
 #include "vtkDataArraySelection.h"
@@ -35,11 +34,12 @@
 #include <cassert>
 #include <vector>
 #include <map>
-
+#include <float.h>
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
 
 #include "vtkAMRFlashReaderInternal.h"
+#include "vtkAMRInformation.h"
 
 vtkStandardNewMacro(vtkAMRFlashReader);
 
@@ -107,23 +107,6 @@ void vtkAMRFlashReader::ReadMetaData()
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRFlashReader::GenerateBlockMap()
-{
-  assert( "pre: Internal Flash Reader is NULL" && (this->Internal!=NULL) );
-
-  this->BlockMap.clear();
-  this->Internal->ReadMetaData();
-
-  for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
-    {
-    if( this->GetBlockLevel( i ) <= this->MaxLevel )
-      {
-      this->BlockMap.push_back( i );
-      }
-    }
-}
-
-//-----------------------------------------------------------------------------
 int vtkAMRFlashReader::GetBlockLevel( const int blockIdx )
 {
   assert( "pre: Internal Flash Reader is NULL" && (this->Internal != NULL) );
@@ -167,6 +150,32 @@ int vtkAMRFlashReader::GetNumberOfLevels()
   return( this->Internal->NumberOfLevels );
 }
 
+void vtkAMRFlashReader::ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3])
+{
+  min[0] = min[1] = min[2] = DBL_MAX;
+  numBlocks.resize( this->Internal->NumberOfLevels, 0 );
+
+  for( int i=0; i < internal->NumberOfBlocks; ++i )
+    {
+    Block &theBlock = internal->Blocks[ i ];
+    double* gridMin = theBlock.MinBounds;
+    if( gridMin[0] < min[0] )
+      {
+      min[0] = gridMin[0];
+      }
+    if( gridMin[1] < min[1] )
+      {
+      min[1] = gridMin[1];
+      }
+    if( gridMin[2] < min[2] )
+      {
+      min[2] = gridMin[2];
+      }
+    int level = theBlock.Level-1;
+    numBlocks[level]++;
+    }
+}
+
 //-----------------------------------------------------------------------------
 int vtkAMRFlashReader::FillMetaData( )
 {
@@ -175,42 +184,35 @@ int vtkAMRFlashReader::FillMetaData( )
 
   this->Internal->ReadMetaData();
 
+  double origin[3];
+  std::vector<int> blocksPerLevel;
+  this->ComputeStats(this->Internal, blocksPerLevel, origin);
+
+  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()),
+                              &blocksPerLevel[0], origin, VTK_XYZ_GRID);
+
+  vtkAMRInformation* amrInfo = this->Metadata->GetAMRInfo();
+
   std::vector< int > b2level;
   b2level.resize( this->Internal->NumberOfLevels+1, 0 );
 
   for( int i=0; i < this->Internal->NumberOfBlocks; ++i )
     {
+    Block &theBlock = this->Internal->Blocks[i];
+
     // Start numbering levels from 0!
     int level       = this->Internal->Blocks[ i ].Level-1;
-//    int id          = b2level[level];
+    int id          = b2level[level];
     int internalIdx = i;
+    int index = amrInfo->GetIndex(level,id);
 
-    double blockMin[3];
-    double blockMax[3];
-    double spacings[3];
-    for( int j=0; j < 3; ++j )
-      {
-      blockMin[j] = this->Internal->Blocks[i].MinBounds[j];
-      blockMax[j] = this->Internal->Blocks[i].MaxBounds[j];
-      spacings[j] = (this->Internal->BlockGridDimensions[j] > 1)?
-          (blockMax[j]-blockMin[j]) /
-          (this->Internal->BlockGridDimensions[j]-1.0) : 1.0;
-      }
+    amrInfo->SetAMRBox(level, id, theBlock.MinBounds, theBlock.MaxBounds, this->Internal->BlockGridDimensions);
+    amrInfo->SetAMRBlockSourceIndex(index, internalIdx);
 
-    vtkUniformGrid *ug = vtkUniformGrid::New();
-    ug->SetDimensions( this->Internal->BlockGridDimensions );
-    ug->SetOrigin( blockMin[0], blockMin[1], blockMin[2] );
-    ug->SetSpacing( spacings );
-
-    this->Metadata->SetDataSet( level, b2level[level], ug );
-    this->Metadata->SetCompositeIndex( level, b2level[level], internalIdx );
-    ug->Delete();
     b2level[ level ]++;
     } // END for all blocks
 
-  // NOTE: The communicator here is NULL since each process loads all the
-  // metadata.
-  vtkAMRUtilities::GenerateMetaData( this->Metadata, NULL );
+  assert(amrInfo->IsValid());
   return( 1 );
 }
 

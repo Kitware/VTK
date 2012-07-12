@@ -45,6 +45,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
   double origin[3];
   double spacing[3];
   int ndims[3];
+  std::vector<int> blocksPerLevel(2,1);
 
   vtkOverlappingAMR *amrDataSet = vtkOverlappingAMR::New();
   vtkUniformGrid *gridPtr = NULL;
@@ -58,6 +59,8 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
        spacing[0] = spacing[1] = spacing[2] = 1.0;
        ndims[0]   = ndims[1]   = 4;
        gridPtr    = GetGrid(origin,spacing,ndims);
+       amrDataSet->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0],origin,description);
+       amrDataSet->SetAMRBox(0,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
        amrDataSet->SetDataSet(0,0,gridPtr);
        gridPtr->Delete();
 
@@ -66,6 +69,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
        spacing[0] = spacing[1] = spacing[2] = 0.5;
        ndims[0]   = ndims[1]   = 6;
        gridPtr    = GetGrid(origin,spacing,ndims);
+       amrDataSet->SetAMRBox(1,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
        amrDataSet->SetDataSet(1,0,gridPtr);
        gridPtr->Delete();
        break;
@@ -76,6 +80,8 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       spacing[0] = spacing[1] = spacing[2] = 1.0;
       ndims[0]   = ndims[2]   = 4;
       gridPtr    = GetGrid(origin,spacing,ndims);
+      amrDataSet->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0],origin,description);
+      amrDataSet->SetAMRBox(0,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
       amrDataSet->SetDataSet(0,0,gridPtr);
       gridPtr->Delete();
 
@@ -84,6 +90,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       spacing[0] = spacing[1] = spacing[2] = 0.5;
       ndims[0]   = ndims[2]   = 6;
       gridPtr    = GetGrid(origin,spacing,ndims);
+      amrDataSet->SetAMRBox(1,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
       amrDataSet->SetDataSet(1,0,gridPtr);
       gridPtr->Delete();
       break;
@@ -94,6 +101,8 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       spacing[0] = spacing[1] = spacing[2] = 1.0;
       ndims[1]   = ndims[2]   = 4;
       gridPtr    = GetGrid(origin,spacing,ndims);
+      amrDataSet->Initialize(static_cast<int>(blocksPerLevel.size()), &blocksPerLevel[0],origin,description);
+      amrDataSet->SetAMRBox(0,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
       amrDataSet->SetDataSet(0,0,gridPtr);
       gridPtr->Delete();
 
@@ -102,6 +111,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       spacing[0] = spacing[1] = spacing[2] = 0.5;
       ndims[1]   = ndims[2]   = 6;
       gridPtr    = GetGrid(origin,spacing,ndims);
+      amrDataSet->SetAMRBox(1,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
       amrDataSet->SetDataSet(1,0,gridPtr);
       gridPtr->Delete();
       break;
@@ -111,6 +121,8 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       spacing[0] = spacing[1] = spacing[2] = 1.0;
       ndims[0]   = ndims[1]   = ndims[2]   = 4;
       gridPtr    = GetGrid(origin,spacing,ndims);
+      amrDataSet->Initialize(static_cast<int>(blocksPerLevel.size()),&blocksPerLevel[0],origin,description);
+      amrDataSet->SetAMRBox(0,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
       amrDataSet->SetDataSet(0,0,gridPtr);
       gridPtr->Delete();
 
@@ -119,6 +131,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       spacing[0] = spacing[1] = spacing[2] = 0.5;
       ndims[0]   = ndims[1]   = ndims[2]   = 6;
       gridPtr    = GetGrid(origin,spacing,ndims);
+      amrDataSet->SetAMRBox(1,0,gridPtr->GetOrigin(), gridPtr->GetDimensions(), gridPtr->GetSpacing());
       amrDataSet->SetDataSet(1,0,gridPtr);
       gridPtr->Delete();
       break;
@@ -126,7 +139,6 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
      assert(
      "ERROR: Unhandled data description! Code should not reach here!" && false);
     }
-  vtkAMRUtilities::GenerateMetaData(amrDataSet,NULL);
   amrDataSet->GenerateVisibilityArrays();
   return( amrDataSet );
 }

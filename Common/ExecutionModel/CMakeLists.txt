@@ -55,6 +55,10 @@ SET(Module_SRCS
   vtkLinearSelector.cxx
   vtkExtentRCBPartitioner.cxx
   vtkUniformGridPartitioner.cxx
+  # New AMR classes
+  vtkUniformGridAMRAlgorithm.cxx
+  vtkOverlappingAMRAlgorithm.cxx
+  vtkNonOverlappingAMRAlgorithm.cxx
   )
 
 set_source_files_properties(

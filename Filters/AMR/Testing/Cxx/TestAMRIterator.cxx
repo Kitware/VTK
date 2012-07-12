@@ -12,10 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAMRBox.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRGaussianPulseSource.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 #include <iostream>
 #include <string>
@@ -23,7 +22,7 @@
 //-----------------------------------------------------------------------------
 int TestAMRIterator( int, char *[] )
 {
-  int expected[3][2] =
+  unsigned int expected[3][2] =
     {
      {0,0},
      {1,0},
@@ -38,18 +37,19 @@ int TestAMRIterator( int, char *[] )
       vtkOverlappingAMR::SafeDownCast( amrSource->GetOutput() );
 
 
-  vtkCompositeDataIterator *iter = amrData->NewIterator();
+  vtkUniformGridAMRDataIterator *iter = vtkUniformGridAMRDataIterator::SafeDownCast(amrData->NewIterator());
   iter->InitTraversal();
   for(int idx=0 ;!iter->IsDoneWithTraversal(); iter->GoToNextItem(),++idx )
     {
-    vtkAMRBox amrBox = amrData->GetAMRBox( iter );
-    cout << "Level: " << amrBox.GetLevel() << " Block: " << amrBox.GetBlockId();
+    unsigned int level  = iter->GetCurrentLevel();
+    unsigned int id = iter->GetCurrentIndex();
+    cout << "Level: " << level << " Block: " << id;
     cout << endl;
-    if( amrBox.GetLevel() != expected[idx][0] )
+    if( level != expected[idx][0] )
       {
       ++rc;
       }
-    if( amrBox.GetBlockId() != expected[idx][1] )
+    if( id != expected[idx][1] )
       {
       ++rc;
       }

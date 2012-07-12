@@ -19,7 +19,9 @@
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"
 #include "vtkOverlappingAMR.h"
-
+#include "vtkCompositeDataPipeline.h"
+#include "vtkUniformGrid.h"
+#include "vtkUniformGridAMRDataIterator.h"
 namespace EnzoReaderTest {
 
 //------------------------------------------------------------------------------
@@ -37,6 +39,23 @@ int CheckValue( std::string name, T actualValue, T expectedValue )
 }
 
 } // END namespace
+
+int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
+{
+  vtkUniformGridAMRDataIterator* iter = vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator());
+  iter->SetSkipEmptyNodes(true);
+  int maxLevel(-1);
+  for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    int level = iter->GetCurrentLevel();
+    if(level>maxLevel)
+      {
+      maxLevel = level;
+      }
+    }
+  iter->Delete();
+  return maxLevel+1;
+}
 
 int TestEnzoReader( int argc, char *argv[] )
 {
@@ -63,7 +82,7 @@ int TestEnzoReader( int argc, char *argv[] )
     if( amr != NULL )
       {
       rc+=EnzoReaderTest::CheckValue(
-          "OUTPUT LEVELS",static_cast<int>(amr->GetNumberOfLevels()),level+1);
+        "OUTPUT LEVELS",static_cast<int>(ComputeMaxNonEmptyLevel(amr)),level+1);
       rc+=EnzoReaderTest::CheckValue(
           "NUMBER OF BLOCKS AT LEVEL",
           static_cast<int>(amr->GetNumberOfDataSets(level)),

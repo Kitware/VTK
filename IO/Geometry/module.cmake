@@ -10,6 +10,7 @@ vtk_module(vtkIOGeometry
   COMPILE_DEPENDS
     vtkUtilitiesMaterialLibrary
   TEST_DEPENDS
+    vtkIOAMR
     vtkFiltersGeometry
     vtkRenderingOpenGL
     vtkTestingRendering

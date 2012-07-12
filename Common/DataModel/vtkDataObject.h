@@ -321,6 +321,7 @@ public:
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();
   static vtkInformationIntegerKey* DATA_GEOMETRY_UNMODIFIED();
+  static vtkInformationDoubleVectorKey* BOUNDING_BOX();
 
   // Key used to put SIL information in the output information by readers.
   static vtkInformationDataObjectKey* SIL();

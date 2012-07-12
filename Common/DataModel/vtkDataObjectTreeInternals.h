@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCompositeDataSetInternals.h
+  Module:    vtkDataObjectTreeInternals.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataSetInternals
+// .NAME vtkDataObjectTreeInternals
 // .SECTION Description
 
-#ifndef __vtkCompositeDataSetInternals_h
-#define __vtkCompositeDataSetInternals_h
+#ifndef __vtkDataObjectTreeInternals_h
+#define __vtkDataObjectTreeInternals_h
 
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
@@ -26,12 +26,12 @@
 
 //-----------------------------------------------------------------------------
 // Item in the VectorOfDataObjects.
-struct vtkCompositeDataSetItem
+struct vtkDataObjectTreeItem
 {
   vtkSmartPointer<vtkDataObject> DataObject;
   vtkSmartPointer<vtkInformation> MetaData;
 
-  vtkCompositeDataSetItem(vtkDataObject* dobj =0, vtkInformation* info=0)
+  vtkDataObjectTreeItem(vtkDataObject* dobj =0, vtkInformation* info=0)
     {
     this->DataObject = dobj;
     this->MetaData = info;
@@ -39,10 +39,10 @@ struct vtkCompositeDataSetItem
 };
 
 //-----------------------------------------------------------------------------
-class vtkCompositeDataSetInternals
+class vtkDataObjectTreeInternals
 {
 public:
-  typedef std::vector<vtkCompositeDataSetItem> VectorOfDataObjects;
+  typedef std::vector<vtkDataObjectTreeItem> VectorOfDataObjects;
   typedef VectorOfDataObjects::iterator Iterator;
   typedef VectorOfDataObjects::reverse_iterator ReverseIterator;
 
@@ -51,7 +51,7 @@ public:
 
 
 //-----------------------------------------------------------------------------
-class vtkCompositeDataSetIndex : public std::vector<unsigned int>
+class vtkDataObjectTreeIndex : public std::vector<unsigned int>
 {
   int IsValid()
     {
@@ -62,4 +62,4 @@ class vtkCompositeDataSetIndex : public std::vector<unsigned int>
 #endif
 
 
-// VTK-HeaderTest-Exclude: vtkCompositeDataSetInternals.h
+// VTK-HeaderTest-Exclude: vtkDataObjectTreeInternals.h

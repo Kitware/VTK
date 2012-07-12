@@ -25,7 +25,6 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
 #include <vtkAbstractInterpolatedVelocityField.h>
-#include <vtkAMRBox.h> //needed for caching the last AMRBox
 
 class vtkOverlappingAMR;
 
@@ -41,7 +40,7 @@ public:
   vtkGetMacro(AmrDataSet,vtkOverlappingAMR*);
   void SetAMRData(vtkOverlappingAMR* amr);
 
-  const vtkAMRBox& GetLastAMRBox() const { return LastAMRBox;}
+  bool GetLastDataSetLocation(unsigned int& level, unsigned int& id);
 
   bool SetLastDataSet(int level, int id);
 
@@ -53,15 +52,16 @@ public:
   virtual void SetLastCellId( vtkIdType c )
     { this->Superclass::SetLastCellId( c ); }
 
-   // Description:
-  // Evaluate the velocity field f at point p
-  // If it succeeds, then both this->LastDataSet and this->LastAMRBox
-  //  will be set according to where p is found.
-  // If it fails, either p is out of bound, in which case
-  //  both this->LastDataSet and this->LastAMRBox are invlaid
-  // or, in a multi-process setting, p is inbound but not on the processor.
-  // In the last case, this->LastAMRBox is still valid, and points to
-  //   the exact processor and data set on which p can be found.
+  //Description:
+ //  Evaluate the velocity field f at point p.
+ //  If it succeeds, then both the last data set (this->LastDataSet) and
+ //  the last data set location (this->LastLevel, this->LastId) will be
+  // set according to where p is found.  If it fails, either p is out of
+  // bound, in which case both the last data set and the last location
+  // will be invlaid or, in a multi-process setting, p is inbound but not
+  // on the processor.  In the last case, the last data set location is
+  // still valid
+
   virtual int FunctionValues( double * x, double * f );
 
   void PrintSelf( ostream & os, vtkIndent indent );
@@ -72,7 +72,8 @@ public:
 
 protected:
   vtkOverlappingAMR* AmrDataSet;
-  vtkAMRBox LastAMRBox;
+  int LastLevel;
+  int LastId;
 
   vtkAMRInterpolatedVelocityField();
   ~vtkAMRInterpolatedVelocityField();

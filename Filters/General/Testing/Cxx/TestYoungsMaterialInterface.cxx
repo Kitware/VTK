@@ -140,8 +140,8 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   youngs->Update();
 
   // Create mappers and actors for surface rendering of all reconstructed interfaces;
-  vtkNew<vtkCompositeDataIterator> interfaceIterator;
-  interfaceIterator->SetDataSet( youngs->GetOutput() );
+  vtkSmartPointer<vtkCompositeDataIterator> interfaceIterator;
+  interfaceIterator.TakeReference( youngs->GetOutput()->NewIterator() );
   interfaceIterator->VisitOnlyLeavesOn();
   interfaceIterator->SkipEmptyNodesOn();
   interfaceIterator->InitTraversal();

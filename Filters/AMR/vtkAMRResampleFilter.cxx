@@ -14,7 +14,7 @@
  =========================================================================*/
 
 #include "vtkAMRResampleFilter.h"
-#include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
@@ -44,7 +44,6 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
-
 
 
 vtkStandardNewMacro( vtkAMRResampleFilter );
@@ -215,6 +214,7 @@ int vtkAMRResampleFilter::RequestData(
   return 1;
 }
 
+
 //-----------------------------------------------------------------------------
 bool vtkAMRResampleFilter::FoundDonor(
     double q[3],vtkUniformGrid *&donorGrid,int &cellIdx)
@@ -240,6 +240,7 @@ bool vtkAMRResampleFilter::FoundDonor(
     }
   return false;
 }
+
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::InitializeFields(
@@ -398,9 +399,9 @@ void vtkAMRResampleFilter::TransferToCellCenters(
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
+bool vtkAMRResampleFilter::SearchForDonorGridAtLevel(
     double q[3], vtkOverlappingAMR *amrds,
-    unsigned int level, unsigned int donorGridId, vtkUniformGrid *&donorGrid,
+    unsigned int level, unsigned int& donorGridId,
     int &donorCellIdx )
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
@@ -413,16 +414,14 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
   for(donorGridId = 0; donorGridId < amrds->GetNumberOfDataSets(level); ++donorGridId )
     {
     donorCellIdx = -1;
-    donorGrid    = amrds->GetDataSet(level,donorGridId);
     this->NumberOfBlocksTestedForLevel++;
-    if( (donorGrid!=NULL) &&
-       this->FoundDonor(q,donorGrid,donorCellIdx) )
+    if(amrds->GetAMRInfo()->FindCell(q, level,donorGridId,donorCellIdx))
      {
      assert( "pre: donorCellIdx is invalid" &&
-             (donorCellIdx >= 0) &&
-             (donorCellIdx < donorGrid->GetNumberOfCells()) );
+             (donorCellIdx >= 0));//  &&
+             // (donorCellIdx < donorGrid->GetNumberOfCells()) );
      vtkTimerLog::MarkEndEvent( oss.str().c_str() );
-     return;
+     return true;
      } // END if
 
     } // END for all data at level
@@ -430,14 +429,14 @@ void vtkAMRResampleFilter::SearchForDonorGridAtLevel(
 
   // No suitable grid is found at the requested level, set donorGrid to NULL
   // to indicate that to the caller.
-  donorGrid = NULL;
   vtkTimerLog::MarkEndEvent( oss.str().c_str() );
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 int vtkAMRResampleFilter::ProbeGridPointInAMR(
-    double q[3], vtkUniformGrid *&donorGrid, unsigned int &donorLevel,
-    vtkOverlappingAMR *amrds, unsigned int maxLevel )
+  double q[3], unsigned int &donorLevel, unsigned int& donorGridId,
+    vtkOverlappingAMR *amrds, unsigned int maxLevel, bool hadDonorGrid)
 {
   assert( "pre: AMR dataset is NULL" && amrds != NULL );
 
@@ -445,43 +444,39 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   int currentCellIdx          = -1;
   int donorCellIdx            = -1;
   unsigned int currentLevel = 0;
-  bool hadDonorGrid = false;
-  unsigned int donorGridId = 0;
   unsigned int currentGridId = 0;
+  vtkUniformGrid* donorGrid = hadDonorGrid? amrds->GetDataSet(donorLevel,donorGridId): NULL;
 
   // STEP 0: Check the previously cached donor-grid
-  if( donorGrid != NULL )
+  if( hadDonorGrid)
     {
-    hadDonorGrid = true;
     this->NumberOfBlocksTested++;
-    if(!this->FoundDonor( q, donorGrid, donorCellIdx ) )
+    bool res(true);
+    if(!amrds->GetAMRInfo()->FindCell( q, donorLevel, donorGridId, donorCellIdx ) )
       {
       // Lets see if the point is contained by a grid at the same donar level
-      this->SearchForDonorGridAtLevel(q,amrds,donorLevel,donorGridId,
-                                      donorGrid,donorCellIdx);
+      res = this->SearchForDonorGridAtLevel(q,amrds,donorLevel,donorGridId,
+                                                 donorCellIdx);
+      donorGrid = res? amrds->GetDataSet(donorLevel,donorGridId) : NULL;
       this->NumberOfBlocksTested += this->NumberOfBlocksTestedForLevel;
       }
+
     // If donorGrid is still not NULL then we found the grid and potential starting
     // level
-    if (donorGrid != NULL)
+    if (res)
       {
       assert( "pre: donorCellIdx is invalid" &&
               (donorCellIdx >= 0) && (donorCellIdx < donorGrid->GetNumberOfCells()) );
 
       this->NumberOfTimesFoundOnDonorLevel++;
-      // Lets see if the cell is blanked - if it isn't then we found the highest
-      // resolution grid that contains the point
-      if (donorGrid->IsCellVisible(donorCellIdx))
-        {
-        //return donorCellIdx;
-        }
 
       // Initialize values for step 1 s.t. that the search will start from the
       // current donorLevel
       currentGrid    = donorGrid;
       currentGridId = donorGridId;
       currentCellIdx = donorCellIdx;
-      currentLevel = donorLevel+1;
+      currentLevel = donorLevel;
+      assert(!donorGrid || amrds->GetDataSet(donorLevel,donorGridId)==donorGrid);
       }
     else if (donorLevel == 0)
       {
@@ -512,7 +507,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
   int incLevel;
   if (!((donorGrid == NULL) && hadDonorGrid))
     {
-    startLevel = currentLevel;
+    startLevel = donorGrid==NULL? currentLevel : currentLevel+1;
     endLevel = maxLevel;
     incLevel = 1;
     }
@@ -533,14 +528,17 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       {
       this->NumberOfTimesLevelDown++;
       }
-    this->SearchForDonorGridAtLevel(q,amrds,level,donorGridId,donorGrid,donorCellIdx);
+    bool res = this->SearchForDonorGridAtLevel(q,amrds,level,donorGridId,donorCellIdx);
+    donorGrid = res? amrds->GetDataSet(level,donorGridId) : NULL;
+
     this->NumberOfBlocksTested += this->NumberOfBlocksTestedForLevel;
-    if( donorGrid != NULL )
+    if( res )
       {
       donorLevel = level;
       // if we are going from fine to coarse then we can stop the search
       if (incLevel == -1)
         {
+        assert(amrds->GetDataSet(donorLevel,donorGridId)==donorGrid);
         return donorCellIdx;
         }
 
@@ -569,6 +567,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       donorCellIdx = currentCellIdx;
       donorLevel = currentLevel;
       donorGridId = currentGridId;
+      assert(!donorGrid || amrds->GetDataSet(donorLevel,donorGridId)==donorGrid);
       break;
       }
     else
@@ -582,15 +581,15 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(
       break;
       }
     } // END for all levels
+  assert(!donorGrid || amrds->GetDataSet(donorLevel,donorGridId)==donorGrid);
   return( donorCellIdx );
 }
 
 //-----------------------------------------------------------------------------
-void vtkAMRResampleFilter::SearchGridAncestors(double q[3],
+bool vtkAMRResampleFilter::SearchGridAncestors(double q[3],
                                                vtkOverlappingAMR *amrds,
                                                unsigned int &level,
                                                unsigned int &gridId,
-                                               vtkUniformGrid *&grid,
                                                int &cellId )
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
@@ -599,64 +598,62 @@ void vtkAMRResampleFilter::SearchGridAncestors(double q[3],
     {
     ++this->NumberOfTimesLevelUp;
     // Get the parents of the grid
-    parents = amrds->GetParents(level, gridId);
+
+    unsigned int numParents;
+    parents = amrds->GetParents(level, gridId,numParents);
     plevel = level - 1;
     // There should be at least 1 parent
-    assert( "Found non-level 0 grid with no parents" && (parents != NULL) && (parents[0] > 0) );
-    if (parents[0] > 1)
+    assert( "Found non-level 0 grid with no parents" && (parents != NULL) && (numParents > 0) );
+    if (numParents > 1)
       {
-      vtkDebugMacro( "Number of parents: " << parents[0] << " - Only processing 1 route");
+      vtkDebugMacro( "Number of parents: " << numParents << " - Only processing 1 route");
       }
-    gridId = parents[1];
-    grid  = amrds->GetDataSet(plevel,gridId);
-    if (this->FoundDonor( q, grid, cellId ))
+    gridId = parents[0];
+    if (amrds->GetAMRInfo()->FindCell( q, plevel,gridId, cellId ))
       {
       level = plevel;
-      return;
+      return true;
       }
     }
   // If we are here then we could not find an ancestor
-  grid = NULL;
   cellId = -1;
+  return false;
 }
+
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::SearchGridDecendants(double q[3],
                                                 vtkOverlappingAMR *amrds,
                                                 unsigned int maxLevel,
                                                 unsigned int &level,
                                                 unsigned int &gridId,
-                                                vtkUniformGrid *&grid,
                                                 int &cellId)
 {
   assert( "pre: AMR dataset is NULL" && (amrds != NULL) );
   unsigned int *children, clevel, n, i;
-  vtkUniformGrid *childGrid;
   for (; level < maxLevel-1; ++level)
     {
     // Get the children of the grid
-    children = amrds->GetChildren(level, gridId);
+    children = amrds->GetChildren(level, gridId,n);
     clevel = level + 1;
     // If there are no children then we found the grid!
     if (children == NULL)
       {
       return;
       }
-    n = children[0];
-    for (i = 1; i <= n; ++i)
+//    assert(n == children[0]);
+    for (i = 0; i < n; ++i)
       {
-      childGrid  = amrds->GetDataSet(clevel,children[i]);
-      if (this->FoundDonor( q, childGrid, cellId ))
+      if (amrds->GetAMRInfo()->FindCell( q, clevel,children[i], cellId ))
         {
         // We found a decendant so stop searching the
         // children and can instead search that grid's
         // children
         gridId = children[i];
-        grid  = childGrid;
         ++this->NumberOfTimesLevelDown;
         break;
         }
       }
-    if (i > n)
+    if (i >= n)
       {
       // We tested some children that we didn't need to if
       // we had visibility info
@@ -667,26 +664,32 @@ void vtkAMRResampleFilter::SearchGridDecendants(double q[3],
       }
     }
 }
+
+
+
 //-----------------------------------------------------------------------------
 int vtkAMRResampleFilter::
-ProbeGridPointInAMRGraph(double q[3], vtkUniformGrid *&donorGrid,
+ProbeGridPointInAMRGraph(double q[3],
                          unsigned int &donorLevel,  unsigned int &donorGridId,
-                         vtkOverlappingAMR *amrds, unsigned int maxLevel)
+                         vtkOverlappingAMR *amrds, unsigned int maxLevel, bool useCached)
 {
   assert( "pre: AMR dataset is NULL" && amrds != NULL );
 
   int donorCellIdx = -1;
 
+  vtkUniformGrid* donorGrid = NULL;
   // STEP 0: Check the previously cached donor-grid
-  if( donorGrid != NULL )
+  if( useCached)
     {
-    if(!this->FoundDonor( q, donorGrid, donorCellIdx ) )
+    if(!amrds->GetAMRInfo()->FindCell( q, donorLevel,donorGridId, donorCellIdx ) )
       {
       // Lets find the grid's ancestor that contains the point
-      this->SearchGridAncestors(q,amrds,donorLevel,donorGridId,donorGrid,donorCellIdx);
+      bool res = this->SearchGridAncestors(q,amrds,donorLevel,donorGridId,donorCellIdx);
+      donorGrid  = res? amrds->GetDataSet(donorLevel,donorGridId) : NULL;
       }
     else
       {
+      donorGrid  = amrds->GetDataSet(donorLevel,donorGridId);
       ++this->NumberOfTimesFoundOnDonorLevel;
       }
     // if the point is not contained in an ancestor then lets just assume its on level
@@ -696,10 +699,10 @@ ProbeGridPointInAMRGraph(double q[3], vtkUniformGrid *&donorGrid,
   // If there is no initial donor grid then search level 0
   if (donorGrid == NULL)
     {
-    this->SearchForDonorGridAtLevel(q,amrds,0,donorGridId,donorGrid,donorCellIdx);
+    bool res = SearchForDonorGridAtLevel(q,amrds,0,donorGridId,donorCellIdx);
     // If we still can't find a grid then the point is not contained in the
     // AMR Data
-    if (donorGrid == NULL)
+    if (!res)
       {
       this->NumberOfFailedPoints++;
       donorLevel = 0;
@@ -708,9 +711,10 @@ ProbeGridPointInAMRGraph(double q[3], vtkUniformGrid *&donorGrid,
     }
 
   // Now search the decendants of the donor grid
-  this->SearchGridDecendants(q,amrds,maxLevel,donorLevel,donorGridId,donorGrid,donorCellIdx);
+  this->SearchGridDecendants(q,amrds,maxLevel,donorLevel,donorGridId,donorCellIdx);
   return( donorCellIdx );
 }
+
 
 //-----------------------------------------------------------------------------
 void vtkAMRResampleFilter::TransferToGridNodes(
@@ -760,31 +764,32 @@ void vtkAMRResampleFilter::TransferToGridNodes(
   // STEP 3: Loop through all the points and find the donors.
   int numPoints           = 0;
   unsigned int donorLevel = 0;
-  vtkUniformGrid *donorGrid = NULL;
   unsigned int donorGridId = 0;
   double qPoint[3];
   vtkIdType pIdx;
   int donorCellIdx;
-  // Do we have parent/child meta information
+  bool useCached(false);
+  // Do we have parent/child meta information (yes, we always do)
   if (this->AMRMetaData)
     {
     for(pIdx = 0; pIdx < g->GetNumberOfPoints(); ++pIdx )
       {
       g->GetPoint( pIdx, qPoint );
       donorCellIdx =
-        this->ProbeGridPointInAMRGraph(qPoint,donorGrid,
+        this->ProbeGridPointInAMRGraph(qPoint,
                                        donorLevel, donorGridId,
-                                       this->AMRMetaData,maxLevelToLoad );
+                                       amrds,maxLevelToLoad, useCached);
       if( donorCellIdx != -1 )
         {
+        useCached = true;
         vtkUniformGrid *amrGrid = amrds->GetDataSet(donorLevel,donorGridId);
         this->AverageLevel += donorLevel;
-        assert(donorGrid != NULL);
         CD = amrGrid->GetCellData();
         this->CopyData( PD, pIdx, CD, donorCellIdx );
         }
       else
         {
+        useCached = false;
         // Point is outside the domain, blank it
         ++ numPoints;
         g->BlankPoint( pIdx );
@@ -798,18 +803,21 @@ void vtkAMRResampleFilter::TransferToGridNodes(
       g->GetPoint( pIdx, qPoint );
 
       donorCellIdx =
-        this->ProbeGridPointInAMR(qPoint,donorGrid, donorLevel,
-                                  amrds,maxLevelToLoad );
+        this->ProbeGridPointInAMR(qPoint,donorLevel,donorGridId,
+                                  amrds,maxLevelToLoad, useCached);
 
       if( donorCellIdx != -1 )
         {
+        useCached = true;
         this->AverageLevel += donorLevel;
+        vtkUniformGrid*  donorGrid = amrds->GetDataSet(donorLevel,donorGridId);
         assert(donorGrid != NULL);
         CD = donorGrid->GetCellData();
         this->CopyData( PD, pIdx, CD, donorCellIdx );
         }
       else
         {
+        useCached = false;
         // Point is outside the domain, blank it
         ++ numPoints;
         g->BlankPoint( pIdx );
@@ -869,8 +877,8 @@ void vtkAMRResampleFilter::ExtractRegion(
 //  std::cout << "NumProcs: "  << this->Controller->GetNumberOfProcesses() << std::endl;
 //  std::cout.flush();
 
-  assert( "pre: NumProcs must be less than or equal to NumBlocks" &&
-   ( static_cast<int>(this->ROI->GetNumberOfBlocks()) <= this->Controller->GetNumberOfProcesses()));
+  assert( !this->Controller || ( "pre: NumProcs must be less than or equal to NumBlocks" &&
+                                 ( static_cast<int>(this->ROI->GetNumberOfBlocks()) <= this->Controller->GetNumberOfProcesses())));
 
   mbds->SetNumberOfBlocks( this->ROI->GetNumberOfBlocks( ) );
   for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
@@ -915,9 +923,8 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(
     unsigned int dataIdx = 0;
     for( ; dataIdx < metadata->GetNumberOfDataSets( level ); ++dataIdx )
       {
-      vtkUniformGrid *grd = metadata->GetDataSet( level, dataIdx );
-      assert( "pre: Metadata grid is NULL" && (grd != NULL) );
-
+      double grd[6];
+      metadata->GetBounds(level,dataIdx,grd);
       if( this->IsBlockWithinBounds( grd ) )
         {
         this->BlocksToLoad.push_back(
@@ -938,15 +945,12 @@ void vtkAMRResampleFilter::GetDomainParameters(
 {
   assert( "pre: AMR dataset is NULL!" && (amr != NULL) );
 
-  vtkAMRBox amrBox;
-  amr->GetRootAMRBox( amrBox );
-
   rf = amr->GetRefinementRatio(1);
+  amr->GetAMRInfo()->GetAMRBox(0,0).GetNumberOfNodes(dims);
+  amr->GetMin(domainMin);
+  amr->GetMax(domainMax);
 
-  amrBox.GetNumberOfNodes( dims );
-  amrBox.GetMinBounds( domainMin );
-  amrBox.GetMaxBounds( domainMax );
-  amrBox.GetGridSpacing( h );
+  amr->GetGridSpacing(0,h);
 }
 
 //-----------------------------------------------------------------------------
@@ -1202,21 +1206,16 @@ void vtkAMRResampleFilter::GetRegion( double h[3] )
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRResampleFilter::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g2 )
+bool vtkAMRResampleFilter::GridsIntersect( double *g1, double *g2 )
 {
   assert( "pre: g1 is NULL" && (g1 != NULL) );
   assert( "pre: g2 is NULL" && (g2 != NULL) );
 
-  if( g1->GetNumberOfPoints() == 0 || g2->GetNumberOfPoints() == 0 )
-    {
-    return false;
-    }
-
   vtkBoundingBox b1;
-  b1.SetBounds( g1->GetBounds() );
+  b1.SetBounds( g1);
 
   vtkBoundingBox b2;
-  b2.SetBounds( g2->GetBounds() );
+  b2.SetBounds( g2 );
 
   if( b1.IntersectBox( b2 ) )
     {
@@ -1227,7 +1226,7 @@ bool vtkAMRResampleFilter::GridsIntersect( vtkUniformGrid *g1, vtkUniformGrid *g
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAMRResampleFilter::IsBlockWithinBounds( vtkUniformGrid *grd )
+bool vtkAMRResampleFilter::IsBlockWithinBounds( double *grd )
 {
   assert( "pre: Input AMR grid is NULL" && (grd != NULL) );
 
@@ -1239,7 +1238,7 @@ bool vtkAMRResampleFilter::IsBlockWithinBounds( vtkUniformGrid *grd )
           vtkUniformGrid::SafeDownCast( this->ROI->GetBlock( block ) );
       assert( "pre: block is NULL" && (blk != NULL) );
 
-      if( this->GridsIntersect( grd, blk ) )
+      if( this->GridsIntersect( grd, blk->GetBounds() ) )
         {
         return true;
         }

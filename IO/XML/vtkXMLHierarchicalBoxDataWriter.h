@@ -52,7 +52,6 @@ protected:
     vtkXMLDataElement* parent, int &writerIdx);
 
   int *AMRBoxes;
-  int *AMRBoxDims;
 private:
   vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.

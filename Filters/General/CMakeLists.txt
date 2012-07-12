@@ -100,10 +100,6 @@ set(Module_SRCS
   vtkBooleanOperationPolyDataFilter.cxx
   vtkDistancePolyDataFilter.cxx
 
-  # New AMR classes
-  vtkUniformGridAMRAlgorithm.cxx
-  vtkOverlappingAMRAlgorithm.cxx
-  vtkNonOverlappingAMRAlgorithm.cxx
   vtkOverlappingAMRLevelIdScalars.cxx
   vtkExtractArray.cxx
 

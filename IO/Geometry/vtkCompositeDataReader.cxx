@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkCompositeDataReader.h"
 
-#include "vtkAMRBox.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectReader.h"
@@ -27,6 +26,8 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 
@@ -328,9 +329,10 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     vtkErrorMacro("Failed to read number of levels");
     return false;
     }
-  oamr->SetNumberOfLevels(num_levels);
 
+  std::vector<int> blocksPerLevel;
   unsigned int total_datasets = 0;
+
   for (unsigned int cc=0; cc < num_levels; cc++)
     {
     unsigned int num_datasets = 0;
@@ -339,10 +341,10 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
       vtkErrorMacro("Failed to read number of datasets for level " << cc);
       return false;
       }
-    oamr->SetNumberOfDataSets(cc, num_datasets);
+    blocksPerLevel.push_back(num_datasets);
     total_datasets += num_datasets;
     }
-
+  oamr->Initialize(num_levels, &blocksPerLevel[0]);
   for (unsigned int cc=0; cc <= total_datasets; cc++)
     {
     if (!this->ReadString(line))
@@ -370,6 +372,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         {
         vtkUniformGrid* grid = vtkUniformGrid::New();
         grid->ShallowCopy(child);
+        oamr->SetAMRBox(level,index,grid->GetOrigin(), grid->GetDimensions(), grid->GetSpacing());
         oamr->SetDataSet(level, index, grid);
         grid->FastDelete();
         child->Delete();
@@ -384,13 +387,23 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     else if (strncmp(this->LowerCase(line), "metadata", strlen("metadata")) == 0)
       {
       // now read the amrbox information.
-      this->ReadLine(line); this->ReadLine(line);
+      this->ReadLine(line);
+      this->ReadLine(line);
+      this->ReadLine(line);
       cout << "line: " << line << endl;
+
       vtkDoubleArray* ddata = vtkDoubleArray::SafeDownCast(
-        this->ReadArray("double", total_datasets, 6));
-      this->ReadLine(line); this->ReadLine(line);
+        this->ReadArray("double", num_levels+1 , 3));
+
+      this->ReadLine(line);
+      this->ReadLine(line);
+      this->ReadLine(line);
+      this->ReadLine(line);
+
+      cout << "line: " << line << endl;
+
       vtkIntArray* idata = vtkIntArray::SafeDownCast(
-        this->ReadArray("int", total_datasets, 15));
+        this->ReadArray("int", 6*total_datasets+1, 1));
       if (!ddata || !idata)
         {
         vtkErrorMacro("Failed to read meta-data");
@@ -399,24 +412,22 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         return false;
         }
 
-      vtkAMRBox box;
+      double origin[3];
+      ddata->GetTuple(0,origin);
+      int description = idata->GetValue(0);
+      oamr->GetAMRInfo()->SetGridDescription(description);
+      oamr->GetAMRInfo()->SetOrigin(origin);
       unsigned int metadata_index = 0;
       for (unsigned int level=0; level < num_levels; level++)
         {
         unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
         for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
           {
-          box.SetDataSetOrigin(ddata->GetPointer(6*metadata_index));
-          box.SetGridSpacing(ddata->GetPointer(6*metadata_index+3));
-
-          box.SetDimensionality(idata->GetValue(15*metadata_index + 0));
-          box.SetProcessId(idata->GetValue(15*metadata_index + 1));
-          box.SetGridDescription(idata->GetValue(15*metadata_index + 2));
-          memcpy(box.LoCorner, idata->GetPointer(15*metadata_index + 3), 3*sizeof(int));
-          memcpy(box.HiCorner, idata->GetPointer(15*metadata_index + 6), 3*sizeof(int));
-          box.SetRealExtent(idata->GetPointer(15*metadata_index + 9));
-
-          oamr->SetMetaData(level, index, box);
+          int loCorner[3];
+          int hiCorner[3];
+          memcpy(loCorner, idata->GetPointer(6*metadata_index + 1), 3*sizeof(int));
+          memcpy(hiCorner, idata->GetPointer(6*metadata_index + 4), 3*sizeof(int));
+          oamr->GetAMRInfo()->SetAMRBox(level, index, loCorner,hiCorner);
           }
         }
       idata->Delete();

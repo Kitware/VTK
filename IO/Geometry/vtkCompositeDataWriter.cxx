@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkCompositeDataWriter.h"
 
-#include "vtkAMRBox.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkHierarchicalBoxDataSet.h"
@@ -27,6 +26,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
+#include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -219,19 +220,26 @@ bool vtkCompositeDataWriter::WriteCompositeData(
   // Information about amrboxes can be "too much". So we compact it in
   // vtkDataArray subclasses to ensure that it can be written as binary data
   // with correct swapping, as needed.
-
   vtkNew<vtkDoubleArray> ddata;
   ddata->SetName("DoubleMetaData");
-  // box.X0[3], box.DX[3]
-  ddata->SetNumberOfComponents(6);
-  ddata->SetNumberOfTuples(total_datasets);
+  // origin and spacing
+  ddata->SetNumberOfComponents(3);
+  ddata->SetNumberOfTuples(oamr->GetNumberOfLevels()+1);
+  double* origin = oamr->GetOrigin();
+  ddata->SetTuple(0, origin);
+  for (unsigned int level=0; level < num_levels; level++)
+    {
+    double spacing[3];
+    oamr->GetAMRInfo()->GetSpacing(level,spacing);
+    ddata->SetTuple(level+1,spacing);
+    }
 
   vtkNew<vtkIntArray> idata;
-  // box.Dimension[1], box.ProcessId[1], box.GridDiscription[1],
-  // box.LoCorner[3], box.HiCorner[3], box.RealExtent[6],
+  // box.LoCorner[3], box.HiCorner[3]
   idata->SetName("IntMetaData");
-  idata->SetNumberOfComponents(15);
-  idata->SetNumberOfTuples(total_datasets);
+  idata->SetNumberOfComponents(1);
+  idata->SetNumberOfTuples(6*total_datasets+1);
+  idata->SetValue(0, oamr->GetAMRInfo()->GetGridDescription());
 
   unsigned int metadata_index=0;
   for (unsigned int level=0; level < num_levels; level++)
@@ -239,12 +247,13 @@ bool vtkCompositeDataWriter::WriteCompositeData(
     unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
     for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
       {
-      vtkAMRBox box;
-      vtkUniformGrid* dataset = oamr->GetDataSet(level, index, box);
+      const vtkAMRBox& box = oamr->GetAMRBox(level,index);
+      box.Serialize(idata->GetPointer(6*metadata_index + 1));
+
+      vtkUniformGrid* dataset = oamr->GetDataSet(level, index);
       if (dataset)
         {
         *fp << "CHILD " << level << " " << index << "\n";
-
         // since we cannot write vtkUniformGrid's, we create a vtkImageData and
         // write it.
         vtkNew<vtkImageData> image;
@@ -253,30 +262,18 @@ bool vtkCompositeDataWriter::WriteCompositeData(
           {
           return false;
           }
-        *fp << "ENDCHILD\n"; 
+        *fp << "ENDCHILD\n";
         }
-      memcpy(ddata->GetPointer(6*metadata_index), box.GetDataSetOrigin(),
-        3*sizeof(double));
-      memcpy(ddata->GetPointer(6*metadata_index+3), box.GetGridSpacing(),
-        3*sizeof(double));
-
-      idata->SetValue(15*metadata_index + 0, box.GetDimensionality());
-      idata->SetValue(15*metadata_index + 1, box.GetProcessId());
-      idata->SetValue(15*metadata_index + 2, box.GetGridDescription());
-      memcpy(idata->GetPointer(15*metadata_index + 3), box.GetLoCorner(), 3*sizeof(int));
-      memcpy(idata->GetPointer(15*metadata_index + 6), box.GetHiCorner(), 3*sizeof(int));
-      memcpy(idata->GetPointer(15*metadata_index + 9), box.GetRealExtent(), 6*sizeof(int));
       }
     }
   *fp << "METADATA\n";
 
   char format[1024];
-  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "DoubleMetaData", 6, "default");
-  this->WriteArray(fp, ddata->GetDataType(), ddata.GetPointer(), format, total_datasets, 6);
-  
-  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "IntMetaData", 6, "default");
-  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(), format,
-    total_datasets, 15);
+  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "DoubleMetaData", 3, "default");
+  this->WriteArray(fp, ddata->GetDataType(), ddata.GetPointer(), format, ddata->GetNumberOfTuples(), ddata->GetNumberOfComponents());
+
+  sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n", "IntMetaData", 3, "default");
+  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(), format, idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
   return true;
 }
 

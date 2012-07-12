@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkAMRBox.h>
 #include <vtkAMRInterpolatedVelocityField.h>
 #include <vtkAMRGaussianPulseSource.h>
 #include <vtkNew.h>
@@ -57,17 +56,21 @@ int TestAMRInterpolatedVelocityField(int, char*[])
 
   double v[3];
   bool res;
+  unsigned int level, id;
   res = func->FunctionValues(Points[0],v)!=0;
   RETURNONFALSE(!res);
   res = func->FunctionValues(Points[1],v)!=0;
   RETURNONFALSE(res);
-  RETURNONFALSE(func->GetLastAMRBox().GetLevel()==1)
+  func->GetLastDataSetLocation(level,id);
+  RETURNONFALSE(level==1)
   res = func->FunctionValues(Points[2],v)!=0;
   RETURNONFALSE(res);
-  RETURNONFALSE(func->GetLastAMRBox().GetLevel()==0)
+  func->GetLastDataSetLocation(level,id);
+  RETURNONFALSE(level==0)
   res = func->FunctionValues(Points[3],v)!=0;
   RETURNONFALSE(res);
-  RETURNONFALSE(func->GetLastAMRBox().GetLevel()==1)
+  func->GetLastDataSetLocation(level,id);
+  RETURNONFALSE(level==1)
 
   vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
   return EXIT_SUCCESS;

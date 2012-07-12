@@ -258,7 +258,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
        // convert hierarchical index to composite index.
        vtkHierarchicalBoxDataSet* hbox = static_cast<vtkHierarchicalBoxDataSet*>(data);
        indices.insert(
-         hbox->GetFlatIndex(
+         hbox->GetCompositeIndex(
            static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL())),
            static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()))));
 
