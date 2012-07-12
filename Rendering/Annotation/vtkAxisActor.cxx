@@ -199,7 +199,8 @@ vtkAxisActor::vtkAxisActor()
     {
     this->AxisBaseForX[i] = this->AxisBaseForY[i] = this->AxisBaseForZ[i] = 0.0;
     }
- this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
+  this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
+  this->AxisOnOrigin = 0;
 }
 
 // ****************************************************************
@@ -1246,7 +1247,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     lines->InsertNextCell(2, ptIds);
     }
   // create grid lines
-  if (this->DrawGridlines)
+  if (this->DrawGridlines && this->AxisOnOrigin == 0)
     {
     numGridlines = this->GridlinePts->GetNumberOfPoints()/2;
     int start =
@@ -1262,7 +1263,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     }
 
   // create inner grid lines
-  if (this->DrawInnerGridlines)
+  if (this->DrawInnerGridlines && this->AxisOnOrigin == 0)
     {
     numInnerGridlines = this->InnerGridlinePts->GetNumberOfPoints()/2;
     for (i=0; i < numInnerGridlines; i++)
@@ -1274,7 +1275,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     }
 
   // create polys (grid polys)
-  if (this->DrawGridpolys)
+  if (this->DrawGridpolys && this->AxisOnOrigin == 0)
     {
     numGridpolys = this->GridpolyPts->GetNumberOfPoints()/4;
     for (i = 0; i < numGridpolys; i++)
@@ -1649,7 +1650,9 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
       (this->TickLocation == this->LastTickLocation ) &&
       (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()) &&
       (this->Point1Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()) &&
-      (this->Point2Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()))
+      (this->Point2Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()) &&
+      (this->Range[0] == this->LastRange[0]) &&
+      (this->Range[1] == this->LastRange[1]))
     {
     return false;
     }
