@@ -280,7 +280,7 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
 #-----------------------------------------------------------------------------
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
-IF (NOT WIN32)
+IF (NOT WIN32 AND NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
   include(CheckCCompilerFlag)
   
   check_c_compiler_flag(-std=c99 HAVE_STD_C99)
@@ -302,7 +302,7 @@ IF (NOT WIN32)
   endif()
 
   SET (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} ${STD_C99} ${OMIT_FRAME_POINTER} ${INLINE_FUNCTIONS} ${NO_COMMON}")
-ENDIF (NOT WIN32)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Option to allow the user to disable compiler warnings
