@@ -266,6 +266,13 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->LastZRange[0] = VTK_FLOAT_MAX;
   this->LastZRange[1] = VTK_FLOAT_MAX;
 
+  this->LastBounds[0] = VTK_DOUBLE_MAX;
+  this->LastBounds[1] = VTK_DOUBLE_MAX;
+  this->LastBounds[2] = VTK_DOUBLE_MAX;
+  this->LastBounds[3] = VTK_DOUBLE_MAX;
+  this->LastBounds[4] = VTK_DOUBLE_MAX;
+  this->LastBounds[5] = VTK_DOUBLE_MAX;
+
   this->LastFlyMode = -1;
 
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
@@ -885,17 +892,24 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
   bool yPropsChanged = this->LabelTextProperty[1]->GetMTime() > this->BuildTime.GetMTime();
   bool zPropsChanged = this->LabelTextProperty[2]->GetMTime() > this->BuildTime.GetMTime();
 
-  bool xRangeChanged = this->LastXRange[0] != bounds[0] ||
-                       this->LastXRange[1] != bounds[1];
+  bool xRangeChanged = this->LastXRange[0] != this->XAxisRange[0] ||
+                       this->LastXRange[1] != this->XAxisRange[1];
 
-  bool yRangeChanged = this->LastYRange[0] != bounds[2] ||
-                       this->LastYRange[1] != bounds[3];
+  bool yRangeChanged = this->LastYRange[0] != this->YAxisRange[0] ||
+                       this->LastYRange[1] != this->YAxisRange[1];
 
-  bool zRangeChanged = this->LastZRange[0] != bounds[4] ||
-                       this->LastZRange[1] != bounds[5];
+  bool zRangeChanged = this->LastZRange[0] != this->ZAxisRange[0] ||
+                       this->LastZRange[1] != this->ZAxisRange[1];
+
+  bool boundsChanged = this->LastBounds[0] != bounds[0] ||
+                       this->LastBounds[1] != bounds[1] ||
+                       this->LastBounds[2] != bounds[2] ||
+                       this->LastBounds[3] != bounds[3] ||
+                       this->LastBounds[4] != bounds[4] ||
+                       this->LastBounds[5] != bounds[5];
 
   if (!(xRangeChanged || yRangeChanged || zRangeChanged) &&
-      !(xPropsChanged || yPropsChanged || zPropsChanged))
+      !(xPropsChanged || yPropsChanged || zPropsChanged || boundsChanged))
     {
     // no need to re-compute ticksize.
     return false;
@@ -905,19 +919,19 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
   double yExt = bounds[3] - bounds[2];
   double zExt = bounds[5] - bounds[4];
 
-  if (xRangeChanged)
+  if (xRangeChanged || boundsChanged)
     {
     this->AdjustTicksComputeRange(this->XAxes, bounds[0], bounds[1]);
     this->BuildLabels(this->XAxes);
     this->UpdateLabels(this->XAxes, 0);
     }
-  if (yRangeChanged)
+  if (yRangeChanged || boundsChanged)
     {
     this->AdjustTicksComputeRange(this->YAxes, bounds[2], bounds[3]);
     this->BuildLabels(this->YAxes);
     this->UpdateLabels(this->YAxes, 1);
     }
-  if (zRangeChanged)
+  if (zRangeChanged || boundsChanged)
     {
     this->AdjustTicksComputeRange(this->ZAxes, bounds[4], bounds[5]);
     this->BuildLabels(this->ZAxes);
@@ -950,6 +964,10 @@ bool vtkCubeAxesActor::ComputeTickSize(double bounds[6])
                                   bounds[4] : this->ZAxisRange[0]);
   this->LastZRange[1] = (this->ZAxisRange[1] == VTK_DOUBLE_MAX ?
                                   bounds[5] : this->ZAxisRange[1]);
+  for(int i=0; i < 6; i++)
+    {
+    this->LastBounds[i] = bounds[i];
+    }
 
   double major = 0.02 * (xExt + yExt + zExt) / 3.;
   double minor = 0.5 * major;
@@ -1446,18 +1464,21 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport *viewport)
   // Prepare axes for rendering with user-definable options
   for (i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
     {
+    this->XAxes[i]->SetAxisOnOrigin(this->UseAxisOrigin);
     this->XAxes[i]->GetPoint1Coordinate()->SetValue(xCoords[i][0],
                                                     xCoords[i][1],
                                                     xCoords[i][2]);
     this->XAxes[i]->GetPoint2Coordinate()->SetValue(xCoords[i][3],
                                                     xCoords[i][4],
                                                     xCoords[i][5]);
+    this->YAxes[i]->SetAxisOnOrigin(this->UseAxisOrigin);
     this->YAxes[i]->GetPoint1Coordinate()->SetValue(yCoords[i][0],
                                                     yCoords[i][1],
                                                     yCoords[i][2]);
     this->YAxes[i]->GetPoint2Coordinate()->SetValue(yCoords[i][3],
                                                     yCoords[i][4],
                                                     yCoords[i][5]);
+    this->ZAxes[i]->SetAxisOnOrigin(this->UseAxisOrigin);
     this->ZAxes[i]->GetPoint1Coordinate()->SetValue(zCoords[i][0],
                                                     zCoords[i][1],
                                                     zCoords[i][2]);

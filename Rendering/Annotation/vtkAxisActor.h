@@ -402,6 +402,12 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkSetVector3Macro(AxisBaseForZ, double);
   vtkGetVector3Macro(AxisBaseForZ, double);
 
+  // Description:
+  // Notify the axes that is not part of a cube anymore
+  vtkSetMacro(AxisOnOrigin,int);
+  vtkGetMacro(AxisOnOrigin,int);
+
+
  protected:
   vtkAxisActor();
   ~vtkAxisActor();
@@ -526,6 +532,8 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkTimeStamp        BoundsTime;
   vtkTimeStamp        LabelBuildTime;
   vtkTimeStamp        TitleTextTime;
+
+  int                 AxisOnOrigin;
 
   int                 AxisHasZeroLength;
 

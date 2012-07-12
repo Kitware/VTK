@@ -585,6 +585,7 @@ private:
   double LastXRange[2];
   double LastYRange[2];
   double LastZRange[2];
+  double LastBounds[6];
 
   int    LastFlyMode;
 
