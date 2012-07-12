@@ -58,6 +58,12 @@ endforeach()
 option(VTK_BUILD_ALL_MODULES "Request to build all modules" OFF)
 mark_as_advanced(VTK_BUILD_ALL_MODULES)
 
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_BUILD_ALL_MODULES_FOR_TESTS
+  "Enable modules as needed for testing all the enabled modules" OFF
+  "BUILD_TESTING" OFF)
+mark_as_advanced(VTK_BUILD_ALL_MODULES_FOR_TESTS)
+
 # Provide an option for each module.
 foreach(vtk-module ${VTK_MODULES_ALL})
   if(NOT ${vtk-module}_IS_TEST)
@@ -83,9 +89,26 @@ macro(vtk_module_enable vtk-module _needed_by)
       vtk_module_enable(${dep} ${vtk-module})
     endforeach()
 
-    foreach(test IN LISTS ${vtk-module}_TESTED_BY)
+    # If VTK_BUILD_ALL_MODULES_FOR_TESTS is true, then and then
+    # alone do we include the test modules in building build the dependency
+    # graph for enabled modules (BUG #13297).
+    if (VTK_BUILD_ALL_MODULES_FOR_TESTS)
+      foreach(test IN LISTS ${vtk-module}_TESTED_BY)
         vtk_module_enable(${test} "")
-    endforeach()
+      endforeach()
+    elseif (BUILD_TESTING)
+      # identify vtkTesting<> dependencies on the test module and enable them.
+      # this ensures that core testing modules such as vtkTestingCore,
+      # vtkTestingRendering which many test modules depend on, are automatically
+      # enabled.
+      foreach(test IN LISTS ${vtk-module}_TESTED_BY)
+        foreach(test-depends IN LISTS VTK_MODULE_${test}_DEPENDS)
+          if (test-depends MATCHES "^vtkTesting.*")
+            vtk_module_enable(${test-depends} "")
+          endif()
+        endforeach()
+      endforeach()
+    endif()
   endif()
 endmacro()
 
@@ -122,6 +145,31 @@ list(SORT VTK_MODULES_DISABLED) # Deterministic order.
 # Order list to satisfy dependencies.
 include(CMake/TopologicalSort.cmake)
 topological_sort(VTK_MODULES_ENABLED VTK_MODULE_ _DEPENDS)
+
+if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
+  # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
+  # test modules to the dependecy graph. We now add the test modules for all
+  # enabled modules iff the all the test dependecies are already satisfied
+  # (BUG #13297).
+  foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)
+    foreach(test IN LISTS ${vtk-module}_TESTED_BY)
+      # if all test-dependencies are satisfied, enable it.
+      set (missing_dependencis)
+      foreach(test-depends IN LISTS VTK_MODULE_${test}_DEPENDS)
+        list(FIND VTK_MODULES_ENABLED ${test-depends} found)
+        if (found EQUAL -1)
+          list(APPEND missing_dependencis ${test-depends})
+        endif()
+      endforeach()
+      if (NOT missing_dependencis)
+        vtk_module_enable(${test} "")
+      else()
+        message(STATUS
+        "Disable test module ${test} since required modules are not enabled: ${missing_dependencis}")
+      endif()
+    endforeach()
+  endforeach()
+endif()
 
 # Report what will be built.
 set(_modules_enabled_alpha "${VTK_MODULES_ENABLED}")
