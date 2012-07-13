@@ -1,5 +1,6 @@
 vtk_module(vtkViewsInfovis
   DEPENDS
+    vtkRenderingContext2D
     vtkViewsCore
     vtkRenderingLabel
     vtkInfovisLayout

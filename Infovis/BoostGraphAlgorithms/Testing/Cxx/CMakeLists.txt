@@ -8,6 +8,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestBoostAlgorithms.cxx
   TestBoostBetweennessClustering.cxx
   # TestBoostBrandesCentrality.cxx # todo (unsatisfied deps)
+  TestBoostDividedEdgeBundling.cxx
   TestBoostExtractLargestComponent.cxx
   TestBoostSplitTableField.cxx
 
