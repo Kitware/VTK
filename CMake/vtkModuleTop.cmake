@@ -139,12 +139,6 @@ foreach(vtk-module ${VTK_MODULES_ALL})
     list(APPEND VTK_MODULES_DISABLED ${vtk-module})
   endif()
 endforeach()
-list(SORT VTK_MODULES_ENABLED) # Deterministic order.
-list(SORT VTK_MODULES_DISABLED) # Deterministic order.
-
-# Order list to satisfy dependencies.
-include(CMake/TopologicalSort.cmake)
-topological_sort(VTK_MODULES_ENABLED VTK_MODULE_ _DEPENDS)
 
 if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
   # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
@@ -163,6 +157,7 @@ if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
       endforeach()
       if (NOT missing_dependencis)
         vtk_module_enable(${test} "")
+        list(APPEND VTK_MODULES_ENABLED ${test})
       else()
         message(STATUS
         "Disable test module ${test} since required modules are not enabled: ${missing_dependencis}")
@@ -170,6 +165,14 @@ if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
     endforeach()
   endforeach()
 endif()
+
+list(SORT VTK_MODULES_ENABLED) # Deterministic order.
+list(SORT VTK_MODULES_DISABLED) # Deterministic order.
+
+# Order list to satisfy dependencies.
+include(CMake/TopologicalSort.cmake)
+topological_sort(VTK_MODULES_ENABLED VTK_MODULE_ _DEPENDS)
+
 
 # Report what will be built.
 set(_modules_enabled_alpha "${VTK_MODULES_ENABLED}")
