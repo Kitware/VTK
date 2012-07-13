@@ -56,7 +56,7 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Camera = NULL;
 
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
-  this->GridLineLocation = VTK_ALL_GRID_LINES;
+  this->GridLineLocation = VTK_GRID_LINES_ALL;
 
   // By default enable distance based LOD
   this->EnableDistanceLOD = 1;
@@ -805,14 +805,14 @@ void vtkCubeAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 
   switch(this->GridLineLocation)
     {
-  case VTK_ALL_GRID_LINES:
-    os << indent << "GridLineLocation: VTK_ALL_GRID_LINES (0)" << endl;
+  case VTK_GRID_LINES_ALL:
+    os << indent << "GridLineLocation: VTK_GRID_LINES_ALL (0)" << endl;
     break;
-  case VTK_CLOSEST_GRID_LINES:
-    os << indent << "GridLineLocation: VTK_CLOSEST_GRID_LINES (1)" << endl;
+  case VTK_GRID_LINES_CLOSEST:
+    os << indent << "GridLineLocation: VTK_GRID_LINES_CLOSEST (1)" << endl;
     break;
-  case VTK_FURTHEST_GRID_LINES:
-    os << indent << "GridLineLocation: VTK_FURTHEST_GRID_LINES (2)" << endl;
+  case VTK_GRID_LINES_FURTHEST:
+    os << indent << "GridLineLocation: VTK_GRID_LINES_FURTHEST (2)" << endl;
     break;
     }
 
