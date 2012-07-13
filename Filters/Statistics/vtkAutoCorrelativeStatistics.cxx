@@ -21,6 +21,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
+#include "vtkImageFFT.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
@@ -557,8 +558,16 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   timeData->GetPointData()->SetScalars( timeArray );
   timeArray->Delete();
 
+  // Now calculate FFT of time series
+  vtkImageFFT* fft = vtkImageFFT::New();
+  fft->SetDimensionality( 1 );
+  fft->SetInputData( timeData );
+  fft->Update();
+  fft->GetOutput()->Print( cerr );
+
   // Clean up
   timeData->Delete();
+  fft->Delete();
 }
 
 // ----------------------------------------------------------------------
