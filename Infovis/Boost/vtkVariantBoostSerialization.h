@@ -63,7 +63,6 @@ void save(Archiver& ar, const vtkUnicodeString& str,
           const unsigned int vtkNotUsed(version))
 {
   std::string utf8(str.utf8_str());
-  std::cout << "save() called on utf8 string " << utf8 << "\n";
   ar & utf8;
 }
 
@@ -73,7 +72,6 @@ void load(Archiver& ar, vtkUnicodeString& str,
 {
   std::string utf8;
   ar & utf8;
-  std::cout << "load() called on utf8 string " << utf8 << "\n";
   str = vtkUnicodeString::from_utf8(utf8);
 }
 
