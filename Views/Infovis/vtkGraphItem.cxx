@@ -18,6 +18,7 @@
 #include "vtkGraph.h"
 #include "vtkImageData.h"
 #include "vtkMarkerUtilities.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
 
 #include <vector>
