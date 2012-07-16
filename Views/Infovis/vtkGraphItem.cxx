@@ -14,12 +14,17 @@
 =========================================================================*/
 #include "vtkGraphItem.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextScene.h"
 #include "vtkGraph.h"
 #include "vtkImageData.h"
+#include "vtkIncrementalForceLayout.h"
 #include "vtkMarkerUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPoints.h"
+#include "vtkRenderWindowInteractor.h"
 
 #include <vector>
 
@@ -35,6 +40,11 @@ struct vtkGraphItem::Internals {
   std::vector<std::vector<vtkVector2f> > EdgePositions;
   std::vector<std::vector<vtkColor4ub> > EdgeColors;
   std::vector<float> EdgeWidths;
+
+  bool Animating;
+  bool AnimationCallbackInitialized;
+  vtkNew<vtkCallbackCommand> AnimationCallback;
+  int TimerId;
 };
 
 vtkGraphItem::vtkGraphItem()
@@ -42,6 +52,9 @@ vtkGraphItem::vtkGraphItem()
   this->Graph = 0;
   this->GraphBuildTime = 0;
   this->Internal = new Internals();
+  this->Internal->Animating = false;
+  this->Internal->AnimationCallbackInitialized = false;
+  this->Internal->TimerId = 0;
 }
 
 vtkGraphItem::~vtkGraphItem()
@@ -60,7 +73,7 @@ vtkColor4ub vtkGraphItem::VertexColor(vtkIdType item)
 
 vtkVector2f vtkGraphItem::VertexPosition(vtkIdType item)
 {
-  double *p = this->Graph->GetPoint(item);
+  double *p = this->Graph->GetPoints()->GetPoint(item);
   return vtkVector2f(static_cast<float>(p[0]), static_cast<float>(p[1]));
 }
 
@@ -84,11 +97,13 @@ vtkVector2f vtkGraphItem::EdgePosition(vtkIdType edgeIdx, vtkIdType point)
   double *p;
   if (point == 0)
     {
-    p = this->Graph->GetPoint(this->Graph->GetSourceVertex(edgeIdx));
+    vtkPoints *points = this->Graph->GetPoints();
+    p = points->GetPoint(this->Graph->GetSourceVertex(edgeIdx));
     }
   else if (point == this->NumberOfEdgePoints(edgeIdx) - 1)
     {
-    p = this->Graph->GetPoint(this->Graph->GetTargetVertex(edgeIdx));
+    vtkPoints *points = this->Graph->GetPoints();
+    p = points->GetPoint(this->Graph->GetTargetVertex(edgeIdx));
     }
   else
     {
@@ -215,6 +230,71 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
     }
   this->PaintBuffers(painter);
   return true;
+}
+
+void vtkGraphItem::ProcessEvents(vtkObject *vtkNotUsed(caller), unsigned long event,
+                                 void *clientData, void *callerData)
+{
+  vtkGraphItem *self =
+      reinterpret_cast<vtkGraphItem *>(clientData);
+  switch (event)
+    {
+    case vtkCommand::TimerEvent:
+      {
+      // We must filter the events to ensure we actually get the timer event we
+      // created. I would love signals and slots...
+      int timerId = *static_cast<int *>(callerData);   // Seems to work.
+      if (self->Internal->Animating &&
+          timerId == static_cast<int>(self->Internal->TimerId))
+        {
+        self->UpdateLayout();
+        self->GetScene()->SetDirty(true);
+        }
+      break;
+      }
+    default:
+      break;
+    }
+}
+
+void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
+{
+  // Start a simple repeating timer
+  if (!this->Internal->Animating && interactor)
+    {
+    if (!this->Internal->AnimationCallbackInitialized)
+      {
+      this->Internal->AnimationCallback->SetClientData(this);
+      this->Internal->AnimationCallback->SetCallback(vtkGraphItem::ProcessEvents);
+      interactor->AddObserver(vtkCommand::TimerEvent,
+                              this->Internal->AnimationCallback.GetPointer(),
+                              0);
+      this->Internal->AnimationCallbackInitialized = true;
+      }
+    this->Internal->Animating = true;
+    // This defines the interval at which the animation will proceed. 60Hz?
+    this->Internal->TimerId = interactor->CreateRepeatingTimer(1000 / 60);
+    vtkVector2f screenPos(this->Scene->GetSceneWidth()/2.0f, this->Scene->GetSceneHeight()/2.0f);
+    vtkVector2f pos = this->MapFromScene(screenPos);
+    this->Layout->SetGravityPoint(pos);
+    }
+}
+
+void vtkGraphItem::StopLayoutAnimation(vtkRenderWindowInteractor *interactor)
+{
+  interactor->DestroyTimer(this->Internal->TimerId);
+  this->Internal->TimerId = 0;
+  this->Internal->Animating = false;
+}
+
+void vtkGraphItem::UpdateLayout()
+{
+  if (this->Graph)
+    {
+    this->Layout->SetGraph(this->Graph);
+    this->Layout->UpdatePositions();
+    this->Graph->Modified();
+    }
 }
 
 void vtkGraphItem::PrintSelf(ostream &os, vtkIndent indent)
