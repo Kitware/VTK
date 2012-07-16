@@ -27,6 +27,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkVectorOperators.h"
 
