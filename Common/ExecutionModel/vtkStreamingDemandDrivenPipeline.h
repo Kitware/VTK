@@ -37,6 +37,7 @@ class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
+class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
@@ -258,6 +259,10 @@ public:
   // Description:
   // Key to store available time range for continuous sources.
   static vtkInformationDoubleVectorKey* TIME_RANGE();
+
+  // Description:
+  // Key to store the label that should be used for labelling the time in the UI
+  static vtkInformationStringKey* TIME_LABEL_ANNOTATION();
 
   // Description:
   // Update time steps requested by the pipeline.
