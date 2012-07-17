@@ -25,7 +25,7 @@
 #ifndef __vtkMultiLineItem_h
 #define __vtkMultiLineItem_h
 
-#include "vtkViewsInfovisModule.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
 
 #include "vtkVector.h" // For vector types in API
