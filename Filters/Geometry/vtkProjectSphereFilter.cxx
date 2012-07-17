@@ -36,13 +36,13 @@
 
 namespace
 {
-  void ConvertXYZToLatLonDepth(double xyz[3], double latLonDepth[3], double center[3])
+  void ConvertXYZToLatLonDepth(double xyz[3], double lonLatDepth[3], double center[3])
   {
     double dist2 = vtkMath::Distance2BetweenPoints(xyz, center);
-    latLonDepth[2] = sqrt(dist2);
-    double aaa = atan2(xyz[1]-center[1], xyz[0]-center[0]);
-    latLonDepth[0] = aaa*180./vtkMath::Pi()-180.;
-    latLonDepth[1] = 90.-acos((xyz[2]-center[2])/latLonDepth[2])*180./vtkMath::Pi();
+    lonLatDepth[2] = sqrt(dist2);
+    double radianAngle = atan2(xyz[1]-center[1], xyz[0]-center[0]);
+    lonLatDepth[0] = radianAngle*180./vtkMath::Pi()-180.;
+    lonLatDepth[1] = 90.-acos((xyz[2]-center[2])/lonLatDepth[2])*180./vtkMath::Pi();
   }
 
   template<class data_type>
@@ -151,13 +151,16 @@ void vtkProjectSphereFilter::TransformPointInformation(
 
   output->SetPoints(points.GetPointer());
   vtkIdType numberOfPoints = input->GetNumberOfPoints();
-  double minDist2ToCenter = VTK_DOUBLE_MAX;
+  double minDist2ToCenterLine = VTK_DOUBLE_MAX;
   for(vtkIdType i=0;i<numberOfPoints;i++)
     {
     double coordIn[3], coordOut[3];
     input->GetPoint(i, coordIn);
     ConvertXYZToLatLonDepth(coordIn, coordOut, this->Center);
-    if(coordOut[0] < SplitLongitude)
+    // if we allow the user to specify SplitLongitude we have to make
+    // sure that we respect their choice since the output of atan
+    // is from -180 to 180.
+    if(coordOut[0] < this->SplitLongitude)
       {
       coordOut[0] += 360.;
       }
@@ -171,22 +174,30 @@ void vtkProjectSphereFilter::TransformPointInformation(
     //   coordOut[2] = 0;
     //   }
     points->SetPoint(i, coordOut);
+
+    // keep track of the ids of the points that are closest to the
+    // centerline between -90 and 90 latitude. this is done as a single
+    // pass algorithm.
     double dist2 =
       (coordIn[0]-this->Center[0])*(coordIn[0]-this->Center[0])+
       (coordIn[1]-this->Center[1])*(coordIn[1]-this->Center[1]);
-    if(dist2 < minDist2ToCenter)
+    if(dist2 < minDist2ToCenterLine)
       {
-      minDist2ToCenter = dist2;
+      // we found a closer point so throw out the previous closest
+      // point ids.
+      minDist2ToCenterLine = dist2;
       polePointIds->SetNumberOfIds(1);
       polePointIds->SetId(0, i);
       }
-    else if(dist2 == minDist2ToCenter)
+    else if(dist2 == minDist2ToCenterLine)
       {
+      // this point is just as close as the current closest point
+      // so we just add it to our list.
       polePointIds->InsertNextId(i);
       }
     this->TransformTensors(i, coordIn, output->GetPointData());
     }
-  this->ComputePointsClosestToCenter(minDist2ToCenter, polePointIds);
+  this->ComputePointsClosestToCenterLine(minDist2ToCenterLine, polePointIds);
 }
 
 //-----------------------------------------------------------------------------

@@ -38,8 +38,9 @@ protected:
 
   // Description:
   // Parallel part of the algorithm to figure out the closest point
-  // to Center if we don't build cells using points at the poles.
-  virtual void ComputePointsClosestToCenter(double, vtkIdList*);
+  // to the centerline (i.e. line connecting -90 latitude to 90 latitude)
+  // if we don't build cells using points at the poles.
+  virtual void ComputePointsClosestToCenterLine(double, vtkIdList*);
 
   // Description:
   // If TranslateZ is true then this is the method that computes
