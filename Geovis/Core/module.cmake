@@ -1,4 +1,6 @@
 vtk_module(vtkGeovisCore
+  GROUPS
+    Rendering
   DEPENDS
     vtkInteractionWidgets
     vtkInteractionStyle
