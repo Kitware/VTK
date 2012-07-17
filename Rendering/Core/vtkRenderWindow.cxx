@@ -54,6 +54,9 @@ vtkRenderWindow::vtkRenderWindow()
   this->Interactor = NULL;
   this->AAFrames = 0;
   this->FDFrames = 0;
+  this->UseConstantFDOffsets = 0;
+  this->ConstantFDOffsets[0] = NULL;
+  this->ConstantFDOffsets[1] = NULL;
   this->SubFrames = 0;
   this->AccumulationBuffer = NULL;
   this->AccumulationBufferSize = 0;
@@ -95,6 +98,15 @@ vtkRenderWindow::~vtkRenderWindow()
     {
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
+    }
+
+  for (int i = 0; i < 2; ++i)
+    {
+    if (this->ConstantFDOffsets[i])
+      {
+      delete [] this->ConstantFDOffsets[i];
+      }
+    this->ConstantFDOffsets[i] = NULL;
     }
 
   vtkCollectionSimpleIterator rsit;
@@ -148,6 +160,36 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
         this->Interactor->SetRenderWindow(this);
         }
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetFDFrames(int fdFrames)
+{
+  if (this->FDFrames != fdFrames)
+    {
+    this->FDFrames = fdFrames;
+
+    for (int i = 0; i < 2; i++)
+      {
+      if (this->ConstantFDOffsets[i])
+        {
+        delete [] this->ConstantFDOffsets[i];
+        }
+      this->ConstantFDOffsets[i] = NULL;
+      if (this->FDFrames > 0)
+        {
+        this->ConstantFDOffsets[i] = new double[this->FDFrames];
+        for (int fi = 0; fi < this->FDFrames; fi++)
+          {
+          this->ConstantFDOffsets[i][fi] = vtkMath::Random();
+          }
+        }
+      }
+
+    vtkDebugMacro(<< this->GetClassName() << " (" << this
+      << "): setting FDFrames to " << fdFrames);
+    this->Modified();
     }
 }
 
@@ -604,8 +646,16 @@ void vtkRenderWindow::DoFDRender()
       {
       int j = 0;
 
-      offsets[0] = vtkMath::Random(); // radius
-      offsets[1] = vtkMath::Random()*360.0; // angle
+      if (this->UseConstantFDOffsets)
+        {
+        offsets[0] = this->ConstantFDOffsets[0][i]; // radius
+        offsets[1] = this->ConstantFDOffsets[1][i]*360.0; // angle
+        }
+      else
+        {
+        offsets[0] = vtkMath::Random(); // radius
+        offsets[1] = vtkMath::Random()*360.0; // angle
+        }
 
       // store offsets for each renderer
       for (this->Renderers->InitTraversal(rsit);
