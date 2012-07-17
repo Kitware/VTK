@@ -1548,21 +1548,16 @@ int vtkPStreamTracer::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (!vtkMPIController::SafeDownCast(this->Controller))
+  if (!vtkMPIController::SafeDownCast(this->Controller) || this->Controller->GetNumberOfProcesses() == 1)
     {
+    this->GenerateNormalsInIntegrate = 1;
     return vtkStreamTracer::RequestData(request,inputVector,outputVector);
+    this->GenerateNormalsInIntegrate = 0;
     }
+
   this->Rank = this->Controller->GetLocalProcessId();
   NumProcs = this->Controller->GetNumberOfProcesses();
 
-  if (this->Controller->GetNumberOfProcesses() == 1)
-    {
-    this->GenerateNormalsInIntegrate = 1;
-    int retVal = this->Superclass::RequestData(request, inputVector,
-                                               outputVector);
-    this->GenerateNormalsInIntegrate = 0;
-    return retVal;
-    }
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
