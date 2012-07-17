@@ -19,6 +19,7 @@
 #include "vtkGraphItem.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkStringArray.h"
 #include "vtkXMLTreeReader.h"
