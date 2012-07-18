@@ -118,7 +118,7 @@ ENDIF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
 #
 # Create the configuration file
 #
-ADD_DEFINITIONS (-DVTKFREETYPE)
+ADD_DEFINITIONS (-DVTKFREETYPE -DFT2_BUILD_LIBRARY)
 CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/include/vtkFreeTypeConfig.h.in
                 ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h)
 
@@ -146,11 +146,5 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     "${VTKFREETYPE_SOURCE_DIR}/include/freetype/config/*.h")
   INSTALL(FILES ${freetype_config_headers}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/config
-    COMPONENT Development)
-
-  file(GLOB freetype_internal_headers 
-    "${VTKFREETYPE_SOURCE_DIR}/include/freetype/internal/*.h")
-  INSTALL(FILES ${freetype_internal_headers}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/internal
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
