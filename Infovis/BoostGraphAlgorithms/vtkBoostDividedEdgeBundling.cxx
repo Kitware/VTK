@@ -418,7 +418,7 @@ void vtkBundlingMetadata::SimulateEdgeStep()
       acceleration = acceleration + nextForce * nextDirection;
 
       // Coulomb force
-      float normalizedEdgeCoulombConstant = this->EdgeCoulombConstant / sqrt(numEdges);
+      float normalizedEdgeCoulombConstant = this->EdgeCoulombConstant / sqrt(static_cast<float>(numEdges));
 
       for (vtkIdType e2 = 0; e2 < numEdges; ++e2)
         {
