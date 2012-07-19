@@ -20,8 +20,7 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkImageData.h"
-#include "vtkImageFFT.h"
+#include "vtkTableFFT.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
@@ -397,9 +396,8 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
-  // Prepare storage for FFT of auto-covariance
-  vtkDoubleArray* timeArray = vtkDoubleArray::New();
-  timeArray->SetNumberOfComponents( 1 );
+  // Storage for time series table
+  vtkTable* timeTable = vtkTable::New();
 
   // Iterate over variable blocks
   vtkIdType nLags = 0;
@@ -413,13 +411,14 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
 
     // Verify that number of time lags is consistent
+    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
     vtkIdType nRow = modelTab->GetNumberOfRows();
     if ( b )
       {
       if ( nRow != nLags )
         {
         vtkErrorMacro( "Variable "
-                       << inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() )
+                       << varName
                        << " has "
                        << nRow
                        << " time lags but should have "
@@ -464,6 +463,8 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Storage for derived values
     double* derivedVals = new double[numDerived];
+    vtkDoubleArray* timeArray = vtkDoubleArray::New();
+    timeArray->SetName( varName );
 
     for ( int i = 0; i < nRow; ++ i )
       {
@@ -495,9 +496,6 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       derivedVals[2] = covXsXt;
       derivedVals[3] = varXs * varXt - covXsXt * covXsXt;
       
-      // Update time series array
-      timeArray->InsertNextValue ( covXsXt );
-
       // There will be NaN values in linear regression if covariance matrix is not positive definite
       double meanXs = modelTab->GetValueByName( i, "Mean Xs" ).ToDouble();
       double meanXt = modelTab->GetValueByName( i, "Mean Xt" ).ToDouble();
@@ -539,35 +537,33 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         derivedVals[8] = covXsXt / sqrt( varXs * varXt );
         }
 
+      // Update time series array
+      timeArray->InsertNextValue ( derivedVals[8] );
+
       for ( int j = 0; j < numDerived; ++ j )
         {
         modelTab->SetValueByName( i, derivedNames[j], derivedVals[j] );
         }
       } // nRow
 
+    // Append correlation coefficient to time series table
+    timeTable->AddColumn( timeArray );
+
     // Clean up
     delete [] derivedVals;
+    timeArray->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
-  // Create image data for FFT calculation
-  vtkImageData* timeData = vtkImageData::New();
-  timeData->SetDimensions( nLags, 1, 1 );  
-  timeData->SetOrigin( 0., 0., 0. );
-  timeData->SetSpacing( 1., 1., 1. );
-  timeData->AllocateScalars(VTK_DOUBLE, 1 );
-  timeData->GetPointData()->SetScalars( timeArray );
-  timeArray->Delete();
-
   // Now calculate FFT of time series
-  vtkImageFFT* fft = vtkImageFFT::New();
-  fft->SetDimensionality( 1 );
-  fft->SetInputData( timeData );
+  timeTable->Dump();
+  vtkTableFFT* fft = vtkTableFFT::New();
+  fft->SetInputData( timeTable );
   fft->Update();
-  fft->GetOutput()->Print( cerr );
+  fft->GetOutput()->Dump();
 
   // Clean up
-  timeData->Delete();
   fft->Delete();
+  timeTable->Delete();
 }
 
 // ----------------------------------------------------------------------
