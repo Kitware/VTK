@@ -180,8 +180,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
       {
-      modelTab->Dump();
-      continue;
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
       }
 
     cout << "   Variable="
@@ -274,16 +278,21 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     {
     vtkStdString varName = outputModelAS2->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS2->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
       {
-      continue;
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
       }
 
     cout << "   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS2->GetBlock( b ) );
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
@@ -327,16 +336,21 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     {
     vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
       {
-      continue;
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
       }
 
     cout << "   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
@@ -476,16 +490,21 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     {
     vtkStdString varName = outputModelAS3->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
       {
-      continue;
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
       }
 
     cout << "   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( b ) );
     cout << "   ";
     for ( int r = 0; r < modelTab->GetNumberOfRows(); ++ r )
       {
