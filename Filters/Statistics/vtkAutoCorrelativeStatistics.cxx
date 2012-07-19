@@ -96,6 +96,13 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
       continue;
       }
 
+    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+    // Skip FFT block if already present in the model
+    if ( ! strcmp( varName, "Autocorrelation FFT" ) )
+      {
+      continue;
+      }
+
     // Verify that the first model is indeed contained in a table
     vtkTable* currentTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
     if ( ! currentTab )
@@ -207,8 +214,8 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
         } //r
       } // while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
 
-    // Resize output meta and append aggregated table for current variable
-    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+    // Replace initial meta with aggregated table for current variable
+//    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
     outMeta->GetMetaData( b )->Set( vtkCompositeDataSet::NAME(), varName );
     outMeta->SetBlock( b, aggregatedTab );
 
@@ -557,9 +564,8 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // Now calculate FFT of time series
   vtkTableFFT* fft = vtkTableFFT::New();
   fft->SetInputData( timeTable );
-  fft->Update();
   vtkTable* outt= fft->GetOutput();
-  outt->ShallowCopy( fft->GetOutput() );
+  fft->Update();
 
   // Resize output meta so FFT table can be appended
   inMeta->SetNumberOfBlocks( nBlocks + 1 );

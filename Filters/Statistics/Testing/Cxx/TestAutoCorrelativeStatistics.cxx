@@ -177,8 +177,10 @@ int TestAutoCorrelativeStatistics( int, char *[] )
     {
     vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
       {
+      modelTab->Dump();
       continue;
       }
 
@@ -186,7 +188,6 @@ int TestAutoCorrelativeStatistics( int, char *[] )
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
