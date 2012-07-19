@@ -182,7 +182,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       {
       if ( modelTab->GetNumberOfRows() )
         {
-        cout << "   Autocorrelation FFT:\n";
+        cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
         }
@@ -283,13 +283,13 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       {
       if ( modelTab->GetNumberOfRows() )
         {
-        cout << "   Autocorrelation FFT:\n";
+        cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
         }
       }
 
-    cout << "   Variable="
+    cout << "\n   Variable="
          << varName
          << "\n";
 
@@ -341,13 +341,13 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       {
       if ( modelTab->GetNumberOfRows() )
         {
-        cout << "   Autocorrelation FFT:\n";
+        cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
         }
       }
 
-    cout << "   Variable="
+    cout << "\n   Variable="
          << varName
          << "\n";
 
@@ -495,19 +495,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       {
       if ( modelTab->GetNumberOfRows() )
         {
-        cout << "   Autocorrelation FFT:\n";
+        cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
         }
       }
 
-    cout << "   Variable="
+    cout << "\n   Variable="
          << varName
          << "\n";
 
-    cout << "   ";
     for ( int r = 0; r < modelTab->GetNumberOfRows(); ++ r )
       {
+      cout << "   ";
       for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
         {
         cout << modelTab->GetColumnName( i )
