@@ -445,7 +445,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                     "Intercept Xt/Xs",
                                     "Slope Xs/Xt",
                                     "Intercept Xs/Xt",
-                                    "Pearson r" };
+                                    "Autocorrelation" };
 
     // Find or create columns for derived statistics
     vtkDoubleArray* derivedCol;
@@ -555,11 +555,18 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
   // Now calculate FFT of time series
-  timeTable->Dump();
   vtkTableFFT* fft = vtkTableFFT::New();
   fft->SetInputData( timeTable );
   fft->Update();
-  fft->GetOutput()->Dump();
+  vtkTable* outt= fft->GetOutput();
+  outt->ShallowCopy( fft->GetOutput() );
+
+  // Resize output meta so FFT table can be appended
+  inMeta->SetNumberOfBlocks( nBlocks + 1 );
+
+  // Append auto-correlation FFT table at block nBlocks
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Autocorrelation FFT" );
+  inMeta->SetBlock( nBlocks, outt );
 
   // Clean up
   fft->Delete();
