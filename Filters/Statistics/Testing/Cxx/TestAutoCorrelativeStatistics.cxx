@@ -176,11 +176,22 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   for ( unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++ b )
     {
     vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
+    if ( varName == "Autocorrelation FFT" )
+      {
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "\n   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
+      }
+
     cout << "   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
@@ -203,9 +214,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
       testStatus = 1;
       }
 
-    if ( fabs ( modelTab->GetValueByName( 0, "Pearson r" ).ToDouble() - 1. ) > 1.e-6 )
+    if ( fabs ( modelTab->GetValueByName( 0, "Autocorrelation" ).ToDouble() - 1. ) > 1.e-6 )
       {
-      vtkGenericWarningMacro("Incorrect Pearson correlation coefficient");
+      vtkGenericWarningMacro("Incorrect autocorrelation");
       testStatus = 1;
       }
 
@@ -266,11 +277,22 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   for ( unsigned b = 0; b < outputModelAS2->GetNumberOfBlocks(); ++ b )
     {
     vtkStdString varName = outputModelAS2->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
-    cout << "   Variable="
+
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS2->GetBlock( b ) );
+    if ( varName == "Autocorrelation FFT" )
+      {
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "\n   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
+      }
+
+    cout << "\n   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS2->GetBlock( b ) );
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
@@ -313,11 +335,22 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   for ( unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++ b )
     {
     vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
-    cout << "   Variable="
+
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
+    if ( varName == "Autocorrelation FFT" )
+      {
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "\n   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
+      }
+
+    cout << "\n   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
       {
@@ -377,7 +410,7 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Fill data columns
   vtkIdType midPoint = cardTotal >> 1;
-  double dAlpha = (2.0 * vtkMath::Pi()) / cardSlice;
+  double dAlpha = ( 2.0 * vtkMath::Pi() ) / cardSlice;
   for ( int i = 0; i < cardTotal; ++ i )
     {
     lineArr->InsertNextValue( i );
@@ -420,8 +453,8 @@ int TestAutoCorrelativeStatistics( int, char *[] )
                         halfNm1, halfNm1 + cardSlice,
                         cardTotal - halfNm1, cardTotal - halfNm1 - 1. };
 
-  // Pearson r values for circle, line, and v-shaped variables respectively
-  double pearson3[] = { 1., 0.,
+  // Autocorrelation values for circle, line, and v-shaped variables respectively
+  double autocorr3[] = { 1., 0.,
                         1., 1.,
                         1., -1. };
 
@@ -456,14 +489,25 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   for ( unsigned b = 0; b < outputModelAS3->GetNumberOfBlocks(); ++ b )
     {
     vtkStdString varName = outputModelAS3->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
-    cout << "   Variable="
+
+    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( b ) );
+    if ( varName == "Autocorrelation FFT" )
+      {
+      if ( modelTab->GetNumberOfRows() )
+        {
+        cout << "\n   Autocorrelation FFT:\n";
+        modelTab->Dump();
+        continue;
+        }
+      }
+
+    cout << "\n   Variable="
          << varName
          << "\n";
 
-    vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( b ) );
-    cout << "   ";
     for ( int r = 0; r < modelTab->GetNumberOfRows(); ++ r )
       {
+      cout << "   ";
       for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
         {
         cout << modelTab->GetColumnName( i )
@@ -480,9 +524,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
         testStatus = 1;
         }
       
-      if ( fabs ( modelTab->GetValueByName( r, "Pearson r" ).ToDouble() - pearson3[idx] ) > 1.e-6 )
+      if ( fabs ( modelTab->GetValueByName( r, "Autocorrelation" ).ToDouble() - autocorr3[idx] ) > 1.e-6 )
         {
-        vtkGenericWarningMacro("Incorrect Pearson correlation coefficient "<<pearson3[idx]);
+        vtkGenericWarningMacro("Incorrect autocorrelation "<<autocorr3[idx]);
         testStatus = 1;
         }
 
