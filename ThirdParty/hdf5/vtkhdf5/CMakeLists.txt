@@ -273,10 +273,6 @@ IF (CMAKE_BUILD_TYPE MATCHES Debug)
       -DH5I_DEBUG -DH5HL_DEBUG -DH5HG_DEBUG -DH5G_DEBUG -DH5F_DEBUG
       -DH5E_DEBUG -DH5D_DEBUG -DH5B_DEBUG -DH5AC_DEBUG -UNDEBUG
   )
-  #-- NMake Makefiles will overwhelm the console with warnings if -Wall is used.
-  IF (NOT WIN32)
-    ADD_DEFINITIONS (-Wall)
-  ENDIF (NOT WIN32)
 ELSE (CMAKE_BUILD_TYPE MATCHES Debug)
   ADD_DEFINITIONS (-UH5_DEBUG_API -DNDEBUG)
 ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -284,7 +280,7 @@ ENDIF (CMAKE_BUILD_TYPE MATCHES Debug)
 #-----------------------------------------------------------------------------
 # Compiler specific flags : Shouldn't there be compiler tests for these
 #-----------------------------------------------------------------------------
-IF (NOT WIN32)
+IF (NOT WIN32 AND NOT "${CMAKE_C_COMPILER_ID}" MATCHES "^XL$")
   include(CheckCCompilerFlag)
   
   check_c_compiler_flag(-std=c99 HAVE_STD_C99)
@@ -306,7 +302,7 @@ IF (NOT WIN32)
   endif()
 
   SET (CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS} ${STD_C99} ${OMIT_FRAME_POINTER} ${INLINE_FUNCTIONS} ${NO_COMMON}")
-ENDIF (NOT WIN32)
+ENDIF ()
 
 #-----------------------------------------------------------------------------
 # Option to allow the user to disable compiler warnings

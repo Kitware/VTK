@@ -64,6 +64,10 @@ All rights reserve
 #define VTK_TICKS_OUTSIDE       1
 #define VTK_TICKS_BOTH          2
 
+#define VTK_GRID_LINES_ALL      0
+#define VTK_GRID_LINES_CLOSEST  1
+#define VTK_GRID_LINES_FURTHEST 2
+
 #define NUMBER_OF_ALIGNED_AXIS 4
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
@@ -90,7 +94,7 @@ public:
   virtual int RenderTranslucentGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
-  int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() { return 1; }
 
   // Description:
   // Gets/Sets the RebuildAxes flag
@@ -103,10 +107,7 @@ public:
   // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
   // sure that the min's are less than the max's.
   vtkSetVector6Macro(Bounds,double);
-  double *GetBounds();
-  void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax,
-                 double& zmin, double& zmax);
-  void GetBounds(double bounds[6]);
+  vtkGetVector6Macro(Bounds,double);
 
   // Description:
   // Explicitly specify the range of each axes that's used to define the prop.
@@ -376,18 +377,46 @@ public:
   // For 2D mode only: save axis title positions for later use
   void SetSaveTitlePosition( int val );
 
+  // Description:
+  // Provide an oriented bounded box when using AxisBaseFor.
   vtkSetVector6Macro(OrientedBounds,double);
-  vtkGetVectorMacro(OrientedBounds, double, 6);
+  vtkGetVector6Macro(OrientedBounds, double);
 
+  // Description:
+  // Enable/Disable the usage of the OrientedBounds
   vtkSetMacro(UseOrientedBounds, int);
   vtkGetMacro(UseOrientedBounds, int);
 
+  // Description:
+  // Vector that should be use as the base for X
   vtkSetVector3Macro(AxisBaseForX,double);
-  vtkGetVectorMacro(AxisBaseForX, double, 3);
+  vtkGetVector3Macro(AxisBaseForX, double);
+
+  // Description:
+  // Vector that should be use as the base for Y
   vtkSetVector3Macro(AxisBaseForY,double);
-  vtkGetVectorMacro(AxisBaseForY, double, 3);
+  vtkGetVector3Macro(AxisBaseForY, double);
+
+  // Description:
+  // Vector that should be use as the base for Z
   vtkSetVector3Macro(AxisBaseForZ,double);
-  vtkGetVectorMacro(AxisBaseForZ, double, 3);
+  vtkGetVector3Macro(AxisBaseForZ, double);
+
+  // Description:
+  // Provide a custom AxisOrigin. This point must be inside the bouding box and
+  // will represent the point where the 3 axes will interesect
+  vtkSetVector3Macro(AxisOrigin,double);
+  vtkGetVector3Macro(AxisOrigin, double);
+
+  // Description:
+  // Enable/Disable the usage of the AxisOrigin
+  vtkSetMacro(UseAxisOrigin, int);
+  vtkGetMacro(UseAxisOrigin, int);
+
+  // Description:
+  // Specify the mode in which the cube axes should render its gridLines
+  vtkSetMacro(GridLineLocation,int);
+  vtkGetMacro(GridLineLocation,int);
 
 protected:
   vtkCubeAxesActor();
@@ -410,6 +439,11 @@ protected:
   vtkCamera *Camera;
 
   int FlyMode;
+
+  // VTK_ALL_GRID_LINES      0
+  // VTK_CLOSEST_GRID_LINES  1
+  // VTK_FURTHEST_GRID_LINES 2
+  int GridLineLocation;
 
   // Description:
   // If enabled the actor will not be visible at a certain distance from the camera.
@@ -517,9 +551,13 @@ protected:
   double OrientedBounds[6];
   int UseOrientedBounds;
 
+  double AxisOrigin[3];
+  int UseAxisOrigin;
+
   double AxisBaseForX[3];
   double AxisBaseForY[3];
   double AxisBaseForZ[3];
+
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
   void operator=(const vtkCubeAxesActor&); // Not implemented
@@ -529,6 +567,7 @@ private:
   vtkSetStringMacro(ActualZLabel);
 
   vtkTimeStamp BuildTime;
+  int LastUseOrientedBounds;
   int LastXPow;
   int LastYPow;
   int LastZPow;
@@ -546,6 +585,7 @@ private:
   double LastXRange[2];
   double LastYRange[2];
   double LastZRange[2];
+  double LastBounds[6];
 
   int    LastFlyMode;
 
@@ -579,6 +619,8 @@ private:
   // These values are needed for inner grid lines generation
   double MajorStart[3];
   double DeltaMajor[3];
+
+  int RenderGeometry(bool &initialRender, vtkViewport *viewport, bool checkAxisVisibility,int (vtkAxisActor::*renderMethod)(vtkViewport*));
 
   void  TransformBounds(vtkViewport *viewport, const double bounds[6],
                         double pts[8][3]);

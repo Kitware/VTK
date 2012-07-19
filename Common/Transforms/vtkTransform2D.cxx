@@ -155,6 +155,13 @@ void vtkTransform2D::GetPosition(double position[2])
 }
 
 //----------------------------------------------------------------------------
+void vtkTransform2D::GetScale(double scale[2])
+{
+  scale[0] = this->Matrix->GetElement(0, 0);
+  scale[1] = this->Matrix->GetElement(1, 1);
+}
+
+//----------------------------------------------------------------------------
 // Return the inverse of the current transformation matrix.
 void vtkTransform2D::GetInverse(vtkMatrix3x3 *inverse)
 {

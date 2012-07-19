@@ -1,4 +1,5 @@
 find_package(PostgreSQL REQUIRED)
+mark_as_advanced(PostgreSQL_INCLUDE_DIR PostgreSQL_LIBRARY)
 
 set(PostgreSQL_SRCS
   vtkPostgreSQLDatabase.cxx

@@ -56,9 +56,16 @@ vtkPParticleTracerBase::vtkPParticleTracerBase()
 {
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  assert(this->Controller);
-  this->Rank = this->Controller->GetLocalProcessId();
-  this->NumProcs = this->Controller->GetNumberOfProcesses();
+  if(this->Controller)
+    {
+    this->Rank = this->Controller->GetLocalProcessId();
+    this->NumProcs = this->Controller->GetNumberOfProcesses();
+    }
+  else
+    {
+    this->Rank = 1;
+    this->NumProcs = 1;
+    }
 }
 
 //---------------------------------------------------------------------------

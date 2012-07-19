@@ -17,6 +17,7 @@ set(module_SRCS
   vtkContextScene.cxx
   vtkContextTransform.cxx
   vtkImageItem.cxx
+  vtkMarkerUtilities.cxx
   vtkOpenGL2ContextDevice2D.cxx
   vtkOpenGLContextBufferId.cxx
   vtkOpenGLContextDevice2D.cxx
@@ -30,6 +31,7 @@ set_source_files_properties(
   vtkAbstractContextBufferId
   vtkAbstractContextItem
   vtkContextItem
+  vtkMarkerUtilities
   ABSTRACT
   )
 

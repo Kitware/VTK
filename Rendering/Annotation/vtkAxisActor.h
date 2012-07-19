@@ -220,6 +220,9 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkGetMacro(DrawGridlines, int);
   vtkBooleanMacro(DrawGridlines, int);
 
+  vtkSetMacro(DrawGridlinesLocation, int);
+  vtkGetMacro(DrawGridlinesLocation, int);
+
   // Description:
   // Set/Get whether inner gridlines should be drawn.
   vtkSetMacro(DrawInnerGridlines, int);
@@ -280,7 +283,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport* viewport);
   virtual int RenderOverlay(vtkViewport* viewport);
-  int HasTranslucentPolygonalGeometry();
+  int HasTranslucentPolygonalGeometry() { return 1; }
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -399,6 +402,12 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkSetVector3Macro(AxisBaseForZ, double);
   vtkGetVector3Macro(AxisBaseForZ, double);
 
+  // Description:
+  // Notify the axes that is not part of a cube anymore
+  vtkSetMacro(AxisOnOrigin,int);
+  vtkGetMacro(AxisOnOrigin,int);
+
+
  protected:
   vtkAxisActor();
   ~vtkAxisActor();
@@ -414,6 +423,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   int    DrawGridlines;
   int    LastDrawGridlines;
+  int    DrawGridlinesLocation; // 0: all | 1: closest | 2: farest
   double  GridlineXLength;
   double  GridlineYLength;
   double  GridlineZLength;
@@ -518,9 +528,12 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 
   vtkCamera          *Camera;
   vtkTimeStamp        BuildTime;
+  vtkTimeStamp        BuildTickPointsTime;
   vtkTimeStamp        BoundsTime;
   vtkTimeStamp        LabelBuildTime;
   vtkTimeStamp        TitleTextTime;
+
+  int                 AxisOnOrigin;
 
   int                 AxisHasZeroLength;
 

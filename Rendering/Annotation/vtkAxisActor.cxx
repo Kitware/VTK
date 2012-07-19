@@ -192,12 +192,15 @@ vtkAxisActor::vtkAxisActor()
   this->LastMaxDisplayCoordinate[1] = 0;
   this->LastMaxDisplayCoordinate[2] = 0;
 
+  this->DrawGridlinesLocation = 0; // All locations
+
   // reset the base
   for(int i=0;i<3;i++)
     {
     this->AxisBaseForX[i] = this->AxisBaseForY[i] = this->AxisBaseForZ[i] = 0.0;
     }
- this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
+  this->AxisBaseForX[0] = this->AxisBaseForY[1] = this->AxisBaseForZ[2] = 1.0;
+  this->AxisOnOrigin = 0;
 }
 
 // ****************************************************************
@@ -448,22 +451,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport *viewport)
 // ****************************************************************
 int vtkAxisActor::RenderTranslucentGeometry(vtkViewport *viewport)
 {
-
-  int renderedSomething=0;
-
-  this->BuildAxis(viewport, false);
-
-  // Everything is built, just have to render
-
-  if (!this->AxisHasZeroLength)
-    {
-    if(this->DrawGridpolys)
-      {
-      renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
-
-  return renderedSomething;
+  return this->RenderTranslucentPolygonalGeometry(viewport);
 }
 
 // ****************************************************************
@@ -518,14 +506,6 @@ int vtkAxisActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
-// ****************************************************************
-// Tells whether there is translucent geometry to draw
-// ****************************************************************
-int vtkAxisActor::HasTranslucentPolygonalGeometry()
-{
-  return 1;
-}
-
 // **************************************************************************
 // Perform some initialization, determine which Axis type we are
 // **************************************************************************
@@ -574,27 +554,28 @@ void vtkAxisActor::BuildAxis(vtkViewport *viewport, bool force)
   bool tickVisChanged = this->TickVisibilityChanged();
 
   if (force || ticksRebuilt || tickVisChanged)
-   {
-   this->SetAxisPointsAndLines();
-   }
+    {
+    this->SetAxisPointsAndLines();
+    }
 
-  this->BuildLabels(viewport, force);
+  // If the ticks have been rebuilt it is more than likely
+  // that the labels should follow...
+  this->BuildLabels(viewport, force || ticksRebuilt);
   if (this->Use2DMode == 1)
     {
-    this->BuildLabels2D(viewport, force);
+    this->BuildLabels2D(viewport, force || ticksRebuilt);
     }
 
   if (this->Title != NULL && this->Title[0] != 0)
     {
-    this->BuildTitle(force);
+    this->BuildTitle(force || ticksRebuilt);
     if( this->Use2DMode == 1 )
       {
-      this->BuildTitle2D(viewport, force);
+      this->BuildTitle2D(viewport, force || ticksRebuilt);
       }
     }
 
   this->LastAxisPosition = this->AxisPosition;
-  this->LastTickLocation = this->TickLocation;
 
   this->LastRange[0] = this->Range[0];
   this->LastRange[1] = this->Range[1];
@@ -1266,10 +1247,14 @@ void vtkAxisActor::SetAxisPointsAndLines()
     lines->InsertNextCell(2, ptIds);
     }
   // create grid lines
-  if (this->DrawGridlines)
+  if (this->DrawGridlines && this->AxisOnOrigin == 0)
     {
     numGridlines = this->GridlinePts->GetNumberOfPoints()/2;
-    for (i=0; i < numGridlines; i++)
+    int start =
+        (this->DrawGridlinesLocation == 0 || this->DrawGridlinesLocation == 1)
+        ? 0 : 1;
+    int increment = (this->DrawGridlinesLocation == 0) ? 1 : 2;
+    for (i = start; i < numGridlines; i+=increment)
       {
       ptIds[0] = 2*i;
       ptIds[1] = 2*i + 1;
@@ -1278,7 +1263,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     }
 
   // create inner grid lines
-  if (this->DrawInnerGridlines)
+  if (this->DrawInnerGridlines && this->AxisOnOrigin == 0)
     {
     numInnerGridlines = this->InnerGridlinePts->GetNumberOfPoints()/2;
     for (i=0; i < numInnerGridlines; i++)
@@ -1290,7 +1275,7 @@ void vtkAxisActor::SetAxisPointsAndLines()
     }
 
   // create polys (grid polys)
-  if (this->DrawGridpolys)
+  if (this->DrawGridpolys && this->AxisOnOrigin == 0)
     {
     numGridpolys = this->GridpolyPts->GetNumberOfPoints()/4;
     for (i = 0; i < numGridpolys; i++)
@@ -1656,14 +1641,18 @@ double* vtkAxisActor::GetPoint2()
 }
 // **************************************************************************
 // Creates points for ticks (minor, major, gridlines) in correct position
-// for a geenric axis.
+// for a generic axis.
 // **************************************************************************
 bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
 {
   // Prevent any unwanted computation
   if (!force && (this->AxisPosition == this->LastAxisPosition) &&
       (this->TickLocation == this->LastTickLocation ) &&
-      (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()))
+      (this->BoundsTime.GetMTime() < this->BuildTime.GetMTime()) &&
+      (this->Point1Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()) &&
+      (this->Point2Coordinate->GetMTime() < this->BuildTickPointsTime.GetMTime()) &&
+      (this->Range[0] == this->LastRange[0]) &&
+      (this->Range[1] == this->LastRange[1]))
     {
     return false;
     }
@@ -1841,13 +1830,13 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     this->GridlinePts->InsertNextPoint(gridPointClosest);
     this->GridlinePts->InsertNextPoint(gridPointU);
 
-    // Closest V
-    this->GridlinePts->InsertNextPoint(gridPointClosest);
-    this->GridlinePts->InsertNextPoint(gridPointV);
-
     // Farest U
     this->GridlinePts->InsertNextPoint(gridPointFarest);
     this->GridlinePts->InsertNextPoint(gridPointU);
+
+    // Closest V
+    this->GridlinePts->InsertNextPoint(gridPointClosest);
+    this->GridlinePts->InsertNextPoint(gridPointV);
 
     // Farest V
     this->GridlinePts->InsertNextPoint(gridPointFarest);
@@ -1975,5 +1964,7 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
     }
   }
 
+  this->BuildTickPointsTime.Modified();
+  this->LastTickLocation = this->TickLocation;
   return true;
 }

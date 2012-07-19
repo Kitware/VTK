@@ -1,4 +1,3 @@
-LIBRARY vtkoggtheora
 EXPORTS
   vtk_oggtheora_ogg_stream_clear
   vtk_oggtheora_ogg_stream_flush
