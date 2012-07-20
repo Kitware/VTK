@@ -3435,6 +3435,11 @@ static void gl2psPutPDFText(GL2PSstring *text, int cnt, GLfloat x, GLfloat y)
   }
 }
 
+static void gl2psPutPDFSpecial(GL2PSstring *text)
+{
+  gl2ps->streamlength += gl2psPrintf("%s\n", text->str);
+}
+
 static void gl2psPutPDFImage(GL2PSimage *image, int cnt, GLfloat x, GLfloat y)
 {
   gl2ps->streamlength += gl2psPrintf
@@ -3557,6 +3562,12 @@ static void gl2psPDFgroupListInit(void)
         gl2psListAdd(gl2ps->pdfgrouplist, &gro);
       }
       lastt = tmpt;
+      break;
+    case GL2PS_SPECIAL:
+      gl2psPDFgroupObjectInit(&gro);
+      gro.ptrlist = gl2psListCreate(1, 2, sizeof(GL2PSprimitive*));
+      gl2psListAdd(gro.ptrlist, &p);
+      gl2psListAdd(gl2ps->pdfgrouplist, &gro);
       break;
     default:
       break;
@@ -3799,6 +3810,11 @@ static void gl2psPDFgroupListWriteMainStream(void)
                         prim->verts[0].xyz[1]);
       }
       break;
+    case GL2PS_SPECIAL:
+      for(j = 0; j <= lastel; ++j){
+        prim = *(GL2PSprimitive**)gl2psListPointer(gro->ptrlist, j);
+        gl2psPutPDFSpecial(prim->data.text);
+      }
     default:
       break;
     }

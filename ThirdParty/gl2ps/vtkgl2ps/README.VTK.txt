@@ -33,3 +33,6 @@ The gl2psTextOpt function has been modified to accept a color argument. The
 default mechanism for coloring text in GL2PS querys the GL current raster color,
 which is not required to be valid during feedback rendering. By passing the
 color directly to GL2PS, this ambiguity is avoided.
+
+The glSpecial mechanism for inserting PDF drawing instructions has been
+fixed/implemented.
