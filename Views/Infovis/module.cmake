@@ -1,4 +1,6 @@
 vtk_module(vtkViewsInfovis
+  GROUPS
+    Rendering
   DEPENDS
     vtkRenderingContext2D
     vtkViewsCore

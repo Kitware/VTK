@@ -3,9 +3,12 @@
 # documentation for groups in this file that will be displayed in cmake-gui and
 # ccmake.
 
-# The StandAlone group is a special group of all modules that need no external
-# dependencies, such as Boost, MPI, etc. It does include those that use OpenGL
-# and the ones that rely in third party libraries VTK can build (by default).
+# The StandAlone group is a special group of all modules that need no
+# external dependencies, such as Boost, MPI, etc. It does include
+# modules that rely on third party libraries VTK can build (by
+# default). It DOES NOT include modules that depend on OpenGL. Those
+# modules are in the Rendering group.
+
 set(VTK_Group_StandAlone_DOCS "Request building of all stand alone modules (no external dependencies required)")
 
 foreach(group ${VTK_GROUPS})
