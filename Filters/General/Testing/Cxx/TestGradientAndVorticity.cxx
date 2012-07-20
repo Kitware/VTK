@@ -198,7 +198,7 @@ namespace
       double* g = gradients->GetTuple(i);
       double qc = qCriterion->GetValue(i);
 
-      double t1 = .5*(
+      double t1 = .25*(
         (g[7]-g[5])*(g[7]-g[5]) +
         (g[3]-g[1])*(g[3]-g[1]) +
         (g[2]-g[6])*(g[2]-g[6]) );
