@@ -2,7 +2,6 @@
 if(WIN32)
   vtk_module(vtkGUISupportMFC
     GROUPS
-      Rendering
     DEPENDS
     vtkRenderingOpenGL
     vtkInteractionStyle
