@@ -39,6 +39,10 @@ vtkCubeAxesActor::vtkCubeAxesActor() : vtkActor()
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
 
+  this->OrientedBounds[0] = -1.0; this->OrientedBounds[1] = 1.0;
+  this->OrientedBounds[2] = -1.0; this->OrientedBounds[3] = 1.0;
+  this->OrientedBounds[4] = -1.0; this->OrientedBounds[5] = 1.0;
+
   // Disable oriented bounds and Axis origin
   this->UseOrientedBounds = this->UseAxisOrigin = 0;
 
