@@ -12,7 +12,6 @@
 #ifndef __FT2_BUILD_VTK_H__
 #define __FT2_BUILD_VTK_H__
 
-#define FT2_BUILD_LIBRARY 1
 #include <vtkfreetype/include/vtk_freetype_mangle.h>
 
 #ifndef FT_CONFIG_MODULES_H

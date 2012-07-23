@@ -48,7 +48,7 @@
 #endif /* _MSC_VER >= 1300 */ 
 #endif /* _MSC_VER */ 
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 
 
 FT_BEGIN_HEADER
