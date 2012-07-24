@@ -9,4 +9,10 @@ vtk_module(vtkViewsInfovis
     vtkInteractionStyle
     vtkFiltersModeling
     vtkFiltersImaging
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkIOInfovis
+    vtkIOSQL
+    vtkRenderingQt
+    vtkRenderingFreeTypeOpenGL
   )
