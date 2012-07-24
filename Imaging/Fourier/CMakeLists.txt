@@ -7,6 +7,7 @@ set(Module_SRCS
   vtkImageIdealHighPass.cxx
   vtkImageIdealLowPass.cxx
   vtkImageRFFT.cxx
+  vtkTableFFT.cxx
   )
 
 set_source_files_properties(
