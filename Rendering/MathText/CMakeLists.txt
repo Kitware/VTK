@@ -1,6 +1,7 @@
 set(Module_SRCS
   vtkMathTextUtilities.cxx
   vtkMathTextActor.cxx
+  vtkMathTextActor3D.cxx
   )
 
 set_source_files_properties(
