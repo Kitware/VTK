@@ -216,6 +216,11 @@ if ( GSL_FOUND )
   )
 endif ( GSL_FOUND )
 
+add_custom_command(TARGET lproj
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
+  ${libproj4_BINARY_DIR}/vtk_libproj4_mangle.h)
+
 configure_file(
   ${libproj4_SOURCE_DIR}/proj_config.h.cmake
   ${libproj4_BINARY_DIR}/proj_config.h
@@ -227,6 +232,7 @@ configure_file(
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL(FILES
     ${libproj4_SOURCE_DIR}/lib_proj.h
+    ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
     ${libproj4_BINARY_DIR}/proj_config.h
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtklibproj4
     COMPONENT Development)

@@ -7,4 +7,5 @@ vtk_module(vtkGeovisCore
     vtkInfovisLayout
     vtkViewsCore
     vtkRenderingOpenGL # For vtkOpenGLHardwareSupport in vtkGeoTerrain
+    vtklibproj4
   )
