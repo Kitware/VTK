@@ -393,6 +393,7 @@ private:
   bool ComputeVorticity;
   double RotationScale;
   double TerminalSpeed;
+  bool ForceReinjectionAtTermination; //whether to reinject seeds again at the termination step
 
   // Important for Caching of Cells/Ids/Weights etc
   int           AllFixedGeometry;
