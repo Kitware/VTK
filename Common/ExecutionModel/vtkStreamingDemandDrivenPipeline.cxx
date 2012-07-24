@@ -23,13 +23,14 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkInformationStringKey.h"
 #include "vtkInformationIdTypeKey.h"
 #include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationRequestKey.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -83,6 +84,7 @@ vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_AMR_LEVEL, Integ
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, BOUNDS, DoubleVector);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_DEPENDENT_INFORMATION, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, TIME_LABEL_ANNOTATION, String);
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship
