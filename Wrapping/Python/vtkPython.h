@@ -41,7 +41,6 @@
 # include <errno.h>
 # include <io.h>
 # include <math.h>
-# include <sal.h>
 # include <stdarg.h>
 # include <stddef.h>
 # include <stdio.h>
