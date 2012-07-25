@@ -471,9 +471,9 @@ int TestPStreaklineFilter(vtkMPIController* c)
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
     lines->GetNextCell(trace.GetPointer());
-    EXPECT(trace->GetNumberOfIds()==12,"wrong # of points"<<trace->GetNumberOfIds());
+    EXPECT(trace->GetNumberOfIds()==13,"wrong # of points"<<trace->GetNumberOfIds());
     lines->GetNextCell(trace.GetPointer());
-    EXPECT(trace->GetNumberOfIds()==12,"wrong # of points"<<trace->GetNumberOfIds());
+    EXPECT(trace->GetNumberOfIds()==13,"wrong # of points"<<trace->GetNumberOfIds());
     }
   else
     {
