@@ -3,6 +3,7 @@ set(Module_SRCS
   vtkGeometryFilter.cxx
   vtkHierarchicalDataSetGeometryFilter.cxx
   vtkImageDataGeometryFilter.cxx
+  vtkProjectSphereFilter.cxx
   vtkRectilinearGridGeometryFilter.cxx
   vtkStructuredGridGeometryFilter.cxx
   vtkStructuredPointsGeometryFilter.cxx
