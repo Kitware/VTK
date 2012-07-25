@@ -2,7 +2,9 @@ find_package(MPI REQUIRED)
 mark_as_advanced(MPI_LIBRARY MPI_EXTRA_LIBRARY)
 set(vtkParallelMPI_SYSTEM_INCLUDE_DIRS ${MPI_INCLUDE_PATH})
 
-#-----------------------------------------------------------------------------
+# =============================================================================
+# This following block should probably go into a seperate cmake file
+# --------------------------------------------------- MPI-Testing-Support-BEGIN
 # Configure MPI testing support.
 # FLAGS used and set for MPI testing
 # VTK_MPIRUN_EXE - full path to mpirun command
@@ -43,6 +45,30 @@ mark_as_advanced(
   VTK_MPI_POSTFLAGS
   VTK_MPI_MAX_NUMPROCS
   )
+
+separate_arguments(VTK_MPI_PRENUMPROC_FLAGS)
+separate_arguments(VTK_MPI_PREFLAGS)
+separate_arguments(VTK_MPI_POSTFLAGS)
+
+# -----------------------------------------------------------------------------
+# add_test_mpi macro take one or more files. It uses the files name for the name
+# of the test. The test will be run using MPI.
+macro (add_test_mpi fileName)
+  get_filename_component(name ${fileName} NAME_WE)
+  vtk_module_test_executable(
+    ${name}
+    ${name}.cxx
+    ${ARGN})
+  add_test(
+    NAME ${vtk-module}Cxx-${name}
+    COMMAND ${VTK_MPIRUN_EXE}
+    ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
+    ${VTK_MPI_PREFLAGS}
+    $<TARGET_FILE:${name}>
+    ${VTK_MPI_POSTFLAGS})
+endmacro()
+# ----------------------------------------------------- MPI-Testing-Support-END
+# =============================================================================
 
 set(Module_SRCS
   vtkMPICommunicator.cxx
