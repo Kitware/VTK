@@ -187,14 +187,25 @@ int vtkProgrammableGlyphFilter::RequestData(
     if ( this->GlyphMethod )
       {
       (*this->GlyphMethod)(this->GlyphMethodArg);
+
+      // The GlyphMethod may have set the source connection to NULL
+      if (this->GetNumberOfInputConnections(1) == 0)
+        {
+        source = NULL;
+        }
+      else
+        {
+        // Update the source connection in case the GlyphMethod changed
+        // its parameters.
+        this->GetInputAlgorithm(1, 0)->Update();
+        // The GlyphMethod may also have changed the source.
+        sourceInfo = inputVector[1]->GetInformationObject(0);
+        source = vtkPolyData::SafeDownCast(
+          sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+        }
       }
-
-    if ( source )
+    if (source)
       {
-      // Update the source in case the GlyphMethod changed
-      // its parameters.
-      this->GetInputAlgorithm(1, 0)->Update();
-
       sourcePts = source->GetPoints();
       numSourcePts = source->GetNumberOfPoints();
       numSourceCells = source->GetNumberOfCells();
