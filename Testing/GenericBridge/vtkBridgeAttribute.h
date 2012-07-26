@@ -30,7 +30,7 @@ class vtkPointData;
 class vtkCellData;
 class vtkDataSetAttributes;
 
-class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
 {
  public:
   static vtkBridgeAttribute *New();

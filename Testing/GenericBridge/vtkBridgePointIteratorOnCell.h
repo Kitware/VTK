@@ -28,7 +28,7 @@ class vtkBridgeDataSet;
 class vtkBridgeCell;
 class vtkIdList;
 
-class VTK_BRIDGE_EXPORT vtkBridgePointIteratorOnCell : public vtkGenericPointIterator
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOnCell : public vtkGenericPointIterator
 {
 public:
   static vtkBridgePointIteratorOnCell *New();

@@ -29,7 +29,7 @@ class vtkCell;
 class vtkBridgeDataSet;
 class vtkBridgeCellIterator;
 
-class VTK_BRIDGE_EXPORT vtkBridgeCell : public vtkGenericAdaptorCell
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCell : public vtkGenericAdaptorCell
 {
 public:
   static vtkBridgeCell *New();

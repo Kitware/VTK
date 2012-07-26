@@ -25,7 +25,7 @@
 
 class vtkDataSet;
 
-class VTK_BRIDGE_EXPORT vtkBridgeDataSet : public vtkGenericDataSet
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeDataSet : public vtkGenericDataSet
 {
 public:
   static vtkBridgeDataSet *New();

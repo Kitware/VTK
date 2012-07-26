@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBridgePointIteratorOne.h
+  Module:    vtkBridgePointIterator.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,23 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBridgePointIteratorOne - Iterate over one point of a dataset.
+// .NAME vtkBridgePointIterator - Implementation of vtkGenericPointIterator.
+// .SECTION Description
+// It is just an example that show how to implement the Generic API. It is also
+// used for testing and evaluating the Generic framework.
 // .SECTION See Also
 // vtkGenericPointIterator, vtkBridgeDataSet
 
-#ifndef __vtkBridgePointIteratorOne_h
-#define __vtkBridgePointIteratorOne_h
+#ifndef __vtkBridgePointIterator_h
+#define __vtkBridgePointIterator_h
 
 #include "vtkBridgeExport.h"
 #include "vtkGenericPointIterator.h"
 
 class vtkBridgeDataSet;
+class vtkBridgeCell;
+class vtkBridgePointIteratorOnDataSet;
+class vtkBridgePointIteratorOne;
+class vtkBridgePointIteratorOnCell;
 
-class VTK_BRIDGE_EXPORT vtkBridgePointIteratorOne : public vtkGenericPointIterator
+
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIterator : public vtkGenericPointIterator
 {
 public:
-  static vtkBridgePointIteratorOne *New();
-  vtkTypeMacro(vtkBridgePointIteratorOne,vtkGenericPointIterator);
+  static vtkBridgePointIterator *New();
+  vtkTypeMacro(vtkBridgePointIterator,vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -63,28 +71,40 @@ public:
 
   // Description:
   // Used internally by vtkBridgeDataSet.
+  // Iterate over points of `ds'.
+  // \pre ds_exists: ds!=0
+  void InitWithDataSet(vtkBridgeDataSet *ds);
+
+  // Description:
+  // Used internally by vtkBridgeDataSet.
   // Iterate over one point of identifier `id' on dataset `ds'.
   // \pre ds_can_be_null: ds!=0 || ds==0
   // \pre valid_id: vtkImplies(ds!=0,(id>=0)&&(id<=ds->GetNumberOfCells()))
   void InitWithOnePoint(vtkBridgeDataSet *ds,
                         vtkIdType id);
 
+  // Description:
+  // The iterator will iterate over the point of a cell
+  // \pre cell_exists: cell!=0
+  void InitWithCell(vtkBridgeCell *cell);
+
 protected:
   // Description:
   // Default constructor.
-  vtkBridgePointIteratorOne();
+  vtkBridgePointIterator();
 
   // Description:
   // Destructor.
-  virtual ~vtkBridgePointIteratorOne();
+  virtual ~vtkBridgePointIterator();
 
-  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
-  vtkIdType Id; // the id at current position.
-  int cIsAtEnd;
+  vtkGenericPointIterator *CurrentIterator;
+  vtkBridgePointIteratorOnDataSet *IteratorOnDataSet;
+  vtkBridgePointIteratorOne *IteratorOne;
+  vtkBridgePointIteratorOnCell *IteratorOnCell;
 
 private:
-  vtkBridgePointIteratorOne(const vtkBridgePointIteratorOne&); // Not implemented
-  void operator=(const vtkBridgePointIteratorOne&); // Not implemented
+  vtkBridgePointIterator(const vtkBridgePointIterator&); // Not implemented
+  void operator=(const vtkBridgePointIterator&); // Not implemented
 };
 
 #endif

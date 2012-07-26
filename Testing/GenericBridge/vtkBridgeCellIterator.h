@@ -37,7 +37,7 @@ class vtkBridgeCellIteratorOne;
 class vtkBridgeCellIteratorOnCellBoundaries;
 class vtkBridgeCellIteratorOnCellList;
 
-class VTK_BRIDGE_EXPORT vtkBridgeCellIterator : public vtkGenericCellIterator
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCellIterator : public vtkGenericCellIterator
 {
 public:
   static vtkBridgeCellIterator *New();
