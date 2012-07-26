@@ -60,7 +60,7 @@ macro (add_test_mpi fileName)
     ${name}.cxx
     ${ARGN})
   add_test(
-    NAME ${vtk-module}Cxx-${name}
+    NAME ${vtk-module}Cxx-MPI-${name}
     COMMAND ${VTK_MPIRUN_EXE}
     ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${VTK_MPI_MAX_NUMPROCS}
     ${VTK_MPI_PREFLAGS}
