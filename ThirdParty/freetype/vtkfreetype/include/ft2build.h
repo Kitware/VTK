@@ -20,8 +20,6 @@
 
 #include <vtkfreetype/include/freetype/config/ftheader.h>
 
-#if defined(VTKFREETYPE)
 #include <vtkfreetype/include/vtkFreeTypeConfig.h>
-#endif
 
 #endif /* __FT2_BUILD_VTK_H__ */
