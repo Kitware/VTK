@@ -40,9 +40,10 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer: public vtkPParticl
  protected:
   vtkPParticleTracer();
   ~vtkPParticleTracer(){}
-  vtkPParticleTracer(const vtkPParticleTracer&);  // Not implemented.
   virtual int OutputParticles(vtkPolyData* poly);
-
+private:
+  vtkPParticleTracer(const vtkPParticleTracer&);  // Not implemented.
+  void operator=(const vtkPParticleTracer&); // Not implemented
 };
 
 

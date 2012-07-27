@@ -20,7 +20,27 @@
 #define __FTOPTION_H__
 
 
-#include <ft2build.h>
+/* VTK_FREETYPE_CHANGE added the #ifdef below */
+#ifdef _MSC_VER          // MS dev
+
+#pragma warning( disable : 4244 ) // conversion [...] possible loss of data
+#pragma warning( disable : 4761 ) // integral size mismatch in argument; conversion supplied
+#pragma warning( disable : 4306 ) // conversion from t1 to t2 of greater size
+
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+
+#pragma warning( disable : 4267 ) // same
+#pragma warning( disable : 4311 ) // same for pointer
+#pragma warning( disable : 4312 ) // same for pointer
+#pragma warning( disable : 4127 ) // conditional expression is constant
+#pragma warning( disable : 4701 ) // local variable 'node' may be used without having been initialized
+#pragma warning( disable : 4706 ) // assignment within conditional expression
+#pragma warning( disable : 4054 ) // 'type cast' : from function pointer ... to data pointer ...
+
+#endif /* _MSC_VER >= 1300 */
+#endif /* _MSC_VER */
+
+#include <vtkfreetype/include/ft2build.h>
 
 
 FT_BEGIN_HEADER
@@ -258,6 +278,14 @@ FT_BEGIN_HEADER
 /* #define FT_EXPORT(x)      extern x */
 /* #define FT_EXPORT_DEF(x)  x */
 
+/* VTK_FREETYPE_CHANGE added the #if below */
+#if defined(_WIN32) && !defined(VTKFREETYPE_STATIC)
+# if defined(vtkfreetype_EXPORTS)
+#  define FT_EXPORT( x ) __declspec( dllexport ) x
+# else
+#  define FT_EXPORT( x ) __declspec( dllimport ) x
+# endif
+#endif
 
   /*************************************************************************/
   /*                                                                       */

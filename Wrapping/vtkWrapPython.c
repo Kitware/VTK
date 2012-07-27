@@ -4615,6 +4615,7 @@ int vtkWrapPython_WrapOneClass(
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     if (data->Functions[i]->Name &&
+        data->Functions[i]->Access == VTK_ACCESS_PUBLIC &&
         strcmp("New",data->Functions[i]->Name) == 0 &&
         data->Functions[i]->NumberOfArguments == 0)
       {

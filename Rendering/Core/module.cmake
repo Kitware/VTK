@@ -1,4 +1,6 @@
 vtk_module(vtkRenderingCore
+  GROUPS
+    Rendering
   DEPENDS
     vtkCommonExecutionModel
     vtkCommonTransforms

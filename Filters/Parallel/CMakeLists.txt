@@ -20,6 +20,7 @@ set(Module_SRCS
   vtkPOutlineFilter.cxx
   vtkPPolyDataNormals.cxx
   vtkPProbeFilter.cxx
+  vtkPProjectSphereFilter.cxx
   vtkPReflectionFilter.cxx
   vtkProcessIdScalars.cxx
   vtkPSphereSource.cxx

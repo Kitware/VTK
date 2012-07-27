@@ -1,4 +1,6 @@
 vtk_module(vtkCommonExecutionModel
+  GROUPS
+    StandAlone
   DEPENDS
     vtkCommonDataModel
   COMPILE_DEPENDS

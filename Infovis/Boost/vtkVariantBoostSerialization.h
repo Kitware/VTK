@@ -55,6 +55,30 @@ void serialize(Archiver& ar, vtkStdString& str,
 }
 
 //----------------------------------------------------------------------------
+// vtkUnicodeString serialization code
+//----------------------------------------------------------------------------
+
+template<typename Archiver>
+void save(Archiver& ar, const vtkUnicodeString& str,
+          const unsigned int vtkNotUsed(version))
+{
+  std::string utf8(str.utf8_str());
+  ar & utf8;
+}
+
+template<typename Archiver>
+void load(Archiver& ar, vtkUnicodeString& str,
+          const unsigned int vtkNotUsed(version))
+{
+  std::string utf8;
+  ar & utf8;
+  str = vtkUnicodeString::from_utf8(utf8);
+}
+
+BOOST_SERIALIZATION_SPLIT_FREE(vtkUnicodeString)
+
+
+//----------------------------------------------------------------------------
 // vtkVariant serialization code
 //----------------------------------------------------------------------------
 
@@ -85,6 +109,7 @@ void save(Archiver& ar, const vtkVariant& variant,
   switch (Type)
     {
     VTK_VARIANT_SAVE(VTK_STRING,vtkStdString,ToString);
+    VTK_VARIANT_SAVE(VTK_UNICODE_STRING,vtkUnicodeString,ToUnicodeString);
     VTK_VARIANT_SAVE(VTK_FLOAT,float,ToFloat);
     VTK_VARIANT_SAVE(VTK_DOUBLE,double,ToDouble);
     VTK_VARIANT_SAVE(VTK_CHAR,char,ToChar);
@@ -131,6 +156,7 @@ void load(Archiver& ar, vtkVariant& variant,
     {
     case 0: variant = vtkVariant(); return;
     VTK_VARIANT_LOAD(VTK_STRING,vtkStdString);
+    VTK_VARIANT_LOAD(VTK_UNICODE_STRING,vtkUnicodeString);
     VTK_VARIANT_LOAD(VTK_FLOAT,float);
     VTK_VARIANT_LOAD(VTK_DOUBLE,double);
     VTK_VARIANT_LOAD(VTK_CHAR,char);
@@ -150,7 +176,7 @@ void load(Archiver& ar, vtkVariant& variant,
     VTK_VARIANT_LOAD(VTK_UNSIGNED_LONG_LONG,unsigned long long);
 #endif
     default:
-      cerr << "cannot deserialize variant with type " << Type << '\n';
+      cerr << "cannot deserialize variant with type " << static_cast<unsigned int>(Type) << '\n';
       variant = vtkVariant();
     }
 #undef VTK_VARIANT_LOAD

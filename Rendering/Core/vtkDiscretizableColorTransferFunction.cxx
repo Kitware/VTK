@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkLookupTable.h"
+#include "vtkPiecewiseFunction.h"
 
 #include <vector>
 
@@ -30,11 +31,15 @@ vtkDiscretizableColorTransferFunction::vtkDiscretizableColorTransferFunction()
 
   this->Data = 0;
   this->UseLogScale = 0;
+
+  this->ScalarOpacityFunction = 0;
+  this->EnableOpacityMapping = false;
 }
 
 //-----------------------------------------------------------------------------
 vtkDiscretizableColorTransferFunction::~vtkDiscretizableColorTransferFunction()
 {
+  this->ScalarOpacityFunction = 0;
   this->LookupTable->Delete();
   delete [] this->Data;
 }
@@ -72,6 +77,12 @@ void vtkDiscretizableColorTransferFunction::SetNumberOfValues(vtkIdType number)
   this->NumberOfValues = number;
   this->LookupTable->SetNumberOfTableValues(number);
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+int vtkDiscretizableColorTransferFunction::IsOpaque()
+{
+  return !this->EnableOpacityMapping;
 }
 
 //-----------------------------------------------------------------------------
@@ -167,12 +178,30 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(vtkDataA
   int colorMode, int component)
 {
   this->Build();
-  if (this->Discretize)
+
+  bool scalars_are_mapped = !(colorMode == VTK_COLOR_MODE_DEFAULT) &&
+                             vtkUnsignedCharArray::SafeDownCast(scalars);
+
+  vtkUnsignedCharArray *colors = this->Discretize ?
+    this->LookupTable->MapScalars(scalars, colorMode, component):
+    this->Superclass::MapScalars(scalars, colorMode, component);
+
+  // calculate alpha values
+  if(colors &&
+     colors->GetNumberOfComponents() == 4 &&
+     !scalars_are_mapped &&
+     this->EnableOpacityMapping &&
+     this->ScalarOpacityFunction.GetPointer())
     {
-    return this->LookupTable->MapScalars(scalars, colorMode, component);
+    for(vtkIdType i = 0; i < scalars->GetNumberOfTuples(); i++)
+      {
+      double value = scalars->GetTuple1(i);
+      double alpha = this->ScalarOpacityFunction->GetValue(value);
+      colors->SetValue(4*i+3, static_cast<unsigned char>(alpha * 255.0 + 0.5));
+      }
     }
 
-  return this->Superclass::MapScalars(scalars, colorMode, component);
+  return colors;
 }
 
 //-----------------------------------------------------------------------------
@@ -208,6 +237,22 @@ vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()
   return this->NumberOfValues;
 }
 
+//----------------------------------------------------------------------------
+void vtkDiscretizableColorTransferFunction::SetScalarOpacityFunction(vtkPiecewiseFunction *function)
+{
+  if(this->ScalarOpacityFunction != function)
+    {
+    this->ScalarOpacityFunction = function;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkDiscretizableColorTransferFunction::GetScalarOpacityFunction() const
+{
+  return this->ScalarOpacityFunction;
+}
+
 //-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -215,4 +260,6 @@ void vtkDiscretizableColorTransferFunction::PrintSelf(ostream& os, vtkIndent ind
   os << indent << "Discretize: " << this->Discretize << endl;
   os << indent << "NumberOfValues: " << this->NumberOfValues << endl;
   os << indent << "UseLogScale: " << this->UseLogScale << endl;
+  os << indent << "EnableOpacityMapping: " << this->EnableOpacityMapping << endl;
+  os << indent << "ScalarOpacityFunction: " << this->ScalarOpacityFunction << endl;
 }

@@ -37,7 +37,7 @@
 #ifndef __FTCONFIG_H__
 #define __FTCONFIG_H__
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 #include FT_CONFIG_OPTIONS_H
 #include FT_CONFIG_STANDARD_LIBRARY_H
 
@@ -57,9 +57,10 @@ FT_BEGIN_HEADER
   /*************************************************************************/
 
 
-#undef HAVE_UNISTD_H
-#undef HAVE_FCNTL_H
-#undef HAVE_STDINT_H
+/* VTK_FREETYPE_CHANGE use cmakedefine instead of undef */
+#cmakedefine HAVE_UNISTD_H ${HAVE_UNISTD_H}
+#cmakedefine HAVE_FCNTL_H ${HAVE_FCNTL_H}
+#cmakedefine HAVE_STDINT_H ${HAVE_STDINT_H}
 
 
   /* There are systems (like the Texas Instruments 'C54x) where a `char' */
@@ -74,47 +75,9 @@ FT_BEGIN_HEADER
 #define FT_CHAR_BIT  CHAR_BIT
 #endif
 
-
-#undef FT_USE_AUTOCONF_SIZEOF_TYPES
-#ifdef FT_USE_AUTOCONF_SIZEOF_TYPES
-
-#undef SIZEOF_INT
-#undef SIZEOF_LONG
-#define FT_SIZEOF_INT  SIZEOF_INT
-#define FT_SIZEOF_LONG SIZEOF_LONG
-
-#else /* !FT_USE_AUTOCONF_SIZEOF_TYPES */
-
-  /* Following cpp computation of the bit length of int and long */
-  /* is copied from default include/freetype/config/ftconfig.h.  */
-  /* If any improvement is required for this file, it should be  */
-  /* applied to the original header file for the builders that   */
-  /* does not use configure script.                              */
-
-  /* The size of an `int' type.  */
-#if                                 FT_UINT_MAX == 0xFFFFUL
-#define FT_SIZEOF_INT  (16 / FT_CHAR_BIT)
-#elif                               FT_UINT_MAX == 0xFFFFFFFFUL
-#define FT_SIZEOF_INT  (32 / FT_CHAR_BIT)
-#elif FT_UINT_MAX > 0xFFFFFFFFUL && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFUL
-#define FT_SIZEOF_INT  (64 / FT_CHAR_BIT)
-#else
-#error "Unsupported size of `int' type!"
-#endif
-
-  /* The size of a `long' type.  A five-byte `long' (as used e.g. on the */
-  /* DM642) is recognized but avoided.                                   */
-#if                                  FT_ULONG_MAX == 0xFFFFFFFFUL
-#define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
-#elif FT_ULONG_MAX > 0xFFFFFFFFUL && FT_ULONG_MAX == 0xFFFFFFFFFFUL
-#define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
-#elif FT_ULONG_MAX > 0xFFFFFFFFUL && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFUL
-#define FT_SIZEOF_LONG  (64 / FT_CHAR_BIT)
-#else
-#error "Unsupported size of `long' type!"
-#endif
-
-#endif /* !FT_USE_AUTOCONF_SIZEOF_TYPES */
+/* VTK_FREETYPE_CHANGE use VTK's sizes instead of the big test */
+#define FT_SIZEOF_INT   ${VTK_SIZEOF_INT}
+#define FT_SIZEOF_LONG  ${VTK_SIZEOF_LONG}
 
 
   /* FT_UNUSED is a macro used to indicate that a given parameter is not  */
@@ -270,8 +233,9 @@ FT_BEGIN_HEADER
   /* Since `#undef' doesn't survive in configuration header files */
   /* we use the postprocessing facility of AC_CONFIG_HEADERS to   */
   /* replace the leading `/' with `#'.                            */
-/undef FT_LONG64
-/undef FT_INT64
+  /* VTK_FREETYPE_CHANGE with cmake `#' is fine                   */
+#undef FT_LONG64
+#undef FT_INT64
 
 #endif /* __STDC__ */
 

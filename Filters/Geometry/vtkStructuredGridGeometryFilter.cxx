@@ -458,7 +458,12 @@ int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
   wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  memcpy(ext, wholeExt, 6*sizeof(int));
+
+  // Copy whole extent only if present
+  if ( wholeExt )
+    {
+    memcpy( ext, wholeExt, 6 * sizeof( int ) );
+    }
 
   // Get request from output information
   piece =

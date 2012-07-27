@@ -59,10 +59,6 @@ ENDIF (BUILD_SHARED_LIBS)
 #
 IF (WIN32)
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} builds/win32/ftdebug.c)
-  INCLUDE_DIRECTORIES (
-    BEFORE
-    ${VTKFREETYPE_SOURCE_DIR}/builds/win32
-  )
 ELSE (WIN32)
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftdebug.c)
 ENDIF (WIN32)
@@ -78,12 +74,12 @@ IF (UNIX)
   INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
   CHECK_INCLUDE_FILE_CXX("fcntl.h" HAVE_FCNTL_H)
   CHECK_INCLUDE_FILE_CXX("unistd.h" HAVE_UNISTD_H)
-  CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/builds/unix/ftconfig.h.in
-                  ${VTKFREETYPE_BINARY_DIR}/builds/unix/ftconfig.h)
-  INCLUDE_DIRECTORIES (
-    BEFORE
-    ${VTKFREETYPE_BINARY_DIR}/builds/unix
-  )
+  CONFIGURE_FILE (builds/unix/ftconfig.in
+                  include/freetype/config/ftconfig.h)
+  SET(freetype_config_headers_exclude
+    ${VTKFREETYPE_SOURCE_DIR}/include/freetype/config/ftconfig.h)
+  SET(freetype_config_headers_include
+    ${VTKFREETYPE_BINARY_DIR}/include/freetype/config/ftconfig.h)
 ELSE (UNIX)
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftsystem.c)
 ENDIF (UNIX)
@@ -118,7 +114,7 @@ ENDIF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
 #
 # Create the configuration file
 #
-ADD_DEFINITIONS (-DVTKFREETYPE)
+ADD_DEFINITIONS (-DFT2_BUILD_LIBRARY)
 CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/include/vtkFreeTypeConfig.h.in
                 ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h)
 
@@ -144,13 +140,11 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
   file(GLOB freetype_config_headers 
     "${VTKFREETYPE_SOURCE_DIR}/include/freetype/config/*.h")
+  if(freetype_config_headers_exclude)
+    list(REMOVE_ITEM freetype_config_headers ${freetype_config_headers_exclude})
+  endif()
   INSTALL(FILES ${freetype_config_headers}
+                ${freetype_config_headers_include}
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/config
-    COMPONENT Development)
-
-  file(GLOB freetype_internal_headers 
-    "${VTKFREETYPE_SOURCE_DIR}/include/freetype/internal/*.h")
-  INSTALL(FILES ${freetype_internal_headers}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkfreetype/include/freetype/internal
     COMPONENT Development)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

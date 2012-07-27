@@ -26,9 +26,11 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkColorTransferFunction.h"
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 class vtkLookupTable;
 class vtkColorTransferFunction;
+class vtkPiecewiseFunction;
 
 class VTKRENDERINGCORE_EXPORT vtkDiscretizableColorTransferFunction : public vtkColorTransferFunction
 {
@@ -36,6 +38,8 @@ public:
   static vtkDiscretizableColorTransferFunction* New();
   vtkTypeMacro(vtkDiscretizableColorTransferFunction, vtkColorTransferFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  int IsOpaque();
 
   // Description:
   // Generate discretized lookup table, if applicable.
@@ -122,6 +126,17 @@ public:
   // Get the number of available colors for mapping to.
   virtual vtkIdType GetNumberOfAvailableColors();
 
+  // Description:
+  // Set/get the opacity function to use.
+  virtual void SetScalarOpacityFunction(vtkPiecewiseFunction *function);
+  virtual vtkPiecewiseFunction* GetScalarOpacityFunction() const;
+
+  // Description:
+  // Enable/disable the usage of the scalar opacity function.
+  vtkSetMacro(EnableOpacityMapping, bool)
+  vtkGetMacro(EnableOpacityMapping, bool)
+  vtkBooleanMacro(EnableOpacityMapping, bool)
+
 protected:
   vtkDiscretizableColorTransferFunction();
   ~vtkDiscretizableColorTransferFunction();
@@ -133,6 +148,10 @@ protected:
   vtkLookupTable* LookupTable;
 
   vtkTimeStamp BuildTime;
+
+  bool EnableOpacityMapping;
+  vtkSmartPointer<vtkPiecewiseFunction> ScalarOpacityFunction;
+
 private:
   vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&); // Not implemented.
   void operator=(const vtkDiscretizableColorTransferFunction&); // Not implemented.

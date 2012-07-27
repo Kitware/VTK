@@ -64,9 +64,9 @@ All rights reserve
 #define VTK_TICKS_OUTSIDE       1
 #define VTK_TICKS_BOTH          2
 
-#define VTK_ALL_GRID_LINES      0
-#define VTK_CLOSEST_GRID_LINES  1
-#define VTK_FURTHEST_GRID_LINES 2
+#define VTK_GRID_LINES_ALL      0
+#define VTK_GRID_LINES_CLOSEST  1
+#define VTK_GRID_LINES_FURTHEST 2
 
 #define NUMBER_OF_ALIGNED_AXIS 4
 

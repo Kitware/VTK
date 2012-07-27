@@ -92,6 +92,17 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
     pos[1] = static_cast<float>(temp[1]); }
 
   // Description:
+  // Return the x and y scale from the current transformation matrix as an array
+  // of two floating point numbers. This is simply returning the scale
+  // component of the 3x3 matrix.
+  void GetScale(double pos[2]);
+  void GetScale(float pos[2]) {
+    double temp[2];
+    this->GetScale(temp);
+    pos[0] = static_cast<float>(temp[0]);
+    pos[1] = static_cast<float>(temp[1]); }
+
+  // Description:
   // Return a matrix which is the inverse of the current transformation
   // matrix.
   void GetInverse(vtkMatrix3x3 *inverse);

@@ -20,10 +20,12 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkTableFFT.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStringArray.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
@@ -90,6 +92,13 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
     // Verify that the first input model is indeed contained in a multiblock data set
     vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
     if ( ! inMeta )
+      {
+      continue;
+      }
+
+    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+    // Skip FFT block if already present in the model
+    if ( ! strcmp( varName, "Autocorrelation FFT" ) )
       {
       continue;
       }
@@ -205,9 +214,9 @@ void vtkAutoCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaCol
         } //r
       } // while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
 
-    // Resize output meta and append aggregated table for current variable
-    const char* varName = inMeta->GetMetaData( static_cast<unsigned>( b ) )->Get( vtkCompositeDataSet::NAME() );
-    outMeta->GetMetaData( static_cast<unsigned>( b ) )->Set( vtkCompositeDataSet::NAME(), varName );
+    // Replace initial meta with aggregated table for current variable
+//    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
+    outMeta->GetMetaData( b )->Set( vtkCompositeDataSet::NAME(), varName );
     outMeta->SetBlock( b, aggregatedTab );
 
     // Clean up
@@ -394,7 +403,11 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     return;
     }
 
+  // Storage for time series table
+  vtkTable* timeTable = vtkTable::New();
+
   // Iterate over variable blocks
+  vtkIdType nLags = 0;
   unsigned int nBlocks = inMeta->GetNumberOfBlocks();
   for ( unsigned int b = 0; b < nBlocks; ++ b )
     {
@@ -404,8 +417,27 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       continue;
       }
 
+    // Verify that number of time lags is consistent
+    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
     vtkIdType nRow = modelTab->GetNumberOfRows();
-    // FIXME: verify that all tables have same number of rows (i.e., lags)
+    if ( b )
+      {
+      if ( nRow != nLags )
+        {
+        vtkErrorMacro( "Variable "
+                       << varName
+                       << " has "
+                       << nRow
+                       << " time lags but should have "
+                       << nLags
+                       << ". Exiting." );
+        return;
+        }
+      }
+    else // if ( b )
+      {
+      nLags = nRow;
+      }
     if ( ! nRow  )
       {
       continue;
@@ -413,14 +445,14 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     int numDerived = 9;
     vtkStdString derivedNames[] = { "Variance Xs",
-                                   "Variance Xt",
-                                   "Covariance",
-                                   "Determinant",
-                                   "Slope Xt/Xs",
-                                   "Intercept Xt/Xs",
-                                   "Slope Xs/Xt",
-                                   "Intercept Xs/Xt",
-                                   "Pearson r" };
+                                    "Variance Xt",
+                                    "Covariance",
+                                    "Determinant",
+                                    "Slope Xt/Xs",
+                                    "Intercept Xt/Xs",
+                                    "Slope Xs/Xt",
+                                    "Intercept Xs/Xt",
+                                    "Autocorrelation" };
 
     // Find or create columns for derived statistics
     vtkDoubleArray* derivedCol;
@@ -438,6 +470,8 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Storage for derived values
     double* derivedVals = new double[numDerived];
+    vtkDoubleArray* timeArray = vtkDoubleArray::New();
+    timeArray->SetName( varName );
 
     for ( int i = 0; i < nRow; ++ i )
       {
@@ -463,11 +497,12 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         covXsXt = mXsXt * inv_nm1;
         }
 
+      // Store derived values
       derivedVals[0] = varXs;
       derivedVals[1] = varXt;
       derivedVals[2] = covXsXt;
       derivedVals[3] = varXs * varXt - covXsXt * covXsXt;
-
+      
       // There will be NaN values in linear regression if covariance matrix is not positive definite
       double meanXs = modelTab->GetValueByName( i, "Mean Xs" ).ToDouble();
       double meanXt = modelTab->GetValueByName( i, "Mean Xt" ).ToDouble();
@@ -509,15 +544,39 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         derivedVals[8] = covXsXt / sqrt( varXs * varXt );
         }
 
+      // Update time series array
+      timeArray->InsertNextValue ( derivedVals[8] );
+
       for ( int j = 0; j < numDerived; ++ j )
         {
         modelTab->SetValueByName( i, derivedNames[j], derivedVals[j] );
         }
       } // nRow
 
+    // Append correlation coefficient to time series table
+    timeTable->AddColumn( timeArray );
+
     // Clean up
     delete [] derivedVals;
+    timeArray->Delete();
     } // for ( unsigned int b = 0; b < nBlocks; ++ b )
+
+  // Now calculate FFT of time series
+  vtkTableFFT* fft = vtkTableFFT::New();
+  fft->SetInputData( timeTable );
+  vtkTable* outt= fft->GetOutput();
+  fft->Update();
+
+  // Resize output meta so FFT table can be appended
+  inMeta->SetNumberOfBlocks( nBlocks + 1 );
+
+  // Append auto-correlation FFT table at block nBlocks
+  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Autocorrelation FFT" );
+  inMeta->SetBlock( nBlocks, outt );
+
+  // Clean up
+  fft->Delete();
+  timeTable->Delete();
 }
 
 // ----------------------------------------------------------------------

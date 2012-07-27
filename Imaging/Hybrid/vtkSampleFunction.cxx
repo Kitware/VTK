@@ -96,6 +96,50 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
     }
 }
 
+// Set the bounds of the model
+void vtkSampleFunction::SetModelBounds(double bounds[6])
+{
+  this->SetModelBounds(bounds[0], bounds[1],
+                       bounds[2], bounds[3],
+                       bounds[4], bounds[5]);
+
+}
+void vtkSampleFunction::SetModelBounds(double xMin, double xMax,
+                                       double yMin, double yMax,
+                                       double zMin, double zMax)
+{
+  vtkDebugMacro(<< " setting ModelBounds to ("
+                << "(" << xMin << "," << xMax << "), "
+                << "(" << yMin << "," << yMax << "), "
+                << "(" << zMin << "," << zMax << "), ");
+  if ((xMin > xMax) ||
+      (yMin > yMax) ||
+      (zMin > zMax))
+    {
+    vtkErrorMacro("Invalid bounds: "
+                  << "(" << xMin << "," << xMax << "), "
+                  << "(" << yMin << "," << yMax << "), "
+                  << "(" << zMin << "," << zMax << ")"
+                  << " Bound mins cannot be larger that bound maxs");
+    return;
+    }
+  if (xMin != this->ModelBounds[0] ||
+      xMax != this->ModelBounds[1] ||
+      yMin != this->ModelBounds[2] ||
+      yMax != this->ModelBounds[3] ||
+      zMin != this->ModelBounds[4] ||
+      zMax != this->ModelBounds[5])
+    {
+    this->ModelBounds[0] = xMin;
+    this->ModelBounds[1] = xMax;
+    this->ModelBounds[2] = yMin;
+    this->ModelBounds[3] = yMax;
+    this->ModelBounds[4] = zMin;
+    this->ModelBounds[5] = zMax;
+    this->Modified();
+    }
+}
+
 int vtkSampleFunction::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),

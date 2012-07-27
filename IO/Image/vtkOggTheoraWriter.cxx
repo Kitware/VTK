@@ -21,6 +21,8 @@
 
 #include "vtk_oggtheora.h"
 
+#include <time.h>
+
 //---------------------------------------------------------------------------
 class vtkOggTheoraWriterInternal
 {
@@ -119,8 +121,8 @@ int vtkOggTheoraWriterInternal::Start()
   // force even offsets of the picture within the frame
   this->Off[0] = (thInfo.frame_width-this->Dim[0])>>1&~1;
   this->Off[1] = (thInfo.frame_height-this->Dim[1])>>1&~1;
-  thInfo.pic_x = this->Off[0];
-  thInfo.pic_y = this->Off[1];
+  thInfo.pic_x = static_cast<ogg_uint32_t>(this->Off[0]);
+  thInfo.pic_y = static_cast<ogg_uint32_t>(this->Off[1]);
   thInfo.colorspace = TH_CS_ITU_REC_470BG;
   if (this->Writer->GetSubsampling())
     {
@@ -284,7 +286,7 @@ int vtkOggTheoraWriterInternal::Write(vtkImageData *id)
 
 //---------------------------------------------------------------------------
 // ripped from libtheora-1.0/examples/encoder_example.c
-int vtkOggTheoraWriterInternal::EncodeFrame(th_ycbcr_buffer ycbcr, int lastFrame)
+int vtkOggTheoraWriterInternal::EncodeFrame(th_ycbcr_buffer, int lastFrame)
 {
   if (th_encode_ycbcr_in(this->thEncContext,this->thImage)<0)
     {
@@ -383,7 +385,7 @@ void vtkOggTheoraWriterInternal::RGB2YCbCr(vtkImageData *id,
   // the first pixel in the RGB image
   uchar *rgbStart = (uchar*)id->GetScalarPointer();
   // pointers to iterate through the RGB image an the Y, Cb and Cr planes
-  uchar *rgb, *Y, *Cb, *Cr;
+  uchar *rgb, *Y, *Cb=0, *Cr=0;
   // indicators whether we have to handle chroma planes.
   bool isXCPlane = false,
        isYCPlane = true; // y-flipping

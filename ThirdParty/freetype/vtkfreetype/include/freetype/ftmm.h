@@ -20,7 +20,7 @@
 #define __FTMM_H__
 
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 #include FT_TYPE1_TABLES_H
 
 
