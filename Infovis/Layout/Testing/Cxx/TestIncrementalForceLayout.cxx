@@ -20,7 +20,7 @@
 #include "vtkRandomGraphSource.h"
 
 //----------------------------------------------------------------------------
-int TestIncrementalForceLayout(int argc, char* argv[])
+int TestIncrementalForceLayout(int, char*[])
 {
   vtkNew<vtkRandomGraphSource> source;
   source->SetNumberOfVertices(10);
