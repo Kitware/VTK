@@ -503,10 +503,14 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   // outMeta and which is presumed to exist upon entry to Derive).
   // Note that these tables are normalized by the number of samples.
   outMeta->SetNumberOfBlocks( 1 + static_cast<unsigned int>( this->Internals->Requests.size() ) );
-  // For each request:
-  i = 0;
+
+  // Keep track of last current block
+  unsigned int b = 1;
+
+  // Loop over requests
   double scale = 1. / ( n - 1 ); // n -1 for unbiased variance estimators
-  for ( reqIt = this->Internals->Requests.begin(); reqIt != this->Internals->Requests.end(); ++ reqIt, ++ i )
+  for ( reqIt = this->Internals->Requests.begin(); 
+        reqIt != this->Internals->Requests.end(); ++ reqIt, ++ b )
     {
     vtkStringArray* colNames = vtkStringArray::New();
     colNames->SetName( VTK_MULTICORRELATIVE_COLUMNAMES );
@@ -544,16 +548,20 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
     covCols.push_back( colAvgs );
     colNames->InsertNextValue( "Cholesky" ); // Need extra row for lower-triangular Cholesky decomposition
 
-    // We now have the total number of columns in the output.
-    // Allocate memory for the correct number of rows and fill in values.
+    // We now have the total number of columns in the output
+    // Allocate memory for the correct number of rows and fill in values
     vtkIdType reqCovSize = colNames->GetNumberOfTuples();
     colAvgs->SetNumberOfTuples( reqCovSize );
+
+    // Prepare covariance table and store it as last current block
     vtkTable* covariance = vtkTable::New();
-    outMeta->SetBlock( i + 1, covariance );
-    outMeta->GetMetaData( static_cast<unsigned>( i + 1 ) )->Set( vtkCompositeDataSet::NAME(), reqNameStr.str().c_str() );
-    covariance->Delete(); // outMeta now owns covariance
     covariance->AddColumn( colNames );
     covariance->AddColumn( colAvgs );
+    outMeta->GetMetaData( b )->Set( vtkCompositeDataSet::NAME(), reqNameStr.str().c_str() );
+    outMeta->SetBlock( b, covariance );
+
+    // Clean up
+    covariance->Delete(); 
     colNames->Delete();
     colAvgs->Delete();
 
