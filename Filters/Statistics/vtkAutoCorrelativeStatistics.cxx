@@ -571,7 +571,7 @@ void vtkAutoCorrelativeStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   inMeta->SetNumberOfBlocks( nBlocks + 1 );
 
   // Append auto-correlation FFT table at block nBlocks
-  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Autocorrelation FFT" );
+  inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), "Autocorrelation FFT" );
   inMeta->SetBlock( nBlocks, outt );
 
   // Clean up
