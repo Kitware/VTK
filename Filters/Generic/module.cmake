@@ -4,4 +4,9 @@ vtk_module(vtkFiltersGeneric
   DEPENDS
     vtkFiltersCore
     vtkFiltersSources
-  )
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkFiltersModeling
+    vtkRenderingLabel
+    vtkTestingRendering
+    vtkTestingGenericBridge)
