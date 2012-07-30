@@ -42,15 +42,15 @@ vtkStandardNewMacro(vtkOrderStatistics);
 // ----------------------------------------------------------------------
 vtkOrderStatistics::vtkOrderStatistics()
 {
-   this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
-   this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
-   this->Quantize = false; // By default, do not force quantization
-   this->MaximumHistogramSize = 1000; // A large value by default
+  this->QuantileDefinition = vtkOrderStatistics::InverseCDFAveragedSteps;
+  this->NumberOfIntervals = 4; // By default, calculate 5-points statistics
+  this->Quantize = false; // By default, do not force quantization
+  this->MaximumHistogramSize = 1000; // A large value by default
   // Number of primary tables is variable
-   this->NumberOfPrimaryTables = -1;
+  this->NumberOfPrimaryTables = -1;
 
-   this->AssessNames->SetNumberOfValues( 1 );
-   this->AssessNames->SetValue( 0, "Quantile" );
+  this->AssessNames->SetNumberOfValues( 1 );
+  this->AssessNames->SetValue( 0, "Quantile" );
 }
 
 // ----------------------------------------------------------------------
@@ -61,11 +61,11 @@ vtkOrderStatistics::~vtkOrderStatistics()
 // ----------------------------------------------------------------------
 void vtkOrderStatistics::PrintSelf( ostream &os, vtkIndent indent )
 {
-   this->Superclass::PrintSelf( os, indent );
-  os << indent << "NumberOfIntervals: " <<  this->NumberOfIntervals << endl;
-  os << indent << "QuantileDefinition: " <<  this->QuantileDefinition << endl;
-  os << indent << "Quantize: " <<  this->Quantize << endl;
-  os << indent << "MaximumHistogramSize: " <<  this->MaximumHistogramSize << endl;
+  this->Superclass::PrintSelf( os, indent );
+  os << indent << "NumberOfIntervals: " << this->NumberOfIntervals << endl;
+  os << indent << "QuantileDefinition: " << this->QuantileDefinition << endl;
+  os << indent << "Quantize: " << this->Quantize << endl;
+  os << indent << "MaximumHistogramSize: " << this->MaximumHistogramSize << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -84,8 +84,8 @@ void vtkOrderStatistics::SetQuantileDefinition( int qd )
       return;
     }
 
-   this->QuantileDefinition =  static_cast<vtkOrderStatistics::QuantileDefinitionType>( qd );
-   this->Modified();
+  this->QuantileDefinition =  static_cast<vtkOrderStatistics::QuantileDefinitionType>( qd );
+  this->Modified();
 
   return;
 }
@@ -97,14 +97,14 @@ bool vtkOrderStatistics::SetParameter( const char* parameter,
 {
   if ( ! strcmp( parameter, "NumberOfIntervals" ) )
     {
-     this->SetNumberOfIntervals( value.ToInt() );
+    this->SetNumberOfIntervals( value.ToInt() );
 
     return true;
     }
 
   if ( ! strcmp( parameter, "QuantileDefinition" ) )
     {
-     this->SetQuantileDefinition( value.ToInt() );
+    this->SetQuantileDefinition( value.ToInt() );
 
     return true;
     }
@@ -129,8 +129,8 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit =  this->Internals->Requests.begin();
-        rit !=  this->Internals->Requests.end(); ++ rit )
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin();
+        rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
     vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
@@ -143,10 +143,10 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    // Get hold of data for  this variable
+    // Get hold of data for this variable
     vtkAbstractArray* vals = inData->GetColumnByName( col );
 
-    // Create histogram table for  this variable
+    // Create histogram table for this variable
     vtkTable* histogramTab = vtkTable::New();
 
     // Row to be used to insert into histogram table
@@ -203,20 +203,20 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         }
 
       // If maximum size was requested, make sure it is satisfied
-      if (  this->Quantize )
+      if ( this->Quantize )
         {
         // Retrieve achieved histogram size
         vtkIdType Nq = histogram.size();
 
         // If histogram is too big, quantization will have to occur
-        while ( Nq >  this->MaximumHistogramSize )
+        while ( Nq > this->MaximumHistogramSize )
           {
           // Retrieve extremal values
           double mini = histogram.begin()->first;
           double maxi = histogram.rbegin()->first;
 
           // Create bucket width based on target histogram size
-          // FIXME: .5 is arbitrary at  this point
+          // FIXME: .5 is arbitrary at this point
           double width = ( maxi - mini ) / vtkMath::Round(  Nq / 2. );
 
           // Now re-calculate histogram by quantizing values
@@ -338,12 +338,12 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   quantileTab->AddColumn( stringCol );
   stringCol->Delete();
 
-  double dq = 1. / static_cast<double>(  this->NumberOfIntervals );
-  for ( int i = 0; i <=  this->NumberOfIntervals; ++ i )
+  double dq = 1. / static_cast<double>( this->NumberOfIntervals );
+  for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
     {
 
     // Handle special case of quartiles and median for convenience
-    div_t q = div( i << 2,  this->NumberOfIntervals );
+    div_t q = div( i << 2, this->NumberOfIntervals );
     if ( q.rem )
       {
       // General case
@@ -456,15 +456,15 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Calculate all interior quantiles (i.e. for 0 < k < q)
     vtkIdType rank = 0;
-    double dh = n / static_cast<double>(  this->NumberOfIntervals );
-    for ( vtkIdType k = 1; k <  this->NumberOfIntervals; ++ k )
+    double dh = n / static_cast<double>( this->NumberOfIntervals );
+    for ( vtkIdType k = 1; k < this->NumberOfIntervals; ++ k )
       {
       // Calculate np value
       double np = k * dh;
 
       // Calculate first quantile index
       vtkIdType qIdx1;
-      if (  this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+      if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
         qIdx1 = static_cast<vtkIdType>( vtkMath::Round( np ) );
         }
@@ -494,8 +494,8 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       // Store rank in histogram of first quantile index
       qIdxPair.first = rank;
 
-      // Decide whether midpoint interpolation will be used for  this numeric type input
-      if (  this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+      // Decide whether midpoint interpolation will be used for this numeric type input
+      if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
         // Calculate second quantile index for mid-point interpolation
         vtkIdType qIdx2 = static_cast<vtkIdType>( floor( np + 1. ) );
@@ -520,7 +520,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
               }
             }
           }
-        } // if (  this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+        } // if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
 
       // Store rank in histogram of second quantile index
       qIdxPair.second = rank;
@@ -543,12 +543,12 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       // Create column for quantiles of the same type as the values
       vtkDataArray* quantCol = vtkDataArray::CreateDataArray( dvals->GetDataType() );
       quantCol->SetName( varName );
-      quantCol->SetNumberOfTuples(  this->NumberOfIntervals + 1 );
+      quantCol->SetNumberOfTuples( this->NumberOfIntervals + 1 );
       quantileTab->AddColumn( quantCol );
       quantCol->Delete();
 
-      // Decide whether midpoint interpolation will be used for  this numeric type input
-      if (  this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+      // Decide whether midpoint interpolation will be used for this numeric type input
+      if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
         // Compute and store quantile values
         vtkIdType k = 0;
@@ -563,7 +563,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
           quantCol->SetTuple1( k, Qp );
           } // qit
         }
-      else // if (  this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+      else // if ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
         {
         // Compute and store quantile values
         vtkIdType k = 0;
@@ -576,7 +576,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
           // Store quantile value
           quantCol->SetTuple1( k, Qp );
           } // qit
-        } // else (  this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
+        } // else ( this->QuantileDefinition == vtkOrderStatistics::InverseCDFAveragedSteps )
       } // if ( vals->IsA("vtkDataArray") )
     else if ( vals->IsA("vtkStringArray") )
       {
@@ -586,7 +586,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       // Create column for quantiles of the same type as the values
       vtkStringArray* quantCol = vtkStringArray::New();
       quantCol->SetName( varName );
-      quantCol->SetNumberOfTuples(  this->NumberOfIntervals + 1 );
+      quantCol->SetNumberOfTuples( this->NumberOfIntervals + 1 );
       quantileTab->AddColumn( quantCol );
       quantCol->Delete();
 
@@ -610,7 +610,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       // Create column for quantiles of the same type as the values
       vtkVariantArray* quantCol = vtkVariantArray::New();
       quantCol->SetName( varName );
-      quantCol->SetNumberOfTuples(  this->NumberOfIntervals + 1 );
+      quantCol->SetNumberOfTuples( this->NumberOfIntervals + 1 );
       quantileTab->AddColumn( quantCol );
       quantCol->Delete();
 
@@ -710,8 +710,8 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   double inv_nq =  1. / nQuant;
   double inv_card = 1. / nRowData;
   double sqrt_card = sqrt( static_cast<double>( nRowData ) );
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit =  this->Internals->Requests.begin();
-        rit !=  this->Internals->Requests.end(); ++ rit )
+  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+        rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
     vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
@@ -842,8 +842,8 @@ public:
   DataArrayQuantizer( vtkAbstractArray* vals,
                       vtkAbstractArray* quantiles )
   {
-     this->Data      = vtkDataArray::SafeDownCast( vals );
-     this->Quantiles = vtkDataArray::SafeDownCast( quantiles );
+    this->Data      = vtkDataArray::SafeDownCast( vals );
+    this->Quantiles = vtkDataArray::SafeDownCast( quantiles );
   }
   virtual ~DataArrayQuantizer()
   {
@@ -853,8 +853,8 @@ public:
   {
     result->SetNumberOfValues( 1 );
 
-    double dval =  this->Data->GetTuple1( id );
-    if ( dval <  this->Quantiles->GetTuple1( 0 ) )
+    double dval = this->Data->GetTuple1( id );
+    if ( dval < this->Quantiles->GetTuple1( 0 ) )
       {
       // dval is smaller than lower bound
       result->SetValue( 0, 0 );
@@ -863,8 +863,8 @@ public:
       }
 
     vtkIdType q = 1;
-    vtkIdType n =  this->Quantiles->GetNumberOfTuples();
-    while ( q < n && dval >  this->Quantiles->GetTuple1( q ) )
+    vtkIdType n = this->Quantiles->GetNumberOfTuples();
+    while ( q < n && dval > this->Quantiles->GetTuple1( q ) )
       {
       ++ q;
       }
@@ -883,8 +883,8 @@ public:
   StringArrayQuantizer( vtkAbstractArray* vals,
                        vtkAbstractArray* quantiles )
   {
-     this->Data      = vtkStringArray::SafeDownCast( vals );
-     this->Quantiles = vtkStringArray::SafeDownCast( quantiles );
+    this->Data      = vtkStringArray::SafeDownCast( vals );
+    this->Quantiles = vtkStringArray::SafeDownCast( quantiles );
   }
   virtual ~StringArrayQuantizer()
   {
@@ -894,8 +894,8 @@ public:
   {
     result->SetNumberOfValues( 1 );
 
-    vtkStdString sval =  this->Data->GetValue( id );
-    if ( sval <  this->Quantiles->GetValue( 0 ) )
+    vtkStdString sval = this->Data->GetValue( id );
+    if ( sval < this->Quantiles->GetValue( 0 ) )
       {
       // sval is smaller than lower bound
       result->SetValue( 0, 0 );
@@ -904,8 +904,8 @@ public:
       }
 
     vtkIdType q = 1;
-    vtkIdType n =  this->Quantiles->GetNumberOfValues();
-    while ( q < n && sval >  this->Quantiles->GetValue( q ) )
+    vtkIdType n = this->Quantiles->GetNumberOfValues();
+    while ( q < n && sval > this->Quantiles->GetValue( q ) )
       {
       ++ q;
       }
@@ -924,8 +924,8 @@ public:
   VariantArrayQuantizer( vtkAbstractArray* vals,
                          vtkAbstractArray* quantiles )
   {
-     this->Data      = vtkVariantArray::SafeDownCast( vals );
-     this->Quantiles = vtkVariantArray::SafeDownCast( quantiles );
+    this->Data      = vtkVariantArray::SafeDownCast( vals );
+    this->Quantiles = vtkVariantArray::SafeDownCast( quantiles );
   }
   virtual ~VariantArrayQuantizer()
   {
@@ -935,8 +935,8 @@ public:
   {
     result->SetNumberOfValues( 1 );
 
-    vtkVariant vval =  this->Data->GetValue( id );
-    if ( vval <  this->Quantiles->GetValue( 0 ) )
+    vtkVariant vval = this->Data->GetValue( id );
+    if ( vval < this->Quantiles->GetValue( 0 ) )
       {
       // vval is smaller than lower bound
       result->SetValue( 0, 0 );
@@ -945,8 +945,8 @@ public:
       }
 
     vtkIdType q = 1;
-    vtkIdType n =  this->Quantiles->GetNumberOfValues();
-    while ( q < n && vval >  this->Quantiles->GetValue( q ) )
+    vtkIdType n = this->Quantiles->GetNumberOfValues();
+    while ( q < n && vval > this->Quantiles->GetValue( q ) )
       {
       ++ q;
       }
