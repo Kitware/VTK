@@ -5,4 +5,6 @@ vtk_module(vtkParallelCore
     vtkIOGeometry
   COMPILE_DEPENDS
     vtkUtilitiesHashSource
+  TEST_DEPENDS
+    vtkTestingRendering
   )
