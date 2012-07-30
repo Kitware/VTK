@@ -298,7 +298,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     // Resize output meta so histogram table can be appended
     unsigned int nBlocks = outMeta->GetNumberOfBlocks();
     outMeta->SetNumberOfBlocks( nBlocks + 1 );
-    outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), col );
+    outMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), col );
     outMeta->SetBlock( nBlocks, histogramTab );
 
     // Clean up
@@ -644,12 +644,13 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   inMeta->SetNumberOfBlocks( nBlocks + 2 );
 
   // Append cardinality table at block nBlocks
-  inMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), "Cardinalities" );
+  inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), "Cardinalities" );
   inMeta->SetBlock( nBlocks, cardinalityTab );
 
-  // Append quantile table at block nBlocks + 1
-  inMeta->GetMetaData( static_cast<unsigned>( nBlocks + 1 ) )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
-  inMeta->SetBlock( nBlocks + 1 , quantileTab );
+  // Increment number of blocks and append quantile table at the end
+  ++ nBlocks;
+  inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), "Quantiles" );
+  inMeta->SetBlock( nBlocks, quantileTab );
 
   // Clean up
   row->Delete();
