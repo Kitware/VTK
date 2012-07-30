@@ -384,7 +384,7 @@ void vtkAutoCorrelativeStatistics::Learn( vtkTable* inData,
     // Resize output meta and append model table for current variable
     unsigned int nBlocks = outMeta->GetNumberOfBlocks();
     outMeta->SetNumberOfBlocks( nBlocks + 1 );
-    outMeta->GetMetaData( static_cast<unsigned>( nBlocks ) )->Set( vtkCompositeDataSet::NAME(), varName );
+    outMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), varName );
     outMeta->SetBlock( nBlocks, modelTab );
 
     // Clean up
