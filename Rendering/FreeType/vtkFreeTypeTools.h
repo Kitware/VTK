@@ -27,6 +27,7 @@
 #include "vtkObject.h"
 
 class vtkImageData;
+class vtkPath;
 class vtkTextProperty;
 class vtkStdString;
 class vtkUnicodeString;
@@ -110,6 +111,14 @@ public:
                     vtkImageData *data);
 
   // Description:
+  // Given a text property and a string, this function populates the vtkPath
+  // path with the outline of the rendered string.
+  bool StringToPath(vtkTextProperty *tprop, const vtkStdString& str,
+                    vtkPath *path);
+  bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString& str,
+                    vtkPath *path);
+
+  // Description:
   // Turn a string into a hash. This is not a general purpose hash
   // function, and is only used to generate identifiers for cached fonts.
   static vtkTypeUInt16 HashString(const char *str);
@@ -178,6 +187,12 @@ protected:
   template <typename T>
   bool PopulateImageData(vtkTextProperty *tprop, const T& str,
                          int x, int y, vtkImageData *data);
+
+  // Description:
+  // Internal helper method called by StringToPath
+  template <typename T>
+  bool PopulatePath(vtkTextProperty *tprop, const T& str,
+                    int x, int y, vtkPath *path);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object
@@ -252,6 +267,12 @@ private:
   FT_Bitmap* GetBitmap(FT_UInt32 c, unsigned long prop_cache_id,
                        int prop_font_size, FT_UInt &gindex,
                        FT_BitmapGlyph &bitmap_glyph);
+
+  // Description:
+  // Attempt to get the outline for the specified character.
+  FT_Outline* GetOutline(FT_UInt32 c, unsigned long prop_cache_id,
+                         int prop_font_size, FT_UInt &gindex,
+                         FT_OutlineGlyph &outline_glyph);
 
   // Description:
   // The singleton instance and the singleton cleanup instance

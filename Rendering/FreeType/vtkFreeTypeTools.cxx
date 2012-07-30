@@ -18,6 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkPath.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
 
@@ -464,6 +465,20 @@ bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
 
   // Execute text
   return this->PopulateImageData(tprop, str, x, y, data);
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
+                                    const vtkStdString &str, vtkPath *path)
+{
+  return this->PopulatePath(tprop, str, 0, 0, path);
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
+                                    const vtkUnicodeString &str, vtkPath *path)
+{
+  return this->PopulatePath(tprop, str, 0, 0, path);
 }
 
 //----------------------------------------------------------------------------
@@ -1303,6 +1318,289 @@ bool vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
   return true;
 }
 
+//----------------------------------------------------------------------------
+template <typename T>
+bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
+                                    const T& str,
+                                    int x, int y,
+                                    vtkPath *path)
+{
+  if (!path)
+    {
+    return false;
+    }
+
+  path->Reset();
+
+  // Map the text property to a unique id that will be used as face id, get the
+  // font face and establish whether kerning information is available.
+  unsigned long tprop_cache_id;
+  FT_Face face;
+  bool face_has_kerning = false;
+  if (!this->GetFace(tprop, tprop_cache_id, face, face_has_kerning))
+    {
+    return false;
+    }
+
+  // Text property size and opacity
+  int tprop_font_size = tprop->GetFontSize();
+
+  FT_OutlineGlyph outline_glyph;
+  FT_Outline *outline;
+  FT_UInt gindex, previous_gindex = 0;
+  FT_Vector kerning_delta;
+
+  // The FT_CURVE defines don't really work in a switch...only the first two
+  // bits are meaningful, and the rest appear to be garbage. We'll convert them
+  // into values in the enum below:
+  enum controlType
+    {
+    FIRST_POINT,
+    ON_POINT,
+    CUBIC_POINT,
+    CONIC_POINT
+    };
+
+  // Bounding box for all control points, used for justification
+  double cbox[4] = {VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MIN, VTK_FLOAT_MIN};
+
+  // Render char by char
+  for (typename T::const_iterator it = str.begin(); it != str.end(); ++it)
+    {
+    outline = this->GetOutline(*it, tprop_cache_id, tprop_font_size, gindex,
+                               outline_glyph);
+    if (!outline)
+      {
+      // Glyph not found in the face.
+      continue;
+      }
+
+    if (outline->n_points > 0)
+      {
+      int pen_x = x;
+      int pen_y = y;
+
+      // Add the kerning
+      if (face_has_kerning && previous_gindex && gindex)
+        {
+        FT_Get_Kerning(
+              face, previous_gindex, gindex, ft_kerning_default, &kerning_delta);
+        pen_x += kerning_delta.x >> 6;
+        pen_y += kerning_delta.y >> 6;
+        }
+      previous_gindex = gindex;
+
+      short point = 0;
+      for (short contour = 0; contour < outline->n_contours; ++contour)
+        {
+        short contourEnd = outline->contours[contour];
+        controlType lastTag = FIRST_POINT;
+        controlType contourStartTag;
+        double contourStartVec[2];
+        double lastVec[2];
+        for (; point <= contourEnd; ++point)
+          {
+          FT_Vector ftvec = outline->points[point];
+          char fttag = outline->tags[point];
+          controlType tag;
+          if (fttag & FT_CURVE_TAG_ON)
+            {
+            tag = ON_POINT;
+            }
+          else if (fttag & FT_CURVE_TAG_CUBIC)
+            {
+            tag = CUBIC_POINT;
+            }
+          else if (fttag & FT_CURVE_TAG_CONIC)
+            {
+            tag = CONIC_POINT;
+            }
+
+          double vec[2];
+          vec[0] = ftvec.x / 64.0 + x;
+          vec[1] = ftvec.y / 64.0 + y;
+
+          // Update (control) bounding box
+          if (vec[0] < cbox[0])
+            {
+            cbox[0] = vec[0];
+            }
+          if (vec[1] < cbox[1])
+            {
+            cbox[1] = vec[1];
+            }
+          if (vec[0] > cbox[2])
+            {
+            cbox[2] = vec[0];
+            }
+          if (vec[1] > cbox[3])
+            {
+            cbox[3] = vec[1];
+            }
+
+          // Handle the first point here, unless it is a CONIC point, in which
+          // case the switches below handle it.
+          if (lastTag == FIRST_POINT && tag != CONIC_POINT)
+            {
+            path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::MOVE_TO);
+            lastTag = tag;
+            contourStartTag = tag;
+            lastVec[0] = vec[0];
+            lastVec[1] = vec[1];
+            contourStartVec[0] = vec[0];
+            contourStartVec[1] = vec[1];
+            continue;
+            }
+
+          switch (tag)
+            {
+            case ON_POINT:
+              switch(lastTag)
+                {
+                case ON_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::LINE_TO);
+                  break;
+                case CONIC_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  break;
+                case CUBIC_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CUBIC_CURVE);
+                  break;
+                }
+              break;
+            case CONIC_POINT:
+              switch(lastTag)
+                {
+                case ON_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  break;
+                case CONIC_POINT: {
+                  // Two conic points indicate a virtual "ON" point between
+                  // them. Insert both points.
+                  double virtualOn[2] = {(vec[0] + lastVec[0]) * 0.5,
+                                         (vec[1] + lastVec[1]) * 0.5};
+                  path->InsertNextPoint(virtualOn[0], virtualOn[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  }
+                  break;
+                case FIRST_POINT: {
+                  // The first point in the contour can be a conic control
+                  // point. Use the last point of the contour as the starting
+                  // point. If the last point is a conic point as well, start
+                  // on a virtual point between the two:
+                  FT_Vector lastContourFTVec = outline->points[contourEnd];
+                  double lastContourVec[2] = {lastContourFTVec.x / 64.0 + x,
+                                              lastContourFTVec.y / 64.0 + y};
+                  char lastContourFTTag = outline->tags[contourEnd];
+                  if (lastContourFTTag & FT_CURVE_TAG_CONIC)
+                    {
+                    double virtualOn[2] = {(vec[0] + lastContourVec[0]) * 0.5,
+                                           (vec[1] + lastContourVec[1]) * 0.5};
+                    path->InsertNextPoint(virtualOn[0], virtualOn[1],
+                                          0.0, vtkPath::MOVE_TO);
+                    path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                          vtkPath::CONIC_CURVE);
+                    }
+                  else
+                    {
+                    path->InsertNextPoint(lastContourVec[0], lastContourVec[1],
+                                          0.0, vtkPath::MOVE_TO);
+                    path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                          vtkPath::CONIC_CURVE);
+                    }
+                  }
+                  break;
+                }
+              break;
+            case CUBIC_POINT:
+              switch(lastTag)
+                {
+                case ON_POINT:
+                case CUBIC_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CUBIC_CURVE);
+                  break;
+                }
+              break;
+            } // end switch
+
+          lastTag = tag;
+          lastVec[0] = vec[0];
+          lastVec[1] = vec[1];
+          } // end contour
+
+        // The contours are always implicitly closed to the start point of the
+        // contour:
+        switch (lastTag)
+          {
+          case ON_POINT:
+            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+                                  vtkPath::LINE_TO);
+            break;
+          case CUBIC_POINT:
+            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+                                  vtkPath::CUBIC_CURVE);
+            break;
+          case CONIC_POINT:
+            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+                                  vtkPath::CONIC_CURVE);
+            break;
+          }
+
+        } // end if n_points > 0
+      } // end character iteration
+
+    // Advance to next char
+    x += (outline_glyph->root.advance.x + 0x8000) >> 16;
+    y += (outline_glyph->root.advance.y + 0x8000) >> 16;
+    }
+
+  double delta[2] = {0.0, 0.0};
+
+  // Apply justification:
+  switch (tprop->GetJustification())
+    {
+    default:
+    case VTK_TEXT_LEFT:
+      delta[0] = -cbox[0];
+      break;
+    case VTK_TEXT_CENTERED:
+      delta[0] = -(cbox[2] - cbox[0]) * 0.5;
+      break;
+    case VTK_TEXT_RIGHT:
+      delta[0] = -cbox[2];
+      break;
+    }
+  switch (tprop->GetVerticalJustification())
+    {
+    default:
+    case VTK_TEXT_BOTTOM:
+      delta[1] = -cbox[1];
+      break;
+    case VTK_TEXT_CENTERED:
+      delta[1] = -(cbox[3] - cbox[1]) * 0.5;
+      break;
+    case VTK_TEXT_TOP:
+      delta[1] = -cbox[3];
+    }
+
+  vtkPoints *points = path->GetPoints();
+  for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
+    {
+    double *point = points->GetPoint(i);
+    point[0] += delta[0];
+    point[1] += delta[1];
+    points->SetPoint(i, point);
+    }
+
+  return true;
+}
+
 inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
                                       unsigned long &prop_cache_id,
                                       FT_Face &face, bool &face_has_kerning)
@@ -1349,4 +1647,33 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
     }
 
   return bitmap;
+}
+
+inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
+                                                unsigned long prop_cache_id,
+                                                int prop_font_size,
+                                                FT_UInt &gindex,
+                                                FT_OutlineGlyph &outline_glyph)
+{
+  // Get the glyph index
+  if (!this->GetGlyphIndex(prop_cache_id, c, &gindex))
+    {
+    return 0;
+    }
+  FT_Glyph glyph;
+  // Get the glyph as a outline
+  if (!this->GetGlyph(prop_cache_id,
+                      prop_font_size,
+                      gindex,
+                      &glyph,
+                      vtkFreeTypeTools::GLYPH_REQUEST_OUTLINE) ||
+                        glyph->format != ft_glyph_format_outline)
+    {
+    return 0;
+    }
+
+  outline_glyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
+  FT_Outline *outline= &outline_glyph->outline;
+
+  return outline;
 }

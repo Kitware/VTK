@@ -95,6 +95,7 @@ class vtkPropCollection;
 class vtkProp3DCollection;
 class vtkRendererCollection;
 class vtkTextActor;
+class vtkTextActor3D;
 class vtkTextMapper;
 
 class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
@@ -282,6 +283,7 @@ protected:
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
   void DrawTextActor(vtkTextActor *textAct, vtkRendererCollection *renCol);
+  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRendererCollection *renCol);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
                       vtkRendererCollection *renCol);
   void DrawMathTextActor(vtkMathTextActor *textAct,

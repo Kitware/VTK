@@ -4,6 +4,7 @@ set(GL2PSTests
   TestGL2PSExporterRasterExclusion.cxx
   TestGL2PSExporterVector.cxx
   TestGL2PSExporterVolumeRaster.cxx
+  TestGL2PSTextActor3D.cxx
   TestStackedPlotGL2PS.cxx
 )
 

@@ -24,6 +24,7 @@
 #include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkCoordinate.h"
+#include "vtkFreeTypeTools.h"
 #include "vtkGL2PSContextDevice2D.h"
 #include "vtkGL2PSUtilities.h"
 #include "vtkIntArray.h"
@@ -40,7 +41,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkStdString.h"
 #include "vtkTextActor.h"
+#include "vtkTextActor3D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
@@ -309,6 +312,11 @@ void vtkGL2PSExporter::WriteData()
                vtkMathTextActor3D::SafeDownCast(prop))
         {
         this->DrawMathTextActor3D(textAct, renCol);
+        }
+      else if (vtkTextActor3D *textAct =
+               vtkTextActor3D::SafeDownCast(prop))
+        {
+        this->DrawTextActor3D(textAct, renCol);
         }
       else // Some other prop
         {
@@ -624,6 +632,105 @@ void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct,
     vtkGL2PSUtilities::DrawString(string, tprop, textPos);
     }
   glPopMatrix();
+}
+
+void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
+                                       vtkRendererCollection *renCol)
+{
+  const char *string = textAct->GetInput();
+  vtkNew<vtkTextProperty> tprop;
+  int *winsize = this->RenderWindow->GetSize();
+  tprop->ShallowCopy(textAct->GetTextProperty());
+  tprop->SetJustificationToLeft(); // Ignored by textactor3d
+  tprop->SetVerticalJustificationToBottom(); // Ignored by textactor3d
+
+  // Get path
+  vtkNew<vtkPath> path;
+  vtkFreeTypeTools::GetInstance()->StringToPath(tprop.GetPointer(),
+                                                vtkStdString(string),
+                                                path.GetPointer());
+
+  // Extract gl transform info
+  vtkMatrix4x4 *actorMatrix = textAct->GetMatrix();
+  vtkNew<vtkMatrix4x4> projectionMatrix;
+  vtkNew<vtkMatrix4x4> modelviewMatrix;
+  vtkNew<vtkMatrix4x4> transformMatrix;
+  double glMatrix[16];
+  double viewport[4];
+  double depthRange[2];
+
+  double *textBounds = textAct->GetBounds();
+  double rasterPos[3] = {(textBounds[1] + textBounds[0]) * 0.5,
+                         (textBounds[3] + textBounds[2]) * 0.5,
+                         (textBounds[5] + textBounds[4]) * 0.5};
+
+  double scale[2] = {1.0, 1.0};
+  double *dcolor = tprop->GetColor();
+  unsigned char color[3] = {static_cast<unsigned char>(dcolor[0]*255),
+                            static_cast<unsigned char>(dcolor[1]*255),
+                            static_cast<unsigned char>(dcolor[2]*255)};
+  double winsized[2] = {static_cast<double>(winsize[0]),
+                        static_cast<double>(winsize[1])};
+
+  vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
+  for (renCol->InitTraversal();vtkRenderer *ren = renCol->GetNextItem();)
+    {
+    // Setup gl matrices
+    ren->GetActiveCamera()->Render(ren);
+
+    // Build transformation matrix
+    glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
+    projectionMatrix->DeepCopy(glMatrix);
+    projectionMatrix->Transpose();
+    glGetDoublev(GL_MODELVIEW_MATRIX, glMatrix);
+    modelviewMatrix->DeepCopy(glMatrix);
+    modelviewMatrix->Transpose();
+    vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
+                              modelviewMatrix.GetPointer(),
+                              transformMatrix.GetPointer());
+    vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
+                              actorMatrix,
+                              transformMatrix.GetPointer());
+
+    glGetDoublev(GL_VIEWPORT, viewport);
+    glGetDoublev(GL_DEPTH_RANGE, depthRange);
+    const double halfWidth = viewport[2] * 0.5;
+    const double halfHeight = viewport[3] * 0.5;
+    const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
+    const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
+
+    vtkNew<vtkPoints> newPoints;
+    newPoints->DeepCopy(origPoints);
+    double point[4];
+    double translation[2] = {0.0, 0.0};
+    for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
+      {
+      newPoints->GetPoint(i, point);
+      point[3] = 1.0;
+      // Convert path to clip coordinates:
+      // <out point> = [projection] [modelview] [actor matrix] <in point>
+      transformMatrix->MultiplyPoint(point, point);
+      // Clip to NDC
+      const double invW = 1.0 / point[3];
+      point[0] *= invW;
+      point[1] *= invW;
+      point[2] *= invW;
+      // NDC to device:
+      point[0] = point[0] * halfWidth + viewport[0] + halfWidth;
+      point[1] = point[1] * halfHeight + viewport[1] + halfHeight;
+      point[2] = point[2] * zFactor1 + zFactor2;
+      newPoints->SetPoint(i, point);
+      }
+
+    path->SetPoints(newPoints.GetPointer());
+
+    vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
+                                translation, scale, 0.0, color);
+    glMatrixMode(GL_PROJECTION_MATRIX);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW_MATRIX);
+    glPopMatrix();
+    }
 }
 
 
