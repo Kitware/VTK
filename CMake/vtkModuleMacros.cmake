@@ -256,6 +256,7 @@ endmacro()
 macro(vtk_target_export _name)
   if(NOT VTK_INSTALL_NO_LIBRARIES)
     set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
+    export(TARGETS ${_name} APPEND FILE ${VTK_EXPORTS_FILE})
   endif()
 endmacro()
 
