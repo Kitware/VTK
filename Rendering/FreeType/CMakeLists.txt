@@ -1,11 +1,15 @@
 find_package(FontConfig QUIET)
 
 option(VTK_USE_FONTCONFIG
-  "Enable system font support through FontConfig (if found)"
+  "Enable system font support through FontConfig"
   ${FONTCONFIG_FOUND}
   )
 
-if(FONTCONFIG_FOUND AND VTK_USE_FONTCONFIG)
+if (VTK_USE_FONTCONFIG AND NOT FONTCONFIG_FOUND)
+  message(SEND_ERROR "VTK_USE_FONTCONFIG is enabled but FontConfig was not found.  Please set FONTCONFIG_INCLUDE_DIR and FONTCONFIG_LIBRARY.")
+endif()
+
+if(VTK_USE_FONTCONFIG)
   include_directories(${FONTCONFIG_INCLUDE_DIR})
 endif()
 
@@ -50,14 +54,14 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-if(FONTCONFIG_FOUND AND VTK_USE_FONTCONFIG)
+if(VTK_USE_FONTCONFIG)
   set_property(SOURCE vtkFreeTypeTools.cxx
                PROPERTY COMPILE_DEFINITIONS FONTCONFIG_FOUND)
 endif()
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 
-if(FONTCONFIG_FOUND AND VTK_USE_FONTCONFIG)
+if(VTK_USE_FONTCONFIG)
   target_link_libraries(${vtk-module} ${FONTCONFIG_LIBRARIES})
 endif()
 
