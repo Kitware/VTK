@@ -66,7 +66,7 @@ vtkGraphItem::~vtkGraphItem()
     }
 }
 
-vtkColor4ub vtkGraphItem::VertexColor(vtkIdType item)
+vtkColor4ub vtkGraphItem::VertexColor(vtkIdType vtkNotUsed(item))
 {
   return vtkColor4ub(128, 128, 128, 255);
 }
@@ -77,17 +77,17 @@ vtkVector2f vtkGraphItem::VertexPosition(vtkIdType item)
   return vtkVector2f(static_cast<float>(p[0]), static_cast<float>(p[1]));
 }
 
-float vtkGraphItem::VertexSize(vtkIdType item)
+float vtkGraphItem::VertexSize(vtkIdType vtkNotUsed(item))
 {
   return 10.0f;
 }
 
-int vtkGraphItem::VertexMarker(vtkIdType item)
+int vtkGraphItem::VertexMarker(vtkIdType vtkNotUsed(item))
 {
   return vtkMarkerUtilities::CIRCLE;
 }
 
-vtkColor4ub vtkGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType point)
+vtkColor4ub vtkGraphItem::EdgeColor(vtkIdType vtkNotUsed(edgeIdx), vtkIdType vtkNotUsed(point))
 {
   return vtkColor4ub(0, 0, 0, 255);
 }
@@ -112,7 +112,7 @@ vtkVector2f vtkGraphItem::EdgePosition(vtkIdType edgeIdx, vtkIdType point)
   return vtkVector2f(static_cast<float>(p[0]), static_cast<float>(p[1]));
 }
 
-float vtkGraphItem::EdgeWidth(vtkIdType line, vtkIdType point)
+float vtkGraphItem::EdgeWidth(vtkIdType vtkNotUsed(line), vtkIdType vtkNotUsed(point))
 {
   return 0.0f;
 }
