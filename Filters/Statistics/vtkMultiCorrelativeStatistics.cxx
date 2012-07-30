@@ -502,7 +502,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   // Create an output table for each request and fill it in using the mucov array (the first table in
   // outMeta and which is presumed to exist upon entry to Derive).
   // Note that these tables are normalized by the number of samples.
-  outMeta->SetNumberOfBlocks( 1 + static_cast<int>( this->Internals->Requests.size() ) );
+  outMeta->SetNumberOfBlocks( 1 + static_cast<unsigned int>( this->Internals->Requests.size() ) );
   // For each request:
   i = 0;
   double scale = 1. / ( n - 1 ); // n -1 for unbiased variance estimators
@@ -539,7 +539,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
           reqNameStr << "," << *colIt;
           }
         }
-      }
+      } // colIt
     reqNameStr << ")";
     covCols.push_back( colAvgs );
     colNames->InsertNextValue( "Cholesky" ); // Need extra row for lower-triangular Cholesky decomposition
@@ -565,7 +565,8 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
       x = (*arrIt)->GetPointer( 0 );
       covPtrs.push_back( x );
       if ( *arrIt != colAvgs )
-        { // column is part of covariance matrix
+        {
+        // Column is part of covariance matrix
         covariance->AddColumn( *arrIt );
         (*arrIt)->Delete();
         for ( vtkIdType k = 0; k <= j; ++ k, ++ x )
@@ -573,17 +574,18 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
           *x = rv[colPairs[vtksys_stl::pair<vtkIdType,vtkIdType>( covIdxs[k], covIdxs[j] )]] * scale;
           }
         }
-      else
-        { // column holds averages
+      else // if ( *arrIt != colAvgs )
+        { 
+        // Column holds averages
         for ( vtkIdType k = 0; k < reqCovSize - 1; ++ k, ++ x )
           {
           *x = rv[covIdxs[k]];
           }
         *x = static_cast<double>( n );
         }
-      }
+      } // arrIt, j
     vtkMultiCorrelativeCholesky( covPtrs, reqCovSize - 1 );
-    }
+    } //  reqIt, i
 }
 
 // ----------------------------------------------------------------------
