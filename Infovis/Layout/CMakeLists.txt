@@ -24,6 +24,7 @@ set(Module_SRCS
   vtkGeoMath.cxx
   vtkGraphLayout.cxx
   vtkGraphLayoutStrategy.cxx
+  vtkIncrementalForceLayout.cxx
   vtkPassThroughEdgeStrategy.cxx
   vtkPassThroughLayoutStrategy.cxx
   vtkPerturbCoincidentVertices.cxx
