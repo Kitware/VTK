@@ -15,12 +15,13 @@
 
 /* Minimal main program -- everything is loaded from the library */
 
+#include "vtkPython.h"
+
 #ifdef VTK_COMPILED_USING_MPI
 # include <mpi.h>
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
-#include "vtkPython.h"
 #include "vtkVersion.h"
 #include "vtkPythonAppInitConfigure.h"
 

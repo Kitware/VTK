@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkMathTextUtilities.h"
-
 #include "vtkPython.h"
+
+#include "vtkMathTextUtilities.h"
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"

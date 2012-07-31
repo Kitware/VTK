@@ -55,15 +55,18 @@
 # endif
 #endif
 
-/* Undefine macros that Python.h defines to avoid redefinition warning.  */
-#undef _POSIX_THREADS
-#if VTK_PYTHON_VERSION_HEX >= 0x02020000
-#undef _LARGEFILE_SOURCE
-#endif
-#if VTK_PYTHON_VERSION_HEX >= 0x02030000
-#undef _POSIX_C_SOURCE
-#undef _XOPEN_SOURCE
-#endif
+/* We used to try to #undef feature macros that Python.h defines
+to avoid re-definition warnings.  However, such warnings usually
+indicate a violation of Python's documented inclusion policy:
+
+ "Since Python may define some pre-processor definitions which
+  affect the standard headers on some systems, you must include
+  Python.h before any standard headers are included."
+ (http://docs.python.org/c-api/intro.html#include-files)
+
+To avoid re-definitions warnings, ensure "vtkPython.h" is included
+before _any_ headers that define feature macros, whether or not
+they are system headers.  Do NOT add any #undef lines here.  */
 
 #include <Python.h>
 
