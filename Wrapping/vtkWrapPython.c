@@ -4885,14 +4885,6 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
             "#define VTK_STREAMS_FWD_ONLY\n");
     }
 
-  /* include vtkPython.h on all platforms but apple */
-  fprintf(fp,
-          "#if !defined(__APPLE__)\n"
-          "#include \"vtkPython.h\"\n"
-          "#undef _XOPEN_SOURCE /* Conflicts with standards.h.  */\n"
-          "#undef _THREAD_SAFE /* Conflicts with pthread.h.  */\n"
-          "#endif\n");
-
   /* lots of important utility functions are defined in vtkPythonArgs.h */
   fprintf(fp,
           "#include \"vtkPythonArgs.h\"\n"
