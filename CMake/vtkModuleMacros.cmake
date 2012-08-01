@@ -239,6 +239,9 @@ macro(vtk_target_label _target_name)
   set_property(TARGET ${_target_name} PROPERTY LABELS ${_label})
 endmacro()
 
+# This macro does some basic checking for library naming, and also adds a suffix
+# to the output name with the VTK version by default. Setting the variable
+# VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
 macro(vtk_target_name _name)
   set_property(TARGET ${_name} PROPERTY VERSION 1)
   set_property(TARGET ${_name} PROPERTY SOVERSION 1)
@@ -248,7 +251,14 @@ macro(vtk_target_name _name)
     set(_vtk "vtk")
     #message(AUTHOR_WARNING "Target [${_name}] does not start in 'vtk'.")
   endif()
-  set_property(TARGET ${_name} PROPERTY OUTPUT_NAME ${_vtk}${_name}-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
+  # Support custom library suffix names, for other projects wanting to inject
+  # their own version numbers etc.
+  if(DEFINED VTK_CUSTOM_LIBRARY_SUFFIX)
+    set(_lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+  else()
+    set(_lib_suffix "-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+  endif()
+  set_property(TARGET ${_name} PROPERTY OUTPUT_NAME ${_vtk}${_name}${_lib_suffix})
 endmacro()
 
 macro(vtk_target_export _name)
