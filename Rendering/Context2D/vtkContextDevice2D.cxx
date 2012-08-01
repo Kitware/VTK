@@ -44,7 +44,7 @@ vtkContextDevice2D::~vtkContextDevice2D()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextDevice2D::MathTextIsAvailable()
+bool vtkContextDevice2D::MathTextIsSupported()
 {
   return vtkMathTextUtilities::GetInstance() != NULL;
 }

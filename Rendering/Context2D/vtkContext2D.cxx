@@ -653,7 +653,7 @@ void vtkContext2D::DrawMathTextString(vtkPoints2D *point,
                                       const vtkStdString &string,
                                       const vtkStdString &fallback)
 {
-  if (this->Device->MathTextIsAvailable())
+  if (this->Device->MathTextIsSupported())
     {
     this->DrawMathTextString(point, string);
     }
@@ -668,7 +668,7 @@ void vtkContext2D::DrawMathTextString(float x, float y,
                                       const vtkStdString &string,
                                       const vtkStdString &fallback)
 {
-  if (this->Device->MathTextIsAvailable())
+  if (this->Device->MathTextIsSupported())
     {
     this->DrawMathTextString(x, y, string);
     }
@@ -682,7 +682,7 @@ void vtkContext2D::DrawMathTextString(float x, float y,
 void vtkContext2D::DrawMathTextString(vtkPoints2D *point, const char *string,
                                       const char *fallback)
 {
-  if (this->Device->MathTextIsAvailable())
+  if (this->Device->MathTextIsSupported())
     {
     this->DrawMathTextString(point, string);
     }
@@ -696,7 +696,7 @@ void vtkContext2D::DrawMathTextString(vtkPoints2D *point, const char *string,
 void vtkContext2D::DrawMathTextString(float x, float y, const char *string,
                                       const char *fallback)
 {
-  if (this->Device->MathTextIsAvailable())
+  if (this->Device->MathTextIsSupported())
     {
     this->DrawMathTextString(x, y, string);
     }
@@ -704,6 +704,12 @@ void vtkContext2D::DrawMathTextString(float x, float y, const char *string,
     {
     this->DrawString(x, y, fallback);
     }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkContext2D::MathTextIsSupported()
+{
+  return this->Device->MathTextIsSupported();
 }
 
 //-----------------------------------------------------------------------------

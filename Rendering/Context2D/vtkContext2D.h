@@ -316,6 +316,11 @@ public:
   void DrawMathTextString(float x, float y, const char *string,
                           const char *fallback);
 
+
+  // Description:
+  // Return true if MathText rendering available on the current device.
+  bool MathTextIsSupported();
+
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkPen

@@ -45,6 +45,11 @@ public:
   static vtkMathTextActor *New();
 
   // Description:
+  // Returns true if MathText is available on this build of VTK. If false,
+  // this actor will not function.
+  bool IsSupported();
+
+  // Description:
   // Shallow copy of this actor.
   void ShallowCopy(vtkProp *prop);
 

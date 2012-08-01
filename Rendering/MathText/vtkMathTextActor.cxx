@@ -35,6 +35,12 @@
 vtkStandardNewMacro(vtkMathTextActor);
 
 // ----------------------------------------------------------------------------
+bool vtkMathTextActor::IsSupported()
+{
+  return vtkMathTextUtilities::GetInstance() != NULL;
+}
+
+// ----------------------------------------------------------------------------
 vtkMathTextActor::vtkMathTextActor()
 {
   // Copied from vtkTextActor:

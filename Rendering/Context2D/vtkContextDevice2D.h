@@ -137,7 +137,7 @@ public:
 
   // Description:
   // Return true if MathText rendering available on this device.
-  virtual bool MathTextIsAvailable();
+  virtual bool MathTextIsSupported();
 
   // Description:
   // Draw the supplied image at the given x, y (p[0], p[1]) (bottom corner),

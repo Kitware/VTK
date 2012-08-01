@@ -46,6 +46,12 @@ vtkMathTextActor3D::~vtkMathTextActor3D()
 }
 
 // --------------------------------------------------------------------------
+bool vtkMathTextActor3D::IsSupported()
+{
+  return vtkMathTextUtilities::GetInstance() != NULL;
+}
+
+// --------------------------------------------------------------------------
 void vtkMathTextActor3D::ShallowCopy(vtkProp *prop)
 {
   vtkMathTextActor3D *a = vtkMathTextActor3D::SafeDownCast(prop);

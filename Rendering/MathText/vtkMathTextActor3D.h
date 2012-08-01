@@ -45,6 +45,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Returns true if MathText is available on this build of VTK. If false,
+  // this actor will not function.
+  bool IsSupported();
+
+  // Description:
   // Set the text string to be displayed.
   vtkSetStringMacro(Input)
   vtkGetStringMacro(Input)
