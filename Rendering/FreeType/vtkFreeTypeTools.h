@@ -138,27 +138,23 @@ public:
   // Description:
   // Force use of the fonts compiled into VTK, ignoring any FontConfig or
   // embedded fonts. Useful for generating test images consistently across
-  // platforms.
+  // platforms. This flag is on by default.
   vtkSetMacro(ForceCompiledFonts, bool);
   vtkGetMacro(ForceCompiledFonts, bool);
   vtkBooleanMacro(ForceCompiledFonts, bool);
 
   // Description:
   // Lookup and set the FreeType font face @a face best matching the text
-  // property @a tprop using FontConfig to query the installed system fonts.
-  // Returns true if the face is set, false otherwise.
-  static bool LookupFaceFontConfig(vtkTextProperty *tprop, FT_Library lib,
-                                   FT_Face *face);
-
-  // Description:
-  // Lookup and set the FreeType font face @a face best matching the text
   // property @a tprop using the compiled Arial, Times, and Courier fonts. If
   // an unrecognized font family is requested, Arial will be substituted.
   // Returns true if the face is set, false otherwise.
-  static bool LookupFaceCompiledFonts(vtkTextProperty *tprop, FT_Library lib,
-                                      FT_Face *face);
+  static bool LookupFace(vtkTextProperty *tprop, FT_Library lib, FT_Face *face);
 
 protected:
+  // Description:
+  // Create the FreeType Cache manager instance and set this->CacheManager
+  virtual FT_Error CreateFTCManager();
+
   // Description:
   // This function initializes calculates the size of the required bounding box.
   template <typename T>
@@ -238,10 +234,6 @@ protected:
   vtkFreeTypeTools();
   virtual ~vtkFreeTypeTools();
 
-private:
-  vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
-  void operator=(const vtkFreeTypeTools&);  // Not implemented.
-
   // Description:
   // Attempt to get the typeface of the specified font.
   bool GetFace(vtkTextProperty *prop, unsigned long &prop_cache_id,
@@ -282,6 +274,10 @@ private:
 
   void InitializeCacheManager();
   void ReleaseCacheManager();
+
+private:
+  vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
+  void operator=(const vtkFreeTypeTools&);  // Not implemented.
 };
 
 #endif
