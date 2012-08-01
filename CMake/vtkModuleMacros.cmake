@@ -243,8 +243,11 @@ endmacro()
 # to the output name with the VTK version by default. Setting the variable
 # VTK_CUSTOM_LIBRARY_SUFFIX will override the suffix.
 macro(vtk_target_name _name)
-  set_property(TARGET ${_name} PROPERTY VERSION 1)
-  set_property(TARGET ${_name} PROPERTY SOVERSION 1)
+  get_property(_type TARGET ${_name} PROPERTY TYPE)
+  if(NOT "${_type}" STREQUAL EXECUTABLE)
+    set_property(TARGET ${_name} PROPERTY VERSION 1)
+    set_property(TARGET ${_name} PROPERTY SOVERSION 1)
+  endif()
   if("${_name}" MATCHES "^[Vv][Tt][Kk]")
     set(_vtk "")
   else()

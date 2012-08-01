@@ -49,8 +49,9 @@ set(${vtk-module}_NO_HeaderTest 1)
 
 set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
 vtk_module_library(vtkWrappingPython ${WrappingPython_SRCS})
-set_target_properties(vtkWrappingPython
-  PROPERTIES OUTPUT_NAME vtkWrappingPython${XY})
+get_property(output_name TARGET vtkWrappingPython PROPERTY OUTPUT_NAME)
+string(REPLACE "Python" "Python${XY}" output_name "${output_name}")
+set_property(TARGET vtkWrappingPython PROPERTY OUTPUT_NAME ${output_name})
 target_link_libraries(vtkWrappingPython
   ${VTK_PYTHON_LIBRARIES})
 target_link_libraries(vtkWrappingPython
