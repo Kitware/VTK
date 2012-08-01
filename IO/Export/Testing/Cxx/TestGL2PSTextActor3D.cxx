@@ -103,4 +103,6 @@ int TestGL2PSTextActor3D(int, char *[])
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
   win->GetInteractor()->Start();
+
+  return EXIT_SUCCESS;
 }
