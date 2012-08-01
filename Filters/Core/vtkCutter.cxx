@@ -170,6 +170,7 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   this->SynchronizedTemplates3D->SetInputData(contourData);
   this->SynchronizedTemplates3D->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
   for (i = 0; i < numContours; i++)
     {
     this->SynchronizedTemplates3D->SetValue(i, this->GetValue(i));
@@ -230,6 +231,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   this->GridSynchronizedTemplates->SetInputData(contourData);
   this->GridSynchronizedTemplates->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
   for (i = 0; i < numContours; i++)
     {
     this->GridSynchronizedTemplates->SetValue(i, this->GetValue(i));
@@ -287,6 +289,7 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   this->RectilinearSynchronizedTemplates->SetInputData(contourData);
   this->RectilinearSynchronizedTemplates->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  this->RectilinearSynchronizedTemplates->SetNumberOfContours(numContours);
   for (i = 0; i < numContours; i++)
     {
     this->RectilinearSynchronizedTemplates->SetValue(i, this->GetValue(i));
@@ -330,7 +333,7 @@ int vtkCutter::RequestData(
     return 0;
     }
 
-  if ( input->GetNumberOfPoints() < 1 )
+  if ( input->GetNumberOfPoints() < 1 || this->GetNumberOfContours() < 1 )
     {
     return 1;
     }
