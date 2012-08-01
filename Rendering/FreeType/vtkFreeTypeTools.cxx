@@ -471,14 +471,14 @@ bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
 bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
                                     const vtkStdString &str, vtkPath *path)
 {
-  return this->PopulatePath(tprop, str, 0, 0, path);
+  return this->PopulatePath<vtkStdString>(tprop, str, 0, 0, path);
 }
 
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
                                     const vtkUnicodeString &str, vtkPath *path)
 {
-  return this->PopulatePath(tprop, str, 0, 0, path);
+  return this->PopulatePath<vtkUnicodeString>(tprop, str, 0, 0, path);
 }
 
 //----------------------------------------------------------------------------
@@ -1468,6 +1468,9 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
                   path->InsertNextPoint(vec[0], vec[1], 0.0,
                                         vtkPath::CUBIC_CURVE);
                   break;
+                case FIRST_POINT:
+                default:
+                  break;
                 }
               break;
             case CONIC_POINT:
@@ -1515,6 +1518,9 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
                     }
                   }
                   break;
+                case CUBIC_POINT:
+                default:
+                  break;
                 }
               break;
             case CUBIC_POINT:
@@ -1525,7 +1531,14 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
                   path->InsertNextPoint(vec[0], vec[1], 0.0,
                                         vtkPath::CUBIC_CURVE);
                   break;
+                case CONIC_POINT:
+                case FIRST_POINT:
+                default:
+                  break;
                 }
+              break;
+            case FIRST_POINT:
+            default:
               break;
             } // end switch
 
@@ -1549,6 +1562,9 @@ bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
           case CONIC_POINT:
             path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
                                   vtkPath::CONIC_CURVE);
+            break;
+          case FIRST_POINT:
+          default:
             break;
           }
 

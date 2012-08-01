@@ -46,7 +46,7 @@ protected:
 };
 
 //----------------------------------------------------------------------------
-int TestFTStringToPath(int argc, char *argv[])
+int TestFTStringToPath(int , char *[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
