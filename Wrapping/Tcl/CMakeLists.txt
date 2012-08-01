@@ -231,13 +231,13 @@ set(VTK_TCL_CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES})
 
 if(VTK_TCL_CONFIGURATION_TYPES)
   foreach(config ${VTK_TCL_CONFIGURATION_TYPES})
-    set(VTK_TCL_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}/${config}")
+    set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${config}")
     configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                    ${VTK_BINARY_DIR}/Wrapping/Tcl/${config}/pkgIndex.tcl
                    @ONLY IMMEDIATE)
   endforeach()
 else()
-  set(VTK_TCL_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}")
+  set(VTK_TCL_LIBRARY_DIR "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
   configure_file(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                  ${VTK_BINARY_DIR}/Wrapping/Tcl/pkgIndex.tcl
                  @ONLY IMMEDIATE)

@@ -57,16 +57,18 @@ modules.
       the `Wrapping/Python` directory.  Under bash/sh something like
       so needs to be done::
 
-        $ export LD_LIBRARY_PATH=$LIBRARY_OUTPUT_PATH
-        $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:${LIBRARY_OUTPUT_PATH}
+        $ export LD_LIBRARY_PATH=$CMAKE_LIBRARY_OUTPUT_DIRECTORY
+        $ export
+PYTHONPATH=$VTK_ROOT/Wrapping/Python:${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 
       and under csh::
 
-        $ setenv LD_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH}
-        $ setenv PYTHONPATH ${VTK_ROOT}/Wrapping/Python:${LIBRARY_OUTPUT_PATH}
+        $ setenv LD_LIBRARY_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+        $ setenv PYTHONPATH
+${VTK_ROOT}/Wrapping/Python:${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 
       where VTK_ROOT is the directory where VTK is being built
-      (`VTK_BINARY_DIR`) and `LIBRARY_OUTPUT_PATH` (this variable is
+      (`VTK_BINARY_DIR`) and `CMAKE_LIBRARY_OUTPUT_DIRECTORY` (this variable is
       set in `CMakeCache.txt`) is where the libraries are built.
       Change this to suit your configuration.
 
@@ -75,7 +77,7 @@ modules.
       directory that contains the VTK DLL's and the `PYTHONPATH` to
       the directory that contains the Wrapping/Python directory and
       the DLL's.  Note that under Win32 the directory containing the
-      DLL's is in a sub-directory of `LIBRARY_OUTPUT_PATH`.  The
+      DLL's is in a sub-directory of `CMAKE_LIBRARY_OUTPUT_DIRECTORY`.  The
       sub-directory is one of Release, Debug, MinSizeRel or
       RelWithDebInfo.
 
