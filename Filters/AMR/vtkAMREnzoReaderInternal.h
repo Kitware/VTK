@@ -23,11 +23,11 @@
 #ifndef VTKAMRENZOREADERINTERNAL_HPP_
 #define VTKAMRENZOREADERINTERNAL_HPP_
 
+#include "vtksys/SystemTools.hxx"
+
 #include <vector> // for STL vector
 #include <string> // for STL string
 #include <cassert>       // for assert()
-
-#include "vtksys/SystemTools.hxx"
 
 class vtkDataArray;
 class vtkDataSet;
