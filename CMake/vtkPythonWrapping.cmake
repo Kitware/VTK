@@ -40,8 +40,9 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
 
   vtk_wrap_python3(${module_name}Python Python_SRCS "${_wrap_files}")
   vtk_add_library(${module_name}PythonD ${Python_SRCS} ${extra_srcs})
-  set_target_properties(${module_name}PythonD
-    PROPERTIES OUTPUT_NAME ${module_name}Python${XY}D)
+  get_property(output_name TARGET ${module_name}PythonD PROPERTY OUTPUT_NAME)
+  string(REPLACE "PythonD" "Python${XY}D" output_name "${output_name}")
+  set_property(TARGET ${module_name}PythonD PROPERTY OUTPUT_NAME ${output_name})
   if(CMAKE_HAS_TARGET_INCLUDES)
     set_property(TARGET ${module_name}PythonD APPEND
       PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
