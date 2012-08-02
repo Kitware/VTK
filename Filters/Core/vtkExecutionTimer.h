@@ -1,11 +1,17 @@
-/*
- * Copyright 2012 Sandia Corporation.
- * Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
- * license for use of this work by or on behalf of the
- * U.S. Government. Redistribution and use in source and binary forms, with
- * or without modification, are permitted provided that this Notice and any
- * statement of authorship are reproduced on all copies.
- */
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkAppendFilter.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 
 // .NAME vtkExecutionTimer - Time filter execution
 //
@@ -33,22 +39,45 @@ class VTKFILTERSCORE_EXPORT vtkExecutionTimer : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutionTimer, vtkObject);
-  static vtkExecutionTimer* New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Construct a new timer with no attached filter.  Use SetFilter()
+  // to specify the vtkAlgorithm whose execution you want to time.
+  static vtkExecutionTimer* New();
+
+  // Description:
+  // Set/get the filter to be monitored.  The only real constraint
+  // here is that the vtkExecutive associated with the filter must
+  // fire StartEvent and EndEvent before and after the filter is
+  // executed.  All VTK executives should do this.
   void SetFilter(vtkAlgorithm* filter);
   vtkGetObjectMacro(Filter, vtkAlgorithm);
 
+  // Description:
+  // Get the total CPU time (in seconds) that elapsed between
+  // StartEvent and EndEvent.  This is undefined before the filter has
+  // finished executing.
   vtkGetMacro(ElapsedCPUTime, double);
+
+  // Description:
+  // Get the total wall clock time (in seconds) that elapsed between
+  // StartEvent and EndEvent.  This is undefined before the filter has
+  // finished executing.
   vtkGetMacro(ElapsedWallClockTime, double);
 
 protected:
   vtkExecutionTimer();
   ~vtkExecutionTimer();
 
+  // This is the observer that will catch StartEvent and hand off to
+  // EventRelay
   vtkCallbackCommand* Callback;
+
+  // This is the filter that will be timed
   vtkAlgorithm* Filter;
 
+  // These are where we keep track of the timestamps for start/end
   double CPUStartTime;
   double CPUEndTime;
 
@@ -58,6 +87,10 @@ protected:
   double ElapsedCPUTime;
   double ElapsedWallClockTime;
 
+  // Description:
+  // Convenience functions -- StartTimer clears out the elapsed times
+  // and records start times; StopTimer records end times and computes
+  // the elapsed time
   void StartTimer();
   void StopTimer();
 

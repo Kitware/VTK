@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestAppendPolyData.cxx
+  Module:    TestExecutionTimer.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,52 +13,59 @@
 
 =========================================================================*/
 
-#include <vtkAppendPolyData.h>
-#include <vtkCellArray.h>
-#include <vtkExecutionTimer.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
-#include <vtkXMLPolyDataWriter.h>
 
-//
-// This test uses the guts of TestAppendPolyData.  I just attach a
-// vtkExecutionTimer to vtkAppendPolyData so that I can watch
+// This test uses the guts of TestDelaunay2D.  I just attach a
+// vtkExecutionTimer to vtkDelaunay2D so that I can watch
 // something non-trivial.
 
-int TestExecutionTimer(int, char *[])
+#include "vtkCellArray.h"
+#include "vtkDelaunay2D.h"
+#include "vtkExecutionTimer.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
+
+#include <cstdlib>
+
+int TestExecutionTimer( int argc, char* argv[] )
 {
-  vtkSmartPointer<vtkPoints> points1 = vtkSmartPointer<vtkPoints>::New();
-  points1->InsertNextPoint(0,0,0);
-  points1->InsertNextPoint(1,1,1);
+  vtkPoints *newPts = vtkPoints::New();
+  newPts->InsertNextPoint(  1.5026018771810041,  1.5026019428618222, 0.0 );
+  newPts->InsertNextPoint( -1.5026020085426373,  1.5026018115001829, 0.0 );
+  newPts->InsertNextPoint( -1.5026018353814194, -1.5026019846614038, 0.0 );
+  newPts->InsertNextPoint(  1.5026019189805875, -1.5026019010622396, 0.0 );
+  newPts->InsertNextPoint(  5.2149123972752491,  5.2149126252263240, 0.0 );
+  newPts->InsertNextPoint( -5.2149128531773883,  5.2149121693241645, 0.0 );
+  newPts->InsertNextPoint( -5.2149122522061022, -5.2149127702954603, 0.0 );
+  newPts->InsertNextPoint(  5.2149125423443916, -5.2149124801571842, 0.0 );
+  newPts->InsertNextPoint(  8.9272229173694946,  8.9272233075908254, 0.0 );
+  newPts->InsertNextPoint( -8.9272236978121402,  8.9272225271481460, 0.0 );
+  newPts->InsertNextPoint( -8.9272226690307868, -8.9272235559295172, 0.0 );
+  newPts->InsertNextPoint(  8.9272231657081953, -8.9272230592521282, 0.0 );
+  newPts->InsertNextPoint(  12.639533437463740,  12.639533989955329, 0.0 );
+  newPts->InsertNextPoint( -12.639534542446890,  12.639532884972127, 0.0 );
+  newPts->InsertNextPoint( -12.639533085855469, -12.639534341563573, 0.0 );
+  newPts->InsertNextPoint(  12.639533789072001, -12.639533638347073, 0.0 );
 
-  vtkSmartPointer<vtkPoints> points2 = vtkSmartPointer<vtkPoints>::New();
-  vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
-  vtkIdType pid[1];
-  pid[0] = points2->InsertNextPoint(5,5,5);
-  vertices->InsertNextCell ( 1,pid );
-  pid[0] = points2->InsertNextPoint(6,6,6);
-  vertices->InsertNextCell ( 1,pid );
+  vtkIdType inNumPts = newPts->GetNumberOfPoints();
+  vtkPolyData *pointCloud = vtkPolyData::New();
+  pointCloud->SetPoints(newPts);
+  newPts->Delete();
 
-  vtkSmartPointer<vtkPolyData> polydata1 = vtkSmartPointer<vtkPolyData>::New();
-  polydata1->SetPoints(points1);
-  polydata1->SetVerts(vertices);
-
-  vtkSmartPointer<vtkPolyData> polydata2 = vtkSmartPointer<vtkPolyData>::New();
-  polydata2->SetPoints(points2);
-
-  vtkSmartPointer<vtkAppendPolyData> appendFilter = vtkSmartPointer<vtkAppendPolyData>::New();
-  appendFilter->AddInputData(polydata1);
-  appendFilter->AddInputData(polydata2);
+  vtkDelaunay2D *delaunay2D = vtkDelaunay2D::New();
+  delaunay2D->SetInputData( pointCloud );
+  pointCloud->Delete();
 
   vtkSmartPointer<vtkExecutionTimer> timer = vtkSmartPointer<vtkExecutionTimer>::New();
-  timer->SetFilter(appendFilter);
-  appendFilter->Update();
+  timer->SetFilter(delaunay2D);
 
-  std::cout << "TestExecutionTimer: Filter under inspection (vtkAppendPolyData)\n"
-            << "took " << timer->GetElapsedCPUTime() << " seconds of CPU time \n"
-            << "and " << timer->GetElapsedWallClockTime() << " seconds of wall "
-            << "clock time to execute.\n";
+  delaunay2D->Update();
+
+  std::cout << "TestExecutionTimer: Filter under inspection ("
+            << timer->GetFilter()->GetClassName() << ") execution time: "
+            << std::fixed << std::setprecision(8)
+            << timer->GetElapsedCPUTime() << " sec (CPU), "
+            << timer->GetElapsedWallClockTime() << " sec (wall clock)\n";
 
   // As long as the thing executes without crashing, the test is
   // successful.
