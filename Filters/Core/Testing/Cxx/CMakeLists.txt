@@ -8,6 +8,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestCenterOfMass.cxx
   TestDecimatePolylineFilter.cxx
   TestDelaunay2D.cxx
+  TestExecutionTimer.cxx
   TestGlyph3D.cxx
   TestImplicitPolyDataDistance.cxx
 
