@@ -18,9 +18,10 @@
 // vtkExecutionTimer to vtkDelaunay2D so that I can watch
 // something non-trivial.
 
+#include "vtkExecutionTimer.h"
+
 #include "vtkCellArray.h"
 #include "vtkDelaunay2D.h"
-#include "vtkExecutionTimer.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
