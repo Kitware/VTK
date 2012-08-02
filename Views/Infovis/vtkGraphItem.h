@@ -34,6 +34,8 @@
 
 class vtkGraph;
 class vtkImageData;
+class vtkIncrementalForceLayout;
+class vtkRenderWindowInteractor;
 
 class VTKVIEWSINFOVIS_EXPORT vtkGraphItem : public vtkContextItem
 {
@@ -46,6 +48,11 @@ public:
   // The graph that this item draws.
   virtual void SetGraph(vtkGraph *graph);
   vtkGetObjectMacro(Graph, vtkGraph);
+
+  // Description:
+  // Begins or ends the layout animation.
+  virtual void StartLayoutAnimation(vtkRenderWindowInteractor *interactor);
+  virtual void StopLayoutAnimation(vtkRenderWindowInteractor *interactor);
 
 protected:
   vtkGraphItem();
@@ -135,6 +142,15 @@ protected:
   // then call Modified() on the graph and re-render the scene.
   virtual vtkVector2f VertexPosition(vtkIdType vertex);
 
+  // Description:
+  // Incrementally updates the graph layout.
+  virtual void UpdateLayout();
+
+  // Description:
+  // Process events and dispatch to the appropriate member functions.
+  static void ProcessEvents(vtkObject *caller, unsigned long event,
+                            void *clientData, void *callerData);
+
 private:
   vtkGraphItem(const vtkGraphItem&); // Not implemented
   void operator=(const vtkGraphItem&); // Not implemented
@@ -145,6 +161,7 @@ private:
   vtkGraph *Graph;
   unsigned long GraphBuildTime;
   vtkNew<vtkImageData> Sprite;
+  vtkNew<vtkIncrementalForceLayout> Layout;
 };
 
 #endif

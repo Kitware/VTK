@@ -32,11 +32,6 @@
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
-// Font config
-#ifdef FONTCONFIG_FOUND
-#include <fontconfig/fontconfig.h>
-#endif
-
 #ifndef _MSC_VER
 # include <stdint.h>
 #endif
@@ -157,8 +152,7 @@ vtkFreeTypeTools::vtkFreeTypeTools()
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeTools::vtkFreeTypeTools\n");
 #endif
-
-  // Skip FontConfig lookup by default.
+  // Force use of compiled fonts by default.
   this->ForceCompiledFonts = true;
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
@@ -249,18 +243,12 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
       vtkSmartPointer<vtkTextProperty>::New();
   self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
-  bool faceIsSet = false;
-#ifdef FONTCONFIG_FOUND
-  if (!self->GetForceCompiledFonts())
-    {
-  faceIsSet = self->LookupFaceFontConfig(tprop, lib, face);
-    }
-#endif
-  if (!faceIsSet)
-    faceIsSet = self->LookupFaceCompiledFonts(tprop, lib, face);
+  bool faceIsSet = self->LookupFace(tprop, lib, face);
 
   if (!faceIsSet)
+    {
     return static_cast<FT_Error>(1);
+    }
 
   if ( tprop->GetOrientation() != 0.0 )
     {
@@ -293,13 +281,7 @@ void vtkFreeTypeTools::InitializeCacheManager()
   // Create the cache manager itself
   this->CacheManager = new FTC_Manager;
 
-  error = FTC_Manager_New(*this->GetLibrary(),
-                          this->MaximumNumberOfFaces,
-                          this->MaximumNumberOfSizes,
-                          this->MaximumNumberOfBytes,
-                          vtkFreeTypeToolsFaceRequester,
-                          static_cast<FT_Pointer>(this),
-                          this->CacheManager);
+  error = this->CreateFTCManager();
 
   if (error)
     {
@@ -769,99 +751,8 @@ bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
   return error ? false : true;
 }
 
-#ifdef FONTCONFIG_FOUND
-bool vtkFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *tprop,
-                                            FT_Library lib, FT_Face *face)
-{
-  if (!FcInit())
-    {
-    return false;
-    }
-
-  // Query tprop
-  const FcChar8 *family = reinterpret_cast<const FcChar8*>(
-        tprop->GetFontFamilyAsString());
-  const double pointSize = static_cast<double>(tprop->GetFontSize());
-  const int weight = tprop->GetBold() ? FC_WEIGHT_BOLD : FC_WEIGHT_MEDIUM;
-  const int slant = tprop->GetItalic() ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-
-  // Build pattern
-  FcPattern *pattern = FcPatternCreate();
-  FcPatternAddString(pattern, FC_FAMILY, family);
-  FcPatternAddDouble(pattern, FC_SIZE, pointSize);
-  FcPatternAddInteger(pattern, FC_WEIGHT, weight);
-  FcPatternAddInteger(pattern, FC_SLANT, slant);
-  FcPatternAddBool(pattern, FC_SCALABLE, true);
-
-  // Replace common font names, e.g. arial, times, etc -> sans, serif, etc
-  FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-
-  // Fill in any missing defaults:
-  FcDefaultSubstitute(pattern);
-
-  // Match pattern
-  FcResult result;
-  FcFontSet *fontMatches = FcFontSort(NULL, pattern, false, NULL, &result);
-  FcPatternDestroy(pattern);
-  pattern = NULL;
-  if (!fontMatches || fontMatches->nfont == 0)
-    {
-    if (fontMatches)
-      FcFontSetDestroy(fontMatches);
-    return false;
-    }
-
-  // Grab the first match that is scalable -- even though we've requested
-  // scalable fonts in the match, FC seems to not weigh that option very heavily
-  FcPattern *match = NULL;
-  for (int i = 0; i < fontMatches->nfont; ++i)
-    {
-    match = fontMatches->fonts[i];
-
-    FcBool isScalable;
-    FcPatternGetBool(match, FC_SCALABLE, 0, &isScalable);
-    if (!isScalable)
-      continue;
-    else
-      break;
-    }
-
-  if (!match)
-    {
-    FcFontSetDestroy(fontMatches);
-    return false;
-    }
-
-  // Get filename. Do not free the filename string -- it is owned by FcPattern
-  // "match". Likewise, do not use the filename after match is freed.
-  FcChar8 *filename;
-  result = FcPatternGetString(match, FC_FILE, 0, &filename);
-
-  cout << "Loading a font from disk: " << filename << endl;
-  FT_Error error = FT_New_Face(lib, reinterpret_cast<const char*>(filename), 0,
-                               face);
-
-  if (error)
-    {
-    FcFontSetDestroy(fontMatches);
-    return false;
-    }
-
-  FcFontSetDestroy(fontMatches);
-  fontMatches = NULL;
-
-  return true;
-}
-#else // FONTCONFIG_FOUND
-bool vtkFreeTypeTools::LookupFaceFontConfig(vtkTextProperty *vtkNotUsed(tprop),
-                                            FT_Library vtkNotUsed(lib), FT_Face *vtkNotUsed(face))
-{
-  return false;
-}
-#endif
-
-bool vtkFreeTypeTools::LookupFaceCompiledFonts(vtkTextProperty *tprop,
-                                               FT_Library lib, FT_Face *face)
+bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
+                                  FT_Face *face)
 {
   // Fonts, organized by [Family][Bold][Italic]
   static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
@@ -1012,6 +903,18 @@ void vtkFreeTypeTools::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale to nearest power of 2 for image sizes: "
      << this->ScaleToPowerTwo << endl;
+}
+
+//----------------------------------------------------------------------------
+FT_Error vtkFreeTypeTools::CreateFTCManager()
+{
+  return FTC_Manager_New(*this->GetLibrary(),
+                         this->MaximumNumberOfFaces,
+                         this->MaximumNumberOfSizes,
+                         this->MaximumNumberOfBytes,
+                         vtkFreeTypeToolsFaceRequester,
+                         static_cast<FT_Pointer>(this),
+                         this->CacheManager);
 }
 
 //----------------------------------------------------------------------------
