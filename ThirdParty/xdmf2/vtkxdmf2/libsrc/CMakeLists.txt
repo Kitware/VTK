@@ -278,7 +278,7 @@ else()
 endif()
 
 #finally make the target that builds the xdmf library itself
-add_library(xdmf2 ${LIBTYPE} ${XdmfSources})
+add_library(vtkxdmf2 ${LIBTYPE} ${XdmfSources})
 
 #setup dependencies for the optional parts of library
 if(XDMF_USE_MYSQL)
@@ -287,7 +287,7 @@ if(XDMF_USE_MYSQL)
     target_link_libraries(Xdmf ${MYSQL_CLIENT_LIBRARY} )
 endif()
 
-target_link_libraries(xdmf2
+target_link_libraries(vtkxdmf2
   ${XDMF_LIBXML2_LIBRARIES}
   ${XDMF_HDF5_LIBRARIES}
   ${XDMF_MPI_LIBRARIES}
@@ -307,7 +307,7 @@ if(NOT XDMF_INSTALL_NO_DEVELOPMENT)
 endif()
 
 if(XDMF_INSTALL_EXPORT_NAME AND NOT XDMF_INSTALL_NO_LIBRARIES)
-  install(TARGETS xdmf2
+  install(TARGETS vtkxdmf2
     EXPORT ${XDMF_INSTALL_EXPORT_NAME}
     RUNTIME DESTINATION ${XDMF_INSTALL_BIN_DIR} COMPONENT Runtime
     LIBRARY DESTINATION ${XDMF_INSTALL_LIB_DIR} COMPONENT Runtime

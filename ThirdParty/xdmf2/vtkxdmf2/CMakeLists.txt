@@ -100,4 +100,3 @@ include(TestBigEndian)
 test_big_endian(CMAKE_WORDS_BIGENDIAN)
 
 add_subdirectory(libsrc)
-vtk_target(xdmf2 NO_INSTALL) #?? hdf5 does it, should we?
