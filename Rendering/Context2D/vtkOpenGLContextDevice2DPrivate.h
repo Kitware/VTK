@@ -497,6 +497,7 @@ public:
   // Cache for text images. Generating texture for strings is expensive,
   // we cache the textures here for a faster reuse.
   mutable vtkTextureImageCache<TextPropertyKey> TextTextureCache;
+  mutable vtkTextureImageCache<TextPropertyKey> MathTextTextureCache;
 };
 
 #endif // VTKOPENGLCONTEXTDEVICE2DPRIVATE_H

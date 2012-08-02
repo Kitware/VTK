@@ -7,6 +7,7 @@
     )
 
   if(VTK_DATA_ROOT)
+
     # add tests that require data
     set(MyTests ${MyTests}
       TestBarGraph.cxx

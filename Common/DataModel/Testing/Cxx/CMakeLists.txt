@@ -10,6 +10,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   TestImageIterator.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
+  TestPath.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx

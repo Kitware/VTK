@@ -1,0 +1,14 @@
+vtk_module(vtkMatplotlib
+  IMPLEMENTS
+    vtkMathText
+  DEPENDS
+    vtkRenderingCore
+    vtkWrappingPython
+  TEST_DEPENDS
+    vtkInteractionImage
+    vtkIOExport
+    vtkTestingRendering
+    vtkRenderingGL2PS
+    vtkRenderingOpenGL
+    vtkViewsContext2D
+  )

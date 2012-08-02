@@ -20,7 +20,9 @@
 #include "vtkImageViewer2.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
 int TestRenderString(int argc, char *argv[])
@@ -30,25 +32,27 @@ int TestRenderString(int argc, char *argv[])
 
   vtkNew<vtkImageData> image;
   vtkNew<vtkMathTextUtilities> utils;
-  utils->DebugOn();
-
-  utils->RenderString(str, image.GetPointer(), 300);
+  vtkNew<vtkTextProperty> tprop;
+  tprop->SetColor(1, 1, 1);
+  tprop->SetFontSize(50);
 
   vtkNew<vtkImageViewer2> viewer;
+  utils->RenderString(str, image.GetPointer(), tprop.GetPointer(),
+                      viewer->GetRenderWindow()->GetDPI());
+
   viewer->SetInputData(image.GetPointer());
 
   vtkNew<vtkRenderWindowInteractor> iren;
   viewer->SetupInteractor(iren.GetPointer());
-  viewer->SetColorLevel(127);
-  viewer->SetColorWindow(255);
 
   viewer->Render();
   viewer->GetRenderer()->ResetCamera();
-  viewer->GetRenderer()->GetActiveCamera()->Zoom(7.5);
+  viewer->GetRenderer()->GetActiveCamera()->Zoom(6.0);
   viewer->Render();
 
-  iren->Initialize();
-  iren->Start();
+  viewer->GetRenderWindow()->SetMultiSamples(0);
+  viewer->GetRenderWindow()->GetInteractor()->Initialize();
+  viewer->GetRenderWindow()->GetInteractor()->Start();
 
   return EXIT_SUCCESS;
 }

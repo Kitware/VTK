@@ -1,11 +1,11 @@
-# add tests that do not require data
+# add tests that do not require data or produce vector output
 set(MyTests
   )
 
 if(VTK_DATA_ROOT)
   # add tests that require data
   set(MyTests ${MyTests}
-    TestRenderString.cxx
+    TestFTStringToPath.cxx
     )
 endif()
 
@@ -25,15 +25,14 @@ foreach(test ${TestsToRun})
     else()
       set(_error_threshold 10)
     endif()
-    add_test(NAME MathText-${TName}
+    add_test(NAME ${vtk-module}Cxx-${TName}
       COMMAND ${vtk-module}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
         -T ${VTK_TEST_OUTPUT_DIR}
-        -V Baseline/Charts/${TName}.png
+        -V Baseline/Rendering/${TName}.png
         -E ${_error_threshold})
   else()
-    add_test(NAME MathText-${TName}
+    add_test(NAME FreeType-${TName}
       COMMAND ${vtk-module}CxxTests ${TName})
-    message(STATUS "Added test: ${test}")
   endif()
 endforeach()
