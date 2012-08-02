@@ -71,14 +71,17 @@ endfunction()
 # that statically initializes the modules after Py_Inititalize() is called.
 function(_vtk_add_python_module name)
   if (BUILD_SHARED_LIBS)
-    vtk_add_library(${name} MODULE ${ARGN})
+    add_library(${name} MODULE ${ARGN})
     if (WIN32 AND NOT CYGWIN)
       # when building shared on Windows, the python module files need to be
       # named as *.pyd
       set_target_properties(${name} PROPERTIES SUFFIX ".pyd")
     endif()
   else ()
-    vtk_add_library(${name} STATIC ${ARGN})
+    # when building statically, the module targets need to be exported since
+    # others can link against them, unlike when building shared, and hence we
+    # use vtk_add_library() call.
+    vtk_add_library(${name} ${ARGN})
   endif()
 endfunction()
 
@@ -123,8 +126,10 @@ function(vtk_write_python_modules_header_for_wrapped_modules filename out_var)
   vtk_write_python_modules_header(
     "${filename}" ${python_wrapped_modules})
   set (dependencies)
-  foreach(mod IN LISTS python_wrapped_modules)
-    list(APPEND dependencies ${mod}Python)
-  endforeach()
+  if (NOT BUILD_SHARED_LIBS)
+    foreach(mod IN LISTS python_wrapped_modules)
+      list(APPEND dependencies ${mod}Python)
+    endforeach()
+  endif()
   set (${out_var} "${dependencies}" PARENT_SCOPE)
 endfunction()
