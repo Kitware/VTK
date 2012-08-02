@@ -105,8 +105,10 @@ function(vtk_write_python_modules_header filename)
   if (NOT BUILD_SHARED_LIBS)
     # fill in the init functions only when BUILD_SHARED_LIBS is OFF.
     foreach (module ${ARGN})
-      set (EXTERN_DEFINES "${EXTERN_DEFINES}\n  void init${module}Python();")
-      set (INIT_CALLS "${INIT_CALLS}\n  init${module}Python();")
+      set (EXTERN_DEFINES "${EXTERN_DEFINES}\n  extern void init${module}Python();")
+      set (INIT_CALLS "${INIT_CALLS}\n
+  static char name${module}[] = \"${module}Python\";
+  PyImport_AppendInittab(name${module}, init${module}Python);")
     endforeach()
   endif()
 
