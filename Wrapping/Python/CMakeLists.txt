@@ -89,7 +89,13 @@ if(UNIX)
   mark_as_advanced(PYTHON_UTIL_LIBRARY)
 endif()
 
-python_write_modules_header("${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h")
+# generate the header which initializes Python modules when BUILD_SHARED_LIBS is
+# OFF. py_module_dependencies will be set to the libraries we should link
+# against when we use the vtkpythonmodules.h file.
+vtk_write_python_modules_header_for_wrapped_modules(
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h"
+  py_module_dependencies)
+
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 # create the VTK/Python  executable
@@ -141,11 +147,7 @@ if(PYTHON_UTIL_LIBRARY)
   set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PYTHON_UTIL_LIBRARY})
 endif()
 
-# The PYTHON_ADD_MODULE macro stores the list of static modules in a global property
-get_property(PY_STATIC_MODULES_LIST GLOBAL PROPERTY PY_STATIC_MODULES_LIST)
-if(PY_STATIC_MODULES_LIST)
-  set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${PY_STATIC_MODULES_LIST})
-endif(PY_STATIC_MODULES_LIST)
+set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${py_module_dependencies})
 
 # Link to rt to prevent undefined symbol 'fdatasync'
 IF(CMAKE_SYSTEM MATCHES "SunOS.*" AND NOT CMAKE_COMPILER_IS_GNUCXX)

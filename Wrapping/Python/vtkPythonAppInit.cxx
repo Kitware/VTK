@@ -130,11 +130,13 @@ int main(int argc, char **argv)
   strcpy(argv0, av0.c_str());
   Py_SetProgramName(argv0);
 
-  // This function is generated, and will load any static Python modules for VTK
-  CMakeLoadAllPythonModules();
-
   // Initialize interpreter.
   Py_Initialize();
+
+
+  // This function is generated, and will load any static Python modules for VTK
+  // This needs to be done *after* Py_Initialize().
+  CMakeLoadAllPythonModules();
 
   // Initialize python thread support. This function should first be
   // called from the main thread, after Py_Initialize.
