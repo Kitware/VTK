@@ -21,7 +21,7 @@
 #ifndef __vtkMathTextUtilities_h
 #define __vtkMathTypeUtilities_h
 
-#include "vtkMathTextModule.h" // For export macro
+#include "vtkRenderingMathTextModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkImageData;
@@ -31,14 +31,14 @@ class vtkTextProperty;
 //----------------------------------------------------------------------------
 // Singleton cleanup
 
-class VTKMATHTEXT_EXPORT vtkMathTextUtilitiesCleanup
+class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextUtilitiesCleanup
 {
 public:
   vtkMathTextUtilitiesCleanup();
   ~vtkMathTextUtilitiesCleanup();
 };
 
-class VTKMATHTEXT_EXPORT vtkMathTextUtilities : public vtkObject
+class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMathTextUtilities, vtkObject);

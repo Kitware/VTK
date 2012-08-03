@@ -1,6 +1,6 @@
 vtk_module(vtkRenderingGL2PS
   DEPENDS
     vtkRenderingContext2D
-    vtkMathText
+    vtkRenderingMathText
     vtkgl2ps
 )
