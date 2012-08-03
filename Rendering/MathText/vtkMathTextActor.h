@@ -25,7 +25,7 @@
 #ifndef __vtkMathTextActor_h
 #define __vtkMathTextActor_h
 
-#include "vtkMathTextModule.h" // For export macro
+#include "vtkRenderingMathTextModule.h" // For export macro
 #include "vtkActor2D.h"
 #include "vtkNew.h" // For smart pointer stuff
 #include "vtkSmartPointer.h" // For smart pointer stuff
@@ -37,7 +37,7 @@ class vtkPoints;
 class vtkPolyData;
 class vtkTexture;
 
-class VTKMATHTEXT_EXPORT vtkMathTextActor : public vtkActor2D
+class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkMathTextActor,vtkActor2D);

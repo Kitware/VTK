@@ -3,7 +3,7 @@ vtk_module(vtkIOExport
     StandAlone
   DEPENDS
     vtkCommonCore
-    vtkMathText
+    vtkRenderingMathText
     vtkRenderingContext2D
     vtkRenderingCore
     vtkRenderingFreeType

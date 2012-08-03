@@ -20,7 +20,7 @@
 #ifndef __vtkMatplotlibMathTextUtilities_h
 #define __vtkMatplotlibMathTextUtilities_h
 
-#include "vtkMatplotlibModule.h" // For export macro
+#include "vtkRenderingMatplotlibModule.h" // For export macro
 #include "vtkMathTextUtilities.h"
 
 struct _object;
@@ -29,7 +29,7 @@ class vtkImageData;
 class vtkPath;
 class vtkTextProperty;
 
-class VTKMATPLOTLIB_EXPORT vtkMatplotlibMathTextUtilities :
+class VTKRENDERINGMATPLOTLIB_EXPORT vtkMatplotlibMathTextUtilities :
     public vtkMathTextUtilities
 {
 public:

@@ -1,4 +1,4 @@
-vtk_module(vtkMathText
+vtk_module(vtkRenderingMathText
   DEPENDS
     vtkRenderingCore
   )
