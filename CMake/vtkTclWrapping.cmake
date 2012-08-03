@@ -20,7 +20,10 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   endif()
 
   # FIXME: These must be here for now, should be fixed in the wrap hierarchy stuff
-  set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+    set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  endif()
+
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
   set(KIT ${kit_name})
 
