@@ -73,6 +73,7 @@ endfunction()
 function(_vtk_add_python_module name)
   if (BUILD_SHARED_LIBS)
     add_library(${name} MODULE ${ARGN})
+    set_property(TARGET ${name} PROPERTY PREFIX "${PYTHON_MODULE_PREFIX}")
     if (WIN32 AND NOT CYGWIN)
       # when building shared on Windows, the python module files need to be
       # named as *.pyd
