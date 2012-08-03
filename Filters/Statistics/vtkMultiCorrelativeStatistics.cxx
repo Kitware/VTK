@@ -278,20 +278,20 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
 
   vtkTable* sparseCov = vtkTable::New();
 
-  vtkStringArray* ocol1 = vtkStringArray::New();
-  ocol1->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN1 );
-  sparseCov->AddColumn( ocol1 );
-  ocol1->Delete();
+  vtkStringArray* col1 = vtkStringArray::New();
+  col1->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN1 );
+  sparseCov->AddColumn( col1 );
+  col1->Delete();
 
-  vtkStringArray* ocol2 = vtkStringArray::New();
-  ocol2->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN2 );
-  sparseCov->AddColumn( ocol2 );
-  ocol2->Delete();
+  vtkStringArray* col2 = vtkStringArray::New();
+  col2->SetName( VTK_MULTICORRELATIVE_KEYCOLUMN2 );
+  sparseCov->AddColumn( col2 );
+  col2->Delete();
 
-  vtkDoubleArray* mucov = vtkDoubleArray::New();
-  mucov->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
-  sparseCov->AddColumn( mucov );
-  mucov->Delete();
+  vtkDoubleArray* col3 = vtkDoubleArray::New();
+  col3->SetName( VTK_MULTICORRELATIVE_ENTRIESCOL );
+  sparseCov->AddColumn( col3 );
+  col3->Delete();
 
   vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
   vtksys_stl::set<vtkStdString>::const_iterator colIt;
@@ -321,14 +321,14 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   vtkIdType m = static_cast<vtkIdType>( allColumns.size() );
   vtksys_stl::set<vtksys_stl::pair<vtkStdString,vtkDataArray*> >::const_iterator acIt;
   vtkStdString empty;
-  ocol1->InsertNextValue( "Cardinality" );
-  ocol2->InsertNextValue( empty );
+  col1->InsertNextValue( "Cardinality" );
+  col2->InsertNextValue( empty );
   for ( acIt = allColumns.begin(); acIt != allColumns.end(); ++ acIt )
     {
     colNameToIdx[acIt->first] = i ++;
     colPtrs.push_back( acIt->second );
-    ocol1->InsertNextValue( acIt->second->GetName() );
-    ocol2->InsertNextValue( empty );
+    col1->InsertNextValue( acIt->second->GetName() );
+    col2->InsertNextValue( empty );
     }
 
   // Get a list of column pairs (across all requests) for which we'll compute sums of squares.
@@ -358,8 +358,8 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
             { // Note that other requests may have inserted this entry.
             vtksys_stl::pair<vtkIdType,vtkIdType> entry( colA, idxIt->second );
             if ( colPairs.find( entry ) == colPairs.end() )
-              { // point to the offset in mucov (below) for this column-pair sum:
-              //cout << "Pair (" << colAName.c_str() << ", " << idxIt->first.c_str() << "): " << colPairs[entry] << "\n";
+              {
+              // Point to the offset in col3 (below) for this column-pair sum:
               colPairs[entry] = -1;
               }
             }
@@ -368,12 +368,12 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
       }
     }
 
-  // Now insert the column pairs into ocol1 and ocol2 in the order in which they'll be evaluated.
+  // Now insert the column pairs into col1 and col2 in the order in which they'll be evaluated.
   for ( cpIt = colPairs.begin(); cpIt != colPairs.end(); ++ cpIt )
     {
     cpIt->second = i ++;
-    ocol1->InsertNextValue( colPtrs[cpIt->first.first]->GetName() );
-    ocol2->InsertNextValue( colPtrs[cpIt->first.second]->GetName() );
+    col1->InsertNextValue( colPtrs[cpIt->first.first]->GetName() );
+    col2->InsertNextValue( colPtrs[cpIt->first.second]->GetName() );
     }
 
   // Now (finally!) compute the covariance and column sums.
@@ -381,19 +381,26 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   // moments and covariances from Philippe's SAND2008-6212 report.
   double* x;
   vtksys_stl::vector<double> v( m, 0. ); // Values (v) for one observation
-  //vtksys_stl::vector<double> mucov( m + colPairs.size(), 0. ); // mean (mu) followed by covariance (cov) values
-  mucov->SetNumberOfTuples( 1 + m + colPairs.size() ); // sample size followed by mean (mu) followed by covariance (cov) values
-  mucov->FillComponent( 0, 0. );
-  double* rv = mucov->GetPointer( 0 );
+
+  // Storage pattern in primary statistics column:
+  //  Row 0: cardinality of sample
+  //  Rows 1 to m - 1: means of each variable
+  //  Rows m to m + colPairs.size(): variances/covariances for each pair of variables
+  col3->SetNumberOfTuples( 1 + m + colPairs.size() ); 
+  col3->FillComponent( 0, 0. );
+
+  // Retrieve pointer to values and skip Cardinality entry
+  double* rv = col3->GetPointer( 0 );
   *rv = static_cast<double>( nRow );
-  ++ rv; // skip Cardinality entry
+  ++ rv;
+
+  // Iterate over rows
   for ( i = 0; i < nRow; ++ i )
     {
     // First fetch column values
     for ( vtkIdType j = 0; j < m; ++ j )
       {
       v[j] = colPtrs[j]->GetTuple(i)[0];
-      //cout << colPtrs[j]->GetName() << ": " << v[j] << " j=" << j << "\n";
       }
     // Update column products. Equation 3.12 from the SAND report.
     x = rv + m;
@@ -424,7 +431,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
 {
-  // Some macros to make the Cholevsky decomposition algorithm legible:
+  // First define some macros to make the Cholevsky decomposition algorithm legible:
 #ifdef A
 #  undef A
 #endif
@@ -434,6 +441,7 @@ void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
 #define A(i,j) ( j >= i ? a[j][i] : a[i][j] )
 #define L(i,j) a[j][i + 1]
 
+  // Then perform decomposition
   double tmp;
   for ( vtkIdType i = 0; i < m; ++ i )
     {
@@ -460,15 +468,15 @@ void vtkMultiCorrelativeCholesky( vtksys_stl::vector<double*>& a, vtkIdType m )
 void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 {
   vtkTable* sparseCov;
-  vtkStringArray* ocol1;
-  vtkStringArray* ocol2;
-  vtkDoubleArray* mucov;
+  vtkStringArray* col1;
+  vtkStringArray* col2;
+  vtkDoubleArray* col3;
   if (
     ! outMeta ||
     ! ( sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
-    ! ( ocol1 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN1 ) ) ) ||
-    ! ( ocol2 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN2 ) ) ) ||
-    ! ( mucov = vtkDoubleArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_ENTRIESCOL ) ) )
+    ! ( col1 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN1 ) ) ) ||
+    ! ( col2 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN2 ) ) ) ||
+    ! ( col3 = vtkDoubleArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_ENTRIESCOL ) ) )
     )
     {
     return;
@@ -483,30 +491,34 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   vtksys_stl::vector<vtkDataArray*> colPtrs;
   // Reconstruct information about the computed sums from the raw data.
   // The first entry is always the sample size
-  double n = mucov->GetValue( 0 );
+  double n = col3->GetValue( 0 );
   vtkIdType m = 0;
   vtkIdType i;
-  vtkIdType nmucov = mucov->GetNumberOfTuples();
-  for ( i = 1; i < nmucov && ocol2->GetValue( i ).empty(); ++ i, ++ m )
+  vtkIdType ncol3 = col3->GetNumberOfTuples();
+  for ( i = 1; i < ncol3 && col2->GetValue( i ).empty(); ++ i, ++ m )
     {
-    colNameToIdx[ocol1->GetValue( i )] = m;
+    colNameToIdx[col1->GetValue( i )] = m;
     }
-  for ( ; i < nmucov; ++ i )
+  for ( ; i < ncol3; ++ i )
     {
-    vtksys_stl::pair<vtkIdType,vtkIdType> idxs( colNameToIdx[ocol1->GetValue(i)], colNameToIdx[ocol2->GetValue(i)] );
+    vtksys_stl::pair<vtkIdType,vtkIdType> idxs( colNameToIdx[col1->GetValue(i)], colNameToIdx[col2->GetValue(i)] );
     colPairs[idxs] = i - 1;
     }
-  double* rv = mucov->GetPointer( 0 ) + 1;
+  double* rv = col3->GetPointer( 0 ) + 1;
   double* x = rv;
 
-  // Create an output table for each request and fill it in using the mucov array (the first table in
+  // Create an output table for each request and fill it in using the col3 array (the first table in
   // outMeta and which is presumed to exist upon entry to Derive).
   // Note that these tables are normalized by the number of samples.
-  outMeta->SetNumberOfBlocks( 1 + static_cast<int>( this->Internals->Requests.size() ) );
-  // For each request:
-  i = 0;
+  outMeta->SetNumberOfBlocks( 1 + static_cast<unsigned int>( this->Internals->Requests.size() ) );
+
+  // Keep track of last current block
+  unsigned int b = 1;
+
+  // Loop over requests
   double scale = 1. / ( n - 1 ); // n -1 for unbiased variance estimators
-  for ( reqIt = this->Internals->Requests.begin(); reqIt != this->Internals->Requests.end(); ++ reqIt, ++ i )
+  for ( reqIt = this->Internals->Requests.begin(); 
+        reqIt != this->Internals->Requests.end(); ++ reqIt, ++ b )
     {
     vtkStringArray* colNames = vtkStringArray::New();
     colNames->SetName( VTK_MULTICORRELATIVE_COLUMNAMES );
@@ -530,6 +542,7 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
         vtkDoubleArray* arr = vtkDoubleArray::New();
         arr->SetName( colIt->c_str() );
         covCols.push_back( arr );
+
         if ( colIt == reqIt->begin() )
           {
           reqNameStr << *colIt;
@@ -539,21 +552,26 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
           reqNameStr << "," << *colIt;
           }
         }
-      }
+      } // colIt
+
     reqNameStr << ")";
     covCols.push_back( colAvgs );
     colNames->InsertNextValue( "Cholesky" ); // Need extra row for lower-triangular Cholesky decomposition
 
-    // We now have the total number of columns in the output.
-    // Allocate memory for the correct number of rows and fill in values.
+    // We now have the total number of columns in the output
+    // Allocate memory for the correct number of rows and fill in values
     vtkIdType reqCovSize = colNames->GetNumberOfTuples();
     colAvgs->SetNumberOfTuples( reqCovSize );
+
+    // Prepare covariance table and store it as last current block
     vtkTable* covariance = vtkTable::New();
-    outMeta->SetBlock( i + 1, covariance );
-    outMeta->GetMetaData( static_cast<unsigned>( i + 1 ) )->Set( vtkCompositeDataSet::NAME(), reqNameStr.str().c_str() );
-    covariance->Delete(); // outMeta now owns covariance
     covariance->AddColumn( colNames );
     covariance->AddColumn( colAvgs );
+    outMeta->GetMetaData( b )->Set( vtkCompositeDataSet::NAME(), reqNameStr.str().c_str() );
+    outMeta->SetBlock( b, covariance );
+
+    // Clean up
+    covariance->Delete(); 
     colNames->Delete();
     colAvgs->Delete();
 
@@ -565,7 +583,8 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
       x = (*arrIt)->GetPointer( 0 );
       covPtrs.push_back( x );
       if ( *arrIt != colAvgs )
-        { // column is part of covariance matrix
+        {
+        // Column is part of covariance matrix
         covariance->AddColumn( *arrIt );
         (*arrIt)->Delete();
         for ( vtkIdType k = 0; k <= j; ++ k, ++ x )
@@ -573,17 +592,18 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
           *x = rv[colPairs[vtksys_stl::pair<vtkIdType,vtkIdType>( covIdxs[k], covIdxs[j] )]] * scale;
           }
         }
-      else
-        { // column holds averages
+      else // if ( *arrIt != colAvgs )
+        { 
+        // Column holds averages
         for ( vtkIdType k = 0; k < reqCovSize - 1; ++ k, ++ x )
           {
           *x = rv[covIdxs[k]];
           }
         *x = static_cast<double>( n );
         }
-      }
+      } // arrIt, j
     vtkMultiCorrelativeCholesky( covPtrs, reqCovSize - 1 );
-    }
+    } //  reqIt, b
 }
 
 // ----------------------------------------------------------------------
@@ -601,10 +621,11 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
     return;
     }
 
-  // For each request, add a column to the output data related to the likelihood of each input datum wrt the model in the request.
-  // Column names of the metadata and input data are assumed to match.
-  // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)" where "A", "B", and "C" are the column names specified in the
-  // per-request metadata tables.
+  // For each request, add a column to the output data related to the probability
+  // of observing each input datum with respect to the model in the request
+  // NB: Column names of the metadata and input data are assumed to match
+  // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)",
+  // where "A", "B", and "C" are the column names specified in the per-request metadata tables.
   vtkIdType nRow = inData->GetNumberOfRows();
   int nb = static_cast<int>( inMeta->GetNumberOfBlocks() );
   AssessFunctor* dfunc = 0;
@@ -653,8 +674,9 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
         }
       assessColName << ")";
 
+      // Storing names to be able to use SetValueByName which is faster than SetValue
       vtkDoubleArray* assessValues = vtkDoubleArray::New();
-      names[v] = assessColName.str().c_str(); // Storing names to be able to use SetValueByName which is faster than SetValue
+      names[v] = assessColName.str().c_str();
       assessValues->SetName( names[v] );
       assessValues->SetNumberOfTuples( nRow );
       outData->AddColumn( assessValues );

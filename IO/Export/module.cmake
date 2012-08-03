@@ -3,12 +3,20 @@ vtk_module(vtkIOExport
     StandAlone
   DEPENDS
     vtkCommonCore
+    vtkMathText
+    vtkRenderingContext2D
     vtkRenderingCore
     vtkRenderingFreeType
+    vtkRenderingGL2PS
     vtkImagingCore
     vtkIOCore
-    vtkgl2ps
   TEST_DEPENDS
+    vtkChartsCore
+    vtkInteractionImage
     vtkTestingRendering
+    vtkRenderingAnnotation
     vtkRenderingOpenGL
+    vtkRenderingFreeTypeOpenGL
+    vtkRenderingVolumeOpenGL
+    vtkViewsContext2D
   )

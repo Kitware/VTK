@@ -251,6 +251,11 @@ void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 // ----------------------------------------------------------------------------
 int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 {
+  if (!this->Visibility)
+    {
+    return 0;
+    }
+
   // render the texture
   if (this->Texture && this->Input)
     {
@@ -268,6 +273,11 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
+  if (!this->Visibility)
+    {
+    return 0;
+    }
+
   //Make sure we have a string to render
   if(!this->Input)
     {

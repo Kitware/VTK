@@ -35,9 +35,9 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   endif()
 
   # Figure out the dependent Tcl libraries for the module
-  foreach(dep ${VTK_MODULE_${vtk-module}_DEPENDS})
+  foreach(dep ${${vtk-module}_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(NOT VTK_MODULE_${dep}_EXCLUDE_FROM_WRAPPING)
+      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         if("${dep}" STREQUAL "vtkRenderingContext2D")
           set(dep "vtkRenderingContextIID")
         endif()
@@ -59,7 +59,7 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
     set_property(TARGET ${tcl_module}TCL APPEND
       PROPERTY INCLUDE_DIRECTORIES ${_tcl_include_dirs})
   endif()
-  if(VTK_MODULE_${module_name}_IMPLEMENTS)
+  if(${module_name}_IMPLEMENTS)
     set_property(TARGET ${tcl_module}TCL PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()

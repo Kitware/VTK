@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestContext.cxx
+  Module:    TestSimpleFontRendering.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,30 +29,30 @@
 #include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
-class SimpleFontRenderTest : public vtkContextItem
+class SystemFontRenderTest : public vtkContextItem
 {
 public:
-  static SimpleFontRenderTest *New();
-  vtkTypeMacro(SimpleFontRenderTest, vtkContextItem);
+  static SystemFontRenderTest *New();
+  vtkTypeMacro(SystemFontRenderTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
 
 //----------------------------------------------------------------------------
-int TestSimpleFontRendering( int, char * [] )
+int TestSystemFontRendering( int, char * [] )
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(520, 360);
-  vtkNew<SimpleFontRenderTest> test;
+  vtkNew<SystemFontRenderTest> test;
   view->GetScene()->AddItem(test.GetPointer());
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
       ->SetStringRendererToFreeType();
 
-  // Use the new FontConfig font lookup
+  // Use the FontConfig font lookup
   vtkFreeTypeTools::GetInstance()->ForceCompiledFontsOff();
 
   view->GetRenderWindow()->SetMultiSamples(0);
@@ -62,8 +62,8 @@ int TestSimpleFontRendering( int, char * [] )
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(SimpleFontRenderTest);
-bool SimpleFontRenderTest::Paint(vtkContext2D *painter)
+vtkStandardNewMacro(SystemFontRenderTest);
+bool SystemFontRenderTest::Paint(vtkContext2D *painter)
 {
   painter->GetTextProp()->SetColor(0.0, 0.0, 0.0);
   painter->GetTextProp()->SetFontSize(24);

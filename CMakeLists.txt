@@ -39,15 +39,6 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   )
 
-# FIXME: LIBRARY_OUTPUT_PATH and EXECUTABLE_OUTPUT_PATH useage is scattered about VTK.
-# when we can patch everything they should simply be replaced with CMAKE_<blah>_OUTPUT_DIRECTORY variables.
-IF(NOT LIBRARY_OUTPUT_PATH)
-  SET(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} CACHE INTERNAL "Single output directory for building all libraries.")
-ENDIF(NOT LIBRARY_OUTPUT_PATH)
-IF(NOT EXECUTABLE_OUTPUT_PATH)
-  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CACHE INTERNAL "Single output directory for building all executables.")
-ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
-
 # Choose static or shared libraries.
 option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
@@ -92,6 +83,12 @@ endif()
 if(NOT VTK_MODULES_DIR)
   set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
 endif()
+
+# Handle the target export file, this is used if building against a build tree.
+if(NOT VTK_EXPORTS_FILE)
+  set(VTK_EXPORTS_FILE "${VTK_BINARY_DIR}/${VTK_INSTALL_EXPORT_NAME}.cmake")
+endif()
+file(REMOVE "${VTK_EXPORTS_FILE}")
 
 # FIXME: Used by HashSource
 # the following lines are for cross compiling support
@@ -322,7 +319,7 @@ if(VTK_WRAP_JAVA)
     FORCE)
 
   # Java package location.
-  set(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+  set(VTK_JAVA_JAR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/vtk.jar)
   set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
   file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
 else()
@@ -375,11 +372,3 @@ foreach(vtk-module ${VTK_MODULES_ALL})
 endforeach()
 configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
-
-#-----------------------------------------------------------------------------
-# The commands in this directory are intended to be executed as
-# the end of the whole configuration process, as a "last step".
-# This directory is typically the last add_subdirectory in the main CMakeLists.
-# It must be an add_subdirectory rather than include to assure that the install
-# command is processed after all of the other install commands.
-add_subdirectory(Utilities/LastConfigureStep)
