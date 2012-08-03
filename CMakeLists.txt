@@ -39,15 +39,6 @@ mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
   CMAKE_ARCHIVE_OUTPUT_DIRECTORY
   )
 
-# FIXME: LIBRARY_OUTPUT_PATH and EXECUTABLE_OUTPUT_PATH useage is scattered about VTK.
-# when we can patch everything they should simply be replaced with CMAKE_<blah>_OUTPUT_DIRECTORY variables.
-IF(NOT LIBRARY_OUTPUT_PATH)
-  SET(LIBRARY_OUTPUT_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} CACHE INTERNAL "Single output directory for building all libraries.")
-ENDIF(NOT LIBRARY_OUTPUT_PATH)
-IF(NOT EXECUTABLE_OUTPUT_PATH)
-  SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CACHE INTERNAL "Single output directory for building all executables.")
-ENDIF(NOT EXECUTABLE_OUTPUT_PATH)
-
 # Choose static or shared libraries.
 option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
@@ -328,7 +319,7 @@ if(VTK_WRAP_JAVA)
     FORCE)
 
   # Java package location.
-  set(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+  set(VTK_JAVA_JAR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/vtk.jar)
   set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
   file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
 else()
