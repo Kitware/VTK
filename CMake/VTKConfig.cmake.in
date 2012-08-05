@@ -76,6 +76,9 @@ vtk_module_config(VTK ${VTK_MODULES_REQUESTED})
 SET(VTK_BUILD_SHARED_LIBS "@BUILD_SHARED_LIBS@")
 SET(VTK_LEGACY_REMOVE "@VTK_LEGACY_REMOVE@")
 SET(VTK_LEGACY_SILENT "@VTK_LEGACY_SILENT@")
+SET(VTK_WRAP_PYTHON "@VTK_WRAP_PYTHON@")
+SET(VTK_WRAP_TCL "@VTK_WRAP_TCL@")
+SET(VTK_WRAP_JAVA "@VTK_WRAP_JAVA@")
 
 # Do not add options or information here that is specific to a
 # particular module.  Instead set <module>_EXPORT_OPTIONS and/or
