@@ -25,6 +25,8 @@
 #include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkNew.h"          // For ivars
 #include "vtkSmartPointer.h" // For ivars
+#include <vector>            // For ivars
+using std::vector;
 
 class vtkAnnotationLink;
 class vtkAxis;
@@ -91,6 +93,8 @@ protected:
   bool CalculatePlotTransform(vtkAxis *x, vtkAxis *y, vtkAxis *z,
                               vtkTransform *transform);
 
+  virtual void CalculateTransforms();
+
   vtkRectf Geometry;
 
   vtkNew<vtkPen> Pen;
@@ -98,7 +102,26 @@ protected:
   vtkNew<vtkPen> AxisPen;
   vtkSmartPointer<vtkAnnotationLink> Link;
 
-  vtkChartXYZPrivate *d;
+  vector<vtkVector3f> points;
+  vtkTimeStamp pointsBuidTime;
+  vector<vtkVector3f> selectedPoints;
+  vtkTimeStamp selectedPointsBuidTime;
+
+  vector< vtkSmartPointer<vtkAxis> > axes;
+  vtkNew<vtkTransform> Transform;
+  vtkNew<vtkTransform> Translation;
+  vtkNew<vtkTransform> ContextTransform;
+  vtkNew<vtkTransform> Rotation;
+  vtkNew<vtkTransform> Box;
+  double angle;
+
+  vtkVector3f origin;
+  vtkVector3f other;
+  vtkVector3f xyz[3];
+
+  bool isX;
+  bool init;
+
 
 private:
   vtkChartXYZ(const vtkChartXYZ &);    // Not implemented.

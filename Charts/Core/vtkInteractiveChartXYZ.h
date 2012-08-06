@@ -78,6 +78,7 @@ public:
 protected:
   vtkInteractiveChartXYZ();
   ~vtkInteractiveChartXYZ();
+  virtual void CalculateTransforms();
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.

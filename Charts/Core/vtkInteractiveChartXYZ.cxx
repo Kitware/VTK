@@ -53,7 +53,7 @@ void vtkInteractiveChartXYZ::Update()
   if (this->Link)
     {
     // Copy the row numbers so that we can do the highlight...
-    if (!d->points.empty())
+    if (!this->points.empty())
       {
       vtkSelection *selection =
           vtkSelection::SafeDownCast(this->Link->GetOutputDataObject(2));
@@ -62,15 +62,15 @@ void vtkInteractiveChartXYZ::Update()
         vtkSelectionNode *node = selection->GetNode(0);
         vtkIdTypeArray *idArray =
             vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-        if (d->selectedPointsBuidTime > idArray->GetMTime() ||
-            this->GetMTime() > d->selectedPointsBuidTime)
+        if (this->selectedPointsBuidTime > idArray->GetMTime() ||
+            this->GetMTime() > this->selectedPointsBuidTime)
           {
-          d->selectedPoints.resize(idArray->GetNumberOfTuples());
+          this->selectedPoints.resize(idArray->GetNumberOfTuples());
           for (vtkIdType i = 0; i < idArray->GetNumberOfTuples(); ++i)
             {
-            d->selectedPoints[i] = d->points[idArray->GetValue(i)];
+            this->selectedPoints[i] = this->points[idArray->GetValue(i)];
             }
-          d->selectedPointsBuidTime.Modified();
+          this->selectedPointsBuidTime.Modified();
           }
         }
       }
@@ -79,7 +79,7 @@ void vtkInteractiveChartXYZ::Update()
 
 bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 {
-  if (!this->Visible || d->points.size() == 0)
+  if (!this->Visible || this->points.size() == 0)
     return false;
 
   // Get the 3D context.
@@ -91,27 +91,27 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
   this->Update();
 
   // Calculate the transforms required for the current rotation.
-  d->CalculateTransforms();
+  this->CalculateTransforms();
 
   context->PushMatrix();
-  context->AppendTransform(d->Rotation.GetPointer());
+  context->AppendTransform(this->ContextTransform.GetPointer());
 
   // First lets draw the points in 3d.
   context->ApplyPen(this->Pen.GetPointer());
-  context->DrawPoints(d->points[0].GetData(), d->points.size());
+  context->DrawPoints(this->points[0].GetData(), this->points.size());
 
   // Now to render the selected points.
-  if (!d->selectedPoints.empty())
+  if (!this->selectedPoints.empty())
     {
     context->ApplyPen(this->SelectedPen.GetPointer());
-    context->DrawPoints(d->selectedPoints[0].GetData(), d->selectedPoints.size());
+    context->DrawPoints(this->selectedPoints[0].GetData(), this->selectedPoints.size());
     }
 
   context->PopMatrix();
 
   // Now to draw the axes - pretty basic for now but could be extended.
   context->PushMatrix();
-  context->AppendTransform(d->Box.GetPointer());
+  context->AppendTransform(this->Box.GetPointer());
   context->ApplyPen(this->AxisPen.GetPointer());
 
   vtkVector3f box[4];
@@ -172,7 +172,7 @@ bool vtkInteractiveChartXYZ::MouseButtonPressEvent(const vtkContextMouseEvent &m
     // Determine anchor to zoom in on
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
-    vtkTransform *transform = this->d->Transform.GetPointer();
+    vtkTransform *transform = this->Transform.GetPointer();
     //transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
     //this->ZoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
     return true;
@@ -203,22 +203,9 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
 
 
-    this->d->Rotate->RotateY(-rxf);
-    this->d->Rotate->RotateX(ryf);
+    this->Rotation->RotateY(-rxf);
+    this->Rotation->RotateX(ryf);
 
-/*
-  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  camera->Azimuth(rxf);
-  camera->Elevation(ryf);
-  camera->OrthogonalizeViewUp();
-
-    // Go from screen to scene coordinates to work out the delta
-    vtkTransform *transform = this->d->Transform.GetPointer();
-    //transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
-    //transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);
-    vtkVector2f delta((last - pos).Cast<float>().GetData());
-    this->Translate(-delta[0], -delta[1]);
-  */
 
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
@@ -281,4 +268,57 @@ bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, 
 
   this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
+}
+
+void vtkInteractiveChartXYZ::CalculateTransforms()
+{
+  // First the rotation transform...
+  // Calculate the correct translation vector before the rotation is applied
+  vtkVector3f translation(
+        (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
+        + axes[0]->GetPosition1()[0],
+        (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
+        + axes[1]->GetPosition1()[1],
+        (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
+        + axes[2]->GetPosition1()[1]);
+  vtkVector3f mtranslation = -1.0 * translation;
+
+  this->ContextTransform->Identity();
+  this->ContextTransform->Translate(translation.GetData());
+  this->ContextTransform->Concatenate(this->Rotation.GetPointer());
+
+  this->ContextTransform->Translate(mtranslation.GetData());
+  this->ContextTransform->Concatenate(this->Transform.GetPointer());
+
+
+  // Next the box rotation transform.
+  double scale[3] = { 300, 300, 300 };
+  for (int i = 0; i < 3; ++i)
+    {
+    if (i == 0)
+      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
+    else
+      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
+    }
+
+  this->Box->Identity();
+  this->Box->PostMultiply();
+  this->Box->Translate(-0.5, -0.5, -0.5);
+  this->Box->Concatenate(this->Rotation.GetPointer());
+  this->Box->Translate(0.5, 0.5, 0.5);
+
+  this->Box->Scale(scale);
+
+  if (isX)
+    {
+    this->Box->Translate(axes[0]->GetPosition1()[0],
+                         axes[1]->GetPosition1()[1],
+                         axes[2]->GetPosition1()[1]);
+    }
+  else
+    {
+    this->Box->Translate(axes[0]->GetPosition1()[0],
+                         axes[1]->GetPosition1()[1],
+                         axes[2]->GetPosition1()[0]);
+    }
 }
