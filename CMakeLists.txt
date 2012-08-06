@@ -93,12 +93,6 @@ if(NOT VTK_MODULES_DIR)
   set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
 endif()
 
-# Handle the target export file, this is used if building against a build tree.
-if(NOT VTK_EXPORTS_FILE)
-  set(VTK_EXPORTS_FILE "${VTK_BINARY_DIR}/${VTK_INSTALL_EXPORT_NAME}.cmake")
-endif()
-file(REMOVE "${VTK_EXPORTS_FILE}")
-
 # FIXME: Used by HashSource
 # the following lines are for cross compiling support
 # we may get here also from ParaView, in this case don't change the filename
@@ -381,3 +375,8 @@ foreach(vtk-module ${VTK_MODULES_ALL})
 endforeach()
 configure_file("${VTK_CMAKE_DIR}/CTestCustom.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake" @ONLY)
+
+#-----------------------------------------------------------------------------
+# Export all targets at once from the build tree in their final configuration.
+get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
+export(TARGETS ${VTK_TARGETS} FILE ${VTK_BINARY_DIR}/VTKTargets.cmake)
