@@ -3,7 +3,11 @@
 #
 macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   if(NOT VTK_WRAP_HIERARCHY_EXE)
-    message(SEND_ERROR "VTK_WRAP_HIERARCHY_EXE not specified when calling VTK_WRAP_HIERARCHY")
+    if (TARGET vtkWrapHierarchy)
+      set (VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
+    else ()
+      message(SEND_ERROR "VTK_WRAP_HIERARCHY_EXE not specified when calling VTK_WRAP_HIERARCHY")
+    endif()
   endif()
 
   # The shell into which nmake.exe executes the custom command has some issues
