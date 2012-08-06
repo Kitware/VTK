@@ -7,7 +7,6 @@
     )
 
   if(VTK_DATA_ROOT)
-
     # add tests that require data
     set(MyTests ${MyTests}
       TestAxes.cxx
@@ -22,6 +21,7 @@
       TestControlPointsHandleItem.cxx
       TestDiagram.cxx
       TestHistogram2D.cxx
+      TestInteractiveChartXYZ.cxx
       TestLegendHiddenPlots.cxx
       TestLinePlot.cxx
       TestLinePlotAxisFonts.cxx

@@ -30,98 +30,14 @@
 #include "vtkSelectionNode.h"
 #include "vtkIdTypeArray.h"
 
+#include "vtkChartXYZPrivate.h"
+
 #include "vtkObjectFactory.h"
 
 #include <vector>
 #include <cassert>
 
 using std::vector;
-
-class vtkChartXYZ::Private
-{
-public:
-  Private() : angle(0), isX(false), init(false) {}
-
-  // Calculate the required transforms for the XYZ chart.
-  void CalculateTransforms();
-
-  vector<vtkVector3f> points;
-  vtkTimeStamp pointsBuidTime;
-  vector<vtkVector3f> selectedPoints;
-  vtkTimeStamp selectedPointsBuidTime;
-
-  vector< vtkSmartPointer<vtkAxis> > axes;
-  vtkNew<vtkTransform> Transform;
-  vtkNew<vtkTransform> Rotation;
-  vtkNew<vtkTransform> Box;
-  double angle;
-
-  vtkVector3f origin;
-  vtkVector3f other;
-  vtkVector3f xyz[3];
-
-  bool isX;
-  bool init;
-};
-
-inline void vtkChartXYZ::Private::CalculateTransforms()
-{
-  // First the rotation transform...
-  // Calculate the correct translation vector before the rotation is applied
-  vtkVector3f translation(
-        (axes[0]->GetPosition2()[0] - axes[0]->GetPosition1()[0]) / 2.0
-        + axes[0]->GetPosition1()[0],
-        (axes[1]->GetPosition2()[1] - axes[1]->GetPosition1()[1]) / 2.0
-        + axes[1]->GetPosition1()[1],
-        (axes[2]->GetPosition2()[1] - axes[2]->GetPosition1()[1]) / 2.0
-        + axes[2]->GetPosition1()[1]);
-  vtkVector3f mtranslation = -1.0 * translation;
-
-  this->Rotation->Identity();
-  this->Rotation->Translate(translation.GetData());
-  if (isX)
-    this->Rotation->RotateX(this->angle);
-  else
-    this->Rotation->RotateY(this->angle);
-
-  this->Rotation->Translate(mtranslation.GetData());
-  this->Rotation->Concatenate(this->Transform.GetPointer());
-
-
-  // Next the box rotation transform.
-  double scale[3] = { 300, 300, 300 };
-  for (int i = 0; i < 3; ++i)
-    {
-    if (i == 0)
-      scale[i] = axes[i]->GetPosition2()[0] - axes[i]->GetPosition1()[0];
-    else
-      scale[i] = axes[i]->GetPosition2()[1] - axes[i]->GetPosition1()[1];
-    }
-
-  this->Box->Identity();
-  this->Box->PostMultiply();
-  this->Box->Translate(-0.5, -0.5, -0.5);
-  if (isX)
-    this->Box->RotateX(this->angle);
-  else
-    this->Box->RotateY(this->angle);
-  this->Box->Translate(0.5, 0.5, 0.5);
-
-  this->Box->Scale(scale);
-
-  if (isX)
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[1]);
-    }
-  else
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[0]);
-    }
-}
 
 vtkStandardNewMacro(vtkChartXYZ)
 
@@ -385,7 +301,7 @@ void vtkChartXYZ::SetGeometry(const vtkRectf &bounds)
 
 vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), Link(NULL)
 {
-  d = new Private;
+  d = new vtkChartXYZPrivate;
   this->Pen->SetWidth(5);
   this->Pen->SetColor(0, 0, 0, 255);
   this->SelectedPen->SetWidth(6);

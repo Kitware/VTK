@@ -28,6 +28,7 @@
 
 class vtkAnnotationLink;
 class vtkAxis;
+class vtkChartXYZPrivate;
 class vtkPlot;
 class vtkTable;
 class vtkTransform;
@@ -97,8 +98,7 @@ protected:
   vtkNew<vtkPen> AxisPen;
   vtkSmartPointer<vtkAnnotationLink> Link;
 
-  class Private;
-  Private *d;
+  vtkChartXYZPrivate *d;
 
 private:
   vtkChartXYZ(const vtkChartXYZ &);    // Not implemented.
