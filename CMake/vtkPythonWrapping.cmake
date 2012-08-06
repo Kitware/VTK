@@ -15,7 +15,10 @@ function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
     include_directories(${_python_include_dirs})
   endif()
 
-  set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+    set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  endif()
+
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
   set(KIT ${kit_name})
   set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})

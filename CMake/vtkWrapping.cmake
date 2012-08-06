@@ -50,9 +50,11 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
       endif()
 
       # The module is wrapped by at least one language - invoke wrap hierarchy.
-      set(_all_files ${module_srcs} ${modules_hdrs})
-      vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
-        "${_all_files}")
+      if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+        set(_all_files ${module_srcs} ${modules_hdrs})
+        vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
+          "${_all_files}")
+      endif()
 
       # Now to wrap the languages that are on.
       if(VTK_WRAP_PYTHON)
