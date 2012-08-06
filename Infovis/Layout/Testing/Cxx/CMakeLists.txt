@@ -5,6 +5,7 @@ create_test_sourcelist(Tests ${vtk-module}CxxTests.cxx
   # TestCosmicTreeLayoutStrategy.cxx # todo (unsatisfied deps)
   TestGraphLayoutStrategy.cxx
   TestIncrementalForceLayout.cxx
+  TestTreeHeatmapItem.cxx
   TestTreeMapLayoutStrategy.cxx
 
   EXTRA_INCLUDE vtkTestDriver.h
