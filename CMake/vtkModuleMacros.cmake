@@ -272,9 +272,7 @@ macro(vtk_target_name _name)
 endmacro()
 
 macro(vtk_target_export _name)
-  if(NOT VTK_INSTALL_NO_LIBRARIES)
-    set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
-  endif()
+  set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
 endmacro()
 
 macro(vtk_target_install _name)
@@ -304,6 +302,55 @@ macro(vtk_target _name)
     vtk_target_install(${_name})
   endif()
 endmacro()
+
+#------------------------------------------------------------------------------
+# Export a target for a tool that used during the compilation process.
+# This is called by vtk_compile_tools_target().
+macro(vtk_compile_tools_target_export _name)
+  set_property(GLOBAL APPEND PROPERTY VTK_COMPILETOOLS_TARGETS ${_name})
+endmacro()
+
+#------------------------------------------------------------------------------
+macro(vtk_compile_tools_target_install _name)
+  if(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(TARGETS ${_name}
+      EXPORT ${VTK_INSTALL_EXPORT_NAME}
+      RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
+      LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries
+      ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
+      )
+  endif()
+endmacro()
+
+#------------------------------------------------------------------------------
+# vtk_compile_tools_target() is used to declare a target that builds a tool that
+# is used during the building process. This macro ensures that the target is
+# added to VTK_COMPILETOOLS_TARGETS global property. This also adds install
+# rules for the target unless NO_INSTALL argument is specified or
+# VTK_INSTALL_NO_DEVELOPMENT variable is set.
+macro(vtk_compile_tools_target _name)
+  if (CMAKE_CROSSCOMPILING)
+    message(AUTHOR_WARNING
+      "vtk_compile_tools_target is being called when CMAKE_CROSSCOMPILING is true. "
+      "This generally signifies a script issue. compile-tools are not expected "
+      "to built, but rather imported when CMAKE_CROSSCOMPILING is ON")
+  endif (CMAKE_CROSSCOMPILING)
+ set(_install 1)
+  foreach(arg ${ARGN})
+    if("${arg}" MATCHES "^(NO_INSTALL)$")
+      set(_install 0)
+    else()
+      message(FATAL_ERROR "Unknown argument [${arg}]")
+    endif()
+  endforeach()
+  vtk_target_name(${_name})
+  vtk_target_label(${_name})
+  vtk_compile_tools_target_export(${_name})
+  if(_install)
+    vtk_compile_tools_target_install(${_name})
+  endif()
+endmacro()
+#------------------------------------------------------------------------------
 
 function(vtk_add_library name)
   add_library(${name} ${ARGN} ${headers})
