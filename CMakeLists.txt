@@ -4,7 +4,6 @@ project(VTK)
 
 set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
-SET(VTK_ENCODESTRING_EXE vtkEncodeString)
 
 include(vtkModuleMacros)
 

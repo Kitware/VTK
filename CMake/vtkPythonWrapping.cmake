@@ -3,7 +3,11 @@ include(vtkWrapPython)
 
 function(vtk_add_python_wrapping module_name module_srcs module_hdrs)
   if(NOT VTK_WRAP_PYTHON_INIT_EXE)
-    message(FATAL_ERROR "VTK must be built with Python wrapping turned on.")
+    if (TARGET vtkWrapPythonInit)
+      set (VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
+    else()
+      message(FATAL_ERROR "VTK must be built with Python wrapping turned on.")
+    endif()
   endif()
   # Need to add the Wrapping/Python to the include directory
   set(_python_include_dirs
