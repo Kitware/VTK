@@ -18,6 +18,7 @@ SET(Module_SRCS
   vtkRenderedTreeAreaRepresentation.cxx
   vtkRenderView.cxx
   vtkTreeAreaView.cxx
+  vtkTreeHeatmapItem.cxx
   vtkTreeMapView.cxx
   vtkTreeRingView.cxx
   vtkViewUpdater.cxx
