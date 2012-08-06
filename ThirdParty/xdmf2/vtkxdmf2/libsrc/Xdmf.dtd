@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Root element of dataset-->
+<!ELEMENT Xdmf (Information*, Domain+)>
+<!ATTLIST Xdmf
+    Version CDATA #IMPLIED
+>
+<!--Contains domain data information-->
+<!ELEMENT Domain (Information*, Grid+)>
+<!ATTLIST Domain
+	Name CDATA #IMPLIED
+>
+<!--Contains a collection of homogeneous elements-->
+<!ELEMENT Grid (Information*, Time*, Grid*, Topology*, Geometry*, Attribute*)>
+<!ATTLIST Grid
+	Name CDATA #IMPLIED
+	GridType (Uniform | Collection | Tree | Subset) "Uniform"
+    CollectionType   (Spatial | Temporal) "Spatial"
+    Section (DataItem | All) "All"
+>
+<!-- Described Temporal Relationship -->
+<!ELEMENT Time (Information*, DataItem*)>
+<!ATTLIST Time
+    TimeType (Single | HyperSlab | List | Range) "Single"
+    Value CDATA #IMPLIED
+>
+<!--Describes the general organization of the data-->
+<!ELEMENT Topology (Information*, DataItem*)>
+<!ATTLIST Topology
+TopologyType (Polyvertex | Polyline | Polygon | Triangle | Quadrilateral | Tetrahedron | Pyramid| Wedge | Hexahedron | Edge_3 | Triagle_6 | Quadrilateral_8 | Quadrilateral_9 | Tetrahedron_10 | Pyramid_13 | Wedge_15 | Hexahedron_20 | Mixed | 2DSMesh | 2DRectMesh | 2DCoRectMesh | 3DSMesh | 3DRectMesh | 3DCoRectMesh) #REQUIRED
+	Dimensions CDATA #IMPLIED
+	Order CDATA #IMPLIED
+    BaseOffset CDATA "0"
+	NodesPerElement CDATA #IMPLIED
+	NumberOfElements CDATA #IMPLIED
+>
+<!--Describes the XYZ values of the mesh-->
+<!ELEMENT Geometry (Information*, DataItem+)>
+<!ATTLIST Geometry
+	Name CDATA #IMPLIED
+	GeometryType (XYZ | XY | X_Y_Z | VXVYVZ | ORIGIN_DXDYDZ) "XYZ"
+>
+<!--Lowest level element, describes the data that is present in the XDMF dataset-->
+<!ELEMENT DataItem (#PCDATA | DataItem)*>
+<!ATTLIST DataItem
+	Name CDATA #IMPLIED
+    ItemType (Uniform | Collection | Tree | HyperSlab | Coordinates | Function) "Uniform"
+	Dimensions CDATA #REQUIRED
+	NumberType (Char | UChar | Float | Int | UInt) "Float"
+	Precision (1 | 4 | 8) "4"
+	Reference CDATA #IMPLIED
+    Endian (Big | Little | Native) "Native"
+    Compression (Zlib |BZip2 | Raw) "Raw"
+	Format (XML | HDF | Binary) "XML"
+>
+<!--Describes the values on the mesh-->
+<!ELEMENT Attribute (Information*, DataItem)>
+<!ATTLIST Attribute
+	Name CDATA #IMPLIED
+	Center (Node | Cell | Grid | Face | Edge) "Node"
+	AttributeType (Scalar | Vector | Tensor | Tensor6 | Matrix) "Scalar"
+>
+<!-- Application Dependent -->
+<!ELEMENT Information (#PCDATA | Information | EMPTY)*>
+<!ATTLIST Information 
+	Name CDATA #IMPLIED
+	Value CDATA #IMPLIED
+>
+
