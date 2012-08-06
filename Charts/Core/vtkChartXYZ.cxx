@@ -30,8 +30,6 @@
 #include "vtkSelectionNode.h"
 #include "vtkIdTypeArray.h"
 
-#include "vtkChartXYZPrivate.h"
-
 #include "vtkObjectFactory.h"
 
 #include <vector>

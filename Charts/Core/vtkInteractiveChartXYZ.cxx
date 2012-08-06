@@ -17,7 +17,6 @@
 
 #include "vtkAnnotationLink.h"
 #include "vtkAxis.h"
-#include "vtkChartXYZPrivate.h"
 #include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
