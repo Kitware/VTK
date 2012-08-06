@@ -12,11 +12,11 @@ endif()
 
 set(Module_SRCS
   vtkMatplotlibMathTextUtilities.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMatplotlibObjectFactory.cxx
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
 set_source_files_properties(
-  vtkMatplotlibObjectFactory
+  ${vtk-module}ObjectFactory
   vtkMatplotlibMathTextUtilities
   WRAP_EXCLUDE
   )

@@ -1,0 +1,12 @@
+vtk_module(vtkIOXdmf2
+  GROUPS
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkFiltersExtraction
+    vtkIOCore
+    vtkIOXML
+    vtkxdmf2
+  TEST_DEPENDS
+  )

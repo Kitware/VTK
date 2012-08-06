@@ -277,8 +277,9 @@ void vtkGL2PSExporter::WriteData()
       }
 
     // Add the strings from the text actors individually
+    vtkProp *prop = 0;
     for (specialPropCol->InitTraversal();
-         vtkProp *prop = specialPropCol->GetNextProp();)
+         (prop = specialPropCol->GetNextProp());)
       {
       // What sort of special prop is it?
       if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
@@ -621,7 +622,8 @@ void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct,
   glPushMatrix();
   glLoadIdentity();
   // Add a string for each renderer
-  for (renCol->InitTraversal(); vtkRenderer *ren = renCol->GetNextItem();)
+  vtkRenderer *ren = 0;
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     // convert coordinate to normalized display
     GLdouble *textPos = coord->GetComputedDoubleDisplayValue(
@@ -673,7 +675,8 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
                         static_cast<double>(winsize[1])};
 
   vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
-  for (renCol->InitTraversal();vtkRenderer *ren = renCol->GetNextItem();)
+  vtkRenderer *ren = 0;
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     // Setup gl matrices
     ren->GetActiveCamera()->Render(ren);
@@ -747,7 +750,8 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   glPushMatrix();
   glLoadIdentity();
   // Add a string for each renderer
-  for (renCol->InitTraversal(); vtkRenderer *ren = renCol->GetNextItem();)
+  vtkRenderer *ren = 0;
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     // convert coordinate to normalized display
     GLdouble *textPos = coord->GetComputedDoubleDisplayValue(
@@ -786,7 +790,8 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
                          actorBounds[5] - actorBounds[4]};
 
   // Add a path for each renderer
-  for (renCol->InitTraversal(); vtkRenderer *ren = renCol->GetNextItem();)
+  vtkRenderer *ren = 0;
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     ren->GetActiveCamera()->Render(ren);
     int *textPos = coord->GetComputedDisplayValue(ren);
@@ -842,7 +847,8 @@ void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
                         static_cast<double>(winsize[1])};
 
   vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
-  for (renCol->InitTraversal();vtkRenderer *ren = renCol->GetNextItem();)
+  vtkRenderer *ren = 0;
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
     {
     // Setup gl matrices
     ren->GetActiveCamera()->Render(ren);

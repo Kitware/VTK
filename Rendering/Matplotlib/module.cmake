@@ -1,6 +1,6 @@
-vtk_module(vtkMatplotlib
+vtk_module(vtkRenderingMatplotlib
   IMPLEMENTS
-    vtkMathText
+    vtkRenderingMathText
   DEPENDS
     vtkRenderingCore
     vtkWrappingPython
@@ -11,4 +11,5 @@ vtk_module(vtkMatplotlib
     vtkRenderingGL2PS
     vtkRenderingOpenGL
     vtkViewsContext2D
+  EXCLUDE_FROM_WRAPPING
   )

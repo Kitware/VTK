@@ -28,7 +28,7 @@
 #ifndef __vtkMathTextActor3D_h
 #define __vtkMathTextActor3D_h
 
-#include "vtkMathTextModule.h" // For export macro
+#include "vtkRenderingMathTextModule.h" // For export macro
 #include "vtkNew.h" // For smart pointer
 #include "vtkSmartPointer.h" // For smart pointer
 #include "vtkProp3D.h"
@@ -37,7 +37,7 @@ class vtkImageActor;
 class vtkImageData;
 class vtkTextProperty;
 
-class VTKMATHTEXT_EXPORT vtkMathTextActor3D : public vtkProp3D
+class VTKRENDERINGMATHTEXT_EXPORT vtkMathTextActor3D : public vtkProp3D
 {
 public:
   static vtkMathTextActor3D *New();

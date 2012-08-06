@@ -5,4 +5,5 @@ vtk_module(vtkRenderingFreeTypeFontConfig
     vtkChartsCore
     vtkTestingRendering
     vtkViewsContext2D
+  EXCLUDE_FROM_WRAPPING
   )
