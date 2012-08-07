@@ -17,6 +17,9 @@ include_directories(${R_INCLUDE_DIR})
 # Configure the module specific settings into a module configured header.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkFiltersStatisticsGnuRConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFiltersStatisticsGnuRConfigure.h)
+set(${vtk-module}_HDRS
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkFiltersStatisticsGnuRConfigure.h
+  )
 
 # Set up some of the module specific preprocessor definitions.
 set(${vtk-module}_EXPORT_CODE "#include \"vtkFiltersStatisticsGnuRConfigure.h\"")
