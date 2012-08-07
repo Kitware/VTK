@@ -87,6 +87,11 @@ protected:
   ~vtkInteractiveChartXYZ();
   virtual void CalculateTransforms();
   bool Rotate(const vtkContextMouseEvent &mouse);
+  bool Pan(const vtkContextMouseEvent &mouse);
+  bool Zoom(const vtkContextMouseEvent &mouse);
+  bool Spin(const vtkContextMouseEvent &mouse);
+
+  vtkNew<vtkTransform> Translation;
   unsigned char *Colors;
   int NumberOfComponents;
 

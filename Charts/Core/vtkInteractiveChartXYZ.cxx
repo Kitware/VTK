@@ -229,6 +229,8 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
 
 vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
 {
+  this->Translation->Identity();
+  this->Translation->PostMultiply();
   this->Interactive = true;
   this->Colors = NULL;
   this->NumberOfComponents = 0;
@@ -266,10 +268,27 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
-    return this->Rotate(mouse);
+    if (mouse.GetModifiers() == vtkContextMouseEvent::SHIFT_MODIFIER)
+      {
+      return this->Spin(mouse);
+      }
+    else
+      {
+      return this->Rotate(mouse);
+      }
     }
-  if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+  if (mouse.GetButton() == vtkContextMouseEvent::RIGHT_BUTTON)
     {
+    if (mouse.GetModifiers() == vtkContextMouseEvent::SHIFT_MODIFIER)
+      {
+      return this->Pan(mouse);
+      }
+    else
+      {
+      return this->Zoom(mouse);
+      }
+    }
+/*
     // Figure out how much the mouse has moved and scale accordingly
     float delta = 0.0f;
     if (this->Scene->GetSceneHeight() > 0)
@@ -285,37 +304,10 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 
     this->InvokeEvent(vtkCommand::InteractionEvent);
     return true;
-    }
+*/
   return false;
 }
     
-//-----------------------------------------------------------------------------
-bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
-{
-  // Figure out how much the mouse has moved in plot coordinates
-  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
-
-  double dx = screenPos[0] - lastScreenPos[0];
-  double dy = screenPos[1] - lastScreenPos[1];
-  double dist = sqrt(dx*dx + dy*dy);
-
-  double delta_elevation = -20.0 / this->Scene->GetSceneHeight();
-  double delta_azimuth = -20.0 / this->Scene->GetSceneWidth();
-
-  double rxf = dx * delta_azimuth * 10.0;
-  double ryf = dy * delta_elevation * 10.0;
-  
-  this->Rotation->RotateY(-rxf);
-  this->Rotation->RotateX(ryf);
-
-  // Mark the scene as dirty
-  this->Scene->SetDirty(true);
-
-  this->InvokeEvent(vtkCommand::InteractionEvent);
-  return true;
-}
-
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
 {
@@ -345,6 +337,64 @@ bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, 
   return true;
 }
 
+//-----------------------------------------------------------------------------
+bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double dx = screenPos[0] - lastScreenPos[0];
+  double dy = screenPos[1] - lastScreenPos[1];
+
+  double delta_elevation = -20.0 / this->Scene->GetSceneHeight();
+  double delta_azimuth = -20.0 / this->Scene->GetSceneWidth();
+
+  double rxf = dx * delta_azimuth * 10.0;
+  double ryf = dy * delta_elevation * 10.0;
+  
+  this->Rotation->RotateY(-rxf);
+  this->Rotation->RotateX(ryf);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkInteractiveChartXYZ::Pan(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double dx = (screenPos[0] - lastScreenPos[0]);
+  double dy = (screenPos[1] - lastScreenPos[1]);
+
+  this->Translation->Translate(dx, dy, 0.0);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
+{
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkInteractiveChartXYZ::Spin(const vtkContextMouseEvent &mouse)
+{
+  return true;
+}
+
+
 void vtkInteractiveChartXYZ::CalculateTransforms()
 {
   // First the rotation transform...
@@ -359,12 +409,11 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   vtkVector3f mtranslation = -1.0 * translation;
 
   this->ContextTransform->Identity();
+  this->ContextTransform->Concatenate(this->Translation.GetPointer());
   this->ContextTransform->Translate(translation.GetData());
   this->ContextTransform->Concatenate(this->Rotation.GetPointer());
-
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
-
 
   // Next the box rotation transform.
   double scale[3] = { 300, 300, 300 };
@@ -381,19 +430,9 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Box->Translate(-0.5, -0.5, -0.5);
   this->Box->Concatenate(this->Rotation.GetPointer());
   this->Box->Translate(0.5, 0.5, 0.5);
-
   this->Box->Scale(scale);
-
-  if (isX)
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[1]);
-    }
-  else
-    {
-    this->Box->Translate(axes[0]->GetPosition1()[0],
-                         axes[1]->GetPosition1()[1],
-                         axes[2]->GetPosition1()[0]);
-    }
+  this->Box->Translate(axes[0]->GetPosition1()[0],
+                       axes[1]->GetPosition1()[1],
+                       axes[2]->GetPosition1()[1]);
+  this->Box->Concatenate(this->Translation.GetPointer());
 }
