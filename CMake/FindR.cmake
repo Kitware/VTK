@@ -4,7 +4,7 @@
 #
 # Defines the following:
 #  R_COMMAND           - Path to R command
-#  VTK_R_HOME          - Path to 'R home', as reported by R
+#  R_HOME              - Path to 'R home', as reported by R
 #  R_INCLUDE_DIR       - Path to R include directory
 #  R_LIBRARY_BASE      - Path to R library
 #  R_LIBRARY_BLAS      - Path to Rblas / blas library
@@ -12,12 +12,14 @@
 #  R_LIBRARY_READLINE  - Path to readline library
 #  R_LIBRARIES         - Array of: R_LIBRARY_BASE, R_LIBRARY_BLAS, R_LIBRARY_LAPACK, R_LIBRARY_BASE [, R_LIBRARY_READLINE]
 #
+#  VTK_R_HOME          - (deprecated, use R_HOME instead) Path to 'R home', as reported by R
+#
 # Variable search order:
 #   1. Attempt to locate and set R_COMMAND
 #     - If unsuccessful, generate error and prompt user to manually set R_COMMAND
-#   2. Use R_COMMAND to set VTK_R_HOME
+#   2. Use R_COMMAND to set R_HOME
 #   3. Locate other libraries in the priority:
-#     1. Within a user-built instance of R at VTK_R_HOME
+#     1. Within a user-built instance of R at R_HOME
 #     2. Within an installed instance of R
 #     3. Within external system libraries
 #
@@ -32,7 +34,16 @@ if(R_COMMAND)
                   COMMAND ${R_COMMAND} RHOME
                   OUTPUT_VARIABLE R_ROOT_DIR
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  SET(VTK_R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
+  # deprecated
+  if(VTK_R_HOME)
+    set(R_HOME ${VTK_R_HOME} CACHE PATH "R home directory obtained from R RHOME")
+  else(VTK_R_HOME)
+    set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
+    set(VTK_R_HOME ${R_HOME})
+  endif(VTK_R_HOME)
+  # /deprecated
+  # the following command does nothing currently, but will be used when deprecated code is removed
+  set(R_HOME ${R_ROOT_DIR} CACHE PATH "R home directory obtained from R RHOME")
 
   find_path(R_INCLUDE_DIR R.h
             HINTS ${R_ROOT_DIR}
