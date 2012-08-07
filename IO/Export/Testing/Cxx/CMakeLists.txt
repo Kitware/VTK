@@ -55,16 +55,16 @@ if(CMAKE_HAS_FILE_MD5_SUBCOMMAND AND GL2PSTests AND VTK_DATA_ROOT)
     get_filename_component(TName ${test} NAME_WE)
     add_test(NAME ${vtk-module}Cxx-${TName}-CheckMD5sum
       COMMAND ${CMAKE_COMMAND}
-        -DTESTFILE=${VTK_BINARY_DIR}/Testing/Temporary/${TName}.ps
+        -DTESTFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.ps
         -DGLOBEXP=${VTK_DATA_ROOT}/Baseline/Hybrid/${TName}*.ps
         -DCLEANTESTFILE=1
-        -P ${VTK_SOURCE_DIR}/CMake/CompareFileMD5.cmake
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/../../../../CMake/CompareFileMD5.cmake
     )
     set_tests_properties("${vtk-module}Cxx-${TName}-CheckMD5sum"
       PROPERTIES
         DEPENDS "${vtk-module}Cxx-${TName}"
         REQUIRED_FILES
-          "${VTK_DATA_ROOT}/Baseline/Hybrid/${TName}.ps;${VTK_BINARY_DIR}/Testing/Temporary/${TName}.ps"
+          "${VTK_DATA_ROOT}/Baseline/Hybrid/${TName}.ps;${VTK_TEST_OUTPUT_DIR}/${TName}.ps"
         FAIL_REGULAR_EXPRESSION "MATCH_FAIL"
     )
   endforeach()
