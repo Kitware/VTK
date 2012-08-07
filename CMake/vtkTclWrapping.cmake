@@ -7,7 +7,12 @@ endif()
 
 function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   if(NOT VTK_WRAP_TCL_INIT_EXE)
-    message(FATAL_ERROR "VTK must be built with Tcl wrapping turned on.")
+    if (TARGET vtkWrapTclInit)
+      set(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
+    else()
+      message(FATAL_ERROR
+        "VTK_WRAP_TCL_INIT_EXE must be set before calling vtk_add_tcl_wrapping.")
+    endif()
   endif()
   # Need to add the Wrapping directory to the include directory
   set(_tcl_include_dirs
