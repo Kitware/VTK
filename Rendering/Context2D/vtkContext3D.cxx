@@ -82,6 +82,13 @@ void vtkContext3D::DrawPoints(const float *points, int n)
   this->Device->DrawPoints(points, n);
 }
 
+void vtkContext3D::DrawPoints(const float *points, int n,
+                              unsigned char *colors, int nc_comps)
+{
+  assert(this->Device);
+  this->Device->DrawPoints(points, n, colors, nc_comps);
+}
+
 void vtkContext3D::ApplyPen(vtkPen *pen)
 {
   assert(this->Device);

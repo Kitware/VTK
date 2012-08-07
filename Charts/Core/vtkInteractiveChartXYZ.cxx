@@ -24,9 +24,11 @@
 #include "vtkContextScene.h"
 #include "vtkTable.h"
 #include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
+
 #include "vtkPen.h"
 #include "vtkAnnotationLink.h"
 #include "vtkSelection.h"
@@ -97,7 +99,15 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 
   // First lets draw the points in 3d.
   context->ApplyPen(this->Pen.GetPointer());
-  context->DrawPoints(this->points[0].GetData(), this->points.size());
+  if (this->NumberOfComponents == 0)
+    {
+    context->DrawPoints(this->points[0].GetData(), this->points.size());
+    }
+  else
+    {
+    context->DrawPoints(this->points[0].GetData(), this->points.size(),
+                        this->Colors, this->NumberOfComponents);
+    }
 
   // Now to render the selected points.
   if (!this->selectedPoints.empty())
@@ -140,19 +150,97 @@ bool vtkInteractiveChartXYZ::Paint(vtkContext2D *painter)
 }
 
 void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
-                           const vtkStdString &yName, const vtkStdString &zName,
-                           const vtkStdString &colorName)
+                           const vtkStdString &yName, const vtkStdString &zName)
 {
   this->Superclass::SetInput(input, xName, yName, zName);
+}
+
+void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
+                           const vtkStdString &yName, const vtkStdString &zName,
+                           const vtkStdString &rName, const vtkStdString &gName,
+                           const vtkStdString &bName)
+{
+  this->Superclass::SetInput(input, xName, yName, zName);
+
+  vtkUnsignedCharArray *rArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(rName.c_str()));
+  vtkUnsignedCharArray *gArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(gName.c_str()));
+  vtkUnsignedCharArray *bArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(bName.c_str()));
+
+  assert(rArr);
+  assert(gArr);
+  assert(bArr);
+  assert(rArr->GetNumberOfTuples() == gArr->GetNumberOfTuples() &&
+         rArr->GetNumberOfTuples() == bArr->GetNumberOfTuples() &&
+         rArr->GetNumberOfTuples() == this->points.size());
+
+  this->NumberOfComponents = 3;
+
+  this->Colors =
+    new unsigned char[this->points.size() * this->NumberOfComponents];
+
+  for (int i = 0; i < this->points.size(); ++i)
+    {
+    this->Colors[i * this->NumberOfComponents] = rArr->GetValue(i);
+    this->Colors[i * this->NumberOfComponents + 1] = gArr->GetValue(i); 
+    this->Colors[i * this->NumberOfComponents + 2] = bArr->GetValue(i);
+    }
+}
+
+void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
+                           const vtkStdString &yName, const vtkStdString &zName,
+                           const vtkStdString &rName, const vtkStdString &gName,
+                           const vtkStdString &bName, const vtkStdString &aName)
+{
+  this->Superclass::SetInput(input, xName, yName, zName);
+  
+  vtkUnsignedCharArray *rArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(rName.c_str()));
+  vtkUnsignedCharArray *gArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(gName.c_str()));
+  vtkUnsignedCharArray *bArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(bName.c_str()));
+  vtkUnsignedCharArray *aArr =
+      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(aName.c_str()));
+
+  assert(rArr);
+  assert(gArr);
+  assert(bArr);
+  assert(aArr);
+  assert(rArr->GetNumberOfTuples() == gArr->GetNumberOfTuples() &&
+         rArr->GetNumberOfTuples() == bArr->GetNumberOfTuples() &&
+         rArr->GetNumberOfTuples() == aArr->GetNumberOfTuples() &&
+         rArr->GetNumberOfTuples() == this->points.size());
+  
+  this->NumberOfComponents = 4;
+  this->Colors =
+    new unsigned char[this->points.size() * this->NumberOfComponents];
+
+  for (int i = 0; i < this->points.size(); ++i)
+    {
+    this->Colors[i * this->NumberOfComponents] = rArr->GetValue(i);
+    this->Colors[i * this->NumberOfComponents + 1] = gArr->GetValue(i); 
+    this->Colors[i * this->NumberOfComponents + 2] = bArr->GetValue(i);
+    this->Colors[i * this->NumberOfComponents + 3] = aArr->GetValue(i);
+    }
 }
 
 vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
 {
   this->Interactive = true;
+  this->Colors = NULL;
+  this->NumberOfComponents = 0;
 }
 
 vtkInteractiveChartXYZ::~vtkInteractiveChartXYZ()
 {
+  if(this->Colors != NULL)
+    {
+    delete [] this->Colors;
+    this->Colors = NULL;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -168,12 +256,6 @@ bool vtkInteractiveChartXYZ::MouseButtonPressEvent(const vtkContextMouseEvent &m
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
-    // Determine anchor to zoom in on
-    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-    vtkVector2d pos(0.0, 0.0);
-    vtkTransform *transform = this->Transform.GetPointer();
-    //transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
-    //this->ZoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
     return true;
     }
   return false;
@@ -184,33 +266,7 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
-    // Figure out how much the mouse has moved by in plot coordinates - pan
-    vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-    vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
-
-    double dx = screenPos[0] - lastScreenPos[0];
-    double dy = screenPos[1] - lastScreenPos[1];
-    double dist = sqrt(dx*dx + dy*dy);
-  
-    double delta_elevation = -20.0 / this->Scene->GetSceneHeight();
-    double delta_azimuth = -20.0 / this->Scene->GetSceneWidth();
-
-    double rxf = dx * delta_azimuth * 10.0;
-    double ryf = dy * delta_elevation * 10.0;
-    
-    double w = dist * (delta_azimuth + delta_elevation) / 2 * 10.0;
-
-
-
-    this->Rotation->RotateY(-rxf);
-    this->Rotation->RotateX(ryf);
-
-
-    // Mark the scene as dirty
-    this->Scene->SetDirty(true);
-
-    this->InvokeEvent(vtkCommand::InteractionEvent);
-    return true;
+    return this->Rotate(mouse);
     }
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
     {
@@ -224,13 +280,6 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     // Dragging full screen height zooms 4x.
     float scaling = pow(4.0f, delta);
 
-    // Zoom in on anchor position
-    /*
-    this->Translate(this->ZoomAnchor[0], this->ZoomAnchor[1]);
-    this->Scale(scaling, scaling);
-    this->Translate(-this->ZoomAnchor[0], -this->ZoomAnchor[1]);
-    */
-
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
 
@@ -238,6 +287,33 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     return true;
     }
   return false;
+}
+    
+//-----------------------------------------------------------------------------
+bool vtkInteractiveChartXYZ::Rotate(const vtkContextMouseEvent &mouse)
+{
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double dx = screenPos[0] - lastScreenPos[0];
+  double dy = screenPos[1] - lastScreenPos[1];
+  double dist = sqrt(dx*dx + dy*dy);
+
+  double delta_elevation = -20.0 / this->Scene->GetSceneHeight();
+  double delta_azimuth = -20.0 / this->Scene->GetSceneWidth();
+
+  double rxf = dx * delta_azimuth * 10.0;
+  double ryf = dy * delta_elevation * 10.0;
+  
+  this->Rotation->RotateY(-rxf);
+  this->Rotation->RotateX(ryf);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
+  return true;
 }
 
 //-----------------------------------------------------------------------------

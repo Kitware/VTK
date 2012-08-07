@@ -54,8 +54,15 @@ public:
   // Set the input for the chart, this should be done in the plot, but keeping
   // things simple while I get everything working...
   virtual void SetInput(vtkTable *input, const vtkStdString &x,
+                        const vtkStdString &y, const vtkStdString &z);
+  virtual void SetInput(vtkTable *input, const vtkStdString &x,
                         const vtkStdString &y, const vtkStdString &z,
-                        const vtkStdString &color);
+                        const vtkStdString &r,  const vtkStdString &g,
+                        const vtkStdString &b);
+  virtual void SetInput(vtkTable *input, const vtkStdString &x,
+                        const vtkStdString &y, const vtkStdString &z,
+                        const vtkStdString &r,  const vtkStdString &g,
+                        const vtkStdString &b, const vtkStdString &a);
 
   //BTX
   // Description:
@@ -79,6 +86,9 @@ protected:
   vtkInteractiveChartXYZ();
   ~vtkInteractiveChartXYZ();
   virtual void CalculateTransforms();
+  bool Rotate(const vtkContextMouseEvent &mouse);
+  unsigned char *Colors;
+  int NumberOfComponents;
 
 private:
   vtkInteractiveChartXYZ(const vtkInteractiveChartXYZ &);    // Not implemented.

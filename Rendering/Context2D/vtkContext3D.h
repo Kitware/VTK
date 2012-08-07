@@ -71,6 +71,13 @@ public:
   // Description:
   // Draw a sequence of points at the specified locations.
   void DrawPoints(const float *points, int n);
+  
+  // Description:
+  // Draw a sequence of points at the specified locations.  The points will be
+  // colored by the colors array, which must have nc_comps components
+  // (defining a single color).
+  void DrawPoints(const float *points, int n,
+                  unsigned char *colors, int nc_comps);
 
   // Description:
   // Apply the supplied pen which controls the outlines of shapes, as well as
