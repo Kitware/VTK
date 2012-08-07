@@ -166,7 +166,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
       }
     painter->GetPen()->SetWidth(this->Internal->EdgeWidths[edgeIdx]);
     painter->DrawPoly(this->Internal->EdgePositions[edgeIdx][0].GetData(),
-                      this->Internal->EdgePositions[edgeIdx].size(),
+                      static_cast<int>(this->Internal->EdgePositions[edgeIdx].size()),
                       this->Internal->EdgeColors[edgeIdx][0].GetData(), 4);
     }
 
@@ -177,7 +177,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
   painter->GetPen()->SetWidth(this->Internal->VertexSizes[0]);
   painter->DrawPointSprites(this->Sprite.GetPointer(),
                             this->Internal->VertexPositions[0].GetData(),
-                            this->Internal->VertexPositions.size(),
+                            static_cast<int>(this->Internal->VertexPositions.size()),
                             this->Internal->VertexColors[0].GetData(), 4);
 }
 
