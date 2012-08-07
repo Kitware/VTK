@@ -61,6 +61,10 @@ protected:
 //BTX
   virtual vtkDoubleArray* CalculatePValues(vtkDoubleArray*);
 //ETX
+
+private:
+  vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&); // Not implemented
+  void operator=(const vtkCorrelativeStatisticsGnuR&); // Not implemented
 };
 
 #endif
