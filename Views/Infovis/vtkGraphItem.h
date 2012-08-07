@@ -50,9 +50,13 @@ public:
   vtkGetObjectMacro(Graph, vtkGraph);
 
   // Description:
+  // Exposes the incremental graph layout for updating parameters.
+  virtual vtkIncrementalForceLayout *GetLayout();
+
+  // Description:
   // Begins or ends the layout animation.
   virtual void StartLayoutAnimation(vtkRenderWindowInteractor *interactor);
-  virtual void StopLayoutAnimation(vtkRenderWindowInteractor *interactor);
+  virtual void StopLayoutAnimation();
 
 protected:
   vtkGraphItem();

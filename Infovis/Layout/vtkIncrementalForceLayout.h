@@ -64,7 +64,7 @@ public:
   vtkGetMacro(Theta, float);
 
   // Description:
-  // Set the charge of each vertex. Higher values will repel vertices
+  // Set the charge of each vertex. Higher negative values will repel vertices
   // from each other more strongly. Default is -30.
   vtkSetMacro(Charge, float);
   vtkGetMacro(Charge, float);
