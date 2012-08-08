@@ -18,6 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkPath.h"
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
 
@@ -35,6 +36,8 @@
 # include <stdint.h>
 #endif
 
+#include <map>
+
 #ifdef FTGL_USE_NAMESPACE
 using namespace ftgl;
 #endif
@@ -42,6 +45,13 @@ using namespace ftgl;
 // Print debug info
 #define VTK_FTFC_DEBUG 0
 #define VTK_FTFC_DEBUG_CD 0
+
+class vtkTextPropertyLookup
+    : public std::map<unsigned long, vtkSmartPointer<vtkTextProperty> >
+{
+public:
+  bool contains(const unsigned long id) {return this->find(id) != this->end();}
+};
 
 //----------------------------------------------------------------------------
 vtkInstantiatorNewMacro(vtkFreeTypeTools);
@@ -142,10 +152,12 @@ vtkFreeTypeTools::vtkFreeTypeTools()
 #if VTK_FTFC_DEBUG_CD
   printf("vtkFreeTypeTools::vtkFreeTypeTools\n");
 #endif
-
+  // Force use of compiled fonts by default.
+  this->ForceCompiledFonts = true;
   this->MaximumNumberOfFaces = 30; // combinations of family+bold+italic
   this->MaximumNumberOfSizes = this->MaximumNumberOfFaces * 20; // sizes
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
+  this->TextPropertyLookup = new vtkTextPropertyLookup ();
   this->CacheManager = NULL;
   this->ImageCache   = NULL;
   this->CMapCache    = NULL;
@@ -159,6 +171,7 @@ vtkFreeTypeTools::~vtkFreeTypeTools()
   printf("vtkFreeTypeTools::~vtkFreeTypeTools\n");
 #endif
   this->ReleaseCacheManager();
+  delete TextPropertyLookup;
 }
 
 //----------------------------------------------------------------------------
@@ -221,8 +234,6 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
   printf("vtkFreeTypeToolsFaceRequester()\n");
 #endif
 
-  FT_UNUSED(request_data);
-
   // Get a pointer to the current vtkFreeTypeTools object
   vtkFreeTypeTools *self =
     reinterpret_cast<vtkFreeTypeTools*>(request_data);
@@ -232,118 +243,28 @@ vtkFreeTypeToolsFaceRequester(FTC_FaceID face_id,
       vtkSmartPointer<vtkTextProperty>::New();
   self->MapIdToTextProperty(reinterpret_cast<intptr_t>(face_id), tprop);
 
-  // Fonts, organized by [Family][Bold][Italic]
-  static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
-    {
-      {
-        {
-          { // VTK_ARIAL: Bold [ ] Italic [ ]
-            face_arial_buffer_length, face_arial_buffer
-          },
-          { // VTK_ARIAL: Bold [ ] Italic [x]
-            face_arial_italic_buffer_length, face_arial_italic_buffer
-          }
-        },
-        {
-          { // VTK_ARIAL: Bold [x] Italic [ ]
-            face_arial_bold_buffer_length, face_arial_bold_buffer
-          },
-          { // VTK_ARIAL: Bold [x] Italic [x]
-            face_arial_bold_italic_buffer_length, face_arial_bold_italic_buffer
-          }
-        }
-      },
-      {
-        {
-          { // VTK_COURIER: Bold [ ] Italic [ ]
-            face_courier_buffer_length, face_courier_buffer
-          },
-          { // VTK_COURIER: Bold [ ] Italic [x]
-            face_courier_italic_buffer_length, face_courier_italic_buffer
-          }
-        },
-        {
-          { // VTK_COURIER: Bold [x] Italic [ ]
-            face_courier_bold_buffer_length, face_courier_bold_buffer
-          },
-          { // VTK_COURIER: Bold [x] Italic [x]
-            face_courier_bold_italic_buffer_length,
-            face_courier_bold_italic_buffer
-          }
-        }
-      },
-      {
-        {
-          { // VTK_TIMES: Bold [ ] Italic [ ]
-            face_times_buffer_length, face_times_buffer
-          },
-          { // VTK_TIMES: Bold [ ] Italic [x]
-            face_times_italic_buffer_length, face_times_italic_buffer
-          }
-        },
-        {
-          { // VTK_TIMES: Bold [x] Italic [ ]
-            face_times_bold_buffer_length, face_times_bold_buffer
-          },
-          { // VTK_TIMES: Bold [x] Italic [x]
-            face_times_bold_italic_buffer_length, face_times_bold_italic_buffer
-          }
-        }
-      }
-    };
+  bool faceIsSet = self->LookupFace(tprop, lib, face);
 
-  FT_Long length = EmbeddedFonts
-    [tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].length;
-  FT_Byte *ptr = EmbeddedFonts
-    [tprop->GetFontFamily()][tprop->GetBold()][tprop->GetItalic()].ptr;
-
-  // Create a new face from the embedded fonts if possible
-  FT_Error error = 1;
-
-  // If the font face is of type unknown, attempt to load it from disk
-  if (tprop->GetFontFamily() != VTK_UNKNOWN_FONT)
+  if (!faceIsSet)
     {
-    error = FT_New_Memory_Face(lib, ptr, length, 0, face);
-    }
-  else
-    {
-    vtkStdString filePath = "/usr/share/fonts/TTF/DejaVuSans.ttf";
-    cout << "Loading a font from disk!!! " << filePath << endl;
-    error = FT_New_Face(lib, filePath.c_str(), 0, face);
-    }
-  if (error)
-    {
-    vtkErrorWithObjectMacro(
-      tprop.GetPointer(),
-      << "Unable to create font !" << " (family: " << tprop->GetFontFamily()
-      << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic()
-      << ", length: " << length << ")");
-    }
-  else
-    {
-#if VTK_FTFC_DEBUG
-    cout << "Requested: " << *face
-         << " (F: " << tprop->GetFontFamily()
-         << ", B: " << tprop->GetBold()
-         << ", I: " << tprop->GetItalic()
-         << ", O: " << tprop->GetOrientation() << ")" << endl;
-#endif
-    if ( tprop->GetOrientation() != 0.0 )
-      {
-      // FreeType documentation says that the transform should not be set
-      // but we cache faces also by transform, so that there is a unique
-      // (face, orientation) cache entry
-      FT_Matrix matrix;
-      float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() );
-      matrix.xx = (FT_Fixed)( cos(angle) * 0x10000L);
-      matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
-      matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
-      matrix.yy = (FT_Fixed)( cos(angle) * 0x10000L);
-      FT_Set_Transform(*face, &matrix, NULL);
-      }
+    return static_cast<FT_Error>(1);
     }
 
-  return error;
+  if ( tprop->GetOrientation() != 0.0 )
+    {
+    // FreeType documentation says that the transform should not be set
+    // but we cache faces also by transform, so that there is a unique
+    // (face, orientation) cache entry
+    FT_Matrix matrix;
+    float angle = vtkMath::RadiansFromDegrees( tprop->GetOrientation() );
+    matrix.xx = (FT_Fixed)( cos(angle) * 0x10000L);
+    matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
+    matrix.yx = (FT_Fixed)( sin(angle) * 0x10000L);
+    matrix.yy = (FT_Fixed)( cos(angle) * 0x10000L);
+    FT_Set_Transform(*face, &matrix, NULL);
+    }
+
+  return static_cast<FT_Error>(0);
 }
 
 //----------------------------------------------------------------------------
@@ -360,13 +281,7 @@ void vtkFreeTypeTools::InitializeCacheManager()
   // Create the cache manager itself
   this->CacheManager = new FTC_Manager;
 
-  error = FTC_Manager_New(*this->GetLibrary(),
-                          this->MaximumNumberOfFaces,
-                          this->MaximumNumberOfSizes,
-                          this->MaximumNumberOfBytes,
-                          vtkFreeTypeToolsFaceRequester,
-                          static_cast<FT_Pointer>(this),
-                          this->CacheManager);
+  error = this->CreateFTCManager();
 
   if (error)
     {
@@ -535,6 +450,38 @@ bool vtkFreeTypeTools::RenderString(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
+bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
+                                    const vtkStdString &str, vtkPath *path)
+{
+  return this->PopulatePath<vtkStdString>(tprop, str, 0, 0, path);
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::StringToPath(vtkTextProperty *tprop,
+                                    const vtkUnicodeString &str, vtkPath *path)
+{
+  return this->PopulatePath<vtkUnicodeString>(tprop, str, 0, 0, path);
+}
+
+//----------------------------------------------------------------------------
+vtkTypeUInt16 vtkFreeTypeTools::HashString(const char *str)
+{
+  if (str == NULL)
+    return 0;
+
+  vtkTypeUInt16 hash = 0;
+  while (*str != 0)
+    {
+    vtkTypeUInt8 high = ((hash<<8)^hash) >> 8;
+    vtkTypeUInt8 low = tolower(*str)^(hash<<2);
+    hash = (high<<8) ^ low;
+    ++str;
+    }
+
+  return hash;
+}
+
+//----------------------------------------------------------------------------
 void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
                                            unsigned long *id)
 {
@@ -549,30 +496,32 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   *id = 1;
   int bits = 1;
 
-  // The font family is in 4 bits (= 5 bits so far)
+  // The font family is hashed into 16 bits (= 17 bits so far)
   // (2 would be enough right now, but who knows, it might grow)
   // Avoid unknown as this can cause segfaluts - this should be fixed...
-  int family = tprop->GetFontFamily() == VTK_UNKNOWN_FONT ? VTK_ARIAL :
-                                                            tprop->GetFontFamily();
-  int fam = (family - tprop->GetFontFamilyMinValue()) << bits;
-  bits += 4;
+  *id |= vtkFreeTypeTools::HashString(tprop->GetFontFamilyAsString()) << bits;
+  bits += 16;
 
-  // Bold is in 1 bit (= 6 bits so far)
+  // Bold is in 1 bit (= 18 bits so far)
   int bold = (tprop->GetBold() ? 1 : 0) << bits;
   ++bits;
 
-  // Italic is in 1 bit (= 7 bits so far)
+  // Italic is in 1 bit (= 19 bits so far)
   int italic = (tprop->GetItalic() ? 1 : 0) << bits;
   ++bits;
 
   // Orientation (in degrees)
   // We need 9 bits for 0 to 360. What do we need for more precisions:
-  // - 1/10th degree: 12 bits (11.8)
+  // - 1/10th degree: 12 bits (11.8) (31 bits)
   int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
 
   // We really should not use more than 32 bits
   // Now final id
-  *id |= fam | bold | italic | angle;
+  *id |= bold | italic | angle;
+
+  // Insert the TextProperty into the lookup table
+  if (!this->TextPropertyLookup->contains(*id))
+    (*this->TextPropertyLookup)[*id] = tprop;
 }
 
 //----------------------------------------------------------------------------
@@ -585,32 +534,16 @@ void vtkFreeTypeTools::MapIdToTextProperty(unsigned long id,
     return;
     }
 
-  // The first was set to avoid id = 0
-  int bits = 1;
+  vtkTextPropertyLookup::const_iterator tpropIt =
+      this->TextPropertyLookup->find(id);
 
-  // The font family is in 4 bits
-  // (2 would be enough right now, but who knows, it might grow)
-  int fam = id >> bits;
-  bits += 4;
-  tprop->SetFontFamily((fam & ((1 << 4) - 1))+ tprop->GetFontFamilyMinValue());
+  if (tpropIt == this->TextPropertyLookup->end())
+    {
+    vtkErrorMacro(<<"Unknown id; call MapTextPropertyToId first!");
+    return;
+    }
 
-  // Bold is in 1 bit
-  int bold = id >> bits;
-  bits++;
-  tprop->SetBold(bold & 0x1);
-
-  // Italic is in 1 bit
-  int italic = id >> bits;
-  bits++;
-  tprop->SetItalic(italic & 0x1);
-
-  // Orientation (in degrees)
-  // We need 9 bits for 0 to 360. What do we need for more precisions:
-  // - 1/10th degree: 12 bits (11.8)
-  int angle = id >> bits;
-  tprop->SetOrientation((angle & ((1 << 12) - 1)) / 10.0);
-
-  // We really should not use more than 32 bits
+  tprop->ShallowCopy(tpropIt->second);
 }
 
 //----------------------------------------------------------------------------
@@ -818,6 +751,113 @@ bool vtkFreeTypeTools::GetGlyph(unsigned long tprop_cache_id,
   return error ? false : true;
 }
 
+bool vtkFreeTypeTools::LookupFace(vtkTextProperty *tprop, FT_Library lib,
+                                  FT_Face *face)
+{
+  // Fonts, organized by [Family][Bold][Italic]
+  static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
+    {
+      {
+        {
+          { // VTK_ARIAL: Bold [ ] Italic [ ]
+            face_arial_buffer_length, face_arial_buffer
+          },
+          { // VTK_ARIAL: Bold [ ] Italic [x]
+            face_arial_italic_buffer_length, face_arial_italic_buffer
+          }
+        },
+        {
+          { // VTK_ARIAL: Bold [x] Italic [ ]
+            face_arial_bold_buffer_length, face_arial_bold_buffer
+          },
+          { // VTK_ARIAL: Bold [x] Italic [x]
+            face_arial_bold_italic_buffer_length, face_arial_bold_italic_buffer
+          }
+        }
+      },
+      {
+        {
+          { // VTK_COURIER: Bold [ ] Italic [ ]
+            face_courier_buffer_length, face_courier_buffer
+          },
+          { // VTK_COURIER: Bold [ ] Italic [x]
+            face_courier_italic_buffer_length, face_courier_italic_buffer
+          }
+        },
+        {
+          { // VTK_COURIER: Bold [x] Italic [ ]
+            face_courier_bold_buffer_length, face_courier_bold_buffer
+          },
+          { // VTK_COURIER: Bold [x] Italic [x]
+            face_courier_bold_italic_buffer_length,
+            face_courier_bold_italic_buffer
+          }
+        }
+      },
+      {
+        {
+          { // VTK_TIMES: Bold [ ] Italic [ ]
+            face_times_buffer_length, face_times_buffer
+          },
+          { // VTK_TIMES: Bold [ ] Italic [x]
+            face_times_italic_buffer_length, face_times_italic_buffer
+          }
+        },
+        {
+          { // VTK_TIMES: Bold [x] Italic [ ]
+            face_times_bold_buffer_length, face_times_bold_buffer
+          },
+          { // VTK_TIMES: Bold [x] Italic [x]
+            face_times_bold_italic_buffer_length, face_times_bold_italic_buffer
+          }
+        }
+      }
+    };
+
+  int family = tprop->GetFontFamily();
+  // If font family is unknown, fall back to Arial.
+  if (family == VTK_UNKNOWN_FONT)
+    {
+    vtkDebugWithObjectMacro(
+          tprop,
+          << "Requested font '" << tprop->GetFontFamilyAsString() << "'"
+          " unavailable. Substituting Arial.");
+    family = VTK_ARIAL;
+    }
+
+  FT_Long length = EmbeddedFonts
+    [family][tprop->GetBold()][tprop->GetItalic()].length;
+  FT_Byte *ptr = EmbeddedFonts
+    [family][tprop->GetBold()][tprop->GetItalic()].ptr;
+
+  // Create a new face from the embedded fonts if possible
+
+  // If the font face is of type unknown, attempt to load it from disk
+  FT_Error error = FT_New_Memory_Face(lib, ptr, length, 0, face);
+
+  if (error)
+    {
+    vtkErrorWithObjectMacro(
+          tprop,
+          << "Unable to create font !" << " (family: " << family
+          << ", bold: " << tprop->GetBold() << ", italic: " << tprop->GetItalic()
+          << ", length: " << length << ")");
+    return false;
+    }
+  else
+    {
+#if VTK_FTFC_DEBUG
+    cout << "Requested: " << *face
+         << " (F: " << tprop->GetFontFamily()
+         << ", B: " << tprop->GetBold()
+         << ", I: " << tprop->GetItalic()
+         << ", O: " << tprop->GetOrientation() << ")" << endl;
+#endif
+    }
+
+  return true;
+}
+
 //----------------------------------------------------------------------------
 bool vtkFreeTypeTools::GetGlyph(vtkTextProperty *tprop,
                                 FT_UInt32 c,
@@ -863,6 +903,18 @@ void vtkFreeTypeTools::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale to nearest power of 2 for image sizes: "
      << this->ScaleToPowerTwo << endl;
+}
+
+//----------------------------------------------------------------------------
+FT_Error vtkFreeTypeTools::CreateFTCManager()
+{
+  return FTC_Manager_New(*this->GetLibrary(),
+                         this->MaximumNumberOfFaces,
+                         this->MaximumNumberOfSizes,
+                         this->MaximumNumberOfBytes,
+                         vtkFreeTypeToolsFaceRequester,
+                         static_cast<FT_Pointer>(this),
+                         this->CacheManager);
 }
 
 //----------------------------------------------------------------------------
@@ -1169,6 +1221,305 @@ bool vtkFreeTypeTools::PopulateImageData(vtkTextProperty *tprop,
   return true;
 }
 
+//----------------------------------------------------------------------------
+template <typename T>
+bool vtkFreeTypeTools::PopulatePath(vtkTextProperty *tprop,
+                                    const T& str,
+                                    int x, int y,
+                                    vtkPath *path)
+{
+  if (!path)
+    {
+    return false;
+    }
+
+  path->Reset();
+
+  // Map the text property to a unique id that will be used as face id, get the
+  // font face and establish whether kerning information is available.
+  unsigned long tprop_cache_id;
+  FT_Face face;
+  bool face_has_kerning = false;
+  if (!this->GetFace(tprop, tprop_cache_id, face, face_has_kerning))
+    {
+    return false;
+    }
+
+  // Text property size and opacity
+  int tprop_font_size = tprop->GetFontSize();
+
+  FT_OutlineGlyph outline_glyph;
+  FT_Outline *outline;
+  FT_UInt gindex, previous_gindex = 0;
+  FT_Vector kerning_delta;
+
+  // The FT_CURVE defines don't really work in a switch...only the first two
+  // bits are meaningful, and the rest appear to be garbage. We'll convert them
+  // into values in the enum below:
+  enum controlType
+    {
+    FIRST_POINT,
+    ON_POINT,
+    CUBIC_POINT,
+    CONIC_POINT
+    };
+
+  // Bounding box for all control points, used for justification
+  double cbox[4] = {VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MIN, VTK_FLOAT_MIN};
+
+  // Render char by char
+  for (typename T::const_iterator it = str.begin(); it != str.end(); ++it)
+    {
+    outline = this->GetOutline(*it, tprop_cache_id, tprop_font_size, gindex,
+                               outline_glyph);
+    if (!outline)
+      {
+      // Glyph not found in the face.
+      continue;
+      }
+
+    if (outline->n_points > 0)
+      {
+      int pen_x = x;
+      int pen_y = y;
+
+      // Add the kerning
+      if (face_has_kerning && previous_gindex && gindex)
+        {
+        FT_Get_Kerning(
+              face, previous_gindex, gindex, ft_kerning_default, &kerning_delta);
+        pen_x += kerning_delta.x >> 6;
+        pen_y += kerning_delta.y >> 6;
+        }
+      previous_gindex = gindex;
+
+      short point = 0;
+      for (short contour = 0; contour < outline->n_contours; ++contour)
+        {
+        short contourEnd = outline->contours[contour];
+        controlType lastTag = FIRST_POINT;
+        controlType contourStartTag;
+        double contourStartVec[2];
+        double lastVec[2];
+        for (; point <= contourEnd; ++point)
+          {
+          FT_Vector ftvec = outline->points[point];
+          char fttag = outline->tags[point];
+          controlType tag;
+          if (fttag & FT_CURVE_TAG_ON)
+            {
+            tag = ON_POINT;
+            }
+          else if (fttag & FT_CURVE_TAG_CUBIC)
+            {
+            tag = CUBIC_POINT;
+            }
+          else if (fttag & FT_CURVE_TAG_CONIC)
+            {
+            tag = CONIC_POINT;
+            }
+
+          double vec[2];
+          vec[0] = ftvec.x / 64.0 + x;
+          vec[1] = ftvec.y / 64.0 + y;
+
+          // Update (control) bounding box
+          if (vec[0] < cbox[0])
+            {
+            cbox[0] = vec[0];
+            }
+          if (vec[1] < cbox[1])
+            {
+            cbox[1] = vec[1];
+            }
+          if (vec[0] > cbox[2])
+            {
+            cbox[2] = vec[0];
+            }
+          if (vec[1] > cbox[3])
+            {
+            cbox[3] = vec[1];
+            }
+
+          // Handle the first point here, unless it is a CONIC point, in which
+          // case the switches below handle it.
+          if (lastTag == FIRST_POINT && tag != CONIC_POINT)
+            {
+            path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::MOVE_TO);
+            lastTag = tag;
+            contourStartTag = tag;
+            lastVec[0] = vec[0];
+            lastVec[1] = vec[1];
+            contourStartVec[0] = vec[0];
+            contourStartVec[1] = vec[1];
+            continue;
+            }
+
+          switch (tag)
+            {
+            case ON_POINT:
+              switch(lastTag)
+                {
+                case ON_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0, vtkPath::LINE_TO);
+                  break;
+                case CONIC_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  break;
+                case CUBIC_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CUBIC_CURVE);
+                  break;
+                case FIRST_POINT:
+                default:
+                  break;
+                }
+              break;
+            case CONIC_POINT:
+              switch(lastTag)
+                {
+                case ON_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  break;
+                case CONIC_POINT: {
+                  // Two conic points indicate a virtual "ON" point between
+                  // them. Insert both points.
+                  double virtualOn[2] = {(vec[0] + lastVec[0]) * 0.5,
+                                         (vec[1] + lastVec[1]) * 0.5};
+                  path->InsertNextPoint(virtualOn[0], virtualOn[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CONIC_CURVE);
+                  }
+                  break;
+                case FIRST_POINT: {
+                  // The first point in the contour can be a conic control
+                  // point. Use the last point of the contour as the starting
+                  // point. If the last point is a conic point as well, start
+                  // on a virtual point between the two:
+                  FT_Vector lastContourFTVec = outline->points[contourEnd];
+                  double lastContourVec[2] = {lastContourFTVec.x / 64.0 + x,
+                                              lastContourFTVec.y / 64.0 + y};
+                  char lastContourFTTag = outline->tags[contourEnd];
+                  if (lastContourFTTag & FT_CURVE_TAG_CONIC)
+                    {
+                    double virtualOn[2] = {(vec[0] + lastContourVec[0]) * 0.5,
+                                           (vec[1] + lastContourVec[1]) * 0.5};
+                    path->InsertNextPoint(virtualOn[0], virtualOn[1],
+                                          0.0, vtkPath::MOVE_TO);
+                    path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                          vtkPath::CONIC_CURVE);
+                    }
+                  else
+                    {
+                    path->InsertNextPoint(lastContourVec[0], lastContourVec[1],
+                                          0.0, vtkPath::MOVE_TO);
+                    path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                          vtkPath::CONIC_CURVE);
+                    }
+                  }
+                  break;
+                case CUBIC_POINT:
+                default:
+                  break;
+                }
+              break;
+            case CUBIC_POINT:
+              switch(lastTag)
+                {
+                case ON_POINT:
+                case CUBIC_POINT:
+                  path->InsertNextPoint(vec[0], vec[1], 0.0,
+                                        vtkPath::CUBIC_CURVE);
+                  break;
+                case CONIC_POINT:
+                case FIRST_POINT:
+                default:
+                  break;
+                }
+              break;
+            case FIRST_POINT:
+            default:
+              break;
+            } // end switch
+
+          lastTag = tag;
+          lastVec[0] = vec[0];
+          lastVec[1] = vec[1];
+          } // end contour
+
+        // The contours are always implicitly closed to the start point of the
+        // contour:
+        switch (lastTag)
+          {
+          case ON_POINT:
+            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+                                  vtkPath::LINE_TO);
+            break;
+          case CUBIC_POINT:
+            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+                                  vtkPath::CUBIC_CURVE);
+            break;
+          case CONIC_POINT:
+            path->InsertNextPoint(contourStartVec[0], contourStartVec[1], 0.0,
+                                  vtkPath::CONIC_CURVE);
+            break;
+          case FIRST_POINT:
+          default:
+            break;
+          }
+
+        } // end if n_points > 0
+      } // end character iteration
+
+    // Advance to next char
+    x += (outline_glyph->root.advance.x + 0x8000) >> 16;
+    y += (outline_glyph->root.advance.y + 0x8000) >> 16;
+    }
+
+  double delta[2] = {0.0, 0.0};
+
+  // Apply justification:
+  switch (tprop->GetJustification())
+    {
+    default:
+    case VTK_TEXT_LEFT:
+      delta[0] = -cbox[0];
+      break;
+    case VTK_TEXT_CENTERED:
+      delta[0] = -(cbox[2] - cbox[0]) * 0.5;
+      break;
+    case VTK_TEXT_RIGHT:
+      delta[0] = -cbox[2];
+      break;
+    }
+  switch (tprop->GetVerticalJustification())
+    {
+    default:
+    case VTK_TEXT_BOTTOM:
+      delta[1] = -cbox[1];
+      break;
+    case VTK_TEXT_CENTERED:
+      delta[1] = -(cbox[3] - cbox[1]) * 0.5;
+      break;
+    case VTK_TEXT_TOP:
+      delta[1] = -cbox[3];
+    }
+
+  vtkPoints *points = path->GetPoints();
+  for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
+    {
+    double *point = points->GetPoint(i);
+    point[0] += delta[0];
+    point[1] += delta[1];
+    points->SetPoint(i, point);
+    }
+
+  return true;
+}
+
 inline bool vtkFreeTypeTools::GetFace(vtkTextProperty *prop,
                                       unsigned long &prop_cache_id,
                                       FT_Face &face, bool &face_has_kerning)
@@ -1215,4 +1566,33 @@ inline FT_Bitmap* vtkFreeTypeTools::GetBitmap(FT_UInt32 c,
     }
 
   return bitmap;
+}
+
+inline FT_Outline *vtkFreeTypeTools::GetOutline(FT_UInt32 c,
+                                                unsigned long prop_cache_id,
+                                                int prop_font_size,
+                                                FT_UInt &gindex,
+                                                FT_OutlineGlyph &outline_glyph)
+{
+  // Get the glyph index
+  if (!this->GetGlyphIndex(prop_cache_id, c, &gindex))
+    {
+    return 0;
+    }
+  FT_Glyph glyph;
+  // Get the glyph as a outline
+  if (!this->GetGlyph(prop_cache_id,
+                      prop_font_size,
+                      gindex,
+                      &glyph,
+                      vtkFreeTypeTools::GLYPH_REQUEST_OUTLINE) ||
+                        glyph->format != ft_glyph_format_outline)
+    {
+    return 0;
+    }
+
+  outline_glyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
+  FT_Outline *outline= &outline_glyph->outline;
+
+  return outline;
 }

@@ -38,7 +38,7 @@
 #ifndef __FTCONFIG_H__
 #define __FTCONFIG_H__
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 #include FT_CONFIG_OPTIONS_H
 #include FT_CONFIG_STANDARD_LIBRARY_H
 

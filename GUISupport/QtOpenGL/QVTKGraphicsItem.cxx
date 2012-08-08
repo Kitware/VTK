@@ -234,6 +234,8 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   glVertex2f(r.left(),r.bottom());
   glEnd();
 
+  glBindTexture(GL_TEXTURE_2D, 0);
+
 #if QT_VERSION >= 0x040600
   painter->endNativePainting();
 #endif

@@ -43,6 +43,8 @@
 
 class vtkFloatArray;
 class vtkPainterDeviceAdapter;
+class vtkProp;
+class vtkPropCollection;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkRendererCollection;
@@ -123,6 +125,20 @@ public:
   // Description:
   // Return the collection of renderers in the render window.
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
+
+  // Description:
+  // The GL2PS exporter must handle certain props in a special way (e.g. text).
+  // This method performs a render and captures all "GL2PS-special" props in
+  // the returned collection.
+  vtkPropCollection *CaptureGL2PSSpecialProps();
+
+  // Description:
+  // Returns true if the render process is capturing text actors.
+  vtkGetMacro(CapturingGL2PSSpecialProps, int);
+
+  // Description:
+  // This function is called to register a vtkTextActor during capture.
+  int CaptureGL2PSSpecialProp(vtkProp *);
 
   // Description:
   // Ask each renderer owned by this RenderWindow to render its image and
@@ -386,7 +402,16 @@ public:
   // One thing to note is that if you are using focal depth frames,
   // then you will not need many (if any) frames for antialiasing.
   vtkGetMacro(FDFrames,int);
-  vtkSetMacro(FDFrames,int);
+  virtual void SetFDFrames (int fdFrames);
+
+  // Description:
+  // Turn on/off using constant offsets for focal depth rendering.
+  // The default is off. When constants offsets are used, re-rendering
+  // the same scene using the same camera yields the same image; otherwise
+  // offsets are random numbers at each rendering that yields
+  // slightly different images.
+  vtkGetMacro(UseConstantFDOffsets,int);
+  vtkSetMacro(UseConstantFDOffsets,int);
 
   // Description:
   // Set the number of sub frames for doing motion blur. The default is zero.
@@ -578,6 +603,8 @@ protected:
   unsigned int AccumulationBufferSize;
   int AAFrames;
   int FDFrames;
+  int UseConstantFDOffsets; // to use the same offsets at each rendering
+  double *ConstantFDOffsets[2];
   int SubFrames;               // number of sub frames
   int CurrentSubFrame;         // what one are we on
   unsigned char *ResultFrame;  // used for any non immediate rendering
@@ -594,6 +621,8 @@ protected:
   int AnaglyphColorMask[2];
   int MultiSamples;
   int StencilCapable;
+  int CapturingGL2PSSpecialProps;
+  vtkPropCollection *CapturedGL2PSSpecialProps;
 
   // Description:
   // Boolean flag telling if errors from the graphic library have to be

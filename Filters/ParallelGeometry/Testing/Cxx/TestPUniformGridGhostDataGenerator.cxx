@@ -41,6 +41,8 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+//#define DEBUG_ON
+
 //------------------------------------------------------------------------------
 //      G L O B A  L   D A T A
 //------------------------------------------------------------------------------
@@ -361,6 +363,7 @@ vtkMultiBlockDataSet* GetDataSet(
 void WriteDistributedDataSet(
     std::string prefix, vtkMultiBlockDataSet *dataset)
 {
+#ifdef DEBUG_ON
   vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();
   std::ostringstream oss;
   oss << prefix << "." << writer->GetDefaultFileExtension();
@@ -372,6 +375,11 @@ void WriteDistributedDataSet(
     }
   writer->Update();
   writer->Delete();
+#else
+  /* Silencing some compiler warnings */
+  (void)(prefix);
+  (void)(dataset);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -379,6 +387,32 @@ int Test2D(
     const bool hasNodeData, const bool hasCellData,
     const int factor, const int NG )
 {
+  std::ostringstream oss;
+  oss.clear();
+  oss << "=====================\n";
+  oss << "Testing parallel 2-D ghost data generation...\n";
+  oss << "Number of partitions: " << factor*NumberOfProcessors << std::endl;
+  oss << "Number of ghost layers: " << NG << std::endl;
+  oss << "Node-centered data: ";
+  if( hasNodeData )
+    {
+    oss << "Yes\n";
+    }
+  else
+    {
+    oss << "No\n";
+    }
+  oss << "Cell-centered data: ";
+  if( hasCellData )
+    {
+    oss << "Yes\n";
+    }
+  else
+    {
+    oss << "No\n";
+    }
+  Logger::Println( oss.str() );
+
   int rc = 0;
 
   int WholeExtent[6] = {0,49,0,49,0,0};
@@ -396,7 +430,7 @@ int Test2D(
     {
     AddCellCenteredXYZField( mbds );
     }
-//  WriteDistributedDataSet( "P2DInitial", mbds );
+  WriteDistributedDataSet( "P2DInitial", mbds );
 
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
@@ -408,7 +442,7 @@ int Test2D(
   ghostGenerator->Update();
 
   vtkMultiBlockDataSet *ghostedDataSet = ghostGenerator->GetOutput();
-//  WriteDistributedDataSet( "GHOSTED2D", ghostedDataSet );
+  WriteDistributedDataSet( "GHOSTED2D", ghostedDataSet );
 
   rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
   mbds->Delete();
@@ -421,6 +455,32 @@ int Test3D(
     const bool hasNodeData, const bool hasCellData,
     const int factor, const int NG )
 {
+  std::ostringstream oss;
+  oss.clear();
+  oss << "=====================\n";
+  oss << "Testing parallel 3-D ghost data generation...\n";
+  oss << "Number of partitions: " << factor*NumberOfProcessors << std::endl;
+  oss << "Number of ghost layers: " << NG << std::endl;
+  oss << "Node-centered data: ";
+  if( hasNodeData )
+    {
+    oss << "Yes\n";
+    }
+  else
+    {
+    oss << "No\n";
+    }
+  oss << "Cell-centered data: ";
+  if( hasCellData )
+    {
+    oss << "Yes\n";
+    }
+  else
+    {
+    oss << "No\n";
+    }
+  Logger::Println( oss.str() );
+
   int rc = 0;
 
   int WholeExtent[6] = {0,49,0,49,0,49};
@@ -438,7 +498,7 @@ int Test3D(
     {
     AddCellCenteredXYZField( mbds );
     }
-//  WriteDistributedDataSet("P3DInitial", mbds );
+  WriteDistributedDataSet("P3DInitial", mbds );
 
   vtkPUniformGridGhostDataGenerator *ghostGenerator =
       vtkPUniformGridGhostDataGenerator::New();
@@ -450,7 +510,7 @@ int Test3D(
   ghostGenerator->Update();
 
   vtkMultiBlockDataSet *ghostedDataSet = ghostGenerator->GetOutput();
-//  WriteDistributedDataSet( "GHOSTED3D", ghostedDataSet );
+  WriteDistributedDataSet( "GHOSTED3D", ghostedDataSet );
 
   rc = CheckFields( ghostedDataSet, hasNodeData, hasCellData );
   mbds->Delete();
@@ -473,47 +533,25 @@ int main(int argc, char **argv)
   assert( "pre: Rank is out-of-bounds" && (Rank >= 0) );
 
   // 2-D tests
-  Logger::Print( "Testing 2-D dataset with no field data..." );
   rc += Test2D( false,false,1,1);
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
-
-  Logger::Print( "Testing 2-D data-set with node-centered data..." );
   rc += Test2D( true, false, 1, 1 );
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
-
-  Logger::Print( "Testing 2-D data-set with cell-centered data..." );
   rc += Test2D( false, true, 1,1 );
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
-
-  Logger::Print( "Testing 2-D data-set with both node/cell centered data..." );
   rc += Test2D( true, true, 1, 1 );
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
-
-  Logger::Print( "Testing 2-D data-set with 3 layers of ghost data..." );
   rc += Test2D( true, true, 1, 3 );
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
 
   // 3-D Tests
-  Logger::Print( "Testing 3-D data-set..." );
   rc += Test3D( true, false, 1, 1 );
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
-
-  Logger::Print( "Testing 3-D data-set..." );
   rc += Test3D( true, true, 1, 4 );
   assert( rc == 0);
-  Logger::Println( "[DONE]" );
-
-  Logger::Print(
-     "Testing 3-D data-set where each process has more than one blocks...");
   rc += Test3D( true, true, 2, 4 );
   assert( rc == 0 );
-  Logger::Println( "[DONE]" );
+
   Controller->Finalize();
   Controller->Delete();
   return( rc );

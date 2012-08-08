@@ -2,14 +2,7 @@ project( alglib )
 
 set(vtkalglib_THIRD_PARTY 1)
 set(vtkalglib_LIBRARIES vtkalglib)
-vtk_module_impl()
-
-if ( NOT LIBRARY_OUTPUT_PATH )
-  set( LIBRARY_OUTPUT_PATH ${alglib_BINARY_DIR}/bin CACHE INTERNAL "" FORCE )
-endif ( NOT LIBRARY_OUTPUT_PATH )
-if ( NOT EXECUTABLE_OUTPUT_PATH )
-  set( EXECUTABLE_OUTPUT_PATH ${alglib_BINARY_DIR}/bin CACHE INTERNAL "" FORCE )
-endif ( NOT EXECUTABLE_OUTPUT_PATH )
+vtk_module_export_info()
 
 set( ALGLIB_SRCS
   ap.cpp

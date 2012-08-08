@@ -22,7 +22,7 @@ endif()
 # This is the main function, always called from the vtk_module_library function
 # when a new module library is added.
 function(vtk_add_wrapping module_name module_srcs module_hdrs)
-  if(NOT VTK_MODULE_${module_name}_EXCLUDE_FROM_WRAPPING)
+  if(NOT ${module_name}_EXCLUDE_FROM_WRAPPING)
     set(_wrap_module FALSE)
     if(VTK_WRAP_PYTHON)
       set(_wrap_module TRUE)
@@ -50,9 +50,11 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
       endif()
 
       # The module is wrapped by at least one language - invoke wrap hierarchy.
-      set(_all_files ${module_srcs} ${modules_hdrs})
-      vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
-        "${_all_files}")
+      if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+        set(_all_files ${module_srcs} ${modules_hdrs})
+        vtk_wrap_hierarchy(${module_name}Hierarchy ${CMAKE_CURRENT_BINARY_DIR}
+          "${_all_files}")
+      endif()
 
       # Now to wrap the languages that are on.
       if(VTK_WRAP_PYTHON)

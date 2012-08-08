@@ -1,4 +1,4 @@
-vtk_module_impl()
+vtk_module_export_info()
 set(Module_HDRS
   vtkTestDriver.h
   vtkTestingColors.h

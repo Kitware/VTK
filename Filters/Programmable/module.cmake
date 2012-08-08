@@ -3,4 +3,7 @@ vtk_module(vtkFiltersProgrammable
     StandAlone
   DEPENDS
     vtkCommonExecutionModel
+  TEST_DEPENDS
+    vtkRenderingOpenGL
+    vtkTestingRendering
   )

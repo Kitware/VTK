@@ -41,14 +41,15 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticlePathFilter: public vtkPPar
  protected:
   vtkPParticlePathFilter();
   ~vtkPParticlePathFilter(){}
-  vtkPParticlePathFilter(const vtkPParticlePathFilter&);  // Not implemented.
 
   virtual void ResetCache();
   virtual int OutputParticles(vtkPolyData* poly);
   void Finalize();
 
   ParticlePathFilterInternal It;
-
+private:
+  vtkPParticlePathFilter(const vtkPParticlePathFilter&);  // Not implemented.
+  void operator=(const vtkPParticlePathFilter&); // Not implemented
 };
 
 

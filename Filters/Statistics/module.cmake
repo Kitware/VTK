@@ -6,6 +6,7 @@ vtk_module(vtkFiltersStatistics
     vtkCommonExecutionModel
     vtkCommonTransforms
     vtkCommonMisc
+    vtkImagingFourier
     vtkalglib
   TEST_DEPENDS
     vtkTestingCore

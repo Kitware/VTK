@@ -29,7 +29,7 @@
 #define __FTSIZES_H__
 
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 #include FT_FREETYPE_H
 
 #ifdef FREETYPE_H

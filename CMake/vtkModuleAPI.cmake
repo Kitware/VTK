@@ -40,6 +40,17 @@ macro(vtk_module_load mod)
   endif()
 endmacro()
 
+# vtk_module_dep_includes(<module>)
+#
+# Loads the <module>_DEPENDS_INCLUDE_DIRS variable.
+macro(vtk_module_dep_includes mod)
+  vtk_module_load("${mod}")
+  vtk_module_config(_dep_${mod} ${${mod}_DEPENDS})
+  if(_dep_${mod}_INCLUDE_DIRS)
+    set(${mod}_DEPENDS_INCLUDE_DIRS ${_dep_${mod}_INCLUDE_DIRS})
+  endif()
+endmacro()
+
 # vtk_module_classes_load(<module>)
 #
 # Loads variables describing the given module:
@@ -118,4 +129,9 @@ macro(vtk_module_config ns)
     unset(_${ns}_AUTOINIT_${mod})
   endforeach()
   unset(_${ns}_AUTOINIT)
+endmacro()
+
+# Call to add a single directory to the module search path
+macro(vtk_add_to_module_search_path src bld)
+  list(APPEND vtk_module_search_path "${src},${bld}")
 endmacro()

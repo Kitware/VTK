@@ -61,6 +61,10 @@ protected:
 //BTX
   virtual void CalculatePValues(vtkTable*);
 //ETX
+
+private:
+  vtkContingencyStatisticsGnuR(const vtkContingencyStatisticsGnuR&); // Not implemented
+  void operator=(const vtkContingencyStatisticsGnuR&); // Not implemented
 };
 
 #endif

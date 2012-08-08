@@ -7,7 +7,7 @@ if(VTK_DATA_ROOT)
        COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
        $<TARGET_FILE:ParallelIsoTest>
        -D ${VTK_DATA_ROOT}
-       -T ${VTK_BINARY_DIR}/Testing/Temporary
+       -T ${VTK_TEST_OUTPUT_DIR}
        -V Baseline/Parallel/ParallelIso.cxx.png
        ${VTK_MPI_POSTFLAGS})
   endif()

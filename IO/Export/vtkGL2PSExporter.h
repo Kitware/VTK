@@ -52,7 +52,10 @@
 // written as a raster image and all 2D actors will be written as
 // vector graphic primitives.  This makes it possible to handle
 // transparency and complex 3D scenes.  This ivar is set to Off by
-// default.  When drawing lines and points the OpenGL point size and
+// default.  Specific 3D props can be excluded from the rasterization
+// process by adding them to the RasterExclusions ivar.  Props in this
+// collection will be rendered as 2D vector primitives instead. When
+// drawing lines and points the OpenGL point size and
 // line width are multiplied by a factor in order to generate
 // PostScript lines and points of the right size.  The
 // Get/SetGlobalPointSizeFactor and Get/SetGlobalLineWidthFactor let
@@ -84,6 +87,17 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
+class vtkActor2D;
+class vtkIntArray;
+class vtkMathTextActor;
+class vtkMathTextActor3D;
+class vtkPropCollection;
+class vtkProp3DCollection;
+class vtkRendererCollection;
+class vtkTextActor;
+class vtkTextActor3D;
+class vtkTextMapper;
+
 class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
 {
 public:
@@ -97,6 +111,12 @@ public:
   // other options chosen.
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
+
+  // Description:
+  // Set the title for the output, if supported. If NULL, "VTK GL2PS Export" is
+  // used.
+  vtkSetStringMacro(Title);
+  vtkGetStringMacro(Title);
 
 //BTX
   enum OutputFormat
@@ -232,16 +252,18 @@ public:
   vtkBooleanMacro(Write3DPropsAsRasterImage, int);
 
   // Description:
-  // Set the ratio between the OpenGL PointSize and that used by GL2PS
-  // to generate PostScript.  Defaults to a ratio of 5/7.
-  static void SetGlobalPointSizeFactor(float val);
-  static float GetGlobalPointSizeFactor();
+  // Collection of 3D Props to exclude from rasterization. These will be
+  // rendered as 2D vector primitives in the output. This setting is ignored if
+  // Write3DPropsAsRasterImage is false. Behind the scenes, these props are
+  // treated as 2D props during the vector output generation.
+  void SetRasterExclusions(vtkProp3DCollection*);
+  vtkGetObjectMacro(RasterExclusions, vtkProp3DCollection);
 
   // Description:
-  // Set the ratio between the OpenGL LineWidth and that used by GL2PS
-  // to generate PostScript.  Defaults to a ratio of 5/7.
-  static void SetGlobalLineWidthFactor(float val);
-  static float GetGlobalLineWidthFactor();
+  // Turn on/off the timestamp in the produced output. Defaults to on.
+  vtkSetMacro(WriteTimeStamp, int);
+  vtkGetMacro(WriteTimeStamp, int);
+  vtkBooleanMacro(WriteTimeStamp, int);
 
 protected:
   vtkGL2PSExporter();
@@ -249,7 +271,30 @@ protected:
 
   void WriteData();
 
+  void SavePropVisibility(vtkRendererCollection *renCol,
+                          vtkIntArray *volVis, vtkIntArray *actVis,
+                          vtkIntArray *act2dVis);
+  void RestorePropVisibility(vtkRendererCollection *renCol,
+                             vtkIntArray *volVis, vtkIntArray *actVis,
+                             vtkIntArray *act2dVis);
+  void Turn3DPropsOff(vtkRendererCollection *renCol);
+  void Turn2DPropsOff(vtkRendererCollection *renCol);
+  vtkPropCollection *GetVisibleContextActors(vtkRendererCollection *renCol);
+  void SetPropVisibilities(vtkPropCollection *col, int vis);
+
+  void DrawTextActor(vtkTextActor *textAct, vtkRendererCollection *renCol);
+  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRendererCollection *renCol);
+  void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
+                      vtkRendererCollection *renCol);
+  void DrawMathTextActor(vtkMathTextActor *textAct,
+                         vtkRendererCollection *renCol);
+  void DrawMathTextActor3D(vtkMathTextActor3D *textAct,
+                           vtkRendererCollection *renCol);
+
+  vtkProp3DCollection *RasterExclusions;
+
   char *FilePrefix;
+  char *Title;
   int FileFormat;
   int Sort;
   int Compress;
@@ -262,6 +307,7 @@ protected:
   int PS3Shading;
   int OcclusionCull;
   int Write3DPropsAsRasterImage;
+  int WriteTimeStamp;
 
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented

@@ -68,6 +68,7 @@ typedef int siginfo_t;
 #include <mach/host_info.h>
 #include <mach/mach.h>
 #include <mach/mach_types.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <fenv.h>
@@ -1077,6 +1078,8 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   // TODO - an implementation for cygwin and mingw
   return -1;
 
+#elif defined(_AIX)
+  return -1;
 #else
   // gethostname typical returns an alias for loopback interface
   // we want the fully qualified domain name. Because there are

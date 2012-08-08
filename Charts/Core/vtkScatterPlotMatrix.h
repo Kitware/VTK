@@ -277,6 +277,16 @@ public:
   vtkStdString GetRowName(int row);
 
   // Description:
+  // Set the number of animation frames in each transition. Default is 25,
+  // and 0 means to animations between axes.
+  void SetNumberOfFrames(int frames);
+
+  // Description:
+  // Get the number of animation frames in each transition. Default is 25,
+  // and 0 means to animations between axes.
+  int GetNumberOfFrames();
+
+  // Description:
   // Clear the animation path.
   void ClearAnimationPath();
 
@@ -359,6 +369,9 @@ protected:
 
   // The mode when the chart is doing selection.
   int SelectionMode;
+
+  // How many frames should animations consist of, 0 means no transitions.
+  int NumberOfFrames;
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.

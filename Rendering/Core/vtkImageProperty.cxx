@@ -91,9 +91,8 @@ void vtkImageProperty::DeepCopy(vtkImageProperty *p)
       }
     else
       {
-      vtkScalarsToColors *olut = this->GetLookupTable();
-      vtkScalarsToColors *nlut = olut->NewInstance();
-      nlut->DeepCopy(olut);
+      vtkScalarsToColors *nlut = lut->NewInstance();
+      nlut->DeepCopy(lut);
       this->SetLookupTable(nlut);
       nlut->Delete();
       }

@@ -19,7 +19,7 @@
 #ifndef __FT_STROKE_H__
 #define __FT_STROKE_H__
 
-#include <ft2build.h>
+#include <vtkfreetype/include/ft2build.h>
 #include FT_OUTLINE_H
 #include FT_GLYPH_H
 

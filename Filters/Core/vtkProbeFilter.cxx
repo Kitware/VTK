@@ -14,13 +14,14 @@
 =========================================================================*/
 #include "vtkProbeFilter.h"
 
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -254,6 +255,9 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     }
   double minRes2 = minRes * minRes;
   tol2 = tol2 > minRes2 ? minRes2 : tol2;
+
+  // Don't go below epsilon for a double
+  tol2 = (tol2 < VTK_DBL_EPSILON) ? VTK_DBL_EPSILON : tol2;
 
   // Loop over all input points, interpolating source data
   //

@@ -17,8 +17,8 @@
 
 
 #include <ft2build.h>
-  /* we use our special ftconfig.h file, not the standard one */
-#include <ftconfig.h>
+/* VTK_FREETYPE_CHANGE include configured ftconfig.h */
+#include FT_CONFIG_CONFIG_H
 #include FT_INTERNAL_DEBUG_H
 #include FT_SYSTEM_H
 #include FT_ERRORS_H

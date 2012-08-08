@@ -97,12 +97,24 @@ struct color_map : thrust::unary_function<ValueType, float3>
 //------------------------------------------------------------------------------
 void CudaGLInit()
 {
-  cudaError_t res = cudaGLSetGLDevice(0);
+  cudaDeviceProp prop;
+  int dev;
+
+  // Fill it with zeros
+  memset(&prop,0,sizeof(cudaDeviceProp));
+
+  // Pick a GPU capable of 1.0 or better
+  prop.major=1; prop.minor=0;
+  cudaChooseDevice(&dev,&prop);
+
+  // Set OpenGL device
+  cudaError_t res = cudaGLSetGLDevice(dev);
+
   if (res != cudaSuccess)
-  {
+    {
     cerr << "Set device failed  ... " << cudaGetErrorString(res) << endl;
     return;
-  }
+    }
 }
 
 //------------------------------------------------------------------------------

@@ -4622,6 +4622,7 @@ int vtkWrapPython_WrapOneClass(
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
     if (data->Functions[i]->Name &&
+        data->Functions[i]->Access == VTK_ACCESS_PUBLIC &&
         strcmp("New",data->Functions[i]->Name) == 0 &&
         data->Functions[i]->NumberOfParameters == 0)
       {
@@ -4904,14 +4905,6 @@ int main(int argc, char *argv[])
     fprintf(fp,
             "#define VTK_STREAMS_FWD_ONLY\n");
     }
-
-  /* include vtkPython.h on all platforms but apple */
-  fprintf(fp,
-          "#if !defined(__APPLE__)\n"
-          "#include \"vtkPython.h\"\n"
-          "#undef _XOPEN_SOURCE /* Conflicts with standards.h.  */\n"
-          "#undef _THREAD_SAFE /* Conflicts with pthread.h.  */\n"
-          "#endif\n");
 
   /* lots of important utility functions are defined in vtkPythonArgs.h */
   fprintf(fp,

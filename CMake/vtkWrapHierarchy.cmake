@@ -3,7 +3,11 @@
 #
 macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   if(NOT VTK_WRAP_HIERARCHY_EXE)
-    message(SEND_ERROR "VTK_WRAP_HIERARCHY_EXE not specified when calling VTK_WRAP_HIERARCHY")
+    if (TARGET vtkWrapHierarchy)
+      set (VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
+    else ()
+      message(SEND_ERROR "VTK_WRAP_HIERARCHY_EXE not specified when calling VTK_WRAP_HIERARCHY")
+    endif()
   endif()
 
   # The shell into which nmake.exe executes the custom command has some issues
@@ -115,9 +119,9 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # search through the deps to find modules we depend on
   set(OTHER_HIERARCHY_FILES)
   set(OTHER_HIERARCHY_TARGETS)
-  foreach(dep ${VTK_MODULE_${vtk-module}_DEPENDS})
+  foreach(dep ${${vtk-module}_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(NOT VTK_MODULE_${dep}_EXCLUDE_FROM_WRAPPING)
+      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND OTHER_HIERARCHY_FILES
 		"${quote}${${dep}_BINARY_DIR}/${dep}Hierarchy.txt${quote}")
         list(APPEND OTHER_HIERARCHY_TARGETS ${dep})

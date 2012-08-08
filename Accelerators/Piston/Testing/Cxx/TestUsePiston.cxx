@@ -41,7 +41,7 @@ int TestUsePiston( int argc, char *argv[] )
 
   // Initialize interop rendering using that context
   // TODO: Add an argument to decide if use interop or not
-  vtkPistonMapper::InitCUDAGL(renwin);
+  vtkPistonMapper::InitCudaGL(renwin);
 
   vtkImageMandelbrotSource *src = vtkImageMandelbrotSource::New();
   src->SetWholeExtent(0,20,0,20,0,20);

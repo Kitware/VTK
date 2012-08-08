@@ -97,11 +97,11 @@ namespace
       return -1;
       }
 
-    for(int i=0; i< (int)A.size()-1;i++)
+    for(size_t i=0; i< A.size()-1;i++)
       {
       if(a <= A[i+1])
         {
-        return i;
+        return static_cast<int>(i);
         }
       }
 
@@ -164,6 +164,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   writer->Delete();
 #endif
 
+  this->ForceReinjectionAtTermination = false;
   this->SetIntegratorType(RUNGE_KUTTA4);
 }
 //---------------------------------------------------------------------------
@@ -542,7 +543,7 @@ bool vtkParticleTracerBase::InsideBounds(double point[])
   double delta[3] = { 0.0, 0.0, 0.0 };
   for (int t=0; t<2; ++t)
     {
-    for (unsigned int i=0; i<(this->CachedBounds[t].size()); ++i)
+    for (size_t i=0; i<(this->CachedBounds[t].size()); ++i)
       {
       if (vtkMath::PointIsWithinBounds(point, &((this->CachedBounds[t])[i].b[0]), delta))
         {
@@ -561,7 +562,7 @@ void vtkParticleTracerBase::TestParticles(
   this->TestParticles(candidates, passedIndices);
   count = static_cast<int>(passedIndices.size());
 
-  for(unsigned int i=0; i<passedIndices.size();i++)
+  for(size_t i=0; i<passedIndices.size();i++)
     {
     passed.push_back(candidates[passedIndices[i]]);
     }
@@ -769,7 +770,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   //
 
   int numSources = inputVector[1]->GetNumberOfInformationObjects();
-  std::vector<vtkDataSet*> SeedSources;
+  std::vector<vtkDataSet*> seedSources;
   for (int idx=0; idx<numSources; ++idx)
     {
     vtkDataObject     *dobj   = 0;
@@ -777,7 +778,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     if (inInfo)
       {
       dobj   = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      SeedSources.push_back(vtkDataSet::SafeDownCast(dobj));
+      seedSources.push_back(vtkDataSet::SafeDownCast(dobj));
       }
     }
 
@@ -810,9 +811,9 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       this->LocalSeeds.clear();
       }
 
-    for (unsigned int i=0; i<SeedSources.size(); i++)
+    for (size_t i=0; i<seedSources.size(); i++)
       {
-      this->AssignSeedsToProcessors(SeedSources[i], i, 0, this->LocalSeeds, seedPointId);
+      this->AssignSeedsToProcessors(seedSources[i], static_cast<int>(i), 0, this->LocalSeeds, seedPointId);
       }
 
     this->ParticleInjectionTime.Modified();
@@ -895,6 +896,28 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       }//end of pass
     }
 
+  if(this->ForceReinjectionAtTermination && this->CurrentTime==this->TerminationTime) //reinject again in the last step
+    {
+    int seedPointId=0;
+    this->LocalSeeds.clear();
+    for (size_t i=0; i<seedSources.size(); i++)
+      {
+      this->AssignSeedsToProcessors(seedSources[i], static_cast<int>(i), 0, this->LocalSeeds, seedPointId);
+      }
+    this->ParticleInjectionTime.Modified();
+    this->ParticleHistories.clear();
+    this->UpdateParticleList(this->LocalSeeds);
+    this->ReinjectionCounter += 1;
+    for(ParticleListIterator itr = this->ParticleHistories.begin();  itr!=this->ParticleHistories.end();itr++)
+      {
+      ParticleInformation& info(*itr);
+      this->Interpolator->TestPoint(info.CurrentPosition.x);
+      double velocity[3];
+      this->Interpolator->GetLastGoodVelocity(velocity);
+      info.speed = vtkMath::Norm(velocity);
+      this->AddParticle(*itr,velocity);
+      }
+    }
 
   this->OutputPointData->AddArray(this->ParticleIds);
   this->OutputPointData->AddArray(this->ParticleSourceIds);
@@ -1267,7 +1290,7 @@ double vtkParticleTracerBase::GetCacheDataTime()
 
 unsigned int vtkParticleTracerBase::NumberOfParticles()
 {
-  return this->ParticleHistories.size();
+  return static_cast<unsigned int>(this->ParticleHistories.size());
 }
 
 void vtkParticleTracerBase::ResetCache()

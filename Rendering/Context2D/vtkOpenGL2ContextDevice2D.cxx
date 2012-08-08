@@ -207,6 +207,7 @@ bool vtkOpenGL2ContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
   if(m->ExtensionSupported("GL_VERSION_2_0"))
     {
+    m->LoadExtension("GL_VERSION_1_4");
     m->LoadExtension("GL_VERSION_2_0");
     this->Storage->OpenGL20 = true;
     this->Storage->PowerOfTwoTextures = false;

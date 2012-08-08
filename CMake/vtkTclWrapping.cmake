@@ -7,7 +7,12 @@ endif()
 
 function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   if(NOT VTK_WRAP_TCL_INIT_EXE)
-    message(FATAL_ERROR "VTK must be built with Tcl wrapping turned on.")
+    if (TARGET vtkWrapTclInit)
+      set(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
+    else()
+      message(FATAL_ERROR
+        "VTK_WRAP_TCL_INIT_EXE must be set before calling vtk_add_tcl_wrapping.")
+    endif()
   endif()
   # Need to add the Wrapping directory to the include directory
   set(_tcl_include_dirs
@@ -20,7 +25,10 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   endif()
 
   # FIXME: These must be here for now, should be fixed in the wrap hierarchy stuff
-  set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+    set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  endif()
+
   string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
   set(KIT ${kit_name})
 
@@ -35,11 +43,13 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   endif()
 
   # Figure out the dependent Tcl libraries for the module
-  foreach(dep ${VTK_MODULE_${vtk-module}_DEPENDS})
+  foreach(dep ${${vtk-module}_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(NOT VTK_MODULE_${dep}_EXCLUDE_FROM_WRAPPING)
+      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         if("${dep}" STREQUAL "vtkRenderingContext2D")
           set(dep "vtkRenderingContextIID")
+        elseif("${dep}" STREQUAL "vtkRenderingGL2PS")
+          set(dep "vtkRenderingGLtoPS")
         endif()
         list(APPEND extra_links ${dep}TCL)
       endif()
@@ -52,6 +62,8 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
     set(tcl_module "vtkRenderingContextIID")
   elseif("${tcl_module}" STREQUAL "vtkViewsContext2D")
     set(tcl_module "vtkViewsContextIID")
+  elseif("${tcl_module}" STREQUAL "vtkRenderingGL2PS")
+    set(tcl_module "vtkRenderingGLtoPS")
   endif()
   vtk_wrap_tcl3(${tcl_module}TCL Tcl_SRCS "${module_srcs}" "")
   vtk_add_library(${tcl_module}TCL ${Tcl_SRCS} ${extra_srcs})
@@ -59,7 +71,7 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
     set_property(TARGET ${tcl_module}TCL APPEND
       PROPERTY INCLUDE_DIRECTORIES ${_tcl_include_dirs})
   endif()
-  if(VTK_MODULE_${module_name}_IMPLEMENTS)
+  if(${module_name}_IMPLEMENTS)
     set_property(TARGET ${tcl_module}TCL PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()

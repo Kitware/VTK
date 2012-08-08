@@ -15,12 +15,13 @@
 
 /* Minimal main program -- everything is loaded from the library */
 
+#include "vtkPython.h"
+
 #ifdef VTK_COMPILED_USING_MPI
 # include <mpi.h>
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
-#include "vtkPython.h"
 #include "vtkVersion.h"
 #include "vtkPythonAppInitConfigure.h"
 
@@ -130,7 +131,8 @@ int main(int argc, char **argv)
   strcpy(argv0, av0.c_str());
   Py_SetProgramName(argv0);
 
-  // This function is generated, and will load any static Python modules for VTK
+  // This function is generated, and will register any static Python modules for VTK
+  // This needs to be done *before* Py_Initialize().
   CMakeLoadAllPythonModules();
 
   // Initialize interpreter.

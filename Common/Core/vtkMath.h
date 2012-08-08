@@ -563,18 +563,24 @@ public:
   // Description:
   // Convert a quaternion to a 3x3 rotation matrix.  The quaternion
   // does not have to be normalized beforehand.
+  // The quaternion must be in the form [w, x, y, z].
+  // @sa Matrix3x3ToQuaternion() MultiplyQuaternion()
   static void QuaternionToMatrix3x3(const float quat[4], float A[3][3]);
   static void QuaternionToMatrix3x3(const double quat[4], double A[3][3]);
 
   // Description:
   // Convert a 3x3 matrix into a quaternion.  This will provide the
   // best possible answer even if the matrix is not a pure rotation matrix.
+  // The quaternion is in the form [w, x, y, z].
   // The method used is that of B.K.P. Horn.
+  // @sa QuaternionToMatrix3x3() MultiplyQuaternion()
   static void Matrix3x3ToQuaternion(const float A[3][3], float quat[4]);
   static void Matrix3x3ToQuaternion(const double A[3][3], double quat[4]);
 
   // Description:
-  // Multiply two quaternions. This is used to concatenate rotations
+  // Multiply two quaternions. This is used to concatenate rotations.
+  // Quaternions are in the form [w, x, y, z].
+  // @sa Matrix3x3ToQuaternion() QuaternionToMatrix3x3()
   static void MultiplyQuaternion( const float q1[4], const float q2[4],  float q[4] );
   static void MultiplyQuaternion( const double q1[4], const double q2[4],  double q[4] );
 

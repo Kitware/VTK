@@ -4,16 +4,6 @@
 project( libproj4 )
 
 #------------------------------------------------------------------------------
-# Output directories where libraries and executables are placed
-# during a build (not during installation)
-if ( NOT LIBRARY_OUTPUT_PATH )
-  set( LIBRARY_OUTPUT_PATH ${libproj4_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries." )
-endif ( NOT LIBRARY_OUTPUT_PATH )
-if ( NOT EXECUTABLE_OUTPUT_PATH )
-  set( EXECUTABLE_OUTPUT_PATH ${libproj4_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables." )
-endif ( NOT EXECUTABLE_OUTPUT_PATH )
-
-#------------------------------------------------------------------------------
 # Platform configuration tests and options.
 
 # Shared or static library?

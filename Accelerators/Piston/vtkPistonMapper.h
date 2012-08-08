@@ -41,7 +41,14 @@ public:
   // Description:
   // Manually call this before any cuda filters are created
   // to use direct GPU rendering.
-  static void InitCUDAGL(vtkRenderWindow *rw);
+  static void InitCudaGL(vtkRenderWindow *rw);
+
+  // Description:
+  // Return true if using cuda interop feature otherwise false.
+  inline static bool IsEnabledCudaGL()
+    {
+    return CudaGLInitted;
+    }
 
   // Description:
   // A convenience method to reduce code duplication that gets

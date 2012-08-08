@@ -944,10 +944,14 @@ M_Read(void)
       }
 
 
-    char c = ' ';
-    while( (c!='\n') && (!m_ReadStream->eof()))
+    const METAIO_STL::string objectType = MET_ReadType(*m_ReadStream);
+    if(objectType.empty())
       {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      char c = ' ';
+      while( (c!='\n') && (!m_ReadStream->eof()))
+        {
+        c = m_ReadStream->get();// to avoid unrecognized characters
+        }
       }
     }
 
