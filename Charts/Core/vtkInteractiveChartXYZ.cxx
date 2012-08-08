@@ -158,26 +158,19 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
 
 void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            const vtkStdString &yName, const vtkStdString &zName,
-                           const vtkStdString &rName, const vtkStdString &gName,
-                           const vtkStdString &bName)
+                           const vtkStdString &colorName);
 {
   this->Superclass::SetInput(input, xName, yName, zName);
+  
+  vtkDataArray *colorArr =
+      vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
 
-  vtkUnsignedCharArray *rArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(rName.c_str()));
-  vtkUnsignedCharArray *gArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(gName.c_str()));
-  vtkUnsignedCharArray *bArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(bName.c_str()));
-
-  assert(rArr);
-  assert(gArr);
-  assert(bArr);
-  assert(rArr->GetNumberOfTuples() == gArr->GetNumberOfTuples() &&
-         rArr->GetNumberOfTuples() == bArr->GetNumberOfTuples() &&
-         rArr->GetNumberOfTuples() == this->points.size());
+  assert(colorArr);
+  assert(colorArr->GetNumberOfTuples() == this->points.size());
 
   this->NumberOfComponents = 3;
+
+  //lookup table action here
 
   this->Colors =
     new unsigned char[this->points.size() * this->NumberOfComponents];

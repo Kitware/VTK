@@ -57,12 +57,7 @@ public:
                         const vtkStdString &y, const vtkStdString &z);
   virtual void SetInput(vtkTable *input, const vtkStdString &x,
                         const vtkStdString &y, const vtkStdString &z,
-                        const vtkStdString &r,  const vtkStdString &g,
-                        const vtkStdString &b);
-  virtual void SetInput(vtkTable *input, const vtkStdString &x,
-                        const vtkStdString &y, const vtkStdString &z,
-                        const vtkStdString &r,  const vtkStdString &g,
-                        const vtkStdString &b, const vtkStdString &a);
+                        const vtkStdString &color);
 
   //BTX
   // Description:

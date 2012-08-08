@@ -47,15 +47,9 @@ int TestInteractiveChartXYZ(int , char * [])
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
   table->AddColumn(arrS.GetPointer());
-  vtkNew<vtkUnsignedCharArray> arrR;
-  arrR->SetName("Red");
-  table->AddColumn(arrR.GetPointer());
-  vtkNew<vtkUnsignedCharArray> arrG;
-  arrG->SetName("Green");
-  table->AddColumn(arrG.GetPointer());
-  vtkNew<vtkUnsignedCharArray> arrB;
-  arrB->SetName("Blue");
-  table->AddColumn(arrB.GetPointer());
+  vtkNew<vtkFloatArray> arrColor;
+  arrColor->SetName("Color");
+  table->AddColumn(arrColor.GetPointer());
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
@@ -66,15 +60,11 @@ int TestInteractiveChartXYZ(int , char * [])
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
-    table->SetValue(i, 3, i * 3);
-    table->SetValue(i, 4, 0);
-    table->SetValue(i, 5, 255 - i * 3);
-
+    table->SetValue(i, 3, i);
     }
 
   // Add the dimensions we are interested in visualizing.
-  chart->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine", "Red",
-                  "Green", "Blue");
+  chart->SetInput(table.GetPointer(), "X Axis", "Sine", "Cosine", "Color");
   chart->RecalculateBounds();
   chart->RecalculateTransform();
 
