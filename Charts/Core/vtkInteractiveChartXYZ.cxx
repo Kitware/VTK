@@ -24,6 +24,7 @@
 #include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkTable.h"
 #include "vtkTransform.h"
@@ -158,7 +159,7 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
 
 void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
                            const vtkStdString &yName, const vtkStdString &zName,
-                           const vtkStdString &colorName);
+                           const vtkStdString &colorName)
 {
   this->Superclass::SetInput(input, xName, yName, zName);
   
@@ -170,54 +171,38 @@ void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName
 
   this->NumberOfComponents = 3;
 
-  //lookup table action here
-
-  this->Colors =
-    new unsigned char[this->points.size() * this->NumberOfComponents];
-
+  //generate a color lookup table
+  vtkNew<vtkLookupTable> lookupTable;
+  double min = DBL_MAX;
+  double max = DBL_MIN;
   for (int i = 0; i < this->points.size(); ++i)
     {
-    this->Colors[i * this->NumberOfComponents] = rArr->GetValue(i);
-    this->Colors[i * this->NumberOfComponents + 1] = gArr->GetValue(i); 
-    this->Colors[i * this->NumberOfComponents + 2] = bArr->GetValue(i);
+    double value = colorArr->GetComponent(i, 0);
+    if (value > max)
+      {
+      max = value;
+      }
+    else if (value < min)
+      {
+      min = value;
+      }
     }
-}
 
-void vtkInteractiveChartXYZ::SetInput(vtkTable *input, const vtkStdString &xName,
-                           const vtkStdString &yName, const vtkStdString &zName,
-                           const vtkStdString &rName, const vtkStdString &gName,
-                           const vtkStdString &bName, const vtkStdString &aName)
-{
-  this->Superclass::SetInput(input, xName, yName, zName);
-  
-  vtkUnsignedCharArray *rArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(rName.c_str()));
-  vtkUnsignedCharArray *gArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(gName.c_str()));
-  vtkUnsignedCharArray *bArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(bName.c_str()));
-  vtkUnsignedCharArray *aArr =
-      vtkUnsignedCharArray::SafeDownCast(input->GetColumnByName(aName.c_str()));
+  lookupTable->SetNumberOfTableValues(256);
+  lookupTable->SetRange(min, max);
+  lookupTable->Build();
 
-  assert(rArr);
-  assert(gArr);
-  assert(bArr);
-  assert(aArr);
-  assert(rArr->GetNumberOfTuples() == gArr->GetNumberOfTuples() &&
-         rArr->GetNumberOfTuples() == bArr->GetNumberOfTuples() &&
-         rArr->GetNumberOfTuples() == aArr->GetNumberOfTuples() &&
-         rArr->GetNumberOfTuples() == this->points.size());
-  
-  this->NumberOfComponents = 4;
+  double color[3];
   this->Colors =
     new unsigned char[this->points.size() * this->NumberOfComponents];
 
   for (int i = 0; i < this->points.size(); ++i)
     {
-    this->Colors[i * this->NumberOfComponents] = rArr->GetValue(i);
-    this->Colors[i * this->NumberOfComponents + 1] = gArr->GetValue(i); 
-    this->Colors[i * this->NumberOfComponents + 2] = bArr->GetValue(i);
-    this->Colors[i * this->NumberOfComponents + 3] = aArr->GetValue(i);
+    double value = colorArr->GetComponent(i, 0);
+    unsigned char *rgb = lookupTable->MapValue(value);
+    this->Colors[i * this->NumberOfComponents] = rgb[0];
+    this->Colors[i * this->NumberOfComponents + 1] = rgb[1];
+    this->Colors[i * this->NumberOfComponents + 2] = rgb[2];
     }
 }
 
