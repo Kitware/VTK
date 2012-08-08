@@ -40,6 +40,9 @@
 typedef unsigned char uchar;
 #endif
 
+#ifndef uint
+typedef unsigned int uint;
+#endif
 #define longlong long long
 
 #if defined(_CRAY) && !defined(_CRAYIEEE) && !defined(__crayx1)

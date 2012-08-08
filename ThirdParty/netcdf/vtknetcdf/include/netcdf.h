@@ -365,9 +365,6 @@ extern "C" {
 #   define MSCPP_EXTRA __declspec(dllimport)
 #  endif
 #include <io.h>
-#ifndef uint
-   typedef unsigned int uint;
-#endif
 /*#define lseek _lseeki64
   #define off_t __int64*/
 #else
