@@ -218,7 +218,7 @@ class NcVar : public NcTypedComponent
     NcBool is_valid( void ) const;
     int num_dims( void ) const;         // dimensionality of variable
     NcDim* get_dim( int ) const;        // n-th dimension
-    long* edges( void ) const;          // dimension sizes
+    size_t* edges( void ) const;        // dimension sizes
     int num_atts( void ) const;         // number of attributes
     NcAtt* get_att( NcToken ) const;    // attribute by name
     NcAtt* get_att( int ) const;        // n-th attribute
@@ -247,13 +247,13 @@ class NcVar : public NcTypedComponent
 
     // Put n-dimensional arrays, starting at [0, 0, ..., 0] by default,
     // may be reset with set_cur().
-    NcBool put( const ncbyte* vals, const long* counts );
-    NcBool put( const char* vals, const long* counts );
-    NcBool put( const short* vals, const long* counts );
-    NcBool put( const int* vals, const long* counts );
-    NcBool put( const long* vals, const long* counts );
-    NcBool put( const float* vals, const long* counts );
-    NcBool put( const double* vals, const long* counts );
+    NcBool put( const ncbyte* vals, const size_t* counts );
+    NcBool put( const char* vals, const size_t* counts );
+    NcBool put( const short* vals, const size_t* counts );
+    NcBool put( const int* vals, const size_t* counts );
+    NcBool put( const long* vals, const size_t* counts );
+    NcBool put( const float* vals, const size_t* counts );
+    NcBool put( const double* vals, const size_t* counts );
 
     // Get scalar or 1, ..., 5 dimensional arrays by providing enough
     // arguments.  Arguments are edge lengths, and their number must not
@@ -276,13 +276,13 @@ class NcVar : public NcTypedComponent
 
     // Get n-dimensional arrays, starting at [0, 0, ..., 0] by default,
     // may be reset with set_cur().
-    NcBool get( ncbyte* vals, const long* counts ) const;
-    NcBool get( char* vals, const long* counts ) const;
-    NcBool get( short* vals, const long* counts ) const;
-    NcBool get( int* vals, const long* counts ) const;
-    NcBool get( long* vals, const long* counts ) const;
-    NcBool get( float* vals, const long* counts ) const;
-    NcBool get( double* vals, const long* counts ) const;
+    NcBool get( ncbyte* vals, const size_t* counts ) const;
+    NcBool get( char* vals, const size_t* counts ) const;
+    NcBool get( short* vals, const size_t* counts ) const;
+    NcBool get( int* vals, const size_t* counts ) const;
+    NcBool get( long* vals, const size_t* counts ) const;
+    NcBool get( float* vals, const size_t* counts ) const;
+    NcBool get( double* vals, const size_t* counts ) const;
 
     NcBool set_cur(long c0=-1, long c1=-1, long c2=-1,
                          long c3=-1, long c4=-1);

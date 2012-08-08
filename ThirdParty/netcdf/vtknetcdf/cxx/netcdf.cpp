@@ -636,9 +636,9 @@ NcDim* NcVar::get_dim( int i ) const
     return the_file->get_dim(dims[i]);
 }
 
-long* NcVar::edges( void ) const	// edge lengths (dimension sizes)
+size_t* NcVar::edges( void ) const	// edge lengths (dimension sizes)
 {
-    long* evec = new long[num_dims()];
+    size_t* evec = new size_t[num_dims()];
     for(int i=0; i < num_dims(); i++)
       evec[i] = get_dim(i)->size();
     return evec;
@@ -800,7 +800,7 @@ NcValues* NcVar::get_rec(NcDim* rdim, long slice)
 	return 0;
     }
 
-    long* edgel = edges();
+    size_t* edgel = edges();
     size_t* edge = new size_t[size];
     for (int i=1; i < size ; i++) {
 	edge[i] = edgel[i];
@@ -893,7 +893,7 @@ NcBool NcVar::put_rec( NcDim* rdim, const TYPE* vals,                         \
     if (! result )                                                            \
       return FALSE;                                                           \
                                                                               \
-    long* edge = edges();                                                     \
+    size_t* edge = edges();                                                   \
     edge[idx] = 1;                                                            \
     result = put(vals, edge);                                                 \
     delete [] edge;                                                           \
@@ -915,7 +915,7 @@ long NcVar::rec_size(void) {
 long NcVar::rec_size(NcDim *rdim) {
     int idx = dim_to_index(rdim); 
     long size = 1;
-    long* edge = edges();
+    size_t* edge = edges();
     for( int i = 0 ; i<num_dims() ; i++) {
 	if (i != idx) {
 	  size *= edge[i];
@@ -1070,7 +1070,7 @@ NcVar_put_array(float)
 NcVar_put_array(double)
 
 #define NcVar_put_nd_array(TYPE)					      \
-NcBool NcVar::put( const TYPE* vals, const long* count )		      \
+NcBool NcVar::put( const TYPE* vals, const size_t* count )		      \
 {									      \
     /* no need to check type() vs. TYPE, invoked C function will do that */   \
     if (! the_file->data_mode())					      \
@@ -1083,7 +1083,7 @@ NcBool NcVar::put( const TYPE* vals, const long* count )		      \
 			    ) == NC_NOERR;                                    \
 }
 
-NcBool NcVar::put( const ncbyte* vals, const long* count )
+NcBool NcVar::put( const ncbyte* vals, const size_t* count )
 {
     /* no need to check type() vs. TYPE, invoked C function will do that */
     if (! the_file->data_mode())
@@ -1096,7 +1096,7 @@ NcBool NcVar::put( const ncbyte* vals, const long* count )
 			    ) == NC_NOERR;
 }
 
-NcBool NcVar::put( const char* vals, const long* count )
+NcBool NcVar::put( const char* vals, const size_t* count )
 {
     /* no need to check type() vs. TYPE, invoked C function will do that */
     if (! the_file->data_mode())
@@ -1216,7 +1216,7 @@ NcVar_get_array(float)
 NcVar_get_array(double)
 
 #define NcVar_get_nd_array(TYPE)					      \
-NcBool NcVar::get( TYPE* vals, const long* count ) const		      \
+NcBool NcVar::get( TYPE* vals, const size_t* count ) const		      \
 {									      \
     if (! the_file->data_mode())					      \
       return FALSE;							      \
@@ -1228,7 +1228,7 @@ NcBool NcVar::get( TYPE* vals, const long* count ) const		      \
 			    ) == NC_NOERR;     \
 }
 
-NcBool NcVar::get( ncbyte* vals, const long* count ) const
+NcBool NcVar::get( ncbyte* vals, const size_t* count ) const
 {
     if (! the_file->data_mode())
       return FALSE;
@@ -1238,7 +1238,7 @@ NcBool NcVar::get( ncbyte* vals, const long* count ) const
     return nc_get_vara_schar (the_file->id(), the_id, start,  (const size_t *) count, vals) == NC_NOERR;
 }
 
-NcBool NcVar::get( char* vals, const long* count ) const
+NcBool NcVar::get( char* vals, const size_t* count ) const
 {
     if (! the_file->data_mode())
       return FALSE;
