@@ -170,7 +170,7 @@ NC4_inq_grpname(int ncid, char *name)
  * pointer argument may be NULL; pass a NULL for the third parameter
  * to get the length of the full path name. The length will not
  * include room for a null pointer. */
-EXTERNL int
+int
 NC4_inq_grpname_full(int ncid, size_t *lenp, char *full_name)
 {
    char *name, grp_name[NC_MAX_NAME + 1];

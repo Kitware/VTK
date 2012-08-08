@@ -63,7 +63,7 @@
 #ifdef HAVE_STDBOOL_H
 #include <stdbool.h>
 #else
-# if ! HAVE__BOOL
+# ifndef HAVE__BOOL
 #  ifdef __cplusplus
 typedef bool _Bool;
 #  else
@@ -76,8 +76,21 @@ typedef unsigned char _Bool;
 # define __bool_true_false_are_defined 1
 #endif
 #include <sys/types.h>
-#include <inttypes.h>
+#ifndef WIN32
+#  include <inttypes.h>
+#else
+#  define int8_t __int8
+#  define int16_t __int16
+#  define int32_t __int32
+#  define uint8_t unsigned __int8
+#  define uint16_t unsigned __int16
+#  define uint32_t unsigned __int32
+#endif
 #include <limits.h>
+
+#ifndef SIZE_MAX
+#define SIZE_MAX UINT_MAX
+#endif
 
 #ifndef HAVE_SSIZE_T
 #define ssize_t int

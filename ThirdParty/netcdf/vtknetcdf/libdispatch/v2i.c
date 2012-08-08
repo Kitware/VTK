@@ -8,6 +8,10 @@
 
 #include <config.h>
 #include <stdlib.h>
+#ifndef NO_SYS_TYPES_H
+#  include <sys/types.h> /* Keep before netcdf.h or Win64 gets confused. */
+#endif /* NO_SYS_TYPES_H */
+#include "nc.h" /* WARNING: nc.h must be included before netcdf.h or MSVC60 will die. */
 #include "netcdf.h"
 
 #if SIZEOF_LONG == SIZEOF_SIZE_T
