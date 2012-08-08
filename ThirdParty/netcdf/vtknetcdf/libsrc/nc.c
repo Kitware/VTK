@@ -124,6 +124,8 @@ nc_cktype(nc_type type)
 	case NC_FLOAT:
 	case NC_DOUBLE:
 		return(NC_NOERR);
+	case NC_NAT:
+		;
 	}
 	return(NC_EBADTYPE);
 }
