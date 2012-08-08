@@ -46,6 +46,8 @@ NC_check_file_type(const char *path, int use_parallel, void *mpi_info,
       FILE *fp;
       int i;
 
+      if (!path)
+	 return 0;
       if (!(fp = fopen(path, "r")))
 	 return errno;
       i = fread(magic, MAGIC_NUMBER_LEN, 1, fp);
