@@ -18,7 +18,7 @@ $Id: error4.c,v 1.4 2010/06/01 17:48:55 ed Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include "assert.h"
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 
 /* This contents of this file get skipped if LOGGING is not defined
  * during compile. */
