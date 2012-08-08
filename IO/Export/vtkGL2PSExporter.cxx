@@ -341,27 +341,30 @@ void vtkGL2PSExporter::WriteData()
     // Render ContextActors. Iterate through all actors again instead of using
     // the collected actors (contextActorCol), since we need to know which
     // actors belong to which renderers.
-    vtkNew<vtkContext2D> context;
-    vtkNew<vtkGL2PSContextDevice2D> gl2psDevice;
-    for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+    if (contextActorCol->GetNumberOfItems() != 0)
       {
-      vtkCollection *pCol = ren->GetViewProps();
-      vtkContextActor *act;
-      gl2psDevice->Begin(ren);
-      for (pCol->InitTraversal();
-           (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
+      vtkNew<vtkContext2D> context;
+      vtkNew<vtkGL2PSContextDevice2D> gl2psDevice;
+      for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
         {
-        if (act)
+        vtkCollection *pCol = ren->GetViewProps();
+        vtkContextActor *act;
+        gl2psDevice->Begin(ren);
+        for (pCol->InitTraversal();
+             (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
           {
-          context->Begin(gl2psDevice.GetPointer());
-          act->SetVisibility(1);
-          act->GetScene()->SetGeometry(ren->GetSize());
-          act->GetScene()->Paint(context.GetPointer());
-          act->SetVisibility(0);
-          context->End();
+          if (act)
+            {
+            context->Begin(gl2psDevice.GetPointer());
+            act->SetVisibility(1);
+            act->GetScene()->SetGeometry(ren->GetSize());
+            act->GetScene()->Paint(context.GetPointer());
+            act->SetVisibility(0);
+            context->End();
+            }
           }
+        gl2psDevice->End();
         }
-      gl2psDevice->End();
       }
 
     state = gl2psEndPage();
