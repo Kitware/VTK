@@ -269,47 +269,15 @@ bool vtkInteractiveChartXYZ::MouseMoveEvent(const vtkContextMouseEvent &mouse)
       return this->Zoom(mouse);
       }
     }
-/*
-    // Figure out how much the mouse has moved and scale accordingly
-    float delta = 0.0f;
-    if (this->Scene->GetSceneHeight() > 0)
-      {
-      delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1])/this->Scene->GetSceneHeight();
-      }
-
-    // Dragging full screen height zooms 4x.
-    float scaling = pow(4.0f, delta);
-
-    // Mark the scene as dirty
-    this->Scene->SetDirty(true);
-
-    this->InvokeEvent(vtkCommand::InteractionEvent);
-    return true;
-*/
   return false;
 }
     
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
 {
-  // Determine current position to zoom in on
-  /*
-  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
-  vtkVector2d pos(0.0, 0.0);
-  vtkTransform2D *transform = this->GetTransform();
-  transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
-  vtkVector2f zoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
-  */
-
   // Ten "wheels" to double/halve zoom level
   float scaling = pow(2.0f, delta/10.0f);
-
-  // Zoom in on current position
-  /*
-  this->Translate(zoomAnchor[0], zoomAnchor[1]);
-  this->Scale(scaling, scaling);
-  this->Translate(-zoomAnchor[0], -zoomAnchor[1]);
-  */
+  this->Scale->Scale(scaling, scaling, 0.0);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
@@ -366,13 +334,19 @@ bool vtkInteractiveChartXYZ::Pan(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
 {
-  // Figure out how much the mouse has moved in plot coordinates
+  // Figure out how much the mouse has moved and scale accordingly
   vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+    
+  float delta = 0.0f;
+  if (this->Scene->GetSceneHeight() > 0)
+    {
+    delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1])/this->Scene->GetSceneHeight();
+    }
 
-  double dz = 1.0 -
-    (screenPos[1] - lastScreenPos[1]) / this->Scene->GetSceneHeight();
-  this->Scale->Scale(dz, dz, 0.0);
+  // Dragging full screen height zooms 4x.
+  float scaling = pow(4.0f, delta);
+  this->Scale->Scale(scaling, scaling, 0.0);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
