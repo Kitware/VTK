@@ -43,12 +43,14 @@ H5_SET_LIB_OPTIONS (${HDF5_HL_LIB_TARGET} ${HDF5_HL_LIB_NAME} ${LIB_TYPE})
 #-----------------------------------------------------------------------------
 # Add file(s) to CMake Install 
 #-----------------------------------------------------------------------------
-INSTALL (
-    FILES
-        ${HL_HEADERS}
-    DESTINATION
-        ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkhdf5
-)
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  INSTALL (
+      FILES
+          ${HL_HEADERS}
+      DESTINATION
+          ${VTK_INSTALL_INCLUDE_DIR_CM24}/vtkhdf5
+  )
+endif()
 
 #-----------------------------------------------------------------------------
 # Add Target(s) to CMake Install for import into other projects

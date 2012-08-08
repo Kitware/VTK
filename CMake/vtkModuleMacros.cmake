@@ -163,8 +163,11 @@ macro(vtk_module_export_info)
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-install}")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
     CMakeFiles/${vtk-module}.cmake @ONLY)
-  install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
-    DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules)
+  if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(FILES ${${vtk-module}_BINARY_DIR}/CMakeFiles/${vtk-module}.cmake
+      DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
+      COMPONENT Development)
+  endif()
 endmacro()
 
 # Export data from a module such as name, include directory and class level
@@ -547,8 +550,11 @@ macro(vtk_module_third_party _pkg)
   vtk_module_export_info()
 
   configure_file(vtk_${_lower}.h.in vtk_${_lower}.h)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vtk_${_lower}.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR})
+  if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/vtk_${_lower}.h
+            DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
+            COMPONENT Development)
+  endif()
 
   if(_subdir AND NOT VTK_USE_SYSTEM_${_upper})
     add_subdirectory(vtk${_lower})
