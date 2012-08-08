@@ -52,6 +52,8 @@
 #include "vtkVolumeCollection.h"
 #include "vtk_gl2ps.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkGL2PSExporter)
 vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkProp3DCollection)
 
@@ -99,6 +101,7 @@ void vtkGL2PSExporter::WriteData()
   int state = GL2PS_OVERFLOW;
   GLint viewport[4];
   int *winsize = this->RenderWindow->GetSize();
+  vtkRenderer *ren;
 
   vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
   vtkPropCollection *specialPropCol =
@@ -242,6 +245,16 @@ void vtkGL2PSExporter::WriteData()
     this->RenderWindow->Render();
     }
 
+  // Disable depth peeling. It uses textures that turn into large opaque quads
+  // in the output, and gl2ps sorts primitives itself anyway.
+  std::vector<bool> origDepthPeeling;
+  origDepthPeeling.reserve(renCol->GetNumberOfItems());
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+    {
+    origDepthPeeling.push_back(ren->GetUseDepthPeeling() != 0);
+    ren->UseDepthPeelingOff();
+    }
+
   // Writing the file using GL2PS.
   vtkDebugMacro(<<"Writing file using GL2PS");
 
@@ -328,28 +341,30 @@ void vtkGL2PSExporter::WriteData()
     // Render ContextActors. Iterate through all actors again instead of using
     // the collected actors (contextActorCol), since we need to know which
     // actors belong to which renderers.
-    vtkRenderer *ren;
-    vtkNew<vtkContext2D> context;
-    vtkNew<vtkGL2PSContextDevice2D> gl2psDevice;
-    for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+    if (contextActorCol->GetNumberOfItems() != 0)
       {
-      vtkCollection *pCol = ren->GetViewProps();
-      vtkContextActor *act;
-      gl2psDevice->Begin(ren);
-      for (pCol->InitTraversal();
-           (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
+      vtkNew<vtkContext2D> context;
+      vtkNew<vtkGL2PSContextDevice2D> gl2psDevice;
+      for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
         {
-        if (act)
+        vtkCollection *pCol = ren->GetViewProps();
+        vtkContextActor *act;
+        gl2psDevice->Begin(ren);
+        for (pCol->InitTraversal();
+             (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
           {
-          context->Begin(gl2psDevice.GetPointer());
-          act->SetVisibility(1);
-          act->GetScene()->SetGeometry(ren->GetSize());
-          act->GetScene()->Paint(context.GetPointer());
-          act->SetVisibility(0);
-          context->End();
+          if (act)
+            {
+            context->Begin(gl2psDevice.GetPointer());
+            act->SetVisibility(1);
+            act->GetScene()->SetGeometry(ren->GetSize());
+            act->GetScene()->Paint(context.GetPointer());
+            act->SetVisibility(0);
+            context->End();
+            }
           }
+        gl2psDevice->End();
         }
-      gl2psDevice->End();
       }
 
     state = gl2psEndPage();
@@ -357,6 +372,11 @@ void vtkGL2PSExporter::WriteData()
   fclose(fpObj);
 
   // Clean up.
+  for (int i = 0; i < origDepthPeeling.size(); ++i)
+    {
+    vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i))->SetUseDepthPeeling(
+          origDepthPeeling[i] ? 1 : 0);
+    }
   if (this->Write3DPropsAsRasterImage)
     {
     // Reset the visibility.
