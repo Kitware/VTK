@@ -65,7 +65,7 @@ static const double ncBad_double = NC_FILL_DOUBLE;
 #define NcVal(TYPE) makename2(NcValues_,TYPE)
 
 #define NcValuesdeclare(TYPE)						      \
-class NcVal(TYPE) : public NcValues					      \
+class MSCPP_EXTRA NcVal(TYPE) : public NcValues				      \
 {									      \
   public:								      \
     NcVal(TYPE)( void );						      \
@@ -237,7 +237,7 @@ char* NcVal(TYPE)::as_string( long n ) const				      \
     return s;								      \
 }
 
-class NcValues			// ABC for value blocks
+class MSCPP_EXTRA NcValues			// ABC for value blocks
 {
   public:
     NcValues( void );

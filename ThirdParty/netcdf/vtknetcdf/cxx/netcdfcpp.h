@@ -15,16 +15,17 @@
 typedef const char* NcToken;    // names for netCDF objects
 typedef unsigned int NcBool;    // many members return 0 on failure
 
-class NcDim;                    // dimensions
-class NcVar;                    // variables
-class NcAtt;                    // attributes
+class MSCPP_EXTRA NcDim;        // dimensions
+class MSCPP_EXTRA NcVar;        // variables
+class MSCPP_EXTRA NcAtt;        // attributes
+class MSCPP_EXTRA NcError;
 
 /*
  * ***********************************************************************
  * A netCDF file.
  * ***********************************************************************
  */
-class NcFile
+class MSCPP_EXTRA NcFile
 {
   public:
 
@@ -139,7 +140,7 @@ class NcFile
  * of an open netCDF file.
  * **********************************************************************
  */
-class NcDim
+class MSCPP_EXTRA NcDim
 {
   public:
     NcToken name( void ) const;
@@ -171,7 +172,7 @@ class NcDim
  * components of an open netCDF file.
  * **********************************************************************
  */
-class NcTypedComponent
+class MSCPP_EXTRA NcTypedComponent
 {
   public:
     virtual ~NcTypedComponent( void ) {}
@@ -209,7 +210,7 @@ class NcTypedComponent
  * a shape, given by a list of dimensions
  * **********************************************************************
  */
-class NcVar : public NcTypedComponent
+class MSCPP_EXTRA NcVar : public NcTypedComponent
 {
   public:
     virtual ~NcVar( void );
@@ -407,7 +408,7 @@ class NcVar : public NcTypedComponent
  * associated with a specific variable, or are global to the file.
  * **********************************************************************
  */
-class NcAtt : public NcTypedComponent
+class MSCPP_EXTRA NcAtt : public NcTypedComponent
 {
   public:          
     virtual ~NcAtt( void );
@@ -440,7 +441,7 @@ class NcAtt : public NcTypedComponent
  * which time the previous error-handling behavior is restored.
  * **********************************************************************
  */
-class NcError {
+class MSCPP_EXTRA NcError {
   public:
     enum Behavior {
         silent_nonfatal = 0,

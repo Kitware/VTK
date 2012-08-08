@@ -354,10 +354,15 @@ extern "C" {
 /* Declaration modifiers for DLL support (MSC et al) */
 
 #if defined(DLL_NETCDF) /* define when library is a DLL */
-#  if defined(DLL_EXPORT) /* define when building the library */
+#  if defined(vtkNetCDF_EXPORTS) /* define when building the library */
 #   define MSC_EXTRA __declspec(dllexport)
 #  else
 #   define MSC_EXTRA __declspec(dllimport)
+#  endif
+#  if defined(vtkNetCDF_cxx_EXPORTS)
+#   define MSCPP_EXTRA __declspec(dllexport)
+#  else
+#   define MSCPP_EXTRA __declspec(dllimport)
 #  endif
 #include <io.h>
 #ifndef uint
@@ -367,13 +372,16 @@ extern "C" {
   #define off_t __int64*/
 #else
 #define MSC_EXTRA
+#define MSCPP_EXTRA
 #endif	/* defined(DLL_NETCDF) */
 
 # define EXTERNL extern MSC_EXTRA
 
-#if defined(DLL_NETCDF) /* define when library is a DLL */
-MSC_EXTRA int ncerr;
-MSC_EXTRA int ncopts;
+/* When netCDF is built as a DLL, this will export ncerr and
+ * ncopts. When it is used as a DLL, it will import them. */
+#if defined(DLL_NETCDF)
+EXTERNL int ncerr;
+EXTERNL int ncopts;
 #endif
 
 EXTERNL const char *

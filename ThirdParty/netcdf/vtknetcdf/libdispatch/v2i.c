@@ -341,7 +341,6 @@ nc_get_rec(
 /*
  * Error code
  */
-#if !DLL_NETCDF /* define when library is not a DLL */
 int ncerr = NC_NOERR ;
 
 
@@ -350,7 +349,6 @@ int ncerr = NC_NOERR ;
  * They call exit() when NC_FATAL bit is on.
  */
 int ncopts = (NC_FATAL | NC_VERBOSE) ;
-#endif
 
 /* End globals */
 
