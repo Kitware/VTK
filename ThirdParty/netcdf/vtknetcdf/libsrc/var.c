@@ -59,7 +59,7 @@ new_x_NC_var(
 	const size_t sz =  M_RNDUP(sizeof(NC_var)) +
 		 o1 + o2 + ndims * sizeof(off_t);
 #else /*!MALLOCHACK*/
-	const size_t o3 = ndims * sizeof(off_t);
+	const size_t o3 = ndims * sizeof(off_t) *2; //TODO:mem bug release built vis studio crashes on free without *2
 	const size_t sz = sizeof(NC_var);
 #endif /*!MALLOCHACK*/
 
