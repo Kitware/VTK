@@ -1,54 +1,68 @@
-This directory contains a subset of the NetCDF source code.
-Specifically, it is the source of the library itself
-and not any utilities built on top of it.
+The ThirdParty/netcdf/vtknetcdf directory contains a reduced
+distribution of the NetCDF source tree with only the library
+source code needed by VTK.  It is not a submodule; the actual
+content is part of our source tree and changes can be made and
+committed directly.
 
-The only differences to the vendor's release are:
-- The README (as README.netcdf), RELEASE_NOTES, and COPYRIGHT
-  files from the top level of the NetCDF source code are also
-  included.
-- Tabs aren't allowed by VTK's checkin scripts, so they
-  have been converted to spaces.
-- some "index" parameters have been renamed to "index2" to avoid
-  shadowing "index" BSD function.
+We update from upstream using Git's "subtree" merge strategy.  A
+special branch contains commits of upstream netcdf snapshots and
+nothing else.  No Git ref points explicitly to the head of this
+branch, but it is merged into our history.
 
+Update netcdf from upstream as follows.  Create a local branch to
+explicitly reference the upstream snapshot branch head:
 
-The head of the netcdf-release branch corresponds to the
-NetCDF 4.1.2 release.
+ git branch netcdf-upstream c3ace7de
 
-Instructions for updating to a new NetCDF release:
-0. Go to a place where you can have some working directories:
-   cd /tmp
+Use a temporary directory to checkout the branch:
 
-1. Check out the netcdf-release branch
+ mkdir netcdf-tmp
+ cd netcdf-tmp
+ git init
+ git pull .. netcdf-upstream
+ rm -rf *
 
-   cvs -d :pserver:anonymous@www.vtk.org:/cvsroot/VTK -z3 \
-     co -r netcdf-release VTK/Utilities/vtknetcdf
+Now place the (reduced) netcdf content in this directory.  See
+instructions shown by
 
-2. Download and unpack the latest netcdf release:
+ git log c3ace7de
 
-   wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf.tar.gz
-   tar xzvf netcdf.tar.gz
+for help extracting the content from the upstream tarball.  Then run
+the following commands to commit the new version.  Substitute the
+appropriate date and version number:
 
-3. Copy files from the netCDF distribution into the VTK
-   NetCDF checkout and commit:
+ git add --all
 
-   cp netcdf-*/libsrc/* vtknetcdf
-   cp netcdf-*/README vtknetcdf/README.netcdf
-   cp netcdf-*/RELEASE_NOTES netcdf-*/COPYRIGHT vtknetcdf
-   cd vtknetcdf
-   cvs commit -m "ENH: A
+ GIT_AUTHOR_NAME='NetCDF Developers \
+ GIT_AUTHOR_EMAIL='netcdfgroup@unidata.ucar.edu' \
+ GIT_AUTHOR_DATE='2011-03-29 18:00:00 -0400' \
+ git commit -m 'netcdf 4.1.2 (reduced)' &&
+ git commit --amend
 
-   You will need to change tabs to spaces before committing.
-   You may need to cvs add or cvs remove files to track the
-   NetCDF distribution.
+Edit the commit message to describe the procedure used to obtain the
+content.  Be sure to add a Gerrit Change-Id line to the bottom of the
+message.  Then push the changes back up to the main local repository:
 
-4. Now merge the changes into the trunk:
+ git push .. HEAD:netcdf-upstream
+ cd ..
+ rm -rf netcdf-tmp
 
-   cvs update -PAd
-   cvs update -j netcdf-release
+Create a topic in the main repository on which to perform the update:
 
-5. Take care of any conflicts.
+ git checkout -b update-netcdf master
 
-6. Build, test, and commit
+Merge the netcdf-upstream branch as a subtree:
 
-7. Listen to the dashboards for problems on other compilers/architectures.
+ git merge -s recursive -X subtree=ThirdParty/netcdf/vtknetcdf \
+           netcdf-upstream
+
+If there are conflicts, resolve them and commit.  Build and test the
+tree.  Commit any additional changes needed to succeed.
+
+Finally, run
+
+ git rev-parse --short=8 netcdf-upstream
+
+to get the commit from which the netcdf-upstream branch must be started
+on the next update.  Edit the "git branch netcdf-upstream" line above to
+record it, and commit this file.
