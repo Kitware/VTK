@@ -3,6 +3,8 @@
 #ifndef NCLIST_H
 #define NCLIST_H 1
 
+#include <config.h>
+
 /* Define the type of the elements in the list*/
 
 #if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__)
