@@ -22,10 +22,12 @@
 #include "vtkContext3D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
-#include "vtkTable.h"
 #include "vtkFloatArray.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkMath.h"
+#include "vtkTable.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
@@ -33,7 +35,6 @@
 #include "vtkAnnotationLink.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"
 
@@ -385,12 +386,39 @@ bool vtkInteractiveChartXYZ::Pan(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
 {
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double dz = (screenPos[1] - lastScreenPos[1]);// / this->Scene->GetSceneHeight();
+  std::cout << "zooming by this much: " << dz << std::endl;
+  this->Translation->Translate(0.0, 0.0, dz);
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkInteractiveChartXYZ::Spin(const vtkContextMouseEvent &mouse)
 {
+  // Figure out how much the mouse has moved in plot coordinates
+  vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
+  vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
+
+  double newAngle =
+    vtkMath::DegreesFromRadians(atan2(screenPos[1], screenPos[0]));
+  double oldAngle =
+    vtkMath::DegreesFromRadians(atan2(lastScreenPos[1], lastScreenPos[0]));
+
+  this->Rotation->RotateZ(-(newAngle - oldAngle));
+
+  // Mark the scene as dirty
+  this->Scene->SetDirty(true);
+
+  this->InvokeEvent(vtkCommand::InteractionEvent);
   return true;
 }
 
