@@ -488,7 +488,7 @@ int
 NC_check_vlen(NC_var *varp, size_t vlen_max) {
     size_t prod=varp->xsz;	/* product of xsz and dimensions so far */
 
-    int ii;
+    size_t ii;
 
     assert(varp != NULL);
     for(ii = IS_RECVAR(varp) ? 1 : 0; ii < varp->ndims; ii++) {
