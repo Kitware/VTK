@@ -92,6 +92,7 @@ protected:
   bool Spin(const vtkContextMouseEvent &mouse);
 
   vtkNew<vtkTransform> Translation;
+  vtkNew<vtkTransform> Scale;
   unsigned char *Colors;
   int NumberOfComponents;
 

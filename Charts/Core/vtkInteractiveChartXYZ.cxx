@@ -232,6 +232,8 @@ vtkInteractiveChartXYZ::vtkInteractiveChartXYZ()
 {
   this->Translation->Identity();
   this->Translation->PostMultiply();
+  this->Scale->Identity();
+  this->Scale->PostMultiply();
   this->Interactive = true;
   this->Colors = NULL;
   this->NumberOfComponents = 0;
@@ -390,9 +392,9 @@ bool vtkInteractiveChartXYZ::Zoom(const vtkContextMouseEvent &mouse)
   vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
   vtkVector2d lastScreenPos(mouse.GetLastScreenPos().Cast<double>().GetData());
 
-  double dz = (screenPos[1] - lastScreenPos[1]);// / this->Scene->GetSceneHeight();
-  std::cout << "zooming by this much: " << dz << std::endl;
-  this->Translation->Translate(0.0, 0.0, dz);
+  double dz = 1.0 -
+    (screenPos[1] - lastScreenPos[1]) / this->Scene->GetSceneHeight();
+  this->Scale->Scale(dz, dz, 0.0);
 
   // Mark the scene as dirty
   this->Scene->SetDirty(true);
@@ -440,6 +442,7 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->ContextTransform->Concatenate(this->Translation.GetPointer());
   this->ContextTransform->Translate(translation.GetData());
   this->ContextTransform->Concatenate(this->Rotation.GetPointer());
+  this->ContextTransform->Concatenate(this->Scale.GetPointer());
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Concatenate(this->Transform.GetPointer());
 
@@ -457,6 +460,7 @@ void vtkInteractiveChartXYZ::CalculateTransforms()
   this->Box->PostMultiply();
   this->Box->Translate(-0.5, -0.5, -0.5);
   this->Box->Concatenate(this->Rotation.GetPointer());
+  this->Box->Concatenate(this->Scale.GetPointer());
   this->Box->Translate(0.5, 0.5, 0.5);
   this->Box->Scale(scale);
   this->Box->Translate(axes[0]->GetPosition1()[0],
