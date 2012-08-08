@@ -23,7 +23,11 @@
 #  ifdef _WIN64
 #    pragma warning ( disable : 4267 )
 #  endif
-#else
+#endif
+#ifdef __BORLANDC__
+#include <io.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #ifndef HAVE_SSIZE_T
