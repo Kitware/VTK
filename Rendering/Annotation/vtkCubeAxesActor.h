@@ -94,7 +94,7 @@ public:
   virtual int RenderTranslucentGeometry(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
-  int HasTranslucentPolygonalGeometry() { return 1; }
+  int HasTranslucentPolygonalGeometry();
 
   // Description:
   // Gets/Sets the RebuildAxes flag

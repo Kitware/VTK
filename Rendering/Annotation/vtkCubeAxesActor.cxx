@@ -549,6 +549,22 @@ int vtkCubeAxesActor::RenderOverlay(vtkViewport *viewport)
 }
 
 // --------------------------------------------------------------------------
+int vtkCubeAxesActor::HasTranslucentPolygonalGeometry()
+{
+  if ((this->NumberOfAxesX > 0 &&
+       this->XAxes[0]->HasTranslucentPolygonalGeometry()) ||
+      (this->NumberOfAxesY > 0 &&
+       this->YAxes[0]->HasTranslucentPolygonalGeometry()) ||
+      (this->NumberOfAxesZ > 0 &&
+       this->ZAxes[0]->HasTranslucentPolygonalGeometry()))
+    {
+    return 1;
+    }
+
+  return 0;
+}
+
+// --------------------------------------------------------------------------
 // Do final adjustment of axes to control offset, etc.
 void vtkCubeAxesActor::AdjustAxes(double bounds[6],
                                   double xCoords[NUMBER_OF_ALIGNED_AXIS][6],
