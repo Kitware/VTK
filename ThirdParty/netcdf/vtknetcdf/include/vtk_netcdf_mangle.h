@@ -23,6 +23,4 @@ used when the shared library is loaded/unloaded from an executable.
 
 */
 
-#include <vtknetcdf/ncconfig.h>
-
 #endif /* vtk_netcdf_mangle_h */

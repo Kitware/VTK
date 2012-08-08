@@ -38,6 +38,9 @@
 #include <stddef.h> /* size_t, ptrdiff_t */
 #include <errno.h>  /* netcdf functions sometimes return system errors */
 
+#include "vtk_netcdf_config.h"
+#include "vtk_netcdf_mangle.h"
+
 /* The nc_type type is just an int. */
 typedef int nc_type;
 
