@@ -31,6 +31,10 @@
 #include <errno.h>
 #include <sys/types.h> /* off_t */
 
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4244 )
+#endif
+
 /* Define uchar if it is not defined on this system. */
 #ifndef HAVE_UCHAR
 typedef unsigned char uchar;

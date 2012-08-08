@@ -12,6 +12,10 @@
 #include "fbits.h"
 #include "utf8proc.h"
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#  pragma warning ( disable : 4127 ) /* conditional expression is constant */
+#endif /* MSVC 7.1 */
+
 /*
  * Free dim
  * Formerly

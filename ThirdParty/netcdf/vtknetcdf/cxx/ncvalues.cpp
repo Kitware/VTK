@@ -14,6 +14,11 @@
 
 #include "ncvalues.h"
 
+// pragma GCC diagnostic is available since gcc>=4.2
+#if defined(__GNUG__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
 NcValues::NcValues( void ) : the_type(ncNoType), the_number(0)
 {}
 

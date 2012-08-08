@@ -29,6 +29,16 @@
 #define ssize_t int
 #endif*/
 
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4127 )
+#  pragma warning ( disable : 4130 )
+#endif
+
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#pragma warn -8008 /* "condition always true" */
+#endif
+
 #ifndef NC_ARRAY_GROWBY
 #define NC_ARRAY_GROWBY 4
 #endif

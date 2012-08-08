@@ -17,6 +17,12 @@
 #include <string.h>
 #ifdef _MSC_VER /* Microsoft Compilers */
 #include <io.h>
+/* Take the following warning disable out when NetCDF is updated */
+/* to support 64-bit versions of "read" and "write" used below */
+/* in "px_pgin" and "px_pgout" */
+#  ifdef _WIN64
+#    pragma warning ( disable : 4267 )
+#  endif
 #else
 #include <unistd.h>
 #endif
@@ -74,6 +80,11 @@
  * Define the following for debugging.
  */
 /* #define ALWAYS_NC_SHARE 1 */
+
+#if defined(__BORLANDC__)
+#pragma warn -8004 /* "assigned a value that is never used" */
+#pragma warn -8065 /* "Call to function 'XXX' with no prototype" */
+#endif
 
 /* Begin OS */
 
