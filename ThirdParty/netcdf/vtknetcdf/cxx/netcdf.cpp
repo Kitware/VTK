@@ -648,12 +648,18 @@ int NcVar::num_atts( void ) const // handles variable and global atts
 {
     int natt = 0;
     if (the_file->is_valid())
+      {
       if (the_id == ncGlobal)
+        {
 	natt = the_file->num_atts();
+        }
       else
+        {
 	NcError::set_err(
 			 nc_inq_varnatts(the_file->id(), the_id, &natt)
 			 );
+        }
+      }
     return natt;
 }
 
