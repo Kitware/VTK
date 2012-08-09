@@ -109,6 +109,8 @@ vtkRenderer::vtkRenderer()
   this->Erase = 1;
   this->Draw = 1;
 
+  this->GL2PSSpecialPropCollection = NULL;
+
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
@@ -1834,3 +1836,18 @@ double vtkRenderer::GetTiledAspectRatio()
     }
   return finalAspect;
 }
+
+int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp *prop)
+{
+  if (this->GL2PSSpecialPropCollection &&
+      !this->GL2PSSpecialPropCollection->IsItemPresent(prop))
+    {
+    this->GL2PSSpecialPropCollection->AddItem(prop);
+    return 1;
+    }
+
+  return 0;
+}
+
+vtkCxxSetObjectMacro(vtkRenderer, GL2PSSpecialPropCollection,
+                     vtkPropCollection)

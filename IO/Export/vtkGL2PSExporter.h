@@ -93,6 +93,7 @@ class vtkMathTextActor;
 class vtkMathTextActor3D;
 class vtkPropCollection;
 class vtkProp3DCollection;
+class vtkRenderer;
 class vtkRendererCollection;
 class vtkTextActor;
 class vtkTextActor3D;
@@ -282,14 +283,14 @@ protected:
   vtkPropCollection *GetVisibleContextActors(vtkRendererCollection *renCol);
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
-  void DrawTextActor(vtkTextActor *textAct, vtkRendererCollection *renCol);
-  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRendererCollection *renCol);
+  void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
+  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
-                      vtkRendererCollection *renCol);
+                      vtkRenderer *ren);
   void DrawMathTextActor(vtkMathTextActor *textAct,
-                         vtkRendererCollection *renCol);
+                         vtkRenderer *ren);
   void DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                           vtkRendererCollection *renCol);
+                           vtkRenderer *ren);
 
   vtkProp3DCollection *RasterExclusions;
 

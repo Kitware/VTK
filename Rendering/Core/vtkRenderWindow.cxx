@@ -15,8 +15,10 @@
 #include "vtkRenderWindow.h"
 
 #include "vtkCamera.h"
+#include "vtkCollection.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPainterDeviceAdapter.h"
 #include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
@@ -79,7 +81,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->ReportGraphicErrors=0; // false
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
-  this->CapturedGL2PSSpecialProps = NULL;
 
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
@@ -1360,41 +1361,33 @@ const char *vtkRenderWindow::GetRenderLibrary()
 }
 
 //----------------------------------------------------------------------------
-vtkPropCollection *vtkRenderWindow::CaptureGL2PSSpecialProps()
+vtkCollection *vtkRenderWindow::CaptureGL2PSSpecialProps()
 {
   if (this->CapturingGL2PSSpecialProps)
     {
+    vtkDebugMacro(<<"Called recursively.")
     return NULL;
     }
   this->CapturingGL2PSSpecialProps = 1;
 
-  this->CapturedGL2PSSpecialProps = vtkPropCollection::New();
+  vtkCollection *result = vtkCollection::New();
+
+  vtkRenderer *ren;
+  for (Renderers->InitTraversal(); ren = Renderers->GetNextItem();)
+    {
+    vtkNew<vtkPropCollection> props;
+    result->AddItem(props.GetPointer());
+    ren->SetGL2PSSpecialPropCollection(props.GetPointer());
+    }
+
   this->Render();
 
-  vtkPropCollection *result = this->CapturedGL2PSSpecialProps;
-  this->CapturedGL2PSSpecialProps = NULL;
-  this->CapturingGL2PSSpecialProps = 0;
+  for (Renderers->InitTraversal(); ren = Renderers->GetNextItem();)
+    {
+    ren->SetGL2PSSpecialPropCollection(NULL);
+    }
 
   return result;
-}
-
-//----------------------------------------------------------------------------
-int vtkRenderWindow::CaptureGL2PSSpecialProp(vtkProp *prop)
-{
-  if (!this->CapturingGL2PSSpecialProps || !this->CapturedGL2PSSpecialProps)
-    {
-    return 0;
-    }
-
-  if (this->CapturedGL2PSSpecialProps->IsItemPresent(prop))
-    {
-    return 0;
-    }
-
-  this->CapturedGL2PSSpecialProps->AddItem(prop);
-  {
-  return 1;
-  }
 }
 
 // Description: Return the stereo type as a character string.

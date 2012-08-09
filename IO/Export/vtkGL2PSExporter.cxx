@@ -104,7 +104,7 @@ void vtkGL2PSExporter::WriteData()
   vtkRenderer *ren;
 
   vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
-  vtkPropCollection *specialPropCol =
+  vtkCollection *specialPropCol =
       this->RenderWindow->CaptureGL2PSSpecialProps();
   vtkPropCollection *contextActorCol = this->GetVisibleContextActors(renCol);
   // Stores visibility of actors/volumes.
@@ -212,8 +212,13 @@ void vtkGL2PSExporter::WriteData()
     return;
     }
 
-  // Turn off text actors -- these will be handled separately later.
-  this->SetPropVisibilities(specialPropCol, 0);
+  // Turn off text actors, etc -- these will be handled separately later.
+  vtkPropCollection *propCol;
+  for (specialPropCol->InitTraversal(); propCol =
+       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
+    {
+    this->SetPropVisibilities(propCol, 0);
+    }
   this->SetPropVisibilities(contextActorCol, 0);
 
   // Write out a raster image without the 2d actors before switching to feedback
@@ -291,50 +296,58 @@ void vtkGL2PSExporter::WriteData()
 
     // Add the strings from the text actors individually
     vtkProp *prop = 0;
-    for (specialPropCol->InitTraversal();
-         (prop = specialPropCol->GetNextProp());)
+    // Iterate through the renderers and the prop collections together:
+    assert("renderers and special prop collections match" &&
+           renCol->GetNumberOfItems() == specialPropCol->GetNumberOfItems());
+    for (int i = 0; i < renCol->GetNumberOfItems(); ++i)
       {
-      // What sort of special prop is it?
-      if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
+      propCol = vtkPropCollection::SafeDownCast(
+            specialPropCol->GetItemAsObject(i));
+      ren = vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i));
+      for (propCol->InitTraversal(); (prop = propCol->GetNextProp());)
         {
-        if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
+        // What sort of special prop is it?
+        if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
           {
-          this->DrawTextActor(textAct, renCol);
-          }
-        else if (vtkMathTextActor *textAct =
-                 vtkMathTextActor::SafeDownCast(act2d))
-          {
-          this->DrawMathTextActor(textAct, renCol);
-          }
-        else if (vtkMapper2D *map2d = act2d->GetMapper())
-          {
-          if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
+          if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
             {
-            this->DrawTextMapper(textMap, act2d, renCol);
+            this->DrawTextActor(textAct, ren);
             }
-          else // Some other mapper2D
+          else if (vtkMathTextActor *textAct =
+                   vtkMathTextActor::SafeDownCast(act2d))
+            {
+            this->DrawMathTextActor(textAct, ren);
+            }
+          else if (vtkMapper2D *map2d = act2d->GetMapper())
+            {
+            if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
+              {
+              this->DrawTextMapper(textMap, act2d, ren);
+              }
+            else // Some other mapper2D
+              {
+              continue;
+              }
+            }
+          else // Some other actor2D
             {
             continue;
             }
           }
-        else // Some other actor2D
+        else if (vtkMathTextActor3D *textAct =
+                 vtkMathTextActor3D::SafeDownCast(prop))
+          {
+          this->DrawMathTextActor3D(textAct, ren);
+          }
+        else if (vtkTextActor3D *textAct =
+                 vtkTextActor3D::SafeDownCast(prop))
+          {
+          this->DrawTextActor3D(textAct, ren);
+          }
+        else // Some other prop
           {
           continue;
           }
-        }
-      else if (vtkMathTextActor3D *textAct =
-               vtkMathTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawMathTextActor3D(textAct, renCol);
-        }
-      else if (vtkTextActor3D *textAct =
-               vtkTextActor3D::SafeDownCast(prop))
-        {
-        this->DrawTextActor3D(textAct, renCol);
-        }
-      else // Some other prop
-        {
-        continue;
         }
       }
 
@@ -386,7 +399,11 @@ void vtkGL2PSExporter::WriteData()
     // Re-render the scene to show all actors.
     this->RenderWindow->Render();
     }
-  this->SetPropVisibilities(specialPropCol, 1);
+  for (specialPropCol->InitTraversal(); propCol =
+       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
+    {
+    this->SetPropVisibilities(propCol, 1);
+    }
   this->SetPropVisibilities(contextActorCol, 1);
   delete[] fName;
   volVis->Delete();
@@ -630,8 +647,7 @@ void vtkGL2PSExporter::SetPropVisibilities(vtkPropCollection *col, int vis)
     }
 }
 
-void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct,
-                                     vtkRendererCollection *renCol)
+void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren)
 {
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
@@ -641,23 +657,19 @@ void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct,
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  // Add a string for each renderer
-  vtkRenderer *ren = 0;
-  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
-    {
-    // convert coordinate to normalized display
-    GLdouble *textPos = coord->GetComputedDoubleDisplayValue(
-          vtkRenderer::SafeDownCast(ren));
-    textPos[0] = (2.0 * textPos[0] / winsize[0]) - 1.0;
-    textPos[1] = (2.0 * textPos[1] / winsize[1]) - 1.0;
-    textPos[2] = -1.0;
-    vtkGL2PSUtilities::DrawString(string, tprop, textPos);
-    }
+
+  // convert coordinate to normalized display
+  GLdouble *textPos = coord->GetComputedDoubleDisplayValue(ren);
+  textPos[0] = (2.0 * textPos[0] / winsize[0]) - 1.0;
+  textPos[1] = (2.0 * textPos[1] / winsize[1]) - 1.0;
+  textPos[2] = -1.0;
+  vtkGL2PSUtilities::DrawString(string, tprop, textPos);
+
   glPopMatrix();
 }
 
 void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
-                                       vtkRendererCollection *renCol)
+                                       vtkRenderer *ren)
 {
   const char *string = textAct->GetInput();
   vtkNew<vtkTextProperty> tprop;
@@ -695,71 +707,70 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
                         static_cast<double>(winsize[1])};
 
   vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
-  vtkRenderer *ren = 0;
-  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+
+  // Setup gl matrices. This pushes both matrices, so we'll pop them in a bit.
+  ren->GetActiveCamera()->Render(ren);
+
+  // Build transformation matrix
+  glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
+  projectionMatrix->DeepCopy(glMatrix);
+  projectionMatrix->Transpose();
+  glGetDoublev(GL_MODELVIEW_MATRIX, glMatrix);
+  modelviewMatrix->DeepCopy(glMatrix);
+  modelviewMatrix->Transpose();
+  vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
+                            modelviewMatrix.GetPointer(),
+                            transformMatrix.GetPointer());
+  vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
+                            actorMatrix,
+                            transformMatrix.GetPointer());
+
+  glGetDoublev(GL_VIEWPORT, viewport);
+  glGetDoublev(GL_DEPTH_RANGE, depthRange);
+  const double halfWidth = viewport[2] * 0.5;
+  const double halfHeight = viewport[3] * 0.5;
+  const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
+  const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
+
+  vtkNew<vtkPoints> newPoints;
+  newPoints->DeepCopy(origPoints);
+  double point[4];
+  double translation[2] = {0.0, 0.0};
+  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
     {
-    // Setup gl matrices
-    ren->GetActiveCamera()->Render(ren);
-
-    // Build transformation matrix
-    glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
-    projectionMatrix->DeepCopy(glMatrix);
-    projectionMatrix->Transpose();
-    glGetDoublev(GL_MODELVIEW_MATRIX, glMatrix);
-    modelviewMatrix->DeepCopy(glMatrix);
-    modelviewMatrix->Transpose();
-    vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
-                              modelviewMatrix.GetPointer(),
-                              transformMatrix.GetPointer());
-    vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
-                              actorMatrix,
-                              transformMatrix.GetPointer());
-
-    glGetDoublev(GL_VIEWPORT, viewport);
-    glGetDoublev(GL_DEPTH_RANGE, depthRange);
-    const double halfWidth = viewport[2] * 0.5;
-    const double halfHeight = viewport[3] * 0.5;
-    const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
-    const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
-
-    vtkNew<vtkPoints> newPoints;
-    newPoints->DeepCopy(origPoints);
-    double point[4];
-    double translation[2] = {0.0, 0.0};
-    for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
-      {
-      newPoints->GetPoint(i, point);
-      point[3] = 1.0;
-      // Convert path to clip coordinates:
-      // <out point> = [projection] [modelview] [actor matrix] <in point>
-      transformMatrix->MultiplyPoint(point, point);
-      // Clip to NDC
-      const double invW = 1.0 / point[3];
-      point[0] *= invW;
-      point[1] *= invW;
-      point[2] *= invW;
-      // NDC to device:
-      point[0] = point[0] * halfWidth + viewport[0] + halfWidth;
-      point[1] = point[1] * halfHeight + viewport[1] + halfHeight;
-      point[2] = point[2] * zFactor1 + zFactor2;
-      newPoints->SetPoint(i, point);
-      }
-
-    path->SetPoints(newPoints.GetPointer());
-
-    vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
-                                translation, scale, 0.0, color);
-    glMatrixMode(GL_PROJECTION_MATRIX);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW_MATRIX);
-    glPopMatrix();
+    newPoints->GetPoint(i, point);
+    point[3] = 1.0;
+    // Convert path to clip coordinates:
+    // <out point> = [projection] [modelview] [actor matrix] <in point>
+    transformMatrix->MultiplyPoint(point, point);
+    // Clip to NDC
+    const double invW = 1.0 / point[3];
+    point[0] *= invW;
+    point[1] *= invW;
+    point[2] *= invW;
+    // NDC to device:
+    point[0] = point[0] * halfWidth + viewport[0] + halfWidth;
+    point[1] = point[1] * halfHeight + viewport[1] + halfHeight;
+    point[2] = point[2] * zFactor1 + zFactor2;
+    newPoints->SetPoint(i, point);
     }
+
+  path->SetPoints(newPoints.GetPointer());
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
+                              translation, scale, 0.0, color);
+
+  // Pop both matrices (These were pushed by vtkCamera::Render earlier).
+  glMatrixMode(GL_PROJECTION_MATRIX);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW_MATRIX);
+  glPopMatrix();
 }
 
 
 void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
                                       vtkActor2D *textAct,
-                                      vtkRendererCollection *renCol)
+                                      vtkRenderer *ren)
 {
   const char *string = textMap->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
@@ -769,23 +780,18 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  // Add a string for each renderer
-  vtkRenderer *ren = 0;
-  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
-    {
-    // convert coordinate to normalized display
-    GLdouble *textPos = coord->GetComputedDoubleDisplayValue(
-          vtkRenderer::SafeDownCast(ren));
-    textPos[0] = (2.0 * textPos[0] / winsize[0]) - 1.0;
-    textPos[1] = (2.0 * textPos[1] / winsize[1]) - 1.0;
-    textPos[2] = -1.0;
-    vtkGL2PSUtilities::DrawString(string, tprop, textPos);
-    }
+
+  // convert coordinate to normalized display
+  GLdouble *textPos = coord->GetComputedDoubleDisplayValue(ren);
+  textPos[0] = (2.0 * textPos[0] / winsize[0]) - 1.0;
+  textPos[1] = (2.0 * textPos[1] / winsize[1]) - 1.0;
+  textPos[2] = -1.0;
+  vtkGL2PSUtilities::DrawString(string, tprop, textPos);
   glPopMatrix();
 }
 
 void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
-                                         vtkRendererCollection *renCol)
+                                         vtkRenderer *ren)
 {
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
@@ -809,26 +815,25 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
                          actorBounds[3] - actorBounds[2],
                          actorBounds[5] - actorBounds[4]};
 
-  // Add a path for each renderer
-  vtkRenderer *ren = 0;
-  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
-    {
-    ren->GetActiveCamera()->Render(ren);
-    int *textPos = coord->GetComputedDisplayValue(ren);
-    double textPosd[2] = {static_cast<double>(textPos[0]),
-                          static_cast<double>(textPos[1])};
-    vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
-                                textPosd, scale, tprop->GetOrientation(),
-                                color);
-    glMatrixMode(GL_PROJECTION_MATRIX);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW_MATRIX);
-    glPopMatrix();
-    }
+  // Setup gl matrices. This pushes both matrices, so we'll pop them in a bit.
+  ren->GetActiveCamera()->Render(ren);
+
+  int *textPos = coord->GetComputedDisplayValue(ren);
+  double textPosd[2] = {static_cast<double>(textPos[0]),
+                        static_cast<double>(textPos[1])};
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
+                              textPosd, scale, tprop->GetOrientation(),
+                              color);
+
+  // Pop both matrices (These were pushed by vtkCamera::Render earlier).
+  glMatrixMode(GL_PROJECTION_MATRIX);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW_MATRIX);
+  glPopMatrix();
 }
 
 void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                                           vtkRendererCollection *renCol)
+                                           vtkRenderer *ren)
 {
   const char *string = textAct->GetInput();
   vtkNew<vtkTextProperty> tprop;
@@ -867,63 +872,62 @@ void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
                         static_cast<double>(winsize[1])};
 
   vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
-  vtkRenderer *ren = 0;
-  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+
+  // Setup gl matrices. This pushes both matrices, so we'll pop them in a bit.
+  ren->GetActiveCamera()->Render(ren);
+
+  // Build transformation matrix
+  glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
+  projectionMatrix->DeepCopy(glMatrix);
+  projectionMatrix->Transpose();
+  glGetDoublev(GL_MODELVIEW_MATRIX, glMatrix);
+  modelviewMatrix->DeepCopy(glMatrix);
+  modelviewMatrix->Transpose();
+  vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
+                            modelviewMatrix.GetPointer(),
+                            transformMatrix.GetPointer());
+  vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
+                            actorMatrix,
+                            transformMatrix.GetPointer());
+
+  glGetDoublev(GL_VIEWPORT, viewport);
+  glGetDoublev(GL_DEPTH_RANGE, depthRange);
+  const double halfWidth = viewport[2] * 0.5;
+  const double halfHeight = viewport[3] * 0.5;
+  const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
+  const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
+
+  vtkNew<vtkPoints> newPoints;
+  newPoints->DeepCopy(origPoints);
+  double point[4];
+  double translation[2] = {0.0, 0.0};
+  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
     {
-    // Setup gl matrices
-    ren->GetActiveCamera()->Render(ren);
-
-    // Build transformation matrix
-    glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
-    projectionMatrix->DeepCopy(glMatrix);
-    projectionMatrix->Transpose();
-    glGetDoublev(GL_MODELVIEW_MATRIX, glMatrix);
-    modelviewMatrix->DeepCopy(glMatrix);
-    modelviewMatrix->Transpose();
-    vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
-                              modelviewMatrix.GetPointer(),
-                              transformMatrix.GetPointer());
-    vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
-                              actorMatrix,
-                              transformMatrix.GetPointer());
-
-    glGetDoublev(GL_VIEWPORT, viewport);
-    glGetDoublev(GL_DEPTH_RANGE, depthRange);
-    const double halfWidth = viewport[2] * 0.5;
-    const double halfHeight = viewport[3] * 0.5;
-    const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
-    const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
-
-    vtkNew<vtkPoints> newPoints;
-    newPoints->DeepCopy(origPoints);
-    double point[4];
-    double translation[2] = {0.0, 0.0};
-    for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
-      {
-      newPoints->GetPoint(i, point);
-      point[3] = 1.0;
-      // Convert path to clip coordinates:
-      // <out point> = [projection] [modelview] [actor matrix] <in point>
-      transformMatrix->MultiplyPoint(point, point);
-      // Clip to NDC
-      const double invW = 1.0 / point[3];
-      point[0] *= invW;
-      point[1] *= invW;
-      point[2] *= invW;
-      // NDC to device:
-      point[0] = point[0] * halfWidth + viewport[0] + halfWidth;
-      point[1] = point[1] * halfHeight + viewport[1] + halfHeight;
-      point[2] = point[2] * zFactor1 + zFactor2;
-      newPoints->SetPoint(i, point);
-      }
-
-    path->SetPoints(newPoints.GetPointer());
-
-    vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
-                                translation, scale, 0.0, color);
-    glMatrixMode(GL_PROJECTION_MATRIX);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW_MATRIX);
-    glPopMatrix();
+    newPoints->GetPoint(i, point);
+    point[3] = 1.0;
+    // Convert path to clip coordinates:
+    // <out point> = [projection] [modelview] [actor matrix] <in point>
+    transformMatrix->MultiplyPoint(point, point);
+    // Clip to NDC
+    const double invW = 1.0 / point[3];
+    point[0] *= invW;
+    point[1] *= invW;
+    point[2] *= invW;
+    // NDC to device:
+    point[0] = point[0] * halfWidth + viewport[0] + halfWidth;
+    point[1] = point[1] * halfHeight + viewport[1] + halfHeight;
+    point[2] = point[2] * zFactor1 + zFactor2;
+    newPoints->SetPoint(i, point);
     }
+
+  path->SetPoints(newPoints.GetPointer());
+
+  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
+                              translation, scale, 0.0, color);
+
+  // Pop both matrices (These were pushed by vtkCamera::Render earlier).
+  glMatrixMode(GL_PROJECTION_MATRIX);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW_MATRIX);
+  glPopMatrix();
 }

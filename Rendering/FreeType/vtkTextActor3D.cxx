@@ -152,7 +152,7 @@ int vtkTextActor3D::RenderOverlay(vtkViewport *viewport)
       {
       if (renderWindow->GetCapturingGL2PSSpecialProps())
         {
-        renderWindow->CaptureGL2PSSpecialProp(this);
+        renderer->CaptureGL2PSSpecialProp(this);
         }
       }
     }

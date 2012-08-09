@@ -187,6 +187,17 @@ public:
   vtkBooleanMacro(Draw, int);
 
   // Description:
+  // This function is called to capture an instance of vtkProp that requires
+  // special handling during vtkRenderWindow::CaptureGL2PSSpecialProps().
+  int CaptureGL2PSSpecialProp(vtkProp *);
+
+  // Description:
+  // Set the prop collection object used during
+  // vtkRenderWindow::CaptureGL2PSSpecialProps(). Do not call manually, this
+  // is handled automatically by the render window.
+  void SetGL2PSSpecialPropCollection(vtkPropCollection *);
+
+  // Description:
   // Add an culler to the list of cullers.
   void AddCuller(vtkCuller *);
 
@@ -564,6 +575,10 @@ protected:
   // multiplex a vtkRenderWindow or render only part of a vtkRenderWindow.
   // By default, Draw is on.
   int Draw;
+
+  // Description:
+  // Temporary collection used by vtkRenderWindow::CaptureGL2PSSpecialProps.
+  vtkPropCollection *GL2PSSpecialPropCollection;
 
   // Friend class to allow render passes to access functions.
   friend class vtkRenderPass;
