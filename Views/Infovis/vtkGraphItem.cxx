@@ -60,6 +60,10 @@ vtkGraphItem::vtkGraphItem()
 
 vtkGraphItem::~vtkGraphItem()
 {
+  if (this->Internal->Animating)
+    {
+    this->StopLayoutAnimation();
+    }
   if (this->Internal->AnimationCallbackInitialized)
     {
     this->Internal->Interactor->RemoveObserver(this->Internal->AnimationCallback.GetPointer());
