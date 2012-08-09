@@ -1,4 +1,5 @@
 vtk_module(vtkViewsContext2D
+  TCL_NAME vtkViewsContextIID
   GROUPS
     Views
     Rendering
