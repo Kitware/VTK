@@ -736,6 +736,9 @@ public:
   // Description:
   // Convert color in HSV format (Hue, Saturation, Value) to RGB
   // format (Red, Green, Blue). The input color is not modified.
+  // The input 'hsv' must be float values in the range [0,1].
+  // The elements of each component of the output 'rgb' are in
+  // the range [0, 1].
   static void HSVToRGB(const float hsv[3], float rgb[3])
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
