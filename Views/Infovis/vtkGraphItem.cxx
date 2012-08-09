@@ -43,6 +43,7 @@ struct vtkGraphItem::Internals {
 
   bool Animating;
   bool AnimationCallbackInitialized;
+  vtkRenderWindowInteractor *Interactor;
   vtkNew<vtkCallbackCommand> AnimationCallback;
   int TimerId;
 };
@@ -59,11 +60,20 @@ vtkGraphItem::vtkGraphItem()
 
 vtkGraphItem::~vtkGraphItem()
 {
+  if (this->Internal->AnimationCallbackInitialized)
+    {
+    this->Internal->Interactor->RemoveObserver(this->Internal->AnimationCallback.GetPointer());
+    }
   delete this->Internal;
   if (this->Graph)
     {
     this->Graph->Delete();
     }
+}
+
+vtkIncrementalForceLayout *vtkGraphItem::GetLayout()
+{
+  return this->Layout.GetPointer();
 }
 
 vtkColor4ub vtkGraphItem::VertexColor(vtkIdType vtkNotUsed(item))
@@ -166,7 +176,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
       }
     painter->GetPen()->SetWidth(this->Internal->EdgeWidths[edgeIdx]);
     painter->DrawPoly(this->Internal->EdgePositions[edgeIdx][0].GetData(),
-                      this->Internal->EdgePositions[edgeIdx].size(),
+                      static_cast<int>(this->Internal->EdgePositions[edgeIdx].size()),
                       this->Internal->EdgeColors[edgeIdx][0].GetData(), 4);
     }
 
@@ -177,7 +187,7 @@ void vtkGraphItem::PaintBuffers(vtkContext2D *painter)
   painter->GetPen()->SetWidth(this->Internal->VertexSizes[0]);
   painter->DrawPointSprites(this->Sprite.GetPointer(),
                             this->Internal->VertexPositions[0].GetData(),
-                            this->Internal->VertexPositions.size(),
+                            static_cast<int>(this->Internal->VertexPositions.size()),
                             this->Internal->VertexColors[0].GetData(), 4);
 }
 
@@ -269,6 +279,7 @@ void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
       interactor->AddObserver(vtkCommand::TimerEvent,
                               this->Internal->AnimationCallback.GetPointer(),
                               0);
+      this->Internal->Interactor = interactor;
       this->Internal->AnimationCallbackInitialized = true;
       }
     this->Internal->Animating = true;
@@ -280,9 +291,9 @@ void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
     }
 }
 
-void vtkGraphItem::StopLayoutAnimation(vtkRenderWindowInteractor *interactor)
+void vtkGraphItem::StopLayoutAnimation()
 {
-  interactor->DestroyTimer(this->Internal->TimerId);
+  this->Internal->Interactor->DestroyTimer(this->Internal->TimerId);
   this->Internal->TimerId = 0;
   this->Internal->Animating = false;
 }

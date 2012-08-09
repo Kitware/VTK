@@ -299,18 +299,20 @@ configure_file(CMake/VTKConfig.cmake.in CMakeFiles/VTKConfig.cmake @ONLY)
 
 configure_file(CMake/VTKConfigVersion.cmake.in VTKConfigVersion.cmake @ONLY)
 
-install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
-              ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
-              CMake/vtkModuleAPI.cmake
-              CMake/UseVTK.cmake
-  DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
-get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
-if(VTK_TARGETS)
-  install(EXPORT ${VTK_INSTALL_EXPORT_NAME}  DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
-else()
-  set(CMAKE_CONFIGURABLE_FILE_CONTENT "# No targets!")
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake @ONLY)
-  install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake
-          DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
+                ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
+                CMake/vtkModuleAPI.cmake
+                CMake/UseVTK.cmake
+    DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+  get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
+  if(VTK_TARGETS)
+    install(EXPORT ${VTK_INSTALL_EXPORT_NAME}  DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+  else()
+    set(CMAKE_CONFIGURABLE_FILE_CONTENT "# No targets!")
+    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                   ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake @ONLY)
+    install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKTargets.cmake
+            DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
+  endif()
 endif()
