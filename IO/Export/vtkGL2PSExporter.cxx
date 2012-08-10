@@ -313,10 +313,10 @@ void vtkGL2PSExporter::WriteData()
             {
             this->DrawTextActor(textAct, ren);
             }
-          else if (vtkMathTextActor *textAct =
+          else if (vtkMathTextActor *mathTextAct =
                    vtkMathTextActor::SafeDownCast(act2d))
             {
-            this->DrawMathTextActor(textAct, ren);
+            this->DrawMathTextActor(mathTextAct, ren);
             }
           else if (vtkMapper2D *map2d = act2d->GetMapper())
             {
@@ -334,15 +334,15 @@ void vtkGL2PSExporter::WriteData()
             continue;
             }
           }
-        else if (vtkMathTextActor3D *textAct =
+        else if (vtkMathTextActor3D *mathTextAct3D =
                  vtkMathTextActor3D::SafeDownCast(prop))
           {
-          this->DrawMathTextActor3D(textAct, ren);
+          this->DrawMathTextActor3D(mathTextAct3D, ren);
           }
-        else if (vtkTextActor3D *textAct =
+        else if (vtkTextActor3D *textAct3D =
                  vtkTextActor3D::SafeDownCast(prop))
           {
-          this->DrawTextActor3D(textAct, ren);
+          this->DrawTextActor3D(textAct3D, ren);
           }
         else // Some other prop
           {
@@ -385,7 +385,7 @@ void vtkGL2PSExporter::WriteData()
   fclose(fpObj);
 
   // Clean up.
-  for (int i = 0; i < origDepthPeeling.size(); ++i)
+  for (int i = 0; i < static_cast<int>(origDepthPeeling.size()); ++i)
     {
     vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i))->SetUseDepthPeeling(
           origDepthPeeling[i] ? 1 : 0);
