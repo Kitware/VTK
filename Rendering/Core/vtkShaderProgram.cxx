@@ -27,6 +27,7 @@
 #include "vtkActor.h"
 #include "vtkCollection.h"
 #include "vtkCollectionIterator.h"
+#include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -36,14 +37,6 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLMaterial.h"
 #include "vtkXMLShader.h"
-
-#ifdef VTK_USE_CG_SHADERS
-#include "vtkCgShaderProgram.h"
-#endif
-
-#ifdef VTK_USE_GLSL_SHADERS
-#include "vtkGLSLShaderProgram.h"
-#endif
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 //-----------------------------------------------------------------------------
@@ -104,24 +97,28 @@ vtkCollectionIterator* vtkShaderProgram::NewShaderIterator()
 // user-selected build options for shader types.
 vtkShaderProgram* vtkShaderProgram::CreateShaderProgram(int shaderType)
 {
-  if( shaderType == vtkXMLShader::LANGUAGE_CG )
+  vtkShaderProgram* retval = 0;
+  switch ( shaderType )
     {
-#ifdef VTK_USE_CG_SHADERS
-    return vtkCgShaderProgram::New();
-#else
-    vtkGenericWarningMacro("Cg shaders not supported.");
-#endif
+  case vtkXMLShader::LANGUAGE_CG:
+    retval = vtkShaderProgram::SafeDownCast( vtkInstantiator::CreateInstance( "vtkCgShaderProgram" ) );
+    if ( ! retval )
+      {
+      vtkGenericWarningMacro("Cg shaders not supported.");
+      }
+    break;
+  case vtkXMLShader::LANGUAGE_GLSL:
+    retval = vtkShaderProgram::SafeDownCast( vtkInstantiator::CreateInstance( "vtkGLSLShaderProgram" ) );
+    if ( ! retval )
+      {
+      vtkGenericWarningMacro("GLSL shaders not supported.");
+      }
+    break;
+  default:
+    vtkGenericWarningMacro( "Unknown shader type " << shaderType );
+    break;
     }
-
-  if( shaderType == vtkXMLShader::LANGUAGE_GLSL )
-    {
-#ifdef VTK_USE_GLSL_SHADERS
-    return vtkGLSLShaderProgram::New();
-#else
-    vtkGenericWarningMacro("GLSL shaders not supported.");
-#endif
-    }
-  return NULL;
+  return retval;
 }
 
 //-----------------------------------------------------------------------------
