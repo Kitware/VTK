@@ -18,6 +18,7 @@
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkPainterDeviceAdapter.h"
+#include "vtkPropCollection.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
@@ -77,6 +78,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
   this->ReportGraphicErrors=0; // false
   this->AbortCheckTime = 0.0;
+  this->CapturingGL2PSSpecialProps = 0;
+  this->CapturedGL2PSSpecialProps = NULL;
 
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
@@ -1354,6 +1357,44 @@ void vtkRenderWindow::UnRegister(vtkObjectBase *o)
 const char *vtkRenderWindow::GetRenderLibrary()
 {
   return vtkGraphicsFactory::GetRenderLibrary();
+}
+
+//----------------------------------------------------------------------------
+vtkPropCollection *vtkRenderWindow::CaptureGL2PSSpecialProps()
+{
+  if (this->CapturingGL2PSSpecialProps)
+    {
+    return NULL;
+    }
+  this->CapturingGL2PSSpecialProps = 1;
+
+  this->CapturedGL2PSSpecialProps = vtkPropCollection::New();
+  this->Render();
+
+  vtkPropCollection *result = this->CapturedGL2PSSpecialProps;
+  this->CapturedGL2PSSpecialProps = NULL;
+  this->CapturingGL2PSSpecialProps = 0;
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkRenderWindow::CaptureGL2PSSpecialProp(vtkProp *prop)
+{
+  if (!this->CapturingGL2PSSpecialProps || !this->CapturedGL2PSSpecialProps)
+    {
+    return 0;
+    }
+
+  if (this->CapturedGL2PSSpecialProps->IsItemPresent(prop))
+    {
+    return 0;
+    }
+
+  this->CapturedGL2PSSpecialProps->AddItem(prop);
+  {
+  return 1;
+  }
 }
 
 // Description: Return the stereo type as a character string.

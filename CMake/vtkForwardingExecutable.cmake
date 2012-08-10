@@ -1,4 +1,3 @@
-
 #----------------------------------------------------------------------------
 # Function for adding an executable with support for shared forwarding.
 # Typically, one just uses ADD_EXECUTABLE to add an executable target. However
@@ -14,71 +13,68 @@
 # Any remaining arguments are simply passed on to the ADD_EXECUTABLE call.
 # While writing install rules for this executable. One typically does the
 # following.
-#   INSTALL(TARGETS exe_name
+#   install(TARGETS exe_name
 #           DESTINATION "bin"
 #           COMPONENT Runtime)
-#   IF (vtk_exe_suffix)
+#   if(vtk_exe_suffix)
 #     # Shared forwarding enabled.
-#     INSTALL(TARGETS exe_name${out_real_exe_suffix}
+#     install(TARGETS exe_name${out_real_exe_suffix}
 #             DESTINATION "lib"
 #             COMPONENT Runtime)
-#   ENDIF (vtk_exe_suffix)
+#   endif()
 #----------------------------------------------------------------------------
-FUNCTION (vtk_add_executable_with_forwarding
-            out_real_exe_suffix
-            exe_name
-            )
-  if (NOT DEFINED VTK_INSTALL_LIB_DIR_CM24)
-    MESSAGE(FATAL_ERROR
-      "VTK_INSTALL_LIB_DIR_CM24 variable must be set before calling add_executable_with_forwarding"
-    )
-  endif (NOT DEFINED VTK_INSTALL_LIB_DIR_CM24)
+function(vtk_add_executable_with_forwarding
+         out_real_exe_suffix
+         exe_name)
+  if(NOT DEFINED VTK_INSTALL_LIBRARY_DIR)
+    message(FATAL_ERROR
+      "VTK_INSTALL_LIBRARY_DIR variable must be set before calling add_executable_with_forwarding")
+  endif()
 
   vtk_add_executable_with_forwarding2(out_var "" ""
-    ${VTK_INSTALL_LIB_DIR_CM24}
+    ${VTK_INSTALL_LIBRARY_DIR}
     ${exe_name} ${ARGN})
-  set (${out_real_exe_suffix} "${out_var}" PARENT_SCOPE)
-ENDFUNCTION(vtk_add_executable_with_forwarding)
+  set(${out_real_exe_suffix} "${out_var}" PARENT_SCOPE)
+endfunction()
 
 #----------------------------------------------------------------------------
-FUNCTION (vtk_add_executable_with_forwarding2
-            out_real_exe_suffix
-            extra_build_dirs
-            extra_install_dirs
-            install_lib_dir
-            exe_name
-            )
+function(vtk_add_executable_with_forwarding2
+         out_real_exe_suffix
+         extra_build_dirs
+         extra_install_dirs
+         install_lib_dir
+         exe_name)
 
-  SET(mac_bundle)
-  IF (APPLE)
-    set (largs ${ARGN})
-    LIST (FIND largs "MACOSX_BUNDLE" mac_bundle_index)
-    IF (mac_bundle_index GREATER -1)
-      SET (mac_bundle TRUE)
-    ENDIF (mac_bundle_index GREATER -1)
-  ENDIF (APPLE)
+  set(mac_bundle)
+  if(APPLE)
+    set(largs ${ARGN})
+    list(FIND largs "MACOSX_BUNDLE" mac_bundle_index)
+    if(mac_bundle_index GREATER -1)
+      set(mac_bundle TRUE)
+    endif()
+  endif()
 
-  SET(VTK_EXE_SUFFIX)
-  IF (BUILD_SHARED_LIBS AND NOT mac_bundle)
-    IF(NOT WIN32)
-      SET(exe_output_path ${EXECUTABLE_OUTPUT_PATH})
-      IF (NOT EXECUTABLE_OUTPUT_PATH)
-        SET (exe_output_path ${CMAKE_BINARY_DIR})
-      ENDIF (NOT EXECUTABLE_OUTPUT_PATH)
-      SET(VTK_EXE_SUFFIX -launcher)
-      SET(VTK_FORWARD_DIR_BUILD "${exe_output_path}")
-      SET(VTK_FORWARD_DIR_INSTALL "../${install_lib_dir}")
-      SET(VTK_FORWARD_PATH_BUILD "\"${VTK_FORWARD_DIR_BUILD}\"")
-      SET(VTK_FORWARD_PATH_INSTALL "\"${VTK_FORWARD_DIR_INSTALL}\"")
-      FOREACH(dir ${extra_build_dirs})
-        SET (VTK_FORWARD_PATH_BUILD "${VTK_FORWARD_PATH_BUILD},\"${dir}\"")
-      ENDFOREACH(dir)
-      FOREACH(dir ${extra_install_dirs})
-        SET (VTK_FORWARD_PATH_INSTALL "${VTK_FORWARD_PATH_INSTALL},\"${dir}\"")
-      ENDFOREACH(dir)
+  set(VTK_EXE_SUFFIX)
+  if(BUILD_SHARED_LIBS AND NOT mac_bundle)
+    if(NOT WIN32)
+      set(exe_output_path ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+      if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        set(exe_output_path ${CMAKE_BINARY_DIR})
+      endif()
+      set(VTK_EXE_SUFFIX -launcher)
+      set(VTK_FORWARD_DIR_BUILD "${exe_output_path}")
+      set(VTK_FORWARD_DIR_INSTALL "../${install_lib_dir}")
+      set(VTK_FORWARD_PATH_BUILD "\"${VTK_FORWARD_DIR_BUILD}\"")
+      set(VTK_FORWARD_PATH_INSTALL "\"${VTK_FORWARD_DIR_INSTALL}\"")
+      foreach(dir ${extra_build_dirs})
+        set(VTK_FORWARD_PATH_BUILD "${VTK_FORWARD_PATH_BUILD},\"${dir}\"")
+      endforeach()
+      foreach(dir ${extra_install_dirs})
+        set(VTK_FORWARD_PATH_INSTALL "${VTK_FORWARD_PATH_INSTALL},\"${dir}\"")
+      endforeach()
 
-      SET(VTK_FORWARD_EXE ${exe_name})
-      CONFIGURE_FILE(
+      set(VTK_FORWARD_EXE ${exe_name})
+      configure_file(
         ${VTK_CMAKE_DIR}/vtk-forward.c.in
         ${CMAKE_CURRENT_BINARY_DIR}/${exe_name}-forward.c
         @ONLY IMMEDIATE)
@@ -88,11 +84,11 @@ FUNCTION (vtk_add_executable_with_forwarding2
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/launcher)
       set_target_properties(${exe_name}${VTK_EXE_SUFFIX} PROPERTIES
         OUTPUT_NAME ${exe_name})
-      ADD_DEPENDENCIES(${exe_name}${VTK_EXE_SUFFIX} ${exe_name})
-    ENDIF(NOT WIN32)
-  ENDIF (BUILD_SHARED_LIBS AND NOT mac_bundle)
+      add_dependencies(${exe_name}${VTK_EXE_SUFFIX} ${exe_name})
+    endif()
+  endif()
 
   add_executable(${exe_name} ${ARGN})
 
-  set (${out_real_exe_suffix} "${VTK_EXE_SUFFIX}" PARENT_SCOPE)
-ENDFUNCTION (vtk_add_executable_with_forwarding2)
+  set(${out_real_exe_suffix} "${VTK_EXE_SUFFIX}" PARENT_SCOPE)
+endfunction(vtk_add_executable_with_forwarding2)

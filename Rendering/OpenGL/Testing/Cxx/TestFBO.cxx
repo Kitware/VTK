@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 // this test failing.
 int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
-  std::string executable = EXECUTABLE_OUTPUT_PATH;
+  std::string executable = CMAKE_RUNTIME_OUTPUT_DIRECTORY;
 #ifdef CMAKE_INTDIR
   executable += "/" CMAKE_INTDIR;
 #endif

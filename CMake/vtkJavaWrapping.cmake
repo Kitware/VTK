@@ -33,7 +33,9 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
     include_directories(${_java_include_dirs})
   endif()
 
-  set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+    set(KIT_HIERARCHY_FILE ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.txt)
+  endif()
 
   vtk_wrap_java3(${module_name}Java ModuleJava_SRCS
     "${module_srcs};${Kit_JAVA_EXTRA_WRAP_SRCS}")
@@ -45,7 +47,7 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
   endif()
   # Force JavaClasses to build in the right order by adding a depenency.
   add_dependencies(${module_name}JavaJavaClasses ${module_name}Java)
-  if(VTK_MODULE_${module_name}_IMPLEMENTS)
+  if(${module_name}_IMPLEMENTS)
     set_property(TARGET ${module_name}Java PROPERTY COMPILE_DEFINITIONS
       "${module_name}_AUTOINIT=1(${module_name})")
   endif()
@@ -60,8 +62,8 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
     endif()
   endif()
 
-  foreach(dep ${VTK_MODULE_${module_name}_DEPENDS})
-    if(NOT VTK_MODULE_${dep}_EXCLUDE_FROM_WRAPPING)
+  foreach(dep ${${module_name}_DEPENDS})
+    if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
       target_link_libraries(${module_name}Java ${dep}Java)
     endif()
   endforeach()

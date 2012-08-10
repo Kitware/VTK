@@ -2,10 +2,6 @@ project( ndtree )
 
   cmake_minimum_required( VERSION 2.6 )
 
-  set( LIBRARY_OUTPUT_PATH    ${ndtree_BINARY_DIR}/bin CACHE "" INTERNAL FORCE )
-  set( EXECUTABLE_OUTPUT_PATH ${ndtree_BINARY_DIR}/bin CACHE "" INTERNAL FORCE )
-  mark_as_advanced( LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH )
-
   find_package( VTK REQUIRED )
   include( ${VTK_USE_FILE} )
 

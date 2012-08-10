@@ -96,11 +96,9 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
   if (this->EnableSelection)
     {
     selector->BeginRenderProp();
-    // While looking at point selection we always no matter which pass
-    // we are in, render only vertex so each pass should fill the same pixels
-    // without risking of detecting vertex belonging to other cells or block.
-    // BUT we want to make sure we increase the size of those vertex
-    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    // We emphasis the vertex size to make sure they will be properly detected.
+    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+        selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
       {
       device->MakeVertexEmphasis(true);
       }

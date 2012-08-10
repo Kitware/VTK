@@ -15,14 +15,14 @@ if(APPLE)
 endif()
 
 foreach(module ${VTK_MODULES_ENABLED})
-  if(NOT VTK_MODULE_${module}_EXCLUDE_FROM_WRAPPING)
+  if(NOT ${module}_EXCLUDE_FROM_WRAPPING)
     include(${${module}_BINARY_DIR}/JavaDependencies.cmake OPTIONAL)
     list(APPEND _MODULES_TO_WRAP ${module})
   endif()
 endforeach()
 
 if(NOT VTK_JAR_PATH)
-  set(VTK_JAR_PATH "${LIBRARY_OUTPUT_PATH}")
+  set(VTK_JAR_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 endif()
 
 set(VTK_JAVA_SOURCE_FILES ${VTK_JAVA_DEPENDENCIES})
@@ -98,7 +98,7 @@ configure_file(${VTK_SOURCE_DIR}/Wrapping/Java/vtk/vtkSettings.java.in
 # configure vtkNativeLibrary.java to enable loading of VTK module libraries
 set(VTK_JAVA_NATIVE_LIBRARIES)
 foreach(module ${VTK_MODULES_ALL})
-  if(NOT VTK_MODULE_${module}_EXCLUDE_FROM_WRAPPING)
+  if(NOT ${module}_EXCLUDE_FROM_WRAPPING)
     string(TOUPPER ${module} _enum_name)
     set(_enabled "false")
     if(${${module}_ENABLED})

@@ -118,6 +118,10 @@ bool vtkContextTransform::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
 //-----------------------------------------------------------------------------
 bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
 {
+  if (!this->Interactive)
+    {
+    return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
+    }
   if ((this->ZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->ZoomMouseButton &&
         mouse.GetModifiers() == this->ZoomModifier) ||
@@ -139,6 +143,10 @@ bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mous
 //-----------------------------------------------------------------------------
 bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
+  if (!this->Interactive)
+    {
+    return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
+    }
   if ((this->PanMouseButton != vtkContextMouseEvent::NO_BUTTON &&
         mouse.GetButton() == this->PanMouseButton &&
         mouse.GetModifiers() == this->PanModifier) ||
@@ -199,6 +207,10 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 //-----------------------------------------------------------------------------
 bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
 {
+  if (!this->Interactive)
+    {
+    return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
+    }
   if (this->ZoomOnMouseWheel)
     {
     // Determine current position to zoom in on

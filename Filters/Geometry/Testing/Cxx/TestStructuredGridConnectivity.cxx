@@ -17,14 +17,6 @@
 // .SECTION Description
 // Serial tests for structured grid connectivity
 
-// C++ includes
-#include <iostream>
-#include <sstream>
-#include <cassert>
-#include <string>
-#include <vector>
-#include <set>
-
 // VTK includes
 #include "vtkDataSet.h"
 #include "vtkUniformGrid.h"
@@ -48,6 +40,14 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkMathUtilities.h"
+
+// C++ includes
+#include <iostream>
+#include <sstream>
+#include <cassert>
+#include <string>
+#include <vector>
+#include <set>
 
 //#define ENABLE_IO
 
