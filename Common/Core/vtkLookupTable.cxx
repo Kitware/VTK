@@ -17,6 +17,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMathConfigure.h"
+#include "vtkStringArray.h"
+#include "vtkAbstractArray.h"
 #include <assert.h>
 
 vtkStandardNewMacro(vtkLookupTable);
@@ -31,6 +33,9 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Table->Delete();
   this->Table->SetNumberOfComponents(4);
   this->Table->Allocate(4*sze,4*ext);
+  this->AnnotatedValues = 0;
+  this->Annotations = 0;
+  this->DiscreteLookup = 0;
 
   this->HueRange[0] = 0.0;
   this->HueRange[1] = 0.66667;
@@ -62,8 +67,12 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 //----------------------------------------------------------------------------
 vtkLookupTable::~vtkLookupTable()
 {
-  this->Table->UnRegister(this);
+  this->Table->UnRegister( this );
   this->Table = NULL;
+  if ( this->AnnotatedValues )
+    this->AnnotatedValues->UnRegister( this );
+  if ( this->Annotations )
+    this->Annotations->UnRegister( this );
 }
 
 //----------------------------------------------------------------------------
@@ -1000,4 +1009,41 @@ void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
 vtkIdType vtkLookupTable::GetNumberOfAvailableColors()
 {
   return this->Table->GetNumberOfTuples();
+}
+
+//----------------------------------------------------------------------------
+void vtkLookupTable::SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations )
+{
+  if (
+    ( values && ! annotations ) ||
+    ( ! values && annotations ) ||
+    ( values == this->AnnotatedValues && annotations == this->Annotations ) )
+    return;
+
+  bool sameVals = ( values == this->AnnotatedValues );
+  bool sameText = ( annotations == this->Annotations );
+  if ( this->AnnotatedValues && ! sameVals )
+    {
+    this->AnnotatedValues->Delete();
+    this->AnnotatedValues = 0;
+    }
+  if ( this->Annotations && ! sameText )
+    {
+    this->Annotations->Delete();
+    this->Annotations = 0;
+    }
+  if ( ! values )
+    {
+    return;
+    }
+  if ( ! sameVals )
+    {
+    this->AnnotatedValues = values;
+    this->AnnotatedValues->Register( this );
+    }
+  if ( ! sameText )
+    {
+    this->Annotations = annotations;
+    this->Annotations->Register( this );
+    }
 }

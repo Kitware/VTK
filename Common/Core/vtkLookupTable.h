@@ -40,6 +40,9 @@
 #define VTK_SCALE_LINEAR 0
 #define VTK_SCALE_LOG10 1
 
+class vtkAbstractArray;
+class vtkStringArray;
+
 class VTKCOMMONCORE_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
@@ -251,12 +254,35 @@ public:
   // Get the number of available colors for mapping to.
   virtual vtkIdType GetNumberOfAvailableColors();
 
+  // Description:
+  // Set a list of discrete values, either
+  // as a categorical set of values (when DiscreteLookup is true) or
+  // as a set of annotations to add to a scalar array (when DiscreteLookup is false).
+  // The two arrays must both either be NULL or of the same length or
+  // the call will be ignored.
+  virtual void SetAnnotations( vtkAbstractArray* values, vtkStringArray* annotations );
+  vtkGetObjectMacro(AnnotatedValues,vtkAbstractArray);
+  vtkGetObjectMacro(Annotations,vtkStringArray);
+
+  // Description:
+  // Set/get whether the lookup table is for categorical or ordinal data.
+  // The default is ordinal data and values not present in the lookup table
+  // will be assigned an interpolated color.
+  // When categorical data is present, only values in the lookup table will be
+  // considered valid; all other values will be assigned \a NanColor.
+  vtkSetMacro(DiscreteLookup,int);
+  vtkGetMacro(DiscreteLookup,int);
+  vtkBooleanMacro(DiscreteLookup,int);
+
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();
 
   vtkIdType NumberOfColors;
   vtkUnsignedCharArray *Table;
+  vtkAbstractArray* AnnotatedValues;
+  vtkStringArray* Annotations;
+  int DiscreteLookup;
   double TableRange[2];
   double HueRange[2];
   double SaturationRange[2];
