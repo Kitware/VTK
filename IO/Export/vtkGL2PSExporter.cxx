@@ -92,33 +92,6 @@ vtkGL2PSExporter::~vtkGL2PSExporter()
 
 void vtkGL2PSExporter::WriteData()
 {
-  FILE *fpObj;
-  char *fName;
-  GLint format = GL2PS_EPS;
-  GLint sort;
-  GLint options = GL2PS_NONE;
-  int buffsize = 0;
-  int state = GL2PS_OVERFLOW;
-  GLint viewport[4];
-  int *winsize = this->RenderWindow->GetSize();
-  vtkRenderer *ren;
-
-  vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
-  vtkCollection *specialPropCol =
-      this->RenderWindow->CaptureGL2PSSpecialProps();
-  vtkPropCollection *contextActorCol = this->GetVisibleContextActors(renCol);
-  // Stores visibility of actors/volumes.
-  vtkIntArray *volVis = vtkIntArray::New();
-  vtkIntArray *actVis = vtkIntArray::New();
-  vtkIntArray *act2dVis = vtkIntArray::New();
-  float *floatpixels = 0; // for writing 3d props as an image.
-
-  // Setting this to the entire window size for now.
-  viewport[0] = 0;
-  viewport[1] = 0;
-  viewport[2] = winsize[0];
-  viewport[3] = winsize[1];
-
   // make sure the user specified a file prefix
   if (this->FilePrefix == NULL)
     {
@@ -126,20 +99,171 @@ void vtkGL2PSExporter::WriteData()
     return;
     }
 
-  // Set the options based on user's choices.
-  if (this->Sort == NO_SORT)
+  // Get the renderers. We'll be walking through them a lot later.
+  vtkRendererCollection *renCol = this->RenderWindow->GetRenderers();
+
+  // Grab props that need special handling for vector output
+  vtkPropCollection *contextActorCol = this->GetVisibleContextActors(renCol);
+  vtkCollection *specialPropCol =
+      this->RenderWindow->CaptureGL2PSSpecialProps();
+
+  // Setup information that GL2PS will need to export the scene:
+  GLint options = static_cast<GLint>(this->GetGL2PSOptions());
+  GLint sort = static_cast<GLint>(this->GetGL2PSSort());
+  GLint format = static_cast<GLint>(this->GetGL2PSFormat());
+  int *winsize = this->RenderWindow->GetSize();
+  GLint viewport[4] = {0, 0, static_cast<GLint>(winsize[0]),
+                       static_cast<GLint>(winsize[1])};
+
+  // Create the file.
+  char *fName = new char [strlen(this->FilePrefix) + 5];
+  sprintf(fName, "%s.%s", this->FilePrefix, this->GetFileExtension());
+  FILE *fpObj = fopen(fName, "wb");
+  if (!fpObj)
     {
-    sort = GL2PS_NO_SORT;
-    }
-  else if (this->Sort == SIMPLE_SORT)
-    {
-    sort = GL2PS_SIMPLE_SORT;
-    }
-  else
-    {
-    sort = GL2PS_BSP_SORT;
+    vtkErrorMacro(<< "unable to open file: " << fName);
+    return;
     }
 
+  // Turn off special props -- these will be handled separately later.
+  vtkPropCollection *propCol;
+  for (specialPropCol->InitTraversal(); propCol =
+       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
+    {
+    this->SetPropVisibilities(propCol, 0);
+    }
+  this->SetPropVisibilities(contextActorCol, 0);
+
+  // Write out a raster image without the 2d actors before switching to feedback
+  // mode
+  float *rasterImage = NULL;
+  // Store visibility of actors/volumes if rasterizing.
+  vtkIntArray *volVis = vtkIntArray::New();
+  vtkIntArray *actVis = vtkIntArray::New();
+  vtkIntArray *act2dVis = vtkIntArray::New();
+  if (this->Write3DPropsAsRasterImage)
+    {
+    vtkDebugMacro(<<"Rasterizing 3D geometry.")
+    this->SavePropVisibility(renCol, volVis, actVis, act2dVis);
+    this->Turn2DPropsOff(renCol);
+
+    int numpix= winsize[0]*winsize[1]*3;
+    rasterImage = new float [numpix];
+    int offscreen = this->RenderWindow->GetOffScreenRendering();
+
+    this->RenderWindow->OffScreenRenderingOn();
+    this->RenderWindow->Render();
+    unsigned char *charpixels = this->RenderWindow->GetPixelData(
+          0, 0, winsize[0] - 1, winsize[1] - 1, 1);
+
+    for (int i=0; i<numpix; i++)
+      {
+      rasterImage[i] = (static_cast<float>(charpixels[i])/255.0);
+      }
+    delete [] charpixels;
+    this->RenderWindow->SetOffScreenRendering(offscreen);
+    // Render after switching to/from offscreen render but before initializing
+    // gl2ps, otherwise the renderwindow will switch gl contexts and switch out
+    // of feedback mode.
+    this->RenderWindow->Render();
+    }
+
+  // Disable depth peeling. It uses textures that turn into large opaque quads
+  // in the output, and gl2ps sorts primitives itself anyway.
+  vtkRenderer *ren;
+  std::vector<bool> origDepthPeeling;
+  origDepthPeeling.reserve(renCol->GetNumberOfItems());
+  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+    {
+    origDepthPeeling.push_back(ren->GetUseDepthPeeling() != 0);
+    ren->UseDepthPeelingOff();
+    }
+
+  vtkDebugMacro(<<"Writing file using GL2PS");
+
+  // Call gl2ps to generate the file.
+  int buffsize = 0;
+  int state = GL2PS_OVERFLOW;
+  while(state == GL2PS_OVERFLOW)
+    {
+    buffsize += 2048*2048;
+    gl2psBeginPage(this->Title ? this->Title : "VTK GL2PS Export", "VTK",
+                   viewport, format, sort, options, GL_RGBA, 0,
+                   NULL, 0, 0, 0, buffsize, fpObj, fName);
+
+    if (!this->WriteTimeStamp)
+      gl2psDisable(GL2PS_TIMESTAMP);
+
+    // Render non-specialized geometry by either passing in the raster image or
+    // rendering into the feedback buffer.
+    if (this->Write3DPropsAsRasterImage)
+      {
+      // Dump the rendered image without 2d actors as a raster image.
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+      glLoadIdentity();
+      glRasterPos3f(-1.0, -1.0, 1.0);
+      gl2psDrawPixels(winsize[0], winsize[1], 0, 0, GL_RGB,
+                      GL_FLOAT, rasterImage);
+      glPopMatrix();
+
+      // Render the 2d actors alone in a vector graphic format.
+      this->RestorePropVisibility(renCol, volVis, actVis, act2dVis);
+      this->Turn3DPropsOff(renCol);
+      this->RenderWindow->Render();
+      }
+    else
+      {
+      this->RenderWindow->Render();
+      }
+
+    // Render props that require special handling (text, etc)
+    this->DrawSpecialProps(specialPropCol, renCol);
+
+    // Render context 2D stuff
+    this->DrawContextActors(contextActorCol, renCol);
+
+    state = gl2psEndPage();
+    }
+  fclose(fpObj);
+
+  // Clean up:
+  // Re-enable depth peeling if needed
+  for (int i = 0; i < static_cast<int>(origDepthPeeling.size()); ++i)
+    {
+    vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i))->SetUseDepthPeeling(
+          origDepthPeeling[i] ? 1 : 0);
+    }
+  if (this->Write3DPropsAsRasterImage)
+    {
+    // Reset the visibility.
+    this->RestorePropVisibility(renCol, volVis, actVis, act2dVis);
+    // free memory
+    delete [] rasterImage;
+    }
+  // Turn the special props back on
+  for (specialPropCol->InitTraversal(); propCol =
+       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
+    {
+    this->SetPropVisibilities(propCol, 1);
+    }
+  // Turn context actors back on
+  this->SetPropVisibilities(contextActorCol, 1);
+  // Re-render the scene to show all actors.
+  this->RenderWindow->Render();
+  delete[] fName;
+  volVis->Delete();
+  actVis->Delete();
+  act2dVis->Delete();
+  specialPropCol->Delete();
+  contextActorCol->Delete();
+
+  vtkDebugMacro(<<"Finished writing file using GL2PS");
+}
+
+int vtkGL2PSExporter::GetGL2PSOptions()
+{
+  GLint options = GL2PS_NONE;
   if (this->Compress == 1)
     {
     options = options | GL2PS_COMPRESS;
@@ -176,243 +300,60 @@ void vtkGL2PSExporter::WriteData()
     {
     options = options | GL2PS_OCCLUSION_CULL;
     }
+  return static_cast<int>(options);
+}
 
-  // Setup the file.
-  fName = new char [strlen(this->FilePrefix) + 5] ;
-  if (this->FileFormat == PS_FILE)
+int vtkGL2PSExporter::GetGL2PSSort()
+{
+  switch (this->Sort)
     {
-    sprintf(fName, "%s.ps", this->FilePrefix);
-    format = GL2PS_PS;
+    default:
+      vtkDebugMacro(<<"Invalid sort settings, using NO_SORT.");
+    case NO_SORT:
+      return GL2PS_NO_SORT;
+    case SIMPLE_SORT:
+      return GL2PS_SIMPLE_SORT;
+    case BSP_SORT:
+      return GL2PS_BSP_SORT;
     }
-  else if (this->FileFormat == EPS_FILE)
+}
+
+int vtkGL2PSExporter::GetGL2PSFormat()
+{
+  switch (this->FileFormat)
     {
-    sprintf(fName, "%s.eps", this->FilePrefix);
-    format = GL2PS_EPS;
+    default:
+      vtkDebugMacro(<<"Invalid output format. Using postscript.");
+    case PS_FILE:
+      return GL2PS_PS;
+    case EPS_FILE:
+      return GL2PS_EPS;
+    case PDF_FILE:
+      return GL2PS_PDF;
+    case TEX_FILE:
+      return GL2PS_TEX;
+    case SVG_FILE:
+      return GL2PS_SVG;
     }
-  else if (this->FileFormat == PDF_FILE)
+}
+
+const char *vtkGL2PSExporter::GetFileExtension()
+{
+  switch (this->FileFormat)
     {
-    sprintf(fName, "%s.pdf", this->FilePrefix);
-    format = GL2PS_PDF;
+    default:
+      vtkDebugMacro(<<"Invalid output format. Using postscript.");
+    case PS_FILE:
+      return "ps";
+    case EPS_FILE:
+      return "eps";
+    case PDF_FILE:
+      return "pdf";
+    case TEX_FILE:
+      return "tex";
+    case SVG_FILE:
+      return "svg";
     }
-  else if (this->FileFormat == TEX_FILE)
-    {
-    sprintf(fName, "%s.tex", this->FilePrefix);
-    format = GL2PS_TEX;
-    }
-  else if (this->FileFormat == SVG_FILE)
-    {
-    sprintf(fName, "%s.svg", this->FilePrefix);
-    format = GL2PS_SVG;
-    }
-
-  fpObj = fopen(fName, "wb");
-  if (!fpObj)
-    {
-    vtkErrorMacro(<< "unable to open file: " << fName);
-    return;
-    }
-
-  // Turn off text actors, etc -- these will be handled separately later.
-  vtkPropCollection *propCol;
-  for (specialPropCol->InitTraversal(); propCol =
-       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
-    {
-    this->SetPropVisibilities(propCol, 0);
-    }
-  this->SetPropVisibilities(contextActorCol, 0);
-
-  // Write out a raster image without the 2d actors before switching to feedback
-  // mode
-  if (this->Write3DPropsAsRasterImage)
-    {
-    this->SavePropVisibility(renCol, volVis, actVis, act2dVis);
-    this->Turn2DPropsOff(renCol);
-
-    int numpix= winsize[0]*winsize[1]*3;
-    floatpixels = new float [numpix];
-    unsigned char *charpixels;
-    int offscreen = this->RenderWindow->GetOffScreenRendering();
-
-    this->RenderWindow->OffScreenRenderingOn();
-    this->RenderWindow->Render();
-    charpixels = this->RenderWindow->GetPixelData(0, 0, winsize[0] - 1,
-                                                  winsize[1] - 1, 1);
-
-    for (int i=0; i<numpix; i++)
-      {
-      floatpixels[i] = (static_cast<float>(charpixels[i])/255.0);
-      }
-    delete [] charpixels;
-    this->RenderWindow->SetOffScreenRendering(offscreen);
-    // Render after switching to/from offscreen render but before initializing
-    // gl2ps, otherwise the renderwindow will switch gl contexts and switch out
-    // of feedback mode.
-    this->RenderWindow->Render();
-    }
-
-  // Disable depth peeling. It uses textures that turn into large opaque quads
-  // in the output, and gl2ps sorts primitives itself anyway.
-  std::vector<bool> origDepthPeeling;
-  origDepthPeeling.reserve(renCol->GetNumberOfItems());
-  for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
-    {
-    origDepthPeeling.push_back(ren->GetUseDepthPeeling() != 0);
-    ren->UseDepthPeelingOff();
-    }
-
-  // Writing the file using GL2PS.
-  vtkDebugMacro(<<"Writing file using GL2PS");
-
-  // Call gl2ps to generate the file.
-  while(state == GL2PS_OVERFLOW)
-    {
-    buffsize += 2048*2048;
-    gl2psBeginPage(this->Title ? this->Title : "VTK GL2PS Export", "VTK",
-                   viewport, format, sort, options, GL_RGBA, 0,
-                   NULL, 0, 0, 0, buffsize, fpObj, fName);
-
-    if (!this->WriteTimeStamp)
-      gl2psDisable(GL2PS_TIMESTAMP);
-
-    if (this->Write3DPropsAsRasterImage)
-      {
-      // Dump the rendered image without 2d actors as a raster image.
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-      glLoadIdentity();
-      glRasterPos3f(-1.0, -1.0, 1.0);
-      gl2psDrawPixels(winsize[0], winsize[1], 0, 0, GL_RGB,
-                      GL_FLOAT, floatpixels);
-      glPopMatrix();
-      // Render the 2d actors alone in a vector graphic format.
-      this->RestorePropVisibility(renCol, volVis, actVis, act2dVis);
-      this->Turn3DPropsOff(renCol);
-      this->RenderWindow->Render();
-      }
-    else
-      {
-      this->RenderWindow->Render();
-      }
-
-    // Add the strings from the text actors individually
-    vtkProp *prop = 0;
-    // Iterate through the renderers and the prop collections together:
-    assert("renderers and special prop collections match" &&
-           renCol->GetNumberOfItems() == specialPropCol->GetNumberOfItems());
-    for (int i = 0; i < renCol->GetNumberOfItems(); ++i)
-      {
-      propCol = vtkPropCollection::SafeDownCast(
-            specialPropCol->GetItemAsObject(i));
-      ren = vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i));
-      for (propCol->InitTraversal(); (prop = propCol->GetNextProp());)
-        {
-        // What sort of special prop is it?
-        if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
-          {
-          if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
-            {
-            this->DrawTextActor(textAct, ren);
-            }
-          else if (vtkMathTextActor *mathTextAct =
-                   vtkMathTextActor::SafeDownCast(act2d))
-            {
-            this->DrawMathTextActor(mathTextAct, ren);
-            }
-          else if (vtkMapper2D *map2d = act2d->GetMapper())
-            {
-            if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
-              {
-              this->DrawTextMapper(textMap, act2d, ren);
-              }
-            else // Some other mapper2D
-              {
-              continue;
-              }
-            }
-          else // Some other actor2D
-            {
-            continue;
-            }
-          }
-        else if (vtkMathTextActor3D *mathTextAct3D =
-                 vtkMathTextActor3D::SafeDownCast(prop))
-          {
-          this->DrawMathTextActor3D(mathTextAct3D, ren);
-          }
-        else if (vtkTextActor3D *textAct3D =
-                 vtkTextActor3D::SafeDownCast(prop))
-          {
-          this->DrawTextActor3D(textAct3D, ren);
-          }
-        else // Some other prop
-          {
-          continue;
-          }
-        }
-      }
-
-    // Render ContextActors. Iterate through all actors again instead of using
-    // the collected actors (contextActorCol), since we need to know which
-    // actors belong to which renderers.
-    if (contextActorCol->GetNumberOfItems() != 0)
-      {
-      vtkNew<vtkContext2D> context;
-      vtkNew<vtkGL2PSContextDevice2D> gl2psDevice;
-      for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
-        {
-        vtkCollection *pCol = ren->GetViewProps();
-        vtkContextActor *act;
-        gl2psDevice->Begin(ren);
-        for (pCol->InitTraversal();
-             (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
-          {
-          if (act)
-            {
-            context->Begin(gl2psDevice.GetPointer());
-            act->SetVisibility(1);
-            act->GetScene()->SetGeometry(ren->GetSize());
-            act->GetScene()->Paint(context.GetPointer());
-            act->SetVisibility(0);
-            context->End();
-            }
-          }
-        gl2psDevice->End();
-        }
-      }
-
-    state = gl2psEndPage();
-    }
-  fclose(fpObj);
-
-  // Clean up.
-  for (int i = 0; i < static_cast<int>(origDepthPeeling.size()); ++i)
-    {
-    vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i))->SetUseDepthPeeling(
-          origDepthPeeling[i] ? 1 : 0);
-    }
-  if (this->Write3DPropsAsRasterImage)
-    {
-    // Reset the visibility.
-    this->RestorePropVisibility(renCol, volVis, actVis, act2dVis);
-    // memory
-    delete [] floatpixels;
-    // Re-render the scene to show all actors.
-    this->RenderWindow->Render();
-    }
-  for (specialPropCol->InitTraversal(); propCol =
-       vtkPropCollection::SafeDownCast(specialPropCol->GetNextItemAsObject());)
-    {
-    this->SetPropVisibilities(propCol, 1);
-    }
-  this->SetPropVisibilities(contextActorCol, 1);
-  delete[] fName;
-  volVis->Delete();
-  actVis->Delete();
-  act2dVis->Delete();
-  specialPropCol->Delete();
-  contextActorCol->Delete();
-
-  vtkDebugMacro(<<"Finished writing file using GL2PS");
 }
 
 void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -611,6 +552,8 @@ void vtkGL2PSExporter::Turn2DPropsOff(vtkRendererCollection *renCol)
     }
 }
 
+// TODO this should return a collection of collections by renderer, like
+// special props.
 vtkPropCollection *
 vtkGL2PSExporter::GetVisibleContextActors(vtkRendererCollection *renCol)
 {
@@ -644,6 +587,80 @@ void vtkGL2PSExporter::SetPropVisibilities(vtkPropCollection *col, int vis)
        (prop = vtkProp::SafeDownCast(col->GetNextItemAsObject()));)
     {
     prop->SetVisibility(vis);
+  }
+}
+
+void vtkGL2PSExporter::DrawSpecialProps(vtkCollection *specialPropCol,
+                                        vtkRendererCollection *renCol)
+{
+  // Iterate through the renderers and the prop collections together:
+  assert("renderers and special prop collections match" &&
+         renCol->GetNumberOfItems() == specialPropCol->GetNumberOfItems());
+  for (int i = 0; i < renCol->GetNumberOfItems(); ++i)
+    {
+    vtkPropCollection *propCol = vtkPropCollection::SafeDownCast(
+          specialPropCol->GetItemAsObject(i));
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(renCol->GetItemAsObject(i));
+
+    // Setup the GL matrices for this renderer. This pushes the MV matrix,
+    // (and resets w/o pushing proj?) so we'll need to pop it later. We push the
+    // projection matrix ourselves.
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    ren->GetActiveCamera()->Render(ren);
+
+    // Draw special props
+    vtkProp *prop = 0;
+    for (propCol->InitTraversal(); (prop = propCol->GetNextProp());)
+      {
+      // What sort of special prop is it?
+      if (vtkActor2D *act2d = vtkActor2D::SafeDownCast(prop))
+        {
+        if (vtkTextActor *textAct = vtkTextActor::SafeDownCast(act2d))
+          {
+          this->DrawTextActor(textAct, ren);
+          }
+        else if (vtkMathTextActor *mathTextAct =
+                 vtkMathTextActor::SafeDownCast(act2d))
+          {
+          this->DrawMathTextActor(mathTextAct, ren);
+          }
+        else if (vtkMapper2D *map2d = act2d->GetMapper())
+          {
+          if (vtkTextMapper *textMap = vtkTextMapper::SafeDownCast(map2d))
+            {
+            this->DrawTextMapper(textMap, act2d, ren);
+            }
+          else // Some other mapper2D
+            {
+            continue;
+            }
+          }
+        else // Some other actor2D
+          {
+          continue;
+          }
+        }
+      else if (vtkMathTextActor3D *mathTextAct3D =
+               vtkMathTextActor3D::SafeDownCast(prop))
+        {
+        this->DrawMathTextActor3D(mathTextAct3D, ren);
+        }
+      else if (vtkTextActor3D *textAct3D =
+               vtkTextActor3D::SafeDownCast(prop))
+        {
+        this->DrawTextActor3D(textAct3D, ren);
+        }
+      else // Some other prop
+        {
+        continue;
+        }
+      }
+    // Pop MV matrices (This was pushed by vtkOpenGLCamera::Render earlier).
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
     }
 }
 
@@ -652,24 +669,12 @@ void vtkGL2PSExporter::DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren)
   const char *string = textAct->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
   vtkTextProperty *tprop = textAct->GetTextProperty();
-  int *winsize = this->RenderWindow->GetSize();
 
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-
-  // convert coordinate to normalized display
-  GLdouble *textPos = coord->GetComputedDoubleDisplayValue(ren);
-  textPos[0] = (2.0 * textPos[0] / winsize[0]) - 1.0;
-  textPos[1] = (2.0 * textPos[1] / winsize[1]) - 1.0;
-  textPos[2] = -1.0;
-  vtkGL2PSUtilities::DrawString(string, tprop, textPos);
-
-  glPopMatrix();
+  this->DrawViewportTextOverlay(string, tprop, coord, ren);
 }
 
 void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
-                                       vtkRenderer *ren)
+                                       vtkRenderer *)
 {
   const char *string = textAct->GetInput();
   vtkNew<vtkTextProperty> tprop;
@@ -707,9 +712,6 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
                         static_cast<double>(winsize[1])};
 
   vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
-
-  // Setup gl matrices. This pushes both matrices, so we'll pop them in a bit.
-  ren->GetActiveCamera()->Render(ren);
 
   // Build transformation matrix
   glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
@@ -759,14 +761,7 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
 
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
                               translation, scale, 0.0, color);
-
-  // Pop both matrices (These were pushed by vtkCamera::Render earlier).
-  glMatrixMode(GL_PROJECTION_MATRIX);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW_MATRIX);
-  glPopMatrix();
 }
-
 
 void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
                                       vtkActor2D *textAct,
@@ -775,19 +770,8 @@ void vtkGL2PSExporter::DrawTextMapper(vtkTextMapper *textMap,
   const char *string = textMap->GetInput();
   vtkCoordinate *coord = textAct->GetActualPositionCoordinate();
   vtkTextProperty *tprop = textMap->GetTextProperty();
-  int *winsize = this->RenderWindow->GetSize();
 
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-
-  // convert coordinate to normalized display
-  GLdouble *textPos = coord->GetComputedDoubleDisplayValue(ren);
-  textPos[0] = (2.0 * textPos[0] / winsize[0]) - 1.0;
-  textPos[1] = (2.0 * textPos[1] / winsize[1]) - 1.0;
-  textPos[2] = -1.0;
-  vtkGL2PSUtilities::DrawString(string, tprop, textPos);
-  glPopMatrix();
+  this->DrawViewportTextOverlay(string, tprop, coord, ren);
 }
 
 void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
@@ -815,25 +799,16 @@ void vtkGL2PSExporter::DrawMathTextActor(vtkMathTextActor *textAct,
                          actorBounds[3] - actorBounds[2],
                          actorBounds[5] - actorBounds[4]};
 
-  // Setup gl matrices. This pushes both matrices, so we'll pop them in a bit.
-  ren->GetActiveCamera()->Render(ren);
-
   int *textPos = coord->GetComputedDisplayValue(ren);
   double textPosd[2] = {static_cast<double>(textPos[0]),
                         static_cast<double>(textPos[1])};
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
                               textPosd, scale, tprop->GetOrientation(),
                               color);
-
-  // Pop both matrices (These were pushed by vtkCamera::Render earlier).
-  glMatrixMode(GL_PROJECTION_MATRIX);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW_MATRIX);
-  glPopMatrix();
 }
 
 void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
-                                           vtkRenderer *ren)
+                                           vtkRenderer *)
 {
   const char *string = textAct->GetInput();
   vtkNew<vtkTextProperty> tprop;
@@ -873,9 +848,6 @@ void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
 
   vtkSmartPointer<vtkPoints> origPoints = path->GetPoints();
 
-  // Setup gl matrices. This pushes both matrices, so we'll pop them in a bit.
-  ren->GetActiveCamera()->Render(ren);
-
   // Build transformation matrix
   glGetDoublev(GL_PROJECTION_MATRIX, glMatrix);
   projectionMatrix->DeepCopy(glMatrix);
@@ -924,10 +896,84 @@ void vtkGL2PSExporter::DrawMathTextActor3D(vtkMathTextActor3D *textAct,
 
   vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, winsized,
                               translation, scale, 0.0, color);
+}
 
-  // Pop both matrices (These were pushed by vtkCamera::Render earlier).
-  glMatrixMode(GL_PROJECTION_MATRIX);
+void vtkGL2PSExporter::DrawViewportTextOverlay(const char *string,
+                                               vtkTextProperty *tprop,
+                                               vtkCoordinate *coord,
+                                               vtkRenderer *ren)
+{
+  // Figure out the viewport information
+  int *winsize = this->RenderWindow->GetSize();
+  double *viewport = ren->GetViewport();
+  int viewportPixels[4] = {static_cast<int>(viewport[0] * winsize[0]),
+                           static_cast<int>(viewport[1] * winsize[1]),
+                           static_cast<int>(viewport[2] * winsize[0]),
+                           static_cast<int>(viewport[3] * winsize[1])};
+  int viewportSpread[2] = {viewportPixels[2] - viewportPixels[0],
+                           viewportPixels[3] - viewportPixels[1]};
+
+  // Get viewport coord
+  double *textPos2 = coord->GetComputedDoubleViewportValue(ren);
+
+  // convert to NDC with z on the near plane
+  double textPos[3];
+  textPos[0] = (2. * textPos2[0] / static_cast<double>(viewportSpread[0])) - 1.;
+  textPos[1] = (2. * textPos2[1] / static_cast<double>(viewportSpread[1])) - 1.;
+  textPos[2] = -1.;
+
+  // Setup the GL state to render into the viewport
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glViewport(viewportPixels[0], viewportPixels[1],
+             viewportSpread[0], viewportSpread[1]);
+
+  vtkGL2PSUtilities::DrawString(string, tprop, textPos);
+
+  glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-  glMatrixMode(GL_MODELVIEW_MATRIX);
+  glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+}
+
+void vtkGL2PSExporter::DrawContextActors(vtkPropCollection *contextActs,
+                                         vtkRendererCollection *renCol)
+{
+  if (contextActs->GetNumberOfItems() != 0)
+    {
+    vtkNew<vtkContext2D> context;
+    vtkNew<vtkGL2PSContextDevice2D> gl2psDevice;
+
+    // Render ContextActors. Iterate through all actors again instead of using
+    // the collected actors (contextActs), since we need to know which
+    // actors belong to which renderers.
+    vtkRenderer *ren;
+    for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+      {
+      gl2psDevice->Begin(ren);
+      context->Begin(gl2psDevice.GetPointer());
+
+      vtkContextActor *act;
+      vtkCollection *pCol = ren->GetViewProps();
+      for (pCol->InitTraversal();
+           (act = vtkContextActor::SafeDownCast(pCol->GetNextItemAsObject()));)
+        {
+        if (act)
+          {
+          act->SetVisibility(1);
+          act->GetScene()->SetGeometry(ren->GetSize());
+          act->GetScene()->Paint(context.GetPointer());
+          act->SetVisibility(0);
+          }
+        }
+
+      context->End();
+      gl2psDevice->End();
+      }
+    }
+
 }

@@ -88,6 +88,8 @@
 #include "vtkExporter.h"
 
 class vtkActor2D;
+class vtkCollection;
+class vtkCoordinate;
 class vtkIntArray;
 class vtkMathTextActor;
 class vtkMathTextActor3D;
@@ -98,6 +100,7 @@ class vtkRendererCollection;
 class vtkTextActor;
 class vtkTextActor3D;
 class vtkTextMapper;
+class vtkTextProperty;
 
 class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
 {
@@ -272,6 +275,11 @@ protected:
 
   void WriteData();
 
+  int GetGL2PSOptions();
+  int GetGL2PSSort();
+  int GetGL2PSFormat();
+  const char *GetFileExtension();
+
   void SavePropVisibility(vtkRendererCollection *renCol,
                           vtkIntArray *volVis, vtkIntArray *actVis,
                           vtkIntArray *act2dVis);
@@ -283,6 +291,7 @@ protected:
   vtkPropCollection *GetVisibleContextActors(vtkRendererCollection *renCol);
   void SetPropVisibilities(vtkPropCollection *col, int vis);
 
+  void DrawSpecialProps(vtkCollection *propCol, vtkRendererCollection *renCol);
   void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
   void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
@@ -291,6 +300,12 @@ protected:
                          vtkRenderer *ren);
   void DrawMathTextActor3D(vtkMathTextActor3D *textAct,
                            vtkRenderer *ren);
+  void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
+                               vtkCoordinate *coord, vtkRenderer *ren);
+
+  void DrawContextActors(vtkPropCollection *contextActs,
+                         vtkRendererCollection *renCol);
+
 
   vtkProp3DCollection *RasterExclusions;
 
