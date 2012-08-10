@@ -43,7 +43,7 @@ set_property(SOURCE vtkParseMain.c PROPERTY COMPILE_DEFINITIONS
   VTK_PARSE_VERSION="${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 
 if(NOT CMAKE_CROSSCOMPILING)
-  if(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
+  if(VTK_WRAP_TCL OR VTK_WRAP_PYTHON OR VTK_WRAP_JAVA OR VTK_GENERATE_WRAPTOOLS)
     add_executable(vtkWrapHierarchy vtkWrapHierarchy.c)
     target_link_libraries(vtkWrapHierarchy vtkWrappingCore)
     vtk_compile_tools_target(vtkWrapHierarchy)
