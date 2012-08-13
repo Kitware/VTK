@@ -50,6 +50,7 @@ vtkMathTextActor::vtkMathTextActor()
   this->PositionCoordinate->SetCoordinateSystemToViewport();
 
   // Construct texture
+  this->RectanglePoints->Allocate(4);
   this->Rectangle->SetPoints(this->RectanglePoints.GetPointer());
   vtkNew<vtkCellArray> polys;
   polys->InsertNextCell(4);
