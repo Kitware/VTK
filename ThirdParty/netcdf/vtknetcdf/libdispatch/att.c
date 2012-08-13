@@ -4,7 +4,7 @@
 
   This file defines the attribute functions.
 
-  "$Id: nc4.c,v 1.1 2010/06/01 15:46:50 ed Exp $"
+  "$Id: nc4.c,v 1.1 2010/06/01 15:46:50 ed Exp $" 
 */
 
 #include "ncdispatch.h"
@@ -12,8 +12,8 @@
 static nc_type longtype = (sizeof(long) == sizeof(int) ? NC_INT : NC_INT64);
 
 int
-nc_inq_att(int ncid, int varid, const char *name, nc_type *xtypep,
-           size_t *lenp)
+nc_inq_att(int ncid, int varid, const char *name, nc_type *xtypep, 
+	   size_t *lenp)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
@@ -106,13 +106,13 @@ nc_get_att(int ncid, int varid, const char *name, void *value)
 
 int
 nc_put_att(int ncid, int varid, const char *name, nc_type type,
-           size_t nelems, const void *value)
+	   size_t nelems, const void *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 value, type);
+   return ncp->dispatch->put_att(ncid, varid, name, type, nelems, 
+				 value, type);
 }
 
 int
@@ -243,18 +243,18 @@ nc_get_att_string(int ncid, int varid, const char *name, char **value)
 
 int
 nc_put_att_schar(int ncid, int varid, const char *name,
-                 nc_type type, size_t nelems, const signed char *value)
+		 nc_type type, size_t nelems, const signed char *value)
 {
    NC *ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_BYTE);
+   return ncp->dispatch->put_att(ncid, varid, name, type, nelems, 
+				 (void *)value, NC_BYTE);
 }
 
 int
 nc_put_att_uchar(int ncid, int varid, const char *name,
-                 nc_type type, size_t nelems, const unsigned char *value)
+		 nc_type type, size_t nelems, const unsigned char *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
@@ -264,119 +264,119 @@ nc_put_att_uchar(int ncid, int varid, const char *name,
 
 int
 nc_put_att_short(int ncid, int varid, const char *name,
-                 nc_type type, size_t nelems, const short *value)
+		 nc_type type, size_t nelems, const short *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_SHORT);
+   return ncp->dispatch->put_att(ncid, varid, name, type, nelems, 
+				 (void *)value, NC_SHORT);
 }
 
 int
 nc_put_att_int(int ncid, int varid, const char *name,
-               nc_type type, size_t nelems, const int *value)
+	       nc_type type, size_t nelems, const int *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_INT);
+				 (void *)value, NC_INT);
 }
 
 int
 nc_put_att_long(int ncid, int varid, const char *name,
-                nc_type type, size_t nelems, const long *value)
+		nc_type type, size_t nelems, const long *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, longtype);
+				 (void *)value, longtype);
 }
 
 int
 nc_put_att_float(int ncid, int varid, const char *name,
-                 nc_type type, size_t nelems, const float *value)
+		 nc_type type, size_t nelems, const float *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_FLOAT);
+				 (void *)value, NC_FLOAT);
 }
 
 int
 nc_put_att_double(int ncid, int varid, const char *name,
-                  nc_type type, size_t nelems, const double *value)
+		  nc_type type, size_t nelems, const double *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_DOUBLE);
+				 (void *)value, NC_DOUBLE);
 }
 
 int
 nc_put_att_ubyte(int ncid, int varid, const char *name,
-                 nc_type type, size_t nelems, const unsigned char *value)
+		 nc_type type, size_t nelems, const unsigned char *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_UBYTE);
+				 (void *)value, NC_UBYTE);
 }
 
 int
 nc_put_att_ushort(int ncid, int varid, const char *name,
-                  nc_type type, size_t nelems, const unsigned short *value)
+		  nc_type type, size_t nelems, const unsigned short *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_USHORT);
+				 (void *)value, NC_USHORT);
 }
 
 int
 nc_put_att_uint(int ncid, int varid, const char *name,
-                nc_type type, size_t nelems, const unsigned int *value)
+		nc_type type, size_t nelems, const unsigned int *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_UINT);
+				 (void *)value, NC_UINT);
 }
 
 int
 nc_put_att_longlong(int ncid, int varid, const char *name,
-                    nc_type type, size_t nelems,
-                    const long long *value)
+		    nc_type type, size_t nelems, 
+		    const long long *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_INT64);
+				 (void *)value, NC_INT64);
 }
 
 int
 nc_put_att_ulonglong(int ncid, int varid, const char *name,
-                     nc_type type, size_t nelems,
-                     const unsigned long long *value)
+		     nc_type type, size_t nelems, 
+		     const unsigned long long *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
    return ncp->dispatch->put_att(ncid, varid, name, type, nelems,
-                                 (void *)value, NC_UINT64);
+				 (void *)value, NC_UINT64);
 }
 
 int
 nc_put_att_string(int ncid, int varid, const char *name,
-                  size_t len, const char** value)
+		  size_t len, const char** value)
 {
     NC* ncp;
     int stat = NC_check_id(ncid, &ncp);
@@ -386,11 +386,12 @@ nc_put_att_string(int ncid, int varid, const char *name,
 
 int
 nc_put_att_text(int ncid, int varid, const char *name,
-                size_t len, const char *value)
+		size_t len, const char *value)
 {
    NC* ncp;
    int stat = NC_check_id(ncid, &ncp);
    if(stat != NC_NOERR) return stat;
-   return ncp->dispatch->put_att(ncid, varid, name, NC_CHAR, len,
-                                 (void *)value, NC_CHAR);
+   return ncp->dispatch->put_att(ncid, varid, name, NC_CHAR, len, 
+				 (void *)value, NC_CHAR);
 }
+

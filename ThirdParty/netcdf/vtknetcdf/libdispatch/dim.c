@@ -4,7 +4,7 @@
 
  This file defines the dimension functions.
 
- "$Id: nc4.c,v 1.1 2010/06/01 15:46:50 ed Exp $"
+ "$Id: nc4.c,v 1.1 2010/06/01 15:46:50 ed Exp $" 
 */
 
 #include "ncdispatch.h"
@@ -83,3 +83,4 @@ nc_inq_dimlen(int ncid, int dimid, size_t *lenp)
     if(lenp == NULL) return NC_NOERR;
     return ncp->dispatch->inq_dim(ncid,dimid,NULL,lenp);
 }
+

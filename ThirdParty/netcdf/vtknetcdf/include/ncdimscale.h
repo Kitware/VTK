@@ -5,8 +5,8 @@
    Includes for some HDF5 stuff needed by tests.
 */
 
-typedef struct hdf5_objid
+typedef struct hdf5_objid 
 {
    unsigned long fileno[2]; /* file number */
    haddr_t objno[2]; /* object number */
-} HDF5_OBJID_T;
+} HDF5_OBJID_T; 
