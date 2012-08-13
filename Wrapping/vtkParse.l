@@ -48,218 +48,201 @@ Modify lex.yy.c:
  * Return 0 if no match found.
  */
 static int skip_comment();
+static int skip_trailing_comment(const char *text, size_t l);
 static int skip_ahead_multi(const char *strings[]);
 static int skip_ahead_until(const char *text);
 static int skip_to_next_directive();
 static int skip_conditional_block();
 
+static void preprocessor_directive(const char *text, size_t l);
 static void print_preprocessor_error(int result, const char *cp, size_t n);
 static const char *get_macro_arguments();
 
 static void push_buffer();
 static int pop_buffer();
 
+static void push_include(const char *filename);
+static void pop_include();
+
+static void push_macro(MacroInfo *macro);
+static void pop_macro();
+static int in_macro();
+
 %}
 
+WS [\t\n\r ]+
+PS [\t\n\r ]*
+ID [a-zA-Z_][0-9a-zA-Z_]*
 
 %%
 
-"/*" { skip_comment(); };
+"/*" { skip_comment(); }
 
 ^[\t ]*"//BTX".* {
-       if (!IgnoreBTX) {
-         skip_ahead_until("//ETX");
-       }
-     };
+      if (!IgnoreBTX) {
+        skip_ahead_until("//ETX");
+      }
+    }
 
-^[\t ]*"//ETX".* ;
+^[\t ]*"//ETX".*  /* eat mismatched ETX */
 
 ^[\t ]*("@interface"|"@implementation") {
-       skip_ahead_until("@end");
-     };
+      skip_ahead_until("@end");
+    }
 
 ^[\t ]*"// .NAME".* {
-     size_t pos = 1;
-     while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
-       {
-       pos++;
-       }
-     data.NameComment = vtkstrndup(&yytext[pos + 1], yyleng - pos - 1);
-     };
+      size_t pos = 1;
+      while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
+        {
+        pos++;
+        }
+      data->NameComment = vtkstrndup(&yytext[pos + 1], yyleng - pos - 1);
+    }
 
-^[\t ]*"// Description:".*         { setCommentState(1); };
-^[\t ]*"// .SECTION Description".* { setCommentState(2); };
-^[\t ]*"// .SECTION See Also".*    { setCommentState(3); };
-^[\t ]*"// .SECTION see also".*    { setCommentState(3); };
-^[\t ]*"// .SECTION Caveats".*     { setCommentState(4); };
-^[\t ]*[\r\n]                      { closeOrClearComment(); };
+^[\t ]*"// Description:".*         { setCommentState(1); }
+^[\t ]*"// .SECTION Description".* { setCommentState(2); }
+^[\t ]*"// .SECTION See Also".*    { setCommentState(3); }
+^[\t ]*"// .SECTION see also".*    { setCommentState(3); }
+^[\t ]*"// .SECTION Caveats".*     { setCommentState(4); }
+^[\t ]*[\r\n]                      { closeOrClearComment(); }
 ^[\t ]*"//".*  {
-     size_t pos = 2;
-     while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
-     addCommentLine(&yytext[pos], yyleng - pos);
-     };
+      size_t pos = 2;
+      while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
+      addCommentLine(&yytext[pos], yyleng - pos);
+    }
 
-"//".* ;
-
-^[\t ]*"#"[\t ]*"define"[\t ]+"VTK_"[a-zA-Z0-9_]+[^(](\\\n|\\\r\n|[^\n])*  {
-     int result;
-     MacroInfo *macro;
-     result = vtkParsePreprocess_HandleDirective(&preprocessor, yytext);
-     if (result == VTK_PARSE_OK)
-       {
-       macro = preprocessor.Macros[preprocessor.NumberOfMacros-1];
-       if (!macro->IsFunction)
-         {
-         add_constant(macro->Name, vtkstrdup(macro->Definition), 0, NULL, 1);
-         }
-       }
-     };
+"//".*  /* eat C++ comments */
 
 ^[\t ]*"#"(\\\n|\\\r\n|[^\n])*  {
-     int result = 0;
-     result = vtkParsePreprocess_HandleDirective(&preprocessor, yytext);
-     if (result == VTK_PARSE_SKIP)
-       {
-       skip_conditional_block();
-       }
-     else if (result != VTK_PARSE_OK)
-       {
-       print_preprocessor_error(result, yytext, yyleng);
-       }
-     };
+      skip_trailing_comment(yytext, yyleng);
+      preprocessor_directive(yytext, yyleng);
+   }
 
-\"([^\"]|\\\")*\"      {
-                yylval.str = vtkstrndup(yytext, yyleng);
-                return(STRING_LITERAL); }
+\"([^\"]|\\\")*\"  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(STRING_LITERAL);
+    }
 
-\'([^\']|\\\')+\'      {
-                yylval.str = vtkstrndup(yytext, yyleng);
-                return(CHAR_LITERAL); }
+\'([^\']|\\\')+\'  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(CHAR_LITERAL);
+    }
 
-[A-Za-z0-9_]*"_EXPORT" ;
+{ID}"_EXPORT"  /* ignore EXPORT macros */
 
-"vtkNotUsed"([ \t]*"("[^)]*")")? {
-     size_t i; size_t j = 0;
-     yylval.str = "";
-     if (yytext[yyleng-1] == ')')
-       {
-       while (yytext[j]!='(') { j++; }
-       while (yytext[j]==' ' || yytext[j]=='\t') { j++; }
-       j++; i = j;
-       while (yytext[j]!=')' && yytext[j] != ' ' && yytext[j] != '\t') { j++; }
-       yylval.str = vtkstrndup(&yytext[i], j-i);
-       return(ID);
-       }
-     };
+{ID}"NotUsed"([ \t]*"("[^)]*")")? {
+      size_t i; size_t j = 0;
+      yylval.str = "";
+      if (yytext[yyleng-1] == ')')
+        {
+        while (yytext[j]!='(') { j++; }
+        while (yytext[j]==' ' || yytext[j]=='\t') { j++; }
+        j++; i = j;
+        while (yytext[j] != ')' && yytext[j] != ' ' && yytext[j] != '\t')
+          {
+          j++;
+          }
+        yylval.str = vtkstrndup(&yytext[i], j-i);
+        return(ID);
+        }
+    }
 
-("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"class"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
-     return(CLASS_REF);
-     };
+"void"{PS}"("{PS}"*"{ID}{PS}")"{PS}"("{PS}"void"{PS}"*"{PS}")" {
+      size_t i = 0; size_t j = 0;
+      while (yytext[j] != '*') { i++; j++; }
+      i++; j++;
+      while (yytext[i] != ' ' && yytext[i] != '\t' &&
+             yytext[i] != '\n' && yytext[i] != '\r' && yytext[i] != ')') {i++;}
+      yylval.str = vtkstrndup(&yytext[j], i-j);
+      return(VAR_FUNCTION);
+    }
 
-("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"struct"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
-     return(CLASS_REF);
-     };
+"long"{WS}"double"                       return(LONG_DOUBLE);
+"double"                                 return(DOUBLE);
+"float"                                  return(FLOAT);
 
-("friend"[\t\n\r ]+)?("template"[\t\n\r ]*"<"[^>]*">"[\t\n\r ]*)?"union"[\t\n\r ]+[a-zA-Z_][a-zA-Z0-9_]*("::"[a-zA-Z_][a-zA-Z0-9_]*)*[\t\n\r ]*";" {
-     return(CLASS_REF);
-     };
+"unsigned"{WS}"__int64"                  return(UNSIGNED_INT64__);
+"__int64"{WS}"unsigned"                  return(UNSIGNED_INT64__);
 
-"void"[\t\n\r ]*"("[\t\n\r ]*"*"[a-zA-Z0-9_]*[\t\n\r ]*")"[\t\n\r ]*"("[\t\n\r ]*"void"[\t\n\r ]*"*"[\n\t ]*")" {
-     size_t i = 0; size_t j = 0;
-     while (yytext[j] != '*') { i++; j++; }
-     i++; j++;
-     while (yytext[i] != ' ' && yytext[i] != '\t' &&
-            yytext[i] != '\n' && yytext[i] != '\r' && yytext[i] != ')') {i++;}
-     yylval.str = vtkstrndup(&yytext[j], i-j);
-     return(VAR_FUNCTION);
-     };
+"signed"{WS}"__int64"                    return(INT64__);
+"__int64"{WS}"signed"                    return(INT64__);
+"__int64"                                return(INT64__);
 
-"long"[\t\n\r ]*"double"                       return(LONG_DOUBLE);
-"double"                                       return(DOUBLE);
-"float"                                        return(FLOAT);
+"int"{WS}"unsigned"{WS}"long"{WS}"long"  return(UNSIGNED_LONG_LONG);
+"unsigned"{WS}"int"{WS}"long"{WS}"long"  return(UNSIGNED_LONG_LONG);
+"long"{WS}"long"{WS}"unsigned"{WS}"int"  return(UNSIGNED_LONG_LONG);
+"long"{WS}"long"{WS}"int"{WS}"unsigned"  return(UNSIGNED_LONG_LONG);
+"int"{WS}"long"{WS}"long"{WS}"unsigned"  return(UNSIGNED_LONG_LONG);
+"unsigned"{WS}"long"{WS}"long"{WS}"int"  return(UNSIGNED_LONG_LONG);
+"unsigned"{WS}"long"{WS}"long"           return(UNSIGNED_LONG_LONG);
+"long"{WS}"long"{WS}"unsigned"           return(UNSIGNED_LONG_LONG);
 
-"unsigned"[\t\n\r ]*"__int64"                  return(UNSIGNED_INT64__);
-"__int64"[\t\n\r ]*"unsigned"                  return(UNSIGNED_INT64__);
+"int"{WS}"signed"{WS}"long"{WS}"long"    return(LONG_LONG);
+"signed"{WS}"int"{WS}"long"{WS}"long"    return(LONG_LONG);
+"long"{WS}"long"{WS}"signed"{WS}"int"    return(LONG_LONG);
+"long"{WS}"long"{WS}"int"{WS}"signed"    return(LONG_LONG);
+"int"{WS}"long"{WS}"long"{WS}"signed"    return(LONG_LONG);
+"signed"{WS}"long"{WS}"long"{WS}"int"    return(LONG_LONG);
+"signed"{WS}"long"{WS}"long"             return(LONG_LONG);
+"long"{WS}"long"{WS}"signed"             return(LONG_LONG);
+"int"{WS}"long"{WS}"long"                return(LONG_LONG);
+"long"{WS}"long"{WS}"int"                return(LONG_LONG);
+"long"{WS}"long"                         return(LONG_LONG);
 
-"signed"[\t\n\r ]*"__int64"                    return(INT64__);
-"__int64"[\t\n\r ]*"signed"                    return(INT64__);
-"__int64"                                      return(INT64__);
+"int"{WS}"unsigned"{WS}"short"           return(UNSIGNED_SHORT);
+"unsigned"{WS}"int"{WS}"short"           return(UNSIGNED_SHORT);
+"short"{WS}"unsigned"{WS}"int"           return(UNSIGNED_SHORT);
+"short"{WS}"int"{WS}"unsigned"           return(UNSIGNED_SHORT);
+"int"{WS}"short"{WS}"unsigned"           return(UNSIGNED_SHORT);
+"unsigned"{WS}"short"{WS}"int"           return(UNSIGNED_SHORT);
+"unsigned"{WS}"short"                    return(UNSIGNED_SHORT);
+"short"{WS}"unsigned"                    return(UNSIGNED_SHORT);
 
-"int"[\t\n\r ]*"unsigned"[\t\n\r ]*"long"[\t\n\r ]*"long" return(UNSIGNED_LONG_LONG);
-"unsigned"[\t\n\r ]*"int"[\t\n\r ]*"long"[\t\n\r ]*"long" return(UNSIGNED_LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"unsigned"[\t\n\r ]*"int" return(UNSIGNED_LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"int"[\t\n\r ]*"unsigned" return(UNSIGNED_LONG_LONG);
-"int"[\t\n\r ]*"long"[\t\n\r ]*"long"[\t\n\r ]*"unsigned" return(UNSIGNED_LONG_LONG);
-"unsigned"[\t\n\r ]*"long"[\t\n\r ]*"long"[\t\n\r ]*"int" return(UNSIGNED_LONG_LONG);
-"unsigned"[\t\n\r ]*"long"[\t\n\r ]*"long"     return(UNSIGNED_LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"unsigned"     return(UNSIGNED_LONG_LONG);
+"int"{WS}"signed"{WS}"short"             return(SHORT);
+"signed"{WS}"int"{WS}"short"             return(SHORT);
+"short"{WS}"signed"{WS}"int"             return(SHORT);
+"short"{WS}"int"{WS}"signed"             return(SHORT);
+"int"{WS}"short"{WS}"signed"             return(SHORT);
+"signed"{WS}"short"{WS}"int"             return(SHORT);
+"signed"{WS}"short"                      return(SHORT);
+"short"{WS}"signed"                      return(SHORT);
+"int"{WS}"short"                         return(SHORT);
+"short"{WS}"int"                         return(SHORT);
+"short"                                  return(SHORT);
 
-"int"[\t\n\r ]*"signed"[\t\n\r ]*"long"[\t\n\r ]*"long"  return(LONG_LONG);
-"signed"[\t\n\r ]*"int"[\t\n\r ]*"long"[\t\n\r ]*"long"  return(LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"signed"[\t\n\r ]*"int"  return(LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"int"[\t\n\r ]*"signed"  return(LONG_LONG);
-"int"[\t\n\r ]*"long"[\t\n\r ]*"long"[\t\n\r ]*"signed"  return(LONG_LONG);
-"signed"[\t\n\r ]*"long"[\t\n\r ]*"long"[\t\n\r ]*"int"  return(LONG_LONG);
-"signed"[\t\n\r ]*"long"[\t\n\r ]*"long"       return(LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"signed"       return(LONG_LONG);
-"int"[\t\n\r ]*"long"[\t\n\r ]*"long"          return(LONG_LONG);
-"long"[\t\n\r ]*"long"[\t\n\r ]*"int"          return(LONG_LONG);
-"long"[\t\n\r ]*"long"                         return(LONG_LONG);
+"int"{WS}"unsigned"{WS}"long"            return(UNSIGNED_LONG);
+"unsigned"{WS}"int"{WS}"long"            return(UNSIGNED_LONG);
+"long"{WS}"unsigned"{WS}"int"            return(UNSIGNED_LONG);
+"long"{WS}"int"{WS}"unsigned"            return(UNSIGNED_LONG);
+"int"{WS}"long"{WS}"unsigned"            return(UNSIGNED_LONG);
+"unsigned"{WS}"long"{WS}"int"            return(UNSIGNED_LONG);
+"unsigned"{WS}"long"                     return(UNSIGNED_LONG);
+"long"{WS}"unsigned"                     return(UNSIGNED_LONG);
 
-"int"[\t\n\r ]*"unsigned"[\t\n\r ]*"short"     return(UNSIGNED_SHORT);
-"unsigned"[\t\n\r ]*"int"[\t\n\r ]*"short"     return(UNSIGNED_SHORT);
-"short"[\t\n\r ]*"unsigned"[\t\n\r ]*"int"     return(UNSIGNED_SHORT);
-"short"[\t\n\r ]*"int"[\t\n\r ]*"unsigned"     return(UNSIGNED_SHORT);
-"int"[\t\n\r ]*"short"[\t\n\r ]*"unsigned"     return(UNSIGNED_SHORT);
-"unsigned"[\t\n\r ]*"short"[\t\n\r ]*"int"     return(UNSIGNED_SHORT);
-"unsigned"[\t\n\r ]*"short"                    return(UNSIGNED_SHORT);
-"short"[\t\n\r ]*"unsigned"                    return(UNSIGNED_SHORT);
+"int"{WS}"signed"{WS}"long"              return(LONG);
+"signed"{WS}"int"{WS}"long"              return(LONG);
+"long"{WS}"signed"{WS}"int"              return(LONG);
+"long"{WS}"int"{WS}"signed"              return(LONG);
+"int"{WS}"long"{WS}"signed"              return(LONG);
+"signed"{WS}"long"{WS}"int"              return(LONG);
+"signed"{WS}"long"                       return(LONG);
+"long"{WS}"signed"                       return(LONG);
+"int"{WS}"long"                          return(LONG);
+"long"{WS}"int"                          return(LONG);
+"long"                                   return(LONG);
 
-"int"[\t\n\r ]*"signed"[\t\n\r ]*"short"       return(SHORT);
-"signed"[\t\n\r ]*"int"[\t\n\r ]*"short"       return(SHORT);
-"short"[\t\n\r ]*"signed"[\t\n\r ]*"int"       return(SHORT);
-"short"[\t\n\r ]*"int"[\t\n\r ]*"signed"       return(SHORT);
-"int"[\t\n\r ]*"short"[\t\n\r ]*"signed"       return(SHORT);
-"signed"[\t\n\r ]*"short"[\t\n\r ]*"int"       return(SHORT);
-"signed"[\t\n\r ]*"short"                      return(SHORT);
-"short"[\t\n\r ]*"signed"                      return(SHORT);
-"int"[\t\n\r ]*"short"                         return(SHORT);
-"short"[\t\n\r ]*"int"                         return(SHORT);
-"short"                                        return(SHORT);
+"unsigned"{WS}"char"                     return(UNSIGNED_CHAR);
+"char"{WS}"unsigned"                     return(UNSIGNED_CHAR);
+"char"{WS}"signed"                       return(SIGNED_CHAR);
+"signed"{WS}"char"                       return(SIGNED_CHAR);
+"char"                                   return(CHAR);
 
-"int"[\t\n\r ]*"unsigned"[\t\n\r ]*"long"      return(UNSIGNED_LONG);
-"unsigned"[\t\n\r ]*"int"[\t\n\r ]*"long"      return(UNSIGNED_LONG);
-"long"[\t\n\r ]*"unsigned"[\t\n\r ]*"int"      return(UNSIGNED_LONG);
-"long"[\t\n\r ]*"int"[\t\n\r ]*"unsigned"      return(UNSIGNED_LONG);
-"int"[\t\n\r ]*"long"[\t\n\r ]*"unsigned"      return(UNSIGNED_LONG);
-"unsigned"[\t\n\r ]*"long"[\t\n\r ]*"int"      return(UNSIGNED_LONG);
-"unsigned"[\t\n\r ]*"long"                     return(UNSIGNED_LONG);
-"long"[\t\n\r ]*"unsigned"                     return(UNSIGNED_LONG);
+"unsigned"{WS}"int"                      return(UNSIGNED_INT);
+"int"{WS}"unsigned"                      return(UNSIGNED_INT);
 
-"int"[\t\n\r ]*"signed"[\t\n\r ]*"long"        return(LONG);
-"signed"[\t\n\r ]*"int"[\t\n\r ]*"long"        return(LONG);
-"long"[\t\n\r ]*"signed"[\t\n\r ]*"int"        return(LONG);
-"long"[\t\n\r ]*"int"[\t\n\r ]*"signed"        return(LONG);
-"int"[\t\n\r ]*"long"[\t\n\r ]*"signed"        return(LONG);
-"signed"[\t\n\r ]*"long"[\t\n\r ]*"int"        return(LONG);
-"signed"[\t\n\r ]*"long"                       return(LONG);
-"long"[\t\n\r ]*"signed"                       return(LONG);
-"int"[\t\n\r ]*"long"                          return(LONG);
-"long"[\t\n\r ]*"int"                          return(LONG);
-"long"                                         return(LONG);
-
-"unsigned"[\t\n\r ]*"char"                     return(UNSIGNED_CHAR);
-"char"[\t\n\r ]*"unsigned"                     return(UNSIGNED_CHAR);
-"char"[\t\n\r ]*"signed"                       return(SIGNED_CHAR);
-"signed"[\t\n\r ]*"char"                       return(SIGNED_CHAR);
-"char"                                         return(CHAR);
-
-"unsigned"[\t\n\r ]*"int"                      return(UNSIGNED_INT);
-"int"[\t\n\r ]*"unsigned"                      return(UNSIGNED_INT);
-
-"signed"[\t\n\r ]*"int"                        return(INT);
-"int"[\t\n\r ]*"signed"                        return(INT);
-"int"                                          return(INT);
+"signed"{WS}"int"                        return(INT);
+"int"{WS}"signed"                        return(INT);
+"int"                                    return(INT);
 
 "unsigned"      return(UNSIGNED);
 "signed"        return(SIGNED);
@@ -270,11 +253,11 @@ static int pop_buffer();
 "size_t"        return(SIZE_T);
 "ssize_t"       return(SSIZE_T);
 
-"Q_OBJECT"                     ;
-"public"[\t\n\r ]*"slots"/:    return(PUBLIC);
-"private"[\t\n\r ]*"slots"/:   return(PRIVATE);
-"protected"[\t\n\r ]*"slots"/: return(PROTECTED);
-"signals"/:                    return(PROTECTED);
+"Q_OBJECT"      /* ignore the Q_OBJECT macro from Qt */
+"public"{WS}"slots"{PS}/:    return(PUBLIC);
+"private"{WS}"slots"{PS}/:   return(PRIVATE);
+"protected"{WS}"slots"{PS}/: return(PROTECTED);
+"signals"{PS}/:              return(PROTECTED);
 
 "class"         return(CLASS);
 "struct"        return(STRUCT);
@@ -299,15 +282,16 @@ static int pop_buffer();
 "new"           return(NEW);
 "delete"        return(DELETE);
 "explicit"      return(EXPLICIT);
+"throw"         return(THROW);
 
 "static_cast"   return(STATIC_CAST);
 "dynamic_cast"  return(DYNAMIC_CAST);
 "const_cast"    return(CONST_CAST);
 "reinterpret_cast" return(REINTERPRET_CAST);
 
-"auto"          ;
-"register"      ;
-"volatile"      ;
+"auto"          /* irrelevant to wrappers */
+"register"      /* irrelevant to wrappers */
+"volatile"      /* irrelevant to wrappers */
 
 "and"           return(OP_LOGIC_AND);
 "and_eq"        return(OP_AND_EQ);
@@ -347,7 +331,6 @@ static int pop_buffer();
 "vtkExportedTypeRevisionMacro" return(TypeMacro);
 "vtkTypeMacro"         return(TypeMacro);
 "vtkTypeRevisionMacro" return(TypeMacro);
-"VTK_LEGACY"           return(VTK_LEGACY);
 "VTK_WRAP_EXTERN"      ;
 "VTK_BYTE_SWAP_DECL"   return(VTK_BYTE_SWAP_DECL);
 "vtkTypeInt8"          return(TypeInt8);
@@ -361,150 +344,225 @@ static int pop_buffer();
 "vtkTypeFloat32"       return(TypeFloat32);
 "vtkTypeFloat64"       return(TypeFloat64);
 
-"*"[\r\n\t ]*"const"   return(CONST_PTR);
-"const"[\r\n\t ]*"="   return(CONST_EQUAL);
+"("{PS}({ID}"::")*"&" {
+      size_t i = 1;
+      size_t j;
+      while (yytext[i]==' ' || yytext[i]=='\t' ||
+             yytext[i]=='\r' || yytext[i]=='\n') { i++; }
+      j = i;
+      while (yytext[j]!='&') { j++; }
+      yylval.str = vtkstrndup(&yytext[i], j-i);
+      return(LA);
+    }
 
-"("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"&" {
-                size_t i = 1;
-                size_t j;
-                while (yytext[i]==' ' || yytext[i]=='\t' ||
-                       yytext[i]=='\r' || yytext[i]=='\n') { i++; }
-                j = i;
-                while (yytext[j]!='&') { j++; }
-                yylval.str = vtkstrndup(&yytext[i], j-i);
-                return(LA); }
+"("{PS}({ID}"::")*"*" {
+      size_t i = 1;
+      size_t j;
+      while (yytext[i]==' ' || yytext[i]=='\t' ||
+             yytext[i]=='\r' || yytext[i]=='\n') { i++; }
+      j = i;
+      while (yytext[j]!='*') { j++; }
+      yylval.str = vtkstrndup(&yytext[i], j-i);
+      return(LP);
+    }
 
-"("[\t\n\r ]*([a-zA-Z_][a-zA-Z0-9_]*::)*"*" {
-                size_t i = 1;
-                size_t j;
-                while (yytext[i]==' ' || yytext[i]=='\t' ||
-                       yytext[i]=='\r' || yytext[i]=='\n') { i++; }
-                j = i;
-                while (yytext[j]!='*') { j++; }
-                yylval.str = vtkstrndup(&yytext[i], j-i);
-                return(LP); }
+"("{PS}("APIENTRY"|"CALLBACK"|"WINAPI"){PS}"*" {
+      yylval.str = "";
+      return(LP);
+    }
 
-"("[\t\n\r ]*("APIENTRY"|"CALLBACK"|"WINAPI")[\t\n\r ]*"*" {
-                yylval.str = "";
-                return(LP); }
+"("{PS}("APIENTRYP"|"CALLBACKP"|"WINAPIP") {
+      yylval.str = "";
+      return(LP);
+    }
 
-"("[\t\n\r ]*("APIENTRYP"|"CALLBACKP"|"WINAPIP") {
-                yylval.str = "";
-                return(LP); }
+("APIENTRYP"|"CALLBACKP"|"WINAPIP") return('*');
 
-("APIENTRYP"|"CALLBACKP"|"WINAPIP") { return('*'); }
+("APIENTRY"|"CALLBACK"|"WINAPI") /* misc unused win32 macros */
 
-"APIENTRY" ;
-"CALLBACK" ;
-"WINAPI" ;
+("vtkstd::"|"std::")?"ostream"/[^a-zA-Z_] {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(OSTREAM);
+    }
 
-("vtkstd::"|"std::")?"ostream" {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(OSTREAM); }
+("vtkstd::"|"std::")?"istream"/[^a-zA-Z_] {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(ISTREAM);
+    }
 
-("vtkstd::"|"std::")?"istream" {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(ISTREAM); }
+("vtkstd::"|"std::")?"string"/[^a-zA-Z_] {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(StdString);
+    }
 
-("vtkStdString"|("vtkstd::"|"std::")?"string")/[^a-zA-Z0-9_] {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(StdString); }
+"vtkStdString" {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(StdString);
+    }
 
-"vtkUnicodeString" { yylval.str = vtkstrndup(yytext, yyleng);
-                     return(UnicodeString); }
+"vtkUnicodeString" {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(UnicodeString);
+    }
 
-"vtkDataArray" { yylval.str = vtkstrdup("vtkDataArray"); return(VTK_ID); }
+"vtkDataArray" {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(VTK_ID);
+    }
 
-"VTK_"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
-                      return(ID); }
+"Qt::"{ID} {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(QT_ID);
+    }
 
-"Qt::"[0-9a-zA-Z_]* { yylval.str = vtkstrndup(yytext, yyleng);
-                      return(QT_ID); }
+"__attribute__"  get_macro_arguments(); /* gcc attributes */
 
-"__attribute__" { get_macro_arguments(); };
+"__declspec"  get_macro_arguments(); /* Windows linkage */
 
-[a-zA-Z_][0-9a-zA-Z_]*  {
-     const char *name = vtkstrndup(yytext, yyleng);
-     MacroInfo *macro = vtkParsePreprocess_GetMacro(&preprocessor, name);
-     int expanded = 0;
+("__cdecl"|"__clrcall"|"__stdcall"|"__fastcall"|"__thiscall") /* Windows */
 
-     if (macro)
-       {
-       if (macro->IsFunction)
-         {
-         const char *args = get_macro_arguments();
-         const char *emacro = NULL;
-         if (args)
-           {
-           emacro = vtkParsePreprocess_ExpandMacro(macro, args);
-           free((char *)args);
-           if (emacro)
-             {
-             push_buffer();
-             yy_switch_to_buffer(yy_scan_string(emacro));
-             vtkParsePreprocess_FreeExpandedMacro(emacro);
-             expanded = 1;
-             }
-           else
-             {
-             print_preprocessor_error(
-               VTK_PARSE_MACRO_NUMARGS, macro->Name, strlen(macro->Name));
-             }
-           }
-         }
-       /* non-function macro expansion breaks "real superclass" trick
-       else if (macro->Definition)
-         {
-         push_buffer();
-         yy_switch_to_buffer(yy_scan_string(macro->Definition));
-         expanded = 1;
-         }
-       */
-       }
-     if (!expanded)
-       {
-       yylval.str = name;
-       if (yyleng > 3 && name[0] == 'v' && name[1] == 't' && name[2] == 'k')
-         {
-         return(VTK_ID);
-         }
-       else if (name[0] == 'Q')
-         {
-         return(QT_ID);
-         }
-       else
-         {
-         return(ID);
-         }
-       }
-     };
+"VTK_LEGACY" {
+      const char *args = get_macro_arguments();
+      if (args && args[0] != '\0' && args[1] != '\0')
+        {
+        size_t l = strlen(args);
+        push_macro(NULL);
+        push_buffer();
+        macroName = "VTK_LEGACY";
+        macroUsed = 0;
+        macroEnded = 0;
+        yy_switch_to_buffer(yy_scan_bytes(&args[1], l-2));
+        }
+      free((char *)args);
+    }
 
-[0-9]+"."[0-9]*([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(FLOAT_LITERAL); }
+{ID}  {
+      const char *name = vtkstrndup(yytext, yyleng);
+      MacroInfo *macro = vtkParsePreprocess_GetMacro(preprocessor, name);
+      int expanded = 0;
+      if (macro)
+        {
+        const char *args = NULL;
+        const char *emacro = NULL;
+
+        /* make sure that vtkNotUsed is never expanded */
+        MacroInfo *ex;
+        ex = vtkParsePreprocess_GetMacro(preprocessor, "vtkNotUsed");
+        if (ex)
+          {
+          ex->IsExcluded = 1;
+          }
+
+        if (macro->IsFunction)
+          {
+          args = get_macro_arguments();
+          if (args)
+            {
+            emacro = vtkParsePreprocess_ExpandMacro(preprocessor, macro, args);
+            if (!emacro)
+              {
+              print_preprocessor_error(VTK_PARSE_MACRO_NUMARGS, NULL, 0);
+              }
+            free((char *)args);
+            }
+          }
+        else if (macro->Definition && macro->Definition[0])
+          {
+          /* first see if macro evaluates to a constant value */
+          preproc_int_t val;
+          int is_unsigned;
+          int r;
+          macro->IsExcluded = 1;
+          r = vtkParsePreprocess_EvaluateExpression(
+             preprocessor, macro->Definition, &val, &is_unsigned);
+          macro->IsExcluded = 0;
+          /* if it isn't a constant expression, then expand it */
+          if (r >= VTK_PARSE_MACRO_UNDEFINED)
+            {
+            emacro = vtkParsePreprocess_ExpandMacro(preprocessor, macro, NULL);
+            if (!emacro)
+              {
+              print_preprocessor_error(r, NULL, 0);
+              }
+            }
+          }
+        else
+          {
+          /* macros with no definition expand to nothing */
+          expanded = 1;
+          }
+        if (emacro)
+          {
+          /* invoke the parser on any expanded macros */
+          push_macro(macro);
+          push_buffer();
+          yy_switch_to_buffer(yy_scan_string(emacro));
+          vtkParsePreprocess_FreeMacroExpansion(preprocessor, macro, emacro);
+          expanded = 1;
+          }
+        }
+      if (!expanded)
+        {
+        /* if no macro expansion occurred, return the ID */
+        yylval.str = name;
+        if (yyleng > 3 && name[0] == 'v' && name[1] == 't' && name[2] == 'k')
+          {
+          return(VTK_ID);
+          }
+        else if (name[0] == 'Q')
+          {
+          return(QT_ID);
+          }
+        else
+          {
+          return(ID);
+          }
+        }
+    }
+
+[0-9]*"."[0-9]+([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(FLOAT_LITERAL);
+    }
+
+[0-9]+"."([eE][+-]?[0-9]+)?[a-zA-Z_]*  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(FLOAT_LITERAL);
+    }
+
+[0-9]+[eE][+-]?[0-9]+[a-zA-Z_]*  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(FLOAT_LITERAL);
+    }
 
 "0"[xX][0-9a-fA-F]+[g-zG-Z_]*      {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(HEX_LITERAL); }
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(HEX_LITERAL);
+    }
 
 "0"[0-9]+[a-zA-Z_]*   {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(OCT_LITERAL); }
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(OCT_LITERAL);
+    }
 
 [1-9][0-9]*[a-zA-Z_]* {
-                     yylval.str = vtkstrndup(yytext, yyleng);
-                     return(INT_LITERAL); }
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(INT_LITERAL);
+    }
 
-"0"                { yylval.str = vtkstrndup(yytext, yyleng);
-                     return(ZERO); };
+"0" {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(ZERO);
+    }
 
-"\\\n" ;
-"\\\r\n" ;
-[\t\n\r ] ;
+("\\\n"|"\\\r\n") /* escaped newlines */
+[\t ]+            /* whitespace */
+[\n\r\v\f]        /* whitespace */
 
 "<<="             return(OP_LSHIFT_EQ);
 ">>="             return(OP_RSHIFT_EQ);
 "<<"              return(OP_LSHIFT);
+".*"              return(OP_DOT_POINTER);
 "->*"             return(OP_ARROW_POINTER);
 "->"              return(OP_ARROW);
 ">>"              return(OP_RSHIFT);
@@ -518,8 +576,6 @@ static int pop_buffer();
 "&="              return(OP_AND_EQ);
 "|="              return(OP_OR_EQ);
 "^="              return(OP_XOR_EQ);
-"&&="             return(OP_LOGIC_AND_EQ);
-"||="             return(OP_LOGIC_OR_EQ);
 "&&"              return(OP_LOGIC_AND);
 "||"              return(OP_LOGIC_OR);
 "=="              return(OP_LOGIC_EQ);
@@ -529,10 +585,10 @@ static int pop_buffer();
 "..."             return(ELLIPSIS);
 "::"              return(DOUBLE_COLON);
 
-"[" { return(yytext[0]); }
-"]" { return(yytext[0]); }
+"["               return('[');
+"]"               return(']');
 
-[~{}()<>:;*/%=,&.!+|^\-] { return(yytext[0]); }
+[~{}()<>:;*/%=,&.!+|^\-] return(yytext[0]);
 
 <<EOF>> { if (!pop_buffer()) { yyterminate(); } }
 
@@ -551,6 +607,15 @@ const char *get_macro_arguments()
   int ws = 0;
   int sl = 0;
   int c1 = input();
+
+  if (c1 == '\0')
+    {
+    if (pop_buffer() == 0)
+      {
+      return NULL;
+      }
+    }
+
   while (c1 == ' ' || c1 == '\t' || c1 == '\r' || c1 == '\n')
     {
     c1 = input();
@@ -698,13 +763,80 @@ int skip_comment()
      {
      if (c2 == 0)
        {
-       fprintf(yyout,"Cannot find closing comment.\n");
+       print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
+         "Cannot find end of comment.", 27);
        return 0;
        }
      if (c1 == '*' && c2 == '/') break;
      c1 = c2; c2 = input();
      }
    return 1;
+}
+
+/*
+ * If token contains a comment, make sure whole comment is skipped.
+ */
+int skip_trailing_comment(const char *text, size_t l)
+{
+  const char *cp = text;
+  const char *ep = text + l;
+  int incomment = 0;
+
+  while (cp < ep)
+    {
+    while (cp < ep && *cp != '/' && *cp != '\"') { cp++; };
+    if (cp >= ep)
+      {
+      break;
+      }
+    else if (cp[0] == '/' && cp[1] == '*')
+      {
+      incomment = 1;
+      cp += 2;
+      while (cp < ep && *cp != '*') { cp++; };
+      if (cp[0] == '*' && cp[1] == '/')
+        {
+        incomment = 0;
+        cp += 2;
+        }
+      else
+        {
+        cp++;
+        }
+      }
+    else if (cp[0] == '\"')
+      {
+      cp++;
+      while (cp < ep)
+        {
+        while (cp < ep && *cp != '\\' && *cp != '\"') { cp++; };
+        if (cp >= ep)
+          {
+          break;
+          }
+        else if (*cp == '\"')
+          {
+          cp++;
+          break;
+          }
+        else /* if (*cp == '\\') */
+          {
+          cp += 2;
+          }
+        }
+      }
+    else
+      {
+      cp++;
+      }
+    }
+
+  if (incomment)
+    {
+    return skip_comment();
+    }
+
+  return 1;
 }
 
 /*
@@ -829,7 +961,7 @@ int skip_conditional_block()
       }
     linebuf[i++] = c;
 
-    result = vtkParsePreprocess_HandleDirective(&preprocessor, linebuf);
+    result = vtkParsePreprocess_HandleDirective(preprocessor, linebuf);
     if (result != VTK_PARSE_SKIP && result != VTK_PARSE_OK)
       {
       print_preprocessor_error(result, linebuf, i);
@@ -867,7 +999,7 @@ int skip_ahead_multi(const char *strings[])
 
     if ((c = (char)input()) == '\0')
       {
-      fprintf(yyout, "Cannot find matching %s.\n", strings[0]);
+      print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR, NULL, 0);
       return 0;
       }
 
@@ -923,7 +1055,7 @@ void push_buffer()
     {
     buffer_stack = (YY_BUFFER_STATE *)malloc(4*sizeof(YY_BUFFER_STATE));
     }
-  // grow the stack whenever size reaches a power of two
+  /* grow the stack whenever size reaches a power of two */
   else if (n >= 4 && (n & (n-1)) == 0)
     {
     buffer_stack = (YY_BUFFER_STATE *)realloc(
@@ -937,6 +1069,14 @@ void push_buffer()
  */
 int pop_buffer()
 {
+  if (in_macro())
+    {
+    pop_macro();
+    }
+  else
+    {
+    pop_include();
+    }
   if (buffer_stack_size == 0)
     {
     return 0;
@@ -947,12 +1087,150 @@ int pop_buffer()
 }
 
 /*
- * print an error with filename and line number.
+ * include stack, to tell what include is being evaluated
+ */
+static size_t include_stack_size = 0;
+static FileInfo **include_stack = NULL;
+static int *lineno_stack = NULL;
+
+/*
+ * push the current include onto the include stack.
+ */
+void push_include(const char *filename)
+{
+  FileInfo *file_info = NULL;
+  int same_file = 0;
+  size_t n = include_stack_size;
+
+  if (include_stack == NULL)
+    {
+    include_stack = (FileInfo **)malloc(4*sizeof(FileInfo *));
+    lineno_stack = (int *)malloc(4*sizeof(int));
+    }
+
+  /* grow the stack whenever size reaches a power of two */
+  else if (n >= 4 && (n & (n-1)) == 0)
+    {
+    include_stack = (FileInfo **)realloc(
+      include_stack, 2*n*sizeof(FileInfo *));
+    lineno_stack = (int *)realloc(
+      lineno_stack, 2*n*sizeof(int));
+    }
+
+  lineno_stack[include_stack_size] = yyget_lineno();
+  yyset_lineno(0);
+  include_stack[include_stack_size++] = data;
+
+  /* if the file is including itself */
+  if (filename == data->FileName ||
+      (filename != 0 && data->FileName != 0 &&
+       strcmp(filename, data->FileName) == 0))
+    {
+    same_file = 1;
+    }
+
+  /* make a new fileinfo, but only if we are in the base namespace
+   * and only if the only items added so far are constants */
+  if (!same_file && currentNamespace == data->Contents &&
+      data->Contents->NumberOfItems == data->Contents->NumberOfConstants)
+    {
+    file_info = (FileInfo *)malloc(sizeof(FileInfo));
+    vtkParse_InitFile(file_info);
+    file_info->FileName = vtkstrdup(filename);
+    file_info->Contents = (NamespaceInfo *)malloc(sizeof(NamespaceInfo));
+    vtkParse_InitNamespace(file_info->Contents);
+    vtkParse_AddIncludeToFile(data, file_info);
+    file_info->Strings = data->Strings;
+    data = file_info;
+    currentNamespace = file_info->Contents;
+    }
+}
+
+/*
+ * pop the include stack
+ */
+void pop_include()
+{
+  if (include_stack_size > 0)
+    {
+    --include_stack_size;
+    fclose(yyin);
+    yyset_lineno(lineno_stack[include_stack_size]);
+    if (data != include_stack[include_stack_size])
+      {
+      data = include_stack[include_stack_size];
+      currentNamespace = data->Contents;
+      }
+    }
+}
+
+
+/*
+ * macro stack, to tell what macro is being evaluated
+ */
+static size_t macro_stack_size = 0;
+static MacroInfo **macro_stack = NULL;
+
+/*
+ * push the current macro onto the macro stack.
+ */
+void push_macro(MacroInfo *macro)
+{
+  size_t n = macro_stack_size;
+  if (macro_stack == NULL)
+    {
+    macro_stack = (MacroInfo **)malloc(4*sizeof(MacroInfo *));
+    }
+  /* grow the stack whenever size reaches a power of two */
+  else if (n >= 4 && (n & (n-1)) == 0)
+    {
+    macro_stack = (MacroInfo **)realloc(
+      macro_stack, 2*n*sizeof(MacroInfo *));
+    }
+  macro_stack[macro_stack_size++] = macro;
+  if (macro)
+    {
+    macro->IsExcluded = 1;
+    if (macro_stack_size == 1)
+      {
+      macroName = macro->Name;
+      macroUsed = 0;
+      macroEnded = 0;
+      }
+    }
+}
+
+/*
+ * pop the macro stack
+ */
+void pop_macro()
+{
+  MacroInfo *macro;
+
+  if (macro_stack_size > 0)
+    {
+    macro = macro_stack[--macro_stack_size];
+    if (macro)
+      {
+      macro->IsExcluded = 0;
+      }
+    }
+  macroEnded = 1;
+}
+
+/*
+ * are we currently processing a macro?
+ */
+int in_macro()
+{
+  return (macro_stack_size > 0);
+}
+
+/*
+ * print a preprocessor error code with filename and line number.
  */
 void print_preprocessor_error(int result, const char *cp, size_t n)
 {
-  size_t j = 0;
-  const char *fn = "";
   const char *text = "";
 
   switch (result)
@@ -985,7 +1263,7 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
       text = "input/output error";
       break;
     case VTK_PARSE_MACRO_NUMARGS:
-      text = "wrong number of args for macro";
+      text = "wrong number of macro args";
       break;
     case VTK_PARSE_SYNTAX_ERROR:
       text = "syntax error";
@@ -998,12 +1276,118 @@ void print_preprocessor_error(int result, const char *cp, size_t n)
     return;
     }
 
-  if (data.FileName)
+  print_parser_error(text, cp, n);
+}
+
+/*
+ * print an error with filename and line number.
+ */
+void print_parser_error(const char *text, const char *cp, size_t n)
+{
+  size_t j = 0;
+  const char *fn = "(none)";
+
+  if (data->FileName)
     {
-    j = strlen(data.FileName);
-    while (j > 0 && data.FileName[j-1] != '/') { j--; }
-    fn = &data.FileName[j];
+    fn = data->FileName;
     }
-  fprintf(yyout, "In %s:%i: %s: ", fn, yylineno, text);
-  fprintf(yyout, "%*.*s\n", (int)n, (int)n, cp);
+  fprintf(yyout, "In %s:", fn);
+  for (j = 0; j < include_stack_size; j++)
+    {
+    fprintf(yyout, "%i:\nIn %s:",
+            lineno_stack[j], include_stack[j]->FileName);
+    }
+  fprintf(yyout, "%i:\n", yylineno);
+
+  if (cp)
+    {
+    fprintf(yyout, "%s: %*.*s\n", text, (int)n, (int)n, cp);
+    }
+  else if (text)
+    {
+    fprintf(yyout, "%s.\n", text);
+    }
+}
+
+/*
+ * Execute a preprocessor directive.
+ */
+void preprocessor_directive(const char *text, size_t l)
+{
+  int result = 0;
+  size_t n = 0;
+  const char *cp = text;
+  const char *ep = text + l;
+  const char *directive = NULL;
+
+  /* find the directive, store its length in "n" */
+  while (*cp == ' ' || *cp == '\t') { cp++; }
+  if (*cp == '#') { cp++; }
+  while ((*cp == ' ' || *cp == '\t') && cp < ep) { cp++; }
+  directive = cp;
+  while (*cp >= 'a' && *cp <= 'z' && cp < ep) { cp++; }
+  n = cp - directive;
+  while ((*cp == ' ' || *cp == '\t') && cp < ep) { cp++; }
+
+  if (n == 7 && strncmp(directive, "include", n) == 0)
+    {
+    /* include files */
+    int already_loaded = 0;
+    if (*cp == '<' || *cp == '\"')
+      {
+      /* if asked to recurse into header files */
+      if (Recursive && ep - cp > 3)
+        {
+        const char *dp;
+        dp = vtkParsePreprocess_FindIncludeFile(preprocessor,
+          &cp[1], (*cp != '\"'), &already_loaded);
+        if (dp)
+          {
+          yyin = fopen(dp, "r");
+          if (yyin)
+            {
+            push_include(dp);
+            push_buffer();
+            yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
+            return;
+            }
+          }
+        }
+      }
+    }
+
+  /* let the preprocessor handle the directive */
+  result = vtkParsePreprocess_HandleDirective(preprocessor, text);
+
+  if (result == VTK_PARSE_SKIP)
+    {
+    skip_conditional_block();
+    }
+  else if (result != VTK_PARSE_OK)
+    {
+    print_preprocessor_error(result, text, l);
+    }
+  else if (n == 6 && strncmp(directive, "define", n) == 0 &&
+           ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
+    {
+    /* macros that start with "VTK" */
+    MacroInfo *macro;
+
+    macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
+    if (macro && !macro->IsFunction)
+      {
+      /* if macro evaluates to a constant, add it as a constant */
+      macro->IsExcluded = 1;
+      if (macro->Definition && guess_constant_type(macro->Definition) == 0)
+        {
+        result = VTK_PARSE_MACRO_UNDEFINED;
+        }
+      macro->IsExcluded = 0;
+      if (result < VTK_PARSE_MACRO_UNDEFINED)
+        {
+        add_constant(
+          macro->Name, vtkstrdup(macro->Definition), 0, NULL, 1);
+        }
+      }
+    }
 }

@@ -40,7 +40,7 @@
 #define VTK_PARSE_HIERARCHY_H
 
 /* Need the ValueInfo struct for typedefs */
-#include "vtkParse.h"
+#include "vtkParseData.h"
 
 /**
  * One entry from the hierarchy file.
@@ -51,9 +51,9 @@ typedef struct _HierarchyEntry
   const char  *Name;            /* the class or type name */
   const char  *HeaderFile;      /* header file the class is defined in */
   const char  *Module;          /* library the class is defined in */
-  int          NumberOfTemplateArgs; /* number of template arguments */
-  const char **TemplateArgs;
-  const char **TemplateArgDefaults;
+  int          NumberOfTemplateParameters; /* number of template params */
+  const char **TemplateParameters;
+  const char **TemplateDefaults;
   int          NumberOfProperties;   /* number of properties */
   const char **Properties;
   int          NumberOfSuperClasses; /* number of superclasses */
@@ -71,6 +71,7 @@ typedef struct _HierarchyInfo
 {
   int             NumberOfEntries;
   HierarchyEntry *Entries;
+  StringCache    *Strings;
 } HierarchyInfo;
 
 #ifdef __cplusplus
@@ -140,7 +141,8 @@ const char *vtkParseHierarchy_TemplatedSuperClass(
  * using the typedefs in the HierarchyInfo struct.
  */
 int vtkParseHierarchy_ExpandTypedefsInValue(
-  const HierarchyInfo *info, ValueInfo *data, const char *scope);
+  const HierarchyInfo *info, ValueInfo *data, StringCache *cache,
+  const char *scope);
 
 /**
  * Expand typedefs found in a name stored as a string.  The value

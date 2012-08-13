@@ -334,7 +334,7 @@ mark_as_advanced(VTK_MAKE_INSTANTIATORS)
 include(vtkModuleTop)
 
 # The wrapping must come after all other modules are processed.
-if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA OR VTK_GENERATE_WRAPTOOLS)
   add_subdirectory(Wrapping)
 endif()
 
