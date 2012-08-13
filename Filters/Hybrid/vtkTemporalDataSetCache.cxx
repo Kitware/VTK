@@ -326,8 +326,8 @@ int vtkTemporalDataSetCache::RequestData(
     {
 
 // is the input time not already in the cache?
-    CacheType::iterator pos = this->Cache.find(inTime);
-    if (pos == this->Cache.end())
+    CacheType::iterator pos1 = this->Cache.find(inTime);
+    if (pos1 == this->Cache.end())
       {
       // if we have room in the Cache then just add the new data
       if (this->Cache.size() < static_cast<unsigned long>(this->CacheSize))

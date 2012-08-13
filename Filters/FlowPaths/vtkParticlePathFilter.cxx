@@ -95,9 +95,12 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 
     if(path->GetNumberOfIds()>0)
       {
-      float lastAge = outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1));
-      float thisAge = outParticleAge->GetValue(outId);
-      assert(thisAge>=lastAge); //if not, we will have to sort
+      //float lastAge = outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1));
+      //float thisAge = outParticleAge->GetValue(outId);
+      assert(outParticleAge->GetValue(outId) //thisAge
+             >=
+             outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1))//lastAge
+             ); //if not, we will have to sort
       }
     path->InsertNextId(outId);
     }
@@ -119,7 +122,7 @@ void ParticlePathFilterInternal::Finalize()
     }
 }
 
-vtkParticlePathFilter::vtkParticlePathFilter():It(this)
+vtkParticlePathFilter::vtkParticlePathFilter(): It(this)
 {
 }
 

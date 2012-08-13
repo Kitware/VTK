@@ -138,7 +138,7 @@ public:
   // Description:
   // Sets the composite index of the data at the given (level,index) pair.
   void SetCompositeIndex(
-      const unsigned int level, const unsigned int index, const int idx );
+      const unsigned int level, const unsigned int index, const unsigned int idx );
 
   // Description:
   // Retrieves the composite index  associated with the data at the given

@@ -40,7 +40,7 @@ int TestCollection(int,char *[])
 
 bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
 {
-  if (collection->GetNumberOfItems() != v.size())
+  if (collection->GetNumberOfItems() != static_cast<int>(v.size()))
     {
     return false;
     }

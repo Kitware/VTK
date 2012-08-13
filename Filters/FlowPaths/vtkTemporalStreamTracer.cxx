@@ -1029,7 +1029,7 @@ int vtkTemporalStreamTracer::RequestData(
   bool result(true);
   if(RequestIndex<2)
     {
-    result = ProcessInput(inputVector);
+    result = (this->ProcessInput(inputVector)==1);
     if(result && RequestIndex==1)
       {
       this->GenerateOutput(inputVector,outputVector);
