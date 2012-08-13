@@ -198,7 +198,7 @@ void vtkCMLParser::NewAtom(const char **attr)
   int attrInd = 0;
   unsigned short atomicNum = 0;
   float pos[3];
-  const char * id;
+  const char * id = NULL;
   while (const char * cur = attr[attrInd])
     {
     // Get atomic number

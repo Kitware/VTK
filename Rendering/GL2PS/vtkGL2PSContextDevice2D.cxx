@@ -146,7 +146,7 @@ void vtkGL2PSContextDevice2D::DrawString(float *point,
   vtkGL2PSUtilities::DrawString(string.utf8_str(), this->TextProp, p);
 }
 
-void vtkGL2PSContextDevice2D::DrawMathTextString(float point[],
+void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
                                                  const vtkStdString &string)
 {
   vtkNew<vtkPath> path;
@@ -169,7 +169,7 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float point[],
     return;
     }
 
-  double origin[3] = {point[0], point[1], 0.f};
+  double origin[3] = {apoint[0], apoint[1], 0.f};
   double scale[2] = {1.0, 1.0};
   double rotateAngle = this->TextProp->GetOrientation();
   int *renWinSize = this->RenderWindow->GetSize();

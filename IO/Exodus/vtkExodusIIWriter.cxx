@@ -648,31 +648,31 @@ void vtkExodusIIWriter::RemoveGhostCells()
 }
 
 //----------------------------------------------------------------------------
-int vtkExodusIIWriter::CheckParametersInternal (int NumberOfProcesses, int MyRank)
-{
-  if (!this->FileName)
-    {
-    vtkErrorMacro("No filename specified.");
-    return 0;
-    }
+int vtkExodusIIWriter::CheckParametersInternal (int _NumberOfProcesses, int _MyRank)
+ {
+   if (!this->FileName)
+     {
+     vtkErrorMacro("No filename specified.");
+     return 0;
+     }
 
-  this->PassDoubles = this->IsDouble ();
-  if (this->PassDoubles < 0)
-    {
-    // Can't find float types in input, assume doubles
-    this->PassDoubles = 1;
-    }
+   this->PassDoubles = this->IsDouble ();
+   if (this->PassDoubles < 0)
+     {
+     // Can't find float types in input, assume doubles
+     this->PassDoubles = 1;
+     }
 
-  if (this->StoreDoubles < 0)
-    {
-    // The default is to store in the
-    // same precision that appears in the input.
+   if (this->StoreDoubles < 0)
+     {
+     // The default is to store in the
+     // same precision that appears in the input.
 
-    this->StoreDoubles = this->PassDoubles;
-    }
+     this->StoreDoubles = this->PassDoubles;
+     }
 
-  this->NumberOfProcesses = NumberOfProcesses;
-  this->MyRank = MyRank;
+   this->NumberOfProcesses = _NumberOfProcesses;
+   this->MyRank = _MyRank;
 
   if (!this->CheckInputArrays ())
     {
