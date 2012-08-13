@@ -130,10 +130,63 @@ macro (add_test_mpi fileName)
 endmacro()
 
 # -----------------------------------------------------------------------------
+# vtk_tests_python() macro takes a list of python files and makes them into
+# proper python tests.
+macro(vtk_tests_python)
+  if(VTK_PYTHON_EXE)
+    foreach(test ${ARGV})
+      get_filename_component(TName ${test} NAME_WE)
+      if(VTK_DATA_ROOT)
+        string (REPLACE "vtk" "" _baselinedname ${vtk-module})
+        add_test(NAME ${vtk-module}Python-${TName}
+          COMMAND ${VTK_PYTHON_EXE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/${test}
+          -D ${VTK_DATA_ROOT}
+          -B ${VTK_DATA_ROOT}/Baseline/${_baselinedname})
+      else()
+        add_test(NAME ${vtk-module}Python-${TName}
+          COMMAND ${VTK_PYTHON_EXE}
+          ${CMAKE_CURRENT_SOURCE_DIR}/${test}
+          ${${TName}_ARGS})
+      endif()
+    endforeach()
+  else()
+    messge(FATAL "VTK_PYTHON_EXE not set")
+  endif()
+
+endmacro(vtk_tests_python)
+
+# -----------------------------------------------------------------------------
+# add_test_python() macro takes a python file and an optional base directory where the
+# corresponding test image is found and list of python files and makes them into
+# proper python tests.
+macro(add_test_python)
+  if(VTK_PYTHON_EXE)
+    # Parse Command line args
+    get_filename_component(TName ${ARGV0} NAME_WE)
+    string (REPLACE "vtk" "" _baselinedname ${vtk-module})
+    # Check if data root and second parameter is present
+    if(VTK_DATA_ROOT AND NOT ARGV1)
+      add_test(NAME ${vtk-module}Python-${TName}
+        COMMAND ${VTK_PYTHON_EXE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
+        -D ${VTK_DATA_ROOT}
+        -B ${VTK_DATA_ROOT}/Baseline/${ARGV1})
+    else()
+      add_test(NAME ${vtk-module}Python-${TName}
+        COMMAND ${VTK_PYTHON_EXE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${TName}.py
+        ${${TName}_ARGS})
+    endif()
+  else()
+    messge(FATAL "VTK_PYTHON_EXE not set")
+  endif()
+endmacro(add_test_python)
+
+# -----------------------------------------------------------------------------
 # add_test_tcl() macro takes a tcl file and an optional base directory where the
 # corresponding test image is found and list of tcl files and makes them into
 # proper tcl tests.
-
 macro(add_test_tcl)
   if(VTK_TCL_EXE)
     # Parse Command line args
