@@ -103,7 +103,7 @@ public:
     // they belong to. This saves us retesting at every injection time
     // providing 1) The volumes are static, 2) the seed points are static
     // If either are non static, then this step is skipped.
-    virtual void AssignSeedsToProcessors(
+    virtual void AssignSeedsToProcessors(double time,
       vtkDataSet *source, int sourceID, int ptId,
       vtkParticleTracerBaseNamespace::ParticleVector &LocalSeedPoints,
       int &LocalAssignedCount);

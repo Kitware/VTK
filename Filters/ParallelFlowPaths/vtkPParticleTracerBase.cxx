@@ -126,13 +126,13 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(ParticleInformation &i
 }
 
 //---------------------------------------------------------------------------
-void vtkPParticleTracerBase::AssignSeedsToProcessors(
+void vtkPParticleTracerBase::AssignSeedsToProcessors(double t,
   vtkDataSet *source, int sourceID, int ptId,
   ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
 {
   if(!this->Controller)
     {
-    return Superclass::AssignSeedsToProcessors(source, sourceID, ptId,
+    return Superclass::AssignSeedsToProcessors(t, source, sourceID, ptId,
                                                LocalSeedPoints, LocalAssignedCount);
     }
   ParticleVector candidates;
@@ -146,7 +146,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
     {
     ParticleInformation &info = candidates[i];
     memcpy(&(info.CurrentPosition.x[0]), source->GetPoint(i), sizeof(double)*3);
-    info.CurrentPosition.x[3] = this->GetCacheDataTime(0);
+    info.CurrentPosition.x[3] = t;
     info.LocationState        = 0;
     info.CachedCellId[0]      =-1;
     info.CachedCellId[1]      =-1;
