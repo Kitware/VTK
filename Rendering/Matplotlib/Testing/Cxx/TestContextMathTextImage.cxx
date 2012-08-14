@@ -37,7 +37,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int TestContextMathTextImage(int argc, char *argv[])
+int TestContextMathTextImage(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
