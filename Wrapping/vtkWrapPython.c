@@ -13,11 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkPython.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 #include "vtkParse.h"
@@ -28,6 +23,18 @@
 #include "vtkParseString.h"
 #include "vtkParseHierarchy.h"
 #include "vtkConfigure.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+/* Use legacy format chars */
+/* (set this as a compile definition to support python < 2.3) */
+/* #define PY_LEGACY_FORMAT */
+
+/* All vtk-compatible versions of python will define PY_LONG_LONG */
+#define PY_LONG_LONG
 
 /* -------------------------------------------------------------------- */
 /* the main entry method, called by vtkParse.y */
@@ -1033,7 +1040,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       typeChar = 'd';
       break;
     case VTK_PARSE_UNSIGNED_INT:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
       typeChar = 'I';
       break;
 #endif
@@ -1041,7 +1048,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       typeChar = 'i';
       break;
     case VTK_PARSE_UNSIGNED_SHORT:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
       typeChar = 'H';
       break;
 #endif
@@ -1049,7 +1056,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       typeChar = 'h';
       break;
     case VTK_PARSE_UNSIGNED_LONG:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
       typeChar = 'k';
       break;
 #endif
@@ -1057,7 +1064,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       typeChar = 'l';
       break;
     case VTK_PARSE_UNSIGNED_ID_TYPE:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
 #ifdef VTK_USE_64BIT_IDS
 #ifdef PY_LONG_LONG
       typeChar = 'K';
@@ -1083,7 +1090,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
     case VTK_PARSE_SIZE_T:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
       typeChar = 'K';
       break;
 #endif
@@ -1096,7 +1103,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
     case VTK_PARSE_SIZE_T:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
       typeChar = 'k';
       break;
 #endif
@@ -1107,7 +1114,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
       break;
 #endif
     case VTK_PARSE_SIGNED_CHAR:
-#if PY_VERSION_HEX >= 0x02030000
+#ifndef PY_LEGACY_FORMAT
       typeChar = 'B';
 #else
       typeChar = 'b';
