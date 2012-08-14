@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkParticleTracerBase - A Parallel Particle tracer for unsteady vector fields
 // .SECTION Description
-// vtkParticleTracerBase is a filter that integrates a vector field to generate
-//
+// vtkParticleTracerBase is the base class for filters that advect particles
+// in a time varying vector field
 //
 // .SECTION See Also
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver

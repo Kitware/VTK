@@ -29,9 +29,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkObjectFactoryNewMacro(vtkParticlePathFilter)
 
-ParticlePathFilterInternal::ParticlePathFilterInternal(vtkParticleTracerBase* filter)
-:Filter(filter)
+void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {
+  this->Filter = filter;
   this->Filter->SetForceReinjectionEveryNSteps(0);
   this->Filter->SetIgnorePipelineTime(1);
 }
@@ -122,8 +122,9 @@ void ParticlePathFilterInternal::Finalize()
     }
 }
 
-vtkParticlePathFilter::vtkParticlePathFilter(): It(this)
+vtkParticlePathFilter::vtkParticlePathFilter()
 {
+  this->It.Initialize(this);
 }
 
 void vtkParticlePathFilter::ResetCache()
