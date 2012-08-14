@@ -1632,7 +1632,12 @@ int vtkPStreamTracer::RequestData(
   while( (task = taskManager.NextTask()))
     {
     iterations++;
-    AssertEq(this->CheckInputs(func, &maxCellSize), VTK_OK);
+    int res = this->CheckInputs(func, &maxCellSize);
+    if (res!=VTK_OK)
+      {
+      vtkErrorMacro("No appropriate inputs have been found.");
+      continue;
+      }
     PStreamTracerPoint* point = task->GetPoint();
 
     vtkSmartPointer<vtkPolyData> traceOut;
