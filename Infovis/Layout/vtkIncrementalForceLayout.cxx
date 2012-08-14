@@ -261,17 +261,24 @@ void vtkIncrementalForceLayout::UpdatePositions()
     float y = tPos.Y() - sPos.Y();
     if (float l = (x * x + y * y))
       {
-      l = this->Alpha * this->Strength * ((l = sqrt(l)) - this->Distance) / l;
+      l = sqrt(l);
+      l = this->Alpha * this->Strength * (l - this->Distance) / l;
       x *= l;
       y *= l;
       float sWeight = 1.0f;
       float tWeight = 1.0f;
       float k = sWeight / (tWeight + sWeight);
-      tPos.SetX(tPos.X() - x * k);
-      tPos.SetY(tPos.Y() - y * k);
+      if (t != this->Fixed)
+        {
+        tPos.SetX(tPos.X() - x * k);
+        tPos.SetY(tPos.Y() - y * k);
+        }
       k = 1 - k;
-      sPos.SetX(sPos.X() + x * k);
-      sPos.SetY(sPos.Y() + y * k);
+      if (s != this->Fixed)
+        {
+        sPos.SetX(sPos.X() + x * k);
+        sPos.SetY(sPos.Y() + y * k);
+        }
       }
     }
 
@@ -284,8 +291,11 @@ void vtkIncrementalForceLayout::UpdatePositions()
     for (vtkIdType v = 0; v < numVerts; ++v)
       {
       vtkVector2f& vPos = this->Impl->GetPosition(v);
-      vPos.SetX(vPos.X() + (x - vPos.X()) * k);
-      vPos.SetY(vPos.Y() + (y - vPos.Y()) * k);
+      if (v != this->Fixed)
+        {
+        vPos.SetX(vPos.X() + (x - vPos.X()) * k);
+        vPos.SetY(vPos.Y() + (y - vPos.Y()) * k);
+        }
       }
     }
 
@@ -320,7 +330,10 @@ void vtkIncrementalForceLayout::UpdatePositions()
   tree->ForceAccumulate(this->Alpha, this->Charge);
   for (vtkIdType v = 0; v < numVerts; ++v)
     {
-    tree->Repulse(this->Impl->LastPosition[v], this->Impl->GetPosition(v), v, x1, y1, x2, y2, this->Theta);
+    if (v != this->Fixed)
+      {
+      tree->Repulse(this->Impl->LastPosition[v], this->Impl->GetPosition(v), v, x1, y1, x2, y2, this->Theta);
+      }
     }
   delete tree;
 
@@ -328,12 +341,23 @@ void vtkIncrementalForceLayout::UpdatePositions()
   for (vtkIdType v = 0; v < numVerts; ++v)
     {
     vtkVector2f& vPos = this->Impl->GetPosition(v);
-    vtkVector2f& vForce = this->Impl->LastPosition[v];
-    // TODO: Check fixed node
-    vPos.SetX(vPos.X() - (vForce.X() - vPos.X()) * this->Friction);
-    vPos.SetY(vPos.Y() - (vForce.Y() - vPos.Y()) * this->Friction);
-    vForce = vPos;
+    vtkVector2f& vLastPos = this->Impl->LastPosition[v];
+    if (v != this->Fixed)
+      {
+      vPos.SetX(vPos.X() - (vLastPos.X() - vPos.X()) * this->Friction);
+      vPos.SetY(vPos.Y() - (vLastPos.Y() - vPos.Y()) * this->Friction);
+      vLastPos = vPos;
+      }
     }
+}
+
+void vtkIncrementalForceLayout::SetFixed(vtkIdType v)
+{
+  if (this->Fixed >= 0)
+    {
+    this->Impl->LastPosition[this->Fixed] = this->Impl->GetPosition(this->Fixed);
+    }
+  this->Fixed = v;
 }
 
 void vtkIncrementalForceLayout::PrintSelf(ostream &os, vtkIndent indent)

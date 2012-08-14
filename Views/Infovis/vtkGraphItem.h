@@ -36,6 +36,7 @@ class vtkGraph;
 class vtkImageData;
 class vtkIncrementalForceLayout;
 class vtkRenderWindowInteractor;
+class vtkTooltipItem;
 
 class VTKVIEWSINFOVIS_EXPORT vtkGraphItem : public vtkContextItem
 {
@@ -147,6 +148,11 @@ protected:
   virtual vtkVector2f VertexPosition(vtkIdType vertex);
 
   // Description:
+  // Returns the tooltip for each vertex. Override in a subclass to change the tooltip
+  // text.
+  virtual vtkStdString VertexTooltip(vtkIdType vertex);
+
+  // Description:
   // Incrementally updates the graph layout.
   virtual void UpdateLayout();
 
@@ -154,6 +160,27 @@ protected:
   // Process events and dispatch to the appropriate member functions.
   static void ProcessEvents(vtkObject *caller, unsigned long event,
                             void *clientData, void *callerData);
+
+  // Description:
+  // Return index of hit vertex, or -1 if no hit.
+  virtual vtkIdType HitVertex(const vtkVector2f &pos);
+
+  // Description:
+  // Handle mouse events.
+  virtual bool MouseMoveEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseEnterEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event);
+  virtual bool MouseWheelEvent(const vtkContextMouseEvent &event, int delta);
+
+  // Description:
+  // Whether this graph item is hit.
+  virtual bool Hit(const vtkContextMouseEvent &event);
+
+  // Description:
+  // Change the position of the tooltip based on the vertex hovered.
+  virtual void PlaceTooltip(vtkIdType v);
 
 private:
   vtkGraphItem(const vtkGraphItem&); // Not implemented
@@ -166,6 +193,7 @@ private:
   unsigned long GraphBuildTime;
   vtkNew<vtkImageData> Sprite;
   vtkNew<vtkIncrementalForceLayout> Layout;
+  vtkNew<vtkTooltipItem> Tooltip;
 };
 
 #endif

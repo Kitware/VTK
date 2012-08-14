@@ -16,6 +16,7 @@
 
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkGraph.h"
 #include "vtkImageData.h"
@@ -25,6 +26,9 @@
 #include "vtkPen.h"
 #include "vtkPoints.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTooltipItem.h"
+#include "vtkTransform2D.h"
+#include "vtkVectorOperators.h"
 
 #include <vector>
 
@@ -46,6 +50,14 @@ struct vtkGraphItem::Internals {
   vtkRenderWindowInteractor *Interactor;
   vtkNew<vtkCallbackCommand> AnimationCallback;
   int TimerId;
+  bool GravityPointSet;
+
+  float CurrentScale[2];
+  vtkVector2f LastMousePos;
+
+  float LayoutAlphaStart;
+  float LayoutAlphaCoolDown;
+  float LayoutAlphaStop;
 };
 
 vtkGraphItem::vtkGraphItem()
@@ -56,6 +68,15 @@ vtkGraphItem::vtkGraphItem()
   this->Internal->Animating = false;
   this->Internal->AnimationCallbackInitialized = false;
   this->Internal->TimerId = 0;
+  this->Internal->CurrentScale[0] = 1.0f;
+  this->Internal->CurrentScale[1] = 1.0f;
+  this->Internal->LastMousePos = vtkVector2f(0, 0);
+  this->Internal->LayoutAlphaStart = 0.1f;
+  this->Internal->LayoutAlphaCoolDown = 0.99f;
+  this->Internal->LayoutAlphaStop = 0.005f;
+  this->Internal->GravityPointSet = false;
+  this->Tooltip->SetVisible(false);
+  this->AddItem(this->Tooltip.GetPointer());
 }
 
 vtkGraphItem::~vtkGraphItem()
@@ -99,6 +120,11 @@ float vtkGraphItem::VertexSize(vtkIdType vtkNotUsed(item))
 int vtkGraphItem::VertexMarker(vtkIdType vtkNotUsed(item))
 {
   return vtkMarkerUtilities::CIRCLE;
+}
+
+vtkStdString vtkGraphItem::VertexTooltip(vtkIdType vtkNotUsed(item))
+{
+  return "";
 }
 
 vtkColor4ub vtkGraphItem::EdgeColor(vtkIdType vtkNotUsed(edgeIdx), vtkIdType vtkNotUsed(point))
@@ -243,6 +269,11 @@ bool vtkGraphItem::Paint(vtkContext2D *painter)
     this->RebuildBuffers();
     }
   this->PaintBuffers(painter);
+  this->PaintChildren(painter);
+
+  // Keep the current scale so we can use it in event handlers.
+  painter->GetTransform()->GetScale(this->Internal->CurrentScale);
+
   return true;
 }
 
@@ -262,6 +293,8 @@ void vtkGraphItem::ProcessEvents(vtkObject *vtkNotUsed(caller), unsigned long ev
           timerId == static_cast<int>(self->Internal->TimerId))
         {
         self->UpdateLayout();
+        vtkIdType v = self->HitVertex(self->Internal->LastMousePos);
+        self->PlaceTooltip(v);
         self->GetScene()->SetDirty(true);
         }
       break;
@@ -289,9 +322,14 @@ void vtkGraphItem::StartLayoutAnimation(vtkRenderWindowInteractor *interactor)
     this->Internal->Animating = true;
     // This defines the interval at which the animation will proceed. 60Hz?
     this->Internal->TimerId = interactor->CreateRepeatingTimer(1000 / 60);
-    vtkVector2f screenPos(this->Scene->GetSceneWidth()/2.0f, this->Scene->GetSceneHeight()/2.0f);
-    vtkVector2f pos = this->MapFromScene(screenPos);
-    this->Layout->SetGravityPoint(pos);
+    if (!this->Internal->GravityPointSet)
+      {
+      vtkVector2f screenPos(this->Scene->GetSceneWidth()/2.0f, this->Scene->GetSceneHeight()/2.0f);
+      vtkVector2f pos = this->MapFromScene(screenPos);
+      this->Layout->SetGravityPoint(pos);
+      this->Internal->GravityPointSet = true;
+      }
+    this->Layout->SetAlpha(this->Internal->LayoutAlphaStart);
     }
 }
 
@@ -307,8 +345,145 @@ void vtkGraphItem::UpdateLayout()
   if (this->Graph)
     {
     this->Layout->SetGraph(this->Graph);
+    this->Layout->SetAlpha(this->Layout->GetAlpha()*this->Internal->LayoutAlphaCoolDown);
     this->Layout->UpdatePositions();
     this->Graph->Modified();
+    if (this->Layout->GetAlpha() < this->Internal->LayoutAlphaStop)
+      {
+      this->StopLayoutAnimation();
+      }
+    }
+}
+
+vtkIdType vtkGraphItem::HitVertex(const vtkVector2f &pos)
+{
+  for (vtkIdType v = 0; v < this->Internal->VertexPositions.size(); ++v)
+    {
+    if ((pos - this->Internal->VertexPositions[v]).Norm() < this->Internal->VertexSizes[v]/this->Internal->CurrentScale[0]/2.0)
+      {
+      return v;
+      }
+    }
+  return -1;
+}
+
+bool vtkGraphItem::MouseMoveEvent(const vtkContextMouseEvent &event)
+{
+  this->Internal->LastMousePos = event.GetPos();
+  if (event.GetButton() == vtkContextMouseEvent::NO_BUTTON)
+    {
+    vtkIdType v = this->HitVertex(event.GetPos());
+    this->Scene->SetDirty(true);
+    if (v < 0)
+      {
+      this->Tooltip->SetVisible(false);
+      return true;
+      }
+    vtkStdString text = this->VertexTooltip(v);
+    if (text == "")
+      {
+      this->Tooltip->SetVisible(false);
+      return true;
+      }
+    this->PlaceTooltip(v);
+    this->Tooltip->SetText(text);
+    this->Tooltip->SetVisible(true);
+    return true;
+    }
+  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    if (this->Layout->GetFixed() >= 0)
+      {
+      this->Layout->SetAlpha(this->Internal->LayoutAlphaStart);
+      this->Graph->GetPoints()->SetPoint(this->Layout->GetFixed(), event.GetPos()[0], event.GetPos()[1], 0.0);
+      }
+    return true;
+    }
+
+  if (this->Tooltip->GetVisible())
+    {
+    vtkIdType v = this->HitVertex(event.GetPos());
+    this->PlaceTooltip(v);
+    this->Scene->SetDirty(true);
+    }
+
+  return false;
+}
+
+bool vtkGraphItem::MouseEnterEvent(const vtkContextMouseEvent &event)
+{
+  return true;
+}
+
+bool vtkGraphItem::MouseLeaveEvent(const vtkContextMouseEvent &event)
+{
+  this->Tooltip->SetVisible(false);
+  return true;
+}
+
+bool vtkGraphItem::MouseButtonPressEvent(const vtkContextMouseEvent &event)
+{
+  this->Tooltip->SetVisible(false);
+  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    vtkIdType hitVertex = this->HitVertex(event.GetPos());
+    this->Layout->SetFixed(hitVertex);
+    if (hitVertex >= 0 && this->Internal->Interactor)
+      {
+      if (!this->Internal->Animating)
+        {
+        this->StartLayoutAnimation(this->Internal->Interactor);
+        }
+      else
+        {
+        this->Layout->SetAlpha(this->Internal->LayoutAlphaStart);
+        }
+      }
+    return true;
+    }
+  return false;
+}
+
+bool vtkGraphItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &event)
+{
+  if (event.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
+    {
+    this->Layout->SetFixed(-1);
+    return true;
+    }
+  return false;
+}
+
+bool vtkGraphItem::MouseWheelEvent(const vtkContextMouseEvent &event, int delta)
+{
+  if (this->Tooltip->GetVisible())
+    {
+    vtkIdType v = this->HitVertex(event.GetPos());
+    this->PlaceTooltip(v);
+    this->Scene->SetDirty(true);
+    }
+
+  return false;
+}
+
+bool vtkGraphItem::Hit(const vtkContextMouseEvent &event)
+{
+  vtkIdType v = this->HitVertex(event.GetPos());
+  return (v >= 0);
+}
+
+void vtkGraphItem::PlaceTooltip(vtkIdType v)
+{
+  if (v >= 0)
+    {
+    vtkVector2f pos = this->Internal->VertexPositions[v];
+    this->Tooltip->SetPosition(
+          pos[0] + 5/this->Internal->CurrentScale[0],
+          pos[1] + 5/this->Internal->CurrentScale[1]);
+    }
+  else
+    {
+    this->Tooltip->SetVisible(false);
     }
 }
 
