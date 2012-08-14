@@ -55,24 +55,38 @@
 #define HASH_PRAGMA     0x1566a9fdu
 
 /** Various possible char types */
-#define CPRE_WHITE      0x01  /* space, tab, carriage return */
-#define CPRE_ID         0x02  /* A-Z a-z and _ */
-#define CPRE_DIGIT      0x04  /* 0-9 */
-#define CPRE_IDGIT      0x06  /* 0-9 A-Z a-z and _ */
+#define CPRE_ID         0x01  /* A-Z a-z and _ */
+#define CPRE_DIGIT      0x02  /* 0-9 */
+#define CPRE_IDGIT      0x03  /* 0-9 A-Z a-z and _ */
+#define CPRE_HEX        0x04  /* 0-9A-Fa-f */
 #define CPRE_EXP        0x08  /* EPep (exponents for floats) */
 #define CPRE_SIGN       0x10  /* +- (sign for floats) */
 #define CPRE_QUOTE      0x20  /* " and ' */
-#define CPRE_HEX        0x40  /* 0-9A-Fa-f */
-#define CPRE_OCT        0x80  /* 0-7 */
+#define CPRE_HSPACE     0x40  /* space, tab, carriage return */
+#define CPRE_VSPACE     0x80  /* newline, vertical tab, form feed */
+#define CPRE_WHITE      0xC0  /* all whitespace characters */
+
+/** Whitespace types.
+ * WS_NO_EOL treats newline as end-of-line, instead of whitespace.
+ * WS_ALL treats newlines as regular whitespace.
+ * WS_COMMENT does not treat comments as whitespace, allowing
+ * comments blocks to be returned as tokens. */
+typedef enum _preproc_space_t
+{
+  WS_NO_EOL = CPRE_HSPACE, /* skip horizontal whitespace only */
+  WS_ALL    = CPRE_WHITE,  /* skip all whitespace */
+  WS_COMMENT = (CPRE_WHITE | 0x100), /* comments as tokens */
+} preproc_space_t;
 
 /** Preprocessor tokens. */
-enum _preproc_token_t
+typedef enum _preproc_token_t
 {
   TOK_OTHER = 257,
   TOK_ID,        /* any id */
   TOK_CHAR,      /* char literal */
   TOK_STRING,    /* string literal */
   TOK_NUMBER,    /* any numeric literal */
+  TOK_COMMENT,   /* C or C++ comment */
   TOK_DBLHASH,   /* ## */
   TOK_SCOPE,     /* :: */
   TOK_INCR,      /* ++ */
@@ -99,7 +113,7 @@ enum _preproc_token_t
   TOK_RSHIFT_EQ, /* >>= */
   TOK_LSHIFT_EQ, /* <<= */
   TOK_ELLIPSIS,  /* ... */
-};
+} preproc_token_t;
 
 /** A struct for going through the input one token at a time. */
 typedef struct _preproc_tokenizer
@@ -154,19 +168,18 @@ static preproc_uint_t string_to_preproc_uint(const char *cp, int base)
 /** Array for quick lookup of char types */
 static unsigned char preproc_charbits[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0,
-  CPRE_WHITE, /* tab */
-  0, /* newline ( marks end of line, so not technically whitespace ) */
-  0, 0,
-  CPRE_WHITE, /* carriage return */
+  CPRE_HSPACE, /* tab */
+  CPRE_VSPACE, CPRE_VSPACE, CPRE_VSPACE, /* newline, vtab, form feed */
+  CPRE_HSPACE, /* carriage return */
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  CPRE_WHITE, /* ' ' */
+  CPRE_HSPACE, /* ' ' */
   0, CPRE_QUOTE, 0, 0, 0, 0, CPRE_QUOTE, 0, 0, /* !"#$%&'() */
   0, CPRE_SIGN, 0, CPRE_SIGN, 0, 0, /* *+,-./ */
-  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, /* 0 */
-  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_OCT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_OCT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_OCT|CPRE_HEX,
-  CPRE_DIGIT|CPRE_OCT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_HEX, /* 0 */
+  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
+  CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
   CPRE_DIGIT|CPRE_HEX, /* 9 */
   0, 0, 0, 0, 0, 0, 0, /* :;<=>?@ */
   CPRE_ID|CPRE_HEX, /* A */
@@ -237,19 +250,20 @@ static void preproc_skip_comment(const char **cpp)
 }
 
 /** Skip over whitespace, but not newlines unless preceded by backlash. */
-static void preproc_skip_whitespace(const char **cpp)
+static void preproc_skip_whitespace(
+  const char **cpp, preproc_space_t spacetype)
 {
   const char *cp = *cpp;
 
   for (;;)
     {
-    if (preproc_chartype(*cp, CPRE_WHITE))
+    if (preproc_chartype(*cp, spacetype))
       {
       do
         {
         cp++;
         }
-      while (preproc_chartype(*cp, CPRE_WHITE));
+      while (preproc_chartype(*cp, spacetype));
       }
     if (cp[0] == '\\')
       {
@@ -266,7 +280,7 @@ static void preproc_skip_whitespace(const char **cpp)
         break;
         }
       }
-    else if (cp[0] == '/')
+    else if (cp[0] == '/' && (spacetype & WS_COMMENT) != WS_COMMENT)
       {
       if (cp[1] == '/' || cp[1] == '*')
         {
@@ -372,7 +386,7 @@ static void preproc_skip_number(const char **cpp)
 static int preproc_next(preproc_tokenizer *tokens)
 {
   const char *cp = tokens->text + tokens->len;
-  preproc_skip_whitespace(&cp);
+  preproc_skip_whitespace(&cp, WS_NO_EOL);
 
   if (preproc_chartype(*cp, CPRE_ID))
     {
@@ -398,6 +412,15 @@ static int preproc_next(preproc_tokenizer *tokens)
     const char *ep = cp;
     preproc_skip_number(&ep);
     tokens->tok = TOK_NUMBER;
+    tokens->hash = 0;
+    tokens->text = cp;
+    tokens->len = ep - cp;
+    }
+  else if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*'))
+    {
+    const char *ep = cp;
+    preproc_skip_comment(&ep);
+    tokens->tok = TOK_COMMENT;
     tokens->hash = 0;
     tokens->text = cp;
     tokens->len = ep - cp;
@@ -775,6 +798,9 @@ static int preproc_skip_parentheses(preproc_tokenizer *tokens)
     return VTK_PARSE_OK;
     }
 
+#if PREPROC_DEBUG
+  fprintf(stderr, "syntax error %d\n", __LINE__);
+#endif
   return VTK_PARSE_SYNTAX_ERROR;
 }
 
@@ -808,7 +834,7 @@ static int preproc_evaluate_char(
       else if (*cp == '0')
         {
         *val = string_to_preproc_int(cp, 8);
-        do { cp++; } while (preproc_chartype(*cp, CPRE_OCT));
+        do { cp++; } while (*cp >= '0' && *cp <= '7');
         }
       else if (*cp == 'x')
         {
@@ -859,7 +885,7 @@ static int preproc_evaluate_integer(
     base = 8;
     *is_unsigned = 1;
     ep = cp;
-    while (preproc_chartype(*ep, CPRE_OCT))
+    while (*ep >= '0' && *ep <= '7')
       {
       ep++;
       }
@@ -992,7 +1018,7 @@ static int preproc_evaluate_single(
         return (args ? VTK_PARSE_MACRO_NUMARGS : VTK_PARSE_SYNTAX_ERROR);
         }
       cp = expansion;
-      preproc_skip_whitespace(&cp);
+      preproc_skip_whitespace(&cp, WS_NO_EOL);
       if (*cp != '\0')
         {
         macro->IsExcluded = 1;
@@ -1641,6 +1667,9 @@ int preproc_evaluate_conditional(
     {
     if (tokens->tok != 0)
       {
+#if PREPROC_DEBUG
+      fprintf(stderr, "syntax error %d\n", __LINE__);
+#endif
       return VTK_PARSE_SYNTAX_ERROR;
       }
     return (rval == 0 ? VTK_PARSE_SKIP : VTK_PARSE_OK);
@@ -2280,7 +2309,7 @@ static int preproc_include_file(
       const char *cp = line;
       line[j] = '\0';
       j = 0;
-      preproc_skip_whitespace(&cp);
+      preproc_skip_whitespace(&cp, WS_NO_EOL);
       if (*cp == '#')
         {
         vtkParsePreprocess_HandleDirective(info, line);
@@ -2723,7 +2752,7 @@ const char *vtkParsePreprocess_ExpandMacro(
     if (macro->NumberOfParameters == 0 && n == 1)
       {
       const char *tp = values[0];
-      preproc_skip_whitespace(&tp);
+      preproc_skip_whitespace(&tp, WS_NO_EOL);
       if (tp + 1 >= values[1])
         {
         n = 0;
@@ -2758,7 +2787,7 @@ const char *vtkParsePreprocess_ExpandMacro(
     while (!preproc_chartype(*cp, CPRE_ID) && *cp != '\0')
       {
       dp = cp;
-      preproc_skip_whitespace(&cp);
+      preproc_skip_whitespace(&cp, WS_NO_EOL);
       if (cp > dp)
         {
         dp = cp;
@@ -2783,7 +2812,7 @@ const char *vtkParsePreprocess_ExpandMacro(
         dp = wp;
         cp += 2;
         wp = cp;
-        preproc_skip_whitespace(&cp);
+        preproc_skip_whitespace(&cp, WS_NO_EOL);
         break;
         }
       else if (*cp == '#')
@@ -2792,7 +2821,7 @@ const char *vtkParsePreprocess_ExpandMacro(
         dp = cp;
         wp = cp;
         cp++;
-        preproc_skip_whitespace(&cp);
+        preproc_skip_whitespace(&cp, WS_NO_EOL);
         break;
         }
       else
@@ -2840,7 +2869,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           pp = values[j];
           /* remove leading whitespace from argument */
           c = *pp;
-          while (preproc_chartype(c, CPRE_WHITE) || c == '\n')
+          while (preproc_chartype(c, CPRE_WHITE))
             {
             c = *(++pp);
             l--;
@@ -2849,7 +2878,7 @@ const char *vtkParsePreprocess_ExpandMacro(
           if (l > 0)
             {
             c = pp[l - 1];
-            while (preproc_chartype(c, CPRE_WHITE) || c == '\n')
+            while (preproc_chartype(c, CPRE_WHITE))
               {
               if (--l == 0)
                 {
@@ -2860,7 +2889,7 @@ const char *vtkParsePreprocess_ExpandMacro(
             }
           /* check if followed by "##" */
           wp = cp;
-          preproc_skip_whitespace(&wp);
+          preproc_skip_whitespace(&wp, WS_NO_EOL);
           if (wp[0] == '#' && wp[1] == '#')
             {
             noexpand = 1;

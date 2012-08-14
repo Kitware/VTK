@@ -644,7 +644,12 @@ size_t vtkParse_BasicTypeFromString(
       }
     else if (n == 4 && strncmp(cp, "long", n) == 0)
       {
-      if (base_bits == VTK_PARSE_LONG)
+      if (base_bits == VTK_PARSE_DOUBLE)
+        {
+        classname = "long double";
+        base_bits = VTK_PARSE_LONG_DOUBLE;
+        }
+      else if (base_bits == VTK_PARSE_LONG)
         {
         classname = "long long";
         base_bits = VTK_PARSE_LONG_LONG;
@@ -680,8 +685,16 @@ size_t vtkParse_BasicTypeFromString(
       }
     else if (n == 6 && strncmp(cp, "double", n) == 0)
       {
-      classname = "double";
-      base_bits = VTK_PARSE_DOUBLE;
+      if (base_bits == VTK_PARSE_LONG)
+        {
+        classname = "long double";
+        base_bits = VTK_PARSE_LONG_DOUBLE;
+        }
+      else
+        {
+        classname = "double";
+        base_bits = VTK_PARSE_DOUBLE;
+        }
       }
     else if (n == 4 && strncmp(cp, "bool", n) == 0)
       {
