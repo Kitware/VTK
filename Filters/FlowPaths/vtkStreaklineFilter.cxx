@@ -60,8 +60,9 @@ typedef std::vector<StreakParticle> Streak;
 vtkObjectFactoryNewMacro(vtkStreaklineFilter)
 
 
-StreaklineFilterInternal::StreaklineFilterInternal(vtkParticleTracerBase* filter):Filter(filter)
+void StreaklineFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {
+  this->Filter = filter;
   this->Filter->ForceReinjectionEveryNSteps = 1;
   this->Filter->IgnorePipelineTime = 1;
   this->Filter->ForceReinjectionAtTermination = true;
@@ -139,8 +140,9 @@ void StreaklineFilterInternal::Finalize()
 }
 
 
-vtkStreaklineFilter::vtkStreaklineFilter(): It(this)
+vtkStreaklineFilter::vtkStreaklineFilter()
 {
+  this->It.Initialize(this);
 }
 
 int vtkStreaklineFilter::OutputParticles(vtkPolyData* particles)
