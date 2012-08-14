@@ -13,13 +13,23 @@
 
 =========================================================================*/
 #include "vtkLookupTable.h"
+
+#include "vtkAbstractArray.h"
 #include "vtkBitArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMathConfigure.h"
+#include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
-#include "vtkAbstractArray.h"
+#include "vtkVariantArray.h"
+
+#include <map>
+
 #include <assert.h>
+
+// A helper map for quick lookups of annotated values.
+class vtkLookupTable::vtkInternalAnnotatedValueMap : public std::map<vtkVariant,vtkIdType>
+{
+};
 
 vtkStandardNewMacro(vtkLookupTable);
 
@@ -35,7 +45,8 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Table->Allocate(4*sze,4*ext);
   this->AnnotatedValues = 0;
   this->Annotations = 0;
-  this->DiscreteLookup = 0;
+  this->AnnotatedValueMap = new vtkInternalAnnotatedValueMap;
+  this->IndexedLookup = 0;
 
   this->HueRange[0] = 0.0;
   this->HueRange[1] = 0.66667;
@@ -73,6 +84,7 @@ vtkLookupTable::~vtkLookupTable()
     this->AnnotatedValues->UnRegister( this );
   if ( this->Annotations )
     this->Annotations->UnRegister( this );
+  delete this->AnnotatedValueMap;
 }
 
 //----------------------------------------------------------------------------
@@ -429,6 +441,7 @@ double vtkLookupTable::ApplyLogScale(double v, const double range[2],
 
 //----------------------------------------------------------------------------
 // Given a scalar value v, return an index into the lookup table
+// TODO: Return -1 when isnan(v) is true.
 vtkIdType vtkLookupTable::GetIndex(double v)
 {
   double maxIndex = this->NumberOfColors - 1;
@@ -503,11 +516,25 @@ void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
 }
 
 //----------------------------------------------------------------------------
-// Given a scalar value v, return an rgba color value from lookup table.
-unsigned char *vtkLookupTable::MapValue(double v)
+unsigned char* vtkLookupTable::GetNanColorAsUnsignedChars()
 {
-  int idx = this->GetIndex(v);
-  return (this->Table->GetPointer(0) + 4*idx);
+  const double* nanColord = this->GetNanColor();
+  for ( int c = 0; c < 4; ++ c )
+    {
+    double v = nanColord[c];
+    if (v < 0.0) { v = 0.0; }
+    else if (v > 1.0) { v = 1.0; }
+    this->NanColorChar[c] = static_cast<unsigned char>( v * 255.0 + 0.5 );
+    }
+  return this->NanColorChar;
+}
+
+//----------------------------------------------------------------------------
+// Given a scalar value v, return an rgba color value from lookup table.
+unsigned char* vtkLookupTable::MapValue(double v)
+{
+  int idx = this->IndexedLookup ? ( this->GetAnnotatedValueIndex( v ) % this->GetNumberOfTableValues() ) : this->GetIndex(v);
+  return idx >= 0 ? (this->Table->GetPointer(0) + 4*idx) : this->GetNanColorAsUnsignedChars();
 }
 
 //----------------------------------------------------------------------------
@@ -805,6 +832,150 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
     }//alpha blending
 }
 
+
+//----------------------------------------------------------------------------
+template<class T>
+void vtkLookupTableIndexedMapData(
+  vtkLookupTable* self, T* input, unsigned char* output, int length,
+  int inIncr, int outFormat )
+{
+  int i = length;
+  double* range = self->GetTableRange();
+  double maxIndex = self->GetNumberOfColors() - 1;
+  double shift, scale;
+  unsigned char* table = self->GetPointer(0);
+  unsigned char* cptr;
+  double alpha;
+
+  unsigned char nanColor[4];
+  const unsigned char* nanColorTmp = self->GetNanColorAsUnsignedChars();
+  for (int c = 0; c < 4; c++)
+    {
+    nanColor[c] = nanColorTmp[c];
+    }
+
+  vtkVariant vin;
+  if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required
+    {
+    if (outFormat == VTK_RGBA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+
+        output[0] = cptr[0];
+        output[1] = cptr[1];
+        output[2] = cptr[2];
+        output[3] = cptr[3];
+        input += inIncr;
+        output += 4;
+        }
+      }
+    else if (outFormat == VTK_RGB)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+
+        output[0] = cptr[0];
+        output[1] = cptr[1];
+        output[2] = cptr[2];
+        input += inIncr;
+        output += 3;
+        }
+      }
+    else if (outFormat == VTK_LUMINANCE_ALPHA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
+                                               cptr[2]*0.11 + 0.5);
+        output[1] = cptr[3];
+        input += inIncr;
+        output += 2;
+        }
+      }
+    else // outFormat == VTK_LUMINANCE
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
+                                               cptr[2]*0.11 + 0.5);
+        input += inIncr;
+        }
+      }
+    } // if blending not needed
+
+  else // blend with the specified alpha
+    {
+    if (outFormat == VTK_RGBA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        output[0] = cptr[0];
+        output[1] = cptr[1];
+        output[2] = cptr[2];
+        output[3] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+        input += inIncr;
+        output += 4;
+        }
+      }
+    else if (outFormat == VTK_RGB)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        output[0] = cptr[0];
+        output[1] = cptr[1];
+        output[2] = cptr[2];
+        input += inIncr;
+        output += 3;
+        }
+      }
+    else if (outFormat == VTK_LUMINANCE_ALPHA)
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
+                                               cptr[2]*0.11 + 0.5);
+        output[1] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+        input += inIncr;
+        output += 2;
+        }
+      }
+    else // outFormat == VTK_LUMINANCE
+      {
+      while (--i >= 0)
+        {
+        vin = *input;
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
+        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
+                                               cptr[2]*0.11 + 0.5);
+        input += inIncr;
+        }
+      }
+    } // alpha blending
+}
+
 //----------------------------------------------------------------------------
 void vtkLookupTable::MapScalarsThroughTable2(void *input,
                                              unsigned char *output,
@@ -813,35 +984,71 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
                                              int inputIncrement,
                                              int outputFormat)
 {
-  switch (inputDataType)
+  if ( this->IndexedLookup )
     {
-    case VTK_BIT:
+    switch (inputDataType)
       {
-      vtkIdType i, id;
-      vtkBitArray *bitArray = vtkBitArray::New();
-      bitArray->SetVoidArray(input,numberOfValues,1);
-      vtkUnsignedCharArray *newInput = vtkUnsignedCharArray::New();
-      newInput->SetNumberOfValues(numberOfValues);
-      for (id=i=0; i<numberOfValues; i++, id+=inputIncrement)
+      case VTK_BIT:
         {
-        newInput->SetValue(i, bitArray->GetValue(id));
+        vtkIdType i, id;
+        vtkBitArray *bitArray = vtkBitArray::New();
+        bitArray->SetVoidArray(input,numberOfValues,1);
+        vtkUnsignedCharArray *newInput = vtkUnsignedCharArray::New();
+        newInput->SetNumberOfValues(numberOfValues);
+        for (id=i=0; i<numberOfValues; i++, id+=inputIncrement)
+          {
+          newInput->SetValue(i, bitArray->GetValue(id));
+          }
+        vtkLookupTableIndexedMapData(this,
+                                     static_cast<unsigned char*>(newInput->GetPointer(0)),
+                                     output,numberOfValues,
+                                     inputIncrement,outputFormat);
+        newInput->Delete();
+        bitArray->Delete();
         }
-      vtkLookupTableMapData(this,
-                            static_cast<unsigned char*>(newInput->GetPointer(0)),
-                            output,numberOfValues,
-                            inputIncrement,outputFormat);
-      newInput->Delete();
-      bitArray->Delete();
-      }
-      break;
+        break;
 
-    vtkTemplateMacro(
-      vtkLookupTableMapData(this,static_cast<VTK_TT*>(input),output,
-                            numberOfValues,inputIncrement,outputFormat)
-      );
-    default:
-      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-      return;
+      vtkTemplateMacro(
+        vtkLookupTableIndexedMapData(this,static_cast<VTK_TT*>(input),output,
+                                     numberOfValues,inputIncrement,outputFormat)
+        );
+      default:
+        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        return;
+      }
+    }
+  else
+    {
+    switch (inputDataType)
+      {
+      case VTK_BIT:
+        {
+        vtkIdType i, id;
+        vtkBitArray *bitArray = vtkBitArray::New();
+        bitArray->SetVoidArray(input,numberOfValues,1);
+        vtkUnsignedCharArray *newInput = vtkUnsignedCharArray::New();
+        newInput->SetNumberOfValues(numberOfValues);
+        for (id=i=0; i<numberOfValues; i++, id+=inputIncrement)
+          {
+          newInput->SetValue(i, bitArray->GetValue(id));
+          }
+        vtkLookupTableMapData(this,
+                              static_cast<unsigned char*>(newInput->GetPointer(0)),
+                              output,numberOfValues,
+                              inputIncrement,outputFormat);
+        newInput->Delete();
+        bitArray->Delete();
+        }
+        break;
+
+      vtkTemplateMacro(
+        vtkLookupTableMapData(this,static_cast<VTK_TT*>(input),output,
+                              numberOfValues,inputIncrement,outputFormat)
+        );
+      default:
+        vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+        return;
+      }
     }
 }
 
@@ -1000,7 +1207,15 @@ void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
   this->Ramp                = lut->Ramp;
   this->InsertTime          = lut->InsertTime;
   this->BuildTime           = lut->BuildTime;
+  this->IndexedLookup       = lut->IndexedLookup;
   this->Table->DeepCopy(lut->Table);
+  vtkAbstractArray* annValues = vtkAbstractArray::CreateArray( lut->AnnotatedValues->GetDataType() );
+  vtkStringArray* annotations = vtkStringArray::New();
+  annValues->DeepCopy( lut->AnnotatedValues );
+  annotations->DeepCopy( lut->Annotations );
+  this->SetAnnotations( annValues, annotations );
+  annValues->Delete();
+  annotations->Delete();
 
   this->Superclass::DeepCopy(obj);
 }
@@ -1045,5 +1260,118 @@ void vtkLookupTable::SetAnnotations( vtkAbstractArray* values, vtkStringArray* a
     {
     this->Annotations = annotations;
     this->Annotations->Register( this );
+    }
+  if ( this->AnnotatedValues )
+    {
+    this->UpdateAnnotatedValueMap();
+    }
+}
+
+vtkIdType vtkLookupTable::SetAnnotation( vtkVariant value, vtkStdString annotation )
+{
+  vtkIdType i = this->CheckForAnnotatedValue( value );
+  if ( i >= 0 )
+    {
+    this->Annotations->SetValue( i, annotation );
+    }
+  else
+    {
+    i = this->Annotations->InsertNextValue( annotation );
+    this->AnnotatedValues->InsertVariantValue( i, value );
+    }
+  this->UpdateAnnotatedValueMap();
+  return i;
+}
+
+vtkVariant vtkLookupTable::GetNumberOfAnnotatedValues()
+{
+  return this->AnnotatedValues ? this->AnnotatedValues->GetNumberOfTuples() : 0;
+}
+
+vtkVariant vtkLookupTable::GetAnnotatedValue( vtkIdType idx )
+{
+  if ( ! this->AnnotatedValues || idx < 0 || idx >= this->AnnotatedValues->GetNumberOfTuples() )
+    {
+    vtkVariant invalid;
+    return invalid;
+    }
+  return this->AnnotatedValues->GetVariantValue( idx );
+}
+
+vtkStdString vtkLookupTable::GetAnnotation( vtkIdType idx )
+{
+  if ( ! this->Annotations )
+    /* Don't check idx as Annotations->GetValue() does: || idx < 0 || idx >= this->Annotations->GetNumberOfTuples() )
+     */
+    {
+    vtkStdString empty;
+    return empty;
+    }
+  return this->Annotations->GetValue( idx );
+}
+
+vtkIdType vtkLookupTable::GetAnnotatedValueIndex( vtkVariant val )
+{
+  return ( this->AnnotatedValues ?  this->CheckForAnnotatedValue( val ) : -1 );
+}
+
+bool vtkLookupTable::RemoveAnnotation( vtkVariant value )
+{
+  vtkIdType i = this->CheckForAnnotatedValue( value );
+  bool needToRemove = ( i >= 0 );
+  if ( needToRemove )
+    {
+    vtkIdType na = this->AnnotatedValues->GetMaxId(); // Note that this is the number of values minus 1.
+    for ( ; i < na; ++ i )
+      {
+      this->AnnotatedValues->SetVariantValue( i, this->AnnotatedValues->GetVariantValue( i + 1 ) );
+      this->Annotations->SetValue( i, this->Annotations->GetValue( i + 1 ) );
+      }
+    this->AnnotatedValues->Resize( na );
+    this->Annotations->Resize( na );
+    this->UpdateAnnotatedValueMap();
+    }
+  return needToRemove;
+}
+
+void vtkLookupTable::ResetAnnotations()
+{
+  if ( ! this->Annotations )
+    {
+    vtkVariantArray* va = vtkVariantArray::New();
+    vtkStringArray* sa = vtkStringArray::New();
+    this->SetAnnotations( va, sa );
+    }
+  this->AnnotatedValues->Reset();
+  this->Annotations->Reset();
+}
+
+vtkIdType vtkLookupTable::CheckForAnnotatedValue( vtkVariant value )
+{
+  if ( ! this->Annotations )
+    {
+    vtkVariantArray* va = vtkVariantArray::New();
+    vtkStringArray* sa = vtkStringArray::New();
+    this->SetAnnotations( va, sa );
+    }
+  return this->GetAnnotatedValueIndexInternal( value );
+}
+
+// An unsafe version of vtkLookupTable::CheckForAnnotatedValue for internal use (no pointer checks performed)
+vtkIdType vtkLookupTable::GetAnnotatedValueIndexInternal( vtkVariant& value )
+{
+  vtkInternalAnnotatedValueMap::iterator it = this->AnnotatedValueMap->find( value );
+  vtkIdType i = ( it == this->AnnotatedValueMap->end() ? -1 : it->second % this->NumberOfColors );
+  return i;
+}
+
+void vtkLookupTable::UpdateAnnotatedValueMap()
+{
+  this->AnnotatedValueMap->clear();
+
+  vtkIdType na = this->AnnotatedValues->GetMaxId() + 1;
+  for ( vtkIdType i = 0; i < na; ++ i )
+    {
+    (*this->AnnotatedValueMap)[this->AnnotatedValues->GetVariantValue( i )] = i;
     }
 }
