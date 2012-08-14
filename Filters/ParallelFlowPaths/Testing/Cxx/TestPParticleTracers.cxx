@@ -405,8 +405,7 @@ int TestPParticlePathFilter(vtkMPIController* c)
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
     lines->GetNextCell(trace.GetPointer());
-    int head, tail;
-    head = trace->GetId(0);
+    int tail;
     tail = trace->GetId(trace->GetNumberOfIds()-1);
     EXPECT(pd->GetArray("Test")->GetTuple1(tail)==3, pd->GetArray("Test")->GetTuple1(tail));
     }
