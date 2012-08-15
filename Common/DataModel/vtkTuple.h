@@ -22,6 +22,8 @@
 #define __vtkTuple_h
 
 #include <cassert> // For inline assert for bounds checked methods.
+#include <cstdlib> // for std::abs() with int overloads
+#include <cmath> // for std::abs() with float overloads
 
 template<typename T, int Size>
 class vtkTuple
@@ -93,7 +95,7 @@ public:
       }
     for (int i = 0; i < Size; ++i)
       {
-      if (fabs(this->Data[i] - other.Data[i]) >= tol)
+      if (std::abs(this->Data[i] - other.Data[i]) >= tol)
         {
         return false;
         }
