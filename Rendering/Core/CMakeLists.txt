@@ -35,7 +35,7 @@ set(Module_SRCS
   vtkGPUInfo.cxx
   vtkGPUInfoList.cxx
   vtkGraphicsFactory.cxx
-  #vtkGraphMapper.cxx - vtkGraphToPolyData
+  vtkGraphMapper.cxx
   vtkGraphToGlyphs.cxx
   vtkHardwareSelector.cxx
   vtkHierarchicalPolyDataMapper.cxx
